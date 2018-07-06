@@ -14,7 +14,7 @@
 
 [Chrome webstore 页面](https://chrome.google.com/webstore/detail/hfgoikdmppghehigkckknikdgdcjbfpl)
 
-下载的文件会保存在浏览器的下载目录里。
+- 下载的文件会保存在浏览器的下载目录里。
 
 - 请关闭浏览器设置中的“下载前询问每个文件的保存位置”选项，以免在下载时出现弹窗。
 
