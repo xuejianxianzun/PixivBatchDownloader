@@ -12,7 +12,7 @@
 
 # 安装：
 
-[Chrome webstore: ](https://chrome.google.com/webstore/detail/hfgoikdmppghehigkckknikdgdcjbfpl)
+[Chrome webstore 页面](https://chrome.google.com/webstore/detail/hfgoikdmppghehigkckknikdgdcjbfpl)
 
 下载的文件会保存在浏览器的下载目录里。
 

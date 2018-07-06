@@ -10,7 +10,7 @@ This extension is a migration of [XZPixivDownloader](https://github.com/xuejianx
 
 # Install:
 
-[Chrome webstore: ](https://chrome.google.com/webstore/detail/hfgoikdmppghehigkckknikdgdcjbfpl)
+[Chrome webstore page](https://chrome.google.com/webstore/detail/hfgoikdmppghehigkckknikdgdcjbfpl)
 
 The downloaded file will be saved in your browser's download directory.
 
