@@ -1,4 +1,4 @@
-[View English introduction](https://github.com/xuejiansaber/PixivBatchDownloader/blob/master/README-EN.md)
+[View English introduction](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
 
 ![PixivBatchDownloader](https://wx3.sinaimg.cn/large/640defebgy1fsndo9dwvcj20zm0wv0xj.jpg)
 
