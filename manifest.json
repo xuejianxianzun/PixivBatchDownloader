@@ -1,0 +1,36 @@
+{
+    "name": "Pixiv Batch Downloader",
+    "version": "1.0.0",
+    "manifest_version": 2,
+    "description": "Pixiv Batch Downloader. fast, powerful, and make your browsing experience better.",
+    "icons": {
+        "16": "icon/logo16.png",
+        "32": "icon/logo32.png",
+        "48": "icon/logo48.png",
+        "128": "icon/logo128.png"
+    },
+    "browser_action": {
+        "default_icon": {
+            "16": "icon/logo16.png",
+            "32": "icon/logo32.png",
+            "48": "icon/logo48.png",
+            "128": "icon/logo128.png"
+        },
+        "default_title": "Pixiv Batch Downloader"
+    },
+    "content_scripts": [{
+        "js": ["Viewerjs-mix.js"],
+        "matches": ["*://www.pixiv.net/member_illust.php?mode=*"],
+        "run_at": "document_end"
+    }, {
+        "js": ["jquery-2.0.3.min.js", "content.js"],
+        "matches": ["*://www.pixiv.net/*", "*://www.pixivision.net/*"],
+        "run_at": "document_end"
+    }],
+    "background": {
+        "scripts": ["background.js"]
+    },
+    "permissions": [
+        "tabs", "webRequest", "webRequestBlocking", "*://www.pixiv.net/*", "*://www.pixivision.net/*", "*://i.pximg.net/*"
+    ]
+}
