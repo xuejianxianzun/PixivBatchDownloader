@@ -1493,7 +1493,7 @@ function setFilterTag_notNeed(no) {
 	let nottaginput = document.createElement('textarea');
 	nottaginput.id = 'nottaginput';
 	nottaginput.style.cssText = 'width: 600px;height: 40px;font-size: 12px;margin:6px auto;background:#fff;colir:#bbb;padding:7px;display:none;border:1px solid #e42a2a;';
-	$('header').eq(0).before(nottaginput);
+	$('#root').children().eq(0).before(nottaginput);
 	notNeed_tag_tip = xzlt('_排除tag的提示文字');
 	$('#nottaginput').val(notNeed_tag_tip);
 	$.focusblur($('#nottaginput'), '#bbb', '#333');
@@ -1533,7 +1533,7 @@ function setFilterTag_Need(no) {
 	let needtaginput = document.createElement('textarea');
 	needtaginput.id = 'needtaginput';
 	needtaginput.style.cssText = 'width: 600px;height: 40px;font-size: 12px;margin:6px auto;background:#fff;colir:#bbb;padding:7px;display:none;border:1px solid #00A514;';
-	$('header').eq(0).before(needtaginput);
+	$('#root').children().eq(0).before(needtaginput);
 	need_tag_tip = xzlt('_必须tag的提示文字');
 	$('#needtaginput').val(need_tag_tip);
 	$.focusblur($('#needtaginput'), '#bbb', '#333');
@@ -1571,6 +1571,9 @@ function setFilterWH(no) {
 
 	filterWHBotton.addEventListener('click', function () {
 		let inputWH = prompt(xzlt('_筛选宽高的提示文字'), filterWH.width + filterWH.and_or + filterWH.height);
+		if (inputWH === null) {
+			return false;
+		}
 		if (inputWH === '' || (inputWH.indexOf('|') === -1 && inputWH.indexOf('&') === -1) || (inputWH.indexOf('|') > -1 && inputWH.indexOf('&') > -1)) { //如果为空值，或没有输入任意一个分隔符号，或者同时输入了两个分隔符
 			alert(xzlt('_本次输入的数值无效'));
 			return false;
