@@ -1,10 +1,10 @@
 /*
  * project: PixivBatchDownloader
- * build:   5.7.3
+ * build:   5.7.4
  * author:  xuejianxianzun 雪见仙尊
  * license: GNU General Public License v3.0
  * E-mail:  xuejianxianzun@gmail.com
- * Github： https://github.com/xuejianxianzun/XZPixivDownloader
+ * Github： https://github.com/xuejianxianzun/PixivBatchDownloader
  * blog:    https://saber.love/pixiv
  * QQ群:    499873152
  */
@@ -969,7 +969,7 @@ function quickBookmark() {
 		quickBookmark();
 	}, 300);
 
-	let toolbar = document.querySelector('._1OvFbUk');
+	let toolbar = document.querySelector('._2g7Dix7');
 	if (!toolbar) { // 如果没有 toolbar
 		return false;
 	} else { // 如果有 toolbar
@@ -977,7 +977,7 @@ function quickBookmark() {
 		let quickBookmarkElement = document.querySelector(`#${quickBookmarkId}`);
 		if (!quickBookmarkElement) { // 如果没有 quick 元素则添加
 			let pinkClass = '_20nOYr7';
-			let heartA = toolbar.querySelector('._2B0vXTj a svg');
+			let heartA = toolbar.childNodes[2].querySelector('svg');
 
 			let quickBookmarkElement = document.createElement('div');
 			quickBookmarkElement.id = quickBookmarkId;
@@ -992,13 +992,16 @@ function quickBookmark() {
 			quickBookmarkElement.addEventListener('click', () => {
 				let now_id = location.search.match(/illust_id=.*\d?/)[0].split('=')[1];
 				let tagArray = [];
-				let tagElements = document.querySelectorAll('._1tTPwGC');
+				let tagElements = document.querySelectorAll('._3SAblVQ li');
 				for (const element of tagElements) {
-					tagArray.push(element.querySelector('span a').innerHTML); // 储存 tag
+					let now_a = element.querySelector('a');
+					if (now_a) {
+						tagArray.push(now_a.innerHTML); // 储存 tag
+					}
 				}
-				let original = document.querySelector('._2XmoSW7 a'); // "原创" tag 是一个单独的元素
-				if (original) {
-					tagArray.push(original.innerHTML);
+				// 对于原创作品，非日文的页面上只显示了用户语言的“原创”，其实有个隐藏的日文 tag “オリジナル”，所以要添加上。
+				if (tagArray[0] === '原创' || tagArray[0] === 'Original' || tagArray[0] === '창작') {
+					tagArray.push('オリジナル');
 				}
 				let tagString = encodeURI(tagArray.join(' '));
 				let tt = '';
