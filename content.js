@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   5.7.4
+ * build:   5.7.5
  * author:  xuejianxianzun 雪见仙尊
  * license: GNU General Public License v3.0
  * E-mail:  xuejianxianzun@gmail.com
@@ -937,7 +937,7 @@ function xzlt(name) {
 }
 
 // 去除广告
-let block_ad_css = '<style>section.ad,._3M6FtEB,[name=header],.ads_anchor,.ad-bigbanner,.ad-footer,._premium-lead-tag-search-bar,#header-banner.ad,.popular-introduction-overlay,.ad-bigbanner,.adsbygoogle,.ui-fixed-container aside,.ad-multiple_illust_viewer,.ads_area{display: none!important;z-index: -999!important;width: 0!important;height: 0!important;opacity: 0!important;}</style>';
+let block_ad_css = '<style>section.ad,._3M6FtEB,._2vNejsc,[name=header],.ads_anchor,.ad-bigbanner,.ad-footer,._premium-lead-tag-search-bar,#header-banner.ad,.popular-introduction-overlay,.ad-bigbanner,.adsbygoogle,.ui-fixed-container aside,.ad-multiple_illust_viewer,.ads_area{display: none!important;z-index: -999!important;width: 0!important;height: 0!important;opacity: 0!important;}</style>';
 document.body.insertAdjacentHTML('beforeend', block_ad_css);
 
 let parser = new DOMParser(); // DOMParser，将字符串形式的html代码解析为DOM结构
@@ -999,9 +999,9 @@ function quickBookmark() {
 						tagArray.push(now_a.innerHTML); // 储存 tag
 					}
 				}
-				// 对于原创作品，非日文的页面上只显示了用户语言的“原创”，其实有个隐藏的日文 tag “オリジナル”，所以要添加上。
+				// 对于原创作品，非日文的页面上只显示了用户语言的“原创”，替换成日文 tag “オリジナル”。
 				if (tagArray[0] === '原创' || tagArray[0] === 'Original' || tagArray[0] === '창작') {
-					tagArray.push('オリジナル');
+					tagArray[0] = 'オリジナル';
 				}
 				let tagString = encodeURI(tagArray.join(' '));
 				let tt = '';
