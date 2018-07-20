@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   5.7.5
+ * build:   5.7.6
  * author:  xuejianxianzun 雪见仙尊
  * license: GNU General Public License v3.0
  * E-mail:  xuejianxianzun@gmail.com
@@ -1475,12 +1475,23 @@ function checkNotDownType_result(string, url, bookmarked) {
 		}
 	}
 }
+
 // 检查是否设置了多图作品的张数限制
 function check_multiple_down_number_tips() {
 	if (multiple_down_number > 0) {
 		$('#outputInfo').html($('#outputInfo').html() + '<br>' + xzlt('_多图作品下载张数', multiple_down_number));
 	}
 }
+
+// 插入到页面顶部，大部分页面使用 header，文章页使用 root。因为在文章页执行脚本时，可能获取不到 header。
+function insertToHead(el) {
+	if ($('header').eq(0).length === 1) {
+		$('header').eq(0).before(el);
+	} else if ($('#root').children().eq(0).length === 1) {
+		$('#root').children().eq(0).before(el);
+	}
+}
+
 //添加过滤tag的按钮
 function setFilterTag_notNeed(no) {
 	let nottag = document.createElement('div');
@@ -1493,7 +1504,7 @@ function setFilterTag_notNeed(no) {
 	let nottaginput = document.createElement('textarea');
 	nottaginput.id = 'nottaginput';
 	nottaginput.style.cssText = 'width: 600px;height: 40px;font-size: 12px;margin:6px auto;background:#fff;colir:#bbb;padding:7px;display:none;border:1px solid #e42a2a;';
-	$('#root').children().eq(0).before(nottaginput);
+	insertToHead(nottaginput);
 	notNeed_tag_tip = xzlt('_排除tag的提示文字');
 	$('#nottaginput').val(notNeed_tag_tip);
 	$.focusblur($('#nottaginput'), '#bbb', '#333');
@@ -1533,7 +1544,7 @@ function setFilterTag_Need(no) {
 	let needtaginput = document.createElement('textarea');
 	needtaginput.id = 'needtaginput';
 	needtaginput.style.cssText = 'width: 600px;height: 40px;font-size: 12px;margin:6px auto;background:#fff;colir:#bbb;padding:7px;display:none;border:1px solid #00A514;';
-	$('#root').children().eq(0).before(needtaginput);
+	insertToHead(needtaginput);
 	need_tag_tip = xzlt('_必须tag的提示文字');
 	$('#needtaginput').val(need_tag_tip);
 	$.focusblur($('#needtaginput'), '#bbb', '#333');
@@ -1620,8 +1631,12 @@ function setFilterBMK(no) {
 	setButtonStyle(filterBMKBotton, no, '#179FDD');
 
 	filterBMKBotton.addEventListener('click', function () {
-		let inputBMK = parseInt(prompt(xzlt('_筛选收藏数的提示文字'), '0'));
-		if (inputBMK === '' || isNaN(inputBMK) || inputBMK < 0) { //如果为空值，或者不为数字
+		let inputBMK = prompt(xzlt('_筛选收藏数的提示文字'), '0');
+		if (inputBMK === null || inputBMK === '') {
+			return false;
+		}
+		inputBMK = parseInt(inputBMK);
+		if (isNaN(inputBMK) || inputBMK < 0) { //如果为空值，或者不为数字
 			alert(xzlt('_本次输入的数值无效'));
 			return false;
 		} else {
@@ -2585,7 +2600,7 @@ outputInfo.style.cssText = 'background: #fff;padding: 10px;font-size: 14px;margi
 function addOutputInfo() {
 	if (document.querySelector('#outputInfo') === null) {
 		if (location.hostname === 'www.pixivision.net') {
-			$('._header-container').eq(0).before(outputInfo);
+			insertToHead(outputInfo);
 		} else {
 			$('header').eq(0).before(outputInfo);
 		}
@@ -3152,7 +3167,7 @@ if (location.hostname === 'www.pixiv.net' && location.pathname === '/') { //0.�
 	down_id_input = document.createElement('textarea');
 	down_id_input.id = 'down_id_input';
 	down_id_input.style.cssText = 'width: 600px;height: 80px;font-size: 12px;margin:6px auto;background:#fff;colir:#bbb;padding:7px;display:none;border:1px solid #179FDD;';
-	$('header').eq(0).before(down_id_input);
+	insertToHead(down_id_input);
 	down_id_input = $(down_id_input);
 	down_id_tip = xzlt('_输入id进行下载的提示文字');
 	down_id_input.val(down_id_tip);
