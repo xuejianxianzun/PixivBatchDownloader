@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   5.7.6
+ * build:   5.7.7
  * author:  xuejianxianzun 雪见仙尊
  * license: GNU General Public License v3.0
  * E-mail:  xuejianxianzun@gmail.com
@@ -88,7 +88,9 @@ let quiet_download = false, // 是否静默下载，即下载时不弹窗提醒�
 	viewerELCreated = false, // 是否已经创建了图片列表元素
 	viewerWarpper, // 图片列表的容器
 	viewerUl, // 图片列表的 ul 元素
-	myViewer; // 查看器
+	myViewer, // 查看器
+	quickBookmarkElement, // 快速收藏的元素
+	quickBookmarkId = 'quickBookmarkElement'; // 快速收藏元素的 id
 
 // 多语言配置
 let lang_type; // 语言类型
@@ -962,6 +964,10 @@ jQuery.focusblur = function (element, defcolor, truecolor) {
 	});
 };
 
+function getId() {
+	return location.search.match(/illust_id=.*\d?/)[0].split('=')[1];
+}
+
 // 快速收藏
 function quickBookmark() {
 	// 本函数一直运行。因为切换作品（pushstate）时，不能准确的知道 toolbar 何时更新，所以只能不断检测，这样在切换作品时才不会出问题
@@ -973,83 +979,70 @@ function quickBookmark() {
 	if (!toolbar) { // 如果没有 toolbar
 		return false;
 	} else { // 如果有 toolbar
-		let quickBookmarkId = 'quickBookmarkElement';
-		let quickBookmarkElement = document.querySelector(`#${quickBookmarkId}`);
+		quickBookmarkElement = document.querySelector(`#${quickBookmarkId}`);
 		if (!quickBookmarkElement) { // 如果没有 quick 元素则添加
-			let pinkClass = '_20nOYr7';
-			let heartA = toolbar.childNodes[2].querySelector('svg');
-
-			let quickBookmarkElement = document.createElement('div');
+			// 创建快速收藏元素
+			quickBookmarkElement = document.createElement('a');
 			quickBookmarkElement.id = quickBookmarkId;
 			quickBookmarkElement.innerHTML = '✩';
+			quickBookmarkElement.href = 'javascript:void(0)';
 			quickBookmarkElement.title = xzlt('_快速收藏');
-			quickBookmarkElement.style.fontSize = '34px';
-			quickBookmarkElement.style.lineHeight = '30px';
-			quickBookmarkElement.style.marginRight = '15px';
-			quickBookmarkElement.style.cursor = 'pointer';
-			quickBookmarkElement.style.display = 'none';
+			quickBookmarkElement.setAttribute('style', 'font-size:34px;line-height:30px;margin-right:15px;cursor:pointer;color:#333;text-decoration:none;display:block;');
 			toolbar.insertBefore(quickBookmarkElement, toolbar.childNodes[3]);
-			quickBookmarkElement.addEventListener('click', () => {
-				let now_id = location.search.match(/illust_id=.*\d?/)[0].split('=')[1];
-				let tagArray = [];
-				let tagElements = document.querySelectorAll('._3SAblVQ li');
-				for (const element of tagElements) {
-					let now_a = element.querySelector('a');
-					if (now_a) {
-						tagArray.push(now_a.innerHTML); // 储存 tag
+			// 隐藏原来的收藏按钮并检测收藏状态
+			toolbar.childNodes[2].style.display = 'none';
+			let heart = toolbar.childNodes[2].querySelector('svg');
+			if (heart.classList.contains('_20nOYr7')) { // 如果已经收藏过了
+				quickBookmarkEnd();
+			} else {
+				quickBookmarkElement.addEventListener('click', () => {
+					let tagArray = [];
+					let tagElements = document.querySelectorAll('._3SAblVQ li');
+					for (const element of tagElements) {
+						let now_a = element.querySelector('a');
+						if (now_a) {
+							tagArray.push(now_a.innerHTML); // 储存 tag
+						}
 					}
-				}
-				// 对于原创作品，非日文的页面上只显示了用户语言的“原创”，替换成日文 tag “オリジナル”。
-				if (tagArray[0] === '原创' || tagArray[0] === 'Original' || tagArray[0] === '창작') {
-					tagArray[0] = 'オリジナル';
-				}
-				let tagString = encodeURI(tagArray.join(' '));
-				let tt = '';
-				// 从含有 globalInitData 信息的脚本里，匹配 token 字符串
-				let reg_token = document.querySelectorAll('script')[8].innerHTML.match(/(?<=token:\W").*?(?=")/);
-				if (reg_token.length > 0) {
-					tt = reg_token[0];
-				} else {
-					console.log('获取 token 失败');
-				}
-				// 调用添加收藏的 api
-				fetch('https://www.pixiv.net/rpc/index.php', {
-						method: 'post',
-						headers: {
-							'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-						},
-						credentials: 'include', // 附带 cookie
-						body: `mode=save_illust_bookmark&illust_id=${now_id}&restrict=0&comment=&tags=${tagString}&tt=${tt}`
-					})
-					.then(function (response) {
-						response.text()
-							.then(function (data) {
-								if (response.ok) {
-									data = JSON.parse(data);
-									if (data.error !== undefined && data.error === false) {
-										// console.log('收藏成功');
-										// 如果已经收藏过了，则隐藏 quick 元素
-										quickBookmarkElement.style.color = '#FF4060';
-										quickBookmarkElement.style.display = 'none';
-										heartA.classList.add(pinkClass); // 添加这个 class 变红
+					// 对于原创作品，非日文的页面上只显示了用户语言的“原创”，替换成日文 tag “オリジナル”。
+					if (tagArray[0] === '原创' || tagArray[0] === 'Original' || tagArray[0] === '창작') {
+						tagArray[0] = 'オリジナル';
+					}
+					let tagString = encodeURI(tagArray.join(' '));
+					let tt = unsafeWindow.globalInitData.token;
+					// 调用添加收藏的 api
+					fetch('https://www.pixiv.net/rpc/index.php', {
+							method: 'post',
+							headers: {
+								'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+							},
+							credentials: 'include', // 附带 cookie
+							body: `mode=save_illust_bookmark&illust_id=${getId()}&restrict=0&comment=&tags=${tagString}&tt=${tt}`
+						})
+						.then(function (response) {
+							response.text()
+								.then(function (data) {
+									if (response.ok) {
+										data = JSON.parse(data);
+										if (data.error !== undefined && data.error === false) {
+											quickBookmarkEnd();
+										}
+									} else { // 失败 如 403 404
 									}
-								} else {
-									// 失败 如 403 404
-								}
-							});
-					});
-			});
-			// 刚添加之后是隐藏的，之后检测一下，如果没有收藏再显示
-			setTimeout(() => {
-				if (!heartA.classList.contains(pinkClass)) {
-					quickBookmarkElement.style.display = 'block';
-				}
-			}, 100);
-			// 这里加一点延时，防止判断的太早，那样可能判断时收藏图标还没变红，产生误判
+								});
+						});
+				});
+			}
 		} else { // 如果有 quick 元素，什么都不做
 			return false;
 		}
 	}
+}
+
+// 如果这个作品已收藏
+function quickBookmarkEnd() {
+	quickBookmarkElement.style.color = '#FF4060';
+	quickBookmarkElement.href = `/bookmark_add.php?type=illust&illust_id=${getId()}`;
 }
 
 // 初始化图片查看器
@@ -1967,7 +1960,7 @@ function getListPage() {
 		if (location.href.indexOf('recommended.php') > -1) { // '为你推荐'里面的示例作品id为'auto'
 			id = 'auto';
 		} else {
-			id = location.href.split('id=')[1]; // 作品页的url需要实时获取
+			id = getId(); // 作品页的url需要实时获取
 		}
 		url = '/rpc/recommender.php?type=illust&sample_illusts=' + id + '&num_recommendations=' + requset_number; //获取相似的作品
 	} else if (page_type === 11) { // 对于发现图片，仅下载已有部分，所以不需要去获取列表页了。
@@ -2397,7 +2390,7 @@ function getIllustPage(url) {
 						// 动图的最终url如：
 						// https://i.pximg.net/img-zip-ugoira/img/2018/04/25/21/27/44/68401493_ugoira1920x1080.zip
 						imgUrl = jsInfo.urls.original.replace('img-original', 'img-zip-ugoira').replace('ugoira0', 'ugoira1920x1080').replace('jpg', 'zip').replace('png', 'zip');
-						ext = 'zip'; //扩展名
+						ext = 'ugoira'; //扩展名
 						addImgInfo(id, imgUrl, title, nowAllTag, user, userid, fullWidth, fullHeight, ext, bmk);
 						outputImgNum();
 					}
@@ -2988,6 +2981,9 @@ function getFileName(data) {
 	}
 	// 拼接文件名，不包含后缀名
 	let result = fileNameRule.replace('{id}', data.id).replace('{title}', 'title_' + data.title).replace('{user}', 'user_' + data.user).replace('{userid}', 'uid_' + data.userid).replace('{px}', px).replace('{tags}', 'tags_' + (data.tags.join(','))).replace('{bmk}', 'bmk_' + data.bmk).replace(safe_fileName_rule, '_').replace(/undefined/g, '');
+	if (data.ext === 'ugoira') { // 动图改变后缀名，添加前缀
+		result = '[open with HoneyView] ' + result;
+	}
 	return result;
 }
 
