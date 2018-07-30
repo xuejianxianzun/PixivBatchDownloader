@@ -1009,7 +1009,14 @@ function quickBookmark() {
 						tagArray[0] = 'オリジナル';
 					}
 					let tagString = encodeURI(tagArray.join(' '));
-					let tt = unsafeWindow.globalInitData.token;
+					let tt = '';
+					// 从含有 globalInitData 信息的脚本里，匹配 token 字符串
+					let reg_token = document.querySelectorAll('script')[8].innerHTML.match(/(?<=token:\W").*?(?=")/);
+					if (reg_token.length > 0) {
+						tt = reg_token[0];
+					} else {
+						console.log('获取 token 失败');
+					}
 					// 调用添加收藏的 api
 					fetch('https://www.pixiv.net/rpc/index.php', {
 							method: 'post',
