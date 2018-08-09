@@ -38,6 +38,8 @@ How to solve: Pull out the downloaded tabs individually and become a separate wi
 
 The animated picture is suffixed with ugoira. Please install HoneyView software. Open the ugoira file with HoneyView to see the animation effect.
 
+Now you can download the gif image directly for a single animation.
+
 ## Available pages and test URL:
 
 - [Index page](https://www.pixiv.net/)
