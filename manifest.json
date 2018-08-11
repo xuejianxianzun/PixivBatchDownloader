@@ -1,6 +1,6 @@
 {
     "name": "Pixiv Batch Downloader",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "manifest_version": 2,
     "description": "Pixiv Batch Downloader. fast, powerful, and make your browsing experience better. Pixiv 图片批量下载器，快速，功能强大，并且优化您的浏览体验。",
     "icons": {
