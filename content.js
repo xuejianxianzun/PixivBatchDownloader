@@ -2,7 +2,7 @@
  * project: PixivBatchDownloader
  * build:   5.9.3
  * author:  xuejianxianzun 雪见仙尊
- * license: GNU General Public License v3.0
+ * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
  * Github： https://github.com/xuejianxianzun/PixivBatchDownloader
  * blog:    https://saber.love/pixiv
