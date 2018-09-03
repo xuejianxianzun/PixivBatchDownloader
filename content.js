@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   5.9.3
+ * build:   5.9.5
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -587,6 +587,11 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 		'预览文件名',
 		'ファイル名のプレビュー',
 		'Preview file name'
+	],
+	'_线程数字': [
+		'可以输入 1-10 之间的数字，设置同时下载的数量',
+		'同時ダウンロード数を設定するには、1〜10の数値を入力します',
+		'You can enter a number between 1-10 to set the number of concurrent downloads'
 	],
 	'_下载按钮1': [
 		'开始下载',
@@ -3020,27 +3025,7 @@ function allWorkFinished() {
 		}
 		// 重置输出区域
 		$('.imgNum').text(img_info.length);
-		if (img_info.length < download_thread_deauflt) { // 检查下载线程数
-			download_thread = img_info.length;
-		} else {
-			download_thread = download_thread_deauflt; // 重设为默认值
-		}
-		let outputWrap_down_list = $('.outputWrap_down_list');
-		outputWrap_down_list.show(); // 显示下载队列
-		if ($('.donwloadBar').length < download_thread) { // 如果下载队列的显示数量小于线程数，则增加队列
-			let need_add = download_thread - $('.donwloadBar').length;
-			let donwloadBar = outputWrap_down_list.find('.donwloadBar').eq(0);
-			// 增加下载队列的数量
-			for (let i = 0; i < need_add; i++) {
-				outputWrap_down_list.append(donwloadBar.clone());
-			}
-		} else if ($('.donwloadBar').length > download_thread) { // 如果下载队列的显示数量大于线程数，则减少队列
-			let need_delete = $('.donwloadBar').length - download_thread;
-			// 减少下载队列的数量
-			for (let i = 0; i < need_delete; i++) {
-				outputWrap_down_list.find('.donwloadBar').eq(0).remove();
-			}
-		}
+
 		// 快速下载时点击下载按钮
 		if (quick || quiet_download) {
 			setTimeout(function () {
@@ -3202,6 +3187,11 @@ function addOutputWarp() {
 		&nbsp;&nbsp;&nbsp;
 		<span class="blue showFileNameResult"> ${xzlt('_预览文件名')}</span>
 		</p>
+		<p>
+		<input type="text" name="setThread" class="setThread" value="${download_thread_deauflt}">
+		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+		<span class="blue"> ${xzlt('_线程数字')}</span>
+		</p>
 		<p class="fileNameTip tip">
 		<span class="blue">{id}</span>
 		${xzlt('_可用标记1')}
@@ -3281,7 +3271,8 @@ function addOutputWarp() {
 		.outputWrap_title{display: block;line-height: 30px;text-align: center;font-size: 18px;}
 		.outputWrap_close{font-size: 18px;position: absolute;top: 0px;right: 0px;width: 30px;height: 30px;text-align: center;cursor: pointer;}
 		.outputWrap_close:hover{color:#4a9fff;}
-		.fileNameRule{min-width: 200px;line-height: 20px;font-size: 12px;height: 20px;text-indent: 4px;box-sizing:border-box;}
+		.fileNameRule,.setThread{min-width: 150px;line-height: 20px;font-size: 12px;height: 20px;text-indent: 4px;box-sizing:border-box;}
+		.setThread{width:50px;min-width:50px;}
 		.showFileNameTip,.showFileNameResult{cursor: pointer;}
 		.fileNameTip{display: none;padding-top: 5px;}
 		.outputWrap_btns{padding: 15px 0 8px;font-size: 0;}
@@ -3343,6 +3334,32 @@ function addOutputWarp() {
 			return false;
 		}
 		// 重置一些条件
+		// 检查下载线程设置
+		let setThread = parseInt(document.querySelector('.setThread').value);
+		if (setThread < 1 || setThread > 10 || isNaN(setThread)) {
+			download_thread = download_thread_deauflt; // 重设为默认值
+		} else {
+			download_thread = setThread; // 设置为用户输入的值
+		}
+		if (img_info.length < download_thread) { // 检查下载线程数
+			download_thread = img_info.length;
+		}
+		let outputWrap_down_list = $('.outputWrap_down_list');
+		outputWrap_down_list.show(); // 显示下载队列
+		if ($('.donwloadBar').length < download_thread) { // 如果下载队列的显示数量小于线程数，则增加队列
+			let need_add = download_thread - $('.donwloadBar').length;
+			let donwloadBar = outputWrap_down_list.find('.donwloadBar').eq(0);
+			// 增加下载队列的数量
+			for (let i = 0; i < need_add; i++) {
+				outputWrap_down_list.append(donwloadBar.clone());
+			}
+		} else if ($('.donwloadBar').length > download_thread) { // 如果下载队列的显示数量大于线程数，则减少队列
+			let need_delete = $('.donwloadBar').length - download_thread;
+			// 减少下载队列的数量
+			for (let i = 0; i < need_delete; i++) {
+				outputWrap_down_list.find('.donwloadBar').eq(0).remove();
+			}
+		}
 		download_started = true;
 		if (!download_pause) { // 如果没有暂停，则重新下载，否则继续下载
 			downloaded = 0;
