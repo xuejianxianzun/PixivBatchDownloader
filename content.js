@@ -1024,6 +1024,19 @@ function getIllustId() {
 
 // 快速收藏
 function quickBookmark() {
+	// 首先检测 token
+	let tt = '';
+	// 从含有 globalInitData 信息的脚本里，匹配 token 字符串
+	let reg_token = document.querySelectorAll('script')[6].innerHTML.match(/(?<=token:\W").*?(?=")/);
+	if (reg_token && reg_token.length > 0) {
+		tt = reg_token[0];
+	} else {
+		console.log('获取 token 失败');
+	}
+	if (!tt) { // 如果获取不到 token，则不展开本工具的快速收藏功能
+		return false;
+	}
+
 	// 本函数一直运行。因为切换作品（pushstate）时，不能准确的知道 toolbar 何时更新，所以只能不断检测，这样在切换作品时才不会出问题
 	setTimeout(() => {
 		quickBookmark();
@@ -1063,14 +1076,6 @@ function quickBookmark() {
 						tagArray[0] = 'オリジナル';
 					}
 					let tagString = encodeURI(tagArray.join(' '));
-					let tt = '';
-					// 从含有 globalInitData 信息的脚本里，匹配 token 字符串
-					let reg_token = document.querySelectorAll('script')[8].innerHTML.match(/(?<=token:\W").*?(?=")/);
-					if (reg_token.length > 0) {
-						tt = reg_token[0];
-					} else {
-						console.log('获取 token 失败');
-					}
 					// 调用添加收藏的 api
 					fetch('https://www.pixiv.net/rpc/index.php', {
 							method: 'post',
