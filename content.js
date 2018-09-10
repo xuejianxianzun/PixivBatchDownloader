@@ -1022,6 +1022,11 @@ function getIllustId() {
 	return location.search.match(/illust_id=\d*\d?/)[0].split('=')[1];
 }
 
+// 自动点赞
+function autoLike() {
+	document.querySelector('.Ki5EGTG').click();
+}
+
 // 快速收藏
 function quickBookmark() {
 	// 首先检测 token
@@ -1063,6 +1068,8 @@ function quickBookmark() {
 				quickBookmarkEnd();
 			} else {
 				quickBookmarkElement.addEventListener('click', () => {
+					autoLike();
+
 					let tagArray = [];
 					let tagElements = document.querySelectorAll('._3SAblVQ li');
 					for (const element of tagElements) {
