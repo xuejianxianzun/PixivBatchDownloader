@@ -1,6 +1,6 @@
 {
     "name": "Pixiv Batch Downloader",
-    "version": "1.0.9",
+    "version": "1.1.0",
     "manifest_version": 2,
     "description": "Pixiv Batch Downloader. fast, powerful, and make your browsing experience better. Pixiv 图片批量下载器，快速，功能强大，并且优化您的浏览体验。",
     "icons": {
@@ -19,7 +19,7 @@
         "default_title": "Pixiv Batch Downloader"
     },
     "content_scripts": [{
-        "js": ["lib/Viewerjs-mix.js","lib/zip.js","lib/gif.js"],
+        "js": ["lib/Viewerjs-mix.js", "lib/zip.js", "lib/gif.js"],
         "matches": ["*://www.pixiv.net/member_illust.php?mode=*"],
         "run_at": "document_end"
     }, {
@@ -33,7 +33,7 @@
     "permissions": [
         "tabs", "webRequest", "webRequestBlocking", "*://www.pixiv.net/*", "*://www.pixivision.net/*", "*://i.pximg.net/*"
     ],
-    "web_accessible_resources":[
-        "lib/gif.worker.js","lib/z-worker.js","lib/inflate.js"
+    "web_accessible_resources": [
+        "lib/gif.worker.js", "lib/z-worker.js", "lib/inflate.js"
     ]
 }

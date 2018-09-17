@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   5.9.5
+ * build:   5.9.7
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -2535,7 +2535,7 @@ function readyGetListPage3() {
 	}
 
 	// 每页个数
-	let once_number = 24; // 新版每页 24 个作品（因为新版不显示无法访问的作品，所以有时候一页不足24个）
+	let once_number = 48; // 新版每页 48 个作品（因为新版不显示无法访问的作品，所以有时候一页不足这个数量）
 	if (!userPageIsNew()) { // 旧版每页 20 个作品
 		once_number = 20;
 	}
