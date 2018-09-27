@@ -1064,7 +1064,7 @@ function quickBookmark() {
 			// 隐藏原来的收藏按钮并检测收藏状态
 			toolbar.childNodes[2].style.display = 'none';
 			let heart = toolbar.childNodes[2].querySelector('svg');
-			if (heart.classList.contains('_20nOYr7')) { // 如果已经收藏过了
+			if (getComputedStyle(heart)['fill'] === "rgb(255, 64, 96)") { // 如果已经收藏过了
 				quickBookmarkEnd();
 			} else {
 				quickBookmarkElement.addEventListener('click', () => {
@@ -1234,11 +1234,11 @@ function insertJS(url) {
 function downloadZip(url) {
 	fetch(url)
 		.then((res) => {
-			return res.blob();
-		})
-		.then((res) => {
-			zip_file = res;
-			console.log('zip loaded');
+			res.blob()
+				.then((res) => {
+					zip_file = res;
+					console.log('zip loaded');
+				})
 		});
 }
 
