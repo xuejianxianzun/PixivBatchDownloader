@@ -91,7 +91,7 @@ let quiet_download = false, // 是否静默下载，即下载时不弹窗提醒�
 	title_timer,
 	click_time = 0, // 点击下载按钮的时间戳
 	time_delay = 0, // 延迟点击的时间
-	time_interval = 100, // 为了不会漏下图，设置的两次点击之间的间隔时间。下载图片的速度越快，此处的值就需要越大。默认的400是比较大的，如果下载速度慢，可以尝试改成300/200。
+	time_interval = 400, // 为了不会漏下图，设置的两次点击之间的间隔时间。下载图片的速度越快，此处的值就需要越大。默认的400是比较大的，如果下载速度慢，可以尝试改成300/200。
 	down_xiangguan = false, // 下载相关作品（作品页内的）
 	viewerELCreated = false, // 是否已经创建了图片列表元素
 	viewerWarpper, // 图片列表的容器
