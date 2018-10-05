@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   5.9.7
+ * build:   5.9.8 +
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -13,7 +13,7 @@
 
 let quiet_download = false, // 是否静默下载，即下载时不弹窗提醒，并且自动开始下载（无需点击下载按钮）。目前新版本已经默认不弹窗了，这个参数的意义基本就是自动下载了
 	use_alert = false, // 是否使用弹窗提醒
-	download_thread_deauflt = 5, // 同时下载的线程数，可以修改。如果不想用加延迟 time_interval 的方法来防止漏图，那么可以把这里改成1，单线程下载不会漏图。此版本用的是加延迟的方法，可以支持多线程
+	download_thread_deauflt = 6, // 同时下载的线程数，可以修改
 	multiple_down_number = 0, // 设置多图作品下载前几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
 	tag_search_show_img = true, //是否显示tag搜索页里面的封面图片。如果tag搜索页的图片数量太多，那么加载封面图可能要很久，并且可能因为占用大量带宽导致抓取中断。这种情况下可以将此参数改为false，不加载封面图。
 	fileName_length = 200, // 文件名的最大长度，超出将会截断。如果文件的保存路径过长可能会保存失败，此时可以把这个数值改小些。
@@ -91,7 +91,7 @@ let quiet_download = false, // 是否静默下载，即下载时不弹窗提醒�
 	title_timer,
 	click_time = 0, // 点击下载按钮的时间戳
 	time_delay = 0, // 延迟点击的时间
-	time_interval = 400, // 为了不会漏下图，设置的两次点击之间的间隔时间。下载图片的速度越快，此处的值就需要越大。默认的400是比较大的，如果下载速度慢，可以尝试改成300/200。
+	time_interval = 100, // 为了不会漏下图，设置的两次点击之间的间隔时间。下载图片的速度越快，此处的值就需要越大。默认的400是比较大的，如果下载速度慢，可以尝试改成300/200。
 	down_xiangguan = false, // 下载相关作品（作品页内的）
 	viewerELCreated = false, // 是否已经创建了图片列表元素
 	viewerWarpper, // 图片列表的容器
@@ -113,7 +113,8 @@ let quiet_download = false, // 是否静默下载，即下载时不弹窗提醒�
 	file_number = undefined, // 动图压缩包里有多少个文件
 	gif_src = '', // 动图源文件 url
 	gif_mime_type = '', // 图片 mime type
-	gif_delay; // 动图帧延迟
+	gif_delay, // 动图帧延迟
+	folder_name = ''; // 动图帧延迟
 
 // 多语言配置
 let lang_type; // 语言类型
@@ -3346,6 +3347,15 @@ function addOutputWarp() {
 			return false;
 		}
 		// 重置一些条件
+		// 使用下载开始时的时间，作为设置文件夹名字
+		let new_date = new Date();
+		folder_name = `Pixiv-${new_date.getFullYear()}-${new_date.getMonth()+1}-${new_date.getDay()}-${new_date.getHours()}-${new_date.getMinutes()}-${new_date.getSeconds()}/`;
+		folder_name = folder_name.replace(/\d+/g, (word) => {
+			if (word.length === 1) {
+				word = '0' + word; // 数字不足两位的，补上 0
+			}
+			return word;
+		});
 		// 检查下载线程设置
 		let setThread = parseInt(document.querySelector('.setThread').value);
 		if (setThread < 1 || setThread > 10 || isNaN(setThread)) {
@@ -3503,6 +3513,8 @@ function startDownload(downloadNo, donwloadBar_no) {
 	// 处理文件名长度 这里有个问题，因为无法预知浏览器下载文件夹的长度，所以只能预先设置一个预设值
 	fullFileName = fullFileName.substr(0, fileName_length) + '.' + img_info[downloadNo].ext;
 	donwloadBar_list.eq(donwloadBar_no).find('.download_fileName').html(fullFileName);
+	fullFileName = folder_name + fullFileName;
+
 	let xhr = new XMLHttpRequest;
 	xhr.open('GET', img_info[downloadNo].url, true);
 	xhr.responseType = 'blob';
@@ -3540,9 +3552,25 @@ function click_doanload_a(blobURL, fullFileName, donwloadBar_no) {
 		return false;
 	}
 	// console.log(new Date().getTime() - click_time); // 此句输出两次点击的实际间隔
-	download_a.href = blobURL;
-	download_a.setAttribute('download', fullFileName);
-	download_a.click();
+
+	// 向扩展发送下载请求
+	chrome.runtime.sendMessage({
+		'msg': 'send_download',
+		'file_url': blobURL,
+		'file_name': fullFileName,
+		'no': donwloadBar_no
+	}, function (response) {});
+}
+
+// 扩展下载完成之后
+chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+	if (msg.msg === 'downloaded') {
+		downloadedFunc(msg.file_url, msg.no);
+	}
+});
+
+// 下载之后
+function downloadedFunc(blobURL, donwloadBar_no) {
 	click_time = new Date().getTime();
 	time_delay -= time_interval;
 
@@ -3550,7 +3578,6 @@ function click_doanload_a(blobURL, fullFileName, donwloadBar_no) {
 		time_delay += time_interval;
 	}
 	window.URL.revokeObjectURL(blobURL);
-	// 下载之后
 	downloaded++;
 	$('.downloaded').html(downloaded);
 	$('.progress1').css('width', downloaded / img_info.length * 100 + '%');
