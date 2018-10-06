@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   5.9.8 +
+ * build:   5.9.9
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -2671,7 +2671,6 @@ function getListPage3(url) {
 					});
 					// 删除后面的 id（删除不需要的近期作品）
 					type2_id_list.splice(type2_id_list.length - offset_number, type2_id_list.length);
-
 				}
 
 				// 获取完毕，不需要重复调用本函数的情况
@@ -3007,6 +3006,9 @@ function allWorkFinished() {
 	if (test_suffix_finished) { // 检查网址的任务 是否都全部完成。
 		if (down_xiangguan) { // 如果是作品页内下载相关作品，到这里解除这个标识
 			down_xiangguan = false;
+		}
+		if (page_type === 2) { // 在画师的列表页里下载时，把 url 倒序排列，可以先下载最新作品，后下载早期作品
+			img_info.sort(sortByProperty('id'));
 		}
 		$(outputInfo).html($(outputInfo).html() + '<br>' + xzlt('_获取图片网址完毕', img_info.length) + '<br>');
 		if (img_info.length === 0) {
@@ -3646,7 +3648,7 @@ function resetResult() {
 	download_stop = false;
 }
 
-// 判断 page_type，
+// 判断 page_type
 function checkPageType() {
 	old_page_type = page_type;
 	loc_url = location.href;
@@ -3951,7 +3953,6 @@ if (page_type === 1) { //1. illust 作品页内页
 	$('#js-react-search-mid').css('minHeight', 'auto'); //原来的最小高度是500，改成auto以免搜索时这部分空白
 
 	tagSearchDel();
-
 
 	// 添加快速筛选功能
 	let nowTag = $('.column-title a').text().split(' ')[0];
