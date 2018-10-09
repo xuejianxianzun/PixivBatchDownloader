@@ -28,7 +28,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 		chrome.downloads.download({
 			url: msg.file_url,
 			filename: msg.file_name,
-			conflictAction: 'uniquify',
+			conflictAction: 'overwrite',
 			saveAs: false
 		});
 	}
