@@ -1,6 +1,6 @@
 [View English introduction](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
 
-![PixivBatchDownloader](https://wx3.sinaimg.cn/large/640defebgy1fsndo9dwvcj20zm0wv0xj.jpg)
+![PixivBatchDownloader](https://wx3.sinaimg.cn/large/640defebly1fw91uy1qkoj20pd0ll419.jpg)
 
 # 简介：
 

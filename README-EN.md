@@ -1,4 +1,4 @@
-![PixivBatchDownloader](https://wx4.sinaimg.cn/large/640defebgy1fspktkplcxj20zs0xbq84.jpg)
+![PixivBatchDownloader](https://wx3.sinaimg.cn/large/640defebly1fw920pxevij20pf0h1q5b.jpg)
 
 # Introduction:
 
