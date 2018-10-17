@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   6.0.3
+ * build:   6.0.3+
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -3726,11 +3726,9 @@ function startDownload(downloadNo, donwloadBar_no) {
 	// 处理文件名长度 这里有个问题，因为无法预知浏览器下载文件夹的长度，所以只能预先设置一个预设值
 	fullFileName = fullFileName.substr(0, fileName_length) + '.' + img_info[downloadNo].ext;
 	donwloadBar_list.eq(donwloadBar_no).find('.download_fileName').html(fullFileName);
-	if (!quick) { // 不是快速下载，则建立文件夹
+	if (!quick || (quick && img_info.length > 1)) { // 快速下载单张图片不建立文件夹。如果不是快速下载，或者快速下载时有多张图片，则建立文件夹
 		fullFileName = folder_name + fullFileName;
 	}
-	quick = false;
-
 	let xhr = new XMLHttpRequest;
 	xhr.open('GET', img_info[downloadNo].url, true);
 	xhr.responseType = 'blob';
@@ -3804,6 +3802,7 @@ function downloadedFunc(blobURL, donwloadBar_no) {
 	$('.progress1').css('width', downloaded / img_info.length * 100 + '%');
 	if (downloaded === img_info.length) { // 如果所有文件都下载完毕
 		download_started = false;
+		quick = false;
 		download_stop = false;
 		download_pause = false;
 		downloaded = 0;
@@ -3814,6 +3813,7 @@ function downloadedFunc(blobURL, donwloadBar_no) {
 		//如果已经暂停下载
 		if (download_pause) {
 			download_started = false;
+			quick = false;
 			changeTitle('║');
 			return false;
 		}
@@ -3821,6 +3821,7 @@ function downloadedFunc(blobURL, donwloadBar_no) {
 		// 如果已经停止下载
 		if (download_stop) {
 			download_started = false;
+			quick = false;
 			changeTitle('■');
 			return false;
 		}
