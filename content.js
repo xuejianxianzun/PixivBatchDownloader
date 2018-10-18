@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   6.0.3+
+ * build:   6.0.4
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -598,6 +598,11 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 		'隐藏',
 		'隠された',
 		'hide'
+	],
+	'_快捷键切换显示隐藏': [
+		'使用 Alt + X，可以显示和隐藏下载面板',
+		'Alt + Xを使用してダウンロードパネルを表示および非表示にする',
+		'Use Alt + X to show and hide the download panel'
 	],
 	'_设置命名规则': [
 		'共抓取到{}个图片，请设置文件命名规则：',
@@ -3157,7 +3162,7 @@ function addRightButton() {
 	rightButton = document.createElement('div');
 	rightButton.id = 'rightButton';
 	rightButton.innerHTML = '↓';
-	styleE.innerHTML += '#rightButton{position: fixed;top: 5%;right: 0;z-index: 1000;line-height:20px;font-size:14px;border-radius: 3px;color: #fff;text-align: center;cursor: pointer;padding:8px;box-sizing:content-box;background:#BECAD7;}';
+	styleE.innerHTML += '#rightButton{position: fixed;top: 15%;right: 0;z-index: 1000;line-height:20px;font-size:14px;border-radius: 3px;color: #fff;text-align: center;cursor: pointer;padding:8px;box-sizing:content-box;background:#BECAD7;}';
 	document.body.appendChild(rightButton);
 	// 绑定切换右侧按钮显示的事件
 	rightButton.addEventListener('click', function () {
@@ -3230,7 +3235,7 @@ function addCenterWarps() {
 		<div class="centerWrap">
 		<div class="centerWrap_head">
 		<span class="centerWrap_title xz_blue"> ${xzlt('_下载设置')}</span>
-		<div class="centerWrap_close" title="${xzlt('_隐藏')}">X</div>
+		<div class="xztip centerWrap_close" data-tip="${xzlt('_快捷键切换显示隐藏')}">X</div>
 		</div>
 		<div class="centerWrap_con">
 		<form class="XZForm">
@@ -3572,6 +3577,19 @@ function centerWrapHide() {
 	centerWrap.style.display = 'none';
 	rightButton.style.display = 'block';
 }
+
+// 使用快捷键切换显示隐藏
+window.addEventListener('keydown', function (event) {
+	let e2 = event || window.event;
+	if (e2.altKey && e2.keyCode === 88) {
+		let now_display = centerWrap.style.display;
+		if (now_display === 'block') {
+			centerWrapHide();
+		} else {
+			centerWrapShow();
+		}
+	}
+}, false);
 
 // 读取设置
 function readXZSetting() {
