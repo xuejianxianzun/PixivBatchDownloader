@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   6.0.4
+ * build:   6.0.5
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -16,6 +16,7 @@ let quiet_download = true, // 是否快速下载。当可以下载时自动开�
 	multiple_down_number = 0, // 设置多图作品下载前几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
 	display_cover = true, //是否显示tag搜索页里面的封面图片。如果tag搜索页的图片数量太多，那么加载封面图可能要很久，并且可能因为占用大量带宽导致抓取中断。这种情况下可以将此参数改为false，不加载封面图。
 	fileName_length = 200, // 文件名的最大长度，超出将会截断。如果文件的保存路径过长可能会保存失败，此时可以把这个数值改小些。
+	tagName_to_fileName = true, // 添加标记名称
 	viewer_enable = true, // 是否启用看图模式
 	xz_setting, // 保存的设置
 	loc_url, // 页面的url
@@ -624,6 +625,16 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 		'画像の名前を設定する',
 		'Set the name of the picture'
 	],
+	'_添加标记名称': [
+		'添加标记名称',
+		'タグ名を追加する',
+		'Add tag name'
+	],
+	'_添加标记名称提示': [
+		'把标签名称添加到文件名里',
+		'ファイル名にタグ名を追加する',
+		'Add the tag name to the file name'
+	],
 	'_查看可用的标记': [
 		'查看可用的标记',
 		'利用可能なタグを見る',
@@ -1108,7 +1119,7 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 	'_快速下载的提示': [
 		'当“开始下载”状态可用时，自动开始下载，不需要点击下载按钮。',
 		'「ダウンロードを開始する」ステータスが利用可能になると、ダウンロードは自動的に開始され、ダウンロードボタンをクリックする必要はありません。',
-		'When the "Start Download" status is available, the download starts automatically and no need to click the download button.'
+		'When the &quot;Start Downloa&quot; status is available, the download starts automatically and no need to click the download button.'
 	]
 };
 
@@ -3263,10 +3274,10 @@ function addCenterWarps() {
 		</p>
 		<p class="XZFormP5">
 		<span class="xztip settingNameStyle1" data-tip="${xzlt('_设置作品类型的提示_center')}">${xzlt('_设置作品类型')}<span class="gray1"> ? </span></span>
-		<input type="checkbox" name="setWorkType1" checked> ${xzlt('_单图')}&nbsp;
-		<input type="checkbox" name="setWorkType2" checked> ${xzlt('_多图')}&nbsp;
-		<input type="checkbox" name="setWorkType3" checked> ${xzlt('_动图')}&nbsp;
-		<input type="checkbox" name="setWorkType4" checked> ${xzlt('_已收藏的作品')}
+		<label for="setWorkType1"><input type="checkbox" name="setWorkType1" id="setWorkType1" checked> ${xzlt('_单图')}&nbsp;</label>
+		<label for="setWorkType2"><input type="checkbox" name="setWorkType2" id="setWorkType2" checked> ${xzlt('_多图')}&nbsp;</label>
+		<label for="setWorkType3"><input type="checkbox" name="setWorkType3" id="setWorkType3" checked> ${xzlt('_动图')}&nbsp;</label>
+		<label for="setWorkType4"><input type="checkbox" name="setWorkType4" id="setWorkType4" checked> ${xzlt('_已收藏的作品')}</label>
 		</p>
 		<p class="XZFormP6">
 		<span class="xztip settingNameStyle1" data-tip="${xzlt('_必须tag的提示文字')}">${xzlt('_必须含有tag')}<span class="gray1"> ? </span></span>
@@ -3282,7 +3293,7 @@ function addCenterWarps() {
 		</p>
 		<p class="XZFormP8">
 		<span class="xztip settingNameStyle1" data-tip="${xzlt('_快速下载的提示')}">${xzlt('_是否快速下载')}<span class="gray1"> ? </span></span>
-		<input type="checkbox" name="setQuietDownload" checked> ${xzlt('_启用')}
+		<label for="setQuietDownload"><input type="checkbox" name="setQuietDownload" id="setQuietDownload" checked> ${xzlt('_启用')}</label>
 		</p>
 		<div class="centerWrap_btns centerWrap_btns_free">
 
@@ -3297,8 +3308,6 @@ function addCenterWarps() {
 		<input type="text" name="fileNameRule" class="setinput_style1 xz_blue fileNameRule" value="{id}">
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		<span class="gray1 showFileNameTip"> ${xzlt('_查看可用的标记')}</span>
-		&nbsp;&nbsp;&nbsp;
-		<span class="gray1 showFileNameResult"> ${xzlt('_预览文件名')}</span>
 		</p>
 		<p class="fileNameTip tip">
 		<span class="xz_blue">{id}</span>
@@ -3324,6 +3333,12 @@ function addCenterWarps() {
 		<br>
 		${xzlt('_可用标记5')}
 		<br>
+		</p>
+		<p class="XZFormP10">
+		<span class="xztip settingNameStyle1" data-tip="${xzlt('_添加标记名称提示')}">${xzlt('_添加标记名称')}<span class="gray1"> ? </span></span>
+		<label for="setTagNameToFileName"><input type="checkbox" name="setTagNameToFileName" id="setTagNameToFileName" checked> ${xzlt('_启用')}</label>
+		&nbsp;&nbsp;&nbsp;
+		<span class="gray1 showFileNameResult"> ${xzlt('_预览文件名')}</span>
 		</p>
 		</form>
 		<div class="centerWrap_btns">
@@ -3604,7 +3619,8 @@ function readXZSetting() {
 			"display_cover": true,
 			"quiet_download": true,
 			"download_thread": 6,
-			"user_set_name": "{id}"
+			"user_set_name": "{id}",
+			"tagName_to_fileName": true
 		};
 	} else {
 		xz_setting = JSON.parse(xz_setting);
@@ -3679,6 +3695,13 @@ function readXZSetting() {
 		}
 		saveXZSetting('user_set_name', this.value);
 	});
+	// 设置标记添加到文件名
+	let setTagNameToFileName_input = XZForm.setTagNameToFileName;
+	setTagNameToFileName_input.checked = xz_setting.tagName_to_fileName;
+	// 保存标记添加到文件名
+	setTagNameToFileName_input.addEventListener('click', function () {
+		saveXZSetting('tagName_to_fileName', this.checked);
+	});
 }
 
 // 储存设置
@@ -3721,7 +3744,8 @@ function showOutputInfoWrap(type) {
 
 // 生成文件名，传入参数为图片信息
 function getFileName(data) {
-	fileNameRule = $('.fileNameRule').val();
+	fileNameRule = XZForm.fileNameRule.value;
+	tagName_to_fileName = XZForm.setTagNameToFileName.checked;
 	// 处理宽高
 	let px = '';
 	if (fileNameRule.indexOf('{px}') > -1) {
@@ -3730,7 +3754,12 @@ function getFileName(data) {
 		}
 	}
 	// 拼接文件名，不包含后缀名
-	let result = fileNameRule.replace('{id}', data.id).replace('{title}', 'title_' + data.title).replace('{user}', 'user_' + data.user).replace('{userid}', 'uid_' + data.userid).replace('{px}', px).replace('{tags}', 'tags_' + (data.tags.join(','))).replace('{bmk}', 'bmk_' + data.bmk).replace(safe_fileName_rule, '_').replace(/undefined/g, '');
+	let result = '';
+	if (tagName_to_fileName) {
+		result = fileNameRule.replace('{id}', data.id).replace('{title}', 'title_' + data.title).replace('{user}', 'user_' + data.user).replace('{userid}', 'uid_' + data.userid).replace('{px}', px).replace('{tags}', 'tags_' + (data.tags.join(','))).replace('{bmk}', 'bmk_' + data.bmk).replace(safe_fileName_rule, '_').replace(/undefined/g, '');
+	} else {
+		result = fileNameRule.replace('{id}', data.id).replace('{title}', data.title).replace('{user}', data.user).replace('{userid}', data.userid).replace('{px}', px).replace('{tags}', (data.tags.join(','))).replace('{bmk}', data.bmk).replace(safe_fileName_rule, '_').replace(/undefined/g, '');
+	}
 	if (data.ext === 'ugoira') { // 动图改变后缀名，添加前缀
 		result = 'open_with_HoneyView-' + result;
 	}
