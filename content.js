@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   6.0.5
+ * build:   6.1.0
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -114,7 +114,9 @@ let quiet_download = true, // 是否快速下载。当可以下载时自动开�
 	gif_delay, // 动图帧延迟
 	XZForm,
 	XZTipEl,
-	folder_name = '';
+	folder_name = '',
+	option_area_show = true,
+	only_down_bmk;
 
 // 多语言配置
 let lang_type; // 语言类型
@@ -143,6 +145,16 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 		'请输入数字来设置下载时要排除的作品类型。\n如需多选，将多个数字连写即可\n如果什么都不输入，那么将不排除任何作品\n1: 排除单图\n2: 排除多图\n3: 排除动图\n4: 排除已经收藏的作品',
 		'ダウンロード時に除外するタイプを設定する番号を入力してください。\nさまざまなオプションが必要な場合は、それを連続して入力することができます。\n1.単一の画像の作品を除外する\n2.複数の画像の作品を除外する\n3.うごイラの作品を除外する\n4: ブックマーク',
 		'Please enter a number to set the type of you want to excluded when downloading.\nIf you need multiple choice, you can enter continuously.\n1: one-images works\n2.multiple-images works\n3.animat works\n4.bookmarked works'
+	],
+	'_只下载已收藏': [
+		'只下载已收藏',
+		'ブックマークのみをダウンロードする',
+		'Download only bookmarked works'
+	],
+	'_只下载已收藏的提示': [
+		'只下载已经收藏的作品',
+		'既に収集された作品のみをダウンロードする',
+		'Download only bookmarked works'
 	],
 	'_设置作品类型': [
 		'设置作品类型',
@@ -430,11 +442,6 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 		'うごイラ',
 		'GIF'
 	],
-	'_已收藏的作品': [
-		'已收藏的作品 ',
-		'ブックマーク',
-		'bookmarked'
-	],
 	'_tag搜索页已抓取多少页': [
 		'已抓取本次任务第{}/{}页，当前加载到第{}页',
 		'{}/{}ページをクロールしています。 現在のページ番号は{}ページです',
@@ -599,6 +606,11 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 		'隐藏',
 		'隠された',
 		'hide'
+	],
+	'_收起展开设置项': [
+		'收起/展开设置项',
+		'設定の折りたたみ/展開',
+		'Collapse/expand settings'
 	],
 	'_快捷键切换显示隐藏': [
 		'使用 Alt + X，可以显示和隐藏下载面板',
@@ -1783,7 +1795,7 @@ function addOutputInfo(val) {
 // 获取排除类型
 function getNotDownType() {
 	let temp_result = '';
-	for (let index = 1; index < 5; index++) {
+	for (let index = 1; index < 4; index++) {
 		if (XZForm['setWorkType' + index].checked === false) {
 			temp_result += index;
 		}
@@ -1795,21 +1807,24 @@ function getNotDownType() {
 function checkNotDownType() {
 	notdown_type = getNotDownType();
 	// 如果全部排除则取消任务
-	if (notdown_type.indexOf('1') > -1 && notdown_type.indexOf('2') > -1 && notdown_type.indexOf('3') > -1 && notdown_type.indexOf('4') > -1) {
+	if (notdown_type.indexOf('1') > -1 && notdown_type.indexOf('2') > -1 && notdown_type.indexOf('3') > -1) {
 		alert(xzlt('_check_notdown_type_result1_弹窗'));
 		addOutputInfo('<br>' + xzlt('_check_notdown_type_result1_html') + '<br><br>');
 		return false;
 	}
 	// 排除了至少一种时，显示提示
-	if (notdown_type.indexOf('1') > -1 || notdown_type.indexOf('2') > -1 || notdown_type.indexOf('3') > -1 || notdown_type.indexOf('4') > -1) {
-		addOutputInfo('<br>' + xzlt('_check_notdown_type_result3_html') + notdown_type.replace('1', xzlt('_单图')).replace('2', xzlt('_多图')).replace('3', xzlt('_动图')).replace('4', xzlt('_已收藏的作品')));
+	if (notdown_type.indexOf('1') > -1 || notdown_type.indexOf('2') > -1 || notdown_type.indexOf('3') > -1) {
+		addOutputInfo('<br>' + xzlt('_check_notdown_type_result3_html') + notdown_type.replace('1', xzlt('_单图')).replace('2', xzlt('_多图')).replace('3', xzlt('_动图')));
 	}
 }
 
 // 检查作品是否符合过滤类型。所有添加了setNotDownType按钮的都要到这里检查一遍
 function checkNotDownType_result(string, url, bookmarked) {
-	if (bookmarked === true && notdown_type.indexOf('4') > -1) { //如果已经收藏并且设置了排除收藏的作品
-		return false;
+	// 如果设置了只下载书签作品
+	if (only_down_bmk) {
+		if (!bookmarked) {
+			return false;
+		}
 	}
 	if (string.indexOf('multiple') > -1) { //如果是多图并且没有排除多图
 		if (notdown_type.indexOf('2') === -1) {
@@ -1910,6 +1925,14 @@ function checkSetBMK() {
 		addOutputInfo('<br>' + xzlt('_设置了筛选收藏数之后的提示文字') + filterBMK);
 	}
 	return true;
+}
+
+// 检查是否设置了只下载书签作品
+function checkOnlyBMK() {
+	only_down_bmk = XZForm.setOnlyBMK.checked;
+	if (only_down_bmk) {
+		addOutputInfo('<br>' + xzlt('_只下载已收藏的提示'));
+	}
 }
 
 // 检查输入的参数是否有效，要求大于 0 的数字
@@ -2224,12 +2247,14 @@ function startGet() {
 		return false;
 	}
 	if (page_type !== 5) { // 排除tag搜索页，tag搜索页里，这些设置放在后面再检查
-		// 检查是否设置了多图作品的张数限制
-		check_multiple_down_number();
 		// 检查排除作品类型的设置
 		if (checkNotDownType() === false) {
 			return false;
 		}
+		// 检查是否设置了只下载书签作品
+		checkOnlyBMK();
+		// 检查是否设置了多图作品的张数限制
+		check_multiple_down_number();
 		// 检查是否设置了宽高条件
 		checkSetWH();
 		// 获取必须包含的tag
@@ -2501,12 +2526,15 @@ function getListPage2() {
 		illust_url_list = [];
 		resetResult();
 		// 因为tag搜索页里的下载按钮没有启动 startGet，而是在这里，所以有些检查在这里进行
-		// 检查是否设置了多图作品的张数限制
-		check_multiple_down_number();
 		// 检查排除作品类型的设置
 		if (checkNotDownType() === false) {
 			return false;
 		}
+		// 检查是否设置了只下载书签作品
+		checkOnlyBMK();
+		// 检查是否设置了多图作品的张数限制
+		check_multiple_down_number();
+		// 检查是否设置了宽高条件
 		checkSetWH();
 		// 获取必须包含的tag
 		get_Need_Tag();
@@ -2878,11 +2906,11 @@ function getIllustPage(url) {
 				}
 			}
 
-			// 检查排除收藏
+			// 检查只下载书签作品设置
 			let check_bookmark_pass = true;
-			if (notdown_type.indexOf('4') > -1) {
-				if (jsInfo.bookmarkData !== null) { // 已收藏
-					check_bookmark_pass = false;
+			if (only_down_bmk) {
+				if (jsInfo.bookmarkData === null) { // 没有收藏
+					check_bookmark_pass = false; //	检查不通过
 				}
 			}
 
@@ -2927,11 +2955,10 @@ function getIllustPage(url) {
 				tag_check_result = false;
 			}
 
-			// 排除设置：
+			// 作品类型：
 			// 1	单图
 			// 2	多图
 			// 3	动图
-			// 4	已收藏，在上面检查过了
 			let this_illust_type;
 			if (jsInfo.illustType === 0 || jsInfo.illustType === 1) { // 单图或多图，0插画1漫画2动图（1的如68430279）
 				if (jsInfo.pageCount === 1) { // 单图
@@ -3098,6 +3125,7 @@ function allWorkFinished() {
 		if (img_info.length === 0) {
 			$(outputInfo).html($(outputInfo).html() + xzlt('_没有符合条件的作品') + '<br><br>');
 			alert(xzlt('_没有符合条件的作品弹窗'));
+			allow_work = true;
 			return false;
 		}
 		// 显示输出结果完毕
@@ -3246,10 +3274,12 @@ function addCenterWarps() {
 		<div class="centerWrap">
 		<div class="centerWrap_head">
 		<span class="centerWrap_title xz_blue"> ${xzlt('_下载设置')}</span>
+		<div class="xztip centerWrap_toogle_option" data-tip="${xzlt('_收起展开设置项')}">▲</div>
 		<div class="xztip centerWrap_close" data-tip="${xzlt('_快捷键切换显示隐藏')}">X</div>
 		</div>
 		<div class="centerWrap_con">
 		<form class="XZForm">
+		<div class="xz_option_area">
 		<p class="XZFormP1">
 		<span class="setWantPageWrap">
 		<span class="xztip settingNameStyle1 setWantPageTip1" data-tip="" style="margin-right: 0px;">${xzlt('_页数')}</span><span class="gray1" style="margin-right: 10px;"> ? </span>
@@ -3277,7 +3307,10 @@ function addCenterWarps() {
 		<label for="setWorkType1"><input type="checkbox" name="setWorkType1" id="setWorkType1" checked> ${xzlt('_单图')}&nbsp;</label>
 		<label for="setWorkType2"><input type="checkbox" name="setWorkType2" id="setWorkType2" checked> ${xzlt('_多图')}&nbsp;</label>
 		<label for="setWorkType3"><input type="checkbox" name="setWorkType3" id="setWorkType3" checked> ${xzlt('_动图')}&nbsp;</label>
-		<label for="setWorkType4"><input type="checkbox" name="setWorkType4" id="setWorkType4" checked> ${xzlt('_已收藏的作品')}</label>
+		</p>
+		<p class="XZFormP11">
+		<span class="xztip settingNameStyle1" data-tip="${xzlt('_只下载已收藏的提示')}">${xzlt('_只下载已收藏')}<span class="gray1"> ? </span></span>
+		<label for="setOnlyBMK"><input type="checkbox" name="setOnlyBMK" id="setOnlyBMK"> ${xzlt('_启用')}</label>
 		</p>
 		<p class="XZFormP6">
 		<span class="xztip settingNameStyle1" data-tip="${xzlt('_必须tag的提示文字')}">${xzlt('_必须含有tag')}<span class="gray1"> ? </span></span>
@@ -3295,6 +3328,7 @@ function addCenterWarps() {
 		<span class="xztip settingNameStyle1" data-tip="${xzlt('_快速下载的提示')}">${xzlt('_是否快速下载')}<span class="gray1"> ? </span></span>
 		<label for="setQuietDownload"><input type="checkbox" name="setQuietDownload" id="setQuietDownload" checked> ${xzlt('_启用')}</label>
 		</p>
+		</div>
 		<div class="centerWrap_btns centerWrap_btns_free">
 
 		</div>
@@ -3308,6 +3342,12 @@ function addCenterWarps() {
 		<input type="text" name="fileNameRule" class="setinput_style1 xz_blue fileNameRule" value="{id}">
 		&nbsp;&nbsp;&nbsp;&nbsp;
 		<span class="gray1 showFileNameTip"> ${xzlt('_查看可用的标记')}</span>
+		</p>
+		<p class="XZFormP10">
+		<span class="xztip settingNameStyle1" data-tip="${xzlt('_添加标记名称提示')}">${xzlt('_添加标记名称')}<span class="gray1"> ? </span></span>
+		<label for="setTagNameToFileName"><input type="checkbox" name="setTagNameToFileName" id="setTagNameToFileName" checked> ${xzlt('_启用')}</label>
+		&nbsp;&nbsp;&nbsp;
+		<span class="gray1 showFileNameResult"> ${xzlt('_预览文件名')}</span>
 		</p>
 		<p class="fileNameTip tip">
 		<span class="xz_blue">{id}</span>
@@ -3333,12 +3373,6 @@ function addCenterWarps() {
 		<br>
 		${xzlt('_可用标记5')}
 		<br>
-		</p>
-		<p class="XZFormP10">
-		<span class="xztip settingNameStyle1" data-tip="${xzlt('_添加标记名称提示')}">${xzlt('_添加标记名称')}<span class="gray1"> ? </span></span>
-		<label for="setTagNameToFileName"><input type="checkbox" name="setTagNameToFileName" id="setTagNameToFileName" checked> ${xzlt('_启用')}</label>
-		&nbsp;&nbsp;&nbsp;
-		<span class="gray1 showFileNameResult"> ${xzlt('_预览文件名')}</span>
 		</p>
 		</form>
 		<div class="centerWrap_btns">
@@ -3383,7 +3417,6 @@ function addCenterWarps() {
 		<p class="gray1 showDownTip"> ${xzlt('_查看下载说明')}</p>
 		<p class="downTip tip"> ${xzlt('_下载说明')}</p>
 		</div>
-		</div>
 		`;
 	styleE.innerHTML += `
 		li{list-style: none;}
@@ -3392,8 +3425,9 @@ function addCenterWarps() {
 		.centerWrap .tip{color: #999;}
 		.centerWrap_head{height: 30px;position: relative;padding-bottom: 10px;}
 		.centerWrap_title{display: block;line-height: 30px;text-align: center;font-size: 18px;}
-		.centerWrap_close{font-size: 18px;position: absolute;top: 0px;right: 0px;width: 30px;height: 30px;text-align: center;cursor: pointer;}
-		.centerWrap_close:hover{color:#0096fa;}
+		.centerWrap_close,.centerWrap_toogle_option{font-size: 18px;position: absolute;top: 0px;right: 0px;width: 30px;height: 30px;text-align: center;cursor: pointer;color:#666;user-select: none;}
+		.centerWrap_close:hover,.centerWrap_toogle_option:hover{color:#0096fa;}
+		.centerWrap_toogle_option{right:40px;}
 		.setinput_style1{width:50px;min-width:50px;line-height: 20px;font-size: 14px !important;height: 20px;text-indent: 4px;box-sizing:border-box;border:none !important;border-bottom: 1px solid #999 !important;outline:none;}
 		.setinput_style1:focus{border-bottom: 1px solid #0096fa !important;background:none !important;}
 		.fileNameRule{min-width: 150px;}
@@ -3443,6 +3477,10 @@ function addCenterWarps() {
 	});
 	$('.showDownTip').on('click', function () {
 		$('.downTip').toggle();
+	});
+	// 收起展开设置项
+	$('.centerWrap_toogle_option').on('click', function () {
+		toggleOptionArea();
 	});
 	// 检查提示类
 	XZTipEl = document.querySelector('.XZTipEl');
@@ -3591,6 +3629,18 @@ function centerWrapShow() {
 function centerWrapHide() {
 	centerWrap.style.display = 'none';
 	rightButton.style.display = 'block';
+	$('.outputInfoWrap').hide(); // 隐藏中间的输出面板
+}
+
+// 收起展开设置项
+function toggleOptionArea() {
+	option_area_show = !option_area_show;
+	let xz_option_area = document.querySelectorAll('.xz_option_area');
+	for (const iterator of xz_option_area) {
+		iterator.style.display = option_area_show ? 'block' : 'none';
+	}
+	let centerWrap_toogle_option = document.querySelector('.centerWrap_toogle_option');
+	centerWrap_toogle_option.innerHTML = option_area_show ? '▲' : '▼';
 }
 
 // 使用快捷键切换显示隐藏
@@ -3639,7 +3689,7 @@ function readXZSetting() {
 		XZForm['setWorkType' + xz_setting.notdown_type[index]].checked = false;
 	}
 	// 保存排除类型
-	for (let index = 1; index < 5; index++) {
+	for (let index = 1; index < 4; index++) {
 		XZForm['setWorkType' + index].addEventListener('click', function () {
 			saveXZSetting('notdown_type', getNotDownType());
 		});
@@ -3712,7 +3762,7 @@ function saveXZSetting(key, value) {
 }
 
 // 隐藏不需要的选项
-function hideCenterOption(no) {
+function hideNotNeedOption(no) {
 	for (let index = 0; index < no.length; index++) {
 		const element = document.querySelector('.XZFormP' + no[index]);
 		element.style.display = 'none';
@@ -4104,6 +4154,10 @@ function PageType2() {
 		}, false);
 	})();
 
+	// 在书签页面隐藏只要书签选项
+	if (loc_url.indexOf('bookmark.php') > -1) {
+		hideNotNeedOption([11]);
+	}
 }
 
 if (page_type === 0) { //0.index 首页
@@ -4490,7 +4544,7 @@ if (page_type === 1) { //1. illust 作品页内页
 		})();
 	}
 
-	hideCenterOption([1, 2, 3, 4, 5, 6, 7, ]);
+	hideNotNeedOption([1, 2, 3, 4, 5, 6, 7, ]);
 
 } else if (page_type === 9) { //9.bookmark_add
 	// bookmark_add的页面刷新就变成bookmark_detail了; recommended.php是首页的“为你推荐”栏目
