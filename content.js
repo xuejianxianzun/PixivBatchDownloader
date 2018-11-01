@@ -2179,6 +2179,7 @@ function startGet() {
 	}
 
 	insertOutputInfo();
+	downloadPanelHide();
 	// 设置要获取的作品数或页数
 	if (page_type === 1) {
 		if (quick) { // 快速下载
@@ -3140,13 +3141,12 @@ function allWorkFinished() {
 		$('.download_fileName').html('');
 		$('.loaded').html('0/0');
 		$('.progress').css('width', '0%');
-
+		$('.imgNum').text(img_info.length);
+		downloadPanelShow();
 		// 显示输出区域
 		if (!quick) {
 			centerWrapShow();
 		}
-		// 重置输出区域
-		$('.imgNum').text(img_info.length);
 
 		// 快速下载时点击下载按钮
 		if (quick || quiet_download) {
@@ -3375,6 +3375,7 @@ function addCenterWarps() {
 		<br>
 		</p>
 		</form>
+		<div class="download_panel">
 		<div class="centerWrap_btns">
 		<div class="startDownload" style="background:${xz_blue};"> ${xzlt('_下载按钮1')}</div>
 		<div class="pauseDownload" style="background:#e49d00;"> ${xzlt('_下载按钮2')}</div>
@@ -3412,6 +3413,7 @@ function addCenterWarps() {
 		</div>
 		</li>
 		</ul>
+		</div>
 		</div>
 		<a class="download_a" download=""></a>
 		<p class="gray1 showDownTip"> ${xzlt('_查看下载说明')}</p>
@@ -3461,6 +3463,7 @@ function addCenterWarps() {
 		.fwb{font-weight: bold;}
 		.gray1{color:#999;}
 		.xz_blue{color:#0ea8ef !important;}
+		.download_panel{display: none;}
 		`;
 
 	center_btn_wrap = document.querySelector('.centerWrap_btns_free');
@@ -3486,7 +3489,7 @@ function addCenterWarps() {
 	XZTipEl = document.querySelector('.XZTipEl');
 	let xztips = document.querySelectorAll('.xztip');
 	for (const el of xztips) {
-		el.addEventListener('mouseenter', function () {
+		el.addEventListener('mouseenter', function (event) {
 			let e = event || window.event;
 			XZTip.call(el, {
 				'type': 1,
@@ -3494,7 +3497,7 @@ function addCenterWarps() {
 				'y': e.clientY
 			});
 		});
-		el.addEventListener('mouseleave', function () {
+		el.addEventListener('mouseleave', function (event) {
 			let e = event || window.event;
 			XZTip.call(el, {
 				'type': 0,
@@ -3630,6 +3633,16 @@ function centerWrapHide() {
 	centerWrap.style.display = 'none';
 	rightButton.style.display = 'block';
 	$('.outputInfoWrap').hide(); // 隐藏中间的输出面板
+}
+
+// 显示下载面板
+function downloadPanelShow() {
+	document.querySelector('.download_panel').style.display = 'block';
+}
+
+// 隐藏下载面板
+function downloadPanelHide() {
+	document.querySelector('.download_panel').style.display = 'none';
 }
 
 // 收起展开设置项
