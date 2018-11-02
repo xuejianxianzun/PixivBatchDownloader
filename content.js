@@ -3635,6 +3635,11 @@ function centerWrapHide() {
 	$('.outputInfoWrap').hide(); // 隐藏中间的输出面板
 }
 
+// 切换中间区域得显示隐藏
+function centerWrapToggle() {
+	centerWrap.style.display === 'none' ? centerWrapShow() : centerWrapHide();
+}
+
 // 显示下载面板
 function downloadPanelShow() {
 	document.querySelector('.download_panel').style.display = 'block';
@@ -3891,10 +3896,12 @@ function click_doanload_a(blobURL, fullFileName, donwloadBar_no) {
 	}, function (response) {});
 }
 
-// 扩展下载完成之后
+// 监听后台发送的消息
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-	if (msg.msg === 'downloaded') {
+	if (msg.msg === 'downloaded') { // 扩展下载完成之后
 		downloadedFunc(msg.file_url, msg.no);
+	} else if (msg.msg === 'click_icon') { // 点击图标
+		centerWrapToggle();
 	}
 });
 

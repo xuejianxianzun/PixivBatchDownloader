@@ -13,6 +13,16 @@ chrome.webRequest.onBeforeSendHeaders.addListener(function (details) {
 	urls: ['*://*.pixiv.net/*']
 }, ['blocking', 'requestHeaders']);
 
+// 当点击扩展图标时，切换显示/隐藏下载面板
+chrome.browserAction.onClicked.addListener(function (tab) {
+	chrome.tabs.sendMessage(
+		tab.id, {
+			'msg': 'click_icon'
+		},
+		function (response) {}
+	);
+});
+
 // 因为下载完成的顺序和发送顺序可能不一致，所以需要存储每个任务的数据
 let donwloadBar_no_data = {};
 
