@@ -18,11 +18,13 @@ This extension is a migration of [XZPixivDownloader](https://github.com/xuejianx
 
 ## Supported languages:
 
-Simplified Chinese (also used under Traditional Chinese settings)
+Simplified Chinese
+
+Traditional Chinese (thanks [??](https://zhtw.me/) for translation)
 
 English (machine translation, also used under Korean settings)
 
-日本語 (machine translation)
+Japanese (machine translation)
 
 You can also optimize the translation, thank you very much :)
 

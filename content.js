@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   6.1.5
+ * build:   6.1.6
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -121,1019 +121,1220 @@ let quiet_download = true, // 是否快速下载。当可以下载时自动开�
 // 多语言配置
 let lang_type; // 语言类型
 let user_lang = document.documentElement.lang; //获取语言选项
-if (user_lang === 'zh' || user_lang === 'zh-CN' || user_lang === 'zh-Hans' || user_lang === 'zh-Hant' || user_lang === 'zh-tw' || user_lang === 'zh-TW') { // 设置语言为中文
+if (user_lang === 'zh' || user_lang === 'zh-CN' || user_lang === 'zh-Hans') { // 设置语言为简体中文
 	lang_type = 0;
+} else if (user_lang === 'zh-Hant' || user_lang === 'zh-tw' || user_lang === 'zh-TW') { // 设置语言为繁体中文
+	lang_type = 3;
 } else if (user_lang === 'ja') { // 设置语言为日语
 	lang_type = 1;
-} else { // 设置语言为英语
+} else { // 其他语言设置为英语
 	lang_type = 2;
 }
 
 // 日文和英文目前是机翻，欢迎了解这些语言的人对翻译进行完善
 let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和文本内容做出区别。{}表示需要进行替换的部分
-	'_过滤作品类型的按钮': [
-		'排除指定类型的作品',
-		'タイプでフィルタリングする',
-		'Filter by works type'
-	],
-	'_过滤作品类型的按钮_title': [
-		'在下载前，您可以设置想要排除的作品类型。',
-		'ダウンロードする前に、除外するタイプを設定することができます。',
-		'Before downloading, you can set the type you want to exclude.'
-	],
-	'_过滤作品类型的弹出框文字': [
-		'请输入数字来设置下载时要排除的作品类型。\n如需多选，将多个数字连写即可\n如果什么都不输入，那么将不排除任何作品\n1: 排除单图\n2: 排除多图\n3: 排除动图\n4: 排除已经收藏的作品',
-		'ダウンロード時に除外するタイプを設定する番号を入力してください。\nさまざまなオプションが必要な場合は、それを連続して入力することができます。\n1.単一の画像の作品を除外する\n2.複数の画像の作品を除外する\n3.うごイラの作品を除外する\n4: ブックマーク',
-		'Please enter a number to set the type of you want to excluded when downloading.\nIf you need multiple choice, you can enter continuously.\n1: one-images works\n2.multiple-images works\n3.animat works\n4.bookmarked works'
-	],
-	'_只下载已收藏': [
-		'只下载已收藏',
-		'ブックマークのみをダウンロードする',
-		'Download only bookmarked works'
-	],
-	'_只下载已收藏的提示': [
-		'只下载已经收藏的作品',
-		'既に収集された作品のみをダウンロードする',
-		'Download only bookmarked works'
-	],
-	'_设置作品类型': [
-		'设置作品类型',
-		'仕事のタイプを設定する',
-		'Set the type of work'
-	],
-	'_设置作品类型的提示_center': [
-		'下载哪些类型的作品',
-		'ダウンロードする作品の種類',
-		'Which types of works to download'
-	],
-	'_多p下载前几张': [
-		'多图作品设置',
-		'マルチピクチャワーク設定',
-		'Multiple images work setting'
-	],
+		'_过滤作品类型的按钮': [
+			'排除指定类型的作品',
+			'タイプでフィルタリングする',
+			'Filter by works type',
+			'排除指定類型的作品'
+		],
+		'_过滤作品类型的按钮_title': [
+			'在下载前，您可以设置想要排除的作品类型。',
+			'ダウンロードする前に、除外するタイプを設定することができます。',
+			'Before downloading, you can set the type you want to exclude.',
+			'在下載前，您可以設定想要排除的作品類型'
+		],
+		'_过滤作品类型的弹出框文字': [
+			'请输入数字来设置下载时要排除的作品类型。\n如需多选，将多个数字连写即可\n如果什么都不输入，那么将不排除任何作品\n1: 排除单图\n2: 排除多图\n3: 排除动图\n4: 排除已经收藏的作品',
+			'ダウンロード時に除外するタイプを設定する番号を入力してください。\nさまざまなオプションが必要な場合は、それを連続して入力することができます。\n1.単一の画像の作品を除外する\n2.複数の画像の作品を除外する\n3.うごイラの作品を除外する\n4: ブックマーク',
+			'Please enter a number to set the type of you want to excluded when downloading.\nIf you need multiple choice, you can enter continuously.\n1: one-images works\n2.multiple-images works\n3.animat works\n4.bookmarked works',
+			'請輸入數字來設定下載時要排除的作品類型。\n如需多選，將多個數字連寫即可\n如果什麼都不輸入，那麼將不排除任何作品\n1: 排除單圖\n2: 排除多圖\n3: 排除動圖\n4: 排除已經收藏的作品'
+		],
+		'_只下载已收藏': [
+			'只下载已收藏',
+			'ブックマークのみをダウンロードする',
+			'Download only bookmarked works',
+			'只下載已收藏'
+		],
+		'_只下载已收藏的提示': [
+			'只下载已经收藏的作品',
+			'既に収集された作品のみをダウンロードする',
+			'Download only bookmarked works',
+			'只下載已經收藏的作品'
+		],
+		'_设置作品类型': [
+			'设置作品类型',
+			'仕事のタイプを設定する',
+			'Set the type of work',
+			'設定作品類型'
+		],
+		'_设置作品类型的提示_center': [
+			'下载哪些类型的作品',
+			'ダウンロードする作品の種類',
+			'Which types of works to download',
+			'下載哪些類型的作品'
+		],
+		'_多p下载前几张': [
+			'多图作品设置',
+			'マルチピクチャワーク設定',
+			'Multiple images work setting',
+			'多圖作品設定'
+		],
 
-	'_多p下载前几张提示': [
-		'如果数字大于 0，多图作品只会下载前几张图片。（按照设置的数量）',
-		'数字が0より大きい場合、マルチピクチャは最初のいくつかのイメージのみをダウンロードします。 （設定数に応じて）',
-		'If the number is greater than 0, the multiple images work will only download the first few images. (according to the number of settings)'
-	],
-	'_排除tag的按钮文字': [
-		'设置作品不能包含的tag',
-		'作品に含まれていないタグを設定する',
-		'Set the tag that the work can not contain'
-	],
-	'_不能含有tag': [
-		'不能含有 tag&nbsp;',
-		'指定したタグを除外する',
-		'Exclude specified tag'
-	],
-	'_排除tag的按钮_title': [
-		'在下载前，您可以设置想要排除的tag',
-		'ダウンロードする前に、除外するタグを設定できます',
-		'Before downloading, you can set the tag you want to exclude'
-	],
-	'_排除tag的提示文字': [
-		'您可在下载前设置要排除的tag，这样在下载时将不会下载含有这些tag的作品。区分大小写；如需排除多个tag，请使用英文逗号分隔。请注意要排除的tag的优先级大于要包含的tag的优先级。',
-		'ダウンロードする前に、除外するタグを設定できます。ケースセンシティブ；複数のタグを設定する必要がある場合は、\',\'を分けて使用できます。除外されたタグは、含まれているタグよりも優先されます',
-		'Before downloading, you can set the tag you want to exclude. Case sensitive; If you need to set multiple tags, you can use \',\' separated. The excluded tag takes precedence over the included tag'
-	],
-	'_设置了排除tag之后的提示': [
-		'本次任务设置了排除的tag:',
-		'このタスクはタグを除外します：',
-		'This task excludes tag:'
-	],
-	'_必须tag的按钮文字': [
-		'设置作品必须包含的tag',
-		'作品に含める必要があるタグを設定する',
-		'Set the tag that the work must contain'
-	],
-	'_必须含有tag': [
-		'必须含有 tag&nbsp;',
-		'タグを含める必要があります',
-		'Must contain tag'
-	],
-	'_必须tag的按钮_title': [
-		'在下载前，您可以设置必须包含的tag。',
-		'ダウンロードする前に、含まれなければならないタグを設定することができます',
-		'Before downloading, you can set the tag that must be included'
-	],
-	'_必须tag的提示文字': [
-		'您可在下载前设置作品里必须包含的tag，区分大小写；如需包含多个tag，请使用英文逗号分隔。',
-		'ダウンロードする前に、含まれなければならないタグを設定することができます。ケースセンシティブ；複数のタグを設定する必要がある場合は、\',\'を分けて使用できます。',
-		'Before downloading, you can set the tag that must be included. Case sensitive; If you need to set multiple tags, you can use \',\' separated. '
-	],
-	'_设置了必须tag之后的提示': [
-		'本次任务设置了必须的tag：',
-		'このタスクは、必要なタグを設定します：',
-		'This task set the necessary tag: '
-	],
-	'_筛选宽高的按钮文字': [
-		'设置宽高条件',
-		'幅と高さの条件を設定する',
-		'Set the width and height'
-	],
-	'_筛选宽高的按钮_title': [
-		'在下载前，您可以设置要下载的图片的宽高条件。',
-		'ダウンロードする前に、ダウンロードする写真の幅と高さの条件を設定できます。',
-		'Before downloading, you can set the width and height conditions of the pictures you want to download.'
-	],
-	'_筛选宽高的提示文字': [
-		'请输入最小宽度和最小高度，不会下载不符合要求的图片。',
-		'最小幅と最小高さを入力してください。要件を満たしていない画像はダウンロードされません。',
-		'Please enter the minimum width and minimum height. Will not download images that do not meet the requirements'
-	],
-	'_本次输入的数值无效': [
-		'本次输入的数值无效',
-		'無効な入力',
-		'Invalid input'
-	],
-	'_设置成功': [
-		'设置成功',
-		'セットアップが正常に完了しました',
-		'Set up successfully'
-	],
-	'_设置了筛选宽高之后的提示文字p1': [
-		'本次任务设置了过滤宽高条件:宽度>=',
-		'この作業では、フィルターの幅と高さの条件を設定します。幅≥',
-		'This task sets the filter width and height conditions. Width ≥'
-	],
-	'_或者': [
-		' 或者 ',
-		' または ',
-		' or '
-	],
-	'_并且': [
-		' 并且 ',
-		' そして ',
-		' and '
-	],
-	'_高度设置': [
-		'高度>=',
-		'高さ≥',
-		'height ≥'
-	],
-	'_个数': [
-		'设置作品数量',
-		'作品数を設定する',
-		'Set the number of works'
-	],
-	'_页数': [
-		'设置页面数量',
-		'ページ数を設定する',
-		'Set the number of pages'
-	],
-	'_页数提示': [
-		'请输入要获取的页数',
-		'取得するページ数を入力してください',
-		'Please enter the number of pages to get'
-	],
-	'_筛选收藏数的按钮文字': [
-		'设置收藏数量',
-		'お気に入りの数を設定する',
-		'Set the bookmarkCount conditions'
-	],
-	'_筛选收藏数的按钮_title': [
-		'在下载前，您可以设置对收藏数量的要求。',
-		'ダウンロードする前に、お気に入り数の要件を設定することができます。',
-		'Before downloading, You can set the requirements for the number of bookmarks.'
-	],
-	'_筛选收藏数_center': [
-		'设置收藏数量',
-		'ブックマークの数を設定する',
-		'Set the number of bookmarks'
-	],
-	'_筛选收藏数的提示_center': [
-		'如果作品的收藏数小于设置的数字，作品不会被下载。',
-		'作品のブックマークの数が設定された数よりも少ない場合、作品はダウンロードされません。',
-		'If the number of bookmarks of the work is less than the set number, the work will not be downloaded.'
-	],
-	'_筛选收藏数的提示文字': [
-		'请输入一个数字，如果作品的收藏数小于这个数字，作品不会被下载。',
-		'数字を入力してください。 作品のブックマークの数がこの数より少ない場合、作品はダウンロードされません。',
-		'Please enter a number. If the number of bookmarks of the work is less than this number, the work will not be downloaded.'
-	],
-	'_设置了筛选收藏数之后的提示文字': [
-		'本次任务设置了收藏数条件:收藏数>=',
-		'このタスクは、お気に入りの数を設定します。条件：お気に入りの数≥',
-		'This task sets the number of bookmarks condition: number of bookmarks ≥'
-	],
-	'_本次任务已全部完成': [
-		'本次任务已全部完成。',
-		'このタスクは完了しました。',
-		'This task has been completed.'
-	],
-	'_当前任务尚未完成1': [
-		'当前任务尚未完成，请等到提示完成之后再设置新的任务。',
-		'現在のタスクはまだ完了していません。お待ちください。',
-		'The current task has not yet completed, please wait.'
-	],
-	'_check_want_page_rule1_arg1': [
-		'从本页开始下载<br>如果要下载全部作品，请保持默认值。<br>如果需要设置下载的作品数，请输入从1开始的数字，1为仅下载当前作品。',
-		'このページからダウンロードする<br>すべての作品をダウンロードしたい場合は、デフォルト値のままにしてください。<br>ダウンロード数を設定する必要がある場合は、1から始まる番号を入力します。 現在の作品には1の番号が付けられています。',
-		'Download from this page<br>If you want to download all the work, please leave the default value.<br>If you need to set the number of downloads, enter a number starting at 1. The current works are numbered 1.'
-	],
-	'_check_want_page_rule1_arg2': [
-		'参数不合法，本次操作已取消。<br>',
-		'パラメータは有効ではありません。この操作はキャンセルされました。<br>',
-		'Parameter is not legal, this operation has been canceled.<br>'
-	],
-	'_check_want_page_rule1_arg3': [
-		'任务开始<br>本次任务条件: 从本页开始下载-num-个作品',
-		'タスクが開始されます。<br>このタスク条件：このページから-num-枚の作品をダウンロード。',
-		'Task starts. <br>This task condition: Download -num- works from this page.'
-	],
-	'_check_want_page_rule1_arg4': [
-		'任务开始<br>本次任务条件: 向下获取所有作品',
-		'タスクが開始されます。<br>このタスク条件：このページからすべての作品をダウンロードする。',
-		'Task starts. <br>This task condition: download all the work from this page.'
-	],
-	'_check_want_page_rule1_arg5': [
-		'从本页开始下载<br>如果不限制下载的页数，请不要修改此默认值。<br>如果要限制下载的页数，请输入从1开始的数字，1为仅下载本页。',
-		'このページからダウンロードする<br>ダウンロードしたページ数を制限しない場合は、デフォルト値のままにしておきます。<br>ダウンロードするページ数を設定する場合は、1から始まる番号を入力します。 現在のページは1です。',
-		'Download from this page<br>If you do not limit the number of pages downloaded, leave the default value.<br>If you want to set the number of pages to download, enter a number starting at 1. This page is 1.'
-	],
-	'_check_want_page_rule1_arg8': [
-		'从本页开始下载<br>如果要限制下载的页数，请输入从1开始的数字，1为仅下载本页。',
-		'このページからダウンロードする<br>ダウンロードするページ数を設定する場合は、1から始まる番号を入力します。 現在のページは1です。',
-		'Download from this page<br>If you want to set the number of pages to download, enter a number starting at 1. This page is 1.'
-	],
-	'_check_want_page_rule1_arg6': [
-		'任务开始<br>本次任务条件: 从本页开始下载-num-页',
-		'タスクが開始されます。<br>このタスク条件：現在のページから-num-ページ',
-		'Task starts. <br>This task condition: download -num- pages from the current page'
-	],
-	'_check_want_page_rule1_arg7': [
-		'任务开始<br>本次任务条件: 下载所有页面',
-		'タスクが開始されます。<br>このタスク条件：すべてのページをダウンロード',
-		'Task starts. <br>This task condition: download all pages'
-	],
-	'_请输入最低收藏数和要抓取的页数': [
-		'请输入最低收藏数和要抓取的页数，用英文逗号分开。\n类似于下面的形式: \n1000,1000',
-		'お気に入りの最小数とクロールするページ数を，\',\'で区切って入力してください。\n例えば：\n1000,1000',
-		'Please enter the minimum number of bookmarks, and the number of pages to be crawled, separated by \',\'.\nE.g:\n1000,1000'
-	],
-	'_参数不合法1': [
-		'参数不合法，请稍后重试。',
-		'パラメータが合法ではありません。後でやり直してください。',
-		'Parameter is not legal, please try again later.'
-	],
-	'_tag搜索任务开始': [
-		'任务开始<br>本次任务条件: 收藏数不低于{}，向下抓取{}页',
-		'タスクが開始されます。<br>このタスク条件：ブックマークの数は{}ページ以上で、{}ページがクロールされます。',
-		'Task starts. <br>This task condition: the number of bookmarks is not less than {}, {} pages down to crawl.'
-	],
-	'_want_page_弹出框文字_page_type10': [
-		'你想要下载多少页？请输入数字。\r\n当前模式下，列表页的页数最多只有',
-		'ダウンロードしたいページ数を入力してください。 \r\n最大値：',
-		'Please enter the number of pages you want to download.\r\n The maximum value is '
-	],
-	'_输入超过了最大值': [
-		'你输入的数字超过了最大值',
-		'入力した番号が最大値を超えています',
-		'The number you entered exceeds the maximum'
-	],
-	'_多图作品下载张数': [
-		'多图作品将下载前{}张图片',
-		'2枚以上の作品，最初の{}枚の写真をダウンロードする',
-		'Multi-artwork will download the first {} pictures'
-	],
-	'_任务开始1': [
-		'任务开始<br>本次任务条件: 从本页开始下载{}页',
-		'タスクが開始されます。<br>このタスク条件：このページから{}ページをダウンロードする',
-		'Task starts. <br>This task condition: download {} pages from this page'
-	],
-	'_任务开始0': [
-		'任务开始',
-		'タスクが開始されます。',
-		'Task starts.'
-	],
-	'_check_notdown_type_result1_弹窗': [
-		'由于您排除了所有作品类型，本次任务已取消。',
-		'すべての種類の作業を除外したため、タスクはキャンセルされました。',
-		'Because you excluded all types of work, the task was canceled.'
-	],
-	'_check_notdown_type_result1_html': [
-		'排除作品类型的设置有误，任务取消!',
-		'作業タイプの除外にエラー設定がありました。 タスクがキャンセルされました。',
-		'There was an error setting for the exclusion of the work type. Task canceled.'
-	],
-	'_check_notdown_type_result2_弹窗': [
-		'由于作品类型的设置有误，本次任务已取消。',
-		'除外タイプを設定する際にエラーが発生しました。 タスクがキャンセルされました。',
-		'There was an error setting for the exclusion of the work type. Task canceled.'
-	],
-	'_check_notdown_type_result3_html': [
-		'本次任务设置了排除作品类型:',
-		'この作業では、これらのタイプの作品レーションは除外されます：',
-		'This task excludes these types of works:'
-	],
-	'_单图': [
-		'单图 ',
-		'1枚の作品',
-		'one images'
-	],
-	'_多图': [
-		'多图 ',
-		'2枚以上の作品',
-		'multiple images'
-	],
-	'_动图': [
-		'动图 ',
-		'うごイラ',
-		'GIF'
-	],
-	'_tag搜索页已抓取多少页': [
-		'已抓取本次任务第{}/{}页，当前加载到第{}页',
-		'{}/{}ページをクロールしています。 現在のページ番号は{}ページです',
-		'Has been crawling {} / {} pages. The current page number is page {}'
-	],
-	'_tag搜索页任务完成1': [
-		'本次任务完成。当前有{}张作品。',
-		'この作業は完了です。 今は{}枚の作品があります。',
-		'This task is completed. There are now {} works.'
-	],
-	'_tag搜索页任务完成2': [
-		'已抓取本tag的所有页面，本次任务完成。当前有{}张作品。',
-		'この作業は完了です。 今は{}枚の作品があります。',
-		'This task is completed. There are now {} works.'
-	],
-	'_tag搜索页中断': [
-		'当前任务已中断!<br>当前有{}张作品。',
-		'現在のタスクが中断されました。<br>今は{}枚の作品があります。',
-		'The current task has been interrupted.<br> There are now {} works.'
-	],
-	'_排行榜进度': [
-		'已抓取本页面第{}部分',
-		'このページの第{}部がクロールされました',
-		'Part {} of this page has been crawled'
-	],
-	'_排行榜任务完成': [
-		'本页面抓取完成。当前有{}张作品，开始获取作品信息。',
-		'このページはクロールされ、{}個の作品があります。 詳細は作品を入手し始める。',
-		'This page is crawled and now has {} works. Start getting the works for more information.'
-	],
-	'_列表页获取完成2': [
-		'列表页获取完成。<br>当前有{}张作品，开始获取作品信息。',
-		'リストページがクロールされます。<br>{}個の作品があります。 詳細は作品を入手し始める。',
-		'The list page gets done. <br>Now has {} works. Start getting the works for more information.'
-	],
-	'_列表页抓取进度': [
-		'已抓取列表页{}个页面',
-		'{}のリストページを取得しました',
-		'Has acquired {} list pages'
-	],
-	'_列表页抓取完成': [
-		'列表页面抓取完成，开始获取图片网址',
-		'リストページがクロールされ、画像URLの取得が開始されます',
-		'The list page is crawled and starts to get the image URL'
-	],
-	'_列表页抓取结果为零': [
-		'抓取完毕，但没有找到符合筛选条件的作品。',
-		'クロールは終了しましたが、フィルタ条件に一致する作品が見つかりませんでした。',
-		'Crawl finished but did not find works that match the filter criteria.'
-	],
-	'_排行榜列表页抓取遇到404': [
-		'本页面抓取完成。当前有{}张作品，开始获取作品信息。',
-		'このページはクロールされます、{}個の作品があります。 詳細は作品を入手し始める。',
-		'This page is crawled. Now has {} works. Start getting the works for more information.'
-	],
-	'_当前任务尚未完成2': [
-		'当前任务尚未完成，请等待完成后再下载。',
-		'現在のタスクはまだ完了していません',
-		'The current task has not yet been completed'
-	],
-	'_列表抓取完成开始获取作品页': [
-		'当前列表中有{}张作品，开始获取作品信息',
-		'{}個の作品があります。 詳細は作品を入手し始める。',
-		'Now has {} works. Start getting the works for more information.'
-	],
-	'_开始获取作品页面': [
-		'<br>开始获取作品页面',
-		'<br>作品ページの取得を開始する',
-		'<br>Start getting the works page'
-	],
-	'_无权访问1': [
-		'无权访问{}，抓取中断。',
-		'アクセス{}、中断はありません。',
-		'No access {}, interruption.'
-	],
-	'_无权访问2': [
-		'无权访问{}，跳过该作品。',
-		'アクセス{}、無視する。',
-		'No access {}, skip.'
-	],
-	'_作品页状态码0': [
-		'请求的url不可访问',
-		'要求されたURLにアクセスできません',
-		'The requested url is not accessible'
-	],
-	'_作品页状态码400': [
-		'该作品已被删除',
-		'作品は削除されました',
-		'The work has been deleted'
-	],
-	'_作品页状态码403': [
-		'无权访问请求的url 403',
-		'リクエストされたURLにアクセスできない 403',
-		'Have no access to the requested url 403'
-	],
-	'_作品页状态码404': [
-		'404 not found',
-		'404 not found',
-		'404 not found'
-	],
-	'_抓取图片网址的数量': [
-		'已获取{}个图片网址',
-		'{}つの画像URLを取得',
-		'Get {} image URLs'
-	],
-	'_正在抓取': [
-		'正在抓取，请等待……',
-		'取得中、しばらくお待ちください...',
-		'Getting, please wait...'
-	],
-	'_获取全部书签作品': [
-		'获取全部书签作品，时间可能比较长，请耐心等待。',
-		'ブックマークしたすべての作品を入手すると、時間がかかることがあります。お待ちください。',
-		'Get all bookmarked works, the time may be longer, please wait.'
-	],
-	'_抓取图片网址遇到中断': [
-		'当前任务已中断!',
-		'現在のタスクが中断されました。',
-		'The current task has been interrupted.'
-	],
-	'_收起下载按钮': [
-		'收起下载按钮',
-		'ダウンロードボタンを非表示にする',
-		''
-	],
-	'_展开下载按钮': [
-		'展开下载按钮',
-		'ダウンロードボタンを表示',
-		''
-	],
-	'_展开收起下载按钮_title': [
-		'展开/收起下载按钮',
-		'ダウンロードボタンを表示/非表示',
-		'Show / hide download button'
-	],
-	'_关闭': [
-		'关闭',
-		'クローズド',
-		'close'
-	],
-	'_输出信息': [
-		'输出信息',
-		'出力情報',
-		'Output information'
-	],
-	'_复制': [
-		'复制',
-		'コピー',
-		'Copy'
-	],
-	'_已复制到剪贴板': [
-		'已复制到剪贴板，可直接粘贴',
-		'クリップボードにコピーされました',
-		'Has been copied to the clipboard'
-	],
-	'_下载设置': [
-		'下载设置',
-		'設定をダウンロードする',
-		'Download settings'
-	],
-	'_隐藏': [
-		'隐藏',
-		'隠された',
-		'hide'
-	],
-	'_收起展开设置项': [
-		'收起/展开设置项',
-		'設定の折りたたみ/展開',
-		'Collapse/expand settings'
-	],
-	'_快捷键切换显示隐藏': [
-		'使用 Alt + X，可以显示和隐藏下载面板',
-		'Alt + Xを使用してダウンロードパネルを表示および非表示にする',
-		'Use Alt + X to show and hide the download panel'
-	],
-	'_设置命名规则': [
-		'共抓取到{}个图片，请设置文件命名规则：',
-		'合計{}枚の画像を取得し、ファイルの命名規則を設定してください：',
-		'Grab a total of {} pictures, please set the file naming rules: '
-	],
-	'_设置命名规则3': [
-		'共抓取到 {} 个图片',
-		'合計 {} 枚の画像を取得し',
-		'Grab a total of {} pictures'
-	],
-	'_设置命名规则2': [
-		'设置命名规则',
-		'命名規則を設定する',
-		'Set naming rules'
-	],
-	'_设置命名规则2提示': [
-		'设置图片的名字',
-		'画像の名前を設定する',
-		'Set the name of the picture'
-	],
-	'_添加标记名称': [
-		'添加标记名称',
-		'タグ名を追加する',
-		'Add tag name'
-	],
-	'_添加标记名称提示': [
-		'把标签名称添加到文件名里',
-		'ファイル名にタグ名を追加する',
-		'Add the tag name to the file name'
-	],
-	'_查看可用的标记': [
-		'查看可用的标记',
-		'利用可能なタグを見る',
-		'See available tags'
-	],
-	'_可用标记1': [
-		'作品id',
-		'作品ID',
-		'works id'
-	],
-	'_可用标记2': [
-		'作品标题',
-		'作品のタイトル',
-		'works title'
-	],
-	'_可用标记3': [
-		'作品的tag列表',
-		'作品のtags',
-		'Tags of works'
-	],
-	'_可用标记4': [
-		'画师的名字',
-		'アーティスト名',
-		'Artist name'
-	],
-	'_可用标记6': [
-		'画师的id',
-		'アーティストID',
-		'Artist id'
-	],
-	'_可用标记7': [
-		'宽度和高度',
-		'幅と高さ',
-		'width and height'
-	],
-	'_可用标记8': [
-		'bookmark-count，作品的收藏数。把它放在最前面就可以让下载后的文件按收藏数排序。',
-		'bookmark-count，作品のコレクション数のコレクション数は。',
-		'bookmark-count.'
-	],
-	'_可用标记5': [
-		'你可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}-{px}<br>* 在pixivision里，只有id标记会生效',
-		'複数のタグを使用することができ；異なるタグ間に別の文字を追加することができます。例：{id}-{userid}-{px}<br>* pixivisionでは、idのみが利用可能です',
-		'You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}-{px}<br>* On pixivision, only id is available'
-	],
-	'_预览文件名': [
-		'预览文件名',
-		'ファイル名のプレビュー',
-		'Preview file name'
-	],
-	'_设置下载线程': [
-		'设置下载线程',
-		'ダウンロードスレッドを設定する',
-		'Set the download thread'
-	],
-	'_线程数字': [
-		'可以输入 1-10 之间的数字，设置同时下载的数量',
-		'同時ダウンロード数を設定するには、1〜10の数値を入力します',
-		'You can enter a number between 1-10 to set the number of concurrent downloads'
-	],
-	'_下载按钮1': [
-		'开始下载',
-		'start download',
-		'start download'
-	],
-	'_下载按钮2': [
-		'暂停下载',
-		'puse download',
-		'puse download'
-	],
-	'_下载按钮3': [
-		'停止下载',
-		'stop download',
-		'stop download'
-	],
-	'_下载按钮4': [
-		'复制url',
-		'copy urls',
-		'copy urls'
-	],
-	'_当前状态': [
-		'当前状态 ',
-		'現在の状態 ',
-		'Now state '
-	],
-	'_未开始下载': [
-		'未开始下载',
-		'まだダウンロードを開始していません',
-		'Not yet started downloading'
-	],
-	'_下载进度：': [
-		'下载进度：',
-		'ダウンロードの進捗状況：',
-		'Download progress: '
-	],
-	'_下载线程：': [
-		'下载线程：',
-		'スレッド：',
-		'Thread: '
-	],
-	'_查看下载说明': [
-		'查看下载说明',
-		'指示の表示',
-		'View instructions'
-	],
-	'_下载说明': [
-		'下载的文件保存在浏览器的下载目录里。<br>本脚本不支持自动创建文件夹。<br>你可能会下载到 .ugoira 格式的文件，这是动态图的源文件。<br>请不要在浏览器的下载选项里选中\'总是询问每个文件的保存位置\'。<br>如果浏览器询问\'是否允许下载多个文件\'，请选择\'允许\'。<br>如果浏览器询问\'保存\'文件还是\'打开\'文件，请选择\'保存\'。<br>如果作品标题或tag里含有不能做文件名的字符，会被替换成下划线_。<br>如果任务下载缓慢或失败，可使用\'复制url\'功能，之后尝试使用其他下载软件进行下载。',
-		'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br>このスクリプトは、フォルダの自動作成をサポートしていません。<br>ブラウザが\'複数のファイルをダウンロードできるようにするかどうか\'と尋ねる場合は、\'許可\'を選択します。<br>Chromeをお勧めします。',
-		'The downloaded file is saved in the browser`s download directory.<br>This script does not support the automatic creation of folders.<br>If the browser asks \'whether to allow multiple files to be downloaded \', select \'Allow \'.<br>Chrome is recommended.'
-	],
-	'_正在下载中': [
-		'正在下载中',
-		'ダウンロード',
-		'downloading'
-	],
-	'_正在暂停': [
-		'任务正在暂停中，但当前位于下载线程中的文件会继续下载',
-		'後でダウンロードが一時停止されます。',
-		'The download will be paused later.'
-	],
-	'_正在停止': [
-		'任务正在停止中，但当前位于下载线程中的文件会继续下载',
-		'ダウンロードは後で中止されます。',
-		'The download will stop later.'
-	],
-	'_下载完毕': [
-		'下载完毕!',
-		'ダウンロードが完了しました',
-		'Download finished'
-	],
-	'_已暂停': [
-		'下载已暂停',
-		'ダウンロードは一時停止中です',
-		'Download is paused'
-	],
-	'_已停止': [
-		'下载已停止',
-		'ダウンロードが停止しました',
-		'Download stopped'
-	],
-	'_已下载': [
-		'已下载',
-		'downloaded',
-		'downloaded'
-	],
-	'_获取图片网址完毕': [
-		'获取完毕，共{}个图片地址',
-		'合計{}個の画像URLを取得する',
-		'Get a total of {} image url'
-	],
-	'_没有符合条件的作品': [
-		'没有符合条件的作品!任务结束。',
-		'基準を満たす作品はありません！タスクは終了します。',
-		'There are no works that meet the criteria! The task ends.'
-	],
-	'_没有符合条件的作品弹窗': [
-		'抓取完毕!没有符合条件的作品!',
-		'クロールが終了しました！基準を満たす作品はありません',
-		'Crawl finished! There are no works that meet the criteria! '
-	],
-	'_抓取完毕': [
-		'抓取完毕!',
-		'クロールが終了しました！',
-		'Crawl finished!'
-	],
-	'_快速下载本页': [
-		'快速下载本页作品',
-		'この作品をすばやくダウンロードする',
-		'Download this work quickly'
-	],
-	'_转换为 GIF': [
-		'转换为 GIF',
-		'GIFに変換する',
-		'Convert to GIF'
-	],
-	'_准备转换': [
-		'准备转换',
-		'変換する準備ができました',
-		'Ready to convert'
-	],
-	'_转换中请等待': [
-		'转换中，请等待……',
-		'変換ではお待ちください...',
-		'In the conversion, please wait...'
-	],
-	'_转换完成': [
-		'转换完成',
-		'変換完了',
-		'Conversion completed'
-	],
-	'_从本页开始下载': [
-		'从本页开始下载作品',
-		'このページからダウンロードできます',
-		'Download works from this page'
-	],
-	'_下载相关作品': [
-		'下载相关作品',
-		'関連作品をダウンロードする',
-		'Download the related works'
-	],
-
-	'_相关作品大于0': [
-		' （下载相关作品必须大于 0）',
-		' （ダウンロード関連作品は0より大きくなければならない）',
-		'  (Download related works must be greater than 0)'
-	],
-	'_下载作品': [
-		'下载作品',
-		'イメージをダウンロード',
-		'Download works'
-	],
-	'_下载响应作品': [
-		'下载响应作品',
-		'イメージレスポンスの作品をダウンロードする',
-		'Download the responses illustration'
-	],
-	'_下载该tag中的作品': [
-		'下载该tag中的作品',
-		'タグで作品をダウンロードする',
-		'Download the work in the tag'
-	],
-	'_下载书签': [
-		'下载书签中的作品',
-		'このブックマークでこの作品をダウンロード',
-		'Download the works in this bookmark'
-	],
-	'_默认下载多页': [
-		', 如有多页，默认会下载全部。',
-		'複数のページがある場合、デフォルトがダウンロードされます。',
-		', If there are multiple pages, the default will be downloaded.'
-	],
-	'_调整完毕': [
-		'调整完毕，当前有{}张作品。',
-		'調整が完了し、今、{}の作品があります。',
-		'The adjustment is complete and now has {} works.'
-	],
-	'_按收藏数筛选': [
-		'按收藏数筛选',
-		'お気に入りからのフィルター',
-		'Filter by bookmarks'
-	],
-	'_按收藏数筛选_title': [
-		'按收藏数筛选当前tag里的作品。如果多次筛选，页码会一直累加。',
-		'現在のタグのエントリ数でフィルタリングします。多次过滤时，页码增加。',
-		'Filter by the number of entries in the current tag. If you filter multiple times, the page number will increase.'
-	],
-	'_在结果中筛选': [
-		'在结果中筛选',
-		'結果のフィルタリング',
-		'Filter in results'
-	],
-	'_在结果中筛选_title': [
-		'如果本页筛选后作品太多，可以提高收藏数的要求，在结果中筛选。达不到要求的会被隐藏而不是删除。所以你可以反复进行筛选。被隐藏的项目不会被下载。',
-		'あなたは何度も選別することができて、要求の作品が隠されて、それからダウンロードされません。',
-		'You can make multiple screening , fail to meet the required works will be hidden, and will not be downloaded.'
-	],
-	'_在结果中筛选弹窗': [
-		'将在当前作品列表中再次过滤，请输入要求的最低收藏数: ',
-		'将在当前作品列表中再次筛选，请输入要求的最低收藏数',
-		'Will be filtered again in the current list of works. Please enter the required minimum number of bookmarks:'
-	],
-	'_下载当前作品': [
-		'下载当前作品',
-		'現在の作品をダウンロードする',
-		'Download the current work'
-	],
-	'_下载当前作品_title': [
-		'下载当前列表里的所有作品',
-		'現在のリストにあるすべての作品をダウンロードする',
-		'Download all the works in the current list'
-	],
-	'_中断当前任务': [
-		'中断当前任务',
-		'現在のタスクを中断する',
-		'Interrupt the current task'
-	],
-	'_中断当前任务_title': [
-		'筛选时中断之后可以继续执行。',
-		'ふるい分け作品で中断され、その後引き続き実行可能です。',
-		'In the screening works when the break, then you can continue to perform.'
-	],
-	'_当前任务已中断': [
-		'当前任务已中断!',
-		'現在のタスクが中断されました',
-		'The current task has been interrupted'
-	],
-	'_下载时排除tag': [
-		'下载时排除tag',
-		'ダウンロード時にタグを除外する',
-		'Exclude tags when downloading'
-	],
-	'_清除多图作品': [
-		'清除多图作品',
-		'複数の図面を削除する',
-		'Remove multi-drawing works'
-	],
-	'_清除多图作品_title': [
-		'如果不需要可以清除多图作品',
-		'必要がない場合は、複数のグラフを削除することができます',
-		'If you do not need it, you can delete multiple graphs'
-	],
-	'_清除动图作品': [
-		'清除动图作品',
-		'うごイラ作品を削除する',
-		'Remove animat work'
-	],
-	'_清除动图作品_title': [
-		'如果不需要可以清除动图作品',
-		'必要がない場合は、うごイラを削除することができます',
-		'If you do not need it, you can delete the animat work'
-	],
-	'_手动删除作品': [
-		'手动删除作品',
-		'マニュアル削除作品',
-		'Manually delete the work'
-	],
-	'_手动删除作品_title': [
-		'可以在下载前手动删除不需要的作品',
-		'ダウンロードする前に不要な作品を手動で削除することができます',
-		'You can manually delete unwanted work before downloading'
-	],
-	'_退出手动删除': [
-		'退出手动删除',
-		'削除モードを終了する',
-		'Exit manually delete'
-	],
-	'_清空作品列表': [
-		'清空作品列表',
-		'作品のリストを空にする',
-		'Empty the list of works'
-	],
-	'_清空作品列表_title': [
-		'如果网页内容过多，可能导致页面崩溃。如有需要可以清除当前的作品列表。',
-		'',
-		''
-	],
-	'_下载本页作品': [
-		'下载本页作品',
-		'このページをダウンロードする',
-		'Download this page works'
-	],
-	'_下载本页作品_title': [
-		'下载本页列表中的所有作品',
-		'このページをダウンロードする',
-		'Download this page works'
-	],
-	'_已清除多图作品': [
-		'已清除多图作品',
-		'マルチマップ作品を削除しました',
-		'Has deleted the multi-map works'
-	],
-	'_已清除动图作品': [
-		'已清除动图作品',
-		'うごイラが削除されました',
-		'Dynamic work has been removed'
-	],
-	'_下载本排行榜作品': [
-		'下载本排行榜作品',
-		'このリストの作品をダウンロードする',
-		'Download the works in this list'
-	],
-	'_下载本排行榜作品_title': [
-		'下载本排行榜的所有作品，包括现在尚未加载出来的。',
-		'このリストの作品をダウンロードする、まだロードされていないものを含む',
-		'Download all of the works in this list, including those that are not yet loaded.'
-	],
-	'_下载该页面的图片': [
-		'下载该页面的图片',
-		'ページの写真をダウンロードする',
-		'Download the picture of the page'
-	],
-	'_下载该专辑的图片': [
-		'下载该专辑的图片',
-		'アルバムの画像をダウンロードする',
-		'Download the album`s picture'
-	],
-	'_下载推荐图片': [
-		'下载推荐图片',
-		'おすすめ作品をダウンロードする',
-		'Download recommended works'
-	],
-	'_下载推荐图片_title': [
-		'下载为你推荐的图片',
-		'あなたのお勧め作品をダウンロードする',
-		'Download for your recommended works'
-	],
-	'_下载相似图片': [
-		'下载相似图片',
-		'類似の作品をダウンロードする',
-		'Download similar works'
-	],
-	'_要获取的作品个数': [
-		'你想要获取多少个作品？（注意是个数而不是页数）\r\n请输入数字，最大值为',
-		'いくつの作品をダウンロードしたいですか？ （ページ数ではなく作品数に注意してください）\r\n数値を入力してください。最大値は',
-		'How many works do you want to download? (Note that the number of works rather than the number of pages)\r\nPlease enter a number, max '
-	],
-	'_要获取的作品个数2': [
-		'你想要获取多少个作品？',
-		'いくつの作品をダウンロードしたいですか？',
-		'How many works do you want to download?'
-	],
-	'_数字提示1': [
-		'-1, 或者大于 0',
-		'-1、または0より大きい',
-		'-1, or greater than 0'
-	],
-	'_超过最大值': [
-		'你输入的数字超过了最大值',
-		'入力した番号が最大値を超えています',
-		'The number you entered exceeds the maximum'
-	],
-	'_下载大家的新作品': [
-		'下载大家的新作品',
-		'みんなの新作をダウンロードする',
-		'Download everyone`s new work'
-	],
-	'_屏蔽设定': [
-		'屏蔽設定',
-		'ミュート設定',
-		'Mute settings'
-	],
-	'_举报': [
-		'举报',
-		'報告',
-		'Report'
-	],
-	'_输入id进行下载': [
-		'输入id进行下载',
-		'IDでダウンロード',
-		'Download by ID'
-	],
-	'_输入id进行下载的提示文字': [
-		'请输入作品id。如果有多个id，则以换行分割（即每行一个id）',
-		'イラストレーターIDを入力してください。 複数のidがある場合は、1行に1つのidを付けます。',
-		'Please enter the illustration id. If there is more than one id, one id per line.'
-	],
-	'_开始下载': [
-		'开始下载',
-		'ダウンロードを開始する',
-		'Start download'
-	],
-	'_开始抓取': [
-		'开始抓取',
-		'クロールを開始する',
-		'Start crawling'
-	],
-	'_id不合法': [
-		'id不合法，操作取消。',
-		'idが不正な、操作はキャンセルされます。',
-		'id is illegal, the operation is canceled.'
-	],
-	'_快速收藏': [
-		'快速收藏',
-		'クイックブックマーク',
-		'Quick bookmarks'
-	],
-	'_显示': [
-		'显示',
-		'表示',
-		'display'
-	],
-	'_是否显示封面': [
-		'是否显示封面',
-		'カバーを表示するかどうか',
-		'Whether to display the cover'
-	],
-	'_显示封面的提示': [
-		'如果搜索结果数量很多，封面图数量也会很多。如果加载大量的封面图，会占用很多网络资源，也可能导致任务异常中断。如果遇到了这种情况，取消选中这个按钮。',
-		'検索結果の数が多い場合は、表紙画像の数が多くなります。 大量の表紙画像を読み込むと、ネットワークリソースが膨大になり、異常なタスクの中断を引き起こす可能性があります。 このような場合は、このボタンのチェックを外す。',
-		'If the number of search results is large, the number of cover images will be many. If you load a large number of cover images, it will take up a lot of network resources, and it may cause abnormal interruption of tasks. If this happens, uncheck the button.'
-	],
-	'_启用': [
-		'启用',
-		'有効にする',
-		'Enable'
-	],
-	'_是否快速下载': [
-		'是否快速下载',
-		'すぐにダウンロードするかどうか',
-		'Whether to download quickly'
-	],
-	'_快速下载的提示': [
-		'当“开始下载”状态可用时，自动开始下载，不需要点击下载按钮。',
-		'「ダウンロードを開始する」ステータスが利用可能になると、ダウンロードは自動的に開始され、ダウンロードボタンをクリックする必要はありません。',
-		'When the &quot;Start Downloa&quot; status is available, the download starts automatically and no need to click the download button.'
-	]
-};
+		'_多p下载前几张提示': [
+			'如果数字大于 0，多图作品只会下载前几张图片。（按照设置的数量）',
+			'数字が0より大きい場合、マルチピクチャは最初のいくつかのイメージのみをダウンロードします。 （設定数に応じて）',
+			'If the number is greater than 0, the multiple images work will only download the first few images. (according to the number of settings)',
+			'如果數字大於 0，多圖作品只會下載前幾張圖片。（依照設定的數量）'
+		],
+		'_排除tag的按钮文字': [
+			'设置作品不能包含的tag',
+			'作品に含まれていないタグを設定する',
+			'Set the tag that the work can not contain',
+			'設定作品不能包含的tag'
+		],
+		'_不能含有tag': [
+			'不能含有 tag&nbsp;',
+			'指定したタグを除外する',
+			'Exclude specified tag',
+			'不能含有 tag&nbsp;'
+		],
+		'_排除tag的按钮_title': [
+			'在下载前，您可以设置想要排除的tag',
+			'ダウンロードする前に、除外するタグを設定できます',
+			'Before downloading, you can set the tag you want to exclude',
+			'在下載前，您可以設定想要排除的tag'
+		],
+		'_排除tag的提示文字': [
+			'您可在下载前设置要排除的tag，这样在下载时将不会下载含有这些tag的作品。区分大小写；如需排除多个tag，请使用英文逗号分隔。请注意要排除的tag的优先级大于要包含的tag的优先级。',
+			'ダウンロードする前に、除外するタグを設定できます。ケースセンシティブ；複数のタグを設定する必要がある場合は、\',\'を分けて使用できます。除外されたタグは、含まれているタグよりも優先されます',
+			'Before downloading, you can set the tag you want to exclude. Case sensitive; If you need to set multiple tags, you can use \',\' separated. The excluded tag takes precedence over the included tag',
+			'您可在下載前設定要排除的tag，這樣在下載時將不會下載含有這些tag的作品。區分大小寫；如需排除多個tag，請使用英文逗號分隔。請注意要排除的tag的優先等級大於要包含的tag的優先等級。'
+		],
+		'_设置了排除tag之后的提示': [
+			'本次任务设置了排除的tag:',
+			'このタスクはタグを除外します：',
+			'This task excludes tag:',
+			'本次工作設定了排除的tag:'
+		],
+		'_必须tag的按钮文字': [
+			'设置作品必须包含的tag',
+			'作品に含める必要があるタグを設定する',
+			'Set the tag that the work must contain',
+			'設定作品必須包含的tag'
+		],
+		'_必须含有tag': [
+			'必须含有 tag&nbsp;',
+			'タグを含める必要があります',
+			'Must contain tag',
+			'必須含有 tag&nbsp;'
+		],
+		'_必须tag的按钮_title': [
+			'在下载前，您可以设置必须包含的tag。',
+			'ダウンロードする前に、含まれなければならないタグを設定することができます',
+			'Before downloading, you can set the tag that must be included',
+			'在下載前，您可以設定必須包含的tag。'
+		],
+		'_必须tag的提示文字': [
+			'您可在下载前设置作品里必须包含的tag，区分大小写；如需包含多个tag，请使用英文逗号分隔。',
+			'ダウンロードする前に、含まれなければならないタグを設定することができます。ケースセンシティブ；複数のタグを設定する必要がある場合は、\',\'を分けて使用できます。',
+			'Before downloading, you can set the tag that must be included. Case sensitive; If you need to set multiple tags, you can use \',\' separated. ',
+			'您可在下載前設定作品裡必須包含的tag，區分大小寫；如需包含多個tag，請使用英文逗號分隔。'
+		],
+		'_设置了必须tag之后的提示': [
+			'本次任务设置了必须的tag：',
+			'このタスクは、必要なタグを設定します：',
+			'This task set the necessary tag: ',
+			'本次工作設定了必須的tag：'
+		],
+		'_筛选宽高的按钮文字': [
+			'设置宽高条件',
+			'幅と高さの条件を設定する',
+			'Set the width and height',
+			'設定寬高條件'
+		],
+		'_筛选宽高的按钮_title': [
+			'在下载前，您可以设置要下载的图片的宽高条件。',
+			'ダウンロードする前に、ダウンロードする写真の幅と高さの条件を設定できます。',
+			'Before downloading, you can set the width and height conditions of the pictures you want to download.',
+			'在下載前，您可以設定要下載的圖片的寬高條件。'
+		],
+		'_筛选宽高的提示文字': [
+			'请输入最小宽度和最小高度，不会下载不符合要求的图片。',
+			'最小幅と最小高さを入力してください。要件を満たしていない画像はダウンロードされません。',
+			'Please enter the minimum width and minimum height. Will not download images that do not meet the requirements',
+			'請輸入最小寬度和最小高度，不會下載不符合要求的圖片。'
+		],
+		'_本次输入的数值无效': [
+			'本次输入的数值无效',
+			'無効な入力',
+			'Invalid input',
+			'本次輸入的數值無效'
+		],
+		'_设置成功': [
+			'设置成功',
+			'セットアップが正常に完了しました',
+			'Set up successfully',
+			'設定成功'
+		],
+		'_设置了筛选宽高之后的提示文字p1': [
+			'本次任务设置了过滤宽高条件:宽度>=',
+			'この作業では、フィルターの幅と高さの条件を設定します。幅≥',
+			'This task sets the filter width and height conditions. Width ≥',
+			'本次工作設定了篩選寬高條件:寬度>='
+		],
+		'_或者': [
+			' 或者 ',
+			' または ',
+			' or ',
+			' 或是 '
+		],
+		'_并且': [
+			' 并且 ',
+			' そして ',
+			' and ',
+			' 並且 '
+		],
+		'_高度设置': [
+			'高度>=',
+			'高さ≥',
+			'height ≥',
+			'高度>='
+		],
+		'_个数': [
+			'设置作品数量',
+			'作品数を設定する',
+			'Set the number of works',
+			'設定作品數量'
+		],
+		'_页数': [
+			'设置页面数量',
+			'ページ数を設定する',
+			'Set the number of pages',
+			'設定頁面數量'
+		],
+		'_页数提示': [
+			'请输入要获取的页数',
+			'取得するページ数を入力してください',
+			'Please enter the number of pages to get',
+			'請輸入要取得的頁數'
+		],
+		'_筛选收藏数的按钮文字': [
+			'设置收藏数量',
+			'お気に入りの数を設定する',
+			'Set the bookmarkCount conditions',
+			'設定收藏數量'
+		],
+		'_筛选收藏数的按钮_title': [
+			'在下载前，您可以设置对收藏数量的要求。',
+			'ダウンロードする前に、お気に入り数の要件を設定することができます。',
+			'Before downloading, You can set the requirements for the number of bookmarks.',
+			'在下載前，您可以設定對收藏數量的要求。'
+		],
+		'_筛选收藏数_center': [
+			'设置收藏数量',
+			'ブックマークの数を設定する',
+			'Set the number of bookmarks',
+			'設定收藏數量'
+		],
+		'_筛选收藏数的提示_center': [
+			'如果作品的收藏数小于设置的数字，作品不会被下载。',
+			'作品のブックマークの数が設定された数よりも少ない場合、作品はダウンロードされません。',
+			'If the number of bookmarks of the work is less than the set number, the work will not be downloaded.',
+			'如果作品的收藏數小於設定的數字，作品不會被下載。'
+		],
+		'_筛选收藏数的提示文字': [
+			'请输入一个数字，如果作品的收藏数小于这个数字，作品不会被下载。',
+			'数字を入力してください。 作品のブックマークの数がこの数より少ない場合、作品はダウンロードされません。',
+			'Please enter a number. If the number of bookmarks of the work is less than this number, the work will not be downloaded.',
+			'請輸入一個數字，如果作品的收藏數小於這個數字，作品不會被下載。'
+		],
+		'_设置了筛选收藏数之后的提示文字': [
+			'本次任务设置了收藏数条件:收藏数>=',
+			'このタスクは、お気に入りの数を設定します。条件：お気に入りの数≥',
+			'This task sets the number of bookmarks condition: number of bookmarks ≥',
+			'本次工作設定了收藏數條件:收藏數>='
+		],
+		'_本次任务已全部完成': [
+			'本次任务已全部完成。',
+			'このタスクは完了しました。',
+			'This task has been completed.',
+			'本次工作已全部完成'
+		],
+		'_当前任务尚未完成1': [
+			'当前任务尚未完成，请等到提示完成之后再设置新的任务。',
+			'現在のタスクはまだ完了していません。お待ちください。',
+			'The current task has not yet completed, please wait.',
+			'目前工作尚未完成，請等到提示完成之後再設定新的工作。'
+		],
+		'_check_want_page_rule1_arg1': [
+			'从本页开始下载<br>如果要下载全部作品，请保持默认值。<br>如果需要设置下载的作品数，请输入从1开始的数字，1为仅下载当前作品。',
+			'このページからダウンロードする<br>すべての作品をダウンロードしたい場合は、デフォルト値のままにしてください。<br>ダウンロード数を設定する必要がある場合は、1から始まる番号を入力します。 現在の作品には1の番号が付けられています。',
+			'Download from this page<br>If you want to download all the work, please leave the default value.<br>If you need to set the number of downloads, enter a number starting at 1. The current works are numbered 1.',
+			'從本頁開始下載<br>如果要下載全部作品，請保持預設值。<br>如果需要設定下載的作品數，請輸入從1開始的數字，1為僅下載目前作品。'
+		],
+		'_check_want_page_rule1_arg2': [
+			'参数不合法，本次操作已取消。<br>',
+			'パラメータは有効ではありません。この操作はキャンセルされました。<br>',
+			'Parameter is not legal, this operation has been canceled.<br>',
+			'參數不合法，本次動作已取消。<br>'
+		],
+		'_check_want_page_rule1_arg3': [
+			'任务开始<br>本次任务条件: 从本页开始下载-num-个作品',
+			'タスクが開始されます。<br>このタスク条件：このページから-num-枚の作品をダウンロード。',
+			'Task starts. <br>This task condition: Download -num- works from this page.',
+			'工作開始<br>本次工作條件: 從本頁開始下載-num-個作品'
+		],
+		'_check_want_page_rule1_arg4': [
+			'任务开始<br>本次任务条件: 向下获取所有作品',
+			'タスクが開始されます。<br>このタスク条件：このページからすべての作品をダウンロードする。',
+			'Task starts. <br>This task condition: download all the work from this page.',
+			'工作開始<br>本次工作條件: 向下取得所有作品'
+		],
+		'_check_want_page_rule1_arg5': [
+			'从本页开始下载<br>如果不限制下载的页数，请不要修改此默认值。<br>如果要限制下载的页数，请输入从1开始的数字，1为仅下载本页。',
+			'このページからダウンロードする<br>ダウンロードしたページ数を制限しない場合は、デフォルト値のままにしておきます。<br>ダウンロードするページ数を設定する場合は、1から始まる番号を入力します。 現在のページは1です。',
+			'Download from this page<br>If you do not limit the number of pages downloaded, leave the default value.<br>If you want to set the number of pages to download, enter a number starting at 1. This page is 1.',
+			'從本頁開始下載<br>如果不限制下載的頁數，請不要變更此預設值。<br>如果要限制下載的頁數，請輸入從1開始的數字，1為僅下載本頁。'
+		],
+		'_check_want_page_rule1_arg8': [
+			'从本页开始下载<br>如果要限制下载的页数，请输入从1开始的数字，1为仅下载本页。',
+			'このページからダウンロードする<br>ダウンロードするページ数を設定する場合は、1から始まる番号を入力します。 現在のページは1です。',
+			'Download from this page<br>If you want to set the number of pages to download, enter a number starting at 1. This page is 1.',
+			'從本頁開始下載<br>如果要限制下載的頁數，請輸入從1開始的數字，1為僅下載本頁。'
+		],
+		'_check_want_page_rule1_arg6': [
+			'任务开始<br>本次任务条件: 从本页开始下载-num-页',
+			'タスクが開始されます。<br>このタスク条件：現在のページから-num-ページ',
+			'Task starts. <br>This task condition: download -num- pages from the current page',
+			'工作開始<br>本次工作條件: 從本頁開始下載-num-頁'
+		],
+		'_check_want_page_rule1_arg7': [
+			'任务开始<br>本次任务条件: 下载所有页面',
+			'タスクが開始されます。<br>このタスク条件：すべてのページをダウンロード',
+			'Task starts. <br>This task condition: download all pages',
+			'工作開始<br>本次工作條件: 下載所有頁面'
+		],
+		'_请输入最低收藏数和要抓取的页数': [
+			'请输入最低收藏数和要抓取的页数，用英文逗号分开。\n类似于下面的形式: \n1000,1000',
+			'お気に入りの最小数とクロールするページ数を，\',\'で区切って入力してください。\n例えば：\n1000,1000',
+			'Please enter the minimum number of bookmarks, and the number of pages to be crawled, separated by \',\'.\nE.g:\n1000,1000',
+			'請輸入最低收藏數和要擷取的頁數，用英文逗號分開。\n類似於下面的形式: \n1000,1000'
+		],
+		'_参数不合法1': [
+			'参数不合法，请稍后重试。',
+			'パラメータが合法ではありません。後でやり直してください。',
+			'Parameter is not legal, please try again later.',
+			'參數不合法，請稍後重試。'
+		],
+		'_tag搜索任务开始': [
+			'任务开始<br>本次任务条件: 收藏数不低于{}，向下抓取{}页',
+			'タスクが開始されます。<br>このタスク条件：ブックマークの数は{}ページ以上で、{}ページがクロールされます。',
+			'Task starts. <br>This task condition: the number of bookmarks is not less than {}, {} pages down to crawl.',
+			'工作開始<br>本次工作條件: 收藏數不低於{}，向下擷取{}頁'
+		],
+		'_want_page_弹出框文字_page_type10': [
+			'你想要下载多少页？请输入数字。\r\n当前模式下，列表页的页数最多只有',
+			'ダウンロードしたいページ数を入力してください。 \r\n最大値：',
+			'Please enter the number of pages you want to download.\r\n The maximum value is ',
+			'你想要下載多少頁？請輸入數字。\r\n目前模式下，清單頁的頁數最多只有'
+		],
+		'_输入超过了最大值': [
+			'你输入的数字超过了最大值',
+			'入力した番号が最大値を超えています',
+			'The number you entered exceeds the maximum',
+			'你輸入的數字超過了最大值'
+		],
+		'_多图作品下载张数': [
+			'多图作品将下载前{}张图片',
+			'2枚以上の作品，最初の{}枚の写真をダウンロードする',
+			'Multi-artwork will download the first {} pictures',
+			'多圖作品將下載前{}張圖片'
+		],
+		'_任务开始1': [
+			'任务开始<br>本次任务条件: 从本页开始下载{}页',
+			'タスクが開始されます。<br>このタスク条件：このページから{}ページをダウンロードする',
+			'Task starts. <br>This task condition: download {} pages from this page',
+			'工作開始<br>本次工作條件: 從本頁開始下載{}頁'
+		],
+		'_任务开始0': [
+			'任务开始',
+			'タスクが開始されます。',
+			'Task starts.',
+			'工作開始'
+		],
+		'_check_notdown_type_result1_弹窗': [
+			'由于您排除了所有作品类型，本次任务已取消。',
+			'すべての種類の作業を除外したため、タスクはキャンセルされました。',
+			'Because you excluded all types of work, the task was canceled.',
+			'由於您排除了所有作品類型，本次工作已取消。'
+		],
+		'_check_notdown_type_result1_html': [
+			'排除作品类型的设置有误，任务取消!',
+			'作業タイプの除外にエラー設定がありました。 タスクがキャンセルされました。',
+			'There was an error setting for the exclusion of the work type. Task canceled.',
+			'排除作品類型的設定有誤，工作取消!'
+		],
+		'_check_notdown_type_result2_弹窗': [
+			'由于作品类型的设置有误，本次任务已取消。',
+			'除外タイプを設定する際にエラーが発生しました。 タスクがキャンセルされました。',
+			'There was an error setting for the exclusion of the work type. Task canceled.',
+			'由於作品類型的設定有誤，本次工作已取消。'
+		],
+		'_check_notdown_type_result3_html': [
+			'本次任务设置了排除作品类型:',
+			'この作業では、これらのタイプの作品レーションは除外されます：',
+			'This task excludes these types of works:',
+			'本次工作設定了排除作品類型:'
+		],
+		'_单图': [
+			'单图 ',
+			'1枚の作品',
+			'one images',
+			'單圖 '
+		],
+		'_多图': [
+			'多图 ',
+			'2枚以上の作品',
+			'multiple images',
+			'多圖 '
+		],
+		'_动图': [
+			'动图 ',
+			'うごイラ',
+			'GIF',
+			'動圖 '
+		],
+		'_tag搜索页已抓取多少页': [
+			'已抓取本次任务第{}/{}页，当前加载到第{}页',
+			'{}/{}ページをクロールしています。 現在のページ番号は{}ページです',
+			'Has been crawling {} / {} pages. The current page number is page {}',
+			'已擷取本次工作第{}/{}頁，目前載入到第{}頁'
+		],
+		'_tag搜索页任务完成1': [
+			'本次任务完成。当前有{}张作品。',
+			'この作業は完了です。 今は{}枚の作品があります。',
+			'This task is completed. There are now {} works.',
+			'本次工作完成。目前有{}張作品。'
+		],
+		'_tag搜索页任务完成2': [
+			'已抓取本tag的所有页面，本次任务完成。当前有{}张作品。',
+			'この作業は完了です。 今は{}枚の作品があります。',
+			'This task is completed. There are now {} works.',
+			'已擷取本tag的所有頁面，本次工作完成。目前有{}張作品。'
+		],
+		'_tag搜索页中断': [
+			'当前任务已中断!<br>当前有{}张作品。',
+			'現在のタスクが中断されました。<br>今は{}枚の作品があります。',
+			'The current task has been interrupted.<br> There are now {} works.',
+			'目前工作已中斷!<br>目前有{}張作品。'
+		],
+		'_排行榜进度': [
+			'已抓取本页面第{}部分',
+			'このページの第{}部がクロールされました',
+			'Part {} of this page has been crawled',
+			'已擷取本頁面第{}部分'
+		],
+		'_排行榜任务完成': [
+			'本页面抓取完成。当前有{}张作品，开始获取作品信息。',
+			'このページはクロールされ、{}個の作品があります。 詳細は作品を入手し始める。',
+			'This page is crawled and now has {} works. Start getting the works for more information.',
+			'本頁面擷取完成。目前有{}張作品，開始取得作品資訊。'
+		],
+		'_列表页获取完成2': [
+			'列表页获取完成。<br>当前有{}张作品，开始获取作品信息。',
+			'リストページがクロールされます。<br>{}個の作品があります。 詳細は作品を入手し始める。',
+			'The list page gets done. <br>Now has {} works. Start getting the works for more information.',
+			'清單頁取得完成。<br>目前有{}張作品，開始取得作品資訊。'
+		],
+		'_列表页抓取进度': [
+			'已抓取列表页{}个页面',
+			'{}のリストページを取得しました',
+			'Has acquired {} list pages',
+			'已擷取清單頁{}個頁面'
+		],
+		'_列表页抓取完成': [
+			'列表页面抓取完成，开始获取图片网址',
+			'リストページがクロールされ、画像URLの取得が開始されます',
+			'The list page is crawled and starts to get the image URL',
+			'清單頁面擷取完成，開始取得圖片網址'
+		],
+		'_列表页抓取结果为零': [
+			'抓取完毕，但没有找到符合筛选条件的作品。',
+			'クロールは終了しましたが、フィルタ条件に一致する作品が見つかりませんでした。',
+			'Crawl finished but did not find works that match the filter criteria.',
+			'擷取完畢，但沒有找到符合篩選條件的作品。'
+		],
+		'_排行榜列表页抓取遇到404': [
+			'本页面抓取完成。当前有{}张作品，开始获取作品信息。',
+			'このページはクロールされます、{}個の作品があります。 詳細は作品を入手し始める。',
+			'This page is crawled. Now has {} works. Start getting the works for more information.',
+			'本頁面擷取完成。目前有{}張作品，開始取得作品資訊。'
+		],
+		'_当前任务尚未完成2': [
+			'当前任务尚未完成，请等待完成后再下载。',
+			'現在のタスクはまだ完了していません',
+			'The current task has not yet been completed',
+			'目前工作尚未完成，請等待完成後再下載。'
+		],
+		'_列表抓取完成开始获取作品页': [
+			'当前列表中有{}张作品，开始获取作品信息',
+			'{}個の作品があります。 詳細は作品を入手し始める。',
+			'Now has {} works. Start getting the works for more information.',
+			'目前清單中有{}張作品，開始取得作品資訊'
+		],
+		'_开始获取作品页面': [
+			'<br>开始获取作品页面',
+			'<br>作品ページの取得を開始する',
+			'<br>Start getting the works page',
+			'<br>開始取得作品頁面'
+		],
+		'_无权访问1': [
+			'无权访问{}，抓取中断。',
+			'アクセス{}、中断はありません。',
+			'No access {}, interruption.',
+			'無權造訪{}，擷取中斷。'
+		],
+		'_无权访问2': [
+			'无权访问{}，跳过该作品。',
+			'アクセス{}、無視する。',
+			'No access {}, skip.',
+			'無權造訪{}，跳過該作品。'
+		],
+		'_作品页状态码0': [
+			'请求的url不可访问',
+			'要求されたURLにアクセスできません',
+			'The requested url is not accessible',
+			'要求的url無法造訪'
+		],
+		'_作品页状态码400': [
+			'该作品已被删除',
+			'作品は削除されました',
+			'The work has been deleted',
+			'該作品已被移除'
+		],
+		'_作品页状态码403': [
+			'无权访问请求的url 403',
+			'リクエストされたURLにアクセスできない 403',
+			'Have no access to the requested url 403',
+			'無權造訪要求的url 403'
+		],
+		'_作品页状态码404': [
+			'404 not found',
+			'404 not found',
+			'404 not found',
+			'404 not found'
+		],
+		'_抓取图片网址的数量': [
+			'已获取{}个图片网址',
+			'{}つの画像URLを取得',
+			'Get {} image URLs',
+			'已取得{}個圖片網址'
+		],
+		'_正在抓取': [
+			'正在抓取，请等待……',
+			'取得中、しばらくお待ちください...',
+			'Getting, please wait...',
+			'正在擷取，請等待……'
+		],
+		'_获取全部书签作品': [
+			'获取全部书签作品，时间可能比较长，请耐心等待。',
+			'ブックマークしたすべての作品を入手すると、時間がかかることがあります。お待ちください。',
+			'Get all bookmarked works, the time may be longer, please wait.',
+			'取得全部書籤作品，時間可能比較長，請耐心等待。'
+		],
+		'_抓取图片网址遇到中断': [
+			'当前任务已中断!',
+			'現在のタスクが中断されました。',
+			'The current task has been interrupted.',
+			'目前工作已中斷!'
+		],
+		'_收起下载按钮': [
+			'收起下载按钮',
+			'ダウンロードボタンを非表示にする',
+			'',
+			'摺疊下載按鈕'
+		],
+		'_展开下载按钮': [
+			'展开下载按钮',
+			'ダウンロードボタンを表示',
+			'',
+			'展開下載按鈕'
+		],
+		'_展开收起下载按钮_title': [
+			'展开/收起下载按钮',
+			'ダウンロードボタンを表示/非表示',
+			'Show / hide download button',
+			'展開/摺疊下載按鈕'
+		],
+		'_关闭': [
+			'关闭',
+			'クローズド',
+			'close',
+			'關閉'
+		],
+		'_输出信息': [
+			'输出信息',
+			'出力情報',
+			'Output information',
+			'輸出資訊'
+		],
+		'_复制': [
+			'复制',
+			'コピー',
+			'Copy',
+			'複製'
+		],
+		'_已复制到剪贴板': [
+			'已复制到剪贴板，可直接粘贴',
+			'クリップボードにコピーされました',
+			'Has been copied to the clipboard',
+			'已複製到剪貼簿，可直接貼上'
+		],
+		'_下载设置': [
+			'下载设置',
+			'設定をダウンロードする',
+			'Download settings',
+			'下載設定'
+		],
+		'_隐藏': [
+			'隐藏',
+			'隠された',
+			'hide',
+			'隱藏'
+		],
+		'_收起展开设置项': [
+			'收起/展开设置项',
+			'設定の折りたたみ/展開',
+			'Collapse/expand settings',
+			'摺疊/展開設定項目'
+		],
+		'_快捷键切换显示隐藏': [
+			'使用 Alt + X，可以显示和隐藏下载面板',
+			'Alt + Xを使用してダウンロードパネルを表示および非表示にする',
+			'Use Alt + X to show and hide the download panel',
+			'使用 Alt + X，可以顯示和隱藏下載面板'
+		],
+		'_设置命名规则': [
+			'共抓取到{}个图片，请设置文件命名规则：',
+			'合計{}枚の画像を取得し、ファイルの命名規則を設定してください：',
+			'Grab a total of {} pictures, please set the file naming rules: ',
+			'共擷取到{}個圖片，請設定檔案命名規則：'
+		],
+		'_设置命名规则3': [
+			'共抓取到 {} 个图片',
+			'合計 {} 枚の画像を取得し',
+			'Grab a total of {} pictures',
+			'共擷取到 {} 個圖片'
+		],
+		'_设置命名规则2': [
+			'设置命名规则',
+			'命名規則を設定する',
+			'Set naming rules',
+			'設定命名規則'
+		],
+		'_设置命名规则2提示': [
+			'设置图片的名字',
+			'画像の名前を設定する',
+			'Set the name of the picture',
+			'設定圖片名稱'
+		],
+		'_添加标记名称': [
+			'添加标记名称',
+			'タグ名を追加する',
+			'Add tag name',
+			'加入標記名稱'
+		],
+		'_添加标记名称提示': [
+			'把标签名称添加到文件名里',
+			'ファイル名にタグ名を追加する',
+			'Add the tag name to the file name',
+			'將標籤名稱加到檔名中'
+		],
+		'_查看可用的标记': [
+			'查看可用的标记',
+			'利用可能なタグを見る',
+			'See available tags',
+			'檢視可用的標記'
+		],
+		'_可用标记1': [
+			'作品id',
+			'作品ID',
+			'works id',
+			'作品id'
+		],
+		'_可用标记2': [
+			'作品标题',
+			'作品のタイトル',
+			'works title',
+			'作品標題'
+		],
+		'_可用标记3': [
+			'作品的tag列表',
+			'作品のtags',
+			'Tags of works',
+			'作品的tag清單'
+		],
+		'_可用标记4': [
+			'画师的名字',
+			'アーティスト名',
+			'Artist name',
+			'畫師的名字'
+		],
+		'_可用标记6': [
+			'画师的id',
+			'アーティストID',
+			'Artist id',
+			'畫師的id'
+		],
+		'_可用标记7': [
+			'宽度和高度',
+			'幅と高さ',
+			'width and height',
+			'寬度和高度'
+		],
+		'_可用标记8': [
+			'bookmark-count，作品的收藏数。把它放在最前面就可以让下载后的文件按收藏数排序。',
+			'bookmark-count，作品のコレクション数のコレクション数は。',
+			'bookmark-count.',
+			'bookmark-count，作品的收藏數。將它放在最前面就可以讓下載後的檔案依收藏數排序。'
+		],
+		'_可用标记5': [
+			'你可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}-{px}<br>* 在pixivision里，只有id标记会生效',
+			'複数のタグを使用することができ；異なるタグ間に別の文字を追加することができます。例：{id}-{userid}-{px}<br>* pixivisionでは、idのみが利用可能です',
+			'You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}-{px}<br>* On pixivision, only id is available',
+			'你可以使用多個標記；建議在不同標記之間加入分割用的字元。範例：{id}-{userid}-{px}<br>* 在pixivision裡，只有id標記會生效'
+		],
+		'_预览文件名': [
+			'预览文件名',
+			'ファイル名のプレビュー',
+			'Preview file name',
+			'預覽檔名'
+		],
+		'_设置下载线程': [
+			'设置下载线程',
+			'ダウンロードスレッドを設定する',
+			'Set the download thread',
+			'設定下載執行緒'
+		],
+		'_线程数字': [
+			'可以输入 1-10 之间的数字，设置同时下载的数量',
+			'同時ダウンロード数を設定するには、1〜10の数値を入力します',
+			'You can enter a number between 1-10 to set the number of concurrent downloads',
+			'可以輸入 1-10 之間的數字，設定同時下載的數量'
+		],
+		'_下载按钮1': [
+			'开始下载',
+			'start download',
+			'start download',
+			'開始下載'
+		],
+		'_下载按钮2': [
+			'暂停下载',
+			'puse download',
+			'puse download',
+			'暫停下載'
+		],
+		'_下载按钮3': [
+			'停止下载',
+			'stop download',
+			'stop download',
+			'停止下載'
+		],
+		'_下载按钮4': [
+			'复制url',
+			'copy urls',
+			'copy urls',
+			'複製url'
+		],
+		'_当前状态': [
+			'当前状态 ',
+			'現在の状態 ',
+			'Now state ',
+			'目前狀態 '
+		],
+		'_未开始下载': [
+			'未开始下载',
+			'まだダウンロードを開始していません',
+			'Not yet started downloading',
+			'未開始下載'
+		],
+		'_下载进度：': [
+			'下载进度：',
+			'ダウンロードの進捗状況：',
+			'Download progress: ',
+			'下載進度：'
+		],
+		'_下载线程：': [
+			'下载线程：',
+			'スレッド：',
+			'Thread: ',
+			'下載執行緒：'
+		],
+		'_查看下载说明': [
+			'查看下载说明',
+			'指示の表示',
+			'View instructions',
+			'檢視下載說明'
+		],
+		'_下载说明': [
+			'下载的文件保存在浏览器的下载目录里。<br>本脚本不支持自动创建文件夹。<br>你可能会下载到 .ugoira 格式的文件，这是动态图的源文件。<br>请不要在浏览器的下载选项里选中\'总是询问每个文件的保存位置\'。<br>如果浏览器询问\'是否允许下载多个文件\'，请选择\'允许\'。<br>如果浏览器询问\'保存\'文件还是\'打开\'文件，请选择\'保存\'。<br>如果作品标题或tag里含有不能做文件名的字符，会被替换成下划线_。<br>如果任务下载缓慢或失败，可使用\'复制url\'功能，之后尝试使用其他下载软件进行下载。',
+			'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br>このスクリプトは、フォルダの自動作成をサポートしていません。<br>ブラウザが\'複数のファイルをダウンロードできるようにするかどうか\'と尋ねる場合は、\'許可\'を選択します。<br>Chromeをお勧めします。',
+			'The downloaded file is saved in the browser`s download directory.<br>This script does not support the automatic creation of folders.<br>If the browser asks \'whether to allow multiple files to be downloaded \', select \'Allow \'.<br>Chrome is recommended.',
+			'下載的檔案儲存在瀏覽器的下載目錄裡。<br>本腳本不支援自動建立資料夾。<br>你可能會下載到 .ugoira 格式的檔案，這是動態圖的原始檔。<br>請不要在瀏覽器的下載選項裡選取\'總是詢問每個檔案的儲存位置\'。<br>如果瀏覽器詢問\'是否允許下載多個檔案\'，請選擇\'允許\'。<br>如果瀏覽器詢問\'儲存\'檔案還是\'開啟\'檔案，請選擇\'儲存\'。<br>如果作品標題或tag裡含有不能做檔名的字元，會被取代成下劃線_。<br>如果下載緩慢或失敗，可使用\'複製url\'功能，之後嘗試使用其他下載軟體進行下載。'
+		],
+		'_正在下载中': [
+			'正在下载中',
+			'ダウンロード',
+			'downloading',
+			'正在下載中'
+		],
+		'_正在暂停': [
+			'任务正在暂停中，但当前位于下载线程中的文件会继续下载',
+			'後でダウンロードが一時停止されます。',
+			'The download will be paused later.',
+			'工作正在暫停中，但目前位於下載執行緒中的檔案會繼續下載'
+		],
+		'_正在停止': [
+			'任务正在停止中，但当前位于下载线程中的文件会继续下载',
+			'ダウンロードは後で中止されます。',
+			'The download will stop later.',
+			'工作正在停止中，但目前位於下載執行緒中的檔案會繼續下載'
+		],
+		'_下载完毕': [
+			'下载完毕!',
+			'ダウンロードが完了しました',
+			'Download finished',
+			'下載完畢!'
+		],
+		'_已暂停': [
+			'下载已暂停',
+			'ダウンロードは一時停止中です',
+			'Download is paused',
+			'下載已暫停'
+		],
+		'_已停止': [
+			'下载已停止',
+			'ダウンロードが停止しました',
+			'Download stopped',
+			'下載已停止'
+		],
+		'_已下载': [
+			'已下载',
+			'downloaded',
+			'downloaded',
+			'已下載'
+		],
+		'_获取图片网址完毕': [
+			'获取完毕，共{}个图片地址',
+			'合計{}個の画像URLを取得する',
+			'Get a total of {} image url',
+			'取得完畢，共{}個圖片網址'
+		],
+		'_没有符合条件的作品': [
+			'没有符合条件的作品!任务结束。',
+			'基準を満たす作品はありません！タスクは終了します。',
+			'There are no works that meet the criteria! The task ends.',
+			'沒有符合條件的作品!工作結束。'
+		],
+		'_没有符合条件的作品弹窗': [
+			'抓取完毕!没有符合条件的作品!',
+			'クロールが終了しました！基準を満たす作品はありません',
+			'Crawl finished! There are no works that meet the criteria! ',
+			'擷取完畢!沒有符合條件的作品!'
+		],
+		'_抓取完毕': [
+			'抓取完毕!',
+			'クロールが終了しました！',
+			'Crawl finished!',
+			'擷取完畢!'
+		],
+		'_快速下载本页': [
+			'快速下载本页作品',
+			'この作品をすばやくダウンロードする',
+			'Download this work quickly',
+			'快速下載本頁作品'
+		],
+		'_转换为 GIF': [
+			'转换为 GIF',
+			'GIFに変換する',
+			'Convert to GIF',
+			'轉換為 GIF'
+		],
+		'_准备转换': [
+			'准备转换',
+			'変換する準備ができました',
+			'Ready to convert',
+			'準備轉換'
+		],
+		'_转换中请等待': [
+			'转换中，请等待……',
+			'変換ではお待ちください...',
+			'In the conversion, please wait...',
+			'轉換中，請等待……'
+		],
+		'_转换完成': [
+			'转换完成',
+			'変換完了',
+			'Conversion completed',
+			'轉換完成'
+		],
+		'_从本页开始下载': [
+			'从本页开始下载作品',
+			'このページからダウンロードできます',
+			'Download works from this page',
+			'從本頁開始下載作品'
+		],
+		'_下载相关作品': [
+			'下载相关作品',
+			'関連作品をダウンロードする',
+			'Download the related works',
+			'下載相關作品'
+		],
+		'_相关作品大于0': [
+			' （下载相关作品必须大于 0）',
+			' （ダウンロード関連作品は0より大きくなければならない）',
+			'  (Download related works must be greater than 0)',
+			' （下載相關作品必須大於 0）'
+		],
+		'_下载作品': [
+			'下载作品',
+			'イメージをダウンロード',
+			'Download works',
+			'下載作品'
+		],
+		'_下载响应作品': [
+			'下载响应作品',
+			'イメージレスポンスの作品をダウンロードする',
+			'Download the responses illustration',
+			'下載回應作品'
+		],
+		'_下载该tag中的作品': [
+			'下载该tag中的作品',
+			'タグで作品をダウンロードする',
+			'Download the work in the tag',
+			'下載該tag中的作品'
+		],
+		'_下载书签': [
+			'下载书签中的作品',
+			'このブックマークでこの作品をダウンロード',
+			'Download the works in this bookmark',
+			'下載書籤中的作品'
+		],
+		'_默认下载多页': [
+			', 如有多页，默认会下载全部。',
+			'複数のページがある場合、デフォルトがダウンロードされます。',
+			', If there are multiple pages, the default will be downloaded.',
+			', 如有多頁，預設會下載全部。'
+		],
+		'_调整完毕': [
+			'调整完毕，当前有{}张作品。',
+			'調整が完了し、今、{}の作品があります。',
+			'The adjustment is complete and now has {} works.',
+			'調整完畢，目前有{}張作品。'
+		],
+		'_按收藏数筛选': [
+			'按收藏数筛选',
+			'お気に入りからのフィルター',
+			'Filter by bookmarks',
+			'依收藏數篩選'
+		],
+		'_按收藏数筛选_title': [
+			'按收藏数筛选当前tag里的作品。如果多次筛选，页码会一直累加。',
+			'現在のタグのエントリ数でフィルタリングします。多次过滤时，页码增加。',
+			'Filter by the number of entries in the current tag. If you filter multiple times, the page number will increase.',
+			'依收藏數篩選目前tag裡的作品。如果多次篩選，頁碼會一直累加。'
+		],
+		'_在结果中筛选': [
+			'在结果中筛选',
+			'結果のフィルタリング',
+			'Filter in results',
+			'在結果中篩選'
+		],
+		'_在结果中筛选_title': [
+			'如果本页筛选后作品太多，可以提高收藏数的要求，在结果中筛选。达不到要求的会被隐藏而不是删除。所以你可以反复进行筛选。被隐藏的项目不会被下载。',
+			'あなたは何度も選別することができて、要求の作品が隠されて、それからダウンロードされません。',
+			'You can make multiple screening , fail to meet the required works will be hidden, and will not be downloaded.',
+			'如果本頁篩選後作品太多，可以提高收藏數的要求，在結果中篩選。達不到要求的會被隱藏而不是刪除。所以你可以反覆進行篩選。被隱藏的項目不會被下載。'
+		],
+		'_在结果中筛选弹窗': [
+			'将在当前作品列表中再次过滤，请输入要求的最低收藏数: ',
+			'将在当前作品列表中再次筛选，请输入要求的最低收藏数',
+			'Will be filtered again in the current list of works. Please enter the required minimum number of bookmarks:',
+			'將在目前作品清單中再次篩選，請輸入要求的最低收藏數:'
+		],
+		'_下载当前作品': [
+			'下载当前作品',
+			'現在の作品をダウンロードする',
+			'Download the current work',
+			'下載目前作品'
+		],
+		'_下载当前作品_title': [
+			'下载当前列表里的所有作品',
+			'現在のリストにあるすべての作品をダウンロードする',
+			'Download all the works in the current list',
+			'下載目前清單裡的所有作品'
+		],
+		'_中断当前任务': [
+			'中断当前任务',
+			'現在のタスクを中断する',
+			'Interrupt the current task',
+			'中斷目前工作'
+		],
+		'_中断当前任务_title': [
+			'筛选时中断之后可以继续执行。',
+			'ふるい分け作品で中断され、その後引き続き実行可能です。',
+			'In the screening works when the break, then you can continue to perform.',
+			'篩選時中斷之後可以繼續執行。'
+		],
+		'_当前任务已中断': [
+			'当前任务已中断!',
+			'現在のタスクが中断されました',
+			'The current task has been interrupted',
+			'目前工作已中斷!'
+		],
+		'_下载时排除tag': [
+			'下载时排除tag',
+			'ダウンロード時にタグを除外する',
+			'Exclude tags when downloading',
+			'下載時排除tag'
+		],
+		'_清除多图作品': [
+			'清除多图作品',
+			'複数の図面を削除する',
+			'Remove multi-drawing works',
+			'清除多圖作品'
+		],
+		'_清除多图作品_title': [
+			'如果不需要可以清除多图作品',
+			'必要がない場合は、複数のグラフを削除することができます',
+			'If you do not need it, you can delete multiple graphs',
+			'如果不需要可以清除多圖作品'
+		],
+		'_清除动图作品': [
+			'清除动图作品',
+			'うごイラ作品を削除する',
+			'Remove animat work',
+			'清除動圖作品'
+		],
+		'_清除动图作品_title': [
+			'如果不需要可以清除动图作品',
+			'必要がない場合は、うごイラを削除することができます',
+			'If you do not need it, you can delete the animat work',
+			'如果不需要可以清除動圖作品'
+		],
+		'_手动删除作品': [
+			'手动删除作品',
+			'マニュアル削除作品',
+			'Manually delete the work',
+			'手動刪除作品'
+		],
+		'_手动删除作品_title': [
+			'可以在下载前手动删除不需要的作品',
+			'ダウンロードする前に不要な作品を手動で削除することができます',
+			'You can manually delete unwanted work before downloading',
+			'可以在下載前手動刪除不需要的作品'
+		],
+		'_退出手动删除': [
+			'退出手动删除',
+			'削除モードを終了する',
+			'Exit manually delete',
+			'離開手動刪除'
+		],
+		'_清空作品列表': [
+			'清空作品列表',
+			'作品のリストを空にする',
+			'Empty the list of works',
+			'清空作品清單'
+		],
+		'_清空作品列表_title': [
+			'如果网页内容过多，可能导致页面崩溃。如有需要可以清除当前的作品列表。',
+			'',
+			'',
+			'如果網頁內容過多，可能導致頁面當機。如有需要可以清除目前的作品清單。'
+		],
+		'_下载本页作品': [
+			'下载本页作品',
+			'このページをダウンロードする',
+			'Download this page works',
+			'下載本頁作品'
+		],
+		'_下载本页作品_title': [
+			'下载本页列表中的所有作品',
+			'このページをダウンロードする',
+			'Download this page works',
+			'下載本頁清單中的所有作品'
+		],
+		'_已清除多图作品': [
+			'已清除多图作品',
+			'マルチマップ作品を削除しました',
+			'Has deleted the multi-map works',
+			'已清除多圖作品'
+		],
+		'_已清除动图作品': [
+			'已清除动图作品',
+			'うごイラが削除されました',
+			'Dynamic work has been removed',
+			'已清除動圖作品'
+		],
+		'_下载本排行榜作品': [
+			'下载本排行榜作品',
+			'このリストの作品をダウンロードする',
+			'Download the works in this list',
+			'下載本排行榜作品'
+		],
+		'_下载本排行榜作品_title': [
+			'下载本排行榜的所有作品，包括现在尚未加载出来的。',
+			'このリストの作品をダウンロードする、まだロードされていないものを含む',
+			'Download all of the works in this list, including those that are not yet loaded.',
+			'下載本排行榜的所有作品，包括現在尚未載入出來的。'
+		],
+		'_下载该页面的图片': [
+			'下载该页面的图片',
+			'ページの写真をダウンロードする',
+			'Download the picture of the page',
+			'下載該頁面的圖片'
+		],
+		'_下载该专辑的图片': [
+			'下载该专辑的图片',
+			'アルバムの画像をダウンロードする',
+			'Download the album`s picture',
+			'下載該專輯的圖片'
+		],
+		'_下载推荐图片': [
+			'下载推荐图片',
+			'おすすめ作品をダウンロードする',
+			'Download recommended works',
+			'下載推薦圖片'
+		],
+		'_下载推荐图片_title': [
+			'下载为你推荐的图片',
+			'あなたのお勧め作品をダウンロードする',
+			'Download for your recommended works',
+			'下載為你推薦的圖片'
+		],
+		'_下载相似图片': [
+			'下载相似图片',
+			'類似の作品をダウンロードする',
+			'Download similar works',
+			'下載相似圖片'
+		],
+		'_要获取的作品个数': [
+			'你想要获取多少个作品？（注意是个数而不是页数）\r\n请输入数字，最大值为',
+			'いくつの作品をダウンロードしたいですか？ （ページ数ではなく作品数に注意してください）\r\n数値を入力してください。最大値は',
+			'How many works do you want to download? (Note that the number of works rather than the number of pages)\r\nPlease enter a number, max ',
+			'你想要取得多少個作品？（注意是個數而不是頁數）\r\n請輸入數字，最大值為'
+		],
+		'_要获取的作品个数2': [
+			'你想要获取多少个作品？',
+			'いくつの作品をダウンロードしたいですか？',
+			'How many works do you want to download?',
+			'你想要取得多少個作品？'
+		],
+		'_数字提示1': [
+			'-1, 或者大于 0',
+			'-1、または0より大きい',
+			'-1, or greater than 0',
+			'-1, 或是大於 0'
+		],
+		'_超过最大值': [
+			'你输入的数字超过了最大值',
+			'入力した番号が最大値を超えています',
+			'The number you entered exceeds the maximum',
+			'你輸入的數字超過了最大值'
+		],
+		'_下载大家的新作品': [
+			'下载大家的新作品',
+			'みんなの新作をダウンロードする',
+			'Download everyone`s new work',
+			'下載大家的新作品'
+		],
+		'_屏蔽设定': [
+			'屏蔽設定',
+			'ミュート設定',
+			'Mute settings',
+			'封鎖設定'
+		],
+		'_举报': [
+			'举报',
+			'報告',
+			'Report',
+			'回報'
+		],
+		'_输入id进行下载': [
+			'输入id进行下载',
+			'IDでダウンロード',
+			'Download by ID',
+			'輸入id進行下載'
+		],
+		'_输入id进行下载的提示文字': [
+			'请输入作品id。如果有多个id，则以换行分割（即每行一个id）',
+			'イラストレーターIDを入力してください。 複数のidがある場合は、1行に1つのidを付けます。',
+			'Please enter the illustration id. If there is more than one id, one id per line.',
+			'請輸入作品id。如果有多個id，則以換行分割（即每行一個id）'
+		],
+		'_开始下载': [
+			'开始下载',
+			'ダウンロードを開始する',
+			'Start download',
+			'開始下載'
+		],
+		'_开始抓取': [
+			'开始抓取',
+			'クロールを開始する',
+			'Start crawling',
+			'開始擷取'
+		],
+		'_id不合法': [
+			'id不合法，操作取消。',
+			'idが不正な、操作はキャンセルされます。',
+			'id is illegal, the operation is canceled.',
+			'id不合法，動作取消。'
+		],
+		'_快速收藏': [
+			'快速收藏',
+			'クイックブックマーク',
+			'Quick bookmarks',
+			'快速收藏'
+		],
+		'_显示': [
+			'显示',
+			'表示',
+			'display',
+			'顯示'
+		],
+		'_是否显示封面': [
+			'是否显示封面',
+			'カバーを表示するかどうか',
+			'Whether to display the cover',
+			'是否顯示封面'
+		],
+		'_显示封面的提示': [
+			'如果搜索结果数量很多，封面图数量也会很多。如果加载大量的封面图，会占用很多网络资源，也可能导致任务异常中断。如果遇到了这种情况，取消选中这个按钮。',
+			'検索結果の数が多い場合は、表紙画像の数が多くなります。 大量の表紙画像を読み込むと、ネットワークリソースが膨大になり、異常なタスクの中断を引き起こす可能性があります。 このような場合は、このボタンのチェックを外す。',
+			'If the number of search results is large, the number of cover images will be many. If you load a large number of cover images, it will take up a lot of network resources, and it may cause abnormal interruption of tasks. If this happens, uncheck the button.',
+			'如果搜尋結果數量很多，封面圖數量也會很多。如果載入大量的封面圖，會占用很多網路資源，也可能導致工作異常中斷。如果遇到了這種情況，取消選取這個按鈕。'
+		],
+		'_启用': [
+			'启用',
+			'有効にする',
+			'Enable',
+			'啟用'
+		],
+		'_是否快速下载': [
+			'是否快速下载',
+			'すぐにダウンロードするかどうか',
+			'Whether to download quickly',
+			'是否快速下載'
+		],
+		'_快速下载的提示': [
+			'当“开始下载”状态可用时，自动开始下载，不需要点击下载按钮。',
+			'「ダウンロードを開始する」ステータスが利用可能になると、ダウンロードは自動的に開始され、ダウンロードボタンをクリックする必要はありません。',
+			'When the &quot;Start Downloa&quot; status is available, the download starts automatically and no need to click the download button.',
+			'當“開始下載”狀態可用時，自動開始下載，不需要點選下載按鈕。'
+		]
+	};
 
 // xianzun_lang_translate 翻译
 function xzlt(name) {
@@ -2842,7 +3043,7 @@ function getIllustPage(url) {
 		$(outputInfo).html($(outputInfo).html() + xzlt('_开始获取作品页面'));
 		now_tips = $(outputInfo).html();
 	}
-	url = 'https://www.pixiv.net/ajax/illust/' + url.match(/\d.*\d/)[0]; // 取出作品id，拼接出作品页api
+	url = 'https://www.pixiv.net/ajax/illust/' + url.match(/\d.*\d/)[0].split('&')[0]; // 取出作品id，拼接出作品页api
 
 	$.ajax({
 		url: url,
