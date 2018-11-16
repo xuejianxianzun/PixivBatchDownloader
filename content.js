@@ -4244,16 +4244,17 @@ function click_download_a(blobURL, fullFileName, downloadBar_no) {
 	}
 	// console.log(new Date().getTime() - click_time); // 此句输出两次点击的实际间隔
 	// 向扩展发送下载请求
-	chrome.runtime.sendMessage({
+	browser.runtime.sendMessage({
 		'msg': 'send_download',
 		'file_url': blobURL,
 		'file_name': fullFileName,
+
 		'no': downloadBar_no
 	}, function (response) {});
 }
 
 // 监听后台发送的消息
-chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+browser.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 	if (msg.msg === 'downloaded') { // 扩展下载完成之后
 		downloadedFunc(msg.file_url, msg.no);
 	} else if (msg.msg === 'click_icon') { // 点击图标

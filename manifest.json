@@ -23,12 +23,12 @@
         "matches": ["*://www.pixiv.net/member_illust.php?mode=*"],
         "run_at": "document_end"
     }, {
-        "js": ["lib/jquery-2.0.3.min.js", "content.js"],
+        "js": ["lib/browser-polyfill.js", "lib/jquery-2.0.3.min.js", "content.js"],
         "matches": ["*://www.pixiv.net/*", "*://www.pixivision.net/*"],
         "run_at": "document_end"
     }],
     "background": {
-        "scripts": ["background.js"]
+        "scripts": ["lib/browser-polyfill.js", "background.js"]
     },
     "permissions": [
         "tabs", "webRequest", "webRequestBlocking", "downloads", "*://www.pixiv.net/*", "*://www.pixivision.net/*", "*://i.pximg.net/*"
