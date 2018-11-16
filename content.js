@@ -4222,11 +4222,11 @@ function startDownload(downloadNo, donwloadBar_no) {
 		// 控制点击下载按钮的时间间隔大于0.5秒
 		if (new Date().getTime() - click_time > time_interval) {
 			click_time = new Date().getTime();
-			click_doanload_a(blobURL, fullFileName, donwloadBar_no);
+			click_download_a(blobURL, fullFileName, donwloadBar_no);
 		} else {
 			time_delay += time_interval;
 			setTimeout(() => {
-				click_doanload_a(blobURL, fullFileName, donwloadBar_no);
+				click_download_a(blobURL, fullFileName, donwloadBar_no);
 			}, time_delay);
 		}
 	});
@@ -4234,11 +4234,11 @@ function startDownload(downloadNo, donwloadBar_no) {
 }
 
 // 下载到硬盘
-function click_doanload_a(blobURL, fullFileName, donwloadBar_no) {
+function click_download_a(blobURL, fullFileName, donwloadBar_no) {
 	if (new Date().getTime() - click_time < time_interval) {
 		// console.count('+1s');	// 此句输出加时的次数
 		setTimeout(() => {
-			click_doanload_a(blobURL, fullFileName, donwloadBar_no);
+			click_download_a(blobURL, fullFileName, donwloadBar_no);
 		}, time_interval); // 虽然设置了两次点击间隔不得小于time_interval，但实际执行过程中仍然有可能比time_interval小。间隔太小的话就会导致漏下。当间隔过小时补上延迟
 		return false;
 	}
