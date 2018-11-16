@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   6.2.3
+ * build:   6.2.7
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -2845,7 +2845,7 @@ function getUserId() {
 
 // 获取用户名称
 function getUserName() {
-	return (document.querySelector('._2VLnXNk') || document.querySelector('.sc-eNNmBn')).innerHTML;
+	return (document.querySelector('._2VLnXNk') || document.querySelector('.sc-jvEmr')).innerHTML;
 }
 
 // 从 url 中取出指定的查询条件
@@ -4481,7 +4481,7 @@ function listen1() {
 }
 
 // 虽然是绑定在 page_type 2 上面，但 2 和 1 其实是同一个页面
-if (page_type === 2) {
+if (page_type === 1 || page_type === 2) {
 	// pushState 判断从列表页进入作品页的情况，popstate 判断从作品页退回列表页的情况
 	['pushState', 'popstate'].forEach((item) => {
 		window.addEventListener(item, () => {
