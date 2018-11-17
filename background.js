@@ -18,8 +18,7 @@ browser.browserAction.onClicked.addListener(function (tab) {
 	browser.tabs.sendMessage(
 		tab.id, {
 			'msg': 'click_icon'
-		},
-		function (response) {}
+		}
 	);
 });
 
@@ -31,39 +30,46 @@ browser.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 	// console.log(msg);
 	if (msg.msg === 'send_download') {
 		// 以 file_url 为 key，建立一个对象，保存任务数据
-		donwloadBar_no_data[msg.file_url] = {};
-		donwloadBar_no_data[msg.file_url]['no'] = msg.no;
-		donwloadBar_no_data[msg.file_url]['tabid'] = sender.tab.id;
+
+		let data = {
+			no: msg.no,
+			tabid: sender.tab.id
+		};
+
 		// 开始下载
+		let blob = dataURLtoBlob(msg.file_url)
+		let blobURL =  URL.createObjectURL(blob)
 		browser.downloads.download({
-			url: msg.file_url,
+			url: blobURL,
 			filename: msg.file_name,
 			conflictAction: 'overwrite',
 			saveAs: false
+		}).then(r => {
+			donwloadBar_no_data[r] = data
+			URL.revokeObjectURL(blobURL)
+		}).catch(err => {
+			browser.tabs.sendMessage(sender.tab.id, {msg: 'donwload_err', no: msg.no})
 		});
 	}
 });
 
-// 监听下载事件
+// // 监听下载事件
 browser.downloads.onChanged.addListener(function (detail) {
-	// console.log('detail', detail);
 	// 下载完成后
 	if (detail.state !== undefined && detail.state.current === 'complete') {
 		// 根据 downloadid 查询下载信息
-		browser.downloads.search({
-			id: detail.id
-		}, function (result) {
-			// console.log(result);
-			let file_url = result[0].url; // 取出这个任务的的 file_url
-			// 返回消息
-			browser.tabs.sendMessage(
-				donwloadBar_no_data[file_url]['tabid'], {
-					'msg': 'downloaded',
-					'file_url': file_url,
-					'no': donwloadBar_no_data[file_url]['no']
-				},
-				function (response) {}
-			);
-		});
+		let msg = 'downloaded';
+		if (!donwloadBar_no_data[detail.id]) return
+		let {tabid, no} = donwloadBar_no_data[detail.id];
+		browser.tabs.sendMessage(tabid, {msg, no});
 	}
 });
+
+function dataURLtoBlob(dataurl) {
+    let arr = dataurl.split(','), type = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), len = bstr.length, u8arr = new Uint8Array(len);
+    while (len--) {
+        u8arr[len] = bstr.charCodeAt(len);
+    }
+    return new Blob([u8arr], {type});
+}

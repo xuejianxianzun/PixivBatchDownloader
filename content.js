@@ -4186,6 +4186,16 @@ function getFolderName() {
 	folder_name = folder_name.replace(safe_fileName_rule, '_');
 }
 
+function readBlobAsDataURL(blob, callback) {
+    return new Promise((resolve, reject) => {
+    	const fr = new FileReader();
+    	fr.onload = function(e) {
+    		resolve(e.target.result)
+    	};
+    	fr.readAsDataURL(blob);
+    })
+}
+
 // 开始下载 下载序号，要使用的显示队列的序号
 function startDownload(downloadNo, downloadBar_no) {
 	changeTitle('↓');
@@ -4217,59 +4227,65 @@ function startDownload(downloadNo, downloadBar_no) {
 		if (download_pause || download_stop) {
 			return false;
 		}
-		let blobURL = window.URL.createObjectURL(xhr.response);
-		// 控制点击下载按钮的时间间隔大于0.5秒
-		if (new Date().getTime() - click_time > time_interval) {
-			click_time = new Date().getTime();
-			click_download_a(blobURL, fullFileName, downloadBar_no);
-		} else {
-			time_delay += time_interval;
-			setTimeout(() => {
-				click_download_a(blobURL, fullFileName, downloadBar_no);
-			}, time_delay);
-		}
+		readBlobAsDataURL(xhr.response).then(data_url => {
+			// 控制点击下载按钮的时间间隔大于0.5秒
+			if (new Date().getTime() - click_time > time_interval) {
+				click_time = new Date().getTime();
+				click_download_a(data_url, fullFileName, downloadBar_no);
+			} else {
+				time_delay += time_interval;
+				setTimeout(() => {
+					click_download_a(data_url, fullFileName, downloadBar_no);
+				}, time_delay);
+			}
+		}).catch(error => {
+			console.error(error)
+		})
 	});
 	xhr.send();
 }
 
 // 下载到硬盘
-function click_download_a(blobURL, fullFileName, downloadBar_no) {
+function click_download_a(data_url, fullFileName, downloadBar_no) {
 	if (new Date().getTime() - click_time < time_interval) {
 		// console.count('+1s');	// 此句输出加时的次数
 		setTimeout(() => {
-			click_download_a(blobURL, fullFileName, downloadBar_no);
+			click_download_a(data_url, fullFileName, downloadBar_no);
 		}, time_interval); // 虽然设置了两次点击间隔不得小于time_interval，但实际执行过程中仍然有可能比time_interval小。间隔太小的话就会导致漏下。当间隔过小时补上延迟
 		return false;
 	}
-	// console.log(new Date().getTime() - click_time); // 此句输出两次点击的实际间隔
+
 	// 向扩展发送下载请求
 	browser.runtime.sendMessage({
 		'msg': 'send_download',
-		'file_url': blobURL,
+		'file_url': data_url,
 		'file_name': fullFileName,
 
 		'no': downloadBar_no
-	}, function (response) {});
+	}).catch(error =>{
+		console.error(error)
+	});
 }
 
 // 监听后台发送的消息
 browser.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 	if (msg.msg === 'downloaded') { // 扩展下载完成之后
-		downloadedFunc(msg.file_url, msg.no);
+		downloadedFunc(msg.no);
 	} else if (msg.msg === 'click_icon') { // 点击图标
 		centerWrapToggle();
+	} else if (msg.msg === 'download_err') {
+		// do something
 	}
 });
 
 // 下载之后
-function downloadedFunc(blobURL, downloadBar_no) {
+function downloadedFunc(downloadBar_no) {
 	click_time = new Date().getTime();
 	time_delay -= time_interval;
 
 	if (time_delay < 0) { // 因为有多个线程，所以有可能把time_delay减小到0以下，这里做限制
 		time_delay += time_interval;
 	}
-	window.URL.revokeObjectURL(blobURL);
 	downloaded++;
 	$('.downloaded').html(downloaded);
 	$('.progress1').css('width', downloaded / img_info.length * 100 + '%');
