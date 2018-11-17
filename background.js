@@ -53,7 +53,7 @@ browser.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 	}
 });
 
-// // 监听下载事件
+// 监听下载事件
 browser.downloads.onChanged.addListener(function (detail) {
 	// 下载完成后
 	if (detail.state !== undefined && detail.state.current === 'complete') {
