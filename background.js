@@ -1,17 +1,22 @@
 // 设置 referer
 browser.webRequest.onBeforeSendHeaders.addListener(function (details) {
+	let setReferer = false
 	for (let i = 0; i < details.requestHeaders.length; ++i) {
 		if (details.requestHeaders[i].name === 'Referer') {
+			setReferer = true
 			details.requestHeaders[i].value = 'https://www.pixiv.net';
 			break;
 		}
+	}
+	if (!setReferer) {
+		details.requestHeaders.push({ name: 'Referer', value: 'https://www.pixiv.net' })
 	}
 	return {
 		requestHeaders: details.requestHeaders
 	};
 }, {
-	urls: ['*://*.pixiv.net/*']
-}, ['blocking', 'requestHeaders']);
+		urls: ['*://*.pixiv.net/*', '*://*.pximg.net/*']
+	}, ['blocking', 'requestHeaders']);
 
 // 当点击扩展图标时，切换显示/隐藏下载面板
 browser.browserAction.onClicked.addListener(function (tab) {
@@ -37,8 +42,8 @@ browser.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 		};
 
 		// 开始下载
-		let blob = dataURLtoBlob(msg.file_url)
-		let blobURL =  URL.createObjectURL(blob)
+		data['blob'] = dataURLtoBlob(msg.file_url)
+		let blobURL = URL.createObjectURL(data['blob'])
 		browser.downloads.download({
 			url: blobURL,
 			filename: msg.file_name,
@@ -46,9 +51,9 @@ browser.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 			saveAs: false
 		}).then(r => {
 			donwloadBar_no_data[r] = data
-			URL.revokeObjectURL(blobURL)
 		}).catch(err => {
-			browser.tabs.sendMessage(sender.tab.id, {msg: 'donwload_err', no: msg.no})
+			URL.revokeObjectURL(data['blob'])
+			browser.tabs.sendMessage(sender.tab.id, { msg: 'donwload_err', no: msg.no })
 		});
 	}
 });
@@ -60,16 +65,17 @@ browser.downloads.onChanged.addListener(function (detail) {
 		// 根据 downloadid 查询下载信息
 		let msg = 'downloaded';
 		if (!donwloadBar_no_data[detail.id]) return
-		let {tabid, no} = donwloadBar_no_data[detail.id];
-		browser.tabs.sendMessage(tabid, {msg, no});
+		let { tabid, no } = donwloadBar_no_data[detail.id];
+		URL.revokeObjectURL(donwloadBar_no_data[detail.id]['blob'])
+		browser.tabs.sendMessage(tabid, { msg, no });
 	}
 });
 
 function dataURLtoBlob(dataurl) {
-    let arr = dataurl.split(','), type = arr[0].match(/:(.*?);/)[1],
-        bstr = atob(arr[1]), len = bstr.length, u8arr = new Uint8Array(len);
-    while (len--) {
-        u8arr[len] = bstr.charCodeAt(len);
-    }
-    return new Blob([u8arr], {type});
+	let arr = dataurl.split(','), type = arr[0].match(/:(.*?);/)[1],
+		bstr = atob(arr[1]), len = bstr.length, u8arr = new Uint8Array(len);
+	while (len--) {
+		u8arr[len] = bstr.charCodeAt(len);
+	}
+	return new Blob([u8arr], { type });
 }
