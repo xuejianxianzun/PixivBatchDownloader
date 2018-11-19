@@ -2571,12 +2571,20 @@ function getListPage() {
 	} else {
 		url = base_url + (startpage_no + listPage_finished);
 	}
+
+	if (!url.includes('www.pixiv.net')) {
+		url = `//www.pixiv.net${url}`
+	}	
+
 	$.ajax({
 		url: url,
 		type: 'get',
 		async: true,
 		cache: false,
 		dataType: 'text',
+		error: function(err) {
+			console.error(err)
+		},
 		success: function (data) {
 			listPage_finished++;
 			let listPage_document;
