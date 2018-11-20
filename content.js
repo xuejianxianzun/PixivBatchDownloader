@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   6.2.7
+ * build:   6.2.8
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
