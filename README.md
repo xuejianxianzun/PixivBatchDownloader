@@ -4,15 +4,15 @@
 
 # 简介：
 
-这是一个 Chrome 浏览器的扩展，用于批量下载 Pixiv 上的图片。功能强大，支持多种页面类型。
+这是一个可用于 Chrome 和 Firefox 的浏览器扩展程序，用于批量下载 Pixiv 上的图片。功能强大，支持多种页面类型。
 
 现在也增加了一些辅助功能，如去除广告、快速收藏、看图模式等。
 
-本扩展是 [XZPixivDownloader](https://github.com/xuejianxianzun/XZPixivDownloader) 的移植。
-
 # 安装：
 
-[Chrome webstore 页面](https://chrome.google.com/webstore/detail/hfgoikdmppghehigkckknikdgdcjbfpl)
+Chrome：[Chrome webstore](https://chrome.google.com/webstore/detail/hfgoikdmppghehigkckknikdgdcjbfpl)
+
+Firefox：[Mozilla addons](https://addons.mozilla.org/zh-CN/firefox/addon/pixiv-batch-downloader/)
 
 - 下载的文件会保存在浏览器的下载目录里。
 
@@ -22,7 +22,7 @@
 
 简体中文
 
-繁體中文（感谢网友 [道滿](https://zhtw.me/) 进行翻译）
+繁體中文
 
 English （机翻，韩语设置下也使用英语文本）
 
@@ -30,11 +30,17 @@ English （机翻，韩语设置下也使用英语文本）
 
 欢迎您对翻译做出改进，谢谢~
 
+## 鸣谢
+
+- 感谢 [道滿](https://zhtw.me/) 翻译了繁体中文。
+
+- 感谢 [z2n](https://github.com/z2n) 对本工具做出的改进，使本工具适配了 Firefox 浏览器。
+
 ## 提示：
 
-- Chrome 的资源限制问题
+- 浏览器的资源限制问题
 
-下载p站图片时，该页面会占用较多内存和cpu资源。如果切换到了其他页面，导致下载页面未激活，那么chrome就会限制下载页面的资源使用，导致下载缓慢。
+下载p站图片时，该页面会占用较多内存和cpu资源。如果切换到了其他页面，导致下载页面未激活，那么浏览器就会限制下载页面的资源使用，导致下载缓慢。
 
 解决办法：把下载的标签页单独拖出来，成为一个独立的窗口。新窗口里只有这一个页面，它始终是激活的。这样下载不受影响，我们也可以使用其他页面了。
 

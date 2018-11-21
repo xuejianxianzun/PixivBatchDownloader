@@ -1,25 +1,29 @@
 // 设置 referer
-chrome.webRequest.onBeforeSendHeaders.addListener(function (details) {
+browser.webRequest.onBeforeSendHeaders.addListener(function (details) {
+	let setReferer = false
 	for (let i = 0; i < details.requestHeaders.length; ++i) {
 		if (details.requestHeaders[i].name === 'Referer') {
+			setReferer = true
 			details.requestHeaders[i].value = 'https://www.pixiv.net';
 			break;
 		}
+	}
+	if (!setReferer) {
+		details.requestHeaders.push({ name: 'Referer', value: 'https://www.pixiv.net' })
 	}
 	return {
 		requestHeaders: details.requestHeaders
 	};
 }, {
-	urls: ['*://*.pixiv.net/*']
-}, ['blocking', 'requestHeaders']);
+		urls: ['*://*.pixiv.net/*', '*://*.pximg.net/*']
+	}, ['blocking', 'requestHeaders']);
 
 // 当点击扩展图标时，切换显示/隐藏下载面板
-chrome.browserAction.onClicked.addListener(function (tab) {
-	chrome.tabs.sendMessage(
+browser.browserAction.onClicked.addListener(function (tab) {
+	browser.tabs.sendMessage(
 		tab.id, {
 			'msg': 'click_icon'
-		},
-		function (response) {}
+		}
 	);
 });
 
@@ -27,43 +31,51 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 let donwloadBar_no_data = {};
 
 // 接收下载请求
-chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+browser.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 	// console.log(msg);
 	if (msg.msg === 'send_download') {
 		// 以 file_url 为 key，建立一个对象，保存任务数据
-		donwloadBar_no_data[msg.file_url] = {};
-		donwloadBar_no_data[msg.file_url]['no'] = msg.no;
-		donwloadBar_no_data[msg.file_url]['tabid'] = sender.tab.id;
+
+		let data = {
+			no: msg.no,
+			tabid: sender.tab.id
+		};
+
 		// 开始下载
-		chrome.downloads.download({
-			url: msg.file_url,
+		data['blob'] = dataURLtoBlob(msg.file_url)
+		let blobURL = URL.createObjectURL(data['blob'])
+		browser.downloads.download({
+			url: blobURL,
 			filename: msg.file_name,
 			conflictAction: 'overwrite',
 			saveAs: false
+		}).then(r => {
+			donwloadBar_no_data[r] = data
+		}).catch(err => {
+			URL.revokeObjectURL(data['blob'])
+			browser.tabs.sendMessage(sender.tab.id, { msg: 'donwload_err', no: msg.no })
 		});
 	}
 });
 
 // 监听下载事件
-chrome.downloads.onChanged.addListener(function (detail) {
-	// console.log('detail', detail);
+browser.downloads.onChanged.addListener(function (detail) {
 	// 下载完成后
 	if (detail.state !== undefined && detail.state.current === 'complete') {
 		// 根据 downloadid 查询下载信息
-		chrome.downloads.search({
-			id: detail.id
-		}, function (result) {
-			// console.log(result);
-			let file_url = result[0].url; // 取出这个任务的的 file_url
-			// 返回消息
-			chrome.tabs.sendMessage(
-				donwloadBar_no_data[file_url]['tabid'], {
-					'msg': 'downloaded',
-					'file_url': file_url,
-					'no': donwloadBar_no_data[file_url]['no']
-				},
-				function (response) {}
-			);
-		});
+		let msg = 'downloaded';
+		if (!donwloadBar_no_data[detail.id]) return
+		let { tabid, no } = donwloadBar_no_data[detail.id];
+		URL.revokeObjectURL(donwloadBar_no_data[detail.id]['blob'])
+		browser.tabs.sendMessage(tabid, { msg, no });
 	}
 });
+
+function dataURLtoBlob(dataurl) {
+	let arr = dataurl.split(','), type = arr[0].match(/:(.*?);/)[1],
+		bstr = atob(arr[1]), len = bstr.length, u8arr = new Uint8Array(len);
+	while (len--) {
+		u8arr[len] = bstr.charCodeAt(len);
+	}
+	return new Blob([u8arr], { type });
+}

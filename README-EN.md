@@ -2,15 +2,15 @@
 
 # Introduction:
 
-This is an extension to Chrome that lets you download images from Pixiv in bulk. Powerful and supports many page types.
+This is a browser extension for Chrome and Firefox that lets you download images from Pixiv in bulk. Powerful and supports many page types.
 
 Some auxiliary functions have also been added, such as removing ads, quick collections, and viewing pictures.
 
-This extension is a migration of [XZPixivDownloader](https://github.com/xuejianxianzun/XZPixivDownloader).
-
 # Install:
 
-[Chrome webstore page](https://chrome.google.com/webstore/detail/hfgoikdmppghehigkckknikdgdcjbfpl)
+Chrome：[Chrome webstore page](https://chrome.google.com/webstore/detail/hfgoikdmppghehigkckknikdgdcjbfpl)
+
+Firefox：[Mozilla addons](https://addons.mozilla.org/zh-CN/firefox/addon/pixiv-batch-downloader/)
 
 - The downloaded file will be saved in your browser's download directory.
 
@@ -20,7 +20,7 @@ This extension is a migration of [XZPixivDownloader](https://github.com/xuejianx
 
 Simplified Chinese
 
-Traditional Chinese (thanks [??](https://zhtw.me/) for translation)
+Traditional Chinese
 
 English (machine translation, also used under Korean settings)
 
@@ -28,11 +28,17 @@ Japanese (machine translation)
 
 You can also optimize the translation, thank you very much :)
 
+## Thank:
+
+- thanks [道滿](https://zhtw.me/) for translating traditional Chinese.
+
+- Thanks [z2n](https://github.com/z2n) for adapting this tool to the Firefox browser.
+
 ## Tips:
 
-- Chrome's resource limits
+- Browser's resource limits
 
-When you download picture, this page uses more memory and cpu resources. If you switch to another page and the download page is not activated, Chrome will limit the resource usage of the download page, resulting in slow download.
+When you download picture, this page uses more memory and cpu resources. If you switch to another page and the download page is not activated, Browser will limit the resource usage of the download page, resulting in slow download.
 
 How to solve: Pull out the downloaded tabs individually and become a separate window. This page is the only one in the new window and it is always active. Downloads are not affected, we can use other pages too.
 
