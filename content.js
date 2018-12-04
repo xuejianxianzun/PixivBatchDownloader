@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   6.2.8
+ * build:   6.3.1
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -1463,6 +1463,8 @@ function quickBookmark() {
 					// 对于原创作品，非日文的页面上只显示了用户语言的“原创”，替换成日文 tag “オリジナル”。
 					if (tagArray[0] === '原创' || tagArray[0] === 'Original' || tagArray[0] === '창작') {
 						tagArray[0] = 'オリジナル';
+					} else if (tagArray[1] === '原创' || tagArray[1] === 'Original' || tagArray[1] === '창작') {
+						tagArray[1] = 'オリジナル';
 					}
 					let tagString = encodeURI(tagArray.join(' '));
 					// 调用添加收藏的 api
@@ -2840,7 +2842,7 @@ function getUserName() {
 	let isLogin = /login: 'yes'/.test(document.body.innerHTML);
 	let titleContent = isLogin ? old_title : document.querySelector('meta[property="og:title"]').content;
 	let regexp = '「([^」]*)';
-	if (titleContent.split('「').length > 2) { // 判断是 member.php 还是 member_illust.php
+	if (titleContent.split('「').length > 2 && loc_url.indexOf('member_illust.php') > -1) { // 判断是否是内容页
 		regexp = `\/${regexp}`;
 	}
 	regexp = new RegExp(regexp, 'i');

@@ -41,3 +41,37 @@
 而且下载完成后，Chrome 的内存占用很快回落到一个稳定水平，Firefox 的回落速度却明显比较慢。
 
 以上两点可能导致 Firefox 在下载大量任务时，内存占用过多导致卡死。
+
+## 1.3.1
+
+Firefox 的扩展要求提供第三方库的说明
+
+# Third-party library used
+
+## [webextension-polyfill](https://github.com/mozilla/webextension-polyfill)
+
+[browser-polyfill.js](https://github.com/mozilla/webextension-polyfill/blob/master/src/browser-polyfill.js)
+
+## [gif.js](https://github.com/jnordberg/gif.js)
+
+[gif.js](https://github.com/jnordberg/gif.js/blob/master/dist/gif.js)
+
+[gif.worker.js](https://github.com/jnordberg/gif.js/blob/master/dist/gif.worker.js)
+
+## [zip.js](https://github.com/gildas-lormeau/zip.js)
+
+[inflate.js](https://github.com/gildas-lormeau/zip.js/blob/master/WebContent/inflate.js)
+
+[zip.js](https://github.com/gildas-lormeau/zip.js/blob/master/WebContent/zip.js)
+
+[z-worker.js](https://github.com/gildas-lormeau/zip.js/blob/master/WebContent/z-worker.js)
+
+## [viewerjs](https://github.com/fengyuanchen/viewerjs)
+
+Viewerjs-mix.js [Javascript part](https://github.com/fengyuanchen/viewerjs/blob/master/dist/viewer.js)
+
+Viewerjs-mix.js [CSS part](https://github.com/fengyuanchen/viewerjs/blob/master/dist/viewer.css)
+
+## [jquery](https://jquery.com/)
+
+[jquery-3.3.1.min.js](https://code.jquery.com/jquery-3.3.1.min.js)
