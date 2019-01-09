@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   6.3.2
+ * build:   6.3.3
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -2831,8 +2831,8 @@ function getUserId() {
 		user_id = location.search.match(/id=\d{1,9}/)[0].split('=')[1];
 	} else if (document.querySelector('.user-name')) { // 旧版收藏的用户头像区域，在书签页面还在使用
 		user_id = document.querySelector('.user-name').href.match(/id=\d{1,9}/)[0].split('=')[1];
-	} else if (document.querySelector('.sc-bdVaJa')) { // 新版收藏的用户头像区域
-		user_id = document.querySelector('.sc-bdVaJa').href.match(/id=\d{1,9}/)[0].split('=')[1];
+	} else if (document.querySelector('.sc-dXfzlN')) { // 新版收藏的用户头像区域
+		user_id = document.querySelector('.sc-dXfzlN').href.match(/id=\d{1,9}/)[0].split('=')[1];
 	}
 	return user_id;
 }
