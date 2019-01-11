@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   6.3.4
+ * build:   6.3.5
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -2827,8 +2827,10 @@ function getListPage2() {
 // 获取用户id
 function getUserId() {
 	let user_id = '';
-	if (location.search.match(/\?id=\d{1,9}/)) { // 首先尝试从 url 中取得
-		user_id = location.search.match(/id=\d{1,9}/)[0].split('=')[1];
+	// 首先尝试从 url 中取得
+	let test = /(\?|&)id=(\d{1,9})/.exec(location.search);
+	if (test) {
+		user_id = test[2];
 	} else { // 新版用户头像区域 || 旧版（在书签页面使用）
 		user_id = (document.querySelector('._2e0p8Qb a') || document.querySelector('.user-name')).href.match(/id=\d{1,9}/)[0].split('=')[1];
 	}
@@ -2920,7 +2922,7 @@ function readyGetListPage3() {
 	let api_url = `https://www.pixiv.net/ajax/user/${getUserId()}/profile/all`;
 	if (loc_url.indexOf('member.php?id=') > -1) { // 资料页主页
 		// 采用默认设置即可，无需进行处理
-	} else if (loc_url.indexOf('member_illust.php?id=') > -1) { // 作品列表页
+	} else if (/member_illust\.php\?.*id=/.test(loc_url)) { // 作品列表页
 		if (getQuery(loc_url, 'type') === 'illust') { // 插画分类
 			works_type = 1;
 			if (tag_mode) { // 带 tag
@@ -4455,7 +4457,7 @@ function checkPageType() {
 		page_type = 0;
 	} else if (loc_url.indexOf('illust_id') > -1 && loc_url.indexOf('mode=manga') == -1 && loc_url.indexOf('bookmark_detail') == -1 && loc_url.indexOf('bookmark_add') == -1) {
 		page_type = 1;
-	} else if (loc_url.indexOf('member.php?id=') > -1 || loc_url.indexOf('member_illust.php?id=') > -1 || loc_url.indexOf('bookmark.php') > -1) {
+	} else if (/member_illust\.php\?.*id=/.test(loc_url) || loc_url.includes('member.php?id=') || loc_url.includes('bookmark.php')) {
 		page_type = 2;
 	} else if (loc_url.indexOf('search.php?') > -1) {
 		page_type = 5;
