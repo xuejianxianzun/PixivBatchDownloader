@@ -10,7 +10,7 @@ Some auxiliary functions have also been added, such as removing ads, quick colle
 
 Chrome：[Chrome webstore page](https://chrome.google.com/webstore/detail/hfgoikdmppghehigkckknikdgdcjbfpl)
 
-Firefox (Unavailable)：[Mozilla addons](https://addons.mozilla.org/zh-CN/firefox/addon/pixiv-batch-downloader/)
+Firefox：[Mozilla addons](https://addons.mozilla.org/zh-CN/firefox/addon/pixiv-batch-downloader/)
 
 - The downloaded file will be saved in your browser's download directory.
 
