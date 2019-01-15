@@ -70,14 +70,8 @@ Now you can download the gif image directly for a single animation.
 
 - [Discovery page](https://www.pixiv.net/discovery)
 
-- Recommended works (now, recommended works is the same as discovery page)
-
 - [New work: everyone](https://www.pixiv.net/new_illust.php)
 
 - [New work: following](https://www.pixiv.net/bookmark_new_illust.php)
 
-- [Illustration on Showcase](https://www.pixiv.net/showcase/a/3190/)
-
 - [Illustration, comics, cosplay page on pixivision](https://www.pixivision.net/zh/a/3190)
-
-- [Image response](https://www.pixiv.net/response.php?mode=all&id=194231)

@@ -85,7 +85,3 @@ English （机翻，韩语设置下也使用英语文本）
 10 [关注的新作品](https://www.pixiv.net/bookmark_new_illust.php)
 
 11 [发现](https://www.pixiv.net/discovery)
-
-12 [pixiv特辑上的插画](https://www.pixiv.net/showcase/a/3190/)
-
-13 [响应关联作品](https://www.pixiv.net/response.php?mode=all&id=194231)

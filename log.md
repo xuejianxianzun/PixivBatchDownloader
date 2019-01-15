@@ -75,3 +75,43 @@ Viewerjs-mix.js [CSS part](https://github.com/fengyuanchen/viewerjs/blob/master/
 ## [jquery](https://jquery.com/)
 
 [jquery-3.3.1.min.js](https://code.jquery.com/jquery-3.3.1.min.js)
+
+## 1.3.7
+
+同步了脚本版的修改。
+
+每次脚本版的大改，要再同步到扩展版里都很麻烦，因为两者的代码只是部分通用。
+
+之前上架 Mozilla 扩展时，因为 jQuery 源代码过审没通过，遭到下架。我也想不明白是为什么。现在去掉了 jQuery，可以尝试再次上架了。
+
+### 扩展里代码移植时产生的不同
+
+- ex 不判断 Firefox
+
+合并代码之后要搜索 Firefox 删除
+
+搜索 文件夹提示 之类
+
+- ex 中间面板没有安装扩展的提示
+
+相关 css 代码也不同
+
+github 的 url 不同
+
+- ex 转换 gif 代码不同
+
+initViewer() 里面不同
+
+- ex 设置 history _wr 方式不同
+
+- ex 获取 tt 不同
+
+- ex 获取用户名时判断登陆的代码不同
+
+- 下载时不判断 GMinfo，不使用 GM_xmlhttpRequest，dataurl和 bloburl不同
+
+要单独处理这里的改动，以及 startDownload()
+
+- ex 多了 readBlobAsDataURL()
+
+- ex 多了 browser 相关代码
