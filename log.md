@@ -72,10 +72,6 @@ Viewerjs-mix.js [Javascript part](https://github.com/fengyuanchen/viewerjs/blob/
 
 Viewerjs-mix.js [CSS part](https://github.com/fengyuanchen/viewerjs/blob/master/dist/viewer.css)
 
-## [jquery](https://jquery.com/)
-
-[jquery-3.3.1.min.js](https://code.jquery.com/jquery-3.3.1.min.js)
-
 ## 1.3.7
 
 同步了脚本版的修改。
