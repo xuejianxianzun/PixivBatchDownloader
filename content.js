@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   6.4.1
+ * build:   6.4.2
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -1505,12 +1505,7 @@ function initGIF() {
 	file_number = undefined; // 动图压缩包里有多少个文件
 	gif_img_list.innerHTML = ''; // 清空图片列表
 	download_gif_btn.style.display = 'inline-block'; // 显示动图转换按钮
-
-	getGIFInfo();
-}
-
-// 获取 gif 信息
-function getGIFInfo() {
+	// 获取 gif 信息
 	fetch('https://www.pixiv.net/ajax/illust/' + getIllustId() + '/ugoira_meta', {
 			method: 'get',
 			credentials: 'include', // 附带 cookie
@@ -4252,7 +4247,6 @@ if (page_type !== undefined) {
 	changeWantPage();
 	readXZSetting();
 	setFolderInfo();
-	// setFolderInfo 在 1 和 2 里可能会多次执行，所以在这里绑定，只绑定一次
 	appendValueToInput(XZForm.folder_name_select, XZForm.folderNameRule);
 }
 
