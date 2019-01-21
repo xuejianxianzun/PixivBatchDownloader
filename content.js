@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   6.4.2
+ * build:   6.4.3
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -1426,7 +1426,7 @@ function quickBookmark() {
 		quickBookmark();
 	}, 300);
 
-	let toolbar = document.querySelector('._2PSiU82');
+	let toolbar = document.querySelector('.sc-iKpIOp');
 	if (toolbar) {
 		quickBookmarkElement = document.querySelector(`#quickBookmarkEl`);
 		if (!quickBookmarkElement) { // 如果没有 quick 元素则添加
@@ -1463,24 +1463,19 @@ function quickBookmark() {
 					let tagString = encodeURI(tagArray.join(' '));
 					// 调用添加收藏的 api
 					fetch('https://www.pixiv.net/rpc/index.php', {
-						method: 'post',
-						headers: {
-							'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-						},
-						credentials: 'include', // 附带 cookie
-						body: `mode=save_illust_bookmark&illust_id=${getIllustId()}&restrict=0&comment=&tags=${tagString}&tt=${tt}`
-					}).then(function (response) {
-						response.text()
-							.then(function (data) {
-								if (response.ok) {
-									data = JSON.parse(data);
-									if (data.error !== undefined && data.error === false) {
-										quickBookmarkEnd();
-									}
-								} else { // 失败 如 403 404
-								}
-							});
-					});
+							method: 'post',
+							headers: {
+								'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+							},
+							credentials: 'include', // 附带 cookie
+							body: `mode=save_illust_bookmark&illust_id=${getIllustId()}&restrict=0&comment=&tags=${tagString}&tt=${tt}`
+						})
+						.then(response => response.json())
+						.then(data => {
+							if (data.error !== undefined && data.error === false) {
+								quickBookmarkEnd();
+							}
+						});
 				});
 			}
 		} else { // 如果有 quick 元素，什么都不做
@@ -1558,28 +1553,28 @@ function startconvert() {
 
 // 读取 zip 文件
 function readZip() {
-	zip.createReader(new zip.BlobReader(zip_file), function (zipReader) {
+	zip.createReader(new zip.BlobReader(zip_file), zipReader => {
 		// 读取成功时的回调函数，files 为文件列表
-		zipReader.getEntries(function (files) {
+		zipReader.getEntries(files => {
 			file_number = files.length;
 			files.forEach(file => {
 				// 获取每个文件的数据，在 BlobWriter 里设置 mime type，回调函数返回 blob 数据
-				file.getData(new zip.BlobWriter(gif_mime_type), function (data) {
+				file.getData(new zip.BlobWriter(gif_mime_type), data => {
 					let data_url = URL.createObjectURL(data);
 					addImgList(data_url); // 输出图片列表
 				});
 			});
 		});
-	}, function (message) {
+	}, message => {
 		console.log('readZIP error: ' + message);
-		alert('error: convert to gif failed.');
+		addOutputInfo('error: convert to gif failed.');
 	});
 }
 
 // 输出图片列表
 function addImgList(url) {
 	let new_img = new Image();
-	new_img.onload = function () {
+	new_img.onload = () => {
 		file_number--;
 		if (file_number == 0) { // 所有图片都加载完成后
 			renderGIF();
@@ -1609,7 +1604,7 @@ function renderGIF() {
 	});
 	console.time('gif');
 	// 渲染完成事件
-	gif.on('finished', function (blob) {
+	gif.on('finished', blob => {
 		console.timeEnd('gif'); // 显示渲染用了多久
 		download_a = document.querySelector('.download_a');
 		download_a.href = URL.createObjectURL(blob);
@@ -1684,7 +1679,7 @@ function createViewer() {
 	});
 
 	// esc 退出图片查看器
-	document.addEventListener('keyup', function (event) {
+	document.addEventListener('keyup', event => {
 		let e = event || window.event;
 		if (e.keyCode == 27) { // 按下 esc
 			// 如果非全屏，且查看器已经打开，则退出查看器
@@ -1847,7 +1842,7 @@ function viewerIsShow() {
 }
 
 // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
-['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange'].forEach((arg) => {
+['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange'].forEach(arg => {
 	document.addEventListener(arg, () => {
 		if (!isFullscreen()) { // 退出全屏
 			showViewerOther();
@@ -2171,7 +2166,7 @@ function listSort() {
 	imgList.sort(sortByProperty('num'));
 	let list_wrap = document.querySelector('.x7wiBV0');
 	list_wrap.innerHTML = '';
-	imgList.forEach((data) => {
+	imgList.forEach(data => {
 		list_wrap.appendChild(data.e);
 	})
 }
@@ -2188,7 +2183,7 @@ function tagSearchPageFinished() {
 // 获取 tag 搜索列表里的可见作品
 function visibleList() {
 	let list = document.querySelectorAll(tag_search_list_selector);
-	return Array.from(list).filter((el) => {
+	return Array.from(list).filter(el => {
 		return el.style.display !== 'none';
 	});
 }
@@ -2204,12 +2199,10 @@ function getNowPageNo() {
 }
 
 // 实现 remove() 方法
-[HTMLCollection, NodeList].forEach((arg) => {
+[HTMLCollection, NodeList].forEach(arg => {
 	arg.prototype.remove = function () {
-		if ('length' in this) { // 如果有 length 属性则循环删除。HTMLCollection 需要转化为数组才能使用 forEach，NodeList 不需要转化就可以使用
-			Array.from(this).forEach((el) => {
-				el.parentNode.removeChild(el);
-			})
+		if (Reflect.has(this, 'length')) { // 如果有 length 属性则循环删除。HTMLCollection 需要转化为数组才能使用 forEach，NodeList 不需要转化就可以使用
+			Array.from(this).forEach(el => el.parentNode.removeChild(el));
 		} else { //没有 length 属性的，不能使用 forEach，直接删除（querySelector、getElementById 没有 length 属性）
 			this.parentNode.removeChild(this);
 		}
@@ -2376,7 +2369,7 @@ function getListPage() {
 		url = '/rpc/recommender.php?type=illust&sample_illusts=' + id + '&num_recommendations=' + requset_number; //获取相似的作品
 	} else if (page_type === 11) { // 对于发现图片，仅下载已有部分，所以不需要去获取列表页了。
 		let now_illust = document.querySelectorAll('.QBU8zAz>a'); //获取已有作品 ._3NnoQkv>a
-		Array.from(now_illust).forEach((el) => { //拼接作品的url
+		Array.from(now_illust).forEach(el => { //拼接作品的url
 			// discovery列表的url也是有额外后缀的，需要去掉
 			illust_url_list.push(el.href.split('&uarea')[0]);
 		})
@@ -2411,7 +2404,7 @@ function getListPage() {
 				this_one_info = listPage_document.querySelector(tag_search_lv1_selector).getAttribute('data-items'); // 保存这一次的信息
 				this_one_info = JSON.parse(this_one_info); // 转化为数组
 				display_cover = XZForm.setDisplayCover.checked;
-				this_one_info.forEach((data) => {
+				this_one_info.forEach(data => {
 					// 拼接每个作品的html
 					let new_html = tag_search_new_html;
 					let pageCount = parseInt(data['pageCount']); // 包含的图片数量
@@ -2487,7 +2480,7 @@ function getListPage() {
 				}
 			} else if (page_type === 7) { // 其他排行榜。地区排行榜不经过这个步骤
 				let contents = JSON.parse(data).contents; //取出作品信息列表
-				contents.forEach((data) => {
+				contents.forEach(data => {
 					let nowClass = '';
 					let pageCount = parseInt(data.illust_page_count); // 包含的图片数量
 					if (pageCount > 1) { // 多图
@@ -2509,7 +2502,7 @@ function getListPage() {
 				}
 			} else if (page_type === 9 || down_xiangguan) { //添加收藏后的相似作品
 				let illust_list = JSON.parse(data).recommendations; //取出id列表
-				illust_list.forEach((data) => { //拼接作品的url
+				illust_list.forEach(data => { //拼接作品的url
 					illust_url_list.push('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + data);
 				})
 				addOutputInfo('<br>' + xzlt('_列表页获取完成2', illust_url_list.length));
@@ -2518,7 +2511,7 @@ function getListPage() {
 				if (page_type === 10 && list_is_new === true) { //关注的新作品 列表改成和tag搜索页一样的了
 					let this_one_info = listPage_document.querySelector(tag_search_lv1_selector).getAttribute('data-items'); // 保存这一次的信息
 					this_one_info = JSON.parse(this_one_info); // 转化为数组
-					this_one_info.forEach((data) => {
+					this_one_info.forEach(data => {
 						let nowClass = '';
 						let bookmarked;
 						let nowHref = 'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + data['illustId'];
@@ -2626,7 +2619,7 @@ function getListPage2() {
 		}
 	} else { // 地区排行榜
 		let allPicArea = document.querySelectorAll('.ranking-item>.work_wrapper>a');
-		allPicArea.forEach((el) => {
+		allPicArea.forEach(el => {
 			let nowClass = el.getAttribute('class');
 			let nowHref = el.href;
 			let bookmarked = el.querySelector('._one-click-bookmark').classList.contains('on');
@@ -2781,7 +2774,9 @@ function readyGetListPage3() {
 // 获取 page_type 2 的作品 id 列表
 function getListPage3(url) {
 	let bmk_get_end = false; // 书签作品是否获取完毕
-	fetch(url)
+	fetch(url, {
+			credentials: "same-origin"
+		})
 		.then(response => {
 			if (response.ok) {
 				return response.json();
@@ -2809,9 +2804,7 @@ function getListPage3(url) {
 						// https://www.pixiv.net/ajax/user/27517/manga/tag/%E5%A5%B3%E3%81%AE%E5%AD%90?offset=0&limit=9999999
 						// https://www.pixiv.net/ajax/user/544479/illustmanga/tag/%E6%9D%B1%E9%A2%A8%E8%B0%B7%E6%97%A9%E8%8B%97?offset=0&limit=9999999
 						let works = data.body.works;
-						works.forEach(element => {
-							type2_id_list.push(element.id);
-						});
+						works.forEach(data => type2_id_list.push(data.id));
 					} else if (works_type === 5) { // 动图
 						type2_id_list = type2_id_list.concat(Object.keys(data.body.illusts));
 					}
@@ -2823,9 +2816,7 @@ function getListPage3(url) {
 				if (works.length === 0 || type2_id_list.length >= requset_number) { // 获取数量超出实际存在数量，works 长度为 0
 					bmk_get_end = true;
 				} else {
-					works.forEach(element => {
-						type2_id_list.push(element.id);
-					});
+					works.forEach(data => type2_id_list.push(data.id));
 				}
 			}
 
@@ -2875,9 +2866,7 @@ function getListPage3(url) {
 				return false;
 			}
 		})
-		.catch(error => {
-			console.log(error);
-		})
+		.catch(error => console.log(error));
 }
 
 // 作品列表获取完毕，开始抓取图片内容页
@@ -2938,7 +2927,7 @@ function getIllustPage(url) {
 			let nowAllTag = [];
 			if (nowAllTagInfo.length > 0) {
 				user = nowAllTagInfo[0].userName; // 从第一个tag里取出画师名字，缺点是如果没有 tag 那就获取不到画师名
-				nowAllTag = nowAllTagInfo.map((info) => {
+				nowAllTag = nowAllTagInfo.map(info => {
 					return info.tag;
 				});
 			}
@@ -3147,12 +3136,8 @@ function testExtName(url, length, img_info_data) {
 	let ext = '';
 	let testImg = new Image();
 	testImg.src = url;
-	testImg.onload = function () {
-		nextStep(true);
-	};
-	testImg.onerror = function () {
-		nextStep(false);
-	};
+	testImg.onload = () => nextStep(true);
+	testImg.onerror = () => nextStep(false);
 
 	function nextStep(bool) {
 		if (bool) {
@@ -3525,7 +3510,7 @@ function addCenterWarps() {
 	let xztips = document.querySelectorAll('.xztip');
 	for (const el of xztips) {
 		for (const ev of ['mouseenter', 'mouseleave']) {
-			el.addEventListener(ev, function (event) {
+			el.addEventListener(ev, event => {
 				let e = event || window.event;
 				XZTip.call(el, {
 					'type': (ev === 'mouseenter') ? 1 : 0,
@@ -3682,7 +3667,7 @@ function toggleOptionArea() {
 }
 
 // 使用快捷键切换显示隐藏
-window.addEventListener('keydown', function (event) {
+window.addEventListener('keydown', event => {
 	let e2 = event || window.event;
 	if (e2.altKey && e2.keyCode === 88) {
 		let now_display = centerWrap.style.display;
@@ -3819,8 +3804,8 @@ function saveXZSetting(key, value) {
 
 // 隐藏不需要的选项
 function hideNotNeedOption(no) {
-	for (let index = 0; index < no.length; index++) {
-		document.querySelector('.XZFormP' + no[index]).style.display = 'none';
+	for (const num of no) {
+		document.querySelector('.XZFormP' + num).style.display = 'none';
 	}
 }
 
@@ -3922,7 +3907,7 @@ function getFileName(data) {
 	// 拼接文件名，不包含后缀名
 	let result = '';
 	// 将序号部分格式化成 3 位数字。p 站投稿一次最多 200 张
-	// data.id = data.id.replace(/(\d.*p)(\d.*)/, function (...str) {
+	// data.id = data.id.replace(/(\d.*p)(\d.*)/,  (...str)=> {
 	// 	return str[1] + str[2].padStart(3, '0');
 	// });
 	if (tagName_to_fileName) {
@@ -4055,6 +4040,7 @@ function downloadedFunc(downloadBar_no) {
 	if (time_delay < 0) { // 因为有多个线程，所以有可能把time_delay减小到0以下，这里做限制
 		time_delay += time_interval;
 	}
+	// 下载之后
 	downloaded++;
 	document.querySelector('.downloaded').textContent = downloaded;
 	document.querySelector('.progress1').style.width = downloaded / img_info.length * 100 + '%';
@@ -4113,16 +4099,16 @@ function changeWantPage() {
 			break;
 		case 1:
 			want_page = -1;
-			setWantPageTip1.innerHTML = xzlt('_个数');
+			setWantPageTip1.textContent = xzlt('_个数');
 			setWantPageTip1.dataset.tip = xzlt('_check_want_page_rule1_arg5') + '<br>' + xzlt('_相关作品大于0');
-			setWantPageTip2.innerHTML = xzlt('_数字提示1');
+			setWantPageTip2.textContent = xzlt('_数字提示1');
 			setWantPage.value = want_page;
 			break;
 		case 5:
 			want_page = 1000;
-			setWantPageTip1.innerHTML = xzlt('_页数');
+			setWantPageTip1.textContent = xzlt('_页数');
 			setWantPageTip1.dataset.tip = xzlt('_要获取的作品个数2');
-			setWantPageTip2.innerHTML = '-1 - 1000';
+			setWantPageTip2.textContent = '-1 - 1000';
 			setWantPage.value = want_page;
 			break;
 		case 6:
@@ -4136,17 +4122,17 @@ function changeWantPage() {
 			break;
 		case 9:
 			want_page = 100;
-			setWantPageTip1.innerHTML = xzlt('_个数');
+			setWantPageTip1.textContent = xzlt('_个数');
 			setWantPageTip1.dataset.tip = xzlt('_要获取的作品个数2');
-			setWantPageTip2.innerHTML = '1 - 500';
+			setWantPageTip2.textContent = '1 - 500';
 			setWantPage.value = want_page;
 			break;
 		case 10:
 			want_page = 10;
-			setWantPageTip1.innerHTML = xzlt('_页数');
+			setWantPageTip1.textContent = xzlt('_页数');
 			setWantPageTip1.dataset.tip = xzlt('_check_want_page_rule1_arg8');
 			set_max_num();
-			setWantPageTip2.innerHTML = `1 - ${max_num}`;
+			setWantPageTip2.textContent = `1 - ${max_num}`;
 			setWantPage.value = want_page;
 			break;
 		case 11:
@@ -4154,9 +4140,9 @@ function changeWantPage() {
 			break;
 		default:
 			want_page = -1;
-			setWantPageTip1.innerHTML = xzlt('_页数');
+			setWantPageTip1.textContent = xzlt('_页数');
 			setWantPageTip1.dataset.tip = xzlt('_check_want_page_rule1_arg5');
-			setWantPageTip2.innerHTML = xzlt('_数字提示1');
+			setWantPageTip2.textContent = xzlt('_数字提示1');
 			setWantPage.value = want_page;
 			break;
 	}
@@ -4262,7 +4248,7 @@ function listen1() {
 // 虽然是绑定在 page_type 2 上面，但 2 和 1 其实是同一个页面
 if (page_type === 1 || page_type === 2) {
 	// pushState 判断从列表页进入作品页的情况，popstate 判断从作品页退回列表页的情况
-	['pushState', 'popstate'].forEach((item) => {
+	['pushState', 'popstate'].forEach(item => {
 		window.addEventListener(item, () => {
 			checkPageType(); // 当页面切换时，判断新页面的类型
 			changeWantPage();
@@ -4528,7 +4514,7 @@ if (page_type === 1) { //1. illust 作品页内页
 		} else {
 			want_favorite_number2 = ~~Number(want_favorite_number2);
 		}
-		allPicArea.forEach((el) => {
+		allPicArea.forEach(el => {
 			if (parseInt(el.querySelector('._ui-tooltip').textContent) < want_favorite_number2) { //必须限制序号0，不然对图片的回应数也会连起来
 				el.style.display = 'none'; //这里把结果中不符合二次过滤隐藏掉，而非删除
 			} else {
@@ -4602,7 +4588,7 @@ if (page_type === 1) { //1. illust 作品页内页
 			let imageList = []; //图片元素的列表
 			if (type == 'illustration') { // 针对不同的类型，选择器不同
 				imageList = document.querySelectorAll('.am__work__main img');
-				let urls = Array.from(imageList).map((el) => {
+				let urls = Array.from(imageList).map(el => {
 					return el.src.replace('c/768x1200_80/img-master', 'img-original').replace('_master1200', '');
 				});
 				test_suffix_no = 0;
@@ -4625,7 +4611,7 @@ if (page_type === 1) { //1. illust 作品页内页
 				} else if (type == 'cosplay') {
 					imageList = document.querySelectorAll('.fab__image-block__image img');
 				}
-				Array.from(imageList).forEach((el) => { // 把图片url添加进数组
+				Array.from(imageList).forEach(el => { // 把图片url添加进数组
 					let imgUrl = el.src;
 					if (imgUrl !== 'https://i.pximg.net/imgaz/upload/20170407/256097898.jpg') { // 跳过Cure的logo图片
 						let id = imgUrl.split('/');
