@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   6.4.3
+ * build:   6.4.4
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -1426,7 +1426,15 @@ function quickBookmark() {
 		quickBookmark();
 	}, 300);
 
-	let toolbar = document.querySelector('.sc-iKpIOp');
+	let toolbar; // 因为 p 站改版 class 经常变，所以从父元素查找，父元素的 class 变化没那么频繁
+	let toolbar_parent = document.querySelectorAll('._7-rfF29>div');
+	for (const el of toolbar_parent) {
+		if (el.querySelector('div>section')) {
+			toolbar = el.querySelector('div>section');
+			break;
+		}
+	}
+
 	if (toolbar) {
 		quickBookmarkElement = document.querySelector(`#quickBookmarkEl`);
 		if (!quickBookmarkElement) { // 如果没有 quick 元素则添加
