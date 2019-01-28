@@ -86,13 +86,15 @@ Viewerjs-mix.js [CSS part](https://github.com/fengyuanchen/viewerjs/blob/master/
 
 合并代码之后要搜索 Firefox 删除
 
-搜索 文件夹提示 之类
+- ex 不判断 allowFolder
 
 - ex 中间面板没有安装扩展的提示
 
 相关 css 代码也不同
 
 github 的 url 不同
+
+设置文件夹哪里没有“如何使用”
 
 - ex 转换 gif 代码不同
 
@@ -104,7 +106,11 @@ initViewer() 里面不同
 
 - ex 获取用户名时判断登陆的代码不同
 
-- 下载时不判断 GMinfo，不使用 GM_xmlhttpRequest，dataurl和 bloburl不同
+- 下载时
+
+不判断 GMinfo，不使用 GM_xmlhttpRequest
+
+dataurl和 bloburl不同
 
 要单独处理这里的改动，以及 startDownload()
 
