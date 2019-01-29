@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   6.5.1
+ * build:   6.5.2
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -3043,11 +3043,13 @@ function getIllustPage(url) {
 			let fullHeight = parseInt(jsInfo.height); //原图高度
 			let title = jsInfo.illustTitle;
 			let userid = jsInfo.userId; //画师id
-			let user = ''; //画师名字
+			let user = jsInfo.userName; //画师名字，如果这里获取不到，下面从 tag 尝试获取
 			let nowAllTagInfo = jsInfo.tags.tags; // tag列表
 			let nowAllTag = [];
 			if (nowAllTagInfo.length > 0) {
-				user = nowAllTagInfo[0].userName; // 从第一个tag里取出画师名字，缺点是如果没有 tag 那就获取不到画师名
+				if (!user) {
+					user = nowAllTagInfo[0].userName ? nowAllTagInfo[0].userName : ''; // 这里从第一个tag里取出画师名字，如果没有 tag 那就获取不到画师名
+				}
 				nowAllTag = nowAllTagInfo.map(info => {
 					return info.tag;
 				});
