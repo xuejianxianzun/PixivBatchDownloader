@@ -82,6 +82,8 @@ Viewerjs-mix.js [CSS part](https://github.com/fengyuanchen/viewerjs/blob/master/
 
 ### 扩展里代码移植时产生的不同
 
+- 互相检测使标识不同
+
 - ex 不判断 Firefox
 
 合并代码之后要搜索 Firefox 删除

@@ -1,6 +1,6 @@
 /*
  * project: PixivBatchDownloader
- * build:   6.5.3
+ * build:   6.5.4
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -10,6 +10,14 @@
  */
 
 'use strict';
+
+// 检测脚本版，使二者同时只运行一个
+if (sessionStorage.getItem('xz_pixiv_userscript')) {
+	throw 'userscript ver is running';
+} else {// 标注自己
+	sessionStorage.setItem('xz_pixiv_extension', '1');
+}
+
 
 let quiet_download = true, // 是否快速下载。当可以下载时自动开始下载（无需点击下载按钮）
 	download_thread_deauflt = 6, // 同时下载的线程数，可以通过设置 download_thread 修改
@@ -1598,10 +1606,7 @@ function readZip() {
 			file_number = files.length;
 			files.forEach(file => {
 				// 获取每个文件的数据，在 BlobWriter 里设置 mime type，回调函数返回 blob 数据
-				file.getData(new zip.BlobWriter(gif_mime_type), data => {
-					let data_url = URL.createObjectURL(data);
-					addImgList(data_url); // 输出图片列表
-				});
+				file.getData(new zip.BlobWriter(gif_mime_type), data => addImgList(URL.createObjectURL(data)));
 			});
 		});
 	}, message => {
