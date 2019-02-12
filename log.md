@@ -119,3 +119,9 @@ dataurl和 bloburl不同
 - ex 多了 readBlobAsDataURL()
 
 - ex 多了 browser 相关代码
+
+## 1.4.5
+
+- 修改了扩展的 logo 和应用商店的封面图。
+
+- 增加提示：禁用其他下载扩展。
