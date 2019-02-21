@@ -1,6 +1,5 @@
 /*
  * project: PixivBatchDownloader
- * build:   6.5.4
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -75,7 +74,6 @@ let quiet_download = true, // 是否快速下载。当可以下载时自动开�
 	tag_search_new_html, // tag搜索页作品的html
 	xz_multiple_html, // tag搜索页作品的html中的多图标识
 	xz_gif_html, // tag搜索页作品的html中的动图标识
-	fileNameRule = '',
 	safe_fileName_rule = new RegExp(/\\|\/|:|\?|"|<|'|>|\*|\||\.$/g), // 安全的文件名
 	safe_folder_rule = new RegExp(/\\|:|\?|"|<|'|>|\*|\||\.$/g), // 文件夹名，允许斜线 /
 	rightButton, // 右侧按钮
@@ -112,9 +110,7 @@ let quiet_download = true, // 是否快速下载。当可以下载时自动开�
 	XZForm,
 	XZTipEl,
 	styleE,
-	folder_info = {}, // 文件夹可以使用的命名信息
-	folder_name_default = '', // 默认文件夹命名规则
-	folder_name = '', // 用户设置的文件夹命名规则
+	page_info = {}, // 文件夹可以使用的命名信息
 	option_area_show = true,
 	del_work = false, // 是否处于删除作品状态
 	only_down_bmk,
@@ -781,12 +777,6 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 		'Use Alt + X to show and hide the download panel',
 		'使用 Alt + X，可以顯示和隱藏下載面板'
 	],
-	'_设置命名规则': [
-		'共抓取到{}个图片，请设置文件命名规则：',
-		'合計{}枚の画像を取得し、ファイルの命名規則を設定してください：',
-		'Grab a total of {} pictures, please set the file naming rules: ',
-		'共擷取到{}個圖片，請設定檔案命名規則：'
-	],
 	'_设置命名规则3': [
 		'共抓取到 {} 个图片',
 		'合計 {} 枚の画像を取得し',
@@ -794,22 +784,16 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 		'共擷取到 {} 個圖片'
 	],
 	'_设置文件名': [
-		'设置文件名&nbsp;&nbsp;&nbsp;',
-		'ファイル名を設定する',
-		'Set file name',
-		'設定檔案名稱&nbsp;&nbsp;&nbsp;'
-	],
-	'_设置文件夹名': [
-		'设置文件夹名',
-		'フォルダ名を設定する',
-		'Set the folder name',
-		'設定資料夾名'
+		'设置命名规则',
+		'命名規則を設定する',
+		'Set naming rules',
+		'設置命名規則'
 	],
 	'_设置文件夹名的提示': [
 		`可以使用 '/' 建立文件夹`,
 		`フォルダは '/'で作成できます`,
 		`You can create a folder with '/'`,
-		`可以使用 '/' 建立資料`
+		`可以使用 '/' 建立資料夹`
 	],
 	'_添加标记名称': [
 		'添加标记名称',
@@ -830,10 +814,10 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 		'檢視標記的含義'
 	],
 	'_可用标记1': [
-		'作品id',
-		'作品ID',
+		'作品 id',
+		'作品 ID',
 		'works id',
-		'作品id'
+		'作品 id'
 	],
 	'_可用标记2': [
 		'作品标题',
@@ -842,22 +826,22 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 		'作品標題'
 	],
 	'_可用标记3': [
-		'作品的tag列表',
-		'作品のtags',
+		'作品的 tag 列表',
+		'作品の tags',
 		'Tags of works',
-		'作品的tag清單'
+		'作品的 tag 清單'
 	],
 	'_可用标记4': [
-		'画师的名字',
+		'画师名字',
 		'アーティスト名',
 		'Artist name',
-		'畫師的名字'
+		'畫師名字'
 	],
 	'_可用标记6': [
-		'画师的id',
-		'アーティストID',
+		'画师 id',
+		'アーティスト ID',
 		'Artist id',
-		'畫師的id'
+		'畫師 id'
 	],
 	'_可用标记7': [
 		'宽度和高度',
@@ -872,37 +856,31 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 		'bookmark-count，作品的收藏數。將它放在最前面就可以讓下載後的檔案依收藏數排序。'
 	],
 	'_可用标记5': [
-		'你可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}-{px}<br>* 在pixivision里，只有id标记会生效',
-		'複数のタグを使用することができ；異なるタグ間に別の文字を追加することができます。例：{id}-{userid}-{px}<br>* pixivisionでは、idのみが利用可能です',
-		'You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}-{px}<br>* On pixivision, only id is available',
-		'你可以使用多個標記；建議在不同標記之間加入分割用的字元。範例：{id}-{userid}-{px}<br>* 在pixivision裡，只有id標記會生效'
+		'你可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}-{px}<br>* 在某些情况下，会有一些标记不可用，不会添加到文件名里。',
+		'複数のタグを使用することができ；異なるタグ間に別の文字を追加することができます。例：{id}-{userid}-{px}<br>* 場合によっては、一部のタグが利用できず、ファイル名に追加されません。',
+		'You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}-{px}<br>* In some cases, some tags will not be available and will not be added to the file name.',
+		'你可以使用多個標記；建議在不同標記之間加入分割用的字元。範例：{id}-{userid}-{px}<br>* 在某些情況下，會有一些標記不可用，不會添加到檔案名里。'
 	],
-	'_文件夹标记_user': [
-		'画师的名字',
+	'_文件夹标记_p_user': [
+		'当前页面的画师名字',
 		'アーティスト名',
 		'Artist name',
 		'畫師的名字'
 	],
-	'_文件夹标记_userid': [
-		'画师的id',
+	'_文件夹标记_p_uid': [
+		'当前页面的画师id',
 		'アーティストID',
 		'Artist id',
 		'畫師的id'
 	],
-	'_文件夹标记_tag': [
+	'_文件夹标记_p_tag': [
 		'当前页面的 tag',
 		'現在のタグ',
 		'Current tag',
 		'當前頁面的 tag'
 	],
-	'_文件夹标记_id': [
-		'作品id',
-		'作品ID',
-		'works id',
-		'作品id'
-	],
-	'_文件夹标记_ptitle': [
-		'网页的标题',
+	'_文件夹标记_p_title': [
+		'当前页面的标题',
 		'ページのタイトル',
 		'The title of the page',
 		'網頁的標題'
@@ -1441,7 +1419,7 @@ function xzlt(name, ...arg) {
 // 添加 css 样式
 styleE = document.createElement('style');
 document.body.appendChild(styleE);
-styleE.textContent = `#header-banner.ad,._2vNejsc,._3M6FtEB,._3jgsYyw,._premium-lead-promotion-banner,._1N-LC6t,._premium-lead-tag-search-bar,.ad-bigbanner,.ad-footer,.ad-multiple_illust_viewer,.ads_anchor,.ads_area,.adsbygoogle,.popular-introduction-overlay,.ui-fixed-container aside,[name=header],section.ad{display:none!important;z-index:-999!important;width:0!important;height:0!important;opacity:0!important}#viewerWarpper{margin:24px auto 15px;overflow:hidden;background:#fff;padding:0 16px;display:none;border-top:1px solid #eee;border-bottom:1px solid #eee}#viewerWarpper ul{max-width:568px;margin:24px auto;padding:0 16px;display:flex;justify-content:flex-start;align-items:center;flex-wrap:nowrap;overflow:auto}#viewerWarpper li{display:flex;flex-shrink:0;margin-right:8px;overflow:hidden}#viewerWarpper li img{cursor:pointer;max-height:144px;width:auto}.viewer-toolbar .viewer-next,.viewer-toolbar .viewer-prev{background-color:rgba(0,0,0,.8);border-radius:50%;cursor:pointer;height:100px;width:100px;overflow:hidden}.viewer-backdrop{background:rgba(0,0,0,.8)}.viewer-toolbar .viewer-prev{position:fixed;left:-70px;top:40%}.viewer-toolbar .viewer-prev::before{top:40px;left:70px;position:absolute}.viewer-toolbar .viewer-next{position:fixed;right:-70px;top:40%}#quick_down_btn,#rightButton{line-height:20px;border-radius:3px;color:#fff;padding:8px;box-sizing:content-box;right:0;text-align:center;cursor:pointer}.viewer-toolbar .viewer-next::before{left:10px;top:40px;position:absolute}#quick_down_btn,#rightButton,.centerWrap{position:fixed;z-index:1000;font-size:14px}.black-background{background:rgba(0,0,0,1)}#rightButton{top:15%;background:#BECAD7}#quick_down_btn{top:20%;background:#0096fa}li{list-style:none}.centerWrap{display:none;width:650px;left:-350px;margin-left:50%;background:#fff;top:3%;color:#333;padding:25px;border-radius:15px;border:1px solid #ddd;box-shadow:0 0 25px #2ca6df}.centerWrap p{line-height:24px;margin:0}.centerWrap .tip{color:#999}.centerWrap_head{height:30px;position:relative;padding-bottom:10px}.centerWrap_head *{vertical-align:middle}.centerWrap_title{display:block;line-height:30px;text-align:center;font-size:18px}.centerWrap_close,.centerWrap_toogle_option,.github_url{font-size:18px;position:absolute;top:0;right:0;width:30px;height:30px;text-align:center;cursor:pointer;color:#666;user-select:none}.download_progress1,.right1{position:relative}.centerWrap_close:hover,.centerWrap_toogle_option:hover{color:#0096fa}.centerWrap_toogle_option{right:40px}.github_url{display:block;right:80px}.centerWrap_head img{max-width:100%;width:16px}.setinput_style1{width:50px;min-width:50px;line-height:20px;font-size:14px!important;height:20px;text-indent:4px;box-sizing:border-box;border:none!important;border-bottom:1px solid #999!important;outline:0}.progressBar1,.right1{width:500px}.setinput_style1:focus{border-bottom:1px solid #0096fa!important;background:0 0!important}.fileNameRule,.folderNameRule{min-width:150px}.setinput_tag{min-width:300px}.how_to_create_folder,.showFileNameResult,.showFileNameTip,.showFolderNameTip{cursor:pointer}.fileNameTip,.folderNameTip{display:none;padding-top:5px}.centerWrap_btns{padding:10px 0 0;font-size:0}.XZTipEl,.centerWrap_btns div,.progressTip{color:#fff;font-size:14px}.centerWrap_btns div{display:inline-block;min-width:100px;max-width:105px;padding:8px 10px;text-align:center;min-height:20px;line-height:20px;border-radius:4px;margin-right:35px;cursor:pointer;margin-bottom:10px;vertical-align:top}.progress,.progressBar{border-radius:11px;height:22px}.centerWrap_btns_free div{max-width:140px;margin-right:15px}.centerWrap_down_tips{line-height:28px}.right1{display:inline-block;height:22px;vertical-align:middle}.progressBar{position:absolute;background:#6792A2}.progress{background:#0eb3f3;transition:.15s}.progressTip{position:absolute;line-height:22px}.progress1{width:0}.progressTip1{width:500px;text-align:center}.centerWrap_down_list{display:none}.centerWrap_down_list ul{padding-top:5px;margin:0;padding-left:0}.downloadBar{position:relative;width:100%;padding:5px 0;height:22px;box-sizing:content-box}.progressBar2{width:100%}.progress2{width:0}.progressTip2{width:100%}.download_fileName{max-width:60%;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;vertical-align:top;display:inline-block;text-indent:1em}.showDownTip{padding-top:10px;cursor:pointer;display:inline-block}.XZTipEl,.downTip,.download_a,.download_panel{display:none}.settingNameStyle1{width:100px;cursor:pointer;margin-right:10px}.XZTipEl{position:fixed;z-index:1001;max-width:400px;left:0;top:0;background:#02a3ec;padding:6px 8px;border-radius:5px;line-height:20px;word-break:break-word}.fwb{font-weight:700}.gray1{color:#999}.xz_blue{color:#0ea8ef!important}.outputInfoWrap{padding:20px 30px;width:520px;background:#fff;border-radius:20px;z-index:9999;box-shadow:0 0 15px #2ca6df;display:none;position:fixed;top:15%;margin-left:-300px;left:50%}.outputUrlTitle{height:20px;line-height:20px;text-align:center;font-size:18px;color:#179FDD}.outputInfoContent{border:1px solid #ccc;transition:.3s;font-size:14px;margin-top:10px;padding:5px 10px;overflow:auto;max-height:400px;line-height:20px}.outputInfoContent::selection{background:#179FDD;color:#fff}.outputUrlFooter{height:60px;text-align:center}.outputUrlClose{cursor:pointer;position:absolute;width:30px;height:30px;top:20px;right:30px;z-index:9999;font-size:18px;text-align:center}.outputUrlClose:hover{color:#179FDD}.outputUrlCopy{height:34px;line-height:34px;min-width:100px;padding:2px 25px;margin-top:15px;background:#179FDD;display:inline-block;color:#fff;font-size:14px;border-radius:6px;cursor:pointer}#down_id_input,#outputInfo{margin:6px auto;background:#fff}.fastScreenArea a{display:inline-block;padding:10px}#quickBookmarkEl{font-size:34px;line-height:30px;margin-right:15px;cursor:pointer;color:#333;text-decoration:none;display:block}#outputInfo{padding:10px;font-size:14px;width:950px}#down_id_input{width:600px;height:80px;font-size:12px;padding:7px;display:none;border:1px solid #179FDD}.sc-cLxPOX{padding-top:0}`;
+styleE.textContent = `#header-banner.ad,._2vNejsc,._3M6FtEB,._3jgsYyw,._premium-lead-promotion-banner,._1N-LC6t,._premium-lead-tag-search-bar,.ad-bigbanner,.ad-footer,.ad-multiple_illust_viewer,.ads_anchor,.ads_area,.adsbygoogle,.popular-introduction-overlay,.ui-fixed-container aside,[name=header],section.ad{display:none!important;z-index:-999!important;width:0!important;height:0!important;opacity:0!important}#viewerWarpper{margin:24px auto 15px;overflow:hidden;background:#fff;padding:0 16px;display:none;border-top:1px solid #eee;border-bottom:1px solid #eee}#viewerWarpper ul{max-width:568px;margin:24px auto;padding:0 16px;display:flex;justify-content:flex-start;align-items:center;flex-wrap:nowrap;overflow:auto}#viewerWarpper li{display:flex;flex-shrink:0;margin-right:8px;overflow:hidden}#viewerWarpper li img{cursor:pointer;max-height:144px;width:auto}.viewer-toolbar .viewer-next,.viewer-toolbar .viewer-prev{background-color:rgba(0,0,0,.8);border-radius:50%;cursor:pointer;height:100px;width:100px;overflow:hidden}.viewer-backdrop{background:rgba(0,0,0,.8)}.viewer-toolbar .viewer-prev{position:fixed;left:-70px;top:40%}.viewer-toolbar .viewer-prev::before{top:40px;left:70px;position:absolute}.viewer-toolbar .viewer-next{position:fixed;right:-70px;top:40%}#quick_down_btn,#rightButton{line-height:20px;border-radius:3px;color:#fff;padding:8px;box-sizing:content-box;right:0;text-align:center;cursor:pointer}.viewer-toolbar .viewer-next::before{left:10px;top:40px;position:absolute}#quick_down_btn,#rightButton,.centerWrap{position:fixed;z-index:1000;font-size:14px}.black-background{background:rgba(0,0,0,1)}#rightButton{top:15%;background:#BECAD7}#quick_down_btn{top:20%;background:#0096fa}li{list-style:none}.centerWrap{display:none;width:650px;left:-350px;margin-left:50%;background:#fff;top:3%;color:#333;padding:25px;border-radius:15px;border:1px solid #ddd;box-shadow:0 0 25px #2ca6df}.centerWrap p{line-height:24px;margin:0}.centerWrap .tip{color:#999}.centerWrap_head{height:30px;position:relative;padding-bottom:10px}.centerWrap_head *{vertical-align:middle}.centerWrap_title{display:block;line-height:30px;text-align:center;font-size:18px}.centerWrap_close,.centerWrap_toogle_option,.github_url{font-size:18px;position:absolute;top:0;right:0;width:30px;height:30px;text-align:center;cursor:pointer;color:#666;user-select:none}.download_progress1,.right1{position:relative}.centerWrap_close:hover,.centerWrap_toogle_option:hover{color:#0096fa}.centerWrap_toogle_option{right:40px}.github_url{display:block;right:80px}.centerWrap_head img{max-width:100%;width:16px}.setinput_style1{width:50px;min-width:50px;line-height:20px;font-size:14px!important;height:20px;text-indent:4px;box-sizing:border-box;border:none!important;border-bottom:1px solid #999!important;outline:0;padding:0!important;}.progressBar1,.right1{width:500px}.setinput_style1:focus{border-bottom:1px solid #0096fa!important;background:0 0!important}.fileNameRule{min-width:150px}.setinput_tag{min-width:300px}.showFileNameResult,.showFileNameTip{cursor:pointer}.fileNameTip{display:none;padding-top:5px}.centerWrap_btns{padding:10px 0 0;font-size:0}.XZTipEl,.centerWrap_btns div,.progressTip{color:#fff;font-size:14px}.centerWrap_btns div{display:inline-block;min-width:100px;max-width:105px;padding:8px 10px;text-align:center;min-height:20px;line-height:20px;border-radius:4px;margin-right:35px;cursor:pointer;margin-bottom:10px;vertical-align:top}.progress,.progressBar{border-radius:11px;height:22px}.centerWrap_btns_free div{max-width:140px;margin-right:15px}.centerWrap_down_tips{line-height:28px}.right1{display:inline-block;height:22px;vertical-align:middle}.progressBar{position:absolute;background:#6792A2}.progress{background:#0eb3f3;transition:.15s}.progressTip{position:absolute;line-height:22px}.progress1{width:0}.progressTip1{width:500px;text-align:center}.centerWrap_down_list{display:none}.centerWrap_down_list ul{padding-top:5px;margin:0;padding-left:0}.downloadBar{position:relative;width:100%;padding:5px 0;height:22px;box-sizing:content-box}.progressBar2{width:100%}.progress2{width:0}.progressTip2{width:100%}.download_fileName{max-width:60%;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;vertical-align:top;display:inline-block;text-indent:1em}.showDownTip{padding-top:10px;cursor:pointer;display:inline-block}.XZTipEl,.downTip,.download_a,.download_panel{display:none}.settingNameStyle1{width:100px;cursor:pointer;margin-right:10px}.XZTipEl{position:fixed;z-index:1001;max-width:400px;left:0;top:0;background:#02a3ec;padding:6px 8px;border-radius:5px;line-height:20px;word-break:break-word}.fwb{font-weight:700}.gray1{color:#999}.xz_blue{color:#0ea8ef!important}.outputInfoWrap{padding:20px 30px;width:520px;background:#fff;border-radius:20px;z-index:9999;box-shadow:0 0 15px #2ca6df;display:none;position:fixed;top:15%;margin-left:-300px;left:50%}.outputUrlTitle{height:20px;line-height:20px;text-align:center;font-size:18px;color:#179FDD}.outputInfoContent{border:1px solid #ccc;transition:.3s;font-size:14px;margin-top:10px;padding:5px 10px;overflow:auto;max-height:400px;line-height:20px}.outputInfoContent::selection{background:#179FDD;color:#fff}.outputUrlFooter{height:60px;text-align:center}.outputUrlClose{cursor:pointer;position:absolute;width:30px;height:30px;top:20px;right:30px;z-index:9999;font-size:18px;text-align:center}.outputUrlClose:hover{color:#179FDD}.outputUrlCopy{height:34px;line-height:34px;min-width:100px;padding:2px 25px;margin-top:15px;background:#179FDD;display:inline-block;color:#fff;font-size:14px;border-radius:6px;cursor:pointer}#down_id_input,#outputInfo{margin:6px auto;background:#fff}.fastScreenArea a{display:inline-block;padding:10px}#quickBookmarkEl{font-size:34px;line-height:30px;margin-right:15px;cursor:pointer;color:#333;text-decoration:none;display:block}#outputInfo{padding:10px;font-size:14px;width:950px}#down_id_input{width:600px;height:80px;font-size:12px;padding:7px;display:none;border:1px solid #179FDD}.sc-cLxPOX{padding-top:0}.XZForm option{font-size:14px!important;line-height: 24px;}`;
 
 // 创建输出抓取进度的区域
 let outputInfo = document.createElement('div');
@@ -1465,8 +1443,8 @@ function quickBookmark() {
 		quickBookmark();
 	}, 300);
 
-	let toolbar; // 因为 p 站改版 class 经常变，所以从父元素查找，父元素的 class 变化没那么频繁
-	let toolbar_parent = document.querySelectorAll('._7-rfF29>div');
+	let toolbar; // 因为 p 站改版 class 经常变，所以从父元素查找，父元素的 class 变化没那么频繁. figure 元素
+	let toolbar_parent = document.querySelectorAll('figure>div');
 	for (const el of toolbar_parent) {
 		if (el.querySelector('div>section')) {
 			toolbar = el.querySelector('div>section');
@@ -1678,7 +1656,7 @@ function initViewer() {
 
 // 创建图片查看器 html 元素，并绑定一些事件，这个函数只会执行一次
 function createViewer() {
-	if (!document.querySelector('._7-rfF29')) { // 如果图片中间部分的元素还未生成，则过一会儿再检测
+	if (!document.querySelector('figure')) { // 如果图片中间部分的元素还未生成，则过一会儿再检测
 		setTimeout(() => {
 			createViewer();
 		}, 200);
@@ -1690,7 +1668,7 @@ function createViewer() {
 	viewerWarpper.id = 'viewerWarpper';
 	viewerUl = document.createElement('ul');
 	viewerWarpper.appendChild(viewerUl);
-	document.querySelector('._7-rfF29 figcaption').insertAdjacentElement('beforebegin', viewerWarpper);
+	document.querySelector('figure figcaption').insertAdjacentElement('beforebegin', viewerWarpper);
 
 	// 图片查看器显示之后
 	viewerUl.addEventListener('shown', () => {
@@ -3511,34 +3489,12 @@ function addCenterWarps() {
 		<span class="xztip settingNameStyle1" data-tip="${xzlt('_线程数字')}">${xzlt('_设置下载线程')}<span class="gray1"> ? </span></span>
 		<input type="text" name="setThread" class="setinput_style1 xz_blue" value="${download_thread_deauflt}">
 		</p>
-		<p class="XZFormP12">
-		<span class="xztip settingNameStyle1" data-tip="${xzlt('_设置文件夹名的提示')}">${xzlt('_设置文件夹名')}<span class="gray1"> ? </span></span>
-		<input type="text" name="folderNameRule" class="setinput_style1 xz_blue folderNameRule">
-		&nbsp;&nbsp;
-		<select name="folder_name_select">
-		</select>
-		&nbsp;&nbsp;&nbsp;&nbsp;
-		<span class="gray1 showFolderNameTip"> ${xzlt('_查看标记的含义')}</span>
-		</p>
-		<p class="folderNameTip tip">
-		<span class="xz_blue">{user}</span>
-		${xzlt('_文件夹标记_user')}
-		<br>
-		<span class="xz_blue">{userid}</span>
-		${xzlt('_文件夹标记_userid')}
-		<br>
-		<span class="xz_blue">{id}</span>
-		${xzlt('_文件夹标记_id')}
-		<br>
-		<span class="xz_blue">{tag}</span>
-		${xzlt('_文件夹标记_tag')}
-		<br>
-		<span class="xz_blue">{ptitle}</span>
-		${xzlt('_文件夹标记_ptitle')}
-		</p>
 		<p>
 		<span class="xztip settingNameStyle1" data-tip="${xzlt('_设置文件夹名的提示')}">${xzlt('_设置文件名')}<span class="gray1"> ? </span></span>
 		<input type="text" name="fileNameRule" class="setinput_style1 xz_blue fileNameRule" value="{id}">
+		&nbsp;&nbsp;
+		<select name="page_info_select">
+		</select>
 		&nbsp;&nbsp;
 		<select name="file_name_select">
 			<option value="default">…</option>
@@ -3554,6 +3510,18 @@ function addCenterWarps() {
 		<span class="gray1 showFileNameTip"> ${xzlt('_查看标记的含义')}</span>
 		</p>
 		<p class="fileNameTip tip">
+		<span class="xz_blue">{p_user}</span>
+		${xzlt('_文件夹标记_p_user')}
+		<br>
+		<span class="xz_blue">{p_uid}</span>
+		${xzlt('_文件夹标记_p_uid')}
+		<br>
+		<span class="xz_blue">{p_tag}</span>
+		${xzlt('_文件夹标记_p_tag')}
+		<br>
+		<span class="xz_blue">{p_title}</span>
+		${xzlt('_文件夹标记_p_title')}
+		<br>
 		<span class="xz_blue">{id}</span>
 		${xzlt('_可用标记1')}
 		<br>
@@ -3638,7 +3606,6 @@ function addCenterWarps() {
 	document.querySelector('.centerWrap_close').addEventListener('click', centerWrapHide);
 	document.querySelector('.showFileNameResult').addEventListener('click', () => showOutputInfoWrap('name'));
 	document.querySelector('.showFileNameTip').addEventListener('click', () => toggle(document.querySelector('.fileNameTip')));
-	document.querySelector('.showFolderNameTip').addEventListener('click', () => toggle(document.querySelector('.folderNameTip')));
 	document.querySelector('.showDownTip').addEventListener('click', () => toggle(document.querySelector('.downTip')));
 	document.querySelector('.centerWrap_toogle_option').addEventListener('click', toggleOptionArea);
 	// 添加提示事件
@@ -3659,14 +3626,15 @@ function addCenterWarps() {
 	// 输入框获得焦点时自动选择文本
 	let center_inputs = XZForm.querySelectorAll('input[type=text]');
 	for (const el of center_inputs) {
-		// 文件夹名和文件名例外
-		if (el.name !== 'folderNameRule' && el.name !== 'fileNameRule') {
+		// 文件名例外
+		if (el.name !== 'fileNameRule') {
 			el.addEventListener('focus', function () {
 				this.select();
 			});
 		}
 	}
 
+	appendValueToInput(XZForm.page_info_select, XZForm.fileNameRule);
 	appendValueToInput(XZForm.file_name_select, XZForm.fileNameRule);
 
 	// 开始下载按钮
@@ -3675,7 +3643,6 @@ function addCenterWarps() {
 			return false;
 		}
 		// 重置一些条件
-		getFolderName();
 		// 检查下载线程设置
 		let setThread = parseInt(XZForm.setThread.value);
 		if (setThread < 1 || setThread > 10 || isNaN(setThread)) {
@@ -3703,7 +3670,6 @@ function addCenterWarps() {
 		}
 		download_pause = false;
 		download_stop = false;
-		fileNameRule = XZForm.fileNameRule.value;
 
 		// 启动或继续 建立并发下载线程
 		addOutputInfo('<br>' + xzlt('_正在下载中') + '<br>');
@@ -3765,15 +3731,14 @@ function appendValueToInput(form, to) {
 		if (this.value === 'default') {
 			return false;
 		} else {
-			to.value = to.value + this.value;
-			// 保存命名规则。区分文件夹名和文件名
-			if (form.name === 'folder_name_select') {
-				if (to.value !== '' && (page_type === 1 || page_type === 2) && !loc_url.includes('bookmark.php')) {
-					saveXZSetting('folder_name', to.value);
-				}
-			} else if (form.name === 'file_name_select') {
-				saveXZSetting('user_set_name', to.value);
-			}
+			// 把选择项插入到光标位置,并设置新的光标位置
+			let position = to.selectionStart;
+			to.value = to.value.substr(0, position) + this.value + to.value.substr(position, to.value.length);
+			to.selectionStart = position + this.value.length;
+			to.selectionEnd = position + this.value.length;
+			to.focus();
+			// 保存命名规则
+			saveXZSetting('user_set_name', to.value);
 		}
 	})
 }
@@ -3828,7 +3793,6 @@ function readXZSetting() {
 			"quiet_download": true,
 			"download_thread": 6,
 			"user_set_name": "{id}",
-			"folder_name": "{userid}-{user}",
 			"tagName_to_fileName": true
 		};
 	} else {
@@ -3891,20 +3855,6 @@ function readXZSetting() {
 			saveXZSetting('download_thread', this.value);
 		}
 	});
-	// 设置文件夹命名规则，只在作品内页和画师列表页执行。因为其他页面已经设置了合适的默认命名规则了
-	if ((page_type === 1 || page_type === 2) && !loc_url.includes('bookmark.php')) {
-		let folderNameRule_input = XZForm.folderNameRule;
-		folderNameRule_input.value = xz_setting.folder_name;
-		// 保存文件夹命名规则
-		folderNameRule_input.addEventListener('change', function () {
-			if (this.value !== '') {
-				saveXZSetting('folder_name', this.value);
-			} else {
-				// 把下拉框恢复默认值
-				XZForm.folder_name_select.value = XZForm.folder_name_select.children[0].value
-			}
-		});
-	}
 
 	// 设置文件命名规则
 	let fileNameRule_input = XZForm.fileNameRule;
@@ -4018,8 +3968,7 @@ function showOutputInfoWrap(type) {
 		}, result)
 	} else if (type === 'name') { // 预览和拷贝图片名
 		result = img_info.reduce((total, now) => {
-			let ext = '.' + now.ext;
-			return total += (now.id + ext + ': ' + getFileName(now) + ext + '<br>'); // 在每个文件名前面加上它的原本的名字，方便用来做重命名
+			return total += (now.id + '.' + now.ext + ': ' + getFileName(now) + '<br>'); // 在每个文件名前面加上它的原本的名字，方便用来做重命名
 		}, result);
 	} else {
 		return false;
@@ -4030,59 +3979,110 @@ function showOutputInfoWrap(type) {
 
 // 生成文件名，传入参数为图片信息
 function getFileName(data) {
-	fileNameRule = XZForm.fileNameRule.value;
+	let result = XZForm.fileNameRule.value;
 	tagName_to_fileName = XZForm.setTagNameToFileName.checked;
 	// 为空时使用 {id}
-	fileNameRule = fileNameRule || '{id}';
-	// 处理宽高
-	let px = '';
-	if (fileNameRule.includes('{px}') && data.fullWidth !== undefined) {
-		px = data.fullWidth + 'x' + data.fullHeight;
-	}
-	// 拼接文件名，不包含后缀名
-	let result = '';
+	result = result || '{id}';
+	// 生成文件名
 	// 将序号部分格式化成 3 位数字。p 站投稿一次最多 200 张
 	// data.id = data.id.replace(/(\d.*p)(\d.*)/,  (...str)=> {
 	// 	return str[1] + str[2].padStart(3, '0');
 	// });
-	// 先替换掉预定义字段里的特殊符号，不替换用户输入的特殊符号
-	if (tagName_to_fileName) {
-		result = fileNameRule.replace('{id}', data.id).replace('{title}', 'title_' + data.title.replace(safe_fileName_rule, '_')).replace('{user}', 'user_' + data.user.replace(safe_fileName_rule, '_')).replace('{userid}', 'uid_' + data.userid).replace('{px}', px).replace('{tags}', 'tags_' + (data.tags.join(',')).replace(safe_fileName_rule, '_')).replace('{bmk}', 'bmk_' + data.bmk).replace(/undefined/g, '');
-	} else {
-		result = fileNameRule.replace('{id}', data.id).replace('{title}', data.title.replace(safe_fileName_rule, '_')).replace('{user}', data.user.replace(safe_fileName_rule, '_')).replace('{userid}', data.userid).replace('{px}', px).replace('{tags}', (data.tags.join(',')).replace(safe_fileName_rule, '_')).replace('{bmk}', data.bmk).replace(/undefined/g, '');
-	}
-	result = result.replace(safe_folder_rule, '_');
-	if (data.ext === 'ugoira') { // 动图改变后缀名，添加前缀
-		result = 'open_with_HoneyView-' + result;
-	}
-	return result;
-}
+	let cfg = [{
+		'name': '{p_user}',
+		'value': page_info.hasOwnProperty('p_user') ? getUserName() : '',
+		'prefix': '',
+		'safe': false
+	}, {
+		'name': '{p_uid}',
+		'value': page_info.hasOwnProperty('p_uid') ? getUserId() : '',
+		'prefix': '',
+		'safe': true
+	}, {
+		'name': '{p_title}',
+		'value': document.title.replace(/\[(0|↑|→|▶|↓|║|■|√| )\] /, '').replace(/^\(\d.*\) /, ''), // 去掉标题上的下载状态、消息数量提示
+		'prefix': '',
+		'safe': false
+	}, {
+		'name': '{p_tag}',
+		'value': page_info.p_tag ? page_info.p_tag : '',
+		'prefix': '',
+		'safe': false
+	}, {
+		'name': '{id}',
+		'value': data.id, // 值
+		'prefix': '', // 添加的前缀
+		'safe': true // 是否是安全的文件名。如果包含有一些特殊字符，就不安全，要进行替换
+	}, {
+		'name': '{title}',
+		'value': data.title,
+		'prefix': 'title_',
+		'safe': false
+	}, {
+		'name': '{user}',
+		'value': data.user,
+		'prefix': 'user_',
+		'safe': false
+	}, {
+		'name': '{userid}',
+		'value': data.userid,
+		'prefix': 'uid_',
+		'safe': true
+	}, {
+		'name': '{px}',
+		'value': (function () {
+			if (result.includes('{px}') && data.fullWidth !== undefined) {
+				return data.fullWidth + 'x' + data.fullHeight;
+			} else {
+				return ''
+			}
+		})(),
+		'prefix': '',
+		'safe': true
+	}, {
+		'name': '{tags}',
+		'value': data.tags.join(','),
+		'prefix': 'tags_',
+		'safe': false
+	}, {
+		'name': '{bmk}',
+		'value': data.bmk,
+		'prefix': 'bmk_',
+		'safe': false
+	}];
 
-// 获取文件夹名称
-function getFolderName() {
-	folder_name = XZForm.folderNameRule.value;
-	if (folder_name === '') {
-		return false;
-	}
-	for (const key of Object.keys(folder_info)) {
-		if (key === 'user') {
-			folder_name = folder_name.replace(`{${key}}`, getUserName());
-		} else if (key === 'userid') {
-			folder_name = folder_name.replace(`{${key}}`, getUserId());
-		} else if (key === 'id') {
-			folder_name = folder_name.replace(`{${key}}`, getIllustId());
-		} else if (key === 'ptitle') { // 去掉标题上的下载状态、特殊符号、消息数量提示
-			folder_name = folder_name.replace(`{${key}}`, document.title.replace(/\[(0|↑|→|▶|↓|║|■|√| )\] /, '').replace(safe_fileName_rule, '_').replace(/^\(\d.*\) /, ''));
-		} else if (key === 'tag') { // 替换掉 tag 里的特殊符号
-			folder_name = folder_name.replace(`{${key}}`, folder_info[key].replace(safe_fileName_rule, '_'));
-		} else {
-			folder_name = folder_name.replace(`{${key}}`, folder_info[key]);
+	for (const item of cfg) {
+		if (result.includes(item.name)) {
+			if (item.value) { // 只有当标记有值时才继续操作. 所以空的标记会原样保留
+				let once = item.value;
+				if (tagName_to_fileName) {
+					once = item.prefix + once;
+				}
+				if (!item.safe) {
+					once = once.replace(safe_fileName_rule, '_');
+				}
+				result = result.replace(new RegExp(item.name, 'g'), once); // 将标记替换成最终值，如果有重复的标记，全部替换
+			}
 		}
 	}
-	folder_name = folder_name.replace(safe_folder_rule, '_');
-	if (folder_name.startsWith('/')) { // 去掉首位的 /
-		folder_name = folder_name.replace('/', '');
+
+	// 处理空值，不能做文件夹名的字符，连续的 '//'。 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
+	result = result.replace(/undefined/g, '').replace(safe_folder_rule, '_').replace(/\/{2,9}/, '/');
+	// 去掉头尾的 /
+	if (result.startsWith('/')) {
+		result = result.replace('/', '');
 	}
+	if (result.endsWith('/')) {
+		result = result.substr(0, result.length - 1)
+	}
+
+	// 处理后缀名
+	result += '.' + data.ext;
+	if (data.ext === 'ugoira') { // 动图在最前面添加前缀
+		result = 'open_with_HoneyView-' + result;
+	}
+
+	return result;
 }
 
 function readBlobAsDataURL(blob) {
@@ -4100,12 +4100,8 @@ function startDownload(downloadNo, downloadBar_no) {
 	changeTitle('↓');
 	// 获取文件名
 	let fullFileName = getFileName(img_info[downloadNo]);
-	// 获取文件夹名字
-	if (!quick && folder_name !== '') {
-		fullFileName = folder_name + '/' + fullFileName;
-	}
 	// 处理文件名长度 这里有个问题，因为无法预知浏览器下载文件夹的长度，所以只能预先设置一个预设值
-	fullFileName = fullFileName.substr(0, fileName_length) + '.' + img_info[downloadNo].ext;
+	fullFileName = fullFileName.substr(0, fileName_length);
 	downloadBar_list[downloadBar_no].querySelector('.download_fileName').textContent = fullFileName;
 	let xhr = new XMLHttpRequest;
 	xhr.open('GET', img_info[downloadNo].url, true);
@@ -4290,51 +4286,32 @@ function changeWantPage() {
 	}
 }
 
-// 设置文件夹信息
-function setFolderInfo() {
-	let folder_name_select = XZForm.folder_name_select;
+// 获取一些当前页面的信息，用于文件名中
+function getPageInfo() {
+	let page_info_select = XZForm.page_info_select;
 	// 添加文件夹可以使用的标记
-	folder_info = {};
-	folder_info.ptitle = ''; // 所有页面都可以使用 ptitle
-	if (page_type === 1) {
-		folder_info.id = '';
-	}
+	page_info = {};
+	page_info.p_title = ''; // 所有页面都可以使用 p_title
 	// 只有 1 和 2 可以使用画师信息
 	if (page_type === 1 || page_type === 2) {
 		// 一些信息可能需要从 dom 取得，在这里直接执行可能会出错，所以先留空
 		if (!loc_url.includes('bookmark.php')) { // 不是书签页
-			folder_info.user = '';
-			folder_info.userid = '';
-			folder_name_default = '{userid}-{user}';
-			// 如果有 tag 则追加 tag
-			if (getQuery(loc_url, 'tag')) {
-				folder_info.tag = decodeURIComponent(getQuery(loc_url, 'tag'));
-			}
-		} else { // 书签页，书签页首页可能没有tag，所以也要判断
-			if (getQuery(loc_url, 'tag')) {
-				folder_info.tag = decodeURIComponent(getQuery(loc_url, 'tag'));
-				folder_name_default = '{tag}';
-			} else {
-				folder_name_default = '{ptitle}';
-
-			}
+			page_info.p_user = '';
+			page_info.p_uid = '';
+		}
+		// 如果有 tag 则追加 tag
+		if (getQuery(loc_url, 'tag')) {
+			page_info.p_tag = decodeURIComponent(getQuery(loc_url, 'tag'));
 		}
 	} else if (page_type === 5) {
-		folder_info.tag = decodeURIComponent(getQuery(loc_url, 'word'));
-		folder_name_default = '{tag}';
-	} else {
-		folder_name_default = '{ptitle}';
-	}
-	// 在一些时候设置成默认的命名规则
-	if ((page_type !== 1 && page_type !== 2) || loc_url.includes('bookmark.php')) {
-		XZForm.folderNameRule.value = folder_name_default;
+		page_info.p_tag = decodeURIComponent(getQuery(loc_url, 'word'));
 	}
 	// 添加下拉选项
-	folder_name_select.innerHTML = '';
-	folder_name_select.insertAdjacentHTML('beforeend', '<option value="default">…</option>');
-	for (const key of Object.keys(folder_info)) {
+	page_info_select.innerHTML = '';
+	page_info_select.insertAdjacentHTML('beforeend', '<option value="default">…</option>');
+	for (const key of Object.keys(page_info)) {
 		let option_html = `<option value="{${key}}">{${key}}</option>`;
-		folder_name_select.insertAdjacentHTML('beforeend', option_html);
+		page_info_select.insertAdjacentHTML('beforeend', option_html);
 	}
 }
 
@@ -4374,8 +4351,7 @@ if (page_type !== undefined) {
 	addCenterWarps();
 	changeWantPage();
 	readXZSetting();
-	setFolderInfo();
-	appendValueToInput(XZForm.folder_name_select, XZForm.folderNameRule);
+	getPageInfo();
 }
 
 // 作品页无刷新进入其他作品页面时
@@ -4394,7 +4370,7 @@ if (page_type === 1 || page_type === 2) {
 		window.addEventListener(item, () => {
 			checkPageType(); // 当页面切换时，判断新页面的类型
 			changeWantPage();
-			setFolderInfo();
+			getPageInfo();
 			listen1();
 			// 当新旧页面的 page_type 不相同的时候
 			if (old_page_type !== page_type) {
