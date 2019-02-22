@@ -1,5 +1,5 @@
 /*
- * project: PixivBatchDownloader
+ * project: Pixiv Batch Downloader
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * E-mail:  xuejianxianzun@gmail.com
@@ -790,10 +790,10 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 		'設置命名規則'
 	],
 	'_设置文件夹名的提示': [
-		`可以使用 '/' 建立文件夹`,
-		`フォルダは '/'で作成できます`,
-		`You can create a folder with '/'`,
-		`可以使用 '/' 建立資料夹`
+		`可以使用 '/' 建立文件夹<br>示例：{p_title}/{user}/{id}`,
+		`フォルダは '/'で作成できます<br>例：{p_title}/{user}/{id}`,
+		`You can create a folder with '/'<br>Example：{p_title}/{user}/{id}`,
+		`可以使用 '/' 建立資料夹<br>示例：{p_title}/{user}/{id}`
 	],
 	'_添加标记名称': [
 		'添加标记名称',
@@ -856,10 +856,10 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 		'bookmark-count，作品的收藏數。將它放在最前面就可以讓下載後的檔案依收藏數排序。'
 	],
 	'_可用标记5': [
-		'你可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}-{px}<br>* 在某些情况下，会有一些标记不可用，不会添加到文件名里。',
-		'複数のタグを使用することができ；異なるタグ間に別の文字を追加することができます。例：{id}-{userid}-{px}<br>* 場合によっては、一部のタグが利用できず、ファイル名に追加されません。',
-		'You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}-{px}<br>* In some cases, some tags will not be available and will not be added to the file name.',
-		'你可以使用多個標記；建議在不同標記之間加入分割用的字元。範例：{id}-{userid}-{px}<br>* 在某些情況下，會有一些標記不可用，不會添加到檔案名里。'
+		'你可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}-{px}<br>* 在某些情况下，会有一些标记不可用。',
+		'複数のタグを使用することができ；異なるタグ間に別の文字を追加することができます。例：{id}-{userid}-{px}<br>* 場合によっては、一部のタグが利用できず。',
+		'You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}-{px}<br>* In some cases, some tags will not be available.',
+		'你可以使用多個標記；建議在不同標記之間加入分割用的字元。範例：{id}-{userid}-{px}<br>* 在某些情況下，會有一些標記不可用。'
 	],
 	'_文件夹标记_p_user': [
 		'当前页面的画师名字',
