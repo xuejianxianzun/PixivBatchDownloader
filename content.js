@@ -17,7 +17,6 @@ if (sessionStorage.getItem('xz_pixiv_userscript')) {
 	sessionStorage.setItem('xz_pixiv_extension', '1');
 }
 
-
 let quiet_download = true, // 是否快速下载。当可以下载时自动开始下载（无需点击下载按钮）
 	download_thread_deauflt = 6, // 同时下载的线程数，可以通过设置 download_thread 修改
 	multiple_down_number = 0, // 设置多图作品下载前几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
@@ -4078,8 +4077,9 @@ function getFileName(data) {
 
 	// 处理后缀名
 	result += '.' + data.ext;
-	if (data.ext === 'ugoira') { // 动图在最前面添加前缀
-		result = 'open_with_HoneyView-' + result;
+	if (data.ext === 'ugoira') { // 动图，在最后一个斜杠 / 后添加前缀
+		let index = result.lastIndexOf('/');
+		result = result.substr(0, index + 1) + 'open_with_HoneyView-' + result.substr(index + 1, result.length);
 	}
 
 	return result;
