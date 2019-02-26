@@ -4082,6 +4082,12 @@ function getFileName(data) {
 		result = result.substr(0, index + 1) + 'open_with_HoneyView-' + result.substr(index + 1, result.length);
 	}
 
+	// 快速下载不建立文件夹
+	if (quick) {
+		let index = result.lastIndexOf('/');
+		result = result.substr(index + 1, result.length)
+	}
+	
 	return result;
 }
 
