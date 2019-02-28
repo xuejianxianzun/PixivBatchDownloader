@@ -10,13 +10,16 @@ module.exports = {
         "ecmaVersion": 8
     },
     "rules": {
-        "indent": ["error", "tab"],
+        "indent": [0, "tab"],
         "linebreak-style": ["error", "windows"],
-        "quotes": ["error", "single"],
+        "quotes": [0, "single"],
         "semi": [2, "always"],
         "no-console": "off"
     },
     "globals": {
         "browser": true,
+        "zip": true,
+        "GIF": true,
+        "Viewer": true
     }
 };
