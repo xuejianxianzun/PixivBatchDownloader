@@ -165,3 +165,7 @@ dataurl和 bloburl不同
 - 暂停和继续下载添加定时器。
 
 如果点了暂停，然后点开始继续，中间间隔时间很短，可能会出问题。所以加上了延时。
+
+## 1.5.4
+
+fix the notation of some of the Japanese.
