@@ -185,3 +185,7 @@ fix the notation of some of the Japanese.
 - 修复 getUserName 的 bug
 
 之前 getUserName 会使用 old_title，这是有问题的，不同语言的 title 不一样，导致严重错误，英语语言下完全无法下载。现在修复了。
+
+## 1.5.7
+
+修复 bug

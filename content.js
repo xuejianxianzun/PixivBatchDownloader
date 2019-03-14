@@ -2779,7 +2779,7 @@ function getUserId() {
 function getUserName() {
 	let result = '';
 	if (page_type === 1) { // 内容页，从中间大图的 alt 信息里获取
-		let main_img = document.querySelectorAll('figure>div>div')[1].querySelector('img');
+		let main_img = document.querySelector('figure>div>div img');
 		result = main_img.alt.split('/ ')[1];
 	} else { // 画师作品列表页
 		let titleContent = document.querySelector('meta[property="og:title"]').content;
