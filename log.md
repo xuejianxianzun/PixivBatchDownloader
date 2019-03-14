@@ -169,3 +169,11 @@ dataurl和 bloburl不同
 ## 1.5.4
 
 fix the notation of some of the Japanese.
+
+## 1.5.5
+
+- 修改了右侧按钮样式使其更加明显
+
+- 添加了建立文件夹的提示
+
+- 优化日文文本
