@@ -177,3 +177,11 @@ fix the notation of some of the Japanese.
 - 添加了建立文件夹的提示
 
 - 优化日文文本
+
+## 1.5.6
+
+- 优化文本
+
+- 修复 getUserName 的 bug
+
+之前 getUserName 会使用 old_title，这是有问题的，不同语言的 title 不一样，导致严重错误，英语语言下完全无法下载。现在修复了。

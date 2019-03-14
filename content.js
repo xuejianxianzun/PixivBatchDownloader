@@ -865,13 +865,13 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 	'_文件夹标记_p_user': [
 		'当前页面的画师名字',
 		'アーティスト名',
-		'Artist name',
+		'Artist name of this page',
 		'畫師的名字'
 	],
 	'_文件夹标记_p_uid': [
 		'当前页面的画师id',
 		'アーティストID',
-		'Artist id',
+		'Artist id of this page',
 		'畫師的id'
 	],
 	'_文件夹标记_p_tag': [
@@ -883,7 +883,7 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 	'_文件夹标记_p_title': [
 		'当前页面的标题',
 		'ページのタイトル',
-		'The title of the page',
+		'The title of this page',
 		'網頁的標題'
 	],
 	'_预览文件名': [
@@ -2775,16 +2775,18 @@ function getUserId() {
 }
 
 // 获取用户名称
+// 测试用户 https://www.pixiv.net/member.php?id=2793583 他的用户名比较特殊
 function getUserName() {
-	let isLogin = /login: 'yes'/.test(document.body.innerHTML);
-	let titleContent = isLogin ? old_title : document.querySelector('meta[property="og:title"]').content;
-	let regexp = '「([^」]*)';
-	if (titleContent.split('「').length > 2 && loc_url.includes('member_illust.php')) { // 判断是否是内容页
-		regexp = `/${regexp}`;
+	let result = '';
+	if (page_type === 1) { // 内容页，从中间大图的 alt 信息里获取
+		let main_img = document.querySelectorAll('figure>div>div')[1].querySelector('img');
+		result = main_img.alt.split('/ ')[1];
+	} else { // 画师作品列表页
+		let titleContent = document.querySelector('meta[property="og:title"]').content;
+		let regexp = new RegExp('「([^」]*)', 'i'); // 测试用的用户名，本身末尾是个」，匹配后会去掉用户名它最后的」
+		result = regexp.exec(titleContent)[1].replace(/ {1,9}$/, ''); // 有时候末尾会有空格，要去掉
 	}
-	regexp = new RegExp(regexp, 'i');
-	let [, username] = regexp.exec(titleContent);
-	return username;
+	return result;
 }
 
 // 从 url 中取出指定的查询条件
