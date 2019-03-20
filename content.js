@@ -815,10 +815,16 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 		'檢視標記的含義'
 	],
 	'_可用标记1': [
-		'作品 id',
-		'作品 ID',
-		'works id',
-		'作品 id'
+		'默认文件名，如 44920385_p0',
+		'デフォルトのファイル名，例 44920385_p0',
+		'Default file name, for example 44920385_p0',
+		'默認檔案名，如 44920385_p0'
+	],
+	'_可用标记9': [
+		'数字 id，如 44920385',
+		'44920385 などの番号 ID',
+		'Number id, for example 44920385',
+		'数字 id，如 44920385'
 	],
 	'_可用标记2': [
 		'作品标题',
@@ -3508,6 +3514,7 @@ function addCenterWarps() {
 		<select name="file_name_select">
 			<option value="default">…</option>
 			<option value="{id}">{id}</option>
+			<option value="{id_num}">{id_num}</option>
 			<option value="{title}">{title}</option>
 			<option value="{tags}">{tags}</option>
 			<option value="{user}">{user}</option>
@@ -3535,6 +3542,9 @@ function addCenterWarps() {
 		<br>
 		<span class="xz_blue">{id}</span>
 		${xzlt('_可用标记1')}
+		<br>
+		<span class="xz_blue">{id_num}</span>
+		${xzlt('_可用标记9')}
 		<br>
 		<span class="xz_blue">{title}</span>
 		${xzlt('_可用标记2')}
@@ -3735,6 +3745,7 @@ function addCenterWarps() {
 		if (download_stop === false) {
 			download_stop = true;
 			download_started = false;
+			can_start_time = new Date().getTime() + pause_start_dealy; // 设置延迟一定时间后才允许继续下载
 			document.querySelector('.down_status').innerHTML = `<span style="color:#f00">${xzlt('_已停止')}</span>`;
 			addOutputInfo(xzlt('_已停止') + '<br><br>');
 			download_pause = false;
@@ -4033,6 +4044,11 @@ function getFileName(data) {
 		'value': data.id, // 值
 		'prefix': '', // 添加的前缀
 		'safe': true // 是否是安全的文件名。如果包含有一些特殊字符，就不安全，要进行替换
+	}, {
+		'name': '{id_num}',
+		'value': parseInt(data.id),
+		'prefix': '',
+		'safe': true
 	}, {
 		'name': '{title}',
 		'value': data.title,
