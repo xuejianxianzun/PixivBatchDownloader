@@ -189,3 +189,7 @@ fix the notation of some of the Japanese.
 ## 1.5.7
 
 修复 bug
+
+## 1.5.8
+
+p 站最近在 tag 搜索页的 R-18 分类里，增加了广告信息，导致抓取出错，现在修复这个问题。

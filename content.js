@@ -2502,6 +2502,12 @@ function getListPage() {
 				let this_one_info;
 				this_one_info = listPage_document.querySelector(tag_search_lv1_selector).getAttribute('data-items'); // 保存这一次的信息
 				this_one_info = JSON.parse(this_one_info); // 转化为数组
+				// 删除广告信息
+				this_one_info.forEach((val, index, array) => {
+					if (val.isAdContainer) {
+						array.splice(index, 1);
+					}
+				});
 				display_cover = XZForm.setDisplayCover.checked;
 				let list_wrap = document.querySelector(tag_search_list_wrap);
 				for (const data of this_one_info) {
