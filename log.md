@@ -199,3 +199,9 @@ p 站最近在 tag 搜索页的 R-18 分类里，增加了广告信息，导致�
 - 增加了 id_num 命名字段
 
 - 停止下载时添加时间间隔。
+
+## 1.6.1
+
+- css 优化
+
+- 查看多 p 图片的页面 [示例](https://www.pixiv.net/member_illust.php?mode=manga&illust_id=67618513) 并不能进行下载，但之前显示了下载图标，现在去掉
