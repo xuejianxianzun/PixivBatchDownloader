@@ -110,6 +110,7 @@ let quiet_download = true, // 是否快速下载。当可以下载时自动开�
 	XZTipEl,
 	styleE,
 	page_info = {}, // 文件夹可以使用的命名信息
+	p_user = '',
 	option_area_show = true,
 	del_work = false, // 是否处于删除作品状态
 	only_down_bmk,
@@ -1663,7 +1664,7 @@ function initViewer() {
 
 // 创建图片查看器 html 元素，并绑定一些事件，这个函数只会执行一次
 function createViewer() {
-	if (!document.querySelector('figure')) { // 如果图片中间部分的元素还未生成，则过一会儿再检测
+	if (!document.querySelector('figure figcaption')) { // 如果图片中间部分的元素还未生成，则过一会儿再检测
 		setTimeout(() => {
 			createViewer();
 		}, 200);
@@ -1721,10 +1722,9 @@ function createViewer() {
 	updateViewer();
 }
 
-// 根据作品信息处理，也包含了对 gif 的处理
+// 根据作品信息处理
 function updateViewer() {
 	viewerWarpper.style.display = 'none'; // 先隐藏 viewerWarpper
-	download_gif_btn.style.display = 'none'; // 隐藏动图转换按钮
 	// 获取作品信息
 	fetch('https://www.pixiv.net/ajax/illust/' + getIllustId(), {
 			method: 'get',
@@ -1794,10 +1794,6 @@ function updateViewer() {
 						img.src = original;
 					}
 				}
-			}
-			// 处理动图
-			if (this_one_data.illustType === 2) {
-				initGIF();
 			}
 		});
 }
@@ -2786,15 +2782,33 @@ function getUserId() {
 	return user_id;
 }
 
+// 获取作品信息，包含对动图的处理
+async function getIllustInfo() {
+	if (download_gif_btn) {
+		download_gif_btn.style.display = 'none'; // 隐藏动图转换按钮
+	}
+
+	let response = await fetch('https://www.pixiv.net/ajax/illust/' + getIllustId(), {
+		method: 'get',
+		credentials: 'include', // 附带 cookie
+	});
+	let data = await response.json();
+	p_user = data.body.userName;
+	// 处理动图
+	if (data.body.illustType === 2) {
+		initGIF();
+	}
+	return data.body;
+}
+
 // 获取用户名称
 // 测试用户 https://www.pixiv.net/member.php?id=2793583 他的用户名比较特殊
 function getUserName() {
 	let result = '';
-	if (page_type === 1) { // 内容页，从中间大图的 alt 信息里获取
-		let main_img = document.querySelector('figure>div>div img');
-		result = main_img.alt.split('/ ')[1];
+	if (page_type === 1) { // 内容页
+		result = p_user;
 	} else { // 画师作品列表页
-		let titleContent = document.querySelector('meta[property="og:title"]').content;
+		let titleContent = document.querySelector('meta[property="og:title"]').content; // リング@「 シスコン 」 [pixiv]
 		let regexp = new RegExp('「([^」]*)', 'i'); // 测试用的用户名，本身末尾是个」，匹配后会去掉用户名它最后的」
 		result = regexp.exec(titleContent)[1].replace(/ {1,9}$/, ''); // 有时候末尾会有空格，要去掉
 	}
@@ -4431,6 +4445,8 @@ if (page_type === 1 || page_type === 2) {
 
 // 执行 page_type 1
 function PageType1() {
+	getIllustInfo();
+
 	// 在右侧创建快速下载按钮
 	let quick_down_btn = document.createElement('div');
 	quick_down_btn.id = 'quick_down_btn';
