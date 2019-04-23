@@ -73,8 +73,8 @@ let quiet_download = true, // 是否快速下载。当可以下载时自动开�
 	tag_search_new_html, // tag搜索页作品的html
 	xz_multiple_html, // tag搜索页作品的html中的多图标识
 	xz_gif_html, // tag搜索页作品的html中的动图标识
-	safe_fileName_rule = new RegExp(/\\|\/|:|\?|"|<|'|>|\*|\||\.$/g), // 安全的文件名
-	safe_folder_rule = new RegExp(/\\|:|\?|"|<|'|>|\*|\||\.$/g), // 文件夹名，允许斜线 /
+	safe_fileName_rule = new RegExp(/\\|\/|:|\?|"|<|'|>|\*|\||~|\u200b|\.$/g), // 安全的文件名
+	safe_folder_rule = new RegExp(/\\|:|\?|"|<|'|>|\*|\||~|\u200b|\.$/g), // 文件夹名，允许斜线 /
 	rightButton, // 右侧按钮
 	centerWrap, // 中间设置面板
 	center_btn_wrap, // 中间插入按钮的区域
