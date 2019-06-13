@@ -2,15 +2,13 @@
 
 # Introduction:
 
-This is a browser extension for Chrome and Firefox that lets you download images from Pixiv in bulk. Powerful and supports many page types.
+This is a browser extension for Chrome that lets you download images from Pixiv in bulk. Powerful and supports many page types.
 
 Some auxiliary functions have also been added, such as removing ads, quick collections, and viewing pictures.
 
 # Install:
 
 Chrome：[Chrome webstore page](https://chrome.google.com/webstore/detail/hfgoikdmppghehigkckknikdgdcjbfpl)
-
-Firefox：[Mozilla addons](https://addons.mozilla.org/zh-CN/firefox/addon/pixiv-batch-downloader/)
 
 - The downloaded file will be saved in your browser's download directory.
 

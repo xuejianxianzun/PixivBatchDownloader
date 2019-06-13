@@ -4,15 +4,13 @@
 
 # 简介：
 
-这是一个可用于 Chrome 和 Firefox 的浏览器扩展程序，用于批量下载 Pixiv 上的图片。功能强大，支持多种页面类型。
+这是一个可用于 Chrome 浏览器的扩展程序，用于批量下载 Pixiv 上的图片。功能强大，支持多种页面类型。
 
 现在也增加了一些辅助功能，如去除广告、快速收藏、看图模式等。
 
 # 安装：
 
 Chrome：[Chrome webstore](https://chrome.google.com/webstore/detail/hfgoikdmppghehigkckknikdgdcjbfpl)
-
-Firefox：[Mozilla addons](https://addons.mozilla.org/zh-CN/firefox/addon/pixiv-batch-downloader/)
 
 - 下载的文件会保存在浏览器的下载目录里。
 
