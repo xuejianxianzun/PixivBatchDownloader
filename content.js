@@ -1550,7 +1550,7 @@ function addBookmark (id, tags, tt, hide) {
 	});
 }
 
-// 添加 tag
+// 准备添加 tag
 async function readyAddTag () {
 	let add_list = [];	// 需要添加的作品列表
 	let index = 0;
@@ -1569,6 +1569,41 @@ async function readyAddTag () {
 	}
 }
 
+// 从收藏的作品里获取信息，每个作品返回 id 和 tag 信息
+function getInfoFromBookmark (url) {
+	return fetch(url, {
+		credentials: "same-origin"
+	})
+		.then(response => {
+			if (response.ok) {
+				return response.json();
+			} else {
+				if (response.status === 403) {
+					console.log('permission denied');
+				}
+				return Promise.reject({
+					status: response.status,
+					statusText: response.statusText
+				});
+			}
+		})
+		.then(data => {
+			let works = data.body.works;
+			let result = [];
+			if (works.length >= 1 && works[0].bookmarkData) {	// 判断了作品的 bookmarkData，如果为假说明这是在别人的收藏页面，不再获取数据。
+				works.forEach(data => {
+					result.push({
+						'id': data.id,
+						'tags': encodeURI(data.tags.join(' ')),
+						'restrict': data.bookmarkData.private
+					});
+				});
+			}
+			return result;
+		});
+}
+
+// 添加 tag
 function addTag (index, add_list, add_tag_btn) {
 	setTimeout(() => {
 		if (index < add_list.length) {
@@ -1581,36 +1616,6 @@ function addTag (index, add_list, add_tag_btn) {
 		}
 	}, 100);
 }
-
-// 从收藏的作品里获取信息，每个作品返回 id 和 tag 信息
-function getInfoFromBookmark (url) {
-	return fetch(url, {
-		credentials: "same-origin"
-	})
-		.then(response => {
-			if (response.ok) {
-				return response.json();
-			} else {
-				return Promise.reject({
-					status: response.status,
-					statusText: response.statusText
-				});
-			}
-		})
-		.then(data => {
-			let works = data.body.works;
-			let result = [];
-			works.forEach(data => {
-				result.push({
-					'id': data.id,
-					'tags': encodeURI(data.tags.join(' ')),
-					'restrict': data.bookmarkData.private
-				});
-			});
-			return result;
-		});
-}
-
 
 // 初始化动图
 function initGIF () {
@@ -4449,10 +4454,18 @@ function getPageInfo () {
 	page_info.p_title = ''; // 所有页面都可以使用 p_title
 	// 只有 1 和 2 可以使用画师信息
 	if (page_type === 1 || page_type === 2) {
+		let add_tag_btn = document.getElementById('add_tag_btn');
 		// 一些信息可能需要从 dom 取得，在这里直接执行可能会出错，所以先留空
 		if (!loc_url.includes('bookmark.php')) { // 不是书签页
 			page_info.p_user = '';
 			page_info.p_uid = '';
+			if (add_tag_btn) {
+				add_tag_btn.style.display = 'none';
+			}
+		} else {
+			if (add_tag_btn) {
+				add_tag_btn.style.display = 'inline-block';
+			}
 		}
 		// 如果有 tag 则追加 tag
 		if (getQuery(loc_url, 'tag')) {
@@ -4624,6 +4637,9 @@ function PageType2 () {
 			['title', xzlt('_添加tag')]
 		]);
 		add_tag_btn.id = 'add_tag_btn';
+		if (!loc_url.includes('bookmark.php')) {
+			add_tag_btn.style.display = 'none';
+		}
 		add_tag_btn.addEventListener('click', readyAddTag);
 	}
 }
