@@ -4,7 +4,7 @@
 
 This is a browser extension for Chrome that lets you download images from Pixiv in bulk. Powerful and supports many page types.
 
-Some auxiliary functions have also been added, such as removing ads, quick collections, and viewing pictures.
+Some auxiliary functions have also been added, such as removing ads, quick collections, Add tag to unclassified work, and viewing pictures.
 
 # Install:
 

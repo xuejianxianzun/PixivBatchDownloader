@@ -1373,6 +1373,12 @@ let xz_lang = { // 储存语言配置。在属性名前面加上下划线，和�
 		'Start crawling',
 		'開始擷取'
 	],
+	'_添加tag': [
+		'给未分类作品添加 tag',
+		'未分類の作品にタグを追加',
+		'Add tag to unclassified work',
+		'給未分類作品添加 tag'
+	],
 	'_id不合法': [
 		'id不合法，操作取消。',
 		'idが不正な、操作はキャンセルされます。',
@@ -1446,6 +1452,8 @@ function quickBookmark () {
 	let reg_token = document.head.innerHTML.match(/token: "(\w+)"/);
 	if (reg_token && reg_token.length > 0) {
 		tt = reg_token[1];
+		// 储存 token，以备其他页面需要
+		localStorage.setItem('xz_use_token', tt);
 	} else {
 		console.log('获取 token 失败');
 	}
@@ -1501,14 +1509,7 @@ function quickBookmark () {
 					}
 					let tagString = encodeURI(tagArray.join(' '));
 					// 调用添加收藏的 api
-					fetch('https://www.pixiv.net/rpc/index.php', {
-						method: 'post',
-						headers: {
-							'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-						},
-						credentials: 'include', // 附带 cookie
-						body: `mode=save_illust_bookmark&illust_id=${getIllustId()}&restrict=0&comment=&tags=${tagString}&tt=${tt}`
-					})
+					addBookmark(getIllustId(), tagString, tt)
 						.then(response => response.json())
 						.then(data => {
 							if (data.error !== undefined && data.error === false) {
@@ -1528,6 +1529,88 @@ function quickBookmarkEnd () {
 	quickBookmarkElement.style.color = '#FF4060';
 	quickBookmarkElement.href = `/bookmark_add.php?type=illust&illust_id=${getIllustId()}`;
 }
+
+// 添加收藏
+function addBookmark (id, tags, tt, hide) {
+	if (!tt) {
+		tt = localStorage.getItem('xz_use_token');
+	}
+	if (!hide) {	// 公开作品
+		hide = 0;
+	} else {	// 非公开作品
+		hide = 1;
+	}
+	return fetch('https://www.pixiv.net/rpc/index.php', {
+		method: 'post',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+		},
+		credentials: 'include', // 附带 cookie
+		body: `mode=save_illust_bookmark&illust_id=${id}&restrict=${hide}&comment=&tags=${tags}&tt=${tt}`
+	});
+}
+
+// 添加 tag
+async function readyAddTag () {
+	let add_list = [];	// 需要添加的作品列表
+	let index = 0;
+	let add_tag_btn = document.getElementById('add_tag_btn');
+	// 公开的未分类收藏
+	let api1 = `https://www.pixiv.net/ajax/user/${getUserId()}/illusts/bookmarks?tag=${encodeURI('未分類')}&offset=0&limit=999999&rest=show&rdm=${Math.random()}`;
+	// 非公开的未分类收藏
+	let api2 = `https://www.pixiv.net/ajax/user/${getUserId()}/illusts/bookmarks?tag=${encodeURI('未分類')}&offset=0&limit=999999&rest=hide&rdm=${Math.random()}`;
+	add_list = add_list.concat(await getInfoFromBookmark(api1));
+	add_list = add_list.concat(await getInfoFromBookmark(api2));
+	if (add_list.length === 0) {
+		add_tag_btn.textContent = `√ no need`;
+		return false;
+	} else {
+		addTag(index, add_list, add_tag_btn);
+	}
+}
+
+function addTag (index, add_list, add_tag_btn) {
+	setTimeout(() => {
+		if (index < add_list.length) {
+			addBookmark(add_list[index].id, add_list[index].tags, '', add_list[index].restrict);
+			index++;
+			add_tag_btn.textContent = `${index} / ${add_list.length}`;
+			addTag(index, add_list, add_tag_btn);
+		} else {
+			add_tag_btn.textContent = `√ complete`;
+		}
+	}, 100);
+}
+
+// 从收藏的作品里获取信息，每个作品返回 id 和 tag 信息
+function getInfoFromBookmark (url) {
+	return fetch(url, {
+		credentials: "same-origin"
+	})
+		.then(response => {
+			if (response.ok) {
+				return response.json();
+			} else {
+				return Promise.reject({
+					status: response.status,
+					statusText: response.statusText
+				});
+			}
+		})
+		.then(data => {
+			let works = data.body.works;
+			let result = [];
+			works.forEach(data => {
+				result.push({
+					'id': data.id,
+					'tags': encodeURI(data.tags.join(' ')),
+					'restrict': data.bookmarkData.private
+				});
+			});
+			return result;
+		});
+}
+
 
 // 初始化动图
 function initGIF () {
@@ -4533,6 +4616,15 @@ function PageType2 () {
 	let quick_down_btn = document.getElementById('quick_down_btn');
 	if (quick_down_btn) {
 		quick_down_btn.remove();
+	}
+
+	// 如果存在 token，则添加“添加 tag”得按钮
+	if (localStorage.getItem('xz_use_token')) {
+		let add_tag_btn = addCenterButton('div', xz_blue, xzlt('_添加tag'), [
+			['title', xzlt('_添加tag')]
+		]);
+		add_tag_btn.id = 'add_tag_btn';
+		add_tag_btn.addEventListener('click', readyAddTag);
 	}
 }
 
