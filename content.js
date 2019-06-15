@@ -1447,16 +1447,7 @@ outputInfo.id = 'outputInfo';
 
 // 快速收藏
 function quickBookmark () {
-	let tt = '';
-	// 从含有 globalInitData 信息的脚本里，匹配 token 字符串
-	let reg_token = document.head.innerHTML.match(/token: "(\w+)"/);
-	if (reg_token && reg_token.length > 0) {
-		tt = reg_token[1];
-		// 储存 token，以备其他页面需要
-		localStorage.setItem('xz_use_token', tt);
-	} else {
-		console.log('获取 token 失败');
-	}
+	let tt = getToken();
 	if (!tt) { // 如果获取不到 token，则不展开本工具的快速收藏功能
 		return false;
 	}
@@ -1530,11 +1521,21 @@ function quickBookmarkEnd () {
 	quickBookmarkElement.href = `/bookmark_add.php?type=illust&illust_id=${getIllustId()}`;
 }
 
+// 获取 token
+function getToken () {
+	// 从含有 globalInitData 信息的脚本里，匹配 token 字符串
+	let reg_token = document.head.innerHTML.match(/token: "(\w+)"/);
+	if (reg_token && reg_token.length > 0) {
+		return reg_token[1];
+	}
+	if (document.querySelector('input[name="tt"]')) {
+		return document.querySelector('input[name="tt"]').value;
+	}
+	return false;
+}
+
 // 添加收藏
 function addBookmark (id, tags, tt, hide) {
-	if (!tt) {
-		tt = localStorage.getItem('xz_use_token');
-	}
 	if (!hide) {	// 公开作品
 		hide = 0;
 	} else {	// 非公开作品
@@ -1565,7 +1566,7 @@ async function readyAddTag () {
 		add_tag_btn.textContent = `√ no need`;
 		return false;
 	} else {
-		addTag(index, add_list, add_tag_btn);
+		addTag(index, add_list, getToken(), add_tag_btn);
 	}
 }
 
@@ -1580,6 +1581,7 @@ function getInfoFromBookmark (url) {
 			} else {
 				if (response.status === 403) {
 					console.log('permission denied');
+					document.getElementById('add_tag_btn').textContent = `× permission denied`;
 				}
 				return Promise.reject({
 					status: response.status,
@@ -1604,13 +1606,13 @@ function getInfoFromBookmark (url) {
 }
 
 // 添加 tag
-function addTag (index, add_list, add_tag_btn) {
+function addTag (index, add_list, tt, add_tag_btn) {
 	setTimeout(() => {
 		if (index < add_list.length) {
-			addBookmark(add_list[index].id, add_list[index].tags, '', add_list[index].restrict);
+			addBookmark(add_list[index].id, add_list[index].tags, tt, add_list[index].restrict);
 			index++;
 			add_tag_btn.textContent = `${index} / ${add_list.length}`;
-			addTag(index, add_list, add_tag_btn);
+			addTag(index, add_list, tt, add_tag_btn);
 		} else {
 			add_tag_btn.textContent = `√ complete`;
 		}
@@ -4610,7 +4612,6 @@ function PageType1 () {
 	gif_img_list = document.createElement('div');
 	gif_img_list.style.display = 'none';
 	document.body.appendChild(gif_img_list);
-
 }
 
 // 执行 page_type 2
@@ -4632,7 +4633,7 @@ function PageType2 () {
 	}
 
 	// 如果存在 token，则添加“添加 tag”得按钮
-	if (localStorage.getItem('xz_use_token')) {
+	if (getToken()) {
 		let add_tag_btn = addCenterButton('div', xz_blue, xzlt('_添加tag'), [
 			['title', xzlt('_添加tag')]
 		]);
