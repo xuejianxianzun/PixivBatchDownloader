@@ -2905,8 +2905,7 @@ function getUserName () {
 		result = p_user;
 	} else { // 画师作品列表页
 		let titleContent = document.querySelector('meta[property="og:title"]').content; // リング@「 シスコン 」 [pixiv]
-		let regexp = new RegExp('「([^」]*)', 'i'); // 测试用的用户名，本身末尾是个」，匹配后会去掉用户名它最后的」
-		result = regexp.exec(titleContent)[1].replace(/ {1,9}$/, ''); // 有时候末尾会有空格，要去掉
+		result = titleContent.substr(0, titleContent.length - 7).replace(/ {1,9}$/, ''); // 有时候末尾会有空格，要去掉
 	}
 	return result;
 }
