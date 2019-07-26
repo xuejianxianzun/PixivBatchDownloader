@@ -2,6 +2,8 @@
 
 ![PixivBatchDownloader](https://wx2.sinaimg.cn/large/640defebly1fzm9gl6fhtj20kl0l80vg.jpg)
 
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](https://standardjs.com)
+
 # 简介：
 
 这是一个可用于 Chrome 浏览器的扩展程序，用于批量下载 Pixiv 上的图片。功能强大，支持多种页面类型。
@@ -66,9 +68,9 @@ English （机翻，韩语设置下也使用英语文本）
 
 2 [作品列表页](https://www.pixiv.net/member_illust.php?id=544479)
 
-3 [tag列表页](https://www.pixiv.net/member_illust.php?id=544479&tag=%E6%9D%B1%E6%96%B9)
+2 [tag列表页](https://www.pixiv.net/member_illust.php?id=544479&tag=%E6%9D%B1%E6%96%B9)
 
-4 [收藏页面](https://www.pixiv.net/bookmark.php)
+2 [收藏页面](https://www.pixiv.net/bookmark.php)
 
 5 [tag搜索页](https://www.pixiv.net/search.php?s_mode=s_tag&word=saber)
 

@@ -1,3 +1,7 @@
+# 版本升级日志
+
+*早期的一些版本升级没有写日志*
+
 ## 1.1.2
 
 之前的下载方式和脚本版是一样的，点击 a 标签下载。现在为了能自动建立文件夹，改成了发送给 chrome 来下载。
@@ -46,19 +50,19 @@
 
 Firefox 的扩展要求提供第三方库的说明
 
-# Third-party library used
+## Third-party library used
 
-## [webextension-polyfill](https://github.com/mozilla/webextension-polyfill)
+### [webextension-polyfill](https://github.com/mozilla/webextension-polyfill)
 
 [browser-polyfill.js](https://github.com/mozilla/webextension-polyfill/blob/master/src/browser-polyfill.js)
 
-## [gif.js](https://github.com/jnordberg/gif.js)
+### [gif.js](https://github.com/jnordberg/gif.js)
 
 [gif.js](https://github.com/jnordberg/gif.js/blob/master/dist/gif.js)
 
 [gif.worker.js](https://github.com/jnordberg/gif.js/blob/master/dist/gif.worker.js)
 
-## [zip.js](https://github.com/gildas-lormeau/zip.js)
+### [zip.js](https://github.com/gildas-lormeau/zip.js)
 
 [inflate.js](https://github.com/gildas-lormeau/zip.js/blob/master/WebContent/inflate.js)
 
@@ -66,7 +70,7 @@ Firefox 的扩展要求提供第三方库的说明
 
 [z-worker.js](https://github.com/gildas-lormeau/zip.js/blob/master/WebContent/z-worker.js)
 
-## [viewerjs](https://github.com/fengyuanchen/viewerjs)
+### [viewerjs](https://github.com/fengyuanchen/viewerjs)
 
 Viewerjs-mix.js [Javascript part](https://github.com/fengyuanchen/viewerjs/blob/master/dist/viewer.js)
 
@@ -263,3 +267,36 @@ p 站最近在 tag 搜索页的 R-18 分类里，增加了广告信息，导致�
 ## 1.7.3
 
 p 站代码又变了，获取画师名的代码做了相应的修改。现在其实是更简单了，挺好的。
+
+## 1.8.0
+
+2019/7/26
+
+- 代码修改成 standard 风格
+
+变量名都变成了驼峰命名规则，所以之前用户设置过的选项需要重新设置。
+
+- 优化了下载时的资源占用
+
+之前下载时，会把图片数据从 blob 转换到 base64，再转换到 blob。现在没有这个转换过程了，CPU、内存资源占用将会大幅下降。
+
+- 修复了一些 bug
+  
+修复了 puser 在某些情况下获取错误的问题。
+
+- 完善了注释
+
+- 下载书签作品时会倒序下载
+
+之前也有一些对下载顺序的处理。画师的列表页里，会按 id 从大到小下载，这样可以先下载最新作品，后下载早期作品。tag 搜索页里则是按收藏数从高到低下载（都是通过 sortByProperty 对数据进行排序的）
+
+- 移除了 url 里包含 recommended.php 的情况，它是首页的“为您推荐”栏目，现在已经被“发现”页面取代了。
+
+近期打算写个 wiki。
+
+
+
+脚本版 puser 获取修改
+书签倒序下载
+加粗提示文件名问题
+
