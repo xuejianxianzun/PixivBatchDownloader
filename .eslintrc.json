@@ -9,6 +9,7 @@
     "XMLHttpRequest": true,
     "FileReader": true,
     "browser": true,
+    "chrome": true,
     "zip": true,
     "GIF": true,
     "Viewer": true
