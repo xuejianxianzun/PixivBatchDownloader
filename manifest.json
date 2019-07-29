@@ -1,6 +1,6 @@
 {
   "name": "Pixiv Batch Downloader",
-  "version": "1.8.2",
+  "version": "1.8.3",
   "manifest_version": 2,
   "description": "功能强大的 Pixiv 图片批量下载器。Powerful Pixiv image batch downloader.",
   "icons": {
@@ -34,13 +34,13 @@
       "run_at": "document_end"
     },
     {
-      "js": ["lib/browser-polyfill.js", "content.js"],
+      "js": ["content.js"],
       "matches": ["*://www.pixiv.net/*", "*://www.pixivision.net/*"],
       "run_at": "document_end"
     }
   ],
   "background": {
-    "scripts": ["lib/browser-polyfill.js", "background.js"]
+    "scripts": ["background.js"]
   },
   "permissions": [
     "tabs",
