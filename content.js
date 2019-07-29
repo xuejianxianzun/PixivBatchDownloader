@@ -2,9 +2,9 @@
  * project: Pixiv Batch Downloader
  * author:  xuejianxianzun 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
+ * install: https://chrome.google.com/webstore/detail/pixiv-batch-downloader/hfgoikdmppghehigkckknikdgdcjbfpl
  * E-mail:  xuejianxianzun@gmail.com
  * Github： https://github.com/xuejianxianzun/PixivBatchDownloader
- * install: https://chrome.google.com/webstore/detail/pixiv-batch-downloader/hfgoikdmppghehigkckknikdgdcjbfpl
  * blog:    https://saber.love/pixiv
  * QQ 群:    499873152
  */
@@ -1360,10 +1360,12 @@ function xzlt (name, ...arg) {
 }
 
 // 添加 css 样式
-function appendStyle (params) {
+async function appendStyle (params) {
+  const styleFile = await fetch(chrome.extension.getURL('xzstyle.css'))
+  const styleContent = await styleFile.text()
   const styleE = document.createElement('style')
   document.body.appendChild(styleE)
-  styleE.textContent = `#header-banner.ad,._2vNejsc,._3M6FtEB,._3jgsYyw,._premium-lead-promotion-banner,._1N-LC6t,._premium-lead-tag-search-bar,.ad-bigbanner,.ad-footer,.ad-multiple_illust_viewer,.ads_anchor,.ads_area,.adsbygoogle,.popular-introduction-overlay,.ui-fixed-container aside,[name=header],section.ad{display:none!important;z-index:-999!important;width:0!important;height:0!important;opacity:0!important}#viewerWarpper{margin:24px auto 15px;overflow:hidden;background:#fff;padding:0 16px 68px;display:none;border-top:1px solid #eee;border-bottom:1px solid #eee}#viewerWarpper ul{max-width:568px;margin:24px auto;padding:0 16px;display:flex;justify-content:flex-start;align-items:center;flex-wrap:nowrap;overflow:auto}#viewerWarpper li{display:flex;flex-shrink:0;margin-right:8px;overflow:hidden}#viewerWarpper li img{cursor:pointer;max-height:144px;width:auto}.viewer-toolbar .viewer-next,.viewer-toolbar .viewer-prev{background-color:rgba(0,0,0,.8);border-radius:50%;cursor:pointer;height:100px;width:100px;overflow:hidden}.viewer-backdrop{background:rgba(0,0,0,.8)}.viewer-toolbar .viewer-prev{position:fixed;left:-70px;top:40%}.viewer-toolbar .viewer-prev::before{top:40px;left:70px;position:absolute}.viewer-toolbar .viewer-next{position:fixed;right:-70px;top:40%}#quick_down_btn,#rightButton{line-height:20px;border-radius:3px;color:#fff;padding:10px;box-sizing:content-box;right:0;text-align:center;cursor:pointer}.viewer-toolbar .viewer-next::before{left:10px;top:40px;position:absolute}#quick_down_btn,#rightButton,.centerWrap{position:fixed;z-index:1000;font-size:14px}.black-background{background:rgba(0,0,0,1)}#rightButton{top:15%;background:#80b9f7}#quick_down_btn{top:20%;background:#0096fa}li{list-style:none}.centerWrap{display:none;width:650px;left:-350px;margin-left:50%;background:#fff;top:3%;color:#333;padding:25px;border-radius:15px;border:1px solid #ddd;box-shadow:0 0 25px #2ca6df;max-height: calc(94% - 50px);overflow: auto;}.centerWrap p{line-height:24px;margin:0}.centerWrap .tip{color:#999}.centerWrap_head{height:30px;position:relative;padding-bottom:10px}.centerWrap_head *{vertical-align:middle}.centerWrap_title{display:block;line-height:30px;text-align:center;font-size:18px}.centerWrap_close,.centerWrap_toogle_option,.github_url{font-size:18px;position:absolute;top:0;right:0;width:30px;height:30px;text-align:center;cursor:pointer;color:#666;user-select:none}.download_progress1,.right1{position:relative}.centerWrap_close:hover,.centerWrap_toogle_option:hover{color:#0096fa}.centerWrap_toogle_option{right:40px}.github_url{display:block;right:80px}.centerWrap_head img{max-width:100%;width:16px}.setinput_style1{width:50px;min-width:50px;line-height:20px;font-size:14px!important;height:20px;text-indent:4px;box-sizing:border-box;border:none!important;border-bottom:1px solid #999!important;outline:0;padding:0!important;}.progressBar1,.right1{width:500px}.setinput_style1:focus{border-bottom:1px solid #0096fa!important;background:0 0!important}.fileNameRule{min-width:150px}.setinput_tag{min-width:300px}.showFileNameResult,.showFileNameTip{cursor:pointer}.fileNameTip{display:none;padding-top:5px}.centerWrap_btns{padding:10px 0 0;font-size:0}.XZTipEl,.centerWrap_btns div,.progressTip{color:#fff;font-size:14px}.centerWrap_btns div{display:inline-block;min-width:100px;max-width:105px;padding:8px 10px;text-align:center;min-height:20px;line-height:20px;border-radius:4px;margin-right:35px;cursor:pointer;margin-bottom:10px;vertical-align:top}.progress,.progressBar{border-radius:11px;height:22px;overflow: hidden;}.centerWrap_btns_free div{max-width:140px;margin-right:15px}.centerWrap_down_tips{line-height:28px}.right1{display:inline-block;height:22px;vertical-align:middle}.progressBar{position:absolute;background:#6792A2}.progress{background:#0eb3f3;transition:.15s}.progressTip{position:absolute;line-height:22px}.progress1{width:0}.progressTip1{width:500px;text-align:center}.centerWrap_down_list{display:none}.centerWrap_down_list ul{padding-top:5px;margin:0;padding-left:0}.downloadBar{position:relative;width:100%;padding:5px 0;height:22px;box-sizing:content-box}.progressBar2{width:100%}.progress2{width:0}.progressTip2{width:100%}.download_fileName{max-width:60%;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;vertical-align:top;display:inline-block;text-indent:1em}.showDownTip{padding-top:10px;cursor:pointer;display:inline-block}.XZTipEl,.downTip,.download_a,.download_panel{display:none}.settingNameStyle1{width:100px;cursor:pointer;margin-right:10px}.XZTipEl{position:fixed;z-index:1001;max-width:400px;left:0;top:0;background:#02a3ec;padding:6px 8px;border-radius:5px;line-height:20px;word-break:break-word}.fwb{font-weight:700}.gray1{color:#999}.xz_blue{color:#0ea8ef!important}.outputInfoWrap{padding:20px 30px;width:520px;background:#fff;border-radius:20px;z-index:9999;box-shadow:0 0 15px #2ca6df;display:none;position:fixed;top:15%;margin-left:-300px;left:50%}.outputUrlTitle{height:20px;line-height:20px;text-align:center;font-size:18px;color:#179FDD}.outputInfoContent{border:1px solid #ccc;transition:.3s;font-size:14px;margin-top:10px;padding:5px 10px;overflow:auto;max-height:350px;line-height:20px}.outputInfoContent::selection{background:#179FDD;color:#fff}.outputUrlFooter{height:60px;text-align:center}.outputUrlClose{cursor:pointer;position:absolute;width:30px;height:30px;top:20px;right:30px;z-index:9999;font-size:18px;text-align:center}.outputUrlClose:hover{color:#179FDD}.outputUrlCopy{height:34px;line-height:34px;min-width:100px;padding:2px 25px;margin-top:15px;background:#179FDD;display:inline-block;color:#fff;font-size:14px;border-radius:6px;cursor:pointer}#down_id_input,#outputInfo{margin:6px auto;background:#fff}.fastScreenArea a{display:inline-block;padding:10px}#quickBookmarkEl{font-size:34px;line-height:30px;margin-right:15px;cursor:pointer;color:#333;text-decoration:none;display:block}#outputInfo{padding:10px;font-size:14px;width:950px}#down_id_input{width:600px;height:80px;font-size:12px;padding:7px;display:none;border:1px solid #179FDD}.sc-cLxPOX{padding-top:0}.xzForm option{font-size:14px!important;line-height: 24px;}`
+  styleE.textContent = styleContent
 }
 
 // 快速收藏
@@ -5281,8 +5283,9 @@ function checkPageType () {
   } else if (window.location.pathname === '/discovery') {
     pageType = 11
   } else {
-    return false
+    pageType = undefined
   }
+  return pageType
 }
 
 // 当 pageType 为 1 时执行
@@ -5383,141 +5386,140 @@ function pageType2 () {
 }
 
 // init
-
-checkPageType()
-
-if (pageType !== undefined) {
-  appendStyle()
+async function init () {
+  await appendStyle()
   addRightButton()
   addCenterWarps()
   changeWantPage()
   readXzSetting()
   getPageInfo()
-}
 
-// pageType 1 和 2 都是无刷新加载，所以会进行一些相同的处理
-if (pageType === 1 || pageType === 2) {
-  // pushState 判断从列表页进入作品页的情况，popstate 判断从作品页退回列表页的情况
-  ['pushState', 'popstate'].forEach(item => {
-    window.addEventListener(item, () => {
-      // 当页面切换时，判断新页面的类型
-      checkPageType()
-      changeWantPage()
-      getPageInfo()
+  // pageType 1 和 2 都是无刷新加载，所以会进行一些相同的处理
+  if (pageType === 1 || pageType === 2) {
+    // pushState 判断从列表页进入作品页的情况，popstate 判断从作品页退回列表页的情况
+    ['pushState', 'popstate'].forEach(item => {
+      window.addEventListener(item, () => {
+        // 当页面切换时，判断新页面的类型
+        checkPageType()
+        changeWantPage()
+        getPageInfo()
 
-      // 切换页面时，清空输出区域
-      if (outputInfo) {
-        outputInfo.innerHTML = ''
-      }
-
-      // 在作品页里调用图片查看器
-      if (pageType === 1) {
-        initViewer()
-      }
-
-      // 当新旧页面的 pageType 不相同的时候
-      if (oldPageType !== pageType) {
-        centerBtnWrap.innerHTML = '' // 清空原有的下载按钮
-        wantPage = undefined // 重置页数/个数设置
-
-        if (pageType === 1) {
-          // 从 2 进入 1
-          pageType1()
-        } else if (pageType === 2) {
-          // 从 1 进入 2
-          pageType2()
+        // 切换页面时，清空输出区域
+        if (outputInfo) {
+          outputInfo.innerHTML = ''
         }
+
+        // 在作品页里调用图片查看器
+        if (pageType === 1) {
+          initViewer()
+        }
+
+        // 当新旧页面的 pageType 不相同的时候
+        if (oldPageType !== pageType) {
+          centerBtnWrap.innerHTML = '' // 清空原有的下载按钮
+          wantPage = undefined // 重置页数/个数设置
+
+          if (pageType === 1) {
+            // 从 2 进入 1
+            pageType1()
+          } else if (pageType === 2) {
+            // 从 1 进入 2
+            pageType2()
+          }
+        }
+      })
+    })
+  }
+
+  if (pageType === 0) {
+    // 0.index 首页
+    // https://www.pixiv.net/
+
+    // 用于输入id的输入框
+    const downIdInput = document.createElement('textarea')
+    downIdInput.id = 'down_id_input'
+    downIdInput.setAttribute('placeholder', xzlt('_输入id进行下载的提示文字'))
+    insertToHead(downIdInput)
+    downIdInput.addEventListener('change', () => {
+      // 当输入框内容改变时检测，非空值时显示下载面板
+      if (downIdInput.value !== '') {
+        downIdButton.dataset.ready = 'true'
+        centerWrapShow()
+        downIdButton.textContent = xzlt('_开始抓取')
+      } else {
+        downIdButton.dataset.ready = 'false'
+        centerWrapHide()
+        downIdButton.textContent = xzlt('_输入id进行下载')
       }
     })
-  })
-}
 
-if (pageType === 0) {
-  // 0.index 首页
-  // https://www.pixiv.net/
+    let idValue = []
 
-  // 用于输入id的输入框
-  const downIdInput = document.createElement('textarea')
-  downIdInput.id = 'down_id_input'
-  downIdInput.setAttribute('placeholder', xzlt('_输入id进行下载的提示文字'))
-  insertToHead(downIdInput)
-  downIdInput.addEventListener('change', () => {
-    // 当输入框内容改变时检测，非空值时显示下载面板
-    if (downIdInput.value !== '') {
-      downIdButton.dataset.ready = 'true'
-      centerWrapShow()
-      downIdButton.textContent = xzlt('_开始抓取')
-    } else {
-      downIdButton.dataset.ready = 'false'
-      centerWrapHide()
-      downIdButton.textContent = xzlt('_输入id进行下载')
-    }
-  })
+    const downIdButton = addCenterButton(
+      'div',
+      xzBlue,
+      xzlt('_输入id进行下载'),
+      [['id', 'down_id_button']]
+    )
+    downIdButton.dataset.ready = 'false' // 是否准备好了
+    downIdButton.addEventListener(
+      'click',
+      () => {
+        illustUrlList = [] // 每次开始下载前重置作品的url列表
 
-  let idValue = []
+        if (downIdButton.dataset.ready === 'false') {
+          // 还没准备好
+          downIdInput.style.display = 'block'
+          centerWrapHide()
+          document.documentElement.scrollTop = 0
+        } else {
+          // 检查 id
+          idValue = downIdInput.value.split('\n')
+          idValue.forEach(id => {
+            const nowId = parseInt(id)
+            // 如果 id 不是数字，或者处于非法区间
+            if (isNaN(nowId) || nowId < 22 || nowId > 99999999) {
+              illustUrlList = [] // 清空结果
+              window.alert(xzlt('_id不合法'))
+              return false
+            } else {
+              // 拼接作品的url
+              illustUrlList.push(
+                'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' +
+                  id
+              )
+            }
+          })
+          addOutputInfo(xzlt('_任务开始0'))
+          startGet()
+        }
+      },
+      false
+    )
+  }
 
-  const downIdButton = addCenterButton('div', xzBlue, xzlt('_输入id进行下载'), [
-    ['id', 'down_id_button']
-  ])
-  downIdButton.dataset.ready = 'false' // 是否准备好了
-  downIdButton.addEventListener(
-    'click',
-    () => {
-      illustUrlList = [] // 每次开始下载前重置作品的url列表
+  if (pageType === 1) {
+    // 1. illust 作品页
+    // https://www.pixiv.net/member_illust.php?mode=medium&illust_id=75896706
 
-      if (downIdButton.dataset.ready === 'false') {
-        // 还没准备好
-        downIdInput.style.display = 'block'
-        centerWrapHide()
-        document.documentElement.scrollTop = 0
-      } else {
-        // 检查 id
-        idValue = downIdInput.value.split('\n')
-        idValue.forEach(id => {
-          const nowId = parseInt(id)
-          // 如果 id 不是数字，或者处于非法区间
-          if (isNaN(nowId) || nowId < 22 || nowId > 99999999) {
-            illustUrlList = [] // 清空结果
-            window.alert(xzlt('_id不合法'))
-            return false
-          } else {
-            // 拼接作品的url
-            illustUrlList.push(
-              'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' +
-                id
-            )
-          }
-        })
-        addOutputInfo(xzlt('_任务开始0'))
-        startGet()
-      }
-    },
-    false
-  )
-}
+    pageType1()
+  } else if (pageType === 2) {
+    // 2. user_page 用户的列表页、书签页
+    // https://www.pixiv.net/member.php?id=7210261
+    // https://www.pixiv.net/member_illust.php?id=7210261&type=illust&tag=初音ミク
+    // https://www.pixiv.net/bookmark.php?id=7210261&rest=show
+    // https://www.pixiv.net/bookmark.php
 
-if (pageType === 1) {
-  // 1. illust 作品页
-  // https://www.pixiv.net/member_illust.php?mode=medium&illust_id=75896706
+    pageType2()
+  } else if (pageType === 5) {
+    // 5. tag 搜索页
+    // https://www.pixiv.net/search.php?s_mode=s_tag&word=Fate%2FGrandOrder
 
-  pageType1()
-} else if (pageType === 2) {
-  // 2. user_page 用户的列表页、书签页
-  // https://www.pixiv.net/member.php?id=7210261
-  // https://www.pixiv.net/member_illust.php?id=7210261&type=illust&tag=初音ミク
-  // https://www.pixiv.net/bookmark.php?id=7210261&rest=show
-  // https://www.pixiv.net/bookmark.php
+    tagSearchDataSelector = '#js-mount-point-search-result-list'
+    tagSearchListSelector = '.JoCpVnw'
 
-  pageType2()
-} else if (pageType === 5) {
-  // 5. tag 搜索页
-  // https://www.pixiv.net/search.php?s_mode=s_tag&word=Fate%2FGrandOrder
-
-  tagSearchDataSelector = '#js-mount-point-search-result-list'
-  tagSearchListSelector = '.JoCpVnw'
-
-  // 因为 tag 搜索页新版的作品不是直接输出到页面里,但我们需要呈现 html ,所以需要模拟生成的元素
-  tagSearchNewHtml = `
+    // 因为 tag 搜索页新版的作品不是直接输出到页面里,但我们需要呈现 html ,所以需要模拟生成的元素
+    tagSearchNewHtml = `
     <div class="JoCpVnw">
     <figure class="mSh0kS-" style="width: 200px; max-height: 288px;">
     <div class="_3IpHIQ_">
@@ -5570,318 +5572,331 @@ if (pageType === 1) {
     </figure>
     </div>
     `
-  baseUrl = locUrl.split('&p=')[0] + '&p='
-  getNowPageNo()
-  document.getElementById('js-react-search-mid').style.minHeight = 'auto' // 这部分的高度改成 auto 以免搜索时会有空白区域
-  xzForm.setFavNum.value = 1000 // tag 搜索页默认收藏数设置为 1000
-  document.querySelector('.xzFormP9').style.display = 'block' // 显示“是否显示封面图”的选项
+    baseUrl = locUrl.split('&p=')[0] + '&p='
+    getNowPageNo()
+    document.getElementById('js-react-search-mid').style.minHeight = 'auto' // 这部分的高度改成 auto 以免搜索时会有空白区域
+    xzForm.setFavNum.value = 1000 // tag 搜索页默认收藏数设置为 1000
+    document.querySelector('.xzFormP9').style.display = 'block' // 显示“是否显示封面图”的选项
 
-  // 添加快速筛选功能
-  const nowTag = document
-    .querySelector('.column-title a')
-    .textContent.split(' ')[0]
-  const favNums = [
-    '100users入り',
-    '500users入り',
-    '1000users入り',
-    '3000users入り',
-    '5000users入り',
-    '10000users入り',
-    '20000users入り',
-    '30000users入り',
-    '50000users入り'
-  ] // 200 和 2000 的因为数量太少，不添加。40000 的也少
-  const fastScreenArea = document.createElement('div')
-  fastScreenArea.className = 'fastScreenArea'
-  const insetParent = document.querySelector('._unit')
-  insetParent.insertBefore(
-    fastScreenArea,
-    insetParent.querySelector('#js-react-search-top')
-  )
+    // 添加快速筛选功能
+    const nowTag = document
+      .querySelector('.column-title a')
+      .textContent.split(' ')[0]
+    const favNums = [
+      '100users入り',
+      '500users入り',
+      '1000users入り',
+      '3000users入り',
+      '5000users入り',
+      '10000users入り',
+      '20000users入り',
+      '30000users入り',
+      '50000users入り'
+    ] // 200 和 2000 的因为数量太少，不添加。40000 的也少
+    const fastScreenArea = document.createElement('div')
+    fastScreenArea.className = 'fastScreenArea'
+    const insetParent = document.querySelector('._unit')
+    insetParent.insertBefore(
+      fastScreenArea,
+      insetParent.querySelector('#js-react-search-top')
+    )
 
-  let searchMode = '' // 判断当前搜索模式，默认的“全部”模式不需要做处理
+    let searchMode = '' // 判断当前搜索模式，默认的“全部”模式不需要做处理
 
-  if (locUrl.includes('&mode=r18')) {
-    searchMode = '&mode=r18'
-  } else if (locUrl.includes('&mode=safe')) {
-    searchMode = '&mode=safe'
-  }
+    if (locUrl.includes('&mode=r18')) {
+      searchMode = '&mode=r18'
+    } else if (locUrl.includes('&mode=safe')) {
+      searchMode = '&mode=safe'
+    }
 
-  let orderMode = '' // 判断当前排序方式
+    let orderMode = '' // 判断当前排序方式
 
-  if (locUrl.includes('&order=date_d')) {
-    // 按最新排序
-    orderMode = '&order=date_d'
-  } else if (locUrl.includes('&order=date')) {
-    // 按旧排序
-    orderMode = '&order=date'
-  }
+    if (locUrl.includes('&order=date_d')) {
+      // 按最新排序
+      orderMode = '&order=date_d'
+    } else if (locUrl.includes('&order=date')) {
+      // 按旧排序
+      orderMode = '&order=date'
+    }
 
-  fastScreenArea.innerHTML = favNums.reduce((result, cur) => {
-    return (result += `<a href="https://www.pixiv.net/search.php?s_mode=s_tag${searchMode}${orderMode}&word=${nowTag}%20${cur}">${cur}</a>`)
-  }, '')
+    fastScreenArea.innerHTML = favNums.reduce((result, cur) => {
+      return (result += `<a href="https://www.pixiv.net/search.php?s_mode=s_tag${searchMode}${orderMode}&word=${nowTag}%20${cur}">${cur}</a>`)
+    }, '')
 
-  // 添加下载面板的按钮
-  addCenterButton('div', xzGreen, xzlt('_开始筛选'), [
-    ['title', xzlt('_开始筛选Title')]
-  ]).addEventListener(
-    'click',
-    () => {
-      if (interrupt) {
-        interrupt = false
-      }
-
-      startGet()
-    },
-    false
-  )
-
-  addCenterButton('div', xzGreen, xzlt('_在结果中筛选'), [
-    ['title', xzlt('_在结果中筛选Title')]
-  ]).addEventListener(
-    'click',
-    () => {
-      const allPicArea = document.querySelectorAll(tagSearchListSelector)
-      let wantFavoriteNumber2 = window.prompt(xzlt('_在结果中筛选弹窗'), '2000')
-
-      if (!wantFavoriteNumber2) {
-        return false
-      } else if (
-        isNaN(Number(wantFavoriteNumber2)) ||
-        ~~Number(wantFavoriteNumber2) <= 0
-      ) {
-        window.alert(xzlt('_参数不合法1'))
-        return false
-      } else {
-        wantFavoriteNumber2 = ~~Number(wantFavoriteNumber2)
-      }
-
-      allPicArea.forEach(el => {
-        if (
-          parseInt(el.querySelector('._ui-tooltip').textContent) <
-          wantFavoriteNumber2
-        ) {
-          // 必须限制序号0，不然对图片的回应数也会连起来
-          el.style.display = 'none' // 这里把结果中不符合二次过滤隐藏掉，而非删除
-        } else {
-          el.style.display = 'inline-flex'
-        }
-      })
-      outputNowResult()
-      centerWrapHide()
-    },
-    false
-  )
-
-  addCenterButton('div', xzRed, xzlt('_中断当前任务'), [
-    ['title', xzlt('_中断当前任务Title')]
-  ]).addEventListener(
-    'click',
-    () => {
-      interrupt = true
-
-      if (!allowWork) {
-        addOutputInfo('<br>' + xzlt('_当前任务已中断') + '<br><br>')
-        allowWork = true
-      }
-
-      centerWrapHide()
-    },
-    false
-  )
-
-  clearMultiple()
-
-  clearUgoku()
-
-  deleteByClick()
-
-  addCenterButton('div', xzBlue, xzlt('_下载当前作品'), [
-    ['title', xzlt('_下载当前作品Title')]
-  ]).addEventListener('click', getListPage2)
-} else if (pageType === 6) {
-  // 6. ranking_area 地区排行榜
-  // https://www.pixiv.net/ranking_area.php?type=detail&no=0
-
-  addCenterButton('div', xzBlue, xzlt('_下载本页作品'), [
-    ['title', xzlt('_下载本页作品Title')]
-  ]).addEventListener('click', startGet)
-} else if (pageType === 7) {
-  // 7. ranking 排行榜
-  // https://www.pixiv.net/ranking.php
-
-  if (window.location.search === '') {
-    // 直接获取json数据
-    baseUrl = locUrl + '?format=json&p='
-  } else {
-    baseUrl = locUrl + '&format=json&p='
-  }
-
-  startpageNo = 1 // 从第一页（部分）开始抓取
-
-  listPageFinished = 0 // 已经向下抓取了几页（部分）
-
-  // 设置页数。排行榜页面一页有50张作品，当页面到达底部时会加载下一页
-  if (baseUrl.includes('r18g')) {
-    // r18g 只有1个榜单，固定1页
-    partNumber = 1
-  } else if (baseUrl.includes('_r18')) {
-    // r18 模式，这里的6是最大值，有的排行榜并没有6页
-    partNumber = 6
-  } else {
-    // 普通模式，这里的10也是最大值。如果实际没有10页，则在检测到404页面的时候停止抓取下一页
-    partNumber = 10
-  }
-
-  addCenterButton('div', xzBlue, xzlt('_下载本排行榜作品'), [
-    ['title', xzlt('_下载本排行榜作品Title')]
-  ]).addEventListener('click', startGet)
-} else if (pageType === 8) {
-  // 8. pixivision
-  // https://www.pixivision.net/zh/a/3190
-
-  const type = document
-    .querySelector('a[data-gtm-action=ClickCategory]')
-    .getAttribute('data-gtm-label')
-
-  if (type === 'illustration' || type === 'manga' || type === 'cosplay') {
-    // 在插画、漫画、cosplay类型的页面上创建下载功能
-    addCenterButton('div', xzBlue, xzlt('_下载该页面的图片')).addEventListener(
+    // 添加下载面板的按钮
+    addCenterButton('div', xzGreen, xzlt('_开始筛选'), [
+      ['title', xzlt('_开始筛选Title')]
+    ]).addEventListener(
       'click',
       () => {
-        resetResult()
-        insertOutputInfo()
-        changeTitle('↑')
+        if (interrupt) {
+          interrupt = false
+        }
 
-        let imageList = []
+        startGet()
+      },
+      false
+    )
 
-        if (type === 'illustration') {
-          // 针对不同类型的页面，使用不同的选择器
-          imageList = document.querySelectorAll('.am__work__main img')
-          const urls = Array.from(imageList).map(el => {
-            return el.src
-              .replace('c/768x1200_80/img-master', 'img-original')
-              .replace('_master1200', '')
-          })
-          testSuffixNo = 0
-          urls.forEach((url, index) => {
-            let id = url.split('/')
-            id = id[id.length - 1].split('.')[0] // 取出作品 id
+    addCenterButton('div', xzGreen, xzlt('_在结果中筛选'), [
+      ['title', xzlt('_在结果中筛选Title')]
+    ]).addEventListener(
+      'click',
+      () => {
+        const allPicArea = document.querySelectorAll(tagSearchListSelector)
+        let wantFavoriteNumber2 = window.prompt(
+          xzlt('_在结果中筛选弹窗'),
+          '2000'
+        )
 
-            setTimeout(
-              testExtName(url, urls.length, {
-                id: id,
-                title: '',
-                tags: [],
-                user: '',
-                userid: '',
-                fullWidth: '',
-                fullHeight: ''
-              }),
-              index * ajaxForIllustDelay
-            )
-          })
+        if (!wantFavoriteNumber2) {
+          return false
+        } else if (
+          isNaN(Number(wantFavoriteNumber2)) ||
+          ~~Number(wantFavoriteNumber2) <= 0
+        ) {
+          window.alert(xzlt('_参数不合法1'))
+          return false
         } else {
-          if (type === 'manga') {
-            imageList = document.querySelectorAll('.am__work__illust')
-          } else if (type === 'cosplay') {
-            imageList = document.querySelectorAll(
-              '.fab__image-block__image img'
-            )
+          wantFavoriteNumber2 = ~~Number(wantFavoriteNumber2)
+        }
+
+        allPicArea.forEach(el => {
+          if (
+            parseInt(el.querySelector('._ui-tooltip').textContent) <
+            wantFavoriteNumber2
+          ) {
+            // 必须限制序号0，不然对图片的回应数也会连起来
+            el.style.display = 'none' // 这里把结果中不符合二次过滤隐藏掉，而非删除
+          } else {
+            el.style.display = 'inline-flex'
           }
+        })
+        outputNowResult()
+        centerWrapHide()
+      },
+      false
+    )
 
-          // 把图片url添加进数组
-          Array.from(imageList).forEach(el => {
-            const imgUrl = el.src
-            if (
-              imgUrl !==
-              'https://i.pximg.net/imgaz/upload/20170407/256097898.jpg'
-            ) {
-              // 跳过Cure的logo图片
-              let id = imgUrl.split('/')
-              id = id[id.length - 1].split('.')[0] // 作品id
+    addCenterButton('div', xzRed, xzlt('_中断当前任务'), [
+      ['title', xzlt('_中断当前任务Title')]
+    ]).addEventListener(
+      'click',
+      () => {
+        interrupt = true
 
-              let ext = imgUrl.split('.')
-              ext = ext[ext.length - 1] // 扩展名
+        if (!allowWork) {
+          addOutputInfo('<br>' + xzlt('_当前任务已中断') + '<br><br>')
+          allowWork = true
+        }
 
-              addImgInfo(id, imgUrl, '', [], '', '', '', '', ext, '')
+        centerWrapHide()
+      },
+      false
+    )
+
+    clearMultiple()
+
+    clearUgoku()
+
+    deleteByClick()
+
+    addCenterButton('div', xzBlue, xzlt('_下载当前作品'), [
+      ['title', xzlt('_下载当前作品Title')]
+    ]).addEventListener('click', getListPage2)
+  } else if (pageType === 6) {
+    // 6. ranking_area 地区排行榜
+    // https://www.pixiv.net/ranking_area.php?type=detail&no=0
+
+    addCenterButton('div', xzBlue, xzlt('_下载本页作品'), [
+      ['title', xzlt('_下载本页作品Title')]
+    ]).addEventListener('click', startGet)
+  } else if (pageType === 7) {
+    // 7. ranking 排行榜
+    // https://www.pixiv.net/ranking.php
+
+    if (window.location.search === '') {
+      // 直接获取json数据
+      baseUrl = locUrl + '?format=json&p='
+    } else {
+      baseUrl = locUrl + '&format=json&p='
+    }
+
+    startpageNo = 1 // 从第一页（部分）开始抓取
+
+    listPageFinished = 0 // 已经向下抓取了几页（部分）
+
+    // 设置页数。排行榜页面一页有50张作品，当页面到达底部时会加载下一页
+    if (baseUrl.includes('r18g')) {
+      // r18g 只有1个榜单，固定1页
+      partNumber = 1
+    } else if (baseUrl.includes('_r18')) {
+      // r18 模式，这里的6是最大值，有的排行榜并没有6页
+      partNumber = 6
+    } else {
+      // 普通模式，这里的10也是最大值。如果实际没有10页，则在检测到404页面的时候停止抓取下一页
+      partNumber = 10
+    }
+
+    addCenterButton('div', xzBlue, xzlt('_下载本排行榜作品'), [
+      ['title', xzlt('_下载本排行榜作品Title')]
+    ]).addEventListener('click', startGet)
+  } else if (pageType === 8) {
+    // 8. pixivision
+    // https://www.pixivision.net/zh/a/3190
+
+    const type = document
+      .querySelector('a[data-gtm-action=ClickCategory]')
+      .getAttribute('data-gtm-label')
+
+    if (type === 'illustration' || type === 'manga' || type === 'cosplay') {
+      // 在插画、漫画、cosplay类型的页面上创建下载功能
+      addCenterButton(
+        'div',
+        xzBlue,
+        xzlt('_下载该页面的图片')
+      ).addEventListener(
+        'click',
+        () => {
+          resetResult()
+          insertOutputInfo()
+          changeTitle('↑')
+
+          let imageList = []
+
+          if (type === 'illustration') {
+            // 针对不同类型的页面，使用不同的选择器
+            imageList = document.querySelectorAll('.am__work__main img')
+            const urls = Array.from(imageList).map(el => {
+              return el.src
+                .replace('c/768x1200_80/img-master', 'img-original')
+                .replace('_master1200', '')
+            })
+            testSuffixNo = 0
+            urls.forEach((url, index) => {
+              let id = url.split('/')
+              id = id[id.length - 1].split('.')[0] // 取出作品 id
+
+              setTimeout(
+                testExtName(url, urls.length, {
+                  id: id,
+                  title: '',
+                  tags: [],
+                  user: '',
+                  userid: '',
+                  fullWidth: '',
+                  fullHeight: ''
+                }),
+                index * ajaxForIllustDelay
+              )
+            })
+          } else {
+            if (type === 'manga') {
+              imageList = document.querySelectorAll('.am__work__illust')
+            } else if (type === 'cosplay') {
+              imageList = document.querySelectorAll(
+                '.fab__image-block__image img'
+              )
             }
-          })
-          allWorkFinished()
+
+            // 把图片url添加进数组
+            Array.from(imageList).forEach(el => {
+              const imgUrl = el.src
+              if (
+                imgUrl !==
+                'https://i.pximg.net/imgaz/upload/20170407/256097898.jpg'
+              ) {
+                // 跳过Cure的logo图片
+                let id = imgUrl.split('/')
+                id = id[id.length - 1].split('.')[0] // 作品id
+
+                let ext = imgUrl.split('.')
+                ext = ext[ext.length - 1] // 扩展名
+
+                addImgInfo(id, imgUrl, '', [], '', '', '', '', ext, '')
+              }
+            })
+            allWorkFinished()
+          }
+        },
+        false
+      )
+    }
+
+    hideNotNeedOption([1, 2, 3, 4, 5, 6, 7, 11, 13])
+  } else if (pageType === 9) {
+    // 9. bookmark_add
+    // https://www.pixiv.net/bookmark_detail.php?illust_id=63148723
+
+    addCenterButton('div', xzBlue, xzlt('_下载相似图片'), [
+      ['title', xzlt('_下载相似图片')]
+    ]).addEventListener(
+      'click',
+      () => {
+        setRequsetNum()
+
+        if (requsetNumber > 0) {
+          startGet()
         }
       },
       false
     )
+  } else if (pageType === 10) {
+    // 10. new_illust 关注的人的新作品 以及 大家的新作品
+    // https://www.pixiv.net/bookmark_new_illust.php
+    // https://www.pixiv.net/new_illust.php
+
+    if (locUrl.includes('/bookmark_new_illust')) {
+      listIsNew = true
+      tagSearchDataSelector = '#js-mount-point-latest-following' // 在 关注的人 里使用
+
+      tagSearchListSelector = '.JoCpVnw'
+    }
+
+    // 列表页url规则
+    if (!locUrl.includes('type=')) {
+      // 如果没有type标志，说明是在“综合”分类的第一页，手动加上分类
+      baseUrl = locUrl + '?type=all'.split('&p=')[0] + '&p='
+    } else {
+      baseUrl = locUrl.split('&p=')[0] + '&p='
+    }
+
+    setMaxNum() // 页数上限
+    getNowPageNo()
+
+    addCenterButton('div', xzBlue, xzlt('_从本页开始下载'), [
+      ['title', xzlt('_下载大家的新作品')]
+    ]).addEventListener('click', startGet)
+  } else if (pageType === 11) {
+    // 11.discover 发现
+    // https://www.pixiv.net/discovery
+
+    tagSearchListSelector = '._2RNjBox' // 发现页面的作品列表
+
+    addCenterButton('div', xzBlue, xzlt('_下载当前作品'), [
+      ['title', xzlt('_下载当前作品Title')]
+    ]).addEventListener('click', startGet)
+
+    clearMultiple()
+
+    clearUgoku()
+
+    deleteByClick()
+
+    addCenterButton('div', xzRed, xzlt('_清空作品列表'), [
+      ['title', xzlt('_清空作品列表Title')]
+    ]).addEventListener(
+      'click',
+      () => {
+        document.querySelectorAll(tagSearchListSelector).remove()
+        centerWrapHide()
+      },
+      false
+    )
   }
+}
 
-  hideNotNeedOption([1, 2, 3, 4, 5, 6, 7, 11, 13])
-} else if (pageType === 9) {
-  // 9. bookmark_add
-  // https://www.pixiv.net/bookmark_detail.php?illust_id=63148723
-
-  addCenterButton('div', xzBlue, xzlt('_下载相似图片'), [
-    ['title', xzlt('_下载相似图片')]
-  ]).addEventListener(
-    'click',
-    () => {
-      setRequsetNum()
-
-      if (requsetNumber > 0) {
-        startGet()
-      }
-    },
-    false
-  )
-} else if (pageType === 10) {
-  // 10. new_illust 关注的人的新作品 以及 大家的新作品
-  // https://www.pixiv.net/bookmark_new_illust.php
-  // https://www.pixiv.net/new_illust.php
-
-  if (locUrl.includes('/bookmark_new_illust')) {
-    listIsNew = true
-    tagSearchDataSelector = '#js-mount-point-latest-following' // 在 关注的人 里使用
-
-    tagSearchListSelector = '.JoCpVnw'
-  }
-
-  // 列表页url规则
-  if (!locUrl.includes('type=')) {
-    // 如果没有type标志，说明是在“综合”分类的第一页，手动加上分类
-    baseUrl = locUrl + '?type=all'.split('&p=')[0] + '&p='
-  } else {
-    baseUrl = locUrl.split('&p=')[0] + '&p='
-  }
-
-  setMaxNum() // 页数上限
-  getNowPageNo()
-
-  addCenterButton('div', xzBlue, xzlt('_从本页开始下载'), [
-    ['title', xzlt('_下载大家的新作品')]
-  ]).addEventListener('click', startGet)
-} else if (pageType === 11) {
-  // 11.discover 发现
-  // https://www.pixiv.net/discovery
-
-  tagSearchListSelector = '._2RNjBox' // 发现页面的作品列表
-
-  addCenterButton('div', xzBlue, xzlt('_下载当前作品'), [
-    ['title', xzlt('_下载当前作品Title')]
-  ]).addEventListener('click', startGet)
-
-  clearMultiple()
-
-  clearUgoku()
-
-  deleteByClick()
-
-  addCenterButton('div', xzRed, xzlt('_清空作品列表'), [
-    ['title', xzlt('_清空作品列表Title')]
-  ]).addEventListener(
-    'click',
-    () => {
-      document.querySelectorAll(tagSearchListSelector).remove()
-      centerWrapHide()
-    },
-    false
-  )
+// 检查启动条件
+if (checkPageType() !== undefined) {
+  init()
 }
