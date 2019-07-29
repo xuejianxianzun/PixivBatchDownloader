@@ -5046,7 +5046,11 @@ chrome.runtime.onMessage.addListener(function (msg) {
     URL.revokeObjectURL(msg.data.url)
   } else if (msg.msg === 'click_icon') {
     // 点击图标
-    centerWrap.style.display === 'none' ? centerWrapShow() : centerWrapHide()
+    if (centerWrap.style.display === 'block') {
+      centerWrapHide()
+    } else {
+      centerWrapShow()
+    }
   } else if (msg.msg === 'download_err') {
     console.log('download_err')
   }
