@@ -5028,7 +5028,7 @@ function browserDownload (blobUrl, fullFileName, downloadBarNo) {
   }
 
   // 向浏览器发送下载请求
-  browser.runtime.sendMessage({
+  chrome.runtime.sendMessage({
     msg: 'send_download',
     fileUrl: blobUrl,
     fileName: fullFileName,
@@ -5037,7 +5037,7 @@ function browserDownload (blobUrl, fullFileName, downloadBarNo) {
 }
 
 // 监听后台发送的消息
-browser.runtime.onMessage.addListener(function (msg) {
+chrome.runtime.onMessage.addListener(function (msg) {
   // msg:{msg : 'downloaded', data: {no: 0, url: "blob:https://www.pixiv.net/a4743ebd-987f-484f-b73e-0229931849c1", tabid: 19} }
   if (msg.msg === 'downloaded') {
     // 扩展下载完成之后

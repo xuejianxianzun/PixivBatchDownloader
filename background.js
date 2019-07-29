@@ -1,5 +1,5 @@
 // 设置 referer
-browser.webRequest.onBeforeSendHeaders.addListener(
+chrome.webRequest.onBeforeSendHeaders.addListener(
   function (details) {
     let setReferer = false
     for (let i = 0; i < details.requestHeaders.length; ++i) {
@@ -26,19 +26,19 @@ browser.webRequest.onBeforeSendHeaders.addListener(
 )
 
 // 当点击扩展图标时，切换显示/隐藏下载面板
-browser.browserAction.onClicked.addListener(function (tab) {
-  browser.tabs.sendMessage(tab.id, {
+chrome.browserAction.onClicked.addListener(function (tab) {
+  chrome.tabs.sendMessage(tab.id, {
     msg: 'click_icon'
   })
 })
 
-// 因为下载完成的顺序和发送顺序可能不一致，所以需要存储当前进行下载的任务的数据
-const donwloadBarCurreData = {}
+// 因为下载完成的顺序和发送顺序可能不一致，所以需要存储任务的数据
+const donwloadListData = {}
 
 // 接收下载请求
-browser.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
   if (msg.msg === 'send_download') {
-    // 保存当前任务数据。下载完成后，这个数据会保存在 donwloadBarCurreData 里
+    // 保存当前任务数据
     const data = {
       no: msg.no,
       url: msg.fileUrl,
@@ -46,36 +46,30 @@ browser.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     }
 
     // 开始下载
-    browser.downloads
-      .download({
+    chrome.downloads.download(
+      {
         url: msg.fileUrl,
         filename: msg.fileName,
         conflictAction: 'overwrite',
         saveAs: false
-      })
-      .then(r => {
-        // r 是下载任务的的 download id
-        donwloadBarCurreData[r] = data
-      })
-      .catch(err => {
-        console.log(err)
-        URL.revokeObjectURL(msg.fileUrl)
-        browser.tabs.sendMessage(sender.tab.id, {
-          msg: 'download_err',
-          no: msg.no
-        })
-      })
+      },
+      id => {
+        // 成功建立下载任务时，返回下载项的 id
+        donwloadListData[id] = data
+      }
+    )
   }
 })
 
 // 监听下载事件
-browser.downloads.onChanged.addListener(function (detail) {
+chrome.downloads.onChanged.addListener(function (detail) {
   // 下载完成后
   if (detail.state !== undefined && detail.state.current === 'complete') {
     // 根据 detail.id 取出保存的信息
     const msg = 'downloaded'
-    const data = donwloadBarCurreData[detail.id]
+    const data = donwloadListData[detail.id]
     if (!data) return
-    browser.tabs.sendMessage(data.tabid, { msg, data })
+    chrome.tabs.sendMessage(data.tabid, { msg, data })
+    donwloadListData[detail.id] = null
   }
 })
