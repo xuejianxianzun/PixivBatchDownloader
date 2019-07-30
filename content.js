@@ -490,12 +490,6 @@ const xzLang = {
     'The current task has not yet completed, please wait.',
     '目前工作尚未完成，請等到提示完成之後再設定新的工作。'
   ],
-  _checkWantPageRule1Arg1: [
-    '从本页开始下载<br>如果要下载全部作品，请保持默认值。<br>如果需要设置下载的作品数，请输入从1开始的数字，1为仅下载当前作品。',
-    'このページからダウンロードする<br>すべての作品をダウンロードしたい場合は、デフォルト値のままにしてください。<br>ダウンロード数を設定する必要がある場合は、1から始まる番号を入力します。 現在の作品には1の番号が付けられています。',
-    'Download from this page<br>If you want to download all the work, please leave the default value.<br>If you need to set the number of downloads, enter a number starting at 1. The current works are numbered 1.',
-    '從本頁開始下載<br>如果要下載全部作品，請保持預設值。<br>如果需要設定下載的作品數，請輸入從1開始的數字，1為僅下載目前作品。'
-  ],
   _checkWantPageRule1Arg2: [
     '参数不合法，本次操作已取消。<br>',
     'パラメータは有効ではありません。この操作はキャンセルされました。<br>',
@@ -537,6 +531,18 @@ const xzLang = {
     'タスクが開始されます。<br>このタスク条件：すべてのページをダウンロード',
     'Task starts. <br>This task condition: download all pages',
     '工作開始<br>本次工作條件: 下載所有頁面'
+  ],
+  _checkWantPageRule1Arg9: [
+    '任务开始<br>本次任务条件: 下载 -num- 个相关作品',
+    'タスクが開始されます。<br>このタスク条件：関連作品 -num- 点をダウンロードする。',
+    'Task starts. <br>This task condition: download -num- related works.',
+    '工作開始<br>本次工作條件: 下載 -num- 個相關作品'
+  ],
+  _checkWantPageRule1Arg10: [
+    '任务开始<br>本次任务条件: 下载所有相关作品',
+    'タスクが開始されます。<br>このタスク条件：関連作品をすべてダウンロード。',
+    'Task starts. <br>This task condition: download all related works.',
+    '工作開始<br>本次工作條件: 下載所有相關作品'
   ],
   _请输入最低收藏数和要抓取的页数: [
     '请输入最低收藏数和要抓取的页数，用英文逗号分开。\n类似于下面的形式: \n1000,1000',
@@ -643,11 +649,17 @@ const xzLang = {
     'Part {} of this page has been crawled',
     '已擷取本頁面第{}部分'
   ],
+  _相关作品抓取完毕: [
+    '相关作品抓取完毕。包含有{}张作品，开始获取作品信息。',
+    '関連作品はクロールされました。 {}作品を含み、その作品に関する情報の取得を開始します。',
+    'The related works have been crawled. Contains {} works and starts getting information about the work.',
+    '相關作品擷取完畢。包含有{}張作品，開始取得作品資訊。'
+  ],
   _排行榜任务完成: [
-    '本页面抓取完成。当前有{}张作品，开始获取作品信息。',
+    '本页面抓取完毕。当前有{}张作品，开始获取作品信息。',
     'このページはクロールされ、{}個の作品があります。 詳細は作品を入手し始める。',
     'This page is crawled and now has {} works. Start getting the works for more information.',
-    '本頁面擷取完成。目前有{}張作品，開始取得作品資訊。'
+    '本頁面擷取完畢。目前有{}張作品，開始取得作品資訊。'
   ],
   _列表页获取完成2: [
     '列表页获取完成。<br>当前有{}张作品，开始获取作品信息。',
@@ -2335,7 +2347,7 @@ function setMaxNum () {
 
 // 设置要下载的个数
 function setRequsetNum () {
-  maxNum = 500 // 设置最大允许获取多少个作品。相似作品、相关作品的这个数字是可以改的，可以比 500 更大，这里只是一个预设值。
+  maxNum = 500 // 设置最大允许获取多少个作品。相似作品的这个数字是可以改的，可以比 500 更大，这里只是一个预设值。
 
   const result = checkNumberGreater0(xzForm.setWantPage.value)
 
@@ -2356,7 +2368,7 @@ function setRequsetNum () {
 function illustError (url) {
   if (pageType === 1 && !downXiangguan) {
     addOutputInfo('<br>' + xzlt('_无权访问1', url) + '<br>')
-    // 在作品页内下载时，设置的want_page其实是作品数
+    // 在作品页内下载时，设置的wantPage其实是作品数
     if (wantPage > 0) {
       wantPage--
     }
@@ -2383,11 +2395,11 @@ function illustError (url) {
 }
 
 // 检查用户输入的页数设置，并返回提示信息
-function checkWantPageInput (inputTip, errorTip, start1Tip, start2Tip) {
+function checkWantPageInput (errorTip, start1Tip, start2Tip) {
   const temp = parseInt(xzForm.setWantPage.value)
 
   // 如果比 1 小，并且不是 -1，则不通过
-  if (parseInt(temp) < 1 && temp !== -1) {
+  if ((parseInt(temp) < 1 && temp !== -1) || isNaN(temp)) {
     // 比 1 小的数里，只允许 -1 , 0 也不行
     addOutputInfo(errorTip)
     return false
@@ -2577,14 +2589,23 @@ function startGet () {
     if (quick) {
       // 快速下载
       wantPage = 1
-    } else if (!downXiangguan) {
-      // 手动设置下载页数
-      const result = checkWantPageInput(
-        xzlt('_checkWantPageRule1Arg1'),
-        xzlt('_checkWantPageRule1Arg2'),
-        xzlt('_checkWantPageRule1Arg3'),
-        xzlt('_checkWantPageRule1Arg4')
-      )
+    } else {
+      // 检查下载页数的设置
+      let result = false
+      if (!downXiangguan) {
+        result = checkWantPageInput(
+          xzlt('_checkWantPageRule1Arg2'),
+          xzlt('_checkWantPageRule1Arg3'),
+          xzlt('_checkWantPageRule1Arg4')
+        )
+      } else {
+        // 相关作品的提示
+        result = checkWantPageInput(
+          xzlt('_checkWantPageRule1Arg2'),
+          xzlt('_checkWantPageRule1Arg9'),
+          xzlt('_checkWantPageRule1Arg10')
+        )
+      }
 
       if (!result) {
         return false
@@ -2593,7 +2614,6 @@ function startGet () {
   } else if (pageType === 2) {
     // 画师主页，作品列表页，tag 列表页，收藏页，自己的收藏
     const result = checkWantPageInput(
-      xzlt('_checkWantPageRule1Arg5'),
       xzlt('_checkWantPageRule1Arg2'),
       xzlt('_checkWantPageRule1Arg6'),
       xzlt('_checkWantPageRule1Arg7')
@@ -2607,7 +2627,6 @@ function startGet () {
     document.querySelectorAll('._premium-lead-popular-d-body').remove() // 去除热门作品一栏
 
     const result = checkWantPageInput(
-      xzlt('_checkWantPageRule1Arg5'),
       xzlt('_checkWantPageRule1Arg2'),
       '',
       xzlt('_checkWantPageRule1Arg7')
@@ -2714,12 +2733,28 @@ function startGet () {
   }
 }
 
+// 接收 id 列表，然后拼接出作品页面的 url，储存起来
+function addIllustUrlList (arr) {
+  arr.forEach(data => {
+    illustUrlList.push(
+      'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' + data
+    )
+  })
+}
+
 // 获取作品列表页
 function getListPage () {
   changeTitle('↑')
   let url = ''
-  // 在相似作品页，或者下载相关作品时，使用的 url
-  if (pageType === 9 || downXiangguan) {
+  if (downXiangguan) {
+    // 下载相关作品时
+    url =
+      'https://www.pixiv.net/ajax/illust/' +
+      getIllustId() +
+      '/recommend/init?limit=18'
+    // 最后的 18 是预加载首屏的多少个作品的信息，和本次下载并没有关系
+  } else if (pageType === 9) {
+    // 相似作品页面
     const id = getIllustId() // 作品页的url需要实时获取
     url =
       '/rpc/recommender.php?type=illust&sample_illusts=' +
@@ -2760,8 +2795,20 @@ function getListPage () {
         )
       }
 
-      // tag 搜索页
-      if (pageType === 5) {
+      if (downXiangguan) {
+        // 相关作品
+        const recommendData = JSON.parse(data).body.recommendMethods
+        let recommendIdList = Object.keys(recommendData)
+        // wantPage 可能是 -1 或者大于 0 的数字。当设置了下载个数时，进行裁剪
+        if (wantPage !== -1) {
+          recommendIdList = recommendIdList.reverse().slice(0, wantPage)
+        }
+        addIllustUrlList(recommendIdList) // 拼接作品的url
+
+        addOutputInfo('<br>' + xzlt('_相关作品抓取完毕', illustUrlList.length))
+        getListUrlFinished()
+      } else if (pageType === 5) {
+        // tag 搜索页
         tagPageFinished++
         let thisOneInfo = listPageDocument
           .querySelector(tagSearchDataSelector)
@@ -2959,17 +3006,11 @@ function getListPage () {
         } else {
           getListPage()
         }
-      } else if (pageType === 9 || downXiangguan) {
+      } else if (pageType === 9) {
         // 添加收藏后的相似作品
         const illustList = JSON.parse(data).recommendations // 取出id列表
+        addIllustUrlList(illustList) // 拼接作品的url
 
-        // 拼接作品的url
-        illustList.forEach(data => {
-          illustUrlList.push(
-            'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' +
-              data
-          )
-        })
         addOutputInfo('<br>' + xzlt('_列表页获取完成2', illustUrlList.length))
         getListUrlFinished()
       } else {
@@ -3457,16 +3498,8 @@ function getListPage3 (url) {
 
           // 重置之前的结果
           illustUrlList = []
+          addIllustUrlList(type2IdList) // 拼接作品的url
 
-          // 拼接作品的url
-          type2IdList.forEach(id => {
-            illustUrlList.push(
-              'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' +
-                id
-            )
-          })
-
-          // 获取 id 列表完成
           addOutputInfo(
             '<br>' + xzlt('_列表抓取完成开始获取作品页', illustUrlList.length)
           )
@@ -3748,7 +3781,7 @@ function getIllustPage (url) {
         }
       }
 
-      // 在作品页内下载时，设置的 want_page 其实是作品数
+      // 在作品页内下载时，设置的 wantPage 其实是作品数
       if (pageType === 1 && !downXiangguan) {
         if (wantPage > 0) {
           wantPage--
@@ -5308,30 +5341,22 @@ function pageType1 () {
     },
     false
   )
+
   addCenterButton('div', xzBlue, xzlt('_从本页开始下载')).addEventListener(
     'click',
     startGet
   )
+
   const downXgBtn = addCenterButton('div', xzBlue, xzlt('_下载相关作品'))
   downXgBtn.addEventListener(
     'click',
     () => {
-      setRequsetNum()
-
-      if (requsetNumber > 0) {
-        downXiangguan = true
-        startGet()
-      }
+      downXiangguan = true
+      startGet()
     },
     false
-  ) // 添加文件夹命名提醒
+  )
 
-  downXgBtn.addEventListener('mouseenter', function () {
-    this.textContent = xzlt('_请留意文件夹命名')
-  })
-  downXgBtn.addEventListener('mouseout', function () {
-    this.textContent = xzlt('_下载相关作品')
-  })
   downloadGifBtn = addCenterButton('div', xzGreen, xzlt('_转换为GIF'))
   downloadGifBtn.style.display = 'none'
   downloadGifBtn.addEventListener(
@@ -5487,11 +5512,7 @@ async function init () {
               window.alert(xzlt('_id不合法'))
               return false
             } else {
-              // 拼接作品的url
-              illustUrlList.push(
-                'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' +
-                  id
-              )
+              addIllustUrlList([id]) // 拼接作品的url
             }
           })
           addOutputInfo(xzlt('_任务开始0'))
