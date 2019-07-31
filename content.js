@@ -169,7 +169,7 @@ let timeDelay = 0 // 延迟点击的时间
 
 const timeInterval = 400 // 为了不会漏下图，设置的两次点击之间的间隔时间。下载图片的速度越快，此处的值就需要越大。默认的400是比较大的，如果下载速度慢，可以尝试改成300/200。
 
-let downXiangguan = false // 下载相关作品（作品页内的）
+let downRelated = false // 下载相关作品（作品页内的）
 
 let viewerWarpper // 图片列表的容器
 
@@ -1200,18 +1200,6 @@ const xzLang = {
     '削除モードを終了する',
     'Exit manually delete',
     '結束手動刪除'
-  ],
-  _清空作品列表: [
-    '清空作品列表',
-    '作品のリストを空にする',
-    'Empty the list of works',
-    '清空作品清單'
-  ],
-  _清空作品列表Title: [
-    '如果网页内容过多，可能导致页面崩溃。如有需要可以清除当前的作品列表。',
-    '',
-    '',
-    '如果網頁內容過多，可能導致頁面當機。如有需要可以清除目前的作品清單。'
   ],
   _下载本页作品: [
     '下载本页作品',
@@ -2366,7 +2354,7 @@ function setRequsetNum () {
 
 // 获取作品页信息出错时的处理
 function illustError (url) {
-  if (pageType === 1 && !downXiangguan) {
+  if (pageType === 1 && !downRelated) {
     addOutputInfo('<br>' + xzlt('_无权访问1', url) + '<br>')
     // 在作品页内下载时，设置的wantPage其实是作品数
     if (wantPage > 0) {
@@ -2592,7 +2580,7 @@ function startGet () {
     } else {
       // 检查下载页数的设置
       let result = false
-      if (!downXiangguan) {
+      if (!downRelated) {
         result = checkWantPageInput(
           xzlt('_checkWantPageRule1Arg2'),
           xzlt('_checkWantPageRule1Arg3'),
@@ -2716,7 +2704,7 @@ function startGet () {
     getListUrlFinished()
   } else if (pageType === 1) {
     // 下载相关作品
-    if (downXiangguan) {
+    if (downRelated) {
       getListPage()
     } else {
       // 开始获取图片。因为新版作品页切换作品不需要刷新页面了，所以要传递实时的url。
@@ -2746,7 +2734,7 @@ function addIllustUrlList (arr) {
 function getListPage () {
   changeTitle('↑')
   let url = ''
-  if (downXiangguan) {
+  if (downRelated) {
     // 下载相关作品时
     url =
       'https://www.pixiv.net/ajax/illust/' +
@@ -2788,14 +2776,14 @@ function getListPage () {
       listPageFinished++
       let listPageDocument
       // 解析网页内容。排行榜和相似作品、相关作品，直接获取 json 数据，不需要这样处理
-      if (pageType !== 7 && pageType !== 9 && !downXiangguan) {
+      if (pageType !== 7 && pageType !== 9 && !downRelated) {
         listPageDocument = new window.DOMParser().parseFromString(
           data,
           'text/html'
         )
       }
 
-      if (downXiangguan) {
+      if (downRelated) {
         // 相关作品
         const recommendData = JSON.parse(data).body.recommendMethods
         let recommendIdList = Object.keys(recommendData)
@@ -3782,7 +3770,7 @@ function getIllustPage (url) {
       }
 
       // 在作品页内下载时，设置的 wantPage 其实是作品数
-      if (pageType === 1 && !downXiangguan) {
+      if (pageType === 1 && !downRelated) {
         if (wantPage > 0) {
           wantPage--
         }
@@ -3916,7 +3904,7 @@ function allWorkFinished () {
 
   // 检查后缀名的任务是否全部完成
   if (testSuffixFinished) {
-    downXiangguan = false // 解除下载相关作品的标记
+    downRelated = false // 解除下载相关作品的标记
 
     // 在画师的列表页里
     if (pageType === 2) {
@@ -4697,9 +4685,9 @@ function readXzSetting () {
   // 设置文件命名规则
   const fileNameRuleInput = xzForm.fileNameRule
 
-  // pixivision 里只有id可以使用
+  // pixivision 里，文件名只有 id 标记会生效，所以把文件名部分替换成 id
   if (pageType === 8) {
-    fileNameRuleInput.value = '{id}'
+    fileNameRuleInput.value = '{p_title}/{id}'
   } else {
     fileNameRuleInput.value = xzSetting.userSetName
   }
@@ -5351,7 +5339,7 @@ function pageType1 () {
   downXgBtn.addEventListener(
     'click',
     () => {
-      downXiangguan = true
+      downRelated = true
       startGet()
     },
     false
@@ -5907,17 +5895,6 @@ async function init () {
     clearUgoku()
 
     deleteByClick()
-
-    addCenterButton('div', xzRed, xzlt('_清空作品列表'), [
-      ['title', xzlt('_清空作品列表Title')]
-    ]).addEventListener(
-      'click',
-      () => {
-        document.querySelectorAll(tagSearchListSelector).remove()
-        centerWrapHide()
-      },
-      false
-    )
   }
 }
 
