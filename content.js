@@ -815,12 +815,7 @@ const xzLang = {
     'Github page, if you like, please star it',
     'Github 頁面，歡迎 star'
   ],
-  _wiki: [
-    '使用说明',
-    '使用説明書',
-    'Wiki',
-    'Wiki'
-  ],
+  _wiki: ['使用说明', '使用説明書', 'Wiki', 'Wiki'],
   _快捷键切换显示隐藏: [
     '使用 Alt + X，可以显示和隐藏下载面板',
     'Alt + Xを使用してダウンロードパネルを表示および非表示にする',
@@ -4054,17 +4049,21 @@ function addCenterWarps () {
     <span class="centerWrap_title xz_blue"> ${xzlt('_下载设置')}</span>
     <div class="btns">
     <a class="xztip centerWrap_top_btn wiki_url" data-tip="${xzlt(
-      '_wiki'
-    )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL('images/wiki.png')}" /></a>
+    '_wiki'
+  )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL(
+  'images/wiki.png'
+)}" /></a>
     <a class="xztip centerWrap_top_btn" data-tip="${xzlt(
-      '_github'
-    )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank"><img src="${chrome.extension.getURL('images/github-logo.png')}" /></a>
+    '_github'
+  )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank"><img src="${chrome.extension.getURL(
+  'images/github-logo.png'
+)}" /></a>
       <div class="xztip centerWrap_top_btn centerWrap_toogle_option" data-tip="${xzlt(
-      '_收起展开设置项'
-    )}">▲</div>
+    '_收起展开设置项'
+  )}">▲</div>
       <div class="xztip centerWrap_top_btn centerWrap_close" data-tip="${xzlt(
-      '_快捷键切换显示隐藏'
-    )}">X</div>
+    '_快捷键切换显示隐藏'
+  )}">X</div>
     </div>
     </div>
     <div class="centerWrap_con">
@@ -4313,7 +4312,11 @@ function addCenterWarps () {
     </div>
     </div>
     <a class="download_a" download=""></a>
-    <p class="gray1 showDownTip"> ${xzlt('_查看下载说明')} <a class="xztip centerWrap_top_btn wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL('images/wiki.png')}" /> ${xzlt('_wiki')}</a></p>
+    <p class="gray1 showDownTip"> ${xzlt(
+    '_查看下载说明'
+  )} <a class="xztip centerWrap_top_btn wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL(
+  'images/wiki.png'
+)}" /> ${xzlt('_wiki')}</a></p>
     <p class="downTip tip"> ${xzlt('_下载说明')}</p>
     </div>
     `
