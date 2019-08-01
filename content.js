@@ -4312,11 +4312,11 @@ function addCenterWarps () {
     </div>
     </div>
     <a class="download_a" download=""></a>
-    <p class="gray1 showDownTip"> ${xzlt(
-    '_查看下载说明'
-  )} <a class="xztip centerWrap_top_btn wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL(
-  'images/wiki.png'
-)}" /> ${xzlt('_wiki')}</a></p>
+    <p class="gray1"> 
+    <span class="showDownTip">${xzlt('_查看下载说明')}</span>
+    <a class="xztip centerWrap_top_btn wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL(
+    'images/wiki.png'
+  )}" /> ${xzlt('_wiki')}</a></p>
     <p class="downTip tip"> ${xzlt('_下载说明')}</p>
     </div>
     `

@@ -173,7 +173,11 @@ li {
   display: inline-block;
 }
 .centerWrap_close:hover,
-.centerWrap_toogle_option:hover {
+.centerWrap_toogle_option:hover,
+.showFileNameTip:hover,
+.showFileNameResult:hover,
+.showDownTip:hover,
+.wiki2:hover {
   color: #0096fa;
 }
 .download_progress1,
@@ -463,7 +467,7 @@ li {
 }
 .wiki2 img {
   width: 16px;
-  opacity: .6;
+  opacity: 0.6;
   max-width: 100%;
   vertical-align: middle;
 }
