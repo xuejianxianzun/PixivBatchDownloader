@@ -1,14 +1,14 @@
+[查看 Wiki](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki)
+
 [View English introduction](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
-
-![PixivBatchDownloader](https://wx2.sinaimg.cn/large/640defebly1fzm9gl6fhtj20kl0l80vg.jpg)
-
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](https://standardjs.com)
 
 # 简介：
 
 这是一个 Chrome 浏览器扩展程序，用于批量下载 Pixiv 上的图片。功能强大，支持多种页面类型。
 
 现在也增加了一些辅助功能，如去除广告、快速收藏、看图模式、给未分类作品添加 tag 等。
+
+![PixivBatchDownloader](https://wx2.sinaimg.cn/large/640defebly1fzm9gl6fhtj20kl0l80vg.jpg)
 
 # 安装：
 

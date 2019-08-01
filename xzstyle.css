@@ -148,43 +148,37 @@ li {
   position: relative;
   padding-bottom: 10px;
 }
-.centerWrap_head * {
-  vertical-align: middle;
-}
 .centerWrap_title {
   display: block;
   line-height: 30px;
   text-align: center;
   font-size: 18px;
+  position: relative;
 }
-.centerWrap_close,
-.centerWrap_toogle_option,
-.github_url {
-  font-size: 18px;
+.btns {
   position: absolute;
   top: 0;
   right: 0;
+  width: 160px;
+}
+.centerWrap_top_btn {
+  font-size: 18px;
   width: 30px;
   height: 30px;
+  line-height: 30px;
   text-align: center;
   cursor: pointer;
   color: #666;
   user-select: none;
-}
-.download_progress1,
-.right1 {
-  position: relative;
+  display: inline-block;
 }
 .centerWrap_close:hover,
 .centerWrap_toogle_option:hover {
   color: #0096fa;
 }
-.centerWrap_toogle_option {
-  right: 40px;
-}
-.github_url {
-  display: block;
-  right: 80px;
+.download_progress1,
+.right1 {
+  position: relative;
 }
 .centerWrap_head img {
   max-width: 100%;
@@ -458,4 +452,18 @@ li {
 .xzForm option {
   font-size: 14px !important;
   line-height: 24px;
+}
+.wiki2 {
+  height: 24px;
+  line-height: 24px;
+  width: auto;
+  font-size: 14px;
+  color: #999;
+  padding-left: 10px;
+}
+.wiki2 img {
+  width: 16px;
+  opacity: .6;
+  max-width: 100%;
+  vertical-align: middle;
 }
