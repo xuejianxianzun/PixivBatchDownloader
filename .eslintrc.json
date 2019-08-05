@@ -12,6 +12,8 @@
     "chrome": true,
     "zip": true,
     "GIF": true,
-    "Viewer": true
+    "Whammy": true,
+    "Viewer": true,
+    "xzLang": true
   }
 }

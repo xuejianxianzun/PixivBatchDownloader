@@ -11,14 +11,6 @@
 
 'use strict'
 
-// 检测脚本版，使二者同时只运行一个
-if (window.sessionStorage.getItem('xz_pixiv_userscript')) {
-  throw new Error('userscript ver is running')
-} else {
-  // 标注自己
-  window.sessionStorage.setItem('xz_pixiv_extension', '1')
-}
-
 let outputInfo // 输出信息的区域
 
 let quietDownload = true // 是否快速下载。当可以下载时自动开始下载（无需点击下载按钮）
@@ -55,7 +47,7 @@ let imgInfo = [] // 储存图片信息，其中可能会有空值，如 [] 和 '
 
 let illustUrlList = [] // 储存要下载的作品的页面url
 
-const imgList = [] // 储存 tag 搜索页的所有作品
+const tagSearchResult = [] // 储存 tag 搜索页符合条件的所有作品
 
 let ajaxForIllustThreads = 5 // 抓取页面时的并发连接数
 
@@ -120,7 +112,7 @@ let tagSearchListSelector = '' // tag 搜索页，直接选择作品的选择器
 
 const tagSearchMultipleSelector = '._3b8AXEx' // 多图作品的选择器
 
-const tagSearchGifSelector = '.AGgsUWZ' // 动图作品的选择器
+const tagSearchUgoiraSelector = '.AGgsUWZ' // 动图作品的选择器
 
 let tagSearchNewHtml = '' // tag 搜索页作品的html
 
@@ -131,7 +123,7 @@ const xzMultipleHtml = `<div class="${tagSearchMultipleSelector.replace(
 )}"><span><span class="XPwdj2F"></span>xz_pageCount</span></div>`
 
 // tag 搜索页作品的html中的动图标识
-const xzGifHtml = `<div class="${tagSearchGifSelector.replace('.', '')}"></div>`
+const xzUgoiraHtml = `<div class="${tagSearchUgoiraSelector.replace('.', '')}"></div>`
 
 const safeFileNameRule = new RegExp(/\\|\/|:|\?|"|<|'|>|\*|\||~|\u200b|\.$/g) // 安全的文件名
 
@@ -144,13 +136,14 @@ let centerWrap // 中间设置面板
 let centerBtnWrap // 中间插入按钮的区域
 
 const xzBlue = '#0ea8ef'
+
 const xzGreen = '#14ad27'
+
 const xzRed = '#f33939'
+
 let downloadBarList // 下载队列的dom元素
 
 let downloadThread // 下载线程
-
-let downloadA // 下载用的a标签
 
 let downloadStarted = false // 下载是否已经开始
 
@@ -163,6 +156,7 @@ let downloadPause = false // 是否暂停下载
 let oldTitle = document.title // 原始 title，需要加下载状态时使用
 
 let titleTimer // 修改 title 的定时器
+
 let clickTime = 0 // 点击下载按钮的时间戳
 
 let timeDelay = 0 // 延迟点击的时间
@@ -178,20 +172,6 @@ let viewerUl // 图片列表的 ul 元素
 let myViewer // 查看器
 
 let quickBookmarkElement // 快速收藏的元素
-
-let downloadGifBtn // 下载 gif 的按钮
-
-let gifImgList // 储存 gif 图片列表的元素
-
-let zipFile = null // 获取的 zip 文件
-
-let fileNumber = 0 // 动图压缩包里有多少个文件
-
-let gifSrc = '' // 动图源文件 url
-
-let gifMimeType = '' // 图片 mime type
-
-let gifDelay // 动图帧延迟
 
 let xzForm // 设置面板的表单
 
@@ -213,1147 +193,47 @@ const pauseStartDealy = 2500 // 点击暂停后，一定时间后才允许点击
 
 let canStartTime = 0 // 在此时间之后允许点击开始下载按钮
 
-// 多语言配置
-const userLang = document.documentElement.lang // 获取语言选项
-
 let langType // 语言类型
 
-switch (userLang) {
-  case 'zh':
-  case 'zh-CN':
-  case 'zh-Hans':
-    langType = 0 // 设置为简体中文
-    break
-
-  case 'ja':
-    langType = 1 // 设置为日语
-    break
-
-  case 'zh-Hant':
-  case 'zh-tw':
-  case 'zh-TW':
-    langType = 3 // 设置为繁体中文
-    break
-
-  default:
-    langType = 2 // 设置为英语
-    break
+// 检测脚本版，使二者同时只运行一个
+function checkConflict () {
+  if (window.sessionStorage.getItem('xz_pixiv_userscript')) {
+    throw new Error('userscript ver is running')
+  } else {
+    // 标注自己
+    window.sessionStorage.setItem('xz_pixiv_extension', '1')
+  }
 }
 
-// 储存语言配置。日文和英文目前是机翻，欢迎对翻译进行完善
-const xzLang = {
-  // 在属性名前面加上下划线，和文本内容做出区别。{}表示需要进行替换的部分
-  _过滤作品类型的按钮: [
-    '排除指定类型的作品',
-    'タイプでフィルタリングする',
-    'Filter by works type',
-    '排除指定類型的作品'
-  ],
-  _过滤作品类型的按钮Title: [
-    '在下载前，您可以设置想要排除的作品类型。',
-    'ダウンロードする前に、除外するタイプを設定することができます。',
-    'Before downloading, you can set the type you want to exclude.',
-    '在下載前，您可以設定想要排除的作品類型'
-  ],
-  _过滤作品类型的弹出框文字: [
-    '请输入数字来设置下载时要排除的作品类型。\n如需多选，将多个数字连写即可\n如果什么都不输入，那么将不排除任何作品\n1: 排除单图\n2: 排除多图\n3: 排除动图\n4: 排除已经收藏的作品',
-    'ダウンロード時に除外するタイプを設定する番号を入力してください。\nさまざまなオプションが必要な場合は、それを連続して入力することができます。\n1.単一の画像の作品を除外する\n2.複数の画像の作品を除外する\n3.うごイラの作品を除外する\n4: ブックマーク',
-    'Please enter a number to set the type of you want to excluded when downloading.\nIf you need multiple choice, you can enter continuously.\n1: one-images works\n2.multiple-images works\n3.animat works\n4.bookmarked works',
-    '請輸入數字來設定下載時要排除的作品類型。\n如需多選，將多個數字連寫即可\n如果什麼都不輸入，那麼將不排除任何作品\n1: 排除單圖\n2: 排除多圖\n3: 排除動圖\n4: 排除已經收藏的作品'
-  ],
-  _只下载已收藏: [
-    '只下载已收藏',
-    'ブックマークのみをダウンロードする',
-    'Download only bookmarked works',
-    '只下載已收藏'
-  ],
-  _只下载已收藏的提示: [
-    '只下载已经收藏的作品',
-    '既に収集された作品のみをダウンロードする',
-    'Download only bookmarked works',
-    '只下載已經收藏的作品'
-  ],
-  _设置作品类型: [
-    '设置作品类型',
-    'ダウンロードする作品のタイプを設定する',
-    'Set the type of work',
-    '設定作品類型'
-  ],
-  _设置作品类型的提示Center: [
-    '下载哪些类型的作品',
-    'ダウンロードする作品の種類',
-    'Which types of works to download',
-    '下載哪些類型的作品'
-  ],
-  _多p下载前几张: [
-    '多图作品设置',
-    'マルチピクチャワーク設定',
-    'Multiple images work setting',
-    '多圖作品設定'
-  ],
-  _多p下载前几张提示: [
-    '如果数字大于 0，多图作品只会下载前几张图片。（按照设置的数量）',
-    '数字が0より大きい場合、マルチピクチャは最初のいくつかのイメージのみをダウンロードします。 （設定数に応じて）',
-    'If the number is greater than 0, the multiple images work will only download the first few images. (according to the number of settings)',
-    '如果數字大於 0，多圖作品只會下載前幾張圖片。（依照設定的數量）'
-  ],
-  _排除tag的按钮文字: [
-    '设置作品不能包含的tag',
-    '作品に含まれていないタグを設定する',
-    'Set the tag that the work can not contain',
-    '設定作品不能包含的tag'
-  ],
-  _不能含有tag: [
-    '不能含有 tag&nbsp;',
-    '指定したタグを除外する',
-    'Exclude specified tag',
-    '不能含有 tag&nbsp;'
-  ],
-  _排除tag的按钮Title: [
-    '在下载前，您可以设置想要排除的tag',
-    'ダウンロードする前に、除外するタグを設定できます',
-    'Before downloading, you can set the tag you want to exclude',
-    '在下載前，您可以設定想要排除的tag'
-  ],
-  _排除tag的提示文字: [
-    '您可在下载前设置要排除的tag，这样在下载时将不会下载含有这些tag的作品。区分大小写；如需排除多个tag，请使用英文逗号分隔。请注意要排除的tag的优先级大于要包含的tag的优先级。',
-    "ダウンロードする前に、除外するタグを設定できます。ケースセンシティブ；複数のタグを設定する必要がある場合は、','を分けて使用できます。除外されたタグは、含まれているタグよりも優先されます",
-    "Before downloading, you can set the tag you want to exclude. Case sensitive; If you need to set multiple tags, you can use ',' separated. The excluded tag takes precedence over the included tag",
-    '您可在下載前設定要排除的tag，這樣在下載時將不會下載含有這些tag的作品。區分大小寫；如需排除多個tag，請使用英文逗號分隔。請注意要排除的tag的優先等級大於要包含的tag的優先等級。'
-  ],
-  _设置了排除tag之后的提示: [
-    '本次任务设置了排除的tag:',
-    'このタスクはタグを除外します：',
-    'This task excludes tag:',
-    '本次工作設定了排除的tag:'
-  ],
-  _必须tag的按钮文字: [
-    '设置作品必须包含的tag',
-    '作品に含める必要があるタグを設定する',
-    'Set the tag that the work must contain',
-    '設定作品必須包含的tag'
-  ],
-  _必须含有tag: [
-    '必须含有 tag&nbsp;',
-    'タグを含める必要があります',
-    'Must contain tag',
-    '必須含有 tag&nbsp;'
-  ],
-  _必须tag的按钮Title: [
-    '在下载前，您可以设置必须包含的tag。',
-    'ダウンロードする前に、含まれなければならないタグを設定することができます',
-    'Before downloading, you can set the tag that must be included',
-    '在下載前，您可以設定必須包含的tag。'
-  ],
-  _必须tag的提示文字: [
-    '您可在下载前设置作品里必须包含的tag，区分大小写；如需包含多个tag，请使用英文逗号分隔。',
-    "ダウンロードする前に、含まれなければならないタグを設定することができます。ケースセンシティブ；複数のタグを設定する必要がある場合は、','を分けて使用できます。",
-    "Before downloading, you can set the tag that must be included. Case sensitive; If you need to set multiple tags, you can use ',' separated. ",
-    '您可在下載前設定作品裡必須包含的tag，區分大小寫；如需包含多個tag，請使用英文逗號分隔。'
-  ],
-  _设置了必须tag之后的提示: [
-    '本次任务设置了必须的tag：',
-    'このタスクは、必要なタグを設定します：',
-    'This task set the necessary tag: ',
-    '本次工作設定了必須的tag：'
-  ],
-  _筛选宽高的按钮文字: [
-    '设置宽高条件',
-    '幅と高さの条件を設定する',
-    'Set the width and height',
-    '設定寬高條件'
-  ],
-  _筛选宽高的按钮Title: [
-    '在下载前，您可以设置要下载的图片的宽高条件。',
-    'ダウンロードする前に、ダウンロードする写真の幅と高さの条件を設定できます。',
-    'Before downloading, you can set the width and height conditions of the pictures you want to download.',
-    '在下載前，您可以設定要下載的圖片的寬高條件。'
-  ],
-  _设置宽高比例: [
-    '设置宽高比例',
-    '縦横比を設定する',
-    'Set the aspect ratio',
-    '設定寬高比例'
-  ],
-  _设置宽高比例Title: [
-    '设置宽高比例，也可以手动输入宽高比',
-    '縦横比を設定するか、手動で縦横比を入力します',
-    'Set the aspect ratio, or manually enter the aspect ratio',
-    '設定寬高比，也可以手動輸入寬高比'
-  ],
-  _不限制: ['不限制', '無制限', 'not limited', '不限制'],
-  _横图: ['横图', '横方向の絵', 'Horizontal picture', '橫圖'],
-  _竖图: ['竖图', '縦方向の絵', 'Vertical picture', '豎圖'],
-  _输入宽高比: ['宽高比 >=', '縦横比 >=', 'Aspect ratio >=', '寬高比 >='],
-  _设置了宽高比之后的提示: [
-    '本次任务设置了宽高比：{}',
-    'このタスクは縦横比を設定します：{}',
-    'This task sets the aspect ratio: {}',
-    '本次工作設定了寬高比：{}'
-  ],
-  _宽高比必须是数字: [
-    '宽高比必须是数字',
-    '縦横比は数値でなければなりません',
-    'The aspect ratio must be a number',
-    '寬高比必須是數字'
-  ],
-  _筛选宽高的提示文字: [
-    '请输入最小宽度和最小高度，不会下载不符合要求的图片。',
-    '最小幅と最小高さを入力してください。要件を満たしていない画像はダウンロードされません。',
-    'Please enter the minimum width and minimum height. Will not download images that do not meet the requirements',
-    '請輸入最小寬度和最小高度，不會下載不符合要求的圖片。'
-  ],
-  _本次输入的数值无效: [
-    '本次输入的数值无效',
-    '無効な入力',
-    'Invalid input',
-    '本次輸入的數值無效'
-  ],
-  _设置成功: [
-    '设置成功',
-    'セットアップが正常に完了しました',
-    'Set up successfully',
-    '設定成功'
-  ],
-  _设置了筛选宽高之后的提示文字p1: [
-    '本次任务设置了过滤宽高条件:宽度>=',
-    'この作業では、フィルターの幅と高さの条件を設定します。幅≥',
-    'This task sets the filter width and height conditions. Width ≥',
-    '本次工作設定了篩選寬高條件:寬度>='
-  ],
-  _或者: [' 或者 ', ' または ', ' or ', ' 或是 '],
-  _并且: [' 并且 ', ' そして ', ' and ', ' 並且 '],
-  _高度设置: ['高度>=', '高さ≥', 'height ≥', '高度>='],
-  _个数: [
-    '设置作品数量',
-    '作品数を設定する',
-    'Set the number of works',
-    '設定作品數量'
-  ],
-  _页数: [
-    '设置页面数量',
-    'ページ数を設定する',
-    'Set the number of pages',
-    '設定頁面數量'
-  ],
-  _页数提示: [
-    '请输入要获取的页数',
-    '取得するページ数を入力してください',
-    'Please enter the number of pages to get',
-    '請輸入要取得的頁數'
-  ],
-  _筛选收藏数的按钮文字: [
-    '设置收藏数量',
-    'お気に入りの数を設定する',
-    'Set the bookmarkCount conditions',
-    '設定收藏數量'
-  ],
-  _筛选收藏数的按钮Title: [
-    '在下载前，您可以设置对收藏数量的要求。',
-    'ダウンロードする前に、お気に入り数の要件を設定することができます。',
-    'Before downloading, You can set the requirements for the number of bookmarks.',
-    '在下載前，您可以設定對收藏數量的要求。'
-  ],
-  _筛选收藏数Center: [
-    '设置收藏数量',
-    'ブックマークの数を設定する',
-    'Set the number of bookmarks',
-    '設定收藏數量'
-  ],
-  _筛选收藏数的提示Center: [
-    '如果作品的收藏数小于设置的数字，作品不会被下载。',
-    '作品のブックマークの数が設定された数よりも少ない場合、作品はダウンロードされません。',
-    'If the number of bookmarks of the work is less than the set number, the work will not be downloaded.',
-    '如果作品的收藏數小於設定的數字，作品不會被下載。'
-  ],
-  _筛选收藏数的提示文字: [
-    '请输入一个数字，如果作品的收藏数小于这个数字，作品不会被下载。',
-    '数字を入力してください。 作品のブックマークの数がこの数より少ない場合、作品はダウンロードされません。',
-    'Please enter a number. If the number of bookmarks of the work is less than this number, the work will not be downloaded.',
-    '請輸入一個數字，如果作品的收藏數小於這個數字，作品不會被下載。'
-  ],
-  _设置了筛选收藏数之后的提示文字: [
-    '本次任务设置了收藏数条件:收藏数>=',
-    'このタスクは、お気に入りの数を設定します。条件：お気に入りの数≥',
-    'This task sets the number of bookmarks condition: number of bookmarks ≥',
-    '本次工作設定了收藏數條件:收藏數>='
-  ],
-  _本次任务已全部完成: [
-    '本次任务已全部完成。',
-    'このタスクは完了しました。',
-    'This task has been completed.',
-    '本次工作已全部完成'
-  ],
-  _当前任务尚未完成1: [
-    '当前任务尚未完成，请等到提示完成之后再设置新的任务。',
-    '現在のタスクはまだ完了していません。お待ちください。',
-    'The current task has not yet completed, please wait.',
-    '目前工作尚未完成，請等到提示完成之後再設定新的工作。'
-  ],
-  _checkWantPageRule1Arg2: [
-    '参数不合法，本次操作已取消。<br>',
-    'パラメータは有効ではありません。この操作はキャンセルされました。<br>',
-    'Parameter is not legal, this operation has been canceled.<br>',
-    '參數不合法，本次動作已取消。<br>'
-  ],
-  _checkWantPageRule1Arg3: [
-    '任务开始<br>本次任务条件: 从本页开始下载-num-个作品',
-    'タスクが開始されます。<br>このタスク条件：このページから-num-枚の作品をダウンロード。',
-    'Task starts. <br>This task condition: Download -num- works from this page.',
-    '工作開始<br>本次工作條件: 從本頁開始下載-num-個作品'
-  ],
-  _checkWantPageRule1Arg4: [
-    '任务开始<br>本次任务条件: 向下获取所有作品',
-    'タスクが開始されます。<br>このタスク条件：このページからすべての作品をダウンロードする。',
-    'Task starts. <br>This task condition: download all the work from this page.',
-    '工作開始<br>本次工作條件: 向下取得所有作品'
-  ],
-  _checkWantPageRule1Arg5: [
-    '从本页开始下载<br>如果不限制下载的页数，请不要修改此默认值。<br>如果要限制下载的页数，请输入从1开始的数字，1为仅下载本页。',
-    'このページからダウンロードする<br>ダウンロードしたページ数を制限しない場合は、デフォルト値のままにしておきます。<br>ダウンロードするページ数を設定する場合は、1から始まる番号を入力します。 現在のページは1です。',
-    'Download from this page<br>If you do not limit the number of pages downloaded, leave the default value.<br>If you want to set the number of pages to download, enter a number starting at 1. This page is 1.',
-    '從本頁開始下載<br>如果不限制下載的頁數，請不要變更此預設值。<br>如果要限制下載的頁數，請輸入從1開始的數字，1為僅下載本頁。'
-  ],
-  _checkWantPageRule1Arg8: [
-    '从本页开始下载<br>如果要限制下载的页数，请输入从1开始的数字，1为仅下载本页。',
-    'このページからダウンロードする<br>ダウンロードするページ数を設定する場合は、1から始まる番号を入力します。 現在のページは1です。',
-    'Download from this page<br>If you want to set the number of pages to download, enter a number starting at 1. This page is 1.',
-    '從本頁開始下載<br>如果要限制下載的頁數，請輸入從1開始的數字，1為僅下載本頁。'
-  ],
-  _checkWantPageRule1Arg6: [
-    '任务开始<br>本次任务条件: 从本页开始下载-num-页',
-    'タスクが開始されます。<br>このタスク条件：現在のページから-num-ページ',
-    'Task starts. <br>This task condition: download -num- pages from the current page',
-    '工作開始<br>本次工作條件: 從本頁開始下載-num-頁'
-  ],
-  _checkWantPageRule1Arg7: [
-    '任务开始<br>本次任务条件: 下载所有页面',
-    'タスクが開始されます。<br>このタスク条件：すべてのページをダウンロード',
-    'Task starts. <br>This task condition: download all pages',
-    '工作開始<br>本次工作條件: 下載所有頁面'
-  ],
-  _checkWantPageRule1Arg9: [
-    '任务开始<br>本次任务条件: 下载 -num- 个相关作品',
-    'タスクが開始されます。<br>このタスク条件：関連作品 -num- 点をダウンロードする。',
-    'Task starts. <br>This task condition: download -num- related works.',
-    '工作開始<br>本次工作條件: 下載 -num- 個相關作品'
-  ],
-  _checkWantPageRule1Arg10: [
-    '任务开始<br>本次任务条件: 下载所有相关作品',
-    'タスクが開始されます。<br>このタスク条件：関連作品をすべてダウンロード。',
-    'Task starts. <br>This task condition: download all related works.',
-    '工作開始<br>本次工作條件: 下載所有相關作品'
-  ],
-  _请输入最低收藏数和要抓取的页数: [
-    '请输入最低收藏数和要抓取的页数，用英文逗号分开。\n类似于下面的形式: \n1000,1000',
-    "お気に入りの最小数とクロールするページ数を，','で区切って入力してください。\n例えば：\n1000,1000",
-    "Please enter the minimum number of bookmarks, and the number of pages to be crawled, separated by ','.\nE.g:\n1000,1000",
-    '請輸入最低收藏數和要擷取的頁數，用英文逗號分開。\n類似於下面的形式: \n1000,1000'
-  ],
-  _参数不合法1: [
-    '参数不合法，请稍后重试。',
-    'パラメータが有効ではありません。後でやり直してください。',
-    'Parameter is not legal, please try again later.',
-    '參數不合法，請稍後重試。'
-  ],
-  _tag搜索任务开始: [
-    '任务开始<br>本次任务条件: 收藏数不低于{}，向下抓取{}页',
-    'タスクが開始されます。<br>このタスク条件：ブックマークの数は{}ページ以上で、{}ページがクロールされます。',
-    'Task starts. <br>This task condition: the number of bookmarks is not less than {}, {} pages down to crawl.',
-    '工作開始<br>本次工作條件: 收藏數不低於{}，向下擷取{}頁'
-  ],
-  _wantPage弹出框文字PageType10: [
-    '您想要下载多少页？请输入数字。\r\n当前模式下，列表页的页数最多只有',
-    'ダウンロードしたいページ数を入力してください。 \r\n最大値：',
-    'Please enter the number of pages you want to download.\r\n The maximum value is ',
-    '您想要下載多少頁？請輸入數字。\r\n目前模式下，清單頁的頁數最多只有'
-  ],
-  _输入超过了最大值: [
-    '您输入的数字超过了最大值',
-    '入力した番号が最大値を超えています',
-    'The number you entered exceeds the maximum',
-    '您輸入的數字超過了最大值'
-  ],
-  _多图作品下载张数: [
-    '多图作品将下载前{}张图片',
-    '2枚以上の作品，最初の{}枚の写真をダウンロードする',
-    'Multi-artwork will download the first {} pictures',
-    '多圖作品將下載前{}張圖片'
-  ],
-  _任务开始1: [
-    '任务开始<br>本次任务条件: 从本页开始下载{}页',
-    'タスクが開始されます。<br>このタスク条件：このページから{}ページをダウンロードする',
-    'Task starts. <br>This task condition: download {} pages from this page',
-    '工作開始<br>本次工作條件: 從本頁開始下載{}頁'
-  ],
-  _任务开始0: [
-    '任务开始',
-    'タスクが開始されます。',
-    'Task starts.',
-    '工作開始'
-  ],
-  _checkNotdownTypeResult1弹窗: [
-    '由于您排除了所有作品类型，本次任务已取消。',
-    'すべての種類の作業を除外したため、タスクはキャンセルされました。',
-    'Because you excluded all types of work, the task was canceled.',
-    '由於您排除了所有作品類型，本次工作已取消。'
-  ],
-  _checkNotdownTypeResult1Html: [
-    '排除作品类型的设置有误，任务取消!',
-    '作業タイプの除外にエラー設定がありました。 タスクがキャンセルされました。',
-    'There was an error setting for the exclusion of the work type. Task canceled.',
-    '排除作品類型的設定有誤，工作取消!'
-  ],
-  _checkNotdownTypeResult2弹窗: [
-    '由于作品类型的设置有误，本次任务已取消。',
-    '除外タイプを設定する際にエラーが発生しました。 タスクがキャンセルされました。',
-    'There was an error setting for the exclusion of the work type. Task canceled.',
-    '由於作品類型的設定有誤，本次工作已取消。'
-  ],
-  _checkNotdownTypeResult3Html: [
-    '本次任务设置了排除作品类型:',
-    'このダウンロードでは、このタイプの作品は除外されます：',
-    'This task excludes these types of works:',
-    '本次工作設定了排除作品類型:'
-  ],
-  _单图: ['单图 ', '1枚の作品', 'one images', '單圖 '],
-  _多图: ['多图 ', '2枚以上の作品', 'multiple images', '多圖 '],
-  _动图: ['动图 ', 'うごイラ', 'GIF', '動圖 '],
-  _tag搜索页已抓取多少页: [
-    '已抓取本次任务第{}/{}页，当前加载到第{}页',
-    '{}/{}ページをクロールしています。 現在のページ番号は{}ページです',
-    'Has been crawling {} / {} pages. The current page number is page {}',
-    '已擷取本次工作第{}/{}頁，目前載入到第{}頁'
-  ],
-  _tag搜索页任务完成1: [
-    '本次任务完成。当前有{}张作品。',
-    'この作業は完了です。 今は{}枚の作品があります。',
-    'This task is completed. There are now {} works.',
-    '本次工作完成。目前有{}張作品。'
-  ],
-  _tag搜索页任务完成2: [
-    '已抓取本tag的所有页面，本次任务完成。当前有{}张作品。',
-    'この作業は完了です。 今は{}枚の作品があります。',
-    'This task is completed. There are now {} works.',
-    '已擷取本tag的所有頁面，本次工作完成。目前有{}張作品。'
-  ],
-  _tag搜索页中断: [
-    '当前任务已中断!<br>当前有{}张作品。',
-    '現在のタスクが中断されました。<br>今は{}枚の作品があります。',
-    'The current task has been interrupted.<br> There are now {} works.',
-    '目前工作已中斷!<br>目前有{}張作品。'
-  ],
-  _排行榜进度: [
-    '已抓取本页面第{}部分',
-    'このページの第{}部がクロールされました',
-    'Part {} of this page has been crawled',
-    '已擷取本頁面第{}部分'
-  ],
-  _相关作品抓取完毕: [
-    '相关作品抓取完毕。包含有{}张作品，开始获取作品信息。',
-    '関連作品はクロールされました。 {}作品を含み、その作品に関する情報の取得を開始します。',
-    'The related works have been crawled. Contains {} works and starts getting information about the work.',
-    '相關作品擷取完畢。包含有{}張作品，開始取得作品資訊。'
-  ],
-  _排行榜任务完成: [
-    '本页面抓取完毕。当前有{}张作品，开始获取作品信息。',
-    'このページはクロールされ、{}個の作品があります。 詳細は作品を入手し始める。',
-    'This page is crawled and now has {} works. Start getting the works for more information.',
-    '本頁面擷取完畢。目前有{}張作品，開始取得作品資訊。'
-  ],
-  _列表页获取完成2: [
-    '列表页获取完成。<br>当前有{}张作品，开始获取作品信息。',
-    'リストページがクロールされます。<br>{}個の作品があります。 詳細は作品を入手し始める。',
-    'The list page gets done. <br>Now has {} works. Start getting the works for more information.',
-    '清單頁取得完成。<br>目前有{}張作品，開始取得作品資訊。'
-  ],
-  _列表页抓取进度: [
-    '已抓取列表页{}个页面',
-    '{}のリストページを取得しました',
-    'Has acquired {} list pages',
-    '已擷取清單頁{}個頁面'
-  ],
-  _列表页抓取完成: [
-    '列表页面抓取完成，开始获取图片网址',
-    'リストページがクロールされ、画像URLの取得が開始されます',
-    'The list page is crawled and starts to get the image URL',
-    '清單頁面擷取完成，開始取得圖片網址'
-  ],
-  _列表页抓取结果为零: [
-    '抓取完毕，但没有找到符合筛选条件的作品。',
-    'クロールは終了しましたが、フィルタ条件に一致する作品が見つかりませんでした。',
-    'Crawl finished but did not find works that match the filter criteria.',
-    '擷取完畢，但沒有找到符合篩選條件的作品。'
-  ],
-  _排行榜列表页抓取遇到404: [
-    '本页面抓取完成。当前有{}张作品，开始获取作品信息。',
-    'このページはクロールされます、{}個の作品があります。 詳細は作品を入手して始める。',
-    'This page is crawled. Now has {} works. Start getting the works for more information.',
-    '本頁面擷取完成。目前有{}張作品，開始取得作品資訊。'
-  ],
-  _当前任务尚未完成2: [
-    '当前任务尚未完成，请等待完成后再下载。',
-    '現在のタスクはまだ完了していません',
-    'The current task has not yet been completed',
-    '目前工作尚未完成，請等待完成後再下載。'
-  ],
-  _列表抓取完成开始获取作品页: [
-    '当前列表中有{}张作品，开始获取作品信息',
-    '{}個の作品があります。 詳細は作品を入手し始める。',
-    'Now has {} works. Start getting the works for more information.',
-    '目前清單中有{}張作品，開始取得作品資訊'
-  ],
-  _开始获取作品页面: [
-    '<br>开始获取作品页面',
-    '<br>作品ページの取得を開始する',
-    '<br>Start getting the works page',
-    '<br>開始取得作品頁面'
-  ],
-  _无权访问1: [
-    '无权访问{}，抓取中断。',
-    'アクセス{}、中断はありません。',
-    'No access {}, interruption.',
-    '無權造訪{}，擷取中斷。'
-  ],
-  _无权访问2: [
-    '无权访问{}，跳过该作品。',
-    'アクセス{}、無視する。',
-    'No access {}, skip.',
-    '無權造訪{}，跳過該作品。'
-  ],
-  _作品页状态码0: [
-    '请求的url不可访问',
-    '要求されたURLにアクセスできません',
-    'The requested url is not accessible',
-    '要求的url無法造訪'
-  ],
-  _作品页状态码400: [
-    '该作品已被删除',
-    '作品は削除されました',
-    'The work has been deleted',
-    '該作品已被刪除'
-  ],
-  _作品页状态码403: [
-    '无权访问请求的url 403',
-    'リクエストされたURLにアクセスできない 403',
-    'Have no access to the requested url 403',
-    '無權造訪要求的url 403'
-  ],
-  _作品页状态码404: [
-    '404 not found',
-    '404 not found',
-    '404 not found',
-    '404 not found'
-  ],
-  _抓取图片网址的数量: [
-    '已获取{}个图片网址',
-    '{}つの画像URLを取得',
-    'Get {} image URLs',
-    '已取得{}個圖片網址'
-  ],
-  _正在抓取: [
-    '正在抓取，请等待……',
-    '取得中、しばらくお待ちください...',
-    'Getting, please wait...',
-    '正在擷取，請等待……'
-  ],
-  _获取全部书签作品: [
-    '获取全部书签作品，时间可能比较长，请耐心等待。',
-    'ブックマークしたすべての作品を入手すると、時間がかかることがあります。お待ちください。',
-    'Get all bookmarked works, the time may be longer, please wait.',
-    '取得全部書籤作品，時間可能比較長，請耐心等待。'
-  ],
-  _抓取图片网址遇到中断: [
-    '当前任务已中断!',
-    '現在のタスクが中断されました。',
-    'The current task has been interrupted.',
-    '目前工作已中斷!'
-  ],
-  _收起下载按钮: [
-    '收起下载按钮',
-    'ダウンロードボタンを非表示にする',
-    '',
-    '摺疊下載按鈕'
-  ],
-  _展开下载按钮: [
-    '展开下载按钮',
-    'ダウンロードボタンを表示',
-    '',
-    '展開下載按鈕'
-  ],
-  _展开收起下载按钮Title: [
-    '展开/收起下载按钮',
-    'ダウンロードボタンを表示/非表示',
-    'Show / hide download button',
-    '展開/摺疊下載按鈕'
-  ],
-  _关闭: ['关闭', 'クローズ', 'close', '關閉'],
-  _输出信息: ['输出信息', '出力情報', 'Output information', '輸出資訊'],
-  _复制: ['复制', 'コピー', 'Copy', '複製'],
-  _已复制到剪贴板: [
-    '已复制到剪贴板，可直接粘贴',
-    'クリップボードにコピーされました',
-    'Has been copied to the clipboard',
-    '已複製至剪貼簿，可直接貼上'
-  ],
-  _下载设置: [
-    '下载设置',
-    '設定をダウンロードする',
-    'Download settings',
-    '下載設定'
-  ],
-  _隐藏: ['隐藏', '隠された', 'hide', '隱藏'],
-  _收起展开设置项: [
-    '收起/展开设置项',
-    '設定の折りたたみ/展開',
-    'Collapse/expand settings',
-    '摺疊/展開設定項目'
-  ],
-  _github: [
-    'Github 页面，欢迎 star',
-    'Githubのページ、starをクリックしてください',
-    'Github page, if you like, please star it',
-    'Github 頁面，歡迎 star'
-  ],
-  _wiki: ['使用说明', '使用説明書', 'Wiki', 'Wiki'],
-  _快捷键切换显示隐藏: [
-    '使用 Alt + X，可以显示和隐藏下载面板',
-    'Alt + Xを使用してダウンロードパネルを表示および非表示にする',
-    'Use Alt + X to show and hide the download panel',
-    '使用 Alt + X，可以顯示和隱藏下載面板'
-  ],
-  _设置命名规则3: [
-    '共抓取到 {} 个图片',
-    '合計 {} 枚の画像を取得し',
-    'Grab a total of {} pictures',
-    '共擷取到 {} 個圖片'
-  ],
-  _设置文件名: [
-    '设置命名规则',
-    '命名規則を設定する',
-    'Set naming rules',
-    '設定命名規則'
-  ],
-  _设置文件夹名的提示: [
-    `可以使用 '/' 建立文件夹<br>示例：{p_title}/{user}/{id}`,
-    `フォルダは '/'で作成できます<br>例：{p_title}/{user}/{id}`,
-    `You can create a folder with '/'<br>Example：{p_title}/{user}/{id}`,
-    `可以使用 '/' 建立資料夾<br>範例：{p_title}/{user}/{id}`
-  ],
-  _添加字段名称: [
-    '添加字段名称',
-    'フィールド名を追加',
-    'Add field name',
-    '添加字段名稱'
-  ],
-  _添加字段名称提示: [
-    '例如，在用户名前面添加“user_”标记',
-    'たとえば、ユーザー名の前に "user_"タグを追加します。',
-    'For example, add the "user_" tag in front of the username',
-    '例如，在用户名前面添加“user_”标记'
-  ],
-  _查看标记的含义: [
-    '查看标记的含义',
-    'タグの意味を表示する',
-    'View the meaning of the tag',
-    '檢視標記的意義'
-  ],
-  _可用标记1: [
-    '默认文件名，如 44920385_p0',
-    'デフォルトのファイル名，例 44920385_p0',
-    'Default file name, for example 44920385_p0',
-    '預設檔案名稱，如 44920385_p0'
-  ],
-  _可用标记9: [
-    '数字 id，如 44920385',
-    '44920385 などの番号 ID',
-    'Number id, for example 44920385',
-    '數字 id，如 44920385'
-  ],
-  _可用标记10: [
-    '图片在作品内的序号，如 0、1、2、3……',
-    '0、1、2、3など、作品の写真のシリアル番号。',
-    'The serial number of the picture in the work, such as 0, 1, 2, 3...',
-    '圖片在作品內的序號，如 0、1、2、3……'
-  ],
-  _可用标记2: ['作品标题', '作品のタイトル', 'works title', '作品標題'],
-  _可用标记3: [
-    '作品的 tag 列表',
-    '作品の tags',
-    'Tags of works',
-    '作品的 tag 清單'
-  ],
-  _可用标记4: ['画师名字', 'アーティスト名', 'Artist name', '畫師名稱'],
-  _可用标记6: ['画师 id', 'アーティスト ID', 'Artist id', '畫師 id'],
-  _可用标记7: ['宽度和高度', '幅と高さ', 'width and height', '寬度和高度'],
-  _可用标记8: [
-    'bookmark-count，作品的收藏数。把它放在最前面就可以让下载后的文件按收藏数排序。',
-    'bookmark-count，作品のコレクション数のコレクション数は。',
-    'bookmark-count.',
-    'bookmark-count，作品的收藏數。將它放在最前面就可以讓下載後的檔案依收藏數排序。'
-  ],
-  _可用标记5: [
-    '您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}-{px}<br>* 在某些情况下，会有一些标记不可用。',
-    '複数のタグを使用することができ；異なるタグ間に別の文字を追加することができます。例：{id}-{userid}-{px}<br>* 場合によっては、一部のタグが利用できず。',
-    'You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}-{px}<br>* In some cases, some tags will not be available.',
-    '您可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{userid}-{px}<br>* 在某些情況下，會有一些標記不可用。'
-  ],
-  _文件夹标记PUser: [
-    '当前页面的画师名字',
-    'アーティスト名',
-    'Artist name of this page',
-    '目前頁面的畫師名稱'
-  ],
-  _文件夹标记PUid: [
-    '当前页面的画师id',
-    'アーティストID',
-    'Artist id of this page',
-    '目前頁面的畫師id'
-  ],
-  _文件夹标记PTag: [
-    '当前页面的 tag',
-    '現在のタグ',
-    'Current tag',
-    '目前頁面的 tag'
-  ],
-  _文件夹标记PTitle: [
-    '当前页面的标题',
-    'ページのタイトル',
-    'The title of this page',
-    '目前頁面的標題'
-  ],
-  _预览文件名: [
-    '预览文件名',
-    'ファイル名のプレビュー',
-    'Preview file name',
-    '預覽檔案名稱'
-  ],
-  _设置下载线程: [
-    '设置下载线程',
-    'ダウンロードスレッドを設定する',
-    'Set the download thread',
-    '設定下載執行緒'
-  ],
-  _线程数字: [
-    '可以输入 1-10 之间的数字，设置同时下载的数量',
-    '同時ダウンロード数を設定するには、1〜10の数値を入力します',
-    'You can enter a number between 1-10 to set the number of concurrent downloads',
-    '可以輸入 1-10 之間的數字，設定同時下載的數量'
-  ],
-  _下载按钮1: ['开始下载', 'start download', 'start download', '開始下載'],
-  _下载按钮2: ['暂停下载', 'pause download', 'pause download', '暫停下載'],
-  _下载按钮3: ['停止下载', 'stop download', 'stop download', '停止下載'],
-  _下载按钮4: ['复制url', 'copy urls', 'copy urls', '複製url'],
-  _当前状态: ['当前状态 ', '現在の状態 ', 'Now state ', '目前狀態 '],
-  _未开始下载: [
-    '未开始下载',
-    'まだダウンロードを開始していません',
-    'Not yet started downloading',
-    '未開始下載'
-  ],
-  _下载进度: [
-    '下载进度：',
-    'ダウンロードの進捗状況：',
-    'Download progress: ',
-    '下載進度：'
-  ],
-  _下载线程: ['下载线程：', 'スレッド：', 'Thread: ', '下載執行緒：'],
-  _查看下载说明: [
-    '查看下载说明',
-    '指示の表示',
-    'View instructions',
-    '檢視下載說明'
-  ],
-  _下载说明: [
-    '下载的文件保存在浏览器的下载目录里。<br>.ugoira 后缀名的文件是动态图的源文件，可以使用软件 <a href="https://en.bandisoft.com/honeyview/" target="_blank">HoneyView</a> 查看。<br>请不要在浏览器的下载选项里选中\'总是询问每个文件的保存位置\'。<br>如果作品标题或tag里含有不能做文件名的字符，会被替换成下划线_。<br>如果下载进度卡住不动了，您可以先点击“暂停下载”按钮，之后点击“开始下载”按钮，尝试继续下载。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>QQ群：499873152',
-    'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br>.ugoiraサフィックスファイルは、動的グラフのソースファイルです，ソフトウェア <a href="https://en.bandisoft.com/honeyview/" target="_blank">HoneyView</a> を使用して表示することができます。<br>ダウンロードの進行状況が継続できない場合は、[ダウンロードの一時停止]ボタンをクリックし、[ダウンロードの開始]ボタンをクリックしてダウンロードを続行します。<br><b>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。</b>',
-    'The downloaded file is saved in the browser`s download directory.<br>The .ugoira suffix file is the source file for the dynamic graph, Can be viewed using the software <a href="https://en.bandisoft.com/honeyview/" target="_blank">HoneyView</a>.<br>If the download progress is stuck, you can click the "Pause Download" button and then click the "Start Download" button to try to continue the download.<br><b>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.</b>',
-    '下載的檔案儲存在瀏覽器的下載目錄裡。<br>.ugoira 尾碼的檔案是動態圖的原始檔，可以使用軟體 <a href="https://en.bandisoft.com/honeyview/" target="_blank">HoneyView</a> 檢視。<br>請不要在瀏覽器的下載選項裡選取\'總是詢問每個檔案的儲存位置\'。<br>如果作品標題或tag裡含有不能做檔名的字元，會被取代為下劃線_。<br>如果下載進度卡住不動了，您可以先點選“暫停下載”按鈕，之後點選“開始下載”按鈕，嘗試繼續下載。<br><b>如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。</b>'
-  ],
-  _正在下载中: ['正在下载中', 'ダウンロード中', 'downloading', '正在下載'],
-  _下载完毕: [
-    '下载完毕!',
-    'ダウンロードが完了しました',
-    'Download finished',
-    '下載完畢!'
-  ],
-  _已暂停: [
-    '下载已暂停',
-    'ダウンロードは一時停止中です',
-    'Download is paused',
-    '下載已暫停'
-  ],
-  _已停止: [
-    '下载已停止',
-    'ダウンロードが停止しました',
-    'Download stopped',
-    '下載已停止'
-  ],
-  _已下载: ['已下载', 'downloaded', 'downloaded', '已下載'],
-  _获取图片网址完毕: [
-    '获取完毕，共{}个图片地址',
-    '合計{}個の画像URLを取得する',
-    'Get a total of {} image url',
-    '取得完畢，共{}個圖片網址'
-  ],
-  _没有符合条件的作品: [
-    '没有符合条件的作品!任务结束。',
-    '基準を満たす作品はありません！タスクは終了します。',
-    'There are no works that meet the criteria! The task ends.',
-    '沒有符合條件的作品!工作結束。'
-  ],
-  _没有符合条件的作品弹窗: [
-    '抓取完毕!没有符合条件的作品!',
-    'クロールが終了しました！基準を満たす作品はありません',
-    'Crawl finished! There are no works that meet the criteria! ',
-    '擷取完畢!沒有符合條件的作品!'
-  ],
-  _抓取完毕: [
-    '抓取完毕!',
-    'クロールが終了しました！',
-    'Crawl finished!',
-    '擷取完畢!'
-  ],
-  _快速下载本页: [
-    '快速下载本页作品',
-    'この作品をすばやくダウンロードする',
-    'Download this work quickly',
-    '快速下載本頁作品'
-  ],
-  _转换为GIF: ['转换为 GIF', 'GIFに変換する', 'Convert to GIF', '轉換為 GIF'],
-  _准备转换: [
-    '准备转换',
-    '変換する準備ができました',
-    'Ready to convert',
-    '準備轉換'
-  ],
-  _转换中请等待: [
-    '转换中，请等待……',
-    '変換ではお待ちください...',
-    'In the conversion, please wait...',
-    '轉換中，請稍候……'
-  ],
-  _转换完成: ['转换完成', '変換完了', 'Conversion completed', '轉換完成'],
-  _从本页开始下载: [
-    '从本页开始下载作品',
-    'このページからダウンロードできます',
-    'Download works from this page',
-    '從本頁開始下載作品'
-  ],
-  _请留意文件夹命名: [
-    '请留意文件夹命名',
-    'フォルダの命名に注意してください',
-    'Please pay attention to folder naming',
-    '請留意資料夾命名'
-  ],
-  _下载相关作品: [
-    '下载相关作品',
-    '関連作品をダウンロードする',
-    'Download the related works',
-    '下載相關作品'
-  ],
-  _相关作品大于0: [
-    ' （下载相关作品必须大于 0）',
-    ' （ダウンロードする関連作品の数は0より大きくなければならない）',
-    '  (Download related works must be greater than 0)',
-    ' （下載相關作品必須大於 0）'
-  ],
-  _下载作品: [
-    '下载作品',
-    'イメージをダウンロード',
-    'Download works',
-    '下載作品'
-  ],
-  _下载响应作品: [
-    '下载响应作品',
-    'イメージレスポンスの作品をダウンロードする',
-    'Download the responses illustration',
-    '下載回應作品'
-  ],
-  _下载该tag中的作品: [
-    '下载该tag中的作品',
-    'タグの作品をダウンロードする',
-    'Download the work in the tag',
-    '下載該tag中的作品'
-  ],
-  _下载书签: [
-    '下载书签中的作品',
-    'ブックマークされた作品をダウンロードする',
-    'Download the works in this bookmark',
-    '下載書籤中的作品'
-  ],
-  _默认下载多页: [
-    ', 如有多页，默认会下载全部。',
-    '複数のページがある場合、デフォルトでダウンロードされます。',
-    ', If there are multiple pages, the default will be downloaded.',
-    ', 如有多頁，預設會下載全部。'
-  ],
-  _调整完毕: [
-    '调整完毕，当前有{}张作品。',
-    '調整が完了し、今、{}の作品があります。',
-    'The adjustment is complete and now has {} works.',
-    '調整完畢，目前有{}張作品。'
-  ],
-  _开始筛选: [
-    '开始筛选',
-    'スクリーニングを開始',
-    'Start screening',
-    '開始篩選'
-  ],
-  _开始筛选Title: [
-    '按照设定来筛选当前tag里的作品。如果多次筛选，页码会一直累加。',
-    '現在のタグで作品をフィルタリングする。複数回フィルタリングすると、ページ番号は常に累積されます。',
-    'Filter the work in the current tag. If you filter multiple times, the page number will increase.',
-    '按照設定來篩選當前tag裡的作品。如果多次篩選，頁碼會一直累加。'
-  ],
-  _在结果中筛选: [
-    '在结果中筛选',
-    '結果のフィルタリング',
-    'Filter in results',
-    '在結果中篩選'
-  ],
-  _在结果中筛选Title: [
-    '如果本页筛选后作品太多，可以提高收藏数的要求，在结果中筛选。达不到要求的会被隐藏而不是删除。所以您可以反复进行筛选。被隐藏的项目不会被下载。',
-    'あなたは何度も選別することができて、要求の作品が隠されて、それからダウンロードされません。',
-    'You can make multiple screening , fail to meet the required works will be hidden, and will not be downloaded.',
-    '如果本頁篩選後作品太多，可以提高收藏數的要求，在結果中篩選。達不到要求的會被隱藏而不是刪除。所以您可以反覆進行篩選。被隱藏的項目不會被下載。'
-  ],
-  _在结果中筛选弹窗: [
-    '将在当前作品列表中再次过滤，请输入要求的最低收藏数: ',
-    '現在の作品リストで再度フィルタリングされます。要求された作品の最小数を入力してください',
-    'Will be filtered again in the current list of works. Please enter the required minimum number of bookmarks:',
-    '將在目前作品清單中再次篩選，請輸入要求的最低收藏數:'
-  ],
-  _下载当前作品: [
-    '下载当前作品',
-    '現在の作品をダウンロードする',
-    'Download the current work',
-    '下載目前作品'
-  ],
-  _下载当前作品Title: [
-    '下载当前列表里的所有作品',
-    '現在のリストにあるすべての作品をダウンロードする',
-    'Download all the works in the current list',
-    '下載目前清單裡的所有作品'
-  ],
-  _中断当前任务: [
-    '中断当前任务',
-    '現在のタスクを中断する',
-    'Interrupt the current task',
-    '中斷目前工作'
-  ],
-  _中断当前任务Title: [
-    '筛选时中断之后可以继续执行。',
-    'ふるい分け作品で中断され、その後引き続き実行可能です。',
-    'In the screening works when the break, then you can continue to perform.',
-    '篩選時中斷之後可以繼續執行。'
-  ],
-  _当前任务已中断: [
-    '当前任务已中断!',
-    '現在のタスクが中断されました',
-    'The current task has been interrupted',
-    '目前工作已中斷!'
-  ],
-  _下载时排除tag: [
-    '下载时排除tag',
-    'ダウンロード時にタグを除外する',
-    'Exclude tags when downloading',
-    '下載時排除tag'
-  ],
-  _清除多图作品: [
-    '清除多图作品',
-    '複数の作品を削除する',
-    'Remove multi-drawing works',
-    '清除多圖作品'
-  ],
-  _清除多图作品Title: [
-    '如果不需要可以清除多图作品',
-    '必要がない場合は、複数のグラフを削除することができます',
-    'If you do not need it, you can delete multiple graphs',
-    '如果不需要可以清除多圖作品'
-  ],
-  _清除动图作品: [
-    '清除动图作品',
-    'うごイラ作品を削除する',
-    'Remove animat work',
-    '清除動圖作品'
-  ],
-  _清除动图作品Title: [
-    '如果不需要可以清除动图作品',
-    '必要がない場合は、うごイラを削除することができます',
-    'If you do not need it, you can delete the animat work',
-    '如果不需要可以清除動圖作品'
-  ],
-  _手动删除作品: [
-    '手动删除作品',
-    '作品を手動で削除する',
-    'Manually delete the work',
-    '手動刪除作品'
-  ],
-  _手动删除作品Title: [
-    '可以在下载前手动删除不需要的作品',
-    'ダウンロードする前に不要な作品を手動で削除することができます',
-    'You can manually delete unwanted work before downloading',
-    '可以在下載前手動刪除不需要的作品'
-  ],
-  _退出手动删除: [
-    '退出手动删除',
-    '削除モードを終了する',
-    'Exit manually delete',
-    '結束手動刪除'
-  ],
-  _下载本页作品: [
-    '下载本页作品',
-    'このページをダウンロードする',
-    'Download this page works',
-    '下載本頁作品'
-  ],
-  _下载本页作品Title: [
-    '下载本页列表中的所有作品',
-    'このページをダウンロードする',
-    'Download this page works',
-    '下載本頁清單中的所有作品'
-  ],
-  _已清除多图作品: [
-    '已清除多图作品',
-    'マルチマップ作品を削除しました',
-    'Has deleted the multi-map works',
-    '已清除多圖作品'
-  ],
-  _已清除动图作品: [
-    '已清除动图作品',
-    'うごイラが削除されました',
-    'Dynamic work has been removed',
-    '已清除動圖作品'
-  ],
-  _下载本排行榜作品: [
-    '下载本排行榜作品',
-    'このリストの作品をダウンロードする',
-    'Download the works in this list',
-    '下載本排行榜作品'
-  ],
-  _下载本排行榜作品Title: [
-    '下载本排行榜的所有作品，包括现在尚未加载出来的。',
-    'まだ読み込まれていないものを含めて、このリストの作品をダウンロードする',
-    'Download all of the works in this list, including those that are not yet loaded.',
-    '下載本排行榜的所有作品，包括現在尚未載入出來的。'
-  ],
-  _下载该页面的图片: [
-    '下载该页面的图片',
-    'ページの画像をダウンロードする',
-    'Download the picture of the page',
-    '下載該頁面的圖片'
-  ],
-  _下载该专辑的图片: [
-    '下载该专辑的图片',
-    'アルバムの画像をダウンロードする',
-    'Download the album`s picture',
-    '下載該專輯的圖片'
-  ],
-  _下载相似图片: [
-    '下载相似图片',
-    '類似の作品をダウンロードする',
-    'Download similar works',
-    '下載相似圖片'
-  ],
-  _要获取的作品个数: [
-    '您想要获取多少个作品？（注意是个数而不是页数）\r\n请输入数字，最大值为',
-    'いくつの作品をダウンロードしたいですか？ （ページ数ではなく作品数に注意してください）\r\n数値を入力してください。最大値は',
-    'How many works do you want to download? (Note that the number of works rather than the number of pages)\r\nPlease enter a number, max ',
-    '您想要取得多少個作品？（注意是個數而不是頁數）\r\n請輸入數字，最大值為'
-  ],
-  _要获取的作品个数2: [
-    '您想要获取多少个作品？',
-    'いくつの作品をダウンロードしたいですか？',
-    'How many works do you want to download?',
-    '您想要取得多少個作品？'
-  ],
-  _数字提示1: [
-    '-1, 或者大于 0',
-    '-1、または0より大きい',
-    '-1, or greater than 0',
-    '-1, 或是大於 0'
-  ],
-  _超过最大值: [
-    '您输入的数字超过了最大值',
-    '入力した番号が最大値を超えています',
-    'The number you entered exceeds the maximum',
-    '您輸入的數字超過了最大值'
-  ],
-  _下载大家的新作品: [
-    '下载大家的新作品',
-    'みんなの新作をダウンロードする',
-    'Download everyone`s new work',
-    '下載大家的新作品'
-  ],
-  _屏蔽设定: ['屏蔽設定', 'ミュート設定', 'Mute settings', '封鎖設定'],
-  _举报: ['举报', '報告', 'Report', '回報'],
-  _输入id进行下载: [
-    '输入id进行下载',
-    'IDでダウンロード',
-    'Download by ID',
-    '輸入id進行下載'
-  ],
-  _输入id进行下载的提示文字: [
-    '请输入作品id。如果有多个id，则以换行分割（即每行一个id）',
-    'イラストレーターIDを入力してください。 複数のidがある場合は、1行に1つのidを付けます。',
-    'Please enter the illustration id. If there is more than one id, one id per line.',
-    '請輸入作品id。如果有多個id，則以換行分隔（即每行一個id）'
-  ],
-  _开始下载: [
-    '开始下载',
-    'ダウンロードを開始する',
-    'Start download',
-    '開始下載'
-  ],
-  _开始抓取: ['开始抓取', 'クロールを開始する', 'Start crawling', '開始擷取'],
-  _添加tag: [
-    '给未分类作品添加 tag',
-    '未分類の作品にタグを追加',
-    'Add tag to unclassified work',
-    '給未分類作品添加 tag'
-  ],
-  _id不合法: [
-    'id不合法，操作取消。',
-    'idが不正な、操作はキャンセルされます。',
-    'id is illegal, the operation is canceled.',
-    'id不合法，動作取消。'
-  ],
-  _快速收藏: [
-    '快速收藏',
-    'クイックブックマーク',
-    'Quick bookmarks',
-    '快速收藏'
-  ],
-  _显示: ['显示', '表示', 'display', '顯示'],
-  _是否显示封面: [
-    '是否显示封面',
-    'カバーを表示するかどうか',
-    'Whether to display the cover',
-    '是否顯示封面'
-  ],
-  _显示封面的提示: [
-    '如果搜索结果数量很多，封面图数量也会很多。如果加载大量的封面图，会占用很多网络资源，也可能导致任务异常中断。如果遇到了这种情况，取消选中这个按钮。',
-    '検索結果の数が多い場合は、表紙画像の数が多くなります。 大量の表紙画像を読み込むと、ネットワークリソースが膨大になり、異常なタスクの中断を引き起こす可能性があります。 このような場合は、このボタンのチェックを外す。',
-    'If the number of search results is large, the number of cover images will be many. If you load a large number of cover images, it will take up a lot of network resources, and it may cause abnormal interruption of tasks. If this happens, uncheck the button.',
-    '如果搜尋結果數量很多，封面圖數量也會很多。如果載入大量的封面圖，會占用很多網路資源，也可能導致工作異常中斷。如果遇到了這種情況，取消選取這個按鈕。'
-  ],
-  _启用: ['启用', '有効にする', 'Enable', '啟用'],
-  _是否快速下载: [
-    '是否快速下载',
-    'すぐにダウンロードするかどうか',
-    'Whether to download quickly',
-    '是否快速下載'
-  ],
-  _快速下载的提示: [
-    '当“开始下载”状态可用时，自动开始下载，不需要点击下载按钮。',
-    '「ダウンロードを開始する」ステータスが利用可能になると、ダウンロードは自動的に開始され、ダウンロードボタンをクリックする必要はありません。',
-    'When the &quot;Start Downloa&quot; status is available, the download starts automatically and no need to click the download button.',
-    '當“開始下載”狀態可用時，自動開始下載，不需要點選下載按鈕。'
-  ]
+// 设置语言类型
+function setLangType () {
+  const userLang = document.documentElement.lang // 获取语言标识
+
+  switch (userLang) {
+    case 'zh':
+    case 'zh-CN':
+    case 'zh-Hans':
+      langType = 0 // 设置为简体中文
+      break
+
+    case 'ja':
+      langType = 1 // 设置为日语
+      break
+
+    case 'zh-Hant':
+    case 'zh-tw':
+    case 'zh-TW':
+      langType = 3 // 设置为繁体中文
+      break
+
+    default:
+      langType = 2 // 设置为英语
+      break
+  }
 }
 
 // xianzun_lang_translate 翻译
+// xzLang 是从 lang.js 文件引入的，这样便于修改
 function xzlt (name, ...arg) {
   let content = xzLang[name][langType]
   arg.forEach(val => (content = content.replace('{}', val)))
@@ -1361,12 +241,25 @@ function xzlt (name, ...arg) {
 }
 
 // 添加 css 样式
-async function appendStyle (params) {
-  const styleFile = await fetch(chrome.extension.getURL('xzstyle.css'))
+async function addStyle (params) {
+  const styleFile = await fetch(chrome.extension.getURL('style/xzstyle.css'))
   const styleContent = await styleFile.text()
   const styleE = document.createElement('style')
   document.body.appendChild(styleE)
   styleE.textContent = styleContent
+}
+
+// 引入需要的 js 文件
+async function addJs () {
+  // worker，因为需要 url 形式，所以生成其 blob url
+  let worker = await fetch(chrome.extension.getURL('lib/z-worker.js'))
+  worker = await worker.blob()
+  const zipWorker = URL.createObjectURL(worker)
+  if (zip) {
+    zip.workerScripts = {
+      inflater: [zipWorker]
+    }
+  }
 }
 
 // 快速收藏
@@ -1575,135 +468,82 @@ function addTag (index, addList, tt, addTagBtn) {
   }, 100)
 }
 
-// 初始化动图
-function initGif () {
-  // 切换作品时，重置动图信息
-  gifSrc = ''
-  gifDelay = undefined
-  gifMimeType = ''
-  zipFile = null // 获取的 zip 文件
-  fileNumber = 0 // 动图压缩包里有多少个文件
-  gifImgList.innerHTML = '' // 清空图片列表
-  downloadGifBtn.style.display = 'inline-block' // 显示动图转换按钮
-
-  // 获取 gif 信息
-  fetch('https://www.pixiv.net/ajax/illust/' + getIllustId() + '/ugoira_meta', {
-    method: 'get',
-    credentials: 'same-origin' // 附带 cookie
-  })
-    .then(response => response.json())
-    .then(data => {
-      const thisOneData = data.body
-      gifSrc = thisOneData.originalSrc
-      fileNumber = thisOneData.frames.length
-      gifDelay = thisOneData.frames[0].delay
-      gifMimeType = thisOneData.mimeType
-    })
-}
-
-// 检查是否可以开始转换 gif
-function checkCanConvert () {
-  if (!gifSrc || !zipFile) {
-    setTimeout(() => {
-      checkCanConvert()
-    }, 1000)
-    return false
-  } else {
-    startconvert()
-  }
-}
-
-// 开始转换
-async function startconvert () {
-  addOutputInfo('<br>' + xzlt('_转换中请等待'))
-  let worker = await fetch(chrome.extension.getURL('lib/z-worker.js'))
-  worker = await worker.blob()
-  // inflater 需要 url 形式，所以生成其 blob url
-  const inflater = URL.createObjectURL(worker)
-  zip.workerScripts = {
-    inflater: [inflater]
-  }
-  readZip()
-}
-
-// 读取 zip 文件
-function readZip () {
-  zip.createReader(
-    new zip.BlobReader(zipFile),
-    zipReader => {
-      // 读取成功时的回调函数，files 为文件列表
-      zipReader.getEntries(files => {
-        fileNumber = files.length
-        files.forEach(file => {
-          // 获取每个文件的数据，在 BlobWriter 里设置 mime type，回调函数返回 blob 数据
-          file.getData(new zip.BlobWriter(gifMimeType), data =>
-            addImgList(URL.createObjectURL(data))
-          )
+// 解压 zip 文件
+async function readZip (zipFile, ugoiraInfo) {
+  return new Promise(function (resolve, reject) {
+    const imgFile = []
+    zip.createReader(
+      new zip.BlobReader(zipFile),
+      zipReader => {
+        // 读取成功时的回调函数，files 保存了文件列表的信息
+        zipReader.getEntries(files => {
+          files.forEach(file => {
+            // 获取每个文件的数据，在 BlobWriter 里设置 mime type，回调函数返回 blob 数据
+            // 因为这个操作是异步的，所以必须检查图片数量
+            file.getData(new zip.BlobWriter(ugoiraInfo.mimeType), data => {
+              // console.log(data);
+              
+              imgFile.push(data)
+              if (imgFile.length === files.length) {
+                resolve(imgFile)
+              }
+            })
+          })
         })
-      })
-    },
-    message => {
-      console.log('readZIP error: ' + message)
-      addOutputInfo('error: convert to gif failed.')
-    }
-  )
-}
-
-// 输出 zip 里的图片
-function addImgList (url) {
-  const newImg = new Image()
-
-  newImg.onload = () => {
-    fileNumber--
-    if (fileNumber === 0) {
-      // 所有图片都加载完成后
-      renderGif()
-    }
-  }
-
-  newImg.src = url
-  gifImgList.appendChild(newImg)
-}
-
-// 渲染 gif
-async function renderGif () {
-  console.log('renderGIF')
-
-  let worker = await fetch(chrome.extension.getURL('lib/gif.worker.js'))
-  worker = await worker.blob()
-  const workerUrl = URL.createObjectURL(worker)
-
-  // 配置 gif.js
-  // 如果 workers 大于1，合成的 gif 有可能会抖动
-  var gif = new GIF({
-    workers: 4,
-    quality: 10,
-    workerScript: workerUrl
+      },
+      message => {
+        addOutputInfo('error: readZIP error.')
+        reject(new Error('readZIP error: ' + message))
+      }
+    )
   })
+}
 
-  // 添加图片
-  const imgs = gifImgList.querySelectorAll('img')
-  imgs.forEach(element => {
-    gif.addFrame(element, {
-      delay: gifDelay
+// 添加每一帧的数据
+async function getFrameData (imgFile, width, height) {
+  const base64Data = new Array(imgFile.length)
+  return new Promise(function (resolve, reject) {
+    imgFile.forEach((image, index, array) => {
+      const img = new Image()
+      img.onload = function (event) {
+        const xzCanvas = document.createElement('canvas')
+        const ctx = xzCanvas.getContext('2d')
+        // 注意这里使用 img 元素的宽高，因为这是图片的实际宽高，不会出错。使用 api 获取图片信息时，它的宽高可能并不对，如 id 76041681，api 返回的宽高和它 zip 压缩包里图片的宽高不一致。如果使用了错误的值，小的话则视频画面被裁剪，大的话则合成的视频无法播放。
+        xzCanvas.width = img.width || width
+        xzCanvas.height = img.height || height
+        ctx.drawImage(img, 0, 0)
+        // 转换到 dataurl 需要比较长的时间
+        // console.time('t' + index)
+        const base64 = xzCanvas.toDataURL('image/webp', 0.9)
+        // console.timeEnd('t' + index)
+        // 把每一帧按原顺序存储起来，不这样处理的话添加帧数时顺序可能错乱
+        base64Data[index] = base64
+        // base64Data.push(base64)
+        // 如果给编码器传递 canvas 对象或者 context 对象，编码库会再次创建 canvas 绘制图像，多出了一些转换步骤，所以在前台直接转换更有效率。另外 chromium 内核之外的浏览器可能不支持转换到 image/webp。
+        // onload 的顺序和添加事件时的顺序不一致。在没添加完之前，中间会有一些空位（empty）。所以这里要检查是否每个索引都有值
+        for (let i = 0; i < base64Data.length; i++) {
+          // 检测到空值则退出循环
+          if (!base64Data[i]) {
+            break
+          }
+          // 如果检查到最后一项，则获取完毕
+          if (i === base64Data.length - 1) {
+            resolve(base64Data)
+          }
+        }
+      }
+      img.src = URL.createObjectURL(image)
     })
   })
-  console.time('gif')
+}
 
-  // 绑定渲染完成事件
-  gif.on('finished', blob => {
-    console.timeEnd('gif') // 显示渲染用了多久
-
-    downloadA = document.querySelector('.download_a')
-    downloadA.href = URL.createObjectURL(blob)
-    downloadA.setAttribute('download', getIllustId() + '.gif')
-    downloadA.click()
-    changeTitle('√')
-    addOutputInfo('<br>' + xzlt('_转换完成'))
+// 编码视频
+async function encodeVideo (encoder) {
+  return new Promise(function (resolve, reject) {
+    encoder.compile(false, function (video) {
+      resolve(video)
+    })
   })
-
-  // 开始渲染
-  gif.render()
 }
 
 // 初始化图片查看器
@@ -1722,7 +562,7 @@ function initViewer () {
   }
 }
 
-// 创建图片查看器 html 元素，并绑定一些事件，这个函数只会执行一次
+// 创建图片查看器 html 元素，并绑定一些事件，这个函数只会在初始化时执行一次
 function createViewer () {
   if (!document.querySelector('main figcaption')) {
     // 等到作品主体部分的元素生成之后再创建查看器
@@ -1789,10 +629,24 @@ function createViewer () {
     }
   })
 
+  void [
+    'fullscreenchange',
+    'webkitfullscreenchange',
+    'mozfullscreenchange'
+  ].forEach(arg => {
+    // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
+    document.addEventListener(arg, () => {
+      if (!isFullscreen()) {
+        // 退出全屏
+        showViewerOther()
+      }
+    })
+  })
+
   updateViewer()
 }
 
-// 根据作品信息，更新图片查看器配置
+// 根据作品信息，更新图片查看器配置。每当页面更新时执行一次
 function updateViewer () {
   viewerWarpper.style.display = 'none' // 先隐藏 viewerWarpper
 
@@ -1806,11 +660,6 @@ function updateViewer () {
       // 保存当前页面的画师名
       const thisOneData = data.body
       puser = thisOneData.userName
-
-      // 判断是不是动图
-      if (thisOneData.illustType === 2) {
-        initGif()
-      }
 
       // 更新图片查看器
       if (thisOneData.illustType === 0 || thisOneData.illustType === 1) {
@@ -1993,18 +842,6 @@ function viewerIsShow () {
     return false
   }
 }
-
-// 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
-['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange'].forEach(
-  arg => {
-    document.addEventListener(arg, () => {
-      if (!isFullscreen()) {
-        // 退出全屏
-        showViewerOther()
-      }
-    })
-  }
-)
 
 // 修改title
 function changeTitle (string) {
@@ -2193,6 +1030,61 @@ function getNeedTag () {
   }
 }
 
+// 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否要排除这个作品。
+function checkNotNeedTag (tags) {
+  let result = false
+
+  // 如果设置了排除 tag
+  if (notNeedTag.length > 0) {
+    for (const tag of tags) {
+      if (result) {
+        break
+      }
+      for (const notNeed of notNeedTag) {
+        if (tag.toLowerCase() === notNeed.toLowerCase()) {
+          result = true
+          break
+        }
+      }
+    }
+  }
+
+  return result
+}
+
+// 检查作品是否符合包含 tag 的条件, 如果设置了多个 tag，需要作品里全部包含。返回值表示是否保留这个作品。
+function checkNeedTag (tags) {
+  let result = false
+
+  // 如果设置了必须的 tag
+  if (needTag.length > 0) {
+    let tagNeedMatched = 0
+    const tempTags = new Set()
+    // 这是因为不区分大小写的话，Fate/grandorder 和 Fate/GrandOrder 会被算作符合两个 tag，所以用 Set 结构去重。测试 id 51811780
+    for (const tag of tags) {
+      tempTags.add(tag.toLowerCase())
+    }
+
+    for (const tag of tempTags.values()) {
+      for (const need of needTag) {
+        if (tag === need.toLowerCase()) {
+          tagNeedMatched++
+          break
+        }
+      }
+    }
+
+    // 如果全部匹配
+    if (tagNeedMatched >= needTag.length) {
+      result = true
+    }
+  } else {
+    result = true
+  }
+
+  return result
+}
+
 // 检查过滤宽高的设置
 function checkSetWh () {
   const checkResultWidth = checkNumberGreater0(xzForm.setWidth.value)
@@ -2304,23 +1196,25 @@ function checkNumberGreater0 (arg, mode) {
 }
 
 // 使用无刷新加载的页面需要监听 url 的改变，在这里监听页面的切换
-const element = document.createElement('script')
-element.setAttribute('type', 'text/javascript')
-element.innerHTML = `
-let _wr = function (type) {
-  let orig = history[type];
-  return function () {
-    let rv = orig.apply(this, arguments);
-    let e = new Event(type);
-    e.arguments = arguments;
-    window.dispatchEvent(e);
-    return rv;
+function listenHistory () {
+  const element = document.createElement('script')
+  element.setAttribute('type', 'text/javascript')
+  element.innerHTML = `
+  let _wr = function (type) {
+    let orig = history[type];
+    return function () {
+      let rv = orig.apply(this, arguments);
+      let e = new Event(type);
+      e.arguments = arguments;
+      window.dispatchEvent(e);
+      return rv;
+    };
   };
-};
-history.pushState = _wr('pushState');
-history.replaceState = _wr('replaceState');
-`
-document.head.appendChild(element)
+  history.pushState = _wr('pushState');
+  history.replaceState = _wr('replaceState');
+  `
+  document.head.appendChild(element)
+}
 
 // 最多有多少页，在 pageType 10 使用
 function setMaxNum () {
@@ -2470,10 +1364,10 @@ function sortByProperty (propertyName) {
 
 // 对结果列表进行排序，按收藏数从高到低显示
 function listSort () {
-  imgList.sort(sortByProperty('num'))
+  tagSearchResult.sort(sortByProperty('num'))
   const listWrap = document.querySelector(tagSearchListWrap)
   listWrap.innerHTML = ''
-  imgList.forEach(data => {
+  tagSearchResult.forEach(data => {
     listWrap.insertAdjacentHTML('beforeend', data.e)
   })
 }
@@ -2513,17 +1407,19 @@ function getNowPageNo () {
 }
 
 // 实现 DOM 元素的 remove() 方法
-[window.HTMLCollection, window.NodeList].forEach(arg => {
-  arg.prototype.remove = function () {
-    if (Reflect.has(this, 'length')) {
-      // 如果有 length 属性则循环删除。HTMLCollection 需要转化为数组才能使用 forEach，NodeList 不需要转化就可以使用
-      Array.from(this).forEach(el => el.parentNode.removeChild(el))
-    } else {
-      // 没有 length 属性的，不能使用 forEach，直接删除（querySelector、getElementById 没有 length 属性）
-      this.parentNode.removeChild(this)
+function xzRemove () {
+  [window.HTMLCollection, window.NodeList].forEach(arg => {
+    arg.prototype.remove = function () {
+      if (Reflect.has(this, 'length')) {
+        // 如果有 length 属性则循环删除。HTMLCollection 需要转化为数组才能使用 forEach，NodeList 不需要转化就可以使用
+        Array.from(this).forEach(el => el.parentNode.removeChild(el))
+      } else {
+        // 没有 length 属性的，不能使用 forEach，直接删除（querySelector、getElementById 没有 length 属性）
+        this.parentNode.removeChild(this)
+      }
     }
-  }
-})
+  })
+}
 
 // 实现 DOM 元素的 toggle 方法，但仅支持 block 和 none 切换
 function toggle (el) {
@@ -2535,30 +1431,45 @@ function outputNowResult () {
   addOutputInfo(xzlt('_调整完毕', visibleList().length) + '<br>')
 }
 
-// 添加图片信息。某些参数允许传空值
+// 添加每个图片的信息。某些参数允许传空值
 function addImgInfo (
   id,
   imgUrl,
   title,
-  nowAllTag,
+  tags,
   user,
   userid,
   fullWidth,
   fullHeight,
   ext,
-  bmk
+  bmk,
+  ugoiraInfo
 ) {
+  /**
+   * @param {string} id -默认的图片名，包含序号部分，如 44920385_p0
+   * @param string imgUrl - 图片的 url
+   * @param {string} title - 作品的标题
+   * @param {string[]} tags - 作品的 tag 列表
+   * @param {string} user - 作品的画师名字
+   * @param {string} userid - 作品的画师id
+   * @param {number} fullWidth - 图片的宽度
+   * @param {number} fullHeight - 图片的高度
+   * @param {string} ext - 图片的后缀名
+   * @param {number} bmk - 作品的收藏数量
+   * @param {object} ugoiraInfo - 当作品是动图时才有值，包含 frames（数组）和 mimeType（string）属性
+   */
   imgInfo.push({
     id: id,
     url: imgUrl,
     title: title,
-    tags: nowAllTag,
+    tags: tags,
     user: user,
     userid: userid,
     fullWidth: fullWidth,
     fullHeight: fullHeight,
     ext: ext,
-    bmk: bmk
+    bmk: bmk,
+    ugoiraInfo: ugoiraInfo
   })
 }
 
@@ -2664,17 +1575,14 @@ function startGet () {
     return false
   }
 
-  // 在非 tag 搜索页里，进行一些检查。tag 搜索页里这些设置此时无法生效,所以放在后面开始下载时再检查
-  if (pageType !== 5) {
-    // 检查是否设置了多图作品的张数限制
-    checkMultipleDownNumber()
+  // 检查是否设置了多图作品的张数限制
+  checkMultipleDownNumber()
 
-    // 获取必须包含的tag
-    getNeedTag()
+  // 获取必须包含的tag
+  getNeedTag()
 
-    // 获取要排除的tag
-    getNotNeedTag()
-  }
+  // 获取要排除的tag
+  getNotNeedTag()
 
   // 检查是否设置了只下载书签作品
   checkOnlyBmk()
@@ -2815,11 +1723,11 @@ function getListPage () {
         displayCover = xzForm.setDisplayCover.checked
         const listWrap = document.querySelector(tagSearchListWrap)
 
-        // 在这里进行一些检查
+        // 在这里进行一些检查，不符合条件的作品 continue 跳过，符合条件的保留下来
         for (const data of thisOneInfo) {
           // 检查收藏设置
-          const shoucang = data['bookmarkCount']
-          if (shoucang < filterBmk) {
+          const bookmarkCount = data['bookmarkCount']
+          if (bookmarkCount < filterBmk) {
             continue
           }
 
@@ -2858,6 +1766,16 @@ function getListPage () {
             continue
           }
 
+          // 检查排除的 tag 的设置
+          if (checkNotNeedTag(data['tags'])) {
+            continue
+          }
+
+          // 检查必须包含的 tag  的设置
+          if (!checkNeedTag(data['tags'])) {
+            continue
+          }
+
           // 检查通过后,拼接每个作品的html
           let newHtml = tagSearchNewHtml
           if (isBookmarked) {
@@ -2869,7 +1787,7 @@ function getListPage () {
           }
 
           if (illustType === '2') {
-            newHtml = newHtml.replace('<!--xz_gif_html-->', xzGifHtml)
+            newHtml = newHtml.replace('<!--xz_ugoira_html-->', xzUgoiraHtml)
           }
 
           newHtml = newHtml
@@ -2902,10 +1820,10 @@ function getListPage () {
               .replace(/xz_height/g, maxHeight)
           }
 
-          imgList.push({
+          tagSearchResult.push({
             id: data['illustId'],
             e: newHtml,
-            num: Number(shoucang)
+            num: Number(bookmarkCount)
           })
           listWrap.insertAdjacentHTML('beforeend', newHtml)
         }
@@ -3087,7 +2005,6 @@ function getListPage () {
       }
     })
     .catch(error => {
-      console.log(error)
       // error 的 message 属性是请求出错时的状态码
       if (error.message === '404') {
         // 排行榜
@@ -3161,7 +2078,7 @@ function getListPage2 () {
       let nowClass = ''
       if (el.querySelector(tagSearchMultipleSelector)) {
         nowClass = 'multiple'
-      } else if (el.querySelector(tagSearchGifSelector)) {
+      } else if (el.querySelector(tagSearchUgoiraSelector)) {
         nowClass = 'ugoku-illust'
       }
 
@@ -3522,14 +2439,14 @@ function getListUrlFinished () {
 }
 
 // 抓取作品内容页
-function getIllustPage (url) {
+async function getIllustPage (url) {
   /*
   url参数为完整的作品 url，或者不包含根路径的作品 url，如：
   https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65546468
   /member_illust.php?mode=medium&illust_id=65546468
   */
   changeTitle('↑')
-  illustUrlList.shift() // 有时并未使用illust_url_list，但对空数组进行shift()是合法的
+  illustUrlList.shift() // 有时并未使用illust_url_list，但对空数组进行shift()是合法的，所以没有做判断
 
   // 判断任务是否已中断，目前只在tag搜索页有用到
   if (interrupt) {
@@ -3544,156 +2461,151 @@ function getIllustPage (url) {
   }
 
   url = 'https://www.pixiv.net/ajax/illust/' + getIllustId(url) // 取出作品id，拼接出作品页api
+  // 发起请求
+  const response = await fetch(url)
+  if (response.ok) {
+    const data = await response.json()
 
-  fetch(url)
-    .then(response => {
-      if (response.ok) {
-        return response.json()
-      } else {
-        return Promise.reject(new Error(response.status))
-      }
-    })
-    .then(data => {
-      // 这里需要再判断一次中断情况，因为ajax执行完毕是需要时间的
-      if (interrupt) {
-        allowWork = true
-        return false
-      }
+    // 这里需要再判断一次中断情况，因为ajax执行完毕是需要时间的
+    if (interrupt) {
+      allowWork = true
+      return false
+    }
 
-      // 预设及获取图片信息
-      const jsInfo = data.body
-      const id = jsInfo.illustId
-      const fullWidth = parseInt(jsInfo.width) // 原图宽度
-      const fullHeight = parseInt(jsInfo.height) // 原图高度
-      const title = jsInfo.illustTitle
-      const userid = jsInfo.userId // 画师id
-      let user = jsInfo.userName // 画师名字，如果这里获取不到，下面从 tag 尝试获取
-      const nowAllTagInfo = jsInfo.tags.tags // tag列表
-      let nowAllTag = []
+    // 预设及获取图片信息
+    const jsInfo = data.body
+    const id = jsInfo.illustId
+    const fullWidth = parseInt(jsInfo.width) // 原图宽度
+    const fullHeight = parseInt(jsInfo.height) // 原图高度
+    const title = jsInfo.illustTitle // 作品标题
+    const userid = jsInfo.userId // 画师id
+    let user = jsInfo.userName // 画师名字，如果这里获取不到，下面从 tag 尝试获取
+    const nowAllTagInfo = jsInfo.tags.tags // 取出 tag 信息
+    let nowAllTag = [] // 保存 tag 列表
 
-      if (nowAllTagInfo.length > 0) {
-        if (!user) {
-          user = nowAllTagInfo[0].userName ? nowAllTagInfo[0].userName : '' // 这里从第一个tag里取出画师名字，如果没有 tag 那就获取不到画师名
-        }
-
-        nowAllTag = nowAllTagInfo.map(info => {
-          return info.tag
-        })
+    if (nowAllTagInfo.length > 0) {
+      if (!user) {
+        user = nowAllTagInfo[0].userName ? nowAllTagInfo[0].userName : '' // 这里从第一个tag里取出画师名字，如果没有 tag 那就获取不到画师名
       }
 
-      const bmk = jsInfo.bookmarkCount // 收藏数
-      let ext = '' // 扩展名
-      let imgUrl = ''
-      const whCheckResult = checkSetWhok(fullWidth, fullHeight) // 检查宽高设置
-      const ratioCheckResult = checkRatio(fullWidth, fullHeight) // 检查宽高比设置
+      nowAllTag = nowAllTagInfo.map(info => {
+        return info.tag
+      })
+    }
 
-      // 检查收藏数要求
-      let bmkCheckResult = true
-      if (isSetFilterBmk) {
-        if (bmk < filterBmk) {
-          bmkCheckResult = false
-        }
+    const bmk = jsInfo.bookmarkCount // 收藏数
+    let ext = '' // 扩展名
+    let imgUrl = ''
+    const whCheckResult = checkSetWhok(fullWidth, fullHeight) // 检查宽高设置
+    const ratioCheckResult = checkRatio(fullWidth, fullHeight) // 检查宽高比设置
+
+    // 检查收藏数要求
+    let bmkCheckResult = true
+    if (isSetFilterBmk) {
+      if (bmk < filterBmk) {
+        bmkCheckResult = false
       }
+    }
 
-      // 检查只下载书签作品的要求
-      let checkBookmarkResult = true
-      if (onlyDownBmk) {
-        if (jsInfo.bookmarkData === null) {
-          // 没有收藏这个作品
-          checkBookmarkResult = false // 检查不通过
-        }
+    // 检查只下载书签作品的要求
+    let checkBookmarkResult = true
+    if (onlyDownBmk) {
+      if (jsInfo.bookmarkData === null) {
+        // 没有收藏这个作品
+        checkBookmarkResult = false // 检查不通过
       }
+    }
 
-      // 检查要排除的 tag 其实 pageType === 9 的时候在获取作品列表时就能获得tag列表，但为了统一，也在这里检查
-      let tagCheckResult // 储存 tag 检查结果
+    // 检查要排除的 tag 其实 pageType === 9 的时候在获取作品列表时就能获得tag列表，但为了统一，也在这里检查
+    let tagCheckResult // 储存 tag 检查结果
 
-      // 检查要排除的 tag，只要作品包含其中一个就结束
-      let tagNotNeedIsFound = false
-      if (notNeedTag.length > 0) {
-        // 如果设置了过滤tag
-        for (const tag of nowAllTag) {
-          if (tagNotNeedIsFound) {
-            break
-          }
-          for (const notNeed of notNeedTag) {
-            if (tag === notNeed) {
-              tagNotNeedIsFound = true
-              break
-            }
-          }
-        }
+    // 检查要排除的 tag
+    const tagNotNeedIsFound = checkNotNeedTag(nowAllTag)
+
+    // 如果检查排除的 tag，没有匹配到
+    if (!tagNotNeedIsFound) {
+      // 检查必须包含的 tag
+      tagCheckResult = checkNeedTag(nowAllTag)
+    } else {
+      // 如果匹配到了要排除的tag，则不予通过
+      tagCheckResult = false
+    }
+    // 总检查,要求上面条件全部通过
+    const totalCheck =
+      tagCheckResult &&
+      checkBookmarkResult &&
+      whCheckResult &&
+      ratioCheckResult &&
+      bmkCheckResult
+
+    // 作品类型：
+    // 1 单图
+    // 2 多图
+    // 3 动图
+    let thisIllustType
+
+    if (jsInfo.illustType === 0 || jsInfo.illustType === 1) {
+      // 单图或多图，0 插画 1 漫画 2 动图（ 1 的如 68430279 ）
+      if (jsInfo.pageCount === 1) {
+        // 单图
+        thisIllustType = 1
+      } else if (jsInfo.pageCount > 1) {
+        // 多图
+        thisIllustType = 2
       }
+    } else if (jsInfo.illustType === 2) {
+      // 动图
+      thisIllustType = 3
+    }
 
-      // 检查必须包含的tag，如果有多个，需要全部包含
-      if (!tagNotNeedIsFound) {
-        // 如果没有匹配到要排除的tag
-        if (needTag.length > 0) {
-          // 如果设置了必须包含的tag
-          let tagNeedIsFound = false
-          let tagNeedMatched = 0
+    // 结合作品类型处理作品
+    if (thisIllustType === 1 && totalCheck) {
+      // 如果是单图
+      if (!notdownType.includes('1')) {
+        // 如果没有排除单图
+        imgUrl = jsInfo.urls.original
+        ext = imgUrl.split('.')
+        ext = ext[ext.length - 1] // 扩展名
 
-          for (const tag of nowAllTag) {
-            for (const need of needTag) {
-              if (tag === need) {
-                tagNeedMatched++
-              }
-            }
-          }
-
-          // 如果全部匹配
-          if (tagNeedMatched === needTag.length) {
-            tagNeedIsFound = true
-          }
-          tagCheckResult = tagNeedIsFound
-        } else {
-          // 如果没有设置必须包含的tag，则通过
-          tagCheckResult = true
-        }
-      } else {
-        // 如果匹配到了要排除的tag，则不予通过
-        tagCheckResult = false
+        addImgInfo(
+          id + '_p0',
+          imgUrl,
+          title,
+          nowAllTag,
+          user,
+          userid,
+          fullWidth,
+          fullHeight,
+          ext,
+          bmk,
+          {}
+        )
+        outputImgNum()
       }
-
-      // 总检查,要求上面条件全部通过
-      const totalCheck =
-        tagCheckResult &&
-        checkBookmarkResult &&
-        whCheckResult &&
-        ratioCheckResult &&
-        bmkCheckResult
-
-      // 作品类型：
-      // 1 单图
-      // 2 多图
-      // 3 动图
-      let thisIllustType
-
-      if (jsInfo.illustType === 0 || jsInfo.illustType === 1) {
-        // 单图或多图，0 插画 1 漫画 2 动图（ 1 的如 68430279 ）
-        if (jsInfo.pageCount === 1) {
-          // 单图
-          thisIllustType = 1
-        } else if (jsInfo.pageCount > 1) {
-          // 多图
-          thisIllustType = 2
-        }
-      } else if (jsInfo.illustType === 2) {
+    } else if (thisIllustType !== 1 && totalCheck) {
+      // 单图以外的情况
+      if (thisIllustType === 3) {
         // 动图
-        thisIllustType = 3
-      }
+        if (!notdownType.includes('3')) {
+          // 如果没有排除动图, 获取动图的信息
+          const getUgoiraInfo = await fetch(
+            `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`,
+            {
+              method: 'get',
+              credentials: 'same-origin' // 附带 cookie
+            }
+          )
+          const info = await getUgoiraInfo.json()
+          const ugoiraInfo = {
+            frames: info.body.frames, // 动图帧延迟数据
+            mimeType: info.body.mime_type
+          }
 
-      // 结合作品类型处理作品
-      if (thisIllustType === 1 && totalCheck) {
-        // 如果是单图
-        if (!notdownType.includes('1')) {
-          // 如果没有排除单图
-          imgUrl = jsInfo.urls.original
-          ext = imgUrl.split('.')
-          ext = ext[ext.length - 1] // 扩展名
+          ext = xzForm.ugoiraSaveAs.value // 扩展名可能是 webm 或者 zip
 
           addImgInfo(
-            id + '_p0',
-            imgUrl,
+            id,
+            info.body.originalSrc,
             title,
             nowAllTag,
             user,
@@ -3701,28 +2613,32 @@ function getIllustPage (url) {
             fullWidth,
             fullHeight,
             ext,
-            bmk
+            bmk,
+            ugoiraInfo
           )
           outputImgNum()
         }
-      } else if (thisIllustType !== 1 && totalCheck) {
-        // 单图以外的情况
-        if (thisIllustType === 3) {
-          // 如果是动图
-          if (!notdownType.includes('3')) {
-            // 如果没有排除动图
-            // 动图的最终url如：
-            // https://i.pximg.net/img-zip-ugoira/img/2018/04/25/21/27/44/68401493_ugoira1920x1080.zip
-            imgUrl = jsInfo.urls.original
-              .replace('img-original', 'img-zip-ugoira')
-              .replace('ugoira0', 'ugoira1920x1080')
-              .replace('jpg', 'zip')
-              .replace('png', 'zip')
-            ext = 'ugoira' // 扩展名
+      } else {
+        // 多图作品
+        if (!notdownType.includes('2')) {
+          // 如果没有排除多图
+          let pNo = jsInfo.pageCount // P数
+          // 检查是否需要修改下载的张数。有效值为大于0并不大于总p数，否则下载所有张数
+          if (multipleDownNumber > 0 && multipleDownNumber <= pNo) {
+            pNo = multipleDownNumber
+          }
+
+          // 获取多p作品的原图页面
+          imgUrl = jsInfo.urls.original
+          ext = imgUrl.split('.')
+          ext = ext[ext.length - 1]
+
+          for (let i = 0; i < pNo; i++) {
+            const nowUrl = imgUrl.replace('p0', 'p' + i) // 拼接出每张图片的url
 
             addImgInfo(
-              id,
-              imgUrl,
+              id + '_p' + i,
+              nowUrl,
               title,
               nowAllTag,
               user,
@@ -3730,123 +2646,89 @@ function getIllustPage (url) {
               fullWidth,
               fullHeight,
               ext,
-              bmk
+              bmk,
+              {}
             )
-            outputImgNum()
           }
-        } else {
-          // 多图作品
-          if (!notdownType.includes('2')) {
-            // 如果没有排除多图
-            let pNo = jsInfo.pageCount // P数
-            // 检查是否需要修改下载的张数。有效值为大于0并不大于总p数，否则下载所有张数
-            if (multipleDownNumber > 0 && multipleDownNumber <= pNo) {
-              pNo = multipleDownNumber
-            }
-
-            // 获取多p作品的原图页面
-            imgUrl = jsInfo.urls.original
-            ext = imgUrl.split('.')
-            ext = ext[ext.length - 1]
-
-            for (let i = 0; i < pNo; i++) {
-              const nowUrl = imgUrl.replace('p0', 'p' + i) // 拼接出每张图片的url
-
-              addImgInfo(
-                id + '_p' + i,
-                nowUrl,
-                title,
-                nowAllTag,
-                user,
-                userid,
-                fullWidth,
-                fullHeight,
-                ext,
-                bmk
-              )
-            }
-            outputImgNum()
-          }
+          outputImgNum()
         }
       }
+    }
 
-      // 在作品页内下载时，设置的 wantPage 其实是作品数
-      if (pageType === 1 && !downRelated) {
-        if (wantPage > 0) {
-          wantPage--
+    // 在作品页内下载时，设置的 wantPage 其实是作品数
+    if (pageType === 1 && !downRelated) {
+      if (wantPage > 0) {
+        wantPage--
+      }
+
+      if (wantPage === -1 || wantPage > 0) {
+        // 应该继续下载时，检查是否有下一个作品
+        // 在所有不为 null 的里面（可能有1-3个），取出key比当前作品 id 小的那一个，就是下一个
+        const userIllust = jsInfo.userIllusts
+        let nextId
+
+        for (const val of Object.values(userIllust)) {
+          if (val && val.illustId < id) {
+            nextId = val.illustId
+            break
+          }
         }
 
-        if (wantPage === -1 || wantPage > 0) {
-          // 应该继续下载时，检查是否有下一个作品
-          // 在所有不为 null 的里面（可能有1-3个），取出key比当前作品 id 小的那一个，就是下一个
-          const userIllust = jsInfo.userIllusts
-          let nextId
-
-          for (const val of Object.values(userIllust)) {
-            if (val && val.illustId < id) {
-              nextId = val.illustId
-              break
-            }
-          }
-
-          if (nextId) {
-            getIllustPage(
-              'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' +
-                nextId
-            )
-          } else {
-            // 没有剩余作品
-            allowWork = true
-            allWorkFinished()
-          }
+        if (nextId) {
+          getIllustPage(
+            'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' +
+              nextId
+          )
         } else {
           // 没有剩余作品
           allowWork = true
           allWorkFinished()
         }
       } else {
-        if (illustUrlList.length > 0) {
-          // 如果存在下一个作品，则
-          getIllustPage(illustUrlList[0])
-        } else {
-          // 没有剩余作品
-          ajaxThreadsFinished++
-          if (ajaxThreadsFinished === ajaxForIllustThreads) {
-            // 如果所有并发请求都执行完毕则复位
-            ajaxThreadsFinished = 0
+        // 没有剩余作品
+        allowWork = true
+        allWorkFinished()
+      }
+    } else {
+      if (illustUrlList.length > 0) {
+        // 如果存在下一个作品，则
+        getIllustPage(illustUrlList[0])
+      } else {
+        // 没有剩余作品
+        ajaxThreadsFinished++
+        if (ajaxThreadsFinished === ajaxForIllustThreads) {
+          // 如果所有并发请求都执行完毕则复位
+          ajaxThreadsFinished = 0
 
-            allowWork = true
-            allWorkFinished()
-          }
+          allowWork = true
+          allWorkFinished()
         }
       }
-    })
-    .catch(error => {
-      console.log(error)
-      illustError(url)
-      // error 的 message 属性是请求出错时的状态码
-      const status = parseInt(error.message)
-      switch (status) {
-        case 0:
-          console.log(xzlt('_作品页状态码0'))
-          break
+    }
+  } else {
+    illustError(url)
+    const status = response.status
+    switch (status) {
+      case 0:
+        console.log(xzlt('_作品页状态码0'))
+        break
 
-        case 400:
-          console.log(xzlt('_作品页状态码400'))
-          break
+      case 400:
+        console.log(xzlt('_作品页状态码400'))
+        break
 
-        case 403:
-          console.log(xzlt('_作品页状态码403'))
-          break
+      case 403:
+        console.log(xzlt('_作品页状态码403'))
+        break
 
-        case 404:
-          console.log(xzlt('_作品页状态码404') + ' ' + url)
-          break
+      case 404:
+        console.log(xzlt('_作品页状态码404') + ' ' + url)
+        break
 
-        default:
-          break
-      }
-    })
+      default:
+        break
+    }
+  }
 }
 
 // 测试图片 url 是否正确的函数。对于 mode=big 的作品和 pixivision ，可以拼接出图片url，只是后缀都是jpg的，所以要测试实际上是jpg还是png
@@ -3879,7 +2761,8 @@ function testExtName (url, length, imgInfoData) {
       imgInfoData.fullWidth,
       imgInfoData.fullHeight,
       ext,
-      ''
+      '',
+      {}
     )
     outputImgNum()
 
@@ -3947,7 +2830,7 @@ function allWorkFinished () {
     if (quick || quietDownload) {
       setTimeout(function () {
         document.querySelector('.startDownload').click()
-      }, 200)
+      }, 100)
     }
   } else {
     // 如果没有完成，则延迟一段时间后再执行
@@ -4132,6 +3015,17 @@ function addCenterWarps () {
     '_动图'
   )}&nbsp;</label>
     </p>
+    <p class="xzFormP12">
+    <span class="xztip settingNameStyle1" data-tip="${xzlt(
+    '_动图保存格式title'
+  )}">${xzlt('_动图保存格式')}<span class="gray1"> ? </span></span>
+    <label for="ugoiraSaveAs1"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" value="webm" checked> ${xzlt(
+    '_webmVideo'
+  )} &nbsp;</label>
+    <label for="ugoiraSaveAs2"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" value="zip"> ${xzlt(
+    '_zipFile'
+  )} &nbsp;</label>
+    </p>
     <p class="xzFormP11">
     <span class="xztip settingNameStyle1" data-tip="${xzlt(
     '_只下载已收藏的提示'
@@ -4311,7 +3205,6 @@ function addCenterWarps () {
     </ul>
     </div>
     </div>
-    <a class="download_a" download=""></a>
     <p class="gray1"> 
     <span class="showDownTip">${xzlt('_查看下载说明')}</span>
     <a class="xztip centerWrap_top_btn wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL(
@@ -4449,7 +3342,6 @@ function addCenterWarps () {
     }
 
     document.querySelector('.down_status').textContent = xzlt('_正在下载中')
-    downloadA = document.querySelector('.download_a')
   })
 
   // 暂停下载按钮
@@ -4592,21 +3484,23 @@ function toggleOptionArea () {
 }
 
 // 使用快捷键 Alt + x 切换显示隐藏
-window.addEventListener(
-  'keydown',
-  event => {
-    const e = event || window.event
-    if (e.altKey && e.keyCode === 88) {
-      const nowDisplay = centerWrap.style.display
-      if (nowDisplay === 'block') {
-        centerWrapHide()
-      } else {
-        centerWrapShow()
+function swtichCenterWrap () {
+  window.addEventListener(
+    'keydown',
+    event => {
+      const e = event || window.event
+      if (e.altKey && e.keyCode === 88) {
+        const nowDisplay = centerWrap.style.display
+        if (nowDisplay === 'block') {
+          centerWrapHide()
+        } else {
+          centerWrapShow()
+        }
       }
-    }
-  },
-  false
-)
+    },
+    false
+  )
+}
 
 // 读取储存的设置
 function readXzSetting () {
@@ -4617,6 +3511,7 @@ function readXzSetting () {
     xzSetting = {
       multipleDownNumber: 0,
       notdownType: '',
+      ugoiraSaveAs: 'webm',
       needTag: '',
       notNeedTag: '',
       displayCover: true,
@@ -4651,6 +3546,16 @@ function readXzSetting () {
   for (let index = 1; index < 4; index++) {
     xzForm['setWorkType' + index].addEventListener('click', () => {
       saveXzSetting('notdownType', getNotDownType())
+    })
+  }
+
+  // 设置动图格式选项
+  xzForm.ugoiraSaveAs.value = xzSetting.ugoiraSaveAs || 'webm'
+
+  // 保存动图格式选项
+  for (const input of xzForm.ugoiraSaveAs) {
+    input.addEventListener('click', function () {
+      saveXzSetting('ugoiraSaveAs', this.value)
     })
   }
 
@@ -4768,7 +3673,7 @@ function clearUgoku () {
       centerWrapHide()
       const allPicArea = document.querySelectorAll(tagSearchListSelector)
       allPicArea.forEach(el => {
-        if (el.querySelector(tagSearchGifSelector)) {
+        if (el.querySelector(tagSearchUgoiraSelector)) {
           el.remove()
         }
       })
@@ -5007,13 +3912,14 @@ function getFileName (data) {
 function startDownload (downloadNo, downloadBarNo) {
   changeTitle('↓') // 获取文件名
 
-  const fullFileName = getFileName(imgInfo[downloadNo])
+  const thisImgInfo = imgInfo[downloadNo]
+  const fullFileName = getFileName(thisImgInfo)
   downloadBarList[downloadBarNo].querySelector(
     '.download_fileName'
   ).textContent = fullFileName
   // 下载图片
   const xhr = new XMLHttpRequest()
-  xhr.open('GET', imgInfo[downloadNo].url, true)
+  xhr.open('GET', thisImgInfo.url, true)
   xhr.responseType = 'blob'
   xhr.timeout = 180000
   // 显示下载进度
@@ -5031,12 +3937,40 @@ function startDownload (downloadNo, downloadBarNo) {
       (loaded / total) * 100 + '%'
   })
   // 图片下载完成
-  xhr.addEventListener('loadend', function () {
+  xhr.addEventListener('loadend', async function () {
     if (downloadPause || downloadStop) {
       return false
     }
 
-    const blobUrl = URL.createObjectURL(xhr.response)
+    let file // 要下载的文件
+
+    // 如果需要转换成视频
+    if (thisImgInfo.ext === 'webm') {
+      // 将压缩包里的图片转换为 blob 对象
+      const imgFile = await readZip(xhr.response, thisImgInfo.ugoiraInfo)
+      // 创建视频编码器
+      const encoder = new Whammy.Video()
+      // 生成每一帧的数据
+      const base64Data = await getFrameData(
+        imgFile,
+        thisImgInfo.fullWidth,
+        thisImgInfo.fullHeight
+      )
+      // 添加帧数据
+      for (let index = 0; index < base64Data.length; index++) {
+        const base64 = base64Data[index]
+        encoder.add(base64, thisImgInfo.ugoiraInfo.frames[index].delay)
+      }
+      // 获取生成的视频
+      file = await encodeVideo(encoder)
+    } else {
+      // 不需要转换成视频
+      file = xhr.response
+    }
+
+    // 生成下载链接
+    const blobUrl = URL.createObjectURL(file)
+
     // 控制点击下载按钮的时间间隔大于0.5秒
     if (new Date().getTime() - clickTime > timeInterval) {
       clickTime = new Date().getTime()
@@ -5359,30 +4293,8 @@ function pageType1 () {
     false
   )
 
-  downloadGifBtn = addCenterButton('div', xzGreen, xzlt('_转换为GIF'))
-  downloadGifBtn.style.display = 'none'
-  downloadGifBtn.addEventListener(
-    'click',
-    () => {
-      centerWrapHide() // 下载动图
-
-      fetch(gifSrc)
-        .then(res => res.blob())
-        .then(data => {
-          zipFile = data
-        })
-      changeTitle('↑')
-      addOutputInfo('<br>' + xzlt('_准备转换'))
-      checkCanConvert()
-    },
-    false
-  )
   quickBookmark()
-  initViewer() // 创建 gif 图片列表
-
-  gifImgList = document.createElement('div')
-  gifImgList.style.display = 'none'
-  document.body.appendChild(gifImgList)
+  initViewer()
 }
 
 // 当 pageType 为 2 时执行
@@ -5416,16 +4328,8 @@ function pageType2 () {
   }
 }
 
-// init
-async function init () {
-  await appendStyle()
-  addRightButton()
-  addCenterWarps()
-  changeWantPage()
-  readXzSetting()
-  getPageInfo()
-
-  // pageType 1 和 2 都是无刷新加载，所以会进行一些相同的处理
+// 当页面无刷新切换时，进行一些处理。这里目前只针对 pageType 1 和 2 进行处理，因为它们有一些相同的逻辑
+function listenPageSwitch () {
   if (pageType === 1 || pageType === 2) {
     // pushState 判断从列表页进入作品页的情况，popstate 判断从作品页退回列表页的情况
     ['pushState', 'popstate'].forEach(item => {
@@ -5461,7 +4365,10 @@ async function init () {
       })
     })
   }
+}
 
+// 对不同类型的页面执行相应的代码
+function allPageType () {
   if (pageType === 0) {
     // 0.index 首页
     // https://www.pixiv.net/
@@ -5523,9 +4430,7 @@ async function init () {
       },
       false
     )
-  }
-
-  if (pageType === 1) {
+  } else if (pageType === 1) {
     // 1. illust 作品页
     // https://www.pixiv.net/member_illust.php?mode=medium&illust_id=75896706
 
@@ -5553,7 +4458,7 @@ async function init () {
     <a href="/member_illust.php?mode=medium&illust_id=xz_illustId" rel="noopener" class="PKslhVT">
     <!--xz_multiple_html-->
     <img alt="" class="_1hsIS11" width="xz_width" height="xz_height" src="xz_url">
-    <!--xz_gif_html-->
+    <!--xz_ugoira_html-->
     </a>
     <div class="thumbnail-menu">
     <div class="_one-click-bookmark js-click-trackable xz_isBookmarked" data-click-category="abtest_www_one_click_bookmark" data-click-action="illust" data-click-label="xz_illustId" data-type="illust" data-id="xz_illustId" title="添加收藏" style="position: static;"></div>
@@ -5840,7 +4745,7 @@ async function init () {
                 let ext = imgUrl.split('.')
                 ext = ext[ext.length - 1] // 扩展名
 
-                addImgInfo(id, imgUrl, '', [], '', '', '', '', ext, '')
+                addImgInfo(id, imgUrl, '', [], '', '', '', '', ext, '', {})
               }
             })
             allWorkFinished()
@@ -5912,7 +4817,23 @@ async function init () {
   }
 }
 
-// 检查启动条件
-if (checkPageType() !== undefined) {
-  init()
+// 光翼展开！
+async function expand () {
+  checkConflict()
+  await addStyle()
+  addJs()
+  listenHistory()
+  xzRemove()
+  setLangType()
+  addRightButton()
+  addCenterWarps()
+  swtichCenterWrap()
+  readXzSetting()
+  changeWantPage()
+  listenPageSwitch()
+  getPageInfo()
+  allPageType()
 }
+
+// Divine judge！
+undefined !== checkPageType() && expand()

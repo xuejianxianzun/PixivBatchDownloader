@@ -1,6 +1,6 @@
 {
   "name": "Pixiv Batch Downloader",
-  "version": "1.8.6",
+  "version": "1.9.0",
   "manifest_version": 2,
   "description": "功能强大的 Pixiv 图片批量下载器。Powerful Pixiv image batch downloader.",
   "icons": {
@@ -29,18 +29,18 @@
       "run_at": "document_end"
     },
     {
-      "js": ["lib/zip.js", "lib/gif.js"],
-      "matches": ["*://www.pixiv.net/member_illust.php*"],
+      "js": ["lib/zip.js", "lib/whammy.js"],
+      "matches": ["*://www.pixiv.net/*"],
       "run_at": "document_end"
     },
     {
-      "js": ["content.js"],
+      "js": ["js/lang.js", "js/content.js"],
       "matches": ["*://www.pixiv.net/*", "*://www.pixivision.net/*"],
       "run_at": "document_end"
     }
   ],
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["js/background.js"]
   },
   "permissions": [
     "tabs",
@@ -52,9 +52,8 @@
     "*://i.pximg.net/*"
   ],
   "web_accessible_resources": [
-    "lib/gif.worker.js",
     "lib/z-worker.js",
-    "xzstyle.css",
+    "style/xzstyle.css",
     "images/github-logo.png",
     "images/wiki.png"
   ]
