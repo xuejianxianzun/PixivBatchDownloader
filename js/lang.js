@@ -736,10 +736,10 @@ const xzLang = {
     '檢視下載說明'
   ],
   _下载说明: [
-    '下载的文件保存在浏览器的下载目录里。<br>.ugoira 后缀名的文件是动态图的源文件，可以使用软件 <a href="https://en.bandisoft.com/honeyview/" target="_blank">HoneyView</a> 查看。<br>请不要在浏览器的下载选项里选中\'总是询问每个文件的保存位置\'。<br>如果作品标题或tag里含有不能做文件名的字符，会被替换成下划线_。<br>如果下载进度卡住不动了，您可以先点击“暂停下载”按钮，之后点击“开始下载”按钮，尝试继续下载。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>QQ群：499873152',
-    'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br>.ugoiraサフィックスファイルは、動的グラフのソースファイルです，ソフトウェア <a href="https://en.bandisoft.com/honeyview/" target="_blank">HoneyView</a> を使用して表示することができます。<br>ダウンロードの進行状況が継続できない場合は、[ダウンロードの一時停止]ボタンをクリックし、[ダウンロードの開始]ボタンをクリックしてダウンロードを続行します。<br><b>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。</b>',
-    'The downloaded file is saved in the browser`s download directory.<br>The .ugoira suffix file is the source file for the ugoira works, Can be viewed using the software <a href="https://en.bandisoft.com/honeyview/" target="_blank">HoneyView</a>.<br>If the download progress is stuck, you can click the "Pause Download" button and then click the "Start Download" button to try to continue the download.<br><b>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.</b>',
-    '下載的檔案儲存在瀏覽器的下載目錄裡。<br>.ugoira 尾碼的檔案是動態圖的原始檔，可以使用軟體 <a href="https://en.bandisoft.com/honeyview/" target="_blank">HoneyView</a> 檢視。<br>請不要在瀏覽器的下載選項裡選取\'總是詢問每個檔案的儲存位置\'。<br>如果作品標題或tag裡含有不能做檔名的字元，會被取代為下劃線_。<br>如果下載進度卡住不動了，您可以先點選“暫停下載”按鈕，之後點選“開始下載”按鈕，嘗試繼續下載。<br><b>如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。</b>'
+    '下载的文件保存在浏览器的下载目录里。<br>请不要在浏览器的下载选项里选中\'总是询问每个文件的保存位置\'。<br>如果作品标题或tag里含有不能做文件名的字符，会被替换成下划线_。<br>如果下载进度卡住不动了，您可以先点击“暂停下载”按钮，之后点击“开始下载”按钮，尝试继续下载。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>QQ群：499873152',
+    'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br>ダウンロードの進行状況が継続できない場合は、[ダウンロードの一時停止]ボタンをクリックし、[ダウンロードの開始]ボタンをクリックしてダウンロードを続行します。<br><b>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。</b>',
+    'The downloaded file is saved in the browser`s download directory. <br>If the download progress is stuck, you can click the "Pause Download" button and then click the "Start Download" button to try to continue the download.<br><b>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.</b>',
+    '下載的檔案儲存在瀏覽器的下載目錄裡。<br>請不要在瀏覽器的下載選項裡選取\'總是詢問每個檔案的儲存位置\'。<br>如果作品標題或tag裡含有不能做檔名的字元，會被取代為下劃線_。<br>如果下載進度卡住不動了，您可以先點選“暫停下載”按鈕，之後點選“開始下載”按鈕，嘗試繼續下載。<br><b>如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。</b>'
   ],
   _正在下载中: ['正在下载中', 'ダウンロード中', 'downloading', '正在下載'],
   _下载完毕: [
@@ -791,20 +791,6 @@ const xzLang = {
     'Download this work quickly',
     '快速下載本頁作品'
   ],
-  _转换为GIF: ['转换为 GIF', 'GIFに変換する', 'Convert to GIF', '轉換為 GIF'],
-  _准备转换: [
-    '准备转换',
-    '変換する準備ができました',
-    'Ready to convert',
-    '準備轉換'
-  ],
-  _转换中请等待: [
-    '转换中，请等待……',
-    '変換ではお待ちください...',
-    'In the conversion, please wait...',
-    '轉換中，請稍候……'
-  ],
-  _转换完成: ['转换完成', '変換完了', 'Conversion completed', '轉換完成'],
   _从本页开始下载: [
     '从本页开始下载作品',
     'このページからダウンロードできます',
@@ -834,24 +820,6 @@ const xzLang = {
     'イメージをダウンロード',
     'Download works',
     '下載作品'
-  ],
-  _下载响应作品: [
-    '下载响应作品',
-    'イメージレスポンスの作品をダウンロードする',
-    'Download the responses illustration',
-    '下載回應作品'
-  ],
-  _下载该tag中的作品: [
-    '下载该tag中的作品',
-    'タグの作品をダウンロードする',
-    'Download the work in the tag',
-    '下載該tag中的作品'
-  ],
-  _下载书签: [
-    '下载书签中的作品',
-    'ブックマークされた作品をダウンロードする',
-    'Download the works in this bookmark',
-    '下載書籤中的作品'
   ],
   _默认下载多页: [
     ', 如有多页，默认会下载全部。',
