@@ -14,7 +14,8 @@
 .adsbygoogle,
 .popular-introduction-overlay,
 .ui-fixed-container aside,
-[name='header'],
+iframe[name="header"],
+iframe[name="footer"],
 section.ad {
   display: none !important;
   z-index: -999 !important;

@@ -15,7 +15,7 @@ let outputInfo // 输出信息的区域
 
 let quietDownload = true // 是否快速下载。当可以下载时自动开始下载（无需点击下载按钮）
 
-const downloadThreadDeauflt = 6 // 同时下载的线程数，可以通过设置 downloadThread 修改
+const downloadThreadDeauflt = 5 // 同时下载的线程数，可以通过设置 downloadThread 修改
 
 let multipleDownNumber = 0 // 设置多图作品下载前几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
 
@@ -4755,7 +4755,7 @@ function allPageType () {
       )
     }
 
-    hideNotNeedOption([1, 2, 3, 4, 5, 6, 7, 11, 13])
+    hideNotNeedOption([1, 2, 3, 4, 5, 6, 7, 11, 12, 13])
   } else if (pageType === 9) {
     // 9. bookmark_add
     // https://www.pixiv.net/bookmark_detail.php?illust_id=63148723
