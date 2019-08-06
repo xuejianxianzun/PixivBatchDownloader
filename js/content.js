@@ -123,7 +123,10 @@ const xzMultipleHtml = `<div class="${tagSearchMultipleSelector.replace(
 )}"><span><span class="XPwdj2F"></span>xz_pageCount</span></div>`
 
 // tag 搜索页作品的html中的动图标识
-const xzUgoiraHtml = `<div class="${tagSearchUgoiraSelector.replace('.', '')}"></div>`
+const xzUgoiraHtml = `<div class="${tagSearchUgoiraSelector.replace(
+  '.',
+  ''
+)}"></div>`
 
 const safeFileNameRule = new RegExp(/\\|\/|:|\?|"|<|'|>|\*|\||~|\u200b|\.$/g) // 安全的文件名
 
@@ -471,21 +474,29 @@ function addTag (index, addList, tt, addTagBtn) {
 // 解压 zip 文件
 async function readZip (zipFile, ugoiraInfo) {
   return new Promise(function (resolve, reject) {
-    const imgFile = []
     zip.createReader(
       new zip.BlobReader(zipFile),
       zipReader => {
         // 读取成功时的回调函数，files 保存了文件列表的信息
         zipReader.getEntries(files => {
+          // 创建数组，长度与文件数量一致
+          const imgFile = new Array(files.length)
+
           files.forEach(file => {
-            // 获取每个文件的数据，在 BlobWriter 里设置 mime type，回调函数返回 blob 数据
-            // 因为这个操作是异步的，所以必须检查图片数量
-            file.getData(new zip.BlobWriter(ugoiraInfo.mimeType), data => {
-              // console.log(data);
-              
-              imgFile.push(data)
-              if (imgFile.length === files.length) {
-                resolve(imgFile)
+            // 获取每个文件的数据。因为这个操作是异步的，所以必须检查图片数量
+            file.getData(new zip.Data64URIWriter(ugoiraInfo.mimeType), data => {
+              const fileNo = parseInt(file.filename)
+              imgFile[fileNo] = data
+              // 把图片按原编号存入对应的位置。这是因为我怀疑有时候 zip.Data64URIWriter 的回调顺序不一致，直接 push 可能导致图片的顺序乱掉
+              for (let i = 0; i < imgFile.length; i++) {
+                // 检测到空值说明没有添加完毕，退出循环
+                if (!imgFile[i]) {
+                  break
+                }
+                // 如果检查到最后一项，说明添加完毕
+                if (i === imgFile.length - 1) {
+                  resolve(imgFile)
+                }
               }
             })
           })
@@ -500,40 +511,33 @@ async function readZip (zipFile, ugoiraInfo) {
 }
 
 // 添加每一帧的数据
-async function getFrameData (imgFile, width, height) {
+async function getFrameData (imgFile) {
   const base64Data = new Array(imgFile.length)
   return new Promise(function (resolve, reject) {
-    imgFile.forEach((image, index, array) => {
+    const drawImg = function (index) {
       const img = new Image()
+
       img.onload = function (event) {
         const xzCanvas = document.createElement('canvas')
         const ctx = xzCanvas.getContext('2d')
-        // 注意这里使用 img 元素的宽高，因为这是图片的实际宽高，不会出错。使用 api 获取图片信息时，它的宽高可能并不对，如 id 76041681，api 返回的宽高和它 zip 压缩包里图片的宽高不一致。如果使用了错误的值，小的话则视频画面被裁剪，大的话则合成的视频无法播放。
-        xzCanvas.width = img.width || width
-        xzCanvas.height = img.height || height
+        xzCanvas.width = img.width
+        xzCanvas.height = img.height
         ctx.drawImage(img, 0, 0)
-        // 转换到 dataurl 需要比较长的时间
-        // console.time('t' + index)
-        const base64 = xzCanvas.toDataURL('image/webp', 0.9)
-        // console.timeEnd('t' + index)
-        // 把每一帧按原顺序存储起来，不这样处理的话添加帧数时顺序可能错乱
-        base64Data[index] = base64
-        // base64Data.push(base64)
-        // 如果给编码器传递 canvas 对象或者 context 对象，编码库会再次创建 canvas 绘制图像，多出了一些转换步骤，所以在前台直接转换更有效率。另外 chromium 内核之外的浏览器可能不支持转换到 image/webp。
-        // onload 的顺序和添加事件时的顺序不一致。在没添加完之前，中间会有一些空位（empty）。所以这里要检查是否每个索引都有值
-        for (let i = 0; i < base64Data.length; i++) {
-          // 检测到空值则退出循环
-          if (!base64Data[i]) {
-            break
-          }
-          // 如果检查到最后一项，则获取完毕
-          if (i === base64Data.length - 1) {
-            resolve(base64Data)
-          }
+        base64Data[index] = xzCanvas
+        if (index < imgFile.length - 1) {
+          // 继续下一个
+          index++
+          drawImg(index)
+        } else {
+          resolve(base64Data)
         }
       }
-      img.src = URL.createObjectURL(image)
-    })
+
+      img.src = imgFile[index]
+    }
+
+    // onload 完成时的顺序和添加事件时的顺序不一致，为了避免图片顺序乱掉，这里逐个添加每个图片
+    drawImg(0)
   })
 }
 
@@ -3946,16 +3950,12 @@ function startDownload (downloadNo, downloadBarNo) {
 
     // 如果需要转换成视频
     if (thisImgInfo.ext === 'webm') {
-      // 将压缩包里的图片转换为 blob 对象
+      // 将压缩包里的图片转换为 base64 字符串
       const imgFile = await readZip(xhr.response, thisImgInfo.ugoiraInfo)
       // 创建视频编码器
       const encoder = new Whammy.Video()
       // 生成每一帧的数据
-      const base64Data = await getFrameData(
-        imgFile,
-        thisImgInfo.fullWidth,
-        thisImgInfo.fullHeight
-      )
+      const base64Data = await getFrameData(imgFile)
       // 添加帧数据
       for (let index = 0; index < base64Data.length; index++) {
         const base64 = base64Data[index]
