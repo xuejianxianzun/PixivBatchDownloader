@@ -1,8 +1,12 @@
 module.exports = {
   extends: ['eslint:recommended', 'standard'],
-  rules: { 'no-console': 'off', 'no-useless-catch': 'off' },
+  plugins: ['standard', 'import', 'node', 'promise'],
+  rules: {
+    'no-console': 'off',
+    'no-useless-catch': 'off',
+    'no-unused-vars': 'off'
+  },
   globals: {
-    console: true,
     fetch: true,
     Blob: true,
     Image: true,
