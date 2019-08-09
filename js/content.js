@@ -102,6 +102,8 @@ let requsetNumber = 0 // 要下载多少个作品
 
 let maxNum = 0 // 最多允许获取多少数量，在相关作品、相似作品、大家/关注的新作品页面使用
 
+let debut = false
+
 let listIsNew = false // 列表页加载模式是否是新版
 
 let tagSearchDataSelector = '' // tag 搜索页，储存作品信息的元素
@@ -1602,6 +1604,11 @@ function startGet () {
   // 检查宽高比设置
   getRatioSetting()
 
+  // 检查是否设置了只下载首次登场
+  if (debut) {
+    addOutputInfo('<br>' + xzlt('_下载首次登场的作品Title'))
+  }
+
   // 重置下载状态
   resetResult()
 
@@ -1888,10 +1895,25 @@ function getListPage () {
       } else if (pageType === 7) {
         // 排行榜
         const contents = JSON.parse(data).contents // 取出作品信息列表
-        contents.forEach(data => {
+        for (const data of contents) {
+          // 检查只下载“首次收藏”要求。yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
+          if (debut && (data.yes_rank !== 0)) {
+            continue
+          }
+
+          // 检查排除的 tag 的设置
+          if (checkNotNeedTag(data.tags)) {
+            continue
+          }
+
+          // 检查必须包含的 tag  的设置
+          if (!checkNeedTag(data.tags)) {
+            continue
+          }
+
+          // 检查作品类型要求
           let nowClass = ''
           const pageCount = parseInt(data.illust_page_count) // 包含的图片数量
-
           // 多图
           if (pageCount > 1) {
             nowClass = 'multiple'
@@ -1907,7 +1929,8 @@ function getListPage () {
             data.illust_id
           const bookmarked = data.is_bookmarked
           checkNotDownTypeResult(nowClass, nowHref, bookmarked)
-        })
+        }
+
         outputInfo.innerHTML =
           nowTips + '<br>' + xzlt('_排行榜进度', listPageFinished)
 
@@ -2431,6 +2454,9 @@ function getListPage3 (url) {
 
 // 作品列表获取完毕，开始抓取作品内容页
 function getListUrlFinished () {
+  // 列表页获取完毕后，可以在这里重置一些变量
+  debut = false
+
   nowTips = outputInfo.innerHTML
 
   if (illustUrlList.length < ajaxForIllustThreads) {
@@ -3894,14 +3920,6 @@ function getFileName (data) {
 
   // 处理后缀名
   result += '.' + data.ext
-  // 动图，在最后一个斜杠 / 后添加前缀
-  if (data.ext === 'ugoira') {
-    const index = result.lastIndexOf('/')
-    result =
-      result.substr(0, index + 1) +
-      'open_with_HoneyView-' +
-      result.substr(index + 1, result.length)
-  }
 
   // 快速下载时，如果只有一个文件，则不建立文件夹
   if (quick && imgInfo.length === 1) {
@@ -4673,6 +4691,13 @@ function allPageType () {
     addCenterButton('div', xzBlue, xzlt('_下载本排行榜作品'), [
       ['title', xzlt('_下载本排行榜作品Title')]
     ]).addEventListener('click', startGet)
+
+    addCenterButton('div', xzBlue, xzlt('_下载首次登场的作品'), [
+      ['title', xzlt('_下载首次登场的作品Title')]
+    ]).addEventListener('click', () => {
+      debut = true
+      startGet()
+    })
   } else if (pageType === 8) {
     // 8. pixivision
     // https://www.pixivision.net/zh/a/3190

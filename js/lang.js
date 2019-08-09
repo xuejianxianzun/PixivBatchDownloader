@@ -977,6 +977,18 @@ const xzLang = {
     'Download all of the works in this list, including those that are not yet loaded.',
     '下載本排行榜的所有作品，包括現在尚未載入出來的。'
   ],
+  _下载首次登场的作品: [
+    '下载首次登场的作品',
+    '初登場作品をダウンロードする',
+    'Download the debuts works',
+    '下載首次登場的作品'
+  ],
+  _下载首次登场的作品Title: [
+    '只下载首次登场的作品',
+    '初登場作品のみダウンロードします',
+    'Download only debuts works',
+    '僅下載首次登場的作品'
+  ],
   _下载该页面的图片: [
     '下载该页面的图片',
     'ページの画像をダウンロードする',
