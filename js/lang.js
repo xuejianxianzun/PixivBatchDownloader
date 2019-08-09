@@ -980,13 +980,13 @@ const xzLang = {
   _下载首次登场的作品: [
     '下载首次登场的作品',
     '初登場作品をダウンロードする',
-    'Download the debuts works',
+    'Download the debut works',
     '下載首次登場的作品'
   ],
   _下载首次登场的作品Title: [
     '只下载首次登场的作品',
     '初登場作品のみダウンロードします',
-    'Download only debuts works',
+    'Download only debut works',
     '僅下載首次登場的作品'
   ],
   _下载该页面的图片: [
