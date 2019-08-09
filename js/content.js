@@ -4692,12 +4692,15 @@ function allPageType () {
       ['title', xzlt('_下载本排行榜作品Title')]
     ]).addEventListener('click', startGet)
 
-    addCenterButton('div', xzBlue, xzlt('_下载首次登场的作品'), [
-      ['title', xzlt('_下载首次登场的作品Title')]
-    ]).addEventListener('click', () => {
-      debut = true
-      startGet()
-    })
+    // 在“今日”页面，添加下载首次登场的作品的按钮
+    if (locUrl.includes('mode=daily')) {
+      addCenterButton('div', xzBlue, xzlt('_下载首次登场的作品'), [
+        ['title', xzlt('_下载首次登场的作品Title')]
+      ]).addEventListener('click', () => {
+        debut = true
+        startGet()
+      })
+    }
   } else if (pageType === 8) {
     // 8. pixivision
     // https://www.pixivision.net/zh/a/3190
