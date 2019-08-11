@@ -11,8 +11,6 @@ module.exports = {
     Blob: true,
     Image: true,
     XMLHttpRequest: true,
-    FileReader: true,
-    browser: true,
     chrome: true,
     zip: true,
     GIF: true,
