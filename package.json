@@ -6,7 +6,7 @@
   "author": "xuejianxianzun",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "node js/build.js"
+    "build": "node build.js"
   },
   "devDependencies": {
     "eslint": "^6.1.0",
