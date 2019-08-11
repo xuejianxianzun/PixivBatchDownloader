@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const archiver = require('archiver')
 
-const zipName = path.resolve(__dirname, '../', 'pixivbatchdownloader.zip')
+const zipName = path.resolve(__dirname, 'pixivbatchdownloader.zip')
 const output = fs.createWriteStream(zipName)
 
 const archive = archiver('zip', {
