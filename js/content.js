@@ -1897,7 +1897,7 @@ function getListPage () {
         const contents = JSON.parse(data).contents // 取出作品信息列表
         for (const data of contents) {
           // 检查只下载“首次收藏”要求。yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
-          if (debut && (data.yes_rank !== 0)) {
+          if (debut && data.yes_rank !== 0) {
             continue
           }
 
