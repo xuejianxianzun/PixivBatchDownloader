@@ -5,13 +5,16 @@
   "repository": "https://github.com/xuejianxianzun/PixivBatchDownloader",
   "author": "xuejianxianzun",
   "license": "GPL-3.0-or-later",
-  "scripts": {},
+  "scripts": {
+    "build": "node js/build.js"
+  },
   "devDependencies": {
     "eslint": "^6.1.0",
     "eslint-config-standard": "^13.0.1",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.0"
+    "eslint-plugin-standard": "^4.0.0",
+    "archiver": "^3.1.1"
   }
 }
