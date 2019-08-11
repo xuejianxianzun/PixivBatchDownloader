@@ -17,7 +17,7 @@ archive.on('error', function (err) {
 })
 
 archive.on('finish', () => {
-  console.log(`打包成功，生成文件：\n${zipName}`)
+  console.log(`build success`)
 })
 
 // pipe archive data to the file
