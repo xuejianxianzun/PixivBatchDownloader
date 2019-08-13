@@ -24,8 +24,9 @@ section.ad {
   opacity: 0 !important;
 }
 
-/* picture viewer */
+/* image viewer */
 #viewerWarpper {
+  position: relative;
   margin: 24px auto 15px;
   overflow: hidden;
   background: #fff;
