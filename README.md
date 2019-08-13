@@ -34,7 +34,7 @@ English （机翻，韩语设置下也使用英语文本）
 
 - 感谢 [道滿](https://zhtw.me/) 翻译了繁体中文。
 
-- 感谢 [z2n](https://github.com/z2n) 对本工具做出的改进，使本工具适配了 Firefox 浏览器。（现已取消支持）
+- 感谢 [z2n](https://github.com/z2n) 对本工具做出的改进
 
 ## 提示：
 
