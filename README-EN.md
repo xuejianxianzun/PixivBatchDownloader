@@ -1,5 +1,7 @@
 [Wiki](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki)
 
+If you want to make the English text of the program better, you can edit the `/js/lang.js` file and submit pull request .
+
 # Introduction:
 
 This is a browser extension for Chrome that lets you download images from Pixiv in bulk. Powerful and supports many page types.
