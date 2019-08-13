@@ -1,6 +1,6 @@
 [Wiki](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki)
 
-If you want to make the English text of the program better, you can edit the `/js/lang.js` file and submit pull request .
+If you want to make the English text of the program better, you can edit the `js/lang.js` file and submit pull request .
 
 # Introduction:
 
@@ -12,7 +12,7 @@ Some auxiliary functions have also been added, such as removing ads, quick colle
 
 # Install:
 
-Chrome：[Chrome webstore page](https://chrome.google.com/webstore/detail/hfgoikdmppghehigkckknikdgdcjbfpl)
+Chrome：[Chrome webstore](https://chrome.google.com/webstore/detail/hfgoikdmppghehigkckknikdgdcjbfpl)
 
 - The downloaded file will be saved in your browser's download directory.
 
@@ -34,7 +34,7 @@ You can also optimize the translation, thank you very much :)
 
 - thanks [道滿](https://zhtw.me/) for translating traditional Chinese.
 
-- Thanks [z2n](https://github.com/z2n) for adapting this tool to the Firefox browser.
+- Thanks [z2n](https://github.com/z2n) for improvements to the program.
 
 ## Tips:
 
