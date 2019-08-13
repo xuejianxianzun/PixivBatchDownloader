@@ -710,7 +710,7 @@ function updateViewer () {
             },
 
             url (image) {
-              return image.getAttribute('data-src')
+              return image.dataset.src
             },
 
             viewed (event) {
@@ -1718,9 +1718,8 @@ function getListPage () {
       } else if (pageType === 5) {
         // tag 搜索页
         tagPageFinished++
-        let thisOneInfo = listPageDocument
-          .querySelector(tagSearchDataSelector)
-          .getAttribute('data-items') // 保存本页的作品信息
+        let thisOneInfo = listPageDocument.querySelector(tagSearchDataSelector)
+          .dataset.items // 保存本页的作品信息
 
         thisOneInfo = JSON.parse(thisOneInfo) // 转化为数组
 
@@ -1737,14 +1736,14 @@ function getListPage () {
         // 在这里进行一些检查，不符合条件的作品 continue 跳过，符合条件的保留下来
         for (const data of thisOneInfo) {
           // 检查收藏设置
-          const bookmarkCount = data['bookmarkCount']
+          const bookmarkCount = data.bookmarkCount
           if (bookmarkCount < filterBmk) {
             continue
           }
 
           // 检查宽高设置和宽高比设置
-          const tureWidth = parseInt(data['width'])
-          const tureHeight = parseInt(data['height'])
+          const tureWidth = parseInt(data.width)
+          const tureHeight = parseInt(data.height)
           if (
             !checkSetWhok(tureWidth, tureHeight) ||
             !checkRatio(tureWidth, tureHeight)
@@ -1753,7 +1752,7 @@ function getListPage () {
           }
 
           // 检查只下载书签作品的设置
-          const isBookmarked = data['isBookmarked']
+          const isBookmarked = data.isBookmarked
           if (onlyDownBmk) {
             if (!isBookmarked) {
               continue
@@ -1761,8 +1760,8 @@ function getListPage () {
           }
 
           // 检查排除类型设置
-          const pageCount = parseInt(data['pageCount']) // 包含的图片数量
-          const illustType = data['illustType'] // 作品类型 0 插画 1 漫画 2 动图
+          const pageCount = parseInt(data.pageCount) // 包含的图片数量
+          const illustType = data.illustType // 作品类型 0 插画 1 漫画 2 动图
           let nowType = '1' // 我定义的类型 1 单图 2 多图 3 动图
           // 多图
           if (pageCount > 1) {
@@ -1778,12 +1777,12 @@ function getListPage () {
           }
 
           // 检查排除的 tag 的设置
-          if (checkNotNeedTag(data['tags'])) {
+          if (checkNotNeedTag(data.tags)) {
             continue
           }
 
           // 检查必须包含的 tag  的设置
-          if (!checkNeedTag(data['tags'])) {
+          if (!checkNeedTag(data.tags)) {
             continue
           }
 
@@ -1802,21 +1801,21 @@ function getListPage () {
           }
 
           newHtml = newHtml
-            .replace(/xz_illustId/g, data['illustId'])
-            .replace(/xz_pageCount/g, data['pageCount'])
+            .replace(/xz_illustId/g, data.illustId)
+            .replace(/xz_pageCount/g, data.pageCount)
 
           if (displayCover) {
-            newHtml = newHtml.replace(/xz_url/g, data['url'])
+            newHtml = newHtml.replace(/xz_url/g, data.url)
           } else {
             newHtml = newHtml.replace(/xz_url/g, '')
           }
 
           newHtml = newHtml
-            .replace(/xz_illustTitle/g, data['illustTitle'])
-            .replace(/xz_userId/g, data['userId'])
-            .replace(/xzUserName/g, data['userName'])
-            .replace(/xz_userImage/g, data['userImage'])
-            .replace(/xz_bookmarkCount/g, data['bookmarkCount']) // 设置宽高
+            .replace(/xz_illustTitle/g, data.illustTitle)
+            .replace(/xz_userId/g, data.userId)
+            .replace(/xzUserName/g, data.userName)
+            .replace(/xz_userImage/g, data.userImage)
+            .replace(/xz_bookmarkCount/g, data.bookmarkCount) // 设置宽高
 
           const maxWidth = '198'
           const maxHeight = '198'
@@ -1832,7 +1831,7 @@ function getListPage () {
           }
 
           tagSearchResult.push({
-            id: data['illustId'],
+            id: data.illustId,
             e: newHtml,
             num: Number(bookmarkCount)
           })
@@ -1896,6 +1895,8 @@ function getListPage () {
         // 排行榜
         const contents = JSON.parse(data).contents // 取出作品信息列表
         for (const data of contents) {
+          // 目前，数据里并没有包含收藏数量，所以在这里没办法检查收藏数量要求
+
           // 检查只下载“首次收藏”要求。yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
           if (debut && data.yes_rank !== 0) {
             continue
@@ -1908,6 +1909,14 @@ function getListPage () {
 
           // 检查必须包含的 tag  的设置
           if (!checkNeedTag(data.tags)) {
+            continue
+          }
+
+          // 检查宽高设置和宽高比设置
+          if (
+            !checkSetWhok(data.width, data.height) ||
+            !checkRatio(data.width, data.height)
+          ) {
             continue
           }
 
@@ -1951,19 +1960,15 @@ function getListPage () {
         // 不要把下一行的 if 和上一行的 else 合并
         if (pageType === 10 && listIsNew === true) {
           // 关注的新作品 列表改成和 tag 搜索页一样的了
-          let thisOneInfo = listPageDocument
-            .querySelector(tagSearchDataSelector)
-            .getAttribute('data-items') // 保存本页的作品信息
+          let thisOneInfo = listPageDocument.querySelector(
+            tagSearchDataSelector
+          ).dataset.items // 保存本页的作品信息
 
           thisOneInfo = JSON.parse(thisOneInfo) // 转化为数组
 
           thisOneInfo.forEach(data => {
             let nowClass = ''
-            let bookmarked
-            const nowHref =
-              'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' +
-              data['illustId']
-            const pageCount = parseInt(data['pageCount']) // 包含的图片数量
+            const pageCount = parseInt(data.pageCount) // 包含的图片数量
 
             // 多图
             if (pageCount > 1) {
@@ -1971,22 +1976,21 @@ function getListPage () {
             }
 
             // 作品类型 0 插画 1 漫画 2 动图
-            const illustType = data['illustType']
+            const illustType = data.illustType
 
             // 动图
             if (illustType === '2') {
               nowClass = 'ugoku-illust'
             }
 
-            // 是否已收藏
-            if (data['isBookmarked']) {
-              bookmarked = true
-            }
-
+            const nowHref =
+              'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' +
+              data.illustId
+            const bookmarked = data.isBookmarked
             checkNotDownTypeResult(nowClass, nowHref, bookmarked)
           })
         } else {
-          // 比较传统的列表页，作品是直接包含在页面里的
+          // 传统的列表页，作品是直接包含在页面里的
           const allPicArea = listPageDocument.querySelectorAll(
             '._image-items .image-item'
           )
@@ -3546,7 +3550,7 @@ function readXzSetting () {
       notNeedTag: '',
       displayCover: true,
       quietDownload: true,
-      downloadThread: 6,
+      downloadThread: downloadThreadDeauflt,
       userSetName: '{id}',
       tagNameToFileName: true
     }
@@ -4706,8 +4710,7 @@ function allPageType () {
     // https://www.pixivision.net/zh/a/3190
 
     const type = document
-      .querySelector('a[data-gtm-action=ClickCategory]')
-      .getAttribute('data-gtm-label')
+      .querySelector('a[data-gtm-action=ClickCategory]').dataset.gtmLabel
 
     if (type === 'illustration' || type === 'manga' || type === 'cosplay') {
       // 在插画、漫画、cosplay类型的页面上创建下载功能
