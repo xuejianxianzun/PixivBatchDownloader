@@ -121,7 +121,7 @@ li {
 /* download panel and other */
 .centerWrap {
   position: fixed;
-  z-index: 1000;
+  z-index: 5000;
   font-size: 14px;
   display: none;
   width: 650px;
