@@ -4,8 +4,10 @@ const fs = require('fs')
 const path = require('path')
 const archiver = require('archiver')
 
-const zipName = path.resolve(__dirname, 'pixivbatchdownloader.zip')
+const zipName = path.join(__dirname, 'pixivbatchdownloader.zip')
 const output = fs.createWriteStream(zipName)
+
+const dist = 'src'
 
 const archive = archiver('zip', {
   zlib: { level: 9 } // Sets the compression level.
@@ -31,13 +33,15 @@ archive.file('LICENSE', { name: 'LICENSE' })
 // 此方法添加子文件夹里的文件，不会自动创建该子文件夹，需要手动指定生成的子文件夹名
 // archive.directory('lib/', 'lib')
 
+const globOptions = {
+  cwd: dist,
+}
+
 // append files from a glob pattern
 // 使用此方法添加子文件夹里的文件，会自动创建该子文件夹
-archive.glob('icon/*')
-archive.glob('images/*')
-archive.glob('js/*')
-archive.glob('lib/*')
-archive.glob('style/*')
+archive.glob('*/**', {cwd: path.join(globOptions.cwd, 'assets')})
+archive.glob('js/**', globOptions)
+archive.glob('lib/**', globOptions)
 archive.glob('*.md')
 
 // finalize the archive (ie we are done appending files but streams have to finish yet)
