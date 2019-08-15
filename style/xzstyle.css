@@ -14,8 +14,8 @@
 .adsbygoogle,
 .popular-introduction-overlay,
 .ui-fixed-container aside,
-iframe[name="header"],
-iframe[name="footer"],
+iframe[name='header'],
+iframe[name='footer'],
 section.ad {
   display: none !important;
   z-index: -999 !important;
@@ -337,7 +337,7 @@ li {
 }
 .XZTipEl {
   position: fixed;
-  z-index: 1001;
+  z-index: 5001;
   max-width: 400px;
   left: 0;
   top: 0;
@@ -360,7 +360,7 @@ li {
   padding: 20px 30px;
   width: 520px;
   background: #fff;
-  border-radius: 20px;
+  border-radius: 15px;
   z-index: 9999;
   box-shadow: 0 0 15px #2ca6df;
   display: none;
@@ -455,6 +455,9 @@ li {
 .sc-cLxPOX {
   padding-top: 0;
 }
+.xzForm select {
+  width: 80px;
+}
 .xzForm option {
   font-size: 14px !important;
   line-height: 24px;
@@ -472,4 +475,41 @@ li {
   opacity: 0.6;
   max-width: 100%;
   vertical-align: middle;
+}
+.xz_new {
+  background: #fff;
+  box-shadow: 0 0 15px #2ca6df;
+  position: fixed;
+  z-index: 9999;
+  width: 400px;
+  padding: 20px;
+  border-radius: 15px;
+  top: 5%;
+  left: 50%;
+  transform: translate(-50%);
+}
+.xz_new p {
+  margin: 0;
+}
+.xz_new .title {
+  font-size: 18px;
+  color: #0ea8ef;
+}
+.xz_new .content {
+  padding: 15px 0 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #555;
+}
+.xz_new .btn {
+  cursor: pointer;
+  background: #0ea8ef;
+  color: #fff;
+  outline: none;
+  border: none;
+  text-align: center;
+  float: right;
+  padding: 5px 10px;
+  padding: 7px 14px;
+  border-radius: 6px;
 }

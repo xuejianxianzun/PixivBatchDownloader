@@ -375,7 +375,9 @@ const xzLang = {
   ],
   _单图: ['单图 ', '1枚の作品', 'one images', '單圖 '],
   _多图: ['多图 ', '2枚以上の作品', 'multiple images', '多圖 '],
-  _动图: ['动图 ', 'うごイラ', 'ugoira', '動圖 '],
+  _插画: ['插画 ', 'イラスト', 'Illustrations', '插畫 '],
+  _漫画: ['漫画 ', '漫画', 'Manga', '漫畫 '],
+  _动图: ['动图 ', 'うごくイラスト', 'Ugoira', '動圖 '],
   _动图保存格式: [
     '动图保存格式',
     'うごイラの作品を保存する',
@@ -651,8 +653,14 @@ const xzLang = {
   _可用标记3: [
     '作品的 tag 列表',
     '作品の tags',
-    'Tags of works',
+    'The tags of the work',
     '作品的 tag 清單'
+  ],
+  _可用标记11: [
+    '作品的 tag 列表，附带翻译后的 tag（如果有）',
+    '作品のtagリスト、翻訳付きtag(あれば)',
+    'The tags of the work, with the translated tag (if any)',
+    '作品的 tag 清單，附帶翻譯後的 tag（若有的話）'
   ],
   _可用标记4: ['画师名字', 'アーティスト名', 'Artist name', '畫師名稱'],
   _可用标记6: ['画师 id', 'アーティスト ID', 'Artist id', '畫師 id'],
@@ -736,10 +744,10 @@ const xzLang = {
     '檢視下載說明'
   ],
   _下载说明: [
-    '下载的文件保存在浏览器的下载目录里。<br>请不要在浏览器的下载选项里选中\'总是询问每个文件的保存位置\'。<br>如果作品标题或tag里含有不能做文件名的字符，会被替换成下划线_。<br>如果下载进度卡住不动了，您可以先点击“暂停下载”按钮，之后点击“开始下载”按钮，尝试继续下载。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>QQ群：499873152',
-    'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br>ダウンロードの進行状況が継続できない場合は、[ダウンロードの一時停止]ボタンをクリックし、[ダウンロードの開始]ボタンをクリックしてダウンロードを続行します。<br><b>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。</b>',
-    'The downloaded file is saved in the browser`s download directory. <br>If the download progress is stuck, you can click the "Pause Download" button and then click the "Start Download" button to try to continue the download.<br><b>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.</b>',
-    '下載的檔案儲存在瀏覽器的下載目錄裡。<br>請不要在瀏覽器的下載選項裡選取\'總是詢問每個檔案的儲存位置\'。<br>如果作品標題或tag裡含有不能做檔名的字元，會被取代為下劃線_。<br>如果下載進度卡住不動了，您可以先點選“暫停下載”按鈕，之後點選“開始下載”按鈕，嘗試繼續下載。<br><b>如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。</b>'
+    '下载的文件保存在浏览器的下载目录里。<br>请不要在浏览器的下载选项里选中\'总是询问每个文件的保存位置\'。<br>如果作品标题或tag里含有不能做文件名的字符，会被替换成下划线_。<br>如果下载进度卡住不动了，您可以先点击“暂停下载”按钮，之后点击“开始下载”按钮，尝试继续下载。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>如果文件名超长，将会被截断。<br>QQ群：499873152',
+    'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br>ダウンロードの進行状況が継続できない場合は、[ダウンロードの一時停止]ボタンをクリックし、[ダウンロードの開始]ボタンをクリックしてダウンロードを続行します。<br><b>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。</b><br>ファイル名が長いと裁断される。',
+    'The downloaded file is saved in the browser`s download directory. <br>If the download progress is stuck, you can click the "Pause Download" button and then click the "Start Download" button to try to continue the download.<br><b>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.</b><br>If the file name is too long, it will be truncated.',
+    '下載的檔案儲存在瀏覽器的下載目錄裡。<br>請不要在瀏覽器的下載選項裡選取\'總是詢問每個檔案的儲存位置\'。<br>如果作品標題或tag裡含有不能做檔名的字元，會被取代為下劃線_。<br>如果下載進度卡住不動了，您可以先點選“暫停下載”按鈕，之後點選“開始下載”按鈕，嘗試繼續下載。<br><b>如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。</b><br>如果檔名過長，將會被截斷。<br>QQ群：499873152'
   ],
   _正在下载中: ['正在下载中', 'ダウンロード中', 'downloading', '正在下載'],
   _下载完毕: [
@@ -987,7 +995,7 @@ const xzLang = {
     '只下载首次登场的作品',
     '初登場作品のみダウンロードします',
     'Download only debut works',
-    '僅下載首次登場的作品'
+    '只下載首次登場的作品'
   ],
   _下载该页面的图片: [
     '下载该页面的图片',
@@ -1101,5 +1109,23 @@ const xzLang = {
     '「ダウンロードを開始する」ステータスが利用可能になると、ダウンロードは自動的に開始され、ダウンロードボタンをクリックする必要はありません。',
     'When the &quot;Start Downloa&quot; status is available, the download starts automatically and no need to click the download button.',
     '當“開始下載”狀態可用時，自動開始下載，不需要點選下載按鈕。'
+  ],
+  _最近更新: [
+    '最近更新',
+    '最近更新する',
+    'What`s new',
+    ''
+  ],
+  _确定: [
+    '确定',
+    '確定',
+    'Ok',
+    ''
+  ],
+  _xzNew200: [
+    '1. “设置作品类型”的 3 个选项，变更为“插画、漫画、动图”。<br>2. 新增命名字段 {tags_translate}，它会在每个 tag 的后面，附加翻译后的 tag（如果有）。',
+    '1.「作品タイプを設定」の3つの選択肢が、「イラスト、漫画、うごくイラスト」に変更された。<br>2.名前フィールド{tags_translate}が新たに追加され、それは各tagの后に、もしあれば、翻訳されたtagを追加することができる。',
+    '1. Change the 3 options for “Set the type of work” to Illustrations, Manga, Ugoira. <br>2. Add a new naming field {tags_translate}, which will append the translated tag (if any) after each tag.',
+    ''
   ]
 }
