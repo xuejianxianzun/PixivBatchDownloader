@@ -9,6 +9,19 @@ const output = fs.createWriteStream(zipName)
 
 const dist = 'src'
 
+const {version, description, name} = require('./package.json')
+const manifest = require('./src/manifest.json')
+
+const formatName = name => {
+  return name.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+}
+
+Object.assign(manifest, {
+  version,
+  description,
+  name: formatName(name)
+})
+
 const archive = archiver('zip', {
   zlib: { level: 9 } // Sets the compression level.
 })
@@ -26,7 +39,7 @@ archive.on('finish', () => {
 archive.pipe(output)
 
 // append a file
-archive.file('manifest.json', { name: 'manifest.json' })
+archive.append(JSON.stringify(manifest, null, 2), {name: 'manifest.json'})
 archive.file('LICENSE', { name: 'LICENSE' })
 
 // append files from a sub-directory and naming it `new-subdir` within the archive

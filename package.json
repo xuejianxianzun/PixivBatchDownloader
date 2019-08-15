@@ -1,7 +1,7 @@
 {
   "name": "pixiv-batch-downloader",
   "version": "1.9.3",
-  "description": "Pixiv Batch Downloader. fast, powerful, and make your browsing experience better.",
+  "description": "功能强大的 Pixiv 图片批量下载器. Pixiv Batch Downloader. fast, powerful, and make your browsing experience better.",
   "repository": "https://github.com/xuejianxianzun/PixivBatchDownloader",
   "author": "xuejianxianzun",
   "license": "GPL-3.0-or-later",
