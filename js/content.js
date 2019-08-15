@@ -186,7 +186,7 @@ let pageInfo = {} // 储存页面上可以用作文件名的信息
 
 let puser = '' // 页面上的画师名
 
-let optionAreaShow = true // 是否显示选项区域
+const optionAreaShow = true // 是否显示选项区域
 
 let delWork = false // 是否处于删除作品状态
 
@@ -3018,17 +3018,50 @@ function addCenterWarps () {
     <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
     </span>
     </p>
+    <p class="xzFormP3">
+    <span class="xztip settingNameStyle1" data-tip="${xzlt(
+    '_多p下载前几张提示'
+  )}">${xzlt('_多p下载前几张')}<span class="gray1"> ? </span></span>
+    <input type="text" name="setPNo" class="setinput_style1 xz_blue" value="${multipleDownNumber}">
+    </p>
+    <p class="xzFormP5">
+    <span class="xztip settingNameStyle1" data-tip="${xzlt(
+    '_设置作品类型的提示Center'
+  )}">${xzlt('_设置作品类型')}<span class="gray1"> ? </span></span>
+    <label for="setWorkType0"><input type="checkbox" name="setWorkType0" id="setWorkType0" checked> ${xzlt(
+    '_插画'
+  )}&nbsp;</label>
+    <label for="setWorkType1"><input type="checkbox" name="setWorkType1" id="setWorkType1" checked> ${xzlt(
+    '_漫画'
+  )}&nbsp;</label>
+    <label for="setWorkType2"><input type="checkbox" name="setWorkType2" id="setWorkType2" checked> ${xzlt(
+    '_动图'
+  )}&nbsp;</label>
+    </p>
+    <p class="xzFormP12">
+    <span class="xztip settingNameStyle1" data-tip="${xzlt(
+    '_动图保存格式title'
+  )}">${xzlt('_动图保存格式')}<span class="gray1"> ? </span></span>
+    <label for="ugoiraSaveAs1"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" value="webm" checked> ${xzlt(
+    '_webmVideo'
+  )} &nbsp;</label>
+    <label for="ugoiraSaveAs2"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" value="zip"> ${xzlt(
+    '_zipFile'
+  )} &nbsp;</label>
+    </p>
     <p class="xzFormP2">
     <span class="xztip settingNameStyle1" data-tip="${xzlt(
     '_筛选收藏数的提示Center'
   )}">${xzlt('_筛选收藏数Center')}<span class="gray1"> ? </span></span>
     <input type="text" name="setFavNum" class="setinput_style1 xz_blue" value="0">&nbsp;&nbsp;&nbsp;&nbsp;
     </p>
-    <p class="xzFormP3">
+    <p class="xzFormP11">
     <span class="xztip settingNameStyle1" data-tip="${xzlt(
-    '_多p下载前几张提示'
-  )}">${xzlt('_多p下载前几张')}<span class="gray1"> ? </span></span>
-    <input type="text" name="setPNo" class="setinput_style1 xz_blue" value="${multipleDownNumber}">
+    '_只下载已收藏的提示'
+  )}">${xzlt('_只下载已收藏')}<span class="gray1"> ? </span></span>
+    <label for="setOnlyBmk"><input type="checkbox" name="setOnlyBmk" id="setOnlyBmk"> ${xzlt(
+    '_启用'
+  )}</label>
     </p>
     <p class="xzFormP4">
     <span class="xztip settingNameStyle1" data-tip="${xzlt(
@@ -3057,39 +3090,6 @@ function addCenterWarps () {
     <input type="radio" name="ratio" id="ratio3" value="3"> <label for="ratio3"> ${xzlt(
     '_输入宽高比'
   )}<input type="text" name="userRatio" class="setinput_style1 xz_blue" value="1.4"></label>
-    </p>
-    <p class="xzFormP5">
-    <span class="xztip settingNameStyle1" data-tip="${xzlt(
-    '_设置作品类型的提示Center'
-  )}">${xzlt('_设置作品类型')}<span class="gray1"> ? </span></span>
-    <label for="setWorkType0"><input type="checkbox" name="setWorkType0" id="setWorkType0" checked> ${xzlt(
-    '_插画'
-  )}&nbsp;</label>
-    <label for="setWorkType1"><input type="checkbox" name="setWorkType1" id="setWorkType1" checked> ${xzlt(
-    '_漫画'
-  )}&nbsp;</label>
-    <label for="setWorkType2"><input type="checkbox" name="setWorkType2" id="setWorkType2" checked> ${xzlt(
-    '_动图'
-  )}&nbsp;</label>
-    </p>
-    <p class="xzFormP12">
-    <span class="xztip settingNameStyle1" data-tip="${xzlt(
-    '_动图保存格式title'
-  )}">${xzlt('_动图保存格式')}<span class="gray1"> ? </span></span>
-    <label for="ugoiraSaveAs1"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" value="webm" checked> ${xzlt(
-    '_webmVideo'
-  )} &nbsp;</label>
-    <label for="ugoiraSaveAs2"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" value="zip"> ${xzlt(
-    '_zipFile'
-  )} &nbsp;</label>
-    </p>
-    <p class="xzFormP11">
-    <span class="xztip settingNameStyle1" data-tip="${xzlt(
-    '_只下载已收藏的提示'
-  )}">${xzlt('_只下载已收藏')}<span class="gray1"> ? </span></span>
-    <label for="setOnlyBmk"><input type="checkbox" name="setOnlyBmk" id="setOnlyBmk"> ${xzlt(
-    '_启用'
-  )}</label>
     </p>
     <p class="xzFormP6">
     <span class="xztip settingNameStyle1" data-tip="${xzlt(
@@ -3293,9 +3293,6 @@ function addCenterWarps () {
   document
     .querySelector('.showDownTip')
     .addEventListener('click', () => toggle(document.querySelector('.downTip')))
-  document
-    .querySelector('.centerWrap_toogle_option')
-    .addEventListener('click', toggleOptionArea)
 
   // 显示提示
   xzTipEl = document.querySelector('.XZTipEl')
@@ -3531,17 +3528,16 @@ function centerWrapHide () {
 }
 
 // 收起展开选项设置区域
-function toggleOptionArea () {
-  optionAreaShow = !optionAreaShow
+function toggleOptionArea (bool) {
   const xzOptionArea = document.querySelectorAll('.xz_option_area')
 
   for (const iterator of xzOptionArea) {
-    iterator.style.display = optionAreaShow ? 'block' : 'none'
+    iterator.style.display = bool ? 'block' : 'none'
   }
 
-  document.querySelector('.centerWrap_toogle_option').innerHTML = optionAreaShow
-    ? '▲'
-    : '▼'
+  document.querySelector('.centerWrap_toogle_option').innerHTML = bool
+    ? '▼'
+    : '▲'
 }
 
 // 使用快捷键 Alt + x 切换显示隐藏
@@ -3579,7 +3575,8 @@ function readXzSetting () {
       quietDownload: true,
       downloadThread: downloadThreadDeauflt,
       userSetName: '{id}',
-      tagNameToFileName: true
+      tagNameToFileName: true,
+      showOptions: true
     }
   } else {
     xzSetting = JSON.parse(xzSetting)
@@ -3623,40 +3620,60 @@ function readXzSetting () {
 
   // 设置必须的 tag
   const setTagNeedInput = xzForm.setTagNeed
-  setTagNeedInput.value = xzSetting.needTag // 保存必须的 tag设置
+  setTagNeedInput.value = xzSetting.needTag
 
+  // 保存必须的 tag设置
   setTagNeedInput.addEventListener('change', function () {
     saveXzSetting('needTag', this.value)
   })
 
   // 设置排除的 tag
   const setTagNotNeedInput = xzForm.setTagNotNeed
-  setTagNotNeedInput.value = xzSetting.notNeedTag // 保存排除的 tag设置
+  setTagNotNeedInput.value = xzSetting.notNeedTag
 
+  // 保存排除的 tag设置
   setTagNotNeedInput.addEventListener('change', function () {
     saveXzSetting('notNeedTag', this.value)
   })
 
   // 设置是否显示封面
   const setDisplayCoverInput = xzForm.setDisplayCover
-  setDisplayCoverInput.checked = xzSetting.displayCover // 保存封面选项
+  setDisplayCoverInput.checked = xzSetting.displayCover
 
+  // 保存封面选项
   setDisplayCoverInput.addEventListener('click', function () {
     saveXzSetting('displayCover', this.checked)
   })
 
+  // 设置是否显示选项区域
+  const showOptionsBtn = document.querySelector('.centerWrap_toogle_option')
+  let showOptions = true
+  if (xzSetting.showOptions !== undefined) {
+    showOptions = xzSetting.showOptions
+  }
+  toggleOptionArea(showOptions)
+
+  // 保存是否显示选项区域
+  showOptionsBtn.addEventListener('click', () => {
+    showOptions = !showOptions
+    toggleOptionArea(showOptions)
+    saveXzSetting('showOptions', showOptions)
+  })
+
   // 设置快速下载
   const setQuietDownloadInput = xzForm.setQuietDownload
-  setQuietDownloadInput.checked = xzSetting.quietDownload // 保存快速下载
+  setQuietDownloadInput.checked = xzSetting.quietDownload
 
+  // 保存快速下载
   setQuietDownloadInput.addEventListener('click', function () {
     saveXzSetting('quietDownload', this.checked)
   })
 
   // 设置下载线程
   const setThreadInput = xzForm.setThread
-  setThreadInput.value = xzSetting.downloadThread // 保存下载线程
+  setThreadInput.value = xzSetting.downloadThread
 
+  // 保存下载线程
   setThreadInput.addEventListener('change', function () {
     if (this.value > 0 && this.value <= 10) {
       saveXzSetting('downloadThread', this.value)
