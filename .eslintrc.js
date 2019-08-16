@@ -3,8 +3,7 @@ module.exports = {
   plugins: ['standard', 'import', 'node', 'promise'],
   rules: {
     'no-console': 'off',
-    'no-useless-catch': 'off',
-    'no-unused-vars': 'off'
+    'no-useless-catch': 'off'
   },
   globals: {
     fetch: true,
