@@ -186,8 +186,6 @@ let pageInfo = {} // 储存页面上可以用作文件名的信息
 
 let puser = '' // 页面上的画师名
 
-const optionAreaShow = true // 是否显示选项区域
-
 let delWork = false // 是否处于删除作品状态
 
 let onlyDownBmk = false // 是否只下载收藏的作品
@@ -2642,7 +2640,7 @@ async function getIllustPage (url) {
 
     // 检查通过
     if (totalCheck) {
-      if (data.illustType !== '2') {
+      if (jsInfo.illustType !== 2) {
         // 插画或漫画
         // 检查要下载该作品的前面几张
         let pNo = jsInfo.pageCount
@@ -2675,7 +2673,7 @@ async function getIllustPage (url) {
           )
         }
         outputImgNum()
-      } else if (data.illustType === '2') {
+      } else if (jsInfo.illustType === 2) {
         // 动图
         // 获取动图的信息
         const getUgoiraInfo = await fetch(
