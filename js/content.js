@@ -3234,8 +3234,8 @@ function addCenterWarps () {
     ${xzlt('_当前状态')}
     <span class="down_status xz_blue"> ${xzlt('_未开始下载')}</span>
     </p>
-    <div>
-    ${xzlt('_下载进度')}
+    <div class="progressBarWrap">
+    <span class="text">${xzlt('_下载进度')}</span>
     <div class="right1">
     <div class="progressBar progressBar1">
     <div class="progress progress1"></div>
@@ -3534,8 +3534,8 @@ function toggleOptionArea (bool) {
   }
 
   document.querySelector('.centerWrap_toogle_option').innerHTML = bool
-    ? '▼'
-    : '▲'
+    ? '▲'
+    : '▼'
 }
 
 // 使用快捷键 Alt + x 切换显示隐藏

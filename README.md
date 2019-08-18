@@ -8,7 +8,7 @@
 
 现在也增加了一些辅助功能，如去除广告、快速收藏、看图模式、给未分类作品添加 tag 等。
 
-![PixivBatchDownloader](https://wx2.sinaimg.cn/large/640defebly1fzm9gl6fhtj20kl0l80vg.jpg)
+![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/2019-08-18-11-12-52.png)
 
 # 安装：
 
