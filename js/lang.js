@@ -719,10 +719,10 @@ const xzLang = {
     'You can enter a number between 1-10 to set the number of concurrent downloads',
     '可以輸入 1-10 之間的數字，設定同時下載的數量'
   ],
-  _下载按钮1: ['开始下载', 'start download', 'start download', '開始下載'],
-  _下载按钮2: ['暂停下载', 'pause download', 'pause download', '暫停下載'],
-  _下载按钮3: ['停止下载', 'stop download', 'stop download', '停止下載'],
-  _下载按钮4: ['复制url', 'copy urls', 'copy urls', '複製url'],
+  _下载按钮1: ['开始下载', 'ダウンロードを開始', 'start download', '開始下載'],
+  _下载按钮2: ['暂停下载', 'ダウンロードを一時停止', 'pause download', '暫停下載'],
+  _下载按钮3: ['停止下载', 'ダウンロードを停止', 'stop download', '停止下載'],
+  _下载按钮4: ['复制 url', 'URLをコピー', 'copy urls', '複製url'],
   _当前状态: ['当前状态 ', '現在の状態 ', 'Now state ', '目前狀態 '],
   _未开始下载: [
     '未开始下载',
