@@ -43,7 +43,9 @@ const onceRequest = 100 // 每次请求多少个数量
 
 let type2IdList = [] // 储存 pageType 2 的 id 列表
 
-let imgInfo = [] // 储存图片信息，其中可能会有空值，如 [] 和 ''
+let imgInfo = [] // 储存图片信息
+
+let downloadedList = [] // 标记已完成的完成的下载任务
 
 let illustUrlList = [] // 储存要下载的作品的页面url
 
@@ -156,13 +158,13 @@ let downloadStop = false // 是否停止下载
 
 let downloadPause = false // 是否暂停下载
 
+let reTryTimer = 0 // 重试下载的定时器
+
 let oldTitle = document.title // 原始 title，需要加下载状态时使用
 
 let titleTimer // 修改 title 的定时器
 
 let clickTime = 0 // 向浏览器发送下载任务的时间戳
-
-let timeDelay = 0 // 延迟点击的时间
 
 const timeInterval = 200 // 设置向浏览器发送下载任务的间隔时间。如果在很短时间内让浏览器建立大量下载任务，有一些下载任务就会丢失，所以设置这个参数。
 
@@ -3322,132 +3324,166 @@ function addCenterWarps () {
 
   // 绑定开始下载按钮的事件
   document.querySelector('.startDownload').addEventListener('click', () => {
-    // 如果正在下载中，或无图片，则不予处理
-    if (downloadStarted || imgInfo.length === 0) {
-      return false
-    }
-
-    // 检查是否是可以下载的时间
-    const time1 = new Date().getTime() - canStartTime
-
-    // 时间未到
-    if (time1 < 0) {
-      setTimeout(() => {
-        document.querySelector('.startDownload').click() // 到时间了再点击开始按钮
-      }, Math.abs(time1))
-      return false
-    }
-
-    // 重置一些条件
-
-    // 检查下载线程设置
-    const setThread = parseInt(xzForm.setThread.value)
-    if (setThread < 1 || setThread > 10 || isNaN(setThread)) {
-      downloadThread = downloadThreadDeauflt // 重设为默认值
-    } else {
-      downloadThread = setThread // 设置为用户输入的值
-    }
-
-    // 检查下载线程数
-    if (imgInfo.length < downloadThread) {
-      downloadThread = imgInfo.length
-    }
-
-    // 显示下载队列
-    const centerWrapDownList = document.querySelector('.centerWrap_down_list')
-    centerWrapDownList.style.display = 'block'
-
-    // 如果下载线程数量发生变化，重设下载进度条的数量
-    const downloadBar = document.querySelectorAll('.downloadBar')
-    if (downloadBar.length !== downloadThread) {
-      let result = ''
-
-      for (let i = 0; i < downloadThread; i++) {
-        result += downloadBar[0].outerHTML
-      }
-
-      centerWrapDownList.innerHTML = result
-    }
-
-    downloadBarList = document.querySelectorAll('.downloadBar')
-    downloadStarted = true
-
-    // 如果没有暂停，则重新下载，否则继续下载
-    if (!downloadPause) {
-      resetDownloadPanel()
-    }
-    downloadPause = false
-    downloadStop = false
-
-    addOutputInfo('<br>' + xzlt('_正在下载中') + '<br>')
-
-    // tag 搜索页按收藏数从高到低下载
-    if (pageType === 5) {
-      imgInfo.sort(sortByProperty('bmk'))
-    }
-
-    // 启动或继续下载，建立并发下载线程
-    for (let i = 0; i < downloadThread; i++) {
-      if (i + downloaded < imgInfo.length) {
-        startDownload(i + downloaded, i)
-      }
-    }
-
-    document.querySelector('.down_status').textContent = xzlt('_正在下载中')
+    startDownload()
   })
 
   // 暂停下载按钮
   document.querySelector('.pauseDownload').addEventListener('click', () => {
-    if (imgInfo.length === 0) {
-      return false
-    }
-
-    // 停止的优先级高于暂停。点击停止可以取消暂停状态，但点击暂停不能取消停止状态
-    if (downloadStop === true) {
-      return false
-    }
-
-    if (downloadPause === false) {
-      // 如果正在下载中
-      if (downloadStarted) {
-        downloadPause = true // 发出暂停信号
-        downloadStarted = false
-        canStartTime = new Date().getTime() + pauseStartDealy // 设置延迟一定时间后才允许继续下载
-
-        document.querySelector(
-          '.down_status'
-        ).innerHTML = `<span style="color:#f00">${xzlt('_已暂停')}</span>`
-        addOutputInfo(xzlt('_已暂停') + '<br><br>')
-      } else {
-        // 不在下载中的话不允许启用暂停功能
-        return false
-      }
-    }
+    pauseDownload()
   })
 
   // 停止下载按钮
   document.querySelector('.stopDownload').addEventListener('click', () => {
-    if (imgInfo.length === 0) {
-      return false
-    }
-
-    if (downloadStop === false) {
-      downloadStop = true
-      downloadStarted = false
-      canStartTime = new Date().getTime() + pauseStartDealy // 设置延迟一定时间后才允许继续下载
-
-      document.querySelector(
-        '.down_status'
-      ).innerHTML = `<span style="color:#f00">${xzlt('_已停止')}</span>`
-      addOutputInfo(xzlt('_已停止') + '<br><br>')
-      downloadPause = false
-    }
+    stopDownload()
   })
 
   // 复制url按钮
   document
     .querySelector('.copyUrl')
     .addEventListener('click', () => showOutputInfoWrap('url'))
+}
+
+// 开始下载
+function startDownload () {
+  // 如果正在下载中，或无图片，则不予处理
+  if (downloadStarted || imgInfo.length === 0) {
+    return false
+  }
+
+  // 检查是否是可以下载的时间
+  const time1 = new Date().getTime() - canStartTime
+
+  // 时间未到
+  if (time1 < 0) {
+    setTimeout(() => {
+      startDownload()
+    }, Math.abs(time1))
+    return false
+  }
+
+  // 重置一些条件
+
+  // 检查下载线程设置
+  const setThread = parseInt(xzForm.setThread.value)
+  if (setThread < 1 || setThread > 10 || isNaN(setThread)) {
+    downloadThread = downloadThreadDeauflt // 重设为默认值
+  } else {
+    downloadThread = setThread // 设置为用户输入的值
+  }
+
+  // 检查下载线程数
+  if (imgInfo.length < downloadThread) {
+    downloadThread = imgInfo.length
+  }
+
+  // 显示下载队列
+  const centerWrapDownList = document.querySelector('.centerWrap_down_list')
+  centerWrapDownList.style.display = 'block'
+
+  // 如果下载线程数量发生变化，重设下载进度条的数量
+  const downloadBar = document.querySelectorAll('.downloadBar')
+  if (downloadBar.length !== downloadThread) {
+    let result = ''
+
+    for (let i = 0; i < downloadThread; i++) {
+      result += downloadBar[0].outerHTML
+    }
+
+    centerWrapDownList.innerHTML = result
+  }
+
+  downloadBarList = document.querySelectorAll('.downloadBar')
+  downloadStarted = true
+
+  // 如果没有暂停，则重新下载，否则继续下载
+  if (!downloadPause) {
+    resetDownloadPanel()
+  }
+  downloadPause = false
+  downloadStop = false
+
+  addOutputInfo('<br>' + xzlt('_正在下载中') + '<br>')
+
+  // tag 搜索页按收藏数从高到低下载
+  if (pageType === 5) {
+    imgInfo.sort(sortByProperty('bmk'))
+  }
+
+  // 如果是新开始的下载，则初始化下载记录
+  if (downloaded === 0) {
+    downloadedList = new Array(imgInfo.length).fill(false)
+  }
+
+  // 启动或继续下载，建立并发下载线程
+  for (let i = 0; i < downloadThread; i++) {
+    if (i + downloaded < imgInfo.length) {
+      downloadFile(i + downloaded, i)
+    }
+  }
+
+  document.querySelector('.down_status').textContent = xzlt('_正在下载中')
+}
+
+// 暂停下载
+function pauseDownload () {
+  if (imgInfo.length === 0) {
+    return false
+  }
+
+  // 停止的优先级高于暂停。点击停止可以取消暂停状态，但点击暂停不能取消停止状态
+  if (downloadStop === true) {
+    return false
+  }
+
+  if (downloadPause === false) {
+    // 如果正在下载中
+    if (downloadStarted) {
+      downloadPause = true // 发出暂停信号
+      downloadStarted = false
+      quick = false
+      changeTitle('║')
+      canStartTime = new Date().getTime() + pauseStartDealy // 设置延迟一定时间后才允许继续下载
+
+      document.querySelector(
+        '.down_status'
+      ).innerHTML = `<span style="color:#f00">${xzlt('_已暂停')}</span>`
+      addOutputInfo(xzlt('_已暂停') + '<br><br>')
+    } else {
+      // 不在下载中的话不允许启用暂停功能
+      return false
+    }
+  }
+}
+
+// 停止下载
+function stopDownload () {
+  if (imgInfo.length === 0) {
+    return false
+  }
+
+  if (downloadStop === false) {
+    downloadedList = []
+    downloadStop = true
+    downloadStarted = false
+    quick = false
+    changeTitle('■')
+    canStartTime = new Date().getTime() + pauseStartDealy // 设置延迟一定时间后才允许继续下载
+
+    document.querySelector(
+      '.down_status'
+    ).innerHTML = `<span style="color:#f00">${xzlt('_已停止')}</span>`
+    addOutputInfo(xzlt('_已停止') + '<br><br>')
+    downloadPause = false
+  }
+}
+
+// 重试下载
+function reTryDownload () {
+  pauseDownload()
+  clearTimeout(reTryTimer)
+  reTryTimer = setTimeout(() => {
+    startDownload()
+  }, 10000)
 }
 
 // 向中间面板添加按钮
@@ -3978,11 +4014,16 @@ function getFileName (data) {
   return result
 }
 
-// 开始下载。参数是下载序号、要使用的下载栏的序号
-function startDownload (downloadNo, downloadBarNo) {
-  changeTitle('↓')
-  // console.log(downloadNo)
+// 下载文件。参数是下载序号、要使用的下载栏的序号
+function downloadFile (downloadNo, downloadBarNo) {
+  console.log(downloadNo)
 
+  changeTitle('↓')
+  // 重设进度信息
+  const loadedBar = downloadBarList[downloadBarNo].querySelector('.loaded')
+  const progressBar = downloadBarList[downloadBarNo].querySelector('.progress')
+  loadedBar.textContent = '0/0'
+  progressBar.style.width = '0%'
   // 获取文件名
   const thisImgInfo = imgInfo[downloadNo]
   const fullFileName = getFileName(thisImgInfo)
@@ -4003,14 +4044,18 @@ function startDownload (downloadNo, downloadBarNo) {
     e = e || window.event
     const loaded = Math.floor(e.loaded / 1024)
     const total = Math.floor(e.total / 1024)
-    downloadBarList[downloadBarNo].querySelector('.loaded').textContent =
-      loaded + '/' + total
-    downloadBarList[downloadBarNo].querySelector('.progress').style.width =
-      (loaded / total) * 100 + '%'
+    loadedBar.textContent = loaded + '/' + total
+    progressBar.style.width = (loaded / total) * 100 + '%'
   })
   // 图片下载完成
   xhr.addEventListener('loadend', async function () {
     if (downloadPause || downloadStop) {
+      return false
+    }
+    console.log(xhr.status)
+    // 如果状态码错误，但是下载时 loadend 的都是 200
+    if (xhr.status !== 200) {
+      reTryDownload()
       return false
     }
 
@@ -4039,7 +4084,16 @@ function startDownload (downloadNo, downloadBarNo) {
     // 生成下载链接
     const blobUrl = URL.createObjectURL(file)
     // 向浏览器发送下载任务
+    console.log('name: ' + fullFileName)
     browserDownload(blobUrl, fullFileName, downloadBarNo)
+  })
+  // 捕获错误
+  xhr.addEventListener('error', function () {
+    // 下载途中突然网络变化会 error，xhr.status 为 0。比如原本下载是走梯子的，梯子断了导致网络连接中断会直接 error。
+    console.log('error')
+    console.log(xhr.status)
+    reTryDownload()
+    return false
   })
   xhr.send()
 }
@@ -4086,15 +4140,6 @@ chrome.runtime.onMessage.addListener(function (msg) {
 
 // 下载之后
 function afterDownload (downloadBarNo) {
-  // 计算延迟时间
-  clickTime = new Date().getTime()
-  timeDelay -= timeInterval
-
-  // 因为有多个线程，所以有可能把 timeDelay 减小到 0 以下，这里做限制
-  if (timeDelay < 0) {
-    timeDelay += timeInterval
-  }
-
   // 显示进度信息
   downloaded++
   document.querySelector('.downloaded').textContent = downloaded
@@ -4108,30 +4153,22 @@ function afterDownload (downloadBarNo) {
     downloadStop = false
     downloadPause = false
     downloaded = 0
+    downloadedList = []
+    clearTimeout(reTryTimer)
     document.querySelector('.down_status').textContent = xzlt('_下载完毕')
     addOutputInfo(xzlt('_下载完毕') + '<br><br>')
     changeTitle('√')
   } else {
     // 如果没有全部下载完毕
-    // 如果已经暂停下载
-    if (downloadPause) {
-      downloadStarted = false
-      quick = false
-      changeTitle('║')
-      return false
-    } // 如果已经停止下载
-
-    if (downloadStop) {
-      downloadStarted = false
-      quick = false
-      changeTitle('■')
+    // 如果已经暂停下载或停止下载
+    if (downloadPause || downloadStop) {
       return false
     }
 
     // 继续添加任务
     if (downloaded + downloadThread - 1 < imgInfo.length) {
       // 如果已完成的数量 加上 线程中未完成的数量，仍然没有达到文件总数
-      startDownload(downloaded + downloadThread - 1, downloadBarNo) // 这里需要减一，就是downloaded本次自增的数字，否则会跳一个序号
+      downloadFile(downloaded + downloadThread - 1, downloadBarNo) // 这里需要减一，就是downloaded本次自增的数字，否则会跳一个序号
     }
   }
 }
@@ -4139,6 +4176,7 @@ function afterDownload (downloadBarNo) {
 // 清空图片信息并重置输出区域，在重复抓取时使用
 function resetResult () {
   imgInfo = []
+  downloadedList = []
   centerWrapHide()
   document.querySelector('.outputInfoContent').innerHTML = ''
   downloadStarted = false
