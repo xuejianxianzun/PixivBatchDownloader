@@ -2885,7 +2885,7 @@ function allWorkFinished () {
 
     // 快速下载时点击下载按钮
     if (quick || quietDownload) {
-      document.querySelector('.startDownload').click()
+      startDownload()
     }
   } else {
     // 如果没有完成，则延迟一段时间后再执行
@@ -3363,7 +3363,19 @@ function startDownload () {
 
   // 重置一些条件
 
-  // 检查下载线程设置
+  // 如果之前不是暂停状态，则需要重新下载
+  if (!downloadPause) {
+    resetDownloadPanel()
+
+    // 重新开始下载时，初始化下载记录
+    // 状态：
+    // -1 未使用
+    // 0 使用中
+    // 1 已完成
+    downloadedList = new Array(imgInfo.length).fill(-1)
+  }
+
+  // 下载线程设置
   const setThread = parseInt(xzForm.setThread.value)
   if (setThread < 1 || setThread > 10 || isNaN(setThread)) {
     downloadThread = downloadThreadDeauflt // 重设为默认值
@@ -3371,16 +3383,13 @@ function startDownload () {
     downloadThread = setThread // 设置为用户输入的值
   }
 
-  // 检查下载线程数
-  if (imgInfo.length < downloadThread) {
-    downloadThread = imgInfo.length
+  // 如果剩余任务数量少于下载线程数
+  if (imgInfo.length - downloaded < downloadThread) {
+    downloadThread = imgInfo.length - downloaded
   }
 
-  // 显示下载队列
+  // 重设下载进度条的数量
   const centerWrapDownList = document.querySelector('.centerWrap_down_list')
-  centerWrapDownList.style.display = 'block'
-
-  // 如果下载线程数量发生变化，重设下载进度条的数量
   const downloadBar = document.querySelectorAll('.downloadBar')
   if (downloadBar.length !== downloadThread) {
     let result = ''
@@ -3393,35 +3402,26 @@ function startDownload () {
   }
 
   downloadBarList = document.querySelectorAll('.downloadBar')
-  downloadStarted = true
-
-  // 如果没有暂停，则重新下载，否则继续下载
-  if (!downloadPause) {
-    resetDownloadPanel()
-  }
-  downloadPause = false
-  downloadStop = false
-
-  addOutputInfo('<br>' + xzlt('_正在下载中') + '<br>')
+  centerWrapDownList.style.display = 'block'
 
   // tag 搜索页按收藏数从高到低下载
   if (pageType === 5) {
     imgInfo.sort(sortByProperty('bmk'))
   }
 
-  // 如果是新开始的下载，则初始化下载记录
-  if (downloaded === 0) {
-    downloadedList = new Array(imgInfo.length).fill(false)
-  }
+  downloadPause = false
+  downloadStop = false
+  downloadStarted = true
+  clearTimeout(reTryTimer)
 
   // 启动或继续下载，建立并发下载线程
   for (let i = 0; i < downloadThread; i++) {
-    if (i + downloaded < imgInfo.length) {
-      downloadFile(i + downloaded, i)
-    }
+    downloadFile(i)
   }
 
   document.querySelector('.down_status').textContent = xzlt('_正在下载中')
+
+  addOutputInfo('<br>' + xzlt('_正在下载中') + '<br>')
 }
 
 // 暂停下载
@@ -3444,6 +3444,13 @@ function pauseDownload () {
       changeTitle('║')
       canStartTime = new Date().getTime() + pauseStartDealy // 设置延迟一定时间后才允许继续下载
 
+      // 把“使用中”的下载状态修改为“未使用”
+      for (let index = 0; index < downloadedList.length; index++) {
+        if (downloadedList[index] === 0) {
+          downloadedList[index] = -1
+        }
+      }
+
       document.querySelector(
         '.down_status'
       ).innerHTML = `<span style="color:#f00">${xzlt('_已暂停')}</span>`
@@ -3462,8 +3469,9 @@ function stopDownload () {
   }
 
   if (downloadStop === false) {
-    downloadedList = []
     downloadStop = true
+    downloadedList = []
+    downloaded = 0
     downloadStarted = false
     quick = false
     changeTitle('■')
@@ -3479,11 +3487,16 @@ function stopDownload () {
 
 // 重试下载
 function reTryDownload () {
+  // 如果下载已经完成，则不执行操作
+  if (downloaded === imgInfo.length) {
+    return false
+  }
+  // 暂停下载并在一定时间后重试下载
   pauseDownload()
   clearTimeout(reTryTimer)
   reTryTimer = setTimeout(() => {
     startDownload()
-  }, 10000)
+  }, 20000)
 }
 
 // 向中间面板添加按钮
@@ -4014,18 +4027,28 @@ function getFileName (data) {
   return result
 }
 
-// 下载文件。参数是下载序号、要使用的下载栏的序号
-function downloadFile (downloadNo, downloadBarNo) {
-  console.log(downloadNo)
-
+// 下载文件。参数是要使用的下载栏的序号
+function downloadFile (downloadBarNo) {
+  // 修改标题
   changeTitle('↓')
+  // 获取要下载的文件
+  let thisImgInfo = {}
+  let thisIndex
+  for (let index = 0; index < downloadedList.length; index++) {
+    if (downloadedList[index] === -1) {
+      thisImgInfo = imgInfo[index]
+      thisIndex = index
+      downloadedList[thisIndex] = 0
+      break
+    }
+  }
+
   // 重设进度信息
   const loadedBar = downloadBarList[downloadBarNo].querySelector('.loaded')
   const progressBar = downloadBarList[downloadBarNo].querySelector('.progress')
   loadedBar.textContent = '0/0'
   progressBar.style.width = '0%'
   // 获取文件名
-  const thisImgInfo = imgInfo[downloadNo]
   const fullFileName = getFileName(thisImgInfo)
   downloadBarList[downloadBarNo].querySelector(
     '.download_fileName'
@@ -4050,10 +4073,11 @@ function downloadFile (downloadNo, downloadBarNo) {
   // 图片下载完成
   xhr.addEventListener('loadend', async function () {
     if (downloadPause || downloadStop) {
+      xhr.abort()
       return false
     }
-    console.log(xhr.status)
-    // 如果状态码错误，但是下载时 loadend 的都是 200
+
+    // 状态码异常时重试。但使用时进入 loadend 的都是 200。
     if (xhr.status !== 200) {
       reTryDownload()
       return false
@@ -4084,14 +4108,11 @@ function downloadFile (downloadNo, downloadBarNo) {
     // 生成下载链接
     const blobUrl = URL.createObjectURL(file)
     // 向浏览器发送下载任务
-    console.log('name: ' + fullFileName)
-    browserDownload(blobUrl, fullFileName, downloadBarNo)
+    browserDownload(blobUrl, fullFileName, downloadBarNo, thisIndex)
   })
   // 捕获错误
   xhr.addEventListener('error', function () {
-    // 下载途中突然网络变化会 error，xhr.status 为 0。比如原本下载是走梯子的，梯子断了导致网络连接中断会直接 error。
-    console.log('error')
-    console.log(xhr.status)
+    // 下载途中突然网络变化导致链接断开、以及超时都会 error，xhr.status 为 0。
     reTryDownload()
     return false
   })
@@ -4099,12 +4120,12 @@ function downloadFile (downloadNo, downloadBarNo) {
 }
 
 // 向浏览器发送下载任务
-function browserDownload (blobUrl, fullFileName, downloadBarNo) {
+function browserDownload (blobUrl, fullFileName, downloadBarNo, thisIndex) {
   // 如果前后两次任务的时间间隔小于 time_interval，则延迟一定时间使间隔达到 time_interval。
   const t = new Date().getTime() - clickTime
   if (t < timeInterval) {
     setTimeout(() => {
-      browserDownload(blobUrl, fullFileName, downloadBarNo)
+      browserDownload(blobUrl, fullFileName, downloadBarNo, thisIndex)
     }, timeInterval - t)
     return false
   }
@@ -4116,6 +4137,9 @@ function browserDownload (blobUrl, fullFileName, downloadBarNo) {
     fileName: fullFileName,
     no: downloadBarNo
   })
+
+  // 更改这个任务状态为“已完成”
+  downloadedList[thisIndex] = 1
 }
 
 // 监听后台发送的消息
@@ -4124,7 +4148,7 @@ chrome.runtime.onMessage.addListener(function (msg) {
   if (msg.msg === 'downloaded') {
     // 扩展下载完成之后
     afterDownload(msg.data.no)
-    // 这个 blobUrl 是在前台页面创建的，也要在前台页面撤销，后台页面不能撤销它
+    // 这个 blobUrl 是在前台页面创建的，也要在前台页面撤销
     URL.revokeObjectURL(msg.data.url)
   } else if (msg.msg === 'click_icon') {
     // 点击图标
@@ -4152,12 +4176,11 @@ function afterDownload (downloadBarNo) {
     quick = false
     downloadStop = false
     downloadPause = false
-    downloaded = 0
-    downloadedList = []
     clearTimeout(reTryTimer)
     document.querySelector('.down_status').textContent = xzlt('_下载完毕')
     addOutputInfo(xzlt('_下载完毕') + '<br><br>')
     changeTitle('√')
+    console.log(downloadedList)
   } else {
     // 如果没有全部下载完毕
     // 如果已经暂停下载或停止下载
@@ -4168,7 +4191,7 @@ function afterDownload (downloadBarNo) {
     // 继续添加任务
     if (downloaded + downloadThread - 1 < imgInfo.length) {
       // 如果已完成的数量 加上 线程中未完成的数量，仍然没有达到文件总数
-      downloadFile(downloaded + downloadThread - 1, downloadBarNo) // 这里需要减一，就是downloaded本次自增的数字，否则会跳一个序号
+      downloadFile(downloadBarNo)
     }
   }
 }
@@ -4928,7 +4951,7 @@ async function expand () {
   listenHistory()
   xzRemove()
   setLangType()
-  checkWhatIsNew('_xzNew200')
+  checkWhatIsNew('_xzNew220')
   addRightButton()
   addCenterWarps()
   swtichCenterWrap()
