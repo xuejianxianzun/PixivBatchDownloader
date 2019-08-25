@@ -671,10 +671,10 @@ window.xzLang = {
     '檢視下載說明'
   ],
   _下载说明: [
-    "下载的文件保存在浏览器的下载目录里。<br>请不要在浏览器的下载选项里选中'总是询问每个文件的保存位置'。<br>如果作品标题或tag里含有不能做文件名的字符，会被替换成下划线_。<br>如果下载进度卡住不动了，您可以先点击“暂停下载”按钮，之后点击“开始下载”按钮，尝试继续下载。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>如果文件名超长，将会被截断。<br>QQ群：499873152",
-    'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br>ダウンロードの進行状況が継続できない場合は、[ダウンロードの一時停止]ボタンをクリックし、[ダウンロードの開始]ボタンをクリックしてダウンロードを続行します。<br><b>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。</b><br>ファイル名が長いと裁断される。',
-    'The downloaded file is saved in the browser`s download directory. <br>If the download progress is stuck, you can click the "Pause Download" button and then click the "Start Download" button to try to continue the download.<br><b>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.</b><br>If the file name is too long, it will be truncated.',
-    "下載的檔案儲存在瀏覽器的下載目錄裡。<br>請不要在瀏覽器的下載選項裡選取'總是詢問每個檔案的儲存位置'。<br>如果作品標題或tag裡含有不能做檔名的字元，會被取代為下劃線_。<br>如果下載進度卡住不動了，您可以先點選“暫停下載”按鈕，之後點選“開始下載”按鈕，嘗試繼續下載。<br><b>如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。</b><br>如果檔名過長，將會被截斷。<br>QQ群：499873152"
+    "下载的文件保存在浏览器的下载目录里。<br>请不要在浏览器的下载选项里选中'总是询问每个文件的保存位置'。<br>如果作品标题或tag里含有不能做文件名的字符，会被替换成下划线_。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>如果文件名超长，将会被截断。<br>QQ群：499873152",
+    'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><b>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。</b><br>ファイル名が長いと裁断される。',
+    'The downloaded file is saved in the browser`s download directory. <b>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.</b><br>If the file name is too long, it will be truncated.',
+    "下載的檔案儲存在瀏覽器的下載目錄裡。<br>請不要在瀏覽器的下載選項裡選取'總是詢問每個檔案的儲存位置'。<br>如果作品標題或tag裡含有不能做檔名的字元，會被取代為下劃線_。<br><b>如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。</b><br>如果檔名過長，將會被截斷。<br>QQ群：499873152"
   ],
   _正在下载中: ['正在下载中', 'ダウンロード中', 'downloading', '正在下載'],
   _下载完毕: [
@@ -985,10 +985,10 @@ window.xzLang = {
   ],
   _最近更新: ['最近更新', '最近更新する', 'What`s new', '最近更新'],
   _确定: ['确定', '確定', 'Ok', '確定'],
-  _xzNew200: [
-    '1. “设置作品类型”的 3 个选项，变更为“插画、漫画、动图”。<br>2. 新增命名字段 {tags_translate}，它会在每个 tag 的后面，附加翻译后的 tag（如果有）。',
-    '1.「作品タイプを設定」の3つの選択肢が、「イラスト、漫画、うごくイラスト」に変更された。<br>2.名前フィールド{tags_translate}が新たに追加され、それは各tagの后に、もしあれば、翻訳されたtagを追加することができる。',
-    '1. Change the 3 options for “Set the type of work” to Illustrations, Manga, Ugoira. <br>2. Add a new naming field {tags_translate}, which will append the translated tag (if any) after each tag.',
-    '1. “設定作品類型”的 3 個選項，變更為“插畫、漫畫、動圖”。<br>2. 新增命名欄位 {tags_translate}，它會在每個 tag 的後面，附加翻譯後的 tag（若有的話）。'
+  _xzNew220: [
+    '当下载任务卡住时会自动尝试继续下载。',
+    'ダウンロードタスクが停止すると、自動的にダウンロードを継続しようとします。',
+    'When the download task is stuck, it will automatically try to continue the download.',
+    '當下載工作卡住時會自動嘗試繼續下載。'
   ]
 }
