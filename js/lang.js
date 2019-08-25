@@ -1,23 +1,5 @@
-const xzLang = {
+window.xzLang = {
   // 在属性名前面加上下划线，和文本内容做出区别。{}表示需要进行替换的部分
-  _过滤作品类型的按钮: [
-    '排除指定类型的作品',
-    'タイプでフィルタリングする',
-    'Filter by works type',
-    '排除指定類型的作品'
-  ],
-  _过滤作品类型的按钮Title: [
-    '在下载前，您可以设置想要排除的作品类型。',
-    'ダウンロードする前に、除外するタイプを設定することができます。',
-    'Before downloading, you can set the type you want to exclude.',
-    '在下載前，您可以設定想要排除的作品類型'
-  ],
-  _过滤作品类型的弹出框文字: [
-    '请输入数字来设置下载时要排除的作品类型。\n如需多选，将多个数字连写即可\n如果什么都不输入，那么将不排除任何作品\n1: 排除单图\n2: 排除多图\n3: 排除动图\n4: 排除已经收藏的作品',
-    'ダウンロード時に除外するタイプを設定する番号を入力してください。\nさまざまなオプションが必要な場合は、それを連続して入力することができます。\n1.単一の画像の作品を除外する\n2.複数の画像の作品を除外する\n3.うごイラの作品を除外する\n4: ブックマーク',
-    'Please enter a number to set the type of you want to excluded when downloading.\nIf you need multiple choice, you can enter continuously.\n1: one-images works\n2.multiple-images works\n3.ugoira works\n4.bookmarked works',
-    '請輸入數字來設定下載時要排除的作品類型。\n如需多選，將多個數字連寫即可\n如果什麼都不輸入，那麼將不排除任何作品\n1: 排除單圖\n2: 排除多圖\n3: 排除動圖\n4: 排除已經收藏的作品'
-  ],
   _只下载已收藏: [
     '只下载已收藏',
     'ブックマークのみをダウンロードする',
@@ -54,23 +36,11 @@ const xzLang = {
     'If the number is greater than 0, the multiple images work will only download the first few images. (according to the number of settings)',
     '如果數字大於 0，多圖作品只會下載前幾張圖片。（依照設定的數量）'
   ],
-  _排除tag的按钮文字: [
-    '设置作品不能包含的tag',
-    '作品に含まれていないタグを設定する',
-    'Set the tag that the work can not contain',
-    '設定作品不能包含的tag'
-  ],
   _不能含有tag: [
-    '不能含有 tag&nbsp;',
+    '不能含有 tag',
     '指定したタグを除外する',
     'Exclude specified tag',
-    '不能含有 tag&nbsp;'
-  ],
-  _排除tag的按钮Title: [
-    '在下载前，您可以设置想要排除的tag',
-    'ダウンロードする前に、除外するタグを設定できます',
-    'Before downloading, you can set the tag you want to exclude',
-    '在下載前，您可以設定想要排除的tag'
+    '不能含有 tag'
   ],
   _排除tag的提示文字: [
     '您可在下载前设置要排除的tag，这样在下载时将不会下载含有这些tag的作品。不区分大小写；如需排除多个tag，请使用英文逗号分隔。请注意要排除的tag的优先级大于要包含的tag的优先级。',
@@ -84,23 +54,11 @@ const xzLang = {
     'This task excludes tag:',
     '本次工作設定了排除的tag:'
   ],
-  _必须tag的按钮文字: [
-    '设置作品必须包含的tag',
-    '作品に含める必要があるタグを設定する',
-    'Set the tag that the work must contain',
-    '設定作品必須包含的tag'
-  ],
   _必须含有tag: [
     '必须含有 tag&nbsp;',
     'タグを含める必要があります',
     'Must contain tag',
     '必須含有 tag&nbsp;'
-  ],
-  _必须tag的按钮Title: [
-    '在下载前，您可以设置必须包含的tag。',
-    'ダウンロードする前に、含まれなければならないタグを設定することができます',
-    'Before downloading, you can set the tag that must be included',
-    '在下載前，您可以設定必須包含的tag。'
   ],
   _必须tag的提示文字: [
     '您可在下载前设置作品里必须包含的tag，不区分大小写；如需包含多个tag，请使用英文逗号分隔。',
@@ -135,7 +93,7 @@ const xzLang = {
   _设置宽高比例Title: [
     '设置宽高比例，也可以手动输入宽高比',
     '縦横比を設定するか、手動で縦横比を入力します',
-    'Set the aspect ratio, or manually enter the aspect ratio',
+    'Set the aspect ratio, or manually type the aspect ratio',
     '設定寬高比，也可以手動輸入寬高比'
   ],
   _不限制: ['不限制', '無制限', 'not limited', '不限制'],
@@ -157,7 +115,7 @@ const xzLang = {
   _筛选宽高的提示文字: [
     '请输入最小宽度和最小高度，不会下载不符合要求的图片。',
     '最小幅と最小高さを入力してください。要件を満たしていない画像はダウンロードされません。',
-    'Please enter the minimum width and minimum height. Will not download images that do not meet the requirements',
+    'Please type the minimum width and minimum height. Will not download images that do not meet the requirements',
     '請輸入最小寬度和最小高度，不會下載不符合要求的圖片。'
   ],
   _本次输入的数值无效: [
@@ -165,12 +123,6 @@ const xzLang = {
     '無効な入力',
     'Invalid input',
     '本次輸入的數值無效'
-  ],
-  _设置成功: [
-    '设置成功',
-    'セットアップが正常に完了しました',
-    'Set up successfully',
-    '設定成功'
   ],
   _设置了筛选宽高之后的提示文字p1: [
     '本次任务设置了过滤宽高条件:宽度>=',
@@ -192,12 +144,6 @@ const xzLang = {
     'ページ数を設定する',
     'Set the number of pages',
     '設定頁面數量'
-  ],
-  _页数提示: [
-    '请输入要获取的页数',
-    '取得するページ数を入力してください',
-    'Please enter the number of pages to get',
-    '請輸入要取得的頁數'
   ],
   _筛选收藏数的按钮文字: [
     '设置收藏数量',
@@ -226,7 +172,7 @@ const xzLang = {
   _筛选收藏数的提示文字: [
     '请输入一个数字，如果作品的收藏数小于这个数字，作品不会被下载。',
     '数字を入力してください。 作品のブックマークの数がこの数より少ない場合、作品はダウンロードされません。',
-    'Please enter a number. If the number of bookmarks of the work is less than this number, the work will not be downloaded.',
+    'Please type a number. If the number of bookmarks of the work is less than this number, the work will not be downloaded.',
     '請輸入一個數字，如果作品的收藏數小於這個數字，作品不會被下載。'
   ],
   _设置了筛选收藏数之后的提示文字: [
@@ -268,13 +214,13 @@ const xzLang = {
   _checkWantPageRule1Arg5: [
     '从本页开始下载<br>如果不限制下载的页数，请不要修改此默认值。<br>如果要限制下载的页数，请输入从1开始的数字，1为仅下载本页。',
     'このページからダウンロードする<br>ダウンロードしたページ数を制限しない場合は、デフォルト値のままにしておきます。<br>ダウンロードするページ数を設定する場合は、1から始まる番号を入力します。 現在のページは1です。',
-    'Download from this page<br>If you do not limit the number of pages downloaded, leave the default value.<br>If you want to set the number of pages to download, enter a number starting at 1. This page is 1.',
+    'Download from this page<br>If you do not limit the number of pages downloaded, leave the default value.<br>If you want to set the number of pages to download, type a number starting at 1. This page is 1.',
     '從本頁開始下載<br>如果不限制下載的頁數，請不要變更此預設值。<br>如果要限制下載的頁數，請輸入從1開始的數字，1為僅下載本頁。'
   ],
   _checkWantPageRule1Arg8: [
     '从本页开始下载<br>如果要限制下载的页数，请输入从1开始的数字，1为仅下载本页。',
     'このページからダウンロードする<br>ダウンロードするページ数を設定する場合は、1から始まる番号を入力します。 現在のページは1です。',
-    'Download from this page<br>If you want to set the number of pages to download, enter a number starting at 1. This page is 1.',
+    'Download from this page<br>If you want to set the number of pages to download, type a number starting at 1. This page is 1.',
     '從本頁開始下載<br>如果要限制下載的頁數，請輸入從1開始的數字，1為僅下載本頁。'
   ],
   _checkWantPageRule1Arg6: [
@@ -304,7 +250,7 @@ const xzLang = {
   _请输入最低收藏数和要抓取的页数: [
     '请输入最低收藏数和要抓取的页数，用英文逗号分开。\n类似于下面的形式: \n1000,1000',
     "お気に入りの最小数とクロールするページ数を，','で区切って入力してください。\n例えば：\n1000,1000",
-    "Please enter the minimum number of bookmarks, and the number of pages to be crawled, separated by ','.\nE.g:\n1000,1000",
+    "Please type the minimum number of bookmarks, and the number of pages to be crawled, separated by ','.\nE.g:\n1000,1000",
     '請輸入最低收藏數和要擷取的頁數，用英文逗號分開。\n類似於下面的形式: \n1000,1000'
   ],
   _参数不合法1: [
@@ -322,7 +268,7 @@ const xzLang = {
   _wantPage弹出框文字PageType10: [
     '您想要下载多少页？请输入数字。\r\n当前模式下，列表页的页数最多只有',
     'ダウンロードしたいページ数を入力してください。 \r\n最大値：',
-    'Please enter the number of pages you want to download.\r\n The maximum value is ',
+    'Please type the number of pages you want to download.\r\n The maximum value is ',
     '您想要下載多少頁？請輸入數字。\r\n目前模式下，清單頁的頁數最多只有'
   ],
   _输入超过了最大值: [
@@ -405,7 +351,7 @@ const xzLang = {
     '本次工作完成。目前有{}張作品。'
   ],
   _tag搜索页任务完成2: [
-    '已抓取本tag的所有页面，本次任务完成。当前有{}张作品。',
+    '已抓取本tag的所有页面，本次任务完成。<br>当前有{}张作品。',
     'この作業は完了です。 今は{}枚の作品があります。',
     'This task is completed. There are now {} works.',
     '已擷取本tag的所有頁面，本次工作完成。目前有{}張作品。'
@@ -429,10 +375,10 @@ const xzLang = {
     '相關作品擷取完畢。包含有{}張作品，開始取得作品資訊。'
   ],
   _排行榜任务完成: [
-    '本页面抓取完毕。当前有{}张作品，开始获取作品信息。',
-    'このページはクロールされ、{}個の作品があります。 詳細は作品を入手し始める。',
-    'This page is crawled and now has {} works. Start getting the works for more information.',
-    '本頁面擷取完畢。目前有{}張作品，開始取得作品資訊。'
+    '本页面抓取完毕。<br>当前有{}张作品，开始获取作品信息。',
+    'このページはクロールされ。<br>{}個の作品があります。 詳細は作品を入手し始める。',
+    'This page is crawled and now has {} works.<br> Start getting the works for more information.',
+    '本頁面擷取完畢。<br>目前有{}張作品，開始取得作品資訊。'
   ],
   _列表页获取完成2: [
     '列表页获取完成。<br>当前有{}张作品，开始获取作品信息。',
@@ -459,10 +405,10 @@ const xzLang = {
     '擷取完畢，但沒有找到符合篩選條件的作品。'
   ],
   _排行榜列表页抓取遇到404: [
-    '本页面抓取完成。当前有{}张作品，开始获取作品信息。',
-    'このページはクロールされます、{}個の作品があります。 詳細は作品を入手して始める。',
-    'This page is crawled. Now has {} works. Start getting the works for more information.',
-    '本頁面擷取完成。目前有{}張作品，開始取得作品資訊。'
+    '本页面抓取完成。<br>当前有{}张作品，开始获取作品信息。',
+    'このページはクロールされます。<br>{}個の作品があります。 詳細は作品を入手して始める。',
+    'This page is crawled. <br>Now has {} works. Start getting the works for more information.',
+    '本頁面擷取完成。<br>目前有{}張作品，開始取得作品資訊。'
   ],
   _当前任务尚未完成2: [
     '当前任务尚未完成，请等待完成后再下载。',
@@ -542,24 +488,6 @@ const xzLang = {
     'The current task has been interrupted.',
     '目前工作已中斷!'
   ],
-  _收起下载按钮: [
-    '收起下载按钮',
-    'ダウンロードボタンを非表示にする',
-    '',
-    '摺疊下載按鈕'
-  ],
-  _展开下载按钮: [
-    '展开下载按钮',
-    'ダウンロードボタンを表示',
-    '',
-    '展開下載按鈕'
-  ],
-  _展开收起下载按钮Title: [
-    '展开/收起下载按钮',
-    'ダウンロードボタンを表示/非表示',
-    'Show / hide download button',
-    '展開/摺疊下載按鈕'
-  ],
   _关闭: ['关闭', 'クローズ', 'close', '關閉'],
   _输出信息: ['输出信息', '出力情報', 'Output information', '輸出資訊'],
   _复制: ['复制', 'コピー', 'Copy', '複製'],
@@ -575,7 +503,6 @@ const xzLang = {
     'Download settings',
     '下載設定'
   ],
-  _隐藏: ['隐藏', '隠された', 'hide', '隱藏'],
   _收起展开设置项: [
     '收起/展开设置项',
     '設定の折りたたみ/展開',
@@ -598,7 +525,7 @@ const xzLang = {
   _设置命名规则3: [
     '共抓取到 {} 个图片',
     '合計 {} 枚の画像を取得し',
-    'Grab a total of {} pictures',
+    'Crawl a total of {} pictures',
     '共擷取到 {} 個圖片'
   ],
   _设置文件名: [
@@ -716,7 +643,7 @@ const xzLang = {
   _线程数字: [
     '可以输入 1-10 之间的数字，设置同时下载的数量',
     '同時ダウンロード数を設定するには、1〜10の数値を入力します',
-    'You can enter a number between 1-10 to set the number of concurrent downloads',
+    'You can type a number between 1-10 to set the number of concurrent downloads',
     '可以輸入 1-10 之間的數字，設定同時下載的數量'
   ],
   _下载按钮1: ['开始下载', 'ダウンロードを開始', 'start download', '開始下載'],
@@ -799,35 +726,23 @@ const xzLang = {
     'Download this work quickly',
     '快速下載本頁作品'
   ],
-  _从本页开始下载: [
-    '从本页开始下载作品',
-    'このページからダウンロードできます',
-    'Download works from this page',
-    '從本頁開始下載作品'
+  _从本页开始抓取: [
+    '从本页开始向后抓取作品',
+    'クロールはこのページから機能します',
+    'Crawl the work backwards from this page',
+    '從本頁開始向後擷取作品'
   ],
-  _请留意文件夹命名: [
-    '请留意文件夹命名',
-    'フォルダの命名に注意してください',
-    'Please pay attention to folder naming',
-    '請留意資料夾命名'
-  ],
-  _下载相关作品: [
-    '下载相关作品',
+  _抓取相关作品: [
+    '抓取相关作品',
     '関連作品をダウンロードする',
-    'Download the related works',
-    '下載相關作品'
+    'Crawl the related works',
+    '擷取相關作品'
   ],
   _相关作品大于0: [
     ' （下载相关作品必须大于 0）',
     ' （ダウンロードする関連作品の数は0より大きくなければならない）',
     '  (Download related works must be greater than 0)',
     ' （下載相關作品必須大於 0）'
-  ],
-  _下载作品: [
-    '下载作品',
-    'イメージをダウンロード',
-    'Download works',
-    '下載作品'
   ],
   _默认下载多页: [
     ', 如有多页，默认会下载全部。',
@@ -868,20 +783,20 @@ const xzLang = {
   _在结果中筛选弹窗: [
     '将在当前作品列表中再次过滤，请输入要求的最低收藏数: ',
     '現在の作品リストで再度フィルタリングされます。要求された作品の最小数を入力してください',
-    'Will be filtered again in the current list of works. Please enter the required minimum number of bookmarks:',
+    'Will be filtered again in the current list of works. Please type the required minimum number of bookmarks:',
     '將在目前作品清單中再次篩選，請輸入要求的最低收藏數:'
   ],
-  _下载当前作品: [
-    '下载当前作品',
-    '現在の作品をダウンロードする',
-    'Download the current work',
-    '下載目前作品'
+  _抓取当前作品: [
+    '抓取当前作品',
+    '現在の作品をクロールする',
+    'Crawl the current work',
+    '擷取目前作品'
   ],
-  _下载当前作品Title: [
-    '下载当前列表里的所有作品',
-    '現在のリストにあるすべての作品をダウンロードする',
-    'Download all the works in the current list',
-    '下載目前清單裡的所有作品'
+  _抓取当前作品Title: [
+    '抓取当前列表里的所有作品',
+    '現在のリスト内のすべての作品をクロールする',
+    'Crawl all the works in the current list',
+    '擷取目前清單裡的所有作品'
   ],
   _中断当前任务: [
     '中断当前任务',
@@ -900,12 +815,6 @@ const xzLang = {
     '現在のタスクが中断されました',
     'The current task has been interrupted',
     '目前工作已中斷!'
-  ],
-  _下载时排除tag: [
-    '下载时排除tag',
-    'ダウンロード時にタグを除外する',
-    'Exclude tags when downloading',
-    '下載時排除tag'
   ],
   _清除多图作品: [
     '清除多图作品',
@@ -949,47 +858,35 @@ const xzLang = {
     'Exit manually delete',
     '結束手動刪除'
   ],
-  _下载本页作品: [
-    '下载本页作品',
-    'このページをダウンロードする',
-    'Download this page works',
-    '下載本頁作品'
+  _抓取本页作品: [
+    '抓取本页作品',
+    'このページをクロールする',
+    'Crawl this page works',
+    '擷取本頁作品'
   ],
-  _下载本页作品Title: [
-    '下载本页列表中的所有作品',
-    'このページをダウンロードする',
-    'Download this page works',
-    '下載本頁清單中的所有作品'
+  _抓取本页作品Title: [
+    '抓取本页列表中的所有作品',
+    'このページをクロールする',
+    'Crawl this page works',
+    '擷取本頁清單中的所有作品'
   ],
-  _已清除多图作品: [
-    '已清除多图作品',
-    'マルチマップ作品を削除しました',
-    'Has deleted the multi-map works',
-    '已清除多圖作品'
+  _抓取本排行榜作品: [
+    '抓取本排行榜作品',
+    'このリストの作品をクロールする',
+    'Crawl the works in this list',
+    '擷取本排行榜作品'
   ],
-  _已清除动图作品: [
-    '已清除动图作品',
-    'うごイラが削除されました',
-    'Ugoira work has been removed',
-    '已清除動圖作品'
-  ],
-  _下载本排行榜作品: [
-    '下载本排行榜作品',
-    'このリストの作品をダウンロードする',
-    'Download the works in this list',
-    '下載本排行榜作品'
-  ],
-  _下载本排行榜作品Title: [
-    '下载本排行榜的所有作品，包括现在尚未加载出来的。',
+  _抓取本排行榜作品Title: [
+    '抓取本排行榜的所有作品，包括现在尚未加载出来的。',
     'まだ読み込まれていないものを含めて、このリストの作品をダウンロードする',
-    'Download all of the works in this list, including those that are not yet loaded.',
-    '下載本排行榜的所有作品，包括現在尚未載入出來的。'
+    'Crawl all of the works in this list, including those that are not yet loaded.',
+    '擷取本排行榜的所有作品，包括現在尚未載入出來的。'
   ],
   _下载首次登场的作品: [
-    '下载首次登场的作品',
+    '下载首次登场作品',
     '初登場作品をダウンロードする',
     'Download the debut works',
-    '下載首次登場的作品'
+    '下載首次登場作品'
   ],
   _下载首次登场的作品Title: [
     '只下载首次登场的作品',
@@ -997,29 +894,17 @@ const xzLang = {
     'Download only debut works',
     '只下載首次登場的作品'
   ],
-  _下载该页面的图片: [
-    '下载该页面的图片',
-    'ページの画像をダウンロードする',
-    'Download the picture of the page',
-    '下載該頁面的圖片'
+  _抓取该页面的图片: [
+    '抓取该页面的图片',
+    'ページの画像をクロールする',
+    'Crawl the picture of the page',
+    '擷取該頁面的圖片'
   ],
-  _下载该专辑的图片: [
-    '下载该专辑的图片',
-    'アルバムの画像をダウンロードする',
-    'Download the album`s picture',
-    '下載該專輯的圖片'
-  ],
-  _下载相似图片: [
-    '下载相似图片',
-    '類似の作品をダウンロードする',
-    'Download similar works',
-    '下載相似圖片'
-  ],
-  _要获取的作品个数: [
-    '您想要获取多少个作品？（注意是个数而不是页数）\r\n请输入数字，最大值为',
-    'いくつの作品をダウンロードしたいですか？ （ページ数ではなく作品数に注意してください）\r\n数値を入力してください。最大値は',
-    'How many works do you want to download? (Note that the number of works rather than the number of pages)\r\nPlease enter a number, max ',
-    '您想要取得多少個作品？（注意是個數而不是頁數）\r\n請輸入數字，最大值為'
+  _抓取相似图片: [
+    '抓取相似图片',
+    '類似の作品をクロールする',
+    'Crawl similar works',
+    '擷取相似圖片'
   ],
   _要获取的作品个数2: [
     '您想要获取多少个作品？',
@@ -1033,12 +918,6 @@ const xzLang = {
     '-1, or greater than 0',
     '-1, 或是大於 0'
   ],
-  _超过最大值: [
-    '您输入的数字超过了最大值',
-    '入力した番号が最大値を超えています',
-    'The number you entered exceeds the maximum',
-    '您輸入的數字超過了最大值'
-  ],
   _下载大家的新作品: [
     '下载大家的新作品',
     'みんなの新作をダウンロードする',
@@ -1047,23 +926,17 @@ const xzLang = {
   ],
   _屏蔽设定: ['屏蔽設定', 'ミュート設定', 'Mute settings', '封鎖設定'],
   _举报: ['举报', '報告', 'Report', '回報'],
-  _输入id进行下载: [
-    '输入id进行下载',
-    'IDでダウンロード',
-    'Download by ID',
-    '輸入id進行下載'
+  _输入id进行抓取: [
+    '输入id进行抓取',
+    'IDを入力してダウンロードする',
+    'Enter id to fetch',
+    '輸入id進行擷取'
   ],
-  _输入id进行下载的提示文字: [
+  _输入id进行抓取的提示文字: [
     '请输入作品id。如果有多个id，则以换行分割（即每行一个id）',
     'イラストレーターIDを入力してください。 複数のidがある場合は、1行に1つのidを付けます。',
-    'Please enter the illustration id. If there is more than one id, one id per line.',
+    'Please type the illustration id. If there is more than one id, one id per line.',
     '請輸入作品id。如果有多個id，則以換行分隔（即每行一個id）'
-  ],
-  _开始下载: [
-    '开始下载',
-    'ダウンロードを開始する',
-    'Start download',
-    '開始下載'
   ],
   _开始抓取: ['开始抓取', 'クロールを開始する', 'Start crawling', '開始擷取'],
   _添加tag: [
@@ -1098,11 +971,11 @@ const xzLang = {
     '如果搜尋結果數量很多，封面圖數量也會很多。如果載入大量的封面圖，會占用很多網路資源，也可能導致工作異常中斷。如果遇到了這種情況，取消選取這個按鈕。'
   ],
   _启用: ['启用', '有効にする', 'Enable', '啟用'],
-  _是否快速下载: [
-    '是否快速下载',
-    'すぐにダウンロードするかどうか',
-    'Whether to download quickly',
-    '是否快速下載'
+  _是否自动下载: [
+    '是否自动下载',
+    '自動的にダウンロードするかどうか',
+    'Whether to download automatically',
+    '是否自動下載'
   ],
   _快速下载的提示: [
     '当“开始下载”状态可用时，自动开始下载，不需要点击下载按钮。',
