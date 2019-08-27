@@ -466,6 +466,9 @@ li {
 }
 .xzForm select {
   width: 80px;
+  height: 20px;
+  vertical-align: middle;
+  border-radius: 4px;
 }
 .xzForm option {
   font-size: 14px !important;
