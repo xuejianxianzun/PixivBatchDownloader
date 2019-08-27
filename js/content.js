@@ -1613,7 +1613,7 @@ function startGet () {
 
   // 检查是否设置了只下载首次登场
   if (debut) {
-    addOutputInfo('<br>' + xzlt('_下载首次登场的作品Title'))
+    addOutputInfo('<br>' + xzlt('_抓取首次登场的作品Title'))
   }
 
   // 重置下载状态
@@ -4797,8 +4797,8 @@ function allPageType () {
 
     // 在“今日”页面，添加下载首次登场的作品的按钮
     if (locUrl.includes('mode=daily')) {
-      addCenterButton('div', xzBlue, xzlt('_下载首次登场的作品'), [
-        ['title', xzlt('_下载首次登场的作品Title')]
+      addCenterButton('div', xzBlue, xzlt('_抓取首次登场的作品'), [
+        ['title', xzlt('_抓取首次登场的作品Title')]
       ]).addEventListener('click', () => {
         debut = true
         startGet()

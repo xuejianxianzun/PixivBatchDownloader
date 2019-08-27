@@ -647,7 +647,12 @@ window.xzLang = {
     '可以輸入 1-10 之間的數字，設定同時下載的數量'
   ],
   _下载按钮1: ['开始下载', 'ダウンロードを開始', 'start download', '開始下載'],
-  _下载按钮2: ['暂停下载', 'ダウンロードを一時停止', 'pause download', '暫停下載'],
+  _下载按钮2: [
+    '暂停下载',
+    'ダウンロードを一時停止',
+    'pause download',
+    '暫停下載'
+  ],
   _下载按钮3: ['停止下载', 'ダウンロードを停止', 'stop download', '停止下載'],
   _下载按钮4: ['复制 url', 'URLをコピー', 'copy urls', '複製url'],
   _当前状态: ['当前状态 ', '現在の状態 ', 'Now state ', '目前狀態 '],
@@ -882,13 +887,13 @@ window.xzLang = {
     'Crawl all of the works in this list, including those that are not yet loaded.',
     '擷取本排行榜的所有作品，包括現在尚未載入出來的。'
   ],
-  _下载首次登场的作品: [
-    '下载首次登场作品',
+  _抓取首次登场的作品: [
+    '抓取首次登场作品',
     '初登場作品をダウンロードする',
-    'Download the debut works',
-    '下載首次登場作品'
+    'Crawl the debut works',
+    '擷取首次登場作品'
   ],
-  _下载首次登场的作品Title: [
+  _抓取首次登场的作品Title: [
     '只下载首次登场的作品',
     '初登場作品のみダウンロードします',
     'Download only debut works',
