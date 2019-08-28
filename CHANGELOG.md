@@ -1,5 +1,18 @@
 # 版本升级日志
 
+## 2.2.2 2019-8-28
+
+有用户报告说 pixiv 有一些图片的源文件可能损毁了，图片是 404 的。例如：
+
+[id=34152007](https://www.pixiv.net/member_illust.php?mode=medium&illust_id=34152007) 
+
+[id=51449700](https://www.pixiv.net/member_illust.php?mode=medium&illust_id=51449700) 
+
+以前没遇到过这个情况，这会导致下载器卡住、不停的重试。现在针对这种情况做了改进：
+
+- 在页面顶部的输出信息里添加提示
+- 创建一个 txt 后缀的文件，内容是提示这个文件不存在。
+
 ## 2.2.1 2019-8-27
 
 - 修改了一处文字
