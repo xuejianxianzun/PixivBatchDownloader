@@ -4049,7 +4049,7 @@ function downloadFile (downloadBarNo) {
   loadedBar.textContent = '0/0'
   progressBar.style.width = '0%'
   // 获取文件名
-  const fullFileName = getFileName(thisImgInfo)
+  let fullFileName = getFileName(thisImgInfo)
   downloadBarList[downloadBarNo].querySelector(
     '.download_fileName'
   ).textContent = fullFileName
@@ -4077,16 +4077,38 @@ function downloadFile (downloadBarNo) {
       return false
     }
 
-    // 状态码异常时重试。但使用时进入 loadend 的都是 200。
+    // 正常下载完毕的状态码是 200
     if (xhr.status !== 200) {
-      reTryDownload()
-      return false
+      // 404 时不进行重试，因为重试也依然会是 404
+      if (xhr.status === 404) {
+        // 输出提示信息
+        addOutputInfo(
+          `<span style="color:#f00">${xzlt(
+            '_file404',
+            thisImgInfo.id
+          )}</span><br>`
+        )
+        // 因为 404 时进度条不会动，所以需要手动设置进度条完成
+        progressBar.style.width = '100%'
+      } else {
+        reTryDownload()
+        return false
+      }
     }
 
     let file // 要下载的文件
 
-    // 如果需要转换成视频
-    if (thisImgInfo.ext === 'webm') {
+    if (xhr.status === 404) {
+      // 404 错误时创建 txt 文件，并保存提示信息
+      file = new Blob([`${xzlt('_file404', thisImgInfo.id)}`], {
+        type: 'text/plain'
+      })
+      fullFileName = fullFileName.replace(
+        /\.jpg$|\.png$|\.zip$|\.webm$/,
+        '.txt'
+      )
+    } else if (thisImgInfo.ext === 'webm') {
+      // 如果需要转换成视频
       // 将压缩包里的图片转换为 base64 字符串
       const imgFile = await readZip(xhr.response, thisImgInfo.ugoiraInfo)
       // 创建视频编码器
@@ -4180,7 +4202,6 @@ function afterDownload (downloadBarNo) {
     document.querySelector('.down_status').textContent = xzlt('_下载完毕')
     addOutputInfo(xzlt('_下载完毕') + '<br><br>')
     changeTitle('√')
-    console.log(downloadedList)
   } else {
     // 如果没有全部下载完毕
     // 如果已经暂停下载或停止下载
