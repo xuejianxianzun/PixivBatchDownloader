@@ -25,16 +25,16 @@ window.xzLang = {
     '下載哪些類型的作品'
   ],
   _多p下载前几张: [
-    '多图作品设置',
-    'マルチピクチャワーク設定',
-    'Multiple images work setting',
-    '多圖作品設定'
+    '设置作品张数',
+    '作品ごとにダウンロードされた画像の数',
+    'Number of images downloaded per work',
+    '設定作品張數'
   ],
   _多p下载前几张提示: [
-    '如果数字大于 0，多图作品只会下载前几张图片。（按照设置的数量）',
-    '数字が0より大きい場合、マルチピクチャは最初のいくつかのイメージのみをダウンロードします。 （設定数に応じて）',
-    'If the number is greater than 0, the multiple images work will only download the first few images. (according to the number of settings)',
-    '如果數字大於 0，多圖作品只會下載前幾張圖片。（依照設定的數量）'
+    '下载每个作品的前几张图片。默认值 0 表示全部下载。',
+    '各作品の最初の数枚の写真をダウンロードしてください。 デフォルト値の 0 は、すべてのダウンロードを意味します。',
+    'Download the first few pictures of each piece. The default value of 0 means all downloads.',
+    '下載每個作品的前幾張圖片。默認值 0 表示全部下載。'
   ],
   _不能含有tag: [
     '不能含有 tag',
@@ -558,47 +558,53 @@ window.xzLang = {
     'View the meaning of the tag',
     '檢視標記的意義'
   ],
-  _可用标记1: [
+  _命名标记1: [
     '默认文件名，如 44920385_p0',
     'デフォルトのファイル名，例 44920385_p0',
     'Default file name, for example 44920385_p0',
     '預設檔案名稱，如 44920385_p0'
   ],
-  _可用标记9: [
-    '数字 id，如 44920385',
-    '44920385 などの番号 ID',
-    'Number id, for example 44920385',
-    '數字 id，如 44920385'
-  ],
-  _可用标记10: [
-    '图片在作品内的序号，如 0、1、2、3……',
-    '0、1、2、3など、作品の写真のシリアル番号。',
-    'The serial number of the picture in the work, such as 0, 1, 2, 3...',
-    '圖片在作品內的序號，如 0、1、2、3……'
-  ],
-  _可用标记2: ['作品标题', '作品のタイトル', 'works title', '作品標題'],
-  _可用标记3: [
+  _命名标记2: ['作品标题', '作品のタイトル', 'works title', '作品標題'],
+  _命名标记3: [
     '作品的 tag 列表',
     '作品の tags',
     'The tags of the work',
     '作品的 tag 清單'
   ],
-  _可用标记11: [
-    '作品的 tag 列表，附带翻译后的 tag（如果有）',
-    '作品のtagリスト、翻訳付きtag(あれば)',
-    'The tags of the work, with the translated tag (if any)',
-    '作品的 tag 清單，附帶翻譯後的 tag（若有的話）'
-  ],
-  _可用标记4: ['画师名字', 'アーティスト名', 'Artist name', '畫師名稱'],
-  _可用标记6: ['画师 id', 'アーティスト ID', 'Artist id', '畫師 id'],
-  _可用标记7: ['宽度和高度', '幅と高さ', 'width and height', '寬度和高度'],
-  _可用标记8: [
+  _命名标记4: ['画师名字', 'アーティスト名', 'Artist name', '畫師名稱'],
+  _命名标记6: ['画师 id', 'アーティスト ID', 'Artist id', '畫師 id'],
+  _命名标记7: ['宽度和高度', '幅と高さ', 'width and height', '寬度和高度'],
+  _命名标记8: [
     'bookmark-count，作品的收藏数。把它放在最前面就可以让下载后的文件按收藏数排序。',
     'bookmark-count，作品のコレクション数のコレクション数は。',
     'bookmark-count.',
     'bookmark-count，作品的收藏數。將它放在最前面就可以讓下載後的檔案依收藏數排序。'
   ],
-  _可用标记5: [
+  _命名标记9: [
+    '数字 id，如 44920385',
+    '44920385 などの番号 ID',
+    'Number id, for example 44920385',
+    '數字 id，如 44920385'
+  ],
+  _命名标记10: [
+    '图片在作品内的序号，如 0、1、2、3……',
+    '0、1、2、3など、作品の写真のシリアル番号。',
+    'The serial number of the picture in the work, such as 0, 1, 2, 3...',
+    '圖片在作品內的序號，如 0、1、2、3……'
+  ],
+  _命名标记11: [
+    '作品的 tag 列表，附带翻译后的 tag（如果有）',
+    '作品のtagリスト、翻訳付きtag(あれば)',
+    'The tags of the work, with the translated tag (if any)',
+    '作品的 tag 清單，附帶翻譯後的 tag（若有的話）'
+  ],
+  _命名标记12: [
+    '作品的创建日期，格式为 yyyy-MM-dd。如 2019-08-29',
+    '作品の作成日はyyyy-MM-ddの形式でした。 2019-08-29 など',
+    'The date the creation of the work was in the format yyyy-MM-dd. Such as 2019-08-29',
+    '作品的創建日期，格式為 yyyy-MM-dd。如 2019-08-29'
+  ],
+  _命名标记提醒: [
     '您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}-{px}<br>* 在某些情况下，会有一些标记不可用。',
     '複数のタグを使用することができ；異なるタグ間に別の文字を追加することができます。例：{id}-{userid}-{px}<br>* 場合によっては、一部のタグが利用できず。',
     'You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}-{px}<br>* In some cases, some tags will not be available.',
@@ -997,9 +1003,9 @@ window.xzLang = {
     '404 錯誤：檔案 {} 不存在。'
   ],
   _xzNew220: [
-    '当下载任务卡住时会自动尝试继续下载。',
-    'ダウンロードタスクが停止すると、自動的にダウンロードを継続しようとします。',
-    'When the download task is stuck, it will automatically try to continue the download.',
-    '當下載工作卡住時會自動嘗試繼續下載。'
+    '1. 当下载任务卡住时会自动尝试继续下载。<br>2. 新增 {date} 命名标记。',
+    '1. ダウンロードタスクが停止すると、自動的にダウンロードを継続しようとします。<br>2. {date}命名タグを追加しました。',
+    '1. When the download task is stuck, it will automatically try to continue the download.<br>2. Added {date} naming tag.',
+    '1. 當下載工作卡住時會自動嘗試繼續下載。<br>2. 增加 {date} 命名標記。'
   ]
 }

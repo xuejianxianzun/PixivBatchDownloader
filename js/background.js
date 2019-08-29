@@ -42,6 +42,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     const data = {
       no: msg.no,
       url: msg.fileUrl,
+      thisIndex: msg.thisIndex,
       tabid: sender.tab.id
     }
 
