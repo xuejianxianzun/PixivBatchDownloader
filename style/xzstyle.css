@@ -431,7 +431,7 @@ li {
   cursor: pointer;
 }
 #down_id_input,
-#outputInfo {
+#outputArea {
   margin: 6px auto;
   background: #fff;
 }
@@ -448,7 +448,7 @@ li {
   text-decoration: none;
   display: block;
 }
-#outputInfo {
+#outputArea {
   padding: 10px;
   font-size: 14px;
   width: 950px;
