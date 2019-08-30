@@ -121,21 +121,22 @@ li {
 
 /* download panel and other */
 .centerWrap {
+  box-sizing: border-box;
   position: fixed;
   z-index: 5000;
   font-size: 14px;
   display: none;
   width: 650px;
-  left: -350px;
+  left: -325px;
   margin-left: 50%;
   background: #fff;
-  top: 3%;
+  top: 3vh;
   color: #333;
   padding: 25px;
   border-radius: 15px;
   border: 1px solid #ddd;
   box-shadow: 0 0 25px #2ca6df;
-  max-height: 95vh;
+  max-height: 93vh;
   overflow: auto;
 }
 .centerWrap p {
