@@ -1005,7 +1005,7 @@ function checkImgDownloadNumber () {
 
   if (checkResult) {
     imgNumberPerWork = parseInt(checkResult.value)
-    addOutputInfo('<br>' + xzlt('_多图作品下载张数', imgNumberPerWork))
+    addOutputInfo('<br>' + xzlt('_作品张数提醒', imgNumberPerWork))
   } else {
     imgNumberPerWork = 0
   }

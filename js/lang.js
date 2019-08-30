@@ -34,7 +34,7 @@ window.xzLang = {
     '下载每个作品的前几张图片。默认值 0 表示全部下载。',
     '各作品の最初の数枚の写真をダウンロードしてください。 デフォルト値の 0 は、すべてのダウンロードを意味します。',
     'Download the first few pictures of each piece. The default value of 0 means all downloads.',
-    '下載每個作品的前幾張圖片。默認值 0 表示全部下載。'
+    '下載每個作品的前幾張圖片。預設值 0 表示全部下載。'
   ],
   _不能含有tag: [
     '不能含有 tag',
@@ -277,11 +277,11 @@ window.xzLang = {
     'The number you entered exceeds the maximum',
     '您輸入的數字超過了最大值'
   ],
-  _多图作品下载张数: [
-    '多图作品将下载前{}张图片',
-    '2枚以上の作品，最初の{}枚の写真をダウンロードする',
-    'Multi-artwork will download the first {} pictures',
-    '多圖作品將下載前{}張圖片'
+  _作品张数提醒: [
+    '下载每个作品的前 {} 张图片',
+    '各作品の上位 {} つの画像をダウンロードする',
+    'Download the first {} images of each work',
+    '下載每個作品的前 {} 張圖片'
   ],
   _任务开始1: [
     '任务开始<br>本次任务条件: 从本页开始下载{}页',
@@ -577,7 +577,7 @@ window.xzLang = {
   _命名标记8: [
     'bookmark-count，作品的收藏数。把它放在最前面就可以让下载后的文件按收藏数排序。',
     'bookmark-count，作品のコレクション数のコレクション数は。',
-    'bookmark-count.',
+    'bookmark-count, bookmarks number of works.',
     'bookmark-count，作品的收藏數。將它放在最前面就可以讓下載後的檔案依收藏數排序。'
   ],
   _命名标记9: [
@@ -602,7 +602,7 @@ window.xzLang = {
     '作品的创建日期，格式为 yyyy-MM-dd。如 2019-08-29',
     '作品の作成日はyyyy-MM-ddの形式でした。 2019-08-29 など',
     'The date the creation of the work was in the format yyyy-MM-dd. Such as 2019-08-29',
-    '作品的創建日期，格式為 yyyy-MM-dd。如 2019-08-29'
+    '作品的建立日期，格式為 yyyy-MM-dd。如 2019-08-29'
   ],
   _命名标记提醒: [
     '您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}-{px}<br>* 在某些情况下，会有一些标记不可用。',
@@ -1006,6 +1006,6 @@ window.xzLang = {
     '1. 当下载任务卡住时会自动尝试继续下载。<br>2. 新增 {date} 命名标记。',
     '1. ダウンロードタスクが停止すると、自動的にダウンロードを継続しようとします。<br>2. {date}命名タグを追加しました。',
     '1. When the download task is stuck, it will automatically try to continue the download.<br>2. Added {date} naming tag.',
-    '1. 當下載工作卡住時會自動嘗試繼續下載。<br>2. 增加 {date} 命名標記。'
+    '1. 當下載工作卡住時會自動嘗試繼續下載。<br>2. 新增 {date} 命名標記。'
   ]
 }
