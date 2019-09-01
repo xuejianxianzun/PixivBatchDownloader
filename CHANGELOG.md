@@ -1,6 +1,10 @@
 # 版本升级日志
 
-## 2.3.1 2019-9-1
+## 2.3.3 2019-9-2
+
+使用 `trim()` 处理文件名首尾有空格的问题。[issues 18](https://github.com/xuejianxianzun/PixivBatchDownloader/issues/18)
+
+## 2.3.2 2019-9-1
 
 上次修改样式导致中间面板宽度缩小，按钮一排放不下四个，导致换行了。现在修复。
 
