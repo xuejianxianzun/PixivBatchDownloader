@@ -6,7 +6,8 @@
   "author": "xuejianxianzun",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "node build.js"
+    "build": "node build.js",
+    "fmt": "prettier --no-semi --single-quote --write './src/**/*.{js,ts,tsx,less,css}'"
   },
   "devDependencies": {
     "eslint": "^6.1.0",
@@ -15,6 +16,9 @@
     "eslint-plugin-node": "^9.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.0",
+    "prettier": "^1.18.2",
+    "typescript": "^3.6.2",
     "archiver": "^3.1.1"
-  }
+  },
+  "dependencies": {}
 }
