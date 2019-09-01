@@ -240,8 +240,8 @@ li {
 }
 .centerWrap_btns div {
   box-sizing: border-box;
-  width: 130px;
-  margin-right: 15px;
+  width: 135px;
+  margin-right: 10px;
   padding: 8px 10px;
   display: flex;
   align-items: center;
