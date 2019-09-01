@@ -4007,7 +4007,7 @@ function getFileName (data) {
         }
 
         if (!item.safe) {
-          once = once.replace(safeFileNameRule, '_')
+          once = once.replace(safeFileNameRule, '_').trim()
         }
 
         result = result.replace(new RegExp(item.name, 'g'), once) // 将标记替换成最终值，如果有重复的标记，全部替换
