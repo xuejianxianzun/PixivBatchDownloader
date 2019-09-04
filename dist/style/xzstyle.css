@@ -16,6 +16,7 @@
 .ui-fixed-container aside,
 iframe[name='header'],
 iframe[name='footer'],
+._2vGmESI,
 section.ad {
   display: none !important;
   z-index: -999 !important;
@@ -126,15 +127,14 @@ li {
   z-index: 5000;
   font-size: 14px;
   display: none;
-  width: 650px;
-  left: -325px;
+  width: 670px;
+  left: -335px;
   margin-left: 50%;
   background: #fff;
   top: 3vh;
   color: #333;
   padding: 25px;
   border-radius: 15px;
-  border: 1px solid #ddd;
   box-shadow: 0 0 25px #2ca6df;
   max-height: 93vh;
   overflow: auto;
@@ -240,7 +240,7 @@ li {
 }
 .centerWrap_btns div {
   box-sizing: border-box;
-  width: 135px;
+  width: 140px;
   margin-right: 10px;
   padding: 8px 10px;
   display: flex;

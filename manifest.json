@@ -1,26 +1,26 @@
 {
   "name": "Pixiv Batch Downloader",
-  "version": "2.3.3",
+  "version": "2.4.0",
   "manifest_version": 2,
   "description": "功能强大的 Pixiv 图片批量下载器。Powerful Pixiv image batch downloader.",
   "icons": {
-    "16": "icon/logo16.png",
-    "32": "icon/logo32.png",
-    "48": "icon/logo48.png",
-    "128": "icon/logo128.png"
+    "16": "dist/icon/logo16.png",
+    "32": "dist/icon/logo32.png",
+    "48": "dist/icon/logo48.png",
+    "128": "dist/icon/logo128.png"
   },
   "browser_action": {
     "default_icon": {
-      "16": "icon/logo16.png",
-      "32": "icon/logo32.png",
-      "48": "icon/logo48.png",
-      "128": "icon/logo128.png"
+      "16": "dist/icon/logo16.png",
+      "32": "dist/icon/logo32.png",
+      "48": "dist/icon/logo48.png",
+      "128": "dist/icon/logo128.png"
     },
     "default_title": "Pixiv Batch Downloader"
   },
   "content_scripts": [
     {
-      "js": ["lib/Viewerjs-mix.js"],
+      "js": ["dist/lib/viewer.min.js"],
       "matches": [
         "*://www.pixiv.net/member.php*",
         "*://www.pixiv.net/member_illust.php*",
@@ -29,32 +29,34 @@
       "run_at": "document_end"
     },
     {
-      "js": ["lib/zip.js", "lib/whammy.js"],
+      "js": ["dist/lib/zip.js", "dist/lib/whammy.js"],
       "matches": ["*://www.pixiv.net/*"],
       "run_at": "document_end"
     },
     {
-      "js": ["js/lang.js", "js/content.js"],
+      "js": ["dist/js/lang.js", "dist/js/content.js"],
       "matches": ["*://www.pixiv.net/*", "*://www.pixivision.net/*"],
       "run_at": "document_end"
     }
   ],
   "background": {
-    "scripts": ["js/background.js"]
+    "scripts": ["dist/js/background.js"]
   },
   "permissions": [
     "tabs",
     "webRequest",
     "webRequestBlocking",
     "downloads",
+    "activeTab",
     "*://www.pixiv.net/*",
     "*://www.pixivision.net/*",
     "*://i.pximg.net/*"
   ],
   "web_accessible_resources": [
-    "lib/z-worker.js",
-    "style/xzstyle.css",
-    "images/github-logo.png",
-    "images/wiki.png"
+    "dist/lib/z-worker.js",
+    "dist/style/xzstyle.css",
+    "dist/style/viewer.min.css",
+    "dist/images/github-logo.png",
+    "dist/images/wiki.png"
   ]
 }

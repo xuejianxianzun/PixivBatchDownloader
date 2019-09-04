@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 const archiver = require('archiver')
 
-const zipName = path.resolve(__dirname, 'pixivbatchdownloader.zip')
+const zipName = path.resolve(__dirname, '../pixivbatchdownloader.zip')
 const output = fs.createWriteStream(zipName)
 
 const archive = archiver('zip', {
@@ -12,7 +12,7 @@ const archive = archiver('zip', {
 })
 
 // good practice to catch this error explicitly
-archive.on('error', function (err) {
+archive.on('error', function(err) {
   throw err
 })
 
@@ -29,15 +29,10 @@ archive.file('LICENSE', { name: 'LICENSE' })
 
 // append files from a sub-directory and naming it `new-subdir` within the archive
 // 此方法添加子文件夹里的文件，不会自动创建该子文件夹，需要手动指定生成的子文件夹名
-// archive.directory('lib/', 'lib')
+archive.directory('dist/', 'dist')
 
 // append files from a glob pattern
 // 使用此方法添加子文件夹里的文件，会自动创建该子文件夹
-archive.glob('icon/*')
-archive.glob('images/*')
-archive.glob('js/*')
-archive.glob('lib/*')
-archive.glob('style/*')
 archive.glob('*.md')
 
 // finalize the archive (ie we are done appending files but streams have to finish yet)
