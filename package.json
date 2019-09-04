@@ -1,13 +1,13 @@
 {
   "name": "pixiv-batch-downloader",
-  "version": "2.3.1",
+  "version": "2.4.0",
   "description": "Pixiv Batch Downloader. fast, powerful, and make your browsing experience better.",
   "repository": "https://github.com/xuejianxianzun/PixivBatchDownloader",
   "author": "xuejianxianzun",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "build": "node build.js",
-    "fmt": "prettier --no-semi --single-quote --write './src/**/*.{js,ts,tsx,less,css}'"
+    "build": "prettier --no-semi --single-quote --write \"src/**/*.{js,ts,tsx,less,css}\" && tsc && node ./src/build.js",
+    "fmt": "prettier --no-semi --single-quote --write \"src/**/*.{js,ts,tsx,less,css}\""
   },
   "devDependencies": {
     "@types/chrome": "0.0.88",
