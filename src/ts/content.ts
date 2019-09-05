@@ -1357,7 +1357,7 @@ function getRatioSetting() {
 
   // 由用户输入
   if (ratioType === '3') {
-    const typeNum = parseInt(xzForm.userRatio.value)
+    const typeNum = parseFloat(xzForm.userRatio.value)
     if (isNaN(typeNum)) {
       ratioType = '0'
       xzForm.ratio.value = ratioType
@@ -1392,7 +1392,7 @@ function checkRatio(width: number, height: number) {
   } else if (ratioType === '2') {
     return width / height < 1
   } else {
-    return width / height >= parseInt(xzForm.userRatio.value)
+    return width / height >= parseFloat(xzForm.userRatio.value)
   }
 }
 

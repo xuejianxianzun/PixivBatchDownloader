@@ -1115,7 +1115,7 @@ function getRatioSetting() {
     }
     // 由用户输入
     if (ratioType === '3') {
-        const typeNum = parseInt(xzForm.userRatio.value);
+        const typeNum = parseFloat(xzForm.userRatio.value);
         if (isNaN(typeNum)) {
             ratioType = '0';
             xzForm.ratio.value = ratioType;
@@ -1137,6 +1137,7 @@ function getRatioSetting() {
 }
 // 检查作品是否符合宽高比条件
 function checkRatio(width, height) {
+    console.log(xzForm.userRatio.value);
     if (ratioType === '0') {
         return true;
     }
@@ -1147,7 +1148,7 @@ function checkRatio(width, height) {
         return width / height < 1;
     }
     else {
-        return width / height >= parseInt(xzForm.userRatio.value);
+        return width / height >= parseFloat(xzForm.userRatio.value);
     }
 }
 // 设置要下载的个数
