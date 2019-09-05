@@ -25,7 +25,6 @@ enum Color {
   green = '#14ad27',
   red = '#f33939'
 }
-
 let outputArea: HTMLDivElement // 输出信息的区域
 
 let autoDownload: boolean = true // 是否自动载。当可以下载时自动开始下载（无需点击下载按钮）
@@ -177,7 +176,10 @@ let downloadPause: boolean = false // 是否暂停下载
 
 let reTryTimer: number = 0 // 重试下载的定时器
 
-let oldTitle: string = document.title // 原始 title，需要加下载状态时使用
+// 储存标题的 mete 元素。在某些页面不存在
+const ogTitle = document.querySelector(
+  'meta[property="og:title"]'
+)! as HTMLMetaElement
 
 let titleTimer: number // 修改 title 的定时器
 
@@ -728,7 +730,6 @@ function updateViewer() {
   })
     .then(response => response.json())
     .then((data: IllustData) => {
-      // 保存当前页面的画师名
       const thisOneData = data.body
       pageInfo.p_user = thisOneData.userName
       pageInfo.p_uid = thisOneData.userId
@@ -932,6 +933,35 @@ function viewerIsShow() {
   }
 }
 
+// 检查标题里有没有包含本程序定义的状态字符
+function titleHasStatus(status: string = '') {
+  const titleStatus = [
+    '[0]',
+    '[↑]',
+    '[→]',
+    '[▶]',
+    '[↓]',
+    '[║]',
+    '[■]',
+    '[√]',
+    '[ ]'
+  ]
+
+  if (!status) {
+    // 没有传递 status，则检查所有标记
+    for (const str of titleStatus) {
+      if (document.title.includes(str)) {
+        return true
+      }
+    }
+  } else {
+    // 检查指定标记
+    return document.title.includes(status)
+  }
+
+  return false
+}
+
 // 修改title
 function changeTitle(string: string) {
   // 工作时，本工具的状态会以 [string] 形式添加到 title 最前面，并闪烁提醒
@@ -945,27 +975,38 @@ function changeTitle(string: string) {
   ■ 下载停止
   √ 下载完毕
   */
+
+  // 重设 title
   if (string === '0') {
     clearInterval(titleTimer)
-    document.title = oldTitle
+    // 尽量使用页面里的 og:title 信息，og:title 标签是会更新的。
+    if (ogTitle) {
+      document.title = ogTitle.content
+    } else {
+      // 如果当前 title 里有本脚本的状态提醒，则设置为状态后面的文字
+      if (titleHasStatus()) {
+        document.title = document.title.split(']')[1]
+      }
+    }
     return false
   }
 
-  // 如果当前title里没有本脚本的提醒，就存储当前title为旧title
-  if (document.title.startsWith('[') === false) {
-    oldTitle = document.title
+  const status = `[${string}]`
+  // 如果 title 里没有状态，就添加状态
+  if (!titleHasStatus()) {
+    document.title = `${status} ${document.title}`
+  } else {
+    // 如果已经有状态了，则替换为新当前传入的状态
+    document.title = document.title.replace(/\[.*\]/, status)
   }
 
-  const newTitle = `[${string}] ${oldTitle}`
-  document.title = newTitle
-
-  // 当可以执行下一步操作时，闪烁提醒
+  // 当需要执行下一步操作时，闪烁提醒
   if (string === '▶' || string === '→') {
     titleTimer = setInterval(function() {
-      if (document.title.includes(string)) {
-        document.title = newTitle.replace(string, ' ')
+      if (titleHasStatus(status)) {
+        document.title = document.title.replace(status, '[ ]')
       } else {
-        document.title = newTitle
+        document.title = document.title.replace('[ ]', status)
       }
     }, 500)
   } else {
@@ -2347,23 +2388,6 @@ function getUserId() {
   }
 
   return userId
-}
-
-// 获取用户名称
-// 测试用户 https://www.pixiv.net/member.php?id=2793583 他的用户名比较特殊
-function getUserName() {
-  let result = ''
-
-  // 画师作品列表页
-  const metaElement = document.querySelector(
-    'meta[property="og:title"]'
-  )! as HTMLMetaElement
-  const titleContent = metaElement.content // リング@「 シスコン 」 [pixiv]
-  result = titleContent
-    .substr(0, titleContent.length - 7)
-    .replace(/ {1,9}$/, '') // 有时候末尾会有空格，要去掉
-
-  return result
 }
 
 // 从 url 中获取指定的查询条件
@@ -4042,13 +4066,13 @@ function getFileName(data: ImgInfo) {
     },
     {
       name: '{p_uid}',
-      value: pageInfo.p_uid,
+      value: pageInfo.p_uid ? getUserId() : '',
       prefix: '',
       safe: true
     },
     {
       name: '{p_title}',
-      value: pageInfo.p_title
+      value: document.title
         .replace(/\[(0|↑|→|▶|↓|║|■|√| )\] /, '')
         .replace(/^\(\d.*\) /, ''),
       // 去掉标题上的下载状态、消息数量提示
@@ -4179,7 +4203,6 @@ function getFileName(data: ImgInfo) {
     const index = result.lastIndexOf('/')
     result = result.substr(index + 1, result.length)
   }
-
   return result
 }
 
@@ -4398,11 +4421,12 @@ function afterDownload(msg: DownloadedMsg) {
 function resetResult() {
   imgInfo = []
   downloadedList = []
-  centerWrapHide()
-  document.querySelector('.outputInfoContent')!.innerHTML = ''
   downloadStarted = false
   downloadPause = false
   downloadStop = false
+  changeTitle('0')
+  centerWrapHide()
+  document.querySelector('.outputInfoContent')!.innerHTML = ''
 }
 
 // 根据页面类型，在设置页数的地方显示对应的提示。有些页面里，会隐藏这个选项
@@ -4483,32 +4507,70 @@ function changeWantPage() {
   }
 }
 
+// 把获取到的页面信息添加到下拉选项里
+function pageInfoSelector() {
+  const pageInfoSelect = xzForm.pageInfoSelect
+  pageInfoSelect.innerHTML = ''
+  pageInfoSelect.insertAdjacentHTML(
+    'beforeend',
+    '<option value="default">…</option>'
+  )
+  for (const key of Object.keys(pageInfo)) {
+    if (pageInfo[key as keyof typeof pageInfo]) {
+      const optionHtml = `<option value="{${key}}">{${key}}</option>`
+      pageInfoSelect.insertAdjacentHTML('beforeend', optionHtml)
+    }
+  }
+}
+
+// 获取用户信息。可以传入 id，或者自动获取当前页面的用户 id
+function getUserInfo(id: string = '') {
+  fetch(`https://www.pixiv.net/ajax/user/${id || getUserId()}/profile/top`, {
+    method: 'get',
+    credentials: 'same-origin'
+  })
+    .then(response => response.json())
+    .then((data: UserProfileTop) => {
+      // 设置 pageInfo 的信息
+      let useData: { [key: string]: WorksInfo } = {}
+      // 如果有插画作品
+      if (Object.keys(data.body.illusts).length > 0) {
+        useData = data.body.illusts
+      } else if (Object.keys(data.body.manga).length > 0) {
+        // 如果没有插画作品，则从漫画作品中查找
+        useData = data.body.manga
+      } else {
+        // 查找不到
+        pageInfo.p_user = ''
+        pageInfo.p_uid = ''
+        return false
+      }
+
+      let keys = Object.keys(useData)
+      let first = useData[keys[0]]
+      pageInfo.p_user = first.userName
+      pageInfo.p_uid = first.userId
+    })
+}
+
 // 获取当前页面的一些信息，用于文件名中
 function getPageInfo() {
-  const pageInfoSelect = xzForm.pageInfoSelect // 添加文件夹可以使用的标记
-
   pageInfo = new PageInfoClass()
-  pageInfo.p_title = document.title // 所有页面都可以使用 p_title
+  // 所有页面都可以使用 p_title。这里的 1 用作占位符。因无刷新加载时，要等待 DOM 加载，此时获取到的还是旧页面的值，所以只占位。具体的值在生成文件名时获取。
+  pageInfo.p_title = '1'
 
   // 只有 1 和 2 可以使用画师信息
   if (pageType === 1 || pageType === 2) {
-    const addTagBtn = document.getElementById('add_tag_btn') // 一些信息可能需要从 dom 取得，在这里直接执行可能会出错，所以先留空
+    // 先占位
+    pageInfo.p_user = '1'
+    pageInfo.p_uid = '1'
 
-    if (!locUrl.includes('bookmark.php')) {
-      // 不是书签页
-      pageInfo.p_user = ''
-      pageInfo.p_uid = ''
-
-      if (addTagBtn) {
-        addTagBtn.style.display = 'none'
-      }
-    } else {
-      if (addTagBtn) {
-        addTagBtn.style.display = 'inline-block'
-      }
+    // 1 会在 updateViewer 获取作品信息时获取画师信息，2 在这里单独获取用户信息
+    if (pageType === 2) {
+      getUserInfo()
     }
 
-    // 如果有 tag 则追加 tag
+    // 如果有 tag 则设置 tag。因为 tag 是从 url 判断的，所以不需要占位
     if (getQuery(locUrl, 'tag')) {
       pageInfo.p_tag = decodeURIComponent(getQuery(locUrl, 'tag'))
     }
@@ -4516,15 +4578,21 @@ function getPageInfo() {
     pageInfo.p_tag = decodeURIComponent(getQuery(locUrl, 'word'))
   }
 
-  // 添加下拉选项
-  pageInfoSelect.innerHTML = ''
-  pageInfoSelect.insertAdjacentHTML(
-    'beforeend',
-    '<option value="default">…</option>'
-  )
-  for (const key of Object.keys(pageInfo)) {
-    const optionHtml = `<option value="{${key}}">{${key}}</option>`
-    pageInfoSelect.insertAdjacentHTML('beforeend', optionHtml)
+  // 设置下拉框
+  pageInfoSelector()
+
+  // 显示/隐藏添加 tag 的按钮
+  const addTagBtn = document.getElementById('add_tag_btn')
+  if (!locUrl.includes('bookmark.php')) {
+    // 在非书签页隐藏添加 tag 的按钮
+    if (addTagBtn) {
+      addTagBtn.style.display = 'none'
+    }
+  } else {
+    // 在书签页显示添加 tag 的按钮
+    if (addTagBtn) {
+      addTagBtn.style.display = 'inline-block'
+    }
   }
 }
 
@@ -5156,8 +5224,8 @@ function allPageType() {
 // 光翼展开！
 async function expand() {
   checkConflict()
-  await addStyle()
   addJs()
+  await addStyle()
   listenHistory()
   setLangType()
   showWhatIsNew('_xzNew220')

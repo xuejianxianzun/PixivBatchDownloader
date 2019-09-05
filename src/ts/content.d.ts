@@ -73,7 +73,7 @@ interface UgoiraInfo {
   mimeType?: string
 }
 
-// tag 搜索页里，作品信息的数据结构
+// tag 搜索页里，作品信息的数据
 interface TagSearchData {
   bookmarkCount: number
   height: number
@@ -283,6 +283,80 @@ interface IllustData {
         canonical: string
         alternateLanguages: []
         descriptionHeader: string
+        ogp: {
+          description: string
+          image: string
+          title: string
+          type: string
+        }
+        twitter: {
+          description: string
+          image: string
+          title: string
+          card: string
+        }
+      }
+    }
+  }
+}
+
+// 作品信息的通用格式
+interface WorksInfo {
+  illustId: string
+  illustTitle: string
+  id: string
+  title: string
+  illustType: number
+  xRestrict: number
+  restrict: number
+  sl: number
+  url: string
+  description: string
+  tags: string[]
+  userId: string
+  userName: string
+  width: number
+  height: number
+  pageCount: number
+  isBookmarkable: boolean
+  bookmarkData: null | {
+    id: string
+    private: boolean
+  }
+  alt: string
+}
+
+// 画师信息的数据
+interface UserProfileTop {
+  error: boolean
+  message: string
+  body: {
+    illusts: {
+      [key: string]: WorksInfo
+    }
+    manga: {
+      [key: string]: WorksInfo
+    }
+    novels: []
+    zoneConfig: {
+      header: {
+        url: string
+      }
+      footer: {
+        url: string
+      }
+      logo: {
+        url: string
+      }
+      '500x500': {
+        url: string
+      }
+    }
+    extraData: {
+      meta: {
+        title: string
+        description: string
+        canonical: string
         ogp: {
           description: string
           image: string
