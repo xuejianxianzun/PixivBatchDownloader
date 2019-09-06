@@ -12,13 +12,13 @@ const xzLang = {
     'Download only bookmarked works',
     '只下載已經收藏的作品'
   ],
-  _设置作品类型: [
-    '设置作品类型',
-    'ダウンロードする作品のタイプを設定する',
-    'Set the type of work',
-    '設定作品類型'
+  _下载作品类型: [
+    '下载作品类型',
+    '作品タイプをダウンロードする',
+    'Download work type',
+    '下載作品類型'
   ],
-  _设置作品类型的提示Center: [
+  _下载作品类型的提示Center: [
     '下载哪些类型的作品',
     'ダウンロードする作品の種類',
     'Which types of works to download',
@@ -337,6 +337,7 @@ const xzLang = {
     '下載動圖時，可以將它轉換為影片檔案'
   ],
   _webmVideo: ['WebM 视频', 'WebM ビデオ', 'WebM video', 'WebM 視頻'],
+  _gif: ['GIF 图片', 'GIF 画像', 'GIF picture', 'GIF 圖片'],
   _zipFile: ['Zip 文件', 'ZIP ファイル', 'Zip file', 'Zip 檔案'],
   _tag搜索页已抓取多少页: [
     '已抓取本次任务第{}/{}页，当前加载到第{}页',
@@ -647,10 +648,10 @@ const xzLang = {
     '設定下載執行緒'
   ],
   _线程数字: [
-    '可以输入 1-10 之间的数字，设置同时下载的数量',
-    '同時ダウンロード数を設定するには、1〜10の数値を入力します',
-    'You can type a number between 1-10 to set the number of concurrent downloads',
-    '可以輸入 1-10 之間的數字，設定同時下載的數量'
+    '可以输入 1-5 之间的数字，设置同时下载的数量',
+    '同時ダウンロード数を設定するには、1〜5 の数値を入力します',
+    'You can type a number between 1-5 to set the number of concurrent downloads',
+    '可以輸入 1-5 之間的數字，設定同時下載的數量'
   ],
   _下载按钮1: ['开始下载', 'ダウンロードを開始', 'start download', '開始下載'],
   _下载按钮2: [
@@ -1002,10 +1003,10 @@ const xzLang = {
     '404 error: File {} does not exist.',
     '404 錯誤：檔案 {} 不存在。'
   ],
-  _xzNew220: [
-    '1. 当下载任务卡住时会自动尝试继续下载。<br>2. 新增 {date} 命名标记。',
-    '1. ダウンロードタスクが停止すると、自動的にダウンロードを継続しようとします。<br>2. {date}命名タグを追加しました。',
-    '1. When the download task is stuck, it will automatically try to continue the download.<br>2. Added {date} naming tag.',
-    '1. 當下載工作卡住時會自動嘗試繼續下載。<br>2. 新增 {date} 命名標記。'
+  _xzNew250: [
+    '可以把动图转换成 gif 图片。',
+    'うごくイラスト作品を gif 画像に変換できます。',
+    'You can convert Ugoira works to gif images.',
+    '可以把動圖轉換成 gif 圖片。'
   ]
 }

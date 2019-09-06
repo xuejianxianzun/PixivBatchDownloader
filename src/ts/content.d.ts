@@ -2,6 +2,8 @@ declare let zip: any
 
 declare let Whammy: any
 
+declare let GIF: any
+
 // 下载时要使用的作品信息
 interface ImgInfo {
   id: string

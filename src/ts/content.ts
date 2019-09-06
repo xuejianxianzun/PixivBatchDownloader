@@ -144,6 +144,8 @@ const xzUgoiraHtml: string = `<div class="${tagSearchUgoiraSelector.replace(
   ''
 )}"></div>`
 
+let gifWorker: string = ''
+
 const safeFileNameRule: RegExp = new RegExp(
   /\\|\/|:|\?|"|<|'|>|\*|\||~|\u200b|\./g
 ) // 安全的文件名
@@ -225,7 +227,7 @@ function checkConflict(): void {
 }
 
 // 设置语言类型
-function setLangType(): void {
+function setLangType() {
   const userLang = document.documentElement.lang // 获取语言标识
 
   switch (userLang) {
@@ -254,7 +256,7 @@ function setLangType(): void {
 // xianzun_lang_translate 翻译
 // xzLang 是在 lang.ts 中定义的
 // TODO 中括号问题
-function xzlt(name: keyof typeof xzLang, ...arg: string[]): string {
+function xzlt(name: keyof typeof xzLang, ...arg: string[]) {
   let content = xzLang[name][langType]
   arg.forEach(val => (content = content.replace('{}', val)))
   return content
@@ -285,7 +287,7 @@ async function addStyle() {
 
 // 添加 js 文件
 async function addJs() {
-  // worker，因为需要 url 形式，所以生成其 blob url
+  // 添加 zip 的 worker
   let worker = await fetch(chrome.extension.getURL('dist/lib/z-worker.js'))
   const bolbFile = await worker.blob()
   const zipWorker = URL.createObjectURL(bolbFile)
@@ -294,6 +296,10 @@ async function addJs() {
       inflater: [zipWorker]
     }
   }
+  // 添加 gif 的 worker
+  let worker2 = await fetch(chrome.extension.getURL('dist/lib/gif.worker.js'))
+  const gifBolbFile = await worker2.blob()
+  gifWorker = URL.createObjectURL(gifBolbFile)
 }
 
 // 显示最近更新
@@ -580,25 +586,36 @@ async function readZip(
 }
 
 // 添加每一帧的数据
-async function getFrameData(imgFile: string[]): Promise<HTMLCanvasElement[]> {
-  const canvasList = new Array(imgFile.length)
+async function getFrameData(
+  imgFile: string[],
+  type: string = 'webm'
+): Promise<HTMLCanvasElement[] | HTMLImageElement[]> {
+  const resultList = new Array(imgFile.length)
   return new Promise(function(resolve, reject) {
     const drawImg = function(index: number) {
       const img = new Image()
 
       img.onload = function(event) {
-        const xzCanvas = document.createElement('canvas')
-        const ctx = xzCanvas.getContext('2d')!
-        xzCanvas.width = img.width
-        xzCanvas.height = img.height
-        ctx.drawImage(img, 0, 0)
-        canvasList[index] = xzCanvas
+        // 处理视频
+        if (type === 'webm') {
+          const xzCanvas = document.createElement('canvas')
+          const ctx = xzCanvas.getContext('2d')!
+          xzCanvas.width = img.width
+          xzCanvas.height = img.height
+          ctx.drawImage(img, 0, 0)
+          resultList[index] = xzCanvas
+        }
+        // 处理 gif
+        if (type === 'gif') {
+          resultList[index] = img
+        }
+
+        // 继续下一个
         if (index < imgFile.length - 1) {
-          // 继续下一个
           index++
           drawImg(index)
         } else {
-          resolve(canvasList)
+          resolve(resultList)
         }
       }
 
@@ -979,8 +996,8 @@ function changeTitle(string: string) {
   // 重设 title
   if (string === '0') {
     clearInterval(titleTimer)
-    // 尽量使用页面里的 og:title 信息，og:title 标签是会更新的。
-    if (ogTitle) {
+    // 无刷新自动加载的页面里，og:title 标签是最早更新标题的。
+    if (ogTitle && (pageType == 1 || pageType === 2)) {
       document.title = ogTitle.content
     } else {
       // 如果当前 title 里有本脚本的状态提醒，则设置为状态后面的文字
@@ -1193,12 +1210,12 @@ function checkNeedTag(tags: string[]) {
   if (needTag.length > 0) {
     let tagNeedMatched = 0
     const tempTags = new Set()
-    // 这是因为不区分大小写的话，Fate/grandorder 和 Fate/GrandOrder 会被算作符合两个 tag，所以用 Set 结构去重。测试 id 51811780
+    // 如果不区分大小写的话，Fate/grandorder 和 Fate/GrandOrder 会被算作符合两个 tag，所以用 Set 结构去重。测试 id 51811780
     for (const tag of tags) {
       tempTags.add(tag.toLowerCase())
     }
 
-    for (const tag of tempTags.values()) {
+    for (const tag of tempTags) {
       for (const need of needTag) {
         if (tag === need.toLowerCase()) {
           tagNeedMatched++
@@ -1828,12 +1845,12 @@ function getListPage() {
   fetch(url)
     .then(response => {
       if (response.ok) {
-        return response.text()
+        return response.text() as any
       } else {
         return Promise.reject(new Error(response.status.toString()))
       }
     })
-    .then(data => {
+    .then((data: string) => {
       listPageFinished++
       let listPageDocument
       // 解析网页内容。排行榜和相似作品、相关作品，直接获取 json 数据，不需要这样处理
@@ -2214,7 +2231,7 @@ function getListPage() {
         }
       }
     })
-    .catch(error => {
+    .catch((error: Error) => {
       // error 的 message 属性是请求出错时的状态码
       if (error.message === '404') {
         // 排行榜
@@ -2827,7 +2844,7 @@ async function getIllustData(url: string) {
           mimeType: info.body.mime_type
         }
 
-        ext = xzForm.ugoiraSaveAs.value // 扩展名可能是 webm 或者 zip
+        ext = xzForm.ugoiraSaveAs.value // 扩展名可能是 webm、gif、zip
 
         addImgInfo(
           id,
@@ -3168,8 +3185,8 @@ function addCenterWarps() {
     </p>
     <p class="xzFormP5">
     <span class="xztip settingNameStyle1" data-tip="${xzlt(
-      '_设置作品类型的提示Center'
-    )}">${xzlt('_设置作品类型')}<span class="gray1"> ? </span></span>
+      '_下载作品类型的提示Center'
+    )}">${xzlt('_下载作品类型')}<span class="gray1"> ? </span></span>
     <label for="setWorkType0"><input type="checkbox" name="setWorkType0" id="setWorkType0" checked> ${xzlt(
       '_插画'
     )}&nbsp;</label>
@@ -3186,6 +3203,9 @@ function addCenterWarps() {
     )}">${xzlt('_动图保存格式')}<span class="gray1"> ? </span></span>
     <label for="ugoiraSaveAs1"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" value="webm" checked> ${xzlt(
       '_webmVideo'
+    )} &nbsp;</label>
+    <label for="ugoiraSaveAs3"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" value="gif" checked> ${xzlt(
+      '_gif'
     )} &nbsp;</label>
     <label for="ugoiraSaveAs2"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" value="zip"> ${xzlt(
       '_zipFile'
@@ -3530,7 +3550,7 @@ function startDownload() {
 
   // 下载线程设置
   const setThread = parseInt(xzForm.setThread.value)
-  if (setThread < 1 || setThread > 10 || isNaN(setThread)) {
+  if (setThread < 1 || setThread > 5 || isNaN(setThread)) {
     downloadThread = downloadThreadDeauflt // 重设为默认值
   } else {
     downloadThread = setThread // 设置为用户输入的值
@@ -3883,7 +3903,7 @@ function readXzSetting() {
 
   // 保存下载线程
   setThreadInput.addEventListener('change', function(this: HTMLInputElement) {
-    if (parseInt(this.value) > 0 && parseInt(this.value) <= 10) {
+    if (parseInt(this.value) > 0 && parseInt(this.value) <= 5) {
       saveXzSetting('downloadThread', this.value)
     }
   })
@@ -4283,7 +4303,7 @@ function downloadFile(downloadBarNo: number) {
       }
     }
 
-    let file // 要下载的文件
+    let file: Blob = new Blob() // 要下载的文件
 
     if (xhr.status === 404) {
       // 404 错误时创建 txt 文件，并保存提示信息
@@ -4291,29 +4311,61 @@ function downloadFile(downloadBarNo: number) {
         type: 'text/plain'
       })
       fullFileName = fullFileName.replace(
-        /\.jpg$|\.png$|\.zip$|\.webm$/,
+        /\.jpg$|\.png$|\.zip$|\.gif$|\.webm$/,
         '.txt'
       )
-    } else if (thisImgInfo!.ext === 'webm') {
-      // 如果需要转换成视频
+    } else if (thisImgInfo!.ext === 'webm' || thisImgInfo!.ext === 'gif') {
       // 将压缩包里的图片转换为 base64 字符串
       const imgFile: string[] = await readZip(
         xhr.response,
         thisImgInfo!.ugoiraInfo
       )
-      // 创建视频编码器
-      const encoder = new Whammy.Video()
-      // 生成每一帧的数据
-      const canvasData: HTMLCanvasElement[] = await getFrameData(imgFile)
-      // 添加帧数据
-      for (let index = 0; index < canvasData.length; index++) {
-        const base64 = canvasData[index]
-        encoder.add(base64, thisImgInfo!.ugoiraInfo.frames![index].delay)
+
+      // 如果需要转换成视频
+      if (thisImgInfo!.ext === 'webm') {
+        // 创建视频编码器
+        const encoder = new Whammy.Video()
+        // 生成每一帧的数据
+        const canvasData = await getFrameData(imgFile)!
+        // 添加帧数据
+        for (let index = 0; index < canvasData!.length; index++) {
+          const base64 = canvasData![index]
+          encoder.add(base64, thisImgInfo!.ugoiraInfo.frames![index].delay)
+        }
+        // 获取生成的视频
+        file = (await encodeVideo(encoder)) as Blob
       }
-      // 获取生成的视频
-      file = await encodeVideo(encoder)
+
+      // 如果需要转换成动图
+      if (thisImgInfo!.ext === 'gif') {
+        // 配置 gif.js
+        let gif: any = new GIF({
+          workers: 4,
+          quality: 10,
+          workerScript: gifWorker
+        })
+
+        // 生成每一帧的数据
+        const imgData = await getFrameData(imgFile, 'gif')
+        // 添加帧数据
+        for (let index = 0; index < imgData!.length; index++) {
+          gif.addFrame(imgData![index], {
+            delay: thisImgInfo!.ugoiraInfo.frames![index].delay
+          })
+        }
+
+        let renderGif = new Promise<Blob>((resolve, reject) => {
+          // 绑定渲染完成事件
+          gif.on('finished', (blob: Blob) => {
+            resolve(blob)
+          })
+          // 开始渲染
+          gif.render()
+        })
+        file = await renderGif
+      }
     } else {
-      // 不需要转换成视频
+      // 不需要转换
       file = xhr.response
     }
 
@@ -5228,7 +5280,7 @@ async function expand() {
   await addStyle()
   listenHistory()
   setLangType()
-  showWhatIsNew('_xzNew220')
+  showWhatIsNew('_xzNew250')
   addRightButton()
   addCenterWarps()
   swtichCenterWrap()
