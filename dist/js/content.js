@@ -88,8 +88,8 @@ const xzMultipleHtml = `<div class="${tagSearchMultipleSelector.replace('.', '')
 // tag 搜索页作品的html中的动图标识
 const xzUgoiraHtml = `<div class="${tagSearchUgoiraSelector.replace('.', '')}"></div>`;
 let gifWorker = '';
-const safeFileNameRule = new RegExp(/\\|\/|:|\?|"|<|'|>|\*|\||~|\u200b|\./g); // 安全的文件名
-const safeFolderRule = new RegExp(/\\|:|\?|"|<|'|>|\*|\||~|\u200b|\./g); // 文件夹名，允许斜线 /
+const safeFileNameRule = new RegExp(/\\|\/|:|\?|"|<|'|>|\*|\||~|[\u200B-\u200F\uFEFF]|\./g); // 安全的文件名
+const safeFolderRule = new RegExp(/\\|:|\?|"|<|'|>|\*|\||~|[\u200B-\u200F\uFEFF]|\./g); // 文件夹名，允许斜线 /
 let rightButton = document.createElement('div'); // 右侧按钮
 let centerPanel = document.createElement('div'); // 中间设置面板
 let centerBtnWrap; // 中间插入按钮的区域

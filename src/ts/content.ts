@@ -147,10 +147,12 @@ const xzUgoiraHtml: string = `<div class="${tagSearchUgoiraSelector.replace(
 let gifWorker: string = ''
 
 const safeFileNameRule: RegExp = new RegExp(
-  /\\|\/|:|\?|"|<|'|>|\*|\||~|\u200b|\./g
+  /\\|\/|:|\?|"|<|'|>|\*|\||~|[\u200B-\u200F\uFEFF]|\./g
 ) // 安全的文件名
 
-const safeFolderRule: RegExp = new RegExp(/\\|:|\?|"|<|'|>|\*|\||~|\u200b|\./g) // 文件夹名，允许斜线 /
+const safeFolderRule: RegExp = new RegExp(
+  /\\|:|\?|"|<|'|>|\*|\||~|[\u200B-\u200F\uFEFF]|\./g
+) // 文件夹名，允许斜线 /
 
 let rightButton: HTMLDivElement = document.createElement('div') // 右侧按钮
 
