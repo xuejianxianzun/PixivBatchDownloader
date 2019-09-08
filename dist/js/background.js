@@ -23,18 +23,9 @@ chrome.webRequest.onBeforeSendHeaders.addListener(function (details) {
 }, ['blocking', 'requestHeaders']);
 // 当点击扩展图标时，切换显示/隐藏下载面板
 chrome.browserAction.onClicked.addListener(function (tab) {
-    chrome.tabs.query({ active: true }, result => {
-        if (result[0].url.includes('pixiv.net') ||
-            result[0].url.includes('pixivision.net')) {
-            // 当前标签是 p 站页面，则打开下载面板
-            chrome.tabs.sendMessage(tab.id, {
-                msg: 'click_icon'
-            });
-        }
-        else {
-            // 如果当前标签不是 p 站页面，则跳转到 p 站
-            chrome.tabs.create({ url: 'https://www.pixiv.net/' });
-        }
+    // 打开下载面板
+    chrome.tabs.sendMessage(tab.id, {
+        msg: 'click_icon'
     });
 });
 // 因为下载完成的顺序和发送顺序可能不一致，所以需要存储任务的数据
