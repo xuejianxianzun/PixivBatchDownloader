@@ -1,6 +1,12 @@
 # 版本升级日志
 
-## 2.5.0 2019-9-7
+## 2.5.1 2019-9-8
+
+- 修复 bug
+
+优化了对零宽字符的替换处理。[issues 20](https://github.com/xuejianxianzun/PixivBatchDownloader/issues/20)
+
+## 2.5.0 2019-9-6
 
 - 新增功能
   
