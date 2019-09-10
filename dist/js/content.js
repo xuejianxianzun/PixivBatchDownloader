@@ -28,12 +28,9 @@ var Color;
     Color["red"] = "#f33939";
 })(Color || (Color = {}));
 let outputArea; // 输出信息的区域
-let autoDownload = true; // 是否自动载。当可以下载时自动开始下载（无需点击下载按钮）
 const downloadThreadDeauflt = 5; // 同时下载的线程数，可以通过设置 downloadThread 修改
 let imgNumberPerWork = 0; // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
 let displayCover = true; // 是否显示tag搜索页里面的封面图片。如果tag搜索页的图片数量太多，那么加载封面图可能要很久，并且可能因为占用大量带宽导致抓取中断。这种情况下可以将此参数改为false，不加载封面图。
-const fileNameLength = 200; // 文件名的最大长度，超出将会截断。如果文件的保存路径过长可能会保存失败，此时可以把这个数值改小些。
-const viewerEnable = true; // 是否启用看图模式
 let xzSetting; // 保存的设置
 let locUrl = ''; // 页面的url
 let pageType; // 页面类型
@@ -87,9 +84,7 @@ let tagSearchNewHtml = ''; // tag 搜索页作品的html
 const xzMultipleHtml = `<div class="${tagSearchMultipleSelector.replace('.', '')}"><span><span class="XPwdj2F"></span>xz_pageCount</span></div>`;
 // tag 搜索页作品的html中的动图标识
 const xzUgoiraHtml = `<div class="${tagSearchUgoiraSelector.replace('.', '')}"></div>`;
-let gifWorker = '';
-const safeFileNameRule = new RegExp(/\\|\/|:|\?|"|<|'|>|\*|\||~|[\u200B-\u200F\uFEFF]|\./g); // 安全的文件名
-const safeFolderRule = new RegExp(/\\|:|\?|"|<|'|>|\*|\||~|[\u200B-\u200F\uFEFF]|\./g); // 文件夹名，允许斜线 /
+let gifWorkerUrl = '';
 let rightButton = document.createElement('div'); // 右侧按钮
 let centerPanel = document.createElement('div'); // 中间设置面板
 let centerBtnWrap; // 中间插入按钮的区域
@@ -103,8 +98,6 @@ let downloaded = 0; // 已下载的文件
 let downloadStop = false; // 是否停止下载
 let downloadPause = false; // 是否暂停下载
 let reTryTimer = 0; // 重试下载的定时器
-// 储存标题的 mete 元素。在某些页面不存在
-const ogTitle = document.querySelector('meta[property="og:title"]');
 let titleTimer; // 修改 title 的定时器
 let downloadTime = 0; // 向浏览器发送下载任务的时间戳
 const timeInterval = 200; // 设置向浏览器发送下载任务的间隔时间。如果在很短时间内让浏览器建立大量下载任务，有一些下载任务就会丢失，所以设置这个参数。
@@ -112,12 +105,11 @@ let downRelated = false; // 是否下载相关作品（作品页内的）
 let viewerWarpper; // 图片列表的容器
 let viewerUl; // 图片列表的 ul 元素
 let myViewer; // 查看器
-let quickBookmarkElement; // 快速收藏的元素
+let quickBookmarkEl; // 快速收藏的元素
 let xzForm; // 设置面板的表单
 let xzTipEl; // 用于显示提示的元素
 // 储存页面上可以用作文件名的信息
 let pageInfo = new PageInfoClass();
-let delWork = false; // 是否处于删除作品状态
 let onlyDownBmk = false; // 是否只下载收藏的作品
 let ratioType = '0'; // 宽高比例的类型
 const pauseStartDealy = 2500; // 点击暂停后，一定时间后才允许点击开始下载按钮
@@ -153,8 +145,6 @@ function setLangType() {
     }
 }
 // xianzun_lang_translate 翻译
-// xzLang 是在 lang.ts 中定义的
-// TODO 中括号问题
 function xzlt(name, ...arg) {
     let content = xzLang[name][langType];
     arg.forEach(val => (content = content.replace('{}', val)));
@@ -162,38 +152,40 @@ function xzlt(name, ...arg) {
 }
 // 添加 css 样式
 async function addStyle() {
+    // 把 css 样式的文本插入到页面里
+    const add = function (text) {
+        const styleE = document.createElement('style');
+        styleE.textContent = text;
+        document.body.appendChild(styleE);
+    };
     // 加载 viewerjs 的样式，不需要同步加载
     fetch(chrome.extension.getURL('dist/style/viewer.min.css'))
         .then(res => {
         return res.text();
     })
         .then(text => {
-        const styleE = document.createElement('style');
-        styleE.textContent = text;
-        document.body.appendChild(styleE);
+        add(text);
     });
-    // 加载本程序的样式，需要同步加载，然后再创建下载器的 DOM 元素
+    // 加载本程序的样式，需要同步加载，之后再创建下载器的 DOM 元素
     const styleFile = await fetch(chrome.extension.getURL('dist/style/xzstyle.css'));
     const styleContent = await styleFile.text();
-    const styleE = document.createElement('style');
-    styleE.textContent = styleContent;
-    document.body.appendChild(styleE);
+    add(styleContent);
 }
 // 添加 js 文件
 async function addJs() {
     // 添加 zip 的 worker
-    let worker = await fetch(chrome.extension.getURL('dist/lib/z-worker.js'));
-    const bolbFile = await worker.blob();
-    const zipWorker = URL.createObjectURL(bolbFile);
+    let zipWorker = await fetch(chrome.extension.getURL('dist/lib/z-worker.js'));
+    const zipWorkerBolb = await zipWorker.blob();
+    const zipWorkerUrl = URL.createObjectURL(zipWorkerBolb);
     if (zip) {
         zip.workerScripts = {
-            inflater: [zipWorker]
+            inflater: [zipWorkerUrl]
         };
     }
     // 添加 gif 的 worker
-    let worker2 = await fetch(chrome.extension.getURL('dist/lib/gif.worker.js'));
-    const gifBolbFile = await worker2.blob();
-    gifWorker = URL.createObjectURL(gifBolbFile);
+    let gifWorker = await fetch(chrome.extension.getURL('dist/lib/gif.worker.js'));
+    const gifWorkerBolb = await gifWorker.blob();
+    gifWorkerUrl = URL.createObjectURL(gifWorkerBolb);
 }
 // 显示最近更新
 function showWhatIsNew(tag) {
@@ -233,10 +225,10 @@ function getToken() {
 function quickBookmark() {
     const tt = getToken();
     if (!tt) {
-        // 如果获取不到 token，则不展开本工具的快速收藏功能
+        // 如果获取不到 token，则不展开本程序的快速收藏功能
         return false;
     }
-    // 本函数一直运行。因为切换作品（pushstate）时，不能准确的知道 toolbar 何时更新，所以只能不断检测
+    // 因为切换作品（pushstate）时，不能准确的知道 toolbar 何时更新，所以只能不断检测
     setTimeout(() => {
         quickBookmark();
     }, 300);
@@ -250,16 +242,16 @@ function quickBookmark() {
         }
     }
     if (toolbar) {
-        quickBookmarkElement = document.querySelector('#quickBookmarkEl');
+        quickBookmarkEl = document.querySelector('#quickBookmarkEl');
         // 如果没有 quick 元素则添加
-        if (!quickBookmarkElement) {
+        if (!quickBookmarkEl) {
             // 创建快速收藏元素
-            quickBookmarkElement = document.createElement('a');
-            quickBookmarkElement.id = 'quickBookmarkEl';
-            quickBookmarkElement.innerHTML = '✩';
-            quickBookmarkElement.href = 'javascript:void(0)';
-            quickBookmarkElement.title = xzlt('_快速收藏');
-            toolbar.insertBefore(quickBookmarkElement, toolbar.childNodes[3]);
+            quickBookmarkEl = document.createElement('a');
+            quickBookmarkEl.id = 'quickBookmarkEl';
+            quickBookmarkEl.innerHTML = '✩';
+            quickBookmarkEl.href = 'javascript:void(0)';
+            quickBookmarkEl.title = xzlt('_快速收藏');
+            toolbar.insertBefore(quickBookmarkEl, toolbar.childNodes[3]);
             // 隐藏原来的收藏按钮并检测收藏状态
             const orgIcon = toolbar.childNodes[2];
             orgIcon.style.display = 'none';
@@ -269,34 +261,8 @@ function quickBookmark() {
                 quickBookmarkEnd();
             }
             else {
-                quickBookmarkElement.addEventListener('click', () => {
-                    ;
-                    document.querySelector('._35vRH4a').click(); // 自动点赞
-                    // 储存 tag
-                    const tagElements = document.querySelectorAll('._1LEXQ_3 li');
-                    const tagArray = Array.from(tagElements).map(el => {
-                        const nowA = el.querySelector('a');
-                        if (nowA) {
-                            let nowTag = nowA.textContent;
-                            // 对于原创作品，非日文的页面上只显示了用户语言的“原创”，替换成日文 tag “オリジナル”。
-                            if (nowTag === '原创' ||
-                                nowTag === 'Original' ||
-                                nowTag === '창작') {
-                                nowTag = 'オリジナル';
-                            }
-                            return nowTag;
-                        }
-                    });
-                    const tagString = encodeURI(tagArray.join(' '));
-                    // 调用添加收藏的 api
-                    addBookmark(getIllustId(), tagString, tt, false)
-                        .then(response => response.json())
-                        .then(data => {
-                        if (data.error !== undefined && data.error === false) {
-                            quickBookmarkEnd();
-                        }
-                    });
-                });
+                // 准备快速收藏
+                readyQuickBookmark();
             }
         }
         else {
@@ -305,10 +271,39 @@ function quickBookmark() {
         }
     }
 }
+// 准备快速收藏
+function readyQuickBookmark() {
+    quickBookmarkEl.addEventListener('click', () => {
+        ;
+        document.querySelector('._35vRH4a').click(); // 自动点赞
+        // 储存 tag
+        const tagElements = document.querySelectorAll('._1LEXQ_3 li');
+        const tagArray = Array.from(tagElements).map(el => {
+            const nowA = el.querySelector('a');
+            if (nowA) {
+                let nowTag = nowA.textContent;
+                // 对于原创作品，非日文的页面上只显示了用户语言的“原创”，替换成日文 tag “オリジナル”。
+                if (nowTag === '原创' || nowTag === 'Original' || nowTag === '창작') {
+                    nowTag = 'オリジナル';
+                }
+                return nowTag;
+            }
+        });
+        const tagString = encodeURI(tagArray.join(' '));
+        // 调用添加收藏的 api
+        addBookmark(getIllustId(), tagString, getToken(), false)
+            .then(response => response.json())
+            .then(data => {
+            if (data.error !== undefined && data.error === false) {
+                quickBookmarkEnd();
+            }
+        });
+    });
+}
 // 如果这个作品已收藏，则改变样式
 function quickBookmarkEnd() {
-    quickBookmarkElement.style.color = '#FF4060';
-    quickBookmarkElement.href = `/bookmark_add.php?type=illust&illust_id=${getIllustId()}`;
+    quickBookmarkEl.style.color = '#FF4060';
+    quickBookmarkEl.href = `/bookmark_add.php?type=illust&illust_id=${getIllustId()}`;
 }
 // 添加收藏
 async function addBookmark(id, tags, tt, hide) {
@@ -366,13 +361,13 @@ function getInfoFromBookmark(url) {
 // 准备添加 tag
 async function readyAddTag() {
     // 公开的未分类收藏
-    const api1 = `https://www.pixiv.net/ajax/user/${getUserId()}/illusts/bookmarks?tag=${encodeURI('未分類')}&offset=0&limit=999999&rest=show&rdm=${Math.random()}`;
+    const show = `https://www.pixiv.net/ajax/user/${getUserId()}/illusts/bookmarks?tag=${encodeURI('未分類')}&offset=0&limit=999999&rest=show&rdm=${Math.random()}`;
     // 非公开的未分类收藏
-    const api2 = `https://www.pixiv.net/ajax/user/${getUserId()}/illusts/bookmarks?tag=${encodeURI('未分類')}&offset=0&limit=999999&rest=hide&rdm=${Math.random()}`;
+    const hide = `https://www.pixiv.net/ajax/user/${getUserId()}/illusts/bookmarks?tag=${encodeURI('未分類')}&offset=0&limit=999999&rest=hide&rdm=${Math.random()}`;
     let addList = []; // 需要添加 tag 的作品列表
     const addTagBtn = document.getElementById('add_tag_btn');
-    addList = addList.concat(await getInfoFromBookmark(api1));
-    addList = addList.concat(await getInfoFromBookmark(api2));
+    addList = addList.concat(await getInfoFromBookmark(show));
+    addList = addList.concat(await getInfoFromBookmark(hide));
     if (addList.length === 0) {
         addTagBtn.textContent = `√ no need`;
         return false;
@@ -474,10 +469,57 @@ async function encodeVideo(encoder) {
     });
 }
 // 初始化图片查看器
+function newViewer(pageCount, firsturl) {
+    // 因为选项里的 size 是枚举类型，所以在这里也要定义一个枚举
+    let ToolbarButtonSize;
+    (function (ToolbarButtonSize) {
+        ToolbarButtonSize["Small"] = "small";
+        ToolbarButtonSize["Medium"] = "medium";
+        ToolbarButtonSize["Large"] = "large";
+    })(ToolbarButtonSize || (ToolbarButtonSize = {}));
+    myViewer = new Viewer(viewerUl, {
+        toolbar: {
+            zoomIn: 0,
+            zoomOut: 0,
+            oneToOne: 1,
+            reset: 0,
+            prev: 1,
+            play: {
+                show: 0,
+                size: ToolbarButtonSize.Large
+            },
+            next: 1,
+            rotateLeft: 0,
+            rotateRight: 0,
+            flipHorizontal: 0,
+            flipVertical: 0
+        },
+        url(image) {
+            return image.dataset.src;
+        },
+        viewed(event) {
+            // 当图片显示完成（加载完成）后，预加载下一张图片
+            const ev = event || window.event;
+            let index = ev.detail.index;
+            if (index < pageCount - 1) {
+                index++;
+            }
+            const nextImg = firsturl.replace('p0', 'p' + index);
+            const img = new Image();
+            img.src = nextImg;
+        },
+        // 取消一些动画，比如切换图片时，图片从小变大出现的动画
+        transition: false,
+        // 取消键盘支持，主要是用键盘左右方向键切换的话，会和 pixiv 页面产生冲突。（pixiv 页面上，左右方向键会切换作品）
+        keyboard: false,
+        // 不显示 title（图片名和宽高信息）
+        title: false,
+        // 不显示缩放比例
+        tooltip: false
+    });
+}
+// 初始化图片查看器
 function initViewer() {
-    if (!viewerEnable) {
-        return false;
-    }
     // 检查图片查看器元素是否已经生成
     if (!document.getElementById('viewerWarpper')) {
         createViewer();
@@ -494,7 +536,7 @@ function createViewer() {
         // 等到作品主体部分的元素生成之后再创建查看器
         setTimeout(() => {
             createViewer();
-        }, 200);
+        }, 300);
         return false;
     }
     // 查看器图片列表元素的结构： div#viewerWarpper > ul > li > img
@@ -514,7 +556,8 @@ function createViewer() {
             .querySelector('.viewer-one-to-one')
             .addEventListener('click', () => {
             hideViewerOther(); // 隐藏查看器的其他元素
-            launchFullScreen(document.body); // 进入全屏
+            // 进入全屏
+            document.body.requestFullscreen();
             // 使图片居中显示，必须加延迟
             setTimeout(() => {
                 setViewerCenter();
@@ -534,7 +577,7 @@ function createViewer() {
     // 隐藏查看器时，如果还处于全屏，则退出全屏
     viewerUl.addEventListener('hidden', () => {
         if (isFullscreen()) {
-            exitFullscreen();
+            document.exitFullscreen();
         }
     });
     // esc 退出图片查看器
@@ -556,8 +599,8 @@ function createViewer() {
     ].forEach(arg => {
         // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
         document.addEventListener(arg, () => {
+            // 退出全屏
             if (!isFullscreen()) {
-                // 退出全屏
                 showViewerOther();
             }
         });
@@ -594,59 +637,11 @@ function updateViewer() {
                 if (myViewer) {
                     myViewer.destroy();
                 }
-                // 因为选项里的 size 是枚举类型，所以在这里也要定义一个枚举
-                let ToolbarButtonSize;
-                (function (ToolbarButtonSize) {
-                    ToolbarButtonSize["Small"] = "small";
-                    ToolbarButtonSize["Medium"] = "medium";
-                    ToolbarButtonSize["Large"] = "large";
-                })(ToolbarButtonSize || (ToolbarButtonSize = {}));
                 // 重新配置看图组件
-                myViewer = new Viewer(viewerUl, {
-                    toolbar: {
-                        zoomIn: 0,
-                        zoomOut: 0,
-                        oneToOne: 1,
-                        reset: 0,
-                        prev: 1,
-                        play: {
-                            show: 0,
-                            size: ToolbarButtonSize.Large
-                        },
-                        next: 1,
-                        rotateLeft: 0,
-                        rotateRight: 0,
-                        flipHorizontal: 0,
-                        flipVertical: 0
-                    },
-                    url(image) {
-                        return image.dataset.src;
-                    },
-                    viewed(event) {
-                        // 当图片显示完成（加载完成）后，预加载下一张图片
-                        const ev = event || window.event;
-                        let index = ev.detail.index;
-                        if (index < thisOneData.pageCount - 1) {
-                            index++;
-                        }
-                        const nextImg = original.replace('p0', 'p' + index);
-                        const img = new Image();
-                        img.src = nextImg;
-                    },
-                    // 取消一些动画，比如切换图片时，图片从小变大出现的动画
-                    transition: false,
-                    // 取消键盘支持，主要是用键盘左右方向键切换的话，会和 pixiv 页面产生冲突。（pixiv 页面上，左右方向键会切换作品）
-                    keyboard: false,
-                    // 不显示 title（图片名和宽高信息）
-                    title: false,
-                    // 不显示缩放比例
-                    tooltip: false
-                });
+                newViewer(thisOneData.pageCount, original);
                 // 预加载第一张图片
-                {
-                    const img = new Image();
-                    img.src = original;
-                }
+                const img = new Image();
+                img.src = original;
             }
         }
     });
@@ -704,42 +699,9 @@ function setViewerCenter() {
     }
     myViewer.moveTo(setWidth, setHeight);
 }
-// 进入全屏
-function launchFullScreen(element) {
-    if (element.requestFullscreen) {
-        element.requestFullscreen();
-    }
-    else if (element.msRequestFullscreen) {
-        element.msRequestFullscreen();
-    }
-    else if (element.mozRequestFullScreen) {
-        element.mozRequestFullScreen();
-    }
-    else if (element.webkitRequestFullscreen) {
-        element.webkitRequestFullscreen();
-    }
-}
-// 退出全屏
-function exitFullscreen() {
-    const _document = document;
-    if (_document.exitFullscreen) {
-        _document.exitFullscreen();
-    }
-    else if (_document.mozExitFullScreen) {
-        _document.mozExitFullScreen();
-    }
-    else if (_document.webkitExitFullscreen) {
-        _document.webkitExitFullscreen();
-    }
-}
 // 判断是否处于全屏状态
 function isFullscreen() {
-    const _document = document;
-    return (_document.fullscreenElement ||
-        _document.msFullscreenElement ||
-        _document.mozFullScreenElement ||
-        _document.webkitFullscreenElement ||
-        false);
+    return !!document.fullscreenElement;
 }
 // 判断看图器是否处于显示状态
 function viewerIsShow() {
@@ -778,9 +740,25 @@ function titleHasStatus(status = '') {
     }
     return false;
 }
+// 重设 title
+function resetTitle() {
+    clearInterval(titleTimer);
+    // 储存标题的 mete 元素。在某些页面不存在，有时也与实际上的标题不一致。
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    // 无刷新自动加载的页面里，og:title 标签是最早更新标题的，内容也一致。
+    if (ogTitle && (pageType == 1 || pageType === 2)) {
+        document.title = ogTitle.content;
+    }
+    else {
+        // 如果当前 title 里有状态提醒，则设置为状态后面的文字
+        if (titleHasStatus()) {
+            document.title = document.title.split(']')[1];
+        }
+    }
+}
 // 修改title
 function changeTitle(string) {
-    // 工作时，本工具的状态会以 [string] 形式添加到 title 最前面，并闪烁提醒
+    // 工作时，本程序的状态会以 [string] 形式添加到 title 最前面，并闪烁提醒
     /*
     0 不显示在标题上，它是把标题复原的信号
     ↑ 抓取中
@@ -793,18 +771,8 @@ function changeTitle(string) {
     */
     // 重设 title
     if (string === '0') {
-        clearInterval(titleTimer);
-        // 无刷新自动加载的页面里，og:title 标签是最早更新标题的。
-        if (ogTitle && (pageType == 1 || pageType === 2)) {
-            document.title = ogTitle.content;
-        }
-        else {
-            // 如果当前 title 里有本脚本的状态提醒，则设置为状态后面的文字
-            if (titleHasStatus()) {
-                document.title = document.title.split(']')[1];
-            }
-        }
-        return false;
+        resetTitle();
+        return;
     }
     const status = `[${string}]`;
     // 如果 title 里没有状态，就添加状态
@@ -813,7 +781,7 @@ function changeTitle(string) {
     }
     else {
         // 如果已经有状态了，则替换为新当前传入的状态
-        document.title = document.title.replace(/\[.*\]/, status);
+        document.title = document.title.replace(/\[.?\]/, status);
     }
     // 当需要执行下一步操作时，闪烁提醒
     if (string === '▶' || string === '→') {
@@ -830,7 +798,7 @@ function changeTitle(string) {
         clearInterval(titleTimer);
     }
 }
-// 将元素插入到页面顶部。大部分页面使用 header，文章页使用 root。因为在文章页执行脚本时，可能获取不到 header
+// 将元素插入到页面顶部。大部分页面使用 header，文章页使用 root。因为在文章页执行时，可能获取不到 header
 function insertToHead(el) {
     ;
     (document.querySelector('#root>*') || document.querySelector('header')).insertAdjacentElement('beforebegin', el);
@@ -851,33 +819,25 @@ function addOutputInfo(val) {
     outputArea.innerHTML += val;
 }
 // 检查输入的参数是否有效，要求大于 0 的数字
-function checkNumberGreater0(arg, mode) {
-    if (arg === null || arg === '') {
-        return {
-            result: false,
-            value: 0
-        };
-    }
-    let minNum = 0;
-    if (mode === '=0') {
-        // 允许最小为0
-        minNum = -1;
-    }
+function checkNumberGreater0(arg) {
     let thisArg = parseInt(arg);
-    if (isNaN(thisArg) || thisArg <= minNum) {
+    // 空值会是 NaN
+    if (!isNaN(thisArg) && thisArg > 0) {
+        // 符合条件
         return {
-            result: false,
-            value: 0
+            result: true,
+            value: thisArg
         };
     }
+    // 不符合条件
     return {
-        result: true,
-        value: thisArg
+        result: false,
+        value: 0
     };
 }
 // 获取排除类型
 function getNotDownType() {
-    return Array.from(document.body.querySelectorAll('.xzFormP5 input')).reduce((result, el, index) => {
+    return Array.from(xzForm.querySelectorAll('.xzFormP5 input')).reduce((result, el, index) => {
         const thisElement = el;
         if (thisElement.checked === false) {
             return (result += index);
@@ -1058,20 +1018,15 @@ function checkSetWhok(width, height) {
         return true;
     }
 }
-// 检查作品是否符合过滤收藏数的条件
+// 检查是否设置了收藏数要求
 function checkSetBmk() {
-    const checkResult = checkNumberGreater0(xzForm.setFavNum.value, '=0');
+    const checkResult = checkNumberGreater0(xzForm.setFavNum.value);
     if (checkResult.result) {
+        isSetFilterBmk = checkResult.result;
         filterBmk = checkResult.value;
-        isSetFilterBmk = true;
-    }
-    else {
-        isSetFilterBmk = false;
-        addOutputInfo('<br>' + xzlt('_参数不合法1'));
-        return false;
-    }
-    if (isSetFilterBmk && filterBmk > 0 && pageType !== 5) {
-        addOutputInfo('<br>' + xzlt('_设置了筛选收藏数之后的提示文字') + filterBmk);
+        if (pageType !== 5) {
+            addOutputInfo('<br>' + xzlt('_设置了筛选收藏数之后的提示文字') + filterBmk);
+        }
     }
     return true;
 }
@@ -1284,8 +1239,6 @@ function listSort() {
 // tag搜索页的筛选任务执行完毕
 function tagSearchPageFinished() {
     allowWork = true;
-    // listPage_finished=0;
-    // 不注释掉上一句的话，每次添加筛选任务都是从当前页开始，而不是一直往后累计
     tagPageFinished = 0; // 重置已抓取的页面数量
     listSort();
     changeTitle('→');
@@ -1311,7 +1264,7 @@ function removeEl(el) {
         el.parentNode.removeChild(el);
     }
 }
-// 实现 DOM 元素的 toggle 方法，目前仅支持 block 和 none 切换
+// 切换显示 DOM 元素
 function toggle(el) {
     el.style.display = el.style.display === 'block' ? 'none' : 'block';
 }
@@ -1501,7 +1454,7 @@ function getListPage() {
             'https://www.pixiv.net/ajax/illust/' +
                 getIllustId() +
                 '/recommend/init?limit=18';
-        // 最后的 18 是预加载首屏的多少个作品的信息，和本次下载并没有关系
+        // 最后的 18 是预加载首屏的多少个作品的信息，和下载并没有关系
     }
     else if (pageType === 9) {
         // 相似作品页面
@@ -2414,9 +2367,9 @@ async function getIllustData(url) {
         }
     }
 }
-// 测试图片 url 是否正确的函数。对于 mode=big 的作品和 pixivision ，可以拼接出图片url，只是后缀都是jpg的，所以要测试实际上是jpg还是png
+// 测试图片 url 是否正确的函数。pixivision 页面直接获取的图片 url，后缀都是jpg的，所以要测试实际上是jpg还是png
 function testExtName(url, length, imgInfoData) {
-    testSuffixFinished = false; // 初步获取到的后缀名都是jpg的
+    testSuffixFinished = false;
     let ext = '';
     const testImg = new Image();
     testImg.src = url;
@@ -2433,7 +2386,6 @@ function testExtName(url, length, imgInfoData) {
         addImgInfo(imgInfoData.id, url, imgInfoData.title, imgInfoData.tags, [], imgInfoData.user, imgInfoData.userid, imgInfoData.fullWidth, imgInfoData.fullHeight, ext, 0, '', {});
         outputImgNum();
         if (length !== undefined) {
-            // length参数只有在 pixivision 才会传入
             testSuffixNo++;
             if (testSuffixNo === length) {
                 // 如果所有请求都执行完毕
@@ -2443,11 +2395,10 @@ function testExtName(url, length, imgInfoData) {
         testSuffixFinished = true;
     }
 }
-// mode=big 类型在 pc 端可能已经消失了，但是移动端查看大图还是big https://www.pixiv.net/member_illust.php?mode=big&illust_id=66745241
 // 抓取完毕
 function crawFinished() {
     // 检查快速下载状态
-    autoDownload = xzForm.setQuietDownload.checked;
+    let autoDownload = xzForm.setQuietDownload.checked;
     // 检查后缀名的任务是否全部完成
     if (testSuffixFinished) {
         downRelated = false; // 解除下载相关作品的标记
@@ -2482,7 +2433,7 @@ function crawFinished() {
         if (!quickDownload) {
             centerWrapShow();
         }
-        // 快速下载时点击下载按钮
+        // 视情况自动开始下载
         if (quickDownload || autoDownload) {
             startDownload();
         }
@@ -2528,27 +2479,26 @@ function xzTip(arg) {
         xzTipEl.style.display = 'none';
     }
 }
-// 添加中间面板
-function addCenterWarps() {
-    // 添加输出 url 列表、文件名列表的面板
+// 添加输出 url 列表、文件名列表的面板
+function addOutPutPanel() {
     const outputInfoWrap = document.createElement('div');
     document.body.appendChild(outputInfoWrap);
     outputInfoWrap.outerHTML = `
-    <div class="outputInfoWrap">
-    <div class="outputUrlClose" title="${xzlt('_关闭')}">X</div>
-    <div class="outputUrlTitle">${xzlt('_输出信息')}</div>
-    <div class="outputInfoContent"></div>
-    <div class="outputUrlFooter">
-    <div class="outputUrlCopy" title="">${xzlt('_复制')}</div>
-    </div>
-    </div>
-    `;
-    // 绑定关闭输出区域的事件
+      <div class="outputInfoWrap">
+      <div class="outputUrlClose" title="${xzlt('_关闭')}">X</div>
+      <div class="outputUrlTitle">${xzlt('_输出信息')}</div>
+      <div class="outputInfoContent"></div>
+      <div class="outputUrlFooter">
+      <div class="outputUrlCopy" title="">${xzlt('_复制')}</div>
+      </div>
+      </div>
+      `;
+    // 关闭输出区域
     document.querySelector('.outputUrlClose').addEventListener('click', () => {
         ;
         document.querySelector('.outputInfoWrap').style.display = 'none';
     });
-    // 绑定复制输出内容的事件
+    // 复制输出内容
     document.querySelector('.outputUrlCopy').addEventListener('click', () => {
         const range = document.createRange();
         range.selectNodeContents(document.querySelector('.outputInfoContent'));
@@ -2562,236 +2512,227 @@ function addCenterWarps() {
             document.querySelector('.outputUrlCopy').textContent = xzlt('_复制');
         }, 1000);
     });
-    // 添加下载面板
+}
+// 添加下载面板
+function addDownloadPanel() {
     document.body.appendChild(centerPanel);
     centerPanel.outerHTML = `
-    <div class="XZTipEl"></div>
-    <div class="centerWrap">
-    <div class="centerWrap_head">
-    <span class="centerWrap_title xz_blue"> ${xzlt('_下载设置')}</span>
-    <div class="btns">
-    <a class="xztip centerWrap_top_btn wiki_url" data-tip="${xzlt('_wiki')}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL('dist/images/wiki.png')}" /></a>
-    <a class="xztip centerWrap_top_btn" data-tip="${xzlt('_github')}" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank"><img src="${chrome.extension.getURL('dist/images/github-logo.png')}" /></a>
-      <div class="xztip centerWrap_top_btn centerWrap_toogle_option" data-tip="${xzlt('_收起展开设置项')}">▲</div>
-      <div class="xztip centerWrap_top_btn centerWrap_close" data-tip="${xzlt('_快捷键切换显示隐藏')}">X</div>
-    </div>
-    </div>
-    <div class="centerWrap_con">
-    <form class="xzForm">
-    <div class="xz_option_area">
-    <p class="xzFormP1">
-    <span class="setWantPageWrap">
-    <span class="xztip settingNameStyle1 setWantPageTip1" data-tip="" style="margin-right: 0px;">${xzlt('_页数')}</span><span class="gray1" style="margin-right: 10px;"> ? </span>
-    <input type="text" name="setWantPage" class="setinput_style1 xz_blue setWantPage">&nbsp;&nbsp;&nbsp;
-    <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
-    </span>
-    </p>
-    <p class="xzFormP3">
-    <span class="xztip settingNameStyle1" data-tip="${xzlt('_多p下载前几张提示')}">${xzlt('_多p下载前几张')}<span class="gray1"> ? </span></span>
-    <input type="text" name="setPNo" class="setinput_style1 xz_blue" value="${imgNumberPerWork}">
-    </p>
-    <p class="xzFormP5">
-    <span class="xztip settingNameStyle1" data-tip="${xzlt('_下载作品类型的提示Center')}">${xzlt('_下载作品类型')}<span class="gray1"> ? </span></span>
-    <label for="setWorkType0"><input type="checkbox" name="setWorkType0" id="setWorkType0" checked> ${xzlt('_插画')}&nbsp;</label>
-    <label for="setWorkType1"><input type="checkbox" name="setWorkType1" id="setWorkType1" checked> ${xzlt('_漫画')}&nbsp;</label>
-    <label for="setWorkType2"><input type="checkbox" name="setWorkType2" id="setWorkType2" checked> ${xzlt('_动图')}&nbsp;</label>
-    </p>
-    <p class="xzFormP12">
-    <span class="xztip settingNameStyle1" data-tip="${xzlt('_动图保存格式title')}">${xzlt('_动图保存格式')}<span class="gray1"> ? </span></span>
-    <label for="ugoiraSaveAs1"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" value="webm" checked> ${xzlt('_webmVideo')} &nbsp;</label>
-    <label for="ugoiraSaveAs3"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" value="gif" checked> ${xzlt('_gif')} &nbsp;</label>
-    <label for="ugoiraSaveAs2"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" value="zip"> ${xzlt('_zipFile')} &nbsp;</label>
-    </p>
-    <p class="xzFormP2">
-    <span class="xztip settingNameStyle1" data-tip="${xzlt('_筛选收藏数的提示Center')}">${xzlt('_筛选收藏数Center')}<span class="gray1"> ? </span></span>
-    <input type="text" name="setFavNum" class="setinput_style1 xz_blue" value="0">&nbsp;&nbsp;&nbsp;&nbsp;
-    </p>
-    <p class="xzFormP11">
-    <span class="xztip settingNameStyle1" data-tip="${xzlt('_只下载已收藏的提示')}">${xzlt('_只下载已收藏')}<span class="gray1"> ? </span></span>
-    <label for="setOnlyBmk"><input type="checkbox" name="setOnlyBmk" id="setOnlyBmk"> ${xzlt('_启用')}</label>
-    </p>
-    <p class="xzFormP4">
-    <span class="xztip settingNameStyle1" data-tip="${xzlt('_筛选宽高的按钮Title')} ${xzlt('_筛选宽高的提示文字')}">${xzlt('_筛选宽高的按钮文字')}<span class="gray1"> ? </span></span>
-    <input type="text" name="setWidth" class="setinput_style1 xz_blue" value="0">
-    <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" value="&" checked> <label for="setWidth_AndOr1">and&nbsp;</label>
-    <input type="radio" name="setWidthAndOr" id="setWidth_AndOr2" value="|"> <label for="setWidth_AndOr2">or&nbsp;</label>
-    <input type="text" name="setHeight" class="setinput_style1 xz_blue" value="0">
-    </p>
-    <p class="xzFormP13">
-    <span class="xztip settingNameStyle1" data-tip="${xzlt('_设置宽高比例Title')}">${xzlt('_设置宽高比例')}<span class="gray1"> ? </span></span>
-    <input type="radio" name="ratio" id="ratio0" value="0" checked> <label for="ratio0"> ${xzlt('_不限制')}&nbsp; </label>
-    <input type="radio" name="ratio" id="ratio1" value="1"> <label for="ratio1"> ${xzlt('_横图')}&nbsp; </label>
-    <input type="radio" name="ratio" id="ratio2" value="2"> <label for="ratio2"> ${xzlt('_竖图')}&nbsp; </label>
-    <input type="radio" name="ratio" id="ratio3" value="3"> <label for="ratio3"> ${xzlt('_输入宽高比')}<input type="text" name="userRatio" class="setinput_style1 xz_blue" value="1.4"></label>
-    </p>
-    <p class="xzFormP6">
-    <span class="xztip settingNameStyle1" data-tip="${xzlt('_必须tag的提示文字')}">${xzlt('_必须含有tag')}<span class="gray1"> ? </span></span>
-    <input type="text" name="setTagNeed" class="setinput_style1 xz_blue setinput_tag">
-    </p>
-    <p class="xzFormP7">
-    <span class="xztip settingNameStyle1" data-tip="${xzlt('_排除tag的提示文字')}">${xzlt('_不能含有tag')}<span class="gray1"> ? </span></span>
-    <input type="text" name="setTagNotNeed" class="setinput_style1 xz_blue setinput_tag">
-    </p>
-    <p class="xzFormP9" style="display:none;">
-    <span class="xztip settingNameStyle1" data-tip="${xzlt('_显示封面的提示')}">${xzlt('_是否显示封面')}<span class="gray1"> ? </span></span>
-    <label for="setDisplayCover"><input type="checkbox" name="setDisplayCover" id="setDisplayCover" checked> ${xzlt('_显示')}</label>
-    </p>
-    <p class="xzFormP8">
-    <span class="xztip settingNameStyle1" data-tip="${xzlt('_快速下载的提示')}">${xzlt('_是否自动下载')}<span class="gray1"> ? </span></span>
-    <label for="setQuietDownload"><input type="checkbox" name="setQuietDownload" id="setQuietDownload"> ${xzlt('_启用')}</label>
-    </p>
-    </div>
-    <div class="centerWrap_btns centerWrap_btns_free">
-
-    </div>
-    <p> ${xzlt('_设置命名规则3', '<span class="fwb xz_blue imgNum">0</span>')}</p>
-    <p>
-    <span class="xztip settingNameStyle1" data-tip="${xzlt('_线程数字')}">${xzlt('_设置下载线程')}<span class="gray1"> ? </span></span>
-    <input type="text" name="setThread" class="setinput_style1 xz_blue" value="${downloadThreadDeauflt}">
-    </p>
-    <p>
-    <span class="xztip settingNameStyle1" data-tip="${xzlt('_设置文件夹名的提示')}">${xzlt('_设置文件名')}<span class="gray1"> ? </span></span>
-    <input type="text" name="fileNameRule" class="setinput_style1 xz_blue fileNameRule" value="{id}">
-    &nbsp;&nbsp;
-    <select name="pageInfoSelect">
-    </select>
-    &nbsp;&nbsp;
-    <select name="fileNameSelect">
-      <option value="default">…</option>
-      <option value="{id}">{id}</option>
-      <option value="{title}">{title}</option>
-      <option value="{tags}">{tags}</option>
-      <option value="{tags_translate}">{tags_translate}</option>
-      <option value="{user}">{user}</option>
-      <option value="{userid}">{userid}</option>
-      <option value="{date}">{date}</option>
-      <option value="{bmk}">{bmk}</option>
-      <option value="{px}">{px}</option>
-      <option value="{id_num}">{id_num}</option>
-      <option value="{p_num}">{p_num}</option>
+      <div class="XZTipEl"></div>
+      <div class="centerWrap">
+      <div class="centerWrap_head">
+      <span class="centerWrap_title xz_blue"> ${xzlt('_下载设置')}</span>
+      <div class="btns">
+      <a class="xztip centerWrap_top_btn wiki_url" data-tip="${xzlt('_wiki')}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL('dist/images/wiki.png')}" /></a>
+      <a class="xztip centerWrap_top_btn" data-tip="${xzlt('_github')}" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank"><img src="${chrome.extension.getURL('dist/images/github-logo.png')}" /></a>
+        <div class="xztip centerWrap_top_btn centerWrap_toogle_option" data-tip="${xzlt('_收起展开设置项')}">▲</div>
+        <div class="xztip centerWrap_top_btn centerWrap_close" data-tip="${xzlt('_快捷键切换显示隐藏')}">X</div>
+      </div>
+      </div>
+      <div class="centerWrap_con">
+      <form class="xzForm">
+      <div class="xz_option_area">
+      <p class="xzFormP1">
+      <span class="setWantPageWrap">
+      <span class="xztip settingNameStyle1 setWantPageTip1" data-tip="" style="margin-right: 0px;">${xzlt('_页数')}</span><span class="gray1" style="margin-right: 10px;"> ? </span>
+      <input type="text" name="setWantPage" class="setinput_style1 xz_blue setWantPage">&nbsp;&nbsp;&nbsp;
+      <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
+      </span>
+      </p>
+      <p class="xzFormP3">
+      <span class="xztip settingNameStyle1" data-tip="${xzlt('_多p下载前几张提示')}">${xzlt('_多p下载前几张')}<span class="gray1"> ? </span></span>
+      <input type="text" name="setPNo" class="setinput_style1 xz_blue" value="${imgNumberPerWork}">
+      </p>
+      <p class="xzFormP5">
+      <span class="xztip settingNameStyle1" data-tip="${xzlt('_下载作品类型的提示Center')}">${xzlt('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <label for="setWorkType0"><input type="checkbox" name="setWorkType0" id="setWorkType0" checked> ${xzlt('_插画')}&nbsp;</label>
+      <label for="setWorkType1"><input type="checkbox" name="setWorkType1" id="setWorkType1" checked> ${xzlt('_漫画')}&nbsp;</label>
+      <label for="setWorkType2"><input type="checkbox" name="setWorkType2" id="setWorkType2" checked> ${xzlt('_动图')}&nbsp;</label>
+      </p>
+      <p class="xzFormP12">
+      <span class="xztip settingNameStyle1" data-tip="${xzlt('_动图保存格式title')}">${xzlt('_动图保存格式')}<span class="gray1"> ? </span></span>
+      <label for="ugoiraSaveAs1"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" value="webm" checked> ${xzlt('_webmVideo')} &nbsp;</label>
+      <label for="ugoiraSaveAs3"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" value="gif" checked> ${xzlt('_gif')} &nbsp;</label>
+      <label for="ugoiraSaveAs2"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" value="zip"> ${xzlt('_zipFile')} &nbsp;</label>
+      </p>
+      <p class="xzFormP2">
+      <span class="xztip settingNameStyle1" data-tip="${xzlt('_筛选收藏数的提示Center')}">${xzlt('_筛选收藏数Center')}<span class="gray1"> ? </span></span>
+      <input type="text" name="setFavNum" class="setinput_style1 xz_blue" value="0">&nbsp;&nbsp;&nbsp;&nbsp;
+      </p>
+      <p class="xzFormP11">
+      <span class="xztip settingNameStyle1" data-tip="${xzlt('_只下载已收藏的提示')}">${xzlt('_只下载已收藏')}<span class="gray1"> ? </span></span>
+      <label for="setOnlyBmk"><input type="checkbox" name="setOnlyBmk" id="setOnlyBmk"> ${xzlt('_启用')}</label>
+      </p>
+      <p class="xzFormP4">
+      <span class="xztip settingNameStyle1" data-tip="${xzlt('_筛选宽高的按钮Title')} ${xzlt('_筛选宽高的提示文字')}">${xzlt('_筛选宽高的按钮文字')}<span class="gray1"> ? </span></span>
+      <input type="text" name="setWidth" class="setinput_style1 xz_blue" value="0">
+      <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" value="&" checked> <label for="setWidth_AndOr1">and&nbsp;</label>
+      <input type="radio" name="setWidthAndOr" id="setWidth_AndOr2" value="|"> <label for="setWidth_AndOr2">or&nbsp;</label>
+      <input type="text" name="setHeight" class="setinput_style1 xz_blue" value="0">
+      </p>
+      <p class="xzFormP13">
+      <span class="xztip settingNameStyle1" data-tip="${xzlt('_设置宽高比例Title')}">${xzlt('_设置宽高比例')}<span class="gray1"> ? </span></span>
+      <input type="radio" name="ratio" id="ratio0" value="0" checked> <label for="ratio0"> ${xzlt('_不限制')}&nbsp; </label>
+      <input type="radio" name="ratio" id="ratio1" value="1"> <label for="ratio1"> ${xzlt('_横图')}&nbsp; </label>
+      <input type="radio" name="ratio" id="ratio2" value="2"> <label for="ratio2"> ${xzlt('_竖图')}&nbsp; </label>
+      <input type="radio" name="ratio" id="ratio3" value="3"> <label for="ratio3"> ${xzlt('_输入宽高比')}<input type="text" name="userRatio" class="setinput_style1 xz_blue" value="1.4"></label>
+      </p>
+      <p class="xzFormP6">
+      <span class="xztip settingNameStyle1" data-tip="${xzlt('_必须tag的提示文字')}">${xzlt('_必须含有tag')}<span class="gray1"> ? </span></span>
+      <input type="text" name="setTagNeed" class="setinput_style1 xz_blue setinput_tag">
+      </p>
+      <p class="xzFormP7">
+      <span class="xztip settingNameStyle1" data-tip="${xzlt('_排除tag的提示文字')}">${xzlt('_不能含有tag')}<span class="gray1"> ? </span></span>
+      <input type="text" name="setTagNotNeed" class="setinput_style1 xz_blue setinput_tag">
+      </p>
+      <p class="xzFormP9" style="display:none;">
+      <span class="xztip settingNameStyle1" data-tip="${xzlt('_显示封面的提示')}">${xzlt('_是否显示封面')}<span class="gray1"> ? </span></span>
+      <label for="setDisplayCover"><input type="checkbox" name="setDisplayCover" id="setDisplayCover" checked> ${xzlt('_显示')}</label>
+      </p>
+      <p class="xzFormP8">
+      <span class="xztip settingNameStyle1" data-tip="${xzlt('_快速下载的提示')}">${xzlt('_是否自动下载')}<span class="gray1"> ? </span></span>
+      <label for="setQuietDownload"><input type="checkbox" name="setQuietDownload" id="setQuietDownload"> ${xzlt('_启用')}</label>
+      </p>
+      </div>
+      <div class="centerWrap_btns centerWrap_btns_free">
+  
+      </div>
+      <p> ${xzlt('_设置命名规则3', '<span class="fwb xz_blue imgNum">0</span>')}</p>
+      <p>
+      <span class="xztip settingNameStyle1" data-tip="${xzlt('_线程数字')}">${xzlt('_设置下载线程')}<span class="gray1"> ? </span></span>
+      <input type="text" name="setThread" class="setinput_style1 xz_blue" value="${downloadThreadDeauflt}">
+      </p>
+      <p>
+      <span class="xztip settingNameStyle1" data-tip="${xzlt('_设置文件夹名的提示')}">${xzlt('_设置文件名')}<span class="gray1"> ? </span></span>
+      <input type="text" name="fileNameRule" class="setinput_style1 xz_blue fileNameRule" value="{id}">
+      &nbsp;&nbsp;
+      <select name="pageInfoSelect">
       </select>
-    &nbsp;&nbsp;&nbsp;&nbsp;
-    <span class="gray1 showFileNameTip"> ${xzlt('_查看标记的含义')}</span>
-    </p>
-    <p class="fileNameTip tip">
-    ${xzlt('_设置文件夹名的提示').replace('<br>', '. ')}
-    <br>
-    <span class="xz_blue">{p_user}</span>
-    ${xzlt('_文件夹标记PUser')}
-    <br>
-    <span class="xz_blue">{p_uid}</span>
-    ${xzlt('_文件夹标记PUid')}
-    <br>
-    <span class="xz_blue">{p_tag}</span>
-    ${xzlt('_文件夹标记PTag')}
-    <br>
-    <span class="xz_blue">{p_title}</span>
-    ${xzlt('_文件夹标记PTitle')}
-    <br>
-    <span class="xz_blue">{id}</span>
-    ${xzlt('_命名标记1')}
-    <br>
-    <span class="xz_blue">{title}</span>
-    ${xzlt('_命名标记2')}
-    <br>
-    <span class="xz_blue">{tags}</span>
-    ${xzlt('_命名标记3')}
-    <br>
-    <span class="xz_blue">{tags_translate}</span>
-    ${xzlt('_命名标记11')}
-    <br>
-    <span class="xz_blue">{user}</span>
-    ${xzlt('_命名标记4')}
-    <br>
-    <span class="xz_blue">{userid}</span>
-    ${xzlt('_命名标记6')}
-    <br>
-    <span class="xz_blue">{date}</span>
-    ${xzlt('_命名标记12')}
-    <br>
-    <span class="xz_blue">{bmk}</span>
-    ${xzlt('_命名标记8')}
-    <br>
-    <span class="xz_blue">{px}</span>
-    ${xzlt('_命名标记7')}
-    <br>
-    <span class="xz_blue">{id_num}</span>
-    ${xzlt('_命名标记9')}
-    <br>
-    <span class="xz_blue">{p_num}</span>
-    ${xzlt('_命名标记10')}
-    <br>
-    ${xzlt('_命名标记提醒')}
-    </p>
-    <p class="xzFormP10">
-    <span class="xztip settingNameStyle1" data-tip="${xzlt('_添加字段名称提示')}">${xzlt('_添加字段名称')}<span class="gray1"> ? </span></span>
-    <label for="setTagNameToFileName"><input type="checkbox" name="setTagNameToFileName" id="setTagNameToFileName" checked> ${xzlt('_启用')}</label>
-    &nbsp;&nbsp;&nbsp;
-    <span class="gray1 showFileNameResult"> ${xzlt('_预览文件名')}</span>
-    </p>
-    </form>
-    <div class="download_panel">
-    <div class="centerWrap_btns">
-    <div class="startDownload" style="background:${xzBlue};"> ${xzlt('_下载按钮1')}</div>
-    <div class="pauseDownload" style="background:#e49d00;"> ${xzlt('_下载按钮2')}</div>
-    <div class="stopDownload" style="background:${xzRed};"> ${xzlt('_下载按钮3')}</div>
-    <div class="copyUrl" style="background:${xzGreen};"> ${xzlt('_下载按钮4')}</div>
-    </div>
-    <div class="centerWrap_down_tips">
-    <p>
-    ${xzlt('_当前状态')}
-    <span class="down_status xz_blue"> ${xzlt('_未开始下载')}</span>
-    </p>
-    <div class="progressBarWrap">
-    <span class="text">${xzlt('_下载进度')}</span>
-    <div class="right1">
-    <div class="progressBar progressBar1">
-    <div class="progress progress1"></div>
-    </div>
-    <div class="progressTip progressTip1">
-    <span class="downloaded">0</span>
-    /
-    <span class="imgNum">0</span>
-    </div>
-    </div>
-    </div>
-    </div>
-    <div class="centerWrap_down_list">
-    <ul>
-    <li class="downloadBar">
-    <div class="progressBar progressBar2">
-    <div class="progress progress2"></div>
-    </div>
-    <div class="progressTip progressTip2">
-    <span class="download_fileName"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${xzlt('_已下载')}&nbsp;&nbsp;<span class="loaded">0/0</span>KB
-    </div>
-    </li>
-    </ul>
-    </div>
-    </div>
-    <p class="gray1"> 
-    <span class="showDownTip">${xzlt('_查看下载说明')}</span>
-    <a class="xztip centerWrap_top_btn wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL('dist/images/wiki.png')}" /> ${xzlt('_wiki')}</a></p>
-    <p class="downTip tip"> ${xzlt('_下载说明')}</p>
-    </div>
-    `;
+      &nbsp;&nbsp;
+      <select name="fileNameSelect">
+        <option value="default">…</option>
+        <option value="{id}">{id}</option>
+        <option value="{title}">{title}</option>
+        <option value="{tags}">{tags}</option>
+        <option value="{tags_translate}">{tags_translate}</option>
+        <option value="{user}">{user}</option>
+        <option value="{userid}">{userid}</option>
+        <option value="{date}">{date}</option>
+        <option value="{bmk}">{bmk}</option>
+        <option value="{px}">{px}</option>
+        <option value="{id_num}">{id_num}</option>
+        <option value="{p_num}">{p_num}</option>
+        </select>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <span class="gray1 showFileNameTip"> ${xzlt('_查看标记的含义')}</span>
+      </p>
+      <p class="fileNameTip tip">
+      ${xzlt('_设置文件夹名的提示').replace('<br>', '. ')}
+      <br>
+      <span class="xz_blue">{p_user}</span>
+      ${xzlt('_文件夹标记PUser')}
+      <br>
+      <span class="xz_blue">{p_uid}</span>
+      ${xzlt('_文件夹标记PUid')}
+      <br>
+      <span class="xz_blue">{p_tag}</span>
+      ${xzlt('_文件夹标记PTag')}
+      <br>
+      <span class="xz_blue">{p_title}</span>
+      ${xzlt('_文件夹标记PTitle')}
+      <br>
+      <span class="xz_blue">{id}</span>
+      ${xzlt('_命名标记1')}
+      <br>
+      <span class="xz_blue">{title}</span>
+      ${xzlt('_命名标记2')}
+      <br>
+      <span class="xz_blue">{tags}</span>
+      ${xzlt('_命名标记3')}
+      <br>
+      <span class="xz_blue">{tags_translate}</span>
+      ${xzlt('_命名标记11')}
+      <br>
+      <span class="xz_blue">{user}</span>
+      ${xzlt('_命名标记4')}
+      <br>
+      <span class="xz_blue">{userid}</span>
+      ${xzlt('_命名标记6')}
+      <br>
+      <span class="xz_blue">{date}</span>
+      ${xzlt('_命名标记12')}
+      <br>
+      <span class="xz_blue">{bmk}</span>
+      ${xzlt('_命名标记8')}
+      <br>
+      <span class="xz_blue">{px}</span>
+      ${xzlt('_命名标记7')}
+      <br>
+      <span class="xz_blue">{id_num}</span>
+      ${xzlt('_命名标记9')}
+      <br>
+      <span class="xz_blue">{p_num}</span>
+      ${xzlt('_命名标记10')}
+      <br>
+      ${xzlt('_命名标记提醒')}
+      </p>
+      <p class="xzFormP10">
+      <span class="xztip settingNameStyle1" data-tip="${xzlt('_添加字段名称提示')}">${xzlt('_添加字段名称')}<span class="gray1"> ? </span></span>
+      <label for="setTagNameToFileName"><input type="checkbox" name="setTagNameToFileName" id="setTagNameToFileName" checked> ${xzlt('_启用')}</label>
+      &nbsp;&nbsp;&nbsp;
+      <span class="gray1 showFileNameResult"> ${xzlt('_预览文件名')}</span>
+      </p>
+      </form>
+      <div class="download_panel">
+      <div class="centerWrap_btns">
+      <div class="startDownload" style="background:${xzBlue};"> ${xzlt('_下载按钮1')}</div>
+      <div class="pauseDownload" style="background:#e49d00;"> ${xzlt('_下载按钮2')}</div>
+      <div class="stopDownload" style="background:${xzRed};"> ${xzlt('_下载按钮3')}</div>
+      <div class="copyUrl" style="background:${xzGreen};"> ${xzlt('_下载按钮4')}</div>
+      </div>
+      <div class="centerWrap_down_tips">
+      <p>
+      ${xzlt('_当前状态')}
+      <span class="down_status xz_blue"> ${xzlt('_未开始下载')}</span>
+      </p>
+      <div class="progressBarWrap">
+      <span class="text">${xzlt('_下载进度')}</span>
+      <div class="right1">
+      <div class="progressBar progressBar1">
+      <div class="progress progress1"></div>
+      </div>
+      <div class="progressTip progressTip1">
+      <span class="downloaded">0</span>
+      /
+      <span class="imgNum">0</span>
+      </div>
+      </div>
+      </div>
+      </div>
+      <div class="centerWrap_down_list">
+      <ul>
+      <li class="downloadBar">
+      <div class="progressBar progressBar2">
+      <div class="progress progress2"></div>
+      </div>
+      <div class="progressTip progressTip2">
+      <span class="download_fileName"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${xzlt('_已下载')}&nbsp;&nbsp;<span class="loaded">0/0</span>KB
+      </div>
+      </li>
+      </ul>
+      </div>
+      </div>
+      <p class="gray1"> 
+      <span class="showDownTip">${xzlt('_查看下载说明')}</span>
+      <a class="xztip centerWrap_top_btn wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL('dist/images/wiki.png')}" /> ${xzlt('_wiki')}</a></p>
+      <p class="downTip tip"> ${xzlt('_下载说明')}</p>
+      </div>
+      `;
     centerBtnWrap = document.querySelector('.centerWrap_btns_free');
     centerPanel = document.querySelector('.centerWrap');
     xzForm = document.querySelector('.xzForm');
-    // 绑定下载面板的事件
-    document
-        .querySelector('.centerWrap_close')
-        .addEventListener('click', centerWrapHide);
-    document
-        .querySelector('.showFileNameResult')
-        .addEventListener('click', () => showOutputInfoWrap('name'));
-    document
-        .querySelector('.showFileNameTip')
-        .addEventListener('click', () => toggle(document.querySelector('.fileNameTip')));
-    document
-        .querySelector('.showDownTip')
-        .addEventListener('click', () => toggle(document.querySelector('.downTip')));
-    // 显示提示
+}
+// 显示提示
+function bindXzTip() {
     xzTipEl = document.querySelector('.XZTipEl');
     const xztips = document.querySelectorAll('.xztip');
     for (const el of xztips) {
@@ -2806,19 +2747,75 @@ function addCenterWarps() {
             });
         }
     }
-    // 输入框获得焦点时自动选择文本（文件名输入框例外）
-    const centerInputs = xzForm.querySelectorAll('input[type=text]');
-    for (const el of centerInputs) {
-        if (el.name !== 'fileNameRule') {
-            el.addEventListener('focus', function () {
-                this.select();
-            });
+}
+// 把下拉框的选择项插入到文本框里
+function insertValueToInput(form, to) {
+    form.addEventListener('change', function () {
+        if (this.value === 'default') {
+            return false;
         }
+        else {
+            // 把选择项插入到光标位置,并设置新的光标位置
+            const position = to.selectionStart;
+            to.value =
+                to.value.substr(0, position) +
+                    this.value +
+                    to.value.substr(position, to.value.length);
+            to.selectionStart = position + this.value.length;
+            to.selectionEnd = position + this.value.length;
+            to.focus();
+            // 保存命名规则
+            saveXzSetting('userSetName', to.value);
+        }
+    });
+}
+// 向中间面板添加按钮
+function addCenterButton(tag = 'div', bg = xzBlue, text = '', attr = []) {
+    const e = document.createElement(tag);
+    e.style.backgroundColor = bg;
+    e.textContent = text;
+    for (const [key, value] of attr) {
+        e.setAttribute(key, value);
     }
-    // 添加文件名下拉框选项
-    insertValueToInput(xzForm.pageInfoSelect, xzForm.fileNameRule);
-    insertValueToInput(xzForm.fileNameSelect, xzForm.fileNameRule);
-    // 绑定开始下载按钮的事件
+    centerBtnWrap.appendChild(e);
+    return e;
+}
+// 绑定中间面板的事件
+function downloadPanelEvents() {
+    // 关闭中间面板
+    document
+        .querySelector('.centerWrap_close')
+        .addEventListener('click', centerWrapHide);
+    // 使用快捷键 Alt + x 切换中间面板显示隐藏
+    window.addEventListener('keydown', event => {
+        const e = event || window.event;
+        if (e.altKey && e.keyCode === 88) {
+            const nowDisplay = centerPanel.style.display;
+            if (nowDisplay === 'block') {
+                centerWrapHide();
+            }
+            else {
+                centerWrapShow();
+            }
+        }
+    }, false);
+    // 预览文件名
+    document
+        .querySelector('.showFileNameResult')
+        .addEventListener('click', () => showOutputInfoWrap('name'));
+    // 显示 url
+    document
+        .querySelector('.copyUrl')
+        .addEventListener('click', () => showOutputInfoWrap('url'));
+    // 显示命名字段提示
+    document
+        .querySelector('.showFileNameTip')
+        .addEventListener('click', () => toggle(document.querySelector('.fileNameTip')));
+    // 显示下载说明
+    document
+        .querySelector('.showDownTip')
+        .addEventListener('click', () => toggle(document.querySelector('.downTip')));
+    // 开始下载按钮
     document.querySelector('.startDownload').addEventListener('click', () => {
         startDownload();
     });
@@ -2830,10 +2827,34 @@ function addCenterWarps() {
     document.querySelector('.stopDownload').addEventListener('click', () => {
         stopDownload();
     });
-    // 复制url按钮
-    document
-        .querySelector('.copyUrl')
-        .addEventListener('click', () => showOutputInfoWrap('url'));
+    // 给有提示的元素绑定事件
+    bindXzTip();
+    // 输入框获得焦点时自动选择文本（文件名输入框例外）
+    const centerInputs = xzForm.querySelectorAll('input[type=text]');
+    for (const el of centerInputs) {
+        if (el.name !== 'fileNameRule') {
+            el.addEventListener('focus', function () {
+                this.select();
+            });
+        }
+    }
+    // 把下拉框的选择项插入到文本框里
+    insertValueToInput(xzForm.pageInfoSelect, xzForm.fileNameRule);
+    insertValueToInput(xzForm.fileNameSelect, xzForm.fileNameRule);
+}
+// 收起展开选项设置区域
+function toggleOptionArea(bool) {
+    const xzOptionArea = (document.querySelector('.xz_option_area'));
+    xzOptionArea.style.display = bool ? 'block' : 'none';
+    document.querySelector('.centerWrap_toogle_option').innerHTML = bool
+        ? '▲'
+        : '▼';
+}
+// 添加中间面板
+function addCenterWarps() {
+    addOutPutPanel();
+    addDownloadPanel();
+    downloadPanelEvents();
 }
 // 开始下载
 function startDownload() {
@@ -2963,17 +2984,6 @@ function reTryDownload() {
         startDownload();
     }, 20000);
 }
-// 向中间面板添加按钮
-function addCenterButton(tag = 'div', bg = xzBlue, text = '', attr = []) {
-    const e = document.createElement(tag);
-    e.style.backgroundColor = bg;
-    e.textContent = text;
-    for (const [key, value] of attr) {
-        e.setAttribute(key, value);
-    }
-    centerBtnWrap.appendChild(e);
-    return e;
-}
 // 重置下载面板的信息
 function resetDownloadPanel() {
     downloaded = 0;
@@ -2992,27 +3002,6 @@ function resetDownloadPanel() {
         el.style.width = '0%';
     }
 }
-// 把下拉框的选择项插入到文本框里
-function insertValueToInput(form, to) {
-    form.addEventListener('change', function () {
-        if (this.value === 'default') {
-            return false;
-        }
-        else {
-            // 把选择项插入到光标位置,并设置新的光标位置
-            const position = to.selectionStart;
-            to.value =
-                to.value.substr(0, position) +
-                    this.value +
-                    to.value.substr(position, to.value.length);
-            to.selectionStart = position + this.value.length;
-            to.selectionEnd = position + this.value.length;
-            to.focus();
-            // 保存命名规则
-            saveXzSetting('userSetName', to.value);
-        }
-    });
-}
 // 显示中间区域
 function centerWrapShow() {
     centerPanel.style.display = 'block';
@@ -3024,29 +3013,6 @@ function centerWrapHide() {
     rightButton.style.display = 'block';
     const outputInfoWrap = document.querySelector('.outputInfoWrap');
     outputInfoWrap.style.display = 'none';
-}
-// 收起展开选项设置区域
-function toggleOptionArea(bool) {
-    const xzOptionArea = (document.querySelector('.xz_option_area'));
-    xzOptionArea.style.display = bool ? 'block' : 'none';
-    document.querySelector('.centerWrap_toogle_option').innerHTML = bool
-        ? '▲'
-        : '▼';
-}
-// 使用快捷键 Alt + x 切换显示隐藏
-function swtichCenterWrap() {
-    window.addEventListener('keydown', event => {
-        const e = event || window.event;
-        if (e.altKey && e.keyCode === 88) {
-            const nowDisplay = centerPanel.style.display;
-            if (nowDisplay === 'block') {
-                centerWrapHide();
-            }
-            else {
-                centerWrapShow();
-            }
-        }
-    }, false);
 }
 // 读取储存的设置
 function readXzSetting() {
@@ -3069,7 +3035,7 @@ function readXzSetting() {
     }
     // 设置作品张数
     const setPNoInput = xzForm.setPNo;
-    setPNoInput.value = xzSetting.imgNumberPerWork || 0;
+    setPNoInput.value = xzSetting.imgNumberPerWork.toString() || '0';
     // 保存作品张数
     setPNoInput.addEventListener('change', function () {
         if (parseInt(this.value) >= 0) {
@@ -3080,11 +3046,13 @@ function readXzSetting() {
     xzSetting.notdownType = xzSetting.notdownType.replace(/3|4/g, '');
     // 3 和 4 是旧版本遗留的，需要去掉。现在只有 0 1 2。
     for (let index = 0; index < xzSetting.notdownType.length; index++) {
-        xzForm['setWorkType' + xzSetting.notdownType[index]].checked = false;
+        let name = 'setWorkType' + xzSetting.notdownType[index];
+        xzForm[name].checked = false;
     }
     // 保存排除类型
     for (let index = 0; index < 3; index++) {
-        xzForm['setWorkType' + index].addEventListener('click', () => {
+        let name = 'setWorkType' + index.toString();
+        xzForm[name].addEventListener('click', () => {
             saveXzSetting('notdownType', getNotDownType());
         });
     }
@@ -3139,7 +3107,7 @@ function readXzSetting() {
     });
     // 设置下载线程
     const setThreadInput = xzForm.setThread;
-    setThreadInput.value = xzSetting.downloadThread;
+    setThreadInput.value = xzSetting.downloadThread.toString();
     // 保存下载线程
     setThreadInput.addEventListener('change', function () {
         if (parseInt(this.value) > 0 && parseInt(this.value) <= 5) {
@@ -3162,7 +3130,8 @@ function readXzSetting() {
         }
         else {
             // 把下拉框恢复默认值
-            xzForm.fileNameSelect.value = xzForm.fileNameSelect.children[0].value;
+            xzForm.fileNameSelect.value = xzForm.fileNameSelect
+                .children[0].value;
         }
     });
     // 是否添加字段名称
@@ -3216,6 +3185,7 @@ function clearUgoku() {
 }
 // 手动删除作品
 function manuallyDelete() {
+    let delWork = false; // 是否处于删除作品状态
     addCenterButton('div', xzRed, xzlt('_手动删除作品'), [
         ['title', xzlt('_手动删除作品Title')]
     ]).addEventListener('click', function () {
@@ -3281,6 +3251,8 @@ function getFileName(data) {
     // data.id = data.id.replace(/(\d.*p)(\d.*)/,  (...str)=> {
     //  return str[1] + str[2].padStart(3, '0');
     // });
+    const safeFileNameRule = new RegExp(/\\|\/|:|\?|"|<|'|>|\*|\||~|[\u200B-\u200F\uFEFF]|\./g); // 安全的文件名
+    const safeFolderRule = new RegExp(/\\|:|\?|"|<|'|>|\*|\||~|[\u200B-\u200F\uFEFF]|\./g); // 文件夹名，允许斜线 /
     // 储存每个文件名标记的配置
     const cfg = [
         {
@@ -3417,6 +3389,7 @@ function getFileName(data) {
         result = result.substr(0, result.length - 1);
     }
     // 处理文件名长度 这里有个问题，因为无法预知浏览器下载文件夹的长度，所以只能预先设置一个预设值
+    const fileNameLength = 200; // 文件名的最大长度，超出将会截断。如果文件的保存路径过长可能会保存失败，此时可以把这个数值改小些。
     result = result.substr(0, fileNameLength);
     // 处理后缀名
     result += '.' + data.ext;
@@ -3446,13 +3419,13 @@ function downloadFile(downloadBarNo) {
     if (thisIndex === -1) {
         return false;
     }
-    // 重设进度信息
+    // 获取文件名
+    let fullFileName = getFileName(thisImgInfo);
+    // 重设当前下载栏的信息
     const loadedBar = downloadBarList[downloadBarNo].querySelector('.loaded');
     const progressBar = downloadBarList[downloadBarNo].querySelector('.progress');
     loadedBar.textContent = '0/0';
     progressBar.style.width = '0%';
-    // 获取文件名
-    let fullFileName = getFileName(thisImgInfo);
     downloadBarList[downloadBarNo].querySelector('.download_fileName').textContent = fullFileName;
     // 下载图片
     const xhr = new XMLHttpRequest();
@@ -3521,7 +3494,7 @@ function downloadFile(downloadBarNo) {
                 let gif = new GIF({
                     workers: 4,
                     quality: 10,
-                    workerScript: gifWorker
+                    workerScript: gifWorkerUrl
                 });
                 // 生成每一帧的数据
                 const imgData = await getFrameData(imgFile, 'gif');
@@ -4051,7 +4024,7 @@ function allPageType() {
         baseUrl = locUrl.split('&p=')[0] + '&p=';
         getNowPageNo();
         document.getElementById('js-react-search-mid').style.minHeight = 'auto'; // 这部分的高度改成 auto 以免搜索时会有空白区域
-        xzForm.setFavNum.value = 1000; // tag 搜索页默认收藏数设置为 1000
+        xzForm.setFavNum.value = '1000'; // tag 搜索页默认收藏数设置为 1000
         const xzFormP9 = document.querySelector('.xzFormP9');
         xzFormP9.style.display = 'block'; // 显示“是否显示封面图”的选项
         // 添加快速筛选功能
@@ -4310,7 +4283,6 @@ async function expand() {
     showWhatIsNew('_xzNew250');
     addRightButton();
     addCenterWarps();
-    swtichCenterWrap();
     readXzSetting();
     changeWantPage();
     listenPageSwitch();

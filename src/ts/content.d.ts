@@ -383,6 +383,32 @@ interface XzTipArg {
   y: number
 }
 
+// 表单
+interface XzForm extends HTMLFormElement {
+  setWantPage: HTMLInputElement
+  setPNo: HTMLInputElement
+  setWorkType0: HTMLInputElement
+  setWorkType1: HTMLInputElement
+  setWorkType2: HTMLInputElement
+  ugoiraSaveAs: RadioNodeList
+  setFavNum: HTMLInputElement
+  setOnlyBmk: HTMLInputElement
+  setWidth: HTMLInputElement
+  setWidthAndOr: RadioNodeList
+  setHeight: HTMLInputElement
+  ratio: RadioNodeList
+  userRatio: HTMLInputElement
+  setTagNeed: HTMLInputElement
+  setTagNotNeed: HTMLInputElement
+  setQuietDownload: HTMLInputElement
+  setThread: HTMLInputElement
+  fileNameRule: HTMLInputElement
+  pageInfoSelect: HTMLSelectElement
+  fileNameSelect: HTMLSelectElement
+  setTagNameToFileName: HTMLInputElement
+  setDisplayCover: HTMLInputElement
+}
+
 // xzSetting
 interface XzSetting {
   imgNumberPerWork: number
@@ -397,16 +423,6 @@ interface XzSetting {
   tagNameToFileName: boolean
   showOptions: boolean
   [key: string]: string | number | boolean
-}
-
-// 进入全屏方法
-interface LaunchFullScreen {
-  [key: string]: (options?: FullscreenOptions | undefined) => Promise<void>
-}
-
-// 退出全屏方法
-interface ExitFullscreen {
-  [key: string]: () => Promise<void>
 }
 
 // 是否处于全屏状态
