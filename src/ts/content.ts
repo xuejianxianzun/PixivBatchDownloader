@@ -6,7 +6,7 @@
  * author:  xuejianxianzun; 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * Github： https://github.com/xuejianxianzun/PixivBatchDownloader
- * install: https://chrome.google.com/webstore/detail/pixiv-batch-downloader/hfgoikdmppghehigkckknikdgdcjbfpl
+ * install: https://chrome.google.com/webstore/detail/pixiv-batch-downloader/ffejdpkplpkdjebmffnblnchbcjppcff
  * E-mail:  xuejianxianzun@gmail.com
  * QQ 群:    499873152
  */
