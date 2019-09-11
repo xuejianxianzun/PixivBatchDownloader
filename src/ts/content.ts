@@ -454,7 +454,7 @@ function getInfoFromBookmark(url: string) {
             'add_tag_btn'
           )!.textContent = `× permission denied`
         }
-        return Promise.reject(new Error(response.status.toString()))
+        throw new Error(response.status.toString())
       }
     })
     .then(data => {
@@ -1784,9 +1784,9 @@ function getListPage() {
   fetch(url)
     .then(response => {
       if (response.ok) {
-        return response.text() as any
+        return response.text()
       } else {
-        return Promise.reject(new Error(response.status.toString()))
+        throw new Error(response.status.toString())
       }
     })
     .then((data: string) => {
@@ -2491,10 +2491,10 @@ function getType2ListPage(url: string) {
       if (response.ok) {
         return response.json()
       } else {
-        return Promise.reject(new Error(response.status.toString()))
+        throw new Error(response.status.toString())
       }
     })
-    .then((data: any) => {
+    .then((data: Type2ListDataNoTag & Type2ListDataHaveTag) => {
       // 不带 tag，并且也不是书签页面
       if (!hasTag) {
         // 都是使用的这个 tag

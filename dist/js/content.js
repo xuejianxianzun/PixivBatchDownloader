@@ -337,7 +337,7 @@ function getInfoFromBookmark(url) {
                 console.log('permission denied');
                 document.getElementById('add_tag_btn').textContent = `× permission denied`;
             }
-            return Promise.reject(new Error(response.status.toString()));
+            throw new Error(response.status.toString());
         }
     })
         .then(data => {
@@ -1484,7 +1484,7 @@ function getListPage() {
             return response.text();
         }
         else {
-            return Promise.reject(new Error(response.status.toString()));
+            throw new Error(response.status.toString());
         }
     })
         .then((data) => {
@@ -2047,7 +2047,7 @@ function getType2ListPage(url) {
             return response.json();
         }
         else {
-            return Promise.reject(new Error(response.status.toString()));
+            throw new Error(response.status.toString());
         }
     })
         .then((data) => {
