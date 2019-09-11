@@ -12,7 +12,7 @@ If you want to make the English text of the program better, you can edit the `js
 
 # Install:
 
-Chrome：[Chrome webstore](https://chrome.google.com/webstore/detail/hfgoikdmppghehigkckknikdgdcjbfpl)
+Chrome：[Chrome webstore](https://chrome.google.com/webstore/detail/ffejdpkplpkdjebmffnblnchbcjppcff)
 
 - The downloaded file will be saved in your browser's download directory.
 
