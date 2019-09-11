@@ -194,10 +194,6 @@ let onlyDownBmk: boolean = false // 是否只下载收藏的作品
 
 let ratioType: string = '0' // 宽高比例的类型
 
-const pauseStartDealy: number = 2500 // 点击暂停后，一定时间后才允许点击开始下载按钮
-
-let canStartTime: number = 0 // 在此时间之后允许点击开始下载按钮
-
 let langType: number // 语言类型
 
 // 处理和脚本版的冲突
@@ -1583,10 +1579,7 @@ function startGet() {
 
   insertOutputInfo()
 
-  const download_panel = document.querySelector(
-    '.download_panel'
-  ) as HTMLDivElement
-  download_panel.style.display = 'none'
+  downloadPanelDisplay('none')
 
   // 设置要获取的作品数或页数
   if (pageType === 1) {
@@ -2946,6 +2939,11 @@ function crawFinished() {
   if (testSuffixFinished) {
     downRelated = false // 解除下载相关作品的标记
 
+    // tag 搜索页把下载任务按收藏数从高到低下载
+    if (pageType === 5) {
+      imgInfo.sort(sortByProperty('bmk'))
+    }
+
     // 在画师的列表页里
     if (pageType === 2) {
       if (!locUrl.includes('bookmark.php')) {
@@ -2979,10 +2977,7 @@ function crawFinished() {
 
     resetDownloadPanel() // 重置下载面板
 
-    const download_panel = document.querySelector(
-      '.download_panel'
-    ) as HTMLDivElement
-    download_panel.style.display = 'block'
+    downloadPanelDisplay('block')
 
     // 显示下载面板
     if (!quickDownload) {
@@ -3557,29 +3552,23 @@ function startDownload() {
     return false
   }
 
-  // 检查是否到了可以下载的时间
-  const time1 = new Date().getTime() - canStartTime
-
-  // 时间未到
-  if (time1 < 0) {
-    setTimeout(() => {
-      startDownload()
-    }, Math.abs(time1))
-    return false
-  }
-
-  // 重置一些条件
-
   // 如果之前不是暂停状态，则需要重新下载
   if (!downloadPause) {
     resetDownloadPanel()
-
-    // 重新开始下载时，初始化下载记录
+    // 初始化下载记录
     // 状态：
     // -1 未使用
     // 0 使用中
     // 1 已完成
     downloadedList = new Array(imgInfo.length).fill(-1)
+  } else {
+    // 继续下载
+    // 把“使用中”的下载状态重置为“未使用”
+    for (let index = 0; index < downloadedList.length; index++) {
+      if (downloadedList[index] === 0) {
+        downloadedList[index] = -1
+      }
+    }
   }
 
   // 下载线程设置
@@ -3599,25 +3588,16 @@ function startDownload() {
   const centerWrapDownList = document.querySelector(
     '.centerWrap_down_list'
   ) as HTMLDivElement
-  const downloadBar = document.querySelectorAll('.downloadBar')
-  if (downloadBar.length !== downloadThread) {
-    let result = ''
-
-    for (let i = 0; i < downloadThread; i++) {
-      result += downloadBar[0].outerHTML
-    }
-
-    centerWrapDownList.innerHTML = result
+  downloadBarList = centerWrapDownList.querySelectorAll('.downloadBar')
+  if (downloadBarList.length !== downloadThread) {
+    centerWrapDownList.innerHTML = downloadBarList[0].outerHTML.repeat(
+      downloadThread
+    )
   }
-
-  downloadBarList = document.querySelectorAll('.downloadBar')
+  downloadBarList = centerWrapDownList.querySelectorAll('.downloadBar')
   centerWrapDownList.style.display = 'block'
 
-  // tag 搜索页按收藏数从高到低下载
-  if (pageType === 5) {
-    imgInfo.sort(sortByProperty('bmk'))
-  }
-
+  // 重置一些条件
   downloadPause = false
   downloadStop = false
   downloadStarted = true
@@ -3628,9 +3608,14 @@ function startDownload() {
     downloadFile(i)
   }
 
-  document.querySelector('.down_status')!.textContent = xzlt('_正在下载中')
+  changeDownStatus(xzlt('_正在下载中'))
 
   addOutputInfo('<br>' + xzlt('_正在下载中') + '<br>')
+}
+
+// 提示下载状态
+function changeDownStatus(str: string) {
+  document.querySelector('.down_status')!.innerHTML = str
 }
 
 // 暂停下载
@@ -3651,18 +3636,7 @@ function pauseDownload() {
       downloadStarted = false
       quickDownload = false
       changeTitle('║')
-      canStartTime = new Date().getTime() + pauseStartDealy // 设置延迟一定时间后才允许继续下载
-
-      // 把“使用中”的下载状态重置为“未使用”
-      for (let index = 0; index < downloadedList.length; index++) {
-        if (downloadedList[index] === 0) {
-          downloadedList[index] = -1
-        }
-      }
-
-      document.querySelector(
-        '.down_status'
-      )!.innerHTML = `<span style="color:#f00">${xzlt('_已暂停')}</span>`
+      changeDownStatus(`<span style="color:#f00">${xzlt('_已暂停')}</span>`)
       addOutputInfo(xzlt('_已暂停') + '<br><br>')
     } else {
       // 不在下载中的话不允许启用暂停功能
@@ -3684,11 +3658,7 @@ function stopDownload() {
     downloadStarted = false
     quickDownload = false
     changeTitle('■')
-    canStartTime = new Date().getTime() + pauseStartDealy // 设置延迟一定时间后才允许继续下载
-
-    document.querySelector(
-      '.down_status'
-    )!.innerHTML = `<span style="color:#f00">${xzlt('_已停止')}</span>`
+    changeDownStatus(`<span style="color:#f00">${xzlt('_已停止')}</span>`)
     addOutputInfo(xzlt('_已停止') + '<br><br>')
     downloadPause = false
   }
@@ -3728,6 +3698,14 @@ function resetDownloadPanel() {
   for (const el of document.querySelectorAll('.progress')) {
     ;(el as HTMLDivElement).style.width = '0%'
   }
+}
+
+// 显示或隐藏下载面板
+function downloadPanelDisplay(str: string) {
+  const download_panel = document.querySelector(
+    '.download_panel'
+  ) as HTMLDivElement
+  download_panel.style.display = str
 }
 
 // 显示中间区域
@@ -4416,14 +4394,17 @@ chrome.runtime.onMessage.addListener(function(msg) {
 function afterDownload(msg: DownloadedMsg) {
   // 释放 bloburl
   URL.revokeObjectURL(msg.data.url)
-  // 如果任务已停止
-  if (downloadPause || downloadStop) {
-    return false
-  }
   // 更改这个任务状态为“已完成”
   downloadedList[msg.data.thisIndex] = 1
+  // 计算已下载的数量
+  let down = 0
+  for (let index = 0; index < downloadedList.length; index++) {
+    if (downloadedList[index] === 1) {
+      down++
+    }
+  }
+  downloaded = down
   // 显示进度信息
-  downloaded++
   document.querySelector('.downloaded')!.textContent = downloaded.toString()
   const progress1 = document.querySelector('.progress1')! as HTMLDivElement
   progress1.style.width = (downloaded / imgInfo.length) * 100 + '%'
@@ -4435,13 +4416,17 @@ function afterDownload(msg: DownloadedMsg) {
     downloadStop = false
     downloadPause = false
     clearTimeout(reTryTimer)
-    document.querySelector('.down_status')!.textContent = xzlt('_下载完毕')
+    changeDownStatus(xzlt('_下载完毕'))
     addOutputInfo(xzlt('_下载完毕') + '<br><br>')
     changeTitle('√')
   } else {
     // 如果没有全部下载完毕
+    // 如果任务已停止
+    if (downloadPause || downloadStop) {
+      return false
+    }
+    // 如果已完成的数量 加上 线程中未完成的数量，仍然没有达到文件总数，继续添加任务
     if (downloaded + downloadThread - 1 < imgInfo.length) {
-      // 如果已完成的数量 加上 线程中未完成的数量，仍然没有达到文件总数，继续添加任务
       downloadFile(msg.data.no)
     }
   }
