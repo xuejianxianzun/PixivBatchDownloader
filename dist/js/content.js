@@ -2970,7 +2970,7 @@ function reTryDownload() {
     clearTimeout(reTryTimer);
     reTryTimer = setTimeout(() => {
         startDownload();
-    }, 20000);
+    }, 1000);
 }
 // 重置下载面板的信息
 function resetDownloadPanel() {
