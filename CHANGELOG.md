@@ -1,5 +1,9 @@
 # 版本升级日志
 
+## 2.5.6 2019-9-13
+
+修复 bug   [issues 21](https://github.com/xuejianxianzun/PixivBatchDownloader/issues/21)
+
 ## 2.5.5 2019-9-12
 
 - 屏蔽了一些广告
