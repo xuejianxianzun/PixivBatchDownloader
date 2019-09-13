@@ -3747,7 +3747,7 @@ function readXzSetting() {
 
   // 设置作品张数
   const setPNoInput = xzForm.setPNo
-  setPNoInput.value = xzSetting.imgNumberPerWork.toString() || '0'
+  setPNoInput.value = (xzSetting.imgNumberPerWork || 0).toString()
 
   // 保存作品张数
   setPNoInput.addEventListener('change', function(this: HTMLInputElement) {
