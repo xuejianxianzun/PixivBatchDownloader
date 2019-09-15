@@ -1,6 +1,8 @@
-[查看 Wiki](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki)
-
 [View English introduction](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
+
+# 公告
+
+本扩展已经被 Chrome webstore 下架。现在只能离线安装。
 
 # 简介：
 
@@ -10,9 +12,13 @@
 
 ![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/2019-08-18-11-12-52.png)
 
+[查看 Wiki](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki)
+
 # 安装：
 
-Chrome：[Chrome webstore](https://chrome.google.com/webstore/detail/ffejdpkplpkdjebmffnblnchbcjppcff)
+本扩展已经被 Chrome webstore 下架。现在只能离线安装。
+
+**[查看离线安装教程](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki/2.-%E5%AE%89%E8%A3%85#%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85)**
 
 - 下载的文件会保存在浏览器的下载目录里。
 

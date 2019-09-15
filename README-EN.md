@@ -1,3 +1,7 @@
+# Announcement
+
+This extension has been removed from the Chrome webstore. It can only be installed offline now.
+
 # Introduction:
 
 This is a browser extension for Chrome that lets you download images from Pixiv in bulk. Powerful and supports many page types.
@@ -8,11 +12,11 @@ Some auxiliary functions have also been added, such as removing ads, quick colle
 
 [Wiki](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki)
 
-If you want to make the English text of the program better, you can edit the `js/lang.js` file and submit pull request .
-
 # Install:
 
-Chrome：[Chrome webstore](https://chrome.google.com/webstore/detail/ffejdpkplpkdjebmffnblnchbcjppcff)
+This extension has been removed from the Chrome webstore. It can only be installed offline now.
+
+**[Offline installation tutorial](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki/2.-%E5%AE%89%E8%A3%85#%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85)**
 
 - The downloaded file will be saved in your browser's download directory.
 
