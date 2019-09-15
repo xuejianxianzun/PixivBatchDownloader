@@ -3464,7 +3464,8 @@ function downloadFile(downloadBarNo) {
             });
             fullFileName = fullFileName.replace(/\.jpg$|\.png$|\.zip$|\.gif$|\.webm$/, '.txt');
         }
-        else if (thisImgInfo.ext === 'webm' || thisImgInfo.ext === 'gif') {
+        else if ((thisImgInfo.ext === 'webm' || thisImgInfo.ext === 'gif') &&
+            thisImgInfo.ugoiraInfo.frames) {
             // 将压缩包里的图片转换为 base64 字符串
             const imgFile = await readZip(xhr.response, thisImgInfo.ugoiraInfo);
             // 如果需要转换成视频

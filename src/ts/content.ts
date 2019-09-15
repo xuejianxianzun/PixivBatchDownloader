@@ -4270,7 +4270,10 @@ function downloadFile(downloadBarNo: number) {
         /\.jpg$|\.png$|\.zip$|\.gif$|\.webm$/,
         '.txt'
       )
-    } else if (thisImgInfo!.ext === 'webm' || thisImgInfo!.ext === 'gif') {
+    } else if (
+      (thisImgInfo!.ext === 'webm' || thisImgInfo!.ext === 'gif') &&
+      thisImgInfo!.ugoiraInfo.frames
+    ) {
       // 将压缩包里的图片转换为 base64 字符串
       const imgFile: string[] = await readZip(
         xhr.response,
