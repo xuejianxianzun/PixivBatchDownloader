@@ -1,5 +1,25 @@
 # 版本升级日志
 
+## 扩展被下架 2019-9-13
+
+2.4.0 里，加了一个功能，如果当前页面不是 p 站页面，则打开 p 站页面。但之后被 Google 人工审核，判定扩展违法，被下架。
+
+之后我去掉了这个跳转功能，重新发布扩展，但又被下架。并且我的开发者账户也被停用。
+
+到底是什么意思呢？我搞不懂了。
+
+两次通知邮件的内容一模一样，都是例行公事的那种，并没有提到具体是哪部分的问题，我也没有途径和他们取得联系。
+
+> Your item did not comply with the following section of our policy: We don't allow content that contains nudity, graphic sex acts, or sexually explicit material. We also don't allow content that drives traffic to commercial pornography sites. Google has a zero-tolerance policy against child pornography. 
+
+翻译：
+
+> 您的商品不符合我们政策的以下部分：我们不允许包含裸露，图片性行为或露骨色情内容的内容。我们也不允许内容为商业色情网站带来流量。谷歌对儿童色情制品采取零容忍政策。
+
+扩展本身是没有任何色情内容的。如果说下载 pixiv 内容就是色情行为，为什么其他 pixiv 下载器都没事呢？
+
+反正，我已经不想再和谷歌折腾了。它爱咋样就咋样吧。
+
 ## 2.5.6 2019-9-13
 
 修复 bug   [issues 21](https://github.com/xuejianxianzun/PixivBatchDownloader/issues/21)
