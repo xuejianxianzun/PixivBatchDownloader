@@ -18,6 +18,7 @@ interface ImgInfo {
   ext: string
   bmk: number
   date: string
+  rank: string
   ugoiraInfo: UgoiraInfo
 }
 
@@ -452,4 +453,61 @@ interface DownloadedMsg {
 // 书签页面下方推荐作品的格式
 interface Recommendations {
   recommendations: number[]
+}
+
+// 排行榜 api 返回的数据
+interface Rank {
+  contents: {
+    title: string
+    date: string
+    tags: string[]
+    url: string
+    illust_type: string
+    illust_book_style: string
+    illust_page_count: string
+    user_name: string
+    profile_img: string
+    illust_content_type: {
+      sexual: number
+      lo: boolean
+      grotesque: boolean
+      violent: boolean
+      homosexual: boolean
+      drug: boolean
+      thoughts: boolean
+      antisocial: boolean
+      religion: boolean
+      original: boolean
+      furry: boolean
+      bl: boolean
+      yuri: boolean
+    }
+    illust_series: boolean
+    illust_id: number
+    width: number
+    height: number
+    user_id: number
+    rank: number
+    yes_rank: number
+    rating_count: number
+    view_count: number
+    illust_upload_timestamp: number
+    attr: string
+    is_bookmarked: boolean
+    bookmarkable: boolean
+  }[]
+  mode: string
+  content: string
+  page: number
+  prev: boolean
+  next: number
+  date: string
+  prev_date: string
+  next_date: boolean
+  rank_total: number
+}
+
+// 储存作品在排行榜中的排名
+interface RankList {
+  [key: string]: string
 }

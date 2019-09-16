@@ -253,6 +253,12 @@ const xzLang = {
     'Task starts. <br>This task condition: download recommend works',
     '工作開始<br>本次工作條件: 下載推薦作品'
   ],
+  _checkWantPageRule1Arg12: [
+    '任务开始<br>本次任务条件: 下载排行榜前 -num- 个作品',
+    'タスクが開始されます。<br>このタスク条件：リーダーボードの上位 -num- 作品をダウンロードする。',
+    'Task starts. <br>This task condition: download the top -num- works in the ranking list',
+    '工作開始<br>本次工作條件: 下載排行榜前 -num- 個作品'
+  ],
   _请输入最低收藏数和要抓取的页数: [
     '请输入最低收藏数和要抓取的页数，用英文逗号分开。\n类似于下面的形式: \n1000,1000',
     "お気に入りの最小数とクロールするページ数を，','で区切って入力してください。\n例えば：\n1000,1000",
@@ -610,6 +616,12 @@ const xzLang = {
     '作品の作成日はyyyy-MM-ddの形式でした。 2019-08-29 など',
     'The date the creation of the work was in the format yyyy-MM-dd. Such as 2019-08-29',
     '作品的建立日期，格式為 yyyy-MM-dd。如 2019-08-29'
+  ],
+  _命名标记13: [
+    '作品在排行榜中的排名。如 #1、#2 ……',
+    'リーダーボードでの作品のランキング。 ＃1、＃2 など ...',
+    'The ranking of the work in the ranking list. Such as #1, #2 ...',
+    '作品在排行榜中的排名，如 #1、#2 ……'
   ],
   _命名标记提醒: [
     '您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}-{px}<br>* 在某些情况下，会有一些标记不可用。',
@@ -1021,10 +1033,10 @@ const xzLang = {
     '404 error: File {} does not exist.',
     '404 錯誤：檔案 {} 不存在。'
   ],
-  _xzNew250: [
-    '可以把动图转换成 gif 图片。',
-    'うごくイラスト作品を gif 画像に変換できます。',
-    'You can convert Ugoira works to gif images.',
-    '可以把動圖轉換成 gif 圖片。'
+  _xzNew259: [
+    '排行榜页面可以设置要下载的作品的数量，并且可以使用 {rank} 标记保存排名。',
+    'ランキングページでは、ダウンロードする作品の数を設定し、ランキングを {rank} と表記して保存することができます。',
+    'The ranking page can set the number of works to be downloaded, and the ranking can be saved using the {rank} tag.',
+    '排行榜页面可以设置要下载的作品的数量，并且可以使用 {rank} 标记保存排名。'
   ]
 }

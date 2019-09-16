@@ -58,6 +58,8 @@ let downloadedList: number[] = [] // 标记已完成的完成的下载任务
 
 let illustUrlList: string[] = [] // 储存要下载的作品的页面url
 
+let rankList: RankList = {} // 储存作品在排行榜中的排名
+
 const tagSearchResult: TagSearchResult[] = [] // 储存 tag 搜索页符合条件的所有作品
 
 let ajaxForIllustThreads: number = 6 // 抓取页面时的并发连接数
@@ -1537,6 +1539,7 @@ function addImgInfo(
   ext: string,
   bmk: number,
   date: string,
+  rank: string,
   ugoiraInfo: UgoiraInfo
 ) {
   /*
@@ -1567,6 +1570,7 @@ function addImgInfo(
     ext,
     bmk,
     date,
+    rank,
     ugoiraInfo
   })
 }
@@ -1653,6 +1657,23 @@ function startGet() {
     if (!listPageFinished) {
       removeEl(document.querySelectorAll(tagSearchListSelector))
     }
+  } else if (pageType === 7) {
+    // 排行榜页面
+    listPageFinished = 0
+    // 检查下载页数的设置
+    let result = checkWantPageInput(
+      xzlt('_checkWantPageRule1Arg2'),
+      xzlt('_checkWantPageRule1Arg12'),
+      xzlt('_checkWantPageRule1Arg4')
+    )
+    if (!result) {
+      return false
+    }
+
+    // 如果设置的作品个数是 -1，则设置为下载所有作品
+    if (wantPage === -1) {
+      wantPage = 500
+    }
   } else if (pageType === 10) {
     // 大家/关注的新作品
     const result = checkNumberGreater0(xzForm.setWantPage.value)
@@ -1667,11 +1688,6 @@ function startGet() {
       wantPage = result.value
       addOutputInfo(xzlt('_任务开始1', wantPage.toString()))
     }
-  }
-
-  // 排行榜页面
-  if (pageType === 7) {
-    listPageFinished = 0
   }
 
   // 检查是否设置了收藏数要求
@@ -1997,8 +2013,16 @@ function getListPage() {
         }
       } else if (pageType === 7) {
         // 排行榜
-        const contents = JSON.parse(data).contents // 取出作品信息列表
+        let complete = false // 如果数量足够，就标记为完成
+
+        const contents = (JSON.parse(data) as Rank).contents // 取出作品信息列表
         for (const data of contents) {
+          // 不是下载首次登场作品时，会检查设置的下载数量。下载首次登场作品时不检查。
+          if (!debut && data.rank > wantPage) {
+            complete = true
+            break
+          }
+
           // 目前，数据里并没有包含收藏数量，所以在这里没办法检查收藏数量要求
 
           // 检查只下载“首次收藏”要求。yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
@@ -2034,13 +2058,16 @@ function getListPage() {
             continue
           }
 
-          addIllustUrlList([data.illust_id])
+          rankList[data.illust_id.toString()] = data.rank.toString()
+
+          addIllustUrlList([data.illust_id.toString()])
         }
 
         outputArea.innerHTML =
           nowTips + '<br>' + xzlt('_排行榜进度', listPageFinished.toString())
 
-        if (listPageFinished === partNumber) {
+        // 抓取完毕
+        if (complete || listPageFinished === partNumber) {
           if (illustUrlList.length === 0) {
             return noResult()
           } else {
@@ -2050,6 +2077,7 @@ function getListPage() {
             getListUrlFinished()
           }
         } else {
+          // 继续抓取
           getListPage()
         }
       } else if (pageType === 9) {
@@ -2757,6 +2785,12 @@ async function getIllustData(url: string) {
 
     // 检查通过
     if (totalCheck) {
+      // 获取作品在排行榜上的编号
+      let rank = ''
+      if (pageType === 7) {
+        rank = '#' + rankList[jsInfo.illustId]
+      }
+      // 储存作品信息
       if (jsInfo.illustType !== 2) {
         // 插画或漫画
         // 检查要下载该作品的前面几张
@@ -2787,6 +2821,7 @@ async function getIllustData(url: string) {
             ext,
             bmk,
             jsInfo.createDate.split('T')[0],
+            rank,
             {}
           )
         }
@@ -2823,6 +2858,7 @@ async function getIllustData(url: string) {
           ext,
           bmk,
           jsInfo.createDate.split('T')[0],
+          rank,
           ugoiraInfo
         )
         outputImgNum()
@@ -2934,6 +2970,7 @@ function testExtName(url: string, length: number, imgInfoData: any) {
       imgInfoData.fullHeight,
       ext,
       0,
+      '',
       '',
       {}
     )
@@ -3281,6 +3318,7 @@ function addDownloadPanel() {
         <option value="{px}">{px}</option>
         <option value="{id_num}">{id_num}</option>
         <option value="{p_num}">{p_num}</option>
+        <option value="{rank}">{rank}</option>
         </select>
       &nbsp;&nbsp;&nbsp;&nbsp;
       <span class="gray1 showFileNameTip"> ${xzlt('_查看标记的含义')}</span>
@@ -3332,6 +3370,9 @@ function addDownloadPanel() {
       <br>
       <span class="xz_blue">{p_num}</span>
       ${xzlt('_命名标记10')}
+      <br>
+      <span class="xz_blue">{rank}</span>
+      ${xzlt('_命名标记13')}
       <br>
       ${xzlt('_命名标记提醒')}
       </p>
@@ -4101,6 +4142,12 @@ function getFileName(data: ImgInfo) {
       safe: true
     },
     {
+      name: '{rank}',
+      value: data.rank,
+      prefix: '',
+      safe: true
+    },
+    {
       name: '{title}',
       value: data.title,
       prefix: 'title_',
@@ -4462,6 +4509,7 @@ function afterDownload(msg: DownloadedMsg) {
 function resetResult() {
   imgInfo = []
   downloadedList = []
+  rankList = {}
   downloadStarted = false
   downloadPause = false
   downloadStop = false
@@ -4510,7 +4558,11 @@ function changeWantPage() {
       break
 
     case 7:
-      hideNotNeedOption([1])
+      wantPage = 500
+      setWantPageTip1.textContent = xzlt('_个数')
+      setWantPageTip1.dataset.tip = xzlt('_要获取的作品个数2')
+      setWantPageTip2.textContent = '1 - 500'
+      setWantPage.value = wantPage.toString()
       break
 
     case 8:
@@ -5203,7 +5255,22 @@ function allPageType() {
                 const id = arr[arr.length - 1].split('.')[0] // 作品id
                 const ext = arr[arr.length - 1] // 扩展名
 
-                addImgInfo(id, imgUrl, '', [], [], '', '', 0, 0, ext, 0, '', {})
+                addImgInfo(
+                  id,
+                  imgUrl,
+                  '',
+                  [],
+                  [],
+                  '',
+                  '',
+                  0,
+                  0,
+                  ext,
+                  0,
+                  '',
+                  '',
+                  {}
+                )
               }
             })
             crawFinished()
@@ -5282,7 +5349,7 @@ async function expand() {
   await addStyle()
   listenHistory()
   setLangType()
-  showWhatIsNew('_xzNew250')
+  showWhatIsNew('_xzNew259')
   addRightButton()
   addCenterWarps()
   readXzSetting()
