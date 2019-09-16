@@ -1,5 +1,41 @@
 # 版本升级日志
 
+## 2.5.8 2019-9-16
+
+- 新增功能
+
+可以下载自己书签页面下方推荐的作品。只下载已经加载出来的。
+
+目前的观察，当没有选择 tag 的时候，最多会加载 100 个。如果有选择的 tag，最多会加载 500 个。目前根据用户的需求，只下载页面上已经加载出来的，而不是下载从 api 获取的全部作品。
+
+下面是从 api 获取数据的代码。
+
+```
+// 从包含数据信息的元素中匹配
+const element = document.querySelector(
+  '.layout-column-2>script'
+) as HTMLScriptElement
+// 取出 sample illust 列表
+const text = element.innerText.match(/"(.*?)"/)!
+const sampleIllusts = encodeURIComponent(text[1])
+// 拼接请求的 url
+const url = `https://www.pixiv.net/rpc/recommender.php?type=illust&sample_illusts=${sampleIllusts}&num_recommendations=100`
+// 发起请求
+const response = await fetch(url)
+if (response.ok) {
+  const recommendations: Recommendations = await response.json()
+  const idList = recommendations.recommendations
+}
+```
+
+- 修复 bug
+
+1. 修复了下载收藏的“未分类”标签时，下载的是所有书签作品的 bug。  [issues 24](https://github.com/xuejianxianzun/PixivBatchDownloader/issues/24)
+2. 修复了重复抓取时可能把 title 错误截断的问题。
+
+- 优化体验
+
+之前下载停止后，如果仍然有下载到文件，已下载数量会从 1 开始算，看起来觉得诡异。现在优化此处，停止时不清空之前的下载数量。
 ## 2.5.7 2019-9-15
 
 - 修复 bug
