@@ -448,3 +448,8 @@ interface DownloadedMsg {
   msg: string
   data: DonwloadInfo
 }
+
+// 书签页面下方推荐作品的格式
+interface Recommendations {
+  recommendations: number[]
+}

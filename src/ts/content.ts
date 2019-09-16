@@ -175,6 +175,8 @@ const timeInterval: number = 200 // 设置向浏览器发送下载任务的间�
 
 let downRelated: boolean = false // 是否下载相关作品（作品页内的）
 
+let downRecommended: boolean = false // 是否下载推荐作品（收藏页面下方）
+
 let viewerWarpper: HTMLDivElement // 图片列表的容器
 
 let viewerUl: HTMLUListElement // 图片列表的 ul 元素
@@ -941,7 +943,8 @@ function resetTitle() {
   } else {
     // 如果当前 title 里有状态提醒，则设置为状态后面的文字
     if (titleHasStatus()) {
-      document.title = document.title.split(']')[1]
+      const index = document.title.indexOf(']')
+      document.title = document.title.substr(index + 1, document.title.length)
     }
   }
 }
@@ -1433,7 +1436,6 @@ function illustError(url: string) {
       wantPage--
     }
     // 在作品页内下载时，如果出现了无法访问的作品时，就获取不到接下来的作品了，直接结束。
-    allowWork = true
     crawFinished()
   } else {
     addOutputInfo('<br>' + xzlt('_无权访问2', url) + '<br>')
@@ -1447,7 +1449,6 @@ function illustError(url: string) {
       if (ajaxThreadsFinished === ajaxForIllustThreads) {
         // 如果所有并发请求都执行完毕，复位
         ajaxThreadsFinished = 0
-        allowWork = true
         crawFinished()
       }
     }
@@ -1611,10 +1612,14 @@ function startGet() {
     }
   } else if (pageType === 2) {
     // 画师主页，作品列表页，tag 列表页，收藏页，自己的收藏
+    let pageTip = xzlt('_checkWantPageRule1Arg7')
+    if (downRecommended) {
+      pageTip = xzlt('_checkWantPageRule1Arg11')
+    }
     const result = checkWantPageInput(
       xzlt('_checkWantPageRule1Arg2'),
       xzlt('_checkWantPageRule1Arg6'),
-      xzlt('_checkWantPageRule1Arg7')
+      pageTip
     )
 
     if (!result) {
@@ -1724,7 +1729,11 @@ function startGet() {
       getIllustData(window.location.href)
     }
   } else if (pageType === 2) {
-    readyGetListPage()
+    if (downRecommended) {
+      getRecommendedList()
+    } else {
+      readyGetListPage()
+    }
   } else if (pageType === 6) {
     // 地区排行榜
     getListPage2()
@@ -1942,7 +1951,6 @@ function getListPage() {
         // 每抓取完一页，判断任务状态
         if (tagPageFinished === wantPage) {
           // 抓取完了指定的页数
-          allowWork = true
           addOutputInfo(
             '<br>' +
               xzlt(
@@ -1957,7 +1965,6 @@ function getListPage() {
           return false
         } else if (!listPageDocument.querySelector('.next ._button')) {
           // 到最后一页了,已抓取本 tag 的所有页面
-          allowWork = true
           addOutputInfo(
             '<br>' +
               xzlt(
@@ -2452,16 +2459,11 @@ function readyGetListPage() {
       restMode = 'hide'
     }
 
-    let nowTag = '' // 要使用的tag
+    let nowTag = getQuery(locUrl, 'tag') // 要使用的tag
 
-    // 设置“未分类”页面的 tag
+    // 在“未分类”页面时，设置 tag
     if (parseInt(getQuery(locUrl, 'untagged')) === 1) {
       nowTag = encodeURI('未分類')
-    }
-
-    // 如果有 tag
-    if (hasTag) {
-      nowTag = getQuery(locUrl, 'tag')
     }
 
     apiUrl = `https://www.pixiv.net/ajax/user/${getUserId()}/illusts/bookmarks?tag=${nowTag}&offset=${offsetNumber}&limit=${onceRequest}&rest=${restMode}`
@@ -2611,6 +2613,28 @@ function noResult() {
   allowWork = true
   changeTitle('0')
   return false
+}
+
+// 获取书签页面下方的推荐作品列表
+function getRecommendedList() {
+  // 获取下方已经加载出来的作品
+  const elements = document.querySelectorAll(
+    '#illust-recommend .image-item'
+  ) as NodeListOf<HTMLLIElement>
+  if (elements.length === 0) {
+    alert('not found!')
+    addOutputInfo('<br><br>' + xzlt('_没有符合条件的作品') + '<br><br>')
+    allowWork = true
+    downRecommended = false
+    return false
+  }
+  // 添加作品列表
+  for (const li of elements) {
+    const a = li.querySelector('a') as HTMLAnchorElement
+    illustUrlList.push(a.href)
+  }
+
+  getListUrlFinished()
 }
 
 // 作品列表获取完毕，开始抓取作品内容页
@@ -2831,12 +2855,10 @@ async function getIllustData(url: string) {
           )
         } else {
           // 没有剩余作品
-          allowWork = true
           crawFinished()
         }
       } else {
         // 没有剩余作品
-        allowWork = true
         crawFinished()
       }
     } else {
@@ -2850,7 +2872,6 @@ async function getIllustData(url: string) {
           // 如果所有并发请求都执行完毕则复位
           ajaxThreadsFinished = 0
 
-          allowWork = true
           crawFinished()
         }
       }
@@ -2932,12 +2953,15 @@ function testExtName(url: string, length: number, imgInfoData: any) {
 
 // 抓取完毕
 function crawFinished() {
+  allowWork = true
+
   // 检查快速下载状态
   let autoDownload: boolean = xzForm.setQuietDownload.checked
 
   // 检查后缀名的任务是否全部完成
   if (testSuffixFinished) {
     downRelated = false // 解除下载相关作品的标记
+    downRecommended = false // 解除下载推荐作品的标记
 
     // tag 搜索页把下载任务按收藏数从高到低下载
     if (pageType === 5) {
@@ -3653,7 +3677,6 @@ function stopDownload() {
 
   if (downloadStop === false) {
     downloadStop = true
-    downloadedList = []
     downloaded = 0
     downloadStarted = false
     quickDownload = false
@@ -4598,20 +4621,6 @@ function getPageInfo() {
 
   // 设置下拉框
   pageInfoSelector()
-
-  // 显示/隐藏添加 tag 的按钮
-  const addTagBtn = document.getElementById('add_tag_btn')
-  if (!locUrl.includes('bookmark.php')) {
-    // 在非书签页隐藏添加 tag 的按钮
-    if (addTagBtn) {
-      addTagBtn.style.display = 'none'
-    }
-  } else {
-    // 在书签页显示添加 tag 的按钮
-    if (addTagBtn) {
-      addTagBtn.style.display = 'inline-block'
-    }
-  }
 }
 
 // 判断 pageType
@@ -4724,9 +4733,25 @@ function pageType2() {
     quickDownBtn.remove()
   }
 
+  // 添加下载推荐作品的按钮，只在旧版收藏页面使用
+  const columnTitle = document.querySelector('.column-title')
+  if (columnTitle) {
+    const downRecmdBtn = addCenterButton('div', xzBlue, xzlt('_抓取推荐作品'), [
+      ['title', xzlt('_抓取推荐作品Title')]
+    ])
+    downRecmdBtn.addEventListener(
+      'click',
+      () => {
+        downRecommended = true
+        startGet()
+      },
+      false
+    )
+  }
+
   // 如果存在 token，则添加“添加 tag”按钮
   if (getToken()) {
-    const addTagBtn = addCenterButton('div', xzBlue, xzlt('_添加tag'), [
+    const addTagBtn = addCenterButton('div', xzGreen, xzlt('_添加tag'), [
       ['title', xzlt('_添加tag')]
     ])
     addTagBtn.id = 'add_tag_btn'
@@ -4759,6 +4784,17 @@ function listenPageSwitch() {
         if (pageType === 1) {
           initViewer()
         }
+
+        // 在书签页面的处理
+        const isBookmarkPage = locUrl.includes('bookmark.php')
+        // 在书签页显示添加 tag 的按钮，其他页面隐藏
+        const addTagBtn = document.getElementById('add_tag_btn')
+        if (isBookmarkPage && !!addTagBtn) {
+          addTagBtn.style.display = 'inline-block'
+        } else {
+          addTagBtn!.style.display = 'none'
+        }
+        // 这里也可以显示隐藏“下载推荐作品”的按钮，但是没必要。因为目前旧版书签页面的进出都是需要刷新的。
 
         // 当新旧页面的 pageType 不相同的时候
         if (oldPageType !== pageType) {

@@ -247,6 +247,12 @@ const xzLang = {
     'Task starts. <br>This task condition: download all related works.',
     '工作開始<br>本次工作條件: 下載所有相關作品'
   ],
+  _checkWantPageRule1Arg11: [
+    '任务开始<br>本次任务条件: 下载推荐作品',
+    'タスクが開始されます。<br>このタスク条件：お勧め作品をダウンロードする',
+    'Task starts. <br>This task condition: download recommend works',
+    '工作開始<br>本次工作條件: 下載推薦作品'
+  ],
   _请输入最低收藏数和要抓取的页数: [
     '请输入最低收藏数和要抓取的页数，用英文逗号分开。\n类似于下面的形式: \n1000,1000',
     "お気に入りの最小数とクロールするページ数を，','で区切って入力してください。\n例えば：\n1000,1000",
@@ -743,6 +749,18 @@ const xzLang = {
     'クロールはこのページから機能します',
     'Crawl the work backwards from this page',
     '從本頁開始向後擷取作品'
+  ],
+  _抓取推荐作品: [
+    '抓取推荐作品',
+    '推奨作品をダウンロードする',
+    'Crawl the recommend works',
+    '擷取推薦作品'
+  ],
+  _抓取推荐作品Title: [
+    '抓取页面底部的的推荐作品',
+    'ページの下部で推奨作品をクロールします',
+    'Crawl the recommended works at the bottom of the page',
+    '擷取頁面底部的推薦作品'
   ],
   _抓取相关作品: [
     '抓取相关作品',
