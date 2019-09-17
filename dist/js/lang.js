@@ -1038,6 +1038,6 @@ const xzLang = {
         '排行榜页面可以设置要下载的作品的数量，并且可以使用 {rank} 标记保存排名。',
         'ランキングページでは、ダウンロードする作品の数を設定し、ランキングを {rank} と表記して保存することができます。',
         'The ranking page can set the number of works to be downloaded, and the ranking can be saved using the {rank} tag.',
-        '排行榜页面可以设置要下载的作品的数量，并且可以使用 {rank} 标记保存排名。'
+        '排行榜頁面可以設定要下載的作品的數量，並且可以使用 {rank} 標記儲存排名。'
     ]
 };
