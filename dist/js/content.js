@@ -159,7 +159,7 @@ async function addStyle() {
         document.body.appendChild(styleE);
     };
     // 加载 viewerjs 的样式，不需要同步加载
-    fetch(chrome.extension.getURL('dist/style/viewer.min.css'))
+    fetch(chrome.extension.getURL('style/viewer.min.css'))
         .then(res => {
         return res.text();
     })
@@ -167,14 +167,14 @@ async function addStyle() {
         add(text);
     });
     // 加载本程序的样式，需要同步加载，之后再创建下载器的 DOM 元素
-    const styleFile = await fetch(chrome.extension.getURL('dist/style/xzstyle.css'));
+    const styleFile = await fetch(chrome.extension.getURL('style/xzstyle.css'));
     const styleContent = await styleFile.text();
     add(styleContent);
 }
 // 添加 js 文件
 async function addJs() {
     // 添加 zip 的 worker
-    let zipWorker = await fetch(chrome.extension.getURL('dist/lib/z-worker.js'));
+    let zipWorker = await fetch(chrome.extension.getURL('lib/z-worker.js'));
     const zipWorkerBolb = await zipWorker.blob();
     const zipWorkerUrl = URL.createObjectURL(zipWorkerBolb);
     if (zip) {
@@ -183,7 +183,7 @@ async function addJs() {
         };
     }
     // 添加 gif 的 worker
-    let gifWorker = await fetch(chrome.extension.getURL('dist/lib/gif.worker.js'));
+    let gifWorker = await fetch(chrome.extension.getURL('lib/gif.worker.js'));
     const gifWorkerBolb = await gifWorker.blob();
     gifWorkerUrl = URL.createObjectURL(gifWorkerBolb);
 }
@@ -205,6 +205,35 @@ function showWhatIsNew(tag) {
             window.localStorage.setItem(tag, '1');
             whatIsNewEl.parentNode.removeChild(whatIsNewEl);
         });
+    }
+}
+// 检查新版本
+async function update() {
+    // 显示更新按钮
+    const show = function () {
+        const updateIco = document.querySelector('.centerWrap_top_btn.update');
+        updateIco.style.display = 'inline-block';
+    };
+    // 读取上一次检查的时间，如果超过一小时则检查 GitHub 上的信息
+    const lastTime = localStorage.getItem('xzUpdateTime');
+    if (!lastTime || new Date().getTime() - parseInt(lastTime) > 60 * 60 * 1000) {
+        // 获取最新的 releases 信息
+        const latest = await fetch('https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest');
+        const latestJson = await latest.json();
+        const latestVer = latestJson.name;
+        // 保存 GitHub 上的版本信息
+        localStorage.setItem('xzGithubVer', latestVer);
+        // 保存本次检查的时间戳
+        localStorage.setItem('xzUpdateTime', new Date().getTime().toString());
+    }
+    // 获取本地扩展的版本号
+    const manifest = await fetch(chrome.extension.getURL('manifest.json'));
+    const manifestJson = await manifest.json();
+    const manifestVer = manifestJson.version;
+    // 比较大小
+    const latestVer = localStorage.getItem('xzGithubVer');
+    if (latestVer && manifestVer < latestVer) {
+        show();
     }
 }
 // 获取 token
@@ -2568,8 +2597,9 @@ function addDownloadPanel() {
       <div class="centerWrap_head">
       <span class="centerWrap_title xz_blue"> ${xzlt('_下载设置')}</span>
       <div class="btns">
-      <a class="xztip centerWrap_top_btn wiki_url" data-tip="${xzlt('_wiki')}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL('dist/images/wiki.png')}" /></a>
-      <a class="xztip centerWrap_top_btn" data-tip="${xzlt('_github')}" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank"><img src="${chrome.extension.getURL('dist/images/github-logo.png')}" /></a>
+      <a class="xztip centerWrap_top_btn update" data-tip="${xzlt('_newver')}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank"><img src="${chrome.extension.getURL('images/update.png')}" /></a>
+      <a class="xztip centerWrap_top_btn wiki_url" data-tip="${xzlt('_wiki')}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL('images/wiki.png')}" /></a>
+      <a class="xztip centerWrap_top_btn" data-tip="${xzlt('_github')}" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank"><img src="${chrome.extension.getURL('images/github-logo.png')}" /></a>
         <div class="xztip centerWrap_top_btn centerWrap_toogle_option" data-tip="${xzlt('_收起展开设置项')}">▲</div>
         <div class="xztip centerWrap_top_btn centerWrap_close" data-tip="${xzlt('_快捷键切换显示隐藏')}">X</div>
       </div>
@@ -2773,7 +2803,7 @@ function addDownloadPanel() {
       </div>
       <p class="gray1"> 
       <span class="showDownTip">${xzlt('_查看下载说明')}</span>
-      <a class="xztip centerWrap_top_btn wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL('dist/images/wiki.png')}" /> ${xzlt('_wiki')}</a></p>
+      <a class="xztip centerWrap_top_btn wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL('images/wiki.png')}" /> ${xzlt('_wiki')}</a></p>
       <p class="downTip tip"> ${xzlt('_下载说明')}</p>
       </div>
       `;
@@ -3946,11 +3976,14 @@ function listenPageSwitch() {
                     addTagBtn.style.display = 'inline-block';
                 }
                 else {
-                    addTagBtn.style.display = 'none';
+                    if (!!addTagBtn) {
+                        addTagBtn.style.display = 'none';
+                    }
                 }
-                // 这里也可以显示隐藏“下载推荐作品”的按钮，但是没必要。因为目前旧版书签页面的进出都是需要刷新的。
+                // 这里也可以显示隐藏“下载推荐作品”的按钮，但是没必要。因为旧版书签页面的进出都是需要刷新的。
                 // 当新旧页面的 pageType 不相同的时候
                 if (oldPageType !== pageType) {
+                    console.log(1);
                     centerBtnWrap.innerHTML = ''; // 清空原有的下载按钮
                     wantPage = -1; // 重置页数/个数设置
                     if (pageType === 1) {
@@ -4357,6 +4390,7 @@ async function expand() {
     listenPageSwitch();
     getPageInfo();
     allPageType();
+    update();
 }
 // Divine judge！
 ;
