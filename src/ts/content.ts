@@ -1478,7 +1478,7 @@ function illustError(url: string) {
     // 跳过当前作品
     if (illustUrlList.length > 0) {
       // 如果存在下一个作品，则
-      getIllustData(illustUrlList[0])
+      getIllustData()
     } else {
       // 没有剩余作品
       ajaxThreadsFinished++
@@ -2711,16 +2711,29 @@ function getListUrlFinished() {
   }
 
   for (let i = 0; i < ajaxForIllustThreads; i++) {
-    getIllustData(illustUrlList[0])
+    getIllustData()
   }
 }
 
+// 当因为网络问题无法获取作品数据时，重试
+function reTryGetIllustData(url: string) {
+  setTimeout(() => {
+    getIllustData(url)
+  }, 2000)
+}
+
 // 获取作品的数据
-async function getIllustData(url: string) {
+async function getIllustData(url?: string) {
   // url 参数为完整的作品页 url，如：
   // https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65546468
+  // 目前，只有在作品页内和重试时，需要显式传递 url。
+
   changeTitle('↑')
-  illustUrlList.shift() // 有时并未使用illust_url_list，但对空数组进行shift()是合法的，所以没有做判断
+
+  // 如果没有传递 url，则取出 illustUrlList 的第一项进行抓取
+  if (!url) {
+    url = illustUrlList.shift()!
+  }
 
   // 判断任务是否已中断，目前只在tag搜索页有用到
   if (interrupt) {
@@ -2734,117 +2747,156 @@ async function getIllustData(url: string) {
     nowTips = outputArea.innerHTML
   }
 
-  url = 'https://www.pixiv.net/ajax/illust/' + getIllustId(url) // 取出作品id，拼接出作品页api
+  const usedUrl = 'https://www.pixiv.net/ajax/illust/' + getIllustId(url) // 取出作品id，拼接出作品页api
+
   // 发起请求
-  const response = await fetch(url)
-  if (response.ok) {
-    const data: IllustData = await response.json()
+  try {
+    const response = await fetch(usedUrl)
+    if (response.ok) {
+      const data: IllustData = await response.json()
 
-    // 这里需要再判断一次中断情况，因为ajax执行完毕是需要时间的
-    if (interrupt) {
-      allowWork = true
-      return false
-    }
-
-    // 预设及获取图片信息
-    const jsInfo = data.body
-    const id = jsInfo.illustId
-    const fullWidth = jsInfo.width // 原图宽度
-    const fullHeight = jsInfo.height // 原图高度
-    const title = jsInfo.illustTitle // 作品标题
-    const userid = jsInfo.userId // 画师id
-    let user = jsInfo.userName // 画师名字，如果这里获取不到，下面从 tag 尝试获取
-    const nowAllTagInfo = jsInfo.tags.tags // 取出 tag 信息
-    const nowAllTag = [] // 保存 tag 列表
-    const tagWithTranslation = [] // 保存 tag 列表，附带翻译后的 tag
-
-    if (nowAllTagInfo.length > 0) {
-      if (!user) {
-        user = nowAllTagInfo[0].userName ? nowAllTagInfo[0].userName : '' // 这里从第一个tag里取出画师名字，如果没有 tag 那就获取不到画师名
+      // 这里需要再判断一次中断情况，因为ajax执行完毕是需要时间的
+      if (interrupt) {
+        allowWork = true
+        return false
       }
 
-      for (const tagData of nowAllTagInfo) {
-        nowAllTag.push(tagData.tag)
-        tagWithTranslation.push(tagData.tag)
-        if (tagData.translation && tagData.translation.en) {
-          tagWithTranslation.push(tagData.translation.en)
-        }
-      }
-    }
+      // 预设及获取图片信息
+      const jsInfo = data.body
+      const id = jsInfo.illustId
+      const fullWidth = jsInfo.width // 原图宽度
+      const fullHeight = jsInfo.height // 原图高度
+      const title = jsInfo.illustTitle // 作品标题
+      const userid = jsInfo.userId // 画师id
+      let user = jsInfo.userName // 画师名字，如果这里获取不到，下面从 tag 尝试获取
+      const nowAllTagInfo = jsInfo.tags.tags // 取出 tag 信息
+      const nowAllTag = [] // 保存 tag 列表
+      const tagWithTranslation = [] // 保存 tag 列表，附带翻译后的 tag
 
-    const bmk = jsInfo.bookmarkCount // 收藏数
-    let ext = '' // 扩展名
-    let imgUrl = ''
-    const whCheckResult = checkSetWhok(fullWidth, fullHeight) // 检查宽高设置
-    const ratioCheckResult = checkRatio(fullWidth, fullHeight) // 检查宽高比设置
-
-    // 检查收藏数要求
-    let bmkCheckResult = true
-    if (isSetFilterBmk) {
-      if (bmk < filterBmk) {
-        bmkCheckResult = false
-      }
-    }
-
-    // 检查只下载书签作品的要求
-    const checkBookmarkResult = checkOnlyDownBmk(!!jsInfo.bookmarkData)
-
-    // 检查排除类型设置，这里取反
-    const notdownTypeResult = !notdownType.includes(
-      jsInfo.illustType.toString()
-    )
-
-    let tagCheckResult // 储存 tag 检查结果
-
-    // 检查要排除的 tag
-    const tagNotNeedIsFound = checkNotNeedTag(nowAllTag)
-
-    // 如果检查排除的 tag，没有匹配到
-    if (!tagNotNeedIsFound) {
-      // 检查必须包含的 tag
-      tagCheckResult = checkNeedTag(nowAllTag)
-    } else {
-      // 如果匹配到了要排除的tag，则不予通过
-      tagCheckResult = false
-    }
-
-    // 上面的检查全部通过才可以下载这个作品
-    const totalCheck =
-      tagCheckResult &&
-      checkBookmarkResult &&
-      notdownTypeResult &&
-      whCheckResult &&
-      ratioCheckResult &&
-      bmkCheckResult
-
-    // 检查通过
-    if (totalCheck) {
-      // 获取作品在排行榜上的编号
-      let rank = ''
-      if (pageType === 7) {
-        rank = '#' + rankList[jsInfo.illustId]
-      }
-      // 储存作品信息
-      if (jsInfo.illustType !== 2) {
-        // 插画或漫画
-        // 检查要下载该作品的前面几张
-        let pNo = jsInfo.pageCount
-        if (imgNumberPerWork > 0 && imgNumberPerWork <= pNo) {
-          pNo = imgNumberPerWork
+      if (nowAllTagInfo.length > 0) {
+        if (!user) {
+          user = nowAllTagInfo[0].userName ? nowAllTagInfo[0].userName : '' // 这里从第一个tag里取出画师名字，如果没有 tag 那就获取不到画师名
         }
 
-        // 获取多p作品的原图页面
-        imgUrl = jsInfo.urls.original
-        const tempExt = imgUrl.split('.')
-        ext = tempExt[tempExt.length - 1]
+        for (const tagData of nowAllTagInfo) {
+          nowAllTag.push(tagData.tag)
+          tagWithTranslation.push(tagData.tag)
+          if (tagData.translation && tagData.translation.en) {
+            tagWithTranslation.push(tagData.translation.en)
+          }
+        }
+      }
 
-        // 添加作品信息
-        for (let i = 0; i < pNo; i++) {
-          const nowUrl = imgUrl.replace('p0', 'p' + i) // 拼接出每张图片的url
+      const bmk = jsInfo.bookmarkCount // 收藏数
+      let ext = '' // 扩展名
+      let imgUrl = ''
+      const whCheckResult = checkSetWhok(fullWidth, fullHeight) // 检查宽高设置
+      const ratioCheckResult = checkRatio(fullWidth, fullHeight) // 检查宽高比设置
+
+      // 检查收藏数要求
+      let bmkCheckResult = true
+      if (isSetFilterBmk) {
+        if (bmk < filterBmk) {
+          bmkCheckResult = false
+        }
+      }
+
+      // 检查只下载书签作品的要求
+      const checkBookmarkResult = checkOnlyDownBmk(!!jsInfo.bookmarkData)
+
+      // 检查排除类型设置，这里取反
+      const notdownTypeResult = !notdownType.includes(
+        jsInfo.illustType.toString()
+      )
+
+      let tagCheckResult // 储存 tag 检查结果
+
+      // 检查要排除的 tag
+      const tagNotNeedIsFound = checkNotNeedTag(nowAllTag)
+
+      // 如果检查排除的 tag，没有匹配到
+      if (!tagNotNeedIsFound) {
+        // 检查必须包含的 tag
+        tagCheckResult = checkNeedTag(nowAllTag)
+      } else {
+        // 如果匹配到了要排除的tag，则不予通过
+        tagCheckResult = false
+      }
+
+      // 上面的检查全部通过才可以下载这个作品
+      const totalCheck =
+        tagCheckResult &&
+        checkBookmarkResult &&
+        notdownTypeResult &&
+        whCheckResult &&
+        ratioCheckResult &&
+        bmkCheckResult
+
+      // 检查通过
+      if (totalCheck) {
+        // 获取作品在排行榜上的编号
+        let rank = ''
+        if (pageType === 7) {
+          rank = '#' + rankList[jsInfo.illustId]
+        }
+        // 储存作品信息
+        if (jsInfo.illustType !== 2) {
+          // 插画或漫画
+          // 检查要下载该作品的前面几张
+          let pNo = jsInfo.pageCount
+          if (imgNumberPerWork > 0 && imgNumberPerWork <= pNo) {
+            pNo = imgNumberPerWork
+          }
+
+          // 获取多p作品的原图页面
+          imgUrl = jsInfo.urls.original
+          const tempExt = imgUrl.split('.')
+          ext = tempExt[tempExt.length - 1]
+
+          // 添加作品信息
+          for (let i = 0; i < pNo; i++) {
+            const nowUrl = imgUrl.replace('p0', 'p' + i) // 拼接出每张图片的url
+
+            addImgInfo(
+              id + '_p' + i,
+              nowUrl,
+              title,
+              nowAllTag,
+              tagWithTranslation,
+              user,
+              userid,
+              fullWidth,
+              fullHeight,
+              ext,
+              bmk,
+              jsInfo.createDate.split('T')[0],
+              rank,
+              {}
+            )
+          }
+          outputImgNum()
+        } else if (jsInfo.illustType === 2) {
+          // 动图
+          // 获取动图的信息
+          const getUgoiraInfo = await fetch(
+            `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`,
+            {
+              method: 'get',
+              credentials: 'same-origin' // 附带 cookie
+            }
+          )
+          const info = await getUgoiraInfo.json()
+          // 动图帧延迟数据
+          const ugoiraInfo: UgoiraInfo = {
+            frames: info.body.frames,
+            mimeType: info.body.mime_type
+          }
+
+          ext = xzForm.ugoiraSaveAs.value // 扩展名可能是 webm、gif、zip
 
           addImgInfo(
-            id + '_p' + i,
-            nowUrl,
+            id,
+            info.body.originalSrc,
             title,
             nowAllTag,
             tagWithTranslation,
@@ -2856,119 +2908,86 @@ async function getIllustData(url: string) {
             bmk,
             jsInfo.createDate.split('T')[0],
             rank,
-            {}
+            ugoiraInfo
           )
+          outputImgNum()
         }
-        outputImgNum()
-      } else if (jsInfo.illustType === 2) {
-        // 动图
-        // 获取动图的信息
-        const getUgoiraInfo = await fetch(
-          `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`,
-          {
-            method: 'get',
-            credentials: 'same-origin' // 附带 cookie
-          }
-        )
-        const info = await getUgoiraInfo.json()
-        // 动图帧延迟数据
-        const ugoiraInfo: UgoiraInfo = {
-          frames: info.body.frames,
-          mimeType: info.body.mime_type
-        }
-
-        ext = xzForm.ugoiraSaveAs.value // 扩展名可能是 webm、gif、zip
-
-        addImgInfo(
-          id,
-          info.body.originalSrc,
-          title,
-          nowAllTag,
-          tagWithTranslation,
-          user,
-          userid,
-          fullWidth,
-          fullHeight,
-          ext,
-          bmk,
-          jsInfo.createDate.split('T')[0],
-          rank,
-          ugoiraInfo
-        )
-        outputImgNum()
-      }
-    }
-
-    // 在作品页内下载时，设置的 wantPage 其实是作品数
-    if (pageType === 1 && !downRelated) {
-      if (wantPage > 0) {
-        wantPage--
       }
 
-      if (wantPage === -1 || wantPage > 0) {
-        // 应该继续下载时，检查是否有下一个作品
-        // 在所有不为 null 的里面（可能有1-3个），取出key比当前作品 id 小的那一个，就是下一个
-        const userIllust = jsInfo.userIllusts
-        let nextId
-
-        for (const val of Object.values(userIllust)) {
-          if (val && val.illustId < id) {
-            nextId = val.illustId
-            break
-          }
+      // 在作品页内下载时，设置的 wantPage 其实是作品数
+      if (pageType === 1 && !downRelated) {
+        if (wantPage > 0) {
+          wantPage--
         }
 
-        if (nextId) {
-          getIllustData(
-            'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' +
-              nextId
-          )
+        if (wantPage === -1 || wantPage > 0) {
+          // 应该继续下载时，检查是否有下一个作品
+          // 在所有不为 null 的里面（可能有1-3个），取出key比当前作品 id 小的那一个，就是下一个
+          const userIllust = jsInfo.userIllusts
+          let nextId
+
+          for (const val of Object.values(userIllust)) {
+            if (val && val.illustId < id) {
+              nextId = val.illustId
+              break
+            }
+          }
+
+          if (nextId) {
+            getIllustData(
+              'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' +
+                nextId
+            )
+          } else {
+            // 没有剩余作品
+            crawFinished()
+          }
         } else {
           // 没有剩余作品
           crawFinished()
         }
       } else {
-        // 没有剩余作品
-        crawFinished()
-      }
-    } else {
-      if (illustUrlList.length > 0) {
-        // 如果存在下一个作品，则
-        getIllustData(illustUrlList[0])
-      } else {
-        // 没有剩余作品
-        ajaxThreadsFinished++
-        if (ajaxThreadsFinished === ajaxForIllustThreads) {
-          // 如果所有并发请求都执行完毕则复位
-          ajaxThreadsFinished = 0
+        if (illustUrlList.length > 0) {
+          // 如果存在下一个作品，则
+          getIllustData()
+        } else {
+          // 没有剩余作品
+          ajaxThreadsFinished++
+          if (ajaxThreadsFinished === ajaxForIllustThreads) {
+            // 如果所有并发请求都执行完毕则复位
+            ajaxThreadsFinished = 0
 
-          crawFinished()
+            crawFinished()
+          }
         }
       }
+    } else {
+      illustError(url)
+      const status = response.status
+      switch (status) {
+        case 0:
+          console.log(xzlt('_作品页状态码0'))
+          break
+
+        case 400:
+          console.log(xzlt('_作品页状态码400'))
+          break
+
+        case 403:
+          console.log(xzlt('_作品页状态码403'))
+          break
+
+        case 404:
+          console.log(xzlt('_作品页状态码404') + ' ' + url)
+          break
+
+        default:
+          break
+      }
     }
-  } else {
-    illustError(url)
-    const status = response.status
-    switch (status) {
-      case 0:
-        console.log(xzlt('_作品页状态码0'))
-        break
-
-      case 400:
-        console.log(xzlt('_作品页状态码400'))
-        break
-
-      case 403:
-        console.log(xzlt('_作品页状态码403'))
-        break
-
-      case 404:
-        console.log(xzlt('_作品页状态码404') + ' ' + url)
-        break
-
-      default:
-        break
-    }
+  } catch (error) {
+    // 这里预期 catch 的是因网络原因，fetch 出错的情况
+    reTryGetIllustData(url)
   }
 }
 
