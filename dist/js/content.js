@@ -3028,6 +3028,7 @@ function pauseDownload() {
             downloadPause = true; // 发出暂停信号
             downloadStarted = false;
             quickDownload = false;
+            clearTimeout(reTryTimer);
             changeTitle('║');
             changeDownStatus(`<span style="color:#f00">${xzlt('_已暂停')}</span>`);
             addOutputInfo(xzlt('_已暂停') + '<br><br>');
@@ -3048,6 +3049,7 @@ function stopDownload() {
         downloaded = 0;
         downloadStarted = false;
         quickDownload = false;
+        clearTimeout(reTryTimer);
         changeTitle('■');
         changeDownStatus(`<span style="color:#f00">${xzlt('_已停止')}</span>`);
         addOutputInfo(xzlt('_已停止') + '<br><br>');
@@ -3062,7 +3064,6 @@ function reTryDownload() {
     }
     // 暂停下载并在一定时间后重试下载
     pauseDownload();
-    clearTimeout(reTryTimer);
     reTryTimer = setTimeout(() => {
         startDownload();
     }, 1000);
@@ -3339,8 +3340,8 @@ function getFileName(data) {
     // data.id = data.id.replace(/(\d.*p)(\d.*)/,  (...str)=> {
     //  return str[1] + str[2].padStart(3, '0');
     // });
-    const safeFileNameRule = new RegExp(/\\|\/|:|\?|"|<|'|>|\*|\||~|[\u200B-\u200F\uFEFF]|\./g); // 安全的文件名
-    const safeFolderRule = new RegExp(/\\|:|\?|"|<|'|>|\*|\||~|[\u200B-\u200F\uFEFF]|\./g); // 文件夹名，允许斜线 /
+    const safeFileNameRule = new RegExp(/\\|\/|:|\?|"|<|'|>|\*|\||~|[\u200B-\u200F\uFEFF]|\u0009|\./g); // 安全的文件名
+    const safeFolderRule = new RegExp(/\\|:|\?|"|<|'|>|\*|\||~|[\u200B-\u200F\uFEFF]|\u0009|\./g); // 文件夹名，允许斜线 /
     // 储存每个文件名标记的配置
     const cfg = [
         {
