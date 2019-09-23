@@ -455,6 +455,9 @@ aside .sc-LzLtN,
   font-size: 14px;
   width: 950px;
 }
+#outputArea br {
+  display: inline;
+}
 #down_id_input {
   width: 600px;
   height: 80px;

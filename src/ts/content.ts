@@ -177,6 +177,13 @@ const timeInterval: number = 200 // 设置向浏览器发送下载任务的间�
 
 let downRelated: boolean = false // 是否下载相关作品（作品页内的）
 
+/*
+-1 抓取新作品
+0 不设置抓取方向
+1 抓取旧作品
+*/
+let downDirection: number = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品
+
 let downRecommended: boolean = false // 是否下载推荐作品（收藏页面下方）
 
 let viewerWarpper: HTMLDivElement // 图片列表的容器
@@ -1028,10 +1035,18 @@ function changeTitle(string: string) {
   }
 }
 
-// 将元素插入到页面顶部。大部分页面使用 header，文章页使用 root。因为在文章页执行时，可能获取不到 header
+// 将元素插入到页面顶部
+/*
+大部分页面使用 header，文章页使用 root。因为在文章页执行时，可能获取不到 header.
+newindex-inner 是在未登录时的画师作品列表页面使用的
+layout-body 是在未登录时的 tag 搜索页使用的
+*/
 function insertToHead(el: Element) {
   ;(
-    document.querySelector('#root>*') || document.querySelector('header')!
+    document.querySelector('#root>*') ||
+    document.querySelector('header')! ||
+    document.querySelector('.newindex-inner')! ||
+    document.querySelector('.layout-body')!
   ).insertAdjacentElement('beforebegin', el)
 }
 
@@ -2407,9 +2422,10 @@ function getUserId() {
     userId = /\?id=(\d{1,9})/.exec(nameElement.href)![1]
   } else {
     // 从新版页面的头像获取，因为经常改版，不得已改成从源码匹配了
-    userId = /member\.php\?id=(\d{1,9})/.exec(
-      document.getElementById('root')!.innerHTML
-    )![1]
+    const el =
+      document.getElementById('root') || document.getElementById('spa-contents')
+    // 在 PC 模式的新版页面使用 root，在手机模式的新版页面使用 spa-contents
+    userId = /member\.php\?id=(\d{1,9})/.exec(el!.innerHTML)![1]
   }
 
   return userId
@@ -2922,14 +2938,20 @@ async function getIllustData(url?: string) {
 
         if (wantPage === -1 || wantPage > 0) {
           // 应该继续下载时，检查是否有下一个作品
-          // 在所有不为 null 的里面（可能有1-3个），取出key比当前作品 id 小的那一个，就是下一个
           const userIllust = jsInfo.userIllusts
           let nextId
 
+          // 在所有不为 null 的数据里（可能有1-3个），illustId 比当前 id 大的是新作品, 比当前 id 小的是旧作品
           for (const val of Object.values(userIllust)) {
-            if (val && val.illustId < id) {
-              nextId = val.illustId
-              break
+            if (val) {
+              const thisId = parseInt(val.illustId) // 转换成数字进行比较
+              if (downDirection === -1 && thisId > parseInt(id)) {
+                nextId = val.illustId
+                break
+              } else if (downDirection === 1 && thisId < parseInt(id)) {
+                nextId = val.illustId
+                break
+              }
             }
           }
 
@@ -2986,6 +3008,7 @@ async function getIllustData(url?: string) {
       }
     }
   } catch (error) {
+    console.log(error)
     // 这里预期 catch 的是因网络原因，fetch 出错的情况
     reTryGetIllustData(url)
   }
@@ -3051,6 +3074,7 @@ function crawFinished() {
   // 检查后缀名的任务是否全部完成
   if (testSuffixFinished) {
     downRelated = false // 解除下载相关作品的标记
+    downDirection = 0 // 解除下载方向的标记
     downRecommended = false // 解除下载推荐作品的标记
 
     // tag 搜索页把下载任务按收藏数从高到低下载
@@ -4810,9 +4834,20 @@ function pageType1() {
     false
   )
 
-  addCenterButton('div', xzBlue, xzlt('_从本页开始抓取')).addEventListener(
+  addCenterButton('div', xzBlue, xzlt('_从本页开始抓取new')).addEventListener(
     'click',
-    startGet
+    () => {
+      downDirection = -1
+      startGet()
+    }
+  )
+
+  addCenterButton('div', xzBlue, xzlt('_从本页开始抓取old')).addEventListener(
+    'click',
+    () => {
+      downDirection = 1
+      startGet()
+    }
   )
 
   const downXgBtn = addCenterButton('div', xzBlue, xzlt('_抓取相关作品'))

@@ -757,11 +757,17 @@ const xzLang = {
         'Download this work quickly',
         '快速下載本頁作品'
     ],
-    _从本页开始抓取: [
-        '从本页开始向后抓取作品',
-        'クロールはこのページから機能します',
-        'Crawl the work backwards from this page',
-        '從本頁開始向後擷取作品'
+    _从本页开始抓取new: [
+        '从本页开始抓取新作品',
+        'このページから新しい作品を入手する',
+        'Crawl the new works from this page',
+        '從本頁開始擷取新作品'
+    ],
+    _从本页开始抓取old: [
+        '从本页开始抓取旧作品',
+        'このページから古い作品を入手する',
+        'Crawl the old works from this page',
+        '從本頁開始擷取舊作品'
     ],
     _抓取推荐作品: [
         '抓取推荐作品',
