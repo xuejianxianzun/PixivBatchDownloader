@@ -1,5 +1,7 @@
 [View English introduction](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
 
+[访问官网](https://pixiv.download/)
+
 # 公告
 
 本扩展已经被 Chrome webstore 下架。现在只能离线安装。
