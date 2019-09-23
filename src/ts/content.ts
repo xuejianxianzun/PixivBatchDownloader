@@ -205,6 +205,13 @@ let onlyDownBmk: boolean = false // 是否只下载收藏的作品
 
 let ratioType: string = '0' // 宽高比例的类型
 
+// 不安全的字符，是 Chrome 和 Windows 不允许做文件名的字符
+const notSafeString = `[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff\\\/:\?"<>\*\|~]`
+
+const safeFileName = new RegExp(notSafeString, 'g') // 安全的文件名
+
+const safeFolderName = new RegExp(notSafeString.replace('/', ''), 'g') // 安全的文件夹名，允许斜线 /
+
 let langType: number // 语言类型
 
 // 处理和脚本版的冲突
@@ -4160,18 +4167,11 @@ function getFileName(data: ImgInfo) {
   let result = xzForm.fileNameRule.value
   // 为空时使用 {id}
   result = result || '{id}' // 生成文件名
+
   // 将序号部分格式化成 3 位数字。p 站投稿一次最多 200 张
   // data.id = data.id.replace(/(\d.*p)(\d.*)/,  (...str)=> {
   //  return str[1] + str[2].padStart(3, '0');
   // });
-
-  const safeFileNameRule: RegExp = new RegExp(
-    /\\|\/|:|\?|"|<|'|>|\*|\||~|[\u200B-\u200F\uFEFF]|\u0009|\./g
-  ) // 安全的文件名
-
-  const safeFolderRule: RegExp = new RegExp(
-    /\\|:|\?|"|<|'|>|\*|\||~|[\u200B-\u200F\uFEFF]|\u0009|\./g
-  ) // 文件夹名，允许斜线 /
 
   // 储存每个文件名标记的配置
   const cfg = [
@@ -4183,7 +4183,7 @@ function getFileName(data: ImgInfo) {
       prefix: '',
       // 添加在前面的字段名称
       safe: false
-      // 是否是安全的文件名。如果包含有一些特殊字符，就不安全，要进行替换
+      // 是否是安全的文件名。如果可能包含一些特殊字符，就不安全，要进行替换
     },
     {
       name: '{p_uid}',
@@ -4286,6 +4286,7 @@ function getFileName(data: ImgInfo) {
     }
   ]
 
+  // 把命名规则的标记替换成实际值
   for (const item of cfg) {
     if (result.includes(item.name)) {
       if (item.value !== '' && item.value !== null) {
@@ -4297,7 +4298,7 @@ function getFileName(data: ImgInfo) {
         }
 
         if (!item.safe) {
-          once = once.replace(safeFileNameRule, '_').trim()
+          once = once.replace(safeFileName, '_').trim()
         }
 
         result = result.replace(new RegExp(item.name, 'g'), once) // 将标记替换成最终值，如果有重复的标记，全部替换
@@ -4308,7 +4309,7 @@ function getFileName(data: ImgInfo) {
   // 处理空值，不能做文件夹名的字符，连续的 '//'。 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
   result = result
     .replace(/undefined/g, '')
-    .replace(safeFolderRule, '_')
+    .replace(safeFolderName, '_')
     .replace(/\/{2,9}/, '/')
 
   // 去掉头尾的 /
@@ -4319,6 +4320,13 @@ function getFileName(data: ImgInfo) {
     result = result.substr(0, result.length - 1)
   }
 
+  // 去掉每层路径头尾的 . 因为 Chrome 不允许头尾使用 .
+  let tempArr = result.split('/')
+  tempArr.forEach((str, index, arr) => {
+    arr[index] = str.replace(/^\./g, '').replace(/\.$/g, '')
+  })
+  result = tempArr.join('/')
+
   // 快速下载时，如果只有一个文件，则不建立文件夹
   if (quickDownload && imgInfo.length === 1) {
     const index = result.lastIndexOf('/')
@@ -4326,10 +4334,10 @@ function getFileName(data: ImgInfo) {
   }
 
   // 处理文件名长度 这里有个问题，因为无法预知浏览器下载文件夹的长度，所以只能预先设置一个预设值
-  const fileNameLength: number = 200 // 文件名的最大长度，超出将会截断。如果文件的保存路径过长可能会保存失败，此时可以把这个数值改小些。
+  const fileNameLength = 200 // 文件名的最大长度，超出将会截断。如果文件的保存路径过长可能会保存失败，此时可以把这个数值改小些。
   result = result.substr(0, fileNameLength)
 
-  // 处理后缀名
+  // 添加后缀名
   result += '.' + data.ext
 
   return result
@@ -4947,7 +4955,6 @@ function listenPageSwitch() {
 
         // 当新旧页面的 pageType 不相同的时候
         if (oldPageType !== pageType) {
-          console.log(1)
           centerBtnWrap.innerHTML = '' // 清空原有的下载按钮
           wantPage = -1 // 重置页数/个数设置
 
