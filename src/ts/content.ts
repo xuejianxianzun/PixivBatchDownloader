@@ -207,12 +207,15 @@ let onlyDownBmk: boolean = false // 是否只下载收藏的作品
 
 let ratioType: string = '0' // 宽高比例的类型
 
-// 不安全的字符，是 Chrome 和 Windows 不允许做文件名的字符
-const notSafeString = `[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff\\\/:\?"<>\*\|~]`
-
-const safeFileName = new RegExp(notSafeString, 'g') // 安全的文件名
-
-const safeFolderName = new RegExp(notSafeString.replace('/', ''), 'g') // 安全的文件夹名，允许斜线 /
+// 用正则过滤不安全的字符，（Chrome 和 Windows 不允许做文件名的字符）
+// 安全的文件名
+const safeFileName = new RegExp(
+  /[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff\\\/:\?"<>\*\|~]/g
+)
+// 安全的文件夹名，允许斜线 /
+const safeFolderName = new RegExp(
+  /[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff\\:\?"<>\*\|~]/g
+)
 
 let langType: number // 语言类型
 
@@ -4325,6 +4328,13 @@ function getFileName(data: ImgInfo) {
     .replace(safeFolderName, '_')
     .replace(/\/{2,9}/, '/')
 
+  // 替换每层路径头尾的 . 因为 Chrome 不允许头尾使用 .
+  let tempArr = result.split('/')
+  tempArr.forEach((str, index, arr) => {
+    arr[index] = str.replace(/^\./g, '_').replace(/\.$/g, '_')
+  })
+  result = tempArr.join('/')
+
   // 去掉头尾的 /
   if (result.startsWith('/')) {
     result = result.replace('/', '')
@@ -4332,13 +4342,6 @@ function getFileName(data: ImgInfo) {
   if (result.endsWith('/')) {
     result = result.substr(0, result.length - 1)
   }
-
-  // 去掉每层路径头尾的 . 因为 Chrome 不允许头尾使用 .
-  let tempArr = result.split('/')
-  tempArr.forEach((str, index, arr) => {
-    arr[index] = str.replace(/^\./g, '').replace(/\.$/g, '')
-  })
-  result = tempArr.join('/')
 
   // 快速下载时，如果只有一个文件，则不建立文件夹
   if (quickDownload && imgInfo.length === 1) {
