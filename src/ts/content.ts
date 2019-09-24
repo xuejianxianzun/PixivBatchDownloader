@@ -6,9 +6,11 @@
  * author:  xuejianxianzun; 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * Github： https://github.com/xuejianxianzun/PixivBatchDownloader
- * install: https://chrome.google.com/webstore/detail/pixiv-batch-downloader/ffejdpkplpkdjebmffnblnchbcjppcff
+ * Releases: https://github.com/xuejianxianzun/PixivBatchDownloader/releases
+ * Wiki:    https://github.com/xuejianxianzun/PixivBatchDownloader/wiki
+ * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
- * QQ 群:    499873152
+ * QQ group:499873152
  */
 
 // 储存一些页面信息
@@ -2411,8 +2413,17 @@ function getListPage2() {
 
 // 从 url 里获取作品id，可以传参，无参数则使用当前页面的 url 匹配
 function getIllustId(url?: string) {
-  const str = url || window.location.search
-  return /illust_id=(\d*\d)/.exec(str)![1]
+  const str = url || window.location.search || locUrl
+  if (str.includes('illust_id')) {
+    // 传统 url
+    return /illust_id=(\d*\d)/.exec(str)![1]
+  } else if (str.includes('/artworks/')) {
+    // 新版 url
+    return /artworks\/(\d*\d)/.exec(str)![1]
+  } else {
+    // 直接取出 url 中的数字
+    return /\d*\d/.exec(locUrl)![0]
+  }
 }
 
 // 获取用户id
@@ -3774,6 +3785,8 @@ function changeDownStatus(str: string) {
 
 // 暂停下载
 function pauseDownload() {
+  clearTimeout(reTryTimer)
+
   if (imgInfo.length === 0) {
     return false
   }
@@ -3789,7 +3802,6 @@ function pauseDownload() {
       downloadPause = true // 发出暂停信号
       downloadStarted = false
       quickDownload = false
-      clearTimeout(reTryTimer)
       changeTitle('║')
       changeDownStatus(`<span style="color:#f00">${xzlt('_已暂停')}</span>`)
       addOutputInfo(xzlt('_已暂停') + '<br><br>')
@@ -3802,6 +3814,8 @@ function pauseDownload() {
 
 // 停止下载
 function stopDownload() {
+  clearTimeout(reTryTimer)
+
   if (imgInfo.length === 0) {
     return false
   }
@@ -3811,7 +3825,6 @@ function stopDownload() {
     downloaded = 0
     downloadStarted = false
     quickDownload = false
-    clearTimeout(reTryTimer)
     changeTitle('■')
     changeDownStatus(`<span style="color:#f00">${xzlt('_已停止')}</span>`)
     addOutputInfo(xzlt('_已停止') + '<br><br>')
@@ -4778,7 +4791,7 @@ function checkPageType() {
   ) {
     pageType = 0
   } else if (
-    locUrl.includes('illust_id') &&
+    (locUrl.includes('illust_id') || locUrl.includes('/artworks/')) &&
     !locUrl.includes('mode=manga') &&
     !locUrl.includes('bookmark_detail') &&
     !locUrl.includes('bookmark_add') &&
