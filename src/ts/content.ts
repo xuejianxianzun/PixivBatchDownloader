@@ -28,6 +28,14 @@ enum Color {
   red = '#f33939'
 }
 
+const xzBlue: Color = Color.blue
+
+const xzGreen: Color = Color.green
+
+const xzRed: Color = Color.red
+
+const illustTypes = ['illustration', 'manga', 'ugoira'] // 作品类型 0 插画 1 漫画 2 动图
+
 let outputArea: HTMLDivElement // 输出信息的区域
 
 const downloadThreadDeauflt: number = 5 // 同时下载的线程数，可以通过设置 downloadThread 修改
@@ -150,12 +158,6 @@ let rightButton: HTMLDivElement = document.createElement('div') // 右侧按钮
 let centerPanel: HTMLDivElement = document.createElement('div') // 中间设置面板
 
 let centerBtnWrap: HTMLDivElement // 中间插入按钮的区域
-
-const xzBlue: Color = Color.blue
-
-const xzGreen: Color = Color.green
-
-const xzRed: Color = Color.red
 
 let downloadBarList: NodeListOf<HTMLDivElement> // 下载队列的dom元素
 
@@ -842,7 +844,7 @@ function updateViewer() {
       pageInfo.p_uid = thisOneData.userId
       // 更新图片查看器
       if (thisOneData.illustType === 0 || thisOneData.illustType === 1) {
-        // 插画或漫画，0 插画 1 漫画 2 动图（ 1 的如 68430279 ）
+        // 插画或漫画
         if (thisOneData.pageCount > 1) {
           // 有多张图片时，创建缩略图
           const { thumb, original } = thisOneData.urls
@@ -1587,6 +1589,23 @@ function outputNowResult() {
 }
 
 // 添加每个图片的信息。某些参数允许传空值
+/*
+   id - 图片是 id + 序号，如 44920385_p0。动图只有 id
+   url - 图片的 url
+   title - 作品的标题
+   tags - 作品的 tag 列表
+   tagsTranslated - 作品的 tag 列表，附带翻译后的 tag（如果有）
+   user - 作品的画师名字
+   userid - 作品的画师id
+   fullWidth - 图片的宽度
+   fullHeight - 图片的高度
+   ext - 图片的后缀名
+   bmk - 作品的收藏数量
+   date - 作品的创建日期，格式为 yyyy-MM-dd。如 2019-08-29
+   type - 作品的类型，分为插画/漫画/动图
+   rank - 在排行榜页面使用，保存图片的排名
+   ugoiraInfo - 当作品是动图时才有值，包含 frames（数组）和 mimeType（string）属性
+   */
 function addImgInfo(
   id: string,
   url: string,
@@ -1600,24 +1619,10 @@ function addImgInfo(
   ext: string,
   bmk: number,
   date: string,
+  type: number,
   rank: string,
   ugoiraInfo: UgoiraInfo
 ) {
-  /*
-   id - 图片是 id + 序号，如 44920385_p0。动图只有 id
-   url - 图片的 url
-   title - 作品的标题
-   tags - 作品的 tag 列表
-   tagsTranslated - 作品的 tag 列表，附带翻译后的 tag（如果有）
-   user - 作品的画师名字
-   userid - 作品的画师id
-   fullWidth - 图片的宽度
-   fullHeight - 图片的高度
-   ext - 图片的后缀名
-   bmk - 作品的收藏数量
-   date - 作品的创建日期，格式为 yyyy-MM-dd。如 2019-08-29
-   ugoiraInfo - 当作品是动图时才有值，包含 frames（数组）和 mimeType（string）属性
-   */
   imgInfo.push({
     id,
     url,
@@ -1631,6 +1636,7 @@ function addImgInfo(
     ext,
     bmk,
     date,
+    type,
     rank,
     ugoiraInfo
   })
@@ -2907,6 +2913,7 @@ async function getIllustData(url?: string) {
               ext,
               bmk,
               jsInfo.createDate.split('T')[0],
+              jsInfo.illustType,
               rank,
               {}
             )
@@ -2944,6 +2951,7 @@ async function getIllustData(url?: string) {
             ext,
             bmk,
             jsInfo.createDate.split('T')[0],
+            jsInfo.illustType,
             rank,
             ugoiraInfo
           )
@@ -3068,6 +3076,7 @@ function testExtName(url: string, length: number, imgInfoData: any) {
       ext,
       0,
       '',
+      0,
       '',
       {}
     )
@@ -3416,15 +3425,16 @@ function addDownloadPanel() {
         <option value="{tags_translate}">{tags_translate}</option>
         <option value="{user}">{user}</option>
         <option value="{userid}">{userid}</option>
+        <option value="{type}">{type}</option>
         <option value="{date}">{date}</option>
         <option value="{bmk}">{bmk}</option>
         <option value="{px}">{px}</option>
+        <option value="{rank}">{rank}</option>
         <option value="{id_num}">{id_num}</option>
         <option value="{p_num}">{p_num}</option>
-        <option value="{rank}">{rank}</option>
         </select>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <span class="gray1 showFileNameTip"> ${xzlt('_查看标记的含义')}</span>
+      <span class="gray1 showFileNameTip">？</span>
       </p>
       <p class="fileNameTip tip">
       ${xzlt('_设置文件夹名的提示').replace('<br>', '. ')}
@@ -3461,6 +3471,9 @@ function addDownloadPanel() {
       <br>
       <span class="xz_blue">{date}</span>
       ${xzlt('_命名标记12')}
+      <br>
+      <span class="xz_blue">{type}</span>
+      ${xzlt('_命名标记14')}
       <br>
       <span class="xz_blue">{bmk}</span>
       ${xzlt('_命名标记8')}
@@ -4297,6 +4310,12 @@ function getFileName(data: ImgInfo) {
     {
       name: '{date}',
       value: data.date,
+      prefix: '',
+      safe: true
+    },
+    {
+      name: '{type}',
+      value: illustTypes[data.type],
       prefix: '',
       safe: true
     }
@@ -5389,6 +5408,7 @@ function allPageType() {
                   ext,
                   0,
                   '',
+                  0,
                   '',
                   {}
                 )
@@ -5470,7 +5490,7 @@ async function expand() {
   await addStyle()
   listenHistory()
   setLangType()
-  showWhatIsNew('_xzNew259')
+  showWhatIsNew('_xzNew270')
   addRightButton()
   addCenterWarps()
   readXzSetting()

@@ -624,6 +624,12 @@ const xzLang = {
         'The ranking of the work in the ranking list. Such as #1, #2 ...',
         '作品在排行榜中的排名，如 #1、#2 ……'
     ],
+    _命名标记14: [
+        '作品类型，分为 illustration、manga、ugoira',
+        '作品分類は、illustration、manga、ugoira',
+        'The type of work, divided into illustration, manga, ugoira',
+        '作品類型，分为 illustration、manga、ugoira'
+    ],
     _命名标记提醒: [
         '您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}-{px}<br>* 在某些情况下，会有一些标记不可用。',
         '複数のタグを使用することができ；異なるタグ間に別の文字を追加することができます。例：{id}-{userid}-{px}<br>* 場合によっては、一部のタグが利用できず。',
@@ -709,10 +715,10 @@ const xzLang = {
     ],
     _正在下载中: ['正在下载中', 'ダウンロード中', 'downloading', '正在下載'],
     _下载完毕: [
-        '下载完毕!',
-        'ダウンロードが完了しました',
-        'Download finished',
-        '下載完畢!'
+        '√ 下载完毕!',
+        '√ ダウンロードが完了しました',
+        '√ Download finished',
+        '√ 下載完畢!'
     ],
     _已暂停: [
         '下载已暂停',
@@ -1046,10 +1052,10 @@ const xzLang = {
         'A new version is available',
         '有新版本可用'
     ],
-    _xzNew259: [
-        '排行榜页面可以设置要下载的作品的数量，并且可以使用 {rank} 标记保存排名。',
-        'ランキングページでは、ダウンロードする作品の数を設定し、ランキングを {rank} と表記して保存することができます。',
-        'The ranking page can set the number of works to be downloaded, and the ranking can be saved using the {rank} tag.',
-        '排行榜頁面可以設定要下載的作品的數量，並且可以使用 {rank} 標記儲存排名。'
+    _xzNew270: [
+        '新增 {type} 标记，保存作品类型（illustration、manga、ugoira）。',
+        '{type}マークを追加し,作品タイプ(illustration, manga, ugoira)を保存する。',
+        'Add a {type} tag to save the type of work (illustration, manga, ugoira).',
+        '新增 {type} 標記，保存作品類型（illustration、manga、ugoira）。'
     ]
 };

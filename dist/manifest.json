@@ -1,6 +1,6 @@
 {
   "name": "Pixiv Batch Downloader",
-  "version": "2.6.9",
+  "version": "2.7.0",
   "manifest_version": 2,
   "description": "功能强大的 Pixiv 图片批量下载器。Powerful Pixiv image batch downloader.",
   "icons": {
@@ -20,17 +20,7 @@
   },
   "content_scripts": [
     {
-      "js": ["lib/viewer.min.js"],
-      "matches": [
-        "*://www.pixiv.net/member.php*",
-        "*://www.pixiv.net/member_illust.php*",
-        "*://www.pixiv.net/artworks*",
-        "*://www.pixiv.net/bookmark.php*"
-      ],
-      "run_at": "document_end"
-    },
-    {
-      "js": ["lib/zip.js", "lib/whammy.js", "lib/gif.js"],
+      "js": ["lib/viewer.min.js", "lib/zip.js", "lib/whammy.js", "lib/gif.js"],
       "matches": ["*://www.pixiv.net/*"],
       "run_at": "document_end"
     },

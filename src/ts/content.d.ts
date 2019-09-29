@@ -18,6 +18,7 @@ interface ImgInfo {
   ext: string
   bmk: number
   date: string
+  type: number
   rank: string
   ugoiraInfo: UgoiraInfo
 }

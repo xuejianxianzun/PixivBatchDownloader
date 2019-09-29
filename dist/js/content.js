@@ -29,6 +29,10 @@ var Color;
     Color["green"] = "#14ad27";
     Color["red"] = "#f33939";
 })(Color || (Color = {}));
+const xzBlue = Color.blue;
+const xzGreen = Color.green;
+const xzRed = Color.red;
+const illustTypes = ['illustration', 'manga', 'ugoira']; // 作品类型 0 插画 1 漫画 2 动图
 let outputArea; // 输出信息的区域
 const downloadThreadDeauflt = 5; // 同时下载的线程数，可以通过设置 downloadThread 修改
 let imgNumberPerWork = 0; // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
@@ -91,9 +95,6 @@ let gifWorkerUrl = '';
 let rightButton = document.createElement('div'); // 右侧按钮
 let centerPanel = document.createElement('div'); // 中间设置面板
 let centerBtnWrap; // 中间插入按钮的区域
-const xzBlue = Color.blue;
-const xzGreen = Color.green;
-const xzRed = Color.red;
 let downloadBarList; // 下载队列的dom元素
 let downloadThread; // 下载线程
 let downloadStarted = false; // 下载是否已经开始
@@ -664,7 +665,7 @@ function updateViewer() {
         pageInfo.p_uid = thisOneData.userId;
         // 更新图片查看器
         if (thisOneData.illustType === 0 || thisOneData.illustType === 1) {
-            // 插画或漫画，0 插画 1 漫画 2 动图（ 1 的如 68430279 ）
+            // 插画或漫画
             if (thisOneData.pageCount > 1) {
                 // 有多张图片时，创建缩略图
                 const { thumb, original } = thisOneData.urls;
@@ -1322,22 +1323,24 @@ function outputNowResult() {
     addOutputInfo(xzlt('_调整完毕', visibleList().length.toString()) + '<br>');
 }
 // 添加每个图片的信息。某些参数允许传空值
-function addImgInfo(id, url, title, tags, tagsTranslated, user, userid, fullWidth, fullHeight, ext, bmk, date, rank, ugoiraInfo) {
-    /*
-     id - 图片是 id + 序号，如 44920385_p0。动图只有 id
-     url - 图片的 url
-     title - 作品的标题
-     tags - 作品的 tag 列表
-     tagsTranslated - 作品的 tag 列表，附带翻译后的 tag（如果有）
-     user - 作品的画师名字
-     userid - 作品的画师id
-     fullWidth - 图片的宽度
-     fullHeight - 图片的高度
-     ext - 图片的后缀名
-     bmk - 作品的收藏数量
-     date - 作品的创建日期，格式为 yyyy-MM-dd。如 2019-08-29
-     ugoiraInfo - 当作品是动图时才有值，包含 frames（数组）和 mimeType（string）属性
-     */
+/*
+   id - 图片是 id + 序号，如 44920385_p0。动图只有 id
+   url - 图片的 url
+   title - 作品的标题
+   tags - 作品的 tag 列表
+   tagsTranslated - 作品的 tag 列表，附带翻译后的 tag（如果有）
+   user - 作品的画师名字
+   userid - 作品的画师id
+   fullWidth - 图片的宽度
+   fullHeight - 图片的高度
+   ext - 图片的后缀名
+   bmk - 作品的收藏数量
+   date - 作品的创建日期，格式为 yyyy-MM-dd。如 2019-08-29
+   type - 作品的类型，分为插画/漫画/动图
+   rank - 在排行榜页面使用，保存图片的排名
+   ugoiraInfo - 当作品是动图时才有值，包含 frames（数组）和 mimeType（string）属性
+   */
+function addImgInfo(id, url, title, tags, tagsTranslated, user, userid, fullWidth, fullHeight, ext, bmk, date, type, rank, ugoiraInfo) {
     imgInfo.push({
         id,
         url,
@@ -1351,6 +1354,7 @@ function addImgInfo(id, url, title, tags, tagsTranslated, user, userid, fullWidt
         ext,
         bmk,
         date,
+        type,
         rank,
         ugoiraInfo
     });
@@ -2393,7 +2397,7 @@ async function getIllustData(url) {
                     // 添加作品信息
                     for (let i = 0; i < pNo; i++) {
                         const nowUrl = imgUrl.replace('p0', 'p' + i); // 拼接出每张图片的url
-                        addImgInfo(id + '_p' + i, nowUrl, title, nowAllTag, tagWithTranslation, user, userid, fullWidth, fullHeight, ext, bmk, jsInfo.createDate.split('T')[0], rank, {});
+                        addImgInfo(id + '_p' + i, nowUrl, title, nowAllTag, tagWithTranslation, user, userid, fullWidth, fullHeight, ext, bmk, jsInfo.createDate.split('T')[0], jsInfo.illustType, rank, {});
                     }
                     outputImgNum();
                 }
@@ -2411,7 +2415,7 @@ async function getIllustData(url) {
                         mimeType: info.body.mime_type
                     };
                     ext = xzForm.ugoiraSaveAs.value; // 扩展名可能是 webm、gif、zip
-                    addImgInfo(id, info.body.originalSrc, title, nowAllTag, tagWithTranslation, user, userid, fullWidth, fullHeight, ext, bmk, jsInfo.createDate.split('T')[0], rank, ugoiraInfo);
+                    addImgInfo(id, info.body.originalSrc, title, nowAllTag, tagWithTranslation, user, userid, fullWidth, fullHeight, ext, bmk, jsInfo.createDate.split('T')[0], jsInfo.illustType, rank, ugoiraInfo);
                     outputImgNum();
                 }
             }
@@ -2511,7 +2515,7 @@ function testExtName(url, length, imgInfoData) {
             url = url.replace('.jpg', '.png');
             ext = 'png';
         }
-        addImgInfo(imgInfoData.id, url, imgInfoData.title, imgInfoData.tags, [], imgInfoData.user, imgInfoData.userid, imgInfoData.fullWidth, imgInfoData.fullHeight, ext, 0, '', '', {});
+        addImgInfo(imgInfoData.id, url, imgInfoData.title, imgInfoData.tags, [], imgInfoData.user, imgInfoData.userid, imgInfoData.fullWidth, imgInfoData.fullHeight, ext, 0, '', 0, '', {});
         outputImgNum();
         if (length !== undefined) {
             testSuffixNo++;
@@ -2751,15 +2755,16 @@ function addDownloadPanel() {
         <option value="{tags_translate}">{tags_translate}</option>
         <option value="{user}">{user}</option>
         <option value="{userid}">{userid}</option>
+        <option value="{type}">{type}</option>
         <option value="{date}">{date}</option>
         <option value="{bmk}">{bmk}</option>
         <option value="{px}">{px}</option>
+        <option value="{rank}">{rank}</option>
         <option value="{id_num}">{id_num}</option>
         <option value="{p_num}">{p_num}</option>
-        <option value="{rank}">{rank}</option>
         </select>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <span class="gray1 showFileNameTip"> ${xzlt('_查看标记的含义')}</span>
+      <span class="gray1 showFileNameTip">？</span>
       </p>
       <p class="fileNameTip tip">
       ${xzlt('_设置文件夹名的提示').replace('<br>', '. ')}
@@ -2796,6 +2801,9 @@ function addDownloadPanel() {
       <br>
       <span class="xz_blue">{date}</span>
       ${xzlt('_命名标记12')}
+      <br>
+      <span class="xz_blue">{type}</span>
+      ${xzlt('_命名标记14')}
       <br>
       <span class="xz_blue">{bmk}</span>
       ${xzlt('_命名标记8')}
@@ -3492,6 +3500,12 @@ function getFileName(data) {
         {
             name: '{date}',
             value: data.date,
+            prefix: '',
+            safe: true
+        },
+        {
+            name: '{type}',
+            value: illustTypes[data.type],
             prefix: '',
             safe: true
         }
@@ -4390,7 +4404,7 @@ function allPageType() {
                             let arr = imgUrl.split('/');
                             const id = arr[arr.length - 1].split('.')[0]; // 作品id
                             const ext = arr[arr.length - 1]; // 扩展名
-                            addImgInfo(id, imgUrl, '', [], [], '', '', 0, 0, ext, 0, '', '', {});
+                            addImgInfo(id, imgUrl, '', [], [], '', '', 0, 0, ext, 0, '', 0, '', {});
                         }
                     });
                     crawFinished();
@@ -4453,7 +4467,7 @@ async function expand() {
     await addStyle();
     listenHistory();
     setLangType();
-    showWhatIsNew('_xzNew259');
+    showWhatIsNew('_xzNew270');
     addRightButton();
     addCenterWarps();
     readXzSetting();
