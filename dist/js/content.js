@@ -2019,20 +2019,9 @@ function getUserId() {
     return userId;
 }
 // 从 url 中获取指定的查询条件
-function getQuery(input, query) {
-    let queryArray = [];
-    let result = '';
-    const arr1 = input.split('?');
-    if (arr1.length > 1) {
-        queryArray = arr1[1].split('&');
-        queryArray.forEach(el => {
-            const arr2 = el.split('=');
-            if (arr2.length > 1 && arr2[0] === query) {
-                result = arr2[1];
-            }
-        });
-    }
-    return result;
+function getQuery(url, query) {
+    const result = new URL(url).searchParams.get(query);
+    return result || '';
 }
 // 获取作品列表页前的准备工作，在 pageType 2 使用
 function readyGetListPage() {

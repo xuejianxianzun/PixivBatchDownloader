@@ -588,10 +588,10 @@ const xzLang = {
   _命名标记6: ['画师 id', 'アーティスト ID', 'Artist id', '畫師 id'],
   _命名标记7: ['宽度和高度', '幅と高さ', 'width and height', '寬度和高度'],
   _命名标记8: [
-    'bookmark-count，作品的收藏数。把它放在最前面就可以让下载后的文件按收藏数排序。',
+    'bookmark-count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
     'bookmark-count，作品のコレクション数のコレクション数は。',
     'bookmark-count, bookmarks number of works.',
-    'bookmark-count，作品的收藏數。將它放在最前面就可以讓下載後的檔案依收藏數排序。'
+    'bookmark-count，作品的收藏數。將它放在最前面可以讓檔案依收藏數排序。'
   ],
   _命名标记9: [
     '数字 id，如 44920385',
@@ -600,10 +600,10 @@ const xzLang = {
     '數字 id，如 44920385'
   ],
   _命名标记10: [
-    '图片在作品内的序号，如 0、1、2、3……',
-    '0、1、2、3など、作品の写真のシリアル番号。',
-    'The serial number of the picture in the work, such as 0, 1, 2, 3...',
-    '圖片在作品內的序號，如 0、1、2、3……'
+    '图片在作品内的序号，如 0、1、2 …… 每个作品都会重新计数。',
+    '0、1、2 など、作品の写真のシリアル番号。各ピースは再集計されます。',
+    'The serial number of the picture in the work, such as 0, 1, 2 ... Each work will be recounted.',
+    '圖片在作品內的序號，如 0、1、2 …… 每個作品都將重新計數。'
   ],
   _命名标记11: [
     '作品的 tag 列表，附带翻译后的 tag（如果有）',
@@ -630,10 +630,10 @@ const xzLang = {
     '作品類型，分为 illustration、manga、ugoira'
   ],
   _命名标记提醒: [
-    '您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}-{px}<br>* 在某些情况下，会有一些标记不可用。',
-    '複数のタグを使用することができ；異なるタグ間に別の文字を追加することができます。例：{id}-{userid}-{px}<br>* 場合によっては、一部のタグが利用できず。',
-    'You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}-{px}<br>* In some cases, some tags will not be available.',
-    '您可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{userid}-{px}<br>* 在某些情況下，會有一些標記不可用。'
+    '您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}<br>一定要包含 {id} 或者 {id_num}。<br>* 在某些情况下，会有一些标记不可用。',
+    '複数のタグを使用することができ；異なるタグ間に別の文字を追加することができます。例：{id}-{userid}<br>必ず{id}または{id_num}を含めてください。<br>* 場合によっては、一部のタグが利用できず。',
+    'You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}<br>Be sure to include {id} or {id_num}.<br>* In some cases, some tags will not be available.',
+    '您可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{userid}<br>一定要包含 {id} 或者 {id_num}。<br>* 在某些情況下，會有一些標記不可用。'
   ],
   _文件夹标记PUser: [
     '当前页面的画师名字',
@@ -707,10 +707,10 @@ const xzLang = {
     '檢視下載說明'
   ],
   _下载说明: [
-    "下载的文件保存在浏览器的下载目录里。<br>请不要在浏览器的下载选项里选中'总是询问每个文件的保存位置'。<br>如果作品标题或tag里含有不能做文件名的字符，会被替换成下划线_。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>如果文件名超长，将会被截断。<br>QQ群：499873152",
-    'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><b>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。</b><br>ファイル名が長いと裁断される。',
-    'The downloaded file is saved in the browser`s download directory. <b>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.</b><br>If the file name is too long, it will be truncated.',
-    "下載的檔案儲存在瀏覽器的下載目錄裡。<br>請不要在瀏覽器的下載選項裡選取'總是詢問每個檔案的儲存位置'。<br>如果作品標題或tag裡含有不能做檔名的字元，會被取代為下劃線_。<br><b>如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。</b><br>如果檔名過長，將會被截斷。<br>QQ群：499873152"
+    "下载的文件保存在浏览器的下载目录里。<br>请不要在浏览器的下载选项里选中'总是询问每个文件的保存位置'。<br>如果作品标题或tag里含有不能做文件名的字符，会被替换成下划线_。<br>如果文件名超长，将会被截断。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>QQ群：499873152",
+    'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br>ファイル名が長いと裁断される。<br><b>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。</b>',
+    'The downloaded file is saved in the browser`s download directory. <br>If the file name is too long, it will be truncated.<br><b>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.</b>',
+    "下載的檔案儲存在瀏覽器的下載目錄裡。<br>請不要在瀏覽器的下載選項裡選取'總是詢問每個檔案的儲存位置'。<br>如果作品標題或tag裡含有不能做檔名的字元，會被取代為下劃線_。<br>如果檔名過長，將會被截斷。<br><b>如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。</b><br>QQ群：499873152"
   ],
   _正在下载中: ['正在下载中', 'ダウンロード中', 'downloading', '正在下載'],
   _下载完毕: [
@@ -1055,6 +1055,6 @@ const xzLang = {
     '新增 {type} 标记，保存作品类型（illustration、manga、ugoira）。',
     '{type}マークを追加し,作品タイプ(illustration, manga, ugoira)を保存する。',
     'Add a {type} tag to save the type of work (illustration, manga, ugoira).',
-    '新增 {type} 標記，保存作品類型（illustration、manga、ugoira）。'
+    '新增 {type} 標記，儲存作品類型（illustration、manga、ugoira）。'
   ]
 }
