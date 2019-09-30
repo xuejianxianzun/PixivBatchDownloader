@@ -2,10 +2,6 @@
 
 [访问官网](https://pixiv.download/)
 
-# 公告
-
-本扩展已经被 Chrome webstore 下架。现在只能离线安装。
-
 # 简介：
 
 这是一个 Chrome 浏览器扩展程序，用于批量下载 Pixiv 上的图片。功能强大，支持多种页面类型。
