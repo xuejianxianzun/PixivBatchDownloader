@@ -46,7 +46,8 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
                 url: msg.fileUrl,
                 thisIndex: msg.thisIndex,
                 tabid: sender.tab.id
-            };
+            };            };
+
         });
     }
 });
