@@ -4355,10 +4355,6 @@ function getFileName(data: ImgInfo) {
     result = result.substr(index + 1, result.length)
   }
 
-  // 处理文件名长度 这里有个问题，因为无法预知浏览器下载文件夹的长度，所以只能预先设置一个预设值
-  const fileNameLength = 200 // 文件名的最大长度，超出将会截断。如果文件的保存路径过长可能会保存失败，此时可以把这个数值改小些。
-  result = result.substr(0, fileNameLength)
-
   // 添加后缀名
   result += '.' + data.ext
 
