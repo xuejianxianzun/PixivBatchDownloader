@@ -3069,6 +3069,7 @@ function pauseDownload() {
     if (downloadStop === true) {
         return false;
     }
+    chrome.runtime.sendMessage({ msg: 'id' });
     if (downloadPause === false) {
         // 如果正在下载中
         if (downloadStarted) {
@@ -3091,6 +3092,7 @@ function stopDownload() {
     if (imgInfo.length === 0) {
         return false;
     }
+    chrome.runtime.sendMessage({ msg: 'id' });
     if (downloadStop === false) {
         downloadStop = true;
         downloadStarted = false;
