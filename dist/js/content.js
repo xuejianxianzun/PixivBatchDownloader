@@ -3000,7 +3000,10 @@ function startDownload() {
     if (downloadStarted || imgInfo.length === 0) {
         return false;
     }
-    expireidId = lastId;
+    
+        expireidId = lastId;
+    
+    // 如果之前不是暂停状态，则需要重新下载
     if (!downloadPause) {
         resetDownloadPanel();
         // 初始化下载记录
