@@ -129,7 +129,6 @@ const safeFileName = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\
 // 安全的文件夹名，允许斜线 /
 const safeFolderName = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff\\:\?"<>\*\|~]/g);
 let langType; // 语言类型
-let lastId = 0;
 let expireidId = 0;
 // 处理和脚本版的冲突
 function checkConflict() {
@@ -3000,9 +2999,6 @@ function startDownload() {
     if (downloadStarted || imgInfo.length === 0) {
         return false;
     }
-    
-        expireidId = lastId;
-    
     // 如果之前不是暂停状态，则需要重新下载
     if (!downloadPause) {
         resetDownloadPanel();
@@ -3069,6 +3065,7 @@ function pauseDownload() {
     if (downloadStop === true) {
         return false;
     }
+    chrome.runtime.sendMessage({ msg: 'id' });
     if (downloadPause === false) {
         // 如果正在下载中
         if (downloadStarted) {
@@ -3091,6 +3088,7 @@ function stopDownload() {
     if (imgInfo.length === 0) {
         return false;
     }
+    chrome.runtime.sendMessage({ msg: 'id' });
     if (downloadStop === false) {
         downloadStop = true;
         downloadStarted = false;
@@ -3722,7 +3720,7 @@ chrome.runtime.onMessage.addListener(function (msg) {
         }
     }
      else if (msg.msg === 'id') {
-        id返回 = msg.id;
+        expireidId = msg.id;
     }
     else if (msg.msg === 'download_err') {
         console.log('download_err');
