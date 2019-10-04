@@ -41,6 +41,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
             saveAs: false
         }, id => {
             // 成功建立下载任务时，返回下载项的 id
+            chrome.tabs.sendMessage(sender.tab.id, { msg: 'id', id });
             donwloadListData[id] = {
                 no: msg.no,
                 url: msg.fileUrl,
@@ -57,8 +58,9 @@ chrome.downloads.onChanged.addListener(function (detail) {
         // 根据 detail.id 取出保存的信息
         const msg = 'downloaded';
         const data = donwloadListData[detail.id];
+        const id = detail.id;
         if (!data)
             return;
-        chrome.tabs.sendMessage(data.tabid, { msg, data });
+        chrome.tabs.sendMessage(data.tabid, { msg, data, id });
     }
 });

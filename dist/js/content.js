@@ -129,6 +129,8 @@ const safeFileName = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\
 // 安全的文件夹名，允许斜线 /
 const safeFolderName = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff\\:\?"<>\*\|~]/g);
 let langType; // 语言类型
+let lastId = 0;
+let expireidId = 0;
 // 处理和脚本版的冲突
 function checkConflict() {
     // 标注自己
@@ -2998,6 +3000,9 @@ function startDownload() {
     if (downloadStarted || imgInfo.length === 0) {
         return false;
     }
+    
+        expireidId = lastId;
+    
     // 如果之前不是暂停状态，则需要重新下载
     if (!downloadPause) {
         resetDownloadPanel();
@@ -3007,6 +3012,7 @@ function startDownload() {
         // 0 使用中
         // 1 已完成
         downloadedList = new Array(imgInfo.length).fill(-1);
+        downloaded = 0;
     }
     else {
         // 继续下载
@@ -3087,7 +3093,6 @@ function stopDownload() {
     }
     if (downloadStop === false) {
         downloadStop = true;
-        downloaded = 0;
         downloadStarted = false;
         quickDownload = false;
         changeTitle('■');
@@ -3716,6 +3721,9 @@ chrome.runtime.onMessage.addListener(function (msg) {
             centerWrapShow();
         }
     }
+     else if (msg.msg === 'id') {
+        id返回 = msg.id;
+    }
     else if (msg.msg === 'download_err') {
         console.log('download_err');
     }
@@ -3724,16 +3732,12 @@ chrome.runtime.onMessage.addListener(function (msg) {
 function afterDownload(msg) {
     // 释放 bloburl
     URL.revokeObjectURL(msg.data.url);
-    // 更改这个任务状态为“已完成”
-    downloadedList[msg.data.thisIndex] = 1;
-    // 计算已下载的数量
-    let down = 0;
-    for (let index = 0; index < downloadedList.length; index++) {
-        if (downloadedList[index] === 1) {
-            down++;
-        }
+    
+    if (msg.id <= expireidId) {
+         return false;
     }
-    downloaded = down;
+    downloaded ++;
+    
     // 显示进度信息
     document.querySelector('.downloaded').textContent = downloaded.toString();
     const progress1 = document.querySelector('.progress1');
