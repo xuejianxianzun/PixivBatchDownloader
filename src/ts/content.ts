@@ -3729,6 +3729,7 @@ function startDownload() {
     // 0 使用中
     // 1 已完成
     downloadedList = new Array(imgInfo.length).fill(-1)
+    downloaded = 0
   } else {
     // 继续下载
     // 把“使用中”的下载状态重置为“未使用”
@@ -3805,6 +3806,7 @@ function pauseDownload() {
       downloadPause = true // 发出暂停信号
       downloadStarted = false
       quickDownload = false
+      chrome.runtime.sendMessage({ msg: 'cancel_download' })
       changeTitle('║')
       changeDownStatus(`<span style="color:#f00">${xzlt('_已暂停')}</span>`)
       addOutputInfo(xzlt('_已暂停') + '<br><br>')
@@ -3825,9 +3827,9 @@ function stopDownload() {
 
   if (downloadStop === false) {
     downloadStop = true
-    downloaded = 0
     downloadStarted = false
     quickDownload = false
+    chrome.runtime.sendMessage({ msg: 'cancel_download' })
     changeTitle('■')
     changeDownStatus(`<span style="color:#f00">${xzlt('_已停止')}</span>`)
     addOutputInfo(xzlt('_已停止') + '<br><br>')
@@ -4183,11 +4185,6 @@ function getFileName(data: ImgInfo) {
   let result = xzForm.fileNameRule.value
   // 为空时使用 {id}
   result = result || '{id}' // 生成文件名
-
-  // 将序号部分格式化成 3 位数字。p 站投稿一次最多 200 张
-  // data.id = data.id.replace(/(\d.*p)(\d.*)/,  (...str)=> {
-  //  return str[1] + str[2].padStart(3, '0');
-  // });
 
   // 储存每个文件名标记的配置
   const cfg = [
@@ -4568,8 +4565,6 @@ chrome.runtime.onMessage.addListener(function(msg) {
     } else {
       centerWrapShow()
     }
-  } else if (msg.msg === 'download_err') {
-    console.log('download_err')
   }
 })
 
@@ -4579,14 +4574,7 @@ function afterDownload(msg: DownloadedMsg) {
   URL.revokeObjectURL(msg.data.url)
   // 更改这个任务状态为“已完成”
   downloadedList[msg.data.thisIndex] = 1
-  // 计算已下载的数量
-  let down = 0
-  for (let index = 0; index < downloadedList.length; index++) {
-    if (downloadedList[index] === 1) {
-      down++
-    }
-  }
-  downloaded = down
+  downloaded++
   // 显示进度信息
   document.querySelector('.downloaded')!.textContent = downloaded.toString()
   const progress1 = document.querySelector('.progress1')! as HTMLDivElement

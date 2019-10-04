@@ -442,13 +442,14 @@ interface DonwloadInfo {
 
 // 所有任务的信息
 interface DonwloadListData {
-  [key: number]: DonwloadInfo
+  [key: number]: DonwloadInfo | null
 }
 
 // 下载完成后返回的信息
 interface DownloadedMsg {
   msg: string
   data: DonwloadInfo
+  id: number
 }
 
 // 书签页面下方推荐作品的格式

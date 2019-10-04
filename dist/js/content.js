@@ -129,7 +129,6 @@ const safeFileName = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\
 // 安全的文件夹名，允许斜线 /
 const safeFolderName = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff\\:\?"<>\*\|~]/g);
 let langType; // 语言类型
-let expireidId = 0;
 // 处理和脚本版的冲突
 function checkConflict() {
     // 标注自己
@@ -3065,13 +3064,13 @@ function pauseDownload() {
     if (downloadStop === true) {
         return false;
     }
-    chrome.runtime.sendMessage({ msg: 'id' });
     if (downloadPause === false) {
         // 如果正在下载中
         if (downloadStarted) {
             downloadPause = true; // 发出暂停信号
             downloadStarted = false;
             quickDownload = false;
+            chrome.runtime.sendMessage({ msg: 'cancel_download' });
             changeTitle('║');
             changeDownStatus(`<span style="color:#f00">${xzlt('_已暂停')}</span>`);
             addOutputInfo(xzlt('_已暂停') + '<br><br>');
@@ -3088,11 +3087,11 @@ function stopDownload() {
     if (imgInfo.length === 0) {
         return false;
     }
-    chrome.runtime.sendMessage({ msg: 'id' });
     if (downloadStop === false) {
         downloadStop = true;
         downloadStarted = false;
         quickDownload = false;
+        chrome.runtime.sendMessage({ msg: 'cancel_download' });
         changeTitle('■');
         changeDownStatus(`<span style="color:#f00">${xzlt('_已停止')}</span>`);
         addOutputInfo(xzlt('_已停止') + '<br><br>');
@@ -3379,10 +3378,6 @@ function getFileName(data) {
     let result = xzForm.fileNameRule.value;
     // 为空时使用 {id}
     result = result || '{id}'; // 生成文件名
-    // 将序号部分格式化成 3 位数字。p 站投稿一次最多 200 张
-    // data.id = data.id.replace(/(\d.*p)(\d.*)/,  (...str)=> {
-    //  return str[1] + str[2].padStart(3, '0');
-    // });
     // 储存每个文件名标记的配置
     const cfg = [
         {
@@ -3719,23 +3714,14 @@ chrome.runtime.onMessage.addListener(function (msg) {
             centerWrapShow();
         }
     }
-     else if (msg.msg === 'id') {
-        expireidId = msg.id;
-    }
-    else if (msg.msg === 'download_err') {
-        console.log('download_err');
-    }
 });
 // 下载之后
 function afterDownload(msg) {
     // 释放 bloburl
     URL.revokeObjectURL(msg.data.url);
-    
-    if (msg.id <= expireidId) {
-         return false;
-    }
-    downloaded ++;
-    
+    // 更改这个任务状态为“已完成”
+    downloadedList[msg.data.thisIndex] = 1;
+    downloaded++;
     // 显示进度信息
     document.querySelector('.downloaded').textContent = downloaded.toString();
     const progress1 = document.querySelector('.progress1');

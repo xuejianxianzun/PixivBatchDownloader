@@ -30,9 +30,6 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 });
 // 因为下载完成的顺序和发送顺序可能不一致，所以需要存储任务的数据
 let donwloadListData = {};
-
-let lastId = 0;
-
 // 接收下载请求
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     if (msg.msg === 'send_download') {
@@ -44,7 +41,6 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
             saveAs: false
         }, id => {
             // 成功建立下载任务时，返回下载项的 id
-            lastId = id;
             donwloadListData[id] = {
                 no: msg.no,
                 url: msg.fileUrl,
@@ -53,8 +49,18 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
             };
         });
     }
-    else if (msg.msg === 'id') {
-        chrome.tabs.sendMessage(sender.tab.id, { msg: 'id', lastId });
+    else if (msg.msg === 'cancel_download') {
+        // 取消下载，并清空这条记录
+        const tabId = sender.tab.id;
+        const keys = Object.keys(donwloadListData);
+        for (const id of keys) {
+            const downId = parseInt(id);
+            if (donwloadListData[downId] &&
+                donwloadListData[downId].tabid === tabId) {
+                chrome.downloads.cancel(downId);
+                donwloadListData[downId] = null;
+            }
+        }
     }
 });
 // 监听下载事件
@@ -62,11 +68,14 @@ chrome.downloads.onChanged.addListener(function (detail) {
     // 下载完成后
     if (detail.state !== undefined && detail.state.current === 'complete') {
         // 根据 detail.id 取出保存的信息
-        const msg = 'downloaded';
         const data = donwloadListData[detail.id];
-        const id = detail.id;
-        if (!data)
+        if (!data) {
             return;
-        chrome.tabs.sendMessage(data.tabid, { msg, data, id });
+        }
+        // 返回信息
+        const msg = 'downloaded';
+        chrome.tabs.sendMessage(data.tabid, { msg, data });
+        // 清空这条记录
+        donwloadListData[detail.id] = null;
     }
 });
