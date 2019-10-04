@@ -30,6 +30,9 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 });
 // 因为下载完成的顺序和发送顺序可能不一致，所以需要存储任务的数据
 let donwloadListData = {};
+
+let lastId = 0;
+
 // 接收下载请求
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
     if (msg.msg === 'send_download') {
@@ -41,7 +44,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
             saveAs: false
         }, id => {
             // 成功建立下载任务时，返回下载项的 id
-            chrome.tabs.sendMessage(sender.tab.id, { msg: 'id', id });
+            lastId = id;
             donwloadListData[id] = {
                 no: msg.no,
                 url: msg.fileUrl,
@@ -49,6 +52,9 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
                 tabid: sender.tab.id
             };
         });
+    }
+    else if (msg.msg === 'id') {
+        chrome.tabs.sendMessage(sender.tab.id, { msg: 'id', lastId });
     }
 });
 // 监听下载事件
