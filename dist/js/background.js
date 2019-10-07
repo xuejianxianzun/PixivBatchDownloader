@@ -32,16 +32,25 @@ chrome.browserAction.onClicked.addListener(function (tab) {
 let donwloadListData = {};
 // 判断重复任务的数组
 let isExist = [];
+// 判断是否重复任务数组的重置标记，0 或 1
+let isExistMark = [];
 // 接收下载请求
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-    if (msg.msg === 'send_download' && isExist[sender.tab.id][msg.thisIndex] != 1) {
+	// 如果之前不是暂停状态，则需要重新下载，重置判断重复任务的数组
+	console.log(isExist)
+	if (msg.msg === 'send_download' && isExistMark[sender.tab.id] !== msg.isExistMark) {
+		isExist[sender.tab.id] = [];
+		isExistMark[sender.tab.id] = msg.isExistMark;
+	}
+	// 是否是重复任务
+    if (msg.msg === 'send_download' && isExist[sender.tab.id][msg.thisIndex] !== 1) {
 		// 收到任务立即标记
-		isExist[sender.tab.id][msg.thisIndex] = 1
+		isExist[sender.tab.id][msg.thisIndex] = 1;
         // 开始下载
         chrome.downloads.download({
             url: msg.fileUrl,
             filename: msg.fileName,
-            conflictAction: 'overwrite',
+            conflictAction: 'uniquify',
             saveAs: false
         }, id => {
             // 成功建立下载任务时，返回下载项的 id
@@ -52,10 +61,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
                 tabid: sender.tab.id
             };
         });
-    } else if (msg.msg === 'rest') {
-		// 开始抓取、停止、下载完毕则初始化任务状态
-		isExist[sender.tab.id] = []
-	}
+    }
 });
 // 监听下载事件
 chrome.downloads.onChanged.addListener(function (detail) {
