@@ -49,7 +49,7 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
         chrome.downloads.download({
             url: msg.fileUrl,
             filename: msg.fileName,
-            conflictAction: 'uniquify',
+            conflictAction: 'overwrite',
             saveAs: false
         }, id => {
             // 成功建立下载任务时，返回下载项的 id
