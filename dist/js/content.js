@@ -128,7 +128,6 @@ let ratioType = '0'; // 宽高比例的类型
 const safeFileName = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff\\\/:\?"<>\*\|~]/g);
 // 安全的文件夹名，允许斜线 /
 const safeFolderName = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff\\:\?"<>\*\|~]/g);
-let canStartTime = 0; // 在此时间之后允许点击开始下载按钮
 let langType; // 语言类型
 // 处理和脚本版的冲突
 function checkConflict() {
@@ -2993,22 +2992,10 @@ function addCenterWarps() {
     addDownloadPanel();
     downloadPanelEvents();
 }
-// 设置允许开始下载的时间
-function setStartTime() {
-    canStartTime = new Date().getTime() + 500; // 延迟一定时间后才允许继续下载
-}
 // 开始下载
 function startDownload() {
     // 如果正在下载中，或无图片，则不予处理
     if (downloadStarted || imgInfo.length === 0) {
-        return false;
-    }
-    // 检查是否到了可以下载的时间
-    const time1 = new Date().getTime() - canStartTime;
-    if (time1 < 0) {
-        setTimeout(() => {
-            startDownload();
-        }, Math.abs(time1));
         return false;
     }
     // 如果之前不是暂停状态，则需要重新下载
@@ -3083,8 +3070,6 @@ function pauseDownload() {
             downloadPause = true; // 发出暂停信号
             downloadStarted = false;
             quickDownload = false;
-            setStartTime();
-            chrome.runtime.sendMessage({ msg: 'cancel_download' });
             changeTitle('║');
             changeDownStatus(`<span style="color:#f00">${xzlt('_已暂停')}</span>`);
             addOutputInfo(xzlt('_已暂停') + '<br><br>');
@@ -3105,8 +3090,6 @@ function stopDownload() {
         downloadStop = true;
         downloadStarted = false;
         quickDownload = false;
-        setStartTime();
-        chrome.runtime.sendMessage({ msg: 'cancel_download' });
         changeTitle('■');
         changeDownStatus(`<span style="color:#f00">${xzlt('_已停止')}</span>`);
         addOutputInfo(xzlt('_已停止') + '<br><br>');
