@@ -3747,6 +3747,10 @@ function afterDownload(msg) {
     }
     else {
         // 如果没有全部下载完毕
+        // 如果任务已停止	
+        if (downloadPause || downloadStop) {	
+            return false;	
+        }
         // 如果已完成的数量 加上 线程中未完成的数量，仍然没有达到文件总数，继续添加任务
         if (downloaded + downloadThread - 1 < imgInfo.length) {
             downloadFile(msg.data.no);
