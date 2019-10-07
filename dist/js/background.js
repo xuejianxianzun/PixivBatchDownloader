@@ -37,7 +37,6 @@ let isExistMark = [];
 // 接收下载请求
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 	// 如果之前不是暂停状态，则需要重新下载，重置判断重复任务的数组
-	console.log(isExist)
 	if (msg.msg === 'send_download' && isExistMark[sender.tab.id] !== msg.isExistMark) {
 		isExist[sender.tab.id] = [];
 		isExistMark[sender.tab.id] = msg.isExistMark;
