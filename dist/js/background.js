@@ -69,6 +69,7 @@ chrome.downloads.onChanged.addListener(function (detail) {
 	// 首先判断是否是本批次的下载任务
     if (!data) {
         return;
+       
     } else if (detail.state !== undefined && detail.state.current === 'complete') {
         // 下载完成后
         // 返回信息
