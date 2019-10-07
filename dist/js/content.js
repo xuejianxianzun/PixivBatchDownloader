@@ -129,6 +129,7 @@ const safeFileName = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\
 // 安全的文件夹名，允许斜线 /
 const safeFolderName = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff\\:\?"<>\*\|~]/g);
 let langType; // 语言类型
+let isExistMark = 0; // 后台判断是否重复任务数组的重置标记，0 或 1
 // 处理和脚本版的冲突
 function checkConflict() {
     // 标注自己
@@ -1365,7 +1366,6 @@ function startGet() {
         window.alert(xzlt('_当前任务尚未完成1'));
         return false;
     }
-	chrome.runtime.sendMessage({ msg: 'rest' });
     insertOutputInfo();
     downloadPanelDisplay('none');
     // 设置要获取的作品数或页数
@@ -3009,6 +3009,8 @@ function startDownload() {
         // 1 已完成
         downloadedList = new Array(imgInfo.length).fill(-1);
         downloaded = 0;
+		// 切换重复任务判断标记，后台判断不一致则是需要重新下载
+		isExistMark === 0 ? isExistMark = 1 : isExistMark = 0;
     }
     else {
         // 继续下载
@@ -3087,7 +3089,6 @@ function stopDownload() {
     if (imgInfo.length === 0) {
         return false;
     }
-	chrome.runtime.sendMessage({ msg: 'rest' });
     if (downloadStop === false) {
         downloadStop = true;
         downloadStarted = false;
@@ -3699,7 +3700,8 @@ function browserDownload(blobUrl, fullFileName, downloadBarNo, thisIndex) {
         fileUrl: blobUrl,
         fileName: fullFileName,
         no: downloadBarNo,
-        thisIndex: thisIndex
+        thisIndex: thisIndex,
+		isExistMark: isExistMark
     });
 }
 // 监听后台发送的消息
@@ -3739,7 +3741,6 @@ function afterDownload(msg) {
         changeDownStatus(xzlt('_下载完毕'));
         addOutputInfo(xzlt('_下载完毕') + '<br><br>');
         changeTitle('√');
-        chrome.runtime.sendMessage({ msg: 'rest' });
     }
     else {
         // 如果没有全部下载完毕
