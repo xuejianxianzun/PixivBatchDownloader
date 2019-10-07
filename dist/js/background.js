@@ -36,15 +36,15 @@ let isExist = [];
 let isExistMark = [];
 // 接收下载请求
 chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-	// 如果之前不是暂停状态，则需要重新下载，重置判断重复任务的数组
-	if (msg.msg === 'send_download' && isExistMark[sender.tab.id] !== msg.isExistMark) {
-		isExist[sender.tab.id] = [];
-		isExistMark[sender.tab.id] = msg.isExistMark;
-	}
-	// 是否是重复任务
+    // 如果之前不是暂停状态，则需要重新下载，重置判断重复任务的数组
+    if (msg.msg === 'send_download' && isExistMark[sender.tab.id] !== msg.isExistMark) {
+        isExist[sender.tab.id] = [];
+        isExistMark[sender.tab.id] = msg.isExistMark;
+    }
+    // 是否是重复任务
     if (msg.msg === 'send_download' && isExist[sender.tab.id][msg.thisIndex] !== 1) {
-		// 收到任务立即标记
-		isExist[sender.tab.id][msg.thisIndex] = 1;
+        // 收到任务立即标记
+        isExist[sender.tab.id][msg.thisIndex] = 1;
         // 开始下载
         chrome.downloads.download({
             url: msg.fileUrl,
@@ -64,16 +64,20 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
 });
 // 监听下载事件
 chrome.downloads.onChanged.addListener(function (detail) {
-	// 根据 detail.id 取出保存的信息
+    // 根据 detail.id 取出保存的信息
     const data = donwloadListData[detail.id];
-	// 首先判断是否是本批次的下载任务
+    // 首先判断是否是本批次的下载任务
     if (!data) {
         return;
-       
     } else if (detail.state !== undefined && detail.state.current === 'complete') {
         // 下载完成后
         // 返回信息
         const msg = 'downloaded';
         chrome.tabs.sendMessage(data.tabid, { msg, data });
+    } else if (detail.error) {
+        // 下载错误的错误码，例如："FILE_NO_SPACE"
+        const errDetail = detail.error.current;
+        const msg = 'download_err';
+        chrome.tabs.sendMessage(data.tabid, { msg, errDetail, data });
     }
 });
