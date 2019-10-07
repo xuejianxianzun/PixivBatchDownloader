@@ -49,19 +49,6 @@ chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
             };
         });
     }
-    else if (msg.msg === 'cancel_download') {
-        // 取消下载，并清空这条记录
-        const tabId = sender.tab.id;
-        const keys = Object.keys(donwloadListData);
-        for (const id of keys) {
-            const downId = parseInt(id);
-            if (donwloadListData[downId] &&
-                donwloadListData[downId].tabid === tabId) {
-                chrome.downloads.cancel(downId);
-                donwloadListData[downId] = null;
-            }
-        }
-    }
 });
 // 监听下载事件
 chrome.downloads.onChanged.addListener(function (detail) {
@@ -75,7 +62,5 @@ chrome.downloads.onChanged.addListener(function (detail) {
         // 返回信息
         const msg = 'downloaded';
         chrome.tabs.sendMessage(data.tabid, { msg, data });
-        // 清空这条记录
-        donwloadListData[detail.id] = null;
     }
 });
