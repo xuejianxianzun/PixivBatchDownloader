@@ -3573,11 +3573,14 @@ function downloadFile(downloadBarNo) {
     const xhr = new XMLHttpRequest();
     xhr.open('GET', thisImgInfo.url, true);
     xhr.responseType = 'blob';
-	// 主动式暂停、停止响应方式
     document.querySelector('.pauseDownload')
-        .addEventListener('click', () => {xhr.abort();});
+        .addEventListener('click', () => {
+            xhr.abort();
+        });
     document.querySelector('.stopDownload')
-        .addEventListener('click', () => {xhr.abort();});
+        .addEventListener('click', () => {
+            xhr.abort();
+        });
     // 显示下载进度
     xhr.addEventListener('progress', function (e) {
         if (downloadPause || downloadStop) {
