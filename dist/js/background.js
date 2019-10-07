@@ -74,10 +74,5 @@ chrome.downloads.onChanged.addListener(function (detail) {
         // 返回信息
         const msg = 'downloaded';
         chrome.tabs.sendMessage(data.tabid, { msg, data });
-    } else if (detail.error) {
-        // 下载错误的错误码，例如："FILE_NO_SPACE"
-        const errDetail = detail.error.current;
-        const msg = 'download_err';
-        chrome.tabs.sendMessage(data.tabid, { msg, errDetail, data });
     }
 });
