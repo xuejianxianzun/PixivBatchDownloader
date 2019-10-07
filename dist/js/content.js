@@ -3009,8 +3009,8 @@ function startDownload() {
         // 1 已完成
         downloadedList = new Array(imgInfo.length).fill(-1);
         downloaded = 0;
-		// 切换重复任务判断标记，后台判断不一致则是需要重新下载
-		isExistMark === 0 ? isExistMark = 1 : isExistMark = 0;
+        // 切换重复任务判断标记，后台判断不一致则是需要重新下载
+        isExistMark === 0 ? isExistMark = 1 : isExistMark = 0;
     }
     else {
         // 继续下载
@@ -3704,7 +3704,7 @@ function browserDownload(blobUrl, fullFileName, downloadBarNo, thisIndex) {
         fileName: fullFileName,
         no: downloadBarNo,
         thisIndex: thisIndex,
-		isExistMark: isExistMark
+        isExistMark: isExistMark
     });
 }
 // 监听后台发送的消息
