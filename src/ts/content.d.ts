@@ -432,6 +432,15 @@ interface IsFullscreen {
   [key: string]: Element | null
 }
 
+// 前台向后台发送的任务信息
+interface SendInfo {
+  msg: string
+  fileUrl: string
+  fileName: string
+  no: number
+  thisIndex: number
+}
+
 // 浏览器下载时每个任务的信息
 interface DonwloadInfo {
   no: number

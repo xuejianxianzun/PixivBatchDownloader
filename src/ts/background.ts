@@ -37,7 +37,7 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 let donwloadListData: DonwloadListData = {}
 
 // 接收下载请求
-chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
+chrome.runtime.onMessage.addListener(function(msg:SendInfo, sender, sendResponse) {
   if (msg.msg === 'send_download') {
     // 开始下载
     chrome.downloads.download(

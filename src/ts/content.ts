@@ -4562,13 +4562,15 @@ function browserDownload(
 
   downloadTime = new Date().getTime()
 
-  chrome.runtime.sendMessage({
+  const sendInfo: SendInfo = {
     msg: 'send_download',
     fileUrl: blobUrl,
     fileName: fullFileName,
     no: downloadBarNo,
     thisIndex: thisIndex
-  })
+  }
+
+  chrome.runtime.sendMessage(sendInfo)
 }
 
 // 监听后台发送的消息
