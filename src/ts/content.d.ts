@@ -439,6 +439,7 @@ interface SendInfo {
   fileName: string
   no: number
   thisIndex: number
+  taskBatch: number
 }
 
 // 浏览器下载时每个任务的信息
@@ -446,7 +447,7 @@ interface DonwloadInfo {
   no: number
   url: string
   thisIndex: number
-  tabid: number
+  tabId: number
 }
 
 // 所有任务的信息

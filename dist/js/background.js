@@ -29,50 +29,52 @@ chrome.browserAction.onClicked.addListener(function (tab) {
     });
 });
 // 因为下载完成的顺序和发送顺序可能不一致，所以需要存储任务的数据
-let donwloadListData = {};
-// 判断重复任务的数组
-let isExist = [];
-// 判断是否重复任务数组的重置标记，0 或 1
-let isExistMark = [];
+let dlData = {};
+// 储存下载任务的索引，用来判断重复的任务
+let dlIndex = [];
+// 储存下载任务的批次编号，用来判断不同批次的下载
+let dlBatch = [];
 // 接收下载请求
-chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-    // 如果之前不是暂停状态，则需要重新下载，重置判断重复任务的数组
-    if (msg.msg === 'send_download' && isExistMark[sender.tab.id] !== msg.isExistMark) {
-        isExist[sender.tab.id] = [];
-        isExistMark[sender.tab.id] = msg.isExistMark;
-    }
-    // 是否是重复任务
-    if (msg.msg === 'send_download' && isExist[sender.tab.id][msg.thisIndex] !== 1) {
-        // 收到任务立即标记
-        isExist[sender.tab.id][msg.thisIndex] = 1;
-        // 开始下载
-        chrome.downloads.download({
-            url: msg.fileUrl,
-            filename: msg.fileName,
-            conflictAction: 'overwrite',
-            saveAs: false
-        }, id => {
-            // 成功建立下载任务时，返回下载项的 id
-            donwloadListData[id] = {
-                no: msg.no,
+chrome.runtime.onMessage.addListener(function (msg, sender) {
+    // 接收下载任务
+    if (msg.msg === 'send_download') {
+        const tabId = sender.tab.id;
+        // 如果开始了新一批的下载，重设批次编号，清空下载索引
+        if (dlBatch[tabId] !== msg.taskBatch) {
+            dlBatch[tabId] = msg.taskBatch;
+            dlIndex[tabId] = [];
+        }
+        // 检查任务是否重复，不重复则下载
+        if (dlIndex[tabId][msg.thisIndex] !== 1) {
+            // 储存该任务的索引
+            dlIndex[tabId][msg.thisIndex] = 1;
+            // 开始下载
+            chrome.downloads.download({
                 url: msg.fileUrl,
-                thisIndex: msg.thisIndex,
-                tabid: sender.tab.id
-            };
-        });
+                filename: msg.fileName,
+                conflictAction: 'overwrite',
+                saveAs: false
+            }, id => {
+                // id 是 Chrome 新建立的下载任务的 id
+                dlData[id] = {
+                    no: msg.no,
+                    url: msg.fileUrl,
+                    thisIndex: msg.thisIndex,
+                    tabId: tabId
+                };
+            });
+        }
     }
 });
 // 监听下载事件
 chrome.downloads.onChanged.addListener(function (detail) {
     // 根据 detail.id 取出保存的信息
-    const data = donwloadListData[detail.id];
-    // 首先判断是否是本批次的下载任务
-    if (!data) {
-        return;
-    } else if (detail.state !== undefined && detail.state.current === 'complete') {
-        // 下载完成后
-        // 返回信息
+    const data = dlData[detail.id];
+    if (data && detail.state && detail.state.current === 'complete') {
+        // 下载完成后返回信息
         const msg = 'downloaded';
-        chrome.tabs.sendMessage(data.tabid, { msg, data });
+        chrome.tabs.sendMessage(data.tabId, { msg, data });
+        // 清除这个任务的信息
+        dlData[detail.id] = null;
     }
 });

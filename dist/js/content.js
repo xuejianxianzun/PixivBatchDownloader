@@ -96,6 +96,8 @@ let rightButton = document.createElement('div'); // 右侧按钮
 let centerPanel = document.createElement('div'); // 中间设置面板
 let centerBtnWrap; // 中间插入按钮的区域
 let downloadBarList; // 下载队列的dom元素
+let pauseBtn; // 暂停下载按钮
+let stopBtn; // 停止下载按钮
 let downloadThread; // 下载线程
 let downloadStarted = false; // 下载是否已经开始
 let downloaded = 0; // 已下载的文件
@@ -128,8 +130,8 @@ let ratioType = '0'; // 宽高比例的类型
 const safeFileName = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff\\\/:\?"<>\*\|~]/g);
 // 安全的文件夹名，允许斜线 /
 const safeFolderName = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff\\:\?"<>\*\|~]/g);
+let taskBatch = 0; // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
 let langType; // 语言类型
-let isExistMark = 0; // 后台判断是否重复任务数组的重置标记，0 或 1
 // 处理和脚本版的冲突
 function checkConflict() {
     // 标注自己
@@ -2733,10 +2735,10 @@ function addDownloadPanel() {
       <p>
       <span class="xztip settingNameStyle1" data-tip="${xzlt('_设置文件夹名的提示')}">${xzlt('_设置文件名')}<span class="gray1"> ? </span></span>
       <input type="text" name="fileNameRule" class="setinput_style1 xz_blue fileNameRule" value="{id}">
-      &nbsp;&nbsp;
+      &nbsp;
       <select name="pageInfoSelect">
       </select>
-      &nbsp;&nbsp;
+      &nbsp;
       <select name="fileNameSelect">
         <option value="default">…</option>
         <option value="{id}">{id}</option>
@@ -2753,7 +2755,7 @@ function addDownloadPanel() {
         <option value="{id_num}">{id_num}</option>
         <option value="{p_num}">{p_num}</option>
         </select>
-      &nbsp;&nbsp;&nbsp;&nbsp;
+      &nbsp;&nbsp;
       <span class="gray1 showFileNameTip">？</span>
       </p>
       <p class="fileNameTip tip">
@@ -2821,10 +2823,10 @@ function addDownloadPanel() {
       </form>
       <div class="download_panel">
       <div class="centerWrap_btns">
-      <div class="startDownload" style="background:${xzBlue};"> ${xzlt('_下载按钮1')}</div>
-      <div class="pauseDownload" style="background:#e49d00;"> ${xzlt('_下载按钮2')}</div>
-      <div class="stopDownload" style="background:${xzRed};"> ${xzlt('_下载按钮3')}</div>
-      <div class="copyUrl" style="background:${xzGreen};"> ${xzlt('_下载按钮4')}</div>
+      <button class="startDownload" type="button" style="background:${xzBlue};"> ${xzlt('_下载按钮1')}</button>
+      <button class="pauseDownload" type="button" style="background:#e49d00;"> ${xzlt('_下载按钮2')}</button>
+      <button class="stopDownload" type="button" style="background:${xzRed};"> ${xzlt('_下载按钮3')}</button>
+      <button class="copyUrl" type="button" style="background:${xzGreen};"> ${xzlt('_下载按钮4')}</button>
       </div>
       <div class="centerWrap_down_tips">
       <p>
@@ -2864,9 +2866,11 @@ function addDownloadPanel() {
       <p class="downTip tip"> ${xzlt('_下载说明')}</p>
       </div>
       `;
-    centerBtnWrap = document.querySelector('.centerWrap_btns_free');
     centerPanel = document.querySelector('.centerWrap');
+    centerBtnWrap = document.querySelector('.centerWrap_btns_free');
     xzForm = document.querySelector('.xzForm');
+    pauseBtn = document.querySelector('.pauseDownload');
+    stopBtn = document.querySelector('.stopDownload');
 }
 // 显示提示
 function bindXzTip() {
@@ -2907,8 +2911,9 @@ function insertValueToInput(form, to) {
     });
 }
 // 向中间面板添加按钮
-function addCenterButton(tag = 'div', bg = xzBlue, text = '', attr = []) {
-    const e = document.createElement(tag);
+function addCenterButton(bg = xzBlue, text = '', attr = []) {
+    const e = document.createElement('button');
+    e.type = 'button';
     e.style.backgroundColor = bg;
     e.textContent = text;
     for (const [key, value] of attr) {
@@ -2957,11 +2962,11 @@ function downloadPanelEvents() {
         startDownload();
     });
     // 暂停下载按钮
-    document.querySelector('.pauseDownload').addEventListener('click', () => {
+    pauseBtn.addEventListener('click', () => {
         pauseDownload();
     });
     // 停止下载按钮
-    document.querySelector('.stopDownload').addEventListener('click', () => {
+    stopBtn.addEventListener('click', () => {
         stopDownload();
     });
     // 给有提示的元素绑定事件
@@ -3009,8 +3014,7 @@ function startDownload() {
         // 1 已完成
         downloadedList = new Array(imgInfo.length).fill(-1);
         downloaded = 0;
-        // 切换重复任务判断标记，后台判断不一致则是需要重新下载
-        isExistMark === 0 ? isExistMark = 1 : isExistMark = 0;
+        taskBatch++; // 修改本次下载任务的标记
     }
     else {
         // 继续下载
@@ -3287,7 +3291,7 @@ function hideNotNeedOption(no) {
 }
 // 清除多图作品
 function clearMultiple() {
-    addCenterButton('div', xzRed, xzlt('_清除多图作品'), [
+    addCenterButton(xzRed, xzlt('_清除多图作品'), [
         ['title', xzlt('_清除多图作品Title')]
     ]).addEventListener('click', () => {
         centerWrapHide();
@@ -3302,7 +3306,7 @@ function clearMultiple() {
 }
 // 清除动图作品
 function clearUgoku() {
-    addCenterButton('div', xzRed, xzlt('_清除动图作品'), [
+    addCenterButton(xzRed, xzlt('_清除动图作品'), [
         ['title', xzlt('_清除动图作品Title')]
     ]).addEventListener('click', () => {
         centerWrapHide();
@@ -3318,7 +3322,7 @@ function clearUgoku() {
 // 手动删除作品
 function manuallyDelete() {
     let delWork = false; // 是否处于删除作品状态
-    addCenterButton('div', xzRed, xzlt('_手动删除作品'), [
+    addCenterButton(xzRed, xzlt('_手动删除作品'), [
         ['title', xzlt('_手动删除作品Title')]
     ]).addEventListener('click', function () {
         delWork = !delWork;
@@ -3573,14 +3577,13 @@ function downloadFile(downloadBarNo) {
     const xhr = new XMLHttpRequest();
     xhr.open('GET', thisImgInfo.url, true);
     xhr.responseType = 'blob';
-    document.querySelector('.pauseDownload')
-        .addEventListener('click', () => {
+    // 中止下载
+    const btns = [pauseBtn, stopBtn];
+    btns.forEach(el => {
+        el.addEventListener('click', () => {
             xhr.abort();
         });
-    document.querySelector('.stopDownload')
-        .addEventListener('click', () => {
-            xhr.abort();
-        });
+    });
     // 显示下载进度
     xhr.addEventListener('progress', function (e) {
         if (downloadPause || downloadStop) {
@@ -3623,6 +3626,10 @@ function downloadFile(downloadBarNo) {
             thisImgInfo.ugoiraInfo.frames) {
             // 将压缩包里的图片转换为 base64 字符串
             const imgFile = await readZip(xhr.response, thisImgInfo.ugoiraInfo);
+            // 在转换之前检查停止状态，避免进行无用的转换，占用资源
+            if (downloadPause || downloadStop) {
+                return false;
+            }
             // 如果需要转换成视频
             if (thisImgInfo.ext === 'webm') {
                 // 创建视频编码器
@@ -3698,14 +3705,15 @@ function browserDownload(blobUrl, fullFileName, downloadBarNo, thisIndex) {
         return false;
     }
     downloadTime = new Date().getTime();
-    chrome.runtime.sendMessage({
+    const sendInfo = {
         msg: 'send_download',
         fileUrl: blobUrl,
         fileName: fullFileName,
         no: downloadBarNo,
         thisIndex: thisIndex,
-        isExistMark: isExistMark
-    });
+        taskBatch: taskBatch
+    };
+    chrome.runtime.sendMessage(sendInfo);
 }
 // 监听后台发送的消息
 chrome.runtime.onMessage.addListener(function (msg) {
@@ -3747,9 +3755,9 @@ function afterDownload(msg) {
     }
     else {
         // 如果没有全部下载完毕
-        // 如果任务已停止	
-        if (downloadPause || downloadStop) {	
-            return false;	
+        // 如果任务已停止
+        if (downloadPause || downloadStop) {
+            return false;
         }
         // 如果已完成的数量 加上 线程中未完成的数量，仍然没有达到文件总数，继续添加任务
         if (downloaded + downloadThread - 1 < imgInfo.length) {
@@ -3965,15 +3973,15 @@ function pageType1() {
         quickDownload = true;
         startGet();
     }, false);
-    addCenterButton('div', xzBlue, xzlt('_从本页开始抓取new')).addEventListener('click', () => {
+    addCenterButton(xzBlue, xzlt('_从本页开始抓取new')).addEventListener('click', () => {
         downDirection = -1;
         startGet();
     });
-    addCenterButton('div', xzBlue, xzlt('_从本页开始抓取old')).addEventListener('click', () => {
+    addCenterButton(xzBlue, xzlt('_从本页开始抓取old')).addEventListener('click', () => {
         downDirection = 1;
         startGet();
     });
-    const downXgBtn = addCenterButton('div', xzBlue, xzlt('_抓取相关作品'));
+    const downXgBtn = addCenterButton(xzBlue, xzlt('_抓取相关作品'));
     downXgBtn.addEventListener('click', () => {
         downRelated = true;
         startGet();
@@ -3983,7 +3991,7 @@ function pageType1() {
 }
 // 当 pageType 为 2 时执行
 function pageType2() {
-    addCenterButton('div', xzBlue, xzlt('_开始抓取'), [
+    addCenterButton(xzBlue, xzlt('_开始抓取'), [
         ['title', xzlt('_开始抓取') + xzlt('_默认下载多页')]
     ]).addEventListener('click', startGet); // 在书签页面隐藏只要书签选项
     if (locUrl.includes('bookmark.php')) {
@@ -3997,7 +4005,7 @@ function pageType2() {
     // 添加下载推荐作品的按钮，只在旧版收藏页面使用
     const columnTitle = document.querySelector('.column-title');
     if (columnTitle) {
-        const downRecmdBtn = addCenterButton('div', xzBlue, xzlt('_抓取推荐作品'), [
+        const downRecmdBtn = addCenterButton(xzBlue, xzlt('_抓取推荐作品'), [
             ['title', xzlt('_抓取推荐作品Title')]
         ]);
         downRecmdBtn.addEventListener('click', () => {
@@ -4007,7 +4015,7 @@ function pageType2() {
     }
     // 如果存在 token，则添加“添加 tag”按钮
     if (getToken()) {
-        const addTagBtn = addCenterButton('div', xzGreen, xzlt('_添加tag'), [
+        const addTagBtn = addCenterButton(xzGreen, xzlt('_添加tag'), [
             ['title', xzlt('_添加tag')]
         ]);
         addTagBtn.id = 'add_tag_btn';
@@ -4090,7 +4098,9 @@ function allPageType() {
             }
         });
         let idValue = [];
-        const downIdButton = addCenterButton('div', xzBlue, xzlt('_输入id进行抓取'), [['id', 'down_id_button']]);
+        const downIdButton = addCenterButton(xzBlue, xzlt('_输入id进行抓取'), [
+            ['id', 'down_id_button']
+        ]);
         downIdButton.dataset.ready = 'false'; // 是否准备好了
         downIdButton.addEventListener('click', () => {
             illustUrlList = []; // 每次开始下载前重置作品的url列表
@@ -4235,7 +4245,7 @@ function allPageType() {
             return (result += `<a href="https://www.pixiv.net/search.php?s_mode=s_tag${searchMode}${orderMode}&word=${nowTag}%20${cur}">${cur}</a>`);
         }, '');
         // 添加下载面板的按钮
-        addCenterButton('div', xzGreen, xzlt('_开始筛选'), [
+        addCenterButton(xzGreen, xzlt('_开始筛选'), [
             ['title', xzlt('_开始筛选Title')]
         ]).addEventListener('click', () => {
             if (interrupt) {
@@ -4243,7 +4253,7 @@ function allPageType() {
             }
             startGet();
         }, false);
-        addCenterButton('div', xzGreen, xzlt('_在结果中筛选'), [
+        addCenterButton(xzGreen, xzlt('_在结果中筛选'), [
             ['title', xzlt('_在结果中筛选Title')]
         ]).addEventListener('click', () => {
             const allPicArea = document.querySelectorAll(tagSearchListSelector);
@@ -4272,7 +4282,7 @@ function allPageType() {
             outputNowResult();
             centerWrapHide();
         }, false);
-        addCenterButton('div', xzRed, xzlt('_中断当前任务'), [
+        addCenterButton(xzRed, xzlt('_中断当前任务'), [
             ['title', xzlt('_中断当前任务Title')]
         ]).addEventListener('click', () => {
             interrupt = true;
@@ -4285,14 +4295,14 @@ function allPageType() {
         clearMultiple();
         clearUgoku();
         manuallyDelete();
-        addCenterButton('div', xzBlue, xzlt('_抓取当前作品'), [
+        addCenterButton(xzBlue, xzlt('_抓取当前作品'), [
             ['title', xzlt('_抓取当前作品Title')]
         ]).addEventListener('click', getListPage2);
     }
     else if (pageType === 6) {
         // 6. ranking_area 地区排行榜
         // https://www.pixiv.net/ranking_area.php?type=detail&no=0
-        addCenterButton('div', xzBlue, xzlt('_抓取本页作品'), [
+        addCenterButton(xzBlue, xzlt('_抓取本页作品'), [
             ['title', xzlt('_抓取本页作品Title')]
         ]).addEventListener('click', startGet);
     }
@@ -4321,12 +4331,12 @@ function allPageType() {
             // 普通模式，这里的10也是最大值。如果实际没有10页，则在检测到404页面的时候停止抓取下一页
             partNumber = 10;
         }
-        addCenterButton('div', xzBlue, xzlt('_抓取本排行榜作品'), [
+        addCenterButton(xzBlue, xzlt('_抓取本排行榜作品'), [
             ['title', xzlt('_抓取本排行榜作品Title')]
         ]).addEventListener('click', startGet);
         // 在“今日”页面，添加下载首次登场的作品的按钮
         if (locUrl.includes('mode=daily')) {
-            addCenterButton('div', xzBlue, xzlt('_抓取首次登场的作品'), [
+            addCenterButton(xzBlue, xzlt('_抓取首次登场的作品'), [
                 ['title', xzlt('_抓取首次登场的作品Title')]
             ]).addEventListener('click', () => {
                 debut = true;
@@ -4341,7 +4351,7 @@ function allPageType() {
         const type = typeA.dataset.gtmLabel;
         if (type === 'illustration' || type === 'manga' || type === 'cosplay') {
             // 在插画、漫画、cosplay类型的页面上创建下载功能
-            addCenterButton('div', xzBlue, xzlt('_抓取该页面的图片')).addEventListener('click', () => {
+            addCenterButton(xzBlue, xzlt('_抓取该页面的图片')).addEventListener('click', () => {
                 resetResult();
                 insertOutputInfo();
                 changeTitle('↑');
@@ -4398,7 +4408,7 @@ function allPageType() {
     else if (pageType === 9) {
         // 9. bookmark_add
         // https://www.pixiv.net/bookmark_detail.php?illust_id=63148723
-        addCenterButton('div', xzBlue, xzlt('_抓取相似图片'), [
+        addCenterButton(xzBlue, xzlt('_抓取相似图片'), [
             ['title', xzlt('_抓取相似图片')]
         ]).addEventListener('click', () => {
             setRequsetNum();
@@ -4426,7 +4436,7 @@ function allPageType() {
         }
         setMaxNum(); // 页数上限
         getNowPageNo();
-        addCenterButton('div', xzBlue, xzlt('_开始抓取'), [
+        addCenterButton(xzBlue, xzlt('_开始抓取'), [
             ['title', xzlt('_下载大家的新作品')]
         ]).addEventListener('click', startGet);
     }
@@ -4434,7 +4444,7 @@ function allPageType() {
         // 11.discover 发现
         // https://www.pixiv.net/discovery
         tagSearchListSelector = '._2RNjBox'; // 发现页面的作品列表
-        addCenterButton('div', xzBlue, xzlt('_抓取当前作品'), [
+        addCenterButton(xzBlue, xzlt('_抓取当前作品'), [
             ['title', xzlt('_抓取当前作品Title')]
         ]).addEventListener('click', startGet);
         clearMultiple();

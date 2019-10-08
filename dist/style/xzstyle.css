@@ -234,8 +234,9 @@ aside .sc-LzLtN {
   display: flex;
   flex-wrap: wrap;
 }
-.centerWrap_btns div {
+.centerWrap_btns > * {
   box-sizing: border-box;
+  border: none;
   width: 140px;
   margin-right: 10px;
   padding: 8px 10px;
@@ -250,7 +251,7 @@ aside .sc-LzLtN {
   vertical-align: top;
 }
 .XZTipEl,
-.centerWrap_btns div,
+.centerWrap_btns > *,
 .progressTip {
   color: #fff;
   font-size: 14px;
