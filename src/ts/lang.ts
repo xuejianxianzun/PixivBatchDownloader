@@ -49,10 +49,10 @@ const xzLang = {
     '您可在下載前設定要排除的tag，這樣在下載時將不會下載含有這些tag的作品。不區分大小寫；如需排除多個tag，請使用英文逗號分隔。請注意要排除的tag的優先等級大於要包含的tag的優先等級。'
   ],
   _设置了排除tag之后的提示: [
-    '本次任务设置了排除的tag:',
-    'このタスクはタグを除外します：',
-    'This task excludes tag:',
-    '本次工作設定了排除的tag:'
+    '排除 tag：',
+    'タグを除外：',
+    'Excludes tag: ',
+    '排除 tag：'
   ],
   _必须含有tag: [
     '必须含有 tag&nbsp;',
@@ -67,10 +67,10 @@ const xzLang = {
     '您可在下載前設定作品裡必須包含的tag，不區分大小寫；如需包含多個tag，請使用英文逗號分隔。'
   ],
   _设置了必须tag之后的提示: [
-    '本次任务设置了必须的tag：',
-    'このタスクは、必要なタグを設定します：',
-    'This task set the necessary tag: ',
-    '本次工作設定了必須的tag：'
+    '包含 tag：',
+    'タグを含める：',
+    'Include tag: ',
+    '包含 tag：'
   ],
   _筛选宽高的按钮文字: [
     '设置宽高条件',
@@ -101,10 +101,10 @@ const xzLang = {
   _竖图: ['竖图', '縦方向の絵', 'Vertical picture', '豎圖'],
   _输入宽高比: ['宽高比 >=', '縦横比 >=', 'Aspect ratio >=', '寬高比 >='],
   _设置了宽高比之后的提示: [
-    '本次任务设置了宽高比：{}',
-    'このタスクは縦横比を設定します：{}',
-    'This task sets the aspect ratio: {}',
-    '本次工作設定了寬高比：{}'
+    '宽高比：{}',
+    'アスペクト比：{}',
+    'Aspect ratio: {}',
+    '寬高比：{}'
   ],
   _宽高比必须是数字: [
     '宽高比必须是数字',
@@ -125,14 +125,14 @@ const xzLang = {
     '本次輸入的數值無效'
   ],
   _设置了筛选宽高之后的提示文字p1: [
-    '本次任务设置了过滤宽高条件:宽度>=',
-    'この作業では、フィルターの幅と高さの条件を設定します。幅≥',
-    'This task sets the filter width and height conditions. Width ≥',
-    '本次工作設定了篩選寬高條件:寬度>='
+    '宽度 >= ',
+    '幅 >= ',
+    'Width >= ',
+    '寬度 >= '
   ],
   _或者: [' 或者 ', ' または ', ' or ', ' 或是 '],
   _并且: [' 并且 ', ' そして ', ' and ', ' 並且 '],
-  _高度设置: ['高度>=', '高さ≥', 'height ≥', '高度>='],
+  _高度设置: ['高度 >= ', '高さ >= ', 'height >= ', '高度 >= '],
   _个数: [
     '设置作品数量',
     '作品数を設定する',
@@ -176,10 +176,10 @@ const xzLang = {
     '請輸入一個數字，如果作品的收藏數小於這個數字，作品不會被下載。'
   ],
   _设置了筛选收藏数之后的提示文字: [
-    '本次任务设置了收藏数条件:收藏数>=',
-    'このタスクは、お気に入りの数を設定します。条件：お気に入りの数≥',
-    'This task sets the number of bookmarks condition: number of bookmarks ≥',
-    '本次工作設定了收藏數條件:收藏數>='
+    '收藏数 >= ',
+    'お気に入りの数 >= ',
+    'Number of bookmarks >= ',
+    '收藏數 >= '
   ],
   _本次任务已全部完成: [
     '本次任务已全部完成。',
@@ -193,23 +193,29 @@ const xzLang = {
     'The current task has not yet completed, please wait.',
     '目前工作尚未完成，請等到提示完成之後再設定新的工作。'
   ],
+  _本次任务条件: [
+    '本次任务条件: ',
+    'このタスク条件：',
+    'This task condition: ',
+    '本次工作條件：'
+  ],
   _checkWantPageRule1Arg2: [
-    '参数不合法，本次操作已取消。<br>',
-    'パラメータは有効ではありません。この操作はキャンセルされました。<br>',
-    'Parameter is not legal, this operation has been canceled.<br>',
-    '參數不合法，本次動作已取消。<br>'
+    '参数不合法，本次操作已取消。',
+    'パラメータは有効ではありません。この操作はキャンセルされました。',
+    'Parameter is not legal, this operation has been canceled.',
+    '參數不合法，本次動作已取消。'
   ],
   _checkWantPageRule1Arg3: [
-    '任务开始<br>本次任务条件: 从本页开始下载-num-个作品',
-    'タスクが開始されます。<br>このタスク条件：このページから-num-枚の作品をダウンロード。',
-    'Task starts. <br>This task condition: Download -num- works from this page.',
-    '工作開始<br>本次工作條件: 從本頁開始下載-num-個作品'
+    '从本页开始下载-num-个作品',
+    'このページから-num-枚の作品をダウンロード。',
+    'Download -num- works from this page.',
+    '從本頁開始下載-num-個作品'
   ],
   _checkWantPageRule1Arg4: [
-    '任务开始<br>本次任务条件: 向下获取所有作品',
-    'タスクが開始されます。<br>このタスク条件：このページからすべての作品をダウンロードする。',
-    'Task starts. <br>This task condition: download all the work from this page.',
-    '工作開始<br>本次工作條件: 向下取得所有作品'
+    '向下获取所有作品',
+    'このページからすべての作品をダウンロードする。',
+    'download all the work from this page.',
+    '向下取得所有作品'
   ],
   _checkWantPageRule1Arg5: [
     '从本页开始下载<br>如果不限制下载的页数，请不要修改此默认值。<br>如果要限制下载的页数，请输入从1开始的数字，1为仅下载本页。',
@@ -224,40 +230,40 @@ const xzLang = {
     '從本頁開始下載<br>如果要限制下載的頁數，請輸入從1開始的數字，1為僅下載本頁。'
   ],
   _checkWantPageRule1Arg6: [
-    '任务开始<br>本次任务条件: 从本页开始下载-num-页',
-    'タスクが開始されます。<br>このタスク条件：現在のページから-num-ページ',
-    'Task starts. <br>This task condition: download -num- pages from the current page',
-    '工作開始<br>本次工作條件: 從本頁開始下載-num-頁'
+    '从本页开始下载-num-页',
+    '現在のページから-num-ページ',
+    'download -num- pages from the current page',
+    '從本頁開始下載-num-頁'
   ],
   _checkWantPageRule1Arg7: [
-    '任务开始<br>本次任务条件: 下载所有页面',
-    'タスクが開始されます。<br>このタスク条件：すべてのページをダウンロード',
-    'Task starts. <br>This task condition: download all pages',
-    '工作開始<br>本次工作條件: 下載所有頁面'
+    '下载所有页面',
+    'すべてのページをダウンロード',
+    'download all pages',
+    '下載所有頁面'
   ],
   _checkWantPageRule1Arg9: [
-    '任务开始<br>本次任务条件: 下载 -num- 个相关作品',
-    'タスクが開始されます。<br>このタスク条件：関連作品 -num- 点をダウンロードする。',
-    'Task starts. <br>This task condition: download -num- related works.',
-    '工作開始<br>本次工作條件: 下載 -num- 個相關作品'
+    '下载 -num- 个相关作品',
+    '関連作品 -num- 点をダウンロードする。',
+    'download -num- related works.',
+    '下載 -num- 個相關作品'
   ],
   _checkWantPageRule1Arg10: [
-    '任务开始<br>本次任务条件: 下载所有相关作品',
-    'タスクが開始されます。<br>このタスク条件：関連作品をすべてダウンロード。',
-    'Task starts. <br>This task condition: download all related works.',
-    '工作開始<br>本次工作條件: 下載所有相關作品'
+    '下载所有相关作品',
+    '関連作品をすべてダウンロード。',
+    'download all related works.',
+    '下載所有相關作品'
   ],
   _checkWantPageRule1Arg11: [
-    '任务开始<br>本次任务条件: 下载推荐作品',
-    'タスクが開始されます。<br>このタスク条件：お勧め作品をダウンロードする',
-    'Task starts. <br>This task condition: download recommend works',
-    '工作開始<br>本次工作條件: 下載推薦作品'
+    '下载推荐作品',
+    'お勧め作品をダウンロードする',
+    'download recommend works',
+    '下載推薦作品'
   ],
   _checkWantPageRule1Arg12: [
-    '任务开始<br>本次任务条件: 下载排行榜前 -num- 个作品',
-    'タスクが開始されます。<br>このタスク条件：リーダーボードの上位 -num- 作品をダウンロードする。',
-    'Task starts. <br>This task condition: download the top -num- works in the ranking list',
-    '工作開始<br>本次工作條件: 下載排行榜前 -num- 個作品'
+    '下载排行榜前 -num- 个作品',
+    'リーダーボードの上位 -num- 作品をダウンロードする。',
+    'download the top -num- works in the ranking list',
+    '下載排行榜前 -num- 個作品'
   ],
   _请输入最低收藏数和要抓取的页数: [
     '请输入最低收藏数和要抓取的页数，用英文逗号分开。\n类似于下面的形式: \n1000,1000',
@@ -270,12 +276,6 @@ const xzLang = {
     'パラメータが有効ではありません。後でやり直してください。',
     'Parameter is not legal, please try again later.',
     '參數不合法，請稍後重試。'
-  ],
-  _tag搜索任务开始: [
-    '任务开始<br>本次任务条件: 收藏数不低于{}，向下抓取{}页',
-    'タスクが開始されます。<br>このタスク条件：ブックマークの数は{}ページ以上で、{}ページがクロールされます。',
-    'Task starts. <br>This task condition: the number of bookmarks is not less than {}, {} pages down to crawl.',
-    '工作開始<br>本次工作條件: 收藏數不低於{}，向下擷取{}頁'
   ],
   _wantPage弹出框文字PageType10: [
     '您想要下载多少页？请输入数字。\r\n当前模式下，列表页的页数最多只有',
@@ -296,10 +296,10 @@ const xzLang = {
     '下載每個作品的前 {} 張圖片'
   ],
   _任务开始1: [
-    '任务开始<br>本次任务条件: 从本页开始下载{}页',
-    'タスクが開始されます。<br>このタスク条件：このページから{}ページをダウンロードする',
-    'Task starts. <br>This task condition: download {} pages from this page',
-    '工作開始<br>本次工作條件: 從本頁開始下載{}頁'
+    '从本页开始下载{}页',
+    'このページから{}ページをダウンロードする',
+    'download {} pages from this page',
+    '從本頁開始下載{}頁'
   ],
   _任务开始0: [
     '任务开始',
@@ -326,10 +326,10 @@ const xzLang = {
     '由於作品類型的設定有誤，本次工作已取消。'
   ],
   _checkNotdownTypeResult3Html: [
-    '本次任务设置了排除作品类型:',
-    'このダウンロードでは、このタイプの作品は除外されます：',
-    'This task excludes these types of works:',
-    '本次工作設定了排除作品類型:'
+    '排除作品类型：',
+    'これらのタイプの作品を除外します：',
+    'Excludes these types of works: ',
+    '排除作品類型：'
   ],
   _单图: ['单图 ', '1枚の作品', 'one images', '單圖 '],
   _多图: ['多图 ', '2枚以上の作品', 'multiple images', '多圖 '],
@@ -357,23 +357,29 @@ const xzLang = {
     'Has been crawling {} / {} pages. The current page number is page {}',
     '已擷取本次工作第{}/{}頁，目前載入到第{}頁'
   ],
+  _当前作品张数: [
+    '当前有{}张作品。',
+    '今は{}枚の作品があります。',
+    'There are now {} works.',
+    '目前有{}張作品。'
+  ],
   _tag搜索页任务完成1: [
-    '本次任务完成。当前有{}张作品。',
-    'この作業は完了です。 今は{}枚の作品があります。',
-    'This task is completed. There are now {} works.',
-    '本次工作完成。目前有{}張作品。'
+    '本次任务完成。',
+    'この作業は完了です。',
+    'This task is completed.',
+    '本次工作完成。'
   ],
   _tag搜索页任务完成2: [
-    '已抓取本tag的所有页面，本次任务完成。<br>当前有{}张作品。',
-    'この作業は完了です。 今は{}枚の作品があります。',
-    'This task is completed. There are now {} works.',
-    '已擷取本tag的所有頁面，本次工作完成。目前有{}張作品。'
+    '已抓取本tag的所有页面，本次任务完成。',
+    'この作業は完了です。',
+    'This task is completed.',
+    '已擷取本tag的所有頁面，本次工作完成。'
   ],
   _tag搜索页中断: [
-    '当前任务已中断!<br>当前有{}张作品。',
-    '現在のタスクが中断されました。<br>今は{}枚の作品があります。',
-    'The current task has been interrupted.<br> There are now {} works.',
-    '目前工作已中斷!<br>目前有{}張作品。'
+    '当前任务已中断!',
+    '現在のタスクが中断されました。',
+    'The current task has been interrupted.',
+    '目前工作已中斷!'
   ],
   _排行榜进度: [
     '已抓取本页面第{}部分',
@@ -436,10 +442,10 @@ const xzLang = {
     '目前清單中有{}張作品，開始取得作品資訊'
   ],
   _开始获取作品页面: [
-    '<br>开始获取作品页面',
-    '<br>作品ページの取得を開始する',
-    '<br>Start getting the works page',
-    '<br>開始取得作品頁面'
+    '开始获取作品页面',
+    '作品ページの取得を開始する',
+    'Start getting the works page',
+    '開始取得作品頁面'
   ],
   _无权访问1: [
     '无权访问{}，抓取中断。',
@@ -732,29 +738,17 @@ const xzLang = {
     '下載已停止'
   ],
   _已下载: ['已下载', 'downloaded', 'downloaded', '已下載'],
-  _获取图片网址完毕: [
-    '获取完毕，共{}个图片地址',
-    '合計{}個の画像URLを取得する',
-    'Get a total of {} image url',
-    '取得完畢，共{}個圖片網址'
-  ],
   _没有符合条件的作品: [
-    '没有符合条件的作品!任务结束。',
-    '基準を満たす作品はありません！タスクは終了します。',
-    'There are no works that meet the criteria! The task ends.',
-    '沒有符合條件的作品!工作結束。'
-  ],
-  _没有符合条件的作品弹窗: [
-    '抓取完毕!没有符合条件的作品!',
-    'クロールが終了しました！基準を満たす作品はありません',
-    'Crawl finished! There are no works that meet the criteria! ',
-    '擷取完畢!沒有符合條件的作品!'
+    '没有符合条件的作品！',
+    '基準を満たす作品はありません！',
+    'There are no works that meet the criteria!',
+    '沒有符合條件的作品！'
   ],
   _抓取完毕: [
-    '抓取完毕!',
+    '抓取完毕！',
     'クロールが終了しました！',
     'Crawl finished!',
-    '擷取完畢!'
+    '擷取完畢！'
   ],
   _快速下载本页: [
     '快速下载本页作品',

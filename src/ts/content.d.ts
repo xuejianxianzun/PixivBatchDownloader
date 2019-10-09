@@ -459,7 +459,7 @@ interface DonwloadListData {
 interface DownloadedMsg {
   msg: string
   data: DonwloadInfo
-  id: number
+  err?: string
 }
 
 // 书签页面下方推荐作品的格式

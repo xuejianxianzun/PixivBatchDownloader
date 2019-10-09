@@ -78,13 +78,27 @@ chrome.runtime.onMessage.addListener(function(msg: SendInfo, sender) {
 
 // 监听下载事件
 chrome.downloads.onChanged.addListener(function(detail) {
-  // 根据 detail.id 取出保存的信息
+  // 根据 detail.id 取出保存的数据
   const data = dlData[detail.id]
-  if (data && detail.state && detail.state.current === 'complete') {
-    // 下载完成后返回信息
-    const msg = 'downloaded'
-    chrome.tabs.sendMessage(data.tabId, { msg, data })
-    // 清除这个任务的信息
-    dlData[detail.id] = null
+  if (data) {
+    let msg = ''
+    let err = ''
+
+    if (detail.state && detail.state.current === 'complete') {
+      msg = 'downloaded'
+    }
+
+    if (detail.error && detail.error.current) {
+      msg = 'download_err'
+      err = detail.error.current
+      dlIndex[data.tabId][data.thisIndex] = 0 // 从任务列表里删除它，以便前台重试下载
+    }
+
+    // 返回信息
+    if (msg) {
+      chrome.tabs.sendMessage(data.tabId, { msg, data, err })
+      // 清除这个任务的数据
+      dlData[detail.id] = null
+    }
   }
 })
