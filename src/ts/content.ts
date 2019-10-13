@@ -21,6 +21,32 @@ class PageInfoClass implements PageInfo {
   public p_tag: string = ''
 }
 
+// 储存需要监听变化的变量
+class Watcher {
+  public converting: number = 0
+  public convertTipText: string = ''
+  get Converting() {
+    return this.converting
+  }
+  set Converting(value) {
+    this.converting = value
+
+    // 在下载面板显示转换数量
+    const convertTip = document.querySelector('.convert_tip')! as HTMLDivElement
+    if (this.converting > 0) {
+      this.convertTipText = xzlt('_转换任务提示', this.converting.toString())
+    } else {
+      this.convertTipText = ''
+    }
+    convertTip.innerText = this.convertTipText
+
+    // 在日志里显示转换数量
+    showTotalProgress()
+  }
+}
+
+const watcher = new Watcher()
+
 // 按钮颜色
 enum Color {
   blue = '#0ea8ef',
@@ -84,6 +110,8 @@ let ajaxThreadsFinished: number = 0 // 统计有几个并发线程完成所有�
 let testSuffixFinished: boolean = true // 检查图片后缀名正确性的函数是否执行完毕
 
 let testSuffixNo: number = 0 // 检查图片后缀名函数的计数
+
+// let converting: number = 0 // 统计有几个进行中的转换任务
 
 let logSnapshot: string = '' // 输出顶部提示
 
@@ -1901,7 +1929,7 @@ function getListPage() {
       // discovery 列表的 url 是有额外后缀的，需要去掉
       illustUrlList.push(el.href.split('&uarea')[0])
     })
-    addLog(xzlt('_列表页获取完成2', illustUrlList.length.toString()))
+    addLog(xzlt('_排行榜任务完成', illustUrlList.length.toString()))
     getListUrlFinished()
     return false
   } else {
@@ -1950,7 +1978,7 @@ function getListPage() {
         // 保存本页的作品信息
         let thisOneData: TagSearchData[] = JSON.parse(thisOneInfo)
 
-        // 删除广告信息。有段时间作品列表里会混杂广告，现在不知道还有没有
+        // 删除广告信息。热门的 tag 搜索列表里可能会混杂广告
         thisOneData.forEach((item, index, array) => {
           if (item.isAdContainer) {
             array.splice(index, 1)
@@ -2157,7 +2185,7 @@ function getListPage() {
         const illustList = JSON.parse(data).recommendations // 取出id列表
         addIllustUrlList(illustList) // 拼接作品的url
 
-        addLog(xzlt('_列表页获取完成2', illustUrlList.length.toString()))
+        addLog(xzlt('_排行榜任务完成', illustUrlList.length.toString()))
         getListUrlFinished()
       } else {
         // 不要把下一行的 if 和上一行的 else 合并
@@ -2288,11 +2316,7 @@ function getListPage() {
           if (illustUrlList.length === 0) {
             return noResult()
           } else {
-            addLog(
-              xzlt('_排行榜列表页抓取遇到404', illustUrlList.length.toString()),
-              2,
-              2
-            )
+            addLog(xzlt('_排行榜任务完成', illustUrlList.length.toString()))
             getListUrlFinished()
           }
         }
@@ -3497,6 +3521,7 @@ function addDownloadPanel() {
       <p>
       ${xzlt('_当前状态')}
       <span class="down_status xz_blue"> ${xzlt('_未开始下载')}</span>
+      <span class="convert_tip xz_blue"></span>
       </p>
       <div class="progressBarWrap">
       <span class="text">${xzlt('_下载进度')}</span>
@@ -3719,8 +3744,7 @@ function startDownload() {
     // 0 使用中
     // 1 已完成
     downloadedList = new Array(imgInfo.length).fill(-1)
-    downloaded = 0
-    taskBatch++ // 修改本次下载任务的标记
+    taskBatch = new Date().getTime() // 修改本次下载任务的标记
   } else {
     // 继续下载
     // 把“使用中”的下载状态重置为“未使用”
@@ -3771,6 +3795,7 @@ function startDownload() {
   changeDownStatus(xzlt('_正在下载中'))
 
   addLog(xzlt('_正在下载中'))
+  showTotalProgress()
 }
 
 // 提示下载状态
@@ -3839,10 +3864,30 @@ function reTryDownload() {
   }, 1000)
 }
 
+// 在进度条上显示已下载数量
+function showDownloaded() {
+  document.querySelector('.downloaded')!.textContent = downloaded.toString()
+}
+
+// 在日志上显示总下载进度
+function showTotalProgress() {
+  const progress = document.querySelector(
+    '.progressTip.progressTip1'
+  )! as HTMLDivElement
+  let text = progress.innerText
+
+  // 追加转换文件的提示
+  if (watcher.convertTipText && watcher.converting > 0) {
+    text += ', ' + watcher.convertTipText
+  }
+
+  addLog(text, -1, 2, false)
+}
+
 // 重置下载面板的信息
 function resetDownloadPanel() {
   downloaded = 0
-  document.querySelector('.downloaded')!.textContent = downloaded.toString()
+  showDownloaded()
 
   for (const el of document.querySelectorAll('.imgNum')) {
     el.textContent = imgInfo.length.toString()
@@ -4451,6 +4496,8 @@ function downloadFile(downloadBarNo: number) {
         return false
       }
 
+      watcher.Converting++ // 增加计数
+
       // 如果需要转换成视频
       if (thisImgInfo!.ext === 'webm') {
         // 创建视频编码器
@@ -4494,6 +4541,8 @@ function downloadFile(downloadBarNo: number) {
         })
         file = await renderGif
       }
+
+      watcher.Converting-- // 减少计数
     } else {
       // 不需要转换
       file = xhr.response
@@ -4580,7 +4629,8 @@ function afterDownload(msg: DownloadedMsg) {
   downloadedList[msg.data.thisIndex] = 1
   downloaded++
   // 显示进度信息
-  document.querySelector('.downloaded')!.textContent = downloaded.toString()
+  showDownloaded()
+  showTotalProgress()
   const progress1 = document.querySelector('.progress1')! as HTMLDivElement
   progress1.style.width = (downloaded / imgInfo.length) * 100 + '%'
 

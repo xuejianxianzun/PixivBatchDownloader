@@ -359,10 +359,10 @@ const xzLang = {
         '已擷取本次工作第{}/{}頁，目前載入到第{}頁'
     ],
     _当前作品张数: [
-        '当前有{}张作品。',
+        '当前有{}个作品。',
         '今は{}枚の作品があります。',
         'There are now {} works.',
-        '目前有{}張作品。'
+        '目前有個{}作品。'
     ],
     _tag搜索页任务完成1: [
         '本次任务完成。',
@@ -395,16 +395,10 @@ const xzLang = {
         '相關作品擷取完畢。包含有{}張作品，開始取得作品資訊。'
     ],
     _排行榜任务完成: [
-        '本页面抓取完毕。<br>当前有{}张作品，开始获取作品信息。',
+        '本页面抓取完毕。<br>当前有{}个作品，开始获取作品信息。',
         'このページはクロールされ。<br>{}個の作品があります。 詳細は作品を入手し始める。',
         'This page is crawled and now has {} works.<br> Start getting the works for more information.',
-        '本頁面擷取完畢。<br>目前有{}張作品，開始取得作品資訊。'
-    ],
-    _列表页获取完成2: [
-        '列表页获取完成。<br>当前有{}张作品，开始获取作品信息。',
-        'リストページがクロールされます。<br>{}個の作品があります。 詳細は作品を入手し始める。',
-        'The list page gets done. <br>Now has {} works. Start getting the works for more information.',
-        '清單頁取得完成。<br>目前有{}張作品，開始取得作品資訊。'
+        '本頁面擷取完畢。<br>目前有{}個作品，開始取得作品資訊。'
     ],
     _列表页抓取进度: [
         '已抓取列表页{}个页面',
@@ -423,12 +417,6 @@ const xzLang = {
         'クロールは終了しましたが、フィルタ条件に一致する作品が見つかりませんでした。',
         'Crawl finished but did not find works that match the filter criteria.',
         '擷取完畢，但沒有找到符合篩選條件的作品。'
-    ],
-    _排行榜列表页抓取遇到404: [
-        '本页面抓取完成。<br>当前有{}张作品，开始获取作品信息。',
-        'このページはクロールされます。<br>{}個の作品があります。 詳細は作品を入手して始める。',
-        'This page is crawled. <br>Now has {} works. Start getting the works for more information.',
-        '本頁面擷取完成。<br>目前有{}張作品，開始取得作品資訊。'
     ],
     _当前任务尚未完成2: [
         '当前任务尚未完成，请等待完成后再下载。',
@@ -800,10 +788,10 @@ const xzLang = {
         ', 如有多頁，預設會下載全部。'
     ],
     _调整完毕: [
-        '调整完毕，当前有{}张作品。',
+        '调整完毕，当前有{}个作品。',
         '調整が完了し、今、{}の作品があります。',
         'The adjustment is complete and now has {} works.',
-        '調整完畢，目前有{}張作品。'
+        '調整完畢，目前有{}個作品。'
     ],
     _开始筛选: [
         '开始筛选',
@@ -1031,6 +1019,12 @@ const xzLang = {
         '「ダウンロードを開始する」ステータスが利用可能になると、ダウンロードは自動的に開始され、ダウンロードボタンをクリックする必要はありません。',
         'When the &quot;Start Downloa&quot; status is available, the download starts automatically and no need to click the download button.',
         '當“開始下載”狀態可用時，自動開始下載，不需要點選下載按鈕。'
+    ],
+    _转换任务提示: [
+        '正在转换 {} 个文件',
+        '{} ファイルの変換',
+        'Converting {} files',
+        '正在轉換 {} 個檔案'
     ],
     _最近更新: ['最近更新', '最近更新する', 'What`s new', '最近更新'],
     _确定: ['确定', '確定', 'Ok', '確定'],
