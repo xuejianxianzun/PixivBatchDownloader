@@ -155,10 +155,31 @@ let pageInfo = new PageInfoClass();
 let onlyDownBmk = false; // 是否只下载收藏的作品
 let ratioType = '0'; // 宽高比例的类型
 // 用正则过滤不安全的字符，（Chrome 和 Windows 不允许做文件名的字符）
-// 安全的文件名
-const safeFileName = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff\\\/:\?"<>\*\|~]/g);
-// 安全的文件夹名，允许斜线 /
-const safeFolderName = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff\\:\?"<>\*\|~]/g);
+// 不安全的字符，这里多数是控制字符，需要替换掉
+const unsafeStr = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
+// 一些需要替换成全角字符的符号，左边是正则表达式的字符
+const fullWidthDict = [
+    ['\\\\', '＼'],
+    ['/', '／'],
+    [':', '：'],
+    ['\\?', '？'],
+    ['"', '＂'],
+    ['<', '＜'],
+    ['>', '＞'],
+    ['\\*', '＊'],
+    ['\\|', '｜'],
+    ['~', '～']
+];
+// 把一些特殊字符替换成全角字符
+function replaceUnsafeStr(str) {
+    str = str.replace(unsafeStr, '');
+    for (let index = 0; index < fullWidthDict.length; index++) {
+        const rule = fullWidthDict[index];
+        const reg = new RegExp(rule[0], 'g');
+        str = str.replace(reg, rule[1]);
+    }
+    return str;
+}
 let taskBatch = 0; // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
 let langType; // 语言类型
 // 处理和脚本版的冲突
@@ -3554,32 +3575,39 @@ function getFileName(data) {
             safe: true
         }
     ];
+    // 替换命名规则里的特殊字符
+    result = replaceUnsafeStr(result);
+    // 上一步会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
+    result = result.replace(/／/g, '/');
     // 把命名规则的标记替换成实际值
     for (const item of cfg) {
-        if (result.includes(item.name)) {
-            if (item.value !== '' && item.value !== null) {
-                // 只有当标记有值时才继续操作. 所以没有值的标记会原样保留
-                let once = String(item.value);
-                // 添加字段名称
-                if (xzForm.setTagNameToFileName.checked) {
-                    once = item.prefix + once;
-                }
-                if (!item.safe) {
-                    once = once.replace(safeFileName, '_').trim();
-                }
-                result = result.replace(new RegExp(item.name, 'g'), once); // 将标记替换成最终值，如果有重复的标记，全部替换
+        if (result.includes(item.name) &&
+            item.value !== '' &&
+            item.value !== null) {
+            // 只有当标记有值时才继续操作. 所以没有值的标记会原样保留
+            let once = String(item.value);
+            // 处理标记值中的特殊字符
+            if (!item.safe) {
+                once = replaceUnsafeStr(once);
             }
+            // 添加字段名称
+            if (xzForm.setTagNameToFileName.checked) {
+                once = item.prefix + once;
+            }
+            result = result.replace(new RegExp(item.name, 'g'), once); // 将标记替换成最终值，如果有重复的标记，全部替换
         }
     }
-    // 处理空值，不能做文件夹名的字符，连续的 '//'。 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
-    result = result
-        .replace(/undefined/g, '')
-        .replace(safeFolderName, '_')
-        .replace(/\/{2,9}/, '/');
-    // 替换每层路径头尾的 . 因为 Chrome 不允许头尾使用 .
+    // 处理空值，连续的 '//'。 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
+    result = result.replace(/undefined/g, '').replace(/\/{2,9}/, '/');
+    // 对每一层路径进行处理
     let tempArr = result.split('/');
     tempArr.forEach((str, index, arr) => {
-        arr[index] = str.replace(/^\./g, '_').replace(/\.$/g, '_');
+        // 替换路径首尾的空格
+        // 把每层路径头尾的 . 变成全角的．因为 Chrome 不允许头尾使用 .
+        arr[index] = str
+            .trim()
+            .replace(/^\./g, '．')
+            .replace(/\.$/g, '．');
     });
     result = tempArr.join('/');
     // 去掉头尾的 /

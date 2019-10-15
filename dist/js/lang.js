@@ -702,10 +702,10 @@ const xzLang = {
         '檢視下載說明'
     ],
     _下载说明: [
-        "下载的文件保存在浏览器的下载目录里。<br>请不要在浏览器的下载选项里选中'总是询问每个文件的保存位置'。<br>如果作品标题或tag里含有不能做文件名的字符，会被替换成下划线_。<br>如果文件名超长，将会被截断。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>QQ群：499873152",
-        'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br>ファイル名が長いと裁断される。<br><b>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。</b>',
-        'The downloaded file is saved in the browser`s download directory. <br>If the file name is too long, it will be truncated.<br><b>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.</b>',
-        "下載的檔案儲存在瀏覽器的下載目錄裡。<br>請不要在瀏覽器的下載選項裡選取'總是詢問每個檔案的儲存位置'。<br>如果作品標題或tag裡含有不能做檔名的字元，會被取代為下劃線_。<br>如果檔名過長，將會被截斷。<br><b>如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。</b><br>QQ群：499873152"
+        "下载的文件保存在浏览器的下载目录里。<br>请不要在浏览器的下载选项里选中'总是询问每个文件的保存位置'。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>QQ群：499873152",
+        'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><b>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。</b>',
+        'The downloaded file is saved in the browser`s download directory. <br><b>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.</b>',
+        "下載的檔案儲存在瀏覽器的下載目錄裡。<br>請不要在瀏覽器的下載選項裡選取'總是詢問每個檔案的儲存位置'。<br><b>如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。</b><br>QQ群：499873152"
     ],
     _正在下载中: ['正在下载中', 'ダウンロード中', 'downloading', '正在下載'],
     _下载完毕: [
