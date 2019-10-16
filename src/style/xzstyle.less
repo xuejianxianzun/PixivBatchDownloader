@@ -22,7 +22,9 @@ iframe[name='footer'],
 ._2vGmESI,
 section.ad,
 aside .sc-LzLtN,
-.sc-fzXfPb.bAzGKi {
+.sc-fzXfPb.bAzGKi,
+.sc-LzOkY.jkOmXn,
+.sc-LzNux.jkOmJn {
   display: none !important;
   z-index: -999 !important;
   width: 0 !important;
@@ -112,6 +114,9 @@ aside .sc-LzLtN,
   position: fixed;
   z-index: 1000;
   font-size: 14px;
+  &:hover{
+    opacity: .8;
+  }
 }
 #rightButton {
   top: 15%;
@@ -252,7 +257,7 @@ aside .sc-LzLtN,
     cursor: pointer;
     margin-bottom: 10px;
     vertical-align: top;
-    &:hover {
+    &:hover,&:focus {
       opacity: 0.8;
     }
   }
