@@ -6,9 +6,9 @@
   "author": "xuejianxianzun",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "fmt": "prettier --no-semi --single-quote --write \"src/**/*.{js,ts,tsx,less,css}\"",
+    "fmt": "prettier --no-semi --single-quote --write \"{src,dist/js}/**/*.{js,ts,tsx,less,css}\"",
     "lessc": "lessc -x ./src/style/xzstyle.less ./dist/style/xzstyle.css",
-    "build": "npm run fmt && tsc && npm run lessc && node ./build.js"
+    "build": "tsc && npm run lessc && npm run fmt && node ./build.js"
   },
   "devDependencies": {
     "@types/chrome": "0.0.88",
