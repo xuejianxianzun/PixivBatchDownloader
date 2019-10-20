@@ -14,12 +14,17 @@
  */
 
 // 储存一些页面信息
-class PageInfoClass implements PageInfo {
-  public p_title: string = ''
-  public p_user: string = ''
-  public p_uid: string = ''
-  public p_tag: string = ''
+class PageInfoClass {
+  public info:PageInfo = {
+    p_title: '',
+    p_user: '',
+    p_uid: '',
+    p_tag: '',
+  }
 }
+
+// 储存页面上可以用作文件名的信息
+let pageInfo = new PageInfoClass()
 
 // 储存需要监听变化的变量
 class Watcher {
@@ -47,20 +52,18 @@ class Watcher {
 
 const watcher = new Watcher()
 
-// 按钮颜色
-enum Color {
-  blue = '#0ea8ef',
-  green = '#14ad27',
-  red = '#f33939'
+class Colors {
+  public blue = '#0ea8ef'
+  public green = '#14ad27'
+  public red = '#f33939'
+  public logColors = ['#00ca19', '#d27e00', '#f00']
 }
 
-const xzBlue: Color = Color.blue
+const colors = new Colors()
 
-const xzGreen: Color = Color.green
-
-const xzRed: Color = Color.red
-
-const illustTypes = ['illustration', 'manga', 'ugoira'] // 作品类型 0 插画 1 漫画 2 动图
+class Log {
+  
+}
 
 let logArea: HTMLDivElement = document.createElement('div') // 输出信息的区域
 logArea.id = 'outputArea'
@@ -239,8 +242,6 @@ let xzForm: XzForm // 设置面板的表单
 
 let xzTipEl: HTMLDivElement // 用于显示提示的元素
 
-// 储存页面上可以用作文件名的信息
-let pageInfo: PageInfo = new PageInfoClass()
 
 let onlyDownBmk: boolean = false // 是否只下载收藏的作品
 
@@ -363,7 +364,7 @@ async function addJs() {
 }
 
 // 显示最近更新
-function showWhatIsNew(tag: keyof typeof xzLang) {
+function showNew(tag: keyof typeof xzLang) {
   if (!window.location.host.includes('pixiv.net')) {
     return false
   }
@@ -384,7 +385,7 @@ function showWhatIsNew(tag: keyof typeof xzLang) {
 }
 
 // 检查新版本
-async function update() {
+async function checkNew() {
   // 显示更新按钮
   const show = function() {
     const updateIco = document.querySelector(
@@ -906,8 +907,8 @@ function updateViewer() {
     .then(response => response.json())
     .then((data: IllustData) => {
       const thisOneData = data.body
-      pageInfo.p_user = thisOneData.userName
-      pageInfo.p_uid = thisOneData.userId
+      pageInfo.info.p_user = thisOneData.userName
+      pageInfo.info.p_uid = thisOneData.userId
       // 更新图片查看器
       if (thisOneData.illustType === 0 || thisOneData.illustType === 1) {
         // 插画或漫画
@@ -1167,9 +1168,8 @@ function addLog(
     base = logSnapshot // 使用快照
   }
   // 添加颜色
-  const colors = ['#00ca19', '#d27e00', '#f00']
   if (level > -1) {
-    str = `<span style="color:${colors[level]}">${str}</span>`
+    str = `<span style="color:${colors.logColors[level]}">${str}</span>`
   }
   // 添加换行符
   str += '<br>'.repeat(br)
@@ -3524,16 +3524,16 @@ function addDownloadPanel() {
       </form>
       <div class="download_panel">
       <div class="centerWrap_btns">
-      <button class="startDownload" type="button" style="background:${xzBlue};"> ${xzlt(
+      <button class="startDownload" type="button" style="background:${colors.blue};"> ${xzlt(
     '_下载按钮1'
   )}</button>
       <button class="pauseDownload" type="button" style="background:#e49d00;"> ${xzlt(
         '_下载按钮2'
       )}</button>
-      <button class="stopDownload" type="button" style="background:${xzRed};"> ${xzlt(
+      <button class="stopDownload" type="button" style="background:${colors.red};"> ${xzlt(
     '_下载按钮3'
   )}</button>
-      <button class="copyUrl" type="button" style="background:${xzGreen};"> ${xzlt(
+      <button class="copyUrl" type="button" style="background:${colors.green};"> ${xzlt(
     '_下载按钮4'
   )}</button>
       </div>
@@ -3630,7 +3630,7 @@ function insertValueToInput(form: HTMLSelectElement, to: HTMLInputElement) {
 
 // 向中间面板添加按钮
 function addCenterButton(
-  bg: string = xzBlue,
+  bg: string = colors.blue,
   text: string = '',
   attr: string[][] = []
 ) {
@@ -4129,7 +4129,7 @@ function hideNotNeedOption(no: number[]) {
 
 // 清除多图作品
 function clearMultiple() {
-  addCenterButton(xzRed, xzlt('_清除多图作品'), [
+  addCenterButton(colors.red, xzlt('_清除多图作品'), [
     ['title', xzlt('_清除多图作品Title')]
   ]).addEventListener(
     'click',
@@ -4149,7 +4149,7 @@ function clearMultiple() {
 
 // 清除动图作品
 function clearUgoku() {
-  addCenterButton(xzRed, xzlt('_清除动图作品'), [
+  addCenterButton(colors.red, xzlt('_清除动图作品'), [
     ['title', xzlt('_清除动图作品Title')]
   ]).addEventListener(
     'click',
@@ -4171,7 +4171,7 @@ function clearUgoku() {
 function manuallyDelete() {
   let delWork: boolean = false // 是否处于删除作品状态
 
-  addCenterButton(xzRed, xzlt('_手动删除作品'), [
+  addCenterButton(colors.red, xzlt('_手动删除作品'), [
     ['title', xzlt('_手动删除作品Title')]
   ]).addEventListener('click', function() {
     delWork = !delWork
@@ -4239,13 +4239,14 @@ function getFileName(data: ImgInfo) {
   let result = xzForm.fileNameRule.value
   // 为空时使用 {id}
   result = result || '{id}' // 生成文件名
+  const illustTypes = ['illustration', 'manga', 'ugoira'] // 作品类型 0 插画 1 漫画 2 动图
 
   // 储存每个文件名标记的配置
   const cfg = [
     {
       name: '{p_user}',
       // 标记
-      value: pageInfo.p_user,
+      value: pageInfo.info.p_user,
       // 值
       prefix: '',
       // 添加在前面的字段名称
@@ -4254,7 +4255,7 @@ function getFileName(data: ImgInfo) {
     },
     {
       name: '{p_uid}',
-      value: pageInfo.p_uid ? getUserId() : '',
+      value: pageInfo.info.p_uid ? getUserId() : '',
       prefix: '',
       safe: true
     },
@@ -4269,7 +4270,7 @@ function getFileName(data: ImgInfo) {
     },
     {
       name: '{p_tag}',
-      value: pageInfo.p_tag,
+      value: pageInfo.info.p_tag,
       prefix: '',
       safe: false
     },
@@ -4817,15 +4818,15 @@ function getUserInfo(id: string = '') {
         useData = data.body.manga
       } else {
         // 查找不到
-        pageInfo.p_user = ''
-        pageInfo.p_uid = ''
+        pageInfo.info.p_user = ''
+        pageInfo.info.p_uid = ''
         return false
       }
 
       let keys = Object.keys(useData)
       let first = useData[keys[0]]
-      pageInfo.p_user = first.userName
-      pageInfo.p_uid = first.userId
+      pageInfo.info.p_user = first.userName
+      pageInfo.info.p_uid = first.userId
     })
 }
 
@@ -4833,13 +4834,13 @@ function getUserInfo(id: string = '') {
 function getPageInfo() {
   pageInfo = new PageInfoClass()
   // 所有页面都可以使用 p_title。这里的 1 用作占位符。因无刷新加载时，要等待 DOM 加载，此时获取到的还是旧页面的值，所以只占位。具体的值在生成文件名时获取。
-  pageInfo.p_title = '1'
+  pageInfo.info.p_title = '1'
 
   // 只有 1 和 2 可以使用画师信息
   if (pageType === 1 || pageType === 2) {
     // 先占位
-    pageInfo.p_user = '1'
-    pageInfo.p_uid = '1'
+    pageInfo.info.p_user = '1'
+    pageInfo.info.p_uid = '1'
 
     // 1 会在 updateViewer 获取作品信息时获取画师信息，2 在这里单独获取用户信息
     if (pageType === 2) {
@@ -4848,10 +4849,10 @@ function getPageInfo() {
 
     // 如果有 tag 则设置 tag。因为 tag 是从 url 判断的，所以不需要占位
     if (getQuery(locUrl, 'tag')) {
-      pageInfo.p_tag = decodeURIComponent(getQuery(locUrl, 'tag'))
+      pageInfo.info.p_tag = decodeURIComponent(getQuery(locUrl, 'tag'))
     }
   } else if (pageType === 5) {
-    pageInfo.p_tag = decodeURIComponent(getQuery(locUrl, 'word'))
+    pageInfo.info.p_tag = decodeURIComponent(getQuery(locUrl, 'word'))
   }
 
   // 设置下拉框
@@ -4933,7 +4934,7 @@ function pageType1() {
     false
   )
 
-  addCenterButton(xzBlue, xzlt('_从本页开始抓取new')).addEventListener(
+  addCenterButton(colors.blue, xzlt('_从本页开始抓取new')).addEventListener(
     'click',
     () => {
       downDirection = -1
@@ -4941,7 +4942,7 @@ function pageType1() {
     }
   )
 
-  addCenterButton(xzBlue, xzlt('_从本页开始抓取old')).addEventListener(
+  addCenterButton(colors.blue, xzlt('_从本页开始抓取old')).addEventListener(
     'click',
     () => {
       downDirection = 1
@@ -4949,7 +4950,7 @@ function pageType1() {
     }
   )
 
-  const downXgBtn = addCenterButton(xzBlue, xzlt('_抓取相关作品'))
+  const downXgBtn = addCenterButton(colors.blue, xzlt('_抓取相关作品'))
   downXgBtn.addEventListener(
     'click',
     () => {
@@ -4965,7 +4966,7 @@ function pageType1() {
 
 // 当 pageType 为 2 时执行
 function pageType2() {
-  addCenterButton(xzBlue, xzlt('_开始抓取'), [
+  addCenterButton(colors.blue, xzlt('_开始抓取'), [
     ['title', xzlt('_开始抓取') + xzlt('_默认下载多页')]
   ]).addEventListener('click', startGet) // 在书签页面隐藏只要书签选项
 
@@ -4982,7 +4983,7 @@ function pageType2() {
   // 添加下载推荐作品的按钮，只在旧版收藏页面使用
   const columnTitle = document.querySelector('.column-title')
   if (columnTitle) {
-    const downRecmdBtn = addCenterButton(xzBlue, xzlt('_抓取推荐作品'), [
+    const downRecmdBtn = addCenterButton(colors.blue, xzlt('_抓取推荐作品'), [
       ['title', xzlt('_抓取推荐作品Title')]
     ])
     downRecmdBtn.addEventListener(
@@ -4997,7 +4998,7 @@ function pageType2() {
 
   // 如果存在 token，则添加“添加 tag”按钮
   if (getToken()) {
-    addTagBtn = addCenterButton(xzGreen, xzlt('_添加tag'), [
+    addTagBtn = addCenterButton(colors.green, xzlt('_添加tag'), [
       ['title', xzlt('_添加tag')]
     ])
     addTagBtn.id = 'add_tag_btn'
@@ -5092,7 +5093,7 @@ function allPageType() {
       }
     })
 
-    const downIdButton = addCenterButton(xzBlue, xzlt('_输入id进行抓取'), [
+    const downIdButton = addCenterButton(colors.blue, xzlt('_输入id进行抓取'), [
       ['id', 'down_id_button']
     ])
     downIdButton.dataset.ready = 'false' // 是否准备好了
@@ -5259,7 +5260,7 @@ function allPageType() {
     }, '')
 
     // 添加下载面板的按钮
-    addCenterButton(xzGreen, xzlt('_开始筛选'), [
+    addCenterButton(colors.green, xzlt('_开始筛选'), [
       ['title', xzlt('_开始筛选Title')]
     ]).addEventListener(
       'click',
@@ -5273,7 +5274,7 @@ function allPageType() {
       false
     )
 
-    addCenterButton(xzGreen, xzlt('_在结果中筛选'), [
+    addCenterButton(colors.green, xzlt('_在结果中筛选'), [
       ['title', xzlt('_在结果中筛选Title')]
     ]).addEventListener(
       'click',
@@ -5315,7 +5316,7 @@ function allPageType() {
       false
     )
 
-    addCenterButton(xzRed, xzlt('_中断当前任务'), [
+    addCenterButton(colors.red, xzlt('_中断当前任务'), [
       ['title', xzlt('_中断当前任务Title')]
     ]).addEventListener(
       'click',
@@ -5338,14 +5339,14 @@ function allPageType() {
 
     manuallyDelete()
 
-    addCenterButton(xzBlue, xzlt('_抓取当前作品'), [
+    addCenterButton(colors.blue, xzlt('_抓取当前作品'), [
       ['title', xzlt('_抓取当前作品Title')]
     ]).addEventListener('click', getListPage2)
   } else if (pageType === 6) {
     // 6. ranking_area 地区排行榜
     // https://www.pixiv.net/ranking_area.php?type=detail&no=0
 
-    addCenterButton(xzBlue, xzlt('_抓取本页作品'), [
+    addCenterButton(colors.blue, xzlt('_抓取本页作品'), [
       ['title', xzlt('_抓取本页作品Title')]
     ]).addEventListener('click', startGet)
   } else if (pageType === 7) {
@@ -5375,13 +5376,13 @@ function allPageType() {
       partNumber = 10
     }
 
-    addCenterButton(xzBlue, xzlt('_抓取本排行榜作品'), [
+    addCenterButton(colors.blue, xzlt('_抓取本排行榜作品'), [
       ['title', xzlt('_抓取本排行榜作品Title')]
     ]).addEventListener('click', startGet)
 
     // 在“今日”页面，添加下载首次登场的作品的按钮
     if (locUrl.includes('mode=daily')) {
-      addCenterButton(xzBlue, xzlt('_抓取首次登场的作品'), [
+      addCenterButton(colors.blue, xzlt('_抓取首次登场的作品'), [
         ['title', xzlt('_抓取首次登场的作品Title')]
       ]).addEventListener('click', () => {
         debut = true
@@ -5398,7 +5399,7 @@ function allPageType() {
 
     if (type === 'illustration' || type === 'manga' || type === 'cosplay') {
       // 在插画、漫画、cosplay类型的页面上创建下载功能
-      addCenterButton(xzBlue, xzlt('_抓取该页面的图片')).addEventListener(
+      addCenterButton(colors.blue, xzlt('_抓取该页面的图片')).addEventListener(
         'click',
         () => {
           resetResult()
@@ -5482,7 +5483,7 @@ function allPageType() {
     // 9. bookmark_add
     // https://www.pixiv.net/bookmark_detail.php?illust_id=63148723
 
-    addCenterButton(xzBlue, xzlt('_抓取相似图片'), [
+    addCenterButton(colors.blue, xzlt('_抓取相似图片'), [
       ['title', xzlt('_抓取相似图片')]
     ]).addEventListener(
       'click',
@@ -5518,7 +5519,7 @@ function allPageType() {
     setMaxNum() // 页数上限
     getNowPageNo()
 
-    addCenterButton(xzBlue, xzlt('_开始抓取'), [
+    addCenterButton(colors.blue, xzlt('_开始抓取'), [
       ['title', xzlt('_下载大家的新作品')]
     ]).addEventListener('click', startGet)
   } else if (pageType === 11) {
@@ -5527,7 +5528,7 @@ function allPageType() {
 
     tagSearchListSelector = '._2RNjBox' // 发现页面的作品列表
 
-    addCenterButton(xzBlue, xzlt('_抓取当前作品'), [
+    addCenterButton(colors.blue, xzlt('_抓取当前作品'), [
       ['title', xzlt('_抓取当前作品Title')]
     ]).addEventListener('click', startGet)
 
@@ -5546,7 +5547,7 @@ async function expand() {
   await addStyle()
   listenHistory()
   setLangType()
-  showWhatIsNew('_xzNew270')
+  showNew('_xzNew270')
   addRightButton()
   addCenterWarps()
   readXzSetting()
@@ -5554,7 +5555,7 @@ async function expand() {
   listenPageSwitch()
   getPageInfo()
   allPageType()
-  update()
+  checkNew()
 }
 
 // Divine judge！
