@@ -13,18 +13,33 @@
  * QQ group:499873152
  */
 
-// 储存一些页面信息
+// 储存当前页面里的有用信息和标记
 class PageInfoClass {
-  public info:PageInfo = {
+  
+public locUrl: string = '' // 页面的url
+
+public pageType: number = 0 // 页面类型
+
+public oldPageType: number = 0 // 上一个页面类型
+
+public hasTag: boolean = false // pageType 2 里，是否带 tag
+
+public type2ListType: number = 0 // pageType 2 里的页面类型，都是列表页
+
+public offsetNumber: number = 0 // 要去掉的作品数量
+
+public readonly onceRequest: number = 100 // 每次请求多少个数量
+
+  public info: PageInfo = {
     p_title: '',
     p_user: '',
     p_uid: '',
-    p_tag: '',
+    p_tag: ''
   }
+
+  public init(){}
 }
 
-// 储存页面上可以用作文件名的信息
-let pageInfo = new PageInfoClass()
 
 // 储存需要监听变化的变量
 class Watcher {
@@ -39,7 +54,7 @@ class Watcher {
     // 在下载面板显示转换数量
     const convertTip = document.querySelector('.convert_tip')! as HTMLDivElement
     if (this.converting > 0) {
-      this.convertTipText = xzlt('_转换任务提示', this.converting.toString())
+      this.convertTipText = lang.transl('_转换任务提示', this.converting.toString())
     } else {
       this.convertTipText = ''
     }
@@ -50,210 +65,159 @@ class Watcher {
   }
 }
 
-const watcher = new Watcher()
 
+// 颜色
 class Colors {
-  public blue = '#0ea8ef'
-  public green = '#14ad27'
-  public red = '#f33939'
-  public logColors = ['#00ca19', '#d27e00', '#f00']
+  static blue = '#0ea8ef'
+  static green = '#14ad27'
+  static red = '#f33939'
 }
 
-const colors = new Colors()
-
+// 日志类
 class Log {
+  static logArea = document.createElement('div') // 输出日志的区域
+  static id: string = 'outputArea' // 日志区域元素的 id
+  static logSnapshot: string // 储存日志内容的快照
+  static colors = ['#00ca19', '#d27e00', '#f00']
+
+  // 如果日志元素没有添加到页面上，则添加上去
+  static checkElement() {
+    let test = document.getElementById(this.id)
+    if (test === null) {
+      this.logArea.id = this.id
+      insertToHead(this.logArea)
+    }
+  }
+
+  // 清空日志
+  static clear() {
+    this.logArea.innerHTML = ''
+  }
+
+  // 输出日志
+  /*
+  str 信息文本，必要参数
+  level 日志等级，可选，默认值为 -1
+  br 换行标签的个数，可选，默认值为 1
+  addMode 追加日志的模式，默认为 true，累加所有日志。false 则会建立快照，只在快照后追加最后一条日志。
+
+  日志等级：
+  -1 auto 不设置颜色
+  0 success 绿色
+  1 warring 黄色
+  2 error 红色
+  */
+  static add(
+    str: string,
+    level: number = -1,
+    br: number = 1,
+    addMode: boolean = true
+  ) {
+    this.checkElement()
+
+    let base = ''
+    // 处理添加状态
+    if (addMode) {
+      // 追加日志时，清空日志快照
+      this.logSnapshot = ''
+      base = this.logArea.innerHTML // 使用当前日志信息
+    } else {
+      // 只追加最新一条时，先做快照
+      if (this.logSnapshot === '') {
+        this.logSnapshot = this.logArea.innerHTML
+      }
+      base = this.logSnapshot // 使用快照
+    }
+    // 添加颜色
+    if (level > -1) {
+      str = `<span style="color:${this.colors[level]}">${str}</span>`
+    }
+    // 添加换行符
+    str += '<br>'.repeat(br)
+    // 输出
+    this.logArea.innerHTML = base + str
+  }
+}
+
+// 配置类
+// 常量
+// 可以由用户设置，让用户改变的选项。
+// 即使不下载，加载下载器时也需要处理的选项
+class Config {
+  public downloadThreadDefault: number = 5 // 同时下载的线程数，可以通过设置 downloadThread 修改
+
+  public imgNumberPerWork: number = 0 // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
+
+  public displayCover: boolean = true // 是否显示tag搜索页里面的封面图片。如果tag搜索页的图片数量太多，那么加载封面图可能要很久，并且可能因为占用大量带宽导致抓取中断。这种情况下可以将此参数改为false，不加载封面图。
   
-}
+  public needTag: string[] = [] // 必须包含的tag的列表
+  
+  public notNeedTag: string[] = [] // 要排除的tag的列表
 
-let logArea: HTMLDivElement = document.createElement('div') // 输出信息的区域
-logArea.id = 'outputArea'
+public notdownType: string = '' // 设置不要下载的作品类型
 
-const downloadThreadDeauflt: number = 5 // 同时下载的线程数，可以通过设置 downloadThread 修改
+public isSetFilterWh: boolean = false // 是否设置了筛选宽高
+public ajaxForIllustThreads: number = 6 // 抓取页面时的并发连接数
+public quickDownload: boolean = false // 快速下载当前作品，这个只在作品页内直接下载时使用
+public debut: boolean = false // 只下载首次登场的作品
+public listIsNewMode: boolean = false // 列表页加载模式是否是新版
 
-let imgNumberPerWork: number = 0 // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
+public tagSearchDataSelector: string = '' // tag 搜索页，储存作品信息的元素
 
-let displayCover: boolean = true // 是否显示tag搜索页里面的封面图片。如果tag搜索页的图片数量太多，那么加载封面图可能要很久，并且可能因为占用大量带宽导致抓取中断。这种情况下可以将此参数改为false，不加载封面图。
+public tagSearchListWrap: string = '.x7wiBV0' //  tag 搜索页，储存作品列表的元素
 
-let xzSetting: XzSetting // 保存的设置
+public tagSearchListSelector: string = '' // tag 搜索页，直接选择作品的选择器
 
-let locUrl: string = '' // 页面的url
+public tagSearchMultipleSelector: string = '._3b8AXEx' // 作品选择器
 
-let pageType: number // 页面类型
+public tagSearchUgoiraSelector: string = '.AGgsUWZ' // 动图作品的选择器
 
-let oldPageType: number // 上一个页面类型
-
-let hasTag: boolean = false // pageType 2 里，是否带 tag
-
-let type2ListType: number // pageType 2 里的页面类型，都是列表页
-
-let offsetNumber: number = 0 // 要去掉的作品数量
-
-const onceRequest: number = 100 // 每次请求多少个数量
-
-let type2IdList: string[] = [] // 储存 pageType 2 的 id 列表
-
-let imgInfo: ImgInfo[] = [] // 储存图片信息
-
-let downloadedList: number[] = [] // 标记已完成的完成的下载任务
-
-let illustUrlList: string[] = [] // 储存要下载的作品的页面url
-
-let rankList: RankList = {} // 储存作品在排行榜中的排名
-
-const tagSearchResult: TagSearchResult[] = [] // 储存 tag 搜索页符合条件的所有作品
-
-let addTagList: BookmarkResult[] = [] // 需要添加 tag 的作品列表
-
-let addTagBtn: HTMLButtonElement | null // 给未分类作品添加 tag 的按钮
-
-let ajaxForIllustThreads: number = 6 // 抓取页面时的并发连接数
-
-let ajaxThreadsFinished: number = 0 // 统计有几个并发线程完成所有请求。统计的是并发数（ ajaxForIllustThreads ）而非请求数
-
-let testSuffixFinished: boolean = true // 检查图片后缀名正确性的函数是否执行完毕
-
-let testSuffixNo: number = 0 // 检查图片后缀名函数的计数
-
-// let converting: number = 0 // 统计有几个进行中的转换任务
-
-let logSnapshot: string = '' // 输出顶部提示
-
-let baseUrl: string = '' // 列表页url规则
-
-let startpageNo: number = 1 // 列表页开始抓取时的页码
-
-let listPageFinished: number = 0 // 记录一共抓取了多少列表页
-
-let tagPageFinished: number = 0 // 记录 tag 搜索页本次任务已经抓取了多少页
-
-let wantPage: number = 0 // 要抓取几页
-
-let quickDownload: boolean = false // 快速下载当前作品，这个只在作品页内直接下载时使用
-
-let interrupt: boolean = false // 是否中断正在进行的任务，目前仅在 tag 搜索页使用
-
-let allowWork: boolean = true // 当前是否允许展开工作（如果有未完成的任务则应为 false
-
-let notNeedTag: string[] = [] // 要排除的tag的列表
-
-let needTag: string[] = [] // 必须包含的tag的列表
-
-let notdownType: string = '' // 设置不要下载的作品类型
-
-let isSetFilterWh: boolean = false // 是否设置了筛选宽高
-
-// 宽高条件
-let filterWh = {
-  andOr: '&',
-  width: 0,
-  height: 0
-}
-
-let isSetFilterBmk: boolean = false // 是否设置了筛选收藏数
-
-let filterBmk: number = 0 // 要求收藏达到指定数量
-
-let partNumber: number = 10 // 保存不同排行榜的列表数量
-
-let requsetNumber: number = 0 // 要下载多少个作品
-
-let maxNum: number = 0 // 最多允许获取多少数量，在相关作品、相似作品、大家/关注的新作品页面使用
-
-let debut: boolean = false // 只下载首次登场的作品
-
-let listIsNewMode: boolean = false // 列表页加载模式是否是新版
-
-let tagSearchDataSelector: string = '' // tag 搜索页，储存作品信息的元素
-
-const tagSearchListWrap: string = '.x7wiBV0' //  tag 搜索页，储存作品列表的元素
-
-let tagSearchListSelector: string = '' // tag 搜索页，直接选择作品的选择器
-
-const tagSearchMultipleSelector: string = '._3b8AXEx' // 作品选择器
-
-const tagSearchUgoiraSelector: string = '.AGgsUWZ' // 动图作品的选择器
-
-let tagSearchNewHtml: string = '' // tag 搜索页作品的html
+public tagSearchNewHtml: string = '' // tag 搜索页作品的html
 
 // tag 搜索页作品的html中的多图标识
-const xzMultipleHtml: string = `<div class="${tagSearchMultipleSelector.replace(
+public xzMultipleHtml: string = `<div class="${this.tagSearchMultipleSelector.replace(
   '.',
   ''
 )}"><span><span class="XPwdj2F"></span>xz_pageCount</span></div>`
 
 // tag 搜索页作品的html中的动图标识
-const xzUgoiraHtml: string = `<div class="${tagSearchUgoiraSelector.replace(
+public xzUgoiraHtml: string = `<div class="${this.tagSearchUgoiraSelector.replace(
   '.',
   ''
 )}"></div>`
 
-let gifWorkerUrl: string = ''
+public gifWorkerUrl: string = ''
 
-let rightButton: HTMLDivElement = document.createElement('div') // 右侧按钮
+// 宽高条件
+public filterWh = {
+  andOr: '&',
+  width: 0,
+  height: 0
+}
 
-let centerPanel: HTMLDivElement = document.createElement('div') // 中间设置面板
+public isSetFilterBmk: boolean = false // 是否设置了筛选收藏数
 
-let centerBtnWrap: HTMLDivElement // 中间插入按钮的区域
+public filterBmk: number = 0 // 要求收藏达到指定数量
 
-let downloadBarList: NodeListOf<HTMLDivElement> // 下载队列的dom元素
+public userSetName= '{id}'
+    
+public ugoiraSaveAs :'webm'|'gif'|'zip'= 'webm'
 
-let pauseBtn: HTMLDivElement // 暂停下载按钮
-
-let stopBtn: HTMLDivElement // 停止下载按钮
-
-let downloadThread: number // 下载线程
-
-let downloadStarted: boolean = false // 下载是否已经开始
-
-let downloaded: number = 0 // 已下载的文件
-
-let downloadStop: boolean = false // 是否停止下载
-
-let downloadPause: boolean = false // 是否暂停下载
-
-let reTryTimer: number = 0 // 重试下载的定时器
-
-let titleTimer: number // 修改 title 的定时器
-
-let downloadTime: number = 0 // 向浏览器发送下载任务的时间戳
-
-const timeInterval: number = 200 // 设置向浏览器发送下载任务的间隔时间。如果在很短时间内让浏览器建立大量下载任务，有一些下载任务就会丢失，所以设置这个参数。
-
-let downRelated: boolean = false // 是否下载相关作品（作品页内的）
-
-/*
--1 抓取新作品
-0 不设置抓取方向
-1 抓取旧作品
-*/
-let downDirection: number = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品
-
-let downRecommended: boolean = false // 是否下载推荐作品（收藏页面下方）
-
-let viewerWarpper: HTMLDivElement // 图片列表的容器
-
-let viewerUl: HTMLUListElement // 图片列表的 ul 元素
-
-let myViewer: Viewer // 查看器
-
-let quickBookmarkEl: HTMLAnchorElement // 快速收藏的元素
-
-let xzForm: XzForm // 设置面板的表单
-
-let xzTipEl: HTMLDivElement // 用于显示提示的元素
-
-
-let onlyDownBmk: boolean = false // 是否只下载收藏的作品
-
-let ratioType: string = '0' // 宽高比例的类型
+public quietDownload= true
+public tagNameToFileName= true
+public showOptions= true
+public wantPage: number = 0 // 要抓取几页
+public timeInterval: number = 200 // 设置向浏览器发送下载任务的间隔时间。如果在很短时间内让浏览器建立大量下载任务，有一些下载任务就会丢失，所以设置这个参数。
+public onlyDownBmk: boolean = false // 是否只下载收藏的作品
+public ratioType: string = '0' // 宽高比例的类型
 
 // 用正则过滤不安全的字符，（Chrome 和 Windows 不允许做文件名的字符）
 // 不安全的字符，这里多数是控制字符，需要替换掉
-const unsafeStr = new RegExp(
+public unsafeStr = new RegExp(
   /[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g
 )
 // 一些需要替换成全角字符的符号，左边是正则表达式的字符
-const fullWidthDict: string[][] = [
+public fullWidthDict: string[][] = [
   ['\\\\', '＼'],
   ['/', '／'],
   [':', '：'],
@@ -265,485 +229,175 @@ const fullWidthDict: string[][] = [
   ['\\|', '｜'],
   ['~', '～']
 ]
-
-// 把一些特殊字符替换成全角字符
-function replaceUnsafeStr(str: string) {
-  str = str.replace(unsafeStr, '')
-  for (let index = 0; index < fullWidthDict.length; index++) {
-    const rule = fullWidthDict[index]
-    const reg = new RegExp(rule[0], 'g')
-    str = str.replace(reg, rule[1])
-  }
-  return str
-}
-
-let taskBatch = 0 // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
-
-let langType: number // 语言类型
-
-// 处理和脚本版的冲突
-function checkConflict(): void {
-  // 标注自己
-  window.sessionStorage.setItem('xz_pixiv_extension', '1')
-  // 把脚本版的标记设置为 0，这样脚本版就不会运行
-  window.sessionStorage.setItem('xz_pixiv_userscript', '0')
-}
-
-// 设置语言类型
-function setLangType() {
-  const userLang = document.documentElement.lang // 获取语言标识
-
-  switch (userLang) {
-    case 'zh':
-    case 'zh-CN':
-    case 'zh-Hans':
-      langType = 0 // 设置为简体中文
-      break
-
-    case 'ja':
-      langType = 1 // 设置为日语
-      break
-
-    case 'zh-Hant':
-    case 'zh-tw':
-    case 'zh-TW':
-      langType = 3 // 设置为繁体中文
-      break
-
-    default:
-      langType = 2 // 设置为英语
-      break
+  // 保存的设置
+  public xzSetting: XzSetting = {
+    imgNumberPerWork :this.imgNumberPerWork,
+    notdownType: this.notdownType,
+    ugoiraSaveAs: this.ugoiraSaveAs,
+    needTag: this.needTag,
+    notNeedTag: this.notNeedTag,
+    displayCover: this.displayCover,
+    quietDownload: this.quietDownload,
+    downloadThread: this.downloadThreadDefault,
+    userSetName: this.userSetName,
+    tagNameToFileName: this.tagNameToFileName,
+    showOptions: this.showOptions
   }
 }
 
-// xianzun_lang_translate 翻译
-function xzlt(name: keyof typeof xzLang, ...arg: string[]) {
-  let content = xzLang[name][langType]
-  arg.forEach(val => (content = content.replace('{}', val)))
-  return content
-}
 
-// 添加 css 样式
-async function addStyle() {
-  // 把 css 样式的文本插入到页面里
-  const add = function(text: string) {
-    const styleE = document.createElement('style')
-    styleE.textContent = text
-    document.body.appendChild(styleE)
+
+
+
+
+
+
+
+
+//标题栏
+class Titlebar {
+  
+// 检查标题里有没有包含本程序定义的状态字符
+titleHasStatus(status: string = '') {
+  const titleStatus = [
+    '[0]',
+    '[↑]',
+    '[→]',
+    '[▶]',
+    '[↓]',
+    '[║]',
+    '[■]',
+    '[√]',
+    '[ ]'
+  ]
+
+  if (!status) {
+    // 没有传递 status，则检查所有标记
+    for (const str of titleStatus) {
+      if (document.title.includes(str)) {
+        return true
+      }
+    }
+  } else {
+    // 检查指定标记
+    return document.title.includes(status)
   }
-  // 加载 viewerjs 的样式，不需要同步加载
-  fetch(chrome.extension.getURL('style/viewer.min.css'))
-    .then(res => {
-      return res.text()
-    })
-    .then(text => {
-      add(text)
-    })
 
-  // 加载本程序的样式，需要同步加载，之后再创建下载器的 DOM 元素
-  const styleFile = await fetch(chrome.extension.getURL('style/xzstyle.css'))
-  const styleContent = await styleFile.text()
-  add(styleContent)
+  return false
 }
 
-// 添加 js 文件
-async function addJs() {
-  // 添加 zip 的 worker
-  let zipWorker = await fetch(chrome.extension.getURL('lib/z-worker.js'))
-  const zipWorkerBolb = await zipWorker.blob()
-  const zipWorkerUrl = URL.createObjectURL(zipWorkerBolb)
-  if (zip) {
-    zip.workerScripts = {
-      inflater: [zipWorkerUrl]
+// 重设 title
+ resetTitle() {
+  clearInterval(titleTimer)
+  // 储存标题的 mete 元素。在某些页面不存在，有时也与实际上的标题不一致。
+  const ogTitle = document.querySelector(
+    'meta[property="og:title"]'
+  )! as HTMLMetaElement
+  // 无刷新自动加载的页面里，og:title 标签是最早更新标题的，内容也一致。
+  if (ogTitle && (pageType == 1 || pageType === 2)) {
+    document.title = ogTitle.content
+  } else {
+    // 如果当前 title 里有状态提醒，则设置为状态后面的文字
+    if (titleHasStatus()) {
+      const index = document.title.indexOf(']')
+      document.title = document.title.substr(index + 1, document.title.length)
     }
   }
-  // 添加 gif 的 worker
-  let gifWorker = await fetch(chrome.extension.getURL('lib/gif.worker.js'))
-  const gifWorkerBolb = await gifWorker.blob()
-  gifWorkerUrl = URL.createObjectURL(gifWorkerBolb)
 }
 
-// 显示最近更新
-function showNew(tag: keyof typeof xzLang) {
-  if (!window.location.host.includes('pixiv.net')) {
-    return false
-  }
-  if (!window.localStorage.getItem(tag)) {
-    const whatIsNewHtml = `
-<div class="xz_new">
-  <p class="title">Pixiv Batch Downloader ${xzlt('_最近更新')}</p>
-  <p class="content">${xzlt(tag)}</p>
-  <button class="btn">${xzlt('_确定')}</button>
-</div>`
-    document.body.insertAdjacentHTML('afterbegin', whatIsNewHtml)
-    const whatIsNewEl = document.querySelector('.xz_new')!
-    whatIsNewEl.querySelector('.btn')!.addEventListener('click', () => {
-      window.localStorage.setItem(tag, '1')
-      whatIsNewEl.parentNode!.removeChild(whatIsNewEl)
-    })
-  }
-}
+// 修改title
+changeTitle(string: string) {
+  // 工作时，本程序的状态会以 [string] 形式添加到 title 最前面，并闪烁提醒
+  /*
+  0 不显示在标题上，它是把标题复原的信号
+  ↑ 抓取中
+  → 等待下一步操作（tag搜索页）
+  ▶  准备下载
+  ↓ 下载中
+  ║ 下载暂停
+  ■ 下载停止
+  √ 下载完毕
+  */
 
-// 检查新版本
-async function checkNew() {
-  // 显示更新按钮
-  const show = function() {
-    const updateIco = document.querySelector(
-      '.centerWrap_top_btn.update'
-    )! as HTMLAnchorElement
-    updateIco.style.display = 'inline-block'
+  // 重设 title
+  if (string === '0') {
+    resetTitle()
+    return
   }
 
-  // 读取上一次检查的时间，如果超过一小时则检查 GitHub 上的信息
-  const lastTime = localStorage.getItem('xzUpdateTime')
-  if (!lastTime || new Date().getTime() - parseInt(lastTime) > 60 * 60 * 1000) {
-    // 获取最新的 releases 信息
-    const latest = await fetch(
-      'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest'
-    )
-    const latestJson = await latest.json()
-    const latestVer = latestJson.name
-    // 保存 GitHub 上的版本信息
-    localStorage.setItem('xzGithubVer', latestVer)
-    // 保存本次检查的时间戳
-    localStorage.setItem('xzUpdateTime', new Date().getTime().toString())
+  const status = `[${string}]`
+  // 如果 title 里没有状态，就添加状态
+  if (!titleHasStatus()) {
+    document.title = `${status} ${document.title}`
+  } else {
+    // 如果已经有状态了，则替换为新当前传入的状态
+    document.title = document.title.replace(/\[.?\]/, status)
   }
 
-  // 获取本地扩展的版本号
-  const manifest = await fetch(chrome.extension.getURL('manifest.json'))
-  const manifestJson = await manifest.json()
-  const manifestVer = manifestJson.version
-  // 比较大小
-  const latestVer = localStorage.getItem('xzGithubVer')
-  if (latestVer && manifestVer < latestVer) {
-    show()
-  }
-}
-
-// 获取 token
-function getToken() {
-  // 从含有 globalInitData 信息的脚本里，匹配 token 字符串
-  const regToken = document.head.innerHTML.match(/token: "(\w+)"/)
-  if (regToken && regToken.length > 0) {
-    return regToken[1]
-  }
-
-  // 从保存 token 的 input 获取
-  const tokenInput: HTMLInputElement = document.querySelector(
-    'input[name="tt"]'
-  ) as HTMLInputElement
-  if (tokenInput) {
-    return tokenInput.value
-  }
-
-  return ''
-}
-
-// 快速收藏
-function quickBookmark() {
-  const tt = getToken()
-
-  if (!tt) {
-    // 如果获取不到 token，则不展开本程序的快速收藏功能
-    return false
-  }
-
-  // 因为切换作品（pushstate）时，不能准确的知道 toolbar 何时更新，所以只能不断检测
-  setTimeout(() => {
-    quickBookmark()
-  }, 300)
-
-  // 因为 p 站改版 class 经常变，所以从父元素查找，父元素的 class 变化没那么频繁
-  const toolbarParent = document.querySelectorAll('main > section')
-
-  let toolbar // 作品下方的工具栏
-  for (const el of toolbarParent) {
-    if (el.querySelector('div>section')) {
-      toolbar = el.querySelector('div>section')
-      break
-    }
-  }
-
-  if (toolbar) {
-    quickBookmarkEl = document.querySelector(
-      '#quickBookmarkEl'
-    ) as HTMLAnchorElement
-
-    // 如果没有 quick 元素则添加
-    if (!quickBookmarkEl) {
-      // 创建快速收藏元素
-      quickBookmarkEl = document.createElement('a')
-      quickBookmarkEl.id = 'quickBookmarkEl'
-      quickBookmarkEl.innerHTML = '✩'
-      quickBookmarkEl.href = 'javascript:void(0)'
-      quickBookmarkEl.title = xzlt('_快速收藏')
-      toolbar.insertBefore(quickBookmarkEl, toolbar.childNodes[3])
-      // 隐藏原来的收藏按钮并检测收藏状态
-      const orgIcon = toolbar.childNodes[2] as HTMLDivElement
-      orgIcon.style.display = 'none'
-      const heart = orgIcon.querySelector('svg')!
-      if (window.getComputedStyle(heart)['fill'] === 'rgb(255, 64, 96)') {
-        // 如果已经收藏过了
-        quickBookmarkEnd()
+  // 当需要执行下一步操作时，闪烁提醒
+  if (string === '▶' || string === '→') {
+    titleTimer = setInterval(function() {
+      if (titleHasStatus(status)) {
+        document.title = document.title.replace(status, '[ ]')
       } else {
-        // 准备快速收藏
-        readyQuickBookmark()
+        document.title = document.title.replace('[ ]', status)
       }
-    } else {
-      // 如果有 quick 元素，什么都不做
-      return false
-    }
-  }
-}
-
-// 准备快速收藏
-function readyQuickBookmark() {
-  quickBookmarkEl.addEventListener('click', () => {
-    ;(document.querySelector('._35vRH4a')! as HTMLButtonElement).click() // 自动点赞
-    // 储存 tag
-    const tagElements = document.querySelectorAll('._1LEXQ_3 li')
-    const tagArray = Array.from(tagElements).map(el => {
-      const nowA = el.querySelector('a')
-      if (nowA) {
-        let nowTag = nowA.textContent
-        // 对于原创作品，非日文的页面上只显示了用户语言的“原创”，替换成日文 tag “オリジナル”。
-        if (nowTag === '原创' || nowTag === 'Original' || nowTag === '창작') {
-          nowTag = 'オリジナル'
-        }
-        return nowTag
-      }
-    })
-    const tagString = encodeURI(tagArray.join(' '))
-
-    // 调用添加收藏的 api
-    addBookmark(getIllustId(), tagString, getToken(), false)
-      .then(response => response.json())
-      .then(data => {
-        if (data.error !== undefined && data.error === false) {
-          quickBookmarkEnd()
-        }
-      })
-  })
-}
-
-// 如果这个作品已收藏，则改变样式
-function quickBookmarkEnd() {
-  quickBookmarkEl.style.color = '#FF4060'
-  quickBookmarkEl.href = `/bookmark_add.php?type=illust&illust_id=${getIllustId()}`
-}
-
-// 添加收藏
-async function addBookmark(
-  id: string,
-  tags: string,
-  tt: string,
-  hide: boolean
-) {
-  let restrict: number
-  if (!hide) {
-    // 公开作品
-    restrict = 0
+    }, 500)
   } else {
-    // 非公开作品
-    restrict = 1
-  }
-
-  return fetch('https://www.pixiv.net/rpc/index.php', {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-    },
-    credentials: 'same-origin', // 附带 cookie
-    body: `mode=save_illust_bookmark&illust_id=${id}&restrict=${restrict}&comment=&tags=${tags}&tt=${tt}`
-  })
-}
-
-// 获取未分类书签的 tag 信息
-function getInfoFromBookmark(url: string) {
-  addTagBtn!.textContent = `loading`
-
-  return fetch(url, {
-    credentials: 'same-origin'
-  })
-    .then(response => {
-      if (response.ok) {
-        return response.json()
-      } else {
-        if (response.status === 403) {
-          addTagBtn!.textContent = `× permission denied`
-        }
-        throw new Error(response.status.toString())
-      }
-    })
-    .then(data => {
-      const works: BookmarkData[] = data.body.works
-      const result: BookmarkResult[] = []
-
-      if (works.length > 0 && works[0].bookmarkData) {
-        // 判断作品的 bookmarkData，如果为假说明这是在别人的收藏页面，不再获取数据。
-        works.forEach(item => {
-          result.push({
-            id: item.id,
-            tags: encodeURI(item.tags.join(' ')),
-            restrict: item.bookmarkData.private
-          })
-        })
-      }
-
-      return result
-    })
-}
-
-// 准备添加 tag。loop 表示这是第几轮循环
-async function readyAddTag(loop: number = 0) {
-  const offset = loop * 100 // 一次请求只能获取 100 个，所以可能有多次请求，要计算偏移量
-
-  // 配置 url
-  const showUrl = `https://www.pixiv.net/ajax/user/${getUserId()}/illusts/bookmarks?tag=${encodeURI(
-    '未分類'
-  )}&offset=${offset}&limit=100&rest=show&rdm=${Math.random()}` // 公开的未分类收藏
-  const hideUrl = showUrl.replace('show', 'hide') // 非公开的未分类收藏
-
-  // 发起请求
-  const [showData, hideData] = await Promise.all([
-    getInfoFromBookmark(showUrl),
-    getInfoFromBookmark(hideUrl)
-  ])
-
-  // 保存结果
-  addTagList = addTagList.concat(showData)
-  addTagList = addTagList.concat(hideData)
-
-  // 进行下一步的处理
-  if (addTagList.length === 0) {
-    // 如果结果为空，不需要处理
-    addTagBtn!.textContent = `√ no need`
-    addTagBtn!.removeAttribute('disabled')
-    return false
-  } else {
-    // 判断是否获取完毕，如果本次请求获取的数据为空，则已经没有数据
-    if (showData.length === 0 && hideData.length === 0) {
-      // 已经获取完毕
-      addTag(0, addTagList, getToken())
-    } else {
-      // 需要继续获取
-      readyAddTag(++loop)
-    }
+    clearInterval(titleTimer)
   }
 }
 
-// 给未分类作品添加 tag
-async function addTag(index: number, addList: BookmarkResult[], tt: string) {
-  const item: BookmarkResult = addList[index] as BookmarkResult
-  await addBookmark(item.id, item.tags, tt, item.restrict)
-  if (index < addList.length - 1) {
-    index++
-    addTagBtn!.textContent = `${index} / ${addList.length}`
-    // 继续添加下一个
-    addTag(index, addList, tt)
-  } else {
-    addTagBtn!.textContent = `√ complete`
-    addTagBtn!.removeAttribute('disabled')
-  }
 }
 
-// 解压 zip 文件
-async function readZip(
-  zipFile: any,
-  ugoiraInfo: UgoiraInfo
-): Promise<string[]> {
-  return new Promise(function(resolve, reject) {
-    zip.createReader(
-      new zip.BlobReader(zipFile),
-      (zipReader: any) => {
-        // 读取成功时的回调函数，files 保存了文件列表的信息
-        zipReader.getEntries((files: object[]) => {
-          // 创建数组，长度与文件数量一致
-          const imgFile = new Array(files.length)
-          // 获取每个文件的数据。因为这个操作是异步的，所以必须检查图片数量
-          files.forEach((file: any) => {
-            file.getData(
-              new zip.Data64URIWriter(ugoiraInfo.mimeType),
-              (data: string) => {
-                const fileNo = parseInt(file.filename)
-                imgFile[fileNo] = data
-                // 把图片按原编号存入对应的位置。这是因为我怀疑有时候 zip.Data64URIWriter 的回调顺序不一致，直接 push 可能导致图片的顺序乱掉
-                for (let i = 0; i < imgFile.length; i++) {
-                  // 检测到空值说明没有添加完毕，退出循环
-                  if (!imgFile[i]) {
-                    break
-                  }
-                  // 如果检查到最后一项，说明添加完毕
-                  if (i === imgFile.length - 1) {
-                    resolve(imgFile)
-                  }
-                }
-              }
-            )
-          })
-        })
-      },
-      (message: any) => {
-        addLog('error: readZIP error.', 2, 2)
-        reject(new Error('readZIP error: ' + message))
-      }
-    )
-  })
+// 界面类
+class UI {
+  public viewerWarpper: HTMLDivElement = document.createElement('div') // 图片列表的容器
+
+  public viewerUl: HTMLUListElement = document.createElement('ul') // 图片列表的 ul 元素
+  
+  
+  public quickBookmarkEl: HTMLAnchorElement = document.createElement('a') // 快速收藏的元素
+  
+  public xzForm!: XzForm // 设置面板的表单
+  
+  public xzTipEl: HTMLDivElement = document.createElement('div') // 用于显示提示的元素
+  
+  public addTagBtn: HTMLButtonElement | null  = document.createElement('button')// 给未分类作品添加 tag 的按钮
+
+  public rightButton: HTMLDivElement = document.createElement('div') // 右侧按钮
+
+public centerPanel: HTMLDivElement = document.createElement('div') // 中间设置面板
+
+public centerBtnWrap: HTMLDivElement = document.createElement('div') // 中间插入按钮的区域
+
+public downloadBarList!: NodeListOf<HTMLDivElement> // 下载队列的dom元素
+
+public pauseBtn: HTMLButtonElement = document.createElement('button') // 暂停下载按钮
+
+public stopBtn: HTMLButtonElement = document.createElement('button') // 停止下载按钮
+
+// 将元素插入到页面顶部
+/*
+大部分页面使用 header，文章页使用 root。因为在文章页执行时，可能获取不到 header.
+newindex-inner 是在未登录时的画师作品列表页面使用的
+layout-body 是在未登录时的 tag 搜索页使用的
+*/
+insertToHead(el: Element) {
+  ;(
+    document.querySelector('#root>*') ||
+    document.querySelector('header')! ||
+    document.querySelector('.newindex-inner')! ||
+    document.querySelector('.layout-body')!
+  ).insertAdjacentElement('beforebegin', el)
+}
 }
 
-// 添加每一帧的数据
-async function getFrameData(
-  imgFile: string[],
-  type: string = 'webm'
-): Promise<HTMLCanvasElement[] | HTMLImageElement[]> {
-  const resultList = new Array(imgFile.length)
-  return new Promise(function(resolve, reject) {
-    const drawImg = function(index: number) {
-      const img = new Image()
-
-      img.onload = function(event) {
-        // 处理视频
-        if (type === 'webm') {
-          const xzCanvas = document.createElement('canvas')
-          const ctx = xzCanvas.getContext('2d')!
-          xzCanvas.width = img.width
-          xzCanvas.height = img.height
-          ctx.drawImage(img, 0, 0)
-          resultList[index] = xzCanvas
-        }
-        // 处理 gif
-        if (type === 'gif') {
-          resultList[index] = img
-        }
-
-        // 继续下一个
-        if (index < imgFile.length - 1) {
-          index++
-          drawImg(index)
-        } else {
-          resolve(resultList)
-        }
-      }
-
-      img.src = imgFile[index]
-    }
-
-    // onload 完成时的顺序和添加事件时的顺序不一致，为了避免图片顺序乱掉，这里逐个添加每个图片
-    drawImg(0)
-  })
-}
-
-// 编码视频
-async function encodeVideo(encoder: any) {
-  return new Promise(function(resolve, reject) {
-    encoder.compile(false, function(video: Blob) {
-      resolve(video)
-    })
-  })
-}
+class ImgViewer{
+  public myViewer!: Viewer // 查看器
 
 // 初始化图片查看器
-function newViewer(pageCount: number, firsturl: string) {
+ newViewer(pageCount: number, firsturl: string) {
   // 因为选项里的 size 是枚举类型，所以在这里也要定义一个枚举
   enum ToolbarButtonSize {
     Small = 'small',
@@ -799,7 +453,7 @@ function newViewer(pageCount: number, firsturl: string) {
 }
 
 // 初始化图片查看器
-function initViewer() {
+ initViewer() {
   // 检查图片查看器元素是否已经生成
   if (!document.getElementById('viewerWarpper')) {
     createViewer()
@@ -811,7 +465,7 @@ function initViewer() {
 }
 
 // 创建图片查看器 html 元素，并绑定一些事件，这个函数只会在初始化时执行一次
-function createViewer() {
+ createViewer() {
   if (!document.querySelector('main figcaption')) {
     // 等到作品主体部分的元素生成之后再创建查看器
     setTimeout(() => {
@@ -896,7 +550,7 @@ function createViewer() {
 }
 
 // 根据作品信息，更新图片查看器配置。每当页面更新时执行一次
-function updateViewer() {
+ updateViewer() {
   viewerWarpper.style.display = 'none' // 先隐藏 viewerWarpper
 
   // 获取作品信息
@@ -943,7 +597,7 @@ function updateViewer() {
 }
 
 // 隐藏查看器的其他元素
-function hideViewerOther() {
+ hideViewerOther() {
   document.querySelector('.viewer-container')!.classList.add('black-background')
   // 隐藏底部的其他元素，仍然显示左右切换按钮
   const close = document.querySelector('.viewer-close') as HTMLDivElement
@@ -957,7 +611,7 @@ function hideViewerOther() {
 }
 
 // 显示查看器的其他元素
-function showViewerOther() {
+ showViewerOther() {
   document
     .querySelector('.viewer-container')!
     .classList.remove('black-background')
@@ -973,7 +627,7 @@ function showViewerOther() {
 }
 
 // 在图片100%显示时，使其居中
-function setViewerCenter() {
+ setViewerCenter() {
   // 获取图片宽高
   const imgInfo = document.querySelector('.viewer-title')!.textContent
 
@@ -1010,12 +664,12 @@ function setViewerCenter() {
 }
 
 // 判断是否处于全屏状态
-function isFullscreen() {
+ isFullscreen() {
   return !!document.fullscreenElement
 }
 
 // 判断看图器是否处于显示状态
-function viewerIsShow() {
+ viewerIsShow() {
   const viewerContainer = document.querySelector('.viewer-container')
 
   if (viewerContainer) {
@@ -1024,158 +678,647 @@ function viewerIsShow() {
     return false
   }
 }
-
-// 检查标题里有没有包含本程序定义的状态字符
-function titleHasStatus(status: string = '') {
-  const titleStatus = [
-    '[0]',
-    '[↑]',
-    '[→]',
-    '[▶]',
-    '[↓]',
-    '[║]',
-    '[■]',
-    '[√]',
-    '[ ]'
-  ]
-
-  if (!status) {
-    // 没有传递 status，则检查所有标记
-    for (const str of titleStatus) {
-      if (document.title.includes(str)) {
-        return true
-      }
-    }
-  } else {
-    // 检查指定标记
-    return document.title.includes(status)
-  }
-
-  return false
 }
 
-// 重设 title
-function resetTitle() {
-  clearInterval(titleTimer)
-  // 储存标题的 mete 元素。在某些页面不存在，有时也与实际上的标题不一致。
-  const ogTitle = document.querySelector(
-    'meta[property="og:title"]'
-  )! as HTMLMetaElement
-  // 无刷新自动加载的页面里，og:title 标签是最早更新标题的，内容也一致。
-  if (ogTitle && (pageType == 1 || pageType === 2)) {
-    document.title = ogTitle.content
-  } else {
-    // 如果当前 title 里有状态提醒，则设置为状态后面的文字
-    if (titleHasStatus()) {
-      const index = document.title.indexOf(']')
-      document.title = document.title.substr(index + 1, document.title.length)
+
+
+
+
+// 下载类，下载过程中会产生的数据，用户不能修改的
+class Downloader extends Config,UI {
+  public type2IdList: string[] = [] // 储存 pageType 2 的 id 列表
+  public taskBatch = 0 // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
+
+  public imgInfo: ImgInfo[] = [] // 储存图片信息
+  
+  public downloadedList: number[] = [] // 标记已完成的完成的下载任务
+  
+  public illustUrlList: string[] = [] // 储存要下载的作品的页面url
+  
+  public rankList: RankList = {} // 储存作品在排行榜中的排名
+  
+  const tagSearchResult: TagSearchResult[] = [] // 储存 tag 搜索页符合条件的所有作品
+  
+  public addTagList: BookmarkResult[] = [] // 需要添加 tag 的作品列表
+public ajaxThreadsFinished: number = 0 // 统计有几个并发线程完成所有请求。统计的是并发数（ ajaxForIllustThreads ）而非请求数
+public testSuffixFinished: boolean = true // 检查图片后缀名正确性的函数是否执行完毕
+
+public testSuffixNo: number = 0 // 检查图片后缀名函数的计数
+
+public baseUrl: string = '' // 列表页url规则
+
+public startpageNo: number = 1 // 列表页开始抓取时的页码
+
+public listPageFinished: number = 0 // 记录一共抓取了多少列表页
+
+public tagPageFinished: number = 0 // 记录 tag 搜索页本次任务已经抓取了多少页
+public interrupt: boolean = false // 是否中断正在进行的任务，目前仅在 tag 搜索页使用
+
+public allowWork: boolean = true // 当前是否允许展开工作（如果有未完成的任务则应为 false
+
+
+public partNumber: number = 10 // 保存不同排行榜的列表数量
+
+public requsetNumber: number = 0 // 要下载多少个作品
+
+public maxNum: number = 0 // 最多允许获取多少数量，在相关作品、相似作品、大家/关注的新作品页面使用
+
+public downloadThread: number = this.downloadThreadDefault // 下载线程
+
+public downloadStarted: boolean = false // 下载是否已经开始
+
+public downloaded: number = 0 // 已下载的文件
+
+public downloadStop: boolean = false // 是否停止下载
+
+public downloadPause: boolean = false // 是否暂停下载
+
+public reTryTimer: number = 0 // 重试下载的定时器
+
+public titleTimer: number = 0 // 修改 title 的定时器
+
+public downloadTime: number = 0 // 向浏览器发送下载任务的时间戳
+
+public downRelated: boolean = false // 是否下载相关作品（作品页内的）
+
+/*
+-1 抓取新作品
+0 不设置抓取方向
+1 抓取旧作品
+*/
+public downDirection: number = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品
+
+public downRecommended: boolean = false // 是否下载推荐作品（收藏页面下方）
+
+
+// 把一些特殊字符替换成全角字符
+public replaceUnsafeStr(str: string) {
+  str = str.replace(this.unsafeStr, '')
+  for (let index = 0; index < this.fullWidthDict.length; index++) {
+    const rule = this.fullWidthDict[index]
+    const reg = new RegExp(rule[0], 'g')
+    str = str.replace(reg, rule[1])
+  }
+  return str
+}
+
+
+// 处理和脚本版的冲突
+public checkConflict(): void {
+  // 标注自己
+  window.sessionStorage.setItem('xz_pixiv_extension', '1')
+  // 把脚本版的标记设置为 0，这样脚本版就不会运行
+  window.sessionStorage.setItem('xz_pixiv_userscript', '0')
+}
+
+
+// 添加 css 样式
+public async addStyle() {
+  // 把 css 样式的文本插入到页面里
+  const add = function(text: string) {
+    const styleE = document.createElement('style')
+    styleE.textContent = text
+    document.body.appendChild(styleE)
+  }
+  // 加载 viewerjs 的样式，不需要同步加载
+  fetch(chrome.extension.getURL('style/viewer.min.css'))
+    .then(res => {
+      return res.text()
+    })
+    .then(text => {
+      add(text)
+    })
+
+  // 加载本程序的样式，需要同步加载，之后再创建下载器的 DOM 元素
+  const styleFile = await fetch(chrome.extension.getURL('style/xzstyle.css'))
+  const styleContent = await styleFile.text()
+  add(styleContent)
+}
+
+// 添加 js 文件
+public async  addJs() {
+  // 添加 zip 的 worker
+  let zipWorker = await fetch(chrome.extension.getURL('lib/z-worker.js'))
+  const zipWorkerBolb = await zipWorker.blob()
+  const zipWorkerUrl = URL.createObjectURL(zipWorkerBolb)
+  if (zip) {
+    zip.workerScripts = {
+      inflater: [zipWorkerUrl]
     }
+  }
+  // 添加 gif 的 worker
+  let gifWorker = await fetch(chrome.extension.getURL('lib/gif.worker.js'))
+  const gifWorkerBolb = await gifWorker.blob()
+  this.gifWorkerUrl = URL.createObjectURL(gifWorkerBolb)
+}
+
+// 显示最近更新
+public showNew(tag: keyof typeof xzLang) {
+  if (!window.location.host.includes('pixiv.net')) {
+    return false
+  }
+  if (!window.localStorage.getItem(tag)) {
+    const whatIsNewHtml = `
+<div class="xz_new">
+  <p class="title">Pixiv Batch Downloader ${lang.transl('_最近更新')}</p>
+  <p class="content">${lang.transl(tag)}</p>
+  <button class="btn">${lang.transl('_确定')}</button>
+</div>`
+    document.body.insertAdjacentHTML('afterbegin', whatIsNewHtml)
+    const whatIsNewEl = document.querySelector('.xz_new')!
+    whatIsNewEl.querySelector('.btn')!.addEventListener('click', () => {
+      window.localStorage.setItem(tag, '1')
+      whatIsNewEl.parentNode!.removeChild(whatIsNewEl)
+    })
   }
 }
 
-// 修改title
-function changeTitle(string: string) {
-  // 工作时，本程序的状态会以 [string] 形式添加到 title 最前面，并闪烁提醒
-  /*
-  0 不显示在标题上，它是把标题复原的信号
-  ↑ 抓取中
-  → 等待下一步操作（tag搜索页）
-  ▶  准备下载
-  ↓ 下载中
-  ║ 下载暂停
-  ■ 下载停止
-  √ 下载完毕
-  */
-
-  // 重设 title
-  if (string === '0') {
-    resetTitle()
-    return
+// 检查新版本
+public async  checkNew() {
+  // 显示更新按钮
+  const show = function() {
+    const updateIco = document.querySelector(
+      '.centerWrap_top_btn.update'
+    )! as HTMLAnchorElement
+    updateIco.style.display = 'inline-block'
   }
 
-  const status = `[${string}]`
-  // 如果 title 里没有状态，就添加状态
-  if (!titleHasStatus()) {
-    document.title = `${status} ${document.title}`
-  } else {
-    // 如果已经有状态了，则替换为新当前传入的状态
-    document.title = document.title.replace(/\[.?\]/, status)
+  // 读取上一次检查的时间，如果超过一小时则检查 GitHub 上的信息
+  const lastTime = localStorage.getItem('xzUpdateTime')
+  if (!lastTime || new Date().getTime() - parseInt(lastTime) > 60 * 60 * 1000) {
+    // 获取最新的 releases 信息
+    const latest = await fetch(
+      'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest'
+    )
+    const latestJson = await latest.json()
+    const latestVer = latestJson.name
+    // 保存 GitHub 上的版本信息
+    localStorage.setItem('xzGithubVer', latestVer)
+    // 保存本次检查的时间戳
+    localStorage.setItem('xzUpdateTime', new Date().getTime().toString())
   }
 
-  // 当需要执行下一步操作时，闪烁提醒
-  if (string === '▶' || string === '→') {
-    titleTimer = setInterval(function() {
-      if (titleHasStatus(status)) {
-        document.title = document.title.replace(status, '[ ]')
+  // 获取本地扩展的版本号
+  const manifest = await fetch(chrome.extension.getURL('manifest.json'))
+  const manifestJson = await manifest.json()
+  const manifestVer = manifestJson.version
+  // 比较大小
+  const latestVer = localStorage.getItem('xzGithubVer')
+  if (latestVer && manifestVer < latestVer) {
+    show()
+  }
+}
+
+
+}
+
+// api 类
+class API {
+  // 获取 token
+public getToken() {
+  // 从含有 globalInitData 信息的脚本里，匹配 token 字符串
+  const regToken = document.head.innerHTML.match(/token: "(\w+)"/)
+  if (regToken && regToken.length > 0) {
+    return regToken[1]
+  }
+
+  // 从保存 token 的 input 获取
+  const tokenInput: HTMLInputElement = document.querySelector(
+    'input[name="tt"]'
+  ) as HTMLInputElement
+  if (tokenInput) {
+    return tokenInput.value
+  }
+
+  return ''
+}
+
+// 获取用户信息。可以传入 id，或者自动获取当前页面的用户 id
+function getUserInfo(id: string = '') {
+  fetch(`https://www.pixiv.net/ajax/user/${id || getUserId()}/profile/top`, {
+    method: 'get',
+    credentials: 'same-origin'
+  })
+    .then(response => response.json())
+    .then((data: UserProfileTop) => {
+      // 设置 pageInfo 的信息
+      let useData: { [key: string]: WorksInfo } = {}
+      // 如果有插画作品
+      if (Object.keys(data.body.illusts).length > 0) {
+        useData = data.body.illusts
+      } else if (Object.keys(data.body.manga).length > 0) {
+        // 如果没有插画作品，则从漫画作品中查找
+        useData = data.body.manga
       } else {
-        document.title = document.title.replace('[ ]', status)
+        // 查找不到
+        pageInfo.info.p_user = ''
+        pageInfo.info.p_uid = ''
+        return false
       }
-    }, 500)
+
+      let keys = Object.keys(useData)
+      let first = useData[keys[0]]
+      pageInfo.info.p_user = first.userName
+      pageInfo.info.p_uid = first.userId
+    })
+}
+
+// 从 url 里获取作品id，可以传参，无参数则使用当前页面的 url 匹配
+function getIllustId(url?: string) {
+  const str = url || window.location.search || locUrl
+  if (str.includes('illust_id')) {
+    // 传统 url
+    return /illust_id=(\d*\d)/.exec(str)![1]
+  } else if (str.includes('/artworks/')) {
+    // 新版 url
+    return /artworks\/(\d*\d)/.exec(str)![1]
   } else {
-    clearInterval(titleTimer)
+    // 直接取出 url 中的数字
+    return /\d*\d/.exec(locUrl)![0]
   }
 }
 
-// 将元素插入到页面顶部
-/*
-大部分页面使用 header，文章页使用 root。因为在文章页执行时，可能获取不到 header.
-newindex-inner 是在未登录时的画师作品列表页面使用的
-layout-body 是在未登录时的 tag 搜索页使用的
-*/
-function insertToHead(el: Element) {
-  ;(
-    document.querySelector('#root>*') ||
-    document.querySelector('header')! ||
-    document.querySelector('.newindex-inner')! ||
-    document.querySelector('.layout-body')!
-  ).insertAdjacentElement('beforebegin', el)
-}
+// 获取用户id
+function getUserId() {
+  let userId = ''
 
-// 输出日志。默认情况下每条日志下面添加一个换行
-/*
-str 信息文本，必要参数
-level 日志等级，可选，默认值为 -1
-br 换行标签的个数，可选，默认值为 1
-addMode 追加日志的模式，默认为 true，累加所有日志。false 是在快照的基础上始终只增加最后一条，不保存中间的日志。。
-
-日志等级：
--1 auto 不设置颜色
-0 success 绿色
-1 warring 黄色
-2 error 红色
-*/
-function addLog(
-  str: string,
-  level: number = -1,
-  br: number = 1,
-  addMode: boolean = true
-) {
-  if (document.getElementById('outputArea') === null) {
-    insertToHead(logArea)
+  // 首先尝试从 url 中获取
+  const test = /(\?|&)id=(\d{1,9})/.exec(window.location.search)
+  const nameElement = document.querySelector('.user-name')! as HTMLAnchorElement
+  if (test) {
+    userId = test[2]
+  } else if (nameElement) {
+    // 从旧版页面的头像获取（在书签页面使用）
+    userId = /\?id=(\d{1,9})/.exec(nameElement.href)![1]
+  } else {
+    // 从新版页面的头像获取，因为经常改版，不得已改成从源码匹配了
+    const el =
+      document.getElementById('root') || document.getElementById('spa-contents')
+    // 在 PC 模式的新版页面使用 root，在手机模式的新版页面使用 spa-contents
+    userId = /member\.php\?id=(\d{1,9})/.exec(el!.innerHTML)![1]
   }
 
-  let base = ''
-  // 处理添加状态
-  if (addMode) {
-    // 追加日志时，清空日志快照
-    logSnapshot = ''
-    base = logArea.innerHTML // 使用当前日志信息
-  } else {
-    // 只追加最新一条时，先做快照
-    if (logSnapshot === '') {
-      logSnapshot = logArea.innerHTML
+  return userId
+}
+
+// 从 url 中获取指定的查询条件
+function getQuery(url: string, query: string) {
+  const result = new URL(url).searchParams.get(query)
+  return result || ''
+}
+}
+
+// 书签相关类
+class Bookmark{
+  
+// 快速收藏
+quickBookmark() {
+  const tt = getToken()
+
+  if (!tt) {
+    // 如果获取不到 token，则不展开本程序的快速收藏功能
+    return false
+  }
+
+  // 因为切换作品（pushstate）时，不能准确的知道 toolbar 何时更新，所以只能不断检测
+  setTimeout(() => {
+    quickBookmark()
+  }, 300)
+
+  // 因为 p 站改版 class 经常变，所以从父元素查找，父元素的 class 变化没那么频繁
+  const toolbarParent = document.querySelectorAll('main > section')
+
+  let toolbar // 作品下方的工具栏
+  for (const el of toolbarParent) {
+    if (el.querySelector('div>section')) {
+      toolbar = el.querySelector('div>section')
+      break
     }
-    base = logSnapshot // 使用快照
   }
-  // 添加颜色
-  if (level > -1) {
-    str = `<span style="color:${colors.logColors[level]}">${str}</span>`
+
+  if (toolbar) {
+    quickBookmarkEl = document.querySelector(
+      '#quickBookmarkEl'
+    ) as HTMLAnchorElement
+
+    // 如果没有 quick 元素则添加
+    if (!quickBookmarkEl) {
+      // 创建快速收藏元素
+      quickBookmarkEl = document.createElement('a')
+      quickBookmarkEl.id = 'quickBookmarkEl'
+      quickBookmarkEl.innerHTML = '✩'
+      quickBookmarkEl.href = 'javascript:void(0)'
+      quickBookmarkEl.title = lang.transl('_快速收藏')
+      toolbar.insertBefore(quickBookmarkEl, toolbar.childNodes[3])
+      // 隐藏原来的收藏按钮并检测收藏状态
+      const orgIcon = toolbar.childNodes[2] as HTMLDivElement
+      orgIcon.style.display = 'none'
+      const heart = orgIcon.querySelector('svg')!
+      if (window.getComputedStyle(heart)['fill'] === 'rgb(255, 64, 96)') {
+        // 如果已经收藏过了
+        quickBookmarkEnd()
+      } else {
+        // 准备快速收藏
+        readyQuickBookmark()
+      }
+    } else {
+      // 如果有 quick 元素，什么都不做
+      return false
+    }
   }
-  // 添加换行符
-  str += '<br>'.repeat(br)
-  // 输出
-  logArea.innerHTML = base + str
 }
+
+// 准备快速收藏
+readyQuickBookmark() {
+  quickBookmarkEl.addEventListener('click', () => {
+    ;(document.querySelector('._35vRH4a')! as HTMLButtonElement).click() // 自动点赞
+    // 储存 tag
+    const tagElements = document.querySelectorAll('._1LEXQ_3 li')
+    const tagArray = Array.from(tagElements).map(el => {
+      const nowA = el.querySelector('a')
+      if (nowA) {
+        let nowTag = nowA.textContent
+        // 对于原创作品，非日文的页面上只显示了用户语言的“原创”，替换成日文 tag “オリジナル”。
+        if (nowTag === '原创' || nowTag === 'Original' || nowTag === '창작') {
+          nowTag = 'オリジナル'
+        }
+        return nowTag
+      }
+    })
+    const tagString = encodeURI(tagArray.join(' '))
+
+    // 调用添加收藏的 api
+    addBookmark(getIllustId(), tagString, getToken(), false)
+      .then(response => response.json())
+      .then(data => {
+        if (data.error !== undefined && data.error === false) {
+          quickBookmarkEnd()
+        }
+      })
+  })
+}
+
+// 如果这个作品已收藏，则改变样式
+quickBookmarkEnd() {
+  quickBookmarkEl.style.color = '#FF4060'
+  quickBookmarkEl.href = `/bookmark_add.php?type=illust&illust_id=${getIllustId()}`
+}
+
+// 添加收藏
+async addBookmark(
+  id: string,
+  tags: string,
+  tt: string,
+  hide: boolean
+) {
+  let restrict: number
+  if (!hide) {
+    // 公开作品
+    restrict = 0
+  } else {
+    // 非公开作品
+    restrict = 1
+  }
+
+  return fetch('https://www.pixiv.net/rpc/index.php', {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+    },
+    credentials: 'same-origin', // 附带 cookie
+    body: `mode=save_illust_bookmark&illust_id=${id}&restrict=${restrict}&comment=&tags=${tags}&tt=${tt}`
+  })
+}
+
+// 获取未分类书签的 tag 信息
+ getInfoFromBookmark(url: string) {
+  addTagBtn!.textContent = `loading`
+
+  return fetch(url, {
+    credentials: 'same-origin'
+  })
+    .then(response => {
+      if (response.ok) {
+        return response.json()
+      } else {
+        if (response.status === 403) {
+          addTagBtn!.textContent = `× permission denied`
+        }
+        throw new Error(response.status.toString())
+      }
+    })
+    .then(data => {
+      const works: BookmarkData[] = data.body.works
+      const result: BookmarkResult[] = []
+
+      if (works.length > 0 && works[0].bookmarkData) {
+        // 判断作品的 bookmarkData，如果为假说明这是在别人的收藏页面，不再获取数据。
+        works.forEach(item => {
+          result.push({
+            id: item.id,
+            tags: encodeURI(item.tags.join(' ')),
+            restrict: item.bookmarkData.private
+          })
+        })
+      }
+
+      return result
+    })
+}
+
+// 准备添加 tag。loop 表示这是第几轮循环
+async readyAddTag(loop: number = 0) {
+  const offset = loop * 100 // 一次请求只能获取 100 个，所以可能有多次请求，要计算偏移量
+
+  // 配置 url
+  const showUrl = `https://www.pixiv.net/ajax/user/${getUserId()}/illusts/bookmarks?tag=${encodeURI(
+    '未分類'
+  )}&offset=${offset}&limit=100&rest=show&rdm=${Math.random()}` // 公开的未分类收藏
+  const hideUrl = showUrl.replace('show', 'hide') // 非公开的未分类收藏
+
+  // 发起请求
+  const [showData, hideData] = await Promise.all([
+    getInfoFromBookmark(showUrl),
+    getInfoFromBookmark(hideUrl)
+  ])
+
+  // 保存结果
+  addTagList = addTagList.concat(showData)
+  addTagList = addTagList.concat(hideData)
+
+  // 进行下一步的处理
+  if (addTagList.length === 0) {
+    // 如果结果为空，不需要处理
+    addTagBtn!.textContent = `√ no need`
+    addTagBtn!.removeAttribute('disabled')
+    return false
+  } else {
+    // 判断是否获取完毕，如果本次请求获取的数据为空，则已经没有数据
+    if (showData.length === 0 && hideData.length === 0) {
+      // 已经获取完毕
+      addTag(0, addTagList, getToken())
+    } else {
+      // 需要继续获取
+      readyAddTag(++loop)
+    }
+  }
+}
+
+// 给未分类作品添加 tag
+async addTag(index: number, addList: BookmarkResult[], tt: string) {
+  const item: BookmarkResult = addList[index] as BookmarkResult
+  await addBookmark(item.id, item.tags, tt, item.restrict)
+  if (index < addList.length - 1) {
+    index++
+    addTagBtn!.textContent = `${index} / ${addList.length}`
+    // 继续添加下一个
+    addTag(index, addList, tt)
+  } else {
+    addTagBtn!.textContent = `√ complete`
+    addTagBtn!.removeAttribute('disabled')
+  }
+}
+
+
+// 语言类
+class Lang{
+  private langType:number = 0
+
+  // 设置语言类型
+public init() {
+  const userLang = document.documentElement.lang // 获取语言标识
+  switch (userLang) {
+    case 'zh':
+    case 'zh-CN':
+    case 'zh-Hans':
+      this.langType = 0 // 设置为简体中文
+      break
+
+    case 'ja':
+      this.langType = 1 // 设置为日语
+      break
+
+    case 'zh-Hant':
+    case 'zh-tw':
+    case 'zh-TW':
+      this.langType = 3 // 设置为繁体中文
+      break
+
+    default:
+      this.langType = 2 // 设置为英语
+      break
+  }
+}
+
+// translate 翻译
+public transl(name: keyof typeof xzLang, ...arg: string[]) {
+  let content = xzLang[name][this.langType]
+  arg.forEach(val => (content = content.replace('{}', val)))
+  return content
+}
+}
+
+// 转换类
+class Conver {
+
+// 解压 zip 文件
+async  readZip(
+  zipFile: any,
+  ugoiraInfo: UgoiraInfo
+): Promise<string[]> {
+  return new Promise(function(resolve, reject) {
+    zip.createReader(
+      new zip.BlobReader(zipFile),
+      (zipReader: any) => {
+        // 读取成功时的回调函数，files 保存了文件列表的信息
+        zipReader.getEntries((files: object[]) => {
+          // 创建数组，长度与文件数量一致
+          const imgFile = new Array(files.length)
+          // 获取每个文件的数据。因为这个操作是异步的，所以必须检查图片数量
+          files.forEach((file: any) => {
+            file.getData(
+              new zip.Data64URIWriter(ugoiraInfo.mimeType),
+              (data: string) => {
+                const fileNo = parseInt(file.filename)
+                imgFile[fileNo] = data
+                // 把图片按原编号存入对应的位置。这是因为我怀疑有时候 zip.Data64URIWriter 的回调顺序不一致，直接 push 可能导致图片的顺序乱掉
+                for (let i = 0; i < imgFile.length; i++) {
+                  // 检测到空值说明没有添加完毕，退出循环
+                  if (!imgFile[i]) {
+                    break
+                  }
+                  // 如果检查到最后一项，说明添加完毕
+                  if (i === imgFile.length - 1) {
+                    resolve(imgFile)
+                  }
+                }
+              }
+            )
+          })
+        })
+      },
+      (message: any) => {
+        Log.add('error: readZIP error.', 2, 2)
+        reject(new Error('readZIP error: ' + message))
+      }
+    )
+  })
+}
+
+// 添加每一帧的数据
+async  getFrameData(
+  imgFile: string[],
+  type: string = 'webm'
+): Promise<HTMLCanvasElement[] | HTMLImageElement[]> {
+  const resultList = new Array(imgFile.length)
+  return new Promise(function(resolve, reject) {
+    const drawImg = function(index: number) {
+      const img = new Image()
+
+      img.onload = function(event) {
+        // 处理视频
+        if (type === 'webm') {
+          const xzCanvas = document.createElement('canvas')
+          const ctx = xzCanvas.getContext('2d')!
+          xzCanvas.width = img.width
+          xzCanvas.height = img.height
+          ctx.drawImage(img, 0, 0)
+          resultList[index] = xzCanvas
+        }
+        // 处理 gif
+        if (type === 'gif') {
+          resultList[index] = img
+        }
+
+        // 继续下一个
+        if (index < imgFile.length - 1) {
+          index++
+          drawImg(index)
+        } else {
+          resolve(resultList)
+        }
+      }
+
+      img.src = imgFile[index]
+    }
+
+    // onload 完成时的顺序和添加事件时的顺序不一致，为了避免图片顺序乱掉，这里逐个添加每个图片
+    drawImg(0)
+  })
+}
+
+// 编码视频
+async  encodeVideo(encoder: any) {
+  return new Promise(function(resolve, reject) {
+    encoder.compile(false, function(video: Blob) {
+      resolve(video)
+    })
+  })
+}
+
+}
+
+
 
 // 检查输入的参数是否有效，要求大于 0 的数字
 function checkNumberGreater0(arg: string) {
@@ -1217,8 +1360,8 @@ function checkNotDownType() {
   // 如果全部排除则取消任务
   if (notdownType.includes('012')) {
     // notdownType 的结果是顺序的，所以可以直接查找 012
-    window.alert(xzlt('_checkNotdownTypeResult1弹窗'))
-    addLog(xzlt('_checkNotdownTypeResult1Html'), 2, 2)
+    window.alert(lang.transl('_checkNotdownTypeResult1弹窗'))
+    Log.add(lang.transl('_checkNotdownTypeResult1Html'), 2, 2)
     return false
   }
 
@@ -1228,12 +1371,12 @@ function checkNotDownType() {
     notdownType.includes('1') ||
     notdownType.includes('2')
   ) {
-    addLog(
-      xzlt('_checkNotdownTypeResult3Html') +
+    Log.add(
+      lang.transl('_checkNotdownTypeResult3Html') +
         notdownType
-          .replace('0', xzlt('_插画'))
-          .replace('1', xzlt('_漫画'))
-          .replace('2', xzlt('_动图')),
+          .replace('0', lang.transl('_插画'))
+          .replace('1', lang.transl('_漫画'))
+          .replace('2', lang.transl('_动图')),
       1
     )
   }
@@ -1245,7 +1388,7 @@ function checkImgDownloadNumber() {
 
   if (checkResult.result) {
     imgNumberPerWork = checkResult.value
-    addLog(xzlt('_作品张数提醒', imgNumberPerWork.toString()), 1)
+    Log.add(lang.transl('_作品张数提醒', imgNumberPerWork.toString()), 1)
   } else {
     imgNumberPerWork = 0
   }
@@ -1266,7 +1409,7 @@ function getNotNeedTag() {
       notNeedTag.pop()
     }
 
-    addLog(xzlt('_设置了排除tag之后的提示') + notNeedTag.join(','), 1)
+    Log.add(lang.transl('_设置了排除tag之后的提示') + notNeedTag.join(','), 1)
   }
 }
 
@@ -1285,7 +1428,7 @@ function getNeedTag() {
       needTag.pop()
     }
 
-    addLog(xzlt('_设置了必须tag之后的提示') + needTag.join(','), 1)
+    Log.add(lang.transl('_设置了必须tag之后的提示') + needTag.join(','), 1)
   }
 }
 
@@ -1363,11 +1506,11 @@ function checkSetWh() {
 
   if (isSetFilterWh) {
     const andOr = filterWh.andOr
-    addLog(
-      xzlt('_设置了筛选宽高之后的提示文字p1') +
+    Log.add(
+      lang.transl('_设置了筛选宽高之后的提示文字p1') +
         filterWh.width +
-        andOr.replace('|', xzlt('_或者')).replace('&', xzlt('_并且')) +
-        xzlt('_高度设置') +
+        andOr.replace('|', lang.transl('_或者')).replace('&', lang.transl('_并且')) +
+        lang.transl('_高度设置') +
         filterWh.height,
       1
     )
@@ -1409,7 +1552,7 @@ function checkSetBmk() {
   if (checkResult.result) {
     isSetFilterBmk = checkResult.result
     filterBmk = checkResult.value
-    addLog(xzlt('_设置了筛选收藏数之后的提示文字') + filterBmk, 1)
+    Log.add(lang.transl('_设置了筛选收藏数之后的提示文字') + filterBmk, 1)
   }
 
   return true
@@ -1419,7 +1562,7 @@ function checkSetBmk() {
 function checkOnlyBmk() {
   onlyDownBmk = xzForm.setOnlyBmk.checked
   if (onlyDownBmk) {
-    addLog(xzlt('_只下载已收藏的提示'), 1)
+    Log.add(lang.transl('_只下载已收藏的提示'), 1)
   }
 }
 
@@ -1448,17 +1591,17 @@ function checkWantPageInput(
   // 如果比 1 小，并且不是 -1，则不通过
   if ((temp < 1 && temp !== -1) || isNaN(temp)) {
     // 比 1 小的数里，只允许 -1 , 0 也不行
-    addLog(errorTip, 2, 2)
+    Log.add(errorTip, 2, 2)
     return false
   }
 
   if (temp >= 1) {
     wantPage = temp
-    addLog(start1Tip.replace('-num-', wantPage.toString()), 1)
+    Log.add(start1Tip.replace('-num-', wantPage.toString()), 1)
     return true
   } else if (temp === -1) {
     wantPage = temp
-    addLog(start2Tip, 1)
+    Log.add(start2Tip, 1)
     return true
   }
 
@@ -1480,17 +1623,17 @@ function getRatioSetting() {
     if (isNaN(typeNum)) {
       ratioType = '0'
       xzForm.ratio.value = ratioType
-      window.alert(xzlt('_宽高比必须是数字'))
+      window.alert(lang.transl('_宽高比必须是数字'))
       return false
     }
   }
 
   if (ratioType === '1') {
-    addLog(xzlt('_设置了宽高比之后的提示', xzlt('_横图')), 1)
+    Log.add(lang.transl('_设置了宽高比之后的提示', lang.transl('_横图')), 1)
   } else if (ratioType === '2') {
-    addLog(xzlt('_设置了宽高比之后的提示', xzlt('_竖图')), 1)
+    Log.add(lang.transl('_设置了宽高比之后的提示', lang.transl('_竖图')), 1)
   } else {
-    addLog(xzlt('_输入宽高比') + xzForm.userRatio.value, 1)
+    Log.add(lang.transl('_输入宽高比') + xzForm.userRatio.value, 1)
   }
 
   return true
@@ -1523,7 +1666,7 @@ function setRequsetNum() {
       requsetNumber = maxNum
     }
   } else {
-    window.alert(xzlt('_参数不合法1'))
+    window.alert(lang.transl('_参数不合法1'))
     return false
   }
 }
@@ -1579,7 +1722,7 @@ function listenHistory() {
 // 获取作品页信息出错时的处理
 function illustError(url: string) {
   if (pageType === 1 && !downRelated) {
-    addLog(xzlt('_无权访问1', url), 2, 2)
+    Log.add(lang.transl('_无权访问1', url), 2, 2)
     // 在作品页内下载时，设置的wantPage其实是作品数
     if (wantPage > 0) {
       wantPage--
@@ -1587,7 +1730,7 @@ function illustError(url: string) {
     // 在作品页内下载时，如果出现了无法访问的作品时，就获取不到接下来的作品了，直接结束。
     crawFinished()
   } else {
-    addLog(xzlt('_无权访问2', url), 2, 1)
+    Log.add(lang.transl('_无权访问2', url), 2, 1)
     // 跳过当前作品
     if (illustUrlList.length > 0) {
       // 如果存在下一个作品，则
@@ -1636,8 +1779,8 @@ function listSort() {
 function tagSearchPageFinished() {
   allowWork = true
   tagPageFinished = 0 // 重置已抓取的页面数量
-  addLog(
-    xzlt(
+  Log.add(
+    lang.transl(
       '_当前作品张数',
       document.querySelectorAll(tagSearchListSelector).length.toString()
     ),
@@ -1677,7 +1820,7 @@ function toggle(el: HTMLElement) {
 
 // 显示调整后，列表里的作品数量。仅在 tag 搜索页和发现页面中使用
 function outputNowResult() {
-  addLog(xzlt('_调整完毕', visibleList().length.toString()), 0, 2, false)
+  Log.add(lang.transl('_调整完毕', visibleList().length.toString()), 0, 2, false)
 }
 
 // 添加每个图片的信息。某些参数允许传空值
@@ -1737,12 +1880,12 @@ function addImgInfo(
 // 启动抓取
 function startGet() {
   if (!allowWork || downloadStarted) {
-    window.alert(xzlt('_当前任务尚未完成1'))
+    window.alert(lang.transl('_当前任务尚未完成1'))
     return false
   }
 
-  addLog(xzlt('_任务开始0'), 0)
-  addLog(xzlt('_本次任务条件'))
+  Log.add(lang.transl('_任务开始0'), 0)
+  Log.add(lang.transl('_本次任务条件'))
 
   downloadPanelDisplay('none')
 
@@ -1757,16 +1900,16 @@ function startGet() {
       let result = false
       if (!downRelated) {
         result = checkWantPageInput(
-          xzlt('_checkWantPageRule1Arg2'),
-          xzlt('_checkWantPageRule1Arg3'),
-          xzlt('_checkWantPageRule1Arg4')
+          lang.transl('_checkWantPageRule1Arg2'),
+          lang.transl('_checkWantPageRule1Arg3'),
+          lang.transl('_checkWantPageRule1Arg4')
         )
       } else {
         // 相关作品的提示
         result = checkWantPageInput(
-          xzlt('_checkWantPageRule1Arg2'),
-          xzlt('_checkWantPageRule1Arg9'),
-          xzlt('_checkWantPageRule1Arg10')
+          lang.transl('_checkWantPageRule1Arg2'),
+          lang.transl('_checkWantPageRule1Arg9'),
+          lang.transl('_checkWantPageRule1Arg10')
         )
       }
 
@@ -1776,13 +1919,13 @@ function startGet() {
     }
   } else if (pageType === 2) {
     // 画师主页，作品列表页，tag 列表页，收藏页，自己的收藏
-    let pageTip = xzlt('_checkWantPageRule1Arg7')
+    let pageTip = lang.transl('_checkWantPageRule1Arg7')
     if (downRecommended) {
-      pageTip = xzlt('_checkWantPageRule1Arg11')
+      pageTip = lang.transl('_checkWantPageRule1Arg11')
     }
     const result = checkWantPageInput(
-      xzlt('_checkWantPageRule1Arg2'),
-      xzlt('_checkWantPageRule1Arg6'),
+      lang.transl('_checkWantPageRule1Arg2'),
+      lang.transl('_checkWantPageRule1Arg6'),
       pageTip
     )
 
@@ -1795,9 +1938,9 @@ function startGet() {
     removeEl(document.querySelectorAll('._premium-lead-popular-d-body'))
 
     const result = checkWantPageInput(
-      xzlt('_checkWantPageRule1Arg2'),
-      xzlt('_checkWantPageRule1Arg6'),
-      xzlt('_checkWantPageRule1Arg7')
+      lang.transl('_checkWantPageRule1Arg2'),
+      lang.transl('_checkWantPageRule1Arg6'),
+      lang.transl('_checkWantPageRule1Arg7')
     )
 
     if (!result) {
@@ -1817,9 +1960,9 @@ function startGet() {
     listPageFinished = 0
     // 检查下载页数的设置
     let result = checkWantPageInput(
-      xzlt('_checkWantPageRule1Arg2'),
-      xzlt('_checkWantPageRule1Arg12'),
-      xzlt('_checkWantPageRule1Arg4')
+      lang.transl('_checkWantPageRule1Arg2'),
+      lang.transl('_checkWantPageRule1Arg12'),
+      lang.transl('_checkWantPageRule1Arg4')
     )
     if (!result) {
       return false
@@ -1834,14 +1977,14 @@ function startGet() {
     const result = checkNumberGreater0(xzForm.setWantPage.value)
 
     if (!result.result) {
-      window.alert(xzlt('_参数不合法1'))
+      window.alert(lang.transl('_参数不合法1'))
       return false
     } else if (result.value > maxNum) {
-      window.alert(xzlt('_输入超过了最大值') + maxNum)
+      window.alert(lang.transl('_输入超过了最大值') + maxNum)
       return false
     } else {
       wantPage = result.value
-      addLog(xzlt('_任务开始1', wantPage.toString()), 1)
+      Log.add(lang.transl('_任务开始1', wantPage.toString()), 1)
     }
   }
 
@@ -1875,7 +2018,7 @@ function startGet() {
 
   // 检查是否设置了只下载首次登场
   if (debut) {
-    addLog(xzlt('_抓取首次登场的作品Title'), 1)
+    Log.add(lang.transl('_抓取首次登场的作品Title'), 1)
   }
 
   // 重置下载状态
@@ -1886,7 +2029,7 @@ function startGet() {
 
   if (pageType === 0) {
     // 在主页通过id抓取时，不需要获取列表页，直接完成
-    addLog(xzlt('_开始获取作品页面'))
+    Log.add(lang.transl('_开始获取作品页面'))
     getListUrlFinished()
   } else if (pageType === 1) {
     // 下载相关作品
@@ -1949,7 +2092,7 @@ function getListPage() {
       // discovery 列表的 url 是有额外后缀的，需要去掉
       illustUrlList.push(el.href.split('&uarea')[0])
     })
-    addLog(xzlt('_排行榜任务完成', illustUrlList.length.toString()))
+    Log.add(lang.transl('_排行榜任务完成', illustUrlList.length.toString()))
     getListUrlFinished()
     return false
   } else {
@@ -1985,7 +2128,7 @@ function getListPage() {
         }
         addIllustUrlList(recommendIdList) // 拼接作品的url
 
-        addLog(xzlt('_相关作品抓取完毕', illustUrlList.length.toString()))
+        Log.add(lang.transl('_相关作品抓取完毕', illustUrlList.length.toString()))
         getListUrlFinished()
       } else if (pageType === 5) {
         // tag 搜索页
@@ -2102,8 +2245,8 @@ function getListPage() {
           listWrap.insertAdjacentHTML('beforeend', newHtml)
         }
 
-        addLog(
-          xzlt(
+        Log.add(
+          lang.transl(
             '_tag搜索页已抓取多少页',
             tagPageFinished.toString(),
             wantPage.toString(),
@@ -2117,17 +2260,17 @@ function getListPage() {
         // 每抓取完一页，判断任务状态
         if (tagPageFinished === wantPage) {
           // 抓取完了指定的页数
-          addLog(xzlt('_tag搜索页任务完成1'), 0)
+          Log.add(lang.transl('_tag搜索页任务完成1'), 0)
           tagSearchPageFinished()
           return false
         } else if (!listPageDocument.querySelector('.next ._button')) {
           // 到最后一页了,已抓取本 tag 的所有页面
-          addLog(xzlt('_tag搜索页任务完成2'), 0)
+          Log.add(lang.transl('_tag搜索页任务完成2'), 0)
           tagSearchPageFinished()
           return false
         } else if (interrupt) {
           // 任务被用户中断
-          addLog(xzlt('_tag搜索页中断'), 2)
+          Log.add(lang.transl('_tag搜索页中断'), 2)
           interrupt = false
           tagSearchPageFinished()
           return false
@@ -2186,14 +2329,14 @@ function getListPage() {
           addIllustUrlList([data.illust_id.toString()])
         }
 
-        addLog(xzlt('_排行榜进度', listPageFinished.toString()), -1, 1, false)
+        Log.add(lang.transl('_排行榜进度', listPageFinished.toString()), -1, 1, false)
 
         // 抓取完毕
         if (complete || listPageFinished === partNumber) {
           if (illustUrlList.length === 0) {
             return noResult()
           } else {
-            addLog(xzlt('_排行榜任务完成', illustUrlList.length.toString()))
+            Log.add(lang.transl('_排行榜任务完成', illustUrlList.length.toString()))
             getListUrlFinished()
           }
         } else {
@@ -2205,7 +2348,7 @@ function getListPage() {
         const illustList = JSON.parse(data).recommendations // 取出id列表
         addIllustUrlList(illustList) // 拼接作品的url
 
-        addLog(xzlt('_排行榜任务完成', illustUrlList.length.toString()))
+        Log.add(lang.transl('_排行榜任务完成', illustUrlList.length.toString()))
         getListUrlFinished()
       } else {
         // 不要把下一行的 if 和上一行的 else 合并
@@ -2297,8 +2440,8 @@ function getListPage() {
           }
         }
 
-        addLog(
-          xzlt('_列表页抓取进度', listPageFinished.toString()),
+        Log.add(
+          lang.transl('_列表页抓取进度', listPageFinished.toString()),
           -1,
           1,
           false
@@ -2312,7 +2455,7 @@ function getListPage() {
         ) {
           allowWork = true
           listPageFinished = 0
-          addLog(xzlt('_列表页抓取完成'))
+          Log.add(lang.transl('_列表页抓取完成'))
 
           // 没有符合条件的作品
           if (illustUrlList.length === 0) {
@@ -2336,7 +2479,7 @@ function getListPage() {
           if (illustUrlList.length === 0) {
             return noResult()
           } else {
-            addLog(xzlt('_排行榜任务完成', illustUrlList.length.toString()))
+            Log.add(lang.transl('_排行榜任务完成', illustUrlList.length.toString()))
             getListUrlFinished()
           }
         }
@@ -2351,7 +2494,7 @@ function getListPage2() {
   // tag搜索页
   if (pageType === 5) {
     if (!allowWork) {
-      window.alert(xzlt('_当前任务尚未完成2'))
+      window.alert(lang.transl('_当前任务尚未完成2'))
       return false
     }
 
@@ -2455,7 +2598,7 @@ function getListPage2() {
   }
 
   allowWork = false
-  addLog(xzlt('_列表抓取完成开始获取作品页', illustUrlList.length.toString()))
+  Log.add(lang.transl('_列表抓取完成开始获取作品页', illustUrlList.length.toString()))
 
   if (illustUrlList.length <= 0) {
     return noResult()
@@ -2464,49 +2607,7 @@ function getListPage2() {
   getListUrlFinished()
 }
 
-// 从 url 里获取作品id，可以传参，无参数则使用当前页面的 url 匹配
-function getIllustId(url?: string) {
-  const str = url || window.location.search || locUrl
-  if (str.includes('illust_id')) {
-    // 传统 url
-    return /illust_id=(\d*\d)/.exec(str)![1]
-  } else if (str.includes('/artworks/')) {
-    // 新版 url
-    return /artworks\/(\d*\d)/.exec(str)![1]
-  } else {
-    // 直接取出 url 中的数字
-    return /\d*\d/.exec(locUrl)![0]
-  }
-}
 
-// 获取用户id
-function getUserId() {
-  let userId = ''
-
-  // 首先尝试从 url 中获取
-  const test = /(\?|&)id=(\d{1,9})/.exec(window.location.search)
-  const nameElement = document.querySelector('.user-name')! as HTMLAnchorElement
-  if (test) {
-    userId = test[2]
-  } else if (nameElement) {
-    // 从旧版页面的头像获取（在书签页面使用）
-    userId = /\?id=(\d{1,9})/.exec(nameElement.href)![1]
-  } else {
-    // 从新版页面的头像获取，因为经常改版，不得已改成从源码匹配了
-    const el =
-      document.getElementById('root') || document.getElementById('spa-contents')
-    // 在 PC 模式的新版页面使用 root，在手机模式的新版页面使用 spa-contents
-    userId = /member\.php\?id=(\d{1,9})/.exec(el!.innerHTML)![1]
-  }
-
-  return userId
-}
-
-// 从 url 中获取指定的查询条件
-function getQuery(url: string, query: string) {
-  const result = new URL(url).searchParams.get(query)
-  return result || ''
-}
 
 // 获取作品列表页前的准备工作，在 pageType 2 使用
 function readyGetListPage() {
@@ -2611,10 +2712,10 @@ function readyGetListPage() {
 
   changeTitle('↑')
   getType2ListPage(apiUrl)
-  addLog(xzlt('_正在抓取'))
+  Log.add(lang.transl('_正在抓取'))
 
   if (type2ListType === 3 && wantPage === -1) {
-    addLog(xzlt('_获取全部书签作品'))
+    Log.add(lang.transl('_获取全部书签作品'))
   }
 }
 
@@ -2722,8 +2823,8 @@ function getType2ListPage(url: string) {
           illustUrlList = []
           addIllustUrlList(type2IdList) // 拼接作品的url
 
-          addLog(
-            xzlt('_列表抓取完成开始获取作品页', illustUrlList.length.toString())
+          Log.add(
+            lang.transl('_列表抓取完成开始获取作品页', illustUrlList.length.toString())
           )
           getListUrlFinished()
         } else if (type2ListType === 3 && !bmkGetEnd) {
@@ -2741,7 +2842,7 @@ function getType2ListPage(url: string) {
 
 // 获取作品列表的结果为 0 时输出提示
 function noResult() {
-  addLog(xzlt('_列表页抓取结果为零'), 2, 2)
+  Log.add(lang.transl('_列表页抓取结果为零'), 2, 2)
   allowWork = true
   changeTitle('0')
   return false
@@ -2754,9 +2855,9 @@ function getRecommendedList() {
     '#illust-recommend .image-item'
   ) as NodeListOf<HTMLLIElement>
   if (elements.length === 0) {
-    addLog(xzlt('_抓取完毕'))
-    addLog(xzlt('_没有符合条件的作品'), 2, 2)
-    window.alert(xzlt('_抓取完毕') + xzlt('_没有符合条件的作品'))
+    Log.add(lang.transl('_抓取完毕'))
+    Log.add(lang.transl('_没有符合条件的作品'), 2, 2)
+    window.alert(lang.transl('_抓取完毕') + lang.transl('_没有符合条件的作品'))
     allowWork = true
     downRecommended = false
     return false
@@ -2812,7 +2913,7 @@ async function getIllustData(url?: string) {
 
   // 快速下载时在这里提示一次
   if (quickDownload) {
-    addLog(xzlt('_开始获取作品页面'))
+    Log.add(lang.transl('_开始获取作品页面'))
   }
 
   const usedUrl = 'https://www.pixiv.net/ajax/illust/' + getIllustId(url) // 取出作品id，拼接出作品页api
@@ -3042,19 +3143,19 @@ async function getIllustData(url?: string) {
       const status = response.status
       switch (status) {
         case 0:
-          console.log(xzlt('_作品页状态码0'))
+          console.log(lang.transl('_作品页状态码0'))
           break
 
         case 400:
-          console.log(xzlt('_作品页状态码400'))
+          console.log(lang.transl('_作品页状态码400'))
           break
 
         case 403:
-          console.log(xzlt('_作品页状态码403'))
+          console.log(lang.transl('_作品页状态码403'))
           break
 
         case 404:
-          console.log(xzlt('_作品页状态码404') + ' ' + url)
+          console.log(lang.transl('_作品页状态码404') + ' ' + url)
           break
 
         default:
@@ -3150,14 +3251,14 @@ function crawFinished() {
     }
 
     if (imgInfo.length === 0) {
-      addLog(xzlt('_抓取完毕'))
-      addLog(xzlt('_没有符合条件的作品'), 2, 2)
-      window.alert(xzlt('_抓取完毕') + xzlt('_没有符合条件的作品'))
+      Log.add(lang.transl('_抓取完毕'))
+      Log.add(lang.transl('_没有符合条件的作品'), 2, 2)
+      window.alert(lang.transl('_抓取完毕') + lang.transl('_没有符合条件的作品'))
       allowWork = true
       return false
     }
 
-    addLog(xzlt('_抓取完毕'), -1, 2)
+    Log.add(lang.transl('_抓取完毕'), -1, 2)
 
     if (!autoDownload && !quickDownload) {
       changeTitle('▶')
@@ -3186,11 +3287,11 @@ function crawFinished() {
 
 // 在抓取图片网址时，输出提示
 function outputImgNum() {
-  addLog(xzlt('_抓取图片网址的数量', imgInfo.length.toString()), -1, 1, false)
+  Log.add(lang.transl('_抓取图片网址的数量', imgInfo.length.toString()), -1, 1, false)
 
   // 如果任务中断
   if (interrupt) {
-    addLog(xzlt('_抓取图片网址遇到中断'), 2, 2)
+    Log.add(lang.transl('_抓取图片网址遇到中断'), 2, 2)
   }
 }
 
@@ -3232,11 +3333,11 @@ function addOutPutPanel() {
   document.body.appendChild(outputInfoWrap)
   outputInfoWrap.outerHTML = `
       <div class="outputInfoWrap">
-      <div class="outputUrlClose" title="${xzlt('_关闭')}">X</div>
-      <div class="outputUrlTitle">${xzlt('_输出信息')}</div>
+      <div class="outputUrlClose" title="${lang.transl('_关闭')}">X</div>
+      <div class="outputUrlTitle">${lang.transl('_输出信息')}</div>
       <div class="outputInfoContent"></div>
       <div class="outputUrlFooter">
-      <div class="outputUrlCopy" title="">${xzlt('_复制')}</div>
+      <div class="outputUrlCopy" title="">${lang.transl('_复制')}</div>
       </div>
       </div>
       `
@@ -3255,12 +3356,12 @@ function addOutPutPanel() {
     document.execCommand('copy')
 
     // 改变提示文字
-    document.querySelector('.outputUrlCopy')!.textContent = xzlt(
+    document.querySelector('.outputUrlCopy')!.textContent = lang.transl(
       '_已复制到剪贴板'
     )
     setTimeout(() => {
       window.getSelection()!.removeAllRanges()
-      document.querySelector('.outputUrlCopy')!.textContent = xzlt('_复制')
+      document.querySelector('.outputUrlCopy')!.textContent = lang.transl('_复制')
     }, 1000)
   })
 }
@@ -3272,27 +3373,27 @@ function addDownloadPanel() {
       <div class="XZTipEl"></div>
       <div class="centerWrap">
       <div class="centerWrap_head">
-      <span class="centerWrap_title xz_blue"> ${xzlt('_下载设置')}</span>
+      <span class="centerWrap_title xz_blue"> ${lang.transl('_下载设置')}</span>
       <div class="btns">
-      <a class="xztip centerWrap_top_btn update" data-tip="${xzlt(
+      <a class="xztip centerWrap_top_btn update" data-tip="${lang.transl(
         '_newver'
       )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank"><img src="${chrome.extension.getURL(
     'images/update.png'
   )}" /></a>
-      <a class="xztip centerWrap_top_btn wiki_url" data-tip="${xzlt(
+      <a class="xztip centerWrap_top_btn wiki_url" data-tip="${lang.transl(
         '_wiki'
       )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL(
     'images/wiki.png'
   )}" /></a>
-      <a class="xztip centerWrap_top_btn" data-tip="${xzlt(
+      <a class="xztip centerWrap_top_btn" data-tip="${lang.transl(
         '_github'
       )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank"><img src="${chrome.extension.getURL(
     'images/github-logo.png'
   )}" /></a>
-        <div class="xztip centerWrap_top_btn centerWrap_toogle_option" data-tip="${xzlt(
+        <div class="xztip centerWrap_top_btn centerWrap_toogle_option" data-tip="${lang.transl(
           '_收起展开设置项'
         )}">▲</div>
-        <div class="xztip centerWrap_top_btn centerWrap_close" data-tip="${xzlt(
+        <div class="xztip centerWrap_top_btn centerWrap_close" data-tip="${lang.transl(
           '_快捷键切换显示隐藏'
         )}">X</div>
       </div>
@@ -3302,7 +3403,7 @@ function addDownloadPanel() {
       <div class="xz_option_area">
       <p class="xzFormP1">
       <span class="setWantPageWrap">
-      <span class="xztip settingNameStyle1 setWantPageTip1" data-tip="" style="margin-right: 0px;">${xzlt(
+      <span class="xztip settingNameStyle1 setWantPageTip1" data-tip="" style="margin-right: 0px;">${lang.transl(
         '_页数'
       )}</span><span class="gray1" style="margin-right: 10px;"> ? </span>
       <input type="text" name="setWantPage" class="setinput_style1 xz_blue setWantPage">&nbsp;&nbsp;&nbsp;
@@ -3310,57 +3411,57 @@ function addDownloadPanel() {
       </span>
       </p>
       <p class="xzFormP3">
-      <span class="xztip settingNameStyle1" data-tip="${xzlt(
+      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
         '_多p下载前几张提示'
-      )}">${xzlt('_多p下载前几张')}<span class="gray1"> ? </span></span>
+      )}">${lang.transl('_多p下载前几张')}<span class="gray1"> ? </span></span>
       <input type="text" name="setPNo" class="setinput_style1 xz_blue" value="${imgNumberPerWork}">
       </p>
       <p class="xzFormP5">
-      <span class="xztip settingNameStyle1" data-tip="${xzlt(
+      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
         '_下载作品类型的提示Center'
-      )}">${xzlt('_下载作品类型')}<span class="gray1"> ? </span></span>
-      <label for="setWorkType0"><input type="checkbox" name="setWorkType0" id="setWorkType0" checked> ${xzlt(
+      )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <label for="setWorkType0"><input type="checkbox" name="setWorkType0" id="setWorkType0" checked> ${lang.transl(
         '_插画'
       )}&nbsp;</label>
-      <label for="setWorkType1"><input type="checkbox" name="setWorkType1" id="setWorkType1" checked> ${xzlt(
+      <label for="setWorkType1"><input type="checkbox" name="setWorkType1" id="setWorkType1" checked> ${lang.transl(
         '_漫画'
       )}&nbsp;</label>
-      <label for="setWorkType2"><input type="checkbox" name="setWorkType2" id="setWorkType2" checked> ${xzlt(
+      <label for="setWorkType2"><input type="checkbox" name="setWorkType2" id="setWorkType2" checked> ${lang.transl(
         '_动图'
       )}&nbsp;</label>
       </p>
       <p class="xzFormP12">
-      <span class="xztip settingNameStyle1" data-tip="${xzlt(
+      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
         '_动图保存格式title'
-      )}">${xzlt('_动图保存格式')}<span class="gray1"> ? </span></span>
-      <label for="ugoiraSaveAs1"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" value="webm" checked> ${xzlt(
+      )}">${lang.transl('_动图保存格式')}<span class="gray1"> ? </span></span>
+      <label for="ugoiraSaveAs1"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" value="webm" checked> ${lang.transl(
         '_webmVideo'
       )} &nbsp;</label>
-      <label for="ugoiraSaveAs3"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" value="gif" checked> ${xzlt(
+      <label for="ugoiraSaveAs3"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" value="gif" checked> ${lang.transl(
         '_gif'
       )} &nbsp;</label>
-      <label for="ugoiraSaveAs2"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" value="zip"> ${xzlt(
+      <label for="ugoiraSaveAs2"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" value="zip"> ${lang.transl(
         '_zipFile'
       )} &nbsp;</label>
       </p>
       <p class="xzFormP2">
-      <span class="xztip settingNameStyle1" data-tip="${xzlt(
+      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
         '_筛选收藏数的提示Center'
-      )}">${xzlt('_筛选收藏数Center')}<span class="gray1"> ? </span></span>
+      )}">${lang.transl('_筛选收藏数Center')}<span class="gray1"> ? </span></span>
       <input type="text" name="setFavNum" class="setinput_style1 xz_blue" value="0">&nbsp;&nbsp;&nbsp;&nbsp;
       </p>
       <p class="xzFormP11">
-      <span class="xztip settingNameStyle1" data-tip="${xzlt(
+      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
         '_只下载已收藏的提示'
-      )}">${xzlt('_只下载已收藏')}<span class="gray1"> ? </span></span>
-      <label for="setOnlyBmk"><input type="checkbox" name="setOnlyBmk" id="setOnlyBmk"> ${xzlt(
+      )}">${lang.transl('_只下载已收藏')}<span class="gray1"> ? </span></span>
+      <label for="setOnlyBmk"><input type="checkbox" name="setOnlyBmk" id="setOnlyBmk"> ${lang.transl(
         '_启用'
       )}</label>
       </p>
       <p class="xzFormP4">
-      <span class="xztip settingNameStyle1" data-tip="${xzlt(
+      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
         '_筛选宽高的按钮Title'
-      )} ${xzlt('_筛选宽高的提示文字')}">${xzlt(
+      )} ${lang.transl('_筛选宽高的提示文字')}">${lang.transl(
     '_筛选宽高的按钮文字'
   )}<span class="gray1"> ? </span></span>
       <input type="text" name="setWidth" class="setinput_style1 xz_blue" value="0">
@@ -3369,47 +3470,47 @@ function addDownloadPanel() {
       <input type="text" name="setHeight" class="setinput_style1 xz_blue" value="0">
       </p>
       <p class="xzFormP13">
-      <span class="xztip settingNameStyle1" data-tip="${xzlt(
+      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
         '_设置宽高比例Title'
-      )}">${xzlt('_设置宽高比例')}<span class="gray1"> ? </span></span>
-      <input type="radio" name="ratio" id="ratio0" value="0" checked> <label for="ratio0"> ${xzlt(
+      )}">${lang.transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
+      <input type="radio" name="ratio" id="ratio0" value="0" checked> <label for="ratio0"> ${lang.transl(
         '_不限制'
       )}&nbsp; </label>
-      <input type="radio" name="ratio" id="ratio1" value="1"> <label for="ratio1"> ${xzlt(
+      <input type="radio" name="ratio" id="ratio1" value="1"> <label for="ratio1"> ${lang.transl(
         '_横图'
       )}&nbsp; </label>
-      <input type="radio" name="ratio" id="ratio2" value="2"> <label for="ratio2"> ${xzlt(
+      <input type="radio" name="ratio" id="ratio2" value="2"> <label for="ratio2"> ${lang.transl(
         '_竖图'
       )}&nbsp; </label>
-      <input type="radio" name="ratio" id="ratio3" value="3"> <label for="ratio3"> ${xzlt(
+      <input type="radio" name="ratio" id="ratio3" value="3"> <label for="ratio3"> ${lang.transl(
         '_输入宽高比'
       )}<input type="text" name="userRatio" class="setinput_style1 xz_blue" value="1.4"></label>
       </p>
       <p class="xzFormP6">
-      <span class="xztip settingNameStyle1" data-tip="${xzlt(
+      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
         '_必须tag的提示文字'
-      )}">${xzlt('_必须含有tag')}<span class="gray1"> ? </span></span>
+      )}">${lang.transl('_必须含有tag')}<span class="gray1"> ? </span></span>
       <input type="text" name="setTagNeed" class="setinput_style1 xz_blue setinput_tag">
       </p>
       <p class="xzFormP7">
-      <span class="xztip settingNameStyle1" data-tip="${xzlt(
+      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
         '_排除tag的提示文字'
-      )}">${xzlt('_不能含有tag')}<span class="gray1"> ? </span></span>
+      )}">${lang.transl('_不能含有tag')}<span class="gray1"> ? </span></span>
       <input type="text" name="setTagNotNeed" class="setinput_style1 xz_blue setinput_tag">
       </p>
       <p class="xzFormP9" style="display:none;">
-      <span class="xztip settingNameStyle1" data-tip="${xzlt(
+      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
         '_显示封面的提示'
-      )}">${xzlt('_是否显示封面')}<span class="gray1"> ? </span></span>
-      <label for="setDisplayCover"><input type="checkbox" name="setDisplayCover" id="setDisplayCover" checked> ${xzlt(
+      )}">${lang.transl('_是否显示封面')}<span class="gray1"> ? </span></span>
+      <label for="setDisplayCover"><input type="checkbox" name="setDisplayCover" id="setDisplayCover" checked> ${lang.transl(
         '_显示'
       )}</label>
       </p>
       <p class="xzFormP8">
-      <span class="xztip settingNameStyle1" data-tip="${xzlt(
+      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
         '_快速下载的提示'
-      )}">${xzlt('_是否自动下载')}<span class="gray1"> ? </span></span>
-      <label for="setQuietDownload"><input type="checkbox" name="setQuietDownload" id="setQuietDownload"> ${xzlt(
+      )}">${lang.transl('_是否自动下载')}<span class="gray1"> ? </span></span>
+      <label for="setQuietDownload"><input type="checkbox" name="setQuietDownload" id="setQuietDownload"> ${lang.transl(
         '_启用'
       )}</label>
       </p>
@@ -3417,20 +3518,20 @@ function addDownloadPanel() {
       <div class="centerWrap_btns centerWrap_btns_free">
   
       </div>
-      <p> ${xzlt(
+      <p> ${lang.transl(
         '_设置命名规则3',
         '<span class="fwb xz_blue imgNum">0</span>'
       )}</p>
       <p>
-      <span class="xztip settingNameStyle1" data-tip="${xzlt(
+      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
         '_线程数字'
-      )}">${xzlt('_设置下载线程')}<span class="gray1"> ? </span></span>
-      <input type="text" name="setThread" class="setinput_style1 xz_blue" value="${downloadThreadDeauflt}">
+      )}">${lang.transl('_设置下载线程')}<span class="gray1"> ? </span></span>
+      <input type="text" name="setThread" class="setinput_style1 xz_blue" value="${cfg.downloadThreadDefault}">
       </p>
       <p>
-      <span class="xztip settingNameStyle1" data-tip="${xzlt(
+      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
         '_设置文件夹名的提示'
-      )}">${xzlt('_设置文件名')}<span class="gray1"> ? </span></span>
+      )}">${lang.transl('_设置文件名')}<span class="gray1"> ? </span></span>
       <input type="text" name="fileNameRule" class="setinput_style1 xz_blue fileNameRule" value="{id}">
       &nbsp;
       <select name="pageInfoSelect">
@@ -3456,95 +3557,95 @@ function addDownloadPanel() {
       <span class="gray1 showFileNameTip">？</span>
       </p>
       <p class="fileNameTip tip">
-      ${xzlt('_设置文件夹名的提示').replace('<br>', '. ')}
+      ${lang.transl('_设置文件夹名的提示').replace('<br>', '. ')}
       <br>
       <span class="xz_blue">{p_user}</span>
-      ${xzlt('_文件夹标记PUser')}
+      ${lang.transl('_文件夹标记PUser')}
       <br>
       <span class="xz_blue">{p_uid}</span>
-      ${xzlt('_文件夹标记PUid')}
+      ${lang.transl('_文件夹标记PUid')}
       <br>
       <span class="xz_blue">{p_tag}</span>
-      ${xzlt('_文件夹标记PTag')}
+      ${lang.transl('_文件夹标记PTag')}
       <br>
       <span class="xz_blue">{p_title}</span>
-      ${xzlt('_文件夹标记PTitle')}
+      ${lang.transl('_文件夹标记PTitle')}
       <br>
       <span class="xz_blue">{id}</span>
-      ${xzlt('_命名标记1')}
+      ${lang.transl('_命名标记1')}
       <br>
       <span class="xz_blue">{title}</span>
-      ${xzlt('_命名标记2')}
+      ${lang.transl('_命名标记2')}
       <br>
       <span class="xz_blue">{tags}</span>
-      ${xzlt('_命名标记3')}
+      ${lang.transl('_命名标记3')}
       <br>
       <span class="xz_blue">{tags_translate}</span>
-      ${xzlt('_命名标记11')}
+      ${lang.transl('_命名标记11')}
       <br>
       <span class="xz_blue">{user}</span>
-      ${xzlt('_命名标记4')}
+      ${lang.transl('_命名标记4')}
       <br>
       <span class="xz_blue">{userid}</span>
-      ${xzlt('_命名标记6')}
+      ${lang.transl('_命名标记6')}
       <br>
       <span class="xz_blue">{date}</span>
-      ${xzlt('_命名标记12')}
+      ${lang.transl('_命名标记12')}
       <br>
       <span class="xz_blue">{type}</span>
-      ${xzlt('_命名标记14')}
+      ${lang.transl('_命名标记14')}
       <br>
       <span class="xz_blue">{bmk}</span>
-      ${xzlt('_命名标记8')}
+      ${lang.transl('_命名标记8')}
       <br>
       <span class="xz_blue">{px}</span>
-      ${xzlt('_命名标记7')}
+      ${lang.transl('_命名标记7')}
       <br>
       <span class="xz_blue">{id_num}</span>
-      ${xzlt('_命名标记9')}
+      ${lang.transl('_命名标记9')}
       <br>
       <span class="xz_blue">{p_num}</span>
-      ${xzlt('_命名标记10')}
+      ${lang.transl('_命名标记10')}
       <br>
       <span class="xz_blue">{rank}</span>
-      ${xzlt('_命名标记13')}
+      ${lang.transl('_命名标记13')}
       <br>
-      ${xzlt('_命名标记提醒')}
+      ${lang.transl('_命名标记提醒')}
       </p>
       <p class="xzFormP10">
-      <span class="xztip settingNameStyle1" data-tip="${xzlt(
+      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
         '_添加字段名称提示'
-      )}">${xzlt('_添加字段名称')}<span class="gray1"> ? </span></span>
-      <label for="setTagNameToFileName"><input type="checkbox" name="setTagNameToFileName" id="setTagNameToFileName" checked> ${xzlt(
+      )}">${lang.transl('_添加字段名称')}<span class="gray1"> ? </span></span>
+      <label for="setTagNameToFileName"><input type="checkbox" name="setTagNameToFileName" id="setTagNameToFileName" checked> ${lang.transl(
         '_启用'
       )}</label>
       &nbsp;&nbsp;&nbsp;
-      <span class="gray1 showFileNameResult"> ${xzlt('_预览文件名')}</span>
+      <span class="gray1 showFileNameResult"> ${lang.transl('_预览文件名')}</span>
       </p>
       </form>
       <div class="download_panel">
       <div class="centerWrap_btns">
-      <button class="startDownload" type="button" style="background:${colors.blue};"> ${xzlt(
-    '_下载按钮1'
-  )}</button>
-      <button class="pauseDownload" type="button" style="background:#e49d00;"> ${xzlt(
+      <button class="startDownload" type="button" style="background:${
+        Colors.blue
+      };"> ${lang.transl('_下载按钮1')}</button>
+      <button class="pauseDownload" type="button" style="background:#e49d00;"> ${lang.transl(
         '_下载按钮2'
       )}</button>
-      <button class="stopDownload" type="button" style="background:${colors.red};"> ${xzlt(
-    '_下载按钮3'
-  )}</button>
-      <button class="copyUrl" type="button" style="background:${colors.green};"> ${xzlt(
-    '_下载按钮4'
-  )}</button>
+      <button class="stopDownload" type="button" style="background:${
+        Colors.red
+      };"> ${lang.transl('_下载按钮3')}</button>
+      <button class="copyUrl" type="button" style="background:${
+        Colors.green
+      };"> ${lang.transl('_下载按钮4')}</button>
       </div>
       <div class="centerWrap_down_tips">
       <p>
-      ${xzlt('_当前状态')}
-      <span class="down_status xz_blue"> ${xzlt('_未开始下载')}</span>
+      ${lang.transl('_当前状态')}
+      <span class="down_status xz_blue"> ${lang.transl('_未开始下载')}</span>
       <span class="convert_tip xz_blue"></span>
       </p>
       <div class="progressBarWrap">
-      <span class="text">${xzlt('_下载进度')}</span>
+      <span class="text">${lang.transl('_下载进度')}</span>
       <div class="right1">
       <div class="progressBar progressBar1">
       <div class="progress progress1"></div>
@@ -3564,7 +3665,7 @@ function addDownloadPanel() {
       <div class="progress progress2"></div>
       </div>
       <div class="progressTip progressTip2">
-      <span class="download_fileName"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${xzlt(
+      <span class="download_fileName"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${lang.transl(
         '_已下载'
       )}&nbsp;&nbsp;<span class="loaded">0/0</span>KB
       </div>
@@ -3573,11 +3674,11 @@ function addDownloadPanel() {
       </div>
       </div>
       <p class="gray1"> 
-      <span class="showDownTip">${xzlt('_查看下载说明')}</span>
+      <span class="showDownTip">${lang.transl('_查看下载说明')}</span>
       <a class="xztip centerWrap_top_btn wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"><img src="${chrome.extension.getURL(
         'images/wiki.png'
-      )}" /> ${xzlt('_wiki')}</a></p>
-      <p class="downTip tip"> ${xzlt('_下载说明')}</p>
+      )}" /> ${lang.transl('_wiki')}</a></p>
+      <p class="downTip tip"> ${lang.transl('_下载说明')}</p>
       </div>
       `
   centerPanel = document.querySelector('.centerWrap')! as HTMLDivElement
@@ -3630,7 +3731,7 @@ function insertValueToInput(form: HTMLSelectElement, to: HTMLInputElement) {
 
 // 向中间面板添加按钮
 function addCenterButton(
-  bg: string = colors.blue,
+  bg: string = Colors.blue,
   text: string = '',
   attr: string[][] = []
 ) {
@@ -3778,7 +3879,7 @@ function startDownload() {
   // 下载线程设置
   const setThread = parseInt(xzForm.setThread.value)
   if (setThread < 1 || setThread > 5 || isNaN(setThread)) {
-    downloadThread = downloadThreadDeauflt // 重设为默认值
+    downloadThread = cfg.downloadThreadDefault // 重设为默认值
   } else {
     downloadThread = setThread // 设置为用户输入的值
   }
@@ -3812,9 +3913,9 @@ function startDownload() {
     downloadFile(i)
   }
 
-  changeDownStatus(xzlt('_正在下载中'))
+  changeDownStatus(lang.transl('_正在下载中'))
 
-  addLog(xzlt('_正在下载中'))
+  Log.add(lang.transl('_正在下载中'))
   showTotalProgress()
 }
 
@@ -3843,8 +3944,8 @@ function pauseDownload() {
       downloadStarted = false
       quickDownload = false
       changeTitle('║')
-      changeDownStatus(`<span style="color:#f00">${xzlt('_已暂停')}</span>`)
-      addLog(xzlt('_已暂停'), 1, 2)
+      changeDownStatus(`<span style="color:#f00">${lang.transl('_已暂停')}</span>`)
+      Log.add(lang.transl('_已暂停'), 1, 2)
     } else {
       // 不在下载中的话不允许启用暂停功能
       return false
@@ -3865,8 +3966,8 @@ function stopDownload() {
     downloadStarted = false
     quickDownload = false
     changeTitle('■')
-    changeDownStatus(`<span style="color:#f00">${xzlt('_已停止')}</span>`)
-    addLog(xzlt('_已停止'), 2, 2)
+    changeDownStatus(`<span style="color:#f00">${lang.transl('_已停止')}</span>`)
+    Log.add(lang.transl('_已停止'), 2, 2)
     downloadPause = false
   }
 }
@@ -3901,7 +4002,7 @@ function showTotalProgress() {
     text += ', ' + watcher.convertTipText
   }
 
-  addLog(text, -1, 2, false)
+  Log.add(text, -1, 2, false)
 }
 
 // 重置下载面板的信息
@@ -3964,7 +4065,7 @@ function readXzSetting() {
       notNeedTag: '',
       displayCover: true,
       quietDownload: true,
-      downloadThread: downloadThreadDeauflt,
+      downloadThread: cfg.downloadThreadDefault,
       userSetName: '{id}',
       tagNameToFileName: true,
       showOptions: true
@@ -4129,8 +4230,8 @@ function hideNotNeedOption(no: number[]) {
 
 // 清除多图作品
 function clearMultiple() {
-  addCenterButton(colors.red, xzlt('_清除多图作品'), [
-    ['title', xzlt('_清除多图作品Title')]
+  addCenterButton(Colors.red, lang.transl('_清除多图作品'), [
+    ['title', lang.transl('_清除多图作品Title')]
   ]).addEventListener(
     'click',
     () => {
@@ -4149,8 +4250,8 @@ function clearMultiple() {
 
 // 清除动图作品
 function clearUgoku() {
-  addCenterButton(colors.red, xzlt('_清除动图作品'), [
-    ['title', xzlt('_清除动图作品Title')]
+  addCenterButton(Colors.red, lang.transl('_清除动图作品'), [
+    ['title', lang.transl('_清除动图作品Title')]
   ]).addEventListener(
     'click',
     () => {
@@ -4171,8 +4272,8 @@ function clearUgoku() {
 function manuallyDelete() {
   let delWork: boolean = false // 是否处于删除作品状态
 
-  addCenterButton(colors.red, xzlt('_手动删除作品'), [
-    ['title', xzlt('_手动删除作品Title')]
+  addCenterButton(Colors.red, lang.transl('_手动删除作品'), [
+    ['title', lang.transl('_手动删除作品Title')]
   ]).addEventListener('click', function() {
     delWork = !delWork
 
@@ -4196,12 +4297,12 @@ function manuallyDelete() {
     })
 
     if (delWork) {
-      this.textContent = xzlt('_退出手动删除')
+      this.textContent = lang.transl('_退出手动删除')
       setTimeout(() => {
         centerWrapHide()
       }, 300)
     } else {
-      this.textContent = xzlt('_手动删除作品')
+      this.textContent = lang.transl('_手动删除作品')
     }
   })
 }
@@ -4493,7 +4594,7 @@ function downloadFile(downloadBarNo: number) {
       // 404 时不进行重试，因为重试也依然会是 404
       if (xhr.status === 404) {
         // 输出提示信息
-        addLog(xzlt('_file404', thisImgInfo!.id), 2, 1)
+        Log.add(lang.transl('_file404', thisImgInfo!.id), 2, 1)
         // 因为 404 时进度条不会动，所以需要手动设置进度条完成
         progressBar.style.width = '100%'
       } else {
@@ -4506,7 +4607,7 @@ function downloadFile(downloadBarNo: number) {
 
     if (xhr.status === 404) {
       // 404 错误时创建 txt 文件，并保存提示信息
-      file = new Blob([`${xzlt('_file404', thisImgInfo!.id)}`], {
+      file = new Blob([`${lang.transl('_file404', thisImgInfo!.id)}`], {
         type: 'text/plain'
       })
       fullFileName = fullFileName.replace(
@@ -4638,7 +4739,7 @@ chrome.runtime.onMessage.addListener((msg: DownloadedMsg) => {
     afterDownload(msg)
   } else if (msg.msg === 'download_err') {
     // 下载出错
-    addLog(
+    Log.add(
       `${imgInfo[msg.data.thisIndex].id}: download error! code: ${msg.err}`,
       2
     )
@@ -4673,8 +4774,8 @@ function afterDownload(msg: DownloadedMsg) {
     downloadStop = false
     downloadPause = false
     clearTimeout(reTryTimer)
-    changeDownStatus(xzlt('_下载完毕'))
-    addLog(xzlt('_下载完毕'), 0, 2)
+    changeDownStatus(lang.transl('_下载完毕'))
+    Log.add(lang.transl('_下载完毕'), 0, 2)
     changeTitle('√')
   } else {
     // 如果没有全部下载完毕
@@ -4722,17 +4823,17 @@ function changeWantPage() {
 
     case 1:
       wantPage = -1
-      setWantPageTip1.textContent = xzlt('_个数')
+      setWantPageTip1.textContent = lang.transl('_个数')
       setWantPageTip1.dataset.tip =
-        xzlt('_checkWantPageRule1Arg5') + '<br>' + xzlt('_相关作品大于0')
-      setWantPageTip2.textContent = xzlt('_数字提示1')
+        lang.transl('_checkWantPageRule1Arg5') + '<br>' + lang.transl('_相关作品大于0')
+      setWantPageTip2.textContent = lang.transl('_数字提示1')
       setWantPage.value = wantPage.toString()
       break
 
     case 5:
       wantPage = 1000
-      setWantPageTip1.textContent = xzlt('_页数')
-      setWantPageTip1.dataset.tip = xzlt('_要获取的作品个数2')
+      setWantPageTip1.textContent = lang.transl('_页数')
+      setWantPageTip1.dataset.tip = lang.transl('_要获取的作品个数2')
       setWantPageTip2.textContent = '-1 - 1000'
       setWantPage.value = wantPage.toString()
       break
@@ -4743,8 +4844,8 @@ function changeWantPage() {
 
     case 7:
       wantPage = 500
-      setWantPageTip1.textContent = xzlt('_个数')
-      setWantPageTip1.dataset.tip = xzlt('_要获取的作品个数2')
+      setWantPageTip1.textContent = lang.transl('_个数')
+      setWantPageTip1.dataset.tip = lang.transl('_要获取的作品个数2')
       setWantPageTip2.textContent = '1 - 500'
       setWantPage.value = wantPage.toString()
       break
@@ -4755,16 +4856,16 @@ function changeWantPage() {
 
     case 9:
       wantPage = 100
-      setWantPageTip1.textContent = xzlt('_个数')
-      setWantPageTip1.dataset.tip = xzlt('_要获取的作品个数2')
+      setWantPageTip1.textContent = lang.transl('_个数')
+      setWantPageTip1.dataset.tip = lang.transl('_要获取的作品个数2')
       setWantPageTip2.textContent = '1 - 500'
       setWantPage.value = wantPage.toString()
       break
 
     case 10:
       wantPage = 10
-      setWantPageTip1.textContent = xzlt('_页数')
-      setWantPageTip1.dataset.tip = xzlt('_checkWantPageRule1Arg8')
+      setWantPageTip1.textContent = lang.transl('_页数')
+      setWantPageTip1.dataset.tip = lang.transl('_checkWantPageRule1Arg8')
       setMaxNum()
       setWantPageTip2.textContent = `1 - ${maxNum}`
       setWantPage.value = wantPage.toString()
@@ -4776,9 +4877,9 @@ function changeWantPage() {
 
     default:
       wantPage = -1
-      setWantPageTip1.textContent = xzlt('_页数')
-      setWantPageTip1.dataset.tip = xzlt('_checkWantPageRule1Arg5')
-      setWantPageTip2.textContent = xzlt('_数字提示1')
+      setWantPageTip1.textContent = lang.transl('_页数')
+      setWantPageTip1.dataset.tip = lang.transl('_checkWantPageRule1Arg5')
+      setWantPageTip2.textContent = lang.transl('_数字提示1')
       setWantPage.value = wantPage.toString()
       break
   }
@@ -4800,35 +4901,7 @@ function pageInfoSelector() {
   }
 }
 
-// 获取用户信息。可以传入 id，或者自动获取当前页面的用户 id
-function getUserInfo(id: string = '') {
-  fetch(`https://www.pixiv.net/ajax/user/${id || getUserId()}/profile/top`, {
-    method: 'get',
-    credentials: 'same-origin'
-  })
-    .then(response => response.json())
-    .then((data: UserProfileTop) => {
-      // 设置 pageInfo 的信息
-      let useData: { [key: string]: WorksInfo } = {}
-      // 如果有插画作品
-      if (Object.keys(data.body.illusts).length > 0) {
-        useData = data.body.illusts
-      } else if (Object.keys(data.body.manga).length > 0) {
-        // 如果没有插画作品，则从漫画作品中查找
-        useData = data.body.manga
-      } else {
-        // 查找不到
-        pageInfo.info.p_user = ''
-        pageInfo.info.p_uid = ''
-        return false
-      }
 
-      let keys = Object.keys(useData)
-      let first = useData[keys[0]]
-      pageInfo.info.p_user = first.userName
-      pageInfo.info.p_uid = first.userId
-    })
-}
 
 // 获取当前页面的一些信息，用于文件名中
 function getPageInfo() {
@@ -4923,7 +4996,7 @@ function pageType1() {
   const quickDownBtn = document.createElement('div')
   quickDownBtn.id = 'quick_down_btn'
   quickDownBtn.textContent = '↓'
-  quickDownBtn.setAttribute('title', xzlt('_快速下载本页'))
+  quickDownBtn.setAttribute('title', lang.transl('_快速下载本页'))
   document.body.appendChild(quickDownBtn)
   quickDownBtn.addEventListener(
     'click',
@@ -4934,7 +5007,7 @@ function pageType1() {
     false
   )
 
-  addCenterButton(colors.blue, xzlt('_从本页开始抓取new')).addEventListener(
+  addCenterButton(Colors.blue, lang.transl('_从本页开始抓取new')).addEventListener(
     'click',
     () => {
       downDirection = -1
@@ -4942,7 +5015,7 @@ function pageType1() {
     }
   )
 
-  addCenterButton(colors.blue, xzlt('_从本页开始抓取old')).addEventListener(
+  addCenterButton(Colors.blue, lang.transl('_从本页开始抓取old')).addEventListener(
     'click',
     () => {
       downDirection = 1
@@ -4950,7 +5023,7 @@ function pageType1() {
     }
   )
 
-  const downXgBtn = addCenterButton(colors.blue, xzlt('_抓取相关作品'))
+  const downXgBtn = addCenterButton(Colors.blue, lang.transl('_抓取相关作品'))
   downXgBtn.addEventListener(
     'click',
     () => {
@@ -4966,8 +5039,8 @@ function pageType1() {
 
 // 当 pageType 为 2 时执行
 function pageType2() {
-  addCenterButton(colors.blue, xzlt('_开始抓取'), [
-    ['title', xzlt('_开始抓取') + xzlt('_默认下载多页')]
+  addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
+    ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
   ]).addEventListener('click', startGet) // 在书签页面隐藏只要书签选项
 
   if (locUrl.includes('bookmark.php')) {
@@ -4983,8 +5056,8 @@ function pageType2() {
   // 添加下载推荐作品的按钮，只在旧版收藏页面使用
   const columnTitle = document.querySelector('.column-title')
   if (columnTitle) {
-    const downRecmdBtn = addCenterButton(colors.blue, xzlt('_抓取推荐作品'), [
-      ['title', xzlt('_抓取推荐作品Title')]
+    const downRecmdBtn = addCenterButton(Colors.blue, lang.transl('_抓取推荐作品'), [
+      ['title', lang.transl('_抓取推荐作品Title')]
     ])
     downRecmdBtn.addEventListener(
       'click',
@@ -4998,8 +5071,8 @@ function pageType2() {
 
   // 如果存在 token，则添加“添加 tag”按钮
   if (getToken()) {
-    addTagBtn = addCenterButton(colors.green, xzlt('_添加tag'), [
-      ['title', xzlt('_添加tag')]
+    addTagBtn = addCenterButton(Colors.green, lang.transl('_添加tag'), [
+      ['title', lang.transl('_添加tag')]
     ])
     addTagBtn.id = 'add_tag_btn'
 
@@ -5027,9 +5100,7 @@ function listenPageSwitch() {
         getPageInfo()
 
         // 切换页面时，清空输出区域
-        if (logArea) {
-          logArea.innerHTML = ''
-        }
+        Log.clear()
 
         // 在作品页里调用图片查看器
         if (pageType === 1) {
@@ -5078,22 +5149,22 @@ function allPageType() {
     // 用于输入id的输入框
     const downIdInput = document.createElement('textarea')
     downIdInput.id = 'down_id_input'
-    downIdInput.setAttribute('placeholder', xzlt('_输入id进行抓取的提示文字'))
+    downIdInput.setAttribute('placeholder', lang.transl('_输入id进行抓取的提示文字'))
     insertToHead(downIdInput)
     downIdInput.addEventListener('change', () => {
       // 当输入框内容改变时检测，非空值时显示下载面板
       if (downIdInput.value !== '') {
         downIdButton.dataset.ready = 'true'
         centerWrapShow()
-        downIdButton.textContent = xzlt('_开始抓取')
+        downIdButton.textContent = lang.transl('_开始抓取')
       } else {
         downIdButton.dataset.ready = 'false'
         centerWrapHide()
-        downIdButton.textContent = xzlt('_输入id进行抓取')
+        downIdButton.textContent = lang.transl('_输入id进行抓取')
       }
     })
 
-    const downIdButton = addCenterButton(colors.blue, xzlt('_输入id进行抓取'), [
+    const downIdButton = addCenterButton(Colors.blue, lang.transl('_输入id进行抓取'), [
       ['id', 'down_id_button']
     ])
     downIdButton.dataset.ready = 'false' // 是否准备好了
@@ -5117,7 +5188,7 @@ function allPageType() {
             const nowId = parseInt(id)
             if (isNaN(nowId) || nowId < 22 || nowId > 99999999) {
               error = true
-              window.alert(xzlt('_id不合法'))
+              window.alert(lang.transl('_id不合法'))
               return false
             } else {
               addIllustUrlList([nowId.toString()])
@@ -5168,10 +5239,10 @@ function allPageType() {
     <section class="_balloon-menu-popup">
     <ul class="_balloon-menu-closer menu">
     <li>
-    <span class="item">${xzlt('_屏蔽设定')}</span>
+    <span class="item">${lang.transl('_屏蔽设定')}</span>
     </li>
     <li>
-    <a class="item" target="_blank" href="/illust_infomsg.php?illust_id=xz_illustId">${xzlt(
+    <a class="item" target="_blank" href="/illust_infomsg.php?illust_id=xz_illustId">${lang.transl(
       '_举报'
     )}</a>
     </li>
@@ -5260,8 +5331,8 @@ function allPageType() {
     }, '')
 
     // 添加下载面板的按钮
-    addCenterButton(colors.green, xzlt('_开始筛选'), [
-      ['title', xzlt('_开始筛选Title')]
+    addCenterButton(Colors.green, lang.transl('_开始筛选'), [
+      ['title', lang.transl('_开始筛选Title')]
     ]).addEventListener(
       'click',
       () => {
@@ -5274,8 +5345,8 @@ function allPageType() {
       false
     )
 
-    addCenterButton(colors.green, xzlt('_在结果中筛选'), [
-      ['title', xzlt('_在结果中筛选Title')]
+    addCenterButton(Colors.green, lang.transl('_在结果中筛选'), [
+      ['title', lang.transl('_在结果中筛选Title')]
     ]).addEventListener(
       'click',
       () => {
@@ -5284,7 +5355,7 @@ function allPageType() {
         )! as NodeListOf<HTMLDivElement>
 
         let wantFavoriteNumber2 = parseInt(
-          window.prompt(xzlt('_在结果中筛选弹窗'), '2000')!
+          window.prompt(lang.transl('_在结果中筛选弹窗'), '2000')!
         )
 
         if (!wantFavoriteNumber2) {
@@ -5293,7 +5364,7 @@ function allPageType() {
           isNaN(Number(wantFavoriteNumber2)) ||
           ~~Number(wantFavoriteNumber2) <= 0
         ) {
-          window.alert(xzlt('_参数不合法1'))
+          window.alert(lang.transl('_参数不合法1'))
           return false
         } else {
           wantFavoriteNumber2 = ~~Number(wantFavoriteNumber2)
@@ -5316,15 +5387,15 @@ function allPageType() {
       false
     )
 
-    addCenterButton(colors.red, xzlt('_中断当前任务'), [
-      ['title', xzlt('_中断当前任务Title')]
+    addCenterButton(Colors.red, lang.transl('_中断当前任务'), [
+      ['title', lang.transl('_中断当前任务Title')]
     ]).addEventListener(
       'click',
       () => {
         interrupt = true
 
         if (!allowWork) {
-          addLog(xzlt('_当前任务已中断'), 2, 2)
+          Log.add(lang.transl('_当前任务已中断'), 2, 2)
           allowWork = true
         }
 
@@ -5339,15 +5410,15 @@ function allPageType() {
 
     manuallyDelete()
 
-    addCenterButton(colors.blue, xzlt('_抓取当前作品'), [
-      ['title', xzlt('_抓取当前作品Title')]
+    addCenterButton(Colors.blue, lang.transl('_抓取当前作品'), [
+      ['title', lang.transl('_抓取当前作品Title')]
     ]).addEventListener('click', getListPage2)
   } else if (pageType === 6) {
     // 6. ranking_area 地区排行榜
     // https://www.pixiv.net/ranking_area.php?type=detail&no=0
 
-    addCenterButton(colors.blue, xzlt('_抓取本页作品'), [
-      ['title', xzlt('_抓取本页作品Title')]
+    addCenterButton(Colors.blue, lang.transl('_抓取本页作品'), [
+      ['title', lang.transl('_抓取本页作品Title')]
     ]).addEventListener('click', startGet)
   } else if (pageType === 7) {
     // 7. ranking 排行榜
@@ -5376,14 +5447,14 @@ function allPageType() {
       partNumber = 10
     }
 
-    addCenterButton(colors.blue, xzlt('_抓取本排行榜作品'), [
-      ['title', xzlt('_抓取本排行榜作品Title')]
+    addCenterButton(Colors.blue, lang.transl('_抓取本排行榜作品'), [
+      ['title', lang.transl('_抓取本排行榜作品Title')]
     ]).addEventListener('click', startGet)
 
     // 在“今日”页面，添加下载首次登场的作品的按钮
     if (locUrl.includes('mode=daily')) {
-      addCenterButton(colors.blue, xzlt('_抓取首次登场的作品'), [
-        ['title', xzlt('_抓取首次登场的作品Title')]
+      addCenterButton(Colors.blue, lang.transl('_抓取首次登场的作品'), [
+        ['title', lang.transl('_抓取首次登场的作品Title')]
       ]).addEventListener('click', () => {
         debut = true
         startGet()
@@ -5399,7 +5470,7 @@ function allPageType() {
 
     if (type === 'illustration' || type === 'manga' || type === 'cosplay') {
       // 在插画、漫画、cosplay类型的页面上创建下载功能
-      addCenterButton(colors.blue, xzlt('_抓取该页面的图片')).addEventListener(
+      addCenterButton(Colors.blue, lang.transl('_抓取该页面的图片')).addEventListener(
         'click',
         () => {
           resetResult()
@@ -5483,8 +5554,8 @@ function allPageType() {
     // 9. bookmark_add
     // https://www.pixiv.net/bookmark_detail.php?illust_id=63148723
 
-    addCenterButton(colors.blue, xzlt('_抓取相似图片'), [
-      ['title', xzlt('_抓取相似图片')]
+    addCenterButton(Colors.blue, lang.transl('_抓取相似图片'), [
+      ['title', lang.transl('_抓取相似图片')]
     ]).addEventListener(
       'click',
       () => {
@@ -5519,8 +5590,8 @@ function allPageType() {
     setMaxNum() // 页数上限
     getNowPageNo()
 
-    addCenterButton(colors.blue, xzlt('_开始抓取'), [
-      ['title', xzlt('_下载大家的新作品')]
+    addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
+      ['title', lang.transl('_下载大家的新作品')]
     ]).addEventListener('click', startGet)
   } else if (pageType === 11) {
     // 11.discover 发现
@@ -5528,8 +5599,8 @@ function allPageType() {
 
     tagSearchListSelector = '._2RNjBox' // 发现页面的作品列表
 
-    addCenterButton(colors.blue, xzlt('_抓取当前作品'), [
-      ['title', xzlt('_抓取当前作品Title')]
+    addCenterButton(Colors.blue, lang.transl('_抓取当前作品'), [
+      ['title', lang.transl('_抓取当前作品Title')]
     ]).addEventListener('click', startGet)
 
     clearMultiple()
@@ -5540,13 +5611,19 @@ function allPageType() {
   }
 }
 
+const lang = new Lang()
+const dl = new Downloader()
+const cfg = new Config()
+// 储存页面上可以用作文件名的信息
+const pageInfo = new PageInfoClass()
+const watcher = new Watcher()
 // 光翼展开！
 async function expand() {
   checkConflict()
   addJs()
   await addStyle()
   listenHistory()
-  setLangType()
+  lang.init()
   showNew('_xzNew270')
   addRightButton()
   addCenterWarps()

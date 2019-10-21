@@ -16,6 +16,10 @@ Downloader
 Color
 Log
 
+- 和之前相比变化的地方
+
+setting 里的 needTag notNeedTag 从 string 变成了 string[]
+
 ## 2.7.6 2019-10-15
 
 - 优化命名规则
