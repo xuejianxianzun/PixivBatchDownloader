@@ -1855,7 +1855,7 @@ class Form{
   }
 
   // 储存设置
-  private  saveXzSetting(key: keyof typeof this.xzSetting, value: any) {
+  private  saveXzSetting(key: keyof XzSetting, value: any) {
     this.xzSetting[key] = value
     window.localStorage.setItem(this.storeName, JSON.stringify(this.xzSetting))
   }
