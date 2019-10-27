@@ -416,15 +416,15 @@ interface XzSetting {
   imgNumberPerWork: number
   notdownType: string
   ugoiraSaveAs: string
-  needTag: string[]
-  notNeedTag: string[]
+  needTag: string
+  notNeedTag: string
   displayCover: boolean
   quietDownload: boolean
   downloadThread: number
   userSetName: string
   tagNameToFileName: boolean
   showOptions: boolean
-  [key: string]: string| string[] | number | boolean
+  [key: string]: string| number | boolean
 }
 
 // 是否处于全屏状态
