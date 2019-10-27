@@ -88,7 +88,7 @@ class Config {
   public hasTag: boolean = false // pageType 2 里，是否带 tag
 
   public type2ListType: number = 0 // pageType 2 里的页面类型，都是列表页
-  
+
   public offsetNumber: number = 0 // 要去掉的作品数量
 
   public taskBatch = 0 // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
@@ -328,8 +328,16 @@ class TitleBar {
 // 公用的 DOM 操作
 class DOM {
   constructor() {}
-  // 使用无刷新加载的页面需要监听 url 的改变，在这里监听页面的切换
-  public listenHistory() {
+  
+  // 把文本形式的 css 样式插入到页面里
+  static insertCSS(text: string) {
+    const styleE = document.createElement('style')
+    styleE.textContent = text
+    document.body.appendChild(styleE)
+  }
+
+  // 使用无刷新加载的页面需要监听 url 的改变，这里为这些事件添加监听支持
+  static supportListenHistory() {
     const element = document.createElement('script')
     element.setAttribute('type', 'text/javascript')
     element.innerHTML = `
@@ -348,14 +356,14 @@ class DOM {
     `
     document.head.appendChild(element)
   }
-  // 获取 tag 搜索列表里的可见作品
-  visibleList() {
-    const list: NodeListOf<HTMLDivElement> = document.querySelectorAll(
-      cfg.tagSearchListSelector
+
+  // 获取可见元素
+  static getVisibleEl(selector:string) {
+    const list: NodeListOf<HTMLElement> = document.querySelectorAll(
+      selector
     )
     return Array.from(list).filter(el => {
-      let element = el as HTMLDivElement
-      return element.style.display !== 'none'
+      return el.style.display !== 'none'
     })
   }
 
@@ -371,7 +379,7 @@ class DOM {
   }
 
   // 切换显示 DOM 元素
-  static toggle(el: HTMLElement) {
+  static toggleEl(el: HTMLElement) {
     el.style.display = el.style.display === 'block' ? 'none' : 'block'
   }
 }
@@ -381,12 +389,14 @@ class DOM {
 class Setting {
   constructor() {}
 
-  /*
--1 抓取新作品
-0 不设置抓取方向
-1 抓取旧作品
-*/
+  public xzForm!: XzForm  // 下载面板的选项表单
+
   public downDirection: number = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品
+  /*
+  -1 抓取新作品
+  0 不设置抓取方向
+  1 抓取旧作品
+  */
 
   public downRecommended: boolean = false // 是否下载推荐作品（收藏页面下方）
 
@@ -395,13 +405,12 @@ class Setting {
   public downloadStop: boolean = false // 是否停止下载
 
   public downloadPause: boolean = false // 是否暂停下载
+  
   public quickDownload: boolean = false // 快速下载当前作品，这个只在作品页内直接下载时使用
 
   public downRelated: boolean = false // 是否下载相关作品（作品页内的）
 
   public debut: boolean = false // 只下载首次登场的作品
-
-  public xzForm!: XzForm
 
   public imgNumberPerWork: number = 0 // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
 
@@ -445,33 +454,10 @@ class Setting {
     width: 0,
     height: 0
   }
-}
-
-// 获取下载面板的设置
-class GetSetting {
-  constructor() {}
-
-  // 检查输入的参数是否有效，要求大于 0 的数字
-  checkNumberGreater0(arg: string) {
-    let thisArg = parseInt(arg)
-    // 空值会是 NaN
-    if (!isNaN(thisArg) && thisArg > 0) {
-      // 符合条件
-      return {
-        result: true,
-        value: thisArg
-      }
-    }
-    // 不符合条件
-    return {
-      result: false,
-      value: 0
-    }
-  }
 
   // 设置要下载的个数
   getWantPage() {
-    const result = this.checkNumberGreater0(setting.xzForm.setWantPage.value)
+    const result = API.checkNumberGreater0(setting.xzForm.setWantPage.value)
 
     if (result.result) {
       return result.value
@@ -526,7 +512,7 @@ class GetSetting {
 
   // 检查是否设置了作品张数限制
   checkImgDownloadNumber() {
-    const checkResult = this.checkNumberGreater0(setting.xzForm.setPNo.value)
+    const checkResult = API.checkNumberGreater0(setting.xzForm.setPNo.value)
 
     if (checkResult.result) {
       setting.imgNumberPerWork = checkResult.value
@@ -621,10 +607,10 @@ class GetSetting {
 
   // 检查过滤宽高的设置
   checkSetWh() {
-    const checkResultWidth = this.checkNumberGreater0(
+    const checkResultWidth = API.checkNumberGreater0(
       setting.xzForm.setWidth.value
     )
-    const checkResultHeight = this.checkNumberGreater0(
+    const checkResultHeight = API.checkNumberGreater0(
       setting.xzForm.setHeight.value
     )
 
@@ -691,7 +677,7 @@ class GetSetting {
 
   // 检查是否设置了收藏数要求
   checkSetBmk() {
-    const checkResult = this.checkNumberGreater0(setting.xzForm.setFavNum.value)
+    const checkResult = API.checkNumberGreater0(setting.xzForm.setFavNum.value)
 
     if (checkResult.result) {
       setting.isSetFilterBmk = checkResult.result
@@ -795,8 +781,9 @@ class GetSetting {
     }
   }
 }
-// 初始化下载面板的设置，以及在用户修改时保存设置
-// 只有部分设置会被持久化保存，并读取设置来初始化
+
+// 初始化下载面板的设置项，以及在用户修改时保存设置
+// 只有部分设置会被持久化保存
 class InitAndSaveSetting {
   constructor() {}
 
@@ -853,7 +840,7 @@ class InitAndSaveSetting {
       ;(setting.xzForm[name] as HTMLInputElement).addEventListener(
         'click',
         () => {
-          this.saveSetting('notdownType', getSetting.getNotDownType())
+          this.saveSetting('notdownType', setting.getNotDownType())
         }
       )
     }
@@ -996,7 +983,6 @@ class InitAndSaveSetting {
 }
 
 // 用户界面类
-// 与 DOM 的区别是，UI 管理下载器的用户界面，DOM 管理页面里 P 站的内容
 class UI {
   constructor() {}
   // 处理和脚本版的冲突
@@ -1007,7 +993,7 @@ class UI {
     window.sessionStorage.setItem('xz_pixiv_userscript', '0')
   }
 
-  public xzTipEl: HTMLDivElement = document.createElement('div') // 用于显示提示的元素
+  public xzTipEl: HTMLDivElement = document.createElement('div') // 显示提示文本的元素
 
   public addTagBtn: HTMLButtonElement | null = document.createElement('button') // 给未分类作品添加 tag 的按钮
 
@@ -1023,12 +1009,6 @@ class UI {
 
   public stopBtn: HTMLButtonElement = document.createElement('button') // 停止下载按钮
 
-  // 把 css 样式的文本插入到页面里
-  public addCss(text: string) {
-    const styleE = document.createElement('style')
-    styleE.textContent = text
-    document.body.appendChild(styleE)
-  }
 
   // 添加 css 样式
   public async loadCss() {
@@ -1042,7 +1022,7 @@ class UI {
     // 加载本程序的样式
     const styleFile = await fetch(chrome.extension.getURL('style/xzstyle.css'))
     const styleContent = await styleFile.text()
-    this.addCss(styleContent)
+    DOM.insertCSS(styleContent)
 
     // 加载 viewerjs 的样式
     fetch(chrome.extension.getURL('style/viewer.min.css'))
@@ -1050,7 +1030,7 @@ class UI {
         return res.text()
       })
       .then(text => {
-        this.addCss(text)
+        DOM.insertCSS(text)
       })
   }
 
@@ -1665,14 +1645,14 @@ layout-body 是在未登录时的 tag 搜索页使用的
     document
       .querySelector('.showFileNameTip')!
       .addEventListener('click', () =>
-        DOM.toggle(document.querySelector('.fileNameTip')! as HTMLDivElement)
+        DOM.toggleEl(document.querySelector('.fileNameTip')! as HTMLDivElement)
       )
 
     // 显示下载说明
     document
       .querySelector('.showDownTip')!
       .addEventListener('click', () =>
-        DOM.toggle(document.querySelector('.downTip')! as HTMLDivElement)
+        DOM.toggleEl(document.querySelector('.downTip')! as HTMLDivElement)
       )
 
     // 开始下载按钮
@@ -1952,8 +1932,9 @@ layout-body 是在未登录时的 tag 搜索页使用的
 
   // 显示调整后，列表里的作品数量。仅在 tag 搜索页和发现页面中使用
   outputNowResult() {
+    const selector = cfg.tagSearchListSelector
     Log.add(
-      lang.transl('_调整完毕', dom.visibleList().length.toString()),
+      lang.transl('_调整完毕', DOM.getVisibleEl(selector).length.toString()),
       0,
       2,
       false
@@ -2505,7 +2486,7 @@ layout-body 是在未登录时的 tag 搜索页使用的
         'click',
         () => {
           const maxNum = 500 // 设置最大允许获取多少个作品。相似作品的这个数字是可以改的，可以比 500 更大，这里只是一个预设值。
-          let wangPage = getSetting.getWantPage()
+          let wangPage = setting.getWantPage()
           if (wangPage) {
             cfg.requsetNumber = wangPage
             if (wangPage > maxNum) {
@@ -2630,6 +2611,7 @@ class Log {
   }
 }
 
+// 图片查看器类
 class ImgViewer {
   public myViewer!: Viewer // 查看器
   public viewerUl: HTMLUListElement = document.createElement('ul') // 图片列表的 ul 元素
@@ -3001,6 +2983,24 @@ class API {
       }
     }
   }
+
+    // 检查参数是否是大于 0 的数字
+   static checkNumberGreater0(arg: string) {
+      let thisArg = parseInt(arg)
+      // 空值会是 NaN
+      if (!isNaN(thisArg) && thisArg > 0) {
+        // 符合条件
+        return {
+          result: true,
+          value: thisArg
+        }
+      }
+      // 不符合条件
+      return {
+        result: false,
+        value: 0
+      }
+    }
 
   // 当前页面类型里最多有多少页，在 pageType 10 使用
   static getMaxNum() {
@@ -3376,13 +3376,11 @@ class Lang {
   }
 }
 
-// 转换类
+// 转换动图类
 class ConvertUgoira {
   private gifWorkerUrl: string = ''
   public count: number = 0 // 统计有几个转换任务
   public convertTipText: string = ''
-
-  constructor() {}
 
   public async loadWorkerJS() {
     // 添加 zip 的 worker 文件
@@ -3587,7 +3585,7 @@ class ConvertUgoira {
   }
 }
 
-// 储存结果
+// 存储抓取结果
 class Store {
   public type2IdList: string[] = [] // 储存 pageType 2 的 id 列表
 
@@ -3783,14 +3781,14 @@ class Download {
         // 检查下载页数的设置
         let result = false
         if (!setting.downRelated) {
-          result = getSetting.checkWantPageInput(
+          result = setting.checkWantPageInput(
             lang.transl('_checkWantPageRule1Arg2'),
             lang.transl('_checkWantPageRule1Arg3'),
             lang.transl('_checkWantPageRule1Arg4')
           )
         } else {
           // 相关作品的提示
-          result = getSetting.checkWantPageInput(
+          result = setting.checkWantPageInput(
             lang.transl('_checkWantPageRule1Arg2'),
             lang.transl('_checkWantPageRule1Arg9'),
             lang.transl('_checkWantPageRule1Arg10')
@@ -3807,7 +3805,7 @@ class Download {
       if (setting.downRecommended) {
         pageTip = lang.transl('_checkWantPageRule1Arg11')
       }
-      const result = getSetting.checkWantPageInput(
+      const result = setting.checkWantPageInput(
         lang.transl('_checkWantPageRule1Arg2'),
         lang.transl('_checkWantPageRule1Arg6'),
         pageTip
@@ -3821,7 +3819,7 @@ class Download {
       // 去除热门作品一栏
       DOM.removeEl(document.querySelectorAll('._premium-lead-popular-d-body'))
 
-      const result = getSetting.checkWantPageInput(
+      const result = setting.checkWantPageInput(
         lang.transl('_checkWantPageRule1Arg2'),
         lang.transl('_checkWantPageRule1Arg6'),
         lang.transl('_checkWantPageRule1Arg7')
@@ -3843,7 +3841,7 @@ class Download {
       // 排行榜页面
       cfg.listPageFinished = 0
       // 检查下载页数的设置
-      let result = getSetting.checkWantPageInput(
+      let result = setting.checkWantPageInput(
         lang.transl('_checkWantPageRule1Arg2'),
         lang.transl('_checkWantPageRule1Arg12'),
         lang.transl('_checkWantPageRule1Arg4')
@@ -3858,49 +3856,39 @@ class Download {
       }
     } else if (pageType.pageType === 10) {
       // 大家/关注的新作品
-      const result = getSetting.checkNumberGreater0(
-        setting.xzForm.setWantPage.value
-      )
-
-      if (!result.result) {
-        window.alert(lang.transl('_参数不合法1'))
-        return false
-      } else if (result.value > cfg.maxNum) {
-        window.alert(lang.transl('_输入超过了最大值') + cfg.maxNum)
-        return false
-      } else {
-        setting.wantPage = result.value
+      const wantPage = setting.getWantPage()
+      if (wantPage)  {
         Log.add(lang.transl('_任务开始1', setting.wantPage.toString()), 1)
       }
     }
 
     // 检查是否设置了收藏数要求
-    if (!getSetting.checkSetBmk()) {
+    if (!setting.checkSetBmk()) {
       return false
     }
 
     // 检查是否设置了作品张数限制
-    getSetting.checkImgDownloadNumber()
+    setting.checkImgDownloadNumber()
 
     // 获取必须包含的tag
-    getSetting.getNeedTag()
+    setting.getNeedTag()
 
     // 获取要排除的tag
-    getSetting.getNotNeedTag()
+    setting.getNotNeedTag()
 
     // 检查是否设置了只下载书签作品
-    getSetting.checkOnlyBmk()
+    setting.checkOnlyBmk()
 
     // 检查排除作品类型的设置
-    if (getSetting.checkNotDownType() === false) {
+    if (setting.checkNotDownType() === false) {
       return false
     }
 
     // 检查是否设置了宽高条件
-    getSetting.checkSetWh()
+    setting.checkSetWh()
 
     // 检查宽高比设置
-    getSetting.getRatioSetting()
+    setting.getRatioSetting()
 
     // 检查是否设置了只下载首次登场
     if (setting.debut) {
@@ -4053,14 +4041,14 @@ class Download {
             const tureWidth = data.width
             const tureHeight = data.height
             if (
-              !getSetting.checkSetWhok(tureWidth, tureHeight) ||
-              !getSetting.checkRatio(tureWidth, tureHeight)
+              !setting.checkSetWhok(tureWidth, tureHeight) ||
+              !setting.checkRatio(tureWidth, tureHeight)
             ) {
               continue
             }
 
             // 检查只下载书签作品的设置
-            if (!getSetting.checkOnlyDownBmk(data.isBookmarked)) {
+            if (!setting.checkOnlyDownBmk(data.isBookmarked)) {
               continue
             }
 
@@ -4070,12 +4058,12 @@ class Download {
             }
 
             // 检查排除的 tag 的设置
-            if (getSetting.checkNotNeedTag(data.tags)) {
+            if (setting.checkNotNeedTag(data.tags)) {
               continue
             }
 
             // 检查必须包含的 tag  的设置
-            if (!getSetting.checkNeedTag(data.tags)) {
+            if (!setting.checkNeedTag(data.tags)) {
               continue
             }
 
@@ -4193,7 +4181,7 @@ class Download {
             }
 
             // 检查只下载收藏作品的设置
-            if (!getSetting.checkOnlyDownBmk(data.is_bookmarked)) {
+            if (!setting.checkOnlyDownBmk(data.is_bookmarked)) {
               continue
             }
 
@@ -4203,19 +4191,19 @@ class Download {
             }
 
             // 检查排除的 tag 的设置
-            if (getSetting.checkNotNeedTag(data.tags)) {
+            if (setting.checkNotNeedTag(data.tags)) {
               continue
             }
 
             // 检查必须包含的 tag  的设置
-            if (!getSetting.checkNeedTag(data.tags)) {
+            if (!setting.checkNeedTag(data.tags)) {
               continue
             }
 
             // 检查宽高设置和宽高比设置
             if (
-              !getSetting.checkSetWhok(data.width, data.height) ||
-              !getSetting.checkRatio(data.width, data.height)
+              !setting.checkSetWhok(data.width, data.height) ||
+              !setting.checkRatio(data.width, data.height)
             ) {
               continue
             }
@@ -4283,14 +4271,14 @@ class Download {
               const tureWidth = data.width
               const tureHeight = data.height
               if (
-                !getSetting.checkSetWhok(tureWidth, tureHeight) ||
-                !getSetting.checkRatio(tureWidth, tureHeight)
+                !setting.checkSetWhok(tureWidth, tureHeight) ||
+                !setting.checkRatio(tureWidth, tureHeight)
               ) {
                 continue
               }
 
               // 检查只下载书签作品的设置
-              if (!getSetting.checkOnlyDownBmk(data.isBookmarked)) {
+              if (!setting.checkOnlyDownBmk(data.isBookmarked)) {
                 continue
               }
 
@@ -4300,12 +4288,12 @@ class Download {
               }
 
               // 检查排除的 tag 的设置
-              if (getSetting.checkNotNeedTag(data.tags)) {
+              if (setting.checkNotNeedTag(data.tags)) {
                 continue
               }
 
               // 检查必须包含的 tag  的设置
-              if (!getSetting.checkNeedTag(data.tags)) {
+              if (!setting.checkNeedTag(data.tags)) {
                 continue
               }
 
@@ -4332,12 +4320,12 @@ class Download {
               const tags = img.dataset.tags.split(' ')
 
               // 检查排除的 tag 的设置
-              if (getSetting.checkNotNeedTag(tags)) {
+              if (setting.checkNotNeedTag(tags)) {
                 continue
               }
 
               // 检查必须包含的 tag  的设置
-              if (!getSetting.checkNeedTag(tags)) {
+              if (!setting.checkNeedTag(tags)) {
                 continue
               }
 
@@ -4345,7 +4333,7 @@ class Download {
               const bookmarked = el
                 .querySelector('._one-click-bookmark')
                 .classList.contains('on')
-              if (!getSetting.checkOnlyDownBmk(bookmarked)) {
+              if (!setting.checkOnlyDownBmk(bookmarked)) {
                 continue
               }
 
@@ -4416,7 +4404,11 @@ class Download {
         return false
       }
 
-      if (dom.visibleList().length === 0) {
+    
+      // 下载时，只下载可见的作品，不下载隐藏起来的作品
+    const selector = cfg.tagSearchListSelector
+    const allPicArea = DOM.getVisibleEl(selector)
+      if (allPicArea.length === 0) {
         return false
       }
 
@@ -4431,30 +4423,27 @@ class Download {
       // 这里有一些检查是之前在 startGet 里检查过的，这里再检查一次，以应对用户中途修改设置的情况
 
       // 检查排除作品类型的设置
-      if (getSetting.checkNotDownType() === false) {
+      if (setting.checkNotDownType() === false) {
         return false
       }
 
       // 检查是否设置了宽高条件
-      getSetting.checkSetWh()
+      setting.checkSetWh()
 
       // 检查宽高比设置
-      getSetting.getRatioSetting()
+      setting.getRatioSetting()
 
       // 检查是否设置了只下载书签作品
-      getSetting.checkOnlyBmk()
+      setting.checkOnlyBmk()
 
       // 检查是否设置了作品张数限制
-      getSetting.checkImgDownloadNumber()
+      setting.checkImgDownloadNumber()
 
       // 获取必须包含的tag
-      getSetting.getNeedTag()
+      setting.getNeedTag()
 
       // 获取要排除的tag
-      getSetting.getNotNeedTag()
-
-      // 下载时，只下载可见的作品，不下载隐藏起来的作品
-      const allPicArea = dom.visibleList()
+      setting.getNotNeedTag()
 
       // tag 搜索页里，标识作品类型的 class 与其他页面不同，所以在这里转换成能被接下来的函数识别的字符
       for (const el of allPicArea) {
@@ -4474,7 +4463,7 @@ class Download {
         const bookmarked = el
           .querySelector('._one-click-bookmark')!
           .classList.contains('on')
-        if (!getSetting.checkOnlyDownBmk(bookmarked)) {
+        if (!setting.checkOnlyDownBmk(bookmarked)) {
           continue
         }
 
@@ -4496,12 +4485,12 @@ class Download {
         const tags = img.dataset.tags!.split(' ')
 
         // 检查排除的 tag 的设置
-        if (getSetting.checkNotNeedTag(tags)) {
+        if (setting.checkNotNeedTag(tags)) {
           continue
         }
 
         // 检查必须包含的 tag  的设置
-        if (!getSetting.checkNeedTag(tags)) {
+        if (!setting.checkNeedTag(tags)) {
           continue
         }
 
@@ -4509,7 +4498,7 @@ class Download {
         const bookmarked = el
           .querySelector('._one-click-bookmark')!
           .classList.contains('on')
-        if (!getSetting.checkOnlyDownBmk(bookmarked)) {
+        if (!setting.checkOnlyDownBmk(bookmarked)) {
           continue
         }
 
@@ -4902,8 +4891,8 @@ class Download {
         const bmk = jsInfo.bookmarkCount // 收藏数
         let ext = '' // 扩展名
         let imgUrl = ''
-        const whCheckResult = getSetting.checkSetWhok(fullWidth, fullHeight) // 检查宽高设置
-        const ratioCheckResult = getSetting.checkRatio(fullWidth, fullHeight) // 检查宽高比设置
+        const whCheckResult = setting.checkSetWhok(fullWidth, fullHeight) // 检查宽高设置
+        const ratioCheckResult = setting.checkRatio(fullWidth, fullHeight) // 检查宽高比设置
 
         // 检查收藏数要求
         let bmkCheckResult = true
@@ -4914,7 +4903,7 @@ class Download {
         }
 
         // 检查只下载书签作品的要求
-        const checkBookmarkResult = getSetting.checkOnlyDownBmk(
+        const checkBookmarkResult = setting.checkOnlyDownBmk(
           !!jsInfo.bookmarkData
         )
 
@@ -4926,12 +4915,12 @@ class Download {
         let tagCheckResult // 储存 tag 检查结果
 
         // 检查要排除的 tag
-        const tagNotNeedIsFound = getSetting.checkNotNeedTag(nowAllTag)
+        const tagNotNeedIsFound = setting.checkNotNeedTag(nowAllTag)
 
         // 如果检查排除的 tag，没有匹配到
         if (!tagNotNeedIsFound) {
           // 检查必须包含的 tag
-          tagCheckResult = getSetting.checkNeedTag(nowAllTag)
+          tagCheckResult = setting.checkNeedTag(nowAllTag)
         } else {
           // 如果匹配到了要排除的tag，则不予通过
           tagCheckResult = false
@@ -5824,8 +5813,6 @@ const setting = new Setting()
 
 const initSetting = new InitAndSaveSetting()
 
-const getSetting = new GetSetting()
-
 const ui = new UI()
 ui.checkConflict()
 ui.loadCss()
@@ -5843,8 +5830,7 @@ convert.loadWorkerJS()
 
 const viewer = new ImgViewer()
 
-const dom = new DOM()
-dom.listenHistory()
+DOM.supportListenHistory()
 
 const store = new Store()
 
