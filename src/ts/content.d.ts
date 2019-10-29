@@ -32,10 +32,9 @@ interface TagSearchResult {
 
 // 页面上的信息
 interface PageInfo {
-  p_title: string
-  p_user: string
-  p_uid: string
-  p_tag: string
+  pageUser: string
+  pageUserID: string
+  pageTag: string
 }
 
 // 获取到的未分类书签的数据

@@ -18,11 +18,13 @@ Log
 
 - 和之前相比变化的地方
 
-用 api 类输入输出，使用时自行解析输出的数据
+把网络获取数据用 api 类输入输出，使用时自行解析输出的数据
 
 把 log 的 add 方法按照不同级别，拆分成多个函数
 
 insertValueToInput 改变命名规则之后，是否可以触发自动保存命名规则
+
+setting 的参数改成使用时在各自地方获取
 
 updateViewer getUserInfo  里设置 pageInfo.info 的地方挪出去
 
@@ -30,7 +32,11 @@ updateViewer getUserInfo  里设置 pageInfo.info 的地方挪出去
 
 修改一些方法名
 
-从下载文件开始到下载结束，这部分独立成一个类
+把设置的保存步骤分散到每一个类里
+
+把下载器在页面上添加的元素放在一个统一的 div 里
+
+删除 t.ts  t.js
 
 - 指导规则
 

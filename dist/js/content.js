@@ -71,7 +71,7 @@ Colors.green = '#14ad27';
 Colors.red = '#f33939';
 // 配置类
 // 初始化下载器需要的常量
-// 与 Setting 的区别是，这里的选项不体现在UI 上，用户也不可以修改
+// 与 Setting 的区别是，这里的选项不体现在 UI 上，用户也不可以修改
 class Config {
     constructor() {
         this.hasTag = false; // pageType 2 里，是否带 tag
@@ -159,22 +159,6 @@ class Config {
         this.downloaded = 0; // 已下载的文件
         this.reTryTimer = 0; // 重试下载的定时器
         this.downloadTime = 0; // 向浏览器发送下载任务的时间戳
-        // 用正则过滤不安全的字符，（Chrome 和 Windows 不允许做文件名的字符）
-        // 不安全的字符，这里多数是控制字符，需要替换掉
-        this.unsafeStr = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
-        // 一些需要替换成全角字符的符号，左边是正则表达式的字符
-        this.fullWidthDict = [
-            ['\\\\', '＼'],
-            ['/', '／'],
-            [':', '：'],
-            ['\\?', '？'],
-            ['"', '＂'],
-            ['<', '＜'],
-            ['>', '＞'],
-            ['\\*', '＊'],
-            ['\\|', '｜'],
-            ['~', '～']
-        ];
     }
 }
 //标题栏
@@ -272,8 +256,14 @@ class TitleBar {
 // 公用的 DOM 操作
 class DOM {
     constructor() { }
-    // 使用无刷新加载的页面需要监听 url 的改变，在这里监听页面的切换
-    listenHistory() {
+    // 把文本形式的 css 样式插入到页面里
+    static insertCSS(text) {
+        const styleE = document.createElement('style');
+        styleE.textContent = text;
+        document.body.appendChild(styleE);
+    }
+    // 使用无刷新加载的页面需要监听 url 的改变，这里为这些事件添加监听支持
+    static supportListenHistory() {
         const element = document.createElement('script');
         element.setAttribute('type', 'text/javascript');
         element.innerHTML = `
@@ -292,12 +282,11 @@ class DOM {
     `;
         document.head.appendChild(element);
     }
-    // 获取 tag 搜索列表里的可见作品
-    visibleList() {
-        const list = document.querySelectorAll(cfg.tagSearchListSelector);
+    // 获取可见元素
+    static getVisibleEl(selector) {
+        const list = document.querySelectorAll(selector);
         return Array.from(list).filter(el => {
-            let element = el;
-            return element.style.display !== 'none';
+            return el.style.display !== 'none';
         });
     }
     // 删除 DOM 元素
@@ -314,7 +303,7 @@ class DOM {
         }
     }
     // 切换显示 DOM 元素
-    static toggle(el) {
+    static toggleEl(el) {
         el.style.display = el.style.display === 'block' ? 'none' : 'block';
     }
 }
@@ -322,12 +311,12 @@ class DOM {
 // 用户可以通过 UI 看到、修改的设置项，以及其状态指示
 class Setting {
     constructor() {
-        /*
-      -1 抓取新作品
-      0 不设置抓取方向
-      1 抓取旧作品
-      */
         this.downDirection = 0; // 抓取方向，在作品页内指示抓取新作品还是旧作品
+        /*
+        -1 抓取新作品
+        0 不设置抓取方向
+        1 抓取旧作品
+        */
         this.downRecommended = false; // 是否下载推荐作品（收藏页面下方）
         this.downloadStarted = false; // 下载是否已经开始
         this.downloadStop = false; // 是否停止下载
@@ -360,30 +349,9 @@ class Setting {
             height: 0
         };
     }
-}
-// 获取下载面板的设置
-class GetSetting {
-    constructor() { }
-    // 检查输入的参数是否有效，要求大于 0 的数字
-    checkNumberGreater0(arg) {
-        let thisArg = parseInt(arg);
-        // 空值会是 NaN
-        if (!isNaN(thisArg) && thisArg > 0) {
-            // 符合条件
-            return {
-                result: true,
-                value: thisArg
-            };
-        }
-        // 不符合条件
-        return {
-            result: false,
-            value: 0
-        };
-    }
     // 设置要下载的个数
     getWantPage() {
-        const result = this.checkNumberGreater0(setting.xzForm.setWantPage.value);
+        const result = API.checkNumberGreater0(setting.xzForm.setWantPage.value);
         if (result.result) {
             return result.value;
         }
@@ -427,7 +395,7 @@ class GetSetting {
     }
     // 检查是否设置了作品张数限制
     checkImgDownloadNumber() {
-        const checkResult = this.checkNumberGreater0(setting.xzForm.setPNo.value);
+        const checkResult = API.checkNumberGreater0(setting.xzForm.setPNo.value);
         if (checkResult.result) {
             setting.imgNumberPerWork = checkResult.value;
             Log.add(lang.transl('_作品张数提醒', setting.imgNumberPerWork.toString()), 1);
@@ -508,8 +476,8 @@ class GetSetting {
     }
     // 检查过滤宽高的设置
     checkSetWh() {
-        const checkResultWidth = this.checkNumberGreater0(setting.xzForm.setWidth.value);
-        const checkResultHeight = this.checkNumberGreater0(setting.xzForm.setHeight.value);
+        const checkResultWidth = API.checkNumberGreater0(setting.xzForm.setWidth.value);
+        const checkResultHeight = API.checkNumberGreater0(setting.xzForm.setHeight.value);
         // 宽高只要有一个条件大于 0 即可
         if (checkResultWidth.value > 0 || checkResultHeight.value > 0) {
             setting.isSetFilterWh = true;
@@ -569,7 +537,7 @@ class GetSetting {
     }
     // 检查是否设置了收藏数要求
     checkSetBmk() {
-        const checkResult = this.checkNumberGreater0(setting.xzForm.setFavNum.value);
+        const checkResult = API.checkNumberGreater0(setting.xzForm.setFavNum.value);
         if (checkResult.result) {
             setting.isSetFilterBmk = checkResult.result;
             setting.filterBmk = checkResult.value;
@@ -664,8 +632,8 @@ class GetSetting {
         }
     }
 }
-// 初始化下载面板的设置，以及在用户修改时保存设置
-// 只有部分设置会被持久化保存，并读取设置来初始化
+// 初始化下载面板的设置项，以及在用户修改时保存设置
+// 只有部分设置会被持久化保存
 class InitAndSaveSetting {
     constructor() {
         this.storeName = 'xzSetting';
@@ -712,7 +680,7 @@ class InitAndSaveSetting {
         for (let index = 0; index < 3; index++) {
             let name = 'setWorkType' + index.toString();
             setting.xzForm[name].addEventListener('click', () => {
-                this.saveSetting('notdownType', getSetting.getNotDownType());
+                this.saveSetting('notdownType', setting.getNotDownType());
             });
         }
         // 设置动图格式选项
@@ -819,10 +787,9 @@ class InitAndSaveSetting {
     }
 }
 // 用户界面类
-// 与 DOM 的区别是，UI 管理下载器的用户界面，DOM 管理页面里 P 站的内容
 class UI {
     constructor() {
-        this.xzTipEl = document.createElement('div'); // 用于显示提示的元素
+        this.xzTipEl = document.createElement('div'); // 显示提示文本的元素
         this.addTagBtn = document.createElement('button'); // 给未分类作品添加 tag 的按钮
         this.rightButton = document.createElement('div'); // 右侧按钮
         this.centerPanel = document.createElement('div'); // 中间设置面板
@@ -837,12 +804,6 @@ class UI {
         // 把脚本版的标记设置为 0，这样脚本版就不会运行
         window.sessionStorage.setItem('xz_pixiv_userscript', '0');
     }
-    // 把 css 样式的文本插入到页面里
-    addCss(text) {
-        const styleE = document.createElement('style');
-        styleE.textContent = text;
-        document.body.appendChild(styleE);
-    }
     // 添加 css 样式
     async loadCss() {
         // 因为加载 css 需要时间，加载完成之前，下载器的界面会显示成无样式的样子。如有需要可以先加载一段 css，隐藏界面。
@@ -854,14 +815,14 @@ class UI {
         // 加载本程序的样式
         const styleFile = await fetch(chrome.extension.getURL('style/xzstyle.css'));
         const styleContent = await styleFile.text();
-        this.addCss(styleContent);
+        DOM.insertCSS(styleContent);
         // 加载 viewerjs 的样式
         fetch(chrome.extension.getURL('style/viewer.min.css'))
             .then(res => {
             return res.text();
         })
             .then(text => {
-            this.addCss(text);
+            DOM.insertCSS(text);
         });
     }
     // 显示最近更新
@@ -1066,7 +1027,7 @@ class UI {
       <label for="setQuietDownload"><input type="checkbox" name="setQuietDownload" id="setQuietDownload"> ${lang.transl('_启用')}</label>
       </p>
       </div>
-      <div class="centerWrap_btns centerWrap_btns_free">
+      <div class="centerWrap_btns centerWrap_btns_free" id="centerWrap_btns_free">
   
       </div>
       <p> ${lang.transl('_设置命名规则3', '<span class="fwb xz_blue imgNum">0</span>')}</p>
@@ -1210,7 +1171,7 @@ class UI {
       </div>
       `;
         this.centerPanel = document.querySelector('.centerWrap');
-        this.centerBtnWrap = document.querySelector('.centerWrap_btns_free');
+        this.centerBtnWrap = document.getElementById('centerWrap_btns_free');
         setting.xzForm = document.querySelector('.xzForm');
         this.pauseBtn = document.querySelector('.pauseDownload');
         this.stopBtn = document.querySelector('.stopDownload');
@@ -1261,18 +1222,6 @@ class UI {
             }
         });
     }
-    // 向中间面板添加按钮
-    addCenterButton(bg = Colors.blue, text = '', attr = []) {
-        const e = document.createElement('button');
-        e.type = 'button';
-        e.style.backgroundColor = bg;
-        e.textContent = text;
-        for (const [key, value] of attr) {
-            e.setAttribute(key, value);
-        }
-        this.centerBtnWrap.appendChild(e);
-        return e;
-    }
     // 生成输出区域的内容，按 type 不同，输出 url 或者 文件名
     showOutputInfoWrap(text) {
         if (text) {
@@ -1307,7 +1256,10 @@ class UI {
             let result = '';
             result = store.imgInfo.reduce((total, now) => {
                 return (total +=
-                    now.url.replace(/.*\//, '') + ': ' + dl.getFileName(now) + '<br>'); // 在每个文件名前面加上它的原本的名字，方便用来做重命名
+                    now.url.replace(/.*\//, '') +
+                        ': ' +
+                        fileName.getFileName(now) +
+                        '<br>'); // 在每个文件名前面加上它的原本的名字，方便用来做重命名
             }, result);
             this.showOutputInfoWrap(result);
         });
@@ -1323,11 +1275,11 @@ class UI {
         // 显示命名字段提示
         document
             .querySelector('.showFileNameTip')
-            .addEventListener('click', () => DOM.toggle(document.querySelector('.fileNameTip')));
+            .addEventListener('click', () => DOM.toggleEl(document.querySelector('.fileNameTip')));
         // 显示下载说明
         document
             .querySelector('.showDownTip')
-            .addEventListener('click', () => DOM.toggle(document.querySelector('.downTip')));
+            .addEventListener('click', () => DOM.toggleEl(document.querySelector('.downTip')));
         // 开始下载按钮
         document.querySelector('.startDownload').addEventListener('click', () => {
             dl.startDownload();
@@ -1404,13 +1356,6 @@ class UI {
     // 在进度条上显示已下载数量
     showDownloaded() {
         document.querySelector('.downloaded').textContent = cfg.downloaded.toString();
-    }
-    // 在某些页面里，隐藏不需要的选项。参数是数组，传递设置项的编号。
-    hideNotNeedOption(no) {
-        for (const num of no) {
-            const el = document.querySelector('.xzFormP' + num.toString());
-            el.style.display = 'none';
-        }
     }
     // 当页面无刷新切换时，进行一些处理。这里目前只针对 pageType 1 和 2 进行处理，因为它们有一些相同的逻辑
     listenPageSwitch() {
@@ -1544,7 +1489,8 @@ class UI {
     }
     // 显示调整后，列表里的作品数量。仅在 tag 搜索页和发现页面中使用
     outputNowResult() {
-        Log.add(lang.transl('_调整完毕', dom.visibleList().length.toString()), 0, 2, false);
+        const selector = cfg.tagSearchListSelector;
+        Log.add(lang.transl('_调整完毕', DOM.getVisibleEl(selector).length.toString()), 0, 2, false);
     }
     // 清除动图作品
     addClearUgokuBtn() {
@@ -1663,57 +1609,6 @@ class UI {
         if (type === 0) {
             // 0.index 首页
             // https://www.pixiv.net/
-            // 用于输入id的输入框
-            const downIdInput = document.createElement('textarea');
-            downIdInput.id = 'down_id_input';
-            downIdInput.style.display = 'none';
-            downIdInput.setAttribute('placeholder', lang.transl('_输入id进行抓取的提示文字'));
-            this.insertToHead(downIdInput);
-            downIdInput.addEventListener('change', () => {
-                // 当输入框内容改变时检测，非空值时显示下载面板
-                if (downIdInput.value !== '') {
-                    downIdButton.dataset.ready = 'true';
-                    this.centerWrapShow();
-                    downIdButton.textContent = lang.transl('_开始抓取');
-                }
-                else {
-                    downIdButton.dataset.ready = 'false';
-                    this.centerWrapHide();
-                    downIdButton.textContent = lang.transl('_输入id进行抓取');
-                }
-            });
-            const downIdButton = this.addCenterButton(Colors.blue, lang.transl('_输入id进行抓取'), [['id', 'down_id_button']]);
-            downIdButton.dataset.ready = 'false'; // 是否准备好了
-            downIdButton.addEventListener('click', () => {
-                store.illustUrlList = []; // 每次开始下载前重置作品的url列表
-                if (downIdButton.dataset.ready === 'false') {
-                    // 还没准备好
-                    downIdInput.style.display = 'block';
-                    this.centerWrapHide();
-                    document.documentElement.scrollTop = 0;
-                }
-                else {
-                    // 检查 id
-                    let error = false;
-                    const tempSet = new Set(downIdInput.value.split('\n'));
-                    const idValue = Array.from(tempSet);
-                    idValue.forEach(id => {
-                        // 如果有 id 不是数字，或者处于非法区间，中止任务
-                        const nowId = parseInt(id);
-                        if (isNaN(nowId) || nowId < 22 || nowId > 99999999) {
-                            error = true;
-                            window.alert(lang.transl('_id不合法'));
-                            return false;
-                        }
-                        else {
-                            store.addIllustUrlList([nowId.toString()]);
-                        }
-                    });
-                    if (!error) {
-                        dl.startGet();
-                    }
-                }
-            }, false);
         }
         else if (type === 1) {
             // 1. illust 作品页
@@ -1945,7 +1840,7 @@ class UI {
                 ['title', lang.transl('_抓取相似图片')]
             ]).addEventListener('click', () => {
                 const maxNum = 500; // 设置最大允许获取多少个作品。相似作品的这个数字是可以改的，可以比 500 更大，这里只是一个预设值。
-                let wangPage = getSetting.getWantPage();
+                let wangPage = setting.getWantPage();
                 if (wangPage) {
                     cfg.requsetNumber = wangPage;
                     if (wangPage > maxNum) {
@@ -2051,6 +1946,7 @@ class Log {
 Log.logArea = document.createElement('div'); // 输出日志的区域
 Log.id = 'outputArea'; // 日志区域元素的 id
 Log.colors = ['#00ca19', '#d27e00', '#f00'];
+// 图片查看器类
 class ImgViewer {
     constructor() {
         this.viewerUl = document.createElement('ul'); // 图片列表的 ul 元素
@@ -2374,6 +2270,23 @@ class API {
             else {
                 return 0;
             }
+        };
+    }
+    // 检查参数是否是大于 0 的数字
+    static checkNumberGreater0(arg) {
+        let thisArg = parseInt(arg);
+        // 空值会是 NaN
+        if (!isNaN(thisArg) && thisArg > 0) {
+            // 符合条件
+            return {
+                result: true,
+                value: thisArg
+            };
+        }
+        // 不符合条件
+        return {
+            result: false,
+            value: 0
         };
     }
     // 当前页面类型里最多有多少页，在 pageType 10 使用
@@ -2714,7 +2627,7 @@ class Lang {
         return content;
     }
 }
-// 转换类
+// 转换动图类
 class ConvertUgoira {
     constructor() {
         this.gifWorkerUrl = '';
@@ -2891,7 +2804,7 @@ class ConvertUgoira {
         });
     }
 }
-// 储存结果
+// 存储抓取结果
 class Store {
     constructor() {
         this.type2IdList = []; // 储存 pageType 2 的 id 列表
@@ -2945,9 +2858,331 @@ class Store {
         });
     }
 }
-class Type5 {
+// 文件名类
+class FileName {
+    constructor() {
+        // 用正则过滤不安全的字符，（Chrome 和 Windows 不允许做文件名的字符）
+        // 不安全的字符，这里多数是控制字符，需要替换掉
+        this.unsafeStr = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
+        // 一些需要替换成全角字符的符号，左边是正则表达式的字符
+        this.fullWidthDict = [
+            ['\\\\', '＼'],
+            ['/', '／'],
+            [':', '：'],
+            ['\\?', '？'],
+            ['"', '＂'],
+            ['<', '＜'],
+            ['>', '＞'],
+            ['\\*', '＊'],
+            ['\\|', '｜'],
+            ['~', '～']
+        ];
+    }
+    // 把一些特殊字符替换成全角字符
+    replaceUnsafeStr(str) {
+        str = str.replace(this.unsafeStr, '');
+        for (let index = 0; index < this.fullWidthDict.length; index++) {
+            const rule = this.fullWidthDict[index];
+            const reg = new RegExp(rule[0], 'g');
+            str = str.replace(reg, rule[1]);
+        }
+        return str;
+    }
+    // 生成文件名，传入参数为图片信息
+    getFileName(data) {
+        let result = setting.xzForm.fileNameRule.value;
+        // 为空时使用 {id}
+        result = result || '{id}'; // 生成文件名
+        const illustTypes = ['illustration', 'manga', 'ugoira']; // 作品类型 0 插画 1 漫画 2 动图
+        // 储存每个文件名标记的配置
+        const cfg = [
+            {
+                name: '{p_user}',
+                // 标记
+                value: pageInfo.info.p_user,
+                // 值
+                prefix: '',
+                // 添加在前面的字段名称
+                safe: false
+                // 是否是安全的文件名。如果可能包含一些特殊字符，就不安全，要进行替换
+            },
+            {
+                name: '{p_uid}',
+                value: pageInfo.info.p_uid ? API.getUserId() : '',
+                prefix: '',
+                safe: true
+            },
+            {
+                name: '{p_title}',
+                value: document.title
+                    .replace(/\[(0|↑|→|▶|↓|║|■|√| )\] /, '')
+                    .replace(/^\(\d.*\) /, ''),
+                // 去掉标题上的下载状态、消息数量提示
+                prefix: '',
+                safe: false
+            },
+            {
+                name: '{p_tag}',
+                value: pageInfo.info.p_tag,
+                prefix: '',
+                safe: false
+            },
+            {
+                name: '{id}',
+                value: data.id,
+                prefix: '',
+                safe: true
+            },
+            {
+                name: '{id_num}',
+                value: parseInt(data.id),
+                prefix: '',
+                safe: true
+            },
+            {
+                name: '{p_num}',
+                value: parseInt(/\d*$/.exec(data.id)[0]),
+                prefix: '',
+                safe: true
+            },
+            {
+                name: '{rank}',
+                value: data.rank,
+                prefix: '',
+                safe: true
+            },
+            {
+                name: '{title}',
+                value: data.title,
+                prefix: 'title_',
+                safe: false
+            },
+            {
+                name: '{user}',
+                value: data.user,
+                prefix: 'user_',
+                safe: false
+            },
+            {
+                name: '{userid}',
+                value: data.userid,
+                prefix: 'uid_',
+                safe: true
+            },
+            {
+                name: '{px}',
+                value: (function () {
+                    if (result.includes('{px}') && data.fullWidth !== undefined) {
+                        return data.fullWidth + 'x' + data.fullHeight;
+                    }
+                    else {
+                        return '';
+                    }
+                })(),
+                prefix: '',
+                safe: true
+            },
+            {
+                name: '{tags}',
+                value: data.tags.join(','),
+                prefix: 'tags_',
+                safe: false
+            },
+            {
+                name: '{tags_translate}',
+                value: data.tagsTranslated.join(','),
+                prefix: 'tags_',
+                safe: false
+            },
+            {
+                name: '{bmk}',
+                value: data.bmk,
+                prefix: 'bmk_',
+                safe: true
+            },
+            {
+                name: '{date}',
+                value: data.date,
+                prefix: '',
+                safe: true
+            },
+            {
+                name: '{type}',
+                value: illustTypes[data.type],
+                prefix: '',
+                safe: true
+            }
+        ];
+        // 替换命名规则里的特殊字符
+        result = this.replaceUnsafeStr(result);
+        // 上一步会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
+        result = result.replace(/／/g, '/');
+        // 把命名规则的标记替换成实际值
+        for (const item of cfg) {
+            if (result.includes(item.name) &&
+                item.value !== '' &&
+                item.value !== null) {
+                // 只有当标记有值时才继续操作. 所以没有值的标记会原样保留
+                let once = String(item.value);
+                // 处理标记值中的特殊字符
+                if (!item.safe) {
+                    once = this.replaceUnsafeStr(once);
+                }
+                // 添加字段名称
+                if (setting.xzForm.setTagNameToFileName.checked) {
+                    once = item.prefix + once;
+                }
+                result = result.replace(new RegExp(item.name, 'g'), once); // 将标记替换成最终值，如果有重复的标记，全部替换
+            }
+        }
+        // 处理空值，连续的 '//'。 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
+        result = result.replace(/undefined/g, '').replace(/\/{2,9}/, '/');
+        // 对每一层路径进行处理
+        let tempArr = result.split('/');
+        tempArr.forEach((str, index, arr) => {
+            // 替换路径首尾的空格
+            // 把每层路径头尾的 . 变成全角的．因为 Chrome 不允许头尾使用 .
+            arr[index] = str
+                .trim()
+                .replace(/^\./g, '．')
+                .replace(/\.$/g, '．');
+        });
+        result = tempArr.join('/');
+        // 去掉头尾的 /
+        if (result.startsWith('/')) {
+            result = result.replace('/', '');
+        }
+        if (result.endsWith('/')) {
+            result = result.substr(0, result.length - 1);
+        }
+        // 快速下载时，如果只有一个文件，则不建立文件夹
+        if (setting.quickDownload && store.imgInfo.length === 1) {
+            const index = result.lastIndexOf('/');
+            result = result.substr(index + 1, result.length);
+        }
+        // 添加后缀名
+        result += '.' + data.ext;
+        return result;
+    }
 }
-// 下载类，下载过程中会产生的数据，用户不能修改的
+// 针对不同页面类型，进行初始化
+class InitPage {
+    // 初始化流程
+    init() {
+        this.clearCenterBtns();
+        this.appendCenterBtns();
+        this.appendElseEl();
+        this.setSetting();
+    }
+    // 清空中间按钮
+    clearCenterBtns() {
+        document.getElementById('centerWrap_btns_free').innerHTML = '';
+    }
+    // 向中间面板添加按钮
+    addCenterButton(bg = Colors.blue, text = '', attr = []) {
+        const e = document.createElement('button');
+        e.type = 'button';
+        e.style.backgroundColor = bg;
+        e.textContent = text;
+        for (const [key, value] of attr) {
+            e.setAttribute(key, value);
+        }
+        ui.centerBtnWrap.appendChild(e);
+        return e;
+    }
+    // 添加中间按钮
+    appendCenterBtns() {
+        this.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
+            ['title', lang.transl('_开始抓取')]
+        ]).addEventListener('click', dl.startGet);
+    }
+    // 在某些页面里，隐藏不需要的选项。参数是数组，传递设置项的编号。
+    hideNotNeedOption(no) {
+        for (const num of no) {
+            const el = document.querySelector('.xzFormP' + num.toString());
+            el.style.display = 'none';
+        }
+    }
+}
+// 初始化首页
+class InitIndexPage extends InitPage {
+    constructor() {
+        super();
+        this.downIdButton = document.createElement('button');
+        this.downIdInput = document.createElement('textarea');
+    }
+    appendCenterBtns() {
+        this.downIdButton = this.addCenterButton(Colors.blue, lang.transl('_输入id进行抓取'), [['id', 'down_id_button']]);
+        this.downIdButton.dataset.ready = 'false'; // 是否准备好了
+        this.downIdButton.addEventListener('click', () => {
+            store.illustUrlList = []; // 每次开始下载前重置作品的url列表
+            if (this.downIdButton.dataset.ready === 'false') {
+                // 还没准备好
+                this.downIdInput.style.display = 'block';
+                ui.centerWrapHide();
+                document.documentElement.scrollTop = 0;
+            }
+            else {
+                // 检查 id
+                let error = false;
+                const tempSet = new Set(this.downIdInput.value.split('\n'));
+                const idValue = Array.from(tempSet);
+                idValue.forEach(id => {
+                    // 如果有 id 不是数字，或者处于非法区间，中止任务
+                    const nowId = parseInt(id);
+                    if (isNaN(nowId) || nowId < 22 || nowId > 99999999) {
+                        error = true;
+                        window.alert(lang.transl('_id不合法'));
+                        return false;
+                    }
+                    else {
+                        store.addIllustUrlList([nowId.toString()]);
+                    }
+                });
+                if (!error) {
+                    dl.startGet();
+                }
+            }
+        }, false);
+    }
+    appendElseEl() {
+        // 用于输入id的输入框
+        this.downIdInput = document.createElement('textarea');
+        this.downIdInput.id = 'down_id_input';
+        this.downIdInput.style.display = 'none';
+        this.downIdInput.setAttribute('placeholder', lang.transl('_输入id进行抓取的提示文字'));
+        ui.insertToHead(this.downIdInput);
+        this.downIdInput.addEventListener('change', () => {
+            // 当输入框内容改变时检测，非空值时显示下载面板
+            if (this.downIdInput.value !== '') {
+                this.downIdButton.dataset.ready = 'true';
+                ui.centerWrapShow();
+                this.downIdButton.textContent = lang.transl('_开始抓取');
+            }
+            else {
+                this.downIdButton.dataset.ready = 'false';
+                ui.centerWrapHide();
+                this.downIdButton.textContent = lang.transl('_输入id进行抓取');
+            }
+        });
+    }
+    setSetting() {
+        this.hideNotNeedOption([1]);
+    }
+}
+// 初始化用户页面
+class InitUserPage extends InitPage {
+    constructor() {
+        super();
+    }
+}
+// 抓取流程
+class CrawlProcess {
+}
+// 下载控制类，开始 暂停 停止 重试
+// 输出结果类，输出文件名和网址
+// 文件名类，获取命名规则，生成文件名
+// 下载类，下载过程中会产生的数据，用户不能直接修改的
 class Download {
     constructor() {
         this.listenChromeMsg();
@@ -2974,16 +3209,6 @@ class Download {
                 }
             }
         });
-    }
-    // 把一些特殊字符替换成全角字符
-    replaceUnsafeStr(str) {
-        str = str.replace(cfg.unsafeStr, '');
-        for (let index = 0; index < cfg.fullWidthDict.length; index++) {
-            const rule = cfg.fullWidthDict[index];
-            const reg = new RegExp(rule[0], 'g');
-            str = str.replace(reg, rule[1]);
-        }
-        return str;
     }
     // 对结果列表进行排序，按收藏数从高到低显示
     listSort() {
@@ -3051,11 +3276,11 @@ class Download {
                 // 检查下载页数的设置
                 let result = false;
                 if (!setting.downRelated) {
-                    result = getSetting.checkWantPageInput(lang.transl('_checkWantPageRule1Arg2'), lang.transl('_checkWantPageRule1Arg3'), lang.transl('_checkWantPageRule1Arg4'));
+                    result = setting.checkWantPageInput(lang.transl('_checkWantPageRule1Arg2'), lang.transl('_checkWantPageRule1Arg3'), lang.transl('_checkWantPageRule1Arg4'));
                 }
                 else {
                     // 相关作品的提示
-                    result = getSetting.checkWantPageInput(lang.transl('_checkWantPageRule1Arg2'), lang.transl('_checkWantPageRule1Arg9'), lang.transl('_checkWantPageRule1Arg10'));
+                    result = setting.checkWantPageInput(lang.transl('_checkWantPageRule1Arg2'), lang.transl('_checkWantPageRule1Arg9'), lang.transl('_checkWantPageRule1Arg10'));
                 }
                 if (!result) {
                     return false;
@@ -3068,7 +3293,7 @@ class Download {
             if (setting.downRecommended) {
                 pageTip = lang.transl('_checkWantPageRule1Arg11');
             }
-            const result = getSetting.checkWantPageInput(lang.transl('_checkWantPageRule1Arg2'), lang.transl('_checkWantPageRule1Arg6'), pageTip);
+            const result = setting.checkWantPageInput(lang.transl('_checkWantPageRule1Arg2'), lang.transl('_checkWantPageRule1Arg6'), pageTip);
             if (!result) {
                 return false;
             }
@@ -3077,7 +3302,7 @@ class Download {
             // tag 搜索页
             // 去除热门作品一栏
             DOM.removeEl(document.querySelectorAll('._premium-lead-popular-d-body'));
-            const result = getSetting.checkWantPageInput(lang.transl('_checkWantPageRule1Arg2'), lang.transl('_checkWantPageRule1Arg6'), lang.transl('_checkWantPageRule1Arg7'));
+            const result = setting.checkWantPageInput(lang.transl('_checkWantPageRule1Arg2'), lang.transl('_checkWantPageRule1Arg6'), lang.transl('_checkWantPageRule1Arg7'));
             if (!result) {
                 return false;
             }
@@ -3093,7 +3318,7 @@ class Download {
             // 排行榜页面
             cfg.listPageFinished = 0;
             // 检查下载页数的设置
-            let result = getSetting.checkWantPageInput(lang.transl('_checkWantPageRule1Arg2'), lang.transl('_checkWantPageRule1Arg12'), lang.transl('_checkWantPageRule1Arg4'));
+            let result = setting.checkWantPageInput(lang.transl('_checkWantPageRule1Arg2'), lang.transl('_checkWantPageRule1Arg12'), lang.transl('_checkWantPageRule1Arg4'));
             if (!result) {
                 return false;
             }
@@ -3104,40 +3329,31 @@ class Download {
         }
         else if (pageType.pageType === 10) {
             // 大家/关注的新作品
-            const result = getSetting.checkNumberGreater0(setting.xzForm.setWantPage.value);
-            if (!result.result) {
-                window.alert(lang.transl('_参数不合法1'));
-                return false;
-            }
-            else if (result.value > cfg.maxNum) {
-                window.alert(lang.transl('_输入超过了最大值') + cfg.maxNum);
-                return false;
-            }
-            else {
-                setting.wantPage = result.value;
+            const wantPage = setting.getWantPage();
+            if (wantPage) {
                 Log.add(lang.transl('_任务开始1', setting.wantPage.toString()), 1);
             }
         }
         // 检查是否设置了收藏数要求
-        if (!getSetting.checkSetBmk()) {
+        if (!setting.checkSetBmk()) {
             return false;
         }
         // 检查是否设置了作品张数限制
-        getSetting.checkImgDownloadNumber();
+        setting.checkImgDownloadNumber();
         // 获取必须包含的tag
-        getSetting.getNeedTag();
+        setting.getNeedTag();
         // 获取要排除的tag
-        getSetting.getNotNeedTag();
+        setting.getNotNeedTag();
         // 检查是否设置了只下载书签作品
-        getSetting.checkOnlyBmk();
+        setting.checkOnlyBmk();
         // 检查排除作品类型的设置
-        if (getSetting.checkNotDownType() === false) {
+        if (setting.checkNotDownType() === false) {
             return false;
         }
         // 检查是否设置了宽高条件
-        getSetting.checkSetWh();
+        setting.checkSetWh();
         // 检查宽高比设置
-        getSetting.getRatioSetting();
+        setting.getRatioSetting();
         // 检查是否设置了只下载首次登场
         if (setting.debut) {
             Log.add(lang.transl('_抓取首次登场的作品Title'), 1);
@@ -3271,12 +3487,12 @@ class Download {
                     // 检查宽高设置和宽高比设置
                     const tureWidth = data.width;
                     const tureHeight = data.height;
-                    if (!getSetting.checkSetWhok(tureWidth, tureHeight) ||
-                        !getSetting.checkRatio(tureWidth, tureHeight)) {
+                    if (!setting.checkSetWhok(tureWidth, tureHeight) ||
+                        !setting.checkRatio(tureWidth, tureHeight)) {
                         continue;
                     }
                     // 检查只下载书签作品的设置
-                    if (!getSetting.checkOnlyDownBmk(data.isBookmarked)) {
+                    if (!setting.checkOnlyDownBmk(data.isBookmarked)) {
                         continue;
                     }
                     // 检查排除类型设置
@@ -3284,11 +3500,11 @@ class Download {
                         continue;
                     }
                     // 检查排除的 tag 的设置
-                    if (getSetting.checkNotNeedTag(data.tags)) {
+                    if (setting.checkNotNeedTag(data.tags)) {
                         continue;
                     }
                     // 检查必须包含的 tag  的设置
-                    if (!getSetting.checkNeedTag(data.tags)) {
+                    if (!setting.checkNeedTag(data.tags)) {
                         continue;
                     }
                     // 检查通过后,拼接每个作品的html
@@ -3379,7 +3595,7 @@ class Download {
                         continue;
                     }
                     // 检查只下载收藏作品的设置
-                    if (!getSetting.checkOnlyDownBmk(data.is_bookmarked)) {
+                    if (!setting.checkOnlyDownBmk(data.is_bookmarked)) {
                         continue;
                     }
                     // 检查排除类型的设置
@@ -3387,16 +3603,16 @@ class Download {
                         continue;
                     }
                     // 检查排除的 tag 的设置
-                    if (getSetting.checkNotNeedTag(data.tags)) {
+                    if (setting.checkNotNeedTag(data.tags)) {
                         continue;
                     }
                     // 检查必须包含的 tag  的设置
-                    if (!getSetting.checkNeedTag(data.tags)) {
+                    if (!setting.checkNeedTag(data.tags)) {
                         continue;
                     }
                     // 检查宽高设置和宽高比设置
-                    if (!getSetting.checkSetWhok(data.width, data.height) ||
-                        !getSetting.checkRatio(data.width, data.height)) {
+                    if (!setting.checkSetWhok(data.width, data.height) ||
+                        !setting.checkRatio(data.width, data.height)) {
                         continue;
                     }
                     store.rankList[data.illust_id.toString()] = data.rank.toString();
@@ -3442,12 +3658,12 @@ class Download {
                         // 检查宽高设置和宽高比设置
                         const tureWidth = data.width;
                         const tureHeight = data.height;
-                        if (!getSetting.checkSetWhok(tureWidth, tureHeight) ||
-                            !getSetting.checkRatio(tureWidth, tureHeight)) {
+                        if (!setting.checkSetWhok(tureWidth, tureHeight) ||
+                            !setting.checkRatio(tureWidth, tureHeight)) {
                             continue;
                         }
                         // 检查只下载书签作品的设置
-                        if (!getSetting.checkOnlyDownBmk(data.isBookmarked)) {
+                        if (!setting.checkOnlyDownBmk(data.isBookmarked)) {
                             continue;
                         }
                         // 检查排除类型的设置
@@ -3455,11 +3671,11 @@ class Download {
                             continue;
                         }
                         // 检查排除的 tag 的设置
-                        if (getSetting.checkNotNeedTag(data.tags)) {
+                        if (setting.checkNotNeedTag(data.tags)) {
                             continue;
                         }
                         // 检查必须包含的 tag  的设置
-                        if (!getSetting.checkNeedTag(data.tags)) {
+                        if (!setting.checkNeedTag(data.tags)) {
                             continue;
                         }
                         store.addIllustUrlList([data.illustId]);
@@ -3478,18 +3694,18 @@ class Download {
                         // 提取出 tag 列表
                         const tags = img.dataset.tags.split(' ');
                         // 检查排除的 tag 的设置
-                        if (getSetting.checkNotNeedTag(tags)) {
+                        if (setting.checkNotNeedTag(tags)) {
                             continue;
                         }
                         // 检查必须包含的 tag  的设置
-                        if (!getSetting.checkNeedTag(tags)) {
+                        if (!setting.checkNeedTag(tags)) {
                             continue;
                         }
                         // 检查只下载书签作品的设置
                         const bookmarked = el
                             .querySelector('._one-click-bookmark')
                             .classList.contains('on');
-                        if (!getSetting.checkOnlyDownBmk(bookmarked)) {
+                        if (!setting.checkOnlyDownBmk(bookmarked)) {
                             continue;
                         }
                         store.illustUrlList.push(el.querySelector('a').href);
@@ -3544,7 +3760,10 @@ class Download {
                 window.alert(lang.transl('_当前任务尚未完成2'));
                 return false;
             }
-            if (dom.visibleList().length === 0) {
+            // 下载时，只下载可见的作品，不下载隐藏起来的作品
+            const selector = cfg.tagSearchListSelector;
+            const allPicArea = DOM.getVisibleEl(selector);
+            if (allPicArea.length === 0) {
                 return false;
             }
             if (cfg.interrupt) {
@@ -3555,23 +3774,21 @@ class Download {
             // 因为 tag 搜索页里的下载按钮是从这里开始执行，所以有些检查在这里进行
             // 这里有一些检查是之前在 startGet 里检查过的，这里再检查一次，以应对用户中途修改设置的情况
             // 检查排除作品类型的设置
-            if (getSetting.checkNotDownType() === false) {
+            if (setting.checkNotDownType() === false) {
                 return false;
             }
             // 检查是否设置了宽高条件
-            getSetting.checkSetWh();
+            setting.checkSetWh();
             // 检查宽高比设置
-            getSetting.getRatioSetting();
+            setting.getRatioSetting();
             // 检查是否设置了只下载书签作品
-            getSetting.checkOnlyBmk();
+            setting.checkOnlyBmk();
             // 检查是否设置了作品张数限制
-            getSetting.checkImgDownloadNumber();
+            setting.checkImgDownloadNumber();
             // 获取必须包含的tag
-            getSetting.getNeedTag();
+            setting.getNeedTag();
             // 获取要排除的tag
-            getSetting.getNotNeedTag();
-            // 下载时，只下载可见的作品，不下载隐藏起来的作品
-            const allPicArea = dom.visibleList();
+            setting.getNotNeedTag();
             // tag 搜索页里，标识作品类型的 class 与其他页面不同，所以在这里转换成能被接下来的函数识别的字符
             for (const el of allPicArea) {
                 // 检查排除类型设置
@@ -3588,7 +3805,7 @@ class Download {
                 const bookmarked = el
                     .querySelector('._one-click-bookmark')
                     .classList.contains('on');
-                if (!getSetting.checkOnlyDownBmk(bookmarked)) {
+                if (!setting.checkOnlyDownBmk(bookmarked)) {
                     continue;
                 }
                 store.illustUrlList.push(el.querySelector('a').href);
@@ -3603,18 +3820,18 @@ class Download {
                 // 提取出 tag 列表
                 const tags = img.dataset.tags.split(' ');
                 // 检查排除的 tag 的设置
-                if (getSetting.checkNotNeedTag(tags)) {
+                if (setting.checkNotNeedTag(tags)) {
                     continue;
                 }
                 // 检查必须包含的 tag  的设置
-                if (!getSetting.checkNeedTag(tags)) {
+                if (!setting.checkNeedTag(tags)) {
                     continue;
                 }
                 // 检查只下载书签作品的设置
                 const bookmarked = el
                     .querySelector('._one-click-bookmark')
                     .classList.contains('on');
-                if (!getSetting.checkOnlyDownBmk(bookmarked)) {
+                if (!setting.checkOnlyDownBmk(bookmarked)) {
                     continue;
                 }
                 store.illustUrlList.push(el.querySelector('a').href);
@@ -3935,8 +4152,8 @@ class Download {
                 const bmk = jsInfo.bookmarkCount; // 收藏数
                 let ext = ''; // 扩展名
                 let imgUrl = '';
-                const whCheckResult = getSetting.checkSetWhok(fullWidth, fullHeight); // 检查宽高设置
-                const ratioCheckResult = getSetting.checkRatio(fullWidth, fullHeight); // 检查宽高比设置
+                const whCheckResult = setting.checkSetWhok(fullWidth, fullHeight); // 检查宽高设置
+                const ratioCheckResult = setting.checkRatio(fullWidth, fullHeight); // 检查宽高比设置
                 // 检查收藏数要求
                 let bmkCheckResult = true;
                 if (setting.isSetFilterBmk) {
@@ -3945,16 +4162,16 @@ class Download {
                     }
                 }
                 // 检查只下载书签作品的要求
-                const checkBookmarkResult = getSetting.checkOnlyDownBmk(!!jsInfo.bookmarkData);
+                const checkBookmarkResult = setting.checkOnlyDownBmk(!!jsInfo.bookmarkData);
                 // 检查排除类型设置，这里取反
                 const notdownTypeResult = !setting.notdownType.includes(jsInfo.illustType.toString());
                 let tagCheckResult; // 储存 tag 检查结果
                 // 检查要排除的 tag
-                const tagNotNeedIsFound = getSetting.checkNotNeedTag(nowAllTag);
+                const tagNotNeedIsFound = setting.checkNotNeedTag(nowAllTag);
                 // 如果检查排除的 tag，没有匹配到
                 if (!tagNotNeedIsFound) {
                     // 检查必须包含的 tag
-                    tagCheckResult = getSetting.checkNeedTag(nowAllTag);
+                    tagCheckResult = setting.checkNeedTag(nowAllTag);
                 }
                 else {
                     // 如果匹配到了要排除的tag，则不予通过
@@ -4310,182 +4527,6 @@ class Download {
         }
         Log.add(text, -1, 2, false);
     }
-    // 生成文件名，传入参数为图片信息
-    getFileName(data) {
-        let result = setting.xzForm.fileNameRule.value;
-        // 为空时使用 {id}
-        result = result || '{id}'; // 生成文件名
-        const illustTypes = ['illustration', 'manga', 'ugoira']; // 作品类型 0 插画 1 漫画 2 动图
-        // 储存每个文件名标记的配置
-        const cfg = [
-            {
-                name: '{p_user}',
-                // 标记
-                value: pageInfo.info.p_user,
-                // 值
-                prefix: '',
-                // 添加在前面的字段名称
-                safe: false
-                // 是否是安全的文件名。如果可能包含一些特殊字符，就不安全，要进行替换
-            },
-            {
-                name: '{p_uid}',
-                value: pageInfo.info.p_uid ? API.getUserId() : '',
-                prefix: '',
-                safe: true
-            },
-            {
-                name: '{p_title}',
-                value: document.title
-                    .replace(/\[(0|↑|→|▶|↓|║|■|√| )\] /, '')
-                    .replace(/^\(\d.*\) /, ''),
-                // 去掉标题上的下载状态、消息数量提示
-                prefix: '',
-                safe: false
-            },
-            {
-                name: '{p_tag}',
-                value: pageInfo.info.p_tag,
-                prefix: '',
-                safe: false
-            },
-            {
-                name: '{id}',
-                value: data.id,
-                prefix: '',
-                safe: true
-            },
-            {
-                name: '{id_num}',
-                value: parseInt(data.id),
-                prefix: '',
-                safe: true
-            },
-            {
-                name: '{p_num}',
-                value: parseInt(/\d*$/.exec(data.id)[0]),
-                prefix: '',
-                safe: true
-            },
-            {
-                name: '{rank}',
-                value: data.rank,
-                prefix: '',
-                safe: true
-            },
-            {
-                name: '{title}',
-                value: data.title,
-                prefix: 'title_',
-                safe: false
-            },
-            {
-                name: '{user}',
-                value: data.user,
-                prefix: 'user_',
-                safe: false
-            },
-            {
-                name: '{userid}',
-                value: data.userid,
-                prefix: 'uid_',
-                safe: true
-            },
-            {
-                name: '{px}',
-                value: (function () {
-                    if (result.includes('{px}') && data.fullWidth !== undefined) {
-                        return data.fullWidth + 'x' + data.fullHeight;
-                    }
-                    else {
-                        return '';
-                    }
-                })(),
-                prefix: '',
-                safe: true
-            },
-            {
-                name: '{tags}',
-                value: data.tags.join(','),
-                prefix: 'tags_',
-                safe: false
-            },
-            {
-                name: '{tags_translate}',
-                value: data.tagsTranslated.join(','),
-                prefix: 'tags_',
-                safe: false
-            },
-            {
-                name: '{bmk}',
-                value: data.bmk,
-                prefix: 'bmk_',
-                safe: true
-            },
-            {
-                name: '{date}',
-                value: data.date,
-                prefix: '',
-                safe: true
-            },
-            {
-                name: '{type}',
-                value: illustTypes[data.type],
-                prefix: '',
-                safe: true
-            }
-        ];
-        // 替换命名规则里的特殊字符
-        result = this.replaceUnsafeStr(result);
-        // 上一步会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
-        result = result.replace(/／/g, '/');
-        // 把命名规则的标记替换成实际值
-        for (const item of cfg) {
-            if (result.includes(item.name) &&
-                item.value !== '' &&
-                item.value !== null) {
-                // 只有当标记有值时才继续操作. 所以没有值的标记会原样保留
-                let once = String(item.value);
-                // 处理标记值中的特殊字符
-                if (!item.safe) {
-                    once = this.replaceUnsafeStr(once);
-                }
-                // 添加字段名称
-                if (setting.xzForm.setTagNameToFileName.checked) {
-                    once = item.prefix + once;
-                }
-                result = result.replace(new RegExp(item.name, 'g'), once); // 将标记替换成最终值，如果有重复的标记，全部替换
-            }
-        }
-        // 处理空值，连续的 '//'。 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
-        result = result.replace(/undefined/g, '').replace(/\/{2,9}/, '/');
-        // 对每一层路径进行处理
-        let tempArr = result.split('/');
-        tempArr.forEach((str, index, arr) => {
-            // 替换路径首尾的空格
-            // 把每层路径头尾的 . 变成全角的．因为 Chrome 不允许头尾使用 .
-            arr[index] = str
-                .trim()
-                .replace(/^\./g, '．')
-                .replace(/\.$/g, '．');
-        });
-        result = tempArr.join('/');
-        // 去掉头尾的 /
-        if (result.startsWith('/')) {
-            result = result.replace('/', '');
-        }
-        if (result.endsWith('/')) {
-            result = result.substr(0, result.length - 1);
-        }
-        // 快速下载时，如果只有一个文件，则不建立文件夹
-        if (setting.quickDownload && store.imgInfo.length === 1) {
-            const index = result.lastIndexOf('/');
-            result = result.substr(index + 1, result.length);
-        }
-        // 添加后缀名
-        result += '.' + data.ext;
-        return result;
-    }
     // 下载文件。参数是要使用的下载栏的序号
     downloadFile(downloadBarNo) {
         // 修改标题
@@ -4506,7 +4547,7 @@ class Download {
             return false;
         }
         // 获取文件名
-        let fullFileName = this.getFileName(thisImgInfo);
+        let fullFileName = fileName.getFileName(thisImgInfo);
         // 重设当前下载栏的信息
         let downloadBarList = ui.downloadBarList;
         const loadedBar = downloadBarList[downloadBarNo].querySelector('.loaded');
@@ -4679,7 +4720,6 @@ pageType.getPageType();
 const cfg = new Config();
 const setting = new Setting();
 const initSetting = new InitAndSaveSetting();
-const getSetting = new GetSetting();
 const ui = new UI();
 ui.checkConflict();
 ui.loadCss();
@@ -4692,11 +4732,11 @@ pageInfo.getPageInfo(API.getPageType());
 const convert = new ConvertUgoira();
 convert.loadWorkerJS();
 const viewer = new ImgViewer();
-const dom = new DOM();
-dom.listenHistory();
+DOM.supportListenHistory();
 const store = new Store();
 const bookmark = new Bookmark();
 const titleBar = new TitleBar();
 const dl = new Download();
 ui.allPageType();
 ui.checkNew();
+const fileName = new FileName();
