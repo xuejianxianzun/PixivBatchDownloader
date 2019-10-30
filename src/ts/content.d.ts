@@ -414,7 +414,7 @@ interface XzForm extends HTMLFormElement {
 interface XzSetting {
   imgNumberPerWork: number
   notdownType: string
-  ugoiraSaveAs: string
+  ugoiraSaveAs: "webm" | "gif" | "zip"
   needTag: string
   notNeedTag: string
   displayCover: boolean
@@ -521,4 +521,9 @@ interface Rank {
 // 储存作品在排行榜中的排名
 interface RankList {
   [key: string]: string
+}
+
+
+interface Setting{
+  [key: string]: any
 }
