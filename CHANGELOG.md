@@ -28,10 +28,13 @@ setting 的参数改成使用时在各自地方获取
 
 updateViewer getUserInfo  里设置 pageInfo.info 的地方挪出去
 
+addEventListener 绑定事件时，有时先运算最后才调用函数。部分运算可以放到后面调用的函数里。
 
-一些获取选项的函数，如果结果为 false，则直接报错，避免后面再进行判断
+return false 的，如果不是要用 false 作为返回值，则去掉 false。或者根据情况把一些返回 false 的改为报错，避免后面再进行判断
 
 修改一些方法名
+
+给没有设置修饰符的加上修饰符
 
 把设置的保存步骤分散到每一个类里
 

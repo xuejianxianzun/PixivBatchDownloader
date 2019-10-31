@@ -26,7 +26,7 @@ interface ImgInfo {
 // tag 搜索页的作品数据
 interface TagSearchResult {
   id: number
-  e: string
+  el: string
   num: number
 }
 
@@ -524,6 +524,6 @@ interface RankList {
 }
 
 
-interface Setting{
+interface Setting1{
   [key: string]: any
 }
