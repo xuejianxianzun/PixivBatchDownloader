@@ -30,13 +30,6 @@ interface TagSearchResult {
   num: number
 }
 
-// 页面上的信息
-interface PageInfo {
-  pageUser: string
-  pageUserID: string
-  pageTag: string
-}
-
 // 获取到的未分类书签的数据
 interface BookmarkData {
   illustId: string
