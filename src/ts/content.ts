@@ -162,19 +162,9 @@ class Colors {
 class TitleBar {
   private titleTimer: number = 0 // 修改 title 的定时器
 
-  // 检查标题里有没有包含本程序定义的状态字符
+  // 检查标题里有没有本程序定义的状态字符
   private titleHasStatus(status: string = '') {
-    const titleStatus = [
-      '[0]',
-      '[↑]',
-      '[→]',
-      '[▶]',
-      '[↓]',
-      '[║]',
-      '[■]',
-      '[√]',
-      '[ ]'
-    ]
+    const titleStatus = ['[↑]', '[→]', '[▶]', '[↓]', '[║]', '[■]', '[√]', '[ ]']
 
     if (!status) {
       // 没有传递 status，则检查所有标记
@@ -192,7 +182,7 @@ class TitleBar {
   }
 
   // 重设 title
-  private resetTitle() {
+  public resetTitle() {
     let type = pageType.getPageType()
     clearInterval(this.titleTimer)
     // 储存标题的 mete 元素。在某些页面不存在，有时也与实际上的标题不一致。
@@ -215,7 +205,6 @@ class TitleBar {
   public changeTitle(string: string) {
     // 工作时，本程序的状态会以 [string] 形式添加到 title 最前面，并闪烁提醒
     /*
-  0 不显示在标题上，它是把标题复原的信号
   ↑ 抓取中
   → 等待下一步操作（tag搜索页）
   ▶  准备下载
@@ -224,12 +213,6 @@ class TitleBar {
   ■ 下载停止
   √ 下载完毕
   */
-
-    // 重设 title
-    if (string === '0') {
-      this.resetTitle()
-      return
-    }
 
     const status = `[${string}]`
     // 如果 title 里没有状态，就添加状态
@@ -2866,6 +2849,12 @@ class FileName {
 
 // 针对不同页面类型，进行初始化
 abstract class InitPageBase {
+  constructor(crawler: CrawlPageBase) {
+    this.crawler = crawler
+  }
+
+  public crawler: CrawlPageBase
+
   // 初始化
   public init() {}
 
@@ -3051,7 +3040,7 @@ class InitIndexPage extends InitPageBase {
             }
           })
 
-          crawler.readyGet()
+          this.crawler.readyGet()
         }
       },
       false
@@ -3104,7 +3093,7 @@ class InitIllustPage extends InitPageBase {
       lang.transl('_从本页开始抓取new')
     ).addEventListener('click', () => {
       dlCtrl.downDirection = -1
-      crawler.readyGet()
+      this.crawler.readyGet()
     })
 
     ui.addCenterButton(
@@ -3112,7 +3101,7 @@ class InitIllustPage extends InitPageBase {
       lang.transl('_从本页开始抓取old')
     ).addEventListener('click', () => {
       dlCtrl.downDirection = 1
-      crawler.readyGet()
+      this.crawler.readyGet()
     })
 
     const downXgBtn = ui.addCenterButton(
@@ -3123,7 +3112,7 @@ class InitIllustPage extends InitPageBase {
       'click',
       () => {
         dlCtrl.downRelated = true
-        crawler.readyGet()
+        this.crawler.readyGet()
       },
       false
     )
@@ -3140,7 +3129,7 @@ class InitIllustPage extends InitPageBase {
       'click',
       () => {
         dlCtrl.quickDownload = true
-        crawler.readyGet()
+        this.crawler.readyGet()
       },
       false
     )
@@ -3196,7 +3185,7 @@ class InitUserPage extends InitPageBase {
   public appendCenterBtns() {
     ui.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
-    ]).addEventListener('click', crawler.readyGet)
+    ]).addEventListener('click', this.crawler.readyGet)
 
     // 添加下载推荐作品的按钮，只在旧版收藏页面使用
     const columnTitle = document.querySelector('.column-title')
@@ -3210,7 +3199,7 @@ class InitUserPage extends InitPageBase {
         'click',
         () => {
           dlCtrl.downRecommended = true
-          crawler.readyGet()
+          this.crawler.readyGet()
         },
         false
       )
@@ -3271,7 +3260,7 @@ class InitSearchPage extends InitPageBase {
     ]).addEventListener(
       'click',
       () => {
-        crawler.readyGet()
+        this.crawler.readyGet()
       },
       false
     )
@@ -3343,7 +3332,7 @@ class InitSearchPage extends InitPageBase {
 
     ui.addCenterButton(Colors.blue, lang.transl('_抓取当前作品'), [
       ['title', lang.transl('_抓取当前作品Title')]
-    ]).addEventListener('click', crawler.getWorksList)
+    ]).addEventListener('click', this.crawler.getWorksList)
   }
 
   public appendElseEl() {
@@ -3415,7 +3404,7 @@ class InitAreaRankingPage extends InitPageBase {
   public appendCenterBtns() {
     ui.addCenterButton(Colors.blue, lang.transl('_抓取本页作品'), [
       ['title', lang.transl('_抓取本页作品Title')]
-    ]).addEventListener('click', crawler.readyGet)
+    ]).addEventListener('click', this.crawler.readyGet)
   }
 
   public setSetting() {
@@ -3444,7 +3433,7 @@ class InitRankingPage extends InitPageBase {
   public appendCenterBtns() {
     ui.addCenterButton(Colors.blue, lang.transl('_抓取本排行榜作品'), [
       ['title', lang.transl('_抓取本排行榜作品Title')]
-    ]).addEventListener('click', crawler.readyGet)
+    ]).addEventListener('click', this.crawler.readyGet)
 
     // 在“今日”页面，添加下载首次登场的作品的按钮
     if (location.href.includes('mode=daily')) {
@@ -3452,7 +3441,7 @@ class InitRankingPage extends InitPageBase {
         ['title', lang.transl('_抓取首次登场的作品Title')]
       ]).addEventListener('click', () => {
         dlCtrl.debut = true
-        crawler.readyGet()
+        this.crawler.readyGet()
       })
     }
   }
@@ -3491,7 +3480,7 @@ class InitPixivisionPage extends InitPageBase {
       ).addEventListener(
         'click',
         () => {
-          crawler.readyGet()
+          this.crawler.readyGet()
         },
         false
       )
@@ -3517,7 +3506,7 @@ class InitBookmarkDetailPage extends InitPageBase {
     ]).addEventListener(
       'click',
       () => {
-        crawler.readyGet()
+        this.crawler.readyGet()
       },
       false
     )
@@ -3557,7 +3546,7 @@ class InitNewIllustPage extends InitPageBase {
   public appendCenterBtns() {
     ui.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_下载大家的新作品')]
-    ]).addEventListener('click', crawler.readyGet)
+    ]).addEventListener('click', this.crawler.readyGet)
   }
 
   public setSetting() {
@@ -3600,7 +3589,7 @@ class InitDiscoverPage extends InitPageBase {
   public appendCenterBtns() {
     ui.addCenterButton(Colors.blue, lang.transl('_抓取当前作品'), [
       ['title', lang.transl('_抓取当前作品Title')]
-    ]).addEventListener('click', crawler.readyGet)
+    ]).addEventListener('click', this.crawler.readyGet)
 
     this.addClearMultipleBtn()
 
@@ -3614,92 +3603,8 @@ class InitDiscoverPage extends InitPageBase {
   }
 }
 
-// 初始化页面，根据页面类型，返回初始化对象
-class InitPage {
-  public initPage(type:number) {
-    let result: InitPageBase
-    switch (type) {
-      case 0:
-        result = new InitIndexPage()
-        break
-      case 1:
-        result = new InitIllustPage()
-        break
-      case 2:
-        result = new InitUserPage()
-        break
-      case 5:
-        result = new InitSearchPage()
-        break
-      case 6:
-        result = new InitAreaRankingPage()
-        break
-      case 7:
-        result = new InitRankingPage()
-        break
-      case 8:
-        result = new InitPixivisionPage()
-        break
-      case 9:
-        result = new InitBookmarkDetailPage()
-        break
-      case 10:
-        result = new InitNewIllustPage()
-        break
-      case 11:
-        result = new InitDiscoverPage()
-        break
 
-      default:
-        throw new Error('InitPage error: Illegal parameter.')
-    }
-
-    result.init()
-  }
-
-  public initCrawl(type:number) {
-    let result: CrawlPageBase
-    switch (type) {
-      case 0:
-        result = new CrawlIndexPage()
-        break
-      case 1:
-        result = new CrawlIllustPage()
-        break
-      case 2:
-        result = new CrawlUserPage()
-        break
-      case 5:
-        result = new CrawlSearchPage()
-        break
-      case 6:
-        result = new CrawlAreaRankingPage()
-        break
-      case 7:
-        result = new CrawlRankingPage()
-        break
-      case 8:
-        result = new CrawlPixivisionPage()
-        break
-      case 9:
-        result = new CrawlBookmarkDetailPage()
-        break
-      case 10:
-        result = new CrawlNewIllustPage()
-        break
-      case 11:
-        result = new CrawlDiscoverPage()
-        break
-  
-      default:
-        throw new Error('CrawlPage error: Illegal parameter.')
-    }
-  
-    return result
-  }
-}
-
-// 抓取流程
+// 初始化每个页面的抓取流程
 abstract class CrawlPageBase {
   private ajaxForIllustThreads: number = 6 // 抓取页面时的并发连接数
 
@@ -4170,7 +4075,7 @@ abstract class CrawlPageBase {
   public noResult() {
     Log.add(lang.transl('_列表页抓取结果为零'), 2, 2)
     dl.allowWork = true
-    titleBar.changeTitle('0')
+    titleBar.resetTitle()
   }
 
   // 错误处理
@@ -4209,7 +4114,7 @@ abstract class CrawlPageBase {
     dlCtrl.downloadStarted = false
     dlCtrl.downloadPause = false
     dlCtrl.downloadStop = false
-    titleBar.changeTitle('0')
+    titleBar.resetTitle()
     ui.centerWrapHide()
     document.querySelector('.outputInfoContent')!.innerHTML = ''
   }
@@ -5582,7 +5487,98 @@ class CrawlDiscoverPage extends CrawlPageBase {
   }
 }
 
+// 初始化页面抓取流程
+class InitCrawlProcess {
+  constructor() {
+    this.type = pageType.getPageType()
+    this.initPage()
+  }
 
+  private type: number
+
+  private GetCrawler(type: number) {
+    let result: CrawlPageBase
+    switch (type) {
+      case 0:
+        result = new CrawlIndexPage()
+        break
+      case 1:
+        result = new CrawlIllustPage()
+        break
+      case 2:
+        result = new CrawlUserPage()
+        break
+      case 5:
+        result = new CrawlSearchPage()
+        break
+      case 6:
+        result = new CrawlAreaRankingPage()
+        break
+      case 7:
+        result = new CrawlRankingPage()
+        break
+      case 8:
+        result = new CrawlPixivisionPage()
+        break
+      case 9:
+        result = new CrawlBookmarkDetailPage()
+        break
+      case 10:
+        result = new CrawlNewIllustPage()
+        break
+      case 11:
+        result = new CrawlDiscoverPage()
+        break
+
+      default:
+        throw new Error('CrawlPage error: Illegal parameter.')
+    }
+
+    return result
+  }
+
+  private initPage() {
+    let crawler = this.GetCrawler(this.type)
+    let result: InitPageBase
+    switch (this.type) {
+      case 0:
+        result = new InitIndexPage(crawler)
+        break
+      case 1:
+        result = new InitIllustPage(crawler)
+        break
+      case 2:
+        result = new InitUserPage(crawler)
+        break
+      case 5:
+        result = new InitSearchPage(crawler)
+        break
+      case 6:
+        result = new InitAreaRankingPage(crawler)
+        break
+      case 7:
+        result = new InitRankingPage(crawler)
+        break
+      case 8:
+        result = new InitPixivisionPage(crawler)
+        break
+      case 9:
+        result = new InitBookmarkDetailPage(crawler)
+        break
+      case 10:
+        result = new InitNewIllustPage(crawler)
+        break
+      case 11:
+        result = new InitDiscoverPage(crawler)
+        break
+
+      default:
+        throw new Error('InitCrawlProcess error: Illegal parameter.')
+    }
+
+    result.init()
+  }
+}
 
 // 下载控制类
 // 任务状态，任务标记
@@ -6143,8 +6139,7 @@ class Downloader {
           // 当新旧页面的 pageType 不相同的时候
           pageType.onPageTypeChange = () => {
             // 重新初始化页面，初始化抓取流程
-            initPage.initPage(type)
-            crawler = initPage.initCrawl(type)
+            new InitCrawlProcess()
 
             // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
             if (dl.allowWork) {
@@ -6188,11 +6183,7 @@ const bookmark = new Bookmark()
 
 const titleBar = new TitleBar()
 
-const initPage = new InitPage()
-
-initPage.initPage(type)
-
-let crawler = initPage.initCrawl(type)
+new InitCrawlProcess()
 
 const dlCtrl = new DownloadControl()
 
