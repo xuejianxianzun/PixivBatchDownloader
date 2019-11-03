@@ -675,8 +675,7 @@ class InitAndSaveSetting {
         }
         else {
             // 如果没有保存过，则从 Setting 初始化设置
-            const _setting = new Setting();
-            for (const [key, value] of Object.entries(_setting)) {
+            for (const [key, value] of Object.entries(setting)) {
                 if (this.needSaveOpts.includes(key)) {
                     this.savedSetting[key] = value;
                 }
@@ -800,10 +799,12 @@ class InitAndSaveSetting {
     }
     // 重设选项
     reset() {
-        // 用表单的 reset 重设选项
-        setting.xzForm.reset();
         // 清除本地存储的选项
         localStorage.removeItem(this.storeName);
+        // 用表单的 reset 重设选项
+        setting.xzForm.reset();
+        setting = new Setting();
+        this.restoreOption();
     }
 }
 // 用户界面类
@@ -5027,7 +5028,7 @@ const type = pageType.getPageType();
 // 依赖于 UI 的类需要放到 UI 后面
 const ui = new UI();
 const pageInfo = new InitPageInfo(type);
-const setting = new Setting();
+let setting = new Setting();
 const initSetting = new InitAndSaveSetting();
 const convert = new ConvertUgoira();
 const store = new Store();
