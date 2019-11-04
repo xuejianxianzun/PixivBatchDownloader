@@ -13,6 +13,205 @@
  * QQ group:499873152
  */
 
+ 
+// 日志类
+class Log {
+  private logArea = document.createElement('div') // 输出日志的区域
+  private id = 'outputArea' // 日志区域元素的 id
+  private logSnapshot = '' // 储存日志内容的快照
+  private colors = ['#00ca19', '#d27e00', '#f00']
+
+  // 如果日志元素没有添加到页面上，则添加上去
+  private checkElement() {
+    let test = document.getElementById(this.id)
+    if (test === null) {
+      this.logArea.id = this.id
+      DOM.insertToHead(this.logArea)
+    }
+  }
+
+  // 清空日志
+  public clear() {
+    this.logArea.innerHTML = ''
+  }
+
+  // 输出日志
+  /*
+  str 信息文本，必要参数
+  level 日志等级，可选，默认值为 -1
+  br 换行标签的个数，可选，默认值为 1
+  addMode 追加日志的模式，默认为 true，累加所有日志。false 则会建立快照，只在快照后追加最后一条日志。
+
+  日志等级：
+  -1 auto 不设置颜色
+  0 success 绿色
+  1 warning 黄色
+  2 error 红色
+  */
+  private add(str: string, level: number, br: number, addMode: boolean) {
+    this.checkElement()
+
+    let base = ''
+    // 处理添加状态
+    if (addMode) {
+      // 追加日志时，清空日志快照
+      this.logSnapshot = ''
+      base = this.logArea.innerHTML // 使用当前日志信息
+    } else {
+      // 只追加最新一条时，先做快照
+      if (this.logSnapshot === '') {
+        this.logSnapshot = this.logArea.innerHTML
+      }
+      base = this.logSnapshot // 使用快照
+    }
+    // 添加颜色
+    if (level > -1) {
+      str = `<span style="color:${this.colors[level]}">${str}</span>`
+    }
+    // 添加换行符
+    str += '<br>'.repeat(br)
+    // 输出
+    this.logArea.innerHTML = base + str
+  }
+
+  public log(str: string, br: number = 1, addMode: boolean = true) {
+    this.add(str, -1, br, addMode)
+  }
+
+  public success(str: string, br: number = 1, addMode: boolean = true) {
+    this.add(str, 0, br, addMode)
+  }
+
+  public warning(str: string, br: number = 1, addMode: boolean = true) {
+    this.add(str, 1, br, addMode)
+  }
+
+  public error(str: string, br: number = 1, addMode: boolean = true) {
+    this.add(str, 2, br, addMode)
+  }
+}
+
+
+// api 类
+// 不依赖页面元素或者下载器的状态，可独立使用的纯粹的 api
+class API {
+  // 根据对象的属性排序
+  static sortByProperty(propertyName: string) {
+    // 排序的内容有时可能是字符串，需要转换成数字排序
+    return function(object1: any, object2: any) {
+      const value1 = parseInt(object1[propertyName])
+      const value2 = parseInt(object2[propertyName])
+
+      // 倒序排列
+      if (value2 < value1) {
+        return -1
+      } else if (value2 > value1) {
+        return 1
+      } else {
+        return 0
+      }
+    }
+  }
+
+  // 检查参数是否是大于 0 的数字
+  static checkNumberGreater0(arg: string) {
+    let thisArg = parseInt(arg)
+    // 空值会是 NaN
+    if (!isNaN(thisArg) && thisArg > 0) {
+      // 符合条件
+      return {
+        result: true,
+        value: thisArg
+      }
+    }
+    // 不符合条件
+    return {
+      result: false,
+      value: 0
+    }
+  }
+
+  // 从 url 中获取指定的查询条件
+  static getQuery(url: string, query: string) {
+    const result = new URL(url).searchParams.get(query)
+    return result || ''
+  }
+
+  // 从 url 里获取作品id，可以传参，无参数则使用当前页面的 url 匹配
+  static getIllustId(url?: string) {
+    const str = url || window.location.search || location.href
+    if (str.includes('illust_id')) {
+      // 传统 url
+      return /illust_id=(\d*\d)/.exec(str)![1]
+    } else if (str.includes('/artworks/')) {
+      // 新版 url
+      return /artworks\/(\d*\d)/.exec(str)![1]
+    } else {
+      // 直接取出 url 中的数字
+      return /\d*\d/.exec(location.href)![0]
+    }
+  }
+
+  // 添加收藏
+  static async addBookmark(
+    id: string,
+    tags: string,
+    tt: string,
+    hide: boolean
+  ) {
+    let restrict: number
+    if (!hide) {
+      // 公开作品
+      restrict = 0
+    } else {
+      // 非公开作品
+      restrict = 1
+    }
+
+    return fetch('https://www.pixiv.net/rpc/index.php', {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+      },
+      credentials: 'same-origin', // 附带 cookie
+      body: `mode=save_illust_bookmark&illust_id=${id}&restrict=${restrict}&comment=&tags=${tags}&tt=${tt}`
+    })
+  }
+
+  // 获取用户信息。可以传入 id，或者自动获取当前页面的用户 id
+  static getUserInfo(id: string = '') {
+    fetch(
+      `https://www.pixiv.net/ajax/user/${id || DOM.getUserId()}/profile/top`,
+      {
+        method: 'get',
+        credentials: 'same-origin'
+      }
+    )
+      .then(response => response.json())
+      .then((data: UserProfileTop) => {
+        // 设置 pageInfo 的信息
+        let useData: { [key: string]: WorksInfo } = {}
+        // 如果有插画作品
+        if (Object.keys(data.body.illusts).length > 0) {
+          useData = data.body.illusts
+        } else if (Object.keys(data.body.manga).length > 0) {
+          // 如果没有插画作品，则从漫画作品中查找
+          useData = data.body.manga
+        } else {
+          // 查找不到
+          pageInfo.pageUser = ''
+          pageInfo.pageUserID = ''
+          return
+        }
+
+        let keys = Object.keys(useData)
+        let first = useData[keys[0]]
+        pageInfo.pageUser = first.userName
+        pageInfo.pageUserID = first.userId
+      })
+  }
+}
+
 // 页面类型
 class PageType {
   private type: number = 0
@@ -1566,83 +1765,6 @@ class UI {
   }
 }
 
-// 日志类
-class Log {
-  private logArea = document.createElement('div') // 输出日志的区域
-  private id = 'outputArea' // 日志区域元素的 id
-  private logSnapshot = '' // 储存日志内容的快照
-  private colors = ['#00ca19', '#d27e00', '#f00']
-
-  // 如果日志元素没有添加到页面上，则添加上去
-  private checkElement() {
-    let test = document.getElementById(this.id)
-    if (test === null) {
-      this.logArea.id = this.id
-      DOM.insertToHead(this.logArea)
-    }
-  }
-
-  // 清空日志
-  public clear() {
-    this.logArea.innerHTML = ''
-  }
-
-  // 输出日志
-  /*
-  str 信息文本，必要参数
-  level 日志等级，可选，默认值为 -1
-  br 换行标签的个数，可选，默认值为 1
-  addMode 追加日志的模式，默认为 true，累加所有日志。false 则会建立快照，只在快照后追加最后一条日志。
-
-  日志等级：
-  -1 auto 不设置颜色
-  0 success 绿色
-  1 warning 黄色
-  2 error 红色
-  */
-  private add(str: string, level: number, br: number, addMode: boolean) {
-    this.checkElement()
-
-    let base = ''
-    // 处理添加状态
-    if (addMode) {
-      // 追加日志时，清空日志快照
-      this.logSnapshot = ''
-      base = this.logArea.innerHTML // 使用当前日志信息
-    } else {
-      // 只追加最新一条时，先做快照
-      if (this.logSnapshot === '') {
-        this.logSnapshot = this.logArea.innerHTML
-      }
-      base = this.logSnapshot // 使用快照
-    }
-    // 添加颜色
-    if (level > -1) {
-      str = `<span style="color:${this.colors[level]}">${str}</span>`
-    }
-    // 添加换行符
-    str += '<br>'.repeat(br)
-    // 输出
-    this.logArea.innerHTML = base + str
-  }
-
-  public log(str: string, br: number = 1, addMode: boolean = true) {
-    this.add(str, -1, br, addMode)
-  }
-
-  public success(str: string, br: number = 1, addMode: boolean = true) {
-    this.add(str, 0, br, addMode)
-  }
-
-  public warning(str: string, br: number = 1, addMode: boolean = true) {
-    this.add(str, 1, br, addMode)
-  }
-
-  public error(str: string, br: number = 1, addMode: boolean = true) {
-    this.add(str, 2, br, addMode)
-  }
-}
-
 // 图片查看器类
 class ImgViewer {
   constructor() {
@@ -1941,125 +2063,6 @@ class ImgViewer {
   }
 }
 
-// api 类
-// 不依赖页面元素或者下载器的状态，可独立使用的纯粹的 api
-class API {
-  // 根据对象的属性排序
-  static sortByProperty(propertyName: string) {
-    // 排序的内容有时可能是字符串，需要转换成数字排序
-    return function(object1: any, object2: any) {
-      const value1 = parseInt(object1[propertyName])
-      const value2 = parseInt(object2[propertyName])
-
-      // 倒序排列
-      if (value2 < value1) {
-        return -1
-      } else if (value2 > value1) {
-        return 1
-      } else {
-        return 0
-      }
-    }
-  }
-
-  // 检查参数是否是大于 0 的数字
-  static checkNumberGreater0(arg: string) {
-    let thisArg = parseInt(arg)
-    // 空值会是 NaN
-    if (!isNaN(thisArg) && thisArg > 0) {
-      // 符合条件
-      return {
-        result: true,
-        value: thisArg
-      }
-    }
-    // 不符合条件
-    return {
-      result: false,
-      value: 0
-    }
-  }
-
-  // 获取用户信息。可以传入 id，或者自动获取当前页面的用户 id
-  static getUserInfo(id: string = '') {
-    fetch(
-      `https://www.pixiv.net/ajax/user/${id || DOM.getUserId()}/profile/top`,
-      {
-        method: 'get',
-        credentials: 'same-origin'
-      }
-    )
-      .then(response => response.json())
-      .then((data: UserProfileTop) => {
-        // 设置 pageInfo 的信息
-        let useData: { [key: string]: WorksInfo } = {}
-        // 如果有插画作品
-        if (Object.keys(data.body.illusts).length > 0) {
-          useData = data.body.illusts
-        } else if (Object.keys(data.body.manga).length > 0) {
-          // 如果没有插画作品，则从漫画作品中查找
-          useData = data.body.manga
-        } else {
-          // 查找不到
-          pageInfo.pageUser = ''
-          pageInfo.pageUserID = ''
-          return
-        }
-
-        let keys = Object.keys(useData)
-        let first = useData[keys[0]]
-        pageInfo.pageUser = first.userName
-        pageInfo.pageUserID = first.userId
-      })
-  }
-
-  // 从 url 里获取作品id，可以传参，无参数则使用当前页面的 url 匹配
-  static getIllustId(url?: string) {
-    const str = url || window.location.search || location.href
-    if (str.includes('illust_id')) {
-      // 传统 url
-      return /illust_id=(\d*\d)/.exec(str)![1]
-    } else if (str.includes('/artworks/')) {
-      // 新版 url
-      return /artworks\/(\d*\d)/.exec(str)![1]
-    } else {
-      // 直接取出 url 中的数字
-      return /\d*\d/.exec(location.href)![0]
-    }
-  }
-
-  // 从 url 中获取指定的查询条件
-  static getQuery(url: string, query: string) {
-    const result = new URL(url).searchParams.get(query)
-    return result || ''
-  }
-
-  // 添加收藏
-  static async addBookmark(
-    id: string,
-    tags: string,
-    tt: string,
-    hide: boolean
-  ) {
-    let restrict: number
-    if (!hide) {
-      // 公开作品
-      restrict = 0
-    } else {
-      // 非公开作品
-      restrict = 1
-    }
-
-    return fetch('https://www.pixiv.net/rpc/index.php', {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-      },
-      credentials: 'same-origin', // 附带 cookie
-      body: `mode=save_illust_bookmark&illust_id=${id}&restrict=${restrict}&comment=&tags=${tags}&tt=${tt}`
-    })
-  }
-}
 
 // 快速收藏
 class QuickBookmark {
