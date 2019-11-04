@@ -407,7 +407,7 @@ interface XzForm extends HTMLFormElement {
 interface XzSetting {
   imgNumberPerWork: number
   notdownType: string
-  ugoiraSaveAs: "webm" | "gif" | "zip"
+  ugoiraSaveAs: 'webm' | 'gif' | 'zip'
   needTag: string
   notNeedTag: string
   displayCover: boolean
@@ -416,7 +416,7 @@ interface XzSetting {
   userSetName: string
   tagNameToFileName: boolean
   showOptions: boolean
-  [key: string]: string| number | boolean
+  [key: string]: string | number | boolean
 }
 
 // 是否处于全屏状态
@@ -516,13 +516,88 @@ interface RankList {
   [key: string]: string
 }
 
-
-interface Setting1{
+interface Setting1 {
   [key: string]: any
 }
 
-interface FilterWh{
-  andOr: '&'|'|'
-    width: number
-    height: number
+interface FilterWh {
+  andOr: '&' | '|'
+  width: number
+  height: number
+}
+
+interface GetIllustDataError {
+  status: number
+  statusText: string
+}
+
+// 获取作品下方的相关作品数据。只有 recommendMethods 里的 id 列表是完整的。最多有 180 个，但经常会少一些。
+interface RecommendData {
+  error: false | true
+  message: string
+  body: {
+    illusts: WorksInfo[]
+    nextIds: string[]
+    recommendMethods: {
+      [key: string]: string
+    }
+  }
+}
+
+interface RankingData {
+  contents: [
+    {
+      title: string
+      date: string
+      tags: string[]
+      url: string
+      illust_type: string
+      illust_book_style: string
+      illust_page_count: string
+      user_name: string
+      profile_img: string
+      illust_content_type: {
+        sexual: number
+        lo: boolean
+        grotesque: boolean
+        violent: boolean
+        homosexual: boolean
+        drug: boolean
+        thoughts: boolean
+        antisocial: boolean
+        religion: boolean
+        original: boolean
+        furry: boolean
+        bl: boolean
+        yuri: boolean
+      }
+      illust_series: boolean
+      illust_id: number
+      width: number
+      height: number
+      user_id: number
+      rank: number
+      yes_rank: number
+      rating_count: number
+      view_count: number
+      illust_upload_timestamp: number
+      attr: string
+      is_bookmarked: boolean
+      bookmarkable: boolean
+    }
+  ]
+  mode: string
+  content: string
+  page: number
+  prev: boolean
+  next: number
+  date: string
+  prev_date: string
+  next_date: boolean
+  rank_total: number
+}
+
+// 收藏后的相似作品数据
+interface RecommenderData {
+  recommendations: number[]
 }
