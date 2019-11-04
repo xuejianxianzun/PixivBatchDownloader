@@ -380,7 +380,7 @@ interface XzTipArg {
 // 表单
 interface XzForm extends HTMLFormElement {
   setWantPage: HTMLInputElement
-  setPNo: HTMLInputElement
+  imgNumberPerWork: HTMLInputElement
   setWorkType0: HTMLInputElement
   setWorkType1: HTMLInputElement
   setWorkType2: HTMLInputElement
@@ -392,15 +392,15 @@ interface XzForm extends HTMLFormElement {
   setHeight: HTMLInputElement
   ratio: RadioNodeList
   userRatio: HTMLInputElement
-  setTagNeed: HTMLInputElement
-  setTagNotNeed: HTMLInputElement
-  setQuietDownload: HTMLInputElement
-  setThread: HTMLInputElement
-  fileNameRule: HTMLInputElement
+  needTag: HTMLInputElement
+  notNeedTag: HTMLInputElement
+  quietDownload: HTMLInputElement
+  downloadThread: HTMLInputElement
+  userSetName: HTMLInputElement
   pageInfoSelect: HTMLSelectElement
   fileNameSelect: HTMLSelectElement
-  setTagNameToFileName: HTMLInputElement
-  setDisplayCover: HTMLInputElement
+  tagNameToFileName: HTMLInputElement
+  displayCover: HTMLInputElement
 }
 
 // xzSetting
@@ -519,4 +519,10 @@ interface RankList {
 
 interface Setting1{
   [key: string]: any
+}
+
+interface FilterWh{
+  andOr: '&'|'|'
+    width: number
+    height: number
 }

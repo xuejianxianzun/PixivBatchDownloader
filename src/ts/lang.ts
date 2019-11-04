@@ -271,12 +271,6 @@ const xzLang = {
     "Please type the minimum number of bookmarks, and the number of pages to be crawled, separated by ','.\nE.g:\n1000,1000",
     '請輸入最低收藏數和要擷取的頁數，用英文逗號分開。\n類似於下面的形式: \n1000,1000'
   ],
-  _参数不合法1: [
-    '参数不合法，请稍后重试。',
-    'パラメータが有効ではありません。後でやり直してください。',
-    'Parameter is not legal, please try again later.',
-    '參數不合法，請稍後重試。'
-  ],
   _wantPage弹出框文字PageType10: [
     '您想要下载多少页？请输入数字。\r\n当前模式下，列表页的页数最多只有',
     'ダウンロードしたいページ数を入力してください。 \r\n最大値：',
