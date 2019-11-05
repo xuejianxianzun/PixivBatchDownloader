@@ -106,10 +106,22 @@ interface BookmarkResult {
   restrict: boolean
 }
 
+// 动图信息
+interface UgoiraData {
+  error: boolean
+  message: string
+  body: {
+    originalSrc: string
+    src: string
+    mime_type: string
+    frames: { file: string; delay: number }[]
+  }
+}
+
 // 动图每一帧的文件名和延迟
 interface UgoiraInfo {
-  frames?: { file: string; delay: number }[]
-  mimeType?: string
+  mime_type: string
+  frames: { file: string; delay: number }[]
 }
 
 // tag 搜索页里，作品信息的数据
@@ -134,7 +146,7 @@ interface TagSearchData {
 }
 
 // 画师列表页的列表数据，不带 tag。一些不需要使用的数据就简化了
-interface Type2ListDataNoTag {
+interface UserProfileAllData {
   error: boolean
   message: string
   body: {
@@ -154,7 +166,7 @@ interface Type2ListDataNoTag {
 }
 
 // 画师列表页的列表数据，带 tag。一些不需要使用的数据就简化了
-interface Type2ListDataHaveTag {
+interface UserWorksWithTag {
   error: boolean
   message: string
   body: {

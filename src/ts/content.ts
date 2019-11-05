@@ -135,6 +135,32 @@ class API {
     return result || ''
   }
 
+  // 更新 token
+  static updateToken() {
+    fetch('https://www.pixiv.net/artworks/62751951')
+      .then(response => {
+        return response.text()
+      })
+      .then(data => {
+        let result = data.match(/token":"(\w+)"/)
+        if (result) {
+          localStorage.setItem('xzToken', result[1])
+        }
+      })
+  }
+
+  // 获取 token
+  static getToken() {
+    let result = localStorage.getItem('xzToken')
+    if (result) {
+      return result
+    } else {
+      this.updateToken()
+    }
+
+    return ''
+  }
+
   // 从 url 里获取作品id
   // 可以传入 url，无参数则使用当前页面的 url
   static getIllustId(url?: string) {
@@ -146,7 +172,7 @@ class API {
       // 新版 url
       return /artworks\/(\d*\d)/.exec(str)![1]
     } else {
-      // 直接取出 url 中的数字
+      // 直接取出 url 中的数字，不保证准确
       return /\d*\d/.exec(location.href)![0]
     }
   }
@@ -216,15 +242,12 @@ class API {
 
   // 获取用户信息。包含每个作品的详细信息
   //可以传入 id，或者自动获取当前页面的用户 id
-  static getUserProfileTop(id: string = ''): Promise<UserProfileTop> {
+  static getUserProfileTop(id: string): Promise<UserProfileTop> {
     return new Promise(resolve => {
-      fetch(
-        `https://www.pixiv.net/ajax/user/${id || DOM.getUserId()}/profile/top`,
-        {
-          method: 'get',
-          credentials: 'same-origin'
-        }
-      )
+      fetch(`https://www.pixiv.net/ajax/user/${id}/profile/top`, {
+        method: 'get',
+        credentials: 'same-origin'
+      })
         .then(response => response.json())
         .then((data: UserProfileTop) => {
           resolve(data)
@@ -232,11 +255,65 @@ class API {
     })
   }
 
+  // 获取用户信息。包含插画、漫画的 id 列表，不包含详细信息
+  static getUserProfileAll(id: string): Promise<UserProfileAllData> {
+    return new Promise((resolve, reject) => {
+      fetch(`https://www.pixiv.net/ajax/user/${id}/profile/all`, {
+        method: 'get',
+        credentials: 'same-origin'
+      })
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          } else {
+            throw new Error(response.status.toString())
+          }
+        })
+        .then((data: UserProfileAllData) => {
+          resolve(data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+    })
+  }
+
+  // 按照作品类型获取用户的作品列表
+  // 这个只能在带 tag 的时候使用。因为不带 tag 虽然也能获得数据，但是获得的并不全，很奇怪。
+  static getUserWorksByTypeWithTag(
+    id: string,
+    type: 'illusts' | 'manga' | 'illustmanga',
+    tag: string,
+    offset: number = 0,
+    number: number = 999999
+  ): Promise<UserWorksWithTag> {
+    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${number}`
+    return new Promise((resolve, reject) => {
+      fetch(url, {
+        method: 'get',
+        credentials: 'same-origin'
+      })
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          } else {
+            throw new Error(response.status.toString())
+          }
+        })
+        .then((data: UserWorksWithTag) => {
+          resolve(data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+    })
+  }
+
   // 获取作品信息
   // 可以传入 id，或者自动获取当前页面的作品 id
-  static getIllustData(id: string = ''): Promise<IllustData> {
+  static getIllustData(id: string): Promise<IllustData> {
     return new Promise((resolve, reject) => {
-      fetch(`https://www.pixiv.net/ajax/illust/${id || API.getIllustId()}`, {
+      fetch(`https://www.pixiv.net/ajax/illust/${id}`, {
         method: 'get',
         credentials: 'same-origin' // 附带 cookie
       })
@@ -260,19 +337,43 @@ class API {
     })
   }
 
+  // 获取作品动图信息
+  // 可以传入 id，或者自动获取当前页面的作品 id
+  static getIllustUgoiraData(id: string): Promise<UgoiraData> {
+    return new Promise((resolve, reject) => {
+      fetch(`https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`, {
+        method: 'get',
+        credentials: 'same-origin' // 附带 cookie
+      })
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          } else {
+            reject({
+              status: response.status,
+              statusText: response.statusText
+            })
+          }
+        })
+        .then((data: UgoiraData) => {
+          resolve(data)
+        })
+        .catch(error => {
+          // 'TypeError: Failed to fetch'
+          reject(error)
+        })
+    })
+  }
+
   // 获取相关作品
   // 可以传入 id，或者自动获取当前页面的作品 id
-  static getRelatedData(id: string = ''): Promise<RecommendData> {
+  static getRelatedData(id: string): Promise<RecommendData> {
     return new Promise((resolve, reject) => {
       // 最后的 18 是预加载首屏的多少个作品的信息，和下载并没有关系
-      fetch(
-        `https://www.pixiv.net/ajax/illust/${id ||
-          API.getIllustId()}/recommend/init?limit=18`,
-        {
-          method: 'get',
-          credentials: 'same-origin'
-        }
-      )
+      fetch(`https://www.pixiv.net/ajax/illust/${id}/recommend/init?limit=18`, {
+        method: 'get',
+        credentials: 'same-origin'
+      })
         .then(response => {
           if (response.ok) {
             return response.json()
@@ -346,6 +447,10 @@ class API {
 
 // 页面类型
 class PageType {
+  constructor() {
+    this.type = this.getPageType()
+  }
+
   private type: number = 0
 
   public onPageTypeChange() {}
@@ -412,12 +517,16 @@ class PageType {
   // 检查是不是进入到了新的页面类型。这个检查需要手动触发
   public checkPageTypeIsNew() {
     let newType = this.getPageType()
-    if (this.type !== newType) {
-      this.onPageTypeChange()
-    }
 
-    // 保存当前页面类型
-    this.type = newType
+    if (this.type !== newType) {
+      // 在这里保存一次当前页面类型，因为下面运行的内容可能出错，这里不先保存可能就保存不上了。
+      this.type = newType
+
+      this.onPageTypeChange()
+    } else {
+      // 保存当前页面类型
+      this.type = newType
+    }
   }
 }
 
@@ -438,7 +547,7 @@ class PageInfo {
     // 设置用户信息
     if (type === 1 || type === 2) {
       // 只有 1 和 2 可以使用用户信息
-      let data = await API.getUserProfileTop()
+      let data = await API.getUserProfileTop(DOM.getUserId())
       let useData: { [key: string]: WorksInfo } = {}
       // 如果有插画作品，则取出插画作品
       if (Object.keys(data.body.illusts).length > 0) {
@@ -616,7 +725,7 @@ class DOM {
   // 将元素插入到页面顶部
   /*
 大部分页面使用 header，文章页使用 root。因为在文章页执行时，可能获取不到 header.
-newindex-inner 是在未登录时的画师作品列表页面使用的
+newindex-inner 是在未登录时的用户作品列表页面使用的
 layout-body 是在未登录时的 tag 搜索页使用的
 */
   static insertToHead(el: Element) {
@@ -636,18 +745,21 @@ layout-body 是在未登录时的 tag 搜索页使用的
       return test[2]
     }
 
-    // 从 head 元素里匹配。在作品页内，head 元素里的 script 标签含有一些作者信息
-    const test2 = document.head.innerHTML.match(/"userId":"(\d{1,9})"/)
+    // 从 head 里匹配
+    let test2 = document.head.innerHTML.match(/"userId":"(\d{1,9})"/)
+    if (!test2) {
+      test2 = document.head.innerHTML.match(
+        /authorId&quot;:&quot;(\d{1,9})&quot/
+      )
+    }
     if (test2 && test2.length > 1) {
       return test2[1]
     }
 
-    // 从新版页面的头像获取，因为经常改版，只好从源码匹配了
-    const el =
-      document.getElementById('root') || document.getElementById('spa-contents')
-    // 在 PC 模式的新版页面使用 root，在手机模式的新版页面使用 spa-contents
-    if (el && el.childElementCount > 0) {
-      return /member\.php\?id=(\d{1,9})/.exec(el.innerHTML)![1]
+    // 从 body 里匹配
+    let test3 = /member\.php\?id=(\d{1,9})/.exec(document.body.innerHTML)
+    if (test3) {
+      return test3[1]
     }
 
     // 从旧版页面的头像获取（主要是在书签页面使用）
@@ -670,25 +782,6 @@ layout-body 是在未登录时的 tag 搜索页使用的
       no = parseInt(document.querySelector('.page-list .current')!.textContent!)
     }
     return no
-  }
-
-  // 获取 token
-  static getToken() {
-    // 从含有 globalInitData 信息的脚本里，匹配 token 字符串
-    const regToken = document.head.innerHTML.match(/token: "(\w+)"/)
-    if (regToken && regToken.length > 0) {
-      return regToken[1]
-    }
-
-    // 从保存 token 的 input 获取
-    const tokenInput: HTMLInputElement = document.querySelector(
-      'input[name="tt"]'
-    ) as HTMLInputElement
-    if (tokenInput) {
-      return tokenInput.value
-    }
-
-    return ''
   }
 }
 
@@ -2082,7 +2175,7 @@ class ImgViewer {
     this.viewerWarpper.style.display = 'none' // 先隐藏 viewerWarpper
 
     // 获取作品信息
-    const data = await API.getIllustData()
+    const data = await API.getIllustData(API.getIllustId())
     const thisOneData = data.body
     // 处理插画或漫画作品，不处理动图作品
     if (thisOneData.illustType === 0 || thisOneData.illustType === 1) {
@@ -2204,12 +2297,6 @@ class ImgViewer {
 // 快速收藏
 class QuickBookmark {
   constructor() {
-    const tt = DOM.getToken()
-    if (!tt) {
-      // 如果获取不到 token，则不展开本程序的快速收藏功能
-      throw new Error('Token not found!')
-    }
-    
     this.quickBookmark()
   }
 
@@ -2217,10 +2304,15 @@ class QuickBookmark {
 
   // 快速收藏
   private quickBookmark() {
-    // 因为切换作品（pushstate）时，不能准确的知道 toolbar 何时更新，所以只能不断检测
+    // 因为切换作品（pushstate）时，不能准确的知道 toolbar 何时更新，而且获取 token 也可能需要时间，所以只能不断检测
     setTimeout(() => {
       this.quickBookmark()
     }, 300)
+
+    // 如果获取不到 token，则不展开快速收藏功能
+    if (!API.getToken()) {
+      return
+    }
 
     // 因为 p 站改版 class 经常变，所以从父元素查找，父元素的 class 变化没那么频繁
     const toolbarParent = document.querySelectorAll('main > section')
@@ -2285,7 +2377,7 @@ class QuickBookmark {
       const tagString = encodeURI(tagArray.join(' '))
 
       // 调用添加收藏的 api
-      API.addBookmark(API.getIllustId(), tagString, DOM.getToken(), false)
+      API.addBookmark(API.getIllustId(), tagString, API.getToken(), false)
         .then(response => response.json())
         .then(data => {
           if (data.error !== undefined && data.error === false) {
@@ -2385,7 +2477,7 @@ class AddTag {
         hideData.body.works.length === 0
       ) {
         // 已经获取完毕
-        this.addTag(0, store.addTagList, DOM.getToken())
+        this.addTag(0, store.addTagList, API.getToken())
       } else {
         // 需要继续获取
         this.readyAddTag(++loop)
@@ -2514,7 +2606,7 @@ class ConvertUgoira {
             // 获取每个文件的数据。因为这个操作是异步的，所以必须检查图片数量
             files.forEach((file: any) => {
               file.getData(
-                new zip.Data64URIWriter(ugoiraInfo.mimeType),
+                new zip.Data64URIWriter(ugoiraInfo.mime_type),
                 (data: string) => {
                   const fileNo = parseInt(file.filename)
                   imgFile[fileNo] = data
@@ -2721,7 +2813,7 @@ class Store {
     date: string,
     type: number,
     rank: string,
-    ugoiraInfo: UgoiraInfo
+    ugoiraInfo: any
   ) {
     this.downloadList.push({
       id,
@@ -3026,30 +3118,23 @@ abstract class CrawlPageBase {
 
   public ratioType: string = '0' // 宽高比例的类型
 
-  // 检查是否可以开始抓取
-  public checkCanCrawl() {
-    if (!dlCtrl.allowWork || dlCtrl.downloadStarted) {
-      const msg = lang.transl('_当前任务尚未完成1')
-      window.alert(msg)
-      throw new Error(msg)
-    }
-
-    if (this.interrupt) {
-      this.interrupt = false
-    }
-
-    log.success(lang.transl('_任务开始0'))
-    log.log(lang.transl('_本次任务条件'))
-
-    ui.downloadPanelDisplay('none')
-  }
-
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
   public getWantPage() {}
 
   // 准备抓取，进行抓取之前的一些检查工作。必要时可以在子类中改写
   public readyGet(): false | undefined | void {
-    this.checkCanCrawl()
+    // 检查是否可以开始抓取
+    if (!dlCtrl.allowWork || dlCtrl.downloadStarted) {
+      window.alert(lang.transl('_当前任务尚未完成2'))
+      return
+    }
+
+    this.interrupt = false
+
+    log.success(lang.transl('_任务开始0'))
+    log.log(lang.transl('_本次任务条件'))
+
+    ui.downloadPanelDisplay('none')
 
     this.getWantPage()
 
@@ -3160,15 +3245,15 @@ abstract class CrawlPageBase {
       const fullWidth = jsInfo.width // 原图宽度
       const fullHeight = jsInfo.height // 原图高度
       const title = jsInfo.illustTitle // 作品标题
-      const userid = jsInfo.userId // 画师id
-      let user = jsInfo.userName // 画师名字，如果这里获取不到，下面从 tag 尝试获取
+      const userid = jsInfo.userId // 用户id
+      let user = jsInfo.userName // 用户名字，如果这里获取不到，下面从 tag 尝试获取
       const nowAllTagInfo = jsInfo.tags.tags // 取出 tag 信息
       const nowAllTag = [] // 保存 tag 列表
       const tagWithTranslation = [] // 保存 tag 列表，附带翻译后的 tag
 
       if (nowAllTagInfo.length > 0) {
         if (!user) {
-          user = nowAllTagInfo[0].userName ? nowAllTagInfo[0].userName : '' // 这里从第一个tag里取出画师名字，如果没有 tag 那就获取不到画师名
+          user = nowAllTagInfo[0].userName ? nowAllTagInfo[0].userName : '' // 这里从第一个tag里取出用户名，如果没有 tag 那就获取不到用户名
         }
 
         for (const tagData of nowAllTagInfo) {
@@ -3284,16 +3369,9 @@ abstract class CrawlPageBase {
         } else if (jsInfo.illustType === 2) {
           // 动图
           // 获取动图的信息
-          const getUgoiraInfo = await fetch(
-            `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`,
-            {
-              method: 'get',
-              credentials: 'same-origin' // 附带 cookie
-            }
-          )
-          const info = await getUgoiraInfo.json()
+          const info = await API.getIllustUgoiraData(id)
           // 动图帧延迟数据
-          const ugoiraInfo: UgoiraInfo = {
+          const ugoiraInfo = {
             frames: info.body.frames,
             mimeType: info.body.mime_type
           }
@@ -3424,7 +3502,7 @@ abstract class CrawlPageBase {
       store.downloadList.sort(API.sortByProperty('bmk'))
     }
 
-    // 在画师的列表页里
+    // 在用户的列表页里
     if (this.type === 2) {
       if (!location.href.includes('bookmark.php')) {
         // 如果是其他列表页，把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
@@ -3588,7 +3666,7 @@ class CrawlIllustPage extends CrawlPageBase {
   // 下载相关作品时使用
   public async getRelatedList() {
     titleBar.changeTitle('↑')
-    let data = await API.getRelatedData()
+    let data = await API.getRelatedData(API.getIllustId())
     const recommendData = data.body.recommendMethods
     // 取出相关作品的 id 列表
     let recommendIdList = Object.keys(recommendData)
@@ -3608,7 +3686,17 @@ class CrawlIllustPage extends CrawlPageBase {
 
 // 抓取用户页面
 class CrawlUserPage extends CrawlPageBase {
+  public hasTag: boolean = false // 是否带 tag
+
+  private tag = '' // 储存当前页面带的 tag，不过有时并没有
+
+  public listType: number = 0 // pageType 2 里的页面类型，都是列表页
+
   private readonly onceRequest: number = 100 // 每次请求多少个数量
+
+  public offset: number = 0 // 要去掉的作品数量
+
+  public url = '' // 请求的 url
 
   public getWantPage() {
     let pageTip = lang.transl('_checkWantPageRule1Arg7')
@@ -3626,30 +3714,16 @@ class CrawlUserPage extends CrawlPageBase {
     if (this.downRecommended) {
       this.getRecommendedList()
     } else {
-      this.readyGetListPage()
+      this.getListPage()
     }
   }
 
-  public hasTag: boolean = false // pageType 2 里，是否带 tag
-  public type2ListType: number = 0 // pageType 2 里的页面类型，都是列表页
-  public offsetNumber: number = 0 // 要去掉的作品数量
-  public url = '' // 请求的 url
-
   // 获取作品列表页前的准备工作
-  public readyGetListPage() {
+  public getListPage() {
     // 每次开始时重置一些条件
-    this.offsetNumber = 0
+    this.offset = 0
     store.type2IdList = []
-    this.type2ListType = 0
-    // works_type:
-    // 0 插画和漫画全都要，但是不带 tag
-    // 4 插画和漫画全都要，带 tag
-    // 1 只要插画
-    // 2 只要漫画
-    // 3 书签作品
-
-    // 是否是 tag 模式
-    this.hasTag = !!API.getQuery(location.href, 'tag')
+    this.listType = 0
 
     // 每页个数
     let onceNumber = 48 // 新版每页 48 个作品（因为新版不显示无法访问的作品，所以有时候一页不足这个数量）
@@ -3661,10 +3735,10 @@ class CrawlUserPage extends CrawlPageBase {
     // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
     const nowPage = API.getQuery(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
     if (nowPage) {
-      this.offsetNumber = (parseInt(nowPage) - 1) * onceNumber
+      this.offset = (parseInt(nowPage) - 1) * onceNumber
     }
-    if (this.offsetNumber < 0) {
-      this.offsetNumber = 0
+    if (this.offset < 0) {
+      this.offset = 0
     }
 
     // 根据页数设置，计算要下载的个数
@@ -3675,216 +3749,218 @@ class CrawlUserPage extends CrawlPageBase {
       this.requsetNumber = onceNumber * this.wantPage
     }
 
-    // 根据不同的页面类型，选择不同的 API 来获取 id 列表
-    this.url = `https://www.pixiv.net/ajax/user/${DOM.getUserId()}/profile/all`
+    // 设置列表页面的类型
+    // listType:
+    // 0 插画和漫画全都要，但是不带 tag
+    // 4 插画和漫画全都要，带 tag
+    // 1 只要插画
+    // 2 只要漫画
+    // 3 书签作品
 
     if (location.href.includes('member.php?id=')) {
-      // 画师资料页主页，采用默认设置即可，无需进行处理
+      // 用户资料页主页
+      this.listType = 0
     } else if (/member_illust\.php\?.*id=/.test(location.href)) {
       // 作品列表页
       if (API.getQuery(location.href, 'type') === 'illust') {
         // 插画分类
-        this.type2ListType = 1
-
-        // 带 tag
-        if (this.hasTag) {
-          this.url = `https://www.pixiv.net/ajax/user/${DOM.getUserId()}/illusts/tag?tag=${API.getQuery(
-            location.href,
-            'tag'
-          )}&offset=${this.offsetNumber}&limit=${this.requsetNumber}`
-        }
+        this.listType = 1
       } else if (API.getQuery(location.href, 'type') === 'manga') {
         // 漫画分类
-        this.type2ListType = 2
-
-        // 带 tag
-        if (this.hasTag) {
-          this.url = `https://www.pixiv.net/ajax/user/${DOM.getUserId()}/manga/tag?tag=${API.getQuery(
-            location.href,
-            'tag'
-          )}&offset=${this.offsetNumber}&limit=${this.requsetNumber}`
-        }
-      } else if (this.hasTag) {
-        // url 里没有插画也没有漫画，但是有 tag，则是在资料页首页点击了 tag，需要同时获取插画和漫画
-        this.type2ListType = 4
-        this.url = `https://www.pixiv.net/ajax/user/${DOM.getUserId()}/illustmanga/tag?tag=${API.getQuery(
-          location.href,
-          'tag'
-        )}&offset=${this.offsetNumber}&limit=${this.requsetNumber}`
+        this.listType = 2
+      } else if (API.getQuery(location.href, 'tag')) {
+        // url 里没有标识插画还是漫画，但是有 tag，则是在用户首页点击了 tag，需要同时获取插画和漫画
+        this.listType = 4
       }
     } else if (location.href.includes('bookmark.php')) {
       // 书签页面，需要多次循环获取
-      this.type2ListType = 3
-      this.hasTag = true // 书签页面固定设置为有 tag（虽然有时候并没有带 tag，但数据结构和带 tag 是一样的）
-      let restMode = 'show' // 判断是公开收藏还是非公开收藏
+      this.listType = 3
+    }
 
-      if (API.getQuery(location.href, 'rest') === 'hide') {
-        restMode = 'hide'
+    // 是否带有 tag
+    this.tag = API.getQuery(location.href, 'tag')
+    if (this.listType === 3) {
+      // 书签页面固定设置为有 tag（虽然有时候并没有带 tag，但数据结构和带 tag 是一样的）
+      this.hasTag = true
+    } else {
+      this.hasTag = !!this.tag
+    }
+
+    // 根据不同的页面类型，选择不同的 API 来获取 id 列表
+    /*
+    1.非书签页
+      1.1 无 tag 通过 profileAll 获取
+      1.2 有 tag 通过指定的作品类型获取
+    2.书签页，单独抓取
+     */
+
+    if (this.listType !== 3) {
+      if (!this.hasTag) {
+        this.getUserAllWorks()
+      } else {
+        if (this.listType === 1) {
+          this.getUserWorksByType('illusts')
+        } else if (this.listType === 2) {
+          this.getUserWorksByType('manga')
+        } else if (this.listType === 4) {
+          this.getUserWorksByType('illustmanga')
+        } else {
+          // 无法处理的情况
+          dlCtrl.allowWork = true
+          throw new Error('Unknown instance.')
+        }
       }
-
-      let nowTag = API.getQuery(location.href, 'tag') // 要使用的tag
-
+    } else {
+      // 书签页面
       // 在“未分类”页面时，设置 tag
       if (parseInt(API.getQuery(location.href, 'untagged')) === 1) {
-        nowTag = encodeURI('未分類')
+        this.tag = encodeURI('未分類')
       }
 
-      this.url = `https://www.pixiv.net/ajax/user/${DOM.getUserId()}/illusts/bookmarks?tag=${nowTag}&offset=${
-        this.offsetNumber
-      }&limit=${this.onceRequest}&rest=${restMode}`
-    } else {
-      // 不进行抓取
-      dlCtrl.allowWork = true
-      return
+      // 判断是公开收藏还是非公开收藏
+      let hide = false
+      if (API.getQuery(location.href, 'rest') === 'hide') {
+        hide = true
+      }
+
+      this.getBookmarkList(hide)
     }
 
     titleBar.changeTitle('↑')
-    this.getListPage()
+
     log.log(lang.transl('_正在抓取'))
 
-    if (this.type2ListType === 3 && this.wantPage === -1) {
+    if (this.listType === 3 && this.wantPage === -1) {
       log.log(lang.transl('_获取全部书签作品'))
     }
   }
 
-  // 获取作品列表页
-  public getListPage() {
+  // 获取作品 id 列表完毕之后
+  private afterGetListPage() {
+    if (store.type2IdList.length <= 0) {
+      return this.noResult()
+    }
+
+    // 非书签页，并且非 tag 页
+    if (this.listType !== 3 && !this.hasTag) {
+      // 在获取全部作品时，由于 API 里不能设置 requset_number，所以在这里去掉多余的作品。
+
+      // 把 id 从小到大排序
+      let tempList: number[] = []
+      // 转换成数字
+      tempList = store.type2IdList.map(id => {
+        return parseInt(id)
+      })
+      // 升序排列
+      tempList.sort(function(x, y) {
+        return x - y
+      })
+      // 保存到结果中
+      store.type2IdList = tempList.map(id => {
+        return id.toString()
+      })
+
+      // 删除后面的 id（删除不需要的近期作品）
+      store.type2IdList.splice(
+        store.type2IdList.length - this.offset,
+        store.type2IdList.length
+      )
+    }
+
+    // 删除多余的作品
+    if (store.type2IdList.length > this.requsetNumber) {
+      if (this.listType !== 3) {
+        // 非书签页，删除前面部分（早期作品）
+        store.type2IdList.splice(
+          0,
+          store.type2IdList.length - this.requsetNumber
+        )
+      } else {
+        // 书签页，删除后面部分（较早收藏的）
+        store.type2IdList.splice(this.requsetNumber, store.type2IdList.length)
+        // 书签页面的 api 没有考虑页面上的排序顺序，获取到的 id 列表始终是按收藏顺序由最晚到最早排列的
+      }
+    }
+
+    // 重置作品页面列表
+    store.illustUrlList = []
+    store.addIllustUrlList(store.type2IdList) // 拼接作品的url
+
+    log.log(
+      lang.transl(
+        '_列表抓取完成开始获取作品页',
+        store.illustUrlList.length.toString()
+      )
+    )
+
+    this.getListUrlFinished()
+  }
+
+  // 获取用户的全部作品列表
+  private async getUserAllWorks() {
+    let data = await API.getUserProfileAll(DOM.getUserId())
+
+    // 插画和漫画列表页
+    if (this.listType === 0) {
+      store.type2IdList = store.type2IdList
+        .concat(Object.keys(data.body.illusts))
+        .concat(Object.keys(data.body.manga))
+    } else if (this.listType === 1) {
+      // 插画列表页，包含动图
+      store.type2IdList = store.type2IdList.concat(
+        Object.keys(data.body.illusts)
+      )
+    } else if (this.listType === 2) {
+      // 漫画列表页
+      store.type2IdList = store.type2IdList.concat(Object.keys(data.body.manga))
+    }
+
+    this.afterGetListPage()
+  }
+
+  // 获取用户某一类型的作品列表（附带 tag）
+  private async getUserWorksByType(type: 'illusts' | 'manga' | 'illustmanga') {
+    let data = await API.getUserWorksByTypeWithTag(
+      DOM.getUserId(),
+      type,
+      this.tag,
+      this.offset,
+      this.requsetNumber
+    )
+
+    data.body.works.forEach(data => store.type2IdList.push(data.id))
+
+    this.afterGetListPage()
+  }
+
+  // 获取用户的收藏作品列表
+  private async getBookmarkList(restMode: boolean) {
     let bmkGetEnd = false // 书签作品是否获取完毕
 
-    fetch(this.url, {
-      credentials: 'same-origin'
-    })
-      .then(response => {
-        if (response.ok) {
-          return response.json()
-        } else {
-          throw new Error(response.status.toString())
-        }
-      })
-      .then((data: Type2ListDataNoTag & Type2ListDataHaveTag) => {
-        // 不带 tag，并且也不是书签页面
-        if (!this.hasTag) {
-          // 都是使用的这个 tag
-          // https://www.pixiv.net/ajax/user/27517/profile/all
-          const thisdata: Type2ListDataNoTag = data
-          if (this.type2ListType === 0) {
-            // 获取全部插画和漫画
-            store.type2IdList = store.type2IdList
-              .concat(Object.keys(thisdata.body.illusts))
-              .concat(Object.keys(thisdata.body.manga))
-          } else if (this.type2ListType === 1) {
-            // 插画列表页，包含动图
-            store.type2IdList = store.type2IdList.concat(
-              Object.keys(thisdata.body.illusts)
-            )
-          } else if (this.type2ListType === 2) {
-            // 漫画列表页
-            store.type2IdList = store.type2IdList.concat(
-              Object.keys(thisdata.body.manga)
-            )
-          }
-        } else {
-          // 带 tag
-          const thisdata: Type2ListDataHaveTag = data
-          const works = thisdata.body.works
-          // 不是书签页面
-          if (this.type2ListType !== 3) {
-            // 插画、漫画、或者全都要并带 tag ，数据结构都一样
-            // https://www.pixiv.net/ajax/user/27517/illusts/tag?tag=%E5%A5%B3%E3%81%AE%E5%AD%90&offset=0&limit=9999999
-            // https://www.pixiv.net/ajax/user/27517/manga/tag?tag=%E5%A5%B3%E3%81%AE%E5%AD%90&offset=0&limit=9999999
-            // https://www.pixiv.net/ajax/user/544479/illustmanga/tag?tag=%E6%9D%B1%E9%A2%A8%E8%B0%B7%E6%97%A9%E8%8B%97&offset=0&limit=9999999
-            works.forEach(data => store.type2IdList.push(data.id))
-          } else {
-            // 书签页面
-            // https://www.pixiv.net/ajax/user/9460149/illusts/bookmarks?tag=&offset=0&limit=100&rest=show
-            // https://www.pixiv.net/ajax/user/9460149/illusts/bookmarks?tag=推荐&offset=0&limit=100&rest=show
-            // 获取数量超出实际存在数量，works 长度会是 0，代表后面没有更多页面了
-            if (
-              works.length === 0 ||
-              store.type2IdList.length >= this.requsetNumber
-            ) {
-              bmkGetEnd = true // 书签页获取完毕
-            } else {
-              works.forEach(data => store.type2IdList.push(data.id))
-            }
-          }
-        }
+    let data = await API.getBookmarkData(
+      DOM.getUserId(),
+      this.tag,
+      this.offset,
+      restMode
+    )
 
-        if (store.type2IdList.length > 0) {
-          if (
-            this.type2ListType === 0 ||
-            (this.type2ListType === 1 && !this.hasTag) ||
-            (this.type2ListType === 2 && !this.hasTag)
-          ) {
-            // 非书签页，并且非 tag 页
-            // 在获取全部作品时（即使用默认的 api 时），由于 API 里不能设置 requset_number，所以要在这里处理。
+    if (
+      data.body.works.length === 0 ||
+      store.type2IdList.length >= this.requsetNumber
+    ) {
+      bmkGetEnd = true // 书签页获取完毕
+      this.afterGetListPage()
+    }
 
-            // 把 id 从小到大排序
-            let tempList: number[] = []
-            // 转换成数字
-            tempList = store.type2IdList.map(id => {
-              return parseInt(id)
-            })
-            // 升序排列
-            tempList.sort(function(x, y) {
-              return x - y
-            })
-            // 保存到结果中
-            store.type2IdList = tempList.map(id => {
-              return id.toString()
-            })
-            // 删除后面的 id（删除不需要的近期作品）
-            store.type2IdList.splice(
-              store.type2IdList.length - this.offsetNumber,
-              store.type2IdList.length
-            )
-          }
+    // 如果书签页没有获取完毕
+    if (!bmkGetEnd) {
+      // 没有抓取完毕时，才添加数据。抓取完毕之后不添加数据
+      data.body.works.forEach(data => store.type2IdList.push(data.id))
 
-          // 获取完毕后，对 id 列表进行处理。不需要重复调用本函数的情况
-          if (this.type2ListType !== 3 || bmkGetEnd) {
-            // 删除多余的作品
-            if (store.type2IdList.length > this.requsetNumber) {
-              if (this.type2ListType !== 3) {
-                // 删除前面部分
-                store.type2IdList.splice(
-                  0,
-                  store.type2IdList.length - this.requsetNumber
-                )
-              } else {
-                // 书签作品需要删除后面部分
-                store.type2IdList.splice(
-                  this.requsetNumber,
-                  store.type2IdList.length
-                )
-                // 书签页面的 api 没有考虑页面上的排序顺序。获取到的 id 列表是按收藏顺序由最近到最早排列的
-              }
-            }
-
-            // 重置之前的结果
-            store.illustUrlList = []
-            store.addIllustUrlList(store.type2IdList) // 拼接作品的url
-
-            log.log(
-              lang.transl(
-                '_列表抓取完成开始获取作品页',
-                store.illustUrlList.length.toString()
-              )
-            )
-            this.getListUrlFinished()
-          } else if (this.type2ListType === 3 && !bmkGetEnd) {
-            // 如果是书签页，且没有获取完毕，则重复执行
-            this.offsetNumber += this.onceRequest // 每次增加偏移量，并获取之后固定数量
-            this.url = this.url.replace(
-              /offset=\d*\d?/,
-              `offset=${this.offsetNumber}`
-            )
-            this.getListPage()
-          }
-        } else {
-          return this.noResult()
-        }
-      })
-      .catch(error => console.log(error))
+      this.offset += this.onceRequest // 每次增加偏移量
+      // 重复抓取过程
+      this.getBookmarkList(restMode)
+    }
   }
 
   // 获取书签页面下方的推荐作品列表
@@ -5207,7 +5283,7 @@ class InitUserPage extends InitPageBase {
     }
 
     // 如果存在 token，则添加“添加 tag”按钮
-    if (DOM.getToken()) {
+    if (API.getToken()) {
       let btn = this.addCenterButton(Colors.green, lang.transl('_添加tag'), [
         ['title', lang.transl('_添加tag')]
       ])
@@ -6154,6 +6230,7 @@ class Output {
 // 辅助功能，及一些下载过程中使用的数据
 class Downloader {
   constructor() {
+    API.updateToken()
     this.checkConflict()
     this.supportListenHistory()
     this.listenPageSwitch()
@@ -6252,7 +6329,7 @@ class Downloader {
     })
 
     // 当新旧页面类型不相同的时候
-    pageType.onPageTypeChange = () => {
+    pageType.onPageTypeChange = function() {
       // 初始化抓取流程
       new InitCrawlProcess()
 
@@ -6289,13 +6366,13 @@ const store = new Store()
 
 const titleBar = new TitleBar()
 
-const dl = new Downloader()
-
-new InitCrawlProcess()
-
 const dlCtrl = new DownloadControl()
 
 const dlFile = new DownloadFile()
+
+const dl = new Downloader()
+
+new InitCrawlProcess()
 
 const fileName = new FileName()
 
