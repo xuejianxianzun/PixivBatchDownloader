@@ -80,8 +80,8 @@ English （机翻，韩语设置下也使用英语文本）
 
 9 [相似作品](https://www.pixiv.net/bookmark_add.php?id=63148723)
 
-10 [大家的新作品](https://www.pixiv.net/new_illust.php)
-
 10 [关注的新作品](https://www.pixiv.net/bookmark_new_illust.php)
 
 11 [发现](https://www.pixiv.net/discovery)
+
+12 [大家的新作品](https://www.pixiv.net/new_illust.php)

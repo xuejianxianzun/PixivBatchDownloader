@@ -30,8 +30,51 @@ interface TagSearchResult {
   num: number
 }
 
-// 获取到的未分类书签的数据
+// 获取书签数据
 interface BookmarkData {
+  error: boolean
+  message: string
+  body: {
+    works: BookmarkWork[]
+    total: number
+    zoneConfig: {
+      '500x500': {
+        url: string
+      }
+      header: {
+        url: string
+      }
+      footer: {
+        url: string
+      }
+      logo: {
+        url: string
+      }
+    }
+    extraData: {
+      meta: {
+        title: string
+        description: string
+        canonical: string
+        ogp: {
+          description: string
+          image: string
+          title: string
+          type: string
+        }
+        twitter: {
+          description: string
+          image: string
+          title: string
+          card: string
+        }
+      }
+    }
+  }
+}
+
+// 获取书签的数据里，作品的数据
+interface BookmarkWork {
   illustId: string
   illustTitle: string
   id: string

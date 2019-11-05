@@ -143,6 +143,33 @@ class API {
             return /\d*\d/.exec(location.href)[0];
         }
     }
+    // 获取收藏数据
+    static async getBookmarkData(id, tag, offset, hide = false) {
+        let url = `https://www.pixiv.net/ajax/user/${id}/illusts/bookmarks?tag=${encodeURI(tag)}&offset=${offset}&limit=100&rest=${hide ? 'hide' : 'show'}&rdm=${Math.random()}`;
+        return new Promise((resolve, reject) => {
+            fetch(url, {
+                method: 'get',
+                credentials: 'same-origin'
+            })
+                .then(response => {
+                if (response.ok) {
+                    return response.json();
+                }
+                else {
+                    reject({
+                        status: response.status,
+                        statusText: response.statusText
+                    });
+                }
+            })
+                .then(data => {
+                resolve(data);
+            })
+                .catch(error => {
+                reject(error);
+            });
+        });
+    }
     // 添加收藏
     static async addBookmark(id, tags, tt, hide) {
         let restrict;
@@ -1906,7 +1933,7 @@ class AddTag {
             store.addTagList = []; // 每次点击清空结果
             this.btn = document.getElementById('add_tag_btn');
             this.btn.setAttribute('disabled', 'disabled');
-            this.btn.textContent = `loading`;
+            this.btn.textContent = `checking`;
             this.readyAddTag();
         });
         // 显示/隐藏按钮
@@ -1929,52 +1956,33 @@ class AddTag {
             }
         }
     }
-    // 获取未分类书签的 tag 信息
-    getInfoFromBookmark(url) {
-        return fetch(url, {
-            credentials: 'same-origin'
-        })
-            .then(response => {
-            if (response.ok) {
-                return response.json();
-            }
-            else {
-                if (response.status === 403) {
-                    this.btn.textContent = `× permission denied`;
-                }
-                throw new Error(response.status.toString());
-            }
-        })
-            .then(data => {
-            const works = data.body.works;
-            const result = [];
-            if (works.length > 0 && works[0].bookmarkData) {
-                // 判断作品的 bookmarkData，如果为假说明这是在别人的收藏页面，不再获取数据。
-                works.forEach(item => {
-                    result.push({
-                        id: item.id,
-                        tags: encodeURI(item.tags.join(' ')),
-                        restrict: item.bookmarkData.private
-                    });
-                });
-            }
-            return result;
-        });
-    }
     // 准备添加 tag。loop 表示这是第几轮循环
     async readyAddTag(loop = 0) {
         const offset = loop * 100; // 一次请求只能获取 100 个，所以可能有多次请求，要计算偏移量
-        // 配置 url
-        const showUrl = `https://www.pixiv.net/ajax/user/${DOM.getUserId()}/illusts/bookmarks?tag=${encodeURI('未分類')}&offset=${offset}&limit=100&rest=show&rdm=${Math.random()}`; // 公开的未分类收藏
-        const hideUrl = showUrl.replace('show', 'hide'); // 非公开的未分类收藏
         // 发起请求
         const [showData, hideData] = await Promise.all([
-            this.getInfoFromBookmark(showUrl),
-            this.getInfoFromBookmark(hideUrl)
-        ]);
+            API.getBookmarkData(DOM.getUserId(), '未分類', offset, false),
+            API.getBookmarkData(DOM.getUserId(), '未分類', offset, true)
+        ]).catch(error => {
+            if (error.status && error.status === 403) {
+                this.btn.textContent = `× permission denied`;
+            }
+            throw new Error('permission denied');
+        });
         // 保存结果
-        store.addTagList = store.addTagList.concat(showData);
-        store.addTagList = store.addTagList.concat(hideData);
+        for (const data of [showData, hideData]) {
+            const works = data.body.works;
+            // 如果作品的 bookmarkData 为假说明没有实际数据，可能是在获取别人的收藏数据。
+            if (works.length > 0 && works[0].bookmarkData) {
+                works.forEach(work => {
+                    store.addTagList.push({
+                        id: work.id,
+                        tags: encodeURI(work.tags.join(' ')),
+                        restrict: work.bookmarkData.private
+                    });
+                });
+            }
+        }
         // 进行下一步的处理
         if (store.addTagList.length === 0) {
             // 如果结果为空，不需要处理
@@ -1984,7 +1992,8 @@ class AddTag {
         }
         else {
             // 判断是否获取完毕，如果本次请求获取的数据为空，则已经没有数据
-            if (showData.length === 0 && hideData.length === 0) {
+            if (showData.body.works.length === 0 &&
+                hideData.body.works.length === 0) {
                 // 已经获取完毕
                 this.addTag(0, store.addTagList, DOM.getToken());
             }
