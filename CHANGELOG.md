@@ -15,21 +15,15 @@
 搜索页改版
 
 获取大家的新作品页面改版
-
-addEventListener 绑定事件时，有时先运算最后才调用函数。部分运算可以放到后面调用的函数里。
+delete listIsNewMode 
 
 修改一些方法名
 
 可以按时间下载
 
-图标可以改成 svg；添加重设图标
-
-消除抓取子类里重复多次的部分，提取到 base 里
-
-initpage 里设置 this.crawler，考虑改到 crawler 里
+图标改成 svg
 
 梳理抓取和下载流程
-
 
 - 指导规则
 

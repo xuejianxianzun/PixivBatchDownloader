@@ -287,6 +287,7 @@ class API {
     offset: number = 0,
     number: number = 999999
   ): Promise<UserWorksWithTag> {
+    // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=9999999
     const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${number}`
     return new Promise((resolve, reject) => {
       fetch(url, {
@@ -1146,6 +1147,9 @@ class InitSetting {
       return
     }
 
+    // 设置是否显示选项区域
+    ui.toggleOptionArea(this.needSaveOpts.showOptions)
+
     // 设置作品张数
     ui.form.imgNumberPerWork.value = this.needSaveOpts.imgNumberPerWork.toString()
 
@@ -1172,9 +1176,6 @@ class InitSetting {
     // 设置是否显示封面
     ui.form.displayCover.checked = this.needSaveOpts.displayCover
 
-    // 设置是否显示选项区域
-    ui.toggleOptionArea(this.needSaveOpts.showOptions)
-
     // 设置快速下载
     ui.form.quietDownload.checked = this.needSaveOpts.quietDownload
 
@@ -1191,7 +1192,7 @@ class InitSetting {
       fileNameRuleInput.value = this.needSaveOpts.userSetName
     }
 
-    // 设置是否添加字段名称
+    // 设置是否添加标记名称
     ui.form.tagNameToFileName.checked = this.needSaveOpts.tagNameToFileName
   }
 
@@ -1199,6 +1200,14 @@ class InitSetting {
   // 只可执行一次，否则事件会重复绑定
   private bindOptionEvent() {
     const that = this
+
+    // 保存是否显示选项区域
+    const showOptionsBtn = document.querySelector('.centerWrap_toogle_option')!
+    showOptionsBtn.addEventListener('click', () => {
+      this.needSaveOpts.showOptions = !this.needSaveOpts.showOptions
+      this.saveSetting('showOptions', this.needSaveOpts.showOptions)
+      ui.toggleOptionArea(this.needSaveOpts.showOptions)
+    })
 
     // 保存作品张数
     ui.form.imgNumberPerWork.addEventListener('change', function(
@@ -1257,29 +1266,31 @@ class InitSetting {
     ui.form.downloadThread.addEventListener('change', function(
       this: HTMLInputElement
     ) {
-      if (parseInt(this.value) > 0 && parseInt(this.value) <= 5) {
+      if (parseInt(this.value) > 0) {
         that.saveSetting('downloadThread', this.value)
       }
     })
 
-    // 保存文件命名规则
-    ui.form.userSetName.addEventListener('change', function(
-      this: HTMLInputElement
-    ) {
-      if (this.value !== '') {
+    // 保存命名规则
+    ;['change', 'focus'].forEach(ev => {
+      ui.form.userSetName.addEventListener(ev, function(
+        this: HTMLInputElement
+      ) {
         that.saveSetting('userSetName', this.value)
-      } else {
-        // 把下拉框恢复默认值
-        ui.form.fileNameSelect.value = (ui.form.fileNameSelect
-          .children[0] as HTMLOptionElement).value
-      }
+      })
     })
 
-    // 保存是否添加字段名称
+    // 保存是否添加标记名称
     ui.form.tagNameToFileName.addEventListener('click', function(
       this: HTMLInputElement
     ) {
       that.saveSetting('tagNameToFileName', this.checked)
+    })
+
+    
+    // 重置设置
+    document.getElementById('resetOption')!.addEventListener('click', () => {
+      this.reset()
     })
   }
 
@@ -1314,8 +1325,6 @@ class UI {
   public form!: XzForm
 
   private xzTipEl: HTMLDivElement = document.createElement('div') // 显示提示文本的元素
-
-  public showOptions = true
 
   private rightButton: HTMLDivElement = document.createElement('div') // 右侧按钮
 
@@ -1354,27 +1363,6 @@ class UI {
       const file = await fetch(chrome.extension.getURL(fileName))
       const cssText = await file.text()
       DOM.insertCSS(cssText)
-    }
-  }
-
-  // 显示最近更新
-  public showNew(tag: keyof typeof xzLang) {
-    if (
-      window.location.host.includes('pixiv.net') &&
-      !localStorage.getItem(tag)
-    ) {
-      const whatIsNewHtml = `
-      <div class="xz_new">
-        <p class="title">Pixiv Batch Downloader ${lang.transl('_最近更新')}</p>
-        <p class="content">${lang.transl(tag)}</p>
-        <button class="btn">${lang.transl('_确定')}</button>
-      </div>`
-      document.body.insertAdjacentHTML('afterbegin', whatIsNewHtml)
-      const whatIsNewEl = document.querySelector('.xz_new')!
-      whatIsNewEl.querySelector('.btn')!.addEventListener('click', () => {
-        localStorage.setItem(tag, '1')
-        whatIsNewEl.parentNode!.removeChild(whatIsNewEl)
-      })
     }
   }
 
@@ -1819,20 +1807,18 @@ class UI {
   }
 
   // 把下拉框的选择项插入到文本框里
-  private insertValueToInput(form: HTMLSelectElement, to: HTMLInputElement) {
-    form.addEventListener('change', () => {
-      if (form.value !== 'default') {
+  private insertValueToInput(from: HTMLSelectElement, to: HTMLInputElement) {
+    from.addEventListener('change', () => {
+      if (from.value !== 'default') {
         // 把选择项插入到光标位置,并设置新的光标位置
         const position = to.selectionStart!
         to.value =
           to.value.substr(0, position) +
-          form.value +
+          from.value +
           to.value.substr(position, to.value.length)
-        to.selectionStart = position + form.value.length
-        to.selectionEnd = position + form.value.length
+        to.selectionStart = position + from.value.length
+        to.selectionEnd = position + from.value.length
         to.focus()
-        // 保存命名规则
-        initSetting.saveSetting('userSetName', to.value)
       }
     })
   }
@@ -1863,14 +1849,6 @@ class UI {
       false
     )
 
-    // 保存是否显示选项区域
-    const showOptionsBtn = document.querySelector('.centerWrap_toogle_option')!
-    showOptionsBtn.addEventListener('click', () => {
-      this.showOptions = !this.showOptions
-      this.toggleOptionArea(this.showOptions)
-      initSetting.saveSetting('showOptions', this.showOptions)
-    })
-
     // 预览文件名
     document
       .querySelector('.showFileNameResult')!
@@ -1897,10 +1875,6 @@ class UI {
         DOM.toggleEl(document.querySelector('.downTip')! as HTMLDivElement)
       )
 
-    // 重置设置
-    document.getElementById('resetOption')!.addEventListener('click', () => {
-      initSetting.reset()
-    })
     // 开始下载按钮
     document.querySelector('.startDownload')!.addEventListener('click', () => {
       dlCtrl.startDownload()
@@ -2361,6 +2335,7 @@ class QuickBookmark {
   private readyQuickBookmark() {
     this.quickBookmarkEl.addEventListener('click', () => {
       ;(document.querySelector('._35vRH4a')! as HTMLButtonElement).click() // 自动点赞
+
       // 储存 tag
       const tagElements = document.querySelectorAll('._1LEXQ_3 li')
       const tagArray = Array.from(tagElements).map(el => {
@@ -2408,7 +2383,7 @@ class AddTag {
       store.addTagList = [] // 每次点击清空结果
       this.btn = document.getElementById('add_tag_btn') as HTMLButtonElement
       this.btn!.setAttribute('disabled', 'disabled')
-      this.btn!.textContent = `checking`
+      this.btn!.textContent = `Checking`
       this.readyAddTag()
     })
     // 显示/隐藏按钮
@@ -2444,9 +2419,9 @@ class AddTag {
       API.getBookmarkData(DOM.getUserId(), '未分類', offset, true)
     ]).catch(error => {
       if (error.status && error.status === 403) {
-        this.btn!.textContent = `× permission denied`
+        this.btn!.textContent = `× Permission denied`
       }
-      throw new Error('permission denied')
+      throw new Error('Permission denied')
     })
 
     // 保存有用的数据
@@ -2467,7 +2442,7 @@ class AddTag {
     // 进行下一步的处理
     if (store.addTagList.length === 0) {
       // 如果结果为空，不需要处理
-      this.btn!.textContent = `√ no need`
+      this.btn!.textContent = `√ No need`
       this.btn!.removeAttribute('disabled')
       return
     } else {
@@ -2495,7 +2470,7 @@ class AddTag {
       // 继续添加下一个
       this.addTag(index, addList, tt)
     } else {
-      this.btn!.textContent = `√ complete`
+      this.btn!.textContent = `√ Complete`
       this.btn!.removeAttribute('disabled')
     }
   }
@@ -2882,7 +2857,7 @@ class FileName {
         value: pageInfo.pageUserName,
         // 值
         prefix: '',
-        // 添加在前面的字段名称
+        // 添加在前面的标记
         safe: false
         // 是否是安全的文件名。如果可能包含一些特殊字符，就不安全，要进行替换
       },
@@ -3013,7 +2988,7 @@ class FileName {
           once = this.replaceUnsafeStr(once)
         }
 
-        // 添加字段名称
+        // 添加标记名称
         if (ui.form.tagNameToFileName.checked) {
           once = item.prefix + once
         }
@@ -3064,9 +3039,9 @@ abstract class CrawlPageBase {
 
   public worksSelector: string = '' // tag 搜索页以及新作品页面，直接选择作品的选择器
 
-  public tagSearchMultipleSelector: string = '._3b8AXEx' // 作品选择器
+  public multipleSelector: string = '._3b8AXEx' // 作品选择器
 
-  public tagSearchUgoiraSelector: string = '.AGgsUWZ' // 动图作品的选择器
+  public ugoiraSelector: string = '.AGgsUWZ' // 动图作品的选择器
 
   public startpageNo: number = 1 // 列表页开始抓取时的页码
 
@@ -3117,6 +3092,110 @@ abstract class CrawlPageBase {
   }
 
   public ratioType: string = '0' // 宽高比例的类型
+
+  public delWork: boolean = false // 是否处于删除作品状态
+  
+  // 显示调整后，列表里的作品数量。仅在 tag 搜索页和发现页面中使用
+  public outputNowResult() {
+    const selector = this.worksSelector
+    log.success(
+      lang.transl('_调整完毕', DOM.getVisibleEl(selector).length.toString()),
+      2,
+      false
+    )
+  }
+
+  // 清除多图作品
+  public clearMultiple(){
+    const allPicArea = document.querySelectorAll(this.worksSelector)
+    allPicArea.forEach(el => {
+      if (el.querySelector(this.multipleSelector)) {
+        el.remove()
+      }
+    })
+    this.outputNowResult()
+  }
+
+  // 清除动图作品
+  public ClearUgoira(){
+    const allPicArea = document.querySelectorAll(this.worksSelector)
+    allPicArea.forEach(el => {
+      if (el.querySelector(this.ugoiraSelector)) {
+        el.remove()
+      }
+    })
+    this.outputNowResult()
+  }
+
+  // 手动删除作品
+    public manuallyDelete(delBtn:HTMLButtonElement){
+      this.delWork = !this.delWork
+
+      // 给作品绑定删除属性
+      const listElement: NodeListOf<HTMLDivElement> = document.querySelectorAll(
+        this.worksSelector
+      )
+      listElement.forEach(el => {
+        el.onclick = e => {
+          e = e || window.event
+          if (this.delWork) {
+            e.preventDefault()
+
+            DOM.removeEl(e.currentTarget as HTMLElement)
+            if (dlCtrl.allowWork) {
+              this.outputNowResult()
+            }
+          }
+        }
+      })
+
+      if (this.delWork) {
+        delBtn.textContent = lang.transl('_退出手动删除')
+        setTimeout(() => {
+          ui.centerWrapHide()
+        }, 300)
+      } else {
+        delBtn.textContent = lang.transl('_手动删除作品')
+      }
+
+  }
+
+    // 在结果中筛选
+    public filterInResults(){
+      const allPicArea = document.querySelectorAll(
+        this.worksSelector
+      )! as NodeListOf<HTMLDivElement>
+
+      let wantFavoriteNumber2 = parseInt(
+        window.prompt(lang.transl('_在结果中筛选弹窗'), '2000')!
+      )
+
+      if (
+        !wantFavoriteNumber2 ||
+        isNaN(Number(wantFavoriteNumber2)) ||
+        ~~Number(wantFavoriteNumber2) <= 0
+      ) {
+        const msg = lang.transl('_checkWantPageRule1Arg2')
+        window.alert(msg)
+        dlCtrl.allowWork = true
+        throw new Error(msg)
+      } else {
+        wantFavoriteNumber2 = ~~Number(wantFavoriteNumber2)
+      }
+
+      allPicArea.forEach(el => {
+        if (
+          parseInt(el.querySelector('._ui-tooltip')!.textContent!) <
+          wantFavoriteNumber2
+        ) {
+          // 必须限制序号0，不然对图片的回应数也会连起来
+          el.style.display = 'none' // 这里把结果中不符合二次过滤隐藏掉，而非删除
+        } else {
+          el.style.display = 'inline-flex'
+        }
+      })
+      this.outputNowResult()
+    }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
   public getWantPage() {}
@@ -3399,7 +3478,7 @@ abstract class CrawlPageBase {
         }
       }
 
-      // 在作品页内下载时，设置的 wantPage 其实是作品数
+      // 在作品页内下载时，设置的 wantPage 其实是作品数。每次获取完一个作品的信息后，还要从这个信息里获取下一个要抓取的 id
       if (this.type === 1 && !this.downRelated) {
         if (this.wantPage > 0) {
           this.wantPage--
@@ -3430,11 +3509,11 @@ abstract class CrawlPageBase {
                 nextId
             )
           } else {
-            // 没有剩余作品
+            // 没有下一个作品的 id 了
             this.crawFinished()
           }
         } else {
-          // 没有剩余作品
+          // 已经抓取完了指定的数量
           this.crawFinished()
         }
       } else {
@@ -3991,6 +4070,11 @@ class CrawlUserPage extends CrawlPageBase {
 
 // 抓取搜索页
 class CrawlSearchPage extends CrawlPageBase {
+  constructor(){
+    super()
+    this.worksSelector = '.JoCpVnw'
+  }
+
   public displayCover: boolean = true // 是否显示tag搜索页里面的封面图片。如果tag搜索页的图片数量太多，那么加载封面图可能要很久，并且可能因为占用大量带宽导致抓取中断。这种情况下可以将此参数改为false，不加载封面图。
 
   private searchResult: TagSearchResult[] = [] // 储存 tag 搜索页面上符合条件的作品
@@ -4053,13 +4137,13 @@ class CrawlSearchPage extends CrawlPageBase {
 `
 
   // tag 搜索页作品的html中的多图标识
-  public xzMultipleHtml: string = `<div class="${this.tagSearchMultipleSelector.replace(
+  private xzMultipleHtml: string = `<div class="${this.multipleSelector.replace(
     '.',
     ''
   )}"><span><span class="XPwdj2F"></span>xz_pageCount</span></div>`
 
   // tag 搜索页作品的html中的动图标识
-  public xzUgoiraHtml: string = `<div class="${this.tagSearchUgoiraSelector.replace(
+  private xzUgoiraHtml: string = `<div class="${this.ugoiraSelector.replace(
     '.',
     ''
   )}"></div>`
@@ -4111,7 +4195,6 @@ class CrawlSearchPage extends CrawlPageBase {
           'text/html'
         )
 
-        // tag 搜索页
         this.tagPageFinished++
 
         let thisOneInfo: string = listPageDocument.querySelector(
@@ -4899,7 +4982,13 @@ class CrawlNewIllustPage extends CrawlPageBase {
 
 // 抓取发现页面
 class CrawlDiscoverPage extends CrawlPageBase {
-  public getWantPage() {}
+  
+  constructor(){
+    super()
+    this.worksSelector = '.JoCpVnw'
+  }
+   
+    public getWantPage() {}
 
   public getListPage() {
     titleBar.changeTitle('↑')
@@ -4931,7 +5020,7 @@ abstract class InitPageBase {
   public init() {}
 
   // 清空中间按钮
-  public clearBtns(): void {
+  public clearCenterBtns(): void {
     document.getElementById('centerWrap_btns_free')!.innerHTML = ''
 
     // 删除右侧的快速下载按钮
@@ -4963,17 +5052,7 @@ abstract class InitPageBase {
     return e
   }
 
-  // 显示调整后，列表里的作品数量。仅在 tag 搜索页和发现页面中使用
-  public outputNowResult() {
-    const selector = this.crawler.worksSelector
-    log.success(
-      lang.transl('_调整完毕', DOM.getVisibleEl(selector).length.toString()),
-      2,
-      false
-    )
-  }
-
-  // 清除多图作品
+  // 清除多图作品的按钮
   public addClearMultipleBtn() {
     this.addCenterButton(Colors.red, lang.transl('_清除多图作品'), [
       ['title', lang.transl('_清除多图作品Title')]
@@ -4981,42 +5060,28 @@ abstract class InitPageBase {
       'click',
       () => {
         ui.centerWrapHide()
-        const allPicArea = document.querySelectorAll(this.crawler.worksSelector)
-        allPicArea.forEach(el => {
-          if (el.querySelector(this.crawler.tagSearchMultipleSelector)) {
-            el.remove()
-          }
-        })
-        this.outputNowResult()
+        this.crawler.clearMultiple()
       },
       false
     )
   }
 
-  // 清除动图作品
-  public addClearUgokuBtn() {
+  // 清除动图作品的按钮
+  public addClearUgoiraBtn() {
     this.addCenterButton(Colors.red, lang.transl('_清除动图作品'), [
       ['title', lang.transl('_清除动图作品Title')]
     ]).addEventListener(
       'click',
       () => {
         ui.centerWrapHide()
-        const allPicArea = document.querySelectorAll(this.crawler.worksSelector)
-        allPicArea.forEach(el => {
-          if (el.querySelector(this.crawler.tagSearchUgoiraSelector)) {
-            el.remove()
-          }
-        })
-        this.outputNowResult()
+        this.crawler.ClearUgoira()
       },
       false
     )
   }
 
-  // 手动删除作品
+  // 手动删除作品的按钮
   public addManuallyDeleteBtn() {
-    let delWork: boolean = false // 是否处于删除作品状态
-
     const delBtn = this.addCenterButton(
       Colors.red,
       lang.transl('_手动删除作品'),
@@ -5024,34 +5089,7 @@ abstract class InitPageBase {
     )
 
     delBtn.addEventListener('click', () => {
-      delWork = !delWork
-
-      // 给作品绑定删除属性
-      const listElement: NodeListOf<HTMLDivElement> = document.querySelectorAll(
-        this.crawler.worksSelector
-      )
-      listElement.forEach(el => {
-        el.onclick = e => {
-          e = e || window.event
-          if (delWork) {
-            e.preventDefault()
-
-            DOM.removeEl(e.target as HTMLElement)
-            if (dlCtrl.allowWork) {
-              this.outputNowResult()
-            }
-          }
-        }
-      })
-
-      if (delWork) {
-        delBtn.textContent = lang.transl('_退出手动删除')
-        setTimeout(() => {
-          ui.centerWrapHide()
-        }, 300)
-      } else {
-        delBtn.textContent = lang.transl('_手动删除作品')
-      }
+      this.crawler.manuallyDelete(delBtn)
     })
   }
 
@@ -5097,7 +5135,7 @@ abstract class InitPageBase {
 // 初始化首页
 class InitIndexPage extends InitPageBase {
   public init() {
-    this.clearBtns()
+    this.clearCenterBtns()
     this.appendCenterBtns()
     this.appendElseEl()
     this.setSetting()
@@ -5177,7 +5215,7 @@ class InitIndexPage extends InitPageBase {
 //初始化作品页
 class InitIllustPage extends InitPageBase {
   public init() {
-    this.clearBtns()
+    this.clearCenterBtns()
     this.appendCenterBtns()
     this.appendElseEl()
     this.setSetting()
@@ -5252,7 +5290,7 @@ class InitIllustPage extends InitPageBase {
 // 初始化用户页面
 class InitUserPage extends InitPageBase {
   public init() {
-    this.clearBtns()
+    this.clearCenterBtns()
     this.appendCenterBtns()
     this.setSetting()
   }
@@ -5307,12 +5345,10 @@ class InitUserPage extends InitPageBase {
 // 初始化搜索页
 class InitSearchPage extends InitPageBase {
   public init() {
-    this.clearBtns()
+    this.clearCenterBtns()
     this.appendCenterBtns()
     this.appendElseEl()
     this.setSetting()
-
-    this.crawler.worksSelector = '.JoCpVnw'
 
     this.crawler.baseUrl = location.href.split('&p=')[0] + '&p='
     this.crawler.startpageNo = DOM.getNowPageNo()
@@ -5332,44 +5368,13 @@ class InitSearchPage extends InitPageBase {
       false
     )
 
+    // 在结果中筛选的按钮
     this.addCenterButton(Colors.green, lang.transl('_在结果中筛选'), [
       ['title', lang.transl('_在结果中筛选Title')]
     ]).addEventListener(
       'click',
       () => {
-        const allPicArea = document.querySelectorAll(
-          this.crawler.worksSelector
-        )! as NodeListOf<HTMLDivElement>
-
-        let wantFavoriteNumber2 = parseInt(
-          window.prompt(lang.transl('_在结果中筛选弹窗'), '2000')!
-        )
-
-        if (
-          !wantFavoriteNumber2 ||
-          isNaN(Number(wantFavoriteNumber2)) ||
-          ~~Number(wantFavoriteNumber2) <= 0
-        ) {
-          const msg = lang.transl('_checkWantPageRule1Arg2')
-          window.alert(msg)
-          dlCtrl.allowWork = true
-          throw new Error(msg)
-        } else {
-          wantFavoriteNumber2 = ~~Number(wantFavoriteNumber2)
-        }
-
-        allPicArea.forEach(el => {
-          if (
-            parseInt(el.querySelector('._ui-tooltip')!.textContent!) <
-            wantFavoriteNumber2
-          ) {
-            // 必须限制序号0，不然对图片的回应数也会连起来
-            el.style.display = 'none' // 这里把结果中不符合二次过滤隐藏掉，而非删除
-          } else {
-            el.style.display = 'inline-flex'
-          }
-        })
-        this.outputNowResult()
+        this.crawler.filterInResults()
         ui.centerWrapHide()
       },
       false
@@ -5394,7 +5399,7 @@ class InitSearchPage extends InitPageBase {
 
     this.addClearMultipleBtn()
 
-    this.addClearUgokuBtn()
+    this.addClearUgoiraBtn()
 
     this.addManuallyDeleteBtn()
 
@@ -5463,7 +5468,7 @@ class InitSearchPage extends InitPageBase {
 // 初始化地区排行榜页面
 class InitAreaRankingPage extends InitPageBase {
   public init() {
-    this.clearBtns()
+    this.clearCenterBtns()
     this.appendCenterBtns()
     this.setSetting()
   }
@@ -5484,7 +5489,7 @@ class InitAreaRankingPage extends InitPageBase {
 // 初始化排行榜页面
 class InitRankingPage extends InitPageBase {
   public init() {
-    this.clearBtns()
+    this.clearCenterBtns()
     this.appendCenterBtns()
     this.setSetting()
     if (window.location.search === '') {
@@ -5544,7 +5549,7 @@ class InitRankingPage extends InitPageBase {
 // 初始化 pixivision 页面
 class InitPixivisionPage extends InitPageBase {
   public init() {
-    this.clearBtns()
+    this.clearCenterBtns()
     this.appendCenterBtns()
     this.setSetting()
   }
@@ -5578,7 +5583,7 @@ class InitPixivisionPage extends InitPageBase {
 // 初始化 bookmark_detail 页面
 class InitBookmarkDetailPage extends InitPageBase {
   public init() {
-    this.clearBtns()
+    this.clearCenterBtns()
     this.appendCenterBtns()
     this.setSetting()
   }
@@ -5609,7 +5614,7 @@ class InitBookmarkDetailPage extends InitPageBase {
 // 初始化 关注的人的新作品 以及 大家的新作品页面
 class InitNewIllustPage extends InitPageBase {
   public init() {
-    this.clearBtns()
+    this.clearCenterBtns()
     this.appendCenterBtns()
     this.setSetting()
 
@@ -5662,11 +5667,9 @@ class InitNewIllustPage extends InitPageBase {
 // 初始化发现页面
 class InitDiscoverPage extends InitPageBase {
   public init() {
-    this.clearBtns()
+    this.clearCenterBtns()
     this.appendCenterBtns()
     this.setSetting()
-
-    this.crawler.worksSelector = '._2RNjBox' // 发现页面的作品列表
   }
 
   public appendCenterBtns() {
@@ -5678,7 +5681,7 @@ class InitDiscoverPage extends InitPageBase {
 
     this.addClearMultipleBtn()
 
-    this.addClearUgokuBtn()
+    this.addClearUgoiraBtn()
 
     this.addManuallyDeleteBtn()
   }
@@ -6235,6 +6238,7 @@ class Downloader {
     this.supportListenHistory()
     this.listenPageSwitch()
     this.checkNew()
+    this.showNew('_xzNew270')
   }
 
   // 处理和脚本版的冲突
@@ -6281,6 +6285,27 @@ class Downloader {
     const latestVer = localStorage.getItem('xzGithubVer')
     if (latestVer && manifestVer < latestVer) {
       show()
+    }
+  }
+
+  // 显示最近更新内容
+  public showNew(tag: keyof typeof xzLang) {
+    if (
+      window.location.host.includes('pixiv.net') &&
+      !localStorage.getItem(tag)
+    ) {
+      const whatIsNewHtml = `
+      <div class="xz_new">
+        <p class="title">Pixiv Batch Downloader ${lang.transl('_最近更新')}</p>
+        <p class="content">${lang.transl(tag)}</p>
+        <button class="btn">${lang.transl('_确定')}</button>
+      </div>`
+      document.body.insertAdjacentHTML('afterbegin', whatIsNewHtml)
+      const whatIsNewEl = document.querySelector('.xz_new')!
+      whatIsNewEl.querySelector('.btn')!.addEventListener('click', () => {
+        localStorage.setItem(tag, '1')
+        whatIsNewEl.parentNode!.removeChild(whatIsNewEl)
+      })
     }
   }
 
