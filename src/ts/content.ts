@@ -3035,6 +3035,15 @@ class FileName {
 
 // 定义每个页面的抓取流程
 abstract class CrawlPageBase {
+
+  /*
+  一般流程：
+  readyCrawl 准备抓取
+  getListPage 获取作品列表
+  getListUrlFinished 获取作品列表完毕
+  getIllustData  获取作品信息
+   */
+  
   public type: number = pageType.getPageType()
 
   public worksSelector: string = '' // tag 搜索页以及新作品页面，直接选择作品的选择器
@@ -3066,9 +3075,11 @@ abstract class CrawlPageBase {
 
   public wantPage: number = 0 // 要抓取几页
 
-  private ajaxForIllustThreads: number = 6 // 抓取页面时的并发连接数
+  private readonly ajaxThreadsNumberDefault: number = 6 // 抓取页面时的并发连接数
+  
+  private ajaxThreadsNumber: number = this.ajaxThreadsNumberDefault // 抓取页面时的并发连接数
 
-  private ajaxThreadsFinished: number = 0 // 统计有几个并发线程完成所有请求。统计的是并发数（ ajaxForIllustThreads ）而非请求数
+  private ajaxThreadsFinished: number = 0 // 统计有几个并发线程完成所有请求。统计的是并发数（ ajaxThreadsNumber ）而非请求数
 
   public requsetNumber: number = 0 // 要下载多少个作品
 
@@ -3201,7 +3212,7 @@ abstract class CrawlPageBase {
   public getWantPage() {}
 
   // 准备抓取，进行抓取之前的一些检查工作。必要时可以在子类中改写
-  public readyGet(): false | undefined | void {
+  public readyCrawl(): false | undefined | void {
     // 检查是否可以开始抓取
     if (!dlCtrl.allowWork || dlCtrl.downloadStarted) {
       window.alert(lang.transl('_当前任务尚未完成2'))
@@ -3274,18 +3285,16 @@ abstract class CrawlPageBase {
     this.debut = false
     this.type = pageType.getPageType()
 
-    if (store.illustUrlList.length < this.ajaxForIllustThreads) {
-      this.ajaxForIllustThreads = store.illustUrlList.length
+    if (store.illustUrlList.length <= this.ajaxThreadsNumber) {
+      this.ajaxThreadsNumber = store.illustUrlList.length
+    } else{
+      this.ajaxThreadsNumber = this.ajaxThreadsNumberDefault
     }
 
-    for (let i = 0; i < this.ajaxForIllustThreads; i++) {
+    for (let i = 0; i < this.ajaxThreadsNumber; i++) {
       this.getIllustData()
     }
 
-    // 快速下载时在这里提示一次
-    if (dlCtrl.quickDownload) {
-      log.log(lang.transl('_开始获取作品页面'))
-    }
   }
 
   // 当因为网络问题无法获取作品数据时，重试
@@ -3504,33 +3513,18 @@ abstract class CrawlPageBase {
           }
 
           if (nextId) {
-            this.getIllustData(
-              'https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' +
-                nextId
-            )
-          } else {
-            // 没有下一个作品的 id 了
-            this.crawFinished()
+            // 储存下一个要抓取的 id
+            store.addIllustUrlList([nextId])
           }
-        } else {
-          // 已经抓取完了指定的数量
+        } else{
+          // 抓取完了指定数量的作品
           this.crawFinished()
-        }
-      } else {
-        if (store.illustUrlList.length > 0) {
-          // 如果存在下一个作品，则
-          this.getIllustData()
-        } else {
-          // 没有剩余作品
-          this.ajaxThreadsFinished++
-          if (this.ajaxThreadsFinished === this.ajaxForIllustThreads) {
-            // 如果所有并发请求都执行完毕则复位
-            this.ajaxThreadsFinished = 0
-
-            this.crawFinished()
-          }
+          return
         }
       }
+
+      this.afterGetIllust()
+      
     } catch (error) {
       // 捕获的错误分两种情况
       // 1. 请求成功，有 response.ok 状态，OK 为 false 时 reject，返回的 error 是一个对象，如： {status: 404, statusText: ""}。接下来处理这条错误并处理后续任务。不会再重试这个请求。
@@ -3666,14 +3660,20 @@ abstract class CrawlPageBase {
 
     // 其他情况跳过出错的作品，继续抓取
     log.error(lang.transl('_无权访问2', url), 1)
-    // 跳过当前作品
+    // 跳过当前作品，正常抓取
+    this.afterGetIllust()
+    
+  }
+
+  // 每当获取完一个作品的信息
+  private afterGetIllust(){
     if (store.illustUrlList.length > 0) {
       // 如果存在下一个作品，则
       this.getIllustData()
     } else {
       // 没有剩余作品
       this.ajaxThreadsFinished++
-      if (this.ajaxThreadsFinished === this.ajaxForIllustThreads) {
+      if (this.ajaxThreadsFinished === this.ajaxThreadsNumber) {
         // 如果所有并发请求都执行完毕，复位
         this.ajaxThreadsFinished = 0
         this.crawFinished()
@@ -3682,7 +3682,7 @@ abstract class CrawlPageBase {
   }
 
   // 清空图片信息并重置输出区域，在重复抓取时使用
-  resetResult() {
+  public resetResult() {
     store.downloadList = []
     dlCtrl.downloadedList = []
     store.rankList = {}
@@ -3730,15 +3730,20 @@ class CrawlIllustPage extends CrawlPageBase {
     }
   }
 
-  public getListPage() {}
-
-  public nextStep() {
+  public getListPage() {
     // 下载相关作品
     if (this.downRelated) {
       this.getRelatedList()
     } else {
-      // 开始获取图片。因为新版作品页切换作品不需要刷新页面了，所以要传递实时的url。
-      this.getIllustData(window.location.href)
+      // 快速下载，以及向前、向后下载
+      store.addIllustUrlList([API.getIllustId(window.location.href)])
+      
+      // 快速下载时在这里提示一次
+      if (dlCtrl.quickDownload) {
+        log.log(lang.transl('_开始获取作品页面'))
+      }
+
+      this.getListUrlFinished()
     }
   }
 
@@ -4457,9 +4462,6 @@ class CrawlSearchPage extends CrawlPageBase {
 
 // 抓取地区排行榜页面
 class CrawlAreaRankingPage extends CrawlPageBase {
-  public nextStep() {
-    this.getListPage()
-  }
 
   public getListPage() {
     titleBar.changeTitle('↑')
@@ -4540,10 +4542,6 @@ class CrawlRankingPage extends CrawlPageBase {
     if (this.wantPage === -1) {
       this.wantPage = 500
     }
-  }
-
-  public nextStep() {
-    this.getListPage()
   }
 
   public async getListPage() {
@@ -4656,7 +4654,7 @@ class CrawlRankingPage extends CrawlPageBase {
 
 // 抓取 pixivision 页面
 class CrawlPixivisionPage extends CrawlPageBase {
-  public readyGet() {
+  public readyCrawl() {
     this.getPixivision()
   }
 
@@ -4748,11 +4746,11 @@ class CrawlPixivisionPage extends CrawlPageBase {
     const testImg = new Image()
     testImg.src = url
 
-    testImg.onload = () => nextStep(true)
+    testImg.onload = () => next(true)
 
-    testImg.onerror = () => nextStep(false)
+    testImg.onerror = () => next(false)
 
-    let nextStep = (bool: boolean) => {
+    let next = (bool: boolean) => {
       if (bool) {
         ext = 'jpg'
       } else {
@@ -5176,7 +5174,7 @@ class InitIndexPage extends InitPageBase {
             }
           })
 
-          this.crawler.readyGet()
+          this.crawler.readyCrawl()
         }
       },
       false
@@ -5231,7 +5229,7 @@ class InitIllustPage extends InitPageBase {
       lang.transl('_从本页开始抓取new')
     ).addEventListener('click', () => {
       this.crawler.downDirection = -1
-      this.crawler.readyGet()
+      this.crawler.readyCrawl()
     })
 
     this.addCenterButton(
@@ -5239,7 +5237,7 @@ class InitIllustPage extends InitPageBase {
       lang.transl('_从本页开始抓取old')
     ).addEventListener('click', () => {
       this.crawler.downDirection = 1
-      this.crawler.readyGet()
+      this.crawler.readyCrawl()
     })
 
     const downXgBtn = this.addCenterButton(
@@ -5250,7 +5248,7 @@ class InitIllustPage extends InitPageBase {
       'click',
       () => {
         this.crawler.downRelated = true
-        this.crawler.readyGet()
+        this.crawler.readyCrawl()
       },
       false
     )
@@ -5267,7 +5265,7 @@ class InitIllustPage extends InitPageBase {
       'click',
       () => {
         dlCtrl.quickDownload = true
-        this.crawler.readyGet()
+        this.crawler.readyCrawl()
       },
       false
     )
@@ -5299,7 +5297,7 @@ class InitUserPage extends InitPageBase {
     this.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
     ]).addEventListener('click', () => {
-      this.crawler.readyGet()
+      this.crawler.readyCrawl()
     })
 
     // 添加下载推荐作品的按钮，只在旧版收藏页面使用
@@ -5314,7 +5312,7 @@ class InitUserPage extends InitPageBase {
         'click',
         () => {
           this.crawler.downRecommended = true
-          this.crawler.readyGet()
+          this.crawler.readyCrawl()
         },
         false
       )
@@ -5363,7 +5361,7 @@ class InitSearchPage extends InitPageBase {
     ]).addEventListener(
       'click',
       () => {
-        this.crawler.readyGet()
+        this.crawler.readyCrawl()
       },
       false
     )
@@ -5477,7 +5475,7 @@ class InitAreaRankingPage extends InitPageBase {
     this.addCenterButton(Colors.blue, lang.transl('_抓取本页作品'), [
       ['title', lang.transl('_抓取本页作品Title')]
     ]).addEventListener('click', () => {
-      this.crawler.readyGet()
+      this.crawler.readyCrawl()
     })
   }
 
@@ -5508,7 +5506,7 @@ class InitRankingPage extends InitPageBase {
     this.addCenterButton(Colors.blue, lang.transl('_抓取本排行榜作品'), [
       ['title', lang.transl('_抓取本排行榜作品Title')]
     ]).addEventListener('click', () => {
-      this.crawler.readyGet()
+      this.crawler.readyCrawl()
     })
 
     // 判断是否是“今日”页面
@@ -5530,7 +5528,7 @@ class InitRankingPage extends InitPageBase {
         ['title', lang.transl('_抓取首次登场的作品Title')]
       ]).addEventListener('click', () => {
         this.crawler.debut = true
-        this.crawler.readyGet()
+        this.crawler.readyCrawl()
       })
     }
   }
@@ -5568,7 +5566,7 @@ class InitPixivisionPage extends InitPageBase {
       ).addEventListener(
         'click',
         () => {
-          this.crawler.readyGet()
+          this.crawler.readyCrawl()
         },
         false
       )
@@ -5594,7 +5592,7 @@ class InitBookmarkDetailPage extends InitPageBase {
     ]).addEventListener(
       'click',
       () => {
-        this.crawler.readyGet()
+        this.crawler.readyCrawl()
       },
       false
     )
@@ -5634,7 +5632,7 @@ class InitNewIllustPage extends InitPageBase {
     this.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_下载大家的新作品')]
     ]).addEventListener('click', () => {
-      this.crawler.readyGet()
+      this.crawler.readyCrawl()
     })
   }
 
@@ -5676,7 +5674,7 @@ class InitDiscoverPage extends InitPageBase {
     this.addCenterButton(Colors.blue, lang.transl('_抓取当前作品'), [
       ['title', lang.transl('_抓取当前作品Title')]
     ]).addEventListener('click', () => {
-      this.crawler.readyGet()
+      this.crawler.readyCrawl()
     })
 
     this.addClearMultipleBtn()

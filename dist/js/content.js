@@ -2560,10 +2560,17 @@ class FileName {
 // 定义每个页面的抓取流程
 class CrawlPageBase {
     constructor() {
+        /*
+        一般流程：
+        readyCrawl 准备抓取
+        getListPage 获取作品列表
+        getListUrlFinished 获取作品列表完毕
+        getIllustData  获取作品信息
+         */
         this.type = pageType.getPageType();
         this.worksSelector = ''; // tag 搜索页以及新作品页面，直接选择作品的选择器
-        this.tagSearchMultipleSelector = '._3b8AXEx'; // 作品选择器
-        this.tagSearchUgoiraSelector = '.AGgsUWZ'; // 动图作品的选择器
+        this.multipleSelector = '._3b8AXEx'; // 作品选择器
+        this.ugoiraSelector = '.AGgsUWZ'; // 动图作品的选择器
         this.startpageNo = 1; // 列表页开始抓取时的页码
         this.baseUrl = ''; // 列表页url规则
         this.listPageFinished = 0; // 记录一共抓取了多少列表页
@@ -2578,8 +2585,9 @@ class CrawlPageBase {
         this.debut = false; // 只下载首次登场的作品
         this.interrupt = false; // 是否中断正在抓取的任务，目前仅在 tag 搜索页使用
         this.wantPage = 0; // 要抓取几页
-        this.ajaxForIllustThreads = 6; // 抓取页面时的并发连接数
-        this.ajaxThreadsFinished = 0; // 统计有几个并发线程完成所有请求。统计的是并发数（ ajaxForIllustThreads ）而非请求数
+        this.ajaxThreadsNumber = 6; // 抓取页面时的并发连接数
+        this.ajaxThreadsNumberDefault = 6; // 抓取页面时的并发连接数
+        this.ajaxThreadsFinished = 0; // 统计有几个并发线程完成所有请求。统计的是并发数（ ajaxThreadsNumber ）而非请求数
         this.requsetNumber = 0; // 要下载多少个作品
         this.imgNumberPerWork = 0; // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
         this.notdownType = ''; // 设置不要下载的作品类型
@@ -2605,7 +2613,7 @@ class CrawlPageBase {
     clearMultiple() {
         const allPicArea = document.querySelectorAll(this.worksSelector);
         allPicArea.forEach(el => {
-            if (el.querySelector(this.tagSearchMultipleSelector)) {
+            if (el.querySelector(this.multipleSelector)) {
                 el.remove();
             }
         });
@@ -2615,7 +2623,7 @@ class CrawlPageBase {
     ClearUgoira() {
         const allPicArea = document.querySelectorAll(this.worksSelector);
         allPicArea.forEach(el => {
-            if (el.querySelector(this.tagSearchUgoiraSelector)) {
+            if (el.querySelector(this.ugoiraSelector)) {
                 el.remove();
             }
         });
@@ -2678,7 +2686,7 @@ class CrawlPageBase {
     // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
     getWantPage() { }
     // 准备抓取，进行抓取之前的一些检查工作。必要时可以在子类中改写
-    readyGet() {
+    readyCrawl() {
         // 检查是否可以开始抓取
         if (!dlCtrl.allowWork || dlCtrl.downloadStarted) {
             window.alert(lang.transl('_当前任务尚未完成2'));
@@ -2728,15 +2736,23 @@ class CrawlPageBase {
         // 列表页获取完毕后，可以在这里重置一些变量
         this.debut = false;
         this.type = pageType.getPageType();
-        if (store.illustUrlList.length < this.ajaxForIllustThreads) {
-            this.ajaxForIllustThreads = store.illustUrlList.length;
+        if (store.illustUrlList.length <= this.ajaxThreadsNumber) {
+            this.ajaxThreadsNumber = store.illustUrlList.length;
         }
-        for (let i = 0; i < this.ajaxForIllustThreads; i++) {
-            this.getIllustData();
+        else {
+            this.ajaxThreadsNumber = this.ajaxThreadsNumberDefault;
         }
+        // // 作品页内，除了下载相关作品，其他时候只有 1 个 ajax 请求线程
+        //   if(this.type === 1 && !this.downRelated){
+        //   this.ajaxThreadsNumber = 1
+        // }
+        console.log(this.ajaxThreadsNumber);
         // 快速下载时在这里提示一次
         if (dlCtrl.quickDownload) {
             log.log(lang.transl('_开始获取作品页面'));
+        }
+        for (let i = 0; i < this.ajaxThreadsNumber; i++) {
+            this.getIllustData();
         }
     }
     // 当因为网络问题无法获取作品数据时，重试
@@ -2859,7 +2875,7 @@ class CrawlPageBase {
                     this.outputImgNum();
                 }
             }
-            // 在作品页内下载时，设置的 wantPage 其实是作品数
+            // 在作品页内下载时，设置的 wantPage 其实是作品数。每次获取完一个作品的信息后，还要从这个信息里获取下一个要抓取的 id
             if (this.type === 1 && !this.downRelated) {
                 if (this.wantPage > 0) {
                     this.wantPage--;
@@ -2883,34 +2899,17 @@ class CrawlPageBase {
                         }
                     }
                     if (nextId) {
-                        this.getIllustData('https://www.pixiv.net/member_illust.php?mode=medium&illust_id=' +
-                            nextId);
-                    }
-                    else {
-                        // 没有剩余作品
-                        this.crawFinished();
+                        // 储存下一个要抓取的 id
+                        store.addIllustUrlList([nextId]);
                     }
                 }
                 else {
-                    // 没有剩余作品
+                    // 抓取完了指定数量的作品
                     this.crawFinished();
+                    return;
                 }
             }
-            else {
-                if (store.illustUrlList.length > 0) {
-                    // 如果存在下一个作品，则
-                    this.getIllustData();
-                }
-                else {
-                    // 没有剩余作品
-                    this.ajaxThreadsFinished++;
-                    if (this.ajaxThreadsFinished === this.ajaxForIllustThreads) {
-                        // 如果所有并发请求都执行完毕则复位
-                        this.ajaxThreadsFinished = 0;
-                        this.crawFinished();
-                    }
-                }
-            }
+            this.afterGetIllust();
         }
         catch (error) {
             // 捕获的错误分两种情况
@@ -3018,7 +3017,11 @@ class CrawlPageBase {
         }
         // 其他情况跳过出错的作品，继续抓取
         log.error(lang.transl('_无权访问2', url), 1);
-        // 跳过当前作品
+        // 跳过当前作品，正常抓取
+        this.afterGetIllust();
+    }
+    // 每当获取完一个作品的信息
+    afterGetIllust() {
         if (store.illustUrlList.length > 0) {
             // 如果存在下一个作品，则
             this.getIllustData();
@@ -3026,7 +3029,7 @@ class CrawlPageBase {
         else {
             // 没有剩余作品
             this.ajaxThreadsFinished++;
-            if (this.ajaxThreadsFinished === this.ajaxForIllustThreads) {
+            if (this.ajaxThreadsFinished === this.ajaxThreadsNumber) {
                 // 如果所有并发请求都执行完毕，复位
                 this.ajaxThreadsFinished = 0;
                 this.crawFinished();
@@ -3074,15 +3077,15 @@ class CrawlIllustPage extends CrawlPageBase {
             }
         }
     }
-    getListPage() { }
-    nextStep() {
+    getListPage() {
         // 下载相关作品
         if (this.downRelated) {
             this.getRelatedList();
         }
         else {
-            // 开始获取图片。因为新版作品页切换作品不需要刷新页面了，所以要传递实时的url。
-            this.getIllustData(window.location.href);
+            // 快速下载，以及向前、向后下载
+            store.addIllustUrlList([API.getIllustId(window.location.href)]);
+            this.getListUrlFinished();
         }
     }
     // 下载相关作品时使用
@@ -3352,8 +3355,7 @@ class CrawlUserPage extends CrawlPageBase {
 // 抓取搜索页
 class CrawlSearchPage extends CrawlPageBase {
     constructor() {
-        super(...arguments);
-        this.worksSelector = '.JoCpVnw';
+        super();
         this.displayCover = true; // 是否显示tag搜索页里面的封面图片。如果tag搜索页的图片数量太多，那么加载封面图可能要很久，并且可能因为占用大量带宽导致抓取中断。这种情况下可以将此参数改为false，不加载封面图。
         this.searchResult = []; // 储存 tag 搜索页面上符合条件的作品
         this.tagPageFinished = 0; // 记录 tag 搜索页本次任务已经抓取了多少页
@@ -3410,11 +3412,12 @@ class CrawlSearchPage extends CrawlPageBase {
 </div>
 `;
         // tag 搜索页作品的html中的多图标识
-        this.xzMultipleHtml = `<div class="${this.tagSearchMultipleSelector.replace('.', '')}"><span><span class="XPwdj2F"></span>xz_pageCount</span></div>`;
+        this.xzMultipleHtml = `<div class="${this.multipleSelector.replace('.', '')}"><span><span class="XPwdj2F"></span>xz_pageCount</span></div>`;
         // tag 搜索页作品的html中的动图标识
-        this.xzUgoiraHtml = `<div class="${this.tagSearchUgoiraSelector.replace('.', '')}"></div>`;
+        this.xzUgoiraHtml = `<div class="${this.ugoiraSelector.replace('.', '')}"></div>`;
         this.dataSelector = '#js-mount-point-search-result-list'; // tag 搜索页，储存作品信息的元素
         this.worksListWrap = '.x7wiBV0'; //  tag 搜索页，储存作品列表的元素
+        this.worksSelector = '.JoCpVnw';
     }
     getWantPage() {
         this.wantPage = setting.checkWantPageInput(lang.transl('_checkWantPageRule1Arg6'), lang.transl('_checkWantPageRule1Arg7'));
@@ -3449,7 +3452,6 @@ class CrawlSearchPage extends CrawlPageBase {
             let listPageDocument;
             // 解析网页内容。排行榜和相似作品、相关作品，直接获取 json 数据，不需要这样处理
             listPageDocument = new window.DOMParser().parseFromString(data, 'text/html');
-            // tag 搜索页
             this.tagPageFinished++;
             let thisOneInfo = listPageDocument.querySelector(this.dataSelector).dataset.items;
             // 保存本页的作品信息
@@ -3642,9 +3644,6 @@ class CrawlSearchPage extends CrawlPageBase {
 }
 // 抓取地区排行榜页面
 class CrawlAreaRankingPage extends CrawlPageBase {
-    nextStep() {
-        this.getListPage();
-    }
     getListPage() {
         titleBar.changeTitle('↑');
         // 地区排行榜
@@ -3708,9 +3707,6 @@ class CrawlRankingPage extends CrawlPageBase {
         if (this.wantPage === -1) {
             this.wantPage = 500;
         }
-    }
-    nextStep() {
-        this.getListPage();
     }
     async getListPage() {
         this.setPartNum();
@@ -3798,7 +3794,7 @@ class CrawlPixivisionPage extends CrawlPageBase {
         super(...arguments);
         this.tested = 0; // 检查图片后缀名时的计数
     }
-    readyGet() {
+    readyCrawl() {
         this.getPixivision();
     }
     getListPage() { }
@@ -3858,9 +3854,9 @@ class CrawlPixivisionPage extends CrawlPageBase {
         let ext = '';
         const testImg = new Image();
         testImg.src = url;
-        testImg.onload = () => nextStep(true);
-        testImg.onerror = () => nextStep(false);
-        let nextStep = (bool) => {
+        testImg.onload = () => next(true);
+        testImg.onerror = () => next(false);
+        let next = (bool) => {
             if (bool) {
                 ext = 'jpg';
             }
@@ -4031,8 +4027,8 @@ class CrawlNewIllustPage extends CrawlPageBase {
 // 抓取发现页面
 class CrawlDiscoverPage extends CrawlPageBase {
     constructor() {
-        super(...arguments);
-        this.worksSelector = '._2RNjBox'; // 发现页面的作品列表
+        super();
+        this.worksSelector = '.JoCpVnw';
     }
     getWantPage() { }
     getListPage() {
@@ -4168,7 +4164,7 @@ class InitIndexPage extends InitPageBase {
                         store.addIllustUrlList([nowId.toString()]);
                     }
                 });
-                this.crawler.readyGet();
+                this.crawler.readyCrawl();
             }
         }, false);
     }
@@ -4211,16 +4207,16 @@ class InitIllustPage extends InitPageBase {
     appendCenterBtns() {
         this.addCenterButton(Colors.blue, lang.transl('_从本页开始抓取new')).addEventListener('click', () => {
             this.crawler.downDirection = -1;
-            this.crawler.readyGet();
+            this.crawler.readyCrawl();
         });
         this.addCenterButton(Colors.blue, lang.transl('_从本页开始抓取old')).addEventListener('click', () => {
             this.crawler.downDirection = 1;
-            this.crawler.readyGet();
+            this.crawler.readyCrawl();
         });
         const downXgBtn = this.addCenterButton(Colors.blue, lang.transl('_抓取相关作品'));
         downXgBtn.addEventListener('click', () => {
             this.crawler.downRelated = true;
-            this.crawler.readyGet();
+            this.crawler.readyCrawl();
         }, false);
     }
     appendElseEl() {
@@ -4232,7 +4228,7 @@ class InitIllustPage extends InitPageBase {
         document.body.appendChild(quickDownBtn);
         quickDownBtn.addEventListener('click', () => {
             dlCtrl.quickDownload = true;
-            this.crawler.readyGet();
+            this.crawler.readyCrawl();
         }, false);
     }
     setSetting() {
@@ -4259,7 +4255,7 @@ class InitUserPage extends InitPageBase {
         this.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
             ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
         ]).addEventListener('click', () => {
-            this.crawler.readyGet();
+            this.crawler.readyCrawl();
         });
         // 添加下载推荐作品的按钮，只在旧版收藏页面使用
         const columnTitle = document.querySelector('.column-title');
@@ -4267,7 +4263,7 @@ class InitUserPage extends InitPageBase {
             const downRecmdBtn = this.addCenterButton(Colors.blue, lang.transl('_抓取推荐作品'), [['title', lang.transl('_抓取推荐作品Title')]]);
             downRecmdBtn.addEventListener('click', () => {
                 this.crawler.downRecommended = true;
-                this.crawler.readyGet();
+                this.crawler.readyCrawl();
             }, false);
         }
         // 如果存在 token，则添加“添加 tag”按钮
@@ -4305,7 +4301,7 @@ class InitSearchPage extends InitPageBase {
         this.addCenterButton(Colors.green, lang.transl('_开始筛选'), [
             ['title', lang.transl('_开始筛选Title')]
         ]).addEventListener('click', () => {
-            this.crawler.readyGet();
+            this.crawler.readyCrawl();
         }, false);
         // 在结果中筛选的按钮
         this.addCenterButton(Colors.green, lang.transl('_在结果中筛选'), [
@@ -4391,7 +4387,7 @@ class InitAreaRankingPage extends InitPageBase {
         this.addCenterButton(Colors.blue, lang.transl('_抓取本页作品'), [
             ['title', lang.transl('_抓取本页作品Title')]
         ]).addEventListener('click', () => {
-            this.crawler.readyGet();
+            this.crawler.readyCrawl();
         });
     }
     setSetting() {
@@ -4418,7 +4414,7 @@ class InitRankingPage extends InitPageBase {
         this.addCenterButton(Colors.blue, lang.transl('_抓取本排行榜作品'), [
             ['title', lang.transl('_抓取本排行榜作品Title')]
         ]).addEventListener('click', () => {
-            this.crawler.readyGet();
+            this.crawler.readyCrawl();
         });
         // 判断是否是“今日”页面
         let isDaily = false;
@@ -4437,7 +4433,7 @@ class InitRankingPage extends InitPageBase {
                 ['title', lang.transl('_抓取首次登场的作品Title')]
             ]).addEventListener('click', () => {
                 this.crawler.debut = true;
-                this.crawler.readyGet();
+                this.crawler.readyCrawl();
             });
         }
     }
@@ -4464,7 +4460,7 @@ class InitPixivisionPage extends InitPageBase {
         if (type === 'illustration' || type === 'manga' || type === 'cosplay') {
             // 在插画、漫画、cosplay类型的页面上创建下载功能
             this.addCenterButton(Colors.blue, lang.transl('_抓取该页面的图片')).addEventListener('click', () => {
-                this.crawler.readyGet();
+                this.crawler.readyCrawl();
             }, false);
         }
     }
@@ -4483,7 +4479,7 @@ class InitBookmarkDetailPage extends InitPageBase {
         this.addCenterButton(Colors.blue, lang.transl('_抓取相似图片'), [
             ['title', lang.transl('_抓取相似图片')]
         ]).addEventListener('click', () => {
-            this.crawler.readyGet();
+            this.crawler.readyCrawl();
         }, false);
     }
     setSetting() {
@@ -4517,7 +4513,7 @@ class InitNewIllustPage extends InitPageBase {
         this.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
             ['title', lang.transl('_下载大家的新作品')]
         ]).addEventListener('click', () => {
-            this.crawler.readyGet();
+            this.crawler.readyCrawl();
         });
     }
     setSetting() {
@@ -4557,7 +4553,7 @@ class InitDiscoverPage extends InitPageBase {
         this.addCenterButton(Colors.blue, lang.transl('_抓取当前作品'), [
             ['title', lang.transl('_抓取当前作品Title')]
         ]).addEventListener('click', () => {
-            this.crawler.readyGet();
+            this.crawler.readyCrawl();
         });
         this.addClearMultipleBtn();
         this.addClearUgoiraBtn();

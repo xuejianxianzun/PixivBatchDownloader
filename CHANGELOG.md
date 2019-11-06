@@ -23,8 +23,6 @@ delete listIsNewMode
 
 图标改成 svg
 
-梳理抓取和下载流程
-
 - 指导规则
 
 1. 抽象类
