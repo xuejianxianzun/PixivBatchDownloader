@@ -121,8 +121,8 @@ class API {
             value: 0
         };
     }
-    // 从 url 中获取指定的查询条件
-    static getQuery(url, query) {
+    // 从 url 中获取指定的查询字段的值
+    static getURLSearchField(url, query) {
         const result = new URL(url).searchParams.get(query);
         return result || '';
     }
@@ -516,10 +516,10 @@ class PageInfo {
         // 获取当前页面的 tag
         let tag = '';
         if (type === 5) {
-            tag = API.getQuery(window.location.href, 'word');
+            tag = API.getURLSearchField(window.location.href, 'word');
         }
         else {
-            tag = API.getQuery(window.location.href, 'tag');
+            tag = API.getURLSearchField(window.location.href, 'tag');
         }
         this.pageTag = decodeURIComponent(tag);
         // 将可用选项添加到下拉选项里
@@ -1160,23 +1160,28 @@ class InitSetting {
 // 只负责本程序的界面元素，不管理页面上的其他元素
 class UI {
     constructor() {
+        this.uiExists = false; // 指示 ui 是否存在
         this.xzTipEl = document.createElement('div'); // 显示提示文本的元素
         this.rightButton = document.createElement('div'); // 右侧按钮
         this.centerPanel = document.createElement('div'); // 中间设置面板
+        this.outputInfoPanel = document.createElement('div'); // 输出面板
         this.pauseBtn = document.createElement('button'); // 暂停下载按钮
         this.stopBtn = document.createElement('button'); // 停止下载按钮
+        // 只执行一次，不可被外部调用
         this.listenClickIcon();
+        this.loadCss();
+        // 可以反复执行
         this.addUI();
     }
     // 监听点击扩展图标的消息，开关界面
     listenClickIcon() {
         chrome.runtime.onMessage.addListener(msg => {
             if (msg.msg === 'click_icon') {
-                if (ui.centerPanel.style.display === 'block') {
-                    ui.centerWrapHide();
+                if (this.centerPanel.style.display === 'block') {
+                    this.centerWrapHide();
                 }
                 else {
-                    ui.centerWrapShow();
+                    this.centerWrapShow();
                 }
             }
         });
@@ -1200,6 +1205,7 @@ class UI {
     }
     // 添加右侧下载按钮
     addRightButton() {
+        this.rightButton = document.createElement('div');
         this.rightButton.textContent = '↓';
         this.rightButton.id = 'rightButton';
         document.body.appendChild(this.rightButton); // 绑定切换右侧按钮显示的事件
@@ -1224,9 +1230,9 @@ class UI {
     }
     // 添加输出 url 列表、文件名列表的面板
     addOutPutPanel() {
-        const outputInfoWrap = document.createElement('div');
-        document.body.appendChild(outputInfoWrap);
-        outputInfoWrap.outerHTML = `
+        this.outputInfoPanel = document.createElement('div');
+        document.body.appendChild(this.outputInfoPanel);
+        this.outputInfoPanel.outerHTML = `
       <div class="outputInfoWrap">
       <div class="outputUrlClose" title="${lang.transl('_关闭')}">X</div>
       <div class="outputUrlTitle">${lang.transl('_输出信息')}</div>
@@ -1238,8 +1244,7 @@ class UI {
       `;
         // 关闭输出区域
         document.querySelector('.outputUrlClose').addEventListener('click', () => {
-            ;
-            document.querySelector('.outputInfoWrap').style.display = 'none';
+            this.outputInfoPanel.style.display = 'none';
         });
         // 复制输出内容
         document.querySelector('.outputUrlCopy').addEventListener('click', () => {
@@ -1255,9 +1260,11 @@ class UI {
                 document.querySelector('.outputUrlCopy').textContent = lang.transl('_复制');
             }, 1000);
         });
+        this.outputInfoPanel = document.querySelector('.outputInfoWrap');
     }
-    // 添加下载面板
-    addDownloadPanel() {
+    // 添加中间主面板
+    addCenterPanel() {
+        this.centerPanel = document.createElement('div');
         document.body.appendChild(this.centerPanel);
         this.centerPanel.outerHTML = `
       <div class="XZTipEl"></div>
@@ -1489,14 +1496,6 @@ class UI {
         this.pauseBtn = document.querySelector('.pauseDownload');
         this.stopBtn = document.querySelector('.stopDownload');
     }
-    // 添加 UI
-    async addUI() {
-        this.loadCss();
-        this.addRightButton();
-        this.addOutPutPanel();
-        this.addDownloadPanel();
-        this.downloadPanelEvents();
-    }
     // 显示提示
     bindXzTip() {
         this.xzTipEl = document.querySelector('.XZTipEl');
@@ -1609,6 +1608,10 @@ class UI {
             ? '▲'
             : '▼';
     }
+    // 在进度条上显示已下载数量
+    showDownloaded() {
+        document.querySelector('.downloaded').textContent = dlCtrl.downloaded.toString();
+    }
     // 提示下载状态
     changeDownStatus(str) {
         document.querySelector('.down_status').innerHTML = str;
@@ -1635,6 +1638,24 @@ class UI {
         const download_panel = document.querySelector('.download_panel');
         download_panel.style.display = str;
     }
+    // 添加 UI
+    async addUI() {
+        if (this.uiExists) {
+            return;
+        }
+        this.addRightButton();
+        this.addOutPutPanel();
+        this.addCenterPanel();
+        this.downloadPanelEvents();
+        this.uiExists = true;
+    }
+    destroy() {
+        let uiElements = [this.rightButton, this.centerPanel, this.outputInfoPanel];
+        for (const el of uiElements) {
+            el.parentNode.removeChild(el);
+        }
+        this.uiExists = false;
+    }
     // 显示中间区域
     centerWrapShow() {
         this.centerPanel.style.display = 'block';
@@ -1644,12 +1665,7 @@ class UI {
     centerWrapHide() {
         this.centerPanel.style.display = 'none';
         this.rightButton.style.display = 'block';
-        const outputInfoWrap = document.querySelector('.outputInfoWrap');
-        outputInfoWrap.style.display = 'none';
-    }
-    // 在进度条上显示已下载数量
-    showDownloaded() {
-        document.querySelector('.downloaded').textContent = dlCtrl.downloaded.toString();
+        this.outputInfoPanel.style.display = 'none';
     }
 }
 // 图片查看器类
@@ -2585,8 +2601,8 @@ class CrawlPageBase {
         this.debut = false; // 只下载首次登场的作品
         this.interrupt = false; // 是否中断正在抓取的任务，目前仅在 tag 搜索页使用
         this.wantPage = 0; // 要抓取几页
-        this.ajaxThreadsNumber = 6; // 抓取页面时的并发连接数
         this.ajaxThreadsNumberDefault = 6; // 抓取页面时的并发连接数
+        this.ajaxThreadsNumber = this.ajaxThreadsNumberDefault; // 抓取页面时的并发连接数
         this.ajaxThreadsFinished = 0; // 统计有几个并发线程完成所有请求。统计的是并发数（ ajaxThreadsNumber ）而非请求数
         this.requsetNumber = 0; // 要下载多少个作品
         this.imgNumberPerWork = 0; // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
@@ -2741,15 +2757,6 @@ class CrawlPageBase {
         }
         else {
             this.ajaxThreadsNumber = this.ajaxThreadsNumberDefault;
-        }
-        // // 作品页内，除了下载相关作品，其他时候只有 1 个 ajax 请求线程
-        //   if(this.type === 1 && !this.downRelated){
-        //   this.ajaxThreadsNumber = 1
-        // }
-        console.log(this.ajaxThreadsNumber);
-        // 快速下载时在这里提示一次
-        if (dlCtrl.quickDownload) {
-            log.log(lang.transl('_开始获取作品页面'));
         }
         for (let i = 0; i < this.ajaxThreadsNumber; i++) {
             this.getIllustData();
@@ -3085,6 +3092,10 @@ class CrawlIllustPage extends CrawlPageBase {
         else {
             // 快速下载，以及向前、向后下载
             store.addIllustUrlList([API.getIllustId(window.location.href)]);
+            // 快速下载时在这里提示一次
+            if (dlCtrl.quickDownload) {
+                log.log(lang.transl('_开始获取作品页面'));
+            }
             this.getListUrlFinished();
         }
     }
@@ -3145,7 +3156,7 @@ class CrawlUserPage extends CrawlPageBase {
             onceNumber = 20;
         }
         // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
-        const nowPage = API.getQuery(location.href, 'p'); // 判断当前处于第几页，页码从 1 开始。也可能没有页码
+        const nowPage = API.getURLSearchField(location.href, 'p'); // 判断当前处于第几页，页码从 1 开始。也可能没有页码
         if (nowPage) {
             this.offset = (parseInt(nowPage) - 1) * onceNumber;
         }
@@ -3173,15 +3184,15 @@ class CrawlUserPage extends CrawlPageBase {
         }
         else if (/member_illust\.php\?.*id=/.test(location.href)) {
             // 作品列表页
-            if (API.getQuery(location.href, 'type') === 'illust') {
+            if (API.getURLSearchField(location.href, 'type') === 'illust') {
                 // 插画分类
                 this.listType = 1;
             }
-            else if (API.getQuery(location.href, 'type') === 'manga') {
+            else if (API.getURLSearchField(location.href, 'type') === 'manga') {
                 // 漫画分类
                 this.listType = 2;
             }
-            else if (API.getQuery(location.href, 'tag')) {
+            else if (API.getURLSearchField(location.href, 'tag')) {
                 // url 里没有标识插画还是漫画，但是有 tag，则是在用户首页点击了 tag，需要同时获取插画和漫画
                 this.listType = 4;
             }
@@ -3191,7 +3202,7 @@ class CrawlUserPage extends CrawlPageBase {
             this.listType = 3;
         }
         // 是否带有 tag
-        this.tag = API.getQuery(location.href, 'tag');
+        this.tag = API.getURLSearchField(location.href, 'tag');
         if (this.listType === 3) {
             // 书签页面固定设置为有 tag（虽然有时候并没有带 tag，但数据结构和带 tag 是一样的）
             this.hasTag = true;
@@ -3230,12 +3241,12 @@ class CrawlUserPage extends CrawlPageBase {
         else {
             // 书签页面
             // 在“未分类”页面时，设置 tag
-            if (parseInt(API.getQuery(location.href, 'untagged')) === 1) {
+            if (parseInt(API.getURLSearchField(location.href, 'untagged')) === 1) {
                 this.tag = encodeURI('未分類');
             }
             // 判断是公开收藏还是非公开收藏
             let hide = false;
-            if (API.getQuery(location.href, 'rest') === 'hide') {
+            if (API.getURLSearchField(location.href, 'rest') === 'hide') {
                 hide = true;
             }
             this.getBookmarkList(hide);
@@ -3357,6 +3368,7 @@ class CrawlSearchPage extends CrawlPageBase {
     constructor() {
         super();
         this.displayCover = true; // 是否显示tag搜索页里面的封面图片。如果tag搜索页的图片数量太多，那么加载封面图可能要很久，并且可能因为占用大量带宽导致抓取中断。这种情况下可以将此参数改为false，不加载封面图。
+        this.worksWrap = document.querySelector('#root section');
         this.searchResult = []; // 储存 tag 搜索页面上符合条件的作品
         this.tagPageFinished = 0; // 记录 tag 搜索页本次任务已经抓取了多少页
         // 因为 tag 搜索页新版的作品不是直接输出到页面里,但我们需要呈现 html ,所以需要模拟生成的元素
@@ -4294,7 +4306,6 @@ class InitSearchPage extends InitPageBase {
         this.crawler.baseUrl = location.href.split('&p=')[0] + '&p=';
         this.crawler.startpageNo = DOM.getNowPageNo();
         this.crawler.listPageFinished = 0;
-        document.getElementById('js-react-search-mid').style.minHeight = 'auto'; // 这部分的高度改成 auto 以免搜索时会有空白区域
     }
     appendCenterBtns() {
         // 添加下载面板的按钮
@@ -4328,10 +4339,17 @@ class InitSearchPage extends InitPageBase {
         ]).addEventListener('click', this.crawler.getWorksList);
     }
     appendElseEl() {
+        // 判断插入点的元素有没有加载出来
+        let target = document.evaluate(`//*[@id="root"]/div[1]/div[3]`, document).iterateNext();
+        if (!target) {
+            console.log(111);
+            setTimeout(() => {
+                this.appendElseEl();
+            }, 300);
+            return;
+        }
         // 添加快速筛选功能
-        const nowTag = document
-            .querySelector('.column-title a')
-            .textContent.split(' ')[0];
+        const nowTag = API.getURLSearchField(location.href, 'word').split(' ')[0];
         const favNums = [
             '100users入り',
             '500users入り',
@@ -4345,27 +4363,10 @@ class InitSearchPage extends InitPageBase {
         ]; // 200 和 2000 的因为数量太少，不添加。40000 的也少
         const fastScreenArea = document.createElement('div');
         fastScreenArea.className = 'fastScreenArea';
-        const insetParent = document.querySelector('._unit');
-        insetParent.insertBefore(fastScreenArea, insetParent.querySelector('#js-react-search-top'));
-        let searchMode = ''; // 判断当前搜索模式，默认的“全部”模式不需要做处理
-        if (location.href.includes('&mode=r18')) {
-            searchMode = '&mode=r18';
-        }
-        else if (location.href.includes('&mode=safe')) {
-            searchMode = '&mode=safe';
-        }
-        let orderMode = ''; // 判断当前排序方式
-        if (location.href.includes('&order=date_d')) {
-            // 按最新排序
-            orderMode = '&order=date_d';
-        }
-        else if (location.href.includes('&order=date')) {
-            // 按旧排序
-            orderMode = '&order=date';
-        }
         fastScreenArea.innerHTML = favNums.reduce((result, cur) => {
-            return (result += `<a href="https://www.pixiv.net/search.php?s_mode=s_tag${searchMode}${orderMode}&word=${nowTag}%20${cur}">${cur}</a>`);
+            return (result += `<a href="https://www.pixiv.net/search.php?word=${nowTag}%20${cur}">${cur}</a>`);
         }, '');
+        target.insertAdjacentElement('beforeend', fastScreenArea);
     }
     setSetting() {
         ui.form.setFavNum.value = '1000'; // tag 搜索页默认收藏数设置为 1000
@@ -5015,10 +5016,9 @@ class Output {
     }
 }
 // 下载器
-// 辅助功能，及一些下载过程中使用的数据
-class Downloader {
+// 辅助功能
+class Support {
     constructor() {
-        API.updateToken();
         this.checkConflict();
         this.supportListenHistory();
         this.listenPageSwitch();
@@ -5108,7 +5108,15 @@ class Downloader {
             window.addEventListener(item, () => {
                 // pixiv 的后退使用 replaceState
                 // pushState 判断从列表页进入作品页的情况，popstate 判断从作品页退回列表页的情况
-                let type = pageType.getPageType();
+                let type;
+                try {
+                    type = pageType.getPageType();
+                    ui.addUI();
+                }
+                catch (_a) {
+                    ui.destroy();
+                    return;
+                }
                 // 获取页面信息
                 pageInfo.getPageInfo(type);
                 // 在作品页
@@ -5126,12 +5134,13 @@ class Downloader {
             // 初始化抓取流程
             new InitCrawlProcess();
             // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
-            if (dlCtrl.allowWork) {
-                log.clear();
-            }
+            // if (dlCtrl.allowWork) {
+            //   log.clear()
+            // }
         };
     }
 }
+API.updateToken();
 const lang = new Lang();
 const pageType = new PageType();
 const type = pageType.getPageType();
@@ -5139,6 +5148,8 @@ const log = new Log();
 // 依赖于 UI 的类需要放到 UI 后面
 const ui = new UI();
 const pageInfo = new PageInfo(type);
+const fileName = new FileName();
+const output = new Output();
 let setting = new Setting();
 const initSetting = new InitSetting();
 const convert = new ConvertUgoira();
@@ -5147,7 +5158,5 @@ const store = new Store();
 const titleBar = new TitleBar();
 const dlCtrl = new DownloadControl();
 const dlFile = new DownloadFile();
-const dl = new Downloader();
 new InitCrawlProcess();
-const fileName = new FileName();
-const output = new Output();
+new Support();

@@ -129,8 +129,8 @@ class API {
     }
   }
 
-  // 从 url 中获取指定的查询条件
-  static getQuery(url: string, query: string) {
+  // 从 url 中获取指定的查询字段的值
+  static getURLSearchField(url: string, query: string) {
     const result = new URL(url).searchParams.get(query)
     return result || ''
   }
@@ -570,9 +570,9 @@ class PageInfo {
     // 获取当前页面的 tag
     let tag = ''
     if (type === 5) {
-      tag = API.getQuery(window.location.href, 'word')
+      tag = API.getURLSearchField(window.location.href, 'word')
     } else {
-      tag = API.getQuery(window.location.href, 'tag')
+      tag = API.getURLSearchField(window.location.href, 'tag')
     }
     this.pageTag = decodeURIComponent(tag)
 
@@ -1287,7 +1287,6 @@ class InitSetting {
       that.saveSetting('tagNameToFileName', this.checked)
     })
 
-    
     // 重置设置
     document.getElementById('resetOption')!.addEventListener('click', () => {
       this.reset()
@@ -1318,17 +1317,24 @@ class InitSetting {
 // 只负责本程序的界面元素，不管理页面上的其他元素
 class UI {
   constructor() {
+    // 只执行一次，不可被外部调用
     this.listenClickIcon()
+    this.loadCss()
+    // 可以反复执行
     this.addUI()
   }
 
   public form!: XzForm
 
+  private uiExists = false  // 指示 ui 是否存在
+
   private xzTipEl: HTMLDivElement = document.createElement('div') // 显示提示文本的元素
 
   private rightButton: HTMLDivElement = document.createElement('div') // 右侧按钮
 
-  public centerPanel: HTMLDivElement = document.createElement('div') // 中间设置面板
+  private centerPanel: HTMLDivElement = document.createElement('div') // 中间设置面板
+
+  private outputInfoPanel: HTMLDivElement = document.createElement('div') // 输出面板
 
   public pauseBtn: HTMLButtonElement = document.createElement('button') // 暂停下载按钮
 
@@ -1338,10 +1344,10 @@ class UI {
   private listenClickIcon() {
     chrome.runtime.onMessage.addListener(msg => {
       if (msg.msg === 'click_icon') {
-        if (ui.centerPanel.style.display === 'block') {
-          ui.centerWrapHide()
+        if (this.centerPanel.style.display === 'block') {
+          this.centerWrapHide()
         } else {
-          ui.centerWrapShow()
+          this.centerWrapShow()
         }
       }
     })
@@ -1368,6 +1374,7 @@ class UI {
 
   // 添加右侧下载按钮
   private addRightButton() {
+    this.rightButton = document.createElement('div')
     this.rightButton.textContent = '↓'
     this.rightButton.id = 'rightButton'
     document.body.appendChild(this.rightButton) // 绑定切换右侧按钮显示的事件
@@ -1399,9 +1406,9 @@ class UI {
 
   // 添加输出 url 列表、文件名列表的面板
   private addOutPutPanel() {
-    const outputInfoWrap = document.createElement('div')
-    document.body.appendChild(outputInfoWrap)
-    outputInfoWrap.outerHTML = `
+    this.outputInfoPanel = document.createElement('div')
+    document.body.appendChild(this.outputInfoPanel)
+    this.outputInfoPanel.outerHTML = `
       <div class="outputInfoWrap">
       <div class="outputUrlClose" title="${lang.transl('_关闭')}">X</div>
       <div class="outputUrlTitle">${lang.transl('_输出信息')}</div>
@@ -1413,9 +1420,7 @@ class UI {
       `
     // 关闭输出区域
     document.querySelector('.outputUrlClose')!.addEventListener('click', () => {
-      ;(document.querySelector(
-        '.outputInfoWrap'
-      )! as HTMLDivElement).style.display = 'none'
+      this.outputInfoPanel.style.display = 'none'
     })
     // 复制输出内容
     document.querySelector('.outputUrlCopy')!.addEventListener('click', () => {
@@ -1436,10 +1441,14 @@ class UI {
         )
       }, 1000)
     })
+
+    this.outputInfoPanel = document.querySelector('.outputInfoWrap')! as HTMLDivElement
+
   }
 
-  // 添加下载面板
-  private addDownloadPanel() {
+  // 添加中间主面板
+  private addCenterPanel() {
+    this.centerPanel = document.createElement('div')
     document.body.appendChild(this.centerPanel)
     this.centerPanel.outerHTML = `
       <div class="XZTipEl"></div>
@@ -1769,15 +1778,7 @@ class UI {
       '.pauseDownload'
     )! as HTMLButtonElement
     this.stopBtn = document.querySelector('.stopDownload')! as HTMLButtonElement
-  }
 
-  // 添加 UI
-  public async addUI() {
-    this.loadCss()
-    this.addRightButton()
-    this.addOutPutPanel()
-    this.addDownloadPanel()
-    this.downloadPanelEvents()
   }
 
   // 显示提示
@@ -1923,6 +1924,13 @@ class UI {
       : '▼'
   }
 
+  // 在进度条上显示已下载数量
+  public showDownloaded() {
+    document.querySelector(
+      '.downloaded'
+    )!.textContent = dlCtrl.downloaded.toString()
+  }
+
   // 提示下载状态
   public changeDownStatus(str: string) {
     document.querySelector('.down_status')!.innerHTML = str
@@ -1957,6 +1965,26 @@ class UI {
     download_panel.style.display = str
   }
 
+  // 添加 UI
+  public async addUI() {
+    if(this.uiExists){
+      return
+    }
+    this.addRightButton()
+    this.addOutPutPanel()
+    this.addCenterPanel()
+    this.downloadPanelEvents()
+    this.uiExists = true
+  }
+
+  public destroy() {
+    let uiElements = [this.rightButton,this.centerPanel,this.outputInfoPanel]
+    for (const el of uiElements) {
+      el.parentNode!.removeChild(el)
+    }
+    this.uiExists = false
+  }
+
   // 显示中间区域
   public centerWrapShow() {
     this.centerPanel.style.display = 'block'
@@ -1967,18 +1995,9 @@ class UI {
   public centerWrapHide() {
     this.centerPanel.style.display = 'none'
     this.rightButton.style.display = 'block'
-    const outputInfoWrap = document.querySelector(
-      '.outputInfoWrap'
-    )! as HTMLDivElement
-    outputInfoWrap.style.display = 'none'
+    this.outputInfoPanel.style.display = 'none'
   }
 
-  // 在进度条上显示已下载数量
-  public showDownloaded() {
-    document.querySelector(
-      '.downloaded'
-    )!.textContent = dlCtrl.downloaded.toString()
-  }
 }
 
 // 图片查看器类
@@ -3035,7 +3054,6 @@ class FileName {
 
 // 定义每个页面的抓取流程
 abstract class CrawlPageBase {
-
   /*
   一般流程：
   readyCrawl 准备抓取
@@ -3043,7 +3061,7 @@ abstract class CrawlPageBase {
   getListUrlFinished 获取作品列表完毕
   getIllustData  获取作品信息
    */
-  
+
   public type: number = pageType.getPageType()
 
   public worksSelector: string = '' // tag 搜索页以及新作品页面，直接选择作品的选择器
@@ -3076,7 +3094,7 @@ abstract class CrawlPageBase {
   public wantPage: number = 0 // 要抓取几页
 
   private readonly ajaxThreadsNumberDefault: number = 6 // 抓取页面时的并发连接数
-  
+
   private ajaxThreadsNumber: number = this.ajaxThreadsNumberDefault // 抓取页面时的并发连接数
 
   private ajaxThreadsFinished: number = 0 // 统计有几个并发线程完成所有请求。统计的是并发数（ ajaxThreadsNumber ）而非请求数
@@ -3105,7 +3123,7 @@ abstract class CrawlPageBase {
   public ratioType: string = '0' // 宽高比例的类型
 
   public delWork: boolean = false // 是否处于删除作品状态
-  
+
   // 显示调整后，列表里的作品数量。仅在 tag 搜索页和发现页面中使用
   public outputNowResult() {
     const selector = this.worksSelector
@@ -3117,7 +3135,7 @@ abstract class CrawlPageBase {
   }
 
   // 清除多图作品
-  public clearMultiple(){
+  public clearMultiple() {
     const allPicArea = document.querySelectorAll(this.worksSelector)
     allPicArea.forEach(el => {
       if (el.querySelector(this.multipleSelector)) {
@@ -3128,7 +3146,7 @@ abstract class CrawlPageBase {
   }
 
   // 清除动图作品
-  public ClearUgoira(){
+  public ClearUgoira() {
     const allPicArea = document.querySelectorAll(this.worksSelector)
     allPicArea.forEach(el => {
       if (el.querySelector(this.ugoiraSelector)) {
@@ -3139,74 +3157,73 @@ abstract class CrawlPageBase {
   }
 
   // 手动删除作品
-    public manuallyDelete(delBtn:HTMLButtonElement){
-      this.delWork = !this.delWork
+  public manuallyDelete(delBtn: HTMLButtonElement) {
+    this.delWork = !this.delWork
 
-      // 给作品绑定删除属性
-      const listElement: NodeListOf<HTMLDivElement> = document.querySelectorAll(
-        this.worksSelector
-      )
-      listElement.forEach(el => {
-        el.onclick = e => {
-          e = e || window.event
-          if (this.delWork) {
-            e.preventDefault()
+    // 给作品绑定删除属性
+    const listElement: NodeListOf<HTMLDivElement> = document.querySelectorAll(
+      this.worksSelector
+    )
+    listElement.forEach(el => {
+      el.onclick = e => {
+        e = e || window.event
+        if (this.delWork) {
+          e.preventDefault()
 
-            DOM.removeEl(e.currentTarget as HTMLElement)
-            if (dlCtrl.allowWork) {
-              this.outputNowResult()
-            }
+          DOM.removeEl(e.currentTarget as HTMLElement)
+          if (dlCtrl.allowWork) {
+            this.outputNowResult()
           }
         }
-      })
-
-      if (this.delWork) {
-        delBtn.textContent = lang.transl('_退出手动删除')
-        setTimeout(() => {
-          ui.centerWrapHide()
-        }, 300)
-      } else {
-        delBtn.textContent = lang.transl('_手动删除作品')
       }
+    })
 
+    if (this.delWork) {
+      delBtn.textContent = lang.transl('_退出手动删除')
+      setTimeout(() => {
+        ui.centerWrapHide()
+      }, 300)
+    } else {
+      delBtn.textContent = lang.transl('_手动删除作品')
+    }
   }
 
-    // 在结果中筛选
-    public filterInResults(){
-      const allPicArea = document.querySelectorAll(
-        this.worksSelector
-      )! as NodeListOf<HTMLDivElement>
+  // 在结果中筛选
+  public filterInResults() {
+    const allPicArea = document.querySelectorAll(
+      this.worksSelector
+    )! as NodeListOf<HTMLDivElement>
 
-      let wantFavoriteNumber2 = parseInt(
-        window.prompt(lang.transl('_在结果中筛选弹窗'), '2000')!
-      )
+    let wantFavoriteNumber2 = parseInt(
+      window.prompt(lang.transl('_在结果中筛选弹窗'), '2000')!
+    )
 
-      if (
-        !wantFavoriteNumber2 ||
-        isNaN(Number(wantFavoriteNumber2)) ||
-        ~~Number(wantFavoriteNumber2) <= 0
-      ) {
-        const msg = lang.transl('_checkWantPageRule1Arg2')
-        window.alert(msg)
-        dlCtrl.allowWork = true
-        throw new Error(msg)
-      } else {
-        wantFavoriteNumber2 = ~~Number(wantFavoriteNumber2)
-      }
-
-      allPicArea.forEach(el => {
-        if (
-          parseInt(el.querySelector('._ui-tooltip')!.textContent!) <
-          wantFavoriteNumber2
-        ) {
-          // 必须限制序号0，不然对图片的回应数也会连起来
-          el.style.display = 'none' // 这里把结果中不符合二次过滤隐藏掉，而非删除
-        } else {
-          el.style.display = 'inline-flex'
-        }
-      })
-      this.outputNowResult()
+    if (
+      !wantFavoriteNumber2 ||
+      isNaN(Number(wantFavoriteNumber2)) ||
+      ~~Number(wantFavoriteNumber2) <= 0
+    ) {
+      const msg = lang.transl('_checkWantPageRule1Arg2')
+      window.alert(msg)
+      dlCtrl.allowWork = true
+      throw new Error(msg)
+    } else {
+      wantFavoriteNumber2 = ~~Number(wantFavoriteNumber2)
     }
+
+    allPicArea.forEach(el => {
+      if (
+        parseInt(el.querySelector('._ui-tooltip')!.textContent!) <
+        wantFavoriteNumber2
+      ) {
+        // 必须限制序号0，不然对图片的回应数也会连起来
+        el.style.display = 'none' // 这里把结果中不符合二次过滤隐藏掉，而非删除
+      } else {
+        el.style.display = 'inline-flex'
+      }
+    })
+    this.outputNowResult()
+  }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
   public getWantPage() {}
@@ -3287,14 +3304,13 @@ abstract class CrawlPageBase {
 
     if (store.illustUrlList.length <= this.ajaxThreadsNumber) {
       this.ajaxThreadsNumber = store.illustUrlList.length
-    } else{
+    } else {
       this.ajaxThreadsNumber = this.ajaxThreadsNumberDefault
     }
 
     for (let i = 0; i < this.ajaxThreadsNumber; i++) {
       this.getIllustData()
     }
-
   }
 
   // 当因为网络问题无法获取作品数据时，重试
@@ -3516,7 +3532,7 @@ abstract class CrawlPageBase {
             // 储存下一个要抓取的 id
             store.addIllustUrlList([nextId])
           }
-        } else{
+        } else {
           // 抓取完了指定数量的作品
           this.crawFinished()
           return
@@ -3524,7 +3540,6 @@ abstract class CrawlPageBase {
       }
 
       this.afterGetIllust()
-      
     } catch (error) {
       // 捕获的错误分两种情况
       // 1. 请求成功，有 response.ok 状态，OK 为 false 时 reject，返回的 error 是一个对象，如： {status: 404, statusText: ""}。接下来处理这条错误并处理后续任务。不会再重试这个请求。
@@ -3662,11 +3677,10 @@ abstract class CrawlPageBase {
     log.error(lang.transl('_无权访问2', url), 1)
     // 跳过当前作品，正常抓取
     this.afterGetIllust()
-    
   }
 
   // 每当获取完一个作品的信息
-  private afterGetIllust(){
+  private afterGetIllust() {
     if (store.illustUrlList.length > 0) {
       // 如果存在下一个作品，则
       this.getIllustData()
@@ -3737,7 +3751,7 @@ class CrawlIllustPage extends CrawlPageBase {
     } else {
       // 快速下载，以及向前、向后下载
       store.addIllustUrlList([API.getIllustId(window.location.href)])
-      
+
       // 快速下载时在这里提示一次
       if (dlCtrl.quickDownload) {
         log.log(lang.transl('_开始获取作品页面'))
@@ -3817,7 +3831,7 @@ class CrawlUserPage extends CrawlPageBase {
     }
 
     // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
-    const nowPage = API.getQuery(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
+    const nowPage = API.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
     if (nowPage) {
       this.offset = (parseInt(nowPage) - 1) * onceNumber
     }
@@ -3846,13 +3860,13 @@ class CrawlUserPage extends CrawlPageBase {
       this.listType = 0
     } else if (/member_illust\.php\?.*id=/.test(location.href)) {
       // 作品列表页
-      if (API.getQuery(location.href, 'type') === 'illust') {
+      if (API.getURLSearchField(location.href, 'type') === 'illust') {
         // 插画分类
         this.listType = 1
-      } else if (API.getQuery(location.href, 'type') === 'manga') {
+      } else if (API.getURLSearchField(location.href, 'type') === 'manga') {
         // 漫画分类
         this.listType = 2
-      } else if (API.getQuery(location.href, 'tag')) {
+      } else if (API.getURLSearchField(location.href, 'tag')) {
         // url 里没有标识插画还是漫画，但是有 tag，则是在用户首页点击了 tag，需要同时获取插画和漫画
         this.listType = 4
       }
@@ -3862,7 +3876,7 @@ class CrawlUserPage extends CrawlPageBase {
     }
 
     // 是否带有 tag
-    this.tag = API.getQuery(location.href, 'tag')
+    this.tag = API.getURLSearchField(location.href, 'tag')
     if (this.listType === 3) {
       // 书签页面固定设置为有 tag（虽然有时候并没有带 tag，但数据结构和带 tag 是一样的）
       this.hasTag = true
@@ -3897,13 +3911,13 @@ class CrawlUserPage extends CrawlPageBase {
     } else {
       // 书签页面
       // 在“未分类”页面时，设置 tag
-      if (parseInt(API.getQuery(location.href, 'untagged')) === 1) {
+      if (parseInt(API.getURLSearchField(location.href, 'untagged')) === 1) {
         this.tag = encodeURI('未分類')
       }
 
       // 判断是公开收藏还是非公开收藏
       let hide = false
-      if (API.getQuery(location.href, 'rest') === 'hide') {
+      if (API.getURLSearchField(location.href, 'rest') === 'hide') {
         hide = true
       }
 
@@ -4075,19 +4089,21 @@ class CrawlUserPage extends CrawlPageBase {
 
 // 抓取搜索页
 class CrawlSearchPage extends CrawlPageBase {
-  constructor(){
+  constructor() {
     super()
     this.worksSelector = '.JoCpVnw'
   }
 
-  public displayCover: boolean = true // 是否显示tag搜索页里面的封面图片。如果tag搜索页的图片数量太多，那么加载封面图可能要很久，并且可能因为占用大量带宽导致抓取中断。这种情况下可以将此参数改为false，不加载封面图。
+  private displayCover: boolean = true // 是否显示tag搜索页里面的封面图片。如果tag搜索页的图片数量太多，那么加载封面图可能要很久，并且可能因为占用大量带宽导致抓取中断。这种情况下可以将此参数改为false，不加载封面图。
+
+  private worksWrap = document.querySelector('#root section')
 
   private searchResult: TagSearchResult[] = [] // 储存 tag 搜索页面上符合条件的作品
 
-  public tagPageFinished: number = 0 // 记录 tag 搜索页本次任务已经抓取了多少页
+  private tagPageFinished: number = 0 // 记录 tag 搜索页本次任务已经抓取了多少页
 
   // 因为 tag 搜索页新版的作品不是直接输出到页面里,但我们需要呈现 html ,所以需要模拟生成的元素
-  public tagSearchNewHtml = `
+  private tagSearchNewHtml = `
 <div class="JoCpVnw" data-illust-type="xz_illustType">
 <figure class="mSh0kS-" style="width: 200px; max-height: 288px;">
 <div class="_3IpHIQ_">
@@ -4462,7 +4478,6 @@ class CrawlSearchPage extends CrawlPageBase {
 
 // 抓取地区排行榜页面
 class CrawlAreaRankingPage extends CrawlPageBase {
-
   public getListPage() {
     titleBar.changeTitle('↑')
 
@@ -4980,13 +4995,12 @@ class CrawlNewIllustPage extends CrawlPageBase {
 
 // 抓取发现页面
 class CrawlDiscoverPage extends CrawlPageBase {
-  
-  constructor(){
+  constructor() {
     super()
     this.worksSelector = '.JoCpVnw'
   }
-   
-    public getWantPage() {}
+
+  public getWantPage() {}
 
   public getListPage() {
     titleBar.changeTitle('↑')
@@ -5351,7 +5365,6 @@ class InitSearchPage extends InitPageBase {
     this.crawler.baseUrl = location.href.split('&p=')[0] + '&p='
     this.crawler.startpageNo = DOM.getNowPageNo()
     this.crawler.listPageFinished = 0
-    document.getElementById('js-react-search-mid')!.style.minHeight = 'auto' // 这部分的高度改成 auto 以免搜索时会有空白区域
   }
 
   public appendCenterBtns() {
@@ -5407,10 +5420,19 @@ class InitSearchPage extends InitPageBase {
   }
 
   public appendElseEl() {
+    // 判断插入点的元素有没有加载出来
+    let target = document.evaluate(`//*[@id="root"]/div[1]/div[3]`, document).iterateNext()
+
+    if(!target){
+      console.log(111)
+      setTimeout(()=>{
+        this.appendElseEl()
+      },300)
+      return
+    }
+
     // 添加快速筛选功能
-    const nowTag = document
-      .querySelector('.column-title a')!
-      .textContent!.split(' ')[0]
+    const nowTag = API.getURLSearchField(location.href, 'word').split(' ')[0]
     const favNums = [
       '100users入り',
       '500users入り',
@@ -5422,34 +5444,15 @@ class InitSearchPage extends InitPageBase {
       '30000users入り',
       '50000users入り'
     ] // 200 和 2000 的因为数量太少，不添加。40000 的也少
+
     const fastScreenArea = document.createElement('div')
     fastScreenArea.className = 'fastScreenArea'
-    const insetParent = document.querySelector('._unit')! as HTMLDivElement
-    insetParent.insertBefore(
-      fastScreenArea,
-      insetParent.querySelector('#js-react-search-top')
-    )
-    let searchMode = '' // 判断当前搜索模式，默认的“全部”模式不需要做处理
-
-    if (location.href.includes('&mode=r18')) {
-      searchMode = '&mode=r18'
-    } else if (location.href.includes('&mode=safe')) {
-      searchMode = '&mode=safe'
-    }
-
-    let orderMode = '' // 判断当前排序方式
-
-    if (location.href.includes('&order=date_d')) {
-      // 按最新排序
-      orderMode = '&order=date_d'
-    } else if (location.href.includes('&order=date')) {
-      // 按旧排序
-      orderMode = '&order=date'
-    }
-
     fastScreenArea.innerHTML = favNums.reduce((result, cur) => {
-      return (result += `<a href="https://www.pixiv.net/search.php?s_mode=s_tag${searchMode}${orderMode}&word=${nowTag}%20${cur}">${cur}</a>`)
+      return (result += `<a href="https://www.pixiv.net/search.php?word=${nowTag}%20${cur}">${cur}</a>`)
     }, '')
+
+    ;(target as HTMLDivElement).insertAdjacentElement('beforeend',fastScreenArea)
+
   }
 
   public setSetting() {
@@ -6228,10 +6231,9 @@ class Output {
 }
 
 // 下载器
-// 辅助功能，及一些下载过程中使用的数据
-class Downloader {
+// 辅助功能
+class Support {
   constructor() {
-    API.updateToken()
     this.checkConflict()
     this.supportListenHistory()
     this.listenPageSwitch()
@@ -6335,7 +6337,15 @@ class Downloader {
       window.addEventListener(item, () => {
         // pixiv 的后退使用 replaceState
         // pushState 判断从列表页进入作品页的情况，popstate 判断从作品页退回列表页的情况
-        let type = pageType.getPageType()
+        let type: number
+        try {
+          type = pageType.getPageType()
+          ui.addUI()
+        } catch {
+          ui.destroy()
+          return
+        }
+
         // 获取页面信息
         pageInfo.getPageInfo(type)
 
@@ -6350,19 +6360,22 @@ class Downloader {
         pageType.checkPageTypeIsNew()
       })
     })
-
+    
     // 当新旧页面类型不相同的时候
     pageType.onPageTypeChange = function() {
       // 初始化抓取流程
       new InitCrawlProcess()
 
       // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
-      if (dlCtrl.allowWork) {
-        log.clear()
-      }
+      // if (dlCtrl.allowWork) {
+      //   log.clear()
+      // }
     }
+
   }
 }
+
+API.updateToken()
 
 const lang = new Lang()
 
@@ -6376,6 +6389,10 @@ const log = new Log()
 const ui = new UI()
 
 const pageInfo = new PageInfo(type)
+
+const fileName = new FileName()
+
+const output = new Output()
 
 let setting = new Setting()
 
@@ -6393,10 +6410,6 @@ const dlCtrl = new DownloadControl()
 
 const dlFile = new DownloadFile()
 
-const dl = new Downloader()
-
 new InitCrawlProcess()
 
-const fileName = new FileName()
-
-const output = new Output()
+new Support()
