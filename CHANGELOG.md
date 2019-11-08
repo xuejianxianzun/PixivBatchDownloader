@@ -1,5 +1,27 @@
 # 版本升级日志
 
+## 3.0.1 2019-11-08
+
+- 修复 bug
+
+修复了转换 gif 失败的 bug
+
+修复了用户在自己作品页时，快速收藏出错的问题（因为这种情况不会有收藏按钮）
+
+修复了 pixivision.net 初始化时恢复配置失败的 bug
+
+修复了中间面板的 html 缺少结束标记的问题
+
+- 优化扩展
+
+把 css 加载放在了 content_scripts 里
+
+去掉了 background.ts 里设置 referer 的部分，经过测试发现它现在没有必要了
+
+给 package.json 添加了 key，这样如果扩展有多个拷贝，加载之后只会在扩展管理里显示最新的那个，而不是每次加载都生成一个扩展。
+
+感谢 **Reinford** 的帮助！
+
 ## 3.0.0 2019-11-08
 
 - 重构代码
@@ -18,6 +40,8 @@
 
 获取大家的新作品页面改版
 delete listIsNewMode 
+
+单例模式
 
 reTryGetIllustData
 responseError
