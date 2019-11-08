@@ -455,7 +455,6 @@ interface XzForm extends HTMLFormElement {
   pageInfoSelect: HTMLSelectElement
   fileNameSelect: HTMLSelectElement
   tagNameToFileName: HTMLInputElement
-  displayCover: HTMLInputElement
 }
 
 // xzSetting
@@ -465,7 +464,6 @@ interface XzSetting {
   ugoiraSaveAs: 'webm' | 'gif' | 'zip'
   needTag: string
   notNeedTag: string
-  displayCover: boolean
   quietDownload: boolean
   downloadThread: number
   userSetName: string
@@ -655,4 +653,41 @@ interface RankingData {
 // 收藏后的相似作品数据
 interface RecommenderData {
   recommendations: number[]
+}
+
+// 搜索页的数据格式，body 里没有使用的部分就删除了
+interface SearchData {
+  error: boolean
+  body: Record<
+    'illustManga' | 'manga' | 'illust',
+    {
+      data: {
+        illustId: string
+        illustTitle: string
+        id: string
+        title: string
+        illustType: number
+        xRestrict: number
+        restrict: number
+        sl: number
+        url: string
+        description: string
+        tags: string[]
+        userId: string
+        userName: string
+        width: number
+        height: number
+        pageCount: number
+        isBookmarkable: boolean
+        bookmarkData: null | {
+          id: string
+          private: boolean
+        }
+        alt: string
+        isAdContainer: boolean
+        profileImageUrl: string
+      }[]
+      total: number
+    }
+  >
 }

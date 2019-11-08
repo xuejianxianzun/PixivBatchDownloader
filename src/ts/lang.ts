@@ -211,12 +211,6 @@ const xzLang = {
     'download all the work from this page.',
     '向下取得所有作品'
   ],
-  _checkWantPageRule1Arg5: [
-    '从本页开始下载<br>如果不限制下载的页数，请不要修改此默认值。<br>如果要限制下载的页数，请输入从1开始的数字，1为仅下载本页。',
-    'このページからダウンロードする<br>ダウンロードしたページ数を制限しない場合は、デフォルト値のままにしておきます。<br>ダウンロードするページ数を設定する場合は、1から始まる番号を入力します。 現在のページは1です。',
-    'Download from this page<br>If you do not limit the number of pages downloaded, leave the default value.<br>If you want to set the number of pages to download, type a number starting at 1. This page is 1.',
-    '從本頁開始下載<br>如果不限制下載的頁數，請不要變更此預設值。<br>如果要限制下載的頁數，請輸入從1開始的數字，1為僅下載本頁。'
-  ],
   _checkWantPageRule1Arg8: [
     '从本页开始下载<br>如果要限制下载的页数，请输入从1开始的数字，1为仅下载本页。',
     'このページからダウンロードする<br>ダウンロードするページ数を設定する場合は、1から始まる番号を入力します。 現在のページは1です。',
@@ -340,34 +334,16 @@ const xzLang = {
   _gif: ['GIF 图片', 'GIF 画像', 'GIF picture', 'GIF 圖片'],
   _zipFile: ['Zip 文件', 'ZIP ファイル', 'Zip file', 'Zip 檔案'],
   _tag搜索页已抓取多少页: [
-    '已抓取本次任务第{}/{}页，当前加载到第{}页',
-    '{}/{}ページをクロールしています。 現在のページ番号は{}ページです',
-    'Has been crawling {} / {} pages. The current page number is page {}',
-    '已擷取本次工作第{}/{}頁，目前載入到第{}頁'
+    '已抓取本次任务第{}/{}页',
+    '{}/{}ページをクロールしています。',
+    'Has been crawling {} / {} pages.',
+    '已擷取本次工作第{}/{}頁'
   ],
   _当前作品张数: [
     '当前有{}个作品。',
     '今は{}枚の作品があります。',
     'There are now {} works.',
     '目前有個{}作品。'
-  ],
-  _tag搜索页任务完成1: [
-    '本次任务完成。',
-    'この作業は完了です。',
-    'This task is completed.',
-    '本次工作完成。'
-  ],
-  _tag搜索页任务完成2: [
-    '已抓取本tag的所有页面，本次任务完成。',
-    'この作業は完了です。',
-    'This task is completed.',
-    '已擷取本tag的所有頁面，本次工作完成。'
-  ],
-  _tag搜索页中断: [
-    '当前任务已中断!',
-    '現在のタスクが中断されました。',
-    'The current task has been interrupted.',
-    '目前工作已中斷!'
   ],
   _排行榜进度: [
     '已抓取本页面第{}部分',
@@ -392,6 +368,12 @@ const xzLang = {
     '{}のリストページを取得しました',
     'Has acquired {} list pages',
     '已擷取清單頁{}個頁面'
+  ],
+  _搜索页已抓取所有页面: [
+    '已抓取本 tag 的所有页面，开始获取图片网址',
+    '現在tagの全ページを取得している、画像URLの取得が開始されます',
+    'Gets all pages of the current tag, starts to get the image URL',
+    '已擷取本 tag 的所有頁面，開始取得圖片網址'
   ],
   _列表页抓取完成: [
     '列表页面抓取完成，开始获取图片网址',
@@ -775,36 +757,6 @@ const xzLang = {
     'The adjustment is complete and now has {} works.',
     '調整完畢，目前有{}個作品。'
   ],
-  _开始筛选: [
-    '开始筛选',
-    'スクリーニングを開始',
-    'Start screening',
-    '開始篩選'
-  ],
-  _开始筛选Title: [
-    '按照设定来筛选当前tag里的作品。如果多次筛选，页码会一直累加。',
-    '現在のタグで作品をフィルタリングする。複数回フィルタリングすると、ページ番号は常に累積されます。',
-    'Filter the work in the current tag. If you filter multiple times, the page number will increase.',
-    '按照設定來篩選當前tag裡的作品。如果多次篩選，頁碼會一直累加。'
-  ],
-  _在结果中筛选: [
-    '在结果中筛选',
-    '結果のフィルタリング',
-    'Filter in results',
-    '在結果中篩選'
-  ],
-  _在结果中筛选Title: [
-    '如果本页筛选后作品太多，可以提高收藏数的要求，在结果中筛选。达不到要求的会被隐藏而不是删除。所以您可以反复进行筛选。被隐藏的项目不会被下载。',
-    'あなたは何度も選別することができて、要求の作品が隠されて、それからダウンロードされません。',
-    'You can make multiple screening , fail to meet the required works will be hidden, and will not be downloaded.',
-    '如果本頁篩選後作品太多，可以提高收藏數的要求，在結果中篩選。達不到要求的會被隱藏而不是刪除。所以您可以反覆進行篩選。被隱藏的項目不會被下載。'
-  ],
-  _在结果中筛选弹窗: [
-    '将在当前作品列表中再次过滤，请输入要求的最低收藏数: ',
-    '現在の作品リストで再度フィルタリングされます。要求された作品の最小数を入力してください',
-    'Will be filtered again in the current list of works. Please type the required minimum number of bookmarks:',
-    '將在目前作品清單中再次篩選，請輸入要求的最低收藏數:'
-  ],
   _抓取当前作品: [
     '抓取当前作品',
     '現在の作品をクロールする',
@@ -816,24 +768,6 @@ const xzLang = {
     '現在のリスト内のすべての作品をクロールする',
     'Crawl all the works in the current list',
     '擷取目前清單裡的所有作品'
-  ],
-  _中断当前任务: [
-    '中断当前任务',
-    '現在のタスクを中断する',
-    'Interrupt the current task',
-    '中斷目前工作'
-  ],
-  _中断当前任务Title: [
-    '筛选时中断之后可以继续执行。',
-    'ふるい分け作品で中断され、その後引き続き実行可能です。',
-    'In the screening works when the break, then you can continue to perform.',
-    '篩選時中斷之後可以繼續執行。'
-  ],
-  _当前任务已中断: [
-    '当前任务已中断!',
-    '現在のタスクが中断されました',
-    'The current task has been interrupted',
-    '目前工作已中斷!'
   ],
   _清除多图作品: [
     '清除多图作品',
@@ -975,19 +909,6 @@ const xzLang = {
     'クイックブックマーク',
     'Quick bookmarks',
     '快速收藏'
-  ],
-  _显示: ['显示', '表示', 'display', '顯示'],
-  _是否显示封面: [
-    '是否显示封面',
-    'カバーを表示するかどうか',
-    'Whether to display the cover',
-    '是否顯示封面'
-  ],
-  _显示封面的提示: [
-    '如果搜索结果数量很多，封面图数量也会很多。如果加载大量的封面图，会占用很多网络资源，也可能导致任务异常中断。如果遇到了这种情况，取消选中这个按钮。',
-    '検索結果の数が多い場合は、表紙画像の数が多くなります。 大量の表紙画像を読み込むと、ネットワークリソースが膨大になり、異常なタスクの中断を引き起こす可能性があります。 このような場合は、このボタンのチェックを外す。',
-    'If the number of search results is large, the number of cover images will be many. If you load a large number of cover images, it will take up a lot of network resources, and it may cause abnormal interruption of tasks. If this happens, uncheck the button.',
-    '如果搜尋結果數量很多，封面圖數量也會很多。如果載入大量的封面圖，會占用很多網路資源，也可能導致工作異常中斷。如果遇到了這種情況，取消選取這個按鈕。'
   ],
   _启用: ['启用', '有効にする', 'Enable', '啟用'],
   _是否自动下载: [
