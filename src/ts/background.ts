@@ -1,30 +1,3 @@
-// 设置 referer
-chrome.webRequest.onBeforeSendHeaders.addListener(
-  function(details) {
-    let setReferer = false
-    for (let i = 0; i < details.requestHeaders!.length; ++i) {
-      if (details.requestHeaders![i].name === 'Referer') {
-        setReferer = true
-        details.requestHeaders![i].value = 'https://www.pixiv.net'
-        break
-      }
-    }
-    if (!setReferer) {
-      details.requestHeaders!.push({
-        name: 'Referer',
-        value: 'https://www.pixiv.net'
-      })
-    }
-    return {
-      requestHeaders: details.requestHeaders
-    }
-  },
-  {
-    urls: ['*://*.pixiv.net/*', '*://*.pximg.net/*']
-  },
-  ['blocking', 'requestHeaders']
-)
-
 // 当点击扩展图标时，切换显示/隐藏下载面板
 chrome.browserAction.onClicked.addListener(function(tab) {
   // 打开下载面板

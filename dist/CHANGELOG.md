@@ -1,5 +1,10 @@
 # 版本升级日志
 
+## 3.0.1 2019-11-08
+
+- 修复 bug
+- 优化代码
+
 ## 3.0.0 2019-11-08
 
 - 重构代码
@@ -18,6 +23,8 @@
 
 获取大家的新作品页面改版
 delete listIsNewMode 
+
+单例模式
 
 reTryGetIllustData
 responseError

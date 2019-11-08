@@ -760,12 +760,15 @@ newindex-inner 是在未登录时的用户作品列表页面使用的
 layout-body 是在未登录时的 tag 搜索页使用的
 */
   static insertToHead(el: Element) {
-    ;(
-      document.querySelector('body') ||
-      document.querySelector('header')! ||
-      document.querySelector('.newindex-inner')! ||
-      document.querySelector('.layout-body')!
-    ).insertAdjacentElement('beforebegin', el)
+    if (document.body) {
+      document.body.insertAdjacentElement('afterbegin', el)
+    } else {
+      ;(
+        document.querySelector('header')! ||
+        document.querySelector('.newindex-inner')! ||
+        document.querySelector('.layout-body')!
+      ).insertAdjacentElement('beforebegin', el)
+    }
   }
 
   // 获取用户 id
@@ -1180,7 +1183,9 @@ class InitSetting {
     ui.toggleOptionArea(this.needSaveOpts.showOptions)
 
     // 设置作品张数
-    ui.form.imgNumberPerWork.value = this.needSaveOpts.imgNumberPerWork.toString()
+    ui.form.imgNumberPerWork.value = (
+      this.needSaveOpts.imgNumberPerWork | 0
+    ).toString()
 
     // 设置排除类型
     for (let index = 0; index < this.notdownTypeName.length; index++) {
@@ -1338,7 +1343,6 @@ class UI {
   constructor() {
     // 只执行一次，不可被外部调用
     this.listenClickIcon()
-    this.loadCss()
     // 可以反复执行
     this.addUI()
   }
@@ -1370,25 +1374,6 @@ class UI {
         }
       }
     })
-  }
-
-  // 添加 css 样式
-  private async loadCss() {
-    // css 需要时间来加载，下载器的界面会先显示出来。所以这里先加载一段 css，隐藏界面。
-    const preCss = `
-    #rightButton,#quick_down_btn,.outputInfoWrap,.XZTipEl,.centerWrap,#down_id_input{
-      display:none;
-    }`
-    DOM.insertCSS(preCss)
-
-    // 加载本程序的样式
-    // 加载 viewerjs 的样式
-    let fileList = ['style/style.css', 'style/viewer.min.css']
-    for (const fileName of fileList) {
-      const file = await fetch(chrome.extension.getURL(fileName))
-      const cssText = await file.text()
-      DOM.insertCSS(cssText)
-    }
   }
 
   // 添加右侧下载按钮
@@ -1783,6 +1768,7 @@ class UI {
       <span id="resetOption">${lang.transl('_重置设置')}</span>
       </p>
       <p class="downTip tip"> ${lang.transl('_下载说明')}</p>
+      </div>
       </div>
       `
     this.centerPanel = document.querySelector('.centerWrap')! as HTMLDivElement
@@ -2349,6 +2335,12 @@ class QuickBookmark {
         toolbar.insertBefore(this.quickBookmarkEl, toolbar.childNodes[3])
         // 隐藏原来的收藏按钮并检测收藏状态
         const orgIcon = toolbar.childNodes[2] as HTMLDivElement
+
+        if (!orgIcon) {
+          // 当用户处于自己作品的页面时，没有收藏按钮
+          return
+        }
+
         orgIcon.style.display = 'none'
         const heart = orgIcon.querySelector('svg')!
         if (window.getComputedStyle(heart)['fill'] === 'rgb(255, 64, 96)') {
@@ -4902,7 +4894,7 @@ class InitIndexPage extends InitPageBase {
           // 检查 id
           const tempSet = new Set(this.downIdInput.value.split('\n'))
           const idValue = Array.from(tempSet)
-          idValue.forEach(id => {
+          for (const id of idValue) {
             // 如果有 id 不是数字，或者处于非法区间，中止任务
             const nowId = parseInt(id)
             if (isNaN(nowId) || nowId < 22 || nowId > 99999999) {
@@ -4911,7 +4903,7 @@ class InitIndexPage extends InitPageBase {
             } else {
               store.addWorksURL([nowId.toString()])
             }
-          })
+          }
 
           this.crawler.readyCrawl()
         }
@@ -5763,7 +5755,7 @@ class DownloadFile {
 
         // 如果需要转换成动图
         if (thisImgInfo!.ext === 'gif') {
-          file = await new ConvertUgoira().gif(file, thisImgInfo!.ugoiraInfo)
+          file = await convert.gif(file, thisImgInfo!.ugoiraInfo)
         }
       } else {
         // 不需要转换
