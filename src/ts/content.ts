@@ -130,6 +130,7 @@ class API {
   }
 
   // 从 url 中获取指定的查询字段的值
+  // 注意这里进行了一次编码，所以不要对这个 API 的结果再次进行编码
   static getURLField(url: string, query: string) {
     const result = new URL(url).searchParams.get(query)
     if (result !== null) {
@@ -3851,7 +3852,7 @@ class CrawlUserPage extends CrawlPageBase {
     }
 
     // 是否带有 tag
-    this.tag = API.getURLField(location.href, 'tag')
+    this.tag = decodeURI(API.getURLField(location.href, 'tag'))
     if (this.listType === 3) {
       // 书签页面固定设置为有 tag（虽然有时候并没有带 tag，但数据结构和带 tag 是一样的）
       this.hasTag = true
@@ -3887,7 +3888,7 @@ class CrawlUserPage extends CrawlPageBase {
       // 书签页面
       // 在“未分类”页面时，设置 tag
       if (parseInt(API.getURLField(location.href, 'untagged')) === 1) {
-        this.tag = encodeURI('未分類')
+        this.tag = '未分類'
       }
 
       // 判断是公开收藏还是非公开收藏
