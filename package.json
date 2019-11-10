@@ -1,6 +1,6 @@
 {
   "name": "pixiv-batch-downloader",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Pixiv Batch Downloader. fast, powerful, and make your browsing experience better.",
   "repository": "https://github.com/xuejianxianzun/PixivBatchDownloader",
   "author": "xuejianxianzun",
@@ -10,7 +10,6 @@
     "lessc": "lessc -x ./src/style/style.less ./dist/style/style.css",
     "build": "tsc && npm run lessc && npm run fmt && node ./build.js"
   },
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAnHs4JDaVEI2KCX6PVE6VKGevkdBuhcN+LOPnI+bJqolsKzqR0Nya365TCvRF0PznMwdo/MtJff58X+Sti1POCDAv3iviSOFtEFTsy5DmOuCSXVG6zF1Ty0hythw4VM3gEOvHHyNbygdzfSWySt1L5Y/SBVvtaXi2ib1Msv4MbIeAMaNO7cwEFdJChNg4EgWsTZ7596lotOdQjv81pDwBaGOyNV6x5jtDDZY1dLr9By9qpZjFqo1Vhf7oErFs0ga/ehF1bG4Hpq9vYhWy52rAV/3DNU7O/bKCupjJw5HuJObeNKruBZu6O0OamOUSIpJwrfu1Wd1GUBpRezmgODRqfQIDAQAB",
   "devDependencies": {
     "@types/chrome": "0.0.88",
     "archiver": "^3.1.1",
