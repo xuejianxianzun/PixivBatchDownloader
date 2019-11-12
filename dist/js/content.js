@@ -426,6 +426,29 @@ class API {
         })
     })
   }
+  // 获取大家的新作品的数据
+  // 因为参数比较复杂，所以直接传入了完整的 url，没有设置参数
+  static getNewIllustData(url) {
+    return new Promise((resolve, reject) => {
+      fetch(url, {
+        method: 'get',
+        credentials: 'same-origin'
+      })
+        .then(response => {
+          if (response.ok) {
+            return response.json()
+          } else {
+            throw new Error(response.status.toString())
+          }
+        })
+        .then(data => {
+          resolve(data)
+        })
+        .catch(error => {
+          reject(error)
+        })
+    })
+  }
 }
 // 页面类型
 class PageType {
@@ -474,18 +497,22 @@ class PageType {
     ) {
       type = 8
     } else if (
-      url.includes('bookmark_add.php?id=') ||
-      url.includes('bookmark_detail.php?illust_id=')
+      url.includes('/bookmark_add.php?id=') ||
+      url.includes('/bookmark_detail.php?illust_id=')
     ) {
       type = 9
     } else if (
-      url.includes('bookmark_new_illust') ||
-      url.includes('new_illust.php') ||
-      url.includes('new_illust_r18.php')
+      url.includes('/bookmark_new_illust.php') ||
+      url.includes('/bookmark_new_illust_r18.php')
     ) {
       type = 10
     } else if (window.location.pathname === '/discovery') {
       type = 11
+    } else if (
+      url.includes('/new_illust.php') ||
+      url.includes('/new_illust_r18.php')
+    ) {
+      type = 12
     } else {
       // 没有匹配到可用的页面类型
       throw new Error('Page type matching failed')
@@ -862,7 +889,7 @@ class Setting {
         }
       }
       // 如果全部匹配
-      if (tagNeedMatched >= needTag.length) {
+      if (tagNeedMatched >= tempArr.length) {
         result = true
       }
     } else {
@@ -2706,6 +2733,7 @@ class CrawlPageBase {
     this.startpageNo = 1 // 列表页开始抓取时的页码
     this.baseUrl = '' // 列表页url规则
     this.listPageFinished = 0 // 记录一共抓取了多少列表页
+    this.maxCount = 1000 // 最多有多少页
     this.downDirection = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品
     /*
         -1 抓取新作品
@@ -2715,7 +2743,7 @@ class CrawlPageBase {
     this.downRelated = false // 是否下载相关作品（作品页内的）
     this.downRecommended = false // 是否下载推荐作品（收藏页面下方）
     this.debut = false // 只下载首次登场的作品
-    this.wantPage = 0 // 要抓取几页
+    this.fetchNumber = 0 // 要抓取几页
     this.ajaxThreadsNumberDefault = 6 // 抓取页面时的并发连接数
     this.ajaxThreadsNumber = this.ajaxThreadsNumberDefault // 抓取页面时的并发连接数
     this.ajaxThreadsFinished = 0 // 统计有几个并发线程完成所有请求。统计的是并发数（ ajaxThreadsNumber ）而非请求数
@@ -2734,61 +2762,6 @@ class CrawlPageBase {
     }
     this.ratioType = '0' // 宽高比例的类型
     this.delWork = false // 是否处于删除作品状态
-  }
-  // 显示调整后，列表里的作品数量。仅在 tag 搜索页和发现页面中使用
-  outputNowResult() {
-    const selector = this.worksSelector
-    log.success(
-      lang.transl('_调整完毕', DOM.getVisibleEl(selector).length.toString()),
-      2,
-      false
-    )
-  }
-  // 清除多图作品
-  clearMultiple() {
-    const allPicArea = document.querySelectorAll(this.worksSelector)
-    allPicArea.forEach(el => {
-      if (el.querySelector(this.multipleSelector)) {
-        el.remove()
-      }
-    })
-    this.outputNowResult()
-  }
-  // 清除动图作品
-  ClearUgoira() {
-    const allPicArea = document.querySelectorAll(this.worksSelector)
-    allPicArea.forEach(el => {
-      if (el.querySelector(this.ugoiraSelector)) {
-        el.remove()
-      }
-    })
-    this.outputNowResult()
-  }
-  // 手动删除作品
-  manuallyDelete(delBtn) {
-    this.delWork = !this.delWork
-    // 给作品绑定删除属性
-    const listElement = document.querySelectorAll(this.worksSelector)
-    listElement.forEach(el => {
-      el.onclick = e => {
-        e = e || window.event
-        if (this.delWork) {
-          e.preventDefault()
-          DOM.removeEl(e.currentTarget)
-          if (dlCtrl.allowWork) {
-            this.outputNowResult()
-          }
-        }
-      }
-    })
-    if (this.delWork) {
-      delBtn.textContent = lang.transl('_退出手动删除')
-      setTimeout(() => {
-        ui.centerWrapHide()
-      }, 300)
-    } else {
-      delBtn.textContent = lang.transl('_手动删除作品')
-    }
   }
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
   getWantPage() {}
@@ -2856,7 +2829,7 @@ class CrawlPageBase {
     if (store.illustUrlList.length === 0) {
       return this.noResult()
     }
-    if (store.illustUrlList.length <= this.ajaxThreadsNumber) {
+    if (store.illustUrlList.length <= this.ajaxThreadsNumberDefault) {
       this.ajaxThreadsNumber = store.illustUrlList.length
     } else {
       this.ajaxThreadsNumber = this.ajaxThreadsNumberDefault
@@ -3027,12 +3000,12 @@ class CrawlPageBase {
           this.outputImgNum()
         }
       }
-      // 在作品页内下载时，设置的 wantPage 其实是作品数。每次获取完一个作品的信息后，还要从这个信息里获取下一个要抓取的 id
+      // 在作品页内下载时，每次获取完一个作品的信息后，还要从这个信息里获取下一个要抓取的 id
       if (this.type === 1 && !this.downRelated) {
-        if (this.wantPage > 0) {
-          this.wantPage--
+        if (this.fetchNumber > 0) {
+          this.fetchNumber--
         }
-        if (this.wantPage === -1 || this.wantPage > 0) {
+        if (this.fetchNumber === -1 || this.fetchNumber > 0) {
           // 应该继续下载时，检查是否有下一个作品
           const userIllust = jsInfo.userIllusts
           let nextId
@@ -3156,10 +3129,9 @@ class CrawlPageBase {
     // 处理需要中断抓取的情况
     if (type === 1 && !this.downRelated) {
       log.error(lang.transl('_无权访问1', url), 2)
-      if (this.wantPage > 0) {
-        this.wantPage--
+      if (this.fetchNumber > 0) {
+        this.fetchNumber--
       }
-      // 在作品页内下载时，设置的wantPage其实是作品数
       // 在作品页内下载时，如果出现了无法访问的作品时，就获取不到接下来的作品了，直接结束。
       this.crawFinished()
       return
@@ -3195,6 +3167,61 @@ class CrawlPageBase {
     ui.centerWrapHide()
     output.reset()
   }
+  // 显示调整后，列表里的作品数量。仅在 tag 搜索页和发现页面中使用
+  outputNowResult() {
+    const selector = this.worksSelector
+    log.success(
+      lang.transl('_调整完毕', DOM.getVisibleEl(selector).length.toString()),
+      2,
+      false
+    )
+  }
+  // 清除多图作品
+  clearMultiple() {
+    const allPicArea = document.querySelectorAll(this.worksSelector)
+    allPicArea.forEach(el => {
+      if (el.querySelector(this.multipleSelector)) {
+        el.remove()
+      }
+    })
+    this.outputNowResult()
+  }
+  // 清除动图作品
+  ClearUgoira() {
+    const allPicArea = document.querySelectorAll(this.worksSelector)
+    allPicArea.forEach(el => {
+      if (el.querySelector(this.ugoiraSelector)) {
+        el.remove()
+      }
+    })
+    this.outputNowResult()
+  }
+  // 手动删除作品
+  manuallyDelete(delBtn) {
+    this.delWork = !this.delWork
+    // 给作品绑定删除属性
+    const listElement = document.querySelectorAll(this.worksSelector)
+    listElement.forEach(el => {
+      el.onclick = e => {
+        e = e || window.event
+        if (this.delWork) {
+          e.preventDefault()
+          DOM.removeEl(e.currentTarget)
+          if (dlCtrl.allowWork) {
+            this.outputNowResult()
+          }
+        }
+      }
+    })
+    if (this.delWork) {
+      delBtn.textContent = lang.transl('_退出手动删除')
+      setTimeout(() => {
+        ui.centerWrapHide()
+      }, 300)
+    } else {
+      delBtn.textContent = lang.transl('_手动删除作品')
+    }
+  }
 }
 // 抓取首页
 class CrawlIndexPage extends CrawlPageBase {
@@ -3211,17 +3238,17 @@ class CrawlIllustPage extends CrawlPageBase {
   getWantPage() {
     if (dlCtrl.quickDownload) {
       // 快速下载
-      this.wantPage = 1
+      this.fetchNumber = 1
     } else {
       // 检查下载页数的设置
       if (!this.downRelated) {
-        this.wantPage = setting.checkWantPageInput(
+        this.fetchNumber = setting.checkWantPageInput(
           lang.transl('_checkWantPageRule1Arg3'),
           lang.transl('_checkWantPageRule1Arg4')
         )
       } else {
         // 相关作品的提示
-        this.wantPage = setting.checkWantPageInput(
+        this.fetchNumber = setting.checkWantPageInput(
           lang.transl('_checkWantPageRule1Arg9'),
           lang.transl('_checkWantPageRule1Arg10')
         )
@@ -3249,9 +3276,9 @@ class CrawlIllustPage extends CrawlPageBase {
     const recommendData = data.body.recommendMethods
     // 取出相关作品的 id 列表
     let recommendIdList = Object.keys(recommendData)
-    // wantPage 可能是 -1 或者大于 0 的数字。当设置了下载个数时，进行裁剪
-    if (this.wantPage !== -1) {
-      recommendIdList = recommendIdList.reverse().slice(0, this.wantPage)
+    // 当设置了下载个数时，进行裁剪
+    if (this.fetchNumber !== -1) {
+      recommendIdList = recommendIdList.reverse().slice(0, this.fetchNumber)
     }
     // 拼接作品的url
     store.addWorksURL(recommendIdList)
@@ -3277,7 +3304,7 @@ class CrawlUserPage extends CrawlPageBase {
     if (this.downRecommended) {
       pageTip = lang.transl('_checkWantPageRule1Arg11')
     }
-    this.wantPage = setting.checkWantPageInput(
+    this.fetchNumber = setting.checkWantPageInput(
       lang.transl('_checkWantPageRule1Arg6'),
       pageTip
     )
@@ -3312,10 +3339,10 @@ class CrawlUserPage extends CrawlPageBase {
     }
     // 根据页数设置，计算要下载的个数
     this.requsetNumber = 0
-    if (this.wantPage === -1) {
+    if (this.fetchNumber === -1) {
       this.requsetNumber = 9999999
     } else {
-      this.requsetNumber = onceNumber * this.wantPage
+      this.requsetNumber = onceNumber * this.fetchNumber
     }
     // 设置列表页面的类型
     // listType:
@@ -3389,7 +3416,7 @@ class CrawlUserPage extends CrawlPageBase {
     }
     titleBar.changeTitle('↑')
     log.log(lang.transl('_正在抓取'))
-    if (this.listType === 3 && this.wantPage === -1) {
+    if (this.listType === 3 && this.fetchNumber === -1) {
       log.log(lang.transl('_获取全部书签作品'))
     }
   }
@@ -3524,12 +3551,12 @@ class CrawlUserPage extends CrawlPageBase {
 // 抓取搜索页
 class CrawlSearchPage extends CrawlPageBase {
   getWantPage() {
-    this.wantPage = setting.checkWantPageInput(
+    this.fetchNumber = setting.checkWantPageInput(
       lang.transl('_checkWantPageRule1Arg6'),
       lang.transl('_checkWantPageRule1Arg7')
     )
-    if (this.wantPage === -1 || this.wantPage > 1000) {
-      this.wantPage = 1000
+    if (this.fetchNumber === -1 || this.fetchNumber > this.maxCount) {
+      this.fetchNumber = this.maxCount
     }
   }
   nextStep() {
@@ -3644,7 +3671,7 @@ class CrawlSearchPage extends CrawlPageBase {
       false
     )
     if (
-      this.listPageFinished === this.wantPage ||
+      this.listPageFinished === this.fetchNumber ||
       this.startpageNo + this.listPageFinished === 1000
     ) {
       log.log(lang.transl('_列表页抓取完成'))
@@ -3714,13 +3741,13 @@ class CrawlRankingPage extends CrawlPageBase {
   getWantPage() {
     this.listPageFinished = 0
     // 检查下载页数的设置
-    this.wantPage = setting.checkWantPageInput(
+    this.fetchNumber = setting.checkWantPageInput(
       lang.transl('_checkWantPageRule1Arg12'),
       lang.transl('_checkWantPageRule1Arg4')
     )
     // 如果设置的作品个数是 -1，则设置为下载所有作品
-    if (this.wantPage === -1) {
-      this.wantPage = 500
+    if (this.fetchNumber === -1) {
+      this.fetchNumber = 500
     }
   }
   async getListPage() {
@@ -3735,7 +3762,7 @@ class CrawlRankingPage extends CrawlPageBase {
       const contents = data.contents // 取出作品信息列表
       for (const data of contents) {
         // 不是下载首次登场作品时，会检查设置的下载数量。下载首次登场作品时不检查。
-        if (!this.debut && data.rank > this.wantPage) {
+        if (!this.debut && data.rank > this.fetchNumber) {
           complete = true
           break
         }
@@ -3925,16 +3952,16 @@ class CrawlPixivisionPage extends CrawlPageBase {
 }
 // 抓取 bookmark_detail 页面
 class CrawlBookmarkDetailPage extends CrawlPageBase {
-  getWantPage() {}
+  getWantPage() {
+    this.fetchNumber = setting.getWantPageGreater0()
+    if (this.fetchNumber > this.maxCount) {
+      this.fetchNumber = this.maxCount
+    }
+  }
   // 获取相似的作品列表
   async getListPage() {
-    const maxNum = 500 // 设置最大允许获取多少个作品。相似作品的这个数字是可以改的，可以比 500 更大，这里只是一个预设值。
-    this.wantPage = setting.getWantPageGreater0()
-    if (this.wantPage > maxNum) {
-      this.wantPage = maxNum
-    }
     titleBar.changeTitle('↑')
-    let data = await API.getRecommenderData(API.getIllustId(), this.wantPage)
+    let data = await API.getRecommenderData(API.getIllustId(), this.fetchNumber)
     const illustList = []
     for (const id of data.recommendations) {
       illustList.push(id.toString())
@@ -3946,25 +3973,15 @@ class CrawlBookmarkDetailPage extends CrawlPageBase {
     this.getListUrlFinished()
   }
 }
-// 抓取 关注的人的新作品 以及 大家的新作品页面
-class CrawlNewIllustPage extends CrawlPageBase {
-  constructor() {
-    super(...arguments)
-    this.listIsNewMode = false
-    this.dataSelector = '#js-mount-point-latest-following'
-  }
+// 抓取 关注的新作品
+class CrawlBookmarkNewIllustPage extends CrawlPageBase {
   getWantPage() {
+    this.fetchNumber = setting.getWantPageGreater0()
+    if (this.fetchNumber > this.maxCount) {
+      this.fetchNumber = this.maxCount
+    }
     this.listPageFinished = 0
-    this.wantPage = setting.getWantPageGreater0()
-    if (this.wantPage) {
-      log.warning(lang.transl('_任务开始1', this.wantPage.toString()))
-    }
-  }
-  nextStep() {
-    if (location.href.includes('/bookmark_new_illust')) {
-      this.listIsNewMode = true
-    }
-    this.getListPage()
+    log.warning(lang.transl('_任务开始1', this.fetchNumber.toString()))
   }
   getListPage() {
     titleBar.changeTitle('↑')
@@ -3979,86 +3996,45 @@ class CrawlNewIllustPage extends CrawlPageBase {
         }
       })
       .then(data => {
-        this.listPageFinished++
         let listPageDocument = new window.DOMParser().parseFromString(
           data,
           'text/html'
         )
-        // 不要把下一行的 if 和上一行的 else 合并
-        if (this.type === 10 && this.listIsNewMode === true) {
-          // 关注的新作品 列表改成和 tag 搜索页一样的了
-          let thisOneInfo = listPageDocument.querySelector(this.dataSelector)
-            .dataset.items
-          // 保存本页的作品信息
-          let thisOneData = JSON.parse(thisOneInfo)
-          for (const data of thisOneData) {
-            // 检查收藏设置
-            // 关注的新作品页面里的 bookmarkCount 都是 0. 这可能是因为该页面不需要展示收藏数，所以就直接设置为 0 了。所以目前这里不能判断收藏数
-            // const bookmarkCount = data.bookmarkCount
-            // if (bookmarkCount < filterBmk) {
-            //   continue
-            // }
-            // 检查宽高设置和宽高比设置
-            const tureWidth = data.width
-            const tureHeight = data.height
-            if (
-              !setting.checkSetWh(tureWidth, tureHeight, this.filterWh) ||
-              !setting.checkRatio(tureWidth, tureHeight, this.ratioType)
-            ) {
-              continue
-            }
-            // 检查只下载书签作品的设置
-            if (
-              !setting.checkOnlyDownBmk(data.isBookmarked, this.onlyDownBmk)
-            ) {
-              continue
-            }
-            // 检查排除类型的设置
-            if (this.notdownType.includes(data.illustType)) {
-              continue
-            }
-            // 检查排除的 tag 的设置
-            if (setting.checkNotNeedTag(data.tags, this.notNeedTag)) {
-              continue
-            }
-            // 检查必须包含的 tag  的设置
-            if (!setting.checkNeedTag(data.tags, this.needTag)) {
-              continue
-            }
-            store.addWorksURL([data.illustId])
+        let worksInfoText = listPageDocument.querySelector(
+          '#js-mount-point-latest-following'
+        ).dataset.items
+        // 保存本页的作品信息
+        let worksData = JSON.parse(worksInfoText)
+        for (const data of worksData) {
+          // 检查一些此时可以进行检查的设置项
+          // 检查宽高设置和宽高比设置
+          const tureWidth = data.width
+          const tureHeight = data.height
+          if (
+            !setting.checkSetWh(tureWidth, tureHeight, this.filterWh) ||
+            !setting.checkRatio(tureWidth, tureHeight, this.ratioType)
+          ) {
+            continue
           }
-        } else {
-          // 传统的列表页，作品是直接包含在页面里的
-          const allPicArea = listPageDocument.querySelectorAll(
-            '._image-items .image-item'
-          )
-          for (const el of allPicArea) {
-            // 如果这个作品被删除、或非公开，则去掉它
-            if (el.querySelector('.title').getAttribute('title') === '-----') {
-              continue
-            }
-            const img = el.querySelector('._thumbnail')
-            // img.dataset.type 全都是 "illust"，因此不能用来区分作品类型
-            // 提取出 tag 列表
-            const tags = img.dataset.tags.split(' ')
-            // 检查排除的 tag 的设置
-            if (setting.checkNotNeedTag(tags, this.notNeedTag)) {
-              continue
-            }
-            // 检查必须包含的 tag  的设置
-            if (!setting.checkNeedTag(tags, this.needTag)) {
-              continue
-            }
-            // 检查只下载书签作品的设置
-            const bookmarked = el
-              .querySelector('._one-click-bookmark')
-              .classList.contains('on')
-            if (!setting.checkOnlyDownBmk(bookmarked, this.onlyDownBmk)) {
-              continue
-            }
-            store.illustUrlList.push(el.querySelector('a').href)
+          // 检查只下载书签作品的设置
+          if (!setting.checkOnlyDownBmk(data.isBookmarked, this.onlyDownBmk)) {
+            continue
           }
+          // 检查排除类型的设置
+          if (this.notdownType.includes(data.illustType)) {
+            continue
+          }
+          // 检查排除的 tag 的设置
+          if (setting.checkNotNeedTag(data.tags, this.notNeedTag)) {
+            continue
+          }
+          // 检查必须包含的 tag  的设置
+          if (!setting.checkNeedTag(data.tags, this.needTag)) {
+            continue
+          }
+          store.addWorksURL([data.illustId])
         }
+        this.listPageFinished++
         log.log(
           lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
           1,
@@ -4068,7 +4044,7 @@ class CrawlNewIllustPage extends CrawlPageBase {
         // 如果没有下一页的按钮或者抓取完指定页面
         if (
           !listPageDocument.querySelector('.next ._button') ||
-          this.listPageFinished === this.wantPage
+          this.listPageFinished === this.fetchNumber
         ) {
           dlCtrl.allowWork = true
           log.log(lang.transl('_列表页抓取完成'))
@@ -4080,11 +4056,107 @@ class CrawlNewIllustPage extends CrawlPageBase {
       })
   }
 }
+// 抓取 大家的新作品页面
+class CrawlNewIllustPage extends CrawlPageBase {
+  constructor() {
+    super(...arguments)
+    this.lastId = '0'
+    this.limitMax = 20 // 每次请求的数量最大是 20
+    this.limit = 20 // 每次请求的数量，可以比 20 小
+    this.fetchCount = 0 // 已请求的作品数量
+  }
+  getWantPage() {
+    this.fetchNumber = setting.getWantPageGreater0()
+    if (this.fetchNumber > this.maxCount) {
+      this.fetchNumber = this.maxCount
+    }
+    this.listPageFinished = 0
+    log.warning(lang.transl('_抓取多少个作品', this.fetchNumber.toString()))
+  }
+  nextStep() {
+    this.initFetchURL()
+    this.getListPage()
+  }
+  // 组织要请求的 url
+  initFetchURL() {
+    this.lastId = '0'
+    if (this.fetchNumber < this.limitMax) {
+      this.limit = this.fetchNumber
+    } else {
+      this.limit = this.limitMax
+    }
+    this.fetchCount = 0
+    // 当前页面的作品类型，默认是 illust
+    let worksType = API.getURLField(location.href, 'type') || 'illust'
+    // 是否是 R18 模式
+    let r18 = location.href.includes('_r18.php') || false
+    this.baseUrl = `https://www.pixiv.net/ajax/illust/new?lastId=${this.lastId}&limit=${this.limit}&type=${worksType}&r18=${r18}`
+  }
+  async getListPage() {
+    titleBar.changeTitle('↑')
+    // 发起请求，获取列表页
+    let tempURL = new URL(this.baseUrl)
+    tempURL.searchParams.set('lastId', this.lastId)
+    let data = await API.getNewIllustData(tempURL.toString())
+    let useData = data.body.illusts
+    for (const nowData of useData) {
+      // 抓取够了指定的数量
+      if (this.fetchCount + 1 > this.fetchNumber) {
+        break
+      } else {
+        this.fetchCount++
+      }
+      // 排除广告信息
+      if (nowData.isAdContainer) {
+        continue
+      }
+      // 检查宽高设置和宽高比设置
+      const tureWidth = nowData.width
+      const tureHeight = nowData.height
+      if (
+        !setting.checkSetWh(tureWidth, tureHeight, this.filterWh) ||
+        !setting.checkRatio(tureWidth, tureHeight, this.ratioType)
+      ) {
+        continue
+      }
+      // 检查只下载书签作品的设置
+      if (!setting.checkOnlyDownBmk(!!nowData.bookmarkData, this.onlyDownBmk)) {
+        continue
+      }
+      // 检查排除类型的设置
+      if (this.notdownType.includes(nowData.illustType.toString())) {
+        continue
+      }
+      // 检查排除的 tag 的设置
+      if (setting.checkNotNeedTag(nowData.tags, this.notNeedTag)) {
+        continue
+      }
+      // 检查必须包含的 tag  的设置
+      if (!setting.checkNeedTag(nowData.tags, this.needTag)) {
+        continue
+      }
+      store.addWorksURL([nowData.illustId])
+    }
+    log.log(lang.transl('_新作品进度', this.fetchCount.toString()), 1, false)
+    // 抓取完毕
+    if (
+      this.fetchCount >= this.fetchNumber ||
+      this.fetchCount >= this.maxCount
+    ) {
+      log.log(lang.transl('_开始获取作品页面'))
+      this.getListUrlFinished()
+      return
+    }
+    // 继续抓取
+    this.lastId = data.body.lastId
+    this.getListPage()
+  }
+}
 // 抓取发现页面
 class CrawlDiscoverPage extends CrawlPageBase {
   constructor() {
     super()
-    this.worksSelector = '.JoCpVnw'
+    this.worksSelector = '._2RNjBox'
   }
   getWantPage() {}
   getListPage() {
@@ -4329,7 +4401,7 @@ class InitIllustPage extends InitPageBase {
     )
   }
   setSetting() {
-    // 设置页数
+    // 设置抓取的作品数量
     this.setWantPageTip1.textContent = lang.transl('_个数')
     this.setWantPageTip1.dataset.tip =
       lang.transl('_checkWantPageRule1Arg8') +
@@ -4397,9 +4469,6 @@ class InitSearchPage extends InitPageBase {
     this.appendCenterBtns()
     this.appendElseEl()
     this.setSetting()
-    this.crawler.baseUrl = location.href.split('&p=')[0] + '&p='
-    this.crawler.startpageNo = DOM.getNowPageNo()
-    this.crawler.listPageFinished = 0
   }
   appendCenterBtns() {
     this.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
@@ -4414,16 +4483,18 @@ class InitSearchPage extends InitPageBase {
   // 添加快速筛选功能
   fastScreen() {
     // 判断插入点的元素有没有加载出来
-    let target = document
-      .evaluate(`//*[@id="root"]/div[1]/div[3]`, document)
-      .iterateNext()
+    // let target = document
+    //   .evaluate(`//*[@id="root"]/div[1]/div[1]`, document)
+    //   .iterateNext()
+    let target = document.querySelector('header')
     if (!target) {
       setTimeout(() => {
         this.fastScreen()
       }, 300)
       return
     }
-    const nowTag = API.getURLField(location.href, 'word').split(' ')[0]
+    const tag = API.getURLField(location.href, 'word')
+    const firstTag = encodeURIComponent(decodeURIComponent(tag).split(' ')[0])
     const favNums = [
       '100users入り',
       '500users入り',
@@ -4438,15 +4509,16 @@ class InitSearchPage extends InitPageBase {
     const fastScreenArea = document.createElement('div')
     fastScreenArea.className = 'fastScreenArea'
     fastScreenArea.innerHTML = favNums.reduce((result, cur) => {
-      return (result += `<a href="https://www.pixiv.net/search.php?word=${nowTag}%20${cur}">${cur}</a>`)
+      return (result += `<a href="https://www.pixiv.net/search.php?word=${firstTag}%20${cur}">${cur}</a>`)
     }, '')
-    target.insertAdjacentElement('beforeend', fastScreenArea)
+    target.insertAdjacentElement('afterend', fastScreenArea)
   }
   setSetting() {
+    this.crawler.maxCount = 1000
     this.setWantPageTip1.textContent = lang.transl('_页数')
     this.setWantPageTip1.dataset.tip = lang.transl('_checkWantPageRule1Arg8')
-    this.setWantPageTip2.textContent = '-1 - 1000'
-    this.setWantPage.value = '-1'
+    this.setWantPageTip2.textContent = `1 - ${this.crawler.maxCount}`
+    this.setWantPage.value = this.crawler.maxCount.toString()
   }
 }
 // 初始化地区排行榜页面
@@ -4480,7 +4552,6 @@ class InitRankingPage extends InitPageBase {
       this.crawler.baseUrl = location.href + '&format=json&p='
     }
     this.crawler.startpageNo = 1 // 从第一页（部分）开始抓取
-    this.crawler.listPageFinished = 0 // 已经向下抓取了几页（部分）
   }
   appendCenterBtns() {
     this.addCenterButton(Colors.blue, lang.transl('_抓取本排行榜作品'), [
@@ -4511,11 +4582,12 @@ class InitRankingPage extends InitPageBase {
     }
   }
   setSetting() {
-    // 设置页数
+    // 设置抓取的作品数量
+    this.crawler.maxCount = 500
     this.setWantPageTip1.textContent = lang.transl('_个数')
     this.setWantPageTip1.dataset.tip = lang.transl('_要获取的作品个数2')
-    this.setWantPageTip2.textContent = '1 - 500'
-    this.setWantPage.value = '500'
+    this.setWantPageTip2.textContent = `1 - ${this.crawler.maxCount}`
+    this.setWantPage.value = this.crawler.maxCount.toString()
   }
 }
 // 初始化 pixivision 页面
@@ -4565,28 +4637,63 @@ class InitBookmarkDetailPage extends InitPageBase {
     )
   }
   setSetting() {
-    // 设置页数
+    // 设置抓取的作品数量
+    // 实际上的数字可以更大，这里只是预设一个限制。
+    this.crawler.maxCount = 500
     this.setWantPageTip1.textContent = lang.transl('_个数')
     this.setWantPageTip1.dataset.tip = lang.transl('_要获取的作品个数2')
-    this.setWantPageTip2.textContent = '1 - 500'
-    this.setWantPage.value = '100'
+    this.setWantPageTip2.textContent = `1 - ${this.crawler.maxCount}`
+    this.setWantPage.value = this.crawler.maxCount.toString()
   }
 }
-// 初始化 关注的人的新作品 以及 大家的新作品页面
-class InitNewIllustPage extends InitPageBase {
+// 初始化 关注的新作品页面
+class InitBookmarkNewIllustPage extends InitPageBase {
   init() {
     this.clearCenterBtns()
     this.appendCenterBtns()
     this.setSetting()
+    this.appendElseEl()
+    // 关注的新作品没有 type 字段。只有 p 指示页码
     // 列表页url规则
-    if (!location.href.includes('type=')) {
-      // 如果没有type标志，说明是在“综合”分类的第一页，手动加上分类
-      this.crawler.baseUrl = location.href + '?type=all'.split('&p=')[0] + '&p='
-    } else {
-      this.crawler.baseUrl = location.href.split('&p=')[0] + '&p='
+    this.crawler.baseUrl = 'https://www.pixiv.net' + location.pathname + '?p='
+    const p = API.getURLField(location.href, 'p')
+    this.crawler.startpageNo = parseInt(p) || 1
+  }
+  appendCenterBtns() {
+    this.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
+      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
+    ]).addEventListener('click', () => {
+      this.crawler.readyCrawl()
+    })
+  }
+  appendElseEl() {
+    // 添加 R-18 页面的链接
+    const r18Link = `<li><a href="/bookmark_new_illust_r18.php">R-18</a></li>`
+    const target = document.querySelector('.menu-items')
+    if (target) {
+      target.insertAdjacentHTML('beforeend', r18Link)
     }
-    this.crawler.startpageNo = DOM.getNowPageNo()
-    this.crawler.listPageFinished = 0
+  }
+  setSetting() {
+    // 设置页数
+    this.crawler.maxCount = 100
+    this.setWantPageTip1.textContent = lang.transl('_页数')
+    this.setWantPageTip1.dataset.tip = lang.transl('_checkWantPageRule1Arg8')
+    this.setWantPageTip2.textContent = `1 - ${this.crawler.maxCount}`
+    this.setWantPage.value = this.crawler.maxCount.toString()
+  }
+}
+// 初始化 大家的新作品页面
+class InitNewIllustPage extends InitPageBase {
+  constructor() {
+    super(...arguments)
+    this.timer = 0
+  }
+  init() {
+    this.clearCenterBtns()
+    this.appendCenterBtns()
+    this.setSetting()
+    this.appendElseEl()
   }
   appendCenterBtns() {
     this.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
@@ -4595,26 +4702,27 @@ class InitNewIllustPage extends InitPageBase {
       this.crawler.readyCrawl()
     })
   }
-  setSetting() {
-    // 设置页数
-    this.setWantPageTip1.textContent = lang.transl('_页数')
-    this.setWantPageTip1.dataset.tip = lang.transl('_checkWantPageRule1Arg8')
-    const maxNum = this.getMaxNum()
-    this.setWantPageTip2.textContent = `1 - ${maxNum}`
-    this.setWantPage.value = '10'
-  }
-  // 当前页面类型里最多有多少页
-  getMaxNum() {
-    let num = 0
-    // 其实这个条件和条件 2 在一定程度上是重合的，所以这个必须放在前面
-    if (location.href.includes('bookmark_new_illust')) {
-      num = 100 // 关注的人的新作品（包含普通版和 r18 版）的最大页数都是 100
-    } else if (location.href.includes('new_illust.php')) {
-      num = 1000 // 大家的新作品（普通版）的最大页数是 1000
-    } else if (location.href.includes('new_illust_r18.php')) {
-      num = 500 // 大家的的新作品（r18版）的最大页数是 500
+  appendElseEl() {
+    // 添加 R-18 页面的链接
+    const r18Link = `<a href="/new_illust_r18.php" style="color:#179fdd;padding-left:20px;">R-18</a>`
+    const target = document.querySelector('#root h1')
+    if (target) {
+      target.insertAdjacentHTML('beforeend', r18Link)
+      clearTimeout(this.timer)
+    } else {
+      this.timer = setTimeout(() => {
+        this.appendElseEl()
+      }, 300)
     }
-    return num
+  }
+  setSetting() {
+    // 设置抓取的作品数量
+    // 最大有 10000 个。但是输入框的默认值设置的少一些比较合理。
+    this.crawler.maxCount = 10000
+    this.setWantPageTip1.textContent = lang.transl('_个数')
+    this.setWantPageTip1.dataset.tip = lang.transl('_要获取的作品个数2')
+    this.setWantPageTip2.textContent = `1 - ${this.crawler.maxCount}`
+    this.setWantPage.value = '100'
   }
 }
 // 初始化发现页面
@@ -4672,10 +4780,13 @@ class InitCrawlProcess {
         result = new CrawlBookmarkDetailPage()
         break
       case 10:
-        result = new CrawlNewIllustPage()
+        result = new CrawlBookmarkNewIllustPage()
         break
       case 11:
         result = new CrawlDiscoverPage()
+        break
+      case 12:
+        result = new CrawlNewIllustPage()
         break
       default:
         throw new Error('CrawlPage error: Illegal parameter.')
@@ -4711,10 +4822,13 @@ class InitCrawlProcess {
         result = new InitBookmarkDetailPage(crawler)
         break
       case 10:
-        result = new InitNewIllustPage(crawler)
+        result = new InitBookmarkNewIllustPage(crawler)
         break
       case 11:
         result = new InitDiscoverPage(crawler)
+        break
+      case 12:
+        result = new InitNewIllustPage(crawler)
         break
       default:
         throw new Error('InitCrawlProcess error: Illegal parameter.')

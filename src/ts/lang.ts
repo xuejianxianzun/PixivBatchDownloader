@@ -8,19 +8,19 @@ const xzLang = {
   ],
   _只下载已收藏的提示: [
     '只下载已经收藏的作品',
-    '既に収集された作品のみをダウンロードする',
+    'ブックマークした作品のみをダウンロードする',
     'Download only bookmarked works',
     '只下載已經收藏的作品'
   ],
   _下载作品类型: [
     '下载作品类型',
-    '作品タイプをダウンロードする',
+    'ダウンロード作品の種類',
     'Download work type',
     '下載作品類型'
   ],
   _下载作品类型的提示Center: [
     '下载哪些类型的作品',
-    'ダウンロードする作品の種類',
+    'どの種類の作品をダウンロードしますか',
     'Which types of works to download',
     '下載哪些類型的作品'
   ],
@@ -32,43 +32,43 @@ const xzLang = {
   ],
   _多p下载前几张提示: [
     '下载每个作品的前几张图片。默认值 0 表示全部下载。',
-    '各作品の最初の数枚の写真をダウンロードしてください。 デフォルト値の 0 は、すべてのダウンロードを意味します。',
+    '各作品の画像が最初の何枚をダウンロードしますか？ デフォルト値の 0 は、すべてをダウンロードします。',
     'Download the first few pictures of each piece. The default value of 0 means all downloads.',
     '下載每個作品的前幾張圖片。預設值 0 表示全部下載。'
   ],
   _不能含有tag: [
     '不能含有 tag',
-    '指定したタグを除外する',
+    '指定した tagを除外する',
     'Exclude specified tag',
     '不能含有 tag'
   ],
   _排除tag的提示文字: [
     '您可在下载前设置要排除的tag，这样在下载时将不会下载含有这些tag的作品。不区分大小写；如需排除多个tag，请使用英文逗号分隔。请注意要排除的tag的优先级大于要包含的tag的优先级。',
-    "ダウンロードする前に、除外するタグを設定できます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、','を分けて使用できます。除外されたタグは、含まれているタグよりも優先されます",
+    "ダウンロードする前に、除外する tagを設定できます。大文字と小文字を区別しない；複数の tagを設定する必要がある場合は、','で区切ってください。除外された tagは、含まれている tagよりも優先されます",
     "Before downloading, you can set the tag you want to exclude. Not case sensitive; If you need to set multiple tags, you can use ',' separated. The excluded tag takes precedence over the included tag",
     '您可在下載前設定要排除的tag，這樣在下載時將不會下載含有這些tag的作品。不區分大小寫；如需排除多個tag，請使用英文逗號分隔。請注意要排除的tag的優先等級大於要包含的tag的優先等級。'
   ],
   _设置了排除tag之后的提示: [
     '排除 tag：',
-    'タグを除外：',
+    ' tagを除外：',
     'Excludes tag: ',
     '排除 tag：'
   ],
   _必须含有tag: [
     '必须含有 tag',
-    'タグを含める必要があります',
+    '必要な tag',
     'Must contain tag',
     '必須含有 tag'
   ],
   _必须tag的提示文字: [
     '您可在下载前设置作品里必须包含的tag，不区分大小写；如需包含多个tag，请使用英文逗号分隔。',
-    "ダウンロードする前に、含まれなければならないタグを設定することができます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、','を分けて使用できます。",
+    "ダウンロードする前に、必要な tagを設定することができます。大文字と小文字を区別しない；複数の tagを設定する必要がある場合は、','で区切ってください。",
     "Before downloading, you can set the tag that must be included. Not case sensitive; If you need to set multiple tags, you can use ',' separated. ",
     '您可在下載前設定作品裡必須包含的tag，不區分大小寫；如需包含多個tag，請使用英文逗號分隔。'
   ],
   _设置了必须tag之后的提示: [
     '包含 tag：',
-    'タグを含める：',
+    ' tagを含める：',
     'Include tag: ',
     '包含 tag：'
   ],
@@ -80,7 +80,7 @@ const xzLang = {
   ],
   _筛选宽高的按钮Title: [
     '在下载前，您可以设置要下载的图片的宽高条件。',
-    'ダウンロードする前に、ダウンロードする写真の幅と高さの条件を設定できます。',
+    'ダウンロードする前に、画像の幅と高さの条件を設定できます。',
     'Before downloading, you can set the width and height conditions of the pictures you want to download.',
     '在下載前，您可以設定要下載的圖片的寬高條件。'
   ],
@@ -92,17 +92,17 @@ const xzLang = {
   ],
   _设置宽高比例Title: [
     '设置宽高比例，也可以手动输入宽高比',
-    '縦横比を設定するか、手動で縦横比を入力します',
+    '縦横比を設定する、手動で縦横比を入力することもできる',
     'Set the aspect ratio, or manually type the aspect ratio',
     '設定寬高比，也可以手動輸入寬高比'
   ],
   _不限制: ['不限制', '無制限', 'not limited', '不限制'],
-  _横图: ['横图', '横方向の絵', 'Horizontal picture', '橫圖'],
-  _竖图: ['竖图', '縦方向の絵', 'Vertical picture', '豎圖'],
+  _横图: ['横图', '横長', 'Horizontal picture', '橫圖'],
+  _竖图: ['竖图', '縦長', 'Vertical picture', '豎圖'],
   _输入宽高比: ['宽高比 >=', '縦横比 >=', 'Aspect ratio >=', '寬高比 >='],
   _设置了宽高比之后的提示: [
     '宽高比：{}',
-    'アスペクト比：{}',
+    '縦横比：{}',
     'Aspect ratio: {}',
     '寬高比：{}'
   ],
@@ -147,37 +147,37 @@ const xzLang = {
   ],
   _筛选收藏数的按钮文字: [
     '设置收藏数量',
-    'お気に入りの数を設定する',
+    'ブックマークされた数を設定する',
     'Set the bookmarkCount conditions',
     '設定收藏數量'
   ],
   _筛选收藏数的按钮Title: [
     '在下载前，您可以设置对收藏数量的要求。',
-    'ダウンロードする前に、お気に入り数の要件を設定することができます。',
+    'ダウンロードする前に、ブックマークされた数の条件を設定することができます。',
     'Before downloading, You can set the requirements for the number of bookmarks.',
     '在下載前，您可以設定對收藏數量的要求。'
   ],
   _筛选收藏数Center: [
     '设置收藏数量',
-    'ブックマークの数を設定する',
+    'ブックマークされた数を設定する',
     'Set the number of bookmarks',
     '設定收藏數量'
   ],
   _筛选收藏数的提示Center: [
     '如果作品的收藏数小于设置的数字，作品不会被下载。',
-    '作品のブックマークの数が設定された数よりも少ない場合、作品はダウンロードされません。',
+    '作品のブックマークされた数が設定された数字よりも少ない場合、作品はダウンロードされません。',
     'If the number of bookmarks of the work is less than the set number, the work will not be downloaded.',
     '如果作品的收藏數小於設定的數字，作品不會被下載。'
   ],
   _筛选收藏数的提示文字: [
     '请输入一个数字，如果作品的收藏数小于这个数字，作品不会被下载。',
-    '数字を入力してください。 作品のブックマークの数がこの数より少ない場合、作品はダウンロードされません。',
+    '数字を入力してください。 作品のブックマークされた数がこの数字より少ない場合、作品はダウンロードされません。',
     'Please type a number. If the number of bookmarks of the work is less than this number, the work will not be downloaded.',
     '請輸入一個數字，如果作品的收藏數小於這個數字，作品不會被下載。'
   ],
   _设置了筛选收藏数之后的提示文字: [
     '收藏数 >= ',
-    'お気に入りの数 >= ',
+    'ブックマークの数 >= ',
     'Number of bookmarks >= ',
     '收藏數 >= '
   ],
@@ -189,7 +189,7 @@ const xzLang = {
   ],
   _本次任务条件: [
     '本次任务条件: ',
-    'このタスク条件：',
+    'このタスクの条件：',
     'This task condition: ',
     '本次工作條件：'
   ],
@@ -213,31 +213,31 @@ const xzLang = {
   ],
   _checkWantPageRule1Arg8: [
     '从本页开始下载<br>如果要限制下载的页数，请输入从1开始的数字，1为仅下载本页。',
-    'このページからダウンロードする<br>ダウンロードするページ数を設定する場合は、1から始まる番号を入力します。 現在のページは1です。',
+    'このページからダウンロードする<br>ダウンロードするページを設定する場合は、1から始まる数字を入力してください。 1は現在のページのみをダウンロードする。',
     'Download from this page<br>If you want to set the number of pages to download, type a number starting at 1. This page is 1.',
     '從本頁開始下載<br>如果要限制下載的頁數，請輸入從1開始的數字，1為僅下載本頁。'
   ],
   _checkWantPageRule1Arg6: [
     '从本页开始下载-num-页',
-    '現在のページから-num-ページ',
+    '現在のページから-num-ページをウンロードします',
     'download -num- pages from the current page',
     '從本頁開始下載-num-頁'
   ],
   _checkWantPageRule1Arg7: [
     '下载所有页面',
-    'すべてのページをダウンロード',
+    'すべてのページをダウンロードする',
     'download all pages',
     '下載所有頁面'
   ],
   _checkWantPageRule1Arg9: [
     '下载 -num- 个相关作品',
-    '関連作品 -num- 点をダウンロードする。',
+    '関連作品 -num- 枚をダウンロードする。',
     'download -num- related works.',
     '下載 -num- 個相關作品'
   ],
   _checkWantPageRule1Arg10: [
     '下载所有相关作品',
-    '関連作品をすべてダウンロード。',
+    '関連作品をすべてダウンロードする。',
     'download all related works.',
     '下載所有相關作品'
   ],
@@ -249,13 +249,13 @@ const xzLang = {
   ],
   _checkWantPageRule1Arg12: [
     '下载排行榜前 -num- 个作品',
-    'リーダーボードの上位 -num- 作品をダウンロードする。',
+    'キング前 -num- 位の作品をダウンロードする。',
     'download the top -num- works in the ranking list',
     '下載排行榜前 -num- 個作品'
   ],
   _请输入最低收藏数和要抓取的页数: [
     '请输入最低收藏数和要抓取的页数，用英文逗号分开。\n类似于下面的形式: \n1000,1000',
-    "お気に入りの最小数とクロールするページ数を，','で区切って入力してください。\n例えば：\n1000,1000",
+    "ボックマークの最小数とクロールするページ数を，','で区切って入力してください。\n例えば：\n1000,1000",
     "Please type the minimum number of bookmarks, and the number of pages to be crawled, separated by ','.\nE.g:\n1000,1000",
     '請輸入最低收藏數和要擷取的頁數，用英文逗號分開。\n類似於下面的形式: \n1000,1000'
   ],
@@ -291,7 +291,7 @@ const xzLang = {
   ],
   _checkNotdownTypeResult1弹窗: [
     '由于您排除了所有作品类型，本次任务已取消。',
-    'すべての種類の作業を除外したため、タスクはキャンセルされました。',
+    'すべての種類の作品を除外したため、タスクはキャンセルされました。',
     'Because you excluded all types of work, the task was canceled.',
     '由於您排除了所有作品類型，本次工作已取消。'
   ],
@@ -317,7 +317,7 @@ const xzLang = {
   _多图: ['多图 ', '2枚以上の作品', 'multiple images', '多圖 '],
   _插画: ['插画 ', 'イラスト', 'Illustrations', '插畫 '],
   _漫画: ['漫画 ', '漫画', 'Manga', '漫畫 '],
-  _动图: ['动图 ', 'うごくイラスト', 'Ugoira', '動圖 '],
+  _动图: ['动图 ', 'うごイラ', 'Ugoira', '動圖 '],
   _动图保存格式: [
     '动图保存格式',
     'うごイラの作品を保存する',
@@ -326,19 +326,13 @@ const xzLang = {
   ],
   _动图保存格式title: [
     '下载动图时，可以把它转换成视频文件',
-    'あなたがうごイラ作品をダウンロードするとき、あなたはそれをビデオファイルに変換することができます。',
+    'うごイラをダウンロードするとき、動画に変換することができます。',
     'When you download a ugoira work, you can convert it to a video file.',
     '下載動圖時，可以將它轉換為影片檔案'
   ],
   _webmVideo: ['WebM 视频', 'WebM ビデオ', 'WebM video', 'WebM 視頻'],
   _gif: ['GIF 图片', 'GIF 画像', 'GIF picture', 'GIF 圖片'],
   _zipFile: ['Zip 文件', 'ZIP ファイル', 'Zip file', 'Zip 檔案'],
-  _tag搜索页已抓取多少页: [
-    '已抓取本次任务第{}/{}页',
-    '{}/{}ページをクロールしています。',
-    'Has been crawling {} / {} pages.',
-    '已擷取本次工作第{}/{}頁'
-  ],
   _当前作品张数: [
     '当前有{}个作品。',
     '今は{}枚の作品があります。',
@@ -351,15 +345,27 @@ const xzLang = {
     'Part {} of this page has been crawled',
     '已擷取本頁面第{}部分'
   ],
+  _新作品进度: [
+    '已抓取本页面 {} 个作品',
+    'このページの {} つの作品をクロールしました',
+    'This page has been crawled {} works',
+    '已擷取本頁面 {} 個作品'
+  ],
+  _抓取多少个作品: [
+    '抓取本页面 {} 个作品',
+    'このページの「」つの作品をクロールします',
+    'Crawl this page {} works',
+    '擷取本頁面 {} 個作品'
+  ],
   _相关作品抓取完毕: [
-    '相关作品抓取完毕。包含有{}张作品，开始获取作品信息。',
+    '相关作品抓取完毕。包含有{}个作品，开始获取作品信息。',
     '関連作品はクロールされました。 {}作品を含み、その作品に関する情報の取得を開始します。',
     'The related works have been crawled. Contains {} works and starts getting information about the work.',
-    '相關作品擷取完畢。包含有{}張作品，開始取得作品資訊。'
+    '相關作品擷取完畢。包含有{}個作品，開始取得作品資訊。'
   ],
   _排行榜任务完成: [
     '本页面抓取完毕。<br>当前有{}个作品，开始获取作品信息。',
-    'このページはクロールされ。<br>{}個の作品があります。 詳細は作品を入手し始める。',
+    'このページはクロールされ。<br>{}枚の作品があります。 作品情報の取得を開始します。',
     'This page is crawled and now has {} works.<br> Start getting the works for more information.',
     '本頁面擷取完畢。<br>目前有{}個作品，開始取得作品資訊。'
   ],
@@ -371,7 +377,7 @@ const xzLang = {
   ],
   _搜索页已抓取所有页面: [
     '已抓取本 tag 的所有页面，开始获取图片网址',
-    '現在tagの全ページを取得している、画像URLの取得が開始されます',
+    '現在 tagの全ページを取得している、画像URLの取得が開始されます',
     'Gets all pages of the current tag, starts to get the image URL',
     '已擷取本 tag 的所有頁面，開始取得圖片網址'
   ],
@@ -395,7 +401,7 @@ const xzLang = {
   ],
   _列表抓取完成开始获取作品页: [
     '当前列表中有{}张作品，开始获取作品信息',
-    '{}個の作品があります。 詳細は作品を入手し始める。',
+    '{}枚の作品があります。 作品情報の取得を開始します。',
     'Now has {} works. Start getting the works for more information.',
     '目前清單中有{}張作品，開始取得作品資訊'
   ],
@@ -407,13 +413,13 @@ const xzLang = {
   ],
   _无权访问1: [
     '无权访问{}，抓取中断。',
-    'アクセス{}、中断はありません。',
+    '{}のアクセス権限がありません、クロール中断されました。',
     'No access {}, interruption.',
     '無權造訪{}，擷取中斷。'
   ],
   _无权访问2: [
     '无权访问{}，跳过该作品。',
-    'アクセス{}、無視する。',
+    '{}のアクセス権限がありません、作品を無視する。',
     'No access {}, skip.',
     '無權造訪{}，跳過該作品。'
   ],
@@ -492,7 +498,7 @@ const xzLang = {
     'Github page, if you like, please star it',
     'Github 頁面，歡迎 star'
   ],
-  _wiki: ['使用手册', '使用マニュアル', 'Wiki', 'Wiki'],
+  _wiki: ['使用手册', 'マニュアル', 'Wiki', 'Wiki'],
   _快捷键切换显示隐藏: [
     '使用 Alt + X，可以显示和隐藏下载面板',
     'Alt + Xを使用してダウンロードパネルを表示および非表示にする',
@@ -513,7 +519,7 @@ const xzLang = {
   ],
   _设置文件夹名的提示: [
     `可以使用 '/' 建立文件夹<br>示例：{p_title}/{user}/{id}`,
-    `フォルダは '/'で作成できます<br>例：{p_title}/{user}/{id}`,
+    `フォルダーは '/'で作成できます<br>例：{p_title}/{user}/{id}`,
     `You can create a folder with '/'<br>Example：{p_title}/{user}/{id}`,
     `可以使用 '/' 建立資料夾<br>範例：{p_title}/{user}/{id}`
   ],
@@ -525,13 +531,13 @@ const xzLang = {
   ],
   _添加字段名称提示: [
     '例如，在用户名前面添加“user_”标记',
-    'たとえば、ユーザー名の前に "user_"タグを追加します。',
+    'たとえば、ユーザー名の前に "user_" tagを追加します。',
     'For example, add the "user_" tag in front of the username',
     '例如，在使用者名稱前面加入“user_”標記'
   ],
   _查看标记的含义: [
     '查看标记的含义',
-    'タグの意味を表示する',
+    ' tagの意味を表示する',
     'View the meaning of the tag',
     '檢視標記的意義'
   ],
@@ -553,7 +559,7 @@ const xzLang = {
   _命名标记7: ['宽度和高度', '幅と高さ', 'width and height', '寬度和高度'],
   _命名标记8: [
     'bookmark-count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
-    'bookmark-count，作品のコレクション数のコレクション数は。',
+    'bookmark-count，作品のボックマークの数、前に追加することでボックマーク数に并べる。',
     'bookmark-count, bookmarks number of works.',
     'bookmark-count，作品的收藏數。將它放在最前面可以讓檔案依收藏數排序。'
   ],
@@ -595,7 +601,7 @@ const xzLang = {
   ],
   _命名标记提醒: [
     '您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}<br>一定要包含 {id} 或者 {id_num}。<br>* 在某些情况下，会有一些标记不可用。',
-    '複数のタグを使用することができ；異なるタグ間に別の文字を追加することができます。例：{id}-{userid}<br>必ず{id}または{id_num}を含めてください。<br>* 場合によっては、一部のタグが利用できず。',
+    '複数の tagを使用することができ；異なる tag間に別の文字を追加することができます。例：{id}-{userid}<br>必ず{id}または{id_num}を含めてください。<br>* 場合によっては、一部の tagが利用できず。',
     'You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}<br>Be sure to include {id} or {id_num}.<br>* In some cases, some tags will not be available.',
     '您可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{userid}<br>一定要包含 {id} 或者 {id_num}。<br>* 在某些情況下，會有一些標記不可用。'
   ],
@@ -613,7 +619,7 @@ const xzLang = {
   ],
   _文件夹标记PTag: [
     '当前页面的 tag',
-    '現在のタグ',
+    '現在の tag',
     'Current tag',
     '目前頁面的 tag'
   ],
@@ -659,12 +665,12 @@ const xzLang = {
   ],
   _下载进度: [
     '下载进度：',
-    'ダウンロードの進捗状況：',
+    'ダウンロードの進行状況：',
     'Download progress: ',
     '下載進度：'
   ],
   _下载线程: ['下载线程：', 'スレッド：', 'Thread: ', '下載執行緒：'],
-  _常见问题: ['常见问题', 'よくある問題', 'Common problems', '常見問題'],
+  _常见问题: ['常见问题', 'よくある質問', 'Common problems', '常見問題'],
   _下载说明: [
     "下载的文件保存在浏览器的下载目录里。<br>请不要在浏览器的下载选项里选中'总是询问每个文件的保存位置'。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>QQ群：499873152",
     'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><b>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。</b>',
@@ -747,7 +753,7 @@ const xzLang = {
   ],
   _默认下载多页: [
     ', 如有多页，默认会下载全部。',
-    '複数のページがある場合、デフォルトでダウンロードされます。',
+    '複数のページがある場合、デフォルトですべてをダウンロードされます。',
     ', If there are multiple pages, the default will be downloaded.',
     ', 如有多頁，預設會下載全部。'
   ],
@@ -894,7 +900,7 @@ const xzLang = {
   _开始抓取: ['开始抓取', 'クロールを開始する', 'Start crawling', '開始擷取'],
   _添加tag: [
     '给未分类作品添加 tag',
-    '未分類の作品にタグを追加',
+    '未分類の作品にtagを追加',
     'Add tag to unclassified work',
     '幫未分類的作品加入 tag'
   ],

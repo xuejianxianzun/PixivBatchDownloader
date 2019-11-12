@@ -655,7 +655,7 @@ interface RecommenderData {
   recommendations: number[]
 }
 
-// 搜索页的数据格式，body 里没有使用的部分就删除了
+// 搜索页的数据格式，删除了 body 里没有使用的部分
 interface SearchData {
   error: boolean
   body: Record<
@@ -690,4 +690,48 @@ interface SearchData {
       total: number
     }
   >
+}
+
+// 大家的新作品的数据格式
+interface NewIllustData {
+  error: boolean
+  message: string
+  body: {
+    illusts: {
+      illustId: string
+      illustTitle: string
+      id: string
+      title: string
+      illustType: number
+      xRestrict: number
+      restrict: number
+      sl: number
+      url: string
+      description: string
+      tags: string[]
+      userId: string
+      userName: string
+      width: number
+      height: number
+      pageCount: number
+      isBookmarkable: boolean
+      bookmarkData: null | {
+        id: string
+        private: boolean
+      }
+      alt: string
+      isAdContainer: boolean
+      profileImageUrl: string
+      type: string
+    }[]
+    lastId: string
+    zoneConfig: {
+      header: {
+        url: string
+      }
+      logo: {
+        url: string
+      }
+    }
+  }
 }
