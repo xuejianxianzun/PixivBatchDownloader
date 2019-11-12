@@ -37,6 +37,8 @@ You can also optimize the translation, thank you very much :)
 ## Thank:
 
 - thanks [道滿](https://zhtw.me/) for translating traditional Chinese.
+- 
+- thanks 光の軌跡 for translating traditional Japanese.
 
 - Thanks [z2n](https://github.com/z2n) for improvements to the program.
 
