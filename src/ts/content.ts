@@ -4838,14 +4838,20 @@ abstract class InitPageBase {
   // 初始化
   public init() {}
 
-  // 清空中间按钮
-  public clearCenterBtns(): void {
+  // 清空之前添加的元素
+  public clearOldElements(): void {
     document.getElementById('centerWrap_btns_free')!.innerHTML = ''
 
     // 删除右侧的快速下载按钮
     const quickDownBtn = document.getElementById('quick_down_btn')
     if (quickDownBtn) {
       quickDownBtn.remove()
+    }
+
+    // 删除快速筛选元素
+    const fastScreen = document.querySelector('.fastScreenArea')
+    if (fastScreen) {
+      fastScreen.remove()
     }
   }
 
@@ -4952,7 +4958,7 @@ abstract class InitPageBase {
 // 初始化首页
 class InitIndexPage extends InitPageBase {
   public init() {
-    this.clearCenterBtns()
+    this.clearOldElements()
     this.appendCenterBtns()
     this.appendElseEl()
     this.setSetting()
@@ -5032,7 +5038,7 @@ class InitIndexPage extends InitPageBase {
 //初始化作品页
 class InitIllustPage extends InitPageBase {
   public init() {
-    this.clearCenterBtns()
+    this.clearOldElements()
     this.appendCenterBtns()
     this.appendElseEl()
     this.setSetting()
@@ -5105,7 +5111,7 @@ class InitIllustPage extends InitPageBase {
 // 初始化用户页面
 class InitUserPage extends InitPageBase {
   public init() {
-    this.clearCenterBtns()
+    this.clearOldElements()
     this.appendCenterBtns()
     this.setSetting()
   }
@@ -5163,7 +5169,7 @@ class InitUserPage extends InitPageBase {
 // 初始化搜索页
 class InitSearchPage extends InitPageBase {
   public init() {
-    this.clearCenterBtns()
+    this.clearOldElements()
     this.appendCenterBtns()
     this.appendElseEl()
     this.setSetting()
@@ -5234,7 +5240,7 @@ class InitSearchPage extends InitPageBase {
 // 初始化地区排行榜页面
 class InitAreaRankingPage extends InitPageBase {
   public init() {
-    this.clearCenterBtns()
+    this.clearOldElements()
     this.appendCenterBtns()
     this.setSetting()
   }
@@ -5255,7 +5261,7 @@ class InitAreaRankingPage extends InitPageBase {
 // 初始化排行榜页面
 class InitRankingPage extends InitPageBase {
   public init() {
-    this.clearCenterBtns()
+    this.clearOldElements()
     this.appendCenterBtns()
     this.setSetting()
     if (window.location.search === '') {
@@ -5312,7 +5318,7 @@ class InitRankingPage extends InitPageBase {
 // 初始化 pixivision 页面
 class InitPixivisionPage extends InitPageBase {
   public init() {
-    this.clearCenterBtns()
+    this.clearOldElements()
     this.appendCenterBtns()
     this.setSetting()
   }
@@ -5346,7 +5352,7 @@ class InitPixivisionPage extends InitPageBase {
 // 初始化 bookmark_detail 页面
 class InitBookmarkDetailPage extends InitPageBase {
   public init() {
-    this.clearCenterBtns()
+    this.clearOldElements()
     this.appendCenterBtns()
     this.setSetting()
   }
@@ -5377,7 +5383,7 @@ class InitBookmarkDetailPage extends InitPageBase {
 // 初始化 关注的新作品页面
 class InitBookmarkNewIllustPage extends InitPageBase {
   public init() {
-    this.clearCenterBtns()
+    this.clearOldElements()
     this.appendCenterBtns()
     this.setSetting()
     this.appendElseEl()
@@ -5419,7 +5425,7 @@ class InitBookmarkNewIllustPage extends InitPageBase {
 // 初始化 大家的新作品页面
 class InitNewIllustPage extends InitPageBase {
   public init() {
-    this.clearCenterBtns()
+    this.clearOldElements()
     this.appendCenterBtns()
     this.setSetting()
     this.appendElseEl()
@@ -5464,7 +5470,7 @@ class InitNewIllustPage extends InitPageBase {
 // 初始化发现页面
 class InitDiscoverPage extends InitPageBase {
   public init() {
-    this.clearCenterBtns()
+    this.clearOldElements()
     this.appendCenterBtns()
     this.setSetting()
   }
