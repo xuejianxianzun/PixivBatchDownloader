@@ -47,8 +47,10 @@ English （机翻，韩语设置下也使用英语文本）
 ## 鸣谢
 
 - 感谢 [道滿](https://zhtw.me/) 翻译了繁体中文。
-- 
+
 - 感谢 光の軌跡 翻译日语。
+
+- 感谢 [Reinford0](https://github.com/Reinford0) 的帮助。
 
 - 感谢 [z2n](https://github.com/z2n) 对本工具做出的改进。
 
