@@ -1,5 +1,9 @@
 [View English introduction](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
 
+[Chrome Web Store 安装页面](https://chrome.google.com/Web Store/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)
+
+[查看 Wiki](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki)
+
 [访问官网](https://pixiv.download/)
 
 # 简介：
@@ -10,13 +14,19 @@
 
 ![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/2019-08-18-11-12-52.png)
 
-[查看 Wiki](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki)
-
 # 安装：
 
-本扩展已经被 Chrome webstore 下架。现在只能离线安装。
+## 在线安装
 
-**[查看离线安装教程](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki/2.-%E5%AE%89%E8%A3%85#%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85)**
+您可以从 **[Chrome Web Store](https://chrome.google.com/Web Store/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 安装本扩展。
+
+Chrome 会自动更新本应用的版本。
+
+## 离线安装
+
+如果您不能打开 Chrome Web Store，您可以离线安装。但是离线安装的话，之后的版本更新需要下载新版本来手动更新。
+
+[查看离线安装教程](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki/2.-%E5%AE%89%E8%A3%85#%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85)
 
 - 下载的文件会保存在浏览器的下载目录里。
 
@@ -43,6 +53,8 @@ English （机翻，韩语设置下也使用英语文本）
 - 感谢 [z2n](https://github.com/z2n) 对本工具做出的改进。
 
 ## 提示：
+
+- 如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。
 
 - 浏览器的资源限制问题
 
