@@ -951,10 +951,10 @@ const xzLang = {
     'A new version is available',
     '有新版本可用'
   ],
-  _xzNew270: [
-    '新增 {type} 标记，保存作品类型（illustration、manga、ugoira）。',
-    '{type}マークを追加し,作品タイプ(illustration, manga, ugoira)を保存する。',
-    'Add a {type} tag to save the type of work (illustration, manga, ugoira).',
-    '新增 {type} 標記，儲存作品類型（illustration、manga、ugoira）。'
+  _xzNew305: [
+    '本程序已上架 Chrome 网上应用店。<br><a href="https://chrome.google.com/Web Store/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">查看商店页面</a><br>如果您可以从商店安装本程序，请在安装后删除离线安装的版本。',
+    'このプログラムは、Chromeウェブストアで入手できます。 <br> <a href="https://chrome.google.com/Web Store/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">ストアページを表示</a> <br>可能であれば ストアはプログラムをインストールします。インストール後にオフラインでインストールしたバージョンを削除してください。',
+    'This program is available on the Chrome WebStore. <br><a href="https://chrome.google.com/Web Store/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">View the store page</a><br>If you can install the program from the store, please remove the offline installed version after installation.',
+    '本程式已上架 Chrome 網上應用店。<br><a href="https://chrome.google.com/Web Store/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">查看商店頁面</a><br>如果您可以從商店安裝本程序，請在安裝後刪除離綫安裝的版本。'
   ]
 }

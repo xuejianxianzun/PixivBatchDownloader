@@ -2,7 +2,7 @@
 /// <reference path = "../../node_modules/viewerjs/types/index.d.ts" />
 
 /*
- * project: Pixiv Batch Downloader
+ * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * Github： https://github.com/xuejianxianzun/PixivBatchDownloader
@@ -6050,7 +6050,7 @@ class Support {
     this.supportListenHistory()
     this.listenPageSwitch()
     this.checkNew()
-    this.showNew('_xzNew270')
+    this.showNew('_xzNew305')
   }
 
   // 处理和脚本版的冲突
@@ -6108,7 +6108,9 @@ class Support {
     ) {
       const whatIsNewHtml = `
       <div class="xz_new">
-        <p class="title">Pixiv Batch Downloader ${lang.transl('_最近更新')}</p>
+        <p class="title">Powerful Pixiv Downloader ${lang.transl(
+          '_最近更新'
+        )}</p>
         <p class="content">${lang.transl(tag)}</p>
         <button class="btn">${lang.transl('_确定')}</button>
       </div>`

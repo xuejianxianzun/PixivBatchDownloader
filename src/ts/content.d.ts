@@ -299,7 +299,7 @@ interface IllustData {
     comicPromotion: null
     contestBanners: []
     isBookmarkable: boolean
-    bookmarkData: {
+    bookmarkData: null | {
       id: string
       private: boolean
     }

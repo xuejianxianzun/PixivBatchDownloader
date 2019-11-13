@@ -1,6 +1,8 @@
 # Announcement
 
-This extension has been removed from the Chrome webstore. It can only be installed offline now.
+This extension has been removed from the Chrome Web Store. It can only be installed offline now.
+
+[Chrome Web Store installation page](https://chrome.google.com/Web Store/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)
 
 # Introduction:
 
@@ -14,9 +16,13 @@ Some auxiliary functions have also been added, such as removing ads, quick colle
 
 # Install:
 
-This extension has been removed from the Chrome webstore. It can only be installed offline now.
+## Online installation
 
-**[Offline installation tutorial](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki/2.-%E5%AE%89%E8%A3%85#%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85)**
+You can install this extension from the **[Chrome Web Store](https://chrome.google.com/Web Store/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
+
+## Offline installation
+
+[Offline installation tutorial](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki/2.-%E5%AE%89%E8%A3%85#%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85)
 
 - The downloaded file will be saved in your browser's download directory.
 
@@ -38,21 +44,19 @@ You can also optimize the translation, thank you very much :)
 
 - thanks [道滿](https://zhtw.me/) for translating traditional Chinese.
 
+- thanks 光の軌跡 for translating traditional Japanese.
+
 - Thanks [z2n](https://github.com/z2n) for improvements to the program.
 
 ## Tips:
+
+- If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.
 
 - Browser's resource limits
 
 When you download picture, this page uses more memory and cpu resources. If you switch to another page and the download page is not activated, Browser will limit the resource usage of the download page, resulting in slow download.
 
 How to solve: Pull out the downloaded tabs individually and become a separate window. This page is the only one in the new window and it is always active. Downloads are not affected, we can use other pages too.
-
-- How to view the animation ( ugoira image ):
-
-The animated picture is suffixed with ugoira. Please install HoneyView software. Open the ugoira file with HoneyView to see the animation effect.
-
-Now you can download the gif image directly for a single animation.
 
 ## Available pages and test URL:
 
