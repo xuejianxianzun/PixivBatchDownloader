@@ -2,7 +2,7 @@
 
 This extension has been removed from the Chrome Web Store. It can only be installed offline now.
 
-[Chrome Web Store installation page](https://chrome.google.com/Web Store/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)
+[Chrome Web Store installation page](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)
 
 # Introduction:
 
@@ -18,7 +18,7 @@ Some auxiliary functions have also been added, such as removing ads, quick colle
 
 ## Online installation
 
-You can install this extension from the **[Chrome Web Store](https://chrome.google.com/Web Store/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
+You can install this extension from the **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
 
 ## Offline installation
 

@@ -950,10 +950,10 @@ const xzLang = {
     'A new version is available',
     '有新版本可用'
   ],
-  _xzNew305: [
-    '本程序已上架 Chrome 网上应用店。<br><a href="https://chrome.google.com/Web Store/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">查看商店页面</a><br>如果您可以从商店安装本程序，请在安装后删除离线安装的版本。',
-    'このプログラムは今、Chromeウェブストアで入手できます。 <br> <a href="https://chrome.google.com/Web Store/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">ストアページへ</a> <br>ストアからプログラムをインストール場合は、オフラインバージョンを削除してください。',
-    'This program is available on the Chrome WebStore. <br><a href="https://chrome.google.com/Web Store/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">View the store page</a><br>If you can install the program from the store, please remove the offline installed version after installation.',
-    '本程式已上架 Chrome 網上應用店。<br><a href="https://chrome.google.com/Web Store/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">查看商店頁面</a><br>如果您可以從商店安裝本程序，請在安裝後刪除離綫安裝的版本。'
+  _xzNew306: [
+    '本程序已上架 Chrome 网上应用店。<br><a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">查看商店页面</a><br>如果您可以从商店安装本程序，请在安装后删除离线安装的版本。',
+    'このプログラムは今、Chromeウェブストアで入手できます。 <br> <a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">ストアページへ</a> <br>ストアからプログラムをインストール場合は、オフラインバージョンを削除してください。',
+    'This program is available on the Chrome WebStore. <br><a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">View the store page</a><br>If you can install the program from the store, please remove the offline installed version after installation.',
+    '本程式已上架 Chrome 線上應用程式商店。<br><a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">檢視商店頁面</a><br>如果您可以從商店安裝本套件，請在安裝後刪除離線安裝的版本。'
   ]
 }

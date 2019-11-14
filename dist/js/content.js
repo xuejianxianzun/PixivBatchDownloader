@@ -5232,7 +5232,7 @@ class Support {
     this.supportListenHistory()
     this.listenPageSwitch()
     this.checkNew()
-    this.showNew('_xzNew305')
+    this.showNew('_xzNew306')
   }
   // 处理和脚本版的冲突
   checkConflict() {

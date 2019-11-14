@@ -1,6 +1,6 @@
 [View English introduction](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
 
-[Chrome Web Store 安装页面](https://chrome.google.com/Web Store/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)
+[Chrome Web Store 安装页面](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)
 
 [查看 Wiki](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki)
 
@@ -18,7 +18,7 @@
 
 ## 在线安装
 
-您可以从 **[Chrome Web Store](https://chrome.google.com/Web Store/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 安装本扩展。
+您可以从 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 安装本扩展。
 
 Chrome 会自动更新本应用的版本。
 
@@ -47,8 +47,10 @@ English （机翻，韩语设置下也使用英语文本）
 ## 鸣谢
 
 - 感谢 [道滿](https://zhtw.me/) 翻译了繁体中文。
-- 
+
 - 感谢 光の軌跡 翻译日语。
+
+- 感谢 [Reinford0](https://github.com/Reinford0) 的帮助。
 
 - 感谢 [z2n](https://github.com/z2n) 对本工具做出的改进。
 
