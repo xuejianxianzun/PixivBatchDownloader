@@ -34,7 +34,7 @@ copys()
 
 // 打包 dist 目录
 function pack() {
-  const zipName = path.resolve(__dirname, 'powerpixivdownloader.zip')
+  const zipName = path.resolve(__dirname, 'powerfulpixivdownloader.zip')
   const output = fs.createWriteStream(zipName)
 
   const archive = archiver('zip', {
@@ -53,7 +53,7 @@ function pack() {
   archive.pipe(output)
 
   // 添加文件夹
-  archive.directory('dist', 'powerpixivdownloader')
+  archive.directory('dist', 'powerfulpixivdownloader')
 
   archive.finalize()
 }
