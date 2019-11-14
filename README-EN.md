@@ -20,6 +20,8 @@ Some auxiliary functions have also been added, such as removing ads, quick colle
 
 You can install this extension from the **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
 
+If you like this extension, please rate it so that it can be seen by more people, thank you!
+
 ## Offline installation
 
 [Offline installation tutorial](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki/2.-%E5%AE%89%E8%A3%85#%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85)

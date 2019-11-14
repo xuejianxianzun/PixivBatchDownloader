@@ -20,6 +20,8 @@
 
 您可以从 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 安装本扩展。
 
+如果你喜欢这个扩展，请给它评分，使它可以被更多人看到，谢谢！
+
 Chrome 会自动更新本应用的版本。
 
 ## 离线安装
