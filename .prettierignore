@@ -1,0 +1,17 @@
+
+package.json
+LICENSE
+/dist
+/static
+
+.DS_Store
+.eslintignore
+.gitignore
+.prettierignore
+.eslintcache
+.history
+*.lock
+*.zip
+*.md
+
+yarn-error.log

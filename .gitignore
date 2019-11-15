@@ -21,4 +21,6 @@ yarn.lock
 package-lock.json
 
 # build file
-powerfulpixivdownloader.zip
+*.zip
+
+.eslintcache
