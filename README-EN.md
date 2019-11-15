@@ -62,28 +62,28 @@ How to solve: Pull out the downloaded tabs individually and become a separate wi
 
 ## Available pages and test URL:
 
-- [Index page](https://www.pixiv.net/)
+0 [Home page](https://www.pixiv.net/)
 
-- [ALL works page](https://www.pixiv.net/member_illust.php?mode=medium&illust_id=62751951)
+1 [ArtWork page](https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72503012)
 
-- [ALL works list page](https://www.pixiv.net/member_illust.php?id=544479)
+2 [List page](https://www.pixiv.net/member_illust.php?id=544479)
 
-- [ALL tag list page](https://www.pixiv.net/member_illust.php?id=544479&tag=%E6%9D%B1%E6%96%B9)
+2 [Tag page](https://www.pixiv.net/member_illust.php?id=544479&tag=%E6%9D%B1%E6%96%B9)
 
-- [ALL bookmarks page](https://www.pixiv.net/bookmark.php?id=544479)
+2 [Bookmarks](https://www.pixiv.net/bookmark.php)
 
-- [ALL tag search page](https://www.pixiv.net/search.php?s_mode=s_tag&word=saber)
+5 [Search](https://www.pixiv.net/search.php?s_mode=s_tag&word=saber)
 
-- [Ranking page](https://www.pixiv.net/ranking.php)
+6 [Area ranking](https://www.pixiv.net/ranking_area.php?type=state&no=0)
 
-- [Area ranking page](https://www.pixiv.net/ranking_area.php?type=state&no=0)
+7 [Ranking](https://www.pixiv.net/ranking.php)
 
-- [Similar works page](https://www.pixiv.net/bookmark_add.php?id=63148723)
+8 [Pixivision](https://www.pixivision.net/zh/a/3190)
 
-- [Discovery page](https://www.pixiv.net/discovery)
+9 [Bookmark detail](https://www.pixiv.net/bookmark_add.php?id=63148723)
 
-- [New work: everyone](https://www.pixiv.net/new_illust.php)
+10 [New Work: Following](https://www.pixiv.net/bookmark_new_illust.php)
 
-- [New work: following](https://www.pixiv.net/bookmark_new_illust.php)
+11 [Discovery](https://www.pixiv.net/discovery)
 
-- [Illustration, comics, cosplay page on pixivision](https://www.pixivision.net/zh/a/3190)
+12 [New from All users](https://www.pixiv.net/new_illust.php)
