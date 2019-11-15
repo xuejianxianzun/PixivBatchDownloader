@@ -7,8 +7,9 @@
   "license": "GPL-3.0-or-later",
   "scripts": {
     "fmt": "prettier -c --write \"**/*\"",
-    "lessc": "lessc -x ./src/style/style.less ./dist/style/style.css",
-    "build": "tsc && npm run lessc && npm run fmt && node ./build.js"
+    "less": "lessc -x ./src/style/style.less ./dist/style/style.css",
+    "pre-build": "tsc && npm run less && npm run fmt",
+    "build": "npm run pre-build && node ./build.js"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.91",
