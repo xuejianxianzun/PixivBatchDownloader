@@ -20,6 +20,8 @@
 
 您可以从 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 安装本扩展。
 
+如果你喜欢这个扩展，请给它评分，使它可以被更多人看到，谢谢！
+
 Chrome 会自动更新本应用的版本。
 
 ## 离线安装
@@ -78,23 +80,23 @@ English （机翻，韩语设置下也使用英语文本）
 
 0 [首页](https://www.pixiv.net/)
 
-1 [作品页面](https://www.pixiv.net/member_illust.php?mode=medium&illust_id=63947226)
+1 [作品页面](https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72503012)
 
-2 [作品列表页](https://www.pixiv.net/member_illust.php?id=544479)
+2 [列表页](https://www.pixiv.net/member_illust.php?id=544479)
 
-2 [tag列表页](https://www.pixiv.net/member_illust.php?id=544479&tag=%E6%9D%B1%E6%96%B9)
+2 [Tag 页面](https://www.pixiv.net/member_illust.php?id=544479&tag=%E6%9D%B1%E6%96%B9)
 
 2 [收藏页面](https://www.pixiv.net/bookmark.php)
 
-5 [tag搜索页](https://www.pixiv.net/search.php?s_mode=s_tag&word=saber)
+5 [搜索页面](https://www.pixiv.net/search.php?s_mode=s_tag&word=saber)
 
 6 [地区排行榜](https://www.pixiv.net/ranking_area.php?type=state&no=0)
 
 7 [排行榜](https://www.pixiv.net/ranking.php)
 
-8 [pixivision上的插画、漫画、cosplay页面](https://www.pixivision.net/zh/a/3190)
+8 [Pixivision](https://www.pixivision.net/zh/a/3190)
 
-9 [相似作品](https://www.pixiv.net/bookmark_add.php?id=63148723)
+9 [收藏作品的详情](https://www.pixiv.net/bookmark_add.php?id=63148723)
 
 10 [关注的新作品](https://www.pixiv.net/bookmark_new_illust.php)
 
