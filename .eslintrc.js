@@ -1,6 +1,10 @@
 module.exports = {
-  extends: ['eslint:recommended', 'standard'],
-  plugins: ['standard', 'import', 'node', 'promise'],
+  parser: '@typescript-eslint/parser',
+  env: {
+    node: true,
+    browser: true
+  },
+  extends: ['plugin:@typescript-eslint/eslint-recommended', 'prettier/@typescript-eslint', 'prettier'],
   rules: {
     'no-console': 'off',
     'no-useless-catch': 'off'
