@@ -22,3 +22,5 @@ package-lock.json
 
 # build file
 *.zip
+
+.eslintcache
