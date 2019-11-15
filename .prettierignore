@@ -1,7 +1,6 @@
 
 package.json
 LICENSE
-/dist
 /static
 
 .DS_Store
