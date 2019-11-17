@@ -28,8 +28,6 @@
 
 单例模式
 
-responseError
-
 获取指定日期之后的作品
 
 图标改成 svg

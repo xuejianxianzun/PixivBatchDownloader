@@ -3487,10 +3487,6 @@ class InitSearchPage extends InitPageBase {
   // 添加快速筛选功能
   private fastScreen() {
     // 判断插入点的元素有没有加载出来
-    // let target = document
-    //   .evaluate(`//*[@id="root"]/div[1]/div[1]`, document)
-    //   .iterateNext()
-
     let target = document.querySelector('header')
 
     if (!target) {
