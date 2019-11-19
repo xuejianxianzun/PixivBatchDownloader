@@ -245,16 +245,17 @@ class API {
     })
   }
 
-  // 获取用户信息。包含每个作品的详细信息
-  //可以传入 id，或者自动获取当前页面的用户 id
-  static getUserProfileTop(id: string): Promise<UserProfileTop> {
+  // 获取用户信息
+  static getUserProfile(id: string): Promise<UserProfile> {
     return new Promise(resolve => {
-      fetch(`https://www.pixiv.net/ajax/user/${id}/profile/top`, {
+      // full=1 在画师的作品列表页使用，获取详细信息
+      // full=0 在作品页内使用，只获取少量信息
+      fetch(`https://www.pixiv.net/ajax/user/${id}?full=1`, {
         method: 'get',
         credentials: 'same-origin'
       })
         .then(response => response.json())
-        .then((data: UserProfileTop) => {
+        .then((data: UserProfile) => {
           resolve(data)
         })
     })
@@ -499,7 +500,7 @@ class API {
   }
 
   // 获取关注的的新作品的数据
-  static getBookmarkNewIllustData(url: string): Promise<TagSearchData[]> {
+  static getBookmarkNewIllustData(url: string): Promise<BookMarkNewData[]> {
     return new Promise((resolve, reject) => {
       fetch(url, {
         method: 'get',
@@ -622,40 +623,44 @@ class PageType {
   }
 }
 
-// 储存页面上的有用信息
+// 获取页面上的有用信息
 class PageInfo {
   constructor(type: number) {
     this.getPageInfo(type)
   }
 
-  // 预设为 1 是为了指示这个标记有值，这样就可以把它插入到文件名规则里。
+  // 预设为 1 是为了指示这个标记有值，这样在获取到实际值之前，就可以把它插入到下拉框里。
   public pageTitle = '1'
   public pageUserName = ''
   public pageUserID = ''
   public pageTag = ''
 
+  // 重置。当切换页面时可能旧页面的一些标记在新页面没有了，所以要清除掉
+  private reset() {
+    this.pageUserName = ''
+    this.pageUserID = ''
+    this.pageTag = ''
+  }
+
+  // 储存信息
+  // 开始抓取时使用，这样即使页面切换了，生成文件名时还是使用的刚开始抓取时的信息。
+  public async store(type: number) {
+    await this.getPageInfo(type)
+    store.pageInfo.pageUserName = this.pageUserName
+    store.pageInfo.pageUserID = this.pageUserID
+    store.pageInfo.pageTag = this.pageTag
+  }
+
   // 获取当前页面的一些信息，用于文件名中
   public async getPageInfo(type: number) {
+    this.reset()
+
     // 设置用户信息
     if (type === 1 || type === 2) {
-      // 只有 1 和 2 可以使用用户信息
-      let data = await API.getUserProfileTop(DOM.getUserId())
-      let useData: { [key: string]: WorksInfo } = {}
-      // 如果有插画作品，则取出插画作品
-      if (Object.keys(data.body.illusts).length > 0) {
-        useData = data.body.illusts
-      } else if (Object.keys(data.body.manga).length > 0) {
-        // 如果没有插画作品，则取出漫画作品
-        useData = data.body.manga
-      }
-
-      // 从作品信息中取出用户 name 和 id
-      const keys = Object.keys(useData)
-      if (keys.length > 0) {
-        const first = useData[keys[0]]
-        this.pageUserName = first.userName
-        this.pageUserID = first.userId
-      }
+      // 只有 1 和 2 可以使用页面上的用户信息
+      let data = await API.getUserProfile(DOM.getUserId())
+      this.pageUserID = data.body.userId
+      this.pageUserName = data.body.name
     }
 
     // 获取当前页面的 tag
@@ -880,21 +885,94 @@ layout-body 是在未登录时的 tag 搜索页使用的
   }
 }
 
-// 用户设置
-// 下载面板上可以修改的的选项
-class Setting {
-  // 获取要下载的个数
-  public getWantPageGreater0() {
-    const result = API.checkNumberGreater0(ui.form.setWantPage.value)
+// 过滤器
+// 审查每个作品的数据，决定是否要下载它。下载面板上只有一部分选项是过滤器。
+class Filter {
+  private notdownType: string = '' // 设置不要下载的作品类型
 
-    if (result.result) {
-      return result.value
+  private needTag: string = '' // 必须包含的tag的列表
+
+  private notNeedTag: string = '' // 要排除的tag的列表
+
+  private filterBMK: number = 0 // 要求收藏达到指定数量
+
+  private onlyDownBmk: boolean = false // 是否只下载收藏的作品
+
+  // 宽高条件
+  private filterWh: FilterWh = {
+    andOr: '&',
+    width: 0,
+    height: 0
+  }
+
+  private ratioType: string = '0' // 宽高比例的类型
+
+  private debut: boolean = false // 只下载首次登场的作品
+
+  // 从下载面板上获取过滤器的各个选项
+  public init() {
+    // 检查排除作品类型的设置
+    this.notdownType = this.getNotDownType()
+
+    // 检查是否设置了收藏数要求
+    this.filterBMK = this.getSetBmk()
+
+    // 检查是否设置了只下载书签作品
+    this.onlyDownBmk = this.getOnlyBmk()
+
+    // 检查是否设置了宽高条件
+    this.filterWh = this.getSetWh()
+
+    // 检查宽高比设置
+    this.ratioType = this.getRatioSetting()
+
+    // 获取必须包含的tag
+    this.needTag = this.getNeedTag()
+
+    // 获取要排除的tag
+    this.notNeedTag = this.getNotNeedTag()
+
+    // 检查是否设置了只下载首次登场
+    if (ui.form.debut.value === '1') {
+      this.debut = true
+      log.warning(lang.transl('_抓取首次登场的作品Title'))
     } else {
-      const msg = lang.transl('_checkWantPageRule1Arg2')
-      window.alert(msg)
-      dlCtrl.allowWork = true
-      throw new Error(msg)
+      this.debut = false
     }
+  }
+
+  // 检查作品是否符合过滤器的要求
+  // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
+  public check(option: FilterOption): boolean {
+    // 储存每一项检查的结果. true 表示保留这个作品
+    let result: boolean[] = []
+
+    // 检查排除类型设置
+    result.push(this.checkNotDownType(option.illustType))
+
+    // 检查收藏数要求
+    result.push(this.checkBMK(option.bookmarkCount))
+
+    // 检查只下载书签作品的要求
+    result.push(this.checkOnlyBmk(option.bookmarkData))
+
+    // 检查要排除的 tag
+    result.push(this.checkNotNeedTag(option.tags))
+
+    // 检查必须包含的 tag
+    result.push(this.checkNeedTag(option.tags))
+
+    // 检查宽高设置
+    result.push(this.checkSetWh(option.width, option.height))
+
+    // 检查宽高比设置
+    result.push(this.checkRatio(option.width, option.height))
+
+    // 检查首次登场设置
+    result.push(this.checkDebut(option.yes_rank))
+
+    // 结果里不包含 false 时，检查通过。只要有一个 false 就不通过
+    return !result.includes(false)
   }
 
   // 获取排除类型
@@ -934,34 +1012,8 @@ class Setting {
     return result
   }
 
-  // 获取作品张数限制
-  public getImgNumberPerWork() {
-    const check = API.checkNumberGreater0(ui.form.imgNumberPerWork.value)
-
-    if (check.result) {
-      log.warning(lang.transl('_作品张数提醒', check.value.toString()))
-      return check.value
-    } else {
-      return 0
-    }
-  }
-
-  // 检查用户输入的 tag 内容
-  private checkTagString(str: string) {
-    let result = ''
-    if (str) {
-      let tempArr = str.split(',')
-      // 如果用户在末尾也输入了逗号，则会产生一个空值，去掉它
-      if (tempArr[tempArr.length - 1] === '') {
-        tempArr.pop()
-      }
-      result = tempArr.join(',')
-    }
-    return result
-  }
-
   // 获取要排除的tag
-  public getNotNeedTag() {
+  private getNotNeedTag() {
     const result = '' || this.checkTagString(ui.form.notNeedTag.value)
     if (result) {
       log.warning(lang.transl('_设置了排除tag之后的提示') + result)
@@ -970,7 +1022,7 @@ class Setting {
   }
 
   // 获取必须包含的tag
-  public getNeedTag() {
+  private getNeedTag() {
     const result = '' || this.checkTagString(ui.form.needTag.value)
     if (result) {
       log.warning(lang.transl('_设置了必须tag之后的提示') + result)
@@ -978,72 +1030,8 @@ class Setting {
     return result
   }
 
-  // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否要排除这个作品。
-  public checkNotNeedTag(tags: string[], notNeedTag: string) {
-    let result = false
-
-    if (!notNeedTag) {
-      return false
-    }
-
-    let tempArr = notNeedTag.split(',')
-
-    // 如果设置了排除 tag
-    if (tempArr.length > 0) {
-      for (const tag of tags) {
-        for (const notNeed of tempArr) {
-          if (tag.toLowerCase() === notNeed.toLowerCase()) {
-            result = true
-            break
-          }
-        }
-      }
-    }
-
-    return result
-  }
-
-  // 检查作品是否符合包含 tag 的条件, 如果设置了多个 tag，需要作品里全部包含。返回值表示是否保留这个作品。
-  public checkNeedTag(tags: string[], needTag: string) {
-    let result = false
-
-    if (!needTag) {
-      return true
-    }
-
-    let tempArr = needTag.split(',')
-
-    // 如果设置了必须的 tag
-    if (tempArr.length > 0) {
-      let tagNeedMatched = 0
-      const tempTags = new Set()
-      // 如果不区分大小写的话，Fate/grandorder 和 Fate/GrandOrder 会被算作符合两个 tag，所以用 Set 结构去重。测试 id 51811780
-      for (const tag of tags) {
-        tempTags.add(tag.toLowerCase())
-      }
-
-      for (const tag of tempTags) {
-        for (const need of tempArr) {
-          if (tag === need.toLowerCase()) {
-            tagNeedMatched++
-            break
-          }
-        }
-      }
-
-      // 如果全部匹配
-      if (tagNeedMatched >= tempArr.length) {
-        result = true
-      }
-    } else {
-      result = true
-    }
-
-    return result
-  }
-
   // 获取过滤宽高的设置
-  public getSetWh() {
+  private getSetWh() {
     let result: FilterWh = {
       andOr: '&',
       width: 0,
@@ -1075,35 +1063,8 @@ class Setting {
     return result
   }
 
-  // 检查作品是否符合过滤宽高的条件
-  public checkSetWh(width: number, height: number, option: FilterWh) {
-    if (option.width > 0 || option.height > 0) {
-      // 如果宽高都小于要求的宽高
-      if (width < option.width && height < option.height) {
-        return false
-      } else {
-        if (option.andOr === '|') {
-          // 判断or的情况
-          if (width >= option.width || height >= option.height) {
-            return true
-          } else {
-            return false
-          }
-        } else if (option.andOr === '&') {
-          // 判断and的情况
-          if (width >= option.width && height >= option.height) {
-            return true
-          } else {
-            return false
-          }
-        }
-      }
-    }
-    return true
-  }
-
   // 获取收藏数要求
-  public getSetBmk() {
+  private getSetBmk() {
     const check = API.checkNumberGreater0(ui.form.setFavNum.value)
 
     if (check.result) {
@@ -1114,7 +1075,7 @@ class Setting {
   }
 
   // 获取只下载书签作品的设置
-  public getOnlyBmk() {
+  private getOnlyBmk() {
     const result = ui.form.setOnlyBmk.checked
     if (result) {
       log.warning(lang.transl('_只下载已收藏的提示'))
@@ -1122,42 +1083,8 @@ class Setting {
     return result
   }
 
-  // 检查作品是否符合【只下载书签作品】的条件,返回值 true 表示包含这个作品
-  public checkOnlyDownBmk(bookmarked: boolean, onlyDownBmk: boolean) {
-    // 如果设置了只下载书签作品
-    if (onlyDownBmk) {
-      if (!bookmarked) {
-        return false
-      } else {
-        return true
-      }
-    }
-
-    return true
-  }
-
-  // 检查用户输入的页数设置，并返回提示信息
-  public checkWantPageInput(crawlPartTip: string, crawlAllTip: string) {
-    const temp = parseInt(ui.form.setWantPage.value)
-
-    // 如果比 1 小，并且不是 -1，则不通过
-    if ((temp < 1 && temp !== -1) || isNaN(temp)) {
-      // 比 1 小的数里，只允许 -1 , 0 也不行
-      log.error(lang.transl('_checkWantPageRule1Arg2'), 2)
-      throw new Error('CrawlPage error: Illegal parameter.')
-    }
-
-    if (temp >= 1) {
-      log.warning(crawlPartTip.replace('-num-', temp.toString()))
-    } else if (temp === -1) {
-      log.warning(crawlAllTip)
-    }
-
-    return temp
-  }
-
   // 获取宽高比的设置
-  public getRatioSetting() {
+  private getRatioSetting() {
     let result = ui.form.ratio.value
 
     if (result === '1') {
@@ -1179,16 +1106,191 @@ class Setting {
     return result
   }
 
-  // 检查作品是否符合宽高比条件
-  public checkRatio(width: number, height: number, type: string) {
-    if (type === '0') {
+  // 检查排除类型设置
+  private checkNotDownType(illustType: FilterOption['illustType']) {
+    if (illustType === undefined) {
       return true
-    } else if (type === '1') {
+    } else {
+      if (this.notdownType.includes(illustType.toString())) {
+        return false
+      } else {
+        return true
+      }
+    }
+  }
+
+  // 检查收藏数要求
+  private checkBMK(bmk: FilterOption['bookmarkCount']) {
+    if (bmk === undefined) {
+      return true
+    } else {
+      return bmk >= this.filterBMK
+    }
+  }
+
+  // 检查作品是否符合【只下载书签作品】的条件,返回值 true 表示包含这个作品
+  private checkOnlyBmk(bookmarked: any) {
+    // 如果设置了只下载书签作品
+    if (this.onlyDownBmk) {
+      if (!!!bookmarked) {
+        return false
+      } else {
+        return true
+      }
+    }
+
+    return true
+  }
+
+  // 检查用户输入的 tag 内容
+  private checkTagString(str: string) {
+    let result = ''
+    if (str) {
+      let tempArr = str.split(',')
+      // 如果用户在末尾也输入了逗号，则会产生一个空值，去掉它
+      if (tempArr[tempArr.length - 1] === '') {
+        tempArr.pop()
+      }
+      result = tempArr.join(',')
+    }
+    return result
+  }
+
+  // 检查作品是否符合包含 tag 的条件, 如果设置了多个 tag，需要作品里全部包含。返回值表示是否保留这个作品。
+  private checkNeedTag(tags: FilterOption['tags']) {
+    let result = false
+
+    if (!this.needTag || tags === undefined) {
+      return true
+    }
+
+    let tempArr = this.needTag.split(',')
+
+    // 如果设置了必须的 tag
+    if (tempArr.length > 0) {
+      let tagNeedMatched = 0
+      const tempTags = new Set()
+      // 如果不区分大小写的话，Fate/grandorder 和 Fate/GrandOrder 会被算作符合两个 tag，所以用 Set 结构去重。测试 id 51811780
+      for (const tag of tags) {
+        tempTags.add(tag.toLowerCase())
+      }
+
+      for (const tag of tempTags) {
+        for (const need of tempArr) {
+          if (tag === need.toLowerCase()) {
+            tagNeedMatched++
+            break
+          }
+        }
+      }
+
+      // 如果全部匹配
+      if (tagNeedMatched >= tempArr.length) {
+        result = true
+      }
+    } else {
+      result = true
+    }
+
+    return result
+  }
+
+  // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。
+  private checkNotNeedTag(tags: FilterOption['tags']) {
+    let result = true
+
+    if (!this.notNeedTag || tags === undefined) {
+      return true
+    }
+
+    let tempArr = this.notNeedTag.split(',')
+
+    // 如果设置了排除 tag
+    if (tempArr.length > 0) {
+      for (const tag of tags) {
+        for (const notNeed of tempArr) {
+          if (tag.toLowerCase() === notNeed.toLowerCase()) {
+            result = false
+            break
+          }
+        }
+      }
+    }
+
+    return result
+  }
+
+  // 检查作品是否符合过滤宽高的条件
+  private checkSetWh(
+    width: FilterOption['width'],
+    height: FilterOption['height']
+  ) {
+    if (width === undefined) {
+      width = 0
+    }
+    if (height === undefined) {
+      height = 0
+    }
+
+    if (this.filterWh.width > 0 || this.filterWh.height > 0) {
+      // 如果宽高都小于要求的宽高
+      if (width < this.filterWh.width && height < this.filterWh.height) {
+        return false
+      } else {
+        if (this.filterWh.andOr === '|') {
+          // 判断or的情况
+          if (width >= this.filterWh.width || height >= this.filterWh.height) {
+            return true
+          } else {
+            return false
+          }
+        } else if (this.filterWh.andOr === '&') {
+          // 判断and的情况
+          if (width >= this.filterWh.width && height >= this.filterWh.height) {
+            return true
+          } else {
+            return false
+          }
+        }
+      }
+    }
+    return true
+  }
+
+  // 检查作品是否符合宽高比条件
+  private checkRatio(
+    width: FilterOption['width'],
+    height: FilterOption['height']
+  ) {
+    if (width === undefined) {
+      width = 0
+    }
+    if (height === undefined) {
+      height = 0
+    }
+
+    if (this.ratioType === '0') {
+      return true
+    } else if (this.ratioType === '1') {
       return width / height > 1
-    } else if (type === '2') {
+    } else if (this.ratioType === '2') {
       return width / height < 1
     } else {
       return width / height >= parseFloat(ui.form.userRatio.value)
+    }
+  }
+
+  // 检查首次登场设置
+  // yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
+  private checkDebut(yes_rank: FilterOption['yes_rank']) {
+    if (!this.debut) {
+      return true
+    } else {
+      if (yes_rank === 0 || yes_rank === undefined) {
+        return true
+      } else {
+        return false
+      }
     }
   }
 }
@@ -1315,7 +1417,7 @@ class InitSetting {
       // 根据 notdownType 里的记录，选中或者取消选中
       let element = ui.form[this.notdownTypeName[index]] as HTMLInputElement
       element.addEventListener('click', () => {
-        this.saveSetting('notdownType', setting.getNotDownType())
+        this.saveSetting('notdownType', filter.getNotDownType())
       })
     }
 
@@ -1660,6 +1762,7 @@ class UI {
         '_启用'
       )}</label>
       </p>
+      <input type="hidden" name="debut" value="0">
       </div>
       <div class="centerWrap_btns centerWrap_btns_free" id="centerWrap_btns_free">
   
@@ -2826,6 +2929,12 @@ class Store {
 
   public rankList: RankList = {} // 储存作品在排行榜中的排名
 
+  public pageInfo = {
+    pageUserName: '',
+    pageUserID: '',
+    pageTag: ''
+  }
+
   public reset() {
     this.result = []
     this.idList = []
@@ -2931,7 +3040,7 @@ class FileName {
       {
         name: '{p_user}',
         // 标记
-        value: pageInfo.pageUserName,
+        value: store.pageInfo.pageUserName,
         // 值
         prefix: '',
         // 添加在前面的标记
@@ -2940,7 +3049,7 @@ class FileName {
       },
       {
         name: '{p_uid}',
-        value: pageInfo.pageUserID ? DOM.getUserId() : '',
+        value: store.pageInfo.pageUserID ? DOM.getUserId() : '',
         prefix: '',
         safe: true
       },
@@ -2955,7 +3064,7 @@ class FileName {
       },
       {
         name: '{p_tag}',
-        value: pageInfo.pageTag,
+        value: store.pageInfo.pageTag,
         prefix: '',
         safe: false
       },
@@ -3596,7 +3705,7 @@ class InitRankingPage extends InitPageBase {
       this.addCenterButton(Colors.blue, lang.transl('_抓取首次登场的作品'), [
         ['title', lang.transl('_抓取首次登场的作品Title')]
       ]).addEventListener('click', () => {
-        this.crawler.debut = true
+        ui.form.debut.value = '1'
         this.crawler.readyCrawl()
       })
     }
@@ -3828,8 +3937,6 @@ abstract class CrawlPageBase {
 
   public downRecommended: boolean = false // 是否下载推荐作品（收藏页面下方）
 
-  public debut: boolean = false // 只下载首次登场的作品
-
   public fetchNumber: number = 0 // 要抓取几页
 
   private readonly ajaxThreadsNumberDefault: number = 6 // 抓取页面时的并发连接数
@@ -3842,26 +3949,53 @@ abstract class CrawlPageBase {
 
   public imgNumberPerWork: number = 0 // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
 
-  public notdownType: string = '' // 设置不要下载的作品类型
+  public delWork: boolean = false // 是否处于删除作品状态
 
-  public needTag: string = '' // 必须包含的tag的列表
+  // 检查用户输入的页数设置，并返回提示信息
+  public checkWantPageInput(crawlPartTip: string, crawlAllTip: string) {
+    const temp = parseInt(ui.form.setWantPage.value)
 
-  public notNeedTag: string = '' // 要排除的tag的列表
+    // 如果比 1 小，并且不是 -1，则不通过
+    if ((temp < 1 && temp !== -1) || isNaN(temp)) {
+      // 比 1 小的数里，只允许 -1 , 0 也不行
+      log.error(lang.transl('_checkWantPageRule1Arg2'), 2)
+      throw new Error('CrawlPage error: Illegal parameter.')
+    }
 
-  public filterBmk: number = 0 // 要求收藏达到指定数量
+    if (temp >= 1) {
+      log.warning(crawlPartTip.replace('-num-', temp.toString()))
+    } else if (temp === -1) {
+      log.warning(crawlAllTip)
+    }
 
-  public onlyDownBmk: boolean = false // 是否只下载收藏的作品
-
-  // 宽高条件
-  public filterWh: FilterWh = {
-    andOr: '&',
-    width: 0,
-    height: 0
+    return temp
   }
 
-  public ratioType: string = '0' // 宽高比例的类型
+  // 获取要下载的页数/个数
+  public getWantPageGreater0() {
+    const result = API.checkNumberGreater0(ui.form.setWantPage.value)
 
-  public delWork: boolean = false // 是否处于删除作品状态
+    if (result.result) {
+      return result.value
+    } else {
+      const msg = lang.transl('_checkWantPageRule1Arg2')
+      window.alert(msg)
+      dlCtrl.allowWork = true
+      throw new Error(msg)
+    }
+  }
+
+  // 获取作品张数设置
+  public getImgNumberPerWork() {
+    const check = API.checkNumberGreater0(ui.form.imgNumberPerWork.value)
+
+    if (check.result) {
+      log.warning(lang.transl('_作品张数提醒', check.value.toString()))
+      return check.value
+    } else {
+      return 0
+    }
+  }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
   public getWantPage() {}
@@ -3879,7 +4013,7 @@ abstract class CrawlPageBase {
   }
 
   // 准备抓取，进行抓取之前的一些检查工作。必要时可以在子类中改写
-  public readyCrawl(): false | undefined | void {
+  public async readyCrawl() {
     // 检查是否可以开始抓取
     this.checkNotAllowPage()
 
@@ -3895,34 +4029,10 @@ abstract class CrawlPageBase {
 
     this.getWantPage()
 
+    filter.init()
+
     // 检查是否设置了作品张数限制
-    this.imgNumberPerWork = setting.getImgNumberPerWork()
-
-    // 检查排除作品类型的设置
-    this.notdownType = setting.getNotDownType()
-
-    // 检查是否设置了收藏数要求
-    this.filterBmk = setting.getSetBmk()
-
-    // 检查是否设置了只下载书签作品
-    this.onlyDownBmk = setting.getOnlyBmk()
-
-    // 检查是否设置了宽高条件
-    this.filterWh = setting.getSetWh()
-
-    // 检查宽高比设置
-    this.ratioType = setting.getRatioSetting()
-
-    // 获取必须包含的tag
-    this.needTag = setting.getNeedTag()
-
-    // 获取要排除的tag
-    this.notNeedTag = setting.getNotNeedTag()
-
-    // 检查是否设置了只下载首次登场
-    if (this.debut) {
-      log.warning(lang.transl('_抓取首次登场的作品Title'))
-    }
+    this.imgNumberPerWork = this.getImgNumberPerWork()
 
     // 重置下载状态
     this.resetResult()
@@ -3931,6 +4041,9 @@ abstract class CrawlPageBase {
     dlCtrl.allowWork = false
 
     this.type = pageType.getPageType()
+
+    await pageInfo.store(this.type)
+
     // 进入第一个抓取方法
     this.nextStep()
   }
@@ -3944,9 +4057,9 @@ abstract class CrawlPageBase {
   public abstract getListPage(): void | false | undefined | Promise<void>
 
   // 作品列表获取完毕，开始抓取作品内容页
-  public getListUrlFinished() {
+  public getWorksListFinished() {
     // 列表页获取完毕后，可以在这里重置一些变量
-    this.debut = false
+    ui.form.debut.value = '0'
     this.listPageFinished = 0
 
     if (store.idList.length === 0) {
@@ -4015,106 +4128,62 @@ abstract class CrawlPageBase {
     }
 
     // 预设及获取图片信息
-    const jsInfo = data.body
-    const illustId = jsInfo.illustId
-    const fullWidth = jsInfo.width // 原图宽度
-    const fullHeight = jsInfo.height // 原图高度
-    const title = jsInfo.illustTitle // 作品标题
-    const userid = jsInfo.userId // 用户id
-    let user = jsInfo.userName // 用户名字，如果这里获取不到，下面从 tag 尝试获取
-    const nowAllTagInfo = jsInfo.tags.tags // 取出 tag 信息
-    const nowAllTag = [] // 保存 tag 列表
-    const tagWithTranslation = [] // 保存 tag 列表，附带翻译后的 tag
+    const body = data.body
+    const illustId = body.illustId
+    const fullWidth = body.width // 原图宽度
+    const fullHeight = body.height // 原图高度
+    const title = body.illustTitle // 作品标题
+    const userid = body.userId // 用户id
+    let user = body.userName // 用户名字，如果这里获取不到，下面从 tag 尝试获取
+    const tagInfo = body.tags.tags // 取出 tag 信息
+    const tags: string[] = [] // 保存 tag 列表
+    const tagTranslation = [] // 保存 tag 列表，附带翻译后的 tag
 
-    if (nowAllTagInfo.length > 0) {
+    if (tagInfo.length > 0) {
       if (!user) {
-        user = nowAllTagInfo[0].userName ? nowAllTagInfo[0].userName : '' // 这里从第一个tag里取出用户名，如果没有 tag 那就获取不到用户名
+        user = tagInfo[0].userName ? tagInfo[0].userName : '' // 这里从第一个tag里取出用户名，如果没有 tag 那就获取不到用户名
       }
 
-      for (const tagData of nowAllTagInfo) {
-        nowAllTag.push(tagData.tag)
-        tagWithTranslation.push(tagData.tag)
+      for (const tagData of tagInfo) {
+        tags.push(tagData.tag)
+        tagTranslation.push(tagData.tag)
         if (tagData.translation && tagData.translation.en) {
-          tagWithTranslation.push(tagData.translation.en)
+          tagTranslation.push(tagData.translation.en)
         }
       }
     }
 
-    const bmk = jsInfo.bookmarkCount // 收藏数
+    const bmk = body.bookmarkCount // 收藏数
     let ext = '' // 扩展名
     let imgUrl = ''
-    const whCheckResult = setting.checkSetWh(
-      fullWidth,
-      fullHeight,
-      this.filterWh
-    ) // 检查宽高设置
-    const ratioCheckResult = setting.checkRatio(
-      fullWidth,
-      fullHeight,
-      this.ratioType
-    ) // 检查宽高比设置
+    let rank = '' // 保存作品在排行榜上的编号
 
-    // 检查收藏数要求
-    let bmkCheckResult = true
-    if (bmk < this.filterBmk) {
-      bmkCheckResult = false
+    const filterOpt: FilterOption = {
+      illustType: body.illustType,
+      tags: tags,
+      bookmarkCount: bmk,
+      bookmarkData: body.bookmarkData,
+      width: fullWidth,
+      height: fullHeight
     }
-
-    // 检查只下载书签作品的要求
-    const checkBookmarkResult = setting.checkOnlyDownBmk(
-      !!jsInfo.bookmarkData,
-      this.onlyDownBmk
-    )
-
-    // 检查排除类型设置，这里取反
-    const notdownTypeResult = !this.notdownType.includes(
-      jsInfo.illustType.toString()
-    )
-
-    let tagCheckResult // 储存 tag 检查结果
-
-    // 检查要排除的 tag
-    const tagNotNeedIsFound = setting.checkNotNeedTag(
-      nowAllTag,
-      this.notNeedTag
-    )
-
-    // 如果检查排除的 tag，没有匹配到
-    if (!tagNotNeedIsFound) {
-      // 检查必须包含的 tag
-      tagCheckResult = setting.checkNeedTag(nowAllTag, this.needTag)
-    } else {
-      // 如果匹配到了要排除的tag，则不予通过
-      tagCheckResult = false
-    }
-
-    // 上面的检查全部通过才可以下载这个作品
-    const totalCheck =
-      tagCheckResult &&
-      checkBookmarkResult &&
-      notdownTypeResult &&
-      whCheckResult &&
-      ratioCheckResult &&
-      bmkCheckResult
 
     // 检查通过
-    if (totalCheck) {
-      // 获取作品在排行榜上的编号
-      let rank = ''
+    if (filter.check(filterOpt)) {
       if (this.type === 7) {
-        rank = '#' + store.rankList[jsInfo.illustId]
+        rank = '#' + store.rankList[body.illustId]
       }
+
       // 储存作品信息
-      if (jsInfo.illustType !== 2) {
+      if (body.illustType !== 2) {
         // 插画或漫画
         // 检查要下载该作品的前面几张
-        let pNo = jsInfo.pageCount
+        let pNo = body.pageCount
         if (this.imgNumberPerWork > 0 && this.imgNumberPerWork <= pNo) {
           pNo = this.imgNumberPerWork
         }
 
         // 获取多p作品的原图页面
-        imgUrl = jsInfo.urls.original
+        imgUrl = body.urls.original
         const tempExt = imgUrl.split('.')
         ext = tempExt[tempExt.length - 1]
 
@@ -4126,22 +4195,22 @@ abstract class CrawlPageBase {
             illustId + '_p' + i,
             nowUrl,
             title,
-            nowAllTag,
-            tagWithTranslation,
+            tags,
+            tagTranslation,
             user,
             userid,
             fullWidth,
             fullHeight,
             ext,
             bmk,
-            jsInfo.createDate.split('T')[0],
-            jsInfo.illustType,
+            body.createDate.split('T')[0],
+            body.illustType,
             rank,
             {}
           )
         }
         this.outputImgNum()
-      } else if (jsInfo.illustType === 2) {
+      } else if (body.illustType === 2) {
         // 动图
         // 获取动图的信息
         const info = await API.getIllustUgoiraData(illustId)
@@ -4157,16 +4226,16 @@ abstract class CrawlPageBase {
           illustId,
           info.body.originalSrc,
           title,
-          nowAllTag,
-          tagWithTranslation,
+          tags,
+          tagTranslation,
           user,
           userid,
           fullWidth,
           fullHeight,
           ext,
           bmk,
-          jsInfo.createDate.split('T')[0],
-          jsInfo.illustType,
+          body.createDate.split('T')[0],
+          body.illustType,
           rank,
           ugoiraInfo
         )
@@ -4182,30 +4251,7 @@ abstract class CrawlPageBase {
 
       if (this.fetchNumber === -1 || this.fetchNumber > 0) {
         // 应该继续下载时，检查是否有下一个作品
-        const userIllust = jsInfo.userIllusts
-        let nextId
-
-        // 在所有不为 null 的数据里（可能有1-3个），illustId 比当前 id 大的是新作品, 比当前 id 小的是旧作品
-        for (const val of Object.values(userIllust)) {
-          if (val) {
-            const thisId = parseInt(val.illustId) // 转换成数字进行比较
-            if (this.downDirection === -1 && thisId > parseInt(illustId)) {
-              nextId = val.illustId
-              break
-            } else if (
-              this.downDirection === 1 &&
-              thisId < parseInt(illustId)
-            ) {
-              nextId = val.illustId
-              break
-            }
-          }
-        }
-
-        if (nextId) {
-          // 储存下一个要抓取的 id
-          store.idList.push(nextId)
-        }
+        this.getNextId(body)
       } else {
         // 抓取完了指定数量的作品
         this.crawFinished()
@@ -4214,6 +4260,31 @@ abstract class CrawlPageBase {
     }
 
     this.afterGetIllust()
+  }
+
+  // 在作品页内向上、向下抓取作品时，查找下一个要抓取的作品的 id
+  private getNextId(body: IllustData['body']) {
+    let nextId
+    const illustId = body.illustId
+    const userIllusts = Object.values(body.userIllusts)
+    // 在所有不为 null 的数据里（可能有1-3个），illustId 比当前 id 大的是新作品, 比当前 id 小的是旧作品
+    for (const val of userIllusts) {
+      if (val) {
+        const thisId = parseInt(val.illustId) // 转换成数字进行比较
+        if (this.downDirection === -1 && thisId > parseInt(illustId)) {
+          nextId = val.illustId
+          break
+        } else if (this.downDirection === 1 && thisId < parseInt(illustId)) {
+          nextId = val.illustId
+          break
+        }
+      }
+    }
+
+    if (nextId) {
+      // 储存下一个要抓取的 id
+      store.idList.push(nextId)
+    }
   }
 
   // 抓取完毕
@@ -4292,7 +4363,7 @@ abstract class CrawlPageBase {
   }
 
   // 请求结果错误时进行处理
-  public responseError(url: string) {
+  private responseError(url: string) {
     let type = pageType.getPageType()
 
     // 处理需要中断抓取的情况
@@ -4412,7 +4483,7 @@ class CrawlIndexPage extends CrawlPageBase {
   public nextStep() {
     // 在主页通过id抓取时，不需要获取列表页，直接完成
     log.log(lang.transl('_开始获取作品页面'))
-    this.getListUrlFinished()
+    this.getWorksListFinished()
   }
 
   public getWantPage() {}
@@ -4428,13 +4499,13 @@ class CrawlIllustPage extends CrawlPageBase {
     } else {
       // 检查下载页数的设置
       if (!this.downRelated) {
-        this.fetchNumber = setting.checkWantPageInput(
+        this.fetchNumber = this.checkWantPageInput(
           lang.transl('_checkWantPageRule1Arg3'),
           lang.transl('_checkWantPageRule1Arg4')
         )
       } else {
         // 相关作品的提示
-        this.fetchNumber = setting.checkWantPageInput(
+        this.fetchNumber = this.checkWantPageInput(
           lang.transl('_checkWantPageRule1Arg9'),
           lang.transl('_checkWantPageRule1Arg10')
         )
@@ -4455,7 +4526,7 @@ class CrawlIllustPage extends CrawlPageBase {
         log.log(lang.transl('_开始获取作品页面'))
       }
 
-      this.getListUrlFinished()
+      this.getWorksListFinished()
     }
   }
 
@@ -4473,7 +4544,7 @@ class CrawlIllustPage extends CrawlPageBase {
     store.idList = store.idList.concat(recommendIdList)
 
     log.log(lang.transl('_相关作品抓取完毕', store.idList.length.toString()))
-    this.getListUrlFinished()
+    this.getWorksListFinished()
   }
 }
 
@@ -4496,7 +4567,7 @@ class CrawlUserPage extends CrawlPageBase {
     if (this.downRecommended) {
       pageTip = lang.transl('_checkWantPageRule1Arg11')
     }
-    this.fetchNumber = setting.checkWantPageInput(
+    this.fetchNumber = this.checkWantPageInput(
       lang.transl('_checkWantPageRule1Arg6'),
       pageTip
     )
@@ -4674,7 +4745,7 @@ class CrawlUserPage extends CrawlPageBase {
       lang.transl('_列表抓取完成开始获取作品页', store.idList.length.toString())
     )
 
-    this.getListUrlFinished()
+    this.getWorksListFinished()
   }
 
   // 获取用户的全部作品列表
@@ -4770,14 +4841,14 @@ class CrawlUserPage extends CrawlPageBase {
       store.idList.push(API.getIllustId(a.href))
     }
 
-    this.getListUrlFinished()
+    this.getWorksListFinished()
   }
 }
 
 // 抓取搜索页
 class CrawlSearchPage extends CrawlPageBase {
   public getWantPage() {
-    this.fetchNumber = setting.checkWantPageInput(
+    this.fetchNumber = this.checkWantPageInput(
       lang.transl('_checkWantPageRule1Arg6'),
       lang.transl('_checkWantPageRule1Arg7')
     )
@@ -4877,33 +4948,15 @@ class CrawlSearchPage extends CrawlPageBase {
         continue
       }
 
-      // 检查宽高设置和宽高比设置
-      const tureWidth = nowData.width
-      const tureHeight = nowData.height
-      if (
-        !setting.checkSetWh(tureWidth, tureHeight, this.filterWh) ||
-        !setting.checkRatio(tureWidth, tureHeight, this.ratioType)
-      ) {
-        continue
+      const filterOpt: FilterOption = {
+        width: nowData.width,
+        height: nowData.height,
+        bookmarkData: nowData.bookmarkData,
+        illustType: nowData.illustType,
+        tags: nowData.tags
       }
 
-      // 检查只下载书签作品的设置
-      if (!setting.checkOnlyDownBmk(!!nowData.bookmarkData, this.onlyDownBmk)) {
-        continue
-      }
-
-      // 检查排除类型的设置
-      if (this.notdownType.includes(nowData.illustType.toString())) {
-        continue
-      }
-
-      // 检查排除的 tag 的设置
-      if (setting.checkNotNeedTag(nowData.tags, this.notNeedTag)) {
-        continue
-      }
-
-      // 检查必须包含的 tag  的设置
-      if (!setting.checkNeedTag(nowData.tags, this.needTag)) {
+      if (!filter.check(filterOpt)) {
         continue
       }
 
@@ -4915,7 +4968,7 @@ class CrawlSearchPage extends CrawlPageBase {
     // 没有数据，一般是抓取完了
     if (useData.length === 0) {
       log.log(lang.transl('_搜索页已抓取所有页面'))
-      this.getListUrlFinished()
+      this.getWorksListFinished()
       return
     }
 
@@ -4930,7 +4983,7 @@ class CrawlSearchPage extends CrawlPageBase {
       this.startpageNo + this.listPageFinished === 1000
     ) {
       log.log(lang.transl('_列表页抓取完成'))
-      this.getListUrlFinished()
+      this.getWorksListFinished()
       return
     }
 
@@ -4952,22 +5005,16 @@ class CrawlAreaRankingPage extends CrawlPageBase {
 
       // 提取出 tag 列表
       const tags = img.dataset.tags!.split(' ')
-
-      // 检查排除的 tag 的设置
-      if (setting.checkNotNeedTag(tags, this.notNeedTag)) {
-        continue
-      }
-
-      // 检查必须包含的 tag  的设置
-      if (!setting.checkNeedTag(tags, this.needTag)) {
-        continue
-      }
-
-      // 检查只下载书签作品的设置
       const bookmarked = el
         .querySelector('._one-click-bookmark')!
         .classList.contains('on')
-      if (!setting.checkOnlyDownBmk(bookmarked, this.onlyDownBmk)) {
+
+      const filterOpt: FilterOption = {
+        tags: tags,
+        bookmarkData: bookmarked
+      }
+
+      if (!filter.check(filterOpt)) {
         continue
       }
 
@@ -4979,7 +5026,7 @@ class CrawlAreaRankingPage extends CrawlPageBase {
     log.log(
       lang.transl('_列表抓取完成开始获取作品页', store.idList.length.toString())
     )
-    this.getListUrlFinished()
+    this.getWorksListFinished()
   }
 }
 
@@ -5004,7 +5051,7 @@ class CrawlRankingPage extends CrawlPageBase {
   public getWantPage() {
     this.listPageFinished = 0
     // 检查下载页数的设置
-    this.fetchNumber = setting.checkWantPageInput(
+    this.fetchNumber = this.checkWantPageInput(
       lang.transl('_checkWantPageRule1Arg12'),
       lang.transl('_checkWantPageRule1Arg4')
     )
@@ -5014,8 +5061,12 @@ class CrawlRankingPage extends CrawlPageBase {
     }
   }
 
-  public async getListPage() {
+  public nextStep() {
     this.setPartNum()
+    this.getListPage()
+  }
+
+  public async getListPage() {
     titleBar.changeTitle('↑')
     let url = this.baseUrl + (this.startpageNo + this.listPageFinished)
 
@@ -5033,7 +5084,7 @@ class CrawlRankingPage extends CrawlPageBase {
           log.log(
             lang.transl('_排行榜任务完成', store.idList.length.toString())
           )
-          this.getListUrlFinished()
+          this.getWorksListFinished()
         }
       }
 
@@ -5046,44 +5097,23 @@ class CrawlRankingPage extends CrawlPageBase {
 
     const contents = data.contents // 取出作品信息列表
     for (const data of contents) {
-      // 不是下载首次登场作品时，会检查设置的下载数量。下载首次登场作品时不检查。
-      if (!this.debut && data.rank > this.fetchNumber) {
+      // 下载排行榜所有作品时，会检查是否已经抓取到了指定数量的作品。下载首次登场作品时不检查，抓取所有作品。
+      if (ui.form.debut.value === '0' && data.rank > this.fetchNumber) {
         complete = true
         break
       }
 
       // 目前，数据里并没有包含收藏数量，所以在这里没办法检查收藏数量要求
-
-      // 检查只下载“首次收藏”要求。yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
-      if (this.debut && data.yes_rank !== 0) {
-        continue
+      const filterOpt: FilterOption = {
+        illustType: parseInt(data.illust_type) as any,
+        tags: data.tags,
+        bookmarkData: data.is_bookmarked,
+        width: data.width,
+        height: data.height,
+        yes_rank: data.yes_rank
       }
 
-      // 检查只下载收藏作品的设置
-      if (!setting.checkOnlyDownBmk(data.is_bookmarked, this.onlyDownBmk)) {
-        continue
-      }
-
-      // 检查排除类型的设置
-      if (this.notdownType.includes(data.illust_type)) {
-        continue
-      }
-
-      // 检查排除的 tag 的设置
-      if (setting.checkNotNeedTag(data.tags, this.notNeedTag)) {
-        continue
-      }
-
-      // 检查必须包含的 tag  的设置
-      if (!setting.checkNeedTag(data.tags, this.needTag)) {
-        continue
-      }
-
-      // 检查宽高设置和宽高比设置
-      if (
-        !setting.checkSetWh(data.width, data.height, this.filterWh) ||
-        !setting.checkRatio(data.width, data.height, this.ratioType)
-      ) {
+      if (!filter.check(filterOpt)) {
         continue
       }
 
@@ -5101,7 +5131,7 @@ class CrawlRankingPage extends CrawlPageBase {
     // 抓取完毕
     if (complete || this.listPageFinished === this.partNumber) {
       log.log(lang.transl('_排行榜任务完成', store.idList.length.toString()))
-      this.getListUrlFinished()
+      this.getWorksListFinished()
     } else {
       // 继续抓取
       this.getListPage()
@@ -5111,7 +5141,7 @@ class CrawlRankingPage extends CrawlPageBase {
 
 // 抓取 pixivision 页面
 class CrawlPixivisionPage extends CrawlPageBase {
-  public readyCrawl() {
+  public async readyCrawl() {
     this.getPixivision()
   }
 
@@ -5248,7 +5278,7 @@ class CrawlPixivisionPage extends CrawlPageBase {
 // 抓取 bookmark_detail 页面
 class CrawlBookmarkDetailPage extends CrawlPageBase {
   public getWantPage() {
-    this.fetchNumber = setting.getWantPageGreater0()
+    this.fetchNumber = this.getWantPageGreater0()
     if (this.fetchNumber > this.maxCount) {
       this.fetchNumber = this.maxCount
     }
@@ -5265,14 +5295,14 @@ class CrawlBookmarkDetailPage extends CrawlPageBase {
     }
 
     log.log(lang.transl('_排行榜任务完成', store.idList.length.toString()))
-    this.getListUrlFinished()
+    this.getWorksListFinished()
   }
 }
 
 // 抓取 关注的新作品
 class CrawlBookmarkNewIllustPage extends CrawlPageBase {
   public getWantPage() {
-    this.fetchNumber = setting.getWantPageGreater0()
+    this.fetchNumber = this.getWantPageGreater0()
     if (this.fetchNumber > this.maxCount) {
       this.fetchNumber = this.maxCount
     }
@@ -5287,7 +5317,7 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
     let url = this.baseUrl + p
 
     // 发起请求，获取列表页
-    let worksData: TagSearchData[]
+    let worksData: BookMarkNewData[]
     try {
       worksData = await API.getBookmarkNewIllustData(url)
     } catch (error) {
@@ -5297,33 +5327,15 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
 
     // 检查一些此时可以进行检查的设置项
     for (const data of worksData) {
-      // 检查宽高设置和宽高比设置
-      const tureWidth = data.width
-      const tureHeight = data.height
-      if (
-        !setting.checkSetWh(tureWidth, tureHeight, this.filterWh) ||
-        !setting.checkRatio(tureWidth, tureHeight, this.ratioType)
-      ) {
-        continue
+      const filterOpt: FilterOption = {
+        width: data.width,
+        height: data.height,
+        bookmarkData: data.isBookmarked,
+        illustType: parseInt(data.illustType) as any,
+        tags: data.tags
       }
 
-      // 检查只下载书签作品的设置
-      if (!setting.checkOnlyDownBmk(data.isBookmarked, this.onlyDownBmk)) {
-        continue
-      }
-
-      // 检查排除类型的设置
-      if (this.notdownType.includes(data.illustType)) {
-        continue
-      }
-
-      // 检查排除的 tag 的设置
-      if (setting.checkNotNeedTag(data.tags, this.notNeedTag)) {
-        continue
-      }
-
-      // 检查必须包含的 tag  的设置
-      if (!setting.checkNeedTag(data.tags, this.needTag)) {
+      if (!filter.check(filterOpt)) {
         continue
       }
 
@@ -5343,7 +5355,7 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
     if (p >= 100 || this.listPageFinished === this.fetchNumber) {
       dlCtrl.allowWork = true
       log.log(lang.transl('_列表页抓取完成'))
-      this.getListUrlFinished()
+      this.getWorksListFinished()
     } else {
       // 继续抓取
       this.getListPage()
@@ -5354,7 +5366,7 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
 // 抓取 大家的新作品页面
 class CrawlNewIllustPage extends CrawlPageBase {
   public getWantPage() {
-    this.fetchNumber = setting.getWantPageGreater0()
+    this.fetchNumber = this.getWantPageGreater0()
     if (this.fetchNumber > this.maxCount) {
       this.fetchNumber = this.maxCount
     }
@@ -5423,33 +5435,15 @@ class CrawlNewIllustPage extends CrawlPageBase {
         continue
       }
 
-      // 检查宽高设置和宽高比设置
-      const tureWidth = nowData.width
-      const tureHeight = nowData.height
-      if (
-        !setting.checkSetWh(tureWidth, tureHeight, this.filterWh) ||
-        !setting.checkRatio(tureWidth, tureHeight, this.ratioType)
-      ) {
-        continue
+      const filterOpt: FilterOption = {
+        width: nowData.width,
+        height: nowData.height,
+        bookmarkData: nowData.bookmarkData,
+        illustType: nowData.illustType,
+        tags: nowData.tags
       }
 
-      // 检查只下载书签作品的设置
-      if (!setting.checkOnlyDownBmk(!!nowData.bookmarkData, this.onlyDownBmk)) {
-        continue
-      }
-
-      // 检查排除类型的设置
-      if (this.notdownType.includes(nowData.illustType.toString())) {
-        continue
-      }
-
-      // 检查排除的 tag 的设置
-      if (setting.checkNotNeedTag(nowData.tags, this.notNeedTag)) {
-        continue
-      }
-
-      // 检查必须包含的 tag  的设置
-      if (!setting.checkNeedTag(nowData.tags, this.needTag)) {
+      if (!filter.check(filterOpt)) {
         continue
       }
 
@@ -5464,7 +5458,7 @@ class CrawlNewIllustPage extends CrawlPageBase {
       this.fetchCount >= this.maxCount
     ) {
       log.log(lang.transl('_开始获取作品页面'))
-      this.getListUrlFinished()
+      this.getWorksListFinished()
       return
     }
 
@@ -5497,7 +5491,7 @@ class CrawlDiscoverPage extends CrawlPageBase {
     })
 
     log.log(lang.transl('_排行榜任务完成', store.idList.length.toString()))
-    this.getListUrlFinished()
+    this.getWorksListFinished()
   }
 }
 
@@ -6206,7 +6200,7 @@ const fileName = new FileName()
 
 const output = new Output()
 
-let setting = new Setting()
+let filter = new Filter()
 
 const initSetting = new InitSetting()
 

@@ -125,12 +125,12 @@ interface UgoiraInfo {
 }
 
 // tag 搜索页里，作品信息的数据
-interface TagSearchData {
+interface BookMarkNewData {
   bookmarkCount: number
   height: number
   illustId: string
   illustTitle: string
-  illustType: string
+  illustType: '0' | '1' | '2'
   isBookmarkable: boolean
   isBookmarked: boolean
   isPrivateBookmark: boolean
@@ -220,7 +220,7 @@ interface IllustData {
     id: string
     title: string
     description: string
-    illustType: number
+    illustType: 0 | 1 | 2
     createDate: string
     uploadDate: string
     restrict: number
@@ -377,7 +377,7 @@ interface WorksInfo {
   alt: string
 }
 
-// 画师信息的数据
+// 画师信息的数据 user/id/profile/Top
 interface UserProfileTop {
   error: boolean
   message: string
@@ -425,6 +425,78 @@ interface UserProfileTop {
   }
 }
 
+// 画师账户信息 user/id?full=1
+interface UserProfile {
+  error: boolean
+  message: '' | string
+  body: {
+    userId: string
+    name: string
+    image: string
+    imageBig: string
+    premium: boolean
+    isFollowed: boolean
+    isMypixiv: boolean
+    isBlocking: boolean
+    background: null | {
+      repeat: null
+      color: null
+      url: string
+      isPrivate: boolean
+    }
+    partial: number
+    following: number
+    followedBack: boolean
+    comment: string
+    commentHtml: string
+    webpage: null | string
+    social: null | {
+      twitter?: {
+        url: string
+      }
+      facebook?: {
+        url: string
+      }
+      pawoo?: {
+        url: string
+      }
+    }
+    region: {
+      name: null | string
+      privacyLevel: null | string
+    }
+    birthDay: {
+      name: null | string
+      privacyLevel: null | string
+    }
+    gender: {
+      name: null | string
+      privacyLevel: null | string
+    }
+    job: {
+      name: null | string
+      privacyLevel: null | string
+    }
+    workspace: null | {
+      userWorkspaceMonitor?: string
+      userWorkspaceTool?: string
+      userWorkspaceScanner?: string
+      userWorkspaceTablet?: string
+      userWorkspaceMouse?: string
+      userWorkspacePrinter?: string
+      userWorkspaceDesktop?: string
+    }
+    official: boolean
+    group:
+      | null
+      | {
+          id: string
+          title: string
+          iconUrl: string
+        }[]
+  }
+}
+
 // xzTip 的参数
 interface XzTipArg {
   type: number
@@ -455,6 +527,7 @@ interface XzForm extends HTMLFormElement {
   pageInfoSelect: HTMLSelectElement
   fileNameSelect: HTMLSelectElement
   tagNameToFileName: HTMLInputElement
+  debut: HTMLInputElement
 }
 
 // xzSetting
@@ -604,7 +677,7 @@ interface RankingData {
       date: string
       tags: string[]
       url: string
-      illust_type: string
+      illust_type: '0' | '1' | '2'
       illust_book_style: string
       illust_page_count: string
       user_name: string
@@ -666,7 +739,7 @@ interface SearchData {
         illustTitle: string
         id: string
         title: string
-        illustType: number
+        illustType: 0 | 1 | 2
         xRestrict: number
         restrict: number
         sl: number
@@ -702,7 +775,7 @@ interface NewIllustData {
       illustTitle: string
       id: string
       title: string
-      illustType: number
+      illustType: 0 | 1 | 2
       xRestrict: number
       restrict: number
       sl: number
@@ -734,4 +807,15 @@ interface NewIllustData {
       }
     }
   }
+}
+
+// 过滤器的选项
+interface FilterOption {
+  illustType?: 0 | 1 | 2
+  tags?: string[]
+  bookmarkCount?: number
+  bookmarkData?: any
+  width?: number
+  height?: number
+  yes_rank?: number
 }
