@@ -50,21 +50,21 @@ class Log {
   */
   private add(str: string, level: number, br: number, addMode: boolean) {
     let span = document.createElement('span')
-    if(!addMode){
-      span=this.refresh
+    if (!addMode) {
+      span = this.refresh
     }
 
-    span.textContent=str
-    
+    span.textContent = str
+
     if (level > -1) {
-      span.style.color=this.colors[level]
+      span.style.color = this.colors[level]
     }
 
-    while(br>0){
+    while (br > 0) {
       span.appendChild(document.createElement('br'))
       br--
     }
-    
+
     this.logArea.appendChild(span)
   }
 
@@ -394,7 +394,11 @@ class PageType {
         url.includes('bookmark.php'))
     ) {
       type = 2
-    } else if (url.includes('search.php?') || url.includes('tags.php?')) {
+    } else if (
+      url.includes('search.php?') ||
+      url.includes('tags.php?') ||
+      url.includes('pixiv.net/tags/')
+    ) {
       type = 5
     } else if (
       url.includes('ranking_area.php') &&
@@ -490,13 +494,14 @@ class PageInfo {
     }
 
     // 获取当前页面的 tag
-    let tag = ''
     if (type === 5) {
-      tag = API.getURLField(window.location.href, 'word')
+      // pathname 获取到的 tag 不需要再编码
+      this.pageTag = decodeURIComponent(location.pathname.split('/')[2])
     } else {
-      tag = API.getURLField(window.location.href, 'tag')
+      this.pageTag = decodeURIComponent(
+        API.getURLField(window.location.href, 'tag')
+      )
     }
-    this.pageTag = decodeURIComponent(tag)
 
     // 将可用选项添加到下拉选项里
     this.initPageInfoSelector()
@@ -3408,15 +3413,17 @@ class InitSearchPage extends InitPageBase {
   // 打开快速筛选链接
   private openFastScreenLink(secondTag: string) {
     // 拼接两个 tag。因为搜索页面可以无刷新切换搜索的 tag，所以从这里动态获取
-    const word = API.getURLField(location.href, 'word')
-    const firstTag = decodeURIComponent(word).split(' ')[0]
-    const fullTag = firstTag + ' ' + secondTag
-
-    // 构造 url。只添加有限的字段，因为有些字段产生的结果可能会让用户感到迷惑。例如 s_mode=s_tag_full
-    let url = new URL('https://www.pixiv.net/search.php')
-    url.searchParams.set('word', fullTag)
-    url.searchParams.set('mode', API.getURLField(location.href, 'mode'))
-    location.href = url.toString()
+    const firstTag = pageInfo.pageTag.split(' ')[0]
+    const fullTag = encodeURIComponent(firstTag + ' ' + secondTag)
+    // 用新的 tag 替换掉当前网址里的 tag
+    let newURL = location.href.replace(
+      encodeURIComponent(pageInfo.pageTag),
+      fullTag
+    )
+    // 添加 s_mode=s_tag 宽松匹配标签
+    let u = new URL(newURL)
+    u.searchParams.set('s_mode', 's_tag')
+    location.href = u.toString()
   }
 
   // 添加快速筛选功能
@@ -3731,7 +3738,7 @@ abstract class CrawlPageBase {
   public ugoiraSelector: string = '.AGgsUWZ' // 动图作品的选择器
 
   public baseUrl: string = '' // 列表页url规则
-  
+
   public startpageNo: number = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、大家的新作品页使用。
 
   public listPageFinished: number = 0 // 记录一共抓取了多少列表页。使用范围同上。
@@ -4677,10 +4684,19 @@ class CrawlSearchPage extends CrawlPageBase {
   // 组织要请求的 url
   private initFetchURL() {
     let pageType = ''
-    switch (API.getURLField(location.href, 'type')) {
+
+    // 从 URL 中获取分类： "/tags/Fate%2FGrandOrder/illustrations"
+    let URLType = location.pathname.split('/')[3]
+    // 但在“顶部”页面的时候是没有分类的 "/tags/Fate%2FGrandOrder"，需要判断
+    if (URLType === undefined) {
+      URLType = ''
+    }
+
+    switch (URLType) {
       case '':
         pageType = 'artworks'
         break
+      case 'illustrations':
       case 'illust_and_ugoira':
       case 'ugoira':
       case 'illust':
@@ -4695,14 +4711,16 @@ class CrawlSearchPage extends CrawlPageBase {
         break
     }
 
-    let word = API.getURLField(location.href, 'word')
+    let word = pageInfo.pageTag
 
     let p = API.getURLField(location.href, 'p')
-    this.startpageNo = parseInt(p)||1
+    this.startpageNo = parseInt(p) || 1
 
     // 组织必须的信息
     let tempURL = new URL(
-      `https://www.pixiv.net/ajax/search/${pageType}/${word}?word=${word}&p=${this.startpageNo}`
+      `https://www.pixiv.net/ajax/search/${pageType}/${encodeURIComponent(
+        word
+      )}?word=${encodeURIComponent(word)}&p=${this.startpageNo}`
     )
 
     // 从页面 url 中获取可以使用的参数
@@ -5128,7 +5146,7 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
     log.warning(lang.transl('_任务开始1', this.fetchNumber.toString()))
   }
 
-  public nextStep(){
+  public nextStep() {
     // 列表页url规则
     this.baseUrl = 'https://www.pixiv.net' + location.pathname + '?p='
     const p = API.getURLField(location.href, 'p')
