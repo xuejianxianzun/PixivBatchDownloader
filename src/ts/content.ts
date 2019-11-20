@@ -18,6 +18,7 @@ class Log {
   private logArea = document.createElement('div') // 输出日志的区域
   private id = 'outputArea' // 日志区域元素的 id
   private logSnapshot = '' // 储存日志内容的快照
+  private refresh = document.createElement('span') // 刷新时使用的元素
   private colors = ['#00ca19', '#d27e00', '#f00']
 
   // 如果日志元素没有添加到页面上，则添加上去
@@ -36,9 +37,9 @@ class Log {
 
   // 输出日志
   /*
-  str 信息文本，必要参数
-  level 日志等级，可选，默认值为 -1
-  br 换行标签的个数，可选，默认值为 1
+  str 信息文本
+  level 日志等级
+  br 换行标签的个数
   addMode 追加日志的模式，默认为 true，累加所有日志。false 则会建立快照，只在快照后追加最后一条日志。
 
   日志等级：
@@ -48,34 +49,27 @@ class Log {
   2 error 红色
   */
   private add(str: string, level: number, br: number, addMode: boolean) {
-    this.checkElement()
-
-    let base = ''
-    // 处理添加状态
-    if (addMode) {
-      // 追加日志时，清空日志快照
-      this.logSnapshot = ''
-      base = this.logArea.innerHTML // 使用当前日志信息
-    } else {
-      // 只追加最新一条时，先做快照
-      if (this.logSnapshot === '') {
-        this.logSnapshot = this.logArea.innerHTML
-      }
-      base = this.logSnapshot // 使用快照
+    let span = document.createElement('span')
+    if(!addMode){
+      span=this.refresh
     }
 
-    // 添加颜色
+    span.textContent=str
+    
     if (level > -1) {
-      str = `<span style="color:${this.colors[level]}">${str}</span>`
+      span.style.color=this.colors[level]
     }
-    // 添加换行符
-    str += '<br>'.repeat(br)
-    // 输出
-    this.logArea.innerHTML = base + str
-    // this.logArea.append(base + str)
+
+    while(br>0){
+      span.appendChild(document.createElement('br'))
+      br--
+    }
+    
+    this.logArea.appendChild(span)
   }
 
   public log(str: string, br: number = 1, addMode: boolean = true) {
+    this.checkElement()
     this.add(str, -1, br, addMode)
   }
 
