@@ -819,3 +819,11 @@ interface FilterOption {
   height?: number
   yes_rank?: number
 }
+
+// 排行榜的 api 所要求的参数
+interface RankingParams{
+  mode:string,
+  content:string,
+  date:string,
+  p:string
+}

@@ -63,6 +63,7 @@ class Log {
       }
       base = this.logSnapshot // 使用快照
     }
+
     // 添加颜色
     if (level > -1) {
       str = `<span style="color:${this.colors[level]}">${str}</span>`
@@ -71,6 +72,7 @@ class Log {
     str += '<br>'.repeat(br)
     // 输出
     this.logArea.innerHTML = base + str
+    // this.logArea.append(base + str)
   }
 
   public log(str: string, br: number = 1, addMode: boolean = true) {
@@ -91,7 +93,7 @@ class Log {
 }
 
 // api 类
-// 不依赖页面元素或者下载器的状态，可独立使用的纯粹的 api
+// 不依赖页面元素或者下载器的状态，可独立使用
 class API {
   // 根据对象的属性排序
   static sortByProperty(propertyName: string) {
@@ -150,6 +152,8 @@ class API {
         let result = data.match(/token":"(\w+)"/)
         if (result) {
           localStorage.setItem('xzToken', result[1])
+        } else {
+          console.warn('UpdateToken failed: no token found!')
         }
       })
   }
@@ -161,12 +165,11 @@ class API {
       return result
     } else {
       this.updateToken()
+      return ''
     }
-
-    return ''
   }
 
-  // 从 url 里获取作品id
+  // 从 url 里获取作品 id
   // 可以传入 url，无参数则使用当前页面的 url
   static getIllustId(url?: string) {
     const str = url || window.location.search || location.href
@@ -182,19 +185,9 @@ class API {
     }
   }
 
-  // 获取收藏数据
-  static async getBookmarkData(
-    id: string,
-    tag: string,
-    offset: number,
-    hide: boolean = false
-  ): Promise<BookmarkData> {
-    let url = `https://www.pixiv.net/ajax/user/${id}/illusts/bookmarks?tag=${encodeURI(
-      tag
-    )}&offset=${offset}&limit=100&rest=${
-      hide ? 'hide' : 'show'
-    }&rdm=${Math.random()}`
-
+  // 通用的请求流程
+  // 发送 get 请求，返回 json 数据，抛出异常
+  static request<T>(url: string): Promise<T> {
     return new Promise((resolve, reject) => {
       fetch(url, {
         method: 'get',
@@ -204,6 +197,7 @@ class API {
           if (response.ok) {
             return response.json()
           } else {
+            // 第一种异常，请求成功但状态不对
             reject({
               status: response.status,
               statusText: response.statusText
@@ -214,9 +208,26 @@ class API {
           resolve(data)
         })
         .catch(error => {
+          // 第二种异常，请求失败
           reject(error)
         })
     })
+  }
+
+  // 获取收藏数据
+  static async getBookmarkData(
+    id: string,
+    tag: string,
+    offset: number,
+    hide: boolean = false
+  ): Promise<BookmarkData> {
+    const url = `https://www.pixiv.net/ajax/user/${id}/illusts/bookmarks?tag=${encodeURI(
+      tag
+    )}&offset=${offset}&limit=100&rest=${
+      hide ? 'hide' : 'show'
+    }&rdm=${Math.random()}`
+
+    return this.request(url)
   }
 
   // 添加收藏
@@ -247,41 +258,16 @@ class API {
 
   // 获取用户信息
   static getUserProfile(id: string): Promise<UserProfile> {
-    return new Promise(resolve => {
-      // full=1 在画师的作品列表页使用，获取详细信息
-      // full=0 在作品页内使用，只获取少量信息
-      fetch(`https://www.pixiv.net/ajax/user/${id}?full=1`, {
-        method: 'get',
-        credentials: 'same-origin'
-      })
-        .then(response => response.json())
-        .then((data: UserProfile) => {
-          resolve(data)
-        })
-    })
+    // full=1 在画师的作品列表页使用，获取详细信息
+    // full=0 在作品页内使用，只获取少量信息
+    const url = `https://www.pixiv.net/ajax/user/${id}?full=1`
+    return this.request(url)
   }
 
   // 获取用户信息。包含插画、漫画的 id 列表，不包含详细信息
   static getUserProfileAll(id: string): Promise<UserProfileAllData> {
-    return new Promise((resolve, reject) => {
-      fetch(`https://www.pixiv.net/ajax/user/${id}/profile/all`, {
-        method: 'get',
-        credentials: 'same-origin'
-      })
-        .then(response => {
-          if (response.ok) {
-            return response.json()
-          } else {
-            throw new Error(response.status.toString())
-          }
-        })
-        .then((data: UserProfileAllData) => {
-          resolve(data)
-        })
-        .catch(error => {
-          reject(error)
-        })
-    })
+    const url = `https://www.pixiv.net/ajax/user/${id}/profile/all`
+    return this.request(url)
   }
 
   // 按照作品类型获取用户的作品列表
@@ -295,130 +281,32 @@ class API {
   ): Promise<UserWorksWithTag> {
     // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=9999999
     const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${number}`
-    return new Promise((resolve, reject) => {
-      fetch(url, {
-        method: 'get',
-        credentials: 'same-origin'
-      })
-        .then(response => {
-          if (response.ok) {
-            return response.json()
-          } else {
-            throw new Error(response.status.toString())
-          }
-        })
-        .then((data: UserWorksWithTag) => {
-          resolve(data)
-        })
-        .catch(error => {
-          reject(error)
-        })
-    })
+    return this.request(url)
   }
 
   // 获取作品信息
-  // 可以传入 id，或者自动获取当前页面的作品 id
   static getIllustData(id: string): Promise<IllustData> {
-    return new Promise((resolve, reject) => {
-      fetch(`https://www.pixiv.net/ajax/illust/${id}`, {
-        method: 'get',
-        credentials: 'same-origin' // 附带 cookie
-      })
-        .then(response => {
-          if (response.ok) {
-            return response.json()
-          } else {
-            reject({
-              status: response.status,
-              statusText: response.statusText
-            })
-          }
-        })
-        .then((data: IllustData) => {
-          resolve(data)
-        })
-        .catch(error => {
-          // 'TypeError: Failed to fetch'
-          reject(error)
-        })
-    })
+    const url = `https://www.pixiv.net/ajax/illust/${id}`
+    return this.request(url)
   }
 
   // 获取作品动图信息
-  // 可以传入 id，或者自动获取当前页面的作品 id
-  static getIllustUgoiraData(id: string): Promise<UgoiraData> {
-    return new Promise((resolve, reject) => {
-      fetch(`https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`, {
-        method: 'get',
-        credentials: 'same-origin' // 附带 cookie
-      })
-        .then(response => {
-          if (response.ok) {
-            return response.json()
-          } else {
-            reject({
-              status: response.status,
-              statusText: response.statusText
-            })
-          }
-        })
-        .then((data: UgoiraData) => {
-          resolve(data)
-        })
-        .catch(error => {
-          // 'TypeError: Failed to fetch'
-          reject(error)
-        })
-    })
+  static getUgoiraMeta(id: string): Promise<UgoiraData> {
+    const url = `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`
+    return this.request(url)
   }
 
   // 获取相关作品
-  // 可以传入 id，或者自动获取当前页面的作品 id
   static getRelatedData(id: string): Promise<RecommendData> {
-    return new Promise((resolve, reject) => {
-      // 最后的 18 是预加载首屏的多少个作品的信息，和下载并没有关系
-      fetch(`https://www.pixiv.net/ajax/illust/${id}/recommend/init?limit=18`, {
-        method: 'get',
-        credentials: 'same-origin'
-      })
-        .then(response => {
-          if (response.ok) {
-            return response.json()
-          } else {
-            throw new Error(response.status.toString())
-          }
-        })
-        .then((data: RecommendData) => {
-          resolve(data)
-        })
-        .catch(error => {
-          reject(error)
-        })
-    })
+    // 最后的 18 是预加载首屏的多少个作品的信息，和下载并没有关系
+    const url = `https://www.pixiv.net/ajax/illust/${id}/recommend/init?limit=18`
+    return this.request(url)
   }
 
   // 获取排行榜数据
   // 排行榜数据基本是一批 50 条作品信息
   static getRankingData(url: string): Promise<RankingData> {
-    return new Promise((resolve, reject) => {
-      fetch(url, {
-        method: 'get',
-        credentials: 'same-origin'
-      })
-        .then(response => {
-          if (response.ok) {
-            return response.json()
-          } else {
-            throw new Error(response.status.toString())
-          }
-        })
-        .then((data: RankingData) => {
-          resolve(data)
-        })
-        .catch(error => {
-          reject(error)
-        })
-    })
+    return this.request(url)
   }
 
   // 获取收藏后的相似作品数据
@@ -427,76 +315,20 @@ class API {
     id: string,
     number: number
   ): Promise<RecommenderData> {
-    return new Promise((resolve, reject) => {
-      fetch(
-        `/rpc/recommender.php?type=illust&sample_illusts=${id}&num_recommendations=${number}`,
-        {
-          method: 'get',
-          credentials: 'same-origin'
-        }
-      )
-        .then(response => {
-          if (response.ok) {
-            return response.json()
-          } else {
-            throw new Error(response.status.toString())
-          }
-        })
-        .then((data: RecommenderData) => {
-          resolve(data)
-        })
-        .catch(error => {
-          reject(error)
-        })
-    })
+    const url = `/rpc/recommender.php?type=illust&sample_illusts=${id}&num_recommendations=${number}`
+    return this.request(url)
   }
 
   // 获取搜索数据
   // 因为参数比较复杂，所以直接传入了完整的 url，没有设置参数
   static getSearchData(url: string): Promise<SearchData> {
-    return new Promise((resolve, reject) => {
-      fetch(url, {
-        method: 'get',
-        credentials: 'same-origin'
-      })
-        .then(response => {
-          if (response.ok) {
-            return response.json()
-          } else {
-            throw new Error(response.status.toString())
-          }
-        })
-        .then((data: SearchData) => {
-          resolve(data)
-        })
-        .catch(error => {
-          reject(error)
-        })
-    })
+    return this.request(url)
   }
 
   // 获取大家的新作品的数据
   // 因为参数比较复杂，所以直接传入了完整的 url，没有设置参数
   static getNewIllustData(url: string): Promise<NewIllustData> {
-    return new Promise((resolve, reject) => {
-      fetch(url, {
-        method: 'get',
-        credentials: 'same-origin'
-      })
-        .then(response => {
-          if (response.ok) {
-            return response.json()
-          } else {
-            throw new Error(response.status.toString())
-          }
-        })
-        .then((data: NewIllustData) => {
-          resolve(data)
-        })
-        .catch(error => {
-          reject(error)
-        })
-    })
+    return this.request(url)
   }
 
   // 获取关注的的新作品的数据
@@ -915,7 +747,7 @@ class Filter {
     this.notdownType = this.getNotDownType()
 
     // 检查是否设置了收藏数要求
-    this.filterBMK = this.getSetBmk()
+    this.filterBMK = this.getBmkNum()
 
     // 检查是否设置了只下载书签作品
     this.onlyDownBmk = this.getOnlyBmk()
@@ -1064,7 +896,7 @@ class Filter {
   }
 
   // 获取收藏数要求
-  private getSetBmk() {
+  private getBmkNum() {
     const check = API.checkNumberGreater0(ui.form.setFavNum.value)
 
     if (check.result) {
@@ -3670,14 +3502,6 @@ class InitRankingPage extends InitPageBase {
     this.clearOldElements()
     this.appendCenterBtns()
     this.setSetting()
-    if (window.location.search === '') {
-      // 直接获取json数据
-      this.crawler.baseUrl = location.href + '?format=json&p='
-    } else {
-      this.crawler.baseUrl = location.href + '&format=json&p='
-    }
-
-    this.crawler.startpageNo = 1 // 从第一页（部分）开始抓取
   }
 
   public appendCenterBtns() {
@@ -3793,12 +3617,6 @@ class InitBookmarkNewIllustPage extends InitPageBase {
     this.appendCenterBtns()
     this.setSetting()
     this.appendElseEl()
-
-    // 关注的新作品没有 type 字段。只有 p 指示页码
-    // 列表页url规则
-    this.crawler.baseUrl = 'https://www.pixiv.net' + location.pathname + '?p='
-    const p = API.getURLField(location.href, 'p')
-    this.crawler.startpageNo = parseInt(p) || 1
   }
 
   public appendCenterBtns() {
@@ -3918,11 +3736,11 @@ abstract class CrawlPageBase {
 
   public ugoiraSelector: string = '.AGgsUWZ' // 动图作品的选择器
 
-  public startpageNo: number = 1 // 列表页开始抓取时的页码
-
   public baseUrl: string = '' // 列表页url规则
+  
+  public startpageNo: number = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、大家的新作品页使用。
 
-  public listPageFinished: number = 0 // 记录一共抓取了多少列表页
+  public listPageFinished: number = 0 // 记录一共抓取了多少列表页。使用范围同上。
 
   public maxCount = 1000 // 最多有多少页
 
@@ -4022,6 +3840,8 @@ abstract class CrawlPageBase {
       return
     }
 
+    log.clear()
+
     log.success(lang.transl('_任务开始0'))
     // log.log(lang.transl('_本次任务条件'))
 
@@ -4090,10 +3910,7 @@ abstract class CrawlPageBase {
       // 发起请求
       data = await API.getIllustData(id)
     } catch (error) {
-      // 捕获的错误分两种情况
-      // 1. 请求成功，有 response.ok 状态，OK 为 false 时 reject，返回的 error 是一个对象，如： {status: 404, statusText: ""}。接下来处理这条错误并处理后续任务。不会再重试这个请求。
-      // 2. 请求失败，没有 response.ok 状态，catch 之后通过 reject 返回错误，这时 error 是 js 引擎的报错信息，如： 'TypeError: Failed to fetch'。会重试这个请求。
-
+      //  请求成功，response.ok 错误。不会再重试这个请求
       if (error.status) {
         this.responseError(id)
 
@@ -4118,7 +3935,7 @@ abstract class CrawlPageBase {
             break
         }
       } else {
-        // 因网络原因请求失败时，重试
+        // 请求失败，会重试这个请求
         setTimeout(() => {
           this.getIllustData(id)
         }, 2000)
@@ -4213,7 +4030,7 @@ abstract class CrawlPageBase {
       } else if (body.illustType === 2) {
         // 动图
         // 获取动图的信息
-        const info = await API.getIllustUgoiraData(illustId)
+        const info = await API.getUgoiraMeta(illustId)
         // 动图帧延迟数据
         const ugoiraInfo = {
           frames: info.body.frames,
@@ -4887,11 +4704,7 @@ class CrawlSearchPage extends CrawlPageBase {
     let word = API.getURLField(location.href, 'word')
 
     let p = API.getURLField(location.href, 'p')
-    if (p) {
-      this.startpageNo = parseInt(p)
-    } else {
-      this.startpageNo = 1
-    }
+    this.startpageNo = parseInt(p)||1
 
     // 组织必须的信息
     let tempURL = new URL(
@@ -4966,6 +4779,7 @@ class CrawlSearchPage extends CrawlPageBase {
     this.listPageFinished++
 
     // 没有数据，一般是抓取完了
+    // 对于页数在 1000 以内的标签，如果到了没有作品的页数，数据就是空的，可以判断抓取完了
     if (useData.length === 0) {
       log.log(lang.transl('_搜索页已抓取所有页面'))
       this.getWorksListFinished()
@@ -4978,9 +4792,10 @@ class CrawlSearchPage extends CrawlPageBase {
       false
     )
 
+    // 对于页数在 1000 以上的标签，抓取到 1000 页为止。因为再往后都是重复第 1000 页的内容
     if (
       this.listPageFinished === this.fetchNumber ||
-      this.startpageNo + this.listPageFinished === 1000
+      this.startpageNo + this.listPageFinished > 1000
     ) {
       log.log(lang.transl('_列表页抓取完成'))
       this.getWorksListFinished()
@@ -5062,6 +4877,15 @@ class CrawlRankingPage extends CrawlPageBase {
   }
 
   public nextStep() {
+    if (window.location.search === '') {
+      // 直接获取json数据
+      this.baseUrl = location.href + '?format=json&p='
+    } else {
+      this.baseUrl = location.href + '&format=json&p='
+    }
+
+    this.startpageNo = 1
+
     this.setPartNum()
     this.getListPage()
   }
@@ -5075,11 +4899,10 @@ class CrawlRankingPage extends CrawlPageBase {
     try {
       data = await API.getRankingData(url)
     } catch (error) {
-      // error 的 message 属性是请求出错时的状态码
-      if (error.message === '404') {
+      if (error.status === 404) {
         // 排行榜
         if (this.type === 7) {
-          // 如果发生了404错误，则中断抓取，直接下载已有部分。（因为可能确实没有下一部分了。预设的最大页数可能不符合当前情况
+          // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有下一部分了
           console.log('404错误，直接下载已有部分')
           log.log(
             lang.transl('_排行榜任务完成', store.idList.length.toString())
@@ -5311,6 +5134,15 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
     log.warning(lang.transl('_任务开始1', this.fetchNumber.toString()))
   }
 
+  public nextStep(){
+    // 列表页url规则
+    this.baseUrl = 'https://www.pixiv.net' + location.pathname + '?p='
+    const p = API.getURLField(location.href, 'p')
+    this.startpageNo = parseInt(p) || 1
+
+    this.getListPage()
+  }
+
   public async getListPage() {
     titleBar.changeTitle('↑')
     let p = this.startpageNo + this.listPageFinished
@@ -5371,7 +5203,6 @@ class CrawlNewIllustPage extends CrawlPageBase {
       this.fetchNumber = this.maxCount
     }
 
-    this.listPageFinished = 0
     log.warning(lang.transl('_抓取多少个作品', this.fetchNumber.toString()))
   }
 
