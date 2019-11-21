@@ -3200,7 +3200,6 @@ class InitIndexPage extends InitPageBase {
     this.downIdButton.addEventListener(
       'click',
       () => {
-        store.idList = [] // 每次开始下载前重置作品的url列表
         if (!this.ready) {
           // 还没准备好
           ui.centerWrapHide()
@@ -3208,20 +3207,6 @@ class InitIndexPage extends InitPageBase {
           this.downIdInput.focus()
           document.documentElement.scrollTop = 0
         } else {
-          // 检查 id
-          const tempSet = new Set(this.downIdInput.value.split('\n'))
-          const idValue = Array.from(tempSet)
-          for (const id of idValue) {
-            // 如果有 id 不是数字，或者处于非法区间，中止任务
-            const nowId = parseInt(id)
-            if (isNaN(nowId) || nowId < 22 || nowId > 99999999) {
-              window.alert(lang.transl('_id不合法'))
-              throw new Error('Illegal id.')
-            } else {
-              store.idList.push(nowId.toString())
-            }
-          }
-
           this.crawler.readyCrawl()
         }
       },
@@ -4301,11 +4286,26 @@ class CrawlIndexPage extends CrawlPageBase {
   public nextStep() {
     // 在主页通过id抓取时，不需要获取列表页，直接完成
     log.log(lang.transl('_开始获取作品页面'))
-    this.getWorksListFinished()
+    this.getListPage()
   }
 
   public getWantPage() {}
-  public getListPage() {}
+  public getListPage() {
+    const textarea = document.getElementById('down_id_input') as HTMLTextAreaElement
+    // 检查 id
+    const tempSet = new Set(textarea.value.split('\n'))
+    const idValue = Array.from(tempSet)
+    for (const id of idValue) {
+      // 如果有 id 不是数字，或者处于非法区间，中止任务
+      const nowId = parseInt(id)
+      if (isNaN(nowId) || nowId < 22 || nowId > 99999999) {
+        log.error(lang.transl('_id不合法'),0,false)
+      } else {
+        store.idList.push(nowId.toString())
+      }
+    }
+    this.getWorksListFinished()
+  }
 }
 
 // 抓取作品页
