@@ -17,7 +17,6 @@
 class Log {
   private logArea = document.createElement('div') // 输出日志的区域
   private id = 'outputArea' // 日志区域元素的 id
-  private logSnapshot = '' // 储存日志内容的快照
   private refresh = document.createElement('span') // 刷新时使用的元素
   private colors = ['#00ca19', '#d27e00', '#f00']
 
@@ -54,7 +53,7 @@ class Log {
       span = this.refresh
     }
 
-    span.textContent = str
+    span.innerHTML = str
 
     if (level > -1) {
       span.style.color = this.colors[level]
@@ -299,7 +298,21 @@ class API {
 
   // 获取排行榜数据
   // 排行榜数据基本是一批 50 条作品信息
-  static getRankingData(url: string): Promise<RankingData> {
+  static getRankingData(option: RankingOption): Promise<RankingData> {
+    let url = `https://www.pixiv.net/ranking.php?mode=${option.mode}&p=${option.p}&format=json`
+
+    // 把可选项添加到 url 里
+    let temp = new URL(url)
+
+    if (option.worksType) {
+      temp.searchParams.set('content', option.worksType)
+    }
+
+    if (option.date) {
+      temp.searchParams.set('date', option.date)
+    }
+    url = temp.toString()
+
     return this.request(url)
   }
 
@@ -314,19 +327,46 @@ class API {
   }
 
   // 获取搜索数据
-  // 因为参数比较复杂，所以直接传入了完整的 url，没有设置参数
-  static getSearchData(url: string): Promise<SearchData> {
+  static getSearchData(
+    word: string,
+    type: string = 'artworks',
+    p: number = 1,
+    option: SearchOption = {}
+  ): Promise<SearchData> {
+    // 基础的 url
+    let url = `https://www.pixiv.net/ajax/search/${type}/${encodeURIComponent(
+      word
+    )}?word=${encodeURIComponent(word)}&p=${p}`
+
+    // 把可选项添加到 url 里
+    let temp = new URL(url)
+    for (const [key, value] of Object.entries(option)) {
+      if (value) {
+        temp.searchParams.set(key, value)
+      }
+    }
+    url = temp.toString()
+
+    // 发起请求
     return this.request(url)
   }
 
   // 获取大家的新作品的数据
   // 因为参数比较复杂，所以直接传入了完整的 url，没有设置参数
-  static getNewIllustData(url: string): Promise<NewIllustData> {
+  static getNewIllustData(option: NewIllustOption): Promise<NewIllustData> {
+    let url = `https://www.pixiv.net/ajax/illust/new?lastId=${option.lastId}&limit=${option.limit}&type=${option.type}&r18=${option.r18}`
     return this.request(url)
   }
 
   // 获取关注的的新作品的数据
-  static getBookmarkNewIllustData(url: string): Promise<BookMarkNewData[]> {
+  static getBookmarkNewIllustData(
+    p = 1,
+    r18 = false
+  ): Promise<BookMarkNewData[]> {
+    let path = r18 ? 'bookmark_new_illust_r18' : 'bookmark_new_illust'
+
+    let url = `https://www.pixiv.net/${path}.php?p=${p}`
+
     return new Promise((resolve, reject) => {
       fetch(url, {
         method: 'get',
@@ -560,7 +600,7 @@ class TitleBar {
   }
 
   // 重设 title
-  public resetTitle() {
+  public reset() {
     let type = pageType.getPageType()
     clearInterval(this.titleTimer)
     // 储存标题的 mete 元素。在某些页面不存在，有时也与实际上的标题不一致。
@@ -3497,21 +3537,11 @@ class InitRankingPage extends InitPageBase {
       this.crawler.readyCrawl()
     })
 
-    // 判断是否是“今日”页面
-    let isDaily = false
-    if (location.href.includes('mode=daily')) {
-      isDaily = true
-    } else if (
-      document
-        .querySelectorAll('.menu-items a')[0]
-        .classList.contains('current')
-    ) {
-      // 如果排行榜分类的第一个链接（今日）是激活的
-      isDaily = true
-    }
+    // 判断当前页面是否有“首次登场”标记
+    let debutModes = ['daily', 'daily_r18', 'rookie', '']
+    let mode = API.getURLField(location.href, 'mode')
 
-    // 在“今日”页面，添加下载首次登场的作品的按钮
-    if (isDaily) {
+    if (debutModes.includes(mode)) {
       this.addCenterButton(Colors.blue, lang.transl('_抓取首次登场的作品'), [
         ['title', lang.transl('_抓取首次登场的作品Title')]
       ]).addEventListener('click', () => {
@@ -3722,8 +3752,6 @@ abstract class CrawlPageBase {
 
   public ugoiraSelector: string = '.AGgsUWZ' // 动图作品的选择器
 
-  public baseUrl: string = '' // 列表页url规则
-
   public startpageNo: number = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、大家的新作品页使用。
 
   public listPageFinished: number = 0 // 记录一共抓取了多少列表页。使用范围同上。
@@ -3851,10 +3879,12 @@ abstract class CrawlPageBase {
     await pageInfo.store(this.type)
 
     // 进入第一个抓取方法
+    titleBar.changeTitle('↑')
+
     this.nextStep()
   }
 
-  // 当开始抓取时，进入什么流程。默认情况下，开始获取作品列表。有些页面需要进入其他方法，由子类具体定义
+  // 当可以开始抓取时，进入下一个流程。默认情况下，开始获取作品列表。如有不同，由子类具体定义
   public nextStep() {
     this.getListPage()
   }
@@ -3872,6 +3902,8 @@ abstract class CrawlPageBase {
       return this.noResult()
     }
 
+    titleBar.changeTitle('↑')
+
     if (store.idList.length <= this.ajaxThreadsNumberDefault) {
       this.ajaxThreadsNumber = store.idList.length
     } else {
@@ -3885,8 +3917,6 @@ abstract class CrawlPageBase {
 
   // 获取作品的数据
   public async getIllustData(id?: string) {
-    titleBar.changeTitle('↑')
-
     if (!id) {
       id = store.idList.shift()!
     }
@@ -4162,7 +4192,7 @@ abstract class CrawlPageBase {
   public noResult() {
     log.error(lang.transl('_列表页抓取结果为零'), 2)
     dlCtrl.allowWork = true
-    titleBar.resetTitle()
+    titleBar.reset()
   }
 
   // 请求结果错误时进行处理
@@ -4211,7 +4241,7 @@ abstract class CrawlPageBase {
     dlCtrl.downloadStarted = false
     dlCtrl.downloadPause = false
     dlCtrl.downloadStop = false
-    titleBar.resetTitle()
+    titleBar.reset()
     ui.centerWrapHide()
     output.reset()
   }
@@ -4291,7 +4321,9 @@ class CrawlIndexPage extends CrawlPageBase {
 
   public getWantPage() {}
   public getListPage() {
-    const textarea = document.getElementById('down_id_input') as HTMLTextAreaElement
+    const textarea = document.getElementById(
+      'down_id_input'
+    ) as HTMLTextAreaElement
     // 检查 id
     const tempSet = new Set(textarea.value.split('\n'))
     const idValue = Array.from(tempSet)
@@ -4299,7 +4331,7 @@ class CrawlIndexPage extends CrawlPageBase {
       // 如果有 id 不是数字，或者处于非法区间，中止任务
       const nowId = parseInt(id)
       if (isNaN(nowId) || nowId < 22 || nowId > 99999999) {
-        log.error(lang.transl('_id不合法'),0,false)
+        log.error(lang.transl('_id不合法'), 0, false)
       } else {
         store.idList.push(nowId.toString())
       }
@@ -4350,7 +4382,6 @@ class CrawlIllustPage extends CrawlPageBase {
 
   // 下载相关作品时使用
   public async getRelatedList() {
-    titleBar.changeTitle('↑')
     let data = await API.getRelatedData(API.getIllustId())
     const recommendData = data.body.recommendMethods
     // 取出相关作品的 id 列表
@@ -4392,15 +4423,14 @@ class CrawlUserPage extends CrawlPageBase {
   }
 
   public nextStep() {
-    // 下载推荐图片
     if (this.downRecommended) {
+      // 下载推荐图片
       this.getRecommendedList()
     } else {
       this.getListPage()
     }
   }
 
-  // 获取作品列表页前的准备工作
   public getListPage() {
     // 每次开始时重置一些条件
     this.offset = 0
@@ -4508,8 +4538,6 @@ class CrawlUserPage extends CrawlPageBase {
       this.getBookmarkList(hide)
     }
 
-    titleBar.changeTitle('↑')
-
     log.log(lang.transl('_正在抓取'))
 
     if (this.listType === 3 && this.fetchNumber === -1) {
@@ -4602,7 +4630,7 @@ class CrawlUserPage extends CrawlPageBase {
   }
 
   // 获取用户的收藏作品列表
-  private async getBookmarkList(restMode: boolean) {
+  private async getBookmarkList(isHide: boolean) {
     let bmkGetEnd = false // 书签作品是否获取完毕
 
     let data: BookmarkData
@@ -4611,10 +4639,10 @@ class CrawlUserPage extends CrawlPageBase {
         DOM.getUserId(),
         this.tag,
         this.offset,
-        restMode
+        isHide
       )
     } catch (error) {
-      this.getBookmarkList(restMode)
+      this.getBookmarkList(isHide)
       return
     }
 
@@ -4633,7 +4661,7 @@ class CrawlUserPage extends CrawlPageBase {
 
       this.offset += this.onceRequest // 每次增加偏移量
       // 重复抓取过程
-      this.getBookmarkList(restMode)
+      this.getBookmarkList(isHide)
     }
   }
 
@@ -4665,6 +4693,23 @@ class CrawlUserPage extends CrawlPageBase {
 
 // 抓取搜索页
 class CrawlSearchPage extends CrawlPageBase {
+  private worksType = ''
+  private option: SearchOption = {}
+  private readonly allOption = [
+    'order',
+    'type',
+    'wlt',
+    'hlt',
+    'ratio',
+    'tool',
+    's_mode',
+    'mode',
+    'scd',
+    'ecd',
+    'blt',
+    'bgt'
+  ]
+
   public getWantPage() {
     this.fetchNumber = this.checkWantPageInput(
       lang.transl('_checkWantPageRule1Arg6'),
@@ -4681,10 +4726,8 @@ class CrawlSearchPage extends CrawlPageBase {
     this.getListPage()
   }
 
-  // 组织要请求的 url
+  // 组织要请求的 url 中的参数
   private initFetchURL() {
-    let pageType = ''
-
     // 从 URL 中获取分类： "/tags/Fate%2FGrandOrder/illustrations"
     let URLType = location.pathname.split('/')[3]
     // 但在“顶部”页面的时候是没有分类的 "/tags/Fate%2FGrandOrder"，需要判断
@@ -4694,71 +4737,48 @@ class CrawlSearchPage extends CrawlPageBase {
 
     switch (URLType) {
       case '':
-        pageType = 'artworks'
+        this.worksType = 'artworks'
         break
       case 'illustrations':
       case 'illust_and_ugoira':
       case 'ugoira':
       case 'illust':
-        pageType = 'illustrations'
+        this.worksType = 'illustrations'
         break
       case 'manga':
-        pageType = 'manga'
+        this.worksType = 'manga'
         break
 
       default:
-        pageType = 'artworks'
+        this.worksType = 'artworks'
         break
     }
-
-    let word = pageInfo.pageTag
 
     let p = API.getURLField(location.href, 'p')
     this.startpageNo = parseInt(p) || 1
 
-    // 组织必须的信息
-    let tempURL = new URL(
-      `https://www.pixiv.net/ajax/search/${pageType}/${encodeURIComponent(
-        word
-      )}?word=${encodeURIComponent(word)}&p=${this.startpageNo}`
-    )
-
-    // 从页面 url 中获取可以使用的参数
-    let params = [
-      'order',
-      'type',
-      'wlt',
-      'hlt',
-      'ratio',
-      'tool',
-      's_mode',
-      'mode',
-      'scd',
-      'ecd',
-      'blt',
-      'bgt'
-    ]
-    // 添加到请求的 url 里
-    params.forEach(param => {
+    // 从页面 url 中获取可以使用的选项
+    this.option = {}
+    this.allOption.forEach(param => {
       let value = API.getURLField(location.href, param)
       if (value !== '') {
-        tempURL.searchParams.append(param, value)
+        this.option[param] = value
       }
     })
-    this.baseUrl = tempURL.toString()
   }
 
   public async getListPage() {
-    titleBar.changeTitle('↑')
-
     let p = this.startpageNo + this.listPageFinished
-    let url = new URL(this.baseUrl)
-    url.searchParams.set('p', p.toString())
 
     // 发起请求，获取列表页
     let data: SearchData
     try {
-      data = await API.getSearchData(url.toString())
+      data = await API.getSearchData(
+        pageInfo.pageTag,
+        this.worksType,
+        p,
+        this.option
+      )
     } catch {
       this.getListPage()
       return
@@ -4781,11 +4801,9 @@ class CrawlSearchPage extends CrawlPageBase {
         tags: nowData.tags
       }
 
-      if (!filter.check(filterOpt)) {
-        continue
+      if (filter.check(filterOpt)) {
+        store.idList.push(nowData.illustId)
       }
-
-      store.idList.push(nowData.illustId)
     }
 
     this.listPageFinished++
@@ -4821,8 +4839,6 @@ class CrawlSearchPage extends CrawlPageBase {
 // 抓取地区排行榜页面
 class CrawlAreaRankingPage extends CrawlPageBase {
   public getListPage() {
-    titleBar.changeTitle('↑')
-
     // 地区排行榜
     const allPicArea = document.querySelectorAll('.ranking-item>.work_wrapper')
 
@@ -4841,12 +4857,10 @@ class CrawlAreaRankingPage extends CrawlPageBase {
         bookmarkData: bookmarked
       }
 
-      if (!filter.check(filterOpt)) {
-        continue
+      if (filter.check(filterOpt)) {
+        const id = API.getIllustId(el.querySelector('a')!.href)
+        store.idList.push(id)
       }
-
-      const id = API.getIllustId(el.querySelector('a')!.href)
-      store.idList.push(id)
     }
 
     dlCtrl.allowWork = false
@@ -4859,19 +4873,25 @@ class CrawlAreaRankingPage extends CrawlPageBase {
 
 // 抓取排行榜页面
 class CrawlRankingPage extends CrawlPageBase {
-  public partNumber: number = 10 // 保存不同排行榜的列表数量
+  private pageCount: number = 10 // 排行榜的页数
+
+  private resetOption(): RankingOption {
+    return { mode: 'daily', p: 1, worksType: '', date: '' }
+  }
+
+  private option: RankingOption = this.resetOption()
 
   public setPartNum() {
     // 设置页数。排行榜页面一页有50张作品，当页面到达底部时会加载下一页
-    if (this.baseUrl.includes('r18g')) {
+    if (location.pathname.includes('r18g')) {
       // r18g 只有1个榜单，固定1页
-      this.partNumber = 1
-    } else if (this.baseUrl.includes('_r18')) {
+      this.pageCount = 1
+    } else if (location.pathname.includes('_r18')) {
       // r18 模式，这里的6是最大值，有的排行榜并没有6页
-      this.partNumber = 6
+      this.pageCount = 6
     } else {
       // 普通模式，这里的10也是最大值。如果实际没有10页，则在检测到404页面的时候停止抓取下一页
-      this.partNumber = 10
+      this.pageCount = 10
     }
   }
 
@@ -4889,12 +4909,12 @@ class CrawlRankingPage extends CrawlPageBase {
   }
 
   public nextStep() {
-    if (window.location.search === '') {
-      // 直接获取json数据
-      this.baseUrl = location.href + '?format=json&p='
-    } else {
-      this.baseUrl = location.href + '&format=json&p='
-    }
+    // 设置 option 信息
+    // mode 一定要有值，其他选项不需要
+    this.option = this.resetOption()
+    this.option.mode = API.getURLField(location.href, 'mode') || 'daily'
+    this.option.worksType = API.getURLField(location.href, 'content')
+    this.option.date = API.getURLField(location.href, 'date')
 
     this.startpageNo = 1
 
@@ -4903,13 +4923,12 @@ class CrawlRankingPage extends CrawlPageBase {
   }
 
   public async getListPage() {
-    titleBar.changeTitle('↑')
-    let url = this.baseUrl + (this.startpageNo + this.listPageFinished)
+    this.option.p = this.startpageNo + this.listPageFinished
 
     // 发起请求，获取作品列表
     let data: RankingData
     try {
-      data = await API.getRankingData(url)
+      data = await API.getRankingData(this.option)
     } catch (error) {
       if (error.status === 404) {
         // 排行榜
@@ -4948,13 +4967,11 @@ class CrawlRankingPage extends CrawlPageBase {
         yes_rank: data.yes_rank
       }
 
-      if (!filter.check(filterOpt)) {
-        continue
+      if (filter.check(filterOpt)) {
+        store.rankList[data.illust_id.toString()] = data.rank.toString()
+
+        store.idList.push(data.illust_id.toString())
       }
-
-      store.rankList[data.illust_id.toString()] = data.rank.toString()
-
-      store.idList.push(data.illust_id.toString())
     }
 
     log.log(
@@ -4964,7 +4981,7 @@ class CrawlRankingPage extends CrawlPageBase {
     )
 
     // 抓取完毕
-    if (complete || this.listPageFinished === this.partNumber) {
+    if (complete || this.listPageFinished === this.pageCount) {
       log.log(lang.transl('_排行榜任务完成', store.idList.length.toString()))
       this.getWorksListFinished()
     } else {
@@ -4977,6 +4994,7 @@ class CrawlRankingPage extends CrawlPageBase {
 // 抓取 pixivision 页面
 class CrawlPixivisionPage extends CrawlPageBase {
   public async readyCrawl() {
+    titleBar.changeTitle('↑')
     this.getPixivision()
   }
 
@@ -4989,7 +5007,6 @@ class CrawlPixivisionPage extends CrawlPageBase {
     const type = typeA.dataset.gtmLabel
 
     this.resetResult()
-    titleBar.changeTitle('↑')
 
     if (type === 'illustration') {
       // 针对不同类型的页面，使用不同的选择器
@@ -5121,8 +5138,6 @@ class CrawlBookmarkDetailPage extends CrawlPageBase {
 
   // 获取相似的作品列表
   public async getListPage() {
-    titleBar.changeTitle('↑')
-
     let data = await API.getRecommenderData(API.getIllustId(), this.fetchNumber)
 
     for (const id of data.recommendations) {
@@ -5136,6 +5151,7 @@ class CrawlBookmarkDetailPage extends CrawlPageBase {
 
 // 抓取 关注的新作品
 class CrawlBookmarkNewIllustPage extends CrawlPageBase {
+  private r18 = false
   public getWantPage() {
     this.fetchNumber = this.getWantPageGreater0()
     if (this.fetchNumber > this.maxCount) {
@@ -5147,8 +5163,8 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
   }
 
   public nextStep() {
-    // 列表页url规则
-    this.baseUrl = 'https://www.pixiv.net' + location.pathname + '?p='
+    this.r18 = location.pathname.includes('r18')
+
     const p = API.getURLField(location.href, 'p')
     this.startpageNo = parseInt(p) || 1
 
@@ -5156,14 +5172,12 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
   }
 
   public async getListPage() {
-    titleBar.changeTitle('↑')
     let p = this.startpageNo + this.listPageFinished
-    let url = this.baseUrl + p
 
     // 发起请求，获取列表页
     let worksData: BookMarkNewData[]
     try {
-      worksData = await API.getBookmarkNewIllustData(url)
+      worksData = await API.getBookmarkNewIllustData(p, this.r18)
     } catch (error) {
       this.getListPage()
       return
@@ -5179,11 +5193,9 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
         tags: data.tags
       }
 
-      if (!filter.check(filterOpt)) {
-        continue
+      if (filter.check(filterOpt)) {
+        store.idList.push(data.illustId)
       }
-
-      store.idList.push(data.illustId)
     }
 
     this.listPageFinished++
@@ -5223,41 +5235,43 @@ class CrawlNewIllustPage extends CrawlPageBase {
     this.getListPage()
   }
 
-  private lastId = '0'
+  private resetOption(): NewIllustOption {
+    return {
+      lastId: '0',
+      limit: '20', // 每次请求的数量，可以比 20 小
+      type: '',
+      r18: ''
+    }
+  }
+
+  private option: NewIllustOption = this.resetOption()
+
   private readonly limitMax = 20 // 每次请求的数量最大是 20
-  private limit = 20 // 每次请求的数量，可以比 20 小
+
   private fetchCount = 0 // 已请求的作品数量
 
   // 组织要请求的 url
   private initFetchURL() {
-    this.lastId = '0'
+    this.option = this.resetOption()
 
     if (this.fetchNumber < this.limitMax) {
-      this.limit = this.fetchNumber
+      this.option.limit = this.fetchNumber.toString()
     } else {
-      this.limit = this.limitMax
+      this.option.limit = this.limitMax.toString()
     }
 
     this.fetchCount = 0
 
     // 当前页面的作品类型，默认是 illust
-    let worksType = API.getURLField(location.href, 'type') || 'illust'
+    this.option.type = API.getURLField(location.href, 'type') || 'illust'
     // 是否是 R18 模式
-    let r18 = location.href.includes('_r18.php') || false
-
-    this.baseUrl = `https://www.pixiv.net/ajax/illust/new?lastId=${this.lastId}&limit=${this.limit}&type=${worksType}&r18=${r18}`
+    this.option.r18 = (location.href.includes('_r18.php') || false).toString()
   }
 
   public async getListPage() {
-    titleBar.changeTitle('↑')
-
-    // 发起请求，获取列表页
-    let tempURL = new URL(this.baseUrl)
-    tempURL.searchParams.set('lastId', this.lastId)
-
     let data: NewIllustData
     try {
-      data = await API.getNewIllustData(tempURL.toString())
+      data = await API.getNewIllustData(this.option)
     } catch (error) {
       this.getListPage()
       return
@@ -5286,11 +5300,9 @@ class CrawlNewIllustPage extends CrawlPageBase {
         tags: nowData.tags
       }
 
-      if (!filter.check(filterOpt)) {
-        continue
+      if (filter.check(filterOpt)) {
+        store.idList.push(nowData.illustId)
       }
-
-      store.idList.push(nowData.illustId)
     }
 
     log.log(lang.transl('_新作品进度', this.fetchCount.toString()), 1, false)
@@ -5306,7 +5318,7 @@ class CrawlNewIllustPage extends CrawlPageBase {
     }
 
     // 继续抓取
-    this.lastId = data.body.lastId
+    this.option.lastId = data.body.lastId
     this.getListPage()
   }
 }
@@ -5321,7 +5333,6 @@ class CrawlDiscoverPage extends CrawlPageBase {
   public getWantPage() {}
 
   public getListPage() {
-    titleBar.changeTitle('↑')
     // 在发现页面，仅下载已有部分，所以不需要去获取列表页
     const nowIllust = document.querySelectorAll('.QBU8zAz>a') as NodeListOf<
       HTMLAnchorElement
