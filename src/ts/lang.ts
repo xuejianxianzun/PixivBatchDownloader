@@ -387,7 +387,7 @@ const xzLang = {
     'The list page is crawled and starts to get the image URL',
     '清單頁面擷取完成，開始取得圖片網址'
   ],
-  _列表页抓取结果为零: [
+  _抓取结果为零: [
     '抓取完毕，但没有找到符合筛选条件的作品。',
     'クロールは終了しましたが、フィルタ条件に一致する作品が見つかりませんでした。',
     'Crawl finished but did not find works that match the filter criteria.',
@@ -411,17 +411,11 @@ const xzLang = {
     'Start getting the works page',
     '開始取得作品頁面'
   ],
-  _无权访问1: [
-    '无权访问{}，抓取中断。',
-    '{}のアクセス権限がありません、クロール中断されました。',
-    'No access {}, interruption.',
-    '無權造訪{}，擷取中斷。'
-  ],
   _无权访问2: [
-    '无权访问{}，跳过该作品。',
-    '{}のアクセス権限がありません、作品を無視する。',
+    '无权访问 {}，跳过该作品。',
+    '{} のアクセス権限がありません、作品を無視する。',
     'No access {}, skip.',
-    '無權造訪{}，跳過該作品。'
+    '無權造訪 {}，跳過該作品。'
   ],
   _作品页状态码0: [
     '请求的url不可访问',
@@ -697,12 +691,6 @@ const xzLang = {
     '下載已停止'
   ],
   _已下载: ['已下载', 'downloaded', 'downloaded', '已下載'],
-  _没有符合条件的作品: [
-    '没有符合条件的作品！',
-    '基準を満たす作品はありません！',
-    'There are no works that meet the criteria!',
-    '沒有符合條件的作品！'
-  ],
   _抓取完毕: [
     '抓取完毕！',
     'クロールが終了しました！',

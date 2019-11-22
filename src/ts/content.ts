@@ -258,9 +258,21 @@ class API {
   }
 
   // 获取用户信息。包含插画、漫画的 id 列表，不包含详细信息
-  static getUserProfileAll(id: string): Promise<UserProfileAllData> {
+  static async getUserWorksByType(
+    id: string,
+    type: userWorksType[] = ['illusts', 'manga']
+  ): Promise<string[]> {
+    let typeSet = new Set(type)
+    let result: string[] = []
     const url = `https://www.pixiv.net/ajax/user/${id}/profile/all`
-    return this.request(url)
+
+    let data: UserProfileAllData = await this.request(url)
+
+    for (const type of typeSet.values()) {
+      result = result.concat(Object.keys(data.body[type]))
+    }
+
+    return result
   }
 
   // 按照作品类型获取用户的作品列表
@@ -514,8 +526,8 @@ class PageInfo {
 
   // 储存信息
   // 开始抓取时使用，这样即使页面切换了，生成文件名时还是使用的刚开始抓取时的信息。
-  public async store(type: number) {
-    await this.getPageInfo(type)
+  public async store() {
+    await this.getPageInfo(pageType.getPageType())
     store.pageInfo.pageUserName = this.pageUserName
     store.pageInfo.pageUserID = this.pageUserID
     store.pageInfo.pageTag = this.pageTag
@@ -3774,7 +3786,7 @@ abstract class CrawlPageBase {
 
   public fetchNumber: number = 0 // 要抓取几页
 
-  private readonly ajaxThreadsNumberDefault: number = 6 // 抓取页面时的并发连接数
+  private readonly ajaxThreadsNumberDefault: number = 10 // 抓取页面时的并发连接数
 
   private ajaxThreadsNumber: number = this.ajaxThreadsNumberDefault // 抓取页面时的并发连接数
 
@@ -3793,8 +3805,7 @@ abstract class CrawlPageBase {
     // 如果比 1 小，并且不是 -1，则不通过
     if ((temp < 1 && temp !== -1) || isNaN(temp)) {
       // 比 1 小的数里，只允许 -1 , 0 也不行
-      log.error(lang.transl('_checkWantPageRule1Arg2'), 2)
-      throw new Error('CrawlPage error: Illegal parameter.')
+      this.getWantPageError()
     }
 
     if (temp >= 1) {
@@ -3806,6 +3817,14 @@ abstract class CrawlPageBase {
     return temp
   }
 
+  // 页码参数不合法
+  private getWantPageError() {
+    const msg = lang.transl('_checkWantPageRule1Arg2')
+    window.alert(msg)
+    dlCtrl.allowWork = true
+    throw new Error(msg)
+  }
+
   // 获取要下载的页数/个数
   public getWantPageGreater0() {
     const result = API.checkNumberGreater0(ui.form.setWantPage.value)
@@ -3813,10 +3832,7 @@ abstract class CrawlPageBase {
     if (result.result) {
       return result.value
     } else {
-      const msg = lang.transl('_checkWantPageRule1Arg2')
-      window.alert(msg)
-      dlCtrl.allowWork = true
-      throw new Error(msg)
+      this.getWantPageError()
     }
   }
 
@@ -3877,9 +3893,7 @@ abstract class CrawlPageBase {
     // 开始执行时，标记任务状态，当前任务结束后才能再启动新任务
     dlCtrl.allowWork = false
 
-    this.type = pageType.getPageType()
-
-    await pageInfo.store(this.type)
+    await pageInfo.store()
 
     // 进入第一个抓取方法
     titleBar.changeTitle('↑')
@@ -3889,11 +3903,11 @@ abstract class CrawlPageBase {
 
   // 当可以开始抓取时，进入下一个流程。默认情况下，开始获取作品列表。如有不同，由子类具体定义
   public nextStep() {
-    this.getListPage()
+    this.getIdList()
   }
 
   // 获取作品列表，由各个子类具体定义
-  public abstract getListPage(): void | false | undefined | Promise<void>
+  public abstract getIdList(): void | false | undefined | Promise<void>
 
   // 作品列表获取完毕，开始抓取作品内容页
   public getWorksListFinished() {
@@ -3918,41 +3932,46 @@ abstract class CrawlPageBase {
     }
   }
 
-  // 获取作品的数据
-  public async getIllustData(id?: string) {
-    if (!id) {
-      id = store.idList.shift()!
+  // 网络请求状态异常时输出提示
+  private logErrorStatus(status: number, id: string) {
+    log.error(lang.transl('_无权访问2', id), 1)
+
+    switch (status) {
+      case 0:
+        console.log(lang.transl('_作品页状态码0'))
+        break
+
+      case 400:
+        console.log(lang.transl('_作品页状态码400'))
+        break
+
+      case 403:
+        console.log(lang.transl('_作品页状态码403'))
+        break
+
+      case 404:
+        console.log(lang.transl('_作品页状态码404') + ' ' + id)
+        break
+
+      default:
+        break
     }
+  }
+
+  // 获取作品的数据
+  // 在重试时会传入要重试的 id
+  public async getIllustData(id?: string) {
+    id = id || store.idList.shift()!
 
     let data: IllustData
     try {
       // 发起请求
       data = await API.getIllustData(id)
     } catch (error) {
-      //  请求成功，response.ok 错误。不会再重试这个请求
+      //  请求成功，但 response.ok 错误。不重试请求，跳过该作品继续抓取
       if (error.status) {
-        this.responseError(id)
-
-        switch (error.status) {
-          case 0:
-            console.log(lang.transl('_作品页状态码0'))
-            break
-
-          case 400:
-            console.log(lang.transl('_作品页状态码400'))
-            break
-
-          case 403:
-            console.log(lang.transl('_作品页状态码403'))
-            break
-
-          case 404:
-            console.log(lang.transl('_作品页状态码404') + ' ' + id)
-            break
-
-          default:
-            break
-        }
+        this.logErrorStatus(error.status, id)
+        this.afterGetIllust()
       } else {
         // 请求失败，会重试这个请求
         setTimeout(() => {
@@ -4073,49 +4092,11 @@ abstract class CrawlPageBase {
       }
     }
 
-    // 在作品页内下载时，每次获取完一个作品的信息后，还要从这个信息里获取下一个要抓取的 id
-    if (this.type === 1 && !this.downRelated) {
-      if (this.fetchNumber > 0) {
-        this.fetchNumber--
-      }
-
-      if (this.fetchNumber === -1 || this.fetchNumber > 0) {
-        // 应该继续下载时，检查是否有下一个作品
-        this.getNextId(body)
-      } else {
-        // 抓取完了指定数量的作品
-        this.crawFinished()
-        return
-      }
-    }
-
     this.afterGetIllust()
   }
 
-  // 在作品页内向上、向下抓取作品时，查找下一个要抓取的作品的 id
-  private getNextId(body: IllustData['body']) {
-    let nextId
-    const illustId = body.illustId
-    const userIllusts = Object.values(body.userIllusts)
-    // 在所有不为 null 的数据里（可能有1-3个），illustId 比当前 id 大的是新作品, 比当前 id 小的是旧作品
-    for (const val of userIllusts) {
-      if (val) {
-        const thisId = parseInt(val.illustId) // 转换成数字进行比较
-        if (this.downDirection === -1 && thisId > parseInt(illustId)) {
-          nextId = val.illustId
-          break
-        } else if (this.downDirection === 1 && thisId < parseInt(illustId)) {
-          nextId = val.illustId
-          break
-        }
-      }
-    }
-
-    if (nextId) {
-      // 储存下一个要抓取的 id
-      store.idList.push(nextId)
-    }
-  }
+  // 抓取完成后，对结果进行排序
+  public sortResult() {}
 
   // 抓取完毕
   public crawFinished() {
@@ -4127,32 +4108,11 @@ abstract class CrawlPageBase {
     this.downDirection = 0 // 解除下载方向的标记
     this.downRecommended = false // 解除下载推荐作品的标记
 
-    // tag 搜索页把下载任务按收藏数从高到低下载
-    if (this.type === 5) {
-      store.result.sort(API.sortByProperty('bmk'))
-    }
-
-    // 在用户的列表页里
-    if (this.type === 2) {
-      if (!location.href.includes('bookmark.php')) {
-        // 如果是其他列表页，把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
-        store.result.sort(API.sortByProperty('id'))
-      } else {
-        // 如果是书签页，把作品数据反转，这样可以先下载收藏时间早的，后下载收藏时间近的
-        store.result.reverse()
-      }
-      // 注意这里如果在控制台打印 imgInfo 的话，可能看到修改前后的数据是一样的，因为 imgInfo 引用的地址没变，实际上数据修改成功了。如果想要看到不同的数据，可以将 imgInfo 用扩展运算符解开之后再修改。
-    }
-
     if (store.result.length === 0) {
-      log.log(lang.transl('_抓取完毕'))
-      log.error(lang.transl('_没有符合条件的作品'), 2)
-      window.alert(
-        lang.transl('_抓取完毕') + lang.transl('_没有符合条件的作品')
-      )
-      dlCtrl.allowWork = true
-      return
+      return this.noResult()
     }
+
+    this.sortResult()
 
     log.log(lang.transl('_抓取完毕'), 2)
 
@@ -4185,34 +4145,12 @@ abstract class CrawlPageBase {
     )
   }
 
-  // 获取作品列表的结果为 0 时输出提示
+  // 抓取结果为 0 时输出提示
   public noResult() {
-    log.error(lang.transl('_列表页抓取结果为零'), 2)
+    log.error(lang.transl('_抓取结果为零'), 2)
+    window.alert(lang.transl('_抓取结果为零'))
     dlCtrl.allowWork = true
     titleBar.reset()
-  }
-
-  // 请求结果错误时进行处理
-  private responseError(url: string) {
-    let type = pageType.getPageType()
-
-    // 处理需要中断抓取的情况
-    if (type === 1 && !this.downRelated) {
-      log.error(lang.transl('_无权访问1', url), 2)
-
-      if (this.fetchNumber > 0) {
-        this.fetchNumber--
-      }
-
-      // 在作品页内下载时，如果出现了无法访问的作品时，就获取不到接下来的作品了，直接结束。
-      this.crawFinished()
-      return
-    }
-
-    // 其他情况跳过出错的作品，继续抓取
-    log.error(lang.transl('_无权访问2', url), 1)
-    // 跳过当前作品，正常抓取
-    this.afterGetIllust()
   }
 
   // 每当获取完一个作品的信息
@@ -4313,11 +4251,11 @@ class CrawlIndexPage extends CrawlPageBase {
   public nextStep() {
     // 在主页通过id抓取时，不需要获取列表页，直接完成
     log.log(lang.transl('_开始获取作品页面'))
-    this.getListPage()
+    this.getIdList()
   }
 
   public getWantPage() {}
-  public getListPage() {
+  public getIdList() {
     const textarea = document.getElementById(
       'down_id_input'
     ) as HTMLTextAreaElement
@@ -4360,21 +4298,62 @@ class CrawlIllustPage extends CrawlPageBase {
     }
   }
 
-  public getListPage() {
+  public nextStep() {
     // 下载相关作品
     if (this.downRelated) {
       this.getRelatedList()
-    } else {
-      // 快速下载，以及向前、向后下载
+    } else if (dlCtrl.quickDownload) {
+      // 快速下载
       store.idList.push(API.getIllustId(window.location.href))
 
-      // 快速下载时在这里提示一次
-      if (dlCtrl.quickDownload) {
-        log.log(lang.transl('_开始获取作品页面'))
-      }
+      log.log(lang.transl('_开始获取作品页面'))
 
       this.getWorksListFinished()
+    } else {
+      // 向前向后下载
+      this.getIdList()
     }
+  }
+
+  public async getIdList() {
+    let type: userWorksType[] = ['illusts', 'manga']
+    let idList = await API.getUserWorksByType(DOM.getUserId(), type)
+
+    // 储存符合条件的 id
+    let nowId = parseInt(API.getIllustId(window.location.href))
+    idList.forEach(id => {
+      let idNum = parseInt(id)
+      // 新作品
+      if (idNum >= nowId && this.downDirection === -1) {
+        store.idList.push(id)
+      } else if (idNum <= nowId && this.downDirection === 1) {
+        // 旧作品
+        store.idList.push(id)
+      }
+    })
+
+    // 当设置了下载个数时，进行裁剪
+    if (this.fetchNumber !== -1) {
+      // 新作品 升序排列
+      if (this.downDirection === -1) {
+        store.idList.sort(function(x, y) {
+          return parseInt(x) - parseInt(y)
+        })
+      } else {
+        // 旧作品 降序排列
+        store.idList.sort(function(x, y) {
+          return parseInt(y) - parseInt(x)
+        })
+      }
+
+      store.idList = store.idList.splice(0, this.fetchNumber)
+    }
+
+    log.log(
+      lang.transl('_列表抓取完成开始获取作品页', store.idList.length.toString())
+    )
+
+    this.getWorksListFinished()
   }
 
   // 下载相关作品时使用
@@ -4424,11 +4403,11 @@ class CrawlUserPage extends CrawlPageBase {
       // 下载推荐图片
       this.getRecommendedList()
     } else {
-      this.getListPage()
+      this.readyGetIdList()
     }
   }
 
-  public getListPage() {
+  public readyGetIdList() {
     // 每次开始时重置一些条件
     this.offset = 0
     this.idList = []
@@ -4505,14 +4484,14 @@ class CrawlUserPage extends CrawlPageBase {
 
     if (this.listType !== 3) {
       if (!this.hasTag) {
-        this.getUserAllWorks()
+        this.getIdList()
       } else {
         if (this.listType === 1) {
-          this.getUserWorksByType('illusts')
+          this.getIdListByTag('illusts')
         } else if (this.listType === 2) {
-          this.getUserWorksByType('manga')
+          this.getIdListByTag('manga')
         } else if (this.listType === 4) {
-          this.getUserWorksByType('illustmanga')
+          this.getIdListByTag('illustmanga')
         } else {
           // 无法处理的情况
           dlCtrl.allowWork = true
@@ -4532,13 +4511,84 @@ class CrawlUserPage extends CrawlPageBase {
         hide = true
       }
 
-      this.getBookmarkList(hide)
+      this.getBookmarkIdList(hide)
     }
 
     log.log(lang.transl('_正在抓取'))
 
     if (this.listType === 3 && this.fetchNumber === -1) {
       log.log(lang.transl('_获取全部书签作品'))
+    }
+  }
+
+  // 获取用户的全部作品列表
+  public async getIdList() {
+    let type: userWorksType[] = []
+
+    // 插画和漫画列表页
+    if (this.listType === 0) {
+      type = ['illusts', 'manga']
+    } else if (this.listType === 1) {
+      // 插画列表页，包含动图
+      type = ['illusts']
+    } else if (this.listType === 2) {
+      // 漫画列表页
+      type = ['manga']
+    }
+
+    this.idList = await API.getUserWorksByType(DOM.getUserId(), type)
+
+    this.afterGetListPage()
+  }
+
+  // 获取用户某一类型的作品列表（附带 tag）
+  private async getIdListByTag(type: 'illusts' | 'manga' | 'illustmanga') {
+    let data = await API.getUserWorksByTypeWithTag(
+      DOM.getUserId(),
+      type,
+      this.tag,
+      this.offset,
+      this.requsetNumber
+    )
+
+    data.body.works.forEach(data => this.idList.push(data.id))
+
+    this.afterGetListPage()
+  }
+
+  // 获取用户的收藏作品列表
+  private async getBookmarkIdList(isHide: boolean) {
+    let bmkGetEnd = false // 书签作品是否获取完毕
+
+    let data: BookmarkData
+    try {
+      data = await API.getBookmarkData(
+        DOM.getUserId(),
+        this.tag,
+        this.offset,
+        isHide
+      )
+    } catch (error) {
+      this.getBookmarkIdList(isHide)
+      return
+    }
+
+    if (
+      data.body.works.length === 0 ||
+      this.idList.length >= this.requsetNumber
+    ) {
+      bmkGetEnd = true // 书签页获取完毕
+      this.afterGetListPage()
+    }
+
+    // 如果书签页没有获取完毕
+    if (!bmkGetEnd) {
+      // 没有抓取完毕时，才添加数据。抓取完毕之后不添加数据
+      data.body.works.forEach(data => this.idList.push(data.id))
+
+      this.offset += this.onceRequest // 每次增加偏移量
+      // 重复抓取过程
+      this.getBookmarkIdList(isHide)
     }
   }
 
@@ -4591,77 +4641,6 @@ class CrawlUserPage extends CrawlPageBase {
     this.getWorksListFinished()
   }
 
-  // 获取用户的全部作品列表
-  private async getUserAllWorks() {
-    let data = await API.getUserProfileAll(DOM.getUserId())
-
-    // 插画和漫画列表页
-    if (this.listType === 0) {
-      this.idList = this.idList
-        .concat(Object.keys(data.body.illusts))
-        .concat(Object.keys(data.body.manga))
-    } else if (this.listType === 1) {
-      // 插画列表页，包含动图
-      this.idList = this.idList.concat(Object.keys(data.body.illusts))
-    } else if (this.listType === 2) {
-      // 漫画列表页
-      this.idList = this.idList.concat(Object.keys(data.body.manga))
-    }
-
-    this.afterGetListPage()
-  }
-
-  // 获取用户某一类型的作品列表（附带 tag）
-  private async getUserWorksByType(type: 'illusts' | 'manga' | 'illustmanga') {
-    let data = await API.getUserWorksByTypeWithTag(
-      DOM.getUserId(),
-      type,
-      this.tag,
-      this.offset,
-      this.requsetNumber
-    )
-
-    data.body.works.forEach(data => this.idList.push(data.id))
-
-    this.afterGetListPage()
-  }
-
-  // 获取用户的收藏作品列表
-  private async getBookmarkList(isHide: boolean) {
-    let bmkGetEnd = false // 书签作品是否获取完毕
-
-    let data: BookmarkData
-    try {
-      data = await API.getBookmarkData(
-        DOM.getUserId(),
-        this.tag,
-        this.offset,
-        isHide
-      )
-    } catch (error) {
-      this.getBookmarkList(isHide)
-      return
-    }
-
-    if (
-      data.body.works.length === 0 ||
-      this.idList.length >= this.requsetNumber
-    ) {
-      bmkGetEnd = true // 书签页获取完毕
-      this.afterGetListPage()
-    }
-
-    // 如果书签页没有获取完毕
-    if (!bmkGetEnd) {
-      // 没有抓取完毕时，才添加数据。抓取完毕之后不添加数据
-      data.body.works.forEach(data => this.idList.push(data.id))
-
-      this.offset += this.onceRequest // 每次增加偏移量
-      // 重复抓取过程
-      this.getBookmarkList(isHide)
-    }
-  }
-
   // 获取书签页面下方的推荐作品列表
   public getRecommendedList() {
     // 获取下方已经加载出来的作品
@@ -4669,14 +4648,8 @@ class CrawlUserPage extends CrawlPageBase {
       '#illust-recommend .image-item'
     ) as NodeListOf<HTMLLIElement>
     if (elements.length === 0) {
-      log.log(lang.transl('_抓取完毕'))
-      log.error(lang.transl('_没有符合条件的作品'), 2)
-      window.alert(
-        lang.transl('_抓取完毕') + lang.transl('_没有符合条件的作品')
-      )
-      dlCtrl.allowWork = true
       this.downRecommended = false
-      return
+      return this.noResult()
     }
     // 添加作品列表
     for (const li of elements) {
@@ -4685,6 +4658,17 @@ class CrawlUserPage extends CrawlPageBase {
     }
 
     this.getWorksListFinished()
+  }
+
+  public sortResult() {
+    if (!location.href.includes('bookmark.php')) {
+      // 如果是其他列表页，把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
+      store.result.sort(API.sortByProperty('id'))
+    } else {
+      // 如果是书签页，把作品数据反转，这样可以先下载收藏时间早的，后下载收藏时间近的
+      store.result.reverse()
+    }
+    // 这里如果在控制台打印 result，可能看到修改前后的数据是一样的，这时因为 result 是引用类型导致的，实际上正常。
   }
 }
 
@@ -4720,7 +4704,7 @@ class CrawlSearchPage extends CrawlPageBase {
 
   public nextStep() {
     this.initFetchURL()
-    this.getListPage()
+    this.getIdList()
   }
 
   // 组织要请求的 url 中的参数
@@ -4764,7 +4748,7 @@ class CrawlSearchPage extends CrawlPageBase {
     })
   }
 
-  public async getListPage() {
+  public async getIdList() {
     let p = this.startpageNo + this.listPageFinished
 
     // 发起请求，获取列表页
@@ -4777,7 +4761,7 @@ class CrawlSearchPage extends CrawlPageBase {
         this.option
       )
     } catch {
-      this.getListPage()
+      this.getIdList()
       return
     }
 
@@ -4829,13 +4813,18 @@ class CrawlSearchPage extends CrawlPageBase {
       return
     }
 
-    this.getListPage()
+    this.getIdList()
+  }
+
+  // 搜索页把下载任务按收藏数从高到低下载
+  public sortResult() {
+    store.result.sort(API.sortByProperty('bmk'))
   }
 }
 
 // 抓取地区排行榜页面
 class CrawlAreaRankingPage extends CrawlPageBase {
-  public getListPage() {
+  public getIdList() {
     // 地区排行榜
     const allPicArea = document.querySelectorAll('.ranking-item>.work_wrapper')
 
@@ -4916,10 +4905,10 @@ class CrawlRankingPage extends CrawlPageBase {
     this.startpageNo = 1
 
     this.setPartNum()
-    this.getListPage()
+    this.getIdList()
   }
 
-  public async getListPage() {
+  public async getIdList() {
     this.option.p = this.startpageNo + this.listPageFinished
 
     // 发起请求，获取作品列表
@@ -4928,15 +4917,10 @@ class CrawlRankingPage extends CrawlPageBase {
       data = await API.getRankingData(this.option)
     } catch (error) {
       if (error.status === 404) {
-        // 排行榜
-        if (this.type === 7) {
-          // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有下一部分了
-          console.log('404错误，直接下载已有部分')
-          log.log(
-            lang.transl('_排行榜任务完成', store.idList.length.toString())
-          )
-          this.getWorksListFinished()
-        }
+        // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有下一部分了
+        console.log('404错误，直接下载已有部分')
+        log.log(lang.transl('_排行榜任务完成', store.idList.length.toString()))
+        this.getWorksListFinished()
       }
 
       return
@@ -4983,7 +4967,7 @@ class CrawlRankingPage extends CrawlPageBase {
       this.getWorksListFinished()
     } else {
       // 继续抓取
-      this.getListPage()
+      this.getIdList()
     }
   }
 }
@@ -4995,7 +4979,7 @@ class CrawlPixivisionPage extends CrawlPageBase {
     this.getPixivision()
   }
 
-  public getListPage() {}
+  public getIdList() {}
 
   public getPixivision() {
     const typeA = document.querySelector(
@@ -5127,14 +5111,19 @@ class CrawlPixivisionPage extends CrawlPageBase {
 // 抓取 bookmark_detail 页面
 class CrawlBookmarkDetailPage extends CrawlPageBase {
   public getWantPage() {
-    this.fetchNumber = this.getWantPageGreater0()
+    const check = this.getWantPageGreater0()
+    if (check == undefined) {
+      return
+    }
+    this.fetchNumber = check
+
     if (this.fetchNumber > this.maxCount) {
       this.fetchNumber = this.maxCount
     }
   }
 
   // 获取相似的作品列表
-  public async getListPage() {
+  public async getIdList() {
     let data = await API.getRecommenderData(API.getIllustId(), this.fetchNumber)
 
     for (const id of data.recommendations) {
@@ -5150,7 +5139,12 @@ class CrawlBookmarkDetailPage extends CrawlPageBase {
 class CrawlBookmarkNewIllustPage extends CrawlPageBase {
   private r18 = false
   public getWantPage() {
-    this.fetchNumber = this.getWantPageGreater0()
+    const check = this.getWantPageGreater0()
+    if (check == undefined) {
+      return
+    }
+    this.fetchNumber = check
+
     if (this.fetchNumber > this.maxCount) {
       this.fetchNumber = this.maxCount
     }
@@ -5165,10 +5159,10 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
     const p = API.getURLField(location.href, 'p')
     this.startpageNo = parseInt(p) || 1
 
-    this.getListPage()
+    this.getIdList()
   }
 
-  public async getListPage() {
+  public async getIdList() {
     let p = this.startpageNo + this.listPageFinished
 
     // 发起请求，获取列表页
@@ -5176,7 +5170,7 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
     try {
       worksData = await API.getBookmarkNewIllustData(p, this.r18)
     } catch (error) {
-      this.getListPage()
+      this.getIdList()
       return
     }
 
@@ -5211,7 +5205,7 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
       this.getWorksListFinished()
     } else {
       // 继续抓取
-      this.getListPage()
+      this.getIdList()
     }
   }
 }
@@ -5219,7 +5213,12 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
 // 抓取 大家的新作品页面
 class CrawlNewIllustPage extends CrawlPageBase {
   public getWantPage() {
-    this.fetchNumber = this.getWantPageGreater0()
+    const check = this.getWantPageGreater0()
+    if (check == undefined) {
+      return
+    }
+    this.fetchNumber = check
+
     if (this.fetchNumber > this.maxCount) {
       this.fetchNumber = this.maxCount
     }
@@ -5229,7 +5228,7 @@ class CrawlNewIllustPage extends CrawlPageBase {
 
   public nextStep() {
     this.initFetchURL()
-    this.getListPage()
+    this.getIdList()
   }
 
   private resetOption(): NewIllustOption {
@@ -5265,12 +5264,12 @@ class CrawlNewIllustPage extends CrawlPageBase {
     this.option.r18 = (location.href.includes('_r18.php') || false).toString()
   }
 
-  public async getListPage() {
+  public async getIdList() {
     let data: NewIllustData
     try {
       data = await API.getNewIllustData(this.option)
     } catch (error) {
-      this.getListPage()
+      this.getIdList()
       return
     }
 
@@ -5316,7 +5315,7 @@ class CrawlNewIllustPage extends CrawlPageBase {
 
     // 继续抓取
     this.option.lastId = data.body.lastId
-    this.getListPage()
+    this.getIdList()
   }
 }
 
@@ -5329,7 +5328,7 @@ class CrawlDiscoverPage extends CrawlPageBase {
 
   public getWantPage() {}
 
-  public getListPage() {
+  public getIdList() {
     // 在发现页面，仅下载已有部分，所以不需要去获取列表页
     const nowIllust = document.querySelectorAll('.QBU8zAz>a') as NodeListOf<
       HTMLAnchorElement

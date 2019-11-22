@@ -150,20 +150,30 @@ interface UserProfileAllData {
   error: boolean
   message: string
   body: {
-    illusts: {
-      [key: string]: null
-    }
-    manga: {
-      [key: string]: null
-    }
-    novels: []
-    mangaSeries: []
-    novelSeries: []
+    illusts:
+      | []
+      | {
+          [key: string]: null
+        }
+    manga:
+      | []
+      | {
+          [key: string]: null
+        }
+    novels:
+      | []
+      | {
+          [key: string]: null
+        }
+    mangaSeries: [] | {}
+    novelSeries: [] | {}
     pickup: object
     bookmarkCount: object
     externalSiteWorksStatus: object
   }
 }
+
+type userWorksType = 'illusts' | 'manga' | 'novels'
 
 // 画师列表页的列表数据，带 tag。一些不需要使用的数据就简化了
 interface UserWorksWithTag {
