@@ -3256,11 +3256,10 @@ class CrawlPageBase {
         */
     this.downRelated = false // 是否下载相关作品（作品页内的）
     this.downRecommended = false // 是否下载推荐作品（收藏页面下方）
-    this.fetchNumber = 0 // 要抓取几页
+    this.fetchNumber = 0 // 要抓取的个数/页数
     this.ajaxThreadsNumberDefault = 10 // 抓取页面时的并发连接数
     this.ajaxThreadsNumber = this.ajaxThreadsNumberDefault // 抓取页面时的并发连接数
     this.ajaxThreadsFinished = 0 // 统计有几个并发线程完成所有请求。统计的是并发数（ ajaxThreadsNumber ）而非请求数
-    this.requsetNumber = 0 // 要下载多少个作品
     this.imgNumberPerWork = 0 // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
     this.delWork = false // 是否处于删除作品状态
   }
@@ -3347,14 +3346,12 @@ class CrawlPageBase {
     this.getIdList()
   }
   // 作品列表获取完毕，开始抓取作品内容页
-  getWorksListFinished() {
+  getIdListFinished() {
     // 列表页获取完毕后，可以在这里重置一些变量
-    ui.form.debut.value = '0'
-    this.listPageFinished = 0
+    this.resetGetIdListStatus()
     if (store.idList.length === 0) {
       return this.noResult()
     }
-    titleBar.changeTitle('↑')
     if (store.idList.length <= this.ajaxThreadsNumberDefault) {
       this.ajaxThreadsNumber = store.idList.length
     } else {
@@ -3362,26 +3359,6 @@ class CrawlPageBase {
     }
     for (let i = 0; i < this.ajaxThreadsNumber; i++) {
       this.getIllustData()
-    }
-  }
-  // 网络请求状态异常时输出提示
-  logErrorStatus(status, id) {
-    log.error(lang.transl('_无权访问2', id), 1)
-    switch (status) {
-      case 0:
-        console.log(lang.transl('_作品页状态码0'))
-        break
-      case 400:
-        console.log(lang.transl('_作品页状态码400'))
-        break
-      case 403:
-        console.log(lang.transl('_作品页状态码403'))
-        break
-      case 404:
-        console.log(lang.transl('_作品页状态码404') + ' ' + id)
-        break
-      default:
-        break
     }
   }
   // 获取作品的数据
@@ -3405,7 +3382,7 @@ class CrawlPageBase {
       }
       return
     }
-    // 获取需要检查的作品信息
+    // 获取需要检查的信息
     const body = data.body
     const fullWidth = body.width // 原图宽度
     const fullHeight = body.height // 原图高度
@@ -3507,16 +3484,26 @@ class CrawlPageBase {
     }
     this.afterGetIllust()
   }
-  // 抓取完成后，对结果进行排序
-  sortResult() {}
+  // 每当获取完一个作品的信息
+  afterGetIllust() {
+    if (store.idList.length > 0) {
+      // 如果存在下一个作品，则
+      this.getIllustData()
+    } else {
+      // 没有剩余作品
+      this.ajaxThreadsFinished++
+      if (this.ajaxThreadsFinished === this.ajaxThreadsNumber) {
+        // 如果所有并发请求都执行完毕，复位
+        this.ajaxThreadsFinished = 0
+        this.crawFinished()
+      }
+    }
+  }
   // 抓取完毕
   crawFinished() {
     dlCtrl.allowWork = true
     // 检查快速下载状态
     let autoDownload = ui.form.quietDownload.checked
-    this.downRelated = false // 解除下载相关作品的标记
-    this.downDirection = 0 // 解除下载方向的标记
-    this.downRecommended = false // 解除下载推荐作品的标记
     if (store.result.length === 0) {
       return this.noResult()
     }
@@ -3527,14 +3514,39 @@ class CrawlPageBase {
     }
     dlCtrl.downloaded = 0
     ui.resetDownloadProcess() // 重置下载面板
+    // 显示下载区域
     ui.downloadPanelDisplay('block')
-    // 显示下载面板
+    // 显示中间面板
     if (!dlCtrl.quickDownload) {
       ui.centerWrapShow()
     }
     // 视情况自动开始下载
     if (dlCtrl.quickDownload || autoDownload) {
       dlCtrl.startDownload()
+    }
+  }
+  // 重设抓取作品列表时使用的变量活标记
+  resetGetIdListStatus() {
+    this.listPageFinished = 0
+  }
+  // 网络请求状态异常时输出提示
+  logErrorStatus(status, id) {
+    log.error(lang.transl('_无权访问2', id), 1)
+    switch (status) {
+      case 0:
+        console.log(lang.transl('_作品页状态码0'))
+        break
+      case 400:
+        console.log(lang.transl('_作品页状态码400'))
+        break
+      case 403:
+        console.log(lang.transl('_作品页状态码403'))
+        break
+      case 404:
+        console.log(lang.transl('_作品页状态码404') + ' ' + id)
+        break
+      default:
+        break
     }
   }
   // 在抓取图片网址时，输出提示
@@ -3552,21 +3564,8 @@ class CrawlPageBase {
     dlCtrl.allowWork = true
     titleBar.reset()
   }
-  // 每当获取完一个作品的信息
-  afterGetIllust() {
-    if (store.idList.length > 0) {
-      // 如果存在下一个作品，则
-      this.getIllustData()
-    } else {
-      // 没有剩余作品
-      this.ajaxThreadsFinished++
-      if (this.ajaxThreadsFinished === this.ajaxThreadsNumber) {
-        // 如果所有并发请求都执行完毕，复位
-        this.ajaxThreadsFinished = 0
-        this.crawFinished()
-      }
-    }
-  }
+  // 抓取完成后，对结果进行排序
+  sortResult() {}
   // 清空图片信息并重置输出区域，在重复抓取时使用
   resetResult() {
     store.reset()
@@ -3656,7 +3655,7 @@ class CrawlIndexPage extends CrawlPageBase {
         store.idList.push(nowId.toString())
       }
     }
-    this.getWorksListFinished()
+    this.getIdListFinished()
   }
 }
 // 抓取作品页
@@ -3689,7 +3688,7 @@ class CrawlIllustPage extends CrawlPageBase {
       // 快速下载
       store.idList.push(API.getIllustId(window.location.href))
       log.log(lang.transl('_开始获取作品页面'))
-      this.getWorksListFinished()
+      this.getIdListFinished()
     } else {
       // 向前向后下载
       this.getIdList()
@@ -3728,7 +3727,7 @@ class CrawlIllustPage extends CrawlPageBase {
     log.log(
       lang.transl('_列表抓取完成开始获取作品页', store.idList.length.toString())
     )
-    this.getWorksListFinished()
+    this.getIdListFinished()
   }
   // 下载相关作品时使用
   async getRelatedList() {
@@ -3742,7 +3741,12 @@ class CrawlIllustPage extends CrawlPageBase {
     }
     store.idList = store.idList.concat(recommendIdList)
     log.log(lang.transl('_相关作品抓取完毕', store.idList.length.toString()))
-    this.getWorksListFinished()
+    this.getIdListFinished()
+  }
+  resetGetIdListStatus() {
+    this.listPageFinished = 0
+    this.downDirection = 0 // 解除下载方向的标记
+    this.downRelated = false // 解除下载相关作品的标记
   }
 }
 // 抓取用户页面
@@ -3753,6 +3757,7 @@ class CrawlUserPage extends CrawlPageBase {
     this.hasTag = false // 是否带 tag
     this.tag = '' // 储存当前页面带的 tag，不过有时并没有
     this.listType = 0 // pageType 2 里的页面类型，都是列表页
+    this.requsetNumber = 0 // 根据页数，计算要抓取的作品个数
     this.onceRequest = 100 // 每次请求多少个数量
     this.offset = 0 // 要去掉的作品数量
   }
@@ -3973,7 +3978,7 @@ class CrawlUserPage extends CrawlPageBase {
     log.log(
       lang.transl('_列表抓取完成开始获取作品页', store.idList.length.toString())
     )
-    this.getWorksListFinished()
+    this.getIdListFinished()
   }
   // 获取书签页面下方的推荐作品列表
   getRecommendedList() {
@@ -3988,7 +3993,11 @@ class CrawlUserPage extends CrawlPageBase {
       const a = li.querySelector('a')
       store.idList.push(API.getIllustId(a.href))
     }
-    this.getWorksListFinished()
+    this.getIdListFinished()
+  }
+  resetGetIdListStatus() {
+    this.listPageFinished = 0
+    this.downRecommended = false // 解除下载推荐作品的标记
   }
   sortResult() {
     if (!location.href.includes('bookmark.php')) {
@@ -4007,6 +4016,9 @@ class CrawlSearchPage extends CrawlPageBase {
     super(...arguments)
     this.worksType = ''
     this.option = {}
+    this.worksNoPerPage = 60 // 每个页面有多少个作品
+    this.needCrawlPageCount = 0 // 一共有有多少个列表页面
+    this.sendCrawlTaskCount = 0 // 已经抓取了多少个列表页面
     this.allOption = [
       'order',
       'type',
@@ -4031,9 +4043,23 @@ class CrawlSearchPage extends CrawlPageBase {
       this.fetchNumber = this.maxCount
     }
   }
-  nextStep() {
+  // 获取搜索页的数据。因为有多处使用，所以进行了封装
+  async getSearchData(p) {
+    let data = await API.getSearchData(
+      pageInfo.pageTag,
+      this.worksType,
+      p,
+      this.option
+    )
+    return data.body.illust || data.body.illustManga || data.body.manga
+  }
+  async nextStep() {
     this.initFetchURL()
-    this.getIdList()
+    this.needCrawlPageCount = await this.calcNeedCrawlPageCount()
+    if (this.needCrawlPageCount === 0) {
+      return this.noResult()
+    }
+    this.startGetIdList()
   }
   // 组织要请求的 url 中的参数
   initFetchURL() {
@@ -4071,24 +4097,48 @@ class CrawlSearchPage extends CrawlPageBase {
       }
     })
   }
+  // 计算应该抓取多少页
+  async calcNeedCrawlPageCount() {
+    let data = await this.getSearchData(1)
+    // 计算总页数
+    let pageCount = Math.ceil(data.total / this.worksNoPerPage)
+    if (pageCount > this.maxCount) {
+      // 最大为 1000
+      pageCount = this.maxCount
+    }
+    // 计算从本页开始抓取的话，有多少页
+    let needFetchPage = pageCount - this.startpageNo + 1
+    // 比较用户设置的页数，取较小的那个数值
+    if (needFetchPage < this.fetchNumber) {
+      return needFetchPage
+    } else {
+      return this.fetchNumber
+    }
+  }
+  // 计算页数之后，准备建立并发抓取线程
+  startGetIdList() {
+    if (this.needCrawlPageCount <= this.ajaxThreadsNumberDefault) {
+      this.ajaxThreadsNumber = this.needCrawlPageCount
+    } else {
+      this.ajaxThreadsNumber = this.ajaxThreadsNumberDefault
+    }
+    for (let i = 0; i < this.ajaxThreadsNumber; i++) {
+      this.getIdList()
+    }
+  }
   async getIdList() {
-    let p = this.startpageNo + this.listPageFinished
+    let p = this.startpageNo + this.sendCrawlTaskCount
+    this.sendCrawlTaskCount++
     // 发起请求，获取列表页
     let data
     try {
-      data = await API.getSearchData(
-        pageInfo.pageTag,
-        this.worksType,
-        p,
-        this.option
-      )
+      data = await this.getSearchData(p)
     } catch (_a) {
       this.getIdList()
       return
     }
-    let useData = (data.body.illust || data.body.illustManga || data.body.manga)
-      .data
-    for (const nowData of useData) {
+    data = data.data
+    for (const nowData of data) {
       // 排除广告信息
       if (nowData.isAdContainer) {
         continue
@@ -4105,28 +4155,26 @@ class CrawlSearchPage extends CrawlPageBase {
       }
     }
     this.listPageFinished++
-    // 没有数据，一般是抓取完了
-    // 对于页数在 1000 以内的标签，如果到了没有作品的页数，数据就是空的，可以判断抓取完了
-    if (useData.length === 0) {
-      log.log(lang.transl('_搜索页已抓取所有页面'))
-      this.getWorksListFinished()
-      return
-    }
     log.log(
       lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
       1,
       false
     )
-    // 对于页数在 1000 以上的标签，抓取到 1000 页为止。因为再往后都是重复第 1000 页的内容
-    if (
-      this.listPageFinished === this.fetchNumber ||
-      this.startpageNo + this.listPageFinished > 1000
-    ) {
-      log.log(lang.transl('_列表页抓取完成'))
-      this.getWorksListFinished()
-      return
+    if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
+      // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
+      this.getIdList()
+    } else {
+      // 抓取任务已经全部发送
+      if (this.listPageFinished === this.needCrawlPageCount) {
+        // 抓取任务全部完成
+        log.log(lang.transl('_列表页抓取完成'))
+        this.getIdListFinished()
+      }
     }
-    this.getIdList()
+  }
+  resetGetIdListStatus() {
+    this.listPageFinished = 0
+    this.sendCrawlTaskCount = 0
   }
   // 搜索页把下载任务按收藏数从高到低下载
   sortResult() {
@@ -4159,7 +4207,7 @@ class CrawlAreaRankingPage extends CrawlPageBase {
     log.log(
       lang.transl('_列表抓取完成开始获取作品页', store.idList.length.toString())
     )
-    this.getWorksListFinished()
+    this.getIdListFinished()
   }
 }
 // 抓取排行榜页面
@@ -4219,7 +4267,7 @@ class CrawlRankingPage extends CrawlPageBase {
         // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有下一部分了
         console.log('404错误，直接下载已有部分')
         log.log(lang.transl('_排行榜任务完成', store.idList.length.toString()))
-        this.getWorksListFinished()
+        this.getIdListFinished()
       }
       return
     }
@@ -4254,11 +4302,15 @@ class CrawlRankingPage extends CrawlPageBase {
     // 抓取完毕
     if (complete || this.listPageFinished === this.pageCount) {
       log.log(lang.transl('_排行榜任务完成', store.idList.length.toString()))
-      this.getWorksListFinished()
+      this.getIdListFinished()
     } else {
       // 继续抓取
       this.getIdList()
     }
+  }
+  resetGetIdListStatus() {
+    this.listPageFinished = 0
+    ui.form.debut.value = '0'
   }
 }
 // 抓取 pixivision 页面
@@ -4399,7 +4451,7 @@ class CrawlBookmarkDetailPage extends CrawlPageBase {
       store.idList.push(id.toString())
     }
     log.log(lang.transl('_排行榜任务完成', store.idList.length.toString()))
-    this.getWorksListFinished()
+    this.getIdListFinished()
   }
 }
 // 抓取 关注的新作品
@@ -4460,7 +4512,7 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
     if (p >= 100 || this.listPageFinished === this.fetchNumber) {
       dlCtrl.allowWork = true
       log.log(lang.transl('_列表页抓取完成'))
-      this.getWorksListFinished()
+      this.getIdListFinished()
     } else {
       // 继续抓取
       this.getIdList()
@@ -4550,7 +4602,7 @@ class CrawlNewIllustPage extends CrawlPageBase {
       this.fetchCount >= this.maxCount
     ) {
       log.log(lang.transl('_开始获取作品页面'))
-      this.getWorksListFinished()
+      this.getIdListFinished()
       return
     }
     // 继续抓取
@@ -4575,7 +4627,7 @@ class CrawlDiscoverPage extends CrawlPageBase {
       store.idList.push(id)
     })
     log.log(lang.transl('_排行榜任务完成', store.idList.length.toString()))
-    this.getWorksListFinished()
+    this.getIdListFinished()
   }
 }
 // 初始化页面抓取流程
