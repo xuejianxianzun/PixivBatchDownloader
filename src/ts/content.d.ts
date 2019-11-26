@@ -5,7 +5,7 @@ declare let Whammy: any
 declare let GIF: any
 
 // 下载时要使用的作品信息
-interface ImgInfo {
+interface WorkInfo {
   id: string
   url: string
   title: string
@@ -869,4 +869,16 @@ interface SearchOption {
   blt?: string
   bgt?: string
   [key: string]: string | undefined
+}
+
+// 删除作品的接口
+interface DeleteWorks {
+  worksSelector: string // 选择页面上所有作品的选择器
+  multipleSelector: string // 多图作品特有的元素的标识
+  ugoiraSelector: string // 动图作品特有的元素的标识
+}
+
+interface IllustPageMembers {
+  crawlDirection: number
+  crawlRelated: boolean
 }

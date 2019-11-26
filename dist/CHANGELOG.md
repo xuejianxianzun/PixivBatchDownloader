@@ -1,5 +1,34 @@
 # 版本升级日志
 
+## 3.2.1 2019-11-26
+
+- 修复 bug
+
+有时候 pixiv 的搜索页面网址会出现语言标记。如下：
+
+```
+// 没有标记
+https://www.pixiv.net/tags/Fate%2FGrandOrder/illustrations
+
+// 有标记
+https://www.pixiv.net/en/tags/Fate%2FGrandOrder/illustrations
+```
+
+之前的搜索页的代码没有考虑到有标记的情况，现在进行修复。
+
+目前似乎只有语言设置为英语时会出现 `en` 标记。但也不是所有页面都会出现，现在测试了会出现 `en` 标记的页面有：
+
+```
+1
+5
+```
+
+- 优化代码
+
+把删除作品功能独立成了一个类。
+
+InitPage 时指定了各自页面里抓取器的类型，这样不用把抓取器的所有属性都一股脑写到 CrawlPageBase 里面了。但是现在指定类型的方法似乎不够优雅。
+
 ## 3.2.0 2019-11-24
 
 - 加快搜索页面抓取速度
@@ -1190,9 +1219,7 @@ Viewerjs-mix.js [CSS part](https://github.com/fengyuanchen/viewerjs/blob/master/
 
 ## TODO
 
-测试 resetGetIdListStatus 改变
-
-优先使用组合而不是继承。基类中的某些代码只在少数几个子类中使用，应该抽离
+优先使用组合而不是继承
 
 get set
 

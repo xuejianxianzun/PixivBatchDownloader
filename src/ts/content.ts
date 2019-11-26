@@ -13,6 +13,55 @@
  * QQ group:499873152
  */
 
+// 语言类
+class Lang {
+  constructor() {
+    this.getLangType()
+  }
+
+  private langType: number = 0
+
+  // 设置语言类型
+  private getLangType() {
+    const userLang = document.documentElement.lang // 获取语言标识
+    switch (userLang) {
+      case 'zh':
+      case 'zh-CN':
+      case 'zh-Hans':
+        this.langType = 0 // 设置为简体中文
+        break
+
+      case 'ja':
+        this.langType = 1 // 设置为日语
+        break
+
+      case 'zh-Hant':
+      case 'zh-tw':
+      case 'zh-TW':
+        this.langType = 3 // 设置为繁体中文
+        break
+
+      default:
+        this.langType = 2 // 设置为英语
+        break
+    }
+  }
+
+  // translate 翻译
+  public transl(name: keyof typeof xzLang, ...arg: string[]) {
+    let content = xzLang[name][this.langType]
+    arg.forEach(val => (content = content.replace('{}', val)))
+    return content
+  }
+}
+
+// 颜色
+class Colors {
+  static blue = '#0ea8ef'
+  static green = '#14ad27'
+  static red = '#f33939'
+}
+
 // 日志类
 class Log {
   private logArea = document.createElement('div') // 输出日志的区域
@@ -73,6 +122,7 @@ class Log {
   }
 
   public success(str: string, br: number = 1, addMode: boolean = true) {
+    this.checkElement()
     this.add(str, 0, br, addMode)
   }
 
@@ -290,7 +340,7 @@ class API {
   }
 
   // 获取作品信息
-  static getIllustData(id: string): Promise<IllustData> {
+  static getWorksData(id: string): Promise<IllustData> {
     const url = `https://www.pixiv.net/ajax/illust/${id}`
     return this.request(url)
   }
@@ -410,264 +460,6 @@ class API {
   }
 }
 
-// 页面类型
-class PageType {
-  constructor() {
-    this.type = this.getPageType()
-  }
-
-  private type: number = 0
-
-  public onPageTypeChange() {}
-
-  // 判断可以处理的页面类型
-  // 有些页面类型虽然不支持，但它和支持的页面是无刷新切换的，所以一开始依然要添加下载器。等到开始抓取时再次判断是否可以抓取
-  public getPageType(): number {
-    const url = window.location.href
-    let type: number
-
-    if (
-      window.location.hostname === 'www.pixiv.net' &&
-      window.location.pathname === '/'
-    ) {
-      type = 0
-    } else if (
-      (url.includes('illust_id') || url.includes('/artworks/')) &&
-      !url.includes('mode=manga') &&
-      !url.includes('bookmark_detail') &&
-      !url.includes('bookmark_add') &&
-      !url.includes('response.php')
-    ) {
-      type = 1
-    } else if (
-      !url.includes('mode=manga&illust_id') &&
-      (/member_illust\.php\?.*id=/.test(url) ||
-        url.includes('member.php?id=') ||
-        url.includes('bookmark.php'))
-    ) {
-      type = 2
-    } else if (
-      url.includes('search.php?') ||
-      url.includes('tags.php?') ||
-      url.includes('pixiv.net/tags/')
-    ) {
-      type = 5
-    } else if (
-      url.includes('ranking_area.php') &&
-      url !== 'https://www.pixiv.net/ranking_area.php'
-    ) {
-      type = 6
-    } else if (window.location.pathname === '/ranking.php') {
-      type = 7
-    } else if (
-      url.includes('https://www.pixivision.net') &&
-      url.includes('/a/')
-    ) {
-      type = 8
-    } else if (
-      url.includes('/bookmark_add.php?id=') ||
-      url.includes('/bookmark_detail.php?illust_id=')
-    ) {
-      type = 9
-    } else if (
-      url.includes('/bookmark_new_illust.php') ||
-      url.includes('/bookmark_new_illust_r18.php')
-    ) {
-      type = 10
-    } else if (window.location.pathname === '/discovery') {
-      type = 11
-    } else if (
-      url.includes('/new_illust.php') ||
-      url.includes('/new_illust_r18.php')
-    ) {
-      type = 12
-    } else {
-      // 没有匹配到可用的页面类型
-      throw new Error('Page type matching failed')
-    }
-
-    return type
-  }
-
-  // 检查是不是进入到了新的页面类型。这个检查需要手动触发
-  public checkPageTypeIsNew() {
-    let newType = this.getPageType()
-
-    if (this.type !== newType) {
-      // 在这里保存一次当前页面类型，因为下面运行的内容可能出错，这里不先保存可能就保存不上了。
-      this.type = newType
-
-      this.onPageTypeChange()
-    } else {
-      // 保存当前页面类型
-      this.type = newType
-    }
-  }
-}
-
-// 获取页面上的有用信息
-class PageInfo {
-  constructor(type: number) {
-    this.getPageInfo(type)
-  }
-
-  // 预设为 1 是为了指示这个标记有值，这样在获取到实际值之前，就可以把它插入到下拉框里。
-  public pageTitle = '1'
-  public pageUserName = ''
-  public pageUserID = ''
-  public pageTag = ''
-
-  // 重置。当切换页面时可能旧页面的一些标记在新页面没有了，所以要清除掉
-  private reset() {
-    this.pageUserName = ''
-    this.pageUserID = ''
-    this.pageTag = ''
-  }
-
-  // 储存信息
-  // 开始抓取时使用，这样即使页面切换了，生成文件名时还是使用的刚开始抓取时的信息。
-  public async store() {
-    await this.getPageInfo(pageType.getPageType())
-    store.pageInfo.pageUserName = this.pageUserName
-    store.pageInfo.pageUserID = this.pageUserID
-    store.pageInfo.pageTag = this.pageTag
-  }
-
-  // 获取当前页面的一些信息，用于文件名中
-  public async getPageInfo(type: number) {
-    this.reset()
-
-    // 设置用户信息
-    if (type === 1 || type === 2) {
-      // 只有 1 和 2 可以使用页面上的用户信息
-      let data = await API.getUserProfile(DOM.getUserId())
-      this.pageUserID = data.body.userId
-      this.pageUserName = data.body.name
-    }
-
-    // 获取当前页面的 tag
-    if (type === 5) {
-      // pathname 获取到的 tag 不需要再编码
-      this.pageTag = decodeURIComponent(location.pathname.split('/')[2])
-    } else {
-      this.pageTag = decodeURIComponent(
-        API.getURLField(window.location.href, 'tag')
-      )
-    }
-
-    // 将可用选项添加到下拉选项里
-    this.initPageInfoSelector()
-  }
-
-  private initPageInfoSelector() {
-    let optionHtml = '<option value="default">…</option>'
-
-    const info = new Map([
-      ['p_title', this.pageTitle],
-      ['p_user', this.pageUserName],
-      ['p_uid', this.pageUserID],
-      ['p_tag', this.pageTag]
-    ])
-
-    for (let [key, value] of info.entries()) {
-      if (value) {
-        optionHtml += `<option value="{${key}}">{${key}}</option>`
-      }
-    }
-    let target = document.getElementById('pageInfoSelect')
-    if (target) {
-      target.innerHTML = optionHtml
-    }
-  }
-}
-
-// 颜色
-class Colors {
-  static blue = '#0ea8ef'
-  static green = '#14ad27'
-  static red = '#f33939'
-}
-
-//标题栏
-class TitleBar {
-  private titleTimer: number = 0 // 修改 title 的定时器
-
-  // 检查标题里有没有本程序定义的状态字符
-  private titleHasStatus(status: string = '') {
-    const titleStatus = ['[↑]', '[→]', '[▶]', '[↓]', '[║]', '[■]', '[√]', '[ ]']
-
-    if (!status) {
-      // 没有传递 status，则检查所有标记
-      for (const str of titleStatus) {
-        if (document.title.includes(str)) {
-          return true
-        }
-      }
-    } else {
-      // 检查指定标记
-      return document.title.includes(status)
-    }
-
-    return false
-  }
-
-  // 重设 title
-  public reset() {
-    let type = pageType.getPageType()
-    clearInterval(this.titleTimer)
-    // 储存标题的 mete 元素。在某些页面不存在，有时也与实际上的标题不一致。
-    const ogTitle = document.querySelector(
-      'meta[property="og:title"]'
-    )! as HTMLMetaElement
-    // 无刷新自动加载的页面里，og:title 标签是最早更新标题的，内容也一致。
-    if (ogTitle && (type == 1 || type === 2)) {
-      document.title = ogTitle.content
-    } else {
-      // 如果当前 title 里有状态提醒，则设置为状态后面的文字
-      if (this.titleHasStatus()) {
-        const index = document.title.indexOf(']')
-        document.title = document.title.substr(index + 1, document.title.length)
-      }
-    }
-  }
-
-  // 修改title
-  public changeTitle(string: string) {
-    // 工作时，本程序的状态会以 [string] 形式添加到 title 最前面，并闪烁提醒
-    /*
-  ↑ 抓取中
-  → 等待下一步操作（tag搜索页）
-  ▶  准备下载
-  ↓ 下载中
-  ║ 下载暂停
-  ■ 下载停止
-  √ 下载完毕
-  */
-
-    const status = `[${string}]`
-    // 如果 title 里没有状态，就添加状态
-    if (!this.titleHasStatus()) {
-      document.title = `${status} ${document.title}`
-    } else {
-      // 如果已经有状态了，则替换为新当前传入的状态
-      document.title = document.title.replace(/\[.?\]/, status)
-    }
-
-    // 当需要执行下一步操作时，闪烁提醒
-    if (string === '▶' || string === '→') {
-      this.titleTimer = setInterval(() => {
-        if (this.titleHasStatus(status)) {
-          document.title = document.title.replace(status, '[ ]')
-        } else {
-          document.title = document.title.replace('[ ]', status)
-        }
-      }, 500)
-    } else {
-      clearInterval(this.titleTimer)
-    }
-  }
-}
-
 // DOM 操作类
 // 提供公用的 DOM 操作方法，以及依赖于 DOM 的 API
 class DOM {
@@ -706,7 +498,7 @@ class DOM {
   /*
 大部分页面使用 header，文章页使用 root。因为在文章页执行时，可能获取不到 header.
 newindex-inner 是在未登录时的用户作品列表页面使用的
-layout-body 是在未登录时的 tag 搜索页使用的
+layout-body 是在未登录时的搜索页使用的
 */
   static insertToHead(el: Element) {
     if (document.body) {
@@ -755,631 +547,6 @@ layout-body 是在未登录时的 tag 搜索页使用的
 
     // 如果都没有获取到
     throw new Error('getUserId failed!')
-  }
-
-  // 获取当前页面的页码，在 tag 搜索页和 大家/关注的新作品页面使用
-  static getNowPageNo() {
-    let no = 1 // 默认只有1页
-    // 如果显示有页码，以当前页的页码为起始页码
-    if (document.querySelector('.page-list .current')) {
-      no = parseInt(document.querySelector('.page-list .current')!.textContent!)
-    }
-    return no
-  }
-}
-
-// 过滤器
-// 审查每个作品的数据，决定是否要下载它。下载面板上只有一部分选项是过滤器。
-class Filter {
-  private notdownType: string = '' // 设置不要下载的作品类型
-
-  private needTag: string = '' // 必须包含的tag的列表
-
-  private notNeedTag: string = '' // 要排除的tag的列表
-
-  private filterBMK: number = 0 // 要求收藏达到指定数量
-
-  private onlyDownBmk: boolean = false // 是否只下载收藏的作品
-
-  // 宽高条件
-  private filterWh: FilterWh = {
-    andOr: '&',
-    width: 0,
-    height: 0
-  }
-
-  private ratioType: string = '0' // 宽高比例的类型
-
-  private debut: boolean = false // 只下载首次登场的作品
-
-  // 从下载面板上获取过滤器的各个选项
-  public init() {
-    // 检查排除作品类型的设置
-    this.notdownType = this.getNotDownType()
-
-    // 检查是否设置了收藏数要求
-    this.filterBMK = this.getBmkNum()
-
-    // 检查是否设置了只下载书签作品
-    this.onlyDownBmk = this.getOnlyBmk()
-
-    // 检查是否设置了宽高条件
-    this.filterWh = this.getSetWh()
-
-    // 检查宽高比设置
-    this.ratioType = this.getRatioSetting()
-
-    // 获取必须包含的tag
-    this.needTag = this.getNeedTag()
-
-    // 获取要排除的tag
-    this.notNeedTag = this.getNotNeedTag()
-
-    // 检查是否设置了只下载首次登场
-    if (ui.form.debut.value === '1') {
-      this.debut = true
-      log.warning(lang.transl('_抓取首次登场的作品Title'))
-    } else {
-      this.debut = false
-    }
-  }
-
-  // 检查作品是否符合过滤器的要求
-  // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
-  public check(option: FilterOption): boolean {
-    // 储存每一项检查的结果. true 表示保留这个作品
-    let result: boolean[] = []
-
-    // 检查排除类型设置
-    result.push(this.checkNotDownType(option.illustType))
-
-    // 检查收藏数要求
-    result.push(this.checkBMK(option.bookmarkCount))
-
-    // 检查只下载书签作品的要求
-    result.push(this.checkOnlyBmk(option.bookmarkData))
-
-    // 检查要排除的 tag
-    result.push(this.checkNotNeedTag(option.tags))
-
-    // 检查必须包含的 tag
-    result.push(this.checkNeedTag(option.tags))
-
-    // 检查宽高设置
-    result.push(this.checkSetWh(option.width, option.height))
-
-    // 检查宽高比设置
-    result.push(this.checkRatio(option.width, option.height))
-
-    // 检查首次登场设置
-    result.push(this.checkDebut(option.yes_rank))
-
-    // 结果里不包含 false 时，检查通过。只要有一个 false 就不通过
-    return !result.includes(false)
-  }
-
-  // 获取排除类型
-  public getNotDownType() {
-    let result = Array.from(ui.form.querySelectorAll('.xzFormP5 input')).reduce(
-      (result, el, index) => {
-        const thisElement = el as HTMLInputElement
-        if (thisElement.checked === false) {
-          return (result += index)
-        } else {
-          return result
-        }
-      },
-      ''
-    )
-
-    // 如果全部排除则取消任务
-    if (result.includes('012')) {
-      // notdownType 的结果是顺序的，所以可以直接查找 012
-      window.alert(lang.transl('_checkNotdownTypeResult1弹窗'))
-      const msg = lang.transl('_checkNotdownTypeResult1Html')
-      log.error(msg, 2)
-      throw new Error(msg)
-    }
-
-    // 排除了至少一种时，显示提示
-    if (result.includes('0') || result.includes('1') || result.includes('2')) {
-      log.warning(
-        lang.transl('_checkNotdownTypeResult3Html') +
-          result
-            .replace('0', lang.transl('_插画'))
-            .replace('1', lang.transl('_漫画'))
-            .replace('2', lang.transl('_动图'))
-      )
-    }
-
-    return result
-  }
-
-  // 获取要排除的tag
-  private getNotNeedTag() {
-    const result = '' || this.checkTagString(ui.form.notNeedTag.value)
-    if (result) {
-      log.warning(lang.transl('_设置了排除tag之后的提示') + result)
-    }
-    return result
-  }
-
-  // 获取必须包含的tag
-  private getNeedTag() {
-    const result = '' || this.checkTagString(ui.form.needTag.value)
-    if (result) {
-      log.warning(lang.transl('_设置了必须tag之后的提示') + result)
-    }
-    return result
-  }
-
-  // 获取过滤宽高的设置
-  private getSetWh() {
-    let result: FilterWh = {
-      andOr: '&',
-      width: 0,
-      height: 0
-    }
-
-    const checkWidth = API.checkNumberGreater0(ui.form.setWidth.value)
-    const checkHeight = API.checkNumberGreater0(ui.form.setHeight.value)
-
-    // 宽高只要有一个条件大于 0 即可
-    if (checkWidth.value > 0 || checkHeight.value > 0) {
-      result = {
-        andOr: ui.form.setWidthAndOr.value as '&' | '|',
-        width: checkWidth ? checkWidth.value : 0,
-        height: checkHeight ? checkHeight.value : 0
-      }
-
-      log.warning(
-        lang.transl('_设置了筛选宽高之后的提示文字p1') +
-          result.width +
-          result.andOr
-            .replace('|', lang.transl('_或者'))
-            .replace('&', lang.transl('_并且')) +
-          lang.transl('_高度设置') +
-          result.height
-      )
-    }
-
-    return result
-  }
-
-  // 获取收藏数要求
-  private getBmkNum() {
-    const check = API.checkNumberGreater0(ui.form.setFavNum.value)
-
-    if (check.result) {
-      log.warning(lang.transl('_设置了筛选收藏数之后的提示文字') + check.value)
-    }
-
-    return check.value
-  }
-
-  // 获取只下载书签作品的设置
-  private getOnlyBmk() {
-    const result = ui.form.setOnlyBmk.checked
-    if (result) {
-      log.warning(lang.transl('_只下载已收藏的提示'))
-    }
-    return result
-  }
-
-  // 获取宽高比的设置
-  private getRatioSetting() {
-    let result = ui.form.ratio.value
-
-    if (result === '1') {
-      log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_横图')))
-    } else if (result === '2') {
-      log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_竖图')))
-    } else if (result === '3') {
-      // 由用户输入
-      const typeNum = parseFloat(ui.form.userRatio.value)
-      if (isNaN(typeNum)) {
-        result = '0'
-        ui.form.ratio.value = result
-        window.alert(lang.transl('_宽高比必须是数字'))
-      } else {
-        log.warning(lang.transl('_输入宽高比') + ui.form.userRatio.value)
-      }
-    }
-
-    return result
-  }
-
-  // 检查排除类型设置
-  private checkNotDownType(illustType: FilterOption['illustType']) {
-    if (illustType === undefined) {
-      return true
-    } else {
-      if (this.notdownType.includes(illustType.toString())) {
-        return false
-      } else {
-        return true
-      }
-    }
-  }
-
-  // 检查收藏数要求
-  private checkBMK(bmk: FilterOption['bookmarkCount']) {
-    if (bmk === undefined) {
-      return true
-    } else {
-      return bmk >= this.filterBMK
-    }
-  }
-
-  // 检查作品是否符合【只下载书签作品】的条件,返回值 true 表示包含这个作品
-  private checkOnlyBmk(bookmarked: any) {
-    // 如果设置了只下载书签作品
-    if (this.onlyDownBmk) {
-      if (!!!bookmarked) {
-        return false
-      } else {
-        return true
-      }
-    }
-
-    return true
-  }
-
-  // 检查用户输入的 tag 内容
-  private checkTagString(str: string) {
-    let result = ''
-    if (str) {
-      let tempArr = str.split(',')
-      // 如果用户在末尾也输入了逗号，则会产生一个空值，去掉它
-      if (tempArr[tempArr.length - 1] === '') {
-        tempArr.pop()
-      }
-      result = tempArr.join(',')
-    }
-    return result
-  }
-
-  // 检查作品是否符合包含 tag 的条件, 如果设置了多个 tag，需要作品里全部包含。返回值表示是否保留这个作品。
-  private checkNeedTag(tags: FilterOption['tags']) {
-    let result = false
-
-    if (!this.needTag || tags === undefined) {
-      return true
-    }
-
-    let tempArr = this.needTag.split(',')
-
-    // 如果设置了必须的 tag
-    if (tempArr.length > 0) {
-      let tagNeedMatched = 0
-      const tempTags = new Set()
-      // 如果不区分大小写的话，Fate/grandorder 和 Fate/GrandOrder 会被算作符合两个 tag，所以用 Set 结构去重。测试 id 51811780
-      for (const tag of tags) {
-        tempTags.add(tag.toLowerCase())
-      }
-
-      for (const tag of tempTags) {
-        for (const need of tempArr) {
-          if (tag === need.toLowerCase()) {
-            tagNeedMatched++
-            break
-          }
-        }
-      }
-
-      // 如果全部匹配
-      if (tagNeedMatched >= tempArr.length) {
-        result = true
-      }
-    } else {
-      result = true
-    }
-
-    return result
-  }
-
-  // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。
-  private checkNotNeedTag(tags: FilterOption['tags']) {
-    let result = true
-
-    if (!this.notNeedTag || tags === undefined) {
-      return true
-    }
-
-    let tempArr = this.notNeedTag.split(',')
-
-    // 如果设置了排除 tag
-    if (tempArr.length > 0) {
-      for (const tag of tags) {
-        for (const notNeed of tempArr) {
-          if (tag.toLowerCase() === notNeed.toLowerCase()) {
-            result = false
-            break
-          }
-        }
-      }
-    }
-
-    return result
-  }
-
-  // 检查作品是否符合过滤宽高的条件
-  private checkSetWh(
-    width: FilterOption['width'],
-    height: FilterOption['height']
-  ) {
-    if (width === undefined) {
-      width = 0
-    }
-    if (height === undefined) {
-      height = 0
-    }
-
-    if (this.filterWh.width > 0 || this.filterWh.height > 0) {
-      // 如果宽高都小于要求的宽高
-      if (width < this.filterWh.width && height < this.filterWh.height) {
-        return false
-      } else {
-        if (this.filterWh.andOr === '|') {
-          // 判断or的情况
-          if (width >= this.filterWh.width || height >= this.filterWh.height) {
-            return true
-          } else {
-            return false
-          }
-        } else if (this.filterWh.andOr === '&') {
-          // 判断and的情况
-          if (width >= this.filterWh.width && height >= this.filterWh.height) {
-            return true
-          } else {
-            return false
-          }
-        }
-      }
-    }
-    return true
-  }
-
-  // 检查作品是否符合宽高比条件
-  private checkRatio(
-    width: FilterOption['width'],
-    height: FilterOption['height']
-  ) {
-    if (width === undefined) {
-      width = 0
-    }
-    if (height === undefined) {
-      height = 0
-    }
-
-    if (this.ratioType === '0') {
-      return true
-    } else if (this.ratioType === '1') {
-      return width / height > 1
-    } else if (this.ratioType === '2') {
-      return width / height < 1
-    } else {
-      return width / height >= parseFloat(ui.form.userRatio.value)
-    }
-  }
-
-  // 检查首次登场设置
-  // yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
-  private checkDebut(yes_rank: FilterOption['yes_rank']) {
-    if (!this.debut) {
-      return true
-    } else {
-      if (yes_rank === 0 || yes_rank === undefined) {
-        return true
-      } else {
-        return false
-      }
-    }
-  }
-}
-
-// 初始化下载面板的设置项，以及在用户修改时保存设置
-// 只有部分设置会被持久化保存
-class InitSetting {
-  constructor() {
-    this.restoreOption()
-    this.bindOptionEvent()
-  }
-
-  // 本地存储中使用的 name
-  private readonly storeName = 'xzSetting'
-
-  // 储存需要持久化保存的设置的默认值
-  private readonly needSaveOptsDefault: XzSetting = {
-    imgNumberPerWork: 0,
-    notdownType: '',
-    ugoiraSaveAs: 'webm',
-    needTag: '',
-    notNeedTag: '',
-    quietDownload: true,
-    downloadThread: 5,
-    userSetName: '{id}',
-    tagNameToFileName: true,
-    showOptions: true
-  }
-
-  // 储存需要持久化保存的设置
-  private needSaveOpts: XzSetting = this.needSaveOptsDefault
-
-  // 排除类型的按钮 name
-  private readonly notdownTypeName = [
-    'setWorkType0',
-    'setWorkType1',
-    'setWorkType2'
-  ]
-
-  // 从持久化设置里恢复下载面板的设置
-  // 可以执行多次
-  private restoreOption() {
-    let str = localStorage.getItem(this.storeName)
-    // 如果之前已经持久化，则读取设置，初始化下载面板的选项
-    if (str) {
-      this.needSaveOpts = JSON.parse(str)
-    } else {
-      // 如果没有保存过，则不做处理
-      return
-    }
-
-    // 设置是否显示选项区域
-    ui.toggleOptionArea(this.needSaveOpts.showOptions)
-
-    // 设置作品张数
-    ui.form.imgNumberPerWork.value = (
-      this.needSaveOpts.imgNumberPerWork | 0
-    ).toString()
-
-    // 设置排除类型
-    for (let index = 0; index < this.notdownTypeName.length; index++) {
-      // 根据 notdownType 里的记录，选中或者取消选中
-      let element = ui.form[this.notdownTypeName[index]] as HTMLInputElement
-      if (this.needSaveOpts.notdownType.includes(index.toString())) {
-        element.checked = false
-      } else {
-        element.checked = true
-      }
-    }
-
-    // 设置动图格式选项
-    ui.form.ugoiraSaveAs.value = this.needSaveOpts.ugoiraSaveAs
-
-    // 设置必须的 tag
-    ui.form.needTag.value = this.needSaveOpts.needTag
-
-    // 设置排除的 tag
-    ui.form.notNeedTag.value = this.needSaveOpts.notNeedTag
-
-    // 设置快速下载
-    ui.form.quietDownload.checked = this.needSaveOpts.quietDownload
-
-    // 设置下载线程
-    ui.form.downloadThread.value = this.needSaveOpts.downloadThread.toString()
-
-    // 设置文件命名规则
-    const fileNameRuleInput = ui.form.userSetName
-
-    // pixivision 里，文件名只有 id 标记会生效，所以把文件名部分替换成 id
-    if (pageType.getPageType() === 8) {
-      fileNameRuleInput.value = '{p_title}/{id}'
-    } else {
-      fileNameRuleInput.value = this.needSaveOpts.userSetName
-    }
-
-    // 设置是否添加标记名称
-    ui.form.tagNameToFileName.checked = this.needSaveOpts.tagNameToFileName
-  }
-
-  // 绑定选项的事件，主要是当选项变动时保存。
-  // 只可执行一次，否则事件会重复绑定
-  private bindOptionEvent() {
-    const that = this
-
-    // 保存是否显示选项区域
-    const showOptionsBtn = document.querySelector('.centerWrap_toogle_option')!
-    showOptionsBtn.addEventListener('click', () => {
-      this.needSaveOpts.showOptions = !this.needSaveOpts.showOptions
-      this.saveSetting('showOptions', this.needSaveOpts.showOptions)
-      ui.toggleOptionArea(this.needSaveOpts.showOptions)
-    })
-
-    // 保存作品张数
-    ui.form.imgNumberPerWork.addEventListener('change', function(
-      this: HTMLInputElement
-    ) {
-      if (parseInt(this.value) >= 0) {
-        that.saveSetting('imgNumberPerWork', this.value)
-      }
-    })
-
-    // 保存排除类型
-    for (let index = 0; index < this.notdownTypeName.length; index++) {
-      // 根据 notdownType 里的记录，选中或者取消选中
-      let element = ui.form[this.notdownTypeName[index]] as HTMLInputElement
-      element.addEventListener('click', () => {
-        this.saveSetting('notdownType', filter.getNotDownType())
-      })
-    }
-
-    // 保存动图格式选项
-    for (const input of ui.form.ugoiraSaveAs) {
-      input.addEventListener('click', function(this: HTMLInputElement) {
-        that.saveSetting('ugoiraSaveAs', this.value)
-      })
-    }
-
-    // 保存必须的 tag设置
-    ui.form.needTag.addEventListener('change', function(
-      this: HTMLInputElement
-    ) {
-      that.saveSetting('needTag', this.value)
-    })
-
-    // 保存排除的 tag设置
-    ui.form.notNeedTag.addEventListener('change', function(
-      this: HTMLInputElement
-    ) {
-      that.saveSetting('notNeedTag', this.value)
-    })
-
-    // 保存快速下载
-    ui.form.quietDownload.addEventListener('click', function(
-      this: HTMLInputElement
-    ) {
-      that.saveSetting('quietDownload', this.checked)
-    })
-
-    // 保存下载线程
-    ui.form.downloadThread.addEventListener('change', function(
-      this: HTMLInputElement
-    ) {
-      if (parseInt(this.value) > 0) {
-        that.saveSetting('downloadThread', this.value)
-      }
-    })
-
-    // 保存命名规则
-    ;['change', 'focus'].forEach(ev => {
-      ui.form.userSetName.addEventListener(ev, function(
-        this: HTMLInputElement
-      ) {
-        that.saveSetting('userSetName', this.value)
-      })
-    })
-
-    // 保存是否添加标记名称
-    ui.form.tagNameToFileName.addEventListener('click', function(
-      this: HTMLInputElement
-    ) {
-      that.saveSetting('tagNameToFileName', this.checked)
-    })
-
-    // 重置设置
-    document.getElementById('resetOption')!.addEventListener('click', () => {
-      this.reset()
-    })
-  }
-
-  // 持久化保存设置
-  public saveSetting(key: keyof XzSetting, value: any) {
-    this.needSaveOpts[key] = value
-    localStorage.setItem(this.storeName, JSON.stringify(this.needSaveOpts))
-  }
-
-  // 重设选项
-  public reset() {
-    // 用表单的 reset 重设选项
-    ui.form.reset()
-
-    // 将 needSaveOpts 恢复为默认值
-    this.needSaveOpts = this.needSaveOptsDefault
-    // 覆写本地存储里的设置为默认值
-    localStorage.setItem(this.storeName, JSON.stringify(this.needSaveOpts))
-    // 使用默认值重设选项
-    this.restoreOption()
   }
 }
 
@@ -2048,6 +1215,1232 @@ class UI {
     this.rightButton.style.display = 'block'
     this.outputInfoPanel.style.display = 'none'
   }
+
+  // 向中间面板添加按钮
+  public addCenterButton(
+    bg: string = Colors.blue,
+    text: string = '',
+    attr: string[][] = []
+  ) {
+    const e = document.createElement('button')
+    e.type = 'button'
+    e.style.backgroundColor = bg
+    e.textContent = text
+
+    for (const [key, value] of attr) {
+      e.setAttribute(key, value)
+    }
+
+    let centerBtnWrap = document.getElementById(
+      'centerWrap_btns_free'
+    )! as HTMLDivElement
+    centerBtnWrap.appendChild(e)
+    return e
+  }
+}
+
+// 页面类型
+class PageType {
+  constructor() {
+    this.type = this.getPageType()
+  }
+
+  private type: number = 0
+
+  public onPageTypeChange() {}
+
+  // 判断可以处理的页面类型
+  // 有些页面类型虽然不支持，但它和支持的页面是无刷新切换的，所以一开始依然要添加下载器。等到开始抓取时再次判断是否可以抓取
+  public getPageType(): number {
+    const url = window.location.href
+    let type: number
+
+    if (
+      window.location.hostname === 'www.pixiv.net' &&
+      (window.location.pathname === '/'||window.location.pathname === '/en/')
+    ) {
+      type = 0
+    } else if (
+      (url.includes('illust_id') || url.includes('/artworks/')) &&
+      !url.includes('mode=manga') &&
+      !url.includes('bookmark_detail') &&
+      !url.includes('bookmark_add') &&
+      !url.includes('response.php')
+    ) {
+      type = 1
+    } else if (
+      !url.includes('mode=manga&illust_id') &&
+      (/member_illust\.php\?.*id=/.test(url) ||
+        url.includes('member.php?id=') ||
+        url.includes('bookmark.php'))
+    ) {
+      type = 2
+    } else if (
+      url.includes('search.php?') ||
+      url.includes('tags.php?') ||
+      url.includes('/tags/')
+    ) {
+      type = 5
+    } else if (
+      url.includes('ranking_area.php') &&
+      url !== 'https://www.pixiv.net/ranking_area.php'
+    ) {
+      type = 6
+    } else if (window.location.pathname === '/ranking.php') {
+      type = 7
+    } else if (
+      url.includes('https://www.pixivision.net') &&
+      url.includes('/a/')
+    ) {
+      type = 8
+    } else if (
+      url.includes('/bookmark_add.php?id=') ||
+      url.includes('/bookmark_detail.php?illust_id=')
+    ) {
+      type = 9
+    } else if (
+      url.includes('/bookmark_new_illust.php') ||
+      url.includes('/bookmark_new_illust_r18.php')
+    ) {
+      type = 10
+    } else if (window.location.pathname === '/discovery') {
+      type = 11
+    } else if (
+      url.includes('/new_illust.php') ||
+      url.includes('/new_illust_r18.php')
+    ) {
+      type = 12
+    } else {
+      // 没有匹配到可用的页面类型
+      throw new Error('Page type matching failed')
+    }
+
+    return type
+  }
+
+  // 检查是不是进入到了新的页面类型。这个检查需要手动触发
+  public checkPageTypeIsNew() {
+    let newType = this.getPageType()
+
+    if (this.type !== newType) {
+      // 在这里保存一次当前页面类型，因为下面运行的内容可能出错，这里不先保存可能就保存不上了。
+      this.type = newType
+
+      this.onPageTypeChange()
+    } else {
+      // 保存当前页面类型
+      this.type = newType
+    }
+  }
+}
+
+// 获取页面上的有用信息
+class PageInfo {
+  constructor(type: number) {
+    this.getPageInfo(type)
+  }
+
+  // 预设为 1 是为了指示这个标记有值，这样在获取到实际值之前，就可以把它插入到下拉框里。
+  public pageTitle = '1'
+  public pageUserName = ''
+  public pageUserID = ''
+  public pageTag = ''
+
+  // 重置。当切换页面时可能旧页面的一些标记在新页面没有了，所以要清除掉
+  private reset() {
+    this.pageUserName = ''
+    this.pageUserID = ''
+    this.pageTag = ''
+  }
+
+  // 储存信息
+  // 开始抓取时使用，这样即使页面切换了，生成文件名时还是使用的刚开始抓取时的信息。
+  public async store() {
+    await this.getPageInfo(pageType.getPageType())
+    store.pageInfo.pageUserName = this.pageUserName
+    store.pageInfo.pageUserID = this.pageUserID
+    store.pageInfo.pageTag = this.pageTag
+  }
+
+  // 获取当前页面的一些信息，用于文件名中
+  public async getPageInfo(type: number) {
+    this.reset()
+
+    // 设置用户信息
+    if (type === 1 || type === 2) {
+      // 只有 1 和 2 可以使用页面上的用户信息
+      let data = await API.getUserProfile(DOM.getUserId())
+      this.pageUserID = data.body.userId
+      this.pageUserName = data.body.name
+    }
+
+    // 获取当前页面的 tag
+    if (type === 5) {
+      // pathname 获取到的 tag 不需要再编码
+      this.pageTag = decodeURIComponent(
+        location.pathname.split('tags/')[1].split('/')[0]
+      )
+    } else {
+      this.pageTag = decodeURIComponent(
+        API.getURLField(window.location.href, 'tag')
+      )
+    }
+
+    // 将可用选项添加到下拉选项里
+    this.initPageInfoSelector()
+  }
+
+  private initPageInfoSelector() {
+    let optionHtml = '<option value="default">…</option>'
+
+    const info = new Map([
+      ['p_title', this.pageTitle],
+      ['p_user', this.pageUserName],
+      ['p_uid', this.pageUserID],
+      ['p_tag', this.pageTag]
+    ])
+
+    for (let [key, value] of info.entries()) {
+      if (value) {
+        optionHtml += `<option value="{${key}}">{${key}}</option>`
+      }
+    }
+    let target = document.getElementById('pageInfoSelect')
+    if (target) {
+      target.innerHTML = optionHtml
+    }
+  }
+}
+
+//标题栏
+class TitleBar {
+  private titleTimer: number = 0 // 修改 title 的定时器
+
+  // 检查标题里有没有本程序定义的状态字符
+  private titleHasStatus(status: string = '') {
+    const titleStatus = ['[↑]', '[→]', '[▶]', '[↓]', '[║]', '[■]', '[√]', '[ ]']
+
+    if (!status) {
+      // 没有传递 status，则检查所有标记
+      for (const str of titleStatus) {
+        if (document.title.includes(str)) {
+          return true
+        }
+      }
+    } else {
+      // 检查指定标记
+      return document.title.includes(status)
+    }
+
+    return false
+  }
+
+  // 重设 title
+  public reset() {
+    let type = pageType.getPageType()
+    clearInterval(this.titleTimer)
+    // 储存标题的 mete 元素。在某些页面不存在，有时也与实际上的标题不一致。
+    const ogTitle = document.querySelector(
+      'meta[property="og:title"]'
+    )! as HTMLMetaElement
+    // 无刷新自动加载的页面里，og:title 标签是最早更新标题的，内容也一致。
+    if (ogTitle && (type == 1 || type === 2)) {
+      document.title = ogTitle.content
+    } else {
+      // 如果当前 title 里有状态提醒，则设置为状态后面的文字
+      if (this.titleHasStatus()) {
+        const index = document.title.indexOf(']')
+        document.title = document.title.substr(index + 1, document.title.length)
+      }
+    }
+  }
+
+  // 修改title
+  public changeTitle(string: string) {
+    // 工作时，本程序的状态会以 [string] 形式添加到 title 最前面，并闪烁提醒
+    /*
+  ↑ 抓取中
+  → 等待下一步操作（tag搜索页）
+  ▶  准备下载
+  ↓ 下载中
+  ║ 下载暂停
+  ■ 下载停止
+  √ 下载完毕
+  */
+
+    const status = `[${string}]`
+    // 如果 title 里没有状态，就添加状态
+    if (!this.titleHasStatus()) {
+      document.title = `${status} ${document.title}`
+    } else {
+      // 如果已经有状态了，则替换为新当前传入的状态
+      document.title = document.title.replace(/\[.?\]/, status)
+    }
+
+    // 当需要执行下一步操作时，闪烁提醒
+    if (string === '▶' || string === '→') {
+      this.titleTimer = setInterval(() => {
+        if (this.titleHasStatus(status)) {
+          document.title = document.title.replace(status, '[ ]')
+        } else {
+          document.title = document.title.replace('[ ]', status)
+        }
+      }, 500)
+    } else {
+      clearInterval(this.titleTimer)
+    }
+  }
+}
+
+// 过滤器
+// 审查每个作品的数据，决定是否要下载它。下载面板上只有一部分选项是过滤器。
+class Filter {
+  private notdownType: string = '' // 设置不要下载的作品类型
+
+  private needTag: string = '' // 必须包含的tag的列表
+
+  private notNeedTag: string = '' // 要排除的tag的列表
+
+  private filterBMK: number = 0 // 要求收藏达到指定数量
+
+  private onlyDownBmk: boolean = false // 是否只下载收藏的作品
+
+  // 宽高条件
+  private filterWh: FilterWh = {
+    andOr: '&',
+    width: 0,
+    height: 0
+  }
+
+  private ratioType: string = '0' // 宽高比例的类型
+
+  private debut: boolean = false // 只下载首次登场的作品
+
+  // 从下载面板上获取过滤器的各个选项
+  public init() {
+    // 检查排除作品类型的设置
+    this.notdownType = this.getNotDownType()
+
+    // 检查是否设置了收藏数要求
+    this.filterBMK = this.getBmkNum()
+
+    // 检查是否设置了只下载书签作品
+    this.onlyDownBmk = this.getOnlyBmk()
+
+    // 检查是否设置了宽高条件
+    this.filterWh = this.getSetWh()
+
+    // 检查宽高比设置
+    this.ratioType = this.getRatioSetting()
+
+    // 获取必须包含的tag
+    this.needTag = this.getNeedTag()
+
+    // 获取要排除的tag
+    this.notNeedTag = this.getNotNeedTag()
+
+    // 检查是否设置了只下载首次登场
+    if (ui.form.debut.value === '1') {
+      this.debut = true
+      log.warning(lang.transl('_抓取首次登场的作品Title'))
+    } else {
+      this.debut = false
+    }
+  }
+
+  // 检查作品是否符合过滤器的要求
+  // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
+  public check(option: FilterOption): boolean {
+    // 储存每一项检查的结果. true 表示保留这个作品
+    let result: boolean[] = []
+
+    // 检查排除类型设置
+    result.push(this.checkNotDownType(option.illustType))
+
+    // 检查收藏数要求
+    result.push(this.checkBMK(option.bookmarkCount))
+
+    // 检查只下载书签作品的要求
+    result.push(this.checkOnlyBmk(option.bookmarkData))
+
+    // 检查要排除的 tag
+    result.push(this.checkNotNeedTag(option.tags))
+
+    // 检查必须包含的 tag
+    result.push(this.checkNeedTag(option.tags))
+
+    // 检查宽高设置
+    result.push(this.checkSetWh(option.width, option.height))
+
+    // 检查宽高比设置
+    result.push(this.checkRatio(option.width, option.height))
+
+    // 检查首次登场设置
+    result.push(this.checkDebut(option.yes_rank))
+
+    // 结果里不包含 false 时，检查通过。只要有一个 false 就不通过
+    return !result.includes(false)
+  }
+
+  // 获取排除类型
+  public getNotDownType() {
+    let result = Array.from(ui.form.querySelectorAll('.xzFormP5 input')).reduce(
+      (result, el, index) => {
+        const thisElement = el as HTMLInputElement
+        if (thisElement.checked === false) {
+          return (result += index)
+        } else {
+          return result
+        }
+      },
+      ''
+    )
+
+    // 如果全部排除则取消任务
+    if (result.includes('012')) {
+      // notdownType 的结果是顺序的，所以可以直接查找 012
+      window.alert(lang.transl('_checkNotdownTypeResult1弹窗'))
+      const msg = lang.transl('_checkNotdownTypeResult1Html')
+      log.error(msg, 2)
+      throw new Error(msg)
+    }
+
+    // 排除了至少一种时，显示提示
+    if (result.includes('0') || result.includes('1') || result.includes('2')) {
+      log.warning(
+        lang.transl('_checkNotdownTypeResult3Html') +
+          result
+            .replace('0', lang.transl('_插画'))
+            .replace('1', lang.transl('_漫画'))
+            .replace('2', lang.transl('_动图'))
+      )
+    }
+
+    return result
+  }
+
+  // 获取要排除的tag
+  private getNotNeedTag() {
+    const result = '' || this.checkTagString(ui.form.notNeedTag.value)
+    if (result) {
+      log.warning(lang.transl('_设置了排除tag之后的提示') + result)
+    }
+    return result
+  }
+
+  // 获取必须包含的tag
+  private getNeedTag() {
+    const result = '' || this.checkTagString(ui.form.needTag.value)
+    if (result) {
+      log.warning(lang.transl('_设置了必须tag之后的提示') + result)
+    }
+    return result
+  }
+
+  // 获取过滤宽高的设置
+  private getSetWh() {
+    let result: FilterWh = {
+      andOr: '&',
+      width: 0,
+      height: 0
+    }
+
+    const checkWidth = API.checkNumberGreater0(ui.form.setWidth.value)
+    const checkHeight = API.checkNumberGreater0(ui.form.setHeight.value)
+
+    // 宽高只要有一个条件大于 0 即可
+    if (checkWidth.value > 0 || checkHeight.value > 0) {
+      result = {
+        andOr: ui.form.setWidthAndOr.value as '&' | '|',
+        width: checkWidth ? checkWidth.value : 0,
+        height: checkHeight ? checkHeight.value : 0
+      }
+
+      log.warning(
+        lang.transl('_设置了筛选宽高之后的提示文字p1') +
+          result.width +
+          result.andOr
+            .replace('|', lang.transl('_或者'))
+            .replace('&', lang.transl('_并且')) +
+          lang.transl('_高度设置') +
+          result.height
+      )
+    }
+
+    return result
+  }
+
+  // 获取收藏数要求
+  private getBmkNum() {
+    const check = API.checkNumberGreater0(ui.form.setFavNum.value)
+
+    if (check.result) {
+      log.warning(lang.transl('_设置了筛选收藏数之后的提示文字') + check.value)
+    }
+
+    return check.value
+  }
+
+  // 获取只下载书签作品的设置
+  private getOnlyBmk() {
+    const result = ui.form.setOnlyBmk.checked
+    if (result) {
+      log.warning(lang.transl('_只下载已收藏的提示'))
+    }
+    return result
+  }
+
+  // 获取宽高比的设置
+  private getRatioSetting() {
+    let result = ui.form.ratio.value
+
+    if (result === '1') {
+      log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_横图')))
+    } else if (result === '2') {
+      log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_竖图')))
+    } else if (result === '3') {
+      // 由用户输入
+      const typeNum = parseFloat(ui.form.userRatio.value)
+      if (isNaN(typeNum)) {
+        result = '0'
+        ui.form.ratio.value = result
+        window.alert(lang.transl('_宽高比必须是数字'))
+      } else {
+        log.warning(lang.transl('_输入宽高比') + ui.form.userRatio.value)
+      }
+    }
+
+    return result
+  }
+
+  // 检查排除类型设置
+  private checkNotDownType(illustType: FilterOption['illustType']) {
+    if (illustType === undefined) {
+      return true
+    } else {
+      if (this.notdownType.includes(illustType.toString())) {
+        return false
+      } else {
+        return true
+      }
+    }
+  }
+
+  // 检查收藏数要求
+  private checkBMK(bmk: FilterOption['bookmarkCount']) {
+    if (bmk === undefined) {
+      return true
+    } else {
+      return bmk >= this.filterBMK
+    }
+  }
+
+  // 检查作品是否符合【只下载书签作品】的条件,返回值 true 表示包含这个作品
+  private checkOnlyBmk(bookmarked: any) {
+    // 如果设置了只下载书签作品
+    if (this.onlyDownBmk) {
+      if (!!!bookmarked) {
+        return false
+      } else {
+        return true
+      }
+    }
+
+    return true
+  }
+
+  // 检查用户输入的 tag 内容
+  private checkTagString(str: string) {
+    let result = ''
+    if (str) {
+      let tempArr = str.split(',')
+      // 如果用户在末尾也输入了逗号，则会产生一个空值，去掉它
+      if (tempArr[tempArr.length - 1] === '') {
+        tempArr.pop()
+      }
+      result = tempArr.join(',')
+    }
+    return result
+  }
+
+  // 检查作品是否符合包含 tag 的条件, 如果设置了多个 tag，需要作品里全部包含。返回值表示是否保留这个作品。
+  private checkNeedTag(tags: FilterOption['tags']) {
+    let result = false
+
+    if (!this.needTag || tags === undefined) {
+      return true
+    }
+
+    let tempArr = this.needTag.split(',')
+
+    // 如果设置了必须的 tag
+    if (tempArr.length > 0) {
+      let tagNeedMatched = 0
+      const tempTags = new Set()
+      // 如果不区分大小写的话，Fate/grandorder 和 Fate/GrandOrder 会被算作符合两个 tag，所以用 Set 结构去重。测试 id 51811780
+      for (const tag of tags) {
+        tempTags.add(tag.toLowerCase())
+      }
+
+      for (const tag of tempTags) {
+        for (const need of tempArr) {
+          if (tag === need.toLowerCase()) {
+            tagNeedMatched++
+            break
+          }
+        }
+      }
+
+      // 如果全部匹配
+      if (tagNeedMatched >= tempArr.length) {
+        result = true
+      }
+    } else {
+      result = true
+    }
+
+    return result
+  }
+
+  // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。
+  private checkNotNeedTag(tags: FilterOption['tags']) {
+    let result = true
+
+    if (!this.notNeedTag || tags === undefined) {
+      return true
+    }
+
+    let tempArr = this.notNeedTag.split(',')
+
+    // 如果设置了排除 tag
+    if (tempArr.length > 0) {
+      for (const tag of tags) {
+        for (const notNeed of tempArr) {
+          if (tag.toLowerCase() === notNeed.toLowerCase()) {
+            result = false
+            break
+          }
+        }
+      }
+    }
+
+    return result
+  }
+
+  // 检查作品是否符合过滤宽高的条件
+  private checkSetWh(
+    width: FilterOption['width'],
+    height: FilterOption['height']
+  ) {
+    if (width === undefined) {
+      width = 0
+    }
+    if (height === undefined) {
+      height = 0
+    }
+
+    if (this.filterWh.width > 0 || this.filterWh.height > 0) {
+      // 如果宽高都小于要求的宽高
+      if (width < this.filterWh.width && height < this.filterWh.height) {
+        return false
+      } else {
+        if (this.filterWh.andOr === '|') {
+          // 判断or的情况
+          if (width >= this.filterWh.width || height >= this.filterWh.height) {
+            return true
+          } else {
+            return false
+          }
+        } else if (this.filterWh.andOr === '&') {
+          // 判断and的情况
+          if (width >= this.filterWh.width && height >= this.filterWh.height) {
+            return true
+          } else {
+            return false
+          }
+        }
+      }
+    }
+    return true
+  }
+
+  // 检查作品是否符合宽高比条件
+  private checkRatio(
+    width: FilterOption['width'],
+    height: FilterOption['height']
+  ) {
+    if (width === undefined) {
+      width = 0
+    }
+    if (height === undefined) {
+      height = 0
+    }
+
+    if (this.ratioType === '0') {
+      return true
+    } else if (this.ratioType === '1') {
+      return width / height > 1
+    } else if (this.ratioType === '2') {
+      return width / height < 1
+    } else {
+      return width / height >= parseFloat(ui.form.userRatio.value)
+    }
+  }
+
+  // 检查首次登场设置
+  // yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
+  private checkDebut(yes_rank: FilterOption['yes_rank']) {
+    if (!this.debut) {
+      return true
+    } else {
+      if (yes_rank === 0 || yes_rank === undefined) {
+        return true
+      } else {
+        return false
+      }
+    }
+  }
+}
+
+// 初始化下载面板的设置项，以及在用户修改时保存设置
+// 只有部分设置会被持久化保存
+class InitSetting {
+  constructor() {
+    this.restoreOption()
+    this.bindOptionEvent()
+  }
+
+  // 本地存储中使用的 name
+  private readonly storeName = 'xzSetting'
+
+  // 储存需要持久化保存的设置的默认值
+  private readonly needSaveOptsDefault: XzSetting = {
+    imgNumberPerWork: 0,
+    notdownType: '',
+    ugoiraSaveAs: 'webm',
+    needTag: '',
+    notNeedTag: '',
+    quietDownload: true,
+    downloadThread: 5,
+    userSetName: '{id}',
+    tagNameToFileName: true,
+    showOptions: true
+  }
+
+  // 储存需要持久化保存的设置
+  private needSaveOpts: XzSetting = this.needSaveOptsDefault
+
+  // 排除类型的按钮 name
+  private readonly notdownTypeName = [
+    'setWorkType0',
+    'setWorkType1',
+    'setWorkType2'
+  ]
+
+  // 从持久化设置里恢复下载面板的设置
+  // 可以执行多次
+  private restoreOption() {
+    let str = localStorage.getItem(this.storeName)
+    // 如果之前已经持久化，则读取设置，初始化下载面板的选项
+    if (str) {
+      this.needSaveOpts = JSON.parse(str)
+    } else {
+      // 如果没有保存过，则不做处理
+      return
+    }
+
+    // 设置是否显示选项区域
+    ui.toggleOptionArea(this.needSaveOpts.showOptions)
+
+    // 设置作品张数
+    ui.form.imgNumberPerWork.value = (
+      this.needSaveOpts.imgNumberPerWork | 0
+    ).toString()
+
+    // 设置排除类型
+    for (let index = 0; index < this.notdownTypeName.length; index++) {
+      // 根据 notdownType 里的记录，选中或者取消选中
+      let element = ui.form[this.notdownTypeName[index]] as HTMLInputElement
+      if (this.needSaveOpts.notdownType.includes(index.toString())) {
+        element.checked = false
+      } else {
+        element.checked = true
+      }
+    }
+
+    // 设置动图格式选项
+    ui.form.ugoiraSaveAs.value = this.needSaveOpts.ugoiraSaveAs
+
+    // 设置必须的 tag
+    ui.form.needTag.value = this.needSaveOpts.needTag
+
+    // 设置排除的 tag
+    ui.form.notNeedTag.value = this.needSaveOpts.notNeedTag
+
+    // 设置快速下载
+    ui.form.quietDownload.checked = this.needSaveOpts.quietDownload
+
+    // 设置下载线程
+    ui.form.downloadThread.value = this.needSaveOpts.downloadThread.toString()
+
+    // 设置文件命名规则
+    const fileNameRuleInput = ui.form.userSetName
+
+    // pixivision 里，文件名只有 id 标记会生效，所以把文件名部分替换成 id
+    if (pageType.getPageType() === 8) {
+      fileNameRuleInput.value = '{p_title}/{id}'
+    } else {
+      fileNameRuleInput.value = this.needSaveOpts.userSetName
+    }
+
+    // 设置是否添加标记名称
+    ui.form.tagNameToFileName.checked = this.needSaveOpts.tagNameToFileName
+  }
+
+  // 绑定选项的事件，主要是当选项变动时保存。
+  // 只可执行一次，否则事件会重复绑定
+  private bindOptionEvent() {
+    const that = this
+
+    // 保存是否显示选项区域
+    const showOptionsBtn = document.querySelector('.centerWrap_toogle_option')!
+    showOptionsBtn.addEventListener('click', () => {
+      this.needSaveOpts.showOptions = !this.needSaveOpts.showOptions
+      this.saveSetting('showOptions', this.needSaveOpts.showOptions)
+      ui.toggleOptionArea(this.needSaveOpts.showOptions)
+    })
+
+    // 保存作品张数
+    ui.form.imgNumberPerWork.addEventListener('change', function(
+      this: HTMLInputElement
+    ) {
+      if (parseInt(this.value) >= 0) {
+        that.saveSetting('imgNumberPerWork', this.value)
+      }
+    })
+
+    // 保存排除类型
+    for (let index = 0; index < this.notdownTypeName.length; index++) {
+      // 根据 notdownType 里的记录，选中或者取消选中
+      let element = ui.form[this.notdownTypeName[index]] as HTMLInputElement
+      element.addEventListener('click', () => {
+        this.saveSetting('notdownType', filter.getNotDownType())
+      })
+    }
+
+    // 保存动图格式选项
+    for (const input of ui.form.ugoiraSaveAs) {
+      input.addEventListener('click', function(this: HTMLInputElement) {
+        that.saveSetting('ugoiraSaveAs', this.value)
+      })
+    }
+
+    // 保存必须的 tag设置
+    ui.form.needTag.addEventListener('change', function(
+      this: HTMLInputElement
+    ) {
+      that.saveSetting('needTag', this.value)
+    })
+
+    // 保存排除的 tag设置
+    ui.form.notNeedTag.addEventListener('change', function(
+      this: HTMLInputElement
+    ) {
+      that.saveSetting('notNeedTag', this.value)
+    })
+
+    // 保存快速下载
+    ui.form.quietDownload.addEventListener('click', function(
+      this: HTMLInputElement
+    ) {
+      that.saveSetting('quietDownload', this.checked)
+    })
+
+    // 保存下载线程
+    ui.form.downloadThread.addEventListener('change', function(
+      this: HTMLInputElement
+    ) {
+      if (parseInt(this.value) > 0) {
+        that.saveSetting('downloadThread', this.value)
+      }
+    })
+
+    // 保存命名规则
+    ;['change', 'focus'].forEach(ev => {
+      ui.form.userSetName.addEventListener(ev, function(
+        this: HTMLInputElement
+      ) {
+        that.saveSetting('userSetName', this.value)
+      })
+    })
+
+    // 保存是否添加标记名称
+    ui.form.tagNameToFileName.addEventListener('click', function(
+      this: HTMLInputElement
+    ) {
+      that.saveSetting('tagNameToFileName', this.checked)
+    })
+
+    // 重置设置
+    document.getElementById('resetOption')!.addEventListener('click', () => {
+      this.reset()
+    })
+  }
+
+  // 持久化保存设置
+  public saveSetting(key: keyof XzSetting, value: any) {
+    this.needSaveOpts[key] = value
+    localStorage.setItem(this.storeName, JSON.stringify(this.needSaveOpts))
+  }
+
+  // 重设选项
+  public reset() {
+    // 用表单的 reset 重设选项
+    ui.form.reset()
+
+    // 将 needSaveOpts 恢复为默认值
+    this.needSaveOpts = this.needSaveOptsDefault
+    // 覆写本地存储里的设置为默认值
+    localStorage.setItem(this.storeName, JSON.stringify(this.needSaveOpts))
+    // 使用默认值重设选项
+    this.restoreOption()
+  }
+}
+
+// 删除页面上的作品元素
+class DeleteWorks {
+  constructor(worksSelector: string) {
+    this.worksSelector = worksSelector
+  }
+
+  public worksSelector: string = '' // 选择页面上所有作品的选择器
+
+  public multipleSelector: string = '._3b8AXEx' // 多图作品特有的元素的标识
+
+  public ugoiraSelector: string = '.AGgsUWZ' // 动图作品特有的元素的标识
+
+  public delWork: boolean = false // 是否处于删除作品状态
+
+  // 清除多图作品的按钮
+  public addClearMultipleBtn() {
+    ui.addCenterButton(Colors.red, lang.transl('_清除多图作品'), [
+      ['title', lang.transl('_清除多图作品Title')]
+    ]).addEventListener(
+      'click',
+      () => {
+        ui.centerWrapHide()
+        this.clearMultiple()
+      },
+      false
+    )
+  }
+
+  // 清除动图作品的按钮
+  public addClearUgoiraBtn() {
+    ui.addCenterButton(Colors.red, lang.transl('_清除动图作品'), [
+      ['title', lang.transl('_清除动图作品Title')]
+    ]).addEventListener(
+      'click',
+      () => {
+        ui.centerWrapHide()
+        this.ClearUgoira()
+      },
+      false
+    )
+  }
+
+  // 手动删除作品的按钮
+  public addManuallyDeleteBtn() {
+    const delBtn = ui.addCenterButton(
+      Colors.red,
+      lang.transl('_手动删除作品'),
+      [['title', lang.transl('_手动删除作品Title')]]
+    )
+
+    delBtn.addEventListener('click', () => {
+      this.manuallyDelete(delBtn)
+    })
+  }
+
+  // 清除多图作品
+  public clearMultiple() {
+    const allPicArea = document.querySelectorAll(this.worksSelector)
+    allPicArea.forEach(el => {
+      if (el.querySelector(this.multipleSelector)) {
+        el.remove()
+      }
+    })
+    this.outputNowResult()
+  }
+
+  // 清除动图作品
+  public ClearUgoira() {
+    const allPicArea = document.querySelectorAll(this.worksSelector)
+    allPicArea.forEach(el => {
+      if (el.querySelector(this.ugoiraSelector)) {
+        el.remove()
+      }
+    })
+    this.outputNowResult()
+  }
+
+  // 手动删除作品
+  public manuallyDelete(delBtn: HTMLButtonElement) {
+    this.delWork = !this.delWork
+
+    // 给作品绑定删除属性
+    const listElement: NodeListOf<HTMLDivElement> = document.querySelectorAll(
+      this.worksSelector
+    )
+    listElement.forEach(el => {
+      el.onclick = e => {
+        e = e || window.event
+        if (this.delWork) {
+          e.preventDefault()
+
+          DOM.removeEl(e.currentTarget as HTMLElement)
+          if (dlCtrl.allowWork) {
+            this.outputNowResult()
+          }
+        }
+      }
+    })
+
+    if (this.delWork) {
+      delBtn.textContent = lang.transl('_退出手动删除')
+      setTimeout(() => {
+        ui.centerWrapHide()
+      }, 300)
+    } else {
+      delBtn.textContent = lang.transl('_手动删除作品')
+    }
+  }
+
+  // 显示调整后，列表里的作品数量。仅在搜索页和发现页面中使用
+  public outputNowResult() {
+    const selector = this.worksSelector
+    log.success(
+      lang.transl('_调整完毕', DOM.getVisibleEl(selector).length.toString()),
+      2,
+      false
+    )
+  }
+}
+
+// 快速收藏
+class QuickBookmark {
+  constructor() {
+    this.quickBookmark()
+  }
+
+  private quickBookmarkEl: HTMLAnchorElement = document.createElement('a') // 快速收藏的元素
+
+  // 快速收藏
+  private quickBookmark() {
+    // 因为切换作品（pushstate）时，不能准确的知道 toolbar 何时更新，而且获取 token 也可能需要时间，所以只能不断检测
+    setTimeout(() => {
+      this.quickBookmark()
+    }, 300)
+
+    // 如果获取不到 token，则不展开快速收藏功能
+    if (!API.getToken()) {
+      return
+    }
+
+    // 因为 p 站改版 class 经常变，所以从父元素查找，父元素的 class 变化没那么频繁
+    const toolbarParent = document.querySelectorAll('main > section')
+
+    let toolbar // 作品下方的工具栏
+    for (const el of toolbarParent) {
+      if (el.querySelector('div>section')) {
+        toolbar = el.querySelector('div>section')
+        break
+      }
+    }
+
+    if (toolbar) {
+      this.quickBookmarkEl = document.querySelector(
+        '#quickBookmarkEl'
+      ) as HTMLAnchorElement
+
+      // 如果没有 quick 元素则添加
+      if (!this.quickBookmarkEl) {
+        // 创建快速收藏元素
+        this.quickBookmarkEl = document.createElement('a')
+        this.quickBookmarkEl.id = 'quickBookmarkEl'
+        this.quickBookmarkEl.innerHTML = '✩'
+        this.quickBookmarkEl.href = 'javascript:void(0)'
+        this.quickBookmarkEl.title = lang.transl('_快速收藏')
+        toolbar.insertBefore(this.quickBookmarkEl, toolbar.childNodes[3])
+        // 隐藏原来的收藏按钮并检测收藏状态
+        const orgIcon = toolbar.childNodes[2] as HTMLDivElement
+
+        if (!orgIcon) {
+          // 当用户处于自己作品的页面时，没有收藏按钮
+          return
+        }
+
+        orgIcon.style.display = 'none'
+        const heart = orgIcon.querySelector('svg')!
+        if (window.getComputedStyle(heart)['fill'] === 'rgb(255, 64, 96)') {
+          // 如果已经收藏过了
+          this.quickBookmarkEnd()
+        } else {
+          // 准备快速收藏
+          this.readyQuickBookmark()
+        }
+      } else {
+        // 如果有 quick 元素，什么都不做
+        return
+      }
+    }
+  }
+
+  // 准备快速收藏
+  private readyQuickBookmark() {
+    this.quickBookmarkEl.addEventListener('click', () => {
+      ;(document.querySelector('._35vRH4a')! as HTMLButtonElement).click() // 自动点赞
+
+      // 储存 tag
+      const tagElements = document.querySelectorAll('._1LEXQ_3 li')
+      const tagArray = Array.from(tagElements).map(el => {
+        const nowA = el.querySelector('a')
+        if (nowA) {
+          let nowTag = nowA.textContent
+          // 对于原创作品，非日文的页面上只显示了用户语言的“原创”，替换成日文 tag “オリジナル”。
+          if (nowTag === '原创' || nowTag === 'Original' || nowTag === '창작') {
+            nowTag = 'オリジナル'
+          }
+          return nowTag
+        }
+      })
+      const tagString = encodeURI(tagArray.join(' '))
+
+      // 调用添加收藏的 api
+      API.addBookmark(API.getIllustId(), tagString, API.getToken(), false)
+        .then(response => response.json())
+        .then(data => {
+          if (data.error !== undefined && data.error === false) {
+            this.quickBookmarkEnd()
+          }
+        })
+    })
+  }
+
+  // 如果这个作品已收藏，则改变样式
+  private quickBookmarkEnd() {
+    this.quickBookmarkEl.style.color = '#FF4060'
+    this.quickBookmarkEl.href = `/bookmark_add.php?type=illust&illust_id=${API.getIllustId()}`
+  }
+}
+
+// 给收藏里的未分类作品批量添加 tag
+class AddBookmarksTag {
+  constructor(btn: HTMLButtonElement) {
+    this.btn = btn
+    this.init()
+  }
+
+  private addTagList: BookmarkResult[] = [] // 需要添加 tag 的作品列表
+
+  private btn: HTMLButtonElement
+
+  private init() {
+    this.btn.addEventListener('click', () => {
+      this.addTagList = [] // 每次点击清空结果
+      this.btn = document.getElementById('add_tag_btn') as HTMLButtonElement
+      this.btn!.setAttribute('disabled', 'disabled')
+      this.btn!.textContent = `Checking`
+      this.readyAddTag()
+    })
+    // 显示/隐藏按钮
+    this.toogleAddTagBtn()
+    // 当页面无刷新切换时显示/隐藏按钮
+    ;['pushState', 'popstate'].forEach(item => {
+      window.addEventListener(item, () => {
+        this.toogleAddTagBtn()
+      })
+    })
+  }
+
+  // 如果是书签页则显示添加 tag 的按钮，否则隐藏
+  private toogleAddTagBtn() {
+    const isBookmarkPage = location.href.includes('bookmark.php')
+
+    if (this.btn) {
+      if (isBookmarkPage) {
+        this.btn.classList.remove('hidden')
+      } else {
+        this.btn.classList.add('hidden')
+      }
+    }
+  }
+
+  // 准备添加 tag。loop 表示这是第几轮循环
+  private async readyAddTag(loop: number = 0) {
+    const offset = loop * 100 // 一次请求只能获取 100 个，所以可能有多次请求，要计算偏移量
+
+    // 发起请求
+    const [showData, hideData] = await Promise.all([
+      API.getBookmarkData(DOM.getUserId(), '未分類', offset, false),
+      API.getBookmarkData(DOM.getUserId(), '未分類', offset, true)
+    ]).catch(error => {
+      if (error.status && error.status === 403) {
+        this.btn!.textContent = `× Permission denied`
+      }
+      throw new Error('Permission denied')
+    })
+
+    // 保存有用的数据
+    for (const data of [showData, hideData]) {
+      const works: BookmarkWork[] = data.body.works
+      // 如果作品的 bookmarkData 为假说明没有实际数据，可能是在获取别人的收藏数据。
+      if (works.length > 0 && works[0].bookmarkData) {
+        works.forEach(work => {
+          this.addTagList.push({
+            id: work.id,
+            tags: encodeURI(work.tags.join(' ')),
+            restrict: work.bookmarkData.private
+          })
+        })
+      }
+    }
+
+    // 进行下一步的处理
+    if (this.addTagList.length === 0) {
+      // 如果结果为空，不需要处理
+      this.btn!.textContent = `√ No need`
+      this.btn!.removeAttribute('disabled')
+      return
+    } else {
+      // 判断是否获取完毕，如果本次请求获取的数据为空，则已经没有后续数据
+      if (
+        showData.body.works.length === 0 &&
+        hideData.body.works.length === 0
+      ) {
+        // 已经获取完毕
+        this.addTag(0, this.addTagList, API.getToken())
+      } else {
+        // 需要继续获取
+        this.readyAddTag(++loop)
+      }
+    }
+  }
+
+  // 给未分类作品添加 tag
+  private async addTag(index: number, addList: BookmarkResult[], tt: string) {
+    const item: BookmarkResult = addList[index] as BookmarkResult
+    await API.addBookmark(item.id, item.tags, tt, item.restrict)
+    if (index < addList.length - 1) {
+      index++
+      this.btn!.textContent = `${index} / ${addList.length}`
+      // 继续添加下一个
+      this.addTag(index, addList, tt)
+    } else {
+      this.btn!.textContent = `√ Complete`
+      this.btn!.removeAttribute('disabled')
+    }
+  }
 }
 
 // 图片查看器类
@@ -2218,7 +2611,7 @@ class ImgViewer {
     this.viewerWarpper.style.display = 'none' // 先隐藏 viewerWarpper
 
     // 获取作品信息
-    const data = await API.getIllustData(API.getIllustId())
+    const data = await API.getWorksData(API.getIllustId())
     const thisOneData = data.body
     // 处理插画或漫画作品，不处理动图作品
     if (thisOneData.illustType === 0 || thisOneData.illustType === 1) {
@@ -2337,261 +2730,345 @@ class ImgViewer {
   }
 }
 
-// 快速收藏
-class QuickBookmark {
-  constructor() {
-    this.quickBookmark()
+// 存储抓取结果
+class Store {
+  public result: WorkInfo[] = [] // 储存图片信息
+
+  public idList: string[] = [] // 储存从列表中抓取到的作品的 id
+
+  public rankList: RankList = {} // 储存作品在排行榜中的排名
+
+  public pageInfo = {
+    pageUserName: '',
+    pageUserID: '',
+    pageTag: ''
   }
 
-  private quickBookmarkEl: HTMLAnchorElement = document.createElement('a') // 快速收藏的元素
-
-  // 快速收藏
-  private quickBookmark() {
-    // 因为切换作品（pushstate）时，不能准确的知道 toolbar 何时更新，而且获取 token 也可能需要时间，所以只能不断检测
-    setTimeout(() => {
-      this.quickBookmark()
-    }, 300)
-
-    // 如果获取不到 token，则不展开快速收藏功能
-    if (!API.getToken()) {
-      return
-    }
-
-    // 因为 p 站改版 class 经常变，所以从父元素查找，父元素的 class 变化没那么频繁
-    const toolbarParent = document.querySelectorAll('main > section')
-
-    let toolbar // 作品下方的工具栏
-    for (const el of toolbarParent) {
-      if (el.querySelector('div>section')) {
-        toolbar = el.querySelector('div>section')
-        break
-      }
-    }
-
-    if (toolbar) {
-      this.quickBookmarkEl = document.querySelector(
-        '#quickBookmarkEl'
-      ) as HTMLAnchorElement
-
-      // 如果没有 quick 元素则添加
-      if (!this.quickBookmarkEl) {
-        // 创建快速收藏元素
-        this.quickBookmarkEl = document.createElement('a')
-        this.quickBookmarkEl.id = 'quickBookmarkEl'
-        this.quickBookmarkEl.innerHTML = '✩'
-        this.quickBookmarkEl.href = 'javascript:void(0)'
-        this.quickBookmarkEl.title = lang.transl('_快速收藏')
-        toolbar.insertBefore(this.quickBookmarkEl, toolbar.childNodes[3])
-        // 隐藏原来的收藏按钮并检测收藏状态
-        const orgIcon = toolbar.childNodes[2] as HTMLDivElement
-
-        if (!orgIcon) {
-          // 当用户处于自己作品的页面时，没有收藏按钮
-          return
-        }
-
-        orgIcon.style.display = 'none'
-        const heart = orgIcon.querySelector('svg')!
-        if (window.getComputedStyle(heart)['fill'] === 'rgb(255, 64, 96)') {
-          // 如果已经收藏过了
-          this.quickBookmarkEnd()
-        } else {
-          // 准备快速收藏
-          this.readyQuickBookmark()
-        }
-      } else {
-        // 如果有 quick 元素，什么都不做
-        return
-      }
-    }
+  public reset() {
+    this.result = []
+    this.idList = []
+    this.rankList = {}
   }
 
-  // 准备快速收藏
-  private readyQuickBookmark() {
-    this.quickBookmarkEl.addEventListener('click', () => {
-      ;(document.querySelector('._35vRH4a')! as HTMLButtonElement).click() // 自动点赞
-
-      // 储存 tag
-      const tagElements = document.querySelectorAll('._1LEXQ_3 li')
-      const tagArray = Array.from(tagElements).map(el => {
-        const nowA = el.querySelector('a')
-        if (nowA) {
-          let nowTag = nowA.textContent
-          // 对于原创作品，非日文的页面上只显示了用户语言的“原创”，替换成日文 tag “オリジナル”。
-          if (nowTag === '原创' || nowTag === 'Original' || nowTag === '창작') {
-            nowTag = 'オリジナル'
-          }
-          return nowTag
-        }
-      })
-      const tagString = encodeURI(tagArray.join(' '))
-
-      // 调用添加收藏的 api
-      API.addBookmark(API.getIllustId(), tagString, API.getToken(), false)
-        .then(response => response.json())
-        .then(data => {
-          if (data.error !== undefined && data.error === false) {
-            this.quickBookmarkEnd()
-          }
-        })
+  // 添加每个图片的信息。某些参数允许传空值
+  /*
+   id - 图片是 id + 序号，如 44920385_p0。动图只有 id
+   url - 图片的 url
+   title - 作品的标题
+   tags - 作品的 tag 列表
+   tagsTranslated - 作品的 tag 列表，附带翻译后的 tag（如果有）
+   user - 作品的画师名字
+   userid - 作品的画师id
+   fullWidth - 图片的宽度
+   fullHeight - 图片的高度
+   ext - 图片的后缀名
+   bmk - 作品的收藏数量
+   date - 作品的创建日期，格式为 yyyy-MM-dd。如 2019-08-29
+   type - 作品的类型，分为插画/漫画/动图
+   rank - 在排行榜页面使用，保存图片的排名
+   ugoiraInfo - 当作品是动图时才有值，包含 frames（数组）和 mimeType（string）属性
+   */
+  public addResult(
+    id: string,
+    url: string,
+    title: string,
+    tags: string[],
+    tagsTranslated: string[],
+    user: string,
+    userid: string,
+    fullWidth: number,
+    fullHeight: number,
+    ext: string,
+    bmk: number,
+    date: string,
+    type: number,
+    rank: string,
+    ugoiraInfo: any
+  ) {
+    this.result.push({
+      id,
+      url,
+      title,
+      tags,
+      tagsTranslated,
+      user,
+      userid,
+      fullWidth,
+      fullHeight,
+      ext,
+      bmk,
+      date,
+      type,
+      rank,
+      ugoiraInfo
     })
-  }
-
-  // 如果这个作品已收藏，则改变样式
-  private quickBookmarkEnd() {
-    this.quickBookmarkEl.style.color = '#FF4060'
-    this.quickBookmarkEl.href = `/bookmark_add.php?type=illust&illust_id=${API.getIllustId()}`
   }
 }
 
-// 给s收藏里的未分类作品批量添加 tag
-class AddTag {
-  constructor(btn: HTMLButtonElement) {
-    this.btn = btn
-    this.init()
-  }
+// 作品数据
+// class WorksData implements WorkInfo{
+//   constructor(){
 
-  private addTagList: BookmarkResult[] = [] // 需要添加 tag 的作品列表
+//   }
+// }
 
-  private btn: HTMLButtonElement
+// 文件名类
+class FileName {
+  // 用正则过滤不安全的字符，（Chrome 和 Windows 不允许做文件名的字符）
+  // 不安全的字符，这里多数是控制字符，需要替换掉
+  private unsafeStr = new RegExp(
+    /[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g
+  )
+  // 一些需要替换成全角字符的符号，左边是正则表达式的字符
+  private fullWidthDict: string[][] = [
+    ['\\\\', '＼'],
+    ['/', '／'],
+    [':', '：'],
+    ['\\?', '？'],
+    ['"', '＂'],
+    ['<', '＜'],
+    ['>', '＞'],
+    ['\\*', '＊'],
+    ['\\|', '｜'],
+    ['~', '～']
+  ]
 
-  private init() {
-    this.btn.addEventListener('click', () => {
-      this.addTagList = [] // 每次点击清空结果
-      this.btn = document.getElementById('add_tag_btn') as HTMLButtonElement
-      this.btn!.setAttribute('disabled', 'disabled')
-      this.btn!.textContent = `Checking`
-      this.readyAddTag()
-    })
-    // 显示/隐藏按钮
-    this.toogleAddTagBtn()
-    // 当页面无刷新切换时显示/隐藏按钮
-    ;['pushState', 'popstate'].forEach(item => {
-      window.addEventListener(item, () => {
-        this.toogleAddTagBtn()
-      })
-    })
-  }
-
-  // 如果是书签页则显示添加 tag 的按钮，否则隐藏
-  private toogleAddTagBtn() {
-    const isBookmarkPage = location.href.includes('bookmark.php')
-
-    if (this.btn) {
-      if (isBookmarkPage) {
-        this.btn.classList.remove('hidden')
-      } else {
-        this.btn.classList.add('hidden')
-      }
+  // 把一些特殊字符替换成全角字符
+  private replaceUnsafeStr(str: string) {
+    str = str.replace(this.unsafeStr, '')
+    for (let index = 0; index < this.fullWidthDict.length; index++) {
+      const rule = this.fullWidthDict[index]
+      const reg = new RegExp(rule[0], 'g')
+      str = str.replace(reg, rule[1])
     }
+    return str
   }
 
-  // 准备添加 tag。loop 表示这是第几轮循环
-  private async readyAddTag(loop: number = 0) {
-    const offset = loop * 100 // 一次请求只能获取 100 个，所以可能有多次请求，要计算偏移量
+  // 生成文件名，传入参数为图片信息
+  public getFileName(data: WorkInfo) {
+    let result = ui.form.userSetName.value
+    // 为空时使用 {id}
+    result = result || '{id}' // 生成文件名
+    const illustTypes = ['illustration', 'manga', 'ugoira'] // 作品类型 0 插画 1 漫画 2 动图
 
-    // 发起请求
-    const [showData, hideData] = await Promise.all([
-      API.getBookmarkData(DOM.getUserId(), '未分類', offset, false),
-      API.getBookmarkData(DOM.getUserId(), '未分類', offset, true)
-    ]).catch(error => {
-      if (error.status && error.status === 403) {
-        this.btn!.textContent = `× Permission denied`
+    // 储存每个文件名标记的配置
+    const cfg = [
+      {
+        name: '{p_user}',
+        // 标记
+        value: store.pageInfo.pageUserName,
+        // 值
+        prefix: '',
+        // 添加在前面的标记
+        safe: false
+        // 是否是安全的文件名。如果可能包含一些特殊字符，就不安全，要进行替换
+      },
+      {
+        name: '{p_uid}',
+        value: store.pageInfo.pageUserID ? DOM.getUserId() : '',
+        prefix: '',
+        safe: true
+      },
+      {
+        name: '{p_title}',
+        value: document.title
+          .replace(/\[(0|↑|→|▶|↓|║|■|√| )\] /, '')
+          .replace(/^\(\d.*\) /, ''),
+        // 去掉标题上的下载状态、消息数量提示
+        prefix: '',
+        safe: false
+      },
+      {
+        name: '{p_tag}',
+        value: store.pageInfo.pageTag,
+        prefix: '',
+        safe: false
+      },
+      {
+        name: '{id}',
+        value: data.id,
+        prefix: '',
+        safe: true
+      },
+      {
+        name: '{id_num}',
+        value: parseInt(data.id),
+        prefix: '',
+        safe: true
+      },
+      {
+        name: '{p_num}',
+        value: parseInt(/\d*$/.exec(data.id)![0]),
+        prefix: '',
+        safe: true
+      },
+      {
+        name: '{rank}',
+        value: data.rank,
+        prefix: '',
+        safe: true
+      },
+      {
+        name: '{title}',
+        value: data.title,
+        prefix: 'title_',
+        safe: false
+      },
+      {
+        name: '{user}',
+        value: data.user,
+        prefix: 'user_',
+        safe: false
+      },
+      {
+        name: '{userid}',
+        value: data.userid,
+        prefix: 'uid_',
+        safe: true
+      },
+      {
+        name: '{px}',
+        value: (function() {
+          if (result.includes('{px}') && data.fullWidth !== undefined) {
+            return data.fullWidth + 'x' + data.fullHeight
+          } else {
+            return ''
+          }
+        })(),
+        prefix: '',
+        safe: true
+      },
+      {
+        name: '{tags}',
+        value: data.tags.join(','),
+        prefix: 'tags_',
+        safe: false
+      },
+      {
+        name: '{tags_translate}',
+        value: data.tagsTranslated.join(','),
+        prefix: 'tags_',
+        safe: false
+      },
+      {
+        name: '{bmk}',
+        value: data.bmk,
+        prefix: 'bmk_',
+        safe: true
+      },
+      {
+        name: '{date}',
+        value: data.date,
+        prefix: '',
+        safe: true
+      },
+      {
+        name: '{type}',
+        value: illustTypes[data.type],
+        prefix: '',
+        safe: true
       }
-      throw new Error('Permission denied')
-    })
+    ]
 
-    // 保存有用的数据
-    for (const data of [showData, hideData]) {
-      const works: BookmarkWork[] = data.body.works
-      // 如果作品的 bookmarkData 为假说明没有实际数据，可能是在获取别人的收藏数据。
-      if (works.length > 0 && works[0].bookmarkData) {
-        works.forEach(work => {
-          this.addTagList.push({
-            id: work.id,
-            tags: encodeURI(work.tags.join(' ')),
-            restrict: work.bookmarkData.private
-          })
-        })
-      }
-    }
+    // 替换命名规则里的特殊字符
+    result = this.replaceUnsafeStr(result)
+    // 上一步会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
+    result = result.replace(/／/g, '/')
 
-    // 进行下一步的处理
-    if (this.addTagList.length === 0) {
-      // 如果结果为空，不需要处理
-      this.btn!.textContent = `√ No need`
-      this.btn!.removeAttribute('disabled')
-      return
-    } else {
-      // 判断是否获取完毕，如果本次请求获取的数据为空，则已经没有后续数据
+    // 把命名规则的标记替换成实际值
+    for (const item of cfg) {
       if (
-        showData.body.works.length === 0 &&
-        hideData.body.works.length === 0
+        result.includes(item.name) &&
+        item.value !== '' &&
+        item.value !== null
       ) {
-        // 已经获取完毕
-        this.addTag(0, this.addTagList, API.getToken())
-      } else {
-        // 需要继续获取
-        this.readyAddTag(++loop)
+        // 只有当标记有值时才继续操作. 所以没有值的标记会原样保留
+        let once = String(item.value)
+
+        // 处理标记值中的特殊字符
+        if (!item.safe) {
+          once = this.replaceUnsafeStr(once)
+        }
+
+        // 添加标记名称
+        if (ui.form.tagNameToFileName.checked) {
+          once = item.prefix + once
+        }
+
+        result = result.replace(new RegExp(item.name, 'g'), once) // 将标记替换成最终值，如果有重复的标记，全部替换
       }
     }
-  }
 
-  // 给未分类作品添加 tag
-  private async addTag(index: number, addList: BookmarkResult[], tt: string) {
-    const item: BookmarkResult = addList[index] as BookmarkResult
-    await API.addBookmark(item.id, item.tags, tt, item.restrict)
-    if (index < addList.length - 1) {
-      index++
-      this.btn!.textContent = `${index} / ${addList.length}`
-      // 继续添加下一个
-      this.addTag(index, addList, tt)
-    } else {
-      this.btn!.textContent = `√ Complete`
-      this.btn!.removeAttribute('disabled')
+    // 处理空值，连续的 '//'。 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
+    result = result.replace(/undefined/g, '').replace(/\/{2,9}/, '/')
+
+    // 对每一层路径进行处理
+    let tempArr = result.split('/')
+    tempArr.forEach((str, index, arr) => {
+      // 替换路径首尾的空格
+      // 把每层路径头尾的 . 变成全角的．因为 Chrome 不允许头尾使用 .
+      arr[index] = str
+        .trim()
+        .replace(/^\./g, '．')
+        .replace(/\.$/g, '．')
+    })
+    result = tempArr.join('/')
+
+    // 去掉头尾的 /
+    if (result.startsWith('/')) {
+      result = result.replace('/', '')
     }
+    if (result.endsWith('/')) {
+      result = result.substr(0, result.length - 1)
+    }
+
+    // 快速下载时，如果只有一个文件，则不建立文件夹
+    if (dlCtrl.quickDownload && store.result.length === 1) {
+      const index = result.lastIndexOf('/')
+      result = result.substr(index + 1, result.length)
+    }
+
+    // 添加后缀名
+    result += '.' + data.ext
+
+    return result
   }
 }
 
-// 语言类
-class Lang {
-  constructor() {
-    this.getLangType()
-  }
-
-  private langType: number = 0
-
-  // 设置语言类型
-  private getLangType() {
-    const userLang = document.documentElement.lang // 获取语言标识
-    switch (userLang) {
-      case 'zh':
-      case 'zh-CN':
-      case 'zh-Hans':
-        this.langType = 0 // 设置为简体中文
-        break
-
-      case 'ja':
-        this.langType = 1 // 设置为日语
-        break
-
-      case 'zh-Hant':
-      case 'zh-tw':
-      case 'zh-TW':
-        this.langType = 3 // 设置为繁体中文
-        break
-
-      default:
-        this.langType = 2 // 设置为英语
-        break
+// 输出结果类
+// 输出文件名和网址
+class Output {
+  // 设置输出区域的内容，并显示
+  private showOutputInfoWrap(text: string) {
+    if (text) {
+      document.querySelector('.outputInfoContent')!.innerHTML = text
+      ;(document.querySelector(
+        '.outputInfoWrap'
+      ) as HTMLDivElement).style.display = 'block'
     }
   }
 
-  // translate 翻译
-  public transl(name: keyof typeof xzLang, ...arg: string[]) {
-    let content = xzLang[name][this.langType]
-    arg.forEach(val => (content = content.replace('{}', val)))
-    return content
+  public reset() {
+    document.querySelector('.outputInfoContent')!.innerHTML = ''
+  }
+
+  // 预览文件名
+  public previewFileName() {
+    let result = ''
+    result = store.result.reduce((total, now) => {
+      return (total +=
+        now.url.replace(/.*\//, '') + ': ' + fileName.getFileName(now) + '<br>') // 在每个文件名前面加上它的原本的名字，方便用来做重命名
+    }, result)
+    this.showOutputInfoWrap(result)
+  }
+
+  // 显示 url
+  public showUrls() {
+    let result = ''
+    result = store.result.reduce((total, now) => {
+      return (total += now.url + '<br>')
+    }, result)
+    this.showOutputInfoWrap(result)
   }
 }
 
@@ -2806,314 +3283,43 @@ class ConvertUgoira {
   }
 }
 
-// 存储抓取结果
-class Store {
-  public result: ImgInfo[] = [] // 储存图片信息
-
-  public idList: string[] = [] // 储存从列表中抓取到的作品的 id
-
-  public rankList: RankList = {} // 储存作品在排行榜中的排名
-
-  public pageInfo = {
-    pageUserName: '',
-    pageUserID: '',
-    pageTag: ''
-  }
-
-  public reset() {
-    this.result = []
-    this.idList = []
-    this.rankList = {}
-  }
-
-  // 添加每个图片的信息。某些参数允许传空值
-  /*
-   id - 图片是 id + 序号，如 44920385_p0。动图只有 id
-   url - 图片的 url
-   title - 作品的标题
-   tags - 作品的 tag 列表
-   tagsTranslated - 作品的 tag 列表，附带翻译后的 tag（如果有）
-   user - 作品的画师名字
-   userid - 作品的画师id
-   fullWidth - 图片的宽度
-   fullHeight - 图片的高度
-   ext - 图片的后缀名
-   bmk - 作品的收藏数量
-   date - 作品的创建日期，格式为 yyyy-MM-dd。如 2019-08-29
-   type - 作品的类型，分为插画/漫画/动图
-   rank - 在排行榜页面使用，保存图片的排名
-   ugoiraInfo - 当作品是动图时才有值，包含 frames（数组）和 mimeType（string）属性
-   */
-  public addResult(
-    id: string,
-    url: string,
-    title: string,
-    tags: string[],
-    tagsTranslated: string[],
-    user: string,
-    userid: string,
-    fullWidth: number,
-    fullHeight: number,
-    ext: string,
-    bmk: number,
-    date: string,
-    type: number,
-    rank: string,
-    ugoiraInfo: any
-  ) {
-    this.result.push({
-      id,
-      url,
-      title,
-      tags,
-      tagsTranslated,
-      user,
-      userid,
-      fullWidth,
-      fullHeight,
-      ext,
-      bmk,
-      date,
-      type,
-      rank,
-      ugoiraInfo
-    })
-  }
-}
-
-// 文件名类
-class FileName {
-  // 用正则过滤不安全的字符，（Chrome 和 Windows 不允许做文件名的字符）
-  // 不安全的字符，这里多数是控制字符，需要替换掉
-  private unsafeStr = new RegExp(
-    /[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g
-  )
-  // 一些需要替换成全角字符的符号，左边是正则表达式的字符
-  private fullWidthDict: string[][] = [
-    ['\\\\', '＼'],
-    ['/', '／'],
-    [':', '：'],
-    ['\\?', '？'],
-    ['"', '＂'],
-    ['<', '＜'],
-    ['>', '＞'],
-    ['\\*', '＊'],
-    ['\\|', '｜'],
-    ['~', '～']
-  ]
-
-  // 把一些特殊字符替换成全角字符
-  private replaceUnsafeStr(str: string) {
-    str = str.replace(this.unsafeStr, '')
-    for (let index = 0; index < this.fullWidthDict.length; index++) {
-      const rule = this.fullWidthDict[index]
-      const reg = new RegExp(rule[0], 'g')
-      str = str.replace(reg, rule[1])
-    }
-    return str
-  }
-
-  // 生成文件名，传入参数为图片信息
-  public getFileName(data: ImgInfo) {
-    let result = ui.form.userSetName.value
-    // 为空时使用 {id}
-    result = result || '{id}' // 生成文件名
-    const illustTypes = ['illustration', 'manga', 'ugoira'] // 作品类型 0 插画 1 漫画 2 动图
-
-    // 储存每个文件名标记的配置
-    const cfg = [
-      {
-        name: '{p_user}',
-        // 标记
-        value: store.pageInfo.pageUserName,
-        // 值
-        prefix: '',
-        // 添加在前面的标记
-        safe: false
-        // 是否是安全的文件名。如果可能包含一些特殊字符，就不安全，要进行替换
-      },
-      {
-        name: '{p_uid}',
-        value: store.pageInfo.pageUserID ? DOM.getUserId() : '',
-        prefix: '',
-        safe: true
-      },
-      {
-        name: '{p_title}',
-        value: document.title
-          .replace(/\[(0|↑|→|▶|↓|║|■|√| )\] /, '')
-          .replace(/^\(\d.*\) /, ''),
-        // 去掉标题上的下载状态、消息数量提示
-        prefix: '',
-        safe: false
-      },
-      {
-        name: '{p_tag}',
-        value: store.pageInfo.pageTag,
-        prefix: '',
-        safe: false
-      },
-      {
-        name: '{id}',
-        value: data.id,
-        prefix: '',
-        safe: true
-      },
-      {
-        name: '{id_num}',
-        value: parseInt(data.id),
-        prefix: '',
-        safe: true
-      },
-      {
-        name: '{p_num}',
-        value: parseInt(/\d*$/.exec(data.id)![0]),
-        prefix: '',
-        safe: true
-      },
-      {
-        name: '{rank}',
-        value: data.rank,
-        prefix: '',
-        safe: true
-      },
-      {
-        name: '{title}',
-        value: data.title,
-        prefix: 'title_',
-        safe: false
-      },
-      {
-        name: '{user}',
-        value: data.user,
-        prefix: 'user_',
-        safe: false
-      },
-      {
-        name: '{userid}',
-        value: data.userid,
-        prefix: 'uid_',
-        safe: true
-      },
-      {
-        name: '{px}',
-        value: (function() {
-          if (result.includes('{px}') && data.fullWidth !== undefined) {
-            return data.fullWidth + 'x' + data.fullHeight
-          } else {
-            return ''
-          }
-        })(),
-        prefix: '',
-        safe: true
-      },
-      {
-        name: '{tags}',
-        value: data.tags.join(','),
-        prefix: 'tags_',
-        safe: false
-      },
-      {
-        name: '{tags_translate}',
-        value: data.tagsTranslated.join(','),
-        prefix: 'tags_',
-        safe: false
-      },
-      {
-        name: '{bmk}',
-        value: data.bmk,
-        prefix: 'bmk_',
-        safe: true
-      },
-      {
-        name: '{date}',
-        value: data.date,
-        prefix: '',
-        safe: true
-      },
-      {
-        name: '{type}',
-        value: illustTypes[data.type],
-        prefix: '',
-        safe: true
-      }
-    ]
-
-    // 替换命名规则里的特殊字符
-    result = this.replaceUnsafeStr(result)
-    // 上一步会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
-    result = result.replace(/／/g, '/')
-
-    // 把命名规则的标记替换成实际值
-    for (const item of cfg) {
-      if (
-        result.includes(item.name) &&
-        item.value !== '' &&
-        item.value !== null
-      ) {
-        // 只有当标记有值时才继续操作. 所以没有值的标记会原样保留
-        let once = String(item.value)
-
-        // 处理标记值中的特殊字符
-        if (!item.safe) {
-          once = this.replaceUnsafeStr(once)
-        }
-
-        // 添加标记名称
-        if (ui.form.tagNameToFileName.checked) {
-          once = item.prefix + once
-        }
-
-        result = result.replace(new RegExp(item.name, 'g'), once) // 将标记替换成最终值，如果有重复的标记，全部替换
-      }
-    }
-
-    // 处理空值，连续的 '//'。 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
-    result = result.replace(/undefined/g, '').replace(/\/{2,9}/, '/')
-
-    // 对每一层路径进行处理
-    let tempArr = result.split('/')
-    tempArr.forEach((str, index, arr) => {
-      // 替换路径首尾的空格
-      // 把每层路径头尾的 . 变成全角的．因为 Chrome 不允许头尾使用 .
-      arr[index] = str
-        .trim()
-        .replace(/^\./g, '．')
-        .replace(/\.$/g, '．')
-    })
-    result = tempArr.join('/')
-
-    // 去掉头尾的 /
-    if (result.startsWith('/')) {
-      result = result.replace('/', '')
-    }
-    if (result.endsWith('/')) {
-      result = result.substr(0, result.length - 1)
-    }
-
-    // 快速下载时，如果只有一个文件，则不建立文件夹
-    if (dlCtrl.quickDownload && store.result.length === 1) {
-      const index = result.lastIndexOf('/')
-      result = result.substr(index + 1, result.length)
-    }
-
-    // 添加后缀名
-    result += '.' + data.ext
-
-    return result
-  }
-}
-
 // 针对不同页面类型，进行初始化
 abstract class InitPageBase {
-  constructor(crawler: CrawlPageBase) {
-    this.crawler = crawler
-  }
+  constructor(
+    crawler:
+      | CrawlIndexPage
+      | CrawlDiscoverPage
+      | CrawlWorkPage
+      | CrawlUserPage
+      | CrawlSearchPage
+      | CrawlAreaRankingPage
+      | CrawlRankingPage
+      | CrawlPixivisionPage
+      | CrawlBookmarkDetailPage
+      | CrawlBookmarkNewIllustPage
+      | CrawlNewIllustPage
+  ) {}
 
-  public crawler: CrawlPageBase
+  public abstract crawler:
+    | CrawlIndexPage
+    | CrawlDiscoverPage
+    | CrawlWorkPage
+    | CrawlUserPage
+    | CrawlSearchPage
+    | CrawlAreaRankingPage
+    | CrawlRankingPage
+    | CrawlPixivisionPage
+    | CrawlBookmarkDetailPage
+    | CrawlBookmarkNewIllustPage
+    | CrawlNewIllustPage
 
   // 初始化
-  public init() {}
+  public init() {
+    this.clearOldElements()
+    this.appendCenterBtns()
+    this.setFormOptin()
+    this.appendElseEl()
+  }
 
   // 清空之前添加的元素
   public clearOldElements(): void {
@@ -3130,69 +3336,6 @@ abstract class InitPageBase {
     if (fastScreen) {
       fastScreen.remove()
     }
-  }
-
-  // 向中间面板添加按钮
-  public addCenterButton(
-    bg: string = Colors.blue,
-    text: string = '',
-    attr: string[][] = []
-  ) {
-    const e = document.createElement('button')
-    e.type = 'button'
-    e.style.backgroundColor = bg
-    e.textContent = text
-
-    for (const [key, value] of attr) {
-      e.setAttribute(key, value)
-    }
-
-    let centerBtnWrap = document.getElementById(
-      'centerWrap_btns_free'
-    )! as HTMLDivElement
-    centerBtnWrap.appendChild(e)
-    return e
-  }
-
-  // 清除多图作品的按钮
-  public addClearMultipleBtn() {
-    this.addCenterButton(Colors.red, lang.transl('_清除多图作品'), [
-      ['title', lang.transl('_清除多图作品Title')]
-    ]).addEventListener(
-      'click',
-      () => {
-        ui.centerWrapHide()
-        this.crawler.clearMultiple()
-      },
-      false
-    )
-  }
-
-  // 清除动图作品的按钮
-  public addClearUgoiraBtn() {
-    this.addCenterButton(Colors.red, lang.transl('_清除动图作品'), [
-      ['title', lang.transl('_清除动图作品Title')]
-    ]).addEventListener(
-      'click',
-      () => {
-        ui.centerWrapHide()
-        this.crawler.ClearUgoira()
-      },
-      false
-    )
-  }
-
-  // 手动删除作品的按钮
-  public addManuallyDeleteBtn() {
-    const delBtn = this.addCenterButton(
-      Colors.red,
-      lang.transl('_手动删除作品'),
-      [['title', lang.transl('_手动删除作品Title')]]
-    )
-
-    delBtn.addEventListener('click', () => {
-      this.crawler.manuallyDelete(delBtn)
-    })
   }
 
   // 添加中间按钮
@@ -3212,7 +3355,6 @@ abstract class InitPageBase {
   }
 
   // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。
-  // 如果要设置表单之外的内容，可以直接写在 init 里。
   public setFormOptin(): void {
     // 设置页数
     this.setWantPageTip1.textContent = lang.transl('_页数')
@@ -3235,19 +3377,18 @@ abstract class InitPageBase {
 
 // 初始化首页
 class InitIndexPage extends InitPageBase {
-  public init() {
-    this.clearOldElements()
-    this.appendCenterBtns()
-    this.appendElseEl()
-    this.setFormOptin()
+  constructor(crawler: CrawlIndexPage) {
+    super(crawler)
+    this.crawler = crawler
   }
+  public crawler: CrawlIndexPage
 
   private downIdButton = document.createElement('button')
   private downIdInput = document.createElement('textarea')
   private ready = false
 
   public appendCenterBtns() {
-    this.downIdButton = this.addCenterButton(
+    this.downIdButton = ui.addCenterButton(
       Colors.blue,
       lang.transl('_输入id进行抓取'),
       [['id', 'down_id_button']]
@@ -3300,42 +3441,37 @@ class InitIndexPage extends InitPageBase {
 
 //初始化作品页
 class InitIllustPage extends InitPageBase {
-  public init() {
-    this.clearOldElements()
-    this.appendCenterBtns()
-    this.appendElseEl()
-    this.setFormOptin()
-
-    // 初始化快速收藏功能和图片查看器
-    new QuickBookmark()
-    viewer.initViewer()
+  constructor(crawler: CrawlWorkPage) {
+    super(crawler)
+    this.crawler = crawler
   }
+  public crawler: CrawlWorkPage
 
   public appendCenterBtns() {
-    this.addCenterButton(
+    ui.addCenterButton(
       Colors.blue,
       lang.transl('_从本页开始抓取new')
     ).addEventListener('click', () => {
-      this.crawler.downDirection = -1
+      this.crawler.crawlDirection = -1
       this.crawler.readyCrawl()
     })
 
-    this.addCenterButton(
+    ui.addCenterButton(
       Colors.blue,
       lang.transl('_从本页开始抓取old')
     ).addEventListener('click', () => {
-      this.crawler.downDirection = 1
+      this.crawler.crawlDirection = 1
       this.crawler.readyCrawl()
     })
 
-    const downXgBtn = this.addCenterButton(
+    const downRelatedBtn = ui.addCenterButton(
       Colors.blue,
       lang.transl('_抓取相关作品')
     )
-    downXgBtn.addEventListener(
+    downRelatedBtn.addEventListener(
       'click',
       () => {
-        this.crawler.downRelated = true
+        this.crawler.crawlRelated = true
         this.crawler.readyCrawl()
       },
       false
@@ -3368,19 +3504,23 @@ class InitIllustPage extends InitPageBase {
       lang.transl('_相关作品大于0')
     this.setWantPageTip2.textContent = lang.transl('_数字提示1')
     this.setWantPage.value = '-1'
+
+    // 初始化快速收藏功能和图片查看器
+    new QuickBookmark()
+    viewer.initViewer()
   }
 }
 
 // 初始化用户页面
 class InitUserPage extends InitPageBase {
-  public init() {
-    this.clearOldElements()
-    this.appendCenterBtns()
-    this.setFormOptin()
+  constructor(crawler: CrawlUserPage) {
+    super(crawler)
+    this.crawler = crawler
   }
+  public crawler: CrawlUserPage
 
   public appendCenterBtns() {
-    this.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
+    ui.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
     ]).addEventListener('click', () => {
       this.crawler.readyCrawl()
@@ -3389,7 +3529,7 @@ class InitUserPage extends InitPageBase {
     // 添加下载推荐作品的按钮，只在旧版收藏页面使用
     const columnTitle = document.querySelector('.column-title')
     if (columnTitle) {
-      const downRecmdBtn = this.addCenterButton(
+      const downRecmdBtn = ui.addCenterButton(
         Colors.blue,
         lang.transl('_抓取推荐作品'),
         [['title', lang.transl('_抓取推荐作品Title')]]
@@ -3397,7 +3537,7 @@ class InitUserPage extends InitPageBase {
       downRecmdBtn.addEventListener(
         'click',
         () => {
-          this.crawler.downRecommended = true
+          this.crawler.crawlRecommended = true
           this.crawler.readyCrawl()
         },
         false
@@ -3406,12 +3546,12 @@ class InitUserPage extends InitPageBase {
 
     // 如果存在 token，则添加“添加 tag”按钮
     if (API.getToken()) {
-      let btn = this.addCenterButton(Colors.green, lang.transl('_添加tag'), [
+      let btn = ui.addCenterButton(Colors.green, lang.transl('_添加tag'), [
         ['title', lang.transl('_添加tag')]
       ])
       btn.id = 'add_tag_btn'
 
-      new AddTag(btn)
+      new AddBookmarksTag(btn)
     }
   }
 
@@ -3431,15 +3571,14 @@ class InitUserPage extends InitPageBase {
 
 // 初始化搜索页
 class InitSearchPage extends InitPageBase {
-  public init() {
-    this.clearOldElements()
-    this.appendCenterBtns()
-    this.appendElseEl()
-    this.setFormOptin()
+  constructor(crawler: CrawlSearchPage) {
+    super(crawler)
+    this.crawler = crawler
   }
+  public crawler: CrawlSearchPage
 
   public appendCenterBtns() {
-    this.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
+    ui.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
     ]).addEventListener('click', () => {
       this.crawler.readyCrawl()
@@ -3518,14 +3657,14 @@ class InitSearchPage extends InitPageBase {
 
 // 初始化地区排行榜页面
 class InitAreaRankingPage extends InitPageBase {
-  public init() {
-    this.clearOldElements()
-    this.appendCenterBtns()
-    this.setFormOptin()
+  constructor(crawler: CrawlAreaRankingPage) {
+    super(crawler)
+    this.crawler = crawler
   }
+  public crawler: CrawlAreaRankingPage
 
   public appendCenterBtns() {
-    this.addCenterButton(Colors.blue, lang.transl('_抓取本页作品'), [
+    ui.addCenterButton(Colors.blue, lang.transl('_抓取本页作品'), [
       ['title', lang.transl('_抓取本页作品Title')]
     ]).addEventListener('click', () => {
       this.crawler.readyCrawl()
@@ -3539,14 +3678,14 @@ class InitAreaRankingPage extends InitPageBase {
 
 // 初始化排行榜页面
 class InitRankingPage extends InitPageBase {
-  public init() {
-    this.clearOldElements()
-    this.appendCenterBtns()
-    this.setFormOptin()
+  constructor(crawler: CrawlRankingPage) {
+    super(crawler)
+    this.crawler = crawler
   }
+  public crawler: CrawlRankingPage
 
   public appendCenterBtns() {
-    this.addCenterButton(Colors.blue, lang.transl('_抓取本排行榜作品'), [
+    ui.addCenterButton(Colors.blue, lang.transl('_抓取本排行榜作品'), [
       ['title', lang.transl('_抓取本排行榜作品Title')]
     ]).addEventListener('click', () => {
       this.crawler.readyCrawl()
@@ -3557,7 +3696,7 @@ class InitRankingPage extends InitPageBase {
     let mode = API.getURLField(location.href, 'mode')
 
     if (debutModes.includes(mode)) {
-      this.addCenterButton(Colors.blue, lang.transl('_抓取首次登场的作品'), [
+      ui.addCenterButton(Colors.blue, lang.transl('_抓取首次登场的作品'), [
         ['title', lang.transl('_抓取首次登场的作品Title')]
       ]).addEventListener('click', () => {
         ui.form.debut.value = '1'
@@ -3578,11 +3717,11 @@ class InitRankingPage extends InitPageBase {
 
 // 初始化 pixivision 页面
 class InitPixivisionPage extends InitPageBase {
-  public init() {
-    this.clearOldElements()
-    this.appendCenterBtns()
-    this.setFormOptin()
+  constructor(crawler: CrawlPixivisionPage) {
+    super(crawler)
+    this.crawler = crawler
   }
+  public crawler: CrawlPixivisionPage
 
   public appendCenterBtns() {
     const typeA = document.querySelector(
@@ -3592,7 +3731,7 @@ class InitPixivisionPage extends InitPageBase {
 
     if (type === 'illustration' || type === 'manga' || type === 'cosplay') {
       // 在插画、漫画、cosplay类型的页面上创建下载功能
-      this.addCenterButton(
+      ui.addCenterButton(
         Colors.blue,
         lang.transl('_抓取该页面的图片')
       ).addEventListener(
@@ -3612,14 +3751,14 @@ class InitPixivisionPage extends InitPageBase {
 
 // 初始化 bookmark_detail 页面
 class InitBookmarkDetailPage extends InitPageBase {
-  public init() {
-    this.clearOldElements()
-    this.appendCenterBtns()
-    this.setFormOptin()
+  constructor(crawler: CrawlBookmarkDetailPage) {
+    super(crawler)
+    this.crawler = crawler
   }
+  public crawler: CrawlBookmarkDetailPage
 
   public appendCenterBtns() {
-    this.addCenterButton(Colors.blue, lang.transl('_抓取相似图片'), [
+    ui.addCenterButton(Colors.blue, lang.transl('_抓取相似图片'), [
       ['title', lang.transl('_抓取相似图片')]
     ]).addEventListener(
       'click',
@@ -3643,15 +3782,14 @@ class InitBookmarkDetailPage extends InitPageBase {
 
 // 初始化 关注的新作品页面
 class InitBookmarkNewIllustPage extends InitPageBase {
-  public init() {
-    this.clearOldElements()
-    this.appendCenterBtns()
-    this.setFormOptin()
-    this.appendElseEl()
+  constructor(crawler: CrawlBookmarkNewIllustPage) {
+    super(crawler)
+    this.crawler = crawler
   }
+  public crawler: CrawlBookmarkNewIllustPage
 
   public appendCenterBtns() {
-    this.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
+    ui.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
     ]).addEventListener('click', () => {
       this.crawler.readyCrawl()
@@ -3679,15 +3817,14 @@ class InitBookmarkNewIllustPage extends InitPageBase {
 
 // 初始化 大家的新作品页面
 class InitNewIllustPage extends InitPageBase {
-  public init() {
-    this.clearOldElements()
-    this.appendCenterBtns()
-    this.setFormOptin()
-    this.appendElseEl()
+  constructor(crawler: CrawlNewIllustPage) {
+    super(crawler)
+    this.crawler = crawler
   }
+  public crawler: CrawlNewIllustPage
 
   public appendCenterBtns() {
-    this.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
+    ui.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_下载大家的新作品')]
     ]).addEventListener('click', () => {
       this.crawler.readyCrawl()
@@ -3724,28 +3861,31 @@ class InitNewIllustPage extends InitPageBase {
 
 // 初始化发现页面
 class InitDiscoverPage extends InitPageBase {
-  public init() {
-    this.clearOldElements()
-    this.appendCenterBtns()
-    this.setFormOptin()
+  constructor(crawler: CrawlDiscoverPage) {
+    super(crawler)
+    this.crawler = crawler
   }
+  public crawler: CrawlDiscoverPage
 
   public appendCenterBtns() {
-    this.addCenterButton(Colors.blue, lang.transl('_抓取当前作品'), [
+    ui.addCenterButton(Colors.blue, lang.transl('_抓取当前作品'), [
       ['title', lang.transl('_抓取当前作品Title')]
     ]).addEventListener('click', () => {
       this.crawler.readyCrawl()
     })
-
-    this.addClearMultipleBtn()
-
-    this.addClearUgoiraBtn()
-
-    this.addManuallyDeleteBtn()
   }
 
   public setFormOptin() {
     this.hideNotNeedOption([1])
+  }
+
+  public appendElseEl() {
+    const deleteWorks = new DeleteWorks('._2RNjBox')
+    deleteWorks.addClearMultipleBtn()
+
+    deleteWorks.addClearUgoiraBtn()
+
+    deleteWorks.addManuallyDeleteBtn()
   }
 }
 
@@ -3758,42 +3898,23 @@ abstract class CrawlPageBase {
   获取作品列表完毕
   获取作品信息
   获取作品信息完毕
-   */
-
-  public worksSelector: string = '' // tag 搜索页以及新作品页面，直接选择作品的选择器
-
-  public multipleSelector: string = '._3b8AXEx' // 作品选择器
-
-  public ugoiraSelector: string = '.AGgsUWZ' // 动图作品的选择器
-
-  public startpageNo: number = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、大家的新作品页使用。
-
-  public listPageFinished: number = 0 // 记录一共抓取了多少列表页。使用范围同上。
-
-  public maxCount = 1000 // 最多有多少页
-
-  public downDirection: number = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品
-  /*
-  -1 抓取新作品
-  0 不设置抓取方向
-  1 抓取旧作品
   */
 
-  public downRelated: boolean = false // 是否下载相关作品（作品页内的）
-
-  public downRecommended: boolean = false // 是否下载推荐作品（收藏页面下方）
+  public maxCount = 1000 // 当前页面类型最多可以抓取多少个页面/作品
 
   public fetchNumber: number = 0 // 要抓取的个数/页数
 
-  public readonly ajaxThreadsNumberDefault: number = 10 // 抓取页面时的并发连接数
+  public startpageNo: number = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、关注的新作品页使用。
 
-  public ajaxThreadsNumber: number = this.ajaxThreadsNumberDefault // 抓取页面时的并发连接数
+  public listPageFinished: number = 0 // 记录一共抓取了多少个列表页。使用范围同上。
 
-  private ajaxThreadsFinished: number = 0 // 统计有几个并发线程完成所有请求。统计的是并发数（ ajaxThreadsNumber ）而非请求数
+  public readonly ajaxThreadsDefault: number = 10 // 抓取时的并发连接数默认值，也是最大值
+
+  public ajaxThreads: number = this.ajaxThreadsDefault // 抓取时的并发连接数
+
+  private ajaxThreadsFinished: number = 0 // 统计有几个并发线程完成所有请求。统计的是并发线程（ ajaxThreads ）而非请求数
 
   public imgNumberPerWork: number = 0 // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
-
-  public delWork: boolean = false // 是否处于删除作品状态
 
   // 检查用户输入的页数设置，并返回提示信息
   public checkWantPageInput(crawlPartTip: string, crawlAllTip: string) {
@@ -3915,34 +4036,35 @@ abstract class CrawlPageBase {
       return this.noResult()
     }
 
-    if (store.idList.length <= this.ajaxThreadsNumberDefault) {
-      this.ajaxThreadsNumber = store.idList.length
+    if (store.idList.length <= this.ajaxThreadsDefault) {
+      this.ajaxThreads = store.idList.length
     } else {
-      this.ajaxThreadsNumber = this.ajaxThreadsNumberDefault
+      this.ajaxThreads = this.ajaxThreadsDefault
     }
 
-    for (let i = 0; i < this.ajaxThreadsNumber; i++) {
-      this.getIllustData()
+    for (let i = 0; i < this.ajaxThreads; i++) {
+      this.getWorksData()
     }
   }
+
   // 获取作品的数据
   // 在重试时会传入要重试的 id
-  public async getIllustData(id?: string) {
+  public async getWorksData(id?: string) {
     id = id || store.idList.shift()!
 
     let data: IllustData
     try {
       // 发起请求
-      data = await API.getIllustData(id)
+      data = await API.getWorksData(id)
     } catch (error) {
       //  请求成功，但 response.ok 错误。不重试请求，跳过该作品继续抓取
       if (error.status) {
         this.logErrorStatus(error.status, id)
-        this.afterGetIllust()
+        this.afterGetWorksData()
       } else {
         // 请求失败，会重试这个请求
         setTimeout(() => {
-          this.getIllustData(id)
+          this.getWorksData(id)
         }, 2000)
       }
 
@@ -3980,7 +4102,7 @@ abstract class CrawlPageBase {
       const illustId = body.illustId
       const title = body.illustTitle // 作品标题
       const userid = body.userId // 用户id
-      const user = body.userName // 用户名字，如果这里获取不到，下面从 tag 尝试获取
+      const user = body.userName // 用户名
       let ext = '' // 扩展名
       let imgUrl = ''
       let rank = '' // 保存作品在排行榜上的编号
@@ -3992,16 +4114,16 @@ abstract class CrawlPageBase {
       // 储存作品信息
       if (body.illustType !== 2) {
         // 插画或漫画
-        // 检查要下载该作品的前面几张
+        const tempExt = imgUrl.split('.')
+        ext = tempExt[tempExt.length - 1]
+
+        // 下载该作品的前面几张
         let pNo = body.pageCount
         if (this.imgNumberPerWork > 0 && this.imgNumberPerWork <= pNo) {
           pNo = this.imgNumberPerWork
         }
 
-        // 获取多p作品的原图页面
-        imgUrl = body.urls.original
-        const tempExt = imgUrl.split('.')
-        ext = tempExt[tempExt.length - 1]
+        imgUrl = body.urls.original // 作品的原图 URL
 
         // 添加作品信息
         for (let i = 0; i < pNo; i++) {
@@ -4059,18 +4181,18 @@ abstract class CrawlPageBase {
       }
     }
 
-    this.afterGetIllust()
+    this.afterGetWorksData()
   }
 
   // 每当获取完一个作品的信息
-  private afterGetIllust() {
+  private afterGetWorksData() {
     if (store.idList.length > 0) {
       // 如果存在下一个作品，则
-      this.getIllustData()
+      this.getWorksData()
     } else {
       // 没有剩余作品
       this.ajaxThreadsFinished++
-      if (this.ajaxThreadsFinished === this.ajaxThreadsNumber) {
+      if (this.ajaxThreadsFinished === this.ajaxThreads) {
         // 如果所有并发请求都执行完毕，复位
         this.ajaxThreadsFinished = 0
         this.crawFinished()
@@ -4114,10 +4236,8 @@ abstract class CrawlPageBase {
     }
   }
 
-  // 重设抓取作品列表时使用的变量活标记
-  public resetGetIdListStatus() {
-    this.listPageFinished = 0
-  }
+  // 重设抓取作品列表时使用的变量或标记
+  public abstract resetGetIdListStatus(): void
 
   // 网络请求状态异常时输出提示
   private logErrorStatus(status: number, id: string) {
@@ -4176,70 +4296,6 @@ abstract class CrawlPageBase {
     ui.centerWrapHide()
     output.reset()
   }
-
-  // 显示调整后，列表里的作品数量。仅在 tag 搜索页和发现页面中使用
-  public outputNowResult() {
-    const selector = this.worksSelector
-    log.success(
-      lang.transl('_调整完毕', DOM.getVisibleEl(selector).length.toString()),
-      2,
-      false
-    )
-  }
-
-  // 清除多图作品
-  public clearMultiple() {
-    const allPicArea = document.querySelectorAll(this.worksSelector)
-    allPicArea.forEach(el => {
-      if (el.querySelector(this.multipleSelector)) {
-        el.remove()
-      }
-    })
-    this.outputNowResult()
-  }
-
-  // 清除动图作品
-  public ClearUgoira() {
-    const allPicArea = document.querySelectorAll(this.worksSelector)
-    allPicArea.forEach(el => {
-      if (el.querySelector(this.ugoiraSelector)) {
-        el.remove()
-      }
-    })
-    this.outputNowResult()
-  }
-
-  // 手动删除作品
-  public manuallyDelete(delBtn: HTMLButtonElement) {
-    this.delWork = !this.delWork
-
-    // 给作品绑定删除属性
-    const listElement: NodeListOf<HTMLDivElement> = document.querySelectorAll(
-      this.worksSelector
-    )
-    listElement.forEach(el => {
-      el.onclick = e => {
-        e = e || window.event
-        if (this.delWork) {
-          e.preventDefault()
-
-          DOM.removeEl(e.currentTarget as HTMLElement)
-          if (dlCtrl.allowWork) {
-            this.outputNowResult()
-          }
-        }
-      }
-    })
-
-    if (this.delWork) {
-      delBtn.textContent = lang.transl('_退出手动删除')
-      setTimeout(() => {
-        ui.centerWrapHide()
-      }, 300)
-    } else {
-      delBtn.textContent = lang.transl('_手动删除作品')
-    }
-  }
 }
 
 // 抓取首页
@@ -4251,6 +4307,7 @@ class CrawlIndexPage extends CrawlPageBase {
   }
 
   public getWantPage() {}
+
   public getIdList() {
     const textarea = document.getElementById(
       'down_id_input'
@@ -4269,17 +4326,28 @@ class CrawlIndexPage extends CrawlPageBase {
     }
     this.getIdListFinished()
   }
+
+  public resetGetIdListStatus() {}
 }
 
 // 抓取作品页
-class CrawlIllustPage extends CrawlPageBase {
+class CrawlWorkPage extends CrawlPageBase implements IllustPageMembers {
+  public crawlDirection: number = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品
+  /*
+  -1 抓取新作品
+  0 不设置抓取方向
+  1 抓取旧作品
+  */
+
+  public crawlRelated: boolean = false // 是否下载相关作品（作品页内的）
+
   public getWantPage() {
     if (dlCtrl.quickDownload) {
       // 快速下载
       this.fetchNumber = 1
     } else {
       // 检查下载页数的设置
-      if (!this.downRelated) {
+      if (!this.crawlRelated) {
         this.fetchNumber = this.checkWantPageInput(
           lang.transl('_checkWantPageRule1Arg3'),
           lang.transl('_checkWantPageRule1Arg4')
@@ -4296,7 +4364,7 @@ class CrawlIllustPage extends CrawlPageBase {
 
   public nextStep() {
     // 下载相关作品
-    if (this.downRelated) {
+    if (this.crawlRelated) {
       this.getRelatedList()
     } else if (dlCtrl.quickDownload) {
       // 快速下载
@@ -4320,9 +4388,9 @@ class CrawlIllustPage extends CrawlPageBase {
     idList.forEach(id => {
       let idNum = parseInt(id)
       // 新作品
-      if (idNum >= nowId && this.downDirection === -1) {
+      if (idNum >= nowId && this.crawlDirection === -1) {
         store.idList.push(id)
-      } else if (idNum <= nowId && this.downDirection === 1) {
+      } else if (idNum <= nowId && this.crawlDirection === 1) {
         // 旧作品
         store.idList.push(id)
       }
@@ -4331,7 +4399,7 @@ class CrawlIllustPage extends CrawlPageBase {
     // 当设置了下载个数时，进行裁剪
     if (this.fetchNumber !== -1) {
       // 新作品 升序排列
-      if (this.downDirection === -1) {
+      if (this.crawlDirection === -1) {
         store.idList.sort(function(x, y) {
           return parseInt(x) - parseInt(y)
         })
@@ -4369,9 +4437,8 @@ class CrawlIllustPage extends CrawlPageBase {
   }
 
   public resetGetIdListStatus() {
-    this.listPageFinished = 0
-    this.downDirection = 0 // 解除下载方向的标记
-    this.downRelated = false // 解除下载相关作品的标记
+    this.crawlDirection = 0 // 解除下载方向的标记
+    this.crawlRelated = false // 解除下载相关作品的标记
   }
 }
 
@@ -4391,9 +4458,11 @@ class CrawlUserPage extends CrawlPageBase {
 
   private offset: number = 0 // 要去掉的作品数量
 
+  public crawlRecommended: boolean = false // 是否抓取推荐作品（收藏页面下方）
+
   public getWantPage() {
     let pageTip = lang.transl('_checkWantPageRule1Arg7')
-    if (this.downRecommended) {
+    if (this.crawlRecommended) {
       pageTip = lang.transl('_checkWantPageRule1Arg11')
     }
     this.fetchNumber = this.checkWantPageInput(
@@ -4403,7 +4472,7 @@ class CrawlUserPage extends CrawlPageBase {
   }
 
   public nextStep() {
-    if (this.downRecommended) {
+    if (this.crawlRecommended) {
       // 下载推荐图片
       this.getRecommendedList()
     } else {
@@ -4652,7 +4721,7 @@ class CrawlUserPage extends CrawlPageBase {
       '#illust-recommend .image-item'
     ) as NodeListOf<HTMLLIElement>
     if (elements.length === 0) {
-      this.downRecommended = false
+      this.crawlRecommended = false
       return this.noResult()
     }
     // 添加作品列表
@@ -4666,7 +4735,7 @@ class CrawlUserPage extends CrawlPageBase {
 
   public resetGetIdListStatus() {
     this.listPageFinished = 0
-    this.downRecommended = false // 解除下载推荐作品的标记
+    this.crawlRecommended = false // 解除下载推荐作品的标记
   }
 
   public sortResult() {
@@ -4739,9 +4808,13 @@ class CrawlSearchPage extends CrawlPageBase {
 
   // 组织要请求的 url 中的参数
   private initFetchURL() {
-    // 从 URL 中获取分类： "/tags/Fate%2FGrandOrder/illustrations"
-    let URLType = location.pathname.split('/')[3]
-    // 但在“顶部”页面的时候是没有分类的 "/tags/Fate%2FGrandOrder"，需要判断
+    // 从 URL 中获取分类。网址中可能有语言标识。
+    /*
+    https://www.pixiv.net/tags/Fate%2FGrandOrder/illustrations
+    https://www.pixiv.net/en/tags/Fate%2FGrandOrder/illustrations
+    */
+    let URLType = location.pathname.split('tags/')[1].split('/')[1]
+    // 但在“顶部”页面的时候是没有分类的，会是 undefined
     if (URLType === undefined) {
       URLType = ''
     }
@@ -4799,13 +4872,13 @@ class CrawlSearchPage extends CrawlPageBase {
 
   // 计算页数之后，准备建立并发抓取线程
   private startGetIdList() {
-    if (this.needCrawlPageCount <= this.ajaxThreadsNumberDefault) {
-      this.ajaxThreadsNumber = this.needCrawlPageCount
+    if (this.needCrawlPageCount <= this.ajaxThreadsDefault) {
+      this.ajaxThreads = this.needCrawlPageCount
     } else {
-      this.ajaxThreadsNumber = this.ajaxThreadsNumberDefault
+      this.ajaxThreads = this.ajaxThreadsDefault
     }
 
-    for (let i = 0; i < this.ajaxThreadsNumber; i++) {
+    for (let i = 0; i < this.ajaxThreads; i++) {
       this.getIdList()
     }
   }
@@ -4910,6 +4983,8 @@ class CrawlAreaRankingPage extends CrawlPageBase {
     )
     this.getIdListFinished()
   }
+
+  public resetGetIdListStatus() {}
 }
 
 // 抓取排行榜页面
@@ -5040,6 +5115,8 @@ class CrawlPixivisionPage extends CrawlPageBase {
   }
 
   public getIdList() {}
+
+  public resetGetIdListStatus() {}
 
   public getPixivision() {
     const typeA = document.querySelector(
@@ -5193,6 +5270,8 @@ class CrawlBookmarkDetailPage extends CrawlPageBase {
     log.log(lang.transl('_排行榜任务完成', store.idList.length.toString()))
     this.getIdListFinished()
   }
+
+  public resetGetIdListStatus() {}
 }
 
 // 抓取 关注的新作品
@@ -5267,6 +5346,10 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
       // 继续抓取
       this.getIdList()
     }
+  }
+
+  public resetGetIdListStatus() {
+    this.listPageFinished = 0
   }
 }
 
@@ -5377,15 +5460,12 @@ class CrawlNewIllustPage extends CrawlPageBase {
     this.option.lastId = data.body.lastId
     this.getIdList()
   }
+
+  public resetGetIdListStatus() {}
 }
 
 // 抓取发现页面
 class CrawlDiscoverPage extends CrawlPageBase {
-  constructor() {
-    super()
-    this.worksSelector = '._2RNjBox'
-  }
-
   public getWantPage() {}
 
   public getIdList() {
@@ -5403,97 +5483,51 @@ class CrawlDiscoverPage extends CrawlPageBase {
     log.log(lang.transl('_排行榜任务完成', store.idList.length.toString()))
     this.getIdListFinished()
   }
+
+  public resetGetIdListStatus() {}
 }
 
 // 初始化页面抓取流程
 class InitCrawlProcess {
   constructor() {
-    this.type = pageType.getPageType()
     this.initPage()
   }
 
-  private type: number
-
-  private GetCrawler(type: number) {
-    let result
-    switch (type) {
-      case 0:
-        result = new CrawlIndexPage()
-        break
-      case 1:
-        result = new CrawlIllustPage()
-        break
-      case 2:
-        result = new CrawlUserPage()
-        break
-      case 5:
-        result = new CrawlSearchPage()
-        break
-      case 6:
-        result = new CrawlAreaRankingPage()
-        break
-      case 7:
-        result = new CrawlRankingPage()
-        break
-      case 8:
-        result = new CrawlPixivisionPage()
-        break
-      case 9:
-        result = new CrawlBookmarkDetailPage()
-        break
-      case 10:
-        result = new CrawlBookmarkNewIllustPage()
-        break
-      case 11:
-        result = new CrawlDiscoverPage()
-        break
-      case 12:
-        result = new CrawlNewIllustPage()
-        break
-
-      default:
-        throw new Error('CrawlPage error: Illegal parameter.')
-    }
-
-    return result
-  }
-
   private initPage() {
-    let crawler = this.GetCrawler(this.type)
     let result
-    switch (this.type) {
+    switch (pageType.getPageType()) {
       case 0:
-        result = new InitIndexPage(crawler)
+        result = new InitIndexPage(new CrawlIndexPage())
         break
       case 1:
-        result = new InitIllustPage(crawler)
+        result = new InitIllustPage(new CrawlWorkPage())
         break
       case 2:
-        result = new InitUserPage(crawler)
+        result = new InitUserPage(new CrawlUserPage())
         break
       case 5:
-        result = new InitSearchPage(crawler)
+        result = new InitSearchPage(new CrawlSearchPage())
         break
       case 6:
-        result = new InitAreaRankingPage(crawler)
+        result = new InitAreaRankingPage(new CrawlAreaRankingPage())
         break
       case 7:
-        result = new InitRankingPage(crawler)
+        result = new InitRankingPage(new CrawlRankingPage())
         break
       case 8:
-        result = new InitPixivisionPage(crawler)
+        result = new InitPixivisionPage(new CrawlPixivisionPage())
         break
       case 9:
-        result = new InitBookmarkDetailPage(crawler)
+        result = new InitBookmarkDetailPage(new CrawlBookmarkDetailPage())
         break
       case 10:
-        result = new InitBookmarkNewIllustPage(crawler)
+        result = new InitBookmarkNewIllustPage(new CrawlBookmarkNewIllustPage())
         break
       case 11:
-        result = new InitDiscoverPage(crawler)
+        result = new InitDiscoverPage(new CrawlDiscoverPage())
         break
       case 12:
-        result = new InitNewIllustPage(crawler)
+        result = new InitNewIllustPage(new CrawlNewIllustPage())
         break
 
       default:
@@ -5703,7 +5737,7 @@ class DownloadFile {
     // 修改标题
     titleBar.changeTitle('↓')
     // 获取还未开始下载的文件的索引
-    let thisImgInfo: ImgInfo | undefined
+    let thisImgInfo: WorkInfo | undefined
     let thisIndex = -1
     for (let index = 0; index < dlCtrl.downloadedList.length; index++) {
       if (dlCtrl.downloadedList[index] === -1) {
@@ -5916,42 +5950,6 @@ class DownloadFile {
   }
 }
 
-// 输出结果类，输出文件名和网址
-class Output {
-  // 设置输出区域的内容，并显示
-  private showOutputInfoWrap(text: string) {
-    if (text) {
-      document.querySelector('.outputInfoContent')!.innerHTML = text
-      ;(document.querySelector(
-        '.outputInfoWrap'
-      ) as HTMLDivElement).style.display = 'block'
-    }
-  }
-
-  public reset() {
-    document.querySelector('.outputInfoContent')!.innerHTML = ''
-  }
-
-  // 预览文件名
-  public previewFileName() {
-    let result = ''
-    result = store.result.reduce((total, now) => {
-      return (total +=
-        now.url.replace(/.*\//, '') + ': ' + fileName.getFileName(now) + '<br>') // 在每个文件名前面加上它的原本的名字，方便用来做重命名
-    }, result)
-    this.showOutputInfoWrap(result)
-  }
-
-  // 显示 url
-  public showUrls() {
-    let result = ''
-    result = store.result.reduce((total, now) => {
-      return (total += now.url + '<br>')
-    }, result)
-    this.showOutputInfoWrap(result)
-  }
-}
-
 // 下载器
 // 辅助功能
 class Support {
@@ -6101,8 +6099,9 @@ const type = pageType.getPageType()
 
 const log = new Log()
 
-// 依赖于 UI 的类需要放到 UI 后面
 const ui = new UI()
+
+// 依赖于 UI 的类需要放到 UI 后面
 
 const pageInfo = new PageInfo(type)
 
@@ -6110,7 +6109,7 @@ const fileName = new FileName()
 
 const output = new Output()
 
-let filter = new Filter()
+const filter = new Filter()
 
 const initSetting = new InitSetting()
 
