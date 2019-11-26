@@ -96,9 +96,9 @@ class Log {
   1 warning 黄色
   2 error 红色
   */
-  private add(str: string, level: number, br: number, addMode: boolean) {
+  private add(str: string, level: number, br: number, keepShow: boolean) {
     let span = document.createElement('span')
-    if (!addMode) {
+    if (!keepShow) {
       span = this.refresh
     }
 
@@ -116,22 +116,22 @@ class Log {
     this.logArea.appendChild(span)
   }
 
-  public log(str: string, br: number = 1, addMode: boolean = true) {
+  public log(str: string, br: number = 1, keepShow: boolean = true) {
     this.checkElement()
-    this.add(str, -1, br, addMode)
+    this.add(str, -1, br, keepShow)
   }
 
-  public success(str: string, br: number = 1, addMode: boolean = true) {
+  public success(str: string, br: number = 1, keepShow: boolean = true) {
     this.checkElement()
-    this.add(str, 0, br, addMode)
+    this.add(str, 0, br, keepShow)
   }
 
-  public warning(str: string, br: number = 1, addMode: boolean = true) {
-    this.add(str, 1, br, addMode)
+  public warning(str: string, br: number = 1, keepShow: boolean = true) {
+    this.add(str, 1, br, keepShow)
   }
 
-  public error(str: string, br: number = 1, addMode: boolean = true) {
-    this.add(str, 2, br, addMode)
+  public error(str: string, br: number = 1, keepShow: boolean = true) {
+    this.add(str, 2, br, keepShow)
   }
 }
 
@@ -1257,7 +1257,7 @@ class PageType {
 
     if (
       window.location.hostname === 'www.pixiv.net' &&
-      (window.location.pathname === '/'||window.location.pathname === '/en/')
+      (window.location.pathname === '/' || window.location.pathname === '/en/')
     ) {
       type = 0
     } else if (
@@ -4103,8 +4103,7 @@ abstract class CrawlPageBase {
       const title = body.illustTitle // 作品标题
       const userid = body.userId // 用户id
       const user = body.userName // 用户名
-      let ext = '' // 扩展名
-      let imgUrl = ''
+
       let rank = '' // 保存作品在排行榜上的编号
       let testRank = store.rankList[body.illustId]
       if (testRank !== undefined) {
@@ -4114,8 +4113,6 @@ abstract class CrawlPageBase {
       // 储存作品信息
       if (body.illustType !== 2) {
         // 插画或漫画
-        const tempExt = imgUrl.split('.')
-        ext = tempExt[tempExt.length - 1]
 
         // 下载该作品的前面几张
         let pNo = body.pageCount
@@ -4123,7 +4120,10 @@ abstract class CrawlPageBase {
           pNo = this.imgNumberPerWork
         }
 
-        imgUrl = body.urls.original // 作品的原图 URL
+        const imgUrl = body.urls.original // 作品的原图 URL
+
+        const tempExt = imgUrl.split('.')
+        const ext = tempExt[tempExt.length - 1]
 
         // 添加作品信息
         for (let i = 0; i < pNo; i++) {
@@ -4158,7 +4158,7 @@ abstract class CrawlPageBase {
           mimeType: info.body.mime_type
         }
 
-        ext = ui.form.ugoiraSaveAs.value // 扩展名可能是 webm、gif、zip
+        const ext = ui.form.ugoiraSaveAs.value // 扩展名可能是 webm、gif、zip
 
         store.addResult(
           illustId,
@@ -5728,6 +5728,11 @@ class DownloadFile {
           }`
         )
         dlCtrl.reTryDownload()
+      }
+
+      // UUID 的情况
+      if (msg.data.uuid) {
+        log.error(lang.transl('_uuid'))
       }
     })
   }

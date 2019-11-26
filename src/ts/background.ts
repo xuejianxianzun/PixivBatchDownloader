@@ -41,13 +41,17 @@ chrome.runtime.onMessage.addListener(function(msg: SendInfo, sender) {
             no: msg.no,
             url: msg.fileUrl,
             thisIndex: msg.thisIndex,
-            tabId: tabId
+            tabId: tabId,
+            uuid: false
           }
         }
       )
     }
   }
 })
+
+// 判断文件名是否含有 UUID 格式。因为文件名处于整个绝对路径的中间，所以没加首尾标记 ^ $
+const UUIDRegexp = /[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}/
 
 // 监听下载事件
 chrome.downloads.onChanged.addListener(function(detail) {
@@ -56,6 +60,18 @@ chrome.downloads.onChanged.addListener(function(detail) {
   if (data) {
     let msg = ''
     let err = ''
+
+    // 判断当前文件名是否正常。下载时必定会有一次 detail.filename.current 有值
+    if (detail.filename && detail.filename.current) {
+      let changedName = detail.filename.current
+      if (
+        changedName.endsWith('jfif') ||
+        changedName.match(UUIDRegexp) !== null
+      ) {
+        // 文件名是 UUID
+        data.uuid = true
+      }
+    }
 
     if (detail.state && detail.state.current === 'complete') {
       msg = 'downloaded'

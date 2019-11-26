@@ -576,6 +576,7 @@ interface DonwloadInfo {
   url: string
   thisIndex: number
   tabId: number
+  uuid: boolean
 }
 
 // 所有任务的信息
