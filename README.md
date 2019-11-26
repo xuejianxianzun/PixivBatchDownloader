@@ -80,7 +80,7 @@ English （机翻，韩语设置下也使用英语文本）
 
 0 [首页](https://www.pixiv.net/)
 
-1 [作品页面](https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72503012)
+1 [作品页面](https://www.pixiv.net/artworks/72503012)
 
 2 [列表页](https://www.pixiv.net/member_illust.php?id=544479)
 
