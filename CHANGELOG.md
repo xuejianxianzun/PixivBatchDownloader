@@ -1,5 +1,17 @@
 # 版本升级日志
 
+## 3.2.5 2019-11-28
+
+- 优化代码
+
+把一些 public 的属性和方法改成了 private、protected，并在需要的地方使用存取器。
+
+## 3.2.4 2019-11-27
+
+- 修复 bug
+
+之前屏蔽广告添加的一处 class，现在变了位置，导致屏蔽了正常元素。修复之。
+
 ## 3.2.3 2019-11-26
 
 - 尝试当下载的文件名异常时，给出提醒
@@ -1232,9 +1244,9 @@ Viewerjs-mix.js [CSS part](https://github.com/fengyuanchen/viewerjs/blob/master/
 
 ## TODO
 
-优先使用组合而不是继承
+changeDownStatus 附近的一些方法移到 dlctr 里
 
-get set
+getNotDownType 等移到 ui 里
 
 获取指定日期之后的作品
 

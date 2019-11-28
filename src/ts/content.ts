@@ -572,9 +572,17 @@ class UI {
 
   private outputInfoPanel: HTMLDivElement = document.createElement('div') // 输出面板
 
-  public pauseBtn: HTMLButtonElement = document.createElement('button') // 暂停下载按钮
+  private pauseBtn: HTMLButtonElement = document.createElement('button') // 暂停下载按钮
 
-  public stopBtn: HTMLButtonElement = document.createElement('button') // 停止下载按钮
+  private stopBtn: HTMLButtonElement = document.createElement('button') // 停止下载按钮
+
+  public get getPauseBtn(){
+    return this.pauseBtn
+  }
+
+  public get getStopBtn(){
+    return this.stopBtn
+  }
 
   // 监听点击扩展图标的消息，开关界面
   private listenClickIcon() {
@@ -944,7 +952,7 @@ class UI {
       <div class="centerWrap_down_tips">
       <p>
       ${lang.transl('_当前状态')}
-      <span class="down_status xz_blue"> ${lang.transl('_未开始下载')}</span>
+      <span class="down_status xz_blue"><span>${lang.transl('_未开始下载')}</span></span>
       <span class="convert_tip xz_blue"></span>
       </p>
       <div class="progressBarWrap">
@@ -1072,7 +1080,7 @@ class UI {
 
     // 显示 url
     document.querySelector('.copyUrl')!.addEventListener('click', () => {
-      output.showUrls()
+      output.showURLs()
     })
 
     // 显示命名字段提示
@@ -1124,6 +1132,12 @@ class UI {
     // 把下拉框的选择项插入到文本框里
     this.insertValueToInput(this.form.pageInfoSelect, this.form.userSetName)
     this.insertValueToInput(this.form.fileNameSelect, this.form.userSetName)
+
+    // 重置设置
+    document.getElementById('resetOption')!.addEventListener('click', () => {
+      this.form.reset()
+      initSetting.reset()
+    })
   }
 
   // 收起展开选项设置区域
@@ -1145,8 +1159,15 @@ class UI {
   }
 
   // 提示下载状态
-  public changeDownStatus(str: string) {
-    document.querySelector('.down_status')!.innerHTML = str
+  public changeDownStatus(str: string,color:string='') {
+    const el = document.createElement('span')
+    el.textContent = str
+    if(color){
+      el.style.color=color
+    }
+    const downStatusEl = document.querySelector('.down_status')!
+    downStatusEl.innerHTML=''
+    downStatusEl.appendChild(el)
   }
 
   // 重置下载面板的信息
@@ -1179,7 +1200,7 @@ class UI {
   }
 
   // 添加 UI
-  public async addUI() {
+  private async addUI() {
     if (this.uiExists) {
       return
     }
@@ -1341,10 +1362,14 @@ class PageInfo {
   }
 
   // 预设为 1 是为了指示这个标记有值，这样在获取到实际值之前，就可以把它插入到下拉框里。
-  public pageTitle = '1'
-  public pageUserName = ''
-  public pageUserID = ''
-  public pageTag = ''
+  private pageTitle = '1'
+  private pageUserName = ''
+  private pageUserID = ''
+  private pageTag = ''
+
+  public get getPageTag(){
+    return this.pageTag
+  }
 
   // 重置。当切换页面时可能旧页面的一些标记在新页面没有了，所以要清除掉
   private reset() {
@@ -2080,24 +2105,16 @@ class InitSetting {
     ) {
       that.saveSetting('tagNameToFileName', this.checked)
     })
-
-    // 重置设置
-    document.getElementById('resetOption')!.addEventListener('click', () => {
-      this.reset()
-    })
   }
 
   // 持久化保存设置
-  public saveSetting(key: keyof XzSetting, value: any) {
+  private saveSetting(key: keyof XzSetting, value: any) {
     this.needSaveOpts[key] = value
     localStorage.setItem(this.storeName, JSON.stringify(this.needSaveOpts))
   }
 
   // 重设选项
   public reset() {
-    // 用表单的 reset 重设选项
-    ui.form.reset()
-
     // 将 needSaveOpts 恢复为默认值
     this.needSaveOpts = this.needSaveOptsDefault
     // 覆写本地存储里的设置为默认值
@@ -2113,13 +2130,13 @@ class DeleteWorks {
     this.worksSelector = worksSelector
   }
 
-  public worksSelector: string = '' // 选择页面上所有作品的选择器
+  private worksSelector: string = '' // 选择页面上所有作品的选择器
 
-  public multipleSelector: string = '._3b8AXEx' // 多图作品特有的元素的标识
+  private multipleSelector: string = '._3b8AXEx' // 多图作品特有的元素的标识
 
-  public ugoiraSelector: string = '.AGgsUWZ' // 动图作品特有的元素的标识
+  private ugoiraSelector: string = '.AGgsUWZ' // 动图作品特有的元素的标识
 
-  public delWork: boolean = false // 是否处于删除作品状态
+  private delWork: boolean = false // 是否处于删除作品状态
 
   // 清除多图作品的按钮
   public addClearMultipleBtn() {
@@ -2163,7 +2180,7 @@ class DeleteWorks {
   }
 
   // 清除多图作品
-  public clearMultiple() {
+  private clearMultiple() {
     const allPicArea = document.querySelectorAll(this.worksSelector)
     allPicArea.forEach(el => {
       if (el.querySelector(this.multipleSelector)) {
@@ -2174,7 +2191,7 @@ class DeleteWorks {
   }
 
   // 清除动图作品
-  public ClearUgoira() {
+  private ClearUgoira() {
     const allPicArea = document.querySelectorAll(this.worksSelector)
     allPicArea.forEach(el => {
       if (el.querySelector(this.ugoiraSelector)) {
@@ -2185,7 +2202,7 @@ class DeleteWorks {
   }
 
   // 手动删除作品
-  public manuallyDelete(delBtn: HTMLButtonElement) {
+  private manuallyDelete(delBtn: HTMLButtonElement) {
     this.delWork = !this.delWork
 
     // 给作品绑定删除属性
@@ -2217,7 +2234,7 @@ class DeleteWorks {
   }
 
   // 显示调整后，列表里的作品数量。仅在搜索页和发现页面中使用
-  public outputNowResult() {
+  private outputNowResult() {
     const selector = this.worksSelector
     log.success(
       lang.transl('_调整完毕', DOM.getVisibleEl(selector).length.toString()),
@@ -2445,8 +2462,6 @@ class AddBookmarksTag {
 
 // 图片查看器类
 class ImgViewer {
-  constructor() {}
-
   private myViewer!: Viewer // 查看器
   private viewerUl: HTMLUListElement = document.createElement('ul') // 图片列表的 ul 元素
   private viewerWarpper: HTMLDivElement = document.createElement('div') // 图片列表的容器
@@ -3063,7 +3078,7 @@ class Output {
   }
 
   // 显示 url
-  public showUrls() {
+  public showURLs() {
     let result = ''
     result = store.result.reduce((total, now) => {
       return (total += now.url + '<br>')
@@ -3080,7 +3095,11 @@ class ConvertUgoira {
 
   private gifWorkerUrl: string = ''
   private count: number = 0 // 统计有几个转换任务
-  public convertTipText: string = ''
+  private convertTipText: string = ''
+
+  public get getconvertTip(){
+    return this.convertTipText
+  }
 
   private async loadWorkerJS() {
     // 添加 zip 的 worker 文件
@@ -3300,7 +3319,7 @@ abstract class InitPageBase {
       | CrawlNewIllustPage
   ) {}
 
-  public abstract crawler:
+  protected abstract crawler:
     | CrawlIndexPage
     | CrawlDiscoverPage
     | CrawlWorkPage
@@ -3322,7 +3341,7 @@ abstract class InitPageBase {
   }
 
   // 清空之前添加的元素
-  public clearOldElements(): void {
+  private clearOldElements(): void {
     document.getElementById('centerWrap_btns_free')!.innerHTML = ''
 
     // 删除右侧的快速下载按钮
@@ -3339,10 +3358,10 @@ abstract class InitPageBase {
   }
 
   // 添加中间按钮
-  public appendCenterBtns() {}
+  protected appendCenterBtns() {}
 
   // 添加其他元素（如果有）
-  public appendElseEl(): void {}
+  protected appendElseEl(): void {}
 
   // 在某些页面里，隐藏不需要的选项。参数是数组，传递设置项的编号。
   public hideNotNeedOption(no: number[]) {
@@ -3355,7 +3374,7 @@ abstract class InitPageBase {
   }
 
   // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。
-  public setFormOptin(): void {
+  protected setFormOptin(): void {
     // 设置页数
     this.setWantPageTip1.textContent = lang.transl('_页数')
     this.setWantPageTip1.dataset.tip = lang.transl('_checkWantPageRule1Arg8')
@@ -3363,14 +3382,14 @@ abstract class InitPageBase {
     this.setWantPage.value = '1'
   }
 
-  public setWantPageWrap = document.querySelector('.xzFormP1')!
-  public setWantPage = this.setWantPageWrap.querySelector(
+  protected setWantPageWrap = document.querySelector('.xzFormP1')!
+  protected setWantPage = this.setWantPageWrap.querySelector(
     '.setWantPage'
   )! as HTMLInputElement
-  public setWantPageTip1 = this.setWantPageWrap.querySelector(
+  protected setWantPageTip1 = this.setWantPageWrap.querySelector(
     '.setWantPageTip1'
   )! as HTMLSpanElement
-  public setWantPageTip2 = this.setWantPageWrap.querySelector(
+  protected setWantPageTip2 = this.setWantPageWrap.querySelector(
     '.setWantPageTip2'
   )! as HTMLSpanElement
 }
@@ -3381,13 +3400,13 @@ class InitIndexPage extends InitPageBase {
     super(crawler)
     this.crawler = crawler
   }
-  public crawler: CrawlIndexPage
+  protected crawler: CrawlIndexPage
 
   private downIdButton = document.createElement('button')
   private downIdInput = document.createElement('textarea')
   private ready = false
 
-  public appendCenterBtns() {
+  protected appendCenterBtns() {
     this.downIdButton = ui.addCenterButton(
       Colors.blue,
       lang.transl('_输入id进行抓取'),
@@ -3410,7 +3429,7 @@ class InitIndexPage extends InitPageBase {
     )
   }
 
-  public appendElseEl() {
+  protected appendElseEl() {
     // 用于输入id的输入框
     this.downIdInput = document.createElement('textarea')
     this.downIdInput.id = 'down_id_input'
@@ -3434,7 +3453,7 @@ class InitIndexPage extends InitPageBase {
     })
   }
 
-  public setFormOptin() {
+  protected setFormOptin() {
     this.hideNotNeedOption([1])
   }
 }
@@ -3445,9 +3464,9 @@ class InitIllustPage extends InitPageBase {
     super(crawler)
     this.crawler = crawler
   }
-  public crawler: CrawlWorkPage
+  protected crawler: CrawlWorkPage
 
-  public appendCenterBtns() {
+  protected appendCenterBtns() {
     ui.addCenterButton(
       Colors.blue,
       lang.transl('_从本页开始抓取new')
@@ -3478,7 +3497,7 @@ class InitIllustPage extends InitPageBase {
     )
   }
 
-  public appendElseEl() {
+  protected appendElseEl() {
     // 在右侧创建快速下载按钮
     const quickDownBtn = document.createElement('div')
     quickDownBtn.id = 'quick_down_btn'
@@ -3495,7 +3514,7 @@ class InitIllustPage extends InitPageBase {
     )
   }
 
-  public setFormOptin() {
+  protected setFormOptin() {
     // 设置抓取的作品数量
     this.setWantPageTip1.textContent = lang.transl('_个数')
     this.setWantPageTip1.dataset.tip =
@@ -3517,9 +3536,9 @@ class InitUserPage extends InitPageBase {
     super(crawler)
     this.crawler = crawler
   }
-  public crawler: CrawlUserPage
+  protected crawler: CrawlUserPage
 
-  public appendCenterBtns() {
+  protected appendCenterBtns() {
     ui.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
     ]).addEventListener('click', () => {
@@ -3555,7 +3574,7 @@ class InitUserPage extends InitPageBase {
     }
   }
 
-  public setFormOptin() {
+  protected setFormOptin() {
     // 设置页数
     this.setWantPageTip1.textContent = lang.transl('_页数')
     this.setWantPageTip1.dataset.tip = lang.transl('_checkWantPageRule1Arg8')
@@ -3575,9 +3594,9 @@ class InitSearchPage extends InitPageBase {
     super(crawler)
     this.crawler = crawler
   }
-  public crawler: CrawlSearchPage
+  protected crawler: CrawlSearchPage
 
-  public appendCenterBtns() {
+  protected appendCenterBtns() {
     ui.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
     ]).addEventListener('click', () => {
@@ -3585,18 +3604,18 @@ class InitSearchPage extends InitPageBase {
     })
   }
 
-  public appendElseEl() {
+  protected appendElseEl() {
     this.fastScreen()
   }
 
   // 打开快速筛选链接
   private openFastScreenLink(secondTag: string) {
     // 拼接两个 tag。因为搜索页面可以无刷新切换搜索的 tag，所以从这里动态获取
-    const firstTag = pageInfo.pageTag.split(' ')[0]
+    const firstTag = pageInfo.getPageTag.split(' ')[0]
     const fullTag = encodeURIComponent(firstTag + ' ' + secondTag)
     // 用新的 tag 替换掉当前网址里的 tag
     let newURL = location.href.replace(
-      encodeURIComponent(pageInfo.pageTag),
+      encodeURIComponent(pageInfo.getPageTag),
       fullTag
     )
     // 添加 s_mode=s_tag 宽松匹配标签
@@ -3646,7 +3665,7 @@ class InitSearchPage extends InitPageBase {
     )
   }
 
-  public setFormOptin() {
+  protected setFormOptin() {
     this.crawler.maxCount = 1000
     this.setWantPageTip1.textContent = lang.transl('_页数')
     this.setWantPageTip1.dataset.tip = lang.transl('_checkWantPageRule1Arg8')
@@ -3661,9 +3680,9 @@ class InitAreaRankingPage extends InitPageBase {
     super(crawler)
     this.crawler = crawler
   }
-  public crawler: CrawlAreaRankingPage
+  protected crawler: CrawlAreaRankingPage
 
-  public appendCenterBtns() {
+  protected appendCenterBtns() {
     ui.addCenterButton(Colors.blue, lang.transl('_抓取本页作品'), [
       ['title', lang.transl('_抓取本页作品Title')]
     ]).addEventListener('click', () => {
@@ -3671,7 +3690,7 @@ class InitAreaRankingPage extends InitPageBase {
     })
   }
 
-  public setFormOptin() {
+  protected setFormOptin() {
     this.hideNotNeedOption([1])
   }
 }
@@ -3682,9 +3701,9 @@ class InitRankingPage extends InitPageBase {
     super(crawler)
     this.crawler = crawler
   }
-  public crawler: CrawlRankingPage
+  protected crawler: CrawlRankingPage
 
-  public appendCenterBtns() {
+  protected appendCenterBtns() {
     ui.addCenterButton(Colors.blue, lang.transl('_抓取本排行榜作品'), [
       ['title', lang.transl('_抓取本排行榜作品Title')]
     ]).addEventListener('click', () => {
@@ -3705,7 +3724,7 @@ class InitRankingPage extends InitPageBase {
     }
   }
 
-  public setFormOptin() {
+  protected setFormOptin() {
     // 设置抓取的作品数量
     this.crawler.maxCount = 500
     this.setWantPageTip1.textContent = lang.transl('_个数')
@@ -3721,9 +3740,9 @@ class InitPixivisionPage extends InitPageBase {
     super(crawler)
     this.crawler = crawler
   }
-  public crawler: CrawlPixivisionPage
+  protected crawler: CrawlPixivisionPage
 
-  public appendCenterBtns() {
+  protected appendCenterBtns() {
     const typeA = document.querySelector(
       'a[data-gtm-action=ClickCategory]'
     )! as HTMLAnchorElement
@@ -3744,7 +3763,7 @@ class InitPixivisionPage extends InitPageBase {
     }
   }
 
-  public setFormOptin() {
+  protected setFormOptin() {
     this.hideNotNeedOption([1, 2, 3, 4, 5, 6, 7, 11, 12, 13])
   }
 }
@@ -3755,9 +3774,9 @@ class InitBookmarkDetailPage extends InitPageBase {
     super(crawler)
     this.crawler = crawler
   }
-  public crawler: CrawlBookmarkDetailPage
+  protected crawler: CrawlBookmarkDetailPage
 
-  public appendCenterBtns() {
+  protected appendCenterBtns() {
     ui.addCenterButton(Colors.blue, lang.transl('_抓取相似图片'), [
       ['title', lang.transl('_抓取相似图片')]
     ]).addEventListener(
@@ -3769,7 +3788,7 @@ class InitBookmarkDetailPage extends InitPageBase {
     )
   }
 
-  public setFormOptin() {
+  protected setFormOptin() {
     // 设置抓取的作品数量
     // 实际上的数字可以更大，这里只是预设一个限制。
     this.crawler.maxCount = 500
@@ -3786,9 +3805,9 @@ class InitBookmarkNewIllustPage extends InitPageBase {
     super(crawler)
     this.crawler = crawler
   }
-  public crawler: CrawlBookmarkNewIllustPage
+  protected crawler: CrawlBookmarkNewIllustPage
 
-  public appendCenterBtns() {
+  protected appendCenterBtns() {
     ui.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
     ]).addEventListener('click', () => {
@@ -3796,7 +3815,7 @@ class InitBookmarkNewIllustPage extends InitPageBase {
     })
   }
 
-  public appendElseEl() {
+  protected appendElseEl() {
     // 添加 R-18 页面的链接
     const r18Link = `<li><a href="/bookmark_new_illust_r18.php">R-18</a></li>`
     const target = document.querySelector('.menu-items')
@@ -3805,7 +3824,7 @@ class InitBookmarkNewIllustPage extends InitPageBase {
     }
   }
 
-  public setFormOptin() {
+  protected setFormOptin() {
     // 设置页数
     this.crawler.maxCount = 100
     this.setWantPageTip1.textContent = lang.transl('_页数')
@@ -3821,9 +3840,9 @@ class InitNewIllustPage extends InitPageBase {
     super(crawler)
     this.crawler = crawler
   }
-  public crawler: CrawlNewIllustPage
+  protected crawler: CrawlNewIllustPage
 
-  public appendCenterBtns() {
+  protected appendCenterBtns() {
     ui.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_下载大家的新作品')]
     ]).addEventListener('click', () => {
@@ -3833,7 +3852,7 @@ class InitNewIllustPage extends InitPageBase {
 
   private timer = 0
 
-  public appendElseEl() {
+  protected appendElseEl() {
     // 添加 R-18 页面的链接
     const r18Link = `<a href="/new_illust_r18.php" style="color:#179fdd;padding-left:20px;">R-18</a>`
     const target = document.querySelector('#root h1')
@@ -3848,7 +3867,7 @@ class InitNewIllustPage extends InitPageBase {
     }
   }
 
-  public setFormOptin() {
+  protected setFormOptin() {
     // 设置抓取的作品数量
     // 最大有 10000 个。但是输入框的默认值设置的少一些比较合理。
     this.crawler.maxCount = 10000
@@ -3865,9 +3884,9 @@ class InitDiscoverPage extends InitPageBase {
     super(crawler)
     this.crawler = crawler
   }
-  public crawler: CrawlDiscoverPage
+  protected crawler: CrawlDiscoverPage
 
-  public appendCenterBtns() {
+  protected appendCenterBtns() {
     ui.addCenterButton(Colors.blue, lang.transl('_抓取当前作品'), [
       ['title', lang.transl('_抓取当前作品Title')]
     ]).addEventListener('click', () => {
@@ -3875,11 +3894,11 @@ class InitDiscoverPage extends InitPageBase {
     })
   }
 
-  public setFormOptin() {
+  protected setFormOptin() {
     this.hideNotNeedOption([1])
   }
 
-  public appendElseEl() {
+  protected appendElseEl() {
     const deleteWorks = new DeleteWorks('._2RNjBox')
     deleteWorks.addClearMultipleBtn()
 
@@ -3900,24 +3919,24 @@ abstract class CrawlPageBase {
   获取作品信息完毕
   */
 
-  public maxCount = 1000 // 当前页面类型最多可以抓取多少个页面/作品
+ protected crawlNumber: number = 0 // 要抓取的个数/页数
 
-  public fetchNumber: number = 0 // 要抓取的个数/页数
+ protected imgNumberPerWork: number = 0 // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
+ 
+ public maxCount = 1000 // 当前页面类型最多有多少个页面/作品
 
-  public startpageNo: number = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、关注的新作品页使用。
+ protected startpageNo: number = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、关注的新作品页使用。
 
-  public listPageFinished: number = 0 // 记录一共抓取了多少个列表页。使用范围同上。
+ protected listPageFinished: number = 0 // 记录一共抓取了多少个列表页。使用范围同上。
 
-  public readonly ajaxThreadsDefault: number = 10 // 抓取时的并发连接数默认值，也是最大值
+ protected readonly ajaxThreadsDefault: number = 10 // 抓取时的并发连接数默认值，也是最大值
 
-  public ajaxThreads: number = this.ajaxThreadsDefault // 抓取时的并发连接数
+ protected ajaxThreads: number = this.ajaxThreadsDefault // 抓取时的并发连接数
 
-  private ajaxThreadsFinished: number = 0 // 统计有几个并发线程完成所有请求。统计的是并发线程（ ajaxThreads ）而非请求数
-
-  public imgNumberPerWork: number = 0 // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
+ protected ajaxThreadsFinished: number = 0 // 统计有几个并发线程完成所有请求。统计的是并发线程（ ajaxThreads ）而非请求数
 
   // 检查用户输入的页数设置，并返回提示信息
-  public checkWantPageInput(crawlPartTip: string, crawlAllTip: string) {
+  protected checkWantPageInput(crawlPartTip: string, crawlAllTip: string) {
     const temp = parseInt(ui.form.setWantPage.value)
 
     // 如果比 1 小，并且不是 -1，则不通过
@@ -3944,7 +3963,7 @@ abstract class CrawlPageBase {
   }
 
   // 获取要下载的页数/个数
-  public getWantPageGreater0() {
+  protected getWantPageGreater0() {
     const result = API.checkNumberGreater0(ui.form.setWantPage.value)
 
     if (result.result) {
@@ -3955,7 +3974,7 @@ abstract class CrawlPageBase {
   }
 
   // 获取作品张数设置
-  public getImgNumberPerWork() {
+  private getImgNumberPerWork() {
     const check = API.checkNumberGreater0(ui.form.imgNumberPerWork.value)
 
     if (check.result) {
@@ -3967,9 +3986,9 @@ abstract class CrawlPageBase {
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
-  public getWantPage() {}
+  protected getWantPage() {}
 
-  public checkNotAllowPage() {
+  private checkNotAllowPage() {
     if (location.href.includes('novel')) {
       window.alert('Not support novel page!')
       throw new Error('Not support novel page!')
@@ -4020,15 +4039,15 @@ abstract class CrawlPageBase {
   }
 
   // 当可以开始抓取时，进入下一个流程。默认情况下，开始获取作品列表。如有不同，由子类具体定义
-  public nextStep() {
+  protected nextStep() {
     this.getIdList()
   }
 
   // 获取作品列表，由各个子类具体定义
-  public abstract getIdList(): void
+  protected abstract getIdList(): void
 
   // 作品列表获取完毕，开始抓取作品内容页
-  public getIdListFinished() {
+  protected getIdListFinished() {
     // 列表页获取完毕后，可以在这里重置一些变量
     this.resetGetIdListStatus()
 
@@ -4049,7 +4068,7 @@ abstract class CrawlPageBase {
 
   // 获取作品的数据
   // 在重试时会传入要重试的 id
-  public async getWorksData(id?: string) {
+  protected async getWorksData(id?: string) {
     id = id || store.idList.shift()!
 
     let data: IllustData
@@ -4201,7 +4220,7 @@ abstract class CrawlPageBase {
   }
 
   // 抓取完毕
-  public crawFinished() {
+  protected crawFinished() {
     dlCtrl.allowWork = true
 
     // 检查快速下载状态
@@ -4237,7 +4256,7 @@ abstract class CrawlPageBase {
   }
 
   // 重设抓取作品列表时使用的变量或标记
-  public abstract resetGetIdListStatus(): void
+  protected abstract resetGetIdListStatus(): void
 
   // 网络请求状态异常时输出提示
   private logErrorStatus(status: number, id: string) {
@@ -4266,7 +4285,7 @@ abstract class CrawlPageBase {
   }
 
   // 在抓取图片网址时，输出提示
-  public outputImgNum() {
+  protected outputImgNum() {
     log.log(
       lang.transl('_抓取图片网址的数量', store.result.length.toString()),
       1,
@@ -4275,7 +4294,7 @@ abstract class CrawlPageBase {
   }
 
   // 抓取结果为 0 时输出提示
-  public noResult() {
+  protected noResult() {
     log.error(lang.transl('_抓取结果为零'), 2)
     window.alert(lang.transl('_抓取结果为零'))
     dlCtrl.allowWork = true
@@ -4283,10 +4302,10 @@ abstract class CrawlPageBase {
   }
 
   // 抓取完成后，对结果进行排序
-  public sortResult() {}
+  protected sortResult() {}
 
   // 清空图片信息并重置输出区域，在重复抓取时使用
-  public resetResult() {
+  protected resetResult() {
     store.reset()
     dlCtrl.downloadedList = []
     dlCtrl.downloadStarted = false
@@ -4300,15 +4319,15 @@ abstract class CrawlPageBase {
 
 // 抓取首页
 class CrawlIndexPage extends CrawlPageBase {
-  public nextStep() {
+  protected nextStep() {
     // 在主页通过id抓取时，不需要获取列表页，直接完成
     log.log(lang.transl('_开始获取作品页面'))
     this.getIdList()
   }
 
-  public getWantPage() {}
+  protected getWantPage() {}
 
-  public getIdList() {
+  protected getIdList() {
     const textarea = document.getElementById(
       'down_id_input'
     ) as HTMLTextAreaElement
@@ -4327,7 +4346,7 @@ class CrawlIndexPage extends CrawlPageBase {
     this.getIdListFinished()
   }
 
-  public resetGetIdListStatus() {}
+  protected resetGetIdListStatus() {}
 }
 
 // 抓取作品页
@@ -4341,20 +4360,20 @@ class CrawlWorkPage extends CrawlPageBase implements IllustPageMembers {
 
   public crawlRelated: boolean = false // 是否下载相关作品（作品页内的）
 
-  public getWantPage() {
+  protected getWantPage() {
     if (dlCtrl.quickDownload) {
       // 快速下载
-      this.fetchNumber = 1
+      this.crawlNumber = 1
     } else {
       // 检查下载页数的设置
       if (!this.crawlRelated) {
-        this.fetchNumber = this.checkWantPageInput(
+        this.crawlNumber = this.checkWantPageInput(
           lang.transl('_checkWantPageRule1Arg3'),
           lang.transl('_checkWantPageRule1Arg4')
         )
       } else {
         // 相关作品的提示
-        this.fetchNumber = this.checkWantPageInput(
+        this.crawlNumber = this.checkWantPageInput(
           lang.transl('_checkWantPageRule1Arg9'),
           lang.transl('_checkWantPageRule1Arg10')
         )
@@ -4362,7 +4381,7 @@ class CrawlWorkPage extends CrawlPageBase implements IllustPageMembers {
     }
   }
 
-  public nextStep() {
+  protected nextStep() {
     // 下载相关作品
     if (this.crawlRelated) {
       this.getRelatedList()
@@ -4397,7 +4416,7 @@ class CrawlWorkPage extends CrawlPageBase implements IllustPageMembers {
     })
 
     // 当设置了下载个数时，进行裁剪
-    if (this.fetchNumber !== -1) {
+    if (this.crawlNumber !== -1) {
       // 新作品 升序排列
       if (this.crawlDirection === -1) {
         store.idList.sort(function(x, y) {
@@ -4410,7 +4429,7 @@ class CrawlWorkPage extends CrawlPageBase implements IllustPageMembers {
         })
       }
 
-      store.idList = store.idList.splice(0, this.fetchNumber)
+      store.idList = store.idList.splice(0, this.crawlNumber)
     }
 
     log.log(
@@ -4427,8 +4446,8 @@ class CrawlWorkPage extends CrawlPageBase implements IllustPageMembers {
     // 取出相关作品的 id 列表
     let recommendIdList = Object.keys(recommendData)
     // 当设置了下载个数时，进行裁剪
-    if (this.fetchNumber !== -1) {
-      recommendIdList = recommendIdList.reverse().slice(0, this.fetchNumber)
+    if (this.crawlNumber !== -1) {
+      recommendIdList = recommendIdList.reverse().slice(0, this.crawlNumber)
     }
     store.idList = store.idList.concat(recommendIdList)
 
@@ -4436,7 +4455,7 @@ class CrawlWorkPage extends CrawlPageBase implements IllustPageMembers {
     this.getIdListFinished()
   }
 
-  public resetGetIdListStatus() {
+  protected resetGetIdListStatus() {
     this.crawlDirection = 0 // 解除下载方向的标记
     this.crawlRelated = false // 解除下载相关作品的标记
   }
@@ -4460,18 +4479,18 @@ class CrawlUserPage extends CrawlPageBase {
 
   public crawlRecommended: boolean = false // 是否抓取推荐作品（收藏页面下方）
 
-  public getWantPage() {
+  protected getWantPage() {
     let pageTip = lang.transl('_checkWantPageRule1Arg7')
     if (this.crawlRecommended) {
       pageTip = lang.transl('_checkWantPageRule1Arg11')
     }
-    this.fetchNumber = this.checkWantPageInput(
+    this.crawlNumber = this.checkWantPageInput(
       lang.transl('_checkWantPageRule1Arg6'),
       pageTip
     )
   }
 
-  public nextStep() {
+  protected nextStep() {
     if (this.crawlRecommended) {
       // 下载推荐图片
       this.getRecommendedList()
@@ -4504,10 +4523,10 @@ class CrawlUserPage extends CrawlPageBase {
 
     // 根据页数设置，计算要下载的个数
     this.requsetNumber = 0
-    if (this.fetchNumber === -1) {
+    if (this.crawlNumber === -1) {
       this.requsetNumber = 9999999
     } else {
-      this.requsetNumber = onceNumber * this.fetchNumber
+      this.requsetNumber = onceNumber * this.crawlNumber
     }
 
     // 设置列表页面的类型
@@ -4589,7 +4608,7 @@ class CrawlUserPage extends CrawlPageBase {
 
     log.log(lang.transl('_正在抓取'))
 
-    if (this.listType === 3 && this.fetchNumber === -1) {
+    if (this.listType === 3 && this.crawlNumber === -1) {
       log.log(lang.transl('_获取全部书签作品'))
     }
   }
@@ -4733,12 +4752,12 @@ class CrawlUserPage extends CrawlPageBase {
     this.getIdListFinished()
   }
 
-  public resetGetIdListStatus() {
+  protected resetGetIdListStatus() {
     this.listPageFinished = 0
     this.crawlRecommended = false // 解除下载推荐作品的标记
   }
 
-  public sortResult() {
+  protected sortResult() {
     if (!location.href.includes('bookmark.php')) {
       // 如果是其他列表页，把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
       store.result.sort(API.sortByProperty('id'))
@@ -4772,21 +4791,21 @@ class CrawlSearchPage extends CrawlPageBase {
     'bgt'
   ]
 
-  public getWantPage() {
-    this.fetchNumber = this.checkWantPageInput(
+  protected getWantPage() {
+    this.crawlNumber = this.checkWantPageInput(
       lang.transl('_checkWantPageRule1Arg6'),
       lang.transl('_checkWantPageRule1Arg7')
     )
 
-    if (this.fetchNumber === -1 || this.fetchNumber > this.maxCount) {
-      this.fetchNumber = this.maxCount
+    if (this.crawlNumber === -1 || this.crawlNumber > this.maxCount) {
+      this.crawlNumber = this.maxCount
     }
   }
 
   // 获取搜索页的数据。因为有多处使用，所以进行了封装
   private async getSearchData(p: number) {
     let data = await API.getSearchData(
-      pageInfo.pageTag,
+      pageInfo.getPageTag,
       this.worksType,
       p,
       this.option
@@ -4794,7 +4813,7 @@ class CrawlSearchPage extends CrawlPageBase {
     return data.body.illust || data.body.illustManga || data.body.manga
   }
 
-  public async nextStep() {
+  protected async nextStep() {
     this.initFetchURL()
 
     this.needCrawlPageCount = await this.calcNeedCrawlPageCount()
@@ -4863,10 +4882,10 @@ class CrawlSearchPage extends CrawlPageBase {
     // 计算从本页开始抓取的话，有多少页
     let needFetchPage = pageCount - this.startpageNo + 1
     // 比较用户设置的页数，取较小的那个数值
-    if (needFetchPage < this.fetchNumber) {
+    if (needFetchPage < this.crawlNumber) {
       return needFetchPage
     } else {
-      return this.fetchNumber
+      return this.crawlNumber
     }
   }
 
@@ -4883,7 +4902,7 @@ class CrawlSearchPage extends CrawlPageBase {
     }
   }
 
-  public async getIdList() {
+  protected async getIdList() {
     let p = this.startpageNo + this.sendCrawlTaskCount
 
     this.sendCrawlTaskCount++
@@ -4939,20 +4958,20 @@ class CrawlSearchPage extends CrawlPageBase {
     }
   }
 
-  public resetGetIdListStatus() {
+  protected resetGetIdListStatus() {
     this.listPageFinished = 0
     this.sendCrawlTaskCount = 0
   }
 
   // 搜索页把下载任务按收藏数从高到低下载
-  public sortResult() {
+  protected sortResult() {
     store.result.sort(API.sortByProperty('bmk'))
   }
 }
 
 // 抓取地区排行榜页面
 class CrawlAreaRankingPage extends CrawlPageBase {
-  public getIdList() {
+  protected getIdList() {
     // 地区排行榜
     const allPicArea = document.querySelectorAll('.ranking-item>.work_wrapper')
 
@@ -4984,7 +5003,7 @@ class CrawlAreaRankingPage extends CrawlPageBase {
     this.getIdListFinished()
   }
 
-  public resetGetIdListStatus() {}
+  protected resetGetIdListStatus() {}
 }
 
 // 抓取排行榜页面
@@ -5011,20 +5030,20 @@ class CrawlRankingPage extends CrawlPageBase {
     }
   }
 
-  public getWantPage() {
+  protected getWantPage() {
     this.listPageFinished = 0
     // 检查下载页数的设置
-    this.fetchNumber = this.checkWantPageInput(
+    this.crawlNumber = this.checkWantPageInput(
       lang.transl('_checkWantPageRule1Arg12'),
       lang.transl('_checkWantPageRule1Arg4')
     )
     // 如果设置的作品个数是 -1，则设置为下载所有作品
-    if (this.fetchNumber === -1) {
-      this.fetchNumber = 500
+    if (this.crawlNumber === -1) {
+      this.crawlNumber = 500
     }
   }
 
-  public nextStep() {
+  protected nextStep() {
     // 设置 option 信息
     // mode 一定要有值，其他选项不需要
     this.option = this.resetOption()
@@ -5063,7 +5082,7 @@ class CrawlRankingPage extends CrawlPageBase {
     const contents = data.contents // 取出作品信息列表
     for (const data of contents) {
       // 下载排行榜所有作品时，会检查是否已经抓取到了指定数量的作品。下载首次登场作品时不检查，抓取所有作品。
-      if (ui.form.debut.value === '0' && data.rank > this.fetchNumber) {
+      if (ui.form.debut.value === '0' && data.rank > this.crawlNumber) {
         complete = true
         break
       }
@@ -5101,7 +5120,7 @@ class CrawlRankingPage extends CrawlPageBase {
     }
   }
 
-  public resetGetIdListStatus() {
+  protected resetGetIdListStatus() {
     this.listPageFinished = 0
     ui.form.debut.value = '0'
   }
@@ -5114,9 +5133,9 @@ class CrawlPixivisionPage extends CrawlPageBase {
     this.getPixivision()
   }
 
-  public getIdList() {}
+  protected getIdList() {}
 
-  public resetGetIdListStatus() {}
+  protected resetGetIdListStatus() {}
 
   public getPixivision() {
     const typeA = document.querySelector(
@@ -5247,21 +5266,21 @@ class CrawlPixivisionPage extends CrawlPageBase {
 
 // 抓取 bookmark_detail 页面
 class CrawlBookmarkDetailPage extends CrawlPageBase {
-  public getWantPage() {
+  protected getWantPage() {
     const check = this.getWantPageGreater0()
     if (check == undefined) {
       return
     }
-    this.fetchNumber = check
+    this.crawlNumber = check
 
-    if (this.fetchNumber > this.maxCount) {
-      this.fetchNumber = this.maxCount
+    if (this.crawlNumber > this.maxCount) {
+      this.crawlNumber = this.maxCount
     }
   }
 
   // 获取相似的作品列表
   public async getIdList() {
-    let data = await API.getRecommenderData(API.getIllustId(), this.fetchNumber)
+    let data = await API.getRecommenderData(API.getIllustId(), this.crawlNumber)
 
     for (const id of data.recommendations) {
       store.idList.push(id.toString())
@@ -5271,28 +5290,28 @@ class CrawlBookmarkDetailPage extends CrawlPageBase {
     this.getIdListFinished()
   }
 
-  public resetGetIdListStatus() {}
+  protected resetGetIdListStatus() {}
 }
 
 // 抓取 关注的新作品
 class CrawlBookmarkNewIllustPage extends CrawlPageBase {
   private r18 = false
-  public getWantPage() {
+  protected getWantPage() {
     const check = this.getWantPageGreater0()
     if (check == undefined) {
       return
     }
-    this.fetchNumber = check
+    this.crawlNumber = check
 
-    if (this.fetchNumber > this.maxCount) {
-      this.fetchNumber = this.maxCount
+    if (this.crawlNumber > this.maxCount) {
+      this.crawlNumber = this.maxCount
     }
 
     this.listPageFinished = 0
-    log.warning(lang.transl('_任务开始1', this.fetchNumber.toString()))
+    log.warning(lang.transl('_任务开始1', this.crawlNumber.toString()))
   }
 
-  public nextStep() {
+  protected nextStep() {
     this.r18 = location.pathname.includes('r18')
 
     const p = API.getURLField(location.href, 'p')
@@ -5338,7 +5357,7 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
 
     // 判断任务状态
     // 如果抓取了所有页面，或者抓取完指定页面
-    if (p >= 100 || this.listPageFinished === this.fetchNumber) {
+    if (p >= 100 || this.listPageFinished === this.crawlNumber) {
       dlCtrl.allowWork = true
       log.log(lang.transl('_列表页抓取完成'))
       this.getIdListFinished()
@@ -5348,28 +5367,28 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
     }
   }
 
-  public resetGetIdListStatus() {
+  protected resetGetIdListStatus() {
     this.listPageFinished = 0
   }
 }
 
 // 抓取 大家的新作品页面
 class CrawlNewIllustPage extends CrawlPageBase {
-  public getWantPage() {
+  protected getWantPage() {
     const check = this.getWantPageGreater0()
     if (check == undefined) {
       return
     }
-    this.fetchNumber = check
+    this.crawlNumber = check
 
-    if (this.fetchNumber > this.maxCount) {
-      this.fetchNumber = this.maxCount
+    if (this.crawlNumber > this.maxCount) {
+      this.crawlNumber = this.maxCount
     }
 
-    log.warning(lang.transl('_抓取多少个作品', this.fetchNumber.toString()))
+    log.warning(lang.transl('_抓取多少个作品', this.crawlNumber.toString()))
   }
 
-  public nextStep() {
+  protected nextStep() {
     this.initFetchURL()
     this.getIdList()
   }
@@ -5393,8 +5412,8 @@ class CrawlNewIllustPage extends CrawlPageBase {
   private initFetchURL() {
     this.option = this.resetOption()
 
-    if (this.fetchNumber < this.limitMax) {
-      this.option.limit = this.fetchNumber.toString()
+    if (this.crawlNumber < this.limitMax) {
+      this.option.limit = this.crawlNumber.toString()
     } else {
       this.option.limit = this.limitMax.toString()
     }
@@ -5420,7 +5439,7 @@ class CrawlNewIllustPage extends CrawlPageBase {
 
     for (const nowData of useData) {
       // 抓取够了指定的数量
-      if (this.fetchCount + 1 > this.fetchNumber) {
+      if (this.fetchCount + 1 > this.crawlNumber) {
         break
       } else {
         this.fetchCount++
@@ -5448,7 +5467,7 @@ class CrawlNewIllustPage extends CrawlPageBase {
 
     // 抓取完毕
     if (
-      this.fetchCount >= this.fetchNumber ||
+      this.fetchCount >= this.crawlNumber ||
       this.fetchCount >= this.maxCount
     ) {
       log.log(lang.transl('_开始获取作品页面'))
@@ -5461,14 +5480,14 @@ class CrawlNewIllustPage extends CrawlPageBase {
     this.getIdList()
   }
 
-  public resetGetIdListStatus() {}
+  protected resetGetIdListStatus() {}
 }
 
 // 抓取发现页面
 class CrawlDiscoverPage extends CrawlPageBase {
-  public getWantPage() {}
+  protected getWantPage() {}
 
-  public getIdList() {
+  protected getIdList() {
     // 在发现页面，仅下载已有部分，所以不需要去获取列表页
     const nowIllust = document.querySelectorAll('.QBU8zAz>a') as NodeListOf<
       HTMLAnchorElement
@@ -5484,7 +5503,7 @@ class CrawlDiscoverPage extends CrawlPageBase {
     this.getIdListFinished()
   }
 
-  public resetGetIdListStatus() {}
+  protected resetGetIdListStatus() {}
 }
 
 // 初始化页面抓取流程
@@ -5660,7 +5679,7 @@ class DownloadControl {
         dlCtrl.quickDownload = false
         titleBar.changeTitle('║')
         ui.changeDownStatus(
-          `<span style="color:#f00">${lang.transl('_已暂停')}</span>`
+          lang.transl('_已暂停'),'#f00'
         )
         log.warning(lang.transl('_已暂停'), 2)
       } else {
@@ -5684,7 +5703,7 @@ class DownloadControl {
       dlCtrl.quickDownload = false
       titleBar.changeTitle('■')
       ui.changeDownStatus(
-        `<span style="color:#f00">${lang.transl('_已停止')}</span>`
+        lang.transl('_已停止'),"#f00"
       )
       log.error(lang.transl('_已停止'), 2)
       dlCtrl.downloadPause = false
@@ -5731,7 +5750,7 @@ class DownloadFile {
       }
 
       // UUID 的情况
-      if (msg.data.uuid) {
+      if (msg.data&&msg.data.uuid) {
         log.error(lang.transl('_uuid'))
       }
     })
@@ -5778,7 +5797,7 @@ class DownloadFile {
     xhr.open('GET', thisImgInfo!.url, true)
     xhr.responseType = 'blob'
     // 中止下载
-    const btns = [ui.pauseBtn, ui.stopBtn]
+    const btns = [ui.getPauseBtn, ui.getStopBtn]
     btns.forEach(el => {
       el.addEventListener('click', () => {
         xhr.abort()
@@ -5947,8 +5966,8 @@ class DownloadFile {
     let text = progress.innerText
 
     // 追加转换文件的提示
-    if (convert.convertTipText) {
-      text += ', ' + convert.convertTipText
+    if (convert.getconvertTip) {
+      text += ', ' + convert.getconvertTip
     }
 
     log.log(text, 2, false)

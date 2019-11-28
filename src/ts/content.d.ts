@@ -873,7 +873,7 @@ interface SearchOption {
 }
 
 // 删除作品的接口
-interface DeleteWorks {
+interface DeleteWorksInterface {
   worksSelector: string // 选择页面上所有作品的选择器
   multipleSelector: string // 多图作品特有的元素的标识
   ugoiraSelector: string // 动图作品特有的元素的标识
