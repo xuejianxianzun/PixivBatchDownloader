@@ -1,10 +1,16 @@
 # 版本升级日志
 
-## 3.2.5 2019-11-28
+## 3.2.5 2019-11-29
+
+- 修复一些 bug
 
 - 优化代码
 
-把一些 public 的属性和方法改成了 private、protected，并在需要的地方使用存取器。
+把一些 public 的属性和方法改成了 private、protected，优化了封装，减少了不必要的暴露。
+
+在需要的地方使用存取器，使得修改状态更加方便，相关代码易于管理。
+
+也对其他地方进行了一些优化。
 
 ## 3.2.4 2019-11-27
 
@@ -1243,10 +1249,6 @@ Viewerjs-mix.js [CSS part](https://github.com/fengyuanchen/viewerjs/blob/master/
 *早期的一些版本升级没有写日志*
 
 ## TODO
-
-changeDownStatus 附近的一些方法移到 dlctr 里
-
-getNotDownType 等移到 ui 里
 
 获取指定日期之后的作品
 
