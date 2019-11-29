@@ -140,6 +140,10 @@ aside .sc-LzLtN {
   max-height: 93vh;
   overflow: auto;
 }
+.centerWrap * {
+  padding: 0;
+  margin: 0;
+}
 .centerWrap p {
   line-height: 24px;
   margin: 0;

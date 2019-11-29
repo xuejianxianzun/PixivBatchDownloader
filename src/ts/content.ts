@@ -572,15 +572,17 @@ class UI {
 
   private outputInfoPanel: HTMLDivElement = document.createElement('div') // 输出面板
 
+  private downloadPanel: HTMLDivElement = document.createElement('div') // 下载面板（只包括下载区域）
+
   private pauseBtn: HTMLButtonElement = document.createElement('button') // 暂停下载按钮
 
   private stopBtn: HTMLButtonElement = document.createElement('button') // 停止下载按钮
 
-  public get getPauseBtn(){
+  public get getPauseBtn() {
     return this.pauseBtn
   }
 
-  public get getStopBtn(){
+  public get getStopBtn() {
     return this.stopBtn
   }
 
@@ -589,9 +591,9 @@ class UI {
     chrome.runtime.onMessage.addListener(msg => {
       if (msg.msg === 'click_icon') {
         if (this.centerPanel.style.display === 'block') {
-          this.centerWrapHide()
+          this.hideCenterPanel()
         } else {
-          this.centerWrapShow()
+          this.showCenterPanel()
         }
       }
     })
@@ -607,7 +609,7 @@ class UI {
     this.rightButton.addEventListener(
       'click',
       () => {
-        this.centerWrapShow()
+        this.showCenterPanel()
       },
       false
     )
@@ -952,7 +954,9 @@ class UI {
       <div class="centerWrap_down_tips">
       <p>
       ${lang.transl('_当前状态')}
-      <span class="down_status xz_blue"><span>${lang.transl('_未开始下载')}</span></span>
+      <span class="down_status xz_blue"><span>${lang.transl(
+        '_未开始下载'
+      )}</span></span>
       <span class="convert_tip xz_blue"></span>
       </p>
       <div class="progressBarWrap">
@@ -969,8 +973,8 @@ class UI {
       </div>
       </div>
       </div>
-      <div class="centerWrap_down_list">
-      <ul>
+      <div>
+      <ul class="centerWrap_down_list">
       <li class="downloadBar">
       <div class="progressBar progressBar2">
       <div class="progress progress2"></div>
@@ -1000,6 +1004,9 @@ class UI {
       '.pauseDownload'
     )! as HTMLButtonElement
     this.stopBtn = document.querySelector('.stopDownload')! as HTMLButtonElement
+    this.downloadPanel = document.querySelector(
+      '.download_panel'
+    ) as HTMLDivElement
   }
 
   // 显示提示
@@ -1051,7 +1058,7 @@ class UI {
     document
       .querySelector('.centerWrap_close')!
       .addEventListener('click', () => {
-        this.centerWrapHide()
+        this.hideCenterPanel()
       })
 
     // 使用快捷键 Alt + x 切换中间面板显示隐藏
@@ -1062,9 +1069,9 @@ class UI {
         if (e.altKey && e.keyCode === 88) {
           const nowDisplay = this.centerPanel.style.display
           if (nowDisplay === 'block') {
-            this.centerWrapHide()
+            this.hideCenterPanel()
           } else {
-            this.centerWrapShow()
+            this.showCenterPanel()
           }
         }
       },
@@ -1136,7 +1143,7 @@ class UI {
     // 重置设置
     document.getElementById('resetOption')!.addEventListener('click', () => {
       this.form.reset()
-      initSetting.reset()
+      saveOption.reset()
     })
   }
 
@@ -1151,29 +1158,13 @@ class UI {
       : '▼'
   }
 
-  // 在进度条上显示已下载数量
-  public showDownloaded() {
-    document.querySelector(
-      '.downloaded'
-    )!.textContent = dlCtrl.downloaded.toString()
-  }
-
-  // 提示下载状态
-  public changeDownStatus(str: string,color:string='') {
-    const el = document.createElement('span')
-    el.textContent = str
-    if(color){
-      el.style.color=color
-    }
-    const downStatusEl = document.querySelector('.down_status')!
-    downStatusEl.innerHTML=''
-    downStatusEl.appendChild(el)
+  // 返回显示下载状态的元素
+  public getDownStatusEl() {
+    return document.querySelector('.down_status')
   }
 
   // 重置下载面板的信息
-  public resetDownloadProcess() {
-    this.showDownloaded()
-
+  public resetDownloadPanel() {
     for (const el of document.querySelectorAll('.imgNum')) {
       el.textContent = store.result.length.toString()
     }
@@ -1192,11 +1183,12 @@ class UI {
   }
 
   // 显示或隐藏下载面板
-  public downloadPanelDisplay(str: string) {
-    const download_panel = document.querySelector(
-      '.download_panel'
-    ) as HTMLDivElement
-    download_panel.style.display = str
+  public showDownloadPanel() {
+    this.downloadPanel.style.display = 'block'
+  }
+
+  public hideDownloadPanel() {
+    this.downloadPanel.style.display = 'none'
   }
 
   // 添加 UI
@@ -1225,13 +1217,13 @@ class UI {
   // }
 
   // 显示中间区域
-  public centerWrapShow() {
+  public showCenterPanel() {
     this.centerPanel.style.display = 'block'
     this.rightButton.style.display = 'none'
   }
 
   // 隐藏中间区域
-  public centerWrapHide() {
+  public hideCenterPanel() {
     this.centerPanel.style.display = 'none'
     this.rightButton.style.display = 'block'
     this.outputInfoPanel.style.display = 'none'
@@ -1257,6 +1249,98 @@ class UI {
     )! as HTMLDivElement
     centerBtnWrap.appendChild(e)
     return e
+  }
+
+  // 获取排除类型
+  public getNotDownType() {
+    let result = Array.from(ui.form.querySelectorAll('.xzFormP5 input')).reduce(
+      (result, el, index) => {
+        const thisElement = el as HTMLInputElement
+        if (thisElement.checked === false) {
+          return (result += index)
+        } else {
+          return result
+        }
+      },
+      ''
+    )
+    return result
+  }
+
+  // 设置下载状态
+  public setDownState(str: string, color: string = '') {
+    const downStatusEl = this.getDownStatusEl()
+    if (!downStatusEl) {
+      return
+    }
+
+    const el = document.createElement('span')
+    el.textContent = str
+    if (color) {
+      el.style.color = color
+    }
+    downStatusEl.innerHTML = ''
+    downStatusEl.appendChild(el)
+  }
+
+  // 显示总的下载进度
+  public showDownloadProgress(downloaded: number) {
+    // 在总进度条上显示已下载数量
+    document.querySelector('.downloaded')!.textContent = downloaded.toString()
+
+    // 设置总进度条的进度
+    const progress = (downloaded / store.result.length) * 100
+    const progressBar = document.querySelector('.progress1')! as HTMLDivElement
+    progressBar.style.width = progress + '%'
+  }
+
+  // 所有下载进度条
+  private allDownloadBar: NodeListOf<
+    HTMLDivElement
+  > = document.querySelectorAll('.downloadBar')
+
+  // 重设下载进度条的数量
+  public resetDownloadBar(num: number) {
+    const centerWrapDownList = document.querySelector(
+      '.centerWrap_down_list'
+    ) as HTMLDivElement
+
+    this.allDownloadBar = centerWrapDownList.querySelectorAll('.downloadBar')
+
+    if (this.allDownloadBar.length !== num) {
+      centerWrapDownList.innerHTML = this.allDownloadBar[0].outerHTML.repeat(
+        num
+      )
+    }
+
+    centerWrapDownList.style.display = 'block'
+
+    // 缓存所有下载进度条元素
+    this.allDownloadBar = centerWrapDownList.querySelectorAll('.downloadBar')
+  }
+
+  // 设置单个进度条的信息
+  public setDownloadBar(
+    index: number,
+    name: string,
+    loaded: number,
+    total: number
+  ) {
+    const el = this.allDownloadBar[index]
+
+    el.querySelector('.download_fileName')!.textContent = name
+
+    const loadedBar = el.querySelector('.loaded') as HTMLDivElement
+    loadedBar.textContent = `${Math.floor(loaded / 1024)}/${Math.floor(
+      total / 1024
+    )}`
+
+    const progressBar = el.querySelector('.progress') as HTMLDivElement
+    let progress = loaded / total
+    if (isNaN(progress)) {
+      progress = 0
+    }
+    progressBar.style.width = progress * 100 + '%'
   }
 }
 
@@ -1367,7 +1451,7 @@ class PageInfo {
   private pageUserID = ''
   private pageTag = ''
 
-  public get getPageTag(){
+  public get getPageTag() {
     return this.pageTag
   }
 
@@ -1608,18 +1692,8 @@ class Filter {
   }
 
   // 获取排除类型
-  public getNotDownType() {
-    let result = Array.from(ui.form.querySelectorAll('.xzFormP5 input')).reduce(
-      (result, el, index) => {
-        const thisElement = el as HTMLInputElement
-        if (thisElement.checked === false) {
-          return (result += index)
-        } else {
-          return result
-        }
-      },
-      ''
-    )
+  private getNotDownType() {
+    let result = ui.getNotDownType()
 
     // 如果全部排除则取消任务
     if (result.includes('012')) {
@@ -1927,9 +2001,9 @@ class Filter {
   }
 }
 
-// 初始化下载面板的设置项，以及在用户修改时保存设置
-// 只有部分设置会被持久化保存
-class InitSetting {
+// 保存和初始化下载面板的设置项
+// 只有部分设置会被保存
+class SaveOption {
   constructor() {
     this.restoreOption()
     this.bindOptionEvent()
@@ -1938,7 +2012,7 @@ class InitSetting {
   // 本地存储中使用的 name
   private readonly storeName = 'xzSetting'
 
-  // 储存需要持久化保存的设置的默认值
+  // 需要持久化保存的设置的默认值
   private readonly needSaveOptsDefault: XzSetting = {
     imgNumberPerWork: 0,
     notdownType: '',
@@ -2049,7 +2123,7 @@ class InitSetting {
       // 根据 notdownType 里的记录，选中或者取消选中
       let element = ui.form[this.notdownTypeName[index]] as HTMLInputElement
       element.addEventListener('click', () => {
-        this.saveSetting('notdownType', filter.getNotDownType())
+        this.saveSetting('notdownType', ui.getNotDownType())
       })
     }
 
@@ -2145,7 +2219,7 @@ class DeleteWorks {
     ]).addEventListener(
       'click',
       () => {
-        ui.centerWrapHide()
+        ui.hideCenterPanel()
         this.clearMultiple()
       },
       false
@@ -2159,7 +2233,7 @@ class DeleteWorks {
     ]).addEventListener(
       'click',
       () => {
-        ui.centerWrapHide()
+        ui.hideCenterPanel()
         this.ClearUgoira()
       },
       false
@@ -2216,7 +2290,7 @@ class DeleteWorks {
           e.preventDefault()
 
           DOM.removeEl(e.currentTarget as HTMLElement)
-          if (dlCtrl.allowWork) {
+          if (store.states.allowWork) {
             this.outputNowResult()
           }
         }
@@ -2226,7 +2300,7 @@ class DeleteWorks {
     if (this.delWork) {
       delBtn.textContent = lang.transl('_退出手动删除')
       setTimeout(() => {
-        ui.centerWrapHide()
+        ui.hideCenterPanel()
       }, 300)
     } else {
       delBtn.textContent = lang.transl('_手动删除作品')
@@ -2753,16 +2827,31 @@ class Store {
 
   public rankList: RankList = {} // 储存作品在排行榜中的排名
 
+  public states = {
+    allowWork: true, // 当前是否允许展开工作（如果抓取未完成、下载未完成则应为 false
+    quickDownload: false // 快速下载当前作品，这个只在作品页内直接下载时使用
+  }
+
   public pageInfo = {
     pageUserName: '',
     pageUserID: '',
     pageTag: ''
   }
 
-  public reset() {
+  public resetResult() {
     this.result = []
     this.idList = []
     this.rankList = {}
+  }
+
+  public resetStates() {
+    this.states.allowWork = true
+    this.states.quickDownload = false
+  }
+
+  public resetAll() {
+    this.resetResult()
+    this.resetStates()
   }
 
   // 添加每个图片的信息。某些参数允许传空值
@@ -2880,7 +2969,7 @@ class FileName {
       },
       {
         name: '{p_uid}',
-        value: store.pageInfo.pageUserID ? DOM.getUserId() : '',
+        value: store.pageInfo.pageUserID || '',
         prefix: '',
         safe: true
       },
@@ -3038,7 +3127,7 @@ class FileName {
     }
 
     // 快速下载时，如果只有一个文件，则不建立文件夹
-    if (dlCtrl.quickDownload && store.result.length === 1) {
+    if (store.states.quickDownload && store.result.length === 1) {
       const index = result.lastIndexOf('/')
       result = result.substr(index + 1, result.length)
     }
@@ -3097,7 +3186,7 @@ class ConvertUgoira {
   private count: number = 0 // 统计有几个转换任务
   private convertTipText: string = ''
 
-  public get getconvertTip(){
+  public get getconvertTip() {
     return this.convertTipText
   }
 
@@ -3128,7 +3217,7 @@ class ConvertUgoira {
     convertTip.innerText = this.convertTipText
 
     // 在日志里显示转换数量
-    dlFile.showTotalProgress()
+    dlCtrl.LogDownloadProgress()
   }
 
   // 解压 zip 文件
@@ -3308,7 +3397,7 @@ abstract class InitPageBase {
     crawler:
       | CrawlIndexPage
       | CrawlDiscoverPage
-      | CrawlWorkPage
+      | CrawlWorksPage
       | CrawlUserPage
       | CrawlSearchPage
       | CrawlAreaRankingPage
@@ -3322,7 +3411,7 @@ abstract class InitPageBase {
   protected abstract crawler:
     | CrawlIndexPage
     | CrawlDiscoverPage
-    | CrawlWorkPage
+    | CrawlWorksPage
     | CrawlUserPage
     | CrawlSearchPage
     | CrawlAreaRankingPage
@@ -3417,7 +3506,7 @@ class InitIndexPage extends InitPageBase {
       () => {
         if (!this.ready) {
           // 还没准备好
-          ui.centerWrapHide()
+          ui.hideCenterPanel()
           this.downIdInput.style.display = 'block'
           this.downIdInput.focus()
           document.documentElement.scrollTop = 0
@@ -3443,11 +3532,11 @@ class InitIndexPage extends InitPageBase {
       // 当输入框内容改变时检测，非空值时显示下载面板
       if (this.downIdInput.value !== '') {
         this.ready = true
-        ui.centerWrapShow()
+        ui.showCenterPanel()
         this.downIdButton.textContent = lang.transl('_开始抓取')
       } else {
         this.ready = false
-        ui.centerWrapHide()
+        ui.hideCenterPanel()
         this.downIdButton.textContent = lang.transl('_输入id进行抓取')
       }
     })
@@ -3459,12 +3548,12 @@ class InitIndexPage extends InitPageBase {
 }
 
 //初始化作品页
-class InitIllustPage extends InitPageBase {
-  constructor(crawler: CrawlWorkPage) {
+class InitWorksPage extends InitPageBase {
+  constructor(crawler: CrawlWorksPage) {
     super(crawler)
     this.crawler = crawler
   }
-  protected crawler: CrawlWorkPage
+  protected crawler: CrawlWorksPage
 
   protected appendCenterBtns() {
     ui.addCenterButton(
@@ -3507,7 +3596,7 @@ class InitIllustPage extends InitPageBase {
     quickDownBtn.addEventListener(
       'click',
       () => {
-        dlCtrl.quickDownload = true
+        store.states.quickDownload = true
         this.crawler.readyCrawl()
       },
       false
@@ -3919,21 +4008,21 @@ abstract class CrawlPageBase {
   获取作品信息完毕
   */
 
- protected crawlNumber: number = 0 // 要抓取的个数/页数
+  protected crawlNumber: number = 0 // 要抓取的个数/页数
 
- protected imgNumberPerWork: number = 0 // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
- 
- public maxCount = 1000 // 当前页面类型最多有多少个页面/作品
+  protected imgNumberPerWork: number = 0 // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
 
- protected startpageNo: number = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、关注的新作品页使用。
+  public maxCount = 1000 // 当前页面类型最多有多少个页面/作品
 
- protected listPageFinished: number = 0 // 记录一共抓取了多少个列表页。使用范围同上。
+  protected startpageNo: number = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、关注的新作品页使用。
 
- protected readonly ajaxThreadsDefault: number = 10 // 抓取时的并发连接数默认值，也是最大值
+  protected listPageFinished: number = 0 // 记录一共抓取了多少个列表页。使用范围同上。
 
- protected ajaxThreads: number = this.ajaxThreadsDefault // 抓取时的并发连接数
+  protected readonly ajaxThreadsDefault: number = 10 // 抓取时的并发连接数默认值，也是最大值
 
- protected ajaxThreadsFinished: number = 0 // 统计有几个并发线程完成所有请求。统计的是并发线程（ ajaxThreads ）而非请求数
+  protected ajaxThreads: number = this.ajaxThreadsDefault // 抓取时的并发连接数
+
+  protected ajaxThreadsFinished: number = 0 // 统计有几个并发线程完成所有请求。统计的是并发线程（ ajaxThreads ）而非请求数
 
   // 检查用户输入的页数设置，并返回提示信息
   protected checkWantPageInput(crawlPartTip: string, crawlAllTip: string) {
@@ -3958,7 +4047,7 @@ abstract class CrawlPageBase {
   private getWantPageError() {
     const msg = lang.transl('_checkWantPageRule1Arg2')
     window.alert(msg)
-    dlCtrl.allowWork = true
+    store.states.allowWork = true
     throw new Error(msg)
   }
 
@@ -4005,7 +4094,7 @@ abstract class CrawlPageBase {
     // 检查是否可以开始抓取
     this.checkNotAllowPage()
 
-    if (!dlCtrl.allowWork || dlCtrl.downloadStarted) {
+    if (!store.states.allowWork) {
       window.alert(lang.transl('_当前任务尚未完成2'))
       return
     }
@@ -4015,7 +4104,7 @@ abstract class CrawlPageBase {
     log.success(lang.transl('_任务开始0'))
     // log.log(lang.transl('_本次任务条件'))
 
-    ui.downloadPanelDisplay('none')
+    ui.hideDownloadPanel()
 
     this.getWantPage()
 
@@ -4028,7 +4117,7 @@ abstract class CrawlPageBase {
     this.resetResult()
 
     // 开始执行时，标记任务状态，当前任务结束后才能再启动新任务
-    dlCtrl.allowWork = false
+    store.states.allowWork = false
 
     await pageInfo.store()
 
@@ -4221,10 +4310,7 @@ abstract class CrawlPageBase {
 
   // 抓取完毕
   protected crawFinished() {
-    dlCtrl.allowWork = true
-
-    // 检查快速下载状态
-    let autoDownload: boolean = ui.form.quietDownload.checked
+    store.states.allowWork = true
 
     if (store.result.length === 0) {
       return this.noResult()
@@ -4234,25 +4320,7 @@ abstract class CrawlPageBase {
 
     log.log(lang.transl('_抓取完毕'), 2)
 
-    if (!autoDownload && !dlCtrl.quickDownload) {
-      titleBar.changeTitle('▶')
-    }
-
-    dlCtrl.downloaded = 0
-    ui.resetDownloadProcess() // 重置下载面板
-
-    // 显示下载区域
-    ui.downloadPanelDisplay('block')
-
-    // 显示中间面板
-    if (!dlCtrl.quickDownload) {
-      ui.centerWrapShow()
-    }
-
-    // 视情况自动开始下载
-    if (dlCtrl.quickDownload || autoDownload) {
-      dlCtrl.startDownload()
-    }
+    dlCtrl.beforeDownload()
   }
 
   // 重设抓取作品列表时使用的变量或标记
@@ -4297,22 +4365,19 @@ abstract class CrawlPageBase {
   protected noResult() {
     log.error(lang.transl('_抓取结果为零'), 2)
     window.alert(lang.transl('_抓取结果为零'))
-    dlCtrl.allowWork = true
+    store.states.allowWork = true
     titleBar.reset()
   }
 
   // 抓取完成后，对结果进行排序
   protected sortResult() {}
 
-  // 清空图片信息并重置输出区域，在重复抓取时使用
+  // 清空之前的抓取信息并重置输出区域，在重复抓取时使用
   protected resetResult() {
-    store.reset()
-    dlCtrl.downloadedList = []
-    dlCtrl.downloadStarted = false
-    dlCtrl.downloadPause = false
-    dlCtrl.downloadStop = false
+    store.resetResult()
+    dlCtrl.reset()
     titleBar.reset()
-    ui.centerWrapHide()
+    ui.hideCenterPanel()
     output.reset()
   }
 }
@@ -4350,18 +4415,18 @@ class CrawlIndexPage extends CrawlPageBase {
 }
 
 // 抓取作品页
-class CrawlWorkPage extends CrawlPageBase implements IllustPageMembers {
-  public crawlDirection: number = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品
+class CrawlWorksPage extends CrawlPageBase implements IllustPageMembers {
   /*
   -1 抓取新作品
   0 不设置抓取方向
   1 抓取旧作品
   */
+  public crawlDirection: number = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品
 
   public crawlRelated: boolean = false // 是否下载相关作品（作品页内的）
 
   protected getWantPage() {
-    if (dlCtrl.quickDownload) {
+    if (store.states.quickDownload) {
       // 快速下载
       this.crawlNumber = 1
     } else {
@@ -4385,7 +4450,7 @@ class CrawlWorkPage extends CrawlPageBase implements IllustPageMembers {
     // 下载相关作品
     if (this.crawlRelated) {
       this.getRelatedList()
-    } else if (dlCtrl.quickDownload) {
+    } else if (store.states.quickDownload) {
       // 快速下载
       store.idList.push(API.getIllustId(window.location.href))
 
@@ -4499,7 +4564,7 @@ class CrawlUserPage extends CrawlPageBase {
     }
   }
 
-  public readyGetIdList() {
+  protected readyGetIdList() {
     // 每次开始时重置一些条件
     this.offset = 0
     this.idList = []
@@ -4586,7 +4651,7 @@ class CrawlUserPage extends CrawlPageBase {
           this.getIdListByTag('illustmanga')
         } else {
           // 无法处理的情况
-          dlCtrl.allowWork = true
+          store.states.allowWork = true
           throw new Error('Unknown instance.')
         }
       }
@@ -4614,7 +4679,7 @@ class CrawlUserPage extends CrawlPageBase {
   }
 
   // 获取用户的全部作品列表
-  public async getIdList() {
+  protected async getIdList() {
     let type: userWorksType[] = []
 
     // 插画和漫画列表页
@@ -4734,7 +4799,7 @@ class CrawlUserPage extends CrawlPageBase {
   }
 
   // 获取书签页面下方的推荐作品列表
-  public getRecommendedList() {
+  private getRecommendedList() {
     // 获取下方已经加载出来的作品
     const elements = document.querySelectorAll(
       '#illust-recommend .image-item'
@@ -4996,7 +5061,6 @@ class CrawlAreaRankingPage extends CrawlPageBase {
       }
     }
 
-    dlCtrl.allowWork = false
     log.log(
       lang.transl('_列表抓取完成开始获取作品页', store.idList.length.toString())
     )
@@ -5016,7 +5080,7 @@ class CrawlRankingPage extends CrawlPageBase {
 
   private option: RankingOption = this.resetOption()
 
-  public setPartNum() {
+  private setPartNum() {
     // 设置页数。排行榜页面一页有50张作品，当页面到达底部时会加载下一页
     if (location.pathname.includes('r18g')) {
       // r18g 只有1个榜单，固定1页
@@ -5057,7 +5121,7 @@ class CrawlRankingPage extends CrawlPageBase {
     this.getIdList()
   }
 
-  public async getIdList() {
+  protected async getIdList() {
     this.option.p = this.startpageNo + this.listPageFinished
 
     // 发起请求，获取作品列表
@@ -5137,7 +5201,7 @@ class CrawlPixivisionPage extends CrawlPageBase {
 
   protected resetGetIdListStatus() {}
 
-  public getPixivision() {
+  private getPixivision() {
     const typeA = document.querySelector(
       'a[data-gtm-action=ClickCategory]'
     )! as HTMLAnchorElement
@@ -5214,7 +5278,7 @@ class CrawlPixivisionPage extends CrawlPageBase {
     }
   }
 
-  public tested: number = 0 // 检查图片后缀名时的计数
+  private tested: number = 0 // 检查图片后缀名时的计数
 
   // 测试图片 url 是否正确的函数。pixivision 页面直接获取的图片 url，后缀都是jpg的，所以要测试实际上是jpg还是png
   private testExtName(url: string, imgNumber: number, imgInfoData: any) {
@@ -5279,7 +5343,7 @@ class CrawlBookmarkDetailPage extends CrawlPageBase {
   }
 
   // 获取相似的作品列表
-  public async getIdList() {
+  protected async getIdList() {
     let data = await API.getRecommenderData(API.getIllustId(), this.crawlNumber)
 
     for (const id of data.recommendations) {
@@ -5320,7 +5384,7 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
     this.getIdList()
   }
 
-  public async getIdList() {
+  protected async getIdList() {
     let p = this.startpageNo + this.listPageFinished
 
     // 发起请求，获取列表页
@@ -5358,7 +5422,7 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
     // 判断任务状态
     // 如果抓取了所有页面，或者抓取完指定页面
     if (p >= 100 || this.listPageFinished === this.crawlNumber) {
-      dlCtrl.allowWork = true
+      store.states.allowWork = true
       log.log(lang.transl('_列表页抓取完成'))
       this.getIdListFinished()
     } else {
@@ -5426,7 +5490,7 @@ class CrawlNewIllustPage extends CrawlPageBase {
     this.option.r18 = (location.href.includes('_r18.php') || false).toString()
   }
 
-  public async getIdList() {
+  protected async getIdList() {
     let data: NewIllustData
     try {
       data = await API.getNewIllustData(this.option)
@@ -5519,7 +5583,7 @@ class InitCrawlProcess {
         result = new InitIndexPage(new CrawlIndexPage())
         break
       case 1:
-        result = new InitIllustPage(new CrawlWorkPage())
+        result = new InitWorksPage(new CrawlWorksPage())
         break
       case 2:
         result = new InitUserPage(new CrawlUserPage())
@@ -5560,52 +5624,105 @@ class InitCrawlProcess {
 // 下载控制类
 // 任务状态，任务标记
 class DownloadControl {
-  public readonly downloadThreadMax: number = 5 // 同时下载的线程数的最大值，也是默认值
+  private readonly downloadThreadMax: number = 5 // 同时下载的线程数的最大值，也是默认值
 
-  public downloadThread: number = this.downloadThreadMax // 同时下载的线程数
-
-  public quickDownload: boolean = false // 快速下载当前作品，这个只在作品页内直接下载时使用
+  private downloadThread: number = this.downloadThreadMax // 同时下载的线程数
 
   public taskBatch = 0 // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
 
-  public downloadedList: number[] = [] // 标记已完成的完成的下载任务
+  private downloadStatesList: number[] = [] // 标记每个下载任务的完成状态
 
-  public allowWork: boolean = true // 当前是否允许展开工作（如果有未完成的任务则应为 false
+  private downloaded: number = 0 // 已下载的任务数量
 
-  public downloaded: number = 0 // 已下载的文件数量
+  public get getDownloaded() {
+    return this.downloaded
+  }
 
-  public reTryTimer: number = 0 // 重试下载的定时器
+  public set setDownloaded(val: number) {
+    this.downloaded = val
+    ui.showDownloadProgress(this.downloaded)
+    this.LogDownloadProgress()
 
-  public downloadStarted: boolean = false // 下载是否已经开始
+    // 重置下载进度信息
+    if (val === 0) {
+      ui.resetDownloadPanel()
+    }
 
-  public downloadStop: boolean = false // 是否停止下载
+    // 下载完毕
+    if (val === store.result.length) {
+      store.resetStates()
+      this.reset()
+      ui.setDownState(lang.transl('_下载完毕'))
+      log.success(lang.transl('_下载完毕'), 2)
+      titleBar.changeTitle('√')
+    }
+  }
 
-  public downloadPause: boolean = false // 是否暂停下载
+  private reTryTimer: number = 0 // 重试下载的定时器
+
+  private downloadStop: boolean = false // 是否停止下载
+
+  private downloadPause: boolean = false // 是否暂停下载
+
+  // 返回任务停止状态。暂停和停止都视为停止下载
+  public get downloadStopped() {
+    return this.downloadPause || this.downloadStop
+  }
+
+  public reset() {
+    this.downloadStatesList = []
+    this.downloadPause = false
+    this.downloadStop = false
+    clearTimeout(this.reTryTimer)
+  }
+
+  // 抓取完毕之后，已经可以开始下载时，根据一些状态进行处理
+  public beforeDownload() {
+    this.setDownloaded = 0
+
+    // 显示下载区域
+    ui.showDownloadPanel()
+
+    // 显示中间面板
+    if (!store.states.quickDownload) {
+      ui.showCenterPanel()
+    }
+
+    let autoDownload: boolean = ui.form.quietDownload.checked
+
+    if (!autoDownload && !store.states.quickDownload) {
+      titleBar.changeTitle('▶')
+    }
+
+    // 视情况自动开始下载
+    if (autoDownload || store.states.quickDownload) {
+      dlCtrl.startDownload()
+    }
+  }
 
   // 开始下载
   public startDownload() {
     // 如果正在下载中，或无图片，则不予处理
-    if (dlCtrl.downloadStarted || store.result.length === 0) {
+    if (!store.states.allowWork || store.result.length === 0) {
       return
     }
 
     // 如果之前不是暂停状态，则需要重新下载
     if (!dlCtrl.downloadPause) {
-      dlCtrl.downloaded = 0
-      ui.resetDownloadProcess()
+      this.setDownloaded = 0
       // 初始化下载记录
       // 状态：
       // -1 未使用
       // 0 使用中
       // 1 已完成
-      dlCtrl.downloadedList = new Array(store.result.length).fill(-1)
-      dlCtrl.taskBatch = new Date().getTime() // 修改本次下载任务的标记
+      this.downloadStatesList = new Array(store.result.length).fill(-1)
+      this.taskBatch = new Date().getTime() // 修改本批下载任务的标记
     } else {
       // 继续下载
       // 把“使用中”的下载状态重置为“未使用”
-      for (let index = 0; index < dlCtrl.downloadedList.length; index++) {
-        if (dlCtrl.downloadedList[index] === 0) {
-          dlCtrl.downloadedList[index] = -1
+      for (let index = 0; index < this.downloadStatesList.length; index++) {
+        if (this.downloadStatesList[index] === 0) {
+          this.downloadStatesList[index] = -1
         }
       }
     }
@@ -5624,63 +5741,49 @@ class DownloadControl {
     }
 
     // 如果剩余任务数量少于下载线程数
-    if (store.result.length - dlCtrl.downloaded < this.downloadThread) {
-      this.downloadThread = store.result.length - dlCtrl.downloaded
+    if (store.result.length - this.downloaded < this.downloadThread) {
+      this.downloadThread = store.result.length - this.downloaded
     }
 
     // 重设下载进度条的数量
-    const centerWrapDownList = document.querySelector(
-      '.centerWrap_down_list'
-    ) as HTMLDivElement
-    let downloadBarList = centerWrapDownList.querySelectorAll('.downloadBar')
-    if (downloadBarList.length !== this.downloadThread) {
-      centerWrapDownList.innerHTML = downloadBarList[0].outerHTML.repeat(
-        this.downloadThread
-      )
-    }
-    downloadBarList = centerWrapDownList.querySelectorAll('.downloadBar')
-    centerWrapDownList.style.display = 'block'
+    ui.resetDownloadBar(this.downloadThread)
 
     // 重置一些条件
-    dlCtrl.downloadPause = false
-    dlCtrl.downloadStop = false
-    dlCtrl.downloadStarted = true
-    clearTimeout(dlCtrl.reTryTimer)
+    store.states.allowWork = false
+    this.downloadPause = false
+    this.downloadStop = false
+    clearTimeout(this.reTryTimer)
 
     // 启动或继续下载，建立并发下载线程
     for (let i = 0; i < this.downloadThread; i++) {
       dlFile.download(i)
     }
 
-    ui.changeDownStatus(lang.transl('_正在下载中'))
+    ui.setDownState(lang.transl('_正在下载中'))
 
     log.log(lang.transl('_正在下载中'))
-    dlFile.showTotalProgress()
   }
 
   // 暂停下载
   public pauseDownload() {
-    clearTimeout(dlCtrl.reTryTimer)
+    clearTimeout(this.reTryTimer)
 
     if (store.result.length === 0) {
       return
     }
 
     // 停止的优先级高于暂停。点击停止可以取消暂停状态，但点击暂停不能取消停止状态
-    if (dlCtrl.downloadStop === true) {
+    if (this.downloadStop === true) {
       return
     }
 
-    if (dlCtrl.downloadPause === false) {
+    if (this.downloadPause === false) {
       // 如果正在下载中
-      if (dlCtrl.downloadStarted) {
-        dlCtrl.downloadPause = true // 发出暂停信号
-        dlCtrl.downloadStarted = false
-        dlCtrl.quickDownload = false
+      if (!store.states.allowWork) {
+        this.downloadPause = true // 发出暂停信号
+        store.states.allowWork = true
         titleBar.changeTitle('║')
-        ui.changeDownStatus(
-          lang.transl('_已暂停'),'#f00'
-        )
+        ui.setDownState(lang.transl('_已暂停'), '#f00')
         log.warning(lang.transl('_已暂停'), 2)
       } else {
         // 不在下载中的话不允许启用暂停功能
@@ -5691,36 +5794,78 @@ class DownloadControl {
 
   // 停止下载
   public stopDownload() {
-    clearTimeout(dlCtrl.reTryTimer)
+    clearTimeout(this.reTryTimer)
 
-    if (store.result.length === 0) {
+    if (store.result.length === 0 || this.downloadStop) {
       return
     }
 
-    if (dlCtrl.downloadStop === false) {
-      dlCtrl.downloadStop = true
-      dlCtrl.downloadStarted = false
-      dlCtrl.quickDownload = false
-      titleBar.changeTitle('■')
-      ui.changeDownStatus(
-        lang.transl('_已停止'),"#f00"
-      )
-      log.error(lang.transl('_已停止'), 2)
-      dlCtrl.downloadPause = false
-    }
+    this.downloadStop = true
+    store.states.allowWork = true
+    titleBar.changeTitle('■')
+    ui.setDownState(lang.transl('_已停止'), '#f00')
+    log.error(lang.transl('_已停止'), 2)
+    this.downloadPause = false
   }
 
   // 重试下载
   public reTryDownload() {
     // 如果下载已经完成，则不执行操作
-    if (dlCtrl.downloaded === store.result.length) {
+    if (this.downloaded === store.result.length) {
       return
     }
     // 暂停下载并在一定时间后重试下载
     this.pauseDownload()
-    dlCtrl.reTryTimer = setTimeout(() => {
+    this.reTryTimer = setTimeout(() => {
       this.startDownload()
     }, 1000)
+  }
+
+  // 设置已下载列表中的标记
+  public setDownloadedIndex(index: number, value: -1 | 0 | 1) {
+    this.downloadStatesList[index] = value
+  }
+
+  // 当一个文件下载完成后，检查是否还有后续下载任务
+  public checkContinueDownload() {
+    // 如果没有全部下载完毕
+    if (this.getDownloaded < store.result.length) {
+      // 如果任务已停止
+      if (this.downloadPause || this.downloadStop) {
+        return false
+      }
+      // 如果已完成的数量 加上 线程中未完成的数量，仍然没有达到文件总数，继续添加任务
+      if (this.getDownloaded + this.downloadThread - 1 < store.result.length) {
+        return true
+      } else {
+        return false
+      }
+    } else {
+      return false
+    }
+  }
+
+  // 在日志上显示下载进度
+  public LogDownloadProgress() {
+    let text = `${this.downloaded} / ${store.result.length}`
+
+    // 追加转换文件的提示
+    if (convert.getconvertTip) {
+      text += ', ' + convert.getconvertTip
+    }
+
+    log.log(text, 2, false)
+  }
+
+  // 获取要下载的任务的编号
+  public getDownloadIndex() {
+    let length = this.downloadStatesList.length
+    for (let i = 0; i < length; i++) {
+      if (this.downloadStatesList[i] === -1) {
+        this.downloadStatesList[i] = 0
+        return i
+      }
+    }
   }
 }
 
@@ -5750,74 +5895,54 @@ class DownloadFile {
       }
 
       // UUID 的情况
-      if (msg.data&&msg.data.uuid) {
+      if (msg.data && msg.data.uuid) {
         log.error(lang.transl('_uuid'))
       }
     })
   }
 
   // 下载文件。参数是要使用的下载栏的序号
-  public download(downloadBarNo: number) {
-    // 修改标题
-    titleBar.changeTitle('↓')
-    // 获取还未开始下载的文件的索引
-    let thisImgInfo: WorkInfo | undefined
-    let thisIndex = -1
-    for (let index = 0; index < dlCtrl.downloadedList.length; index++) {
-      if (dlCtrl.downloadedList[index] === -1) {
-        thisImgInfo = store.result[index]
-        thisIndex = index
-        dlCtrl.downloadedList[thisIndex] = 0
-        break
-      }
-    }
-    // 如果没有获取到则返回
-    if (thisIndex === -1) {
+  public download(progressBarNo: number) {
+    let index = dlCtrl.getDownloadIndex()
+    if (index === undefined) {
       throw new Error('There are no files to download')
     }
 
+    let data = store.result[index]
+
+    titleBar.changeTitle('↓')
+
     // 获取文件名
-    let fullFileName = fileName.getFileName(thisImgInfo!)
+    let fullFileName = fileName.getFileName(data)
 
     // 重设当前下载栏的信息
-    let downloadBarList = document.querySelectorAll('.downloadBar')
-    const loadedBar = downloadBarList[downloadBarNo].querySelector(
-      '.loaded'
-    ) as HTMLDivElement
-    const progressBar = downloadBarList[downloadBarNo].querySelector(
-      '.progress'
-    ) as HTMLDivElement
-    loadedBar.textContent = '0/0'
-    progressBar.style.width = '0%'
-    downloadBarList[downloadBarNo].querySelector(
-      '.download_fileName'
-    )!.textContent = fullFileName
+    ui.setDownloadBar(progressBarNo, fullFileName, 0, 0)
+
     // 下载图片
     const xhr = new XMLHttpRequest()
-    xhr.open('GET', thisImgInfo!.url, true)
+    xhr.open('GET', data!.url, true)
     xhr.responseType = 'blob'
-    // 中止下载
+
+    // 暂停和停止时中止下载
     const btns = [ui.getPauseBtn, ui.getStopBtn]
     btns.forEach(el => {
       el.addEventListener('click', () => {
         xhr.abort()
       })
     })
+
     // 显示下载进度
     xhr.addEventListener('progress', function(e) {
-      if (dlCtrl.downloadPause || dlCtrl.downloadStop) {
+      if (dlCtrl.downloadStopped) {
         return
       }
-
       e = e || window.event
-      const loaded = Math.floor(e.loaded / 1024)
-      const total = Math.floor(e.total / 1024)
-      loadedBar.textContent = loaded + '/' + total
-      progressBar.style.width = (loaded / total) * 100 + '%'
+      ui.setDownloadBar(progressBarNo, fullFileName, e.loaded, e.total)
     })
-    // 图片下载完成
+
+    // 下载完成
     xhr.addEventListener('loadend', async () => {
-      if (dlCtrl.downloadPause || dlCtrl.downloadStop) {
+      if (dlCtrl.downloadStopped) {
         return
       }
 
@@ -5826,9 +5951,7 @@ class DownloadFile {
         // 404 时不进行重试，因为重试也依然会是 404
         if (xhr.status === 404) {
           // 输出提示信息
-          log.error(lang.transl('_file404', thisImgInfo!.id), 1)
-          // 因为 404 时进度条不会动，所以需要手动设置进度条完成
-          progressBar.style.width = '100%'
+          log.error(lang.transl('_file404', data!.id), 1)
         } else {
           dlCtrl.reTryDownload()
           return
@@ -5839,7 +5962,7 @@ class DownloadFile {
 
       if (xhr.status === 404) {
         // 404 错误时创建 txt 文件，并保存提示信息
-        file = new Blob([`${lang.transl('_file404', thisImgInfo!.id)}`], {
+        file = new Blob([`${lang.transl('_file404', data!.id)}`], {
           type: 'text/plain'
         })
         fullFileName = fullFileName.replace(
@@ -5847,23 +5970,18 @@ class DownloadFile {
           '.txt'
         )
       } else if (
-        (thisImgInfo!.ext === 'webm' || thisImgInfo!.ext === 'gif') &&
-        thisImgInfo!.ugoiraInfo.frames
+        (data!.ext === 'webm' || data!.ext === 'gif') &&
+        data!.ugoiraInfo.frames
       ) {
-        // 在转换之前检查停止状态，避免进行无用的转换，占用资源
-        if (dlCtrl.downloadPause || dlCtrl.downloadStop) {
-          return
-        }
-
         file = xhr.response as Blob
         // 如果需要转换成视频
-        if (thisImgInfo!.ext === 'webm') {
-          file = await convert.webm(file, thisImgInfo!.ugoiraInfo)
+        if (data!.ext === 'webm') {
+          file = await convert.webm(file, data!.ugoiraInfo)
         }
 
         // 如果需要转换成动图
-        if (thisImgInfo!.ext === 'gif') {
-          file = await convert.gif(file, thisImgInfo!.ugoiraInfo)
+        if (data!.ext === 'gif') {
+          file = await convert.gif(file, data!.ugoiraInfo)
         }
       } else {
         // 不需要转换
@@ -5873,7 +5991,7 @@ class DownloadFile {
       // 生成下载链接
       const blobUrl = URL.createObjectURL(file)
       // 向浏览器发送下载任务
-      this.browserDownload(blobUrl, fullFileName, downloadBarNo, thisIndex)
+      this.browserDownload(blobUrl, fullFileName, progressBarNo, index!)
     })
     // 捕获错误
     xhr.addEventListener('error', () => {
@@ -5901,7 +6019,7 @@ class DownloadFile {
     }
 
     // 如果任务已停止，不会向浏览器发送下载任务
-    if (dlCtrl.downloadPause || dlCtrl.downloadStop) {
+    if (dlCtrl.downloadStopped) {
       // 释放 bloburl
       URL.revokeObjectURL(blobUrl)
       return
@@ -5926,51 +6044,13 @@ class DownloadFile {
     // 释放 bloburl
     URL.revokeObjectURL(msg.data.url)
     // 更改这个任务状态为“已完成”
-    dlCtrl.downloadedList[msg.data.thisIndex] = 1
-    dlCtrl.downloaded++
-    // 显示进度信息
-    ui.showDownloaded()
-    this.showTotalProgress()
-    const progress1 = document.querySelector('.progress1')! as HTMLDivElement
-    progress1.style.width =
-      (dlCtrl.downloaded / store.result.length) * 100 + '%'
-
-    // 如果所有文件都下载完毕
-    if (dlCtrl.downloaded === store.result.length) {
-      dlCtrl.downloadStarted = false
-      dlCtrl.quickDownload = false
-      dlCtrl.downloadStop = false
-      dlCtrl.downloadPause = false
-      clearTimeout(dlCtrl.reTryTimer)
-      ui.changeDownStatus(lang.transl('_下载完毕'))
-      log.success(lang.transl('_下载完毕'), 2)
-      titleBar.changeTitle('√')
-    } else {
-      // 如果没有全部下载完毕
-      // 如果任务已停止
-      if (dlCtrl.downloadPause || dlCtrl.downloadStop) {
-        return
-      }
-      // 如果已完成的数量 加上 线程中未完成的数量，仍然没有达到文件总数，继续添加任务
-      if (dlCtrl.downloaded + dlCtrl.downloadThread - 1 < store.result.length) {
-        this.download(msg.data.no)
-      }
+    dlCtrl.setDownloadedIndex(msg.data.thisIndex, 1)
+    // 增加已下载数量
+    dlCtrl.setDownloaded = dlCtrl.getDownloaded + 1
+    // 是否继续下载
+    if (dlCtrl.checkContinueDownload()) {
+      this.download(msg.data.no)
     }
-  }
-
-  // 获取总下载进度
-  public showTotalProgress() {
-    const progress = document.querySelector(
-      '.progressTip.progressTip1'
-    )! as HTMLDivElement
-    let text = progress.innerText
-
-    // 追加转换文件的提示
-    if (convert.getconvertTip) {
-      text += ', ' + convert.getconvertTip
-    }
-
-    log.log(text, 2, false)
   }
 }
 
@@ -6033,7 +6113,7 @@ class Support {
   }
 
   // 显示最近更新内容
-  public showNew(tag: keyof typeof xzLang) {
+  private showNew(tag: keyof typeof xzLang) {
     if (
       window.location.host.includes('pixiv.net') &&
       !localStorage.getItem(tag)
@@ -6106,7 +6186,7 @@ class Support {
       new InitCrawlProcess()
 
       // 切换不同页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
-      if (dlCtrl.allowWork) {
+      if (store.states.allowWork) {
         log.clear()
       }
     }
@@ -6135,7 +6215,7 @@ const output = new Output()
 
 const filter = new Filter()
 
-const initSetting = new InitSetting()
+const saveOption = new SaveOption()
 
 const convert = new ConvertUgoira()
 
