@@ -20,7 +20,7 @@ interface WorkInfo {
   date: string
   type: number
   rank: string
-  ugoiraInfo: UgoiraInfo
+  ugoiraInfo: UgoiraInfo | null
 }
 
 // tag 搜索页的作品数据

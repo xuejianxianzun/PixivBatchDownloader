@@ -48,8 +48,8 @@ class Lang {
   }
 
   // translate 翻译
-  public transl(name: keyof typeof xzLang, ...arg: string[]) {
-    let content = xzLang[name][this.langType]
+  public transl(name: keyof typeof langText, ...arg: string[]) {
+    let content = langText[name][this.langType]
     arg.forEach(val => (content = content.replace('{}', val)))
     return content
   }
@@ -57,15 +57,15 @@ class Lang {
 
 // 颜色
 class Colors {
-  static blue = '#0ea8ef'
-  static green = '#14ad27'
-  static red = '#f33939'
+  static readonly blue = '#0ea8ef'
+  static readonly green = '#14ad27'
+  static readonly red = '#f33939'
 }
 
 // 日志类
 class Log {
   private logArea = document.createElement('div') // 输出日志的区域
-  private id = 'outputArea' // 日志区域元素的 id
+  private id = 'logWrap' // 日志区域元素的 id
   private refresh = document.createElement('span') // 刷新时使用的元素
   private colors = ['#00ca19', '#d27e00', '#f00']
 
@@ -83,14 +83,14 @@ class Log {
     this.logArea.innerHTML = ''
   }
 
-  // 输出日志
+  // 添加日志
   /*
-  str 信息文本
+  str 日志文本
   level 日志等级
   br 换行标签的个数
-  addMode 追加日志的模式，默认为 true，累加所有日志。false 则会建立快照，只在快照后追加最后一条日志。
+  keepShow 追加日志的模式，默认为 true，把这一条日志添加后不再修改。false 则是刷新显示这条消息。
 
-  日志等级：
+  level 日志等级：
   -1 auto 不设置颜色
   0 success 绿色
   1 warning 黄色
@@ -138,14 +138,13 @@ class Log {
 // api 类
 // 不依赖页面元素或者下载器的状态，可独立使用
 class API {
-  // 根据对象的属性排序
+  // 根据对象某个属性的值，排序对象。返回的结果是倒序排列
   static sortByProperty(propertyName: string) {
-    // 排序的内容有时可能是字符串，需要转换成数字排序
     return function(object1: any, object2: any) {
+      // 排序的内容有时可能是字符串，需要转换成数字排序
       const value1 = parseInt(object1[propertyName])
       const value2 = parseInt(object2[propertyName])
 
-      // 倒序排列
       if (value2 < value1) {
         return -1
       } else if (value2 > value1) {
@@ -156,15 +155,15 @@ class API {
     }
   }
 
-  // 检查参数是否是大于 0 的数字
+  // 检查给定的字符串解析为数字后，是否大于 0
   static checkNumberGreater0(arg: string) {
-    let thisArg = parseInt(arg)
+    let num = parseInt(arg)
     // 空值会是 NaN
-    if (!isNaN(thisArg) && thisArg > 0) {
+    if (!isNaN(num) && num > 0) {
       // 符合条件
       return {
         result: true,
-        value: thisArg
+        value: num
       }
     }
     // 不符合条件
@@ -186,6 +185,7 @@ class API {
   }
 
   // 更新 token
+  // 从网页源码里获取用户 token，并储存起来
   static updateToken() {
     fetch('https://www.pixiv.net/artworks/62751951')
       .then(response => {
@@ -202,6 +202,7 @@ class API {
   }
 
   // 获取 token
+  // 从本地存储里获取用户 token
   static getToken() {
     let result = localStorage.getItem('xzToken')
     if (result) {
@@ -277,10 +278,10 @@ class API {
   static async addBookmark(
     id: string,
     tags: string,
-    tt: string,
+    token: string,
     hide: boolean
   ) {
-    let restrict: number
+    let restrict: 0 | 1
     if (!hide) {
       // 公开作品
       restrict = 0
@@ -295,7 +296,7 @@ class API {
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
       },
       credentials: 'same-origin', // 附带 cookie
-      body: `mode=save_illust_bookmark&illust_id=${id}&restrict=${restrict}&comment=&tags=${tags}&tt=${tt}`
+      body: `mode=save_illust_bookmark&illust_id=${id}&restrict=${restrict}&comment=&tags=${tags}&tt=${token}`
     })
   }
 
@@ -307,7 +308,8 @@ class API {
     return this.request(url)
   }
 
-  // 获取用户信息。包含插画、漫画的 id 列表，不包含详细信息
+  // 获取用户指定类型的作品列表
+  // 返回作品的 id 列表，不包含详细信息
   static async getUserWorksByType(
     id: string,
     type: userWorksType[] = ['illusts', 'manga']
@@ -325,8 +327,9 @@ class API {
     return result
   }
 
-  // 按照作品类型获取用户的作品列表
-  // 这个只能在带 tag 的时候使用。因为不带 tag 虽然也能获得数据，但是获得的并不全，很奇怪。
+  // 获取用户指定类型、并且指定 tag 的作品列表
+  // 返回整个请求的结果，里面包含作品的详细信息
+  // 必须带 tag 使用。不带 tag 虽然也能获得数据，但是获得的并不全，很奇怪。
   static getUserWorksByTypeWithTag(
     id: string,
     type: 'illusts' | 'manga' | 'illustmanga',
@@ -339,13 +342,13 @@ class API {
     return this.request(url)
   }
 
-  // 获取作品信息
+  // 获取作品的详细信息
   static getWorksData(id: string): Promise<IllustData> {
     const url = `https://www.pixiv.net/ajax/illust/${id}`
     return this.request(url)
   }
 
-  // 获取作品动图信息
+  // 获取作品的动图信息
   static getUgoiraMeta(id: string): Promise<UgoiraData> {
     const url = `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`
     return this.request(url)
@@ -366,20 +369,21 @@ class API {
     // 把可选项添加到 url 里
     let temp = new URL(url)
 
+    // 下面两项需要判断有值再添加。不可以添加了这些字段却使用空值。
     if (option.worksType) {
       temp.searchParams.set('content', option.worksType)
     }
-
     if (option.date) {
       temp.searchParams.set('date', option.date)
     }
+
     url = temp.toString()
 
     return this.request(url)
   }
 
   // 获取收藏后的相似作品数据
-  // 需要传入作品 id 和要抓取的数量。但是实际获取到的数量会少一些
+  // 需要传入作品 id 和要抓取的数量。但是实际获取到的数量会比指定的数量少一些
   static getRecommenderData(
     id: string,
     number: number
@@ -409,12 +413,10 @@ class API {
     }
     url = temp.toString()
 
-    // 发起请求
     return this.request(url)
   }
 
   // 获取大家的新作品的数据
-  // 因为参数比较复杂，所以直接传入了完整的 url，没有设置参数
   static getNewIllustData(option: NewIllustOption): Promise<NewIllustData> {
     let url = `https://www.pixiv.net/ajax/illust/new?lastId=${option.lastId}&limit=${option.limit}&type=${option.type}&r18=${option.r18}`
     return this.request(url)
@@ -461,16 +463,16 @@ class API {
 }
 
 // DOM 操作类
-// 提供公用的 DOM 操作方法，以及依赖于 DOM 的 API
+// 提供公用的 DOM 操作方法，以及从 DOM 中获取数据的 API
 class DOM {
   // 把文本形式的 css 样式插入到页面里
-  static insertCSS(text: string) {
-    const styleE = document.createElement('style')
-    styleE.textContent = text
-    document.body.appendChild(styleE)
-  }
+  // static insertCSS(text: string) {
+  //   const styleE = document.createElement('style')
+  //   styleE.textContent = text
+  //   document.body.appendChild(styleE)
+  // }
 
-  // 获取可见元素
+  // 获取指定元素里，可见的结果
   static getVisibleEl(selector: string) {
     const list: NodeListOf<HTMLElement> = document.querySelectorAll(selector)
     return Array.from(list).filter(el => {
@@ -496,10 +498,9 @@ class DOM {
 
   // 将元素插入到页面顶部
   /*
-大部分页面使用 header，文章页使用 root。因为在文章页执行时，可能获取不到 header.
-newindex-inner 是在未登录时的用户作品列表页面使用的
-layout-body 是在未登录时的搜索页使用的
-*/
+  newindex-inner 是在未登录时的用户作品列表页面使用的
+  layout-body 是在未登录时的搜索页使用的
+  */
   static insertToHead(el: Element) {
     if (document.body) {
       document.body.insertAdjacentElement('afterbegin', el)
@@ -537,7 +538,7 @@ layout-body 是在未登录时的搜索页使用的
       return test3[1]
     }
 
-    // 从旧版页面的头像获取（主要是在书签页面使用）
+    // 从旧版页面的头像获取（主要是在旧版书签页面使用）
     const nameElement = document.querySelector(
       '.user-name'
     )! as HTMLAnchorElement
@@ -550,29 +551,32 @@ layout-body 是在未登录时的搜索页使用的
   }
 }
 
-// 用户界面类
-// 只负责本程序的界面元素，不管理页面上的其他元素
+// 用户界面
 class UI {
   constructor() {
-    // 只执行一次，不可被外部调用
-    this.listenClickIcon()
-    // 可以反复执行
+    // 监听点击扩展图标的消息，开关中间面板
+    chrome.runtime.onMessage.addListener(msg => {
+      if (msg.msg === 'click_icon') {
+        if (this.centerPanel.style.display === 'block') {
+          this.hideCenterPanel()
+        } else {
+          this.showCenterPanel()
+        }
+      }
+    })
+    // 创建 UI
     this.addUI()
   }
 
-  public form!: XzForm
+  public form!: XzForm // 表单元素，包含各个选项
 
-  private uiExists = false // 指示 ui 是否存在
+  private tipEl: HTMLDivElement = document.createElement('div') // tip 元素
 
-  private xzTipEl: HTMLDivElement = document.createElement('div') // 显示提示文本的元素
+  private rightBtn: HTMLDivElement = document.createElement('div') // 右侧按钮
 
-  private rightButton: HTMLDivElement = document.createElement('div') // 右侧按钮
+  private centerPanel: HTMLDivElement = document.createElement('div') // 中间面板
 
-  private centerPanel: HTMLDivElement = document.createElement('div') // 中间设置面板
-
-  private outputInfoPanel: HTMLDivElement = document.createElement('div') // 输出面板
-
-  private downloadPanel: HTMLDivElement = document.createElement('div') // 下载面板（只包括下载区域）
+  private downloadArea: HTMLDivElement = document.createElement('div') // 下载区域
 
   private pauseBtn: HTMLButtonElement = document.createElement('button') // 暂停下载按钮
 
@@ -586,27 +590,22 @@ class UI {
     return this.stopBtn
   }
 
-  // 监听点击扩展图标的消息，开关界面
-  private listenClickIcon() {
-    chrome.runtime.onMessage.addListener(msg => {
-      if (msg.msg === 'click_icon') {
-        if (this.centerPanel.style.display === 'block') {
-          this.hideCenterPanel()
-        } else {
-          this.showCenterPanel()
-        }
-      }
-    })
+  private downStatusEl: HTMLSpanElement = document.createElement('span')
+
+  private convertTipEL: HTMLDivElement = document.createElement('div') // 转换动图时显示提示的元素
+
+  public get getConvertTipEL() {
+    return this.convertTipEL
   }
 
   // 添加右侧下载按钮
   private addRightButton() {
-    this.rightButton = document.createElement('div')
-    this.rightButton.textContent = '↓'
-    this.rightButton.id = 'rightButton'
-    document.body.appendChild(this.rightButton) // 绑定切换右侧按钮显示的事件
+    this.rightBtn = document.createElement('div')
+    this.rightBtn.textContent = '↓'
+    this.rightBtn.id = 'rightButton'
+    document.body.appendChild(this.rightBtn) // 绑定切换右侧按钮显示的事件
 
-    this.rightButton.addEventListener(
+    this.rightBtn.addEventListener(
       'click',
       () => {
         this.showCenterPanel()
@@ -616,93 +615,47 @@ class UI {
   }
 
   // 显示中间面板上的提示。参数 arg 指示鼠标是移入还是移出，并包含鼠标位置
-  private xzTip(text: string | undefined, arg: XzTipArg) {
+  private showTip(text: string | undefined, arg: XzTipArg) {
     if (!text) {
       throw new Error('No tip text.')
     }
 
     if (arg.type === 1) {
-      this.xzTipEl.innerHTML = text
-      this.xzTipEl.style.left = arg.x + 30 + 'px'
-      this.xzTipEl.style.top = arg.y - 30 + 'px'
-      this.xzTipEl.style.display = 'block'
+      this.tipEl.innerHTML = text
+      this.tipEl.style.left = arg.x + 30 + 'px'
+      this.tipEl.style.top = arg.y - 30 + 'px'
+      this.tipEl.style.display = 'block'
     } else if (arg.type === 0) {
-      this.xzTipEl.style.display = 'none'
+      this.tipEl.style.display = 'none'
     }
   }
 
-  // 添加输出 url 列表、文件名列表的面板
-  private addOutPutPanel() {
-    this.outputInfoPanel = document.createElement('div')
-    document.body.appendChild(this.outputInfoPanel)
-    this.outputInfoPanel.outerHTML = `
-      <div class="outputInfoWrap">
-      <div class="outputUrlClose" title="${lang.transl('_关闭')}">X</div>
-      <div class="outputUrlTitle">${lang.transl('_输出信息')}</div>
-      <div class="outputInfoContent"></div>
-      <div class="outputUrlFooter">
-      <div class="outputUrlCopy" title="">${lang.transl('_复制')}</div>
-      </div>
-      </div>
-      `
-    // 关闭输出区域
-    document.querySelector('.outputUrlClose')!.addEventListener('click', () => {
-      this.outputInfoPanel.style.display = 'none'
-    })
-    // 复制输出内容
-    document.querySelector('.outputUrlCopy')!.addEventListener('click', () => {
-      const range = document.createRange()
-      range.selectNodeContents(document.querySelector('.outputInfoContent')!)
-      window.getSelection()!.removeAllRanges()
-      window.getSelection()!.addRange(range)
-      document.execCommand('copy')
-
-      // 改变提示文字
-      document.querySelector('.outputUrlCopy')!.textContent = lang.transl(
-        '_已复制到剪贴板'
-      )
-      setTimeout(() => {
-        window.getSelection()!.removeAllRanges()
-        document.querySelector('.outputUrlCopy')!.textContent = lang.transl(
-          '_复制'
-        )
-      }, 1000)
-    })
-
-    this.outputInfoPanel = document.querySelector(
-      '.outputInfoWrap'
-    )! as HTMLDivElement
-  }
-
-  // 添加中间主面板
+  // 添加中间面板
   private addCenterPanel() {
-    this.centerPanel = document.createElement('div')
-    document.body.appendChild(this.centerPanel)
-    this.centerPanel.outerHTML = `
-      <div class="XZTipEl"></div>
+    const centerPanelHTML = `
       <div class="centerWrap">
       <div class="centerWrap_head">
-      <span class="centerWrap_title xz_blue"> ${lang.transl('_下载设置')}</span>
+      <span class="centerWrap_title blue"> ${lang.transl('_下载设置')}</span>
       <div class="btns">
-      <a class="xztip centerWrap_top_btn update" data-tip="${lang.transl(
+      <a class="has_tip centerWrap_top_btn update" data-tip="${lang.transl(
         '_newver'
       )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
       <svg t="1574401457339" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4736" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16"><defs><style type="text/css"></style></defs><path d="M894.72 795.477333l-85.418667-85.418667c0.128-0.170667 0.170667-0.341333 0.298667-0.512l-158.890667-158.890667c0.042667-0.597333 37.248-37.248 37.248-37.248l178.773333 0 1.706667-1.493333c-0.853333-196.736-160.426667-356.053333-357.418667-356.053333-72.704 0-140.202667 22.016-196.650667 59.306667L228.949333 129.664C307.968 71.466667 405.333333 36.650667 511.018667 36.650667c263.296 0 476.757333 213.461333 476.757333 476.714667C987.776 619.093333 952.96 716.416 894.72 795.477333zM369.493333 476.117333c-0.042667 0.597333-37.248 37.248-37.248 37.248l-178.773333 0c0 197.461333 160.085333 357.546667 357.546667 357.546667 72.192 0 139.093333-21.76 195.285333-58.538667l85.589333 85.589333c-78.848 57.685333-175.701333 92.117333-280.874667 92.117333-263.296 0-476.757333-213.461333-476.757333-476.757333 0-105.173333 34.474667-202.069333 92.16-280.874667l85.589333 85.589333C211.925333 318.208 211.882667 318.336 211.797333 318.464L369.493333 476.117333z" p-id="4737"></path></svg>
       </a>
-      <a class="xztip centerWrap_top_btn wiki_url" data-tip="${lang.transl(
+      <a class="has_tip centerWrap_top_btn wiki_url" data-tip="${lang.transl(
         '_wiki'
       )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank">
       <svg t="1574400169015" class="icon" widht="16" height="16" viewBox="0 0 1088 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1872" xmlns:xlink="http://www.w3.org/1999/xlink" width="17" height="16"><defs><style type="text/css"></style></defs><path d="M1044.286732 3.51978A1138.616836 1138.616836 0 0 0 618.841322 58.172364a198.963565 198.963565 0 0 0-26.814324 10.815324V1023.936004l0.895944-0.383976a979.52278 979.52278 0 0 1 443.236298-68.411724 47.741016 47.741016 0 0 0 51.580776-43.261296V50.172864a47.165052 47.165052 0 0 0-43.453284-46.653084z m-74.299356 632.15249h-224.369977V541.470158h224.369977v94.202112z m0-231.921504h-224.369977V309.484657h224.369977v94.266109zM469.154678 58.172364A1138.296856 1138.296856 0 0 0 43.645272 3.455784 47.421036 47.421036 0 0 0 0 50.172864V908.103244a46.653084 46.653084 0 0 0 15.35904 34.493844 48.060996 48.060996 0 0 0 36.285732 12.415224 980.610712 980.610712 0 0 1 443.300294 68.347728l0.895944 0.575964V68.7957a202.099369 202.099369 0 0 0-26.686332-10.751328zM351.146053 635.800262H126.776076V541.59815h224.369977v94.202112z m0-231.921504H126.776076V309.612649h224.369977v94.266109z" p-id="1873"></path></svg>
       </a>
-      <a class="xztip centerWrap_top_btn" data-tip="${lang.transl(
+      <a class="has_tip centerWrap_top_btn" data-tip="${lang.transl(
         '_github'
       )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
       <svg t="1574401005111" class="icon" widht="16" height="16" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2594" xmlns:xlink="http://www.w3.org/1999/xlink><defs><style type="text/css"></style></defs><path d="M0 520.886c0-69.368 13.51-135.697 40.498-199.02 26.987-63.323 63.322-117.826 109.006-163.51 45.65-45.65 100.154-81.985 163.51-109.006A502.289 502.289 0 0 1 512 8.92c69.335 0 135.663 13.477 198.986 40.497 63.356 26.988 117.86 63.323 163.51 109.007 45.684 45.65 82.02 100.154 109.006 163.51A502.289 502.289 0 0 1 1024 520.852c0 111.318-32.504 211.472-97.511 300.494-64.975 88.989-148.48 150.825-250.484 185.476-5.351 0-9.348-0.99-11.99-2.973-2.676-1.982-4.196-3.997-4.526-6.012a59.458 59.458 0 0 1-0.495-8.984 7.663 7.663 0 0 1-0.991-3.006v-128.99c0-40.63-14.336-75.314-43.008-103.986 76.667-13.345 134.011-41.819 171.999-85.487 37.987-43.669 57.013-96.52 57.013-158.522 0-58.005-18.663-108.346-56.022-150.99 13.345-42.678 11-87.668-6.97-135.003-18.697-1.322-39.011 1.85-61.01 9.513-22 7.663-38.318 14.831-49.02 21.47-10.637 6.673-20.316 13.016-28.97 19.027-38.68-10.669-81.854-16.02-129.486-16.02-47.7 0-90.509 5.351-128.529 16.02-7.333-5.35-15.855-11.164-25.5-17.507-9.68-6.342-26.493-14.005-50.507-22.99-23.982-9.018-45.65-12.85-65.008-11.495-18.663 47.996-20.645 93.646-5.979 136.984-36.665 42.678-54.998 92.986-54.998 150.99 0 62.002 18.663 114.689 55.99 157.994 37.326 43.339 94.67 72.01 171.998 86.016a142.303 142.303 0 0 0-39.969 70.029c-56.683 13.972-96.355 3.963-119.015-30.06-42.017-61.308-79.674-83.307-113.003-65.965-4.69 4.657-3.997 9.48 1.982 14.501 6.012 4.988 14.996 11.66 27.02 19.985 11.99 8.357 20.976 17.507 26.987 27.515 0.661 1.322 2.51 6.177 5.517 14.502a831.917 831.917 0 0 0 8.985 23.981c2.973 7.663 8.654 16.186 17.011 25.5 8.324 9.349 18.003 17.178 29.003 23.52 11 6.309 26.161 11 45.485 14.006 19.324 2.972 41.323 3.138 65.998 0.495v100.484c0 0.991-0.165 2.643-0.495 5.021-0.33 2.312-0.991 3.964-1.982 4.955-0.991 1.024-2.345 2.015-4.03 3.039a12.52 12.52 0 0 1-6.474 1.486c-2.676 0-6.012-0.33-10.009-0.99-101.343-35.345-183.825-97.182-247.51-185.51C31.842 731.037 0 631.577 0 520.92z" p-id="2595"></path></svg>
       </a>
-        <div class="xztip centerWrap_top_btn centerWrap_toogle_option" data-tip="${lang.transl(
+        <div class="has_tip centerWrap_top_btn centerWrap_toogle_option" data-tip="${lang.transl(
           '_收起展开设置项'
         )}">▲</div>
-        <div class="xztip centerWrap_top_btn centerWrap_close" data-tip="${lang.transl(
+        <div class="has_tip centerWrap_top_btn centerWrap_close" data-tip="${lang.transl(
           '_快捷键切换显示隐藏'
         )}">
         <svg t="1574392276519" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1123" data-spm-anchor-id="a313x.7781069.0.i0" xmlns:xlink="http://www.w3.org/1999/xlink" width="14" height="14"><defs><style type="text/css"></style></defs><path d="M521.693867 449.297067L111.4112 39.0144a51.2 51.2 0 1 0-72.430933 72.362667l410.282666 410.3168-410.282666 410.3168a51.2 51.2 0 1 0 72.3968 72.3968l410.3168-410.282667 410.3168 410.282667a51.2 51.2 0 1 0 72.3968-72.362667l-410.282667-410.350933 410.282667-410.282667a51.2 51.2 0 1 0-72.3968-72.3968l-410.282667 410.282667z" p-id="1124"></path></svg>
@@ -710,30 +663,30 @@ class UI {
       </div>
       </div>
       <div class="centerWrap_con">
-      <form class="xzForm">
-      <div class="xz_option_area">
-      <p class="xzFormP1">
+      <form class="settingForm">
+      <div class="option_area1">
+      <p class="formOption1">
       <span class="setWantPageWrap">
-      <span class="xztip settingNameStyle1 setWantPageTip1" data-tip="${lang.transl(
+      <span class="has_tip settingNameStyle1 setWantPageTip1" data-tip="${lang.transl(
         '_页数'
       )}" style="margin-right: 0px;">${lang.transl(
       '_页数'
     )}</span><span class="gray1" style="margin-right: 10px;"> ? </span>
-      <input type="text" name="setWantPage" class="setinput_style1 xz_blue setWantPage"
+      <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
       value = '-1'
       >
       &nbsp;&nbsp;&nbsp;
       <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
       </span>
       </p>
-      <p class="xzFormP3">
-      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
+      <p class="formOption3">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_多p下载前几张提示'
       )}">${lang.transl('_多p下载前几张')}<span class="gray1"> ? </span></span>
-      <input type="text" name="imgNumberPerWork" class="setinput_style1 xz_blue" value="0">
+      <input type="text" name="imgNumberPerWork" class="setinput_style1 blue" value="0">
       </p>
-      <p class="xzFormP5">
-      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
+      <p class="formOption5">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_下载作品类型的提示Center'
       )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
       <label for="setWorkType0"><input type="checkbox" name="setWorkType0" id="setWorkType0" checked> ${lang.transl(
@@ -746,8 +699,8 @@ class UI {
         '_动图'
       )}&nbsp;</label>
       </p>
-      <p class="xzFormP12">
-      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
+      <p class="formOption12">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_动图保存格式title'
       )}">${lang.transl('_动图保存格式')}<span class="gray1"> ? </span></span>
       <label for="ugoiraSaveAs1"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" value="webm" checked> ${lang.transl(
@@ -760,35 +713,35 @@ class UI {
         '_zipFile'
       )} &nbsp;</label>
       </p>
-      <p class="xzFormP2">
-      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
+      <p class="formOption2">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_筛选收藏数的提示Center'
       )}">${lang.transl(
       '_筛选收藏数Center'
     )}<span class="gray1"> ? </span></span>
-      <input type="text" name="setFavNum" class="setinput_style1 xz_blue" value="0">&nbsp;&nbsp;&nbsp;&nbsp;
+      <input type="text" name="setFavNum" class="setinput_style1 blue" value="0">&nbsp;&nbsp;&nbsp;&nbsp;
       </p>
-      <p class="xzFormP11">
-      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
+      <p class="formOption11">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_只下载已收藏的提示'
       )}">${lang.transl('_只下载已收藏')}<span class="gray1"> ? </span></span>
       <label for="setOnlyBmk"><input type="checkbox" name="setOnlyBmk" id="setOnlyBmk"> ${lang.transl(
         '_启用'
       )}</label>
       </p>
-      <p class="xzFormP4">
-      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
+      <p class="formOption4">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_筛选宽高的按钮Title'
       )} ${lang.transl('_筛选宽高的提示文字')}">${lang.transl(
       '_筛选宽高的按钮文字'
     )}<span class="gray1"> ? </span></span>
-      <input type="text" name="setWidth" class="setinput_style1 xz_blue" value="0">
+      <input type="text" name="setWidth" class="setinput_style1 blue" value="0">
       <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" value="&" checked> <label for="setWidth_AndOr1">and&nbsp;</label>
       <input type="radio" name="setWidthAndOr" id="setWidth_AndOr2" value="|"> <label for="setWidth_AndOr2">or&nbsp;</label>
-      <input type="text" name="setHeight" class="setinput_style1 xz_blue" value="0">
+      <input type="text" name="setHeight" class="setinput_style1 blue" value="0">
       </p>
-      <p class="xzFormP13">
-      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
+      <p class="formOption13">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_设置宽高比例Title'
       )}">${lang.transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
       <input type="radio" name="ratio" id="ratio0" value="0" checked> <label for="ratio0"> ${lang.transl(
@@ -802,22 +755,22 @@ class UI {
       )}&nbsp; </label>
       <input type="radio" name="ratio" id="ratio3" value="3"> <label for="ratio3"> ${lang.transl(
         '_输入宽高比'
-      )}<input type="text" name="userRatio" class="setinput_style1 xz_blue" value="1.4"></label>
+      )}<input type="text" name="userRatio" class="setinput_style1 blue" value="1.4"></label>
       </p>
-      <p class="xzFormP6">
-      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
+      <p class="formOption6">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_必须tag的提示文字'
       )}">${lang.transl('_必须含有tag')}<span class="gray1"> ? </span></span>
-      <input type="text" name="needTag" class="setinput_style1 xz_blue setinput_tag">
+      <input type="text" name="needTag" class="setinput_style1 blue setinput_tag">
       </p>
-      <p class="xzFormP7">
-      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
+      <p class="formOption7">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_排除tag的提示文字'
       )}">${lang.transl('_不能含有tag')}<span class="gray1"> ? </span></span>
-      <input type="text" name="notNeedTag" class="setinput_style1 xz_blue setinput_tag">
+      <input type="text" name="notNeedTag" class="setinput_style1 blue setinput_tag">
       </p>
-      <p class="xzFormP8">
-      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
+      <p class="formOption8">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_快速下载的提示'
       )}">${lang.transl('_是否自动下载')}<span class="gray1"> ? </span></span>
       <label for="setQuietDownload"><input type="checkbox" name="quietDownload" id="setQuietDownload" checked> ${lang.transl(
@@ -831,19 +784,19 @@ class UI {
       </div>
       <p> ${lang.transl(
         '_设置命名规则3',
-        '<span class="fwb xz_blue imgNum">0</span>'
+        '<span class="fwb blue imgNum">0</span>'
       )}</p>
       <p>
-      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_线程数字'
       )}">${lang.transl('_设置下载线程')}<span class="gray1"> ? </span></span>
-      <input type="text" name="downloadThread" class="setinput_style1 xz_blue" value="5">
+      <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
       </p>
       <p>
-      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_设置文件夹名的提示'
       )}">${lang.transl('_设置文件名')}<span class="gray1"> ? </span></span>
-      <input type="text" name="userSetName" class="setinput_style1 xz_blue fileNameRule" value="{id}">
+      <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
       &nbsp;
       <select name="pageInfoSelect" id="pageInfoSelect">
       </select>
@@ -870,61 +823,61 @@ class UI {
       <p class="fileNameTip tip">
       ${lang.transl('_设置文件夹名的提示').replace('<br>', '. ')}
       <br>
-      <span class="xz_blue">{p_user}</span>
+      <span class="blue">{p_user}</span>
       ${lang.transl('_文件夹标记PUser')}
       <br>
-      <span class="xz_blue">{p_uid}</span>
+      <span class="blue">{p_uid}</span>
       ${lang.transl('_文件夹标记PUid')}
       <br>
-      <span class="xz_blue">{p_tag}</span>
+      <span class="blue">{p_tag}</span>
       ${lang.transl('_文件夹标记PTag')}
       <br>
-      <span class="xz_blue">{p_title}</span>
+      <span class="blue">{p_title}</span>
       ${lang.transl('_文件夹标记PTitle')}
       <br>
-      <span class="xz_blue">{id}</span>
+      <span class="blue">{id}</span>
       ${lang.transl('_命名标记1')}
       <br>
-      <span class="xz_blue">{title}</span>
+      <span class="blue">{title}</span>
       ${lang.transl('_命名标记2')}
       <br>
-      <span class="xz_blue">{tags}</span>
+      <span class="blue">{tags}</span>
       ${lang.transl('_命名标记3')}
       <br>
-      <span class="xz_blue">{tags_translate}</span>
+      <span class="blue">{tags_translate}</span>
       ${lang.transl('_命名标记11')}
       <br>
-      <span class="xz_blue">{user}</span>
+      <span class="blue">{user}</span>
       ${lang.transl('_命名标记4')}
       <br>
-      <span class="xz_blue">{userid}</span>
+      <span class="blue">{userid}</span>
       ${lang.transl('_命名标记6')}
       <br>
-      <span class="xz_blue">{date}</span>
+      <span class="blue">{date}</span>
       ${lang.transl('_命名标记12')}
       <br>
-      <span class="xz_blue">{type}</span>
+      <span class="blue">{type}</span>
       ${lang.transl('_命名标记14')}
       <br>
-      <span class="xz_blue">{bmk}</span>
+      <span class="blue">{bmk}</span>
       ${lang.transl('_命名标记8')}
       <br>
-      <span class="xz_blue">{px}</span>
+      <span class="blue">{px}</span>
       ${lang.transl('_命名标记7')}
       <br>
-      <span class="xz_blue">{id_num}</span>
+      <span class="blue">{id_num}</span>
       ${lang.transl('_命名标记9')}
       <br>
-      <span class="xz_blue">{p_num}</span>
+      <span class="blue">{p_num}</span>
       ${lang.transl('_命名标记10')}
       <br>
-      <span class="xz_blue">{rank}</span>
+      <span class="blue">{rank}</span>
       ${lang.transl('_命名标记13')}
       <br>
       ${lang.transl('_命名标记提醒')}
       </p>
-      <p class="xzFormP10">
-      <span class="xztip settingNameStyle1" data-tip="${lang.transl(
+      <p class="formOption10">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_添加字段名称提示'
       )}">${lang.transl('_添加字段名称')}<span class="gray1"> ? </span></span>
       <label for="setTagNameToFileName"><input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" checked> ${lang.transl(
@@ -954,10 +907,10 @@ class UI {
       <div class="centerWrap_down_tips">
       <p>
       ${lang.transl('_当前状态')}
-      <span class="down_status xz_blue"><span>${lang.transl(
+      <span class="down_status blue"><span>${lang.transl(
         '_未开始下载'
       )}</span></span>
-      <span class="convert_tip xz_blue"></span>
+      <span class="convert_tip blue"></span>
       </p>
       <div class="progressBarWrap">
       <span class="text">${lang.transl('_下载进度')}</span>
@@ -999,33 +952,39 @@ class UI {
       </div>
       </div>
       `
+    document.body.insertAdjacentHTML('beforeend', centerPanelHTML)
+
     this.centerPanel = document.querySelector('.centerWrap')! as HTMLDivElement
     this.pauseBtn = document.querySelector(
       '.pauseDownload'
     )! as HTMLButtonElement
     this.stopBtn = document.querySelector('.stopDownload')! as HTMLButtonElement
-    this.downloadPanel = document.querySelector(
+    this.downloadArea = document.querySelector(
       '.download_panel'
     ) as HTMLDivElement
+    this.downStatusEl = document.querySelector(
+      '.down_status '
+    ) as HTMLSpanElement
+    this.convertTipEL = document.querySelector(
+      '.convert_tip'
+    )! as HTMLDivElement
   }
 
   // 显示提示
-  private bindXzTip() {
-    this.xzTipEl = document.querySelector('.XZTipEl') as HTMLDivElement
+  private addTipEl() {
+    const tipHTML = `<div id="tip"></div>`
+    document.body.insertAdjacentHTML('beforeend', tipHTML)
+    this.tipEl = document.getElementById('tip') as HTMLDivElement
 
-    if (!this.xzTipEl) {
-      throw new Error('xzTipEl not exists')
-    }
-
-    const xztips = document.querySelectorAll('.xztip') as NodeListOf<
+    const tips = this.centerPanel.querySelectorAll('.has_tip') as NodeListOf<
       HTMLElement
     >
-    for (const el of xztips) {
+    for (const el of tips) {
       for (const ev of ['mouseenter', 'mouseleave']) {
         el.addEventListener(ev, event => {
           const e = (event || window.event) as MouseEvent
           const text = el.dataset.tip
-          this.xzTip(text, {
+          this.showTip(text, {
             type: ev === 'mouseenter' ? 1 : 0,
             x: e.clientX,
             y: e.clientY
@@ -1035,25 +994,8 @@ class UI {
     }
   }
 
-  // 把下拉框的选择项插入到文本框里
-  private insertValueToInput(from: HTMLSelectElement, to: HTMLInputElement) {
-    from.addEventListener('change', () => {
-      if (from.value !== 'default') {
-        // 把选择项插入到光标位置,并设置新的光标位置
-        const position = to.selectionStart!
-        to.value =
-          to.value.substr(0, position) +
-          from.value +
-          to.value.substr(position, to.value.length)
-        to.selectionStart = position + from.value.length
-        to.selectionEnd = position + from.value.length
-        to.focus()
-      }
-    })
-  }
-
-  // 绑定中间面板的事件
-  private downloadPanelEvents() {
+  // 绑定中间面板上的事件
+  private bindEvents() {
     // 关闭中间面板
     document
       .querySelector('.centerWrap_close')!
@@ -1082,12 +1024,12 @@ class UI {
     document
       .querySelector('.showFileNameResult')!
       .addEventListener('click', () => {
-        output.previewFileName()
+        output.output(this.previewFileName())
       })
 
     // 显示 url
     document.querySelector('.copyUrl')!.addEventListener('click', () => {
-      output.showURLs()
+      output.output(this.showURLs())
     })
 
     // 显示命名字段提示
@@ -1119,10 +1061,7 @@ class UI {
       dlCtrl.stopDownload()
     })
 
-    // 给有提示的元素绑定事件
-    this.bindXzTip()
-
-    this.form = document.querySelector('.xzForm')! as XzForm
+    this.form = this.centerPanel.querySelector('.settingForm')! as XzForm
 
     // 输入框获得焦点时自动选择文本（文件名输入框例外）
     const centerInputs: NodeListOf<HTMLInputElement> = this.form.querySelectorAll(
@@ -1147,86 +1086,62 @@ class UI {
     })
   }
 
-  // 收起展开选项设置区域
-  public toggleOptionArea(bool: boolean) {
-    const xzOptionArea = <HTMLDivElement>(
-      document.querySelector('.xz_option_area')!
-    )
-    xzOptionArea.style.display = bool ? 'block' : 'none'
-    document.querySelector('.centerWrap_toogle_option')!.innerHTML = bool
-      ? '▲'
-      : '▼'
-  }
-
-  // 返回显示下载状态的元素
-  public getDownStatusEl() {
-    return document.querySelector('.down_status')
-  }
-
-  // 重置下载面板的信息
-  public resetDownloadPanel() {
-    for (const el of document.querySelectorAll('.imgNum')) {
-      el.textContent = store.result.length.toString()
-    }
-
-    for (const el of document.querySelectorAll('.download_fileName')) {
-      el.textContent = ''
-    }
-
-    for (const el of document.querySelectorAll('.loaded')) {
-      el.textContent = '0/0'
-    }
-
-    for (const el of document.querySelectorAll('.progress')) {
-      ;(el as HTMLDivElement).style.width = '0%'
-    }
-  }
-
-  // 显示或隐藏下载面板
-  public showDownloadPanel() {
-    this.downloadPanel.style.display = 'block'
-  }
-
-  public hideDownloadPanel() {
-    this.downloadPanel.style.display = 'none'
-  }
-
   // 添加 UI
   private async addUI() {
-    if (this.uiExists) {
-      return
-    }
-
     this.addRightButton()
-    this.addOutPutPanel()
     this.addCenterPanel()
-    this.downloadPanelEvents()
-    this.uiExists = true
+    this.addTipEl()
+    this.bindEvents()
   }
 
-  // public destroy() {
-  //   if (!this.uiExists) {
-  //     return
-  //   }
+  // 收起展开选项设置区域
+  public toggleOptionArea(bool: boolean) {
+    const OptionArea = <HTMLDivElement>(
+      this.centerPanel.querySelector('.option_area1')!
+    )
+    OptionArea.style.display = bool ? 'block' : 'none'
+    this.centerPanel.querySelector(
+      '.centerWrap_toogle_option'
+    )!.innerHTML = bool ? '▲' : '▼'
+  }
 
-  //   let uiElements = [this.rightButton, this.centerPanel, this.outputInfoPanel]
-  //   for (const el of uiElements) {
-  //     el.parentNode!.removeChild(el)
-  //   }
-  //   this.uiExists = false
-  // }
+  // 把下拉框的选择项插入到文本框里
+  private insertValueToInput(from: HTMLSelectElement, to: HTMLInputElement) {
+    from.addEventListener('change', () => {
+      if (from.value !== 'default') {
+        // 把选择项插入到光标位置,并设置新的光标位置
+        const position = to.selectionStart!
+        to.value =
+          to.value.substr(0, position) +
+          from.value +
+          to.value.substr(position, to.value.length)
+        to.selectionStart = position + from.value.length
+        to.selectionEnd = position + from.value.length
+        to.focus()
+      }
+    })
+  }
+
+  // 显示或隐藏下载区域
+  public showDownloadArea() {
+    this.downloadArea.style.display = 'block'
+  }
+
+  public hideDownloadArea() {
+    this.downloadArea.style.display = 'none'
+  }
 
   // 显示中间区域
   public showCenterPanel() {
     this.centerPanel.style.display = 'block'
-    this.rightButton.style.display = 'none'
+    this.rightBtn.style.display = 'none'
   }
 
   // 隐藏中间区域
   public hideCenterPanel() {
     this.centerPanel.style.display = 'none'
-    this.rightButton.style.display = 'block'
-    this.outputInfoPanel.style.display = 'none'
+    this.rightBtn.style.display = 'block'
+    // this.outputPanel.style.display = 'none'
   }
 
   // 向中间面板添加按钮
@@ -1253,34 +1168,49 @@ class UI {
 
   // 获取排除类型
   public getNotDownType() {
-    let result = Array.from(ui.form.querySelectorAll('.xzFormP5 input')).reduce(
-      (result, el, index) => {
-        const thisElement = el as HTMLInputElement
-        if (thisElement.checked === false) {
-          return (result += index)
-        } else {
-          return result
-        }
-      },
-      ''
-    )
+    let result = Array.from(
+      ui.form.querySelectorAll('.formOption5 input')
+    ).reduce((result, el, index) => {
+      const thisElement = el as HTMLInputElement
+      if (thisElement.checked === false) {
+        return (result += index)
+      } else {
+        return result
+      }
+    }, '')
     return result
   }
 
-  // 设置下载状态
-  public setDownState(str: string, color: string = '') {
-    const downStatusEl = this.getDownStatusEl()
-    if (!downStatusEl) {
-      return
-    }
-
+  // 设置下载状态文本，默认颜色为主题蓝色
+  public setDownStateText(str: string, color: string = '') {
     const el = document.createElement('span')
     el.textContent = str
     if (color) {
       el.style.color = color
     }
-    downStatusEl.innerHTML = ''
-    downStatusEl.appendChild(el)
+    this.downStatusEl.innerHTML = ''
+    this.downStatusEl.appendChild(el)
+  }
+
+  // 重置下载区域的信息
+  public resetDownloadArea() {
+    this.setDownStateText(lang.transl('_未开始下载'))
+
+    for (const el of document.querySelectorAll('.imgNum')) {
+      el.textContent = store.result.length.toString()
+    }
+
+    for (const el of document.querySelectorAll('.download_fileName')) {
+      el.textContent = ''
+    }
+
+    for (const el of document.querySelectorAll('.loaded')) {
+      el.textContent = '0/0'
+    }
+
+    for (const el of document.querySelectorAll('.progress')) {
+      ;(el as HTMLDivElement).style.width = '0%'
+    }
   }
 
   // 显示总的下载进度
@@ -1341,6 +1271,25 @@ class UI {
       progress = 0
     }
     progressBar.style.width = progress * 100 + '%'
+  }
+
+  // 预览文件名
+  private previewFileName() {
+    let result = ''
+    result = store.result.reduce((total, now) => {
+      return (total +=
+        now.url.replace(/.*\//, '') + ': ' + fileName.getFileName(now) + '<br>') // 在每个文件名前面加上它的原本的名字，方便用来做重命名
+    }, result)
+    return result
+  }
+
+  // 显示 url
+  private showURLs() {
+    let result = ''
+    result = store.result.reduce((total, now) => {
+      return (total += now.url + '<br>')
+    }, result)
+    return result
   }
 }
 
@@ -1455,7 +1404,8 @@ class PageInfo {
     return this.pageTag
   }
 
-  // 重置。当切换页面时可能旧页面的一些标记在新页面没有了，所以要清除掉
+  // 重置
+  // 切换页面时可能旧页面的一些标记在新页面没有了，所以要先重置
   private reset() {
     this.pageUserName = ''
     this.pageUserID = ''
@@ -1463,7 +1413,7 @@ class PageInfo {
   }
 
   // 储存信息
-  // 开始抓取时使用，这样即使页面切换了，生成文件名时还是使用的刚开始抓取时的信息。
+  // 开始抓取时，把此时的页面信息保存到 store 里。这样即使下载时页面切换了，使用的刚开始抓取时的信息。
   public async store() {
     await this.getPageInfo(pageType.getPageType())
     store.pageInfo.pageUserName = this.pageUserName
@@ -1526,7 +1476,7 @@ class TitleBar {
   private titleTimer: number = 0 // 修改 title 的定时器
 
   // 检查标题里有没有本程序定义的状态字符
-  private titleHasStatus(status: string = '') {
+  private titleHasState(status: string = '') {
     const titleStatus = ['[↑]', '[→]', '[▶]', '[↓]', '[║]', '[■]', '[√]', '[ ]']
 
     if (!status) {
@@ -1546,7 +1496,7 @@ class TitleBar {
 
   // 重设 title
   public reset() {
-    let type = pageType.getPageType()
+    const type = pageType.getPageType()
     clearInterval(this.titleTimer)
     // 储存标题的 mete 元素。在某些页面不存在，有时也与实际上的标题不一致。
     const ogTitle = document.querySelector(
@@ -1557,7 +1507,7 @@ class TitleBar {
       document.title = ogTitle.content
     } else {
       // 如果当前 title 里有状态提醒，则设置为状态后面的文字
-      if (this.titleHasStatus()) {
+      if (this.titleHasState()) {
         const index = document.title.indexOf(']')
         document.title = document.title.substr(index + 1, document.title.length)
       }
@@ -1566,7 +1516,7 @@ class TitleBar {
 
   // 修改title
   public changeTitle(string: string) {
-    // 工作时，本程序的状态会以 [string] 形式添加到 title 最前面，并闪烁提醒
+    // 本程序的状态会以 [string] 形式添加到 title 最前面，并闪烁提醒
     /*
   ↑ 抓取中
   → 等待下一步操作（tag搜索页）
@@ -1577,22 +1527,22 @@ class TitleBar {
   √ 下载完毕
   */
 
-    const status = `[${string}]`
+    const state = `[${string}]`
     // 如果 title 里没有状态，就添加状态
-    if (!this.titleHasStatus()) {
-      document.title = `${status} ${document.title}`
+    if (!this.titleHasState()) {
+      document.title = `${state} ${document.title}`
     } else {
       // 如果已经有状态了，则替换为新当前传入的状态
-      document.title = document.title.replace(/\[.?\]/, status)
+      document.title = document.title.replace(/\[.?\]/, state)
     }
 
     // 当需要执行下一步操作时，闪烁提醒
     if (string === '▶' || string === '→') {
       this.titleTimer = setInterval(() => {
-        if (this.titleHasStatus(status)) {
-          document.title = document.title.replace(status, '[ ]')
+        if (this.titleHasState(state)) {
+          document.title = document.title.replace(state, '[ ]')
         } else {
-          document.title = document.title.replace('[ ]', status)
+          document.title = document.title.replace('[ ]', state)
         }
       }, 500)
     } else {
@@ -1602,17 +1552,17 @@ class TitleBar {
 }
 
 // 过滤器
-// 审查每个作品的数据，决定是否要下载它。下载面板上只有一部分选项是过滤器。
+// 审查每个作品的数据，决定是否要下载它。下载区域只有一部分选项是过滤器。
 class Filter {
   private notdownType: string = '' // 设置不要下载的作品类型
 
-  private needTag: string = '' // 必须包含的tag的列表
+  private includeTag: string = '' // 必须包含的tag的列表
 
-  private notNeedTag: string = '' // 要排除的tag的列表
+  private excludeTag: string = '' // 要排除的tag的列表
 
-  private filterBMK: number = 0 // 要求收藏达到指定数量
+  private BMKNum: number = 0 // 要求收藏达到指定数量
 
-  private onlyDownBmk: boolean = false // 是否只下载收藏的作品
+  private onlyBmk: boolean = false // 是否只下载收藏的作品
 
   // 宽高条件
   private filterWh: FilterWh = {
@@ -1625,36 +1575,31 @@ class Filter {
 
   private debut: boolean = false // 只下载首次登场的作品
 
-  // 从下载面板上获取过滤器的各个选项
+  // 从下载区域上获取过滤器的各个选项
   public init() {
     // 检查排除作品类型的设置
     this.notdownType = this.getNotDownType()
 
     // 检查是否设置了收藏数要求
-    this.filterBMK = this.getBmkNum()
+    this.BMKNum = this.getBmkNum()
 
     // 检查是否设置了只下载书签作品
-    this.onlyDownBmk = this.getOnlyBmk()
+    this.onlyBmk = this.getOnlyBmk()
 
     // 检查是否设置了宽高条件
     this.filterWh = this.getSetWh()
 
     // 检查宽高比设置
-    this.ratioType = this.getRatioSetting()
+    this.ratioType = this.getRatio()
 
     // 获取必须包含的tag
-    this.needTag = this.getNeedTag()
+    this.includeTag = this.getIncludeTag()
 
     // 获取要排除的tag
-    this.notNeedTag = this.getNotNeedTag()
+    this.excludeTag = this.getExcludeTag()
 
     // 检查是否设置了只下载首次登场
-    if (ui.form.debut.value === '1') {
-      this.debut = true
-      log.warning(lang.transl('_抓取首次登场的作品Title'))
-    } else {
-      this.debut = false
-    }
+    this.debut = this.getDebut()
   }
 
   // 检查作品是否符合过滤器的要求
@@ -1673,10 +1618,10 @@ class Filter {
     result.push(this.checkOnlyBmk(option.bookmarkData))
 
     // 检查要排除的 tag
-    result.push(this.checkNotNeedTag(option.tags))
+    result.push(this.checkExcludeTag(option.tags))
 
     // 检查必须包含的 tag
-    result.push(this.checkNeedTag(option.tags))
+    result.push(this.checkIncludeTag(option.tags))
 
     // 检查宽高设置
     result.push(this.checkSetWh(option.width, option.height))
@@ -1718,20 +1663,20 @@ class Filter {
     return result
   }
 
-  // 获取要排除的tag
-  private getNotNeedTag() {
-    const result = '' || this.checkTagString(ui.form.notNeedTag.value)
+  // 获取必须包含的tag
+  private getIncludeTag() {
+    const result = '' || this.checkTagString(ui.form.needTag.value)
     if (result) {
-      log.warning(lang.transl('_设置了排除tag之后的提示') + result)
+      log.warning(lang.transl('_设置了必须tag之后的提示') + result)
     }
     return result
   }
 
-  // 获取必须包含的tag
-  private getNeedTag() {
-    const result = '' || this.checkTagString(ui.form.needTag.value)
+  // 获取要排除的tag
+  private getExcludeTag() {
+    const result = '' || this.checkTagString(ui.form.notNeedTag.value)
     if (result) {
-      log.warning(lang.transl('_设置了必须tag之后的提示') + result)
+      log.warning(lang.transl('_设置了排除tag之后的提示') + result)
     }
     return result
   }
@@ -1790,7 +1735,7 @@ class Filter {
   }
 
   // 获取宽高比的设置
-  private getRatioSetting() {
+  private getRatio() {
     let result = ui.form.ratio.value
 
     if (result === '1') {
@@ -1807,6 +1752,16 @@ class Filter {
       } else {
         log.warning(lang.transl('_输入宽高比') + ui.form.userRatio.value)
       }
+    }
+
+    return result
+  }
+
+  // 获取首次登场设置
+  private getDebut() {
+    const result = ui.form.debut.value === '1'
+    if (result) {
+      log.warning(lang.transl('_抓取首次登场的作品Title'))
     }
 
     return result
@@ -1830,19 +1785,15 @@ class Filter {
     if (bmk === undefined) {
       return true
     } else {
-      return bmk >= this.filterBMK
+      return bmk >= this.BMKNum
     }
   }
 
   // 检查作品是否符合【只下载书签作品】的条件,返回值 true 表示包含这个作品
   private checkOnlyBmk(bookmarked: any) {
     // 如果设置了只下载书签作品
-    if (this.onlyDownBmk) {
-      if (!!!bookmarked) {
-        return false
-      } else {
-        return true
-      }
+    if (this.onlyBmk) {
+      return !!bookmarked
     }
 
     return true
@@ -1863,14 +1814,14 @@ class Filter {
   }
 
   // 检查作品是否符合包含 tag 的条件, 如果设置了多个 tag，需要作品里全部包含。返回值表示是否保留这个作品。
-  private checkNeedTag(tags: FilterOption['tags']) {
+  private checkIncludeTag(tags: FilterOption['tags']) {
     let result = false
 
-    if (!this.needTag || tags === undefined) {
+    if (!this.includeTag || tags === undefined) {
       return true
     }
 
-    let tempArr = this.needTag.split(',')
+    let tempArr = this.includeTag.split(',')
 
     // 如果设置了必须的 tag
     if (tempArr.length > 0) {
@@ -1902,14 +1853,14 @@ class Filter {
   }
 
   // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。
-  private checkNotNeedTag(tags: FilterOption['tags']) {
+  private checkExcludeTag(tags: FilterOption['tags']) {
     let result = true
 
-    if (!this.notNeedTag || tags === undefined) {
+    if (!this.excludeTag || tags === undefined) {
       return true
     }
 
-    let tempArr = this.notNeedTag.split(',')
+    let tempArr = this.excludeTag.split(',')
 
     // 如果设置了排除 tag
     if (tempArr.length > 0) {
@@ -2001,7 +1952,7 @@ class Filter {
   }
 }
 
-// 保存和初始化下载面板的设置项
+// 保存和初始化下载区域的设置项
 // 只有部分设置会被保存
 class SaveOption {
   constructor() {
@@ -2036,11 +1987,11 @@ class SaveOption {
     'setWorkType2'
   ]
 
-  // 从持久化设置里恢复下载面板的设置
+  // 从持久化设置里恢复下载区域的设置
   // 可以执行多次
   private restoreOption() {
     let str = localStorage.getItem(this.storeName)
-    // 如果之前已经持久化，则读取设置，初始化下载面板的选项
+    // 如果之前已经持久化，则读取设置，初始化下载区域的选项
     if (str) {
       this.needSaveOpts = JSON.parse(str)
     } else {
@@ -2343,8 +2294,9 @@ class QuickBookmark {
 
     let toolbar // 作品下方的工具栏
     for (const el of toolbarParent) {
-      if (el.querySelector('div>section')) {
-        toolbar = el.querySelector('div>section')
+      const test = el.querySelector('div>section')
+      if (test) {
+        toolbar = test
         break
       }
     }
@@ -2359,7 +2311,7 @@ class QuickBookmark {
         // 创建快速收藏元素
         this.quickBookmarkEl = document.createElement('a')
         this.quickBookmarkEl.id = 'quickBookmarkEl'
-        this.quickBookmarkEl.innerHTML = '✩'
+        this.quickBookmarkEl.textContent = '✩'
         this.quickBookmarkEl.href = 'javascript:void(0)'
         this.quickBookmarkEl.title = lang.transl('_快速收藏')
         toolbar.insertBefore(this.quickBookmarkEl, toolbar.childNodes[3])
@@ -2367,11 +2319,12 @@ class QuickBookmark {
         const orgIcon = toolbar.childNodes[2] as HTMLDivElement
 
         if (!orgIcon) {
-          // 当用户处于自己作品的页面时，没有收藏按钮
+          // 当用户处于自己作品的页面时，是没有收藏按钮的，停止执行
           return
+        } else {
+          orgIcon.style.display = 'none'
         }
 
-        orgIcon.style.display = 'none'
         const heart = orgIcon.querySelector('svg')!
         if (window.getComputedStyle(heart)['fill'] === 'rgb(255, 64, 96)') {
           // 如果已经收藏过了
@@ -2825,13 +2778,33 @@ class Store {
 
   public idList: string[] = [] // 储存从列表中抓取到的作品的 id
 
-  public rankList: RankList = {} // 储存作品在排行榜中的排名
+  private rankList: RankList = {} // 储存作品在排行榜中的排名
 
+  public getRankList(index: string) {
+    return this.rankList[index]
+  }
+
+  public setRankList(id: string, rank: string) {
+    this.rankList[id] = rank
+  }
+
+  private convertTip: string = '' // 转换作品时的提示信息
+
+  public set setConvertTip(str: string) {
+    this.convertTip = str
+  }
+
+  public get getConvertTip() {
+    return this.convertTip
+  }
+
+  // 储存和下载有关的状态
   public states = {
     allowWork: true, // 当前是否允许展开工作（如果抓取未完成、下载未完成则应为 false
     quickDownload: false // 快速下载当前作品，这个只在作品页内直接下载时使用
   }
 
+  // 储存页面信息，用来生成文件名
   public pageInfo = {
     pageUserName: '',
     pageUserID: '',
@@ -3140,39 +3113,69 @@ class FileName {
 }
 
 // 输出结果类
-// 输出文件名和网址
 class Output {
-  // 设置输出区域的内容，并显示
-  private showOutputInfoWrap(text: string) {
+  constructor() {
+    this.addOutPutPanel()
+    this.outputPanel = document.querySelector('.outputWrap')! as HTMLDivElement
+    this.outputContent = document.querySelector(
+      '.outputContent'
+    )! as HTMLDivElement
+    this.bindEvent()
+  }
+
+  private outputPanel: HTMLDivElement // 输出面板
+
+  private outputContent: HTMLDivElement // 输出文本的容器元素
+
+  // 添加输出面板
+  private addOutPutPanel() {
+    const outputPanelHTML = `
+    <div class="outputWrap">
+    <div class="outputClose" title="${lang.transl('_关闭')}">X</div>
+    <div class="outputTitle">${lang.transl('_输出信息')}</div>
+    <div class="outputContent"></div>
+    <div class="outputFooter">
+    <div class="outputCopy" title="">${lang.transl('_复制')}</div>
+    </div>
+    </div>
+    `
+    document.body.insertAdjacentHTML('beforeend', outputPanelHTML)
+  }
+
+  private bindEvent() {
+    // 关闭输出面板
+    document.querySelector('.outputClose')!.addEventListener('click', () => {
+      this.outputPanel.style.display = 'none'
+      this.outputContent.innerHTML = ''
+    })
+
+    // 复制输出内容
+    document.querySelector('.outputCopy')!.addEventListener('click', () => {
+      const range = document.createRange()
+      range.selectNodeContents(this.outputContent)
+      window.getSelection()!.removeAllRanges()
+      window.getSelection()!.addRange(range)
+      document.execCommand('copy')
+
+      // 改变提示文字
+      document.querySelector('.outputCopy')!.textContent = lang.transl(
+        '_已复制到剪贴板'
+      )
+      setTimeout(() => {
+        window.getSelection()!.removeAllRanges()
+        document.querySelector('.outputCopy')!.textContent = lang.transl(
+          '_复制'
+        )
+      }, 1000)
+    })
+  }
+
+  // 输出内容
+  public output(text: string) {
     if (text) {
-      document.querySelector('.outputInfoContent')!.innerHTML = text
-      ;(document.querySelector(
-        '.outputInfoWrap'
-      ) as HTMLDivElement).style.display = 'block'
+      this.outputContent.innerHTML = text
+      this.outputPanel.style.display = 'block'
     }
-  }
-
-  public reset() {
-    document.querySelector('.outputInfoContent')!.innerHTML = ''
-  }
-
-  // 预览文件名
-  public previewFileName() {
-    let result = ''
-    result = store.result.reduce((total, now) => {
-      return (total +=
-        now.url.replace(/.*\//, '') + ': ' + fileName.getFileName(now) + '<br>') // 在每个文件名前面加上它的原本的名字，方便用来做重命名
-    }, result)
-    this.showOutputInfoWrap(result)
-  }
-
-  // 显示 url
-  public showURLs() {
-    let result = ''
-    result = store.result.reduce((total, now) => {
-      return (total += now.url + '<br>')
-    }, result)
-    this.showOutputInfoWrap(result)
   }
 }
 
@@ -3183,11 +3186,24 @@ class ConvertUgoira {
   }
 
   private gifWorkerUrl: string = ''
-  private count: number = 0 // 统计有几个转换任务
-  private convertTipText: string = ''
 
-  public get getconvertTip() {
-    return this.convertTipText
+  private tip: string = ''
+
+  private count: number = 0 // 统计有几个转换任务
+
+  private set setCount(num: number) {
+    this.count = num
+
+    // 在下载区域显示转换数量
+    if (this.count > 0) {
+      this.tip = lang.transl('_转换任务提示', this.count.toString())
+    } else {
+      this.tip = ''
+    }
+    ui.getConvertTipEL.innerHTML = this.tip
+
+    store.setConvertTip = this.tip
+    dlCtrl.LogDownloadProgress()
   }
 
   private async loadWorkerJS() {
@@ -3204,20 +3220,6 @@ class ConvertUgoira {
     let gifWorker = await fetch(chrome.extension.getURL('lib/gif.worker.js'))
     const gifWorkerBolb = await gifWorker.blob()
     this.gifWorkerUrl = URL.createObjectURL(gifWorkerBolb)
-  }
-
-  // 在下载面板显示转换数量
-  private showTip() {
-    const convertTip = document.querySelector('.convert_tip')! as HTMLDivElement
-    if (this.count > 0) {
-      this.convertTipText = lang.transl('_转换任务提示', this.count.toString())
-    } else {
-      this.convertTipText = ''
-    }
-    convertTip.innerText = this.convertTipText
-
-    // 在日志里显示转换数量
-    dlCtrl.LogDownloadProgress()
   }
 
   // 解压 zip 文件
@@ -3277,12 +3279,12 @@ class ConvertUgoira {
         img.onload = function(event) {
           // 处理视频
           if (type === 'webm') {
-            const xzCanvas = document.createElement('canvas')
-            const ctx = xzCanvas.getContext('2d')!
-            xzCanvas.width = img.width
-            xzCanvas.height = img.height
+            const canvasEl = document.createElement('canvas')
+            const ctx = canvasEl.getContext('2d')!
+            canvasEl.width = img.width
+            canvasEl.height = img.height
             ctx.drawImage(img, 0, 0)
-            resultList[index] = xzCanvas
+            resultList[index] = canvasEl
           }
           // 处理 gif
           if (type === 'gif') {
@@ -3317,8 +3319,7 @@ class ConvertUgoira {
 
   // 开始转换，主要是解压文件
   private async start(file: Blob, info: UgoiraInfo): Promise<string[]> {
-    this.count++
-    this.showTip()
+    this.setCount = this.count + 1
 
     return new Promise(async (resolve, reject) => {
       // 将压缩包里的图片转换为 base64 字符串
@@ -3328,8 +3329,7 @@ class ConvertUgoira {
   }
 
   private complete() {
-    this.count--
-    this.showTip()
+    this.setCount = this.count - 1
   }
 
   // 转换成 webm
@@ -3455,8 +3455,8 @@ abstract class InitPageBase {
   // 在某些页面里，隐藏不需要的选项。参数是数组，传递设置项的编号。
   public hideNotNeedOption(no: number[]) {
     for (const num of no) {
-      const el = document.querySelector(
-        '.xzFormP' + num.toString()
+      const el = ui.form.querySelector(
+        '.formOption' + num.toString()
       )! as HTMLParagraphElement
       el.style.display = 'none'
     }
@@ -3471,7 +3471,7 @@ abstract class InitPageBase {
     this.setWantPage.value = '1'
   }
 
-  protected setWantPageWrap = document.querySelector('.xzFormP1')!
+  protected setWantPageWrap = ui.form.querySelector('.formOption1')!
   protected setWantPage = this.setWantPageWrap.querySelector(
     '.setWantPage'
   )! as HTMLInputElement
@@ -3529,7 +3529,7 @@ class InitIndexPage extends InitPageBase {
     )
     DOM.insertToHead(this.downIdInput)
     this.downIdInput.addEventListener('change', () => {
-      // 当输入框内容改变时检测，非空值时显示下载面板
+      // 当输入框内容改变时检测，非空值时显示下载区域
       if (this.downIdInput.value !== '') {
         this.ready = true
         ui.showCenterPanel()
@@ -4104,7 +4104,7 @@ abstract class CrawlPageBase {
     log.success(lang.transl('_任务开始0'))
     // log.log(lang.transl('_本次任务条件'))
 
-    ui.hideDownloadPanel()
+    ui.hideDownloadArea()
 
     this.getWantPage()
 
@@ -4213,7 +4213,7 @@ abstract class CrawlPageBase {
       const user = body.userName // 用户名
 
       let rank = '' // 保存作品在排行榜上的编号
-      let testRank = store.rankList[body.illustId]
+      let testRank = store.getRankList(body.illustId)
       if (testRank !== undefined) {
         rank = '#' + testRank
       }
@@ -4372,13 +4372,12 @@ abstract class CrawlPageBase {
   // 抓取完成后，对结果进行排序
   protected sortResult() {}
 
-  // 清空之前的抓取信息并重置输出区域，在重复抓取时使用
+  // 清空之前的抓取信息，在重复抓取时使用
   protected resetResult() {
     store.resetResult()
     dlCtrl.reset()
     titleBar.reset()
     ui.hideCenterPanel()
-    output.reset()
   }
 }
 
@@ -4786,9 +4785,6 @@ class CrawlUserPage extends CrawlPageBase {
       }
     }
 
-    // 重置作品页面列表
-    store.idList = []
-
     store.idList = store.idList.concat(this.idList)
 
     log.log(
@@ -5162,7 +5158,7 @@ class CrawlRankingPage extends CrawlPageBase {
       }
 
       if (filter.check(filterOpt)) {
-        store.rankList[data.illust_id.toString()] = data.rank.toString()
+        store.setRankList(data.illust_id.toString(), data.rank.toString())
 
         store.idList.push(data.illust_id.toString())
       }
@@ -5645,14 +5641,14 @@ class DownloadControl {
 
     // 重置下载进度信息
     if (val === 0) {
-      ui.resetDownloadPanel()
+      ui.resetDownloadArea()
     }
 
     // 下载完毕
     if (val === store.result.length) {
       store.resetStates()
       this.reset()
-      ui.setDownState(lang.transl('_下载完毕'))
+      ui.setDownStateText(lang.transl('_下载完毕'))
       log.success(lang.transl('_下载完毕'), 2)
       titleBar.changeTitle('√')
     }
@@ -5681,7 +5677,7 @@ class DownloadControl {
     this.setDownloaded = 0
 
     // 显示下载区域
-    ui.showDownloadPanel()
+    ui.showDownloadArea()
 
     // 显示中间面板
     if (!store.states.quickDownload) {
@@ -5759,7 +5755,7 @@ class DownloadControl {
       dlFile.download(i)
     }
 
-    ui.setDownState(lang.transl('_正在下载中'))
+    ui.setDownStateText(lang.transl('_正在下载中'))
 
     log.log(lang.transl('_正在下载中'))
   }
@@ -5783,7 +5779,7 @@ class DownloadControl {
         this.downloadPause = true // 发出暂停信号
         store.states.allowWork = true
         titleBar.changeTitle('║')
-        ui.setDownState(lang.transl('_已暂停'), '#f00')
+        ui.setDownStateText(lang.transl('_已暂停'), '#f00')
         log.warning(lang.transl('_已暂停'), 2)
       } else {
         // 不在下载中的话不允许启用暂停功能
@@ -5803,7 +5799,7 @@ class DownloadControl {
     this.downloadStop = true
     store.states.allowWork = true
     titleBar.changeTitle('■')
-    ui.setDownState(lang.transl('_已停止'), '#f00')
+    ui.setDownStateText(lang.transl('_已停止'), '#f00')
     log.error(lang.transl('_已停止'), 2)
     this.downloadPause = false
   }
@@ -5849,9 +5845,9 @@ class DownloadControl {
   public LogDownloadProgress() {
     let text = `${this.downloaded} / ${store.result.length}`
 
-    // 追加转换文件的提示
-    if (convert.getconvertTip) {
-      text += ', ' + convert.getconvertTip
+    // 追加转换动图的提示
+    if (store.getConvertTip) {
+      text += ', ' + store.getConvertTip
     }
 
     log.log(text, 2, false)
@@ -5971,7 +5967,7 @@ class DownloadFile {
         )
       } else if (
         (data!.ext === 'webm' || data!.ext === 'gif') &&
-        data!.ugoiraInfo.frames
+        data!.ugoiraInfo
       ) {
         file = xhr.response as Blob
         // 如果需要转换成视频
@@ -6113,7 +6109,7 @@ class Support {
   }
 
   // 显示最近更新内容
-  private showNew(tag: keyof typeof xzLang) {
+  private showNew(tag: keyof typeof langText) {
     if (
       window.location.host.includes('pixiv.net') &&
       !localStorage.getItem(tag)
@@ -6203,15 +6199,13 @@ const type = pageType.getPageType()
 
 const log = new Log()
 
-const ui = new UI()
+const output = new Output()
 
-// 依赖于 UI 的类需要放到 UI 后面
+const ui = new UI() // 依赖于 UI 的类放到 ui 后面
 
 const pageInfo = new PageInfo(type)
 
 const fileName = new FileName()
-
-const output = new Output()
 
 const filter = new Filter()
 

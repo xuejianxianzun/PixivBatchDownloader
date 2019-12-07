@@ -1,5 +1,5 @@
 'use strict'
-const xzLang = {
+const langText = {
   // 在属性名前面加上下划线，和文本内容做出区别。{}表示需要进行替换的部分
   _只下载已收藏: [
     '只下载已收藏',
