@@ -1,6 +1,6 @@
 # 版本升级日志
 
-## 3.2.6 2019-12-04
+## 3.2.6 2019-12-08
 
 - 优化代码
 
@@ -8,9 +8,9 @@
 
 将 output 相关的代码从 ui 里挪到 output 类里，更清晰。
 
-less 里的代码分类归纳了一下，显得不那么乱了。
+css 里的样式分类归纳了一下，不那么乱了。
 
-
+其他代码优化。
 
 ## 3.2.5 2019-11-29
 
@@ -1262,8 +1262,6 @@ Viewerjs-mix.js [CSS part](https://github.com/fengyuanchen/viewerjs/blob/master/
 
 ## TODO
 
-每个作品添加重试次数
-
 不下载多图的选项
 
 单图也创建文件夹的选项
@@ -1271,3 +1269,7 @@ Viewerjs-mix.js [CSS part](https://github.com/fengyuanchen/viewerjs/blob/master/
 获取指定日期之后的作品
 
 模块化
+
+每个作品添加重试次数
+
+测试下载

@@ -4,7 +4,7 @@ declare let Whammy: any
 
 declare let GIF: any
 
-// 下载时要使用的作品信息
+// 保存每个要下载的图片的信息
 interface WorkInfo {
   id: string
   url: string
@@ -21,6 +21,24 @@ interface WorkInfo {
   type: number
   rank: string
   ugoiraInfo: UgoiraInfo | null
+}
+
+interface WorkInfoOptional {
+  id?: string
+  url?: string
+  title?: string
+  tags?: string[]
+  tagsTranslated?: string[]
+  user?: string
+  userid?: string
+  fullWidth?: number
+  fullHeight?: number
+  ext?: string
+  bmk?: number
+  date?: string
+  type?: number
+  rank?: string
+  ugoiraInfo?: UgoiraInfo | null
 }
 
 // tag 搜索页的作品数据
@@ -561,7 +579,7 @@ interface IsFullscreen {
 }
 
 // 前台向后台发送的任务信息
-interface SendInfo {
+interface SendData {
   msg: string
   fileUrl: string
   fileName: string

@@ -2776,6 +2776,48 @@ class ImgViewer {
 class Store {
   public result: WorkInfo[] = [] // 储存图片信息
 
+  /*
+   id - 其实是默认名，包含两部分：id + 序号，如 44920385_p0。动图只有 id 没有序号
+   url - 图片大图的 url
+   title - 作品的标题
+   tags - 作品的 tag 列表
+   tagsTranslated - 作品的 tag 列表，附带翻译后的 tag（如果有）
+   user - 作品的画师名字
+   userid - 作品的画师id
+   fullWidth - 第一张图片的宽度
+   fullHeight - 第一张图片的高度
+   ext - 图片下载时使用的后缀名
+   bmk - 作品的收藏数量
+   date - 作品的创建日期，格式为 yyyy-MM-dd。如 2019-08-29
+   type - 作品的类型，分为 illustration、manga、ugoira
+   rank - 作品在排行榜中的排名
+   ugoiraInfo - 当作品是动图时才有值，包含 frames（数组）和 mimeType（string）属性
+   */
+
+  // 添加每个图片的信息。只需要传递有值的属性
+  public addResult(data: WorkInfoOptional) {
+    // 图片详细信息的默认值
+    const dataDefault: WorkInfo = {
+      id: '',
+      url: '',
+      title: '',
+      tags: [],
+      tagsTranslated: [],
+      user: '',
+      userid: '',
+      fullWidth: 0,
+      fullHeight: 0,
+      ext: '',
+      bmk: 0,
+      date: '',
+      type: 0,
+      rank: '',
+      ugoiraInfo: null
+    }
+
+    this.result.push(Object.assign(dataDefault, data))
+  }
+
   public idList: string[] = [] // 储存从列表中抓取到的作品的 id
 
   private rankList: RankList = {} // 储存作品在排行榜中的排名
@@ -2826,68 +2868,7 @@ class Store {
     this.resetResult()
     this.resetStates()
   }
-
-  // 添加每个图片的信息。某些参数允许传空值
-  /*
-   id - 图片是 id + 序号，如 44920385_p0。动图只有 id
-   url - 图片的 url
-   title - 作品的标题
-   tags - 作品的 tag 列表
-   tagsTranslated - 作品的 tag 列表，附带翻译后的 tag（如果有）
-   user - 作品的画师名字
-   userid - 作品的画师id
-   fullWidth - 图片的宽度
-   fullHeight - 图片的高度
-   ext - 图片的后缀名
-   bmk - 作品的收藏数量
-   date - 作品的创建日期，格式为 yyyy-MM-dd。如 2019-08-29
-   type - 作品的类型，分为插画/漫画/动图
-   rank - 在排行榜页面使用，保存图片的排名
-   ugoiraInfo - 当作品是动图时才有值，包含 frames（数组）和 mimeType（string）属性
-   */
-  public addResult(
-    id: string,
-    url: string,
-    title: string,
-    tags: string[],
-    tagsTranslated: string[],
-    user: string,
-    userid: string,
-    fullWidth: number,
-    fullHeight: number,
-    ext: string,
-    bmk: number,
-    date: string,
-    type: number,
-    rank: string,
-    ugoiraInfo: any
-  ) {
-    this.result.push({
-      id,
-      url,
-      title,
-      tags,
-      tagsTranslated,
-      user,
-      userid,
-      fullWidth,
-      fullHeight,
-      ext,
-      bmk,
-      date,
-      type,
-      rank,
-      ugoiraInfo
-    })
-  }
 }
-
-// 作品数据
-// class WorksData implements WorkInfo{
-//   constructor(){
-
-//   }
-// }
 
 // 文件名类
 class FileName {
@@ -4024,7 +4005,16 @@ abstract class CrawlPageBase {
 
   protected ajaxThreadsFinished: number = 0 // 统计有几个并发线程完成所有请求。统计的是并发线程（ ajaxThreads ）而非请求数
 
-  // 检查用户输入的页数设置，并返回提示信息
+  // 作品个数/页数的输入不合法
+  private getWantPageError() {
+    const msg = lang.transl('_参数不合法')
+    window.alert(msg)
+    store.states.allowWork = true
+    throw new Error(msg)
+  }
+
+  // 检查用户输入的页数/个数设置，并返回提示信息
+  // 可以为 -1，或者大于 0
   protected checkWantPageInput(crawlPartTip: string, crawlAllTip: string) {
     const temp = parseInt(ui.form.setWantPage.value)
 
@@ -4043,16 +4033,9 @@ abstract class CrawlPageBase {
     return temp
   }
 
-  // 页码参数不合法
-  private getWantPageError() {
-    const msg = lang.transl('_checkWantPageRule1Arg2')
-    window.alert(msg)
-    store.states.allowWork = true
-    throw new Error(msg)
-  }
-
-  // 获取要下载的页数/个数
-  protected getWantPageGreater0() {
+  // 检查用户输入的页数/个数设置
+  // 必须大于 0
+  protected checkWantPageInputGreater0() {
     const result = API.checkNumberGreater0(ui.form.setWantPage.value)
 
     if (result.result) {
@@ -4186,7 +4169,7 @@ abstract class CrawlPageBase {
     const bmk = body.bookmarkCount // 收藏数
     const tagArr = body.tags.tags // 取出 tag 信息
     const tags: string[] = [] // 保存 tag 列表
-    const tagTranslation = [] // 保存 tag 列表，附带翻译后的 tag
+    const tagTranslation: string[] = [] // 保存 tag 列表，附带翻译后的 tag
 
     for (const tagData of tagArr) {
       tags.push(tagData.tag)
@@ -4234,57 +4217,56 @@ abstract class CrawlPageBase {
         const ext = tempExt[tempExt.length - 1]
 
         // 添加作品信息
+        // 通过循环添加每个图片的 id 和 url
         for (let i = 0; i < pNo; i++) {
-          const nowUrl = imgUrl.replace('p0', 'p' + i) // 拼接出每张图片的url
-
-          store.addResult(
-            illustId + '_p' + i,
-            nowUrl,
-            title,
-            tags,
-            tagTranslation,
-            user,
-            userid,
-            fullWidth,
-            fullHeight,
-            ext,
-            bmk,
-            body.createDate.split('T')[0],
-            body.illustType,
-            rank,
-            {}
-          )
+          store.addResult({
+            id: illustId + '_p' + i,
+            url: imgUrl.replace('p0', 'p' + i),
+            title: title,
+            tags: tags,
+            tagsTranslated: tagTranslation,
+            user: user,
+            userid: userid,
+            fullWidth: fullWidth,
+            fullHeight: fullHeight,
+            ext: ext,
+            bmk: bmk,
+            date: body.createDate.split('T')[0],
+            type: body.illustType,
+            rank: rank
+          })
         }
         this.outputImgNum()
       } else if (body.illustType === 2) {
         // 动图
         // 获取动图的信息
-        const info = await API.getUgoiraMeta(illustId)
+        const meta = await API.getUgoiraMeta(illustId)
         // 动图帧延迟数据
         const ugoiraInfo = {
-          frames: info.body.frames,
-          mimeType: info.body.mime_type
+          frames: meta.body.frames,
+          mime_type: meta.body.mime_type
         }
 
         const ext = ui.form.ugoiraSaveAs.value // 扩展名可能是 webm、gif、zip
 
-        store.addResult(
-          illustId,
-          info.body.originalSrc,
-          title,
-          tags,
-          tagTranslation,
-          user,
-          userid,
-          fullWidth,
-          fullHeight,
-          ext,
-          bmk,
-          body.createDate.split('T')[0],
-          body.illustType,
-          rank,
-          ugoiraInfo
-        )
+        store.addResult({
+          id: illustId,
+          url: meta.body.originalSrc,
+          title: title,
+          tags: tags,
+          tagsTranslated: tagTranslation,
+          user: user,
+          userid: userid,
+          fullWidth: fullWidth,
+          fullHeight: fullHeight,
+          ext: ext,
+          bmk: bmk,
+          date: body.createDate.split('T')[0],
+          type: body.illustType,
+          rank: rank,
+          ugoiraInfo: ugoiraInfo
+        })
+
         this.outputImgNum()
       }
     }
@@ -4415,12 +4397,12 @@ class CrawlIndexPage extends CrawlPageBase {
 
 // 抓取作品页
 class CrawlWorksPage extends CrawlPageBase implements IllustPageMembers {
+  public crawlDirection: number = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品
   /*
   -1 抓取新作品
   0 不设置抓取方向
   1 抓取旧作品
   */
-  public crawlDirection: number = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品
 
   public crawlRelated: boolean = false // 是否下载相关作品（作品页内的）
 
@@ -5197,6 +5179,15 @@ class CrawlPixivisionPage extends CrawlPageBase {
 
   protected resetGetIdListStatus() {}
 
+  // 保存要下载的图片的信息
+  private addResult(id: string, url: string, ext: string) {
+    store.addResult({
+      id: id,
+      url: url,
+      ext: ext
+    })
+  }
+
   private getPixivision() {
     const typeA = document.querySelector(
       'a[data-gtm-action=ClickCategory]'
@@ -5206,7 +5197,7 @@ class CrawlPixivisionPage extends CrawlPageBase {
     this.resetResult()
 
     if (type === 'illustration') {
-      // 针对不同类型的页面，使用不同的选择器
+      // 插画页面，需要对图片进行测试获取原图 url
       const imageList = document.querySelectorAll(
         '.am__work__main img'
       ) as NodeListOf<HTMLImageElement>
@@ -5219,17 +5210,10 @@ class CrawlPixivisionPage extends CrawlPageBase {
       urls.forEach(url => {
         let arr = url.split('/')
         const id = arr[arr.length - 1].split('.')[0] // 取出作品 id
-        this.testExtName(url, urls.length, {
-          id: id,
-          title: '',
-          tags: [],
-          user: '',
-          userid: '',
-          fullWidth: '',
-          fullHeight: ''
-        })
+        this.testExtName(url, urls.length, id)
       })
     } else {
+      // 漫画和 cosplay ，直接保存页面上的图片
       let selector = ''
       if (type === 'manga') {
         selector = '.am__work__illust'
@@ -5242,32 +5226,14 @@ class CrawlPixivisionPage extends CrawlPageBase {
         HTMLImageElement
       >
       Array.from(imageList).forEach(el => {
-        const imgUrl = el.src
-        if (
-          imgUrl !== 'https://i.pximg.net/imgaz/upload/20170407/256097898.jpg'
-        ) {
+        const url = el.src
+        if (url !== 'https://i.pximg.net/imgaz/upload/20170407/256097898.jpg') {
           // 跳过Cure的logo图片
-          let arr = imgUrl.split('/')
+          const arr = url.split('/')
           const id = arr[arr.length - 1].split('.')[0] // 作品id
           const ext = arr[arr.length - 1] // 扩展名
 
-          store.addResult(
-            id,
-            imgUrl,
-            '',
-            [],
-            [],
-            '',
-            '',
-            0,
-            0,
-            ext,
-            0,
-            '',
-            0,
-            '',
-            {}
-          )
+          this.addResult(id, url, ext)
         }
       })
       this.crawFinished()
@@ -5277,7 +5243,7 @@ class CrawlPixivisionPage extends CrawlPageBase {
   private tested: number = 0 // 检查图片后缀名时的计数
 
   // 测试图片 url 是否正确的函数。pixivision 页面直接获取的图片 url，后缀都是jpg的，所以要测试实际上是jpg还是png
-  private testExtName(url: string, imgNumber: number, imgInfoData: any) {
+  private testExtName(url: string, imgNumber: number, id: string) {
     let ext = ''
     const testImg = new Image()
     testImg.src = url
@@ -5294,23 +5260,8 @@ class CrawlPixivisionPage extends CrawlPageBase {
         ext = 'png'
       }
 
-      store.addResult(
-        imgInfoData.id,
-        url,
-        imgInfoData.title,
-        imgInfoData.tags,
-        [],
-        imgInfoData.user,
-        imgInfoData.userid,
-        imgInfoData.fullWidth,
-        imgInfoData.fullHeight,
-        ext,
-        0,
-        '',
-        0,
-        '',
-        {}
-      )
+      this.addResult(id, url, ext)
+
       this.outputImgNum()
 
       if (imgNumber !== undefined) {
@@ -5327,7 +5278,7 @@ class CrawlPixivisionPage extends CrawlPageBase {
 // 抓取 bookmark_detail 页面
 class CrawlBookmarkDetailPage extends CrawlPageBase {
   protected getWantPage() {
-    const check = this.getWantPageGreater0()
+    const check = this.checkWantPageInputGreater0()
     if (check == undefined) {
       return
     }
@@ -5357,7 +5308,7 @@ class CrawlBookmarkDetailPage extends CrawlPageBase {
 class CrawlBookmarkNewIllustPage extends CrawlPageBase {
   private r18 = false
   protected getWantPage() {
-    const check = this.getWantPageGreater0()
+    const check = this.checkWantPageInputGreater0()
     if (check == undefined) {
       return
     }
@@ -5435,7 +5386,7 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
 // 抓取 大家的新作品页面
 class CrawlNewIllustPage extends CrawlPageBase {
   protected getWantPage() {
-    const check = this.getWantPageGreater0()
+    const check = this.checkWantPageInputGreater0()
     if (check == undefined) {
       return
     }
@@ -5549,7 +5500,7 @@ class CrawlDiscoverPage extends CrawlPageBase {
 
   protected getIdList() {
     // 在发现页面，仅下载已有部分，所以不需要去获取列表页
-    const nowIllust = document.querySelectorAll('.QBU8zAz>a') as NodeListOf<
+    const nowIllust = document.querySelectorAll('figure>div>a') as NodeListOf<
       HTMLAnchorElement
     >
     // 获取已有作品的 id
@@ -5566,7 +5517,7 @@ class CrawlDiscoverPage extends CrawlPageBase {
   protected resetGetIdListStatus() {}
 }
 
-// 初始化页面抓取流程
+// 初始化页面，初始化抓取流程
 class InitCrawlProcess {
   constructor() {
     this.initPage()
@@ -6023,7 +5974,7 @@ class DownloadFile {
 
     this.downloadTime = new Date().getTime()
 
-    const sendInfo: SendInfo = {
+    const sendData: SendData = {
       msg: 'send_download',
       fileUrl: blobUrl,
       fileName: fullFileName,
@@ -6032,12 +5983,12 @@ class DownloadFile {
       taskBatch: dlCtrl.taskBatch
     }
 
-    chrome.runtime.sendMessage(sendInfo)
+    chrome.runtime.sendMessage(sendData)
   }
 
   // 下载之后
   private afterDownload(msg: DownloadedMsg) {
-    // 释放 bloburl
+    // 释放 BLOBURL
     URL.revokeObjectURL(msg.data.url)
     // 更改这个任务状态为“已完成”
     dlCtrl.setDownloadedIndex(msg.data.thisIndex, 1)
@@ -6059,6 +6010,7 @@ class Support {
     this.listenPageSwitch()
     this.checkNew()
     this.showNew('_xzNew306')
+    API.updateToken()
   }
 
   // 处理和脚本版的冲突
@@ -6188,8 +6140,6 @@ class Support {
     }
   }
 }
-
-API.updateToken()
 
 const lang = new Lang()
 

@@ -14,7 +14,7 @@ let dlIndex: number[][] = []
 let dlBatch: number[] = []
 
 // 接收下载请求
-chrome.runtime.onMessage.addListener(function(msg: SendInfo, sender) {
+chrome.runtime.onMessage.addListener(function(msg: SendData, sender) {
   // 接收下载任务
   if (msg.msg === 'send_download') {
     const tabId = sender.tab!.id!

@@ -194,7 +194,7 @@ const langText = {
     'This task condition: ',
     '本次工作條件：'
   ],
-  _checkWantPageRule1Arg2: [
+  _参数不合法: [
     '参数不合法，本次操作已取消。',
     'パラメータは有効ではありません。この操作はキャンセルされました。',
     'Parameter is not legal, this operation has been canceled.',
