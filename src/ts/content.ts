@@ -582,14 +582,6 @@ class UI {
 
   private stopBtn: HTMLButtonElement = document.createElement('button') // 停止下载按钮
 
-  public get getPauseBtn() {
-    return this.pauseBtn
-  }
-
-  public get getStopBtn() {
-    return this.stopBtn
-  }
-
   private downStatusEl: HTMLSpanElement = document.createElement('span')
 
   private convertTipEL: HTMLDivElement = document.createElement('div') // 转换动图时显示提示的元素
@@ -1141,7 +1133,6 @@ class UI {
   public hideCenterPanel() {
     this.centerPanel.style.display = 'none'
     this.rightBtn.style.display = 'block'
-    // this.outputPanel.style.display = 'none'
   }
 
   // 向中间面板添加按钮
@@ -2846,6 +2837,10 @@ class Store {
     quickDownload: false // 快速下载当前作品，这个只在作品页内直接下载时使用
   }
 
+  public readonly events={
+    'crawlStart':'crawlStart'
+  }
+
   // 储存页面信息，用来生成文件名
   public pageInfo = {
     pageUserName: '',
@@ -4085,9 +4080,8 @@ abstract class CrawlPageBase {
     log.clear()
 
     log.success(lang.transl('_任务开始0'))
-    // log.log(lang.transl('_本次任务条件'))
 
-    ui.hideDownloadArea()
+    window.dispatchEvent(new Event(store.events.crawlStart))
 
     this.getWantPage()
 
@@ -4301,6 +4295,14 @@ abstract class CrawlPageBase {
     this.sortResult()
 
     log.log(lang.transl('_抓取完毕'), 2)
+
+    // 显示下载区域
+    ui.showDownloadArea()
+
+    // 显示中间面板
+    if (!store.states.quickDownload) {
+      ui.showCenterPanel()
+    }
 
     dlCtrl.beforeDownload()
   }
@@ -5571,6 +5573,12 @@ class InitCrawlProcess {
 // 下载控制类
 // 任务状态，任务标记
 class DownloadControl {
+  constructor(){
+    window.addEventListener(store.events.crawlStart,()=>{
+      ui.hideDownloadArea()
+    })
+  }
+  
   private readonly downloadThreadMax: number = 5 // 同时下载的线程数的最大值，也是默认值
 
   private downloadThread: number = this.downloadThreadMax // 同时下载的线程数
@@ -5626,14 +5634,6 @@ class DownloadControl {
   // 抓取完毕之后，已经可以开始下载时，根据一些状态进行处理
   public beforeDownload() {
     this.setDownloaded = 0
-
-    // 显示下载区域
-    ui.showDownloadArea()
-
-    // 显示中间面板
-    if (!store.states.quickDownload) {
-      ui.showCenterPanel()
-    }
 
     let autoDownload: boolean = ui.form.quietDownload.checked
 
@@ -5866,21 +5866,15 @@ class DownloadFile {
     ui.setDownloadBar(progressBarNo, fullFileName, 0, 0)
 
     // 下载图片
-    const xhr = new XMLHttpRequest()
+    let xhr = new XMLHttpRequest()
     xhr.open('GET', data!.url, true)
     xhr.responseType = 'blob'
-
-    // 暂停和停止时中止下载
-    const btns = [ui.getPauseBtn, ui.getStopBtn]
-    btns.forEach(el => {
-      el.addEventListener('click', () => {
-        xhr.abort()
-      })
-    })
 
     // 显示下载进度
     xhr.addEventListener('progress', function(e) {
       if (dlCtrl.downloadStopped) {
+        xhr.abort()
+        xhr = null as any
         return
       }
       e = e || window.event
@@ -5890,6 +5884,7 @@ class DownloadFile {
     // 下载完成
     xhr.addEventListener('loadend', async () => {
       if (dlCtrl.downloadStopped) {
+        xhr = null as any
         return
       }
 
@@ -5934,11 +5929,12 @@ class DownloadFile {
         // 不需要转换
         file = xhr.response
       }
-
       // 生成下载链接
       const blobUrl = URL.createObjectURL(file)
       // 向浏览器发送下载任务
       this.browserDownload(blobUrl, fullFileName, progressBarNo, index!)
+      xhr=null as any
+      file = null as any
     })
     // 捕获错误
     xhr.addEventListener('error', () => {
