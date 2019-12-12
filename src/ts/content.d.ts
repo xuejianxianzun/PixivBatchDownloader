@@ -584,7 +584,7 @@ interface SendData {
   fileUrl: string
   fileName: string
   no: number
-  thisIndex: number
+  index: number
   taskBatch: number
 }
 
@@ -592,7 +592,7 @@ interface SendData {
 interface DonwloadInfo {
   no: number
   url: string
-  thisIndex: number
+  index: number
   tabId: number
   uuid: boolean
 }
@@ -900,4 +900,21 @@ interface DeleteWorksInterface {
 interface IllustPageMembers {
   crawlDirection: number
   crawlRelated: boolean
+}
+
+interface EventList {
+  crawlStart: 'crawlStart'
+  crawlFinish: 'crawlFinish'
+  crawlEmpty: 'crawlEmpty'
+  crawlError: 'crawlError'
+  convertChange: 'convertChange'
+  output: 'output'
+  downloadStart: 'downloadStart'
+  downloadPause: 'downloadPause'
+  downloadStop: 'downloadStop'
+  downloadSucccess: 'downloadSucccess'
+  downloadComplete: 'downloadComplete'
+  downloadError: 'downloadError'
+  pageSwitch: 'pageSwitch'
+  pageTypeChange: 'pageTypeChange'
 }

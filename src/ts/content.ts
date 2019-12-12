@@ -62,6 +62,36 @@ class Colors {
   static readonly red = '#f33939'
 }
 
+// 事件类
+class Evt {
+  public readonly events: EventList = {
+    crawlStart: 'crawlStart',
+    crawlFinish: 'crawlFinish',
+    crawlEmpty: 'crawlEmpty',
+    crawlError: 'crawlError',
+    convertChange: 'convertChange',
+    output: 'output',
+    downloadStart: 'downloadStart',
+    downloadPause: 'downloadPause',
+    downloadStop: 'downloadStop',
+    downloadSucccess: 'downloadSucccess',
+    downloadComplete: 'downloadComplete',
+    downloadError: 'downloadError',
+    pageSwitch: 'pageSwitch',
+    pageTypeChange: 'pageTypeChange'
+  }
+
+  public fire(
+    type: keyof EventList,
+    data: object | string | number | boolean = ''
+  ) {
+    const event = new CustomEvent(type, {
+      detail: { data: data }
+    })
+    window.dispatchEvent(event)
+  }
+}
+
 // 日志类
 class Log {
   private logArea = document.createElement('div') // 输出日志的区域
@@ -465,13 +495,6 @@ class API {
 // DOM 操作类
 // 提供公用的 DOM 操作方法，以及从 DOM 中获取数据的 API
 class DOM {
-  // 把文本形式的 css 样式插入到页面里
-  // static insertCSS(text: string) {
-  //   const styleE = document.createElement('style')
-  //   styleE.textContent = text
-  //   document.body.appendChild(styleE)
-  // }
-
   // 获取指定元素里，可见的结果
   static getVisibleEl(selector: string) {
     const list: NodeListOf<HTMLElement> = document.querySelectorAll(selector)
@@ -552,18 +575,9 @@ class DOM {
 }
 
 // 用户界面
+// 提供中间面板和右侧下载按钮
 class UI {
   constructor() {
-    // 监听点击扩展图标的消息，开关中间面板
-    chrome.runtime.onMessage.addListener(msg => {
-      if (msg.msg === 'click_icon') {
-        if (this.centerPanel.style.display === 'block') {
-          this.hideCenterPanel()
-        } else {
-          this.showCenterPanel()
-        }
-      }
-    })
     // 创建 UI
     this.addUI()
   }
@@ -576,18 +590,11 @@ class UI {
 
   private centerPanel: HTMLDivElement = document.createElement('div') // 中间面板
 
-  private downloadArea: HTMLDivElement = document.createElement('div') // 下载区域
+  private reserveArea: HTMLDivElement = document.createElement('div') // 下载区域容器
 
-  private pauseBtn: HTMLButtonElement = document.createElement('button') // 暂停下载按钮
-
-  private stopBtn: HTMLButtonElement = document.createElement('button') // 停止下载按钮
-
-  private downStatusEl: HTMLSpanElement = document.createElement('span')
-
-  private convertTipEL: HTMLDivElement = document.createElement('div') // 转换动图时显示提示的元素
-
-  public get getConvertTipEL() {
-    return this.convertTipEL
+  // 向预留区域追加元素
+  public insertHTML(html: string) {
+    this.reserveArea.insertAdjacentHTML('beforeend', html)
   }
 
   // 添加右侧下载按钮
@@ -881,58 +888,7 @@ class UI {
       )}</span>
       </p>
       </form>
-      <div class="download_panel">
-      <div class="centerWrap_btns">
-      <button class="startDownload" type="button" style="background:${
-        Colors.blue
-      };"> ${lang.transl('_下载按钮1')}</button>
-      <button class="pauseDownload" type="button" style="background:#e49d00;"> ${lang.transl(
-        '_下载按钮2'
-      )}</button>
-      <button class="stopDownload" type="button" style="background:${
-        Colors.red
-      };"> ${lang.transl('_下载按钮3')}</button>
-      <button class="copyUrl" type="button" style="background:${
-        Colors.green
-      };"> ${lang.transl('_下载按钮4')}</button>
-      </div>
-      <div class="centerWrap_down_tips">
-      <p>
-      ${lang.transl('_当前状态')}
-      <span class="down_status blue"><span>${lang.transl(
-        '_未开始下载'
-      )}</span></span>
-      <span class="convert_tip blue"></span>
-      </p>
-      <div class="progressBarWrap">
-      <span class="text">${lang.transl('_下载进度')}</span>
-      <div class="right1">
-      <div class="progressBar progressBar1">
-      <div class="progress progress1"></div>
-      </div>
-      <div class="progressTip progressTip1">
-      <span class="downloaded">0</span>
-      /
-      <span class="imgNum">0</span>
-      </div>
-      </div>
-      </div>
-      </div>
-      <div>
-      <ul class="centerWrap_down_list">
-      <li class="downloadBar">
-      <div class="progressBar progressBar2">
-      <div class="progress progress2"></div>
-      </div>
-      <div class="progressTip progressTip2">
-      <span class="download_fileName"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${lang.transl(
-        '_已下载'
-      )}&nbsp;&nbsp;<span class="loaded">0/0</span>KB
-      </div>
-      </li>
-      </ul>
-      </div>
-      </div>
+      <div class="reserve_area"></div>
       <p class="gray1 bottom_help_bar"> 
       <span class="showDownTip">${lang.transl('_常见问题')}</span>
       <a class="wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"> ${lang.transl(
@@ -947,19 +903,8 @@ class UI {
     document.body.insertAdjacentHTML('beforeend', centerPanelHTML)
 
     this.centerPanel = document.querySelector('.centerWrap')! as HTMLDivElement
-    this.pauseBtn = document.querySelector(
-      '.pauseDownload'
-    )! as HTMLButtonElement
-    this.stopBtn = document.querySelector('.stopDownload')! as HTMLButtonElement
-    this.downloadArea = document.querySelector(
-      '.download_panel'
-    ) as HTMLDivElement
-    this.downStatusEl = document.querySelector(
-      '.down_status '
-    ) as HTMLSpanElement
-    this.convertTipEL = document.querySelector(
-      '.convert_tip'
-    )! as HTMLDivElement
+
+    this.reserveArea = document.querySelector('.reserve_area') as HTMLDivElement
   }
 
   // 显示提示
@@ -988,7 +933,18 @@ class UI {
 
   // 绑定中间面板上的事件
   private bindEvents() {
-    // 关闭中间面板
+    // 监听点击扩展图标的消息，开关中间面板
+    chrome.runtime.onMessage.addListener(msg => {
+      if (msg.msg === 'click_icon') {
+        if (this.centerPanel.style.display === 'block') {
+          this.hideCenterPanel()
+        } else {
+          this.showCenterPanel()
+        }
+      }
+    })
+
+    // 关闭按钮
     document
       .querySelector('.centerWrap_close')!
       .addEventListener('click', () => {
@@ -1016,13 +972,9 @@ class UI {
     document
       .querySelector('.showFileNameResult')!
       .addEventListener('click', () => {
-        output.output(this.previewFileName())
+        const text = this.previewFileName()
+        evt.fire(evt.events.output, text)
       })
-
-    // 显示 url
-    document.querySelector('.copyUrl')!.addEventListener('click', () => {
-      output.output(this.showURLs())
-    })
 
     // 显示命名字段提示
     document
@@ -1037,21 +989,6 @@ class UI {
       .addEventListener('click', () =>
         DOM.toggleEl(document.querySelector('.downTip')! as HTMLDivElement)
       )
-
-    // 开始下载按钮
-    document.querySelector('.startDownload')!.addEventListener('click', () => {
-      dlCtrl.startDownload()
-    })
-
-    // 暂停下载按钮
-    this.pauseBtn.addEventListener('click', () => {
-      dlCtrl.pauseDownload()
-    })
-
-    // 停止下载按钮
-    this.stopBtn.addEventListener('click', () => {
-      dlCtrl.stopDownload()
-    })
 
     this.form = this.centerPanel.querySelector('.settingForm')! as XzForm
 
@@ -1114,15 +1051,6 @@ class UI {
     })
   }
 
-  // 显示或隐藏下载区域
-  public showDownloadArea() {
-    this.downloadArea.style.display = 'block'
-  }
-
-  public hideDownloadArea() {
-    this.downloadArea.style.display = 'none'
-  }
-
   // 显示中间区域
   public showCenterPanel() {
     this.centerPanel.style.display = 'block'
@@ -1172,98 +1100,6 @@ class UI {
     return result
   }
 
-  // 设置下载状态文本，默认颜色为主题蓝色
-  public setDownStateText(str: string, color: string = '') {
-    const el = document.createElement('span')
-    el.textContent = str
-    if (color) {
-      el.style.color = color
-    }
-    this.downStatusEl.innerHTML = ''
-    this.downStatusEl.appendChild(el)
-  }
-
-  // 重置下载区域的信息
-  public resetDownloadArea() {
-    this.setDownStateText(lang.transl('_未开始下载'))
-
-    for (const el of document.querySelectorAll('.imgNum')) {
-      el.textContent = store.result.length.toString()
-    }
-
-    for (const el of document.querySelectorAll('.download_fileName')) {
-      el.textContent = ''
-    }
-
-    for (const el of document.querySelectorAll('.loaded')) {
-      el.textContent = '0/0'
-    }
-
-    for (const el of document.querySelectorAll('.progress')) {
-      ;(el as HTMLDivElement).style.width = '0%'
-    }
-  }
-
-  // 显示总的下载进度
-  public showDownloadProgress(downloaded: number) {
-    // 在总进度条上显示已下载数量
-    document.querySelector('.downloaded')!.textContent = downloaded.toString()
-
-    // 设置总进度条的进度
-    const progress = (downloaded / store.result.length) * 100
-    const progressBar = document.querySelector('.progress1')! as HTMLDivElement
-    progressBar.style.width = progress + '%'
-  }
-
-  // 所有下载进度条
-  private allDownloadBar: NodeListOf<
-    HTMLDivElement
-  > = document.querySelectorAll('.downloadBar')
-
-  // 重设下载进度条的数量
-  public resetDownloadBar(num: number) {
-    const centerWrapDownList = document.querySelector(
-      '.centerWrap_down_list'
-    ) as HTMLDivElement
-
-    this.allDownloadBar = centerWrapDownList.querySelectorAll('.downloadBar')
-
-    if (this.allDownloadBar.length !== num) {
-      centerWrapDownList.innerHTML = this.allDownloadBar[0].outerHTML.repeat(
-        num
-      )
-    }
-
-    centerWrapDownList.style.display = 'block'
-
-    // 缓存所有下载进度条元素
-    this.allDownloadBar = centerWrapDownList.querySelectorAll('.downloadBar')
-  }
-
-  // 设置单个进度条的信息
-  public setDownloadBar(
-    index: number,
-    name: string,
-    loaded: number,
-    total: number
-  ) {
-    const el = this.allDownloadBar[index]
-
-    el.querySelector('.download_fileName')!.textContent = name
-
-    const loadedBar = el.querySelector('.loaded') as HTMLDivElement
-    loadedBar.textContent = `${Math.floor(loaded / 1024)}/${Math.floor(
-      total / 1024
-    )}`
-
-    const progressBar = el.querySelector('.progress') as HTMLDivElement
-    let progress = loaded / total
-    if (isNaN(progress)) {
-      progress = 0
-    }
-    progressBar.style.width = progress * 100 + '%'
-  }
-
   // 预览文件名
   private previewFileName() {
     let result = ''
@@ -1273,29 +1109,23 @@ class UI {
     }, result)
     return result
   }
-
-  // 显示 url
-  private showURLs() {
-    let result = ''
-    result = store.result.reduce((total, now) => {
-      return (total += now.url + '<br>')
-    }, result)
-    return result
-  }
 }
 
-// 页面类型
+// 获取页面类型
 class PageType {
   constructor() {
     this.type = this.getPageType()
+
+    // 页面切换时检查新旧页面是否不同
+    window.addEventListener(evt.events.pageSwitch, () => {
+      this.checkPageTypeIsNew()
+    })
   }
 
   private type: number = 0
 
-  public onPageTypeChange() {}
-
-  // 判断可以处理的页面类型
-  // 有些页面类型虽然不支持，但它和支持的页面是无刷新切换的，所以一开始依然要添加下载器。等到开始抓取时再次判断是否可以抓取
+  // 判断页面类型
+  // 有些页面类型（如小说）虽然不支持，但它和支持的页面是无刷新切换的，所以视为支持的页面。等到开始抓取时再次判断是否可以抓取
   public getPageType(): number {
     const url = window.location.href
     let type: number
@@ -1363,26 +1193,28 @@ class PageType {
     return type
   }
 
-  // 检查是不是进入到了新的页面类型。这个检查需要手动触发
-  public checkPageTypeIsNew() {
+  // 检查是不是进入到了新的页面类型
+  private checkPageTypeIsNew() {
     let newType = this.getPageType()
 
     if (this.type !== newType) {
-      // 在这里保存一次当前页面类型，因为下面运行的内容可能出错，这里不先保存可能就保存不上了。
-      this.type = newType
-
-      this.onPageTypeChange()
-    } else {
-      // 保存当前页面类型
-      this.type = newType
+      evt.fire(evt.events.pageTypeChange, newType)
     }
+
+    // 保存当前页面类型
+    this.type = newType
   }
 }
 
-// 获取页面上的有用信息
+// 获取页面上的一些信息，用于文件名中
 class PageInfo {
-  constructor(type: number) {
-    this.getPageInfo(type)
+  constructor() {
+    this.getPageInfo(pageType.getPageType())
+
+    // 页面切换时获取新的页面信息
+    window.addEventListener(evt.events.pageSwitch, () => {
+      this.getPageInfo(pageType.getPageType())
+    })
   }
 
   // 预设为 1 是为了指示这个标记有值，这样在获取到实际值之前，就可以把它插入到下拉框里。
@@ -1413,7 +1245,7 @@ class PageInfo {
   }
 
   // 获取当前页面的一些信息，用于文件名中
-  public async getPageInfo(type: number) {
+  private async getPageInfo(type: number) {
     this.reset()
 
     // 设置用户信息
@@ -1462,7 +1294,7 @@ class PageInfo {
   }
 }
 
-//标题栏
+// 在标题栏上显示下载器工作状态
 class TitleBar {
   private titleTimer: number = 0 // 修改 title 的定时器
 
@@ -1543,7 +1375,7 @@ class TitleBar {
 }
 
 // 过滤器
-// 审查每个作品的数据，决定是否要下载它。下载区域只有一部分选项是过滤器。
+// 审查每个作品的数据，决定是否要下载它。下载区域有一些选项是过滤器选项。
 class Filter {
   private notdownType: string = '' // 设置不要下载的作品类型
 
@@ -2061,9 +1893,9 @@ class SaveOption {
     })
 
     // 保存排除类型
-    for (let index = 0; index < this.notdownTypeName.length; index++) {
+    for (let i = 0; i < this.notdownTypeName.length; i++) {
       // 根据 notdownType 里的记录，选中或者取消选中
-      let element = ui.form[this.notdownTypeName[index]] as HTMLInputElement
+      let element = ui.form[this.notdownTypeName[i]] as HTMLInputElement
       element.addEventListener('click', () => {
         this.saveSetting('notdownType', ui.getNotDownType())
       })
@@ -2370,7 +2202,7 @@ class QuickBookmark {
 }
 
 // 给收藏里的未分类作品批量添加 tag
-class AddBookmarksTag {
+class BookmarksAddTag {
   constructor(btn: HTMLButtonElement) {
     this.btn = btn
     this.init()
@@ -2763,8 +2595,41 @@ class ImgViewer {
   }
 }
 
-// 存储抓取结果
+// 仓库
+// 存储抓取结果和状态
 class Store {
+  constructor() {
+    const truesEvent = [
+      evt.events.crawlFinish,
+      evt.events.crawlEmpty,
+      evt.events.crawlError,
+      evt.events.downloadPause,
+      evt.events.downloadStop
+    ]
+
+    truesEvent.forEach(type => {
+      window.addEventListener(type, () => {
+        this.states.allowWork = true
+      })
+    })
+
+    const falseEvent = [evt.events.crawlStart, evt.events.downloadStart]
+
+    falseEvent.forEach(type => {
+      window.addEventListener(type, () => {
+        this.states.allowWork = false
+      })
+    })
+
+    window.addEventListener(evt.events.crawlStart, () => {
+      this.resetResult()
+    })
+
+    window.addEventListener(evt.events.downloadComplete, () => {
+      this.resetStates()
+    })
+  }
+
   public result: WorkInfo[] = [] // 储存图片信息
 
   /*
@@ -2821,24 +2686,10 @@ class Store {
     this.rankList[id] = rank
   }
 
-  private convertTip: string = '' // 转换作品时的提示信息
-
-  public set setConvertTip(str: string) {
-    this.convertTip = str
-  }
-
-  public get getConvertTip() {
-    return this.convertTip
-  }
-
   // 储存和下载有关的状态
   public states = {
     allowWork: true, // 当前是否允许展开工作（如果抓取未完成、下载未完成则应为 false
     quickDownload: false // 快速下载当前作品，这个只在作品页内直接下载时使用
-  }
-
-  public readonly events={
-    'crawlStart':'crawlStart'
   }
 
   // 储存页面信息，用来生成文件名
@@ -2858,14 +2709,9 @@ class Store {
     this.states.allowWork = true
     this.states.quickDownload = false
   }
-
-  public resetAll() {
-    this.resetResult()
-    this.resetStates()
-  }
 }
 
-// 文件名类
+// 生成文件名
 class FileName {
   // 用正则过滤不安全的字符，（Chrome 和 Windows 不允许做文件名的字符）
   // 不安全的字符，这里多数是控制字符，需要替换掉
@@ -3088,20 +2934,17 @@ class FileName {
   }
 }
 
-// 输出结果类
+// 输出传递的文本
 class Output {
   constructor() {
     this.addOutPutPanel()
-    this.outputPanel = document.querySelector('.outputWrap')! as HTMLDivElement
-    this.outputContent = document.querySelector(
-      '.outputContent'
-    )! as HTMLDivElement
+
     this.bindEvent()
   }
 
-  private outputPanel: HTMLDivElement // 输出面板
+  private outputPanel: HTMLDivElement = document.createElement('div') // 输出面板
 
-  private outputContent: HTMLDivElement // 输出文本的容器元素
+  private outputContent: HTMLDivElement = document.createElement('div') // 输出文本的容器元素
 
   // 添加输出面板
   private addOutPutPanel() {
@@ -3116,6 +2959,12 @@ class Output {
     </div>
     `
     document.body.insertAdjacentHTML('beforeend', outputPanelHTML)
+
+    this.outputPanel = document.querySelector('.outputWrap')! as HTMLDivElement
+
+    this.outputContent = document.querySelector(
+      '.outputContent'
+    )! as HTMLDivElement
   }
 
   private bindEvent() {
@@ -3144,10 +2993,14 @@ class Output {
         )
       }, 1000)
     })
+
+    window.addEventListener(evt.events.output, (ev: CustomEventInit) => {
+      this.output(ev.detail.data)
+    })
   }
 
   // 输出内容
-  public output(text: string) {
+  private output(text: string) {
     if (text) {
       this.outputContent.innerHTML = text
       this.outputPanel.style.display = 'block'
@@ -3155,7 +3008,7 @@ class Output {
   }
 }
 
-// 转换动图类
+// 转换动图
 class ConvertUgoira {
   constructor() {
     this.loadWorkerJS()
@@ -3176,10 +3029,7 @@ class ConvertUgoira {
     } else {
       this.tip = ''
     }
-    ui.getConvertTipEL.innerHTML = this.tip
-
-    store.setConvertTip = this.tip
-    dlCtrl.LogDownloadProgress()
+    evt.fire(evt.events.convertChange, this.tip)
   }
 
   private async loadWorkerJS() {
@@ -3528,7 +3378,17 @@ class InitWorksPage extends InitPageBase {
   constructor(crawler: CrawlWorksPage) {
     super(crawler)
     this.crawler = crawler
+
+    // 初始化快速收藏功能和图片查看器
+    new QuickBookmark()
+    viewer.initViewer()
+
+    // 页面切换时初始化图片查看器
+    window.addEventListener(evt.events.pageSwitch, () => {
+      viewer.initViewer()
+    })
   }
+
   protected crawler: CrawlWorksPage
 
   protected appendCenterBtns() {
@@ -3588,10 +3448,6 @@ class InitWorksPage extends InitPageBase {
       lang.transl('_相关作品大于0')
     this.setWantPageTip2.textContent = lang.transl('_数字提示1')
     this.setWantPage.value = '-1'
-
-    // 初始化快速收藏功能和图片查看器
-    new QuickBookmark()
-    viewer.initViewer()
   }
 }
 
@@ -3635,7 +3491,7 @@ class InitUserPage extends InitPageBase {
       ])
       btn.id = 'add_tag_btn'
 
-      new AddBookmarksTag(btn)
+      new BookmarksAddTag(btn)
     }
   }
 
@@ -4002,9 +3858,9 @@ abstract class CrawlPageBase {
 
   // 作品个数/页数的输入不合法
   private getWantPageError() {
+    evt.fire(evt.events.crawlError)
     const msg = lang.transl('_参数不合法')
     window.alert(msg)
-    store.states.allowWork = true
     throw new Error(msg)
   }
 
@@ -4077,11 +3933,15 @@ abstract class CrawlPageBase {
       return
     }
 
+    evt.fire(evt.events.crawlStart)
+
     log.clear()
 
     log.success(lang.transl('_任务开始0'))
 
-    window.dispatchEvent(new Event(store.events.crawlStart))
+    titleBar.changeTitle('↑')
+
+    ui.hideCenterPanel()
 
     this.getWantPage()
 
@@ -4090,17 +3950,9 @@ abstract class CrawlPageBase {
     // 检查是否设置了作品张数限制
     this.imgNumberPerWork = this.getImgNumberPerWork()
 
-    // 重置下载状态
-    this.resetResult()
-
-    // 开始执行时，标记任务状态，当前任务结束后才能再启动新任务
-    store.states.allowWork = false
-
     await pageInfo.store()
 
     // 进入第一个抓取方法
-    titleBar.changeTitle('↑')
-
     this.nextStep()
   }
 
@@ -4286,8 +4138,6 @@ abstract class CrawlPageBase {
 
   // 抓取完毕
   protected crawFinished() {
-    store.states.allowWork = true
-
     if (store.result.length === 0) {
       return this.noResult()
     }
@@ -4296,15 +4146,12 @@ abstract class CrawlPageBase {
 
     log.log(lang.transl('_抓取完毕'), 2)
 
-    // 显示下载区域
-    ui.showDownloadArea()
+    evt.fire(evt.events.crawlFinish)
 
     // 显示中间面板
     if (!store.states.quickDownload) {
       ui.showCenterPanel()
     }
-
-    dlCtrl.beforeDownload()
   }
 
   // 重设抓取作品列表时使用的变量或标记
@@ -4347,22 +4194,14 @@ abstract class CrawlPageBase {
 
   // 抓取结果为 0 时输出提示
   protected noResult() {
+    evt.fire(evt.events.crawlEmpty)
+    titleBar.reset()
     log.error(lang.transl('_抓取结果为零'), 2)
     window.alert(lang.transl('_抓取结果为零'))
-    store.states.allowWork = true
-    titleBar.reset()
   }
 
   // 抓取完成后，对结果进行排序
   protected sortResult() {}
-
-  // 清空之前的抓取信息，在重复抓取时使用
-  protected resetResult() {
-    store.resetResult()
-    dlCtrl.reset()
-    titleBar.reset()
-    ui.hideCenterPanel()
-  }
 }
 
 // 抓取首页
@@ -4634,7 +4473,7 @@ class CrawlUserPage extends CrawlPageBase {
           this.getIdListByTag('illustmanga')
         } else {
           // 无法处理的情况
-          store.states.allowWork = true
+          evt.fire(evt.events.crawlError)
           throw new Error('Unknown instance.')
         }
       }
@@ -5172,8 +5011,7 @@ class CrawlRankingPage extends CrawlPageBase {
 
 // 抓取 pixivision 页面
 class CrawlPixivisionPage extends CrawlPageBase {
-  public async readyCrawl() {
-    titleBar.changeTitle('↑')
+  protected nextStep() {
     this.getPixivision()
   }
 
@@ -5191,12 +5029,10 @@ class CrawlPixivisionPage extends CrawlPageBase {
   }
 
   private getPixivision() {
-    const typeA = document.querySelector(
+    const a = document.querySelector(
       'a[data-gtm-action=ClickCategory]'
     )! as HTMLAnchorElement
-    const type = typeA.dataset.gtmLabel
-
-    this.resetResult()
+    const type = a.dataset.gtmLabel
 
     if (type === 'illustration') {
       // 插画页面，需要对图片进行测试获取原图 url
@@ -5306,7 +5142,7 @@ class CrawlBookmarkDetailPage extends CrawlPageBase {
   protected resetGetIdListStatus() {}
 }
 
-// 抓取 关注的新作品
+// 抓取关注的新作品页面
 class CrawlBookmarkNewIllustPage extends CrawlPageBase {
   private r18 = false
   protected getWantPage() {
@@ -5371,7 +5207,6 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
     // 判断任务状态
     // 如果抓取了所有页面，或者抓取完指定页面
     if (p >= 100 || this.listPageFinished === this.crawlNumber) {
-      store.states.allowWork = true
       log.log(lang.transl('_列表页抓取完成'))
       this.getIdListFinished()
     } else {
@@ -5523,6 +5358,16 @@ class CrawlDiscoverPage extends CrawlPageBase {
 class InitCrawlProcess {
   constructor() {
     this.initPage()
+
+    // 页面类型变化时，初始化抓取流程
+    window.addEventListener(evt.events.pageTypeChange, () => {
+      this.initPage()
+
+      // 切换不同页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
+      if (store.states.allowWork) {
+        log.clear()
+      }
+    })
   }
 
   private initPage() {
@@ -5570,50 +5415,91 @@ class InitCrawlProcess {
   }
 }
 
-// 下载控制类
-// 任务状态，任务标记
+// 下载控制
 class DownloadControl {
-  constructor(){
-    window.addEventListener(store.events.crawlStart,()=>{
-      ui.hideDownloadArea()
+  constructor() {
+    this.createDownloadArea()
+
+    window.addEventListener(evt.events.crawlStart, () => {
+      this.hideDownloadArea()
+      this.reset()
+    })
+
+    window.addEventListener(evt.events.crawlFinish, () => {
+      this.showDownloadArea()
+      this.beforeDownload()
+    })
+
+    window.addEventListener(evt.events.convertChange, (ev: CustomEventInit) => {
+      this.convertTipEL.innerHTML = ev.detail.data
+      this.LogDownloadProgress(ev.detail.data)
+    })
+
+    window.addEventListener(
+      evt.events.downloadSucccess,
+      (ev: CustomEventInit) => {
+        const data = ev.detail.data as DonwloadInfo
+        this.downloadSuccess(data)
+      }
+    )
+
+    window.addEventListener(evt.events.downloadError, () => {
+      this.reTryDownload()
     })
   }
-  
+
   private readonly downloadThreadMax: number = 5 // 同时下载的线程数的最大值，也是默认值
 
   private downloadThread: number = this.downloadThreadMax // 同时下载的线程数
 
-  public taskBatch = 0 // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
+  private taskBatch = 0 // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
 
   private downloadStatesList: number[] = [] // 标记每个下载任务的完成状态
 
   private downloaded: number = 0 // 已下载的任务数量
 
-  public get getDownloaded() {
-    return this.downloaded
+  // 显示总的下载进度
+  private showDownloadProgress(downloaded: number) {
+    // 在总进度条上显示已下载数量
+    document.querySelector('.downloaded')!.textContent = downloaded.toString()
+
+    // 设置总进度条的进度
+    const progress = (downloaded / store.result.length) * 100
+    const progressBar = document.querySelector('.progress1')! as HTMLDivElement
+    progressBar.style.width = progress + '%'
   }
 
-  public set setDownloaded(val: number) {
+  private set setDownloaded(val: number) {
     this.downloaded = val
-    ui.showDownloadProgress(this.downloaded)
+    this.showDownloadProgress(this.downloaded)
     this.LogDownloadProgress()
 
     // 重置下载进度信息
-    if (val === 0) {
-      ui.resetDownloadArea()
+    if (this.downloaded === 0) {
+      this.resetDownloadArea()
     }
 
     // 下载完毕
-    if (val === store.result.length) {
-      store.resetStates()
+    if (this.downloaded === store.result.length) {
+      evt.fire(evt.events.downloadComplete)
       this.reset()
-      ui.setDownStateText(lang.transl('_下载完毕'))
+      this.setDownStateText(lang.transl('_下载完毕'))
       log.success(lang.transl('_下载完毕'), 2)
       titleBar.changeTitle('√')
     }
   }
 
+  private downloadedAdd() {
+    this.setDownloaded = this.downloaded + 1
+  }
+
   private reTryTimer: number = 0 // 重试下载的定时器
+
+  private downloadArea: HTMLDivElement = document.createElement('div') // 下载区域
+
+  private downStatusEl: HTMLSpanElement = document.createElement('span')
+
+  private convertTipEL: HTMLDivElement = document.createElement('div') // 转换动图时显示提示的元素
 
   private downloadStop: boolean = false // 是否停止下载
 
@@ -5624,15 +5510,200 @@ class DownloadControl {
     return this.downloadPause || this.downloadStop
   }
 
-  public reset() {
+  // 显示或隐藏下载区域
+  private showDownloadArea() {
+    this.downloadArea.style.display = 'block'
+  }
+
+  private hideDownloadArea() {
+    this.downloadArea.style.display = 'none'
+  }
+
+  // 重置下载区域的信息
+  private resetDownloadArea() {
+    this.setDownStateText(lang.transl('_未开始下载'))
+
+    for (const el of document.querySelectorAll('.imgNum')) {
+      el.textContent = store.result.length.toString()
+    }
+
+    for (const el of document.querySelectorAll('.download_fileName')) {
+      el.textContent = ''
+    }
+
+    for (const el of document.querySelectorAll('.loaded')) {
+      el.textContent = '0/0'
+    }
+
+    for (const el of document.querySelectorAll('.progress')) {
+      ;(el as HTMLDivElement).style.width = '0%'
+    }
+  }
+
+  // 设置下载状态文本，默认颜色为主题蓝色
+  private setDownStateText(str: string, color: string = '') {
+    const el = document.createElement('span')
+    el.textContent = str
+    if (color) {
+      el.style.color = color
+    }
+    this.downStatusEl.innerHTML = ''
+    this.downStatusEl.appendChild(el)
+  }
+
+  private reset() {
     this.downloadStatesList = []
     this.downloadPause = false
     this.downloadStop = false
     clearTimeout(this.reTryTimer)
   }
 
+  private createDownloadArea() {
+    const html = `<div class="download_area">
+    <div class="centerWrap_btns">
+    <button class="startDownload" type="button" style="background:${
+      Colors.blue
+    };"> ${lang.transl('_下载按钮1')}</button>
+    <button class="pauseDownload" type="button" style="background:#e49d00;"> ${lang.transl(
+      '_下载按钮2'
+    )}</button>
+    <button class="stopDownload" type="button" style="background:${
+      Colors.red
+    };"> ${lang.transl('_下载按钮3')}</button>
+    <button class="copyUrl" type="button" style="background:${
+      Colors.green
+    };"> ${lang.transl('_下载按钮4')}</button>
+    </div>
+    <div class="centerWrap_down_tips">
+    <p>
+    ${lang.transl('_当前状态')}
+    <span class="down_status blue"><span>${lang.transl(
+      '_未开始下载'
+    )}</span></span>
+    <span class="convert_tip blue"></span>
+    </p>
+    <div class="progressBarWrap">
+    <span class="text">${lang.transl('_下载进度')}</span>
+    <div class="right1">
+    <div class="progressBar progressBar1">
+    <div class="progress progress1"></div>
+    </div>
+    <div class="progressTip progressTip1">
+    <span class="downloaded">0</span>
+    /
+    <span class="imgNum">0</span>
+    </div>
+    </div>
+    </div>
+    </div>
+    <div>
+    <ul class="centerWrap_down_list">
+    <li class="downloadBar">
+    <div class="progressBar progressBar2">
+    <div class="progress progress2"></div>
+    </div>
+    <div class="progressTip progressTip2">
+    <span class="download_fileName"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${lang.transl(
+      '_已下载'
+    )}&nbsp;&nbsp;<span class="loaded">0/0</span>KB
+    </div>
+    </li>
+    </ul>
+    </div>
+    </div>`
+
+    ui.insertHTML(html)
+
+    this.downloadArea = document.querySelector(
+      '.download_area'
+    ) as HTMLDivElement
+
+    this.downStatusEl = document.querySelector(
+      '.down_status '
+    ) as HTMLSpanElement
+
+    this.convertTipEL = document.querySelector(
+      '.convert_tip'
+    )! as HTMLDivElement
+
+    document.querySelector('.startDownload')!.addEventListener('click', () => {
+      this.startDownload()
+    })
+
+    document.querySelector('.pauseDownload')!.addEventListener('click', () => {
+      this.pauseDownload()
+    })
+
+    document.querySelector('.stopDownload')!.addEventListener('click', () => {
+      this.stopDownload()
+    })
+
+    document.querySelector('.copyUrl')!.addEventListener('click', () => {
+      const text = this.showURLs()
+      evt.fire(evt.events.output, text)
+    })
+  }
+
+  // 显示 url
+  private showURLs() {
+    let result = ''
+    result = store.result.reduce((total, now) => {
+      return (total += now.url + '<br>')
+    }, result)
+    return result
+  }
+
+  // 所有下载进度条
+  private allDownloadBar: NodeListOf<
+    HTMLDivElement
+  > = document.querySelectorAll('.downloadBar')
+
+  // 重设下载进度条的数量
+  private resetDownloadBar(num: number) {
+    const centerWrapDownList = document.querySelector(
+      '.centerWrap_down_list'
+    ) as HTMLDivElement
+
+    this.allDownloadBar = centerWrapDownList.querySelectorAll('.downloadBar')
+
+    if (this.allDownloadBar.length !== num) {
+      centerWrapDownList.innerHTML = this.allDownloadBar[0].outerHTML.repeat(
+        num
+      )
+    }
+
+    centerWrapDownList.style.display = 'block'
+
+    // 缓存所有下载进度条元素
+    this.allDownloadBar = centerWrapDownList.querySelectorAll('.downloadBar')
+  }
+
+  // 设置单个进度条的信息
+  public setDownloadBar(
+    index: number,
+    name: string,
+    loaded: number,
+    total: number
+  ) {
+    const el = this.allDownloadBar[index]
+
+    el.querySelector('.download_fileName')!.textContent = name
+
+    const loadedBar = el.querySelector('.loaded') as HTMLDivElement
+    loadedBar.textContent = `${Math.floor(loaded / 1024)}/${Math.floor(
+      total / 1024
+    )}`
+
+    const progressBar = el.querySelector('.progress') as HTMLDivElement
+    let progress = loaded / total
+    if (isNaN(progress)) {
+      progress = 0
+    }
+    progressBar.style.width = progress * 100 + '%'
+  }
+
   // 抓取完毕之后，已经可以开始下载时，根据一些状态进行处理
-  public beforeDownload() {
+  private beforeDownload() {
     this.setDownloaded = 0
 
     let autoDownload: boolean = ui.form.quietDownload.checked
@@ -5643,19 +5714,19 @@ class DownloadControl {
 
     // 视情况自动开始下载
     if (autoDownload || store.states.quickDownload) {
-      dlCtrl.startDownload()
+      this.startDownload()
     }
   }
 
   // 开始下载
-  public startDownload() {
+  private startDownload() {
     // 如果正在下载中，或无图片，则不予处理
     if (!store.states.allowWork || store.result.length === 0) {
       return
     }
 
     // 如果之前不是暂停状态，则需要重新下载
-    if (!dlCtrl.downloadPause) {
+    if (!this.downloadPause) {
       this.setDownloaded = 0
       // 初始化下载记录
       // 状态：
@@ -5693,26 +5764,27 @@ class DownloadControl {
     }
 
     // 重设下载进度条的数量
-    ui.resetDownloadBar(this.downloadThread)
+    this.resetDownloadBar(this.downloadThread)
 
     // 重置一些条件
-    store.states.allowWork = false
+    evt.fire(evt.events.downloadStart)
     this.downloadPause = false
     this.downloadStop = false
     clearTimeout(this.reTryTimer)
 
     // 启动或继续下载，建立并发下载线程
     for (let i = 0; i < this.downloadThread; i++) {
-      dlFile.download(i)
+      const { data, index } = this.getDownloadData()
+      dlFile.download(data, index, i, this.taskBatch)
     }
 
-    ui.setDownStateText(lang.transl('_正在下载中'))
+    this.setDownStateText(lang.transl('_正在下载中'))
 
     log.log(lang.transl('_正在下载中'))
   }
 
   // 暂停下载
-  public pauseDownload() {
+  private pauseDownload() {
     clearTimeout(this.reTryTimer)
 
     if (store.result.length === 0) {
@@ -5728,9 +5800,10 @@ class DownloadControl {
       // 如果正在下载中
       if (!store.states.allowWork) {
         this.downloadPause = true // 发出暂停信号
-        store.states.allowWork = true
+        evt.fire(evt.events.downloadPause)
+
         titleBar.changeTitle('║')
-        ui.setDownStateText(lang.transl('_已暂停'), '#f00')
+        this.setDownStateText(lang.transl('_已暂停'), '#f00')
         log.warning(lang.transl('_已暂停'), 2)
       } else {
         // 不在下载中的话不允许启用暂停功能
@@ -5740,7 +5813,7 @@ class DownloadControl {
   }
 
   // 停止下载
-  public stopDownload() {
+  private stopDownload() {
     clearTimeout(this.reTryTimer)
 
     if (store.result.length === 0 || this.downloadStop) {
@@ -5748,15 +5821,16 @@ class DownloadControl {
     }
 
     this.downloadStop = true
-    store.states.allowWork = true
+    evt.fire(evt.events.downloadStop)
+
     titleBar.changeTitle('■')
-    ui.setDownStateText(lang.transl('_已停止'), '#f00')
+    this.setDownStateText(lang.transl('_已停止'), '#f00')
     log.error(lang.transl('_已停止'), 2)
     this.downloadPause = false
   }
 
   // 重试下载
-  public reTryDownload() {
+  private reTryDownload() {
     // 如果下载已经完成，则不执行操作
     if (this.downloaded === store.result.length) {
       return
@@ -5768,21 +5842,34 @@ class DownloadControl {
     }, 1000)
   }
 
+  private downloadSuccess(data: DonwloadInfo) {
+    // 更改这个任务状态为“已完成”
+    this.setDownloadedIndex(data.index, 1)
+    // 增加已下载数量
+    this.downloadedAdd()
+    // 是否继续下载
+    const no = data.no
+    if (this.checkContinueDownload()) {
+      const { data, index } = this.getDownloadData()
+      dlFile.download(data, index, no, this.taskBatch)
+    }
+  }
+
   // 设置已下载列表中的标记
-  public setDownloadedIndex(index: number, value: -1 | 0 | 1) {
+  private setDownloadedIndex(index: number, value: -1 | 0 | 1) {
     this.downloadStatesList[index] = value
   }
 
   // 当一个文件下载完成后，检查是否还有后续下载任务
-  public checkContinueDownload() {
+  private checkContinueDownload() {
     // 如果没有全部下载完毕
-    if (this.getDownloaded < store.result.length) {
+    if (this.downloaded < store.result.length) {
       // 如果任务已停止
       if (this.downloadPause || this.downloadStop) {
         return false
       }
       // 如果已完成的数量 加上 线程中未完成的数量，仍然没有达到文件总数，继续添加任务
-      if (this.getDownloaded + this.downloadThread - 1 < store.result.length) {
+      if (this.downloaded + this.downloadThread - 1 < store.result.length) {
         return true
       } else {
         return false
@@ -5793,30 +5880,41 @@ class DownloadControl {
   }
 
   // 在日志上显示下载进度
-  public LogDownloadProgress() {
+  private LogDownloadProgress(add: string = '') {
     let text = `${this.downloaded} / ${store.result.length}`
 
     // 追加转换动图的提示
-    if (store.getConvertTip) {
-      text += ', ' + store.getConvertTip
+    if (add) {
+      text += ', ' + add
     }
 
     log.log(text, 2, false)
   }
 
   // 获取要下载的任务的编号
-  public getDownloadIndex() {
+  private getDownloadData() {
     let length = this.downloadStatesList.length
+    let index: number | undefined
     for (let i = 0; i < length; i++) {
       if (this.downloadStatesList[i] === -1) {
         this.downloadStatesList[i] = 0
-        return i
+        index = i
+        break
+      }
+    }
+
+    if (index === undefined) {
+      throw new Error('There are no data to download')
+    } else {
+      return {
+        data: store.result[index],
+        index
       }
     }
   }
 }
 
-// 下载和保存文件
+// 下载文件，发送给浏览器下载
 class DownloadFile {
   constructor() {
     this.listenDownloaded()
@@ -5824,21 +5922,23 @@ class DownloadFile {
 
   private downloadTime: number = 0 // 把下载完成的文件交给浏览器保存的时间戳
   private timeInterval: number = 200 // 设置向浏览器发送下载任务的间隔时间。如果在很短时间内让浏览器建立大量下载任务，有一些下载任务就会丢失，所以设置这个参数。
+  private taskBatch: number = 0 // 任务批次
 
   // 监听浏览器下载文件后，返回的消息
   private listenDownloaded() {
     chrome.runtime.onMessage.addListener((msg: DownloadedMsg) => {
-      // 下载成功
+      // 文件下载成功
       if (msg.msg === 'downloaded') {
-        this.afterDownload(msg)
+        // 释放 BLOBURL
+        URL.revokeObjectURL(msg.data.url)
+
+        evt.fire(evt.events.downloadSucccess, msg.data)
       } else if (msg.msg === 'download_err') {
         // 下载出错
         log.error(
-          `${store.result[msg.data.thisIndex].id}: download error! code: ${
-            msg.err
-          }`
+          `${store.result[msg.data.index].id}: download error! code: ${msg.err}`
         )
-        dlCtrl.reTryDownload()
+        evt.fire(evt.events.downloadError)
       }
 
       // UUID 的情况
@@ -5849,21 +5949,21 @@ class DownloadFile {
   }
 
   // 下载文件。参数是要使用的下载栏的序号
-  public download(progressBarNo: number) {
-    let index = dlCtrl.getDownloadIndex()
-    if (index === undefined) {
-      throw new Error('There are no files to download')
-    }
-
-    let data = store.result[index]
-
+  public download(
+    data: WorkInfo,
+    index: number,
+    progressBarNo: number,
+    taskBatch: number
+  ) {
     titleBar.changeTitle('↓')
+
+    this.taskBatch = taskBatch
 
     // 获取文件名
     let fullFileName = fileName.getFileName(data)
 
     // 重设当前下载栏的信息
-    ui.setDownloadBar(progressBarNo, fullFileName, 0, 0)
+    dlCtrl.setDownloadBar(progressBarNo, fullFileName, 0, 0)
 
     // 下载图片
     let xhr = new XMLHttpRequest()
@@ -5878,7 +5978,7 @@ class DownloadFile {
         return
       }
       e = e || window.event
-      ui.setDownloadBar(progressBarNo, fullFileName, e.loaded, e.total)
+      dlCtrl.setDownloadBar(progressBarNo, fullFileName, e.loaded, e.total)
     })
 
     // 下载完成
@@ -5888,34 +5988,30 @@ class DownloadFile {
         return
       }
 
+      let file: Blob = xhr.response // 要下载的文件
+
       // 正常下载完毕的状态码是 200
       if (xhr.status !== 200) {
         // 404 时不进行重试，因为重试也依然会是 404
         if (xhr.status === 404) {
           // 输出提示信息
           log.error(lang.transl('_file404', data!.id), 1)
+          // 404 错误时创建 txt 文件，并保存提示信息
+          file = new Blob([`${lang.transl('_file404', data!.id)}`], {
+            type: 'text/plain'
+          })
+          fullFileName = fullFileName.replace(
+            /\.jpg$|\.png$|\.zip$|\.gif$|\.webm$/,
+            '.txt'
+          )
         } else {
-          dlCtrl.reTryDownload()
+          evt.fire(evt.events.downloadError)
           return
         }
-      }
-
-      let file: Blob = new Blob() // 要下载的文件
-
-      if (xhr.status === 404) {
-        // 404 错误时创建 txt 文件，并保存提示信息
-        file = new Blob([`${lang.transl('_file404', data!.id)}`], {
-          type: 'text/plain'
-        })
-        fullFileName = fullFileName.replace(
-          /\.jpg$|\.png$|\.zip$|\.gif$|\.webm$/,
-          '.txt'
-        )
       } else if (
         (data!.ext === 'webm' || data!.ext === 'gif') &&
         data!.ugoiraInfo
       ) {
-        file = xhr.response as Blob
         // 如果需要转换成视频
         if (data!.ext === 'webm') {
           file = await convert.webm(file, data!.ugoiraInfo)
@@ -5925,21 +6021,19 @@ class DownloadFile {
         if (data!.ext === 'gif') {
           file = await convert.gif(file, data!.ugoiraInfo)
         }
-      } else {
-        // 不需要转换
-        file = xhr.response
       }
+
       // 生成下载链接
       const blobUrl = URL.createObjectURL(file)
       // 向浏览器发送下载任务
       this.browserDownload(blobUrl, fullFileName, progressBarNo, index!)
-      xhr=null as any
+      xhr = null as any
       file = null as any
     })
     // 捕获错误
     xhr.addEventListener('error', () => {
       // 下载途中突然网络变化导致链接断开、以及超时都会 error，xhr.status 为 0。
-      dlCtrl.reTryDownload()
+      evt.fire(evt.events.downloadError)
       return
     })
     xhr.send()
@@ -5950,13 +6044,13 @@ class DownloadFile {
     blobUrl: string,
     fullFileName: string,
     downloadBarNo: number,
-    thisIndex: number
+    index: number
   ) {
     // 如果前后两次任务的时间间隔小于 time_interval，则延迟一定时间使间隔达到 time_interval。
     const t = new Date().getTime() - this.downloadTime
     if (t < this.timeInterval) {
       setTimeout(() => {
-        this.browserDownload(blobUrl, fullFileName, downloadBarNo, thisIndex)
+        this.browserDownload(blobUrl, fullFileName, downloadBarNo, index)
       }, this.timeInterval - t)
       return
     }
@@ -5975,29 +6069,14 @@ class DownloadFile {
       fileUrl: blobUrl,
       fileName: fullFileName,
       no: downloadBarNo,
-      thisIndex: thisIndex,
-      taskBatch: dlCtrl.taskBatch
+      index: index,
+      taskBatch: this.taskBatch
     }
 
     chrome.runtime.sendMessage(sendData)
   }
-
-  // 下载之后
-  private afterDownload(msg: DownloadedMsg) {
-    // 释放 BLOBURL
-    URL.revokeObjectURL(msg.data.url)
-    // 更改这个任务状态为“已完成”
-    dlCtrl.setDownloadedIndex(msg.data.thisIndex, 1)
-    // 增加已下载数量
-    dlCtrl.setDownloaded = dlCtrl.getDownloaded + 1
-    // 是否继续下载
-    if (dlCtrl.checkContinueDownload()) {
-      this.download(msg.data.no)
-    }
-  }
 }
 
-// 下载器
 // 辅助功能
 class Support {
   constructor() {
@@ -6103,53 +6182,31 @@ class Support {
   // 监听页面的无刷新切换。某些页面可以无刷新切换，这时需要进行一些处理
   private listenPageSwitch() {
     // 绑定无刷新切换页面的事件，只绑定一次
+    // pixiv 的后退使用 replaceState
+    // pushState 判断从列表页进入作品页的情况，popstate 判断从作品页退回列表页的情况
     ;['pushState', 'popstate', 'replaceState'].forEach(item => {
       window.addEventListener(item, () => {
-        // pixiv 的后退使用 replaceState
-        // pushState 判断从列表页进入作品页的情况，popstate 判断从作品页退回列表页的情况
-        let type = pageType.getPageType()
-
-        // 获取页面信息
-        pageInfo.getPageInfo(type)
-
-        // 在作品页
-        if (type === 1) {
-          // 初始化图片查看器
-          viewer.initViewer()
-          // 页面切换时不需要每次初始化快速收藏功能，因为它被创建后就一直在持续运行
-        }
-
-        // 检查新旧页面类型是否不同
-        pageType.checkPageTypeIsNew()
+        evt.fire(evt.events.pageSwitch)
       })
     })
-
-    // 当新旧页面类型不相同的时候
-    pageType.onPageTypeChange = function() {
-      // 初始化抓取流程
-      new InitCrawlProcess()
-
-      // 切换不同页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
-      if (store.states.allowWork) {
-        log.clear()
-      }
-    }
   }
 }
+
+const evt = new Evt()
+
+const store = new Store()
+
+const log = new Log()
 
 const lang = new Lang()
 
 const pageType = new PageType()
 
-const type = pageType.getPageType()
-
-const log = new Log()
-
-const output = new Output()
-
 const ui = new UI() // 依赖于 UI 的类放到 ui 后面
 
-const pageInfo = new PageInfo(type)
+new Output()
+
+const pageInfo = new PageInfo()
 
 const fileName = new FileName()
 
@@ -6160,8 +6217,6 @@ const saveOption = new SaveOption()
 const convert = new ConvertUgoira()
 
 const viewer = new ImgViewer()
-
-const store = new Store()
 
 const titleBar = new TitleBar()
 

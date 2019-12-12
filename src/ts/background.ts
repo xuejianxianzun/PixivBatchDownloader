@@ -24,9 +24,9 @@ chrome.runtime.onMessage.addListener(function(msg: SendData, sender) {
       dlIndex[tabId] = []
     }
     // 检查任务是否重复，不重复则下载
-    if (dlIndex[tabId][msg.thisIndex] !== 1) {
+    if (dlIndex[tabId][msg.index] !== 1) {
       // 储存该任务的索引
-      dlIndex[tabId][msg.thisIndex] = 1
+      dlIndex[tabId][msg.index] = 1
       // 开始下载
       chrome.downloads.download(
         {
@@ -40,7 +40,7 @@ chrome.runtime.onMessage.addListener(function(msg: SendData, sender) {
           dlData[id] = {
             no: msg.no,
             url: msg.fileUrl,
-            thisIndex: msg.thisIndex,
+            index: msg.index,
             tabId: tabId,
             uuid: false
           }
@@ -80,7 +80,7 @@ chrome.downloads.onChanged.addListener(function(detail) {
     if (detail.error && detail.error.current) {
       msg = 'download_err'
       err = detail.error.current
-      dlIndex[data.tabId][data.thisIndex] = 0 // 从任务列表里删除它，以便前台重试下载
+      dlIndex[data.tabId][data.index] = 0 // 从任务列表里删除它，以便前台重试下载
     }
 
     // 返回信息
