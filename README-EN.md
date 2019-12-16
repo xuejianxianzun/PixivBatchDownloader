@@ -1,20 +1,30 @@
-# Announcement
+<!-- TOC -->
 
-This extension has been removed from the Chrome Web Store. It can only be installed offline now.
+- [Introduction](#introduction)
+- [Install](#install)
+  - [Online installation](#online-installation)
+  - [Offline installation](#offline-installation)
+- [Wiki](#wiki)
+- [Thanks](#thanks)
+- [Help](#help)
+  - [Supported languages](#supported-languages)
+  - [Tips](#tips)
+  - [Available pages and test URL](#available-pages-and-test-url)
+
+<!-- /TOC -->
+
+
+# Introduction
+
+This is a browser extension for **Chrome** that lets you download images from Pixiv in bulk. Powerful and supports many page types.
 
 [Chrome Web Store installation page](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)
 
-# Introduction:
-
-This is a browser extension for Chrome that lets you download images from Pixiv in bulk. Powerful and supports many page types.
+![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/2019-08-18-11-11-16.png)
 
 Some auxiliary functions have also been added, such as removing ads, quick collections, Add tag to unclassified work, and viewing pictures.
 
-![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/2019-08-18-11-11-16.png)
-
-[Wiki](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki)
-
-# Install:
+# Install
 
 ## Online installation
 
@@ -30,19 +40,11 @@ If you like this extension, please rate it so that it can be seen by more people
 
 - Please turn off "Ask where to save each file before downloading" in browser settings.
 
-## Supported languages:
+# Wiki
 
-Simplified Chinese
+[Wiki](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki)
 
-Traditional Chinese
-
-English (machine translation, also used under Korean settings)
-
-Japanese (machine translation)
-
-You can also optimize the translation, thank you very much :)
-
-## Thank:
+# Thanks
 
 - thanks [道滿](https://zhtw.me/) for translating traditional Chinese.
 
@@ -50,17 +52,26 @@ You can also optimize the translation, thank you very much :)
 
 - Thanks [z2n](https://github.com/z2n) for improvements to the program.
 
-## Tips:
+# Help
+
+## Supported languages
+
+Simplified Chinese
+
+Traditional Chinese
+
+English (machine translation, also used under Korean settings)
+
+Japanese
+
+You can also optimize the translation, thank you very much :)
+
+
+## Tips
 
 - If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.
 
-- Browser's resource limits
-
-When you download picture, this page uses more memory and cpu resources. If you switch to another page and the download page is not activated, Browser will limit the resource usage of the download page, resulting in slow download.
-
-How to solve: Pull out the downloaded tabs individually and become a separate window. This page is the only one in the new window and it is always active. Downloads are not affected, we can use other pages too.
-
-## Available pages and test URL:
+## Available pages and test URL
 
 0 [Home page](https://www.pixiv.net/)
 
