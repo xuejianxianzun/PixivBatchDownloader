@@ -1,4 +1,3 @@
-'use strict'
 // 在属性名前面加上下划线，和文本内容做出区别。
 // {} 表示需要进行替换的部分
 // <br> 和 \n 换行
@@ -941,6 +940,12 @@ const langText = {
     '404 錯誤：檔案 {} 不存在。'
   ],
   _重置设置: ['重置设置', 'リセット設定', 'Reset Settings', '重設設定'],
+  _是否重置设置: [
+    '是否重置设置？',
+    '設定をリセットしますか？',
+    'Do you want to reset the settings?',
+    '是否重設設定？'
+  ],
   _newver: [
     '有新版本可用',
     '新しいバージョンがあります',
@@ -954,3 +959,5 @@ const langText = {
     '本程式已上架 Chrome 線上應用程式商店。<br><a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">檢視商店頁面</a><br>如果您可以從商店安裝本套件，請在安裝後刪除離線安裝的版本。'
   ]
 }
+
+export { langText }

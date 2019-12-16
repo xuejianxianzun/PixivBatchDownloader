@@ -1,12 +1,22 @@
+<!-- TOC -->
+
+- [简介](#简介)
+- [安装](#安装)
+  - [在线安装](#在线安装)
+  - [离线安装](#离线安装)
+- [Wiki](#wiki)
+- [鸣谢](#鸣谢)
+- [捐助](#捐助)
+- [开发](#开发)
+- [帮助](#帮助)
+  - [常见问题](#常见问题)
+  - [支持的语言](#支持的语言)
+  - [可以使用的页面类型以及测试网址](#可以使用的页面类型以及测试网址)
+
+<!-- /TOC -->
 [View English introduction](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
 
-[Chrome Web Store 安装页面](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)
-
-[查看 Wiki](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki)
-
-[访问官网](https://pixiv.download/)
-
-# 简介：
+# 简介
 
 这是一个 Chrome 浏览器扩展程序，用于批量下载 Pixiv 上的图片。功能强大，支持多种页面类型。
 
@@ -14,7 +24,9 @@
 
 ![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/2019-08-18-11-12-52.png)
 
-# 安装：
+[访问官网](https://pixiv.download/)
+
+# 安装
 
 ## 在线安装
 
@@ -34,41 +46,21 @@ Chrome 会自动更新本应用的版本。
 
 - 请关闭浏览器设置中的“下载前询问每个文件的保存位置”选项，以免在下载时出现弹窗。
 
-## 支持的语言：
+# Wiki
 
-简体中文
+[查看 Wiki](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki)
 
-繁體中文
+# 鸣谢
 
-English （机翻，韩语设置下也使用英语文本）
-
-日本語 （机翻）
-
-欢迎您对翻译做出改进，谢谢~
-
-## 鸣谢
-
-- 感谢 [道滿](https://zhtw.me/) 翻译了繁体中文。
+- 感谢 [道滿](https://zhtw.me/) 翻译繁体中文。
 
 - 感谢 光の軌跡 翻译日语。
 
-- 感谢 [Reinford0](https://github.com/Reinford0) 的帮助。
+- 感谢 [Reinford0](https://github.com/Reinford0) 对本工具的测试和改进。
 
-- 感谢 [z2n](https://github.com/z2n) 对本工具做出的改进。
+- 感谢 [z2n](https://github.com/z2n) 对本工具项目构建做出的改进。
 
-## 提示：
-
-- 如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。
-
-- 浏览器的资源限制问题
-
-下载p站图片时，该页面会占用较多内存和 cpu 资源。如果切换到了其他页面，导致下载页面未激活，那么浏览器就会限制下载页面的资源使用，导致下载缓慢。
-
-解决办法：把下载的标签页单独拖出来，成为一个独立的窗口。新窗口里只有这一个页面，它始终是激活的。这样下载不受影响，我们也可以使用其他页面了。
-
-- 如有问题或建议，欢迎加 QQ 群 499873152 进行交流。
-
-## 捐助：
+# 捐助
 
 如果您感觉本脚本帮到了您，您可以对我进行捐赠，不胜感激 (*╹▽╹*)
 
@@ -76,7 +68,65 @@ English （机翻，韩语设置下也使用英语文本）
 
 ![支付宝](https://i.loli.net/2019/04/04/5ca5627614396.png) ![微信](https://i.loli.net/2019/04/04/5ca5627630bb4.png)
 
-## 可以使用的页面类型以及测试网址：
+# 开发
+
+本工具的开发环境为 Node.JS。
+
+- 全局安装以下依赖：
+
+```
+npm i -g less prettier typescript webpack webpack-cli
+```
+
+- Clone 本项目，并安装依赖：
+
+```
+git clone https://github.com/xuejianxianzun/PixivBatchDownloader.git
+
+cd ./PixivBatchDownloader
+
+npm i
+```
+
+- 执行部分构建流程：
+
+```
+npm run ts  // 编译 ts 文件到 dist 文件夹
+npm run less // 编译 less 文件到 dist 文件夹
+npm run fmt // 格式化所有文件
+```
+
+- 一键编译并打包：
+
+```
+npm run build
+```
+
+- 在浏览器的扩展管理里，加载 dist 文件夹作为扩展。
+
+# 帮助
+
+## 常见问题
+
+- 如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。
+
+- 如果使用 ssr、v2ray 等工具，下载时开启“全局代理”以提高下载速度。
+
+- 如有其他问题或建议，欢迎加 **QQ 群 499873152** 进行交流。
+
+## 支持的语言
+
+简体中文
+
+繁體中文
+
+English （机翻，韩语设置下也使用英语文本）
+
+日本語
+
+欢迎您对翻译做出改进，谢谢~
+
+## 可以使用的页面类型以及测试网址
 
 0 [首页](https://www.pixiv.net/)
 
@@ -103,3 +153,5 @@ English （机翻，韩语设置下也使用英语文本）
 11 [发现](https://www.pixiv.net/discovery)
 
 12 [大家的新作品](https://www.pixiv.net/new_illust.php)
+
+[测试动图转换](https://www.pixiv.net/member.php?id=16274829)

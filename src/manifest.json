@@ -1,6 +1,6 @@
 {
   "name": "Powerful Pixiv Downloader",
-  "version": "3.2.6",
+  "version": "3.3.0",
   "manifest_version": 2,
   "description": "功能强大的 Pixiv 图片批量下载器。Powerful Pixiv image batch downloader.",
   "icons": {
@@ -25,8 +25,8 @@
       "run_at": "document_end"
     },
     {
-      "css": ["style/style.css", "style/viewer.min.css"],
-      "js": ["js/lang.js", "js/content.js"],
+      "css": ["style/viewer.min.css", "style/style.css"],
+      "js": ["js/content.js"],
       "matches": ["*://www.pixiv.net/*", "*://www.pixivision.net/*"],
       "run_at": "document_end"
     }

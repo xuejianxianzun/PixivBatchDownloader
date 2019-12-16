@@ -466,11 +466,14 @@
 
 /* image viewer */
 .viewer-backdrop {
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.8) !important;
+  .viewer-canvas {
+    background: rgba(0, 0, 0, 0.8) !important;
+  }
   .viewer-toolbar {
     .viewer-next,
     .viewer-prev {
-      background-color: rgba(0, 0, 0, 0.8);
+      background-color: rgba(255, 255, 255, 0.1) !important;
       border-radius: 50%;
       cursor: pointer;
       height: 100px;

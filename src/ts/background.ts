@@ -1,3 +1,5 @@
+import { DonwloadListData, SendToBackEndData } from './modules/Download.d'
+
 // 当点击扩展图标时，切换显示/隐藏下载面板
 chrome.browserAction.onClicked.addListener(function(tab) {
   // 打开下载面板
@@ -14,7 +16,7 @@ let dlIndex: number[][] = []
 let dlBatch: number[] = []
 
 // 接收下载请求
-chrome.runtime.onMessage.addListener(function(msg: SendData, sender) {
+chrome.runtime.onMessage.addListener(function(msg: SendToBackEndData, sender) {
   // 接收下载任务
   if (msg.msg === 'send_download') {
     const tabId = sender.tab!.id!
@@ -50,7 +52,7 @@ chrome.runtime.onMessage.addListener(function(msg: SendData, sender) {
   }
 })
 
-// 判断文件名是否含有 UUID 格式。因为文件名处于整个绝对路径的中间，所以没加首尾标记 ^ $
+// 判断文件名是否变成了 UUID 格式。因为文件名处于整个绝对路径的中间，所以没加首尾标记 ^ $
 const UUIDRegexp = /[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}/
 
 // 监听下载事件
@@ -63,7 +65,7 @@ chrome.downloads.onChanged.addListener(function(detail) {
 
     // 判断当前文件名是否正常。下载时必定会有一次 detail.filename.current 有值
     if (detail.filename && detail.filename.current) {
-      let changedName = detail.filename.current
+      const changedName = detail.filename.current
       if (
         changedName.endsWith('jfif') ||
         changedName.match(UUIDRegexp) !== null
