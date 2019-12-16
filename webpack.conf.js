@@ -1,7 +1,11 @@
 const path = require('path')
 
 module.exports = {
-  entry: './src/ts/content.ts',
+  mode: 'development',
+  entry: {
+    content: './src/ts/content.ts',
+    background: './src/ts/background.ts'
+  },
   devtool: 'source-map',
   module: {
     rules: [
@@ -16,7 +20,7 @@ module.exports = {
     extensions: ['.ts', '.js']
   },
   output: {
-    filename: 'bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    filename: '[name].js',
+    path: path.resolve(__dirname, 'dist/js')
   }
 }
