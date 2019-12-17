@@ -83,6 +83,8 @@ class InitWorksPage extends InitPageBase {
       lang.transl('_相关作品大于0')
     this.setWantPageTip2.textContent = lang.transl('_数字提示1')
     this.setWantPage.value = '-1'
+
+    this.showOption([1, 14])
   }
 }
 export { InitWorksPage }

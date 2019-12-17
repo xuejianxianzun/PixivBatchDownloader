@@ -28,5 +28,6 @@ export interface XzForm extends HTMLFormElement {
   pageInfoSelect: HTMLSelectElement
   fileNameSelect: HTMLSelectElement
   tagNameToFileName: HTMLInputElement
+  alwaysFolder: HTMLInputElement
   debut: HTMLInputElement
 }

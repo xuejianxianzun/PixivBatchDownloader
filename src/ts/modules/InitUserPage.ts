@@ -57,6 +57,8 @@ class InitUserPage extends InitPageBase {
     this.setWantPageTip2.textContent = lang.transl('_数字提示1')
     this.setWantPage.value = '-1'
 
+    this.hideNotNeedOption([14])
+
     // 在书签页面隐藏只要书签选项
     if (location.href.includes('bookmark.php')) {
       this.hideNotNeedOption([11])

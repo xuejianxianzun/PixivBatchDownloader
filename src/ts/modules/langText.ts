@@ -1,6 +1,7 @@
 // 在属性名前面加上下划线，和文本内容做出区别。
 // {} 表示需要进行替换的部分
 // <br> 和 \n 换行
+
 const langText = {
   _只下载已收藏: [
     '只下载已收藏',
@@ -957,6 +958,18 @@ const langText = {
     'このプログラムは今、Chromeウェブストアで入手できます。 <br> <a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">ストアページへ</a> <br>ストアからプログラムをインストール場合は、オフラインバージョンを削除してください。',
     'This program is available on the Chrome WebStore. <br><a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">View the store page</a><br>If you can install the program from the store, please remove the offline installed version after installation.',
     '本程式已上架 Chrome 線上應用程式商店。<br><a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">檢視商店頁面</a><br>如果您可以從商店安裝本套件，請在安裝後刪除離線安裝的版本。'
+  ],
+  _快速下载建立文件夹: [
+    '始终建立文件夹',
+    '常にフォルダーを作成する',
+    'Always create folder',
+    '始终建立文件夹'
+  ],
+  _快速下载建立文件夹提示: [
+    '快速下载时，如果只有一张图片，也会建立文件夹',
+    'すばやくダウンロードするときに、画像が 1 つしかない場合は、フォルダーも作成されます',
+    'When downloading quickly, if there is only one picture, a folder is also created',
+    '快速下载时，如果只有一张图片，也会建立文件夹'
   ]
 }
 

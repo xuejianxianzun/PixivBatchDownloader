@@ -14,6 +14,7 @@ interface XzSetting {
   downloadThread: number
   userSetName: string
   tagNameToFileName: boolean
+  alwaysFolder: boolean
   showOptions: boolean
   [key: string]: string | number | boolean
 }
@@ -43,6 +44,7 @@ class Option {
     downloadThread: 5,
     userSetName: '{id}',
     tagNameToFileName: true,
+    alwaysFolder: true,
     showOptions: true
   }
 
@@ -114,6 +116,8 @@ class Option {
 
     // 设置是否添加标记名称
     ui.form.tagNameToFileName.checked = this.needSaveOpts.tagNameToFileName
+
+    ui.form.alwaysFolder.checked = this.needSaveOpts.alwaysFolder
   }
 
   // 绑定选项的事件，主要是当选项变动时保存。
@@ -198,6 +202,13 @@ class Option {
       this: HTMLInputElement
     ) {
       that.saveSetting('tagNameToFileName', this.checked)
+    })
+
+    // 保存是否添加标记名称
+    ui.form.alwaysFolder.addEventListener('click', function(
+      this: HTMLInputElement
+    ) {
+      that.saveSetting('alwaysFolder', this.checked)
     })
   }
 

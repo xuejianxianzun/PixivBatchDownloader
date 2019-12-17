@@ -22,7 +22,7 @@ class InitDiscoverPage extends InitPageBase {
   }
 
   protected setFormOptin() {
-    this.hideNotNeedOption([1])
+    this.hideNotNeedOption([1, 14])
   }
 
   protected appendElseEl() {

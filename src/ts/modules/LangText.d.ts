@@ -1,5 +1,5 @@
 import { langText } from './langText'
 
-type langTextType = keyof typeof langText
+type langTextKeys = keyof typeof langText
 
-export { langTextType }
+export { langTextKeys }

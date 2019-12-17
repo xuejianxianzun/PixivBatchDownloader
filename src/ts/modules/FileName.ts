@@ -219,8 +219,12 @@ class FileName {
       result = result.substr(0, result.length - 1)
     }
 
-    // 快速下载时，如果只有一个文件，则不建立文件夹
-    if (store.states.quickDownload && store.result.length === 1) {
+    // 如果快速下载时只有一个文件，根据“始终建立文件夹”选项，决定是否建立文件夹
+    if (
+      store.states.quickDownload &&
+      store.result.length === 1 &&
+      ui.form.alwaysFolder.checked === false
+    ) {
       const index = result.lastIndexOf('/')
       result = result.substr(index + 1, result.length)
     }

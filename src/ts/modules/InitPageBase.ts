@@ -73,14 +73,24 @@ abstract class InitPageBase {
   // 添加其他元素（如果有）
   protected appendElseEl(): void {}
 
-  // 在某些页面里，隐藏不需要的选项。参数是数组，传递设置项的编号。
-  public hideNotNeedOption(no: number[]) {
+  // 显示或隐藏指定的选项
+  private toggleOption(no: number[], display: string) {
     for (const num of no) {
       const el = ui.form.querySelector(
         '.formOption' + num.toString()
       )! as HTMLParagraphElement
-      el.style.display = 'none'
+      el.style.display = display
     }
+  }
+
+  // 隐藏一些选项。参数是数组，传递设置项的编号。
+  public hideNotNeedOption(no: number[]) {
+    this.toggleOption(no, 'none')
+  }
+
+  // 显示一些选项。因为页面无刷新加载，所以一些选项被隐藏后，可能需要再次显示
+  public showOption(no: number[]) {
+    this.toggleOption(no, 'block')
   }
 
   // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。

@@ -88,7 +88,7 @@ cd ./PixivBatchDownloader
 npm i
 ```
 
-- 执行部分构建流程：
+- 部分构建流程的命令：
 
 ```
 npm run ts  // 编译 ts 文件到 dist 文件夹
@@ -96,7 +96,7 @@ npm run less // 编译 less 文件到 dist 文件夹
 npm run fmt // 格式化所有文件
 ```
 
-- 一键编译并打包：
+- 一键执行所有构建流程并打包：
 
 ```
 npm run build

@@ -45,6 +45,8 @@ class InitNewIllustPage extends InitPageBase {
     this.setWantPageTip1.dataset.tip = lang.transl('_要获取的作品个数2')
     this.setWantPageTip2.textContent = `1 - ${this.crawler.maxCount}`
     this.setWantPage.value = '100'
+
+    this.hideNotNeedOption([14])
   }
 }
 export { InitNewIllustPage }

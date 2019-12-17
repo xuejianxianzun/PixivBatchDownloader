@@ -4348,11 +4348,14 @@
             if (result.endsWith('/')) {
               result = result.substr(0, result.length - 1)
             }
-            // 快速下载时，如果只有一个文件，则不建立文件夹
+            // 如果快速下载时只有一个文件，根据“始终建立文件夹”选项，决定是否建立文件夹
             if (
               _Store__WEBPACK_IMPORTED_MODULE_2__['store'].states
                 .quickDownload &&
-              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length === 1
+              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length ===
+                1 &&
+              _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.alwaysFolder
+                .checked === false
             ) {
               const index = result.lastIndexOf('/')
               result = result.substr(index + 1, result.length)
@@ -5198,7 +5201,7 @@
               })
           }
           setFormOptin() {
-            this.hideNotNeedOption([1])
+            this.hideNotNeedOption([1, 14])
           }
         }
 
@@ -5277,6 +5280,7 @@
             ].transl('_要获取的作品个数2')
             this.setWantPageTip2.textContent = `1 - ${this.crawler.maxCount}`
             this.setWantPage.value = this.crawler.maxCount.toString()
+            this.hideNotNeedOption([14])
           }
         }
 
@@ -5359,6 +5363,7 @@
             ].transl('_checkWantPageRule1Arg8')
             this.setWantPageTip2.textContent = `1 - ${this.crawler.maxCount}`
             this.setWantPage.value = this.crawler.maxCount.toString()
+            this.hideNotNeedOption([14])
           }
         }
 
@@ -5645,7 +5650,7 @@
               })
           }
           setFormOptin() {
-            this.hideNotNeedOption([1])
+            this.hideNotNeedOption([1, 14])
           }
           appendElseEl() {
             const deleteWorks = new _DeleteWorks__WEBPACK_IMPORTED_MODULE_4__[
@@ -5760,7 +5765,7 @@
             })
           }
           setFormOptin() {
-            this.hideNotNeedOption([1])
+            this.hideNotNeedOption([1, 14])
           }
         }
 
@@ -5847,6 +5852,7 @@
             ].transl('_要获取的作品个数2')
             this.setWantPageTip2.textContent = `1 - ${this.crawler.maxCount}`
             this.setWantPage.value = '100'
+            this.hideNotNeedOption([14])
           }
         }
 
@@ -5915,14 +5921,22 @@
           appendCenterBtns() {}
           // 添加其他元素（如果有）
           appendElseEl() {}
-          // 在某些页面里，隐藏不需要的选项。参数是数组，传递设置项的编号。
-          hideNotNeedOption(no) {
+          // 显示或隐藏指定的选项
+          toggleOption(no, display) {
             for (const num of no) {
               const el = _UI__WEBPACK_IMPORTED_MODULE_1__[
                 'ui'
               ].form.querySelector('.formOption' + num.toString())
-              el.style.display = 'none'
+              el.style.display = display
             }
+          }
+          // 隐藏一些选项。参数是数组，传递设置项的编号。
+          hideNotNeedOption(no) {
+            this.toggleOption(no, 'none')
+          }
+          // 显示一些选项。因为页面无刷新加载，所以一些选项被隐藏后，可能需要再次显示
+          showOption(no) {
+            this.toggleOption(no, 'block')
           }
           // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。
           setFormOptin() {
@@ -6007,7 +6021,7 @@
             }
           }
           setFormOptin() {
-            this.hideNotNeedOption([1, 2, 3, 4, 5, 6, 7, 11, 12, 13])
+            this.hideNotNeedOption([1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14])
           }
         }
 
@@ -6111,6 +6125,7 @@
             ].transl('_要获取的作品个数2')
             this.setWantPageTip2.textContent = `1 - ${this.crawler.maxCount}`
             this.setWantPage.value = this.crawler.maxCount.toString()
+            this.hideNotNeedOption([14])
           }
         }
 
@@ -6243,6 +6258,7 @@
             ].transl('_checkWantPageRule1Arg8')
             this.setWantPageTip2.textContent = `1 - ${this.crawler.maxCount}`
             this.setWantPage.value = this.crawler.maxCount.toString()
+            this.hideNotNeedOption([14])
           }
         }
 
@@ -6373,6 +6389,7 @@
               'lang'
             ].transl('_数字提示1')
             this.setWantPage.value = '-1'
+            this.hideNotNeedOption([14])
             // 在书签页面隐藏只要书签选项
             if (location.href.includes('bookmark.php')) {
               this.hideNotNeedOption([11])
@@ -6517,6 +6534,7 @@
               'lang'
             ].transl('_数字提示1')
             this.setWantPage.value = '-1'
+            this.showOption([1, 14])
           }
         }
 
@@ -6709,6 +6727,7 @@
               downloadThread: 5,
               userSetName: '{id}',
               tagNameToFileName: true,
+              alwaysFolder: true,
               showOptions: true
             }
             // 储存需要持久化保存的设置
@@ -6800,6 +6819,9 @@
             _UI__WEBPACK_IMPORTED_MODULE_0__[
               'ui'
             ].form.tagNameToFileName.checked = this.needSaveOpts.tagNameToFileName
+            _UI__WEBPACK_IMPORTED_MODULE_0__[
+              'ui'
+            ].form.alwaysFolder.checked = this.needSaveOpts.alwaysFolder
           }
           // 绑定选项的事件，主要是当选项变动时保存。
           // 只可执行一次，否则事件会重复绑定
@@ -6883,6 +6905,12 @@
               'ui'
             ].form.tagNameToFileName.addEventListener('click', function() {
               that.saveSetting('tagNameToFileName', this.checked)
+            })
+            // 保存是否添加标记名称
+            _UI__WEBPACK_IMPORTED_MODULE_0__[
+              'ui'
+            ].form.alwaysFolder.addEventListener('click', function() {
+              that.saveSetting('alwaysFolder', this.checked)
             })
           }
           // 持久化保存设置
@@ -8087,9 +8115,9 @@
       <span class="gray1 showFileNameTip">？</span>
       </p>
       <p class="fileNameTip tip">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang']
+      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang']
         .transl('_设置文件夹名的提示')
-        .replace('<br>', '. ')}
+        .replace('<br>', '. ')}</strong>
       <br>
       <span class="blue">{p_user}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_文件夹标记PUser')}
@@ -8157,6 +8185,18 @@
       <span class="gray1 showFileNameResult"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_预览文件名')}</span>
+      </p>
+      <p class="formOption14">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl(
+        '_快速下载建立文件夹提示'
+      )}">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+              '_快速下载建立文件夹'
+            )}<span class="gray1"> ? </span></span>
+      <label for="setAlwaysFolder"><input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" > ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_启用')}</label>
       </p>
       </form>
       <div class="reserve_area"></div>
@@ -9381,6 +9421,18 @@
             'このプログラムは今、Chromeウェブストアで入手できます。 <br> <a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">ストアページへ</a> <br>ストアからプログラムをインストール場合は、オフラインバージョンを削除してください。',
             'This program is available on the Chrome WebStore. <br><a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">View the store page</a><br>If you can install the program from the store, please remove the offline installed version after installation.',
             '本程式已上架 Chrome 線上應用程式商店。<br><a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">檢視商店頁面</a><br>如果您可以從商店安裝本套件，請在安裝後刪除離線安裝的版本。'
+          ],
+          _快速下载建立文件夹: [
+            '始终建立文件夹',
+            '常にフォルダーを作成する',
+            'Always create folder',
+            '始终建立文件夹'
+          ],
+          _快速下载建立文件夹提示: [
+            '快速下载时，如果只有一张图片，也会建立文件夹',
+            'すばやくダウンロードするときに、画像が 1 つしかない場合は、フォルダーも作成されます',
+            'When downloading quickly, if there is only one picture, a folder is also created',
+            '快速下载时，如果只有一张图片，也会建立文件夹'
           ]
         }
 

@@ -1,5 +1,5 @@
 import { langText } from './langText'
-import { langTextType } from './langText.d'
+import { langTextKeys } from './langText.d'
 
 // 语言类
 class Lang {
@@ -36,7 +36,7 @@ class Lang {
   }
 
   // translate 翻译
-  public transl(name: langTextType, ...arg: string[]) {
+  public transl(name: langTextKeys, ...arg: string[]) {
     let content = langText[name][this.langType]
     arg.forEach(val => (content = content.replace('{}', val)))
     return content

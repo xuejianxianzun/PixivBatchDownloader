@@ -250,7 +250,9 @@ class UI {
       <span class="gray1 showFileNameTip">？</span>
       </p>
       <p class="fileNameTip tip">
-      ${lang.transl('_设置文件夹名的提示').replace('<br>', '. ')}
+      <strong>${lang
+        .transl('_设置文件夹名的提示')
+        .replace('<br>', '. ')}</strong>
       <br>
       <span class="blue">{p_user}</span>
       ${lang.transl('_文件夹标记PUser')}
@@ -316,6 +318,16 @@ class UI {
       <span class="gray1 showFileNameResult"> ${lang.transl(
         '_预览文件名'
       )}</span>
+      </p>
+      <p class="formOption14">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_快速下载建立文件夹提示'
+      )}">${lang.transl(
+      '_快速下载建立文件夹'
+    )}<span class="gray1"> ? </span></span>
+      <label for="setAlwaysFolder"><input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" > ${lang.transl(
+        '_启用'
+      )}</label>
       </p>
       </form>
       <div class="reserve_area"></div>

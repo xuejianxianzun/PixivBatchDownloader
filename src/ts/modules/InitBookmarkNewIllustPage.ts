@@ -36,6 +36,8 @@ class InitBookmarkNewIllustPage extends InitPageBase {
     this.setWantPageTip1.dataset.tip = lang.transl('_checkWantPageRule1Arg8')
     this.setWantPageTip2.textContent = `1 - ${this.crawler.maxCount}`
     this.setWantPage.value = this.crawler.maxCount.toString()
+
+    this.hideNotNeedOption([14])
   }
 }
 export { InitBookmarkNewIllustPage }

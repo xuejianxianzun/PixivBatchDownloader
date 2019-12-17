@@ -1,7 +1,7 @@
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { API } from './API'
-import { langTextType } from './langText.d'
+import { langTextKeys } from './langText.d'
 
 // 辅助功能
 class Support {
@@ -14,7 +14,7 @@ class Support {
     API.updateToken()
   }
 
-  private newTag: langTextType = '_xzNew306'
+  private newTag: langTextKeys = '_xzNew306'
 
   // 处理和脚本版的冲突
   private checkConflict(): void {
