@@ -9,6 +9,8 @@ import { API } from './API'
 class Filter {
   private notdownType: string = '' // 设置不要下载的作品类型
 
+  private multipleImageWorks: number = 0 // 多图作品设置
+
   private includeTag: string = '' // 必须包含的tag的列表
 
   private excludeTag: string = '' // 要排除的tag的列表
@@ -30,19 +32,22 @@ class Filter {
 
   // 从下载区域上获取过滤器的各个选项
   public init() {
-    // 检查排除作品类型的设置
+    // 获取排除作品类型的设置
     this.notdownType = this.getNotDownType()
 
-    // 检查是否设置了收藏数要求
+    // 获取多图作品设置
+    this.multipleImageWorks = parseInt(ui.form.multipleImageWorks.value)
+
+    // 获取是否设置了收藏数要求
     this.BMKNum = this.getBmkNum()
 
-    // 检查是否设置了只下载书签作品
+    // 获取是否设置了只下载书签作品
     this.onlyBmk = this.getOnlyBmk()
 
-    // 检查是否设置了宽高条件
+    // 获取是否设置了宽高条件
     this.filterWh = this.getSetWh()
 
-    // 检查宽高比设置
+    // 获取宽高比设置
     this.ratioType = this.getRatio()
 
     // 获取必须包含的tag
@@ -51,7 +56,7 @@ class Filter {
     // 获取要排除的tag
     this.excludeTag = this.getExcludeTag()
 
-    // 检查是否设置了只下载首次登场
+    // 获取只下载首次登场设置
     this.debut = this.getDebut()
   }
 
@@ -63,6 +68,9 @@ class Filter {
 
     // 检查排除类型设置
     result.push(this.checkNotDownType(option.illustType))
+
+    // 检查多图作品设置
+    result.push(this.checkMultipleImageWorks(option.pageCount))
 
     // 检查收藏数要求
     result.push(this.checkBMK(option.bookmarkCount))
@@ -228,6 +236,26 @@ class Filter {
       if (this.notdownType.includes(illustType.toString())) {
         return false
       } else {
+        return true
+      }
+    }
+  }
+
+  // 检查多图作品设置
+  private checkMultipleImageWorks(pageCount: FilterOption['pageCount']) {
+    if (pageCount === undefined) {
+      return true
+    } else {
+      if (pageCount > 1) {
+        // 是多图
+        if (this.multipleImageWorks === -1) {
+          // 不下载多图
+          return false
+        } else {
+          return true
+        }
+      } else {
+        // 不是多图
         return true
       }
     }

@@ -5,7 +5,8 @@ import { pageType } from './PageType'
 import { EVT } from './EVT'
 
 interface XzSetting {
-  imgNumberPerWork: number
+  multipleImageWorks: number
+  firstFewImages: number
   notdownType: string
   ugoiraSaveAs: 'webm' | 'gif' | 'zip'
   needTag: string
@@ -35,7 +36,8 @@ class Option {
 
   // 需要持久化保存的设置的默认值
   private readonly needSaveOptsDefault: XzSetting = {
-    imgNumberPerWork: 0,
+    multipleImageWorks: 0,
+    firstFewImages: 1,
     notdownType: '',
     ugoiraSaveAs: 'webm',
     needTag: '',
@@ -73,9 +75,14 @@ class Option {
     // 设置是否显示选项区域
     ui.toggleOptionArea(this.needSaveOpts.showOptions)
 
+    // 多图作品设置
+    ui.form.multipleImageWorks.value = (
+      this.needSaveOpts.multipleImageWorks || 0
+    ).toString()
+
     // 设置作品张数
-    ui.form.imgNumberPerWork.value = (
-      this.needSaveOpts.imgNumberPerWork | 0
+    ui.form.firstFewImages.value = (
+      this.needSaveOpts.firstFewImages || 1
     ).toString()
 
     // 设置排除类型
@@ -133,12 +140,20 @@ class Option {
       ui.toggleOptionArea(this.needSaveOpts.showOptions)
     })
 
+    // 保存多图作品设置
+    for (const input of ui.form.multipleImageWorks) {
+      input.addEventListener('click', function(this: HTMLInputElement) {
+        that.saveSetting('multipleImageWorks', parseInt(this.value))
+      })
+    }
+
     // 保存作品张数
-    ui.form.imgNumberPerWork.addEventListener('change', function(
+    ui.form.firstFewImages.addEventListener('change', function(
       this: HTMLInputElement
     ) {
-      if (parseInt(this.value) >= 0) {
-        that.saveSetting('imgNumberPerWork', this.value)
+      let value = parseInt(this.value)
+      if (value >= 0) {
+        that.saveSetting('firstFewImages', value)
       }
     })
 

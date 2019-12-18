@@ -274,12 +274,6 @@ const langText = {
     'The number you entered exceeds the maximum',
     '您輸入的數字超過了最大值'
   ],
-  _作品张数提醒: [
-    '下载每个作品的前 {} 张图片',
-    '各作品の上位 {} つの画像をダウンロードする',
-    'Download the first {} images of each work',
-    '下載每個作品的前 {} 張圖片'
-  ],
   _任务开始1: [
     '从本页开始下载{}页',
     'このページから{}ページをダウンロードする',
@@ -316,8 +310,44 @@ const langText = {
     'Excludes these types of works: ',
     '排除作品類型：'
   ],
-  _单图: ['单图 ', '1枚の作品', 'one images', '單圖 '],
-  _多图: ['多图 ', '2枚以上の作品', 'multiple images', '多圖 '],
+  _多图作品: [
+    '多图作品',
+    'マルチイメージ作品',
+    'Multi-image works',
+    '多圖作品'
+  ],
+  _多图作品设置: [
+    '多图作品设置',
+    'マルチイメージ作品の設定',
+    'Multi-image works settings',
+    '多圖作品設定'
+  ],
+  _怎样下载多图作品: [
+    '怎样下载多图作品？',
+    'マルチイメージ作品をダウンロードする方法？',
+    'How to download multi-image works?',
+    '怎样下載多圖作品？'
+  ],
+  _不下载: ['不下载', 'ダウンロードしない', 'Do not download', '不下載'],
+  _全部下载: ['全部下载', 'すべてダウンロード', 'Download all', '全部下載'],
+  _下载前几张图片: [
+    '下载前几张图片：',
+    '最初の数枚の画像をダウンロードする：',
+    'Download the first few images:',
+    '下載前幾張圖片：'
+  ],
+  _不下载多图作品: [
+    '不下载多图作品',
+    'マルチイメージ作品をダウンロードしないでください',
+    'Do not download multi-image works',
+    '不下載多圖作品'
+  ],
+  _多图作品下载前n张图片: [
+    '多图作品下载前 {} 张图片',
+    'マルチイメージ作品は、最初の {} イメージをダウンロードします',
+    'Multi-image works download the first {} images',
+    '多圖作品下載前 {} 張圖片'
+  ],
   _插画: ['插画 ', 'イラスト', 'Illustrations', '插畫 '],
   _漫画: ['漫画 ', '漫画', 'Manga', '漫畫 '],
   _动图: ['动图 ', 'うごイラ', 'Ugoira', '動圖 '],
@@ -568,7 +598,7 @@ const langText = {
   ],
   _命名标记10: [
     '图片在作品内的序号，如 0、1、2 …… 每个作品都会重新计数。',
-    '0、1、2 など、作品の写真のシリアル番号。各ピースは再集計されます。',
+    '0、1、2 など、作品の画像のシリアル番号。各ピースは再集計されます。',
     'The serial number of the picture in the work, such as 0, 1, 2 ... Each work will be recounted.',
     '圖片在作品內的序號，如 0、1、2 …… 每個作品都將重新計數。'
   ],
@@ -953,11 +983,11 @@ const langText = {
     'A new version is available',
     '有新版本可用'
   ],
-  _xzNew306: [
-    '本程序已上架 Chrome 网上应用店。<br><a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">查看商店页面</a><br>如果您可以从商店安装本程序，请在安装后删除离线安装的版本。',
-    'このプログラムは今、Chromeウェブストアで入手できます。 <br> <a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">ストアページへ</a> <br>ストアからプログラムをインストール場合は、オフラインバージョンを削除してください。',
-    'This program is available on the Chrome WebStore. <br><a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">View the store page</a><br>If you can install the program from the store, please remove the offline installed version after installation.',
-    '本程式已上架 Chrome 線上應用程式商店。<br><a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">檢視商店頁面</a><br>如果您可以從商店安裝本套件，請在安裝後刪除離線安裝的版本。'
+  _xzNew333: [
+    '现在可以排除多图作品了。',
+    'マルチピクチャ作品を除外できるようになりました。',
+    'Multi-images works can now be excluded.',
+    '現在可以排除多圖作品了。'
   ],
   _快速下载建立文件夹: [
     '始终建立文件夹',

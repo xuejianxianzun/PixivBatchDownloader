@@ -51,6 +51,7 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
       const filterOpt: FilterOption = {
         width: data.width,
         height: data.height,
+        pageCount: data.pageCount,
         bookmarkData: data.isBookmarked,
         illustType: parseInt(data.illustType) as any,
         tags: data.tags

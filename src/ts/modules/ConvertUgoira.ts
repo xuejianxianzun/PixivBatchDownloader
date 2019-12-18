@@ -12,11 +12,24 @@ declare const GIF: any
 class ConvertUgoira {
   constructor() {
     this.loadWorkerJS()
+
+    window.addEventListener(EVT.events.downloadStart, () => {
+      this.downloading = true
+    })
+    ;[EVT.events.downloadPause, EVT.events.downloadStop].forEach(event => {
+      window.addEventListener(event, () => {
+        this.downloading = false
+      })
+    })
   }
 
   private gifWorkerUrl: string = ''
 
+  private downloading = true // 是否在下载。如果下载停止了则不继续转换后续任务，避免浪费资源
+
   private count: number = 0 // 统计有几个转换任务
+
+  private readonly maxCount = 1 // 允许同时运行多少个转换任务
 
   private set setCount(num: number) {
     this.count = num
@@ -136,12 +149,19 @@ class ConvertUgoira {
 
   // 开始转换，主要是解压文件
   private async start(file: Blob, info: UgoiraInfo): Promise<string[]> {
-    this.setCount = this.count + 1
-
     return new Promise(async (resolve, reject) => {
-      // 将压缩包里的图片转换为 base64 字符串
-      const base64Arr: string[] = await this.readZip(file, info)
-      resolve(base64Arr)
+      const t = window.setInterval(async () => {
+        if (this.count < this.maxCount) {
+          window.clearInterval(t)
+          if (!this.downloading) {
+            return
+          }
+          this.setCount = this.count + 1
+          // 将压缩包里的图片转换为 base64 字符串
+          const base64Arr: string[] = await this.readZip(file, info)
+          resolve(base64Arr)
+        }
+      }, 200)
     })
   }
 
@@ -156,15 +176,18 @@ class ConvertUgoira {
       const encoder = new Whammy.Video()
 
       // 获取解压后的图片数据
-      const base64Arr = await this.start(file, info)
+      let base64Arr = await this.start(file, info)
 
       // 生成每一帧的数据
-      const canvasData = await this.getFrameData(base64Arr)
+      let canvasData = await this.getFrameData(base64Arr)
       // 添加帧数据
       for (let index = 0; index < canvasData!.length; index++) {
         const base64 = canvasData![index]
         encoder.add(base64, info.frames![index].delay)
       }
+
+      base64Arr = null as any
+      canvasData = null as any
 
       // 获取生成的视频
       file = (await this.encodeVideo(encoder)) as Blob
@@ -192,15 +215,18 @@ class ConvertUgoira {
       })
 
       // 获取解压后的图片数据
-      const base64Arr = await this.start(file, info)
+      let base64Arr = await this.start(file, info)
       // 生成每一帧的数据
-      const imgData = await this.getFrameData(base64Arr, 'gif')
+      let imgData = await this.getFrameData(base64Arr, 'gif')
       // 添加帧数据
       for (let index = 0; index < imgData!.length; index++) {
         gif.addFrame(imgData![index], {
           delay: info.frames![index].delay
         })
       }
+
+      base64Arr = null as any
+      imgData = null as any
 
       // 渲染 gif
       gif.render()

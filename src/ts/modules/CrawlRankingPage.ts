@@ -94,6 +94,7 @@ class CrawlRankingPage extends CrawlPageBase {
       const filterOpt: FilterOption = {
         illustType: parseInt(data.illust_type) as any,
         tags: data.tags,
+        pageCount: parseInt(data.illust_page_count),
         bookmarkData: data.is_bookmarked,
         width: data.width,
         height: data.height,

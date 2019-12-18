@@ -632,8 +632,24 @@
         class ConvertUgoira {
           constructor() {
             this.gifWorkerUrl = ''
+            this.downloading = true // 是否在下载。如果下载停止了则不继续转换后续任务，避免浪费资源
             this.count = 0 // 统计有几个转换任务
+            this.maxCount = 1 // 允许同时运行多少个转换任务
             this.loadWorkerJS()
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadStart,
+              () => {
+                this.downloading = true
+              }
+            )
+            ;[
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadPause,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadStop
+            ].forEach(event => {
+              window.addEventListener(event, () => {
+                this.downloading = false
+              })
+            })
           }
           set setCount(num) {
             this.count = num
@@ -748,11 +764,19 @@
           }
           // 开始转换，主要是解压文件
           async start(file, info) {
-            this.setCount = this.count + 1
             return new Promise(async (resolve, reject) => {
-              // 将压缩包里的图片转换为 base64 字符串
-              const base64Arr = await this.readZip(file, info)
-              resolve(base64Arr)
+              const t = window.setInterval(async () => {
+                if (this.count < this.maxCount) {
+                  window.clearInterval(t)
+                  if (!this.downloading) {
+                    return
+                  }
+                  this.setCount = this.count + 1
+                  // 将压缩包里的图片转换为 base64 字符串
+                  const base64Arr = await this.readZip(file, info)
+                  resolve(base64Arr)
+                }
+              }, 200)
             })
           }
           complete() {
@@ -764,14 +788,16 @@
               // 创建视频编码器
               const encoder = new Whammy.Video()
               // 获取解压后的图片数据
-              const base64Arr = await this.start(file, info)
+              let base64Arr = await this.start(file, info)
               // 生成每一帧的数据
-              const canvasData = await this.getFrameData(base64Arr)
+              let canvasData = await this.getFrameData(base64Arr)
               // 添加帧数据
               for (let index = 0; index < canvasData.length; index++) {
                 const base64 = canvasData[index]
                 encoder.add(base64, info.frames[index].delay)
               }
+              base64Arr = null
+              canvasData = null
               // 获取生成的视频
               file = await this.encodeVideo(encoder)
               this.complete()
@@ -793,15 +819,17 @@
                 resolve(file)
               })
               // 获取解压后的图片数据
-              const base64Arr = await this.start(file, info)
+              let base64Arr = await this.start(file, info)
               // 生成每一帧的数据
-              const imgData = await this.getFrameData(base64Arr, 'gif')
+              let imgData = await this.getFrameData(base64Arr, 'gif')
               // 添加帧数据
               for (let index = 0; index < imgData.length; index++) {
                 gif.addFrame(imgData[index], {
                   delay: info.frames[index].delay
                 })
               }
+              base64Arr = null
+              imgData = null
               // 渲染 gif
               gif.render()
             })
@@ -1051,6 +1079,7 @@
               const filterOpt = {
                 width: data.width,
                 height: data.height,
+                pageCount: data.pageCount,
                 bookmarkData: data.isBookmarked,
                 illustType: parseInt(data.illustType),
                 tags: data.tags
@@ -1346,6 +1375,7 @@
               const filterOpt = {
                 width: nowData.width,
                 height: nowData.height,
+                pageCount: nowData.pageCount,
                 bookmarkData: nowData.bookmarkData,
                 illustType: nowData.illustType,
                 tags: nowData.tags
@@ -1443,7 +1473,8 @@
         class CrawlPageBase {
           constructor() {
             this.crawlNumber = 0 // 要抓取的个数/页数
-            this.imgNumberPerWork = 0 // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
+            this.multipleImageWorks = 0 // 多图作品设置
+            this.firstFewImages = 0 // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
             this.maxCount = 1000 // 当前页面类型最多有多少个页面/作品
             this.startpageNo = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、关注的新作品页使用。
             this.listPageFinished = 0 // 记录一共抓取了多少个列表页。使用范围同上。
@@ -1497,19 +1528,13 @@
             }
           }
           // 获取作品张数设置
-          getImgNumberPerWork() {
+          getFirstFewImages() {
             const check = _API__WEBPACK_IMPORTED_MODULE_2__[
               'API'
             ].checkNumberGreater0(
-              _UI__WEBPACK_IMPORTED_MODULE_6__['ui'].form.imgNumberPerWork.value
+              _UI__WEBPACK_IMPORTED_MODULE_6__['ui'].form.firstFewImages.value
             )
             if (check.result) {
-              _Log__WEBPACK_IMPORTED_MODULE_4__['log'].warning(
-                _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                  '_作品张数提醒',
-                  check.value.toString()
-                )
-              )
               return check.value
             } else {
               return 0
@@ -1552,8 +1577,28 @@
             _UI__WEBPACK_IMPORTED_MODULE_6__['ui'].hideCenterPanel()
             this.getWantPage()
             _Filter__WEBPACK_IMPORTED_MODULE_0__['filter'].init()
-            // 检查是否设置了作品张数限制
-            this.imgNumberPerWork = this.getImgNumberPerWork()
+            // 获取多图作品设置
+            this.multipleImageWorks = parseInt(
+              _UI__WEBPACK_IMPORTED_MODULE_6__['ui'].form.multipleImageWorks
+                .value
+            )
+            if (this.multipleImageWorks === -1) {
+              _Log__WEBPACK_IMPORTED_MODULE_4__['log'].warning(
+                _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                  '_不下载多图作品'
+                )
+              )
+            }
+            // 获取作品张数设置
+            if (this.multipleImageWorks === 1) {
+              this.firstFewImages = this.getFirstFewImages()
+              _Log__WEBPACK_IMPORTED_MODULE_4__['log'].warning(
+                _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                  '_多图作品下载前n张图片',
+                  this.firstFewImages.toString()
+                )
+              )
+            }
             await _PageInfo__WEBPACK_IMPORTED_MODULE_8__['pageInfo'].store()
             // 进入第一个抓取方法
             this.nextStep()
@@ -1626,6 +1671,7 @@
             const filterOpt = {
               illustType: body.illustType,
               tags: tags,
+              pageCount: body.pageCount,
               bookmarkCount: bmk,
               bookmarkData: body.bookmarkData,
               width: fullWidth,
@@ -1651,8 +1697,11 @@
                 // 插画或漫画
                 // 下载该作品的前面几张
                 let pNo = body.pageCount
-                if (this.imgNumberPerWork > 0 && this.imgNumberPerWork <= pNo) {
-                  pNo = this.imgNumberPerWork
+                if (
+                  this.multipleImageWorks === 1 &&
+                  this.firstFewImages <= pNo
+                ) {
+                  pNo = this.firstFewImages
                 }
                 const imgUrl = body.urls.original // 作品的原图 URL
                 const tempExt = imgUrl.split('.')
@@ -2086,6 +2135,7 @@
               const filterOpt = {
                 illustType: parseInt(data.illust_type),
                 tags: data.tags,
+                pageCount: parseInt(data.illust_page_count),
                 bookmarkData: data.is_bookmarked,
                 width: data.width,
                 height: data.height,
@@ -2327,6 +2377,7 @@
               const filterOpt = {
                 width: nowData.width,
                 height: nowData.height,
+                pageCount: nowData.pageCount,
                 bookmarkData: nowData.bookmarkData,
                 illustType: nowData.illustType,
                 tags: nowData.tags
@@ -4417,6 +4468,7 @@
         class Filter {
           constructor() {
             this.notdownType = '' // 设置不要下载的作品类型
+            this.multipleImageWorks = 0 // 多图作品设置
             this.includeTag = '' // 必须包含的tag的列表
             this.excludeTag = '' // 要排除的tag的列表
             this.BMKNum = 0 // 要求收藏达到指定数量
@@ -4432,21 +4484,26 @@
           }
           // 从下载区域上获取过滤器的各个选项
           init() {
-            // 检查排除作品类型的设置
+            // 获取排除作品类型的设置
             this.notdownType = this.getNotDownType()
-            // 检查是否设置了收藏数要求
+            // 获取多图作品设置
+            this.multipleImageWorks = parseInt(
+              _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.multipleImageWorks
+                .value
+            )
+            // 获取是否设置了收藏数要求
             this.BMKNum = this.getBmkNum()
-            // 检查是否设置了只下载书签作品
+            // 获取是否设置了只下载书签作品
             this.onlyBmk = this.getOnlyBmk()
-            // 检查是否设置了宽高条件
+            // 获取是否设置了宽高条件
             this.filterWh = this.getSetWh()
-            // 检查宽高比设置
+            // 获取宽高比设置
             this.ratioType = this.getRatio()
             // 获取必须包含的tag
             this.includeTag = this.getIncludeTag()
             // 获取要排除的tag
             this.excludeTag = this.getExcludeTag()
-            // 检查是否设置了只下载首次登场
+            // 获取只下载首次登场设置
             this.debut = this.getDebut()
           }
           // 检查作品是否符合过滤器的要求
@@ -4456,6 +4513,8 @@
             let result = []
             // 检查排除类型设置
             result.push(this.checkNotDownType(option.illustType))
+            // 检查多图作品设置
+            result.push(this.checkMultipleImageWorks(option.pageCount))
             // 检查收藏数要求
             result.push(this.checkBMK(option.bookmarkCount))
             // 检查只下载书签作品的要求
@@ -4688,6 +4747,25 @@
               if (this.notdownType.includes(illustType.toString())) {
                 return false
               } else {
+                return true
+              }
+            }
+          }
+          // 检查多图作品设置
+          checkMultipleImageWorks(pageCount) {
+            if (pageCount === undefined) {
+              return true
+            } else {
+              if (pageCount > 1) {
+                // 是多图
+                if (this.multipleImageWorks === -1) {
+                  // 不下载多图
+                  return false
+                } else {
+                  return true
+                }
+              } else {
+                // 不是多图
                 return true
               }
             }
@@ -6718,7 +6796,8 @@
             this.storeName = 'xzSetting'
             // 需要持久化保存的设置的默认值
             this.needSaveOptsDefault = {
-              imgNumberPerWork: 0,
+              multipleImageWorks: 0,
+              firstFewImages: 1,
               notdownType: '',
               ugoiraSaveAs: 'webm',
               needTag: '',
@@ -6763,11 +6842,15 @@
             _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].toggleOptionArea(
               this.needSaveOpts.showOptions
             )
-            // 设置作品张数
+            // 多图作品设置
             _UI__WEBPACK_IMPORTED_MODULE_0__[
               'ui'
-            ].form.imgNumberPerWork.value = (
-              this.needSaveOpts.imgNumberPerWork | 0
+            ].form.multipleImageWorks.value = (
+              this.needSaveOpts.multipleImageWorks || 0
+            ).toString()
+            // 设置作品张数
+            _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.firstFewImages.value = (
+              this.needSaveOpts.firstFewImages || 1
             ).toString()
             // 设置排除类型
             for (let index = 0; index < this.notdownTypeName.length; index++) {
@@ -6838,12 +6921,20 @@
                 this.needSaveOpts.showOptions
               )
             })
+            // 保存多图作品设置
+            for (const input of _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form
+              .multipleImageWorks) {
+              input.addEventListener('click', function() {
+                that.saveSetting('multipleImageWorks', parseInt(this.value))
+              })
+            }
             // 保存作品张数
             _UI__WEBPACK_IMPORTED_MODULE_0__[
               'ui'
-            ].form.imgNumberPerWork.addEventListener('change', function() {
-              if (parseInt(this.value) >= 0) {
-                that.saveSetting('imgNumberPerWork', this.value)
+            ].form.firstFewImages.addEventListener('change', function() {
+              let value = parseInt(this.value)
+              if (value >= 0) {
+                that.saveSetting('firstFewImages', value)
               }
             })
             // 保存排除类型
@@ -7578,7 +7669,7 @@
         // 辅助功能
         class Support {
           constructor() {
-            this.newTag = '_xzNew306'
+            this.newTag = '_xzNew333'
             this.checkConflict()
             this.supportListenHistory()
             this.listenPageSwitch()
@@ -7943,14 +8034,6 @@
       <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
       </span>
       </p>
-      <p class="formOption3">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-        'lang'
-      ].transl('_多p下载前几张提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-              'lang'
-            ].transl('_多p下载前几张')}<span class="gray1"> ? </span></span>
-      <input type="text" name="imgNumberPerWork" class="setinput_style1 blue" value="0">
-      </p>
       <p class="formOption5">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
@@ -7968,6 +8051,23 @@
       <label for="setWorkType2"><input type="checkbox" name="setWorkType2" id="setWorkType2" checked> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_动图')}&nbsp;</label>
+      </p>
+      <p class="formOption3">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_怎样下载多图作品')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+              'lang'
+            ].transl('_多图作品设置')}<span class="gray1"> ? </span></span>
+      <label for="multipleImageWorks2"><input type="radio" name="multipleImageWorks" id="multipleImageWorks2" value="-1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_不下载')}&nbsp; </label>
+      <label for="multipleImageWorks1"><input type="radio" name="multipleImageWorks" id="multipleImageWorks1" value="0"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_全部下载')}&nbsp; </label>
+      <label for="multipleImageWorks3"><input type="radio" name="multipleImageWorks" id="multipleImageWorks3" value="1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_下载前几张图片')}&nbsp; </label>
+      <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
       </p>
       <p class="formOption12">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
@@ -8026,20 +8126,19 @@
       ].transl('_设置宽高比例Title')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
               'lang'
             ].transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
-      <input type="radio" name="ratio" id="ratio0" value="0" checked> <label for="ratio0"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="ratio0"><input type="radio" name="ratio" id="ratio0" value="0" checked>  ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_不限制')}&nbsp; </label>
-      <input type="radio" name="ratio" id="ratio1" value="1"> <label for="ratio1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="ratio1"><input type="radio" name="ratio" id="ratio1" value="1">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_横图')}&nbsp; </label>
-      <input type="radio" name="ratio" id="ratio2" value="2"> <label for="ratio2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="ratio2"><input type="radio" name="ratio" id="ratio2" value="2">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_竖图')}&nbsp; </label>
-      <input type="radio" name="ratio" id="ratio3" value="3"> <label for="ratio3"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="ratio3"><input type="radio" name="ratio" id="ratio3" value="3">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
-      ].transl(
-        '_输入宽高比'
-      )}<input type="text" name="userRatio" class="setinput_style1 blue" value="1.4"></label>
+      ].transl('_输入宽高比')}</label>
+      <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
       </p>
       <p class="formOption6">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
@@ -8707,12 +8806,6 @@
             'The number you entered exceeds the maximum',
             '您輸入的數字超過了最大值'
           ],
-          _作品张数提醒: [
-            '下载每个作品的前 {} 张图片',
-            '各作品の上位 {} つの画像をダウンロードする',
-            'Download the first {} images of each work',
-            '下載每個作品的前 {} 張圖片'
-          ],
           _任务开始1: [
             '从本页开始下载{}页',
             'このページから{}ページをダウンロードする',
@@ -8749,8 +8842,54 @@
             'Excludes these types of works: ',
             '排除作品類型：'
           ],
-          _单图: ['单图 ', '1枚の作品', 'one images', '單圖 '],
-          _多图: ['多图 ', '2枚以上の作品', 'multiple images', '多圖 '],
+          _多图作品: [
+            '多图作品',
+            'マルチイメージ作品',
+            'Multi-image works',
+            '多圖作品'
+          ],
+          _多图作品设置: [
+            '多图作品设置',
+            'マルチイメージ作品の設定',
+            'Multi-image works settings',
+            '多圖作品設定'
+          ],
+          _怎样下载多图作品: [
+            '怎样下载多图作品？',
+            'マルチイメージ作品をダウンロードする方法？',
+            'How to download multi-image works?',
+            '怎样下載多圖作品？'
+          ],
+          _不下载: [
+            '不下载',
+            'ダウンロードしない',
+            'Do not download',
+            '不下載'
+          ],
+          _全部下载: [
+            '全部下载',
+            'すべてダウンロード',
+            'Download all',
+            '全部下載'
+          ],
+          _下载前几张图片: [
+            '下载前几张图片：',
+            '最初の数枚の画像をダウンロードする：',
+            'Download the first few images:',
+            '下載前幾張圖片：'
+          ],
+          _不下载多图作品: [
+            '不下载多图作品',
+            'マルチイメージ作品をダウンロードしないでください',
+            'Do not download multi-image works',
+            '不下載多圖作品'
+          ],
+          _多图作品下载前n张图片: [
+            '多图作品下载前 {} 张图片',
+            'マルチイメージ作品は、最初の {} イメージをダウンロードします',
+            'Multi-image works download the first {} images',
+            '多圖作品下載前 {} 張圖片'
+          ],
           _插画: ['插画 ', 'イラスト', 'Illustrations', '插畫 '],
           _漫画: ['漫画 ', '漫画', 'Manga', '漫畫 '],
           _动图: ['动图 ', 'うごイラ', 'Ugoira', '動圖 '],
@@ -9006,7 +9145,7 @@
           ],
           _命名标记10: [
             '图片在作品内的序号，如 0、1、2 …… 每个作品都会重新计数。',
-            '0、1、2 など、作品の写真のシリアル番号。各ピースは再集計されます。',
+            '0、1、2 など、作品の画像のシリアル番号。各ピースは再集計されます。',
             'The serial number of the picture in the work, such as 0, 1, 2 ... Each work will be recounted.',
             '圖片在作品內的序號，如 0、1、2 …… 每個作品都將重新計數。'
           ],
@@ -9416,11 +9555,11 @@
             'A new version is available',
             '有新版本可用'
           ],
-          _xzNew306: [
-            '本程序已上架 Chrome 网上应用店。<br><a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">查看商店页面</a><br>如果您可以从商店安装本程序，请在安装后删除离线安装的版本。',
-            'このプログラムは今、Chromeウェブストアで入手できます。 <br> <a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">ストアページへ</a> <br>ストアからプログラムをインストール場合は、オフラインバージョンを削除してください。',
-            'This program is available on the Chrome WebStore. <br><a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">View the store page</a><br>If you can install the program from the store, please remove the offline installed version after installation.',
-            '本程式已上架 Chrome 線上應用程式商店。<br><a href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">檢視商店頁面</a><br>如果您可以從商店安裝本套件，請在安裝後刪除離線安裝的版本。'
+          _xzNew333: [
+            '现在可以排除多图作品了。',
+            'マルチピクチャ作品を除外できるようになりました。',
+            'Multi-images works can now be excluded.',
+            '現在可以排除多圖作品了。'
           ],
           _快速下载建立文件夹: [
             '始终建立文件夹',

@@ -1,6 +1,7 @@
 // 过滤器的选项
 export interface FilterOption {
   illustType?: 0 | 1 | 2
+  pageCount?: number
   tags?: string[]
   bookmarkCount?: number
   bookmarkData?: any

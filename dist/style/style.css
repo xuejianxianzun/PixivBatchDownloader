@@ -59,6 +59,10 @@
 .centerWrap .blue {
   color: #0ea8ef !important;
 }
+.centerWrap .has_tip:hover,
+.centerWrap label:hover {
+  color: #0ea8ef !important;
+}
 .centerWrap .settingForm select {
   width: 80px;
   height: 20px;
@@ -109,8 +113,8 @@
 .centerWrap .showFileNameTip:hover,
 .centerWrap .showFileNameResult:hover,
 .centerWrap .bottom_help_bar > *:hover {
-  color: #0096fa;
-  fill: #0096fa;
+  color: #0096fa !important;
+  fill: #0096fa !important;
 }
 .centerWrap .bottom_help_bar > * {
   padding-right: 10px;

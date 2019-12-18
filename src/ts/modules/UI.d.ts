@@ -8,7 +8,8 @@ export interface XzTipArg {
 // 表单
 export interface XzForm extends HTMLFormElement {
   setWantPage: HTMLInputElement
-  imgNumberPerWork: HTMLInputElement
+  multipleImageWorks: RadioNodeList
+  firstFewImages: HTMLInputElement
   setWorkType0: HTMLInputElement
   setWorkType1: HTMLInputElement
   setWorkType2: HTMLInputElement

@@ -166,6 +166,7 @@ class CrawlSearchPage extends CrawlPageBase {
       const filterOpt: FilterOption = {
         width: nowData.width,
         height: nowData.height,
+        pageCount: nowData.pageCount,
         bookmarkData: nowData.bookmarkData,
         illustType: nowData.illustType,
         tags: nowData.tags

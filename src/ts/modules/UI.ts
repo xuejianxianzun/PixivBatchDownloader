@@ -108,12 +108,6 @@ class UI {
       <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
       </span>
       </p>
-      <p class="formOption3">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_多p下载前几张提示'
-      )}">${lang.transl('_多p下载前几张')}<span class="gray1"> ? </span></span>
-      <input type="text" name="imgNumberPerWork" class="setinput_style1 blue" value="0">
-      </p>
       <p class="formOption5">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_下载作品类型的提示Center'
@@ -127,6 +121,21 @@ class UI {
       <label for="setWorkType2"><input type="checkbox" name="setWorkType2" id="setWorkType2" checked> ${lang.transl(
         '_动图'
       )}&nbsp;</label>
+      </p>
+      <p class="formOption3">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_怎样下载多图作品'
+      )}">${lang.transl('_多图作品设置')}<span class="gray1"> ? </span></span>
+      <label for="multipleImageWorks2"><input type="radio" name="multipleImageWorks" id="multipleImageWorks2" value="-1"> ${lang.transl(
+        '_不下载'
+      )}&nbsp; </label>
+      <label for="multipleImageWorks1"><input type="radio" name="multipleImageWorks" id="multipleImageWorks1" value="0"> ${lang.transl(
+        '_全部下载'
+      )}&nbsp; </label>
+      <label for="multipleImageWorks3"><input type="radio" name="multipleImageWorks" id="multipleImageWorks3" value="1"> ${lang.transl(
+        '_下载前几张图片'
+      )}&nbsp; </label>
+      <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
       </p>
       <p class="formOption12">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
@@ -173,18 +182,19 @@ class UI {
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_设置宽高比例Title'
       )}">${lang.transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
-      <input type="radio" name="ratio" id="ratio0" value="0" checked> <label for="ratio0"> ${lang.transl(
+      <label for="ratio0"><input type="radio" name="ratio" id="ratio0" value="0" checked>  ${lang.transl(
         '_不限制'
       )}&nbsp; </label>
-      <input type="radio" name="ratio" id="ratio1" value="1"> <label for="ratio1"> ${lang.transl(
+      <label for="ratio1"><input type="radio" name="ratio" id="ratio1" value="1">  ${lang.transl(
         '_横图'
       )}&nbsp; </label>
-      <input type="radio" name="ratio" id="ratio2" value="2"> <label for="ratio2"> ${lang.transl(
+      <label for="ratio2"><input type="radio" name="ratio" id="ratio2" value="2">  ${lang.transl(
         '_竖图'
       )}&nbsp; </label>
-      <input type="radio" name="ratio" id="ratio3" value="3"> <label for="ratio3"> ${lang.transl(
+      <label for="ratio3"><input type="radio" name="ratio" id="ratio3" value="3">  ${lang.transl(
         '_输入宽高比'
-      )}<input type="text" name="userRatio" class="setinput_style1 blue" value="1.4"></label>
+      )}</label>
+      <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
       </p>
       <p class="formOption6">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(

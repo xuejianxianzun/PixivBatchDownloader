@@ -23,7 +23,9 @@ import { pageInfo } from './PageInfo'
 abstract class CrawlPageBase {
   protected crawlNumber: number = 0 // 要抓取的个数/页数
 
-  protected imgNumberPerWork: number = 0 // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
+  protected multipleImageWorks: number = 0 // 多图作品设置
+
+  protected firstFewImages: number = 0 // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
 
   public maxCount = 1000 // 当前页面类型最多有多少个页面/作品
 
@@ -78,11 +80,10 @@ abstract class CrawlPageBase {
   }
 
   // 获取作品张数设置
-  private getImgNumberPerWork() {
-    const check = API.checkNumberGreater0(ui.form.imgNumberPerWork.value)
+  private getFirstFewImages() {
+    const check = API.checkNumberGreater0(ui.form.firstFewImages.value)
 
     if (check.result) {
-      log.warning(lang.transl('_作品张数提醒', check.value.toString()))
       return check.value
     } else {
       return 0
@@ -128,8 +129,20 @@ abstract class CrawlPageBase {
 
     filter.init()
 
-    // 检查是否设置了作品张数限制
-    this.imgNumberPerWork = this.getImgNumberPerWork()
+    // 获取多图作品设置
+    this.multipleImageWorks = parseInt(ui.form.multipleImageWorks.value)
+
+    if (this.multipleImageWorks === -1) {
+      log.warning(lang.transl('_不下载多图作品'))
+    }
+
+    // 获取作品张数设置
+    if (this.multipleImageWorks === 1) {
+      this.firstFewImages = this.getFirstFewImages()
+      log.warning(
+        lang.transl('_多图作品下载前n张图片', this.firstFewImages.toString())
+      )
+    }
 
     await pageInfo.store()
 
@@ -209,6 +222,7 @@ abstract class CrawlPageBase {
     const filterOpt: FilterOption = {
       illustType: body.illustType,
       tags: tags,
+      pageCount: body.pageCount,
       bookmarkCount: bmk,
       bookmarkData: body.bookmarkData,
       width: fullWidth,
@@ -234,8 +248,8 @@ abstract class CrawlPageBase {
 
         // 下载该作品的前面几张
         let pNo = body.pageCount
-        if (this.imgNumberPerWork > 0 && this.imgNumberPerWork <= pNo) {
-          pNo = this.imgNumberPerWork
+        if (this.multipleImageWorks === 1 && this.firstFewImages <= pNo) {
+          pNo = this.firstFewImages
         }
 
         const imgUrl = body.urls.original // 作品的原图 URL
