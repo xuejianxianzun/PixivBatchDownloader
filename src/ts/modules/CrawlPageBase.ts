@@ -95,11 +95,15 @@ abstract class CrawlPageBase {
 
   private checkNotAllowPage() {
     if (location.href.includes('novel')) {
+      EVT.fire(EVT.events.crawlError)
+
       window.alert('Not support novel page!')
       throw new Error('Not support novel page!')
     }
 
     if (location.href.includes('/tags.php')) {
+      EVT.fire(EVT.events.crawlError)
+
       window.alert('Not support page!')
       throw new Error('Not support page!')
     }
@@ -220,6 +224,7 @@ abstract class CrawlPageBase {
     }
 
     const filterOpt: FilterOption = {
+      id: body.illustId,
       illustType: body.illustType,
       tags: tags,
       pageCount: body.pageCount,

@@ -92,6 +92,7 @@ class CrawlRankingPage extends CrawlPageBase {
 
       // 目前，数据里并没有包含收藏数量，所以在这里没办法检查收藏数量要求
       const filterOpt: FilterOption = {
+        id: data.illust_id,
         illustType: parseInt(data.illust_type) as any,
         tags: data.tags,
         pageCount: parseInt(data.illust_page_count),

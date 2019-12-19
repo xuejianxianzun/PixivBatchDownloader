@@ -4,6 +4,7 @@ import { ui } from './UI'
 import { lang } from './Lang'
 import { log } from './Log'
 import { API } from './API'
+import { EVT } from './EVT'
 
 // 审查每个作品的数据，决定是否要下载它。下载区域有一些选项是过滤器选项。
 class Filter {
@@ -28,6 +29,8 @@ class Filter {
 
   private ratioType: string = '0' // 宽高比例的类型
 
+  private idRange: number = -1 // id 范围，默认不限制
+
   private debut: boolean = false // 只下载首次登场的作品
 
   // 从下载区域上获取过滤器的各个选项
@@ -49,6 +52,9 @@ class Filter {
 
     // 获取宽高比设置
     this.ratioType = this.getRatio()
+
+    // 获取 id 范围设置
+    this.idRange = this.getIdRange()
 
     // 获取必须包含的tag
     this.includeTag = this.getIncludeTag()
@@ -90,6 +96,9 @@ class Filter {
     // 检查宽高比设置
     result.push(this.checkRatio(option.width, option.height))
 
+    // 检查 id 范围设置
+    result.push(this.checkIdRange(option.id))
+
     // 检查首次登场设置
     result.push(this.checkDebut(option.yes_rank))
 
@@ -104,6 +113,8 @@ class Filter {
     // 如果全部排除则取消任务
     if (result.includes('012')) {
       // notdownType 的结果是顺序的，所以可以直接查找 012
+      EVT.fire(EVT.events.crawlError)
+
       window.alert(lang.transl('_checkNotdownTypeResult1弹窗'))
       const msg = lang.transl('_checkNotdownTypeResult1Html')
       log.error(msg, 2)
@@ -195,7 +206,7 @@ class Filter {
     return result
   }
 
-  // 获取宽高比的设置
+  // 获取宽高比设置
   private getRatio() {
     let result = ui.form.ratio.value
 
@@ -213,6 +224,33 @@ class Filter {
       } else {
         log.warning(lang.transl('_输入宽高比') + ui.form.userRatio.value)
       }
+    }
+
+    return result
+  }
+
+  // 获取 id 范围设置
+  private getIdRange() {
+    const result = parseInt(ui.form.idRange.value)
+
+    if (result === 1 || result === 2) {
+      let id = parseInt(ui.form.idRangeInput.value)
+      if (isNaN(id)) {
+        EVT.fire(EVT.events.crawlError)
+
+        const msg = 'id is not a number!'
+        window.alert(msg)
+        log.error(msg)
+        throw new Error(msg)
+      }
+    }
+
+    if (result === 1) {
+      log.warning(`id > ${ui.form.idRangeInput.value}`)
+    }
+
+    if (result === 2) {
+      log.warning(`id < ${ui.form.idRangeInput.value}`)
     }
 
     return result
@@ -415,6 +453,26 @@ class Filter {
       return width / height < 1
     } else {
       return width / height >= parseFloat(ui.form.userRatio.value)
+    }
+  }
+
+  // 检查 id 范围设置
+  private checkIdRange(id: FilterOption['id']) {
+    if (id === undefined) {
+      return true
+    }
+
+    const nowId = parseInt(id.toString())
+    const setId = parseInt(ui.form.idRangeInput.value)
+
+    if (this.idRange === 1) {
+      // 大于
+      return nowId > setId
+    } else if (this.idRange === 2) {
+      // 小于
+      return nowId < setId
+    } else {
+      return true
     }
   }
 

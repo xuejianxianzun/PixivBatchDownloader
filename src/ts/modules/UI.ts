@@ -126,11 +126,11 @@ class UI {
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_怎样下载多图作品'
       )}">${lang.transl('_多图作品设置')}<span class="gray1"> ? </span></span>
-      <label for="multipleImageWorks2"><input type="radio" name="multipleImageWorks" id="multipleImageWorks2" value="-1"> ${lang.transl(
-        '_不下载'
-      )}&nbsp; </label>
       <label for="multipleImageWorks1"><input type="radio" name="multipleImageWorks" id="multipleImageWorks1" value="0"> ${lang.transl(
         '_全部下载'
+      )}&nbsp; </label>
+      <label for="multipleImageWorks2"><input type="radio" name="multipleImageWorks" id="multipleImageWorks2" value="-1"> ${lang.transl(
+        '_不下载'
       )}&nbsp; </label>
       <label for="multipleImageWorks3"><input type="radio" name="multipleImageWorks" id="multipleImageWorks3" value="1"> ${lang.transl(
         '_下载前几张图片'
@@ -195,6 +195,21 @@ class UI {
         '_输入宽高比'
       )}</label>
       <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
+      </p>
+      <p class="formOption15">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_设置id范围提示'
+      )}">${lang.transl('_设置id范围')} <span class="gray1"> ? </span></span>
+      <label for="idRange0"><input type="radio" name="idRange" id="idRange0" value="0" checked>  ${lang.transl(
+        '_不限制'
+      )}&nbsp; </label>
+      <label for="idRange1"><input type="radio" name="idRange" id="idRange1" value="1">  ${lang.transl(
+        '_大于'
+      )}&nbsp; </label>
+      <label for="idRange2"><input type="radio" name="idRange" id="idRange2" value="2">  ${lang.transl(
+        '_小于'
+      )}&nbsp; </label>
+      <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
       </p>
       <p class="formOption6">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(

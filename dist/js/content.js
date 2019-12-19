@@ -467,6 +467,7 @@
           constructor() {
             this.addTagList = [] // 需要添加 tag 的作品列表
             this.btn = document.createElement('button')
+            this.once = 100 // 一次请求多少个作品的数据
           }
           init(btn) {
             this.btn = btn
@@ -498,7 +499,7 @@
           }
           // 准备添加 tag。loop 表示这是第几轮循环
           async readyAddTag(loop = 0) {
-            const offset = loop * 100 // 一次请求只能获取 100 个，所以可能有多次请求，要计算偏移量
+            const offset = loop * this.once // 一次请求只能获取一部分，所以可能有多次请求，要计算偏移量
             // 发起请求
             const [showData, hideData] = await Promise.all([
               _API__WEBPACK_IMPORTED_MODULE_0__['API'].getBookmarkData(
@@ -533,28 +534,26 @@
                 })
               }
             }
-            // 进行下一步的处理
-            if (this.addTagList.length === 0) {
-              // 如果结果为空，不需要处理
-              this.btn.textContent = `√ No need`
-              this.btn.removeAttribute('disabled')
-              return
-            } else {
-              // 判断是否获取完毕，如果本次请求获取的数据为空，则已经没有后续数据
-              if (
-                showData.body.works.length === 0 &&
-                hideData.body.works.length === 0
-              ) {
-                // 已经获取完毕
+            // 已删除或无法访问的作品不会出现在请求结果里。本来一次请求 100 个，但返回的结果有可能会比 100 个少，甚至极端情况下是 0。所以实际获取到的作品可能比  total 数量少，这是正常的。
+            // 判断是否请求了所有未分类的作品数据
+            const total = offset + this.once
+            if (total >= showData.body.total && total >= hideData.body.total) {
+              if (this.addTagList.length === 0) {
+                // 如果结果为空，不需要处理
+                this.btn.textContent = `√ No need`
+                this.btn.removeAttribute('disabled')
+                return
+              } else {
+                // 开始添加 tag
                 this.addTag(
                   0,
                   this.addTagList,
                   _API__WEBPACK_IMPORTED_MODULE_0__['API'].getToken()
                 )
-              } else {
-                // 需要继续获取
-                this.readyAddTag(++loop)
               }
+            } else {
+              // 需要继续获取
+              this.readyAddTag(++loop)
             }
           }
           // 给未分类作品添加 tag
@@ -887,11 +886,13 @@
               const img = el.querySelector('._thumbnail')
               // img.dataset.type 全都是 "illust"，因此不能用来区分作品类型
               // 提取出 tag 列表
+              const id = img.dataset.id
               const tags = img.dataset.tags.split(' ')
               const bookmarked = el
                 .querySelector('._one-click-bookmark')
                 .classList.contains('on')
               const filterOpt = {
+                id: id,
                 tags: tags,
                 bookmarkData: bookmarked
               }
@@ -1077,6 +1078,7 @@
             // 检查一些此时可以进行检查的设置项
             for (const data of worksData) {
               const filterOpt = {
+                id: data.illustId,
                 width: data.width,
                 height: data.height,
                 pageCount: data.pageCount,
@@ -1373,6 +1375,7 @@
                 continue
               }
               const filterOpt = {
+                id: nowData.illustId,
                 width: nowData.width,
                 height: nowData.height,
                 pageCount: nowData.pageCount,
@@ -1544,10 +1547,16 @@
           getWantPage() {}
           checkNotAllowPage() {
             if (location.href.includes('novel')) {
+              _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].fire(
+                _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].events.crawlError
+              )
               window.alert('Not support novel page!')
               throw new Error('Not support novel page!')
             }
             if (location.href.includes('/tags.php')) {
+              _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].fire(
+                _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].events.crawlError
+              )
               window.alert('Not support page!')
               throw new Error('Not support page!')
             }
@@ -1669,6 +1678,7 @@
               }
             }
             const filterOpt = {
+              id: body.illustId,
               illustType: body.illustType,
               tags: tags,
               pageCount: body.pageCount,
@@ -2133,6 +2143,7 @@
               }
               // 目前，数据里并没有包含收藏数量，所以在这里没办法检查收藏数量要求
               const filterOpt = {
+                id: data.illust_id,
                 illustType: parseInt(data.illust_type),
                 tags: data.tags,
                 pageCount: parseInt(data.illust_page_count),
@@ -2375,6 +2386,7 @@
                 continue
               }
               const filterOpt = {
+                id: nowData.illustId,
                 width: nowData.width,
                 height: nowData.height,
                 pageCount: nowData.pageCount,
@@ -3129,9 +3141,6 @@
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
-        )
         // 删除页面上的作品
 
         class DeleteWorks {
@@ -3248,12 +3257,7 @@
                   _DOM__WEBPACK_IMPORTED_MODULE_4__['DOM'].removeEl(
                     ev.currentTarget
                   )
-                  if (
-                    _Store__WEBPACK_IMPORTED_MODULE_5__['store'].states
-                      .allowWork
-                  ) {
-                    this.outputNowResult()
-                  }
+                  this.outputNowResult()
                 }
               }
             })
@@ -3928,6 +3932,9 @@
           // 监听浏览器下载文件后，返回的消息
           listenDownloaded() {
             chrome.runtime.onMessage.addListener(msg => {
+              if (!this.taskBatch) {
+                return
+              }
               // 文件下载成功
               if (msg.msg === 'downloaded') {
                 // 释放 BLOBURL
@@ -4463,6 +4470,9 @@
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./API */ './src/ts/modules/API.ts'
         )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
+        )
 
         // 审查每个作品的数据，决定是否要下载它。下载区域有一些选项是过滤器选项。
         class Filter {
@@ -4480,6 +4490,7 @@
               height: 0
             }
             this.ratioType = '0' // 宽高比例的类型
+            this.idRange = -1 // id 范围，默认不限制
             this.debut = false // 只下载首次登场的作品
           }
           // 从下载区域上获取过滤器的各个选项
@@ -4499,6 +4510,8 @@
             this.filterWh = this.getSetWh()
             // 获取宽高比设置
             this.ratioType = this.getRatio()
+            // 获取 id 范围设置
+            this.idRange = this.getIdRange()
             // 获取必须包含的tag
             this.includeTag = this.getIncludeTag()
             // 获取要排除的tag
@@ -4527,6 +4540,8 @@
             result.push(this.checkSetWh(option.width, option.height))
             // 检查宽高比设置
             result.push(this.checkRatio(option.width, option.height))
+            // 检查 id 范围设置
+            result.push(this.checkIdRange(option.id))
             // 检查首次登场设置
             result.push(this.checkDebut(option.yes_rank))
             // 结果里不包含 false 时，检查通过。只要有一个 false 就不通过
@@ -4538,6 +4553,9 @@
             // 如果全部排除则取消任务
             if (result.includes('012')) {
               // notdownType 的结果是顺序的，所以可以直接查找 012
+              _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].fire(
+                _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].events.crawlError
+              )
               window.alert(
                 _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
                   '_checkNotdownTypeResult1弹窗'
@@ -4685,7 +4703,7 @@
             }
             return result
           }
-          // 获取宽高比的设置
+          // 获取宽高比设置
           getRatio() {
             let result = _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.ratio.value
             if (result === '1') {
@@ -4723,6 +4741,37 @@
                     _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.userRatio.value
                 )
               }
+            }
+            return result
+          }
+          // 获取 id 范围设置
+          getIdRange() {
+            const result = parseInt(
+              _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.idRange.value
+            )
+            if (result === 1 || result === 2) {
+              let id = parseInt(
+                _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.idRangeInput.value
+              )
+              if (isNaN(id)) {
+                _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].fire(
+                  _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].events.crawlError
+                )
+                const msg = 'id is not a number!'
+                window.alert(msg)
+                _Log__WEBPACK_IMPORTED_MODULE_2__['log'].error(msg)
+                throw new Error(msg)
+              }
+            }
+            if (result === 1) {
+              _Log__WEBPACK_IMPORTED_MODULE_2__['log'].warning(
+                `id > ${_UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.idRangeInput.value}`
+              )
+            }
+            if (result === 2) {
+              _Log__WEBPACK_IMPORTED_MODULE_2__['log'].warning(
+                `id < ${_UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.idRangeInput.value}`
+              )
             }
             return result
           }
@@ -4913,6 +4962,25 @@
                   _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.userRatio.value
                 )
               )
+            }
+          }
+          // 检查 id 范围设置
+          checkIdRange(id) {
+            if (id === undefined) {
+              return true
+            }
+            const nowId = parseInt(id.toString())
+            const setId = parseInt(
+              _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.idRangeInput.value
+            )
+            if (this.idRange === 1) {
+              // 大于
+              return nowId > setId
+            } else if (this.idRange === 2) {
+              // 小于
+              return nowId < setId
+            } else {
+              return true
             }
           }
           // 检查首次登场设置
@@ -7554,23 +7622,23 @@
               pageUserID: '',
               pageTag: ''
             }
-            const truesEvent = [
+            const trueEvents = [
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.crawlFinish,
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.crawlEmpty,
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.crawlError,
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadPause,
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadStop
             ]
-            truesEvent.forEach(type => {
+            trueEvents.forEach(type => {
               window.addEventListener(type, () => {
                 this.states.allowWork = true
               })
             })
-            const falseEvent = [
+            const falseEvents = [
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.crawlStart,
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadStart
             ]
-            falseEvent.forEach(type => {
+            falseEvents.forEach(type => {
               window.addEventListener(type, () => {
                 this.states.allowWork = false
               })
@@ -8058,12 +8126,12 @@
       ].transl('_怎样下载多图作品')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
               'lang'
             ].transl('_多图作品设置')}<span class="gray1"> ? </span></span>
-      <label for="multipleImageWorks2"><input type="radio" name="multipleImageWorks" id="multipleImageWorks2" value="-1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-        'lang'
-      ].transl('_不下载')}&nbsp; </label>
       <label for="multipleImageWorks1"><input type="radio" name="multipleImageWorks" id="multipleImageWorks1" value="0"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_全部下载')}&nbsp; </label>
+      <label for="multipleImageWorks2"><input type="radio" name="multipleImageWorks" id="multipleImageWorks2" value="-1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_不下载')}&nbsp; </label>
       <label for="multipleImageWorks3"><input type="radio" name="multipleImageWorks" id="multipleImageWorks3" value="1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_下载前几张图片')}&nbsp; </label>
@@ -8139,6 +8207,23 @@
         'lang'
       ].transl('_输入宽高比')}</label>
       <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
+      </p>
+      <p class="formOption15">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_设置id范围提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+              'lang'
+            ].transl('_设置id范围')} <span class="gray1"> ? </span></span>
+      <label for="idRange0"><input type="radio" name="idRange" id="idRange0" value="0" checked>  ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_不限制')}&nbsp; </label>
+      <label for="idRange1"><input type="radio" name="idRange" id="idRange1" value="1">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_大于')}&nbsp; </label>
+      <label for="idRange2"><input type="radio" name="idRange" id="idRange2" value="2">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_小于')}&nbsp; </label>
+      <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
       </p>
       <p class="formOption6">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
@@ -8627,8 +8712,8 @@
             '設定寬高比，也可以手動輸入寬高比'
           ],
           _不限制: ['不限制', '無制限', 'not limited', '不限制'],
-          _横图: ['横图', '横長', 'Horizontal picture', '橫圖'],
-          _竖图: ['竖图', '縦長', 'Vertical picture', '豎圖'],
+          _横图: ['横图', '横長', 'Horizontal', '橫圖'],
+          _竖图: ['竖图', '縦長', 'Vertical', '豎圖'],
           _输入宽高比: [
             '宽高比 >=',
             '縦横比 >=',
@@ -8850,13 +8935,13 @@
           ],
           _多图作品设置: [
             '多图作品设置',
-            'マルチイメージ作品の設定',
-            'Multi-image works settings',
+            'マルチイメージ設定',
+            'Multi-image works',
             '多圖作品設定'
           ],
           _怎样下载多图作品: [
             '怎样下载多图作品？',
-            'マルチイメージ作品をダウンロードする方法？',
+            'どのようにマルチイメージ作品をダウンロードしますか？',
             'How to download multi-image works?',
             '怎样下載多圖作品？'
           ],
@@ -8868,14 +8953,14 @@
           ],
           _全部下载: [
             '全部下载',
-            'すべてダウンロード',
+            '全部ダウンロードする',
             'Download all',
             '全部下載'
           ],
           _下载前几张图片: [
             '下载前几张图片：',
-            '最初の数枚の画像をダウンロードする：',
-            'Download the first few images:',
+            '最初のいくつかの画像：',
+            'First few images:',
             '下載前幾張圖片：'
           ],
           _不下载多图作品: [
@@ -9557,22 +9642,36 @@
           ],
           _xzNew333: [
             '现在可以排除多图作品了。',
-            'マルチピクチャ作品を除外できるようになりました。',
+            '今はマルチイメージ作品を排除することができます。',
             'Multi-images works can now be excluded.',
             '現在可以排除多圖作品了。'
           ],
           _快速下载建立文件夹: [
             '始终建立文件夹',
-            '常にフォルダーを作成する',
+            'いつもフォルダを作成されます',
             'Always create folder',
-            '始终建立文件夹'
+            '總是建立資料夾'
           ],
           _快速下载建立文件夹提示: [
             '快速下载时，如果只有一张图片，也会建立文件夹',
-            'すばやくダウンロードするときに、画像が 1 つしかない場合は、フォルダーも作成されます',
+            'すばやくダウンロードとき、イラストが一枚だけでも、フォルダも作成されます',
             'When downloading quickly, if there is only one picture, a folder is also created',
-            '快速下载时，如果只有一张图片，也会建立文件夹'
-          ]
+            '快速下載時，若只有一張圖片，也會建立資料夾'
+          ],
+          _设置id范围: [
+            '设置 id 范围&nbsp;',
+            'ID範囲を設定&nbsp;',
+            'Set id range&nbsp;',
+            '設定 id 範圍&nbsp;'
+          ],
+          _设置id范围提示: [
+            '您可以输入一个作品 id，并下载比它新或者比它旧的作品',
+            '作業IDを入力し、それより新しいまたは古い作品をダウンロードできます',
+            'You can enter a work id and download works that are newer or older than it',
+            '您可以輸入一個作品 id，並下載比它新或者比它舊的作品。'
+          ],
+          _大于: ['大于', 'より大きい', 'Bigger than', '大於'],
+          _小于: ['小于', 'より小さい', 'Less than', '小於']
         }
 
         /***/
@@ -9615,23 +9714,23 @@
               pageUserID: '',
               pageTag: ''
             }
-            const truesEvent = [
+            const trueEvents = [
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.crawlFinish,
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.crawlEmpty,
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.crawlError,
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadPause,
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadStop
             ]
-            truesEvent.forEach(type => {
+            trueEvents.forEach(type => {
               window.addEventListener(type, () => {
                 this.states.allowWork = true
               })
             })
-            const falseEvent = [
+            const falseEvents = [
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.crawlStart,
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadStart
             ]
-            falseEvent.forEach(type => {
+            falseEvents.forEach(type => {
               window.addEventListener(type, () => {
                 this.states.allowWork = false
               })

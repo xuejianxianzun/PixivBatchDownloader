@@ -96,9 +96,7 @@ class DeleteWorks {
           ev.preventDefault()
 
           DOM.removeEl(ev.currentTarget as HTMLElement)
-          if (store.states.allowWork) {
-            this.outputNowResult()
-          }
+          this.outputNowResult()
         }
       }
     })

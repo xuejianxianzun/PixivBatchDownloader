@@ -49,6 +49,7 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
     // 检查一些此时可以进行检查的设置项
     for (const data of worksData) {
       const filterOpt: FilterOption = {
+        id: data.illustId,
         width: data.width,
         height: data.height,
         pageCount: data.pageCount,

@@ -146,6 +146,9 @@
   border-bottom: 1px solid #0096fa !important;
   background: 0 0 !important;
 }
+.centerWrap .setinput_style1.w100 {
+  width: 100px;
+}
 .centerWrap .progressBar1,
 .centerWrap .right1 {
   width: 100%;

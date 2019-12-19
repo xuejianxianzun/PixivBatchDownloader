@@ -28,6 +28,9 @@ class DownloadFile {
   // 监听浏览器下载文件后，返回的消息
   private listenDownloaded() {
     chrome.runtime.onMessage.addListener((msg: DownloadedMsg) => {
+      if (!this.taskBatch) {
+        return
+      }
       // 文件下载成功
       if (msg.msg === 'downloaded') {
         // 释放 BLOBURL

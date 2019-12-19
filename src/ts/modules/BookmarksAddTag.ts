@@ -8,6 +8,8 @@ class BookmarksAddTag {
 
   private btn: HTMLButtonElement = document.createElement('button')
 
+  private readonly once = 100 // 一次请求多少个作品的数据
+
   public init(btn: HTMLButtonElement) {
     this.btn = btn
     this.btn.addEventListener('click', () => {
@@ -42,7 +44,7 @@ class BookmarksAddTag {
 
   // 准备添加 tag。loop 表示这是第几轮循环
   private async readyAddTag(loop: number = 0) {
-    const offset = loop * 100 // 一次请求只能获取 100 个，所以可能有多次请求，要计算偏移量
+    const offset = loop * this.once // 一次请求只能获取一部分，所以可能有多次请求，要计算偏移量
 
     // 发起请求
     const [showData, hideData] = await Promise.all([
@@ -70,24 +72,23 @@ class BookmarksAddTag {
       }
     }
 
-    // 进行下一步的处理
-    if (this.addTagList.length === 0) {
-      // 如果结果为空，不需要处理
-      this.btn!.textContent = `√ No need`
-      this.btn!.removeAttribute('disabled')
-      return
-    } else {
-      // 判断是否获取完毕，如果本次请求获取的数据为空，则已经没有后续数据
-      if (
-        showData.body.works.length === 0 &&
-        hideData.body.works.length === 0
-      ) {
-        // 已经获取完毕
-        this.addTag(0, this.addTagList, API.getToken())
+    // 已删除或无法访问的作品不会出现在请求结果里。本来一次请求 100 个，但返回的结果有可能会比 100 个少，甚至极端情况下是 0。所以实际获取到的作品可能比  total 数量少，这是正常的。
+
+    // 判断是否请求了所有未分类的作品数据
+    const total = offset + this.once
+    if (total >= showData.body.total && total >= hideData.body.total) {
+      if (this.addTagList.length === 0) {
+        // 如果结果为空，不需要处理
+        this.btn!.textContent = `√ No need`
+        this.btn!.removeAttribute('disabled')
+        return
       } else {
-        // 需要继续获取
-        this.readyAddTag(++loop)
+        // 开始添加 tag
+        this.addTag(0, this.addTagList, API.getToken())
       }
+    } else {
+      // 需要继续获取
+      this.readyAddTag(++loop)
     }
   }
 

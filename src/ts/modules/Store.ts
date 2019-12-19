@@ -5,7 +5,7 @@ import { WorkInfo, WorkInfoOptional, RankList } from './Store.d'
 // 存储抓取结果和状态
 class Store {
   constructor() {
-    const truesEvent = [
+    const trueEvents = [
       EVT.events.crawlFinish,
       EVT.events.crawlEmpty,
       EVT.events.crawlError,
@@ -13,15 +13,15 @@ class Store {
       EVT.events.downloadStop
     ]
 
-    truesEvent.forEach(type => {
+    trueEvents.forEach(type => {
       window.addEventListener(type, () => {
         this.states.allowWork = true
       })
     })
 
-    const falseEvent = [EVT.events.crawlStart, EVT.events.downloadStart]
+    const falseEvents = [EVT.events.crawlStart, EVT.events.downloadStart]
 
-    falseEvent.forEach(type => {
+    falseEvents.forEach(type => {
       window.addEventListener(type, () => {
         this.states.allowWork = false
       })

@@ -18,12 +18,14 @@ class CrawlAreaRankingPage extends CrawlPageBase {
       // img.dataset.type 全都是 "illust"，因此不能用来区分作品类型
 
       // 提取出 tag 列表
+      const id = img.dataset.id!
       const tags = img.dataset.tags!.split(' ')
       const bookmarked = el
         .querySelector('._one-click-bookmark')!
         .classList.contains('on')
 
       const filterOpt: FilterOption = {
+        id: id,
         tags: tags,
         bookmarkData: bookmarked
       }

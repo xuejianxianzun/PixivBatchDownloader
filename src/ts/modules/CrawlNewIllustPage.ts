@@ -87,6 +87,7 @@ class CrawlNewIllustPage extends CrawlPageBase {
       }
 
       const filterOpt: FilterOption = {
+        id: nowData.illustId,
         width: nowData.width,
         height: nowData.height,
         pageCount: nowData.pageCount,

@@ -17,6 +17,8 @@ export interface XzForm extends HTMLFormElement {
   setFavNum: HTMLInputElement
   setOnlyBmk: HTMLInputElement
   setWidth: HTMLInputElement
+  idRange: RadioNodeList
+  idRangeInput: HTMLInputElement
   setWidthAndOr: RadioNodeList
   setHeight: HTMLInputElement
   ratio: RadioNodeList
