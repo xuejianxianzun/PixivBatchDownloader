@@ -17,6 +17,9 @@ interface XzSetting {
   tagNameToFileName: boolean
   alwaysFolder: boolean
   showOptions: boolean
+  postDate: boolean
+  postDateStart: string
+  postDateEnd: string
   [key: string]: string | number | boolean
 }
 
@@ -47,7 +50,10 @@ class Option {
     userSetName: '{id}',
     tagNameToFileName: true,
     alwaysFolder: true,
-    showOptions: true
+    showOptions: true,
+    postDate: false,
+    postDateStart: '',
+    postDateEnd: ''
   }
 
   // 储存需要持久化保存的设置
@@ -77,12 +83,14 @@ class Option {
 
     // 多图作品设置
     ui.form.multipleImageWorks.value = (
-      this.needSaveOpts.multipleImageWorks || 0
+      this.needSaveOpts.multipleImageWorks ||
+      this.needSaveOptsDefault.multipleImageWorks
     ).toString()
 
     // 设置作品张数
     ui.form.firstFewImages.value = (
-      this.needSaveOpts.firstFewImages || 1
+      this.needSaveOpts.firstFewImages ||
+      this.needSaveOptsDefault.firstFewImages
     ).toString()
 
     // 设置排除类型
@@ -105,6 +113,16 @@ class Option {
     // 设置排除的 tag
     ui.form.notNeedTag.value = this.needSaveOpts.notNeedTag
 
+    // 设置投稿时间
+    ui.form.postDate.checked =
+      this.needSaveOpts.postDate || this.needSaveOptsDefault.postDate
+
+    ui.form.postDateStart.value =
+      this.needSaveOpts.postDateStart || this.needSaveOptsDefault.postDateStart
+
+    ui.form.postDateEnd.value =
+      this.needSaveOpts.postDateEnd || this.needSaveOptsDefault.postDateEnd
+
     // 设置快速下载
     ui.form.quietDownload.checked = this.needSaveOpts.quietDownload
 
@@ -124,7 +142,24 @@ class Option {
     // 设置是否添加标记名称
     ui.form.tagNameToFileName.checked = this.needSaveOpts.tagNameToFileName
 
+    // 设置是否始终建立文件夹
     ui.form.alwaysFolder.checked = this.needSaveOpts.alwaysFolder
+  }
+
+  // 处理 change 时直接保存 value 的输入框
+  private saveValueOnChange(name: keyof XzSetting) {
+    const el = ui.form[name] as HTMLInputElement
+    el.addEventListener('change', () => {
+      this.saveSetting(name, el.value)
+    })
+  }
+
+  // 处理 click 时直接保存 checked 的复选框
+  private saveCheckOnClick(name: keyof XzSetting) {
+    const el = ui.form[name] as HTMLInputElement
+    el.addEventListener('click', () => {
+      this.saveSetting(name, el.checked)
+    })
   }
 
   // 绑定选项的事件，主要是当选项变动时保存。
@@ -136,8 +171,8 @@ class Option {
     const showOptionsBtn = document.querySelector('.centerWrap_toogle_option')!
     showOptionsBtn.addEventListener('click', () => {
       this.needSaveOpts.showOptions = !this.needSaveOpts.showOptions
-      this.saveSetting('showOptions', this.needSaveOpts.showOptions)
       ui.toggleOptionArea(this.needSaveOpts.showOptions)
+      this.saveSetting('showOptions', this.needSaveOpts.showOptions)
     })
 
     // 保存多图作品设置
@@ -148,14 +183,7 @@ class Option {
     }
 
     // 保存作品张数
-    ui.form.firstFewImages.addEventListener('change', function(
-      this: HTMLInputElement
-    ) {
-      let value = parseInt(this.value)
-      if (value >= 0) {
-        that.saveSetting('firstFewImages', value)
-      }
-    })
+    this.saveValueOnChange('firstFewImages')
 
     // 保存排除类型
     for (let i = 0; i < this.notdownTypeName.length; i++) {
@@ -173,35 +201,22 @@ class Option {
       })
     }
 
+    // 保存投稿时间
+    this.saveCheckOnClick('postDate')
+    this.saveValueOnChange('postDateStart')
+    this.saveValueOnChange('postDateEnd')
+
     // 保存必须的 tag设置
-    ui.form.needTag.addEventListener('change', function(
-      this: HTMLInputElement
-    ) {
-      that.saveSetting('needTag', this.value)
-    })
+    this.saveValueOnChange('needTag')
 
     // 保存排除的 tag设置
-    ui.form.notNeedTag.addEventListener('change', function(
-      this: HTMLInputElement
-    ) {
-      that.saveSetting('notNeedTag', this.value)
-    })
+    this.saveValueOnChange('notNeedTag')
 
     // 保存快速下载
-    ui.form.quietDownload.addEventListener('click', function(
-      this: HTMLInputElement
-    ) {
-      that.saveSetting('quietDownload', this.checked)
-    })
+    this.saveCheckOnClick('quietDownload')
 
     // 保存下载线程
-    ui.form.downloadThread.addEventListener('change', function(
-      this: HTMLInputElement
-    ) {
-      if (parseInt(this.value) > 0) {
-        that.saveSetting('downloadThread', this.value)
-      }
-    })
+    this.saveValueOnChange('downloadThread')
 
     // 保存命名规则
     ;['change', 'focus'].forEach(ev => {
@@ -213,18 +228,10 @@ class Option {
     })
 
     // 保存是否添加标记名称
-    ui.form.tagNameToFileName.addEventListener('click', function(
-      this: HTMLInputElement
-    ) {
-      that.saveSetting('tagNameToFileName', this.checked)
-    })
+    this.saveCheckOnClick('tagNameToFileName')
 
-    // 保存是否添加标记名称
-    ui.form.alwaysFolder.addEventListener('click', function(
-      this: HTMLInputElement
-    ) {
-      that.saveSetting('alwaysFolder', this.checked)
-    })
+    // 保存是否始终建立文件夹
+    this.saveCheckOnClick('alwaysFolder')
   }
 
   // 持久化保存设置

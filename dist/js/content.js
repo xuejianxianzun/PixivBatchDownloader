@@ -1540,7 +1540,18 @@
             if (check.result) {
               return check.value
             } else {
-              return 0
+              _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].fire(
+                _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].events.crawlError
+              )
+              const msg =
+                _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                  '_下载前几张图片'
+                ) +
+                ' ' +
+                _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_必须大于0')
+              _Log__WEBPACK_IMPORTED_MODULE_4__['log'].error(msg)
+              window.alert(msg)
+              throw new Error(msg)
             }
           }
           // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
@@ -1678,6 +1689,7 @@
               }
             }
             const filterOpt = {
+              createDate: body.createDate,
               id: body.illustId,
               illustType: body.illustType,
               tags: tags,
@@ -1695,6 +1707,15 @@
               const title = body.illustTitle // 作品标题
               const userid = body.userId // 用户id
               const user = body.userName // 用户名
+              // 时间原数据如 "2019-12-18T22:23:37+00:00"
+              const date0 = new Date(body.createDate)
+              const date =
+                date0.getFullYear() +
+                '-' +
+                (date0.getMonth() + 1) +
+                '-' +
+                date0.getDate()
+              // 网页上显示的日期是转换成了本地时间的，如北京时区显示为 "2019-12-19"，不是显示原始日期 "2019-12-18"。所以这里转换成本地时区的日期，和网页上保持一致，以免用户困惑。
               let rank = '' // 保存作品在排行榜上的编号
               let testRank = _Store__WEBPACK_IMPORTED_MODULE_3__[
                 'store'
@@ -1731,7 +1752,7 @@
                     fullHeight: fullHeight,
                     ext: ext,
                     bmk: bmk,
-                    date: body.createDate.split('T')[0],
+                    date: date,
                     type: body.illustType,
                     rank: rank
                   })
@@ -1762,7 +1783,7 @@
                   fullHeight: fullHeight,
                   ext: ext,
                   bmk: bmk,
-                  date: body.createDate.split('T')[0],
+                  date: date,
                   type: body.illustType,
                   rank: rank,
                   ugoiraInfo: ugoiraInfo
@@ -4491,6 +4512,9 @@
             }
             this.ratioType = '0' // 宽高比例的类型
             this.idRange = -1 // id 范围，默认不限制
+            this.postDate = false // 是否设置投稿时间
+            this.postDateStart = new Date()
+            this.postDateEnd = new Date()
             this.debut = false // 只下载首次登场的作品
           }
           // 从下载区域上获取过滤器的各个选项
@@ -4512,6 +4536,8 @@
             this.ratioType = this.getRatio()
             // 获取 id 范围设置
             this.idRange = this.getIdRange()
+            // 获取投稿时间设置
+            this.postDate = this.getPostDateSetting()
             // 获取必须包含的tag
             this.includeTag = this.getIncludeTag()
             // 获取要排除的tag
@@ -4542,6 +4568,8 @@
             result.push(this.checkRatio(option.width, option.height))
             // 检查 id 范围设置
             result.push(this.checkIdRange(option.id))
+            // 检查投稿时间设置
+            result.push(this.checkPostDate(option.createDate))
             // 检查首次登场设置
             result.push(this.checkDebut(option.yes_rank))
             // 结果里不包含 false 时，检查通过。只要有一个 false 就不通过
@@ -4775,6 +4803,53 @@
             }
             return result
           }
+          // 获取投稿时间设置
+          getPostDateSetting() {
+            if (
+              _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.postDate.checked ===
+              false
+            ) {
+              return false
+            } else {
+              // 如果启用了此设置，需要判断是否是有效的时间格式
+              const postDateStart = new Date(
+                _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.postDateStart.value
+              )
+              const postDateEnd = new Date(
+                _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.postDateEnd.value
+              )
+              // 如果输入的时间可以被转换成有效的时间，则启用
+              // 转换时间失败时，值是 Invalid Date，不能转换成数字
+              if (
+                isNaN(postDateStart.getTime()) ||
+                isNaN(postDateEnd.getTime())
+              ) {
+                _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].fire(
+                  _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].events.crawlError
+                )
+                const msg = 'Date format error!'
+                _Log__WEBPACK_IMPORTED_MODULE_2__['log'].error(msg)
+                window.alert(msg)
+                throw new Error(msg)
+              } else {
+                // 转换时间成功
+                this.postDateStart = postDateStart
+                this.postDateEnd = postDateEnd
+                _Log__WEBPACK_IMPORTED_MODULE_2__['log'].warning(
+                  `${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                    '_时间范围'
+                  )}: ${
+                    _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.postDateStart
+                      .value
+                  } - ${
+                    _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.postDateEnd
+                      .value
+                  }`
+                )
+                return true
+              }
+            }
+          }
           // 获取首次登场设置
           getDebut() {
             const result =
@@ -4981,6 +5056,22 @@
               return nowId < setId
             } else {
               return true
+            }
+          }
+          // 检查投稿时间设置
+          checkPostDate(date) {
+            if (!this.postDate || date === undefined) {
+              return true
+            } else {
+              const nowDate = new Date(date)
+              if (
+                nowDate >= this.postDateStart &&
+                nowDate <= this.postDateEnd
+              ) {
+                return true
+              } else {
+                return false
+              }
             }
           }
           // 检查首次登场设置
@@ -6167,7 +6258,21 @@
             }
           }
           setFormOptin() {
-            this.hideNotNeedOption([1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14])
+            this.hideNotNeedOption([
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              11,
+              12,
+              13,
+              14,
+              15,
+              16
+            ])
           }
         }
 
@@ -6875,7 +6980,10 @@
               userSetName: '{id}',
               tagNameToFileName: true,
               alwaysFolder: true,
-              showOptions: true
+              showOptions: true,
+              postDate: false,
+              postDateStart: '',
+              postDateEnd: ''
             }
             // 储存需要持久化保存的设置
             this.needSaveOpts = this.needSaveOptsDefault
@@ -6914,11 +7022,13 @@
             _UI__WEBPACK_IMPORTED_MODULE_0__[
               'ui'
             ].form.multipleImageWorks.value = (
-              this.needSaveOpts.multipleImageWorks || 0
+              this.needSaveOpts.multipleImageWorks ||
+              this.needSaveOptsDefault.multipleImageWorks
             ).toString()
             // 设置作品张数
             _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.firstFewImages.value = (
-              this.needSaveOpts.firstFewImages || 1
+              this.needSaveOpts.firstFewImages ||
+              this.needSaveOptsDefault.firstFewImages
             ).toString()
             // 设置排除类型
             for (let index = 0; index < this.notdownTypeName.length; index++) {
@@ -6945,6 +7055,15 @@
             _UI__WEBPACK_IMPORTED_MODULE_0__[
               'ui'
             ].form.notNeedTag.value = this.needSaveOpts.notNeedTag
+            // 设置投稿时间
+            _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.postDate.checked =
+              this.needSaveOpts.postDate || this.needSaveOptsDefault.postDate
+            _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.postDateStart.value =
+              this.needSaveOpts.postDateStart ||
+              this.needSaveOptsDefault.postDateStart
+            _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form.postDateEnd.value =
+              this.needSaveOpts.postDateEnd ||
+              this.needSaveOptsDefault.postDateEnd
             // 设置快速下载
             _UI__WEBPACK_IMPORTED_MODULE_0__[
               'ui'
@@ -6970,9 +7089,24 @@
             _UI__WEBPACK_IMPORTED_MODULE_0__[
               'ui'
             ].form.tagNameToFileName.checked = this.needSaveOpts.tagNameToFileName
+            // 设置是否始终建立文件夹
             _UI__WEBPACK_IMPORTED_MODULE_0__[
               'ui'
             ].form.alwaysFolder.checked = this.needSaveOpts.alwaysFolder
+          }
+          // 处理 change 时直接保存 value 的输入框
+          saveValueOnChange(name) {
+            const el = _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form[name]
+            el.addEventListener('change', () => {
+              this.saveSetting(name, el.value)
+            })
+          }
+          // 处理 click 时直接保存 checked 的复选框
+          saveCheckOnClick(name) {
+            const el = _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form[name]
+            el.addEventListener('click', () => {
+              this.saveSetting(name, el.checked)
+            })
           }
           // 绑定选项的事件，主要是当选项变动时保存。
           // 只可执行一次，否则事件会重复绑定
@@ -6984,10 +7118,10 @@
             )
             showOptionsBtn.addEventListener('click', () => {
               this.needSaveOpts.showOptions = !this.needSaveOpts.showOptions
-              this.saveSetting('showOptions', this.needSaveOpts.showOptions)
               _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].toggleOptionArea(
                 this.needSaveOpts.showOptions
               )
+              this.saveSetting('showOptions', this.needSaveOpts.showOptions)
             })
             // 保存多图作品设置
             for (const input of _UI__WEBPACK_IMPORTED_MODULE_0__['ui'].form
@@ -6997,14 +7131,7 @@
               })
             }
             // 保存作品张数
-            _UI__WEBPACK_IMPORTED_MODULE_0__[
-              'ui'
-            ].form.firstFewImages.addEventListener('change', function() {
-              let value = parseInt(this.value)
-              if (value >= 0) {
-                that.saveSetting('firstFewImages', value)
-              }
-            })
+            this.saveValueOnChange('firstFewImages')
             // 保存排除类型
             for (let i = 0; i < this.notdownTypeName.length; i++) {
               // 根据 notdownType 里的记录，选中或者取消选中
@@ -7026,32 +7153,18 @@
                 that.saveSetting('ugoiraSaveAs', this.value)
               })
             }
+            // 保存投稿时间
+            this.saveCheckOnClick('postDate')
+            this.saveValueOnChange('postDateStart')
+            this.saveValueOnChange('postDateEnd')
             // 保存必须的 tag设置
-            _UI__WEBPACK_IMPORTED_MODULE_0__[
-              'ui'
-            ].form.needTag.addEventListener('change', function() {
-              that.saveSetting('needTag', this.value)
-            })
+            this.saveValueOnChange('needTag')
             // 保存排除的 tag设置
-            _UI__WEBPACK_IMPORTED_MODULE_0__[
-              'ui'
-            ].form.notNeedTag.addEventListener('change', function() {
-              that.saveSetting('notNeedTag', this.value)
-            })
+            this.saveValueOnChange('notNeedTag')
             // 保存快速下载
-            _UI__WEBPACK_IMPORTED_MODULE_0__[
-              'ui'
-            ].form.quietDownload.addEventListener('click', function() {
-              that.saveSetting('quietDownload', this.checked)
-            })
+            this.saveCheckOnClick('quietDownload')
             // 保存下载线程
-            _UI__WEBPACK_IMPORTED_MODULE_0__[
-              'ui'
-            ].form.downloadThread.addEventListener('change', function() {
-              if (parseInt(this.value) > 0) {
-                that.saveSetting('downloadThread', this.value)
-              }
-            })
+            this.saveValueOnChange('downloadThread')
             ;['change', 'focus'].forEach(ev => {
               _UI__WEBPACK_IMPORTED_MODULE_0__[
                 'ui'
@@ -7060,17 +7173,9 @@
               })
             })
             // 保存是否添加标记名称
-            _UI__WEBPACK_IMPORTED_MODULE_0__[
-              'ui'
-            ].form.tagNameToFileName.addEventListener('click', function() {
-              that.saveSetting('tagNameToFileName', this.checked)
-            })
-            // 保存是否添加标记名称
-            _UI__WEBPACK_IMPORTED_MODULE_0__[
-              'ui'
-            ].form.alwaysFolder.addEventListener('click', function() {
-              that.saveSetting('alwaysFolder', this.checked)
-            })
+            this.saveCheckOnClick('tagNameToFileName')
+            // 保存是否始终建立文件夹
+            this.saveCheckOnClick('alwaysFolder')
           }
           // 持久化保存设置
           saveSetting(key, value) {
@@ -7737,7 +7842,7 @@
         // 辅助功能
         class Support {
           constructor() {
-            this.newTag = '_xzNew333'
+            this.newTag = '_xzNew335'
             this.checkConflict()
             this.supportListenHistory()
             this.listenPageSwitch()
@@ -8224,6 +8329,19 @@
         'lang'
       ].transl('_小于')}&nbsp; </label>
       <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
+      </p>
+      <p class="formOption16">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_设置投稿时间提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+              'lang'
+            ].transl('_设置投稿时间')} <span class="gray1"> ? </span></span>
+      <label for="setPostDate"><input type="checkbox" name="postDate" id="setPostDate"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_启用')}</label>
+      <input type="datetime-local" name="postDateStart" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
+      &nbsp;-&nbsp;
+      <input type="datetime-local" name="postDateEnd" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
       </p>
       <p class="formOption6">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
@@ -9640,11 +9758,11 @@
             'A new version is available',
             '有新版本可用'
           ],
-          _xzNew333: [
-            '现在可以排除多图作品了。',
-            '今はマルチイメージ作品を排除することができます。',
-            'Multi-images works can now be excluded.',
-            '現在可以排除多圖作品了。'
+          _xzNew335: [
+            '您可以下载指定时间内发布的作品',
+            '指定された時間内に配信された作品をダウンロードすることができます',
+            'You can download works posted in a specified period of time',
+            '您可以下載指定時間内發佈的作品'
           ],
           _快速下载建立文件夹: [
             '始终建立文件夹',
@@ -9665,13 +9783,32 @@
             '設定 id 範圍&nbsp;'
           ],
           _设置id范围提示: [
-            '您可以输入一个作品 id，并下载比它新或者比它旧的作品',
-            '作業IDを入力し、それより新しいまたは古い作品をダウンロードできます',
-            'You can enter a work id and download works that are newer or older than it',
-            '您可以輸入一個作品 id，並下載比它新或者比它舊的作品。'
+            '您可以输入一个作品 id，抓取比它新或者比它旧的作品',
+            '1つの作品IDを入力することで、それより新しいあるいは古い作品をクロールことができます',
+            'You can enter a work id and crawl works that are newer or older than it',
+            '您可以輸入一個作品 id，擷取比它新或者比它舊的作品。'
           ],
           _大于: ['大于', 'より大きい', 'Bigger than', '大於'],
-          _小于: ['小于', 'より小さい', 'Less than', '小於']
+          _小于: ['小于', 'より小さい', 'Less than', '小於'],
+          _设置投稿时间: [
+            '设置投稿时间',
+            '設定投稿日時',
+            'Set posting date',
+            '設定投稿時間'
+          ],
+          _设置投稿时间提示: [
+            '您可以下载指定时间内发布的作品',
+            '指定された時間内に配信された作品をダウンロードすることができます',
+            'You can download works posted in a specified period of time',
+            '您可以下載指定時間内發佈的作品'
+          ],
+          _时间范围: ['时间范围', '時間範囲', 'Time range', '時間范围'],
+          _必须大于0: [
+            '必须大于 0',
+            '0 より大きくなければなりません',
+            'must be greater than 0',
+            '必須大於 0'
+          ]
         }
 
         /***/

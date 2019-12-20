@@ -983,11 +983,11 @@ const langText = {
     'A new version is available',
     '有新版本可用'
   ],
-  _xzNew333: [
-    '现在可以排除多图作品了。',
-    '今はマルチイメージ作品を排除することができます。',
-    'Multi-images works can now be excluded.',
-    '現在可以排除多圖作品了。'
+  _xzNew335: [
+    '您可以下载指定时间内发布的作品',
+    '指定された時間内に配信された作品をダウンロードすることができます',
+    'You can download works posted in a specified period of time',
+    '您可以下載指定時間内發佈的作品'
   ],
   _快速下载建立文件夹: [
     '始终建立文件夹',
@@ -1008,13 +1008,32 @@ const langText = {
     '設定 id 範圍&nbsp;'
   ],
   _设置id范围提示: [
-    '您可以输入一个作品 id，并下载比它新或者比它旧的作品',
-    '作業IDを入力し、それより新しいまたは古い作品をダウンロードできます',
-    'You can enter a work id and download works that are newer or older than it',
-    '您可以輸入一個作品 id，並下載比它新或者比它舊的作品。'
+    '您可以输入一个作品 id，抓取比它新或者比它旧的作品',
+    '1つの作品IDを入力することで、それより新しいあるいは古い作品をクロールことができます',
+    'You can enter a work id and crawl works that are newer or older than it',
+    '您可以輸入一個作品 id，擷取比它新或者比它舊的作品。'
   ],
   _大于: ['大于', 'より大きい', 'Bigger than', '大於'],
-  _小于: ['小于', 'より小さい', 'Less than', '小於']
+  _小于: ['小于', 'より小さい', 'Less than', '小於'],
+  _设置投稿时间: [
+    '设置投稿时间',
+    '設定投稿日時',
+    'Set posting date',
+    '設定投稿時間'
+  ],
+  _设置投稿时间提示: [
+    '您可以下载指定时间内发布的作品',
+    '指定された時間内に配信された作品をダウンロードすることができます',
+    'You can download works posted in a specified period of time',
+    '您可以下載指定時間内發佈的作品'
+  ],
+  _时间范围: ['时间范围', '時間範囲', 'Time range', '時間范围'],
+  _必须大于0: [
+    '必须大于 0',
+    '0 より大きくなければなりません',
+    'must be greater than 0',
+    '必須大於 0'
+  ]
 }
 
 export { langText }

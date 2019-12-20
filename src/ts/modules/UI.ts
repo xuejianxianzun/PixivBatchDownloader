@@ -211,6 +211,17 @@ class UI {
       )}&nbsp; </label>
       <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
       </p>
+      <p class="formOption16">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_设置投稿时间提示'
+      )}">${lang.transl('_设置投稿时间')} <span class="gray1"> ? </span></span>
+      <label for="setPostDate"><input type="checkbox" name="postDate" id="setPostDate"> ${lang.transl(
+        '_启用'
+      )}</label>
+      <input type="datetime-local" name="postDateStart" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
+      &nbsp;-&nbsp;
+      <input type="datetime-local" name="postDateEnd" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
+      </p>
       <p class="formOption6">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_必须tag的提示文字'

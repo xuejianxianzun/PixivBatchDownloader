@@ -23,6 +23,9 @@ export interface XzForm extends HTMLFormElement {
   setHeight: HTMLInputElement
   ratio: RadioNodeList
   userRatio: HTMLInputElement
+  postDate: HTMLInputElement
+  postDateStart: HTMLInputElement
+  postDateEnd: HTMLInputElement
   needTag: HTMLInputElement
   notNeedTag: HTMLInputElement
   quietDownload: HTMLInputElement

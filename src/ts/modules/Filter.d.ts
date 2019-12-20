@@ -9,6 +9,7 @@ export interface FilterOption {
   width?: number
   height?: number
   yes_rank?: number
+  createDate?: string
 }
 
 export interface FilterWh {

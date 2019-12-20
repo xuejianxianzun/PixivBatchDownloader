@@ -86,7 +86,13 @@ abstract class CrawlPageBase {
     if (check.result) {
       return check.value
     } else {
-      return 0
+      EVT.fire(EVT.events.crawlError)
+
+      const msg =
+        lang.transl('_下载前几张图片') + ' ' + lang.transl('_必须大于0')
+      log.error(msg)
+      window.alert(msg)
+      throw new Error(msg)
     }
   }
 
@@ -224,6 +230,7 @@ abstract class CrawlPageBase {
     }
 
     const filterOpt: FilterOption = {
+      createDate: body.createDate,
       id: body.illustId,
       illustType: body.illustType,
       tags: tags,
@@ -240,6 +247,16 @@ abstract class CrawlPageBase {
       const title = body.illustTitle // 作品标题
       const userid = body.userId // 用户id
       const user = body.userName // 用户名
+
+      // 时间原数据如 "2019-12-18T22:23:37+00:00"
+      const date0 = new Date(body.createDate)
+      const date =
+        date0.getFullYear() +
+        '-' +
+        (date0.getMonth() + 1) +
+        '-' +
+        date0.getDate()
+      // 网页上显示的日期是转换成了本地时间的，如北京时区显示为 "2019-12-19"，不是显示原始日期 "2019-12-18"。所以这里转换成本地时区的日期，和网页上保持一致，以免用户困惑。
 
       let rank = '' // 保存作品在排行榜上的编号
       let testRank = store.getRankList(body.illustId)
@@ -277,7 +294,7 @@ abstract class CrawlPageBase {
             fullHeight: fullHeight,
             ext: ext,
             bmk: bmk,
-            date: body.createDate.split('T')[0],
+            date: date,
             type: body.illustType,
             rank: rank
           })
@@ -307,7 +324,7 @@ abstract class CrawlPageBase {
           fullHeight: fullHeight,
           ext: ext,
           bmk: bmk,
-          date: body.createDate.split('T')[0],
+          date: date,
           type: body.illustType,
           rank: rank,
           ugoiraInfo: ugoiraInfo

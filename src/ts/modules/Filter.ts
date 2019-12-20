@@ -31,6 +31,12 @@ class Filter {
 
   private idRange: number = -1 // id 范围，默认不限制
 
+  private postDate: boolean = false // 是否设置投稿时间
+
+  private postDateStart = new Date()
+
+  private postDateEnd = new Date()
+
   private debut: boolean = false // 只下载首次登场的作品
 
   // 从下载区域上获取过滤器的各个选项
@@ -55,6 +61,9 @@ class Filter {
 
     // 获取 id 范围设置
     this.idRange = this.getIdRange()
+
+    // 获取投稿时间设置
+    this.postDate = this.getPostDateSetting()
 
     // 获取必须包含的tag
     this.includeTag = this.getIncludeTag()
@@ -98,6 +107,9 @@ class Filter {
 
     // 检查 id 范围设置
     result.push(this.checkIdRange(option.id))
+
+    // 检查投稿时间设置
+    result.push(this.checkPostDate(option.createDate))
 
     // 检查首次登场设置
     result.push(this.checkDebut(option.yes_rank))
@@ -254,6 +266,37 @@ class Filter {
     }
 
     return result
+  }
+
+  // 获取投稿时间设置
+  private getPostDateSetting() {
+    if (ui.form.postDate.checked === false) {
+      return false
+    } else {
+      // 如果启用了此设置，需要判断是否是有效的时间格式
+      const postDateStart = new Date(ui.form.postDateStart.value)
+      const postDateEnd = new Date(ui.form.postDateEnd.value)
+      // 如果输入的时间可以被转换成有效的时间，则启用
+      // 转换时间失败时，值是 Invalid Date，不能转换成数字
+      if (isNaN(postDateStart.getTime()) || isNaN(postDateEnd.getTime())) {
+        EVT.fire(EVT.events.crawlError)
+
+        const msg = 'Date format error!'
+        log.error(msg)
+        window.alert(msg)
+        throw new Error(msg)
+      } else {
+        // 转换时间成功
+        this.postDateStart = postDateStart
+        this.postDateEnd = postDateEnd
+        log.warning(
+          `${lang.transl('_时间范围')}: ${ui.form.postDateStart.value} - ${
+            ui.form.postDateEnd.value
+          }`
+        )
+        return true
+      }
+    }
   }
 
   // 获取首次登场设置
@@ -473,6 +516,20 @@ class Filter {
       return nowId < setId
     } else {
       return true
+    }
+  }
+
+  // 检查投稿时间设置
+  private checkPostDate(date: FilterOption['createDate']) {
+    if (!this.postDate || date === undefined) {
+      return true
+    } else {
+      const nowDate = new Date(date)
+      if (nowDate >= this.postDateStart && nowDate <= this.postDateEnd) {
+        return true
+      } else {
+        return false
+      }
     }
   }
 
