@@ -7,7 +7,9 @@ import { EVT } from './EVT'
 interface XzSetting {
   multipleImageWorks: number
   firstFewImages: number
-  notdownType: string
+  downType0: boolean
+  downType1: boolean
+  downType2: boolean
   ugoiraSaveAs: 'webm' | 'gif' | 'zip'
   needTag: string
   notNeedTag: string
@@ -20,7 +22,6 @@ interface XzSetting {
   postDate: boolean
   postDateStart: string
   postDateEnd: string
-  [key: string]: string | number | boolean
 }
 
 class Option {
@@ -41,7 +42,9 @@ class Option {
   private readonly needSaveOptsDefault: XzSetting = {
     multipleImageWorks: 0,
     firstFewImages: 1,
-    notdownType: '',
+    downType0: true,
+    downType1: true,
+    downType2: true,
     ugoiraSaveAs: 'webm',
     needTag: '',
     notNeedTag: '',
@@ -59,12 +62,19 @@ class Option {
   // 储存需要持久化保存的设置
   private needSaveOpts: XzSetting = this.needSaveOptsDefault
 
-  // 排除类型的按钮 name
-  private readonly notdownTypeName = [
-    'setWorkType0',
-    'setWorkType1',
-    'setWorkType2'
-  ]
+  // 恢复值是 Boolean 值的设置项
+  private restoreBoolean(name:keyof XzSetting){
+    // 优先使用用户设置的值
+    if (this.needSaveOpts[name] !== undefined) {
+      ui.form[name].checked = this.needSaveOpts[name]
+    } else {
+      // 否则使用默认值
+      ui.form[name].checked = this.needSaveOptsDefault[name]
+    }
+    // 这里不能简单的使用“或”符号来处理，考虑如下情况：
+    // this.needSaveOpts[name] || this.needSaveOptsDefault[name]
+    // 用户设置为 false，默认值为 true，使用 || 的话就恒为 true 了
+  }
 
   // 从持久化设置里恢复下载区域的设置
   // 可以执行多次
@@ -93,16 +103,10 @@ class Option {
       this.needSaveOptsDefault.firstFewImages
     ).toString()
 
-    // 设置排除类型
-    for (let index = 0; index < this.notdownTypeName.length; index++) {
-      // 根据 notdownType 里的记录，选中或者取消选中
-      let element = ui.form[this.notdownTypeName[index]] as HTMLInputElement
-      if (this.needSaveOpts.notdownType.includes(index.toString())) {
-        element.checked = false
-      } else {
-        element.checked = true
-      }
-    }
+    // 设置下载的作品类型
+    this.restoreBoolean('downType0')
+    this.restoreBoolean('downType1')
+    this.restoreBoolean('downType2')
 
     // 设置动图格式选项
     ui.form.ugoiraSaveAs.value = this.needSaveOpts.ugoiraSaveAs
@@ -114,8 +118,7 @@ class Option {
     ui.form.notNeedTag.value = this.needSaveOpts.notNeedTag
 
     // 设置投稿时间
-    ui.form.postDate.checked =
-      this.needSaveOpts.postDate || this.needSaveOptsDefault.postDate
+    this.restoreBoolean('postDate')
 
     ui.form.postDateStart.value =
       this.needSaveOpts.postDateStart || this.needSaveOptsDefault.postDateStart
@@ -123,8 +126,8 @@ class Option {
     ui.form.postDateEnd.value =
       this.needSaveOpts.postDateEnd || this.needSaveOptsDefault.postDateEnd
 
-    // 设置快速下载
-    ui.form.quietDownload.checked = this.needSaveOpts.quietDownload
+    // 设置自动下载
+    this.restoreBoolean('quietDownload')
 
     // 设置下载线程
     ui.form.downloadThread.value = this.needSaveOpts.downloadThread.toString()
@@ -140,10 +143,11 @@ class Option {
     }
 
     // 设置是否添加标记名称
-    ui.form.tagNameToFileName.checked = this.needSaveOpts.tagNameToFileName
+    this.restoreBoolean('tagNameToFileName')
 
     // 设置是否始终建立文件夹
-    ui.form.alwaysFolder.checked = this.needSaveOpts.alwaysFolder
+    this.restoreBoolean('alwaysFolder')
+
   }
 
   // 处理 change 时直接保存 value 的输入框
@@ -185,14 +189,10 @@ class Option {
     // 保存作品张数
     this.saveValueOnChange('firstFewImages')
 
-    // 保存排除类型
-    for (let i = 0; i < this.notdownTypeName.length; i++) {
-      // 根据 notdownType 里的记录，选中或者取消选中
-      let element = ui.form[this.notdownTypeName[i]] as HTMLInputElement
-      element.addEventListener('click', () => {
-        this.saveSetting('notdownType', ui.getNotDownType())
-      })
-    }
+    // 保存下载的作品类型
+    this.saveCheckOnClick('downType0')
+    this.saveCheckOnClick('downType1')
+    this.saveCheckOnClick('downType2')
 
     // 保存动图格式选项
     for (const input of ui.form.ugoiraSaveAs) {
@@ -212,7 +212,7 @@ class Option {
     // 保存排除的 tag设置
     this.saveValueOnChange('notNeedTag')
 
-    // 保存快速下载
+    // 保存自动下载
     this.saveCheckOnClick('quietDownload')
 
     // 保存下载线程
@@ -235,8 +235,8 @@ class Option {
   }
 
   // 持久化保存设置
-  private saveSetting(key: keyof XzSetting, value: any) {
-    this.needSaveOpts[key] = value
+  private saveSetting(key: keyof XzSetting, value: string | number | boolean) {
+    (this.needSaveOpts[key] as any) = value
     localStorage.setItem(this.storeName, JSON.stringify(this.needSaveOpts))
   }
 

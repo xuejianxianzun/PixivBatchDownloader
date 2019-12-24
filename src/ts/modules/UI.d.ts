@@ -10,9 +10,9 @@ export interface XzForm extends HTMLFormElement {
   setWantPage: HTMLInputElement
   multipleImageWorks: RadioNodeList
   firstFewImages: HTMLInputElement
-  setWorkType0: HTMLInputElement
-  setWorkType1: HTMLInputElement
-  setWorkType2: HTMLInputElement
+  downType0: HTMLInputElement
+  downType1: HTMLInputElement
+  downType2: HTMLInputElement
   ugoiraSaveAs: RadioNodeList
   setFavNum: HTMLInputElement
   setOnlyBmk: HTMLInputElement

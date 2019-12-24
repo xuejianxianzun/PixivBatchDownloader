@@ -286,25 +286,13 @@ const langText = {
     'Task starts.',
     '工作開始'
   ],
-  _checkNotdownTypeResult1弹窗: [
+  _checkNotdownTypeAll: [
     '由于您排除了所有作品类型，本次任务已取消。',
     'すべての種類の作品を除外したため、タスクはキャンセルされました。',
     'Because you excluded all types of work, the task was canceled.',
     '由於您排除了所有作品類型，本次工作已取消。'
   ],
-  _checkNotdownTypeResult1Html: [
-    '排除作品类型的设置有误，任务取消!',
-    '作業タイプの除外にエラー設定がありました。 タスクがキャンセルされました。',
-    'There was an error setting for the exclusion of the work type. Task canceled.',
-    '排除作品類型的設定有誤，工作取消!'
-  ],
-  _checkNotdownTypeResult2弹窗: [
-    '由于作品类型的设置有误，本次任务已取消。',
-    '除外タイプを設定する際にエラーが発生しました。 タスクがキャンセルされました。',
-    'There was an error setting for the exclusion of the work type. Task canceled.',
-    '由於作品類型的設定有誤，本次工作已取消。'
-  ],
-  _checkNotdownTypeResult3Html: [
+  _checkNotdownTypeResult: [
     '排除作品类型：',
     'これらのタイプの作品を除外します：',
     'Excludes these types of works: ',

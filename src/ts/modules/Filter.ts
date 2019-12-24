@@ -8,7 +8,9 @@ import { EVT } from './EVT'
 
 // 审查每个作品的数据，决定是否要下载它。下载区域有一些选项是过滤器选项。
 class Filter {
-  private notdownType: string = '' // 设置不要下载的作品类型
+  private downType0 = true
+  private downType1 = true
+  private downType2 = true
 
   private multipleImageWorks: number = 0 // 多图作品设置
 
@@ -42,7 +44,7 @@ class Filter {
   // 从下载区域上获取过滤器的各个选项
   public init() {
     // 获取排除作品类型的设置
-    this.notdownType = this.getNotDownType()
+    this.getDownType()
 
     // 获取多图作品设置
     this.multipleImageWorks = parseInt(ui.form.multipleImageWorks.value)
@@ -81,8 +83,8 @@ class Filter {
     // 储存每一项检查的结果. true 表示保留这个作品
     let result: boolean[] = []
 
-    // 检查排除类型设置
-    result.push(this.checkNotDownType(option.illustType))
+    // 检查下载的作品类型设置
+    result.push(this.checkDownType(option.illustType))
 
     // 检查多图作品设置
     result.push(this.checkMultipleImageWorks(option.pageCount))
@@ -118,33 +120,31 @@ class Filter {
     return !result.includes(false)
   }
 
-  // 获取排除类型
-  private getNotDownType() {
-    let result = ui.getNotDownType()
+  // 获取下载的作品类型设置
+  private getDownType() {
+    this.downType0 = ui.form.downType0.checked
+    this.downType1 = ui.form.downType1.checked
+    this.downType2 = ui.form.downType2.checked
 
     // 如果全部排除则取消任务
-    if (result.includes('012')) {
-      // notdownType 的结果是顺序的，所以可以直接查找 012
+    if (!this.downType0 && !this.downType1 && !this.downType2) {
       EVT.fire(EVT.events.crawlError)
 
-      window.alert(lang.transl('_checkNotdownTypeResult1弹窗'))
-      const msg = lang.transl('_checkNotdownTypeResult1Html')
+      const msg = lang.transl('_checkNotdownTypeAll')
       log.error(msg, 2)
+      window.alert(msg)
       throw new Error(msg)
     }
 
-    // 排除了至少一种时，显示提示
-    if (result.includes('0') || result.includes('1') || result.includes('2')) {
-      log.warning(
-        lang.transl('_checkNotdownTypeResult3Html') +
-          result
-            .replace('0', lang.transl('_插画'))
-            .replace('1', lang.transl('_漫画'))
-            .replace('2', lang.transl('_动图'))
-      )
-    }
+    let notDownTip = ''
 
-    return result
+    notDownTip += this.downType0 ? '' : lang.transl('_插画')
+    notDownTip += this.downType1 ? '' : lang.transl('_漫画')
+    notDownTip += this.downType2 ? '' : lang.transl('_动图')
+
+    if (notDownTip) {
+      log.warning(lang.transl('_checkNotdownTypeResult') + notDownTip)
+    }
   }
 
   // 获取必须包含的tag
@@ -309,15 +309,21 @@ class Filter {
     return result
   }
 
-  // 检查排除类型设置
-  private checkNotDownType(illustType: FilterOption['illustType']) {
+  // 检查下载的作品类型设置
+  private checkDownType(illustType: FilterOption['illustType']) {
     if (illustType === undefined) {
       return true
     } else {
-      if (this.notdownType.includes(illustType.toString())) {
-        return false
-      } else {
-        return true
+      switch (illustType) {
+        case 0:
+          return this.downType0 ? true : false
+        case 1:
+          return this.downType1 ? true : false
+        case 2:
+          return this.downType2 ? true : false
+
+        default:
+          return true
       }
     }
   }

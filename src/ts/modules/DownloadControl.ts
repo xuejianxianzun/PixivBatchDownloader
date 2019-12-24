@@ -180,7 +180,7 @@ class DownloadControl {
     <span class="down_status blue"><span>${lang.transl(
       '_未开始下载'
     )}</span></span>
-    <span class="convert_tip blue"></span>
+    <span class="convert_tip warn"></span>
     </p>
     <div class="progressBarWrap">
     <span class="text">${lang.transl('_下载进度')}</span>

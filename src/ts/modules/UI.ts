@@ -112,13 +112,13 @@ class UI {
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_下载作品类型的提示Center'
       )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
-      <label for="setWorkType0"><input type="checkbox" name="setWorkType0" id="setWorkType0" checked> ${lang.transl(
+      <label for="setWorkType0"><input type="checkbox" name="downType0" id="setWorkType0" checked> ${lang.transl(
         '_插画'
       )}&nbsp;</label>
-      <label for="setWorkType1"><input type="checkbox" name="setWorkType1" id="setWorkType1" checked> ${lang.transl(
+      <label for="setWorkType1"><input type="checkbox" name="downType1" id="setWorkType1" checked> ${lang.transl(
         '_漫画'
       )}&nbsp;</label>
-      <label for="setWorkType2"><input type="checkbox" name="setWorkType2" id="setWorkType2" checked> ${lang.transl(
+      <label for="setWorkType2"><input type="checkbox" name="downType2" id="setWorkType2" checked> ${lang.transl(
         '_动图'
       )}&nbsp;</label>
       </p>
@@ -563,20 +563,6 @@ class UI {
     return e
   }
 
-  // 获取排除类型
-  public getNotDownType(): string {
-    let result = Array.from(
-      this.form.querySelectorAll('.formOption5 input')
-    ).reduce((result, el, index) => {
-      const thisElement = el as HTMLInputElement
-      if (thisElement.checked === false) {
-        return (result += index)
-      } else {
-        return result
-      }
-    }, '')
-    return result
-  }
 }
 
 const ui = new UI()
