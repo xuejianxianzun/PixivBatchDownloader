@@ -12,6 +12,6 @@
 
 import './modules/Option'
 import './modules/InitCrawlProcess'
-import './modules/DownloadFile'
+import './modules/DownloadControl'
 import './modules/Output'
 import './modules/Support'

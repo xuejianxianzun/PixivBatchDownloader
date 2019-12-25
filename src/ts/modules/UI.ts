@@ -562,7 +562,6 @@ class UI {
     centerBtnWrap.appendChild(e)
     return e
   }
-
 }
 
 const ui = new UI()

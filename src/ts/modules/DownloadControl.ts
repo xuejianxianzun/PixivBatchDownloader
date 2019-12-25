@@ -1,17 +1,47 @@
 // 下载控制
 import { EVT } from './EVT'
-import { downloadArgument, DonwloadSuccessData } from './Download.d'
+import {
+  downloadArgument,
+  DonwloadSuccessData,
+  DownloadedMsg
+} from './Download.d'
 import { store } from './Store'
 import { log } from './Log'
 import { lang } from './Lang'
 import { titleBar } from './TitleBar'
 import { Colors } from './Colors'
 import { ui } from './UI'
+import { Download } from './Download'
+
+interface TaskList {
+  [id: string]: {
+    index: number
+    progressBarIndex: number
+  }
+}
 
 class DownloadControl {
   constructor() {
     this.createDownloadArea()
 
+    this.listenEvents()
+  }
+
+  private readonly downloadThreadMax: number = 5 // 同时下载的线程数的最大值，也是默认值
+
+  private downloadThread: number = this.downloadThreadMax // 同时下载的线程数
+
+  private taskBatch = 0 // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
+
+  private statesList: number[] = [] // 下载状态列表，保存每个下载任务的状态
+
+  private taskList: TaskList = {} // 下载任务列表，使用下载的文件的 id 做 key，保存下载栏编号和它在下载状态列表中的索引
+
+  private downloaded: number = 0 // 已下载的任务数量
+
+  private convertText = ''
+
+  private listenEvents() {
     window.addEventListener(EVT.events.crawlStart, () => {
       this.hideDownloadArea()
       this.reset()
@@ -33,30 +63,35 @@ class DownloadControl {
       this.LogDownloadProgress()
     })
 
-    window.addEventListener(
-      EVT.events.downloadSucccess,
-      (ev: CustomEventInit) => {
-        const data = ev.detail.data as DonwloadSuccessData
-        this.downloadSuccess(data)
+    // 监听浏览器下载文件后，返回的消息
+    chrome.runtime.onMessage.addListener((msg: DownloadedMsg) => {
+      if (!this.taskBatch) {
+        return
       }
-    )
+      // 文件下载成功
+      if (msg.msg === 'downloaded') {
+        // 释放 BLOBURL
+        URL.revokeObjectURL(msg.data.url)
 
-    window.addEventListener(EVT.events.downloadError, () => {
-      this.reTryDownload()
+        EVT.fire(EVT.events.downloadSucccess)
+
+        this.downloadSuccess(msg.data)
+      } else if (msg.msg === 'download_err') {
+        // 浏览器把文件保存到本地时出错
+        log.error(
+          `${msg.data.id} download error! code: ${msg.err}. The downloader will try to download the file again `
+        )
+        EVT.fire(EVT.events.downloadError)
+        // 重新下载这个文件
+        this.downloadError(msg.data)
+      }
+
+      // UUID 的情况
+      if (msg.data && msg.data.uuid) {
+        log.error(lang.transl('_uuid'))
+      }
     })
   }
-
-  private readonly downloadThreadMax: number = 5 // 同时下载的线程数的最大值，也是默认值
-
-  private downloadThread: number = this.downloadThreadMax // 同时下载的线程数
-
-  private taskBatch = 0 // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
-
-  private downloadStatesList: number[] = [] // 标记每个下载任务的完成状态
-
-  private downloaded: number = 0 // 已下载的任务数量
-
-  private convertText = ''
 
   // 显示总的下载进度
   private showDownloadProgress(downloaded: number) {
@@ -152,7 +187,7 @@ class DownloadControl {
   }
 
   private reset() {
-    this.downloadStatesList = []
+    this.statesList = []
     this.downloadPause = false
     this.downloadStop = false
     clearTimeout(this.reTryTimer)
@@ -278,30 +313,6 @@ class DownloadControl {
     this.allDownloadBar = centerWrapDownList.querySelectorAll('.downloadBar')
   }
 
-  // 设置单个进度条的信息
-  public setDownloadBar(
-    index: number,
-    name: string,
-    loaded: number,
-    total: number
-  ) {
-    const el = this.allDownloadBar[index]
-
-    el.querySelector('.download_fileName')!.textContent = name
-
-    const loadedBar = el.querySelector('.loaded') as HTMLDivElement
-    loadedBar.textContent = `${Math.floor(loaded / 1024)}/${Math.floor(
-      total / 1024
-    )}`
-
-    const progressBar = el.querySelector('.progress') as HTMLDivElement
-    let progress = loaded / total
-    if (isNaN(progress)) {
-      progress = 0
-    }
-    progressBar.style.width = progress * 100 + '%'
-  }
-
   // 抓取完毕之后，已经可以开始下载时，根据一些状态进行处理
   private beforeDownload() {
     this.setDownloaded = 0
@@ -333,14 +344,14 @@ class DownloadControl {
       // -1 未使用
       // 0 使用中
       // 1 已完成
-      this.downloadStatesList = new Array(store.result.length).fill(-1)
+      this.statesList = new Array(store.result.length).fill(-1)
       this.taskBatch = new Date().getTime() // 修改本批下载任务的标记
     } else {
       // 继续下载
       // 把“使用中”的下载状态重置为“未使用”
-      for (let index = 0; index < this.downloadStatesList.length; index++) {
-        if (this.downloadStatesList[index] === 0) {
-          this.downloadStatesList[index] = -1
+      for (let index = 0; index < this.statesList.length; index++) {
+        if (this.statesList[index] === 0) {
+          this.statesList[index] = -1
         }
       }
     }
@@ -374,7 +385,7 @@ class DownloadControl {
 
     // 启动或继续下载，建立并发下载线程
     for (let i = 0; i < this.downloadThread; i++) {
-      this.getDownloadData(i)
+      this.createDownload(i)
     }
 
     this.setDownStateText(lang.transl('_正在下载中'))
@@ -428,34 +439,33 @@ class DownloadControl {
     this.downloadPause = false
   }
 
-  // 重试下载
-  private reTryDownload() {
-    // 如果下载已经完成，则不执行操作
-    if (this.downloaded === store.result.length) {
-      return
+  private downloadError(data: DonwloadSuccessData) {
+    if (this.downloadPause || this.downloadStop) {
+      return false
     }
-    // 暂停下载并在一定时间后重试下载
-    this.pauseDownload()
-    this.reTryTimer = window.setTimeout(() => {
-      this.startDownload()
-    }, 1000)
+    let task = this.taskList[data.id]
+    // 复位这个任务的状态
+    this.setDownloadedIndex(task.index, -1)
+    // 建立下载任务，再次下载它
+    this.createDownload(task.progressBarIndex)
   }
 
   private downloadSuccess(data: DonwloadSuccessData) {
+    let task = this.taskList[data.id]
     // 更改这个任务状态为“已完成”
-    this.setDownloadedIndex(data.index, 1)
+    this.setDownloadedIndex(task.index, 1)
     // 增加已下载数量
     this.downloadedAdd()
     // 是否继续下载
-    const no = data.no
+    const no = task.progressBarIndex
     if (this.checkContinueDownload()) {
-      this.getDownloadData(no)
+      this.createDownload(no)
     }
   }
 
   // 设置已下载列表中的标记
   private setDownloadedIndex(index: number, value: -1 | 0 | 1) {
-    this.downloadStatesList[index] = value
+    this.statesList[index] = value
   }
 
   // 当一个文件下载完成后，检查是否还有后续下载任务
@@ -489,13 +499,13 @@ class DownloadControl {
     log.log(text, 2, false)
   }
 
-  // 获取要下载的任务的编号
-  private getDownloadData(progressBarNo: number) {
-    let length = this.downloadStatesList.length
+  // 查找需要进行下载的作品，建立下载
+  private createDownload(progressBarIndex: number) {
+    let length = this.statesList.length
     let index: number | undefined
     for (let i = 0; i < length; i++) {
-      if (this.downloadStatesList[i] === -1) {
-        this.downloadStatesList[i] = 0
+      if (this.statesList[i] === -1) {
+        this.statesList[i] = 0
         index = i
         break
       }
@@ -504,16 +514,26 @@ class DownloadControl {
     if (index === undefined) {
       throw new Error('There are no data to download')
     } else {
+      const workData = store.result[index]
       const data: downloadArgument = {
-        data: store.result[index],
+        id: workData.id,
+        data: workData,
         index: index,
-        progressBarNo: progressBarNo,
+        progressBarIndex: progressBarIndex,
         taskBatch: this.taskBatch
       }
-      EVT.fire(EVT.events.download, data)
+
+      // 保存任务信息
+      this.taskList[workData.id] = {
+        index,
+        progressBarIndex: progressBarIndex
+      }
+
+      // 建立下载
+      new Download(this.allDownloadBar[progressBarIndex], data)
     }
   }
 }
 
-const dlCtrl = new DownloadControl()
-export { dlCtrl }
+new DownloadControl()
+export {}

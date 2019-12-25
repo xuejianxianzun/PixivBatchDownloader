@@ -1,10 +1,17 @@
 import { WorkInfo } from './Store.d'
 
 export interface downloadArgument {
+  id: string
   data: WorkInfo
   index: number
-  progressBarNo: number
+  progressBarIndex: number
   taskBatch: number
+}
+
+export interface ProgressBar {
+  name: HTMLSpanElement
+  loaded: HTMLSpanElement
+  progress: HTMLDivElement
 }
 
 // 前台向后台发送的任务信息
@@ -12,16 +19,14 @@ export interface SendToBackEndData {
   msg: string
   fileUrl: string
   fileName: string
-  no: number
-  index: number
+  id: string
   taskBatch: number
 }
 
 // 浏览器下载时每个任务的信息
 export interface DonwloadSuccessData {
-  no: number
   url: string
-  index: number
+  id: string
   tabId: number
   uuid: boolean
 }

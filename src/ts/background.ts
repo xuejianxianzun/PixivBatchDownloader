@@ -10,8 +10,10 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 
 // 因为下载完成的顺序和发送顺序可能不一致，所以需要存储任务的数据
 let dlData: DonwloadListData = {}
+
 // 储存下载任务的索引，用来判断重复的任务
-let dlIndex: number[][] = []
+let dlIndex: string[][] = []
+
 // 储存下载任务的批次编号，用来判断不同批次的下载
 let dlBatch: number[] = []
 
@@ -26,9 +28,9 @@ chrome.runtime.onMessage.addListener(function(msg: SendToBackEndData, sender) {
       dlIndex[tabId] = []
     }
     // 检查任务是否重复，不重复则下载
-    if (dlIndex[tabId][msg.index] !== 1) {
+    if (!dlIndex[tabId].includes(msg.id)) {
       // 储存该任务的索引
-      dlIndex[tabId][msg.index] = 1
+      dlIndex[tabId].push(msg.id)
       // 开始下载
       chrome.downloads.download(
         {
@@ -40,9 +42,8 @@ chrome.runtime.onMessage.addListener(function(msg: SendToBackEndData, sender) {
         id => {
           // id 是 Chrome 新建立的下载任务的 id
           dlData[id] = {
-            no: msg.no,
             url: msg.fileUrl,
-            index: msg.index,
+            id: msg.id,
             tabId: tabId,
             uuid: false
           }
@@ -82,7 +83,10 @@ chrome.downloads.onChanged.addListener(function(detail) {
     if (detail.error && detail.error.current) {
       msg = 'download_err'
       err = detail.error.current
-      dlIndex[data.tabId][data.index] = 0 // 从任务列表里删除它，以便前台重试下载
+      const idIndex = dlIndex[data.tabId].findIndex(val => {
+        val === data.id
+      })
+      dlIndex[data.tabId][idIndex] = '' // 从任务列表里删除它，以便前台重试下载
     }
 
     // 返回信息

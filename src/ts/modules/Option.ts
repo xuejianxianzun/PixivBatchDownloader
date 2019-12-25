@@ -63,7 +63,7 @@ class Option {
   private needSaveOpts: XzSetting = this.needSaveOptsDefault
 
   // 恢复值是 Boolean 值的设置项
-  private restoreBoolean(name:keyof XzSetting){
+  private restoreBoolean(name: keyof XzSetting) {
     // 优先使用用户设置的值
     if (this.needSaveOpts[name] !== undefined) {
       ui.form[name].checked = this.needSaveOpts[name]
@@ -147,7 +147,6 @@ class Option {
 
     // 设置是否始终建立文件夹
     this.restoreBoolean('alwaysFolder')
-
   }
 
   // 处理 change 时直接保存 value 的输入框
@@ -236,7 +235,7 @@ class Option {
 
   // 持久化保存设置
   private saveSetting(key: keyof XzSetting, value: string | number | boolean) {
-    (this.needSaveOpts[key] as any) = value
+    ;(this.needSaveOpts[key] as any) = value
     localStorage.setItem(this.storeName, JSON.stringify(this.needSaveOpts))
   }
 
