@@ -36,5 +36,7 @@ class InitPixivisionPage extends InitPageBase {
   protected setFormOptin() {
     this.hideNotNeedOption([1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16])
   }
+
+  protected destroySelf() {}
 }
 export { InitPixivisionPage }

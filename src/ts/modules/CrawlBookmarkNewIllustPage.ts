@@ -85,5 +85,7 @@ class CrawlBookmarkNewIllustPage extends CrawlPageBase {
   protected resetGetIdListStatus() {
     this.listPageFinished = 0
   }
+
+  public destroy() {}
 }
 export { CrawlBookmarkNewIllustPage }

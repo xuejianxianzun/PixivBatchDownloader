@@ -27,11 +27,14 @@ class InitDiscoverPage extends InitPageBase {
 
   protected appendElseEl() {
     const deleteWorks = new DeleteWorks('._2RNjBox')
-    deleteWorks.addClearMultipleBtn()
 
-    deleteWorks.addClearUgoiraBtn()
+    deleteWorks.addClearMultipleBtn('._3b8AXEx')
+
+    deleteWorks.addClearUgoiraBtn('.AGgsUWZ')
 
     deleteWorks.addManuallyDeleteBtn()
   }
+
+  protected destroySelf() {}
 }
 export { InitDiscoverPage }

@@ -26,10 +26,11 @@ class CrawlBookmarkDetailPage extends CrawlPageBase {
       store.idList.push(id.toString())
     }
 
-    log.log(lang.transl('_排行榜任务完成', store.idList.length.toString()))
     this.getIdListFinished()
   }
 
   protected resetGetIdListStatus() {}
+
+  public destroy() {}
 }
 export { CrawlBookmarkDetailPage }

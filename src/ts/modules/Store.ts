@@ -5,7 +5,7 @@ import { WorkInfo, WorkInfoOptional, RankList } from './Store.d'
 // 存储抓取结果和状态
 class Store {
   constructor() {
-    const trueEvents = [
+    const allowWorkTrue = [
       EVT.events.crawlFinish,
       EVT.events.crawlEmpty,
       EVT.events.crawlError,
@@ -13,15 +13,15 @@ class Store {
       EVT.events.downloadStop
     ]
 
-    trueEvents.forEach(type => {
+    allowWorkTrue.forEach(type => {
       window.addEventListener(type, () => {
         this.states.allowWork = true
       })
     })
 
-    const falseEvents = [EVT.events.crawlStart, EVT.events.downloadStart]
+    const allowWorkFalse = [EVT.events.crawlStart, EVT.events.downloadStart]
 
-    falseEvents.forEach(type => {
+    allowWorkFalse.forEach(type => {
       window.addEventListener(type, () => {
         this.states.allowWork = false
       })
@@ -36,7 +36,9 @@ class Store {
     })
   }
 
-  public result: WorkInfo[] = [] // 储存图片信息
+  public resultMeta: WorkInfo[] = [] // 储存抓取结果的元数据。它可以根据每个作品需要下载多少张，生成每一张图片的信息
+
+  public result: WorkInfo[] = [] // 储存抓取结果
 
   /*
    id - 其实是默认名，包含两部分：id + 序号，如 44920385_p0。动图只有 id 没有序号
@@ -56,13 +58,15 @@ class Store {
    ugoiraInfo - 当作品是动图时才有值，包含 frames（数组）和 mimeType（string）属性
    */
 
-  // 添加每个图片的信息。只需要传递有值的属性
-  public addResult(data: WorkInfoOptional) {
+  private assignResult(data: WorkInfoOptional) {
     // 图片详细信息的默认值
     const dataDefault: WorkInfo = {
+      idNum: 0,
       id: '',
       url: '',
+      thumb: '',
       title: '',
+      pageCount: 1,
       tags: [],
       tagsTranslated: [],
       user: '',
@@ -71,13 +75,30 @@ class Store {
       fullHeight: 0,
       ext: '',
       bmk: 0,
+      bookmarked: false,
       date: '',
       type: 0,
       rank: '',
       ugoiraInfo: null
     }
 
-    this.result.push(Object.assign(dataDefault, data))
+    return Object.assign(dataDefault, data)
+  }
+
+  // 添加每个图片的信息。只需要传递有值的属性
+  public addResult(data: WorkInfoOptional, pNo: number = 1) {
+    // 添加元数据
+    const result = this.assignResult(data)
+    this.resultMeta.push(result)
+    EVT.fire(EVT.events.addResult, result)
+
+    // 添加每一张图片的数据
+    for (let i = 0; i < pNo; i++) {
+      const result = this.assignResult(data)
+      result.id = result.id + `_p${i}`
+      result.url = result.url.replace('p0', 'p' + i)
+      this.result.push(result)
+    }
   }
 
   public idList: string[] = [] // 储存从列表中抓取到的作品的 id
@@ -95,7 +116,8 @@ class Store {
   // 储存和下载有关的状态
   public states = {
     allowWork: true, // 当前是否允许展开工作（如果抓取未完成、下载未完成则应为 false
-    quickDownload: false // 快速下载当前作品，这个只在作品页内直接下载时使用
+    quickDownload: false, // 快速下载当前作品，这个只在作品页内直接下载时使用
+    notAutoDownload: false // 抓取完成后，不自动开始下载
   }
 
   // 储存页面信息，用来生成文件名
@@ -106,6 +128,7 @@ class Store {
   }
 
   public resetResult() {
+    this.resultMeta = []
     this.result = []
     this.idList = []
     this.rankList = {}
@@ -114,6 +137,7 @@ class Store {
   public resetStates() {
     this.states.allowWork = true
     this.states.quickDownload = false
+    this.states.notAutoDownload = false
   }
 }
 

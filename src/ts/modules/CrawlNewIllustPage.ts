@@ -119,6 +119,8 @@ class CrawlNewIllustPage extends CrawlPageBase {
   }
 
   protected resetGetIdListStatus() {}
+
+  public destroy() {}
 }
 
 export { CrawlNewIllustPage }

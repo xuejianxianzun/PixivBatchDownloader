@@ -44,5 +44,7 @@ class InitRankingPage extends InitPageBase {
 
     this.hideNotNeedOption([14])
   }
+
+  protected destroySelf() {}
 }
 export { InitRankingPage }

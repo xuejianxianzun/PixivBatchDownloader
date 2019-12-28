@@ -15,9 +15,8 @@ import { pageInfo } from './PageInfo'
   一般流程：
   准备抓取
   获取作品 id 列表
-  获取作品 id 列表完毕
   获取作品详情
-  获取作品详情完毕
+  抓取完毕
   */
 
 abstract class CrawlPageBase {
@@ -115,6 +114,23 @@ abstract class CrawlPageBase {
     }
   }
 
+  // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
+  protected getMultipleSetting() {
+    this.multipleImageWorks = parseInt(ui.form.multipleImageWorks.value)
+
+    if (this.multipleImageWorks === -1) {
+      log.warning(lang.transl('_不下载多图作品'))
+    }
+
+    // 获取作品张数设置
+    if (this.multipleImageWorks === 1) {
+      this.firstFewImages = this.getFirstFewImages()
+      log.warning(
+        lang.transl('_多图作品下载前n张图片', this.firstFewImages.toString())
+      )
+    }
+  }
+
   // 准备抓取，进行抓取之前的一些检查工作。必要时可以在子类中改写
   public async readyCrawl() {
     // 检查是否可以开始抓取
@@ -139,20 +155,7 @@ abstract class CrawlPageBase {
 
     filter.init()
 
-    // 获取多图作品设置
-    this.multipleImageWorks = parseInt(ui.form.multipleImageWorks.value)
-
-    if (this.multipleImageWorks === -1) {
-      log.warning(lang.transl('_不下载多图作品'))
-    }
-
-    // 获取作品张数设置
-    if (this.multipleImageWorks === 1) {
-      this.firstFewImages = this.getFirstFewImages()
-      log.warning(
-        lang.transl('_多图作品下载前n张图片', this.firstFewImages.toString())
-      )
-    }
+    this.getMultipleSetting()
 
     await pageInfo.store()
 
@@ -177,6 +180,8 @@ abstract class CrawlPageBase {
       return this.noResult()
     }
 
+    log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
+
     if (store.idList.length <= this.ajaxThreadsDefault) {
       this.ajaxThreads = store.idList.length
     } else {
@@ -186,6 +191,14 @@ abstract class CrawlPageBase {
     for (let i = 0; i < this.ajaxThreads; i++) {
       this.getWorksData()
     }
+  }
+
+  protected getPNo(pageCount: number) {
+    let pNo = pageCount
+    if (this.multipleImageWorks === 1 && this.firstFewImages <= pNo) {
+      pNo = this.firstFewImages
+    }
+    return pNo
   }
 
   // 获取作品的数据
@@ -244,9 +257,13 @@ abstract class CrawlPageBase {
     // 检查通过
     if (filter.check(filterOpt)) {
       const illustId = body.illustId
+      const idNum = parseInt(body.illustId)
       const title = body.illustTitle // 作品标题
       const userid = body.userId // 用户id
       const user = body.userName // 用户名
+      const thumb = body.urls.thumb
+      const pageCount = body.pageCount
+      const bookmarked = !!body.bookmarkData
 
       // 时间原数据如 "2019-12-18T22:23:37+00:00"
       // 网页上显示的日期是转换成了本地时间的，如北京时区显示为 "2019-12-19"，不是显示原始日期 "2019-12-18"。所以这里转换成本地时区的日期，和网页上保持一致，以免用户困惑。
@@ -270,10 +287,7 @@ abstract class CrawlPageBase {
         // 插画或漫画
 
         // 下载该作品的前面几张
-        let pNo = body.pageCount
-        if (this.multipleImageWorks === 1 && this.firstFewImages <= pNo) {
-          pNo = this.firstFewImages
-        }
+        const pNo = this.getPNo(body.pageCount)
 
         const imgUrl = body.urls.original // 作品的原图 URL
 
@@ -281,11 +295,13 @@ abstract class CrawlPageBase {
         const ext = tempExt[tempExt.length - 1]
 
         // 添加作品信息
-        // 通过循环添加每个图片的 id 和 url
-        for (let i = 0; i < pNo; i++) {
-          store.addResult({
-            id: illustId + '_p' + i,
-            url: imgUrl.replace('p0', 'p' + i),
+        store.addResult(
+          {
+            id: illustId,
+            idNum: idNum,
+            thumb: thumb,
+            pageCount: pageCount,
+            url: imgUrl,
             title: title,
             tags: tags,
             tagsTranslated: tagTranslation,
@@ -295,12 +311,14 @@ abstract class CrawlPageBase {
             fullHeight: fullHeight,
             ext: ext,
             bmk: bmk,
+            bookmarked: bookmarked,
             date: date,
             type: body.illustType,
             rank: rank
-          })
-        }
-        this.outputImgNum()
+          },
+          pNo
+        )
+        this.logImagesNo()
       } else if (body.illustType === 2) {
         // 动图
         // 获取动图的信息
@@ -315,6 +333,9 @@ abstract class CrawlPageBase {
 
         store.addResult({
           id: illustId,
+          idNum: idNum,
+          thumb: thumb,
+          pageCount: pageCount,
           url: meta.body.originalSrc,
           title: title,
           tags: tags,
@@ -325,13 +346,14 @@ abstract class CrawlPageBase {
           fullHeight: fullHeight,
           ext: ext,
           bmk: bmk,
+          bookmarked: bookmarked,
           date: date,
           type: body.illustType,
           rank: rank,
           ugoiraInfo: ugoiraInfo
         })
 
-        this.outputImgNum()
+        this.logImagesNo()
       }
     }
 
@@ -349,18 +371,20 @@ abstract class CrawlPageBase {
       if (this.ajaxThreadsFinished === this.ajaxThreads) {
         // 如果所有并发请求都执行完毕，复位
         this.ajaxThreadsFinished = 0
-        this.crawFinished()
+        this.crawlFinished()
       }
     }
   }
 
   // 抓取完毕
-  protected crawFinished() {
+  protected crawlFinished() {
     if (store.result.length === 0) {
       return this.noResult()
     }
 
     this.sortResult()
+
+    log.log(lang.transl('_抓取图片网址的数量', store.result.length.toString()))
 
     log.log(lang.transl('_抓取完毕'), 2)
 
@@ -402,7 +426,7 @@ abstract class CrawlPageBase {
   }
 
   // 在抓取图片网址时，输出提示
-  protected outputImgNum() {
+  protected logImagesNo() {
     log.log(
       lang.transl('_抓取图片网址的数量', store.result.length.toString()),
       1,
@@ -420,5 +444,9 @@ abstract class CrawlPageBase {
 
   // 抓取完成后，对结果进行排序
   protected sortResult() {}
+
+  // 销毁自己，主要是销毁创建的 dom 元素和绑定的事件
+  public abstract destroy(): void
 }
+
 export { CrawlPageBase }

@@ -103,7 +103,7 @@ class Download {
       if (xhr.status !== 200) {
         // 状态码错误
         // 正常下载完毕的状态码是 200
-        this.progressBar.name.classList.add('red')
+        this.progressBar.name.classList.add('downloadError')
         this.retry++
         if (this.retry >= this.retryMax) {
           // 重试 retryMax 次依然错误，进行错误处理。无法处理的情况则终止执行。
@@ -115,7 +115,7 @@ class Download {
         }
       } else {
         // 状态码正常
-        this.progressBar.name.classList.remove('red')
+        this.progressBar.name.classList.remove('downloadError')
         if (
           (arg.data.ext === 'webm' || arg.data.ext === 'gif') &&
           arg.data.ugoiraInfo

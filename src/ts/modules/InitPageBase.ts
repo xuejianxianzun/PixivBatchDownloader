@@ -44,27 +44,19 @@ abstract class InitPageBase {
 
   // 初始化
   public init() {
-    this.clearOldElements()
     this.appendCenterBtns()
     this.setFormOptin()
     this.appendElseEl()
   }
 
-  // 清空之前添加的元素
-  private clearOldElements(): void {
-    document.getElementById('centerWrap_btns_free')!.innerHTML = ''
+  protected abstract destroySelf(): void
 
-    // 删除右侧的快速下载按钮
-    const quickDownBtn = document.getElementById('quick_down_btn')
-    if (quickDownBtn) {
-      quickDownBtn.remove()
-    }
+  public destroy(): void {
+    this.destroySelf()
 
-    // 删除快速筛选元素
-    const fastScreen = document.querySelector('.fastScreenArea')
-    if (fastScreen) {
-      fastScreen.remove()
-    }
+    ui.clearCenterButton()
+
+    this.crawler.destroy()
   }
 
   // 添加中间按钮

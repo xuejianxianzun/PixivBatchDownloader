@@ -1,5 +1,29 @@
 // 事件类
-import { EventList } from './EVT.d'
+interface EventList {
+  crawlStart: 'crawlStart'
+  crawlFinish: 'crawlFinish'
+  crawlEmpty: 'crawlEmpty'
+  crawlError: 'crawlError'
+  addResult: 'addResult'
+  convertChange: 'convertChange'
+  previewFileName: 'previewFileName'
+  output: 'output'
+  hideCenterPanel: 'hideCenterPanel'
+  downloadStart: 'downloadStart'
+  downloadPause: 'downloadPause'
+  downloadStop: 'downloadStop'
+  download: 'download'
+  downloadSucccess: 'downloadSucccess'
+  downloadComplete: 'downloadComplete'
+  downloadError: 'downloadError'
+  pageSwitch: 'pageSwitch'
+  pageTypeChange: 'pageTypeChange'
+  resetOption: 'resetOption'
+  clearMultiple: 'clearMultiple'
+  clearUgoira: 'clearUgoira'
+  deleteWork: 'deleteWork'
+  worksUpdate: 'worksUpdate'
+}
 
 class EVT {
   static readonly events: EventList = {
@@ -7,6 +31,7 @@ class EVT {
     crawlFinish: 'crawlFinish',
     crawlEmpty: 'crawlEmpty',
     crawlError: 'crawlError',
+    addResult: 'addResult',
     downloadStart: 'downloadStart',
     downloadPause: 'downloadPause',
     downloadStop: 'downloadStop',
@@ -19,7 +44,12 @@ class EVT {
     resetOption: 'resetOption',
     convertChange: 'convertChange',
     previewFileName: 'previewFileName',
-    output: 'output'
+    output: 'output',
+    hideCenterPanel: 'hideCenterPanel',
+    clearMultiple: 'clearMultiple',
+    clearUgoira: 'clearUgoira',
+    deleteWork: 'deleteWork',
+    worksUpdate: 'worksUpdate'
   }
 
   static fire(

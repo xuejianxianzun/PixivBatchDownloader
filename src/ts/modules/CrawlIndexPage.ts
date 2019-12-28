@@ -33,5 +33,7 @@ class CrawlIndexPage extends CrawlPageBase {
   }
 
   protected resetGetIdListStatus() {}
+
+  public destroy() {}
 }
 export { CrawlIndexPage }

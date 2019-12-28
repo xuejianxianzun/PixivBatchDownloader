@@ -1,54 +1,81 @@
 // 删除页面上的作品
 import { log } from './Log'
 import { lang } from './Lang'
-import { ui } from './UI'
 import { Colors } from './Colors'
 import { DOM } from './DOM'
+import { ui } from './UI'
 import { store } from './Store'
+import { EVT } from './EVT'
 
 class DeleteWorks {
-  constructor(worksSelector: string) {
-    this.worksSelector = worksSelector
+  constructor(worksSelectors: string) {
+    this.worksSelector = worksSelectors
+
+    // 作品列表更新后，需要重新给作品绑定删除事件
+    window.addEventListener(EVT.events.worksUpdate, () => {
+      if (this.delMode) {
+        this.bindDeleteEvent()
+      }
+    })
   }
 
   private worksSelector: string = '' // 选择页面上所有作品的选择器
 
-  private multipleSelector: string = '._3b8AXEx' // 多图作品特有的元素的标识
+  private multipleSelector: string = '' // 多图作品特有的元素的标识
 
-  private ugoiraSelector: string = '.AGgsUWZ' // 动图作品特有的元素的标识
+  private ugoiraSelector: string = '' // 动图作品特有的元素的标识
 
-  private delWork: boolean = false // 是否处于删除作品状态
+  private delMode: boolean = false // 是否处于删除作品状态
+
+  private deleteWorkCallback: Function = () => {} // 保存手动删除作品的回调函数，因为可能会多次绑定手动删除事件，所以需要保存传入的 callback 备用
+
+  private allowWork() {
+    return store.states.allowWork
+  }
 
   // 清除多图作品的按钮
-  public addClearMultipleBtn() {
+  public addClearMultipleBtn(selector: string, callback: Function = () => {}) {
+    this.multipleSelector = selector
+
     ui.addCenterButton(Colors.red, lang.transl('_清除多图作品'), [
       ['title', lang.transl('_清除多图作品Title')]
     ]).addEventListener(
       'click',
       () => {
+        if (!this.allowWork()) {
+          return alert(lang.transl('_当前任务尚未完成'))
+        }
         ui.hideCenterPanel()
         this.clearMultiple()
+        callback()
       },
       false
     )
   }
 
   // 清除动图作品的按钮
-  public addClearUgoiraBtn() {
+  public addClearUgoiraBtn(selector: string, callback: Function = () => {}) {
+    this.ugoiraSelector = selector
+
     ui.addCenterButton(Colors.red, lang.transl('_清除动图作品'), [
       ['title', lang.transl('_清除动图作品Title')]
     ]).addEventListener(
       'click',
       () => {
+        if (!this.allowWork()) {
+          return alert(lang.transl('_当前任务尚未完成'))
+        }
         ui.hideCenterPanel()
         this.ClearUgoira()
+        callback()
       },
       false
     )
   }
 
   // 手动删除作品的按钮
-  public addManuallyDeleteBtn() {
+  public addManuallyDeleteBtn(callback: Function = () => {}) {
+    this.deleteWorkCallback = callback
     const delBtn = ui.addCenterButton(
       Colors.red,
       lang.transl('_手动删除作品'),
@@ -68,7 +95,7 @@ class DeleteWorks {
         el.remove()
       }
     })
-    this.outputNowResult()
+    this.showWorksCount()
   }
 
   // 清除动图作品
@@ -79,29 +106,40 @@ class DeleteWorks {
         el.remove()
       }
     })
-    this.outputNowResult()
+    this.showWorksCount()
   }
 
-  // 手动删除作品
-  private manuallyDelete(delBtn: HTMLButtonElement) {
-    this.delWork = !this.delWork
-
-    // 给作品绑定删除属性
+  // 给作品绑定删除事件
+  private bindDeleteEvent() {
     const listElement: NodeListOf<HTMLDivElement> = document.querySelectorAll(
       this.worksSelector
     )
     listElement.forEach(el => {
       el.onclick = ev => {
-        if (this.delWork) {
+        if (this.delMode) {
           ev.preventDefault()
 
-          DOM.removeEl(ev.currentTarget as HTMLElement)
-          this.outputNowResult()
+          if (!this.allowWork()) {
+            return alert(lang.transl('_当前任务尚未完成'))
+          }
+
+          const target = ev.currentTarget as HTMLElement
+          DOM.removeEl(target)
+          this.showWorksCount()
+          this.deleteWorkCallback(target)
         }
       }
     })
+  }
 
-    if (this.delWork) {
+  // 手动删除作品
+  // 回调函数可以接收到被删除的元素
+  private manuallyDelete(delBtn: HTMLButtonElement) {
+    this.delMode = !this.delMode
+
+    this.bindDeleteEvent()
+
+    if (this.delMode) {
       delBtn.textContent = lang.transl('_退出手动删除')
       setTimeout(() => {
         ui.hideCenterPanel()
@@ -111,8 +149,8 @@ class DeleteWorks {
     }
   }
 
-  // 显示调整后，列表里的作品数量。仅在搜索页和发现页面中使用
-  private outputNowResult() {
+  // 显示调整后，列表里的作品数量
+  private showWorksCount() {
     const selector = this.worksSelector
     log.success(
       lang.transl('_调整完毕', DOM.getVisibleEl(selector).length.toString()),

@@ -13,10 +13,17 @@ class DOM {
   static removeEl(el: NodeListOf<Element> | HTMLElement) {
     if (Reflect.has(el, 'length')) {
       // 如果有 length 属性则循环删除。
-      ;(el as NodeListOf<Element>).forEach(el => el.parentNode!.removeChild(el))
+      ;(el as NodeListOf<Element>).forEach(el => {
+        if (el.parentNode) {
+          el.parentNode.removeChild(el)
+        }
+      })
     } else {
       // 没有 length 属性的直接删除（querySelector 的返回值是 HTMLElement）
-      ;(el as HTMLElement).parentNode!.removeChild(el as HTMLElement)
+      const parent = (el as HTMLElement).parentNode
+      if (parent) {
+        parent.removeChild(el as HTMLElement)
+      }
     }
   }
 

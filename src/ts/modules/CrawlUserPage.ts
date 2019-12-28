@@ -270,10 +270,6 @@ class CrawlUserPage extends CrawlPageBase {
 
     store.idList = store.idList.concat(this.idList)
 
-    log.log(
-      lang.transl('_列表抓取完成开始获取作品页', store.idList.length.toString())
-    )
-
     this.getIdListFinished()
   }
 
@@ -311,5 +307,7 @@ class CrawlUserPage extends CrawlPageBase {
     }
     // 这里如果在控制台打印 result，可能看到修改前后的数据是一样的，这时因为 result 是引用类型导致的，实际上正常。
   }
+
+  public destroy() {}
 }
 export { CrawlUserPage }

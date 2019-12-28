@@ -36,13 +36,12 @@ class CrawlAreaRankingPage extends CrawlPageBase {
       }
     }
 
-    log.log(
-      lang.transl('_列表抓取完成开始获取作品页', store.idList.length.toString())
-    )
     this.getIdListFinished()
   }
 
   protected resetGetIdListStatus() {}
+
+  public destroy() {}
 }
 
 export { CrawlAreaRankingPage }

@@ -30,11 +30,12 @@ import { InitNewIllustPage } from './InitNewIllustPage'
 
 class InitCrawlProcess {
   constructor() {
-    this.initPage()
+    this.init = this.getInit()
+    this.init.init()
 
     // 页面类型变化时，初始化抓取流程
     window.addEventListener(EVT.events.pageTypeChange, () => {
-      this.initPage()
+      this.reInit()
 
       // 切换不同页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
       if (store.states.allowWork) {
@@ -43,48 +44,53 @@ class InitCrawlProcess {
     })
   }
 
-  private initPage() {
-    let result
+  private init:
+    | InitIndexPage
+    | InitWorksPage
+    | InitUserPage
+    | InitSearchPage
+    | InitAreaRankingPage
+    | InitRankingPage
+    | InitPixivisionPage
+    | InitBookmarkDetailPage
+    | InitBookmarkNewIllustPage
+    | InitDiscoverPage
+    | InitNewIllustPage
+
+  private getInit() {
     switch (pageType.getPageType()) {
       case 0:
-        result = new InitIndexPage(new CrawlIndexPage())
-        break
+        return new InitIndexPage(new CrawlIndexPage())
       case 1:
-        result = new InitWorksPage(new CrawlWorksPage())
-        break
+        return new InitWorksPage(new CrawlWorksPage())
       case 2:
-        result = new InitUserPage(new CrawlUserPage())
-        break
+        return new InitUserPage(new CrawlUserPage())
       case 5:
-        result = new InitSearchPage(new CrawlSearchPage())
-        break
+        return new InitSearchPage(new CrawlSearchPage())
       case 6:
-        result = new InitAreaRankingPage(new CrawlAreaRankingPage())
-        break
+        return new InitAreaRankingPage(new CrawlAreaRankingPage())
       case 7:
-        result = new InitRankingPage(new CrawlRankingPage())
-        break
+        return new InitRankingPage(new CrawlRankingPage())
       case 8:
-        result = new InitPixivisionPage(new CrawlPixivisionPage())
-        break
+        return new InitPixivisionPage(new CrawlPixivisionPage())
       case 9:
-        result = new InitBookmarkDetailPage(new CrawlBookmarkDetailPage())
-        break
+        return new InitBookmarkDetailPage(new CrawlBookmarkDetailPage())
       case 10:
-        result = new InitBookmarkNewIllustPage(new CrawlBookmarkNewIllustPage())
-        break
+        return new InitBookmarkNewIllustPage(new CrawlBookmarkNewIllustPage())
       case 11:
-        result = new InitDiscoverPage(new CrawlDiscoverPage())
-        break
+        return new InitDiscoverPage(new CrawlDiscoverPage())
       case 12:
-        result = new InitNewIllustPage(new CrawlNewIllustPage())
-        break
+        return new InitNewIllustPage(new CrawlNewIllustPage())
 
       default:
         throw new Error('InitCrawlProcess error: Illegal parameter.')
     }
+  }
 
-    result.init()
+  private reInit() {
+    this.init.destroy()
+    this.init = this.getInit()
+    this.init.init()
   }
 }
 

@@ -89,7 +89,7 @@ class FileName {
       },
       {
         name: '{id_num}',
-        value: parseInt(data.id),
+        value: data.idNum,
         prefix: '',
         safe: true
       },

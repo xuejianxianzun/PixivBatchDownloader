@@ -34,11 +34,19 @@ class Output {
     )! as HTMLDivElement
   }
 
+  private close() {
+    this.outputPanel.style.display = 'none'
+    this.outputContent.innerHTML = ''
+  }
+
   private bindEvent() {
     // 关闭输出面板
     document.querySelector('.outputClose')!.addEventListener('click', () => {
-      this.outputPanel.style.display = 'none'
-      this.outputContent.innerHTML = ''
+      this.close()
+    })
+
+    window.addEventListener(EVT.events.hideCenterPanel, () => {
+      this.close()
     })
 
     // 复制输出内容

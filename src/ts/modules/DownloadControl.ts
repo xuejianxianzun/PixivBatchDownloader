@@ -317,7 +317,12 @@ class DownloadControl {
   private beforeDownload() {
     this.setDownloaded = 0
 
-    let autoDownload: boolean = ui.form.quietDownload.checked
+    // 检查 不自动开始下载 的标记
+    if (store.states.notAutoDownload) {
+      return
+    }
+
+    const autoDownload: boolean = ui.form.quietDownload.checked
 
     if (!autoDownload && !store.states.quickDownload) {
       titleBar.changeTitle('▶')

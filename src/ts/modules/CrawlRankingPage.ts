@@ -71,7 +71,6 @@ class CrawlRankingPage extends CrawlPageBase {
       if (error.status === 404) {
         // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有下一部分了
         console.log('404错误，直接下载已有部分')
-        log.log(lang.transl('_排行榜任务完成', store.idList.length.toString()))
         this.getIdListFinished()
       }
 
@@ -117,7 +116,6 @@ class CrawlRankingPage extends CrawlPageBase {
 
     // 抓取完毕
     if (complete || this.listPageFinished === this.pageCount) {
-      log.log(lang.transl('_排行榜任务完成', store.idList.length.toString()))
       this.getIdListFinished()
     } else {
       // 继续抓取
@@ -129,5 +127,7 @@ class CrawlRankingPage extends CrawlPageBase {
     this.listPageFinished = 0
     ui.form.debut.value = '0'
   }
+
+  public destroy() {}
 }
 export { CrawlRankingPage }

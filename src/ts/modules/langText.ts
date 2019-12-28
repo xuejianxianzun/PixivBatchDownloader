@@ -280,12 +280,7 @@ const langText = {
     'download {} pages from this page',
     '從本頁開始下載{}頁'
   ],
-  _任务开始0: [
-    '任务开始',
-    'タスクが開始されます。',
-    'Task starts.',
-    '工作開始'
-  ],
+  _任务开始0: ['任务开始', 'タスクが開始されます', 'Task starts', '工作開始'],
   _checkNotdownTypeAll: [
     '由于您排除了所有作品类型，本次任务已取消。',
     'すべての種類の作品を除外したため、タスクはキャンセルされました。',
@@ -341,7 +336,7 @@ const langText = {
   _动图: ['动图 ', 'うごイラ', 'Ugoira', '動圖 '],
   _动图保存格式: [
     '动图保存格式',
-    'うごイラの作品を保存する',
+    'うごイラをどのタイプが保存するか',
     'Save the ugoira work as',
     '動圖儲存格式'
   ],
@@ -354,11 +349,11 @@ const langText = {
   _webmVideo: ['WebM 视频', 'WebM ビデオ', 'WebM video', 'WebM 視頻'],
   _gif: ['GIF 图片', 'GIF 画像', 'GIF picture', 'GIF 圖片'],
   _zipFile: ['Zip 文件', 'ZIP ファイル', 'Zip file', 'Zip 檔案'],
-  _当前作品张数: [
-    '当前有{}个作品。',
-    '今は{}枚の作品があります。',
-    'There are now {} works.',
-    '目前有個{}作品。'
+  _当前作品个数: [
+    '当前有 {} 个作品 ',
+    '今は{}枚の作品があります ',
+    'There are now {} works ',
+    '目前有 {} 個作品 '
   ],
   _排行榜进度: [
     '已抓取本页面第{}部分',
@@ -414,6 +409,12 @@ const langText = {
     'Crawl finished but did not find works that match the filter criteria.',
     '擷取完畢，但沒有找到符合篩選條件的作品。'
   ],
+  _当前任务尚未完成: [
+    '当前任务尚未完成',
+    '現在のタスクはまだ完了していません',
+    'The current task has not yet been completed',
+    '目前工作尚未完成'
+  ],
   _当前任务尚未完成2: [
     '当前任务尚未完成，请等待完成后再下载。',
     '現在のタスクはまだ完了していません',
@@ -463,10 +464,10 @@ const langText = {
     '404 not found'
   ],
   _抓取图片网址的数量: [
-    '已获取{}个图片网址',
-    '{}つの画像URLを取得',
+    '已获取 {} 个图片网址',
+    '{} つの画像URLを取得',
     'Get {} image URLs',
-    '已取得{}個圖片網址'
+    '已取得 {} 個圖片網址'
   ],
   _正在抓取: [
     '正在抓取，请等待……',
@@ -495,12 +496,7 @@ const langText = {
     'Has been copied to the clipboard',
     '已複製至剪貼簿，可直接貼上'
   ],
-  _下载设置: [
-    '下载设置',
-    '設定をダウンロードする',
-    'Download settings',
-    '下載設定'
-  ],
+  _下载设置: ['下载设置', 'ダウンロード設定', 'Download settings', '下載設定'],
   _收起展开设置项: [
     '收起/展开设置项',
     '設定の折りたたみ/展開',
@@ -693,10 +689,10 @@ const langText = {
     '如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。'
   ],
   _下载说明: [
-    "下载的文件保存在浏览器的下载目录里。<br>请不要在浏览器的下载选项里选中'总是询问每个文件的保存位置'。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>QQ群：499873152",
+    "下载的文件保存在浏览器的下载目录里。<br>请不要在浏览器的下载选项里选中'总是询问每个文件的保存位置'。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>QQ群：675174717",
     'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><b>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。</b>',
     'The downloaded file is saved in the browser`s download directory. <br><b>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.</b>',
-    "下載的檔案儲存在瀏覽器的下載目錄裡。<br>請不要在瀏覽器的下載選項裡選取'總是詢問每個檔案的儲存位置'。<br><b>如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。</b><br>QQ群：499873152"
+    "下載的檔案儲存在瀏覽器的下載目錄裡。<br>請不要在瀏覽器的下載選項裡選取'總是詢問每個檔案的儲存位置'。<br><b>如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。</b><br>QQ群：675174717"
   ],
   _正在下载中: ['正在下载中', 'ダウンロード中', 'downloading', '正在下載'],
   _下载完毕: [
@@ -971,11 +967,11 @@ const langText = {
     'A new version is available',
     '有新版本可用'
   ],
-  _xzNew335: [
-    '您可以下载指定时间内发布的作品',
-    '指定された時間内に配信された作品をダウンロードすることができます',
-    'You can download works posted in a specified period of time',
-    '您可以下載指定時間内發佈的作品'
+  _xzNew350: [
+    '可以在搜索页面预览结果了。',
+    '検索ページで結果をプレビューできます。',
+    'You can preview the results on the search page.',
+    '可以在檢索頁面預覽結果了。'
   ],
   _快速下载建立文件夹: [
     '始终建立文件夹',
@@ -1005,7 +1001,7 @@ const langText = {
   _小于: ['小于', 'より小さい', 'Less than', '小於'],
   _设置投稿时间: [
     '设置投稿时间',
-    '設定投稿日時',
+    '投稿日時を設定する',
     'Set posting date',
     '設定投稿時間'
   ],
@@ -1021,6 +1017,31 @@ const langText = {
     '0 より大きくなければなりません',
     'must be greater than 0',
     '必須大於 0'
+  ],
+  _开始筛选: ['开始筛选', 'スクリーニング開始', 'Start screening', '開始篩選'],
+  _开始筛选Title: [
+    '按照设置来筛选当前 tag 里的作品。',
+    '現在のtagにある作品を設定によってスクリーニングする',
+    'Screen the works in the current tag.',
+    '按照設定來篩選當前 tag 裡的作品。'
+  ],
+  _在结果中筛选: [
+    '在结果中筛选',
+    '結果の中からスクリーニング',
+    'Screen in results',
+    '在結果中篩選'
+  ],
+  _在结果中筛选Title: [
+    '您可以改变设置，并在结果中再次筛选。',
+    '設定を変えて、結果の中で再びスクリーニングすることができます。',
+    'You can change the settings and screen again in the results.',
+    '您可以變更設定，并在結果中再次篩選。'
+  ],
+  _抓取筛选结果: [
+    '抓取筛选结果',
+    'スクリーニングの結果をクロールする',
+    'Crawl the screening results',
+    '擷取篩選結果'
   ]
 }
 

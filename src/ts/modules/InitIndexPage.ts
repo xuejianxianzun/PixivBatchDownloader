@@ -67,6 +67,8 @@ class InitIndexPage extends InitPageBase {
   protected setFormOptin() {
     this.hideNotNeedOption([1, 14])
   }
+
+  protected destroySelf() {}
 }
 
 export { InitIndexPage }

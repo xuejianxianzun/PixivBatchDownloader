@@ -86,5 +86,13 @@ class InitWorksPage extends InitPageBase {
 
     this.showOption([1, 14])
   }
+
+  protected destroySelf() {
+    // 删除快速下载按钮
+    const quickDownBtn = document.getElementById('quick_down_btn')
+    if (quickDownBtn) {
+      quickDownBtn.remove()
+    }
+  }
 }
 export { InitWorksPage }

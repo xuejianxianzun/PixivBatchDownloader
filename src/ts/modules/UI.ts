@@ -22,6 +22,8 @@ class UI {
 
   private reserveArea: HTMLDivElement = document.createElement('div') // 下载区域容器
 
+  private centerBtnWrap: HTMLDivElement = document.createElement('div') // 中间添加按钮的区域
+
   // 向预留区域追加元素
   public insertHTML(html: string) {
     this.reserveArea.insertAdjacentHTML('beforeend', html)
@@ -244,7 +246,7 @@ class UI {
       </p>
       <input type="hidden" name="debut" value="0">
       </div>
-      <div class="centerWrap_btns centerWrap_btns_free" id="centerWrap_btns_free">
+      <div class="centerWrap_btns centerBtnWrap" id="centerBtnWrap">
   
       </div>
       <p> ${lang.transl(
@@ -383,6 +385,10 @@ class UI {
     this.centerPanel = document.querySelector('.centerWrap')! as HTMLDivElement
 
     this.reserveArea = document.querySelector('.reserve_area') as HTMLDivElement
+
+    this.centerBtnWrap = document.getElementById(
+      'centerBtnWrap'
+    )! as HTMLDivElement
   }
 
   // 显示提示
@@ -539,6 +545,8 @@ class UI {
   public hideCenterPanel() {
     this.centerPanel.style.display = 'none'
     this.rightBtn.style.display = 'block'
+
+    EVT.fire(EVT.events.hideCenterPanel)
   }
 
   // 向中间面板添加按钮
@@ -556,11 +564,12 @@ class UI {
       e.setAttribute(key, value)
     }
 
-    let centerBtnWrap = document.getElementById(
-      'centerWrap_btns_free'
-    )! as HTMLDivElement
-    centerBtnWrap.appendChild(e)
+    this.centerBtnWrap.appendChild(e)
     return e
+  }
+
+  public clearCenterButton() {
+    this.centerBtnWrap.innerHTML = ''
   }
 }
 

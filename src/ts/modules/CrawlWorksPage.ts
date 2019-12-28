@@ -89,10 +89,6 @@ class CrawlWorksPage extends CrawlPageBase {
       store.idList = store.idList.splice(0, this.crawlNumber)
     }
 
-    log.log(
-      lang.transl('_列表抓取完成开始获取作品页', store.idList.length.toString())
-    )
-
     this.getIdListFinished()
   }
 
@@ -116,6 +112,8 @@ class CrawlWorksPage extends CrawlPageBase {
     this.crawlDirection = 0 // 解除下载方向的标记
     this.crawlRelated = false // 解除下载相关作品的标记
   }
+
+  public destroy() {}
 }
 
 export { CrawlWorksPage }

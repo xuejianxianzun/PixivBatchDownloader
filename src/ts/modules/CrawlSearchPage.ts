@@ -7,9 +7,37 @@ import { lang } from './Lang'
 import { API } from './API'
 import { store } from './Store'
 import { log } from './Log'
+import { EVT } from './EVT'
 import { pageInfo } from './PageInfo'
+import { WorkInfo } from './Store.d'
+import { ui } from './UI'
+
+type AddBMKData = {
+  id: number
+  tags: string
+}
+
+type FilterCB = (value: WorkInfo) => unknown
 
 class CrawlSearchPage extends CrawlPageBase {
+  constructor() {
+    super()
+
+    store.states.notAutoDownload = true
+
+    window.addEventListener(EVT.events.addResult, this.addWork)
+
+    window.addEventListener('addBMK', this.addBookmark)
+
+    window.addEventListener(EVT.events.crawlFinish, this.onCrawlFinish)
+
+    window.addEventListener(EVT.events.clearMultiple, this.clearMultiple)
+
+    window.addEventListener(EVT.events.clearUgoira, this.clearUgoira)
+
+    window.addEventListener(EVT.events.deleteWork, this.deleteWork)
+  }
+
   private worksType = ''
   private option: SearchOption = {}
   private readonly worksNoPerPage = 60 // 每个页面有多少个作品
@@ -29,6 +57,304 @@ class CrawlSearchPage extends CrawlPageBase {
     'blt',
     'bgt'
   ]
+
+  private resultMeta: WorkInfo[] = [] // 每次“开始筛选”完成后，储存当时所有结果，以备“在结果中筛选”使用
+
+  private worksWrap: HTMLUListElement | null | undefined = null
+
+  private deleteId = 0 // 手动删除时，要删除的作品的 id
+
+  private crawlWorks = false // 是否在抓取作品数据（“开始筛选”时改为 true）
+
+  public startScreen() {
+    if (!store.states.allowWork) {
+      return alert(lang.transl('_当前任务尚未完成'))
+    }
+
+    this.crawlWorks = true
+
+    this.readyCrawl()
+  }
+
+  protected async nextStep() {
+    this.initFetchURL()
+
+    this.needCrawlPageCount = await this.calcNeedCrawlPageCount()
+
+    if (this.needCrawlPageCount === 0) {
+      return this.noResult()
+    }
+
+    this.startGetIdList()
+
+    this.clearWorks()
+  }
+
+  private getWorksWrap() {
+    const test = document.querySelectorAll('#root>*')[2]
+    if (test) {
+      const test2 = test.lastChild as HTMLElement
+      if (test2) {
+        return test2.querySelector('ul')
+      }
+    }
+  }
+
+  private showCount() {
+    const countEl = document.querySelector('.dkENRa')
+    if (countEl) {
+      countEl.textContent = this.resultMeta.length.toString()
+    }
+  }
+
+  private clearWorks() {
+    this.worksWrap = this.getWorksWrap()
+    if (this.worksWrap) {
+      this.worksWrap.innerHTML = ''
+    }
+  }
+
+  // 在页面显示作品
+  private addWork = (event: CustomEventInit) => {
+    if (!this.worksWrap) {
+      return
+    }
+
+    const data = event.detail.data as WorkInfo
+
+    let multipleHTML = ''
+    if (data.pageCount > 1) {
+      multipleHTML = `
+        <div class="sc-fzXfOZ fjaNWC">
+                  <svg viewBox="0 0 9 10" width="9" height="10" class="sc-fzXfOY bAzGJs">
+                      <path d="M8,3 C8.55228475,3 9,3.44771525 9,4 L9,9 C9,9.55228475 8.55228475,10 8,10 L3,10
+        C2.44771525,10 2,9.55228475 2,9 L6,9 C7.1045695,9 8,8.1045695 8,7 L8,3 Z M1,1 L6,1
+        C6.55228475,1 7,1.44771525 7,2 L7,7 C7,7.55228475 6.55228475,8 6,8 L1,8 C0.44771525,8 0,7.55228475 0,7 L0,2
+        C0,1.44771525 0.44771525,1 1,1 Z"></path>
+                    </svg><span class="sc-fzXfOX bAzGJr">${data.pageCount}</span></div>
+                    `
+    }
+
+    let ugoiraHTML = ''
+    if (data.ugoiraInfo) {
+      ugoiraHTML = `
+        <svg viewBox="0 0 24 24" class="sc-fzXfOy PhQhi sc-fzXfPK bAzGJL" style="width: 48px; height: 48px;">
+          <circle cx="12" cy="12" r="10" class="sc-fzXfOz bAzGJZ"></circle>
+          <path d="M9,8.74841664 L9,15.2515834 C9,15.8038681 9.44771525,16.2515834 10,16.2515834
+              C10.1782928,16.2515834 10.3533435,16.2039156 10.5070201,16.1135176 L16.0347118,12.8619342
+              C16.510745,12.5819147 16.6696454,11.969013 16.3896259,11.4929799
+              C16.3034179,11.3464262 16.1812655,11.2242738 16.0347118,11.1380658 L10.5070201,7.88648243
+              C10.030987,7.60646294 9.41808527,7.76536339 9.13806578,8.24139652
+              C9.04766776,8.39507316 9,8.57012386 9,8.74841664 Z"></path>
+        </svg>`
+    }
+
+    let r18HTML = ''
+
+    if (data.tags.includes('R-18') || data.tags.includes('R-18G')) {
+      r18HTML = `
+      <div class="sc-fzXfPe bAzGKl">
+        <div class="sc-fzXfPf bAzGKm">
+          <div class="sc-fzXfPb gGhRgx">R-18</div>
+        </div>
+      </div>`
+    }
+
+    const tagString = encodeURI(data.tags.join(' '))
+
+    // 添加收藏的作品，让收藏图标变红
+    const bookmarkedClass = 'bookmarked'
+    const bookmarkedFlag = data.bookmarked ? bookmarkedClass : ''
+
+    const html = `
+    <li class="sc-LzNQd lmXjIY" data-id="${data.idNum}">
+    <div class="sc-fzXfQr bUhGlE">
+      <div class="sc-fzXfQp euhEKT">
+        <div width="184" height="184" class="sc-fzXfPc bnaqNl"><a target="_blank" class="sc-fzXfPH jPCTIp" href="/artworks/${data.idNum}">
+            <!--顶部横幅-->
+            <div class="sc-fzXfPd bAzGKk">
+
+            <!--R-18 标记-->
+            ${r18HTML}
+
+            <!--多图作品标记-->
+            ${multipleHTML}
+              
+            </div>
+            <!--图片部分-->
+            <div class="sc-fzXfPL fRnGwV"><img
+                   src="${data.thumb}"
+                   alt="${data.title}" class="sc-fzXfPM iwqMqq"
+                   style="object-fit: cover; object-position: center center;">
+              <!-- 动图 svg -->
+              ${ugoiraHTML}
+              </div>
+          </a>
+          <!--添加显示收藏数-->
+          <div class="xz-bmkCount">${data.bmk}</div>
+          <!--收藏按钮-->
+          <div class="sc-fzXfQq bAzGLe">
+            <div class="">
+            <button type="button" class="sc-fzXfOw bAzGJW xz-addBMK">
+            <svg viewBox="0 0 32 32" width="32" height="32" class="sc-fzXfOs gTsQRf ${bookmarkedFlag}">
+                  <path d="
+    M21,5.5 C24.8659932,5.5 28,8.63400675 28,12.5 C28,18.2694439 24.2975093,23.1517313 17.2206059,27.1100183
+    C16.4622493,27.5342993 15.5379984,27.5343235 14.779626,27.110148 C7.70250208,23.1517462 4,18.2694529 4,12.5
+    C4,8.63400691 7.13400681,5.5 11,5.5 C12.829814,5.5 14.6210123,6.4144028 16,7.8282366
+    C17.3789877,6.4144028 19.170186,5.5 21,5.5 Z"></path>
+                  <path d="M16,11.3317089 C15.0857201,9.28334665 13.0491506,7.5 11,7.5
+    C8.23857625,7.5 6,9.73857647 6,12.5 C6,17.4386065 9.2519779,21.7268174 15.7559337,25.3646328
+    C15.9076021,25.4494645 16.092439,25.4494644 16.2441073,25.3646326 C22.7480325,21.7268037 26,17.4385986 26,12.5
+    C26,9.73857625 23.7614237,7.5 21,7.5 C18.9508494,7.5 16.9142799,9.28334665 16,11.3317089 Z"
+                        class="sc-fzXfOr bAzGJR"></path>
+                </svg></button></div>
+          </div>
+        <!--收藏按钮结束-->
+        </div>
+      </div>
+      <!--标题名-->
+      <a target="_blank" class="sc-fzXfQs cyvKvA" href="/artworks/${data.idNum}">${data.title}</a>
+      <!--底部-->
+      <div class="sc-fzXfQl bAzGKZ">
+      <!--作者信息-->
+      <div class="sc-fzXfQm bAzGLa">
+          <div class="sc-fzXfQn bAzGLb"><a target="_blank" href="/member.php?id=${data.userid}">
+              <div role="img" size="16" class="sc-LzLqL gMkIkk"></div>
+            </a></div><a target="_blank" href="/member.php?id=${data.userid}">
+            <div class="sc-fzXfQo fbWLbf">${data.user}</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </li>
+    `
+    // 添加作品
+    const li2 = document.createElement('li')
+    li2.innerHTML = html
+    const li = li2.children[0]
+    this.worksWrap.appendChild(li)
+
+    // 绑定收藏按钮的事件
+    const addBMKBtn = li!.querySelector('.xz-addBMK') as HTMLButtonElement
+    addBMKBtn.addEventListener('click', function() {
+      const e = new CustomEvent('addBMK', {
+        detail: { data: { id: data.idNum, tags: tagString } }
+      })
+      window.dispatchEvent(e)
+      this.classList.add(bookmarkedClass)
+    })
+  }
+
+  private addBookmark = (event: CustomEventInit) => {
+    const data = event.detail.data as AddBMKData
+    API.addBookmark(data.id.toString(), data.tags, API.getToken(), false)
+    this.resultMeta.forEach(result => {
+      if (result.idNum === data.id) {
+        result.bookmarked = true
+      }
+    })
+    // this.reAddResult()
+  }
+
+  // “开始筛选”完成后，保存筛选结果的元数据，并重排结果
+  private onCrawlFinish = () => {
+    if (this.crawlWorks) {
+      this.resultMeta = [...store.resultMeta]
+      this.reAddResult()
+    }
+  }
+
+  // 传入函数，过滤符合条件的结果
+  private filterResult(callback: FilterCB) {
+    ui.hideCenterPanel()
+
+    log.clear()
+
+    const nowLength = this.resultMeta.length // 储存过滤前的结果数量
+
+    this.resultMeta = this.resultMeta.filter(callback)
+
+    // 如果过滤后，作品发生了改变，则重新生成结果，并会重排作品。否则不执行，以免浪费资源
+    if (this.resultMeta.length !== nowLength) {
+      this.reAddResult()
+    }
+
+    // 即使没有重新生成结果，也要发布 crawlFinish 事件，筛选完毕相当于某种意义上的抓取完毕，通知下载控制器可以准备下载了。这样也会在日志上显示下载数量。
+    EVT.fire(EVT.events.crawlFinish)
+  }
+
+  // 当筛选结果的元数据改变时，重新生成抓取结果
+  // 在此过程中，会清空之前的作品元素，重新生成作品元素
+  private reAddResult() {
+    store.resetResult()
+
+    this.clearWorks()
+
+    this.resultMeta.forEach(data => {
+      const pNo = this.getPNo(data.pageCount)
+      store.addResult(data, pNo)
+    })
+
+    this.showCount()
+
+    this.crawlWorks = false
+    store.states.notAutoDownload = true
+
+    EVT.fire(EVT.events.worksUpdate)
+  }
+
+  // 在当前结果中再次筛选，会修改第一次筛选的结果
+  public screenInResult() {
+    if (!store.states.allowWork) {
+      return alert(lang.transl('_当前任务尚未完成'))
+    }
+
+    log.clear()
+
+    filter.init()
+
+    this.getMultipleSetting()
+
+    this.filterResult(data => {
+      const filterOpt: FilterOption = {
+        id: data.id,
+        illustType: data.type,
+        pageCount: data.pageCount,
+        tags: data.tags,
+        bookmarkCount: data.bmk,
+        bookmarkData: data.bookmarked,
+        width: data.fullWidth,
+        height: data.fullHeight,
+        createDate: data.date
+      }
+
+      return filter.check(filterOpt)
+    })
+  }
+
+  // 清除多图作品
+  private clearMultiple = () => {
+    this.filterResult(data => {
+      return data.pageCount <= 1
+    })
+  }
+
+  // 清除动图作品
+  private clearUgoira = () => {
+    this.filterResult(data => {
+      return !data.ugoiraInfo
+    })
+  }
+
+  // 手动删除作品
+  private deleteWork = (event: CustomEventInit) => {
+    const el = event.detail.data as HTMLElement
+    this.deleteId = parseInt(el.dataset.id!)
+
+    this.filterResult(data => {
+      return data.idNum !== this.deleteId
+    })
+  }
 
   protected getWantPage() {
     this.crawlNumber = this.checkWantPageInput(
@@ -52,21 +378,9 @@ class CrawlSearchPage extends CrawlPageBase {
     return data.body.illust || data.body.illustManga || data.body.manga
   }
 
-  protected async nextStep() {
-    this.initFetchURL()
-
-    this.needCrawlPageCount = await this.calcNeedCrawlPageCount()
-
-    if (this.needCrawlPageCount === 0) {
-      return this.noResult()
-    }
-
-    this.startGetIdList()
-  }
-
   // 组织要请求的 url 中的参数
   private initFetchURL() {
-    // 从 URL 中获取分类。网址中可能有语言标识。
+    // 从 URL 中获取分类。可能有语言标识。
     /*
     https://www.pixiv.net/tags/Fate%2FGrandOrder/illustrations
     https://www.pixiv.net/en/tags/Fate%2FGrandOrder/illustrations
@@ -206,7 +520,13 @@ class CrawlSearchPage extends CrawlPageBase {
 
   // 搜索页把下载任务按收藏数从高到低下载
   protected sortResult() {
+    store.resultMeta.sort(API.sortByProperty('bmk'))
     store.result.sort(API.sortByProperty('bmk'))
+  }
+
+  public destroy() {
+    window.removeEventListener(EVT.events.addResult, this.addWork)
+    window.removeEventListener(EVT.events.crawlFinish, this.onCrawlFinish)
   }
 }
 export { CrawlSearchPage }

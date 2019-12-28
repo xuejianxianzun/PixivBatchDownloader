@@ -66,7 +66,7 @@ class CrawlPixivisionPage extends CrawlPageBase {
           this.addResult(id, url, ext)
         }
       })
-      this.crawFinished()
+      this.crawlFinished()
     }
   }
 
@@ -92,17 +92,19 @@ class CrawlPixivisionPage extends CrawlPageBase {
 
       this.addResult(id, url, ext)
 
-      this.outputImgNum()
+      this.logImagesNo()
 
       if (imgNumber !== undefined) {
         this.tested++
         if (this.tested === imgNumber) {
           // 如果所有请求都执行完毕
-          this.crawFinished()
+          this.crawlFinished()
         }
       }
     }
   }
+
+  public destroy() {}
 }
 
 export { CrawlPixivisionPage }

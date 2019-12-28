@@ -5,6 +5,8 @@ import { Colors } from './Colors'
 import { lang } from './Lang'
 import { ui } from './UI'
 import { pageInfo } from './PageInfo'
+import { DeleteWorks } from './DeleteWorks'
+import { EVT } from './EVT'
 
 class InitSearchPage extends InitPageBase {
   constructor(crawler: CrawlSearchPage) {
@@ -14,15 +16,35 @@ class InitSearchPage extends InitPageBase {
   protected crawler: CrawlSearchPage
 
   protected appendCenterBtns() {
-    ui.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
-      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
+    ui.addCenterButton(Colors.green, lang.transl('_开始筛选'), [
+      ['title', lang.transl('_开始筛选Title')]
     ]).addEventListener('click', () => {
-      this.crawler.readyCrawl()
+      this.crawler.startScreen()
+    })
+
+    ui.addCenterButton(Colors.red, lang.transl('_在结果中筛选'), [
+      ['title', lang.transl('_在结果中筛选Title')]
+    ]).addEventListener('click', () => {
+      this.crawler.screenInResult()
     })
   }
 
   protected appendElseEl() {
     this.fastScreen()
+
+    const deleteWorks = new DeleteWorks('.lmXjIY')
+
+    deleteWorks.addClearMultipleBtn('.fjaNWC', () => {
+      EVT.fire(EVT.events.clearMultiple)
+    })
+
+    deleteWorks.addClearUgoiraBtn('.bAzGJL', () => {
+      EVT.fire(EVT.events.clearUgoira)
+    })
+
+    deleteWorks.addManuallyDeleteBtn((el: HTMLElement) => {
+      EVT.fire(EVT.events.deleteWork, el)
+    })
   }
 
   // 打开快速筛选链接
@@ -90,6 +112,14 @@ class InitSearchPage extends InitPageBase {
     this.setWantPage.value = this.crawler.maxCount.toString()
 
     this.hideNotNeedOption([14])
+  }
+
+  protected destroySelf() {
+    // 删除快速筛选元素
+    const fastScreen = document.querySelector('.fastScreenArea')
+    if (fastScreen) {
+      fastScreen.remove()
+    }
   }
 }
 

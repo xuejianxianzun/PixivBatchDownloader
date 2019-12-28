@@ -64,5 +64,7 @@ class InitUserPage extends InitPageBase {
       this.hideNotNeedOption([11])
     }
   }
+
+  protected destroySelf() {}
 }
 export { InitUserPage }

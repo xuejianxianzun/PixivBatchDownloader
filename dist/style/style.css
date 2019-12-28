@@ -563,3 +563,27 @@ aside .sc-LzLtN {
 .red {
   color: #f00;
 }
+.downloadError {
+  color: #ffa0a0;
+}
+.bookmarked {
+  color: #ff4060 !important;
+  fill: #ff4060 !important;
+}
+.bookmarked * {
+  color: #ff4060 !important;
+  fill: #ff4060 !important;
+}
+.xz-bmkCount {
+  display: flex;
+  position: absolute;
+  justify-content: flex-start;
+  left: 0;
+  bottom: 0;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 2px 5px;
+  border-radius: 5px;
+}
