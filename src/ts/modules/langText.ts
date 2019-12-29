@@ -694,7 +694,7 @@ const langText = {
     'The downloaded file is saved in the browser`s download directory. <br><b>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.</b>',
     "下載的檔案儲存在瀏覽器的下載目錄裡。<br>請不要在瀏覽器的下載選項裡選取'總是詢問每個檔案的儲存位置'。<br><b>如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。</b><br>QQ群：675174717"
   ],
-  _正在下载中: ['正在下载中', 'ダウンロード中', 'downloading', '正在下載'],
+  _正在下载中: ['正在下载中', 'ダウンロード中', 'Downloading', '正在下載'],
   _下载完毕: [
     '√ 下载完毕!',
     '√ ダウンロードが完了しました',

@@ -90,12 +90,14 @@ class CrawlSearchPage extends CrawlPageBase {
     this.clearWorks()
   }
 
+  // 返回包含作品列表的 ul 元素
   private getWorksWrap() {
     const test = document.querySelectorAll('#root>*')[2]
     if (test) {
       const test2 = test.lastChild as HTMLElement
       if (test2) {
-        return test2.querySelector('ul')
+        const ul = test2.querySelectorAll('ul')
+        return ul[ul.length - 1]
       }
     }
   }

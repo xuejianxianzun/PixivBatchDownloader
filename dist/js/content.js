@@ -2484,12 +2484,14 @@
             this.startGetIdList()
             this.clearWorks()
           }
+          // 返回包含作品列表的 ul 元素
           getWorksWrap() {
             const test = document.querySelectorAll('#root>*')[2]
             if (test) {
               const test2 = test.lastChild
               if (test2) {
-                return test2.querySelector('ul')
+                const ul = test2.querySelectorAll('ul')
+                return ul[ul.length - 1]
               }
             }
           }
@@ -9827,7 +9829,7 @@
           _正在下载中: [
             '正在下载中',
             'ダウンロード中',
-            'downloading',
+            'Downloading',
             '正在下載'
           ],
           _下载完毕: [
