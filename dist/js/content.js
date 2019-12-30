@@ -528,6 +528,7 @@ class Colors {
 Colors.blue = '#0ea8ef';
 Colors.green = '#14ad27';
 Colors.red = '#f33939';
+Colors.yellow = '#e49d00';
 
 
 
@@ -2005,19 +2006,18 @@ class CrawlSearchPage extends _CrawlPageBase__WEBPACK_IMPORTED_MODULE_0__["Crawl
     }
     // 返回包含作品列表的 ul 元素
     getWorksWrap() {
-        const test = document.querySelectorAll('#root>*')[2];
-        if (test) {
-            const test2 = test.lastChild;
-            if (test2) {
-                const ul = test2.querySelectorAll('ul');
-                return ul[ul.length - 1];
-            }
+        const test = document.querySelectorAll('#root section ul');
+        if (test.length > 0) {
+            return test[test.length - 1];
         }
+        return null;
     }
     showCount() {
+        const count = this.resultMeta.length.toString();
+        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_调整完毕', count));
         const countEl = document.querySelector('.dkENRa');
         if (countEl) {
-            countEl.textContent = this.resultMeta.length.toString();
+            countEl.textContent = count;
         }
     }
     clearWorks() {
@@ -2044,6 +2044,7 @@ class CrawlSearchPage extends _CrawlPageBase__WEBPACK_IMPORTED_MODULE_0__["Crawl
         }
         this.crawlWorks = false;
         _Store__WEBPACK_IMPORTED_MODULE_4__["store"].states.notAutoDownload = true;
+        this.showCount();
         // 即使没有重新生成结果，也要发布 crawlFinish 事件，筛选完毕相当于某种意义上的抓取完毕，通知下载控制器可以准备下载了。这样也会在日志上显示下载数量。
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.crawlFinish);
     }
@@ -2056,7 +2057,6 @@ class CrawlSearchPage extends _CrawlPageBase__WEBPACK_IMPORTED_MODULE_0__["Crawl
             const pNo = this.getPNo(data.pageCount);
             _Store__WEBPACK_IMPORTED_MODULE_4__["store"].addResult(data, pNo);
         });
-        this.showCount();
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.worksUpdate);
         _TitleBar__WEBPACK_IMPORTED_MODULE_9__["titleBar"].changeTitle('→');
     }
@@ -2223,6 +2223,8 @@ class CrawlSearchPage extends _CrawlPageBase__WEBPACK_IMPORTED_MODULE_0__["Crawl
     destroy() {
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.addResult, this.addWork);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.crawlFinish, this.onCrawlFinish);
+        // 离开下载页面时，取消设置“不自动下载”
+        _Store__WEBPACK_IMPORTED_MODULE_4__["store"].states.notAutoDownload = false;
     }
 }
 
@@ -3214,6 +3216,8 @@ class DownloadControl {
     }
     createDownloadArea() {
         const html = `<div class="download_area">
+    <p> ${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_共抓取到n个图片', '<span class="fwb blue imgNum">0</span>')}</p>
+    
     <div class="centerWrap_btns">
     <button class="startDownload" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].blue};"> ${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_下载按钮1')}</button>
     <button class="pauseDownload" type="button" style="background:#e49d00;"> ${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_下载按钮2')}</button>
@@ -3242,14 +3246,7 @@ class DownloadControl {
     </div>
     <div>
     <ul class="centerWrap_down_list">
-    <li class="downloadBar">
-    <div class="progressBar progressBar2">
-    <div class="progress progress2"></div>
-    </div>
-    <div class="progressTip progressTip2">
-    <span class="download_fileName"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_已下载')}&nbsp;&nbsp;<span class="loaded">0/0</span>KB
-    </div>
-    </li>
+    
     </ul>
     </div>
     </div>`;
@@ -5322,7 +5319,7 @@ class InitSearchPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPag
             rangTip: `1 - ${this.crawler.maxCount}`,
             value: this.crawler.maxCount.toString()
         });
-        _Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([15, 18]);
+        _Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([15]);
     }
     destroySelf() {
         // 删除快速筛选元素
@@ -7068,6 +7065,12 @@ class UI {
                 }
             }
         }, false);
+        // 切换显示表单时，更改提示按钮的样式
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.toggleForm, (event) => {
+            const boolean = event.detail.data;
+            const toogleICON = this.centerPanel.querySelector('.centerWrap_toogle_option');
+            toogleICON.innerHTML = boolean ? '▲' : '▼';
+        });
         // 显示下载说明
         document
             .querySelector('.showDownTip')

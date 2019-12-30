@@ -108,7 +108,6 @@ class InitSearchPage extends InitPageBase {
   }
 
   protected setFormOption() {
-    
     // 设置“个数/页数”选项
     options.setWantPage({
       text:lang.transl('_页数'),
@@ -117,7 +116,7 @@ class InitSearchPage extends InitPageBase {
       value:this.crawler.maxCount.toString()
     })
 
-    options.hideOption([15,18])
+  options.hideOption([15])
   }
 
   protected destroySelf() {

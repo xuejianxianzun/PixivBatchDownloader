@@ -23,7 +23,7 @@ class UI {
 
   private centerPanel: HTMLDivElement = document.createElement('div') // 中间面板
 
-  private  slots:NodeListOf<HTMLSlotElement>|null = null
+  private slots: NodeListOf<HTMLSlotElement> | null = null
 
   // 添加右侧下载按钮
   private addRightButton() {
@@ -178,6 +178,14 @@ class UI {
       false
     )
 
+    // 切换显示表单时，更改提示按钮的样式
+    window.addEventListener(EVT.events.toggleForm, (event: CustomEventInit) => {
+      const boolean = event.detail.data
+      const toogleICON = this.centerPanel.querySelector(
+        '.centerWrap_toogle_option'
+      ) as HTMLDivElement
+      toogleICON.innerHTML = boolean ? '▲' : '▼'
+    })
 
     // 显示下载说明
     document
@@ -186,7 +194,6 @@ class UI {
         DOM.toggleEl(document.querySelector('.downTip')! as HTMLDivElement)
       )
 
-    
     // 重置设置
     document.getElementById('resetOption')!.addEventListener('click', () => {
       const result = window.confirm(lang.transl('_是否重置设置'))
@@ -261,15 +268,15 @@ class UI {
       e.setAttribute(key, value)
     }
 
-    this.useSlot('centerBtns', e);
+    this.useSlot('centerBtns', e)
     return e
   }
 
   public clearCenterButtons() {
-    this.clearSlot('centerBtns');
+    this.clearSlot('centerBtns')
   }
 
-  public useSlot(name:string, element:string|HTMLElement) {
+  public useSlot(name: string, element: string | HTMLElement) {
     if (!this.slots) {
       return
     }
@@ -291,7 +298,7 @@ class UI {
     }
   }
   // 清空指定的插槽
-  public clearSlot(name:string) {
+  public clearSlot(name: string) {
     if (!this.slots) {
       return
     }

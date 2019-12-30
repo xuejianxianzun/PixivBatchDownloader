@@ -205,26 +205,18 @@ class DownloadControl {
 
   private createDownloadArea() {
     const html = `<div class="download_area">
+    <p> ${lang.transl('_共抓取到n个图片', '<span class="fwb blue imgNum">0</span>')}</p>
+    
     <div class="centerWrap_btns">
-    <button class="startDownload" type="button" style="background:${
-      Colors.blue
-    };"> ${lang.transl('_下载按钮1')}</button>
-    <button class="pauseDownload" type="button" style="background:#e49d00;"> ${lang.transl(
-      '_下载按钮2'
-    )}</button>
-    <button class="stopDownload" type="button" style="background:${
-      Colors.red
-    };"> ${lang.transl('_下载按钮3')}</button>
-    <button class="copyUrl" type="button" style="background:${
-      Colors.green
-    };"> ${lang.transl('_下载按钮4')}</button>
+    <button class="startDownload" type="button" style="background:${Colors.blue};"> ${lang.transl('_下载按钮1')}</button>
+    <button class="pauseDownload" type="button" style="background:#e49d00;"> ${lang.transl('_下载按钮2')}</button>
+    <button class="stopDownload" type="button" style="background:${Colors.red};"> ${lang.transl('_下载按钮3')}</button>
+    <button class="copyUrl" type="button" style="background:${Colors.green};"> ${lang.transl('_下载按钮4')}</button>
     </div>
     <div class="centerWrap_down_tips">
     <p>
     ${lang.transl('_当前状态')}
-    <span class="down_status blue"><span>${lang.transl(
-      '_未开始下载'
-    )}</span></span>
+    <span class="down_status blue"><span>${lang.transl('_未开始下载')}</span></span>
     <span class="convert_tip warn"></span>
     </p>
     <div class="progressBarWrap">
@@ -243,19 +235,10 @@ class DownloadControl {
     </div>
     <div>
     <ul class="centerWrap_down_list">
-    <li class="downloadBar">
-    <div class="progressBar progressBar2">
-    <div class="progress progress2"></div>
-    </div>
-    <div class="progressTip progressTip2">
-    <span class="download_fileName"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${lang.transl(
-      '_已下载'
-    )}&nbsp;&nbsp;<span class="loaded">0/0</span>KB
-    </div>
-    </li>
+    
     </ul>
     </div>
-    </div>`
+    </div>`;
 
     const el = ui.useSlot('downloadArea', html)
     if (!el) {

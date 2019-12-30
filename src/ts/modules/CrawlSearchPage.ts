@@ -61,7 +61,7 @@ class CrawlSearchPage extends CrawlPageBase {
 
   private resultMeta: WorkInfo[] = [] // 每次“开始筛选”完成后，储存当时所有结果，以备“在结果中筛选”使用
 
-  private worksWrap: HTMLUListElement | null | undefined = null
+  private worksWrap: HTMLUListElement | null = null
 
   private deleteId = 0 // 手动删除时，要删除的作品的 id
 
@@ -95,20 +95,20 @@ class CrawlSearchPage extends CrawlPageBase {
 
   // 返回包含作品列表的 ul 元素
   private getWorksWrap() {
-    const test = document.querySelectorAll('#root>*')[2]
-    if (test) {
-      const test2 = test.lastChild as HTMLElement
-      if (test2) {
-        const ul = test2.querySelectorAll('ul')
-        return ul[ul.length - 1]
-      }
+    const test = document.querySelectorAll('#root section ul')
+    if (test.length > 0) {
+      return test[test.length - 1] as HTMLUListElement
     }
+    return null
   }
 
   private showCount() {
+    const count = this.resultMeta.length.toString()
+    log.success(lang.transl('_调整完毕', count))
+
     const countEl = document.querySelector('.dkENRa')
     if (countEl) {
-      countEl.textContent = this.resultMeta.length.toString()
+      countEl.textContent = count
     }
   }
 
@@ -292,9 +292,9 @@ class CrawlSearchPage extends CrawlPageBase {
       this.reAddResult()
     }
 
-
     this.crawlWorks = false
     store.states.notAutoDownload = true
+    this.showCount()
     // 即使没有重新生成结果，也要发布 crawlFinish 事件，筛选完毕相当于某种意义上的抓取完毕，通知下载控制器可以准备下载了。这样也会在日志上显示下载数量。
     EVT.fire(EVT.events.crawlFinish)
   }
@@ -310,8 +310,6 @@ class CrawlSearchPage extends CrawlPageBase {
       const pNo = this.getPNo(data.pageCount)
       store.addResult(data, pNo)
     })
-
-    this.showCount()
 
     EVT.fire(EVT.events.worksUpdate)
 
@@ -542,6 +540,9 @@ class CrawlSearchPage extends CrawlPageBase {
   public destroy() {
     window.removeEventListener(EVT.events.addResult, this.addWork)
     window.removeEventListener(EVT.events.crawlFinish, this.onCrawlFinish)
+
+    // 离开下载页面时，取消设置“不自动下载”
+    store.states.notAutoDownload = false
   }
 }
 export { CrawlSearchPage }
