@@ -1,6 +1,11 @@
 ## 3.6.0 2019-12-30
 
+实现 预览搜索结果 的开关功能，储存
+
 centerBtns 也独立出来？
+
+合并 init 和 crawl？
+
 
 ### 优化 UI
 
@@ -1489,5 +1494,3 @@ Viewerjs-mix.js [CSS part](https://github.com/fengyuanchen/viewerjs/blob/master/
 之前的下载方式和脚本版是一样的，点击 a 标签下载。现在为了能自动建立文件夹，改成了发送给 chrome 来下载。
 
 *早期的一些版本更新没有写日志*
-
---------

@@ -98,8 +98,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_InitSettings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/InitSettings */ "./src/ts/modules/InitSettings.ts");
 /* harmony import */ var _modules_InitCrawlProcess__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/InitCrawlProcess */ "./src/ts/modules/InitCrawlProcess.ts");
 /* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/DownloadControl */ "./src/ts/modules/DownloadControl.ts");
-/* harmony import */ var _modules_Output__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/Output */ "./src/ts/modules/Output.ts");
-/* harmony import */ var _modules_Support__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/Support */ "./src/ts/modules/Support.ts");
+/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/Tip */ "./src/ts/modules/Tip.ts");
+/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_modules_Tip__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _modules_Output__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/Output */ "./src/ts/modules/Output.ts");
+/* harmony import */ var _modules_Support__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/Support */ "./src/ts/modules/Support.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -111,6 +113,7 @@ __webpack_require__.r(__webpack_exports__);
  * E-mail:  xuejianxianzun@gmail.com
  * QQ group:675174717
  */
+
 
 
 
@@ -5225,7 +5228,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PageInfo */ "./src/ts/modules/PageInfo.ts");
 /* harmony import */ var _DeleteWorks__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./DeleteWorks */ "./src/ts/modules/DeleteWorks.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
 // 初始化搜索页
+
 
 
 
@@ -5239,6 +5244,7 @@ class InitSearchPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPag
         super(crawler);
         this.crawler = crawler;
         this.crawler.maxCount = 1000;
+        _Store__WEBPACK_IMPORTED_MODULE_8__["store"].states.notAutoDownload = true;
     }
     appendCenterBtns() {
         _UI__WEBPACK_IMPORTED_MODULE_4__["ui"].addCenterButton(_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始筛选'), [
@@ -6815,6 +6821,60 @@ new Support();
 
 /***/ }),
 
+/***/ "./src/ts/modules/Tip.ts":
+/*!*******************************!*\
+  !*** ./src/ts/modules/Tip.ts ***!
+  \*******************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+// 显示自定义的提示
+class Tip {
+    constructor() {
+        this.tipEl = document.createElement('div'); // tip 元素
+        this.addTipEl();
+    }
+    // 显示提示
+    addTipEl() {
+        const tipHTML = `<div id="tip"></div>`;
+        document.body.insertAdjacentHTML('beforeend', tipHTML);
+        this.tipEl = document.getElementById('tip');
+        const tips = document.querySelectorAll('.has_tip');
+        for (const el of tips) {
+            for (const ev of ['mouseenter', 'mouseleave']) {
+                el.addEventListener(ev, event => {
+                    const e = (event || window.event);
+                    const text = el.dataset.tip;
+                    this.showTip(text, {
+                        type: ev === 'mouseenter' ? 1 : 0,
+                        x: e.clientX,
+                        y: e.clientY
+                    });
+                });
+            }
+        }
+    }
+    // 显示中间面板上的提示。参数 arg 指示鼠标是移入还是移出，并包含鼠标位置
+    showTip(text, arg) {
+        if (!text) {
+            throw new Error('No tip text.');
+        }
+        if (arg.type === 1) {
+            this.tipEl.innerHTML = text;
+            this.tipEl.style.left = arg.x + 30 + 'px';
+            this.tipEl.style.top = arg.y - 30 + 'px';
+            this.tipEl.style.display = 'block';
+        }
+        else if (arg.type === 0) {
+            this.tipEl.style.display = 'none';
+        }
+    }
+}
+new Tip();
+
+
+/***/ }),
+
 /***/ "./src/ts/modules/TitleBar.ts":
 /*!************************************!*\
   !*** ./src/ts/modules/TitleBar.ts ***!
@@ -6935,7 +6995,6 @@ __webpack_require__.r(__webpack_exports__);
 // 提供中间面板和右侧下载按钮
 class UI {
     constructor() {
-        this.tipEl = document.createElement('div'); // tip 元素
         this.rightBtn = document.createElement('div'); // 右侧按钮
         this.centerPanel = document.createElement('div'); // 中间面板
         this.slots = null;
@@ -6951,21 +7010,6 @@ class UI {
         this.rightBtn.addEventListener('click', () => {
             this.showCenterPanel();
         }, false);
-    }
-    // 显示中间面板上的提示。参数 arg 指示鼠标是移入还是移出，并包含鼠标位置
-    showTip(text, arg) {
-        if (!text) {
-            throw new Error('No tip text.');
-        }
-        if (arg.type === 1) {
-            this.tipEl.innerHTML = text;
-            this.tipEl.style.left = arg.x + 30 + 'px';
-            this.tipEl.style.top = arg.y - 30 + 'px';
-            this.tipEl.style.display = 'block';
-        }
-        else if (arg.type === 0) {
-            this.tipEl.style.display = 'none';
-        }
     }
     // 添加中间面板
     addCenterPanel() {
@@ -7013,26 +7057,6 @@ class UI {
         document.body.insertAdjacentHTML('beforeend', centerPanelHTML);
         this.centerPanel = document.querySelector('.centerWrap');
         this.slots = this.centerPanel.querySelectorAll('slot');
-    }
-    // 显示提示
-    addTipEl() {
-        const tipHTML = `<div id="tip"></div>`;
-        document.body.insertAdjacentHTML('beforeend', tipHTML);
-        this.tipEl = document.getElementById('tip');
-        const tips = this.centerPanel.querySelectorAll('.has_tip');
-        for (const el of tips) {
-            for (const ev of ['mouseenter', 'mouseleave']) {
-                el.addEventListener(ev, event => {
-                    const e = (event || window.event);
-                    const text = el.dataset.tip;
-                    this.showTip(text, {
-                        type: ev === 'mouseenter' ? 1 : 0,
-                        x: e.clientX,
-                        y: e.clientY
-                    });
-                });
-            }
-        }
     }
     // 绑定中间面板上的事件
     bindEvents() {
@@ -7087,7 +7111,6 @@ class UI {
     async addUI() {
         this.addRightButton();
         this.addCenterPanel();
-        this.addTipEl();
         this.bindEvents();
     }
     // 收起展开选项设置区域

@@ -13,5 +13,6 @@
 import './modules/InitSettings'
 import './modules/InitCrawlProcess'
 import './modules/DownloadControl'
+import './modules/Tip'
 import './modules/Output'
 import './modules/Support'

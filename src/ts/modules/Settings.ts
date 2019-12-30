@@ -36,10 +36,12 @@ interface SettingsForm extends HTMLFormElement {
   showSearchResult: HTMLInputElement
 }
 
+
 // 设置表单
 class Settings {
   constructor() {
     this.form = ui.useSlot('form', this.html) as SettingsForm
+    
     this.bindEvents()
   }
 
