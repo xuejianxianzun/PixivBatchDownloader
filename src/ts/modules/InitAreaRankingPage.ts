@@ -4,6 +4,7 @@ import { CrawlAreaRankingPage } from './CrawlAreaRankingPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { ui } from './UI'
+import { options } from './Options'
 
 class InitAreaRankingPage extends InitPageBase {
   constructor(crawler: CrawlAreaRankingPage) {
@@ -20,8 +21,8 @@ class InitAreaRankingPage extends InitPageBase {
     })
   }
 
-  protected setFormOptin() {
-    this.hideNotNeedOption([1, 14])
+  protected setFormOption() {
+    options.hideOption([1,15,18])
   }
 
   protected destroySelf() {}

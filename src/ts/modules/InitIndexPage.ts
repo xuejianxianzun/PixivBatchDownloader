@@ -4,6 +4,7 @@ import { CrawlIndexPage } from './CrawlIndexPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { ui } from './UI'
+import {  options} from "./Options";
 import { DOM } from './DOM'
 
 class InitIndexPage extends InitPageBase {
@@ -64,8 +65,8 @@ class InitIndexPage extends InitPageBase {
     })
   }
 
-  protected setFormOptin() {
-    this.hideNotNeedOption([1, 14])
+  protected setFormOption() {
+    options.hideOption([1, 15, 18])
   }
 
   protected destroySelf() {}

@@ -12,6 +12,7 @@ import { CrawlBookmarkNewIllustPage } from './CrawlBookmarkNewIllustPage'
 import { CrawlNewIllustPage } from './CrawlNewIllustPage'
 import { lang } from './Lang'
 import { ui } from './UI'
+import {  options} from "./Options";
 
 abstract class InitPageBase {
   constructor(
@@ -44,17 +45,18 @@ abstract class InitPageBase {
 
   // 初始化
   public init() {
+    options.showAllOption()
+    this.setFormOption()
     this.appendCenterBtns()
-    this.setFormOptin()
     this.appendElseEl()
-  }
+    }
 
   protected abstract destroySelf(): void
 
   public destroy(): void {
     this.destroySelf()
 
-    ui.clearCenterButton()
+    ui.clearCenterButtons()
 
     this.crawler.destroy()
   }
@@ -65,45 +67,19 @@ abstract class InitPageBase {
   // 添加其他元素（如果有）
   protected appendElseEl(): void {}
 
-  // 显示或隐藏指定的选项
-  private toggleOption(no: number[], display: string) {
-    for (const num of no) {
-      const el = ui.form.querySelector(
-        '.formOption' + num.toString()
-      )! as HTMLParagraphElement
-      el.style.display = display
-    }
-  }
-
-  // 隐藏一些选项。参数是数组，传递设置项的编号。
-  public hideNotNeedOption(no: number[]) {
-    this.toggleOption(no, 'none')
-  }
-
-  // 显示一些选项。因为页面无刷新加载，所以一些选项被隐藏后，可能需要再次显示
-  public showOption(no: number[]) {
-    this.toggleOption(no, 'block')
-  }
-
   // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。
-  protected setFormOptin(): void {
-    // 设置页数
-    this.setWantPageTip1.textContent = lang.transl('_页数')
-    this.setWantPageTip1.dataset.tip = lang.transl('_checkWantPageRule1Arg8')
-    this.setWantPageTip2.textContent = lang.transl('_数字提示1')
-    this.setWantPage.value = '1'
+  protected setFormOption(): void {
+    // 设置“个数/页数”选项
+    options.setWantPage({
+      text:lang.transl('_页数'),
+      tip:lang.transl('_checkWantPageRule1Arg8'),
+      rangTip:lang.transl('_数字提示1'),
+      value:'1'
+    })
+
+    options.hideOption([15,18])
   }
 
-  protected setWantPageWrap = ui.form.querySelector('.formOption1')!
-  protected setWantPage = this.setWantPageWrap.querySelector(
-    '.setWantPage'
-  )! as HTMLInputElement
-  protected setWantPageTip1 = this.setWantPageWrap.querySelector(
-    '.setWantPageTip1'
-  )! as HTMLSpanElement
-  protected setWantPageTip2 = this.setWantPageWrap.querySelector(
-    '.setWantPageTip2'
-  )! as HTMLSpanElement
 }
 
 export { InitPageBase }

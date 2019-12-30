@@ -516,7 +516,7 @@ const langText = {
     'Use Alt + X to show and hide the download panel',
     '使用 Alt + X，可以顯示和隱藏下載面板'
   ],
-  _设置命名规则3: [
+  _共抓取到n个图片: [
     '共抓取到 {} 个图片',
     '合計 {} 枚の画像を取得し',
     'Crawl a total of {} pictures',
@@ -1042,6 +1042,30 @@ const langText = {
     'スクリーニングの結果をクロールする',
     'Crawl the screening results',
     '擷取篩選結果'
+  ],
+  _尚未开始筛选: [
+    '尚未开始筛选',
+    'まだスクリーニングを開始していない',
+    'Screening has not started',
+    '尚未開始篩選'
+  ],
+  _没有数据可供使用: [
+    '没有数据可供使用',
+    '使用可能なデータはない',
+    'No data is available.',
+    '沒有數據可供使用'
+  ],
+  _预览搜索结果: [
+    '预览搜索结果',
+    '検索結果を見る',
+    'Preview search results',
+    '預覽搜索結果'
+  ],
+  _预览搜索结果说明: [
+    '下载器可以把符合条件的作品显示在当前页面上。如果抓取结果太多导致页面崩溃，请关闭这个功能。',
+    'ローダは、該当する作品を現在のページに表示することができます。クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください',
+    'The downloader can display the qualified works on the current page. If too many crawling results cause the page to crash, turn off this feature.',
+    '下載器可以把符合條件的作品顯示在當前頁面上。如果抓取結果太多導致頁面崩潰，請關閉這個功能。'
   ]
 }
 

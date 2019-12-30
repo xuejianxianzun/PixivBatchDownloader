@@ -4,6 +4,7 @@ import { CrawlPixivisionPage } from './CrawlPixivisionPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { ui } from './UI'
+import { options } from './Options'
 
 class InitPixivisionPage extends InitPageBase {
   constructor(crawler: CrawlPixivisionPage) {
@@ -33,8 +34,26 @@ class InitPixivisionPage extends InitPageBase {
     }
   }
 
-  protected setFormOptin() {
-    this.hideNotNeedOption([1, 2, 3, 4, 5, 6, 7, 11, 12, 13, 14, 15, 16])
+  protected setFormOption() {
+    options.hideOption([
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      18
+    ])
   }
 
   protected destroySelf() {}

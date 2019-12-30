@@ -2,7 +2,8 @@
 import { CrawlPageBase } from './CrawlPageBase'
 import { RankingOption } from './CrawlArgument.d'
 import { RankingData } from './CrawlResult.d'
-import { ui } from './UI'
+import {  form} from "./Settings";
+
 import { FilterOption } from './Filter.d'
 import { filter } from './Filter'
 import { lang } from './Lang'
@@ -84,7 +85,7 @@ class CrawlRankingPage extends CrawlPageBase {
     const contents = data.contents // 取出作品信息列表
     for (const data of contents) {
       // 下载排行榜所有作品时，会检查是否已经抓取到了指定数量的作品。下载首次登场作品时不检查，抓取所有作品。
-      if (ui.form.debut.value === '0' && data.rank > this.crawlNumber) {
+      if (form.debut.value === '0' && data.rank > this.crawlNumber) {
         complete = true
         break
       }
@@ -125,7 +126,7 @@ class CrawlRankingPage extends CrawlPageBase {
 
   protected resetGetIdListStatus() {
     this.listPageFinished = 0
-    ui.form.debut.value = '0'
+    form.debut.value = '0'
   }
 
   public destroy() {}

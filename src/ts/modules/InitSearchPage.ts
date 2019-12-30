@@ -3,6 +3,7 @@ import { InitPageBase } from './InitPageBase'
 import { CrawlSearchPage } from './CrawlSearchPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
+import {  options} from "./Options";
 import { ui } from './UI'
 import { pageInfo } from './PageInfo'
 import { DeleteWorks } from './DeleteWorks'
@@ -12,6 +13,8 @@ class InitSearchPage extends InitPageBase {
   constructor(crawler: CrawlSearchPage) {
     super(crawler)
     this.crawler = crawler
+    this.crawler.maxCount = 1000
+
   }
   protected crawler: CrawlSearchPage
 
@@ -104,14 +107,17 @@ class InitSearchPage extends InitPageBase {
     )
   }
 
-  protected setFormOptin() {
-    this.crawler.maxCount = 1000
-    this.setWantPageTip1.textContent = lang.transl('_页数')
-    this.setWantPageTip1.dataset.tip = lang.transl('_checkWantPageRule1Arg8')
-    this.setWantPageTip2.textContent = `1 - ${this.crawler.maxCount}`
-    this.setWantPage.value = this.crawler.maxCount.toString()
+  protected setFormOption() {
+    
+    // 设置“个数/页数”选项
+    options.setWantPage({
+      text:lang.transl('_页数'),
+      tip:lang.transl('_checkWantPageRule1Arg8'),
+      rangTip:`1 - ${this.crawler.maxCount}`,
+      value:this.crawler.maxCount.toString()
+    })
 
-    this.hideNotNeedOption([14])
+    options.hideOption([15,18])
   }
 
   protected destroySelf() {

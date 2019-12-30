@@ -3,7 +3,12 @@ import { lang } from './Lang'
 import { EVT } from './EVT'
 import { Colors } from './Colors'
 import { DOM } from './DOM'
-import { XzForm, XzTipArg } from './UI.d'
+
+export interface XzTipArg {
+  type: number
+  x: number
+  y: number
+}
 
 // 提供中间面板和右侧下载按钮
 class UI {
@@ -12,22 +17,13 @@ class UI {
     this.addUI()
   }
 
-  public form!: XzForm // 表单元素，包含各个选项
-
   private tipEl: HTMLDivElement = document.createElement('div') // tip 元素
 
   private rightBtn: HTMLDivElement = document.createElement('div') // 右侧按钮
 
   private centerPanel: HTMLDivElement = document.createElement('div') // 中间面板
 
-  private reserveArea: HTMLDivElement = document.createElement('div') // 下载区域容器
-
-  private centerBtnWrap: HTMLDivElement = document.createElement('div') // 中间添加按钮的区域
-
-  // 向预留区域追加元素
-  public insertHTML(html: string) {
-    this.reserveArea.insertAdjacentHTML('beforeend', html)
-  }
+  private  slots:NodeListOf<HTMLSlotElement>|null = null
 
   // 添加右侧下载按钮
   private addRightButton() {
@@ -93,302 +89,33 @@ class UI {
         </div>
       </div>
       </div>
+
+      
       <div class="centerWrap_con">
-      <form class="settingForm">
-      <div class="option_area1">
-      <p class="formOption1">
-      <span class="setWantPageWrap">
-      <span class="has_tip settingNameStyle1 setWantPageTip1" data-tip="${lang.transl(
-        '_页数'
-      )}" style="margin-right: 0px;">${lang.transl(
-      '_页数'
-    )}</span><span class="gray1" style="margin-right: 10px;"> ? </span>
-      <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
-      value = '-1'
-      >
-      &nbsp;&nbsp;&nbsp;
-      <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
-      </span>
-      </p>
-      <p class="formOption5">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_下载作品类型的提示Center'
-      )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
-      <label for="setWorkType0"><input type="checkbox" name="downType0" id="setWorkType0" checked> ${lang.transl(
-        '_插画'
-      )}&nbsp;</label>
-      <label for="setWorkType1"><input type="checkbox" name="downType1" id="setWorkType1" checked> ${lang.transl(
-        '_漫画'
-      )}&nbsp;</label>
-      <label for="setWorkType2"><input type="checkbox" name="downType2" id="setWorkType2" checked> ${lang.transl(
-        '_动图'
-      )}&nbsp;</label>
-      </p>
-      <p class="formOption3">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_怎样下载多图作品'
-      )}">${lang.transl('_多图作品设置')}<span class="gray1"> ? </span></span>
-      <label for="multipleImageWorks1"><input type="radio" name="multipleImageWorks" id="multipleImageWorks1" value="0"> ${lang.transl(
-        '_全部下载'
-      )}&nbsp; </label>
-      <label for="multipleImageWorks2"><input type="radio" name="multipleImageWorks" id="multipleImageWorks2" value="-1"> ${lang.transl(
-        '_不下载'
-      )}&nbsp; </label>
-      <label for="multipleImageWorks3"><input type="radio" name="multipleImageWorks" id="multipleImageWorks3" value="1"> ${lang.transl(
-        '_下载前几张图片'
-      )}&nbsp; </label>
-      <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
-      </p>
-      <p class="formOption12">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_动图保存格式title'
-      )}">${lang.transl('_动图保存格式')}<span class="gray1"> ? </span></span>
-      <label for="ugoiraSaveAs1"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" value="webm" checked> ${lang.transl(
-        '_webmVideo'
-      )} &nbsp;</label>
-      <label for="ugoiraSaveAs3"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" value="gif"> ${lang.transl(
-        '_gif'
-      )} &nbsp;</label>
-      <label for="ugoiraSaveAs2"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" value="zip"> ${lang.transl(
-        '_zipFile'
-      )} &nbsp;</label>
-      </p>
-      <p class="formOption2">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_筛选收藏数的提示Center'
-      )}">${lang.transl(
-      '_筛选收藏数Center'
-    )}<span class="gray1"> ? </span></span>
-      <input type="text" name="setFavNum" class="setinput_style1 blue" value="0">&nbsp;&nbsp;&nbsp;&nbsp;
-      </p>
-      <p class="formOption11">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_只下载已收藏的提示'
-      )}">${lang.transl('_只下载已收藏')}<span class="gray1"> ? </span></span>
-      <label for="setOnlyBmk"><input type="checkbox" name="setOnlyBmk" id="setOnlyBmk"> ${lang.transl(
-        '_启用'
-      )}</label>
-      </p>
-      <p class="formOption4">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_筛选宽高的按钮Title'
-      )} ${lang.transl('_筛选宽高的提示文字')}">${lang.transl(
-      '_筛选宽高的按钮文字'
-    )}<span class="gray1"> ? </span></span>
-      <input type="text" name="setWidth" class="setinput_style1 blue" value="0">
-      <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" value="&" checked> <label for="setWidth_AndOr1">and&nbsp;</label>
-      <input type="radio" name="setWidthAndOr" id="setWidth_AndOr2" value="|"> <label for="setWidth_AndOr2">or&nbsp;</label>
-      <input type="text" name="setHeight" class="setinput_style1 blue" value="0">
-      </p>
-      <p class="formOption13">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_设置宽高比例Title'
-      )}">${lang.transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
-      <label for="ratio0"><input type="radio" name="ratio" id="ratio0" value="0" checked>  ${lang.transl(
-        '_不限制'
-      )}&nbsp; </label>
-      <label for="ratio1"><input type="radio" name="ratio" id="ratio1" value="1">  ${lang.transl(
-        '_横图'
-      )}&nbsp; </label>
-      <label for="ratio2"><input type="radio" name="ratio" id="ratio2" value="2">  ${lang.transl(
-        '_竖图'
-      )}&nbsp; </label>
-      <label for="ratio3"><input type="radio" name="ratio" id="ratio3" value="3">  ${lang.transl(
-        '_输入宽高比'
-      )}</label>
-      <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
-      </p>
-      <p class="formOption15">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_设置id范围提示'
-      )}">${lang.transl('_设置id范围')} <span class="gray1"> ? </span></span>
-      <label for="idRange0"><input type="radio" name="idRange" id="idRange0" value="0" checked>  ${lang.transl(
-        '_不限制'
-      )}&nbsp; </label>
-      <label for="idRange1"><input type="radio" name="idRange" id="idRange1" value="1">  ${lang.transl(
-        '_大于'
-      )}&nbsp; </label>
-      <label for="idRange2"><input type="radio" name="idRange" id="idRange2" value="2">  ${lang.transl(
-        '_小于'
-      )}&nbsp; </label>
-      <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
-      </p>
-      <p class="formOption16">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_设置投稿时间提示'
-      )}">${lang.transl('_设置投稿时间')} <span class="gray1"> ? </span></span>
-      <label for="setPostDate"><input type="checkbox" name="postDate" id="setPostDate"> ${lang.transl(
-        '_启用'
-      )}</label>
-      <input type="datetime-local" name="postDateStart" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
-      &nbsp;-&nbsp;
-      <input type="datetime-local" name="postDateEnd" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
-      </p>
-      <p class="formOption6">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_必须tag的提示文字'
-      )}">${lang.transl('_必须含有tag')}<span class="gray1"> ? </span></span>
-      <input type="text" name="needTag" class="setinput_style1 blue setinput_tag">
-      </p>
-      <p class="formOption7">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_排除tag的提示文字'
-      )}">${lang.transl('_不能含有tag')}<span class="gray1"> ? </span></span>
-      <input type="text" name="notNeedTag" class="setinput_style1 blue setinput_tag">
-      </p>
-      <p class="formOption8">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_快速下载的提示'
-      )}">${lang.transl('_是否自动下载')}<span class="gray1"> ? </span></span>
-      <label for="setQuietDownload"><input type="checkbox" name="quietDownload" id="setQuietDownload" checked> ${lang.transl(
-        '_启用'
-      )}</label>
-      </p>
-      <input type="hidden" name="debut" value="0">
-      </div>
-      <div class="centerWrap_btns centerBtnWrap" id="centerBtnWrap">
-  
-      </div>
-      <p> ${lang.transl(
-        '_设置命名规则3',
-        '<span class="fwb blue imgNum">0</span>'
-      )}</p>
-      <p>
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_线程数字'
-      )}">${lang.transl('_设置下载线程')}<span class="gray1"> ? </span></span>
-      <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
-      </p>
-      <p>
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_设置文件夹名的提示'
-      )}">${lang.transl('_设置文件名')}<span class="gray1"> ? </span></span>
-      <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
-      &nbsp;
-      <select name="pageInfoSelect" id="pageInfoSelect">
-      </select>
-      &nbsp;
-      <select name="fileNameSelect">
-        <option value="default">…</option>
-        <option value="{id}">{id}</option>
-        <option value="{title}">{title}</option>
-        <option value="{tags}">{tags}</option>
-        <option value="{tags_translate}">{tags_translate}</option>
-        <option value="{user}">{user}</option>
-        <option value="{userid}">{userid}</option>
-        <option value="{type}">{type}</option>
-        <option value="{date}">{date}</option>
-        <option value="{bmk}">{bmk}</option>
-        <option value="{px}">{px}</option>
-        <option value="{rank}">{rank}</option>
-        <option value="{id_num}">{id_num}</option>
-        <option value="{p_num}">{p_num}</option>
-        </select>
-      &nbsp;&nbsp;
-      <span class="gray1 showFileNameTip">？</span>
-      </p>
-      <p class="fileNameTip tip">
-      <strong>${lang
-        .transl('_设置文件夹名的提示')
-        .replace('<br>', '. ')}</strong>
-      <br>
-      <span class="blue">{p_user}</span>
-      ${lang.transl('_文件夹标记PUser')}
-      <br>
-      <span class="blue">{p_uid}</span>
-      ${lang.transl('_文件夹标记PUid')}
-      <br>
-      <span class="blue">{p_tag}</span>
-      ${lang.transl('_文件夹标记PTag')}
-      <br>
-      <span class="blue">{p_title}</span>
-      ${lang.transl('_文件夹标记PTitle')}
-      <br>
-      <span class="blue">{id}</span>
-      ${lang.transl('_命名标记1')}
-      <br>
-      <span class="blue">{title}</span>
-      ${lang.transl('_命名标记2')}
-      <br>
-      <span class="blue">{tags}</span>
-      ${lang.transl('_命名标记3')}
-      <br>
-      <span class="blue">{tags_translate}</span>
-      ${lang.transl('_命名标记11')}
-      <br>
-      <span class="blue">{user}</span>
-      ${lang.transl('_命名标记4')}
-      <br>
-      <span class="blue">{userid}</span>
-      ${lang.transl('_命名标记6')}
-      <br>
-      <span class="blue">{date}</span>
-      ${lang.transl('_命名标记12')}
-      <br>
-      <span class="blue">{type}</span>
-      ${lang.transl('_命名标记14')}
-      <br>
-      <span class="blue">{bmk}</span>
-      ${lang.transl('_命名标记8')}
-      <br>
-      <span class="blue">{px}</span>
-      ${lang.transl('_命名标记7')}
-      <br>
-      <span class="blue">{id_num}</span>
-      ${lang.transl('_命名标记9')}
-      <br>
-      <span class="blue">{p_num}</span>
-      ${lang.transl('_命名标记10')}
-      <br>
-      <span class="blue">{rank}</span>
-      ${lang.transl('_命名标记13')}
-      <br>
-      ${lang.transl('_命名标记提醒')}
-      </p>
-      <p class="formOption10">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_添加字段名称提示'
-      )}">${lang.transl('_添加字段名称')}<span class="gray1"> ? </span></span>
-      <label for="setTagNameToFileName"><input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" checked> ${lang.transl(
-        '_启用'
-      )}</label>
-      &nbsp;&nbsp;&nbsp;
-      <span class="gray1 showFileNameResult"> ${lang.transl(
-        '_预览文件名'
-      )}</span>
-      </p>
-      <p class="formOption14">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_快速下载建立文件夹提示'
-      )}">${lang.transl(
-      '_快速下载建立文件夹'
-    )}<span class="gray1"> ? </span></span>
-      <label for="setAlwaysFolder"><input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" > ${lang.transl(
-        '_启用'
-      )}</label>
-      </p>
-      </form>
-      <div class="reserve_area"></div>
-      <p class="gray1 bottom_help_bar"> 
+      
+      
+      <slot data-name="form"></slot>
+
+      <slot data-name="centerBtns" class="centerWrap_btns"></slot>
+      
+      <slot data-name="downloadArea"></slot>
+
+      <div class="gray1 bottom_help_bar"> 
       <span class="showDownTip">${lang.transl('_常见问题')}</span>
       <a class="wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"> ${lang.transl(
         '_wiki'
       )}</a>
       <span id="resetOption">${lang.transl('_重置设置')}</span>
-      </p>
+      <br>
       <p class="downTip tip"> ${lang.transl('_下载说明')}</p>
+      </div>
       </div>
       </div>
       `
     document.body.insertAdjacentHTML('beforeend', centerPanelHTML)
 
     this.centerPanel = document.querySelector('.centerWrap')! as HTMLDivElement
-
-    this.reserveArea = document.querySelector('.reserve_area') as HTMLDivElement
-
-    this.centerBtnWrap = document.getElementById(
-      'centerBtnWrap'
-    )! as HTMLDivElement
+    this.slots = this.centerPanel.querySelectorAll('slot')
   }
 
   // 显示提示
@@ -451,19 +178,6 @@ class UI {
       false
     )
 
-    // 预览文件名
-    document
-      .querySelector('.showFileNameResult')!
-      .addEventListener('click', () => {
-        EVT.fire(EVT.events.previewFileName)
-      })
-
-    // 显示命名字段提示
-    document
-      .querySelector('.showFileNameTip')!
-      .addEventListener('click', () =>
-        DOM.toggleEl(document.querySelector('.fileNameTip')! as HTMLDivElement)
-      )
 
     // 显示下载说明
     document
@@ -472,24 +186,7 @@ class UI {
         DOM.toggleEl(document.querySelector('.downTip')! as HTMLDivElement)
       )
 
-    this.form = this.centerPanel.querySelector('.settingForm')! as XzForm
-
-    // 输入框获得焦点时自动选择文本（文件名输入框例外）
-    const centerInputs: NodeListOf<HTMLInputElement> = this.form.querySelectorAll(
-      'input[type=text]'
-    )
-    for (const el of centerInputs) {
-      if (el.name !== 'userSetName') {
-        el.addEventListener('focus', function() {
-          this.select()
-        })
-      }
-    }
-
-    // 把下拉框的选择项插入到文本框里
-    this.insertValueToInput(this.form.pageInfoSelect, this.form.userSetName)
-    this.insertValueToInput(this.form.fileNameSelect, this.form.userSetName)
-
+    
     // 重置设置
     document.getElementById('resetOption')!.addEventListener('click', () => {
       const result = window.confirm(lang.transl('_是否重置设置'))
@@ -564,12 +261,45 @@ class UI {
       e.setAttribute(key, value)
     }
 
-    this.centerBtnWrap.appendChild(e)
+    this.useSlot('centerBtns', e);
     return e
   }
 
-  public clearCenterButton() {
-    this.centerBtnWrap.innerHTML = ''
+  public clearCenterButtons() {
+    this.clearSlot('centerBtns');
+  }
+
+  public useSlot(name:string, element:string|HTMLElement) {
+    if (!this.slots) {
+      return
+    }
+    for (const slot of this.slots) {
+      if (slot.dataset.name === name) {
+        if (typeof element === 'string') {
+          // 插入字符串形式的元素
+          const wrap = document.createElement('div')
+          wrap.innerHTML = element
+          const el = wrap.children[0]
+          slot.appendChild(el)
+          return el
+        } else {
+          // 插入 html 元素
+          slot.appendChild(element)
+          return element
+        }
+      }
+    }
+  }
+  // 清空指定的插槽
+  public clearSlot(name:string) {
+    if (!this.slots) {
+      return
+    }
+    for (const slot of this.slots) {
+      if (slot.dataset.name === name) {
+        slot.innerHTML = ''
+      }
+    }
   }
 }
 

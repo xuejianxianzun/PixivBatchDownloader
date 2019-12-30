@@ -8,6 +8,7 @@ import { store } from './Store'
 import { log } from './Log'
 import { EVT } from './EVT'
 import { ui } from './UI'
+import {  form} from "./Settings";
 import { titleBar } from './TitleBar'
 import { pageInfo } from './PageInfo'
 
@@ -49,7 +50,7 @@ abstract class CrawlPageBase {
   // 检查用户输入的页数/个数设置，并返回提示信息
   // 可以为 -1，或者大于 0
   protected checkWantPageInput(crawlPartTip: string, crawlAllTip: string) {
-    const temp = parseInt(ui.form.setWantPage.value)
+    const temp = parseInt(form.setWantPage.value)
 
     // 如果比 1 小，并且不是 -1，则不通过
     if ((temp < 1 && temp !== -1) || isNaN(temp)) {
@@ -69,7 +70,7 @@ abstract class CrawlPageBase {
   // 检查用户输入的页数/个数设置
   // 必须大于 0
   protected checkWantPageInputGreater0() {
-    const result = API.checkNumberGreater0(ui.form.setWantPage.value)
+    const result = API.checkNumberGreater0(form.setWantPage.value)
 
     if (result.result) {
       return result.value
@@ -80,7 +81,7 @@ abstract class CrawlPageBase {
 
   // 获取作品张数设置
   private getFirstFewImages() {
-    const check = API.checkNumberGreater0(ui.form.firstFewImages.value)
+    const check = API.checkNumberGreater0(form.firstFewImages.value)
 
     if (check.result) {
       return check.value
@@ -116,7 +117,7 @@ abstract class CrawlPageBase {
 
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
   protected getMultipleSetting() {
-    this.multipleImageWorks = parseInt(ui.form.multipleImageWorks.value)
+    this.multipleImageWorks = parseInt(form.multipleImageWorks.value)
 
     if (this.multipleImageWorks === -1) {
       log.warning(lang.transl('_不下载多图作品'))
@@ -329,7 +330,7 @@ abstract class CrawlPageBase {
           mime_type: meta.body.mime_type
         }
 
-        const ext = ui.form.ugoiraSaveAs.value // 扩展名可能是 webm、gif、zip
+        const ext = form.ugoiraSaveAs.value // 扩展名可能是 webm、gif、zip
 
         store.addResult({
           id: illustId,

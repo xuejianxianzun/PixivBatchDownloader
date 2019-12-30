@@ -5,6 +5,7 @@ import { Colors } from './Colors'
 import { EVT } from './EVT'
 import { lang } from './Lang'
 import { ui } from './UI'
+import { options } from './Options'
 import { store } from './Store'
 import { QuickBookmark } from './QuickBookmark'
 import { imgViewer } from './ImgViewer'
@@ -74,17 +75,19 @@ class InitWorksPage extends InitPageBase {
     )
   }
 
-  protected setFormOptin() {
-    // 设置抓取的作品数量
-    this.setWantPageTip1.textContent = lang.transl('_个数')
-    this.setWantPageTip1.dataset.tip =
-      lang.transl('_checkWantPageRule1Arg8') +
-      '<br>' +
-      lang.transl('_相关作品大于0')
-    this.setWantPageTip2.textContent = lang.transl('_数字提示1')
-    this.setWantPage.value = '-1'
+  protected setFormOption() {
+    // 设置“个数/页数”选项
+    options.setWantPage({
+      text: lang.transl('_个数'),
+      tip:
+        lang.transl('_checkWantPageRule1Arg8') +
+        '<br>' +
+        lang.transl('_相关作品大于0'),
+      rangTip: lang.transl('_数字提示1'),
+      value: '-1'
+    })
 
-    this.showOption([1, 14])
+    options.hideOption([18])
   }
 
   protected destroySelf() {

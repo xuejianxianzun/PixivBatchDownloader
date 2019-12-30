@@ -1,6 +1,6 @@
 // 过滤器
 import { FilterOption, FilterWh } from './Filter.d'
-import { ui } from './UI'
+import {  form} from "./Settings";
 import { lang } from './Lang'
 import { log } from './Log'
 import { API } from './API'
@@ -47,7 +47,7 @@ class Filter {
     this.getDownType()
 
     // 获取多图作品设置
-    this.multipleImageWorks = parseInt(ui.form.multipleImageWorks.value)
+    this.multipleImageWorks = parseInt(form.multipleImageWorks.value)
 
     // 获取是否设置了收藏数要求
     this.BMKNum = this.getBmkNum()
@@ -122,9 +122,9 @@ class Filter {
 
   // 获取下载的作品类型设置
   private getDownType() {
-    this.downType0 = ui.form.downType0.checked
-    this.downType1 = ui.form.downType1.checked
-    this.downType2 = ui.form.downType2.checked
+    this.downType0 = form.downType0.checked
+    this.downType1 = form.downType1.checked
+    this.downType2 = form.downType2.checked
 
     // 如果全部排除则取消任务
     if (!this.downType0 && !this.downType1 && !this.downType2) {
@@ -149,7 +149,7 @@ class Filter {
 
   // 获取必须包含的tag
   private getIncludeTag() {
-    const result = '' || this.checkTagString(ui.form.needTag.value)
+    const result = '' || this.checkTagString(form.needTag.value)
     if (result) {
       log.warning(lang.transl('_设置了必须tag之后的提示') + result)
     }
@@ -158,7 +158,7 @@ class Filter {
 
   // 获取要排除的tag
   private getExcludeTag() {
-    const result = '' || this.checkTagString(ui.form.notNeedTag.value)
+    const result = '' || this.checkTagString(form.notNeedTag.value)
     if (result) {
       log.warning(lang.transl('_设置了排除tag之后的提示') + result)
     }
@@ -173,13 +173,13 @@ class Filter {
       height: 0
     }
 
-    const checkWidth = API.checkNumberGreater0(ui.form.setWidth.value)
-    const checkHeight = API.checkNumberGreater0(ui.form.setHeight.value)
+    const checkWidth = API.checkNumberGreater0(form.setWidth.value)
+    const checkHeight = API.checkNumberGreater0(form.setHeight.value)
 
     // 宽高只要有一个条件大于 0 即可
     if (checkWidth.value > 0 || checkHeight.value > 0) {
       result = {
-        andOr: ui.form.setWidthAndOr.value as '&' | '|',
+        andOr: form.setWidthAndOr.value as '&' | '|',
         width: checkWidth ? checkWidth.value : 0,
         height: checkHeight ? checkHeight.value : 0
       }
@@ -200,7 +200,7 @@ class Filter {
 
   // 获取收藏数要求
   private getBmkNum() {
-    const check = API.checkNumberGreater0(ui.form.setFavNum.value)
+    const check = API.checkNumberGreater0(form.setFavNum.value)
 
     if (check.result) {
       log.warning(lang.transl('_设置了筛选收藏数之后的提示文字') + check.value)
@@ -211,7 +211,7 @@ class Filter {
 
   // 获取只下载书签作品的设置
   private getOnlyBmk() {
-    const result = ui.form.setOnlyBmk.checked
+    const result = form.setOnlyBmk.checked
     if (result) {
       log.warning(lang.transl('_只下载已收藏的提示'))
     }
@@ -220,7 +220,7 @@ class Filter {
 
   // 获取宽高比设置
   private getRatio() {
-    let result = ui.form.ratio.value
+    let result = form.ratio.value
 
     if (result === '1') {
       log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_横图')))
@@ -228,13 +228,13 @@ class Filter {
       log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_竖图')))
     } else if (result === '3') {
       // 由用户输入
-      const typeNum = parseFloat(ui.form.userRatio.value)
+      const typeNum = parseFloat(form.userRatio.value)
       if (isNaN(typeNum)) {
         result = '0'
-        ui.form.ratio.value = result
+        form.ratio.value = result
         window.alert(lang.transl('_宽高比必须是数字'))
       } else {
-        log.warning(lang.transl('_输入宽高比') + ui.form.userRatio.value)
+        log.warning(lang.transl('_输入宽高比') + form.userRatio.value)
       }
     }
 
@@ -243,10 +243,10 @@ class Filter {
 
   // 获取 id 范围设置
   private getIdRange() {
-    const result = parseInt(ui.form.idRange.value)
+    const result = parseInt(form.idRange.value)
 
     if (result === 1 || result === 2) {
-      let id = parseInt(ui.form.idRangeInput.value)
+      let id = parseInt(form.idRangeInput.value)
       if (isNaN(id)) {
         EVT.fire(EVT.events.crawlError)
 
@@ -258,11 +258,11 @@ class Filter {
     }
 
     if (result === 1) {
-      log.warning(`id > ${ui.form.idRangeInput.value}`)
+      log.warning(`id > ${form.idRangeInput.value}`)
     }
 
     if (result === 2) {
-      log.warning(`id < ${ui.form.idRangeInput.value}`)
+      log.warning(`id < ${form.idRangeInput.value}`)
     }
 
     return result
@@ -270,12 +270,12 @@ class Filter {
 
   // 获取投稿时间设置
   private getPostDateSetting() {
-    if (ui.form.postDate.checked === false) {
+    if (form.postDate.checked === false) {
       return false
     } else {
       // 如果启用了此设置，需要判断是否是有效的时间格式
-      const postDateStart = new Date(ui.form.postDateStart.value)
-      const postDateEnd = new Date(ui.form.postDateEnd.value)
+      const postDateStart = new Date(form.postDateStart.value)
+      const postDateEnd = new Date(form.postDateEnd.value)
       // 如果输入的时间可以被转换成有效的时间，则启用
       // 转换时间失败时，值是 Invalid Date，不能转换成数字
       if (isNaN(postDateStart.getTime()) || isNaN(postDateEnd.getTime())) {
@@ -290,8 +290,8 @@ class Filter {
         this.postDateStart = postDateStart
         this.postDateEnd = postDateEnd
         log.warning(
-          `${lang.transl('_时间范围')}: ${ui.form.postDateStart.value} - ${
-            ui.form.postDateEnd.value
+          `${lang.transl('_时间范围')}: ${form.postDateStart.value} - ${
+            form.postDateEnd.value
           }`
         )
         return true
@@ -301,7 +301,7 @@ class Filter {
 
   // 获取首次登场设置
   private getDebut() {
-    const result = ui.form.debut.value === '1'
+    const result = form.debut.value === '1'
     if (result) {
       log.warning(lang.transl('_抓取首次登场的作品Title'))
     }
@@ -501,7 +501,7 @@ class Filter {
     } else if (this.ratioType === '2') {
       return width / height < 1
     } else {
-      return width / height >= parseFloat(ui.form.userRatio.value)
+      return width / height >= parseFloat(form.userRatio.value)
     }
   }
 
@@ -512,7 +512,7 @@ class Filter {
     }
 
     const nowId = parseInt(id.toString())
-    const setId = parseInt(ui.form.idRangeInput.value)
+    const setId = parseInt(form.idRangeInput.value)
 
     if (this.idRange === 1) {
       // 大于

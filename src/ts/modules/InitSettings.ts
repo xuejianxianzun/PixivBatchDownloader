@@ -1,6 +1,6 @@
 // 保存和初始化下载区域的设置项
 // 只有部分设置会被保存
-import { ui } from './UI'
+import {  form} from "./Settings";
 import { pageType } from './PageType'
 import { EVT } from './EVT'
 
@@ -30,7 +30,7 @@ class Option {
     this.bindOptionEvent()
 
     window.addEventListener(EVT.events.resetOption, () => {
-      ui.form.reset()
+      form.reset()
       this.reset()
     })
   }
@@ -66,10 +66,10 @@ class Option {
   private restoreBoolean(name: keyof XzSetting) {
     // 优先使用用户设置的值
     if (this.needSaveOpts[name] !== undefined) {
-      ui.form[name].checked = this.needSaveOpts[name]
+      form[name].checked = this.needSaveOpts[name]
     } else {
       // 否则使用默认值
-      ui.form[name].checked = this.needSaveOptsDefault[name]
+      form[name].checked = this.needSaveOptsDefault[name]
     }
     // 这里不能简单的使用“或”符号来处理，考虑如下情况：
     // this.needSaveOpts[name] || this.needSaveOptsDefault[name]
@@ -89,16 +89,16 @@ class Option {
     }
 
     // 设置是否显示选项区域
-    ui.toggleOptionArea(this.needSaveOpts.showOptions)
+    EVT.fire(EVT.events.toggleForm, this.needSaveOpts.showOptions);
 
     // 多图作品设置
-    ui.form.multipleImageWorks.value = (
+    form.multipleImageWorks.value = (
       this.needSaveOpts.multipleImageWorks ||
       this.needSaveOptsDefault.multipleImageWorks
     ).toString()
 
     // 设置作品张数
-    ui.form.firstFewImages.value = (
+    form.firstFewImages.value = (
       this.needSaveOpts.firstFewImages ||
       this.needSaveOptsDefault.firstFewImages
     ).toString()
@@ -109,31 +109,31 @@ class Option {
     this.restoreBoolean('downType2')
 
     // 设置动图格式选项
-    ui.form.ugoiraSaveAs.value = this.needSaveOpts.ugoiraSaveAs
+    form.ugoiraSaveAs.value = this.needSaveOpts.ugoiraSaveAs
 
     // 设置必须的 tag
-    ui.form.needTag.value = this.needSaveOpts.needTag
+    form.needTag.value = this.needSaveOpts.needTag
 
     // 设置排除的 tag
-    ui.form.notNeedTag.value = this.needSaveOpts.notNeedTag
+    form.notNeedTag.value = this.needSaveOpts.notNeedTag
 
     // 设置投稿时间
     this.restoreBoolean('postDate')
 
-    ui.form.postDateStart.value =
+    form.postDateStart.value =
       this.needSaveOpts.postDateStart || this.needSaveOptsDefault.postDateStart
 
-    ui.form.postDateEnd.value =
+    form.postDateEnd.value =
       this.needSaveOpts.postDateEnd || this.needSaveOptsDefault.postDateEnd
 
     // 设置自动下载
     this.restoreBoolean('quietDownload')
 
     // 设置下载线程
-    ui.form.downloadThread.value = this.needSaveOpts.downloadThread.toString()
+    form.downloadThread.value = this.needSaveOpts.downloadThread.toString()
 
     // 设置文件命名规则
-    const fileNameRuleInput = ui.form.userSetName
+    const fileNameRuleInput = form.userSetName
 
     // pixivision 里，文件名只有 id 标记会生效，所以把文件名部分替换成 id
     if (pageType.getPageType() === 8) {
@@ -151,7 +151,7 @@ class Option {
 
   // 处理 change 时直接保存 value 的输入框
   private saveValueOnChange(name: keyof XzSetting) {
-    const el = ui.form[name] as HTMLInputElement
+    const el = form[name] as HTMLInputElement
     el.addEventListener('change', () => {
       this.saveSetting(name, el.value)
     })
@@ -159,7 +159,7 @@ class Option {
 
   // 处理 click 时直接保存 checked 的复选框
   private saveCheckOnClick(name: keyof XzSetting) {
-    const el = ui.form[name] as HTMLInputElement
+    const el = form[name] as HTMLInputElement
     el.addEventListener('click', () => {
       this.saveSetting(name, el.checked)
     })
@@ -174,12 +174,12 @@ class Option {
     const showOptionsBtn = document.querySelector('.centerWrap_toogle_option')!
     showOptionsBtn.addEventListener('click', () => {
       this.needSaveOpts.showOptions = !this.needSaveOpts.showOptions
-      ui.toggleOptionArea(this.needSaveOpts.showOptions)
+      EVT.fire(EVT.events.toggleForm, this.needSaveOpts.showOptions);
       this.saveSetting('showOptions', this.needSaveOpts.showOptions)
     })
 
     // 保存多图作品设置
-    for (const input of ui.form.multipleImageWorks) {
+    for (const input of form.multipleImageWorks) {
       input.addEventListener('click', function(this: HTMLInputElement) {
         that.saveSetting('multipleImageWorks', parseInt(this.value))
       })
@@ -194,7 +194,7 @@ class Option {
     this.saveCheckOnClick('downType2')
 
     // 保存动图格式选项
-    for (const input of ui.form.ugoiraSaveAs) {
+    for (const input of form.ugoiraSaveAs) {
       input.addEventListener('click', function(this: HTMLInputElement) {
         that.saveSetting('ugoiraSaveAs', this.value)
       })
@@ -219,7 +219,7 @@ class Option {
 
     // 保存命名规则
     ;['change', 'focus'].forEach(ev => {
-      ui.form.userSetName.addEventListener(ev, function(
+      form.userSetName.addEventListener(ev, function(
         this: HTMLInputElement
       ) {
         that.saveSetting('userSetName', this.value)

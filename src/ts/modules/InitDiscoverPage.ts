@@ -4,6 +4,8 @@ import { CrawlDiscoverPage } from './CrawlDiscoverPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { ui } from './UI'
+import { options } from './Options'
+
 import { DeleteWorks } from './DeleteWorks'
 
 class InitDiscoverPage extends InitPageBase {
@@ -21,8 +23,8 @@ class InitDiscoverPage extends InitPageBase {
     })
   }
 
-  protected setFormOptin() {
-    this.hideNotNeedOption([1, 14])
+  protected setFormOption() {
+    options.hideOption([1, 15, 18])
   }
 
   protected appendElseEl() {

@@ -1,7 +1,7 @@
 // 生成文件名
 import { WorkInfo } from './Store.d'
-import { ui } from './UI'
 import { EVT } from './EVT'
+import { form } from './Settings'
 import { store } from './Store'
 
 class FileName {
@@ -43,7 +43,7 @@ class FileName {
 
   // 生成文件名，传入参数为图片信息
   public getFileName(data: WorkInfo) {
-    let result = ui.form.userSetName.value
+    let result = form.userSetName.value
     // 为空时使用 {id}
     result = result || '{id}' // 生成文件名
     const illustTypes = ['illustration', 'manga', 'ugoira'] // 作品类型 0 插画 1 漫画 2 动图
@@ -188,7 +188,7 @@ class FileName {
         }
 
         // 添加标记名称
-        if (ui.form.tagNameToFileName.checked) {
+        if (form.tagNameToFileName.checked) {
           once = item.prefix + once
         }
 
@@ -223,7 +223,7 @@ class FileName {
     if (
       store.states.quickDownload &&
       store.result.length === 1 &&
-      ui.form.alwaysFolder.checked === false
+      form.alwaysFolder.checked === false
     ) {
       const index = result.lastIndexOf('/')
       result = result.substr(index + 1, result.length)
@@ -236,12 +236,28 @@ class FileName {
   }
 
   // 预览文件名
-  public previewFileName() {
+  previewFileName() {
     let result = ''
-    result = store.result.reduce((total, now) => {
-      return (total +=
-        now.url.replace(/.*\//, '') + ': ' + this.getFileName(now) + '<br>') // 在每个文件名前面加上它的原本的名字，方便用来做重命名
-    }, result)
+    store.result.forEach(data => {
+      // 默认文件名。这里有两种处理方式，一种是取出用其他下载软件下载后的默认文件名，一种是取出本程序使用的默认文件名 data.id。这里使用前者，方便用户用其他下载软件下载后，再用生成的文件名重命名。
+      const defaultName = data.url.replace(/.*\//, '')
+      const defaultNameHtml = `<span style="color: #999;">${defaultName}</span>`
+      // 生成的文件名
+      const fullName = this.getFileName(data)
+      const part = fullName.split('/')
+      part.forEach((str, index, array) => {
+        if (index < array.length - 1) {
+          // 如果不是最后一项，说明是文件夹名，添加颜色
+          array[index] = `<span style="color: #666;">${str}</span>`
+        } else {
+          // 最后一项，是文件名，添加颜色
+          array[index] = `<span style="color: #000;">${str}</span>`
+        }
+      })
+      const fullNameHtml = part.join('/')
+      // 拼接结果
+      result += defaultNameHtml + ': ' + fullNameHtml + '<br><br>'
+    })
     return result
   }
 }

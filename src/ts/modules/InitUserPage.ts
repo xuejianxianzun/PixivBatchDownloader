@@ -5,6 +5,7 @@ import { CrawlUserPage } from './CrawlUserPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { ui } from './UI'
+import { options } from './Options'
 import { bookmarksAddTag } from './BookmarksAddTag'
 
 class InitUserPage extends InitPageBase {
@@ -50,18 +51,20 @@ class InitUserPage extends InitPageBase {
     }
   }
 
-  protected setFormOptin() {
-    // 设置页数
-    this.setWantPageTip1.textContent = lang.transl('_页数')
-    this.setWantPageTip1.dataset.tip = lang.transl('_checkWantPageRule1Arg8')
-    this.setWantPageTip2.textContent = lang.transl('_数字提示1')
-    this.setWantPage.value = '-1'
+  protected setFormOption() {
+    // 设置“个数/页数”选项
+    options.setWantPage({
+      text: lang.transl('_页数'),
+      tip: lang.transl('_checkWantPageRule1Arg8'),
+      rangTip: lang.transl('_数字提示1'),
+      value: '1'
+    })
 
-    this.hideNotNeedOption([14])
+    options.hideOption([15, 18])
 
     // 在书签页面隐藏只要书签选项
     if (location.href.includes('bookmark.php')) {
-      this.hideNotNeedOption([11])
+      options.hideOption([6])
     }
   }
 

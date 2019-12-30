@@ -11,6 +11,7 @@ import { EVT } from './EVT'
 import { pageInfo } from './PageInfo'
 import { WorkInfo } from './Store.d'
 import { ui } from './UI'
+import { titleBar } from './TitleBar'
 
 type AddBMKData = {
   id: number
@@ -65,6 +66,8 @@ class CrawlSearchPage extends CrawlPageBase {
   private deleteId = 0 // 手动删除时，要删除的作品的 id
 
   private crawlWorks = false // 是否在抓取作品数据（“开始筛选”时改为 true）
+
+  private crawled = false // 是否已经进行过抓取
 
   public startScreen() {
     if (!store.states.allowWork) {
@@ -261,6 +264,7 @@ class CrawlSearchPage extends CrawlPageBase {
   // “开始筛选”完成后，保存筛选结果的元数据，并重排结果
   private onCrawlFinish = () => {
     if (this.crawlWorks) {
+      this.crawled = true
       this.resultMeta = [...store.resultMeta]
       this.reAddResult()
     }
@@ -268,6 +272,13 @@ class CrawlSearchPage extends CrawlPageBase {
 
   // 传入函数，过滤符合条件的结果
   private filterResult(callback: FilterCB) {
+    if (!this.crawled) {
+      return alert(lang.transl('_尚未开始筛选'))
+    }
+    if (this.resultMeta.length === 0) {
+      return alert(lang.transl('_没有数据可供使用'))
+    }
+
     ui.hideCenterPanel()
 
     log.clear()
@@ -281,6 +292,9 @@ class CrawlSearchPage extends CrawlPageBase {
       this.reAddResult()
     }
 
+
+    this.crawlWorks = false
+    store.states.notAutoDownload = true
     // 即使没有重新生成结果，也要发布 crawlFinish 事件，筛选完毕相当于某种意义上的抓取完毕，通知下载控制器可以准备下载了。这样也会在日志上显示下载数量。
     EVT.fire(EVT.events.crawlFinish)
   }
@@ -299,10 +313,9 @@ class CrawlSearchPage extends CrawlPageBase {
 
     this.showCount()
 
-    this.crawlWorks = false
-    store.states.notAutoDownload = true
-
     EVT.fire(EVT.events.worksUpdate)
+
+    titleBar.changeTitle('→')
   }
 
   // 在当前结果中再次筛选，会修改第一次筛选的结果

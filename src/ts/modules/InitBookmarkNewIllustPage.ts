@@ -4,6 +4,7 @@ import { CrawlBookmarkNewIllustPage } from './CrawlBookmarkNewIllustPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { ui } from './UI'
+import {  options} from "./Options";
 
 class InitBookmarkNewIllustPage extends InitPageBase {
   constructor(crawler: CrawlBookmarkNewIllustPage) {
@@ -29,15 +30,17 @@ class InitBookmarkNewIllustPage extends InitPageBase {
     }
   }
 
-  protected setFormOptin() {
-    // 设置页数
-    this.crawler.maxCount = 100
-    this.setWantPageTip1.textContent = lang.transl('_页数')
-    this.setWantPageTip1.dataset.tip = lang.transl('_checkWantPageRule1Arg8')
-    this.setWantPageTip2.textContent = `1 - ${this.crawler.maxCount}`
-    this.setWantPage.value = this.crawler.maxCount.toString()
+  protected setFormOption() {
+    
+    // 设置“个数/页数”选项
+    options.setWantPage({
+      text:lang.transl('_页数'),
+      tip:lang.transl('_checkWantPageRule1Arg8'),
+      rangTip:`1 - ${this.crawler.maxCount}`,
+      value:this.crawler.maxCount.toString()
+    })
 
-    this.hideNotNeedOption([14])
+    options.hideOption([15,18])
   }
 
   protected destroySelf() {}

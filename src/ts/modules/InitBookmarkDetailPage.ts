@@ -4,6 +4,7 @@ import { CrawlBookmarkDetailPage } from './CrawlBookmarkDetailPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { ui } from './UI'
+import {  options} from "./Options";
 
 class InitBookmarkDetailPage extends InitPageBase {
   constructor(crawler: CrawlBookmarkDetailPage) {
@@ -24,16 +25,16 @@ class InitBookmarkDetailPage extends InitPageBase {
     )
   }
 
-  protected setFormOptin() {
-    // 设置抓取的作品数量
-    // 实际上的数字可以更大，这里只是预设一个限制。
-    this.crawler.maxCount = 500
-    this.setWantPageTip1.textContent = lang.transl('_个数')
-    this.setWantPageTip1.dataset.tip = lang.transl('_要获取的作品个数2')
-    this.setWantPageTip2.textContent = `1 - ${this.crawler.maxCount}`
-    this.setWantPage.value = this.crawler.maxCount.toString()
+  protected setFormOption() {
+    // 设置“个数/页数”选项
+    options.setWantPage({
+      text:lang.transl('_个数'),
+      tip:lang.transl('_要获取的作品个数2'),
+      rangTip:`1 - ${this.crawler.maxCount}`,
+      value:this.crawler.maxCount.toString()
+    })
 
-    this.hideNotNeedOption([14])
+    options.hideOption([15,18])
   }
 
   protected destroySelf() {}

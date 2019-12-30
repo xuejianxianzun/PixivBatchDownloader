@@ -4,6 +4,8 @@ import { CrawlNewIllustPage } from './CrawlNewIllustPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { ui } from './UI'
+import {  options} from "./Options";
+
 
 class InitNewIllustPage extends InitPageBase {
   constructor(crawler: CrawlNewIllustPage) {
@@ -37,16 +39,17 @@ class InitNewIllustPage extends InitPageBase {
     }
   }
 
-  protected setFormOptin() {
-    // 设置抓取的作品数量
-    // 最大有 10000 个。但是输入框的默认值设置的少一些比较合理。
-    this.crawler.maxCount = 10000
-    this.setWantPageTip1.textContent = lang.transl('_个数')
-    this.setWantPageTip1.dataset.tip = lang.transl('_要获取的作品个数2')
-    this.setWantPageTip2.textContent = `1 - ${this.crawler.maxCount}`
-    this.setWantPage.value = '100'
+  protected setFormOption() {
+    
+    // 设置“个数/页数”选项
+    options.setWantPage({
+      text:lang.transl('_个数'),
+      tip:lang.transl('_要获取的作品个数2'),
+      rangTip:`1 - ${this.crawler.maxCount}`,
+      value:'100'
+    })
 
-    this.hideNotNeedOption([14])
+    options.hideOption([15,18])
   }
 
   protected destroySelf() {}

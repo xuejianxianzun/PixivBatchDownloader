@@ -10,7 +10,7 @@
  * QQ group:675174717
  */
 
-import './modules/Option'
+import './modules/InitSettings'
 import './modules/InitCrawlProcess'
 import './modules/DownloadControl'
 import './modules/Output'

@@ -11,6 +11,7 @@ import { lang } from './Lang'
 import { titleBar } from './TitleBar'
 import { Colors } from './Colors'
 import { ui } from './UI'
+import { form } from './Settings'
 import { Download } from './Download'
 
 interface TaskList {
@@ -40,6 +41,15 @@ class DownloadControl {
   private downloaded: number = 0 // 已下载的任务数量
 
   private convertText = ''
+
+  private readonly downloadBarHTML = `<li class="downloadBar">
+  <div class="progressBar progressBar2">
+  <div class="progress progress2"></div>
+  </div>
+  <div class="progressTip progressTip2">
+  <span class="download_fileName"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${lang.transl('_已下载')}&nbsp;&nbsp;<span class="loaded">0/0</span>KB
+  </div>
+  </li>`;
 
   private listenEvents() {
     window.addEventListener(EVT.events.crawlStart, () => {
@@ -247,19 +257,13 @@ class DownloadControl {
     </div>
     </div>`
 
-    ui.insertHTML(html)
-
-    this.downloadArea = document.querySelector(
-      '.download_area'
-    ) as HTMLDivElement
-
-    this.downStatusEl = document.querySelector(
-      '.down_status '
-    ) as HTMLSpanElement
-
-    this.convertTipEL = document.querySelector(
-      '.convert_tip'
-    )! as HTMLDivElement
+    const el = ui.useSlot('downloadArea', html)
+    if (!el) {
+      throw 'Add download area error!'
+    }
+    this.downloadArea = el as HTMLDivElement
+    this.downStatusEl = el.querySelector('.down_status ') as HTMLSpanElement
+    this.convertTipEL = el.querySelector('.convert_tip') as HTMLDivElement
 
     document.querySelector('.startDownload')!.addEventListener('click', () => {
       this.startDownload()
@@ -295,34 +299,27 @@ class DownloadControl {
 
   // 重设下载进度条的数量
   private resetDownloadBar(num: number) {
-    const centerWrapDownList = document.querySelector(
-      '.centerWrap_down_list'
-    ) as HTMLDivElement
-
-    this.allDownloadBar = centerWrapDownList.querySelectorAll('.downloadBar')
-
-    if (this.allDownloadBar.length !== num) {
-      centerWrapDownList.innerHTML = this.allDownloadBar[0].outerHTML.repeat(
-        num
-      )
-    }
-
-    centerWrapDownList.style.display = 'block'
-
-    // 缓存所有下载进度条元素
-    this.allDownloadBar = centerWrapDownList.querySelectorAll('.downloadBar')
+    const centerWrapDownList = document.querySelector('.centerWrap_down_list') as HTMLUListElement
+        centerWrapDownList.innerHTML = '';
+        while (num > 0) {
+            centerWrapDownList.insertAdjacentHTML('beforeend', this.downloadBarHTML);
+            num--;
+        }
+        centerWrapDownList.style.display = 'block';
+        // 缓存所有下载进度条元素
+        this.allDownloadBar = centerWrapDownList.querySelectorAll('.downloadBar');
   }
 
   // 抓取完毕之后，已经可以开始下载时，根据一些状态进行处理
   private beforeDownload() {
-    this.setDownloaded = 0
-
     // 检查 不自动开始下载 的标记
     if (store.states.notAutoDownload) {
       return
     }
 
-    const autoDownload: boolean = ui.form.quietDownload.checked
+    this.setDownloaded = 0
+
+    const autoDownload: boolean = form.quietDownload.checked
 
     if (!autoDownload && !store.states.quickDownload) {
       titleBar.changeTitle('▶')
@@ -362,7 +359,7 @@ class DownloadControl {
     }
 
     // 下载线程设置
-    const setThread = parseInt(ui.form.downloadThread.value)
+    const setThread = parseInt(form.downloadThread.value)
     if (
       setThread < 1 ||
       setThread > this.downloadThreadMax ||
