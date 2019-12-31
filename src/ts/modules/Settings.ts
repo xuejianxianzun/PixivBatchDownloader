@@ -33,15 +33,14 @@ interface SettingsForm extends HTMLFormElement {
   tagNameToFileName: HTMLInputElement
   alwaysFolder: HTMLInputElement
   debut: HTMLInputElement
-  showSearchResult: HTMLInputElement
+  previewResult: HTMLInputElement
 }
-
 
 // 设置表单
 class Settings {
   constructor() {
     this.form = ui.useSlot('form', this.html) as SettingsForm
-    
+
     this.bindEvents()
   }
 
@@ -308,7 +307,7 @@ class Settings {
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_预览搜索结果说明'
   )}">${lang.transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
-  <label for="setShowSearchResult"><input type="checkbox" name="showSearchResult" id="setShowSearchResult" checked> ${lang.transl(
+  <label for="setPreviewResult"><input type="checkbox" name="previewResult" id="setPreviewResult" checked> ${lang.transl(
     '_启用'
   )}</label>
   </p>
@@ -367,6 +366,11 @@ class Settings {
     // 把下拉框的选择项插入到文本框里
     this.insertValueToInput(this.form.pageInfoSelect, this.form.userSetName)
     this.insertValueToInput(this.form.fileNameSelect, this.form.userSetName)
+  }
+
+  public getSetting(name:string){
+    const input =  this.form[name]
+    
   }
 }
 

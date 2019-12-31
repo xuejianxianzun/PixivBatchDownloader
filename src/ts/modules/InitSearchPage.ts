@@ -15,7 +15,7 @@ class InitSearchPage extends InitPageBase {
     super(crawler)
     this.crawler = crawler
     this.crawler.maxCount = 1000
-    store.states.notAutoDownload = true
+    // store.states.notAutoDownload = true
   }
   protected crawler: CrawlSearchPage
 

@@ -1,6 +1,6 @@
 // 保存和初始化下载区域的设置项
 // 只有部分设置会被保存
-import {  form} from "./Settings";
+import { form } from './Settings'
 import { pageType } from './PageType'
 import { EVT } from './EVT'
 
@@ -22,6 +22,7 @@ interface XzSetting {
   postDate: boolean
   postDateStart: string
   postDateEnd: string
+  previewResult: boolean
 }
 
 class Option {
@@ -56,7 +57,8 @@ class Option {
     showOptions: true,
     postDate: false,
     postDateStart: '',
-    postDateEnd: ''
+    postDateEnd: '',
+    previewResult: true
   }
 
   // 储存需要持久化保存的设置
@@ -89,7 +91,7 @@ class Option {
     }
 
     // 设置是否显示选项区域
-    EVT.fire(EVT.events.toggleForm, this.needSaveOpts.showOptions);
+    EVT.fire(EVT.events.toggleForm, this.needSaveOpts.showOptions)
 
     // 多图作品设置
     form.multipleImageWorks.value = (
@@ -147,6 +149,9 @@ class Option {
 
     // 设置是否始终建立文件夹
     this.restoreBoolean('alwaysFolder')
+
+    // 设置预览搜索结果
+    this.restoreBoolean('previewResult')
   }
 
   // 处理 change 时直接保存 value 的输入框
@@ -174,7 +179,7 @@ class Option {
     const showOptionsBtn = document.querySelector('.centerWrap_toogle_option')!
     showOptionsBtn.addEventListener('click', () => {
       this.needSaveOpts.showOptions = !this.needSaveOpts.showOptions
-      EVT.fire(EVT.events.toggleForm, this.needSaveOpts.showOptions);
+      EVT.fire(EVT.events.toggleForm, this.needSaveOpts.showOptions)
       this.saveSetting('showOptions', this.needSaveOpts.showOptions)
     })
 
@@ -219,9 +224,7 @@ class Option {
 
     // 保存命名规则
     ;['change', 'focus'].forEach(ev => {
-      form.userSetName.addEventListener(ev, function(
-        this: HTMLInputElement
-      ) {
+      form.userSetName.addEventListener(ev, function(this: HTMLInputElement) {
         that.saveSetting('userSetName', this.value)
       })
     })
@@ -231,11 +234,15 @@ class Option {
 
     // 保存是否始终建立文件夹
     this.saveCheckOnClick('alwaysFolder')
+
+    // 保存预览搜索结果
+    this.saveCheckOnClick('previewResult')
   }
 
   // 持久化保存设置
   private saveSetting(key: keyof XzSetting, value: string | number | boolean) {
     ;(this.needSaveOpts[key] as any) = value
+    EVT.fire(EVT.events.settingChange,{name:key,value:value})
     localStorage.setItem(this.storeName, JSON.stringify(this.needSaveOpts))
   }
 

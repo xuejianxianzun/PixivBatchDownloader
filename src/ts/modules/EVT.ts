@@ -24,6 +24,7 @@ interface EventList {
   deleteWork: 'deleteWork'
   worksUpdate: 'worksUpdate'
   toggleForm: 'toggleForm'
+  settingChange: 'settingChange'
 }
 
 class EVT {
@@ -51,7 +52,8 @@ class EVT {
     clearUgoira: 'clearUgoira',
     deleteWork: 'deleteWork',
     worksUpdate: 'worksUpdate',
-    toggleForm: 'toggleForm'
+    toggleForm: 'toggleForm',
+    settingChange: 'settingChange'
   }
 
   static fire(

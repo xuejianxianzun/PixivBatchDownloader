@@ -12,6 +12,7 @@ import { pageInfo } from './PageInfo'
 import { WorkInfo } from './Store.d'
 import { ui } from './UI'
 import { titleBar } from './TitleBar'
+import { form } from './Settings'
 
 type AddBMKData = {
   id: number
@@ -24,7 +25,7 @@ class CrawlSearchPage extends CrawlPageBase {
   constructor() {
     super()
 
-    store.states.notAutoDownload = true
+    this.setPreviewResult(form.previewResult.checked)
 
     window.addEventListener(EVT.events.addResult, this.addWork)
 
@@ -37,6 +38,8 @@ class CrawlSearchPage extends CrawlPageBase {
     window.addEventListener(EVT.events.clearUgoira, this.clearUgoira)
 
     window.addEventListener(EVT.events.deleteWork, this.deleteWork)
+
+    window.addEventListener(EVT.events.settingChange, this.onSettingChange)
   }
 
   private worksType = ''
@@ -68,6 +71,8 @@ class CrawlSearchPage extends CrawlPageBase {
   private crawlWorks = false // 是否在抓取作品数据（“开始筛选”时改为 true）
 
   private crawled = false // 是否已经进行过抓取
+
+  private previewResult = true // 是否预览结果
 
   public startScreen() {
     if (!store.states.allowWork) {
@@ -114,14 +119,17 @@ class CrawlSearchPage extends CrawlPageBase {
 
   private clearWorks() {
     this.worksWrap = this.getWorksWrap()
-    if (this.worksWrap) {
-      this.worksWrap.innerHTML = ''
+
+    if (!this.previewResult || !this.worksWrap) {
+      return
     }
+
+    this.worksWrap.innerHTML = ''
   }
 
   // 在页面显示作品
   private addWork = (event: CustomEventInit) => {
-    if (!this.worksWrap) {
+    if (!this.previewResult || !this.worksWrap) {
       return
     }
 
@@ -293,7 +301,6 @@ class CrawlSearchPage extends CrawlPageBase {
     }
 
     this.crawlWorks = false
-    store.states.notAutoDownload = true
     this.showCount()
     // 即使没有重新生成结果，也要发布 crawlFinish 事件，筛选完毕相当于某种意义上的抓取完毕，通知下载控制器可以准备下载了。这样也会在日志上显示下载数量。
     EVT.fire(EVT.events.crawlFinish)
@@ -543,6 +550,20 @@ class CrawlSearchPage extends CrawlPageBase {
 
     // 离开下载页面时，取消设置“不自动下载”
     store.states.notAutoDownload = false
+  }
+
+  private onSettingChange = (event: CustomEventInit) => {
+    const data = event.detail.data
+    if (data.name === 'previewResult') {
+      this.setPreviewResult(data.value)
+    }
+  }
+
+  private setPreviewResult(value: boolean) {
+    this.previewResult = value
+    console.log(value)
+    // 如果设置了“预览搜索结果”，则“不自动下载”。否则允许自动下载
+    store.states.notAutoDownload = value ? true : false
   }
 }
 export { CrawlSearchPage }

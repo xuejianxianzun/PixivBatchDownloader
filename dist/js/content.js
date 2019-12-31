@@ -1786,7 +1786,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./PageInfo */ "./src/ts/modules/PageInfo.ts");
 /* harmony import */ var _UI__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./UI */ "./src/ts/modules/UI.ts");
 /* harmony import */ var _TitleBar__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./TitleBar */ "./src/ts/modules/TitleBar.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Settings */ "./src/ts/modules/Settings.ts");
 // 抓取搜索页
+
 
 
 
@@ -1824,9 +1826,10 @@ class CrawlSearchPage extends _CrawlPageBase__WEBPACK_IMPORTED_MODULE_0__["Crawl
         this.deleteId = 0; // 手动删除时，要删除的作品的 id
         this.crawlWorks = false; // 是否在抓取作品数据（“开始筛选”时改为 true）
         this.crawled = false; // 是否已经进行过抓取
+        this.previewResult = true; // 是否预览结果
         // 在页面显示作品
         this.addWork = (event) => {
-            if (!this.worksWrap) {
+            if (!this.previewResult || !this.worksWrap) {
                 return;
             }
             const data = event.detail.data;
@@ -1983,13 +1986,20 @@ class CrawlSearchPage extends _CrawlPageBase__WEBPACK_IMPORTED_MODULE_0__["Crawl
                 return data.idNum !== this.deleteId;
             });
         };
-        _Store__WEBPACK_IMPORTED_MODULE_4__["store"].states.notAutoDownload = true;
+        this.onSettingChange = (event) => {
+            const data = event.detail.data;
+            if (data.name === 'previewResult') {
+                this.setPreviewResult(data.value);
+            }
+        };
+        this.setPreviewResult(_Settings__WEBPACK_IMPORTED_MODULE_10__["form"].previewResult.checked);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.addResult, this.addWork);
         window.addEventListener('addBMK', this.addBookmark);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.crawlFinish, this.onCrawlFinish);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.clearMultiple, this.clearMultiple);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.clearUgoira, this.clearUgoira);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.deleteWork, this.deleteWork);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.settingChange, this.onSettingChange);
     }
     startScreen() {
         if (!_Store__WEBPACK_IMPORTED_MODULE_4__["store"].states.allowWork) {
@@ -2025,9 +2035,10 @@ class CrawlSearchPage extends _CrawlPageBase__WEBPACK_IMPORTED_MODULE_0__["Crawl
     }
     clearWorks() {
         this.worksWrap = this.getWorksWrap();
-        if (this.worksWrap) {
-            this.worksWrap.innerHTML = '';
+        if (!this.previewResult || !this.worksWrap) {
+            return;
         }
+        this.worksWrap.innerHTML = '';
     }
     // 传入函数，过滤符合条件的结果
     filterResult(callback) {
@@ -2046,7 +2057,6 @@ class CrawlSearchPage extends _CrawlPageBase__WEBPACK_IMPORTED_MODULE_0__["Crawl
             this.reAddResult();
         }
         this.crawlWorks = false;
-        _Store__WEBPACK_IMPORTED_MODULE_4__["store"].states.notAutoDownload = true;
         this.showCount();
         // 即使没有重新生成结果，也要发布 crawlFinish 事件，筛选完毕相当于某种意义上的抓取完毕，通知下载控制器可以准备下载了。这样也会在日志上显示下载数量。
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.crawlFinish);
@@ -2228,6 +2238,12 @@ class CrawlSearchPage extends _CrawlPageBase__WEBPACK_IMPORTED_MODULE_0__["Crawl
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.crawlFinish, this.onCrawlFinish);
         // 离开下载页面时，取消设置“不自动下载”
         _Store__WEBPACK_IMPORTED_MODULE_4__["store"].states.notAutoDownload = false;
+    }
+    setPreviewResult(value) {
+        this.previewResult = value;
+        console.log(value);
+        // 如果设置了“预览搜索结果”，则“不自动下载”。否则允许自动下载
+        _Store__WEBPACK_IMPORTED_MODULE_4__["store"].states.notAutoDownload = value ? true : false;
     }
 }
 
@@ -3538,7 +3554,8 @@ EVT.events = {
     clearUgoira: 'clearUgoira',
     deleteWork: 'deleteWork',
     worksUpdate: 'worksUpdate',
-    toggleForm: 'toggleForm'
+    toggleForm: 'toggleForm',
+    settingChange: 'settingChange'
 };
 
 
@@ -5228,9 +5245,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./PageInfo */ "./src/ts/modules/PageInfo.ts");
 /* harmony import */ var _DeleteWorks__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./DeleteWorks */ "./src/ts/modules/DeleteWorks.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
 // 初始化搜索页
-
 
 
 
@@ -5244,7 +5259,7 @@ class InitSearchPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPag
         super(crawler);
         this.crawler = crawler;
         this.crawler.maxCount = 1000;
-        _Store__WEBPACK_IMPORTED_MODULE_8__["store"].states.notAutoDownload = true;
+        // store.states.notAutoDownload = true
     }
     appendCenterBtns() {
         _UI__WEBPACK_IMPORTED_MODULE_4__["ui"].addCenterButton(_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始筛选'), [
@@ -5379,7 +5394,8 @@ class Option {
             showOptions: true,
             postDate: false,
             postDateStart: '',
-            postDateEnd: ''
+            postDateEnd: '',
+            previewResult: true
         };
         // 储存需要持久化保存的设置
         this.needSaveOpts = this.needSaveOptsDefault;
@@ -5457,6 +5473,8 @@ class Option {
         this.restoreBoolean('tagNameToFileName');
         // 设置是否始终建立文件夹
         this.restoreBoolean('alwaysFolder');
+        // 设置预览搜索结果
+        this.restoreBoolean('previewResult');
     }
     // 处理 change 时直接保存 value 的输入框
     saveValueOnChange(name) {
@@ -5522,11 +5540,14 @@ class Option {
         this.saveCheckOnClick('tagNameToFileName');
         // 保存是否始终建立文件夹
         this.saveCheckOnClick('alwaysFolder');
+        // 保存预览搜索结果
+        this.saveCheckOnClick('previewResult');
     }
     // 持久化保存设置
     saveSetting(key, value) {
         ;
         this.needSaveOpts[key] = value;
+        _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.settingChange, { name: key, value: value });
         localStorage.setItem(this.storeName, JSON.stringify(this.needSaveOpts));
     }
     // 重设选项
@@ -6505,7 +6526,7 @@ class Settings {
   </p>
   <p class="${this.optionClass}" data-no="18">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览搜索结果说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
-  <label for="setShowSearchResult"><input type="checkbox" name="showSearchResult" id="setShowSearchResult" checked> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用')}</label>
+  <label for="setPreviewResult"><input type="checkbox" name="previewResult" id="setPreviewResult" checked> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用')}</label>
   </p>
   <input type="hidden" name="debut" value="0">
   </form>`;
@@ -6555,6 +6576,9 @@ class Settings {
         // 把下拉框的选择项插入到文本框里
         this.insertValueToInput(this.form.pageInfoSelect, this.form.userSetName);
         this.insertValueToInput(this.form.fileNameSelect, this.form.userSetName);
+    }
+    getSetting(name) {
+        const input = this.form[name];
     }
 }
 const settings = new Settings();
@@ -8275,7 +8299,7 @@ const langText = {
     ],
     _预览搜索结果说明: [
         '下载器可以把符合条件的作品显示在当前页面上。如果抓取结果太多导致页面崩溃，请关闭这个功能。',
-        'ローダは、該当する作品を現在のページに表示することができます。クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください',
+        'ローダは、該当する作品を現在のページに表示することができます。クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。',
         'The downloader can display the qualified works on the current page. If too many crawling results cause the page to crash, turn off this feature.',
         '下載器可以把符合條件的作品顯示在當前頁面上。如果抓取結果太多導致頁面崩潰，請關閉這個功能。'
     ]
