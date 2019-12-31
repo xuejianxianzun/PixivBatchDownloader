@@ -9,6 +9,7 @@ interface EventList {
   previewFileName: 'previewFileName'
   output: 'output'
   hideCenterPanel: 'hideCenterPanel'
+  showCenterPanel: 'showCenterPanel'
   downloadStart: 'downloadStart'
   downloadPause: 'downloadPause'
   downloadStop: 'downloadStop'
@@ -25,6 +26,7 @@ interface EventList {
   worksUpdate: 'worksUpdate'
   toggleForm: 'toggleForm'
   settingChange: 'settingChange'
+  clickRightIcon: 'clickRightIcon'
 }
 
 class EVT {
@@ -48,12 +50,14 @@ class EVT {
     previewFileName: 'previewFileName',
     output: 'output',
     hideCenterPanel: 'hideCenterPanel',
+    showCenterPanel: 'showCenterPanel',
     clearMultiple: 'clearMultiple',
     clearUgoira: 'clearUgoira',
     deleteWork: 'deleteWork',
     worksUpdate: 'worksUpdate',
     toggleForm: 'toggleForm',
-    settingChange: 'settingChange'
+    settingChange: 'settingChange',
+    clickRightIcon: 'clickRightIcon'
   }
 
   static fire(

@@ -4,7 +4,7 @@ import { CrawlSearchPage } from './CrawlSearchPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { options } from './Options'
-import { ui } from './UI'
+import { centerPanel} from './CenterPanel'
 import { pageInfo } from './PageInfo'
 import { DeleteWorks } from './DeleteWorks'
 import { EVT } from './EVT'
@@ -20,13 +20,13 @@ class InitSearchPage extends InitPageBase {
   protected crawler: CrawlSearchPage
 
   protected appendCenterBtns() {
-    ui.addCenterButton(Colors.green, lang.transl('_开始筛选'), [
+    centerPanel.addButton(Colors.green, lang.transl('_开始筛选'), [
       ['title', lang.transl('_开始筛选Title')]
     ]).addEventListener('click', () => {
       this.crawler.startScreen()
     })
 
-    ui.addCenterButton(Colors.red, lang.transl('_在结果中筛选'), [
+    centerPanel.addButton(Colors.red, lang.transl('_在结果中筛选'), [
       ['title', lang.transl('_在结果中筛选Title')]
     ]).addEventListener('click', () => {
       this.crawler.screenInResult()

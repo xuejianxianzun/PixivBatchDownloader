@@ -4,35 +4,16 @@ import { EVT } from './EVT'
 import { Colors } from './Colors'
 import { DOM } from './DOM'
 
-// 提供中间面板和右侧下载按钮
-class UI {
+// 中间面板
+class CenterPanel {
   constructor() {
-    // 创建 UI
-    this.addUI()
+    this.addCenterPanel()
+    this.bindEvents()
   }
-
-
-  private rightBtn: HTMLDivElement = document.createElement('div') // 右侧按钮
 
   private centerPanel: HTMLDivElement = document.createElement('div') // 中间面板
 
   private slots: NodeListOf<HTMLSlotElement> | null = null
-
-  // 添加右侧下载按钮
-  private addRightButton() {
-    this.rightBtn = document.createElement('div')
-    this.rightBtn.textContent = '↓'
-    this.rightBtn.id = 'rightButton'
-    document.body.appendChild(this.rightBtn) // 绑定切换右侧按钮显示的事件
-
-    this.rightBtn.addEventListener(
-      'click',
-      () => {
-        this.showCenterPanel()
-      },
-      false
-    )
-  }
 
   // 添加中间面板
   private addCenterPanel() {
@@ -67,15 +48,11 @@ class UI {
       </div>
       </div>
 
-      
       <div class="centerWrap_con">
-      
-      
       <slot data-name="form"></slot>
-
       <slot data-name="centerBtns" class="centerWrap_btns"></slot>
-      
       <slot data-name="downloadArea"></slot>
+      </div>
 
       <div class="gray1 bottom_help_bar"> 
       <span class="showDownTip">${lang.transl('_常见问题')}</span>
@@ -86,7 +63,7 @@ class UI {
       <br>
       <p class="downTip tip"> ${lang.transl('_下载说明')}</p>
       </div>
-      </div>
+
       </div>
       `
     document.body.insertAdjacentHTML('beforeend', centerPanelHTML)
@@ -95,17 +72,15 @@ class UI {
     this.slots = this.centerPanel.querySelectorAll('slot')
   }
 
-
-
   // 绑定中间面板上的事件
   private bindEvents() {
     // 监听点击扩展图标的消息，开关中间面板
     chrome.runtime.onMessage.addListener(msg => {
       if (msg.msg === 'click_icon') {
         if (this.centerPanel.style.display === 'block') {
-          this.hideCenterPanel()
+          this.close()
         } else {
-          this.showCenterPanel()
+          this.show()
         }
       }
     })
@@ -114,7 +89,7 @@ class UI {
     document
       .querySelector('.centerWrap_close')!
       .addEventListener('click', () => {
-        this.hideCenterPanel()
+        this.close()
       })
 
     // 使用快捷键 Alt + x 切换中间面板显示隐藏
@@ -124,14 +99,19 @@ class UI {
         if (ev.altKey && ev.keyCode === 88) {
           const nowDisplay = this.centerPanel.style.display
           if (nowDisplay === 'block') {
-            this.hideCenterPanel()
+            this.close()
           } else {
-            this.showCenterPanel()
+            this.show()
           }
         }
       },
       false
     )
+
+    // 点击右侧图标时，显示
+    window.addEventListener(EVT.events.clickRightIcon, () => {
+      this.show()
+    })
 
     // 切换显示表单时，更改提示按钮的样式
     window.addEventListener(EVT.events.toggleForm, (event: CustomEventInit) => {
@@ -158,57 +138,20 @@ class UI {
     })
   }
 
-  // 添加 UI
-  private async addUI() {
-    this.addRightButton()
-    this.addCenterPanel()
-    this.bindEvents()
-  }
-
-  // 收起展开选项设置区域
-  public toggleOptionArea(bool: boolean) {
-    const OptionArea = <HTMLDivElement>(
-      this.centerPanel.querySelector('.option_area1')!
-    )
-    OptionArea.style.display = bool ? 'block' : 'none'
-    this.centerPanel.querySelector(
-      '.centerWrap_toogle_option'
-    )!.innerHTML = bool ? '▲' : '▼'
-  }
-
-  // 把下拉框的选择项插入到文本框里
-  private insertValueToInput(from: HTMLSelectElement, to: HTMLInputElement) {
-    from.addEventListener('change', () => {
-      if (from.value !== 'default') {
-        // 把选择项插入到光标位置,并设置新的光标位置
-        const position = to.selectionStart!
-        to.value =
-          to.value.substr(0, position) +
-          from.value +
-          to.value.substr(position, to.value.length)
-        to.selectionStart = position + from.value.length
-        to.selectionEnd = position + from.value.length
-        to.focus()
-      }
-    })
-  }
-
   // 显示中间区域
-  public showCenterPanel() {
+  public show() {
     this.centerPanel.style.display = 'block'
-    this.rightBtn.style.display = 'none'
+    EVT.fire(EVT.events.showCenterPanel)
   }
 
   // 隐藏中间区域
-  public hideCenterPanel() {
+  public close() {
     this.centerPanel.style.display = 'none'
-    this.rightBtn.style.display = 'block'
-
     EVT.fire(EVT.events.hideCenterPanel)
   }
 
   // 向中间面板添加按钮
-  public addCenterButton(
+  public addButton(
     bg: string = Colors.blue,
     text: string = '',
     attr: string[][] = []
@@ -226,7 +169,7 @@ class UI {
     return e
   }
 
-  public clearCenterButtons() {
+  public clearButtons() {
     this.clearSlot('centerBtns')
   }
 
@@ -264,5 +207,5 @@ class UI {
   }
 }
 
-const ui = new UI()
-export { ui }
+const centerPanel = new CenterPanel()
+export { centerPanel}

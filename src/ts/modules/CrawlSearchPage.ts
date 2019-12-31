@@ -10,7 +10,7 @@ import { log } from './Log'
 import { EVT } from './EVT'
 import { pageInfo } from './PageInfo'
 import { WorkInfo } from './Store.d'
-import { ui } from './UI'
+import { centerPanel} from './CenterPanel'
 import { titleBar } from './TitleBar'
 import { form } from './Settings'
 
@@ -287,7 +287,7 @@ class CrawlSearchPage extends CrawlPageBase {
       return alert(lang.transl('_没有数据可供使用'))
     }
 
-    ui.hideCenterPanel()
+    centerPanel.close()
 
     log.clear()
 

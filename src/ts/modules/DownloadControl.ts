@@ -10,7 +10,7 @@ import { log } from './Log'
 import { lang } from './Lang'
 import { titleBar } from './TitleBar'
 import { Colors } from './Colors'
-import { ui } from './UI'
+import { centerPanel} from './CenterPanel'
 import { form } from './Settings'
 import { Download } from './Download'
 
@@ -240,7 +240,7 @@ class DownloadControl {
     </div>
     </div>`;
 
-    const el = ui.useSlot('downloadArea', html)
+    const el = centerPanel.useSlot('downloadArea', html)
     if (!el) {
       throw 'Add download area error!'
     }

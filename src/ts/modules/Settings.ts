@@ -1,47 +1,19 @@
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { DOM } from './DOM'
-import { ui } from './UI'
+import { centerPanel} from './CenterPanel'
+import { InitSettings } from './InitSettings'
+import { SettingsForm } from "./Settings.d";
 
-interface SettingsForm extends HTMLFormElement {
-  setWantPage: HTMLInputElement
-  multipleImageWorks: RadioNodeList
-  firstFewImages: HTMLInputElement
-  downType0: HTMLInputElement
-  downType1: HTMLInputElement
-  downType2: HTMLInputElement
-  ugoiraSaveAs: RadioNodeList
-  setFavNum: HTMLInputElement
-  setOnlyBmk: HTMLInputElement
-  setWidth: HTMLInputElement
-  idRange: RadioNodeList
-  idRangeInput: HTMLInputElement
-  setWidthAndOr: RadioNodeList
-  setHeight: HTMLInputElement
-  ratio: RadioNodeList
-  userRatio: HTMLInputElement
-  postDate: HTMLInputElement
-  postDateStart: HTMLInputElement
-  postDateEnd: HTMLInputElement
-  needTag: HTMLInputElement
-  notNeedTag: HTMLInputElement
-  quietDownload: HTMLInputElement
-  downloadThread: HTMLInputElement
-  userSetName: HTMLInputElement
-  pageInfoSelect: HTMLSelectElement
-  fileNameSelect: HTMLSelectElement
-  tagNameToFileName: HTMLInputElement
-  alwaysFolder: HTMLInputElement
-  debut: HTMLInputElement
-  previewResult: HTMLInputElement
-}
 
 // 设置表单
 class Settings {
   constructor() {
-    this.form = ui.useSlot('form', this.html) as SettingsForm
+    this.form = centerPanel.useSlot('form', this.html) as SettingsForm
 
     this.bindEvents()
+
+    new InitSettings(this.form)
   }
 
   public form: SettingsForm
@@ -368,9 +340,8 @@ class Settings {
     this.insertValueToInput(this.form.fileNameSelect, this.form.userSetName)
   }
 
-  public getSetting(name:string){
-    const input =  this.form[name]
-    
+  public getSetting(name: string) {
+    const input = this.form[name]
   }
 }
 

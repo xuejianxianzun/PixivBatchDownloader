@@ -3,7 +3,7 @@ import { log } from './Log'
 import { lang } from './Lang'
 import { Colors } from './Colors'
 import { DOM } from './DOM'
-import { ui } from './UI'
+import { centerPanel} from './CenterPanel'
 import { store } from './Store'
 import { EVT } from './EVT'
 
@@ -37,7 +37,7 @@ class DeleteWorks {
   public addClearMultipleBtn(selector: string, callback: Function = () => {}) {
     this.multipleSelector = selector
 
-    ui.addCenterButton(Colors.red, lang.transl('_清除多图作品'), [
+    centerPanel.addButton(Colors.red, lang.transl('_清除多图作品'), [
       ['title', lang.transl('_清除多图作品Title')]
     ]).addEventListener(
       'click',
@@ -45,7 +45,7 @@ class DeleteWorks {
         if (!this.allowWork()) {
           return alert(lang.transl('_当前任务尚未完成'))
         }
-        ui.hideCenterPanel()
+        centerPanel.close()
         this.clearMultiple()
         callback()
       },
@@ -57,7 +57,7 @@ class DeleteWorks {
   public addClearUgoiraBtn(selector: string, callback: Function = () => {}) {
     this.ugoiraSelector = selector
 
-    ui.addCenterButton(Colors.red, lang.transl('_清除动图作品'), [
+    centerPanel.addButton(Colors.red, lang.transl('_清除动图作品'), [
       ['title', lang.transl('_清除动图作品Title')]
     ]).addEventListener(
       'click',
@@ -65,7 +65,7 @@ class DeleteWorks {
         if (!this.allowWork()) {
           return alert(lang.transl('_当前任务尚未完成'))
         }
-        ui.hideCenterPanel()
+        centerPanel.close()
         this.ClearUgoira()
         callback()
       },
@@ -76,7 +76,7 @@ class DeleteWorks {
   // 手动删除作品的按钮
   public addManuallyDeleteBtn(callback: Function = () => {}) {
     this.deleteWorkCallback = callback
-    const delBtn = ui.addCenterButton(
+    const delBtn = centerPanel.addButton(
       Colors.red,
       lang.transl('_手动删除作品'),
       [['title', lang.transl('_手动删除作品Title')]]
@@ -142,7 +142,7 @@ class DeleteWorks {
     if (this.delMode) {
       delBtn.textContent = lang.transl('_退出手动删除')
       setTimeout(() => {
-        ui.hideCenterPanel()
+        centerPanel.close()
       }, 300)
     } else {
       delBtn.textContent = lang.transl('_手动删除作品')

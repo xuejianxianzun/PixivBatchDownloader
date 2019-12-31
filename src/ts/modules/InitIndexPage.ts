@@ -3,7 +3,7 @@ import { InitPageBase } from './InitPageBase'
 import { CrawlIndexPage } from './CrawlIndexPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { ui } from './UI'
+import { centerPanel} from './CenterPanel'
 import {  options} from "./Options";
 import { DOM } from './DOM'
 
@@ -19,7 +19,7 @@ class InitIndexPage extends InitPageBase {
   private ready = false
 
   protected appendCenterBtns() {
-    this.downIdButton = ui.addCenterButton(
+    this.downIdButton = centerPanel.addButton(
       Colors.blue,
       lang.transl('_输入id进行抓取'),
       [['id', 'down_id_button']]
@@ -29,7 +29,7 @@ class InitIndexPage extends InitPageBase {
       () => {
         if (!this.ready) {
           // 还没准备好
-          ui.hideCenterPanel()
+          centerPanel.close()
           this.downIdInput.style.display = 'block'
           this.downIdInput.focus()
           document.documentElement.scrollTop = 0
@@ -55,11 +55,11 @@ class InitIndexPage extends InitPageBase {
       // 当输入框内容改变时检测，非空值时显示下载区域
       if (this.downIdInput.value !== '') {
         this.ready = true
-        ui.showCenterPanel()
+        centerPanel.show()
         this.downIdButton.textContent = lang.transl('_开始抓取')
       } else {
         this.ready = false
-        ui.hideCenterPanel()
+        centerPanel.close()
         this.downIdButton.textContent = lang.transl('_输入id进行抓取')
       }
     })

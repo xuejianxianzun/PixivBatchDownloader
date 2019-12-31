@@ -3,7 +3,7 @@ import { InitPageBase } from './InitPageBase'
 import { CrawlAreaRankingPage } from './CrawlAreaRankingPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { ui } from './UI'
+import { centerPanel} from './CenterPanel'
 import { options } from './Options'
 
 class InitAreaRankingPage extends InitPageBase {
@@ -14,7 +14,7 @@ class InitAreaRankingPage extends InitPageBase {
   protected crawler: CrawlAreaRankingPage
 
   protected appendCenterBtns() {
-    ui.addCenterButton(Colors.blue, lang.transl('_抓取本页作品'), [
+    centerPanel.addButton(Colors.blue, lang.transl('_抓取本页作品'), [
       ['title', lang.transl('_抓取本页作品Title')]
     ]).addEventListener('click', () => {
       this.crawler.readyCrawl()

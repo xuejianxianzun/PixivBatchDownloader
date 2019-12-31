@@ -3,7 +3,7 @@ import { InitPageBase } from './InitPageBase'
 import { CrawlBookmarkDetailPage } from './CrawlBookmarkDetailPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { ui } from './UI'
+import { centerPanel} from './CenterPanel'
 import {  options} from "./Options";
 
 class InitBookmarkDetailPage extends InitPageBase {
@@ -14,7 +14,7 @@ class InitBookmarkDetailPage extends InitPageBase {
   protected crawler: CrawlBookmarkDetailPage
 
   protected appendCenterBtns() {
-    ui.addCenterButton(Colors.blue, lang.transl('_抓取相似图片'), [
+    centerPanel.addButton(Colors.blue, lang.transl('_抓取相似图片'), [
       ['title', lang.transl('_抓取相似图片')]
     ]).addEventListener(
       'click',

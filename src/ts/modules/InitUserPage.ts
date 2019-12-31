@@ -4,7 +4,7 @@ import { API } from './API'
 import { CrawlUserPage } from './CrawlUserPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { ui } from './UI'
+import { centerPanel} from './CenterPanel'
 import { options } from './Options'
 import { bookmarksAddTag } from './BookmarksAddTag'
 
@@ -16,7 +16,7 @@ class InitUserPage extends InitPageBase {
   protected crawler: CrawlUserPage
 
   protected appendCenterBtns() {
-    ui.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
+    centerPanel.addButton(Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
     ]).addEventListener('click', () => {
       this.crawler.readyCrawl()
@@ -25,7 +25,7 @@ class InitUserPage extends InitPageBase {
     // 添加下载推荐作品的按钮，只在旧版收藏页面使用
     const columnTitle = document.querySelector('.column-title')
     if (columnTitle) {
-      const downRecmdBtn = ui.addCenterButton(
+      const downRecmdBtn = centerPanel.addButton(
         Colors.blue,
         lang.transl('_抓取推荐作品'),
         [['title', lang.transl('_抓取推荐作品Title')]]
@@ -42,7 +42,7 @@ class InitUserPage extends InitPageBase {
 
     // 如果存在 token，则添加“添加 tag”按钮
     if (API.getToken()) {
-      let btn = ui.addCenterButton(Colors.green, lang.transl('_添加tag'), [
+      let btn = centerPanel.addButton(Colors.green, lang.transl('_添加tag'), [
         ['title', lang.transl('_添加tag')]
       ])
       btn.id = 'add_tag_btn'

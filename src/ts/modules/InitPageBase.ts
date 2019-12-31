@@ -11,7 +11,7 @@ import { CrawlBookmarkDetailPage } from './CrawlBookmarkDetailPage'
 import { CrawlBookmarkNewIllustPage } from './CrawlBookmarkNewIllustPage'
 import { CrawlNewIllustPage } from './CrawlNewIllustPage'
 import { lang } from './Lang'
-import { ui } from './UI'
+import { centerPanel} from './CenterPanel'
 import {  options} from "./Options";
 
 abstract class InitPageBase {
@@ -56,7 +56,7 @@ abstract class InitPageBase {
   public destroy(): void {
     this.destroySelf()
 
-    ui.clearCenterButtons()
+    centerPanel.clearButtons()
 
     this.crawler.destroy()
   }

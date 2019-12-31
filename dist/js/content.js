@@ -95,13 +95,12 @@
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _modules_InitSettings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/InitSettings */ "./src/ts/modules/InitSettings.ts");
-/* harmony import */ var _modules_InitCrawlProcess__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/InitCrawlProcess */ "./src/ts/modules/InitCrawlProcess.ts");
-/* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/DownloadControl */ "./src/ts/modules/DownloadControl.ts");
-/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/Tip */ "./src/ts/modules/Tip.ts");
-/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_modules_Tip__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var _modules_Output__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/Output */ "./src/ts/modules/Output.ts");
-/* harmony import */ var _modules_Support__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/Support */ "./src/ts/modules/Support.ts");
+/* harmony import */ var _modules_InitCrawlProcess__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/InitCrawlProcess */ "./src/ts/modules/InitCrawlProcess.ts");
+/* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/DownloadControl */ "./src/ts/modules/DownloadControl.ts");
+/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/Tip */ "./src/ts/modules/Tip.ts");
+/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_modules_Tip__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _modules_Output__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/Output */ "./src/ts/modules/Output.ts");
+/* harmony import */ var _modules_Support__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/Support */ "./src/ts/modules/Support.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -113,7 +112,6 @@ __webpack_require__.r(__webpack_exports__);
  * E-mail:  xuejianxianzun@gmail.com
  * QQ group:675174717
  */
-
 
 
 
@@ -5112,7 +5110,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _UI__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./UI */ "./src/ts/modules/UI.ts");
 /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Options */ "./src/ts/modules/Options.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Settings */ "./src/ts/modules/Settings.ts");
 // 初始化 pixivision 页面
+
 
 
 
@@ -5153,6 +5153,8 @@ class InitPixivisionPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
             16,
             18
         ]);
+        // pixivision 里，文件名只有 id 标记会生效，所以把文件名部分替换成 id
+        _Settings__WEBPACK_IMPORTED_MODULE_5__["form"].fileNameRuleInput.value = '{p_title}/{id}';
     }
     destroySelf() { }
 }
@@ -5359,25 +5361,22 @@ class InitSearchPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPag
 /*!****************************************!*\
   !*** ./src/ts/modules/InitSettings.ts ***!
   \****************************************/
-/*! no exports provided */
+/*! exports provided: InitSettings */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Settings */ "./src/ts/modules/Settings.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PageType */ "./src/ts/modules/PageType.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
-// 保存和初始化下载区域的设置项
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InitSettings", function() { return InitSettings; });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+// 保存和初始化设置项
 // 只有部分设置会被保存
 
-
-
-class Option {
-    constructor() {
+class InitSettings {
+    constructor(form) {
         // 本地存储中使用的 name
         this.storeName = 'xzSetting';
         // 需要持久化保存的设置的默认值
-        this.needSaveOptsDefault = {
+        this.optionDefault = {
             multipleImageWorks: 0,
             firstFewImages: 1,
             downType0: true,
@@ -5397,78 +5396,78 @@ class Option {
             postDateEnd: '',
             previewResult: true
         };
-        // 储存需要持久化保存的设置
-        this.needSaveOpts = this.needSaveOptsDefault;
+        // 需要持久化保存的设置
+        this.options = this.optionDefault;
+        this.form = form;
         this.restoreOption();
         this.bindOptionEvent();
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.resetOption, () => {
-            _Settings__WEBPACK_IMPORTED_MODULE_0__["form"].reset();
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resetOption, () => {
+            form.reset();
             this.reset();
         });
     }
-    // 恢复值是 Boolean 值的设置项
+    // 恢复值是 Boolean 的设置项
     restoreBoolean(name) {
         // 优先使用用户设置的值
-        if (this.needSaveOpts[name] !== undefined) {
-            _Settings__WEBPACK_IMPORTED_MODULE_0__["form"][name].checked = this.needSaveOpts[name];
+        if (this.options[name] !== undefined) {
+            this.form[name].checked = this.options[name];
         }
         else {
             // 否则使用默认值
-            _Settings__WEBPACK_IMPORTED_MODULE_0__["form"][name].checked = this.needSaveOptsDefault[name];
+            this.form[name].checked = this.optionDefault[name];
         }
         // 这里不能简单的使用“或”符号来处理，考虑如下情况：
         // this.needSaveOpts[name] || this.needSaveOptsDefault[name]
         // 用户设置为 false，默认值为 true，使用 || 的话就恒为 true 了
     }
-    // 从持久化设置里恢复下载区域的设置
-    // 可以执行多次
+    // 恢复值是 string 的设置项
+    restoreString(name) {
+        // 优先使用用户设置的值
+        if (this.options[name] !== undefined) {
+            this.form[name].value = this.options[name].toString();
+        }
+        else {
+            // 否则使用默认值
+            this.form[name].value = this.optionDefault[name].toString();
+        }
+    }
+    // 从持久化设置，或还是用默认值，恢复下载区域的设置
     restoreOption() {
-        let str = localStorage.getItem(this.storeName);
+        const savedOption = localStorage.getItem(this.storeName);
         // 如果之前已经持久化，则读取设置，初始化下载区域的选项
-        if (str) {
-            this.needSaveOpts = JSON.parse(str);
+        if (savedOption) {
+            this.options = JSON.parse(savedOption);
         }
         else {
             // 如果没有保存过，则不做处理
             return;
         }
         // 设置是否显示选项区域
-        _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.toggleForm, this.needSaveOpts.showOptions);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.toggleForm, this.options.showOptions);
         // 多图作品设置
-        _Settings__WEBPACK_IMPORTED_MODULE_0__["form"].multipleImageWorks.value = (this.needSaveOpts.multipleImageWorks ||
-            this.needSaveOptsDefault.multipleImageWorks).toString();
+        this.restoreString('multipleImageWorks');
         // 设置作品张数
-        _Settings__WEBPACK_IMPORTED_MODULE_0__["form"].firstFewImages.value = (this.needSaveOpts.firstFewImages ||
-            this.needSaveOptsDefault.firstFewImages).toString();
+        this.restoreString('firstFewImages');
         // 设置下载的作品类型
         this.restoreBoolean('downType0');
         this.restoreBoolean('downType1');
         this.restoreBoolean('downType2');
         // 设置动图格式选项
-        _Settings__WEBPACK_IMPORTED_MODULE_0__["form"].ugoiraSaveAs.value = this.needSaveOpts.ugoiraSaveAs;
+        this.restoreString('ugoiraSaveAs');
         // 设置必须的 tag
-        _Settings__WEBPACK_IMPORTED_MODULE_0__["form"].needTag.value = this.needSaveOpts.needTag;
+        this.restoreString('needTag');
         // 设置排除的 tag
-        _Settings__WEBPACK_IMPORTED_MODULE_0__["form"].notNeedTag.value = this.needSaveOpts.notNeedTag;
+        this.restoreString('notNeedTag');
         // 设置投稿时间
         this.restoreBoolean('postDate');
-        _Settings__WEBPACK_IMPORTED_MODULE_0__["form"].postDateStart.value =
-            this.needSaveOpts.postDateStart || this.needSaveOptsDefault.postDateStart;
-        _Settings__WEBPACK_IMPORTED_MODULE_0__["form"].postDateEnd.value =
-            this.needSaveOpts.postDateEnd || this.needSaveOptsDefault.postDateEnd;
+        this.restoreString('postDateStart');
+        this.restoreString('postDateEnd');
         // 设置自动下载
         this.restoreBoolean('quietDownload');
         // 设置下载线程
-        _Settings__WEBPACK_IMPORTED_MODULE_0__["form"].downloadThread.value = this.needSaveOpts.downloadThread.toString();
+        this.restoreString('downloadThread');
         // 设置文件命名规则
-        const fileNameRuleInput = _Settings__WEBPACK_IMPORTED_MODULE_0__["form"].userSetName;
-        // pixivision 里，文件名只有 id 标记会生效，所以把文件名部分替换成 id
-        if (_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].getPageType() === 8) {
-            fileNameRuleInput.value = '{p_title}/{id}';
-        }
-        else {
-            fileNameRuleInput.value = this.needSaveOpts.userSetName;
-        }
+        this.restoreString('userSetName');
         // 设置是否添加标记名称
         this.restoreBoolean('tagNameToFileName');
         // 设置是否始终建立文件夹
@@ -5478,14 +5477,14 @@ class Option {
     }
     // 处理 change 时直接保存 value 的输入框
     saveValueOnChange(name) {
-        const el = _Settings__WEBPACK_IMPORTED_MODULE_0__["form"][name];
+        const el = this.form[name];
         el.addEventListener('change', () => {
             this.saveSetting(name, el.value);
         });
     }
     // 处理 click 时直接保存 checked 的复选框
     saveCheckOnClick(name) {
-        const el = _Settings__WEBPACK_IMPORTED_MODULE_0__["form"][name];
+        const el = this.form[name];
         el.addEventListener('click', () => {
             this.saveSetting(name, el.checked);
         });
@@ -5497,12 +5496,12 @@ class Option {
         // 保存是否显示选项区域
         const showOptionsBtn = document.querySelector('.centerWrap_toogle_option');
         showOptionsBtn.addEventListener('click', () => {
-            this.needSaveOpts.showOptions = !this.needSaveOpts.showOptions;
-            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.toggleForm, this.needSaveOpts.showOptions);
-            this.saveSetting('showOptions', this.needSaveOpts.showOptions);
+            this.options.showOptions = !this.options.showOptions;
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.toggleForm, this.options.showOptions);
+            this.saveSetting('showOptions', this.options.showOptions);
         });
         // 保存多图作品设置
-        for (const input of _Settings__WEBPACK_IMPORTED_MODULE_0__["form"].multipleImageWorks) {
+        for (const input of this.form.multipleImageWorks) {
             input.addEventListener('click', function () {
                 that.saveSetting('multipleImageWorks', parseInt(this.value));
             });
@@ -5514,7 +5513,7 @@ class Option {
         this.saveCheckOnClick('downType1');
         this.saveCheckOnClick('downType2');
         // 保存动图格式选项
-        for (const input of _Settings__WEBPACK_IMPORTED_MODULE_0__["form"].ugoiraSaveAs) {
+        for (const input of this.form.ugoiraSaveAs) {
             input.addEventListener('click', function () {
                 that.saveSetting('ugoiraSaveAs', this.value);
             });
@@ -5532,7 +5531,7 @@ class Option {
         // 保存下载线程
         this.saveValueOnChange('downloadThread');
         ['change', 'focus'].forEach(ev => {
-            _Settings__WEBPACK_IMPORTED_MODULE_0__["form"].userSetName.addEventListener(ev, function () {
+            this.form.userSetName.addEventListener(ev, function () {
                 that.saveSetting('userSetName', this.value);
             });
         });
@@ -5546,21 +5545,21 @@ class Option {
     // 持久化保存设置
     saveSetting(key, value) {
         ;
-        this.needSaveOpts[key] = value;
-        _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.settingChange, { name: key, value: value });
-        localStorage.setItem(this.storeName, JSON.stringify(this.needSaveOpts));
+        this.options[key] = value;
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.settingChange, { name: key, value: value });
+        localStorage.setItem(this.storeName, JSON.stringify(this.options));
     }
     // 重设选项
     reset() {
         // 将 needSaveOpts 恢复为默认值
-        this.needSaveOpts = this.needSaveOptsDefault;
+        this.options = this.optionDefault;
         // 覆写本地存储里的设置为默认值
-        localStorage.setItem(this.storeName, JSON.stringify(this.needSaveOpts));
+        localStorage.setItem(this.storeName, JSON.stringify(this.options));
         // 使用默认值重设选项
         this.restoreOption();
     }
 }
-new Option();
+
 
 
 /***/ }),
@@ -6341,6 +6340,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _UI__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./UI */ "./src/ts/modules/UI.ts");
+/* harmony import */ var _InitSettings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./InitSettings */ "./src/ts/modules/InitSettings.ts");
+
 
 
 
@@ -6532,6 +6533,7 @@ class Settings {
   </form>`;
         this.form = _UI__WEBPACK_IMPORTED_MODULE_3__["ui"].useSlot('form', this.html);
         this.bindEvents();
+        new _InitSettings__WEBPACK_IMPORTED_MODULE_4__["InitSettings"](this.form);
     }
     // 把下拉框的选择项插入到文本框里
     insertValueToInput(from, to) {

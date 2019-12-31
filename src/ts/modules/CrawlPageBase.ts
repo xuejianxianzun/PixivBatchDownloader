@@ -7,7 +7,7 @@ import { API } from './API'
 import { store } from './Store'
 import { log } from './Log'
 import { EVT } from './EVT'
-import { ui } from './UI'
+import { centerPanel} from './CenterPanel'
 import {  form} from "./Settings";
 import { titleBar } from './TitleBar'
 import { pageInfo } from './PageInfo'
@@ -149,8 +149,8 @@ abstract class CrawlPageBase {
     log.success(lang.transl('_任务开始0'))
 
     titleBar.changeTitle('↑')
-
-    ui.hideCenterPanel()
+    
+    centerPanel.close()
 
     this.getWantPage()
 
@@ -393,7 +393,7 @@ abstract class CrawlPageBase {
 
     // 显示中间面板
     if (!store.states.quickDownload) {
-      ui.showCenterPanel()
+      centerPanel.show()
     }
   }
 

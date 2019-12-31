@@ -4,7 +4,7 @@ import { CrawlRankingPage } from './CrawlRankingPage'
 import { Colors } from './Colors'
 import { API } from './API'
 import { lang } from './Lang'
-import { ui } from './UI'
+import { centerPanel} from './CenterPanel'
 import {  options} from "./Options";
 import { form } from './Settings'
 
@@ -17,7 +17,7 @@ class InitRankingPage extends InitPageBase {
   protected crawler: CrawlRankingPage
 
   protected appendCenterBtns() {
-    ui.addCenterButton(Colors.blue, lang.transl('_抓取本排行榜作品'), [
+    centerPanel.addButton(Colors.blue, lang.transl('_抓取本排行榜作品'), [
       ['title', lang.transl('_抓取本排行榜作品Title')]
     ]).addEventListener('click', () => {
       this.crawler.readyCrawl()
@@ -28,7 +28,7 @@ class InitRankingPage extends InitPageBase {
     let mode = API.getURLField(location.href, 'mode')
 
     if (debutModes.includes(mode)) {
-      ui.addCenterButton(Colors.blue, lang.transl('_抓取首次登场的作品'), [
+      centerPanel.addButton(Colors.blue, lang.transl('_抓取首次登场的作品'), [
         ['title', lang.transl('_抓取首次登场的作品Title')]
       ]).addEventListener('click', () => {
         form.debut.value = '1'

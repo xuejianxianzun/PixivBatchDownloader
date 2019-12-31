@@ -4,7 +4,7 @@ import { CrawlWorksPage } from './CrawlWorksPage'
 import { Colors } from './Colors'
 import { EVT } from './EVT'
 import { lang } from './Lang'
-import { ui } from './UI'
+import { centerPanel} from './CenterPanel'
 import { options } from './Options'
 import { store } from './Store'
 import { QuickBookmark } from './QuickBookmark'
@@ -28,7 +28,7 @@ class InitWorksPage extends InitPageBase {
   protected crawler: CrawlWorksPage
 
   protected appendCenterBtns() {
-    ui.addCenterButton(
+    centerPanel.addButton(
       Colors.blue,
       lang.transl('_从本页开始抓取new')
     ).addEventListener('click', () => {
@@ -36,7 +36,7 @@ class InitWorksPage extends InitPageBase {
       this.crawler.readyCrawl()
     })
 
-    ui.addCenterButton(
+    centerPanel.addButton(
       Colors.blue,
       lang.transl('_从本页开始抓取old')
     ).addEventListener('click', () => {
@@ -44,7 +44,7 @@ class InitWorksPage extends InitPageBase {
       this.crawler.readyCrawl()
     })
 
-    const downRelatedBtn = ui.addCenterButton(
+    const downRelatedBtn = centerPanel.addButton(
       Colors.blue,
       lang.transl('_抓取相关作品')
     )

@@ -3,7 +3,7 @@ import { InitPageBase } from './InitPageBase'
 import { CrawlNewIllustPage } from './CrawlNewIllustPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { ui } from './UI'
+import { centerPanel} from './CenterPanel'
 import {  options} from "./Options";
 
 
@@ -15,7 +15,7 @@ class InitNewIllustPage extends InitPageBase {
   protected crawler: CrawlNewIllustPage
 
   protected appendCenterBtns() {
-    ui.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
+    centerPanel.addButton(Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_下载大家的新作品')]
     ]).addEventListener('click', () => {
       this.crawler.readyCrawl()

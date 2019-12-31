@@ -3,7 +3,7 @@ import { InitPageBase } from './InitPageBase'
 import { CrawlBookmarkNewIllustPage } from './CrawlBookmarkNewIllustPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { ui } from './UI'
+import { centerPanel} from './CenterPanel'
 import {  options} from "./Options";
 
 class InitBookmarkNewIllustPage extends InitPageBase {
@@ -14,7 +14,7 @@ class InitBookmarkNewIllustPage extends InitPageBase {
   protected crawler: CrawlBookmarkNewIllustPage
 
   protected appendCenterBtns() {
-    ui.addCenterButton(Colors.blue, lang.transl('_开始抓取'), [
+    centerPanel.addButton(Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
     ]).addEventListener('click', () => {
       this.crawler.readyCrawl()
