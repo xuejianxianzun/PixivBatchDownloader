@@ -3,9 +3,8 @@ import { InitPageBase } from './InitPageBase'
 import { CrawlDiscoverPage } from './CrawlDiscoverPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { centerPanel} from './CenterPanel'
+import { centerButtons } from './CenterButtons'
 import { options } from './Options'
-
 import { DeleteWorks } from './DeleteWorks'
 
 class InitDiscoverPage extends InitPageBase {
@@ -16,11 +15,13 @@ class InitDiscoverPage extends InitPageBase {
   protected crawler: CrawlDiscoverPage
 
   protected appendCenterBtns() {
-    centerPanel.addButton(Colors.blue, lang.transl('_抓取当前作品'), [
-      ['title', lang.transl('_抓取当前作品Title')]
-    ]).addEventListener('click', () => {
-      this.crawler.readyCrawl()
-    })
+    centerButtons
+      .add(Colors.blue, lang.transl('_抓取当前作品'), [
+        ['title', lang.transl('_抓取当前作品Title')]
+      ])
+      .addEventListener('click', () => {
+        this.crawler.readyCrawl()
+      })
   }
 
   protected setFormOption() {

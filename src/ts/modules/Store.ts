@@ -137,7 +137,6 @@ class Store {
   public resetStates() {
     this.states.allowWork = true
     this.states.quickDownload = false
-    this.states.notAutoDownload = false
   }
 }
 

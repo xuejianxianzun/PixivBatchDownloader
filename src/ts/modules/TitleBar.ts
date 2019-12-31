@@ -22,18 +22,17 @@ class TitleBar {
     if (!status) {
       // 没有传递 status，则检查所有标记
       for (const status of this.titleStatus) {
-          const str = `[${status}]`;
-          if (document.title.includes(str)) {
-              return true;
-          }
+        const str = `[${status}]`
+        if (document.title.includes(str)) {
+          return true
+        }
       }
-  }
-  else {
+    } else {
       // 检查指定标记
-      const str = `[${status}]`;
-      return document.title.includes(str);
-  }
-  return false;
+      const str = `[${status}]`
+      return document.title.includes(str)
+    }
+    return false
   }
 
   // 重设 title
@@ -58,7 +57,6 @@ class TitleBar {
 
   // 修改title
   public changeTitle(string: string) {
-
     const state = `[${string}]`
     // 如果 title 里没有状态，就添加状态
     if (!this.titleHasState()) {

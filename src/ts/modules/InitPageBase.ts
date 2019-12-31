@@ -11,8 +11,8 @@ import { CrawlBookmarkDetailPage } from './CrawlBookmarkDetailPage'
 import { CrawlBookmarkNewIllustPage } from './CrawlBookmarkNewIllustPage'
 import { CrawlNewIllustPage } from './CrawlNewIllustPage'
 import { lang } from './Lang'
-import { centerPanel} from './CenterPanel'
-import {  options} from "./Options";
+import { centerButtons } from './CenterButtons'
+import { options } from './Options'
 
 abstract class InitPageBase {
   constructor(
@@ -49,14 +49,14 @@ abstract class InitPageBase {
     this.setFormOption()
     this.appendCenterBtns()
     this.appendElseEl()
-    }
+  }
 
   protected abstract destroySelf(): void
 
   public destroy(): void {
     this.destroySelf()
 
-    centerPanel.clearButtons()
+    centerButtons.clear()
 
     this.crawler.destroy()
   }
@@ -71,15 +71,14 @@ abstract class InitPageBase {
   protected setFormOption(): void {
     // 设置“个数/页数”选项
     options.setWantPage({
-      text:lang.transl('_页数'),
-      tip:lang.transl('_checkWantPageRule1Arg8'),
-      rangTip:lang.transl('_数字提示1'),
-      value:'1'
+      text: lang.transl('_页数'),
+      tip: lang.transl('_checkWantPageRule1Arg8'),
+      rangTip: lang.transl('_数字提示1'),
+      value: '1'
     })
 
-    options.hideOption([15,18])
+    options.hideOption([15, 18])
   }
-
 }
 
 export { InitPageBase }

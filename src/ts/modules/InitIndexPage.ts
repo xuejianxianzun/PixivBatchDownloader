@@ -3,8 +3,9 @@ import { InitPageBase } from './InitPageBase'
 import { CrawlIndexPage } from './CrawlIndexPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { centerPanel} from './CenterPanel'
-import {  options} from "./Options";
+import { centerPanel } from './CenterPanel'
+import { centerButtons } from './CenterButtons'
+import { options } from './Options'
 import { DOM } from './DOM'
 
 class InitIndexPage extends InitPageBase {
@@ -19,7 +20,7 @@ class InitIndexPage extends InitPageBase {
   private ready = false
 
   protected appendCenterBtns() {
-    this.downIdButton = centerPanel.addButton(
+    this.downIdButton = centerButtons.add(
       Colors.blue,
       lang.transl('_输入id进行抓取'),
       [['id', 'down_id_button']]

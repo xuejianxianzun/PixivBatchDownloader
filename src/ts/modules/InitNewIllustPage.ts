@@ -3,9 +3,8 @@ import { InitPageBase } from './InitPageBase'
 import { CrawlNewIllustPage } from './CrawlNewIllustPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { centerPanel} from './CenterPanel'
-import {  options} from "./Options";
-
+import { centerButtons } from './CenterButtons'
+import { options } from './Options'
 
 class InitNewIllustPage extends InitPageBase {
   constructor(crawler: CrawlNewIllustPage) {
@@ -15,11 +14,13 @@ class InitNewIllustPage extends InitPageBase {
   protected crawler: CrawlNewIllustPage
 
   protected appendCenterBtns() {
-    centerPanel.addButton(Colors.blue, lang.transl('_开始抓取'), [
-      ['title', lang.transl('_下载大家的新作品')]
-    ]).addEventListener('click', () => {
-      this.crawler.readyCrawl()
-    })
+    centerButtons
+      .add(Colors.blue, lang.transl('_开始抓取'), [
+        ['title', lang.transl('_下载大家的新作品')]
+      ])
+      .addEventListener('click', () => {
+        this.crawler.readyCrawl()
+      })
   }
 
   private timer = 0
@@ -40,16 +41,15 @@ class InitNewIllustPage extends InitPageBase {
   }
 
   protected setFormOption() {
-    
     // 设置“个数/页数”选项
     options.setWantPage({
-      text:lang.transl('_个数'),
-      tip:lang.transl('_要获取的作品个数2'),
-      rangTip:`1 - ${this.crawler.maxCount}`,
-      value:'100'
+      text: lang.transl('_个数'),
+      tip: lang.transl('_要获取的作品个数2'),
+      rangTip: `1 - ${this.crawler.maxCount}`,
+      value: '100'
     })
 
-    options.hideOption([15,18])
+    options.hideOption([15, 18])
   }
 
   protected destroySelf() {}

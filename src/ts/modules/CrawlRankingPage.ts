@@ -2,8 +2,6 @@
 import { CrawlPageBase } from './CrawlPageBase'
 import { RankingOption } from './CrawlArgument.d'
 import { RankingData } from './CrawlResult.d'
-import {  form} from "./Settings";
-
 import { FilterOption } from './Filter.d'
 import { filter } from './Filter'
 import { lang } from './Lang'
@@ -80,14 +78,11 @@ class CrawlRankingPage extends CrawlPageBase {
 
     this.listPageFinished++
 
-    let complete = false // 如果数量足够，就标记为完成
-
     const contents = data.contents // 取出作品信息列表
     for (const data of contents) {
-      // 下载排行榜所有作品时，会检查是否已经抓取到了指定数量的作品。下载首次登场作品时不检查，抓取所有作品。
-      if (form.debut.value === '0' && data.rank > this.crawlNumber) {
-        complete = true
-        break
+      // 检查是否已经抓取到了指定数量的作品
+      if (data.rank > this.crawlNumber) {
+        return this.getIdListFinished()
       }
 
       // 目前，数据里并没有包含收藏数量，所以在这里没办法检查收藏数量要求
@@ -116,7 +111,7 @@ class CrawlRankingPage extends CrawlPageBase {
     )
 
     // 抓取完毕
-    if (complete || this.listPageFinished === this.pageCount) {
+    if (this.listPageFinished === this.pageCount) {
       this.getIdListFinished()
     } else {
       // 继续抓取
@@ -126,7 +121,6 @@ class CrawlRankingPage extends CrawlPageBase {
 
   protected resetGetIdListStatus() {
     this.listPageFinished = 0
-    form.debut.value = '0'
   }
 
   public destroy() {}

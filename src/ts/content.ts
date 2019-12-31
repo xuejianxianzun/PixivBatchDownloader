@@ -10,6 +10,7 @@
  * QQ group:675174717
  */
 
+import './modules/RightIcon'
 import './modules/InitCrawlProcess'
 import './modules/DownloadControl'
 import './modules/Tip'

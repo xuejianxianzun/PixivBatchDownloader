@@ -37,15 +37,18 @@ class ConvertUgoira {
   }
 
   private async loadWorkerJS() {
+    if ('zip' in window === false) {
+      return
+    }
+
     // 添加 zip 的 worker 文件
     let zipWorker = await fetch(chrome.extension.getURL('lib/z-worker.js'))
     const zipWorkerBolb = await zipWorker.blob()
     const zipWorkerUrl = URL.createObjectURL(zipWorkerBolb)
-    if (zip) {
-      zip.workerScripts = {
-        inflater: [zipWorkerUrl]
-      }
+    zip.workerScripts = {
+      inflater: [zipWorkerUrl]
     }
+
     // 添加 gif 的 worker 文件
     let gifWorker = await fetch(chrome.extension.getURL('lib/gif.worker.js'))
     const gifWorkerBolb = await gifWorker.blob()

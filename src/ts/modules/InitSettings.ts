@@ -1,8 +1,7 @@
 // 保存和初始化设置项
 // 只有部分设置会被保存
 import { EVT } from './EVT'
-import { SettingsForm } from "./Settings.d";
-
+import { SettingsForm } from './Settings.d'
 
 interface XzSetting {
   multipleImageWorks: number
@@ -26,8 +25,8 @@ interface XzSetting {
 }
 
 class InitSettings {
-  constructor(form:SettingsForm) {
-    this.form =form
+  constructor(form: SettingsForm) {
+    this.form = form
     this.restoreOption()
     this.bindOptionEvent()
 
@@ -37,7 +36,7 @@ class InitSettings {
     })
   }
 
-  private form:SettingsForm
+  private form: SettingsForm
 
   // 本地存储中使用的 name
   private readonly storeName = 'xzSetting'
@@ -220,7 +219,9 @@ class InitSettings {
 
     // 保存命名规则
     ;['change', 'focus'].forEach(ev => {
-      this.form.userSetName.addEventListener(ev, function(this: HTMLInputElement) {
+      this.form.userSetName.addEventListener(ev, function(
+        this: HTMLInputElement
+      ) {
         that.saveSetting('userSetName', this.value)
       })
     })
@@ -238,7 +239,7 @@ class InitSettings {
   // 持久化保存设置
   private saveSetting(key: keyof XzSetting, value: string | number | boolean) {
     ;(this.options[key] as any) = value
-    EVT.fire(EVT.events.settingChange,{name:key,value:value})
+    EVT.fire(EVT.events.settingChange, { name: key, value: value })
     localStorage.setItem(this.storeName, JSON.stringify(this.options))
   }
 
@@ -253,4 +254,4 @@ class InitSettings {
   }
 }
 
-export {InitSettings}
+export { InitSettings }

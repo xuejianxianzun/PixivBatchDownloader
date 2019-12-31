@@ -4,7 +4,7 @@ import { CrawlWorksPage } from './CrawlWorksPage'
 import { Colors } from './Colors'
 import { EVT } from './EVT'
 import { lang } from './Lang'
-import { centerPanel} from './CenterPanel'
+import { centerButtons } from './CenterButtons'
 import { options } from './Options'
 import { store } from './Store'
 import { QuickBookmark } from './QuickBookmark'
@@ -28,23 +28,21 @@ class InitWorksPage extends InitPageBase {
   protected crawler: CrawlWorksPage
 
   protected appendCenterBtns() {
-    centerPanel.addButton(
-      Colors.blue,
-      lang.transl('_从本页开始抓取new')
-    ).addEventListener('click', () => {
-      this.crawler.crawlDirection = -1
-      this.crawler.readyCrawl()
-    })
+    centerButtons
+      .add(Colors.blue, lang.transl('_从本页开始抓取new'))
+      .addEventListener('click', () => {
+        this.crawler.crawlDirection = -1
+        this.crawler.readyCrawl()
+      })
 
-    centerPanel.addButton(
-      Colors.blue,
-      lang.transl('_从本页开始抓取old')
-    ).addEventListener('click', () => {
-      this.crawler.crawlDirection = 1
-      this.crawler.readyCrawl()
-    })
+    centerButtons
+      .add(Colors.blue, lang.transl('_从本页开始抓取old'))
+      .addEventListener('click', () => {
+        this.crawler.crawlDirection = 1
+        this.crawler.readyCrawl()
+      })
 
-    const downRelatedBtn = centerPanel.addButton(
+    const downRelatedBtn = centerButtons.add(
       Colors.blue,
       lang.transl('_抓取相关作品')
     )

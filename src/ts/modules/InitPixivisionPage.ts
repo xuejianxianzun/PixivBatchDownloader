@@ -3,7 +3,7 @@ import { InitPageBase } from './InitPageBase'
 import { CrawlPixivisionPage } from './CrawlPixivisionPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { centerPanel} from './CenterPanel'
+import { centerButtons } from './CenterButtons'
 import { options } from './Options'
 import { form } from './Settings'
 
@@ -22,42 +22,23 @@ class InitPixivisionPage extends InitPageBase {
 
     if (type === 'illustration' || type === 'manga' || type === 'cosplay') {
       // 在插画、漫画、cosplay类型的页面上创建下载功能
-      centerPanel.addButton(
-        Colors.blue,
-        lang.transl('_抓取该页面的图片')
-      ).addEventListener(
-        'click',
-        () => {
-          this.crawler.readyCrawl()
-        },
-        false
-      )
+      centerButtons
+        .add(Colors.blue, lang.transl('_抓取该页面的图片'))
+        .addEventListener(
+          'click',
+          () => {
+            this.crawler.readyCrawl()
+          },
+          false
+        )
     }
   }
 
   protected setFormOption() {
-    options.hideOption([
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14,
-      15,
-      16,
-      18
-    ])
+    options.hideOption([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 18])
 
     // pixivision 里，文件名只有 id 标记会生效，所以把文件名部分替换成 id
-    form.fileNameRuleInput.value = '{p_title}/{id}'
+    form.userSetName.value = '{p_title}/{id}'
   }
 
   protected destroySelf() {}

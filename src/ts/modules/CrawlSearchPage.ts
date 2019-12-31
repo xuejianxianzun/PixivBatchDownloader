@@ -10,7 +10,7 @@ import { log } from './Log'
 import { EVT } from './EVT'
 import { pageInfo } from './PageInfo'
 import { WorkInfo } from './Store.d'
-import { centerPanel} from './CenterPanel'
+import { centerPanel } from './CenterPanel'
 import { titleBar } from './TitleBar'
 import { form } from './Settings'
 
@@ -561,7 +561,7 @@ class CrawlSearchPage extends CrawlPageBase {
 
   private setPreviewResult(value: boolean) {
     this.previewResult = value
-    console.log(value)
+
     // 如果设置了“预览搜索结果”，则“不自动下载”。否则允许自动下载
     store.states.notAutoDownload = value ? true : false
   }

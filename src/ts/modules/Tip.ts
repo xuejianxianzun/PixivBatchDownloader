@@ -53,4 +53,4 @@ class Tip {
 }
 
 new Tip()
-export{}
+export {}

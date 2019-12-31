@@ -3,8 +3,8 @@ import { InitPageBase } from './InitPageBase'
 import { CrawlBookmarkNewIllustPage } from './CrawlBookmarkNewIllustPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { centerPanel} from './CenterPanel'
-import {  options} from "./Options";
+import { centerButtons } from './CenterButtons'
+import { options } from './Options'
 
 class InitBookmarkNewIllustPage extends InitPageBase {
   constructor(crawler: CrawlBookmarkNewIllustPage) {
@@ -14,11 +14,13 @@ class InitBookmarkNewIllustPage extends InitPageBase {
   protected crawler: CrawlBookmarkNewIllustPage
 
   protected appendCenterBtns() {
-    centerPanel.addButton(Colors.blue, lang.transl('_开始抓取'), [
-      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
-    ]).addEventListener('click', () => {
-      this.crawler.readyCrawl()
-    })
+    centerButtons
+      .add(Colors.blue, lang.transl('_开始抓取'), [
+        ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
+      ])
+      .addEventListener('click', () => {
+        this.crawler.readyCrawl()
+      })
   }
 
   protected appendElseEl() {
@@ -31,16 +33,15 @@ class InitBookmarkNewIllustPage extends InitPageBase {
   }
 
   protected setFormOption() {
-    
     // 设置“个数/页数”选项
     options.setWantPage({
-      text:lang.transl('_页数'),
-      tip:lang.transl('_checkWantPageRule1Arg8'),
-      rangTip:`1 - ${this.crawler.maxCount}`,
-      value:this.crawler.maxCount.toString()
+      text: lang.transl('_页数'),
+      tip: lang.transl('_checkWantPageRule1Arg8'),
+      rangTip: `1 - ${this.crawler.maxCount}`,
+      value: this.crawler.maxCount.toString()
     })
 
-    options.hideOption([15,18])
+    options.hideOption([15, 18])
   }
 
   protected destroySelf() {}

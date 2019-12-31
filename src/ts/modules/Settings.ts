@@ -1,10 +1,9 @@
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { DOM } from './DOM'
-import { centerPanel} from './CenterPanel'
+import { centerPanel } from './CenterPanel'
 import { InitSettings } from './InitSettings'
-import { SettingsForm } from "./Settings.d";
-
+import { SettingsForm } from './Settings.d'
 
 // 设置表单
 class Settings {

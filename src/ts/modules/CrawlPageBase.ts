@@ -7,8 +7,8 @@ import { API } from './API'
 import { store } from './Store'
 import { log } from './Log'
 import { EVT } from './EVT'
-import { centerPanel} from './CenterPanel'
-import {  form} from "./Settings";
+import { centerPanel } from './CenterPanel'
+import { form } from './Settings'
 import { titleBar } from './TitleBar'
 import { pageInfo } from './PageInfo'
 
@@ -149,7 +149,7 @@ abstract class CrawlPageBase {
     log.success(lang.transl('_任务开始0'))
 
     titleBar.changeTitle('↑')
-    
+
     centerPanel.close()
 
     this.getWantPage()

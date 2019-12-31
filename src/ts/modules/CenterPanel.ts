@@ -1,7 +1,6 @@
 // 用户界面
 import { lang } from './Lang'
 import { EVT } from './EVT'
-import { Colors } from './Colors'
 import { DOM } from './DOM'
 
 // 中间面板
@@ -150,29 +149,6 @@ class CenterPanel {
     EVT.fire(EVT.events.hideCenterPanel)
   }
 
-  // 向中间面板添加按钮
-  public addButton(
-    bg: string = Colors.blue,
-    text: string = '',
-    attr: string[][] = []
-  ) {
-    const e = document.createElement('button')
-    e.type = 'button'
-    e.style.backgroundColor = bg
-    e.textContent = text
-
-    for (const [key, value] of attr) {
-      e.setAttribute(key, value)
-    }
-
-    this.useSlot('centerBtns', e)
-    return e
-  }
-
-  public clearButtons() {
-    this.clearSlot('centerBtns')
-  }
-
   public useSlot(name: string, element: string | HTMLElement) {
     if (!this.slots) {
       return
@@ -194,6 +170,7 @@ class CenterPanel {
       }
     }
   }
+
   // 清空指定的插槽
   public clearSlot(name: string) {
     if (!this.slots) {
@@ -208,4 +185,4 @@ class CenterPanel {
 }
 
 const centerPanel = new CenterPanel()
-export { centerPanel}
+export { centerPanel }
