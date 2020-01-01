@@ -276,18 +276,22 @@ class DownloadControl {
     })
 
     document.querySelector('.copyUrl')!.addEventListener('click', () => {
-      const text = this.showURLs()
-      EVT.fire(EVT.events.output, text)
+      this.showURLs()
     })
   }
 
   // 显示 url
   private showURLs() {
+    if (store.result.length === 0) {
+      return alert(lang.transl('_没有数据可供使用'))
+    }
+
     let result = ''
     result = store.result.reduce((total, now) => {
       return (total += now.url + '<br>')
     }, result)
-    return result
+
+    EVT.fire(EVT.events.output, result)
   }
 
   // 所有下载进度条

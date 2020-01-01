@@ -2,6 +2,7 @@
 // 只有部分设置会被保存
 import { EVT } from './EVT'
 import { SettingsForm } from './Settings.d'
+import { form } from './Settings'
 
 interface XzSetting {
   multipleImageWorks: number

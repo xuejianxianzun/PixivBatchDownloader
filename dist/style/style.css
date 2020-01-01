@@ -341,6 +341,18 @@
   background: #179fdd;
   color: #fff;
 }
+.outputWrap .outputContent p.result {
+  margin-bottom: 10px;
+}
+.outputWrap .outputContent .color999 {
+  color: #999;
+}
+.outputWrap .outputContent .color666 {
+  color: #666;
+}
+.outputWrap .outputContent .color000 {
+  color: #000;
+}
 .outputWrap .outputFooter {
   height: 60px;
   text-align: center;

@@ -74,6 +74,10 @@ class CrawlSearchPage extends CrawlPageBase {
 
   private previewResult = true // 是否预览结果
 
+  private optionsCauseResultChange = ['multipleImageWorks', 'firstFewImages'] // 这些选项变更时，需要重新添加结果。例如多图作品“只下载前几张” firstFewImages 会影响生成的结果，但是过滤器 filter 不会检查，所以需要单独检测它的变更
+
+  private needReAdd = false // 是否需要重新添加结果（并且会重新渲染）
+
   public startScreen() {
     if (!store.states.allowWork) {
       return alert(lang.transl('_当前任务尚未完成'))
@@ -295,14 +299,15 @@ class CrawlSearchPage extends CrawlPageBase {
 
     this.resultMeta = this.resultMeta.filter(callback)
 
-    // 如果过滤后，作品发生了改变，则重新生成结果，并会重排作品。否则不执行，以免浪费资源
-    if (this.resultMeta.length !== nowLength) {
+    // 如果过滤后，作品元数据发生了改变，或者强制要求重新生成结果，才会重排作品。以免浪费资源。
+    if (this.resultMeta.length !== nowLength || this.needReAdd) {
       this.reAddResult()
     }
 
+    this.needReAdd = false
     this.crawlWorks = false
     this.showCount()
-    // 即使没有重新生成结果，也要发布 crawlFinish 事件，筛选完毕相当于某种意义上的抓取完毕，通知下载控制器可以准备下载了。这样也会在日志上显示下载数量。
+    // 发布 crawlFinish 事件，会在日志上显示下载数量。
     EVT.fire(EVT.events.crawlFinish)
   }
 
@@ -554,8 +559,13 @@ class CrawlSearchPage extends CrawlPageBase {
 
   private onSettingChange = (event: CustomEventInit) => {
     const data = event.detail.data
+
     if (data.name === 'previewResult') {
       this.setPreviewResult(data.value)
+    }
+
+    if (this.optionsCauseResultChange.includes(data.name)) {
+      this.needReAdd = true
     }
   }
 
