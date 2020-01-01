@@ -89,6 +89,34 @@ new:
 https://www.pixiv.net/tags/saber/artworks?s_mode=s_tag
 ```
 
+### 输出面板的性能测试
+
+- 时间：2020-01-01
+- 浏览器：Chrome 79
+- CPU：i3-6100 
+- 测试网址： [Fate/GrandOrder10000users入り](https://www.pixiv.net/tags/Fate%2FGrandOrder%2010000users%E5%85%A5%E3%82%8A/artworks?s_mode=s_tag)
+- 数据量：24000 个图片结果
+
+**说明：**
+- 渲染耗时:从点击预览按钮，到页面可以操作的时间
+- 复制耗时:从点击复制按钮，到复制完成的时间
+- 时间向下取整，即后面可能有小数
+
+
+#### 预览文件名
+
+命名规则：
+
+```{p_title}/{bmk}-{id}-{user}-{tags_translate}```
+
+- 渲染耗时：6 秒
+- 复制耗时：3 秒
+
+#### 复制 URL
+
+- 渲染耗时：2 秒
+- 复制耗时：6 秒
+
 ## 3.6.1 2020-01-01
 
 ### 修复 bug
