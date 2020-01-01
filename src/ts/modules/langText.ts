@@ -1053,19 +1053,19 @@ const langText = {
     '没有数据可供使用',
     '使用可能なデータはない',
     'No data is available.',
-    '沒有數據可供使用'
+    '沒有資料可供使用'
   ],
   _预览搜索结果: [
     '预览搜索结果',
     '検索結果を見る',
     'Preview search results',
-    '預覽搜索結果'
+    '預覽搜尋結果'
   ],
   _预览搜索结果说明: [
     '下载器可以把符合条件的作品显示在当前页面上。如果抓取结果太多导致页面崩溃，请关闭这个功能。',
     'ローダは、該当する作品を現在のページに表示することができます。クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。',
     'The downloader can display the qualified works on the current page. If too many crawling results cause the page to crash, turn off this feature.',
-    '下載器可以把符合條件的作品顯示在當前頁面上。如果抓取結果太多導致頁面崩潰，請關閉這個功能。'
+    '下載器可以將符合條件的作品顯示在目前頁面上。如果擷取結果太多導致頁面當掉，請關閉這個功能。'
   ]
 }
 

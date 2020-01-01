@@ -59,7 +59,7 @@ class InitUserPage extends InitPageBase {
       text: lang.transl('_页数'),
       tip: lang.transl('_checkWantPageRule1Arg8'),
       rangTip: lang.transl('_数字提示1'),
-      value: '1'
+      value: '-1'
     })
 
     options.hideOption([15, 18])
