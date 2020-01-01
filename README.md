@@ -138,7 +138,7 @@ English （机翻，韩语设置下也使用英语文本）
 
 2 [收藏页面](https://www.pixiv.net/bookmark.php)
 
-5 [搜索页面](https://www.pixiv.net/search.php?s_mode=s_tag&word=saber)
+5 [搜索页面](https://www.pixiv.net/tags/saber/artworks?s_mode=s_tag)
 
 6 [地区排行榜](https://www.pixiv.net/ranking_area.php?type=state&no=0)
 

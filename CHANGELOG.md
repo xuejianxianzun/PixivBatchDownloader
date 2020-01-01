@@ -1,3 +1,38 @@
+## 3.7.0
+
+### 修复 bug
+
+3.6.0 把右侧下载图标独立出来了，但是其执行时机放在了判断页面类型之前，导致即使是不支持的页面类型，也显示了下载图标。现在修复。
+
+### 修改 pageType 的判断
+
+1. 之前旧的作品页网址已经不再使用了，所以从判断条件里去掉了，如：
+
+```
+https://www.pixiv.net/member_illust.php?mode=manga&illust_id=70558528
+https://www.pixiv.net/member_illust.php?mode=medium&illust_id=65953727
+```
+
+2. 画师作品列表页的判断也做了修改，现在的列表网址如下：
+
+```
+https://www.pixiv.net/member.php?id=544479
+https://www.pixiv.net/member_illust.php?id=544479
+https://www.pixiv.net/member_illust.php?id=544479&type=illust
+https://www.pixiv.net/member_illust.php?id=544479&type=manga
+https://www.pixiv.net/member_illust.php?id=544479&type=illust&tag=xxx
+```
+
+3. 搜索页面的旧网址也不再使用了，从判断条件里去掉了。
+
+```
+old:
+https://www.pixiv.net/search.php?s_mode=s_tag&word=saber
+
+new:
+https://www.pixiv.net/tags/saber/artworks?s_mode=s_tag
+```
+
 ## 3.6.1 2020-01-01
 
 ### 修复 bug
@@ -9,6 +44,8 @@
 合并 init 和 crawl？
 
 独立出搜索页面的筛选部分？
+
+分离 user 的不同抓取模式？
 
 ### 增加了“预览搜索结果”的开关
 

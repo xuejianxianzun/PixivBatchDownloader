@@ -24,30 +24,20 @@ class PageType {
       (window.location.pathname === '/' || window.location.pathname === '/en/')
     ) {
       type = 0
-    } else if (
-      (url.includes('illust_id') || url.includes('/artworks/')) &&
-      !url.includes('mode=manga') &&
-      !url.includes('bookmark_detail') &&
-      !url.includes('bookmark_add') &&
-      !url.includes('response.php')
-    ) {
+    } else if (/\/artworks\/\d{1,10}/.test(url)) {
       type = 1
     } else if (
-      !url.includes('mode=manga&illust_id') &&
-      (/member_illust\.php\?.*id=/.test(url) ||
-        url.includes('member.php?id=') ||
-        url.includes('bookmark.php'))
+      url.includes('member.php?id=') ||
+      url.includes('member_illust.php?id=')
     ) {
       type = 2
-    } else if (
-      url.includes('search.php?') ||
-      url.includes('tags.php?') ||
-      url.includes('/tags/')
-    ) {
+    } else if (location.pathname === '/bookmark.php') {
+      type = 4
+    } else if (url.includes('tags.php?') || url.includes('/tags/')) {
       type = 5
     } else if (
-      url.includes('ranking_area.php') &&
-      url !== 'https://www.pixiv.net/ranking_area.php'
+      location.pathname === '/ranking_area.php' &&
+      location.search !== ''
     ) {
       type = 6
     } else if (window.location.pathname === '/ranking.php') {
