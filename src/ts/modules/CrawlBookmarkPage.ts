@@ -12,6 +12,8 @@ class CrawlBookmarkPage extends CrawlPageBase {
 
   private tag = '' // 储存当前页面带的 tag，不过有时并没有
 
+  private isHide = false // 当前页面是否显示的是非公开收藏
+
   private requsetNumber: number = 0 // 根据页数，计算要抓取的作品个数
 
   private readonly onceRequest: number = 100 // 每次请求多少个数量
@@ -21,10 +23,13 @@ class CrawlBookmarkPage extends CrawlPageBase {
   public crawlRecommended: boolean = false // 是否抓取推荐作品（收藏页面下方）
 
   protected getWantPage() {
-    let pageTip = lang.transl('_checkWantPageRule1Arg7')
+    let pageTip = ''
     if (this.crawlRecommended) {
       pageTip = lang.transl('_checkWantPageRule1Arg11')
+    } else {
+      pageTip = lang.transl('_checkWantPageRule1Arg7')
     }
+
     this.crawlNumber = this.checkWantPageInput(
       lang.transl('_checkWantPageRule1Arg6'),
       pageTip
@@ -41,16 +46,10 @@ class CrawlBookmarkPage extends CrawlPageBase {
   }
 
   protected readyGetIdList() {
-    // 每次开始时重置一些条件
-    this.offset = 0
-    this.idList = []
-
     // 每页个数
-    let onceNumber = 48 // 新版每页 48 个作品（因为新版不显示无法访问的作品，所以有时候一页不足这个数量）
-    // 旧版每页 20 个作品
-    if (document.querySelector('.user-name')) {
-      onceNumber = 20
-    }
+    // 旧版每页 20 个作品，新版每页 48 个作品（因为新版不显示无法访问的作品，所以有时候一页不足 48 个）
+    const isOldPage = !!document.querySelector('.user-name')
+    const onceNumber = isOldPage ? 20 : 48
 
     // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
     const nowPage = API.getURLField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
@@ -74,14 +73,14 @@ class CrawlBookmarkPage extends CrawlPageBase {
       // 在“未分类”页面时
       this.tag = '未分類'
     } else {
-      this.tag = decodeURI(API.getURLField(location.href, 'tag'))
+      this.tag = API.getURLField(location.href, 'tag')
     }
 
     // 判断是公开收藏还是非公开收藏
-    const hide = API.getURLField(location.href, 'rest') === 'hide'
+    this.isHide = API.getURLField(location.href, 'rest') === 'hide'
 
     // 获取 id 列表
-    this.getIdList(hide)
+    this.getIdList()
 
     log.log(lang.transl('_正在抓取'))
 
@@ -91,19 +90,17 @@ class CrawlBookmarkPage extends CrawlPageBase {
   }
 
   // 获取用户的收藏作品列表
-  protected async getIdList(isHide: boolean = false) {
-    let bmkGetEnd = false // 书签作品是否获取完毕
-
+  protected async getIdList() {
     let data: BookmarkData
     try {
       data = await API.getBookmarkData(
         DOM.getUserId(),
         this.tag,
         this.offset,
-        isHide
+        this.isHide
       )
     } catch (error) {
-      this.getIdList(isHide)
+      this.getIdList()
       return
     }
 
@@ -111,18 +108,14 @@ class CrawlBookmarkPage extends CrawlPageBase {
       data.body.works.length === 0 ||
       this.idList.length >= this.requsetNumber
     ) {
-      bmkGetEnd = true // 书签页获取完毕
-      this.afterGetListPage()
-    }
-
-    // 如果书签页没有获取完毕
-    if (!bmkGetEnd) {
-      // 没有抓取完毕时，才添加数据。抓取完毕之后不添加数据
+      // 书签页获取完毕
+      return this.afterGetListPage()
+    } else {
+      // 没有抓取完毕时，添加数据
       data.body.works.forEach(data => this.idList.push(data.id))
-
       this.offset += this.onceRequest // 每次增加偏移量
       // 重复抓取过程
-      this.getIdList(isHide)
+      this.getIdList()
     }
   }
 
@@ -160,6 +153,8 @@ class CrawlBookmarkPage extends CrawlPageBase {
   }
 
   protected resetGetIdListStatus() {
+    this.idList = []
+    this.offset = 0
     this.listPageFinished = 0
     this.crawlRecommended = false // 解除下载推荐作品的标记
   }

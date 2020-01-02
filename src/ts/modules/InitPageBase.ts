@@ -30,8 +30,7 @@ type allCrawlPage =
   | CrawlNewIllustPage
 
 abstract class InitPageBase {
-  constructor(crawler: allCrawlPage) {
-  }
+  constructor(crawler: allCrawlPage) {}
 
   protected abstract crawler: allCrawlPage
 
@@ -44,7 +43,7 @@ abstract class InitPageBase {
   }
 
   protected abstract destroySelf(): void
-  
+
   // 销毁初始化页面时添加的元素和事件等
   public destroy(): void {
     this.destroySelf()

@@ -18,7 +18,9 @@ class Filter {
 
   private excludeTag: string = '' // 要排除的tag的列表
 
-  private BMKNum: number = 0 // 要求收藏达到指定数量
+  private filterBMKNum = false // 是否要求收藏数量
+
+  private BMKNum: number = 0 // 输入的收藏数量
 
   private onlyBmk: boolean = false // 是否只下载收藏的作品
 
@@ -50,7 +52,10 @@ class Filter {
     this.multipleImageWorks = parseInt(form.multipleImageWorks.value)
 
     // 获取是否设置了收藏数要求
-    this.BMKNum = this.getBmkNum()
+    this.filterBMKNum = this.getBMKNumSet()
+    if (this.filterBMKNum) {
+      this.BMKNum = this.getBMKNum()
+    }
 
     // 获取是否设置了只下载书签作品
     this.onlyBmk = this.getOnlyBmk()
@@ -198,8 +203,15 @@ class Filter {
     return result
   }
 
-  // 获取收藏数要求
-  private getBmkNum() {
+  // 获取检查收藏数量的设置
+  private getBMKNumSet() {
+    const check = form.checkFavNum.value
+    // 0 为不检查，1 为检查
+    return check === '1'
+  }
+
+  // 获取输入的收藏数
+  private getBMKNum() {
     const check = API.checkNumberGreater0(form.setFavNum.value)
 
     if (check.result) {
@@ -350,7 +362,7 @@ class Filter {
 
   // 检查收藏数要求
   private checkBMK(bmk: FilterOption['bookmarkCount']) {
-    if (bmk === undefined) {
+    if (bmk === undefined || !this.filterBMKNum) {
       return true
     } else {
       return bmk >= this.BMKNum

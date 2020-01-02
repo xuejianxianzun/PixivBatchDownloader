@@ -6,7 +6,7 @@ import { Colors } from './Colors'
 import { lang } from './Lang'
 import { centerButtons } from './CenterButtons'
 import { options } from './Options'
-import { bookmarksAddTag } from './BookmarksAddTag'
+import { BookmarksAddTag } from './BookmarksAddTag'
 
 class InitBookmarkPage extends InitPageBase {
   constructor(crawler: CrawlBookmarkPage) {
@@ -25,8 +25,8 @@ class InitBookmarkPage extends InitPageBase {
       })
 
     // 添加下载推荐作品的按钮，只在旧版收藏页面使用
-    const oldPage = !!document.querySelector('.user-name')
-    if (oldPage) {
+    const isOldPage = !!document.querySelector('.user-name')
+    if (isOldPage) {
       const downRecmdBtn = centerButtons.add(
         Colors.blue,
         lang.transl('_抓取推荐作品'),
@@ -44,12 +44,11 @@ class InitBookmarkPage extends InitPageBase {
 
     // 如果存在 token，则添加“添加 tag”按钮
     if (API.getToken()) {
-      let btn = centerButtons.add(Colors.green, lang.transl('_添加tag'), [
+      const btn = centerButtons.add(Colors.green, lang.transl('_添加tag'), [
         ['title', lang.transl('_添加tag')]
       ])
-      btn.id = 'add_tag_btn'
 
-      bookmarksAddTag.init(btn)
+      new BookmarksAddTag(btn)
     }
   }
 

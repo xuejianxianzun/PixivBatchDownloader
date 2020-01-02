@@ -4,42 +4,24 @@ import { BookmarkResult, BookmarkWork } from './CrawlResult'
 
 // 给收藏里的未分类作品批量添加 tag
 class BookmarksAddTag {
-  private addTagList: BookmarkResult[] = [] // 需要添加 tag 的作品列表
+  constructor(btn: HTMLButtonElement) {
+    this.btn = btn
+    this.bindEvents()
+  }
 
-  private btn: HTMLButtonElement = document.createElement('button')
+  private addTagList: BookmarkResult[] = [] // 需要添加 tag 的作品的数据
+
+  private btn: HTMLButtonElement
 
   private readonly once = 100 // 一次请求多少个作品的数据
 
-  public init(btn: HTMLButtonElement) {
-    this.btn = btn
+  private bindEvents() {
     this.btn.addEventListener('click', () => {
       this.addTagList = [] // 每次点击清空结果
-      this.btn = document.getElementById('add_tag_btn') as HTMLButtonElement
-      this.btn!.setAttribute('disabled', 'disabled')
-      this.btn!.textContent = `Checking`
+      this.btn.setAttribute('disabled', 'disabled')
+      this.btn.textContent = `Checking`
       this.readyAddTag()
     })
-    // 显示/隐藏按钮
-    this.toogleAddTagBtn()
-    // 当页面无刷新切换时显示/隐藏按钮
-    ;['pushState', 'popstate'].forEach(item => {
-      window.addEventListener(item, () => {
-        this.toogleAddTagBtn()
-      })
-    })
-  }
-
-  // 如果是书签页则显示添加 tag 的按钮，否则隐藏
-  private toogleAddTagBtn() {
-    const isBookmarkPage = location.href.includes('bookmark.php')
-
-    if (this.btn) {
-      if (isBookmarkPage) {
-        this.btn.classList.remove('hidden')
-      } else {
-        this.btn.classList.add('hidden')
-      }
-    }
   }
 
   // 准备添加 tag。loop 表示这是第几轮循环
@@ -108,5 +90,4 @@ class BookmarksAddTag {
   }
 }
 
-const bookmarksAddTag = new BookmarksAddTag()
-export { bookmarksAddTag }
+export { BookmarksAddTag }

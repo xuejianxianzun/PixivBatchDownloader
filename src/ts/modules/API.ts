@@ -59,7 +59,7 @@ class API {
   }
 
   // 从 url 中获取指定的查询字段的值
-  // 注意这里进行了一次编码，所以不要对这个 API 的结果再次进行编码
+  // 注意：返回值经过 encodeURIComponent 编码！
   static getURLField(url: string, query: string) {
     const result = new URL(url).searchParams.get(query)
     if (result !== null) {
@@ -150,9 +150,7 @@ class API {
     offset: number,
     hide: boolean = false
   ): Promise<BookmarkData> {
-    const url = `https://www.pixiv.net/ajax/user/${id}/illusts/bookmarks?tag=${encodeURI(
-      tag
-    )}&offset=${offset}&limit=100&rest=${
+    const url = `https://www.pixiv.net/ajax/user/${id}/illusts/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
       hide ? 'hide' : 'show'
     }&rdm=${Math.random()}`
 

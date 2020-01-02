@@ -136,7 +136,7 @@ English （机翻，韩语设置下也使用英语文本）
 
 2 [Tag 页面](https://www.pixiv.net/member_illust.php?id=544479&tag=%E6%9D%B1%E6%96%B9)
 
-2 [收藏页面](https://www.pixiv.net/bookmark.php)
+3 [收藏页面](https://www.pixiv.net/bookmark.php)
 
 5 [搜索页面](https://www.pixiv.net/tags/saber/artworks?s_mode=s_tag)
 

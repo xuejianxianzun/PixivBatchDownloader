@@ -29,10 +29,9 @@ class PageType {
     } else if (
       url.includes('member.php?id=') ||
       url.includes('member_illust.php?id=')
-      
     ) {
       type = 2
-    }else if(location.pathname === '/bookmark.php'){
+    } else if (location.pathname === '/bookmark.php') {
       type = 4
     } else if (url.includes('tags.php?') || url.includes('/tags/')) {
       type = 5

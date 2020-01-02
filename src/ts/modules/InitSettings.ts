@@ -2,7 +2,6 @@
 // 只有部分设置会被保存
 import { EVT } from './EVT'
 import { SettingsForm } from './Settings.d'
-import { form } from './Settings'
 
 interface XzSetting {
   multipleImageWorks: number
@@ -23,6 +22,8 @@ interface XzSetting {
   postDateStart: string
   postDateEnd: string
   previewResult: boolean
+  checkFavNum: string
+  setFavNum: string
 }
 
 class InitSettings {
@@ -30,11 +31,6 @@ class InitSettings {
     this.form = form
     this.restoreOption()
     this.bindOptionEvent()
-
-    window.addEventListener(EVT.events.resetOption, () => {
-      form.reset()
-      this.reset()
-    })
   }
 
   private form: SettingsForm
@@ -61,7 +57,9 @@ class InitSettings {
     postDate: false,
     postDateStart: '',
     postDateEnd: '',
-    previewResult: true
+    previewResult: true,
+    checkFavNum: '0',
+    setFavNum: '0'
   }
 
   // 需要持久化保存的设置
@@ -120,6 +118,12 @@ class InitSettings {
     // 设置动图格式选项
     this.restoreString('ugoiraSaveAs')
 
+    // 设置收藏数量选项
+    this.restoreString('checkFavNum')
+
+    // 设置收藏数量数值
+    this.restoreString('setFavNum')
+
     // 设置必须的 tag
     this.restoreString('needTag')
 
@@ -150,20 +154,30 @@ class InitSettings {
     this.restoreBoolean('previewResult')
   }
 
-  // 处理 change 时直接保存 value 的输入框
-  private saveValueOnChange(name: keyof XzSetting) {
+  // 处理输入框： change 时直接保存 value
+  private saveTextInput(name: keyof XzSetting) {
     const el = this.form[name] as HTMLInputElement
     el.addEventListener('change', () => {
       this.saveSetting(name, el.value)
     })
   }
 
-  // 处理 click 时直接保存 checked 的复选框
-  private saveCheckOnClick(name: keyof XzSetting) {
+  // 处理复选框： click 时直接保存 checked
+  private saveCheckBox(name: keyof XzSetting) {
     const el = this.form[name] as HTMLInputElement
     el.addEventListener('click', () => {
       this.saveSetting(name, el.checked)
     })
+  }
+
+  // 处理单选框： click 时直接保存 value
+  private saveRadio(name: keyof XzSetting) {
+    const radios = this.form[name]
+    for (const radio of radios) {
+      radio.addEventListener('focus', () => {
+        this.saveSetting(name, radio.value)
+      })
+    }
   }
 
   // 绑定选项的事件，主要是当选项变动时保存。
@@ -180,43 +194,41 @@ class InitSettings {
     })
 
     // 保存多图作品设置
-    for (const input of this.form.multipleImageWorks) {
-      input.addEventListener('click', function(this: HTMLInputElement) {
-        that.saveSetting('multipleImageWorks', parseInt(this.value))
-      })
-    }
+    this.saveRadio('multipleImageWorks')
 
     // 保存作品张数
-    this.saveValueOnChange('firstFewImages')
+    this.saveTextInput('firstFewImages')
 
     // 保存下载的作品类型
-    this.saveCheckOnClick('downType0')
-    this.saveCheckOnClick('downType1')
-    this.saveCheckOnClick('downType2')
+    this.saveCheckBox('downType0')
+    this.saveCheckBox('downType1')
+    this.saveCheckBox('downType2')
 
     // 保存动图格式选项
-    for (const input of this.form.ugoiraSaveAs) {
-      input.addEventListener('click', function(this: HTMLInputElement) {
-        that.saveSetting('ugoiraSaveAs', this.value)
-      })
-    }
+    this.saveRadio('ugoiraSaveAs')
+
+    // 保存收藏数量选项
+    this.saveRadio('checkFavNum')
+
+    // 保存收藏数量数值
+    this.saveTextInput('setFavNum')
 
     // 保存投稿时间
-    this.saveCheckOnClick('postDate')
-    this.saveValueOnChange('postDateStart')
-    this.saveValueOnChange('postDateEnd')
+    this.saveCheckBox('postDate')
+    this.saveTextInput('postDateStart')
+    this.saveTextInput('postDateEnd')
 
-    // 保存必须的 tag设置
-    this.saveValueOnChange('needTag')
+    // 保存必须的 tag 设置
+    this.saveTextInput('needTag')
 
-    // 保存排除的 tag设置
-    this.saveValueOnChange('notNeedTag')
+    // 保存排除的 tag 设置
+    this.saveTextInput('notNeedTag')
 
     // 保存自动下载
-    this.saveCheckOnClick('quietDownload')
+    this.saveCheckBox('quietDownload')
 
     // 保存下载线程
-    this.saveValueOnChange('downloadThread')
+    this.saveTextInput('downloadThread')
 
     // 保存命名规则
     ;['change', 'focus'].forEach(ev => {
@@ -228,13 +240,18 @@ class InitSettings {
     })
 
     // 保存是否添加标记名称
-    this.saveCheckOnClick('tagNameToFileName')
+    this.saveCheckBox('tagNameToFileName')
 
     // 保存是否始终建立文件夹
-    this.saveCheckOnClick('alwaysFolder')
+    this.saveCheckBox('alwaysFolder')
 
     // 保存预览搜索结果
-    this.saveCheckOnClick('previewResult')
+    this.saveCheckBox('previewResult')
+
+    window.addEventListener(EVT.events.resetOption, () => {
+      this.form.reset()
+      this.reset()
+    })
   }
 
   // 持久化保存设置

@@ -29,4 +29,5 @@ export interface SettingsForm extends HTMLFormElement {
   alwaysFolder: HTMLInputElement
   debut: HTMLInputElement
   previewResult: HTMLInputElement
+  checkFavNum: HTMLInputElement
 }

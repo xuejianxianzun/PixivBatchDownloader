@@ -1,3 +1,27 @@
+## 3.7.0 2020-01-02
+
+### 保存“设置收藏数量”选项
+
+以前不会记住此设置，现在记住了此选项。
+
+以前只有一个输入框，输入的值等于 0 相当于不限制，大于 0 才限制。现在为了便于使用，为其增添了“不限制”或者“大于”的选项按钮，点击按钮即可更改限制状态。
+
+### 优化了保存设置的代码
+
+### 拆分出书签页面的抓取
+
+之前书签页面的抓取不是一个独立的类，而是在用户列表页之内的，现在拆分出来，并分配 pageType 为 3。
+
+### 修复 bug
+
+今天发现收藏页面抓取带斜杠的 tag 时抓取失败，如 `Fate/GrandOrder`，原因是重复进行了 `encodeURIComponent`，现在修复了这个 bug。不清楚到底是何时开始出现的这个问题。
+
+### 下载器运行流程
+
+下载器分为两个部分：抓取部分和下载部分。抓取部分会随着页面类型不同而变化，下载部分不会变化。
+
+待补……
+
 ## 3.6.2 2020-01-01
 
 ### 修复 bug
@@ -88,6 +112,34 @@ https://www.pixiv.net/search.php?s_mode=s_tag&word=saber
 new:
 https://www.pixiv.net/tags/saber/artworks?s_mode=s_tag
 ```
+
+### 输出面板的性能测试
+
+- 时间：2020-01-01
+- 浏览器：Chrome 79
+- CPU：i3-6100 
+- 测试网址： [Fate/GrandOrder10000users入り](https://www.pixiv.net/tags/Fate%2FGrandOrder%2010000users%E5%85%A5%E3%82%8A/artworks?s_mode=s_tag)
+- 数据量：24000 个图片结果
+
+**说明：**
+- 渲染耗时:从点击预览按钮，到页面可以操作的时间
+- 复制耗时:从点击复制按钮，到复制完成的时间
+- 时间向下取整，即后面可能有小数
+
+
+#### 预览文件名
+
+命名规则：
+
+```{p_title}/{bmk}-{id}-{user}-{tags_translate}```
+
+- 渲染耗时：6 秒
+- 复制耗时：3 秒
+
+#### 复制 URL
+
+- 渲染耗时：2 秒
+- 复制耗时：6 秒
 
 ## 3.6.1 2020-01-01
 
@@ -1598,5 +1650,3 @@ Viewerjs-mix.js [CSS part](https://github.com/fengyuanchen/viewerjs/blob/master/
 合并 init 和 crawl？
 
 独立出搜索页面的筛选部分？
-
-分离 user 的不同抓取模式？

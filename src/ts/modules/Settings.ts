@@ -81,6 +81,12 @@ class Settings {
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_筛选收藏数的提示Center'
   )}">${lang.transl('_筛选收藏数Center')}<span class="gray1"> ? </span></span>
+  <label for="checkFavNum0"><input type="radio" name="checkFavNum" id="checkFavNum0" value="0" checked>  ${lang.transl(
+    '_不限制'
+  )}&nbsp; </label>
+  <label for="checkFavNum1"><input type="radio" name="checkFavNum" id="checkFavNum1" value="1">  ${lang.transl(
+    '_大于'
+  )}&nbsp; </label>
   <input type="text" name="setFavNum" class="setinput_style1 blue" value="0">&nbsp;&nbsp;&nbsp;&nbsp;
   </p>
   <p class="${this.optionClass}" data-no="6">
@@ -347,4 +353,5 @@ class Settings {
 const settings = new Settings()
 const form = settings.form
 const optionClass = settings.optionClass
+
 export { form, optionClass }
