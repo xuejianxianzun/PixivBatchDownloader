@@ -28,10 +28,12 @@ class PageType {
       type = 1
     } else if (
       url.includes('member.php?id=') ||
-      url.includes('member_illust.php?id=') ||
-      location.pathname === '/bookmark.php'
+      url.includes('member_illust.php?id=')
+      
     ) {
       type = 2
+    }else if(location.pathname === '/bookmark.php'){
+      type = 4
     } else if (url.includes('tags.php?') || url.includes('/tags/')) {
       type = 5
     } else if (

@@ -19,6 +19,7 @@ import { CrawlNewIllustPage } from './CrawlNewIllustPage'
 import { InitIndexPage } from './InitIndexPage'
 import { InitWorksPage } from './InitWorksPage'
 import { InitUserPage } from './InitUserPage'
+import { InitBookmarkPage } from './InitBookmarkPage'
 import { InitSearchPage } from './InitSearchPage'
 import { InitAreaRankingPage } from './InitAreaRankingPage'
 import { InitRankingPage } from './InitRankingPage'
@@ -27,6 +28,7 @@ import { InitBookmarkDetailPage } from './InitBookmarkDetailPage'
 import { InitBookmarkNewIllustPage } from './InitBookmarkNewIllustPage'
 import { InitDiscoverPage } from './InitDiscoverPage'
 import { InitNewIllustPage } from './InitNewIllustPage'
+import { CrawlBookmarkPage } from './CrawlBookmarkPage'
 
 class InitCrawlProcess {
   constructor() {
@@ -48,6 +50,7 @@ class InitCrawlProcess {
     | InitIndexPage
     | InitWorksPage
     | InitUserPage
+    | InitBookmarkPage
     | InitSearchPage
     | InitAreaRankingPage
     | InitRankingPage
@@ -65,6 +68,8 @@ class InitCrawlProcess {
         return new InitWorksPage(new CrawlWorksPage())
       case 2:
         return new InitUserPage(new CrawlUserPage())
+      case 4:
+        return new InitBookmarkPage(new CrawlBookmarkPage())
       case 5:
         return new InitSearchPage(new CrawlSearchPage())
       case 6:

@@ -3,6 +3,7 @@ import { CrawlIndexPage } from './CrawlIndexPage'
 import { CrawlDiscoverPage } from './CrawlDiscoverPage'
 import { CrawlWorksPage } from './CrawlWorksPage'
 import { CrawlUserPage } from './CrawlUserPage'
+import { CrawlBookmarkPage } from './CrawlBookmarkPage'
 import { CrawlSearchPage } from './CrawlSearchPage'
 import { CrawlAreaRankingPage } from './CrawlAreaRankingPage'
 import { CrawlRankingPage } from './CrawlRankingPage'
@@ -14,34 +15,25 @@ import { lang } from './Lang'
 import { centerButtons } from './CenterButtons'
 import { options } from './Options'
 
-abstract class InitPageBase {
-  constructor(
-    crawler:
-      | CrawlIndexPage
-      | CrawlDiscoverPage
-      | CrawlWorksPage
-      | CrawlUserPage
-      | CrawlSearchPage
-      | CrawlAreaRankingPage
-      | CrawlRankingPage
-      | CrawlPixivisionPage
-      | CrawlBookmarkDetailPage
-      | CrawlBookmarkNewIllustPage
-      | CrawlNewIllustPage
-  ) {}
+type allCrawlPage =
+  | CrawlIndexPage
+  | CrawlDiscoverPage
+  | CrawlWorksPage
+  | CrawlUserPage
+  | CrawlBookmarkPage
+  | CrawlSearchPage
+  | CrawlAreaRankingPage
+  | CrawlRankingPage
+  | CrawlPixivisionPage
+  | CrawlBookmarkDetailPage
+  | CrawlBookmarkNewIllustPage
+  | CrawlNewIllustPage
 
-  protected abstract crawler:
-    | CrawlIndexPage
-    | CrawlDiscoverPage
-    | CrawlWorksPage
-    | CrawlUserPage
-    | CrawlSearchPage
-    | CrawlAreaRankingPage
-    | CrawlRankingPage
-    | CrawlPixivisionPage
-    | CrawlBookmarkDetailPage
-    | CrawlBookmarkNewIllustPage
-    | CrawlNewIllustPage
+abstract class InitPageBase {
+  constructor(crawler: allCrawlPage) {
+  }
+
+  protected abstract crawler: allCrawlPage
 
   // 初始化
   public init() {
@@ -52,7 +44,8 @@ abstract class InitPageBase {
   }
 
   protected abstract destroySelf(): void
-
+  
+  // 销毁初始化页面时添加的元素和事件等
   public destroy(): void {
     this.destroySelf()
 
