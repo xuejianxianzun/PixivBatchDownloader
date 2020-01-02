@@ -81,7 +81,7 @@ You can also optimize the translation, thank you very much :)
 
 2 [Tag page](https://www.pixiv.net/member_illust.php?id=544479&tag=%E6%9D%B1%E6%96%B9)
 
-2 [Bookmarks](https://www.pixiv.net/bookmark.php)
+3 [Bookmarks](https://www.pixiv.net/bookmark.php)
 
 5 [Search](https://www.pixiv.net/search.php?s_mode=s_tag&word=saber)
 
