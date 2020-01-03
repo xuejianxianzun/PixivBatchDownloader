@@ -1,7 +1,14 @@
+import { EVT } from './EVT'
 import { centerPanel } from './CenterPanel'
 
 // 中间面板添加按钮的区域
 class CenterButtons {
+  constructor() {
+    window.addEventListener(EVT.events.destroy, () => {
+      this.clear()
+    })
+  }
+
   public add(bg: string = '', text: string = '', attr: string[][] = []) {
     const e = document.createElement('button')
     e.type = 'button'
@@ -16,7 +23,7 @@ class CenterButtons {
     return e
   }
 
-  public clear() {
+  private clear() {
     centerPanel.clearSlot('centerBtns')
   }
 }

@@ -1,17 +1,17 @@
 // 初始化 bookmark_detail 页面
 import { InitPageBase } from './InitPageBase'
-import { CrawlBookmarkDetailPage } from './CrawlBookmarkDetailPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { centerButtons } from './CenterButtons'
 import { options } from './Options'
+import { API } from './API'
+import { store } from './Store'
 
 class InitBookmarkDetailPage extends InitPageBase {
-  constructor(crawler: CrawlBookmarkDetailPage) {
-    super(crawler)
-    this.crawler = crawler
+  constructor() {
+    super()
+    this.init()
   }
-  protected crawler: CrawlBookmarkDetailPage
 
   protected appendCenterBtns() {
     centerButtons
@@ -21,7 +21,7 @@ class InitBookmarkDetailPage extends InitPageBase {
       .addEventListener(
         'click',
         () => {
-          this.crawler.readyCrawl()
+          this.readyCrawl()
         },
         false
       )
@@ -32,13 +32,38 @@ class InitBookmarkDetailPage extends InitPageBase {
     options.setWantPage({
       text: lang.transl('_个数'),
       tip: lang.transl('_要获取的作品个数2'),
-      rangTip: `1 - ${this.crawler.maxCount}`,
-      value: this.crawler.maxCount.toString()
+      rangTip: `1 - ${this.maxCount}`,
+      value: this.maxCount.toString()
     })
 
     options.hideOption([15, 18])
   }
 
-  protected destroySelf() {}
+  protected destroy() {}
+
+  protected getWantPage() {
+    const check = this.checkWantPageInputGreater0()
+    if (check == undefined) {
+      return
+    }
+    this.crawlNumber = check
+
+    if (this.crawlNumber > this.maxCount) {
+      this.crawlNumber = this.maxCount
+    }
+  }
+
+  // 获取相似的作品列表
+  protected async getIdList() {
+    let data = await API.getRecommenderData(API.getIllustId(), this.crawlNumber)
+
+    for (const id of data.recommendations) {
+      store.idList.push(id.toString())
+    }
+
+    this.getIdListFinished()
+  }
+
+  protected resetGetIdListStatus() {}
 }
 export { InitBookmarkDetailPage }

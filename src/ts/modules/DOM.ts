@@ -11,6 +11,9 @@ class DOM {
 
   // 删除 DOM 元素
   static removeEl(el: NodeListOf<Element> | HTMLElement) {
+    if (!el) {
+      return
+    }
     if (Reflect.has(el, 'length')) {
       // 如果有 length 属性则循环删除。
       ;(el as NodeListOf<Element>).forEach(el => {
@@ -37,7 +40,7 @@ class DOM {
   newindex-inner 是在未登录时的用户作品列表页面使用的
   layout-body 是在未登录时的搜索页使用的
   */
-  static insertToHead(el: Element) {
+  static insertToHead<T extends Element>(el: T): T {
     if (document.body) {
       document.body.insertAdjacentElement('afterbegin', el)
     } else {
@@ -47,6 +50,7 @@ class DOM {
         document.querySelector('.layout-body')!
       ).insertAdjacentElement('beforebegin', el)
     }
+    return el
   }
 
   // 获取用户 id

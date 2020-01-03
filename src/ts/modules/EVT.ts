@@ -27,6 +27,7 @@ interface EventList {
   toggleForm: 'toggleForm'
   settingChange: 'settingChange'
   clickRightIcon: 'clickRightIcon'
+  destroy: 'destroy'
 }
 
 class EVT {
@@ -57,7 +58,8 @@ class EVT {
     worksUpdate: 'worksUpdate',
     toggleForm: 'toggleForm',
     settingChange: 'settingChange',
-    clickRightIcon: 'clickRightIcon'
+    clickRightIcon: 'clickRightIcon',
+    destroy: 'destroy'
   }
 
   static fire(

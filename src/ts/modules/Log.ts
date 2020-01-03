@@ -1,7 +1,18 @@
 import { DOM } from './DOM'
+import { EVT } from './EVT'
+import { store } from './Store'
 
 // 日志类
 class Log {
+  constructor() {
+    // 切换不同页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
+    window.addEventListener(EVT.events.destroy, () => {
+      if (store.states.allowWork) {
+        this.clear()
+      }
+    })
+  }
+
   private logArea = document.createElement('div') // 输出日志的区域
   private id = 'logWrap' // 日志区域元素的 id
   private refresh = document.createElement('span') // 刷新时使用的元素

@@ -1,17 +1,19 @@
 // 初始化地区排行榜页面
 import { InitPageBase } from './InitPageBase'
-import { CrawlAreaRankingPage } from './CrawlAreaRankingPage'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { centerButtons } from './CenterButtons'
 import { options } from './Options'
+import { FilterOption } from './Filter.d'
+import { filter } from './Filter'
+import { API } from './API'
+import { store } from './Store'
 
 class InitAreaRankingPage extends InitPageBase {
-  constructor(crawler: CrawlAreaRankingPage) {
-    super(crawler)
-    this.crawler = crawler
+  constructor() {
+    super()
+    this.init()
   }
-  protected crawler: CrawlAreaRankingPage
 
   protected appendCenterBtns() {
     centerButtons
@@ -19,7 +21,7 @@ class InitAreaRankingPage extends InitPageBase {
         ['title', lang.transl('_抓取本页作品Title')]
       ])
       .addEventListener('click', () => {
-        this.crawler.readyCrawl()
+        this.readyCrawl()
       })
   }
 
@@ -27,6 +29,38 @@ class InitAreaRankingPage extends InitPageBase {
     options.hideOption([1, 15, 18])
   }
 
-  protected destroySelf() {}
+  protected destroy() {}
+
+  protected getIdList() {
+    // 地区排行榜
+    const allPicArea = document.querySelectorAll('.ranking-item>.work_wrapper')
+
+    for (const el of allPicArea) {
+      const img = el.querySelector('._thumbnail')! as HTMLImageElement
+      // img.dataset.type 全都是 "illust"，因此不能用来区分作品类型
+
+      // 提取出 tag 列表
+      const id = img.dataset.id!
+      const tags = img.dataset.tags!.split(' ')
+      const bookmarked = el
+        .querySelector('._one-click-bookmark')!
+        .classList.contains('on')
+
+      const filterOpt: FilterOption = {
+        id: id,
+        tags: tags,
+        bookmarkData: bookmarked
+      }
+
+      if (filter.check(filterOpt)) {
+        const id = API.getIllustId(el.querySelector('a')!.href)
+        store.idList.push(id)
+      }
+    }
+
+    this.getIdListFinished()
+  }
+
+  protected resetGetIdListStatus() {}
 }
 export { InitAreaRankingPage }

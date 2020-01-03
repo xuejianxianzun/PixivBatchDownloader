@@ -2,7 +2,7 @@
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { DOM } from './DOM'
-import {  store} from "./Store";
+import { store } from './Store'
 
 // 中间面板
 class CenterPanel {
@@ -114,12 +114,12 @@ class CenterPanel {
     })
 
     // 开始抓取作品时，隐藏
-    window.addEventListener(EVT.events.crawlStart,()=>{
-        this.close()
+    window.addEventListener(EVT.events.crawlStart, () => {
+      this.close()
     })
 
     // 抓取完作品详细数据时，显示
-    window.addEventListener(EVT.events.crawlFinish,()=>{
+    window.addEventListener(EVT.events.crawlFinish, () => {
       if (!store.states.quickDownload) {
         this.show()
       }

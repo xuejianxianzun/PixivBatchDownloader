@@ -1,5 +1,5 @@
 // api 类
-// 不依赖页面元素或者下载器的状态，可独立使用
+// 不依赖其他模块，可独立使用
 import {
   UserWorksWithTag,
   BookmarkData,
