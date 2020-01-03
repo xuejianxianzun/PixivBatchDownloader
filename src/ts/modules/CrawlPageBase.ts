@@ -7,7 +7,6 @@ import { API } from './API'
 import { store } from './Store'
 import { log } from './Log'
 import { EVT } from './EVT'
-import { centerPanel } from './CenterPanel'
 import { form } from './Settings'
 import { titleBar } from './TitleBar'
 import { pageInfo } from './PageInfo'
@@ -149,8 +148,6 @@ abstract class CrawlPageBase {
     log.success(lang.transl('_任务开始0'))
 
     titleBar.changeTitle('↑')
-
-    centerPanel.close()
 
     this.getWantPage()
 
@@ -390,11 +387,6 @@ abstract class CrawlPageBase {
     log.log(lang.transl('_抓取完毕'), 2)
 
     EVT.fire(EVT.events.crawlFinish)
-
-    // 显示中间面板
-    if (!store.states.quickDownload) {
-      centerPanel.show()
-    }
   }
 
   // 重设抓取作品列表时使用的变量或标记

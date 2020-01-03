@@ -7,7 +7,7 @@
  * Wiki:    https://github.com/xuejianxianzun/PixivBatchDownloader/wiki
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
- * QQ group:675174717
+ * QQ group:  675174717
  */
 
 import './modules/InitCrawlProcess'

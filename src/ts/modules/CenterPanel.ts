@@ -2,6 +2,7 @@
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { DOM } from './DOM'
+import {  store} from "./Store";
 
 // 中间面板
 class CenterPanel {
@@ -110,6 +111,18 @@ class CenterPanel {
     // 点击右侧图标时，显示
     window.addEventListener(EVT.events.clickRightIcon, () => {
       this.show()
+    })
+
+    // 开始抓取作品时，隐藏
+    window.addEventListener(EVT.events.crawlStart,()=>{
+        this.close()
+    })
+
+    // 抓取完作品详细数据时，显示
+    window.addEventListener(EVT.events.crawlFinish,()=>{
+      if (!store.states.quickDownload) {
+        this.show()
+      }
     })
 
     // 切换显示表单时，更改提示按钮的样式
