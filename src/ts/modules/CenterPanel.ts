@@ -52,6 +52,7 @@ class CenterPanel {
       <slot data-name="form"></slot>
       <slot data-name="centerBtns" class="centerWrap_btns"></slot>
       <slot data-name="downloadArea"></slot>
+      <slot data-name="progressBar"></slot>
       </div>
 
       <div class="gray1 bottom_help_bar"> 
@@ -120,7 +121,7 @@ class CenterPanel {
 
     // 抓取完作品详细数据时，显示
     window.addEventListener(EVT.events.crawlFinish, () => {
-      if (!store.states.quickDownload) {
+      if (!store.states.quickDownload && !store.states.notAutoDownload) {
         this.show()
       }
     })
@@ -164,23 +165,32 @@ class CenterPanel {
 
   public useSlot(name: string, element: string | HTMLElement) {
     if (!this.slots) {
-      return
+      throw 'No slots!'
     }
+
+    let findSlot: HTMLSlotElement | undefined
     for (const slot of this.slots) {
       if (slot.dataset.name === name) {
-        if (typeof element === 'string') {
-          // 插入字符串形式的元素
-          const wrap = document.createElement('div')
-          wrap.innerHTML = element
-          const el = wrap.children[0]
-          slot.appendChild(el)
-          return el
-        } else {
-          // 插入 html 元素
-          slot.appendChild(element)
-          return element
-        }
+        findSlot = slot
+        break
       }
+    }
+
+    if (!findSlot) {
+      throw 'No slots!'
+    }
+
+    if (typeof element === 'string') {
+      // 插入字符串形式的元素
+      const wrap = document.createElement('div')
+      wrap.innerHTML = element
+      const el = wrap.children[0]
+      findSlot.appendChild(el)
+      return el
+    } else {
+      // 插入 html 元素
+      findSlot.appendChild(element)
+      return element
     }
   }
 

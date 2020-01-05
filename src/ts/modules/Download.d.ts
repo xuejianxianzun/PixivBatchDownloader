@@ -8,12 +8,6 @@ export interface downloadArgument {
   taskBatch: number
 }
 
-export interface ProgressBar {
-  name: HTMLSpanElement
-  loaded: HTMLSpanElement
-  progress: HTMLDivElement
-}
-
 // 前台向后台发送的任务信息
 export interface SendToBackEndData {
   msg: string

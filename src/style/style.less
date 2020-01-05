@@ -214,84 +214,87 @@
     font-size: 14px;
   }
   .progressBarWrap {
-    display: flex;
-    .text {
-      margin-right: 10px;
+    display: none;
+    .total {
+      display: flex;
+      .text {
+        margin-right: 10px;
+      }
+      .right1 {
+        flex: 1;
+      }
+    }
+    .progress,
+    .progressBar {
+      border-radius: 11px;
+      height: 22px;
+      overflow: hidden;
+    }
+    .centerWrap_down_tips {
+      line-height: 28px;
     }
     .right1 {
-      flex: 1;
+      display: inline-block;
+      height: 22px;
+      vertical-align: middle;
     }
-  }
-  .progress,
-  .progressBar {
-    border-radius: 11px;
-    height: 22px;
-    overflow: hidden;
-  }
-  .centerWrap_down_tips {
-    line-height: 28px;
-  }
-  .right1 {
-    display: inline-block;
-    height: 22px;
-    vertical-align: middle;
-  }
-  .progressBar {
-    position: absolute;
-    background: #6792a2;
-  }
-  .progress {
-    background: #0eb3f3;
-    transition: 0.15s;
-  }
-  .progressTip {
-    position: absolute;
-    line-height: 22px;
-  }
-  .progress1 {
-    width: 0;
-  }
-  .progressTip1 {
-    width: 100%;
-    text-align: center;
-  }
-  .centerWrap_down_list {
-    display: none;
-    ul {
+    .progressBar {
+      position: absolute;
+      background: #6792a2;
+    }
+    .progress {
+      background: #0eb3f3;
+      transition: 0.15s;
+    }
+    .progressTip {
+      position: absolute;
+      line-height: 22px;
+    }
+    .progress1 {
+      width: 0;
+    }
+    .progressTip1 {
+      width: 100%;
+      text-align: center;
+    }
+
+    .progressBarList {
       padding-top: 5px;
       margin: 0;
       padding-left: 0;
+
+      .downloadBar {
+        position: relative;
+        width: 100%;
+        padding: 5px 0;
+        height: 22px;
+        box-sizing: content-box;
+      }
+      .progressBar2 {
+        width: 100%;
+      }
+      .progress2 {
+        width: 0;
+      }
+      .progressTip2 {
+        width: 100%;
+      }
+      .fileName {
+        max-width: 60%;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        vertical-align: top;
+        display: inline-block;
+        text-indent: 1em;
+      }
     }
-  }
-  .downloadBar {
-    position: relative;
-    width: 100%;
-    padding: 5px 0;
-    height: 22px;
-    box-sizing: content-box;
-  }
-  .progressBar2 {
-    width: 100%;
-  }
-  .progress2 {
-    width: 0;
-  }
-  .progressTip2 {
-    width: 100%;
-  }
-  .download_fileName {
-    max-width: 60%;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    vertical-align: top;
-    display: inline-block;
-    text-indent: 1em;
-  }
-  .showDownTip {
-    padding-top: 10px;
-    cursor: pointer;
-    display: inline-block;
+
+    .showDownTip {
+      padding-top: 10px;
+      cursor: pointer;
+      display: inline-block;
+    }
   }
   .downTip,
   .download_a,

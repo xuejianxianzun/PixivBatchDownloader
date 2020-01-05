@@ -13,6 +13,7 @@ import { Colors } from './Colors'
 import { centerPanel } from './CenterPanel'
 import { form } from './Settings'
 import { Download } from './Download'
+import { progressBar } from './ProgressBar'
 
 interface TaskList {
   [id: string]: {
@@ -42,16 +43,24 @@ class DownloadControl {
 
   private convertText = ''
 
-  private readonly downloadBarHTML = `<li class="downloadBar">
-  <div class="progressBar progressBar2">
-  <div class="progress progress2"></div>
-  </div>
-  <div class="progressTip progressTip2">
-  <span class="download_fileName"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${lang.transl(
-    '_已下载'
-  )}&nbsp;&nbsp;<span class="loaded">0/0</span>KB
-  </div>
-  </li>`
+  private reTryTimer: number = 0 // 重试下载的定时器
+
+  private downloadArea: HTMLDivElement = document.createElement('div') // 下载区域
+
+  private totalNumberEl: HTMLSpanElement = document.createElement('span')
+
+  private downStatusEl: HTMLSpanElement = document.createElement('span')
+
+  private convertTipEL: HTMLDivElement = document.createElement('div') // 转换动图时显示提示的元素
+
+  private downloadStop: boolean = false // 是否停止下载
+
+  private downloadPause: boolean = false // 是否暂停下载
+
+  // 返回任务停止状态。暂停和停止都视为停止下载
+  public get downloadStopped() {
+    return this.downloadPause || this.downloadStop
+  }
 
   private listenEvents() {
     window.addEventListener(EVT.events.crawlStart, () => {
@@ -72,7 +81,7 @@ class DownloadControl {
         this.convertText = ''
       }
       this.convertTipEL.innerHTML = this.convertText
-      this.LogDownloadProgress()
+      this.LogDownloadStates()
     })
 
     // 监听浏览器下载文件后，返回的消息
@@ -105,25 +114,17 @@ class DownloadControl {
     })
   }
 
-  // 显示总的下载进度
-  private showDownloadProgress(downloaded: number) {
-    // 在总进度条上显示已下载数量
-    document.querySelector('.downloaded')!.textContent = downloaded.toString()
-
-    // 设置总进度条的进度
-    const progress = (downloaded / store.result.length) * 100
-    const progressBar = document.querySelector('.progress1')! as HTMLDivElement
-    progressBar.style.width = progress + '%'
-  }
-
   private set setDownloaded(val: number) {
     this.downloaded = val
-    this.showDownloadProgress(this.downloaded)
-    this.LogDownloadProgress()
+    this.LogDownloadStates()
+
+    // 设置下载进度信息
+    this.totalNumberEl.textContent = store.result.length.toString()
+    progressBar.setTotalProgress(this.downloaded)
 
     // 重置下载进度信息
     if (this.downloaded === 0) {
-      this.resetDownloadArea()
+      this.setDownStateText(lang.transl('_未开始下载'))
     }
 
     // 下载完毕
@@ -140,23 +141,6 @@ class DownloadControl {
     this.setDownloaded = this.downloaded + 1
   }
 
-  private reTryTimer: number = 0 // 重试下载的定时器
-
-  private downloadArea: HTMLDivElement = document.createElement('div') // 下载区域
-
-  private downStatusEl: HTMLSpanElement = document.createElement('span')
-
-  private convertTipEL: HTMLDivElement = document.createElement('div') // 转换动图时显示提示的元素
-
-  private downloadStop: boolean = false // 是否停止下载
-
-  private downloadPause: boolean = false // 是否暂停下载
-
-  // 返回任务停止状态。暂停和停止都视为停止下载
-  public get downloadStopped() {
-    return this.downloadPause || this.downloadStop
-  }
-
   // 显示或隐藏下载区域
   private showDownloadArea() {
     this.downloadArea.style.display = 'block'
@@ -164,27 +148,6 @@ class DownloadControl {
 
   private hideDownloadArea() {
     this.downloadArea.style.display = 'none'
-  }
-
-  // 重置下载区域的信息
-  private resetDownloadArea() {
-    this.setDownStateText(lang.transl('_未开始下载'))
-
-    for (const el of document.querySelectorAll('.imgNum')) {
-      el.textContent = store.result.length.toString()
-    }
-
-    for (const el of document.querySelectorAll('.download_fileName')) {
-      el.textContent = ''
-    }
-
-    for (const el of document.querySelectorAll('.loaded')) {
-      el.textContent = '0/0'
-    }
-
-    for (const el of document.querySelectorAll('.progress')) {
-      ;(el as HTMLDivElement).style.width = '0%'
-    }
   }
 
   // 设置下载状态文本，默认颜色为主题蓝色
@@ -234,34 +197,14 @@ class DownloadControl {
     )}</span></span>
     <span class="convert_tip warn"></span>
     </p>
-    <div class="progressBarWrap">
-    <span class="text">${lang.transl('_下载进度')}</span>
-    <div class="right1">
-    <div class="progressBar progressBar1">
-    <div class="progress progress1"></div>
-    </div>
-    <div class="progressTip progressTip1">
-    <span class="downloaded">0</span>
-    /
-    <span class="imgNum">0</span>
-    </div>
-    </div>
-    </div>
-    </div>
-    <div>
-    <ul class="centerWrap_down_list">
-    
-    </ul>
     </div>
     </div>`
 
     const el = centerPanel.useSlot('downloadArea', html)
-    if (!el) {
-      throw 'Add download area error!'
-    }
     this.downloadArea = el as HTMLDivElement
     this.downStatusEl = el.querySelector('.down_status ') as HTMLSpanElement
     this.convertTipEL = el.querySelector('.convert_tip') as HTMLDivElement
+    this.totalNumberEl = el.querySelector('.imgNum') as HTMLSpanElement
 
     document.querySelector('.startDownload')!.addEventListener('click', () => {
       this.startDownload()
@@ -294,29 +237,34 @@ class DownloadControl {
     EVT.fire(EVT.events.output, result)
   }
 
-  // 所有下载进度条
-  private allDownloadBar: NodeListOf<
-    HTMLDivElement
-  > = document.querySelectorAll('.downloadBar')
-
-  // 重设下载进度条的数量
-  private resetDownloadBar(num: number) {
-    const centerWrapDownList = document.querySelector(
-      '.centerWrap_down_list'
-    ) as HTMLUListElement
-    centerWrapDownList.innerHTML = ''
-    while (num > 0) {
-      centerWrapDownList.insertAdjacentHTML('beforeend', this.downloadBarHTML)
-      num--
+  // 下载线程设置
+  private setDownloadThread() {
+    const setThread = parseInt(form.downloadThread.value)
+    if (
+      setThread < 1 ||
+      setThread > this.downloadThreadMax ||
+      isNaN(setThread)
+    ) {
+      // 如果数值非法，则重设为默认值
+      this.downloadThread = this.downloadThreadMax
+    } else {
+      this.downloadThread = setThread // 设置为用户输入的值
     }
-    centerWrapDownList.style.display = 'block'
-    // 缓存所有下载进度条元素
-    this.allDownloadBar = centerWrapDownList.querySelectorAll('.downloadBar')
+
+    // 如果剩余任务数量少于下载线程数
+    if (store.result.length - this.downloaded < this.downloadThread) {
+      this.downloadThread = store.result.length - this.downloaded
+    }
+
+    // 重设下载进度条
+    progressBar.reset(this.downloadThread)
   }
 
   // 抓取完毕之后，已经可以开始下载时，根据一些状态进行处理
   private beforeDownload() {
     this.setDownloaded = 0
+
+    this.setDownloadThread()
 
     // 检查 不自动开始下载 的标记
     if (store.states.notAutoDownload) {
@@ -362,32 +310,12 @@ class DownloadControl {
       }
     }
 
-    // 下载线程设置
-    const setThread = parseInt(form.downloadThread.value)
-    if (
-      setThread < 1 ||
-      setThread > this.downloadThreadMax ||
-      isNaN(setThread)
-    ) {
-      // 如果数值非法，则重设为默认值
-      this.downloadThread = this.downloadThreadMax
-    } else {
-      this.downloadThread = setThread // 设置为用户输入的值
-    }
-
-    // 如果剩余任务数量少于下载线程数
-    if (store.result.length - this.downloaded < this.downloadThread) {
-      this.downloadThread = store.result.length - this.downloaded
-    }
-
-    // 重设下载进度条的数量
-    this.resetDownloadBar(this.downloadThread)
-
     // 重置一些条件
-    EVT.fire(EVT.events.downloadStart)
     this.downloadPause = false
     this.downloadStop = false
     clearTimeout(this.reTryTimer)
+    this.setDownloadThread()
+    EVT.fire(EVT.events.downloadStart)
 
     // 启动或继续下载，建立并发下载线程
     for (let i = 0; i < this.downloadThread; i++) {
@@ -449,7 +377,7 @@ class DownloadControl {
     if (this.downloadPause || this.downloadStop) {
       return false
     }
-    let task = this.taskList[data.id]
+    const task = this.taskList[data.id]
     // 复位这个任务的状态
     this.setDownloadedIndex(task.index, -1)
     // 建立下载任务，再次下载它
@@ -457,7 +385,7 @@ class DownloadControl {
   }
 
   private downloadSuccess(data: DonwloadSuccessData) {
-    let task = this.taskList[data.id]
+    const task = this.taskList[data.id]
     // 更改这个任务状态为“已完成”
     this.setDownloadedIndex(task.index, 1)
     // 增加已下载数量
@@ -494,7 +422,7 @@ class DownloadControl {
   }
 
   // 在日志上显示下载进度
-  private LogDownloadProgress() {
+  private LogDownloadStates() {
     let text = `${this.downloaded} / ${store.result.length}`
 
     // 追加转换动图的提示
@@ -536,7 +464,7 @@ class DownloadControl {
       }
 
       // 建立下载
-      new Download(this.allDownloadBar[progressBarIndex], data)
+      new Download(progressBarIndex, data)
     }
   }
 }

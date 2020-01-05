@@ -202,72 +202,72 @@
   font-size: 14px;
 }
 .centerWrap .progressBarWrap {
+  display: none;
+}
+.centerWrap .progressBarWrap .total {
   display: flex;
 }
-.centerWrap .progressBarWrap .text {
+.centerWrap .progressBarWrap .total .text {
   margin-right: 10px;
 }
-.centerWrap .progressBarWrap .right1 {
+.centerWrap .progressBarWrap .total .right1 {
   flex: 1;
 }
-.centerWrap .progress,
-.centerWrap .progressBar {
+.centerWrap .progressBarWrap .progress,
+.centerWrap .progressBarWrap .progressBar {
   border-radius: 11px;
   height: 22px;
   overflow: hidden;
 }
-.centerWrap .centerWrap_down_tips {
+.centerWrap .progressBarWrap .centerWrap_down_tips {
   line-height: 28px;
 }
-.centerWrap .right1 {
+.centerWrap .progressBarWrap .right1 {
   display: inline-block;
   height: 22px;
   vertical-align: middle;
 }
-.centerWrap .progressBar {
+.centerWrap .progressBarWrap .progressBar {
   position: absolute;
   background: #6792a2;
 }
-.centerWrap .progress {
+.centerWrap .progressBarWrap .progress {
   background: #0eb3f3;
   transition: 0.15s;
 }
-.centerWrap .progressTip {
+.centerWrap .progressBarWrap .progressTip {
   position: absolute;
   line-height: 22px;
 }
-.centerWrap .progress1 {
+.centerWrap .progressBarWrap .progress1 {
   width: 0;
 }
-.centerWrap .progressTip1 {
+.centerWrap .progressBarWrap .progressTip1 {
   width: 100%;
   text-align: center;
 }
-.centerWrap .centerWrap_down_list {
-  display: none;
-}
-.centerWrap .centerWrap_down_list ul {
+.centerWrap .progressBarWrap .progressBarList {
   padding-top: 5px;
   margin: 0;
   padding-left: 0;
 }
-.centerWrap .downloadBar {
+.centerWrap .progressBarWrap .progressBarList .downloadBar {
   position: relative;
   width: 100%;
   padding: 5px 0;
   height: 22px;
   box-sizing: content-box;
 }
-.centerWrap .progressBar2 {
+.centerWrap .progressBarWrap .progressBarList .progressBar2 {
   width: 100%;
 }
-.centerWrap .progress2 {
+.centerWrap .progressBarWrap .progressBarList .progress2 {
   width: 0;
 }
-.centerWrap .progressTip2 {
+.centerWrap .progressBarWrap .progressBarList .progressTip2 {
   width: 100%;
 }
-.centerWrap .download_fileName {
+.centerWrap .progressBarWrap .progressBarList .fileName {
   max-width: 60%;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -276,7 +276,7 @@
   display: inline-block;
   text-indent: 1em;
 }
-.centerWrap .showDownTip {
+.centerWrap .progressBarWrap .showDownTip {
   padding-top: 10px;
   cursor: pointer;
   display: inline-block;

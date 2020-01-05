@@ -704,6 +704,7 @@
       <slot data-name="form"></slot>
       <slot data-name="centerBtns" class="centerWrap_btns"></slot>
       <slot data-name="downloadArea"></slot>
+      <slot data-name="progressBar"></slot>
       </div>
 
       <div class="gray1 bottom_help_bar"> 
@@ -781,7 +782,9 @@
               () => {
                 if (
                   !_Store__WEBPACK_IMPORTED_MODULE_3__['store'].states
-                    .quickDownload
+                    .quickDownload &&
+                  !_Store__WEBPACK_IMPORTED_MODULE_3__['store'].states
+                    .notAutoDownload
                 ) {
                   this.show()
                 }
@@ -838,23 +841,29 @@
           }
           useSlot(name, element) {
             if (!this.slots) {
-              return
+              throw 'No slots!'
             }
+            let findSlot
             for (const slot of this.slots) {
               if (slot.dataset.name === name) {
-                if (typeof element === 'string') {
-                  // 插入字符串形式的元素
-                  const wrap = document.createElement('div')
-                  wrap.innerHTML = element
-                  const el = wrap.children[0]
-                  slot.appendChild(el)
-                  return el
-                } else {
-                  // 插入 html 元素
-                  slot.appendChild(element)
-                  return element
-                }
+                findSlot = slot
+                break
               }
+            }
+            if (!findSlot) {
+              throw 'No slots!'
+            }
+            if (typeof element === 'string') {
+              // 插入字符串形式的元素
+              const wrap = document.createElement('div')
+              wrap.innerHTML = element
+              const el = wrap.children[0]
+              findSlot.appendChild(el)
+              return el
+            } else {
+              // 插入 html 元素
+              findSlot.appendChild(element)
+              return element
             }
           }
           // 清空指定的插槽
@@ -1508,18 +1517,18 @@
         /* harmony import */ var _ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./ConvertUgoira */ './src/ts/modules/ConvertUgoira.ts'
         )
+        /* harmony import */ var _ProgressBar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ./ProgressBar */ './src/ts/modules/ProgressBar.ts'
+        )
         // 下载文件，并发送给浏览器下载
 
         class Download {
-          constructor(progressBar, data) {
+          constructor(progressBarIndex, data) {
+            this.fileName = ''
             this.stoped = false
             this.retry = 0
             this.retryMax = 50
-            this.progressBar = {
-              name: progressBar.querySelector('.download_fileName'),
-              loaded: progressBar.querySelector('.loaded'),
-              progress: progressBar.querySelector('.progress')
-            }
+            this.progressBarIndex = progressBarIndex
             this.download(data)
             this.listenEvents()
           }
@@ -1535,23 +1544,22 @@
           }
           // 设置进度条信息
           setProgressBar(loaded, total) {
-            this.progressBar.loaded.textContent = `${Math.floor(
-              loaded / 1024
-            )}/${Math.floor(total / 1024)}`
-            let progress = loaded / total
-            if (isNaN(progress)) {
-              progress = 0
-            }
-            this.progressBar.progress.style.width = progress * 100 + '%'
+            _ProgressBar__WEBPACK_IMPORTED_MODULE_6__[
+              'progressBar'
+            ].setProgress(this.progressBarIndex, {
+              name: this.fileName,
+              loaded: loaded,
+              total: total
+            })
           }
+          // 下载文件
           download(arg) {
             _TitleBar__WEBPACK_IMPORTED_MODULE_3__['titleBar'].changeTitle('↓')
             // 获取文件名
-            let fullFileName = _FileName__WEBPACK_IMPORTED_MODULE_4__[
+            this.fileName = _FileName__WEBPACK_IMPORTED_MODULE_4__[
               'fileName'
             ].getFileName(arg.data)
             // 重设当前下载栏的信息
-            this.progressBar.name.textContent = fullFileName
             this.setProgressBar(0, 0)
             // 下载图片
             let xhr = new XMLHttpRequest()
@@ -1573,47 +1581,53 @@
                 return
               }
               let file = xhr.response // 要下载的文件
-              const HandlingError = () => {
+              // 错误处理
+              const HandleError = () => {
+                let msg = ''
                 if (xhr.status === 404) {
-                  // 404 错误时创建 txt 文件，并保存提示信息
-                  const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                  // 404 错误时
+                  msg = _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                     '_file404',
                     arg.id
                   )
-                  _Log__WEBPACK_IMPORTED_MODULE_1__['log'].error(msg, 1)
-                  file = new Blob([`${msg}`], {
-                    type: 'text/plain'
-                  })
-                  fullFileName = fullFileName.replace(
-                    /\.jpg$|\.png$|\.zip$|\.gif$|\.webm$/,
-                    '.txt'
-                  )
-                  return true
                 } else {
-                  // 无法处理的情况
-                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events
-                      .downloadError
+                  // 无法处理的错误状态
+                  msg = _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                    '_文件下载失败',
+                    arg.id
                   )
-                  return false
                 }
+                _Log__WEBPACK_IMPORTED_MODULE_1__['log'].error(msg, 1)
+                // 创建 txt 文件，保存提示信息
+                file = new Blob([`${msg}`], {
+                  type: 'text/plain'
+                })
+                this.fileName = this.fileName.replace(
+                  /\.jpg$|\.png$|\.zip$|\.gif$|\.webm$/,
+                  '.txt'
+                )
+                _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadError
+                )
               }
               if (xhr.status !== 200) {
                 // 状态码错误
                 // 正常下载完毕的状态码是 200
-                this.progressBar.name.classList.add('downloadError')
+                _ProgressBar__WEBPACK_IMPORTED_MODULE_6__[
+                  'progressBar'
+                ].showErrorColor(this.progressBarIndex, true)
                 this.retry++
                 if (this.retry >= this.retryMax) {
-                  // 重试 retryMax 次依然错误，进行错误处理。无法处理的情况则终止执行。
-                  if (!HandlingError()) {
-                    return
-                  }
+                  // 重试 retryMax 次依然错误，进行错误处理
+                  HandleError()
                 } else {
                   return this.download(arg)
                 }
               } else {
                 // 状态码正常
-                this.progressBar.name.classList.remove('downloadError')
+                _ProgressBar__WEBPACK_IMPORTED_MODULE_6__[
+                  'progressBar'
+                ].showErrorColor(this.progressBarIndex, false)
                 if (
                   (arg.data.ext === 'webm' || arg.data.ext === 'gif') &&
                   arg.data.ugoiraInfo
@@ -1635,14 +1649,19 @@
               // 生成下载链接
               const blobUrl = URL.createObjectURL(file)
               // 向浏览器发送下载任务
-              this.browserDownload(blobUrl, fullFileName, arg.id, arg.taskBatch)
+              this.browserDownload(
+                blobUrl,
+                this.fileName,
+                arg.id,
+                arg.taskBatch
+              )
               xhr = null
               file = null
             })
             xhr.send()
           }
           // 向浏览器发送下载任务
-          browserDownload(blobUrl, fullFileName, id, taskBatch) {
+          browserDownload(blobUrl, fileName, id, taskBatch) {
             // 如果任务已停止，不会向浏览器发送下载任务
             if (this.stoped) {
               // 释放 bloburl
@@ -1652,7 +1671,7 @@
             const sendData = {
               msg: 'send_download',
               fileUrl: blobUrl,
-              fileName: fullFileName,
+              fileName: fileName,
               id,
               taskBatch
             }
@@ -1698,6 +1717,9 @@
         /* harmony import */ var _Download__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ./Download */ './src/ts/modules/Download.ts'
         )
+        /* harmony import */ var _ProgressBar__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+          /*! ./ProgressBar */ './src/ts/modules/ProgressBar.ts'
+        )
         // 下载控制
 
         class DownloadControl {
@@ -1709,26 +1731,19 @@
             this.taskList = {} // 下载任务列表，使用下载的文件的 id 做 key，保存下载栏编号和它在下载状态列表中的索引
             this.downloaded = 0 // 已下载的任务数量
             this.convertText = ''
-            this.downloadBarHTML = `<li class="downloadBar">
-  <div class="progressBar progressBar2">
-  <div class="progress progress2"></div>
-  </div>
-  <div class="progressTip progressTip2">
-  <span class="download_fileName"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${_Lang__WEBPACK_IMPORTED_MODULE_3__[
-    'lang'
-  ].transl('_已下载')}&nbsp;&nbsp;<span class="loaded">0/0</span>KB
-  </div>
-  </li>`
             this.reTryTimer = 0 // 重试下载的定时器
             this.downloadArea = document.createElement('div') // 下载区域
+            this.totalNumberEl = document.createElement('span')
             this.downStatusEl = document.createElement('span')
             this.convertTipEL = document.createElement('div') // 转换动图时显示提示的元素
             this.downloadStop = false // 是否停止下载
             this.downloadPause = false // 是否暂停下载
-            // 所有下载进度条
-            this.allDownloadBar = document.querySelectorAll('.downloadBar')
             this.createDownloadArea()
             this.listenEvents()
+          }
+          // 返回任务停止状态。暂停和停止都视为停止下载
+          get downloadStopped() {
+            return this.downloadPause || this.downloadStop
           }
           listenEvents() {
             window.addEventListener(
@@ -1757,7 +1772,7 @@
                   this.convertText = ''
                 }
                 this.convertTipEL.innerHTML = this.convertText
-                this.LogDownloadProgress()
+                this.LogDownloadStates()
               }
             )
             // 监听浏览器下载文件后，返回的消息
@@ -1793,27 +1808,21 @@
               }
             })
           }
-          // 显示总的下载进度
-          showDownloadProgress(downloaded) {
-            // 在总进度条上显示已下载数量
-            document.querySelector(
-              '.downloaded'
-            ).textContent = downloaded.toString()
-            // 设置总进度条的进度
-            const progress =
-              (downloaded /
-                _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length) *
-              100
-            const progressBar = document.querySelector('.progress1')
-            progressBar.style.width = progress + '%'
-          }
           set setDownloaded(val) {
             this.downloaded = val
-            this.showDownloadProgress(this.downloaded)
-            this.LogDownloadProgress()
+            this.LogDownloadStates()
+            // 设置下载进度信息
+            this.totalNumberEl.textContent = _Store__WEBPACK_IMPORTED_MODULE_1__[
+              'store'
+            ].result.length.toString()
+            _ProgressBar__WEBPACK_IMPORTED_MODULE_9__[
+              'progressBar'
+            ].setTotalProgress(this.downloaded)
             // 重置下载进度信息
             if (this.downloaded === 0) {
-              this.resetDownloadArea()
+              this.setDownStateText(
+                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_未开始下载')
+              )
             }
             // 下载完毕
             if (
@@ -1839,36 +1848,12 @@
           downloadedAdd() {
             this.setDownloaded = this.downloaded + 1
           }
-          // 返回任务停止状态。暂停和停止都视为停止下载
-          get downloadStopped() {
-            return this.downloadPause || this.downloadStop
-          }
           // 显示或隐藏下载区域
           showDownloadArea() {
             this.downloadArea.style.display = 'block'
           }
           hideDownloadArea() {
             this.downloadArea.style.display = 'none'
-          }
-          // 重置下载区域的信息
-          resetDownloadArea() {
-            this.setDownStateText(
-              _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_未开始下载')
-            )
-            for (const el of document.querySelectorAll('.imgNum')) {
-              el.textContent = _Store__WEBPACK_IMPORTED_MODULE_1__[
-                'store'
-              ].result.length.toString()
-            }
-            for (const el of document.querySelectorAll('.download_fileName')) {
-              el.textContent = ''
-            }
-            for (const el of document.querySelectorAll('.loaded')) {
-              el.textContent = '0/0'
-            }
-            for (const el of document.querySelectorAll('.progress')) {
-              el.style.width = '0%'
-            }
           }
           // 设置下载状态文本，默认颜色为主题蓝色
           setDownStateText(str, color = '') {
@@ -1921,37 +1906,15 @@
     ].transl('_未开始下载')}</span></span>
     <span class="convert_tip warn"></span>
     </p>
-    <div class="progressBarWrap">
-    <span class="text">${_Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-      '_下载进度'
-    )}</span>
-    <div class="right1">
-    <div class="progressBar progressBar1">
-    <div class="progress progress1"></div>
-    </div>
-    <div class="progressTip progressTip1">
-    <span class="downloaded">0</span>
-    /
-    <span class="imgNum">0</span>
-    </div>
-    </div>
-    </div>
-    </div>
-    <div>
-    <ul class="centerWrap_down_list">
-    
-    </ul>
     </div>
     </div>`
             const el = _CenterPanel__WEBPACK_IMPORTED_MODULE_6__[
               'centerPanel'
             ].useSlot('downloadArea', html)
-            if (!el) {
-              throw 'Add download area error!'
-            }
             this.downloadArea = el
             this.downStatusEl = el.querySelector('.down_status ')
             this.convertTipEL = el.querySelector('.convert_tip')
+            this.totalNumberEl = el.querySelector('.imgNum')
             document
               .querySelector('.startDownload')
               .addEventListener('click', () => {
@@ -1994,28 +1957,41 @@
               result
             )
           }
-          // 重设下载进度条的数量
-          resetDownloadBar(num) {
-            const centerWrapDownList = document.querySelector(
-              '.centerWrap_down_list'
+          // 下载线程设置
+          setDownloadThread() {
+            const setThread = parseInt(
+              _Settings__WEBPACK_IMPORTED_MODULE_7__['form'].downloadThread
+                .value
             )
-            centerWrapDownList.innerHTML = ''
-            while (num > 0) {
-              centerWrapDownList.insertAdjacentHTML(
-                'beforeend',
-                this.downloadBarHTML
-              )
-              num--
+            if (
+              setThread < 1 ||
+              setThread > this.downloadThreadMax ||
+              isNaN(setThread)
+            ) {
+              // 如果数值非法，则重设为默认值
+              this.downloadThread = this.downloadThreadMax
+            } else {
+              this.downloadThread = setThread // 设置为用户输入的值
             }
-            centerWrapDownList.style.display = 'block'
-            // 缓存所有下载进度条元素
-            this.allDownloadBar = centerWrapDownList.querySelectorAll(
-              '.downloadBar'
+            // 如果剩余任务数量少于下载线程数
+            if (
+              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length -
+                this.downloaded <
+              this.downloadThread
+            ) {
+              this.downloadThread =
+                _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length -
+                this.downloaded
+            }
+            // 重设下载进度条
+            _ProgressBar__WEBPACK_IMPORTED_MODULE_9__['progressBar'].reset(
+              this.downloadThread
             )
           }
           // 抓取完毕之后，已经可以开始下载时，根据一些状态进行处理
           beforeDownload() {
             this.setDownloaded = 0
+            this.setDownloadThread()
             // 检查 不自动开始下载 的标记
             if (
               _Store__WEBPACK_IMPORTED_MODULE_1__['store'].states
@@ -2072,40 +2048,14 @@
                 }
               }
             }
-            // 下载线程设置
-            const setThread = parseInt(
-              _Settings__WEBPACK_IMPORTED_MODULE_7__['form'].downloadThread
-                .value
-            )
-            if (
-              setThread < 1 ||
-              setThread > this.downloadThreadMax ||
-              isNaN(setThread)
-            ) {
-              // 如果数值非法，则重设为默认值
-              this.downloadThread = this.downloadThreadMax
-            } else {
-              this.downloadThread = setThread // 设置为用户输入的值
-            }
-            // 如果剩余任务数量少于下载线程数
-            if (
-              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length -
-                this.downloaded <
-              this.downloadThread
-            ) {
-              this.downloadThread =
-                _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length -
-                this.downloaded
-            }
-            // 重设下载进度条的数量
-            this.resetDownloadBar(this.downloadThread)
             // 重置一些条件
-            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadStart
-            )
             this.downloadPause = false
             this.downloadStop = false
             clearTimeout(this.reTryTimer)
+            this.setDownloadThread()
+            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadStart
+            )
             // 启动或继续下载，建立并发下载线程
             for (let i = 0; i < this.downloadThread; i++) {
               this.createDownload(i)
@@ -2184,14 +2134,14 @@
             if (this.downloadPause || this.downloadStop) {
               return false
             }
-            let task = this.taskList[data.id]
+            const task = this.taskList[data.id]
             // 复位这个任务的状态
             this.setDownloadedIndex(task.index, -1)
             // 建立下载任务，再次下载它
             this.createDownload(task.progressBarIndex)
           }
           downloadSuccess(data) {
-            let task = this.taskList[data.id]
+            const task = this.taskList[data.id]
             // 更改这个任务状态为“已完成”
             this.setDownloadedIndex(task.index, 1)
             // 增加已下载数量
@@ -2231,7 +2181,7 @@
             }
           }
           // 在日志上显示下载进度
-          LogDownloadProgress() {
+          LogDownloadStates() {
             let text = `${this.downloaded} / ${_Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length}`
             // 追加转换动图的提示
             if (this.convertText) {
@@ -2269,7 +2219,7 @@
               }
               // 建立下载
               new _Download__WEBPACK_IMPORTED_MODULE_8__['Download'](
-                this.allDownloadBar[progressBarIndex],
+                progressBarIndex,
                 data
               )
             }
@@ -5006,7 +4956,8 @@
           }
           // 各个子类私有的初始化内容
           initElse() {}
-          // 销毁初始化页面时添加的元素和事件等
+          // 销毁初始化页面时添加的元素和事件，恢复设置项等
+          // 各个子类不需要销毁中间按钮，CenterButtons 类会自行销毁
           destroy() {}
           // 添加中间按钮
           appendCenterBtns() {
@@ -8112,6 +8063,129 @@
         /***/
       },
 
+    /***/ './src/ts/modules/ProgressBar.ts':
+      /*!***************************************!*\
+  !*** ./src/ts/modules/ProgressBar.ts ***!
+  \***************************************/
+      /*! exports provided: progressBar */
+      /***/ function(module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'progressBar',
+          function() {
+            return progressBar
+          }
+        )
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./Store */ './src/ts/modules/Store.ts'
+        )
+        /* harmony import */ var _CenterPanel__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./CenterPanel */ './src/ts/modules/CenterPanel.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
+        )
+
+        // 进度条
+        class ProgressBar {
+          constructor() {
+            this.wrapHTML = `
+  <div class="progressBarWrap">
+  <div class="total">
+  <span class="text">${_Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+    '_下载进度'
+  )}</span>
+  <div class="right1">
+  <div class="progressBar progressBar1">
+  <div class="progress progress1"></div>
+  </div>
+  <div class="progressTip progressTip1">
+  <span class="downloaded">0</span>
+  /
+  <span class="imgNum totalNumber">0</span>
+  </div>
+  </div>
+  </div>
+
+  <ul class="progressBarList"></ul>
+  </div>
+  `
+            this.barHTML = `<li class="downloadBar">
+  <div class="progressBar progressBar2">
+  <div class="progress progress2"></div>
+  </div>
+  <div class="progressTip progressTip2">
+  <span class="fileName"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${_Lang__WEBPACK_IMPORTED_MODULE_2__[
+    'lang'
+  ].transl('_已下载')}&nbsp;&nbsp;<span class="loaded">0/0</span>KB
+  </div>
+  </li>`
+            this.allProgressBar = []
+            this.wrap = _CenterPanel__WEBPACK_IMPORTED_MODULE_1__[
+              'centerPanel'
+            ].useSlot('progressBar', this.wrapHTML)
+            this.downloadedEl = this.wrap.querySelector('.downloaded')
+            this.progressColorEl = this.wrap.querySelector('.progress1')
+            this.listWrap = this.wrap.querySelector('.progressBarList')
+            this.totalNumberEl = this.wrap.querySelector('.totalNumber')
+          }
+          // 重设所有进度
+          reset(num) {
+            // 重置总进度条
+            this.downloadedEl.textContent = '0'
+            this.totalNumberEl.textContent = _Store__WEBPACK_IMPORTED_MODULE_0__[
+              'store'
+            ].result.length.toString()
+            this.progressColorEl.style.width = '0%'
+            // 重置子进度条
+            this.listWrap.innerHTML = this.barHTML.repeat(num)
+            this.wrap.style.display = 'block'
+            // 保存子进度条上需要使用到的元素
+            const allProgressBar = this.listWrap.querySelectorAll(
+              '.downloadBar'
+            )
+            this.allProgressBar = []
+            for (const bar of allProgressBar) {
+              const data = {
+                name: bar.querySelector('.fileName'),
+                loaded: bar.querySelector('.loaded'),
+                progress: bar.querySelector('.progress')
+              }
+              this.allProgressBar.push(data)
+            }
+          }
+          // 设置总进度条的进度
+          setTotalProgress(downloaded) {
+            this.downloadedEl.textContent = downloaded.toString()
+            const progress =
+              (downloaded /
+                _Store__WEBPACK_IMPORTED_MODULE_0__['store'].result.length) *
+              100
+            this.progressColorEl.style.width = progress + '%'
+          }
+          // 设置子进度条的进度
+          setProgress(index, data) {
+            const bar = this.allProgressBar[index]
+            bar.name.textContent = data.name
+            bar.loaded.textContent = `${Math.floor(
+              data.loaded / 1024
+            )}/${Math.floor(data.total / 1024)}`
+            const progress = data.loaded / data.total || 0 // 若结果为 NaN 则设为 0
+            bar.progress.style.width = progress * 100 + '%'
+          }
+          // 让某个子进度条显示警告色
+          showErrorColor(index, show) {
+            const bar = this.allProgressBar[index]
+            bar.name.classList[show ? 'add' : 'remove']('downloadError')
+          }
+        }
+        const progressBar = new ProgressBar()
+
+        /***/
+      },
+
     /***/ './src/ts/modules/QuickBookmark.ts':
       /*!*****************************************!*\
   !*** ./src/ts/modules/QuickBookmark.ts ***!
@@ -10223,6 +10297,12 @@
             '404エラー：ファイル {} は存在しません。',
             '404 error: File {} does not exist.',
             '404 錯誤：檔案 {} 不存在。'
+          ],
+          _文件下载失败: [
+            '文件 {} 下载失败',
+            'ファイル {} のダウンロードに失敗しました',
+            'File {} download failed',
+            '檔案 {} 下載失败'
           ],
           _重置设置: ['重置设置', 'リセット設定', 'Reset Settings', '重設設定'],
           _是否重置设置: [

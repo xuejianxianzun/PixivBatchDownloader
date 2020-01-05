@@ -5,22 +5,20 @@ import { lang } from './Lang'
 import { titleBar } from './TitleBar'
 import { fileName } from './FileName'
 import { converter } from './ConvertUgoira'
-import { downloadArgument, SendToBackEndData, ProgressBar } from './Download.d'
+import { downloadArgument, SendToBackEndData } from './Download.d'
+import { progressBar } from './ProgressBar'
 
 class Download {
-  constructor(progressBar: HTMLDivElement, data: downloadArgument) {
-    this.progressBar = {
-      name: progressBar.querySelector('.download_fileName')! as HTMLSpanElement,
-      loaded: progressBar.querySelector('.loaded')! as HTMLSpanElement,
-      progress: progressBar.querySelector('.progress')! as HTMLDivElement
-    }
+  constructor(progressBarIndex: number, data: downloadArgument) {
+    this.progressBarIndex = progressBarIndex
 
     this.download(data)
 
     this.listenEvents()
   }
 
-  private progressBar: ProgressBar
+  private progressBarIndex: number
+  private fileName = ''
   private stoped = false
   private retry = 0
   private readonly retryMax = 50
@@ -35,25 +33,21 @@ class Download {
 
   // 设置进度条信息
   private setProgressBar(loaded: number, total: number) {
-    this.progressBar.loaded.textContent = `${Math.floor(
-      loaded / 1024
-    )}/${Math.floor(total / 1024)}`
-
-    let progress = loaded / total
-    if (isNaN(progress)) {
-      progress = 0
-    }
-    this.progressBar.progress.style.width = progress * 100 + '%'
+    progressBar.setProgress(this.progressBarIndex, {
+      name: this.fileName,
+      loaded: loaded,
+      total: total
+    })
   }
 
+  // 下载文件
   private download(arg: downloadArgument) {
     titleBar.changeTitle('↓')
 
     // 获取文件名
-    let fullFileName = fileName.getFileName(arg.data)
+    this.fileName = fileName.getFileName(arg.data)
 
     // 重设当前下载栏的信息
-    this.progressBar.name.textContent = fullFileName
     this.setProgressBar(0, 0)
 
     // 下载图片
@@ -80,42 +74,47 @@ class Download {
 
       let file: Blob = xhr.response // 要下载的文件
 
-      const HandlingError = () => {
+      // 错误处理
+      const HandleError = () => {
+        let msg = ''
+
         if (xhr.status === 404) {
-          // 404 错误时创建 txt 文件，并保存提示信息
-          const msg = lang.transl('_file404', arg.id)
-          log.error(msg, 1)
-          file = new Blob([`${msg}`], {
-            type: 'text/plain'
-          })
-          fullFileName = fullFileName.replace(
-            /\.jpg$|\.png$|\.zip$|\.gif$|\.webm$/,
-            '.txt'
-          )
-          return true
+          // 404 错误时
+          msg = lang.transl('_file404', arg.id)
         } else {
-          // 无法处理的情况
-          EVT.fire(EVT.events.downloadError)
-          return false
+          // 无法处理的错误状态
+          msg = lang.transl('_文件下载失败', arg.id)
         }
+
+        log.error(msg, 1)
+
+        // 创建 txt 文件，保存提示信息
+        file = new Blob([`${msg}`], {
+          type: 'text/plain'
+        })
+
+        this.fileName = this.fileName.replace(
+          /\.jpg$|\.png$|\.zip$|\.gif$|\.webm$/,
+          '.txt'
+        )
+
+        EVT.fire(EVT.events.downloadError)
       }
 
       if (xhr.status !== 200) {
         // 状态码错误
         // 正常下载完毕的状态码是 200
-        this.progressBar.name.classList.add('downloadError')
+        progressBar.showErrorColor(this.progressBarIndex, true)
         this.retry++
         if (this.retry >= this.retryMax) {
-          // 重试 retryMax 次依然错误，进行错误处理。无法处理的情况则终止执行。
-          if (!HandlingError()) {
-            return
-          }
+          // 重试 retryMax 次依然错误，进行错误处理
+          HandleError()
         } else {
           return this.download(arg)
         }
       } else {
         // 状态码正常
-        this.progressBar.name.classList.remove('downloadError')
+        progressBar.showErrorColor(this.progressBarIndex, false)
         if (
           (arg.data.ext === 'webm' || arg.data.ext === 'gif') &&
           arg.data.ugoiraInfo
@@ -135,7 +134,7 @@ class Download {
       // 生成下载链接
       const blobUrl = URL.createObjectURL(file)
       // 向浏览器发送下载任务
-      this.browserDownload(blobUrl, fullFileName, arg.id, arg.taskBatch)
+      this.browserDownload(blobUrl, this.fileName, arg.id, arg.taskBatch)
       xhr = null as any
       file = null as any
     })
@@ -145,7 +144,7 @@ class Download {
   // 向浏览器发送下载任务
   private browserDownload(
     blobUrl: string,
-    fullFileName: string,
+    fileName: string,
     id: string,
     taskBatch: number
   ) {
@@ -159,7 +158,7 @@ class Download {
     const sendData: SendToBackEndData = {
       msg: 'send_download',
       fileUrl: blobUrl,
-      fileName: fullFileName,
+      fileName: fileName,
       id,
       taskBatch
     }
