@@ -183,8 +183,6 @@ class InitSettings {
   // 绑定选项的事件，主要是当选项变动时保存。
   // 只可执行一次，否则事件会重复绑定
   private bindOptionEvent() {
-    const that = this
-
     // 保存是否显示选项区域
     const showOptionsBtn = document.querySelector('.centerWrap_toogle_option')!
     showOptionsBtn.addEventListener('click', () => {
@@ -231,11 +229,10 @@ class InitSettings {
     this.saveTextInput('downloadThread')
 
     // 保存命名规则
+    const userSetNameInput = this.form.userSetName
     ;['change', 'focus'].forEach(ev => {
-      this.form.userSetName.addEventListener(ev, function(
-        this: HTMLInputElement
-      ) {
-        that.saveSetting('userSetName', this.value)
+      userSetNameInput.addEventListener(ev, ()=>{
+        this.saveSetting('userSetName', userSetNameInput.value)
       })
     })
 
