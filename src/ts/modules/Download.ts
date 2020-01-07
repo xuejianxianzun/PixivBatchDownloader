@@ -42,7 +42,7 @@ class Download {
 
   // 下载文件
   private download(arg: downloadArgument) {
-    titleBar.changeTitle('↓')
+    titleBar.change('↓')
 
     // 获取文件名
     this.fileName = fileName.getFileName(arg.data)

@@ -2,26 +2,27 @@
 import { pageType } from './PageType'
 
 class TitleBar {
-  // 本程序的状态会以 [string] 形式添加到 title 最前面，并闪烁提醒
   /*
-        ↑ 抓取中
-        → 等待下一步操作（tag搜索页）
-        ▶  可以开始下载
-        ↓ 下载中
-        ║ 下载暂停
-        ■ 下载停止
-        √ 下载完毕
-          空格，当需要闪烁标题时使用
-        */
-  private readonly titleStatus = ['↑', '→', '▶', '↓', '║', '■', '√', ' ']
+  本程序的状态会以 [string] 形式添加到 title 最前面，并闪烁提醒
+  string 和含义列表如下：
+  ↑ 抓取中
+  → 等待下一步操作（搜索页）
+  ▶ 可以开始下载
+  ↓ 下载中
+  ║ 下载暂停
+  ■ 下载停止
+  √ 下载完毕
+    空格，当需要闪烁标题时使用
+  */
+  private readonly status = ['↑', '→', '▶', '↓', '║', '■', '√', ' ']
 
-  private titleTimer: number = 0 // 修改 title 的定时器
+  private timer: number = 0 // 修改 title 的定时器
 
   // 检查标题里有没有本程序定义的状态字符
-  private titleHasState(status: string = '') {
+  private haveStatus(status: string = '') {
     if (!status) {
       // 没有传递 status，则检查所有标记
-      for (const status of this.titleStatus) {
+      for (const status of this.status) {
         const str = `[${status}]`
         if (document.title.includes(str)) {
           return true
@@ -38,7 +39,7 @@ class TitleBar {
   // 重设 title
   public reset() {
     const type = pageType.getPageType()
-    clearInterval(this.titleTimer)
+    clearInterval(this.timer)
     // 储存标题的 mete 元素。在某些页面不存在，有时也与实际上的标题不一致。
     const ogTitle = document.querySelector(
       'meta[property="og:title"]'
@@ -48,7 +49,7 @@ class TitleBar {
       document.title = ogTitle.content
     } else {
       // 如果当前 title 里有状态提醒，则设置为状态后面的文字
-      if (this.titleHasState()) {
+      if (this.haveStatus()) {
         const index = document.title.indexOf(']')
         document.title = document.title.substr(index + 1, document.title.length)
       }
@@ -56,27 +57,34 @@ class TitleBar {
   }
 
   // 修改title
-  public changeTitle(string: string) {
+  public change(string: string) {
     const state = `[${string}]`
     // 如果 title 里没有状态，就添加状态
-    if (!this.titleHasState()) {
+    if (!this.haveStatus()) {
       document.title = `${state} ${document.title}`
     } else {
       // 如果已经有状态了，则替换为新当前传入的状态
       document.title = document.title.replace(/\[.?\]/, state)
     }
 
-    // 当需要执行下一步操作时，闪烁提醒
+    // 闪烁提醒，其实是把 [▶] 或 [→] 与空白 [ ] 来回切换
     if (string === '▶' || string === '→') {
-      this.titleTimer = window.setInterval(() => {
-        if (this.titleHasState(string)) {
+      this.timer = window.setInterval(() => {
+        if (this.haveStatus(string)) {
+          // 如果含有状态，就替换成空白
           document.title = document.title.replace(state, '[ ]')
         } else {
-          document.title = document.title.replace('[ ]', state)
+          if (this.haveStatus(' ')) {
+            // 如果含有空白，就替换成状态
+            document.title = document.title.replace('[ ]', state)
+          } else {
+            // 如果都没有，一般是页面切换了，标题被重置了，取消执行闪烁（此时也根本无法形成闪烁效果了）
+            clearInterval(this.timer)
+          }
         }
       }, 500)
     } else {
-      clearInterval(this.titleTimer)
+      clearInterval(this.timer)
     }
   }
 }

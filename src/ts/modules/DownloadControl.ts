@@ -133,7 +133,7 @@ class DownloadControl {
       this.reset()
       this.setDownStateText(lang.transl('_下载完毕'))
       log.success(lang.transl('_下载完毕'), 2)
-      titleBar.changeTitle('√')
+      titleBar.change('√')
     }
   }
 
@@ -274,7 +274,7 @@ class DownloadControl {
     const autoDownload: boolean = form.quietDownload.checked
 
     if (!autoDownload && !store.states.quickDownload) {
-      titleBar.changeTitle('▶')
+      titleBar.change('▶')
     }
 
     // 视情况自动开始下载
@@ -346,7 +346,7 @@ class DownloadControl {
         this.downloadPause = true // 发出暂停信号
         EVT.fire(EVT.events.downloadPause)
 
-        titleBar.changeTitle('║')
+        titleBar.change('║')
         this.setDownStateText(lang.transl('_已暂停'), '#f00')
         log.warning(lang.transl('_已暂停'), 2)
       } else {
@@ -367,7 +367,7 @@ class DownloadControl {
     this.downloadStop = true
     EVT.fire(EVT.events.downloadStop)
 
-    titleBar.changeTitle('■')
+    titleBar.change('■')
     this.setDownStateText(lang.transl('_已停止'), '#f00')
     log.error(lang.transl('_已停止'), 2)
     this.downloadPause = false

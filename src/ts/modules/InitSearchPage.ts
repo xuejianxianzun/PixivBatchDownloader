@@ -453,7 +453,7 @@ class InitSearchPage extends InitPageBase {
 
     EVT.fire(EVT.events.worksUpdate)
 
-    titleBar.changeTitle('→')
+    titleBar.change('→')
   }
 
   // 在当前结果中再次筛选，会修改第一次筛选的结果

@@ -144,6 +144,7 @@ class API {
   }
 
   // 获取收藏数据
+  // 这个 api 返回的作品列表顺序是按收藏顺序由近期到早期排列的
   static async getBookmarkData(
     id: string,
     tag: string,

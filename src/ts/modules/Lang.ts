@@ -1,5 +1,5 @@
 import { langText } from './langText'
-import { langTextKeys } from './langText.d'
+import { langTextKeys } from './langText'
 
 // 语言类
 class Lang {

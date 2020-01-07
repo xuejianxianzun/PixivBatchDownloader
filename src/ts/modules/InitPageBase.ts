@@ -189,7 +189,7 @@ abstract class InitPageBase {
 
     log.success(lang.transl('_任务开始0'))
 
-    titleBar.changeTitle('↑')
+    titleBar.change('↑')
 
     this.getWantPage()
 

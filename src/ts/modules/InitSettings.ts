@@ -229,7 +229,7 @@ class InitSettings {
     // 保存命名规则
     const userSetNameInput = this.form.userSetName
     ;['change', 'focus'].forEach(ev => {
-      userSetNameInput.addEventListener(ev, ()=>{
+      userSetNameInput.addEventListener(ev, () => {
         this.saveSetting('userSetName', userSetNameInput.value)
       })
     })

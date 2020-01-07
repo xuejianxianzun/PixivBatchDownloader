@@ -40,8 +40,6 @@ class InitUserPage extends InitPageBase {
 
   protected destroy() {}
 
-  private idList: string[] = [] // 储存从列表页获取到的 id
-
   private tag = '' // 储存当前页面的 tag，有时没有 tag
 
   private listType = 0 // 细分的列表类型
@@ -144,9 +142,35 @@ class InitUserPage extends InitPageBase {
       type = ['manga']
     }
 
-    this.idList = await API.getUserWorksByType(DOM.getUserId(), type)
+    let idList = await API.getUserWorksByType(DOM.getUserId(), type)
 
-    this.afterGetListPage()
+    // 把作品 id 转换成数字
+    let tempList: number[] = []
+    tempList = idList.map(id => {
+      return parseInt(id)
+    })
+    // 升序排列
+    tempList.sort(function(x, y) {
+      return x - y
+    })
+
+    idList = tempList.map(id => {
+      return id.toString()
+    })
+
+    // 不带 tag 获取作品时，由于 API 是一次性返回用户的所有作品，可能大于要求的数量，所以需要去掉多余的作品。
+    // 删除 offset 需要去掉的部分。删除后面的 id，也就是近期作品
+    idList.splice(idList.length - this.offset, idList.length)
+
+    // 删除超过 requsetNumber 的作品。删除前面的 id，也就是早期作品
+    if (idList.length > this.requsetNumber) {
+      idList.splice(0, idList.length - this.requsetNumber)
+    }
+
+    // 储存
+    store.idList = store.idList.concat(idList)
+
+    this.getIdListFinished()
   }
 
   // 获取用户某一类型的作品列表（附带 tag）
@@ -159,50 +183,13 @@ class InitUserPage extends InitPageBase {
       this.requsetNumber
     )
 
-    data.body.works.forEach(data => this.idList.push(data.id))
-
-    this.afterGetListPage()
-  }
-
-  // 获取作品 id 列表完毕之后
-  private afterGetListPage() {
-    // 没有 tag
-    if (!this.tag) {
-      // 在获取全部作品时，由于 API 里不能设置 requset_number，所以在这里去掉多余的作品。
-
-      // 把 id 从小到大排序
-      let tempList: number[] = []
-      // 转换成数字
-      tempList = this.idList.map(id => {
-        return parseInt(id)
-      })
-      // 升序排列
-      tempList.sort(function(x, y) {
-        return x - y
-      })
-      // 保存到结果中
-      this.idList = tempList.map(id => {
-        return id.toString()
-      })
-
-      // 删除后面的 id（删除不需要的近期作品）
-      this.idList.splice(this.idList.length - this.offset, this.idList.length)
-    }
-
-    // 删除多余的作品
-    if (this.idList.length > this.requsetNumber) {
-      // 删除前面部分（早期作品）
-      this.idList.splice(0, this.idList.length - this.requsetNumber)
-    }
-
-    store.idList = store.idList.concat(this.idList)
+    data.body.works.forEach(data => store.idList.push(data.id))
 
     this.getIdListFinished()
   }
 
   protected resetGetIdListStatus() {
     this.offset = 0
-    this.idList = []
     this.listType = 0
     this.listPageFinished = 0
   }

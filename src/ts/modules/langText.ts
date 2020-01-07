@@ -1,6 +1,7 @@
 // 在属性名前面加上下划线，和文本内容做出区别。
 // {} 表示需要进行替换的部分
 // <br> 和 \n 换行
+type langTextKeys = keyof typeof langText
 
 const langText = {
   _只下载已收藏: [
@@ -1075,4 +1076,4 @@ const langText = {
   ]
 }
 
-export { langText }
+export { langText, langTextKeys }

@@ -174,7 +174,7 @@ class InitBookmarkPage extends InitPageBase {
       this.idList.length >= this.requsetNumber
     ) {
       // 书签页获取完毕
-      return this.afterGetListPage()
+      return this.afterGetIdList()
     } else {
       // 没有抓取完毕时，添加数据
       data.body.works.forEach(data => this.idList.push(data.id))
@@ -185,12 +185,12 @@ class InitBookmarkPage extends InitPageBase {
   }
 
   // 获取作品 id 列表完毕之后
-  private afterGetListPage() {
-    // 删除多余的作品
+  private afterGetIdList() {
+    // 因为书签页面一次获取 100 个作品，大于一页的数量。所以可能会抓取多了，需要删除多余的作品
     if (this.idList.length > this.requsetNumber) {
-      // 书签页，删除后面部分（较早收藏的）
+      // 删除后面部分（较早收藏的），留下近期收藏的
       this.idList.splice(this.requsetNumber, this.idList.length)
-      // 书签页面的 api 没有考虑页面上的排序顺序，获取到的 id 列表始终是按收藏顺序由最晚到最早排列的
+      // 书签页面的 api 没有考虑页面上的排序顺序，获取到的 id 列表始终是按收藏顺序由近期到早期排列的
     }
 
     store.idList = store.idList.concat(this.idList)
