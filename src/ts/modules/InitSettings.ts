@@ -180,15 +180,13 @@ class InitSettings {
     }
   }
 
-  // 绑定选项的事件，主要是当选项变动时保存。
+  // 绑定选项的事件，当选项变动时保存。
   // 只可执行一次，否则事件会重复绑定
   private bindOptionEvent() {
     // 保存是否显示选项区域
-    const showOptionsBtn = document.querySelector('.centerWrap_toogle_option')!
-    showOptionsBtn.addEventListener('click', () => {
-      this.options.showOptions = !this.options.showOptions
-      EVT.fire(EVT.events.toggleForm, this.options.showOptions)
-      this.saveSetting('showOptions', this.options.showOptions)
+    window.addEventListener(EVT.events.toggleForm, (event: CustomEventInit) => {
+      const boolean = event.detail.data
+      this.saveSetting('showOptions', boolean)
     })
 
     // 保存多图作品设置
