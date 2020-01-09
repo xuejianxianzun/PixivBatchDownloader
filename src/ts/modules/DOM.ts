@@ -45,7 +45,6 @@ class DOM {
       document.body.insertAdjacentElement('afterbegin', el)
     } else {
       ;(
-        document.querySelector('header')! ||
         document.querySelector('.newindex-inner')! ||
         document.querySelector('.layout-body')!
       ).insertAdjacentElement('beforebegin', el)
@@ -55,35 +54,37 @@ class DOM {
 
   // 获取用户 id
   static getUserId() {
-    // 首先尝试从 url 中获取
-    const test = /(\?|&)id=(\d{1,9})/.exec(window.location.search)
-    if (test && test.length > 1) {
-      return test[2]
+    const newRegExp = /\/users\/(\d+)/ // 匹配新版用户页面 url 里的 id
+    // 获取 /users/ 后面连续的数字部分
+
+    // 列表页里从 url 中获取
+    const test4 = newRegExp.exec(location.pathname)
+    if (!!test4 && test4.length > 1 && !!test4[1]) {
+      return test4[1]
     }
 
-    // 从 head 里匹配
-    let test2 = document.head.innerHTML.match(/"userId":"(\d{1,9})"/)
-    if (!test2) {
-      test2 = document.head.innerHTML.match(
-        /authorId&quot;:&quot;(\d{1,9})&quot/
-      )
-    }
-    if (test2 && test2.length > 1) {
-      return test2[1]
-    }
-
-    // 从 body 里匹配
-    let test3 = /member\.php\?id=(\d{1,9})/.exec(document.body.innerHTML)
-    if (test3) {
-      return test3[1]
+    // 从新版页面的作品页、列表页获取包含用户 id 的元素，注意这些选择器可能会变到其他元素上
+    const testA: HTMLAnchorElement | null =
+      document.querySelector('.jkOmlQ a') || document.querySelector('a.lknEaI')
+    if (testA && testA.href) {
+      const test5 = newRegExp.exec(testA.href)
+      if (!!test5 && test5.length > 1 && !!test5[1]) {
+        return test5[1]
+      }
     }
 
-    // 从旧版页面的头像获取（主要是在旧版书签页面使用）
+    // 从旧版页面的头像获取（在旧版书签页面使用）
     const nameElement = document.querySelector(
       '.user-name'
     )! as HTMLAnchorElement
     if (nameElement) {
-      return /\?id=(\d{1,9})/.exec(nameElement.href)![1]
+      return newRegExp.exec(nameElement.href)![1]
+    }
+
+    // 最后从 body 里匹配，注意这有可能会匹配到错误的（其他的）用户 id！
+    let test3 = newRegExp.exec(document.body.innerHTML)
+    if (test3) {
+      return test3[1]
     }
 
     // 如果都没有获取到

@@ -79,38 +79,36 @@ class InitUserPage extends InitPageBase {
       this.requsetNumber = this.onceNumber * this.crawlNumber
     }
 
-    // 设置列表页面的类型
-    // listType:
-    // 0 插画和漫画全都要，但是不带 tag
-    // 4 插画和漫画全都要，带 tag
-    // 1 只要插画
-    // 2 只要漫画
+    // 判断页面类型
+    // 匹配 pathname 里用户 id 之后的字符
+    const test = location.pathname.match(/\/users\/\d+(\/.+)/)
+    let str = ''
 
-    if (location.href.includes('member.php?id=')) {
-      // 用户资料页主页
+    if (test === null) {
+      // 用户主页
       this.listType = 0
-    } else if (/member_illust\.php\?.*id=/.test(location.href)) {
-      // 作品列表页
-      if (API.getURLField(location.href, 'type') === 'illust') {
+    } else if (test.length === 2) {
+      str = test[1] //取出用户 id 之后的字符
+      if (str.includes('/artworks')) {
+        // 所有作品
+        this.listType = 0
+      } else if (str.includes('/illustrations')) {
         // 插画分类
         this.listType = 1
-      } else if (API.getURLField(location.href, 'type') === 'manga') {
+      } else if (str.includes('/manga')) {
         // 漫画分类
         this.listType = 2
-      } else if (API.getURLField(location.href, 'tag')) {
-        // url 里没有标识插画还是漫画，但是有 tag，则是在用户首页点击了 tag，需要同时获取插画和漫画
-        this.listType = 4
       }
     }
 
-    // 是否带有 tag
-    this.tag = decodeURI(API.getURLField(location.href, 'tag'))
-
-    // 根据不同的页面类型，选择不同的 API 来获取 id 列表
-    /*
-      1. 无 tag 通过 profileAll 获取
-      2. 有 tag 通过指定的作品类型获取
-     */
+    // 提取 tag
+    // 如果用户 id 之后的字符多于一个路径，则把最后一个路径作为 tag，示例情况
+    // https://www.pixiv.net/users/2188232/illustrations/ghostblade
+    const array = str.split('/')
+    // ["", "illustrations", "ghostblade"]
+    if (array.length > 2) {
+      this.tag = array[array.length - 1]
+    }
 
     if (!this.tag) {
       this.getIdList()
@@ -119,7 +117,7 @@ class InitUserPage extends InitPageBase {
         this.getIdListByTag('illusts')
       } else if (this.listType === 2) {
         this.getIdListByTag('manga')
-      } else if (this.listType === 4) {
+      } else if (this.listType === 0) {
         this.getIdListByTag('illustmanga')
       }
     }
@@ -190,6 +188,7 @@ class InitUserPage extends InitPageBase {
 
   protected resetGetIdListStatus() {
     this.offset = 0
+    this.tag = ''
     this.listType = 0
     this.listPageFinished = 0
   }

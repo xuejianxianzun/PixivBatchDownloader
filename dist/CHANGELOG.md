@@ -1,3 +1,71 @@
+## 3.9.3  2020-01-09
+
+### 修复 bug
+
+上版本导致快速筛选功能出现在了不该出现的页面，现在修复。
+
+## 3.9.2  2020-01-08
+
+### 适应用户页面 url 的改变
+
+今天发现用户页面 url 变了，而且似乎是短时间内就面向所有用户启用了。新版的 url 如下：
+
+注意：如果设置了语言为英文，则会在主域名后多出 `/en`
+
+- 用户主页
+
+https://www.pixiv.net/users/3869665
+
+- 所有作品
+
+https://www.pixiv.net/en/users/4493551/artworks
+
+- 所有作品带 tag
+
+https://www.pixiv.net/en/users/4493551/artworks/Fate%2FGrandOrder
+
+- 插画页
+
+https://www.pixiv.net/users/3869665/illustrations
+
+- 插画页带 tag
+
+https://www.pixiv.net/users/2188232/illustrations/ghostblade
+
+- 漫画页
+
+https://www.pixiv.net/users/544479/manga
+
+- 漫画页带 tag
+
+https://www.pixiv.net/users/544479/manga/%E3%82%AA%E3%83%AA%E3%82%B8%E3%83%8A%E3%83%AB
+
+- 小说页
+
+https://www.pixiv.net/users/46678986/novels
+
+- 收藏页
+
+https://www.pixiv.net/users/3869665/bookmarks/artworks
+
+- 收藏页带 tag
+
+https://www.pixiv.net/users/9460149/bookmarks/artworks/FGO
+
+- 收藏页非公开，带不带 tag 都是在最后加查询参数
+
+https://www.pixiv.net/users/9460149/bookmarks/artworks?rest=hide
+
+### 适应页眉改变的影响
+
+页眉换成了新的，导致头部没有之前的 `header` 标签了。对此做了适配。
+
+这个问题还导致搜索页面的快速收藏没有插入，现在修复。
+
+### 代码优化
+
+分离出了搜索页面的快速筛选功能，独立成 FastScreen 类。
+
 ## 3.9.1  2020-01-07
 
 ### 优化代码

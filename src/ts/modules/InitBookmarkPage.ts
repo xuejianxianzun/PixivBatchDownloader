@@ -138,7 +138,21 @@ class InitBookmarkPage extends InitPageBase {
       // 在“未分类”页面时
       this.tag = '未分類'
     } else {
-      this.tag = API.getURLField(location.href, 'tag')
+      // 这里需要区分新旧收藏页 url
+      if (location.pathname.includes('/bookmarks/artworks')) {
+        // 新版 url，tag 在路径末端，如
+        // https://www.pixiv.net/users/9460149/bookmarks/artworks/R-18
+        const test = /\/bookmarks\/artworks\/(.[^\/|^\?|^&]*)/.exec(
+          location.pathname
+        )
+        if (test !== null && test.length > 1 && !!test[1]) {
+          this.tag = test[1]
+        }
+      } else {
+        // 旧版 url，tag 在查询字符串里，如
+        // https://www.pixiv.net/bookmark.php?tag=R-18
+        this.tag = API.getURLField(location.href, 'tag')
+      }
     }
 
     // 判断是公开收藏还是非公开收藏
@@ -220,6 +234,7 @@ class InitBookmarkPage extends InitPageBase {
   protected resetGetIdListStatus() {
     this.idList = []
     this.offset = 0
+    this.tag = ''
     this.listPageFinished = 0
     this.crawlRecommended = false // 解除下载推荐作品的标记
   }
