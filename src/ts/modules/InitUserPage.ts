@@ -9,6 +9,7 @@ import { store } from './Store'
 import { log } from './Log'
 import { DOM } from './DOM'
 import { userWorksType } from './CrawlArgument.d'
+import { pageInfo } from './PageInfo'
 
 class InitUserPage extends InitPageBase {
   constructor() {
@@ -82,13 +83,11 @@ class InitUserPage extends InitPageBase {
     // 判断页面类型
     // 匹配 pathname 里用户 id 之后的字符
     const test = location.pathname.match(/\/users\/\d+(\/.+)/)
-    let str = ''
-
     if (test === null) {
       // 用户主页
       this.listType = 0
     } else if (test.length === 2) {
-      str = test[1] //取出用户 id 之后的字符
+      const str = test[1] //取出用户 id 之后的字符
       if (str.includes('/artworks')) {
         // 所有作品
         this.listType = 0
@@ -101,14 +100,7 @@ class InitUserPage extends InitPageBase {
       }
     }
 
-    // 提取 tag
-    // 如果用户 id 之后的字符多于一个路径，则把最后一个路径作为 tag，示例情况
-    // https://www.pixiv.net/users/2188232/illustrations/ghostblade
-    const array = str.split('/')
-    // ["", "illustrations", "ghostblade"]
-    if (array.length > 2) {
-      this.tag = array[array.length - 1]
-    }
+    this.tag = pageInfo.getPageTag
 
     if (!this.tag) {
       this.getIdList()

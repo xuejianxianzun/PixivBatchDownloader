@@ -182,7 +182,7 @@ class InitSearchPage extends InitPageBase {
     const count = this.resultMeta.length.toString()
     log.success(lang.transl('_调整完毕', count))
 
-    const countEl = document.querySelector('.dkENRa')
+    const countEl = document.querySelector('.bWodjS')
     if (countEl) {
       countEl.textContent = count
     }

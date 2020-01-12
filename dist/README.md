@@ -78,7 +78,7 @@ Chrome 会自动更新本应用的版本。
 npm i -g less prettier typescript webpack webpack-cli
 ```
 
-- Clone 本项目，并安装依赖：
+- Clone 本项目（或者先 Fork），并安装依赖：
 
 ```
 git clone https://github.com/xuejianxianzun/PixivBatchDownloader.git
@@ -136,7 +136,7 @@ English （机翻，韩语设置下也使用英语文本）
 
 2 [Tag 页面](https://www.pixiv.net/member_illust.php?id=544479&tag=%E6%9D%B1%E6%96%B9)
 
-3 [收藏页面](https://www.pixiv.net/bookmark.php)
+4 [收藏页面](https://www.pixiv.net/bookmark.php)
 
 5 [搜索页面](https://www.pixiv.net/tags/saber/artworks?s_mode=s_tag)
 

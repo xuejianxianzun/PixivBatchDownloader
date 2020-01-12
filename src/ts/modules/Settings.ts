@@ -174,7 +174,7 @@ class Settings {
   </select>
   &nbsp;
   <select name="fileNameSelect">
-    <option value="default">…</option>
+    <option value="default" disable>…</option>
     <option value="{id}">{id}</option>
     <option value="{title}">{title}</option>
     <option value="{tags}">{tags}</option>

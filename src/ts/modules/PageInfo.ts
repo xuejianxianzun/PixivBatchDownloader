@@ -7,16 +7,16 @@ import { pageType } from './PageType'
 
 class PageInfo {
   constructor() {
-    this.getPageInfo(pageType.getPageType())
+    this.getPageInfo()
 
     // 页面切换时获取新的页面信息
     window.addEventListener(EVT.events.pageSwitch, () => {
-      this.getPageInfo(pageType.getPageType())
+      this.getPageInfo()
     })
   }
 
   // 预设为 1 是为了指示这个标记有值，这样在获取到实际值之前，就可以把它插入到下拉框里。
-  private pageTitle = '1'
+  private pageTitle = ''
   private pageUserName = ''
   private pageUserID = ''
   private pageTag = ''
@@ -28,6 +28,7 @@ class PageInfo {
   // 重置
   // 切换页面时可能旧页面的一些标记在新页面没有了，所以要先重置
   private reset() {
+    this.pageTitle = ''
     this.pageUserName = ''
     this.pageUserID = ''
     this.pageTag = ''
@@ -36,15 +37,30 @@ class PageInfo {
   // 储存信息
   // 开始抓取时，把此时的页面信息保存到 store 里。这样即使下载时页面切换了，使用的刚开始抓取时的信息。
   public async store() {
-    await this.getPageInfo(pageType.getPageType())
+    await this.getPageInfo()
+    store.pageInfo.pageTitle = this.pageTitle
     store.pageInfo.pageUserName = this.pageUserName
     store.pageInfo.pageUserID = this.pageUserID
     store.pageInfo.pageTag = this.pageTag
   }
 
   // 获取当前页面的一些信息，用于文件名中
-  private async getPageInfo(type: number) {
+  private async getPageInfo() {
+    // 执行时可能 DOM 加载完成了，但主要内容没有加载出来，需要等待
+    if (!document.body.innerHTML.includes('/users/')) {
+      return window.setTimeout(() => {
+        this.getPageInfo()
+      }, 300)
+    }
+
+    const type = pageType.getPageType()
+
     this.reset()
+
+    // 去掉标题上的下载状态、消息数量提示
+    this.pageTitle = document.title
+      .replace(/\[(↑|→|▶|↓|║|■|√| )\] /, '')
+      .replace(/^\(\d.*\) /, '')
 
     // 设置用户信息
     if (type === 1 || type === 2) {
@@ -55,23 +71,14 @@ class PageInfo {
     }
 
     // 获取当前页面的 tag
-    if (type === 5) {
-      // pathname 获取到的 tag 不需要再编码
-      this.pageTag = decodeURIComponent(
-        location.pathname.split('tags/')[1].split('/')[0]
-      )
-    } else {
-      this.pageTag = decodeURIComponent(
-        API.getURLField(window.location.href, 'tag')
-      )
-    }
+    this.pageTag = decodeURIComponent(API.getTagFromURL(location.href))
 
     // 将可用选项添加到下拉选项里
     this.initPageInfoSelector()
   }
 
   private initPageInfoSelector() {
-    let optionHtml = '<option value="default">…</option>'
+    let optionHtml = '<option value="default" disable>…</option>'
 
     const info = new Map([
       ['p_title', this.pageTitle],

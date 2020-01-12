@@ -26,18 +26,14 @@ class PageType {
       type = 0
     } else if (/\/artworks\/\d{1,10}/.test(url)) {
       type = 1
-    } else if (
-      (/\/users\/\d+/.test(url) && !url.includes('/bookmarks')) ||
-      url.includes('member.php?id=') ||
-      url.includes('member_illust.php?id=')
-    ) {
+    } else if (/\/users\/\d+/.test(url) && !url.includes('/bookmarks')) {
       type = 2
     } else if (
       location.pathname === '/bookmark.php' ||
       url.includes('/bookmarks')
     ) {
       type = 4
-    } else if (url.includes('tags.php?') || url.includes('/tags/')) {
+    } else if (url.includes('/tags/')) {
       type = 5
     } else if (
       location.pathname === '/ranking_area.php' &&

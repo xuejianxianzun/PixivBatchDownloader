@@ -219,6 +219,51 @@
               return ''
             }
           }
+          // 从 url 中获取 tag
+          static getTagFromURL(url) {
+            const nowURL = new URL(url)
+            // 2 用户作品列表页
+            if (/\/users\/\d+/.test(url) && !url.includes('/bookmarks')) {
+              // 匹配 pathname 里用户 id 之后的字符
+              const test = nowURL.pathname.match(/\/users\/\d+(\/.+)/)
+              if (test && test.length === 2) {
+                const str = test[1]
+                // 如果用户 id 之后的字符多于一个路径，则把最后一个路径作为 tag，示例
+                // https://www.pixiv.net/users/2188232/illustrations/ghostblade
+                const array = str.split('/')
+                // ["", "illustrations", "ghostblade"]
+                if (array.length > 2) {
+                  return array[array.length - 1]
+                }
+              }
+            }
+            // 4 旧版收藏页面
+            if (nowURL.pathname === '/bookmark.php') {
+              if (parseInt(this.getURLField(nowURL.href, 'untagged')) === 1) {
+                // 旧版 “未分类” tag 是个特殊标记
+                // https://www.pixiv.net/bookmark.php?untagged=1
+                return '未分類'
+              }
+            }
+            // 4 新版收藏页面
+            if (nowURL.pathname.includes('/bookmarks/artworks')) {
+              // 新版收藏页 url，tag 在路径末端，如
+              // https://www.pixiv.net/users/9460149/bookmarks/artworks/R-18
+              const test = /\/bookmarks\/artworks\/(.[^\/|^\?|^&]*)/.exec(
+                nowURL.pathname
+              )
+              if (test !== null && test.length > 1 && !!test[1]) {
+                return test[1]
+              }
+            }
+            // 5 搜索页面
+            if (nowURL.pathname.includes('/tags/')) {
+              return nowURL.pathname.split('tags/')[1].split('/')[0]
+            }
+            // 默认情况，从查询字符串里获取，如下网址
+            // https://www.pixiv.net/bookmark.php?tag=R-18
+            return this.getURLField(nowURL.href, 'tag')
+          }
           // 更新 token
           // 从网页源码里获取用户 token，并储存起来
           static updateToken() {
@@ -2488,10 +2533,9 @@
               },
               {
                 name: '{p_title}',
-                value: document.title
-                  .replace(/\[(↑|→|▶|↓|║|■|√| )\] /, '')
-                  .replace(/^\(\d.*\) /, ''),
-                // 去掉标题上的下载状态、消息数量提示
+                value:
+                  _Store__WEBPACK_IMPORTED_MODULE_2__['store'].pageInfo
+                    .pageTitle,
                 prefix: '',
                 safe: false
               },
@@ -4094,6 +4138,9 @@
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
+        /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
+          /*! ./PageInfo */ './src/ts/modules/PageInfo.ts'
+        )
         // 初始化收藏页面
 
         class InitBookmarkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
@@ -4250,38 +4297,10 @@
             } else {
               this.requsetNumber = onceNumber * this.crawlNumber
             }
-            // 设置 tag
-            if (
-              parseInt(
-                _API__WEBPACK_IMPORTED_MODULE_1__['API'].getURLField(
-                  location.href,
-                  'untagged'
-                )
-              ) === 1
-            ) {
-              // 在“未分类”页面时
-              this.tag = '未分類'
-            } else {
-              // 这里需要区分新旧收藏页 url
-              if (location.pathname.includes('/bookmarks/artworks')) {
-                // 新版 url，tag 在路径末端，如
-                // https://www.pixiv.net/users/9460149/bookmarks/artworks/R-18
-                const test = /\/bookmarks\/artworks\/(.[^\/|^\?|^&]*)/.exec(
-                  location.pathname
-                )
-                if (test !== null && test.length > 1 && !!test[1]) {
-                  this.tag = test[1]
-                }
-              } else {
-                // 旧版 url，tag 在查询字符串里，如
-                // https://www.pixiv.net/bookmark.php?tag=R-18
-                this.tag = _API__WEBPACK_IMPORTED_MODULE_1__['API'].getURLField(
-                  location.href,
-                  'tag'
-                )
-              }
-            }
+            this.tag =
+              _PageInfo__WEBPACK_IMPORTED_MODULE_10__['pageInfo'].getPageTag
             // 判断是公开收藏还是非公开收藏
+            // 在新旧版 url 里，rest 都是在查询字符串里的
             this.isHide =
               _API__WEBPACK_IMPORTED_MODULE_1__['API'].getURLField(
                 location.href,
@@ -5201,13 +5220,11 @@
               window.alert('Not support novel page!')
               throw new Error('Not support novel page!')
             }
-            if (location.href.includes('/tags.php')) {
-              _EVT__WEBPACK_IMPORTED_MODULE_8__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_8__['EVT'].events.crawlError
-              )
-              window.alert('Not support page!')
-              throw new Error('Not support page!')
-            }
+            // if () {
+            //   EVT.fire(EVT.events.crawlError)
+            //   window.alert('Not support page!')
+            //   throw new Error('Not support page!')
+            // }
           }
           // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
           getMultipleSetting() {
@@ -6110,7 +6127,7 @@
                   count
                 )
               )
-              const countEl = document.querySelector('.dkENRa')
+              const countEl = document.querySelector('.bWodjS')
               if (countEl) {
                 countEl.textContent = count
               }
@@ -6986,6 +7003,9 @@
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
+        /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+          /*! ./PageInfo */ './src/ts/modules/PageInfo.ts'
+        )
         // 初始化用户页面
 
         class InitUserPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
@@ -7073,12 +7093,11 @@
             // 判断页面类型
             // 匹配 pathname 里用户 id 之后的字符
             const test = location.pathname.match(/\/users\/\d+(\/.+)/)
-            let str = ''
             if (test === null) {
               // 用户主页
               this.listType = 0
             } else if (test.length === 2) {
-              str = test[1] //取出用户 id 之后的字符
+              const str = test[1] //取出用户 id 之后的字符
               if (str.includes('/artworks')) {
                 // 所有作品
                 this.listType = 0
@@ -7090,14 +7109,8 @@
                 this.listType = 2
               }
             }
-            // 提取 tag
-            // 如果用户 id 之后的字符多于一个路径，则把最后一个路径作为 tag，示例情况
-            // https://www.pixiv.net/users/2188232/illustrations/ghostblade
-            const array = str.split('/')
-            // ["", "illustrations", "ghostblade"]
-            if (array.length > 2) {
-              this.tag = array[array.length - 1]
-            }
+            this.tag =
+              _PageInfo__WEBPACK_IMPORTED_MODULE_9__['pageInfo'].getPageTag
             if (!this.tag) {
               this.getIdList()
             } else {
@@ -7883,22 +7896,16 @@
         class PageInfo {
           constructor() {
             // 预设为 1 是为了指示这个标记有值，这样在获取到实际值之前，就可以把它插入到下拉框里。
-            this.pageTitle = '1'
+            this.pageTitle = ''
             this.pageUserName = ''
             this.pageUserID = ''
             this.pageTag = ''
-            this.getPageInfo(
-              _PageType__WEBPACK_IMPORTED_MODULE_4__['pageType'].getPageType()
-            )
+            this.getPageInfo()
             // 页面切换时获取新的页面信息
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].events.pageSwitch,
               () => {
-                this.getPageInfo(
-                  _PageType__WEBPACK_IMPORTED_MODULE_4__[
-                    'pageType'
-                  ].getPageType()
-                )
+                this.getPageInfo()
               }
             )
           }
@@ -7908,6 +7915,7 @@
           // 重置
           // 切换页面时可能旧页面的一些标记在新页面没有了，所以要先重置
           reset() {
+            this.pageTitle = ''
             this.pageUserName = ''
             this.pageUserID = ''
             this.pageTag = ''
@@ -7915,9 +7923,10 @@
           // 储存信息
           // 开始抓取时，把此时的页面信息保存到 store 里。这样即使下载时页面切换了，使用的刚开始抓取时的信息。
           async store() {
-            await this.getPageInfo(
-              _PageType__WEBPACK_IMPORTED_MODULE_4__['pageType'].getPageType()
-            )
+            await this.getPageInfo()
+            _Store__WEBPACK_IMPORTED_MODULE_3__[
+              'store'
+            ].pageInfo.pageTitle = this.pageTitle
             _Store__WEBPACK_IMPORTED_MODULE_3__[
               'store'
             ].pageInfo.pageUserName = this.pageUserName
@@ -7929,8 +7938,21 @@
             ].pageInfo.pageTag = this.pageTag
           }
           // 获取当前页面的一些信息，用于文件名中
-          async getPageInfo(type) {
+          async getPageInfo() {
+            // 执行时可能 DOM 加载完成了，但主要内容没有加载出来，需要等待
+            if (!document.body.innerHTML.includes('/users/')) {
+              return window.setTimeout(() => {
+                this.getPageInfo()
+              }, 300)
+            }
+            const type = _PageType__WEBPACK_IMPORTED_MODULE_4__[
+              'pageType'
+            ].getPageType()
             this.reset()
+            // 去掉标题上的下载状态、消息数量提示
+            this.pageTitle = document.title
+              .replace(/\[(↑|→|▶|↓|║|■|√| )\] /, '')
+              .replace(/^\(\d.*\) /, '')
             // 设置用户信息
             if (type === 1 || type === 2) {
               // 只有 1 和 2 可以使用页面上的用户信息
@@ -7943,24 +7965,16 @@
               this.pageUserName = data.body.name
             }
             // 获取当前页面的 tag
-            if (type === 5) {
-              // pathname 获取到的 tag 不需要再编码
-              this.pageTag = decodeURIComponent(
-                location.pathname.split('tags/')[1].split('/')[0]
+            this.pageTag = decodeURIComponent(
+              _API__WEBPACK_IMPORTED_MODULE_0__['API'].getTagFromURL(
+                location.href
               )
-            } else {
-              this.pageTag = decodeURIComponent(
-                _API__WEBPACK_IMPORTED_MODULE_0__['API'].getURLField(
-                  window.location.href,
-                  'tag'
-                )
-              )
-            }
+            )
             // 将可用选项添加到下拉选项里
             this.initPageInfoSelector()
           }
           initPageInfoSelector() {
-            let optionHtml = '<option value="default">…</option>'
+            let optionHtml = '<option value="default" disable>…</option>'
             const info = new Map([
               ['p_title', this.pageTitle],
               ['p_user', this.pageUserName],
@@ -8029,9 +8043,8 @@
             } else if (/\/artworks\/\d{1,10}/.test(url)) {
               type = 1
             } else if (
-              (/\/users\/\d+/.test(url) && !url.includes('/bookmarks')) ||
-              url.includes('member.php?id=') ||
-              url.includes('member_illust.php?id=')
+              /\/users\/\d+/.test(url) &&
+              !url.includes('/bookmarks')
             ) {
               type = 2
             } else if (
@@ -8039,7 +8052,7 @@
               url.includes('/bookmarks')
             ) {
               type = 4
-            } else if (url.includes('tags.php?') || url.includes('/tags/')) {
+            } else if (url.includes('/tags/')) {
               type = 5
             } else if (
               location.pathname === '/ranking_area.php' &&
@@ -8639,7 +8652,7 @@
   </select>
   &nbsp;
   <select name="fileNameSelect">
-    <option value="default">…</option>
+    <option value="default" disable>…</option>
     <option value="{id}">{id}</option>
     <option value="{title}">{title}</option>
     <option value="{tags}">{tags}</option>
@@ -8885,6 +8898,7 @@
             }
             // 储存页面信息，用来生成文件名
             this.pageInfo = {
+              pageTitle: '',
               pageUserName: '',
               pageUserID: '',
               pageTag: ''

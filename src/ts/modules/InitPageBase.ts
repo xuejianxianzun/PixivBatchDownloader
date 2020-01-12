@@ -148,12 +148,12 @@ abstract class InitPageBase {
       throw new Error('Not support novel page!')
     }
 
-    if (location.href.includes('/tags.php')) {
-      EVT.fire(EVT.events.crawlError)
+    // if () {
+    //   EVT.fire(EVT.events.crawlError)
 
-      window.alert('Not support page!')
-      throw new Error('Not support page!')
-    }
+    //   window.alert('Not support page!')
+    //   throw new Error('Not support page!')
+    // }
   }
 
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取

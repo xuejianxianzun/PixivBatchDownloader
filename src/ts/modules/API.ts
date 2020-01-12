@@ -69,6 +69,57 @@ class API {
     }
   }
 
+  // 从 url 中获取 tag
+  static getTagFromURL(url: string) {
+    const nowURL = new URL(url)
+
+    // 2 用户作品列表页
+    if (/\/users\/\d+/.test(url) && !url.includes('/bookmarks')) {
+      // 匹配 pathname 里用户 id 之后的字符
+      const test = nowURL.pathname.match(/\/users\/\d+(\/.+)/)
+      if (test && test.length === 2) {
+        const str = test[1]
+        // 如果用户 id 之后的字符多于一个路径，则把最后一个路径作为 tag，示例
+        // https://www.pixiv.net/users/2188232/illustrations/ghostblade
+        const array = str.split('/')
+        // ["", "illustrations", "ghostblade"]
+        if (array.length > 2) {
+          return array[array.length - 1]
+        }
+      }
+    }
+
+    // 4 旧版收藏页面
+    if (nowURL.pathname === '/bookmark.php') {
+      if (parseInt(this.getURLField(nowURL.href, 'untagged')) === 1) {
+        // 旧版 “未分类” tag 是个特殊标记
+        // https://www.pixiv.net/bookmark.php?untagged=1
+        return '未分類'
+      }
+    }
+
+    // 4 新版收藏页面
+    if (nowURL.pathname.includes('/bookmarks/artworks')) {
+      // 新版收藏页 url，tag 在路径末端，如
+      // https://www.pixiv.net/users/9460149/bookmarks/artworks/R-18
+      const test = /\/bookmarks\/artworks\/(.[^\/|^\?|^&]*)/.exec(
+        nowURL.pathname
+      )
+      if (test !== null && test.length > 1 && !!test[1]) {
+        return test[1]
+      }
+    }
+
+    // 5 搜索页面
+    if (nowURL.pathname.includes('/tags/')) {
+      return nowURL.pathname.split('tags/')[1].split('/')[0]
+    }
+
+    // 默认情况，从查询字符串里获取，如下网址
+    // https://www.pixiv.net/bookmark.php?tag=R-18
+    return this.getURLField(nowURL.href, 'tag')
+  }
+
   // 更新 token
   // 从网页源码里获取用户 token，并储存起来
   static updateToken() {

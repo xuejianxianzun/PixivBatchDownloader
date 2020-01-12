@@ -10,6 +10,7 @@ import { BookmarkData } from './CrawlResult'
 import { store } from './Store'
 import { log } from './Log'
 import { DOM } from './DOM'
+import { pageInfo } from './PageInfo'
 
 class InitBookmarkPage extends InitPageBase {
   constructor() {
@@ -133,29 +134,10 @@ class InitBookmarkPage extends InitPageBase {
       this.requsetNumber = onceNumber * this.crawlNumber
     }
 
-    // 设置 tag
-    if (parseInt(API.getURLField(location.href, 'untagged')) === 1) {
-      // 在“未分类”页面时
-      this.tag = '未分類'
-    } else {
-      // 这里需要区分新旧收藏页 url
-      if (location.pathname.includes('/bookmarks/artworks')) {
-        // 新版 url，tag 在路径末端，如
-        // https://www.pixiv.net/users/9460149/bookmarks/artworks/R-18
-        const test = /\/bookmarks\/artworks\/(.[^\/|^\?|^&]*)/.exec(
-          location.pathname
-        )
-        if (test !== null && test.length > 1 && !!test[1]) {
-          this.tag = test[1]
-        }
-      } else {
-        // 旧版 url，tag 在查询字符串里，如
-        // https://www.pixiv.net/bookmark.php?tag=R-18
-        this.tag = API.getURLField(location.href, 'tag')
-      }
-    }
+    this.tag = pageInfo.getPageTag
 
     // 判断是公开收藏还是非公开收藏
+    // 在新旧版 url 里，rest 都是在查询字符串里的
     this.isHide = API.getURLField(location.href, 'rest') === 'hide'
 
     // 获取 id 列表

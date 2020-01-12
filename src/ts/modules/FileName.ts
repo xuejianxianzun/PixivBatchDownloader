@@ -68,10 +68,7 @@ class FileName {
       },
       {
         name: '{p_title}',
-        value: document.title
-          .replace(/\[(↑|→|▶|↓|║|■|√| )\] /, '')
-          .replace(/^\(\d.*\) /, ''),
-        // 去掉标题上的下载状态、消息数量提示
+        value: store.pageInfo.pageTitle,
         prefix: '',
         safe: false
       },
