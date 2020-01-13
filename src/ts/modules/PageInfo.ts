@@ -15,7 +15,6 @@ class PageInfo {
     })
   }
 
-  // 预设为 1 是为了指示这个标记有值，这样在获取到实际值之前，就可以把它插入到下拉框里。
   private pageTitle = ''
   private pageUserName = ''
   private pageUserID = ''
@@ -78,7 +77,7 @@ class PageInfo {
   }
 
   private initPageInfoSelector() {
-    let optionHtml = '<option value="default" disable>…</option>'
+    let optionHtml = '<option value="default">…</option>'
 
     const info = new Map([
       ['p_title', this.pageTitle],

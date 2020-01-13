@@ -719,7 +719,7 @@
         'lang'
       ].transl(
         '_newver'
-      )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
+      )}" href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">
       <svg t="1574401457339" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4736" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16"><defs><style type="text/css"></style></defs><path d="M894.72 795.477333l-85.418667-85.418667c0.128-0.170667 0.170667-0.341333 0.298667-0.512l-158.890667-158.890667c0.042667-0.597333 37.248-37.248 37.248-37.248l178.773333 0 1.706667-1.493333c-0.853333-196.736-160.426667-356.053333-357.418667-356.053333-72.704 0-140.202667 22.016-196.650667 59.306667L228.949333 129.664C307.968 71.466667 405.333333 36.650667 511.018667 36.650667c263.296 0 476.757333 213.461333 476.757333 476.714667C987.776 619.093333 952.96 716.416 894.72 795.477333zM369.493333 476.117333c-0.042667 0.597333-37.248 37.248-37.248 37.248l-178.773333 0c0 197.461333 160.085333 357.546667 357.546667 357.546667 72.192 0 139.093333-21.76 195.285333-58.538667l85.589333 85.589333c-78.848 57.685333-175.701333 92.117333-280.874667 92.117333-263.296 0-476.757333-213.461333-476.757333-476.757333 0-105.173333 34.474667-202.069333 92.16-280.874667l85.589333 85.589333C211.925333 318.208 211.882667 318.336 211.797333 318.464L369.493333 476.117333z" p-id="4737"></path></svg>
       </a>
       <a class="has_tip centerWrap_top_btn wiki_url" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
@@ -7895,7 +7895,6 @@
 
         class PageInfo {
           constructor() {
-            // 预设为 1 是为了指示这个标记有值，这样在获取到实际值之前，就可以把它插入到下拉框里。
             this.pageTitle = ''
             this.pageUserName = ''
             this.pageUserID = ''
@@ -7974,7 +7973,7 @@
             this.initPageInfoSelector()
           }
           initPageInfoSelector() {
-            let optionHtml = '<option value="default" disable>…</option>'
+            let optionHtml = '<option value="default">…</option>'
             const info = new Map([
               ['p_title', this.pageTitle],
               ['p_user', this.pageUserName],
@@ -8652,7 +8651,7 @@
   </select>
   &nbsp;
   <select name="fileNameSelect">
-    <option value="default" disable>…</option>
+    <option value="default">…</option>
     <option value="{id}">{id}</option>
     <option value="{title}">{title}</option>
     <option value="{tags}">{tags}</option>
