@@ -45,13 +45,6 @@ class PageInfo {
 
   // 获取当前页面的一些信息，用于文件名中
   private async getPageInfo() {
-    // 执行时可能 DOM 加载完成了，但主要内容没有加载出来，需要等待
-    if (!document.body.innerHTML.includes('/users/')) {
-      return window.setTimeout(() => {
-        this.getPageInfo()
-      }, 300)
-    }
-
     const type = pageType.getPageType()
 
     this.reset()
@@ -64,9 +57,16 @@ class PageInfo {
     // 设置用户信息
     if (type === 1 || type === 2) {
       // 只有 1 和 2 可以使用页面上的用户信息
-      let data = await API.getUserProfile(DOM.getUserId())
-      this.pageUserID = data.body.userId
-      this.pageUserName = data.body.name
+      // 执行时可能 DOM 加载完成了，但主要内容没有加载出来，需要等待
+      try {
+        const data = await API.getUserProfile(DOM.getUserId())
+        this.pageUserID = data.body.userId
+        this.pageUserName = data.body.name
+      } catch (error) {
+        return window.setTimeout(() => {
+          this.getPageInfo()
+        }, 300)
+      }
     }
 
     // 获取当前页面的 tag
@@ -91,7 +91,7 @@ class PageInfo {
         optionHtml += `<option value="{${key}}">{${key}}</option>`
       }
     }
-    let target = document.getElementById('pageInfoSelect')
+    const target = document.getElementById('pageInfoSelect')
     if (target) {
       target.innerHTML = optionHtml
     }

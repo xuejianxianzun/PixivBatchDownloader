@@ -2366,6 +2366,17 @@
         // 在搜索页面按收藏数快速筛选
         class FastScreen {
           constructor() {
+            this.favNums = [
+              '100users入り',
+              '500users入り',
+              '1000users入り',
+              '3000users入り',
+              '5000users入り',
+              '10000users入り',
+              '20000users入り',
+              '30000users入り',
+              '50000users入り'
+            ] // 200 和 2000 的因为数量太少，不添加。40000 的也少
             this.create()
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.destroy,
@@ -2377,28 +2388,17 @@
           // 添加快速筛选功能
           create() {
             // 判断插入点的元素有没有加载出来
-            let target = document.querySelector('#root>div')
+            const target = document.querySelector('#root>div')
             if (!target) {
               setTimeout(() => {
                 this.create()
               }, 300)
               return
             }
-            const favNums = [
-              '100users入り',
-              '500users入り',
-              '1000users入り',
-              '3000users入り',
-              '5000users入り',
-              '10000users入り',
-              '20000users入り',
-              '30000users入り',
-              '50000users入り'
-            ] // 200 和 2000 的因为数量太少，不添加。40000 的也少
             const fastScreenArea = document.createElement('div')
             fastScreenArea.className = 'fastScreenArea'
-            favNums.forEach(secondTag => {
-              let a = document.createElement('a')
+            this.favNums.forEach(secondTag => {
+              const a = document.createElement('a')
               a.innerText = secondTag
               a.href = 'javascript:viod(0)'
               a.onclick = () => {
@@ -2416,14 +2416,14 @@
             ].getPageTag.split(' ')[0]
             const fullTag = encodeURIComponent(firstTag + ' ' + secondTag)
             // 用新的 tag 替换掉当前网址里的 tag
-            let newURL = location.href.replace(
+            const newURL = location.href.replace(
               encodeURIComponent(
                 _PageInfo__WEBPACK_IMPORTED_MODULE_2__['pageInfo'].getPageTag
               ),
               fullTag
             )
             // 添加 s_mode=s_tag 宽松匹配标签
-            let u = new URL(newURL)
+            const u = new URL(newURL)
             u.searchParams.set('s_mode', 's_tag')
             location.href = u.toString()
           }
@@ -7938,12 +7938,6 @@
           }
           // 获取当前页面的一些信息，用于文件名中
           async getPageInfo() {
-            // 执行时可能 DOM 加载完成了，但主要内容没有加载出来，需要等待
-            if (!document.body.innerHTML.includes('/users/')) {
-              return window.setTimeout(() => {
-                this.getPageInfo()
-              }, 300)
-            }
             const type = _PageType__WEBPACK_IMPORTED_MODULE_4__[
               'pageType'
             ].getPageType()
@@ -7955,13 +7949,20 @@
             // 设置用户信息
             if (type === 1 || type === 2) {
               // 只有 1 和 2 可以使用页面上的用户信息
-              let data = await _API__WEBPACK_IMPORTED_MODULE_0__[
-                'API'
-              ].getUserProfile(
-                _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].getUserId()
-              )
-              this.pageUserID = data.body.userId
-              this.pageUserName = data.body.name
+              // 执行时可能 DOM 加载完成了，但主要内容没有加载出来，需要等待
+              try {
+                const data = await _API__WEBPACK_IMPORTED_MODULE_0__[
+                  'API'
+                ].getUserProfile(
+                  _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].getUserId()
+                )
+                this.pageUserID = data.body.userId
+                this.pageUserName = data.body.name
+              } catch (error) {
+                return window.setTimeout(() => {
+                  this.getPageInfo()
+                }, 300)
+              }
             }
             // 获取当前页面的 tag
             this.pageTag = decodeURIComponent(
@@ -7985,7 +7986,7 @@
                 optionHtml += `<option value="{${key}}">{${key}}</option>`
               }
             }
-            let target = document.getElementById('pageInfoSelect')
+            const target = document.getElementById('pageInfoSelect')
             if (target) {
               target.innerHTML = optionHtml
             }

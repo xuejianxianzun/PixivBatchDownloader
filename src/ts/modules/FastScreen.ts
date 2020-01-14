@@ -11,10 +11,23 @@ class FastScreen {
       this.destroy()
     })
   }
+
+  private readonly favNums = [
+    '100users入り',
+    '500users入り',
+    '1000users入り',
+    '3000users入り',
+    '5000users入り',
+    '10000users入り',
+    '20000users入り',
+    '30000users入り',
+    '50000users入り'
+  ] // 200 和 2000 的因为数量太少，不添加。40000 的也少
+
   // 添加快速筛选功能
   private create() {
     // 判断插入点的元素有没有加载出来
-    let target = document.querySelector('#root>div')
+    const target = document.querySelector('#root>div')
 
     if (!target) {
       setTimeout(() => {
@@ -23,22 +36,10 @@ class FastScreen {
       return
     }
 
-    const favNums = [
-      '100users入り',
-      '500users入り',
-      '1000users入り',
-      '3000users入り',
-      '5000users入り',
-      '10000users入り',
-      '20000users入り',
-      '30000users入り',
-      '50000users入り'
-    ] // 200 和 2000 的因为数量太少，不添加。40000 的也少
-
     const fastScreenArea = document.createElement('div')
     fastScreenArea.className = 'fastScreenArea'
-    favNums.forEach(secondTag => {
-      let a = document.createElement('a')
+    this.favNums.forEach(secondTag => {
+      const a = document.createElement('a')
       a.innerText = secondTag
       a.href = 'javascript:viod(0)'
       a.onclick = () => {
@@ -58,12 +59,12 @@ class FastScreen {
     const firstTag = pageInfo.getPageTag.split(' ')[0]
     const fullTag = encodeURIComponent(firstTag + ' ' + secondTag)
     // 用新的 tag 替换掉当前网址里的 tag
-    let newURL = location.href.replace(
+    const newURL = location.href.replace(
       encodeURIComponent(pageInfo.getPageTag),
       fullTag
     )
     // 添加 s_mode=s_tag 宽松匹配标签
-    let u = new URL(newURL)
+    const u = new URL(newURL)
     u.searchParams.set('s_mode', 's_tag')
     location.href = u.toString()
   }
