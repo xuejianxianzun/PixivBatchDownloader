@@ -38,13 +38,13 @@ class Settings {
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_下载作品类型的提示Center'
   )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
-  <label for="setWorkType0"><input type="checkbox" name="downType0" id="setWorkType0" checked> ${lang.transl(
+  <input type="checkbox" name="downType0" id="setWorkType0" checked><label for="setWorkType0"> ${lang.transl(
     '_插画'
   )}&nbsp;</label>
-  <label for="setWorkType1"><input type="checkbox" name="downType1" id="setWorkType1" checked> ${lang.transl(
+  <input type="checkbox" name="downType1" id="setWorkType1" checked><label for="setWorkType1"> ${lang.transl(
     '_漫画'
   )}&nbsp;</label>
-  <label for="setWorkType2"><input type="checkbox" name="downType2" id="setWorkType2" checked> ${lang.transl(
+  <input type="checkbox" name="downType2" id="setWorkType2" checked><label for="setWorkType2"> ${lang.transl(
     '_动图'
   )}&nbsp;</label>
   </p>
@@ -52,13 +52,16 @@ class Settings {
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_怎样下载多图作品'
   )}">${lang.transl('_多图作品设置')}<span class="gray1"> ? </span></span>
-  <label for="multipleImageWorks1"><input type="radio" name="multipleImageWorks" id="multipleImageWorks1" value="0"> ${lang.transl(
+  <input type="radio" name="multipleImageWorks" id="multipleImageWorks1" value="0">
+  <label for="multipleImageWorks1"> ${lang.transl(
     '_全部下载'
   )}&nbsp; </label>
-  <label for="multipleImageWorks2"><input type="radio" name="multipleImageWorks" id="multipleImageWorks2" value="-1"> ${lang.transl(
+  <input type="radio" name="multipleImageWorks" id="multipleImageWorks2" value="-1">
+  <label for="multipleImageWorks2"> ${lang.transl(
     '_不下载'
   )}&nbsp; </label>
-  <label for="multipleImageWorks3"><input type="radio" name="multipleImageWorks" id="multipleImageWorks3" value="1"> ${lang.transl(
+  <input type="radio" name="multipleImageWorks" id="multipleImageWorks3" value="1">
+  <label for="multipleImageWorks3"> ${lang.transl(
     '_下载前几张图片'
   )}&nbsp; </label>
   <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
@@ -67,13 +70,16 @@ class Settings {
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_动图保存格式title'
   )}">${lang.transl('_动图保存格式')}<span class="gray1"> ? </span></span>
-  <label for="ugoiraSaveAs1"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" value="webm" checked> ${lang.transl(
+  <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" value="webm" checked>
+  <label for="ugoiraSaveAs1"> ${lang.transl(
     '_webmVideo'
   )} &nbsp;</label>
-  <label for="ugoiraSaveAs3"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" value="gif"> ${lang.transl(
+  <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" value="gif"> 
+  <label for="ugoiraSaveAs3">${lang.transl(
     '_gif'
   )} &nbsp;</label>
-  <label for="ugoiraSaveAs2"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" value="zip"> ${lang.transl(
+  <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" value="zip"> 
+  <label for="ugoiraSaveAs2">${lang.transl(
     '_zipFile'
   )} &nbsp;</label>
   </p>
@@ -81,10 +87,12 @@ class Settings {
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_筛选收藏数的提示Center'
   )}">${lang.transl('_筛选收藏数Center')}<span class="gray1"> ? </span></span>
-  <label for="checkFavNum0"><input type="radio" name="checkFavNum" id="checkFavNum0" value="0" checked>  ${lang.transl(
+  <input type="radio" name="checkFavNum" id="checkFavNum0" value="0" checked>
+  <label for="checkFavNum0">  ${lang.transl(
     '_不限制'
   )}&nbsp; </label>
-  <label for="checkFavNum1"><input type="radio" name="checkFavNum" id="checkFavNum1" value="1">  ${lang.transl(
+  <input type="radio" name="checkFavNum" id="checkFavNum1" value="1">
+  <label for="checkFavNum1">  ${lang.transl(
     '_大于'
   )}&nbsp; </label>
   <input type="text" name="setFavNum" class="setinput_style1 blue" value="0">&nbsp;&nbsp;&nbsp;&nbsp;
@@ -93,7 +101,7 @@ class Settings {
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_只下载已收藏的提示'
   )}">${lang.transl('_只下载已收藏')}<span class="gray1"> ? </span></span>
-  <label for="setOnlyBmk"><input type="checkbox" name="setOnlyBmk" id="setOnlyBmk"> ${lang.transl(
+  <input type="checkbox" name="setOnlyBmk" id="setOnlyBmk"> <label for="setOnlyBmk">${lang.transl(
     '_启用'
   )}</label>
   </p>
@@ -112,16 +120,20 @@ class Settings {
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_设置宽高比例Title'
   )}">${lang.transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
-  <label for="ratio0"><input type="radio" name="ratio" id="ratio0" value="0" checked>  ${lang.transl(
+  <input type="radio" name="ratio" id="ratio0" value="0" checked> 
+  <label for="ratio0"> ${lang.transl(
     '_不限制'
   )}&nbsp; </label>
-  <label for="ratio1"><input type="radio" name="ratio" id="ratio1" value="1">  ${lang.transl(
+  <input type="radio" name="ratio" id="ratio1" value="1">
+  <label for="ratio1"> ${lang.transl(
     '_横图'
   )}&nbsp; </label>
-  <label for="ratio2"><input type="radio" name="ratio" id="ratio2" value="2">  ${lang.transl(
+  <input type="radio" name="ratio" id="ratio2" value="2">
+  <label for="ratio2"> ${lang.transl(
     '_竖图'
   )}&nbsp; </label>
-  <label for="ratio3"><input type="radio" name="ratio" id="ratio3" value="3">  ${lang.transl(
+  <input type="radio" name="ratio" id="ratio3" value="3">
+  <label for="ratio3"> ${lang.transl(
     '_输入宽高比'
   )}</label>
   <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
@@ -129,14 +141,17 @@ class Settings {
   <p class="${this.optionClass}" data-no="9">
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_设置id范围提示'
-  )}">${lang.transl('_设置id范围')} <span class="gray1"> ? </span></span>
-  <label for="idRange0"><input type="radio" name="idRange" id="idRange0" value="0" checked>  ${lang.transl(
+  )}">${lang.transl('_设置id范围')}&nbsp;&nbsp; <span class="gray1"> ? </span></span>
+  <input type="radio" name="idRange" id="idRange0" value="0" checked>
+  <label for="idRange0">  ${lang.transl(
     '_不限制'
   )}&nbsp; </label>
-  <label for="idRange1"><input type="radio" name="idRange" id="idRange1" value="1">  ${lang.transl(
+  <input type="radio" name="idRange" id="idRange1" value="1">
+  <label for="idRange1">  ${lang.transl(
     '_大于'
   )}&nbsp; </label>
-  <label for="idRange2"><input type="radio" name="idRange" id="idRange2" value="2">  ${lang.transl(
+  <input type="radio" name="idRange" id="idRange2" value="2">
+  <label for="idRange2">  ${lang.transl(
     '_小于'
   )}&nbsp; </label>
   <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
@@ -145,7 +160,8 @@ class Settings {
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_设置投稿时间提示'
   )}">${lang.transl('_设置投稿时间')} <span class="gray1"> ? </span></span>
-  <label for="setPostDate"><input type="checkbox" name="postDate" id="setPostDate"> ${lang.transl(
+  <input type="checkbox" name="postDate" id="setPostDate">
+  <label for="setPostDate"> ${lang.transl(
     '_启用'
   )}</label>
   <input type="datetime-local" name="postDateStart" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
@@ -252,7 +268,8 @@ class Settings {
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_添加字段名称提示'
   )}">${lang.transl('_添加字段名称')}<span class="gray1"> ? </span></span>
-  <label for="setTagNameToFileName"><input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" checked> ${lang.transl(
+  <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" checked>
+  <label for="setTagNameToFileName"> ${lang.transl(
     '_启用'
   )}</label>
   &nbsp;&nbsp;&nbsp;
@@ -262,7 +279,8 @@ class Settings {
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_快速下载建立文件夹提示'
   )}">${lang.transl('_快速下载建立文件夹')}<span class="gray1"> ? </span></span>
-  <label for="setAlwaysFolder"><input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" > ${lang.transl(
+  <input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" >
+  <label for="setAlwaysFolder"> ${lang.transl(
     '_启用'
   )}</label>
   </p>
@@ -276,7 +294,8 @@ class Settings {
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_快速下载的提示'
   )}">${lang.transl('_是否自动下载')}<span class="gray1"> ? </span></span>
-  <label for="setQuietDownload"><input type="checkbox" name="quietDownload" id="setQuietDownload" checked> ${lang.transl(
+  <input type="checkbox" name="quietDownload" id="setQuietDownload" checked>
+  <label for="setQuietDownload"> ${lang.transl(
     '_启用'
   )}</label>
   </p>
@@ -284,7 +303,8 @@ class Settings {
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_预览搜索结果说明'
   )}">${lang.transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
-  <label for="setPreviewResult"><input type="checkbox" name="previewResult" id="setPreviewResult" checked> ${lang.transl(
+  <input type="checkbox" name="previewResult" id="setPreviewResult" checked>
+  <label for="setPreviewResult"> ${lang.transl(
     '_启用'
   )}</label>
   </p>

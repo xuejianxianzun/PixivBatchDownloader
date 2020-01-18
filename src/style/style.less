@@ -52,6 +52,7 @@
   }
   p {
     line-height: 24px;
+    height: 24px;
     margin: 0;
   }
   .tip {
@@ -74,6 +75,9 @@
     option {
       font-size: 14px !important;
       line-height: 24px;
+    }
+    p *{
+      vertical-align: middle;
     }
   }
 
@@ -150,10 +154,11 @@
     text-indent: 4px;
     box-sizing: border-box;
     border: none !important;
-    border-bottom: 1px solid #999 !important;
+    border-bottom: 1px solid #ccc !important;
     outline: 0;
     padding: 0 !important;
-    &:focus {
+    transition: all .3s;
+    &:focus,&:hover {
       border-bottom: 1px solid #0096fa !important;
       background: 0 0 !important;
     }

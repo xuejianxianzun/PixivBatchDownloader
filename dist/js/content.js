@@ -6543,32 +6543,40 @@ class Settings {
   </p>
   <p class="${this.optionClass}" data-no="2">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载作品类型的提示Center')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
-  <label for="setWorkType0"><input type="checkbox" name="downType0" id="setWorkType0" checked> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_插画')}&nbsp;</label>
-  <label for="setWorkType1"><input type="checkbox" name="downType1" id="setWorkType1" checked> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_漫画')}&nbsp;</label>
-  <label for="setWorkType2"><input type="checkbox" name="downType2" id="setWorkType2" checked> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_动图')}&nbsp;</label>
+  <input type="checkbox" name="downType0" id="setWorkType0" checked><label for="setWorkType0"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_插画')}&nbsp;</label>
+  <input type="checkbox" name="downType1" id="setWorkType1" checked><label for="setWorkType1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_漫画')}&nbsp;</label>
+  <input type="checkbox" name="downType2" id="setWorkType2" checked><label for="setWorkType2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_动图')}&nbsp;</label>
   </p>
   <p class="${this.optionClass}" data-no="3">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_怎样下载多图作品')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品设置')}<span class="gray1"> ? </span></span>
-  <label for="multipleImageWorks1"><input type="radio" name="multipleImageWorks" id="multipleImageWorks1" value="0"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_全部下载')}&nbsp; </label>
-  <label for="multipleImageWorks2"><input type="radio" name="multipleImageWorks" id="multipleImageWorks2" value="-1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不下载')}&nbsp; </label>
-  <label for="multipleImageWorks3"><input type="radio" name="multipleImageWorks" id="multipleImageWorks3" value="1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载前几张图片')}&nbsp; </label>
+  <input type="radio" name="multipleImageWorks" id="multipleImageWorks1" value="0">
+  <label for="multipleImageWorks1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_全部下载')}&nbsp; </label>
+  <input type="radio" name="multipleImageWorks" id="multipleImageWorks2" value="-1">
+  <label for="multipleImageWorks2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不下载')}&nbsp; </label>
+  <input type="radio" name="multipleImageWorks" id="multipleImageWorks3" value="1">
+  <label for="multipleImageWorks3"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载前几张图片')}&nbsp; </label>
   <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
   </p>
   <p class="${this.optionClass}" data-no="4">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_动图保存格式title')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_动图保存格式')}<span class="gray1"> ? </span></span>
-  <label for="ugoiraSaveAs1"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" value="webm" checked> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_webmVideo')} &nbsp;</label>
-  <label for="ugoiraSaveAs3"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" value="gif"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_gif')} &nbsp;</label>
-  <label for="ugoiraSaveAs2"><input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" value="zip"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_zipFile')} &nbsp;</label>
+  <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" value="webm" checked>
+  <label for="ugoiraSaveAs1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_webmVideo')} &nbsp;</label>
+  <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" value="gif"> 
+  <label for="ugoiraSaveAs3">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_gif')} &nbsp;</label>
+  <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" value="zip"> 
+  <label for="ugoiraSaveAs2">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_zipFile')} &nbsp;</label>
   </p>
   <p class="${this.optionClass}" data-no="5">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_筛选收藏数的提示Center')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_筛选收藏数Center')}<span class="gray1"> ? </span></span>
-  <label for="checkFavNum0"><input type="radio" name="checkFavNum" id="checkFavNum0" value="0" checked>  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不限制')}&nbsp; </label>
-  <label for="checkFavNum1"><input type="radio" name="checkFavNum" id="checkFavNum1" value="1">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_大于')}&nbsp; </label>
+  <input type="radio" name="checkFavNum" id="checkFavNum0" value="0" checked>
+  <label for="checkFavNum0">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不限制')}&nbsp; </label>
+  <input type="radio" name="checkFavNum" id="checkFavNum1" value="1">
+  <label for="checkFavNum1">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_大于')}&nbsp; </label>
   <input type="text" name="setFavNum" class="setinput_style1 blue" value="0">&nbsp;&nbsp;&nbsp;&nbsp;
   </p>
   <p class="${this.optionClass}" data-no="6">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_只下载已收藏的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_只下载已收藏')}<span class="gray1"> ? </span></span>
-  <label for="setOnlyBmk"><input type="checkbox" name="setOnlyBmk" id="setOnlyBmk"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用')}</label>
+  <input type="checkbox" name="setOnlyBmk" id="setOnlyBmk"> <label for="setOnlyBmk">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用')}</label>
   </p>
   <p class="${this.optionClass}" data-no="7">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_筛选宽高的按钮Title')} ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_筛选宽高的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_筛选宽高的按钮文字')}<span class="gray1"> ? </span></span>
@@ -6579,22 +6587,30 @@ class Settings {
   </p>
   <p class="${this.optionClass}" data-no="8">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置宽高比例Title')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
-  <label for="ratio0"><input type="radio" name="ratio" id="ratio0" value="0" checked>  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不限制')}&nbsp; </label>
-  <label for="ratio1"><input type="radio" name="ratio" id="ratio1" value="1">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_横图')}&nbsp; </label>
-  <label for="ratio2"><input type="radio" name="ratio" id="ratio2" value="2">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_竖图')}&nbsp; </label>
-  <label for="ratio3"><input type="radio" name="ratio" id="ratio3" value="3">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_输入宽高比')}</label>
+  <input type="radio" name="ratio" id="ratio0" value="0" checked> 
+  <label for="ratio0"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不限制')}&nbsp; </label>
+  <input type="radio" name="ratio" id="ratio1" value="1">
+  <label for="ratio1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_横图')}&nbsp; </label>
+  <input type="radio" name="ratio" id="ratio2" value="2">
+  <label for="ratio2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_竖图')}&nbsp; </label>
+  <input type="radio" name="ratio" id="ratio3" value="3">
+  <label for="ratio3"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_输入宽高比')}</label>
   <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
   </p>
   <p class="${this.optionClass}" data-no="9">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置id范围提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置id范围')} <span class="gray1"> ? </span></span>
-  <label for="idRange0"><input type="radio" name="idRange" id="idRange0" value="0" checked>  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不限制')}&nbsp; </label>
-  <label for="idRange1"><input type="radio" name="idRange" id="idRange1" value="1">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_大于')}&nbsp; </label>
-  <label for="idRange2"><input type="radio" name="idRange" id="idRange2" value="2">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_小于')}&nbsp; </label>
+  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置id范围提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置id范围')}&nbsp;&nbsp; <span class="gray1"> ? </span></span>
+  <input type="radio" name="idRange" id="idRange0" value="0" checked>
+  <label for="idRange0">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不限制')}&nbsp; </label>
+  <input type="radio" name="idRange" id="idRange1" value="1">
+  <label for="idRange1">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_大于')}&nbsp; </label>
+  <input type="radio" name="idRange" id="idRange2" value="2">
+  <label for="idRange2">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_小于')}&nbsp; </label>
   <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
   </p>
   <p class="${this.optionClass}" data-no="10">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置投稿时间提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置投稿时间')} <span class="gray1"> ? </span></span>
-  <label for="setPostDate"><input type="checkbox" name="postDate" id="setPostDate"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用')}</label>
+  <input type="checkbox" name="postDate" id="setPostDate">
+  <label for="setPostDate"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用')}</label>
   <input type="datetime-local" name="postDateStart" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
   &nbsp;-&nbsp;
   <input type="datetime-local" name="postDateEnd" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
@@ -6691,13 +6707,15 @@ class Settings {
   </p>
   <p class="${this.optionClass}" data-no="14">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_添加字段名称提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_添加字段名称')}<span class="gray1"> ? </span></span>
-  <label for="setTagNameToFileName"><input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" checked> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用')}</label>
+  <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" checked>
+  <label for="setTagNameToFileName"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用')}</label>
   &nbsp;&nbsp;&nbsp;
   <span class="showFileNameResult"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览文件名')}</span>
   </p>
   <p class="${this.optionClass}" data-no="15">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_快速下载建立文件夹提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_快速下载建立文件夹')}<span class="gray1"> ? </span></span>
-  <label for="setAlwaysFolder"><input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" > ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用')}</label>
+  <input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" >
+  <label for="setAlwaysFolder"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用')}</label>
   </p>
   <p class="${this.optionClass}" data-no="16">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_线程数字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置下载线程')}<span class="gray1"> ? </span></span>
@@ -6705,11 +6723,13 @@ class Settings {
   </p>
   <p class="${this.optionClass}" data-no="17">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_快速下载的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_是否自动下载')}<span class="gray1"> ? </span></span>
-  <label for="setQuietDownload"><input type="checkbox" name="quietDownload" id="setQuietDownload" checked> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用')}</label>
+  <input type="checkbox" name="quietDownload" id="setQuietDownload" checked>
+  <label for="setQuietDownload"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用')}</label>
   </p>
   <p class="${this.optionClass}" data-no="18">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览搜索结果说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
-  <label for="setPreviewResult"><input type="checkbox" name="previewResult" id="setPreviewResult" checked> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用')}</label>
+  <input type="checkbox" name="previewResult" id="setPreviewResult" checked>
+  <label for="setPreviewResult"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用')}</label>
   </p>
   <input type="hidden" name="debut" value="0">
   </form>`;
@@ -8190,10 +8210,10 @@ const langText = {
         '快速下載時，若只有一張圖片，也會建立資料夾'
     ],
     _设置id范围: [
-        '设置 id 范围&nbsp;',
-        'ID範囲を設定&nbsp;',
-        'Set id range&nbsp;',
-        '設定 id 範圍&nbsp;'
+        '设置 id 范围',
+        'ID範囲を設定',
+        'Set id range',
+        '設定 id 範圍'
     ],
     _设置id范围提示: [
         '您可以输入一个作品 id，抓取比它新或者比它旧的作品',

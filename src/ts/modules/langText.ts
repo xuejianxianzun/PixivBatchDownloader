@@ -993,10 +993,10 @@ const langText = {
     '快速下載時，若只有一張圖片，也會建立資料夾'
   ],
   _设置id范围: [
-    '设置 id 范围&nbsp;',
-    'ID範囲を設定&nbsp;',
-    'Set id range&nbsp;',
-    '設定 id 範圍&nbsp;'
+    '设置 id 范围',
+    'ID範囲を設定',
+    'Set id range',
+    '設定 id 範圍'
   ],
   _设置id范围提示: [
     '您可以输入一个作品 id，抓取比它新或者比它旧的作品',
