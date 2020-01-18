@@ -364,10 +364,6 @@ class Settings {
     this.insertValueToInput(this.form.pageInfoSelect, this.form.userSetName)
     this.insertValueToInput(this.form.fileNameSelect, this.form.userSetName)
   }
-
-  public getSetting(name: string) {
-    const input = this.form[name]
-  }
 }
 
 const settings = new Settings()

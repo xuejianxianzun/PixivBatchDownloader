@@ -1,3 +1,5 @@
+@themeBlue:#0ea8ef;
+
 /* right buttons */
 #quick_down_btn,
 #rightButton {
@@ -59,11 +61,11 @@
     color: #999;
   }
   .blue {
-    color: #0ea8ef !important;
+    color: @themeBlue !important;
   }
   .has_tip:hover,
   label:hover {
-    color: #0ea8ef !important;
+    color: @themeBlue !important;
   }
   .settingForm {
     select {
@@ -71,6 +73,7 @@
       height: 20px;
       vertical-align: middle;
       border-radius: 4px;
+      border: 1px solid rgb(204, 204, 204);
     }
     option {
       font-size: 14px !important;
@@ -439,7 +442,7 @@
   }
   .title {
     font-size: 18px;
-    color: #0ea8ef;
+    color: @themeBlue;
   }
   .content {
     padding: 15px 0 0;
@@ -449,7 +452,7 @@
   }
   .btn {
     cursor: pointer;
-    background: #0ea8ef;
+    background: @themeBlue;
     color: #fff;
     outline: none;
     border: none;
