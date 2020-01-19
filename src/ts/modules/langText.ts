@@ -992,12 +992,7 @@ const langText = {
     'When downloading quickly, if there is only one picture, a folder is also created',
     '快速下載時，若只有一張圖片，也會建立資料夾'
   ],
-  _设置id范围: [
-    '设置 id 范围',
-    'ID範囲を設定',
-    'Set id range',
-    '設定 id 範圍'
-  ],
+  _设置id范围: ['设置 id 范围', 'ID範囲を設定', 'Set id range', '設定 id 範圍'],
   _设置id范围提示: [
     '您可以输入一个作品 id，抓取比它新或者比它旧的作品',
     '1つの作品IDを入力することで、それより新しいあるいは古い作品をクロールことができます',

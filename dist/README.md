@@ -22,7 +22,7 @@
 
 现在也增加了一些辅助功能，如去除广告、快速收藏、看图模式、给未分类作品添加 tag 等。
 
-![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/2019-08-18-11-12-52.png)
+![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/20200117104129.png)
 
 [访问官网](https://pixiv.download/)
 

@@ -1,10 +1,64 @@
-## 4.0.0 2020-01-14
+改为 开关 + 无按钮
+设置收藏数量 ?  不限制   大于  1000
 
-### 优化表单
+改为 开关+单选按钮
+设置宽高比例 ?  不限制   横图   竖图   宽高比 >= 1.4
+设置 id 范围
 
-把 input 从 label 里脱离出来。
+## 4.0.0 2020-01-20
 
-同时调整 css 尝试让表单按钮与文本对齐。不太完美，但比以前好些了，以前明显没对齐。
+### 美化表单
+
+美化了复选框和单选框，着实费了些功夫。也把 input 从 label 里脱离出来了。
+
+效果比较满意，不仅更美观，高亮了选项和对应的 label 文本，也让已选择的选项更醒目，更容易辨识。
+
+科技以换皮为本，所以版本号增加了一个大版本（误
+
+#### 技术细节
+
+美化之后的控件一般有三个元素：
+
+1. 原控件，隐藏了，但仍可通过 tab 选择与改变
+2. 美化的按钮，点击可以改变控件的值
+3. label 文本，当它对应的控件被选中时，label 会高亮
+
+这三个元素都可以改变控件的值，所以都需要能触发 settingChange 事件。
+
+InitSettings 类在原控件的值变化时触发 settingChange 事件；
+
+BeautifyForm 类在点击美化按钮、label 时触发 settingChange 事件。
+
+##### 美化后的复选框：
+
+```
+<input type="checkbox" name="downType2" id="setWorkType2" class="need_beautify checkbox_common" checked="">
+<span class="beautify_checkbox"></span>
+<label for="setWorkType2"> 动图 &nbsp;</label>
+```
+
+##### 美化步骤：
+
+1. 给 input 添加增加 class
+2. 添加美化的按钮元素，并给它添加 class
+
+##### input 上使用的 class：
+
+|      class      |                 说明                 |
+| :-------------: | :----------------------------------: |
+|  need_beautify  | 说明这个控件需要美化，css 会隐藏掉它 |
+| checkbox_common |         在普通的复选框上使用         |
+| checkbox_switch |       在作为开关的复选框上使用       |
+|      radio      |            在单选框上使用            |
+
+##### 美化按钮上使用的 class：
+
+|       class       |         说明         |
+| :---------------: | :------------------: |
+| beautify_checkbox | 美化按钮表现为复选框 |
+|  beautify_switch  |  美化按钮表现为开关  |
+|  beautify_radio   | 美化按钮表现为单选框 |
+
 
 ## i18n 调研
 

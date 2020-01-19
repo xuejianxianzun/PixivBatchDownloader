@@ -26,11 +26,29 @@ interface XzSetting {
   setFavNum: string
 }
 
+interface SettingChangeData {
+  name: keyof XzSetting
+  value: string | number | boolean
+}
+
 class InitSettings {
   constructor(form: SettingsForm) {
     this.form = form
     this.restoreOption()
     this.bindOptionEvent()
+
+    window.addEventListener(
+      EVT.events.settingChange,
+      (event: CustomEventInit) => {
+        const data = event.detail.data as SettingChangeData
+
+        if (Reflect.has(this.optionDefault, data.name)) {
+          // 持久化保存设置
+          ;(this.options[data.name] as any) = data.value
+          localStorage.setItem(this.storeName, JSON.stringify(this.options))
+        }
+      }
+    )
   }
 
   private form: SettingsForm
@@ -158,7 +176,7 @@ class InitSettings {
   private saveTextInput(name: keyof XzSetting) {
     const el = this.form[name] as HTMLInputElement
     el.addEventListener('change', () => {
-      this.saveSetting(name, el.value)
+      this.emitChange(name, el.value)
     })
   }
 
@@ -166,39 +184,40 @@ class InitSettings {
   private saveCheckBox(name: keyof XzSetting) {
     const el = this.form[name] as HTMLInputElement
     el.addEventListener('click', () => {
-      this.saveSetting(name, el.checked)
+      this.emitChange(name, el.checked)
     })
   }
 
   // 处理单选框： click 时直接保存 value
-  private saveRadio(name: keyof XzSetting) {
+  private saveRadio(name: string) {
     const radios = this.form[name]
     for (const radio of radios) {
-      radio.addEventListener('focus', () => {
-        this.saveSetting(name, radio.value)
+      radio.addEventListener('click', () => {
+        this.emitChange(name, radio.value)
       })
     }
   }
 
   // 绑定选项的事件，当选项变动时保存。
   // 只可执行一次，否则事件会重复绑定
+  // 所有选项都要触发 change 事件，不论是否保存
   private bindOptionEvent() {
     // 保存是否显示选项区域
     window.addEventListener(EVT.events.toggleForm, (event: CustomEventInit) => {
       const boolean = event.detail.data
-      this.saveSetting('showOptions', boolean)
+      this.emitChange('showOptions', boolean)
     })
+
+    // 保存下载的作品类型
+    this.saveCheckBox('downType0')
+    this.saveCheckBox('downType1')
+    this.saveCheckBox('downType2')
 
     // 保存多图作品设置
     this.saveRadio('multipleImageWorks')
 
     // 保存作品张数
     this.saveTextInput('firstFewImages')
-
-    // 保存下载的作品类型
-    this.saveCheckBox('downType0')
-    this.saveCheckBox('downType1')
-    this.saveCheckBox('downType2')
 
     // 保存动图格式选项
     this.saveRadio('ugoiraSaveAs')
@@ -208,6 +227,15 @@ class InitSettings {
 
     // 保存收藏数量数值
     this.saveTextInput('setFavNum')
+
+    // 保存宽高条件
+    this.saveRadio('setWidthAndOr')
+
+    // 保存宽高比例
+    this.saveRadio('ratio')
+
+    // 保存 id 范围
+    this.saveRadio('idRange')
 
     // 保存投稿时间
     this.saveCheckBox('postDate')
@@ -220,17 +248,11 @@ class InitSettings {
     // 保存排除的 tag 设置
     this.saveTextInput('notNeedTag')
 
-    // 保存自动下载
-    this.saveCheckBox('quietDownload')
-
-    // 保存下载线程
-    this.saveTextInput('downloadThread')
-
     // 保存命名规则
     const userSetNameInput = this.form.userSetName
     ;['change', 'focus'].forEach(ev => {
       userSetNameInput.addEventListener(ev, () => {
-        this.saveSetting('userSetName', userSetNameInput.value)
+        this.emitChange('userSetName', userSetNameInput.value)
       })
     })
 
@@ -239,6 +261,12 @@ class InitSettings {
 
     // 保存是否始终建立文件夹
     this.saveCheckBox('alwaysFolder')
+
+    // 保存自动下载
+    this.saveCheckBox('quietDownload')
+
+    // 保存下载线程
+    this.saveTextInput('downloadThread')
 
     // 保存预览搜索结果
     this.saveCheckBox('previewResult')
@@ -249,11 +277,8 @@ class InitSettings {
     })
   }
 
-  // 持久化保存设置
-  private saveSetting(key: keyof XzSetting, value: string | number | boolean) {
-    ;(this.options[key] as any) = value
-    EVT.fire(EVT.events.settingChange, { name: key, value: value })
-    localStorage.setItem(this.storeName, JSON.stringify(this.options))
+  private emitChange(name: string, value: string | number | boolean) {
+    EVT.fire(EVT.events.settingChange, { name: name, value: value })
   }
 
   // 重设选项

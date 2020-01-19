@@ -20,7 +20,7 @@ This is a browser extension for **Chrome** that lets you download images from Pi
 
 [Chrome Web Store installation page](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)
 
-![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/2019-08-18-11-11-16.png)
+![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/20200117112227.png)
 
 Some auxiliary functions have also been added, such as removing ads, quick collections, Add tag to unclassified work, and viewing pictures.
 

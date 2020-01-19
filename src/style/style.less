@@ -1,4 +1,4 @@
-@themeBlue:#0ea8ef;
+@themeBlue: #0ea8ef;
 
 /* right buttons */
 #quick_down_btn,
@@ -42,19 +42,20 @@
   margin-left: 50%;
   background: #fff;
   top: 3vh;
-  color: #333;
+  color: #444;
   padding: 25px;
   border-radius: 15px;
   box-shadow: 0 0 25px #2ca6df;
   max-height: 93vh;
   overflow: auto;
-  * {
+  p,div,span,ul,li,input {
     padding: 0;
     margin: 0;
   }
   p {
     line-height: 24px;
-    height: 24px;
+    min-height: 24px;
+    height: auto;
     margin: 0;
   }
   .tip {
@@ -79,8 +80,147 @@
       font-size: 14px !important;
       line-height: 24px;
     }
-    p *{
+    p * {
       vertical-align: middle;
+      line-height: 1;
+    }
+
+    .need_beautify {
+      position: absolute;
+      width: 0;
+      height: 0;
+      opacity: 0;
+    }
+
+    label {
+      cursor: pointer;
+    }
+
+    @beautifyBlue: #29b3f3;
+    /*--------美化作为开关的复选框------------*/
+
+    label.active {
+      color: #29b3f3;
+    }
+
+    .beautify_switch {
+      display: inline-block;
+      width: 24px;
+      height: 14px;
+      position: relative;
+      border-radius: 7px;
+      background: #ccc;
+      transition: all 0.3s;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .beautify_switch::before {
+      content: '';
+      position: absolute;
+      top: 1px;
+      height: 12px;
+      width: 12px;
+      border-radius: 50%;
+      background: #fff;
+      left: 0;
+      margin-left: 0px;
+      transition: all 0.3s;
+    }
+
+    .checkbox_switch:checked + .beautify_switch {
+      background: @beautifyBlue;
+    }
+
+    .checkbox_switch:checked + .beautify_switch::before {
+      margin-left: 12px;
+    }
+
+    /*--------美化普通的复选框------------*/
+    .beautify_checkbox {
+      display: inline-block;
+      position: relative;
+      border: 1px solid #dcdfe6;
+      border-radius: 2px;
+      box-sizing: border-box;
+      width: 14px;
+      height: 14px;
+      background-color: #fff;
+      z-index: 1;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .beautify_checkbox::after {
+      box-sizing: content-box;
+      content: '';
+      border: 1px solid #fff;
+      border-left: 0;
+      border-top: 0;
+      height: 7px;
+      left: 4px;
+      position: absolute;
+      top: 1px;
+      transform: rotate(45deg) scaleY(0);
+      width: 3px;
+      transition: all 0.2s;
+      transform-origin: center;
+    }
+
+    .checkbox_common:checked + .beautify_checkbox {
+      background: @beautifyBlue;
+      border: 1px solid @beautifyBlue;
+    }
+
+    .beautify_checkbox:hover {
+      border: 1px solid @beautifyBlue;
+    }
+
+    .checkbox_common:checked + .beautify_checkbox::after {
+      transform: rotate(45deg) scaleY(1);
+    }
+
+    .checkbox_common:focus + .beautify_checkbox {
+      border: 1px solid @beautifyBlue;
+    }
+
+    /*--------美化单选框------------*/
+    .beautify_radio {
+      border: 1px solid #dcdfe6;
+      border-radius: 100%;
+      width: 12px;
+      height: 12px;
+      background-color: #fff;
+      position: relative;
+      cursor: pointer;
+      display: inline-block;
+      box-sizing: border-box;
+    }
+
+    .beautify_radio::after {
+      width: 6px;
+      height: 6px;
+      border-radius: 100%;
+      background-color: #fff;
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform 0.15s ease-in;
+    }
+
+    .radio:checked + .beautify_radio {
+      background: @beautifyBlue;
+      border: 1px solid @beautifyBlue;
+    }
+
+    .beautify_radio:hover {
+      border: 1px solid @beautifyBlue;
+    }
+
+    .radio:checked + .beautify_radio::after {
+      transform: translate(-50%, -50%) scale(1);
     }
   }
 
@@ -128,8 +268,8 @@
   .showFileNameTip:hover,
   .showFileNameResult:hover,
   .bottom_help_bar > *:hover {
-    color: #0096fa !important;
-    fill: #0096fa !important;
+    color: @themeBlue !important;
+    fill: @themeBlue !important;
   }
 
   .bottom_help_bar > * {
@@ -160,8 +300,9 @@
     border-bottom: 1px solid #ccc !important;
     outline: 0;
     padding: 0 !important;
-    transition: all .3s;
-    &:focus,&:hover {
+    transition: all 0.3s;
+    &:focus,
+    &:hover {
       border-bottom: 1px solid #0096fa !important;
       background: 0 0 !important;
     }
@@ -352,7 +493,7 @@
     line-height: 20px;
     text-align: center;
     font-size: 18px;
-    color: #179fdd;
+    color: @themeBlue;
   }
   .outputContent {
     border: 1px solid #ccc;
@@ -364,7 +505,7 @@
     max-height: 350px;
     line-height: 20px;
     &::selection {
-      background: #179fdd;
+      background: @themeBlue;
       color: #fff;
     }
     p.result {
@@ -395,7 +536,7 @@
     font-size: 18px;
     text-align: center;
     &:hover {
-      color: #179fdd;
+      color: @themeBlue;
     }
   }
   .outputCopy {
@@ -404,7 +545,7 @@
     min-width: 100px;
     padding: 2px 25px;
     margin-top: 15px;
-    background: #179fdd;
+    background: @themeBlue;
     display: inline-block;
     color: #fff;
     font-size: 14px;
@@ -587,7 +728,7 @@
   font-size: 12px;
   padding: 7px;
   display: none;
-  border: 1px solid #179fdd;
+  border: 1px solid @themeBlue;
 }
 
 /* block ads */
