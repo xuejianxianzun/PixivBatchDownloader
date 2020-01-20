@@ -193,9 +193,9 @@ abstract class InitPageBase {
 
     this.getWantPage()
 
-    filter.init()
-
     this.getMultipleSetting()
+
+    filter.init()
 
     await pageInfo.store()
 

@@ -138,7 +138,7 @@ class ImgViewer {
 
     // esc 退出图片查看器
     document.addEventListener('keyup', event => {
-      if (event.keyCode === 27) {
+      if (event.code === 'Escape') {
         // 按下 esc
         // 如果非全屏，且查看器已经打开，则退出查看器
         if (!this.isFullscreen() && this.viewerIsShow()) {

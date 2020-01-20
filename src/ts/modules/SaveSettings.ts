@@ -41,7 +41,7 @@ interface SettingChangeData {
   value: string | number | boolean
 }
 
-class InitSettings {
+class SaveSettings {
   constructor(form: SettingsForm) {
     this.form = form
     this.restoreOption()
@@ -51,7 +51,6 @@ class InitSettings {
       EVT.events.settingChange,
       (event: CustomEventInit) => {
         const data = event.detail.data as SettingChangeData
-
         if (Reflect.has(this.optionDefault, data.name)) {
           // 持久化保存设置
           ;(this.options[data.name] as any) = data.value
@@ -93,8 +92,8 @@ class InitSettings {
     setWidth: '0',
     setHeight: '0',
     ratioSwitch: false,
-    ratio:'1',
-    userRatio:'1.4',
+    ratio: '1',
+    userRatio: '1.4',
     idRangeSwitch: false,
     needTagSwitch: false,
     notNeedTagSwitch: false
@@ -104,6 +103,7 @@ class InitSettings {
   private options: XzSetting = this.optionDefault
 
   // 恢复值是 Boolean 的设置项
+  // 给复选框使用
   private restoreBoolean(name: keyof XzSetting) {
     // 优先使用用户设置的值
     if (this.options[name] !== undefined) {
@@ -113,11 +113,12 @@ class InitSettings {
       this.form[name].checked = this.optionDefault[name]
     }
     // 这里不能简单的使用“或”符号来处理，考虑如下情况：
-    // this.needSaveOpts[name] || this.needSaveOptsDefault[name]
+    // this.options[name] || this.optionDefault[name]
     // 用户设置为 false，默认值为 true，使用 || 的话就恒为 true 了
   }
 
   // 恢复值是 string 的设置项
+  // 给单选按钮和文本框使用
   private restoreString(name: keyof XzSetting) {
     // 优先使用用户设置的值
     if (this.options[name] !== undefined) {
@@ -128,10 +129,10 @@ class InitSettings {
     }
   }
 
-  // 从持久化设置，或还是用默认值，恢复下载区域的设置
+  // 从持久化设置，缺省使用默认值，恢复下载区域的设置
   private restoreOption() {
     const savedOption = localStorage.getItem(this.storeName)
-    // 如果之前已经持久化，则读取设置，初始化下载区域的选项
+    // 读取保存的设置
     if (savedOption) {
       this.options = JSON.parse(savedOption)
     } else {
@@ -179,7 +180,7 @@ class InitSettings {
     // 设置必须的 tag
     this.restoreBoolean('needTagSwitch')
     this.restoreString('needTag')
-    
+
     // 设置排除的 tag
     this.restoreBoolean('notNeedTagSwitch')
     this.restoreString('notNeedTag')
@@ -234,9 +235,8 @@ class InitSettings {
     }
   }
 
-  // 绑定选项的事件，当选项变动时保存。
+  // 绑定所有选项的事件，当选项变动触发 settingChange 事件
   // 只可执行一次，否则事件会重复绑定
-  // 所有选项都要触发 change 事件，不论是否保存
   private bindOptionEvent() {
     // 保存是否显示选项区域
     window.addEventListener(EVT.events.toggleForm, (event: CustomEventInit) => {
@@ -328,14 +328,14 @@ class InitSettings {
   }
 
   // 重设选项
-  public reset() {
-    // 将 needSaveOpts 恢复为默认值
+  private reset() {
+    // 将保存的选项恢复为默认值
     this.options = this.optionDefault
     // 覆写本地存储里的设置为默认值
     localStorage.setItem(this.storeName, JSON.stringify(this.options))
-    // 使用默认值重设选项
+    // 重设选项
     this.restoreOption()
   }
 }
 
-export { InitSettings }
+export { SaveSettings }

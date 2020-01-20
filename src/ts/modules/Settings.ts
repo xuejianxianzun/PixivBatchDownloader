@@ -1,323 +1,66 @@
-import { lang } from './Lang'
 import { EVT } from './EVT'
 import { DOM } from './DOM'
 import { centerPanel } from './CenterPanel'
-import { InitSettings } from './SaveSettings'
+import { SaveSettings } from './SaveSettings'
 import { SettingsForm } from './Settings.d'
-import { BeautifyForm } from './BeautifyForm'
+import formHtml from './SettingHTML'
 
 // 设置表单
 class Settings {
   constructor() {
-    this.form = centerPanel.useSlot('form', this.html) as SettingsForm
+    this.form = centerPanel.useSlot('form', formHtml) as SettingsForm
+
+    this.allCheckBox = this.form.querySelectorAll(
+      'input[type="checkbox"]'
+    ) as NodeListOf<HTMLInputElement>
+
+    this.allRadio = this.form.querySelectorAll(
+      'input[type="radio"]'
+    ) as NodeListOf<HTMLInputElement>
+
+    this.allSwitch = this.form.querySelectorAll('.checkbox_switch')
+
+    this.allLabel = this.form.querySelectorAll('label')
+
+    new SaveSettings(this.form)
+
+    this.resetLabelActive()
+
+    this.resetSubOptionDisplay()
 
     this.bindEvents()
-
-    new InitSettings(this.form)
-
-    new BeautifyForm(this.form)
   }
 
   public form: SettingsForm
+  private allSwitch: NodeListOf<HTMLInputElement> // 所有开关（同时也是复选框）
+  private allCheckBox: NodeListOf<HTMLInputElement> // 所有复选框
+  private allRadio: NodeListOf<HTMLInputElement> // 单选按钮
+  private allLabel: NodeListOf<HTMLLabelElement> // 所有 label 标签
 
-  public readonly optionClass = 'option'
-
-  private readonly html = `<form class="settingForm">
-  <p class="${this.optionClass}" data-no="1">
-  <span class="setWantPageWrap">
-  <span class="has_tip settingNameStyle1 setWantPageTip1" data-tip="${lang.transl(
-    '_页数'
-  )}" style="margin-right: 0px;">${lang.transl(
-    '_页数'
-  )}</span><span class="gray1" style="margin-right: 10px;"> ? </span>
-  <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
-  value = '-1'
-  >
-  &nbsp;&nbsp;&nbsp;
-  <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
-  </span>
-  </p>
-  <p class="${this.optionClass}" data-no="2">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_下载作品类型的提示Center'
-  )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
-  <span class="beautify_checkbox"></span>
-  <label for="setWorkType0"> ${lang.transl('_插画')}&nbsp;</label>
-  <input type="checkbox" name="downType1" id="setWorkType1" class="need_beautify checkbox_common" checked>
-  <span class="beautify_checkbox"></span>
-  <label for="setWorkType1"> ${lang.transl('_漫画')}&nbsp;</label>
-  <input type="checkbox" name="downType2" id="setWorkType2" class="need_beautify checkbox_common" checked>
-  <span class="beautify_checkbox"></span>
-  <label for="setWorkType2"> ${lang.transl('_动图')}&nbsp;</label>
-  </p>
-  <p class="${this.optionClass}" data-no="3">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_怎样下载多图作品'
-  )}">${lang.transl('_多图作品设置')}<span class="gray1"> ? </span></span>
-  <input type="radio" name="multipleImageWorks" id="multipleImageWorks1" class="need_beautify radio" value="0">
-  <span class="beautify_radio"></span>
-  <label for="multipleImageWorks1"> ${lang.transl('_全部下载')}&nbsp; </label>
-  <input type="radio" name="multipleImageWorks" id="multipleImageWorks2" class="need_beautify radio" value="-1">
-  <span class="beautify_radio"></span>
-  <label for="multipleImageWorks2"> ${lang.transl('_不下载')}&nbsp; </label>
-  <input type="radio" name="multipleImageWorks" id="multipleImageWorks3" class="need_beautify radio" value="1">
-  <span class="beautify_radio"></span>
-  <label for="multipleImageWorks3"> ${lang.transl(
-    '_下载前几张图片'
-  )}&nbsp; </label>
-  <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
-  </p>
-  <p class="${this.optionClass}" data-no="4">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_动图保存格式title'
-  )}">${lang.transl('_动图保存格式')}<span class="gray1"> ? </span></span>
-  <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" class="need_beautify radio" value="webm" checked>
-  <span class="beautify_radio"></span>
-  <label for="ugoiraSaveAs1"> ${lang.transl('_webmVideo')} &nbsp;</label>
-  <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" class="need_beautify radio" value="gif"> 
-  <span class="beautify_radio"></span>
-  <label for="ugoiraSaveAs3">${lang.transl('_gif')} &nbsp;</label>
-  <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip"> 
-  <span class="beautify_radio"></span>
-  <label for="ugoiraSaveAs2">${lang.transl('_zipFile')} &nbsp;</label>
-  </p>
-  <p class="${this.optionClass}" data-no="5">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_筛选收藏数的提示Center'
-  )}">${lang.transl('_筛选收藏数Center')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="favNumSwitch" id="checkFavNum0" class="need_beautify checkbox_switch" checked>
-  <span class="beautify_switch"></span>
-  <span>${lang.transl('_大于')}&nbsp;</span>
-  <input type="text" name="setFavNum" class="setinput_style1 blue" value="0">&nbsp;&nbsp;&nbsp;&nbsp;
-  </p>
-  <p class="${this.optionClass}" data-no="6">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_只下载已收藏的提示'
-  )}">${lang.transl('_只下载已收藏')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="setOnlyBmk" id="setOnlyBmk" class="need_beautify checkbox_switch"> 
-  <span class="beautify_switch"></span>
-  </p>
-  <p class="${this.optionClass}" data-no="7">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_筛选宽高的按钮Title'
-  )} ${lang.transl('_筛选宽高的提示文字')}">${lang.transl(
-    '_筛选宽高的按钮文字'
-  )}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="setWHSwitch" id="setWHSwitch" class="need_beautify checkbox_switch">
-  <span class="beautify_switch"></span>
-  <input type="text" name="setWidth" class="setinput_style1 blue" value="0">
-  <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" class="need_beautify radio" value="&" checked>
-  <span class="beautify_radio"></span>
-  <label for="setWidth_AndOr1">and&nbsp;</label>
-  <input type="radio" name="setWidthAndOr" id="setWidth_AndOr2" class="need_beautify radio" value="|">
-  <span class="beautify_radio"></span>
-  <label for="setWidth_AndOr2">or&nbsp;</label>
-  <input type="text" name="setHeight" class="setinput_style1 blue" value="0">
-  </p>
-  <p class="${this.optionClass}" data-no="8">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_设置宽高比例Title'
-  )}">${lang.transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="ratioSwitch" id="ratioSwitch" class="need_beautify checkbox_switch">
-  <span class="beautify_switch"></span>
-  <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="1">
-  <span class="beautify_radio"></span>
-  <label for="ratio1"> ${lang.transl('_横图')}&nbsp; </label>
-  <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="2">
-  <span class="beautify_radio"></span>
-  <label for="ratio2"> ${lang.transl('_竖图')}&nbsp; </label>
-  <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="3">
-  <span class="beautify_radio"></span>
-  <label for="ratio3"> ${lang.transl('_输入宽高比')}</label>
-  <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
-  </p>
-  <p class="${this.optionClass}" data-no="9">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_设置id范围提示'
-  )}">${lang.transl(
-    '_设置id范围'
-  )}&nbsp;&nbsp; <span class="gray1"> ? </span></span>
-  <input type="checkbox" name="idRangeSwitch" id="idRangeSwitch" class="need_beautify checkbox_switch">
-  <span class="beautify_switch"></span>
-  <input type="radio" name="idRange" id="idRange1" class="need_beautify radio" value="1" checked>
-  <span class="beautify_radio"></span>
-  <label for="idRange1">  ${lang.transl('_大于')}&nbsp; </label>
-  <input type="radio" name="idRange" id="idRange2" class="need_beautify radio" value="2">
-  <span class="beautify_radio"></span>
-  <label for="idRange2">  ${lang.transl('_小于')}&nbsp; </label>
-  <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
-  </p>
-  <p class="${this.optionClass}" data-no="10">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_设置投稿时间提示'
-  )}">${lang.transl('_设置投稿时间')} <span class="gray1"> ? </span></span>
-  <input type="checkbox" name="postDate" id="setPostDate" class="need_beautify checkbox_switch">
-  <span class="beautify_switch"></span>
-  <input type="datetime-local" name="postDateStart" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
-  &nbsp;-&nbsp;
-  <input type="datetime-local" name="postDateEnd" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
-  </p>
-  <p class="${this.optionClass}" data-no="11">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_必须tag的提示文字'
-  )}">${lang.transl('_必须含有tag')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="needTagSwitch" id="needTagSwitch" class="need_beautify checkbox_switch">
-  <span class="beautify_switch"></span>
-  <input type="text" name="needTag" class="setinput_style1 blue setinput_tag">
-  </p>
-  <p class="${this.optionClass}" data-no="12">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_排除tag的提示文字'
-  )}">${lang.transl('_不能含有tag')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="notNeedTagSwitch" id="notNeedTagSwitch" class="need_beautify checkbox_switch">
-  <span class="beautify_switch"></span>
-  <input type="text" name="notNeedTag" class="setinput_style1 blue setinput_tag">
-  </p>
-  <p class="${this.optionClass}" data-no="13">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_设置文件夹名的提示'
-  )}">${lang.transl('_设置文件名')}<span class="gray1"> ? </span></span>
-  <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
-  &nbsp;
-  <select name="pageInfoSelect" id="pageInfoSelect">
-  </select>
-  &nbsp;
-  <select name="fileNameSelect">
-    <option value="default">…</option>
-    <option value="{id}">{id}</option>
-    <option value="{title}">{title}</option>
-    <option value="{tags}">{tags}</option>
-    <option value="{tags_translate}">{tags_translate}</option>
-    <option value="{user}">{user}</option>
-    <option value="{userid}">{userid}</option>
-    <option value="{type}">{type}</option>
-    <option value="{date}">{date}</option>
-    <option value="{bmk}">{bmk}</option>
-    <option value="{px}">{px}</option>
-    <option value="{rank}">{rank}</option>
-    <option value="{id_num}">{id_num}</option>
-    <option value="{p_num}">{p_num}</option>
-    </select>
-  &nbsp;&nbsp;
-  <span class="showFileNameTip">？</span>
-  </p>
-  <p class="fileNameTip tip">
-  <strong>${lang.transl('_设置文件夹名的提示').replace('<br>', '. ')}</strong>
-  <br>
-  <span class="blue">{p_user}</span>
-  ${lang.transl('_文件夹标记PUser')}
-  <br>
-  <span class="blue">{p_uid}</span>
-  ${lang.transl('_文件夹标记PUid')}
-  <br>
-  <span class="blue">{p_tag}</span>
-  ${lang.transl('_文件夹标记PTag')}
-  <br>
-  <span class="blue">{p_title}</span>
-  ${lang.transl('_文件夹标记PTitle')}
-  <br>
-  <span class="blue">{id}</span>
-  ${lang.transl('_命名标记1')}
-  <br>
-  <span class="blue">{title}</span>
-  ${lang.transl('_命名标记2')}
-  <br>
-  <span class="blue">{tags}</span>
-  ${lang.transl('_命名标记3')}
-  <br>
-  <span class="blue">{tags_translate}</span>
-  ${lang.transl('_命名标记11')}
-  <br>
-  <span class="blue">{user}</span>
-  ${lang.transl('_命名标记4')}
-  <br>
-  <span class="blue">{userid}</span>
-  ${lang.transl('_命名标记6')}
-  <br>
-  <span class="blue">{date}</span>
-  ${lang.transl('_命名标记12')}
-  <br>
-  <span class="blue">{type}</span>
-  ${lang.transl('_命名标记14')}
-  <br>
-  <span class="blue">{bmk}</span>
-  ${lang.transl('_命名标记8')}
-  <br>
-  <span class="blue">{px}</span>
-  ${lang.transl('_命名标记7')}
-  <br>
-  <span class="blue">{id_num}</span>
-  ${lang.transl('_命名标记9')}
-  <br>
-  <span class="blue">{p_num}</span>
-  ${lang.transl('_命名标记10')}
-  <br>
-  <span class="blue">{rank}</span>
-  ${lang.transl('_命名标记13')}
-  <br>
-  ${lang.transl('_命名标记提醒')}
-  </p>
-  <p class="${this.optionClass}" data-no="14">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_添加字段名称提示'
-  )}">${lang.transl('_添加字段名称')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch" checked>
-  <span class="beautify_switch"></span>
-  &nbsp;&nbsp;&nbsp;
-  <span class="showFileNameResult"> ${lang.transl('_预览文件名')}</span>
-  </p>
-  <p class="${this.optionClass}" data-no="15">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_快速下载建立文件夹提示'
-  )}">${lang.transl('_快速下载建立文件夹')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" class="need_beautify checkbox_switch" >
-  <span class="beautify_switch"></span>
-  </p>
-  <p class="${this.optionClass}" data-no="16">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_线程数字'
-  )}">${lang.transl('_设置下载线程')}<span class="gray1"> ? </span></span>
-  <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
-  </p>
-  <p class="${this.optionClass}" data-no="17">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_快速下载的提示'
-  )}">${lang.transl('_是否自动下载')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="quietDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
-  <span class="beautify_switch"></span>
-  </p>
-  <p class="${this.optionClass}" data-no="18">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_预览搜索结果说明'
-  )}">${lang.transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="previewResult" id="setPreviewResult" class="need_beautify checkbox_switch" checked>
-  <span class="beautify_switch"></span>
-  </p>
-  <input type="hidden" name="debut" value="0">
-  </form>`
-
-  // 把下拉框的选择项插入到文本框里
-  private insertValueToInput(from: HTMLSelectElement, to: HTMLInputElement) {
-    from.addEventListener('change', () => {
-      if (from.value !== 'default') {
-        // 把选择项插入到光标位置,并设置新的光标位置
-        const position = to.selectionStart!
-        to.value =
-          to.value.substr(0, position) +
-          from.value +
-          to.value.substr(position, to.value.length)
-        to.selectionStart = position + from.value.length
-        to.selectionEnd = position + from.value.length
-        to.focus()
-      }
-    })
-  }
+  private readonly chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
 
   private bindEvents() {
+    // 控制表单的显示/隐藏
     window.addEventListener(EVT.events.toggleForm, (event: CustomEventInit) => {
       const boolean = event.detail.data as boolean
       this.form.style.display = boolean ? 'block' : 'none'
+    })
+
+    // 给美化的复选框绑定功能
+    for (const checkbox of this.allCheckBox) {
+      this.bindCheckboxEvent(checkbox)
+    }
+
+    // 给美化的单选按钮绑定功能
+    for (const radio of this.allRadio) {
+      this.bindRadioEvent(radio)
+    }
+
+    window.addEventListener(EVT.events.settingChange, () => {
+      // 设置改变时，重设 label 激活状态
+      this.resetLabelActive()
+      // 重设该选项的子选项的显示/隐藏
+      this.resetSubOptionDisplay()
     })
 
     // 预览文件名
@@ -350,10 +93,109 @@ class Settings {
     this.insertValueToInput(this.form.pageInfoSelect, this.form.userSetName)
     this.insertValueToInput(this.form.fileNameSelect, this.form.userSetName)
   }
+
+  // 把下拉框的选择项插入到文本框里
+  private insertValueToInput(from: HTMLSelectElement, to: HTMLInputElement) {
+    from.addEventListener('change', () => {
+      if (from.value !== 'default') {
+        // 把选择项插入到光标位置,并设置新的光标位置
+        const position = to.selectionStart!
+        to.value =
+          to.value.substr(0, position) +
+          from.value +
+          to.value.substr(position, to.value.length)
+        to.selectionStart = position + from.value.length
+        to.selectionEnd = position + from.value.length
+        to.focus()
+      }
+    })
+  }
+
+  // 设置复选框的事件
+  private bindCheckboxEvent(el: HTMLInputElement) {
+    // 让复选框支持用回车键选择
+    el.addEventListener('keydown', (event: KeyboardEvent) => {
+      if (this.chooseKeys.includes(event.code)) {
+        el.checked = !el.checked
+        this.emitChange(el.name, el.checked)
+      }
+    })
+
+    // 点击美化按钮，反转复选框的值
+    el.nextElementSibling!.addEventListener('click', () => {
+      el.checked = !el.checked
+      this.emitChange(el.name, el.checked)
+    })
+
+    // 点击它的 label 时，传递它的值
+    const label = this.form.querySelector(`label[for="${el.id}"]`)
+    if (label) {
+      label.addEventListener('click', () => {
+        // 点击复选框的 label 不要手动修改 checked ，因为浏览器会自动处理
+        this.emitChange(el.name, el.checked)
+      })
+    }
+  }
+
+  // 设置单选控件的事件
+  private bindRadioEvent(el: HTMLInputElement) {
+    // 点击美化按钮，选择当前单选控件
+    el.nextElementSibling!.addEventListener('click', () => {
+      el.checked = true
+      // 对于单选按钮，它的值是 value，不是 checked
+      this.emitChange(el.name, this.form[el.name].value)
+    })
+
+    // 点击它的 label 时，传递它的值
+    const label = this.form.querySelector(`label[for="${el.id}"]`)
+    if (label) {
+      label.addEventListener('click', () => {
+        this.emitChange(el.name, this.form[el.name].value)
+      })
+    }
+  }
+
+  // 当选项的值被改变时，触发 settingChange 事件
+  private emitChange(name: string, value: string | number | boolean) {
+    EVT.fire(EVT.events.settingChange, { name: name, value: value })
+  }
+
+  // 重设 label 的激活状态
+  private resetLabelActive() {
+    // 设置复选框的 label 的激活状态
+    for (const checkbox of this.allCheckBox) {
+      this.setLabelActive(checkbox)
+    }
+
+    // 设置单选按钮的 label 的激活状态
+    for (const radio of this.allRadio) {
+      this.setLabelActive(radio)
+    }
+  }
+
+  // 设置 input 元素对应的 label 的激活状态
+  private setLabelActive(input: HTMLInputElement) {
+    const label = this.form.querySelector(`label[for="${input.id}"]`)
+    if (label) {
+      const method = input.checked ? 'add' : 'remove'
+      label.classList[method]('active')
+    }
+  }
+
+  // 重设子选项的显示/隐藏
+  private resetSubOptionDisplay() {
+    for (const _switch of this.allSwitch) {
+      const subOption = this.form.querySelector(
+        `.subOptionWrap[data-show="${_switch.name}"]`
+      ) as HTMLSpanElement
+      if (subOption) {
+        subOption.style.display = _switch.checked ? 'inline' : 'none'
+      }
+    }
+  }
 }
 
 const settings = new Settings()
 const form = settings.form
-const optionClass = settings.optionClass
 
-export { form, optionClass }
+export { form }

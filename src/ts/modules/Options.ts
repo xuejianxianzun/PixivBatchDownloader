@@ -1,4 +1,4 @@
-import { form, optionClass } from './Settings'
+import { form } from './Settings'
 
 interface WantPageArg {
   text: string
@@ -16,7 +16,7 @@ interface WantPageEls {
 // 操作 Setting 表单的选项区域
 class Options {
   constructor() {
-    this.allOption = form.querySelectorAll(`.${optionClass}`)
+    this.allOption = form.querySelectorAll('.option')
 
     // 获取“页数/个数”设置的元素
     const wantPageOption = this.getOption(1)!

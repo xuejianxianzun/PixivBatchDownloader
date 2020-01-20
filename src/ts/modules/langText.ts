@@ -161,13 +161,13 @@ const langText = {
     'Before downloading, You can set the requirements for the number of bookmarks.',
     '在下載前，您可以設定對收藏數量的要求。'
   ],
-  _筛选收藏数Center: [
+  _设置收藏数量: [
     '设置收藏数量',
     'ブックマークされた数を設定する',
     'Set the number of bookmarks',
     '設定收藏數量'
   ],
-  _筛选收藏数的提示Center: [
+  _设置收藏数量的提示: [
     '如果作品的收藏数小于设置的数字，作品不会被下载。',
     '作品のブックマークされた数が設定された数字よりも少ない場合、作品はダウンロードされません。',
     'If the number of bookmarks of the work is less than the set number, the work will not be downloaded.',
@@ -981,7 +981,7 @@ const langText = {
     '可以在檢索頁面預覽結果了。'
   ],
   _快速下载建立文件夹: [
-    '始终建立文件夹',
+    '总是创建目录',
     'いつもフォルダを作成されます',
     'Always create folder',
     '總是建立資料夾'

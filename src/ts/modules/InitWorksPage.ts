@@ -28,9 +28,11 @@ class InitWorksPage extends InitPageBase {
     imgViewer.init()
 
     // 页面切换时初始化图片查看器
-    window.addEventListener(EVT.events.pageSwitch, () => {
-      imgViewer.init()
-    })
+    window.addEventListener(EVT.events.pageSwitch, this.initImgViewer)
+  }
+
+  private initImgViewer() {
+    imgViewer.init()
   }
 
   protected appendCenterBtns() {
@@ -96,6 +98,9 @@ class InitWorksPage extends InitPageBase {
   protected destroy() {
     // 删除快速下载按钮
     DOM.removeEl(this.quickDownBtn)
+
+    // 解除切换页面时初始化图片查看器
+    window.removeEventListener(EVT.events.pageSwitch, this.initImgViewer)
   }
 
   private crawlDirection: number = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品
