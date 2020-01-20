@@ -14,10 +14,6 @@ class Filter {
 
   private multipleImageWorks: number = 0 // 多图作品设置
 
-  private includeTag: string = '' // 必须包含的tag的列表
-
-  private excludeTag: string = '' // 要排除的tag的列表
-
   private filterBMKNum = false // 是否要求收藏数量
 
   private BMKNum: number = 0 // 输入的收藏数量
@@ -25,14 +21,17 @@ class Filter {
   private onlyBmk: boolean = false // 是否只下载收藏的作品
 
   // 宽高条件
+  private setWHSwitch = false
   private filterWh: FilterWh = {
     andOr: '&',
     width: 0,
     height: 0
   }
 
+  private ratioSwitch = false // 宽高比例设置的开关
   private ratioType: string = '0' // 宽高比例的类型
 
+  private idRangeSwitch = false // id 范围的开关
   private idRange: number = -1 // id 范围，默认不限制
 
   private postDate: boolean = false // 是否设置投稿时间
@@ -40,6 +39,12 @@ class Filter {
   private postDateStart = new Date()
 
   private postDateEnd = new Date()
+
+  private needTagSwitch = false // 必须包含的 tag 开关
+  private includeTag: string = '' // 必须包含的 tag
+
+  private notNeedTagSwitch = false // 要排除的 tag 开关
+  private excludeTag: string = '' // 要排除的 tag
 
   private debut: boolean = false // 只下载首次登场的作品
 
@@ -52,7 +57,7 @@ class Filter {
     this.multipleImageWorks = parseInt(form.multipleImageWorks.value)
 
     // 获取是否设置了收藏数要求
-    this.filterBMKNum = this.getBMKNumSet()
+    this.filterBMKNum = form.favNumSwitch.checked
     if (this.filterBMKNum) {
       this.BMKNum = this.getBMKNum()
     }
@@ -61,22 +66,36 @@ class Filter {
     this.onlyBmk = this.getOnlyBmk()
 
     // 获取是否设置了宽高条件
-    this.filterWh = this.getSetWh()
+    this.setWHSwitch = form.setWHSwitch.checked
+    if (this.setWHSwitch) {
+      this.filterWh = this.getSetWh()
+    }
 
     // 获取宽高比设置
-    this.ratioType = this.getRatio()
+    this.ratioSwitch = form.ratioSwitch.checked
+    if (this.ratioSwitch) {
+      this.ratioType = this.getRatio()
+    }
 
     // 获取 id 范围设置
-    this.idRange = this.getIdRange()
+    this.idRangeSwitch = form.idRangeSwitch.checked
+    if (this.idRangeSwitch) {
+      this.idRange = this.getIdRange()
+    }
 
     // 获取投稿时间设置
     this.postDate = this.getPostDateSetting()
 
     // 获取必须包含的tag
-    this.includeTag = this.getIncludeTag()
-
+    this.needTagSwitch = form.needTagSwitch.checked
+    if (this.needTagSwitch) {
+      this.includeTag = this.getIncludeTag()
+    }
     // 获取要排除的tag
-    this.excludeTag = this.getExcludeTag()
+    this.notNeedTagSwitch = form.notNeedTagSwitch.checked
+    if (this.notNeedTagSwitch) {
+      this.excludeTag = this.getExcludeTag()
+    }
 
     // 获取只下载首次登场设置
     this.debut = this.getDebut()
@@ -201,13 +220,6 @@ class Filter {
     }
 
     return result
-  }
-
-  // 获取检查收藏数量的设置
-  private getBMKNumSet() {
-    const check = form.checkFavNum.value
-    // 0 为不检查，1 为检查
-    return check === '1'
   }
 
   // 获取输入的收藏数
@@ -395,12 +407,11 @@ class Filter {
 
   // 检查作品是否符合包含 tag 的条件, 如果设置了多个 tag，需要作品里全部包含。返回值表示是否保留这个作品。
   private checkIncludeTag(tags: FilterOption['tags']) {
-    let result = false
-
-    if (!this.includeTag || tags === undefined) {
+    if (!this.needTagSwitch || !this.includeTag || tags === undefined) {
       return true
     }
 
+    let result = false
     let tempArr = this.includeTag.split(',')
 
     // 如果设置了必须的 tag
@@ -434,12 +445,11 @@ class Filter {
 
   // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。
   private checkExcludeTag(tags: FilterOption['tags']) {
-    let result = true
-
-    if (!this.excludeTag || tags === undefined) {
+    if (!this.notNeedTagSwitch || !this.excludeTag || tags === undefined) {
       return true
     }
 
+    let result = true
     let tempArr = this.excludeTag.split(',')
 
     // 如果设置了排除 tag
@@ -462,6 +472,10 @@ class Filter {
     width: FilterOption['width'],
     height: FilterOption['height']
   ) {
+    if (!this.setWHSwitch) {
+      return true
+    }
+
     if (width === undefined) {
       width = 0
     }
@@ -499,6 +513,10 @@ class Filter {
     width: FilterOption['width'],
     height: FilterOption['height']
   ) {
+    if (!this.ratioSwitch) {
+      return true
+    }
+
     if (width === undefined) {
       width = 0
     }
@@ -506,9 +524,7 @@ class Filter {
       height = 0
     }
 
-    if (this.ratioType === '0') {
-      return true
-    } else if (this.ratioType === '1') {
+    if (this.ratioType === '1') {
       return width / height > 1
     } else if (this.ratioType === '2') {
       return width / height < 1
@@ -519,7 +535,7 @@ class Filter {
 
   // 检查 id 范围设置
   private checkIdRange(id: FilterOption['id']) {
-    if (id === undefined) {
+    if (id === undefined || !this.idRangeSwitch) {
       return true
     }
 

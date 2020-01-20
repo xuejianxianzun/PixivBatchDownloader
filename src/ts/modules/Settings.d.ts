@@ -8,6 +8,7 @@ export interface SettingsForm extends HTMLFormElement {
   ugoiraSaveAs: RadioNodeList
   setFavNum: HTMLInputElement
   setOnlyBmk: HTMLInputElement
+  setWHSwitch: HTMLInputElement
   setWidth: HTMLInputElement
   idRange: RadioNodeList
   idRangeInput: HTMLInputElement
@@ -29,5 +30,9 @@ export interface SettingsForm extends HTMLFormElement {
   alwaysFolder: HTMLInputElement
   debut: HTMLInputElement
   previewResult: HTMLInputElement
-  checkFavNum: HTMLInputElement
+  favNumSwitch: HTMLInputElement
+  ratioSwitch: HTMLInputElement
+  idRangeSwitch: HTMLInputElement
+  needTagSwitch: HTMLInputElement
+  notNeedTagSwitch: HTMLInputElement
 }

@@ -22,8 +22,18 @@ interface XzSetting {
   postDateStart: string
   postDateEnd: string
   previewResult: boolean
-  checkFavNum: string
+  favNumSwitch: boolean
   setFavNum: string
+  setWHSwitch: boolean
+  setWidthAndOr: '&' | '|'
+  setWidth: string
+  setHeight: string
+  ratioSwitch: boolean
+  ratio: '1' | '2' | '3'
+  userRatio: string
+  idRangeSwitch: boolean
+  needTagSwitch: boolean
+  notNeedTagSwitch: boolean
 }
 
 interface SettingChangeData {
@@ -76,8 +86,18 @@ class InitSettings {
     postDateStart: '',
     postDateEnd: '',
     previewResult: true,
-    checkFavNum: '0',
-    setFavNum: '0'
+    favNumSwitch: false,
+    setFavNum: '0',
+    setWHSwitch: false,
+    setWidthAndOr: '&',
+    setWidth: '0',
+    setHeight: '0',
+    ratioSwitch: false,
+    ratio:'1',
+    userRatio:'1.4',
+    idRangeSwitch: false,
+    needTagSwitch: false,
+    notNeedTagSwitch: false
   }
 
   // 需要持久化保存的设置
@@ -137,15 +157,31 @@ class InitSettings {
     this.restoreString('ugoiraSaveAs')
 
     // 设置收藏数量选项
-    this.restoreString('checkFavNum')
+    this.restoreBoolean('favNumSwitch')
 
     // 设置收藏数量数值
     this.restoreString('setFavNum')
 
-    // 设置必须的 tag
-    this.restoreString('needTag')
+    // 设置宽高条件
+    this.restoreBoolean('setWHSwitch')
+    this.restoreString('setWidthAndOr')
+    this.restoreString('setWidth')
+    this.restoreString('setHeight')
 
+    // 设置宽高比例
+    this.restoreBoolean('ratioSwitch')
+    this.restoreString('ratio')
+    this.restoreString('userRatio')
+
+    // 设置 id 范围开关
+    this.restoreBoolean('idRangeSwitch')
+
+    // 设置必须的 tag
+    this.restoreBoolean('needTagSwitch')
+    this.restoreString('needTag')
+    
     // 设置排除的 tag
+    this.restoreBoolean('notNeedTagSwitch')
     this.restoreString('notNeedTag')
 
     // 设置投稿时间
@@ -223,16 +259,21 @@ class InitSettings {
     this.saveRadio('ugoiraSaveAs')
 
     // 保存收藏数量选项
-    this.saveRadio('checkFavNum')
+    this.saveCheckBox('favNumSwitch')
 
     // 保存收藏数量数值
     this.saveTextInput('setFavNum')
 
     // 保存宽高条件
+    this.saveCheckBox('setWHSwitch')
     this.saveRadio('setWidthAndOr')
+    this.saveTextInput('setWidth')
+    this.saveTextInput('setHeight')
 
     // 保存宽高比例
+    this.saveCheckBox('ratioSwitch')
     this.saveRadio('ratio')
+    this.saveTextInput('userRatio')
 
     // 保存 id 范围
     this.saveRadio('idRange')
@@ -242,10 +283,15 @@ class InitSettings {
     this.saveTextInput('postDateStart')
     this.saveTextInput('postDateEnd')
 
+    // 保存 id 范围开关
+    this.saveCheckBox('idRangeSwitch')
+
     // 保存必须的 tag 设置
+    this.saveCheckBox('needTagSwitch')
     this.saveTextInput('needTag')
 
     // 保存排除的 tag 设置
+    this.saveCheckBox('notNeedTagSwitch')
     this.saveTextInput('notNeedTag')
 
     // 保存命名规则

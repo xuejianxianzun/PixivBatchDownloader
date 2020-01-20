@@ -86,12 +86,9 @@ class Settings {
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_筛选收藏数的提示Center'
   )}">${lang.transl('_筛选收藏数Center')}<span class="gray1"> ? </span></span>
-  <input type="radio" name="checkFavNum" id="checkFavNum0" class="need_beautify radio" value="0" checked>
-  <span class="beautify_radio"></span>
-  <label for="checkFavNum0">  ${lang.transl('_不限制')}&nbsp; </label>
-  <input type="radio" name="checkFavNum" id="checkFavNum1" class="need_beautify radio" value="1">
-  <span class="beautify_radio"></span>
-  <label for="checkFavNum1">  ${lang.transl('_大于')}&nbsp; </label>
+  <input type="checkbox" name="favNumSwitch" id="checkFavNum0" class="need_beautify checkbox_switch" checked>
+  <span class="beautify_switch"></span>
+  <span>${lang.transl('_大于')}&nbsp;</span>
   <input type="text" name="setFavNum" class="setinput_style1 blue" value="0">&nbsp;&nbsp;&nbsp;&nbsp;
   </p>
   <p class="${this.optionClass}" data-no="6">
@@ -107,6 +104,8 @@ class Settings {
   )} ${lang.transl('_筛选宽高的提示文字')}">${lang.transl(
     '_筛选宽高的按钮文字'
   )}<span class="gray1"> ? </span></span>
+  <input type="checkbox" name="setWHSwitch" id="setWHSwitch" class="need_beautify checkbox_switch">
+  <span class="beautify_switch"></span>
   <input type="text" name="setWidth" class="setinput_style1 blue" value="0">
   <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" class="need_beautify radio" value="&" checked>
   <span class="beautify_radio"></span>
@@ -120,9 +119,8 @@ class Settings {
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_设置宽高比例Title'
   )}">${lang.transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
-  <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="0" checked> 
-  <span class="beautify_radio"></span>
-  <label for="ratio0"> ${lang.transl('_不限制')}&nbsp; </label>
+  <input type="checkbox" name="ratioSwitch" id="ratioSwitch" class="need_beautify checkbox_switch">
+  <span class="beautify_switch"></span>
   <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="1">
   <span class="beautify_radio"></span>
   <label for="ratio1"> ${lang.transl('_横图')}&nbsp; </label>
@@ -140,10 +138,9 @@ class Settings {
   )}">${lang.transl(
     '_设置id范围'
   )}&nbsp;&nbsp; <span class="gray1"> ? </span></span>
-  <input type="radio" name="idRange" id="idRange0" class="need_beautify radio" value="0" checked>
-  <span class="beautify_radio"></span>
-  <label for="idRange0">  ${lang.transl('_不限制')}&nbsp; </label>
-  <input type="radio" name="idRange" id="idRange1" class="need_beautify radio" value="1">
+  <input type="checkbox" name="idRangeSwitch" id="idRangeSwitch" class="need_beautify checkbox_switch">
+  <span class="beautify_switch"></span>
+  <input type="radio" name="idRange" id="idRange1" class="need_beautify radio" value="1" checked>
   <span class="beautify_radio"></span>
   <label for="idRange1">  ${lang.transl('_大于')}&nbsp; </label>
   <input type="radio" name="idRange" id="idRange2" class="need_beautify radio" value="2">
@@ -165,12 +162,16 @@ class Settings {
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_必须tag的提示文字'
   )}">${lang.transl('_必须含有tag')}<span class="gray1"> ? </span></span>
+  <input type="checkbox" name="needTagSwitch" id="needTagSwitch" class="need_beautify checkbox_switch">
+  <span class="beautify_switch"></span>
   <input type="text" name="needTag" class="setinput_style1 blue setinput_tag">
   </p>
   <p class="${this.optionClass}" data-no="12">
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_排除tag的提示文字'
   )}">${lang.transl('_不能含有tag')}<span class="gray1"> ? </span></span>
+  <input type="checkbox" name="notNeedTagSwitch" id="notNeedTagSwitch" class="need_beautify checkbox_switch">
+  <span class="beautify_switch"></span>
   <input type="text" name="notNeedTag" class="setinput_style1 blue setinput_tag">
   </p>
   <p class="${this.optionClass}" data-no="13">
