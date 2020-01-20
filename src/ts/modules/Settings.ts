@@ -2,7 +2,7 @@ import { lang } from './Lang'
 import { EVT } from './EVT'
 import { DOM } from './DOM'
 import { centerPanel } from './CenterPanel'
-import { InitSettings } from './InitSettings'
+import { InitSettings } from './SaveSettings'
 import { SettingsForm } from './Settings.d'
 import { BeautifyForm } from './BeautifyForm'
 

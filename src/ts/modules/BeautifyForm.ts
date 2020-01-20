@@ -5,7 +5,7 @@ import { SettingsForm } from './Settings.d'
 // 虽然说是美化表单，但是美化的 html 在 Settings 里，样式在 style.less 里，这个类只控制行为
 // 当点击美化按钮时，改变控件的值，并触发 settingChange 事件
 // 点击 label 时，触发 settingChange 事件
-// 高亮选项对应的 label
+// 当设置发生改变时，高亮对应的 label
 class BeautifyForm {
   constructor(form: SettingsForm) {
     this.form = form
