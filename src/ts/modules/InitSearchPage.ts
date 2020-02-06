@@ -182,7 +182,7 @@ class InitSearchPage extends InitPageBase {
     const count = this.resultMeta.length.toString()
     log.success(lang.transl('_调整完毕', count))
 
-    const countEl = document.querySelector('.bWodjS')
+    const countEl = document.querySelector('.bihUFO')
     if (countEl) {
       countEl.textContent = count
     }
@@ -209,21 +209,21 @@ class InitSearchPage extends InitPageBase {
     let multipleHTML = ''
     if (data.pageCount > 1) {
       multipleHTML = `
-        <div class="sc-fzXfOZ fjaNWC">
-                  <svg viewBox="0 0 9 10" width="9" height="10" class="sc-fzXfOY bAzGJs">
+        <div class="sc-fzXfOZ gOXMgf">
+                  <svg viewBox="0 0 9 10" width="9" height="10" class="sc-fzXfOY cqMBzB">
                       <path d="M8,3 C8.55228475,3 9,3.44771525 9,4 L9,9 C9,9.55228475 8.55228475,10 8,10 L3,10
         C2.44771525,10 2,9.55228475 2,9 L6,9 C7.1045695,9 8,8.1045695 8,7 L8,3 Z M1,1 L6,1
         C6.55228475,1 7,1.44771525 7,2 L7,7 C7,7.55228475 6.55228475,8 6,8 L1,8 C0.44771525,8 0,7.55228475 0,7 L0,2
         C0,1.44771525 0.44771525,1 1,1 Z"></path>
-                    </svg><span class="sc-fzXfOX bAzGJr">${data.pageCount}</span></div>
+                    </svg><span class="sc-fzXfOX cqEeVs">${data.pageCount}</span></div>
                     `
     }
 
     let ugoiraHTML = ''
     if (data.ugoiraInfo) {
       ugoiraHTML = `
-        <svg viewBox="0 0 24 24" class="sc-fzXfOy PhQhi sc-fzXfPK bAzGJL" style="width: 48px; height: 48px;">
-          <circle cx="12" cy="12" r="10" class="sc-fzXfOz bAzGJZ"></circle>
+        <svg viewBox="0 0 24 24" class="sc-fzXfOy jYSyFz sc-fzXfPK ctQOAQ" style="width: 48px; height: 48px;">
+          <circle cx="12" cy="12" r="10" class="sc-fzXfOz cweSHm"></circle>
           <path d="M9,8.74841664 L9,15.2515834 C9,15.8038681 9.44771525,16.2515834 10,16.2515834
               C10.1782928,16.2515834 10.3533435,16.2039156 10.5070201,16.1135176 L16.0347118,12.8619342
               C16.510745,12.5819147 16.6696454,11.969013 16.3896259,11.4929799
@@ -237,9 +237,9 @@ class InitSearchPage extends InitPageBase {
 
     if (data.tags.includes('R-18') || data.tags.includes('R-18G')) {
       r18HTML = `
-      <div class="sc-fzXfPe bAzGKl">
-        <div class="sc-fzXfPf bAzGKm">
-          <div class="sc-fzXfPb gGhRgx">R-18</div>
+      <div class="sc-fzXfPe cycdFq">
+        <div class="sc-fzXfPf cykAjz">
+          <div class="sc-fzXfPb hGAKiq">R-18</div>
         </div>
       </div>`
     }
@@ -251,12 +251,12 @@ class InitSearchPage extends InitPageBase {
     const bookmarkedFlag = data.bookmarked ? bookmarkedClass : ''
 
     const html = `
-    <li class="sc-LzNQd lmXjIY" data-id="${data.idNum}">
-    <div class="sc-fzXfQr bUhGlE">
-      <div class="sc-fzXfQp euhEKT">
-        <div width="184" height="184" class="sc-fzXfPc bnaqNl"><a target="_blank" class="sc-fzXfPH jPCTIp" href="/artworks/${data.idNum}">
+    <li class="sc-LzNRw cflRkx" data-id="${data.idNum}">
+    <div class="sc-fzXfQr loDYFF">
+      <div class="sc-fzXfQp eLdrxs">
+        <div width="184" height="184" class="sc-fzXfPc gqLFEG"><a target="_blank" class="sc-fzXfPH lgBvYG" href="/artworks/${data.idNum}">
             <!--顶部横幅-->
-            <div class="sc-fzXfPd bAzGKk">
+            <div class="sc-fzXfPd cxTHbh">
 
             <!--R-18 标记-->
             ${r18HTML}
@@ -266,9 +266,9 @@ class InitSearchPage extends InitPageBase {
               
             </div>
             <!--图片部分-->
-            <div class="sc-fzXfPL fRnGwV"><img
+            <div class="sc-fzXfPL jHchkG"><img
                    src="${data.thumb}"
-                   alt="${data.title}" class="sc-fzXfPM iwqMqq"
+                   alt="${data.title}" class="sc-fzXfPM eCelYP"
                    style="object-fit: cover; object-position: center center;">
               <!-- 动图 svg -->
               ${ugoiraHTML}
@@ -277,10 +277,11 @@ class InitSearchPage extends InitPageBase {
           <!--添加显示收藏数-->
           <div class="xz-bmkCount">${data.bmk}</div>
           <!--收藏按钮-->
-          <div class="sc-fzXfQq bAzGLe">
+          <div class="sc-fzXfQq cFrFLf">
             <div class="">
-            <button type="button" class="sc-fzXfOw bAzGJW xz-addBMK">
-            <svg viewBox="0 0 32 32" width="32" height="32" class="sc-fzXfOs gTsQRf ${bookmarkedFlag}">
+            <!-- button 添加了私有的 xz-addBMK 需要保留-->
+            <button type="button" class="sc-fzXfOw cvFCUL xz-addBMK">
+            <svg viewBox="0 0 32 32" width="32" height="32" class="sc-fzXfOs IJedw ${bookmarkedFlag}">
                   <path d="
     M21,5.5 C24.8659932,5.5 28,8.63400675 28,12.5 C28,18.2694439 24.2975093,23.1517313 17.2206059,27.1100183
     C16.4622493,27.5342993 15.5379984,27.5343235 14.779626,27.110148 C7.70250208,23.1517462 4,18.2694529 4,12.5
@@ -290,20 +291,21 @@ class InitSearchPage extends InitPageBase {
     C8.23857625,7.5 6,9.73857647 6,12.5 C6,17.4386065 9.2519779,21.7268174 15.7559337,25.3646328
     C15.9076021,25.4494645 16.092439,25.4494644 16.2441073,25.3646326 C22.7480325,21.7268037 26,17.4385986 26,12.5
     C26,9.73857625 23.7614237,7.5 21,7.5 C18.9508494,7.5 16.9142799,9.28334665 16,11.3317089 Z"
-                        class="sc-fzXfOr bAzGJR"></path>
+                        class="sc-fzXfOr cuPtZS"></path>
                 </svg></button></div>
           </div>
         <!--收藏按钮结束-->
         </div>
       </div>
       <!--标题名-->
-      <a target="_blank" class="sc-fzXfQs cyvKvA" href="/artworks/${data.idNum}">${data.title}</a>
+      <a target="_blank" class="sc-fzXfQs cdGUCF" href="/artworks/${data.idNum}">${data.title}</a>
       <!--底部-->
-      <div class="sc-fzXfQl bAzGKZ">
+      <div class="sc-fzXfQl cEBwQm">
       <!--作者信息-->
-      <div class="sc-fzXfQm bAzGLa">
+      <div class="sc-fzXfQm cEJTuv">
+      <!--相比原代码，这里去掉了作者头像的 html 代码。因为抓取到的数据里没有作者头像。-->
           <a target="_blank" href="/member.php?id=${data.userid}">
-            <div class="sc-fzXfQo fbWLbf">${data.user}</div>
+            <div class="sc-fzXfQo ejPfKA">${data.user}</div>
           </a>
         </div>
       </div>
