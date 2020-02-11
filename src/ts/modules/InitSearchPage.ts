@@ -33,6 +33,10 @@ class InitSearchPage extends InitPageBase {
     new FastScreen()
   }
 
+  private readonly listClass = 'cflRkx'
+  private readonly multipleClass = 'gOXMgf'
+  private readonly ugoiraClass = 'ctQOAQ'
+
   protected initElse() {
     this.setPreviewResult(form.previewResult.checked)
 
@@ -71,13 +75,13 @@ class InitSearchPage extends InitPageBase {
   }
 
   protected appendElseEl() {
-    const deleteWorks = new DeleteWorks('.lmXjIY')
+    const deleteWorks = new DeleteWorks(`.${this.listClass}`)
 
-    deleteWorks.addClearMultipleBtn('.fjaNWC', () => {
+    deleteWorks.addClearMultipleBtn(`.${this.multipleClass}`, () => {
       EVT.fire(EVT.events.clearMultiple)
     })
 
-    deleteWorks.addClearUgoiraBtn('.bAzGJL', () => {
+    deleteWorks.addClearUgoiraBtn(`.${this.ugoiraClass}`, () => {
       EVT.fire(EVT.events.clearUgoira)
     })
 
@@ -209,7 +213,7 @@ class InitSearchPage extends InitPageBase {
     let multipleHTML = ''
     if (data.pageCount > 1) {
       multipleHTML = `
-        <div class="sc-fzXfOZ gOXMgf">
+        <div class="sc-fzXfOZ ${this.multipleClass}">
                   <svg viewBox="0 0 9 10" width="9" height="10" class="sc-fzXfOY cqMBzB">
                       <path d="M8,3 C8.55228475,3 9,3.44771525 9,4 L9,9 C9,9.55228475 8.55228475,10 8,10 L3,10
         C2.44771525,10 2,9.55228475 2,9 L6,9 C7.1045695,9 8,8.1045695 8,7 L8,3 Z M1,1 L6,1
@@ -222,7 +226,7 @@ class InitSearchPage extends InitPageBase {
     let ugoiraHTML = ''
     if (data.ugoiraInfo) {
       ugoiraHTML = `
-        <svg viewBox="0 0 24 24" class="sc-fzXfOy jYSyFz sc-fzXfPK ctQOAQ" style="width: 48px; height: 48px;">
+        <svg viewBox="0 0 24 24" class="sc-fzXfOy jYSyFz sc-fzXfPK ${this.ugoiraClass}" style="width: 48px; height: 48px;">
           <circle cx="12" cy="12" r="10" class="sc-fzXfOz cweSHm"></circle>
           <path d="M9,8.74841664 L9,15.2515834 C9,15.8038681 9.44771525,16.2515834 10,16.2515834
               C10.1782928,16.2515834 10.3533435,16.2039156 10.5070201,16.1135176 L16.0347118,12.8619342
@@ -251,7 +255,7 @@ class InitSearchPage extends InitPageBase {
     const bookmarkedFlag = data.bookmarked ? bookmarkedClass : ''
 
     const html = `
-    <li class="sc-LzNRw cflRkx" data-id="${data.idNum}">
+    <li class="sc-LzNRw ${this.listClass}" data-id="${data.idNum}">
     <div class="sc-fzXfQr loDYFF">
       <div class="sc-fzXfQp eLdrxs">
         <div width="184" height="184" class="sc-fzXfPc gqLFEG"><a target="_blank" class="sc-fzXfPH lgBvYG" href="/artworks/${data.idNum}">
