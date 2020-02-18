@@ -53,6 +53,7 @@ class DOM {
   }
 
   // 获取用户 id
+  // 这是一个不够可靠的 api
   static getUserId() {
     const newRegExp = /\/users\/(\d+)/ // 匹配新版用户页面 url 里的 id
     // 获取 /users/ 后面连续的数字部分
@@ -63,9 +64,12 @@ class DOM {
       return test4[1]
     }
 
-    // 从新版页面的作品页、列表页获取包含用户 id 的元素，注意这些选择器可能会变到其他元素上
+    // 获取包含用户 id 的元素，注意这些选择器可能会变，需要进行检查
     const testA: HTMLAnchorElement | null =
-      document.querySelector('.jkOmlQ a') || document.querySelector('a.lknEaI')
+      document.querySelector('.sc-LzOjR a') ||
+      document.querySelector('a.sc-LzMhS')
+    // 第一个元素是作品页内，作品下方的作者头像区域的 a 标签
+    // 第二个元素是用户主页或列表页里，“主页”按钮的 a 标签
     if (testA && testA.href) {
       const test5 = newRegExp.exec(testA.href)
       if (!!test5 && test5.length > 1 && !!test5[1]) {

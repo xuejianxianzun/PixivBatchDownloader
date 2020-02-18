@@ -1267,6 +1267,7 @@
             return el
           }
           // 获取用户 id
+          // 这是一个不够可靠的 api
           static getUserId() {
             const newRegExp = /\/users\/(\d+)/ // 匹配新版用户页面 url 里的 id
             // 获取 /users/ 后面连续的数字部分
@@ -1275,10 +1276,12 @@
             if (!!test4 && test4.length > 1 && !!test4[1]) {
               return test4[1]
             }
-            // 从新版页面的作品页、列表页获取包含用户 id 的元素，注意这些选择器可能会变到其他元素上
+            // 获取包含用户 id 的元素，注意这些选择器可能会变，需要进行检查
             const testA =
-              document.querySelector('.jkOmlQ a') ||
-              document.querySelector('a.lknEaI')
+              document.querySelector('.sc-LzOjR a') ||
+              document.querySelector('a.sc-LzMhS')
+            // 第一个元素是作品页内，作品下方的作者头像区域的 a 标签
+            // 第二个元素是用户主页或列表页里，“主页”按钮的 a 标签
             if (testA && testA.href) {
               const test5 = newRegExp.exec(testA.href)
               if (!!test5 && test5.length > 1 && !!test5[1]) {
@@ -8297,22 +8300,24 @@
             // 需要持久化保存的设置
             this.options = this.optionDefault
             this.form = form
-            this.restoreOption()
             this.bindOptionEvent()
+            // 设置发生改变时，保存设置到本地存储
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.settingChange,
               event => {
                 const data = event.detail.data
                 if (Reflect.has(this.optionDefault, data.name)) {
-                  // 持久化保存设置
-                  this.options[data.name] = data.value
-                  localStorage.setItem(
-                    this.storeName,
-                    JSON.stringify(this.options)
-                  )
+                  if (this.options[data.name] !== data.value) {
+                    this.options[data.name] = data.value
+                    localStorage.setItem(
+                      this.storeName,
+                      JSON.stringify(this.options)
+                    )
+                  }
                 }
               }
             )
+            this.restoreOption()
           }
           // 恢复值是 Boolean 的设置项
           // 给复选框使用
@@ -8324,7 +8329,7 @@
               // 否则使用默认值
               this.form[name].checked = this.optionDefault[name]
             }
-            // 这里不能简单的使用“或”符号来处理，考虑如下情况：
+            // 这里不能简单的使用 || 符号来处理，考虑如下情况：
             // this.options[name] || this.optionDefault[name]
             // 用户设置为 false，默认值为 true，使用 || 的话就恒为 true 了
           }
@@ -8942,12 +8947,15 @@
             this.allRadio = this.form.querySelectorAll('input[type="radio"]')
             this.allSwitch = this.form.querySelectorAll('.checkbox_switch')
             this.allLabel = this.form.querySelectorAll('label')
+            this.bindEvents()
             new _SaveSettings__WEBPACK_IMPORTED_MODULE_3__['SaveSettings'](
               this.form
             )
+            // new SaveSettings 会初始化选项，但可能会有一些选项的值在初始化过程中没有发生改变，也就不会被监听到变化。所以这里需要直接初始化以下状态。
+            // 设置改变时，重设 label 激活状态
             this.resetLabelActive()
+            // 重设该选项的子选项的显示/隐藏
             this.resetSubOptionDisplay()
-            this.bindEvents()
           }
           bindEvents() {
             // 控制表单的显示/隐藏
@@ -9628,10 +9636,10 @@
             '下載每個作品的前幾張圖片。預設值 0 表示全部下載。'
           ],
           _不能含有tag: [
-            '不能含有 tag',
+            '不能含有 tag&nbsp;',
             '指定した tagを除外する',
             'Exclude specified tag',
-            '不能含有 tag'
+            '不能含有 tag&nbsp;'
           ],
           _排除tag的提示文字: [
             '您可在下载前设置要排除的tag，这样在下载时将不会下载含有这些tag的作品。不区分大小写；如需排除多个tag，请使用英文逗号分隔。请注意要排除的tag的优先级大于要包含的tag的优先级。',
@@ -9646,10 +9654,10 @@
             '排除 tag：'
           ],
           _必须含有tag: [
-            '必须含有 tag',
-            '必要な tag',
+            '必须含有 tag&nbsp;',
+            '必要な tag&nbsp;',
             'Must contain tag',
-            '必須含有 tag'
+            '必須含有 tag&nbsp;'
           ],
           _必须tag的提示文字: [
             '您可在下载前设置作品里必须包含的tag，不区分大小写；如需包含多个tag，请使用英文逗号分隔。',

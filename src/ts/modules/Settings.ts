@@ -22,13 +22,17 @@ class Settings {
 
     this.allLabel = this.form.querySelectorAll('label')
 
+    this.bindEvents()
+
     new SaveSettings(this.form)
 
+    // new SaveSettings 会初始化选项，但可能会有一些选项的值在初始化过程中没有发生改变，也就不会被监听到变化。所以这里需要直接初始化以下状态。
+
+    // 设置改变时，重设 label 激活状态
     this.resetLabelActive()
 
+    // 重设该选项的子选项的显示/隐藏
     this.resetSubOptionDisplay()
-
-    this.bindEvents()
   }
 
   public form: SettingsForm

@@ -44,20 +44,24 @@ interface SettingChangeData {
 class SaveSettings {
   constructor(form: SettingsForm) {
     this.form = form
-    this.restoreOption()
+
     this.bindOptionEvent()
 
+    // 设置发生改变时，保存设置到本地存储
     window.addEventListener(
       EVT.events.settingChange,
       (event: CustomEventInit) => {
         const data = event.detail.data as SettingChangeData
         if (Reflect.has(this.optionDefault, data.name)) {
-          // 持久化保存设置
-          ;(this.options[data.name] as any) = data.value
-          localStorage.setItem(this.storeName, JSON.stringify(this.options))
+          if ((this.options[data.name] as any) !== data.value) {
+            ;(this.options[data.name] as any) = data.value
+            localStorage.setItem(this.storeName, JSON.stringify(this.options))
+          }
         }
       }
     )
+
+    this.restoreOption()
   }
 
   private form: SettingsForm
@@ -112,7 +116,7 @@ class SaveSettings {
       // 否则使用默认值
       this.form[name].checked = this.optionDefault[name]
     }
-    // 这里不能简单的使用“或”符号来处理，考虑如下情况：
+    // 这里不能简单的使用 || 符号来处理，考虑如下情况：
     // this.options[name] || this.optionDefault[name]
     // 用户设置为 false，默认值为 true，使用 || 的话就恒为 true 了
   }

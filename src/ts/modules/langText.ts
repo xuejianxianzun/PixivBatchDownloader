@@ -41,10 +41,10 @@ const langText = {
     '下載每個作品的前幾張圖片。預設值 0 表示全部下載。'
   ],
   _不能含有tag: [
-    '不能含有 tag',
+    '不能含有 tag&nbsp;',
     '指定した tagを除外する',
     'Exclude specified tag',
-    '不能含有 tag'
+    '不能含有 tag&nbsp;'
   ],
   _排除tag的提示文字: [
     '您可在下载前设置要排除的tag，这样在下载时将不会下载含有这些tag的作品。不区分大小写；如需排除多个tag，请使用英文逗号分隔。请注意要排除的tag的优先级大于要包含的tag的优先级。',
@@ -59,10 +59,10 @@ const langText = {
     '排除 tag：'
   ],
   _必须含有tag: [
-    '必须含有 tag',
-    '必要な tag',
+    '必须含有 tag&nbsp;',
+    '必要な tag&nbsp;',
     'Must contain tag',
-    '必須含有 tag'
+    '必須含有 tag&nbsp;'
   ],
   _必须tag的提示文字: [
     '您可在下载前设置作品里必须包含的tag，不区分大小写；如需包含多个tag，请使用英文逗号分隔。',
