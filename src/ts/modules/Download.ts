@@ -119,14 +119,26 @@ class Download {
           (arg.data.ext === 'webm' || arg.data.ext === 'gif') &&
           arg.data.ugoiraInfo
         ) {
-          // 如果需要转换成视频
-          if (arg.data.ext === 'webm') {
-            file = await converter.webm(file, arg.data.ugoiraInfo)
-          }
+          try {
+            // 需要转换成 webm 视频
+            if (arg.data.ext === 'webm') {
+              file = await converter.webm(file, arg.data.ugoiraInfo)
+            }
 
-          // 如果需要转换成动图
-          if (arg.data.ext === 'gif') {
-            file = await converter.gif(file, arg.data.ugoiraInfo)
+            // 需要转换成 gif 动图
+            if (arg.data.ext === 'gif') {
+              file = await converter.gif(file, arg.data.ugoiraInfo)
+            }
+          } catch (error) {
+            // 创建 txt 文件，保存提示信息
+            const msg = `Error: convert ugoira error, work id ${arg.data.idNum}.`
+            log.error(msg, 2)
+
+            file = new Blob([`${msg}`], {
+              type: 'text/plain'
+            })
+
+            this.fileName = this.fileName.replace(/\.gif$|\.webm$/, '.txt')
           }
         }
       }

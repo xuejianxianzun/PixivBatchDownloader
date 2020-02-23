@@ -984,9 +984,6 @@
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
-        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Log */ './src/ts/modules/Log.ts'
-        )
         // 转换动图
 
         class ConvertUgoira {
@@ -1010,6 +1007,12 @@
                 this.downloading = false
               })
             })
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.convertError,
+              () => {
+                this.complete()
+              }
+            )
           }
           set setCount(num) {
             this.count = num
@@ -1072,11 +1075,10 @@
                   })
                 },
                 message => {
-                  _Log__WEBPACK_IMPORTED_MODULE_1__['log'].error(
-                    'error: readZIP error.',
-                    2
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.convertError
                   )
-                  reject(new Error('readZIP error: ' + message))
+                  reject(new Error('ReadZIP error: ' + message))
                 }
               )
             })
@@ -1123,7 +1125,7 @@
               })
             })
           }
-          // 开始转换，主要是解压文件
+          // 开始转换，这一步主要是解压文件
           async start(file, info) {
             return new Promise(async (resolve, reject) => {
               const t = window.setInterval(async () => {
@@ -1134,8 +1136,13 @@
                   }
                   this.setCount = this.count + 1
                   // 将压缩包里的图片转换为 base64 字符串
-                  const base64Arr = await this.readZip(file, info)
-                  resolve(base64Arr)
+                  await this.readZip(file, info)
+                    .then(data => {
+                      resolve(data)
+                    })
+                    .catch(() => {
+                      reject(new Error('readZip error'))
+                    })
                 }
               }, 200)
             })
@@ -1149,7 +1156,12 @@
               // 创建视频编码器
               const encoder = new Whammy.Video()
               // 获取解压后的图片数据
-              let base64Arr = await this.start(file, info)
+              let base64Arr = await this.start(file, info).catch(() => {
+                reject(new Error('Start error'))
+              })
+              if (!base64Arr) {
+                return
+              }
               // 生成每一帧的数据
               let canvasData = await this.getFrameData(base64Arr)
               // 添加帧数据
@@ -1180,7 +1192,12 @@
                 resolve(file)
               })
               // 获取解压后的图片数据
-              let base64Arr = await this.start(file, info)
+              let base64Arr = await this.start(file, info).catch(() => {
+                reject(new Error('Start error'))
+              })
+              if (!base64Arr) {
+                return
+              }
               // 生成每一帧的数据
               let imgData = await this.getFrameData(base64Arr, 'gif')
               // 添加帧数据
@@ -1692,17 +1709,30 @@
                   (arg.data.ext === 'webm' || arg.data.ext === 'gif') &&
                   arg.data.ugoiraInfo
                 ) {
-                  // 如果需要转换成视频
-                  if (arg.data.ext === 'webm') {
-                    file = await _ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__[
-                      'converter'
-                    ].webm(file, arg.data.ugoiraInfo)
-                  }
-                  // 如果需要转换成动图
-                  if (arg.data.ext === 'gif') {
-                    file = await _ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__[
-                      'converter'
-                    ].gif(file, arg.data.ugoiraInfo)
+                  try {
+                    // 需要转换成 webm 视频
+                    if (arg.data.ext === 'webm') {
+                      file = await _ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__[
+                        'converter'
+                      ].webm(file, arg.data.ugoiraInfo)
+                    }
+                    // 需要转换成 gif 动图
+                    if (arg.data.ext === 'gif') {
+                      file = await _ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__[
+                        'converter'
+                      ].gif(file, arg.data.ugoiraInfo)
+                    }
+                  } catch (error) {
+                    // 创建 txt 文件，保存提示信息
+                    const msg = `Error: convert ugoira error, work id ${arg.data.idNum}.`
+                    _Log__WEBPACK_IMPORTED_MODULE_1__['log'].error(msg, 2)
+                    file = new Blob([`${msg}`], {
+                      type: 'text/plain'
+                    })
+                    this.fileName = this.fileName.replace(
+                      /\.gif$|\.webm$/,
+                      '.txt'
+                    )
                   }
                 }
               }
@@ -2335,7 +2365,8 @@
           toggleForm: 'toggleForm',
           settingChange: 'settingChange',
           clickRightIcon: 'clickRightIcon',
-          destroy: 'destroy'
+          destroy: 'destroy',
+          convertError: 'convertError'
         }
 
         /***/
@@ -9144,6 +9175,7 @@
         class Store {
           constructor() {
             this.resultMeta = [] // 储存抓取结果的元数据。它可以根据每个作品需要下载多少张，生成每一张图片的信息
+            this.resultIDList = [] // 储存抓取结果的元数据的 id 列表，用来判断该作品是否已经添加过了，避免重复添加
             this.result = [] // 储存抓取结果
             this.idList = [] // 储存从列表中抓取到的作品的 id
             this.rankList = {} // 储存作品在排行榜中的排名
@@ -9236,16 +9268,26 @@
             }
             return Object.assign(dataDefault, data)
           }
-          // 添加每个图片的信息。只需要传递有值的属性
+          // 添加每个作品的信息。只需要传递有值的属性
           addResult(data, pNo = 1) {
-            // 添加元数据
+            // 检查该作品数据是否已存在，已存在则不添加
+            if (
+              data.idNum !== undefined &&
+              this.resultIDList.includes(data.idNum)
+            ) {
+              return
+            }
+            if (data.idNum !== undefined) {
+              this.resultIDList.push(data.idNum)
+            }
+            // 添加该作品的元数据
             const result = this.assignResult(data)
             this.resultMeta.push(result)
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.addResult,
               result
             )
-            // 添加每一张图片的数据
+            // 添加该作品里每一张图片的数据
             for (let i = 0; i < pNo; i++) {
               const result = this.assignResult(data)
               result.id = result.id + `_p${i}`
@@ -9261,6 +9303,7 @@
           }
           resetResult() {
             this.resultMeta = []
+            this.resultIDList = []
             this.result = []
             this.idList = []
             this.rankList = {}

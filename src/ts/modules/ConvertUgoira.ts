@@ -21,6 +21,10 @@ class ConvertUgoira {
         this.downloading = false
       })
     })
+
+    window.addEventListener(EVT.events.convertError, () => {
+      this.complete()
+    })
   }
 
   private gifWorkerUrl: string = ''
@@ -92,8 +96,8 @@ class ConvertUgoira {
           })
         },
         (message: any) => {
-          log.error('error: readZIP error.', 2)
-          reject(new Error('readZIP error: ' + message))
+          EVT.fire(EVT.events.convertError)
+          reject(new Error('ReadZIP error: ' + message))
         }
       )
     })
@@ -150,7 +154,7 @@ class ConvertUgoira {
     })
   }
 
-  // 开始转换，主要是解压文件
+  // 开始转换，这一步主要是解压文件
   private async start(file: Blob, info: UgoiraInfo): Promise<string[]> {
     return new Promise(async (resolve, reject) => {
       const t = window.setInterval(async () => {
@@ -161,8 +165,13 @@ class ConvertUgoira {
           }
           this.setCount = this.count + 1
           // 将压缩包里的图片转换为 base64 字符串
-          const base64Arr: string[] = await this.readZip(file, info)
-          resolve(base64Arr)
+          await this.readZip(file, info)
+            .then((data: string[]) => {
+              resolve(data)
+            })
+            .catch(() => {
+              reject(new Error('readZip error'))
+            })
         }
       }, 200)
     })
@@ -179,8 +188,13 @@ class ConvertUgoira {
       const encoder = new Whammy.Video()
 
       // 获取解压后的图片数据
-      let base64Arr = await this.start(file, info)
+      let base64Arr = await this.start(file, info).catch(() => {
+        reject(new Error('Start error'))
+      })
 
+      if (!base64Arr) {
+        return
+      }
       // 生成每一帧的数据
       let canvasData = await this.getFrameData(base64Arr)
       // 添加帧数据
@@ -218,7 +232,14 @@ class ConvertUgoira {
       })
 
       // 获取解压后的图片数据
-      let base64Arr = await this.start(file, info)
+      let base64Arr = await this.start(file, info).catch(() => {
+        reject(new Error('Start error'))
+      })
+
+      if (!base64Arr) {
+        return
+      }
+
       // 生成每一帧的数据
       let imgData = await this.getFrameData(base64Arr, 'gif')
       // 添加帧数据
