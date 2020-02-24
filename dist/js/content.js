@@ -2073,7 +2073,8 @@
             }
             // 重设下载进度条
             _ProgressBar__WEBPACK_IMPORTED_MODULE_9__['progressBar'].reset(
-              this.downloadThread
+              this.downloadThread,
+              this.downloaded
             )
           }
           // 抓取完毕之后，已经可以开始下载时，根据一些状态进行处理
@@ -2541,7 +2542,7 @@
             let result =
               _Settings__WEBPACK_IMPORTED_MODULE_1__['form'].userSetName.value
             // 为空时使用 {id}
-            result = result || '{id}' // 生成文件名
+            result = result || '{id}'
             const illustTypes = ['illustration', 'manga', 'ugoira'] // 作品类型 0 插画 1 漫画 2 动图
             // 储存每个文件名标记的配置
             const cfg = [
@@ -2712,7 +2713,7 @@
             if (result.endsWith('/')) {
               result = result.substr(0, result.length - 1)
             }
-            // 如果快速下载时只有一个文件，根据“始终建立文件夹”选项，决定是否建立文件夹
+            // 如果快速下载时只有一个文件，根据“始终建立文件夹”选项，决定是否去掉文件夹部分
             if (
               _Store__WEBPACK_IMPORTED_MODULE_2__['store'].states
                 .quickDownload &&
@@ -2723,6 +2724,21 @@
             ) {
               const index = result.lastIndexOf('/')
               result = result.substr(index + 1, result.length)
+            }
+            // 处理为多图作品自动建立文件夹的情况
+            // 多图作品如果只下载前 1 张，不会为它自动建立文件夹。大于 1 张才会自动建立文件夹
+            if (
+              _Settings__WEBPACK_IMPORTED_MODULE_1__['form'].multipleImageDir
+                .checked &&
+              data.dlCount > 1
+            ) {
+              // 操作路径中最后一项（即文件名），在它前面添加一层文件夹，文件夹名为 id
+              const allPart = result.split('/')
+              const lastPartIndex = allPart.length - 1
+              let lastPart = allPart[lastPartIndex]
+              lastPart = data.idNum + '/' + lastPart
+              allPart[lastPartIndex] = lastPart
+              result = allPart.join('/')
             }
             // 添加后缀名
             result += '.' + data.ext
@@ -5382,12 +5398,15 @@
               this.getWorksData()
             }
           }
-          getPNo(pageCount) {
-            let pNo = pageCount
-            if (this.multipleImageWorks === 1 && this.firstFewImages <= pNo) {
-              pNo = this.firstFewImages
+          // 计算要从这个作品里下载几张图片
+          getDLCount(pageCount) {
+            if (
+              this.multipleImageWorks === 1 &&
+              this.firstFewImages <= pageCount
+            ) {
+              return this.firstFewImages
             }
-            return pNo
+            return pageCount
           }
           // 获取作品的数据
           // 在重试时会传入要重试的 id
@@ -5472,34 +5491,32 @@
               if (body.illustType !== 2) {
                 // 插画或漫画
                 // 下载该作品的前面几张
-                const pNo = this.getPNo(body.pageCount)
+                const dlCount = this.getDLCount(body.pageCount)
                 const imgUrl = body.urls.original // 作品的原图 URL
                 const tempExt = imgUrl.split('.')
                 const ext = tempExt[tempExt.length - 1]
                 // 添加作品信息
-                _Store__WEBPACK_IMPORTED_MODULE_6__['store'].addResult(
-                  {
-                    id: illustId,
-                    idNum: idNum,
-                    thumb: thumb,
-                    pageCount: pageCount,
-                    url: imgUrl,
-                    title: title,
-                    tags: tags,
-                    tagsTranslated: tagTranslation,
-                    user: user,
-                    userid: userid,
-                    fullWidth: fullWidth,
-                    fullHeight: fullHeight,
-                    ext: ext,
-                    bmk: bmk,
-                    bookmarked: bookmarked,
-                    date: date,
-                    type: body.illustType,
-                    rank: rank
-                  },
-                  pNo
-                )
+                _Store__WEBPACK_IMPORTED_MODULE_6__['store'].addResult({
+                  id: illustId,
+                  idNum: idNum,
+                  thumb: thumb,
+                  pageCount: pageCount,
+                  dlCount: dlCount,
+                  url: imgUrl,
+                  title: title,
+                  tags: tags,
+                  tagsTranslated: tagTranslation,
+                  user: user,
+                  userid: userid,
+                  fullWidth: fullWidth,
+                  fullHeight: fullHeight,
+                  ext: ext,
+                  bmk: bmk,
+                  bookmarked: bookmarked,
+                  date: date,
+                  type: body.illustType,
+                  rank: rank
+                })
                 this.logImagesNo()
               } else if (body.illustType === 2) {
                 // 动图
@@ -5752,9 +5769,10 @@
               14,
               15,
               16,
-              18
+              18,
+              19
             ])
-            // pixivision 里，文件名只有 id 标记会生效，所以把文件名部分替换成 id
+            // pixivision 里，文件名只有 id 标记会生效，所以把文件名规则替换成 id
             _Settings__WEBPACK_IMPORTED_MODULE_5__['form'].userSetName.value =
               '{p_title}/{id}'
           }
@@ -6161,6 +6179,7 @@
             this.listClass = 'cflRkx'
             this.multipleClass = 'gOXMgf'
             this.ugoiraClass = 'ctQOAQ'
+            this.countClass = 'hQUiax'
             this.worksType = ''
             this.option = {}
             this.worksNoPerPage = 60 // 每个页面有多少个作品
@@ -6199,7 +6218,7 @@
                   count
                 )
               )
-              const countEl = document.querySelector('.bihUFO')
+              const countEl = document.querySelector(`.${this.countClass}`)
               if (countEl) {
                 countEl.textContent = count
               }
@@ -6574,13 +6593,16 @@
             )
           }
           // 当筛选结果的元数据改变时，重新生成抓取结果
-          // 在此过程中，会清空之前的作品元素，重新生成作品元素
           reAddResult() {
             _Store__WEBPACK_IMPORTED_MODULE_10__['store'].resetResult()
             this.clearWorks()
             this.resultMeta.forEach(data => {
-              const pNo = this.getPNo(data.pageCount)
-              _Store__WEBPACK_IMPORTED_MODULE_10__['store'].addResult(data, pNo)
+              const dlCount = this.getDLCount(data.pageCount)
+              // 如果此时的 dlCount 与之前的 dlCount 不一样，则更新它
+              if (dlCount !== data.dlCount) {
+                data = Object.assign(data, { dlCount: dlCount })
+              }
+              _Store__WEBPACK_IMPORTED_MODULE_10__['store'].addResult(data)
             })
             _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.worksUpdate
@@ -8021,13 +8043,12 @@
             this.totalNumberEl = this.wrap.querySelector('.totalNumber')
           }
           // 重设所有进度
-          reset(num) {
+          reset(num, downloaded = 0) {
             // 重置总进度条
-            this.downloadedEl.textContent = '0'
+            this.setTotalProgress(downloaded)
             this.totalNumberEl.textContent = _Store__WEBPACK_IMPORTED_MODULE_0__[
               'store'
             ].result.length.toString()
-            this.progressColorEl.style.width = '0%'
             // 重置子进度条
             this.listWrap.innerHTML = this.barHTML.repeat(num)
             this.wrap.style.display = 'block'
@@ -8310,6 +8331,7 @@
               userSetName: '{id}',
               tagNameToFileName: true,
               alwaysFolder: true,
+              multipleImageDir: false,
               showOptions: true,
               postDate: false,
               postDateStart: '',
@@ -8435,6 +8457,8 @@
             this.restoreBoolean('tagNameToFileName')
             // 设置是否始终建立文件夹
             this.restoreBoolean('alwaysFolder')
+            // 设置是否为多图作品自动建立文件夹
+            this.restoreBoolean('multipleImageDir')
             // 设置预览搜索结果
             this.restoreBoolean('previewResult')
           }
@@ -8520,6 +8544,8 @@
             this.saveCheckBox('tagNameToFileName')
             // 保存是否始终建立文件夹
             this.saveCheckBox('alwaysFolder')
+            // 保存是否为多图作品自动建立文件夹
+            this.saveCheckBox('multipleImageDir')
             // 保存自动下载
             this.saveCheckBox('quietDownload')
             // 保存下载线程
@@ -8614,7 +8640,7 @@
     'lang'
   ].transl('_怎样下载多图作品')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
-        ].transl('_多图作品设置')}<span class="gray1"> ? </span></span>
+        ].transl('_多图下载设置')}<span class="gray1"> ? </span></span>
   <input type="radio" name="multipleImageWorks" id="multipleImageWorks1" class="need_beautify radio" value="0">
   <span class="beautify_radio"></span>
   <label for="multipleImageWorks1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
@@ -8788,6 +8814,37 @@
   <input type="text" name="notNeedTag" class="setinput_style1 blue setinput_tag">
   </span>
   </p>
+  <p class="option" data-no="19">
+  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+    'lang'
+  ].transl('_多图建立目录提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+          'lang'
+        ].transl('_多图建立目录')}<span class="gray1"> ? </span></span>
+  <input type="checkbox" name="multipleImageDir" id="setMultipleImageDir" class="need_beautify checkbox_switch" >
+  <span class="beautify_switch"></span>
+  </p>
+  <p class="option" data-no="15">
+  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+    'lang'
+  ].transl('_快速下载建立文件夹提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+          'lang'
+        ].transl('_快速下载建立文件夹')}<span class="gray1"> ? </span></span>
+  <input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" class="need_beautify checkbox_switch" >
+  <span class="beautify_switch"></span>
+  </p>
+  <p class="option" data-no="14">
+  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+    'lang'
+  ].transl('_添加字段名称提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+          'lang'
+        ].transl('_添加字段名称')}<span class="gray1"> ? </span></span>
+  <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch" checked>
+  <span class="beautify_switch"></span>
+  &nbsp;&nbsp;&nbsp;
+  <span class="showFileNameResult"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+    'lang'
+  ].transl('_预览文件名')}</span>
+  </p>
   <p class="option" data-no="13">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
     'lang'
@@ -8875,28 +8932,6 @@
   ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记13')}
   <br>
   ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记提醒')}
-  </p>
-  <p class="option" data-no="14">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_添加字段名称提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-          'lang'
-        ].transl('_添加字段名称')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch" checked>
-  <span class="beautify_switch"></span>
-  &nbsp;&nbsp;&nbsp;
-  <span class="showFileNameResult"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_预览文件名')}</span>
-  </p>
-  <p class="option" data-no="15">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_快速下载建立文件夹提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-          'lang'
-        ].transl('_快速下载建立文件夹')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" class="need_beautify checkbox_switch" >
-  <span class="beautify_switch"></span>
   </p>
   <p class="option" data-no="16">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
@@ -9252,6 +9287,7 @@
               thumb: '',
               title: '',
               pageCount: 1,
+              dlCount: 1,
               tags: [],
               tagsTranslated: [],
               user: '',
@@ -9269,7 +9305,7 @@
             return Object.assign(dataDefault, data)
           }
           // 添加每个作品的信息。只需要传递有值的属性
-          addResult(data, pNo = 1) {
+          addResult(data) {
             // 检查该作品数据是否已存在，已存在则不添加
             if (
               data.idNum !== undefined &&
@@ -9288,7 +9324,7 @@
               result
             )
             // 添加该作品里每一张图片的数据
-            for (let i = 0; i < pNo; i++) {
+            for (let i = 0; i < result.dlCount; i++) {
               const result = this.assignResult(data)
               result.id = result.id + `_p${i}`
               result.url = result.url.replace('p0', 'p' + i)
@@ -9339,7 +9375,7 @@
         // 辅助功能
         class Support {
           constructor() {
-            this.newTag = '_xzNew350'
+            this.newTag = '_xzNew410'
             this.checkConflict()
             this.supportListenHistory()
             this.listenPageSwitch()
@@ -9675,7 +9711,7 @@
           _多p下载前几张提示: [
             '下载每个作品的前几张图片。默认值 0 表示全部下载。',
             '各作品の画像が最初の何枚をダウンロードしますか？ デフォルト値の 0 は、すべてをダウンロードします。',
-            'Download the first few pictures of each piece. The default value of 0 means all downloads.',
+            'Download the first few images of each piece. The default value of 0 means all downloads.',
             '下載每個作品的前幾張圖片。預設值 0 表示全部下載。'
           ],
           _不能含有tag: [
@@ -9723,7 +9759,7 @@
           _筛选宽高的按钮Title: [
             '在下载前，您可以设置要下载的图片的宽高条件。',
             'ダウンロードする前に、画像の幅と高さの条件を設定できます。',
-            'Before downloading, you can set the width and height conditions of the pictures you want to download.',
+            'Before downloading, you can set the width and height conditions of the images you want to download.',
             '在下載前，您可以設定要下載的圖片的寬高條件。'
           ],
           _设置宽高比例: [
@@ -9948,17 +9984,29 @@
             'Multi-image works',
             '多圖作品'
           ],
-          _多图作品设置: [
-            '多图作品设置',
+          _多图下载设置: [
+            '多图下载设置',
             'マルチイメージ設定',
-            'Multi-image works',
-            '多圖作品設定'
+            'Download multi-image works',
+            '多圖下載設定'
           ],
           _怎样下载多图作品: [
             '怎样下载多图作品？',
             'どのようにマルチイメージ作品をダウンロードしますか？',
             'How to download multi-image works?',
             '怎样下載多圖作品？'
+          ],
+          _多图建立目录: [
+            '多图建立目录',
+            'マルチイメージにフォルダを作成',
+            'Create directory for multi-image works',
+            '多圖建立目錄'
+          ],
+          _多图建立目录提示: [
+            '当你下载多图作品时，下载器可以使用作品 id 自动创建一个目录，保存里面的图片。',
+            'マルチイメージをダウンロードする時、自動的に作品idを使ってフォルダを作成し、中のイラストを保存することができます。',
+            'When you download a multi-image work, the downloader can automatically create a directory with the work id and save the images inside.',
+            '當你下載多圖作品時，下載器可以使用作品 id 自動創建一個目錄，保存裏面的圖片。'
           ],
           _不下载: [
             '不下载',
@@ -10183,7 +10231,7 @@
           _共抓取到n个图片: [
             '共抓取到 {} 个图片',
             '合計 {} 枚の画像を取得し',
-            'Crawl a total of {} pictures',
+            'Crawl a total of {} images',
             '共擷取到 {} 個圖片'
           ],
           _设置文件名: [
@@ -10195,7 +10243,7 @@
           _设置文件夹名的提示: [
             `可以使用 '/' 建立文件夹<br>示例：{p_title}/{user}/{id}`,
             `フォルダーは '/'で作成できます<br>例：{p_title}/{user}/{id}`,
-            `You can create a folder with '/'<br>Example：{p_title}/{user}/{id}`,
+            `You can create a directory with '/'<br>Example：{p_title}/{user}/{id}`,
             `可以使用 '/' 建立資料夾<br>範例：{p_title}/{user}/{id}`
           ],
           _添加字段名称: [
@@ -10667,22 +10715,16 @@
             'A new version is available',
             '有新版本可用'
           ],
-          _xzNew350: [
-            '可以在搜索页面预览结果了。',
-            '検索ページで結果をプレビューできます。',
-            'You can preview the results on the search page.',
-            '可以在檢索頁面預覽結果了。'
-          ],
           _快速下载建立文件夹: [
             '总是创建目录',
             'いつもフォルダを作成されます',
-            'Always create folder',
+            'Always create directory when downloading quickly',
             '總是建立資料夾'
           ],
           _快速下载建立文件夹提示: [
             '快速下载时，如果只有一张图片，也会建立文件夹',
             'すばやくダウンロードとき、イラストが一枚だけでも、フォルダも作成されます',
-            'When downloading quickly, if there is only one picture, a folder is also created',
+            'When downloading quickly, if there is only one picture, a directory is also created',
             '快速下載時，若只有一張圖片，也會建立資料夾'
           ],
           _设置id范围: [
@@ -10771,6 +10813,12 @@
             'ローダは、該当する作品を現在のページに表示することができます。クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。',
             'The downloader can display the qualified works on the current page. If too many crawling results cause the page to crash, turn off this feature.',
             '下載器可以將符合條件的作品顯示在目前頁面上。如果擷取結果太多導致頁面當掉，請關閉這個功能。'
+          ],
+          _xzNew410: [
+            '当你下载多图作品时，下载器可以使用作品 id 自动创建一个目录，保存里面的图片。',
+            'マルチイメージをダウンロードする時、自動的に作品idを使ってフォルダを作成し、中のイラストを保存することができます。',
+            'When you download a multi-image work, the downloader can automatically create a directory with the work id and save the images inside.',
+            '當你下載多圖作品時，下載器可以使用作品 id 自動創建一個目錄，保存裏面的圖片。'
           ]
         }
 

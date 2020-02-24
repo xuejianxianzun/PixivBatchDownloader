@@ -233,12 +233,12 @@ abstract class InitPageBase {
     }
   }
 
-  protected getPNo(pageCount: number) {
-    let pNo = pageCount
-    if (this.multipleImageWorks === 1 && this.firstFewImages <= pNo) {
-      pNo = this.firstFewImages
+  // 计算要从这个作品里下载几张图片
+  protected getDLCount(pageCount: number) {
+    if (this.multipleImageWorks === 1 && this.firstFewImages <= pageCount) {
+      return this.firstFewImages
     }
-    return pNo
+    return pageCount
   }
 
   // 获取作品的数据
@@ -327,7 +327,7 @@ abstract class InitPageBase {
         // 插画或漫画
 
         // 下载该作品的前面几张
-        const pNo = this.getPNo(body.pageCount)
+        const dlCount = this.getDLCount(body.pageCount)
 
         const imgUrl = body.urls.original // 作品的原图 URL
 
@@ -335,29 +335,27 @@ abstract class InitPageBase {
         const ext = tempExt[tempExt.length - 1]
 
         // 添加作品信息
-        store.addResult(
-          {
-            id: illustId,
-            idNum: idNum,
-            thumb: thumb,
-            pageCount: pageCount,
-            url: imgUrl,
-            title: title,
-            tags: tags,
-            tagsTranslated: tagTranslation,
-            user: user,
-            userid: userid,
-            fullWidth: fullWidth,
-            fullHeight: fullHeight,
-            ext: ext,
-            bmk: bmk,
-            bookmarked: bookmarked,
-            date: date,
-            type: body.illustType,
-            rank: rank
-          },
-          pNo
-        )
+        store.addResult({
+          id: illustId,
+          idNum: idNum,
+          thumb: thumb,
+          pageCount: pageCount,
+          dlCount: dlCount,
+          url: imgUrl,
+          title: title,
+          tags: tags,
+          tagsTranslated: tagTranslation,
+          user: user,
+          userid: userid,
+          fullWidth: fullWidth,
+          fullHeight: fullHeight,
+          ext: ext,
+          bmk: bmk,
+          bookmarked: bookmarked,
+          date: date,
+          type: body.illustType,
+          rank: rank
+        })
         this.logImagesNo()
       } else if (body.illustType === 2) {
         // 动图

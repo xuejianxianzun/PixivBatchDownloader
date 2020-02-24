@@ -45,7 +45,7 @@ class FileName {
   public getFileName(data: WorkInfo) {
     let result = form.userSetName.value
     // 为空时使用 {id}
-    result = result || '{id}' // 生成文件名
+    result = result || '{id}'
     const illustTypes = ['illustration', 'manga', 'ugoira'] // 作品类型 0 插画 1 漫画 2 动图
 
     // 储存每个文件名标记的配置
@@ -216,7 +216,7 @@ class FileName {
       result = result.substr(0, result.length - 1)
     }
 
-    // 如果快速下载时只有一个文件，根据“始终建立文件夹”选项，决定是否建立文件夹
+    // 如果快速下载时只有一个文件，根据“始终建立文件夹”选项，决定是否去掉文件夹部分
     if (
       store.states.quickDownload &&
       store.result.length === 1 &&
@@ -224,6 +224,18 @@ class FileName {
     ) {
       const index = result.lastIndexOf('/')
       result = result.substr(index + 1, result.length)
+    }
+
+    // 处理为多图作品自动建立文件夹的情况
+    // 多图作品如果只下载前 1 张，不会为它自动建立文件夹。大于 1 张才会自动建立文件夹
+    if (form.multipleImageDir.checked && data.dlCount > 1) {
+      // 操作路径中最后一项（即文件名），在它前面添加一层文件夹，文件夹名为 id
+      const allPart = result.split('/')
+      const lastPartIndex = allPart.length - 1
+      let lastPart = allPart[lastPartIndex]
+      lastPart = data.idNum + '/' + lastPart
+      allPart[lastPartIndex] = lastPart
+      result = allPart.join('/')
     }
 
     // 添加后缀名

@@ -69,6 +69,7 @@ class Store {
       thumb: '',
       title: '',
       pageCount: 1,
+      dlCount: 1,
       tags: [],
       tagsTranslated: [],
       user: '',
@@ -88,7 +89,7 @@ class Store {
   }
 
   // 添加每个作品的信息。只需要传递有值的属性
-  public addResult(data: WorkInfoOptional, pNo: number = 1) {
+  public addResult(data: WorkInfoOptional) {
     // 检查该作品数据是否已存在，已存在则不添加
     if (data.idNum !== undefined && this.resultIDList.includes(data.idNum)) {
       return
@@ -104,7 +105,7 @@ class Store {
     EVT.fire(EVT.events.addResult, result)
 
     // 添加该作品里每一张图片的数据
-    for (let i = 0; i < pNo; i++) {
+    for (let i = 0; i < result.dlCount; i++) {
       const result = this.assignResult(data)
       result.id = result.id + `_p${i}`
       result.url = result.url.replace('p0', 'p' + i)

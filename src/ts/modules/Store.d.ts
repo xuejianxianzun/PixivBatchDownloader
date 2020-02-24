@@ -7,6 +7,7 @@ export interface WorkInfo {
   url: string
   thumb: string
   pageCount: number
+  dlCount: number
   title: string
   tags: string[]
   tagsTranslated: string[]
@@ -29,6 +30,7 @@ export interface WorkInfoOptional {
   url?: string
   thumb?: string
   pageCount?: number
+  dlCount?: number
   title?: string
   tags?: string[]
   tagsTranslated?: string[]

@@ -37,7 +37,7 @@ const langText = {
   _多p下载前几张提示: [
     '下载每个作品的前几张图片。默认值 0 表示全部下载。',
     '各作品の画像が最初の何枚をダウンロードしますか？ デフォルト値の 0 は、すべてをダウンロードします。',
-    'Download the first few pictures of each piece. The default value of 0 means all downloads.',
+    'Download the first few images of each piece. The default value of 0 means all downloads.',
     '下載每個作品的前幾張圖片。預設值 0 表示全部下載。'
   ],
   _不能含有tag: [
@@ -85,7 +85,7 @@ const langText = {
   _筛选宽高的按钮Title: [
     '在下载前，您可以设置要下载的图片的宽高条件。',
     'ダウンロードする前に、画像の幅と高さの条件を設定できます。',
-    'Before downloading, you can set the width and height conditions of the pictures you want to download.',
+    'Before downloading, you can set the width and height conditions of the images you want to download.',
     '在下載前，您可以設定要下載的圖片的寬高條件。'
   ],
   _设置宽高比例: [
@@ -300,17 +300,29 @@ const langText = {
     'Multi-image works',
     '多圖作品'
   ],
-  _多图作品设置: [
-    '多图作品设置',
+  _多图下载设置: [
+    '多图下载设置',
     'マルチイメージ設定',
-    'Multi-image works',
-    '多圖作品設定'
+    'Download multi-image works',
+    '多圖下載設定'
   ],
   _怎样下载多图作品: [
     '怎样下载多图作品？',
     'どのようにマルチイメージ作品をダウンロードしますか？',
     'How to download multi-image works?',
     '怎样下載多圖作品？'
+  ],
+  _多图建立目录: [
+    '多图建立目录',
+    'マルチイメージにフォルダを作成',
+    'Create directory for multi-image works',
+    '多圖建立目錄'
+  ],
+  _多图建立目录提示: [
+    '当你下载多图作品时，下载器可以使用作品 id 自动创建一个目录，保存里面的图片。',
+    'マルチイメージをダウンロードする時、自動的に作品idを使ってフォルダを作成し、中のイラストを保存することができます。',
+    'When you download a multi-image work, the downloader can automatically create a directory with the work id and save the images inside.',
+    '當你下載多圖作品時，下載器可以使用作品 id 自動創建一個目錄，保存裏面的圖片。'
   ],
   _不下载: ['不下载', 'ダウンロードしない', 'Do not download', '不下載'],
   _全部下载: ['全部下载', '全部ダウンロードする', 'Download all', '全部下載'],
@@ -520,7 +532,7 @@ const langText = {
   _共抓取到n个图片: [
     '共抓取到 {} 个图片',
     '合計 {} 枚の画像を取得し',
-    'Crawl a total of {} pictures',
+    'Crawl a total of {} images',
     '共擷取到 {} 個圖片'
   ],
   _设置文件名: [
@@ -532,7 +544,7 @@ const langText = {
   _设置文件夹名的提示: [
     `可以使用 '/' 建立文件夹<br>示例：{p_title}/{user}/{id}`,
     `フォルダーは '/'で作成できます<br>例：{p_title}/{user}/{id}`,
-    `You can create a folder with '/'<br>Example：{p_title}/{user}/{id}`,
+    `You can create a directory with '/'<br>Example：{p_title}/{user}/{id}`,
     `可以使用 '/' 建立資料夾<br>範例：{p_title}/{user}/{id}`
   ],
   _添加字段名称: [
@@ -974,22 +986,16 @@ const langText = {
     'A new version is available',
     '有新版本可用'
   ],
-  _xzNew350: [
-    '可以在搜索页面预览结果了。',
-    '検索ページで結果をプレビューできます。',
-    'You can preview the results on the search page.',
-    '可以在檢索頁面預覽結果了。'
-  ],
   _快速下载建立文件夹: [
     '总是创建目录',
     'いつもフォルダを作成されます',
-    'Always create folder',
+    'Always create directory when downloading quickly',
     '總是建立資料夾'
   ],
   _快速下载建立文件夹提示: [
     '快速下载时，如果只有一张图片，也会建立文件夹',
     'すばやくダウンロードとき、イラストが一枚だけでも、フォルダも作成されます',
-    'When downloading quickly, if there is only one picture, a folder is also created',
+    'When downloading quickly, if there is only one picture, a directory is also created',
     '快速下載時，若只有一張圖片，也會建立資料夾'
   ],
   _设置id范围: ['设置 id 范围', 'ID範囲を設定', 'Set id range', '設定 id 範圍'],
@@ -1068,6 +1074,12 @@ const langText = {
     'ローダは、該当する作品を現在のページに表示することができます。クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。',
     'The downloader can display the qualified works on the current page. If too many crawling results cause the page to crash, turn off this feature.',
     '下載器可以將符合條件的作品顯示在目前頁面上。如果擷取結果太多導致頁面當掉，請關閉這個功能。'
+  ],
+  _xzNew410: [
+    '当你下载多图作品时，下载器可以使用作品 id 自动创建一个目录，保存里面的图片。',
+    'マルチイメージをダウンロードする時、自動的に作品idを使ってフォルダを作成し、中のイラストを保存することができます。',
+    'When you download a multi-image work, the downloader can automatically create a directory with the work id and save the images inside.',
+    '當你下載多圖作品時，下載器可以使用作品 id 自動創建一個目錄，保存裏面的圖片。'
   ]
 }
 

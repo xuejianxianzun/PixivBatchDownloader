@@ -36,6 +36,7 @@ class InitSearchPage extends InitPageBase {
   private readonly listClass = 'cflRkx'
   private readonly multipleClass = 'gOXMgf'
   private readonly ugoiraClass = 'ctQOAQ'
+  private readonly countClass = 'hQUiax'
 
   protected initElse() {
     this.setPreviewResult(form.previewResult.checked)
@@ -186,7 +187,7 @@ class InitSearchPage extends InitPageBase {
     const count = this.resultMeta.length.toString()
     log.success(lang.transl('_调整完毕', count))
 
-    const countEl = document.querySelector('.bihUFO')
+    const countEl = document.querySelector(`.${this.countClass}`)
     if (countEl) {
       countEl.textContent = count
     }
@@ -382,15 +383,19 @@ class InitSearchPage extends InitPageBase {
   }
 
   // 当筛选结果的元数据改变时，重新生成抓取结果
-  // 在此过程中，会清空之前的作品元素，重新生成作品元素
   private reAddResult() {
     store.resetResult()
 
     this.clearWorks()
 
     this.resultMeta.forEach(data => {
-      const pNo = this.getPNo(data.pageCount)
-      store.addResult(data, pNo)
+      const dlCount = this.getDLCount(data.pageCount)
+      // 如果此时的 dlCount 与之前的 dlCount 不一样，则更新它
+      if (dlCount !== data.dlCount) {
+        data = Object.assign(data, { dlCount: dlCount })
+      }
+
+      store.addResult(data)
     })
 
     EVT.fire(EVT.events.worksUpdate)

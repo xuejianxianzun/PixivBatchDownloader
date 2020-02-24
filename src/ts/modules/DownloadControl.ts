@@ -257,7 +257,7 @@ class DownloadControl {
     }
 
     // 重设下载进度条
-    progressBar.reset(this.downloadThread)
+    progressBar.reset(this.downloadThread, this.downloaded)
   }
 
   // 抓取完毕之后，已经可以开始下载时，根据一些状态进行处理
@@ -315,6 +315,7 @@ class DownloadControl {
     this.downloadStop = false
     clearTimeout(this.reTryTimer)
     this.setDownloadThread()
+
     EVT.fire(EVT.events.downloadStart)
 
     // 启动或继续下载，建立并发下载线程

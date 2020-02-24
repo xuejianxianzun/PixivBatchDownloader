@@ -74,11 +74,10 @@ class ProgressBar {
   private allProgressBar: ProgressBarEl[] = []
 
   // 重设所有进度
-  public reset(num: number) {
+  public reset(num: number, downloaded: number = 0) {
     // 重置总进度条
-    this.downloadedEl.textContent = '0'
+    this.setTotalProgress(downloaded)
     this.totalNumberEl.textContent = store.result.length.toString()
-    this.progressColorEl.style.width = '0%'
     // 重置子进度条
     this.listWrap.innerHTML = this.barHTML.repeat(num)
 

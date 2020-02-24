@@ -34,9 +34,27 @@ class InitPixivisionPage extends InitPageBase {
   }
 
   protected setFormOption() {
-    options.hideOption([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 18])
+    options.hideOption([
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      14,
+      15,
+      16,
+      18,
+      19
+    ])
 
-    // pixivision 里，文件名只有 id 标记会生效，所以把文件名部分替换成 id
+    // pixivision 里，文件名只有 id 标记会生效，所以把文件名规则替换成 id
     form.userSetName.value = '{p_title}/{id}'
   }
 

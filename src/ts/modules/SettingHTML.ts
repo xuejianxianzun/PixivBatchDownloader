@@ -32,7 +32,7 @@ const formHtml = `<form class="settingForm">
   <p class="option" data-no="3">
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_怎样下载多图作品'
-  )}">${lang.transl('_多图作品设置')}<span class="gray1"> ? </span></span>
+  )}">${lang.transl('_多图下载设置')}<span class="gray1"> ? </span></span>
   <input type="radio" name="multipleImageWorks" id="multipleImageWorks1" class="need_beautify radio" value="0">
   <span class="beautify_radio"></span>
   <label for="multipleImageWorks1"> ${lang.transl('_全部下载')}&nbsp; </label>
@@ -166,6 +166,29 @@ const formHtml = `<form class="settingForm">
   <input type="text" name="notNeedTag" class="setinput_style1 blue setinput_tag">
   </span>
   </p>
+  <p class="option" data-no="19">
+  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+    '_多图建立目录提示'
+  )}">${lang.transl('_多图建立目录')}<span class="gray1"> ? </span></span>
+  <input type="checkbox" name="multipleImageDir" id="setMultipleImageDir" class="need_beautify checkbox_switch" >
+  <span class="beautify_switch"></span>
+  </p>
+  <p class="option" data-no="15">
+  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+    '_快速下载建立文件夹提示'
+  )}">${lang.transl('_快速下载建立文件夹')}<span class="gray1"> ? </span></span>
+  <input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" class="need_beautify checkbox_switch" >
+  <span class="beautify_switch"></span>
+  </p>
+  <p class="option" data-no="14">
+  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+    '_添加字段名称提示'
+  )}">${lang.transl('_添加字段名称')}<span class="gray1"> ? </span></span>
+  <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch" checked>
+  <span class="beautify_switch"></span>
+  &nbsp;&nbsp;&nbsp;
+  <span class="showFileNameResult"> ${lang.transl('_预览文件名')}</span>
+  </p>
   <p class="option" data-no="13">
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_设置文件夹名的提示'
@@ -249,22 +272,6 @@ const formHtml = `<form class="settingForm">
   ${lang.transl('_命名标记13')}
   <br>
   ${lang.transl('_命名标记提醒')}
-  </p>
-  <p class="option" data-no="14">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_添加字段名称提示'
-  )}">${lang.transl('_添加字段名称')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch" checked>
-  <span class="beautify_switch"></span>
-  &nbsp;&nbsp;&nbsp;
-  <span class="showFileNameResult"> ${lang.transl('_预览文件名')}</span>
-  </p>
-  <p class="option" data-no="15">
-  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-    '_快速下载建立文件夹提示'
-  )}">${lang.transl('_快速下载建立文件夹')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" class="need_beautify checkbox_switch" >
-  <span class="beautify_switch"></span>
   </p>
   <p class="option" data-no="16">
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(

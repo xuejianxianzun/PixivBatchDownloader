@@ -17,6 +17,7 @@ interface XzSetting {
   userSetName: string
   tagNameToFileName: boolean
   alwaysFolder: boolean
+  multipleImageDir: boolean
   showOptions: boolean
   postDate: boolean
   postDateStart: string
@@ -84,6 +85,7 @@ class SaveSettings {
     userSetName: '{id}',
     tagNameToFileName: true,
     alwaysFolder: true,
+    multipleImageDir: false,
     showOptions: true,
     postDate: false,
     postDateStart: '',
@@ -209,6 +211,9 @@ class SaveSettings {
     // 设置是否始终建立文件夹
     this.restoreBoolean('alwaysFolder')
 
+    // 设置是否为多图作品自动建立文件夹
+    this.restoreBoolean('multipleImageDir')
+
     // 设置预览搜索结果
     this.restoreBoolean('previewResult')
   }
@@ -311,6 +316,9 @@ class SaveSettings {
 
     // 保存是否始终建立文件夹
     this.saveCheckBox('alwaysFolder')
+
+    // 保存是否为多图作品自动建立文件夹
+    this.saveCheckBox('multipleImageDir')
 
     // 保存自动下载
     this.saveCheckBox('quietDownload')
