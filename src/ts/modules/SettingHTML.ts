@@ -195,14 +195,13 @@ const formHtml = `<form class="settingForm">
   )}">${lang.transl('_设置文件名')}<span class="gray1"> ? </span></span>
   <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
   &nbsp;
-  <select name="pageInfoSelect" id="pageInfoSelect">
-  </select>
-  &nbsp;
   <select name="fileNameSelect">
     <option value="default">…</option>
     <option value="{id}">{id}</option>
     <option value="{title}">{title}</option>
+    <option value="{p_title}">{p_title}</option>
     <option value="{tags}">{tags}</option>
+    <option value="{p_tag}">{p_tag}</option>
     <option value="{tags_translate}">{tags_translate}</option>
     <option value="{user}">{user}</option>
     <option value="{userid}">{userid}</option>
@@ -220,26 +219,20 @@ const formHtml = `<form class="settingForm">
   <p class="fileNameTip tip">
   <strong>${lang.transl('_设置文件夹名的提示').replace('<br>', '. ')}</strong>
   <br>
-  <span class="blue">{p_user}</span>
-  ${lang.transl('_文件夹标记PUser')}
-  <br>
-  <span class="blue">{p_uid}</span>
-  ${lang.transl('_文件夹标记PUid')}
-  <br>
-  <span class="blue">{p_tag}</span>
-  ${lang.transl('_文件夹标记PTag')}
-  <br>
-  <span class="blue">{p_title}</span>
-  ${lang.transl('_文件夹标记PTitle')}
-  <br>
   <span class="blue">{id}</span>
   ${lang.transl('_命名标记1')}
   <br>
   <span class="blue">{title}</span>
   ${lang.transl('_命名标记2')}
   <br>
+  <span class="blue">{p_title}</span>
+  ${lang.transl('_文件夹标记PTitle')}
+  <br>
   <span class="blue">{tags}</span>
   ${lang.transl('_命名标记3')}
+  <br>
+  <span class="blue">{p_tag}</span>
+  ${lang.transl('_文件夹标记PTag')}
   <br>
   <span class="blue">{tags_translate}</span>
   ${lang.transl('_命名标记11')}

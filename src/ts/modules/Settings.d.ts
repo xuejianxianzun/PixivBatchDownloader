@@ -24,7 +24,6 @@ export interface SettingsForm extends HTMLFormElement {
   quietDownload: HTMLInputElement
   downloadThread: HTMLInputElement
   userSetName: HTMLInputElement
-  pageInfoSelect: HTMLSelectElement
   fileNameSelect: HTMLSelectElement
   tagNameToFileName: HTMLInputElement
   alwaysFolder: HTMLInputElement

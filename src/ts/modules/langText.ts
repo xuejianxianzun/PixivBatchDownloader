@@ -48,7 +48,7 @@ const langText = {
   ],
   _排除tag的提示文字: [
     '您可在下载前设置要排除的tag，这样在下载时将不会下载含有这些tag的作品。不区分大小写；如需排除多个tag，请使用英文逗号分隔。请注意要排除的tag的优先级大于要包含的tag的优先级。',
-    "ダウンロード前に、除外する tag を設定できます。大文字と小文字を区別しない；複数の tag を設定する必要がある場合は、「,」で区切ってください。除外された tag は、必要な tag よりも優先されます",
+    'ダウンロード前に、除外する tag を設定できます。大文字と小文字を区別しない；複数の tag を設定する必要がある場合は、「,」で区切ってください。除外された tag は、必要な tag よりも優先されます',
     "Before downloading, you can set the tag you want to exclude. Not case sensitive; If you need to set multiple tags, you can use ',' separated. The excluded tag takes precedence over the included tag",
     '您可在下載前設定要排除的tag，這樣在下載時將不會下載含有這些tag的作品。不區分大小寫；如需排除多個tag，請使用英文逗號分隔。請注意要排除的tag的優先等級大於要包含的tag的優先等級。'
   ],
@@ -66,7 +66,7 @@ const langText = {
   ],
   _必须tag的提示文字: [
     '您可在下载前设置作品里必须包含的tag，不区分大小写；如需包含多个tag，请使用英文逗号分隔。',
-    "ダウンロードする前に、必要な tag を設定することができます。大文字と小文字を区別しない；複数の tag を設定する必要がある場合は、「,」で区切ってください。",
+    'ダウンロードする前に、必要な tag を設定することができます。大文字と小文字を区別しない；複数の tag を設定する必要がある場合は、「,」で区切ってください。',
     "Before downloading, you can set the tag that must be included. Not case sensitive; If you need to set multiple tags, you can use ',' separated. ",
     '您可在下載前設定作品裡必須包含的tag，不區分大小寫；如需包含多個tag，請使用英文逗號分隔。'
   ],
@@ -259,7 +259,7 @@ const langText = {
   ],
   _请输入最低收藏数和要抓取的页数: [
     '请输入最低收藏数和要抓取的页数，用英文逗号分开。\n类似于下面的形式: \n1000,1000',
-    "ボックマークの最小数とクロールするページ数を，「,」で区切って入力してください。\n例えば：\n1000,1000",
+    'ボックマークの最小数とクロールするページ数を，「,」で区切って入力してください。\n例えば：\n1000,1000',
     "Please type the minimum number of bookmarks, and the number of pages to be crawled, separated by ','.\nE.g:\n1000,1000",
     '請輸入最低收藏數和要擷取的頁數，用英文逗號分開。\n類似於下面的形式: \n1000,1000'
   ],
@@ -612,10 +612,10 @@ const langText = {
     '作品的建立日期，格式為 yyyy-MM-dd。如 2019-08-29'
   ],
   _命名标记13: [
-    '作品在排行榜中的排名。如 #1、#2 ……',
-    'リーダーボードでの作品のランキング。 ＃1、＃2 など ...',
-    'The ranking of the work in the ranking list. Such as #1, #2 ...',
-    '作品在排行榜中的排名，如 #1、#2 ……'
+    '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜页面中使用。',
+    'リーダーボードでの作品のランキング。 ＃1、＃2 など ... リーダーボードページでのみ使用できます。',
+    'The ranking of the work in the ranking pages. Such as #1, #2 ... Can only be used in ranking pages.',
+    '作品在排行榜中的排名，如 #1、#2 …… 只能在排行榜頁面中使用。'
   ],
   _命名标记14: [
     '作品类型，分为 illustration、manga、ugoira',
@@ -629,23 +629,11 @@ const langText = {
     'You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}<br>Be sure to include {id} or {id_num}.<br>* In some cases, some tags will not be available.',
     '您可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{userid}<br>一定要包含 {id} 或者 {id_num}。<br>* 在某些情況下，會有一些標記不可用。'
   ],
-  _文件夹标记PUser: [
-    '当前页面的画师名字',
-    'アーティスト名',
-    'Artist name of this page',
-    '目前頁面的畫師名稱'
-  ],
-  _文件夹标记PUid: [
-    '当前页面的画师id',
-    'アーティスト id',
-    'Artist id of this page',
-    '目前頁面的畫師id'
-  ],
   _文件夹标记PTag: [
-    '当前页面的 tag',
-    '現在の tag',
-    'Current tag',
-    '目前頁面的 tag'
+    '当前页面的 tag。当前页面没有 tag 时不可用。',
+    '現在のページのタグ。 現在のページにタグがない場合は使用できません。',
+    'The tag of the current page. Not available if the current page has no tag.',
+    '目前頁面的 tag。目前頁面沒有 tag 時不可用。'
   ],
   _文件夹标记PTitle: [
     '当前页面的标题',
@@ -998,7 +986,12 @@ const langText = {
     'When downloading quickly, if there is only one picture, a directory is also created',
     '快速下載時，若只有一張圖片，也會建立資料夾'
   ],
-  _设置id范围: ['设置 id 范围', 'id 範囲を設定', 'Set id range', '設定 id 範圍'],
+  _设置id范围: [
+    '设置 id 范围',
+    'id 範囲を設定',
+    'Set id range',
+    '設定 id 範圍'
+  ],
   _设置id范围提示: [
     '您可以输入一个作品 id，抓取比它新或者比它旧的作品',
     '1 つの作品 id を入力することで、それより新しいあるいは古い作品をクロールことができます',
@@ -1080,6 +1073,12 @@ const langText = {
     'マルチイメージをダウンロードする時、自動的に作品 id を使ってフォルダを作成し、中のイラストを保存することができます。',
     'When you download a multi-image work, the downloader can automatically create a directory with the work id and save the images inside.',
     '當你下載多圖作品時，下載器可以使用作品 id 自動創建一個目錄，保存裏面的圖片。'
+  ],
+  _xzNew420: [
+    '移除了命名标记：{p_user} {p_uid}。',
+    '名前付きタグ{p_user} {p_uid}を削除しました。',
+    'Removed naming tag: {p_user} {p_uid}.',
+    '移除了命名标记：{p_user} {p_uid}。'
   ]
 }
 

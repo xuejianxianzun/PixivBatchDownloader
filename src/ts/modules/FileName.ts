@@ -51,22 +51,6 @@ class FileName {
     // 储存每个文件名标记的配置
     const cfg = [
       {
-        name: '{p_user}',
-        // 标记
-        value: store.pageInfo.pageUserName,
-        // 值
-        prefix: '',
-        // 添加在前面的标记
-        safe: false
-        // 是否是安全的文件名。如果可能包含一些特殊字符，就不安全，要进行替换
-      },
-      {
-        name: '{p_uid}',
-        value: store.pageInfo.pageUserID || '',
-        prefix: '',
-        safe: true
-      },
-      {
         name: '{p_title}',
         value: store.pageInfo.pageTitle,
         prefix: '',

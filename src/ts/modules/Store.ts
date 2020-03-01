@@ -135,8 +135,6 @@ class Store {
   // 储存页面信息，用来生成文件名
   public pageInfo = {
     pageTitle: '',
-    pageUserName: '',
-    pageUserID: '',
     pageTag: ''
   }
 

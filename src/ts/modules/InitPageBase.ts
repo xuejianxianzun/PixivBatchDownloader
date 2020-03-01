@@ -197,7 +197,7 @@ abstract class InitPageBase {
 
     filter.init()
 
-    await pageInfo.store()
+    pageInfo.store()
 
     // 进入第一个抓取方法
     this.nextStep()

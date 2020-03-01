@@ -94,7 +94,6 @@ class Settings {
     }
 
     // 把下拉框的选择项插入到文本框里
-    this.insertValueToInput(this.form.pageInfoSelect, this.form.userSetName)
     this.insertValueToInput(this.form.fileNameSelect, this.form.userSetName)
   }
 
