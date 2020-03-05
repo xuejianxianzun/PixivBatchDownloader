@@ -613,7 +613,7 @@ const langText = {
   ],
   _命名标记13: [
     '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜页面中使用。',
-    'リーダーボードでの作品のランキング。 ＃1、＃2 など ... リーダーボードページでのみ使用できます。',
+    '作品のランキング。例え　#1、#2 …… ランキングページのみで使用できます。',
     'The ranking of the work in the ranking pages. Such as #1, #2 ... Can only be used in ranking pages.',
     '作品在排行榜中的排名，如 #1、#2 …… 只能在排行榜頁面中使用。'
   ],
@@ -631,7 +631,7 @@ const langText = {
   ],
   _文件夹标记PTag: [
     '当前页面的 tag。当前页面没有 tag 时不可用。',
-    '現在のページのタグ。 現在のページにタグがない場合は使用できません。',
+    '現在のページの tag。現在のページの tag がないときは使用できません。',
     'The tag of the current page. Not available if the current page has no tag.',
     '目前頁面的 tag。目前頁面沒有 tag 時不可用。'
   ],
@@ -1076,9 +1076,9 @@ const langText = {
   ],
   _xzNew420: [
     '移除了命名标记：{p_user} {p_uid}。',
-    '名前付きタグ{p_user} {p_uid}を削除しました。',
+    'ネーミングタグ {p_user} {p_uid} が削除されました。',
     'Removed naming tag: {p_user} {p_uid}.',
-    '移除了命名标记：{p_user} {p_uid}。'
+    '移除了命名標記：{p_user} {p_uid}。'
   ]
 }
 

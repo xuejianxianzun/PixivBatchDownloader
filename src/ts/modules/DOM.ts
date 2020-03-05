@@ -52,11 +52,18 @@ class DOM {
     return el
   }
 
+  // 动态添加 css 样式
+  static addStyle(css: string) {
+    const e = document.createElement('style')
+    e.innerHTML = css
+    document.body.append(e)
+  }
+
   // 获取用户 id
   // 这是一个不够可靠的 api
+  // 测试：在 https://www.pixiv.net/artworks/79399027 获取 userid ，正确的结果应该是 13895186
   static getUserId() {
-    const newRegExp = /\/users\/(\d+)/ // 匹配新版用户页面 url 里的 id
-    // 获取 /users/ 后面连续的数字部分
+    const newRegExp = /\/users\/(\d+)/ // 获取 /users/ 后面连续的数字部分，也就是用户的 id
 
     // 列表页里从 url 中获取
     const test4 = newRegExp.exec(location.pathname)
@@ -66,9 +73,11 @@ class DOM {
 
     // 获取包含用户 id 的元素，注意这些选择器可能会变，需要进行检查
     const testA: HTMLAnchorElement | null =
-      document.querySelector('.sc-LzOjR a') ||
-      document.querySelector('a.sc-LzMhS')
+      document.querySelector('.sc-LzOjP a') ||
+      document.querySelector('aside a') ||
+      document.querySelector('nav a')
     // 第一个元素是作品页内，作品下方的作者头像区域的 a 标签
+    // 第一个元素是作品页内，页面右侧作者信息区域的 a 标签
     // 第二个元素是用户主页或列表页里，“主页”按钮的 a 标签
     if (testA && testA.href) {
       const test5 = newRegExp.exec(testA.href)
