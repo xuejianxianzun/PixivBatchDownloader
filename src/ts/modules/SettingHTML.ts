@@ -198,18 +198,18 @@ const formHtml = `<form class="settingForm">
   <select name="fileNameSelect">
     <option value="default">…</option>
     <option value="{id}">{id}</option>
+    <option value="{user}">{user}</option>
+    <option value="{userid}">{userid}</option>
     <option value="{title}">{title}</option>
     <option value="{p_title}">{p_title}</option>
     <option value="{tags}">{tags}</option>
-    <option value="{p_tag}">{p_tag}</option>
     <option value="{tags_translate}">{tags_translate}</option>
-    <option value="{user}">{user}</option>
-    <option value="{userid}">{userid}</option>
+    <option value="{p_tag}">{p_tag}</option>
     <option value="{type}">{type}</option>
-    <option value="{date}">{date}</option>
     <option value="{bmk}">{bmk}</option>
-    <option value="{px}">{px}</option>
     <option value="{rank}">{rank}</option>
+    <option value="{date}">{date}</option>
+    <option value="{px}">{px}</option>
     <option value="{id_num}">{id_num}</option>
     <option value="{p_num}">{p_num}</option>
     </select>
@@ -220,49 +220,49 @@ const formHtml = `<form class="settingForm">
   <strong>${lang.transl('_设置文件夹名的提示').replace('<br>', '. ')}</strong>
   <br>
   <span class="blue">{id}</span>
-  ${lang.transl('_命名标记1')}
+  ${lang.transl('_命名标记id')}
+  <br>
+  <span class="blue">{user}</span>
+  ${lang.transl('_命名标记user')}
+  <br>
+  <span class="blue">{userid}</span>
+  ${lang.transl('_命名标记userid')}
   <br>
   <span class="blue">{title}</span>
-  ${lang.transl('_命名标记2')}
+  ${lang.transl('_命名标记title')}
   <br>
   <span class="blue">{p_title}</span>
   ${lang.transl('_文件夹标记PTitle')}
   <br>
   <span class="blue">{tags}</span>
-  ${lang.transl('_命名标记3')}
+  ${lang.transl('_命名标记tags')}
+  <br>
+  <span class="blue">{tags_translate}</span>
+  ${lang.transl('_命名标记tags_trans')}
   <br>
   <span class="blue">{p_tag}</span>
   ${lang.transl('_文件夹标记PTag')}
   <br>
-  <span class="blue">{tags_translate}</span>
-  ${lang.transl('_命名标记11')}
-  <br>
-  <span class="blue">{user}</span>
-  ${lang.transl('_命名标记4')}
-  <br>
-  <span class="blue">{userid}</span>
-  ${lang.transl('_命名标记6')}
-  <br>
-  <span class="blue">{date}</span>
-  ${lang.transl('_命名标记12')}
-  <br>
   <span class="blue">{type}</span>
-  ${lang.transl('_命名标记14')}
+  ${lang.transl('_命名标记type')}
   <br>
   <span class="blue">{bmk}</span>
-  ${lang.transl('_命名标记8')}
+  ${lang.transl('_命名标记bmk')}
+  <br>
+  <span class="blue">{rank}</span>
+  ${lang.transl('_命名标记rank')}
+  <br>
+  <span class="blue">{date}</span>
+  ${lang.transl('_命名标记date')}
   <br>
   <span class="blue">{px}</span>
-  ${lang.transl('_命名标记7')}
+  ${lang.transl('_命名标记px')}
   <br>
   <span class="blue">{id_num}</span>
   ${lang.transl('_命名标记9')}
   <br>
   <span class="blue">{p_num}</span>
-  ${lang.transl('_命名标记10')}
-  <br>
-  <span class="blue">{rank}</span>
-  ${lang.transl('_命名标记13')}
+  ${lang.transl('_命名标记p_num')}
   <br>
   ${lang.transl('_命名标记提醒')}
   </p>

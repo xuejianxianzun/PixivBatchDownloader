@@ -565,23 +565,23 @@ const langText = {
     'View the meaning of the tag',
     '檢視標記的意義'
   ],
-  _命名标记1: [
+  _命名标记id: [
     '默认文件名，如 44920385_p0',
     'デフォルトのファイル名，例 44920385_p0',
     'Default file name, for example 44920385_p0',
     '預設檔案名稱，如 44920385_p0'
   ],
-  _命名标记2: ['作品标题', '作品のタイトル', 'works title', '作品標題'],
-  _命名标记3: [
+  _命名标记title: ['作品标题', '作品のタイトル', 'works title', '作品標題'],
+  _命名标记tags: [
     '作品的 tag 列表',
     '作品の tags',
     'The tags of the work',
     '作品的 tag 清單'
   ],
-  _命名标记4: ['画师名字', 'アーティスト名', 'Artist name', '畫師名稱'],
-  _命名标记6: ['画师 id', 'アーティスト ID', 'Artist id', '畫師 id'],
-  _命名标记7: ['宽度和高度', '幅と高さ', 'width and height', '寬度和高度'],
-  _命名标记8: [
+  _命名标记user: ['画师名字', 'アーティスト名', 'Artist name', '畫師名稱'],
+  _命名标记userid: ['画师 id', 'アーティスト ID', 'Artist id', '畫師 id'],
+  _命名标记px: ['宽度和高度', '幅と高さ', 'width and height', '寬度和高度'],
+  _命名标记bmk: [
     'bookmark-count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
     'bookmark-count，作品のボックマークの数、前に追加することでボックマーク数で并べることができます。',
     'bookmark-count, bookmarks number of works.',
@@ -593,31 +593,31 @@ const langText = {
     'Number id, for example 44920385',
     '數字 id，如 44920385'
   ],
-  _命名标记10: [
+  _命名标记p_num: [
     '图片在作品内的序号，如 0、1、2 …… 每个作品都会重新计数。',
     '0、1、2 など、作品の画像のシリアル番号。各ピースは再集計されます。',
     'The serial number of the picture in the work, such as 0, 1, 2 ... Each work will be recounted.',
     '圖片在作品內的序號，如 0、1、2 …… 每個作品都將重新計數。'
   ],
-  _命名标记11: [
+  _命名标记tags_trans: [
     '作品的 tag 列表，附带翻译后的 tag（如果有）',
     '作品の tag リスト、翻訳付き tag (あれば)',
     'The tags of the work, with the translated tag (if any)',
     '作品的 tag 清單，附帶翻譯後的 tag（若有的話）'
   ],
-  _命名标记12: [
+  _命名标记date: [
     '作品的创建日期，格式为 yyyy-MM-dd。如 2019-08-29',
     '作品の作成日は yyyy-MM-dd の形式でした。 2019-08-29 など',
     'The date the creation of the work was in the format yyyy-MM-dd. Such as 2019-08-29',
     '作品的建立日期，格式為 yyyy-MM-dd。如 2019-08-29'
   ],
-  _命名标记13: [
+  _命名标记rank: [
     '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜页面中使用。',
     '作品のランキング。例え　#1、#2 …… ランキングページのみで使用できます。',
     'The ranking of the work in the ranking pages. Such as #1, #2 ... Can only be used in ranking pages.',
     '作品在排行榜中的排名，如 #1、#2 …… 只能在排行榜頁面中使用。'
   ],
-  _命名标记14: [
+  _命名标记type: [
     '作品类型，分为 illustration、manga、ugoira',
     '作品分類は、illustration、manga、ugoira',
     'The type of work, divided into illustration, manga, ugoira',
