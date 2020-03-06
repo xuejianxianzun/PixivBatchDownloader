@@ -615,7 +615,7 @@ const langText = {
     '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜页面中使用。',
     '作品のランキング。例え　#1、#2 …… ランキングページのみで使用できます。',
     'The ranking of the work in the ranking pages. Such as #1, #2 ... Can only be used in ranking pages.',
-    '作品在排行榜中的排名，如 #1、#2 …… 只能在排行榜頁面中使用。'
+    '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜頁面中使用。'
   ],
   _命名标记type: [
     '作品类型，分为 illustration、manga、ugoira',
@@ -633,7 +633,7 @@ const langText = {
     '当前页面的 tag。当前页面没有 tag 时不可用。',
     '現在のページの tag。現在のページの tag がないときは使用できません。',
     'The tag of the current page. Not available if the current page has no tag.',
-    '目前頁面的 tag。目前頁面沒有 tag 時不可用。'
+    '目前頁面的 tag。目前頁面沒有 tag 時無法使用。'
   ],
   _文件夹标记PTitle: [
     '当前页面的标题',

@@ -6167,11 +6167,11 @@
         ] {
           constructor() {
             super()
-            this.listClass = 'cgQBju'
-            this.multipleClass = 'eBtMMq'
-            this.ugoiraClass = 'cuhHJi'
-            this.countClass = 'hBpQZB'
-            this.hotWorkBarClass = 'hCzLn'
+            this.listClass = 'jwiybC'
+            this.multipleClass = 'cFZsbP'
+            this.ugoiraClass = 'cAXUcw'
+            this.countClass = 'bTLfVL'
+            this.hotWorkBarClass = 'hlGCV'
             this.worksType = ''
             this.option = {}
             this.worksNoPerPage = 60 // 每个页面有多少个作品
@@ -6221,23 +6221,40 @@
                 return
               }
               const data = event.detail.data
+              let r18HTML = ''
+              if (data.tags.includes('R-18') || data.tags.includes('R-18G')) {
+                r18HTML = `
+      <div class="sc-fzXfPe cIeZEc">
+        <div class="sc-fzXfPf hRPdEx">
+          <div class="sc-fzXfPb fgMYNr">R-18</div>
+        </div>
+      </div>`
+              }
               let multipleHTML = ''
               if (data.pageCount > 1) {
                 multipleHTML = `
         <div class="sc-fzXfOZ ${this.multipleClass}">
-                  <svg viewBox="0 0 9 10" width="9" height="10" class="sc-fzXfOY cxLkwY">
-                      <path d="M8,3 C8.55228475,3 9,3.44771525 9,4 L9,9 C9,9.55228475 8.55228475,10 8,10 L3,10
-        C2.44771525,10 2,9.55228475 2,9 L6,9 C7.1045695,9 8,8.1045695 8,7 L8,3 Z M1,1 L6,1
-        C6.55228475,1 7,1.44771525 7,2 L7,7 C7,7.55228475 6.55228475,8 6,8 L1,8 C0.44771525,8 0,7.55228475 0,7 L0,2
-        C0,1.44771525 0.44771525,1 1,1 Z"></path>
-                    </svg><span class="sc-fzXfOX cxCNSP">${data.pageCount}</span></div>
+          <div class="sc-fzXfPK bTLfVL">
+            <span class="sc-fzXfPL ctZleZ">
+              <span class="sc-fzXfOZ gWabmY">
+              <svg viewBox="0 0 9 10" size="9" class="sc-fzXfPa gsSlkp">
+                <path d="M8,3 C8.55228475,3 9,3.44771525 9,4 L9,9 C9,9.55228475 8.55228475,10 8,10 L3,10
+                C2.44771525,10 2,9.55228475 2,9 L6,9 C7.1045695,9 8,8.1045695 8,7 L8,3 Z M1,1 L6,1
+                C6.55228475,1 7,1.44771525 7,2 L7,7 C7,7.55228475 6.55228475,8 6,8 L1,8 C0.44771525,8
+                0,7.55228475 0,7 L0,2 C0,1.44771525 0.44771525,1 1,1 Z" transform=""></path>
+                </svg>
+              </span>
+            </span>
+            <span>${data.pageCount}</span>
+          </div>  
+        </div>
                     `
               }
               let ugoiraHTML = ''
               if (data.ugoiraInfo) {
                 ugoiraHTML = `
-        <svg viewBox="0 0 24 24" class="sc-fzXfOy exulVQ sc-fzXfPK ${this.ugoiraClass}" style="width: 48px; height: 48px;">
-          <circle cx="12" cy="12" r="10" class="sc-fzXfOz cxuroG"></circle>
+        <svg viewBox="0 0 24 24" class="sc-fzXfPN ikgxTh sc-fzXfQV ${this.ugoiraClass}" style="width: 48px; height: 48px;">
+        <circle cx="12" cy="12" r="10" class="sc-fzXfQl cEBwQm"></circle>
           <path d="M9,8.74841664 L9,15.2515834 C9,15.8038681 9.44771525,16.2515834 10,16.2515834
               C10.1782928,16.2515834 10.3533435,16.2039156 10.5070201,16.1135176 L16.0347118,12.8619342
               C16.510745,12.5819147 16.6696454,11.969013 16.3896259,11.4929799
@@ -6246,26 +6263,17 @@
               C9.04766776,8.39507316 9,8.57012386 9,8.74841664 Z"></path>
         </svg>`
               }
-              let r18HTML = ''
-              if (data.tags.includes('R-18') || data.tags.includes('R-18G')) {
-                r18HTML = `
-      <div class="sc-fzXfPe cFaMCN">
-        <div class="sc-fzXfPf cFrFLf">
-          <div class="sc-fzXfPb bxTLrX">R-18</div>
-        </div>
-      </div>`
-              }
               const tagString = encodeURI(data.tags.join(' '))
               // 添加收藏的作品，让收藏图标变红
               const bookmarkedClass = 'bookmarked'
               const bookmarkedFlag = data.bookmarked ? bookmarkedClass : ''
               const html = `
     <li class="sc-LzNRw ${this.listClass}" data-id="${data.idNum}">
-    <div class="sc-fzXfQr kdyxwg">
-      <div class="sc-fzXfQp fZYmEz">
-        <div width="184" height="184" class="sc-fzXfPc cVLIZo"><a target="_blank" class="sc-fzXfPH jNJsPM" href="/artworks/${data.idNum}">
+    <div class="sc-fzXfQr gUjiNl">
+      <div class="sc-fzXfQp ceXgPg">
+        <div width="184" height="184" class="sc-fzXfPc joHiTY"><a target="_blank" class="sc-fzXfPH juvOtu" href="/artworks/${data.idNum}">
             <!--顶部横幅-->
-            <div class="sc-fzXfPd cESpYE">
+            <div class="sc-fzXfPd cBFGtg">
 
             <!--R-18 标记-->
             ${r18HTML}
@@ -6275,10 +6283,8 @@
               
             </div>
             <!--图片部分-->
-            <div class="sc-fzXfPL fgUlAI">
-            <img src="${data.thumb}"
-                   alt="${data.title}" class="sc-fzXfPM hlJMLD"
-                   style="object-fit: cover; object-position: center center;">
+            <div class="sc-fzXfPL XbvQS">
+            <img src="${data.thumb}" alt="${data.title}" class="sc-fzXfPM jkVDzj" style="object-fit: cover; object-position: center center;">
               <!-- 动图 svg -->
               ${ugoiraHTML}
               </div>
@@ -6286,7 +6292,7 @@
           <!--添加显示收藏数-->
           <div class="xz-bmkCount">${data.bmk}</div>
           <!--收藏按钮-->
-          <div class="sc-fzXfQq cAHaUe">
+          <div class="sc-fzXfQq hSNJdz">
             <div class="">
             <!-- button 添加了私有的 xz-addBMK 需要保留-->
             <button type="button" class="sc-fzXfOw cqEeVs xz-addBMK">
@@ -6307,14 +6313,14 @@
         </div>
       </div>
       <!--标题名-->
-      <a target="_blank" class="sc-fzXfQs bqTFBg" href="/artworks/${data.idNum}">${data.title}</a>
+      <a target="_blank" class="sc-fzXfQs hFVhqR" href="/artworks/${data.idNum}">${data.title}</a>
       <!--底部-->
-      <div class="sc-fzXfQl cFAcpo">
+      <div class="sc-fzXfQl hRXAiG">
       <!--作者信息-->
-      <div class="sc-fzXfQm cFIyTx">
+      <div class="sc-fzXfQm hSfWMP">
       <!--相比原代码，这里去掉了作者头像的 html 代码。因为抓取到的数据里没有作者头像。-->
           <a target="_blank" href="/member.php?id=${data.userid}">
-            <div class="sc-fzXfQo cFKNBu">${data.user}</div>
+            <div class="sc-fzXfQo kITUvc">${data.user}</div>
           </a>
         </div>
       </div>
@@ -6443,9 +6449,11 @@
                 const premiumLink = hotWorkAside.nextSibling
                 premiumLink && premiumLink.remove()
                 // 去掉遮挡后两个作品的 after。因为是伪元素，所以要通过 css 控制
-                const style = `.${this.hotWorkBarClass} ul::after{
-        display:none !important;
-      }`
+                const style = `
+        .${this.hotWorkBarClass} ul::after{
+          display:none !important;
+        }
+        `
                 _DOM__WEBPACK_IMPORTED_MODULE_16__['DOM'].addStyle(style)
               }
             }, 500)
@@ -10278,7 +10286,7 @@
             '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜页面中使用。',
             '作品のランキング。例え　#1、#2 …… ランキングページのみで使用できます。',
             'The ranking of the work in the ranking pages. Such as #1, #2 ... Can only be used in ranking pages.',
-            '作品在排行榜中的排名，如 #1、#2 …… 只能在排行榜頁面中使用。'
+            '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜頁面中使用。'
           ],
           _命名标记type: [
             '作品类型，分为 illustration、manga、ugoira',
@@ -10296,7 +10304,7 @@
             '当前页面的 tag。当前页面没有 tag 时不可用。',
             '現在のページの tag。現在のページの tag がないときは使用できません。',
             'The tag of the current page. Not available if the current page has no tag.',
-            '目前頁面的 tag。目前頁面沒有 tag 時不可用。'
+            '目前頁面的 tag。目前頁面沒有 tag 時無法使用。'
           ],
           _文件夹标记PTitle: [
             '当前页面的标题',
