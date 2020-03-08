@@ -172,6 +172,17 @@ const formHtml = `<form class="settingForm">
   )}">${lang.transl('_多图建立目录')}<span class="gray1"> ? </span></span>
   <input type="checkbox" name="multipleImageDir" id="setMultipleImageDir" class="need_beautify checkbox_switch" >
   <span class="beautify_switch"></span>
+  <span class="subOptionWrap" data-show="multipleImageDir">
+  <span>${lang.transl('_目录名使用')}</span>
+  <input type="radio" name="multipleImageFolderName" id="multipleImageFolderName1" class="need_beautify radio" value="1" checked>
+  <span class="beautify_radio"></span>
+  <label for="multipleImageFolderName1"> ID&nbsp; </label>
+  <input type="radio" name="multipleImageFolderName" id="multipleImageFolderName2" class="need_beautify radio" value="2">
+  <span class="beautify_radio"></span>
+  <label for="multipleImageFolderName2"> ${lang.transl(
+    '_命名规则'
+  )}&nbsp; </label>
+  </span>
   </p>
   <p class="option" data-no="15">
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(

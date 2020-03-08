@@ -2720,11 +2720,27 @@
                 .checked &&
               data.dlCount > 1
             ) {
-              // 操作路径中最后一项（即文件名），在它前面添加一层文件夹，文件夹名为 id
+              // 操作路径中最后一项（即文件名），在它前面添加一层文件夹
               const allPart = result.split('/')
               const lastPartIndex = allPart.length - 1
               let lastPart = allPart[lastPartIndex]
-              lastPart = data.idNum + '/' + lastPart
+              let addString = ''
+              if (
+                _Settings__WEBPACK_IMPORTED_MODULE_1__['form']
+                  .multipleImageFolderName.value === '1'
+              ) {
+                // 使用作品 id 作为文件夹名
+                addString = data.idNum.toString()
+              } else if (
+                _Settings__WEBPACK_IMPORTED_MODULE_1__['form']
+                  .multipleImageFolderName.value === '2'
+              ) {
+                // 遵从命名规则，使用文件名做文件夹名
+                // 这里进行了一个替换，因为多图每个图片的名字都不同，这主要是因为 id 后面的序号不同。这会导致文件夹名也不同，有多少个文件就会建立多少个文件夹，而不是统一建立一个文件夹。为了只建立一个文件夹，需要把 id 后面的序号部分去掉。
+                // 但是如果一些特殊的命名规则并没有包含 {id} 部分，文件名的区别得不到处理，依然会每个文件建立一个文件夹。
+                addString = lastPart.replace(data.id, data.idNum.toString())
+              }
+              lastPart = addString + '/' + lastPart
               allPart[lastPartIndex] = lastPart
               result = allPart.join('/')
             }
@@ -8283,7 +8299,7 @@
             this.storeName = 'xzSetting'
             // 需要持久化保存的设置的默认值
             this.optionDefault = {
-              multipleImageWorks: 0,
+              multipleImageWorks: '0',
               firstFewImages: 1,
               downType0: true,
               downType1: true,
@@ -8297,6 +8313,7 @@
               tagNameToFileName: false,
               alwaysFolder: true,
               multipleImageDir: false,
+              multipleImageFolderName: '1',
               showOptions: true,
               postDate: false,
               postDateStart: '',
@@ -8424,6 +8441,8 @@
             this.restoreBoolean('alwaysFolder')
             // 设置是否为多图作品自动建立文件夹
             this.restoreBoolean('multipleImageDir')
+            // 设置多图作品建立文件夹时的文件名规则
+            this.restoreString('multipleImageFolderName')
             // 设置预览搜索结果
             this.restoreBoolean('previewResult')
           }
@@ -8484,14 +8503,14 @@
             this.saveCheckBox('ratioSwitch')
             this.saveRadio('ratio')
             this.saveTextInput('userRatio')
-            // 保存 id 范围
-            this.saveRadio('idRange')
             // 保存投稿时间
             this.saveCheckBox('postDate')
             this.saveTextInput('postDateStart')
             this.saveTextInput('postDateEnd')
             // 保存 id 范围开关
             this.saveCheckBox('idRangeSwitch')
+            // 保存 id 范围
+            this.saveRadio('idRange')
             // 保存必须的 tag 设置
             this.saveCheckBox('needTagSwitch')
             this.saveTextInput('needTag')
@@ -8511,6 +8530,8 @@
             this.saveCheckBox('alwaysFolder')
             // 保存是否为多图作品自动建立文件夹
             this.saveCheckBox('multipleImageDir')
+            // 保存多图建立文件夹时的命名规则
+            this.saveRadio('multipleImageFolderName')
             // 保存自动下载
             this.saveCheckBox('quietDownload')
             // 保存下载线程
@@ -8787,6 +8808,19 @@
         ].transl('_多图建立目录')}<span class="gray1"> ? </span></span>
   <input type="checkbox" name="multipleImageDir" id="setMultipleImageDir" class="need_beautify checkbox_switch" >
   <span class="beautify_switch"></span>
+  <span class="subOptionWrap" data-show="multipleImageDir">
+  <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+    '_目录名使用'
+  )}</span>
+  <input type="radio" name="multipleImageFolderName" id="multipleImageFolderName1" class="need_beautify radio" value="1" checked>
+  <span class="beautify_radio"></span>
+  <label for="multipleImageFolderName1"> ID&nbsp; </label>
+  <input type="radio" name="multipleImageFolderName" id="multipleImageFolderName2" class="need_beautify radio" value="2">
+  <span class="beautify_radio"></span>
+  <label for="multipleImageFolderName2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+    'lang'
+  ].transl('_命名规则')}&nbsp; </label>
+  </span>
   </p>
   <p class="option" data-no="15">
   <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
@@ -9955,10 +9989,10 @@
             '多圖建立目錄'
           ],
           _多图建立目录提示: [
-            '当你下载多图作品时，下载器可以使用作品 id 自动创建一个目录，保存里面的图片。',
-            'マルチイメージをダウンロードする時、自動的に作品idを使ってフォルダを作成し、イメージをその中で保存することができます。',
-            'When you download a multi-image work, the downloader can automatically create a directory with the work id and save the images inside.',
-            '當你下載多圖作品時，下載器可以使用作品 id 自動創建一個目錄，保存裏面的圖片。'
+            '当你下载多图作品时，下载器可以自动创建一个目录，保存里面的图片。',
+            'マルチイメージをダウンロードする時、自動的にフォルダを作成し、イメージをその中で保存することができます。',
+            'When you download a multi-image work, the downloader can automatically create a directory and save the images inside.',
+            '當你下載多圖作品時，下載器可以自動創建一個目錄，保存裏面的圖片。'
           ],
           _不下载: ['不下载', 'ダウンロードしない', 'No', '不下載'],
           _全部下载: ['全部下载', '全部ダウンロード', 'Yes', '全部下載'],
@@ -10759,12 +10793,13 @@
             'The downloader can display the qualified works on the current page. If too many crawling results cause the page to crash, turn off this feature.',
             '下載器可以將符合條件的作品顯示在目前頁面上。如果擷取結果太多導致頁面當掉，請關閉這個功能。'
           ],
-          _xzNew410: [
-            '当你下载多图作品时，下载器可以使用作品 id 自动创建一个目录，保存里面的图片。',
-            'マルチイメージをダウンロードする時、自動的に作品 id を使ってフォルダを作成し、中のイラストを保存することができます。',
-            'When you download a multi-image work, the downloader can automatically create a directory with the work id and save the images inside.',
-            '當你下載多圖作品時，下載器可以使用作品 id 自動創建一個目錄，保存裏面的圖片。'
+          _目录名使用: [
+            '目录名使用：',
+            'ディレクトリ名の使用：',
+            'Folder name use: ',
+            '資料夾名稱使用：'
           ],
+          _命名规则: ['命名规则', '命名規則', 'Naming rule', '命名規則'],
           _xzNew420: [
             '移除了命名标记：{p_user} {p_uid}。',
             'ネーミングタグ {p_user} {p_uid} が削除されました。',

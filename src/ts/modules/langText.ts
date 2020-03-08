@@ -319,10 +319,10 @@ const langText = {
     '多圖建立目錄'
   ],
   _多图建立目录提示: [
-    '当你下载多图作品时，下载器可以使用作品 id 自动创建一个目录，保存里面的图片。',
-    'マルチイメージをダウンロードする時、自動的に作品idを使ってフォルダを作成し、イメージをその中で保存することができます。',
-    'When you download a multi-image work, the downloader can automatically create a directory with the work id and save the images inside.',
-    '當你下載多圖作品時，下載器可以使用作品 id 自動創建一個目錄，保存裏面的圖片。'
+    '当你下载多图作品时，下载器可以自动创建一个目录，保存里面的图片。',
+    'マルチイメージをダウンロードする時、自動的にフォルダを作成し、イメージをその中で保存することができます。',
+    'When you download a multi-image work, the downloader can automatically create a directory and save the images inside.',
+    '當你下載多圖作品時，下載器可以自動創建一個目錄，保存裏面的圖片。'
   ],
   _不下载: ['不下载', 'ダウンロードしない', 'No', '不下載'],
   _全部下载: ['全部下载', '全部ダウンロード', 'Yes', '全部下載'],
@@ -1068,12 +1068,13 @@ const langText = {
     'The downloader can display the qualified works on the current page. If too many crawling results cause the page to crash, turn off this feature.',
     '下載器可以將符合條件的作品顯示在目前頁面上。如果擷取結果太多導致頁面當掉，請關閉這個功能。'
   ],
-  _xzNew410: [
-    '当你下载多图作品时，下载器可以使用作品 id 自动创建一个目录，保存里面的图片。',
-    'マルチイメージをダウンロードする時、自動的に作品 id を使ってフォルダを作成し、中のイラストを保存することができます。',
-    'When you download a multi-image work, the downloader can automatically create a directory with the work id and save the images inside.',
-    '當你下載多圖作品時，下載器可以使用作品 id 自動創建一個目錄，保存裏面的圖片。'
+  _目录名使用: [
+    '目录名使用：',
+    'ディレクトリ名の使用：',
+    'Folder name use: ',
+    '資料夾名稱使用：'
   ],
+  _命名规则: ['命名规则', '命名規則', 'Naming rule', '命名規則'],
   _xzNew420: [
     '移除了命名标记：{p_user} {p_uid}。',
     'ネーミングタグ {p_user} {p_uid} が削除されました。',

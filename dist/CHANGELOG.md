@@ -1,28 +1,28 @@
 ## TODO
 
-- 设置多图建立文件夹时的命名
+- 单图去掉 p0 后缀
 
-multipleImageFolderName
+singleImageOrderNumber
 
-文件夹名字：o id o 命名规则
-
-0 id 1 rule
+data-no="21"
 
 - 添加一个开关，启用快速收藏
 
 quickBookmarks
 
+data-no="20"
+
 在作品页面和搜索页面里，当你点击收藏按钮把作品添加到书签时，自动添加这个作品的 tag。
-
-- 单图去掉 p0 后缀
-
-singleImageOrderNumber
-
-- 顶部按钮始终显示
 
 - fanbox 下载
 
 - 搜索页面自己固定一套规则，防止因为改版而乱版
+
+## 4.3.0 2020-03-08
+
+### 可以设置多图建立文件夹时的命名
+
+多图建立文件夹时，可以选择使用作品 id 命名文件夹，或者遵从文件名命名规则。
 
 ## 4.2.4 2020-03-08
 

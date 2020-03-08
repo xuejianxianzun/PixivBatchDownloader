@@ -4,7 +4,7 @@ import { EVT } from './EVT'
 import { SettingsForm } from './Settings.d'
 
 interface XzSetting {
-  multipleImageWorks: number
+  multipleImageWorks: '0' | '-1' | '1'
   firstFewImages: number
   downType0: boolean
   downType1: boolean
@@ -18,6 +18,7 @@ interface XzSetting {
   tagNameToFileName: boolean
   alwaysFolder: boolean
   multipleImageDir: boolean
+  multipleImageFolderName: '1' | '2'
   showOptions: boolean
   postDate: boolean
   postDateStart: string
@@ -72,7 +73,7 @@ class SaveSettings {
 
   // 需要持久化保存的设置的默认值
   private readonly optionDefault: XzSetting = {
-    multipleImageWorks: 0,
+    multipleImageWorks: '0',
     firstFewImages: 1,
     downType0: true,
     downType1: true,
@@ -86,6 +87,7 @@ class SaveSettings {
     tagNameToFileName: false,
     alwaysFolder: true,
     multipleImageDir: false,
+    multipleImageFolderName: '1',
     showOptions: true,
     postDate: false,
     postDateStart: '',
@@ -214,6 +216,9 @@ class SaveSettings {
     // 设置是否为多图作品自动建立文件夹
     this.restoreBoolean('multipleImageDir')
 
+    // 设置多图作品建立文件夹时的文件名规则
+    this.restoreString('multipleImageFolderName')
+
     // 设置预览搜索结果
     this.restoreBoolean('previewResult')
   }
@@ -284,9 +289,6 @@ class SaveSettings {
     this.saveRadio('ratio')
     this.saveTextInput('userRatio')
 
-    // 保存 id 范围
-    this.saveRadio('idRange')
-
     // 保存投稿时间
     this.saveCheckBox('postDate')
     this.saveTextInput('postDateStart')
@@ -294,6 +296,9 @@ class SaveSettings {
 
     // 保存 id 范围开关
     this.saveCheckBox('idRangeSwitch')
+
+    // 保存 id 范围
+    this.saveRadio('idRange')
 
     // 保存必须的 tag 设置
     this.saveCheckBox('needTagSwitch')
@@ -319,6 +324,9 @@ class SaveSettings {
 
     // 保存是否为多图作品自动建立文件夹
     this.saveCheckBox('multipleImageDir')
+
+    // 保存多图建立文件夹时的命名规则
+    this.saveRadio('multipleImageFolderName')
 
     // 保存自动下载
     this.saveCheckBox('quietDownload')

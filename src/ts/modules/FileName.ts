@@ -213,11 +213,23 @@ class FileName {
     // 处理为多图作品自动建立文件夹的情况
     // 多图作品如果只下载前 1 张，不会为它自动建立文件夹。大于 1 张才会自动建立文件夹
     if (form.multipleImageDir.checked && data.dlCount > 1) {
-      // 操作路径中最后一项（即文件名），在它前面添加一层文件夹，文件夹名为 id
+      // 操作路径中最后一项（即文件名），在它前面添加一层文件夹
       const allPart = result.split('/')
       const lastPartIndex = allPart.length - 1
       let lastPart = allPart[lastPartIndex]
-      lastPart = data.idNum + '/' + lastPart
+      let addString = ''
+
+      if (form.multipleImageFolderName.value === '1') {
+        // 使用作品 id 作为文件夹名
+        addString = data.idNum.toString()
+      } else if (form.multipleImageFolderName.value === '2') {
+        // 遵从命名规则，使用文件名做文件夹名
+        // 这里进行了一个替换，因为多图每个图片的名字都不同，这主要是因为 id 后面的序号不同。这会导致文件夹名也不同，有多少个文件就会建立多少个文件夹，而不是统一建立一个文件夹。为了只建立一个文件夹，需要把 id 后面的序号部分去掉。
+        // 但是如果一些特殊的命名规则并没有包含 {id} 部分，文件名的区别得不到处理，依然会每个文件建立一个文件夹。
+        addString = lastPart.replace(data.id, data.idNum.toString())
+      }
+
+      lastPart = addString + '/' + lastPart
       allPart[lastPartIndex] = lastPart
       result = allPart.join('/')
     }

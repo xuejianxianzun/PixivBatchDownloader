@@ -28,6 +28,7 @@ export interface SettingsForm extends HTMLFormElement {
   tagNameToFileName: HTMLInputElement
   alwaysFolder: HTMLInputElement
   multipleImageDir: HTMLInputElement
+  multipleImageFolderName: RadioNodeList
   debut: HTMLInputElement
   previewResult: HTMLInputElement
   favNumSwitch: HTMLInputElement
