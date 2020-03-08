@@ -22,7 +22,7 @@ class CenterPanel {
     const centerPanelHTML = `
       <div class="centerWrap">
       <div class="centerWrap_head">
-      <span class="centerWrap_title blue"> ${lang.transl('_下载设置')}</span>
+      <p class="centerWrap_title blue"> ${lang.transl('_下载设置')}</p>
       <div class="btns">
       <a class="has_tip centerWrap_top_btn update" data-tip="${lang.transl(
         '_newver'

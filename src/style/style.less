@@ -31,19 +31,25 @@
 }
 
 /* center panel */
+@contentOffsetWidth: 680px;
+@contentPadding: 25px;
+@contentWidth: 630px;
+
+@headerHeight: 65px;
+
 .centerWrap {
   box-sizing: border-box;
   position: fixed;
   z-index: 5000;
   font-size: 14px;
   display: none;
-  width: 680px;
+  width: @contentOffsetWidth;
   left: -340px;
   margin-left: 50%;
   background: #fff;
   top: 3vh;
   color: #444;
-  padding: 25px;
+  padding: 0 @contentPadding @contentPadding;
   border-radius: 15px;
   box-shadow: 0 0 25px #2ca6df;
   max-height: 93vh;
@@ -230,15 +236,19 @@
   }
 
   .centerWrap_head {
-    height: 30px;
-    position: relative;
+    position: fixed;
+    z-index: 1001;
+    width: @contentWidth;
+    box-sizing: border-box;
+    height: @headerHeight;
+    background: #fff;
+    padding-top: @contentPadding;
     padding-bottom: 10px;
     img {
       width: 16px;
       vertical-align: inherit;
     }
     .centerWrap_title {
-      display: block;
       line-height: 30px;
       text-align: center;
       font-size: 18px;
@@ -247,9 +257,9 @@
 
     .btns {
       position: absolute;
-      top: 0;
+      padding-top: @contentPadding;
       right: 0;
-
+      top: 0;
       .centerWrap_top_btn {
         font-size: 20px;
         width: 30px;
@@ -269,6 +279,10 @@
     }
   }
 
+  .centerWrap_con {
+    margin-top: @headerHeight;
+  }
+
   .centerWrap_top_btn:hover,
   .showFileNameTip:hover,
   .showFileNameResult:hover,
@@ -279,6 +293,10 @@
 
   .bottom_help_bar > * {
     padding-right: 10px;
+  }
+
+  .showDownTip {
+    cursor: pointer;
   }
 
   #resetOption {
@@ -442,12 +460,6 @@
         display: inline-block;
         text-indent: 1em;
       }
-    }
-
-    .showDownTip {
-      padding-top: 10px;
-      cursor: pointer;
-      display: inline-block;
     }
   }
   .downTip,

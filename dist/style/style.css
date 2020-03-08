@@ -39,7 +39,7 @@
   background: #fff;
   top: 3vh;
   color: #444;
-  padding: 25px;
+  padding: 0 25px 25px;
   border-radius: 15px;
   box-shadow: 0 0 25px #2ca6df;
   max-height: 93vh;
@@ -200,8 +200,13 @@
   transform: translate(-50%, -50%) scale(1);
 }
 .centerWrap .centerWrap_head {
-  height: 30px;
-  position: relative;
+  position: fixed;
+  z-index: 1001;
+  width: 630px;
+  box-sizing: border-box;
+  height: 65px;
+  background: #fff;
+  padding-top: 25px;
   padding-bottom: 10px;
 }
 .centerWrap .centerWrap_head img {
@@ -209,7 +214,6 @@
   vertical-align: inherit;
 }
 .centerWrap .centerWrap_head .centerWrap_title {
-  display: block;
   line-height: 30px;
   text-align: center;
   font-size: 18px;
@@ -217,8 +221,9 @@
 }
 .centerWrap .centerWrap_head .btns {
   position: absolute;
-  top: 0;
+  padding-top: 25px;
   right: 0;
+  top: 0;
 }
 .centerWrap .centerWrap_head .btns .centerWrap_top_btn {
   font-size: 20px;
@@ -235,6 +240,9 @@
 .centerWrap .centerWrap_head .btns .centerWrap_top_btn.update {
   display: none;
 }
+.centerWrap .centerWrap_con {
+  margin-top: 65px;
+}
 .centerWrap .centerWrap_top_btn:hover,
 .centerWrap .showFileNameTip:hover,
 .centerWrap .showFileNameResult:hover,
@@ -244,6 +252,9 @@
 }
 .centerWrap .bottom_help_bar > * {
   padding-right: 10px;
+}
+.centerWrap .showDownTip {
+  cursor: pointer;
 }
 .centerWrap #resetOption {
   cursor: pointer;
@@ -403,11 +414,6 @@
   vertical-align: top;
   display: inline-block;
   text-indent: 1em;
-}
-.centerWrap .progressBarWrap .showDownTip {
-  padding-top: 10px;
-  cursor: pointer;
-  display: inline-block;
 }
 .centerWrap .downTip,
 .centerWrap .download_a,

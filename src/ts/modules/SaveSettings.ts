@@ -83,7 +83,7 @@ class SaveSettings {
     quietDownload: true,
     downloadThread: 5,
     userSetName: '{id}',
-    tagNameToFileName: true,
+    tagNameToFileName: false,
     alwaysFolder: true,
     multipleImageDir: false,
     showOptions: true,

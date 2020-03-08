@@ -711,9 +711,9 @@
             const centerPanelHTML = `
       <div class="centerWrap">
       <div class="centerWrap_head">
-      <span class="centerWrap_title blue"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <p class="centerWrap_title blue"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
-      ].transl('_下载设置')}</span>
+      ].transl('_下载设置')}</p>
       <div class="btns">
       <a class="has_tip centerWrap_top_btn update" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
@@ -8294,7 +8294,7 @@
               quietDownload: true,
               downloadThread: 5,
               userSetName: '{id}',
-              tagNameToFileName: true,
+              tagNameToFileName: false,
               alwaysFolder: true,
               multipleImageDir: false,
               showOptions: true,
@@ -9960,18 +9960,8 @@
             'When you download a multi-image work, the downloader can automatically create a directory with the work id and save the images inside.',
             '當你下載多圖作品時，下載器可以使用作品 id 自動創建一個目錄，保存裏面的圖片。'
           ],
-          _不下载: [
-            '不下载',
-            'ダウンロードしない',
-            'Do not download',
-            '不下載'
-          ],
-          _全部下载: [
-            '全部下载',
-            '全部ダウンロード',
-            'Download all',
-            '全部下載'
-          ],
+          _不下载: ['不下载', 'ダウンロードしない', 'No', '不下載'],
+          _全部下载: ['全部下载', '全部ダウンロード', 'Yes', '全部下載'],
           _下载前几张图片: [
             '下载前几张图片：',
             '最初のいくつかの画像：',
