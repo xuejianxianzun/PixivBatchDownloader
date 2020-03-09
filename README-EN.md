@@ -46,9 +46,9 @@ If you like this extension, please rate it so that it can be seen by more people
 
 # Thanks
 
-- thanks [道滿](https://zhtw.me/) for translating traditional Chinese.
+- Thanks [道滿](https://zhtw.me/) for translating traditional Chinese.
 
-- thanks 光の軌跡 for translating traditional Japanese.
+- Thanks [光の軌跡](https://github.com/jiaer24) for translating traditional Japanese.
 
 - Thanks [z2n](https://github.com/z2n) for improvements to the program.
 
