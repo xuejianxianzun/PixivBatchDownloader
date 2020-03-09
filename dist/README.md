@@ -54,7 +54,7 @@ Chrome 会自动更新本应用的版本。
 
 - 感谢 [道滿](https://zhtw.me/) 翻译繁体中文。
 
-- 感谢 光の軌跡 翻译日语。
+- 感谢 [光の軌跡](https://github.com/jiaer24) 翻译日语。
 
 - 感谢 [Reinford0](https://github.com/Reinford0) 对本工具的测试和改进。
 

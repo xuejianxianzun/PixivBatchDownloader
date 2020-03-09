@@ -8,7 +8,7 @@ export interface SettingsForm extends HTMLFormElement {
   ugoiraSaveAs: RadioNodeList
   setFavNum: HTMLInputElement
   setOnlyBmk: HTMLInputElement
-  quickBookmarks:HTMLInputElement
+  quickBookmarks: HTMLInputElement
   setWHSwitch: HTMLInputElement
   setWidth: HTMLInputElement
   idRange: RadioNodeList

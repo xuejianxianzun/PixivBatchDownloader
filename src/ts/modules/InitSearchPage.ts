@@ -40,6 +40,7 @@ class InitSearchPage extends InitPageBase {
   private readonly countClass = 'bTLfVL'
   private readonly hotWorkBarClass = 'hlGCV'
   private readonly addBMKBtnClass = 'xz-addBMK'
+  private readonly bookmarkedClass = 'bookmarked'
 
   protected initElse() {
     this.hotBar()
@@ -294,8 +295,7 @@ class InitSearchPage extends InitPageBase {
     const tagString = encodeURI(data.tags.join(' '))
 
     // 添加收藏的作品，让收藏图标变红
-    const bookmarkedClass = 'bookmarked'
-    const bookmarkedFlag = data.bookmarked ? bookmarkedClass : ''
+    const bookmarkedFlag = data.bookmarked ? this.bookmarkedClass : ''
 
     const html = `
     <li class="sc-LzNRw ${this.listClass}" data-id="${data.idNum}">
@@ -325,18 +325,12 @@ class InitSearchPage extends InitPageBase {
           <div class="sc-fzXfQq hSNJdz">
             <div class="">
             <button type="button" class="sc-fzXfOw cqEeVs ${this.addBMKBtnClass}">
-            <svg viewBox="0 0 32 32" width="32" height="32" class="sc-fzXfOs dpCkQo ${bookmarkedFlag}">
-                  <path d="
-    M21,5.5 C24.8659932,5.5 28,8.63400675 28,12.5 C28,18.2694439 24.2975093,23.1517313 17.2206059,27.1100183
-    C16.4622493,27.5342993 15.5379984,27.5343235 14.779626,27.110148 C7.70250208,23.1517462 4,18.2694529 4,12.5
-    C4,8.63400691 7.13400681,5.5 11,5.5 C12.829814,5.5 14.6210123,6.4144028 16,7.8282366
-    C17.3789877,6.4144028 19.170186,5.5 21,5.5 Z"></path>
-                  <path d="M16,11.3317089 C15.0857201,9.28334665 13.0491506,7.5 11,7.5
-    C8.23857625,7.5 6,9.73857647 6,12.5 C6,17.4386065 9.2519779,21.7268174 15.7559337,25.3646328
-    C15.9076021,25.4494645 16.092439,25.4494644 16.2441073,25.3646326 C22.7480325,21.7268037 26,17.4385986 26,12.5
-    C26,9.73857625 23.7614237,7.5 21,7.5 C18.9508494,7.5 16.9142799,9.28334665 16,11.3317089 Z"
-                        class="sc-fzXfOv cvxgqC"></path>
-                </svg></button></div>
+            <svg viewBox="0 0 1024 1024" width="32" height="32" class="sc-fzXfOs dpCkQo ${bookmarkedFlag}">
+            <path d="M958.733019 411.348626 659.258367 353.59527 511.998465 85.535095 364.741633 353.59527 65.265958 411.348626 273.72878 634.744555 235.88794 938.463881 511.998465 808.479435 788.091594 938.463881 750.250754 634.744555Z" p-id="1106" class="sc-fzXfOv cvxgqC"></path>
+            <path d="M959.008 406.016l-308-47.008L512 64 372.992 359.008l-308 47.008 223.008 228-52.992 324L512 805.024l276.992 152.992-52.992-324zM512 740L304 856.992l40-235.008-179.008-182.016 242.016-32 104.992-224 104 224 240.992 34.016L680 622.976l36.992 235.008z" p-id="919"></path>
+            </svg>
+            </button>
+            </div>
           </div>
         <!--收藏按钮结束-->
         </div>
@@ -366,6 +360,7 @@ class InitSearchPage extends InitPageBase {
     const addBMKBtn = li!.querySelector(
       `.${this.addBMKBtnClass}`
     ) as HTMLButtonElement
+    const bookmarkedClass = this.bookmarkedClass
     addBMKBtn.addEventListener('click', function() {
       const e = new CustomEvent('addBMK', {
         detail: { data: { id: data.idNum, tags: tagString } }
