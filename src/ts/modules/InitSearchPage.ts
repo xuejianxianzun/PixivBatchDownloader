@@ -39,6 +39,7 @@ class InitSearchPage extends InitPageBase {
   private readonly ugoiraClass = 'cAXUcw'
   private readonly countClass = 'bTLfVL'
   private readonly hotWorkBarClass = 'hlGCV'
+  private readonly addBMKBtnClass = 'xz-addBMK'
 
   protected initElse() {
     this.hotBar()
@@ -323,8 +324,7 @@ class InitSearchPage extends InitPageBase {
           <!--收藏按钮-->
           <div class="sc-fzXfQq hSNJdz">
             <div class="">
-            <!-- button 添加了私有的 xz-addBMK 需要保留-->
-            <button type="button" class="sc-fzXfOw cqEeVs xz-addBMK">
+            <button type="button" class="sc-fzXfOw cqEeVs ${this.addBMKBtnClass}">
             <svg viewBox="0 0 32 32" width="32" height="32" class="sc-fzXfOs dpCkQo ${bookmarkedFlag}">
                   <path d="
     M21,5.5 C24.8659932,5.5 28,8.63400675 28,12.5 C28,18.2694439 24.2975093,23.1517313 17.2206059,27.1100183
@@ -363,7 +363,9 @@ class InitSearchPage extends InitPageBase {
     this.worksWrap.appendChild(li)
 
     // 绑定收藏按钮的事件
-    const addBMKBtn = li!.querySelector('.xz-addBMK') as HTMLButtonElement
+    const addBMKBtn = li!.querySelector(
+      `.${this.addBMKBtnClass}`
+    ) as HTMLButtonElement
     addBMKBtn.addEventListener('click', function() {
       const e = new CustomEvent('addBMK', {
         detail: { data: { id: data.idNum, tags: tagString } }
@@ -375,13 +377,13 @@ class InitSearchPage extends InitPageBase {
 
   private addBookmark = (event: CustomEventInit) => {
     const data = event.detail.data as AddBMKData
-    API.addBookmark(data.id.toString(), data.tags, API.getToken(), false)
+    const tagString = form.quickBookmarks.checked ? data.tags : ''
+    API.addBookmark(data.id.toString(), tagString, API.getToken(), false)
     this.resultMeta.forEach(result => {
       if (result.idNum === data.id) {
         result.bookmarked = true
       }
     })
-    // this.reAddResult()
   }
 
   // “开始筛选”完成后，保存筛选结果的元数据，并重排结果

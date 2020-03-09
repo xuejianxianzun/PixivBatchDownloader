@@ -36,6 +36,7 @@ interface XzSetting {
   idRangeSwitch: boolean
   needTagSwitch: boolean
   notNeedTagSwitch: boolean
+  quickBookmarks: boolean
 }
 
 interface SettingChangeData {
@@ -104,7 +105,8 @@ class SaveSettings {
     userRatio: '1.4',
     idRangeSwitch: false,
     needTagSwitch: false,
-    notNeedTagSwitch: false
+    notNeedTagSwitch: false,
+    quickBookmarks: true
   }
 
   // 需要持久化保存的设置
@@ -170,6 +172,9 @@ class SaveSettings {
 
     // 设置收藏数量数值
     this.restoreString('setFavNum')
+
+    // 设置启用快速收藏
+    this.restoreBoolean('quickBookmarks')
 
     // 设置宽高条件
     this.restoreBoolean('setWHSwitch')
@@ -277,6 +282,9 @@ class SaveSettings {
 
     // 保存收藏数量数值
     this.saveTextInput('setFavNum')
+
+    // 保存启用快速收藏
+    this.saveCheckBox('quickBookmarks')
 
     // 保存宽高条件
     this.saveCheckBox('setWHSwitch')

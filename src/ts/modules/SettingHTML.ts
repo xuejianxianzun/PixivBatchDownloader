@@ -78,6 +78,13 @@ const formHtml = `<form class="settingForm">
   <input type="checkbox" name="setOnlyBmk" id="setOnlyBmk" class="need_beautify checkbox_switch"> 
   <span class="beautify_switch"></span>
   </p>
+  <p class="option" data-no="20">
+  <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+    '_启用快速收藏说明'
+  )}">${lang.transl('_启用快速收藏')}<span class="gray1"> ? </span></span>
+  <input type="checkbox" name="quickBookmarks" id="quickBookmarks" class="need_beautify checkbox_switch"> 
+  <span class="beautify_switch"></span>
+  </p>
   <p class="option" data-no="7">
   <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
     '_筛选宽高的按钮Title'
