@@ -1085,19 +1085,19 @@ const langText = {
     '当你点击下载器添加的收藏按钮(☆)，把作品添加到书签时，自动添加这个作品的 tag。',
     'ダウンローダーに追加されたボックマークボタン「☆」をクリックして、作品をブックマークに追加すると、自動的に作品の tag が追加されます。',
     'When you click the favorite button (☆) added by the downloader to bookmark a work, the tag of the work is automatically added.',
-    '當你點擊下載器添加的收藏按鈕(☆)，把作品添加到書簽時，自動添加這個作品的 tag。'
+    '當你點選下載器新增的收藏按鈕(☆)，將作品加入書籤時，自動新增這個作品的 tag。'
   ],
   _新增设置项: [
     '新增设置项',
     '新たな機能を追加されました。',
     'Added setting items',
-    '新增設置項'
+    '新增設定項目'
   ],
   _xzNew440: [
     '新增设置项：启用快速收藏',
     '新たな機能を追加されました。：クイックボックマークを有効にする',
     'Added setting items: Enable quick bookmark',
-    '新增設置項：啓用快速收藏'
+    '新增設定項目：啓用快速收藏'
   ]
 }
 

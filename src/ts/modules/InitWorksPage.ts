@@ -119,9 +119,13 @@ class InitWorksPage extends InitPageBase {
     } else {
       // 检查下载页数的设置
       if (!this.crawlRelated) {
+        const crawlAllTip =
+          this.crawlDirection === -1
+            ? lang.transl('_从本页开始抓取new')
+            : lang.transl('_从本页开始抓取old')
         this.crawlNumber = this.checkWantPageInput(
           lang.transl('_checkWantPageRule1Arg3'),
-          lang.transl('_checkWantPageRule1Arg4')
+          crawlAllTip
         )
       } else {
         // 相关作品的提示
