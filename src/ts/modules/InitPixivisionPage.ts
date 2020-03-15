@@ -2,7 +2,7 @@
 import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { centerButtons } from './CenterButtons'
+import { DOM } from './DOM'
 import { options } from './Options'
 import { form } from './Settings'
 import { store } from './Store'
@@ -21,15 +21,17 @@ class InitPixivisionPage extends InitPageBase {
 
     if (type === 'illustration' || type === 'manga' || type === 'cosplay') {
       // 在插画、漫画、cosplay类型的页面上创建下载功能
-      centerButtons
-        .add(Colors.blue, lang.transl('_抓取该页面的图片'))
-        .addEventListener(
-          'click',
-          () => {
-            this.readyCrawl()
-          },
-          false
-        )
+      DOM.addBtn(
+        'crawlBtns',
+        Colors.blue,
+        lang.transl('_抓取该页面的图片')
+      ).addEventListener(
+        'click',
+        () => {
+          this.readyCrawl()
+        },
+        false
+      )
     }
   }
 
@@ -57,8 +59,6 @@ class InitPixivisionPage extends InitPageBase {
     // pixivision 里，文件名只有 id 标记会生效，所以把文件名规则替换成 id
     form.userSetName.value = '{p_title}/{id}'
   }
-
-  protected destroy() {}
 
   protected nextStep() {
     this.getPixivision()

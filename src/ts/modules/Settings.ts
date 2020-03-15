@@ -1,6 +1,8 @@
 import { EVT } from './EVT'
 import { DOM } from './DOM'
-import { centerPanel } from './CenterPanel'
+import { Colors } from './Colors'
+import { lang } from './Lang'
+import { store } from './Store'
 import { SaveSettings } from './SaveSettings'
 import { SettingsForm } from './Settings.d'
 import formHtml from './SettingHTML'
@@ -8,7 +10,7 @@ import formHtml from './SettingHTML'
 // 设置表单
 class Settings {
   constructor() {
-    this.form = centerPanel.useSlot('form', formHtml) as SettingsForm
+    this.form = DOM.useSlot('form', formHtml) as SettingsForm
 
     this.allCheckBox = this.form.querySelectorAll(
       'input[type="checkbox"]'
@@ -22,6 +24,10 @@ class Settings {
 
     this.allLabel = this.form.querySelectorAll('label')
 
+    this.allTabTitle = this.form.querySelectorAll('.tabsTitle .title')
+
+    this.allTabCon = this.form.querySelectorAll('.tabsContnet .con')
+
     this.bindEvents()
 
     new SaveSettings(this.form)
@@ -33,6 +39,9 @@ class Settings {
 
     // 重设该选项的子选项的显示/隐藏
     this.resetSubOptionDisplay()
+
+    // 激活第一个选项卡
+    this.activeTab(0)
   }
 
   public form: SettingsForm
@@ -41,15 +50,26 @@ class Settings {
   private allRadio: NodeListOf<HTMLInputElement> // 单选按钮
   private allLabel: NodeListOf<HTMLLabelElement> // 所有 label 标签
 
+  private allTabTitle: NodeListOf<HTMLDivElement> // 选项卡的标题区域
+  private allTabCon: NodeListOf<HTMLDivElement> // 选项卡的内容区域
+  private readonly activeClass = 'active'
+
   private readonly chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
 
-  private bindEvents() {
-    // 控制表单的显示/隐藏
-    window.addEventListener(EVT.events.toggleForm, (event: CustomEventInit) => {
-      const boolean = event.detail.data as boolean
-      this.form.style.display = boolean ? 'block' : 'none'
-    })
+  // 设置激活的选项卡
+  private activeTab(no = 0) {
+    for (const title of this.allTabTitle) {
+      title.classList.remove(this.activeClass)
+    }
+    this.allTabTitle[no].classList.add(this.activeClass)
 
+    for (const con of this.allTabCon) {
+      con.style.display = 'none'
+    }
+    this.allTabCon[no].style.display = 'block'
+  }
+
+  private bindEvents() {
     // 给美化的复选框绑定功能
     for (const checkbox of this.allCheckBox) {
       this.bindCheckboxEvent(checkbox)
@@ -60,6 +80,7 @@ class Settings {
       this.bindRadioEvent(radio)
     }
 
+    // 处理 label 状态
     window.addEventListener(EVT.events.settingChange, () => {
       // 设置改变时，重设 label 激活状态
       this.resetLabelActive()
@@ -67,12 +88,34 @@ class Settings {
       this.resetSubOptionDisplay()
     })
 
-    // 预览文件名
-    this.form
-      .querySelector('.showFileNameResult')!
-      .addEventListener('click', () => {
-        EVT.fire(EVT.events.previewFileName)
+    // 在选项卡的标题上触发事件时，激活对应的选项卡
+    for (let index = 0; index < this.allTabTitle.length; index++) {
+      ;['click', 'mouseenter'].forEach(name => {
+        this.allTabTitle[index].addEventListener(name, () => {
+          this.activeTab(index)
+        })
       })
+    }
+
+    // 当抓取完毕可以开始下载时，切换到“下载”选项卡
+    window.addEventListener(EVT.events.crawlFinish, () => {
+      if (!store.states.notAutoDownload) {
+        this.activeTab(1)
+      }
+    })
+
+    // 预览文件名
+    DOM.addBtn(
+      'namingBtns',
+      Colors.green,
+      lang.transl('_预览文件名')
+    ).addEventListener(
+      'click',
+      () => {
+        EVT.fire(EVT.events.previewFileName)
+      },
+      false
+    )
 
     // 显示命名字段提示
     this.form

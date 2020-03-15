@@ -3,7 +3,7 @@ import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { centerPanel } from './CenterPanel'
-import { centerButtons } from './CenterButtons'
+
 import { options } from './Options'
 import { DOM } from './DOM'
 import { store } from './Store'
@@ -22,7 +22,8 @@ class InitIndexPage extends InitPageBase {
   private ready = false
 
   protected appendCenterBtns() {
-    this.downIdButton = centerButtons.add(
+    this.downIdButton = DOM.addBtn(
+      'crawlBtns',
       Colors.blue,
       lang.transl('_输入id进行抓取'),
       [['id', 'down_id_button']]
@@ -41,7 +42,7 @@ class InitIndexPage extends InitPageBase {
   }
 
   protected setFormOption() {
-    options.hideOption([1, 15, 18])
+    options.hideOption([1])
   }
 
   protected initElse() {
@@ -102,6 +103,8 @@ class InitIndexPage extends InitPageBase {
   protected resetGetIdListStatus() {}
 
   protected destroy() {
+    DOM.clearSlot('crawlBtns')
+    DOM.clearSlot('otherBtns')
     DOM.removeEl(this.downIdInput)
   }
 }

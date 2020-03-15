@@ -150,9 +150,6 @@ class SaveSettings {
       return
     }
 
-    // 设置是否显示选项区域
-    EVT.fire(EVT.events.toggleForm, this.options.showOptions)
-
     // 多图作品设置
     this.restoreString('multipleImageWorks')
 
@@ -257,12 +254,6 @@ class SaveSettings {
   // 绑定所有选项的事件，当选项变动触发 settingChange 事件
   // 只可执行一次，否则事件会重复绑定
   private bindOptionEvent() {
-    // 保存是否显示选项区域
-    window.addEventListener(EVT.events.toggleForm, (event: CustomEventInit) => {
-      const boolean = event.detail.data
-      this.emitChange('showOptions', boolean)
-    })
-
     // 保存下载的作品类型
     this.saveCheckBox('downType0')
     this.saveCheckBox('downType1')

@@ -3,7 +3,7 @@ import { InitPageBase } from './InitPageBase'
 import { API } from './API'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { centerButtons } from './CenterButtons'
+
 import { options } from './Options'
 import { BookmarksAddTag } from './BookmarksAddTag'
 import { BookmarkData } from './CrawlResult'
@@ -19,18 +19,17 @@ class InitBookmarkPage extends InitPageBase {
   }
 
   protected appendCenterBtns() {
-    centerButtons
-      .add(Colors.blue, lang.transl('_开始抓取'), [
-        ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
-      ])
-      .addEventListener('click', () => {
-        this.readyCrawl()
-      })
+    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
+      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
+    ]).addEventListener('click', () => {
+      this.readyCrawl()
+    })
 
     // 添加下载推荐作品的按钮，只在旧版收藏页面使用
     const isOldPage = !!document.querySelector('.user-name')
     if (isOldPage) {
-      const downRecmdBtn = centerButtons.add(
+      const downRecmdBtn = DOM.addBtn(
+        'crawlBtns',
         Colors.blue,
         lang.transl('_抓取推荐作品'),
         [['title', lang.transl('_抓取推荐作品Title')]]
@@ -47,9 +46,12 @@ class InitBookmarkPage extends InitPageBase {
 
     // 如果存在 token，则添加“添加 tag”按钮
     if (API.getToken()) {
-      const btn = centerButtons.add(Colors.green, lang.transl('_添加tag'), [
-        ['title', lang.transl('_添加tag')]
-      ])
+      const btn = DOM.addBtn(
+        'otherBtns',
+        Colors.green,
+        lang.transl('_添加tag'),
+        [['title', lang.transl('_添加tag')]]
+      )
 
       new BookmarksAddTag(btn)
     }
@@ -65,14 +67,12 @@ class InitBookmarkPage extends InitPageBase {
     })
 
     // 在书签页面隐藏只要书签选项
-    options.hideOption([6, 15, 18])
+    options.hideOption([6])
 
     if (location.href.includes('bookmark.php')) {
       options.hideOption([6])
     }
   }
-
-  protected destroy() {}
 
   private idList: string[] = [] // 储存从列表页获取到的 id
 

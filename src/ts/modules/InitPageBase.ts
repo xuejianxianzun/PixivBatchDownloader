@@ -1,7 +1,7 @@
 // 初始化抓取页面的流程
 import { lang } from './Lang'
 import { Colors } from './Colors'
-import { centerButtons } from './CenterButtons'
+import { DOM } from './DOM'
 import { options } from './Options'
 import { FilterOption } from './Filter.d'
 import { IllustData } from './CrawlResult.d'
@@ -32,18 +32,18 @@ abstract class InitPageBase {
   protected initElse() {}
 
   // 销毁初始化页面时添加的元素和事件，恢复设置项等
-  // 各个子类不需要销毁中间按钮，CenterButtons 类会自行销毁
-  protected destroy(): void {}
+  protected destroy(): void {
+    DOM.clearSlot('crawlBtns')
+    DOM.clearSlot('otherBtns')
+  }
 
   // 添加中间按钮
   protected appendCenterBtns() {
-    centerButtons
-      .add(Colors.blue, lang.transl('_开始抓取'), [
-        ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
-      ])
-      .addEventListener('click', () => {
-        this.readyCrawl()
-      })
+    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
+      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
+    ]).addEventListener('click', () => {
+      this.readyCrawl()
+    })
   }
 
   // 添加其他元素（如果有）
@@ -58,8 +58,6 @@ abstract class InitPageBase {
       rangTip: lang.transl('_数字提示1'),
       value: '1'
     })
-
-    options.hideOption([15, 18])
   }
 
   protected crawlNumber: number = 0 // 要抓取的个数/页数

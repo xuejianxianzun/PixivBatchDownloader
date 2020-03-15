@@ -24,7 +24,6 @@ interface EventList {
   clearUgoira: 'clearUgoira'
   deleteWork: 'deleteWork'
   worksUpdate: 'worksUpdate'
-  toggleForm: 'toggleForm'
   settingChange: 'settingChange'
   clickRightIcon: 'clickRightIcon'
   destroy: 'destroy'
@@ -57,7 +56,6 @@ class EVT {
     clearUgoira: 'clearUgoira',
     deleteWork: 'deleteWork',
     worksUpdate: 'worksUpdate',
-    toggleForm: 'toggleForm',
     settingChange: 'settingChange',
     clickRightIcon: 'clickRightIcon',
     destroy: 'destroy',

@@ -404,12 +404,6 @@ const langText = {
     'Has acquired {} list pages',
     '已擷取清單頁{}個頁面'
   ],
-  _搜索页已抓取所有页面: [
-    '已抓取本 tag 的所有页面，开始获取图片网址',
-    '現在 tag の全ページを取得している、画像 URL の取得が開始されます',
-    'Gets all pages of the current tag, starts to get the image URL',
-    '已擷取本 tag 的所有頁面，開始取得圖片網址'
-  ],
   _列表页抓取完成: [
     '列表页面抓取完成，开始获取图片网址',
     'リストページがクロールされ、画像 URL の取得が開始されます',
@@ -547,11 +541,11 @@ const langText = {
     `You can create a directory with '/'<br>Example：{p_title}/{user}/{id}`,
     `可以使用 '/' 建立資料夾<br>範例：{p_title}/{user}/{id}`
   ],
-  _添加字段名称: [
-    '添加字段名称',
-    'フィールドネームを追加',
-    'Add field name',
-    '加入欄位名稱'
+  _添加命名标记前缀: [
+    '添加命名标记前缀',
+    '前に tag の名前を追加',
+    'Add named tag prefix',
+    '加入命名標記首碼'
   ],
   _添加字段名称提示: [
     '例如，在用户名前面添加“user_”标记',
@@ -929,11 +923,11 @@ const langText = {
     '快速收藏'
   ],
   _启用: ['启用', '有効にする', 'Enable', '啟用'],
-  _是否自动下载: [
-    '是否自动下载',
-    '自動的にダウンロードするかどうか',
-    'Whether to download automatically',
-    '是否自動下載'
+  _自动开始下载: [
+    '自动开始下载',
+    'ダウンロードは自動的に開始されます',
+    'Download starts automatically',
+    '自動开始下載'
   ],
   _快速下载的提示: [
     '当“开始下载”状态可用时，自动开始下载，不需要点击下载按钮。',
@@ -975,10 +969,10 @@ const langText = {
     '有新版本可用'
   ],
   _快速下载建立文件夹: [
-    '总是创建目录',
-    'いつもフォルダを作成されます',
+    '快速下载时，始终创建文件夹',
+    'クイックダウンロード時、常にフォルダを作成します',
     'Always create directory when downloading quickly',
-    '總是建立資料夾'
+    '快速下載時，始終建立資料夾'
   ],
   _快速下载建立文件夹提示: [
     '快速下载时，如果只有一张图片，也会建立文件夹',
@@ -1057,16 +1051,16 @@ const langText = {
     '沒有資料可供使用'
   ],
   _预览搜索结果: [
-    '预览搜索结果',
-    '検索結果を見る',
-    'Preview search results',
-    '預覽搜尋結果'
+    '预览搜索页面的筛选结果',
+    '検索ページのフィルタ結果をプレビューします',
+    'Preview filter results on search page',
+    '預覽搜尋頁面的篩選結果'
   ],
   _预览搜索结果说明: [
-    '下载器可以把符合条件的作品显示在当前页面上。如果抓取结果太多导致页面崩溃，请关闭这个功能。',
-    'ローダは、該当する作品を現在のページに表示することができます。クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。',
-    'The downloader can display the qualified works on the current page. If too many crawling results cause the page to crash, turn off this feature.',
-    '下載器可以將符合條件的作品顯示在目前頁面上。如果擷取結果太多導致頁面當掉，請關閉這個功能。'
+    '下载器可以把符合条件的作品显示在当前页面上。如果抓取结果太多导致页面崩溃，请关闭这个功能。<br>启用预览功能时，下载器不会自动开始下载。',
+    'ローダは、該当する作品を現在のページに表示することができます。クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。<br>プレビュー機能を有効にすると、ダウンロードは自動的に開始されません。',
+    'The downloader can display the qualified works on the current page. If too many crawling results cause the page to crash, turn off this feature.<br>When the preview feature is enabled, the downloader does not start downloading automatically.',
+    '下載器可以將符合條件的作品顯示在目前頁面上。如果擷取結果太多導致頁面當掉，請關閉這個功能。<br>啟用預覽功能時，下載器不會自動開始下載。'
   ],
   _目录名使用: [
     '目录名使用：',
@@ -1092,6 +1086,21 @@ const langText = {
     '新たな機能を追加されました。',
     'Added setting items',
     '新增設定項目'
+  ],
+  _抓取: ['抓取', 'クロール', 'Crawl', '擷取'],
+  _下载: ['下载', 'ダウンロードする', 'Download', '下載'],
+  _其他: ['其他', 'その他', 'Other', '其他'],
+  _第一张图不带序号: [
+    '第一张图不带序号',
+    '最初のイメージの番号を削除します',
+    'The first picture without a serial number',
+    '第一張圖片不帶序號'
+  ],
+  _第一张图不带序号说明: [
+    '去掉每个作品第一张图的序号。例如 80036479_p0 变成 80036479',
+    '作品ごとの最初のイメージの番号を削除します。例えば 80036479_p0 は 80036479 になります。',
+    'Remove the serial number of the first picture of each work. For example 80036479_p0 becomes 80036479.',
+    '去掉每個作品第一張圖的序號。例如 80036479_p0 變成 80036479。'
   ],
   _xzNew440: [
     '新增设置项：启用快速收藏',

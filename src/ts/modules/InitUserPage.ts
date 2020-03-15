@@ -2,7 +2,6 @@
 import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { centerButtons } from './CenterButtons'
 import { options } from './Options'
 import { API } from './API'
 import { store } from './Store'
@@ -18,13 +17,11 @@ class InitUserPage extends InitPageBase {
   }
 
   protected appendCenterBtns() {
-    centerButtons
-      .add(Colors.blue, lang.transl('_开始抓取'), [
-        ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
-      ])
-      .addEventListener('click', () => {
-        this.readyCrawl()
-      })
+    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
+      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
+    ]).addEventListener('click', () => {
+      this.readyCrawl()
+    })
   }
 
   protected setFormOption() {
@@ -35,11 +32,7 @@ class InitUserPage extends InitPageBase {
       rangTip: lang.transl('_数字提示1'),
       value: '-1'
     })
-
-    options.hideOption([15, 18])
   }
-
-  protected destroy() {}
 
   private tag = '' // 储存当前页面的 tag，有时没有 tag
 

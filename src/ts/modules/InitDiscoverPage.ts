@@ -2,7 +2,7 @@
 import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { centerButtons } from './CenterButtons'
+import { DOM } from './DOM'
 import { options } from './Options'
 import { DeleteWorks } from './DeleteWorks'
 import { API } from './API'
@@ -15,17 +15,15 @@ class InitDiscoverPage extends InitPageBase {
   }
 
   protected appendCenterBtns() {
-    centerButtons
-      .add(Colors.blue, lang.transl('_抓取当前作品'), [
-        ['title', lang.transl('_抓取当前作品Title')]
-      ])
-      .addEventListener('click', () => {
-        this.readyCrawl()
-      })
+    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取当前作品'), [
+      ['title', lang.transl('_抓取当前作品Title')]
+    ]).addEventListener('click', () => {
+      this.readyCrawl()
+    })
   }
 
   protected setFormOption() {
-    options.hideOption([1, 15, 18])
+    options.hideOption([1])
   }
 
   protected appendElseEl() {
@@ -37,8 +35,6 @@ class InitDiscoverPage extends InitPageBase {
 
     deleteWorks.addManuallyDeleteBtn()
   }
-
-  protected destroy() {}
 
   protected getWantPage() {}
 

@@ -3,7 +3,7 @@ import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { API } from './API'
 import { lang } from './Lang'
-import { centerButtons } from './CenterButtons'
+import { DOM } from './DOM'
 import { options } from './Options'
 import { form } from './Settings'
 import { RankingOption } from './CrawlArgument.d'
@@ -20,28 +20,24 @@ class InitRankingPage extends InitPageBase {
   }
 
   protected appendCenterBtns() {
-    centerButtons
-      .add(Colors.blue, lang.transl('_抓取本排行榜作品'), [
-        ['title', lang.transl('_抓取本排行榜作品Title')]
-      ])
-      .addEventListener('click', () => {
-        form.debut.value = '0'
-        this.readyCrawl()
-      })
+    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取本排行榜作品'), [
+      ['title', lang.transl('_抓取本排行榜作品Title')]
+    ]).addEventListener('click', () => {
+      form.debut.value = '0'
+      this.readyCrawl()
+    })
 
     // 判断当前页面是否有“首次登场”标记
     let debutModes = ['daily', 'daily_r18', 'rookie', '']
     let mode = API.getURLField(location.href, 'mode')
 
     if (debutModes.includes(mode)) {
-      centerButtons
-        .add(Colors.blue, lang.transl('_抓取首次登场的作品'), [
-          ['title', lang.transl('_抓取首次登场的作品Title')]
-        ])
-        .addEventListener('click', () => {
-          form.debut.value = '1'
-          this.readyCrawl()
-        })
+      DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取首次登场的作品'), [
+        ['title', lang.transl('_抓取首次登场的作品Title')]
+      ]).addEventListener('click', () => {
+        form.debut.value = '1'
+        this.readyCrawl()
+      })
     }
   }
 
@@ -55,11 +51,7 @@ class InitRankingPage extends InitPageBase {
       rangTip: `1 - ${this.maxCount}`,
       value: this.maxCount.toString()
     })
-
-    options.hideOption([15, 18])
   }
-
-  protected destroy() {}
 
   private pageCount: number = 10 // 排行榜的页数
 

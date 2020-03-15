@@ -2,7 +2,7 @@
 import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { centerButtons } from './CenterButtons'
+import { DOM } from './DOM'
 import { options } from './Options'
 import { FilterOption } from './Filter.d'
 import { filter } from './Filter'
@@ -16,20 +16,16 @@ class InitAreaRankingPage extends InitPageBase {
   }
 
   protected appendCenterBtns() {
-    centerButtons
-      .add(Colors.blue, lang.transl('_抓取本页作品'), [
-        ['title', lang.transl('_抓取本页作品Title')]
-      ])
-      .addEventListener('click', () => {
-        this.readyCrawl()
-      })
+    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取本页作品'), [
+      ['title', lang.transl('_抓取本页作品Title')]
+    ]).addEventListener('click', () => {
+      this.readyCrawl()
+    })
   }
 
   protected setFormOption() {
-    options.hideOption([1, 15, 18])
+    options.hideOption([1])
   }
-
-  protected destroy() {}
 
   protected getIdList() {
     // 地区排行榜

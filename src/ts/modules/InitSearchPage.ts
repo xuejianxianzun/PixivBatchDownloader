@@ -3,7 +3,7 @@ import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { options } from './Options'
-import { centerButtons } from './CenterButtons'
+
 import { pageInfo } from './PageInfo'
 import { DeleteWorks } from './DeleteWorks'
 import { EVT } from './EVT'
@@ -34,13 +34,13 @@ class InitSearchPage extends InitPageBase {
     new FastScreen()
   }
 
-  private readonly listClass = 'jwiybC'
+  private readonly listClass = 'fRrZrZ'
   private readonly multipleClass = 'cFZsbP'
   private readonly ugoiraClass = 'cAXUcw'
   private readonly countClass = 'bTLfVL'
-  private readonly hotWorkBarClass = 'hlGCV'
   private readonly addBMKBtnClass = 'xz-addBMK'
   private readonly bookmarkedClass = 'bookmarked'
+  private readonly hotWorkAsideClass = 'section aside'
 
   protected initElse() {
     this.hotBar()
@@ -66,13 +66,9 @@ class InitSearchPage extends InitPageBase {
 
   // 去除热门作品上面的遮挡
   private hotBar() {
-    const getHotWorkEL = () => {
-      return document.querySelector(`.${this.hotWorkBarClass} aside`)
-    }
-
     // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
     const timer = window.setInterval(() => {
-      const hotWorkAside = getHotWorkEL()
+      const hotWorkAside = document.querySelector(this.hotWorkAsideClass)
 
       if (hotWorkAside) {
         window.clearInterval(timer)
@@ -83,7 +79,7 @@ class InitSearchPage extends InitPageBase {
 
         // 去掉遮挡后两个作品的 after。因为是伪元素，所以要通过 css 控制
         const style = `
-        .${this.hotWorkBarClass} ul::after{
+        section aside ul::after{
           display:none !important;
         }
         `
@@ -93,21 +89,17 @@ class InitSearchPage extends InitPageBase {
   }
 
   protected appendCenterBtns() {
-    centerButtons
-      .add(Colors.green, lang.transl('_开始筛选'), [
-        ['title', lang.transl('_开始筛选Title')]
-      ])
-      .addEventListener('click', () => {
-        this.startScreen()
-      })
+    DOM.addBtn('crawlBtns', Colors.green, lang.transl('_开始筛选'), [
+      ['title', lang.transl('_开始筛选Title')]
+    ]).addEventListener('click', () => {
+      this.startScreen()
+    })
 
-    centerButtons
-      .add(Colors.red, lang.transl('_在结果中筛选'), [
-        ['title', lang.transl('_在结果中筛选Title')]
-      ])
-      .addEventListener('click', () => {
-        this.screenInResult()
-      })
+    DOM.addBtn('crawlBtns', Colors.red, lang.transl('_在结果中筛选'), [
+      ['title', lang.transl('_在结果中筛选Title')]
+    ]).addEventListener('click', () => {
+      this.screenInResult()
+    })
   }
 
   protected appendElseEl() {
@@ -136,11 +128,11 @@ class InitSearchPage extends InitPageBase {
       rangTip: `1 - ${this.maxCount}`,
       value: this.maxCount.toString()
     })
-
-    options.hideOption([15])
   }
 
   protected destroy() {
+    DOM.clearSlot('crawlBtns')
+    DOM.clearSlot('otherBtns')
     window.removeEventListener(EVT.events.addResult, this.addWork)
     window.removeEventListener(EVT.events.crawlFinish, this.onCrawlFinish)
     window.removeEventListener(EVT.events.crawlFinish, this.showCount)

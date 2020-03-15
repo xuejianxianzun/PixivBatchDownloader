@@ -3,7 +3,6 @@ import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { EVT } from './EVT'
 import { lang } from './Lang'
-import { centerButtons } from './CenterButtons'
 import { options } from './Options'
 import { store } from './Store'
 import { QuickBookmark } from './QuickBookmark'
@@ -36,21 +35,26 @@ class InitWorksPage extends InitPageBase {
   }
 
   protected appendCenterBtns() {
-    centerButtons
-      .add(Colors.blue, lang.transl('_从本页开始抓取new'))
-      .addEventListener('click', () => {
-        this.crawlDirection = -1
-        this.readyCrawl()
-      })
+    DOM.addBtn(
+      'crawlBtns',
+      Colors.blue,
+      lang.transl('_从本页开始抓取new')
+    ).addEventListener('click', () => {
+      this.crawlDirection = -1
+      this.readyCrawl()
+    })
 
-    centerButtons
-      .add(Colors.blue, lang.transl('_从本页开始抓取old'))
-      .addEventListener('click', () => {
-        this.crawlDirection = 1
-        this.readyCrawl()
-      })
+    DOM.addBtn(
+      'crawlBtns',
+      Colors.blue,
+      lang.transl('_从本页开始抓取old')
+    ).addEventListener('click', () => {
+      this.crawlDirection = 1
+      this.readyCrawl()
+    })
 
-    const downRelatedBtn = centerButtons.add(
+    const downRelatedBtn = DOM.addBtn(
+      'crawlBtns',
       Colors.blue,
       lang.transl('_抓取相关作品')
     )
@@ -91,11 +95,12 @@ class InitWorksPage extends InitPageBase {
       rangTip: lang.transl('_数字提示1'),
       value: '-1'
     })
-
-    options.hideOption([18])
   }
 
   protected destroy() {
+    DOM.clearSlot('crawlBtns')
+    DOM.clearSlot('otherBtns')
+
     // 删除快速下载按钮
     DOM.removeEl(this.quickDownBtn)
 

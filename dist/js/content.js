@@ -125,25 +125,28 @@
       /***/ function(module, __webpack_exports__, __webpack_require__) {
         'use strict'
         __webpack_require__.r(__webpack_exports__)
-        /* harmony import */ var _modules_InitPage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+        /* harmony import */ var _modules_CenterPanel__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./modules/CenterPanel */ './src/ts/modules/CenterPanel.ts'
+        )
+        /* harmony import */ var _modules_InitPage__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./modules/InitPage */ './src/ts/modules/InitPage.ts'
         )
-        /* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+        /* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./modules/DownloadControl */ './src/ts/modules/DownloadControl.ts'
         )
-        /* harmony import */ var _modules_RightIcon__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+        /* harmony import */ var _modules_RightIcon__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./modules/RightIcon */ './src/ts/modules/RightIcon.ts'
         )
-        /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+        /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./modules/Tip */ './src/ts/modules/Tip.ts'
         )
-        /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/ __webpack_require__.n(
-          _modules_Tip__WEBPACK_IMPORTED_MODULE_3__
+        /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/ __webpack_require__.n(
+          _modules_Tip__WEBPACK_IMPORTED_MODULE_4__
         )
-        /* harmony import */ var _modules_Output__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+        /* harmony import */ var _modules_Output__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./modules/Output */ './src/ts/modules/Output.ts'
         )
-        /* harmony import */ var _modules_Support__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _modules_Support__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./modules/Support */ './src/ts/modules/Support.ts'
         )
         /*
@@ -611,63 +614,6 @@
         /***/
       },
 
-    /***/ './src/ts/modules/CenterButtons.ts':
-      /*!*****************************************!*\
-  !*** ./src/ts/modules/CenterButtons.ts ***!
-  \*****************************************/
-      /*! exports provided: centerButtons */
-      /***/ function(module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony export (binding) */ __webpack_require__.d(
-          __webpack_exports__,
-          'centerButtons',
-          function() {
-            return centerButtons
-          }
-        )
-        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts'
-        )
-        /* harmony import */ var _CenterPanel__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./CenterPanel */ './src/ts/modules/CenterPanel.ts'
-        )
-
-        // 中间面板添加按钮的区域
-        class CenterButtons {
-          constructor() {
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.destroy,
-              () => {
-                this.clear()
-              }
-            )
-          }
-          add(bg = '', text = '', attr = []) {
-            const e = document.createElement('button')
-            e.type = 'button'
-            e.style.backgroundColor = bg
-            e.textContent = text
-            for (const [key, value] of attr) {
-              e.setAttribute(key, value)
-            }
-            _CenterPanel__WEBPACK_IMPORTED_MODULE_1__['centerPanel'].useSlot(
-              'centerBtns',
-              e
-            )
-            return e
-          }
-          clear() {
-            _CenterPanel__WEBPACK_IMPORTED_MODULE_1__['centerPanel'].clearSlot(
-              'centerBtns'
-            )
-          }
-        }
-        const centerButtons = new CenterButtons()
-
-        /***/
-      },
-
     /***/ './src/ts/modules/CenterPanel.ts':
       /*!***************************************!*\
   !*** ./src/ts/modules/CenterPanel.ts ***!
@@ -701,8 +647,6 @@
         class CenterPanel {
           constructor() {
             this.centerPanel = document.createElement('div') // 中间面板
-            this.toggleFormEl = document.createElement('div') // 切换显示设置表单的按钮
-            this.slots = null
             this.addCenterPanel()
             this.bindEvents()
           }
@@ -711,9 +655,7 @@
             const centerPanelHTML = `
       <div class="centerWrap">
       <div class="centerWrap_head">
-      <p class="centerWrap_title blue"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-        'lang'
-      ].transl('_下载设置')}</p>
+      <p class="centerWrap_title blue">Powerful Pixiv Downloader</p>
       <div class="btns">
       <a class="has_tip centerWrap_top_btn update" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
@@ -722,13 +664,6 @@
       )}" href="https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh" target="_blank">
       <svg t="1574401457339" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4736" xmlns:xlink="http://www.w3.org/1999/xlink" width="16" height="16"><defs><style type="text/css"></style></defs><path d="M894.72 795.477333l-85.418667-85.418667c0.128-0.170667 0.170667-0.341333 0.298667-0.512l-158.890667-158.890667c0.042667-0.597333 37.248-37.248 37.248-37.248l178.773333 0 1.706667-1.493333c-0.853333-196.736-160.426667-356.053333-357.418667-356.053333-72.704 0-140.202667 22.016-196.650667 59.306667L228.949333 129.664C307.968 71.466667 405.333333 36.650667 511.018667 36.650667c263.296 0 476.757333 213.461333 476.757333 476.714667C987.776 619.093333 952.96 716.416 894.72 795.477333zM369.493333 476.117333c-0.042667 0.597333-37.248 37.248-37.248 37.248l-178.773333 0c0 197.461333 160.085333 357.546667 357.546667 357.546667 72.192 0 139.093333-21.76 195.285333-58.538667l85.589333 85.589333c-78.848 57.685333-175.701333 92.117333-280.874667 92.117333-263.296 0-476.757333-213.461333-476.757333-476.757333 0-105.173333 34.474667-202.069333 92.16-280.874667l85.589333 85.589333C211.925333 318.208 211.882667 318.336 211.797333 318.464L369.493333 476.117333z" p-id="4737"></path></svg>
       </a>
-      <a class="has_tip centerWrap_top_btn wiki_url" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-        'lang'
-      ].transl(
-        '_wiki'
-      )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank">
-      <svg t="1574400169015" class="icon" widht="16" height="16" viewBox="0 0 1088 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1872" xmlns:xlink="http://www.w3.org/1999/xlink" width="17" height="16"><defs><style type="text/css"></style></defs><path d="M1044.286732 3.51978A1138.616836 1138.616836 0 0 0 618.841322 58.172364a198.963565 198.963565 0 0 0-26.814324 10.815324V1023.936004l0.895944-0.383976a979.52278 979.52278 0 0 1 443.236298-68.411724 47.741016 47.741016 0 0 0 51.580776-43.261296V50.172864a47.165052 47.165052 0 0 0-43.453284-46.653084z m-74.299356 632.15249h-224.369977V541.470158h224.369977v94.202112z m0-231.921504h-224.369977V309.484657h224.369977v94.266109zM469.154678 58.172364A1138.296856 1138.296856 0 0 0 43.645272 3.455784 47.421036 47.421036 0 0 0 0 50.172864V908.103244a46.653084 46.653084 0 0 0 15.35904 34.493844 48.060996 48.060996 0 0 0 36.285732 12.415224 980.610712 980.610712 0 0 1 443.300294 68.347728l0.895944 0.575964V68.7957a202.099369 202.099369 0 0 0-26.686332-10.751328zM351.146053 635.800262H126.776076V541.59815h224.369977v94.202112z m0-231.921504H126.776076V309.612649h224.369977v94.266109z" p-id="1873"></path></svg>
-      </a>
       <a class="has_tip centerWrap_top_btn" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl(
@@ -736,9 +671,13 @@
       )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
       <svg t="1574401005111" class="icon" widht="16" height="16" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2594" xmlns:xlink="http://www.w3.org/1999/xlink><defs><style type="text/css"></style></defs><path d="M0 520.886c0-69.368 13.51-135.697 40.498-199.02 26.987-63.323 63.322-117.826 109.006-163.51 45.65-45.65 100.154-81.985 163.51-109.006A502.289 502.289 0 0 1 512 8.92c69.335 0 135.663 13.477 198.986 40.497 63.356 26.988 117.86 63.323 163.51 109.007 45.684 45.65 82.02 100.154 109.006 163.51A502.289 502.289 0 0 1 1024 520.852c0 111.318-32.504 211.472-97.511 300.494-64.975 88.989-148.48 150.825-250.484 185.476-5.351 0-9.348-0.99-11.99-2.973-2.676-1.982-4.196-3.997-4.526-6.012a59.458 59.458 0 0 1-0.495-8.984 7.663 7.663 0 0 1-0.991-3.006v-128.99c0-40.63-14.336-75.314-43.008-103.986 76.667-13.345 134.011-41.819 171.999-85.487 37.987-43.669 57.013-96.52 57.013-158.522 0-58.005-18.663-108.346-56.022-150.99 13.345-42.678 11-87.668-6.97-135.003-18.697-1.322-39.011 1.85-61.01 9.513-22 7.663-38.318 14.831-49.02 21.47-10.637 6.673-20.316 13.016-28.97 19.027-38.68-10.669-81.854-16.02-129.486-16.02-47.7 0-90.509 5.351-128.529 16.02-7.333-5.35-15.855-11.164-25.5-17.507-9.68-6.342-26.493-14.005-50.507-22.99-23.982-9.018-45.65-12.85-65.008-11.495-18.663 47.996-20.645 93.646-5.979 136.984-36.665 42.678-54.998 92.986-54.998 150.99 0 62.002 18.663 114.689 55.99 157.994 37.326 43.339 94.67 72.01 171.998 86.016a142.303 142.303 0 0 0-39.969 70.029c-56.683 13.972-96.355 3.963-119.015-30.06-42.017-61.308-79.674-83.307-113.003-65.965-4.69 4.657-3.997 9.48 1.982 14.501 6.012 4.988 14.996 11.66 27.02 19.985 11.99 8.357 20.976 17.507 26.987 27.515 0.661 1.322 2.51 6.177 5.517 14.502a831.917 831.917 0 0 0 8.985 23.981c2.973 7.663 8.654 16.186 17.011 25.5 8.324 9.349 18.003 17.178 29.003 23.52 11 6.309 26.161 11 45.485 14.006 19.324 2.972 41.323 3.138 65.998 0.495v100.484c0 0.991-0.165 2.643-0.495 5.021-0.33 2.312-0.991 3.964-1.982 4.955-0.991 1.024-2.345 2.015-4.03 3.039a12.52 12.52 0 0 1-6.474 1.486c-2.676 0-6.012-0.33-10.009-0.99-101.343-35.345-183.825-97.182-247.51-185.51C31.842 731.037 0 631.577 0 520.92z" p-id="2595"></path></svg>
       </a>
-        <div class="has_tip centerWrap_top_btn centerWrap_toogle_option" data-show="1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-          'lang'
-        ].transl('_收起展开设置项')}">▲</div>
+      <a class="has_tip centerWrap_top_btn wiki_url" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl(
+        '_wiki'
+      )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank">
+      <svg t="1574400169015" class="icon" widht="16" height="16" viewBox="0 0 1088 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1872" xmlns:xlink="http://www.w3.org/1999/xlink" width="17" height="16"><defs><style type="text/css"></style></defs><path d="M1044.286732 3.51978A1138.616836 1138.616836 0 0 0 618.841322 58.172364a198.963565 198.963565 0 0 0-26.814324 10.815324V1023.936004l0.895944-0.383976a979.52278 979.52278 0 0 1 443.236298-68.411724 47.741016 47.741016 0 0 0 51.580776-43.261296V50.172864a47.165052 47.165052 0 0 0-43.453284-46.653084z m-74.299356 632.15249h-224.369977V541.470158h224.369977v94.202112z m0-231.921504h-224.369977V309.484657h224.369977v94.266109zM469.154678 58.172364A1138.296856 1138.296856 0 0 0 43.645272 3.455784 47.421036 47.421036 0 0 0 0 50.172864V908.103244a46.653084 46.653084 0 0 0 15.35904 34.493844 48.060996 48.060996 0 0 0 36.285732 12.415224 980.610712 980.610712 0 0 1 443.300294 68.347728l0.895944 0.575964V68.7957a202.099369 202.099369 0 0 0-26.686332-10.751328zM351.146053 635.800262H126.776076V541.59815h224.369977v94.202112z m0-231.921504H126.776076V309.612649h224.369977v94.266109z" p-id="1873"></path></svg>
+      </a>
         <div class="has_tip centerWrap_top_btn centerWrap_close" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl('_快捷键切换显示隐藏')}">
@@ -749,9 +688,6 @@
 
       <div class="centerWrap_con">
       <slot data-name="form"></slot>
-      <slot data-name="centerBtns" class="centerWrap_btns"></slot>
-      <slot data-name="downloadArea"></slot>
-      <slot data-name="progressBar"></slot>
       </div>
 
       <div class="gray1 bottom_help_bar"> 
@@ -764,6 +700,7 @@
       <span id="resetOption">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_重置设置')}</span>
+      <a id="zanzhu" class="wiki2" href="https://afdian.net/@xuejianxianzun" target="_blank">通过“爱发电”网站支持我</a>
       <br>
       <p class="downTip tip"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
@@ -774,10 +711,9 @@
       `
             document.body.insertAdjacentHTML('beforeend', centerPanelHTML)
             this.centerPanel = document.querySelector('.centerWrap')
-            this.toggleFormEl = this.centerPanel.querySelector(
-              '.centerWrap_toogle_option'
-            )
-            this.slots = this.centerPanel.querySelectorAll('slot')
+            if (document.documentElement.lang === 'zh-CN') {
+              document.getElementById('zanzhu').style.display = 'inline-block'
+            }
           }
           // 绑定中间面板上的事件
           bindEvents() {
@@ -840,26 +776,7 @@
                 }
               }
             )
-            // 点击切换显示表单的按钮时，派发事件
-            this.toggleFormEl.addEventListener('click', () => {
-              const nowShow = this.toggleFormEl.dataset.show
-              const newShow = nowShow === '0' ? '1' : '0'
-              this.toggleFormEl.dataset.show = newShow
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].events.toggleForm,
-                !!parseInt(newShow)
-              )
-            })
-            // 切换显示表单时，更改按钮的数据
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].events.toggleForm,
-              event => {
-                const boolean = event.detail.data
-                this.toggleFormEl.dataset.show = boolean ? '1' : '0'
-                this.toggleFormEl.innerHTML = boolean ? '▲' : '▼'
-              }
-            )
-            // 显示下载说明
+            // 显示常见问题
             document
               .querySelector('.showDownTip')
               .addEventListener('click', () =>
@@ -896,44 +813,6 @@
             _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].events.hideCenterPanel
             )
-          }
-          useSlot(name, element) {
-            if (!this.slots) {
-              throw 'No slots!'
-            }
-            let findSlot
-            for (const slot of this.slots) {
-              if (slot.dataset.name === name) {
-                findSlot = slot
-                break
-              }
-            }
-            if (!findSlot) {
-              throw 'No slots!'
-            }
-            if (typeof element === 'string') {
-              // 插入字符串形式的元素
-              const wrap = document.createElement('div')
-              wrap.innerHTML = element
-              const el = wrap.children[0]
-              findSlot.appendChild(el)
-              return el
-            } else {
-              // 插入 html 元素
-              findSlot.appendChild(element)
-              return element
-            }
-          }
-          // 清空指定的插槽
-          clearSlot(name) {
-            if (!this.slots) {
-              return
-            }
-            for (const slot of this.slots) {
-              if (slot.dataset.name === name) {
-                slot.innerHTML = ''
-              }
-            }
           }
         }
         const centerPanel = new CenterPanel()
@@ -1234,7 +1113,7 @@
           }
         )
         // DOM 操作类
-        // 提供公用的 DOM 操作方法，以及从 DOM 中获取数据的 API
+        // 保存公用的 DOM 操作方法，以及从 DOM 中获取数据的 API
         class DOM {
           // 获取指定元素里，可见的结果
           static getVisibleEl(selector) {
@@ -1326,6 +1205,45 @@
             // 如果都没有获取到
             throw new Error('getUserId failed!')
           }
+          // 寻找 slot，本程序使用的 slot 都要有 data-name 属性
+          static findSlot(name) {
+            const slot = document.querySelector(`slot[data-name=${name}]`)
+            if (!slot) {
+              throw new Error(`No such slot: ${name}`)
+            }
+            return slot
+          }
+          // 使用指定的插槽
+          static useSlot(name, element) {
+            const slot = this.findSlot(name)
+            if (typeof element === 'string') {
+              // 插入字符串形式的元素
+              const wrap = document.createElement('div')
+              wrap.innerHTML = element
+              const el = wrap.children[0]
+              slot.appendChild(el)
+              return el
+            } else {
+              // 插入 html 元素
+              slot.appendChild(element)
+              return element
+            }
+          }
+          // 清空指定的插槽
+          static clearSlot(name) {
+            this.findSlot(name).innerHTML = ''
+          }
+          static addBtn(slot, bg = '', text = '', attr = []) {
+            const e = document.createElement('button')
+            e.type = 'button'
+            e.style.backgroundColor = bg
+            e.textContent = text
+            for (const [key, value] of attr) {
+              e.setAttribute(key, value)
+            }
+            this.useSlot(slot, e)
+            return e
+          }
         }
 
         /***/
@@ -1361,13 +1279,10 @@
         /* harmony import */ var _CenterPanel__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./CenterPanel */ './src/ts/modules/CenterPanel.ts'
         )
-        /* harmony import */ var _CenterButtons__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./CenterButtons */ './src/ts/modules/CenterButtons.ts'
-        )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
-        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         // 删除页面上的作品
@@ -1382,7 +1297,7 @@
             this.worksSelector = worksSelectors
             // 作品列表更新后，需要重新给作品绑定删除事件
             window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.worksUpdate,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].events.worksUpdate,
               () => {
                 if (this.delMode) {
                   this.bindDeleteEvent()
@@ -1391,13 +1306,14 @@
             )
           }
           allowWork() {
-            return _Store__WEBPACK_IMPORTED_MODULE_6__['store'].states.allowWork
+            return _Store__WEBPACK_IMPORTED_MODULE_5__['store'].states.allowWork
           }
           // 清除多图作品的按钮
           addClearMultipleBtn(selector, callback = () => {}) {
             this.multipleSelector = selector
-            _CenterButtons__WEBPACK_IMPORTED_MODULE_5__['centerButtons']
-              .add(
+            _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
+              .addBtn(
+                'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].red,
                 _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
                   '_清除多图作品'
@@ -1433,8 +1349,9 @@
           // 清除动图作品的按钮
           addClearUgoiraBtn(selector, callback = () => {}) {
             this.ugoiraSelector = selector
-            _CenterButtons__WEBPACK_IMPORTED_MODULE_5__['centerButtons']
-              .add(
+            _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
+              .addBtn(
+                'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].red,
                 _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
                   '_清除动图作品'
@@ -1470,9 +1387,10 @@
           // 手动删除作品的按钮
           addManuallyDeleteBtn(callback = () => {}) {
             this.deleteWorkCallback = callback
-            const delBtn = _CenterButtons__WEBPACK_IMPORTED_MODULE_5__[
-              'centerButtons'
-            ].add(
+            const delBtn = _DOM__WEBPACK_IMPORTED_MODULE_3__[
+              'DOM'
+            ].addBtn(
+              'crawlBtns',
               _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].red,
               _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
                 '_手动删除作品'
@@ -1791,23 +1709,23 @@
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
+        )
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
-        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Log */ './src/ts/modules/Log.ts'
         )
-        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _TitleBar__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+        /* harmony import */ var _TitleBar__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./TitleBar */ './src/ts/modules/TitleBar.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./Colors */ './src/ts/modules/Colors.ts'
-        )
-        /* harmony import */ var _CenterPanel__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./CenterPanel */ './src/ts/modules/CenterPanel.ts'
         )
         /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./Settings */ './src/ts/modules/Settings.ts'
@@ -1863,7 +1781,7 @@
               ev => {
                 const count = ev.detail.data
                 if (count > 0) {
-                  this.convertText = _Lang__WEBPACK_IMPORTED_MODULE_3__[
+                  this.convertText = _Lang__WEBPACK_IMPORTED_MODULE_4__[
                     'lang'
                   ].transl('_转换任务提示', count.toString())
                 } else {
@@ -1889,7 +1807,7 @@
                 this.downloadSuccess(msg.data)
               } else if (msg.msg === 'download_err') {
                 // 浏览器把文件保存到本地时出错
-                _Log__WEBPACK_IMPORTED_MODULE_2__['log'].error(
+                _Log__WEBPACK_IMPORTED_MODULE_3__['log'].error(
                   `${msg.data.id} download error! code: ${msg.err}. The downloader will try to download the file again `
                 )
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
@@ -1900,8 +1818,8 @@
               }
               // UUID 的情况
               if (msg.data && msg.data.uuid) {
-                _Log__WEBPACK_IMPORTED_MODULE_2__['log'].error(
-                  _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_uuid')
+                _Log__WEBPACK_IMPORTED_MODULE_3__['log'].error(
+                  _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_uuid')
                 )
               }
             })
@@ -1910,7 +1828,7 @@
             this.downloaded = val
             this.LogDownloadStates()
             // 设置下载进度信息
-            this.totalNumberEl.textContent = _Store__WEBPACK_IMPORTED_MODULE_1__[
+            this.totalNumberEl.textContent = _Store__WEBPACK_IMPORTED_MODULE_2__[
               'store'
             ].result.length.toString()
             _ProgressBar__WEBPACK_IMPORTED_MODULE_9__[
@@ -1919,26 +1837,26 @@
             // 重置下载进度信息
             if (this.downloaded === 0) {
               this.setDownStateText(
-                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_未开始下载')
+                _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_未开始下载')
               )
             }
             // 下载完毕
             if (
               this.downloaded ===
-              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length
+              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length
             ) {
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadComplete
               )
               this.reset()
               this.setDownStateText(
-                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_下载完毕')
+                _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_下载完毕')
               )
-              _Log__WEBPACK_IMPORTED_MODULE_2__['log'].success(
-                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_下载完毕'),
+              _Log__WEBPACK_IMPORTED_MODULE_3__['log'].success(
+                _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_下载完毕'),
                 2
               )
-              _TitleBar__WEBPACK_IMPORTED_MODULE_4__['titleBar'].change('√')
+              _TitleBar__WEBPACK_IMPORTED_MODULE_5__['titleBar'].change('√')
             }
           }
           downloadedAdd() {
@@ -1969,44 +1887,45 @@
           }
           createDownloadArea() {
             const html = `<div class="download_area">
-    <p> ${_Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+    <p> ${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
       '_共抓取到n个图片',
       '<span class="fwb blue imgNum">0</span>'
     )}</p>
     
     <div class="centerWrap_btns">
     <button class="startDownload" type="button" style="background:${
-      _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].blue
-    };"> ${_Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+      _Colors__WEBPACK_IMPORTED_MODULE_6__['Colors'].blue
+    };"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
               '_下载按钮1'
             )}</button>
-    <button class="pauseDownload" type="button" style="background:#e49d00;"> ${_Lang__WEBPACK_IMPORTED_MODULE_3__[
+    <button class="pauseDownload" type="button" style="background:#e49d00;"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__[
       'lang'
     ].transl('_下载按钮2')}</button>
     <button class="stopDownload" type="button" style="background:${
-      _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].red
-    };"> ${_Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+      _Colors__WEBPACK_IMPORTED_MODULE_6__['Colors'].red
+    };"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
               '_下载按钮3'
             )}</button>
     <button class="copyUrl" type="button" style="background:${
-      _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].green
-    };"> ${_Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+      _Colors__WEBPACK_IMPORTED_MODULE_6__['Colors'].green
+    };"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
               '_下载按钮4'
             )}</button>
     </div>
     <div class="centerWrap_down_tips">
     <p>
-    ${_Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_当前状态')}
-    <span class="down_status blue"><span>${_Lang__WEBPACK_IMPORTED_MODULE_3__[
+    ${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_当前状态')}
+    <span class="down_status blue"><span>${_Lang__WEBPACK_IMPORTED_MODULE_4__[
       'lang'
     ].transl('_未开始下载')}</span></span>
     <span class="convert_tip warn"></span>
     </p>
     </div>
     </div>`
-            const el = _CenterPanel__WEBPACK_IMPORTED_MODULE_6__[
-              'centerPanel'
-            ].useSlot('downloadArea', html)
+            const el = _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].useSlot(
+              'downloadArea',
+              html
+            )
             this.downloadArea = el
             this.downStatusEl = el.querySelector('.down_status ')
             this.convertTipEL = el.querySelector('.convert_tip')
@@ -2033,16 +1952,16 @@
           // 显示 url
           showURLs() {
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length === 0
+              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length === 0
             ) {
               return alert(
-                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+                _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
                   '_没有数据可供使用'
                 )
               )
             }
             let result = ''
-            result = _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.reduce(
+            result = _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.reduce(
               (total, now) => {
                 return (total += now.url + '<br>')
               },
@@ -2071,12 +1990,12 @@
             }
             // 如果剩余任务数量少于下载线程数
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length -
+              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length -
                 this.downloaded <
               this.downloadThread
             ) {
               this.downloadThread =
-                _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length -
+                _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length -
                 this.downloaded
             }
             // 重设下载进度条
@@ -2091,7 +2010,7 @@
             this.setDownloadThread()
             // 检查 不自动开始下载 的标记
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].states
+              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].states
                 .notAutoDownload
             ) {
               return
@@ -2101,14 +2020,14 @@
                 .checked
             if (
               !autoDownload &&
-              !_Store__WEBPACK_IMPORTED_MODULE_1__['store'].states.quickDownload
+              !_Store__WEBPACK_IMPORTED_MODULE_2__['store'].states.quickDownload
             ) {
-              _TitleBar__WEBPACK_IMPORTED_MODULE_4__['titleBar'].change('▶')
+              _TitleBar__WEBPACK_IMPORTED_MODULE_5__['titleBar'].change('▶')
             }
             // 视情况自动开始下载
             if (
               autoDownload ||
-              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].states.quickDownload
+              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].states.quickDownload
             ) {
               this.startDownload()
             }
@@ -2117,8 +2036,8 @@
           startDownload() {
             // 如果正在下载中，或无图片，则不予处理
             if (
-              !_Store__WEBPACK_IMPORTED_MODULE_1__['store'].states.allowWork ||
-              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length === 0
+              !_Store__WEBPACK_IMPORTED_MODULE_2__['store'].states.allowWork ||
+              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length === 0
             ) {
               return
             }
@@ -2131,7 +2050,7 @@
               // 0 使用中
               // 1 已完成
               this.statesList = new Array(
-                _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length
+                _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length
               ).fill(-1)
               this.taskBatch = new Date().getTime() // 修改本批下载任务的标记
             } else {
@@ -2156,17 +2075,17 @@
               this.createDownload(i)
             }
             this.setDownStateText(
-              _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_正在下载中')
+              _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_正在下载中')
             )
-            _Log__WEBPACK_IMPORTED_MODULE_2__['log'].log(
-              _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_正在下载中')
+            _Log__WEBPACK_IMPORTED_MODULE_3__['log'].log(
+              _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_正在下载中')
             )
           }
           // 暂停下载
           pauseDownload() {
             clearTimeout(this.reTryTimer)
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length === 0
+              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length === 0
             ) {
               return
             }
@@ -2177,19 +2096,19 @@
             if (this.downloadPause === false) {
               // 如果正在下载中
               if (
-                !_Store__WEBPACK_IMPORTED_MODULE_1__['store'].states.allowWork
+                !_Store__WEBPACK_IMPORTED_MODULE_2__['store'].states.allowWork
               ) {
                 this.downloadPause = true // 发出暂停信号
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
                   _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadPause
                 )
-                _TitleBar__WEBPACK_IMPORTED_MODULE_4__['titleBar'].change('║')
+                _TitleBar__WEBPACK_IMPORTED_MODULE_5__['titleBar'].change('║')
                 this.setDownStateText(
-                  _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_已暂停'),
+                  _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_已暂停'),
                   '#f00'
                 )
-                _Log__WEBPACK_IMPORTED_MODULE_2__['log'].warning(
-                  _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_已暂停'),
+                _Log__WEBPACK_IMPORTED_MODULE_3__['log'].warning(
+                  _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_已暂停'),
                   2
                 )
               } else {
@@ -2202,7 +2121,7 @@
           stopDownload() {
             clearTimeout(this.reTryTimer)
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length ===
+              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length ===
                 0 ||
               this.downloadStop
             ) {
@@ -2212,13 +2131,13 @@
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadStop
             )
-            _TitleBar__WEBPACK_IMPORTED_MODULE_4__['titleBar'].change('■')
+            _TitleBar__WEBPACK_IMPORTED_MODULE_5__['titleBar'].change('■')
             this.setDownStateText(
-              _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_已停止'),
+              _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_已停止'),
               '#f00'
             )
-            _Log__WEBPACK_IMPORTED_MODULE_2__['log'].error(
-              _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_已停止'),
+            _Log__WEBPACK_IMPORTED_MODULE_3__['log'].error(
+              _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_已停止'),
               2
             )
             this.downloadPause = false
@@ -2254,7 +2173,7 @@
             // 如果没有全部下载完毕
             if (
               this.downloaded <
-              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length
+              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length
             ) {
               // 如果任务已停止
               if (this.downloadPause || this.downloadStop) {
@@ -2263,7 +2182,7 @@
               // 如果已完成的数量 加上 线程中未完成的数量，仍然没有达到文件总数，继续添加任务
               if (
                 this.downloaded + this.downloadThread - 1 <
-                _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length
+                _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length
               ) {
                 return true
               } else {
@@ -2275,12 +2194,12 @@
           }
           // 在日志上显示下载进度
           LogDownloadStates() {
-            let text = `${this.downloaded} / ${_Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length}`
+            let text = `${this.downloaded} / ${_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length}`
             // 追加转换动图的提示
             if (this.convertText) {
               text += ', ' + this.convertText
             }
-            _Log__WEBPACK_IMPORTED_MODULE_2__['log'].log(text, 2, false)
+            _Log__WEBPACK_IMPORTED_MODULE_3__['log'].log(text, 2, false)
           }
           // 查找需要进行下载的作品，建立下载
           createDownload(progressBarIndex) {
@@ -2297,7 +2216,7 @@
               throw new Error('There are no data to download')
             } else {
               const workData =
-                _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result[index]
+                _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result[index]
               const data = {
                 id: workData.id,
                 data: workData,
@@ -2371,7 +2290,6 @@
           clearUgoira: 'clearUgoira',
           deleteWork: 'deleteWork',
           worksUpdate: 'worksUpdate',
-          toggleForm: 'toggleForm',
           settingChange: 'settingChange',
           clickRightIcon: 'clickRightIcon',
           destroy: 'destroy',
@@ -3793,8 +3711,8 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _CenterButtons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./CenterButtons */ './src/ts/modules/CenterButtons.ts'
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Options */ './src/ts/modules/Options.ts'
@@ -3818,8 +3736,9 @@
             this.init()
           }
           appendCenterBtns() {
-            _CenterButtons__WEBPACK_IMPORTED_MODULE_3__['centerButtons']
-              .add(
+            _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
+              .addBtn(
+                'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_抓取本页作品'
@@ -3838,13 +3757,8 @@
               })
           }
           setFormOption() {
-            _Options__WEBPACK_IMPORTED_MODULE_4__['options'].hideOption([
-              1,
-              15,
-              18
-            ])
+            _Options__WEBPACK_IMPORTED_MODULE_4__['options'].hideOption([1])
           }
-          destroy() {}
           getIdList() {
             // 地区排行榜
             const allPicArea = document.querySelectorAll(
@@ -3905,8 +3819,8 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _CenterButtons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./CenterButtons */ './src/ts/modules/CenterButtons.ts'
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Options */ './src/ts/modules/Options.ts'
@@ -3927,8 +3841,9 @@
             this.init()
           }
           appendCenterBtns() {
-            _CenterButtons__WEBPACK_IMPORTED_MODULE_3__['centerButtons']
-              .add(
+            _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
+              .addBtn(
+                'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_抓取相似图片'
@@ -3960,12 +3875,7 @@
               rangTip: `1 - ${this.maxCount}`,
               value: this.maxCount.toString()
             })
-            _Options__WEBPACK_IMPORTED_MODULE_4__['options'].hideOption([
-              15,
-              18
-            ])
           }
-          destroy() {}
           getWantPage() {
             const check = this.checkWantPageInputGreater0()
             if (check == undefined) {
@@ -4021,8 +3931,8 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _CenterButtons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./CenterButtons */ './src/ts/modules/CenterButtons.ts'
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Options */ './src/ts/modules/Options.ts'
@@ -4050,8 +3960,9 @@
             this.init()
           }
           appendCenterBtns() {
-            _CenterButtons__WEBPACK_IMPORTED_MODULE_3__['centerButtons']
-              .add(
+            _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
+              .addBtn(
+                'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_开始抓取'),
                 [
@@ -4088,12 +3999,7 @@
               rangTip: `1 - ${this.maxCount}`,
               value: this.maxCount.toString()
             })
-            _Options__WEBPACK_IMPORTED_MODULE_4__['options'].hideOption([
-              15,
-              18
-            ])
           }
-          destroy() {}
           getWantPage() {
             const check = this.checkWantPageInputGreater0()
             if (check == undefined) {
@@ -4209,25 +4115,22 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _CenterButtons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./CenterButtons */ './src/ts/modules/CenterButtons.ts'
-        )
-        /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Options */ './src/ts/modules/Options.ts'
         )
-        /* harmony import */ var _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+        /* harmony import */ var _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./BookmarksAddTag */ './src/ts/modules/BookmarksAddTag.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
-        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./Log */ './src/ts/modules/Log.ts'
         )
-        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
-        /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
+        /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
           /*! ./PageInfo */ './src/ts/modules/PageInfo.ts'
         )
         // 初始化收藏页面
@@ -4247,8 +4150,9 @@
             this.init()
           }
           appendCenterBtns() {
-            _CenterButtons__WEBPACK_IMPORTED_MODULE_4__['centerButtons']
-              .add(
+            _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM']
+              .addBtn(
+                'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_开始抓取'),
                 [
@@ -4269,9 +4173,10 @@
             // 添加下载推荐作品的按钮，只在旧版收藏页面使用
             const isOldPage = !!document.querySelector('.user-name')
             if (isOldPage) {
-              const downRecmdBtn = _CenterButtons__WEBPACK_IMPORTED_MODULE_4__[
-                'centerButtons'
-              ].add(
+              const downRecmdBtn = _DOM__WEBPACK_IMPORTED_MODULE_8__[
+                'DOM'
+              ].addBtn(
+                'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                   '_抓取推荐作品'
@@ -4296,9 +4201,10 @@
             }
             // 如果存在 token，则添加“添加 tag”按钮
             if (_API__WEBPACK_IMPORTED_MODULE_1__['API'].getToken()) {
-              const btn = _CenterButtons__WEBPACK_IMPORTED_MODULE_4__[
-                'centerButtons'
-              ].add(
+              const btn = _DOM__WEBPACK_IMPORTED_MODULE_8__[
+                'DOM'
+              ].addBtn(
+                'otherBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].green,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_添加tag'),
                 [
@@ -4310,14 +4216,14 @@
                   ]
                 ]
               )
-              new _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_6__[
+              new _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_5__[
                 'BookmarksAddTag'
               ](btn)
             }
           }
           setFormOption() {
             // 设置“个数/页数”选项
-            _Options__WEBPACK_IMPORTED_MODULE_5__['options'].setWantPage({
+            _Options__WEBPACK_IMPORTED_MODULE_4__['options'].setWantPage({
               text: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_页数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                 '_checkWantPageRule1Arg8'
@@ -4328,16 +4234,11 @@
               value: '-1'
             })
             // 在书签页面隐藏只要书签选项
-            _Options__WEBPACK_IMPORTED_MODULE_5__['options'].hideOption([
-              6,
-              15,
-              18
-            ])
+            _Options__WEBPACK_IMPORTED_MODULE_4__['options'].hideOption([6])
             if (location.href.includes('bookmark.php')) {
-              _Options__WEBPACK_IMPORTED_MODULE_5__['options'].hideOption([6])
+              _Options__WEBPACK_IMPORTED_MODULE_4__['options'].hideOption([6])
             }
           }
-          destroy() {}
           getWantPage() {
             let pageTip = ''
             if (this.crawlRecommended) {
@@ -4387,7 +4288,7 @@
               this.requsetNumber = onceNumber * this.crawlNumber
             }
             this.tag =
-              _PageInfo__WEBPACK_IMPORTED_MODULE_10__['pageInfo'].getPageTag
+              _PageInfo__WEBPACK_IMPORTED_MODULE_9__['pageInfo'].getPageTag
             // 判断是公开收藏还是非公开收藏
             // 在新旧版 url 里，rest 都是在查询字符串里的
             this.isHide =
@@ -4397,11 +4298,11 @@
               ) === 'hide'
             // 获取 id 列表
             this.getIdList()
-            _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
+            _Log__WEBPACK_IMPORTED_MODULE_7__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_正在抓取')
             )
             if (this.crawlNumber === -1) {
-              _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
+              _Log__WEBPACK_IMPORTED_MODULE_7__['log'].log(
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                   '_获取全部书签作品'
                 )
@@ -4415,7 +4316,7 @@
               data = await _API__WEBPACK_IMPORTED_MODULE_1__[
                 'API'
               ].getBookmarkData(
-                _DOM__WEBPACK_IMPORTED_MODULE_9__['DOM'].getUserId(),
+                _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM'].getUserId(),
                 this.tag,
                 this.offset,
                 this.isHide
@@ -4446,9 +4347,9 @@
               this.idList.splice(this.requsetNumber, this.idList.length)
               // 书签页面的 api 没有考虑页面上的排序顺序，获取到的 id 列表始终是按收藏顺序由近期到早期排列的
             }
-            _Store__WEBPACK_IMPORTED_MODULE_7__[
+            _Store__WEBPACK_IMPORTED_MODULE_6__[
               'store'
-            ].idList = _Store__WEBPACK_IMPORTED_MODULE_7__[
+            ].idList = _Store__WEBPACK_IMPORTED_MODULE_6__[
               'store'
             ].idList.concat(this.idList)
             this.getIdListFinished()
@@ -4466,7 +4367,7 @@
             // 添加作品列表
             for (const li of elements) {
               const a = li.querySelector('a')
-              _Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push(
+              _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push(
                 _API__WEBPACK_IMPORTED_MODULE_1__['API'].getIllustId(a.href)
               )
             }
@@ -4481,7 +4382,7 @@
           }
           sortResult() {
             // 把作品数据反转，这样可以先下载收藏时间早的，后下载收藏时间近的
-            _Store__WEBPACK_IMPORTED_MODULE_7__['store'].result.reverse()
+            _Store__WEBPACK_IMPORTED_MODULE_6__['store'].result.reverse()
           }
         }
 
@@ -4512,8 +4413,8 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _CenterButtons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./CenterButtons */ './src/ts/modules/CenterButtons.ts'
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Options */ './src/ts/modules/Options.ts'
@@ -4537,8 +4438,9 @@
             this.init()
           }
           appendCenterBtns() {
-            _CenterButtons__WEBPACK_IMPORTED_MODULE_3__['centerButtons']
-              .add(
+            _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
+              .addBtn(
+                'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_抓取当前作品'
@@ -4557,11 +4459,7 @@
               })
           }
           setFormOption() {
-            _Options__WEBPACK_IMPORTED_MODULE_4__['options'].hideOption([
-              1,
-              15,
-              18
-            ])
+            _Options__WEBPACK_IMPORTED_MODULE_4__['options'].hideOption([1])
           }
           appendElseEl() {
             const deleteWorks = new _DeleteWorks__WEBPACK_IMPORTED_MODULE_5__[
@@ -4571,7 +4469,6 @@
             deleteWorks.addClearUgoiraBtn('.AGgsUWZ')
             deleteWorks.addManuallyDeleteBtn()
           }
-          destroy() {}
           getWantPage() {}
           getIdList() {
             // 在发现页面，仅下载已有部分，所以不需要去获取列表页
@@ -4619,19 +4516,16 @@
         /* harmony import */ var _CenterPanel__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./CenterPanel */ './src/ts/modules/CenterPanel.ts'
         )
-        /* harmony import */ var _CenterButtons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./CenterButtons */ './src/ts/modules/CenterButtons.ts'
-        )
-        /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Options */ './src/ts/modules/Options.ts'
         )
-        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
-        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./Log */ './src/ts/modules/Log.ts'
         )
         // 初始化首页
@@ -4647,9 +4541,10 @@
             this.init()
           }
           appendCenterBtns() {
-            this.downIdButton = _CenterButtons__WEBPACK_IMPORTED_MODULE_4__[
-              'centerButtons'
-            ].add(
+            this.downIdButton = _DOM__WEBPACK_IMPORTED_MODULE_5__[
+              'DOM'
+            ].addBtn(
+              'crawlBtns',
               _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_输入id进行抓取'
@@ -4667,16 +4562,12 @@
                 '_输入id进行抓取的提示文字'
               )
             )
-            _DOM__WEBPACK_IMPORTED_MODULE_6__['DOM'].insertToHead(
+            _DOM__WEBPACK_IMPORTED_MODULE_5__['DOM'].insertToHead(
               this.downIdInput
             )
           }
           setFormOption() {
-            _Options__WEBPACK_IMPORTED_MODULE_5__['options'].hideOption([
-              1,
-              15,
-              18
-            ])
+            _Options__WEBPACK_IMPORTED_MODULE_4__['options'].hideOption([1])
           }
           initElse() {
             this.downIdButton.addEventListener(
@@ -4715,7 +4606,7 @@
           }
           nextStep() {
             // 在主页通过id抓取时，不需要获取列表页，直接完成
-            _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
+            _Log__WEBPACK_IMPORTED_MODULE_7__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_开始获取作品页面'
               )
@@ -4731,7 +4622,7 @@
               // 如果有 id 不是数字，或者处于非法区间，中止任务
               const nowId = parseInt(id)
               if (isNaN(nowId) || nowId < 22 || nowId > 99999999) {
-                _Log__WEBPACK_IMPORTED_MODULE_8__['log'].error(
+                _Log__WEBPACK_IMPORTED_MODULE_7__['log'].error(
                   _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                     '_id不合法'
                   ),
@@ -4739,7 +4630,7 @@
                   false
                 )
               } else {
-                _Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push(
+                _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push(
                   nowId.toString()
                 )
               }
@@ -4748,7 +4639,9 @@
           }
           resetGetIdListStatus() {}
           destroy() {
-            _DOM__WEBPACK_IMPORTED_MODULE_6__['DOM'].removeEl(this.downIdInput)
+            _DOM__WEBPACK_IMPORTED_MODULE_5__['DOM'].clearSlot('crawlBtns')
+            _DOM__WEBPACK_IMPORTED_MODULE_5__['DOM'].clearSlot('otherBtns')
+            _DOM__WEBPACK_IMPORTED_MODULE_5__['DOM'].removeEl(this.downIdInput)
           }
         }
 
@@ -4779,23 +4672,23 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _CenterButtons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./CenterButtons */ './src/ts/modules/CenterButtons.ts'
-        )
-        /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+        /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Options */ './src/ts/modules/Options.ts'
         )
-        /* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Filter */ './src/ts/modules/Filter.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./API */ './src/ts/modules/API.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
-        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./Log */ './src/ts/modules/Log.ts'
+        )
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         // 初始化 大家的新作品页面
 
@@ -4811,8 +4704,9 @@
             this.init()
           }
           appendCenterBtns() {
-            _CenterButtons__WEBPACK_IMPORTED_MODULE_3__['centerButtons']
-              .add(
+            _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM']
+              .addBtn(
+                'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_开始抓取'),
                 [
@@ -4843,7 +4737,7 @@
           }
           setFormOption() {
             // 设置“个数/页数”选项
-            _Options__WEBPACK_IMPORTED_MODULE_4__['options'].setWantPage({
+            _Options__WEBPACK_IMPORTED_MODULE_3__['options'].setWantPage({
               text: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_个数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_要获取的作品个数2'
@@ -4851,12 +4745,7 @@
               rangTip: `1 - ${this.maxCount}`,
               value: '100'
             })
-            _Options__WEBPACK_IMPORTED_MODULE_4__['options'].hideOption([
-              15,
-              18
-            ])
           }
-          destroy() {}
           getWantPage() {
             const check = this.checkWantPageInputGreater0()
             if (check == undefined) {
@@ -4866,7 +4755,7 @@
             if (this.crawlNumber > this.maxCount) {
               this.crawlNumber = this.maxCount
             }
-            _Log__WEBPACK_IMPORTED_MODULE_8__['log'].warning(
+            _Log__WEBPACK_IMPORTED_MODULE_7__['log'].warning(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_抓取多少个作品',
                 this.crawlNumber.toString()
@@ -4896,7 +4785,7 @@
             this.fetchCount = 0
             // 当前页面的作品类型，默认是 illust
             this.option.type =
-              _API__WEBPACK_IMPORTED_MODULE_6__['API'].getURLField(
+              _API__WEBPACK_IMPORTED_MODULE_5__['API'].getURLField(
                 location.href,
                 'type'
               ) || 'illust'
@@ -4908,7 +4797,7 @@
           async getIdList() {
             let data
             try {
-              data = await _API__WEBPACK_IMPORTED_MODULE_6__[
+              data = await _API__WEBPACK_IMPORTED_MODULE_5__[
                 'API'
               ].getNewIllustData(this.option)
             } catch (error) {
@@ -4937,14 +4826,14 @@
                 tags: nowData.tags
               }
               if (
-                _Filter__WEBPACK_IMPORTED_MODULE_5__['filter'].check(filterOpt)
+                _Filter__WEBPACK_IMPORTED_MODULE_4__['filter'].check(filterOpt)
               ) {
-                _Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push(
+                _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push(
                   nowData.illustId
                 )
               }
             }
-            _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
+            _Log__WEBPACK_IMPORTED_MODULE_7__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_新作品进度',
                 this.fetchCount.toString()
@@ -4957,7 +4846,7 @@
               this.fetchCount >= this.crawlNumber ||
               this.fetchCount >= this.maxCount
             ) {
-              _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
+              _Log__WEBPACK_IMPORTED_MODULE_7__['log'].log(
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_开始获取作品页面'
                 )
@@ -5124,8 +5013,8 @@
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./Colors */ './src/ts/modules/Colors.ts'
         )
-        /* harmony import */ var _CenterButtons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./CenterButtons */ './src/ts/modules/CenterButtons.ts'
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Options */ './src/ts/modules/Options.ts'
@@ -5185,12 +5074,15 @@
           // 各个子类私有的初始化内容
           initElse() {}
           // 销毁初始化页面时添加的元素和事件，恢复设置项等
-          // 各个子类不需要销毁中间按钮，CenterButtons 类会自行销毁
-          destroy() {}
+          destroy() {
+            _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM'].clearSlot('crawlBtns')
+            _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM'].clearSlot('otherBtns')
+          }
           // 添加中间按钮
           appendCenterBtns() {
-            _CenterButtons__WEBPACK_IMPORTED_MODULE_2__['centerButtons']
-              .add(
+            _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM']
+              .addBtn(
+                'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_开始抓取'),
                 [
@@ -5224,10 +5116,6 @@
               ),
               value: '1'
             })
-            _Options__WEBPACK_IMPORTED_MODULE_3__['options'].hideOption([
-              15,
-              18
-            ])
           }
           // 作品个数/页数的输入不合法
           getWantPageError() {
@@ -5707,8 +5595,8 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _CenterButtons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./CenterButtons */ './src/ts/modules/CenterButtons.ts'
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Options */ './src/ts/modules/Options.ts'
@@ -5740,8 +5628,9 @@
               type === 'cosplay'
             ) {
               // 在插画、漫画、cosplay类型的页面上创建下载功能
-              _CenterButtons__WEBPACK_IMPORTED_MODULE_3__['centerButtons']
-                .add(
+              _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
+                .addBtn(
+                  'crawlBtns',
                   _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                   _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                     '_抓取该页面的图片'
@@ -5780,7 +5669,6 @@
             _Settings__WEBPACK_IMPORTED_MODULE_5__['form'].userSetName.value =
               '{p_title}/{id}'
           }
-          destroy() {}
           nextStep() {
             this.getPixivision()
           }
@@ -5894,8 +5782,8 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _CenterButtons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./CenterButtons */ './src/ts/modules/CenterButtons.ts'
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./Options */ './src/ts/modules/Options.ts'
@@ -5924,8 +5812,9 @@
             this.init()
           }
           appendCenterBtns() {
-            _CenterButtons__WEBPACK_IMPORTED_MODULE_4__['centerButtons']
-              .add(
+            _DOM__WEBPACK_IMPORTED_MODULE_4__['DOM']
+              .addBtn(
+                'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                   '_抓取本排行榜作品'
@@ -5950,8 +5839,9 @@
               'mode'
             )
             if (debutModes.includes(mode)) {
-              _CenterButtons__WEBPACK_IMPORTED_MODULE_4__['centerButtons']
-                .add(
+              _DOM__WEBPACK_IMPORTED_MODULE_4__['DOM']
+                .addBtn(
+                  'crawlBtns',
                   _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                   _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                     '_抓取首次登场的作品'
@@ -5983,12 +5873,7 @@
               rangTip: `1 - ${this.maxCount}`,
               value: this.maxCount.toString()
             })
-            _Options__WEBPACK_IMPORTED_MODULE_5__['options'].hideOption([
-              15,
-              18
-            ])
           }
-          destroy() {}
           resetOption() {
             return { mode: 'daily', p: 1, worksType: '', date: '' }
           }
@@ -6137,43 +6022,40 @@
         /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Options */ './src/ts/modules/Options.ts'
         )
-        /* harmony import */ var _CenterButtons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./CenterButtons */ './src/ts/modules/CenterButtons.ts'
-        )
-        /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./PageInfo */ './src/ts/modules/PageInfo.ts'
         )
-        /* harmony import */ var _DeleteWorks__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+        /* harmony import */ var _DeleteWorks__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./DeleteWorks */ './src/ts/modules/DeleteWorks.ts'
         )
-        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
-        /* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+        /* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./Filter */ './src/ts/modules/Filter.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ./API */ './src/ts/modules/API.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
-        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
           /*! ./Log */ './src/ts/modules/Log.ts'
         )
-        /* harmony import */ var _CenterPanel__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
+        /* harmony import */ var _CenterPanel__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
           /*! ./CenterPanel */ './src/ts/modules/CenterPanel.ts'
         )
-        /* harmony import */ var _TitleBar__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
+        /* harmony import */ var _TitleBar__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
           /*! ./TitleBar */ './src/ts/modules/TitleBar.ts'
         )
-        /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
+        /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
           /*! ./Settings */ './src/ts/modules/Settings.ts'
         )
-        /* harmony import */ var _FastScreen__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
+        /* harmony import */ var _FastScreen__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
           /*! ./FastScreen */ './src/ts/modules/FastScreen.ts'
         )
-        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         // 初始化搜索页
@@ -6183,13 +6065,13 @@
         ] {
           constructor() {
             super()
-            this.listClass = 'jwiybC'
+            this.listClass = 'fRrZrZ'
             this.multipleClass = 'cFZsbP'
             this.ugoiraClass = 'cAXUcw'
             this.countClass = 'bTLfVL'
-            this.hotWorkBarClass = 'hlGCV'
             this.addBMKBtnClass = 'xz-addBMK'
             this.bookmarkedClass = 'bookmarked'
+            this.hotWorkAsideClass = 'section aside'
             this.worksType = ''
             this.option = {}
             this.worksNoPerPage = 60 // 每个页面有多少个作品
@@ -6222,7 +6104,7 @@
             this.needReAdd = false // 是否需要重新添加结果（并且会重新渲染）
             this.showCount = () => {
               const count = this.resultMeta.length.toString()
-              _Log__WEBPACK_IMPORTED_MODULE_11__['log'].success(
+              _Log__WEBPACK_IMPORTED_MODULE_10__['log'].success(
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_调整完毕',
                   count
@@ -6355,14 +6237,14 @@
             }
             this.addBookmark = event => {
               const data = event.detail.data
-              const tagString = _Settings__WEBPACK_IMPORTED_MODULE_14__['form']
+              const tagString = _Settings__WEBPACK_IMPORTED_MODULE_13__['form']
                 .quickBookmarks.checked
                 ? data.tags
                 : ''
-              _API__WEBPACK_IMPORTED_MODULE_9__['API'].addBookmark(
+              _API__WEBPACK_IMPORTED_MODULE_8__['API'].addBookmark(
                 data.id.toString(),
                 tagString,
-                _API__WEBPACK_IMPORTED_MODULE_9__['API'].getToken(),
+                _API__WEBPACK_IMPORTED_MODULE_8__['API'].getToken(),
                 false
               )
               this.resultMeta.forEach(result => {
@@ -6376,7 +6258,7 @@
               if (this.crawlWorks) {
                 this.crawled = true
                 this.resultMeta = [
-                  ..._Store__WEBPACK_IMPORTED_MODULE_10__['store'].resultMeta
+                  ..._Store__WEBPACK_IMPORTED_MODULE_9__['store'].resultMeta
                 ]
                 this.reAddResult()
               }
@@ -6411,52 +6293,51 @@
               }
             }
             this.init()
-            new _FastScreen__WEBPACK_IMPORTED_MODULE_15__['FastScreen']()
+            new _FastScreen__WEBPACK_IMPORTED_MODULE_14__['FastScreen']()
           }
           initElse() {
             this.hotBar()
             this.setPreviewResult(
-              _Settings__WEBPACK_IMPORTED_MODULE_14__['form'].previewResult
+              _Settings__WEBPACK_IMPORTED_MODULE_13__['form'].previewResult
                 .checked
             )
             window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.addResult,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].events.addResult,
               this.addWork
             )
             window.addEventListener('addBMK', this.addBookmark)
             window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.crawlFinish,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].events.crawlFinish,
               this.onCrawlFinish
             )
             window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.crawlFinish,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].events.crawlFinish,
               this.showCount
             )
             window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.clearMultiple,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].events.clearMultiple,
               this.clearMultiple
             )
             window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.clearUgoira,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].events.clearUgoira,
               this.clearUgoira
             )
             window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.deleteWork,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].events.deleteWork,
               this.deleteWork
             )
             window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.settingChange,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].events.settingChange,
               this.onSettingChange
             )
           }
           // 去除热门作品上面的遮挡
           hotBar() {
-            const getHotWorkEL = () => {
-              return document.querySelector(`.${this.hotWorkBarClass} aside`)
-            }
             // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
             const timer = window.setInterval(() => {
-              const hotWorkAside = getHotWorkEL()
+              const hotWorkAside = document.querySelector(
+                this.hotWorkAsideClass
+              )
               if (hotWorkAside) {
                 window.clearInterval(timer)
                 // 去掉遮挡作品的购买链接
@@ -6464,17 +6345,18 @@
                 premiumLink && premiumLink.remove()
                 // 去掉遮挡后两个作品的 after。因为是伪元素，所以要通过 css 控制
                 const style = `
-        .${this.hotWorkBarClass} ul::after{
+        section aside ul::after{
           display:none !important;
         }
         `
-                _DOM__WEBPACK_IMPORTED_MODULE_16__['DOM'].addStyle(style)
+                _DOM__WEBPACK_IMPORTED_MODULE_15__['DOM'].addStyle(style)
               }
             }, 500)
           }
           appendCenterBtns() {
-            _CenterButtons__WEBPACK_IMPORTED_MODULE_4__['centerButtons']
-              .add(
+            _DOM__WEBPACK_IMPORTED_MODULE_15__['DOM']
+              .addBtn(
+                'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].green,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_开始筛选'),
                 [
@@ -6489,8 +6371,9 @@
               .addEventListener('click', () => {
                 this.startScreen()
               })
-            _CenterButtons__WEBPACK_IMPORTED_MODULE_4__['centerButtons']
-              .add(
+            _DOM__WEBPACK_IMPORTED_MODULE_15__['DOM']
+              .addBtn(
+                'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].red,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_在结果中筛选'
@@ -6509,22 +6392,22 @@
               })
           }
           appendElseEl() {
-            const deleteWorks = new _DeleteWorks__WEBPACK_IMPORTED_MODULE_6__[
+            const deleteWorks = new _DeleteWorks__WEBPACK_IMPORTED_MODULE_5__[
               'DeleteWorks'
             ](`.${this.listClass}`)
             deleteWorks.addClearMultipleBtn(`.${this.multipleClass}`, () => {
-              _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.clearMultiple
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
+                _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].events.clearMultiple
               )
             })
             deleteWorks.addClearUgoiraBtn(`.${this.ugoiraClass}`, () => {
-              _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.clearUgoira
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
+                _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].events.clearUgoira
               )
             })
             deleteWorks.addManuallyDeleteBtn(el => {
-              _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.deleteWork,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
+                _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].events.deleteWork,
                 el
               )
             })
@@ -6540,29 +6423,30 @@
               rangTip: `1 - ${this.maxCount}`,
               value: this.maxCount.toString()
             })
-            _Options__WEBPACK_IMPORTED_MODULE_3__['options'].hideOption([15])
           }
           destroy() {
+            _DOM__WEBPACK_IMPORTED_MODULE_15__['DOM'].clearSlot('crawlBtns')
+            _DOM__WEBPACK_IMPORTED_MODULE_15__['DOM'].clearSlot('otherBtns')
             window.removeEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.addResult,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].events.addResult,
               this.addWork
             )
             window.removeEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.crawlFinish,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].events.crawlFinish,
               this.onCrawlFinish
             )
             window.removeEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.crawlFinish,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].events.crawlFinish,
               this.showCount
             )
             // 离开下载页面时，取消设置“不自动下载”
-            _Store__WEBPACK_IMPORTED_MODULE_10__[
+            _Store__WEBPACK_IMPORTED_MODULE_9__[
               'store'
             ].states.notAutoDownload = false
           }
           startScreen() {
             if (
-              !_Store__WEBPACK_IMPORTED_MODULE_10__['store'].states.allowWork
+              !_Store__WEBPACK_IMPORTED_MODULE_9__['store'].states.allowWork
             ) {
               return alert(
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
@@ -6613,8 +6497,8 @@
                 )
               )
             }
-            _CenterPanel__WEBPACK_IMPORTED_MODULE_12__['centerPanel'].close()
-            _Log__WEBPACK_IMPORTED_MODULE_11__['log'].clear()
+            _CenterPanel__WEBPACK_IMPORTED_MODULE_11__['centerPanel'].close()
+            _Log__WEBPACK_IMPORTED_MODULE_10__['log'].clear()
             const nowLength = this.resultMeta.length // 储存过滤前的结果数量
             this.resultMeta = this.resultMeta.filter(callback)
             // 如果过滤后，作品元数据发生了改变，或者强制要求重新生成结果，才会重排作品。以免浪费资源。
@@ -6624,13 +6508,13 @@
             this.needReAdd = false
             this.crawlWorks = false
             // 发布 crawlFinish 事件，会在日志上显示下载数量。
-            _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.crawlFinish
+            _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].events.crawlFinish
             )
           }
           // 当筛选结果的元数据改变时，重新生成抓取结果
           reAddResult() {
-            _Store__WEBPACK_IMPORTED_MODULE_10__['store'].resetResult()
+            _Store__WEBPACK_IMPORTED_MODULE_9__['store'].resetResult()
             this.clearWorks()
             this.resultMeta.forEach(data => {
               const dlCount = this.getDLCount(data.pageCount)
@@ -6638,17 +6522,17 @@
               if (dlCount !== data.dlCount) {
                 data = Object.assign(data, { dlCount: dlCount })
               }
-              _Store__WEBPACK_IMPORTED_MODULE_10__['store'].addResult(data)
+              _Store__WEBPACK_IMPORTED_MODULE_9__['store'].addResult(data)
             })
-            _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].events.worksUpdate
+            _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].events.worksUpdate
             )
-            _TitleBar__WEBPACK_IMPORTED_MODULE_13__['titleBar'].change('→')
+            _TitleBar__WEBPACK_IMPORTED_MODULE_12__['titleBar'].change('→')
           }
           // 在当前结果中再次筛选，会修改第一次筛选的结果
           screenInResult() {
             if (
-              !_Store__WEBPACK_IMPORTED_MODULE_10__['store'].states.allowWork
+              !_Store__WEBPACK_IMPORTED_MODULE_9__['store'].states.allowWork
             ) {
               return alert(
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
@@ -6656,8 +6540,8 @@
                 )
               )
             }
-            _Log__WEBPACK_IMPORTED_MODULE_11__['log'].clear()
-            _Filter__WEBPACK_IMPORTED_MODULE_8__['filter'].init()
+            _Log__WEBPACK_IMPORTED_MODULE_10__['log'].clear()
+            _Filter__WEBPACK_IMPORTED_MODULE_7__['filter'].init()
             this.getMultipleSetting()
             this.filterResult(data => {
               const filterOpt = {
@@ -6671,7 +6555,7 @@
                 height: data.fullHeight,
                 createDate: data.date
               }
-              return _Filter__WEBPACK_IMPORTED_MODULE_8__['filter'].check(
+              return _Filter__WEBPACK_IMPORTED_MODULE_7__['filter'].check(
                 filterOpt
               )
             })
@@ -6691,10 +6575,10 @@
           }
           // 获取搜索页的数据。因为有多处使用，所以进行了封装
           async getSearchData(p) {
-            let data = await _API__WEBPACK_IMPORTED_MODULE_9__[
+            let data = await _API__WEBPACK_IMPORTED_MODULE_8__[
               'API'
             ].getSearchData(
-              _PageInfo__WEBPACK_IMPORTED_MODULE_5__['pageInfo'].getPageTag,
+              _PageInfo__WEBPACK_IMPORTED_MODULE_4__['pageInfo'].getPageTag,
               this.worksType,
               p,
               this.option
@@ -6730,7 +6614,7 @@
                 this.worksType = 'artworks'
                 break
             }
-            let p = _API__WEBPACK_IMPORTED_MODULE_9__['API'].getURLField(
+            let p = _API__WEBPACK_IMPORTED_MODULE_8__['API'].getURLField(
               location.href,
               'p'
             )
@@ -6738,7 +6622,7 @@
             // 从页面 url 中获取可以使用的选项
             this.option = {}
             this.allOption.forEach(param => {
-              let value = _API__WEBPACK_IMPORTED_MODULE_9__['API'].getURLField(
+              let value = _API__WEBPACK_IMPORTED_MODULE_8__['API'].getURLField(
                 location.href,
                 param
               )
@@ -6803,15 +6687,15 @@
                 tags: nowData.tags
               }
               if (
-                _Filter__WEBPACK_IMPORTED_MODULE_8__['filter'].check(filterOpt)
+                _Filter__WEBPACK_IMPORTED_MODULE_7__['filter'].check(filterOpt)
               ) {
-                _Store__WEBPACK_IMPORTED_MODULE_10__['store'].idList.push(
+                _Store__WEBPACK_IMPORTED_MODULE_9__['store'].idList.push(
                   nowData.illustId
                 )
               }
             }
             this.listPageFinished++
-            _Log__WEBPACK_IMPORTED_MODULE_11__['log'].log(
+            _Log__WEBPACK_IMPORTED_MODULE_10__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_列表页抓取进度',
                 this.listPageFinished.toString()
@@ -6826,7 +6710,7 @@
               // 抓取任务已经全部发送
               if (this.listPageFinished === this.needCrawlPageCount) {
                 // 抓取任务全部完成
-                _Log__WEBPACK_IMPORTED_MODULE_11__['log'].log(
+                _Log__WEBPACK_IMPORTED_MODULE_10__['log'].log(
                   _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                     '_列表页抓取完成'
                   )
@@ -6841,17 +6725,17 @@
           }
           // 搜索页把下载任务按收藏数从高到低下载
           sortResult() {
-            _Store__WEBPACK_IMPORTED_MODULE_10__['store'].resultMeta.sort(
-              _API__WEBPACK_IMPORTED_MODULE_9__['API'].sortByProperty('bmk')
+            _Store__WEBPACK_IMPORTED_MODULE_9__['store'].resultMeta.sort(
+              _API__WEBPACK_IMPORTED_MODULE_8__['API'].sortByProperty('bmk')
             )
-            _Store__WEBPACK_IMPORTED_MODULE_10__['store'].result.sort(
-              _API__WEBPACK_IMPORTED_MODULE_9__['API'].sortByProperty('bmk')
+            _Store__WEBPACK_IMPORTED_MODULE_9__['store'].result.sort(
+              _API__WEBPACK_IMPORTED_MODULE_8__['API'].sortByProperty('bmk')
             )
           }
           setPreviewResult(value) {
             this.previewResult = value
             // 如果设置了“预览搜索结果”，则“不自动下载”。否则允许自动下载
-            _Store__WEBPACK_IMPORTED_MODULE_10__[
+            _Store__WEBPACK_IMPORTED_MODULE_9__[
               'store'
             ].states.notAutoDownload = value ? true : false
           }
@@ -6884,25 +6768,22 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _CenterButtons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./CenterButtons */ './src/ts/modules/CenterButtons.ts'
-        )
-        /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+        /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Options */ './src/ts/modules/Options.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./API */ './src/ts/modules/API.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
-        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./Log */ './src/ts/modules/Log.ts'
         )
-        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
-        /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+        /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ./PageInfo */ './src/ts/modules/PageInfo.ts'
         )
         // 初始化用户页面
@@ -6920,8 +6801,9 @@
             this.init()
           }
           appendCenterBtns() {
-            _CenterButtons__WEBPACK_IMPORTED_MODULE_3__['centerButtons']
-              .add(
+            _DOM__WEBPACK_IMPORTED_MODULE_7__['DOM']
+              .addBtn(
+                'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_开始抓取'),
                 [
@@ -6942,7 +6824,7 @@
           }
           setFormOption() {
             // 设置“个数/页数”选项
-            _Options__WEBPACK_IMPORTED_MODULE_4__['options'].setWantPage({
+            _Options__WEBPACK_IMPORTED_MODULE_3__['options'].setWantPage({
               text: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_页数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_checkWantPageRule1Arg8'
@@ -6952,12 +6834,7 @@
               ),
               value: '-1'
             })
-            _Options__WEBPACK_IMPORTED_MODULE_4__['options'].hideOption([
-              15,
-              18
-            ])
           }
-          destroy() {}
           getWantPage() {
             this.crawlNumber = this.checkWantPageInput(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
@@ -6973,7 +6850,7 @@
           }
           readyGetIdList() {
             // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
-            const nowPage = _API__WEBPACK_IMPORTED_MODULE_5__[
+            const nowPage = _API__WEBPACK_IMPORTED_MODULE_4__[
               'API'
             ].getURLField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
             if (nowPage) {
@@ -7009,7 +6886,7 @@
               }
             }
             this.tag =
-              _PageInfo__WEBPACK_IMPORTED_MODULE_9__['pageInfo'].getPageTag
+              _PageInfo__WEBPACK_IMPORTED_MODULE_8__['pageInfo'].getPageTag
             if (!this.tag) {
               this.getIdList()
             } else {
@@ -7021,7 +6898,7 @@
                 this.getIdListByTag('illustmanga')
               }
             }
-            _Log__WEBPACK_IMPORTED_MODULE_7__['log'].log(
+            _Log__WEBPACK_IMPORTED_MODULE_6__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_正在抓取')
             )
           }
@@ -7038,10 +6915,10 @@
               // 漫画列表页
               type = ['manga']
             }
-            let idList = await _API__WEBPACK_IMPORTED_MODULE_5__[
+            let idList = await _API__WEBPACK_IMPORTED_MODULE_4__[
               'API'
             ].getUserWorksByType(
-              _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM'].getUserId(),
+              _DOM__WEBPACK_IMPORTED_MODULE_7__['DOM'].getUserId(),
               type
             )
             // 把作品 id 转换成数字
@@ -7064,26 +6941,26 @@
               idList.splice(0, idList.length - this.requsetNumber)
             }
             // 储存
-            _Store__WEBPACK_IMPORTED_MODULE_6__[
+            _Store__WEBPACK_IMPORTED_MODULE_5__[
               'store'
-            ].idList = _Store__WEBPACK_IMPORTED_MODULE_6__[
+            ].idList = _Store__WEBPACK_IMPORTED_MODULE_5__[
               'store'
             ].idList.concat(idList)
             this.getIdListFinished()
           }
           // 获取用户某一类型的作品列表（附带 tag）
           async getIdListByTag(type) {
-            let data = await _API__WEBPACK_IMPORTED_MODULE_5__[
+            let data = await _API__WEBPACK_IMPORTED_MODULE_4__[
               'API'
             ].getUserWorksByTypeWithTag(
-              _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM'].getUserId(),
+              _DOM__WEBPACK_IMPORTED_MODULE_7__['DOM'].getUserId(),
               type,
               this.tag,
               this.offset,
               this.requsetNumber
             )
             data.body.works.forEach(data =>
-              _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push(data.id)
+              _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push(data.id)
             )
             this.getIdListFinished()
           }
@@ -7095,8 +6972,8 @@
           }
           sortResult() {
             // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
-            _Store__WEBPACK_IMPORTED_MODULE_6__['store'].result.sort(
-              _API__WEBPACK_IMPORTED_MODULE_5__['API'].sortByProperty('id')
+            _Store__WEBPACK_IMPORTED_MODULE_5__['store'].result.sort(
+              _API__WEBPACK_IMPORTED_MODULE_4__['API'].sortByProperty('id')
             )
           }
         }
@@ -7131,28 +7008,25 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _CenterButtons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./CenterButtons */ './src/ts/modules/CenterButtons.ts'
-        )
-        /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Options */ './src/ts/modules/Options.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
-        /* harmony import */ var _QuickBookmark__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+        /* harmony import */ var _QuickBookmark__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./QuickBookmark */ './src/ts/modules/QuickBookmark.ts'
         )
-        /* harmony import */ var _ImgViewer__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+        /* harmony import */ var _ImgViewer__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./ImgViewer */ './src/ts/modules/ImgViewer.ts'
         )
-        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
           /*! ./API */ './src/ts/modules/API.ts'
         )
-        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
           /*! ./Log */ './src/ts/modules/Log.ts'
         )
         //初始化作品页
@@ -7174,8 +7048,8 @@
           }
           initElse() {
             // 初始化快速收藏功能和图片查看器
-            new _QuickBookmark__WEBPACK_IMPORTED_MODULE_7__['QuickBookmark']()
-            _ImgViewer__WEBPACK_IMPORTED_MODULE_8__['imgViewer'].init()
+            new _QuickBookmark__WEBPACK_IMPORTED_MODULE_6__['QuickBookmark']()
+            _ImgViewer__WEBPACK_IMPORTED_MODULE_7__['imgViewer'].init()
             // 页面切换时初始化图片查看器
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].events.pageSwitch,
@@ -7183,11 +7057,12 @@
             )
           }
           initImgViewer() {
-            _ImgViewer__WEBPACK_IMPORTED_MODULE_8__['imgViewer'].init()
+            _ImgViewer__WEBPACK_IMPORTED_MODULE_7__['imgViewer'].init()
           }
           appendCenterBtns() {
-            _CenterButtons__WEBPACK_IMPORTED_MODULE_4__['centerButtons']
-              .add(
+            _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM']
+              .addBtn(
+                'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                   '_从本页开始抓取new'
@@ -7197,8 +7072,9 @@
                 this.crawlDirection = -1
                 this.readyCrawl()
               })
-            _CenterButtons__WEBPACK_IMPORTED_MODULE_4__['centerButtons']
-              .add(
+            _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM']
+              .addBtn(
+                'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                   '_从本页开始抓取old'
@@ -7208,9 +7084,10 @@
                 this.crawlDirection = 1
                 this.readyCrawl()
               })
-            const downRelatedBtn = _CenterButtons__WEBPACK_IMPORTED_MODULE_4__[
-              'centerButtons'
-            ].add(
+            const downRelatedBtn = _DOM__WEBPACK_IMPORTED_MODULE_8__[
+              'DOM'
+            ].addBtn(
+              'crawlBtns',
               _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
               _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_抓取相关作品')
             )
@@ -7235,7 +7112,7 @@
             this.quickDownBtn.addEventListener(
               'click',
               () => {
-                _Store__WEBPACK_IMPORTED_MODULE_6__[
+                _Store__WEBPACK_IMPORTED_MODULE_5__[
                   'store'
                 ].states.quickDownload = true
                 this.readyCrawl()
@@ -7245,7 +7122,7 @@
           }
           setFormOption() {
             // 设置“个数/页数”选项
-            _Options__WEBPACK_IMPORTED_MODULE_5__['options'].setWantPage({
+            _Options__WEBPACK_IMPORTED_MODULE_4__['options'].setWantPage({
               text: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_个数'),
               tip:
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
@@ -7260,11 +7137,12 @@
               ),
               value: '-1'
             })
-            _Options__WEBPACK_IMPORTED_MODULE_5__['options'].hideOption([18])
           }
           destroy() {
+            _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM'].clearSlot('crawlBtns')
+            _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM'].clearSlot('otherBtns')
             // 删除快速下载按钮
-            _DOM__WEBPACK_IMPORTED_MODULE_9__['DOM'].removeEl(this.quickDownBtn)
+            _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM'].removeEl(this.quickDownBtn)
             // 解除切换页面时初始化图片查看器
             window.removeEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].events.pageSwitch,
@@ -7273,7 +7151,7 @@
           }
           getWantPage() {
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_6__['store'].states.quickDownload
+              _Store__WEBPACK_IMPORTED_MODULE_5__['store'].states.quickDownload
             ) {
               // 快速下载
               this.crawlNumber = 1
@@ -7312,15 +7190,15 @@
             if (this.crawlRelated) {
               this.getRelatedList()
             } else if (
-              _Store__WEBPACK_IMPORTED_MODULE_6__['store'].states.quickDownload
+              _Store__WEBPACK_IMPORTED_MODULE_5__['store'].states.quickDownload
             ) {
               // 快速下载
-              _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push(
-                _API__WEBPACK_IMPORTED_MODULE_10__['API'].getIllustId(
+              _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push(
+                _API__WEBPACK_IMPORTED_MODULE_9__['API'].getIllustId(
                   window.location.href
                 )
               )
-              _Log__WEBPACK_IMPORTED_MODULE_11__['log'].log(
+              _Log__WEBPACK_IMPORTED_MODULE_10__['log'].log(
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                   '_开始获取作品页面'
                 )
@@ -7333,15 +7211,15 @@
           }
           async getIdList() {
             let type = ['illusts', 'manga']
-            let idList = await _API__WEBPACK_IMPORTED_MODULE_10__[
+            let idList = await _API__WEBPACK_IMPORTED_MODULE_9__[
               'API'
             ].getUserWorksByType(
-              _DOM__WEBPACK_IMPORTED_MODULE_9__['DOM'].getUserId(),
+              _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM'].getUserId(),
               type
             )
             // 储存符合条件的 id
             let nowId = parseInt(
-              _API__WEBPACK_IMPORTED_MODULE_10__['API'].getIllustId(
+              _API__WEBPACK_IMPORTED_MODULE_9__['API'].getIllustId(
                 window.location.href
               )
             )
@@ -7349,32 +7227,32 @@
               let idNum = parseInt(id)
               // 新作品
               if (idNum >= nowId && this.crawlDirection === -1) {
-                _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push(id)
+                _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push(id)
               } else if (idNum <= nowId && this.crawlDirection === 1) {
                 // 旧作品
-                _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push(id)
+                _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push(id)
               }
             })
             // 当设置了下载个数时，进行裁剪
             if (this.crawlNumber !== -1) {
               // 新作品 升序排列
               if (this.crawlDirection === -1) {
-                _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.sort(
+                _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.sort(
                   function(x, y) {
                     return parseInt(x) - parseInt(y)
                   }
                 )
               } else {
                 // 旧作品 降序排列
-                _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.sort(
+                _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.sort(
                   function(x, y) {
                     return parseInt(y) - parseInt(x)
                   }
                 )
               }
-              _Store__WEBPACK_IMPORTED_MODULE_6__[
+              _Store__WEBPACK_IMPORTED_MODULE_5__[
                 'store'
-              ].idList = _Store__WEBPACK_IMPORTED_MODULE_6__[
+              ].idList = _Store__WEBPACK_IMPORTED_MODULE_5__[
                 'store'
               ].idList.splice(0, this.crawlNumber)
             }
@@ -7382,10 +7260,10 @@
           }
           // 下载相关作品时使用
           async getRelatedList() {
-            let data = await _API__WEBPACK_IMPORTED_MODULE_10__[
+            let data = await _API__WEBPACK_IMPORTED_MODULE_9__[
               'API'
             ].getRelatedData(
-              _API__WEBPACK_IMPORTED_MODULE_10__['API'].getIllustId()
+              _API__WEBPACK_IMPORTED_MODULE_9__['API'].getIllustId()
             )
             const recommendData = data.body.recommendMethods
             // 取出相关作品的 id 列表
@@ -7396,15 +7274,15 @@
                 .reverse()
                 .slice(0, this.crawlNumber)
             }
-            _Store__WEBPACK_IMPORTED_MODULE_6__[
+            _Store__WEBPACK_IMPORTED_MODULE_5__[
               'store'
-            ].idList = _Store__WEBPACK_IMPORTED_MODULE_6__[
+            ].idList = _Store__WEBPACK_IMPORTED_MODULE_5__[
               'store'
             ].idList.concat(recommendIdList)
-            _Log__WEBPACK_IMPORTED_MODULE_11__['log'].log(
+            _Log__WEBPACK_IMPORTED_MODULE_10__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                 '_相关作品抓取完毕',
-                _Store__WEBPACK_IMPORTED_MODULE_6__[
+                _Store__WEBPACK_IMPORTED_MODULE_5__[
                   'store'
                 ].idList.length.toString()
               )
@@ -7977,8 +7855,8 @@
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
-        /* harmony import */ var _CenterPanel__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./CenterPanel */ './src/ts/modules/CenterPanel.ts'
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
@@ -8019,9 +7897,10 @@
   </div>
   </li>`
             this.allProgressBar = []
-            this.wrap = _CenterPanel__WEBPACK_IMPORTED_MODULE_1__[
-              'centerPanel'
-            ].useSlot('progressBar', this.wrapHTML)
+            this.wrap = _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].useSlot(
+              'progressBar',
+              this.wrapHTML
+            )
             this.downloadedEl = this.wrap.querySelector('.downloaded')
             this.progressColorEl = this.wrap.querySelector('.progress1')
             this.listWrap = this.wrap.querySelector('.progressBarList')
@@ -8404,11 +8283,6 @@
               // 如果没有保存过，则不做处理
               return
             }
-            // 设置是否显示选项区域
-            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.toggleForm,
-              this.options.showOptions
-            )
             // 多图作品设置
             this.restoreString('multipleImageWorks')
             // 设置作品张数
@@ -8489,14 +8363,6 @@
           // 绑定所有选项的事件，当选项变动触发 settingChange 事件
           // 只可执行一次，否则事件会重复绑定
           bindOptionEvent() {
-            // 保存是否显示选项区域
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.toggleForm,
-              event => {
-                const boolean = event.detail.data
-                this.emitChange('showOptions', boolean)
-              }
-            )
             // 保存下载的作品类型
             this.saveCheckBox('downType0')
             this.saveCheckBox('downType1')
@@ -8600,387 +8466,416 @@
         )
 
         const formHtml = `<form class="settingForm">
-  <p class="option" data-no="1">
-  <span class="setWantPageWrap">
-  <span class="has_tip settingNameStyle1 setWantPageTip1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl(
-    '_页数'
-  )}" style="margin-right: 0px;">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+  <div class="tabsTitle">
+    <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      '_抓取'
+    )}</div>
+    <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      '_下载'
+    )}</div>
+    <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      '_其他'
+    )}</div>
+  </div>
+  <div class="tabsContnet">
+    <div class="con">
+      <p class="option" data-no="1">
+      <span class="setWantPageWrap">
+      <span class="has_tip settingNameStyle1 setWantPageTip1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl(
+        '_页数'
+      )}" style="margin-right: 0px;">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
-        ].transl(
-          '_页数'
-        )}</span><span class="gray1" style="margin-right: 10px;"> ? </span>
-  <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
-  value = '-1'
-  >
-  &nbsp;&nbsp;&nbsp;
-  <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
-  </span>
-  </p>
-  <p class="option" data-no="2">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_下载作品类型的提示Center')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-          'lang'
-        ].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
-  <span class="beautify_checkbox"></span>
-  <label for="setWorkType0"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_插画')}&nbsp;</label>
-  <input type="checkbox" name="downType1" id="setWorkType1" class="need_beautify checkbox_common" checked>
-  <span class="beautify_checkbox"></span>
-  <label for="setWorkType1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_漫画')}&nbsp;</label>
-  <input type="checkbox" name="downType2" id="setWorkType2" class="need_beautify checkbox_common" checked>
-  <span class="beautify_checkbox"></span>
-  <label for="setWorkType2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_动图')}&nbsp;</label>
-  </p>
-  <p class="option" data-no="3">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_怎样下载多图作品')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        ].transl('_页数')}</span>
+      <span class="gray1" style="margin-right: 10px;"> ? </span>
+      <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
+      value = '-1'>
+      &nbsp;&nbsp;&nbsp;
+      <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
+      </span>
+      </p>
+      <p class="option" data-no="2">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl(
+        '_下载作品类型的提示Center'
+      )}">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+          '_下载作品类型'
+        )}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="setWorkType0"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_插画')}&nbsp;</label>
+      <input type="checkbox" name="downType1" id="setWorkType1" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="setWorkType1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_漫画')}&nbsp;</label>
+      <input type="checkbox" name="downType2" id="setWorkType2" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="setWorkType2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_动图')}&nbsp;</label>
+      </p>
+      <p class="option" data-no="3">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_怎样下载多图作品')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl('_多图下载设置')}<span class="gray1"> ? </span></span>
-  <input type="radio" name="multipleImageWorks" id="multipleImageWorks1" class="need_beautify radio" value="0">
-  <span class="beautify_radio"></span>
-  <label for="multipleImageWorks1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_全部下载')}&nbsp; </label>
-  <input type="radio" name="multipleImageWorks" id="multipleImageWorks2" class="need_beautify radio" value="-1">
-  <span class="beautify_radio"></span>
-  <label for="multipleImageWorks2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_不下载')}&nbsp; </label>
-  <input type="radio" name="multipleImageWorks" id="multipleImageWorks3" class="need_beautify radio" value="1">
-  <span class="beautify_radio"></span>
-  <label for="multipleImageWorks3"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_下载前几张图片')}&nbsp; </label>
-  <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
-  </p>
-  <p class="option" data-no="4">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_动图保存格式title')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <input type="radio" name="multipleImageWorks" id="multipleImageWorks1" class="need_beautify radio" value="0">
+      <span class="beautify_radio"></span>
+      <label for="multipleImageWorks1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_全部下载')}&nbsp; </label>
+      <input type="radio" name="multipleImageWorks" id="multipleImageWorks2" class="need_beautify radio" value="-1">
+      <span class="beautify_radio"></span>
+      <label for="multipleImageWorks2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_不下载')}&nbsp; </label>
+      <input type="radio" name="multipleImageWorks" id="multipleImageWorks3" class="need_beautify radio" value="1">
+      <span class="beautify_radio"></span>
+      <label for="multipleImageWorks3"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_下载前几张图片')}&nbsp; </label>
+      <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
+      </p>
+      <p class="option" data-no="4">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_动图保存格式title')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl('_动图保存格式')}<span class="gray1"> ? </span></span>
-  <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" class="need_beautify radio" value="webm" checked>
-  <span class="beautify_radio"></span>
-  <label for="ugoiraSaveAs1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_webmVideo')} &nbsp;</label>
-  <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" class="need_beautify radio" value="gif"> 
-  <span class="beautify_radio"></span>
-  <label for="ugoiraSaveAs3">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_gif')} &nbsp;</label>
-  <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip"> 
-  <span class="beautify_radio"></span>
-  <label for="ugoiraSaveAs2">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_zipFile')} &nbsp;</label>
-  </p>
-  <p class="option" data-no="5">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_设置收藏数量的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" class="need_beautify radio" value="webm" checked>
+      <span class="beautify_radio"></span>
+      <label for="ugoiraSaveAs1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_webmVideo')} &nbsp;</label>
+      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" class="need_beautify radio" value="gif"> 
+      <span class="beautify_radio"></span>
+      <label for="ugoiraSaveAs3">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_gif')} &nbsp;</label>
+      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip"> 
+      <span class="beautify_radio"></span>
+      <label for="ugoiraSaveAs2">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_zipFile')} &nbsp;</label>
+      </p>
+      <p class="option" data-no="5">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_设置收藏数量的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl('_设置收藏数量')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="favNumSwitch" class="need_beautify checkbox_switch" checked>
-  <span class="beautify_switch"></span>
-  <span class="subOptionWrap" data-show="favNumSwitch">
-  <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-    '_大于'
-  )}&nbsp;</span>
-  <input type="text" name="setFavNum" class="setinput_style1 blue" value="0">
-  </span>
-  </p>
-  <p class="option" data-no="6">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_只下载已收藏的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <input type="checkbox" name="favNumSwitch" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="favNumSwitch">
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+        '_大于'
+      )}&nbsp;</span>
+      <input type="text" name="setFavNum" class="setinput_style1 blue" value="0">
+      </span>
+      </p>
+      <p class="option" data-no="6">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_只下载已收藏的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl('_只下载已收藏')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="setOnlyBmk" id="setOnlyBmk" class="need_beautify checkbox_switch"> 
-  <span class="beautify_switch"></span>
-  </p>
-  <p class="option" data-no="20">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_启用快速收藏说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-          'lang'
-        ].transl('_启用快速收藏')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="quickBookmarks" id="quickBookmarks" class="need_beautify checkbox_switch"> 
-  <span class="beautify_switch"></span>
-  </p>
-  <p class="option" data-no="7">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_筛选宽高的按钮Title')} ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <input type="checkbox" name="setOnlyBmk" id="setOnlyBmk" class="need_beautify checkbox_switch"> 
+      <span class="beautify_switch"></span>
+      </p>
+      <p class="option" data-no="7">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_筛选宽高的按钮Title')} ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl('_筛选宽高的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl('_筛选宽高的按钮文字')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="setWHSwitch" class="need_beautify checkbox_switch">
-  <span class="beautify_switch"></span>
-  <span class="subOptionWrap" data-show="setWHSwitch">
-  <input type="text" name="setWidth" class="setinput_style1 blue" value="0">
-  <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" class="need_beautify radio" value="&" checked>
-  <span class="beautify_radio"></span>
-  <label for="setWidth_AndOr1">and&nbsp;</label>
-  <input type="radio" name="setWidthAndOr" id="setWidth_AndOr2" class="need_beautify radio" value="|">
-  <span class="beautify_radio"></span>
-  <label for="setWidth_AndOr2">or&nbsp;</label>
-  <input type="text" name="setHeight" class="setinput_style1 blue" value="0">
-  </span>
-  </p>
-  <p class="option" data-no="8">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_设置宽高比例Title')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <input type="checkbox" name="setWHSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="setWHSwitch">
+      <input type="text" name="setWidth" class="setinput_style1 blue" value="0">
+      <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" class="need_beautify radio" value="&" checked>
+      <span class="beautify_radio"></span>
+      <label for="setWidth_AndOr1">and&nbsp;</label>
+      <input type="radio" name="setWidthAndOr" id="setWidth_AndOr2" class="need_beautify radio" value="|">
+      <span class="beautify_radio"></span>
+      <label for="setWidth_AndOr2">or&nbsp;</label>
+      <input type="text" name="setHeight" class="setinput_style1 blue" value="0">
+      </span>
+      </p>
+      <p class="option" data-no="8">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_设置宽高比例Title')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
-  <span class="beautify_switch"></span>
-  <span class="subOptionWrap" data-show="ratioSwitch">
-  <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="1">
-  <span class="beautify_radio"></span>
-  <label for="ratio1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-    '_横图'
-  )}&nbsp; </label>
-  <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="2">
-  <span class="beautify_radio"></span>
-  <label for="ratio2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-    '_竖图'
-  )}&nbsp; </label>
-  <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="3">
-  <span class="beautify_radio"></span>
-  <label for="ratio3"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-    '_输入宽高比'
-  )}</label>
-  <input type="text" name="userRatio" class="setinput_style1 blue" value="">
-  </span>
-  </p>
-  <p class="option" data-no="9">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_设置id范围提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="ratioSwitch">
+      <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="1">
+      <span class="beautify_radio"></span>
+      <label for="ratio1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+        '_横图'
+      )}&nbsp; </label>
+      <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="2">
+      <span class="beautify_radio"></span>
+      <label for="ratio2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+        '_竖图'
+      )}&nbsp; </label>
+      <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="3">
+      <span class="beautify_radio"></span>
+      <label for="ratio3"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+        '_输入宽高比'
+      )}</label>
+      <input type="text" name="userRatio" class="setinput_style1 blue" value="">
+      </span>
+      </p>
+      <p class="option" data-no="9">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_设置id范围提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl(
           '_设置id范围'
         )}&nbsp;&nbsp; <span class="gray1"> ? </span></span>
-  <input type="checkbox" name="idRangeSwitch" class="need_beautify checkbox_switch">
-  <span class="beautify_switch"></span>
-  <span class="subOptionWrap" data-show="idRangeSwitch">
-  <input type="radio" name="idRange" id="idRange1" class="need_beautify radio" value="1" checked>
-  <span class="beautify_radio"></span>
-  <label for="idRange1">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-    '_大于'
-  )}&nbsp; </label>
-  <input type="radio" name="idRange" id="idRange2" class="need_beautify radio" value="2">
-  <span class="beautify_radio"></span>
-  <label for="idRange2">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-    '_小于'
-  )}&nbsp; </label>
-  <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
-  </span>
-  </p>
-  <p class="option" data-no="10">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_设置投稿时间提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <input type="checkbox" name="idRangeSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="idRangeSwitch">
+      <input type="radio" name="idRange" id="idRange1" class="need_beautify radio" value="1" checked>
+      <span class="beautify_radio"></span>
+      <label for="idRange1">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_大于')}&nbsp; </label>
+      <input type="radio" name="idRange" id="idRange2" class="need_beautify radio" value="2">
+      <span class="beautify_radio"></span>
+      <label for="idRange2">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_小于')}&nbsp; </label>
+      <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
+      </span>
+      </p>
+      <p class="option" data-no="10">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_设置投稿时间提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl('_设置投稿时间')} <span class="gray1"> ? </span></span>
-  <input type="checkbox" name="postDate" class="need_beautify checkbox_switch">
-  <span class="beautify_switch"></span>
-  <span class="subOptionWrap" data-show="postDate">
-  <input type="datetime-local" name="postDateStart" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
-  &nbsp;-&nbsp;
-  <input type="datetime-local" name="postDateEnd" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
-  </span>
-  </p>
-  <p class="option" data-no="11">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_必须tag的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <input type="checkbox" name="postDate" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="postDate">
+      <input type="datetime-local" name="postDateStart" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
+      &nbsp;-&nbsp;
+      <input type="datetime-local" name="postDateEnd" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
+      </span>
+      </p>
+      <p class="option" data-no="11">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_必须tag的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl('_必须含有tag')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="needTagSwitch" class="need_beautify checkbox_switch">
-  <span class="beautify_switch"></span>
-  <span class="subOptionWrap" data-show="needTagSwitch">
-  <input type="text" name="needTag" class="setinput_style1 blue setinput_tag">
-  </span>
-  </p>
-  <p class="option" data-no="12">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_排除tag的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <input type="checkbox" name="needTagSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="needTagSwitch">
+      <input type="text" name="needTag" class="setinput_style1 blue setinput_tag">
+      </span>
+      </p>
+      <p class="option" data-no="12">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_排除tag的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl('_不能含有tag')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="notNeedTagSwitch" class="need_beautify checkbox_switch">
-  <span class="beautify_switch"></span>
-  <span class="subOptionWrap" data-show="notNeedTagSwitch">
-  <input type="text" name="notNeedTag" class="setinput_style1 blue setinput_tag">
-  </span>
-  </p>
-  <p class="option" data-no="19">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_多图建立目录提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-          'lang'
-        ].transl('_多图建立目录')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="multipleImageDir" id="setMultipleImageDir" class="need_beautify checkbox_switch" >
-  <span class="beautify_switch"></span>
-  <span class="subOptionWrap" data-show="multipleImageDir">
-  <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-    '_目录名使用'
-  )}</span>
-  <input type="radio" name="multipleImageFolderName" id="multipleImageFolderName1" class="need_beautify radio" value="1" checked>
-  <span class="beautify_radio"></span>
-  <label for="multipleImageFolderName1"> ID&nbsp; </label>
-  <input type="radio" name="multipleImageFolderName" id="multipleImageFolderName2" class="need_beautify radio" value="2">
-  <span class="beautify_radio"></span>
-  <label for="multipleImageFolderName2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_命名规则')}&nbsp; </label>
-  </span>
-  </p>
-  <p class="option" data-no="15">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_快速下载建立文件夹提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-          'lang'
-        ].transl('_快速下载建立文件夹')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" class="need_beautify checkbox_switch" >
-  <span class="beautify_switch"></span>
-  </p>
-  <p class="option" data-no="14">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_添加字段名称提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-          'lang'
-        ].transl('_添加字段名称')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch" checked>
-  <span class="beautify_switch"></span>
-  &nbsp;&nbsp;&nbsp;
-  <span class="showFileNameResult"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_预览文件名')}</span>
-  </p>
-  <p class="option" data-no="13">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_设置文件夹名的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <input type="checkbox" name="notNeedTagSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="notNeedTagSwitch">
+      <input type="text" name="notNeedTag" class="setinput_style1 blue setinput_tag">
+      </span>
+      </p>
+      <input type="hidden" name="debut" value="0">
+
+      <slot data-name="crawlBtns" class="centerWrap_btns"></slot>
+    </div>
+    <div class="con">
+    <p class="option" data-no="13">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_设置文件夹名的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl('_设置文件名')}<span class="gray1"> ? </span></span>
-  <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
-  &nbsp;
-  <select name="fileNameSelect">
-    <option value="default">…</option>
-    <option value="{id}">{id}</option>
-    <option value="{user}">{user}</option>
-    <option value="{userid}">{userid}</option>
-    <option value="{title}">{title}</option>
-    <option value="{p_title}">{p_title}</option>
-    <option value="{tags}">{tags}</option>
-    <option value="{tags_translate}">{tags_translate}</option>
-    <option value="{p_tag}">{p_tag}</option>
-    <option value="{type}">{type}</option>
-    <option value="{bmk}">{bmk}</option>
-    <option value="{rank}">{rank}</option>
-    <option value="{date}">{date}</option>
-    <option value="{px}">{px}</option>
-    <option value="{id_num}">{id_num}</option>
-    <option value="{p_num}">{p_num}</option>
-    </select>
-  &nbsp;&nbsp;
-  <span class="showFileNameTip">？</span>
-  </p>
-  <p class="fileNameTip tip">
-  <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang']
-    .transl('_设置文件夹名的提示')
-    .replace('<br>', '. ')}</strong>
-  <br>
-  <span class="blue">{id}</span>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记id')}
-  <br>
-  <span class="blue">{user}</span>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记user')}
-  <br>
-  <span class="blue">{userid}</span>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记userid')}
-  <br>
-  <span class="blue">{title}</span>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记title')}
-  <br>
-  <span class="blue">{p_title}</span>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_文件夹标记PTitle')}
-  <br>
-  <span class="blue">{tags}</span>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记tags')}
-  <br>
-  <span class="blue">{tags_translate}</span>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记tags_trans')}
-  <br>
-  <span class="blue">{p_tag}</span>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_文件夹标记PTag')}
-  <br>
-  <span class="blue">{type}</span>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记type')}
-  <br>
-  <span class="blue">{bmk}</span>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记bmk')}
-  <br>
-  <span class="blue">{rank}</span>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记rank')}
-  <br>
-  <span class="blue">{date}</span>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记date')}
-  <br>
-  <span class="blue">{px}</span>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记px')}
-  <br>
-  <span class="blue">{id_num}</span>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记9')}
-  <br>
-  <span class="blue">{p_num}</span>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记p_num')}
-  <br>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记提醒')}
-  </p>
-  <p class="option" data-no="16">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_线程数字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-          '_设置下载线程'
-        )}<span class="gray1"> ? </span></span>
-  <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
-  </p>
-  <p class="option" data-no="17">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_快速下载的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
+      &nbsp;
+      <select name="fileNameSelect">
+        <option value="default">…</option>
+        <option value="{id}">{id}</option>
+        <option value="{user}">{user}</option>
+        <option value="{userid}">{userid}</option>
+        <option value="{title}">{title}</option>
+        <option value="{p_title}">{p_title}</option>
+        <option value="{tags}">{tags}</option>
+        <option value="{tags_translate}">{tags_translate}</option>
+        <option value="{p_tag}">{p_tag}</option>
+        <option value="{type}">{type}</option>
+        <option value="{bmk}">{bmk}</option>
+        <option value="{rank}">{rank}</option>
+        <option value="{date}">{date}</option>
+        <option value="{px}">{px}</option>
+        <option value="{id_num}">{id_num}</option>
+        <option value="{p_num}">{p_num}</option>
+        </select>
+      &nbsp;&nbsp;
+      <span class="showFileNameTip">？</span>
+      </p>
+      <p class="fileNameTip tip">
+      <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang']
+        .transl('_设置文件夹名的提示')
+        .replace('<br>', '. ')}</strong>
+      <br>
+      <span class="blue">{id}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记id')}
+      <br>
+      <span class="blue">{user}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记user')}
+      <br>
+      <span class="blue">{userid}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记userid')}
+      <br>
+      <span class="blue">{title}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记title')}
+      <br>
+      <span class="blue">{p_title}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_文件夹标记PTitle')}
+      <br>
+      <span class="blue">{tags}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记tags')}
+      <br>
+      <span class="blue">{tags_translate}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+        '_命名标记tags_trans'
+      )}
+      <br>
+      <span class="blue">{p_tag}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_文件夹标记PTag')}
+      <br>
+      <span class="blue">{type}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记type')}
+      <br>
+      <span class="blue">{bmk}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记bmk')}
+      <br>
+      <span class="blue">{rank}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记rank')}
+      <br>
+      <span class="blue">{date}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记date')}
+      <br>
+      <span class="blue">{px}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记px')}
+      <br>
+      <span class="blue">{id_num}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记9')}
+      <br>
+      <span class="blue">{p_num}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记p_num')}
+      <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记提醒')}
+      </p>
+      <p class="option" data-no="14">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_添加字段名称提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
-        ].transl('_是否自动下载')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="quietDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
-  <span class="beautify_switch"></span>
-  </p>
-  <p class="option" data-no="18">
-  <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-    'lang'
-  ].transl('_预览搜索结果说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        ].transl('_添加命名标记前缀')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
+      <p class="option" data-no="19">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_多图建立目录提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+          'lang'
+        ].transl('_多图建立目录')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="multipleImageDir" id="setMultipleImageDir" class="need_beautify checkbox_switch" >
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="multipleImageDir">
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+        '_目录名使用'
+      )}</span>
+      <input type="radio" name="multipleImageFolderName" id="multipleImageFolderName1" class="need_beautify radio" value="1" checked>
+      <span class="beautify_radio"></span>
+      <label for="multipleImageFolderName1"> ID&nbsp; </label>
+      <input type="radio" name="multipleImageFolderName" id="multipleImageFolderName2" class="need_beautify radio" value="2">
+      <span class="beautify_radio"></span>
+      <label for="multipleImageFolderName2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_命名规则')}&nbsp; </label>
+      </span>
+      </p>
+      <p class="option" data-no="15">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl(
+        '_快速下载建立文件夹提示'
+      )}">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+          '_快速下载建立文件夹'
+        )}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" class="need_beautify checkbox_switch" >
+      <span class="beautify_switch"></span>
+      </p>
+
+      <slot data-name="namingBtns" class="centerWrap_btns"></slot>
+
+      <p class="option" data-no="16">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_线程数字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+          'lang'
+        ].transl('_设置下载线程')}<span class="gray1"> ? </span></span>
+      <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
+      </p>
+      <p class="option" data-no="17">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_快速下载的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+          'lang'
+        ].transl('_自动开始下载')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="quietDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
+
+      <slot data-name="downloadArea"></slot>
+      <slot data-name="progressBar"></slot>
+    </div>
+    <div class="con">
+      <p class="option" data-no="20">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_启用快速收藏说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+          'lang'
+        ].transl('_启用快速收藏')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="quickBookmarks" id="quickBookmarks" class="need_beautify checkbox_switch"> 
+      <span class="beautify_switch"></span>
+      </p>      
+      <p class="option" data-no="18">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_预览搜索结果说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
-  <input type="checkbox" name="previewResult" id="setPreviewResult" class="need_beautify checkbox_switch" checked>
-  <span class="beautify_switch"></span>
-  </p>
-  <input type="hidden" name="debut" value="0">
-  </form>`
+      <input type="checkbox" name="previewResult" id="setPreviewResult" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
+
+      <slot data-name="otherBtns" class="centerWrap_btns"></slot>
+    </div>
+  </div>
+</form>`
         /* harmony default export */ __webpack_exports__['default'] = formHtml
 
         /***/
@@ -9007,25 +8902,30 @@
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
-        /* harmony import */ var _CenterPanel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./CenterPanel */ './src/ts/modules/CenterPanel.ts'
+        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./Colors */ './src/ts/modules/Colors.ts'
         )
-        /* harmony import */ var _SaveSettings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
+        )
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./Store */ './src/ts/modules/Store.ts'
+        )
+        /* harmony import */ var _SaveSettings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./SaveSettings */ './src/ts/modules/SaveSettings.ts'
         )
-        /* harmony import */ var _SettingHTML__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+        /* harmony import */ var _SettingHTML__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./SettingHTML */ './src/ts/modules/SettingHTML.ts'
         )
 
         // 设置表单
         class Settings {
           constructor() {
+            this.activeClass = 'active'
             this.chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
-            this.form = _CenterPanel__WEBPACK_IMPORTED_MODULE_2__[
-              'centerPanel'
-            ].useSlot(
+            this.form = _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].useSlot(
               'form',
-              _SettingHTML__WEBPACK_IMPORTED_MODULE_4__['default']
+              _SettingHTML__WEBPACK_IMPORTED_MODULE_6__['default']
             )
             this.allCheckBox = this.form.querySelectorAll(
               'input[type="checkbox"]'
@@ -9033,8 +8933,10 @@
             this.allRadio = this.form.querySelectorAll('input[type="radio"]')
             this.allSwitch = this.form.querySelectorAll('.checkbox_switch')
             this.allLabel = this.form.querySelectorAll('label')
+            this.allTabTitle = this.form.querySelectorAll('.tabsTitle .title')
+            this.allTabCon = this.form.querySelectorAll('.tabsContnet .con')
             this.bindEvents()
-            new _SaveSettings__WEBPACK_IMPORTED_MODULE_3__['SaveSettings'](
+            new _SaveSettings__WEBPACK_IMPORTED_MODULE_5__['SaveSettings'](
               this.form
             )
             // new SaveSettings 会初始化选项，但可能会有一些选项的值在初始化过程中没有发生改变，也就不会被监听到变化。所以这里需要直接初始化以下状态。
@@ -9042,16 +8944,21 @@
             this.resetLabelActive()
             // 重设该选项的子选项的显示/隐藏
             this.resetSubOptionDisplay()
+            // 激活第一个选项卡
+            this.activeTab(0)
+          }
+          // 设置激活的选项卡
+          activeTab(no = 0) {
+            for (const title of this.allTabTitle) {
+              title.classList.remove(this.activeClass)
+            }
+            this.allTabTitle[no].classList.add(this.activeClass)
+            for (const con of this.allTabCon) {
+              con.style.display = 'none'
+            }
+            this.allTabCon[no].style.display = 'block'
           }
           bindEvents() {
-            // 控制表单的显示/隐藏
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.toggleForm,
-              event => {
-                const boolean = event.detail.data
-                this.form.style.display = boolean ? 'block' : 'none'
-              }
-            )
             // 给美化的复选框绑定功能
             for (const checkbox of this.allCheckBox) {
               this.bindCheckboxEvent(checkbox)
@@ -9060,6 +8967,7 @@
             for (const radio of this.allRadio) {
               this.bindRadioEvent(radio)
             }
+            // 处理 label 状态
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.settingChange,
               () => {
@@ -9069,15 +8977,43 @@
                 this.resetSubOptionDisplay()
               }
             )
-            // 预览文件名
-            this.form
-              .querySelector('.showFileNameResult')
-              .addEventListener('click', () => {
-                _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events
-                    .previewFileName
-                )
+            // 在选项卡的标题上触发事件时，激活对应的选项卡
+            for (let index = 0; index < this.allTabTitle.length; index++) {
+              ;['click', 'mouseenter'].forEach(name => {
+                this.allTabTitle[index].addEventListener(name, () => {
+                  this.activeTab(index)
+                })
               })
+            }
+            // 当抓取完毕可以开始下载时，切换到“下载”选项卡
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.crawlFinish,
+              () => {
+                if (
+                  !_Store__WEBPACK_IMPORTED_MODULE_4__['store'].states
+                    .notAutoDownload
+                ) {
+                  this.activeTab(1)
+                }
+              }
+            )
+            // 预览文件名
+            _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM']
+              .addBtn(
+                'namingBtns',
+                _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].green,
+                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_预览文件名')
+              )
+              .addEventListener(
+                'click',
+                () => {
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events
+                      .previewFileName
+                  )
+                },
+                false
+              )
             // 显示命名字段提示
             this.form
               .querySelector('.showFileNameTip')
@@ -10102,12 +10038,6 @@
             'Has acquired {} list pages',
             '已擷取清單頁{}個頁面'
           ],
-          _搜索页已抓取所有页面: [
-            '已抓取本 tag 的所有页面，开始获取图片网址',
-            '現在 tag の全ページを取得している、画像 URL の取得が開始されます',
-            'Gets all pages of the current tag, starts to get the image URL',
-            '已擷取本 tag 的所有頁面，開始取得圖片網址'
-          ],
           _列表页抓取完成: [
             '列表页面抓取完成，开始获取图片网址',
             'リストページがクロールされ、画像 URL の取得が開始されます',
@@ -10250,11 +10180,11 @@
             `You can create a directory with '/'<br>Example：{p_title}/{user}/{id}`,
             `可以使用 '/' 建立資料夾<br>範例：{p_title}/{user}/{id}`
           ],
-          _添加字段名称: [
-            '添加字段名称',
-            'フィールドネームを追加',
-            'Add field name',
-            '加入欄位名稱'
+          _添加命名标记前缀: [
+            '添加命名标记前缀',
+            '前に tag の名前を追加',
+            'Add named tag prefix',
+            '加入命名標記首碼'
           ],
           _添加字段名称提示: [
             '例如，在用户名前面添加“user_”标记',
@@ -10677,11 +10607,11 @@
             '快速收藏'
           ],
           _启用: ['启用', '有効にする', 'Enable', '啟用'],
-          _是否自动下载: [
-            '是否自动下载',
-            '自動的にダウンロードするかどうか',
-            'Whether to download automatically',
-            '是否自動下載'
+          _自动开始下载: [
+            '自动开始下载',
+            'ダウンロードは自動的に開始されます',
+            'Download starts automatically',
+            '自動开始下載'
           ],
           _快速下载的提示: [
             '当“开始下载”状态可用时，自动开始下载，不需要点击下载按钮。',
@@ -10723,10 +10653,10 @@
             '有新版本可用'
           ],
           _快速下载建立文件夹: [
-            '总是创建目录',
-            'いつもフォルダを作成されます',
+            '快速下载时，始终创建文件夹',
+            'クイックダウンロード時、常にフォルダを作成します',
             'Always create directory when downloading quickly',
-            '總是建立資料夾'
+            '快速下載時，始終建立資料夾'
           ],
           _快速下载建立文件夹提示: [
             '快速下载时，如果只有一张图片，也会建立文件夹',
@@ -10810,16 +10740,16 @@
             '沒有資料可供使用'
           ],
           _预览搜索结果: [
-            '预览搜索结果',
-            '検索結果を見る',
-            'Preview search results',
-            '預覽搜尋結果'
+            '预览搜索页面的筛选结果',
+            '検索ページのフィルタ結果をプレビューします',
+            'Preview filter results on search page',
+            '預覽搜尋頁面的篩選結果'
           ],
           _预览搜索结果说明: [
-            '下载器可以把符合条件的作品显示在当前页面上。如果抓取结果太多导致页面崩溃，请关闭这个功能。',
-            'ローダは、該当する作品を現在のページに表示することができます。クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。',
-            'The downloader can display the qualified works on the current page. If too many crawling results cause the page to crash, turn off this feature.',
-            '下載器可以將符合條件的作品顯示在目前頁面上。如果擷取結果太多導致頁面當掉，請關閉這個功能。'
+            '下载器可以把符合条件的作品显示在当前页面上。如果抓取结果太多导致页面崩溃，请关闭这个功能。<br>启用预览功能时，下载器不会自动开始下载。',
+            'ローダは、該当する作品を現在のページに表示することができます。クロール結果が多すぎてページが崩れる場合は、この機能をオフにしてください。<br>プレビュー機能を有効にすると、ダウンロードは自動的に開始されません。',
+            'The downloader can display the qualified works on the current page. If too many crawling results cause the page to crash, turn off this feature.<br>When the preview feature is enabled, the downloader does not start downloading automatically.',
+            '下載器可以將符合條件的作品顯示在目前頁面上。如果擷取結果太多導致頁面當掉，請關閉這個功能。<br>啟用預覽功能時，下載器不會自動開始下載。'
           ],
           _目录名使用: [
             '目录名使用：',
@@ -10845,6 +10775,21 @@
             '新たな機能を追加されました。',
             'Added setting items',
             '新增設定項目'
+          ],
+          _抓取: ['抓取', 'クロール', 'Crawl', '擷取'],
+          _下载: ['下载', 'ダウンロードする', 'Download', '下載'],
+          _其他: ['其他', 'その他', 'Other', '其他'],
+          _第一张图不带序号: [
+            '第一张图不带序号',
+            '最初のイメージの番号を削除します',
+            'The first picture without a serial number',
+            '第一張圖片不帶序號'
+          ],
+          _第一张图不带序号说明: [
+            '去掉每个作品第一张图的序号。例如 80036479_p0 变成 80036479',
+            '作品ごとの最初のイメージの番号を削除します。例えば 80036479_p0 は 80036479 になります。',
+            'Remove the serial number of the first picture of each work. For example 80036479_p0 becomes 80036479.',
+            '去掉每個作品第一張圖的序號。例如 80036479_p0 變成 80036479。'
           ],
           _xzNew440: [
             '新增设置项：启用快速收藏',

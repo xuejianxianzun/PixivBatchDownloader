@@ -1,5 +1,6 @@
 // 下载控制
 import { EVT } from './EVT'
+import { DOM } from './DOM'
 import {
   downloadArgument,
   DonwloadSuccessData,
@@ -10,7 +11,6 @@ import { log } from './Log'
 import { lang } from './Lang'
 import { titleBar } from './TitleBar'
 import { Colors } from './Colors'
-import { centerPanel } from './CenterPanel'
 import { form } from './Settings'
 import { Download } from './Download'
 import { progressBar } from './ProgressBar'
@@ -200,7 +200,7 @@ class DownloadControl {
     </div>
     </div>`
 
-    const el = centerPanel.useSlot('downloadArea', html)
+    const el = DOM.useSlot('downloadArea', html)
     this.downloadArea = el as HTMLDivElement
     this.downStatusEl = el.querySelector('.down_status ') as HTMLSpanElement
     this.convertTipEL = el.querySelector('.convert_tip') as HTMLDivElement

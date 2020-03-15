@@ -1,5 +1,5 @@
 import { store } from './Store'
-import { centerPanel } from './CenterPanel'
+import { DOM } from './DOM'
 import { lang } from './Lang'
 
 interface ProgressBarEl {
@@ -17,10 +17,7 @@ interface ProgressData {
 // 进度条
 class ProgressBar {
   constructor() {
-    this.wrap = centerPanel.useSlot(
-      'progressBar',
-      this.wrapHTML
-    ) as HTMLDivElement
+    this.wrap = DOM.useSlot('progressBar', this.wrapHTML) as HTMLDivElement
     this.downloadedEl = this.wrap.querySelector(
       '.downloaded'
     ) as HTMLSpanElement

@@ -4,7 +4,7 @@ import { lang } from './Lang'
 import { Colors } from './Colors'
 import { DOM } from './DOM'
 import { centerPanel } from './CenterPanel'
-import { centerButtons } from './CenterButtons'
+
 import { store } from './Store'
 import { EVT } from './EVT'
 
@@ -38,52 +38,51 @@ class DeleteWorks {
   public addClearMultipleBtn(selector: string, callback: Function = () => {}) {
     this.multipleSelector = selector
 
-    centerButtons
-      .add(Colors.red, lang.transl('_清除多图作品'), [
-        ['title', lang.transl('_清除多图作品Title')]
-      ])
-      .addEventListener(
-        'click',
-        () => {
-          if (!this.allowWork()) {
-            return alert(lang.transl('_当前任务尚未完成'))
-          }
-          centerPanel.close()
-          this.clearMultiple()
-          callback()
-        },
-        false
-      )
+    DOM.addBtn('crawlBtns', Colors.red, lang.transl('_清除多图作品'), [
+      ['title', lang.transl('_清除多图作品Title')]
+    ]).addEventListener(
+      'click',
+      () => {
+        if (!this.allowWork()) {
+          return alert(lang.transl('_当前任务尚未完成'))
+        }
+        centerPanel.close()
+        this.clearMultiple()
+        callback()
+      },
+      false
+    )
   }
 
   // 清除动图作品的按钮
   public addClearUgoiraBtn(selector: string, callback: Function = () => {}) {
     this.ugoiraSelector = selector
 
-    centerButtons
-      .add(Colors.red, lang.transl('_清除动图作品'), [
-        ['title', lang.transl('_清除动图作品Title')]
-      ])
-      .addEventListener(
-        'click',
-        () => {
-          if (!this.allowWork()) {
-            return alert(lang.transl('_当前任务尚未完成'))
-          }
-          centerPanel.close()
-          this.ClearUgoira()
-          callback()
-        },
-        false
-      )
+    DOM.addBtn('crawlBtns', Colors.red, lang.transl('_清除动图作品'), [
+      ['title', lang.transl('_清除动图作品Title')]
+    ]).addEventListener(
+      'click',
+      () => {
+        if (!this.allowWork()) {
+          return alert(lang.transl('_当前任务尚未完成'))
+        }
+        centerPanel.close()
+        this.ClearUgoira()
+        callback()
+      },
+      false
+    )
   }
 
   // 手动删除作品的按钮
   public addManuallyDeleteBtn(callback: Function = () => {}) {
     this.deleteWorkCallback = callback
-    const delBtn = centerButtons.add(Colors.red, lang.transl('_手动删除作品'), [
-      ['title', lang.transl('_手动删除作品Title')]
-    ])
+    const delBtn = DOM.addBtn(
+      'crawlBtns',
+      Colors.red,
+      lang.transl('_手动删除作品'),
+      [['title', lang.transl('_手动删除作品Title')]]
+    )
 
     delBtn.addEventListener('click', () => {
       this.manuallyDelete(delBtn)

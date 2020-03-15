@@ -1,5 +1,5 @@
 // DOM 操作类
-// 提供公用的 DOM 操作方法，以及从 DOM 中获取数据的 API
+// 保存公用的 DOM 操作方法，以及从 DOM 中获取数据的 API
 class DOM {
   // 获取指定元素里，可见的结果
   static getVisibleEl(selector: string) {
@@ -102,6 +102,57 @@ class DOM {
 
     // 如果都没有获取到
     throw new Error('getUserId failed!')
+  }
+
+  // 寻找 slot，本程序使用的 slot 都要有 data-name 属性
+  static findSlot(name: string) {
+    const slot = document.querySelector(`slot[data-name=${name}]`)
+    if (!slot) {
+      throw new Error(`No such slot: ${name}`)
+    }
+    return slot
+  }
+
+  // 使用指定的插槽
+  static useSlot(name: string, element: string | HTMLElement) {
+    const slot = this.findSlot(name)
+
+    if (typeof element === 'string') {
+      // 插入字符串形式的元素
+      const wrap = document.createElement('div')
+      wrap.innerHTML = element
+      const el = wrap.children[0]
+      slot.appendChild(el)
+      return el
+    } else {
+      // 插入 html 元素
+      slot.appendChild(element)
+      return element
+    }
+  }
+
+  // 清空指定的插槽
+  static clearSlot(name: string) {
+    this.findSlot(name).innerHTML = ''
+  }
+
+  static addBtn(
+    slot: string,
+    bg: string = '',
+    text: string = '',
+    attr: string[][] = []
+  ) {
+    const e = document.createElement('button')
+    e.type = 'button'
+    e.style.backgroundColor = bg
+    e.textContent = text
+
+    for (const [key, value] of attr) {
+      e.setAttribute(key, value)
+    }
+
+    this.useSlot(slot, e)
+    return e
   }
 }
 

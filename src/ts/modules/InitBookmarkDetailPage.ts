@@ -2,7 +2,7 @@
 import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { centerButtons } from './CenterButtons'
+import { DOM } from './DOM'
 import { options } from './Options'
 import { API } from './API'
 import { store } from './Store'
@@ -14,17 +14,15 @@ class InitBookmarkDetailPage extends InitPageBase {
   }
 
   protected appendCenterBtns() {
-    centerButtons
-      .add(Colors.blue, lang.transl('_抓取相似图片'), [
-        ['title', lang.transl('_抓取相似图片')]
-      ])
-      .addEventListener(
-        'click',
-        () => {
-          this.readyCrawl()
-        },
-        false
-      )
+    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取相似图片'), [
+      ['title', lang.transl('_抓取相似图片')]
+    ]).addEventListener(
+      'click',
+      () => {
+        this.readyCrawl()
+      },
+      false
+    )
   }
 
   protected setFormOption() {
@@ -35,11 +33,7 @@ class InitBookmarkDetailPage extends InitPageBase {
       rangTip: `1 - ${this.maxCount}`,
       value: this.maxCount.toString()
     })
-
-    options.hideOption([15, 18])
   }
-
-  protected destroy() {}
 
   protected getWantPage() {
     const check = this.checkWantPageInputGreater0()

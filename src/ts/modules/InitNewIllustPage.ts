@@ -2,7 +2,6 @@
 import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { centerButtons } from './CenterButtons'
 import { options } from './Options'
 import { NewIllustOption } from './CrawlArgument.d'
 import { NewIllustData } from './CrawlResult'
@@ -11,6 +10,7 @@ import { filter } from './Filter'
 import { API } from './API'
 import { store } from './Store'
 import { log } from './Log'
+import { DOM } from './DOM'
 
 class InitNewIllustPage extends InitPageBase {
   constructor() {
@@ -19,13 +19,11 @@ class InitNewIllustPage extends InitPageBase {
   }
 
   protected appendCenterBtns() {
-    centerButtons
-      .add(Colors.blue, lang.transl('_开始抓取'), [
-        ['title', lang.transl('_下载大家的新作品')]
-      ])
-      .addEventListener('click', () => {
-        this.readyCrawl()
-      })
+    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
+      ['title', lang.transl('_下载大家的新作品')]
+    ]).addEventListener('click', () => {
+      this.readyCrawl()
+    })
   }
 
   private timer = 0
@@ -53,11 +51,7 @@ class InitNewIllustPage extends InitPageBase {
       rangTip: `1 - ${this.maxCount}`,
       value: '100'
     })
-
-    options.hideOption([15, 18])
   }
-
-  protected destroy() {}
 
   protected getWantPage() {
     const check = this.checkWantPageInputGreater0()
