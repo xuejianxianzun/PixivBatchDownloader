@@ -6065,13 +6065,13 @@
         ] {
           constructor() {
             super()
-            this.listClass = 'fRrZrZ'
-            this.multipleClass = 'cFZsbP'
-            this.ugoiraClass = 'cAXUcw'
-            this.countClass = 'bTLfVL'
-            this.addBMKBtnClass = 'xz-addBMK'
+            this.listClass = 'searchList'
+            this.multipleClass = 'multiplePart'
+            this.ugoiraClass = 'ugoiraPart'
+            this.addBMKBtnClass = 'bmkBtn'
             this.bookmarkedClass = 'bookmarked'
-            this.hotWorkAsideClass = 'section aside'
+            this.countSelector = 'section h3+div span'
+            this.hotWorkAsideSelector = 'section aside'
             this.worksType = ''
             this.option = {}
             this.worksNoPerPage = 60 // 每个页面有多少个作品
@@ -6110,7 +6110,7 @@
                   count
                 )
               )
-              const countEl = document.querySelector(`.${this.countClass}`)
+              const countEl = document.querySelector(this.countSelector)
               if (countEl) {
                 countEl.textContent = count
               }
@@ -6124,20 +6124,20 @@
               let r18HTML = ''
               if (data.tags.includes('R-18') || data.tags.includes('R-18G')) {
                 r18HTML = `
-      <div class="sc-fzXfPe cIeZEc">
-        <div class="sc-fzXfPf hRPdEx">
-          <div class="sc-fzXfPb fgMYNr">R-18</div>
+      <div class="r18Part">
+        <div class="child">
+          <div class="text">R-18</div>
         </div>
       </div>`
               }
               let multipleHTML = ''
               if (data.pageCount > 1) {
                 multipleHTML = `
-        <div class="sc-fzXfOZ ${this.multipleClass}">
-          <div class="sc-fzXfPK bTLfVL">
-            <span class="sc-fzXfPL ctZleZ">
-              <span class="sc-fzXfOZ gWabmY">
-              <svg viewBox="0 0 9 10" size="9" class="sc-fzXfPa gsSlkp">
+        <div class="${this.multipleClass}">
+          <div class="child">
+            <span class="span1">
+              <span class="span2">
+              <svg viewBox="0 0 9 10" size="9" class="multipleSvg">
                 <path d="M8,3 C8.55228475,3 9,3.44771525 9,4 L9,9 C9,9.55228475 8.55228475,10 8,10 L3,10
                 C2.44771525,10 2,9.55228475 2,9 L6,9 C7.1045695,9 8,8.1045695 8,7 L8,3 Z M1,1 L6,1
                 C6.55228475,1 7,1.44771525 7,2 L7,7 C7,7.55228475 6.55228475,8 6,8 L1,8 C0.44771525,8
@@ -6153,8 +6153,8 @@
               let ugoiraHTML = ''
               if (data.ugoiraInfo) {
                 ugoiraHTML = `
-        <svg viewBox="0 0 24 24" class="sc-fzXfPN ikgxTh sc-fzXfQV ${this.ugoiraClass}" style="width: 48px; height: 48px;">
-        <circle cx="12" cy="12" r="10" class="sc-fzXfQl cEBwQm"></circle>
+        <svg viewBox="0 0 24 24" class="${this.ugoiraClass}" style="width: 48px; height: 48px;">
+        <circle cx="12" cy="12" r="10" class="ugoiraCircle"></circle>
           <path d="M9,8.74841664 L9,15.2515834 C9,15.8038681 9.44771525,16.2515834 10,16.2515834
               C10.1782928,16.2515834 10.3533435,16.2039156 10.5070201,16.1135176 L16.0347118,12.8619342
               C16.510745,12.5819147 16.6696454,11.969013 16.3896259,11.4929799
@@ -6167,12 +6167,13 @@
               // 添加收藏的作品，让收藏图标变红
               const bookmarkedFlag = data.bookmarked ? this.bookmarkedClass : ''
               const html = `
-    <li class="sc-LzNRw ${this.listClass}" data-id="${data.idNum}">
-    <div class="sc-fzXfQr gUjiNl">
-      <div class="sc-fzXfQp ceXgPg">
-        <div width="184" height="184" class="sc-fzXfPc joHiTY"><a target="_blank" class="sc-fzXfPH juvOtu" href="/artworks/${data.idNum}">
+    <li class="${this.listClass}" data-id="${data.idNum}">
+    <div class="searchContent">
+      <div class="searchImgArea">
+        <div width="184" height="184" class="searchImgAreaContent">
+          <a target="_blank" class="imgAreaLink" href="/artworks/${data.idNum}">
             <!--顶部横幅-->
-            <div class="sc-fzXfPd cBFGtg">
+            <div class="topbar">
 
             <!--R-18 标记-->
             ${r18HTML}
@@ -6182,20 +6183,20 @@
               
             </div>
             <!--图片部分-->
-            <div class="sc-fzXfPL XbvQS">
-            <img src="${data.thumb}" alt="${data.title}" class="sc-fzXfPM jkVDzj" style="object-fit: cover; object-position: center center;">
+            <div class="imgWrap">
+            <img src="${data.thumb}" alt="${data.title}" style="object-fit: cover; object-position: center center;">
               <!-- 动图 svg -->
               ${ugoiraHTML}
               </div>
           </a>
           <!--添加显示收藏数-->
-          <div class="xz-bmkCount">${data.bmk}</div>
+          <div class="bmkCount">${data.bmk}</div>
           <!--收藏按钮-->
-          <div class="sc-fzXfQq hSNJdz">
+          <div class="bmkBtnWrap">
             <div class="">
-            <button type="button" class="sc-fzXfOw cqEeVs ${this.addBMKBtnClass}">
-            <svg viewBox="0 0 1024 1024" width="32" height="32" class="sc-fzXfOs dpCkQo ${bookmarkedFlag}">
-            <path d="M958.733019 411.348626 659.258367 353.59527 511.998465 85.535095 364.741633 353.59527 65.265958 411.348626 273.72878 634.744555 235.88794 938.463881 511.998465 808.479435 788.091594 938.463881 750.250754 634.744555Z" p-id="1106" class="sc-fzXfOv cvxgqC"></path>
+            <button type="button" class="${this.addBMKBtnClass}">
+            <svg viewBox="0 0 1024 1024" width="32" height="32" class="bmkBtnSvg ${bookmarkedFlag}">
+            <path d="M958.733019 411.348626 659.258367 353.59527 511.998465 85.535095 364.741633 353.59527 65.265958 411.348626 273.72878 634.744555 235.88794 938.463881 511.998465 808.479435 788.091594 938.463881 750.250754 634.744555Z" p-id="1106" class="path2"></path>
             <path d="M959.008 406.016l-308-47.008L512 64 372.992 359.008l-308 47.008 223.008 228-52.992 324L512 805.024l276.992 152.992-52.992-324zM512 740L304 856.992l40-235.008-179.008-182.016 242.016-32 104.992-224 104 224 240.992 34.016L680 622.976l36.992 235.008z" p-id="919"></path>
             </svg>
             </button>
@@ -6205,14 +6206,14 @@
         </div>
       </div>
       <!--标题名-->
-      <a target="_blank" class="sc-fzXfQs hFVhqR" href="/artworks/${data.idNum}">${data.title}</a>
+      <a target="_blank" class="titleLink" href="/artworks/${data.idNum}">${data.title}</a>
       <!--底部-->
-      <div class="sc-fzXfQl hRXAiG">
+      <div class="bottomBar">
       <!--作者信息-->
-      <div class="sc-fzXfQm hSfWMP">
+      <div class="userInfo">
       <!--相比原代码，这里去掉了作者头像的 html 代码。因为抓取到的数据里没有作者头像。-->
           <a target="_blank" href="/member.php?id=${data.userid}">
-            <div class="sc-fzXfQo kITUvc">${data.user}</div>
+            <div class="userName">${data.user}</div>
           </a>
         </div>
       </div>
@@ -6336,7 +6337,7 @@
             // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
             const timer = window.setInterval(() => {
               const hotWorkAside = document.querySelector(
-                this.hotWorkAsideClass
+                this.hotWorkAsideSelector
               )
               if (hotWorkAside) {
                 window.clearInterval(timer)
@@ -9958,7 +9959,7 @@
             'When you download a multi-image work, the downloader can automatically create a directory and save the images inside.',
             '當你下載多圖作品時，下載器可以自動創建一個目錄，保存裏面的圖片。'
           ],
-          _不下载: ['不下载', 'ダウンロードしない', 'No', '不下載'],
+          _不下载: ['不下载', '必要なし', 'No', '不下載'],
           _全部下载: ['全部下载', '全部ダウンロード', 'Yes', '全部下載'],
           _下载前几张图片: [
             '下载前几张图片：',

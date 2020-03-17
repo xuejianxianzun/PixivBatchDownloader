@@ -37,12 +37,12 @@
   left: -340px;
   margin-left: 50%;
   background: #fff;
-  top: 8vh;
+  top: 5vh;
   color: #444;
   padding: 0 25px 25px;
   border-radius: 15px;
   box-shadow: 0 0 25px #2ca6df;
-  max-height: 90vh;
+  max-height: 95vh;
   overflow: auto;
 }
 .centerWrap p,
@@ -55,8 +55,8 @@
   margin: 0;
 }
 .centerWrap p {
-  line-height: 24px;
-  min-height: 24px;
+  line-height: 26px;
+  min-height: 26px;
   height: auto;
   margin: 0;
 }
@@ -748,27 +748,6 @@ aside .sc-LzLtN {
 }
 .downloadError {
   color: #ffa0a0;
-}
-.bookmarked {
-  color: #ff4060 !important;
-  fill: #ff4060 !important;
-}
-.bookmarked * {
-  color: #ff4060 !important;
-  fill: #ff4060 !important;
-}
-.xz-bmkCount {
-  display: flex;
-  position: absolute;
-  justify-content: flex-start;
-  left: 0;
-  bottom: 0;
-  color: #fff;
-  font-size: 12px;
-  font-weight: bold;
-  background: rgba(0, 0, 0, 0.4);
-  padding: 2px 5px;
-  border-radius: 5px;
 }
 #zanzhu {
   display: none;

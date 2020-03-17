@@ -324,7 +324,7 @@ const langText = {
     'When you download a multi-image work, the downloader can automatically create a directory and save the images inside.',
     '當你下載多圖作品時，下載器可以自動創建一個目錄，保存裏面的圖片。'
   ],
-  _不下载: ['不下载', 'ダウンロードしない', 'No', '不下載'],
+  _不下载: ['不下载', '必要なし', 'No', '不下載'],
   _全部下载: ['全部下载', '全部ダウンロード', 'Yes', '全部下載'],
   _下载前几张图片: [
     '下载前几张图片：',

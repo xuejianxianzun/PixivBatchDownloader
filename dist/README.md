@@ -6,7 +6,7 @@
   - [离线安装](#离线安装)
 - [Wiki](#wiki)
 - [鸣谢](#鸣谢)
-- [捐助](#捐助)
+- [支持和捐助](#支持和捐助)
 - [开发](#开发)
 - [帮助](#帮助)
   - [常见问题](#常见问题)
@@ -22,7 +22,7 @@
 
 现在也增加了一些辅助功能，如去除广告、快速收藏、看图模式、给未分类作品添加 tag 等。
 
-![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/20200117104129.png)
+![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/ui1.png)
 
 [访问官网](https://pixiv.download/)
 
@@ -60,13 +60,18 @@ Chrome 会自动更新本应用的版本。
 
 - 感谢 [z2n](https://github.com/z2n) 对本工具项目构建做出的改进。
 
-# 捐助
+# 支持和捐助
 
-如果您感觉本脚本帮到了您，您可以对我进行捐赠，不胜感激 (*╹▽╹*)
+如果您感觉本脚本帮到了您，您可以对我进行支持和捐助，不胜感激 (*╹▽╹*)
 
-（可通过微信和支付宝扫码转账）
+1. 国内的众筹赞助平台“爱发电”（类似于 patreon）。
+
+[https://afdian.net/@xuejianxianzun](https://afdian.net/@xuejianxianzun)
+
+2. 可通过微信和支付宝扫码转账
 
 ![支付宝](https://i.loli.net/2019/04/04/5ca5627614396.png) ![微信](https://i.loli.net/2019/04/04/5ca5627630bb4.png)
+
 
 # 开发
 
@@ -132,7 +137,7 @@ English （机翻，韩语设置下也使用英语文本）
 
 1 [作品页面](https://www.pixiv.net/artworks/72503012)
 
-2 [列表页](https://www.pi xiv.net/member_illust.php?id=544479)
+2 [列表页](https://www.pixiv.net/member_illust.php?id=544479)
 
 2 [Tag 页面](https://www.pixiv.net/member_illust.php?id=544479&tag=%E6%9D%B1%E6%96%B9)
 
