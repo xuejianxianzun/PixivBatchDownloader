@@ -238,16 +238,23 @@ class InitSearchPage extends InitPageBase {
 
     const data = event.detail.data as WorkInfo
 
-    let r18HTML = ''
+    let r18Text = ''
+    if (data.tags.includes('R-18')) {
+      r18Text = 'R-18'
+    }
 
-    if (data.tags.includes('R-18') || data.tags.includes('R-18G')) {
-      r18HTML = `
+    if (data.tags.includes('R-18G')) {
+      r18Text = 'R-18G'
+    }
+
+    let r18HTML = r18Text
+      ? `
       <div class="r18Part">
         <div class="child">
-          <div class="text">R-18</div>
+          <div class="text">${r18Text}</div>
         </div>
       </div>`
-    }
+      : ''
 
     let multipleHTML = ''
     if (data.pageCount > 1) {
