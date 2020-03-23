@@ -14,14 +14,17 @@
     - [body 里的字段](#body-里的字段-1)
   - [获取创作者投稿列表](#获取创作者投稿列表)
     - [url](#url-3)
-  - [获取指定投稿](#获取指定投稿)
+  - [获取创作者某个 tag 的投稿列表](#获取创作者某个-tag-的投稿列表)
     - [url](#url-4)
+  - [获取指定投稿](#获取指定投稿)
+    - [url](#url-5)
     - [body 里的字段](#body-里的字段-2)
-    - [body 字段的内容](#body-字段的内容)
+    - [付费内容的 body 字段](#付费内容的-body-字段)
+    - [免费内容的 body 字段](#免费内容的-body-字段)
     - [user 字段的内容](#user-字段的内容)
     - [nextPost prevPost 字段的内容](#nextpost-prevpost-字段的内容)
   - [获取创作者商品列表](#获取创作者商品列表)
-    - [url](#url-5)
+    - [url](#url-6)
     - [有用数据](#有用数据)
 - [页面](#页面)
   - [用户自己的主页](#用户自己的主页)
@@ -41,24 +44,35 @@
     - [内容](#内容-3)
     - [资源](#资源)
     - [按钮](#按钮-3)
-  - [创作者的投稿内容页面](#创作者的投稿内容页面)
+  - [创作者某个 tag 的投稿列表](#创作者某个-tag-的投稿列表)
     - [url 规则](#url-规则-4)
+    - [内容：](#内容)
+    - [按钮](#按钮-4)
+  - [创作者的投稿内容页面](#创作者的投稿内容页面)
+    - [url 规则](#url-规则-5)
     - [内容](#内容-4)
     - [资源](#资源-1)
-    - [按钮](#按钮-4)
+    - [按钮](#按钮-5)
   - [创作者的商店页面](#创作者的商店页面)
-    - [url 规则](#url-规则-5)
+    - [url 规则](#url-规则-6)
     - [内容](#内容-5)
     - [资源](#资源-2)
       - [商品封面图](#商品封面图)
-    - [按钮](#按钮-5)
+    - [按钮](#按钮-6)
+    - [注意](#注意)
 - [设置选项](#设置选项)
-  - [设置抓取的投稿数量](#设置抓取的投稿数量)
-  - [下载文件类型](#下载文件类型)
+  - [抓取的投稿数量](#抓取的投稿数量)
+  - [抓取的文件类型](#抓取的文件类型)
+  - [抓取免费的投稿](#抓取免费的投稿)
+  - [设置价格区间](#设置价格区间)
   - [设置 id 范围](#设置-id-范围)
   - [设置时间范围](#设置时间范围)
   - [设置命名规则](#设置命名规则)
   - [只对图片使用序号](#只对图片使用序号)
+- [测试用的网址](#测试用的网址)
+  - [测试的画师](#测试的画师)
+    - [1](#1)
+    - [2](#2)
 
 <!-- /TOC -->
 
@@ -104,6 +118,8 @@ fetch('https://fanbox.pixiv.net/api/post.listCreator?userId=457541&limit=10', {
 - `limit` 这次请求最多获取多少篇投稿。最大值为 300，超过 300 会产生 HTTP 400 错误。
 
 ### body 里的字段
+
+获取到任意投稿列表后，数据在 body 属性里，里面有如下字段：
 
 | 字段    | 值               | 说明                         |
 | ------- | :--------------- | :--------------------------- |
@@ -199,6 +215,12 @@ items 是个数组，保存每一篇投稿的信息。获取的投稿顺序总�
 
 内容在 body 字段里。
 
+## 获取创作者某个 tag 的投稿列表
+
+### url
+
+`https://fanbox.pixiv.net/api/post.listTagged?tag=%E5%8B%95%E7%94%BB&userId=1082583`
+
 ## 获取指定投稿
 
 ### url
@@ -233,7 +255,7 @@ items 是个数组，保存每一篇投稿的信息。获取的投稿顺序总�
 | imageForShare     | string                                  | 分享用的图片的 URL                    |
 
 
-### body 字段的内容
+### 付费内容的 body 字段
 
 未解锁时（没有赞助或者赞助金额不够），是 `null`。
 
@@ -243,6 +265,7 @@ items 是个数组，保存每一篇投稿的信息。获取的投稿顺序总�
 {
   // 文字，string
   "text": 'xxxxxxx',
+  
   // 文件，array
   "files": [
     {
@@ -253,6 +276,7 @@ items 是个数组，保存每一篇投稿的信息。获取的投稿顺序总�
         "url": "https://fanbox.pixiv.net/files/post/777807/iJlYhPHdYlhoQRAY2c6NKtZG.zip"
     }
   ]
+  
   // 图片，array
   "images": [
      {
@@ -271,9 +295,42 @@ items 是个数组，保存每一篇投稿的信息。获取的投稿顺序总�
          "originalUrl": "https://fanbox.pixiv.net/images/post/861023/rDA2iArPMxva2ibagyuQuzTR.png",
          "thumbnailUrl": "https://fanbox.pixiv.net/images/post/861023/w/1200/rDA2iArPMxva2ibagyuQuzTR.jpeg"
      }
-  ]
+  ] 
 }
 ```
+
+### 免费内容的 body 字段
+
+但是有些投稿（对所有人公开）就不太一样，例如 https://www.pixiv.net/fanbox/creator/49348/post/885969 ，`body` 里 `blocks` 记录投稿里的所有内容（文字和图片等），除了文字之外的其他部分有个资源 id，从资源 map 里获取信息然后加载。
+
+对所有人公开的投稿， `feeRequired` 为 `0`.
+
+```
+"blocks": [
+    {
+        "type": "p",
+        "text": "◎あなたのサークル「Allegro Mistic」は、月曜日　西地区“れ”ブロック－04b に配置されました。"
+    },
+    {
+        "type": "image",
+        "imageId": "b0OZ6qQ3AQDqd9xCsvt4jMPY"
+    }
+],
+"imageMap": {
+    "b0OZ6qQ3AQDqd9xCsvt4jMPY": {
+        "id": "b0OZ6qQ3AQDqd9xCsvt4jMPY",
+        "extension": "png",
+        "width": 300,
+        "height": 427,
+        "originalUrl": "https://fanbox.pixiv.net/images/post/885969/b0OZ6qQ3AQDqd9xCsvt4jMPY.png",
+        "thumbnailUrl": "https://fanbox.pixiv.net/images/post/885969/w/1200/b0OZ6qQ3AQDqd9xCsvt4jMPY.jpeg"
+    }
+},
+"fileMap": {},
+"embedMap": {}
+```
+
+当出现 `blocks` 时，后面三个资源 map 对象都会出现，不会不出现。如果资源为空，则是恐怖对象，不会是 null。
 
 ### user 字段的内容
 
@@ -340,7 +397,7 @@ items 是个数组，保存每一篇投稿的信息。获取的投稿顺序总�
 
 ### 按钮
 
-下载赞助的所有用户的资源
+抓取赞助的所有用户的投稿
 
 ## 正在赞助
 
@@ -354,7 +411,7 @@ items 是个数组，保存每一篇投稿的信息。获取的投稿顺序总�
 
 ### 按钮
 
-下载赞助的所有用户的资源
+抓取赞助的所有用户的投稿
 
 ## 创作者的主页/个人资料页
 
@@ -374,7 +431,7 @@ https://www.pixiv.net/fanbox/creator/6843920
 
 ### 按钮
 
-下载该用户的资源
+抓取该用户的投稿
 
 ## 创作者的投稿列表页面
 
@@ -401,7 +458,23 @@ https://www.pixiv.net/fanbox/creator/457541/post
 
 ### 按钮
 
-下载该用户的资源
+抓取该用户的投稿
+
+## 创作者某个 tag 的投稿列表
+
+### url 规则
+
+```
+https://www.pixiv.net/fanbox/creator/1082583/tag/%E5%8B%95%E7%94%BB
+```
+
+### 内容：
+
+某个 tag 的投稿的列表。
+
+### 按钮
+
+抓取该 tag 的投稿
 
 ## 创作者的投稿内容页面
 
@@ -425,7 +498,7 @@ https://www.pixiv.net/fanbox/creator/457541/post/777807
 
 ### 按钮
 
-下载这篇投稿中的资源
+抓取这篇投稿
 
 ## 创作者的商店页面
 
@@ -453,15 +526,27 @@ https://www.pixiv.net/fanbox/creator/6843920/shop
 
 ### 按钮
 
-下载商品的封面图
+抓取商品的封面图
+
+### 注意
+
+商品的 api 和网址不是 fanbox 的，会导致一些选项和命名字段不可用。
 
 # 设置选项
 
-## 设置抓取的投稿数量
+## 抓取的投稿数量
 
-## 下载文件类型
+## 抓取的文件类型
 
 <input type="checkbox"> 所有 <input type="checkbox">图片 <input type="checkbox">视频 <input type="checkbox">压缩包 <input type="checkbox">psd
+
+## 抓取免费的投稿
+
+是/否
+
+## 设置价格区间
+
+只抓取指定价格范围的投稿
 
 ## 设置 id 范围
 
@@ -477,10 +562,34 @@ https://www.pixiv.net/fanbox/creator/6843920/shop
 | fee   | 投稿的价格       |
 | name  | 资源原本的文件名 |
 | index | 资源的序号       |
-| user  | 画师的名字         |
+| user  | 画师的名字       |
 | uid   | 画师的 id        |
 
 ## 只对图片使用序号
 
 对于不是图片的文件，不添加序号。
 
+# 测试用的网址
+
+## 测试的画师
+
+### 1
+
+[omutatsu/おむたつ](https://www.pixiv.net/fanbox/creator/1499614)
+
+有 100 和 500 两档赞助，并且都有对应价格的资源
+
+有对所有人公开的投稿
+
+有图片
+
+有 psd
+
+-没有视频
+-没有 zip
+
+### 2
+
+[さき千鈴](https://www.pixiv.net/fanbox/creator/236592/post)
+
+测试视频用
