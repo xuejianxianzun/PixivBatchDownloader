@@ -34,7 +34,7 @@ If you like this extension, please rate it so that it can be seen by more people
 
 ## Offline installation
 
-[Offline installation tutorial](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki/2.-%E5%AE%89%E8%A3%85#%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85)
+[Offline installation tutorial](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki/2.-%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B)
 
 - The downloaded file will be saved in your browser's download directory.
 
