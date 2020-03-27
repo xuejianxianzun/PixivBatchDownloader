@@ -20,7 +20,7 @@ class InitNewIllustPage extends InitPageBase {
 
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
-      ['title', lang.transl('_下载大家的新作品')]
+      ['title', lang.transl('_下载大家的新作品')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -49,7 +49,7 @@ class InitNewIllustPage extends InitPageBase {
       text: lang.transl('_个数'),
       tip: lang.transl('_要获取的作品个数2'),
       rangTip: `1 - ${this.maxCount}`,
-      value: '100'
+      value: '100',
     })
   }
 
@@ -77,7 +77,7 @@ class InitNewIllustPage extends InitPageBase {
       lastId: '0',
       limit: '20', // 每次请求的数量，可以比 20 小
       type: '',
-      r18: ''
+      r18: '',
     }
   }
 
@@ -136,7 +136,7 @@ class InitNewIllustPage extends InitPageBase {
         pageCount: nowData.pageCount,
         bookmarkData: nowData.bookmarkData,
         illustType: nowData.illustType,
-        tags: nowData.tags
+        tags: nowData.tags,
       }
 
       if (filter.check(filterOpt)) {

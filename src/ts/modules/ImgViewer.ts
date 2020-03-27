@@ -13,7 +13,7 @@ class ImgViewer {
     enum ToolbarButtonSize {
       Small = 'small',
       Medium = 'medium',
-      Large = 'large'
+      Large = 'large',
     }
 
     this.myViewer = new Viewer(this.viewerUl, {
@@ -25,13 +25,13 @@ class ImgViewer {
         prev: 1,
         play: {
           show: 0,
-          size: ToolbarButtonSize.Large
+          size: ToolbarButtonSize.Large,
         },
         next: 1,
         rotateLeft: 0,
         rotateRight: 0,
         flipHorizontal: 0,
-        flipVertical: 0
+        flipVertical: 0,
       },
 
       url(image: HTMLImageElement) {
@@ -58,7 +58,7 @@ class ImgViewer {
       // 不显示 title（图片名和宽高信息）
       title: false,
       // 不显示缩放比例
-      tooltip: false
+      tooltip: false,
     })
   }
 
@@ -137,7 +137,7 @@ class ImgViewer {
     })
 
     // esc 退出图片查看器
-    document.addEventListener('keyup', event => {
+    document.addEventListener('keyup', (event) => {
       if (event.code === 'Escape') {
         // 按下 esc
         // 如果非全屏，且查看器已经打开，则退出查看器
@@ -150,8 +150,8 @@ class ImgViewer {
     void [
       'fullscreenchange',
       'webkitfullscreenchange',
-      'mozfullscreenchange'
-    ].forEach(arg => {
+      'mozfullscreenchange',
+    ].forEach((arg) => {
       // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
       document.addEventListener(arg, () => {
         // 退出全屏

@@ -17,7 +17,7 @@ class InitAreaRankingPage extends InitPageBase {
 
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取本页作品'), [
-      ['title', lang.transl('_抓取本页作品Title')]
+      ['title', lang.transl('_抓取本页作品Title')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -45,7 +45,7 @@ class InitAreaRankingPage extends InitPageBase {
       const filterOpt: FilterOption = {
         id: id,
         tags: tags,
-        bookmarkData: bookmarked
+        bookmarkData: bookmarked,
       }
 
       if (filter.check(filterOpt)) {

@@ -1,4 +1,4 @@
-/******/ ;(function(modules) {
+/******/ ;(function (modules) {
   // webpackBootstrap
   /******/ // The module cache
   /******/ var installedModules = {} // The require function
@@ -13,7 +13,7 @@
     /******/ /******/ var module = (installedModules[moduleId] = {
       /******/ i: moduleId,
       /******/ l: false,
-      /******/ exports: {}
+      /******/ exports: {},
       /******/
     }) // Execute the module function
     /******/
@@ -35,21 +35,21 @@
   /******/
   /******/ /******/ __webpack_require__.c = installedModules // define getter function for harmony exports
   /******/
-  /******/ /******/ __webpack_require__.d = function(exports, name, getter) {
+  /******/ /******/ __webpack_require__.d = function (exports, name, getter) {
     /******/ if (!__webpack_require__.o(exports, name)) {
       /******/ Object.defineProperty(exports, name, {
         enumerable: true,
-        get: getter
+        get: getter,
       })
       /******/
     }
     /******/
   } // define __esModule on exports
   /******/
-  /******/ /******/ __webpack_require__.r = function(exports) {
+  /******/ /******/ __webpack_require__.r = function (exports) {
     /******/ if (typeof Symbol !== 'undefined' && Symbol.toStringTag) {
       /******/ Object.defineProperty(exports, Symbol.toStringTag, {
-        value: 'Module'
+        value: 'Module',
       })
       /******/
     }
@@ -57,7 +57,7 @@
     /******/
   } // create a fake namespace object // mode & 1: value is a module id, require it // mode & 2: merge all properties of value into the ns // mode & 4: return value when already ns object // mode & 8|1: behave like require
   /******/
-  /******/ /******/ /******/ /******/ /******/ /******/ __webpack_require__.t = function(
+  /******/ /******/ /******/ /******/ /******/ /******/ __webpack_require__.t = function (
     value,
     mode
   ) {
@@ -74,14 +74,14 @@
     /******/ __webpack_require__.r(ns)
     /******/ Object.defineProperty(ns, 'default', {
       enumerable: true,
-      value: value
+      value: value,
     })
     /******/ if (mode & 2 && typeof value != 'string')
       for (var key in value)
         __webpack_require__.d(
           ns,
           key,
-          function(key) {
+          function (key) {
             return value[key]
           }.bind(null, key)
         )
@@ -89,7 +89,7 @@
     /******/
   } // getDefaultExport function for compatibility with non-harmony modules
   /******/
-  /******/ /******/ __webpack_require__.n = function(module) {
+  /******/ /******/ __webpack_require__.n = function (module) {
     /******/ var getter =
       module && module.__esModule
         ? /******/ function getDefault() {
@@ -103,7 +103,7 @@
     /******/
   } // Object.prototype.hasOwnProperty.call
   /******/
-  /******/ /******/ __webpack_require__.o = function(object, property) {
+  /******/ /******/ __webpack_require__.o = function (object, property) {
     return Object.prototype.hasOwnProperty.call(object, property)
   } // __webpack_public_path__
   /******/
@@ -122,12 +122,12 @@
   !*** ./src/ts/background.ts ***!
   \******************************/
       /*! no static exports found */
-      /***/ function(module, exports) {
+      /***/ function (module, exports) {
         // 当点击扩展图标时，切换显示/隐藏下载面板
-        chrome.browserAction.onClicked.addListener(function(tab) {
+        chrome.browserAction.onClicked.addListener(function (tab) {
           // 打开下载面板
           chrome.tabs.sendMessage(tab.id, {
-            msg: 'click_icon'
+            msg: 'click_icon',
           })
         })
         // 因为下载完成的顺序和发送顺序可能不一致，所以需要存储任务的数据
@@ -137,7 +137,7 @@
         // 储存下载任务的批次编号，用来判断不同批次的下载
         let dlBatch = []
         // 接收下载请求
-        chrome.runtime.onMessage.addListener(function(msg, sender) {
+        chrome.runtime.onMessage.addListener(function (msg, sender) {
           // 接收下载任务
           if (msg.msg === 'send_download') {
             const tabId = sender.tab.id
@@ -156,15 +156,15 @@
                   url: msg.fileUrl,
                   filename: msg.fileName,
                   conflictAction: 'overwrite',
-                  saveAs: false
+                  saveAs: false,
                 },
-                id => {
+                (id) => {
                   // id 是 Chrome 新建立的下载任务的 id
                   dlData[id] = {
                     url: msg.fileUrl,
                     id: msg.id,
                     tabId: tabId,
-                    uuid: false
+                    uuid: false,
                   }
                 }
               )
@@ -174,7 +174,7 @@
         // 判断文件名是否变成了 UUID 格式。因为文件名处于整个绝对路径的中间，所以没加首尾标记 ^ $
         const UUIDRegexp = /[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}/
         // 监听下载事件
-        chrome.downloads.onChanged.addListener(function(detail) {
+        chrome.downloads.onChanged.addListener(function (detail) {
           // 根据 detail.id 取出保存的数据
           const data = dlData[detail.id]
           if (data) {
@@ -197,7 +197,7 @@
             if (detail.error && detail.error.current) {
               msg = 'download_err'
               err = detail.error.current
-              const idIndex = dlIndex[data.tabId].findIndex(val => {
+              const idIndex = dlIndex[data.tabId].findIndex((val) => {
                 val === data.id
               })
               dlIndex[data.tabId][idIndex] = '' // 从任务列表里删除它，以便前台重试下载
@@ -212,7 +212,7 @@
         })
 
         /***/
-      }
+      },
 
     /******/
   }

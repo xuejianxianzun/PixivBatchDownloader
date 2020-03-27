@@ -19,7 +19,7 @@ class InitBookmarkNewIllustPage extends InitPageBase {
 
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
-      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
+      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -40,7 +40,7 @@ class InitBookmarkNewIllustPage extends InitPageBase {
       text: lang.transl('_页数'),
       tip: lang.transl('_checkWantPageRule1Arg8'),
       rangTip: `1 - ${this.maxCount}`,
-      value: this.maxCount.toString()
+      value: this.maxCount.toString(),
     })
   }
 
@@ -90,7 +90,7 @@ class InitBookmarkNewIllustPage extends InitPageBase {
         pageCount: data.pageCount,
         bookmarkData: data.isBookmarked,
         illustType: parseInt(data.illustType) as any,
-        tags: data.tags
+        tags: data.tags,
       }
 
       if (filter.check(filterOpt)) {

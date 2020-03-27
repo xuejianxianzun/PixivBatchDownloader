@@ -90,13 +90,13 @@ class InitSearchPage extends InitPageBase {
 
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.green, lang.transl('_开始筛选'), [
-      ['title', lang.transl('_开始筛选Title')]
+      ['title', lang.transl('_开始筛选Title')],
     ]).addEventListener('click', () => {
       this.startScreen()
     })
 
     DOM.addBtn('crawlBtns', Colors.red, lang.transl('_在结果中筛选'), [
-      ['title', lang.transl('_在结果中筛选Title')]
+      ['title', lang.transl('_在结果中筛选Title')],
     ]).addEventListener('click', () => {
       this.screenInResult()
     })
@@ -126,7 +126,7 @@ class InitSearchPage extends InitPageBase {
       text: lang.transl('_页数'),
       tip: lang.transl('_checkWantPageRule1Arg8'),
       rangTip: `1 - ${this.maxCount}`,
-      value: this.maxCount.toString()
+      value: this.maxCount.toString(),
     })
   }
 
@@ -158,7 +158,7 @@ class InitSearchPage extends InitPageBase {
     'scd',
     'ecd',
     'blt',
-    'bgt'
+    'bgt',
   ]
 
   private resultMeta: WorkInfo[] = [] // 每次“开始筛选”完成后，储存当时所有结果，以备“在结果中筛选”使用
@@ -361,9 +361,9 @@ class InitSearchPage extends InitPageBase {
       `.${this.addBMKBtnClass}`
     ) as HTMLButtonElement
     const bookmarkedClass = this.bookmarkedClass
-    addBMKBtn.addEventListener('click', function() {
+    addBMKBtn.addEventListener('click', function () {
       const e = new CustomEvent('addBMK', {
-        detail: { data: { id: data.idNum, tags: tagString } }
+        detail: { data: { id: data.idNum, tags: tagString } },
       })
       window.dispatchEvent(e)
       this.classList.add(bookmarkedClass)
@@ -374,7 +374,7 @@ class InitSearchPage extends InitPageBase {
     const data = event.detail.data as AddBMKData
     const tagString = form.quickBookmarks.checked ? data.tags : ''
     API.addBookmark(data.id.toString(), tagString, API.getToken(), false)
-    this.resultMeta.forEach(result => {
+    this.resultMeta.forEach((result) => {
       if (result.idNum === data.id) {
         result.bookmarked = true
       }
@@ -424,7 +424,7 @@ class InitSearchPage extends InitPageBase {
 
     this.clearWorks()
 
-    this.resultMeta.forEach(data => {
+    this.resultMeta.forEach((data) => {
       const dlCount = this.getDLCount(data.pageCount)
       // 如果此时的 dlCount 与之前的 dlCount 不一样，则更新它
       if (dlCount !== data.dlCount) {
@@ -451,7 +451,7 @@ class InitSearchPage extends InitPageBase {
 
     this.getMultipleSetting()
 
-    this.filterResult(data => {
+    this.filterResult((data) => {
       const filterOpt: FilterOption = {
         id: data.id,
         illustType: data.type,
@@ -461,7 +461,7 @@ class InitSearchPage extends InitPageBase {
         bookmarkData: data.bookmarked,
         width: data.fullWidth,
         height: data.fullHeight,
-        createDate: data.date
+        createDate: data.date,
       }
 
       return filter.check(filterOpt)
@@ -470,14 +470,14 @@ class InitSearchPage extends InitPageBase {
 
   // 清除多图作品
   private clearMultiple = () => {
-    this.filterResult(data => {
+    this.filterResult((data) => {
       return data.pageCount <= 1
     })
   }
 
   // 清除动图作品
   private clearUgoira = () => {
-    this.filterResult(data => {
+    this.filterResult((data) => {
       return !data.ugoiraInfo
     })
   }
@@ -487,7 +487,7 @@ class InitSearchPage extends InitPageBase {
     const el = event.detail.data as HTMLElement
     this.deleteId = parseInt(el.dataset.id!)
 
-    this.filterResult(data => {
+    this.filterResult((data) => {
       return data.idNum !== this.deleteId
     })
   }
@@ -551,7 +551,7 @@ class InitSearchPage extends InitPageBase {
 
     // 从页面 url 中获取可以使用的选项
     this.option = {}
-    this.allOption.forEach(param => {
+    this.allOption.forEach((param) => {
       let value = API.getURLField(location.href, param)
       if (value !== '') {
         this.option[param] = value
@@ -620,7 +620,7 @@ class InitSearchPage extends InitPageBase {
         pageCount: nowData.pageCount,
         bookmarkData: nowData.bookmarkData,
         illustType: nowData.illustType,
-        tags: nowData.tags
+        tags: nowData.tags,
       }
 
       if (filter.check(filterOpt)) {

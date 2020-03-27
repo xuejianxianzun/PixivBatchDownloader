@@ -27,7 +27,7 @@ class Options {
       rangTip: wantPageOption.querySelector(
         '.setWantPageTip2'
       )! as HTMLSpanElement,
-      input: wantPageOption.querySelector('.setWantPage')! as HTMLInputElement
+      input: wantPageOption.querySelector('.setWantPage')! as HTMLInputElement,
     }
   }
 

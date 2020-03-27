@@ -15,7 +15,7 @@ class InitBookmarkDetailPage extends InitPageBase {
 
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取相似图片'), [
-      ['title', lang.transl('_抓取相似图片')]
+      ['title', lang.transl('_抓取相似图片')],
     ]).addEventListener(
       'click',
       () => {
@@ -31,7 +31,7 @@ class InitBookmarkDetailPage extends InitPageBase {
       text: lang.transl('_个数'),
       tip: lang.transl('_要获取的作品个数2'),
       rangTip: `1 - ${this.maxCount}`,
-      value: this.maxCount.toString()
+      value: this.maxCount.toString(),
     })
   }
 

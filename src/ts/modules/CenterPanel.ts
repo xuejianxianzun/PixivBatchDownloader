@@ -72,7 +72,7 @@ class CenterPanel {
   // 绑定中间面板上的事件
   private bindEvents() {
     // 监听点击扩展图标的消息，开关中间面板
-    chrome.runtime.onMessage.addListener(msg => {
+    chrome.runtime.onMessage.addListener((msg) => {
       if (msg.msg === 'click_icon') {
         if (this.centerPanel.style.display === 'block') {
           this.close()
@@ -92,7 +92,7 @@ class CenterPanel {
     // 使用快捷键 Alt + x 切换中间面板显示隐藏
     window.addEventListener(
       'keydown',
-      ev => {
+      (ev) => {
         if (ev.altKey && ev.keyCode === 88) {
           const nowDisplay = this.centerPanel.style.display
           if (nowDisplay === 'block') {

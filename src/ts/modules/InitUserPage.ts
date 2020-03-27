@@ -18,7 +18,7 @@ class InitUserPage extends InitPageBase {
 
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
-      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
+      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -30,7 +30,7 @@ class InitUserPage extends InitPageBase {
       text: lang.transl('_页数'),
       tip: lang.transl('_checkWantPageRule1Arg8'),
       rangTip: lang.transl('_数字提示1'),
-      value: '-1'
+      value: '-1',
     })
   }
 
@@ -129,15 +129,15 @@ class InitUserPage extends InitPageBase {
 
     // 把作品 id 转换成数字
     let tempList: number[] = []
-    tempList = idList.map(id => {
+    tempList = idList.map((id) => {
       return parseInt(id)
     })
     // 升序排列
-    tempList.sort(function(x, y) {
+    tempList.sort(function (x, y) {
       return x - y
     })
 
-    idList = tempList.map(id => {
+    idList = tempList.map((id) => {
       return id.toString()
     })
 
@@ -166,7 +166,7 @@ class InitUserPage extends InitPageBase {
       this.requsetNumber
     )
 
-    data.body.works.forEach(data => store.idList.push(data.id))
+    data.body.works.forEach((data) => store.idList.push(data.id))
 
     this.getIdListFinished()
   }

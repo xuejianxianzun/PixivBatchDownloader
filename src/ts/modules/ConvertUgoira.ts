@@ -16,7 +16,7 @@ class ConvertUgoira {
     window.addEventListener(EVT.events.downloadStart, () => {
       this.downloading = true
     })
-    ;[EVT.events.downloadPause, EVT.events.downloadStop].forEach(event => {
+    ;[EVT.events.downloadPause, EVT.events.downloadStop].forEach((event) => {
       window.addEventListener(event, () => {
         this.downloading = false
       })
@@ -50,7 +50,7 @@ class ConvertUgoira {
     const zipWorkerBolb = await zipWorker.blob()
     const zipWorkerUrl = URL.createObjectURL(zipWorkerBolb)
     zip.workerScripts = {
-      inflater: [zipWorkerUrl]
+      inflater: [zipWorkerUrl],
     }
 
     // 添加 gif 的 worker 文件
@@ -64,7 +64,7 @@ class ConvertUgoira {
     zipFile: any,
     ugoiraInfo: UgoiraInfo
   ): Promise<string[]> {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       zip.createReader(
         new zip.BlobReader(zipFile),
         (zipReader: any) => {
@@ -109,11 +109,11 @@ class ConvertUgoira {
     type: string = 'webm'
   ): Promise<HTMLCanvasElement[] | HTMLImageElement[]> {
     const resultList = new Array(imgFile.length)
-    return new Promise(function(resolve, reject) {
-      const drawImg = function(index: number) {
+    return new Promise(function (resolve, reject) {
+      const drawImg = function (index: number) {
         const img = new Image()
 
-        img.onload = function(event) {
+        img.onload = function (event) {
           // 处理视频
           if (type === 'webm') {
             const canvasEl = document.createElement('canvas')
@@ -147,8 +147,8 @@ class ConvertUgoira {
 
   // 编码视频
   private async encodeVideo(encoder: any) {
-    return new Promise(function(resolve, reject) {
-      encoder.compile(false, function(video: Blob) {
+    return new Promise(function (resolve, reject) {
+      encoder.compile(false, function (video: Blob) {
         resolve(video)
       })
     })
@@ -222,7 +222,7 @@ class ConvertUgoira {
       let gif: any = new GIF({
         workers: 4,
         quality: 10,
-        workerScript: this.gifWorkerUrl
+        workerScript: this.gifWorkerUrl,
       })
 
       // 绑定渲染完成事件
@@ -245,7 +245,7 @@ class ConvertUgoira {
       // 添加帧数据
       for (let index = 0; index < imgData!.length; index++) {
         gif.addFrame(imgData![index], {
-          delay: info.frames![index].delay
+          delay: info.frames![index].delay,
         })
       }
 

@@ -10,10 +10,10 @@ class Store {
       EVT.events.crawlEmpty,
       EVT.events.crawlError,
       EVT.events.downloadPause,
-      EVT.events.downloadStop
+      EVT.events.downloadStop,
     ]
 
-    allowWorkTrue.forEach(type => {
+    allowWorkTrue.forEach((type) => {
       window.addEventListener(type, () => {
         this.states.allowWork = true
       })
@@ -21,7 +21,7 @@ class Store {
 
     const allowWorkFalse = [EVT.events.crawlStart, EVT.events.downloadStart]
 
-    allowWorkFalse.forEach(type => {
+    allowWorkFalse.forEach((type) => {
       window.addEventListener(type, () => {
         this.states.allowWork = false
       })
@@ -82,7 +82,7 @@ class Store {
       date: '',
       type: 0,
       rank: '',
-      ugoiraInfo: null
+      ugoiraInfo: null,
     }
 
     return Object.assign(dataDefault, data)
@@ -129,13 +129,13 @@ class Store {
   public states = {
     allowWork: true, // 当前是否允许展开工作（如果抓取未完成、下载未完成则应为 false
     quickDownload: false, // 快速下载当前作品，这个只在作品页内直接下载时使用
-    notAutoDownload: false // 抓取完成后，不自动开始下载
+    notAutoDownload: false, // 抓取完成后，不自动开始下载
   }
 
   // 储存页面信息，用来生成文件名
   public pageInfo = {
     pageTitle: '',
-    pageTag: ''
+    pageTag: '',
   }
 
   public resetResult() {

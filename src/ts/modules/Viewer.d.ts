@@ -4,13 +4,13 @@ declare namespace Viewer {
     Visible = 1,
     VisibleOnMediumOrWiderScreen = 2,
     VisibleOnLargeOrWiderScreen = 3,
-    VisibleOnExtraLargeOrWiderScreen = 4
+    VisibleOnExtraLargeOrWiderScreen = 4,
   }
 
   enum ToolbarButtonSize {
     Small = 'small',
     Medium = 'medium',
-    Large = 'large'
+    Large = 'large',
   }
 
   export interface ToolbarButtonOptions {

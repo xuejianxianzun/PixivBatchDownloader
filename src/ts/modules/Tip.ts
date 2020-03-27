@@ -22,13 +22,13 @@ class Tip {
     >
     for (const el of tips) {
       for (const ev of ['mouseenter', 'mouseleave']) {
-        el.addEventListener(ev, event => {
+        el.addEventListener(ev, (event) => {
           const e = (event || window.event) as MouseEvent
           const text = el.dataset.tip
           this.showTip(text, {
             type: ev === 'mouseenter' ? 1 : 0,
             x: e.clientX,
-            y: e.clientY
+            y: e.clientY,
           })
         })
       }

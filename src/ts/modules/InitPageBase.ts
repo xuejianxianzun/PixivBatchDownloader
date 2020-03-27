@@ -40,7 +40,7 @@ abstract class InitPageBase {
   // 添加中间按钮
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
-      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
+      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -56,7 +56,7 @@ abstract class InitPageBase {
       text: lang.transl('_页数'),
       tip: lang.transl('_checkWantPageRule1Arg8'),
       rangTip: lang.transl('_数字提示1'),
-      value: '1'
+      value: '1',
     })
   }
 
@@ -289,7 +289,7 @@ abstract class InitPageBase {
       bookmarkCount: bmk,
       bookmarkData: body.bookmarkData,
       width: fullWidth,
-      height: fullHeight
+      height: fullHeight,
     }
 
     // 检查通过
@@ -308,10 +308,7 @@ abstract class InitPageBase {
       const date0 = new Date(body.createDate)
       const y = date0.getFullYear()
       const m = (date0.getMonth() + 1).toString().padStart(2, '0')
-      const d = date0
-        .getDate()
-        .toString()
-        .padStart(2, '0')
+      const d = date0.getDate().toString().padStart(2, '0')
       const date = `${y}-${m}-${d}`
 
       let rank = '' // 保存作品在排行榜上的编号
@@ -352,7 +349,7 @@ abstract class InitPageBase {
           bookmarked: bookmarked,
           date: date,
           type: body.illustType,
-          rank: rank
+          rank: rank,
         })
         this.logImagesNo()
       } else if (body.illustType === 2) {
@@ -362,7 +359,7 @@ abstract class InitPageBase {
         // 动图帧延迟数据
         const ugoiraInfo = {
           frames: meta.body.frames,
-          mime_type: meta.body.mime_type
+          mime_type: meta.body.mime_type,
         }
 
         const ext = form.ugoiraSaveAs.value // 扩展名可能是 webm、gif、zip
@@ -386,7 +383,7 @@ abstract class InitPageBase {
           date: date,
           type: body.illustType,
           rank: rank,
-          ugoiraInfo: ugoiraInfo
+          ugoiraInfo: ugoiraInfo,
         })
 
         this.logImagesNo()

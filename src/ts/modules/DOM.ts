@@ -4,7 +4,7 @@ class DOM {
   // 获取指定元素里，可见的结果
   static getVisibleEl(selector: string) {
     const list: NodeListOf<HTMLElement> = document.querySelectorAll(selector)
-    return Array.from(list).filter(el => {
+    return Array.from(list).filter((el) => {
       return el.style.display !== 'none'
     })
   }
@@ -16,7 +16,7 @@ class DOM {
     }
     if (Reflect.has(el, 'length')) {
       // 如果有 length 属性则循环删除。
-      ;(el as NodeListOf<Element>).forEach(el => {
+      ;(el as NodeListOf<Element>).forEach((el) => {
         if (el.parentNode) {
           el.parentNode.removeChild(el)
         }

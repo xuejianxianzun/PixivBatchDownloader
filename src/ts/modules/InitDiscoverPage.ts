@@ -16,7 +16,7 @@ class InitDiscoverPage extends InitPageBase {
 
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取当前作品'), [
-      ['title', lang.transl('_抓取当前作品Title')]
+      ['title', lang.transl('_抓取当前作品Title')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -44,7 +44,7 @@ class InitDiscoverPage extends InitPageBase {
       HTMLAnchorElement
     >
     // 获取已有作品的 id
-    Array.from(nowIllust).forEach(el => {
+    Array.from(nowIllust).forEach((el) => {
       // discovery 列表的 url 是有额外后缀的，需要去掉
       const id = API.getIllustId(el.href.split('&uarea')[0])
       store.idList.push(id)

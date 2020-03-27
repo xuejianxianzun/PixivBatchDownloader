@@ -4,7 +4,7 @@ import { DOM } from './DOM'
 import {
   downloadArgument,
   DonwloadSuccessData,
-  DownloadedMsg
+  DownloadedMsg,
 } from './Download.d'
 import { store } from './Store'
 import { log } from './Log'
@@ -455,13 +455,13 @@ class DownloadControl {
         data: workData,
         index: index,
         progressBarIndex: progressBarIndex,
-        taskBatch: this.taskBatch
+        taskBatch: this.taskBatch,
       }
 
       // 保存任务信息
       this.taskList[workData.id] = {
         index,
-        progressBarIndex: progressBarIndex
+        progressBarIndex: progressBarIndex,
       }
 
       // 建立下载

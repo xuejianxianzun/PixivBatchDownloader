@@ -106,7 +106,7 @@ class SaveSettings {
     idRangeSwitch: false,
     needTagSwitch: false,
     notNeedTagSwitch: false,
-    quickBookmarks: true
+    quickBookmarks: true,
   }
 
   // 需要持久化保存的设置
@@ -309,7 +309,7 @@ class SaveSettings {
 
     // 保存命名规则
     const userSetNameInput = this.form.userSetName
-    ;['change', 'focus'].forEach(ev => {
+    ;['change', 'focus'].forEach((ev) => {
       userSetNameInput.addEventListener(ev, () => {
         this.emitChange('userSetName', userSetNameInput.value)
       })

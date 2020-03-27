@@ -53,7 +53,7 @@ class InitPixivisionPage extends InitPageBase {
       15,
       16,
       18,
-      19
+      19,
     ])
 
     // pixivision 里，文件名只有 id 标记会生效，所以把文件名规则替换成 id
@@ -73,7 +73,7 @@ class InitPixivisionPage extends InitPageBase {
     store.addResult({
       id: id,
       url: url,
-      ext: ext
+      ext: ext,
     })
   }
 
@@ -88,13 +88,13 @@ class InitPixivisionPage extends InitPageBase {
       const imageList = document.querySelectorAll(
         '.am__work__main img'
       ) as NodeListOf<HTMLImageElement>
-      const urls = Array.from(imageList).map(el => {
+      const urls = Array.from(imageList).map((el) => {
         return el.src
           .replace('c/768x1200_80/img-master', 'img-original')
           .replace('_master1200', '')
       })
       this.tested = 0
-      urls.forEach(url => {
+      urls.forEach((url) => {
         let arr = url.split('/')
         const id = arr[arr.length - 1].split('.')[0] // 取出作品 id
         this.testExtName(url, urls.length, id)
@@ -112,7 +112,7 @@ class InitPixivisionPage extends InitPageBase {
       const imageList = document.querySelectorAll(selector) as NodeListOf<
         HTMLImageElement
       >
-      Array.from(imageList).forEach(el => {
+      Array.from(imageList).forEach((el) => {
         const url = el.src
         if (url !== 'https://i.pximg.net/imgaz/upload/20170407/256097898.jpg') {
           // 跳过Cure的logo图片

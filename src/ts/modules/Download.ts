@@ -24,7 +24,7 @@ class Download {
   private readonly retryMax = 50
 
   private listenEvents() {
-    ;[EVT.events.downloadStop, EVT.events.downloadPause].forEach(event => {
+    ;[EVT.events.downloadStop, EVT.events.downloadPause].forEach((event) => {
       window.addEventListener(event, () => {
         this.stoped = true
       })
@@ -36,7 +36,7 @@ class Download {
     progressBar.setProgress(this.progressBarIndex, {
       name: this.fileName,
       loaded: loaded,
-      total: total
+      total: total,
     })
   }
 
@@ -56,7 +56,7 @@ class Download {
     xhr.responseType = 'blob'
 
     // 显示下载进度
-    xhr.addEventListener('progress', event => {
+    xhr.addEventListener('progress', (event) => {
       if (this.stoped) {
         xhr.abort()
         xhr = null as any
@@ -90,7 +90,7 @@ class Download {
 
         // 创建 txt 文件，保存提示信息
         file = new Blob([`${msg}`], {
-          type: 'text/plain'
+          type: 'text/plain',
         })
 
         this.fileName = this.fileName.replace(
@@ -135,7 +135,7 @@ class Download {
             log.error(msg, 2)
 
             file = new Blob([`${msg}`], {
-              type: 'text/plain'
+              type: 'text/plain',
             })
 
             this.fileName = this.fileName.replace(/\.gif$|\.webm$/, '.txt')
@@ -172,7 +172,7 @@ class Download {
       fileUrl: blobUrl,
       fileName: fileName,
       id,
-      taskBatch
+      taskBatch,
     }
 
     chrome.runtime.sendMessage(sendData)

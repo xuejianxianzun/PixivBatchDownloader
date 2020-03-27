@@ -86,7 +86,7 @@ class QuickBookmark {
       // 如果设置了快速收藏，则获取 tag
       if (form.quickBookmarks.checked) {
         const tagElements = document.querySelectorAll('._1LEXQ_3 li')
-        const tagArray = Array.from(tagElements).map(el => {
+        const tagArray = Array.from(tagElements).map((el) => {
           const nowA = el.querySelector('a')
           if (nowA) {
             let nowTag = nowA.textContent
@@ -106,8 +106,8 @@ class QuickBookmark {
 
       // 调用添加收藏的 api
       API.addBookmark(API.getIllustId(), tagString, API.getToken(), false)
-        .then(response => response.json())
-        .then(data => {
+        .then((response) => response.json())
+        .then((data) => {
           if (data.error !== undefined && data.error === false) {
             this.quickBookmarkEnd()
           }

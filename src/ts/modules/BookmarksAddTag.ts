@@ -31,8 +31,8 @@ class BookmarksAddTag {
     // 发起请求
     const [showData, hideData] = await Promise.all([
       API.getBookmarkData(DOM.getUserId(), '未分類', offset, false),
-      API.getBookmarkData(DOM.getUserId(), '未分類', offset, true)
-    ]).catch(error => {
+      API.getBookmarkData(DOM.getUserId(), '未分類', offset, true),
+    ]).catch((error) => {
       if (error.status && error.status === 403) {
         this.btn!.textContent = `× Permission denied`
       }
@@ -44,11 +44,11 @@ class BookmarksAddTag {
       const works: BookmarkWork[] = data.body.works
       // 如果作品的 bookmarkData 为假说明没有实际数据，可能是在获取别人的收藏数据。
       if (works.length > 0 && works[0].bookmarkData) {
-        works.forEach(work => {
+        works.forEach((work) => {
           this.addTagList.push({
             id: work.id,
             tags: encodeURI(work.tags.join(' ')),
-            restrict: work.bookmarkData.private
+            restrict: work.bookmarkData.private,
           })
         })
       }

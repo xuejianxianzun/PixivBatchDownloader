@@ -27,7 +27,7 @@ class Support {
   // 检查新版本
   private async checkNew() {
     // 显示更新按钮
-    const show = function() {
+    const show = function () {
       const updateIco = document.querySelector(
         '.centerWrap_top_btn.update'
       )! as HTMLAnchorElement
@@ -112,7 +112,7 @@ class Support {
     // 绑定无刷新切换页面的事件，只绑定一次
     // pixiv 的后退使用 replaceState
     // pushState 判断从列表页进入作品页的情况，popstate 判断从作品页退回列表页的情况
-    ;['pushState', 'popstate', 'replaceState'].forEach(item => {
+    ;['pushState', 'popstate', 'replaceState'].forEach((item) => {
       window.addEventListener(item, () => {
         EVT.fire(EVT.events.pageSwitch)
       })

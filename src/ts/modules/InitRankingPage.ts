@@ -21,7 +21,7 @@ class InitRankingPage extends InitPageBase {
 
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取本排行榜作品'), [
-      ['title', lang.transl('_抓取本排行榜作品Title')]
+      ['title', lang.transl('_抓取本排行榜作品Title')],
     ]).addEventListener('click', () => {
       form.debut.value = '0'
       this.readyCrawl()
@@ -33,7 +33,7 @@ class InitRankingPage extends InitPageBase {
 
     if (debutModes.includes(mode)) {
       DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取首次登场的作品'), [
-        ['title', lang.transl('_抓取首次登场的作品Title')]
+        ['title', lang.transl('_抓取首次登场的作品Title')],
       ]).addEventListener('click', () => {
         form.debut.value = '1'
         this.readyCrawl()
@@ -49,7 +49,7 @@ class InitRankingPage extends InitPageBase {
       text: lang.transl('_个数'),
       tip: lang.transl('_要获取的作品个数2'),
       rangTip: `1 - ${this.maxCount}`,
-      value: this.maxCount.toString()
+      value: this.maxCount.toString(),
     })
   }
 
@@ -137,7 +137,7 @@ class InitRankingPage extends InitPageBase {
         bookmarkData: data.is_bookmarked,
         width: data.width,
         height: data.height,
-        yes_rank: data.yes_rank
+        yes_rank: data.yes_rank,
       }
 
       if (filter.check(filterOpt)) {

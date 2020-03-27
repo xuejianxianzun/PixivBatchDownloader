@@ -4,7 +4,7 @@ module.exports = {
   mode: 'development',
   entry: {
     content: './src/ts/content.ts',
-    background: './src/ts/background.ts'
+    background: './src/ts/background.ts',
   },
   devtool: 'source-map',
   module: {
@@ -12,15 +12,15 @@ module.exports = {
       {
         test: /\.ts$/,
         use: 'ts-loader',
-        exclude: /node_modules/
-      }
-    ]
+        exclude: /node_modules/,
+      },
+    ],
   },
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.js'],
   },
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, 'dist/js')
-  }
+    path: path.resolve(__dirname, 'dist/js'),
+  },
 }

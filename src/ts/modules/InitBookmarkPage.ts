@@ -20,7 +20,7 @@ class InitBookmarkPage extends InitPageBase {
 
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
-      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')]
+      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -63,7 +63,7 @@ class InitBookmarkPage extends InitPageBase {
       text: lang.transl('_页数'),
       tip: lang.transl('_checkWantPageRule1Arg8'),
       rangTip: lang.transl('_数字提示1'),
-      value: '-1'
+      value: '-1',
     })
 
     // 在书签页面隐藏只要书签选项
@@ -173,7 +173,7 @@ class InitBookmarkPage extends InitPageBase {
       return this.afterGetIdList()
     } else {
       // 没有抓取完毕时，添加数据
-      data.body.works.forEach(data => this.idList.push(data.id))
+      data.body.works.forEach((data) => this.idList.push(data.id))
       this.offset += this.onceRequest // 每次增加偏移量
       // 重复抓取过程
       this.getIdList()

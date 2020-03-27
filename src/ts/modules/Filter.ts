@@ -25,7 +25,7 @@ class Filter {
   private filterWh: FilterWh = {
     andOr: '&',
     width: 0,
-    height: 0
+    height: 0,
   }
 
   private ratioSwitch = false // 宽高比例设置的开关
@@ -194,7 +194,7 @@ class Filter {
     let result: FilterWh = {
       andOr: '&',
       width: 0,
-      height: 0
+      height: 0,
     }
 
     const checkWidth = API.checkNumberGreater0(form.setWidth.value)
@@ -205,7 +205,7 @@ class Filter {
       result = {
         andOr: form.setWidthAndOr.value as '&' | '|',
         width: checkWidth ? checkWidth.value : 0,
-        height: checkHeight ? checkHeight.value : 0
+        height: checkHeight ? checkHeight.value : 0,
       }
 
       log.warning(

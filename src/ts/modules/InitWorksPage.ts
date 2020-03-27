@@ -93,7 +93,7 @@ class InitWorksPage extends InitPageBase {
         '<br>' +
         lang.transl('_相关作品大于0'),
       rangTip: lang.transl('_数字提示1'),
-      value: '-1'
+      value: '-1',
     })
   }
 
@@ -165,7 +165,7 @@ class InitWorksPage extends InitPageBase {
 
     // 储存符合条件的 id
     let nowId = parseInt(API.getIllustId(window.location.href))
-    idList.forEach(id => {
+    idList.forEach((id) => {
       let idNum = parseInt(id)
       // 新作品
       if (idNum >= nowId && this.crawlDirection === -1) {
@@ -180,12 +180,12 @@ class InitWorksPage extends InitPageBase {
     if (this.crawlNumber !== -1) {
       // 新作品 升序排列
       if (this.crawlDirection === -1) {
-        store.idList.sort(function(x, y) {
+        store.idList.sort(function (x, y) {
           return parseInt(x) - parseInt(y)
         })
       } else {
         // 旧作品 降序排列
-        store.idList.sort(function(x, y) {
+        store.idList.sort(function (x, y) {
           return parseInt(y) - parseInt(x)
         })
       }

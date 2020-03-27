@@ -21,7 +21,7 @@ class FastScreen {
     '10000users入り',
     '20000users入り',
     '30000users入り',
-    '50000users入り'
+    '50000users入り',
   ] // 200 和 2000 的因为数量太少，不添加。40000 的也少
 
   // 添加快速筛选功能
@@ -38,7 +38,7 @@ class FastScreen {
 
     const fastScreenArea = document.createElement('div')
     fastScreenArea.className = 'fastScreenArea'
-    this.favNums.forEach(secondTag => {
+    this.favNums.forEach((secondTag) => {
       const a = document.createElement('a')
       a.innerText = secondTag
       a.href = 'javascript:viod(0)'

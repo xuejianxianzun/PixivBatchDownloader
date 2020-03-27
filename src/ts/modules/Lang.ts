@@ -38,7 +38,7 @@ class Lang {
   // translate 翻译
   public transl(name: langTextKeys, ...arg: string[]) {
     let content = langText[name][this.langType]
-    arg.forEach(val => (content = content.replace('{}', val)))
+    arg.forEach((val) => (content = content.replace('{}', val)))
     return content
   }
 }

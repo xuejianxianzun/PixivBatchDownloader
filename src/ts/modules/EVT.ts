@@ -59,7 +59,7 @@ class EVT {
     settingChange: 'settingChange',
     clickRightIcon: 'clickRightIcon',
     destroy: 'destroy',
-    convertError: 'convertError'
+    convertError: 'convertError',
   }
 
   static fire(
@@ -67,7 +67,7 @@ class EVT {
     data: object | string | number | boolean = ''
   ) {
     const event = new CustomEvent(type, {
-      detail: { data: data }
+      detail: { data: data },
     })
     window.dispatchEvent(event)
   }

@@ -4,20 +4,20 @@ module.exports = {
     ecmaVersion: 6,
     sourceType: 'module',
     ecmaFeatures: {
-      modules: true
-    }
+      modules: true,
+    },
   },
   env: {
-    browser: true
+    browser: true,
   },
   plugins: ['@typescript-eslint'],
   extends: [
     'plugin:@typescript-eslint/eslint-recommended',
     'prettier/@typescript-eslint',
-    'prettier'
+    'prettier',
   ],
   rules: {
     'no-console': 'off',
-    'no-useless-catch': 'off'
-  }
+    'no-useless-catch': 'off',
+  },
 }

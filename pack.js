@@ -9,8 +9,8 @@ async function copys() {
   return new Promise(async (resolve, reject) => {
     // 复制 static 文件夹的内容
     await copy('./static', './dist', {
-      overwrite: true
-    }).catch(function(error) {
+      overwrite: true,
+    }).catch(function (error) {
       console.error('Copy failed: ' + error)
       reject()
     })
@@ -18,13 +18,13 @@ async function copys() {
     // 复制静态文件
     await copy('./src', './dist', {
       overwrite: true,
-      filter: ['manifest.json']
+      filter: ['manifest.json'],
     })
 
     await copy('./', './dist', {
       overwrite: true,
-      filter: ['*.md', 'LICENSE']
-    }).then(function(results) {
+      filter: ['*.md', 'LICENSE'],
+    }).then(function (results) {
       resolve()
       console.log('Copy success')
     })
@@ -37,10 +37,10 @@ function pack() {
   const output = fs.createWriteStream(zipName)
 
   const archive = archiver('zip', {
-    zlib: { level: 9 } // Sets the compression level.
+    zlib: { level: 9 }, // Sets the compression level.
   })
 
-  archive.on('error', function(err) {
+  archive.on('error', function (err) {
     throw err
   })
 

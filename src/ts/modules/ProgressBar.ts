@@ -87,7 +87,7 @@ class ProgressBar {
       const data: ProgressBarEl = {
         name: bar.querySelector('.fileName')! as HTMLSpanElement,
         loaded: bar.querySelector('.loaded')! as HTMLSpanElement,
-        progress: bar.querySelector('.progress')! as HTMLDivElement
+        progress: bar.querySelector('.progress')! as HTMLDivElement,
       }
 
       this.allProgressBar.push(data)
