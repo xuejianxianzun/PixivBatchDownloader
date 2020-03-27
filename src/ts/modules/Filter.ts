@@ -16,7 +16,10 @@ class Filter {
 
   private filterBMKNum = false // 是否要求收藏数量
 
-  private BMKNum: number = 0 // 输入的收藏数量
+  private readonly BMKNumMinDef = 0
+  private readonly BMKNumMaxDef = 999999
+  private BMKNumMin: number = this.BMKNumMinDef // 最小收藏数量
+  private BMKNumMax: number = this.BMKNumMaxDef // 最大收藏数量
 
   private onlyBmk: boolean = false // 是否只下载收藏的作品
 
@@ -58,9 +61,7 @@ class Filter {
 
     // 获取是否设置了收藏数要求
     this.filterBMKNum = form.favNumSwitch.checked
-    if (this.filterBMKNum) {
-      this.BMKNum = this.getBMKNum()
-    }
+    this.filterBMKNum && this.getBMKNum()
 
     // 获取是否设置了只下载书签作品
     this.onlyBmk = this.getOnlyBmk()
@@ -224,13 +225,21 @@ class Filter {
 
   // 获取输入的收藏数
   private getBMKNum() {
-    const check = API.checkNumberGreater0(form.setFavNum.value)
+    this.BMKNumMin = this.BMKNumMinDef
+    this.BMKNumMax = this.BMKNumMaxDef
 
-    if (check.result) {
-      log.warning(lang.transl('_设置了筛选收藏数之后的提示文字') + check.value)
+    const min = API.checkNumberGreater0(form.BMKNumMin.value)
+    const max = API.checkNumberGreater0(form.BMKNumMax.value)
+
+    if (min.result) {
+      this.BMKNumMin = min.value
+      log.warning(lang.transl('_收藏数大于') + min.value)
     }
 
-    return check.value
+    if (max.result) {
+      this.BMKNumMax = max.value
+      log.warning(lang.transl('_收藏数小于') + max.value)
+    }
   }
 
   // 获取只下载书签作品的设置
@@ -377,7 +386,7 @@ class Filter {
     if (bmk === undefined || !this.filterBMKNum) {
       return true
     } else {
-      return bmk >= this.BMKNum
+      return bmk >= this.BMKNumMin && bmk <= this.BMKNumMax
     }
   }
 

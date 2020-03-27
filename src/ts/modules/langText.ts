@@ -179,11 +179,17 @@ const langText = {
     'Please type a number. If the number of bookmarks of the work is less than this number, the work will not be downloaded.',
     '請輸入一個數字，如果作品的收藏數小於這個數字，作品不會被下載。',
   ],
-  _设置了筛选收藏数之后的提示文字: [
+  _收藏数大于: [
     '收藏数 >= ',
     'ブックマークの数 >= ',
     'Number of bookmarks >= ',
     '收藏數 >= ',
+  ],
+  _收藏数小于: [
+    '收藏数 <= ',
+    'ブックマークの数 <= ',
+    'Number of bookmarks <= ',
+    '收藏數 <= ',
   ],
   _本次任务已全部完成: [
     '本次任务已全部完成。',
@@ -1102,18 +1108,8 @@ const langText = {
     'Remove the serial number of the first picture of each work. For example 80036479_p0 becomes 80036479.',
     '去掉每個作品第一張圖的序號。例如 80036479_p0 變成 80036479。',
   ],
-  _最小值:[
-    '最小值',
-    '最小値',
-    'Minimum value',
-    '最小值'
-  ],
-  _最大值:[
-    '最大值',
-    '最大値',
-    'maximum value',
-    '最大值'
-  ],
+  _最小值: ['最小值', '最小値', 'Minimum value', '最小值'],
+  _最大值: ['最大值', '最大値', 'maximum value', '最大值'],
   _xzNew440: [
     '新增设置项：启用快速收藏',
     '新たな機能を追加されました。：クイックボックマークを有効にする',

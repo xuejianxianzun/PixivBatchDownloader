@@ -25,7 +25,8 @@ interface XzSetting {
   postDateEnd: string
   previewResult: boolean
   favNumSwitch: boolean
-  setFavNum: string
+  BMKNumMin: string
+  BMKNumMax: string
   setWHSwitch: boolean
   setWidthAndOr: '&' | '|'
   setWidth: string
@@ -95,7 +96,8 @@ class SaveSettings {
     postDateEnd: '',
     previewResult: true,
     favNumSwitch: false,
-    setFavNum: '0',
+    BMKNumMin: '0',
+    BMKNumMax: '999999',
     setWHSwitch: false,
     setWidthAndOr: '&',
     setWidth: '0',
@@ -168,7 +170,8 @@ class SaveSettings {
     this.restoreBoolean('favNumSwitch')
 
     // 设置收藏数量数值
-    this.restoreString('setFavNum')
+    this.restoreString('BMKNumMin')
+    this.restoreString('BMKNumMax')
 
     // 设置启用快速收藏
     this.restoreBoolean('quickBookmarks')
@@ -272,7 +275,8 @@ class SaveSettings {
     this.saveCheckBox('favNumSwitch')
 
     // 保存收藏数量数值
-    this.saveTextInput('setFavNum')
+    this.saveTextInput('BMKNumMin')
+    this.saveTextInput('BMKNumMax')
 
     // 保存启用快速收藏
     this.saveCheckBox('quickBookmarks')

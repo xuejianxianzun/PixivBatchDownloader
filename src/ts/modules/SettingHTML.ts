@@ -74,8 +74,10 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="favNumSwitch" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="favNumSwitch">
-      <span>${lang.transl('_大于')}&nbsp;</span>
-      <input type="text" name="setFavNum" class="setinput_style1 blue" value="0">
+      <span>${lang.transl('_最小值')}&nbsp;</span>
+      <input type="text" name="BMKNumMin" class="setinput_style1 blue bmkNum" value="0">
+      <span>${lang.transl('_最大值')}&nbsp;</span>
+      <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="0">
       </span>
       </p>
       <p class="option" data-no="6">

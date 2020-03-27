@@ -325,6 +325,9 @@
 .centerWrap .setinput_style1.postDate {
   width: 190px;
 }
+.centerWrap .setinput_style1.bmkNum {
+  width: 60px;
+}
 .centerWrap .progressBar1,
 .centerWrap .right1 {
   width: 100%;

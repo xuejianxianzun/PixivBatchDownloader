@@ -2758,7 +2758,10 @@
             this.downType2 = true
             this.multipleImageWorks = 0 // 多图作品设置
             this.filterBMKNum = false // 是否要求收藏数量
-            this.BMKNum = 0 // 输入的收藏数量
+            this.BMKNumMinDef = 0
+            this.BMKNumMaxDef = 999999
+            this.BMKNumMin = this.BMKNumMinDef // 最小收藏数量
+            this.BMKNumMax = this.BMKNumMaxDef // 最大收藏数量
             this.onlyBmk = false // 是否只下载收藏的作品
             // 宽高条件
             this.setWHSwitch = false
@@ -2794,9 +2797,7 @@
               _Settings__WEBPACK_IMPORTED_MODULE_0__[
                 'form'
               ].favNumSwitch.checked
-            if (this.filterBMKNum) {
-              this.BMKNum = this.getBMKNum()
-            }
+            this.filterBMKNum && this.getBMKNum()
             // 获取是否设置了只下载书签作品
             this.onlyBmk = this.getOnlyBmk()
             // 获取是否设置了宽高条件
@@ -2990,19 +2991,34 @@
           }
           // 获取输入的收藏数
           getBMKNum() {
-            const check = _API__WEBPACK_IMPORTED_MODULE_3__[
+            this.BMKNumMin = this.BMKNumMinDef
+            this.BMKNumMax = this.BMKNumMaxDef
+            const min = _API__WEBPACK_IMPORTED_MODULE_3__[
               'API'
             ].checkNumberGreater0(
-              _Settings__WEBPACK_IMPORTED_MODULE_0__['form'].setFavNum.value
+              _Settings__WEBPACK_IMPORTED_MODULE_0__['form'].BMKNumMin.value
             )
-            if (check.result) {
+            const max = _API__WEBPACK_IMPORTED_MODULE_3__[
+              'API'
+            ].checkNumberGreater0(
+              _Settings__WEBPACK_IMPORTED_MODULE_0__['form'].BMKNumMax.value
+            )
+            if (min.result) {
+              this.BMKNumMin = min.value
               _Log__WEBPACK_IMPORTED_MODULE_2__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                  '_设置了筛选收藏数之后的提示文字'
-                ) + check.value
+                  '_收藏数大于'
+                ) + min.value
               )
             }
-            return check.value
+            if (max.result) {
+              this.BMKNumMax = max.value
+              _Log__WEBPACK_IMPORTED_MODULE_2__['log'].warning(
+                _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                  '_收藏数小于'
+                ) + max.value
+              )
+            }
           }
           // 获取只下载书签作品的设置
           getOnlyBmk() {
@@ -3197,7 +3213,7 @@
             if (bmk === undefined || !this.filterBMKNum) {
               return true
             } else {
-              return bmk >= this.BMKNum
+              return bmk >= this.BMKNumMin && bmk <= this.BMKNumMax
             }
           }
           // 检查作品是否符合【只下载书签作品】的条件,返回值 true 表示包含这个作品
@@ -8217,7 +8233,8 @@
               postDateEnd: '',
               previewResult: true,
               favNumSwitch: false,
-              setFavNum: '0',
+              BMKNumMin: '0',
+              BMKNumMax: '999999',
               setWHSwitch: false,
               setWidthAndOr: '&',
               setWidth: '0',
@@ -8300,7 +8317,8 @@
             // 设置收藏数量选项
             this.restoreBoolean('favNumSwitch')
             // 设置收藏数量数值
-            this.restoreString('setFavNum')
+            this.restoreString('BMKNumMin')
+            this.restoreString('BMKNumMax')
             // 设置启用快速收藏
             this.restoreBoolean('quickBookmarks')
             // 设置宽高条件
@@ -8380,7 +8398,8 @@
             // 保存收藏数量选项
             this.saveCheckBox('favNumSwitch')
             // 保存收藏数量数值
-            this.saveTextInput('setFavNum')
+            this.saveTextInput('BMKNumMin')
+            this.saveTextInput('BMKNumMax')
             // 保存启用快速收藏
             this.saveCheckBox('quickBookmarks')
             // 保存宽高条件
@@ -8578,9 +8597,13 @@
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="favNumSwitch">
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_大于'
+        '_最小值'
       )}&nbsp;</span>
-      <input type="text" name="setFavNum" class="setinput_style1 blue" value="0">
+      <input type="text" name="BMKNumMin" class="setinput_style1 blue bmkNum" value="0">
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+        '_最大值'
+      )}&nbsp;</span>
+      <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="0">
       </span>
       </p>
       <p class="option" data-no="6">
@@ -9174,7 +9197,7 @@
             this.states = {
               allowWork: true,
               quickDownload: false,
-              notAutoDownload: false, // 抓取完成后，不自动开始下载
+              notAutoDownload: false,
             }
             // 储存页面信息，用来生成文件名
             this.pageInfo = {
@@ -9812,11 +9835,17 @@
             'Please type a number. If the number of bookmarks of the work is less than this number, the work will not be downloaded.',
             '請輸入一個數字，如果作品的收藏數小於這個數字，作品不會被下載。',
           ],
-          _设置了筛选收藏数之后的提示文字: [
+          _收藏数大于: [
             '收藏数 >= ',
             'ブックマークの数 >= ',
             'Number of bookmarks >= ',
             '收藏數 >= ',
+          ],
+          _收藏数小于: [
+            '收藏数 <= ',
+            'ブックマークの数 <= ',
+            'Number of bookmarks <= ',
+            '收藏數 <= ',
           ],
           _本次任务已全部完成: [
             '本次任务已全部完成。',
@@ -10795,6 +10824,8 @@
             'Remove the serial number of the first picture of each work. For example 80036479_p0 becomes 80036479.',
             '去掉每個作品第一張圖的序號。例如 80036479_p0 變成 80036479。',
           ],
+          _最小值: ['最小值', '最小値', 'Minimum value', '最小值'],
+          _最大值: ['最大值', '最大値', 'maximum value', '最大值'],
           _xzNew440: [
             '新增设置项：启用快速收藏',
             '新たな機能を追加されました。：クイックボックマークを有効にする',
