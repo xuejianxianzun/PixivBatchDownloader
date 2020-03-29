@@ -12,20 +12,20 @@ import {
   RecommenderData,
   SearchData,
   NewIllustData,
-  BookMarkNewData
+  BookMarkNewData,
 } from './CrawlResult.d'
 
 import {
   userWorksType,
   RankingOption,
   SearchOption,
-  NewIllustOption
+  NewIllustOption,
 } from './CrawlArgument.d'
 
 class API {
   // 根据对象某个属性的值，排序对象。返回的结果是倒序排列
   static sortByProperty(propertyName: string) {
-    return function(object1: any, object2: any) {
+    return function (object1: any, object2: any) {
       // 排序的内容有时可能是字符串，需要转换成数字排序
       const value1 = parseInt(object1[propertyName])
       const value2 = parseInt(object2[propertyName])
@@ -48,13 +48,13 @@ class API {
       // 符合条件
       return {
         result: true,
-        value: num
+        value: num,
       }
     }
     // 不符合条件
     return {
       result: false,
-      value: 0
+      value: 0,
     }
   }
 
@@ -132,10 +132,10 @@ class API {
 
     // 从网页源码里获取用户 token，并储存起来
     fetch('https://www.pixiv.net/artworks/62751951')
-      .then(response => {
+      .then((response) => {
         return response.text()
       })
-      .then(data => {
+      .then((data) => {
         let result = data.match(/token":"(\w+)"/)
         if (result) {
           localStorage.setItem('xzToken', result[1])
@@ -180,23 +180,23 @@ class API {
     return new Promise((resolve, reject) => {
       fetch(url, {
         method: 'get',
-        credentials: 'same-origin'
+        credentials: 'same-origin',
       })
-        .then(response => {
+        .then((response) => {
           if (response.ok) {
             return response.json()
           } else {
             // 第一种异常，请求成功但状态不对
             reject({
               status: response.status,
-              statusText: response.statusText
+              statusText: response.statusText,
             })
           }
         })
-        .then(data => {
+        .then((data) => {
           resolve(data)
         })
-        .catch(error => {
+        .catch((error) => {
           // 第二种异常，请求失败
           reject(error)
         })
@@ -237,10 +237,10 @@ class API {
     return fetch('https://www.pixiv.net/rpc/index.php', {
       method: 'post',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
       },
       credentials: 'same-origin', // 附带 cookie
-      body: `mode=save_illust_bookmark&illust_id=${id}&restrict=${restrict}&comment=&tags=${tags}&tt=${token}`
+      body: `mode=save_illust_bookmark&illust_id=${id}&restrict=${restrict}&comment=&tags=${tags}&tt=${token}`,
     })
   }
 
@@ -378,16 +378,16 @@ class API {
     return new Promise((resolve, reject) => {
       fetch(url, {
         method: 'get',
-        credentials: 'same-origin'
+        credentials: 'same-origin',
       })
-        .then(response => {
+        .then((response) => {
           if (response.ok) {
             return response.text()
           } else {
             throw new Error(response.status.toString())
           }
         })
-        .then(data => {
+        .then((data) => {
           let listPageDocument = new (window as any).DOMParser().parseFromString(
             data,
             'text/html'
@@ -399,7 +399,7 @@ class API {
 
           resolve(JSON.parse(worksInfoText))
         })
-        .catch(error => {
+        .catch((error) => {
           reject(error)
         })
     })

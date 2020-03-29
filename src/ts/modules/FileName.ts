@@ -27,7 +27,7 @@ class FileName {
     ['>', '＞'],
     ['\\*', '＊'],
     ['\\|', '｜'],
-    ['~', '～']
+    ['~', '～'],
   ]
 
   // 把一些特殊字符替换成全角字符
@@ -54,59 +54,59 @@ class FileName {
         name: '{p_title}',
         value: store.pageInfo.pageTitle,
         prefix: '',
-        safe: false
+        safe: false,
       },
       {
         name: '{p_tag}',
         value: store.pageInfo.pageTag,
         prefix: '',
-        safe: false
+        safe: false,
       },
       {
         name: '{id}',
         value: data.id,
         prefix: '',
-        safe: true
+        safe: true,
       },
       {
         name: '{id_num}',
         value: data.idNum,
         prefix: '',
-        safe: true
+        safe: true,
       },
       {
         name: '{p_num}',
         value: parseInt(/\d*$/.exec(data.id)![0]),
         prefix: '',
-        safe: true
+        safe: true,
       },
       {
         name: '{rank}',
         value: data.rank,
         prefix: '',
-        safe: true
+        safe: true,
       },
       {
         name: '{title}',
         value: data.title,
         prefix: 'title_',
-        safe: false
+        safe: false,
       },
       {
         name: '{user}',
         value: data.user,
         prefix: 'user_',
-        safe: false
+        safe: false,
       },
       {
         name: '{userid}',
         value: data.userid,
         prefix: 'uid_',
-        safe: true
+        safe: true,
       },
       {
         name: '{px}',
-        value: (function() {
+        value: (function () {
           if (result.includes('{px}') && data.fullWidth !== undefined) {
             return data.fullWidth + 'x' + data.fullHeight
           } else {
@@ -114,38 +114,38 @@ class FileName {
           }
         })(),
         prefix: '',
-        safe: true
+        safe: true,
       },
       {
         name: '{tags}',
         value: data.tags.join(','),
         prefix: 'tags_',
-        safe: false
+        safe: false,
       },
       {
         name: '{tags_translate}',
         value: data.tagsTranslated.join(','),
         prefix: 'tags_',
-        safe: false
+        safe: false,
       },
       {
         name: '{bmk}',
         value: data.bmk,
         prefix: 'bmk_',
-        safe: true
+        safe: true,
       },
       {
         name: '{date}',
         value: data.date,
         prefix: '',
-        safe: true
+        safe: true,
       },
       {
         name: '{type}',
         value: illustTypes[data.type],
         prefix: '',
-        safe: true
-      }
+        safe: true,
+      },
     ]
 
     // 替换命名规则里的特殊字符
@@ -185,10 +185,7 @@ class FileName {
     tempArr.forEach((str, index, arr) => {
       // 替换路径首尾的空格
       // 把每层路径头尾的 . 变成全角的．因为 Chrome 不允许头尾使用 .
-      arr[index] = str
-        .trim()
-        .replace(/^\./g, '．')
-        .replace(/\.$/g, '．')
+      arr[index] = str.trim().replace(/^\./g, '．').replace(/\.$/g, '．')
     })
     result = tempArr.join('/')
 

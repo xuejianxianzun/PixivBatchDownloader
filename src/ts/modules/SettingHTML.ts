@@ -49,20 +49,12 @@ const formHtml = `<form class="settingForm">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_怎样下载多图作品'
       )}">${lang.transl('_多图下载设置')}<span class="gray1"> ? </span></span>
-      <input type="radio" name="multipleImageWorks" id="multipleImageWorks1" class="need_beautify radio" value="0">
-      <span class="beautify_radio"></span>
-      <label for="multipleImageWorks1"> ${lang.transl(
-        '_全部下载'
-      )}&nbsp; </label>
-      <input type="radio" name="multipleImageWorks" id="multipleImageWorks2" class="need_beautify radio" value="-1">
-      <span class="beautify_radio"></span>
-      <label for="multipleImageWorks2"> ${lang.transl('_不下载')}&nbsp; </label>
-      <input type="radio" name="multipleImageWorks" id="multipleImageWorks3" class="need_beautify radio" value="1">
-      <span class="beautify_radio"></span>
-      <label for="multipleImageWorks3"> ${lang.transl(
-        '_下载前几张图片'
-      )}&nbsp; </label>
+      <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="firstFewImagesSwitch">
+      ${lang.transl('_下载前几张图片')}&nbsp;
       <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
+      </span>
       </p>
       <p class="option" data-no="6">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(

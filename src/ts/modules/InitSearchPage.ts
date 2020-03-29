@@ -173,7 +173,7 @@ class InitSearchPage extends InitPageBase {
 
   private previewResult = true // 是否预览结果
 
-  private optionsCauseResultChange = ['multipleImageWorks', 'firstFewImages'] // 这些选项变更时，需要重新添加结果。例如多图作品“只下载前几张” firstFewImages 会影响生成的结果，但是过滤器 filter 不会检查，所以需要单独检测它的变更
+  private optionsCauseResultChange = ['firstFewImagesSwitch', 'firstFewImages'] // 这些选项变更时，需要重新添加结果。例如多图作品“只下载前几张” firstFewImages 会影响生成的结果，但是过滤器 filter 不会检查，所以需要单独检测它的变更
 
   private needReAdd = false // 是否需要重新添加结果（并且会重新渲染）
 

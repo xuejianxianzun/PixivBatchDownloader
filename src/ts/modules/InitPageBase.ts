@@ -62,8 +62,6 @@ abstract class InitPageBase {
 
   protected crawlNumber: number = 0 // 要抓取的个数/页数
 
-  protected multipleImageWorks: number = 0 // 多图作品设置
-
   protected firstFewImages: number = 0 // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
 
   protected maxCount = 1000 // 当前页面类型最多有多少个页面/作品
@@ -156,14 +154,8 @@ abstract class InitPageBase {
 
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
   protected getMultipleSetting() {
-    this.multipleImageWorks = parseInt(form.multipleImageWorks.value)
-
-    if (this.multipleImageWorks === -1) {
-      log.warning(lang.transl('_不下载多图作品'))
-    }
-
     // 获取作品张数设置
-    if (this.multipleImageWorks === 1) {
+    if (form.firstFewImagesSwitch.checked) {
       this.firstFewImages = this.getFirstFewImages()
       log.warning(
         lang.transl('_多图作品下载前n张图片', this.firstFewImages.toString())
@@ -233,7 +225,7 @@ abstract class InitPageBase {
 
   // 计算要从这个作品里下载几张图片
   protected getDLCount(pageCount: number) {
-    if (this.multipleImageWorks === 1 && this.firstFewImages <= pageCount) {
+    if (form.firstFewImagesSwitch.checked && this.firstFewImages <= pageCount) {
       return this.firstFewImages
     }
     return pageCount

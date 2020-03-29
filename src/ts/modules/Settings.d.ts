@@ -1,12 +1,12 @@
 export interface SettingsForm extends HTMLFormElement {
   setWantPage: HTMLInputElement
-  multipleImageWorks: RadioNodeList
   firstFewImages: HTMLInputElement
   downType0: HTMLInputElement
   downType1: HTMLInputElement
   downType2: HTMLInputElement
   downSingleImg: HTMLInputElement
   downMultiImg: HTMLInputElement
+  firstFewImagesSwitch: HTMLInputElement
   ugoiraSaveAs: RadioNodeList
   BMKNumMin: HTMLInputElement
   BMKNumMax: HTMLInputElement

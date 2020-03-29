@@ -4,7 +4,7 @@ import { EVT } from './EVT'
 import { SettingsForm } from './Settings.d'
 
 interface XzSetting {
-  multipleImageWorks: '0' | '-1' | '1'
+  firstFewImagesSwitch: boolean
   firstFewImages: number
   downType0: boolean
   downType1: boolean
@@ -77,7 +77,7 @@ class SaveSettings {
 
   // 需要持久化保存的设置的默认值
   private readonly optionDefault: XzSetting = {
-    multipleImageWorks: '0',
+    firstFewImagesSwitch: false,
     firstFewImages: 1,
     downType0: true,
     downType1: true,
@@ -112,7 +112,7 @@ class SaveSettings {
     idRangeSwitch: false,
     needTagSwitch: false,
     notNeedTagSwitch: false,
-    quickBookmarks: true
+    quickBookmarks: true,
   }
 
   // 需要持久化保存的设置
@@ -157,7 +157,7 @@ class SaveSettings {
     }
 
     // 多图作品设置
-    this.restoreString('multipleImageWorks')
+    this.restoreBoolean('firstFewImagesSwitch')
 
     // 设置作品张数
     this.restoreString('firstFewImages')
@@ -272,7 +272,7 @@ class SaveSettings {
     this.saveCheckBox('downMultiImg')
 
     // 保存多图作品设置
-    this.saveRadio('multipleImageWorks')
+    this.saveCheckBox('firstFewImagesSwitch')
 
     // 保存作品张数
     this.saveTextInput('firstFewImages')
@@ -322,7 +322,7 @@ class SaveSettings {
 
     // 保存命名规则
     const userSetNameInput = this.form.userSetName
-    ;['change', 'focus'].forEach(ev => {
+    ;['change', 'focus'].forEach((ev) => {
       userSetNameInput.addEventListener(ev, () => {
         this.emitChange('userSetName', userSetNameInput.value)
       })
