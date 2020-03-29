@@ -34,6 +34,17 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_checkbox"></span>
       <label for="setWorkType2"> ${lang.transl('_动图')}&nbsp;</label>
       </p>
+      <p class="option" data-no="21">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_下载作品类型的提示Center'
+      )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="setDownSingleImg"> ${lang.transl('_单图作品')}&nbsp;</label>
+      <input type="checkbox" name="downMultiImg" id="setDownMultiImg" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="setDownMultiImg"> ${lang.transl('_多图作品')}&nbsp;</label>
+      </p>
       <p class="option" data-no="3">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_怎样下载多图作品'
@@ -53,39 +64,25 @@ const formHtml = `<form class="settingForm">
       )}&nbsp; </label>
       <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
       </p>
-      <p class="option" data-no="4">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_动图保存格式title'
-      )}">${lang.transl('_动图保存格式')}<span class="gray1"> ? </span></span>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" class="need_beautify radio" value="webm" checked>
-      <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs1"> ${lang.transl('_webmVideo')} &nbsp;</label>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" class="need_beautify radio" value="gif"> 
-      <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs3">${lang.transl('_gif')} &nbsp;</label>
-      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip"> 
-      <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs2">${lang.transl('_zipFile')} &nbsp;</label>
-      </p>
-      <p class="option" data-no="5">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_设置收藏数量的提示'
-      )}">${lang.transl('_设置收藏数量')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="favNumSwitch" class="need_beautify checkbox_switch" checked>
-      <span class="beautify_switch"></span>
-      <span class="subOptionWrap" data-show="favNumSwitch">
-      <span>${lang.transl('_最小值')}&nbsp;</span>
-      <input type="text" name="BMKNumMin" class="setinput_style1 blue bmkNum" value="0">
-      <span>${lang.transl('_最大值')}&nbsp;</span>
-      <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="0">
-      </span>
-      </p>
       <p class="option" data-no="6">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_只下载已收藏的提示'
       )}">${lang.transl('_只下载已收藏')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="setOnlyBmk" id="setOnlyBmk" class="need_beautify checkbox_switch"> 
       <span class="beautify_switch"></span>
+      </p>
+      <p class="option" data-no="5">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_设置收藏数量的提示'
+      )}">${lang.transl('_设置收藏数量')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="BMKNumSwitch" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="BMKNumSwitch">
+      <span>${lang.transl('_最小值')}&nbsp;</span>
+      <input type="text" name="BMKNumMin" class="setinput_style1 blue bmkNum" value="0">
+      <span>${lang.transl('_最大值')}&nbsp;</span>
+      <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="0">
+      </span>
       </p>
       <p class="option" data-no="7">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
@@ -298,6 +295,20 @@ const formHtml = `<form class="settingForm">
 
       <slot data-name="namingBtns" class="centerWrap_btns"></slot>
 
+      <p class="option" data-no="4">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_动图保存格式title'
+      )}">${lang.transl('_动图保存格式')}<span class="gray1"> ? </span></span>
+      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" class="need_beautify radio" value="webm" checked>
+      <span class="beautify_radio"></span>
+      <label for="ugoiraSaveAs1"> ${lang.transl('_webmVideo')} &nbsp;</label>
+      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" class="need_beautify radio" value="gif"> 
+      <span class="beautify_radio"></span>
+      <label for="ugoiraSaveAs3">${lang.transl('_gif')} &nbsp;</label>
+      <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip"> 
+      <span class="beautify_radio"></span>
+      <label for="ugoiraSaveAs2">${lang.transl('_zipFile')} &nbsp;</label>
+      </p>
       <p class="option" data-no="16">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_线程数字'

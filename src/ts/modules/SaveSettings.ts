@@ -9,6 +9,8 @@ interface XzSetting {
   downType0: boolean
   downType1: boolean
   downType2: boolean
+  downSingleImg: boolean
+  downMultiImg: boolean
   ugoiraSaveAs: 'webm' | 'gif' | 'zip'
   needTag: string
   notNeedTag: string
@@ -24,7 +26,7 @@ interface XzSetting {
   postDateStart: string
   postDateEnd: string
   previewResult: boolean
-  favNumSwitch: boolean
+  BMKNumSwitch: boolean
   BMKNumMin: string
   BMKNumMax: string
   setWHSwitch: boolean
@@ -80,6 +82,8 @@ class SaveSettings {
     downType0: true,
     downType1: true,
     downType2: true,
+    downSingleImg: true,
+    downMultiImg: true,
     ugoiraSaveAs: 'webm',
     needTag: '',
     notNeedTag: '',
@@ -95,7 +99,7 @@ class SaveSettings {
     postDateStart: '',
     postDateEnd: '',
     previewResult: true,
-    favNumSwitch: false,
+    BMKNumSwitch: false,
     BMKNumMin: '0',
     BMKNumMax: '999999',
     setWHSwitch: false,
@@ -108,7 +112,7 @@ class SaveSettings {
     idRangeSwitch: false,
     needTagSwitch: false,
     notNeedTagSwitch: false,
-    quickBookmarks: true,
+    quickBookmarks: true
   }
 
   // 需要持久化保存的设置
@@ -162,12 +166,14 @@ class SaveSettings {
     this.restoreBoolean('downType0')
     this.restoreBoolean('downType1')
     this.restoreBoolean('downType2')
+    this.restoreBoolean('downSingleImg')
+    this.restoreBoolean('downMultiImg')
 
     // 设置动图格式选项
     this.restoreString('ugoiraSaveAs')
 
     // 设置收藏数量选项
-    this.restoreBoolean('favNumSwitch')
+    this.restoreBoolean('BMKNumSwitch')
 
     // 设置收藏数量数值
     this.restoreString('BMKNumMin')
@@ -262,6 +268,9 @@ class SaveSettings {
     this.saveCheckBox('downType1')
     this.saveCheckBox('downType2')
 
+    this.saveCheckBox('downSingleImg')
+    this.saveCheckBox('downMultiImg')
+
     // 保存多图作品设置
     this.saveRadio('multipleImageWorks')
 
@@ -272,7 +281,7 @@ class SaveSettings {
     this.saveRadio('ugoiraSaveAs')
 
     // 保存收藏数量选项
-    this.saveCheckBox('favNumSwitch')
+    this.saveCheckBox('BMKNumSwitch')
 
     // 保存收藏数量数值
     this.saveTextInput('BMKNumMin')
@@ -313,7 +322,7 @@ class SaveSettings {
 
     // 保存命名规则
     const userSetNameInput = this.form.userSetName
-    ;['change', 'focus'].forEach((ev) => {
+    ;['change', 'focus'].forEach(ev => {
       userSetNameInput.addEventListener(ev, () => {
         this.emitChange('userSetName', userSetNameInput.value)
       })

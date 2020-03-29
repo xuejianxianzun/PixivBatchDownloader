@@ -12,6 +12,9 @@ class Filter {
   private downType1 = true
   private downType2 = true
 
+  private downSingleImg = true
+  private downMultiImg = true
+
   private multipleImageWorks: number = 0 // 多图作品设置
 
   private filterBMKNum = false // 是否要求收藏数量
@@ -28,7 +31,7 @@ class Filter {
   private filterWh: FilterWh = {
     andOr: '&',
     width: 0,
-    height: 0,
+    height: 0
   }
 
   private ratioSwitch = false // 宽高比例设置的开关
@@ -56,11 +59,13 @@ class Filter {
     // 获取排除作品类型的设置
     this.getDownType()
 
+    this.getDownTypeByImgCount()
+
     // 获取多图作品设置
     this.multipleImageWorks = parseInt(form.multipleImageWorks.value)
 
     // 获取是否设置了收藏数要求
-    this.filterBMKNum = form.favNumSwitch.checked
+    this.filterBMKNum = form.BMKNumSwitch.checked
     this.filterBMKNum && this.getBMKNum()
 
     // 获取是否设置了只下载书签作品
@@ -105,44 +110,67 @@ class Filter {
   // 检查作品是否符合过滤器的要求
   // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
   public check(option: FilterOption): boolean {
-    // 储存每一项检查的结果. true 表示保留这个作品
-    let result: boolean[] = []
-
     // 检查下载的作品类型设置
-    result.push(this.checkDownType(option.illustType))
+    if (!this.checkDownType(option.illustType)) {
+      return false
+    }
+
+    // 检查图片张数是否允许下载
+    if(!this.checkPageCount(option.illustType,option.pageCount)){
+      return false
+    }
 
     // 检查多图作品设置
-    result.push(this.checkMultipleImageWorks(option.pageCount))
+    if(!this.checkMultipleImageWorks(option.pageCount)){
+      return false
+    }
 
     // 检查收藏数要求
-    result.push(this.checkBMK(option.bookmarkCount))
+    if(!this.checkBMK(option.bookmarkCount)){
+      return false
+    }
 
     // 检查只下载书签作品的要求
-    result.push(this.checkOnlyBmk(option.bookmarkData))
+    if(!this.checkOnlyBmk(option.bookmarkData)){
+      return false
+    }
 
     // 检查要排除的 tag
-    result.push(this.checkExcludeTag(option.tags))
+    if(!this.checkExcludeTag(option.tags)){
+      return false
+    }
 
     // 检查必须包含的 tag
-    result.push(this.checkIncludeTag(option.tags))
+    if(!this.checkIncludeTag(option.tags)){
+      return false
+    }
 
     // 检查宽高设置
-    result.push(this.checkSetWh(option.width, option.height))
+    if(!this.checkSetWh(option.width, option.height)){
+      return false
+    }
 
     // 检查宽高比设置
-    result.push(this.checkRatio(option.width, option.height))
+    if(!this.checkRatio(option.width, option.height)){
+      return false
+    }
 
     // 检查 id 范围设置
-    result.push(this.checkIdRange(option.id))
+    if(!this.checkIdRange(option.id)){
+      return false
+    }
 
     // 检查投稿时间设置
-    result.push(this.checkPostDate(option.createDate))
+    if(!this.checkPostDate(option.createDate)){
+      return false
+    }
 
     // 检查首次登场设置
-    result.push(this.checkDebut(option.yes_rank))
+    if(!this.checkDebut(option.yes_rank)){
+      return false
+    }
 
-    // 结果里不包含 false 时，检查通过。只要有一个 false 就不通过
-    return !result.includes(false)
+    return true
   }
 
   // 获取下载的作品类型设置
@@ -172,6 +200,20 @@ class Filter {
     }
   }
 
+  private getDownTypeByImgCount() {
+    this.downSingleImg = form.downSingleImg.checked
+    this.downMultiImg = form.downMultiImg.checked
+
+    let notDownTip = ''
+
+    notDownTip += this.downSingleImg ? '' : lang.transl('_单图作品')
+    notDownTip += this.downMultiImg ? '' : lang.transl('_多图作品')
+
+    if (notDownTip) {
+      log.warning(lang.transl('_checkNotdownTypeResult') + notDownTip)
+    }
+  }
+
   // 获取必须包含的tag
   private getIncludeTag() {
     const result = '' || this.checkTagString(form.needTag.value)
@@ -195,7 +237,7 @@ class Filter {
     let result: FilterWh = {
       andOr: '&',
       width: 0,
-      height: 0,
+      height: 0
     }
 
     const checkWidth = API.checkNumberGreater0(form.setWidth.value)
@@ -206,7 +248,7 @@ class Filter {
       result = {
         andOr: form.setWidthAndOr.value as '&' | '|',
         width: checkWidth ? checkWidth.value : 0,
-        height: checkHeight ? checkHeight.value : 0,
+        height: checkHeight ? checkHeight.value : 0
       }
 
       log.warning(
@@ -359,6 +401,28 @@ class Filter {
           return true
       }
     }
+  }
+
+  // 依据图片数量，检查下载的作品类型
+  private checkPageCount(illustType: FilterOption['illustType'],pageCount: FilterOption['pageCount']) {
+    // 判断单图、多图时，只对插画、漫画生效，否则跳过检查
+    if(illustType!== 0 && illustType!==1){
+      return true
+    }
+
+    if (pageCount === undefined) {
+      return true
+    }
+
+    if (pageCount === 1 && this.downSingleImg) {
+      return true
+    }
+
+    if (pageCount > 1 && this.downMultiImg) {
+      return true
+    }
+
+    return false
   }
 
   // 检查多图作品设置
