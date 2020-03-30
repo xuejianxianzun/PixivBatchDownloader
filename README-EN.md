@@ -5,6 +5,7 @@
   - [Online installation](#online-installation)
   - [Offline installation](#offline-installation)
 - [Wiki](#wiki)
+- [Patreon](#patreon)
 - [Thanks](#thanks)
 - [Help](#help)
   - [Supported languages](#supported-languages)
@@ -34,7 +35,9 @@ If you like this extension, please rate it so that it can be seen by more people
 
 ## Offline installation
 
-[Offline installation tutorial](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki/2.-%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B)
+[Releases page](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/)
+
+Download powerfulpixivdownloader.zip, unzip it to a folder, then open the browser's extension management and load this folder.
 
 - The downloaded file will be saved in your browser's download directory.
 
@@ -43,6 +46,12 @@ If you like this extension, please rate it so that it can be seen by more people
 # Wiki
 
 [Wiki](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki)
+
+Note: Currently only available in Chinese. Welcome to translate!
+
+# Patreon
+
+<a href='https://www.patreon.com/xuejianxianzun'><img src='https://c5.patreon.com/external/logo/become_a_patron_button.png' alt='Become a patron' width='140px' /></a>
 
 # Thanks
 
