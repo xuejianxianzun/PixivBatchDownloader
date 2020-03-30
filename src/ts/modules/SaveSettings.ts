@@ -40,6 +40,7 @@ interface XzSetting {
   needTagSwitch: boolean
   notNeedTagSwitch: boolean
   quickBookmarks: boolean
+  noSerialNo:boolean
 }
 
 interface SettingChangeData {
@@ -113,6 +114,7 @@ class SaveSettings {
     needTagSwitch: false,
     notNeedTagSwitch: false,
     quickBookmarks: true,
+    noSerialNo:false,
   }
 
   // 需要持久化保存的设置
@@ -220,6 +222,9 @@ class SaveSettings {
 
     // 设置是否添加标记名称
     this.restoreBoolean('tagNameToFileName')
+
+    // 设置第一张图不带序号
+    this.restoreBoolean('noSerialNo')
 
     // 设置是否始终建立文件夹
     this.restoreBoolean('alwaysFolder')
@@ -330,6 +335,9 @@ class SaveSettings {
 
     // 保存是否添加标记名称
     this.saveCheckBox('tagNameToFileName')
+
+    // 保存第一张图不带序号
+    this.saveCheckBox('noSerialNo')
 
     // 保存是否始终建立文件夹
     this.saveCheckBox('alwaysFolder')

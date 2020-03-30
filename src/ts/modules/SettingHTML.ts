@@ -257,6 +257,15 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
       </p>
+      <p class="option" data-no="22">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_第一张图不带序号说明'
+      )}">${lang.transl(
+  '_第一张图不带序号'
+)}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="noSerialNo" id="setNoSerialNo" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
       <p class="option" data-no="19">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_多图建立目录提示'
@@ -285,8 +294,6 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
       </p>
 
-      <slot data-name="namingBtns" class="centerWrap_btns"></slot>
-
       <p class="option" data-no="4">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_动图保存格式title'
@@ -301,6 +308,9 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_radio"></span>
       <label for="ugoiraSaveAs2">${lang.transl('_zipFile')} &nbsp;</label>
       </p>
+
+      <slot data-name="namingBtns" class="centerWrap_btns"></slot>
+
       <p class="option" data-no="16">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_线程数字'

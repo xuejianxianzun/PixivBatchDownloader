@@ -153,6 +153,9 @@ class FileName {
     // 上一步会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
     result = result.replace(/／/g, '/')
 
+    // 处理第一张图不带序号的情况
+    if(form.noSerialNo.checked && (data.type===0||data.type===1))
+
     // 把命名规则的标记替换成实际值
     for (const item of cfg) {
       if (
