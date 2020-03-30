@@ -40,7 +40,7 @@ interface XzSetting {
   needTagSwitch: boolean
   notNeedTagSwitch: boolean
   quickBookmarks: boolean
-  noSerialNo:boolean
+  noSerialNo: boolean
 }
 
 interface SettingChangeData {
@@ -114,7 +114,7 @@ class SaveSettings {
     needTagSwitch: false,
     notNeedTagSwitch: false,
     quickBookmarks: true,
-    noSerialNo:false,
+    noSerialNo: false,
   }
 
   // 需要持久化保存的设置

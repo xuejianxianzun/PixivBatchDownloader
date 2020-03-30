@@ -5,6 +5,12 @@ import { form } from './Settings'
 import { store } from './Store'
 import { lang } from './Lang'
 
+type NamingCfgItem = {
+  value: string | number | undefined
+  prefix: '' | string
+  safe: boolean
+}
+
 class FileName {
   constructor() {
     window.addEventListener(EVT.events.previewFileName, () => {
@@ -46,66 +52,57 @@ class FileName {
     let result = form.userSetName.value
     // 为空时使用 {id}
     result = result || '{id}'
+
     const illustTypes = ['illustration', 'manga', 'ugoira'] // 作品类型 0 插画 1 漫画 2 动图
 
-    // 储存每个文件名标记的配置
-    const cfg = [
-      {
-        name: '{p_title}',
+    // 配置所有命名标记
+    const cfg = {
+      '{p_title}': {
         value: store.pageInfo.pageTitle,
         prefix: '',
         safe: false,
       },
-      {
-        name: '{p_tag}',
+      '{p_tag}': {
         value: store.pageInfo.pageTag,
         prefix: '',
         safe: false,
       },
-      {
-        name: '{id}',
+      '{id}': {
         value: data.id,
         prefix: '',
         safe: true,
       },
-      {
-        name: '{id_num}',
+      '{id_num}': {
         value: data.idNum,
         prefix: '',
         safe: true,
       },
-      {
-        name: '{p_num}',
+      '{p_num}': {
         value: parseInt(/\d*$/.exec(data.id)![0]),
         prefix: '',
         safe: true,
       },
-      {
-        name: '{rank}',
+      '{rank}': {
         value: data.rank,
         prefix: '',
         safe: true,
       },
-      {
-        name: '{title}',
+      '{title}': {
         value: data.title,
         prefix: 'title_',
         safe: false,
       },
-      {
-        name: '{user}',
+      '{user}': {
         value: data.user,
         prefix: 'user_',
         safe: false,
       },
-      {
-        name: '{userid}',
+      '{userid}': {
         value: data.userid,
         prefix: 'uid_',
         safe: true,
       },
-      {
-        name: '{px}',
+      '{px}': {
         value: (function () {
           if (result.includes('{px}') && data.fullWidth !== undefined) {
             return data.fullWidth + 'x' + data.fullHeight
@@ -116,67 +113,70 @@ class FileName {
         prefix: '',
         safe: true,
       },
-      {
-        name: '{tags}',
+      '{tags}': {
         value: data.tags.join(','),
         prefix: 'tags_',
         safe: false,
       },
-      {
-        name: '{tags_translate}',
+      '{tags_translate}': {
         value: data.tagsTranslated.join(','),
         prefix: 'tags_',
         safe: false,
       },
-      {
-        name: '{bmk}',
+      '{bmk}': {
         value: data.bmk,
         prefix: 'bmk_',
         safe: true,
       },
-      {
-        name: '{date}',
+      '{date}': {
         value: data.date,
         prefix: '',
         safe: true,
       },
-      {
-        name: '{type}',
+      '{type}': {
         value: illustTypes[data.type],
         prefix: '',
         safe: true,
       },
-    ]
+    }
 
     // 替换命名规则里的特殊字符
     result = this.replaceUnsafeStr(result)
     // 上一步会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
     result = result.replace(/／/g, '/')
 
-    // 处理第一张图不带序号的情况
-    if(form.noSerialNo.checked && (data.type===0||data.type===1))
+    // 判断这个作品是否要去掉序号
+    const noSerialNo =
+      cfg['{p_num}'].value === 0 &&
+      form.noSerialNo.checked &&
+      (data.type === 0 || data.type === 1)
 
     // 把命名规则的标记替换成实际值
-    for (const item of cfg) {
-      if (
-        result.includes(item.name) &&
-        item.value !== '' &&
-        item.value !== null
-      ) {
-        // 只有当标记有值时才继续操作. 所以没有值的标记会原样保留
-        let once = String(item.value)
+    for (const [key, val] of Object.entries(cfg)) {
+      // 只有当标记有值时才会进行替换，所以没有值的标记会原样保留
+      if (result.includes(key) && val.value !== '' && val.value !== null) {
+        // 处理去掉序号的情况
+        if (noSerialNo) {
+          // 把 p_num 设为空字符串
+          // 不能在这个循环之前把值设为空，那样的话不会替换这个命名字段，会原样保留
+          key === '{p_num}' && (val.value = '' as any)
+          // 去掉 id 后面的 _p0
+          key === '{id}' && (val.value = cfg['{id_num}'].value.toString())
+        }
+
+        let once = String(val.value)
 
         // 处理标记值中的特殊字符
-        if (!item.safe) {
+        if (!val.safe) {
           once = this.replaceUnsafeStr(once)
         }
 
         // 添加标记名称
         if (form.tagNameToFileName.checked) {
-          once = item.prefix + once
+          once = val.prefix + once
         }
 
-        result = result.replace(new RegExp(item.name, 'g'), once) // 将标记替换成最终值，如果有重复的标记，全部替换
+        result = result.replace(new RegExp(key, 'g'), once) // 将标记替换成最终值，如果有重复的标记，全部替换
       }
     }
 

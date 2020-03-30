@@ -1116,11 +1116,11 @@ const langText = {
     'Single image works',
     '單圖作品',
   ],
-  _xzNew440: [
-    '新增设置项：启用快速收藏',
-    '新たな機能を追加されました。：クイックボックマークを有効にする',
-    'Added setting items: Enable quick bookmark',
-    '新增設定項目：啓用快速收藏',
+  _xzNew490: [
+    '新增设置项：第一张图不带序号',
+    '新たな機能を追加されました：最初のイメージの番号を削除します',
+    'Added setting items: The first picture without a serial number',
+    '新增設定項目：第一張圖片不帶序號',
   ],
 }
 
