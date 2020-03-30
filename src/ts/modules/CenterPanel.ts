@@ -53,7 +53,8 @@ class CenterPanel {
         '_wiki'
       )}</a>
       <span id="resetOption">${lang.transl('_重置设置')}</span>
-      <a id="zanzhu" class="wiki2" href="https://afdian.net/@xuejianxianzun" target="_blank">通过“爱发电”网站支持我</a>
+      <a id="zanzhu" class="wiki2 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">通过“爱发电”网站支持我</a>
+      <a id="patreon" class="wiki2 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
       <br>
       <p class="downTip tip"> ${lang.transl('_下载说明')}</p>
       </div>
@@ -66,6 +67,8 @@ class CenterPanel {
 
     if (document.documentElement.lang === 'zh-CN') {
       document.getElementById('zanzhu')!.style.display = 'inline-block'
+    } else {
+      document.getElementById('patreon')!.style.display = 'inline-block'
     }
   }
 

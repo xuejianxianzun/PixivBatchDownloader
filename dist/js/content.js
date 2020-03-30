@@ -714,7 +714,8 @@
       <span id="resetOption">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_重置设置')}</span>
-      <a id="zanzhu" class="wiki2" href="https://afdian.net/@xuejianxianzun" target="_blank">通过“爱发电”网站支持我</a>
+      <a id="zanzhu" class="wiki2 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">通过“爱发电”网站支持我</a>
+      <a id="patreon" class="wiki2 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
       <br>
       <p class="downTip tip"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
@@ -727,6 +728,8 @@
             this.centerPanel = document.querySelector('.centerWrap')
             if (document.documentElement.lang === 'zh-CN') {
               document.getElementById('zanzhu').style.display = 'inline-block'
+            } else {
+              document.getElementById('patreon').style.display = 'inline-block'
             }
           }
           // 绑定中间面板上的事件
