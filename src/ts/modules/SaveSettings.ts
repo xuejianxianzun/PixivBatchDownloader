@@ -11,6 +11,8 @@ interface XzSetting {
   downType2: boolean
   downSingleImg: boolean
   downMultiImg: boolean
+  downColorImg: boolean
+  downBlackWhiteImg: boolean
   ugoiraSaveAs: 'webm' | 'gif' | 'zip'
   needTag: string
   notNeedTag: string
@@ -41,6 +43,7 @@ interface XzSetting {
   notNeedTagSwitch: boolean
   quickBookmarks: boolean
   noSerialNo: boolean
+  filterBlackWhite: boolean
 }
 
 interface SettingChangeData {
@@ -85,6 +88,8 @@ class SaveSettings {
     downType2: true,
     downSingleImg: true,
     downMultiImg: true,
+    downColorImg: true,
+    downBlackWhiteImg: true,
     ugoiraSaveAs: 'webm',
     needTag: '',
     notNeedTag: '',
@@ -115,6 +120,7 @@ class SaveSettings {
     notNeedTagSwitch: false,
     quickBookmarks: true,
     noSerialNo: false,
+    filterBlackWhite: false,
   }
 
   // 需要持久化保存的设置
@@ -158,18 +164,18 @@ class SaveSettings {
       return
     }
 
-    // 多图作品设置
-    this.restoreBoolean('firstFewImagesSwitch')
-
-    // 设置作品张数
-    this.restoreString('firstFewImages')
-
     // 设置下载的作品类型
     this.restoreBoolean('downType0')
     this.restoreBoolean('downType1')
     this.restoreBoolean('downType2')
     this.restoreBoolean('downSingleImg')
     this.restoreBoolean('downMultiImg')
+    this.restoreBoolean('downColorImg')
+    this.restoreBoolean('downBlackWhiteImg')
+
+    // 多图下载前几张图作品设置
+    this.restoreBoolean('firstFewImagesSwitch')
+    this.restoreString('firstFewImages')
 
     // 设置动图格式选项
     this.restoreString('ugoiraSaveAs')
@@ -272,14 +278,13 @@ class SaveSettings {
     this.saveCheckBox('downType0')
     this.saveCheckBox('downType1')
     this.saveCheckBox('downType2')
-
     this.saveCheckBox('downSingleImg')
     this.saveCheckBox('downMultiImg')
+    this.saveCheckBox('downColorImg')
+    this.saveCheckBox('downBlackWhiteImg')
 
     // 保存多图作品设置
     this.saveCheckBox('firstFewImagesSwitch')
-
-    // 保存作品张数
     this.saveTextInput('firstFewImages')
 
     // 保存动图格式选项
@@ -375,6 +380,8 @@ class SaveSettings {
     localStorage.setItem(this.storeName, JSON.stringify(this.options))
     // 重设选项
     this.restoreOption()
+    // 触发设置改变事件
+    EVT.fire(EVT.events.settingChange)
   }
 }
 

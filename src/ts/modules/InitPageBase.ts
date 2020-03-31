@@ -282,10 +282,11 @@ abstract class InitPageBase {
       bookmarkData: body.bookmarkData,
       width: fullWidth,
       height: fullHeight,
+      mini:body.urls.mini,
     }
 
     // 检查通过
-    if (filter.check(filterOpt)) {
+    if (await filter.check(filterOpt)) {
       const illustId = body.illustId
       const idNum = parseInt(body.illustId)
       const title = body.illustTitle // 作品标题

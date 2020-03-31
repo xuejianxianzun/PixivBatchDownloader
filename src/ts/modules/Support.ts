@@ -14,7 +14,7 @@ class Support {
     API.updateToken()
   }
 
-  private newTag: langTextKeys = '_xzNew490'
+  private newTag: langTextKeys = '_xzNew500'
 
   // 处理和脚本版的冲突
   private checkConflict(): void {

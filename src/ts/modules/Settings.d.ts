@@ -7,6 +7,8 @@ export interface SettingsForm extends HTMLFormElement {
   downSingleImg: HTMLInputElement
   downMultiImg: HTMLInputElement
   firstFewImagesSwitch: HTMLInputElement
+  downColorImg: HTMLInputElement
+  downBlackWhiteImg: HTMLInputElement
   ugoiraSaveAs: RadioNodeList
   BMKNumMin: HTMLInputElement
   BMKNumMax: HTMLInputElement

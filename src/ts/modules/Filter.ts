@@ -5,6 +5,7 @@ import { lang } from './Lang'
 import { log } from './Log'
 import { API } from './API'
 import { EVT } from './EVT'
+import { blackAndWhiteImage } from './BlackandWhiteImage'
 
 // 审查每个作品的数据，决定是否要下载它。下载区域有一些选项是过滤器选项。
 class Filter {
@@ -14,6 +15,9 @@ class Filter {
 
   private downSingleImg = true
   private downMultiImg = true
+
+  private downColorImg = true
+  private downBlackWhiteImg = true
 
   private filterBMKNum = false // 是否要求收藏数量
 
@@ -29,7 +33,7 @@ class Filter {
   private filterWh: FilterWh = {
     andOr: '&',
     width: 0,
-    height: 0,
+    height: 0
   }
 
   private ratioSwitch = false // 宽高比例设置的开关
@@ -59,10 +63,12 @@ class Filter {
 
     this.getDownTypeByImgCount()
 
+    // 获取是否设置了过滤黑白图像
+    this.getDownTypeByColor()
+
     // 获取是否设置了收藏数要求
     this.filterBMKNum = form.BMKNumSwitch.checked
     this.filterBMKNum && this.getBMKNum()
-
     // 获取是否设置了只下载书签作品
     this.onlyBmk = this.getOnlyBmk()
 
@@ -104,7 +110,7 @@ class Filter {
 
   // 检查作品是否符合过滤器的要求
   // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
-  public check(option: FilterOption): boolean {
+  public async check(option: FilterOption): Promise<boolean> {
     // 检查下载的作品类型设置
     if (!this.checkDownType(option.illustType)) {
       return false
@@ -160,7 +166,22 @@ class Filter {
       return false
     }
 
+    // 检查黑白图片
+    // 这一步需要加载图片，需要较长的时间，较大的资源占用，放到最后检查，以避免无谓的执行
+    const blackAndWhiteResult = await this.checkBlackWhite(option.mini)
+    if (!blackAndWhiteResult) {
+      return false
+    }
+
     return true
+  }
+
+  // 当需要时抛出错误
+  private throwError(msg: string) {
+    EVT.fire(EVT.events.crawlError)
+    log.error(msg, 2)
+    window.alert(msg)
+    throw new Error(msg)
   }
 
   // 获取下载的作品类型设置
@@ -171,12 +192,7 @@ class Filter {
 
     // 如果全部排除则取消任务
     if (!this.downType0 && !this.downType1 && !this.downType2) {
-      EVT.fire(EVT.events.crawlError)
-
-      const msg = lang.transl('_checkNotdownTypeAll')
-      log.error(msg, 2)
-      window.alert(msg)
-      throw new Error(msg)
+      this.throwError(lang.transl('_checkNotdownTypeAll'))
     }
 
     let notDownTip = ''
@@ -198,6 +214,26 @@ class Filter {
 
     notDownTip += this.downSingleImg ? '' : lang.transl('_单图作品')
     notDownTip += this.downMultiImg ? '' : lang.transl('_多图作品')
+
+    if (notDownTip) {
+      log.warning(lang.transl('_checkNotdownTypeResult') + notDownTip)
+    }
+  }
+
+  // 获取图像颜色设置
+  private getDownTypeByColor() {
+    this.downColorImg = form.downColorImg.checked
+    this.downBlackWhiteImg = form.downBlackWhiteImg.checked
+
+    // 如果全部排除则取消任务
+    if (!this.downColorImg && !this.downBlackWhiteImg) {
+      this.throwError(lang.transl('_checkNotdownTypeAll'))
+    }
+
+    let notDownTip = ''
+
+    notDownTip += this.downColorImg ? '' : lang.transl('_彩色图片')
+    notDownTip += this.downBlackWhiteImg ? '' : lang.transl('_黑白图片')
 
     if (notDownTip) {
       log.warning(lang.transl('_checkNotdownTypeResult') + notDownTip)
@@ -227,7 +263,7 @@ class Filter {
     let result: FilterWh = {
       andOr: '&',
       width: 0,
-      height: 0,
+      height: 0
     }
 
     const checkWidth = API.checkNumberGreater0(form.setWidth.value)
@@ -238,7 +274,7 @@ class Filter {
       result = {
         andOr: form.setWidthAndOr.value as '&' | '|',
         width: checkWidth ? checkWidth.value : 0,
-        height: checkHeight ? checkHeight.value : 0,
+        height: checkHeight ? checkHeight.value : 0
       }
 
       log.warning(
@@ -416,6 +452,26 @@ class Filter {
     }
 
     return false
+  }
+
+  // 检查过滤黑白图像设置
+  private async checkBlackWhite(imgUrl: FilterOption['mini']) {
+    if (!imgUrl) {
+      return true
+    }
+
+    // result 为 true，表示它是黑白图片，false 是彩色图片
+    const result = await blackAndWhiteImage.check(imgUrl)
+
+    if (!this.downColorImg) {
+      return result
+    }
+
+    if (!this.downBlackWhiteImg) {
+      return !result
+    }
+
+    return true
   }
 
   // 检查收藏数要求
@@ -627,5 +683,6 @@ class Filter {
     }
   }
 }
+
 const filter = new Filter()
 export { filter }

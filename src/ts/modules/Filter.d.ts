@@ -10,6 +10,7 @@ export interface FilterOption {
   height?: number
   yes_rank?: number
   createDate?: string
+  mini?: string
 }
 
 export interface FilterWh {

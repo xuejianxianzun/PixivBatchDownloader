@@ -22,7 +22,7 @@ const formHtml = `<form class="settingForm">
       </p>
       <p class="option" data-no="2">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_下载作品类型的提示Center'
+        '_下载作品类型的提示'
       )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
@@ -36,7 +36,7 @@ const formHtml = `<form class="settingForm">
       </p>
       <p class="option" data-no="21">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_下载作品类型的提示Center'
+        '_下载作品类型的提示'
       )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
@@ -44,6 +44,19 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="downMultiImg" id="setDownMultiImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
       <label for="setDownMultiImg"> ${lang.transl('_多图作品')}&nbsp;</label>
+      </p>
+      <p class="option" data-no="23">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_下载作品类型的提示'
+      )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="downColorImg" id="setDownColorImg" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="setDownColorImg"> ${lang.transl('_彩色图片')}&nbsp;</label>
+      <input type="checkbox" name="downBlackWhiteImg" id="setDownBlackWhiteImg" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="setDownBlackWhiteImg"> ${lang.transl(
+        '_黑白图片'
+      )}&nbsp;</label>
       </p>
       <p class="option" data-no="3">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
