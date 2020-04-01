@@ -73,7 +73,7 @@ class FileName {
         safe: true,
       },
       '{id_num}': {
-        value: data.idNum,
+        value: data.idNum || parseInt(data.id),
         prefix: '',
         safe: true,
       },
@@ -158,10 +158,10 @@ class FileName {
         // 处理去掉序号的情况
         if (noSerialNo) {
           // 把 p_num 设为空字符串
-          // 不能在这个循环之前把值设为空，那样的话不会替换这个命名字段，会原样保留
+          // 不能在这个循环之前把值设为空，那样的话不会替换这个命名标记
           key === '{p_num}' && (val.value = '' as any)
-          // 去掉 id 后面的 _p0
-          key === '{id}' && (val.value = cfg['{id_num}'].value.toString())
+          // 去掉 id 后面的序号。因为 idNum 不带序号，所以直接拿来用了
+          key === '{id}' && (val.value = cfg['{id_num}'].value)
         }
 
         let once = String(val.value)
@@ -241,7 +241,6 @@ class FileName {
       data.ext = form.ugoiraSaveAs.value
     }
     result += '.' + data.ext
-
     return result
   }
 

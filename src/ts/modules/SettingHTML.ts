@@ -276,7 +276,7 @@ const formHtml = `<form class="settingForm">
       )}">${lang.transl(
   '_第一张图不带序号'
 )}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="noSerialNo" id="setNoSerialNo" class="need_beautify checkbox_switch" checked>
+      <input type="checkbox" name="noSerialNo" id="setNoSerialNo" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
       <p class="option" data-no="19">

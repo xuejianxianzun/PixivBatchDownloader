@@ -4,7 +4,7 @@ class BlackAndWhiteImage {
   // 检查是否是黑白图片
   public async check(imgUrl: string): Promise<boolean> {
     const [r, g, b] = this.getColor(await this.loadImg(imgUrl))
-    console.log([r, g, b])
+    // console.log([r, g, b])
 
     // 如果 rgb 值相同则是黑白图片
     if (r === g && g === b) {
@@ -15,7 +15,7 @@ class BlackAndWhiteImage {
       const max = Math.max(r, g, b) // 取出 rgb 中的最大值
       const min = max - this.latitude // 允许的最小值
       // 如果 rgb 三个数值与最大的数值相比，差距在宽容度之内，则检查通过
-      return [r, g, b].every(number => {
+      return [r, g, b].every((number) => {
         return number >= min
       })
     }
@@ -24,16 +24,21 @@ class BlackAndWhiteImage {
   // 加载图片
   private async loadImg(url: string): Promise<HTMLImageElement> {
     return new Promise(async (resolve, reject) => {
-      const res =await fetch(url)
-      const blob =await res.blob()
-      const blobURL = URL.createObjectURL(blob)
-
       const img = document.createElement('img')
       img.onload = () => resolve(img)
       img.onerror = () => {
         reject(new Error(`Load image error! url: ${url}`))
       }
-      img.src = blobURL
+
+      // 如果传递的时 blobURL 就直接使用，不是的话先获取图片
+      if (url.startsWith('blob')) {
+        img.src = url
+      } else {
+        const res = await fetch(url)
+        const blob = await res.blob()
+        const blobURL = URL.createObjectURL(blob)
+        img.src = blobURL
+      }
     })
   }
 

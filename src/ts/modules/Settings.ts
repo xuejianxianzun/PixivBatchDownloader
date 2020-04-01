@@ -41,7 +41,7 @@ class Settings {
   }
 
   // 设置表单上美化元素的状态
-  private initFormBueatiful(){
+  private initFormBueatiful() {
     // 设置改变时，重设 label 激活状态
     this.resetLabelActive()
 

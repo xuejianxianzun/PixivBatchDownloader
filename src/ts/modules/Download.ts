@@ -5,8 +5,13 @@ import { lang } from './Lang'
 import { titleBar } from './TitleBar'
 import { fileName } from './FileName'
 import { converter } from './ConvertUgoira'
-import { downloadArgument, SendToBackEndData } from './Download.d'
+import {
+  downloadArgument,
+  SendToBackEndData,
+  DonwloadSuccessData,
+} from './Download.d'
 import { progressBar } from './ProgressBar'
+import { filter } from './Filter'
 
 class Download {
   constructor(progressBarIndex: number, data: downloadArgument) {
@@ -115,6 +120,8 @@ class Download {
       } else {
         // 状态码正常
         progressBar.showErrorColor(this.progressBarIndex, false)
+
+        // 需要转换动图的情况
         if (
           (arg.data.ext === 'webm' || arg.data.ext === 'gif') &&
           arg.data.ugoiraInfo
@@ -145,6 +152,31 @@ class Download {
 
       // 生成下载链接
       const blobUrl = URL.createObjectURL(file)
+
+      // 检查图片的彩色、黑白设置
+      // 这里的检查，主要是因为抓取时只能检测第一张的缩略图，有些作品第一张图的颜色和后面不一样。例如某个作品第一张是彩色，后面是黑白；设置条件是只下载彩色。抓取时这个作品通过了检查，后面的黑白图片也会被下载。此时就需要在这里重新检查一次。
+      // 对插画、漫画进行检查。动图抓取时检查了第一张图，已经够了，这里不再检查
+      // 这里并没有让 filter 初始化，如果用户在抓取之后修改了彩色、黑白的设置，filter 不会响应变化。所以这里不检查第一张图，以避免无谓的检查。如果以后使 filter 在这里初始化了，那么第一张图也需要检查。
+      if (
+        (arg.data.type === 0 || arg.data.type === 1) &&
+        !arg.data.id.includes('p0')
+      ) {
+        const result = await filter.check({
+          mini: blobUrl,
+        })
+        if (!result) {
+          const data: DonwloadSuccessData = {
+            url: blobUrl,
+            id: arg.id,
+            tabId: 0,
+            uuid: false,
+          }
+          log.warning(lang.transl('_不保存图片因为颜色设置', arg.id))
+          EVT.fire(EVT.events.skipSaveFile, data)
+          return
+        }
+      }
+
       // 向浏览器发送下载任务
       this.browserDownload(blobUrl, this.fileName, arg.id, arg.taskBatch)
       xhr = null as any

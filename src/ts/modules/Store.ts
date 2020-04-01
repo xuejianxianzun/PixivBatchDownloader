@@ -107,6 +107,7 @@ class Store {
     // 添加该作品里每一张图片的数据
     for (let i = 0; i < result.dlCount; i++) {
       const result = this.assignResult(data)
+      result.idNum = parseInt(result.id)
       result.id = result.id + `_p${i}`
       result.url = result.url.replace('p0', 'p' + i)
       this.result.push(result)

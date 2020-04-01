@@ -55,6 +55,8 @@ class InitPixivisionPage extends InitPageBase {
       18,
       19,
       21,
+      22,
+      23,
     ])
 
     // pixivision 里，文件名只有 id 标记会生效，所以把文件名规则替换成 id
@@ -97,7 +99,7 @@ class InitPixivisionPage extends InitPageBase {
       this.tested = 0
       urls.forEach((url) => {
         let arr = url.split('/')
-        const id = arr[arr.length - 1].split('.')[0] // 取出作品 id
+        const id = arr[arr.length - 1].split('.')[0].split('_')[0] // 作品id，尝试提取出数字部分
         this.testExtName(url, urls.length, id)
       })
     } else {
@@ -117,10 +119,17 @@ class InitPixivisionPage extends InitPageBase {
         const url = el.src
         if (url !== 'https://i.pximg.net/imgaz/upload/20170407/256097898.jpg') {
           // 跳过Cure的logo图片
+          // 漫画页面的图片 url 如：
+          // https://i.pximg.net/c/768x1200_80/img-master/img/2017/06/19/01/08/28/63457814_p0_master1200.jpg
+          // cosplay 页面的 ur 如：
+          // https://i.pximg.net/imgaz/upload/20170808/670930758.jpg
           const arr = url.split('/')
-          const id = arr[arr.length - 1].split('.')[0] // 作品id
-          const ext = arr[arr.length - 1] // 扩展名
-
+          const id = arr[arr.length - 1].split('.')[0].split('_')[0] // 作品id，尝试提取出数字部分
+          const extTest = arr[arr.length - 1].match(/\.(.*$)/) // 扩展名，不带点 .
+          let ext = 'jpg'
+          if (extTest && extTest.length > 1) {
+            ext = extTest[1]
+          }
           this.addResult(id, url, ext)
         }
       })

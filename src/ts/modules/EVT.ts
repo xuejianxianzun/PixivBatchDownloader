@@ -28,6 +28,7 @@ interface EventList {
   clickRightIcon: 'clickRightIcon'
   destroy: 'destroy'
   convertError: 'convertError'
+  skipSaveFile: 'skipSaveFile'
 }
 
 class EVT {
@@ -60,6 +61,7 @@ class EVT {
     clickRightIcon: 'clickRightIcon',
     destroy: 'destroy',
     convertError: 'convertError',
+    skipSaveFile: 'skipSaveFile',
   }
 
   static fire(

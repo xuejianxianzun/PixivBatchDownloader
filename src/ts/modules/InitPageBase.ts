@@ -282,7 +282,7 @@ abstract class InitPageBase {
       bookmarkData: body.bookmarkData,
       width: fullWidth,
       height: fullHeight,
-      mini:body.urls.mini,
+      mini: body.urls.mini,
     }
 
     // 检查通过

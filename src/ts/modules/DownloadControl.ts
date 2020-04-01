@@ -73,6 +73,11 @@ class DownloadControl {
       this.beforeDownload()
     })
 
+    window.addEventListener(EVT.events.skipSaveFile, (ev: CustomEventInit) => {
+      const data = ev.detail.data as DonwloadSuccessData
+      this.downloadSuccess(data)
+    })
+
     window.addEventListener(EVT.events.convertChange, (ev: CustomEventInit) => {
       const count = ev.detail.data
       if (count > 0) {
