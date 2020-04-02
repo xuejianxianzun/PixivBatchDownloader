@@ -1,6 +1,6 @@
 {
   "name": "powerful-pixiv-downloader",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "description": "Powerful Pixiv Downloader. fast, powerful, and make your browsing experience better.",
   "repository": "https://github.com/xuejianxianzun/PixivBatchDownloader",
   "author": "xuejianxianzun",
@@ -8,7 +8,7 @@
   "scripts": {
     "less": "lessc -x ./src/style/style.less ./dist/style/style.css&&lessc -x ./src/style/search.less ./dist/style/search.css",
     "ts": "webpack --config ./webpack.conf.js",
-    "fmt": "prettier -c --write \"**/*\"",
+    "fmt": "prettier -c --write \"**/*.{ts,js,json,less,css}\"",
     "pre-build": "npm run ts && npm run less && npm run fmt",
     "build": "npm run pre-build && node ./pack.js"
   },
