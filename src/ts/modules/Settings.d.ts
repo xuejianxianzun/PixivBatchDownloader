@@ -43,4 +43,5 @@ export interface SettingsForm extends HTMLFormElement {
   idRangeSwitch: HTMLInputElement
   needTagSwitch: HTMLInputElement
   notNeedTagSwitch: HTMLInputElement
+  convertUgoiraThread: HTMLInputElement
 }

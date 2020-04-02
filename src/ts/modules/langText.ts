@@ -1129,6 +1129,19 @@ const langText = {
     'The image {} was not saved because its colors do not match the settings.',
     '圖片 {} 沒有被保存，因為它的顏色不符合設定。',
   ],
+  _同时转换多少个动图: [
+    '同时转换多少个动图',
+    '同時変換のうごイラの上限',
+    'How many animations are converted at the same time',
+    '同時轉換多少個動圖',
+  ],
+  _同时转换多少个动图警告: [
+    '同时转换多个动图会增加资源占用。<br>转换动图时，请保持该标签页激活，否则浏览器会降低转换速度。',
+    '複数の動画を同時に変換すると、リソースの占有が増加します。<br>うごイラを変換するときは、このタブを有効にしてください。そうしないと、ブラウザは変換速度を下げます。',
+    'Converting multiple animations at the same time will increase resource consumption. <br> Please keep the tab active when converting animation, otherwise the browser will reduce the conversion speed.',
+    '同時轉換多個動圖會增加資源占用。<br>轉換動圖時，請保持這個標籤頁激活，否則瀏覽器會降低轉換速度。',
+  ],
+  _提示: ['提示', 'ヒント', 'tip', '提示'],
   _xzNew500: [
     '新增设置项：<br>彩色图片；黑白图片。',
     '新たな機能を追加されました：カラーイメージ；白黒イメージ。<br>',

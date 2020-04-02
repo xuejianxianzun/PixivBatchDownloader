@@ -5,12 +5,6 @@ import { form } from './Settings'
 import { store } from './Store'
 import { lang } from './Lang'
 
-type NamingCfgItem = {
-  value: string | number | undefined
-  prefix: '' | string
-  safe: boolean
-}
-
 class FileName {
   constructor() {
     window.addEventListener(EVT.events.previewFileName, () => {

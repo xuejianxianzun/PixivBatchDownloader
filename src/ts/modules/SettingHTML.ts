@@ -307,6 +307,8 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
       </p>
 
+      <slot data-name="namingBtns" class="centerWrap_btns"></slot>
+
       <p class="option" data-no="4">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_动图保存格式title'
@@ -322,7 +324,15 @@ const formHtml = `<form class="settingForm">
       <label for="ugoiraSaveAs2">${lang.transl('_zipFile')} &nbsp;</label>
       </p>
 
-      <slot data-name="namingBtns" class="centerWrap_btns"></slot>
+      <p class="option" data-no="24">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_同时转换多少个动图警告'
+      )}">${lang.transl('_同时转换多少个动图')}</span>
+      <input type="text" name="convertUgoiraThread" class="setinput_style1 blue" value="1">
+      <span class="has_tip gray1" data-tip="${lang.transl(
+        '_同时转换多少个动图警告'
+      )}"> ${lang.transl('_提示')} </span>
+      </p>
 
       <p class="option" data-no="16">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
@@ -330,6 +340,7 @@ const formHtml = `<form class="settingForm">
       )}">${lang.transl('_设置下载线程')}<span class="gray1"> ? </span></span>
       <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
       </p>
+
       <p class="option" data-no="17">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_快速下载的提示'

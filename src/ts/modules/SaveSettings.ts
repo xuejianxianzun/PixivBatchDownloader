@@ -14,6 +14,7 @@ interface XzSetting {
   downColorImg: boolean
   downBlackWhiteImg: boolean
   ugoiraSaveAs: 'webm' | 'gif' | 'zip'
+  convertUgoiraThread: number
   needTag: string
   notNeedTag: string
   quietDownload: boolean
@@ -91,6 +92,7 @@ class SaveSettings {
     downColorImg: true,
     downBlackWhiteImg: true,
     ugoiraSaveAs: 'webm',
+    convertUgoiraThread: 1,
     needTag: '',
     notNeedTag: '',
     quietDownload: true,
@@ -179,6 +181,9 @@ class SaveSettings {
 
     // 设置动图格式选项
     this.restoreString('ugoiraSaveAs')
+
+    // 设置动图转换线程数
+    this.restoreString('convertUgoiraThread')
 
     // 设置收藏数量选项
     this.restoreBoolean('BMKNumSwitch')
@@ -289,6 +294,9 @@ class SaveSettings {
 
     // 保存动图格式选项
     this.saveRadio('ugoiraSaveAs')
+
+    // 保存动图转换线程数
+    this.saveTextInput('convertUgoiraThread')
 
     // 保存收藏数量选项
     this.saveCheckBox('BMKNumSwitch')

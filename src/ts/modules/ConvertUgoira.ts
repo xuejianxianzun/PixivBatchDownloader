@@ -1,6 +1,5 @@
 // 转换动图
 import { EVT } from './EVT'
-import { log } from './Log'
 import { UgoiraInfo } from './CrawlResult.d'
 
 declare const zip: any
@@ -22,6 +21,13 @@ class ConvertUgoira {
       })
     })
 
+    window.addEventListener(EVT.events.settingChange, (ev: CustomEventInit) => {
+      const data = ev.detail.data
+      if (data.name === 'convertUgoiraThread') {
+        this.maxCount = parseInt(data.value) || 1
+      }
+    })
+
     window.addEventListener(EVT.events.convertError, () => {
       this.complete()
     })
@@ -33,7 +39,7 @@ class ConvertUgoira {
 
   private count: number = 0 // 统计有几个转换任务
 
-  private readonly maxCount = 1 // 允许同时运行多少个转换任务
+  private maxCount = 1 // 允许同时运行多少个转换任务
 
   private set setCount(num: number) {
     this.count = num

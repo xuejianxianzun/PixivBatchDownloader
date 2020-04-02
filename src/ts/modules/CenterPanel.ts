@@ -65,7 +65,8 @@ class CenterPanel {
 
     this.centerPanel = document.querySelector('.centerWrap') as HTMLDivElement
 
-    if (document.documentElement.lang === 'zh-CN') {
+    const userLang = document.documentElement.lang
+    if (['zh', 'zh-CN', 'zh-Hans'].includes(userLang)) {
       document.getElementById('zanzhu')!.style.display = 'inline-block'
     } else {
       document.getElementById('patreon')!.style.display = 'inline-block'
