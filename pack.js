@@ -4,6 +4,8 @@ const path = require('path')
 const copy = require('recursive-copy')
 const archiver = require('archiver')
 
+const packName = 'powerfulpixivdownloader'
+
 // 复制一些文件到 dist 目录
 async function copys() {
   return new Promise(async (resolve, reject) => {
@@ -33,7 +35,7 @@ async function copys() {
 
 // 打包 dist 目录
 function pack() {
-  const zipName = path.resolve(__dirname, 'powerfulpixivdownloader.zip')
+  const zipName = path.resolve(__dirname, packName + '.zip')
   const output = fs.createWriteStream(zipName)
 
   const archive = archiver('zip', {
@@ -52,7 +54,7 @@ function pack() {
   archive.pipe(output)
 
   // 添加文件夹
-  archive.directory('dist', 'powerfulpixivdownloader')
+  archive.directory('dist', packName)
 
   archive.finalize()
 }
