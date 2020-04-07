@@ -125,28 +125,31 @@
       /***/ function (module, __webpack_exports__, __webpack_require__) {
         'use strict'
         __webpack_require__.r(__webpack_exports__)
-        /* harmony import */ var _modules_CenterPanel__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+        /* harmony import */ var _modules_PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./modules/PageType */ './src/ts/modules/PageType.ts'
+        )
+        /* harmony import */ var _modules_CenterPanel__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./modules/CenterPanel */ './src/ts/modules/CenterPanel.ts'
         )
-        /* harmony import */ var _modules_InitPage__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+        /* harmony import */ var _modules_InitPage__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./modules/InitPage */ './src/ts/modules/InitPage.ts'
         )
-        /* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+        /* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./modules/DownloadControl */ './src/ts/modules/DownloadControl.ts'
         )
-        /* harmony import */ var _modules_RightIcon__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+        /* harmony import */ var _modules_RightIcon__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./modules/RightIcon */ './src/ts/modules/RightIcon.ts'
         )
-        /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+        /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./modules/Tip */ './src/ts/modules/Tip.ts'
         )
-        /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/ __webpack_require__.n(
-          _modules_Tip__WEBPACK_IMPORTED_MODULE_4__
+        /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/ __webpack_require__.n(
+          _modules_Tip__WEBPACK_IMPORTED_MODULE_5__
         )
-        /* harmony import */ var _modules_Output__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _modules_Output__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./modules/Output */ './src/ts/modules/Output.ts'
         )
-        /* harmony import */ var _modules_Support__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+        /* harmony import */ var _modules_Support__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./modules/Support */ './src/ts/modules/Support.ts'
         )
         /*

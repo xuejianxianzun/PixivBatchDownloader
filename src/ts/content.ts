@@ -10,6 +10,7 @@
  * QQ group:  675174717
  */
 
+import './modules/PageType'
 import './modules/CenterPanel'
 import './modules/InitPage'
 import './modules/DownloadControl'
