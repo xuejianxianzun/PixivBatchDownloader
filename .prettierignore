@@ -2,6 +2,7 @@
 package.json
 LICENSE
 /static
+/dist/lib
 
 .DS_Store
 .eslintignore
@@ -12,5 +13,8 @@ LICENSE
 *.lock
 *.zip
 *.md
+*.yml
+*.png
+*.map
 
 yarn-error.log
