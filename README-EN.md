@@ -84,15 +84,15 @@ You can also optimize the translation, thank you very much :)
 
 0 [Home page](https://www.pixiv.net/)
 
-1 [ArtWork page](https://www.pixiv.net/member_illust.php?mode=medium&illust_id=72503012)
+1 [ArtWork page](https://www.pixiv.net/artworks/72503012)
 
-2 [List page](https://www.pixiv.net/member_illust.php?id=544479)
+2 [List page](https://www.pixiv.net/users/544479/artworks)
 
-2 [Tag page](https://www.pixiv.net/member_illust.php?id=544479&tag=%E6%9D%B1%E6%96%B9)
+2 [Tag page](https://www.pixiv.net/users/544479/artworks/%E6%9D%B1%E6%96%B9)
 
 4 [Bookmarks](https://www.pixiv.net/bookmark.php)
 
-5 [Search](https://www.pixiv.net/search.php?s_mode=s_tag&word=saber)
+5 [Search](https://www.pixiv.net/tags/saber/artworks?s_mode=s_tag)
 
 6 [Area ranking](https://www.pixiv.net/ranking_area.php?type=state&no=0)
 
