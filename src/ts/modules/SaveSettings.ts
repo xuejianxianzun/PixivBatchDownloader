@@ -40,6 +40,7 @@ interface XzSetting {
   ratio: '1' | '2' | '3'
   userRatio: string
   idRangeSwitch: boolean
+  idRangeInput: string
   needTagSwitch: boolean
   notNeedTagSwitch: boolean
   quickBookmarks: boolean
@@ -118,6 +119,7 @@ class SaveSettings {
     ratio: '1',
     userRatio: '1.4',
     idRangeSwitch: false,
+    idRangeInput: '0',
     needTagSwitch: false,
     notNeedTagSwitch: false,
     quickBookmarks: true,
@@ -206,8 +208,9 @@ class SaveSettings {
     this.restoreString('ratio')
     this.restoreString('userRatio')
 
-    // 设置 id 范围开关
+    // 设置 id 范围
     this.restoreBoolean('idRangeSwitch')
+    this.restoreString('idRangeInput')
 
     // 设置必须的 tag
     this.restoreBoolean('needTagSwitch')
@@ -324,8 +327,9 @@ class SaveSettings {
     this.saveTextInput('postDateStart')
     this.saveTextInput('postDateEnd')
 
-    // 保存 id 范围开关
+    // 保存 id 范围
     this.saveCheckBox('idRangeSwitch')
+    this.saveTextInput('idRangeInput')
 
     // 保存 id 范围
     this.saveRadio('idRange')

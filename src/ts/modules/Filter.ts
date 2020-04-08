@@ -464,15 +464,7 @@ class Filter {
     // result 为 true，表示它是黑白图片，false 是彩色图片
     const result = await blackAndWhiteImage.check(imgUrl)
 
-    if (!this.downColorImg) {
-      return result
-    }
-
-    if (!this.downBlackWhiteImg) {
-      return !result
-    }
-
-    return true
+    return (result && this.downBlackWhiteImg) || (!result && this.downColorImg)
   }
 
   // 检查收藏数要求
@@ -579,11 +571,8 @@ class Filter {
       return true
     }
 
-    if (width === undefined) {
-      width = 0
-    }
-    if (height === undefined) {
-      height = 0
+    if (width === undefined || height === undefined) {
+      return true
     }
 
     if (this.filterWh.width > 0 || this.filterWh.height > 0) {
@@ -620,11 +609,8 @@ class Filter {
       return true
     }
 
-    if (width === undefined) {
-      width = 0
-    }
-    if (height === undefined) {
-      height = 0
+    if (width === undefined || height === undefined) {
+      return true
     }
 
     if (this.ratioType === '1') {

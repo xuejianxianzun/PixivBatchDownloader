@@ -3,22 +3,11 @@ class BlackAndWhiteImage {
 
   // 检查是否是黑白图片
   public async check(imgUrl: string): Promise<boolean> {
-    const [r, g, b] = this.getColor(await this.loadImg(imgUrl))
-    // console.log([r, g, b])
-
-    // 如果 rgb 值相同则是黑白图片
-    if (r === g && g === b) {
-      return true
-    } else {
-      // 如果 rgb 值不相同，则根据宽容度判断是否近似为黑白图片
-      // 这是因为获取 rgb 的结果时，进行了四舍五入，即使 rgb 非常接近，也可能会相差 1（未论证）
-      const max = Math.max(r, g, b) // 取出 rgb 中的最大值
-      const min = max - this.latitude // 允许的最小值
-      // 如果 rgb 三个数值与最大的数值相比，差距在宽容度之内，则检查通过
-      return [r, g, b].every((number) => {
-        return number >= min
-      })
-    }
+    const img = await this.loadImg(imgUrl)
+    const first = this.getResult(this.getColor(img))
+    return first
+    // 当判断结果是彩色图片的时候，基本不会是误判。但如果结果是黑白图，可能存在误判。
+    // 因此，如果第一次判断是黑白的，可以考虑进行第二次检测，第二次只检测局部
   }
 
   // 加载图片
@@ -80,6 +69,24 @@ class BlackAndWhiteImage {
     b = Math.round(b)
 
     return [r, g, b]
+  }
+
+  // 根据 rgb 的值，判断是否是黑白图片
+  private getResult(rgb: number[]) {
+    const [r, g, b] = rgb
+    // 如果 rgb 值相同则是黑白图片
+    if (r === g && g === b) {
+      return true
+    } else {
+      // 如果 rgb 值不相同，则根据宽容度判断是否近似为黑白图片
+      // 这是因为获取 rgb 的结果时，进行了四舍五入，即使 rgb 非常接近，也可能会相差 1（未论证）
+      const max = Math.max(r, g, b) // 取出 rgb 中的最大值
+      const min = max - this.latitude // 允许的最小值
+      // 如果 rgb 三个数值与最大的数值相比，差距在宽容度之内，则检查通过
+      return [r, g, b].every((number) => {
+        return number >= min
+      })
+    }
   }
 }
 

@@ -531,21 +531,11 @@
           }
           // 检查是否是黑白图片
           async check(imgUrl) {
-            const [r, g, b] = this.getColor(await this.loadImg(imgUrl))
-            // console.log([r, g, b])
-            // 如果 rgb 值相同则是黑白图片
-            if (r === g && g === b) {
-              return true
-            } else {
-              // 如果 rgb 值不相同，则根据宽容度判断是否近似为黑白图片
-              // 这是因为获取 rgb 的结果时，进行了四舍五入，即使 rgb 非常接近，也可能会相差 1（未论证）
-              const max = Math.max(r, g, b) // 取出 rgb 中的最大值
-              const min = max - this.latitude // 允许的最小值
-              // 如果 rgb 三个数值与最大的数值相比，差距在宽容度之内，则检查通过
-              return [r, g, b].every((number) => {
-                return number >= min
-              })
-            }
+            const img = await this.loadImg(imgUrl)
+            const first = this.getResult(this.getColor(img))
+            return first
+            // 当判断结果是彩色图片的时候，基本不会是误判。但如果结果是黑白图，可能存在误判。
+            // 因此，如果第一次判断是黑白的，可以考虑进行第二次检测，第二次只检测局部
           }
           // 加载图片
           async loadImg(url) {
@@ -597,6 +587,23 @@
             g = Math.round(g)
             b = Math.round(b)
             return [r, g, b]
+          }
+          // 根据 rgb 的值，判断是否是黑白图片
+          getResult(rgb) {
+            const [r, g, b] = rgb
+            // 如果 rgb 值相同则是黑白图片
+            if (r === g && g === b) {
+              return true
+            } else {
+              // 如果 rgb 值不相同，则根据宽容度判断是否近似为黑白图片
+              // 这是因为获取 rgb 的结果时，进行了四舍五入，即使 rgb 非常接近，也可能会相差 1（未论证）
+              const max = Math.max(r, g, b) // 取出 rgb 中的最大值
+              const min = max - this.latitude // 允许的最小值
+              // 如果 rgb 三个数值与最大的数值相比，差距在宽容度之内，则检查通过
+              return [r, g, b].every((number) => {
+                return number >= min
+              })
+            }
           }
         }
         const blackAndWhiteImage = new BlackAndWhiteImage()
@@ -3487,13 +3494,10 @@
             const result = await _BlackandWhiteImage__WEBPACK_IMPORTED_MODULE_5__[
               'blackAndWhiteImage'
             ].check(imgUrl)
-            if (!this.downColorImg) {
-              return result
-            }
-            if (!this.downBlackWhiteImg) {
-              return !result
-            }
-            return true
+            return (
+              (result && this.downBlackWhiteImg) ||
+              (!result && this.downColorImg)
+            )
           }
           // 检查收藏数要求
           checkBMK(bmk) {
@@ -3585,11 +3589,8 @@
             if (!this.setWHSwitch) {
               return true
             }
-            if (width === undefined) {
-              width = 0
-            }
-            if (height === undefined) {
-              height = 0
+            if (width === undefined || height === undefined) {
+              return true
             }
             if (this.filterWh.width > 0 || this.filterWh.height > 0) {
               // 如果宽高都小于要求的宽高
@@ -3629,11 +3630,8 @@
             if (!this.ratioSwitch) {
               return true
             }
-            if (width === undefined) {
-              width = 0
-            }
-            if (height === undefined) {
-              height = 0
+            if (width === undefined || height === undefined) {
+              return true
             }
             if (this.ratioType === '1') {
               return width / height > 1
@@ -8541,6 +8539,7 @@
               ratio: '1',
               userRatio: '1.4',
               idRangeSwitch: false,
+              idRangeInput: '0',
               needTagSwitch: false,
               notNeedTagSwitch: false,
               quickBookmarks: true,
@@ -8635,8 +8634,9 @@
             this.restoreBoolean('ratioSwitch')
             this.restoreString('ratio')
             this.restoreString('userRatio')
-            // 设置 id 范围开关
+            // 设置 id 范围
             this.restoreBoolean('idRangeSwitch')
+            this.restoreString('idRangeInput')
             // 设置必须的 tag
             this.restoreBoolean('needTagSwitch')
             this.restoreString('needTag')
@@ -8727,8 +8727,9 @@
             this.saveCheckBox('postDate')
             this.saveTextInput('postDateStart')
             this.saveTextInput('postDateEnd')
-            // 保存 id 范围开关
+            // 保存 id 范围
             this.saveCheckBox('idRangeSwitch')
+            this.saveTextInput('idRangeInput')
             // 保存 id 范围
             this.saveRadio('idRange')
             // 保存必须的 tag 设置
@@ -11219,7 +11220,7 @@
             '图片 {} 没有被保存，因为它的颜色不符合设定。',
             'イメージ {} は色が設定に合わないため、保存されていません。',
             'The image {} was not saved because its colors do not match the settings.',
-            '圖片 {} 沒有被保存，因為它的顏色不符合設定。',
+            '圖片 {} 並未儲存，因為它的色彩不符合設定。',
           ],
           _同时转换多少个动图: [
             '同时转换多少个动图',
