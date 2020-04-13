@@ -3,7 +3,11 @@ class BlackAndWhiteImage {
 
   // 检查是否是黑白图片
   public async check(imgUrl: string): Promise<boolean> {
-    const img = await this.loadImg(imgUrl)
+    const img = await this.loadImg(imgUrl).catch((error) => {})
+    // 当加载图片失败时，无法进行判断，默认为彩色图片
+    if (!img) {
+      return false
+    }
     const first = this.getResult(this.getColor(img))
     return first
     // 当判断结果是彩色图片的时候，基本不会是误判。但如果结果是黑白图，可能存在误判。

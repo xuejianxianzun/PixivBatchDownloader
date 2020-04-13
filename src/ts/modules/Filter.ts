@@ -110,6 +110,7 @@ class Filter {
 
   // 检查作品是否符合过滤器的要求
   // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
+  // 所有过滤器里，都必须要检查参数为 undefined 的情况
   public async check(option: FilterOption): Promise<boolean> {
     // 检查下载的作品类型设置
     if (!this.checkDownType(option.illustType)) {
@@ -240,9 +241,23 @@ class Filter {
     }
   }
 
+  // 获取用户输入的 tag 内容
+  private getTagString(str: string) {
+    let result = ''
+    if (str) {
+      let tempArr = str.split(',')
+      // 如果用户在末尾也输入了逗号，则会产生一个空值，去掉它
+      if (tempArr[tempArr.length - 1] === '') {
+        tempArr.pop()
+      }
+      result = tempArr.join(',')
+    }
+    return result
+  }
+
   // 获取必须包含的tag
   private getIncludeTag() {
-    const result = '' || this.checkTagString(form.needTag.value)
+    const result = '' || this.getTagString(form.needTag.value)
     if (result) {
       log.warning(lang.transl('_设置了必须tag之后的提示') + result)
     }
@@ -251,7 +266,7 @@ class Filter {
 
   // 获取要排除的tag
   private getExcludeTag() {
-    const result = '' || this.checkTagString(form.notNeedTag.value)
+    const result = '' || this.getTagString(form.notNeedTag.value)
     if (result) {
       log.warning(lang.transl('_设置了排除tag之后的提示') + result)
     }
@@ -439,7 +454,7 @@ class Filter {
       return true
     }
 
-    if (pageCount === undefined) {
+    if (illustType === undefined || pageCount === undefined) {
       return true
     }
 
@@ -478,26 +493,11 @@ class Filter {
 
   // 检查作品是否符合【只下载书签作品】的条件,返回值 true 表示包含这个作品
   private checkOnlyBmk(bookmarked: any) {
-    // 如果设置了只下载书签作品
-    if (this.onlyBmk) {
-      return !!bookmarked
+    if (bookmarked === undefined || !this.onlyBmk) {
+      return true
     }
 
-    return true
-  }
-
-  // 检查用户输入的 tag 内容
-  private checkTagString(str: string) {
-    let result = ''
-    if (str) {
-      let tempArr = str.split(',')
-      // 如果用户在末尾也输入了逗号，则会产生一个空值，去掉它
-      if (tempArr[tempArr.length - 1] === '') {
-        tempArr.pop()
-      }
-      result = tempArr.join(',')
-    }
-    return result
+    return !!bookmarked
   }
 
   // 检查作品是否符合包含 tag 的条件, 如果设置了多个 tag，需要作品里全部包含。返回值表示是否保留这个作品。
