@@ -391,7 +391,7 @@ class InitSearchPage extends InitPageBase {
   }
 
   // 传入函数，过滤符合条件的结果
-  private filterResult(callback: FilterCB) {
+  private async filterResult(callback: FilterCB) {
     if (!this.crawled) {
       return alert(lang.transl('_尚未开始筛选'))
     }
@@ -405,7 +405,14 @@ class InitSearchPage extends InitPageBase {
 
     const nowLength = this.resultMeta.length // 储存过滤前的结果数量
 
-    this.resultMeta = this.resultMeta.filter(callback)
+    const resultMetaTemp: WorkInfo[] = []
+    for await (const meta of this.resultMeta) {
+      if (await callback(meta)) {
+        resultMetaTemp.push(meta)
+      }
+    }
+
+    this.resultMeta = resultMetaTemp
 
     // 如果过滤后，作品元数据发生了改变，或者强制要求重新生成结果，才会重排作品。以免浪费资源。
     if (this.resultMeta.length !== nowLength || this.needReAdd) {

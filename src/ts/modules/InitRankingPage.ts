@@ -36,6 +36,7 @@ class InitRankingPage extends InitPageBase {
         ['title', lang.transl('_抓取首次登场的作品Title')],
       ]).addEventListener('click', () => {
         form.debut.value = '1'
+        console.log(form.debut.value)
         this.readyCrawl()
       })
     }
@@ -140,7 +141,7 @@ class InitRankingPage extends InitPageBase {
         yes_rank: data.yes_rank,
       }
 
-      if (filter.check(filterOpt)) {
+      if (await filter.check(filterOpt)) {
         store.setRankList(data.illust_id.toString(), data.rank.toString())
 
         store.idList.push(data.illust_id.toString())

@@ -93,7 +93,7 @@ class InitBookmarkNewIllustPage extends InitPageBase {
         tags: data.tags,
       }
 
-      if (filter.check(filterOpt)) {
+      if (await filter.check(filterOpt)) {
         store.idList.push(data.illustId)
       }
     }

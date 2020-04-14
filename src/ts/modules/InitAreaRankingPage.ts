@@ -27,7 +27,7 @@ class InitAreaRankingPage extends InitPageBase {
     options.hideOption([1])
   }
 
-  protected getIdList() {
+  protected async getIdList() {
     // 地区排行榜
     const allPicArea = document.querySelectorAll('.ranking-item>.work_wrapper')
 
@@ -48,7 +48,7 @@ class InitAreaRankingPage extends InitPageBase {
         bookmarkData: bookmarked,
       }
 
-      if (filter.check(filterOpt)) {
+      if (await filter.check(filterOpt)) {
         const id = API.getIllustId(el.querySelector('a')!.href)
         store.idList.push(id)
       }
