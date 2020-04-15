@@ -822,6 +822,9 @@
       <span id="resetOption">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_重置设置')}</span>
+      <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_fanboxDownloader')}</a>
       <a id="zanzhu" class="wiki2 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">通过“爱发电”网站支持我</a>
       <a id="patreon" class="wiki2 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
       <br>
@@ -11313,6 +11316,12 @@
             '新たな機能を追加されました：カラーイメージ；白黒イメージ。<br>',
             'Added setting items:<br>Color picture; Black and white pictures.',
             '新增設定項目：<br>彩色圖片；黑白圖片。',
+          ],
+          _fanboxDownloader: [
+            'Fanbox 下载器',
+            'Fanbox ダウンロード',
+            'Fanbox Downloader',
+            'Fanbox 下載器',
           ],
         }
 

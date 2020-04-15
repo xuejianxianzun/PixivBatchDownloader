@@ -1148,6 +1148,12 @@ const langText = {
     'Added setting items:<br>Color picture; Black and white pictures.',
     '新增設定項目：<br>彩色圖片；黑白圖片。',
   ],
+  _fanboxDownloader: [
+    'Fanbox 下载器',
+    'Fanbox ダウンロード',
+    'Fanbox Downloader',
+    'Fanbox 下載器',
+  ],
 }
 
 export { langText, langTextKeys }
