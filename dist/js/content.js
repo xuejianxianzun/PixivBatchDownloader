@@ -531,7 +531,9 @@
           }
           // 检查是否是黑白图片
           async check(imgUrl) {
-            const img = await this.loadImg(imgUrl).catch((error) => {})
+            const img = await this.loadImg(imgUrl).catch((error) => {
+              console.log(error)
+            })
             // 当加载图片失败时，无法进行判断，默认为彩色图片
             if (!img) {
               return false
@@ -553,7 +555,9 @@
               if (url.startsWith('blob')) {
                 img.src = url
               } else {
-                const res = await fetch(url)
+                const res = await fetch(url).catch((error) => {
+                  throw new Error(`Load image error! url: ${url}`)
+                })
                 const blob = await res.blob()
                 const blobURL = URL.createObjectURL(blob)
                 img.src = blobURL
