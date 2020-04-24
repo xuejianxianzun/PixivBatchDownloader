@@ -1154,6 +1154,24 @@ const langText = {
     'Fanbox Downloader',
     'Fanbox 下載器',
   ],
+  _不保存图片因为体积: [
+    '{} 没有被保存，因为它的体积不符合设定。',
+    '{} はファイルサイズが設定に合わないため、保存されていません。',
+    '{} was not saved because its size do not match the settings.',
+    '{} 並未儲存，因為它的大小不符合設定。',
+  ],
+  _文件体积限制: [
+    '文件体积限制',
+    'ファイルサイズ制限',
+    'File size limit',
+    '文件大小限制',
+  ],
+  _不符合要求的文件不会被保存: [
+    '不符合要求的文件不会被保存。',
+    '設定 に合わないファイルは保存されません。',
+    'Files that do not meet the requirements will not be saved.',
+    '不符合要求的文件不会被保存。',
+  ],
 }
 
 export { langText, langTextKeys }

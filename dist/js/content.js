@@ -1673,9 +1673,10 @@
         class Download {
           constructor(progressBarIndex, data) {
             this.fileName = ''
-            this.stoped = false
             this.retry = 0
             this.retryMax = 50
+            this.cancel = false // 这个下载被取消（任务停止，或者没有通过某个检查）
+            this.sizeCheck = undefined // 检查文件体积
             this.progressBarIndex = progressBarIndex
             this.download(data)
             this.listenEvents()
@@ -1686,7 +1687,7 @@
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadPause,
             ].forEach((event) => {
               window.addEventListener(event, () => {
-                this.stoped = true
+                this.cancel = true
               })
             })
           }
@@ -1699,6 +1700,13 @@
               loaded: loaded,
               total: total,
             })
+          }
+          skip(data, msg = '') {
+            _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(msg)
+            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.skipSaveFile,
+              data
+            )
           }
           // 下载文件
           download(arg) {
@@ -1714,8 +1722,29 @@
             xhr.open('GET', arg.data.url, true)
             xhr.responseType = 'blob'
             // 显示下载进度
-            xhr.addEventListener('progress', (event) => {
-              if (this.stoped) {
+            xhr.addEventListener('progress', async (event) => {
+              // 检查体积设置
+              if (this.sizeCheck === undefined) {
+                this.sizeCheck = await _Filter__WEBPACK_IMPORTED_MODULE_7__[
+                  'filter'
+                ].check({ size: event.total })
+                if (this.sizeCheck === false) {
+                  this.cancel = true
+                  this.skip(
+                    {
+                      url: '',
+                      id: arg.id,
+                      tabId: 0,
+                      uuid: false,
+                    },
+                    _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                      '_不保存图片因为体积',
+                      arg.id
+                    )
+                  )
+                }
+              }
+              if (this.cancel) {
                 xhr.abort()
                 xhr = null
                 return
@@ -1724,7 +1753,7 @@
             })
             // 图片获取完毕（出错时也会进入 loadend）
             xhr.addEventListener('loadend', async () => {
-              if (this.stoped) {
+              if (this.cancel) {
                 xhr = null
                 return
               }
@@ -1824,24 +1853,19 @@
                   mini: blobUrl,
                 })
                 if (!result) {
-                  const data = {
-                    url: blobUrl,
-                    id: arg.id,
-                    tabId: 0,
-                    uuid: false,
-                  }
-                  _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
+                  this.cancel = true
+                  return this.skip(
+                    {
+                      url: blobUrl,
+                      id: arg.id,
+                      tabId: 0,
+                      uuid: false,
+                    },
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                       '_不保存图片因为颜色设置',
                       arg.id
                     )
                   )
-                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events
-                      .skipSaveFile,
-                    data
-                  )
-                  return
                 }
               }
               // 向浏览器发送下载任务
@@ -1859,7 +1883,7 @@
           // 向浏览器发送下载任务
           browserDownload(blobUrl, fileName, id, taskBatch) {
             // 如果任务已停止，不会向浏览器发送下载任务
-            if (this.stoped) {
+            if (this.cancel) {
               // 释放 bloburl
               URL.revokeObjectURL(blobUrl)
               return
@@ -2967,6 +2991,10 @@
             this.BMKNumMin = this.BMKNumMinDef // 最小收藏数量
             this.BMKNumMax = this.BMKNumMaxDef // 最大收藏数量
             this.onlyBmk = false // 是否只下载收藏的作品
+            this.sizeSwitch = false
+            this.MB = 1024 * 1024
+            this.sizeMin = 0
+            this.sizeMax = 100 * this.MB
             // 宽高条件
             this.setWHSwitch = false
             this.filterWh = {
@@ -3042,6 +3070,7 @@
             }
             // 获取只下载首次登场设置
             this.debut = this.getDebut()
+            this.getSize()
           }
           // 检查作品是否符合过滤器的要求
           // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
@@ -3089,6 +3118,10 @@
             }
             // 检查首次登场设置
             if (!this.checkDebut(option.yes_rank)) {
+              return false
+            }
+            // 检查首次登场设置
+            if (!this.checkSize(option.size)) {
               return false
             }
             // 检查黑白图片
@@ -3475,6 +3508,30 @@
             }
             return result
           }
+          // 获取文件体积设置
+          getSize() {
+            this.sizeSwitch =
+              _Settings__WEBPACK_IMPORTED_MODULE_0__['form'].sizeSwitch.checked
+            if (this.sizeSwitch) {
+              let min = parseFloat(
+                _Settings__WEBPACK_IMPORTED_MODULE_0__['form'].sizeMin.value
+              )
+              isNaN(min) && (min = 0)
+              let max = parseFloat(
+                _Settings__WEBPACK_IMPORTED_MODULE_0__['form'].sizeMax.value
+              )
+              isNaN(max) && (min = 100)
+              // 如果输入的最小值比最大值还要大，则交换它们的值
+              if (min > max) {
+                ;[min, max] = [max, min]
+              }
+              this.sizeMin = min * this.MB
+              this.sizeMax = max * this.MB
+              _Log__WEBPACK_IMPORTED_MODULE_2__['log'].warning(
+                `Size: ${min}MB - ${max}MB`
+              )
+            }
+          }
           // 检查下载的作品类型设置
           checkDownType(illustType) {
             if (illustType === undefined) {
@@ -3695,7 +3752,7 @@
           // 检查首次登场设置
           // yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
           checkDebut(yes_rank) {
-            if (!this.debut) {
+            if (!this.debut || yes_rank === undefined) {
               return true
             } else {
               if (yes_rank === 0 || yes_rank === undefined) {
@@ -3704,6 +3761,13 @@
                 return false
               }
             }
+          }
+          // 检查文件体积
+          checkSize(size) {
+            if (!this.sizeSwitch || size === undefined) {
+              return true
+            }
+            return size >= this.sizeMin && size <= this.sizeMax
           }
         }
         const filter = new Filter()
@@ -7838,6 +7902,8 @@
               br--
             }
             this.logArea.appendChild(span)
+            // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部
+            this.logArea.scrollTop = this.logArea.scrollHeight
           }
           log(str, br = 1, keepShow = true) {
             this.checkElement()
@@ -8627,6 +8693,9 @@
               quickBookmarks: true,
               noSerialNo: false,
               filterBlackWhite: false,
+              sizeSwitch: false,
+              sizeMin: '0',
+              sizeMax: '100',
             }
             // 需要持久化保存的设置
             this.options = this.optionDefault
@@ -8747,6 +8816,10 @@
             this.restoreString('multipleImageFolderName')
             // 设置预览搜索结果
             this.restoreBoolean('previewResult')
+            // 设置文件体积限制
+            this.restoreBoolean('sizeSwitch')
+            this.restoreString('sizeMin')
+            this.restoreString('sizeMax')
           }
           // 处理输入框： change 时直接保存 value
           saveTextInput(name) {
@@ -8837,6 +8910,10 @@
             this.saveCheckBox('multipleImageDir')
             // 保存多图建立文件夹时的命名规则
             this.saveRadio('multipleImageFolderName')
+            // 保存文件体积限制
+            this.saveCheckBox('sizeSwitch')
+            this.saveTextInput('sizeMin')
+            this.saveTextInput('sizeMax')
             // 保存自动下载
             this.saveCheckBox('quietDownload')
             // 保存下载线程
@@ -9269,6 +9346,22 @@
       </p>
 
       <slot data-name="namingBtns" class="centerWrap_btns"></slot>
+
+      <p class="option" data-no="25">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_不符合要求的文件不会被保存')}">
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+        '_文件体积限制'
+      )} <span class="gray1"> ? </span></span>
+      <input type="checkbox" name="sizeSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="sizeSwitch">
+      <input type="text" name="sizeMin" class="setinput_style1 blue" value="0">MB
+      &nbsp;-&nbsp;
+      <input type="text" name="sizeMax" class="setinput_style1 blue" value="100">MB
+      </span>
+      </p>
 
       <p class="option" data-no="4">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
@@ -11328,6 +11421,24 @@
             'Fanbox ダウンロード',
             'Fanbox Downloader',
             'Fanbox 下載器',
+          ],
+          _不保存图片因为体积: [
+            '{} 没有被保存，因为它的体积不符合设定。',
+            '{} はファイルサイズが設定に合わないため、保存されていません。',
+            '{} was not saved because its size do not match the settings.',
+            '{} 並未儲存，因為它的大小不符合設定。',
+          ],
+          _文件体积限制: [
+            '文件体积限制',
+            'ファイルサイズ制限',
+            'File size limit',
+            '文件大小限制',
+          ],
+          _不符合要求的文件不会被保存: [
+            '不符合要求的文件不会被保存。',
+            '設定 に合わないファイルは保存されません。',
+            'Files that do not meet the requirements will not be saved.',
+            '不符合要求的文件不会被保存。',
           ],
         }
 

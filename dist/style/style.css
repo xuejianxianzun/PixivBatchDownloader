@@ -564,6 +564,8 @@
   padding: 10px;
   font-size: 14px;
   width: 950px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 #logWrap br {
   display: inline;

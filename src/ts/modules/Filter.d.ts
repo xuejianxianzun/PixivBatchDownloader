@@ -11,6 +11,7 @@ export interface FilterOption {
   yes_rank?: number
   createDate?: string
   mini?: string
+  size?: number
 }
 
 export interface FilterWh {

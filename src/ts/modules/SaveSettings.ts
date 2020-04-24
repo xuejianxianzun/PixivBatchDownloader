@@ -46,6 +46,9 @@ interface XzSetting {
   quickBookmarks: boolean
   noSerialNo: boolean
   filterBlackWhite: boolean
+  sizeSwitch: boolean
+  sizeMin: string
+  sizeMax: string
 }
 
 interface SettingChangeData {
@@ -125,6 +128,9 @@ class SaveSettings {
     quickBookmarks: true,
     noSerialNo: false,
     filterBlackWhite: false,
+    sizeSwitch: false,
+    sizeMin: '0',
+    sizeMax: '100',
   }
 
   // 需要持久化保存的设置
@@ -251,6 +257,11 @@ class SaveSettings {
 
     // 设置预览搜索结果
     this.restoreBoolean('previewResult')
+
+    // 设置文件体积限制
+    this.restoreBoolean('sizeSwitch')
+    this.restoreString('sizeMin')
+    this.restoreString('sizeMax')
   }
 
   // 处理输入框： change 时直接保存 value
@@ -364,6 +375,11 @@ class SaveSettings {
 
     // 保存多图建立文件夹时的命名规则
     this.saveRadio('multipleImageFolderName')
+
+    // 保存文件体积限制
+    this.saveCheckBox('sizeSwitch')
+    this.saveTextInput('sizeMin')
+    this.saveTextInput('sizeMax')
 
     // 保存自动下载
     this.saveCheckBox('quietDownload')

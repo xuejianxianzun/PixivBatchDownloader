@@ -63,6 +63,9 @@ class Log {
     }
 
     this.logArea.appendChild(span)
+
+    // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部
+    this.logArea.scrollTop = this.logArea.scrollHeight
   }
 
   public log(str: string, br: number = 1, keepShow: boolean = true) {

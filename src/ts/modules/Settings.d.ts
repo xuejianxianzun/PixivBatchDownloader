@@ -44,4 +44,7 @@ export interface SettingsForm extends HTMLFormElement {
   needTagSwitch: HTMLInputElement
   notNeedTagSwitch: HTMLInputElement
   convertUgoiraThread: HTMLInputElement
+  sizeSwitch: HTMLInputElement
+  sizeMin: HTMLInputElement
+  sizeMax: HTMLInputElement
 }

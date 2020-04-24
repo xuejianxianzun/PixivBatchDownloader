@@ -28,6 +28,11 @@ class Filter {
 
   private onlyBmk: boolean = false // 是否只下载收藏的作品
 
+  private sizeSwitch = false
+  private readonly MB = 1024 * 1024
+  private sizeMin = 0
+  private sizeMax = 100 * this.MB
+
   // 宽高条件
   private setWHSwitch = false
   private filterWh: FilterWh = {
@@ -106,6 +111,8 @@ class Filter {
 
     // 获取只下载首次登场设置
     this.debut = this.getDebut()
+
+    this.getSize()
   }
 
   // 检查作品是否符合过滤器的要求
@@ -164,6 +171,11 @@ class Filter {
 
     // 检查首次登场设置
     if (!this.checkDebut(option.yes_rank)) {
+      return false
+    }
+
+    // 检查首次登场设置
+    if (!this.checkSize(option.size)) {
       return false
     }
 
@@ -425,6 +437,28 @@ class Filter {
     return result
   }
 
+  // 获取文件体积设置
+  private getSize() {
+    this.sizeSwitch = form.sizeSwitch.checked
+    if (this.sizeSwitch) {
+      let min = parseFloat(form.sizeMin.value)
+      isNaN(min) && (min = 0)
+
+      let max = parseFloat(form.sizeMax.value)
+      isNaN(max) && (min = 100)
+
+      // 如果输入的最小值比最大值还要大，则交换它们的值
+      if (min > max) {
+        ;[min, max] = [max, min]
+      }
+
+      this.sizeMin = min * this.MB
+      this.sizeMax = max * this.MB
+
+      log.warning(`Size: ${min}MB - ${max}MB`)
+    }
+  }
+
   // 检查下载的作品类型设置
   private checkDownType(illustType: FilterOption['illustType']) {
     if (illustType === undefined) {
@@ -659,7 +693,7 @@ class Filter {
   // 检查首次登场设置
   // yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
   private checkDebut(yes_rank: FilterOption['yes_rank']) {
-    if (!this.debut) {
+    if (!this.debut || yes_rank === undefined) {
       return true
     } else {
       if (yes_rank === 0 || yes_rank === undefined) {
@@ -668,6 +702,15 @@ class Filter {
         return false
       }
     }
+  }
+
+  // 检查文件体积
+  private checkSize(size: FilterOption['size']) {
+    if (!this.sizeSwitch || size === undefined) {
+      return true
+    }
+
+    return size >= this.sizeMin && size <= this.sizeMax
   }
 }
 

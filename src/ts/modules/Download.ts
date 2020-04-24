@@ -24,14 +24,16 @@ class Download {
 
   private progressBarIndex: number
   private fileName = ''
-  private stoped = false
   private retry = 0
   private readonly retryMax = 50
+  private cancel = false // 这个下载被取消（任务停止，或者没有通过某个检查）
+
+  private sizeCheck: boolean | undefined = undefined // 检查文件体积
 
   private listenEvents() {
     ;[EVT.events.downloadStop, EVT.events.downloadPause].forEach((event) => {
       window.addEventListener(event, () => {
-        this.stoped = true
+        this.cancel = true
       })
     })
   }
@@ -43,6 +45,11 @@ class Download {
       loaded: loaded,
       total: total,
     })
+  }
+
+  private skip(data: DonwloadSuccessData, msg = '') {
+    log.warning(msg)
+    EVT.fire(EVT.events.skipSaveFile, data)
   }
 
   // 下载文件
@@ -61,18 +68,36 @@ class Download {
     xhr.responseType = 'blob'
 
     // 显示下载进度
-    xhr.addEventListener('progress', (event) => {
-      if (this.stoped) {
+    xhr.addEventListener('progress', async (event) => {
+      // 检查体积设置
+      if (this.sizeCheck === undefined) {
+        this.sizeCheck = await filter.check({ size: event.total })
+        if (this.sizeCheck === false) {
+          this.cancel = true
+          this.skip(
+            {
+              url: '',
+              id: arg.id,
+              tabId: 0,
+              uuid: false,
+            },
+            lang.transl('_不保存图片因为体积', arg.id)
+          )
+        }
+      }
+
+      if (this.cancel) {
         xhr.abort()
         xhr = null as any
         return
       }
+
       this.setProgressBar(event.loaded, event.total)
     })
 
     // 图片获取完毕（出错时也会进入 loadend）
     xhr.addEventListener('loadend', async () => {
-      if (this.stoped) {
+      if (this.cancel) {
         xhr = null as any
         return
       }
@@ -165,15 +190,16 @@ class Download {
           mini: blobUrl,
         })
         if (!result) {
-          const data: DonwloadSuccessData = {
-            url: blobUrl,
-            id: arg.id,
-            tabId: 0,
-            uuid: false,
-          }
-          log.warning(lang.transl('_不保存图片因为颜色设置', arg.id))
-          EVT.fire(EVT.events.skipSaveFile, data)
-          return
+          this.cancel = true
+          return this.skip(
+            {
+              url: blobUrl,
+              id: arg.id,
+              tabId: 0,
+              uuid: false,
+            },
+            lang.transl('_不保存图片因为颜色设置', arg.id)
+          )
         }
       }
 
@@ -193,7 +219,7 @@ class Download {
     taskBatch: number
   ) {
     // 如果任务已停止，不会向浏览器发送下载任务
-    if (this.stoped) {
+    if (this.cancel) {
       // 释放 bloburl
       URL.revokeObjectURL(blobUrl)
       return

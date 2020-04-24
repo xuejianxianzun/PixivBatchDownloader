@@ -309,6 +309,20 @@ const formHtml = `<form class="settingForm">
 
       <slot data-name="namingBtns" class="centerWrap_btns"></slot>
 
+      <p class="option" data-no="25">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_不符合要求的文件不会被保存'
+      )}">
+      ${lang.transl('_文件体积限制')} <span class="gray1"> ? </span></span>
+      <input type="checkbox" name="sizeSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="sizeSwitch">
+      <input type="text" name="sizeMin" class="setinput_style1 blue" value="0">MB
+      &nbsp;-&nbsp;
+      <input type="text" name="sizeMax" class="setinput_style1 blue" value="100">MB
+      </span>
+      </p>
+
       <p class="option" data-no="4">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_动图保存格式title'
