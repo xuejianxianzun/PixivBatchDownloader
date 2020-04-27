@@ -1729,6 +1729,8 @@
                   'filter'
                 ].check({ size: event.total })
                 if (this.sizeCheck === false) {
+                  // 当因为体积问题跳过下载时，可能这个下载进度还是 0 或者很少，所以这里直接把进度条拉满
+                  this.setProgressBar(1, 1)
                   this.cancel = true
                   this.skip(
                     {
@@ -2776,9 +2778,7 @@
             // 判断这个作品是否要去掉序号
             const noSerialNo =
               cfg['{p_num}'].value === 0 &&
-              _Settings__WEBPACK_IMPORTED_MODULE_1__['form'].noSerialNo
-                .checked &&
-              (data.type === 0 || data.type === 1)
+              _Settings__WEBPACK_IMPORTED_MODULE_1__['form'].noSerialNo.checked
             // 把命名规则的标记替换成实际值
             for (const [key, val] of Object.entries(cfg)) {
               // 只有当标记有值时才会进行替换，所以没有值的标记会原样保留

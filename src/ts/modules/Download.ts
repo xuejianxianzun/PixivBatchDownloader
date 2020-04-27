@@ -73,6 +73,8 @@ class Download {
       if (this.sizeCheck === undefined) {
         this.sizeCheck = await filter.check({ size: event.total })
         if (this.sizeCheck === false) {
+          // 当因为体积问题跳过下载时，可能这个下载进度还是 0 或者很少，所以这里直接把进度条拉满
+          this.setProgressBar(1, 1)
           this.cancel = true
           this.skip(
             {

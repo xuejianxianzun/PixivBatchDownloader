@@ -140,10 +140,7 @@ class FileName {
     result = result.replace(/／/g, '/')
 
     // 判断这个作品是否要去掉序号
-    const noSerialNo =
-      cfg['{p_num}'].value === 0 &&
-      form.noSerialNo.checked &&
-      (data.type === 0 || data.type === 1)
+    const noSerialNo = cfg['{p_num}'].value === 0 && form.noSerialNo.checked
 
     // 把命名规则的标记替换成实际值
     for (const [key, val] of Object.entries(cfg)) {
