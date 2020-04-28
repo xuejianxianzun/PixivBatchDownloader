@@ -159,4 +159,16 @@ English （机翻，韩语设置下也使用英语文本）
 
 12 [大家的新作品](https://www.pixiv.net/new_illust.php)
 
+13 [小说页面](https://www.pixiv.net/novel/show.php?id=12771688)
+
+15 [小说列表页](https://www.pixiv.net/users/35419040/novels)
+
+15 [小说 Tag 页面](https://www.pixiv.net/users/35419040/novels/%E6%81%8B%E6%84%9B)
+
+16 [系列小说页面](https://www.pixiv.net/novel/series/1090654)
+
+17 [小说搜索页面](https://www.pixiv.net/tags/%E7%99%BE%E5%90%88/novels)
+
+
+
 [测试动图转换](https://www.pixiv.net/member.php?id=16274829)
