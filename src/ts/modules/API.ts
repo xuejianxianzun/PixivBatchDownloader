@@ -20,6 +20,7 @@ import {
   RankingOption,
   SearchOption,
   NewIllustOption,
+  tagPageFlag,
 } from './CrawlArgument.d'
 
 class API {
@@ -256,7 +257,7 @@ class API {
   // 返回作品的 id 列表，不包含详细信息
   static async getUserWorksByType(
     id: string,
-    type: userWorksType[] = ['illusts', 'manga']
+    type: userWorksType[] = ['illusts', 'manga', 'novels']
   ): Promise<string[]> {
     let typeSet = new Set(type)
     let result: string[] = []
@@ -276,13 +277,13 @@ class API {
   // 必须带 tag 使用。不带 tag 虽然也能获得数据，但是获得的并不全，很奇怪。
   static getUserWorksByTypeWithTag(
     id: string,
-    type: 'illusts' | 'manga' | 'illustmanga',
+    type: tagPageFlag,
     tag: string,
     offset: number = 0,
-    number: number = 999999
+    limit: number = 999999
   ): Promise<UserWorksWithTag> {
     // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=9999999
-    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${number}`
+    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${limit}`
     return this.request(url)
   }
 

@@ -7,7 +7,7 @@ import { API } from './API'
 import { store } from './Store'
 import { log } from './Log'
 import { DOM } from './DOM'
-import { userWorksType } from './CrawlArgument.d'
+import { userWorksType, tagPageFlag } from './CrawlArgument.d'
 import { pageInfo } from './PageInfo'
 
 class InitUserPage extends InitPageBase {
@@ -82,47 +82,45 @@ class InitUserPage extends InitPageBase {
     } else if (test.length === 2) {
       const str = test[1] //取出用户 id 之后的字符
       if (str.includes('/artworks')) {
-        // 所有作品
-        this.listType = 0
-      } else if (str.includes('/illustrations')) {
-        // 插画分类
+        // 插画和漫画列表
         this.listType = 1
-      } else if (str.includes('/manga')) {
-        // 漫画分类
+      } else if (str.includes('/illustrations')) {
+        // 插画列表
         this.listType = 2
+      } else if (str.includes('/manga')) {
+        // 漫画列表
+        this.listType = 3
+      } else if (str.includes('/novels')) {
+        // 小说列表
+        this.listType = 4
       }
     }
 
-    this.tag = pageInfo.getPageTag
-
-    if (!this.tag) {
-      this.getIdList()
-    } else {
-      if (this.listType === 1) {
-        this.getIdListByTag('illusts')
-      } else if (this.listType === 2) {
-        this.getIdListByTag('manga')
-      } else if (this.listType === 0) {
-        this.getIdListByTag('illustmanga')
-      }
-    }
+    ;(this.tag = pageInfo.getPageTag) ? this.getIdListByTag() : this.getIdList()
 
     log.log(lang.transl('_正在抓取'))
   }
 
-  // 获取用户的全部作品列表
+  // 获取用户某些类型的作品的 id 列表
   protected async getIdList() {
     let type: userWorksType[] = []
 
-    // 插画和漫画列表页
-    if (this.listType === 0) {
-      type = ['illusts', 'manga']
-    } else if (this.listType === 1) {
-      // 插画列表页，包含动图
-      type = ['illusts']
-    } else if (this.listType === 2) {
-      // 漫画列表页
-      type = ['manga']
+    switch (this.listType) {
+      case 0:
+        type = ['illusts', 'manga', 'novels']
+        break
+      case 1:
+        type = ['illusts', 'manga']
+        break
+      case 2:
+        type = ['illusts']
+        break
+      case 3:
+        type = ['manga']
+        break
+      case 4:
+        type = ['novels']
+        break
     }
 
     let idList = await API.getUserWorksByType(DOM.getUserId(), type)
@@ -156,11 +154,28 @@ class InitUserPage extends InitPageBase {
     this.getIdListFinished()
   }
 
-  // 获取用户某一类型的作品列表（附带 tag）
-  private async getIdListByTag(type: 'illusts' | 'manga' | 'illustmanga') {
+  // 获取用户某些类型的作品的 id 列表（附带 tag）
+  private async getIdListByTag() {
+    // 这里不用判断 0 也就是用户主页的情况，因为用户主页不会带 tag
+    let flag: tagPageFlag = 'illustmanga'
+    switch (this.listType) {
+      case 1:
+        flag = 'illustmanga'
+        break
+      case 2:
+        flag = 'illusts'
+        break
+      case 3:
+        flag = 'manga'
+        break
+      case 4:
+        flag = 'novels'
+        break
+    }
+
     let data = await API.getUserWorksByTypeWithTag(
       DOM.getUserId(),
-      type,
+      flag,
       this.tag,
       this.offset,
       this.requsetNumber

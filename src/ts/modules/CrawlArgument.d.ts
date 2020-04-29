@@ -1,5 +1,7 @@
 export type userWorksType = 'illusts' | 'manga' | 'novels'
 
+export type tagPageFlag = 'illusts' | 'manga' | 'illustmanga' | 'novels'
+
 // 大家的新作品的 API 参数
 export interface NewIllustOption {
   lastId: string

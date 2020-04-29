@@ -47,3 +47,7 @@ https://www.pixiv.net/tags/%E5%A5%B3%E6%80%A7%E4%B8%BB%E4%BA%BA%E5%85%AC/novels
 ### API
 
 https://www.pixiv.net/ajax/search/novels/%E7%95%B0%E4%B8%96%E7%95%8C%E8%BB%A2%E7%94%9F?word=%E7%95%B0%E4%B8%96%E7%95%8C%E8%BB%A2%E7%94%9F&order=date_d&mode=all&p=1&s_mode=s_tag_full
+
+## 收藏的小说
+
+https://www.pixiv.net/novel/bookmark.php
