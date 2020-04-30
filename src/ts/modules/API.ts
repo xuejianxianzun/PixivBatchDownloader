@@ -268,7 +268,6 @@ class API {
     const url = `https://www.pixiv.net/ajax/user/${id}/profile/all`
 
     let data: UserProfileAllData = await this.request(url)
-    console.log(typeSet)
     for (const type of typeSet.values()) {
       const idList = Object.keys(data.body[type])
       for (const id of idList) {

@@ -1,16 +1,12 @@
-import { API } from './API'
 import { filter } from './Filter'
-import { setting, form } from './Settings'
 import { FilterOption } from './Filter.d'
 import { NovelData } from './CrawlResult.d'
 import { store } from './Store'
 
 class SaveNovelWorksData {
   public async save(data: NovelData) {
-    // 其实小说本来没有 illustType 属性， 把小说的 illustType 设置为 3，这是为了方便检查
+    // 小说没有 illustType 属性， 把小说的 illustType 设置为 3，这是为了方便检查
     const illustType = 3
-    
-    const dlCount = 1
 
     // 获取需要检查的信息
     const body = data.body
@@ -21,7 +17,6 @@ class SaveNovelWorksData {
     for (const tagData of tagArr) {
       tags.push(tagData.tag)
     }
-
     const filterOpt: FilterOption = {
       createDate: body.createDate,
       id: body.id,
@@ -30,16 +25,14 @@ class SaveNovelWorksData {
       bookmarkCount: bmk,
       bookmarkData: body.bookmarkData,
     }
-
+    
     // 检查通过
     if (await filter.check(filterOpt)) {
       const illustId = body.id
-      const idNum = parseInt(body.id)
-      const title = body.title // 作品标题
-      const userid = body.userId // 用户id
-      const user = body.userName // 用户名
-      const thumb = body.coverUrl
-      const pageCount = body.pageCount
+      const idNum = parseInt(illustId)
+      const title = body.title
+      const userid = body.userId
+      const user = body.userName
       const bookmarked = !!body.bookmarkData
 
       // 时间原数据如 "2019-12-18T22:23:37+00:00"
@@ -50,41 +43,39 @@ class SaveNovelWorksData {
       const d = date0.getDate().toString().padStart(2, '0')
       const date = `${y}-${m}-${d}`
 
-      let rank = '' // 保存作品在排行榜上的编号
+      // 保存作品在排行榜上的编号
+      let rank = ''
       let testRank = store.getRankList(body.id)
       if (testRank !== undefined) {
         rank = '#' + testRank
       }
 
-      // 储存作品信息
 
-       const imgUrl = body.urls.original // 作品的原图 URL
+      const blob = new Blob([body.content], {
+        type: 'text/plain',
+      })
+      const url = URL.createObjectURL(blob)
 
-        const tempExt = imgUrl.split('.')
-        const ext = tempExt[tempExt.length - 1]
+      const ext = 'txt'
 
-        // 添加作品信息
-        store.addResult({
-          id: illustId,
-          idNum: idNum,
-          thumb: thumb,
-          pageCount: pageCount,
-          dlCount: dlCount,
-          url: imgUrl,
-          title: title,
-          tags: tags,
-          tagsTranslated: tagTranslation,
-          user: user,
-          userid: userid,
-          fullWidth: fullWidth,
-          fullHeight: fullHeight,
-          ext: ext,
-          bmk: bmk,
-          bookmarked: bookmarked,
-          date: date,
-          type: illustType,
-          rank: rank,
-        })
+      // 添加作品信息
+      store.addResult({
+        id: illustId,
+        idNum: idNum,
+        thumb: body.coverUrl||undefined,
+        dlCount: 1,
+        url: url,
+        title: title,
+        tags: tags,
+        user: user,
+        userid: userid,
+        ext: ext,
+        bmk: bmk,
+        bookmarked: bookmarked,
+        date: date,
+        type: illustType,
+        rank: rank,
+      })
     }
   }
 }

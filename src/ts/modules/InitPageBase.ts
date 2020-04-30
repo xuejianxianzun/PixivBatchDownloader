@@ -4,6 +4,7 @@ import { Colors } from './Colors'
 import { DOM } from './DOM'
 import { options } from './Options'
 import { saveImageWorksData } from './SaveImageWorksData'
+import { saveNovelWorksData } from './SaveNovelWorksData'
 import { filter } from './Filter'
 import { API } from './API'
 import { store } from './Store'
@@ -233,6 +234,7 @@ abstract class InitPageBase {
       // 发起请求
       if (idData.type === 'novels') {
         data = await API.getNovelWorksData(id)
+        saveNovelWorksData.save(data)
       } else {
         data = await API.getImageWorksData(id)
         saveImageWorksData.save(data)
@@ -281,7 +283,7 @@ abstract class InitPageBase {
 
     this.sortResult()
 
-    log.log(lang.transl('_抓取图片网址的数量', store.result.length.toString()))
+    log.log(lang.transl('_抓取的文件数量', store.result.length.toString()))
 
     log.log(lang.transl('_抓取完毕'), 2)
 
@@ -320,7 +322,7 @@ abstract class InitPageBase {
   // 在抓取图片网址时，输出提示
   protected logImagesNo() {
     log.log(
-      lang.transl('_抓取图片网址的数量', store.result.length.toString()),
+      lang.transl('_抓取的文件数量', store.result.length.toString()),
       1,
       false
     )

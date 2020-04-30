@@ -145,16 +145,15 @@ class FileName {
     // 把命名规则的标记替换成实际值
     for (const [key, val] of Object.entries(cfg)) {
       // 只有当标记有值时才会进行替换，所以没有值的标记会原样保留
-      if (result.includes(key) && val.value !== '' && val.value !== null) {
+      if (result.includes(key) ) {
         // 处理去掉序号的情况
         if (noSerialNo) {
           // 把 p_num 设为空字符串
-          // 不能在这个循环之前把值设为空，那样的话不会替换这个命名标记
           key === '{p_num}' && (val.value = '' as any)
           // 去掉 id 后面的序号。因为 idNum 不带序号，所以直接拿来用了
           key === '{id}' && (val.value = cfg['{id_num}'].value)
         }
-
+        
         let once = String(val.value)
 
         // 处理标记值中的特殊字符

@@ -1,6 +1,6 @@
 // 仓库
 import { EVT } from './EVT'
-import { WorkInfo, WorkInfoOptional, RankList,IDData } from './Store.d'
+import { WorkInfo, WorkInfoOptional, RankList, IDData } from './Store.d'
 
 // 存储抓取结果和状态
 class Store {
@@ -104,13 +104,17 @@ class Store {
     this.resultMeta.push(result)
     EVT.fire(EVT.events.addResult, result)
 
-    // 添加该作品里每一张图片的数据
-    for (let i = 0; i < result.dlCount; i++) {
-      const result = this.assignResult(data)
-      result.idNum = parseInt(result.id)
-      result.id = result.id + `_p${i}`
-      result.url = result.url.replace('p0', 'p' + i)
+    if (result.type === 3) {
       this.result.push(result)
+    } else {
+      // 添加该作品里每一张图片的数据
+      for (let i = 0; i < result.dlCount; i++) {
+        const result = this.assignResult(data)
+        result.idNum = parseInt(result.id)
+        result.id = result.id + `_p${i}`
+        result.url = result.url.replace('p0', 'p' + i)
+        this.result.push(result)
+      }
     }
   }
 

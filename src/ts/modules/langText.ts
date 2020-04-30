@@ -476,11 +476,11 @@ const langText = {
     '404 not found',
     '404 not found',
   ],
-  _抓取图片网址的数量: [
-    '已获取 {} 个图片网址',
-    '{} つの画像 url を取得',
-    'Get {} image URLs',
-    '已取得 {} 個圖片網址',
+  _抓取的文件数量: [
+    '已获取 {} 个文件网址',
+    '5つのファイルURLを取得する',
+    'Get {} file URLs',
+    '已取得 {} 個檔案網址',
   ],
   _正在抓取: [
     '正在抓取，请等待……',
@@ -1172,12 +1172,7 @@ const langText = {
     'Files that do not meet the requirements will not be saved.',
     '不符合要求的文件不会被保存。',
   ],
-  _小说:[
-    '小说',
-    '小説',
-    'novel',
-    '小說'
-  ]
+  _小说: ['小说', '小説', 'novel', '小說'],
 }
 
 export { langText, langTextKeys }
