@@ -34,7 +34,11 @@ class PageType {
     ) {
       type = 4
     } else if (url.includes('/tags/')) {
-      type = 5
+      if(window.location.pathname.endsWith("/novels")){
+        type = 15
+      }else{
+        type = 5
+      }
     } else if (
       location.pathname === '/ranking_area.php' &&
       location.search !== ''
@@ -64,6 +68,16 @@ class PageType {
       url.includes('/new_illust_r18.php')
     ) {
       type = 12
+    }else if(window.location.pathname === "/novel/show.php"){
+      type = 13
+    }else if(window.location.pathname.startsWith("/novel/series/")){
+      type = 14
+    } else if (window.location.pathname === '/novel/ranking.php') {
+      type = 16
+    } else if (window.location.pathname.startsWith('/novel/bookmark_new')) {
+      type = 17
+    } else if (window.location.pathname.startsWith('/novel/new')) {
+      type = 18
     } else {
       // 没有匹配到可用的页面类型
       throw new Error('Page type matching failed')

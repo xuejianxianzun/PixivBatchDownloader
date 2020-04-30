@@ -539,6 +539,44 @@ export interface SearchData {
   >
 }
 
+// 搜索页的小说的数据格式，删除了 body 里没有使用的部分
+export interface NovelSearchData {
+  error: boolean
+  body: {
+    novel: {
+      data: {
+        id: string
+        title: string
+        xRestrict: number
+        restrict: number
+        url: string
+        tags: string[]
+        userId: string
+        userName: string
+        textCount: number
+        description: string
+        isBookmarkable: boolean
+        bookmarkData:
+          | null
+          | {
+              id: string
+              private: boolean
+            }[]
+        bookmarkCount: number
+        isOriginal: boolean
+        marker: null
+        titleCaptionTranslation: {
+          workTitle: null
+          workCaption: null
+        }
+        seriesId: string
+        seriesTitle: string
+      }[]
+      total: number
+    }
+  }
+}
+
 // 大家的新作品的数据格式
 export interface NewIllustData {
   error: boolean
@@ -809,5 +847,40 @@ export interface NovelData {
       workTitle: null
       workCaption: null
     }
+  }
+}
+
+// 小说的系列信息
+export interface NovelSeriesData {
+  error: boolean
+  message: string
+  body: {
+    seriesContents: {
+      id: string
+      userId: string
+      series: {
+        id: number
+        viewableType: number
+        contentOrder: number
+      }
+      title: string
+      commentHtml: string
+      tags: string[]
+      restrict: number
+      xRestrict: number
+      isOriginal: boolean
+      textLength: number
+      bookmarkCount: number
+      url: string
+      uploadTimestamp: number
+      reuploadTimestamp: number
+      isBookmarkable: boolean
+      bookmarkData:
+        | null
+        | {
+            id: string
+            private: boolean
+          }[]
+    }[]
   }
 }

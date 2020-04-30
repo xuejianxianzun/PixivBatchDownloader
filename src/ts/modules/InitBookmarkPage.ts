@@ -118,7 +118,7 @@ class InitBookmarkPage extends InitPageBase {
     const onceNumber = isOldPage ? 20 : 48
 
     // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
-    const nowPage = API.getURLField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
+    const nowPage = API.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
     if (nowPage) {
       this.offset = (parseInt(nowPage) - 1) * onceNumber
     }
@@ -138,7 +138,7 @@ class InitBookmarkPage extends InitPageBase {
 
     // 判断是公开收藏还是非公开收藏
     // 在新旧版 url 里，rest 都是在查询字符串里的
-    this.isHide = API.getURLField(location.href, 'rest') === 'hide'
+    this.isHide = API.getURLSearchField(location.href, 'rest') === 'hide'
 
     // 获取 id 列表
     this.getIdList()

@@ -100,7 +100,7 @@ class InitNewIllustPage extends InitPageBase {
     this.fetchCount = 0
 
     // 当前页面的作品类型，默认是 illust
-    this.option.type = API.getURLField(location.href, 'type') || 'illust'
+    this.option.type = API.getURLSearchField(location.href, 'type') || 'illust'
     // 是否是 R18 模式
     this.option.r18 = (location.href.includes('_r18.php') || false).toString()
   }

@@ -15,6 +15,8 @@ import {
   BookMarkNewData,
   UserNovelsWithTag,
   NovelData,
+  NovelSeriesData,
+  NovelSearchData,
 } from './CrawlResult.d'
 
 import {
@@ -65,7 +67,7 @@ class API {
 
   // 从 url 中获取指定的查询字段的值
   // 注意：返回值经过 encodeURIComponent 编码！
-  static getURLField(url: string, query: string) {
+  static getURLSearchField(url: string, query: string) {
     const result = new URL(url).searchParams.get(query)
     if (result !== null) {
       return encodeURIComponent(result)
@@ -96,7 +98,7 @@ class API {
 
     // 4 旧版收藏页面
     if (nowURL.pathname === '/bookmark.php') {
-      if (parseInt(this.getURLField(nowURL.href, 'untagged')) === 1) {
+      if (parseInt(this.getURLSearchField(nowURL.href, 'untagged')) === 1) {
         // 旧版 “未分类” tag 是个特殊标记
         // https://www.pixiv.net/bookmark.php?untagged=1
         return '未分類'
@@ -122,7 +124,7 @@ class API {
 
     // 默认情况，从查询字符串里获取，如下网址
     // https://www.pixiv.net/bookmark.php?tag=R-18
-    return this.getURLField(nowURL.href, 'tag')
+    return this.getURLSearchField(nowURL.href, 'tag')
   }
 
   // 更新 token
@@ -163,7 +165,7 @@ class API {
     }
   }
 
-  // 从 url 里获取作品 id
+  // 从 url 里获取 artworks id
   // 可以传入 url，无参数则使用当前页面的 url
   static getIllustId(url?: string) {
     const str = url || window.location.search || location.href
@@ -177,6 +179,14 @@ class API {
       // 直接取出 url 中的数字，不保证准确
       return /\d*\d/.exec(location.href)![0]
     }
+  }
+
+  // 从 url 里获取 novel id
+  // https://www.pixiv.net/novel/show.php?id=12771688
+  static getNovelId(url?: string) {
+    const str = url || window.location.search || location.href
+    const test = str.match(/\?id=(\d*)?/)
+    return test![1]
   }
 
   // 通用的请求流程
@@ -376,6 +386,28 @@ class API {
     return this.request(url)
   }
 
+  static getNovelSearchData(
+    word: string,
+    p: number = 1,
+    option: SearchOption = {}
+  ): Promise<NovelSearchData> {
+    // 基础的 url
+    let url = `https://www.pixiv.net/ajax/search/novels/${encodeURIComponent(
+      word
+    )}?word=${encodeURIComponent(word)}&p=${p}`
+
+    // 把可选项添加到 url 里
+    let temp = new URL(url)
+    for (const [key, value] of Object.entries(option)) {
+      if (value) {
+        temp.searchParams.set(key, value)
+      }
+    }
+    url = temp.toString()
+
+    return this.request(url)
+  }
+
   // 获取大家的新作品的数据
   static getNewIllustData(option: NewIllustOption): Promise<NewIllustData> {
     let url = `https://www.pixiv.net/ajax/illust/new?lastId=${option.lastId}&limit=${option.limit}&type=${option.type}&r18=${option.r18}`
@@ -422,10 +454,10 @@ class API {
   }
 
   // 根据 illustType，返回作品类型的描述
-  // 注意这不能判断是不是小说，因为小说没有 illustType
+  // 主要用于储存进 idList
   static getWorkType(
-    illustType: 0 | 1 | 2 | '0' | '1' | '2'
-  ): 'illusts' | 'manga' | 'ugoira' | 'unkown' {
+    illustType: 0 | 1 | 2 | 3 | '0' | '1' | '2' | '3'
+  ): 'illusts' | 'manga' | 'ugoira' | 'novels' | 'unkown' {
     switch (parseInt(illustType.toString())) {
       case 0:
         return 'illusts'
@@ -433,9 +465,36 @@ class API {
         return 'manga'
       case 2:
         return 'ugoira'
+      case 3:
+        return 'novels'
       default:
         return 'unkown'
     }
+  }
+
+  // 从 URL 中获取指定路径名的值，适用于符合 RESTful API 风格的路径
+  // 如 https://www.pixiv.net/novel/series/1090654
+  // 把路径用 / 分割，查找 key 所在的位置，后面一项就是它的 value
+  static getURLPathField(query: string) {
+    const pathArr = location.pathname.split('/')
+    const index = pathArr.indexOf(query)
+    if (index > 0) {
+      return pathArr[index + 1]
+    }
+
+    throw new Error(`getURLPathField ${query} failed!`)
+  }
+
+  // 获取小说的系列作品信息
+  // 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取
+  static getNovelSeriesData(
+    series_id: number | string,
+    limit: number = 30,
+    last_order: number,
+    order_by = 'asc'
+  ): Promise<NovelSeriesData> {
+    const url = `https://www.pixiv.net/ajax/novel/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`
+    return this.request(url)
   }
 }
 

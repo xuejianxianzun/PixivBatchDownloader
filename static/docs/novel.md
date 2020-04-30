@@ -1,4 +1,4 @@
-# 经验
+# 注意
 
 ## 1
 
@@ -15,6 +15,16 @@
 小说可能会有分页，例如 https://www.pixiv.net/novel/show.php?id=10372931 有 2 页（pageCount），但是这个分页只是形式，content 里已经保存了完整的小说文本。
 
 小说文本里通过插入 `[newpage]` 标记，进行形式上的分页。
+
+## 4
+
+至今我也不知道是否有用户会同时投稿图片和小说。
+
+目前我所看到的用户有的只投图片，有的只投小说，还没有见到混合起来的。
+
+## 5
+
+用户的插画列表页里，一页有 48 个作品。而小说列表页里，一页是 24 个作品。对此，本程序会尽量判断当前是什么页面，然后设置对应的数字。
 
 # 页面类型
 
@@ -73,3 +83,12 @@ https://www.pixiv.net/novel/bookmark.php
 ## 小说排行榜
 
 https://www.pixiv.net/novel/ranking.php?mode=daily
+
+
+## 关注的新作品-小说
+
+https://www.pixiv.net/novel/bookmark_new.php
+
+## 大家的新作品-小说
+
+https://www.pixiv.net/novel/new.php

@@ -6,18 +6,21 @@ import { lang } from './Lang'
 import { DOM } from './DOM'
 import { options } from './Options'
 import { form } from './Settings'
-import { RankingOption } from './CrawlArgument.d'
 import { RankingData } from './CrawlResult.d'
 import { FilterOption } from './Filter.d'
 import { filter } from './Filter'
 import { store } from './Store'
 import { log } from './Log'
 
-class InitRankingPage extends InitPageBase {
+class InitNovelRankingPage extends InitPageBase {
   constructor() {
     super()
     this.init()
   }
+
+  private pageCount: number = 2 // 排行榜的页数
+
+  private pageUrls: string[] = []
 
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取本排行榜作品'), [
@@ -26,25 +29,11 @@ class InitRankingPage extends InitPageBase {
       form.debut.value = '0'
       this.readyCrawl()
     })
-
-    // 判断当前页面是否有“首次登场”标记
-    let debutModes = ['daily', 'daily_r18', 'rookie', '']
-    let mode = API.getURLSearchField(location.href, 'mode')
-
-    if (debutModes.includes(mode)) {
-      DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取首次登场的作品'), [
-        ['title', lang.transl('_抓取首次登场的作品Title')],
-      ]).addEventListener('click', () => {
-        form.debut.value = '1'
-        console.log(form.debut.value)
-        this.readyCrawl()
-      })
-    }
   }
 
   protected setFormOption() {
     // 设置“个数/页数”选项
-    this.maxCount = 500
+    this.maxCount = 100
 
     options.setWantPage({
       text: lang.transl('_个数'),
@@ -54,25 +43,16 @@ class InitRankingPage extends InitPageBase {
     })
   }
 
-  private pageCount: number = 10 // 排行榜的页数
+  private getPartData() {
+    const ul = document.querySelector('.ui-selectbox-container ul')
+    if (ul) {
+      const li = ul.querySelectorAll('li')
+      this.pageCount = li.length
+      this.maxCount = this.pageCount * 50
 
-  private resetOption(): RankingOption {
-    return { mode: 'daily', p: 1, worksType: '', date: '' }
-  }
-
-  private option: RankingOption = this.resetOption()
-
-  private setPartNum() {
-    // 设置页数。排行榜页面一页有50张作品，当页面到达底部时会加载下一页
-    if (location.pathname.includes('r18g')) {
-      // r18g 只有1个榜单，固定1页
-      this.pageCount = 1
-    } else if (location.pathname.includes('_r18')) {
-      // r18 模式，这里的6是最大值，有的排行榜并没有6页
-      this.pageCount = 6
-    } else {
-      // 普通模式，这里的10也是最大值。如果实际没有10页，则在检测到404页面的时候停止抓取下一页
-      this.pageCount = 10
+      for (const el of li) {
+        this.pageUrls.push(el.dataset.url!)
+      }
     }
   }
 
@@ -90,32 +70,19 @@ class InitRankingPage extends InitPageBase {
   }
 
   protected nextStep() {
-    // 设置 option 信息
-    // mode 一定要有值，其他选项不需要
-    this.option = this.resetOption()
-    this.option.mode = API.getURLSearchField(location.href, 'mode') || 'daily'
-    this.option.worksType = API.getURLSearchField(location.href, 'content')
-    this.option.date = API.getURLSearchField(location.href, 'date')
-
     this.startpageNo = 1
 
-    this.setPartNum()
+    this.getPartData()
     this.getIdList()
   }
 
   protected async getIdList() {
-    this.option.p = this.startpageNo + this.listPageFinished
-
+    alert('Not yet supported!')
+    return
     // 发起请求，获取作品列表
     let data: RankingData
     try {
-      data = await API.getRankingData(this.option)
     } catch (error) {
-      if (error.status === 404) {
-        // 如果发生了404错误，则中断抓取，直接下载已有部分。因为可能确实没有下一部分了
-        console.log('404错误，直接下载已有部分')
-        this.getIdListFinished()
-      }
 
       return
     }
@@ -145,8 +112,8 @@ class InitRankingPage extends InitPageBase {
         store.setRankList(data.illust_id.toString(), data.rank.toString())
 
         store.idList.push({
-          type:API.getWorkType(data.illust_type),
-          id:data.illust_id.toString()
+          type: API.getWorkType(data.illust_type),
+          id: data.illust_id.toString(),
         })
       }
     }
@@ -170,4 +137,4 @@ class InitRankingPage extends InitPageBase {
     this.listPageFinished = 0
   }
 }
-export { InitRankingPage }
+export { InitNovelRankingPage }

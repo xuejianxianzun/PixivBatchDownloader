@@ -26,12 +26,6 @@ class InitBookmarkNewIllustPage extends InitPageBase {
   }
 
   protected appendElseEl() {
-    // 添加 R-18 页面的链接
-    const r18Link = `<li><a href="/bookmark_new_illust_r18.php">R-18</a></li>`
-    const target = document.querySelector('.menu-items')
-    if (target) {
-      target.insertAdjacentHTML('beforeend', r18Link)
-    }
   }
 
   protected setFormOption() {
@@ -63,7 +57,7 @@ class InitBookmarkNewIllustPage extends InitPageBase {
   protected nextStep() {
     this.r18 = location.pathname.includes('r18')
 
-    const p = API.getURLField(location.href, 'p')
+    const p = API.getURLSearchField(location.href, 'p')
     this.startpageNo = parseInt(p) || 1
 
     this.getIdList()

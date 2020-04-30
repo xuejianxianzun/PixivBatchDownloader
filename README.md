@@ -139,7 +139,11 @@ English （机翻，韩语设置下也使用英语文本）
 
 2 [列表页](https://www.pixiv.net/users/544479/artworks)
 
+2 [小说列表页](https://www.pixiv.net/users/35419040/novels)
+
 2 [Tag 页面](https://www.pixiv.net/users/544479/artworks/%E6%9D%B1%E6%96%B9)
+
+2 [小说 Tag 页面](https://www.pixiv.net/users/35419040/novels/%E6%81%8B%E6%84%9B)
 
 4 [收藏页面](https://www.pixiv.net/bookmark.php)
 
@@ -161,19 +165,15 @@ English （机翻，韩语设置下也使用英语文本）
 
 13 [小说页面](https://www.pixiv.net/novel/show.php?id=12771688)
 
-14 [小说列表页](https://www.pixiv.net/users/35419040/novels)
+14 [系列小说页面](https://www.pixiv.net/novel/series/1090654)
 
-15 [小说 Tag 页面](https://www.pixiv.net/users/35419040/novels/%E6%81%8B%E6%84%9B)
+15 [小说搜索页面](https://www.pixiv.net/tags/%E7%99%BE%E5%90%88/novels)
 
-16 [系列小说页面](https://www.pixiv.net/novel/series/1090654)
+16 [小说排行榜](https://www.pixiv.net/novel/ranking.php?mode=daily)
 
-17 [小说搜索页面](https://www.pixiv.net/tags/%E7%99%BE%E5%90%88/novels)
+17 [关注的新作品-小说](https://www.pixiv.net/novel/bookmark_new.php)
 
-18 [小说排行榜](https://www.pixiv.net/novel/ranking.php?mode=daily)
-
-19 [关注的新作品-小说](https://www.pixiv.net/novel/bookmark_new.php)
-
-20 [大家的新作品-小说](https://www.pixiv.net/novel/new.php)
+18 [大家的新作品-小说](https://www.pixiv.net/novel/new.php)
 
 
 

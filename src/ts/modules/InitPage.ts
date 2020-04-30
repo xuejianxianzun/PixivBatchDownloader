@@ -14,6 +14,10 @@ import { InitBookmarkDetailPage } from './InitBookmarkDetailPage'
 import { InitBookmarkNewIllustPage } from './InitBookmarkNewIllustPage'
 import { InitDiscoverPage } from './InitDiscoverPage'
 import { InitNewIllustPage } from './InitNewIllustPage'
+import { InitNovelPage } from './InitNovelPage'
+import { InitNovelSeriesPage } from './InitNovelSeriesPage'
+import { InitNovelSearchPage } from './InitNovelSearchPage'
+import { InitNovelRankingPage } from './InitNovelRankingPage'
 
 class InitPage {
   constructor() {
@@ -52,6 +56,14 @@ class InitPage {
         return new InitDiscoverPage()
       case 12:
         return new InitNewIllustPage()
+      case 13:
+        return new InitNovelPage()
+      case 14:
+        return new InitNovelSeriesPage()
+      case 15:
+        return new InitNovelSearchPage()
+      case 16:
+        return new InitNovelRankingPage()
 
       default:
         throw new Error('InitCrawlProcess error: Illegal pageType.')

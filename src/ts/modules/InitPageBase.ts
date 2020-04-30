@@ -136,22 +136,6 @@ abstract class InitPageBase {
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
   protected getWantPage() {}
 
-  private checkNotAllowPage() {
-    if (location.href.includes('novel')) {
-      EVT.fire(EVT.events.crawlError)
-
-      window.alert('Not support novel page!')
-      throw new Error('Not support novel page!')
-    }
-
-    // if () {
-    //   EVT.fire(EVT.events.crawlError)
-
-    //   window.alert('Not support page!')
-    //   throw new Error('Not support page!')
-    // }
-  }
-
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
   protected getMultipleSetting() {
     // 获取作品张数设置
@@ -166,8 +150,6 @@ abstract class InitPageBase {
   // 准备抓取，进行抓取之前的一些检查工作。必要时可以在子类中改写
   protected async readyCrawl() {
     // 检查是否可以开始抓取
-    this.checkNotAllowPage()
-
     if (!store.states.allowWork) {
       window.alert(lang.transl('_当前任务尚未完成2'))
       return
@@ -209,7 +191,6 @@ abstract class InitPageBase {
     if (store.idList.length === 0) {
       return this.noResult()
     }
-    console.log(store.idList)
     log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
 
     if (store.idList.length <= this.ajaxThreadsDefault) {
@@ -224,21 +205,20 @@ abstract class InitPageBase {
   }
 
   // 获取作品的数据
-  // 在重试时会传入要重试的 id
   protected async getWorksData(idData?: IDData) {
     idData = idData || store.idList.shift()!
     const id = idData.id
 
-    let data
     try {
       // 发起请求
       if (idData.type === 'novels') {
-        data = await API.getNovelWorksData(id)
-        saveNovelWorksData.save(data)
+        const data = await API.getNovelWorksData(id)
+        await saveNovelWorksData.save(data)
       } else {
-        data = await API.getImageWorksData(id)
-        saveImageWorksData.save(data)
+        const data = await API.getImageWorksData(id)
+        await saveImageWorksData.save(data)
       }
+      this.afterGetWorksData()
     } catch (error) {
       //  请求成功，但 response.ok 错误。不重试请求，跳过该作品继续抓取
       if (error.status) {
@@ -253,8 +233,6 @@ abstract class InitPageBase {
 
       return
     }
-
-    this.afterGetWorksData()
   }
 
   // 每当获取完一个作品的信息

@@ -40,11 +40,7 @@ class InitUserPage extends InitPageBase {
 
   private listType = 0 // 细分的列表类型
 
-  private readonly onceNumber = 48 // 每页作品个数，插画是 48 个，小说是 24 个
-
-  private requsetNumber = 0 // 根据页数，计算要抓取的作品个数
-
-  private offset = 0 // 要去掉的作品数量
+  private onceNumber = 48 // 每页作品个数，插画是 48 个，小说是 24 个
 
   protected getWantPage() {
     this.crawlNumber = this.checkWantPageInput(
@@ -58,23 +54,6 @@ class InitUserPage extends InitPageBase {
   }
 
   protected readyGetIdList() {
-    // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
-    const nowPage = API.getURLField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
-    if (nowPage) {
-      this.offset = (parseInt(nowPage) - 1) * this.onceNumber
-    }
-    if (this.offset < 0) {
-      this.offset = 0
-    }
-
-    // 根据页数设置，计算要下载的个数
-    this.requsetNumber = 0
-    if (this.crawlNumber === -1) {
-      this.requsetNumber = 9999999
-    } else {
-      this.requsetNumber = this.onceNumber * this.crawlNumber
-    }
-
     // 判断页面类型
     // 匹配 pathname 里用户 id 之后的字符
     const test = location.pathname.match(/\/users\/\d+(\/.+)/)
@@ -95,12 +74,35 @@ class InitUserPage extends InitPageBase {
       } else if (str.includes('/novels')) {
         // 小说列表
         this.listType = 4
+        this.onceNumber = 24 // 如果是在小说列表页，一页只有 24 个作品
       }
     }
 
     ;(this.tag = pageInfo.getPageTag) ? this.getIdListByTag() : this.getIdList()
 
     log.log(lang.transl('_正在抓取'))
+  }
+
+  private getOffset() {
+    const nowPage = API.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
+    let offset:number = 0
+    if (nowPage) {
+      offset = (parseInt(nowPage) - 1) * this.onceNumber
+    }
+    if (offset < 0) {
+      offset = 0
+    }
+
+    return offset
+  }
+
+  // 根据页数设置，计算要下载的个数
+  private getRequsetNumber() {
+    let requsetNumber = 9999999
+    if (this.crawlNumber !== -1) {
+      requsetNumber = this.onceNumber * this.crawlNumber
+    }
+    return requsetNumber
   }
 
   // 获取用户某些类型的作品的 id 列表
@@ -127,16 +129,26 @@ class InitUserPage extends InitPageBase {
 
     let idList = await API.getUserWorksByType(DOM.getUserId(), type)
 
+    // 判断是否全都是小说，如果是，把每页的作品个数设置为 24 个
+    const allWorkIsNovels = idList.every((val) => {
+      return val.type === 'novels'
+    })
+    allWorkIsNovels && (this.onceNumber = 24)
+
+    // 计算偏移量和需要保留的作品个数
+    const offset = this.getOffset()
+    const requsetNumber = this.getRequsetNumber()
+
     // 按照 id 升序排列，之后会删除不需要的部分
     idList.sort(API.sortByProperty('id')).reverse()
 
     // 不带 tag 获取作品时，由于 API 是一次性返回用户的所有作品，可能大于要求的数量，所以需要去掉多余的作品。
     // 删除 offset 需要去掉的部分。删除后面的 id，也就是近期作品
-    idList.splice(idList.length - this.offset, idList.length)
+    idList.splice(idList.length - offset, idList.length)
 
     // 删除超过 requsetNumber 的作品。删除前面的 id，也就是早期作品
-    if (idList.length > this.requsetNumber) {
-      idList.splice(0, idList.length - this.requsetNumber)
+    if (idList.length > requsetNumber) {
+      idList.splice(0, idList.length - requsetNumber)
     }
 
     // 储存
@@ -164,12 +176,17 @@ class InitUserPage extends InitPageBase {
         break
     }
 
+    // 计算偏移量和需要保留的作品个数
+    const offset = this.getOffset()
+    const requsetNumber = this.getRequsetNumber()
+
+
     let data = await API.getUserWorksByTypeWithTag(
       DOM.getUserId(),
       flag,
       this.tag,
-      this.offset,
-      this.requsetNumber
+      offset,
+      requsetNumber
     )
 
     // 图片和小说返回的数据是不同的，小说并没有 illustType 标记
@@ -207,7 +224,6 @@ class InitUserPage extends InitPageBase {
   }
 
   protected resetGetIdListStatus() {
-    this.offset = 0
     this.tag = ''
     this.listType = 0
     this.listPageFinished = 0
