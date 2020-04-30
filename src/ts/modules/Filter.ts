@@ -12,7 +12,8 @@ class Filter {
   private downType0 = true
   private downType1 = true
   private downType2 = true
-
+  private downType3 = true
+  
   private downSingleImg = true
   private downMultiImg = true
 
@@ -202,9 +203,10 @@ class Filter {
     this.downType0 = form.downType0.checked
     this.downType1 = form.downType1.checked
     this.downType2 = form.downType2.checked
+    this.downType3 = form.downType3.checked
 
     // 如果全部排除则取消任务
-    if (!this.downType0 && !this.downType1 && !this.downType2) {
+    if (!this.downType0 && !this.downType1 && !this.downType2&& !this.downType3) {
       this.throwError(lang.transl('_checkNotdownTypeAll'))
     }
 
@@ -213,6 +215,7 @@ class Filter {
     notDownTip += this.downType0 ? '' : lang.transl('_插画')
     notDownTip += this.downType1 ? '' : lang.transl('_漫画')
     notDownTip += this.downType2 ? '' : lang.transl('_动图')
+    notDownTip += this.downType3 ? '' : lang.transl('_小说')
 
     if (notDownTip) {
       log.warning(lang.transl('_checkNotdownTypeResult') + notDownTip)
@@ -471,7 +474,8 @@ class Filter {
           return this.downType1 ? true : false
         case 2:
           return this.downType2 ? true : false
-
+        case 3:
+          return this.downType3 ? true : false
         default:
           return true
       }

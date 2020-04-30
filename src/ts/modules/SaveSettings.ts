@@ -9,6 +9,7 @@ interface XzSetting {
   downType0: boolean
   downType1: boolean
   downType2: boolean
+  downType3: boolean
   downSingleImg: boolean
   downMultiImg: boolean
   downColorImg: boolean
@@ -91,6 +92,7 @@ class SaveSettings {
     downType0: true,
     downType1: true,
     downType2: true,
+    downType3: true,
     downSingleImg: true,
     downMultiImg: true,
     downColorImg: true,
@@ -178,6 +180,7 @@ class SaveSettings {
     this.restoreBoolean('downType0')
     this.restoreBoolean('downType1')
     this.restoreBoolean('downType2')
+    this.restoreBoolean('downType3')
     this.restoreBoolean('downSingleImg')
     this.restoreBoolean('downMultiImg')
     this.restoreBoolean('downColorImg')
@@ -297,6 +300,7 @@ class SaveSettings {
     this.saveCheckBox('downType0')
     this.saveCheckBox('downType1')
     this.saveCheckBox('downType2')
+    this.saveCheckBox('downType3')
     this.saveCheckBox('downSingleImg')
     this.saveCheckBox('downMultiImg')
     this.saveCheckBox('downColorImg')

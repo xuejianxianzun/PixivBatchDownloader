@@ -5,6 +5,7 @@ import { lang } from './Lang'
 import { store } from './Store'
 import { SaveSettings } from './SaveSettings'
 import { SettingsForm } from './Settings.d'
+import { API } from './API'
 import formHtml from './SettingHTML'
 
 // 设置表单
@@ -50,6 +51,9 @@ class Settings {
   }
 
   public form: SettingsForm
+
+  private firstFewImages: number = 0
+
   private allSwitch: NodeListOf<HTMLInputElement> // 所有开关（同时也是复选框）
   private allCheckBox: NodeListOf<HTMLInputElement> // 所有复选框
   private allRadio: NodeListOf<HTMLInputElement> // 单选按钮
@@ -241,9 +245,27 @@ class Settings {
       }
     }
   }
+
+  // 获取作品张数设置
+  public getFirstFewImages() {
+    const check = API.checkNumberGreater0(form.firstFewImages.value)
+
+    if (check.result) {
+      this.firstFewImages = check.value
+      return check.value
+    }
+  }
+
+  // 计算要从这个作品里下载几张图片
+  public getDLCount(pageCount: number) {
+    if (form.firstFewImagesSwitch.checked && this.firstFewImages <= pageCount) {
+      return this.firstFewImages
+    }
+    return pageCount
+  }
 }
 
-const settings = new Settings()
-const form = settings.form
+const setting = new Settings()
+const form = setting.form
 
-export { form }
+export { setting, form }

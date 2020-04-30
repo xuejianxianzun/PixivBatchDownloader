@@ -618,10 +618,10 @@ const langText = {
     '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜頁面中使用。',
   ],
   _命名标记type: [
-    '作品类型，分为 illustration、manga、ugoira',
-    '作品分類は、illustration、manga、ugoira',
-    'The type of work, divided into illustration, manga, ugoira',
-    '作品類型，分为 illustration、manga、ugoira',
+    '作品类型，分为 illustration、manga、ugoira、novel',
+    '作品分類は、illustration、manga、ugoira、novel',
+    'The type of work, divided into illustration, manga, ugoira, novel',
+    '作品類型，分为 illustration、manga、ugoira、novel',
   ],
   _命名标记提醒: [
     '您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}<br>一定要包含 {id} 或者 {id_num}。<br>* 在某些情况下，会有一些标记不可用。',
@@ -1172,6 +1172,12 @@ const langText = {
     'Files that do not meet the requirements will not be saved.',
     '不符合要求的文件不会被保存。',
   ],
+  _小说:[
+    '小说',
+    '小説',
+    'novel',
+    '小說'
+  ]
 }
 
 export { langText, langTextKeys }

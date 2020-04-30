@@ -4,6 +4,7 @@ export interface SettingsForm extends HTMLFormElement {
   downType0: HTMLInputElement
   downType1: HTMLInputElement
   downType2: HTMLInputElement
+  downType3: HTMLInputElement
   downSingleImg: HTMLInputElement
   downMultiImg: HTMLInputElement
   firstFewImagesSwitch: HTMLInputElement

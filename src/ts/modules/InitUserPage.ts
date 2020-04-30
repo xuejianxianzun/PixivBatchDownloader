@@ -8,6 +8,8 @@ import { store } from './Store'
 import { log } from './Log'
 import { DOM } from './DOM'
 import { userWorksType, tagPageFlag } from './CrawlArgument.d'
+import { UserImageWorksWithTag, UserNovelsWithTag } from './CrawlResult'
+import { IDListType } from './Store.d'
 import { pageInfo } from './PageInfo'
 
 class InitUserPage extends InitPageBase {
@@ -34,11 +36,11 @@ class InitUserPage extends InitPageBase {
     })
   }
 
-  private tag = '' // 储存当前页面的 tag，有时没有 tag
+  private tag = '' // 储存当前页面的 tag，可能为空
 
   private listType = 0 // 细分的列表类型
 
-  private readonly onceNumber = 48 // 每页个数
+  private readonly onceNumber = 48 // 每页作品个数，插画是 48 个，小说是 24 个
 
   private requsetNumber = 0 // 根据页数，计算要抓取的作品个数
 
@@ -125,19 +127,8 @@ class InitUserPage extends InitPageBase {
 
     let idList = await API.getUserWorksByType(DOM.getUserId(), type)
 
-    // 把作品 id 转换成数字
-    let tempList: number[] = []
-    tempList = idList.map((id) => {
-      return parseInt(id)
-    })
-    // 升序排列
-    tempList.sort(function (x, y) {
-      return x - y
-    })
-
-    idList = tempList.map((id) => {
-      return id.toString()
-    })
+    // 按照 id 升序排列，之后会删除不需要的部分
+    idList.sort(API.sortByProperty('id')).reverse()
 
     // 不带 tag 获取作品时，由于 API 是一次性返回用户的所有作品，可能大于要求的数量，所以需要去掉多余的作品。
     // 删除 offset 需要去掉的部分。删除后面的 id，也就是近期作品
@@ -181,7 +172,36 @@ class InitUserPage extends InitPageBase {
       this.requsetNumber
     )
 
-    data.body.works.forEach((data) => store.idList.push(data.id))
+    // 图片和小说返回的数据是不同的，小说并没有 illustType 标记
+    if (this.listType === 4) {
+      const d = data as UserNovelsWithTag
+      d.body.works.forEach((data) =>
+        store.idList.push({
+          type: 'novels',
+          id: data.id,
+        })
+      )
+    } else {
+      const d = data as UserImageWorksWithTag
+      d.body.works.forEach((data) => {
+        let type: IDListType = 'illusts'
+        switch (data.illustType) {
+          case 0:
+            type = 'illusts'
+            break
+          case 1:
+            type = 'manga'
+            break
+          case 2:
+            type = 'ugoira'
+            break
+        }
+        store.idList.push({
+          type,
+          id: data.id,
+        })
+      })
+    }
 
     this.getIdListFinished()
   }

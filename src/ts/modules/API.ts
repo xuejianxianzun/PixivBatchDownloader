@@ -1,7 +1,7 @@
 // api 类
 // 不依赖其他模块，可独立使用
 import {
-  UserWorksWithTag,
+  UserImageWorksWithTag,
   BookmarkData,
   UserProfile,
   UserProfileAllData,
@@ -13,6 +13,8 @@ import {
   SearchData,
   NewIllustData,
   BookMarkNewData,
+  UserNovelsWithTag,
+  NovelData,
 } from './CrawlResult.d'
 
 import {
@@ -23,8 +25,10 @@ import {
   tagPageFlag,
 } from './CrawlArgument.d'
 
+import { IDData } from './Store.d'
+
 class API {
-  // 根据对象某个属性的值，排序对象。返回的结果是倒序排列
+  // 根据对象某个属性的值（视为数字）排序对象。返回的结果是降序排列
   static sortByProperty(propertyName: string) {
     return function (object1: any, object2: any) {
       // 排序的内容有时可能是字符串，需要转换成数字排序
@@ -258,15 +262,21 @@ class API {
   static async getUserWorksByType(
     id: string,
     type: userWorksType[] = ['illusts', 'manga', 'novels']
-  ): Promise<string[]> {
+  ): Promise<IDData[]> {
     let typeSet = new Set(type)
-    let result: string[] = []
+    let result: IDData[] = []
     const url = `https://www.pixiv.net/ajax/user/${id}/profile/all`
 
     let data: UserProfileAllData = await this.request(url)
-
+    console.log(typeSet)
     for (const type of typeSet.values()) {
-      result = result.concat(Object.keys(data.body[type]))
+      const idList = Object.keys(data.body[type])
+      for (const id of idList) {
+        result.push({
+          type,
+          id,
+        })
+      }
     }
 
     return result
@@ -281,14 +291,14 @@ class API {
     tag: string,
     offset: number = 0,
     limit: number = 999999
-  ): Promise<UserWorksWithTag> {
+  ): Promise<UserImageWorksWithTag | UserNovelsWithTag> {
     // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=9999999
     const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${limit}`
     return this.request(url)
   }
 
-  // 获取作品的详细信息
-  static getWorksData(id: string): Promise<IllustData> {
+  // 获取插画 漫画 的详细信息
+  static getImageWorksData(id: string): Promise<IllustData> {
     const url = `https://www.pixiv.net/ajax/illust/${id}`
     return this.request(url)
   }
@@ -296,6 +306,12 @@ class API {
   // 获取作品的动图信息
   static getUgoiraMeta(id: string): Promise<UgoiraData> {
     const url = `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`
+    return this.request(url)
+  }
+
+  // 获取插小说的详细信息
+  static getNovelWorksData(id: string): Promise<NovelData> {
+    const url = `https://www.pixiv.net/ajax/novel/${id}`
     return this.request(url)
   }
 
@@ -404,6 +420,23 @@ class API {
           reject(error)
         })
     })
+  }
+
+  // 根据 illustType，返回作品类型的描述
+  // 注意这不能判断是不是小说，因为小说没有 illustType
+  static getWorkType(
+    illustType: 0 | 1 | 2 | '0' | '1' | '2'
+  ): 'illusts' | 'manga' | 'ugoira' | 'unkown' {
+    switch (parseInt(illustType.toString())) {
+      case 0:
+        return 'illusts'
+      case 1:
+        return 'manga'
+      case 2:
+        return 'ugoira'
+      default:
+        return 'unkown'
+    }
   }
 }
 

@@ -1,6 +1,6 @@
 // 仓库
 import { EVT } from './EVT'
-import { WorkInfo, WorkInfoOptional, RankList } from './Store.d'
+import { WorkInfo, WorkInfoOptional, RankList,IDData } from './Store.d'
 
 // 存储抓取结果和状态
 class Store {
@@ -114,7 +114,7 @@ class Store {
     }
   }
 
-  public idList: string[] = [] // 储存从列表中抓取到的作品的 id
+  public idList: IDData[] = [] // 储存从列表中抓取到的作品的 id
 
   private rankList: RankList = {} // 储存作品在排行榜中的排名
 

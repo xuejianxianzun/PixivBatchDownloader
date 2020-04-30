@@ -140,7 +140,10 @@ class InitNewIllustPage extends InitPageBase {
       }
 
       if (await filter.check(filterOpt)) {
-        store.idList.push(nowData.illustId)
+        store.idList.push({
+          type: API.getWorkType(nowData.illustType),
+          id: nowData.illustId,
+        })
       }
     }
 

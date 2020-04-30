@@ -3,7 +3,7 @@ import { InitPageBase } from './InitPageBase'
 import { API } from './API'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-
+import { IDData } from './Store.d'
 import { options } from './Options'
 import { BookmarksAddTag } from './BookmarksAddTag'
 import { BookmarkData } from './CrawlResult'
@@ -74,7 +74,7 @@ class InitBookmarkPage extends InitPageBase {
     }
   }
 
-  private idList: string[] = [] // 储存从列表页获取到的 id
+  private idList: IDData[] = [] // 储存从列表页获取到的 id
 
   private tag = '' // 储存当前页面带的 tag，不过有时并没有
 
@@ -173,7 +173,12 @@ class InitBookmarkPage extends InitPageBase {
       return this.afterGetIdList()
     } else {
       // 没有抓取完毕时，添加数据
-      data.body.works.forEach((data) => this.idList.push(data.id))
+      data.body.works.forEach((data) =>
+        this.idList.push({
+          type: API.getWorkType(data.illustType),
+          id: data.id,
+        })
+      )
       this.offset += this.onceRequest // 每次增加偏移量
       // 重复抓取过程
       this.getIdList()
@@ -207,7 +212,10 @@ class InitBookmarkPage extends InitPageBase {
     // 添加作品列表
     for (const li of elements) {
       const a = li.querySelector('a') as HTMLAnchorElement
-      store.idList.push(API.getIllustId(a.href))
+      store.idList.push({
+        type: 'unkown',
+        id: API.getIllustId(a.href),
+      })
     }
 
     this.getIdListFinished()

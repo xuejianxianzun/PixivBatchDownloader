@@ -1,4 +1,10 @@
 import { UgoiraInfo } from './CrawlResult'
+export type IDListType = 'illusts' | 'manga' | 'novels' | 'ugoira' | 'unkown'
+
+export interface IDData {
+  type: IDListType
+  id: string
+}
 
 // 保存每个要下载的图片的信息
 export interface WorkInfo {
@@ -19,7 +25,7 @@ export interface WorkInfo {
   bmk: number
   bookmarked: boolean
   date: string
-  type: 0 | 1 | 2
+  type: 0 | 1 | 2 | 3
   rank: string
   ugoiraInfo: UgoiraInfo | null
 }
@@ -42,7 +48,7 @@ export interface WorkInfoOptional {
   bmk?: number
   bookmarked?: boolean
   date?: string
-  type?: 0 | 1 | 2
+  type?: 0 | 1 | 2 | 3
   rank?: string
   ugoiraInfo?: UgoiraInfo | null
 }

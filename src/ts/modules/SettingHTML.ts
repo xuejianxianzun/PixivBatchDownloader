@@ -33,6 +33,9 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="downType2" id="setWorkType2" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
       <label for="setWorkType2"> ${lang.transl('_动图')}&nbsp;</label>
+      <input type="checkbox" name="downType3" id="setWorkType3" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="setWorkType3"> ${lang.transl('_小说')}&nbsp;</label>
       </p>
       <p class="option" data-no="21">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(

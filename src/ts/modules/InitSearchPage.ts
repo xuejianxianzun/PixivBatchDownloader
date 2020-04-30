@@ -3,7 +3,6 @@ import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { options } from './Options'
-
 import { pageInfo } from './PageInfo'
 import { DeleteWorks } from './DeleteWorks'
 import { EVT } from './EVT'
@@ -16,7 +15,7 @@ import { log } from './Log'
 import { WorkInfo } from './Store.d'
 import { centerPanel } from './CenterPanel'
 import { titleBar } from './TitleBar'
-import { form } from './Settings'
+import { setting,form } from './Settings'
 import { FastScreen } from './FastScreen'
 import { DOM } from './DOM'
 
@@ -434,7 +433,7 @@ class InitSearchPage extends InitPageBase {
     this.clearWorks()
 
     this.resultMeta.forEach((data) => {
-      const dlCount = this.getDLCount(data.pageCount)
+      const dlCount = setting.getDLCount(data.pageCount)
       // 如果此时的 dlCount 与之前的 dlCount 不一样，则更新它
       if (dlCount !== data.dlCount) {
         data = Object.assign(data, { dlCount: dlCount })
@@ -633,7 +632,10 @@ class InitSearchPage extends InitPageBase {
       }
 
       if (filter.check(filterOpt)) {
-        store.idList.push(nowData.illustId)
+        store.idList.push({
+          type:API.getWorkType(nowData.illustType),
+          id:nowData.illustId
+        })
       }
     }
 

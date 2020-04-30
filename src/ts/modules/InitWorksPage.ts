@@ -148,7 +148,10 @@ class InitWorksPage extends InitPageBase {
       this.getRelatedList()
     } else if (store.states.quickDownload) {
       // 快速下载
-      store.idList.push(API.getIllustId(window.location.href))
+      store.idList.push({
+        type:'unkown',
+        id:API.getIllustId(window.location.href)
+      })
 
       log.log(lang.transl('_开始获取作品页面'))
 
@@ -166,7 +169,7 @@ class InitWorksPage extends InitPageBase {
     // 储存符合条件的 id
     let nowId = parseInt(API.getIllustId(window.location.href))
     idList.forEach((id) => {
-      let idNum = parseInt(id)
+      let idNum = parseInt(id.id)
       // 新作品
       if (idNum >= nowId && this.crawlDirection === -1) {
         store.idList.push(id)
@@ -180,14 +183,10 @@ class InitWorksPage extends InitPageBase {
     if (this.crawlNumber !== -1) {
       // 新作品 升序排列
       if (this.crawlDirection === -1) {
-        store.idList.sort(function (x, y) {
-          return parseInt(x) - parseInt(y)
-        })
+        store.idList.sort(API.sortByProperty('id')).reverse()
       } else {
         // 旧作品 降序排列
-        store.idList.sort(function (x, y) {
-          return parseInt(y) - parseInt(x)
-        })
+        store.idList.sort(API.sortByProperty('id'))
       }
 
       store.idList = store.idList.splice(0, this.crawlNumber)
@@ -206,7 +205,12 @@ class InitWorksPage extends InitPageBase {
     if (this.crawlNumber !== -1) {
       recommendIdList = recommendIdList.reverse().slice(0, this.crawlNumber)
     }
-    store.idList = store.idList.concat(recommendIdList)
+     for (const id of recommendIdList) {
+      store.idList.push({
+        type:'unkown',
+        id
+      })   
+     }
 
     log.log(lang.transl('_相关作品抓取完毕', store.idList.length.toString()))
     this.getIdListFinished()

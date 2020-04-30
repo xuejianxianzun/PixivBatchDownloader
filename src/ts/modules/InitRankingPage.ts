@@ -144,7 +144,10 @@ class InitRankingPage extends InitPageBase {
       if (await filter.check(filterOpt)) {
         store.setRankList(data.illust_id.toString(), data.rank.toString())
 
-        store.idList.push(data.illust_id.toString())
+        store.idList.push({
+          type:API.getWorkType(data.illust_type),
+          id:data.illust_id.toString()
+        })
       }
     }
 

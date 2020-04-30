@@ -3,16 +3,16 @@ import { lang } from './Lang'
 import { Colors } from './Colors'
 import { DOM } from './DOM'
 import { options } from './Options'
-import { FilterOption } from './Filter.d'
-import { IllustData } from './CrawlResult.d'
+import { saveImageWorksData } from './SaveImageWorksData'
 import { filter } from './Filter'
 import { API } from './API'
 import { store } from './Store'
 import { log } from './Log'
 import { EVT } from './EVT'
-import { form } from './Settings'
+import { setting, form } from './Settings'
 import { titleBar } from './TitleBar'
 import { pageInfo } from './PageInfo'
+import { IDData } from './Store.d'
 
 abstract class InitPageBase {
   // 初始化
@@ -118,11 +118,8 @@ abstract class InitPageBase {
 
   // 获取作品张数设置
   private getFirstFewImages() {
-    const check = API.checkNumberGreater0(form.firstFewImages.value)
-
-    if (check.result) {
-      return check.value
-    } else {
+    const result = setting.getFirstFewImages()
+    if (result === undefined) {
       EVT.fire(EVT.events.crawlError)
 
       const msg =
@@ -131,6 +128,8 @@ abstract class InitPageBase {
       window.alert(msg)
       throw new Error(msg)
     }
+
+    return result
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
@@ -209,7 +208,7 @@ abstract class InitPageBase {
     if (store.idList.length === 0) {
       return this.noResult()
     }
-
+    console.log(store.idList)
     log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
 
     if (store.idList.length <= this.ajaxThreadsDefault) {
@@ -223,23 +222,21 @@ abstract class InitPageBase {
     }
   }
 
-  // 计算要从这个作品里下载几张图片
-  protected getDLCount(pageCount: number) {
-    if (form.firstFewImagesSwitch.checked && this.firstFewImages <= pageCount) {
-      return this.firstFewImages
-    }
-    return pageCount
-  }
-
   // 获取作品的数据
   // 在重试时会传入要重试的 id
-  protected async getWorksData(id?: string) {
-    id = id || store.idList.shift()!
+  protected async getWorksData(idData?: IDData) {
+    idData = idData || store.idList.shift()!
+    const id = idData.id
 
-    let data: IllustData
+    let data
     try {
       // 发起请求
-      data = await API.getWorksData(id)
+      if (idData.type === 'novels') {
+        data = await API.getNovelWorksData(id)
+      } else {
+        data = await API.getImageWorksData(id)
+        saveImageWorksData.save(data)
+      }
     } catch (error) {
       //  请求成功，但 response.ok 错误。不重试请求，跳过该作品继续抓取
       if (error.status) {
@@ -248,139 +245,11 @@ abstract class InitPageBase {
       } else {
         // 请求失败，会重试这个请求
         setTimeout(() => {
-          this.getWorksData(id)
+          this.getWorksData(idData)
         }, 2000)
       }
 
       return
-    }
-
-    // 获取需要检查的信息
-    const body = data.body
-    const fullWidth = body.width // 原图宽度
-    const fullHeight = body.height // 原图高度
-    const bmk = body.bookmarkCount // 收藏数
-    const tagArr = body.tags.tags // 取出 tag 信息
-    const tags: string[] = [] // 保存 tag 列表
-    const tagTranslation: string[] = [] // 保存 tag 列表，附带翻译后的 tag
-
-    for (const tagData of tagArr) {
-      tags.push(tagData.tag)
-      tagTranslation.push(tagData.tag)
-      if (tagData.translation && tagData.translation.en) {
-        tagTranslation.push(tagData.translation.en)
-      }
-    }
-
-    const filterOpt: FilterOption = {
-      createDate: body.createDate,
-      id: body.illustId,
-      illustType: body.illustType,
-      tags: tags,
-      pageCount: body.pageCount,
-      bookmarkCount: bmk,
-      bookmarkData: body.bookmarkData,
-      width: fullWidth,
-      height: fullHeight,
-      mini: body.urls.mini,
-    }
-
-    // 检查通过
-    if (await filter.check(filterOpt)) {
-      const illustId = body.illustId
-      const idNum = parseInt(body.illustId)
-      const title = body.illustTitle // 作品标题
-      const userid = body.userId // 用户id
-      const user = body.userName // 用户名
-      const thumb = body.urls.thumb
-      const pageCount = body.pageCount
-      const bookmarked = !!body.bookmarkData
-
-      // 时间原数据如 "2019-12-18T22:23:37+00:00"
-      // 网页上显示的日期是转换成了本地时间的，如北京时区显示为 "2019-12-19"，不是显示原始日期 "2019-12-18"。所以这里转换成本地时区的日期，和网页上保持一致，以免用户困惑。
-      const date0 = new Date(body.createDate)
-      const y = date0.getFullYear()
-      const m = (date0.getMonth() + 1).toString().padStart(2, '0')
-      const d = date0.getDate().toString().padStart(2, '0')
-      const date = `${y}-${m}-${d}`
-
-      let rank = '' // 保存作品在排行榜上的编号
-      let testRank = store.getRankList(body.illustId)
-      if (testRank !== undefined) {
-        rank = '#' + testRank
-      }
-
-      // 储存作品信息
-      if (body.illustType !== 2) {
-        // 插画或漫画
-
-        // 下载该作品的前面几张
-        const dlCount = this.getDLCount(body.pageCount)
-
-        const imgUrl = body.urls.original // 作品的原图 URL
-
-        const tempExt = imgUrl.split('.')
-        const ext = tempExt[tempExt.length - 1]
-
-        // 添加作品信息
-        store.addResult({
-          id: illustId,
-          idNum: idNum,
-          thumb: thumb,
-          pageCount: pageCount,
-          dlCount: dlCount,
-          url: imgUrl,
-          title: title,
-          tags: tags,
-          tagsTranslated: tagTranslation,
-          user: user,
-          userid: userid,
-          fullWidth: fullWidth,
-          fullHeight: fullHeight,
-          ext: ext,
-          bmk: bmk,
-          bookmarked: bookmarked,
-          date: date,
-          type: body.illustType,
-          rank: rank,
-        })
-        this.logImagesNo()
-      } else if (body.illustType === 2) {
-        // 动图
-        // 获取动图的信息
-        const meta = await API.getUgoiraMeta(illustId)
-        // 动图帧延迟数据
-        const ugoiraInfo = {
-          frames: meta.body.frames,
-          mime_type: meta.body.mime_type,
-        }
-
-        const ext = form.ugoiraSaveAs.value // 扩展名可能是 webm、gif、zip
-
-        store.addResult({
-          id: illustId,
-          idNum: idNum,
-          thumb: thumb,
-          pageCount: pageCount,
-          url: meta.body.originalSrc,
-          title: title,
-          tags: tags,
-          tagsTranslated: tagTranslation,
-          user: user,
-          userid: userid,
-          fullWidth: fullWidth,
-          fullHeight: fullHeight,
-          ext: ext,
-          bmk: bmk,
-          bookmarked: bookmarked,
-          date: date,
-          type: body.illustType,
-          rank: rank,
-          ugoiraInfo: ugoiraInfo,
-        })
-
-        this.logImagesNo()
-      }
     }
 
     this.afterGetWorksData()
@@ -388,6 +257,8 @@ abstract class InitPageBase {
 
   // 每当获取完一个作品的信息
   private afterGetWorksData() {
+    this.logImagesNo()
+
     if (store.idList.length > 0) {
       // 如果存在下一个作品，则
       this.getWorksData()

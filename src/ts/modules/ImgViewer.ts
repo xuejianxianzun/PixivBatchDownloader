@@ -169,7 +169,7 @@ class ImgViewer {
     this.viewerWarpper.style.display = 'none' // 先隐藏 viewerWarpper
 
     // 获取作品信息
-    const data = await API.getWorksData(API.getIllustId())
+    const data = await API.getImageWorksData(API.getIllustId())
     const thisOneData = data.body
     // 处理插画或漫画作品，不处理动图作品
     if (thisOneData.illustType === 0 || thisOneData.illustType === 1) {

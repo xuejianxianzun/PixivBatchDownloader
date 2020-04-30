@@ -47,7 +47,7 @@ class FileName {
     // 为空时使用 {id}
     result = result || '{id}'
 
-    const illustTypes = ['illustration', 'manga', 'ugoira'] // 作品类型 0 插画 1 漫画 2 动图
+    const illustTypes = ['illustration', 'manga', 'ugoira','novel'] // 作品类型 0 插画 1 漫画 2 动图 3 小说
 
     // 配置所有命名标记
     const cfg = {

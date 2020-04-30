@@ -94,7 +94,10 @@ class InitIndexPage extends InitPageBase {
       if (isNaN(nowId) || nowId < 22 || nowId > 99999999) {
         log.error(lang.transl('_id不合法'), 0, false)
       } else {
-        store.idList.push(nowId.toString())
+        store.idList.push({
+          type:'unkown',
+          id:nowId.toString()
+        })
       }
     }
     this.getIdListFinished()

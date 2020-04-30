@@ -319,7 +319,7 @@ export interface BookmarkWork {
   illustTitle: string
   id: string
   title: string
-  illustType: number
+  illustType: 0 | 1 | 2
   xRestrict: number
   restrict: number
   sl: number
@@ -584,7 +584,7 @@ export interface NewIllustData {
 }
 
 // 画师列表页的列表数据，带 tag。一些不需要使用的数据就简化了
-export interface UserWorksWithTag {
+export interface UserImageWorksWithTag {
   error: boolean
   message: string
   body: {
@@ -623,6 +623,191 @@ export interface UserWorksWithTag {
           [key: string]: string
         }
       }
+    }
+  }
+}
+
+interface NovelWorksData {
+  id: string
+  title: string
+  xRestrict: number
+  restrict: number
+  url: string
+  tags: string[]
+  userId: string
+  userName: string
+  textCount: number
+  description: string
+  isBookmarkable: boolean
+  bookmarkData:
+    | null
+    | {
+        id: string
+        private: boolean
+      }[]
+  bookmarkCount: number
+  isOriginal: boolean
+  marker: null
+  titleCaptionTranslation: {
+    workTitle: string | null
+    workCaption: string | null
+  }
+  seriesId: string
+  seriesTitle: string
+}
+
+export interface UserNovelsWithTag {
+  error: boolean
+  message: string
+  body: {
+    works: NovelWorksData[]
+    total: number
+    zoneConfig: {
+      [key: string]: {
+        [key: string]: string
+      }
+    }
+    extraData: {
+      meta: {
+        [key: string]: {
+          [key: string]: string
+        }
+      }
+    }
+  }
+}
+
+// 请求单个小说时返回的数据
+export interface NovelData {
+  error: boolean
+  message: string
+  body: {
+    bookmarkCount: number
+    commentCount: number
+    markerCount: number
+    createDate: string
+    uploadDate: string
+    description: string
+    id: string
+    title: string
+    likeCount: number
+    pageCount: string
+    userId: string
+    userName: string
+    viewCount: number
+    isOriginal: boolean
+    isBungei: boolean
+    xRestrict: number
+    restrict: number
+    content: string
+    coverUrl: string | null
+    suggestedSettings: {
+      viewMode: number
+      themeBackground: number
+      themeSize: null
+      themeSpacing: null
+    }
+    isBookmarkable: boolean
+    bookmarkData:
+      | null
+      | {
+          id: string
+          private: boolean
+        }[]
+    likeData: boolean
+    pollData: null
+    marker: null
+    tags: {
+      authorId: string
+      isLocked: boolean
+      tags: {
+        tag: string
+        locked: boolean
+        deletable: boolean
+        userId: string
+        userName: string
+      }[]
+      writable: boolean
+    }
+    seriesNavData: {
+      seriesType: string
+      seriesId: string
+      title: string
+      isConcluded: boolean
+      isReplaceable: boolean
+      order: number
+      next: {
+        title: string
+        order: number
+        id: string
+        available: boolean
+      }
+      prev: {
+        title: string
+        order: number
+        id: string
+        available: boolean
+      }
+    }
+    descriptionBoothId: null
+    descriptionYoutubeId: null
+    comicPromotion: null
+    fanboxPromotion: null
+    contestBanners: []
+    contestData: null
+    imageResponseOutData: []
+    imageResponseData: []
+    imageResponseCount: number
+    userNovels: {
+      [key: string]: null | NovelWorksData
+    }
+    hasGlossary: boolean
+    zoneConfig: {
+      responsive: {
+        url: string
+      }
+      rectangle: {
+        url: string
+      }
+      '500x500': {
+        url: string
+      }
+      header: {
+        url: string
+      }
+      footer: {
+        url: string
+      }
+      expandedFooter: {
+        url: string
+      }
+      logo: {
+        url: string
+      }
+    }
+    extraData: {
+      meta: {
+        title: string
+        description: string
+        canonical: string
+        descriptionHeader: string
+        ogp: {
+          description: string
+          image: string
+          title: string
+          type: string
+        }
+        twitter: {
+          description: string
+          image: string
+          title: string
+          card: string
+        }
+      }
+    }
+    titleCaptionTranslation: {
+      workTitle: null
+      workCaption: null
     }
   }
 }

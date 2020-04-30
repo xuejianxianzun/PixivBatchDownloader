@@ -52,7 +52,10 @@ class InitBookmarkDetailPage extends InitPageBase {
     let data = await API.getRecommenderData(API.getIllustId(), this.crawlNumber)
 
     for (const id of data.recommendations) {
-      store.idList.push(id.toString())
+      store.idList.push({
+        type: 'unkown',
+        id:id.toString()
+      })
     }
 
     this.getIdListFinished()

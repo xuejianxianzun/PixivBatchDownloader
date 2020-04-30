@@ -1,3 +1,7 @@
+小说的 id 和插画的 id 是两套，所以可能会重复。
+
+例如 id 12694537 既有插画也有小说。
+
 # 页面类型
 
 ## 用户的小说列表页面
@@ -51,3 +55,7 @@ https://www.pixiv.net/ajax/search/novels/%E7%95%B0%E4%B8%96%E7%95%8C%E8%BB%A2%E7
 ## 收藏的小说
 
 https://www.pixiv.net/novel/bookmark.php
+
+## 小说排行榜
+
+https://www.pixiv.net/novel/ranking.php?mode=daily
