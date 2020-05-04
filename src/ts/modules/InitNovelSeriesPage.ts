@@ -1,4 +1,4 @@
-//初始化小说作品页
+//初始化小说系列作品页面
 import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
@@ -6,7 +6,6 @@ import { options } from './Options'
 import { store } from './Store'
 import { DOM } from './DOM'
 import { API } from './API'
-import { log } from './Log'
 
 class InitNovelSeriesPage extends InitPageBase {
   constructor() {

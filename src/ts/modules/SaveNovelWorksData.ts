@@ -25,7 +25,7 @@ class SaveNovelWorksData {
       bookmarkCount: bmk,
       bookmarkData: body.bookmarkData,
     }
-    
+
     // 检查通过
     if (await filter.check(filterOpt)) {
       const illustId = body.id
@@ -50,7 +50,6 @@ class SaveNovelWorksData {
         rank = '#' + testRank
       }
 
-
       const blob = new Blob([body.content], {
         type: 'text/plain',
       })
@@ -62,7 +61,7 @@ class SaveNovelWorksData {
       store.addResult({
         id: illustId,
         idNum: idNum,
-        thumb: body.coverUrl||undefined,
+        thumb: body.coverUrl || undefined,
         dlCount: 1,
         url: url,
         title: title,

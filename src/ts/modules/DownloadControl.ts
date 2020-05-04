@@ -176,7 +176,7 @@ class DownloadControl {
   private createDownloadArea() {
     const html = `<div class="download_area">
     <p> ${lang.transl(
-      '_共抓取到n个图片',
+      '_共抓取到n个文件',
       '<span class="fwb blue imgNum">0</span>'
     )}</p>
     

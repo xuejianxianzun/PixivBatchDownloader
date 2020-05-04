@@ -48,7 +48,7 @@ class InitRankingPage extends InitPageBase {
 
     options.setWantPage({
       text: lang.transl('_个数'),
-      tip: lang.transl('_要获取的作品个数2'),
+      tip: lang.transl('_想要获取多少个作品'),
       rangTip: `1 - ${this.maxCount}`,
       value: this.maxCount.toString(),
     })
@@ -80,8 +80,8 @@ class InitRankingPage extends InitPageBase {
     this.listPageFinished = 0
     // 检查下载页数的设置
     this.crawlNumber = this.checkWantPageInput(
-      lang.transl('_checkWantPageRule1Arg12'),
-      lang.transl('_checkWantPageRule1Arg4')
+      lang.transl('_下载排行榜前x个作品'),
+      lang.transl('_向下获取所有作品')
     )
     // 如果设置的作品个数是 -1，则设置为下载所有作品
     if (this.crawlNumber === -1) {
@@ -145,8 +145,8 @@ class InitRankingPage extends InitPageBase {
         store.setRankList(data.illust_id.toString(), data.rank.toString())
 
         store.idList.push({
-          type:API.getWorkType(data.illust_type),
-          id:data.illust_id.toString()
+          type: API.getWorkType(data.illust_type),
+          id: data.illust_id.toString(),
         })
       }
     }

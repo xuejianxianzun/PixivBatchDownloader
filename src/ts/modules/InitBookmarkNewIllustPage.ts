@@ -25,14 +25,15 @@ class InitBookmarkNewIllustPage extends InitPageBase {
     })
   }
 
-  protected appendElseEl() {
-  }
+  protected appendElseEl() {}
 
   protected setFormOption() {
     // 设置“个数/页数”选项
+    this.maxCount = 100
+
     options.setWantPage({
       text: lang.transl('_页数'),
-      tip: lang.transl('_checkWantPageRule1Arg8'),
+      tip: lang.transl('_从本页开始下载提示'),
       rangTip: `1 - ${this.maxCount}`,
       value: this.maxCount.toString(),
     })
@@ -50,7 +51,6 @@ class InitBookmarkNewIllustPage extends InitPageBase {
       this.crawlNumber = this.maxCount
     }
 
-    this.listPageFinished = 0
     log.warning(lang.transl('_任务开始1', this.crawlNumber.toString()))
   }
 
@@ -105,7 +105,7 @@ class InitBookmarkNewIllustPage extends InitPageBase {
 
     // 判断任务状态
     // 如果抓取了所有页面，或者抓取完指定页面
-    if (p >= 100 || this.listPageFinished === this.crawlNumber) {
+    if (p >= this.maxCount || this.listPageFinished === this.crawlNumber) {
       log.log(lang.transl('_列表页抓取完成'))
       this.getIdListFinished()
     } else {

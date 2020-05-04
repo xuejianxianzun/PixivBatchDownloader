@@ -95,8 +95,8 @@ class InitIndexPage extends InitPageBase {
         log.error(lang.transl('_id不合法'), 0, false)
       } else {
         store.idList.push({
-          type:'unkown',
-          id:nowId.toString()
+          type: 'unkown',
+          id: nowId.toString(),
         })
       }
     }

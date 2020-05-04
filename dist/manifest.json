@@ -1,8 +1,8 @@
 {
   "name": "Powerful Pixiv Downloader",
-  "version": "5.2.1",
+  "version": "5.3.0",
   "manifest_version": 2,
-  "description": "功能强大的 Pixiv 图片批量下载器。Powerful Pixiv image batch downloader.",
+  "description": "功能强大的 Pixiv 图片、小说批量下载器。Powerful Pixiv images, novels batch downloader.",
   "icons": {
     "16": "icon/logo16.png",
     "32": "icon/logo32.png",

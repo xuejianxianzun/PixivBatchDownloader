@@ -17,6 +17,7 @@ import {
   NovelData,
   NovelSeriesData,
   NovelSearchData,
+  NewNovelData,
 } from './CrawlResult.d'
 
 import {
@@ -414,6 +415,12 @@ class API {
     return this.request(url)
   }
 
+  // 获取大家的新作小说的数据
+  static getNewNovleData(option: NewIllustOption): Promise<NewNovelData> {
+    let url = `https://www.pixiv.net/ajax/novel/new?lastId=${option.lastId}&limit=${option.limit}&r18=${option.r18}`
+    return this.request(url)
+  }
+
   // 获取关注的的新作品的数据
   static getBookmarkNewIllustData(
     p = 1,
@@ -436,14 +443,14 @@ class API {
           }
         })
         .then((data) => {
-          let listPageDocument = new (window as any).DOMParser().parseFromString(
+          let listPageDocument = new DOMParser().parseFromString(
             data,
             'text/html'
           )
 
-          let worksInfoText = listPageDocument.querySelector(
+          let worksInfoText = (listPageDocument.querySelector(
             '#js-mount-point-latest-following'
-          ).dataset.items
+          ) as HTMLDivElement).dataset.items!
 
           resolve(JSON.parse(worksInfoText))
         })

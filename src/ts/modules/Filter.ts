@@ -13,7 +13,7 @@ class Filter {
   private downType1 = true
   private downType2 = true
   private downType3 = true
-  
+
   private downSingleImg = true
   private downMultiImg = true
 
@@ -206,7 +206,12 @@ class Filter {
     this.downType3 = form.downType3.checked
 
     // 如果全部排除则取消任务
-    if (!this.downType0 && !this.downType1 && !this.downType2&& !this.downType3) {
+    if (
+      !this.downType0 &&
+      !this.downType1 &&
+      !this.downType2 &&
+      !this.downType3
+    ) {
       this.throwError(lang.transl('_checkNotdownTypeAll'))
     }
 

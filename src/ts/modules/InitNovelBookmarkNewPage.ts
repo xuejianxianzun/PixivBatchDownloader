@@ -1,6 +1,7 @@
-// 初始化小说排行榜页面
+// 初始化收藏的新作小说页面
 import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
+import { API } from './API'
 import { lang } from './Lang'
 import { DOM } from './DOM'
 import { options } from './Options'
@@ -9,19 +10,17 @@ import { filter } from './Filter'
 import { store } from './Store'
 import { log } from './Log'
 
-class InitNovelRankingPage extends InitPageBase {
+class InitNovelBookmarkNewPage extends InitPageBase {
   constructor() {
     super()
     this.init()
   }
 
-  private pageCount: number = 2 // 排行榜的页数
-
-  private pageUrlList: string[] = []
+  private baseUrl = ''
 
   protected appendCenterBtns() {
-    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取本排行榜作品'), [
-      ['title', lang.transl('_抓取本排行榜作品Title')],
+    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
+      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -32,36 +31,37 @@ class InitNovelRankingPage extends InitPageBase {
     this.maxCount = 100
 
     options.setWantPage({
-      text: lang.transl('_个数'),
-      tip: lang.transl('_想要获取多少个作品'),
+      text: lang.transl('_页数'),
+      tip: lang.transl('_从本页开始下载提示'),
       rangTip: `1 - ${this.maxCount}`,
       value: this.maxCount.toString(),
     })
   }
 
   protected getWantPage() {
-    // 检查下载页数的设置
-    this.crawlNumber = this.checkWantPageInput(
-      lang.transl('_下载排行榜前x个作品'),
-      lang.transl('_向下获取所有作品')
-    )
-    // 如果设置的作品个数是 -1，则设置为下载所有作品
-    if (this.crawlNumber === -1) {
+    const check = this.checkWantPageInputGreater0()
+    if (check == undefined) {
+      return
+    }
+    this.crawlNumber = check
+
+    if (this.crawlNumber > this.maxCount) {
       this.crawlNumber = this.maxCount
     }
+
+    log.warning(lang.transl('_任务开始1', this.crawlNumber.toString()))
   }
 
   private getPageUrl() {
-    const ul = document.querySelector('.ui-selectbox-container ul')
-    if (ul) {
-      const li = ul.querySelectorAll('li')
-      this.pageCount = li.length
-      this.maxCount = this.pageCount * 50
+    // 设置起始页面
+    const p = API.getURLSearchField(location.href, 'p')
+    this.startpageNo = parseInt(p) || 1
 
-      for (const el of li) {
-        this.pageUrlList.push(el.dataset.url!)
-      }
-    }
+    const url = new URL(window.location.href)
+    url.searchParams.set('p', '1')
+    this.baseUrl = url.toString()
+    // https://www.pixiv.net/novel/bookmark_new.php?p=1
+    // https://www.pixiv.net/novel/bookmark_new_r18.php?p=1
   }
 
   protected nextStep() {
@@ -70,9 +70,11 @@ class InitNovelRankingPage extends InitPageBase {
   }
 
   protected async getIdList() {
+    let p = this.startpageNo + this.listPageFinished
+
     let dom: HTMLDocument
     try {
-      const res = await fetch(this.pageUrlList[this.listPageFinished])
+      const res = await fetch(this.baseUrl.replace('p=1', 'p=' + p))
       const text = await res.text()
       const parse = new DOMParser()
       dom = parse.parseFromString(text, 'text/html')
@@ -83,18 +85,17 @@ class InitNovelRankingPage extends InitPageBase {
 
     this.listPageFinished++
 
-    const rankingItem = dom.querySelectorAll(
-      '._ranking-items>div'
-    ) as NodeListOf<HTMLDivElement>
+    if (dom.querySelector('._no-item')) {
+      // 此页没有内容，也就没有后续内容了
+      return this.getIdListFinished()
+    }
+
+    const NovelItem = dom.querySelectorAll('.novel-items>li') as NodeListOf<
+      HTMLLIElement
+    >
 
     // 检查每个作品的信息
-    for (const item of rankingItem) {
-      const rank = parseInt(item.querySelector('h1')!.innerText)
-      // 检查是否已经抓取到了指定数量的作品
-      if (rank > this.crawlNumber) {
-        return this.getIdListFinished()
-      }
-
+    for (const item of NovelItem) {
       // https://www.pixiv.net/novel/show.php?id=12831389
       const link = (item.querySelector('.imgbox a') as HTMLAnchorElement)!.href
       const id = parseInt(link.split('id=')[1])
@@ -123,8 +124,6 @@ class InitNovelRankingPage extends InitPageBase {
       }
 
       if (await filter.check(filterOpt)) {
-        store.setRankList(id.toString(), rank.toString())
-
         store.idList.push({
           type: 'novels',
           id: id.toString(),
@@ -133,13 +132,14 @@ class InitNovelRankingPage extends InitPageBase {
     }
 
     log.log(
-      lang.transl('_排行榜进度', this.listPageFinished.toString()),
+      lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
       1,
       false
     )
 
     // 抓取完毕
-    if (this.listPageFinished === this.pageCount) {
+    if (p >= this.maxCount || this.listPageFinished === this.crawlNumber) {
+      log.log(lang.transl('_列表页抓取完成'))
       this.getIdListFinished()
     } else {
       // 继续抓取
@@ -148,8 +148,7 @@ class InitNovelRankingPage extends InitPageBase {
   }
 
   protected resetGetIdListStatus() {
-    this.pageUrlList = []
     this.listPageFinished = 0
   }
 }
-export { InitNovelRankingPage }
+export { InitNovelBookmarkNewPage }

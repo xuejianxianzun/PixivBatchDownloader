@@ -1,10 +1,10 @@
-// 初始化 大家的新作品页面
+// 初始化 大家的新作小说页面
 import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { options } from './Options'
 import { NewIllustOption } from './CrawlArgument.d'
-import { NewIllustData } from './CrawlResult'
+import { NewNovelData } from './CrawlResult.d'
 import { FilterOption } from './Filter.d'
 import { filter } from './Filter'
 import { API } from './API'
@@ -12,7 +12,7 @@ import { store } from './Store'
 import { log } from './Log'
 import { DOM } from './DOM'
 
-class InitNewIllustPage extends InitPageBase {
+class InitNewNovelPage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -82,22 +82,20 @@ class InitNewIllustPage extends InitPageBase {
       this.option.limit = this.limitMax.toString()
     }
 
-    // 当前页面的作品类型，默认是 illust
-    this.option.type = API.getURLSearchField(location.href, 'type') || 'illust'
     // 是否是 R18 模式
     this.option.r18 = (location.href.includes('_r18.php') || false).toString()
   }
 
   protected async getIdList() {
-    let data: NewIllustData
+    let data: NewNovelData
     try {
-      data = await API.getNewIllustData(this.option)
+      data = await API.getNewNovleData(this.option)
     } catch (error) {
       this.getIdList()
       return
     }
 
-    let useData = data.body.illusts
+    let useData = data.body.novels
 
     for (const nowData of useData) {
       // 抓取够了指定的数量
@@ -107,25 +105,18 @@ class InitNewIllustPage extends InitPageBase {
         this.fetchCount++
       }
 
-      // 排除广告信息
-      if (nowData.isAdContainer) {
-        continue
-      }
-
       const filterOpt: FilterOption = {
-        id: nowData.illustId,
-        width: nowData.width,
-        height: nowData.height,
-        pageCount: nowData.pageCount,
+        id: nowData.id,
         bookmarkData: nowData.bookmarkData,
-        illustType: nowData.illustType,
+        bookmarkCount: nowData.bookmarkCount,
+        illustType: 3,
         tags: nowData.tags,
       }
 
       if (await filter.check(filterOpt)) {
         store.idList.push({
-          type: API.getWorkType(nowData.illustType),
-          id: nowData.illustId,
+          type: 'novels',
+          id: nowData.id,
         })
       }
     }
@@ -151,4 +142,4 @@ class InitNewIllustPage extends InitPageBase {
     this.fetchCount = 0
   }
 }
-export { InitNewIllustPage }
+export { InitNewNovelPage }

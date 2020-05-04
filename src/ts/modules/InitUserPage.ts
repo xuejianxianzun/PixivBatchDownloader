@@ -30,7 +30,7 @@ class InitUserPage extends InitPageBase {
     // 设置“个数/页数”选项
     options.setWantPage({
       text: lang.transl('_页数'),
-      tip: lang.transl('_checkWantPageRule1Arg8'),
+      tip: lang.transl('_从本页开始下载提示'),
       rangTip: lang.transl('_数字提示1'),
       value: '-1',
     })
@@ -44,8 +44,8 @@ class InitUserPage extends InitPageBase {
 
   protected getWantPage() {
     this.crawlNumber = this.checkWantPageInput(
-      lang.transl('_checkWantPageRule1Arg6'),
-      lang.transl('_checkWantPageRule1Arg7')
+      lang.transl('_从本页开始下载x页'),
+      lang.transl('_下载所有页面')
     )
   }
 
@@ -85,7 +85,7 @@ class InitUserPage extends InitPageBase {
 
   private getOffset() {
     const nowPage = API.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
-    let offset:number = 0
+    let offset: number = 0
     if (nowPage) {
       offset = (parseInt(nowPage) - 1) * this.onceNumber
     }
@@ -179,7 +179,6 @@ class InitUserPage extends InitPageBase {
     // 计算偏移量和需要保留的作品个数
     const offset = this.getOffset()
     const requsetNumber = this.getRequsetNumber()
-
 
     let data = await API.getUserWorksByTypeWithTag(
       DOM.getUserId(),

@@ -209,55 +209,55 @@ const langText = {
     'Parameter is not legal, this operation has been canceled.',
     '參數不合法，本次動作已取消。',
   ],
-  _checkWantPageRule1Arg3: [
+  _从本页开始下载x个作品: [
     '从本页开始下载-num-个作品',
     'このページから -num- 枚の作品をダウンロード。',
     'Download -num- works from this page.',
     '從本頁開始下載-num-個作品',
   ],
-  _checkWantPageRule1Arg4: [
+  _向下获取所有作品: [
     '向下获取所有作品',
     'このページからすべての作品をダウンロードする。',
     'download all the work from this page.',
     '向下取得所有作品',
   ],
-  _checkWantPageRule1Arg8: [
+  _从本页开始下载提示: [
     '从本页开始下载<br>如果要限制下载的页数，请输入从1开始的数字，1为仅下载本页。',
     'このページからダウンロードする<br>ダウンロードするページを設定する場合は、1から始まる数字を入力してください。 1は現在のページのみをダウンロードする。',
     'Download from this page<br>If you want to set the number of pages to download, type a number starting at 1. This page is 1.',
     '從本頁開始下載<br>如果要限制下載的頁數，請輸入從1開始的數字，1為僅下載本頁。',
   ],
-  _checkWantPageRule1Arg6: [
+  _从本页开始下载x页: [
     '从本页开始下载-num-页',
     '現在のページから -num- ページをウンロードします',
     'download -num- pages from the current page',
     '從本頁開始下載-num-頁',
   ],
-  _checkWantPageRule1Arg7: [
+  _下载所有页面: [
     '下载所有页面',
     'すべてのページをダウンロードする',
     'download all pages',
     '下載所有頁面',
   ],
-  _checkWantPageRule1Arg9: [
+  _下载x个相关作品: [
     '下载 -num- 个相关作品',
     '関連作品 -num- 枚をダウンロードする。',
     'download -num- related works.',
     '下載 -num- 個相關作品',
   ],
-  _checkWantPageRule1Arg10: [
+  _下载所有相关作品: [
     '下载所有相关作品',
     '関連作品をすべてダウンロードする。',
     'download all related works.',
     '下載所有相關作品',
   ],
-  _checkWantPageRule1Arg11: [
+  _下载推荐作品: [
     '下载推荐作品',
     'お勧め作品をダウンロードする',
     'download recommend works',
     '下載推薦作品',
   ],
-  _checkWantPageRule1Arg12: [
+  _下载排行榜前x个作品: [
     '下载排行榜前 -num- 个作品',
     'ランク前 -num- 位の作品をダウンロードする。',
     'download the top -num- works in the ranking list',
@@ -268,12 +268,6 @@ const langText = {
     'ボックマークの最小数とクロールするページ数を，「,」で区切って入力してください。\n例えば：\n1000,1000',
     'Please type the minimum number of bookmarks, and the number of pages to be crawled, separated by comma (,).\nE.g:\n1000,1000',
     '請輸入最低收藏數和要擷取的頁數，用英文逗號分開。\n類似於下面的形式: \n1000,1000',
-  ],
-  _wantPage弹出框文字PageType10: [
-    '您想要下载多少页？请输入数字。\r\n当前模式下，列表页的页数最多只有',
-    'ダウンロードしたいページ数を入力してください。 \r\n最大値：',
-    'Please type the number of pages you want to download.\r\n The maximum value is ',
-    '您想要下載多少頁？請輸入數字。\r\n目前模式下，清單頁的頁數最多只有',
   ],
   _输入超过了最大值: [
     '您输入的数字超过了最大值',
@@ -529,11 +523,11 @@ const langText = {
     'Use Alt + X to show and hide the download panel',
     '使用 Alt + X，可以顯示和隱藏下載面板',
   ],
-  _共抓取到n个图片: [
-    '共抓取到 {} 个图片',
-    '合計 {} 枚の画像を取得し',
-    'Crawl a total of {} images',
-    '共擷取到 {} 個圖片',
+  _共抓取到n个文件: [
+    '共抓取到 {} 个文件',
+    '合計 {} つのファイルがあります',
+    'Crawl a total of {} files',
+    '共擷取到 {} 個檔案',
   ],
   _设置文件名: [
     '设置命名规则',
@@ -877,7 +871,7 @@ const langText = {
     'Crawl similar works',
     '擷取相似圖片',
   ],
-  _要获取的作品个数2: [
+  _想要获取多少个作品: [
     '您想要获取多少个作品？',
     'いくつの作品をダウンロードしたいですか？',
     'How many works do you want to download?',
@@ -1173,7 +1167,12 @@ const langText = {
     '不符合要求的文件不会被保存。',
   ],
   _小说: ['小说', '小説', 'novel', '小說'],
-  _抓取系列小说:['抓取系列小说','抓取系列小说','抓取系列小说','抓取系列小说',]
+  _抓取系列小说: [
+    '抓取系列小说',
+    '小説のシリーズをクロールする',
+    'Crawl series of novels',
+    '擷取系列小說',
+  ],
 }
 
 export { langText, langTextKeys }

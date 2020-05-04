@@ -89,7 +89,7 @@ class InitWorksPage extends InitPageBase {
     options.setWantPage({
       text: lang.transl('_个数'),
       tip:
-        lang.transl('_checkWantPageRule1Arg8') +
+        lang.transl('_从本页开始下载提示') +
         '<br>' +
         lang.transl('_相关作品大于0'),
       rangTip: lang.transl('_数字提示1'),
@@ -129,14 +129,14 @@ class InitWorksPage extends InitPageBase {
             ? lang.transl('_从本页开始抓取new')
             : lang.transl('_从本页开始抓取old')
         this.crawlNumber = this.checkWantPageInput(
-          lang.transl('_checkWantPageRule1Arg3'),
+          lang.transl('_从本页开始下载x个作品'),
           crawlAllTip
         )
       } else {
         // 相关作品的提示
         this.crawlNumber = this.checkWantPageInput(
-          lang.transl('_checkWantPageRule1Arg9'),
-          lang.transl('_checkWantPageRule1Arg10')
+          lang.transl('_下载x个相关作品'),
+          lang.transl('_下载所有相关作品')
         )
       }
     }
@@ -149,8 +149,8 @@ class InitWorksPage extends InitPageBase {
     } else if (store.states.quickDownload) {
       // 快速下载
       store.idList.push({
-        type:'unkown',
-        id:API.getIllustId(window.location.href)
+        type: 'unkown',
+        id: API.getIllustId(window.location.href),
       })
 
       log.log(lang.transl('_开始获取作品页面'))
@@ -205,12 +205,12 @@ class InitWorksPage extends InitPageBase {
     if (this.crawlNumber !== -1) {
       recommendIdList = recommendIdList.reverse().slice(0, this.crawlNumber)
     }
-     for (const id of recommendIdList) {
+    for (const id of recommendIdList) {
       store.idList.push({
-        type:'unkown',
-        id
-      })   
-     }
+        type: 'unkown',
+        id,
+      })
+    }
 
     log.log(lang.transl('_相关作品抓取完毕', store.idList.length.toString()))
     this.getIdListFinished()

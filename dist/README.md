@@ -38,9 +38,11 @@ Chrome 会自动更新本应用的版本。
 
 ## 离线安装
 
-如果您不能打开 Chrome Web Store，您可以离线安装。但是离线安装的话，之后的版本更新需要下载新版本来手动更新。
+如果您不能打开 Chrome Web Store，您可以从 [releases 页面](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest) 离线安装。
 
 [查看安装教程](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki/2.-%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B)
+
+但是离线安装的话，之后的版本更新需要下载新版本来手动更新。
 
 - 下载的文件会保存在浏览器的下载目录里。
 
@@ -139,7 +141,11 @@ English （机翻，韩语设置下也使用英语文本）
 
 2 [列表页](https://www.pixiv.net/users/544479/artworks)
 
+2 [小说列表页](https://www.pixiv.net/users/35419040/novels)
+
 2 [Tag 页面](https://www.pixiv.net/users/544479/artworks/%E6%9D%B1%E6%96%B9)
+
+2 [小说 Tag 页面](https://www.pixiv.net/users/35419040/novels/%E6%81%8B%E6%84%9B)
 
 4 [收藏页面](https://www.pixiv.net/bookmark.php)
 
@@ -158,5 +164,19 @@ English （机翻，韩语设置下也使用英语文本）
 11 [发现](https://www.pixiv.net/discovery)
 
 12 [大家的新作品](https://www.pixiv.net/new_illust.php)
+
+13 [小说页面](https://www.pixiv.net/novel/show.php?id=12771688)
+
+14 [系列小说页面](https://www.pixiv.net/novel/series/1090654)
+
+15 [小说搜索页面](https://www.pixiv.net/tags/%E7%99%BE%E5%90%88/novels)
+
+16 [小说排行榜](https://www.pixiv.net/novel/ranking.php?mode=daily)
+
+17 [关注的新作品-小说](https://www.pixiv.net/novel/bookmark_new.php)
+
+18 [大家的新作品-小说](https://www.pixiv.net/novel/new.php)
+
+
 
 [测试动图转换](https://www.pixiv.net/member.php?id=16274829)

@@ -55,7 +55,7 @@ abstract class InitPageBase {
     // 设置“个数/页数”选项
     options.setWantPage({
       text: lang.transl('_页数'),
-      tip: lang.transl('_checkWantPageRule1Arg8'),
+      tip: lang.transl('_从本页开始下载提示'),
       rangTip: lang.transl('_数字提示1'),
       value: '1',
     })

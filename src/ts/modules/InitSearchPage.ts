@@ -15,7 +15,7 @@ import { log } from './Log'
 import { WorkInfo } from './Store.d'
 import { centerPanel } from './CenterPanel'
 import { titleBar } from './TitleBar'
-import { setting,form } from './Settings'
+import { setting, form } from './Settings'
 import { FastScreen } from './FastScreen'
 import { DOM } from './DOM'
 
@@ -123,7 +123,7 @@ class InitSearchPage extends InitPageBase {
     // 设置“个数/页数”选项
     options.setWantPage({
       text: lang.transl('_页数'),
-      tip: lang.transl('_checkWantPageRule1Arg8'),
+      tip: lang.transl('_从本页开始下载提示'),
       rangTip: `1 - ${this.maxCount}`,
       value: this.maxCount.toString(),
     })
@@ -502,8 +502,8 @@ class InitSearchPage extends InitPageBase {
 
   protected getWantPage() {
     this.crawlNumber = this.checkWantPageInput(
-      lang.transl('_checkWantPageRule1Arg6'),
-      lang.transl('_checkWantPageRule1Arg7')
+      lang.transl('_从本页开始下载x页'),
+      lang.transl('_下载所有页面')
     )
 
     if (this.crawlNumber === -1 || this.crawlNumber > this.maxCount) {
@@ -633,8 +633,8 @@ class InitSearchPage extends InitPageBase {
 
       if (filter.check(filterOpt)) {
         store.idList.push({
-          type:API.getWorkType(nowData.illustType),
-          id:nowData.illustId
+          type: API.getWorkType(nowData.illustType),
+          id: nowData.illustId,
         })
       }
     }

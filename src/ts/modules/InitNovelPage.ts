@@ -38,7 +38,6 @@ class InitNovelPage extends InitPageBase {
       this.crawlDirection = 1
       this.readyCrawl()
     })
-
   }
 
   protected appendElseEl() {
@@ -62,7 +61,7 @@ class InitNovelPage extends InitPageBase {
     options.setWantPage({
       text: lang.transl('_个数'),
       tip:
-        lang.transl('_checkWantPageRule1Arg8') +
+        lang.transl('_从本页开始下载提示') +
         '<br>' +
         lang.transl('_相关作品大于0'),
       rangTip: lang.transl('_数字提示1'),
@@ -91,20 +90,19 @@ class InitNovelPage extends InitPageBase {
       this.crawlNumber = 1
     } else {
       // 检查下载页数的设置
-        const crawlAllTip =
-          this.crawlDirection === -1
-            ? lang.transl('_从本页开始抓取new')
-            : lang.transl('_从本页开始抓取old')
-        this.crawlNumber = this.checkWantPageInput(
-          lang.transl('_checkWantPageRule1Arg3'),
-          crawlAllTip
-        )
-      
+      const crawlAllTip =
+        this.crawlDirection === -1
+          ? lang.transl('_从本页开始抓取new')
+          : lang.transl('_从本页开始抓取old')
+      this.crawlNumber = this.checkWantPageInput(
+        lang.transl('_从本页开始下载x个作品'),
+        crawlAllTip
+      )
     }
   }
 
   protected nextStep() {
-     if (store.states.quickDownload) {
+    if (store.states.quickDownload) {
       // 快速下载
       store.idList.push({
         type: 'novels',

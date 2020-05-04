@@ -1,4 +1,4 @@
-// 初始化搜索页
+// 初始化小说搜索页
 import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
@@ -39,7 +39,7 @@ class InitNovelSearchPage extends InitPageBase {
     // 设置“个数/页数”选项
     options.setWantPage({
       text: lang.transl('_页数'),
-      tip: lang.transl('_checkWantPageRule1Arg8'),
+      tip: lang.transl('_从本页开始下载提示'),
       rangTip: `1 - ${this.maxCount}`,
       value: this.maxCount.toString(),
     })
@@ -82,8 +82,8 @@ class InitNovelSearchPage extends InitPageBase {
 
   protected getWantPage() {
     this.crawlNumber = this.checkWantPageInput(
-      lang.transl('_checkWantPageRule1Arg6'),
-      lang.transl('_checkWantPageRule1Arg7')
+      lang.transl('_从本页开始下载x页'),
+      lang.transl('_下载所有页面')
     )
 
     if (this.crawlNumber === -1 || this.crawlNumber > this.maxCount) {

@@ -29,7 +29,7 @@ class InitBookmarkDetailPage extends InitPageBase {
     // 设置“个数/页数”选项
     options.setWantPage({
       text: lang.transl('_个数'),
-      tip: lang.transl('_要获取的作品个数2'),
+      tip: lang.transl('_想要获取多少个作品'),
       rangTip: `1 - ${this.maxCount}`,
       value: this.maxCount.toString(),
     })
@@ -54,7 +54,7 @@ class InitBookmarkDetailPage extends InitPageBase {
     for (const id of data.recommendations) {
       store.idList.push({
         type: 'unkown',
-        id:id.toString()
+        id: id.toString(),
       })
     }
 

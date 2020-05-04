@@ -544,35 +544,40 @@ export interface NovelSearchData {
   error: boolean
   body: {
     novel: {
-      data: {
-        id: string
-        title: string
-        xRestrict: number
-        restrict: number
-        url: string
-        tags: string[]
-        userId: string
-        userName: string
-        textCount: number
-        description: string
-        isBookmarkable: boolean
-        bookmarkData:
-          | null
-          | {
-              id: string
-              private: boolean
-            }[]
-        bookmarkCount: number
-        isOriginal: boolean
-        marker: null
-        titleCaptionTranslation: {
-          workTitle: null
-          workCaption: null
-        }
-        seriesId: string
-        seriesTitle: string
-      }[]
+      data: NovelWorksData[]
       total: number
+    }
+  }
+}
+
+// 大家的新作小说的数据格式
+export interface NewNovelData {
+  error: boolean
+  message: ''
+  body: {
+    novels: NovelWorksData[]
+    lastId: string
+    zoneConfig: {
+      header: string
+      logo: string
+    }
+    extraData: {
+      meta: {
+        title: string
+        description: string
+        ogp: {
+          description: string
+          image: string
+          title: string
+          type: string
+        }
+        twitter: {
+          description: string
+          image: string
+          title: string
+          card: string
+        }
+      }
     }
   }
 }
@@ -690,8 +695,8 @@ interface NovelWorksData {
     workTitle: string | null
     workCaption: string | null
   }
-  seriesId: string
-  seriesTitle: string
+  seriesId?: string
+  seriesTitle?: string
 }
 
 export interface UserNovelsWithTag {

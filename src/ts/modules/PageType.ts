@@ -34,9 +34,9 @@ class PageType {
     ) {
       type = 4
     } else if (url.includes('/tags/')) {
-      if(window.location.pathname.endsWith("/novels")){
+      if (window.location.pathname.endsWith('/novels')) {
         type = 15
-      }else{
+      } else {
         type = 5
       }
     } else if (
@@ -68,9 +68,9 @@ class PageType {
       url.includes('/new_illust_r18.php')
     ) {
       type = 12
-    }else if(window.location.pathname === "/novel/show.php"){
+    } else if (window.location.pathname === '/novel/show.php') {
       type = 13
-    }else if(window.location.pathname.startsWith("/novel/series/")){
+    } else if (window.location.pathname.startsWith('/novel/series/')) {
       type = 14
     } else if (window.location.pathname === '/novel/ranking.php') {
       type = 16
