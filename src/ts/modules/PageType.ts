@@ -30,10 +30,9 @@ class PageType {
       type = 1
     } else if (/\/users\/\d+/.test(url) && !url.includes('/bookmarks')) {
       type = 2
-    } else if (
-      location.pathname === '/bookmark.php' ||
-      url.includes('/bookmarks')
-    ) {
+    } else if (pathname.endsWith('bookmark.php')) {
+      type = 3
+    } else if (pathname.includes('/bookmarks/')) {
       type = 4
     } else if (url.includes('/tags/')) {
       if (pathname.endsWith('/novels')) {
@@ -41,10 +40,7 @@ class PageType {
       } else {
         type = 5
       }
-    } else if (
-      location.pathname === '/ranking_area.php' &&
-      location.search !== ''
-    ) {
+    } else if (pathname === '/ranking_area.php' && location.search !== '') {
       type = 6
     } else if (pathname === '/ranking.php') {
       type = 7

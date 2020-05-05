@@ -313,8 +313,8 @@ export interface UgoiraData {
   }
 }
 
-// 获取书签的数据里，作品的数据
-export interface BookmarkWork {
+// 获取书签的数据里，图片作品的数据
+export interface BookmarkArtworkData {
   illustId: string
   illustTitle: string
   id: string
@@ -393,7 +393,7 @@ export interface BookmarkData {
   error: boolean
   message: string
   body: {
-    works: BookmarkWork[]
+    works: BookmarkArtworkData[]|NovelCommonData[]
     total: number
     zoneConfig: {
       '500x500': {
@@ -544,7 +544,7 @@ export interface NovelSearchData {
   error: boolean
   body: {
     novel: {
-      data: NovelWorksData[]
+      data: NovelCommonData[]
       total: number
     }
   }
@@ -555,7 +555,7 @@ export interface NewNovelData {
   error: boolean
   message: ''
   body: {
-    novels: NovelWorksData[]
+    novels: NovelCommonData[]
     lastId: string
     zoneConfig: {
       header: string
@@ -670,7 +670,7 @@ export interface UserImageWorksWithTag {
   }
 }
 
-interface NovelWorksData {
+export interface NovelCommonData {
   id: string
   title: string
   xRestrict: number
@@ -687,7 +687,7 @@ interface NovelWorksData {
     | {
         id: string
         private: boolean
-      }[]
+      }
   bookmarkCount: number
   isOriginal: boolean
   marker: null
@@ -703,7 +703,7 @@ export interface UserNovelsWithTag {
   error: boolean
   message: string
   body: {
-    works: NovelWorksData[]
+    works: NovelCommonData[]
     total: number
     zoneConfig: {
       [key: string]: {
@@ -756,7 +756,7 @@ export interface NovelData {
       | {
           id: string
           private: boolean
-        }[]
+        }
     likeData: boolean
     pollData: null
     marker: null
@@ -802,7 +802,7 @@ export interface NovelData {
     imageResponseData: []
     imageResponseCount: number
     userNovels: {
-      [key: string]: null | NovelWorksData
+      [key: string]: null | NovelCommonData
     }
     hasGlossary: boolean
     zoneConfig: {
@@ -885,7 +885,7 @@ export interface NovelSeriesData {
         | {
             id: string
             private: boolean
-          }[]
+          }
     }[]
   }
 }

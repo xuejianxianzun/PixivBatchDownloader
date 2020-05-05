@@ -86,16 +86,23 @@ class DOM {
       }
     }
 
-    // 从旧版页面的头像获取（在旧版书签页面使用）
-    const nameElement = document.querySelector(
-      '.user-name'
-    )! as HTMLAnchorElement
-    if (nameElement) {
-      return newRegExp.exec(nameElement.href)![1]
+    // 从旧版页面的 head 元素的 script 脚本内容里匹配这一部分
+    // pixiv.context.user.id = "<userid>"
+    const test1 = /user.id = "(\d*)"/.exec(document.head.innerHTML)
+    if(test1&&test1.length>0){
+      return test1[1]
     }
 
-    // 最后从 body 里匹配，注意这有可能会匹配到错误的（其他的）用户 id！
-    let test3 = newRegExp.exec(document.body.innerHTML)
+    // 从旧版页面的 head 元素的 script 脚本内容里匹配这一部分
+    // pixiv.context.userId = "<userid>"
+    const test2 = /userId = "(\d*)"/.exec(document.head.innerHTML)
+    if(test2&&test2.length>0){
+      return test2[1]
+    }
+
+    // 最后从 body 里匹配
+    // Warning ：这有可能会匹配到错误的（其他）用户 id！
+    const test3 = newRegExp.exec(document.body.innerHTML)
     if (test3) {
       return test3[1]
     }

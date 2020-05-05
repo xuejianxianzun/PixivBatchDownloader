@@ -223,15 +223,55 @@ class API {
   // 这个 api 返回的作品列表顺序是按收藏顺序由近期到早期排列的
   static async getBookmarkData(
     id: string,
+    type: 'illusts' | 'novels' = 'illusts',
     tag: string,
     offset: number,
     hide: boolean = false
   ): Promise<BookmarkData> {
-    const url = `https://www.pixiv.net/ajax/user/${id}/illusts/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
+    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
       hide ? 'hide' : 'show'
     }&rdm=${Math.random()}`
 
     return this.request(url)
+  }
+
+  // 添加收藏
+  static async addBookmarkNew(
+    type: 'illusts' | 'novels' = 'illusts',
+    id: string,
+    tags: string[],
+    hide: boolean,
+    token: string
+  ) {
+    let restrict: 1 | 0 = hide ? 1 : 0
+
+    let body = {}
+    if (type === 'illusts') {
+      body = {
+        comment: '',
+        illust_id: id,
+        restrict: restrict,
+        tags: tags,
+      }
+    } else {
+      body = {
+        comment: '',
+        novel_id: id,
+        restrict: restrict,
+        tags: tags,
+      }
+    }
+
+    return fetch(`https://www.pixiv.net/ajax/${type}/bookmarks/add`, {
+      method: 'POST',
+      credentials: 'same-origin', // 附带 cookie
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
+        'x-csrf-token': token,
+      },
+      body: JSON.stringify(body),
+    })
   }
 
   // 添加收藏
@@ -319,7 +359,7 @@ class API {
     return this.request(url)
   }
 
-  // 获取插小说的详细信息
+  // 获取小说的详细信息
   static getNovelWorksData(id: string): Promise<NovelData> {
     const url = `https://www.pixiv.net/ajax/novel/${id}`
     return this.request(url)

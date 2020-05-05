@@ -5,7 +5,8 @@ import { pageType } from './PageType'
 import { InitIndexPage } from './InitIndexPage'
 import { InitArtworkPage } from './artwork/InitArtworkPage'
 import { InitUserPage } from './InitUserPage'
-import { InitBookmarkArtworkPage } from './artwork/InitBookmarkArtworkPage'
+import { InitBookmarkLegacyPage } from './artwork/InitBookmarkLegacyPage'
+import { InitBookmarkPage } from './artwork/InitBookmarkPage'
 import { InitSearchArtworkPage } from './artwork/InitSearchArtworkPage'
 import { InitAreaRankingPage } from './artwork/InitAreaRankingPage'
 import { InitRankingArtworkPage } from './artwork/InitRankingArtworkPage'
@@ -40,8 +41,10 @@ class InitPage {
         return new InitArtworkPage()
       case 2:
         return new InitUserPage()
+      case 3:
+        return new InitBookmarkLegacyPage()
       case 4:
-        return new InitBookmarkArtworkPage()
+        return new InitBookmarkPage()
       case 5:
         return new InitSearchArtworkPage()
       case 6:

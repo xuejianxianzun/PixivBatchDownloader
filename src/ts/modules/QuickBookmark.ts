@@ -82,14 +82,14 @@ class QuickBookmark {
       )! as HTMLButtonElement).click() // 自动点赞
 
       let tagString = ''
-
+      let tagArray: string[] = []
       // 如果设置了快速收藏，则获取 tag
       if (form.quickBookmarks.checked) {
         const tagElements = document.querySelectorAll('._1LEXQ_3 li')
-        const tagArray = Array.from(tagElements).map((el) => {
+        for (const el of tagElements) {
           const nowA = el.querySelector('a')
           if (nowA) {
-            let nowTag = nowA.textContent
+            let nowTag = nowA.textContent?.trim()
             // 对于原创作品，非日文的页面上只显示了用户语言的“原创”，替换成日文 tag “オリジナル”。
             if (
               nowTag === '原创' ||
@@ -98,17 +98,29 @@ class QuickBookmark {
             ) {
               nowTag = 'オリジナル'
             }
-            return nowTag
+            if (nowTag) {
+              tagArray.push(nowTag)
+            }
           }
-        })
+        }
         tagString = encodeURI(tagArray.join(' '))
       }
 
       // 调用添加收藏的 api
-      API.addBookmark(API.getIllustId(), tagString, API.getToken(), false)
+      const type: 'illusts' | 'novels' = window.location.href.includes('/novel')
+        ? 'novels'
+        : 'illusts'
+
+      API.addBookmarkNew(
+        type,
+        API.getIllustId(),
+        tagArray,
+        false,
+        API.getToken()
+      )
         .then((response) => response.json())
         .then((data) => {
-          if (data.error !== undefined && data.error === false) {
+          if (data.error === false) {
             this.quickBookmarkEnd()
           }
         })

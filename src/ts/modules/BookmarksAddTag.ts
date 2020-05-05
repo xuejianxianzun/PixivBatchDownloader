@@ -1,6 +1,6 @@
 import { API } from './API'
 import { DOM } from './DOM'
-import { BookmarkResult, BookmarkWork } from './CrawlResult'
+import { BookmarkData, BookmarkArtworkData, NovelCommonData,BookmarkResult } from './CrawlResult.d'
 
 // 给收藏里的未分类作品批量添加 tag
 class BookmarksAddTag {
@@ -8,6 +8,8 @@ class BookmarksAddTag {
     this.btn = btn
     this.bindEvents()
   }
+
+  private type: 'illusts' | 'novels' = 'illusts'  // 页面是图片还是小说
 
   private addTagList: BookmarkResult[] = [] // 需要添加 tag 的作品的数据
 
@@ -20,6 +22,12 @@ class BookmarksAddTag {
       this.addTagList = [] // 每次点击清空结果
       this.btn.setAttribute('disabled', 'disabled')
       this.btn.textContent = `Checking`
+
+      
+    if(window.location.pathname.includes('/novel')){
+      this.type = 'novels'
+    }
+
       this.readyAddTag()
     })
   }
@@ -29,9 +37,9 @@ class BookmarksAddTag {
     const offset = loop * this.once // 一次请求只能获取一部分，所以可能有多次请求，要计算偏移量
 
     // 发起请求
-    const [showData, hideData] = await Promise.all([
-      API.getBookmarkData(DOM.getUserId(), '未分類', offset, false),
-      API.getBookmarkData(DOM.getUserId(), '未分類', offset, true),
+    const [showData, hideData]:BookmarkData[] = await Promise.all([
+      API.getBookmarkData(DOM.getUserId(), this.type,'未分類', offset, false),
+      API.getBookmarkData(DOM.getUserId(), this.type,'未分類', offset, true),
     ]).catch((error) => {
       if (error.status && error.status === 403) {
         this.btn!.textContent = `× Permission denied`
@@ -41,14 +49,14 @@ class BookmarksAddTag {
 
     // 保存有用的数据
     for (const data of [showData, hideData]) {
-      const works: BookmarkWork[] = data.body.works
+      const works= data.body.works
       // 如果作品的 bookmarkData 为假说明没有实际数据，可能是在获取别人的收藏数据。
       if (works.length > 0 && works[0].bookmarkData) {
-        works.forEach((work) => {
+        works.forEach((work:BookmarkArtworkData|NovelCommonData) => {
           this.addTagList.push({
             id: work.id,
             tags: encodeURI(work.tags.join(' ')),
-            restrict: work.bookmarkData.private,
+            restrict: work.bookmarkData!.private,
           })
         })
       }

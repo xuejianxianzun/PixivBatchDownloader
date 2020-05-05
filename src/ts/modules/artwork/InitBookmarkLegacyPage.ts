@@ -6,17 +6,37 @@ import { lang } from '../Lang'
 import { IDData } from '../Store.d'
 import { options } from '../Options'
 import { BookmarksAddTag } from '../BookmarksAddTag'
-import { BookmarkData } from '../CrawlResult'
+import {
+  BookmarkData,
+  BookmarkArtworkData,
+  NovelCommonData,
+} from '../CrawlResult.d'
 import { store } from '../Store'
 import { log } from '../Log'
 import { DOM } from '../DOM'
 import { pageInfo } from '../PageInfo'
 
-class InitBookmarkArtworkPage extends InitPageBase {
+class InitBookmarkLegacyPage extends InitPageBase {
   constructor() {
     super()
     this.init()
   }
+
+  private idList: IDData[] = [] // 储存从列表页获取到的 id
+
+  private type: 'illusts' | 'novels' = 'illusts' // 页面是图片还是小说
+
+  private tag = '' // 储存当前页面带的 tag，不过有时并没有
+
+  private isHide = false // 当前页面是否显示的是非公开收藏
+
+  private requsetNumber: number = 0 // 根据页数，计算要抓取的作品个数
+
+  private readonly onceRequest: number = 100 // 每次请求多少个数量
+
+  private offset: number = 0 // 要去掉的作品数量
+
+  private crawlRecommended: boolean = false // 是否抓取推荐作品（收藏页面下方）
 
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
@@ -25,24 +45,17 @@ class InitBookmarkArtworkPage extends InitPageBase {
       this.readyCrawl()
     })
 
-    // 添加下载推荐作品的按钮，只在旧版收藏页面使用
-    const isOldPage = !!document.querySelector('.user-name')
-    if (isOldPage) {
-      const downRecmdBtn = DOM.addBtn(
-        'crawlBtns',
-        Colors.blue,
-        lang.transl('_抓取推荐作品'),
-        [['title', lang.transl('_抓取推荐作品Title')]]
-      )
-      downRecmdBtn.addEventListener(
-        'click',
-        () => {
-          this.crawlRecommended = true
-          this.readyCrawl()
-        },
-        false
-      )
-    }
+    // 添加下载推荐作品的按钮
+    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取推荐作品'), [
+      ['title', lang.transl('_抓取推荐作品Title')],
+    ]).addEventListener(
+      'click',
+      () => {
+        this.crawlRecommended = true
+        this.readyCrawl()
+      },
+      false
+    )
 
     // 如果存在 token，则添加“添加 tag”按钮
     if (API.getToken()) {
@@ -68,25 +81,7 @@ class InitBookmarkArtworkPage extends InitPageBase {
 
     // 在书签页面隐藏只要书签选项
     options.hideOption([6])
-
-    if (location.href.includes('bookmark.php')) {
-      options.hideOption([6])
-    }
   }
-
-  private idList: IDData[] = [] // 储存从列表页获取到的 id
-
-  private tag = '' // 储存当前页面带的 tag，不过有时并没有
-
-  private isHide = false // 当前页面是否显示的是非公开收藏
-
-  private requsetNumber: number = 0 // 根据页数，计算要抓取的作品个数
-
-  private readonly onceRequest: number = 100 // 每次请求多少个数量
-
-  private offset: number = 0 // 要去掉的作品数量
-
-  private crawlRecommended: boolean = false // 是否抓取推荐作品（收藏页面下方）
 
   protected getWantPage() {
     let pageTip = ''
@@ -103,19 +98,24 @@ class InitBookmarkArtworkPage extends InitPageBase {
   }
 
   protected nextStep() {
+    if (window.location.pathname.includes('/novel')) {
+      this.type = 'novels'
+    }
+
     if (this.crawlRecommended) {
-      // 下载推荐图片
+      // 下载推荐作品
       this.getRecommendedList()
     } else {
       this.readyGetIdList()
+
+      // 获取 id 列表
+      this.getIdList()
     }
   }
 
   protected readyGetIdList() {
     // 每页个数
-    // 旧版每页 20 个作品，新版每页 48 个作品（因为新版不显示无法访问的作品，所以有时候一页不足 48 个）
-    const isOldPage = !!document.querySelector('.user-name')
-    const onceNumber = isOldPage ? 20 : 48
+    const onceNumber = 20
 
     // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
     const nowPage = API.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
@@ -140,9 +140,6 @@ class InitBookmarkArtworkPage extends InitPageBase {
     // 在新旧版 url 里，rest 都是在查询字符串里的
     this.isHide = API.getURLSearchField(location.href, 'rest') === 'hide'
 
-    // 获取 id 列表
-    this.getIdList()
-
     log.log(lang.transl('_正在抓取'))
 
     if (this.crawlNumber === -1) {
@@ -156,6 +153,7 @@ class InitBookmarkArtworkPage extends InitPageBase {
     try {
       data = await API.getBookmarkData(
         DOM.getUserId(),
+        this.type,
         this.tag,
         this.offset,
         this.isHide
@@ -173,9 +171,10 @@ class InitBookmarkArtworkPage extends InitPageBase {
       return this.afterGetIdList()
     } else {
       // 没有抓取完毕时，添加数据
-      data.body.works.forEach((data) =>
+      const idType = this.type === 'illusts' ? 'unkown' : 'novels'
+      data.body.works.forEach((data: BookmarkArtworkData | NovelCommonData) =>
         this.idList.push({
-          type: API.getWorkType(data.illustType),
+          type: idType,
           id: data.id,
         })
       )
@@ -201,20 +200,33 @@ class InitBookmarkArtworkPage extends InitPageBase {
 
   // 获取书签页面下方的推荐作品列表
   private getRecommendedList() {
+    const selector =
+      this.type === 'illusts'
+        ? '#illust-recommend .image-item'
+        : '.novel-items>li'
+
+    const idType = this.type === 'illusts' ? 'unkown' : 'novels'
+
+    const getId = this.type === 'illusts' ? API.getIllustId : API.getNovelId
+
     // 获取下方已经加载出来的作品
-    const elements = document.querySelectorAll(
-      '#illust-recommend .image-item'
-    ) as NodeListOf<HTMLLIElement>
+    const elements = document.querySelectorAll(selector) as NodeListOf<
+      HTMLLIElement
+    >
     if (elements.length === 0) {
       this.crawlRecommended = false
       return this.noResult()
     }
+
     // 添加作品列表
     for (const li of elements) {
       const a = li.querySelector('a') as HTMLAnchorElement
+      if(store.idList.length===this.crawlNumber){
+        break
+      }
       store.idList.push({
-        type: 'unkown',
-        id: API.getIllustId(a.href),
+        type: idType,
+        id: getId(a.href),
       })
     }
 
@@ -222,6 +234,7 @@ class InitBookmarkArtworkPage extends InitPageBase {
   }
 
   protected resetGetIdListStatus() {
+    this.type = 'illusts'
     this.idList = []
     this.offset = 0
     this.tag = ''
@@ -231,7 +244,7 @@ class InitBookmarkArtworkPage extends InitPageBase {
 
   protected sortResult() {
     // 把作品数据反转，这样可以先下载收藏时间早的，后下载收藏时间近的
-    store.result.reverse()
+    !this.crawlRecommended && store.result.reverse()
   }
 }
-export { InitBookmarkArtworkPage }
+export { InitBookmarkLegacyPage }
