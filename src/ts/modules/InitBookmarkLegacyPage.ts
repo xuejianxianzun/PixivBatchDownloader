@@ -1,18 +1,22 @@
 // 初始化收藏页面
-import { InitPageBase } from '../InitPageBase'
-import { API } from '../API'
-import { Colors } from '../Colors'
-import { lang } from '../Lang'
-import { IDData } from '../Store.d'
-import { options } from '../Options'
-import { BookmarksAddTag } from '../BookmarksAddTag'
-import { BookmarkData, BookmarkArtworkData, NovelCommonData } from '../CrawlResult.d'
-import { store } from '../Store'
-import { log } from '../Log'
-import { DOM } from '../DOM'
-import { pageInfo } from '../PageInfo'
+import { InitPageBase } from './InitPageBase'
+import { API } from './API'
+import { Colors } from './Colors'
+import { lang } from './Lang'
+import { IDData } from './Store.d'
+import { options } from './Options'
+import { BookmarksAddTag } from './BookmarksAddTag'
+import {
+  BookmarkData,
+  BookmarkArtworkData,
+  NovelCommonData,
+} from './CrawlResult'
+import { store } from './Store'
+import { log } from './Log'
+import { DOM } from './DOM'
+import { pageInfo } from './PageInfo'
 
-class InitBookmarkPage extends InitPageBase {
+class InitBookmarkLegacyPage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -217,6 +221,9 @@ class InitBookmarkPage extends InitPageBase {
     // 添加作品列表
     for (const li of elements) {
       const a = li.querySelector('a') as HTMLAnchorElement
+      if(store.idList.length===this.crawlNumber){
+        break
+      }
       store.idList.push({
         type: idType,
         id: getId(a.href),
@@ -237,7 +244,7 @@ class InitBookmarkPage extends InitPageBase {
 
   protected sortResult() {
     // 把作品数据反转，这样可以先下载收藏时间早的，后下载收藏时间近的
-    store.result.reverse()
+    !this.crawlRecommended && store.result.reverse()
   }
 }
-export { InitBookmarkPage }
+export { InitBookmarkLegacyPage }

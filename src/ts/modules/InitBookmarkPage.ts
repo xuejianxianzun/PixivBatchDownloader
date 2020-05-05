@@ -1,22 +1,22 @@
 // 初始化收藏页面
-import { InitPageBase } from '../InitPageBase'
-import { API } from '../API'
-import { Colors } from '../Colors'
-import { lang } from '../Lang'
-import { IDData } from '../Store.d'
-import { options } from '../Options'
-import { BookmarksAddTag } from '../BookmarksAddTag'
+import { InitPageBase } from './InitPageBase'
+import { API } from './API'
+import { Colors } from './Colors'
+import { lang } from './Lang'
+import { IDData } from './Store.d'
+import { options } from './Options'
+import { BookmarksAddTag } from './BookmarksAddTag'
 import {
   BookmarkData,
   BookmarkArtworkData,
   NovelCommonData,
-} from '../CrawlResult.d'
-import { store } from '../Store'
-import { log } from '../Log'
-import { DOM } from '../DOM'
-import { pageInfo } from '../PageInfo'
+} from './CrawlResult'
+import { store } from './Store'
+import { log } from './Log'
+import { DOM } from './DOM'
+import { pageInfo } from './PageInfo'
 
-class InitBookmarkLegacyPage extends InitPageBase {
+class InitBookmarkPage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -36,26 +36,12 @@ class InitBookmarkLegacyPage extends InitPageBase {
 
   private offset: number = 0 // 要去掉的作品数量
 
-  private crawlRecommended: boolean = false // 是否抓取推荐作品（收藏页面下方）
-
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
-
-    // 添加下载推荐作品的按钮
-    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取推荐作品'), [
-      ['title', lang.transl('_抓取推荐作品Title')],
-    ]).addEventListener(
-      'click',
-      () => {
-        this.crawlRecommended = true
-        this.readyCrawl()
-      },
-      false
-    )
 
     // 如果存在 token，则添加“添加 tag”按钮
     if (API.getToken()) {
@@ -84,16 +70,9 @@ class InitBookmarkLegacyPage extends InitPageBase {
   }
 
   protected getWantPage() {
-    let pageTip = ''
-    if (this.crawlRecommended) {
-      pageTip = lang.transl('_下载推荐作品')
-    } else {
-      pageTip = lang.transl('_下载所有页面')
-    }
-
     this.crawlNumber = this.checkWantPageInput(
       lang.transl('_从本页开始下载x页'),
-      pageTip
+      lang.transl('_下载所有页面')
     )
   }
 
@@ -102,20 +81,13 @@ class InitBookmarkLegacyPage extends InitPageBase {
       this.type = 'novels'
     }
 
-    if (this.crawlRecommended) {
-      // 下载推荐作品
-      this.getRecommendedList()
-    } else {
-      this.readyGetIdList()
-
-      // 获取 id 列表
-      this.getIdList()
-    }
+    this.readyGetIdList()
+    this.getIdList()
   }
 
   protected readyGetIdList() {
     // 每页个数
-    const onceNumber = 20
+    const onceNumber = 48
 
     // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
     const nowPage = API.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
@@ -198,53 +170,12 @@ class InitBookmarkLegacyPage extends InitPageBase {
     this.getIdListFinished()
   }
 
-  // 获取书签页面下方的推荐作品列表
-  private getRecommendedList() {
-    const selector =
-      this.type === 'illusts'
-        ? '#illust-recommend .image-item'
-        : '.novel-items>li'
-
-    const idType = this.type === 'illusts' ? 'unkown' : 'novels'
-
-    const getId = this.type === 'illusts' ? API.getIllustId : API.getNovelId
-
-    // 获取下方已经加载出来的作品
-    const elements = document.querySelectorAll(selector) as NodeListOf<
-      HTMLLIElement
-    >
-    if (elements.length === 0) {
-      this.crawlRecommended = false
-      return this.noResult()
-    }
-
-    // 添加作品列表
-    for (const li of elements) {
-      const a = li.querySelector('a') as HTMLAnchorElement
-      if(store.idList.length===this.crawlNumber){
-        break
-      }
-      store.idList.push({
-        type: idType,
-        id: getId(a.href),
-      })
-    }
-
-    this.getIdListFinished()
-  }
-
   protected resetGetIdListStatus() {
     this.type = 'illusts'
     this.idList = []
     this.offset = 0
     this.tag = ''
     this.listPageFinished = 0
-    this.crawlRecommended = false // 解除下载推荐作品的标记
-  }
-
-  protected sortResult() {
-    // 把作品数据反转，这样可以先下载收藏时间早的，后下载收藏时间近的
-    !this.crawlRecommended && store.result.reverse()
   }
 }
-export { InitBookmarkLegacyPage }
+export { InitBookmarkPage }
