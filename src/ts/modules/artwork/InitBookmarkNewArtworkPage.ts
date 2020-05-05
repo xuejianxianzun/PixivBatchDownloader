@@ -1,15 +1,15 @@
 // 初始化 关注的新作品页面
-import { InitPageBase } from './InitPageBase'
-import { Colors } from './Colors'
-import { lang } from './Lang'
-import { DOM } from './DOM'
-import { options } from './Options'
-import { BookMarkNewData } from './CrawlResult'
-import { FilterOption } from './Filter.d'
-import { filter } from './Filter'
-import { API } from './API'
-import { store } from './Store'
-import { log } from './Log'
+import { InitPageBase } from '../InitPageBase'
+import { Colors } from '../Colors'
+import { lang } from '../Lang'
+import { DOM } from '../DOM'
+import { options } from '../Options'
+import { BookMarkNewData } from '../CrawlResult.d'
+import { FilterOption } from '../Filter.d'
+import { filter } from '../Filter'
+import { API } from '../API'
+import { store } from '../Store'
+import { log } from '../Log'
 
 class InitBookmarkNewArtworkPage extends InitPageBase {
   constructor() {

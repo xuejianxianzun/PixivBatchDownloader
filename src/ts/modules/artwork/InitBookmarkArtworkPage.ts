@@ -1,16 +1,16 @@
 // 初始化收藏页面
-import { InitPageBase } from './InitPageBase'
-import { API } from './API'
-import { Colors } from './Colors'
-import { lang } from './Lang'
-import { IDData } from './Store.d'
-import { options } from './Options'
-import { BookmarksAddTag } from './BookmarksAddTag'
-import { BookmarkData } from './CrawlResult'
-import { store } from './Store'
-import { log } from './Log'
-import { DOM } from './DOM'
-import { pageInfo } from './PageInfo'
+import { InitPageBase } from '../InitPageBase'
+import { API } from '../API'
+import { Colors } from '../Colors'
+import { lang } from '../Lang'
+import { IDData } from '../Store.d'
+import { options } from '../Options'
+import { BookmarksAddTag } from '../BookmarksAddTag'
+import { BookmarkData } from '../CrawlResult'
+import { store } from '../Store'
+import { log } from '../Log'
+import { DOM } from '../DOM'
+import { pageInfo } from '../PageInfo'
 
 class InitBookmarkArtworkPage extends InitPageBase {
   constructor() {

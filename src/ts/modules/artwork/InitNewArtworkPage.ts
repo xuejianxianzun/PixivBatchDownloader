@@ -1,16 +1,16 @@
 // 初始化 大家的新作品页面
-import { InitPageBase } from './InitPageBase'
-import { Colors } from './Colors'
-import { lang } from './Lang'
-import { options } from './Options'
-import { NewIllustOption } from './CrawlArgument'
-import { NewIllustData } from './CrawlResult'
-import { FilterOption } from './Filter.d'
-import { filter } from './Filter'
-import { API } from './API'
-import { store } from './Store'
-import { log } from './Log'
-import { DOM } from './DOM'
+import { InitPageBase } from '../InitPageBase'
+import { Colors } from '../Colors'
+import { lang } from '../Lang'
+import { options } from '../Options'
+import { NewIllustOption } from '../CrawlArgument'
+import { NewIllustData } from '../CrawlResult'
+import { FilterOption } from '../Filter.d'
+import { filter } from '../Filter'
+import { API } from '../API'
+import { store } from '../Store'
+import { log } from '../Log'
+import { DOM } from '../DOM'
 
 class InitNewArtworkPage extends InitPageBase {
   constructor() {

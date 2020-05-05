@@ -1,16 +1,16 @@
 // 初始化 大家的新作小说页面
-import { InitPageBase } from './InitPageBase'
-import { Colors } from './Colors'
-import { lang } from './Lang'
-import { options } from './Options'
-import { NewIllustOption } from './CrawlArgument.d'
-import { NewNovelData } from './CrawlResult.d'
-import { FilterOption } from './Filter.d'
-import { filter } from './Filter'
-import { API } from './API'
-import { store } from './Store'
-import { log } from './Log'
-import { DOM } from './DOM'
+import { InitPageBase } from '../InitPageBase'
+import { Colors } from '../Colors'
+import { lang } from '../Lang'
+import { options } from '../Options'
+import { NewIllustOption } from '../CrawlArgument.d'
+import { NewNovelData } from '../CrawlResult.d'
+import { FilterOption } from '../Filter.d'
+import { filter } from '../Filter'
+import { API } from '../API'
+import { store } from '../Store'
+import { log } from '../Log'
+import { DOM } from '../DOM'
 
 class InitNewNovelPage extends InitPageBase {
   constructor() {

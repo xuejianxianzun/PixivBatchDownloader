@@ -1,12 +1,12 @@
 // 初始化发现页面
-import { InitPageBase } from './InitPageBase'
-import { Colors } from './Colors'
-import { lang } from './Lang'
-import { DOM } from './DOM'
-import { options } from './Options'
-import { DeleteWorks } from './DeleteWorks'
-import { API } from './API'
-import { store } from './Store'
+import { InitPageBase } from '../InitPageBase'
+import { Colors } from '../Colors'
+import { lang } from '../Lang'
+import { DOM } from '../DOM'
+import { options } from '../Options'
+import { DeleteWorks } from '../DeleteWorks'
+import { API } from '../API'
+import { store } from '../Store'
 
 class InitDiscoverPage extends InitPageBase {
   constructor() {

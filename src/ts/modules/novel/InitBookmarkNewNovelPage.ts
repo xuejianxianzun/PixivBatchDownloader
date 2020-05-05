@@ -1,14 +1,14 @@
 // 初始化收藏的新作小说页面
-import { InitPageBase } from './InitPageBase'
-import { Colors } from './Colors'
-import { API } from './API'
-import { lang } from './Lang'
-import { DOM } from './DOM'
-import { options } from './Options'
-import { FilterOption } from './Filter.d'
-import { filter } from './Filter'
-import { store } from './Store'
-import { log } from './Log'
+import { InitPageBase } from '../InitPageBase'
+import { Colors } from '../Colors'
+import { API } from '../API'
+import { lang } from '../Lang'
+import { DOM } from '../DOM'
+import { options } from '../Options'
+import { FilterOption } from '../Filter.d'
+import { filter } from '../Filter'
+import { store } from '../Store'
+import { log } from '../Log'
 
 class InitBookmarkNewNovelPage extends InitPageBase {
   constructor() {

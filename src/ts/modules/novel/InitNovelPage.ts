@@ -1,13 +1,13 @@
 //初始化小说作品页
-import { InitPageBase } from './InitPageBase'
-import { Colors } from './Colors'
-import { lang } from './Lang'
-import { options } from './Options'
-import { store } from './Store'
-import { userWorksType } from './CrawlArgument'
-import { DOM } from './DOM'
-import { API } from './API'
-import { log } from './Log'
+import { InitPageBase } from '../InitPageBase'
+import { Colors } from '../Colors'
+import { lang } from '../Lang'
+import { options } from '../Options'
+import { store } from '../Store'
+import { userWorksType } from '../CrawlArgument'
+import { DOM } from '../DOM'
+import { API } from '../API'
+import { log } from '../Log'
 
 class InitNovelPage extends InitPageBase {
   constructor() {

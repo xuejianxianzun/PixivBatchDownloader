@@ -1,9 +1,9 @@
-import { filter } from './Filter'
-import { FilterOption } from './Filter.d'
-import { NovelData } from './CrawlResult.d'
-import { store } from './Store'
+import { filter } from '../Filter'
+import { FilterOption } from '../Filter.d'
+import { NovelData } from '../CrawlResult'
+import { store } from '../Store'
 
-class SaveNovelWorksData {
+class SaveNovelData {
   public async save(data: NovelData) {
     // 小说没有 illustType 属性， 把小说的 illustType 设置为 3，这是为了方便检查
     const illustType = 3
@@ -79,5 +79,5 @@ class SaveNovelWorksData {
   }
 }
 
-const saveNovelWorksData = new SaveNovelWorksData()
-export { saveNovelWorksData }
+const saveNovelData = new SaveNovelData()
+export { saveNovelData }

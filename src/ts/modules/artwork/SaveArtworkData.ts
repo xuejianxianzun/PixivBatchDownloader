@@ -1,11 +1,11 @@
-import { API } from './API'
-import { filter } from './Filter'
-import { setting, form } from './Settings'
-import { FilterOption } from './Filter.d'
-import { IllustData } from './CrawlResult'
-import { store } from './Store'
+import { API } from '../API'
+import { filter } from '../Filter'
+import { setting, form } from '../Settings'
+import { FilterOption } from '../Filter.d'
+import { IllustData } from '../CrawlResult'
+import { store } from '../Store'
 
-class SaveImageWorksData {
+class SaveArtworkData {
   public async save(data: IllustData) {
     // 获取需要检查的信息
     const body = data.body
@@ -134,5 +134,5 @@ class SaveImageWorksData {
   }
 }
 
-const saveImageWorksData = new SaveImageWorksData()
-export { saveImageWorksData }
+const saveArtworkData = new SaveArtworkData()
+export { saveArtworkData }

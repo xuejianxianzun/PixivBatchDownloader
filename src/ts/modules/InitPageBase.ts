@@ -3,8 +3,8 @@ import { lang } from './Lang'
 import { Colors } from './Colors'
 import { DOM } from './DOM'
 import { options } from './Options'
-import { saveImageWorksData } from './SaveImageWorksData'
-import { saveNovelWorksData } from './SaveNovelWorksData'
+import { saveArtworkData } from './artwork/SaveArtworkData'
+import { saveNovelData } from './novel/SaveNovelData'
 import { filter } from './Filter'
 import { API } from './API'
 import { store } from './Store'
@@ -213,10 +213,10 @@ abstract class InitPageBase {
       // 发起请求
       if (idData.type === 'novels') {
         const data = await API.getNovelWorksData(id)
-        await saveNovelWorksData.save(data)
+        await saveNovelData.save(data)
       } else {
         const data = await API.getImageWorksData(id)
-        await saveImageWorksData.save(data)
+        await saveArtworkData.save(data)
       }
       this.afterGetWorksData()
     } catch (error) {

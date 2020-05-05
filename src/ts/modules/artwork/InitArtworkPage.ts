@@ -1,16 +1,16 @@
 //初始化作品页
-import { InitPageBase } from './InitPageBase'
-import { Colors } from './Colors'
-import { EVT } from './EVT'
-import { lang } from './Lang'
-import { options } from './Options'
-import { store } from './Store'
-import { QuickBookmark } from './QuickBookmark'
-import { imgViewer } from './ImgViewer'
-import { userWorksType } from './CrawlArgument'
-import { DOM } from './DOM'
-import { API } from './API'
-import { log } from './Log'
+import { InitPageBase } from '../InitPageBase'
+import { Colors } from '../Colors'
+import { EVT } from '../EVT'
+import { lang } from '../Lang'
+import { options } from '../Options'
+import { store } from '../Store'
+import { QuickBookmark } from '../QuickBookmark'
+import { imgViewer } from '../ImgViewer'
+import { userWorksType } from '../CrawlArgument'
+import { DOM } from '../DOM'
+import { API } from '../API'
+import { log } from '../Log'
 
 class InitArtworkPage extends InitPageBase {
   constructor() {

@@ -1,13 +1,13 @@
 // 初始化地区排行榜页面
-import { InitPageBase } from './InitPageBase'
-import { Colors } from './Colors'
-import { lang } from './Lang'
-import { DOM } from './DOM'
-import { options } from './Options'
-import { FilterOption } from './Filter.d'
-import { filter } from './Filter'
-import { API } from './API'
-import { store } from './Store'
+import { InitPageBase } from '../InitPageBase'
+import { Colors } from '../Colors'
+import { lang } from '../Lang'
+import { DOM } from '../DOM'
+import { options } from '../Options'
+import { FilterOption } from '../Filter.d'
+import { filter } from '../Filter'
+import { API } from '../API'
+import { store } from '../Store'
 
 class InitAreaRankingPage extends InitPageBase {
   constructor() {
