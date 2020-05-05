@@ -17,11 +17,13 @@ class PageType {
   // 有些页面类型（如小说）虽然不支持，但它和支持的页面是无刷新切换的，所以视为支持的页面。等到开始抓取时再次判断是否可以抓取
   public getPageType(): number {
     const url = window.location.href
+    const pathname = window.location.pathname
+
     let type: number
 
     if (
       window.location.hostname === 'www.pixiv.net' &&
-      (window.location.pathname === '/' || window.location.pathname === '/en/')
+      (pathname === '/' || pathname === '/novel/' || pathname === '/en/')
     ) {
       type = 0
     } else if (/\/artworks\/\d{1,10}/.test(url)) {
@@ -34,7 +36,7 @@ class PageType {
     ) {
       type = 4
     } else if (url.includes('/tags/')) {
-      if (window.location.pathname.endsWith('/novels')) {
+      if (pathname.endsWith('/novels')) {
         type = 15
       } else {
         type = 5
@@ -44,7 +46,7 @@ class PageType {
       location.search !== ''
     ) {
       type = 6
-    } else if (window.location.pathname === '/ranking.php') {
+    } else if (pathname === '/ranking.php') {
       type = 7
     } else if (
       url.includes('https://www.pixivision.net') &&
@@ -61,22 +63,22 @@ class PageType {
       url.includes('/bookmark_new_illust_r18.php')
     ) {
       type = 10
-    } else if (window.location.pathname === '/discovery') {
+    } else if (pathname === '/discovery') {
       type = 11
     } else if (
       url.includes('/new_illust.php') ||
       url.includes('/new_illust_r18.php')
     ) {
       type = 12
-    } else if (window.location.pathname === '/novel/show.php') {
+    } else if (pathname === '/novel/show.php') {
       type = 13
-    } else if (window.location.pathname.startsWith('/novel/series/')) {
+    } else if (pathname.startsWith('/novel/series/')) {
       type = 14
-    } else if (window.location.pathname === '/novel/ranking.php') {
+    } else if (pathname === '/novel/ranking.php') {
       type = 16
-    } else if (window.location.pathname.startsWith('/novel/bookmark_new')) {
+    } else if (pathname.startsWith('/novel/bookmark_new')) {
       type = 17
-    } else if (window.location.pathname.startsWith('/novel/new')) {
+    } else if (pathname.startsWith('/novel/new')) {
       type = 18
     } else {
       // 没有匹配到可用的页面类型

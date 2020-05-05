@@ -3,7 +3,6 @@ import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { centerPanel } from './CenterPanel'
-
 import { options } from './Options'
 import { DOM } from './DOM'
 import { store } from './Store'
@@ -85,6 +84,9 @@ class InitIndexPage extends InitPageBase {
   protected getWantPage() {}
 
   protected getIdList() {
+    // 检查页面类型，设置输入的 id 的作品类型
+    const type = window.location.pathname === '/novel/' ? 'novels' : 'unkown'
+
     // 检查 id
     const tempSet = new Set(this.downIdInput.value.split('\n'))
     const idValue = Array.from(tempSet)
@@ -95,7 +97,7 @@ class InitIndexPage extends InitPageBase {
         log.error(lang.transl('_id不合法'), 0, false)
       } else {
         store.idList.push({
-          type: 'unkown',
+          type: type,
           id: nowId.toString(),
         })
       }
