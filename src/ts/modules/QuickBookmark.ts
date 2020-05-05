@@ -111,7 +111,7 @@ class QuickBookmark {
         ? 'novels'
         : 'illusts'
 
-      API.addBookmarkNew(
+      API.addBookmark(
         type,
         API.getIllustId(),
         tagArray,

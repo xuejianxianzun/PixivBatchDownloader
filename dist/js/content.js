@@ -323,7 +323,7 @@ class API {
         return this.request(url);
     }
     // 添加收藏
-    static async addBookmarkNew(type = 'illusts', id, tags, hide, token) {
+    static async addBookmarkNew(type, id, tags, hide, token) {
         let restrict = hide ? 1 : 0;
         let body = {};
         if (type === 'illusts') {
@@ -714,7 +714,7 @@ class BookmarksAddTag {
                 works.forEach((work) => {
                     this.addTagList.push({
                         id: work.id,
-                        tags: encodeURI(work.tags.join(' ')),
+                        tags: work.tags,
                         restrict: work.bookmarkData.private,
                     });
                 });
@@ -743,7 +743,7 @@ class BookmarksAddTag {
     // 给未分类作品添加 tag
     async addTag(index, addList, tt) {
         const item = addList[index];
-        await _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(item.id, item.tags, tt, item.restrict);
+        await _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmarkNew(this.type, item.id, item.tags, item.restrict, tt);
         if (index < addList.length - 1) {
             index++;
             this.btn.textContent = `${index} / ${addList.length}`;
@@ -7738,7 +7738,6 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
               C9.04766776,8.39507316 9,8.57012386 9,8.74841664 Z"></path>
         </svg>`;
             }
-            const tagString = encodeURI(data.tags.join(' '));
             // 添加收藏的作品，让收藏图标变红
             const bookmarkedFlag = data.bookmarked ? this.bookmarkedClass : '';
             const html = `
@@ -7805,7 +7804,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
             const bookmarkedClass = this.bookmarkedClass;
             addBMKBtn.addEventListener('click', function () {
                 const e = new CustomEvent('addBMK', {
-                    detail: { data: { id: data.idNum, tags: tagString } },
+                    detail: { data: { id: data.idNum, tags: data.tags } },
                 });
                 window.dispatchEvent(e);
                 this.classList.add(bookmarkedClass);
@@ -7813,8 +7812,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         };
         this.addBookmark = (event) => {
             const data = event.detail.data;
-            const tagString = _Settings__WEBPACK_IMPORTED_MODULE_13__["form"].quickBookmarks.checked ? data.tags : '';
-            _API__WEBPACK_IMPORTED_MODULE_8__["API"].addBookmark(data.id.toString(), tagString, _API__WEBPACK_IMPORTED_MODULE_8__["API"].getToken(), false);
+            _API__WEBPACK_IMPORTED_MODULE_8__["API"].addBookmarkNew('illusts', data.id.toString(), data.tags, false, _API__WEBPACK_IMPORTED_MODULE_8__["API"].getToken());
             this.resultMeta.forEach((result) => {
                 if (result.idNum === data.id) {
                     result.bookmarked = true;

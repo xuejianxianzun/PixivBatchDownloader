@@ -236,14 +236,14 @@ class API {
   }
 
   // 添加收藏
-  static async addBookmarkNew(
-    type: 'illusts' | 'novels' = 'illusts',
+  static async addBookmark(
+    type: 'illusts' | 'novels',
     id: string,
     tags: string[],
     hide: boolean,
     token: string
   ) {
-    let restrict: 1 | 0 = hide ? 1 : 0
+    const restrict: 1 | 0 = hide ? 1 : 0
 
     let body = {}
     if (type === 'illusts') {
@@ -271,32 +271,6 @@ class API {
         'x-csrf-token': token,
       },
       body: JSON.stringify(body),
-    })
-  }
-
-  // 添加收藏
-  static async addBookmark(
-    id: string,
-    tags: string,
-    token: string,
-    hide: boolean
-  ) {
-    let restrict: 0 | 1
-    if (!hide) {
-      // 公开作品
-      restrict = 0
-    } else {
-      // 非公开作品
-      restrict = 1
-    }
-
-    return fetch('https://www.pixiv.net/rpc/index.php', {
-      method: 'post',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-      },
-      credentials: 'same-origin', // 附带 cookie
-      body: `mode=save_illust_bookmark&illust_id=${id}&restrict=${restrict}&comment=&tags=${tags}&tt=${token}`,
     })
   }
 

@@ -297,7 +297,7 @@ export interface UgoiraInfo {
 // 从未分类书签中取出一些需要的数据
 export interface BookmarkResult {
   id: string
-  tags: string
+  tags: string[]
   restrict: boolean
 }
 

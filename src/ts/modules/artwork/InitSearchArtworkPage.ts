@@ -21,7 +21,7 @@ import { DOM } from '../DOM'
 
 type AddBMKData = {
   id: number
-  tags: string
+  tags: string[]
 }
 
 type FilterCB = (value: WorkInfo) => unknown
@@ -292,8 +292,6 @@ class InitSearchArtworkPage extends InitPageBase {
         </svg>`
     }
 
-    const tagString = encodeURI(data.tags.join(' '))
-
     // 添加收藏的作品，让收藏图标变红
     const bookmarkedFlag = data.bookmarked ? this.bookmarkedClass : ''
 
@@ -364,7 +362,7 @@ class InitSearchArtworkPage extends InitPageBase {
     const bookmarkedClass = this.bookmarkedClass
     addBMKBtn.addEventListener('click', function () {
       const e = new CustomEvent('addBMK', {
-        detail: { data: { id: data.idNum, tags: tagString } },
+        detail: { data: { id: data.idNum, tags: data.tags } },
       })
       window.dispatchEvent(e)
       this.classList.add(bookmarkedClass)
@@ -373,8 +371,13 @@ class InitSearchArtworkPage extends InitPageBase {
 
   private addBookmark = (event: CustomEventInit) => {
     const data = event.detail.data as AddBMKData
-    const tagString = form.quickBookmarks.checked ? data.tags : ''
-    API.addBookmark(data.id.toString(), tagString, API.getToken(), false)
+    API.addBookmark(
+      'illusts',
+      data.id.toString(),
+      data.tags,
+      false,
+      API.getToken()
+    )
     this.resultMeta.forEach((result) => {
       if (result.idNum === data.id) {
         result.bookmarked = true
