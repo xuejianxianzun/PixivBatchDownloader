@@ -6,14 +6,14 @@ import { lang } from './Lang'
 import { DOM } from './DOM'
 import { options } from './Options'
 import { form } from './Settings'
-import { RankingOption } from './CrawlArgument.d'
-import { RankingData } from './CrawlResult.d'
+import { RankingOption } from './CrawlArgument'
+import { RankingData } from './CrawlResult'
 import { FilterOption } from './Filter.d'
 import { filter } from './Filter'
 import { store } from './Store'
 import { log } from './Log'
 
-class InitRankingPage extends InitPageBase {
+class InitRankingArtworkPage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -170,4 +170,4 @@ class InitRankingPage extends InitPageBase {
     this.listPageFinished = 0
   }
 }
-export { InitRankingPage }
+export { InitRankingArtworkPage }

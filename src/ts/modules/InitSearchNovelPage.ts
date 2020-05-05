@@ -4,7 +4,7 @@ import { Colors } from './Colors'
 import { lang } from './Lang'
 import { options } from './Options'
 import { pageInfo } from './PageInfo'
-import { SearchOption } from './CrawlArgument.d'
+import { SearchOption } from './CrawlArgument'
 import { FilterOption } from './Filter.d'
 import { filter } from './Filter'
 import { API } from './API'
@@ -13,7 +13,7 @@ import { log } from './Log'
 import { FastScreen } from './FastScreen'
 import { DOM } from './DOM'
 
-class InitNovelSearchPage extends InitPageBase {
+class InitSearchNovelPage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -209,4 +209,4 @@ class InitNovelSearchPage extends InitPageBase {
   }
 }
 
-export { InitNovelSearchPage }
+export { InitSearchNovelPage }

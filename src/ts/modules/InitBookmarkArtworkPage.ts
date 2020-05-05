@@ -12,7 +12,7 @@ import { log } from './Log'
 import { DOM } from './DOM'
 import { pageInfo } from './PageInfo'
 
-class InitBookmarkPage extends InitPageBase {
+class InitBookmarkArtworkPage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -234,4 +234,4 @@ class InitBookmarkPage extends InitPageBase {
     store.result.reverse()
   }
 }
-export { InitBookmarkPage }
+export { InitBookmarkArtworkPage }

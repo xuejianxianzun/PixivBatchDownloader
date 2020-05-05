@@ -4,14 +4,14 @@ import { Colors } from './Colors'
 import { lang } from './Lang'
 import { DOM } from './DOM'
 import { options } from './Options'
-import { BookMarkNewData } from './CrawlResult.d'
+import { BookMarkNewData } from './CrawlResult'
 import { FilterOption } from './Filter.d'
 import { filter } from './Filter'
 import { API } from './API'
 import { store } from './Store'
 import { log } from './Log'
 
-class InitBookmarkNewIllustPage extends InitPageBase {
+class InitBookmarkNewArtworkPage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -118,4 +118,4 @@ class InitBookmarkNewIllustPage extends InitPageBase {
     this.listPageFinished = 0
   }
 }
-export { InitBookmarkNewIllustPage }
+export { InitBookmarkNewArtworkPage }

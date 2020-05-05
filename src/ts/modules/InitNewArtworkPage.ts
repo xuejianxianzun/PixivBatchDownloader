@@ -3,7 +3,7 @@ import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { options } from './Options'
-import { NewIllustOption } from './CrawlArgument.d'
+import { NewIllustOption } from './CrawlArgument'
 import { NewIllustData } from './CrawlResult'
 import { FilterOption } from './Filter.d'
 import { filter } from './Filter'
@@ -12,7 +12,7 @@ import { store } from './Store'
 import { log } from './Log'
 import { DOM } from './DOM'
 
-class InitNewIllustPage extends InitPageBase {
+class InitNewArtworkPage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -151,4 +151,4 @@ class InitNewIllustPage extends InitPageBase {
     this.fetchCount = 0
   }
 }
-export { InitNewIllustPage }
+export { InitNewArtworkPage }

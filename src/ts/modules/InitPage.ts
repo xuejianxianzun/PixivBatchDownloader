@@ -3,22 +3,22 @@ import { EVT } from './EVT'
 import { pageType } from './PageType'
 
 import { InitIndexPage } from './InitIndexPage'
-import { InitWorksPage } from './InitWorksPage'
+import { InitArtworkPage } from './InitArtworkPage'
 import { InitUserPage } from './InitUserPage'
-import { InitBookmarkPage } from './InitBookmarkPage'
-import { InitSearchPage } from './InitSearchPage'
+import { InitBookmarkArtworkPage } from './InitBookmarkArtworkPage'
+import { InitSearchArtworkPage } from './InitSearchArtworkPage'
 import { InitAreaRankingPage } from './InitAreaRankingPage'
-import { InitRankingPage } from './InitRankingPage'
+import { InitRankingArtworkPage } from './InitRankingArtworkPage'
 import { InitPixivisionPage } from './InitPixivisionPage'
 import { InitBookmarkDetailPage } from './InitBookmarkDetailPage'
-import { InitBookmarkNewIllustPage } from './InitBookmarkNewIllustPage'
+import { InitBookmarkNewArtworkPage } from './InitBookmarkNewArtworkPage'
 import { InitDiscoverPage } from './InitDiscoverPage'
-import { InitNewIllustPage } from './InitNewIllustPage'
+import { InitNewArtworkPage } from './InitNewArtworkPage'
 import { InitNovelPage } from './InitNovelPage'
 import { InitNovelSeriesPage } from './InitNovelSeriesPage'
-import { InitNovelSearchPage } from './InitNovelSearchPage'
-import { InitNovelRankingPage } from './InitNovelRankingPage'
-import { InitNovelBookmarkNewPage } from './InitNovelBookmarkNewPage'
+import { InitSearchNovelPage } from './InitSearchNovelPage'
+import { InitRankingNovelPage } from './InitRankingNovelPage'
+import { InitBookmarkNewNovelPage } from './InitBookmarkNewNovelPage'
 import { InitNewNovelPage } from './InitNewNovelPage'
 
 class InitPage {
@@ -37,37 +37,37 @@ class InitPage {
       case 0:
         return new InitIndexPage()
       case 1:
-        return new InitWorksPage()
+        return new InitArtworkPage()
       case 2:
         return new InitUserPage()
       case 4:
-        return new InitBookmarkPage()
+        return new InitBookmarkArtworkPage()
       case 5:
-        return new InitSearchPage()
+        return new InitSearchArtworkPage()
       case 6:
         return new InitAreaRankingPage()
       case 7:
-        return new InitRankingPage()
+        return new InitRankingArtworkPage()
       case 8:
         return new InitPixivisionPage()
       case 9:
         return new InitBookmarkDetailPage()
       case 10:
-        return new InitBookmarkNewIllustPage()
+        return new InitBookmarkNewArtworkPage()
       case 11:
         return new InitDiscoverPage()
       case 12:
-        return new InitNewIllustPage()
+        return new InitNewArtworkPage()
       case 13:
         return new InitNovelPage()
       case 14:
         return new InitNovelSeriesPage()
       case 15:
-        return new InitNovelSearchPage()
+        return new InitSearchNovelPage()
       case 16:
-        return new InitNovelRankingPage()
+        return new InitRankingNovelPage()
       case 17:
-        return new InitNovelBookmarkNewPage()
+        return new InitBookmarkNewNovelPage()
       case 18:
         return new InitNewNovelPage()
       default:

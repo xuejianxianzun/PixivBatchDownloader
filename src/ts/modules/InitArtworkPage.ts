@@ -7,12 +7,12 @@ import { options } from './Options'
 import { store } from './Store'
 import { QuickBookmark } from './QuickBookmark'
 import { imgViewer } from './ImgViewer'
-import { userWorksType } from './CrawlArgument.d'
+import { userWorksType } from './CrawlArgument'
 import { DOM } from './DOM'
 import { API } from './API'
 import { log } from './Log'
 
-class InitWorksPage extends InitPageBase {
+class InitArtworkPage extends InitPageBase {
   constructor() {
     super()
     this.quickDownBtn = document.createElement('div')
@@ -221,4 +221,4 @@ class InitWorksPage extends InitPageBase {
     this.crawlRelated = false // 解除下载相关作品的标记
   }
 }
-export { InitWorksPage }
+export { InitArtworkPage }

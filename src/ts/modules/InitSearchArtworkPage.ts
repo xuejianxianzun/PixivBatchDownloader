@@ -6,7 +6,7 @@ import { options } from './Options'
 import { pageInfo } from './PageInfo'
 import { DeleteWorks } from './DeleteWorks'
 import { EVT } from './EVT'
-import { SearchOption } from './CrawlArgument.d'
+import { SearchOption } from './CrawlArgument'
 import { FilterOption } from './Filter.d'
 import { filter } from './Filter'
 import { API } from './API'
@@ -26,7 +26,7 @@ type AddBMKData = {
 
 type FilterCB = (value: WorkInfo) => unknown
 
-class InitSearchPage extends InitPageBase {
+class InitSearchArtworkPage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -691,4 +691,4 @@ class InitSearchPage extends InitPageBase {
   }
 }
 
-export { InitSearchPage }
+export { InitSearchArtworkPage }
