@@ -116,8 +116,8 @@ You can also optimize the translation, thank you very much :)
 
 15 [Search novel](https://www.pixiv.net/tags/%E7%99%BE%E5%90%88/novels)
 
-16 [小说排行榜](https://www.pixiv.net/novel/ranking.php?mode=daily)
+16 [Novel ranking](https://www.pixiv.net/novel/ranking.php?mode=daily)
 
-17 [关注的新作品-小说](https://www.pixiv.net/novel/bookmark_new.php)
+17 [New Novle: Following](https://www.pixiv.net/novel/bookmark_new.php)
 
-18 [大家的新作品-小说](https://www.pixiv.net/novel/new.php)
+18 [New Novle from All users](https://www.pixiv.net/novel/new.php)
