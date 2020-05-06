@@ -19,6 +19,11 @@ class QuickBookmark {
   private timer: number = 0
 
   private async init() {
+    // 在某些条件下，不展开快速收藏功能
+    if (!API.getToken() || !form.quickBookmarks.checked) {
+      return
+    }
+
     window.clearInterval(this.timer)
 
     this.isNovel = window.location.href.includes('/novel')
@@ -42,11 +47,6 @@ class QuickBookmark {
 
   // 首先添加快速下载按钮，如果选项是不启用快速收藏，则不添加
   private initBtn() {
-    // 在某些条件下，不展开快速收藏功能
-    if (!API.getToken() || !form.quickBookmarks.checked) {
-      return
-    }
-
     // 从父元素查找作品下方的工具栏
     const toolbarParent = document.querySelectorAll('main > section')
 
@@ -110,34 +110,35 @@ class QuickBookmark {
         return
       }
 
-      let tagArray: string[] = []
+      let tags: string[] = []
       // 如果设置了快速收藏，则获取 tag
       if (form.quickBookmarks.checked) {
         const tagElements = document.querySelectorAll('._1LEXQ_3 li')
         for (const el of tagElements) {
           const nowA = el.querySelector('a')
           if (nowA) {
-            let nowTag = nowA.textContent?.trim()
-            // 对于原创作品，非日文的页面上只显示了用户语言的“原创”，替换成日文 tag “オリジナル”。
-            if (
-              nowTag === '原创' ||
-              nowTag === 'Original' ||
-              nowTag === '창작'
-            ) {
-              nowTag = 'オリジナル'
-            }
+            const nowTag = nowA.textContent!.trim()
             if (nowTag) {
-              tagArray.push(nowTag)
+              tags.push(nowTag)
             }
           }
         }
+      }
+
+      // 如果一个作品是原创作品，它的 tag 列表的最前面会显示“原创” tag。以前是统一显示日文的“オリジナル”，现在则会根据用户语言显示不同的文字。这里会把“オリジナル”添加到末尾，保持和以前的习惯一致。
+      if (
+        tags.includes('原创') ||
+        tags.includes('Original') ||
+        tags.includes('창작')
+      ) {
+        tags.push('オリジナル')
       }
 
       const type: 'illusts' | 'novels' = this.isNovel ? 'novels' : 'illusts'
       const id = this.isNovel ? API.getNovelId() : API.getIllustId()
 
       // 调用添加收藏的 api
-      API.addBookmark(type, id, tagArray, false, API.getToken())
+      API.addBookmark(type, id, tags, false, API.getToken())
         .then((response) => response.json())
         .then((data) => {
           if (data.error === false) {
