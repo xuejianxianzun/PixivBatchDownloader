@@ -4,10 +4,12 @@ import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../Options'
 import { store } from '../Store'
+import { QuickBookmark } from '../QuickBookmark'
 import { userWorksType } from '../CrawlArgument'
 import { DOM } from '../DOM'
 import { API } from '../API'
 import { log } from '../Log'
+import { EVT } from '../EVT'
 
 class InitNovelPage extends InitPageBase {
   constructor() {
@@ -18,7 +20,15 @@ class InitNovelPage extends InitPageBase {
 
   private quickDownBtn: HTMLDivElement
 
-  protected initElse() {}
+  protected initElse() {
+    this.initQuickBookmark()
+
+    window.addEventListener(EVT.events.pageSwitch, this.initQuickBookmark)
+  }
+
+  private initQuickBookmark() {
+    new QuickBookmark()
+  }
 
   protected appendCenterBtns() {
     DOM.addBtn(
@@ -75,6 +85,8 @@ class InitNovelPage extends InitPageBase {
 
     // 删除快速下载按钮
     DOM.removeEl(this.quickDownBtn)
+
+    window.removeEventListener(EVT.events.pageSwitch, this.initQuickBookmark)
   }
 
   private crawlDirection: number = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品

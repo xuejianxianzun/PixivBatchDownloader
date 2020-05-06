@@ -322,7 +322,7 @@ class API {
   }
 
   // 获取插画 漫画 的详细信息
-  static getImageWorksData(id: string): Promise<IllustData> {
+  static getArtworkData(id: string): Promise<IllustData> {
     const url = `https://www.pixiv.net/ajax/illust/${id}`
     return this.request(url)
   }
@@ -334,7 +334,7 @@ class API {
   }
 
   // 获取小说的详细信息
-  static getNovelWorksData(id: string): Promise<NovelData> {
+  static getNovelData(id: string): Promise<NovelData> {
     const url = `https://www.pixiv.net/ajax/novel/${id}`
     return this.request(url)
   }

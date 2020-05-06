@@ -6,7 +6,7 @@ import { lang } from '../Lang'
 import { options } from '../Options'
 import { store } from '../Store'
 import { QuickBookmark } from '../QuickBookmark'
-import { imgViewer } from '../ImgViewer'
+import { ImgViewer } from '../ImgViewer'
 import { userWorksType } from '../CrawlArgument'
 import { DOM } from '../DOM'
 import { API } from '../API'
@@ -23,15 +23,21 @@ class InitArtworkPage extends InitPageBase {
 
   protected initElse() {
     // 初始化快速收藏功能和图片查看器
-    new QuickBookmark()
-    imgViewer.init()
+    this.initQuickBookmark()
+    this.initImgViewer()
 
-    // 页面切换时初始化图片查看器
+    // 页面切换再次初始化
+    window.addEventListener(EVT.events.pageSwitch, this.initQuickBookmark)
     window.addEventListener(EVT.events.pageSwitch, this.initImgViewer)
   }
 
   private initImgViewer() {
-    imgViewer.init()
+    new ImgViewer()
+  }
+
+  
+  private initQuickBookmark() {
+    new QuickBookmark()
   }
 
   protected appendCenterBtns() {
@@ -104,7 +110,8 @@ class InitArtworkPage extends InitPageBase {
     // 删除快速下载按钮
     DOM.removeEl(this.quickDownBtn)
 
-    // 解除切换页面时初始化图片查看器
+    // 解除切换页面时绑定的事件
+    window.removeEventListener(EVT.events.pageSwitch, this.initQuickBookmark)
     window.removeEventListener(EVT.events.pageSwitch, this.initImgViewer)
   }
 

@@ -212,10 +212,10 @@ abstract class InitPageBase {
     try {
       // 发起请求
       if (idData.type === 'novels') {
-        const data = await API.getNovelWorksData(id)
+        const data = await API.getNovelData(id)
         await saveNovelData.save(data)
       } else {
-        const data = await API.getImageWorksData(id)
+        const data = await API.getArtworkData(id)
         await saveArtworkData.save(data)
       }
       this.afterGetWorksData()

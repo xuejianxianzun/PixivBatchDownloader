@@ -3,9 +3,13 @@
 import { API } from './API'
 
 class ImgViewer {
+  constructor(){
+    this.init()
+  }
+
   private myViewer!: Viewer // 查看器
-  private viewerUl: HTMLUListElement = document.createElement('ul') // 图片列表的 ul 元素
   private viewerWarpper: HTMLDivElement = document.createElement('div') // 图片列表的容器
+  private viewerUl: HTMLUListElement = document.createElement('ul') // 图片列表的 ul 元素
 
   // 初始化图片查看器
   private newViewer(pageCount: number, firsturl: string) {
@@ -63,12 +67,17 @@ class ImgViewer {
   }
 
   // 初始化图片查看器
-  public init() {
-    // 检查图片查看器元素是否已经生成
-    if (!document.getElementById('viewerWarpper')) {
+  private init() {
+    // 检查图片查看器的容器是否已经就绪
+    const test = document.querySelector('main #viewerWarpper')
+
+    if (!test) {
       // 创建图片查看器
       this.createViewer()
     } else {
+      // 直接使用已存在的元素
+      this.viewerWarpper = test as HTMLDivElement
+      this.viewerUl = this.viewerWarpper.querySelector('ul')!
       // 更新数据
       this.updateViewer()
     }
@@ -169,14 +178,14 @@ class ImgViewer {
     this.viewerWarpper.style.display = 'none' // 先隐藏 viewerWarpper
 
     // 获取作品信息
-    const data = await API.getImageWorksData(API.getIllustId())
-    const thisOneData = data.body
+    const data = await API.getArtworkData(API.getIllustId())
+    const body = data.body
     // 处理插画或漫画作品，不处理动图作品
-    if (thisOneData.illustType === 0 || thisOneData.illustType === 1) {
+    if (body.illustType === 0 || body.illustType === 1) {
       // 有多张图片时，创建缩略图
-      if (thisOneData.pageCount > 1) {
-        const { thumb, original } = thisOneData.urls
-        this.viewerUl.innerHTML = new Array(thisOneData.pageCount)
+      if (body.pageCount > 1) {
+        const { thumb, original } = body.urls
+        this.viewerUl.innerHTML = new Array(body.pageCount)
           .fill(1)
           .reduce((html, now, index) => {
             return (html += `<li><img src="${thumb.replace(
@@ -193,7 +202,7 @@ class ImgViewer {
           this.myViewer.destroy()
         }
         // 重新配置看图组件
-        this.newViewer(thisOneData.pageCount, original)
+        this.newViewer(body.pageCount, original)
 
         // 预加载第一张图片
         const img = new Image()
@@ -296,5 +305,4 @@ class ImgViewer {
   }
 }
 
-const imgViewer = new ImgViewer()
-export { imgViewer }
+export { ImgViewer }

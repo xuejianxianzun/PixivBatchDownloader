@@ -387,7 +387,7 @@ class API {
         return this.request(url);
     }
     // 获取插画 漫画 的详细信息
-    static getImageWorksData(id) {
+    static getArtworkData(id) {
         const url = `https://www.pixiv.net/ajax/illust/${id}`;
         return this.request(url);
     }
@@ -397,7 +397,7 @@ class API {
         return this.request(url);
     }
     // 获取小说的详细信息
-    static getNovelWorksData(id) {
+    static getNovelData(id) {
         const url = `https://www.pixiv.net/ajax/novel/${id}`;
         return this.request(url);
     }
@@ -3087,20 +3087,21 @@ const filter = new Filter();
 /*!*************************************!*\
   !*** ./src/ts/modules/ImgViewer.ts ***!
   \*************************************/
-/*! exports provided: imgViewer */
+/*! exports provided: ImgViewer */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "imgViewer", function() { return imgViewer; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ImgViewer", function() { return ImgViewer; });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/modules/API.ts");
 // 图片查看器类
 /// <reference path = "./Viewer.d.ts" />
 
 class ImgViewer {
     constructor() {
-        this.viewerUl = document.createElement('ul'); // 图片列表的 ul 元素
         this.viewerWarpper = document.createElement('div'); // 图片列表的容器
+        this.viewerUl = document.createElement('ul'); // 图片列表的 ul 元素
+        this.init();
     }
     // 初始化图片查看器
     newViewer(pageCount, firsturl) {
@@ -3153,12 +3154,16 @@ class ImgViewer {
     }
     // 初始化图片查看器
     init() {
-        // 检查图片查看器元素是否已经生成
-        if (!document.getElementById('viewerWarpper')) {
+        // 检查图片查看器的容器是否已经就绪
+        let test = document.querySelector('main #viewerWarpper');
+        if (!test) {
+            console.log('不存在');
             // 创建图片查看器
             this.createViewer();
         }
         else {
+            this.viewerWarpper = test;
+            this.viewerUl = this.viewerWarpper.querySelector('ul');
             // 更新数据
             this.updateViewer();
         }
@@ -3244,16 +3249,18 @@ class ImgViewer {
     }
     // 根据作品信息，更新图片查看器配置。每当页面更新时执行一次
     async updateViewer() {
+        console.log('updateViewer');
         this.viewerWarpper.style.display = 'none'; // 先隐藏 viewerWarpper
+        console.log(this.viewerWarpper);
         // 获取作品信息
-        const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getImageWorksData(_API__WEBPACK_IMPORTED_MODULE_0__["API"].getIllustId());
-        const thisOneData = data.body;
+        const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(_API__WEBPACK_IMPORTED_MODULE_0__["API"].getIllustId());
+        const body = data.body;
         // 处理插画或漫画作品，不处理动图作品
-        if (thisOneData.illustType === 0 || thisOneData.illustType === 1) {
+        if (body.illustType === 0 || body.illustType === 1) {
             // 有多张图片时，创建缩略图
-            if (thisOneData.pageCount > 1) {
-                const { thumb, original } = thisOneData.urls;
-                this.viewerUl.innerHTML = new Array(thisOneData.pageCount)
+            if (body.pageCount > 1) {
+                const { thumb, original } = body.urls;
+                this.viewerUl.innerHTML = new Array(body.pageCount)
                     .fill(1)
                     .reduce((html, now, index) => {
                     return (html += `<li><img src="${thumb.replace('p0', 'p' + index)}" data-src="${original.replace('p0', 'p' + index)}"></li>`);
@@ -3265,7 +3272,7 @@ class ImgViewer {
                     this.myViewer.destroy();
                 }
                 // 重新配置看图组件
-                this.newViewer(thisOneData.pageCount, original);
+                this.newViewer(body.pageCount, original);
                 // 预加载第一张图片
                 const img = new Image();
                 img.src = original;
@@ -3350,7 +3357,6 @@ class ImgViewer {
         }
     }
 }
-const imgViewer = new ImgViewer();
 
 
 
@@ -4136,11 +4142,11 @@ class InitPageBase {
         try {
             // 发起请求
             if (idData.type === 'novels') {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_7__["API"].getNovelWorksData(id);
+                const data = await _API__WEBPACK_IMPORTED_MODULE_7__["API"].getNovelData(id);
                 await _novel_SaveNovelData__WEBPACK_IMPORTED_MODULE_5__["saveNovelData"].save(data);
             }
             else {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_7__["API"].getImageWorksData(id);
+                const data = await _API__WEBPACK_IMPORTED_MODULE_7__["API"].getArtworkData(id);
                 await _artwork_SaveArtworkData__WEBPACK_IMPORTED_MODULE_4__["saveArtworkData"].save(data);
             }
             this.afterGetWorksData();
@@ -5194,23 +5200,42 @@ __webpack_require__.r(__webpack_exports__);
 
 class QuickBookmark {
     constructor() {
-        this.quickBookmarkEl = document.createElement('a'); // 快速收藏的元素
+        this.btn = document.createElement('a'); // 快速收藏的元素
+        this.btnId = 'quickBookmarkEl';
+        this.colorClass = 'bookmarkedColor';
         this.likeBtnClass = '_35vRH4a';
-        this.quickBookmark();
+        this.isNovel = false;
+        this.isBookmarked = null;
+        this.timer = 0;
+        this.init();
     }
-    // 快速收藏
-    quickBookmark() {
-        // 因为切换作品（pushstate）时，不能准确的知道 toolbar 何时更新，而且获取 token 也可能需要时间，所以只能不断检测
-        setTimeout(() => {
-            this.quickBookmark();
+    async init() {
+        window.clearInterval(this.timer);
+        this.isNovel = window.location.href.includes('/novel');
+        this.isBookmarked = !!(await this.getBookmarkData());
+        this.timer = setInterval(() => {
+            this.initBtn();
         }, 300);
-        // 如果获取不到 token，则不展开快速收藏功能
-        if (!_API__WEBPACK_IMPORTED_MODULE_0__["API"].getToken()) {
+    }
+    async getBookmarkData() {
+        let data;
+        if (this.isNovel) {
+            data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelData(_API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelId());
+        }
+        else {
+            data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(_API__WEBPACK_IMPORTED_MODULE_0__["API"].getIllustId());
+        }
+        return data.body.bookmarkData;
+    }
+    // 首先添加快速下载按钮，如果选项是不启用快速收藏，则不添加
+    initBtn() {
+        // 在某些条件下，不展开快速收藏功能
+        if (!_API__WEBPACK_IMPORTED_MODULE_0__["API"].getToken() || !_Settings__WEBPACK_IMPORTED_MODULE_2__["form"].quickBookmarks.checked) {
             return;
         }
-        // 因为 p 站改版 class 经常变，所以从父元素查找，父元素的 class 变化没那么频繁
+        // 从父元素查找作品下方的工具栏
         const toolbarParent = document.querySelectorAll('main > section');
-        let toolbar; // 作品下方的工具栏
+        let toolbar; // 工具栏
         for (const el of toolbarParent) {
             const test = el.querySelector('div>section');
             if (test) {
@@ -5219,48 +5244,49 @@ class QuickBookmark {
             }
         }
         if (toolbar) {
-            this.quickBookmarkEl = document.querySelector('#quickBookmarkEl');
-            // 如果没有 quick 元素则添加
-            if (!this.quickBookmarkEl) {
-                // 创建快速收藏元素
-                this.quickBookmarkEl = document.createElement('a');
-                this.quickBookmarkEl.id = 'quickBookmarkEl';
-                this.quickBookmarkEl.textContent = '✩';
-                this.quickBookmarkEl.href = 'javascript:void(0)';
-                this.quickBookmarkEl.title = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_快速收藏');
-                toolbar.insertBefore(this.quickBookmarkEl, toolbar.childNodes[3]);
-                // 隐藏原来的收藏按钮并检测收藏状态
-                const orgIcon = toolbar.childNodes[2];
-                if (!orgIcon) {
-                    // 当用户处于自己作品的页面时，是没有收藏按钮的，停止执行
-                    return;
-                }
-                else {
-                    orgIcon.style.display = 'none';
-                }
-                const heart = orgIcon.querySelector('svg');
-                if (window.getComputedStyle(heart)['fill'] === 'rgb(255, 64, 96)') {
-                    // 如果已经收藏过了
-                    this.quickBookmarkEnd();
-                }
-                else {
-                    // 准备快速收藏
-                    this.readyQuickBookmark();
-                }
-            }
-            else {
-                // 如果有 quick 元素，什么都不做
+            const orgIcon = toolbar.childNodes[2];
+            // 当没有收藏按钮时，停止执行（如用户处于自己作品的页面时没有收藏按钮）
+            if (!orgIcon) {
                 return;
             }
+            // 隐藏原来的收藏按钮
+            orgIcon.style.display = 'none';
+            // 如果没有快速收藏元素则添加
+            this.btn = toolbar.querySelector(this.btnId);
+            if (!this.btn) {
+                this.btn = this.createBtn();
+                toolbar.insertBefore(this.btn, toolbar.childNodes[3]);
+            }
+            if (this.isBookmarked) {
+                this.bookmarked();
+            }
+            else {
+                this.readyBookmark();
+            }
+            window.clearInterval(this.timer);
         }
     }
+    createBtn() {
+        const btn = document.createElement('a');
+        btn.id = this.btnId;
+        btn.textContent = '✩';
+        btn.href = 'javascript:void(0)';
+        btn.title = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_快速收藏');
+        return btn;
+    }
     // 准备快速收藏
-    readyQuickBookmark() {
-        this.quickBookmarkEl.addEventListener('click', () => {
+    readyBookmark() {
+        this.btn.classList.remove(this.colorClass);
+        this.btn.href = 'javascript:void(0)';
+        this.btn.addEventListener('click', () => {
             var _a;
+            // 自动点赞
             ;
-            document.querySelector(`.${this.likeBtnClass}`).click(); // 自动点赞
-            let tagString = '';
+            document.querySelector(`.${this.likeBtnClass}`).click();
+            // 快速收藏
+            if (this.isBookmarked) {
+                return;
+            }
             let tagArray = [];
             // 如果设置了快速收藏，则获取 tag
             if (_Settings__WEBPACK_IMPORTED_MODULE_2__["form"].quickBookmarks.checked) {
@@ -5280,25 +5306,29 @@ class QuickBookmark {
                         }
                     }
                 }
-                tagString = encodeURI(tagArray.join(' '));
             }
+            const type = this.isNovel ? 'novels' : 'illusts';
+            const id = this.isNovel ? _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelId() : _API__WEBPACK_IMPORTED_MODULE_0__["API"].getIllustId();
             // 调用添加收藏的 api
-            const type = window.location.href.includes('/novel')
-                ? 'novels'
-                : 'illusts';
-            _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(type, _API__WEBPACK_IMPORTED_MODULE_0__["API"].getIllustId(), tagArray, false, _API__WEBPACK_IMPORTED_MODULE_0__["API"].getToken())
+            _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(type, id, tagArray, false, _API__WEBPACK_IMPORTED_MODULE_0__["API"].getToken())
                 .then((response) => response.json())
                 .then((data) => {
                 if (data.error === false) {
-                    this.quickBookmarkEnd();
+                    this.isBookmarked = true;
+                    this.bookmarked();
                 }
             });
         });
     }
     // 如果这个作品已收藏，则改变样式
-    quickBookmarkEnd() {
-        this.quickBookmarkEl.style.color = '#FF4060';
-        this.quickBookmarkEl.href = `/bookmark_add.php?type=illust&illust_id=${_API__WEBPACK_IMPORTED_MODULE_0__["API"].getIllustId()}`;
+    bookmarked() {
+        this.btn.classList.add(this.colorClass);
+        if (this.isNovel) {
+            this.btn.href = `/novel/bookmark_add.php?id=${_API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelId()}`;
+        }
+        else {
+            this.btn.href = `/bookmark_add.php?type=illust&illust_id=${_API__WEBPACK_IMPORTED_MODULE_0__["API"].getIllustId()}`;
+        }
     }
 }
 
@@ -6786,13 +6816,17 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
     }
     initElse() {
         // 初始化快速收藏功能和图片查看器
-        new _QuickBookmark__WEBPACK_IMPORTED_MODULE_6__["QuickBookmark"]();
-        _ImgViewer__WEBPACK_IMPORTED_MODULE_7__["imgViewer"].init();
-        // 页面切换时初始化图片查看器
+        this.initQuickBookmark();
+        this.initImgViewer();
+        // 页面切换再次初始化
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.pageSwitch, this.initQuickBookmark);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.pageSwitch, this.initImgViewer);
     }
     initImgViewer() {
-        _ImgViewer__WEBPACK_IMPORTED_MODULE_7__["imgViewer"].init();
+        new _ImgViewer__WEBPACK_IMPORTED_MODULE_7__["ImgViewer"]();
+    }
+    initQuickBookmark() {
+        new _QuickBookmark__WEBPACK_IMPORTED_MODULE_6__["QuickBookmark"]();
     }
     appendCenterBtns() {
         _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始抓取new')).addEventListener('click', () => {
@@ -6836,7 +6870,8 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
         _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].clearSlot('otherBtns');
         // 删除快速下载按钮
         _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].removeEl(this.quickDownBtn);
-        // 解除切换页面时初始化图片查看器
+        // 解除切换页面时绑定的事件
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.pageSwitch, this.initQuickBookmark);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.pageSwitch, this.initImgViewer);
     }
     getWantPage() {
@@ -9751,10 +9786,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Options */ "./src/ts/modules/Options.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
-/* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
+/* harmony import */ var _QuickBookmark__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../QuickBookmark */ "./src/ts/modules/QuickBookmark.ts");
+/* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
 //初始化小说作品页
+
+
 
 
 
@@ -9770,13 +9809,19 @@ class InitNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
         this.quickDownBtn = document.createElement('div');
         this.init();
     }
-    initElse() { }
+    initElse() {
+        this.initQuickBookmark();
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.pageSwitch, this.initQuickBookmark);
+    }
+    initQuickBookmark() {
+        new _QuickBookmark__WEBPACK_IMPORTED_MODULE_5__["QuickBookmark"]();
+    }
     appendCenterBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_5__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始抓取new')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始抓取new')).addEventListener('click', () => {
             this.crawlDirection = -1;
             this.readyCrawl();
         });
-        _DOM__WEBPACK_IMPORTED_MODULE_5__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始抓取old')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始抓取old')).addEventListener('click', () => {
             this.crawlDirection = 1;
             this.readyCrawl();
         });
@@ -9804,10 +9849,11 @@ class InitNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
         });
     }
     destroy() {
-        _DOM__WEBPACK_IMPORTED_MODULE_5__["DOM"].clearSlot('crawlBtns');
-        _DOM__WEBPACK_IMPORTED_MODULE_5__["DOM"].clearSlot('otherBtns');
+        _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].clearSlot('crawlBtns');
+        _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].clearSlot('otherBtns');
         // 删除快速下载按钮
-        _DOM__WEBPACK_IMPORTED_MODULE_5__["DOM"].removeEl(this.quickDownBtn);
+        _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].removeEl(this.quickDownBtn);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.pageSwitch, this.initQuickBookmark);
     }
     /*
     -1 抓取新作品
@@ -9832,9 +9878,9 @@ class InitNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
             // 快速下载
             _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.push({
                 type: 'novels',
-                id: _API__WEBPACK_IMPORTED_MODULE_6__["API"].getNovelId(window.location.href),
+                id: _API__WEBPACK_IMPORTED_MODULE_7__["API"].getNovelId(window.location.href),
             });
-            _Log__WEBPACK_IMPORTED_MODULE_7__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始获取作品页面'));
+            _Log__WEBPACK_IMPORTED_MODULE_8__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始获取作品页面'));
             this.getIdListFinished();
         }
         else {
@@ -9844,9 +9890,9 @@ class InitNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
     }
     async getIdList() {
         let type = ['novels'];
-        let idList = await _API__WEBPACK_IMPORTED_MODULE_6__["API"].getUserWorksByType(_DOM__WEBPACK_IMPORTED_MODULE_5__["DOM"].getUserId(), type);
+        let idList = await _API__WEBPACK_IMPORTED_MODULE_7__["API"].getUserWorksByType(_DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].getUserId(), type);
         // 储存符合条件的 id
-        let nowId = parseInt(_API__WEBPACK_IMPORTED_MODULE_6__["API"].getIllustId(window.location.href));
+        let nowId = parseInt(_API__WEBPACK_IMPORTED_MODULE_7__["API"].getIllustId(window.location.href));
         idList.forEach((id) => {
             let idNum = parseInt(id.id);
             // 新作品
@@ -9862,11 +9908,11 @@ class InitNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
         if (this.crawlNumber !== -1) {
             // 新作品 升序排列
             if (this.crawlDirection === -1) {
-                _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.sort(_API__WEBPACK_IMPORTED_MODULE_6__["API"].sortByProperty('id')).reverse();
+                _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.sort(_API__WEBPACK_IMPORTED_MODULE_7__["API"].sortByProperty('id')).reverse();
             }
             else {
                 // 旧作品 降序排列
-                _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.sort(_API__WEBPACK_IMPORTED_MODULE_6__["API"].sortByProperty('id'));
+                _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.sort(_API__WEBPACK_IMPORTED_MODULE_7__["API"].sortByProperty('id'));
             }
             _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList = _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.splice(0, this.crawlNumber);
         }
