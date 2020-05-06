@@ -35,7 +35,6 @@ class InitArtworkPage extends InitPageBase {
     new ImgViewer()
   }
 
-  
   private initQuickBookmark() {
     new QuickBookmark()
   }

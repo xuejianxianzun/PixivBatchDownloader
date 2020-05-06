@@ -75,7 +75,6 @@ class QuickBookmark {
         toolbar.insertBefore(this.btn, toolbar.childNodes[3])
       }
 
-
       if (this.isBookmarked) {
         this.bookmarked()
       } else {

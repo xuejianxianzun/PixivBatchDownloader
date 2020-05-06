@@ -89,14 +89,14 @@ class DOM {
     // 从旧版页面的 head 元素的 script 脚本内容里匹配这一部分
     // pixiv.context.user.id = "<userid>"
     const test1 = /user.id = "(\d*)"/.exec(document.head.innerHTML)
-    if(test1&&test1.length>0){
+    if (test1 && test1.length > 0) {
       return test1[1]
     }
 
     // 从旧版页面的 head 元素的 script 脚本内容里匹配这一部分
     // pixiv.context.userId = "<userid>"
     const test2 = /userId = "(\d*)"/.exec(document.head.innerHTML)
-    if(test2&&test2.length>0){
+    if (test2 && test2.length > 0) {
       return test2[1]
     }
 

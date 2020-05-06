@@ -147,7 +147,9 @@ English （机翻，韩语设置下也使用英语文本）
 
 2 [小说 Tag 页面](https://www.pixiv.net/users/35419040/novels/%E6%81%8B%E6%84%9B)
 
-4 [收藏页面](https://www.pixiv.net/bookmark.php)
+3 [收藏页面-旧版](https://www.pixiv.net/bookmark.php)
+
+4 [收藏页面-新版](https://www.pixiv.net/users/9460149/bookmarks/artworks)
 
 5 [搜索页面](https://www.pixiv.net/tags/saber/artworks?s_mode=s_tag)
 

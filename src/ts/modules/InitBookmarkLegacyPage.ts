@@ -221,7 +221,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
     // 添加作品列表
     for (const li of elements) {
       const a = li.querySelector('a') as HTMLAnchorElement
-      if(store.idList.length===this.crawlNumber){
+      if (store.idList.length === this.crawlNumber) {
         break
       }
       store.idList.push({

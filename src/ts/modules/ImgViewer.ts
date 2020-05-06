@@ -3,7 +3,7 @@
 import { API } from './API'
 
 class ImgViewer {
-  constructor(){
+  constructor() {
     this.init()
   }
 

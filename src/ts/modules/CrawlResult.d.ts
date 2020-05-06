@@ -393,7 +393,7 @@ export interface BookmarkData {
   error: boolean
   message: string
   body: {
-    works: BookmarkArtworkData[]|NovelCommonData[]
+    works: BookmarkArtworkData[] | NovelCommonData[]
     total: number
     zoneConfig: {
       '500x500': {
@@ -682,12 +682,10 @@ export interface NovelCommonData {
   textCount: number
   description: string
   isBookmarkable: boolean
-  bookmarkData:
-    | null
-    | {
-        id: string
-        private: boolean
-      }
+  bookmarkData: null | {
+    id: string
+    private: boolean
+  }
   bookmarkCount: number
   isOriginal: boolean
   marker: null
@@ -751,12 +749,10 @@ export interface NovelData {
       themeSpacing: null
     }
     isBookmarkable: boolean
-    bookmarkData:
-      | null
-      | {
-          id: string
-          private: boolean
-        }
+    bookmarkData: null | {
+      id: string
+      private: boolean
+    }
     likeData: boolean
     pollData: null
     marker: null
@@ -880,12 +876,10 @@ export interface NovelSeriesData {
       uploadTimestamp: number
       reuploadTimestamp: number
       isBookmarkable: boolean
-      bookmarkData:
-        | null
-        | {
-            id: string
-            private: boolean
-          }
+      bookmarkData: null | {
+        id: string
+        private: boolean
+      }
     }[]
   }
 }
