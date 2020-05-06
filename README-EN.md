@@ -90,7 +90,9 @@ You can also optimize the translation, thank you very much :)
 
 2 [Tag page](https://www.pixiv.net/users/544479/artworks/%E6%9D%B1%E6%96%B9)
 
-4 [Bookmarks](https://www.pixiv.net/bookmark.php)
+3 [Bookmarks-legacy](https://www.pixiv.net/bookmark.php)
+
+4 [Bookmarks](https://www.pixiv.net/users/9460149/bookmarks/artworks)
 
 5 [Search](https://www.pixiv.net/tags/saber/artworks?s_mode=s_tag)
 
@@ -107,3 +109,15 @@ You can also optimize the translation, thank you very much :)
 11 [Discovery](https://www.pixiv.net/discovery)
 
 12 [New from All users](https://www.pixiv.net/new_illust.php)
+
+13 [Novel](https://www.pixiv.net/novel/show.php?id=12771688)
+
+14 [Series of novels](https://www.pixiv.net/novel/series/1090654)
+
+15 [Search novel](https://www.pixiv.net/tags/%E7%99%BE%E5%90%88/novels)
+
+16 [小说排行榜](https://www.pixiv.net/novel/ranking.php?mode=daily)
+
+17 [关注的新作品-小说](https://www.pixiv.net/novel/bookmark_new.php)
+
+18 [大家的新作品-小说](https://www.pixiv.net/novel/new.php)

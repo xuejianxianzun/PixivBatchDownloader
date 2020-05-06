@@ -69,7 +69,7 @@ class QuickBookmark {
       orgIcon.style.display = 'none'
 
       // 如果没有快速收藏元素则添加
-      this.btn = toolbar.querySelector(this.btnId) as HTMLAnchorElement
+      this.btn = toolbar.querySelector('#' + this.btnId) as HTMLAnchorElement
       if (!this.btn) {
         this.btn = this.createBtn()
         toolbar.insertBefore(this.btn, toolbar.childNodes[3])

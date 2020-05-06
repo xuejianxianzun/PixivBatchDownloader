@@ -66,21 +66,17 @@ class ImgViewer {
     })
   }
 
-  // 初始化图片查看器
   private init() {
-    // 检查图片查看器的容器是否已经就绪
+    // 如果之前已经存在图片查看器的元素，则删除重新创建
+    // 最好不要重复使用之前的元素。在页面无刷新切换之后，如果复用了之前的元素，只是修改一些内容，那么 Viewer 还是会使用之前的数据，导致出错。
     const test = document.querySelector('main #viewerWarpper')
+    test && test.remove()
 
-    if (!test) {
-      // 创建图片查看器
-      this.createViewer()
-    } else {
-      // 直接使用已存在的元素
-      this.viewerWarpper = test as HTMLDivElement
-      this.viewerUl = this.viewerWarpper.querySelector('ul')!
-      // 更新数据
-      this.updateViewer()
-    }
+    // 每次创建新的图片查看器时，删除之前查看器的元素，否则会存在多个
+    const test2 = document.querySelector('.viewer-container')
+    test2 && test2.remove()
+
+    this.createViewer()
   }
 
   // 创建图片查看器 html 元素，并绑定一些事件，这个函数只会在初始化时执行一次
@@ -148,11 +144,7 @@ class ImgViewer {
     // esc 退出图片查看器
     document.addEventListener('keyup', (event) => {
       if (event.code === 'Escape') {
-        // 按下 esc
-        // 如果非全屏，且查看器已经打开，则退出查看器
-        if (!this.isFullscreen() && this.viewerIsShow()) {
-          ;(document.querySelector('.viewer-close') as HTMLDivElement).click()
-        }
+        this.myViewer && this.myViewer.hide()
       }
     })
 
@@ -185,14 +177,17 @@ class ImgViewer {
       // 有多张图片时，创建缩略图
       if (body.pageCount > 1) {
         const { thumb, original } = body.urls
-        this.viewerUl.innerHTML = new Array(body.pageCount)
-          .fill(1)
-          .reduce((html, now, index) => {
-            return (html += `<li><img src="${thumb.replace(
-              'p0',
-              'p' + index
-            )}" data-src="${original.replace('p0', 'p' + index)}"></li>`)
-          }, '')
+
+        // 生成缩略图列表
+        let html = []
+        for (let index = 0; index < body.pageCount; index++) {
+          const str = `<li><img src="${thumb.replace(
+            'p0',
+            'p' + index
+          )}" data-src="${original.replace('p0', 'p' + index)}"></li>`
+          html.push(str)
+        }
+        this.viewerUl.innerHTML = html.join('')
 
         // 数据更新后，显示 viewerWarpper
         this.viewerWarpper.style.display = 'block'
@@ -201,7 +196,8 @@ class ImgViewer {
         if (this.myViewer) {
           this.myViewer.destroy()
         }
-        // 重新配置看图组件
+
+        // 配置看图组件
         this.newViewer(body.pageCount, original)
 
         // 预加载第一张图片
