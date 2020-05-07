@@ -226,6 +226,7 @@ abstract class InitPageBase {
         this.afterGetWorksData()
       } else {
         // 请求失败，会重试这个请求
+        console.log(error)
         setTimeout(() => {
           this.getWorksData(idData)
         }, 2000)

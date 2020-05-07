@@ -304,7 +304,9 @@ const formHtml = `<form class="settingForm">
       <p class="option" data-no="15">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_快速下载建立文件夹提示'
-      )}">${lang.transl('_快速下载建立文件夹')}<span class="gray1"> ? </span></span>
+      )}">${lang.transl(
+  '_快速下载建立文件夹'
+)}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       </p>
@@ -372,7 +374,9 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="26">
-      <span class="settingNameStyle1">${lang.transl('_小说保存格式')}<span class="gray1"> &nbsp; </span></span>
+      <span class="settingNameStyle1">${lang.transl(
+        '_小说保存格式'
+      )}<span class="gray1"> &nbsp; </span></span>
       <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt" checked>
       <span class="beautify_radio"></span>
       <label for="novelSaveAs1"> txt &nbsp;</label>
@@ -383,8 +387,10 @@ const formHtml = `<form class="settingForm">
       
       <p class="option" data-no="27">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_在小说内保存元数据提示'
-      )}">${lang.transl('_在小说内保存元数据')}<span class="gray1"> ? </span></span>
+        '_在小说里保存元数据提示'
+      )}">${lang.transl(
+  '_在小说里保存元数据'
+)}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       </p>

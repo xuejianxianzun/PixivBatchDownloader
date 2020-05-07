@@ -16,6 +16,8 @@
 <!-- /TOC -->
 [View English introduction](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
 
+**现已支持小说下载！**
+
 # 简介
 
 这是一个 Chrome 浏览器扩展程序，用于批量下载 Pixiv 上的图片。功能强大，支持多种页面类型。

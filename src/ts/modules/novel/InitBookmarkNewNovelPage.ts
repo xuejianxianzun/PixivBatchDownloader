@@ -111,9 +111,11 @@ class InitBookmarkNewNovelPage extends InitPageBase {
         tags.push(a.innerText.trim())
       }
 
-      const bookmarked = item
-        .querySelector('._one-click-bookmark')!
-        .classList.contains('on')
+      // 有的作品没有收藏按钮，点进去之后发现这个作品已经被删除了，只是排行榜里没有及时更新。这样的作品没有收藏按钮。
+      const bookmarkBtn = item.querySelector('._one-click-bookmark')
+      const bookmarked = bookmarkBtn
+        ? bookmarkBtn.classList.contains('on')
+        : false
 
       const filterOpt: FilterOption = {
         id: id,

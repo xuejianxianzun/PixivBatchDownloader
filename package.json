@@ -1,6 +1,6 @@
 {
   "name": "powerful-pixiv-downloader",
-  "version": "5.4.0",
+  "version": "6.0.0",
   "description": "Powerful Pixiv Downloader. fast, powerful, and make your browsing experience better.",
   "repository": "https://github.com/xuejianxianzun/PixivBatchDownloader",
   "author": "xuejianxianzun",
@@ -26,7 +26,9 @@
     "typescript": "^3.7.5",
     "viewerjs": "^1.4.0",
     "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.10"
+    "webpack-cli": "^3.3.10",
+    "@types/node": "^13.13.5"
   },
-  "dependencies": {}
+  "dependencies": {
+  }
 }

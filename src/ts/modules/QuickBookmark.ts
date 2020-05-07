@@ -30,7 +30,7 @@ class QuickBookmark {
 
     this.isBookmarked = !!(await this.getBookmarkData())
 
-    this.timer = setInterval(() => {
+    this.timer = window.setInterval(() => {
       this.initBtn()
     }, 300)
   }

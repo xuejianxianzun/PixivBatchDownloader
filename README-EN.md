@@ -14,6 +14,7 @@
 
 <!-- /TOC -->
 
+**Already support downloading novels!**
 
 # Introduction
 

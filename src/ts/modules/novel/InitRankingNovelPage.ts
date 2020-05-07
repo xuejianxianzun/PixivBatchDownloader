@@ -15,8 +15,6 @@ class InitRankingNovelPage extends InitPageBase {
     this.init()
   }
 
-  private pageCount: number = 2 // 排行榜的页数
-
   private pageUrlList: string[] = []
 
   protected appendCenterBtns() {
@@ -55,12 +53,14 @@ class InitRankingNovelPage extends InitPageBase {
     const ul = document.querySelector('.ui-selectbox-container ul')
     if (ul) {
       const li = ul.querySelectorAll('li')
-      this.pageCount = li.length
-      this.maxCount = this.pageCount * 50
+      this.maxCount = li.length * 50
 
       for (const el of li) {
         this.pageUrlList.push(el.dataset.url!)
       }
+    } else {
+      // 只有一页的话，没有页码部分的 ul li
+      this.pageUrlList.push(location.href)
     }
   }
 
@@ -110,9 +110,11 @@ class InitRankingNovelPage extends InitPageBase {
         tags.push(a.innerText.trim())
       }
 
-      const bookmarked = item
-        .querySelector('._one-click-bookmark')!
-        .classList.contains('on')
+      // 有的作品没有收藏按钮，点进去之后发现这个作品已经被删除了，只是排行榜里没有及时更新。这样的作品没有收藏按钮。
+      const bookmarkBtn = item.querySelector('._one-click-bookmark')
+      const bookmarked = bookmarkBtn
+        ? bookmarkBtn.classList.contains('on')
+        : false
 
       const filterOpt: FilterOption = {
         id: id,
@@ -139,7 +141,10 @@ class InitRankingNovelPage extends InitPageBase {
     )
 
     // 抓取完毕
-    if (this.listPageFinished === this.pageCount) {
+    if (
+      store.idList.length >= this.crawlNumber ||
+      this.listPageFinished === this.pageUrlList.length
+    ) {
       this.getIdListFinished()
     } else {
       // 继续抓取

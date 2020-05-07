@@ -1,8 +1,11 @@
 import { filter } from '../Filter'
 import { FilterOption } from '../Filter.d'
-import { NovelData } from '../CrawlResult'
+import { NovelData } from '../CrawlResult.d'
 import { store } from '../Store'
 import { form } from '../Settings'
+import { makeEPUB } from './MakeEPUB'
+
+declare const EpubMaker: any
 
 // 保存单个小说作品的数据
 class SaveNovelData {
@@ -52,7 +55,7 @@ class SaveNovelData {
         rank = '#' + testRank
       }
 
-      const ext = form.novelSaveAs.value
+      let ext = form.novelSaveAs.value
 
       let metaArr: string[] = []
       let meta = ''
@@ -67,16 +70,22 @@ class SaveNovelData {
         meta = metaArr.join('\n\n') + '\n\n\n'
       }
 
-      const content = meta + body.content
+      let content = meta + body.content
 
       let blob: Blob
-
       if (ext === 'txt') {
-        blob = new Blob([content], {
-          type: 'text/plain',
-        })
+        blob = this.makeTXT(content)
       } else {
-        blob = new Blob()
+        // 创建 epub 文件，如果失败则回滚到 txt
+        try {
+          const htmlContnet = content
+            .replace(/\n/g, '<br/>')
+            .replace(/\[newpage\]/g, '')
+          blob = await makeEPUB.make(data, htmlContnet)
+        } catch {
+          ext = 'txt'
+          blob = this.makeTXT(content)
+        }
       }
 
       const url = URL.createObjectURL(blob)
@@ -100,6 +109,12 @@ class SaveNovelData {
         rank: rank,
       })
     }
+  }
+
+  private makeTXT(content: string) {
+    return new Blob([content], {
+      type: 'text/plain',
+    })
   }
 }
 

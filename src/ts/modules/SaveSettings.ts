@@ -50,8 +50,8 @@ interface XzSetting {
   sizeSwitch: boolean
   sizeMin: string
   sizeMax: string
-  novelSaveAs:'txt'|'epub'
-  saveNovelMeta:boolean
+  novelSaveAs: 'txt' | 'epub'
+  saveNovelMeta: boolean
 }
 
 interface SettingChangeData {
@@ -135,8 +135,8 @@ class SaveSettings {
     sizeSwitch: false,
     sizeMin: '0',
     sizeMax: '100',
-    novelSaveAs:'txt',
-    saveNovelMeta:false
+    novelSaveAs: 'txt',
+    saveNovelMeta: false,
   }
 
   // 需要持久化保存的设置
@@ -203,7 +203,6 @@ class SaveSettings {
     this.restoreString('novelSaveAs')
 
     this.restoreBoolean('saveNovelMeta')
-
 
     // 设置收藏数量选项
     this.restoreBoolean('BMKNumSwitch')

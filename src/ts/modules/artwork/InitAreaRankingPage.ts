@@ -38,9 +38,11 @@ class InitAreaRankingPage extends InitPageBase {
       // 提取出 tag 列表
       const id = img.dataset.id!
       const tags = img.dataset.tags!.split(' ')
-      const bookmarked = el
-        .querySelector('._one-click-bookmark')!
-        .classList.contains('on')
+      // 有的作品没有收藏按钮，点进去之后发现这个作品已经被删除了，只是排行榜里没有及时更新。这样的作品没有收藏按钮。
+      const bookmarkBtn = el.querySelector('._one-click-bookmark')
+      const bookmarked = bookmarkBtn
+        ? bookmarkBtn.classList.contains('on')
+        : false
 
       const filterOpt: FilterOption = {
         id: id,
