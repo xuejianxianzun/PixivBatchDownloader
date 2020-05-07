@@ -4,41 +4,13 @@ import { EVT } from './EVT'
 import { form } from './Settings'
 import { store } from './Store'
 import { lang } from './Lang'
+import { API } from './API'
 
 class FileName {
   constructor() {
     window.addEventListener(EVT.events.previewFileName, () => {
       this.previewFileName()
     })
-  }
-  // 用正则过滤不安全的字符，（Chrome 和 Windows 不允许做文件名的字符）
-  // 不安全的字符，这里多数是控制字符，需要替换掉
-  private unsafeStr = new RegExp(
-    /[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g
-  )
-  // 一些需要替换成全角字符的符号，左边是正则表达式的字符
-  private fullWidthDict: string[][] = [
-    ['\\\\', '＼'],
-    ['/', '／'],
-    [':', '：'],
-    ['\\?', '？'],
-    ['"', '＂'],
-    ['<', '＜'],
-    ['>', '＞'],
-    ['\\*', '＊'],
-    ['\\|', '｜'],
-    ['~', '～'],
-  ]
-
-  // 把一些特殊字符替换成全角字符
-  private replaceUnsafeStr(str: string) {
-    str = str.replace(this.unsafeStr, '')
-    for (let index = 0; index < this.fullWidthDict.length; index++) {
-      const rule = this.fullWidthDict[index]
-      const reg = new RegExp(rule[0], 'g')
-      str = str.replace(reg, rule[1])
-    }
-    return str
   }
 
   // 生成文件名，传入参数为图片信息
@@ -135,7 +107,7 @@ class FileName {
     }
 
     // 替换命名规则里的特殊字符
-    result = this.replaceUnsafeStr(result)
+    result = API.replaceUnsafeStr(result)
     // 上一步会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
     result = result.replace(/／/g, '/')
 
@@ -158,7 +130,7 @@ class FileName {
 
         // 处理标记值中的特殊字符
         if (!val.safe) {
-          once = this.replaceUnsafeStr(once)
+          once = API.replaceUnsafeStr(once)
         }
 
         // 添加标记名称

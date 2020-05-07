@@ -198,6 +198,17 @@
               }
             }
           }
+          // 用正则过滤不安全的字符，（Chrome 和 Windows 不允许做文件名的字符）
+          // 把一些特殊字符替换成全角字符
+          static replaceUnsafeStr(str) {
+            str = str.replace(this.unsafeStr, '')
+            for (let index = 0; index < this.fullWidthDict.length; index++) {
+              const rule = this.fullWidthDict[index]
+              const reg = new RegExp(rule[0], 'g')
+              str = str.replace(reg, rule[1])
+            }
+            return str
+          }
           // 检查给定的字符串解析为数字后，是否大于 0
           static checkNumberGreater0(arg) {
             let num = parseInt(arg)
@@ -603,6 +614,23 @@
             return this.request(url)
           }
         }
+        // 不安全的字符，这里多数是控制字符，需要替换掉
+        API.unsafeStr = new RegExp(
+          /[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g
+        )
+        // 一些需要替换成全角字符的符号，左边是正则表达式的字符
+        API.fullWidthDict = [
+          ['\\\\', '＼'],
+          ['/', '／'],
+          [':', '：'],
+          ['\\?', '？'],
+          ['"', '＂'],
+          ['<', '＜'],
+          ['>', '＞'],
+          ['\\*', '＊'],
+          ['\\|', '｜'],
+          ['~', '～'],
+        ]
 
         /***/
       },
@@ -2751,43 +2779,18 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./API */ './src/ts/modules/API.ts'
+        )
 
         class FileName {
           constructor() {
-            // 用正则过滤不安全的字符，（Chrome 和 Windows 不允许做文件名的字符）
-            // 不安全的字符，这里多数是控制字符，需要替换掉
-            this.unsafeStr = new RegExp(
-              /[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g
-            )
-            // 一些需要替换成全角字符的符号，左边是正则表达式的字符
-            this.fullWidthDict = [
-              ['\\\\', '＼'],
-              ['/', '／'],
-              [':', '：'],
-              ['\\?', '？'],
-              ['"', '＂'],
-              ['<', '＜'],
-              ['>', '＞'],
-              ['\\*', '＊'],
-              ['\\|', '｜'],
-              ['~', '～'],
-            ]
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.previewFileName,
               () => {
                 this.previewFileName()
               }
             )
-          }
-          // 把一些特殊字符替换成全角字符
-          replaceUnsafeStr(str) {
-            str = str.replace(this.unsafeStr, '')
-            for (let index = 0; index < this.fullWidthDict.length; index++) {
-              const rule = this.fullWidthDict[index]
-              const reg = new RegExp(rule[0], 'g')
-              str = str.replace(reg, rule[1])
-            }
-            return str
           }
           // 生成文件名，传入参数为图片信息
           getFileName(data) {
@@ -2884,7 +2887,9 @@
               },
             }
             // 替换命名规则里的特殊字符
-            result = this.replaceUnsafeStr(result)
+            result = _API__WEBPACK_IMPORTED_MODULE_4__['API'].replaceUnsafeStr(
+              result
+            )
             // 上一步会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
             result = result.replace(/／/g, '/')
             // 判断这个作品是否要去掉序号
@@ -2905,7 +2910,9 @@
                 let once = String(val.value)
                 // 处理标记值中的特殊字符
                 if (!val.safe) {
-                  once = this.replaceUnsafeStr(once)
+                  once = _API__WEBPACK_IMPORTED_MODULE_4__[
+                    'API'
+                  ].replaceUnsafeStr(once)
                 }
                 // 添加标记名称
                 if (
@@ -13339,13 +13346,21 @@
             return makeEPUB
           }
         )
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../API */ './src/ts/modules/API.ts'
+        )
+
         class MakeEPUB {
           constructor() {}
           make(data, content = '') {
             return new Promise((resolve, reject) => {
               new EpubMaker()
                 .withTemplate('idpf-wasteland')
-                .withAuthor(data.body.userName)
+                .withAuthor(
+                  _API__WEBPACK_IMPORTED_MODULE_0__['API'].replaceUnsafeStr(
+                    data.body.userName
+                  )
+                )
                 .withModificationDate(new Date(data.body.createDate))
                 .withRights({
                   description: data.body.description,
@@ -13358,7 +13373,11 @@
                   license: '',
                   attributionUrl: '',
                 })
-                .withTitle(data.body.title)
+                .withTitle(
+                  _API__WEBPACK_IMPORTED_MODULE_0__['API'].replaceUnsafeStr(
+                    data.body.title
+                  )
+                )
                 .withSection(
                   new EpubMaker.Section(
                     '1',
