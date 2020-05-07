@@ -48,4 +48,6 @@ export interface SettingsForm extends HTMLFormElement {
   sizeSwitch: HTMLInputElement
   sizeMin: HTMLInputElement
   sizeMax: HTMLInputElement
+  novelSaveAs: RadioNodeList
+  saveNovelMeta:HTMLInputElement
 }

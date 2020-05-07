@@ -5,6 +5,7 @@ import { FilterOption } from '../Filter.d'
 import { IllustData } from '../CrawlResult'
 import { store } from '../Store'
 
+// 保存单个图片作品的数据
 class SaveArtworkData {
   public async save(data: IllustData) {
     // 获取需要检查的信息

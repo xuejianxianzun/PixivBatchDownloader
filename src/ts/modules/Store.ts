@@ -36,9 +36,11 @@ class Store {
     })
   }
 
-  public resultMeta: WorkInfo[] = [] // 储存抓取结果的元数据。它可以根据每个作品需要下载多少张，生成每一张图片的信息
+  public resultMeta: WorkInfo[] = [] // 储存抓取结果的元数据。
+  // 当用于图片作品时，它可以根据每个作品需要下载多少张，生成每一张图片的信息
 
   private resultIDList: number[] = [] // 储存抓取结果的元数据的 id 列表，用来判断该作品是否已经添加过了，避免重复添加
+  // resultIDList 可能会有隐患，因为没有区分图片和小说。如果一次抓取任务里，有图片和小说使用了相同的 id，那么只会保留先抓取到的那个。不过目前看来这种情况几乎不会发生。
 
   public result: WorkInfo[] = [] // 储存抓取结果
 

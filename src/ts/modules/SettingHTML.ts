@@ -300,12 +300,11 @@ const formHtml = `<form class="settingForm">
       )}&nbsp; </label>
       </span>
       </p>
+
       <p class="option" data-no="15">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_快速下载建立文件夹提示'
-      )}">${lang.transl(
-  '_快速下载建立文件夹'
-)}<span class="gray1"> ? </span></span>
+      )}">${lang.transl('_快速下载建立文件夹')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       </p>
@@ -325,6 +324,27 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="sizeMax" class="setinput_style1 blue" value="100">MB
       </span>
       </p>
+
+      <p class="option" data-no="16">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_线程数字'
+      )}">${lang.transl('_设置下载线程')}<span class="gray1"> ? </span></span>
+      <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
+      </p>
+
+      <p class="option" data-no="17">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_快速下载的提示'
+      )}">${lang.transl('_自动开始下载')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="quietDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
+
+      <slot data-name="downloadArea"></slot>
+      <slot data-name="progressBar"></slot>
+    </div>
+    
+    <div class="con">
 
       <p class="option" data-no="4">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
@@ -351,25 +371,24 @@ const formHtml = `<form class="settingForm">
       )}"> ${lang.transl('_提示')} </span>
       </p>
 
-      <p class="option" data-no="16">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_线程数字'
-      )}">${lang.transl('_设置下载线程')}<span class="gray1"> ? </span></span>
-      <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
+      <p class="option" data-no="26">
+      <span class="settingNameStyle1">${lang.transl('_小说保存格式')}<span class="gray1"> &nbsp; </span></span>
+      <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt" checked>
+      <span class="beautify_radio"></span>
+      <label for="novelSaveAs1"> txt &nbsp;</label>
+      <input type="radio" name="novelSaveAs" id="novelSaveAs2" class="need_beautify radio" value="epub"> 
+      <span class="beautify_radio"></span>
+      <label for="novelSaveAs2"> epub &nbsp;</label>
       </p>
-
-      <p class="option" data-no="17">
+      
+      <p class="option" data-no="27">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_快速下载的提示'
-      )}">${lang.transl('_自动开始下载')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="quietDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
+        '_在小说内保存元数据提示'
+      )}">${lang.transl('_在小说内保存元数据')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       </p>
 
-      <slot data-name="downloadArea"></slot>
-      <slot data-name="progressBar"></slot>
-    </div>
-    <div class="con">
       <p class="option" data-no="20">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_启用快速收藏说明'

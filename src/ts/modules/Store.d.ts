@@ -6,7 +6,7 @@ export interface IDData {
   id: string
 }
 
-// 保存每个要下载的图片的信息
+// 保存每个要下载的作品的信息
 export interface WorkInfo {
   idNum: number
   id: string

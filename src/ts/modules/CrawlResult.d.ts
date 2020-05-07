@@ -768,7 +768,7 @@ export interface NovelData {
       }[]
       writable: boolean
     }
-    seriesNavData: {
+    seriesNavData: null | {
       seriesType: string
       seriesId: string
       title: string

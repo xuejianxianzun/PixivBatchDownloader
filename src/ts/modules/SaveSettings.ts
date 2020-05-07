@@ -50,6 +50,8 @@ interface XzSetting {
   sizeSwitch: boolean
   sizeMin: string
   sizeMax: string
+  novelSaveAs:'txt'|'epub'
+  saveNovelMeta:boolean
 }
 
 interface SettingChangeData {
@@ -133,6 +135,8 @@ class SaveSettings {
     sizeSwitch: false,
     sizeMin: '0',
     sizeMax: '100',
+    novelSaveAs:'txt',
+    saveNovelMeta:false
   }
 
   // 需要持久化保存的设置
@@ -195,6 +199,11 @@ class SaveSettings {
 
     // 设置动图转换线程数
     this.restoreString('convertUgoiraThread')
+
+    this.restoreString('novelSaveAs')
+
+    this.restoreBoolean('saveNovelMeta')
+
 
     // 设置收藏数量选项
     this.restoreBoolean('BMKNumSwitch')
@@ -315,6 +324,10 @@ class SaveSettings {
 
     // 保存动图转换线程数
     this.saveTextInput('convertUgoiraThread')
+
+    this.saveRadio('novelSaveAs')
+
+    this.saveCheckBox('saveNovelMeta')
 
     // 保存收藏数量选项
     this.saveCheckBox('BMKNumSwitch')

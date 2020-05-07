@@ -2,7 +2,9 @@ import { filter } from '../Filter'
 import { FilterOption } from '../Filter.d'
 import { NovelData } from '../CrawlResult'
 import { store } from '../Store'
+import { form } from '../Settings'
 
+// 保存单个小说作品的数据
 class SaveNovelData {
   public async save(data: NovelData) {
     // 小说没有 illustType 属性， 把小说的 illustType 设置为 3，这是为了方便检查
@@ -28,8 +30,8 @@ class SaveNovelData {
 
     // 检查通过
     if (await filter.check(filterOpt)) {
-      const illustId = body.id
-      const idNum = parseInt(illustId)
+      const id = body.id
+      const idNum = parseInt(id)
       const title = body.title
       const userid = body.userId
       const user = body.userName
@@ -50,16 +52,38 @@ class SaveNovelData {
         rank = '#' + testRank
       }
 
-      const blob = new Blob([body.content], {
-        type: 'text/plain',
-      })
-      const url = URL.createObjectURL(blob)
+      const ext = form.novelSaveAs.value
 
-      const ext = 'txt'
+      let metaArr: string[] = []
+      let meta = ''
+
+      if (form.saveNovelMeta.checked) {
+        const pageUrl = `https://www.pixiv.net/novel/show.php?id=${id}`
+        const tagsA = []
+        for (const tag of tags) {
+          tagsA.push('#' + tag)
+        }
+        metaArr.push(title, user, pageUrl, tagsA.join('\n'))
+        meta = metaArr.join('\n\n') + '\n\n\n'
+      }
+
+      const content = meta + body.content
+
+      let blob: Blob
+
+      if (ext === 'txt') {
+        blob = new Blob([content], {
+          type: 'text/plain',
+        })
+      } else {
+        blob = new Blob()
+      }
+
+      const url = URL.createObjectURL(blob)
 
       // 添加作品信息
       store.addResult({
-        id: illustId,
+        id: id,
         idNum: idNum,
         thumb: body.coverUrl || undefined,
         dlCount: 1,
