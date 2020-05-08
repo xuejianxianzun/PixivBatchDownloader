@@ -634,7 +634,7 @@ class InitSearchArtworkPage extends InitPageBase {
         tags: nowData.tags,
       }
 
-      if (filter.check(filterOpt)) {
+      if (await filter.check(filterOpt)) {
         store.idList.push({
           type: API.getWorkType(nowData.illustType),
           id: nowData.illustId,

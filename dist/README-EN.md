@@ -18,7 +18,7 @@
 
 # Introduction
 
-This is a browser extension for **Chrome** that lets you download images from Pixiv in bulk. Powerful and supports many page types.
+This is a browser extension for **Chrome** that lets you download images and novels from Pixiv in bulk. Powerful and supports many page types.
 
 [Chrome Web Store installation page](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)
 

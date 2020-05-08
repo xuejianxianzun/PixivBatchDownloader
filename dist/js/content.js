@@ -10617,7 +10617,9 @@
                 tags: nowData.tags,
               }
               if (
-                _Filter__WEBPACK_IMPORTED_MODULE_7__['filter'].check(filterOpt)
+                await _Filter__WEBPACK_IMPORTED_MODULE_7__['filter'].check(
+                  filterOpt
+                )
               ) {
                 _Store__WEBPACK_IMPORTED_MODULE_9__['store'].idList.push({
                   type: _API__WEBPACK_IMPORTED_MODULE_8__['API'].getWorkType(
@@ -13280,7 +13282,9 @@
                 tags: nowData.tags,
               }
               if (
-                _Filter__WEBPACK_IMPORTED_MODULE_5__['filter'].check(filterOpt)
+                await _Filter__WEBPACK_IMPORTED_MODULE_5__['filter'].check(
+                  filterOpt
+                )
               ) {
                 _Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push({
                   type: 'novels',
@@ -13352,6 +13356,7 @@
 
         class MakeEPUB {
           constructor() {}
+          // epub 内部会使用标题 title 建立一个文件夹，把一些文件存放进去，所以这里要替换掉标题的特殊字符，特殊字符会导致这个文件夹名被截断，结果就是这个 epub 文件无法被解析。
           make(data, content = '') {
             return new Promise((resolve, reject) => {
               new EpubMaker()
