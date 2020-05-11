@@ -1,3 +1,33 @@
+## 6.1.0  2020-05-11
+
+### 替换小说里的标记
+
+根据 [issues 78](https://github.com/xuejianxianzun/PixivBatchDownloader/issues/78)，对一些标记进行了处理。
+
+下面是一些测试时用的数据：
+
+https://www.pixiv.net/novel/show.php?id=12336777 包含
+```
+[newpage]
+[[jumpuri:こちら >https://twitter.com/kyoka_izumi1]]
+```
+
+https://www.pixiv.net/novel/show.php?id=12883824 包含
+```
+[[rb:莉莉丝 > Lilith]]
+```
+
+https://www.pixiv.net/novel/show.php?id=10083001 包含
+```
+[pixivimage:70551567]
+```
+
+### 其他优化
+
+小说保存为 txt 时，去掉里面的 html 标签。
+
+小说没有 tag 的 tagsTranslated 数据，使用 tag 填充，避免出现空结果。
+
 ## 6.0.1 2020-05-08
 
 ### 修复 bug

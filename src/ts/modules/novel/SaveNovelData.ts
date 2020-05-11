@@ -66,11 +66,11 @@ class SaveNovelData {
         for (const tag of tags) {
           tagsA.push('#' + tag)
         }
-        metaArr.push(title, user, pageUrl, tagsA.join('\n'))
+        metaArr.push(title, user, pageUrl, body.description, tagsA.join('\n'))
         meta = metaArr.join('\n\n') + '\n\n\n'
       }
 
-      let content = meta + body.content
+      let content = this.replaceFlag(meta + body.content)
 
       let blob: Blob
       if (ext === 'txt') {
@@ -78,10 +78,7 @@ class SaveNovelData {
       } else {
         // 创建 epub 文件，如果失败则回滚到 txt
         try {
-          const htmlContnet = content
-            .replace(/\n/g, '<br/>')
-            .replace(/\[newpage\]/g, '')
-          blob = await makeEPUB.make(data, htmlContnet)
+          blob = await makeEPUB.make(data, content)
         } catch {
           ext = 'txt'
           blob = this.makeTXT(content)
@@ -99,6 +96,7 @@ class SaveNovelData {
         url: url,
         title: title,
         tags: tags,
+        tagsTranslated: tags,
         user: user,
         userid: userid,
         ext: ext,
@@ -111,7 +109,86 @@ class SaveNovelData {
     }
   }
 
+  // '[[jumpuri:予約ページ>https://www.amazon.co.jp/dp/4758092486]]'
+  // 替换成
+  // '予約ページ（https://www.amazon.co.jp/dp/4758092486）'
+  private replaceJumpuri(str: string) {
+    let reg = /\[\[jumpuri:(.*?)>(.*?)\]\]/g
+    let temp
+    while ((temp = reg.exec(str))) {
+      console.log(temp)
+      str = str.replace(temp[0], `${temp[1].trim()}（${temp[2].trim()}）`)
+      reg.lastIndex = 0
+    }
+
+    return str
+  }
+
+  // > '[[rb:莉莉丝 > Lilith]]'
+  // 替换成
+  // '莉莉丝（Lilith）'
+  private replaceRb(str: string) {
+    let reg = /\[\[rb:(.*?)>(.*?)\]\]/g
+    let temp
+    while ((temp = reg.exec(str))) {
+      str = str.replace(temp[0], `${temp[1].trim()}（${temp[2].trim()}）`)
+      reg.lastIndex = 0
+    }
+    return str
+  }
+
+  // > '[chapter:标题]'
+  // 替换成
+  // '标题'
+  private replaceChapter(str: string) {
+    const reg = /\[chapter:(.*?)\]/g
+    let temp
+    while ((temp = reg.exec(str))) {
+      str = str.replace(temp[0], temp[1])
+      reg.lastIndex = 0
+    }
+    return str
+  }
+
+  // > [pixivimage:70551567]
+  // 替换成
+  // [pixiv image link: <a href="http://pixiv.net/i/70551567" target="_blank">http://pixiv.net/i/70551567</a>]
+  private replacePixivImage(str: string) {
+    let reg = /\[pixivimage:(.*?)\]/g
+    let temp
+    while ((temp = reg.exec(str))) {
+      console.log(temp)
+      const url = `http://pixiv.net/i/${temp[1].trim()}`
+      str = str.replace(
+        temp[0],
+        `[pixiv image link: <a href="${url}" target="_blank">${url}</a>]`
+      )
+      reg.lastIndex = 0
+    }
+    return str
+  }
+
+  // 对小说里的一些标记进行替换
+  private replaceFlag(str: string) {
+    str = str.replace(/\[newpage\]/g, '')
+
+    str = this.replaceJumpuri(str)
+
+    str = str.replace(/\[jump:.*?\]/g, '')
+
+    str = this.replaceRb(str)
+
+    str = this.replaceChapter(str)
+
+    str = this.replacePixivImage(str)
+
+    return str
+  }
+
   private makeTXT(content: string) {
+    // 替换换行标签，移除 html 标签
+    content = content.replace(/<br \/>/g, '\n').replace(/<\/?.+?>/g, '')
+
     return new Blob([content], {
       type: 'text/plain',
     })

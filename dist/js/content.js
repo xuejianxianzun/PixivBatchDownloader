@@ -13359,6 +13359,7 @@
           // epub 内部会使用标题 title 建立一个文件夹，把一些文件存放进去，所以这里要替换掉标题的特殊字符，特殊字符会导致这个文件夹名被截断，结果就是这个 epub 文件无法被解析。
           make(data, content = '') {
             return new Promise((resolve, reject) => {
+              content = content.replace(/\n/g, '<br/>')
               new EpubMaker()
                 .withTemplate('idpf-wasteland')
                 .withAuthor(
@@ -13493,22 +13494,25 @@
                 for (const tag of tags) {
                   tagsA.push('#' + tag)
                 }
-                metaArr.push(title, user, pageUrl, tagsA.join('\n'))
+                metaArr.push(
+                  title,
+                  user,
+                  pageUrl,
+                  body.description,
+                  tagsA.join('\n')
+                )
                 meta = metaArr.join('\n\n') + '\n\n\n'
               }
-              let content = meta + body.content
+              let content = this.replaceContent(meta + body.content)
               let blob
               if (ext === 'txt') {
                 blob = this.makeTXT(content)
               } else {
                 // 创建 epub 文件，如果失败则回滚到 txt
                 try {
-                  const htmlContnet = content
-                    .replace(/\n/g, '<br/>')
-                    .replace(/\[newpage\]/g, '')
                   blob = await _MakeEPUB__WEBPACK_IMPORTED_MODULE_3__[
                     'makeEPUB'
-                  ].make(data, htmlContnet)
+                  ].make(data, content)
                 } catch (_a) {
                   ext = 'txt'
                   blob = this.makeTXT(content)
@@ -13524,6 +13528,7 @@
                 url: url,
                 title: title,
                 tags: tags,
+                tagsTranslated: tags,
                 user: user,
                 userid: userid,
                 ext: ext,
@@ -13535,7 +13540,79 @@
               })
             }
           }
+          // '[[jumpuri:予約ページ>https://www.amazon.co.jp/dp/4758092486]]'
+          // 替换成
+          // '予約ページ（https://www.amazon.co.jp/dp/4758092486）'
+          replaceJumpuri(str) {
+            let reg = /\[\[jumpuri:(.*?)>(.*?)\]\]/g
+            let temp
+            while ((temp = reg.exec(str))) {
+              console.log(temp)
+              str = str.replace(
+                temp[0],
+                `${temp[1].trim()}（${temp[2].trim()}）`
+              )
+              reg.lastIndex = 0
+            }
+            return str
+          }
+          // > '[[rb:莉莉丝 > Lilith]]'
+          // 替换成
+          // '莉莉丝（Lilith）'
+          replaceRb(str) {
+            let reg = /\[\[rb:(.*?)>(.*?)\]\]/g
+            let temp
+            while ((temp = reg.exec(str))) {
+              str = str.replace(
+                temp[0],
+                `${temp[1].trim()}（${temp[2].trim()}）`
+              )
+              reg.lastIndex = 0
+            }
+            return str
+          }
+          // > '[chapter:标题]'
+          // 替换成
+          // '标题'
+          replaceChapter(str) {
+            const reg = /\[chapter:(.*?)\]/g
+            let temp
+            while ((temp = reg.exec(str))) {
+              str = str.replace(temp[0], temp[1])
+              reg.lastIndex = 0
+            }
+            return str
+          }
+          // > [pixivimage:70551567]
+          // 替换成
+          // [pixiv image link: <a href="http://pixiv.net/i/70551567" target="_blank">http://pixiv.net/i/70551567</a>]
+          replacePixivImage(str) {
+            let reg = /\[pixivimage:(.*?)\]/g
+            let temp
+            while ((temp = reg.exec(str))) {
+              console.log(temp)
+              const url = `http://pixiv.net/i/${temp[1].trim()}`
+              str = str.replace(
+                temp[0],
+                `[pixiv image link: <a href="${url}" target="_blank">${url}</a>]`
+              )
+              reg.lastIndex = 0
+            }
+            return str
+          }
+          // 对小说的 content 里的一些标记进行替换
+          replaceContent(str) {
+            str = str.replace(/\[newpage\]/g, '')
+            str = this.replaceJumpuri(str)
+            str = str.replace(/\[jump:.*?\]/g, '')
+            str = this.replaceRb(str)
+            str = this.replaceChapter(str)
+            str = this.replacePixivImage(str)
+            return str
+          }
           makeTXT(content) {
+            // 替换换行标签，移除 html 标签
+            content = content.replace(/<br \/>/g, '\n').replace(/<\/?.+?>/g, '')
             return new Blob([content], {
               type: 'text/plain',
             })
