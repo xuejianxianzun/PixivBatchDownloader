@@ -5,8 +5,6 @@ import { store } from '../Store'
 import { form } from '../Settings'
 import { makeEPUB } from './MakeEPUB'
 
-declare const EpubMaker: any
-
 // 保存单个小说作品的数据
 class SaveNovelData {
   public async save(data: NovelData) {

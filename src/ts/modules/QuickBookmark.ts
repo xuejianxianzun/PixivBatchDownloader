@@ -45,7 +45,6 @@ class QuickBookmark {
     return data.body.bookmarkData
   }
 
-  // 首先添加快速下载按钮，如果选项是不启用快速收藏，则不添加
   private initBtn() {
     // 从父元素查找作品下方的工具栏
     const toolbarParent = document.querySelectorAll('main > section')

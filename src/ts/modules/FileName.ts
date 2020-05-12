@@ -207,7 +207,7 @@ class FileName {
   }
 
   // 预览文件名
-  previewFileName() {
+  private previewFileName() {
     if (store.result.length === 0) {
       return alert(lang.transl('_没有数据可供使用'))
     }

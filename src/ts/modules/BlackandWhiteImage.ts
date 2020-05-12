@@ -1,7 +1,7 @@
+// 检查图片是否是黑白图片
 class BlackAndWhiteImage {
   private readonly latitude = 1 // 宽容度
 
-  // 检查是否是黑白图片
   public async check(imgUrl: string): Promise<boolean> {
     const img = await this.loadImg(imgUrl).catch((error) => {
       console.log(error)

@@ -83,7 +83,7 @@
   align-items: center;
   box-sizing: border-box;
   height: 20px;
-  color: #fff;
+  color: #ffffff;
   font-weight: bold;
   font-size: 10px;
   line-height: 10px;
@@ -162,7 +162,7 @@
 .searchList .searchContent .searchImgArea .searchImgAreaContent .imgWrap img {
   width: 100%;
   height: 100%;
-  background-color: #fff;
+  background-color: #ffffff;
   border-radius: 4px;
   transition: opacity 0.2s ease 0s;
 }
@@ -174,7 +174,7 @@
   .ugoiraPart {
   position: absolute;
   stroke: none;
-  fill: #fff;
+  fill: #ffffff;
   line-height: 0;
   font-size: 0px;
   vertical-align: middle;
@@ -186,7 +186,7 @@
   .imgWrap
   .ugoiraPart
   .ugoiraCircle {
-  fill: #000;
+  fill: #000000;
   fill-opacity: 0.4;
 }
 .searchList .searchContent .bookmarked {
@@ -242,7 +242,7 @@
   transition: color 0.2s ease 0s, fill 0.2s ease 0s;
 }
 .searchList .searchContent .bmkBtnWrap .bmkBtn .bmkBtnSvg .path2 {
-  fill: #fff;
+  fill: #ffffff;
   transition: fill 0.2s ease 0s;
 }
 .searchList .searchContent .titleLink {

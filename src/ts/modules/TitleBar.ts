@@ -4,7 +4,7 @@ import { pageType } from './PageType'
 class TitleBar {
   /*
   本程序的状态会以 [string] 形式添加到 title 最前面，并闪烁提醒
-  string 和含义列表如下：
+  string 及其含义如下：
   ↑ 抓取中
   → 等待下一步操作（搜索页）
   ▶ 可以开始下载

@@ -1,5 +1,12 @@
 import { WorkInfo } from './Store.d'
 
+export interface TaskList {
+  [id: string]: {
+    index: number
+    progressBarIndex: number
+  }
+}
+
 export interface downloadArgument {
   id: string
   data: WorkInfo

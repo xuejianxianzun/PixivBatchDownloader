@@ -1,4 +1,4 @@
-// 图片查看器类
+// 图片查看器
 /// <reference path = "./Viewer.d.ts" />
 import { API } from './API'
 

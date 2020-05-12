@@ -265,10 +265,11 @@
               }
             }
             // 4 新版收藏页面
-            if (nowURL.pathname.includes('/bookmarks/artworks')) {
+            if (nowURL.pathname.includes('/bookmarks/')) {
               // 新版收藏页 url，tag 在路径末端，如
               // https://www.pixiv.net/users/9460149/bookmarks/artworks/R-18
-              const test = /\/bookmarks\/artworks\/(.[^\/|^\?|^&]*)/.exec(
+              // https://www.pixiv.net/users/9460149/bookmarks/novels/R-18
+              const test = /\/bookmarks\/\w*\/(.[^\/|^\?|^&]*)/.exec(
                 nowURL.pathname
               )
               if (test !== null && test.length > 1 && !!test[1]) {
@@ -650,11 +651,11 @@
             return blackAndWhiteImage
           }
         )
+        // 检查图片是否是黑白图片
         class BlackAndWhiteImage {
           constructor() {
             this.latitude = 1 // 宽容度
           }
-          // 检查是否是黑白图片
           async check(imgUrl) {
             const img = await this.loadImg(imgUrl).catch((error) => {
               console.log(error)
@@ -766,7 +767,7 @@
           /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
 
-        // 给收藏里的未分类作品批量添加 tag
+        // 给收藏页面里的未分类作品批量添加 tag
         class BookmarksAddTag {
           constructor(btn) {
             this.type = 'illusts' // 页面是图片还是小说
@@ -905,6 +906,8 @@
         class CenterPanel {
           constructor() {
             this.centerPanel = document.createElement('div') // 中间面板
+            this.updateLink = document.createElement('a')
+            this.updateActiveClass = 'updateActiveClass'
             this.addCenterPanel()
             this.bindEvents()
           }
@@ -973,12 +976,12 @@
       `
             document.body.insertAdjacentHTML('beforeend', centerPanelHTML)
             this.centerPanel = document.querySelector('.centerWrap')
+            this.updateLink = this.centerPanel.querySelector('.update')
             const userLang = document.documentElement.lang
-            if (['zh', 'zh-CN', 'zh-Hans'].includes(userLang)) {
-              document.getElementById('zanzhu').style.display = 'inline-block'
-            } else {
-              document.getElementById('patreon').style.display = 'inline-block'
-            }
+            const donateId = ['zh', 'zh-CN', 'zh-Hans'].includes(userLang)
+              ? 'zanzhu'
+              : 'patreon'
+            document.getElementById(donateId).style.display = 'inline-block'
           }
           // 绑定中间面板上的事件
           bindEvents() {
@@ -1039,6 +1042,14 @@
                 ) {
                   this.show()
                 }
+              }
+            )
+            // 显示更新按钮
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].events.hasNewVer,
+              () => {
+                this.updateLink.classList.add(this.updateActiveClass)
+                this.updateLink.style.display = 'inline-block'
               }
             )
             // 显示常见问题
@@ -1687,7 +1698,22 @@
               ]
             )
             delBtn.addEventListener('click', () => {
-              this.manuallyDelete(delBtn)
+              this.delMode = !this.delMode
+              this.bindDeleteEvent()
+              if (this.delMode) {
+                delBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__[
+                  'lang'
+                ].transl('_退出手动删除')
+                setTimeout(() => {
+                  _CenterPanel__WEBPACK_IMPORTED_MODULE_4__[
+                    'centerPanel'
+                  ].close()
+                }, 300)
+              } else {
+                delBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__[
+                  'lang'
+                ].transl('_手动删除作品')
+              }
             })
           }
           // 清除多图作品
@@ -1710,7 +1736,8 @@
             })
             this.showWorksCount()
           }
-          // 给作品绑定删除事件
+          // 给作品绑定手动删除事件
+          // 删除作品后，回调函数可以接收到被删除的元素
           bindDeleteEvent() {
             const listElement = document.querySelectorAll(this.worksSelector)
             listElement.forEach((el) => {
@@ -1731,24 +1758,6 @@
                 }
               }
             })
-          }
-          // 手动删除作品
-          // 回调函数可以接收到被删除的元素
-          manuallyDelete(delBtn) {
-            this.delMode = !this.delMode
-            this.bindDeleteEvent()
-            if (this.delMode) {
-              delBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__[
-                'lang'
-              ].transl('_退出手动删除')
-              setTimeout(() => {
-                _CenterPanel__WEBPACK_IMPORTED_MODULE_4__['centerPanel'].close()
-              }, 300)
-            } else {
-              delBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__[
-                'lang'
-              ].transl('_手动删除作品')
-            }
           }
           // 显示调整后，列表里的作品数量
           showWorksCount() {
@@ -2648,6 +2657,7 @@
           destroy: 'destroy',
           convertError: 'convertError',
           skipSaveFile: 'skipSaveFile',
+          hasNewVer: 'hasNewVer',
         }
 
         /***/
@@ -3089,7 +3099,8 @@
           /*! ./BlackandWhiteImage */ './src/ts/modules/BlackandWhiteImage.ts'
         )
 
-        // 审查每个作品的数据，决定是否要下载它。下载区域有一些选项是过滤器选项。
+        // 审查每个作品的数据，决定是否要存储它
+        // 可以根据需要，随时进行审查
         class Filter {
           constructor() {
             this.downType0 = true
@@ -3920,7 +3931,7 @@
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./API */ './src/ts/modules/API.ts'
         )
-        // 图片查看器类
+        // 图片查看器
         /// <reference path = "./Viewer.d.ts" />
 
         class ImgViewer {
@@ -4229,7 +4240,7 @@
         /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
           /*! ./PageInfo */ './src/ts/modules/PageInfo.ts'
         )
-        // 初始化收藏页面
+        // 初始化旧版收藏页面
 
         class InitBookmarkLegacyPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
           'InitPageBase'
@@ -4548,7 +4559,7 @@
         /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
           /*! ./PageInfo */ './src/ts/modules/PageInfo.ts'
         )
-        // 初始化收藏页面
+        // 初始化新版收藏页面
 
         class InitBookmarkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
           'InitPageBase'
@@ -4975,7 +4986,7 @@
         /* harmony import */ var _novel_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
           /*! ./novel/InitNewNovelPage */ './src/ts/modules/novel/InitNewNovelPage.ts'
         )
-        // 初始化页面，初始化抓取流程
+        // 根据不同的页面，初始化下载器的功能
 
         class InitPage {
           constructor() {
@@ -5072,7 +5083,7 @@
                   'InitNewNovelPage'
                 ]()
               default:
-                throw new Error('InitCrawlProcess error: Illegal pageType.')
+                throw new Error('InitPage error: Illegal pageType.')
             }
           }
         }
@@ -5138,7 +5149,7 @@
         /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
           /*! ./PageInfo */ './src/ts/modules/PageInfo.ts'
         )
-        // 初始化抓取页面的流程
+        // 初始化所有页面抓取流程的基类
 
         class InitPageBase {
           constructor() {
@@ -5151,7 +5162,6 @@
             this.ajaxThreads = this.ajaxThreadsDefault // 抓取时的并发连接数
             this.ajaxThreadsFinished = 0 // 统计有几个并发线程完成所有请求。统计的是并发线程（ ajaxThreads ）而非请求数
           }
-          // 初始化
           init() {
             _Options__WEBPACK_IMPORTED_MODULE_3__['options'].showAllOption()
             this.setFormOption()
@@ -5611,9 +5621,13 @@
               16,
               18,
               19,
+              20,
               21,
               22,
               23,
+              24,
+              26,
+              27,
             ])
             // pixivision 里，文件名只有 id 标记会生效，所以把文件名规则替换成 id
             _Settings__WEBPACK_IMPORTED_MODULE_5__['form'].userSetName.value =
@@ -6187,8 +6201,8 @@
         /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./Settings */ './src/ts/modules/Settings.ts'
         )
-
         // 操作 Setting 表单的选项区域
+
         class Options {
           constructor() {
             this.allOption = _Settings__WEBPACK_IMPORTED_MODULE_0__[
@@ -6259,7 +6273,7 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        // 输出传递的文本
+        // 输出面板
 
         class Output {
           constructor() {
@@ -6268,7 +6282,6 @@
             this.addOutPutPanel()
             this.bindEvent()
           }
-          // 添加输出面板
           addOutPutPanel() {
             const outputPanelHTML = `
     <div class="outputWrap">
@@ -6375,7 +6388,7 @@
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
-        // 获取页面上的一些信息，用于文件名中
+        // 获取页面上的一些信息
 
         class PageInfo {
           constructor() {
@@ -6487,11 +6500,7 @@
             } else if (pathname.includes('/bookmarks/')) {
               type = 4
             } else if (url.includes('/tags/')) {
-              if (pathname.endsWith('/novels')) {
-                type = 15
-              } else {
-                type = 5
-              }
+              type = pathname.endsWith('/novels') ? 15 : 5
             } else if (
               pathname === '/ranking_area.php' &&
               location.search !== ''
@@ -6579,6 +6588,7 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
+        // 下载进度条
 
         // 进度条
         class ProgressBar {
@@ -6748,7 +6758,6 @@
             }
             return data.body.bookmarkData
           }
-          // 首先添加快速下载按钮，如果选项是不启用快速收藏，则不添加
           initBtn() {
             // 从父元素查找作品下方的工具栏
             const toolbarParent = document.querySelectorAll('main > section')
@@ -8295,18 +8304,11 @@
           }
           // 检查新版本
           async checkNew() {
-            // 显示更新按钮
-            const show = function () {
-              const updateIco = document.querySelector(
-                '.centerWrap_top_btn.update'
-              )
-              updateIco.style.display = 'inline-block'
-            }
-            // 读取上一次检查的时间，如果超过一小时则检查 GitHub 上的信息
+            // 读取上一次检查的时间，如果超过指定的时间，则检查 GitHub 上的信息
             const lastTime = localStorage.getItem('xzUpdateTime')
             if (
               !lastTime ||
-              new Date().getTime() - parseInt(lastTime) > 60 * 60 * 1000
+              new Date().getTime() - parseInt(lastTime) > 60 * 30 * 1000
             ) {
               // 获取最新的 releases 信息
               const latest = await fetch(
@@ -8331,7 +8333,7 @@
             // 比较大小
             const latestVer = localStorage.getItem('xzGithubVer')
             if (latestVer && manifestVer < latestVer) {
-              show()
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire('hasNewVer')
             }
           }
           // 显示最近更新内容
@@ -8477,7 +8479,7 @@
           constructor() {
             /*
         本程序的状态会以 [string] 形式添加到 title 最前面，并闪烁提醒
-        string 和含义列表如下：
+        string 及其含义如下：
         ↑ 抓取中
         → 等待下一步操作（搜索页）
         ▶ 可以开始下载
@@ -8638,7 +8640,6 @@
             _Options__WEBPACK_IMPORTED_MODULE_4__['options'].hideOption([1])
           }
           async getIdList() {
-            // 地区排行榜
             const allPicArea = document.querySelectorAll(
               '.ranking-item>.work_wrapper'
             )
@@ -8728,7 +8729,7 @@
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
           /*! ../Log */ './src/ts/modules/Log.ts'
         )
-        //初始化作品页
+        //初始化 artwork 作品页
 
         class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
           'InitPageBase'
@@ -9165,7 +9166,7 @@
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ../Log */ './src/ts/modules/Log.ts'
         )
-        // 初始化 关注的新作品页面
+        // 初始化 关注的新作品 artwork 页面
 
         class InitBookmarkNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
           'InitPageBase'
@@ -9449,7 +9450,7 @@
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
-        // 初始化 大家的新作品页面
+        // 初始化 大家的新作品 artwork 页面
 
         class InitNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
           'InitPageBase'
@@ -9661,7 +9662,7 @@
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
           /*! ../Log */ './src/ts/modules/Log.ts'
         )
-        // 初始化排行榜页面
+        // 初始化 artwork 排行榜页面
 
         class InitRankingArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
           'InitPageBase'
@@ -9962,7 +9963,7 @@
               }, reject)
             }
           }
-        // 初始化搜索页
+        // 初始化 artwork 搜索页
 
         class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
           'InitPageBase'
@@ -11120,12 +11121,6 @@
             'ランク前 -num- 位の作品をダウンロードする。',
             'download the top -num- works in the ranking list',
             '下載排行榜前 -num- 個作品',
-          ],
-          _请输入最低收藏数和要抓取的页数: [
-            '请输入最低收藏数和要抓取的页数，用英文逗号分开。\n类似于下面的形式: \n1000,1000',
-            'ボックマークの最小数とクロールするページ数を，「,」で区切って入力してください。\n例えば：\n1000,1000',
-            'Please type the minimum number of bookmarks, and the number of pages to be crawled, separated by comma (,).\nE.g:\n1000,1000',
-            '請輸入最低收藏數和要擷取的頁數，用英文逗號分開。\n類似於下面的形式: \n1000,1000',
           ],
           _输入超过了最大值: [
             '您输入的数字超过了最大值',
@@ -13503,7 +13498,7 @@
                 )
                 meta = metaArr.join('\n\n') + '\n\n\n'
               }
-              let content = this.replaceContent(meta + body.content)
+              let content = this.replaceFlag(meta + body.content)
               let blob
               if (ext === 'txt') {
                 blob = this.makeTXT(content)
@@ -13600,8 +13595,8 @@
             }
             return str
           }
-          // 对小说的 content 里的一些标记进行替换
-          replaceContent(str) {
+          // 对小说里的一些标记进行替换
+          replaceFlag(str) {
             str = str.replace(/\[newpage\]/g, '')
             str = this.replaceJumpuri(str)
             str = str.replace(/\[jump:.*?\]/g, '')

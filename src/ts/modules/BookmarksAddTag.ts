@@ -7,7 +7,7 @@ import {
   BookmarkResult,
 } from './CrawlResult.d'
 
-// 给收藏里的未分类作品批量添加 tag
+// 给收藏页面里的未分类作品批量添加 tag
 class BookmarksAddTag {
   constructor(btn: HTMLButtonElement) {
     this.btn = btn

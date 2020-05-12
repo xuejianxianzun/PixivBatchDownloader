@@ -137,12 +137,11 @@ class API {
     }
 
     // 4 新版收藏页面
-    if (nowURL.pathname.includes('/bookmarks/artworks')) {
+    if (nowURL.pathname.includes('/bookmarks/')) {
       // 新版收藏页 url，tag 在路径末端，如
       // https://www.pixiv.net/users/9460149/bookmarks/artworks/R-18
-      const test = /\/bookmarks\/artworks\/(.[^\/|^\?|^&]*)/.exec(
-        nowURL.pathname
-      )
+      // https://www.pixiv.net/users/9460149/bookmarks/novels/R-18
+      const test = /\/bookmarks\/\w*\/(.[^\/|^\?|^&]*)/.exec(nowURL.pathname)
       if (test !== null && test.length > 1 && !!test[1]) {
         return test[1]
       }

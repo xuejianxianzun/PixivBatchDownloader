@@ -1,4 +1,4 @@
-// 初始化 大家的新作品页面
+// 初始化 大家的新作品 artwork 页面
 import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../Colors'
 import { lang } from '../Lang'

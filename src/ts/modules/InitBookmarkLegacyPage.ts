@@ -1,4 +1,4 @@
-// 初始化收藏页面
+// 初始化旧版收藏页面
 import { InitPageBase } from './InitPageBase'
 import { API } from './API'
 import { Colors } from './Colors'
@@ -10,7 +10,7 @@ import {
   BookmarkData,
   BookmarkArtworkData,
   NovelCommonData,
-} from './CrawlResult'
+} from './CrawlResult.d'
 import { store } from './Store'
 import { log } from './Log'
 import { DOM } from './DOM'

@@ -35,11 +35,7 @@ class PageType {
     } else if (pathname.includes('/bookmarks/')) {
       type = 4
     } else if (url.includes('/tags/')) {
-      if (pathname.endsWith('/novels')) {
-        type = 15
-      } else {
-        type = 5
-      }
+      type = pathname.endsWith('/novels') ? 15 : 5
     } else if (pathname === '/ranking_area.php' && location.search !== '') {
       type = 6
     } else if (pathname === '/ranking.php') {

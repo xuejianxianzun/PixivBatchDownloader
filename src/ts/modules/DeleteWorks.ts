@@ -4,7 +4,6 @@ import { lang } from './Lang'
 import { Colors } from './Colors'
 import { DOM } from './DOM'
 import { centerPanel } from './CenterPanel'
-
 import { store } from './Store'
 import { EVT } from './EVT'
 
@@ -85,7 +84,18 @@ class DeleteWorks {
     )
 
     delBtn.addEventListener('click', () => {
-      this.manuallyDelete(delBtn)
+      this.delMode = !this.delMode
+
+      this.bindDeleteEvent()
+
+      if (this.delMode) {
+        delBtn.textContent = lang.transl('_退出手动删除')
+        setTimeout(() => {
+          centerPanel.close()
+        }, 300)
+      } else {
+        delBtn.textContent = lang.transl('_手动删除作品')
+      }
     })
   }
 
@@ -111,7 +121,8 @@ class DeleteWorks {
     this.showWorksCount()
   }
 
-  // 给作品绑定删除事件
+  // 给作品绑定手动删除事件
+  // 删除作品后，回调函数可以接收到被删除的元素
   private bindDeleteEvent() {
     const listElement: NodeListOf<HTMLDivElement> = document.querySelectorAll(
       this.worksSelector
@@ -132,23 +143,6 @@ class DeleteWorks {
         }
       }
     })
-  }
-
-  // 手动删除作品
-  // 回调函数可以接收到被删除的元素
-  private manuallyDelete(delBtn: HTMLButtonElement) {
-    this.delMode = !this.delMode
-
-    this.bindDeleteEvent()
-
-    if (this.delMode) {
-      delBtn.textContent = lang.transl('_退出手动删除')
-      setTimeout(() => {
-        centerPanel.close()
-      }, 300)
-    } else {
-      delBtn.textContent = lang.transl('_手动删除作品')
-    }
   }
 
   // 显示调整后，列表里的作品数量

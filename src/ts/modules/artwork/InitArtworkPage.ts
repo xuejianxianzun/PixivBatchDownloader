@@ -1,4 +1,4 @@
-//初始化作品页
+//初始化 artwork 作品页
 import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../Colors'
 import { EVT } from '../EVT'

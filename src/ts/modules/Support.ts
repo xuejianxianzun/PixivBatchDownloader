@@ -26,19 +26,11 @@ class Support {
 
   // 检查新版本
   private async checkNew() {
-    // 显示更新按钮
-    const show = function () {
-      const updateIco = document.querySelector(
-        '.centerWrap_top_btn.update'
-      )! as HTMLAnchorElement
-      updateIco.style.display = 'inline-block'
-    }
-
-    // 读取上一次检查的时间，如果超过一小时则检查 GitHub 上的信息
+    // 读取上一次检查的时间，如果超过指定的时间，则检查 GitHub 上的信息
     const lastTime = localStorage.getItem('xzUpdateTime')
     if (
       !lastTime ||
-      new Date().getTime() - parseInt(lastTime) > 60 * 60 * 1000
+      new Date().getTime() - parseInt(lastTime) > 60 * 30 * 1000
     ) {
       // 获取最新的 releases 信息
       const latest = await fetch(
@@ -59,7 +51,7 @@ class Support {
     // 比较大小
     const latestVer = localStorage.getItem('xzGithubVer')
     if (latestVer && manifestVer < latestVer) {
-      show()
+      EVT.fire('hasNewVer')
     }
   }
 

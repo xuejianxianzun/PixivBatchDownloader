@@ -28,7 +28,6 @@ class InitAreaRankingPage extends InitPageBase {
   }
 
   protected async getIdList() {
-    // 地区排行榜
     const allPicArea = document.querySelectorAll('.ranking-item>.work_wrapper')
 
     for (const el of allPicArea) {

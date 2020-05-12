@@ -1,4 +1,4 @@
-// 初始化页面，初始化抓取流程
+// 根据不同的页面，初始化下载器的功能
 import { EVT } from './EVT'
 import { pageType } from './PageType'
 
@@ -74,7 +74,7 @@ class InitPage {
       case 18:
         return new InitNewNovelPage()
       default:
-        throw new Error('InitCrawlProcess error: Illegal pageType.')
+        throw new Error('InitPage error: Illegal pageType.')
     }
   }
 }

@@ -1,3 +1,4 @@
+/* right buttons */
 #quick_down_btn,
 #rightButton {
   display: block;
@@ -27,6 +28,7 @@
   background: #0096fa;
   background: -webkit-linear-gradient(top, #47b4ff 0%, #027fd2 100%);
 }
+/* center panel */
 .centerWrap {
   box-sizing: border-box;
   position: fixed;
@@ -70,12 +72,17 @@
 .centerWrap label:hover {
   color: #0ea8ef !important;
 }
+.centerWrap .settingForm {
+  /*--------美化作为开关的复选框------------*/
+  /*--------美化普通的复选框------------*/
+  /*--------美化单选框------------*/
+}
 .centerWrap .settingForm select {
   width: 80px;
   height: 20px;
   vertical-align: middle;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid #cccccc;
 }
 .centerWrap .settingForm option {
   font-size: 14px !important;
@@ -280,7 +287,8 @@
 .centerWrap .centerWrap_top_btn:hover,
 .centerWrap .showFileNameTip:hover,
 .centerWrap .showFileNameResult:hover,
-.centerWrap .bottom_help_bar > *:hover {
+.centerWrap .bottom_help_bar > *:hover,
+.centerWrap .updateActiveClass {
   color: #0ea8ef !important;
   fill: #0ea8ef !important;
 }
@@ -607,6 +615,7 @@
   padding: 7px 14px;
   border-radius: 6px;
 }
+/* image thumbnail list */
 #viewerWarpper {
   position: relative;
   margin: 30px auto 15px;
@@ -638,6 +647,7 @@
   max-height: 144px;
   width: auto;
 }
+/* image viewer */
 .viewer-backdrop {
   background: rgba(0, 0, 0, 0.8) !important;
 }
@@ -722,6 +732,7 @@
   display: none;
   border: 1px solid #0ea8ef;
 }
+/* block ads */
 #header-banner.ad,
 ._2vNejsc,
 ._3M6FtEB,

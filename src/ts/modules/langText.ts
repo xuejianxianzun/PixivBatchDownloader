@@ -1,6 +1,6 @@
 // 在属性名前面加上下划线，和文本内容做出区别。
 // {} 表示需要进行替换的部分
-// <br> 和 \n 换行
+// <br> 表示换行
 type langTextKeys = keyof typeof langText
 
 const langText = {
@@ -262,12 +262,6 @@ const langText = {
     'ランク前 -num- 位の作品をダウンロードする。',
     'download the top -num- works in the ranking list',
     '下載排行榜前 -num- 個作品',
-  ],
-  _请输入最低收藏数和要抓取的页数: [
-    '请输入最低收藏数和要抓取的页数，用英文逗号分开。\n类似于下面的形式: \n1000,1000',
-    'ボックマークの最小数とクロールするページ数を，「,」で区切って入力してください。\n例えば：\n1000,1000',
-    'Please type the minimum number of bookmarks, and the number of pages to be crawled, separated by comma (,).\nE.g:\n1000,1000',
-    '請輸入最低收藏數和要擷取的頁數，用英文逗號分開。\n類似於下面的形式: \n1000,1000',
   ],
   _输入超过了最大值: [
     '您输入的数字超过了最大值',

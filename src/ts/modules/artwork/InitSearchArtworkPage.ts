@@ -1,4 +1,4 @@
-// 初始化搜索页
+// 初始化 artwork 搜索页
 import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../Colors'
 import { lang } from '../Lang'

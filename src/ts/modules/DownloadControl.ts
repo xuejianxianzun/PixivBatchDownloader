@@ -5,6 +5,7 @@ import {
   downloadArgument,
   DonwloadSuccessData,
   DownloadedMsg,
+  TaskList,
 } from './Download.d'
 import { store } from './Store'
 import { log } from './Log'
@@ -14,13 +15,6 @@ import { Colors } from './Colors'
 import { form } from './Settings'
 import { Download } from './Download'
 import { progressBar } from './ProgressBar'
-
-interface TaskList {
-  [id: string]: {
-    index: number
-    progressBarIndex: number
-  }
-}
 
 class DownloadControl {
   constructor() {

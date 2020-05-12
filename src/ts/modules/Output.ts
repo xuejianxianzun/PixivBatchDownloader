@@ -1,4 +1,4 @@
-// 输出传递的文本
+// 输出面板
 import { EVT } from './EVT'
 import { lang } from './Lang'
 
@@ -13,7 +13,6 @@ class Output {
 
   private outputContent: HTMLDivElement = document.createElement('div') // 输出文本的容器元素
 
-  // 添加输出面板
   private addOutPutPanel() {
     const outputPanelHTML = `
     <div class="outputWrap">

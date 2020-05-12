@@ -7,7 +7,8 @@ import { API } from './API'
 import { EVT } from './EVT'
 import { blackAndWhiteImage } from './BlackandWhiteImage'
 
-// 审查每个作品的数据，决定是否要下载它。下载区域有一些选项是过滤器选项。
+// 审查每个作品的数据，决定是否要存储它
+// 可以根据需要，随时进行审查
 class Filter {
   private downType0 = true
   private downType1 = true

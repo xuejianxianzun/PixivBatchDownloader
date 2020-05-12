@@ -1,4 +1,4 @@
-// 初始化排行榜页面
+// 初始化 artwork 排行榜页面
 import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../Colors'
 import { API } from '../API'

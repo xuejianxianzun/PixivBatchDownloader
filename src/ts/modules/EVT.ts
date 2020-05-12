@@ -29,6 +29,7 @@ interface EventList {
   destroy: 'destroy'
   convertError: 'convertError'
   skipSaveFile: 'skipSaveFile'
+  hasNewVer: 'hasNewVer'
 }
 
 class EVT {
@@ -62,6 +63,7 @@ class EVT {
     destroy: 'destroy',
     convertError: 'convertError',
     skipSaveFile: 'skipSaveFile',
+    hasNewVer: 'hasNewVer',
   }
 
   static fire(

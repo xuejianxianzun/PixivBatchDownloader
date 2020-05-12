@@ -1,3 +1,4 @@
+// 操作 Setting 表单的选项区域
 import { form } from './Settings'
 
 interface WantPageArg {
@@ -13,7 +14,6 @@ interface WantPageEls {
   input: HTMLInputElement
 }
 
-// 操作 Setting 表单的选项区域
 class Options {
   constructor() {
     this.allOption = form.querySelectorAll('.option')

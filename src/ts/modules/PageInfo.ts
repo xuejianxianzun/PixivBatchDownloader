@@ -1,4 +1,4 @@
-// 获取页面上的一些信息，用于文件名中
+// 获取页面上的一些信息
 import { API } from './API'
 import { EVT } from './EVT'
 import { store } from './Store'

@@ -13,6 +13,9 @@ class CenterPanel {
 
   private centerPanel: HTMLDivElement = document.createElement('div') // 中间面板
 
+  private updateLink: HTMLAnchorElement = document.createElement('a')
+  private updateActiveClass = 'updateActiveClass'
+
   // 添加中间面板
   private addCenterPanel() {
     const centerPanelHTML = `
@@ -68,12 +71,15 @@ class CenterPanel {
 
     this.centerPanel = document.querySelector('.centerWrap') as HTMLDivElement
 
+    this.updateLink = this.centerPanel.querySelector(
+      '.update'
+    )! as HTMLAnchorElement
+
     const userLang = document.documentElement.lang
-    if (['zh', 'zh-CN', 'zh-Hans'].includes(userLang)) {
-      document.getElementById('zanzhu')!.style.display = 'inline-block'
-    } else {
-      document.getElementById('patreon')!.style.display = 'inline-block'
-    }
+    const donateId = ['zh', 'zh-CN', 'zh-Hans'].includes(userLang)
+      ? 'zanzhu'
+      : 'patreon'
+    document.getElementById(donateId)!.style.display = 'inline-block'
   }
 
   // 绑定中间面板上的事件
@@ -127,6 +133,12 @@ class CenterPanel {
       if (!store.states.quickDownload && !store.states.notAutoDownload) {
         this.show()
       }
+    })
+
+    // 显示更新按钮
+    window.addEventListener(EVT.events.hasNewVer, () => {
+      this.updateLink.classList.add(this.updateActiveClass)
+      this.updateLink.style.display = 'inline-block'
     })
 
     // 显示常见问题

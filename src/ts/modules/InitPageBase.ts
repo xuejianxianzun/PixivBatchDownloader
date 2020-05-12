@@ -1,4 +1,4 @@
-// 初始化抓取页面的流程
+// 初始化所有页面抓取流程的基类
 import { lang } from './Lang'
 import { Colors } from './Colors'
 import { DOM } from './DOM'
@@ -16,7 +16,6 @@ import { pageInfo } from './PageInfo'
 import { IDData } from './Store.d'
 
 abstract class InitPageBase {
-  // 初始化
   protected init() {
     options.showAllOption()
     this.setFormOption()
