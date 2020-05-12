@@ -14,6 +14,8 @@
 
 <!-- /TOC -->
 
+![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
+
 **Already support downloading novels!**
 
 # Introduction

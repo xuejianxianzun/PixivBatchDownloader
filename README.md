@@ -14,7 +14,10 @@
   - [可以使用的页面类型以及测试网址](#可以使用的页面类型以及测试网址)
 
 <!-- /TOC -->
+
 [View English introduction](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
+
+![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
 
 **现已支持小说下载！**
 
