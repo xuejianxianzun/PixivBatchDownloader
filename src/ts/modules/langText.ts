@@ -351,7 +351,7 @@ const langText = {
     '下载动图时，可以把它转换成视频文件',
     'うごイラをダウンロードするとき、動画に変換することができます。',
     'When you download a ugoira work, you can convert it to a video file.',
-    '下載動圖時，可以將它轉換為影片檔案',
+    '下載動圖時，可以將它轉換為影片檔案。',
   ],
   _webmVideo: ['WebM 视频', 'WebM ビデオ', 'WebM video', '影片（WebM）'],
   _gif: ['GIF 图片', 'GIF 画像', 'GIF picture', '圖片（GIF）'],
@@ -785,7 +785,7 @@ const langText = {
     '如果不需要可以清除多图作品',
     '必要がない場合は、複数のグラフを削除することができます',
     'If you do not need it, you can delete multiple graphs',
-    '如果不需要可以清除多圖作品',
+    '如果不需要可以清除多圖作品。',
   ],
   _清除动图作品: [
     '清除动图作品',
@@ -797,7 +797,7 @@ const langText = {
     '如果不需要可以清除动图作品',
     '必要がない場合は、うごイラを削除することができます',
     'If you do not need it, you can delete the ugoira work',
-    '如果不需要可以清除動圖作品',
+    '如果不需要可以清除動圖作品。',
   ],
   _手动删除作品: [
     '手动删除作品',
@@ -809,7 +809,7 @@ const langText = {
     '可以在下载前手动删除不需要的作品',
     'ダウンロードする前に不要な作品を手動で削除することができます',
     'You can manually delete unwanted work before downloading',
-    '可以在下載前手動刪除不需要的作品',
+    '可以在下載前手動刪除不需要的作品，點擊作品刪除。',
   ],
   _退出手动删除: [
     '退出手动删除',
@@ -1067,7 +1067,7 @@ const langText = {
     '启用快速收藏',
     'クイックボックマークを有効にする',
     'Enable quick bookmark',
-    '啟用快速收藏',
+    '開啟快速收藏',
   ],
   _启用快速收藏说明: [
     '当你点击下载器添加的收藏按钮(☆)，把作品添加到书签时，自动添加这个作品的 tag。',
@@ -1177,7 +1177,7 @@ const langText = {
     '在小说里保存元数据',
     '小説の中にメタデータを保存する',
     'Save metadata in the novel',
-    '將中繼資料（metadata）儲存在小說裡',
+    '將中繼資料（metadata）儲存在小說裡。',
   ],
   _在小说里保存元数据提示: [
     '把作者、网址等信息保存到小說里',
