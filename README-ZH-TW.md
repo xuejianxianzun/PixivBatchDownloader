@@ -1,3 +1,11 @@
+[English](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
+
+[简体中文](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README.md)
+
+![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
+
+**已支援小說下載！**
+
 <!-- TOC -->
 
 - [簡介](#簡介)
@@ -15,19 +23,13 @@
 
 <!-- /TOC -->
 
-[English](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
-[简体中文](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README.md)
-![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
-
-**已支援小說下載！**
-
 # 簡介
 
 這是一個 Chrome 瀏覽器擴充功能，用於批次下載 Pixiv 上的圖片和小說。功能強大，支援多種頁面類型。
 
 現在也增加了一些輔助功能，如去除廣告、快速收藏、看圖模式、替未分類作品添加 tag 等。
 
-![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/ui1.png)
+![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/ui4.png)
 
 [瀏覽官網](https://pixiv.download/)
 

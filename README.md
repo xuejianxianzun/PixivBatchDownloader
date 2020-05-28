@@ -1,3 +1,11 @@
+[English](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
+
+[繁體中文](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-ZH-TW.md)
+
+![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
+
+**现已支持小说下载！**
+
 <!-- TOC -->
 
 - [简介](#简介)
@@ -15,11 +23,6 @@
 
 <!-- /TOC -->
 
-[View English introduction](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
-
-![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
-
-**现已支持小说下载！**
 
 # 简介
 
