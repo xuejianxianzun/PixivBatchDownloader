@@ -1,3 +1,11 @@
+[English](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
+
+[繁體中文](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-ZH-TW.md)
+
+![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
+
+**现已支持小说下载！**
+
 <!-- TOC -->
 
 - [简介](#简介)
@@ -14,9 +22,7 @@
   - [可以使用的页面类型以及测试网址](#可以使用的页面类型以及测试网址)
 
 <!-- /TOC -->
-[View English introduction](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-EN.md)
 
-**现已支持小说下载！**
 
 # 简介
 
@@ -56,7 +62,7 @@ Chrome 会自动更新本应用的版本。
 
 # 鸣谢
 
-- 感谢 [道滿](https://zhtw.me/) 翻译繁体中文。
+- 感谢 [道滿](https://zhtw.me/) 、 [VHlqg](https://github.com/VHlqg) 翻译繁体中文。
 
 - 感谢 [光の軌跡](https://github.com/jiaer24) 翻译日语。
 

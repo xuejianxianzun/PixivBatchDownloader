@@ -73,7 +73,7 @@ class BookmarksAddTag {
     if (total >= showData.body.total && total >= hideData.body.total) {
       if (this.addTagList.length === 0) {
         // 如果结果为空，不需要处理
-        this.btn!.textContent = `√ No need`
+        this.btn!.textContent = `✓ No need`
         this.btn!.removeAttribute('disabled')
         return
       } else {
@@ -97,7 +97,7 @@ class BookmarksAddTag {
       // 继续添加下一个
       this.addTag(index, addList, tt)
     } else {
-      this.btn!.textContent = `√ Complete`
+      this.btn!.textContent = `✓ Complete`
       this.btn!.removeAttribute('disabled')
     }
   }

@@ -41,7 +41,7 @@ class PageInfo {
 
     // 去掉标题上的下载状态、消息数量提示
     this.pageTitle = document.title
-      .replace(/\[(↑|→|▶|↓|║|■|√| )\] /, '')
+      .replace(/\[(↑|→|▶|↓|║|■|✓| )\] /, '')
       .replace(/^\(\d.*\) /, '')
 
     // 获取当前页面的 tag

@@ -11,10 +11,10 @@ class TitleBar {
   ↓ 下载中
   ║ 下载暂停
   ■ 下载停止
-  √ 下载完毕
+  ✓ 下载完毕
     空格，当需要闪烁标题时使用
   */
-  private readonly status = ['↑', '→', '▶', '↓', '║', '■', '√', ' ']
+  private readonly status = ['↑', '→', '▶', '↓', '║', '■', '✓', ' ']
 
   private timer: number = 0 // 修改 title 的定时器
 

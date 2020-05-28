@@ -1,3 +1,11 @@
+[简体中文](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README.md)
+
+[繁體中文](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-ZH-TW.md)
+
+![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
+
+**Already support downloading novels!**
+
 <!-- TOC -->
 
 - [Introduction](#introduction)
@@ -13,8 +21,6 @@
   - [Available pages and test URL](#available-pages-and-test-url)
 
 <!-- /TOC -->
-
-**Already support downloading novels!**
 
 # Introduction
 
@@ -56,7 +62,7 @@ Note: Currently only available in Chinese. Welcome to translate!
 
 # Thanks
 
-- Thanks [道滿](https://zhtw.me/) for translating traditional Chinese.
+- Thanks [道滿](https://zhtw.me/) , [VHlqg](https://github.com/VHlqg) for translating traditional Chinese.
 
 - Thanks [光の軌跡](https://github.com/jiaer24) for translating traditional Japanese.
 

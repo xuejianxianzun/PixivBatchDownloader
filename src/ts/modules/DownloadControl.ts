@@ -132,7 +132,7 @@ class DownloadControl {
       this.reset()
       this.setDownStateText(lang.transl('_下载完毕'))
       log.success(lang.transl('_下载完毕'), 2)
-      titleBar.change('√')
+      titleBar.change('✓')
     }
   }
 
