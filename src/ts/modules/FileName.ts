@@ -13,11 +13,10 @@ class FileName {
     })
   }
 
-  // 生成文件名，传入参数为图片信息
+  // 生成文件名
   public getFileName(data: WorkInfo) {
-    let result = form.userSetName.value
     // 为空时使用 {id}
-    result = result || '{id}'
+    let result = form.userSetName.value || '{id}'
 
     const illustTypes = ['illustration', 'manga', 'ugoira', 'novel'] // 作品类型 0 插画 1 漫画 2 动图 3 小说
 
@@ -116,7 +115,6 @@ class FileName {
 
     // 把命名规则的标记替换成实际值
     for (const [key, val] of Object.entries(cfg)) {
-      // 只有当标记有值时才会进行替换，所以没有值的标记会原样保留
       if (result.includes(key)) {
         // 处理去掉序号的情况
         if (noSerialNo) {
