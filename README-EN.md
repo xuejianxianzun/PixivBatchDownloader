@@ -62,7 +62,7 @@ Note: Currently only available in Chinese. Welcome to translate!
 
 # Thanks
 
-- Thanks [道滿](https://zhtw.me/) for translating traditional Chinese.
+- Thanks [道滿](https://zhtw.me/) , [VHlqg](https://github.com/VHlqg) for translating traditional Chinese.
 
 - Thanks [光の軌跡](https://github.com/jiaer24) for translating traditional Japanese.
 

@@ -62,7 +62,7 @@ Chrome 会自动更新本应用的版本。
 
 # 鸣谢
 
-- 感谢 [道滿](https://zhtw.me/) 翻译繁体中文。
+- 感谢 [道滿](https://zhtw.me/) 、 [VHlqg](https://github.com/VHlqg) 翻译繁体中文。
 
 - 感谢 [光の軌跡](https://github.com/jiaer24) 翻译日语。
 

@@ -61,7 +61,7 @@ Chrome 會自動更新本應用程式的版本。
 
 # 鳴謝
 
-- 感謝 [道滿](https://zhtw.me/) 翻譯繁體中文。
+- 感謝 [道滿](https://zhtw.me/) 、 [VHlqg](https://github.com/VHlqg) 翻譯繁體中文。
 
 - 感謝 [光の軌跡](https://github.com/jiaer24) 翻譯日語。
 
