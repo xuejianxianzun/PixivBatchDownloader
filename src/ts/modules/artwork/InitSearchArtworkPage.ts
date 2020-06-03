@@ -33,6 +33,7 @@ class InitSearchArtworkPage extends InitPageBase {
     new FastScreen()
   }
 
+  private readonly worksWrapSelector = '#root section ul'
   private readonly listClass = 'searchList'
   private readonly multipleClass = 'multiplePart'
   private readonly ugoiraClass = 'ugoiraPart'
@@ -204,8 +205,14 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 返回包含作品列表的 ul 元素
   private getWorksWrap() {
-    const test = document.querySelectorAll('#root section ul')
+    const test = document.querySelectorAll(this.worksWrapSelector)
     if (test.length > 0) {
+      if (test.length > 2) {
+        // 大于 2 的情况是在搜索页的首页，或者小说页面
+        return test[2] as HTMLUListElement
+      }
+
+      // 在插画、漫画、artworks 页面只有两个 ul
       return test[test.length - 1] as HTMLUListElement
     }
     return null
