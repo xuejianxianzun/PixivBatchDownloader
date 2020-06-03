@@ -37,15 +37,15 @@
 
 ## 線上安裝
 
-您可以從 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 安裝本擴充功能。
+1. **Chromium 内核**的瀏覽器可以从 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 安装本擴充功能。
+
+2. **Microsoft Edge** 瀏覽器也可以从 **[Microsoft Edge 外接程序](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)** 安装本擴充功能。
 
 如果你喜歡這個擴充功能，請給它評分，使它可以被更多人看到，謝謝！
 
-Chrome 會自動更新本應用程式的版本。
-
 ## 離線安裝
 
-如果您不能開啟 Chrome Web Store，您可以從 [releases 頁面](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest) 離線安裝。
+如果您不能從線上安裝，您可以從 [releases 頁面](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest) 離線安裝。
 
 [查看安裝教學](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki/2.-%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B)
 

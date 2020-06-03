@@ -26,8 +26,6 @@
 
 This is a browser extension for **Chrome** that lets you download images and novels from Pixiv in bulk. Powerful and supports many page types.
 
-[Chrome Web Store installation page](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)
-
 ![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/ui2.png)
 
 Some auxiliary functions have also been added, such as removing ads, quick collections, Add tag to unclassified work, and viewing pictures.
@@ -36,7 +34,9 @@ Some auxiliary functions have also been added, such as removing ads, quick colle
 
 ## Online installation
 
-You can install this extension from the **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
+1. **Chromium kernel** browser can install this extension from the **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
+
+2. **Microsoft Edge** browser can also install this extension from the **[Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)**.
 
 If you like this extension, please rate it so that it can be seen by more people, thank you!
 
