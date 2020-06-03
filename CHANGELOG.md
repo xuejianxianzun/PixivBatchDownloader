@@ -1,3 +1,19 @@
+## 6.1.3  2020-06-03
+
+### 上架到了 Edge 商店
+
+[https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)
+
+版本比谷歌商店更新，因为谷歌商店最近没有上传新版本。
+
+### 其他优化
+
+修正了在搜索页面首页如 [FGO](https://www.pixiv.net/tags/FGO)，预览结果显示的位置不对的问题。
+
+### 添加 Privacy Policy
+
+因为 Edge 需要 Privacy Policy，所以自己编写了一个，看起来还行。
+
 ## 6.1.2  2020-05-28
 
 ### 更新界面中的繁体中文
