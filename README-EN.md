@@ -42,9 +42,10 @@ If you like this extension, please rate it so that it can be seen by more people
 
 ## Offline installation
 
-[Releases page](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/)
-
-Download powerfulpixivdownloader.zip, unzip it to a folder, then open the browser's extension management and load this folder.
+1. Download the latest version of the installation package from [release page](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/) and unzip it to a folder.
+2. Enter the extension management. Chrome clicks "More Tools"-"Extensions Management" in the menu; Edge clicks "Extensions" in the menu.
+3. On the extension management page, enable "Developer Mode".
+4. Click the button "Load unpacked" and select the folder where the installation package is unzipped.
 
 - The downloaded file will be saved in your browser's download directory.
 
