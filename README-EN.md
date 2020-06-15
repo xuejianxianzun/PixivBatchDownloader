@@ -2,9 +2,13 @@
 
 [繁體中文](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-ZH-TW.md)
 
+[Discord channel](https://discord.gg/eW9JtTK)
+
 ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
 
 **Already support downloading novels!**
+
+**Note:** The latest version has not been approved by the Chrome web store. You can install it offline or use the Edge browser to install it from the Edge store.
 
 <!-- TOC -->
 

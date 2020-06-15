@@ -2,9 +2,13 @@
 
 [简体中文](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README.md)
 
+[Discord 頻道](https://discord.gg/eW9JtTK)
+
 ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
 
 **已支援小說下載！**
+
+**注意：** 最新版本沒有通過 Chrome web store 的審查，你可以進行離線安裝，或者使用 Edge 瀏覽器從 Edge 商店安裝。
 
 <!-- TOC -->
 
