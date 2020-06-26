@@ -103,6 +103,11 @@ class FileName {
         prefix: '',
         safe: true,
       },
+      '{seriesTitle}': {
+        value: data.seriesTitle||'',
+        prefix: '',
+        safe: false,
+      },
     }
 
     // 替换命名规则里的特殊字符

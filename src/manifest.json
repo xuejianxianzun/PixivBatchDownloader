@@ -56,5 +56,6 @@
     "lib/z-worker.js",
     "lib/gif.worker.js",
     "manifest.json"
-  ]
+  ],
+	"homepage_url": "https://github.com/xuejianxianzun/PixivBatchDownloader"
 }

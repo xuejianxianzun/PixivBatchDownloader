@@ -197,6 +197,7 @@ const formHtml = `<form class="settingForm">
         <option value="{user}">{user}</option>
         <option value="{userid}">{userid}</option>
         <option value="{title}">{title}</option>
+        <option value="{seriesTitle}">{seriesTitle}</option>
         <option value="{p_title}">{p_title}</option>
         <option value="{tags}">{tags}</option>
         <option value="{tags_translate}">{tags_translate}</option>
@@ -228,6 +229,9 @@ const formHtml = `<form class="settingForm">
       <br>
       <span class="blue">{title}</span>
       ${lang.transl('_命名标记title')}
+      <br>
+      <span class="blue">{seriesTitle}</span>
+      ${lang.transl('_命名标记seriesTitle')}
       <br>
       <span class="blue">{p_title}</span>
       ${lang.transl('_文件夹标记PTitle')}

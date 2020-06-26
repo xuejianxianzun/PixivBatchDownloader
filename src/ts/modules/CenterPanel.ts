@@ -61,6 +61,7 @@ class CenterPanel {
       )}</a>
       <a id="zanzhu" class="wiki2 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">通过“爱发电”网站支持我</a>
       <a id="patreon" class="wiki2 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
+      <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
       <br>
       <p class="downTip tip"> ${lang.transl('_下载说明')}</p>
       </div>

@@ -27,7 +27,8 @@ export interface WorkInfo {
   date: string
   type: 0 | 1 | 2 | 3
   rank: string
-  ugoiraInfo: UgoiraInfo | null
+  ugoiraInfo: UgoiraInfo | null,
+  seriesTitle: string | null
 }
 
 export interface WorkInfoOptional {
@@ -50,7 +51,8 @@ export interface WorkInfoOptional {
   date?: string
   type?: 0 | 1 | 2 | 3
   rank?: string
-  ugoiraInfo?: UgoiraInfo | null
+  ugoiraInfo?: UgoiraInfo | null,
+  seriesTitle?: string | null
 }
 
 // 储存作品在排行榜中的排名
