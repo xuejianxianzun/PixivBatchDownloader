@@ -85,7 +85,7 @@ class InitIndexPage extends InitPageBase {
 
   protected getIdList() {
     // 检查页面类型，设置输入的 id 的作品类型
-    const type = window.location.pathname === '/novel/' ? 'novels' : 'unkown'
+    const type = window.location.pathname === '/novel/' ? 'novels' : 'unknown'
 
     // 检查 id
     const tempSet = new Set(this.downIdInput.value.split('\n'))

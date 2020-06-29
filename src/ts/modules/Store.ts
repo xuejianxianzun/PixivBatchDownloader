@@ -85,8 +85,8 @@ class Store {
       type: 0,
       rank: '',
       ugoiraInfo: null,
-      seriesTitle:null,
-      seriesOrder:null,
+      seriesTitle: null,
+      seriesOrder: null,
     }
 
     return Object.assign(dataDefault, data)

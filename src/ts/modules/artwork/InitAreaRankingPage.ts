@@ -52,7 +52,7 @@ class InitAreaRankingPage extends InitPageBase {
       if (await filter.check(filterOpt)) {
         const id = API.getIllustId(el.querySelector('a')!.href)
         store.idList.push({
-          type: 'unkown',
+          type: 'unknown',
           id,
         })
       }

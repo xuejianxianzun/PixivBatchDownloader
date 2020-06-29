@@ -507,7 +507,7 @@ class API {
   // 主要用于储存进 idList
   static getWorkType(
     illustType: 0 | 1 | 2 | 3 | '0' | '1' | '2' | '3'
-  ): 'illusts' | 'manga' | 'ugoira' | 'novels' | 'unkown' {
+  ): 'illusts' | 'manga' | 'ugoira' | 'novels' | 'unknown' {
     switch (parseInt(illustType.toString())) {
       case 0:
         return 'illusts'
@@ -518,7 +518,7 @@ class API {
       case 3:
         return 'novels'
       default:
-        return 'unkown'
+        return 'unknown'
     }
   }
 

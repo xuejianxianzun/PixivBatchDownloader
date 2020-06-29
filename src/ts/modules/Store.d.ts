@@ -1,5 +1,5 @@
 import { UgoiraInfo } from './CrawlResult'
-export type IDListType = 'illusts' | 'manga' | 'novels' | 'ugoira' | 'unkown'
+export type IDListType = 'illusts' | 'manga' | 'novels' | 'ugoira' | 'unknown'
 
 export interface IDData {
   type: IDListType
@@ -27,9 +27,9 @@ export interface WorkInfo {
   date: string
   type: 0 | 1 | 2 | 3
   rank: string
-  ugoiraInfo: UgoiraInfo | null,
+  ugoiraInfo: UgoiraInfo | null
   seriesTitle: string | null
-    seriesOrder: string | null
+  seriesOrder: string | null
 }
 
 export interface WorkInfoOptional {
@@ -52,9 +52,9 @@ export interface WorkInfoOptional {
   date?: string
   type?: 0 | 1 | 2 | 3
   rank?: string
-  ugoiraInfo?: UgoiraInfo | null,
+  ugoiraInfo?: UgoiraInfo | null
   seriesTitle?: string | null
-    seriesOrder?: string | null
+  seriesOrder?: string | null
 }
 
 // 储存作品在排行榜中的排名

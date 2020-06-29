@@ -72,6 +72,8 @@ class PageType {
       type = 17
     } else if (pathname.startsWith('/novel/new')) {
       type = 18
+    } else if (pathname.startsWith('/user/') && pathname.includes('/series/')) {
+      type = 19
     } else {
       // 没有匹配到可用的页面类型
       throw new Error('Page type matching failed')

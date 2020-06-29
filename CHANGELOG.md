@@ -1,10 +1,4 @@
-需要翻译
-_命名标记seriesTitle
-_命名标记seriesOrder
-
-更新wiki
-
-## 6.2.0  2020-06-
+## 6.2.0  2020-06-29
 
 ### 对系列作品，新增了两个标记
 
@@ -20,11 +14,15 @@ _命名标记seriesOrder
 
 测试用例：
 
-插画系列如： https://www.pixiv.net/user/3698796/series/61267
-
 小说系列如： https://www.pixiv.net/novel/series/1035507
 
 https://www.pixiv.net/user/34367290/series/52042
+
+### 支持了漫画的系列作品页面
+
+漫画系列如： https://www.pixiv.net/user/3698796/series/61267
+
+不知道插画类型的作品有没有系列页面
 
 ### 修改命名标记 userid 为 user_id
 

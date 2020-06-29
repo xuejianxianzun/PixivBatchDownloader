@@ -171,7 +171,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
       return this.afterGetIdList()
     } else {
       // 没有抓取完毕时，添加数据
-      const idType = this.type === 'illusts' ? 'unkown' : 'novels'
+      const idType = this.type === 'illusts' ? 'unknown' : 'novels'
       data.body.works.forEach((data: BookmarkArtworkData | NovelCommonData) =>
         this.idList.push({
           type: idType,
@@ -205,7 +205,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
         ? '#illust-recommend .image-item'
         : '.novel-items>li'
 
-    const idType = this.type === 'illusts' ? 'unkown' : 'novels'
+    const idType = this.type === 'illusts' ? 'unknown' : 'novels'
 
     const getId = this.type === 'illusts' ? API.getIllustId : API.getNovelId
 

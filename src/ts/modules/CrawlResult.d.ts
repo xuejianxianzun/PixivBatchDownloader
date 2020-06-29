@@ -294,12 +294,12 @@ export interface UserProfile {
     }
     official: boolean
     group:
-    | null
-    | {
-      id: string
-      title: string
-      iconUrl: string
-    }[]
+      | null
+      | {
+          id: string
+          title: string
+          iconUrl: string
+        }[]
   }
 }
 
@@ -381,20 +381,20 @@ export interface UserProfileAllData {
   message: string
   body: {
     illusts:
-    | []
-    | {
-      [key: string]: null
-    }
+      | []
+      | {
+          [key: string]: null
+        }
     manga:
-    | []
-    | {
-      [key: string]: null
-    }
+      | []
+      | {
+          [key: string]: null
+        }
     novels:
-    | []
-    | {
-      [key: string]: null
-    }
+      | []
+      | {
+          [key: string]: null
+        }
     mangaSeries: [] | {}
     novelSeries: [] | {}
     pickup: object

@@ -53,7 +53,7 @@ class InitBookmarkDetailPage extends InitPageBase {
 
     for (const id of data.recommendations) {
       store.idList.push({
-        type: 'unkown',
+        type: 'unknown',
         id: id.toString(),
       })
     }

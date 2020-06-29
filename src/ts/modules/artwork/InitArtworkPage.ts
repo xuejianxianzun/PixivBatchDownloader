@@ -155,7 +155,7 @@ class InitArtworkPage extends InitPageBase {
     } else if (store.states.quickDownload) {
       // 快速下载
       store.idList.push({
-        type: 'unkown',
+        type: 'unknown',
         id: API.getIllustId(window.location.href),
       })
 
@@ -213,7 +213,7 @@ class InitArtworkPage extends InitPageBase {
     }
     for (const id of recommendIdList) {
       store.idList.push({
-        type: 'unkown',
+        type: 'unknown',
         id,
       })
     }

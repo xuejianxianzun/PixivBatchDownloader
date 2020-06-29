@@ -109,12 +109,12 @@ class FileName {
         safe: true,
       },
       '{series_title}': {
-        value: data.seriesTitle||'',
+        value: data.seriesTitle || '',
         prefix: '',
         safe: false,
       },
       '{series_order}': {
-        value: data.seriesOrder||'',
+        value: data.seriesOrder || '',
         prefix: '',
         safe: true,
       },

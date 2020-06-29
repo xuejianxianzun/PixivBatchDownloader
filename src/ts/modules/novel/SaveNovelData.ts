@@ -107,7 +107,7 @@ class SaveNovelData {
         type: illustType,
         rank: rank,
         seriesTitle: seriesTitle,
-        seriesOrder:seriesOrder,
+        seriesOrder: seriesOrder,
       })
     }
   }
@@ -119,7 +119,6 @@ class SaveNovelData {
     let reg = /\[\[jumpuri:(.*?)>(.*?)\]\]/g
     let temp
     while ((temp = reg.exec(str))) {
-      console.log(temp)
       str = str.replace(temp[0], `${temp[1].trim()}（${temp[2].trim()}）`)
       reg.lastIndex = 0
     }
@@ -160,7 +159,6 @@ class SaveNovelData {
     let reg = /\[pixivimage:(.*?)\]/g
     let temp
     while ((temp = reg.exec(str))) {
-      console.log(temp)
       const url = `http://pixiv.net/i/${temp[1].trim()}`
       str = str.replace(
         temp[0],

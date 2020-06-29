@@ -36,7 +36,6 @@ class InitRankingArtworkPage extends InitPageBase {
         ['title', lang.transl('_抓取首次登场的作品Title')],
       ]).addEventListener('click', () => {
         form.debut.value = '1'
-        console.log(form.debut.value)
         this.readyCrawl()
       })
     }

@@ -143,7 +143,7 @@ class InitBookmarkPage extends InitPageBase {
       return this.afterGetIdList()
     } else {
       // 没有抓取完毕时，添加数据
-      const idType = this.type === 'illusts' ? 'unkown' : 'novels'
+      const idType = this.type === 'illusts' ? 'unknown' : 'novels'
       data.body.works.forEach((data: BookmarkArtworkData | NovelCommonData) =>
         this.idList.push({
           type: idType,

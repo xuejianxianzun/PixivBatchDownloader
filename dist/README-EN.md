@@ -2,9 +2,13 @@
 
 [繁體中文](https://github.com/xuejianxianzun/PixivBatchDownloader/blob/master/README-ZH-TW.md)
 
+[Discord channel](https://discord.gg/eW9JtTK)
+
 ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
 
 **Already support downloading novels!**
+
+**Note:** The latest version has not been approved by the Chrome web store. You can install it offline or use the Edge browser to install it from the Edge store.
 
 <!-- TOC -->
 
@@ -42,9 +46,10 @@ If you like this extension, please rate it so that it can be seen by more people
 
 ## Offline installation
 
-[Releases page](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/)
-
-Download powerfulpixivdownloader.zip, unzip it to a folder, then open the browser's extension management and load this folder.
+1. Download the latest version of the installation package from [release page](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/) and unzip it to a folder.
+2. Enter the extension management. Chrome clicks "More Tools"-"Extensions Management" in the menu; Edge clicks "Extensions" in the menu.
+3. On the extension management page, enable "Developer Mode".
+4. Click the button "Load unpacked" and select the folder where the installation package is unzipped.
 
 - The downloaded file will be saved in your browser's download directory.
 

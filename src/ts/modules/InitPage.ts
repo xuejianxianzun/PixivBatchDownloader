@@ -21,6 +21,7 @@ import { InitSearchNovelPage } from './novel/InitSearchNovelPage'
 import { InitRankingNovelPage } from './novel/InitRankingNovelPage'
 import { InitBookmarkNewNovelPage } from './novel/InitBookmarkNewNovelPage'
 import { InitNewNovelPage } from './novel/InitNewNovelPage'
+import { InitSeriesPage } from './artwork/InitSeriesPage'
 
 class InitPage {
   constructor() {
@@ -73,6 +74,8 @@ class InitPage {
         return new InitBookmarkNewNovelPage()
       case 18:
         return new InitNewNovelPage()
+      case 19:
+        return new InitSeriesPage()
       default:
         throw new Error('InitPage error: Illegal pageType.')
     }

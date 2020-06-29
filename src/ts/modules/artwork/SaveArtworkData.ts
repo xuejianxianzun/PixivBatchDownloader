@@ -62,7 +62,7 @@ class SaveArtworkData {
       if (testRank !== undefined) {
         rank = '#' + testRank
       }
-      
+
       let seriesTitle = body.seriesNavData ? body.seriesNavData.title : ''
       let seriesOrder = body.seriesNavData ? '#' + body.seriesNavData.order : ''
 
@@ -100,7 +100,7 @@ class SaveArtworkData {
           type: body.illustType,
           rank: rank,
           seriesTitle: seriesTitle,
-          seriesOrder:seriesOrder,
+          seriesOrder: seriesOrder,
         })
       } else if (body.illustType === 2) {
         // 动图
@@ -135,7 +135,7 @@ class SaveArtworkData {
           rank: rank,
           ugoiraInfo: ugoiraInfo,
           seriesTitle: seriesTitle,
-          seriesOrder:seriesOrder,
+          seriesOrder: seriesOrder,
         })
       }
     }
