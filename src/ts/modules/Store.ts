@@ -75,7 +75,7 @@ class Store {
       tags: [],
       tagsTranslated: [],
       user: '',
-      userid: '',
+      userId: '',
       fullWidth: 0,
       fullHeight: 0,
       ext: '',
@@ -85,7 +85,8 @@ class Store {
       type: 0,
       rank: '',
       ugoiraInfo: null,
-      seriesTitle:null
+      seriesTitle:null,
+      seriesOrder:null,
     }
 
     return Object.assign(dataDefault, data)

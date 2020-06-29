@@ -62,6 +62,9 @@ class SaveArtworkData {
       if (testRank !== undefined) {
         rank = '#' + testRank
       }
+      
+      let seriesTitle = body.seriesNavData ? body.seriesNavData.title : ''
+      let seriesOrder = body.seriesNavData ? '#' + body.seriesNavData.order : ''
 
       // 储存作品信息
       if (body.illustType !== 2) {
@@ -87,7 +90,7 @@ class SaveArtworkData {
           tags: tags,
           tagsTranslated: tagTranslation,
           user: user,
-          userid: userid,
+          userId: userid,
           fullWidth: fullWidth,
           fullHeight: fullHeight,
           ext: ext,
@@ -96,6 +99,8 @@ class SaveArtworkData {
           date: date,
           type: body.illustType,
           rank: rank,
+          seriesTitle: seriesTitle,
+          seriesOrder:seriesOrder,
         })
       } else if (body.illustType === 2) {
         // 动图
@@ -119,7 +124,7 @@ class SaveArtworkData {
           tags: tags,
           tagsTranslated: tagTranslation,
           user: user,
-          userid: userid,
+          userId: userid,
           fullWidth: fullWidth,
           fullHeight: fullHeight,
           ext: ext,
@@ -129,6 +134,8 @@ class SaveArtworkData {
           type: body.illustType,
           rank: rank,
           ugoiraInfo: ugoiraInfo,
+          seriesTitle: seriesTitle,
+          seriesOrder:seriesOrder,
         })
       }
     }

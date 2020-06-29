@@ -575,7 +575,7 @@ const langText = {
     'bookmark-count, bookmarks number of works.',
     'bookmark-count，作品的收藏數。將它放在最前面可以讓檔案依收藏數排序。',
   ],
-  _命名标记9: [
+  _命名标记id_num: [
     '数字 id，如 44920385',
     '44920385 などの番号 ID',
     'Number id, for example 44920385',
@@ -628,6 +628,12 @@ const langText = {
     'シリーズタイトル(空かもしれません)',
     'Series title (may be empty)',
     '系列標題（可能為空）',
+  ],
+  _命名标记seriesOrder: [
+    '作品在系列中的序号，如 #1 #2',
+    'シリーズの作品のシリアル番号（＃1、＃2など）',
+    'The number of the work in the series, such as #1 #2',
+    '作品在系列中的編號，如 #1 #2',
   ],
   _文件夹标记PTitle: [
     '当前页面的标题',

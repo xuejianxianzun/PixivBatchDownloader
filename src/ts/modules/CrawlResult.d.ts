@@ -84,7 +84,22 @@ export interface IllustData {
     imageResponseData: []
     imageResponseCount: number
     pollData: null
-    seriesNavData: null
+    seriesNavData: null | {
+      seriesType: string
+      seriesId: string
+      title: string
+      order: number
+      next: {
+        title: string
+        order: number
+        id: string
+      } | null
+      prev: {
+        title: string
+        order: number
+        id: string
+      } | null
+    }
     descriptionBoothId: null
     descriptionYoutubeId: null
     comicPromotion: null
@@ -279,12 +294,12 @@ export interface UserProfile {
     }
     official: boolean
     group:
-      | null
-      | {
-          id: string
-          title: string
-          iconUrl: string
-        }[]
+    | null
+    | {
+      id: string
+      title: string
+      iconUrl: string
+    }[]
   }
 }
 
@@ -366,20 +381,20 @@ export interface UserProfileAllData {
   message: string
   body: {
     illusts:
-      | []
-      | {
-          [key: string]: null
-        }
+    | []
+    | {
+      [key: string]: null
+    }
     manga:
-      | []
-      | {
-          [key: string]: null
-        }
+    | []
+    | {
+      [key: string]: null
+    }
     novels:
-      | []
-      | {
-          [key: string]: null
-        }
+    | []
+    | {
+      [key: string]: null
+    }
     mangaSeries: [] | {}
     novelSeries: [] | {}
     pickup: object
@@ -780,13 +795,13 @@ export interface NovelData {
         order: number
         id: string
         available: boolean
-      }
+      } | null
       prev: {
         title: string
         order: number
         id: string
         available: boolean
-      }
+      } | null
     }
     descriptionBoothId: null
     descriptionYoutubeId: null

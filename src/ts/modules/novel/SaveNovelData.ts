@@ -53,6 +53,9 @@ class SaveNovelData {
         rank = '#' + testRank
       }
 
+      let seriesTitle = body.seriesNavData ? body.seriesNavData.title : ''
+      let seriesOrder = body.seriesNavData ? '#' + body.seriesNavData.order : ''
+
       let ext = form.novelSaveAs.value
 
       let metaArr: string[] = []
@@ -96,13 +99,15 @@ class SaveNovelData {
         tags: tags,
         tagsTranslated: tags,
         user: user,
-        userid: userid,
+        userId: userid,
         ext: ext,
         bmk: bmk,
         bookmarked: bookmarked,
         date: date,
         type: illustType,
         rank: rank,
+        seriesTitle: seriesTitle,
+        seriesOrder:seriesOrder,
       })
     }
   }

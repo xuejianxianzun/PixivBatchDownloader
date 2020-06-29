@@ -63,7 +63,12 @@ class FileName {
         safe: false,
       },
       '{userid}': {
-        value: data.userid,
+        value: data.userId,
+        prefix: 'uid_',
+        safe: true,
+      },
+      '{user_id}': {
+        value: data.userId,
         prefix: 'uid_',
         safe: true,
       },
@@ -103,10 +108,15 @@ class FileName {
         prefix: '',
         safe: true,
       },
-      '{seriesTitle}': {
+      '{series_title}': {
         value: data.seriesTitle||'',
         prefix: '',
         safe: false,
+      },
+      '{series_order}': {
+        value: data.seriesOrder||'',
+        prefix: '',
+        safe: true,
       },
     }
 

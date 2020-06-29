@@ -2291,7 +2291,12 @@ class FileName {
                 safe: false,
             },
             '{userid}': {
-                value: data.userid,
+                value: data.userId,
+                prefix: 'uid_',
+                safe: true,
+            },
+            '{user_id}': {
+                value: data.userId,
                 prefix: 'uid_',
                 safe: true,
             },
@@ -2329,6 +2334,16 @@ class FileName {
             },
             '{type}': {
                 value: illustTypes[data.type],
+                prefix: '',
+                safe: true,
+            },
+            '{series_title}': {
+                value: data.seriesTitle || '',
+                prefix: '',
+                safe: false,
+            },
+            '{series_order}': {
+                value: data.seriesOrder || '',
                 prefix: '',
                 safe: true,
             },
@@ -5869,7 +5884,7 @@ const formHtml = `<form class="settingForm">
         <option value="default">…</option>
         <option value="{id}">{id}</option>
         <option value="{user}">{user}</option>
-        <option value="{userid}">{userid}</option>
+        <option value="{user_id}">{user_id}</option>
         <option value="{title}">{title}</option>
         <option value="{p_title}">{p_title}</option>
         <option value="{tags}">{tags}</option>
@@ -5880,6 +5895,8 @@ const formHtml = `<form class="settingForm">
         <option value="{rank}">{rank}</option>
         <option value="{date}">{date}</option>
         <option value="{px}">{px}</option>
+        <option value="{series_title}">{series_title}</option>
+        <option value="{series_order}">{series_order}</option>
         <option value="{id_num}">{id_num}</option>
         <option value="{p_num}">{p_num}</option>
         </select>
@@ -5897,7 +5914,7 @@ const formHtml = `<form class="settingForm">
       <span class="blue">{user}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记user')}
       <br>
-      <span class="blue">{userid}</span>
+      <span class="blue">{user_id}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记userid')}
       <br>
       <span class="blue">{title}</span>
@@ -5930,8 +5947,14 @@ const formHtml = `<form class="settingForm">
       <span class="blue">{px}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记px')}
       <br>
+      <span class="blue">{series_title}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记seriesTitle')}
+      <br>
+      <span class="blue">{series_order}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记seriesOrder')}
+      <br>
       <span class="blue">{id_num}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记9')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记id_num')}
       <br>
       <span class="blue">{p_num}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记p_num')}
@@ -6367,7 +6390,7 @@ class Store {
             tags: [],
             tagsTranslated: [],
             user: '',
-            userid: '',
+            userId: '',
             fullWidth: 0,
             fullHeight: 0,
             ext: '',
@@ -6377,6 +6400,8 @@ class Store {
             type: 0,
             rank: '',
             ugoiraInfo: null,
+            seriesTitle: null,
+            seriesOrder: null,
         };
         return Object.assign(dataDefault, data);
     }
@@ -7767,7 +7792,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
       <!--作者信息-->
       <div class="userInfo">
       <!--相比原代码，这里去掉了作者头像的 html 代码。因为抓取到的数据里没有作者头像。-->
-          <a target="_blank" href="/member.php?id=${data.userid}">
+          <a target="_blank" href="/member.php?id=${data.userId}">
             <div class="userName">${data.user}</div>
           </a>
         </div>
@@ -8248,6 +8273,8 @@ class SaveArtworkData {
             if (testRank !== undefined) {
                 rank = '#' + testRank;
             }
+            let seriesTitle = body.seriesNavData ? body.seriesNavData.title : '';
+            let seriesOrder = body.seriesNavData ? '#' + body.seriesNavData.order : '';
             // 储存作品信息
             if (body.illustType !== 2) {
                 // 插画或漫画
@@ -8268,7 +8295,7 @@ class SaveArtworkData {
                     tags: tags,
                     tagsTranslated: tagTranslation,
                     user: user,
-                    userid: userid,
+                    userId: userid,
                     fullWidth: fullWidth,
                     fullHeight: fullHeight,
                     ext: ext,
@@ -8277,6 +8304,8 @@ class SaveArtworkData {
                     date: date,
                     type: body.illustType,
                     rank: rank,
+                    seriesTitle: seriesTitle,
+                    seriesOrder: seriesOrder,
                 });
             }
             else if (body.illustType === 2) {
@@ -8299,7 +8328,7 @@ class SaveArtworkData {
                     tags: tags,
                     tagsTranslated: tagTranslation,
                     user: user,
-                    userid: userid,
+                    userId: userid,
                     fullWidth: fullWidth,
                     fullHeight: fullHeight,
                     ext: ext,
@@ -8309,6 +8338,8 @@ class SaveArtworkData {
                     type: body.illustType,
                     rank: rank,
                     ugoiraInfo: ugoiraInfo,
+                    seriesTitle: seriesTitle,
+                    seriesOrder: seriesOrder,
                 });
             }
         }
@@ -8902,7 +8933,7 @@ const langText = {
         'bookmark-count, bookmarks number of works.',
         'bookmark-count，作品的收藏數。將它放在最前面可以讓檔案依收藏數排序。',
     ],
-    _命名标记9: [
+    _命名标记id_num: [
         '数字 id，如 44920385',
         '44920385 などの番号 ID',
         'Number id, for example 44920385',
@@ -8949,6 +8980,18 @@ const langText = {
         '現在のページの tag。現在のページの tag がないときは使用できません。',
         'The tag of the current page. Not available if the current page has no tag.',
         '目前頁面的 tag。目前頁面沒有 tag 時無法使用。',
+    ],
+    _命名标记seriesTitle: [
+        '系列标题（可能为空）',
+        'シリーズタイトル(空かもしれません)',
+        'Series title (may be empty)',
+        '系列標題（可能為空）',
+    ],
+    _命名标记seriesOrder: [
+        '作品在系列中的序号，如 #1 #2',
+        'シリーズの作品のシリアル番号（＃1、＃2など）',
+        'The number of the work in the series, such as #1 #2',
+        '作品在系列中的編號，如 #1 #2',
     ],
     _文件夹标记PTitle: [
         '当前页面的标题',
@@ -10496,6 +10539,8 @@ class SaveNovelData {
             if (testRank !== undefined) {
                 rank = '#' + testRank;
             }
+            let seriesTitle = body.seriesNavData ? body.seriesNavData.title : '';
+            let seriesOrder = body.seriesNavData ? '#' + body.seriesNavData.order : '';
             let ext = _Settings__WEBPACK_IMPORTED_MODULE_2__["form"].novelSaveAs.value;
             let metaArr = [];
             let meta = '';
@@ -10535,13 +10580,15 @@ class SaveNovelData {
                 tags: tags,
                 tagsTranslated: tags,
                 user: user,
-                userid: userid,
+                userId: userid,
                 ext: ext,
                 bmk: bmk,
                 bookmarked: bookmarked,
                 date: date,
                 type: illustType,
                 rank: rank,
+                seriesTitle: seriesTitle,
+                seriesOrder: seriesOrder,
             });
         }
     }

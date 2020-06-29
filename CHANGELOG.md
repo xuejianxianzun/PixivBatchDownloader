@@ -1,4 +1,36 @@
-## 6.1.4  2020-06
+需要翻译
+_命名标记seriesTitle
+_命名标记seriesOrder
+
+更新wiki
+
+## 6.2.0  2020-06-
+
+### 对系列作品，新增了两个标记
+
+**series_title**  系列标题
+
+**series_order**  这个作品在系列中的序号
+
+下图的下载结果，用 series_title 建立文件夹，在其中用 series_order 保存了作品的编号。
+
+![2020-06-29_100743.png](https://i.loli.net/2020/06/29/SPtcH1vrURohQTb.png)
+
+------
+
+测试用例：
+
+插画系列如： https://www.pixiv.net/user/3698796/series/61267
+
+小说系列如： https://www.pixiv.net/novel/series/1035507
+
+https://www.pixiv.net/user/34367290/series/52042
+
+### 修改命名标记 userid 为 user_id
+
+userid 直接把俩单词连起来而且也没区分大小写就有点不规范，现在修改成了 user_id。
+
+不过在命名标记里 userid 依然可以使用，否则用户升级到新版本就歇菜了。
 
 ### 其他优化
 

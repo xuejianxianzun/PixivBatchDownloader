@@ -195,9 +195,8 @@ const formHtml = `<form class="settingForm">
         <option value="default">…</option>
         <option value="{id}">{id}</option>
         <option value="{user}">{user}</option>
-        <option value="{userid}">{userid}</option>
+        <option value="{user_id}">{user_id}</option>
         <option value="{title}">{title}</option>
-        <option value="{seriesTitle}">{seriesTitle}</option>
         <option value="{p_title}">{p_title}</option>
         <option value="{tags}">{tags}</option>
         <option value="{tags_translate}">{tags_translate}</option>
@@ -207,6 +206,8 @@ const formHtml = `<form class="settingForm">
         <option value="{rank}">{rank}</option>
         <option value="{date}">{date}</option>
         <option value="{px}">{px}</option>
+        <option value="{series_title}">{series_title}</option>
+        <option value="{series_order}">{series_order}</option>
         <option value="{id_num}">{id_num}</option>
         <option value="{p_num}">{p_num}</option>
         </select>
@@ -224,14 +225,11 @@ const formHtml = `<form class="settingForm">
       <span class="blue">{user}</span>
       ${lang.transl('_命名标记user')}
       <br>
-      <span class="blue">{userid}</span>
+      <span class="blue">{user_id}</span>
       ${lang.transl('_命名标记userid')}
       <br>
       <span class="blue">{title}</span>
       ${lang.transl('_命名标记title')}
-      <br>
-      <span class="blue">{seriesTitle}</span>
-      ${lang.transl('_命名标记seriesTitle')}
       <br>
       <span class="blue">{p_title}</span>
       ${lang.transl('_文件夹标记PTitle')}
@@ -260,8 +258,14 @@ const formHtml = `<form class="settingForm">
       <span class="blue">{px}</span>
       ${lang.transl('_命名标记px')}
       <br>
+      <span class="blue">{series_title}</span>
+      ${lang.transl('_命名标记seriesTitle')}
+      <br>
+      <span class="blue">{series_order}</span>
+      ${lang.transl('_命名标记seriesOrder')}
+      <br>
       <span class="blue">{id_num}</span>
-      ${lang.transl('_命名标记9')}
+      ${lang.transl('_命名标记id_num')}
       <br>
       <span class="blue">{p_num}</span>
       ${lang.transl('_命名标记p_num')}

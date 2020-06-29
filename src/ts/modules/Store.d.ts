@@ -18,7 +18,7 @@ export interface WorkInfo {
   tags: string[]
   tagsTranslated: string[]
   user: string
-  userid: string
+  userId: string
   fullWidth: number
   fullHeight: number
   ext: string
@@ -29,6 +29,7 @@ export interface WorkInfo {
   rank: string
   ugoiraInfo: UgoiraInfo | null,
   seriesTitle: string | null
+    seriesOrder: string | null
 }
 
 export interface WorkInfoOptional {
@@ -42,7 +43,7 @@ export interface WorkInfoOptional {
   tags?: string[]
   tagsTranslated?: string[]
   user?: string
-  userid?: string
+  userId?: string
   fullWidth?: number
   fullHeight?: number
   ext?: string
@@ -53,6 +54,7 @@ export interface WorkInfoOptional {
   rank?: string
   ugoiraInfo?: UgoiraInfo | null,
   seriesTitle?: string | null
+    seriesOrder?: string | null
 }
 
 // 储存作品在排行榜中的排名
