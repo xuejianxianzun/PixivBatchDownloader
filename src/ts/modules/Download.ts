@@ -25,7 +25,7 @@ class Download {
   private progressBarIndex: number
   private fileName = ''
   private retry = 0
-  private readonly retryMax = 50
+  private readonly retryMax = 100
   private cancel = false // 这个下载被取消（任务停止，或者没有通过某个检查）
 
   private sizeCheck: boolean | undefined = undefined // 检查文件体积
@@ -140,6 +140,7 @@ class Download {
         this.retry++
         if (this.retry >= this.retryMax) {
           // 重试 retryMax 次依然错误，进行错误处理
+          console.log(arg.data.id + 'retryMax')
           HandleError()
         } else {
           return this.download(arg)
