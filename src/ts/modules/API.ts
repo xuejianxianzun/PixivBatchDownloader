@@ -18,6 +18,7 @@ import {
   NovelSeriesData,
   NovelSearchData,
   NewNovelData,
+  FollowingResponse,
 } from './CrawlResult.d'
 
 import {
@@ -301,6 +302,19 @@ class API {
       },
       body: JSON.stringify(body),
     })
+  }
+
+  // 获取关注的用户列表
+  static getFollowingList(
+    id: string,
+    rest: 'show' | 'hide' = 'show',
+    offset = 0,
+    limit = 100,
+    tag = '',
+    lang = 'zh'
+  ): Promise<FollowingResponse> {
+    const url = `https://www.pixiv.net/ajax/user/${id}/following?offset=${offset}&limit=${limit}&rest=${rest}&tag=${tag}&lang=${lang}`
+    return this.request(url)
   }
 
   // 获取用户信息

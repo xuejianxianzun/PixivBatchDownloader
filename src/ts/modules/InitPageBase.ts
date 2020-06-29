@@ -192,6 +192,9 @@ abstract class InitPageBase {
     }
     log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
 
+    // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
+    // return store.resetStates()
+
     if (store.idList.length <= this.ajaxThreadsDefault) {
       this.ajaxThreads = store.idList.length
     } else {

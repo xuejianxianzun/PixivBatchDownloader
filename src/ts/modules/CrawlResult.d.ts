@@ -133,27 +133,7 @@ export interface IllustData {
         url: string
       }
     }
-    extraData: {
-      meta: {
-        title: string
-        description: string
-        canonical: string
-        alternateLanguages: []
-        descriptionHeader: string
-        ogp: {
-          description: string
-          image: string
-          title: string
-          type: string
-        }
-        twitter: {
-          description: string
-          image: string
-          title: string
-          card: string
-        }
-      }
-    }
+    extraData: extraDataCommon
   }
 }
 
@@ -896,5 +876,68 @@ export interface NovelSeriesData {
         private: boolean
       }
     }[]
+  }
+}
+
+// 获取关注列表时的返回数据
+// 每个用户数据里附带他最新的 4 个作品的数据。这里面的作品分类没有 manga，manga 作品会被放到 illusts 里
+export interface FollowingResponse {
+  error: boolean
+  message: string
+  body: {
+    users: {
+      userId: string
+      userName: string
+      profileImageUrl: string
+      userComment: string
+      following: boolean
+      followed: boolean
+      isBlocking: boolean
+      isMypixiv: boolean
+      illusts: []
+      novels: []
+    }[]
+    total: number
+    followUserTags: string[]
+    zoneConfig: {
+      header: {
+        url: string
+      }
+      footer: {
+        url: string
+      }
+      logo: {
+        url: string
+      }
+      '500x500': {
+        url: string
+      }
+    }
+    extraData: extraDataCommon
+  }
+}
+
+interface extraDataCommon {
+  meta: {
+    title: string
+    description: string
+    canonical: string
+    alternateLanguages: {
+      ja: string
+      en: string
+    }
+    descriptionHeader: string
+    ogp: {
+      description: string
+      image: string
+      title: string
+      type: string
+    }
+    twitter: {
+      description: string
+      image: string
+      title: string
+      card: string
+    }
   }
 }

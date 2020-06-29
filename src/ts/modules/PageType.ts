@@ -30,6 +30,9 @@ class PageType {
       type = 1
     } else if (/\/users\/\d+/.test(url) && !url.includes('/bookmarks')) {
       type = 2
+      if (pathname.includes('/following')) {
+        type = 20
+      }
     } else if (pathname.endsWith('bookmark.php')) {
       type = 3
     } else if (pathname.includes('/bookmarks/')) {
