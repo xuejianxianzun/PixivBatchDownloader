@@ -8588,7 +8588,7 @@
         // 辅助功能
         class Support {
           constructor() {
-            this.newTag = '_xzNew500'
+            this.newTag = '_xzNew630'
             this.checkConflict()
             this.supportListenHistory()
             this.listenPageSwitch()
@@ -12581,11 +12581,11 @@
             '同時轉換多個動圖會增加資源占用。<br>轉換動圖時，請保持這個分頁啟動，否則瀏覽器會降低轉換速度。',
           ],
           _提示: ['提示', 'ヒント', 'tip', '提示'],
-          _xzNew500: [
-            '新增设置项：<br>彩色图片；黑白图片。',
-            '新たな機能を追加されました：カラーイメージ；白黒イメージ。<br>',
-            'Added setting items:<br>Color picture; Black and white pictures.',
-            '新增設定項目：<br>彩色圖片；黑白圖片。',
+          _xzNew630: [
+            '在“关注”页面，可以一键下载所有关注的用户的作品。',
+            '「フォロー中」ページでは、すべてのフォロワーの作品をワンクリックでダウンロードできます。',
+            'On the "Following" page, you can download the works of all the followers with one click.',
+            '在“關注”頁面，可以一鍵下載所有關注的使用者的作品。',
           ],
           _fanboxDownloader: [
             'Fanbox 下载器',
