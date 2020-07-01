@@ -4920,9 +4920,15 @@
           // 获取关注用户列表，保存用户 id
           async getUserList() {
             const offset = this.baseOffset + this.getUserListNo * this.limit
-            const res = await _API__WEBPACK_IMPORTED_MODULE_4__[
-              'API'
-            ].getFollowingList(this.myId, this.rest, offset)
+            let res
+            try {
+              res = await _API__WEBPACK_IMPORTED_MODULE_4__[
+                'API'
+              ].getFollowingList(this.myId, this.rest, offset)
+            } catch (_a) {
+              this.getUserList()
+              return
+            }
             const users = res.body.users
             if (users.length === 0) {
               // 用户列表抓取完毕
@@ -4962,9 +4968,15 @@
           }
           // 获取用户的 id 列表
           async getIdList() {
-            const idList = await _API__WEBPACK_IMPORTED_MODULE_4__[
-              'API'
-            ].getUserWorksByType(this.userList[this.index])
+            let idList = []
+            try {
+              idList = await _API__WEBPACK_IMPORTED_MODULE_4__[
+                'API'
+              ].getUserWorksByType(this.userList[this.index])
+            } catch (_a) {
+              this.getIdList()
+              return
+            }
             _Store__WEBPACK_IMPORTED_MODULE_5__[
               'store'
             ].idList = _Store__WEBPACK_IMPORTED_MODULE_5__[

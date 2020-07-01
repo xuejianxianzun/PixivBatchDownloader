@@ -7,11 +7,6 @@ import { API } from './API'
 import { store } from './Store'
 import { log } from './Log'
 import { DOM } from './DOM'
-import { userWorksType, tagPageFlag } from './CrawlArgument.d'
-import { UserImageWorksWithTag, UserNovelsWithTag } from './CrawlResult'
-import { IDListType } from './Store.d'
-import { pageInfo } from './PageInfo'
-import { rootCertificates } from 'tls'
 
 class InitFollowingPage extends InitPageBase {
   constructor() {
@@ -96,7 +91,7 @@ class InitFollowingPage extends InitPageBase {
   // 获取关注用户列表，保存用户 id
   private async getUserList() {
     const offset = this.baseOffset + this.getUserListNo * this.limit
-    
+
     let res
     try {
       res = await API.getFollowingList(this.myId, this.rest, offset)
