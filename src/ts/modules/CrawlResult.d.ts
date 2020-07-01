@@ -294,6 +294,7 @@ export interface BookmarkResult {
   id: string
   tags: string[]
   restrict: boolean
+  type?: 'illusts' | 'novels'
 }
 
 // 动图信息

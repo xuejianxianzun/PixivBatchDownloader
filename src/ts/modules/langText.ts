@@ -1203,6 +1203,12 @@ const langText = {
     'Save the author, url and other information in the file',
     '將作者、網址等訊息儲存到小說裡',
   ],
+  _收藏本页面的所有作品: [
+    '收藏本页面的所有作品',
+    'このページのすべての作品をブックマークする',
+    'Bookmark all works on this page',
+    '收藏本頁面的所有作品',
+  ],
 }
 
 export { langText, langTextKeys }

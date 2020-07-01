@@ -757,6 +757,160 @@
         /***/
       },
 
+    /***/ './src/ts/modules/BookmarkAllWorks.ts':
+      /*!********************************************!*\
+  !*** ./src/ts/modules/BookmarkAllWorks.ts ***!
+  \********************************************/
+      /*! exports provided: BookmarkAllWorks */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'BookmarkAllWorks',
+          function () {
+            return BookmarkAllWorks
+          }
+        )
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./API */ './src/ts/modules/API.ts'
+        )
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
+        )
+        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./Colors */ './src/ts/modules/Colors.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
+        )
+
+        // 一键收藏本页面上的所有作品
+        class BookmarkAllWorks {
+          constructor() {
+            this.type = 'illusts' // 页面是图片还是小说
+            this.idList = []
+            this.addTagList = [] // 需要添加 tag 的作品的数据
+            this.index = 0
+            this.workList = null
+            this.token = _API__WEBPACK_IMPORTED_MODULE_0__['API'].getToken()
+            const btn = _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].addBtn(
+              'otherBtns',
+              _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].green,
+              _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+                '_收藏本页面的所有作品'
+              )
+            )
+            this.btn = btn
+          }
+          // workList 是作品列表元素的合集。本模块会尝试分析每个作品元素中的超链接，提取出作品 id
+          setWorkList(list) {
+            if (!list) {
+              alert(
+                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+                  '_没有数据可供使用'
+                )
+              )
+              return
+            }
+            this.workList = list
+            this.readyAddTag()
+          }
+          // 准备添加 tag
+          async readyAddTag(loop = 0) {
+            // 每次点击清空结果
+            this.idList = []
+            this.addTagList = []
+            this.index = 0
+            this.btn.setAttribute('disabled', 'disabled')
+            this.btn.textContent = `Checking`
+            if (window.location.pathname.includes('/novel')) {
+              this.type = 'novels'
+            }
+            this.getIdList()
+          }
+          //
+          getIdList() {
+            if (!this.workList) {
+              return
+            }
+            const regExp =
+              this.type === 'illusts' ? /\/artworks\/(\d*)/ : /\?id=(\d*)/
+            for (const el of this.workList) {
+              const a = el.querySelector('a')
+              if (a) {
+                // "https://www.pixiv.net/artworks/82618568"
+                // "https://www.pixiv.net/novel/show.php?id=12350618"
+                const test = regExp.exec(a.href)
+                if (test && test.length > 1) {
+                  this.idList.push(test[1])
+                }
+              }
+            }
+            this.getTagData()
+          }
+          //
+          async getTagData() {
+            this.btn.textContent = `Get data ${this.index} / ${this.idList.length}`
+            const id = this.idList[this.index]
+            try {
+              let data
+              // 发起请求
+              if (this.type === 'novels') {
+                data = await _API__WEBPACK_IMPORTED_MODULE_0__[
+                  'API'
+                ].getNovelData(id)
+              } else {
+                data = await _API__WEBPACK_IMPORTED_MODULE_0__[
+                  'API'
+                ].getArtworkData(id)
+              }
+              const tagArr = data.body.tags.tags // 取出 tag 信息
+              const tags = [] // 保存 tag 列表
+              for (const tagData of tagArr) {
+                tags.push(tagData.tag)
+              }
+              this.addTagList.push({
+                id: data.body.id,
+                tags: tags,
+                restrict: false,
+              })
+              this.index++
+              if (this.index === this.idList.length) {
+                this.index = 0
+                return this.addTag()
+              }
+              this.getTagData()
+            } catch (error) {
+              this.getTagData()
+            }
+          }
+          // 给未分类作品添加 tag
+          async addTag() {
+            this.btn.textContent = `Add bookmark ${this.index} / ${this.idList.length}`
+            const data = this.addTagList[this.index]
+            await _API__WEBPACK_IMPORTED_MODULE_0__['API'].addBookmark(
+              this.type,
+              data.id,
+              data.tags,
+              data.restrict,
+              this.token
+            )
+            this.index++
+            // 添加完毕
+            if (this.index === this.addTagList.length) {
+              this.btn.textContent = `✓ Complete`
+              this.btn.removeAttribute('disabled')
+              return
+            }
+            // 继续添加
+            this.addTag()
+          }
+        }
+
+        /***/
+      },
+
     /***/ './src/ts/modules/BookmarksAddTag.ts':
       /*!*******************************************!*\
   !*** ./src/ts/modules/BookmarksAddTag.ts ***!
@@ -10225,6 +10379,9 @@
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
           /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
+        /* harmony import */ var _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
+          /*! ../BookmarkAllWorks */ './src/ts/modules/BookmarkAllWorks.ts'
+        )
         var __asyncValues =
           (undefined && undefined.__asyncValues) ||
           function (o) {
@@ -10599,6 +10756,17 @@
               .addEventListener('click', () => {
                 this.screenInResult()
               })
+            // 添加收藏本页所有作品的功能
+            const bookmarkAll = new _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_16__[
+              'BookmarkAllWorks'
+            ]()
+            bookmarkAll.btn.addEventListener('click', () => {
+              const listWrap = this.getWorksWrap()
+              if (listWrap) {
+                const list = listWrap.querySelectorAll('li')
+                bookmarkAll.setWorkList(list)
+              }
+            })
           }
           appendElseEl() {
             const deleteWorks = new _DeleteWorks__WEBPACK_IMPORTED_MODULE_5__[
@@ -12636,6 +12804,12 @@
             'Save the author, url and other information in the file',
             '將作者、網址等訊息儲存到小說裡',
           ],
+          _收藏本页面的所有作品: [
+            '收藏本页面的所有作品',
+            'このページのすべての作品をブックマークする',
+            'Bookmark all works on this page',
+            '收藏本頁面的所有作品',
+          ],
         }
 
         /***/
@@ -13637,6 +13811,9 @@
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
           /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
+        /* harmony import */ var _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
+          /*! ../BookmarkAllWorks */ './src/ts/modules/BookmarkAllWorks.ts'
+        )
         // 初始化小说搜索页
 
         class InitSearchNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
@@ -13644,6 +13821,7 @@
         ] {
           constructor() {
             super()
+            this.worksWrapSelector = '#root section>div>ul'
             this.option = {}
             this.worksNoPerPage = 24 // 每个页面有多少个作品
             this.needCrawlPageCount = 0 // 一共有有多少个列表页面
@@ -13693,7 +13871,29 @@
                 this.readyCrawl()
               })
           }
-          appendElseEl() {}
+          getWorksWrap() {
+            const test = document.querySelectorAll(this.worksWrapSelector)
+            if (test.length > 0) {
+              // 小说页面用这个选择器，只匹配到了一个 ul
+              return test[test.length - 1]
+            }
+            return null
+          }
+          appendElseEl() {
+            // 添加收藏本页所有作品的功能
+            const bookmarkAll = new _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_11__[
+              'BookmarkAllWorks'
+            ]()
+            bookmarkAll.btn.addEventListener('click', () => {
+              const listWrap = this.getWorksWrap()
+              if (listWrap) {
+                const list = document.querySelectorAll(
+                  '#root section>div>ul>li'
+                )
+                bookmarkAll.setWorkList(list)
+              }
+            })
+          }
           setFormOption() {
             this.maxCount = 1000
             // 设置“个数/页数”选项

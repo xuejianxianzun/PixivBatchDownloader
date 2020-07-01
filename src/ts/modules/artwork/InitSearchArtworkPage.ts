@@ -18,6 +18,7 @@ import { titleBar } from '../TitleBar'
 import { setting, form } from '../Settings'
 import { FastScreen } from '../FastScreen'
 import { DOM } from '../DOM'
+import { BookmarkAllWorks } from '../BookmarkAllWorks'
 
 type AddBMKData = {
   id: number
@@ -99,6 +100,16 @@ class InitSearchArtworkPage extends InitPageBase {
       ['title', lang.transl('_在结果中筛选Title')],
     ]).addEventListener('click', () => {
       this.screenInResult()
+    })
+
+    // 添加收藏本页所有作品的功能
+    const bookmarkAll = new BookmarkAllWorks()
+    bookmarkAll.btn.addEventListener('click', () => {
+      const listWrap = this.getWorksWrap()
+      if (listWrap) {
+        const list = listWrap.querySelectorAll('li')
+        bookmarkAll.setWorkList(list)
+      }
     })
   }
 

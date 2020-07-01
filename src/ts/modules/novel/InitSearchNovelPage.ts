@@ -12,6 +12,7 @@ import { store } from '../Store'
 import { log } from '../Log'
 import { FastScreen } from '../FastScreen'
 import { DOM } from '../DOM'
+import { BookmarkAllWorks } from '../BookmarkAllWorks'
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
@@ -19,31 +20,7 @@ class InitSearchNovelPage extends InitPageBase {
     this.init()
   }
 
-  protected initElse() {
-    new FastScreen()
-  }
-
-  protected appendCenterBtns() {
-    DOM.addBtn('crawlBtns', Colors.green, lang.transl('_开始抓取'), [
-      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
-    ]).addEventListener('click', () => {
-      this.readyCrawl()
-    })
-  }
-
-  protected appendElseEl() {}
-
-  protected setFormOption() {
-    this.maxCount = 1000
-
-    // 设置“个数/页数”选项
-    options.setWantPage({
-      text: lang.transl('_页数'),
-      tip: lang.transl('_从本页开始下载提示'),
-      rangTip: `1 - ${this.maxCount}`,
-      value: this.maxCount.toString(),
-    })
-  }
+  private readonly worksWrapSelector = '#root section>div>ul'
 
   private option: SearchOption = {}
   private readonly worksNoPerPage = 24 // 每个页面有多少个作品
@@ -67,6 +44,53 @@ class InitSearchNovelPage extends InitPageBase {
     'tgt',
     'original_only',
   ]
+
+  protected initElse() {
+    new FastScreen()
+  }
+
+  protected appendCenterBtns() {
+    DOM.addBtn('crawlBtns', Colors.green, lang.transl('_开始抓取'), [
+      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
+    ]).addEventListener('click', () => {
+      this.readyCrawl()
+    })
+  }
+
+  private getWorksWrap() {
+    const test = document.querySelectorAll(this.worksWrapSelector)
+    if (test.length > 0) {
+      // 小说页面用这个选择器，只匹配到了一个 ul
+      return test[test.length - 1] as HTMLUListElement
+    }
+    return null
+  }
+
+  protected appendElseEl() {
+    // 添加收藏本页所有作品的功能
+    const bookmarkAll = new BookmarkAllWorks()
+    bookmarkAll.btn.addEventListener('click', () => {
+      const listWrap = this.getWorksWrap()
+      if (listWrap) {
+        const list = document.querySelectorAll(
+          '#root section>div>ul>li'
+        ) as NodeListOf<HTMLLIElement>
+        bookmarkAll.setWorkList(list)
+      }
+    })
+  }
+
+  protected setFormOption() {
+    this.maxCount = 1000
+
+    // 设置“个数/页数”选项
+    options.setWantPage({
+      text: lang.transl('_页数'),
+      tip: lang.transl('_从本页开始下载提示'),
+      rangTip: `1 - ${this.maxCount}`,
+      value: this.maxCount.toString(),
+    })
+  }
 
   protected async nextStep() {
     this.initFetchURL()
