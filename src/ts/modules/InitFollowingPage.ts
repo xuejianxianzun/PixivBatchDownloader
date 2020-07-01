@@ -96,7 +96,15 @@ class InitFollowingPage extends InitPageBase {
   // 获取关注用户列表，保存用户 id
   private async getUserList() {
     const offset = this.baseOffset + this.getUserListNo * this.limit
-    const res = await API.getFollowingList(this.myId, this.rest, offset)
+    
+    let res
+    try {
+      res = await API.getFollowingList(this.myId, this.rest, offset)
+    } catch {
+      this.getUserList()
+      return
+    }
+
     const users = res.body.users
 
     if (users.length === 0) {
@@ -136,7 +144,13 @@ class InitFollowingPage extends InitPageBase {
 
   // 获取用户的 id 列表
   protected async getIdList() {
-    const idList = await API.getUserWorksByType(this.userList[this.index])
+    let idList = []
+    try {
+      idList = await API.getUserWorksByType(this.userList[this.index])
+    } catch {
+      this.getIdList()
+      return
+    }
 
     store.idList = store.idList.concat(idList)
 
