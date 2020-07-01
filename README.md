@@ -192,5 +192,6 @@ English （机翻，韩语设置下也使用英语文本）
 
 19 [漫画系列页面](https://www.pixiv.net/user/3698796/series/61267)
 
+20 [关注](https://www.pixiv.net/users/9460149/following)
 
 [测试动图转换](https://www.pixiv.net/member.php?id=16274829)

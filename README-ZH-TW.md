@@ -190,6 +190,8 @@ English （機翻，韓語設定下也使用英語文檔）
 
 18 [大家的新作品-小說](https://www.pixiv.net/novel/new.php)
 
+19 [漫畫系列頁面](https://www.pixiv.net/user/3698796/series/61267)
 
+20 [關注](https://www.pixiv.net/users/9460149/following)
 
 [測試動圖轉換](https://www.pixiv.net/member.php?id=16274829)
