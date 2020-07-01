@@ -12,6 +12,11 @@ class Support {
     this.checkNew()
     this.showNew()
     API.updateToken()
+
+    window.addEventListener(EVT.events.resetOption, () => {
+      localStorage.removeItem('xzToken')
+      API.updateToken()
+    })
   }
 
   private newTag: langTextKeys = '_xzNew630'

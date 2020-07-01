@@ -46,6 +46,8 @@ class BookmarkAllWorks {
     this.addTagList = []
     this.index = 0
 
+    this.token = API.getToken()
+
     this.btn.setAttribute('disabled', 'disabled')
     this.btn.textContent = `Checking`
 
@@ -56,7 +58,7 @@ class BookmarkAllWorks {
     this.getIdList()
   }
 
-  //
+  // 获取作品列表里的作品 id
   private getIdList() {
     if (!this.workList) {
       return
@@ -78,7 +80,7 @@ class BookmarkAllWorks {
     this.getTagData()
   }
 
-  //
+  // 获取每个作品的详细信息，保存它们的 tag
   private async getTagData() {
     this.btn.textContent = `Get data ${this.index} / ${this.idList.length}`
 
@@ -118,7 +120,7 @@ class BookmarkAllWorks {
     }
   }
 
-  // 给未分类作品添加 tag
+  // 给所有作品添加 tag（即使之前收藏过的，也会再次收藏）
   private async addTag() {
     this.btn.textContent = `Add bookmark ${this.index} / ${this.idList.length}`
 

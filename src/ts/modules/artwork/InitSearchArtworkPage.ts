@@ -223,7 +223,7 @@ class InitSearchArtworkPage extends InitPageBase {
         return test[2] as HTMLUListElement
       }
 
-      // 在插画、漫画、artworks 页面只有两个 ul
+      // 在插画、漫画、artworks 页面只有两个 ul 或者一个
       return test[test.length - 1] as HTMLUListElement
     }
     return null

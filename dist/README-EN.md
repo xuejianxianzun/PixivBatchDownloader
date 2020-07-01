@@ -133,3 +133,7 @@ You can also optimize the translation, thank you very much :)
 17 [New Novle: Following](https://www.pixiv.net/novel/bookmark_new.php)
 
 18 [New Novle from All users](https://www.pixiv.net/novel/new.php)
+
+19 [Manga series page](https://www.pixiv.net/user/3698796/series/61267)
+
+20 [Following](https://www.pixiv.net/users/9460149/following)

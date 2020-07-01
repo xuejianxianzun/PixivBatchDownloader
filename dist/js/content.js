@@ -290,7 +290,9 @@
             const interval = 300000 // 两次检查之间的间隔。目前设置为 5 分钟
             const nowTime = new Date().getTime()
             const lastTimeStr = localStorage.getItem('xzTokenTime')
+            const token = localStorage.getItem('xzToken')
             if (
+              token &&
               lastTimeStr &&
               nowTime - Number.parseInt(lastTimeStr) < interval
             ) {
@@ -317,9 +319,9 @@
           // 获取 token
           // 从本地存储里获取用户 token
           static getToken() {
-            let result = localStorage.getItem('xzToken')
-            if (result) {
-              return result
+            const token = localStorage.getItem('xzToken')
+            if (token) {
+              return token
             } else {
               this.updateToken()
               return ''
@@ -822,6 +824,7 @@
             this.idList = []
             this.addTagList = []
             this.index = 0
+            this.token = _API__WEBPACK_IMPORTED_MODULE_0__['API'].getToken()
             this.btn.setAttribute('disabled', 'disabled')
             this.btn.textContent = `Checking`
             if (window.location.pathname.includes('/novel')) {
@@ -829,7 +832,7 @@
             }
             this.getIdList()
           }
-          //
+          // 获取作品列表里的作品 id
           getIdList() {
             if (!this.workList) {
               return
@@ -849,7 +852,7 @@
             }
             this.getTagData()
           }
-          //
+          // 获取每个作品的详细信息，保存它们的 tag
           async getTagData() {
             this.btn.textContent = `Get data ${this.index} / ${this.idList.length}`
             const id = this.idList[this.index]
@@ -885,7 +888,7 @@
               this.getTagData()
             }
           }
-          // 给未分类作品添加 tag
+          // 给所有作品添加 tag（即使之前收藏过的，也会再次收藏）
           async addTag() {
             this.btn.textContent = `Add bookmark ${this.index} / ${this.idList.length}`
             const data = this.addTagList[this.index]
@@ -8749,6 +8752,13 @@
             this.checkNew()
             this.showNew()
             _API__WEBPACK_IMPORTED_MODULE_2__['API'].updateToken()
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].events.resetOption,
+              () => {
+                localStorage.removeItem('xzToken')
+                _API__WEBPACK_IMPORTED_MODULE_2__['API'].updateToken()
+              }
+            )
           }
           // 处理和脚本版的冲突
           checkConflict() {
@@ -10851,7 +10861,7 @@
                 // 大于 2 的情况是在搜索页的首页，或者小说页面
                 return test[2]
               }
-              // 在插画、漫画、artworks 页面只有两个 ul
+              // 在插画、漫画、artworks 页面只有两个 ul 或者一个
               return test[test.length - 1]
             }
             return null

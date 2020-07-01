@@ -164,7 +164,13 @@ class API {
     const interval = 300000 // 两次检查之间的间隔。目前设置为 5 分钟
     const nowTime = new Date().getTime()
     const lastTimeStr = localStorage.getItem('xzTokenTime')
-    if (lastTimeStr && nowTime - Number.parseInt(lastTimeStr) < interval) {
+    const token = localStorage.getItem('xzToken')
+
+    if (
+      token &&
+      lastTimeStr &&
+      nowTime - Number.parseInt(lastTimeStr) < interval
+    ) {
       return
     }
 
@@ -187,9 +193,9 @@ class API {
   // 获取 token
   // 从本地存储里获取用户 token
   static getToken() {
-    let result = localStorage.getItem('xzToken')
-    if (result) {
-      return result
+    const token = localStorage.getItem('xzToken')
+    if (token) {
+      return token
     } else {
       this.updateToken()
       return ''
