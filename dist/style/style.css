@@ -518,6 +518,7 @@
   overflow: auto;
   max-height: 350px;
   line-height: 20px;
+  min-height: 100px;
 }
 .outputWrap .outputContent::selection {
   background: #0ea8ef;
