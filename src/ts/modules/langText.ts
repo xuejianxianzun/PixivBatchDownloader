@@ -673,7 +673,7 @@ const langText = {
     '暫停下載',
   ],
   _下载按钮3: ['停止下载', 'ダウンロードを停止', 'stop download', '停止下載'],
-  _下载按钮4: ['复制 url', 'URL をコピー', 'copy urls', '複製下載網址'],
+  _复制url: ['复制 url', 'URL をコピー', 'copy urls', '複製下載網址'],
   _当前状态: ['当前状态 ', '現在の状態 ', 'Now state ', '目前狀態：'],
   _未开始下载: [
     '未开始下载',
@@ -1208,6 +1208,12 @@ const langText = {
     'この頁の全ての作品をブックマークに追加します',
     'Bookmark all works on this page',
     '收藏本頁面的所有作品',
+  ],
+  _输出内容太多已经为你保存到文件: [
+    '因为输出内容太多，已经为您保存到文件。',
+    '出力内容が多いため、txt ファイルに保存しました。',
+    'Because the output is too much, it has been saved to a file.',
+    '因為輸出內容太多，已經為你保存到檔案。',
   ],
 }
 

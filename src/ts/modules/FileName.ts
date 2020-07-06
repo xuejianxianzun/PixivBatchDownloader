@@ -5,6 +5,7 @@ import { form } from './Settings'
 import { store } from './Store'
 import { lang } from './Lang'
 import { API } from './API'
+import config from './Config'
 
 class FileName {
   constructor() {
@@ -236,7 +237,7 @@ class FileName {
       const fullName = this.getFileName(data)
       let nowResult = `${defaultName}: ${fullName}<br>`
 
-      if (length < 5000) {
+      if (length < config.outputMax) {
         // 为生成的文件名添加颜色。只有当文件数量少于一定数值时才添加颜色。这是因为添加颜色会导致生成的 HTML 元素数量增多，复制时资源占用增加。有些用户电脑配置差，如果生成的结果很多，还添加了颜色，可能复制时会导致这个页面卡死。
         const defaultNameHtml = `<span class="color999">${defaultName}</span>`
         const part = fullName.split('/')
@@ -261,7 +262,10 @@ class FileName {
 
     // 拼接所有结果
     const result = resultArr.join('')
-    EVT.fire(EVT.events.output, result)
+    EVT.fire(EVT.events.output, {
+      content: result,
+      title: lang.transl('_预览文件名'),
+    })
   }
 }
 

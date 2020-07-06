@@ -51,7 +51,9 @@ class CenterPanel {
       </div>
 
       <div class="gray1 bottom_help_bar"> 
-      <span class="showDownTip">${lang.transl('_常见问题')}</span>
+      <a href="javascript:void()" class="showDownTip">${lang.transl(
+        '_常见问题'
+      )}</a>
       <a class="wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"> ${lang.transl(
         '_wiki'
       )}</a>

@@ -186,7 +186,7 @@ class DownloadControl {
     };"> ${lang.transl('_下载按钮3')}</button>
     <button class="copyUrl" type="button" style="background:${
       Colors.green
-    };"> ${lang.transl('_下载按钮4')}</button>
+    };"> ${lang.transl('_复制url')}</button>
     </div>
     <div class="centerWrap_down_tips">
     <p>
@@ -233,7 +233,10 @@ class DownloadControl {
       return (total += now.url + '<br>')
     }, result)
 
-    EVT.fire(EVT.events.output, result)
+    EVT.fire(EVT.events.output, {
+      content: result,
+      title: lang.transl('_复制url'),
+    })
   }
 
   // 下载线程设置

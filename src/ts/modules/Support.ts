@@ -2,6 +2,7 @@ import { lang } from './Lang'
 import { EVT } from './EVT'
 import { API } from './API'
 import { langTextKeys } from './langText'
+import config from './Config'
 
 // 辅助功能
 class Support {
@@ -38,9 +39,7 @@ class Support {
       new Date().getTime() - parseInt(lastTime) > 60 * 30 * 1000
     ) {
       // 获取最新的 releases 信息
-      const latest = await fetch(
-        'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest'
-      )
+      const latest = await fetch(config.latestReleaseAPI)
       const latestJson = await latest.json()
       const latestVer = latestJson.name
       // 保存 GitHub 上的版本信息

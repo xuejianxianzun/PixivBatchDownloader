@@ -1121,9 +1121,9 @@
       </div>
 
       <div class="gray1 bottom_help_bar"> 
-      <span class="showDownTip">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <a href="javascript:void()" class="showDownTip">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
-      ].transl('_常见问题')}</span>
+      ].transl('_常见问题')}</a>
       <a class="wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_wiki')}</a>
@@ -1287,6 +1287,24 @@
         Colors.green = '#14ad27'
         Colors.red = '#f33939'
         Colors.yellow = '#e49d00'
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/Config.ts':
+      /*!**********************************!*\
+  !*** ./src/ts/modules/Config.ts ***!
+  \**********************************/
+      /*! exports provided: default */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        // 存放全局常量。运行过程中不会被修改的值。
+        /* harmony default export */ __webpack_exports__['default'] = {
+          outputMax: 5000,
+          latestReleaseAPI:
+            'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest',
+        }
 
         /***/
       },
@@ -1622,6 +1640,17 @@
             const e = document.createElement('style')
             e.innerHTML = css
             document.body.append(e)
+          }
+          // 通过创建 a 标签来下载文件。默认类型为 txt
+          static downloadFile(content, fileName, type = 'text/plain') {
+            const file = new Blob([content], {
+              type,
+            })
+            const url = URL.createObjectURL(file)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = fileName
+            a.click()
           }
           // 获取用户 id
           // 这是一个不够可靠的 api
@@ -2442,7 +2471,7 @@
     <button class="copyUrl" type="button" style="background:${
       _Colors__WEBPACK_IMPORTED_MODULE_6__['Colors'].green
     };"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-              '_下载按钮4'
+              '_复制url'
             )}</button>
     </div>
     <div class="centerWrap_down_tips">
@@ -2502,7 +2531,12 @@
             )
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.output,
-              result
+              {
+                content: result,
+                title: _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
+                  '_复制url'
+                ),
+              }
             )
           }
           // 下载线程设置
@@ -2963,6 +2997,9 @@
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./API */ './src/ts/modules/API.ts'
         )
+        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./Config */ './src/ts/modules/Config.ts'
+        )
 
         class FileName {
           constructor() {
@@ -3219,7 +3256,10 @@
               const defaultName = data.url.replace(/.*\//, '')
               const fullName = this.getFileName(data)
               let nowResult = `${defaultName}: ${fullName}<br>`
-              if (length < 5000) {
+              if (
+                length <
+                _Config__WEBPACK_IMPORTED_MODULE_5__['default'].outputMax
+              ) {
                 // 为生成的文件名添加颜色。只有当文件数量少于一定数值时才添加颜色。这是因为添加颜色会导致生成的 HTML 元素数量增多，复制时资源占用增加。有些用户电脑配置差，如果生成的结果很多，还添加了颜色，可能复制时会导致这个页面卡死。
                 const defaultNameHtml = `<span class="color999">${defaultName}</span>`
                 const part = fullName.split('/')
@@ -3244,7 +3284,12 @@
             const result = resultArr.join('')
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.output,
-              result
+              {
+                content: result,
+                title: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+                  '_预览文件名'
+                ),
+              }
             )
           }
         }
@@ -6709,12 +6754,19 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./Store */ './src/ts/modules/Store.ts'
+        )
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
+        )
+        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./Config */ './src/ts/modules/Config.ts'
+        )
         // 输出面板
 
         class Output {
           constructor() {
-            this.outputPanel = document.createElement('div') // 输出面板
-            this.outputContent = document.createElement('div') // 输出文本的容器元素
             this.addOutPutPanel()
             this.bindEvent()
           }
@@ -6729,15 +6781,17 @@
     ].transl('_输出信息')}</div>
     <div class="outputContent"></div>
     <div class="outputFooter">
-    <div class="outputCopy" title="">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+    <button class="outputCopy" title="">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
       'lang'
-    ].transl('_复制')}</div>
+    ].transl('_复制')}</button>
     </div>
     </div>
     `
             document.body.insertAdjacentHTML('beforeend', outputPanelHTML)
             this.outputPanel = document.querySelector('.outputWrap')
+            this.outputTitle = document.querySelector('.outputTitle')
             this.outputContent = document.querySelector('.outputContent')
+            this.copyBtn = document.querySelector('.outputCopy')
           }
           close() {
             this.outputPanel.style.display = 'none'
@@ -6757,41 +6811,60 @@
               }
             )
             // 复制输出内容
-            document
-              .querySelector('.outputCopy')
-              .addEventListener('click', () => {
-                const range = document.createRange()
-                range.selectNodeContents(this.outputContent)
+            this.copyBtn.addEventListener('click', () => {
+              const range = document.createRange()
+              range.selectNodeContents(this.outputContent)
+              window.getSelection().removeAllRanges()
+              window.getSelection().addRange(range)
+              document.execCommand('copy')
+              // 改变提示文字
+              this.copyBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__[
+                'lang'
+              ].transl('_已复制到剪贴板')
+              setTimeout(() => {
                 window.getSelection().removeAllRanges()
-                window.getSelection().addRange(range)
-                document.execCommand('copy')
-                // 改变提示文字
-                document.querySelector(
-                  '.outputCopy'
-                ).textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__[
+                this.copyBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__[
                   'lang'
-                ].transl('_已复制到剪贴板')
-                setTimeout(() => {
-                  window.getSelection().removeAllRanges()
-                  document.querySelector(
-                    '.outputCopy'
-                  ).textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__[
-                    'lang'
-                  ].transl('_复制')
-                }, 1000)
-              })
+                ].transl('_复制')
+              }, 1000)
+            })
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.output,
               (ev) => {
-                this.output(ev.detail.data)
+                this.output(ev.detail.data.content, ev.detail.data.title)
               }
             )
           }
           // 输出内容
-          output(text) {
-            if (text) {
-              this.outputContent.innerHTML = text
+          output(
+            content,
+            title = _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+              '_输出信息'
+            )
+          ) {
+            // 如果结果较多，则不直接输出，改为保存 txt 文件
+            if (
+              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length >
+              _Config__WEBPACK_IMPORTED_MODULE_4__['default'].outputMax
+            ) {
+              const con = content.replace(/<br>/g, '\n') // 替换换行符
+              const fileName = new Date().toLocaleString() + '.txt'
+              _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM'].downloadFile(
+                con,
+                fileName
+              )
+              // 禁用复制按钮
+              this.copyBtn.disabled = true
+              content = _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                '_输出内容太多已经为你保存到文件'
+              )
+            } else {
+              this.copyBtn.disabled = false
+            }
+            if (content) {
+              this.outputContent.innerHTML = content
               this.outputPanel.style.display = 'block'
+              this.outputTitle.textContent = title
             }
           }
         }
@@ -8741,6 +8814,9 @@
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./API */ './src/ts/modules/API.ts'
         )
+        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./Config */ './src/ts/modules/Config.ts'
+        )
 
         // 辅助功能
         class Support {
@@ -8777,7 +8853,7 @@
             ) {
               // 获取最新的 releases 信息
               const latest = await fetch(
-                'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest'
+                _Config__WEBPACK_IMPORTED_MODULE_3__['default'].latestReleaseAPI
               )
               const latestJson = await latest.json()
               const latestVer = latestJson.name
@@ -12264,7 +12340,7 @@
             'stop download',
             '停止下載',
           ],
-          _下载按钮4: ['复制 url', 'URL をコピー', 'copy urls', '複製下載網址'],
+          _复制url: ['复制 url', 'URL をコピー', 'copy urls', '複製下載網址'],
           _当前状态: ['当前状态 ', '現在の状態 ', 'Now state ', '目前狀態：'],
           _未开始下载: [
             '未开始下载',
@@ -12819,6 +12895,12 @@
             'この頁の全ての作品をブックマークに追加します',
             'Bookmark all works on this page',
             '收藏本頁面的所有作品',
+          ],
+          _输出内容太多已经为你保存到文件: [
+            '因为输出内容太多，已经为您保存到文件。',
+            '出力内容が多いため、txt ファイルに保存しました。',
+            'Because the output is too much, it has been saved to a file.',
+            '因為輸出內容太多，已經為你保存到檔案。',
           ],
         }
 

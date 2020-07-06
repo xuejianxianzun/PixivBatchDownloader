@@ -59,6 +59,20 @@ class DOM {
     document.body.append(e)
   }
 
+  // 通过创建 a 标签来下载文件。默认类型为 txt
+  static downloadFile(content: string, fileName: string, type = 'text/plain') {
+    const file = new Blob([content], {
+      type,
+    })
+
+    const url = URL.createObjectURL(file)
+
+    const a = document.createElement('a')
+    a.href = url
+    a.download = fileName
+    a.click()
+  }
+
   // 获取用户 id
   // 这是一个不够可靠的 api
   // 测试：在 https://www.pixiv.net/artworks/79399027 获取 userid ，正确的结果应该是 13895186
