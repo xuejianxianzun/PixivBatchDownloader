@@ -5767,23 +5767,31 @@ class Resume {
             };
         });
     }
+    async getDownloadedData(id) {
+        return new Promise((resolve) => {
+            const r = this.db.transaction(this.idsName, 'readonly').objectStore(this.idsName).get(id);
+            r.onsuccess = ev => {
+                const data = r.result;
+                if (data) {
+                    resolve(data);
+                }
+                resolve(null);
+            };
+        });
+    }
     async restoreData() {
         const taskData = await this.getTaskDataByURL(this.getURL());
         if (!taskData) {
             return;
         }
-        const url = taskData.url;
         // 恢复抓取结果
         _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result = taskData.data;
         // 恢复下载状态
-        const r2 = this.db.transaction(this.idsName, 'readonly').objectStore(this.idsName).get(taskData.id);
-        r2.onsuccess = ev => {
-            if (r2.result) {
-                const cursor = r2.result;
-                const downloadedData = cursor.value;
-                console.log(cursor);
-            }
-        };
+        const downloadedData = await this.getDownloadedData(taskData.id);
+        if (downloadedData) {
+            console.log(downloadedData);
+            _Store__WEBPACK_IMPORTED_MODULE_2__["store"].downloadedIds = downloadedData.ids;
+        }
     }
     async initDB() {
         return new Promise((resolve, reject) => {
@@ -6852,12 +6860,13 @@ __webpack_require__.r(__webpack_exports__);
 // 存储抓取结果和状态
 class Store {
     constructor() {
+        this.idList = []; // 储存从列表中抓取到的作品的 id
+        this.downloadedIds = []; // 储存本次任务中已完成下载的文件的 id 
         this.resultMeta = []; // 储存抓取结果的元数据。
         // 当用于图片作品时，它可以根据每个作品需要下载多少张，生成每一张图片的信息
         this.resultIDList = []; // 储存抓取结果的元数据的 id 列表，用来判断该作品是否已经添加过了，避免重复添加
         // resultIDList 可能会有隐患，因为没有区分图片和小说。如果一次抓取任务里，有图片和小说使用了相同的 id，那么只会保留先抓取到的那个。不过目前看来这种情况几乎不会发生。
         this.result = []; // 储存抓取结果
-        this.idList = []; // 储存从列表中抓取到的作品的 id
         this.rankList = {}; // 储存作品在排行榜中的排名
         // 储存和下载有关的状态
         this.states = {

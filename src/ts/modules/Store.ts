@@ -36,6 +36,10 @@ class Store {
     })
   }
 
+  public idList: IDData[] = [] // 储存从列表中抓取到的作品的 id
+
+  public downloadedIds:string[]=[]  // 储存本次任务中已完成下载的文件的 id 
+
   public resultMeta: WorkInfo[] = [] // 储存抓取结果的元数据。
   // 当用于图片作品时，它可以根据每个作品需要下载多少张，生成每一张图片的信息
 
@@ -122,7 +126,6 @@ class Store {
     }
   }
 
-  public idList: IDData[] = [] // 储存从列表中抓取到的作品的 id
 
   private rankList: RankList = {} // 储存作品在排行榜中的排名
 
@@ -152,6 +155,7 @@ class Store {
     this.resultIDList = []
     this.result = []
     this.idList = []
+    this.downloadedIds = []
     this.rankList = {}
   }
 

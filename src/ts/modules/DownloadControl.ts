@@ -288,7 +288,7 @@ class DownloadControl {
 
   // 开始下载
   private startDownload() {
-    // 如果正在下载中，或无图片，则不予处理
+    // 如果正在下载中，或无结果，则不予处理
     if (!store.states.allowWork || store.result.length === 0) {
       return
     }

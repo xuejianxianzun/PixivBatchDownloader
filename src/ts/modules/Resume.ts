@@ -59,6 +59,20 @@ class Resume {
     })
   }
 
+  private async getDownloadedData(id: number) {
+    return new Promise<DownloadedItemData | null>((resolve) => {
+      const r = this.db.transaction(this.idsName, 'readonly').objectStore(this.idsName).get(id)
+
+      r.onsuccess = ev => {
+        const data = r.result as DownloadedItemData
+        if (data) {
+          resolve(data)
+        }
+        resolve(null)
+      }
+    })
+  }
+
   private async restoreData() {
     const taskData = await this.getTaskDataByURL(this.getURL())
     if (!taskData) {
@@ -67,16 +81,15 @@ class Resume {
 
     // 恢复抓取结果
     store.result = taskData.data
-    
-    // 恢复下载状态
-    const r = this.db.transaction(this.idsName, 'readonly').objectStore(this.idsName).get(taskData.id)
-    r.onsuccess = ev => {
-      if (r.result) {
-        const downloadData = r.result
-        console.log(downloadData)
-      }
 
+    // 恢复下载状态
+    const downloadedData = await this.getDownloadedData(taskData.id)
+    if (downloadedData) {
+      store.downloadedIds = downloadedData.ids
     }
+
+    // 发出抓取完毕的信号
+    EVT.fire(EVT.events.crawlFinish)
   }
 
   private async initDB() {
