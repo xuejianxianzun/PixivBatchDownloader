@@ -30,6 +30,7 @@ interface EventList {
   convertError: 'convertError'
   skipSaveFile: 'skipSaveFile'
   hasNewVer: 'hasNewVer'
+  restoreDownload: 'restoreDownload'
 }
 
 class EVT {
@@ -64,6 +65,7 @@ class EVT {
     convertError: 'convertError',
     skipSaveFile: 'skipSaveFile',
     hasNewVer: 'hasNewVer',
+    restoreDownload: 'restoreDownload',
   }
 
   static fire(

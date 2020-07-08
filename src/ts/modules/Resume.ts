@@ -1,8 +1,8 @@
 import config from './Config'
 import { EVT } from './EVT'
 import { store } from './Store'
+import { downloadStates, DLStatesI } from './DownloadStates'
 import { WorkInfo } from './Store.d'
-import { DonwloadSuccessData } from './Download.d'
 
 interface DownloadTaskData {
   id: number,
@@ -10,9 +10,9 @@ interface DownloadTaskData {
   data: WorkInfo[]
 }
 
-interface DownloadedItemData {
+interface DLStates {
   id: number,
-  ids: string[]
+  states: DLStatesI
 }
 
 class Resume {
@@ -20,23 +20,28 @@ class Resume {
     this.init()
   }
 
+  public mode = false
+
   private db!: IDBDatabase
   private taskName = 'downloadTask'
-  private idsName = 'downloadedItem'
+  private statesName = 'downloadStates'
   private taskId!: number
-  private downloadedItemData!: DownloadedItemData
+  private statesData!: DLStates
 
   private async init() {
     await this.initDB()
     this.resetData()
     this.restoreData()
+    // 最后再绑定事件。因为这个类既监听了 crawlFinish，又会发出 crawlFinish，所以需要把监听放到最后面。
     this.bindEvent()
   }
 
   private resetData() {
-    this.downloadedItemData = {
+    this.mode = false
+
+    this.statesData = {
       id: 0,
-      ids: []
+      states: []
     }
   }
 
@@ -60,11 +65,11 @@ class Resume {
   }
 
   private async getDownloadedData(id: number) {
-    return new Promise<DownloadedItemData | null>((resolve) => {
-      const r = this.db.transaction(this.idsName, 'readonly').objectStore(this.idsName).get(id)
+    return new Promise<DLStates | null>((resolve) => {
+      const r = this.db.transaction(this.statesName, 'readonly').objectStore(this.statesName).get(id)
 
       r.onsuccess = ev => {
-        const data = r.result as DownloadedItemData
+        const data = r.result as DLStates
         if (data) {
           resolve(data)
         }
@@ -76,6 +81,7 @@ class Resume {
   private async restoreData() {
     const taskData = await this.getTaskDataByURL(this.getURL())
     if (!taskData) {
+      this.mode = false
       return
     }
 
@@ -83,13 +89,17 @@ class Resume {
     store.result = taskData.data
 
     // 恢复下载状态
-    const downloadedData = await this.getDownloadedData(taskData.id)
-    if (downloadedData) {
-      store.downloadedIds = downloadedData.ids
+    const data = await this.getDownloadedData(taskData.id)
+    if (data) {
+      downloadStates.replace(data.states)
     }
 
+    this.mode = true
+
     // 发出抓取完毕的信号
-    EVT.fire(EVT.events.crawlFinish)
+    EVT.fire(EVT.events.crawlFinish, {
+      initiator: 'resume'
+    })
   }
 
   private async initDB() {
@@ -104,7 +114,7 @@ class Resume {
         taskStore.createIndex('id', 'id', { unique: true })
         taskStore.createIndex('url', 'url', { unique: true })
 
-        const idsStore = this.db.createObjectStore(this.idsName, { keyPath: 'id' })
+        const idsStore = this.db.createObjectStore(this.statesName, { keyPath: 'id' })
         idsStore.createIndex('id', 'id', { unique: true })
 
         resolve()
@@ -121,7 +131,7 @@ class Resume {
     })
   }
 
-  private addData(storeNames: string, data: DownloadTaskData | DownloadedItemData) {
+  private addData(storeNames: string, data: DownloadTaskData | DLStates) {
     const r = this.db.transaction(storeNames, 'readwrite').objectStore(storeNames).add(data)
 
     r.onsuccess = (ev) => {
@@ -132,7 +142,7 @@ class Resume {
     }
   }
 
-  private putData(storeNames: string, data: DownloadTaskData | DownloadedItemData) {
+  private putData(storeNames: string, data: DownloadTaskData | DLStates) {
     const r = this.db.transaction(storeNames, 'readwrite').objectStore(storeNames).put(data)
 
     r.onsuccess = (ev) => {
@@ -157,12 +167,16 @@ class Resume {
 
   private bindEvent() {
     // 抓取完成时，保存这次任务的数据
-    window.addEventListener(EVT.events.crawlFinish, async () => {
+    window.addEventListener(EVT.events.crawlFinish, async (ev:CustomEventInit) => {
+      if(ev.detail.data.initiator==='resume'){
+        // 如果这个事件是这个类自己发出的，则不进行处理
+        return
+      }
       // 首先检查这个网址下是否已经存在有数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
       const taskData = await this.getTaskDataByURL(this.getURL())
       if (taskData) {
         this.deleteData(this.taskName, taskData.id)
-        this.deleteData(this.idsName, taskData.id)
+        this.deleteData(this.statesName, taskData.id)
       }
 
       // 保存本次任务的数据
@@ -174,26 +188,26 @@ class Resume {
       }
       this.addData(this.taskName, data)
 
-      this.downloadedItemData.id = this.taskId
-      this.addData(this.idsName, this.downloadedItemData)
+      this.statesData.id = this.taskId
+      this.addData(this.statesName, this.statesData)
     })
 
-    // 当有文件下载完成时，添加到已下载列表
+    // 当有文件下载完成时，保存下载状态
     window.addEventListener(EVT.events.downloadSucccess, (event: CustomEventInit) => {
-      const evData = event.detail.data as DonwloadSuccessData
-      this.downloadedItemData.ids.push(evData.id)
-      this.putData(this.idsName, this.downloadedItemData)
+      this.statesData.id = this.taskId
+      this.statesData.states = downloadStates.states
+      this.putData(this.statesName, this.statesData)
     })
 
     // 任务下载完毕时，清除这次任务的数据
     window.addEventListener(EVT.events.downloadComplete, () => {
       this.deleteData(this.taskName, this.taskId)
-      this.deleteData(this.idsName, this.taskId)
+      this.deleteData(this.statesName, this.taskId)
 
       this.resetData()
     })
 
-    // 开始新的抓取时，清空本类中暂存的 id 列表数据（不清空数据库）
+    // 开始新的抓取时，清空本类中暂存的下载状态数据（不清空数据库）
     window.addEventListener(EVT.events.crawlStart, () => {
       this.resetData()
     })

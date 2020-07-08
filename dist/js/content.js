@@ -1866,8 +1866,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Settings */ "./src/ts/modules/Settings.ts");
 /* harmony import */ var _Download__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Download */ "./src/ts/modules/Download.ts");
 /* harmony import */ var _ProgressBar__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ProgressBar */ "./src/ts/modules/ProgressBar.ts");
-/* harmony import */ var _Resume__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Resume */ "./src/ts/modules/Resume.ts");
+/* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/modules/DownloadStates.ts");
+/* harmony import */ var _Resume__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Resume */ "./src/ts/modules/Resume.ts");
 // 下载控制
+
 
 
 
@@ -1884,7 +1886,6 @@ class DownloadControl {
         this.downloadThreadMax = 5; // 同时下载的线程数的最大值，也是默认值
         this.downloadThread = this.downloadThreadMax; // 同时下载的线程数
         this.taskBatch = 0; // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
-        this.statesList = []; // 下载状态列表，保存每个下载任务的状态
         this.taskList = {}; // 下载任务列表，使用下载的文件的 id 做 key，保存下载栏编号和它在下载状态列表中的索引
         this.downloaded = 0; // 已下载的任务数量
         this.convertText = '';
@@ -1935,8 +1936,8 @@ class DownloadControl {
             if (msg.msg === 'downloaded') {
                 // 释放 BLOBURL
                 URL.revokeObjectURL(msg.data.url);
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadSucccess, msg.data);
                 this.downloadSuccess(msg.data);
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadSucccess, msg.data);
             }
             else if (msg.msg === 'download_err') {
                 // 浏览器把文件保存到本地时出错
@@ -1991,7 +1992,7 @@ class DownloadControl {
         this.downStatusEl.appendChild(el);
     }
     reset() {
-        this.statesList = [];
+        _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].reset();
         this.downloadPause = false;
         this.downloadStop = false;
         clearTimeout(this.reTryTimer);
@@ -2067,7 +2068,18 @@ class DownloadControl {
     }
     // 抓取完毕之后，已经可以开始下载时，根据一些状态进行处理
     beforeDownload() {
-        this.setDownloaded = 0;
+        // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
+        if (!this.downloadPause && !_Resume__WEBPACK_IMPORTED_MODULE_11__["resume"].mode) {
+            // 初始化下载状态列表
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].init();
+            this.taskBatch = new Date().getTime(); // 修改本批下载任务的标记
+        }
+        else {
+            // 从上次中断的位置继续下载
+            // 把“使用中”的下载状态重置为“未使用”
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].resetDownloadingFlag();
+        }
+        this.setDownloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].downloadedCount();
         this.setDownloadThread();
         // 检查 不自动开始下载 的标记
         if (_Store__WEBPACK_IMPORTED_MODULE_2__["store"].states.notAutoDownload) {
@@ -2084,29 +2096,9 @@ class DownloadControl {
     }
     // 开始下载
     startDownload() {
-        // 如果正在下载中，或无图片，则不予处理
+        // 如果正在下载中，或无结果，则不予处理
         if (!_Store__WEBPACK_IMPORTED_MODULE_2__["store"].states.allowWork || _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
             return;
-        }
-        // 如果之前不是暂停状态，则需要重新下载
-        if (!this.downloadPause) {
-            this.setDownloaded = 0;
-            // 初始化下载记录
-            // 状态：
-            // -1 未使用
-            // 0 使用中
-            // 1 已完成
-            this.statesList = new Array(_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length).fill(-1);
-            this.taskBatch = new Date().getTime(); // 修改本批下载任务的标记
-        }
-        else {
-            // 继续下载
-            // 把“使用中”的下载状态重置为“未使用”
-            for (let index = 0; index < this.statesList.length; index++) {
-                if (this.statesList[index] === 0) {
-                    this.statesList[index] = -1;
-                }
-            }
         }
         // 重置一些条件
         this.downloadPause = false;
@@ -2165,14 +2157,14 @@ class DownloadControl {
         }
         const task = this.taskList[data.id];
         // 复位这个任务的状态
-        this.setDownloadedIndex(task.index, -1);
+        _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].setState(task.index, -1);
         // 建立下载任务，再次下载它
         this.createDownload(task.progressBarIndex);
     }
     downloadSuccess(data) {
         const task = this.taskList[data.id];
         // 更改这个任务状态为“已完成”
-        this.setDownloadedIndex(task.index, 1);
+        _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].setState(task.index, 1);
         // 增加已下载数量
         this.downloadedAdd();
         // 是否继续下载
@@ -2180,10 +2172,6 @@ class DownloadControl {
         if (this.checkContinueDownload()) {
             this.createDownload(no);
         }
-    }
-    // 设置已下载列表中的标记
-    setDownloadedIndex(index, value) {
-        this.statesList[index] = value;
     }
     // 当一个文件下载完成后，检查是否还有后续下载任务
     checkContinueDownload() {
@@ -2216,15 +2204,7 @@ class DownloadControl {
     }
     // 查找需要进行下载的作品，建立下载
     createDownload(progressBarIndex) {
-        let length = this.statesList.length;
-        let index;
-        for (let i = 0; i < length; i++) {
-            if (this.statesList[i] === -1) {
-                this.statesList[i] = 0;
-                index = i;
-                break;
-            }
-        }
+        const index = _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].getFirstDownloadItem();
         if (index === undefined) {
             throw new Error('There are no data to download');
         }
@@ -2248,6 +2228,76 @@ class DownloadControl {
     }
 }
 new DownloadControl();
+
+
+/***/ }),
+
+/***/ "./src/ts/modules/DownloadStates.ts":
+/*!******************************************!*\
+  !*** ./src/ts/modules/DownloadStates.ts ***!
+  \******************************************/
+/*! exports provided: downloadStates */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "downloadStates", function() { return downloadStates; });
+/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
+
+class DownloadStates {
+    constructor() {
+        this.states = [];
+    }
+    // 创建新的状态列表
+    init() {
+        this.states = new Array(_Store__WEBPACK_IMPORTED_MODULE_0__["store"].result.length).fill(-1);
+    }
+    // 统计下载完成的数量
+    downloadedCount() {
+        let count = 0;
+        const length = this.states.length;
+        for (let i = 0; i < length; i++) {
+            if (this.states[i] === 1) {
+                count++;
+            }
+        }
+        return count;
+    }
+    // 替换所有的状态数据
+    // 目前只有在恢复下载的时候使用
+    replace(states) {
+        this.states = states;
+    }
+    // 把“下载中”的状态复位到“未开始下载”
+    resetDownloadingFlag() {
+        const length = this.states.length;
+        for (let i = 0; i < length; i++) {
+            if (this.states[i] === 0) {
+                this.setState(i, -1);
+            }
+        }
+    }
+    // 获取第一个“未开始下载”标记的索引
+    getFirstDownloadItem() {
+        const length = this.states.length;
+        for (let i = 0; i < length; i++) {
+            if (this.states[i] === -1) {
+                this.setState(i, 0);
+                return i;
+            }
+        }
+        return undefined;
+    }
+    // 设置已下载列表中的标记
+    setState(index, value) {
+        this.states[index] = value;
+    }
+    reset() {
+        this.states = [];
+    }
+}
+const downloadStates = new DownloadStates();
+
 
 
 /***/ }),
@@ -2301,6 +2351,7 @@ EVT.events = {
     convertError: 'convertError',
     skipSaveFile: 'skipSaveFile',
     hasNewVer: 'hasNewVer',
+    restoreDownload: 'restoreDownload',
 };
 
 
@@ -5730,25 +5781,30 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/modules/Config.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
+/* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/modules/DownloadStates.ts");
+
 
 
 
 class Resume {
     constructor() {
+        this.mode = false;
         this.taskName = 'downloadTask';
-        this.idsName = 'downloadedItem';
+        this.statesName = 'downloadStates';
         this.init();
     }
     async init() {
         await this.initDB();
         this.resetData();
         this.restoreData();
+        // 最后再绑定事件。因为这个类既监听了 crawlFinish，又会发出 crawlFinish，所以需要把监听放到最后面。
         this.bindEvent();
     }
     resetData() {
-        this.downloadedItemData = {
+        this.mode = false;
+        this.statesData = {
             id: 0,
-            ids: []
+            states: []
         };
     }
     getURL() {
@@ -5769,7 +5825,7 @@ class Resume {
     }
     async getDownloadedData(id) {
         return new Promise((resolve) => {
-            const r = this.db.transaction(this.idsName, 'readonly').objectStore(this.idsName).get(id);
+            const r = this.db.transaction(this.statesName, 'readonly').objectStore(this.statesName).get(id);
             r.onsuccess = ev => {
                 const data = r.result;
                 if (data) {
@@ -5782,16 +5838,21 @@ class Resume {
     async restoreData() {
         const taskData = await this.getTaskDataByURL(this.getURL());
         if (!taskData) {
+            this.mode = false;
             return;
         }
         // 恢复抓取结果
         _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result = taskData.data;
         // 恢复下载状态
-        const downloadedData = await this.getDownloadedData(taskData.id);
-        if (downloadedData) {
-            console.log(downloadedData);
-            _Store__WEBPACK_IMPORTED_MODULE_2__["store"].downloadedIds = downloadedData.ids;
+        const data = await this.getDownloadedData(taskData.id);
+        if (data) {
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_3__["downloadStates"].replace(data.states);
         }
+        this.mode = true;
+        // 发出抓取完毕的信号
+        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, {
+            initiator: 'resume'
+        });
     }
     async initDB() {
         return new Promise((resolve, reject) => {
@@ -5802,7 +5863,7 @@ class Resume {
                 const taskStore = this.db.createObjectStore(this.taskName, { keyPath: 'id' });
                 taskStore.createIndex('id', 'id', { unique: true });
                 taskStore.createIndex('url', 'url', { unique: true });
-                const idsStore = this.db.createObjectStore(this.idsName, { keyPath: 'id' });
+                const idsStore = this.db.createObjectStore(this.statesName, { keyPath: 'id' });
                 idsStore.createIndex('id', 'id', { unique: true });
                 resolve();
             };
@@ -5844,12 +5905,16 @@ class Resume {
     }
     bindEvent() {
         // 抓取完成时，保存这次任务的数据
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, async () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, async (ev) => {
+            if (ev.detail.data.initiator === 'resume') {
+                // 如果这个事件是这个类自己发出的，则不进行处理
+                return;
+            }
             // 首先检查这个网址下是否已经存在有数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
             const taskData = await this.getTaskDataByURL(this.getURL());
             if (taskData) {
                 this.deleteData(this.taskName, taskData.id);
-                this.deleteData(this.idsName, taskData.id);
+                this.deleteData(this.statesName, taskData.id);
             }
             // 保存本次任务的数据
             this.taskId = new Date().getTime();
@@ -5859,22 +5924,22 @@ class Resume {
                 data: _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result
             };
             this.addData(this.taskName, data);
-            this.downloadedItemData.id = this.taskId;
-            this.addData(this.idsName, this.downloadedItemData);
+            this.statesData.id = this.taskId;
+            this.addData(this.statesName, this.statesData);
         });
-        // 当有文件下载完成时，添加到已下载列表
+        // 当有文件下载完成时，保存下载状态
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadSucccess, (event) => {
-            const evData = event.detail.data;
-            this.downloadedItemData.ids.push(evData.id);
-            this.putData(this.idsName, this.downloadedItemData);
+            this.statesData.id = this.taskId;
+            this.statesData.states = _DownloadStates__WEBPACK_IMPORTED_MODULE_3__["downloadStates"].states;
+            this.putData(this.statesName, this.statesData);
         });
         // 任务下载完毕时，清除这次任务的数据
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadComplete, () => {
             this.deleteData(this.taskName, this.taskId);
-            this.deleteData(this.idsName, this.taskId);
+            this.deleteData(this.statesName, this.taskId);
             this.resetData();
         });
-        // 开始新的抓取时，清空本类中暂存的 id 列表数据（不清空数据库）
+        // 开始新的抓取时，清空本类中暂存的下载状态数据（不清空数据库）
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlStart, () => {
             this.resetData();
         });
@@ -6861,7 +6926,6 @@ __webpack_require__.r(__webpack_exports__);
 class Store {
     constructor() {
         this.idList = []; // 储存从列表中抓取到的作品的 id
-        this.downloadedIds = []; // 储存本次任务中已完成下载的文件的 id 
         this.resultMeta = []; // 储存抓取结果的元数据。
         // 当用于图片作品时，它可以根据每个作品需要下载多少张，生成每一张图片的信息
         this.resultIDList = []; // 储存抓取结果的元数据的 id 列表，用来判断该作品是否已经添加过了，避免重复添加
