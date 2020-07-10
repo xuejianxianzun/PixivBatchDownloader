@@ -403,12 +403,6 @@
   height: 22px;
   overflow: hidden;
 }
-.centerWrap .progressBarWrap .centerWrap_down_tips {
-  line-height: 28px;
-}
-.centerWrap .progressBarWrap .down_status {
-  vertical-align: text-top;
-}
 .centerWrap .progressBarWrap .right1 {
   display: inline-block;
   height: 22px;
@@ -467,6 +461,12 @@
 .centerWrap .download_a,
 .centerWrap .download_area {
   display: none;
+}
+.centerWrap .download_area .centerWrap_down_tips {
+  line-height: 28px;
+}
+.centerWrap .download_area .centerWrap_down_tips .down_status {
+  display: inline-block;
 }
 .centerWrap .settingNameStyle1 {
   width: 100px;

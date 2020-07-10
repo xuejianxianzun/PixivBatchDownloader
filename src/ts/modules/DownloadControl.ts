@@ -94,8 +94,7 @@ class DownloadControl {
         URL.revokeObjectURL(msg.data.url)
 
         this.downloadSuccess(msg.data)
-
-        EVT.fire(EVT.events.downloadSucccess, msg.data)
+        
       } else if (msg.msg === 'download_err') {
         // 浏览器把文件保存到本地时出错
         log.error(
@@ -118,7 +117,6 @@ class DownloadControl {
     this.LogDownloadStates()
 
     // 设置下载进度信息
-    this.totalNumberEl.textContent = store.result.length.toString()
     progressBar.setTotalProgress(this.downloaded)
 
     // 重置下载进度信息
@@ -134,10 +132,6 @@ class DownloadControl {
       log.success(lang.transl('_下载完毕'), 2)
       titleBar.change('✓')
     }
-  }
-
-  private downloadedAdd() {
-    this.setDownloaded = this.downloaded + 1
   }
 
   // 显示或隐藏下载区域
@@ -161,7 +155,6 @@ class DownloadControl {
   }
 
   private reset() {
-    downloadStates.reset()
     this.downloadPause = false
     this.downloadStop = false
     clearTimeout(this.reTryTimer)
@@ -190,7 +183,7 @@ class DownloadControl {
     </div>
     <div class="centerWrap_down_tips">
     <p>
-    ${lang.transl('_当前状态')}
+    <span>${lang.transl('_当前状态')}</span>
     <span class="down_status blue"><span>${lang.transl(
         '_未开始下载'
       )}</span></span>
@@ -264,8 +257,14 @@ class DownloadControl {
     progressBar.reset(this.downloadThread, this.downloaded)
   }
 
-  // 抓取完毕之后，已经可以开始下载时，决定是否开始下载
+  // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
   private readyDownload() {
+    this.totalNumberEl.textContent = store.result.length.toString()
+
+    this.setDownloaded = downloadStates.downloadedCount()
+
+    this.setDownloadThread()
+
     // 检查 不自动开始下载 的标记
     if (store.states.notAutoDownload) {
       return
@@ -293,7 +292,7 @@ class DownloadControl {
     // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
     if (!this.downloadPause && !resume.mode) {
       // 初始化下载状态列表
-      downloadStates.init()
+      downloadStates.initList()
     } else {
       // 从上次中断的位置继续下载
       // 把“使用中”的下载状态重置为“未使用”
@@ -383,8 +382,12 @@ class DownloadControl {
     const task = this.taskList[data.id]
     // 更改这个任务状态为“已完成”
     downloadStates.setState(task.index, 1)
-    // 增加已下载数量
-    this.downloadedAdd()
+    
+    EVT.fire(EVT.events.downloadSucccess, data)
+
+    // 统计已下载数量
+    this.setDownloaded = downloadStates.downloadedCount()
+
     // 是否继续下载
     const no = task.progressBarIndex
     if (this.checkContinueDownload()) {

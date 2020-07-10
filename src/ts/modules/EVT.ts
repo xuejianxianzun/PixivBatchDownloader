@@ -1,40 +1,7 @@
 // 事件类
-interface EventList {
-  crawlStart: 'crawlStart'
-  crawlFinish: 'crawlFinish'
-  crawlEmpty: 'crawlEmpty'
-  crawlError: 'crawlError'
-  addResult: 'addResult'
-  convertChange: 'convertChange'
-  previewFileName: 'previewFileName'
-  output: 'output'
-  hideCenterPanel: 'hideCenterPanel'
-  showCenterPanel: 'showCenterPanel'
-  downloadStart: 'downloadStart'
-  downloadPause: 'downloadPause'
-  downloadStop: 'downloadStop'
-  download: 'download'
-  downloadSucccess: 'downloadSucccess'
-  downloadComplete: 'downloadComplete'
-  downloadError: 'downloadError'
-  pageSwitch: 'pageSwitch'
-  pageTypeChange: 'pageTypeChange'
-  resetOption: 'resetOption'
-  clearMultiple: 'clearMultiple'
-  clearUgoira: 'clearUgoira'
-  deleteWork: 'deleteWork'
-  worksUpdate: 'worksUpdate'
-  settingChange: 'settingChange'
-  clickRightIcon: 'clickRightIcon'
-  destroy: 'destroy'
-  convertError: 'convertError'
-  skipSaveFile: 'skipSaveFile'
-  hasNewVer: 'hasNewVer'
-  restoreDownload: 'restoreDownload'
-}
-
 class EVT {
-  static readonly events: EventList = {
+  // 事件名称列表
+  static readonly events = {
     crawlStart: 'crawlStart',
     crawlFinish: 'crawlFinish',
     crawlEmpty: 'crawlEmpty',
@@ -68,8 +35,14 @@ class EVT {
     restoreDownload: 'restoreDownload',
   }
 
+  // 事件发起者的标识列表
+  static readonly InitiatorList = {
+    resume: 'resume'
+  }
+
+  // 触发事件，可以携带数据
   static fire(
-    type: keyof EventList,
+    type: string,
     data: object | string | number | boolean = ''
   ) {
     const event = new CustomEvent(type, {

@@ -1672,7 +1672,6 @@ class Download {
         this.sizeCheck = undefined; // 检查文件体积
         this.progressBarIndex = progressBarIndex;
         this.download(data);
-        console.log(data);
         this.listenEvents();
     }
     listenEvents() {
@@ -1938,7 +1937,6 @@ class DownloadControl {
                 // 释放 BLOBURL
                 URL.revokeObjectURL(msg.data.url);
                 this.downloadSuccess(msg.data);
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadSucccess, msg.data);
             }
             else if (msg.msg === 'download_err') {
                 // 浏览器把文件保存到本地时出错
@@ -1957,7 +1955,6 @@ class DownloadControl {
         this.downloaded = val;
         this.LogDownloadStates();
         // 设置下载进度信息
-        this.totalNumberEl.textContent = _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length.toString();
         _ProgressBar__WEBPACK_IMPORTED_MODULE_9__["progressBar"].setTotalProgress(this.downloaded);
         // 重置下载进度信息
         if (this.downloaded === 0) {
@@ -1971,9 +1968,6 @@ class DownloadControl {
             _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕'), 2);
             _TitleBar__WEBPACK_IMPORTED_MODULE_5__["titleBar"].change('✓');
         }
-    }
-    downloadedAdd() {
-        this.setDownloaded = this.downloaded + 1;
     }
     // 显示或隐藏下载区域
     showDownloadArea() {
@@ -1993,7 +1987,7 @@ class DownloadControl {
         this.downStatusEl.appendChild(el);
     }
     reset() {
-        _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].reset();
+        // downloadStates.clear()
         this.downloadPause = false;
         this.downloadStop = false;
         clearTimeout(this.reTryTimer);
@@ -2010,7 +2004,7 @@ class DownloadControl {
     </div>
     <div class="centerWrap_down_tips">
     <p>
-    ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_当前状态')}
+    <span>${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_当前状态')}</span>
     <span class="down_status blue"><span>${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_未开始下载')}</span></span>
     <span class="convert_tip warn"></span>
     </p>
@@ -2069,8 +2063,11 @@ class DownloadControl {
         // 重设下载进度条
         _ProgressBar__WEBPACK_IMPORTED_MODULE_9__["progressBar"].reset(this.downloadThread, this.downloaded);
     }
-    // 抓取完毕之后，已经可以开始下载时，决定是否开始下载
+    // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
     readyDownload() {
+        this.totalNumberEl.textContent = _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length.toString();
+        this.setDownloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].downloadedCount();
+        this.setDownloadThread();
         // 检查 不自动开始下载 的标记
         if (_Store__WEBPACK_IMPORTED_MODULE_2__["store"].states.notAutoDownload) {
             return;
@@ -2093,7 +2090,7 @@ class DownloadControl {
         // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
         if (!this.downloadPause && !_Resume__WEBPACK_IMPORTED_MODULE_11__["resume"].mode) {
             // 初始化下载状态列表
-            _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].init();
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].initList();
         }
         else {
             // 从上次中断的位置继续下载
@@ -2167,8 +2164,9 @@ class DownloadControl {
         const task = this.taskList[data.id];
         // 更改这个任务状态为“已完成”
         _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].setState(task.index, 1);
-        // 增加已下载数量
-        this.downloadedAdd();
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadSucccess, data);
+        // 统计已下载数量
+        this.setDownloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].downloadedCount();
         // 是否继续下载
         const no = task.progressBarIndex;
         if (this.checkContinueDownload()) {
@@ -2244,16 +2242,28 @@ new DownloadControl();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "downloadStates", function() { return downloadStates; });
-/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
 
+
+// 下载状态列表
 class DownloadStates {
     constructor() {
         this.states = [];
+        this.bindEvent();
+    }
+    bindEvent() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, async (ev) => {
+            if (ev.detail.data.initiator !== _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].InitiatorList.resume) {
+                // 当正常抓取完毕时，初始化下载状态列表。
+                // 当需要恢复下载时，不初始化下载状态列表。因为此时 Resume 类会直接传入下载列表
+                this.initList();
+            }
+        });
     }
     // 创建新的状态列表
-    init() {
-        console.log(_Store__WEBPACK_IMPORTED_MODULE_0__["store"].result);
-        this.states = new Array(_Store__WEBPACK_IMPORTED_MODULE_0__["store"].result.length).fill(-1);
+    initList() {
+        this.states = new Array(_Store__WEBPACK_IMPORTED_MODULE_1__["store"].result.length).fill(-1);
     }
     // 统计下载完成的数量
     downloadedCount() {
@@ -2290,14 +2300,13 @@ class DownloadStates {
                 return i;
             }
         }
-        console.log(this.states);
         return undefined;
     }
     // 设置已下载列表中的标记
     setState(index, value) {
         this.states[index] = value;
     }
-    reset() {
+    clear() {
         this.states = [];
     }
 }
@@ -2317,7 +2326,9 @@ const downloadStates = new DownloadStates();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EVT", function() { return EVT; });
+// 事件类
 class EVT {
+    // 触发事件，可以携带数据
     static fire(type, data = '') {
         const event = new CustomEvent(type, {
             detail: { data: data },
@@ -2325,6 +2336,7 @@ class EVT {
         window.dispatchEvent(event);
     }
 }
+// 事件名称列表
 EVT.events = {
     crawlStart: 'crawlStart',
     crawlFinish: 'crawlFinish',
@@ -2357,6 +2369,10 @@ EVT.events = {
     skipSaveFile: 'skipSaveFile',
     hasNewVer: 'hasNewVer',
     restoreDownload: 'restoreDownload',
+};
+// 事件发起者的标识列表
+EVT.InitiatorList = {
+    resume: 'resume'
 };
 
 
@@ -2750,7 +2766,6 @@ class Filter {
         this.BMKNumMin = this.BMKNumMinDef; // 最小收藏数量
         this.BMKNumMax = this.BMKNumMaxDef; // 最大收藏数量
         this.onlyBmk = false; // 是否只下载收藏的作品
-        this.sizeSwitch = false;
         this.MB = 1024 * 1024;
         this.sizeMin = 0;
         this.sizeMax = 100 * this.MB;
@@ -2761,7 +2776,6 @@ class Filter {
             width: 0,
             height: 0,
         };
-        this.ratioSwitch = false; // 宽高比例设置的开关
         this.ratioType = '0'; // 宽高比例的类型
         this.idRangeSwitch = false; // id 范围的开关
         this.idRange = -1; // id 范围，默认不限制
@@ -2773,6 +2787,7 @@ class Filter {
         this.notNeedTagSwitch = false; // 要排除的 tag 开关
         this.excludeTag = ''; // 要排除的 tag
         this.debut = false; // 只下载首次登场的作品
+        this.bindEvent();
     }
     // 从下载区域上获取过滤器的各个选项
     init() {
@@ -2792,8 +2807,7 @@ class Filter {
             this.filterWh = this.getSetWh();
         }
         // 获取宽高比设置
-        this.ratioSwitch = _Settings__WEBPACK_IMPORTED_MODULE_0__["form"].ratioSwitch.checked;
-        if (this.ratioSwitch) {
+        if (_Settings__WEBPACK_IMPORTED_MODULE_0__["form"].ratioSwitch.checked) {
             this.ratioType = this.getRatio();
         }
         // 获取 id 范围设置
@@ -2865,7 +2879,7 @@ class Filter {
         if (!this.checkDebut(option.yes_rank)) {
             return false;
         }
-        // 检查首次登场设置
+        // 检查文件体积设置
         if (!this.checkSize(option.size)) {
             return false;
         }
@@ -3090,8 +3104,7 @@ class Filter {
     }
     // 获取文件体积设置
     getSize() {
-        this.sizeSwitch = _Settings__WEBPACK_IMPORTED_MODULE_0__["form"].sizeSwitch.checked;
-        if (this.sizeSwitch) {
+        if (_Settings__WEBPACK_IMPORTED_MODULE_0__["form"].sizeSwitch.checked) {
             let min = parseFloat(_Settings__WEBPACK_IMPORTED_MODULE_0__["form"].sizeMin.value);
             isNaN(min) && (min = 0);
             let max = parseFloat(_Settings__WEBPACK_IMPORTED_MODULE_0__["form"].sizeMax.value);
@@ -3260,7 +3273,7 @@ class Filter {
     }
     // 检查作品是否符合宽高比条件
     checkRatio(width, height) {
-        if (!this.ratioSwitch) {
+        if (!_Settings__WEBPACK_IMPORTED_MODULE_0__["form"].ratioSwitch.checked) {
             return true;
         }
         if (width === undefined || height === undefined) {
@@ -3327,10 +3340,18 @@ class Filter {
     }
     // 检查文件体积
     checkSize(size) {
-        if (!this.sizeSwitch || size === undefined) {
+        if (!_Settings__WEBPACK_IMPORTED_MODULE_0__["form"].sizeSwitch.checked || size === undefined) {
             return true;
         }
         return size >= this.sizeMin && size <= this.sizeMax;
+    }
+    bindEvent() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].events.crawlFinish, async (ev) => {
+            if (ev.detail.data.initiator === _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].InitiatorList.resume) {
+                // 当需要恢复下载时，初始化过滤器。否则过滤器不会实际上进行过滤
+                this.init();
+            }
+        });
     }
 }
 const filter = new Filter();
@@ -4606,6 +4627,8 @@ class InitPageBase {
         this.sortResult();
         _Log__WEBPACK_IMPORTED_MODULE_9__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取的文件数量', _Store__WEBPACK_IMPORTED_MODULE_8__["store"].result.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_9__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取完毕'), 2);
+        // 发出抓取完毕的信号
+        // 这里是正规流程的抓取完毕信号，其他地方也可能会发出这个信号。如有需要加以区别，可以在事件数据中标明数据的发起者 EVT.InitiatorList[string]
         _EVT__WEBPACK_IMPORTED_MODULE_10__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_10__["EVT"].events.crawlFinish);
     }
     // 网络请求状态异常时输出提示
@@ -5843,13 +5866,13 @@ class Resume {
         this.mode = true;
         // 发出抓取完毕的信号
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, {
-            initiator: 'resume'
+            initiator: _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].InitiatorList.resume
         });
     }
     bindEvent() {
         // 抓取完成时，保存这次任务的数据
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, async (ev) => {
-            if (ev.detail.data.initiator === 'resume') {
+            if (ev.detail.data.initiator === _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].InitiatorList.resume) {
                 // 如果这个事件是这个类自己发出的，则不进行处理
                 return;
             }
@@ -5875,7 +5898,6 @@ class Resume {
         });
         // 当有文件下载完成时，保存下载状态
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadSucccess, (event) => {
-            // console.log(...downloadStates.states)
             this.statesData = {
                 id: this.taskId,
                 states: _DownloadStates__WEBPACK_IMPORTED_MODULE_3__["downloadStates"].states
@@ -5931,7 +5953,7 @@ class Resume {
             // console.log('add success')
         };
         r.onerror = (ev) => {
-            console.log('add failed');
+            console.error('add failed');
         };
     }
     putData(storeNames, data) {
@@ -5940,7 +5962,7 @@ class Resume {
             // console.log('put success')
         };
         r.onerror = (ev) => {
-            console.log('put failed');
+            console.error('put failed');
         };
     }
     deleteData(storeNames, id) {
@@ -5949,7 +5971,7 @@ class Resume {
             // console.log('delete success')
         };
         r.onerror = (ev) => {
-            console.log('delete failed');
+            console.error('delete failed');
         };
     }
 }
@@ -8306,7 +8328,14 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         this.optionsCauseResultChange = ['firstFewImagesSwitch', 'firstFewImages']; // 这些选项变更时，需要重新添加结果。例如多图作品“只下载前几张” firstFewImages 会影响生成的结果，但是过滤器 filter 不会检查，所以需要单独检测它的变更
         this.needReAdd = false; // 是否需要重新添加结果（并且会重新渲染）
         this.showCount = () => {
-            const count = this.resultMeta.length.toString();
+            let count;
+            if (this.resultMeta.length > 0) {
+                count = this.resultMeta.length.toString();
+            }
+            else {
+                // 当处于恢复模式时，resultMeta 里没有数据，所以直接使用 result 的数据
+                count = _Store__WEBPACK_IMPORTED_MODULE_9__["store"].result.length.toString();
+            }
             _Log__WEBPACK_IMPORTED_MODULE_10__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_调整完毕', count));
             const countEl = document.querySelector(this.countSelector);
             if (countEl) {

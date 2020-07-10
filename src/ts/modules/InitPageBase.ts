@@ -268,6 +268,8 @@ abstract class InitPageBase {
 
     log.log(lang.transl('_抓取完毕'), 2)
 
+    // 发出抓取完毕的信号
+    // 这里是正规流程的抓取完毕信号，其他地方也可能会发出这个信号。如有需要加以区别，可以在事件数据中标明数据的发起者 EVT.InitiatorList[string]
     EVT.fire(EVT.events.crawlFinish)
   }
 

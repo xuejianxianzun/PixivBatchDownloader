@@ -84,14 +84,14 @@ class Resume {
 
     // 发出抓取完毕的信号
     EVT.fire(EVT.events.crawlFinish, {
-      initiator: 'resume'
+      initiator: EVT.InitiatorList.resume
     })
   }
 
   private bindEvent() {
     // 抓取完成时，保存这次任务的数据
     window.addEventListener(EVT.events.crawlFinish, async (ev: CustomEventInit) => {
-      if (ev.detail.data.initiator === 'resume') {
+      if (ev.detail.data.initiator === EVT.InitiatorList.resume) {
         // 如果这个事件是这个类自己发出的，则不进行处理
         return
       }
@@ -120,7 +120,6 @@ class Resume {
 
     // 当有文件下载完成时，保存下载状态
     window.addEventListener(EVT.events.downloadSucccess, (event: CustomEventInit) => {
-      // console.log(...downloadStates.states)
       this.statesData = {
         id: this.taskId,
         states: downloadStates.states
@@ -189,7 +188,7 @@ class Resume {
       // console.log('add success')
     }
     r.onerror = (ev) => {
-      console.log('add failed')
+      console.error('add failed')
     }
   }
 
@@ -199,7 +198,7 @@ class Resume {
       // console.log('put success')
     }
     r.onerror = (ev) => {
-      console.log('put failed')
+      console.error('put failed')
     }
   }
 
@@ -211,7 +210,7 @@ class Resume {
       // console.log('delete success')
     }
     r.onerror = (ev) => {
-      console.log('delete failed')
+      console.error('delete failed')
     }
   }
 

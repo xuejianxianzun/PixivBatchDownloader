@@ -10,6 +10,10 @@ import { blackAndWhiteImage } from './BlackandWhiteImage'
 // 审查每个作品的数据，决定是否要存储它
 // 可以根据需要，随时进行审查
 class Filter {
+  constructor() {
+    this.bindEvent()
+  }
+
   private downType0 = true
   private downType1 = true
   private downType2 = true
@@ -30,7 +34,6 @@ class Filter {
 
   private onlyBmk: boolean = false // 是否只下载收藏的作品
 
-  private sizeSwitch = false
   private readonly MB = 1024 * 1024
   private sizeMin = 0
   private sizeMax = 100 * this.MB
@@ -43,7 +46,6 @@ class Filter {
     height: 0,
   }
 
-  private ratioSwitch = false // 宽高比例设置的开关
   private ratioType: string = '0' // 宽高比例的类型
 
   private idRangeSwitch = false // id 范围的开关
@@ -86,8 +88,7 @@ class Filter {
     }
 
     // 获取宽高比设置
-    this.ratioSwitch = form.ratioSwitch.checked
-    if (this.ratioSwitch) {
+    if (form.ratioSwitch.checked) {
       this.ratioType = this.getRatio()
     }
 
@@ -176,7 +177,7 @@ class Filter {
       return false
     }
 
-    // 检查首次登场设置
+    // 检查文件体积设置
     if (!this.checkSize(option.size)) {
       return false
     }
@@ -448,8 +449,7 @@ class Filter {
 
   // 获取文件体积设置
   private getSize() {
-    this.sizeSwitch = form.sizeSwitch.checked
-    if (this.sizeSwitch) {
+    if (form.sizeSwitch.checked) {
       let min = parseFloat(form.sizeMin.value)
       isNaN(min) && (min = 0)
 
@@ -649,7 +649,7 @@ class Filter {
     width: FilterOption['width'],
     height: FilterOption['height']
   ) {
-    if (!this.ratioSwitch) {
+    if (!form.ratioSwitch.checked) {
       return true
     }
 
@@ -716,11 +716,19 @@ class Filter {
 
   // 检查文件体积
   private checkSize(size: FilterOption['size']) {
-    if (!this.sizeSwitch || size === undefined) {
+    if (!form.sizeSwitch.checked || size === undefined) {
       return true
     }
-
     return size >= this.sizeMin && size <= this.sizeMax
+  }
+
+  private bindEvent() {
+    window.addEventListener(EVT.events.crawlFinish, async (ev: CustomEventInit) => {
+      if (ev.detail.data.initiator === EVT.InitiatorList.resume) {
+        // 当需要恢复下载时，初始化过滤器。否则过滤器不会实际上进行过滤
+        this.init()
+      }
+    })
   }
 }
 
