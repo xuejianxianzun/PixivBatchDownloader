@@ -37,14 +37,11 @@ class EVT {
 
   // 事件发起者的标识列表
   static readonly InitiatorList = {
-    resume: 'resume'
+    resume: 'resume',
   }
 
   // 触发事件，可以携带数据
-  static fire(
-    type: string,
-    data: object | string | number | boolean = ''
-  ) {
+  static fire(type: string, data: object | string | number | boolean = '') {
     const event = new CustomEvent(type, {
       detail: { data: data },
     })

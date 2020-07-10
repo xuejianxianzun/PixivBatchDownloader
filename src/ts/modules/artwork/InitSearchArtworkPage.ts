@@ -231,11 +231,11 @@ class InitSearchArtworkPage extends InitPageBase {
 
   private showCount = () => {
     let count
-    if(this.resultMeta.length>0){
-      count= this.resultMeta.length.toString()
-    }else{
+    if (this.resultMeta.length > 0) {
+      count = this.resultMeta.length.toString()
+    } else {
       // 当处于恢复模式时，resultMeta 里没有数据，所以直接使用 result 的数据
-      count= store.result.length.toString()
+      count = store.result.length.toString()
     }
     log.success(lang.transl('_调整完毕', count))
 

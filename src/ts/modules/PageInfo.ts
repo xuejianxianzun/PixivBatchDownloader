@@ -7,10 +7,7 @@ class PageInfo {
   constructor() {
     this.getPageInfo()
 
-    // 页面切换时获取新的页面信息
-    window.addEventListener(EVT.events.pageSwitch, () => {
-      this.getPageInfo()
-    })
+    this.bindEvent()
   }
 
   private pageTitle = ''
@@ -46,6 +43,23 @@ class PageInfo {
 
     // 获取当前页面的 tag
     this.pageTag = decodeURIComponent(API.getTagFromURL(location.href))
+  }
+
+  private bindEvent() {
+    // 页面切换时获取新的页面信息
+    window.addEventListener(EVT.events.pageSwitch, () => {
+      this.getPageInfo()
+    })
+
+    // 当需要恢复下载时，保存页面信息
+    window.addEventListener(
+      EVT.events.crawlFinish,
+      async (ev: CustomEventInit) => {
+        if (ev.detail.data.initiator === EVT.InitiatorList.resume) {
+          this.store()
+        }
+      }
+    )
   }
 }
 

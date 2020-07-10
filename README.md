@@ -150,7 +150,7 @@ English （机翻，韩语设置下也使用英语文本）
 
 1 [作品页面](https://www.pixiv.net/artworks/72503012)
 
-2 [列表页](https://www.pixiv.net/users/544479/artworks)
+2 [插画列表页](https://www.pixiv.net/users/544479/artworks)
 
 2 [小说列表页](https://www.pixiv.net/users/35419040/novels)
 

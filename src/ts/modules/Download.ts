@@ -12,6 +12,7 @@ import {
 } from './Download.d'
 import { progressBar } from './ProgressBar'
 import { filter } from './Filter'
+import { MakeNovelFile } from './novel/MakeNovelFile'
 
 class Download {
   constructor(progressBarIndex: number, data: downloadArgument) {
@@ -61,7 +62,7 @@ class Download {
     // 重设当前下载栏的信息
     this.setProgressBar(0, 0)
 
-    // 下载图片
+    // 下载文件
     let xhr = new XMLHttpRequest()
     xhr.open('GET', arg.data.url, true)
     xhr.responseType = 'blob'
@@ -135,6 +136,14 @@ class Download {
       if (xhr.status !== 200) {
         // 状态码错误
         // 正常下载完毕的状态码是 200
+
+        // 处理小说恢复后下载出错的问题，重新生成小说的 url
+        if (arg.data.type === 3 && xhr.status === 0) {
+          arg.data.url = URL.createObjectURL(arg.data.novelBlob)
+          return this.download(arg)
+        }
+
+        // 进入重试环节
         progressBar.showErrorColor(this.progressBarIndex, true)
         this.retry++
         if (this.retry >= this.retryMax) {

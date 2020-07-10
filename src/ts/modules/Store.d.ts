@@ -30,6 +30,7 @@ export interface WorkInfo {
   ugoiraInfo: UgoiraInfo | null
   seriesTitle: string | null
   seriesOrder: string | null
+  novelBlob: Blob | null
 }
 
 export interface WorkInfoOptional {
@@ -55,6 +56,7 @@ export interface WorkInfoOptional {
   ugoiraInfo?: UgoiraInfo | null
   seriesTitle?: string | null
   seriesOrder?: string | null
+  novelBlob?: Blob | null
 }
 
 // 储存作品在排行榜中的排名

@@ -16,13 +16,16 @@ class DownloadStates {
   public states: (-1 | 0 | 1)[] = []
 
   private bindEvent() {
-    window.addEventListener(EVT.events.crawlFinish, async (ev: CustomEventInit) => {
-      if (ev.detail.data.initiator !== EVT.InitiatorList.resume) {
-        // 当正常抓取完毕时，初始化下载状态列表。
-        // 当需要恢复下载时，不初始化下载状态列表。因为此时 Resume 类会直接传入下载列表
-        this.initList()
+    window.addEventListener(
+      EVT.events.crawlFinish,
+      async (ev: CustomEventInit) => {
+        if (ev.detail.data.initiator !== EVT.InitiatorList.resume) {
+          // 当正常抓取完毕时，初始化下载状态列表。
+          // 当需要恢复下载时，不初始化下载状态列表。因为此时 Resume 类会直接传入下载列表
+          this.initList()
+        }
       }
-    })
+    )
   }
 
   // 创建新的状态列表

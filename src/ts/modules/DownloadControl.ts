@@ -94,7 +94,6 @@ class DownloadControl {
         URL.revokeObjectURL(msg.data.url)
 
         this.downloadSuccess(msg.data)
-        
       } else if (msg.msg === 'download_err') {
         // 浏览器把文件保存到本地时出错
         log.error(
@@ -170,23 +169,23 @@ class DownloadControl {
     <div class="centerWrap_btns">
     <button class="startDownload" type="button" style="background:${
       Colors.blue
-      };"> ${lang.transl('_下载按钮1')}</button>
+    };"> ${lang.transl('_下载按钮1')}</button>
     <button class="pauseDownload" type="button" style="background:#e49d00;"> ${lang.transl(
-        '_下载按钮2'
-      )}</button>
+      '_下载按钮2'
+    )}</button>
     <button class="stopDownload" type="button" style="background:${
       Colors.red
-      };"> ${lang.transl('_下载按钮3')}</button>
+    };"> ${lang.transl('_下载按钮3')}</button>
     <button class="copyUrl" type="button" style="background:${
       Colors.green
-      };"> ${lang.transl('_复制url')}</button>
+    };"> ${lang.transl('_复制url')}</button>
     </div>
     <div class="centerWrap_down_tips">
     <p>
     <span>${lang.transl('_当前状态')}</span>
     <span class="down_status blue"><span>${lang.transl(
-        '_未开始下载'
-      )}</span></span>
+      '_未开始下载'
+    )}</span></span>
     <span class="convert_tip warn"></span>
     </p>
     </div>
@@ -290,7 +289,7 @@ class DownloadControl {
     }
 
     // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
-    if (!this.downloadPause && !resume.mode) {
+    if (!this.downloadPause && !resume.flag) {
       // 初始化下载状态列表
       downloadStates.initList()
     } else {
@@ -382,7 +381,7 @@ class DownloadControl {
     const task = this.taskList[data.id]
     // 更改这个任务状态为“已完成”
     downloadStates.setState(task.index, 1)
-    
+
     EVT.fire(EVT.events.downloadSucccess, data)
 
     // 统计已下载数量
@@ -454,4 +453,4 @@ class DownloadControl {
 }
 
 new DownloadControl()
-export { }
+export {}

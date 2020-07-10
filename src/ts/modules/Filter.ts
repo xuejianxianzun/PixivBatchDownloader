@@ -723,12 +723,15 @@ class Filter {
   }
 
   private bindEvent() {
-    window.addEventListener(EVT.events.crawlFinish, async (ev: CustomEventInit) => {
-      if (ev.detail.data.initiator === EVT.InitiatorList.resume) {
-        // 当需要恢复下载时，初始化过滤器。否则过滤器不会实际上进行过滤
-        this.init()
+    window.addEventListener(
+      EVT.events.crawlFinish,
+      async (ev: CustomEventInit) => {
+        if (ev.detail.data.initiator === EVT.InitiatorList.resume) {
+          // 当需要恢复下载时，初始化过滤器。否则过滤器不会实际上进行过滤
+          this.init()
+        }
       }
-    })
+    )
   }
 }
 

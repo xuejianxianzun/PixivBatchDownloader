@@ -3,7 +3,7 @@ import { FilterOption } from '../Filter.d'
 import { NovelData } from '../CrawlResult.d'
 import { store } from '../Store'
 import { form } from '../Settings'
-import { makeEPUB } from './MakeEPUB'
+import { MakeNovelFile } from './MakeNovelFile'
 
 // 保存单个小说作品的数据
 class SaveNovelData {
@@ -75,14 +75,14 @@ class SaveNovelData {
 
       let blob: Blob
       if (ext === 'txt') {
-        blob = this.makeTXT(content)
+        blob = MakeNovelFile.makeTXT(content)
       } else {
         // 创建 epub 文件，如果失败则回滚到 txt
         try {
-          blob = await makeEPUB.make(data, content)
+          blob = await MakeNovelFile.makeEPUB(data, content)
         } catch {
           ext = 'txt'
-          blob = this.makeTXT(content)
+          blob = MakeNovelFile.makeTXT(content)
         }
       }
 
@@ -108,6 +108,7 @@ class SaveNovelData {
         rank: rank,
         seriesTitle: seriesTitle,
         seriesOrder: seriesOrder,
+        novelBlob: blob,
       })
     }
   }
@@ -184,15 +185,6 @@ class SaveNovelData {
     str = this.replacePixivImage(str)
 
     return str
-  }
-
-  private makeTXT(content: string) {
-    // 替换换行标签，移除 html 标签
-    content = content.replace(/<br \/>/g, '\n').replace(/<\/?.+?>/g, '')
-
-    return new Blob([content], {
-      type: 'text/plain',
-    })
   }
 }
 

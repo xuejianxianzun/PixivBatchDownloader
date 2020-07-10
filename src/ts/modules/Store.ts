@@ -89,6 +89,7 @@ class Store {
       ugoiraInfo: null,
       seriesTitle: null,
       seriesOrder: null,
+      novelBlob: null,
     }
 
     return Object.assign(dataDefault, data)
@@ -123,7 +124,6 @@ class Store {
       }
     }
   }
-
 
   private rankList: RankList = {} // 储存作品在排行榜中的排名
 
