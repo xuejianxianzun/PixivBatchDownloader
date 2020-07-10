@@ -18,7 +18,7 @@ class Download {
     this.progressBarIndex = progressBarIndex
 
     this.download(data)
-
+    console.log(data)
     this.listenEvents()
   }
 

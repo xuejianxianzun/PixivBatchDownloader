@@ -26,54 +26,37 @@ class Resume {
   private taskName = 'downloadTask'
   private statesName = 'downloadStates'
   private taskId!: number
-  private statesData!: DLStates
+  private statesData: DLStates | null = null
 
   private async init() {
-    await this.initDB()
-    this.resetData()
+    this.db = await this.initDB()
+    this.initData()
     this.restoreData()
-    // 最后再绑定事件。因为这个类既监听了 crawlFinish，又会发出 crawlFinish，所以需要把监听放到最后面。
     this.bindEvent()
   }
 
-  private resetData() {
-    this.mode = false
+  private async initDB() {
+    return new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open(config.dbName, 1)
 
-    this.statesData = {
-      id: 0,
-      states: []
-    }
-  }
+      request.onupgradeneeded = (ev) => {
+        // 创建表和索引
+        const taskStore = request.result.createObjectStore(this.taskName, { keyPath: 'id' })
+        taskStore.createIndex('id', 'id', { unique: true })
+        taskStore.createIndex('url', 'url', { unique: true })
 
-  private getURL() {
-    return window.location.href.split('#')[0]
-  }
+        const idsStore = request.result.createObjectStore(this.statesName, { keyPath: 'id' })
+        idsStore.createIndex('id', 'id', { unique: true })
 
-  private async getTaskDataByURL(url: string) {
-    return new Promise<DownloadTaskData | null>((resolve) => {
-      const s = this.db.transaction(this.taskName, 'readonly').objectStore(this.taskName)
-      const r = s.index('url').get(this.getURL())
-
-      r.onsuccess = ev => {
-        const data = r.result as DownloadTaskData
-        if (data) {
-          resolve(data)
-        }
-        resolve(null)
+        // resolve(request.result)
       }
-    })
-  }
 
-  private async getDownloadedData(id: number) {
-    return new Promise<DLStates | null>((resolve) => {
-      const r = this.db.transaction(this.statesName, 'readonly').objectStore(this.statesName).get(id)
+      request.onerror = (ev) => {
+        reject('open indexDB failed')
+      }
 
-      r.onsuccess = ev => {
-        const data = r.result as DLStates
-        if (data) {
-          resolve(data)
-        }
-        resolve(null)
+      request.onsuccess = (ev) => {
+        resolve(request.result)
       }
     })
   }
@@ -85,11 +68,14 @@ class Resume {
       return
     }
 
+    // 恢复下载任务的 id
+    this.taskId = taskData.id
+
     // 恢复抓取结果
     store.result = taskData.data
 
     // 恢复下载状态
-    const data = await this.getDownloadedData(taskData.id)
+    const data = await this.getDLStates(taskData.id)
     if (data) {
       downloadStates.replace(data.states)
     }
@@ -102,73 +88,10 @@ class Resume {
     })
   }
 
-  private async initDB() {
-    return new Promise((resolve, reject) => {
-      const request = indexedDB.open(config.dbName, 1)
-
-      request.onupgradeneeded = (ev) => {
-        this.db = request.result
-
-        // 创建表和索引
-        const taskStore = this.db.createObjectStore(this.taskName, { keyPath: 'id' })
-        taskStore.createIndex('id', 'id', { unique: true })
-        taskStore.createIndex('url', 'url', { unique: true })
-
-        const idsStore = this.db.createObjectStore(this.statesName, { keyPath: 'id' })
-        idsStore.createIndex('id', 'id', { unique: true })
-
-        resolve()
-      }
-
-      request.onerror = (ev) => {
-        reject('open indexDB failed')
-      }
-
-      request.onsuccess = (ev) => {
-        this.db = request.result
-        resolve()
-      }
-    })
-  }
-
-  private addData(storeNames: string, data: DownloadTaskData | DLStates) {
-    const r = this.db.transaction(storeNames, 'readwrite').objectStore(storeNames).add(data)
-
-    r.onsuccess = (ev) => {
-      // console.log('add success')
-    }
-    r.onerror = (ev) => {
-      console.log('add failed')
-    }
-  }
-
-  private putData(storeNames: string, data: DownloadTaskData | DLStates) {
-    const r = this.db.transaction(storeNames, 'readwrite').objectStore(storeNames).put(data)
-
-    r.onsuccess = (ev) => {
-      // console.log('put success')
-    }
-    r.onerror = (ev) => {
-      console.log('put failed')
-    }
-  }
-
-
-  private deleteData(storeNames: string, id: number) {
-    const r = this.db.transaction(storeNames, 'readwrite').objectStore(storeNames).delete(id)
-
-    r.onsuccess = (ev) => {
-      // console.log('delete success')
-    }
-    r.onerror = (ev) => {
-      console.log('delete failed')
-    }
-  }
-
   private bindEvent() {
     // 抓取完成时，保存这次任务的数据
-    window.addEventListener(EVT.events.crawlFinish, async (ev:CustomEventInit) => {
-      if(ev.detail.data.initiator==='resume'){
+    window.addEventListener(EVT.events.crawlFinish, async (ev: CustomEventInit) => {
+      if (ev.detail.data.initiator === 'resume') {
         // 如果这个事件是这个类自己发出的，则不进行处理
         return
       }
@@ -188,14 +111,20 @@ class Resume {
       }
       this.addData(this.taskName, data)
 
-      this.statesData.id = this.taskId
+      this.statesData = {
+        id: this.taskId,
+        states: downloadStates.states
+      }
       this.addData(this.statesName, this.statesData)
     })
 
     // 当有文件下载完成时，保存下载状态
     window.addEventListener(EVT.events.downloadSucccess, (event: CustomEventInit) => {
-      this.statesData.id = this.taskId
-      this.statesData.states = downloadStates.states
+      // console.log(...downloadStates.states)
+      this.statesData = {
+        id: this.taskId,
+        states: downloadStates.states
+      }
       this.putData(this.statesName, this.statesData)
     })
 
@@ -204,13 +133,86 @@ class Resume {
       this.deleteData(this.taskName, this.taskId)
       this.deleteData(this.statesName, this.taskId)
 
-      this.resetData()
+      this.initData()
     })
 
     // 开始新的抓取时，清空本类中暂存的下载状态数据（不清空数据库）
     window.addEventListener(EVT.events.crawlStart, () => {
-      this.resetData()
+      this.initData()
     })
+  }
+
+  private initData() {
+    this.mode = false
+
+    this.statesData = null
+  }
+
+  private getURL() {
+    return window.location.href.split('#')[0]
+  }
+
+  private async getTaskDataByURL(url: string) {
+    return new Promise<DownloadTaskData | null>((resolve) => {
+      const s = this.db.transaction(this.taskName, 'readonly').objectStore(this.taskName)
+      const r = s.index('url').get(url)
+
+      r.onsuccess = ev => {
+        const data = r.result as DownloadTaskData
+        if (data) {
+          resolve(data)
+        }
+        resolve(null)
+      }
+    })
+  }
+
+  private async getDLStates(id: number) {
+    return new Promise<DLStates | null>((resolve) => {
+      const r = this.db.transaction(this.statesName, 'readonly').objectStore(this.statesName).get(id)
+
+      r.onsuccess = (ev) => {
+        const data = r.result as DLStates
+        if (data) {
+          resolve(data)
+        }
+        resolve(null)
+      }
+    })
+  }
+
+
+  private addData(storeNames: string, data: DownloadTaskData | DLStates) {
+    const r = this.db.transaction(storeNames, 'readwrite').objectStore(storeNames).add(data)
+
+    r.onsuccess = (ev) => {
+      // console.log('add success')
+    }
+    r.onerror = (ev) => {
+      console.log('add failed')
+    }
+  }
+
+  private putData(storeNames: string, data: DownloadTaskData | DLStates) {
+    const r = this.db.transaction(storeNames, 'readwrite').objectStore(storeNames).put(data)
+    r.onsuccess = (ev) => {
+      // console.log('put success')
+    }
+    r.onerror = (ev) => {
+      console.log('put failed')
+    }
+  }
+
+
+  private deleteData(storeNames: string, id: number) {
+    const r = this.db.transaction(storeNames, 'readwrite').objectStore(storeNames).delete(id)
+
+    r.onsuccess = (ev) => {
+      // console.log('delete success')
+    }
+    r.onerror = (ev) => {
+      console.log('delete failed')
+    }
   }
 
 }

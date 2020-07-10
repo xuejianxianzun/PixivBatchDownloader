@@ -64,7 +64,7 @@ class DownloadControl {
 
     window.addEventListener(EVT.events.crawlFinish, () => {
       this.showDownloadArea()
-      this.beforeDownload()
+      this.readyDownload()
     })
 
     window.addEventListener(EVT.events.skipSaveFile, (ev: CustomEventInit) => {
@@ -255,6 +255,8 @@ class DownloadControl {
 
     // 如果剩余任务数量少于下载线程数
     if (store.result.length - this.downloaded < this.downloadThread) {
+      console.log(store.result.length)
+      console.log(this.downloaded)
       this.downloadThread = store.result.length - this.downloaded
     }
 
@@ -262,23 +264,8 @@ class DownloadControl {
     progressBar.reset(this.downloadThread, this.downloaded)
   }
 
-  // 抓取完毕之后，已经可以开始下载时，根据一些状态进行处理
-  private beforeDownload() {
-    // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
-    if (!this.downloadPause && !resume.mode) {
-      // 初始化下载状态列表
-      downloadStates.init()
-      this.taskBatch = new Date().getTime() // 修改本批下载任务的标记
-    } else {
-      // 从上次中断的位置继续下载
-      // 把“使用中”的下载状态重置为“未使用”
-      downloadStates.resetDownloadingFlag()
-    }
-
-    this.setDownloaded = downloadStates.downloadedCount()
-
-    this.setDownloadThread()
-
+  // 抓取完毕之后，已经可以开始下载时，决定是否开始下载
+  private readyDownload() {
     // 检查 不自动开始下载 的标记
     if (store.states.notAutoDownload) {
       return
@@ -303,8 +290,21 @@ class DownloadControl {
       return
     }
 
+    // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
+    if (!this.downloadPause && !resume.mode) {
+      // 初始化下载状态列表
+      downloadStates.init()
+    } else {
+      // 从上次中断的位置继续下载
+      // 把“使用中”的下载状态重置为“未使用”
+      downloadStates.resume()
+    }
 
-    // 重置一些条件
+    this.setDownloaded = downloadStates.downloadedCount()
+
+    this.taskBatch = new Date().getTime() // 修改本批下载任务的标记
+
+    // 重置一些数据
     this.downloadPause = false
     this.downloadStop = false
     clearTimeout(this.reTryTimer)
@@ -426,7 +426,6 @@ class DownloadControl {
   // 查找需要进行下载的作品，建立下载
   private createDownload(progressBarIndex: number) {
     const index = downloadStates.getFirstDownloadItem()
-
     if (index === undefined) {
       throw new Error('There are no data to download')
     } else {

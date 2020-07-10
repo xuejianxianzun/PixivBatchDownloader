@@ -1,4 +1,5 @@
 import { store } from './Store'
+import { Console } from 'console'
 
 // 下载状态列表，每个下载项有 3 种状态
 // -1 未开始下载
@@ -13,6 +14,7 @@ class DownloadStates {
 
   // 创建新的状态列表
   public init() {
+    console.log(store.result)
     this.states = new Array(store.result.length).fill(-1)
   }
 
@@ -34,8 +36,9 @@ class DownloadStates {
     this.states = states
   }
 
-  // 把“下载中”的状态复位到“未开始下载”
-  public resetDownloadingFlag() {
+  // 恢复之前的下载任务
+  // 这会把之前的“下载中”标记复位到“未开始下载”，以便再次下载
+  public resume() {
     const length = this.states.length
     for (let i = 0; i < length; i++) {
       if (this.states[i] === 0) {
@@ -53,6 +56,7 @@ class DownloadStates {
         return i
       }
     }
+    console.log(this.states)
     return undefined
   }
 

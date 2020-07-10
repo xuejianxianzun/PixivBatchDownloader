@@ -1672,6 +1672,7 @@ class Download {
         this.sizeCheck = undefined; // 检查文件体积
         this.progressBarIndex = progressBarIndex;
         this.download(data);
+        console.log(data);
         this.listenEvents();
     }
     listenEvents() {
@@ -1910,7 +1911,7 @@ class DownloadControl {
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, () => {
             this.showDownloadArea();
-            this.beforeDownload();
+            this.readyDownload();
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.skipSaveFile, (ev) => {
             const data = ev.detail.data;
@@ -2061,26 +2062,15 @@ class DownloadControl {
         }
         // 如果剩余任务数量少于下载线程数
         if (_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded < this.downloadThread) {
+            console.log(_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length);
+            console.log(this.downloaded);
             this.downloadThread = _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
         }
         // 重设下载进度条
         _ProgressBar__WEBPACK_IMPORTED_MODULE_9__["progressBar"].reset(this.downloadThread, this.downloaded);
     }
-    // 抓取完毕之后，已经可以开始下载时，根据一些状态进行处理
-    beforeDownload() {
-        // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
-        if (!this.downloadPause && !_Resume__WEBPACK_IMPORTED_MODULE_11__["resume"].mode) {
-            // 初始化下载状态列表
-            _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].init();
-            this.taskBatch = new Date().getTime(); // 修改本批下载任务的标记
-        }
-        else {
-            // 从上次中断的位置继续下载
-            // 把“使用中”的下载状态重置为“未使用”
-            _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].resetDownloadingFlag();
-        }
-        this.setDownloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].downloadedCount();
-        this.setDownloadThread();
+    // 抓取完毕之后，已经可以开始下载时，决定是否开始下载
+    readyDownload() {
         // 检查 不自动开始下载 的标记
         if (_Store__WEBPACK_IMPORTED_MODULE_2__["store"].states.notAutoDownload) {
             return;
@@ -2100,7 +2090,19 @@ class DownloadControl {
         if (!_Store__WEBPACK_IMPORTED_MODULE_2__["store"].states.allowWork || _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
             return;
         }
-        // 重置一些条件
+        // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
+        if (!this.downloadPause && !_Resume__WEBPACK_IMPORTED_MODULE_11__["resume"].mode) {
+            // 初始化下载状态列表
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].init();
+        }
+        else {
+            // 从上次中断的位置继续下载
+            // 把“使用中”的下载状态重置为“未使用”
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].resume();
+        }
+        this.setDownloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].downloadedCount();
+        this.taskBatch = new Date().getTime(); // 修改本批下载任务的标记
+        // 重置一些数据
         this.downloadPause = false;
         this.downloadStop = false;
         clearTimeout(this.reTryTimer);
@@ -2250,6 +2252,7 @@ class DownloadStates {
     }
     // 创建新的状态列表
     init() {
+        console.log(_Store__WEBPACK_IMPORTED_MODULE_0__["store"].result);
         this.states = new Array(_Store__WEBPACK_IMPORTED_MODULE_0__["store"].result.length).fill(-1);
     }
     // 统计下载完成的数量
@@ -2268,8 +2271,9 @@ class DownloadStates {
     replace(states) {
         this.states = states;
     }
-    // 把“下载中”的状态复位到“未开始下载”
-    resetDownloadingFlag() {
+    // 恢复之前的下载任务
+    // 这会把之前的“下载中”标记复位到“未开始下载”，以便再次下载
+    resume() {
         const length = this.states.length;
         for (let i = 0; i < length; i++) {
             if (this.states[i] === 0) {
@@ -2286,6 +2290,7 @@ class DownloadStates {
                 return i;
             }
         }
+        console.log(this.states);
         return undefined;
     }
     // 设置已下载列表中的标记
@@ -5791,47 +5796,32 @@ class Resume {
         this.mode = false;
         this.taskName = 'downloadTask';
         this.statesName = 'downloadStates';
+        this.statesData = null;
         this.init();
     }
     async init() {
-        await this.initDB();
-        this.resetData();
+        this.db = await this.initDB();
+        this.initData();
         this.restoreData();
-        // 最后再绑定事件。因为这个类既监听了 crawlFinish，又会发出 crawlFinish，所以需要把监听放到最后面。
         this.bindEvent();
     }
-    resetData() {
-        this.mode = false;
-        this.statesData = {
-            id: 0,
-            states: []
-        };
-    }
-    getURL() {
-        return window.location.href.split('#')[0];
-    }
-    async getTaskDataByURL(url) {
-        return new Promise((resolve) => {
-            const s = this.db.transaction(this.taskName, 'readonly').objectStore(this.taskName);
-            const r = s.index('url').get(this.getURL());
-            r.onsuccess = ev => {
-                const data = r.result;
-                if (data) {
-                    resolve(data);
-                }
-                resolve(null);
+    async initDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(_Config__WEBPACK_IMPORTED_MODULE_0__["default"].dbName, 1);
+            request.onupgradeneeded = (ev) => {
+                // 创建表和索引
+                const taskStore = request.result.createObjectStore(this.taskName, { keyPath: 'id' });
+                taskStore.createIndex('id', 'id', { unique: true });
+                taskStore.createIndex('url', 'url', { unique: true });
+                const idsStore = request.result.createObjectStore(this.statesName, { keyPath: 'id' });
+                idsStore.createIndex('id', 'id', { unique: true });
+                // resolve(request.result)
             };
-        });
-    }
-    async getDownloadedData(id) {
-        return new Promise((resolve) => {
-            const r = this.db.transaction(this.statesName, 'readonly').objectStore(this.statesName).get(id);
-            r.onsuccess = ev => {
-                const data = r.result;
-                if (data) {
-                    resolve(data);
-                }
-                resolve(null);
+            request.onerror = (ev) => {
+                reject('open indexDB failed');
+            };
+            request.onsuccess = (ev) => {
+                resolve(request.result);
             };
         });
     }
@@ -5841,10 +5831,12 @@ class Resume {
             this.mode = false;
             return;
         }
+        // 恢复下载任务的 id
+        this.taskId = taskData.id;
         // 恢复抓取结果
         _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result = taskData.data;
         // 恢复下载状态
-        const data = await this.getDownloadedData(taskData.id);
+        const data = await this.getDLStates(taskData.id);
         if (data) {
             _DownloadStates__WEBPACK_IMPORTED_MODULE_3__["downloadStates"].replace(data.states);
         }
@@ -5854,25 +5846,82 @@ class Resume {
             initiator: 'resume'
         });
     }
-    async initDB() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(_Config__WEBPACK_IMPORTED_MODULE_0__["default"].dbName, 1);
-            request.onupgradeneeded = (ev) => {
-                this.db = request.result;
-                // 创建表和索引
-                const taskStore = this.db.createObjectStore(this.taskName, { keyPath: 'id' });
-                taskStore.createIndex('id', 'id', { unique: true });
-                taskStore.createIndex('url', 'url', { unique: true });
-                const idsStore = this.db.createObjectStore(this.statesName, { keyPath: 'id' });
-                idsStore.createIndex('id', 'id', { unique: true });
-                resolve();
+    bindEvent() {
+        // 抓取完成时，保存这次任务的数据
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, async (ev) => {
+            if (ev.detail.data.initiator === 'resume') {
+                // 如果这个事件是这个类自己发出的，则不进行处理
+                return;
+            }
+            // 首先检查这个网址下是否已经存在有数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
+            const taskData = await this.getTaskDataByURL(this.getURL());
+            if (taskData) {
+                this.deleteData(this.taskName, taskData.id);
+                this.deleteData(this.statesName, taskData.id);
+            }
+            // 保存本次任务的数据
+            this.taskId = new Date().getTime();
+            const data = {
+                id: this.taskId,
+                url: this.getURL(),
+                data: _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result
             };
-            request.onerror = (ev) => {
-                reject('open indexDB failed');
+            this.addData(this.taskName, data);
+            this.statesData = {
+                id: this.taskId,
+                states: _DownloadStates__WEBPACK_IMPORTED_MODULE_3__["downloadStates"].states
             };
-            request.onsuccess = (ev) => {
-                this.db = request.result;
-                resolve();
+            this.addData(this.statesName, this.statesData);
+        });
+        // 当有文件下载完成时，保存下载状态
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadSucccess, (event) => {
+            // console.log(...downloadStates.states)
+            this.statesData = {
+                id: this.taskId,
+                states: _DownloadStates__WEBPACK_IMPORTED_MODULE_3__["downloadStates"].states
+            };
+            this.putData(this.statesName, this.statesData);
+        });
+        // 任务下载完毕时，清除这次任务的数据
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadComplete, () => {
+            this.deleteData(this.taskName, this.taskId);
+            this.deleteData(this.statesName, this.taskId);
+            this.initData();
+        });
+        // 开始新的抓取时，清空本类中暂存的下载状态数据（不清空数据库）
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlStart, () => {
+            this.initData();
+        });
+    }
+    initData() {
+        this.mode = false;
+        this.statesData = null;
+    }
+    getURL() {
+        return window.location.href.split('#')[0];
+    }
+    async getTaskDataByURL(url) {
+        return new Promise((resolve) => {
+            const s = this.db.transaction(this.taskName, 'readonly').objectStore(this.taskName);
+            const r = s.index('url').get(url);
+            r.onsuccess = ev => {
+                const data = r.result;
+                if (data) {
+                    resolve(data);
+                }
+                resolve(null);
+            };
+        });
+    }
+    async getDLStates(id) {
+        return new Promise((resolve) => {
+            const r = this.db.transaction(this.statesName, 'readonly').objectStore(this.statesName).get(id);
+            r.onsuccess = (ev) => {
+                const data = r.result;
+                if (data) {
+                    resolve(data);
+                }
+                resolve(null);
             };
         });
     }
@@ -5902,47 +5951,6 @@ class Resume {
         r.onerror = (ev) => {
             console.log('delete failed');
         };
-    }
-    bindEvent() {
-        // 抓取完成时，保存这次任务的数据
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, async (ev) => {
-            if (ev.detail.data.initiator === 'resume') {
-                // 如果这个事件是这个类自己发出的，则不进行处理
-                return;
-            }
-            // 首先检查这个网址下是否已经存在有数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
-            const taskData = await this.getTaskDataByURL(this.getURL());
-            if (taskData) {
-                this.deleteData(this.taskName, taskData.id);
-                this.deleteData(this.statesName, taskData.id);
-            }
-            // 保存本次任务的数据
-            this.taskId = new Date().getTime();
-            const data = {
-                id: this.taskId,
-                url: this.getURL(),
-                data: _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result
-            };
-            this.addData(this.taskName, data);
-            this.statesData.id = this.taskId;
-            this.addData(this.statesName, this.statesData);
-        });
-        // 当有文件下载完成时，保存下载状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadSucccess, (event) => {
-            this.statesData.id = this.taskId;
-            this.statesData.states = _DownloadStates__WEBPACK_IMPORTED_MODULE_3__["downloadStates"].states;
-            this.putData(this.statesName, this.statesData);
-        });
-        // 任务下载完毕时，清除这次任务的数据
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadComplete, () => {
-            this.deleteData(this.taskName, this.taskId);
-            this.deleteData(this.statesName, this.taskId);
-            this.resetData();
-        });
-        // 开始新的抓取时，清空本类中暂存的下载状态数据（不清空数据库）
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlStart, () => {
-            this.resetData();
-        });
     }
 }
 const resume = new Resume();
