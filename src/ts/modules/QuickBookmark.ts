@@ -9,7 +9,9 @@ class QuickBookmark {
     this.init()
   }
 
-  private btn: HTMLAnchorElement = document.createElement('a') // 快速收藏的元素
+  private toolbar!: HTMLDivElement // 包含点赞 收藏 等按钮的工具栏元素
+  private pixivBMKDiv!: HTMLDivElement  // p 站原本的收藏按钮
+  private btn: HTMLAnchorElement = document.createElement('a') // 快速收藏按钮
   private readonly btnId = 'quickBookmarkEl'
   private readonly colorClass = 'bookmarkedColor'
   private readonly likeBtnClass = '_35vRH4a'
@@ -45,33 +47,34 @@ class QuickBookmark {
     return data.body.bookmarkData
   }
 
+  // 插入快速收藏按钮
   private initBtn() {
     // 从父元素查找作品下方的工具栏
     const toolbarParent = document.querySelectorAll('main > section')
 
-    let toolbar // 工具栏
     for (const el of toolbarParent) {
       const test = el.querySelector('div>section')
       if (test) {
-        toolbar = test
+        this.toolbar = test as HTMLDivElement
         break
       }
     }
 
-    if (toolbar) {
-      const orgIcon = toolbar.childNodes[2] as HTMLDivElement
+    if (this.toolbar) {
+      // 获取原本的收藏按钮（其实是按钮外层的 div）
+      this.pixivBMKDiv = this.toolbar.childNodes[2] as HTMLDivElement
       // 当没有收藏按钮时，停止执行（如用户处于自己作品的页面时没有收藏按钮）
-      if (!orgIcon) {
+      if (!this.pixivBMKDiv) {
         return
       }
       // 隐藏原来的收藏按钮
-      orgIcon.style.display = 'none'
+      this.pixivBMKDiv.style.display = 'none'
 
       // 如果没有快速收藏元素则添加
-      this.btn = toolbar.querySelector('#' + this.btnId) as HTMLAnchorElement
+      this.btn = this.toolbar.querySelector('#' + this.btnId) as HTMLAnchorElement
       if (!this.btn) {
         this.btn = this.createBtn()
-        toolbar.insertBefore(this.btn, toolbar.childNodes[3])
+        this.toolbar.insertBefore(this.btn, this.toolbar.childNodes[3])
       }
 
       if (this.isBookmarked) {
@@ -100,17 +103,22 @@ class QuickBookmark {
 
     this.btn.addEventListener('click', () => {
       // 自动点赞
-      ;(document.querySelector(
-        `.${this.likeBtnClass}`
-      )! as HTMLButtonElement).click()
+      let likeBtn = document.querySelector(`.${this.likeBtnClass}`) as HTMLButtonElement
+      if (!likeBtn) {
+        // 上面尝试直接用 class 获取点赞按钮，考虑到 class 可能会变化，这里从工具栏的按钮里选择。
+        // 点赞按钮是工具栏里的最后一个 button 元素
+        console.error('likeBtn class is not available')
+        const btnList = this.toolbar.querySelectorAll('button')
+        likeBtn = btnList[btnList.length - 1]
+      }
+      likeBtn.click()
 
-      // 快速收藏
       if (this.isBookmarked) {
         return
       }
 
-      let tags: string[] = []
       // 如果设置了快速收藏，则获取 tag
+      let tags: string[] = []
       if (form.quickBookmarks.checked) {
         const tagElements = document.querySelectorAll('._1LEXQ_3 li')
         for (const el of tagElements) {
@@ -135,6 +143,10 @@ class QuickBookmark {
 
       const type: 'illusts' | 'novels' = this.isNovel ? 'novels' : 'illusts'
       const id = this.isNovel ? API.getNovelId() : API.getIllustId()
+
+      // 点击 p 站自带的收藏按钮，这是因为这一行为将会在作品下方显示推荐作品。如果不点击自带的按钮，只使用本程序添加的按钮，那么就不会出现推荐作品了。
+      const pixivBMKBtn = this.pixivBMKDiv && this.pixivBMKDiv.querySelector('button')
+      pixivBMKBtn && pixivBMKBtn.click()
 
       // 调用添加收藏的 api
       API.addBookmark(type, id, tags, false, API.getToken())

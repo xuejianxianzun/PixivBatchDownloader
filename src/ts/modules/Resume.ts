@@ -52,8 +52,6 @@ class Resume {
           keyPath: 'id',
         })
         idsStore.createIndex('id', 'id', { unique: true })
-
-        // resolve(request.result)
       }
 
       request.onerror = (ev) => {
@@ -117,6 +115,18 @@ class Resume {
           url: this.getURL(),
           data: store.result,
         }
+        // 统计一下结果
+        const type = [0, 0, 0, 0]
+        let blobLength = 0
+        for (const result of store.result) {
+          type[result.type] = type[result.type] + 1
+          if(result.novelBlob){
+            blobLength += result.novelBlob.size
+          }
+        }
+        console.log(type)
+        console.log(blobLength)
+        
         this.addData(this.taskName, data)
 
         const statesData = {
@@ -206,6 +216,7 @@ class Resume {
     }
     r.onerror = (ev) => {
       console.error('add failed')
+      console.log(ev)
     }
   }
 

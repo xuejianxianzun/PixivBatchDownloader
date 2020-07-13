@@ -127,9 +127,7 @@ class InitFollowingPage extends InitPageBase {
 
   private getUserListComplete() {
     log.log(
-      lang.transl('_当前有x个用户', this.userList.length.toString()),
-      1,
-      false
+      lang.transl('_当前有x个用户', this.userList.length.toString())
     )
     if (this.userList.length === 0) {
       return this.getIdListFinished()
