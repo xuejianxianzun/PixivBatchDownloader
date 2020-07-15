@@ -12,7 +12,7 @@ import { filter } from '../Filter'
 import { API } from '../API'
 import { store } from '../Store'
 import { log } from '../Log'
-import { WorkInfo } from '../Store.d'
+import { Result } from '../Store.d'
 import { centerPanel } from '../CenterPanel'
 import { titleBar } from '../TitleBar'
 import { setting, form } from '../Settings'
@@ -25,7 +25,7 @@ type AddBMKData = {
   tags: string[]
 }
 
-type FilterCB = (value: WorkInfo) => unknown
+type FilterCB = (value: Result) => unknown
 
 class InitSearchArtworkPage extends InitPageBase {
   constructor() {
@@ -174,7 +174,7 @@ class InitSearchArtworkPage extends InitPageBase {
     'bgt',
   ]
 
-  private resultMeta: WorkInfo[] = [] // 每次“开始筛选”完成后，储存当时所有结果，以备“在结果中筛选”使用
+  private resultMeta: Result[] = [] // 每次“开始筛选”完成后，储存当时所有结果，以备“在结果中筛选”使用
 
   private worksWrap: HTMLUListElement | null = null
 
@@ -261,7 +261,7 @@ class InitSearchArtworkPage extends InitPageBase {
       return
     }
 
-    const data = event.detail.data as WorkInfo
+    const data = event.detail.data as Result
 
     let r18Text = ''
     if (data.tags.includes('R-18')) {
@@ -433,7 +433,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     const nowLength = this.resultMeta.length // 储存过滤前的结果数量
 
-    const resultMetaTemp: WorkInfo[] = []
+    const resultMetaTemp: Result[] = []
     for await (const meta of this.resultMeta) {
       if (await callback(meta)) {
         resultMetaTemp.push(meta)

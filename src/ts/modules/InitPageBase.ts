@@ -29,7 +29,7 @@ abstract class InitPageBase {
   }
 
   // 各个子类私有的初始化内容
-  protected initElse() {}
+  protected initElse() { }
 
   // 销毁初始化页面时添加的元素和事件，恢复设置项等
   protected destroy(): void {
@@ -47,7 +47,7 @@ abstract class InitPageBase {
   }
 
   // 添加其他元素（如果有）
-  protected appendElseEl(): void {}
+  protected appendElseEl(): void { }
 
   // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。
   protected setFormOption(): void {
@@ -133,7 +133,7 @@ abstract class InitPageBase {
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
-  protected getWantPage() {}
+  protected getWantPage() { }
 
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
   protected getMultipleSetting() {
@@ -268,6 +268,19 @@ abstract class InitPageBase {
 
     log.log(lang.transl('_抓取完毕'), 2)
 
+    // 统计不同类型的文件数量
+    // 统计 blob 文件的体积
+    // const type = [0, 0, 0, 0]
+    // let blobSize = 0
+    // for (const result of store.result) {
+    //   type[result.type] = type[result.type] + 1
+    //   if(result.novelBlob){
+    //     blobSize += result.novelBlob.size
+    //   }
+    // }
+    // console.log(type)
+    // console.log(blobSize)
+
     // 发出抓取完毕的信号
     // 这里是正规流程的抓取完毕信号，其他地方也可能会发出这个信号。如有需要加以区别，可以在事件数据中标明数据的发起者 EVT.InitiatorList[string]
     EVT.fire(EVT.events.crawlFinish)
@@ -320,7 +333,7 @@ abstract class InitPageBase {
   }
 
   // 抓取完成后，对结果进行排序
-  protected sortResult() {}
+  protected sortResult() { }
 }
 
 export { InitPageBase }

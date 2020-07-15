@@ -1,5 +1,5 @@
 // 生成文件名
-import { WorkInfo } from './Store.d'
+import { Result } from './Store.d'
 import { EVT } from './EVT'
 import { form } from './Settings'
 import { store } from './Store'
@@ -15,7 +15,7 @@ class FileName {
   }
 
   // 生成文件名
-  public getFileName(data: WorkInfo) {
+  public getFileName(data: Result) {
     // 为空时使用 {id}
     let result = form.userSetName.value || '{id}'
 

@@ -7,7 +7,7 @@ export interface IDData {
 }
 
 // 保存每个要下载的作品的信息
-export interface WorkInfo {
+export interface Result {
   idNum: number
   id: string
   url: string
