@@ -70,6 +70,10 @@ class Resume {
     this.restoreData()
     this.bindEvent()
     this.clearExired()
+
+    // const testArr = new Array(10000000).fill(this.testData)
+    // store.result = testArr
+    // EVT.fire(EVT.events.crawlFinish)
   }
 
   // 初始化数据库，获取数据库对象
@@ -130,14 +134,13 @@ class Resume {
 
     // 生成每批数据的 id 列表
     const dataIdList: number[] = []
-    let part = meta.part
-
-    while (part >= 0) {
-      dataIdList.push(this.numAppendNum(this.taskId, part))
-      part--
+    
+    // meta.part 记录数据分成了几部分，所以是从 1 开始的，而不是从 0 开始
+    let start = 0
+    while (start < meta.part) {
+      dataIdList.push(this.numAppendNum(this.taskId, start))
+      start++
     }
-
-    dataIdList.reverse()  // 因为上面的循环是从大到小，这里翻转成从小到大
 
     // 读取全部数据并恢复
     const promiseList = []
@@ -146,10 +149,11 @@ class Resume {
     }
 
     Promise.all(promiseList).then(res => {
-      console.log(res)
+      store.result = []
       const r = res as TaskData[]
       for (const data of r) {
-        store.result.push(...data.data)
+        console.log(data.data)
+        store.result.push(...(data.data))
       }
     })
 
@@ -249,6 +253,7 @@ class Resume {
         this.taskId = new Date().getTime()
 
         // 保存本次任务的数据
+        this.part = []
         await this.saveTaskData()
 
         // 保存 meta 数据
@@ -292,8 +297,12 @@ class Resume {
     // 开始新的抓取时，取消恢复模式
     window.addEventListener(EVT.events.crawlStart, () => {
       this.flag = false
+    })
 
-      this.part = []
+    // 切换页面时，重新检查恢复数据
+    window.addEventListener(EVT.events.pageSwitch,()=>{
+      this.flag = false
+      this.restoreData()
     })
   }
 
@@ -413,6 +422,7 @@ class Resume {
         const data = r.result.value as TaskMeta
         // 删除过期的数据
         if (nowTime - data.id > expiryTime) {
+          console.log('expri')
           this.deleteData(this.metaName, data.id)
           this.deleteData(this.statesName, data.id)
         }

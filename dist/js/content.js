@@ -4632,6 +4632,18 @@ class InitPageBase {
         this.sortResult();
         _Log__WEBPACK_IMPORTED_MODULE_9__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取的文件数量', _Store__WEBPACK_IMPORTED_MODULE_8__["store"].result.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_9__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取完毕'), 2);
+        // 统计不同类型的文件数量
+        // 统计 blob 文件的体积
+        // const type = [0, 0, 0, 0]
+        // let blobSize = 0
+        // for (const result of store.result) {
+        //   type[result.type] = type[result.type] + 1
+        //   if(result.novelBlob){
+        //     blobSize += result.novelBlob.size
+        //   }
+        // }
+        // console.log(type)
+        // console.log(blobSize)
         // 发出抓取完毕的信号
         // 这里是正规流程的抓取完毕信号，其他地方也可能会发出这个信号。如有需要加以区别，可以在事件数据中标明数据的发起者 EVT.InitiatorList[string]
         _EVT__WEBPACK_IMPORTED_MODULE_10__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_10__["EVT"].events.crawlFinish);
@@ -5793,6 +5805,7 @@ class QuickBookmark {
             }
             const type = this.isNovel ? 'novels' : 'illusts';
             const id = this.isNovel ? _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelId() : _API__WEBPACK_IMPORTED_MODULE_0__["API"].getIllustId();
+            // 这里加了个延迟，因为上面先点击了 pixiv 自带的收藏按钮，但不加延迟的话， p 站自己的不带 tag 的请求反而是后发送的。所以这里通过延迟让 p 站不带 tag 的请求先发送，下载器的带 tag 的请求后发送。
             setTimeout(() => {
                 // 调用添加收藏的 api
                 _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(type, id, tags, false, _API__WEBPACK_IMPORTED_MODULE_0__["API"].getToken())
@@ -5803,7 +5816,7 @@ class QuickBookmark {
                         this.bookmarked();
                     }
                 });
-            }, 500);
+            }, 400);
         });
     }
     // 如果这个作品已收藏，则改变样式
@@ -5835,7 +5848,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/modules/Config.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
-/* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/modules/DownloadStates.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
+/* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/modules/DownloadStates.ts");
+
 
 
 
@@ -5844,8 +5859,36 @@ __webpack_require__.r(__webpack_exports__);
 class Resume {
     constructor() {
         this.flag = false; // 指示是否处于恢复模式
-        this.taskName = 'downloadTask'; // 下载任务数据的表名
-        this.statesName = 'downloadStates'; // 下载状态列表的表名
+        this.metaName = 'taskMeta'; // 下载任务元数据的表名
+        this.dataName = 'taskData'; // 下载任务数据的表名
+        this.statesName = 'taskStates'; // 下载状态列表的表名
+        this.part = []; // 储存每个分段里的数据的数量
+        this.try = 0; // 任务结果是分批储存的，记录每批失败了几次。根据失败次数减少每批的数量
+        this.testData = {
+            bmk: 1644,
+            bookmarked: false,
+            date: "2020-07-11",
+            dlCount: 1,
+            ext: "jpg",
+            fullHeight: 1152,
+            fullWidth: 2048,
+            id: "82900613_p0",
+            idNum: 82900613,
+            novelBlob: null,
+            pageCount: 1,
+            rank: "",
+            seriesOrder: "",
+            seriesTitle: "",
+            tags: ["女の子", "バーチャルYouTuber", "にじさんじ", "本間ひまわり", "にじさんじ", "本間ひまわり"],
+            tagsTranslated: ["女の子", "女孩子", "バーチャルYouTuber", "虚拟YouTuber", "にじさんじ", "彩虹社", "本間ひまわり", "本间向日葵", "にじさんじ", "彩虹社", "本間ひまわり", "本间向日葵"],
+            thumb: "https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2020/07/11/17/05/41/82900613_p0_custom1200.jpg",
+            title: "本間ひまわり",
+            type: 0,
+            ugoiraInfo: null,
+            url: "https://i.pximg.net/img-original/img/2020/07/11/17/05/41/82900613_p0.jpg",
+            user: "らっち。",
+            userId: "10852879",
+        };
         this.init();
     }
     async init() {
@@ -5853,51 +5896,142 @@ class Resume {
         this.restoreData();
         this.bindEvent();
         this.clearExired();
+        // const testArr = new Array(10000000).fill(this.testData)
+        // store.result = testArr
+        // EVT.fire(EVT.events.crawlFinish)
     }
     // 初始化数据库，获取数据库对象
     async initDB() {
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open(_Config__WEBPACK_IMPORTED_MODULE_0__["default"].dbName, 1);
+            const request = indexedDB.open(_Config__WEBPACK_IMPORTED_MODULE_0__["default"].dbName, 2);
             request.onupgradeneeded = (ev) => {
                 // 创建表和索引
-                const taskStore = request.result.createObjectStore(this.taskName, {
+                const metaStore = request.result.createObjectStore(this.metaName, {
                     keyPath: 'id',
                 });
-                taskStore.createIndex('id', 'id', { unique: true });
-                taskStore.createIndex('url', 'url', { unique: true });
-                const idsStore = request.result.createObjectStore(this.statesName, {
+                metaStore.createIndex('id', 'id', { unique: true });
+                metaStore.createIndex('url', 'url', { unique: true });
+                const dataStore = request.result.createObjectStore(this.dataName, {
                     keyPath: 'id',
                 });
-                idsStore.createIndex('id', 'id', { unique: true });
+                dataStore.createIndex('id', 'id', { unique: true });
+                const statesStore = request.result.createObjectStore(this.statesName, {
+                    keyPath: 'id',
+                });
+                statesStore.createIndex('id', 'id', { unique: true });
             };
             request.onerror = (ev) => {
-                reject('open indexDB failed');
+                console.error('open indexDB failed');
+                reject(ev);
             };
             request.onsuccess = (ev) => {
                 resolve(request.result);
             };
         });
     }
+    // 在数字后面追加数字
+    // 用于在 task id  后面追加序号数字(part)
+    numAppendNum(id, num) {
+        return parseInt(id.toString() + num);
+    }
     // 恢复未完成任务的数据
     async restoreData() {
-        const taskData = await this.getTaskDataByURL(this.getURL());
-        if (!taskData) {
+        // 首先获取任务的元数据
+        const meta = await this.getMetaDataByURL(this.getURL());
+        if (!meta) {
             this.flag = false;
             return;
         }
         // 恢复下载任务的 id
-        this.taskId = taskData.id;
-        // 恢复抓取结果
-        _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result = taskData.data;
-        // 恢复下载状态
-        const data = await this.getDLStates(taskData.id);
-        if (data) {
-            _DownloadStates__WEBPACK_IMPORTED_MODULE_3__["downloadStates"].replace(data.states);
+        this.taskId = meta.id;
+        // 恢复所有数据
+        // 生成每批数据的 id 列表
+        const dataIdList = [];
+        // meta.part 记录数据分成了几部分，所以是从 1 开始的，而不是从 0 开始
+        let start = 0;
+        while (start < meta.part) {
+            dataIdList.push(this.numAppendNum(this.taskId, start));
+            start++;
         }
+        // 读取全部数据并恢复
+        const promiseList = [];
+        for (const id of dataIdList) {
+            promiseList.push(this.getData(this.dataName, id));
+        }
+        Promise.all(promiseList).then(res => {
+            _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result = [];
+            const r = res;
+            for (const data of r) {
+                console.log(data.data);
+                _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.push(...(data.data));
+            }
+        });
+        // 恢复下载状态
+        const data = await this.getData(this.statesName, this.taskId);
+        if (data) {
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_4__["downloadStates"].replace(data.states);
+        }
+        // 恢复模式就绪
         this.flag = true;
         // 发出抓取完毕的信号
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, {
             initiator: _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].InitiatorList.resume,
+        });
+    }
+    // 计算 part 数组里的数字之和
+    getPartTotal() {
+        if (this.part.length === 0) {
+            return 0;
+        }
+        return this.part.reduce((prev, curr) => {
+            return prev + curr;
+        });
+    }
+    // 存储抓取结果
+    async saveTaskData() {
+        return new Promise(async (resolve, reject) => {
+            // 每一批任务的第一次执行都会尝试保存所有剩余数据
+            // 如果出错了，则每次执行会尝试保存上一次的一半数据，直到这批任务成功
+            // 之后继续进行下一批任务（如果有）
+            const tryNum = Math.floor(_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length * (Math.pow(0.5, this.try)));
+            let data = {
+                id: this.numAppendNum(this.taskId, this.part.length),
+                data: _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.slice(this.getPartTotal(), tryNum)
+            };
+            try {
+                // 当成功存储了一批数据时
+                await this.addData(this.dataName, data);
+                this.part.push(tryNum); // 记录这一次保存的结果数量
+                this.try = 0; // 重置已尝试次数
+                console.log(this.getPartTotal());
+                // 任务数据全部添加完毕
+                if (this.getPartTotal() === _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
+                    resolve();
+                }
+                else {
+                    // 任务数据没有添加完毕，继续添加
+                    resolve(this.saveTaskData());
+                }
+            }
+            catch (error) {
+                // 当存储失败时
+                console.log(error);
+                if (error.target && error.target.error && error.target.error.message) {
+                    const msg = error.target.error.message;
+                    if (msg.includes('too large')) {
+                        // 体积超大
+                        // 尝试次数 + 1 ，进行下一次尝试
+                        this.try++;
+                        resolve(this.saveTaskData());
+                    }
+                    else {
+                        // 未知错误，不再进行尝试
+                        this.try = 0;
+                        _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(msg);
+                        reject(error);
+                    }
+                }
+            }
         });
     }
     bindEvent() {
@@ -5908,33 +6042,26 @@ class Resume {
                 return;
             }
             // 首先检查这个网址下是否已经存在有数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
-            const taskData = await this.getTaskDataByURL(this.getURL());
+            const taskData = await this.getMetaDataByURL(this.getURL());
             if (taskData) {
-                this.deleteData(this.taskName, taskData.id);
-                this.deleteData(this.statesName, taskData.id);
+                await this.deleteData(this.metaName, taskData.id);
+                await this.deleteData(this.statesName, taskData.id);
             }
-            // 保存本次任务的数据
             this.taskId = new Date().getTime();
-            const data = {
+            // 保存本次任务的数据
+            this.part = [];
+            await this.saveTaskData();
+            // 保存 meta 数据
+            const metaData = {
                 id: this.taskId,
                 url: this.getURL(),
-                data: _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result,
+                part: this.part.length,
             };
-            // 统计一下结果
-            const type = [0, 0, 0, 0];
-            let blobLength = 0;
-            for (const result of _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result) {
-                type[result.type] = type[result.type] + 1;
-                if (result.novelBlob) {
-                    blobLength += result.novelBlob.size;
-                }
-            }
-            console.log(type);
-            console.log(blobLength);
-            this.addData(this.taskName, data);
+            this.addData(this.metaName, metaData);
+            // 保存 states 数据
             const statesData = {
                 id: this.taskId,
-                states: _DownloadStates__WEBPACK_IMPORTED_MODULE_3__["downloadStates"].states,
+                states: _DownloadStates__WEBPACK_IMPORTED_MODULE_4__["downloadStates"].states,
             };
             this.addData(this.statesName, statesData);
         });
@@ -5942,13 +6069,13 @@ class Resume {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadSucccess, (event) => {
             const statesData = {
                 id: this.taskId,
-                states: _DownloadStates__WEBPACK_IMPORTED_MODULE_3__["downloadStates"].states,
+                states: _DownloadStates__WEBPACK_IMPORTED_MODULE_4__["downloadStates"].states,
             };
             this.putData(this.statesName, statesData);
         });
         // 任务下载完毕时，清除这次任务的数据
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadComplete, () => {
-            this.deleteData(this.taskName, this.taskId);
+            this.deleteData(this.metaName, this.taskId);
             this.deleteData(this.statesName, this.taskId);
             this.flag = false;
         });
@@ -5956,17 +6083,22 @@ class Resume {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlStart, () => {
             this.flag = false;
         });
+        // 切换页面时，重新检查恢复数据
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.pageSwitch, () => {
+            this.flag = false;
+            this.restoreData();
+        });
     }
     // 处理本页面的 url
     getURL() {
         return window.location.href.split('#')[0];
     }
     // 根据 url，查找任务数据
-    async getTaskDataByURL(url) {
+    async getMetaDataByURL(url) {
         return new Promise((resolve) => {
             const s = this.db
-                .transaction(this.taskName, 'readonly')
-                .objectStore(this.taskName);
+                .transaction(this.metaName, 'readonly')
+                .objectStore(this.metaName);
             const r = s.index('url').get(url);
             r.onsuccess = (ev) => {
                 const data = r.result;
@@ -5977,13 +6109,13 @@ class Resume {
             };
         });
     }
-    // 根据 id 查找下载状态数据
-    async getDLStates(id) {
-        return new Promise((resolve) => {
+    // 查找数据
+    async getData(storeNames, index) {
+        return new Promise((resolve, reject) => {
             const r = this.db
-                .transaction(this.statesName, 'readonly')
-                .objectStore(this.statesName)
-                .get(id);
+                .transaction(storeNames, 'readonly')
+                .objectStore(storeNames)
+                .get(index);
             r.onsuccess = (ev) => {
                 const data = r.result;
                 if (data) {
@@ -5991,47 +6123,59 @@ class Resume {
                 }
                 resolve(null);
             };
+            r.onerror = (ev) => {
+                console.error('add failed');
+                reject(ev);
+            };
         });
     }
     // 写入新的记录
-    addData(storeNames, data) {
-        const r = this.db
-            .transaction(storeNames, 'readwrite')
-            .objectStore(storeNames)
-            .add(data);
-        r.onsuccess = (ev) => {
-            // console.log('add success')
-        };
-        r.onerror = (ev) => {
-            console.error('add failed');
-            console.log(ev);
-        };
+    async addData(storeNames, data) {
+        return new Promise((resolve, reject) => {
+            const r = this.db
+                .transaction(storeNames, 'readwrite')
+                .objectStore(storeNames)
+                .add(data);
+            r.onsuccess = (ev) => {
+                resolve(ev);
+            };
+            r.onerror = (ev) => {
+                console.error('add failed');
+                reject(ev);
+            };
+        });
     }
     // 更新已有记录
     // 目前只需要更新下载状态列表。因为任务数据只在抓取完成后保存一次即可。
-    putData(storeNames, data) {
-        const r = this.db
-            .transaction(storeNames, 'readwrite')
-            .objectStore(storeNames)
-            .put(data);
-        r.onsuccess = (ev) => {
-            // console.log('put success')
-        };
-        r.onerror = (ev) => {
-            console.error('put failed');
-        };
+    async putData(storeNames, data) {
+        return new Promise((resolve, reject) => {
+            const r = this.db
+                .transaction(storeNames, 'readwrite')
+                .objectStore(storeNames)
+                .put(data);
+            r.onsuccess = (ev) => {
+                resolve(ev);
+            };
+            r.onerror = (ev) => {
+                console.error('put failed');
+                reject(ev);
+            };
+        });
     }
-    deleteData(storeNames, id) {
-        const r = this.db
-            .transaction(storeNames, 'readwrite')
-            .objectStore(storeNames)
-            .delete(id);
-        r.onsuccess = (ev) => {
-            // console.log('delete success')
-        };
-        r.onerror = (ev) => {
-            console.error('delete failed');
-        };
+    async deleteData(storeNames, id) {
+        return new Promise((resolve, reject) => {
+            const r = this.db
+                .transaction(storeNames, 'readwrite')
+                .objectStore(storeNames)
+                .delete(id);
+            r.onsuccess = (ev) => {
+                resolve(ev);
+            };
+            r.onerror = (ev) => {
+                console.error('delete failed');
+                reject(ev);
+            };
+        });
     }
     // 清除过期的数据
     clearExired() {
@@ -6039,15 +6183,16 @@ class Resume {
         const expiryTime = 2592000000;
         const nowTime = new Date().getTime();
         const r = this.db
-            .transaction(this.taskName)
-            .objectStore(this.taskName)
+            .transaction(this.metaName)
+            .objectStore(this.metaName)
             .openCursor();
         r.onsuccess = (ev) => {
             if (r.result) {
                 const data = r.result.value;
                 // 删除过期的数据
                 if (nowTime - data.id > expiryTime) {
-                    this.deleteData(this.taskName, data.id);
+                    console.log('expri');
+                    this.deleteData(this.metaName, data.id);
                     this.deleteData(this.statesName, data.id);
                 }
                 r.result.continue();
