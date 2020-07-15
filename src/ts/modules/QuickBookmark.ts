@@ -117,6 +117,10 @@ class QuickBookmark {
         return
       }
 
+      // 点击 p 站自带的收藏按钮，这是因为这一行为将会在作品下方显示推荐作品。如果不点击自带的按钮，只使用本程序添加的按钮，那么就不会出现推荐作品了。
+      const pixivBMKBtn = this.pixivBMKDiv && this.pixivBMKDiv.querySelector('button')
+      pixivBMKBtn && pixivBMKBtn.click()
+
       // 如果设置了快速收藏，则获取 tag
       let tags: string[] = []
       if (form.quickBookmarks.checked) {
@@ -144,19 +148,18 @@ class QuickBookmark {
       const type: 'illusts' | 'novels' = this.isNovel ? 'novels' : 'illusts'
       const id = this.isNovel ? API.getNovelId() : API.getIllustId()
 
-      // 点击 p 站自带的收藏按钮，这是因为这一行为将会在作品下方显示推荐作品。如果不点击自带的按钮，只使用本程序添加的按钮，那么就不会出现推荐作品了。
-      const pixivBMKBtn = this.pixivBMKDiv && this.pixivBMKDiv.querySelector('button')
-      pixivBMKBtn && pixivBMKBtn.click()
-
-      // 调用添加收藏的 api
-      API.addBookmark(type, id, tags, false, API.getToken())
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.error === false) {
-            this.isBookmarked = true
-            this.bookmarked()
-          }
-        })
+      // 这里加了个延迟，因为上面先点击了 pixiv 自带的收藏按钮，但不加延迟的话， p 站自己的不带 tag 的请求反而是后发送的。所以这里通过延迟让 p 站不带 tag 的请求先发送，下载器的带 tag 的请求后发送。
+      setTimeout(() => {
+        // 调用添加收藏的 api
+        API.addBookmark(type, id, tags, false, API.getToken())
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.error === false) {
+              this.isBookmarked = true
+              this.bookmarked()
+            }
+          })
+      }, 400);
     })
   }
 

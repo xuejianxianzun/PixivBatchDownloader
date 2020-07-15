@@ -5676,7 +5676,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class QuickBookmark {
     constructor() {
-        this.btn = document.createElement('a'); // 快速收藏的元素
+        this.btn = document.createElement('a'); // 快速收藏按钮
         this.btnId = 'quickBookmarkEl';
         this.colorClass = 'bookmarkedColor';
         this.likeBtnClass = '_35vRH4a';
@@ -5707,30 +5707,31 @@ class QuickBookmark {
         }
         return data.body.bookmarkData;
     }
+    // 插入快速收藏按钮
     initBtn() {
         // 从父元素查找作品下方的工具栏
         const toolbarParent = document.querySelectorAll('main > section');
-        let toolbar; // 工具栏
         for (const el of toolbarParent) {
             const test = el.querySelector('div>section');
             if (test) {
-                toolbar = test;
+                this.toolbar = test;
                 break;
             }
         }
-        if (toolbar) {
-            const orgIcon = toolbar.childNodes[2];
+        if (this.toolbar) {
+            // 获取原本的收藏按钮（其实是按钮外层的 div）
+            this.pixivBMKDiv = this.toolbar.childNodes[2];
             // 当没有收藏按钮时，停止执行（如用户处于自己作品的页面时没有收藏按钮）
-            if (!orgIcon) {
+            if (!this.pixivBMKDiv) {
                 return;
             }
             // 隐藏原来的收藏按钮
-            orgIcon.style.display = 'none';
+            this.pixivBMKDiv.style.display = 'none';
             // 如果没有快速收藏元素则添加
-            this.btn = toolbar.querySelector('#' + this.btnId);
+            this.btn = this.toolbar.querySelector('#' + this.btnId);
             if (!this.btn) {
                 this.btn = this.createBtn();
-                toolbar.insertBefore(this.btn, toolbar.childNodes[3]);
+                this.toolbar.insertBefore(this.btn, this.toolbar.childNodes[3]);
             }
             if (this.isBookmarked) {
                 this.bookmarked();
@@ -5755,14 +5756,23 @@ class QuickBookmark {
         this.btn.href = 'javascript:void(0)';
         this.btn.addEventListener('click', () => {
             // 自动点赞
-            ;
-            document.querySelector(`.${this.likeBtnClass}`).click();
-            // 快速收藏
+            let likeBtn = document.querySelector(`.${this.likeBtnClass}`);
+            if (!likeBtn) {
+                // 上面尝试直接用 class 获取点赞按钮，考虑到 class 可能会变化，这里从工具栏的按钮里选择。
+                // 点赞按钮是工具栏里的最后一个 button 元素
+                console.error('likeBtn class is not available');
+                const btnList = this.toolbar.querySelectorAll('button');
+                likeBtn = btnList[btnList.length - 1];
+            }
+            likeBtn.click();
             if (this.isBookmarked) {
                 return;
             }
-            let tags = [];
+            // 点击 p 站自带的收藏按钮，这是因为这一行为将会在作品下方显示推荐作品。如果不点击自带的按钮，只使用本程序添加的按钮，那么就不会出现推荐作品了。
+            const pixivBMKBtn = this.pixivBMKDiv && this.pixivBMKDiv.querySelector('button');
+            pixivBMKBtn && pixivBMKBtn.click();
             // 如果设置了快速收藏，则获取 tag
+            let tags = [];
             if (_Settings__WEBPACK_IMPORTED_MODULE_2__["form"].quickBookmarks.checked) {
                 const tagElements = document.querySelectorAll('._1LEXQ_3 li');
                 for (const el of tagElements) {
@@ -5783,15 +5793,17 @@ class QuickBookmark {
             }
             const type = this.isNovel ? 'novels' : 'illusts';
             const id = this.isNovel ? _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelId() : _API__WEBPACK_IMPORTED_MODULE_0__["API"].getIllustId();
-            // 调用添加收藏的 api
-            _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(type, id, tags, false, _API__WEBPACK_IMPORTED_MODULE_0__["API"].getToken())
-                .then((response) => response.json())
-                .then((data) => {
-                if (data.error === false) {
-                    this.isBookmarked = true;
-                    this.bookmarked();
-                }
-            });
+            setTimeout(() => {
+                // 调用添加收藏的 api
+                _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(type, id, tags, false, _API__WEBPACK_IMPORTED_MODULE_0__["API"].getToken())
+                    .then((response) => response.json())
+                    .then((data) => {
+                    if (data.error === false) {
+                        this.isBookmarked = true;
+                        this.bookmarked();
+                    }
+                });
+            }, 500);
         });
     }
     // 如果这个作品已收藏，则改变样式
