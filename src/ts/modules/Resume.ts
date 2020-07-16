@@ -35,7 +35,7 @@ class Resume {
   private statesName = 'taskStates' // 下载状态列表的表名
   private taskId!: number // 为当前任务创建一个 id，操作数据库时使用
 
-  private part: number[] = []  // 储存每个分段里的数据的数量
+  private part: number[] = [] // 储存每个分段里的数据的数量
 
   private try = 0 // 任务结果是分批储存的，记录每批失败了几次。根据失败次数减少每批的数量
 
@@ -45,48 +45,19 @@ class Resume {
   // 非理想情况下，即这个数量的结果已经超过了单次存储上限（目前推测这可能会在大量抓取小说、动图时出现；如果抓取的作品大部分是插画、漫画，这个数量的结果应该不可能超出存储上限），那么这不会减少尝试数量，但因为每次尝试存储的数量不会超过这个数字，这依然有助于减少每次尝试时的资源占用、耗费时间。
   private readonly onceMax = 150000
 
+  private readonly putStatesTime = 2000 // 每隔指定时间存储一次最新的下载状态
+
+  private needPutStates = false // 指示是否需要更新存储的下载状态
+
   private readonly testSave = false // 调试存储状况的开关
 
   private async init() {
     this.db = await this.initDB()
     !this.testSave && this.restoreData()
     this.bindEvent()
+    this.regularPutStates()
     this.clearExired()
     this.testSave && this.test(660000)
-  }
-
-  // 添加指定数量的测试数据，模拟抓取完毕事件，用于调试存储情况
-  // 这个数据由于 id 是重复的，所以不能正常下载
-  private test(num: number) {
-    while (num > 0) {
-      store.result.push({
-        bmk: 1644,
-        bookmarked: false,
-        date: "2020-07-11",
-        dlCount: 1,
-        ext: "jpg",
-        fullHeight: 1152,
-        fullWidth: 2048,
-        id: "82900613_p0",
-        idNum: 82900613,
-        novelBlob: null,
-        pageCount: 1,
-        rank: "",
-        seriesOrder: "",
-        seriesTitle: "",
-        tags: ["女の子", "バーチャルYouTuber", "にじさんじ", "本間ひまわり", "にじさんじ", "本間ひまわり"],
-        tagsTranslated: ["女の子", "女孩子", "バーチャルYouTuber", "虚拟YouTuber", "にじさんじ", "彩虹社", "本間ひまわり", "本间向日葵", "にじさんじ", "彩虹社", "本間ひまわり", "本间向日葵"],
-        thumb: "https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2020/07/11/17/05/41/82900613_p0_custom1200.jpg",
-        title: "本間ひまわり",
-        type: 0,
-        ugoiraInfo: null,
-        url: "https://i.pximg.net/img-original/img/2020/07/11/17/05/41/82900613_p0.jpg",
-        user: "らっち。",
-        userId: "10852879",
-      })
-      num--
-    }
-    EVT.fire(EVT.events.crawlFinish)
   }
 
   // 初始化数据库，获取数据库对象
@@ -145,7 +116,7 @@ class Resume {
       promiseList.push(this.getData(this.dataName, id))
     }
 
-    await Promise.all(promiseList).then(res => {
+    await Promise.all(promiseList).then((res) => {
       store.result = []
       const r = res as TaskData[]
       for (const taskData of r) {
@@ -156,7 +127,10 @@ class Resume {
     })
 
     // 3 恢复下载状态
-    const data = await this.getData(this.statesName, this.taskId) as TaskStates
+    const data = (await this.getData(
+      this.statesName,
+      this.taskId
+    )) as TaskStates
 
     if (data) {
       downloadStates.replace(data.states)
@@ -170,55 +144,6 @@ class Resume {
       initiator: EVT.InitiatorList.resume,
     })
   }
-  // 存储抓取结果
-  private async saveTaskData() {
-    return new Promise(async (resolve, reject) => {
-      // 每一批任务的第一次执行都会尝试保存所有剩余数据
-      // 如果出错了，则每次执行会尝试保存上一次的一半数据，直到这批任务成功
-      // 之后继续进行下一批任务（如果有）
-      let tryNum = Math.floor(store.result.length * (Math.pow(0.5, this.try)))
-      tryNum > this.onceMax && (tryNum = this.onceMax)
-      let data = {
-        id: this.numAppendNum(this.taskId, this.part.length),
-        data: store.result.slice(this.getPartTotal(), this.getPartTotal() + tryNum)
-      }
-
-      try {
-        // 当成功存储了一批数据时
-        await this.addData(this.dataName, data)
-        this.part.push(data.data.length)  // 记录这一次保存的结果数量
-        this.try = 0  // 重置已尝试次数
-
-        // 任务数据全部添加完毕
-        if (this.getPartTotal() >= store.result.length) {
-          // console.log('add complete')
-          resolve()
-        } else {
-          // 任务数据没有添加完毕，继续添加
-          resolve(this.saveTaskData())
-        }
-      } catch (error) {
-        // 当存储失败时
-        console.error(error)
-        if (error.target && error.target.error && error.target.error.message) {
-          const msg = error.target.error.message as string
-          if (msg.includes('too large')) {
-            // 体积超大
-            // 尝试次数 + 1 ，进行下一次尝试
-            this.try++
-            resolve(this.saveTaskData())
-          } else {
-            // 未知错误，不再进行尝试
-            this.try = 0
-            log.error('IndexedDB: ' + msg)
-            reject(error)
-          }
-        }
-      }
-
-    })
-  }
-
 
   private bindEvent() {
     // 抓取完成时，保存这次任务的数据
@@ -260,21 +185,14 @@ class Resume {
       }
     )
 
-    // 当有文件下载完成时，保存下载状态
-    window.addEventListener(
-      EVT.events.downloadSucccess,
-      async (event: CustomEventInit) => {
-        const statesData = {
-          id: this.taskId,
-          states: downloadStates.states,
-        }
-        this.putData(this.statesName, statesData)
-      }
-    )
+    // 当有文件下载完成时，更新下载状态
+    window.addEventListener(EVT.events.downloadSucccess, () => {
+      this.needPutStates = true
+    })
 
     // 任务下载完毕时，清除这次任务的数据
     window.addEventListener(EVT.events.downloadComplete, async () => {
-      const meta = await this.getData(this.metaName, this.taskId) as TaskMeta
+      const meta = (await this.getData(this.metaName, this.taskId)) as TaskMeta
 
       if (!meta) {
         return
@@ -299,6 +217,72 @@ class Resume {
     window.addEventListener(EVT.events.pageSwitch, () => {
       this.flag = false
       this.restoreData()
+    })
+  }
+
+  // 定时 put 下载状态
+  private async regularPutStates() {
+    setInterval(() => {
+      if (this.needPutStates) {
+        const statesData = {
+          id: this.taskId,
+          states: downloadStates.states,
+        }
+        this.needPutStates = false
+        this.putData(this.statesName, statesData)
+      }
+    }, this.putStatesTime)
+  }
+
+  // 存储抓取结果
+  private async saveTaskData() {
+    return new Promise(async (resolve, reject) => {
+      // 每一批任务的第一次执行会尝试保存所有剩余数据(0.5 的 0 次幂是 1)
+      // 如果出错了，则每次执行会尝试保存上一次数据量的一半，直到这次存储成功
+      // 之后继续进行下一批任务（如果有）
+      let tryNum = Math.floor(store.result.length * Math.pow(0.5, this.try))
+      // 如果这批尝试数据大于指定数量，则设置为指定数量
+      tryNum > this.onceMax && (tryNum = this.onceMax)
+      let data = {
+        id: this.numAppendNum(this.taskId, this.part.length),
+        data: store.result.slice(
+          this.getPartTotal(),
+          this.getPartTotal() + tryNum
+        ),
+      }
+
+      try {
+        // 当成功存储了一批数据时
+        await this.addData(this.dataName, data)
+        this.part.push(data.data.length) // 记录这一次保存的结果数量
+        this.try = 0 // 重置已尝试次数
+
+        // 任务数据全部添加完毕
+        if (this.getPartTotal() >= store.result.length) {
+          // console.log('add complete')
+          resolve()
+        } else {
+          // 任务数据没有添加完毕，继续添加
+          resolve(this.saveTaskData())
+        }
+      } catch (error) {
+        // 当存储失败时
+        console.error(error)
+        if (error.target && error.target.error && error.target.error.message) {
+          const msg = error.target.error.message as string
+          if (msg.includes('too large')) {
+            // 体积超大
+            // 尝试次数 + 1 ，进行下一次尝试
+            this.try++
+            resolve(this.saveTaskData())
+          } else {
+            // 未知错误，不再进行尝试
+            this.try = 0
+            log.error('IndexedDB: ' + msg)
+            reject(error)
+          }
+        }
+      }
     })
   }
 
@@ -344,7 +328,10 @@ class Resume {
   }
 
   // 写入新的记录
-  private async addData(storeNames: string, data: TaskMeta | TaskData | TaskStates) {
+  private async addData(
+    storeNames: string,
+    data: TaskMeta | TaskData | TaskStates
+  ) {
     return new Promise((resolve, reject) => {
       const r = this.db
         .transaction(storeNames, 'readwrite')
@@ -463,6 +450,62 @@ class Resume {
       start++
     }
     return arr
+  }
+
+  // 添加指定数量的测试数据，模拟抓取完毕事件，用于调试存储情况
+  // 这个数据由于 id 是重复的，所以不能正常下载
+  private test(num: number) {
+    while (num > 0) {
+      store.result.push({
+        bmk: 1644,
+        bookmarked: false,
+        date: '2020-07-11',
+        dlCount: 1,
+        ext: 'jpg',
+        fullHeight: 1152,
+        fullWidth: 2048,
+        id: '82900613_p0',
+        idNum: 82900613,
+        novelBlob: null,
+        pageCount: 1,
+        rank: '',
+        seriesOrder: '',
+        seriesTitle: '',
+        tags: [
+          '女の子',
+          'バーチャルYouTuber',
+          'にじさんじ',
+          '本間ひまわり',
+          'にじさんじ',
+          '本間ひまわり',
+        ],
+        tagsTranslated: [
+          '女の子',
+          '女孩子',
+          'バーチャルYouTuber',
+          '虚拟YouTuber',
+          'にじさんじ',
+          '彩虹社',
+          '本間ひまわり',
+          '本间向日葵',
+          'にじさんじ',
+          '彩虹社',
+          '本間ひまわり',
+          '本间向日葵',
+        ],
+        thumb:
+          'https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2020/07/11/17/05/41/82900613_p0_custom1200.jpg',
+        title: '本間ひまわり',
+        type: 0,
+        ugoiraInfo: null,
+        url:
+          'https://i.pximg.net/img-original/img/2020/07/11/17/05/41/82900613_p0.jpg',
+        user: 'らっち。',
+        userId: '10852879',
+      })
+      num--
+    }
+    EVT.fire(EVT.events.crawlFinish)
   }
 }
 

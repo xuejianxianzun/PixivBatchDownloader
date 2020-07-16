@@ -10,7 +10,7 @@ class QuickBookmark {
   }
 
   private toolbar!: HTMLDivElement // 包含点赞 收藏 等按钮的工具栏元素
-  private pixivBMKDiv!: HTMLDivElement  // p 站原本的收藏按钮
+  private pixivBMKDiv!: HTMLDivElement // p 站原本的收藏按钮
   private btn: HTMLAnchorElement = document.createElement('a') // 快速收藏按钮
   private readonly btnId = 'quickBookmarkEl'
   private readonly colorClass = 'bookmarkedColor'
@@ -71,7 +71,9 @@ class QuickBookmark {
       this.pixivBMKDiv.style.display = 'none'
 
       // 如果没有快速收藏元素则添加
-      this.btn = this.toolbar.querySelector('#' + this.btnId) as HTMLAnchorElement
+      this.btn = this.toolbar.querySelector(
+        '#' + this.btnId
+      ) as HTMLAnchorElement
       if (!this.btn) {
         this.btn = this.createBtn()
         this.toolbar.insertBefore(this.btn, this.toolbar.childNodes[3])
@@ -103,7 +105,9 @@ class QuickBookmark {
 
     this.btn.addEventListener('click', () => {
       // 自动点赞
-      let likeBtn = document.querySelector(`.${this.likeBtnClass}`) as HTMLButtonElement
+      let likeBtn = document.querySelector(
+        `.${this.likeBtnClass}`
+      ) as HTMLButtonElement
       if (!likeBtn) {
         // 上面尝试直接用 class 获取点赞按钮，考虑到 class 可能会变化，这里从工具栏的按钮里选择。
         // 点赞按钮是工具栏里的最后一个 button 元素
@@ -118,7 +122,8 @@ class QuickBookmark {
       }
 
       // 点击 p 站自带的收藏按钮，这是因为这一行为将会在作品下方显示推荐作品。如果不点击自带的按钮，只使用本程序添加的按钮，那么就不会出现推荐作品了。
-      const pixivBMKBtn = this.pixivBMKDiv && this.pixivBMKDiv.querySelector('button')
+      const pixivBMKBtn =
+        this.pixivBMKDiv && this.pixivBMKDiv.querySelector('button')
       pixivBMKBtn && pixivBMKBtn.click()
 
       // 如果设置了快速收藏，则获取 tag
@@ -159,7 +164,7 @@ class QuickBookmark {
               this.bookmarked()
             }
           })
-      }, 400);
+      }, 400)
     })
   }
 
