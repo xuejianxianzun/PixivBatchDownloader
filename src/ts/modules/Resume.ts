@@ -109,7 +109,7 @@ class Resume {
       return
     }
 
-    log.warning('Restoring crawl results', 1, false)
+    log.warning('Restoring crawl results')
 
     this.taskId = meta.id
 
@@ -172,7 +172,7 @@ class Resume {
 
         this.taskId = new Date().getTime()
 
-        log.warning('Saving crawl results', 1, false)
+        log.warning('Saving crawl results')
 
         // 保存本次任务的数据
         this.part = []

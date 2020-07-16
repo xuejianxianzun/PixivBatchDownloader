@@ -7686,9 +7686,7 @@
               return
             }
             _Log__WEBPACK_IMPORTED_MODULE_3__['log'].warning(
-              'Restoring crawl results',
-              1,
-              false
+              'Restoring crawl results'
             )
             this.taskId = meta.id
             // 2 恢复抓取结果
@@ -7749,9 +7747,7 @@
                 }
                 this.taskId = new Date().getTime()
                 _Log__WEBPACK_IMPORTED_MODULE_3__['log'].warning(
-                  'Saving crawl results',
-                  1,
-                  false
+                  'Saving crawl results'
                 )
                 // 保存本次任务的数据
                 this.part = []
