@@ -57,7 +57,7 @@ class Resume {
     this.bindEvent()
     this.regularPutStates()
     this.clearExired()
-    this.testSave && this.test(660000)
+    this.testSave && this.test(1000000)
   }
 
   // 初始化数据库，获取数据库对象
@@ -97,12 +97,19 @@ class Resume {
 
   // 恢复未完成任务的数据
   private async restoreData() {
+    // 如果当前不允许展开工作（也就是在抓取或者在下载），则不恢复数据
+    if (!store.states.allowWork) {
+      return
+    }
+
     // 1 获取任务的元数据
     const meta = await this.getMetaDataByURL(this.getURL())
     if (!meta) {
       this.flag = false
       return
     }
+
+    log.warning('Restoring crawl results', 1, false)
 
     this.taskId = meta.id
 
@@ -139,6 +146,8 @@ class Resume {
     // 恢复模式就绪
     this.flag = true
 
+    log.success('Crawl results have been restored')
+
     // 发出抓取完毕的信号
     EVT.fire(EVT.events.crawlFinish, {
       initiator: EVT.InitiatorList.resume,
@@ -163,6 +172,8 @@ class Resume {
 
         this.taskId = new Date().getTime()
 
+        log.warning('Saving crawl results', 1, false)
+
         // 保存本次任务的数据
         this.part = []
         await this.saveTaskData()
@@ -182,6 +193,8 @@ class Resume {
           states: downloadStates.states,
         }
         this.addData(this.statesName, statesData)
+
+        log.success('The crawl results have been saved')
       }
     )
 

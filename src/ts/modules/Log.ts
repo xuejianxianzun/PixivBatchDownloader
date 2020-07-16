@@ -79,10 +79,12 @@ class Log {
   }
 
   public warning(str: string, br: number = 1, keepShow: boolean = true) {
+    this.checkElement()
     this.add(str, 1, br, keepShow)
   }
 
   public error(str: string, br: number = 1, keepShow: boolean = true) {
+    this.checkElement()
     this.add(str, 2, br, keepShow)
   }
 }
