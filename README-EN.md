@@ -8,6 +8,8 @@
 
 **Already support downloading novels!**
 
+**You can resume the breakpoint!**
+
 **Note:** The latest version has not been approved by the Chrome web store. You can install it offline or use the Edge browser to install it from the Edge store.
 
 <!-- TOC -->
