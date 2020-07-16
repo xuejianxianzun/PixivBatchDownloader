@@ -247,8 +247,6 @@ class DownloadControl {
 
     // 如果剩余任务数量少于下载线程数
     if (store.result.length - this.downloaded < this.downloadThread) {
-      console.log(store.result.length)
-      console.log(this.downloaded)
       this.downloadThread = store.result.length - this.downloaded
     }
 
