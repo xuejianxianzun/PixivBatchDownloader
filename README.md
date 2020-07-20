@@ -10,8 +10,6 @@
 
 **现已支持断点续传！**
 
-**注意：** 最新版本没有通过 Chrome web store 的审核，你可以进行离线安装，或者使用 Edge 浏览器从 Edge 商店安装。
-
 <!-- TOC -->
 
 - [简介](#简介)
@@ -47,7 +45,7 @@
 
 2. **Microsoft Edge** 浏览器也可以从 **[Microsoft Edge 外接程序](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)** 安装本扩展。
 
-如果你喜欢这个扩展，请给它评分，使它可以被更多人看到，谢谢！
+**注意：** 有时候 Chrome Web Store 上的扩展可能不是最新版本。如果有需要，你可以进行离线安装，或者使用 Edge 浏览器从 Edge 商店安装。
 
 ## 离线安装
 

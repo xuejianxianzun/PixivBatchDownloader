@@ -10,8 +10,6 @@
 
 **已支援斷點續傳！**
 
-**注意：** 最新版本沒有通過 Chrome web store 的審查，你可以進行離線安裝，或者使用 Edge 瀏覽器從 Edge 商店安裝。
-
 <!-- TOC -->
 
 - [簡介](#簡介)
@@ -47,7 +45,7 @@
 
 2. **Microsoft Edge** 瀏覽器也可以从 **[Microsoft Edge 外接程序](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)** 安装本擴充功能。
 
-如果你喜歡這個擴充功能，請給它評分，使它可以被更多人看到，謝謝！
+**注意：** 有時 Chrome Web Store 上的擴展可能不是最新版本。如果有需要，你可以進行離線安裝，或者使用 Edge 瀏覽器從 Edge 商店安裝。
 
 ## 離線安裝
 
