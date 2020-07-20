@@ -146,7 +146,7 @@ class Resume {
     // 恢复模式就绪
     this.flag = true
 
-    log.success('Crawl results have been restored')
+    log.success('Crawl results have been restored', 2)
 
     // 发出抓取完毕的信号
     EVT.fire(EVT.events.crawlFinish, {
@@ -194,7 +194,7 @@ class Resume {
         }
         this.addData(this.statesName, statesData)
 
-        log.success('The crawl results have been saved')
+        log.success('The crawl results have been saved', 2)
       }
     )
 
