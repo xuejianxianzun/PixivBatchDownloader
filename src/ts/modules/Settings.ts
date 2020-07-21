@@ -6,7 +6,7 @@ import { store } from './Store'
 import { SaveSettings } from './SaveSettings'
 import { SettingsForm } from './Settings.d'
 import { API } from './API'
-import formHtml from './SettingHTML'
+import formHtml from './FormHTML'
 
 // 设置表单
 class Settings {

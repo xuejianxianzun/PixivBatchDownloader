@@ -95,8 +95,7 @@ class Resume {
     })
 
     return new Promise<IDBDatabase>(async (resolve, reject) => {
-      const db = await IDB.open(config.DBName, config.DBVer)
-      resolve(db)
+      resolve(await IDB.open(config.DBName, config.DBVer))
     })
   }
 

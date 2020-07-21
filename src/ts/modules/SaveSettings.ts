@@ -52,6 +52,8 @@ interface XzSetting {
   sizeMax: string
   novelSaveAs: 'txt' | 'epub'
   saveNovelMeta: boolean
+  deduplication: boolean
+  dupliStrategy: 'strict' | 'loose'
 }
 
 interface SettingChangeData {
@@ -72,7 +74,7 @@ class SaveSettings {
         const data = event.detail.data as SettingChangeData
         if (Reflect.has(this.optionDefault, data.name)) {
           if ((this.options[data.name] as any) !== data.value) {
-            ;(this.options[data.name] as any) = data.value
+            ; (this.options[data.name] as any) = data.value
             localStorage.setItem(this.storeName, JSON.stringify(this.options))
           }
         }
@@ -137,6 +139,8 @@ class SaveSettings {
     sizeMax: '100',
     novelSaveAs: 'txt',
     saveNovelMeta: false,
+    deduplication: false,
+    dupliStrategy: 'strict'
   }
 
   // 需要持久化保存的设置
@@ -273,6 +277,10 @@ class SaveSettings {
     this.restoreBoolean('sizeSwitch')
     this.restoreString('sizeMin')
     this.restoreString('sizeMax')
+
+    // 恢复去重设置
+    this.restoreBoolean('deduplication')
+    this.restoreString('dupliStrategy')
   }
 
   // 处理输入框： change 时直接保存 value
@@ -371,11 +379,11 @@ class SaveSettings {
 
     // 保存命名规则
     const userSetNameInput = this.form.userSetName
-    ;['change', 'focus'].forEach((ev) => {
-      userSetNameInput.addEventListener(ev, () => {
-        this.emitChange('userSetName', userSetNameInput.value)
+      ;['change', 'focus'].forEach((ev) => {
+        userSetNameInput.addEventListener(ev, () => {
+          this.emitChange('userSetName', userSetNameInput.value)
+        })
       })
-    })
 
     // 保存是否添加标记名称
     this.saveCheckBox('tagNameToFileName')
@@ -405,6 +413,10 @@ class SaveSettings {
 
     // 保存预览搜索结果
     this.saveCheckBox('previewResult')
+
+    // 保存去重设置
+    this.saveCheckBox('deduplication')
+    this.saveRadio('dupliStrategy')
 
     window.addEventListener(EVT.events.resetOption, () => {
       this.form.reset()

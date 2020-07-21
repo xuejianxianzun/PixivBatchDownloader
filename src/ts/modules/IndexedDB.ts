@@ -129,14 +129,35 @@ class IndexedDB {
     })
   }
 
-  public async openCursor(storeNames: string,CB:(c:IDBCursorWithValue | null)=>void){
+  public async clear(storeNames: string) {
     return new Promise((resolve, reject) => {
       if (this.db === undefined) {
         reject('Database is not defined')
         return
       }
       const r = this.db
-        .transaction(storeNames,)
+        .transaction(storeNames, 'readwrite')
+        .objectStore(storeNames)
+        .clear()
+
+      r.onsuccess = (ev) => {
+        resolve()
+      }
+      r.onerror = (ev) => {
+        console.error('clear failed')
+        reject(ev)
+      }
+    })
+  }
+
+  public async openCursor(storeNames: string, CB: (c: IDBCursorWithValue | null) => void) {
+    return new Promise((resolve, reject) => {
+      if (this.db === undefined) {
+        reject('Database is not defined')
+        return
+      }
+      const r = this.db
+        .transaction(storeNames)
         .objectStore(storeNames)
         .openCursor()
 

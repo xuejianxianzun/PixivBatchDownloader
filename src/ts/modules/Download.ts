@@ -12,6 +12,7 @@ import {
 } from './Download.d'
 import { progressBar } from './ProgressBar'
 import { filter } from './Filter'
+import { deduplication } from './Deduplication'
 
 class Download {
   constructor(progressBarIndex: number, data: downloadArgument) {
@@ -54,6 +55,8 @@ class Download {
   // 下载文件
   private download(arg: downloadArgument) {
     titleBar.change('↓')
+
+    deduplication.check(arg.id)
 
     // 获取文件名
     this.fileName = fileName.getFileName(arg.data)

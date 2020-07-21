@@ -50,4 +50,6 @@ export interface SettingsForm extends HTMLFormElement {
   sizeMax: HTMLInputElement
   novelSaveAs: RadioNodeList
   saveNovelMeta: HTMLInputElement
+  deduplication: HTMLInputElement
+  dupliStrategy: RadioNodeList
 }
