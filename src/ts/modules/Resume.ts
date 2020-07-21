@@ -4,6 +4,7 @@ import { store } from './Store'
 import { log } from './Log'
 import { downloadStates, DLStatesI } from './DownloadStates'
 import { Result } from './Store.d'
+import { IDB } from './IndexedDB'
 
 interface TaskMeta {
   id: number
@@ -52,6 +53,10 @@ class Resume {
   private readonly testSave = false // 调试存储状况的开关
 
   private async init() {
+    if (location.hostname.includes('pixivision.net')) {
+      return
+    }
+
     this.db = await this.initDB()
     !this.testSave && this.restoreData()
     this.bindEvent()
@@ -62,36 +67,36 @@ class Resume {
 
   // 初始化数据库，获取数据库对象
   private async initDB() {
-    return new Promise<IDBDatabase>((resolve, reject) => {
-      const request = indexedDB.open(config.dbName, 2)
+    // 创建表和索引
+    window.addEventListener(EVT.events.DBupgradeneeded, (ev: CustomEventInit) => {
+      const db = ev.detail.data.db as IDBDatabase
 
-      request.onupgradeneeded = (ev) => {
-        // 创建表和索引
-        const metaStore = request.result.createObjectStore(this.metaName, {
+      if (!db.objectStoreNames.contains(this.metaName)) {
+        const metaStore = db.createObjectStore(this.metaName, {
           keyPath: 'id',
         })
         metaStore.createIndex('id', 'id', { unique: true })
         metaStore.createIndex('url', 'url', { unique: true })
+      }
 
-        const dataStore = request.result.createObjectStore(this.dataName, {
+      if (!db.objectStoreNames.contains(this.dataName)) {
+        const dataStore = db.createObjectStore(this.dataName, {
           keyPath: 'id',
         })
         dataStore.createIndex('id', 'id', { unique: true })
+      }
 
-        const statesStore = request.result.createObjectStore(this.statesName, {
+      if (!db.objectStoreNames.contains(this.statesName)) {
+        const statesStore = db.createObjectStore(this.statesName, {
           keyPath: 'id',
         })
         statesStore.createIndex('id', 'id', { unique: true })
       }
+    })
 
-      request.onerror = (ev) => {
-        console.error('open indexDB failed')
-        reject(ev)
-      }
-
-      request.onsuccess = (ev) => {
-        resolve(request.result)
-      }
+    return new Promise<IDBDatabase>(async (resolve, reject) => {
+      const db = await IDB.open(config.DBName, config.DBVer)
+      resolve(db)
     })
   }
 
@@ -103,7 +108,7 @@ class Resume {
     }
 
     // 1 获取任务的元数据
-    const meta = await this.getMetaDataByURL(this.getURL())
+    const meta = await IDB.get(this.metaName, this.getURL(), 'url') as TaskMeta | null
     if (!meta) {
       this.flag = false
       return
@@ -120,7 +125,8 @@ class Resume {
     // 读取全部数据并恢复
     const promiseList = []
     for (const id of dataIdList) {
-      promiseList.push(this.getData(this.dataName, id))
+
+      promiseList.push(IDB.get(this.dataName, id))
     }
 
     await Promise.all(promiseList).then((res) => {
@@ -134,7 +140,7 @@ class Resume {
     })
 
     // 3 恢复下载状态
-    const data = (await this.getData(
+    const data = (await IDB.get(
       this.statesName,
       this.taskId
     )) as TaskStates
@@ -164,10 +170,11 @@ class Resume {
           return
         }
         // 首先检查这个网址下是否已经存在有数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
-        const taskData = await this.getMetaDataByURL(this.getURL())
+        const taskData = await IDB.get(this.metaName, this.getURL(), 'url') as TaskMeta | null
+
         if (taskData) {
-          await this.deleteData(this.metaName, taskData.id)
-          await this.deleteData(this.statesName, taskData.id)
+          await IDB.delete(this.metaName, taskData.id)
+          await IDB.delete(this.statesName, taskData.id)
         }
 
         this.taskId = new Date().getTime()
@@ -185,14 +192,14 @@ class Resume {
           part: this.part.length,
         }
 
-        this.addData(this.metaName, metaData)
+        IDB.add(this.metaName, metaData)
 
         // 保存 states 数据
         const statesData = {
           id: this.taskId,
           states: downloadStates.states,
         }
-        this.addData(this.statesName, statesData)
+        IDB.add(this.statesName, statesData)
 
         log.success('The crawl results have been saved', 2)
       }
@@ -205,18 +212,18 @@ class Resume {
 
     // 任务下载完毕时，清除这次任务的数据
     window.addEventListener(EVT.events.downloadComplete, async () => {
-      const meta = (await this.getData(this.metaName, this.taskId)) as TaskMeta
+      const meta = (await IDB.get(this.metaName, this.taskId)) as TaskMeta
 
       if (!meta) {
         return
       }
 
-      this.deleteData(this.metaName, this.taskId)
-      this.deleteData(this.statesName, this.taskId)
+      IDB.delete(this.metaName, this.taskId)
+      IDB.delete(this.statesName, this.taskId)
 
       const dataIdList = this.createIdList(this.taskId, meta.part)
       for (const id of dataIdList) {
-        this.deleteData(this.dataName, id)
+        IDB.delete(this.dataName, id)
       }
       this.flag = false
     })
@@ -242,7 +249,7 @@ class Resume {
           states: downloadStates.states,
         }
         this.needPutStates = false
-        this.putData(this.statesName, statesData)
+        IDB.put(this.statesName, statesData)
       }
     }, this.putStatesTime)
   }
@@ -266,7 +273,7 @@ class Resume {
 
       try {
         // 当成功存储了一批数据时
-        await this.addData(this.dataName, data)
+        await IDB.add(this.dataName, data)
         this.part.push(data.data.length) // 记录这一次保存的结果数量
         this.try = 0 // 重置已尝试次数
 
@@ -299,135 +306,30 @@ class Resume {
     })
   }
 
-  // 根据 url，查找任务数据
-  private async getMetaDataByURL(url: string) {
-    return new Promise<TaskMeta | null>((resolve) => {
-      const s = this.db
-        .transaction(this.metaName, 'readonly')
-        .objectStore(this.metaName)
-      const r = s.index('url').get(url)
-
-      r.onsuccess = (ev) => {
-        const data = r.result as TaskMeta
-        if (data) {
-          resolve(data)
-        }
-        resolve(null)
-      }
-    })
-  }
-
-  // 查找数据
-  private async getData(storeNames: string, index: any) {
-    return new Promise((resolve, reject) => {
-      const r = this.db
-        .transaction(storeNames, 'readonly')
-        .objectStore(storeNames)
-        .get(index)
-
-      r.onsuccess = (ev) => {
-        const data = r.result
-        if (data) {
-          resolve(data)
-        }
-        resolve(null)
-      }
-
-      r.onerror = (ev) => {
-        console.error('add failed')
-        reject(ev)
-      }
-    })
-  }
-
-  // 写入新的记录
-  private async addData(
-    storeNames: string,
-    data: TaskMeta | TaskData | TaskStates
-  ) {
-    return new Promise((resolve, reject) => {
-      const r = this.db
-        .transaction(storeNames, 'readwrite')
-        .objectStore(storeNames)
-        .add(data)
-
-      r.onsuccess = (ev) => {
-        resolve(ev)
-      }
-      r.onerror = (ev) => {
-        console.error('add failed')
-        reject(ev)
-      }
-    })
-  }
-
-  // 更新已有记录
-  // 目前只需要更新下载状态列表。因为任务数据只在抓取完成后保存一次即可。
-  private async putData(storeNames: string, data: TaskMeta | TaskStates) {
-    return new Promise((resolve, reject) => {
-      const r = this.db
-        .transaction(storeNames, 'readwrite')
-        .objectStore(storeNames)
-        .put(data)
-      r.onsuccess = (ev) => {
-        resolve(ev)
-      }
-      r.onerror = (ev) => {
-        console.error('put failed')
-        reject(ev)
-      }
-    })
-  }
-
-  private async deleteData(storeNames: string, id: number) {
-    return new Promise((resolve, reject) => {
-      const r = this.db
-        .transaction(storeNames, 'readwrite')
-        .objectStore(storeNames)
-        .delete(id)
-
-      r.onsuccess = (ev) => {
-        resolve(ev)
-      }
-      r.onerror = (ev) => {
-        console.error('delete failed')
-        reject(ev)
-      }
-    })
-  }
-
   // 清除过期的数据
-  private clearExired() {
+  private async clearExired() {
     // 数据的过期时间，设置为 30 天。30*24*60*60*1000
     const expiryTime = 2592000000
-
     const nowTime = new Date().getTime()
 
-    const r = this.db
-      .transaction(this.metaName)
-      .objectStore(this.metaName)
-      .openCursor()
-
-    r.onsuccess = (ev) => {
-      if (r.result) {
-        const data = r.result.value as TaskMeta
-        // 删除过期的数据
+    const callback = (item: IDBCursorWithValue | null) => {
+      if (item) {
+        const data = item.value as TaskMeta
+        // 检查数据是否过期
         if (nowTime - data.id > expiryTime) {
-          this.deleteData(this.metaName, data.id)
-          this.deleteData(this.statesName, data.id)
+          IDB.delete(this.metaName, data.id)
+          IDB.delete(this.statesName, data.id)
 
           const dataIdList = this.createIdList(data.id, data.part)
           for (const id of dataIdList) {
-            this.deleteData(this.dataName, id)
+            IDB.delete(this.dataName, id)
           }
         }
-        r.result.continue()
+        item.continue()
       }
     }
-    r.onerror = (ev) => {
-      console.error('openCursor failed')
-      console.error(ev)
-    }
+
+    IDB.openCursor(this.metaName, callback)
   }
 
   // 计算 part 数组里的数字之和

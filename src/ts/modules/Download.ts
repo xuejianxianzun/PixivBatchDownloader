@@ -12,7 +12,6 @@ import {
 } from './Download.d'
 import { progressBar } from './ProgressBar'
 import { filter } from './Filter'
-import { MakeNovelFile } from './novel/MakeNovelFile'
 
 class Download {
   constructor(progressBarIndex: number, data: downloadArgument) {
@@ -107,7 +106,7 @@ class Download {
       let file: Blob = xhr.response // 要下载的文件
 
       // 错误处理
-      const HandleError = () => {
+      const downloadError = () => {
         let msg = ''
 
         if (xhr.status === 404) {
@@ -147,9 +146,9 @@ class Download {
         progressBar.showErrorColor(this.progressBarIndex, true)
         this.retry++
         if (this.retry >= this.retryMax) {
-          // 重试 retryMax 次依然错误，进行错误处理
+          // 重试 retryMax 次依然错误
           console.log(arg.data.id + 'retryMax')
-          HandleError()
+          downloadError()
         } else {
           return this.download(arg)
         }

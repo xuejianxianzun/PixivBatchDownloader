@@ -1094,7 +1094,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ __webpack_exports__["default"] = ({
     outputMax: 5000,
     latestReleaseAPI: 'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest',
-    dbName: 'PBD',
+    DBName: 'PBD',
+    DBVer: 3,
 });
 
 
@@ -1737,7 +1738,7 @@ class Download {
             }
             let file = xhr.response; // 要下载的文件
             // 错误处理
-            const HandleError = () => {
+            const downloadError = () => {
                 let msg = '';
                 if (xhr.status === 404) {
                     // 404 错误时
@@ -1767,9 +1768,9 @@ class Download {
                 _ProgressBar__WEBPACK_IMPORTED_MODULE_6__["progressBar"].showErrorColor(this.progressBarIndex, true);
                 this.retry++;
                 if (this.retry >= this.retryMax) {
-                    // 重试 retryMax 次依然错误，进行错误处理
+                    // 重试 retryMax 次依然错误
                     console.log(arg.data.id + 'retryMax');
-                    HandleError();
+                    downloadError();
                 }
                 else {
                     return this.download(arg);
@@ -2372,6 +2373,7 @@ EVT.events = {
     skipSaveFile: 'skipSaveFile',
     hasNewVer: 'hasNewVer',
     restoreDownload: 'restoreDownload',
+    DBupgradeneeded: 'DBupgradeneeded'
 };
 // 事件发起者的标识列表
 EVT.InitiatorList = {
@@ -3626,6 +3628,153 @@ class ImgViewer {
         }
     }
 }
+
+
+
+/***/ }),
+
+/***/ "./src/ts/modules/IndexedDB.ts":
+/*!*************************************!*\
+  !*** ./src/ts/modules/IndexedDB.ts ***!
+  \*************************************/
+/*! exports provided: IDB */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "IDB", function() { return IDB; });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+
+// 操作 IndexedDB 的一些公共方法
+// 现在是单例模式。如果改成在使用的地方 new 这个类，有个麻烦的地方: 数据库的升级事件只发生一次，如果多个类里都要使用升级事件，可能只有第一个执行的类会产生升级事件。
+class IndexedDB {
+    async open(DBName, DBVer) {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(DBName, DBVer);
+            request.onupgradeneeded = (ev) => {
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.DBupgradeneeded, {
+                    db: request.result
+                });
+            };
+            request.onsuccess = (ev) => {
+                this.db = request.result;
+                resolve(request.result);
+            };
+            request.onerror = (ev) => {
+                console.error('open indexDB failed');
+                reject(ev);
+            };
+        });
+    }
+    async add(storeNames, data) {
+        return new Promise((resolve, reject) => {
+            if (this.db === undefined) {
+                reject('Database is not defined');
+                return;
+            }
+            const r = this.db
+                .transaction(storeNames, 'readwrite')
+                .objectStore(storeNames)
+                .add(data);
+            r.onsuccess = (ev) => {
+                resolve(ev);
+            };
+            r.onerror = (ev) => {
+                console.error('add failed');
+                reject(ev);
+            };
+        });
+    }
+    async put(storeNames, data) {
+        return new Promise((resolve, reject) => {
+            if (this.db === undefined) {
+                reject('Database is not defined');
+                return;
+            }
+            const r = this.db
+                .transaction(storeNames, 'readwrite')
+                .objectStore(storeNames)
+                .put(data);
+            r.onsuccess = (ev) => {
+                resolve(ev);
+            };
+            r.onerror = (ev) => {
+                console.error('put failed');
+                reject(ev);
+            };
+        });
+    }
+    async get(storeNames, key, index) {
+        return new Promise((resolve, reject) => {
+            if (this.db === undefined) {
+                reject('Database is not defined');
+                return;
+            }
+            const store = this.db
+                .transaction(storeNames, 'readonly')
+                .objectStore(storeNames);
+            let r;
+            if (index !== undefined) {
+                const i = store.index(index);
+                r = i.get(key);
+            }
+            else {
+                r = store.get(key);
+            }
+            r.onsuccess = (ev) => {
+                const data = r.result;
+                if (data) {
+                    resolve(data);
+                }
+                resolve(null);
+            };
+            r.onerror = (ev) => {
+                console.error('add failed');
+                reject(ev);
+            };
+        });
+    }
+    async delete(storeNames, key) {
+        return new Promise((resolve, reject) => {
+            if (this.db === undefined) {
+                reject('Database is not defined');
+                return;
+            }
+            const r = this.db
+                .transaction(storeNames, 'readwrite')
+                .objectStore(storeNames)
+                .delete(key);
+            r.onsuccess = (ev) => {
+                resolve(ev);
+            };
+            r.onerror = (ev) => {
+                console.error('delete failed');
+                reject(ev);
+            };
+        });
+    }
+    async openCursor(storeNames, CB) {
+        return new Promise((resolve, reject) => {
+            if (this.db === undefined) {
+                reject('Database is not defined');
+                return;
+            }
+            const r = this.db
+                .transaction(storeNames)
+                .objectStore(storeNames)
+                .openCursor();
+            r.onsuccess = (ev) => {
+                CB(r.result);
+                resolve(); // 这个 resolve 会在 cb 执行一次之后就触发
+            };
+            r.onerror = (ev) => {
+                console.error('openCursor failed');
+                reject(ev);
+            };
+        });
+    }
+}
+const IDB = new IndexedDB();
 
 
 
@@ -5850,6 +5999,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
 /* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/modules/DownloadStates.ts");
+/* harmony import */ var _IndexedDB__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./IndexedDB */ "./src/ts/modules/IndexedDB.ts");
+
 
 
 
@@ -5875,6 +6026,9 @@ class Resume {
         this.init();
     }
     async init() {
+        if (location.hostname.includes('pixivision.net')) {
+            return;
+        }
         this.db = await this.initDB();
         !this.testSave && this.restoreData();
         this.bindEvent();
@@ -5884,31 +6038,32 @@ class Resume {
     }
     // 初始化数据库，获取数据库对象
     async initDB() {
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(_Config__WEBPACK_IMPORTED_MODULE_0__["default"].dbName, 2);
-            request.onupgradeneeded = (ev) => {
-                // 创建表和索引
-                const metaStore = request.result.createObjectStore(this.metaName, {
+        // 创建表和索引
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.DBupgradeneeded, (ev) => {
+            const db = ev.detail.data.db;
+            if (!db.objectStoreNames.contains(this.metaName)) {
+                const metaStore = db.createObjectStore(this.metaName, {
                     keyPath: 'id',
                 });
                 metaStore.createIndex('id', 'id', { unique: true });
                 metaStore.createIndex('url', 'url', { unique: true });
-                const dataStore = request.result.createObjectStore(this.dataName, {
+            }
+            if (!db.objectStoreNames.contains(this.dataName)) {
+                const dataStore = db.createObjectStore(this.dataName, {
                     keyPath: 'id',
                 });
                 dataStore.createIndex('id', 'id', { unique: true });
-                const statesStore = request.result.createObjectStore(this.statesName, {
+            }
+            if (!db.objectStoreNames.contains(this.statesName)) {
+                const statesStore = db.createObjectStore(this.statesName, {
                     keyPath: 'id',
                 });
                 statesStore.createIndex('id', 'id', { unique: true });
-            };
-            request.onerror = (ev) => {
-                console.error('open indexDB failed');
-                reject(ev);
-            };
-            request.onsuccess = (ev) => {
-                resolve(request.result);
-            };
+            }
+        });
+        return new Promise(async (resolve, reject) => {
+            const db = await _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].open(_Config__WEBPACK_IMPORTED_MODULE_0__["default"].DBName, _Config__WEBPACK_IMPORTED_MODULE_0__["default"].DBVer);
+            resolve(db);
         });
     }
     // 恢复未完成任务的数据
@@ -5918,7 +6073,7 @@ class Resume {
             return;
         }
         // 1 获取任务的元数据
-        const meta = await this.getMetaDataByURL(this.getURL());
+        const meta = await _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].get(this.metaName, this.getURL(), 'url');
         if (!meta) {
             this.flag = false;
             return;
@@ -5931,7 +6086,7 @@ class Resume {
         // 读取全部数据并恢复
         const promiseList = [];
         for (const id of dataIdList) {
-            promiseList.push(this.getData(this.dataName, id));
+            promiseList.push(_IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].get(this.dataName, id));
         }
         await Promise.all(promiseList).then((res) => {
             _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result = [];
@@ -5943,7 +6098,7 @@ class Resume {
             }
         });
         // 3 恢复下载状态
-        const data = (await this.getData(this.statesName, this.taskId));
+        const data = (await _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].get(this.statesName, this.taskId));
         if (data) {
             _DownloadStates__WEBPACK_IMPORTED_MODULE_4__["downloadStates"].replace(data.states);
         }
@@ -5963,10 +6118,10 @@ class Resume {
                 return;
             }
             // 首先检查这个网址下是否已经存在有数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
-            const taskData = await this.getMetaDataByURL(this.getURL());
+            const taskData = await _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].get(this.metaName, this.getURL(), 'url');
             if (taskData) {
-                await this.deleteData(this.metaName, taskData.id);
-                await this.deleteData(this.statesName, taskData.id);
+                await _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].delete(this.metaName, taskData.id);
+                await _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].delete(this.statesName, taskData.id);
             }
             this.taskId = new Date().getTime();
             _Log__WEBPACK_IMPORTED_MODULE_3__["log"].warning('Saving crawl results');
@@ -5979,13 +6134,13 @@ class Resume {
                 url: this.getURL(),
                 part: this.part.length,
             };
-            this.addData(this.metaName, metaData);
+            _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].add(this.metaName, metaData);
             // 保存 states 数据
             const statesData = {
                 id: this.taskId,
                 states: _DownloadStates__WEBPACK_IMPORTED_MODULE_4__["downloadStates"].states,
             };
-            this.addData(this.statesName, statesData);
+            _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].add(this.statesName, statesData);
             _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success('The crawl results have been saved', 2);
         });
         // 当有文件下载完成时，更新下载状态
@@ -5994,15 +6149,15 @@ class Resume {
         });
         // 任务下载完毕时，清除这次任务的数据
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadComplete, async () => {
-            const meta = (await this.getData(this.metaName, this.taskId));
+            const meta = (await _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].get(this.metaName, this.taskId));
             if (!meta) {
                 return;
             }
-            this.deleteData(this.metaName, this.taskId);
-            this.deleteData(this.statesName, this.taskId);
+            _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].delete(this.metaName, this.taskId);
+            _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].delete(this.statesName, this.taskId);
             const dataIdList = this.createIdList(this.taskId, meta.part);
             for (const id of dataIdList) {
-                this.deleteData(this.dataName, id);
+                _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].delete(this.dataName, id);
             }
             this.flag = false;
         });
@@ -6025,7 +6180,7 @@ class Resume {
                     states: _DownloadStates__WEBPACK_IMPORTED_MODULE_4__["downloadStates"].states,
                 };
                 this.needPutStates = false;
-                this.putData(this.statesName, statesData);
+                _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].put(this.statesName, statesData);
             }
         }, this.putStatesTime);
     }
@@ -6044,7 +6199,7 @@ class Resume {
             };
             try {
                 // 当成功存储了一批数据时
-                await this.addData(this.dataName, data);
+                await _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].add(this.dataName, data);
                 this.part.push(data.data.length); // 记录这一次保存的结果数量
                 this.try = 0; // 重置已尝试次数
                 // 任务数据全部添加完毕
@@ -6078,118 +6233,27 @@ class Resume {
             }
         });
     }
-    // 根据 url，查找任务数据
-    async getMetaDataByURL(url) {
-        return new Promise((resolve) => {
-            const s = this.db
-                .transaction(this.metaName, 'readonly')
-                .objectStore(this.metaName);
-            const r = s.index('url').get(url);
-            r.onsuccess = (ev) => {
-                const data = r.result;
-                if (data) {
-                    resolve(data);
-                }
-                resolve(null);
-            };
-        });
-    }
-    // 查找数据
-    async getData(storeNames, index) {
-        return new Promise((resolve, reject) => {
-            const r = this.db
-                .transaction(storeNames, 'readonly')
-                .objectStore(storeNames)
-                .get(index);
-            r.onsuccess = (ev) => {
-                const data = r.result;
-                if (data) {
-                    resolve(data);
-                }
-                resolve(null);
-            };
-            r.onerror = (ev) => {
-                console.error('add failed');
-                reject(ev);
-            };
-        });
-    }
-    // 写入新的记录
-    async addData(storeNames, data) {
-        return new Promise((resolve, reject) => {
-            const r = this.db
-                .transaction(storeNames, 'readwrite')
-                .objectStore(storeNames)
-                .add(data);
-            r.onsuccess = (ev) => {
-                resolve(ev);
-            };
-            r.onerror = (ev) => {
-                console.error('add failed');
-                reject(ev);
-            };
-        });
-    }
-    // 更新已有记录
-    // 目前只需要更新下载状态列表。因为任务数据只在抓取完成后保存一次即可。
-    async putData(storeNames, data) {
-        return new Promise((resolve, reject) => {
-            const r = this.db
-                .transaction(storeNames, 'readwrite')
-                .objectStore(storeNames)
-                .put(data);
-            r.onsuccess = (ev) => {
-                resolve(ev);
-            };
-            r.onerror = (ev) => {
-                console.error('put failed');
-                reject(ev);
-            };
-        });
-    }
-    async deleteData(storeNames, id) {
-        return new Promise((resolve, reject) => {
-            const r = this.db
-                .transaction(storeNames, 'readwrite')
-                .objectStore(storeNames)
-                .delete(id);
-            r.onsuccess = (ev) => {
-                resolve(ev);
-            };
-            r.onerror = (ev) => {
-                console.error('delete failed');
-                reject(ev);
-            };
-        });
-    }
     // 清除过期的数据
-    clearExired() {
+    async clearExired() {
         // 数据的过期时间，设置为 30 天。30*24*60*60*1000
         const expiryTime = 2592000000;
         const nowTime = new Date().getTime();
-        const r = this.db
-            .transaction(this.metaName)
-            .objectStore(this.metaName)
-            .openCursor();
-        r.onsuccess = (ev) => {
-            if (r.result) {
-                const data = r.result.value;
-                // 删除过期的数据
+        const callback = (item) => {
+            if (item) {
+                const data = item.value;
+                // 检查数据是否过期
                 if (nowTime - data.id > expiryTime) {
-                    this.deleteData(this.metaName, data.id);
-                    this.deleteData(this.statesName, data.id);
+                    _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].delete(this.metaName, data.id);
+                    _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].delete(this.statesName, data.id);
                     const dataIdList = this.createIdList(data.id, data.part);
                     for (const id of dataIdList) {
-                        this.deleteData(this.dataName, id);
+                        _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].delete(this.dataName, id);
                     }
                 }
-                r.result.continue();
+                item.continue();
             }
         };
-        r.onerror = (ev) => {
-            console.error('openCursor failed');
-            console.error(ev);
-        };
+        _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].openCursor(this.metaName, callback);
     }
     // 计算 part 数组里的数字之和
     getPartTotal() {

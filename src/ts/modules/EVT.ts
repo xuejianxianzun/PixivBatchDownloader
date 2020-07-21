@@ -33,6 +33,7 @@ class EVT {
     skipSaveFile: 'skipSaveFile',
     hasNewVer: 'hasNewVer',
     restoreDownload: 'restoreDownload',
+    DBupgradeneeded:'DBupgradeneeded'
   }
 
   // 事件发起者的标识列表
