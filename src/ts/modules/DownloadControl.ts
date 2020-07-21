@@ -33,6 +33,8 @@ class DownloadControl {
 
   private taskList: TaskList = {} // 下载任务列表，使用下载的文件的 id 做 key，保存下载栏编号和它在下载状态列表中的索引
 
+  private errorIdList: string[] = [] // 有任务下载失败时，保存 id
+
   private downloaded: number = 0 // 已下载的任务数量
 
   private convertText = ''
@@ -70,6 +72,11 @@ class DownloadControl {
     window.addEventListener(EVT.events.skipSaveFile, (ev: CustomEventInit) => {
       const data = ev.detail.data as DonwloadSuccessData
       this.downloadSuccess(data)
+    })
+
+    window.addEventListener(EVT.events.downloadError, (ev: CustomEventInit) => {
+      const id = ev.detail.data as string
+      this.errorIdList.push(id)
     })
 
     window.addEventListener(EVT.events.convertChange, (ev: CustomEventInit) => {
@@ -169,23 +176,23 @@ class DownloadControl {
     <div class="centerWrap_btns">
     <button class="startDownload" type="button" style="background:${
       Colors.blue
-    };"> ${lang.transl('_下载按钮1')}</button>
+      };"> ${lang.transl('_下载按钮1')}</button>
     <button class="pauseDownload" type="button" style="background:#e49d00;"> ${lang.transl(
-      '_下载按钮2'
-    )}</button>
+        '_下载按钮2'
+      )}</button>
     <button class="stopDownload" type="button" style="background:${
       Colors.red
-    };"> ${lang.transl('_下载按钮3')}</button>
+      };"> ${lang.transl('_下载按钮3')}</button>
     <button class="copyUrl" type="button" style="background:${
       Colors.green
-    };"> ${lang.transl('_复制url')}</button>
+      };"> ${lang.transl('_复制url')}</button>
     </div>
     <div class="centerWrap_down_tips">
     <p>
     <span>${lang.transl('_当前状态')}</span>
     <span class="down_status blue"><span>${lang.transl(
-      '_未开始下载'
-    )}</span></span>
+        '_未开始下载'
+      )}</span></span>
     <span class="convert_tip warn"></span>
     </p>
     </div>
@@ -290,6 +297,8 @@ class DownloadControl {
     if (!this.downloadPause && !resume.flag) {
       // 初始化下载状态列表
       downloadStates.initList()
+      // 清空错误 id 列表
+      this.errorIdList = []
     } else {
       // 从上次中断的位置继续下载
       // 把“使用中”的下载状态重置为“未使用”
@@ -377,10 +386,17 @@ class DownloadControl {
 
   private downloadSuccess(data: DonwloadSuccessData) {
     const task = this.taskList[data.id]
-    // 更改这个任务状态为“已完成”
-    downloadStates.setState(task.index, 1)
 
-    EVT.fire(EVT.events.downloadSucccess, data)
+    // 这里的下载成功，指的是浏览器下载文件成功。如果文件本身下载失败，最后生成了一个保存错误信息的 txt 文件，也会进入到这里。可以通过 errorIdList 检查这个文件实际上有没有下载出错。
+    if (this.errorIdList.includes(data.id)) {
+      // 复位这个任务状态为“未下载”
+      downloadStates.setState(task.index, -1)
+    } else {
+      // 更改这个任务状态为“已完成”
+      downloadStates.setState(task.index, 1)
+      // 发送下载成功的事件
+      EVT.fire(EVT.events.downloadSucccess, data)
+    }
 
     // 统计已下载数量
     this.setDownloaded = downloadStates.downloadedCount()
@@ -451,4 +467,4 @@ class DownloadControl {
 }
 
 new DownloadControl()
-export {}
+export { }

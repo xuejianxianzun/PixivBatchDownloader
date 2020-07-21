@@ -132,7 +132,7 @@ class Download {
           '.txt'
         )
 
-        EVT.fire(EVT.events.downloadError)
+        EVT.fire(EVT.events.downloadError,arg.id)
       }
 
       if (xhr.status !== 200) {
