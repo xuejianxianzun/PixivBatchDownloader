@@ -53,10 +53,22 @@ class Download {
   }
 
   // 下载文件
-  private download(arg: downloadArgument) {
+  private async download(arg: downloadArgument) {
     titleBar.change('↓')
 
-    deduplication.check(arg.id)
+    // 检查是否是重复文件
+    const duplicate = await deduplication.check(arg.id)
+    if(duplicate){
+      return this.skip(
+        {
+          url: '',
+          id: arg.id,
+          tabId: 0,
+          uuid: false,
+        },
+        lang.transl('_跳过下载因为重复文件', arg.id)
+      )
+    }
 
     // 获取文件名
     this.fileName = fileName.getFileName(arg.data)
@@ -132,7 +144,7 @@ class Download {
           '.txt'
         )
 
-        EVT.fire(EVT.events.downloadError,arg.id)
+        EVT.fire(EVT.events.downloadError, arg.id)
       }
 
       if (xhr.status !== 200) {

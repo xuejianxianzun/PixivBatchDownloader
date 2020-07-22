@@ -1,55 +1,55 @@
-import config from './Config'
 import { EVT } from './EVT'
+import { lang } from './Lang'
 import { form } from './Settings'
 import { DonwloadSuccessData } from './Download.d'
-import { IDB } from './IndexedDB'
+import { IndexedDB } from './IndexedDB'
 
 interface Record {
   id: string
   n: string
 }
 
-// 去重。保存和查询下载记录
+// 去重
+// 通过保存和查询下载记录，判断重复文件
 class Deduplication {
   constructor() {
+    this.IDB = new IndexedDB()
     this.init()
   }
 
-
-  private db!: IDBDatabase
-  private recordName = 'record' // 下载任务元数据的表名
-
-  private storeNameList: string[] = []
+  private IDB: IndexedDB
+  private readonly DBName = 'DLRecord'
+  private readonly DBVer = 1
+  private readonly storeNameList: string[] = ['record1', 'record2', 'record3', 'record4', 'record5', 'record6', 'record7', 'record8', 'record9']  // 表名的列表
 
   private skipIdList: string[] = []  // 被跳过下载的文件的 id。当收到下载成功事件时，根据这个 id 列表判断这个文件是不是真的被下载了。如果这个文件是被跳过的，则不保存到下载记录里。
 
-  private duplicateList: string[] = [] // 储存已经检测到的重复文件的 id。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就不再添加了。因为添加重复记录会出现一个错误，尽量避免
+  private duplicateList: string[] = [] // 储存已经检测到的重复文件的 id。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
 
-  private readonly testMode = false // 调试存储状况的开关
 
   private async init() {
     if (location.hostname.includes('pixivision.net')) {
       return
     }
 
-    this.db = await this.initDB()
+    await this.initDB()
     this.bindEvent()
-    this.testMode && this.test(1000000)
   }
 
   // 初始化数据库，获取数据库对象
   private async initDB() {
-    // 创建表和索引
-    window.addEventListener(EVT.events.DBupgradeneeded, (ev: CustomEventInit) => {
-      const db = ev.detail.data.db as IDBDatabase
-      if (!db.objectStoreNames.contains(this.recordName)) {
-        const store = db.createObjectStore(this.recordName, { keyPath: 'id' })
-        store.createIndex('id', 'id', { unique: true })
+    // 在升级事件里创建表和索引
+    const onUpdate = (db: IDBDatabase) => {
+      for (const name of this.storeNameList) {
+        if (!db.objectStoreNames.contains(name)) {
+          const store = db.createObjectStore(name, { keyPath: 'id' })
+          store.createIndex('id', 'id', { unique: true })
+        }
       }
-    })
+    }
 
     return new Promise<IDBDatabase>(async (resolve, reject) => {
-      resolve(await IDB.open(config.DBName, config.DBVer))
+      resolve(await this.IDB.open(this.DBName, this.DBVer, onUpdate))
     })
   }
 
@@ -61,30 +61,57 @@ class Deduplication {
     }
   }
 
+  // 当要查找或存储一个 id 时，返回它所对应的 storeName
+  private getStoreName(id: string) {
+    const firstNum = parseInt(id[0])
+    return this.storeNameList[firstNum - 1]
+  }
+
   private bindEvent() {
     // 当有文件下载完成时，存储这个任务的记录
     window.addEventListener(EVT.events.downloadSucccess, (ev: CustomEventInit) => {
       const successData = ev.detail.data as DonwloadSuccessData
-      if (this.duplicateList.includes(successData.id)) {
-        return
-      }
 
+      // 不储存被跳过下载的文件
       if (this.skipIdList.includes(successData.id)) {
         return
       }
 
       const data = this.createRecord(successData.id)
-      IDB.add(this.recordName, data)
+
+      if (this.duplicateList.includes(successData.id)) {
+        this.IDB.put(this.getStoreName(successData.id), data)
+      } else {
+        this.IDB.add(this.getStoreName(successData.id), data).catch(() => {
+          console.log('catch')
+          this.IDB.put(this.getStoreName(successData.id), data)
+        })
+      }
+
     })
 
-    // 当有文件被跳过时，记录 id
+    // 给“清空下载记录”的按钮绑定事件
+    const btn = document.querySelector('#clearDownloadRecords')
+    if (btn) {
+      btn.addEventListener('click', () => {
+        EVT.fire(EVT.events.clearDownloadRecords)
+      })
+    }
+
+    // 监听清空下载记录的事件
+    window.addEventListener(EVT.events.clearDownloadRecords, () => {
+      // 清空下载记录
+      this.clearRecords()
+
+      // 清空 duplicateList
+      this.duplicateList = []
+    })
+
+    // 当有文件被跳过时，保存到 skipIdList
     window.addEventListener(EVT.events.skipSaveFile, (ev: CustomEventInit) => {
       const data = ev.detail.data as DonwloadSuccessData
       this.skipIdList.push(data.id)
     })
-
-      // 清空下载记录
-      // 清空 duplicateList
 
       // 当抓取完成、下载完成时，清空 skipIdList 列表
       ;[EVT.events.crawlFinish, EVT.events.downloadComplete].forEach((val) => {
@@ -94,23 +121,42 @@ class Deduplication {
       })
   }
 
-  public check(resultId: string) {
-
+  // 检查一个 id 是否是重复下载
+  // 返回值 true 表示重复，false 表示不重复
+  public async check(resultId: string) {
+    return new Promise<boolean>(async (resolve, reject) => {
+      // 如果未启用去重，直接返回不重复
+      if (form.deduplication.checked === false) {
+        resolve(false)
+      }
+      // 在数据库进行查找
+      const storeNmae = this.getStoreName(resultId)
+      const data = await this.IDB.get(storeNmae, resultId) as Record | null
+      // 查询结果为空，返回不重复
+      if (data === null) {
+        resolve(false)
+      } else {
+        this.duplicateList.push(data.id)
+        // 查询到了对应的记录，根据策略进行判断
+        if (form.dupliStrategy.value === 'loose') {
+          // 如果是宽松策略（只考虑 id），返回重复
+          resolve(true)
+        } else {
+          // 如果是严格策略（同时考虑 id 和命名规则），比较命名规则
+          resolve(form.userSetName.value === data.n)
+        }
+      }
+    })
   }
 
+  // 清空下载记录
   private clearRecords() {
-
-  }
-
-
-  // 添加指定数量的测试数据，模拟抓取完毕事件，用于调试存储情况
-  // 这个数据由于 id 是重复的，所以不能正常下载
-  private test(num: number) {
-    while (num > 0) {
-
-      num--
+    for (const name of this.storeNameList) {
+      this.IDB.clear(name)
     }
+    window.alert(lang.transl('_下载记录已清除'))
   }
+
 }
 
 const deduplication = new Deduplication()

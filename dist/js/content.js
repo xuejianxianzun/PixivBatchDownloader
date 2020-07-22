@@ -1093,9 +1093,7 @@ __webpack_require__.r(__webpack_exports__);
 // 存放全局常量。运行过程中不会被修改的值。
 /* harmony default export */ __webpack_exports__["default"] = ({
     outputMax: 5000,
-    latestReleaseAPI: 'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest',
-    DBName: 'PBD',
-    DBVer: 3,
+    latestReleaseAPI: 'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest'
 });
 
 
@@ -1508,41 +1506,46 @@ class DOM {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deduplication", function() { return deduplication; });
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/modules/Config.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Settings */ "./src/ts/modules/Settings.ts");
 /* harmony import */ var _IndexedDB__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./IndexedDB */ "./src/ts/modules/IndexedDB.ts");
 
 
 
 
-// 去重。保存和查询下载记录
+// 去重
+// 通过保存和查询下载记录，判断重复文件
 class Deduplication {
     constructor() {
-        this.historyName = 'history'; // 下载任务元数据的表名
-        this.testMode = false; // 调试存储状况的开关
+        this.DBName = 'DLRecord';
+        this.DBVer = 1;
+        this.storeNameList = ['record1', 'record2', 'record3', 'record4', 'record5', 'record6', 'record7', 'record8', 'record9']; // 表名的列表
+        this.skipIdList = []; // 被跳过下载的文件的 id。当收到下载成功事件时，根据这个 id 列表判断这个文件是不是真的被下载了。如果这个文件是被跳过的，则不保存到下载记录里。
+        this.duplicateList = []; // 储存已经检测到的重复文件的 id。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
+        this.IDB = new _IndexedDB__WEBPACK_IMPORTED_MODULE_3__["IndexedDB"]();
         this.init();
     }
     async init() {
         if (location.hostname.includes('pixivision.net')) {
             return;
         }
-        this.db = await this.initDB();
+        await this.initDB();
         this.bindEvent();
-        this.testMode && this.test(1000000);
     }
     // 初始化数据库，获取数据库对象
     async initDB() {
-        // 创建表和索引
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.DBupgradeneeded, (ev) => {
-            const db = ev.detail.data.db;
-            if (!db.objectStoreNames.contains(this.historyName)) {
-                const store = db.createObjectStore(this.historyName, { keyPath: 'id' });
-                store.createIndex('id', 'id', { unique: true });
+        // 在升级事件里创建表和索引
+        const onUpdate = (db) => {
+            for (const name of this.storeNameList) {
+                if (!db.objectStoreNames.contains(name)) {
+                    const store = db.createObjectStore(name, { keyPath: 'id' });
+                    store.createIndex('id', 'id', { unique: true });
+                }
             }
-        });
+        };
         return new Promise(async (resolve, reject) => {
-            resolve(await _IndexedDB__WEBPACK_IMPORTED_MODULE_3__["IDB"].open(_Config__WEBPACK_IMPORTED_MODULE_0__["default"].DBName, _Config__WEBPACK_IMPORTED_MODULE_0__["default"].DBVer));
+            resolve(await this.IDB.open(this.DBName, this.DBVer, onUpdate));
         });
     }
     // 生成一个下载记录
@@ -1552,24 +1555,90 @@ class Deduplication {
             n: _Settings__WEBPACK_IMPORTED_MODULE_2__["form"].userSetName.value
         };
     }
+    // 当要查找或存储一个 id 时，返回它所对应的 storeName
+    getStoreName(id) {
+        const firstNum = parseInt(id[0]);
+        return this.storeNameList[firstNum - 1];
+    }
     bindEvent() {
         // 当有文件下载完成时，存储这个任务的记录
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadSucccess, (ev) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadSucccess, (ev) => {
             const successData = ev.detail.data;
-            console.log(successData);
+            // 不储存被跳过下载的文件
+            if (this.skipIdList.includes(successData.id)) {
+                return;
+            }
             const data = this.createRecord(successData.id);
-            console.log(data);
-            _IndexedDB__WEBPACK_IMPORTED_MODULE_3__["IDB"].add(this.historyName, data);
+            if (this.duplicateList.includes(successData.id)) {
+                this.IDB.put(this.getStoreName(successData.id), data);
+            }
+            else {
+                this.IDB.add(this.getStoreName(successData.id), data).catch(() => {
+                    console.log('catch');
+                    this.IDB.put(this.getStoreName(successData.id), data);
+                });
+            }
+        });
+        // 给“清空下载记录”的按钮绑定事件
+        const btn = document.querySelector('#clearDownloadRecords');
+        if (btn) {
+            btn.addEventListener('click', () => {
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.clearDownloadRecords);
+            });
+        }
+        // 监听清空下载记录的事件
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.clearDownloadRecords, () => {
+            // 清空下载记录
+            this.clearRecords();
+            // 清空 duplicateList
+            this.duplicateList = [];
+        });
+        // 当有文件被跳过时，保存到 skipIdList
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.skipSaveFile, (ev) => {
+            const data = ev.detail.data;
+            this.skipIdList.push(data.id);
+        });
+        [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadComplete].forEach((val) => {
+            window.addEventListener(val, () => {
+                this.skipIdList = [];
+            });
         });
     }
-    check(resultId) {
+    // 检查一个 id 是否是重复下载
+    // 返回值 true 表示重复，false 表示不重复
+    async check(resultId) {
+        return new Promise(async (resolve, reject) => {
+            // 如果未启用去重，直接返回不重复
+            if (_Settings__WEBPACK_IMPORTED_MODULE_2__["form"].deduplication.checked === false) {
+                resolve(false);
+            }
+            // 在数据库进行查找
+            const storeNmae = this.getStoreName(resultId);
+            const data = await this.IDB.get(storeNmae, resultId);
+            // 查询结果为空，返回不重复
+            if (data === null) {
+                resolve(false);
+            }
+            else {
+                this.duplicateList.push(data.id);
+                // 查询到了对应的记录，根据策略进行判断
+                if (_Settings__WEBPACK_IMPORTED_MODULE_2__["form"].dupliStrategy.value === 'loose') {
+                    // 如果是宽松策略（只考虑 id），返回重复
+                    resolve(true);
+                }
+                else {
+                    // 如果是严格策略（同时考虑 id 和命名规则），比较命名规则
+                    resolve(_Settings__WEBPACK_IMPORTED_MODULE_2__["form"].userSetName.value === data.n);
+                }
+            }
+        });
     }
-    // 添加指定数量的测试数据，模拟抓取完毕事件，用于调试存储情况
-    // 这个数据由于 id 是重复的，所以不能正常下载
-    test(num) {
-        while (num > 0) {
-            num--;
+    // 清空下载记录
+    clearRecords() {
+        for (const name of this.storeNameList) {
+            this.IDB.clear(name);
         }
+        window.alert(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载记录已清除'));
     }
 }
 const deduplication = new Deduplication();
@@ -1778,9 +1847,18 @@ class Download {
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.skipSaveFile, data);
     }
     // 下载文件
-    download(arg) {
+    async download(arg) {
         _TitleBar__WEBPACK_IMPORTED_MODULE_3__["titleBar"].change('↓');
-        _Deduplication__WEBPACK_IMPORTED_MODULE_8__["deduplication"].check(arg.id);
+        // 检查是否是重复文件
+        const duplicate = await _Deduplication__WEBPACK_IMPORTED_MODULE_8__["deduplication"].check(arg.id);
+        if (duplicate) {
+            return this.skip({
+                url: '',
+                id: arg.id,
+                tabId: 0,
+                uuid: false,
+            }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_跳过下载因为重复文件', arg.id));
+        }
         // 获取文件名
         this.fileName = _FileName__WEBPACK_IMPORTED_MODULE_4__["fileName"].getFileName(arg.data);
         // 重设当前下载栏的信息
@@ -1837,7 +1915,7 @@ class Download {
                     type: 'text/plain',
                 });
                 this.fileName = this.fileName.replace(/\.jpg$|\.png$|\.zip$|\.gif$|\.webm$/, '.txt');
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadError);
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadError, arg.id);
             };
             if (xhr.status !== 200) {
                 // 状态码错误
@@ -1977,6 +2055,7 @@ class DownloadControl {
         this.downloadThread = this.downloadThreadMax; // 同时下载的线程数
         this.taskBatch = 0; // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
         this.taskList = {}; // 下载任务列表，使用下载的文件的 id 做 key，保存下载栏编号和它在下载状态列表中的索引
+        this.errorIdList = []; // 有任务下载失败时，保存 id
         this.downloaded = 0; // 已下载的任务数量
         this.convertText = '';
         this.reTryTimer = 0; // 重试下载的定时器
@@ -2005,6 +2084,10 @@ class DownloadControl {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.skipSaveFile, (ev) => {
             const data = ev.detail.data;
             this.downloadSuccess(data);
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadError, (ev) => {
+            const id = ev.detail.data;
+            this.errorIdList.push(id);
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.convertChange, (ev) => {
             const count = ev.detail.data;
@@ -2178,6 +2261,8 @@ class DownloadControl {
         if (!this.downloadPause && !_Resume__WEBPACK_IMPORTED_MODULE_11__["resume"].flag) {
             // 初始化下载状态列表
             _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].initList();
+            // 清空错误 id 列表
+            this.errorIdList = [];
         }
         else {
             // 从上次中断的位置继续下载
@@ -2249,9 +2334,17 @@ class DownloadControl {
     }
     downloadSuccess(data) {
         const task = this.taskList[data.id];
-        // 更改这个任务状态为“已完成”
-        _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].setState(task.index, 1);
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadSucccess, data);
+        // 这里的下载成功，指的是浏览器下载文件成功。如果文件本身下载失败，最后生成了一个保存错误信息的 txt 文件，也会进入到这里。可以通过 errorIdList 检查这个文件实际上有没有下载出错。
+        if (this.errorIdList.includes(data.id)) {
+            // 复位这个任务状态为“未下载”
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].setState(task.index, -1);
+        }
+        else {
+            // 更改这个任务状态为“已完成”
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].setState(task.index, 1);
+            // 发送下载成功的事件
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadSucccess, data);
+        }
         // 统计已下载数量
         this.setDownloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_10__["downloadStates"].downloadedCount();
         // 是否继续下载
@@ -2456,7 +2549,8 @@ EVT.events = {
     skipSaveFile: 'skipSaveFile',
     hasNewVer: 'hasNewVer',
     restoreDownload: 'restoreDownload',
-    DBupgradeneeded: 'DBupgradeneeded'
+    DBupgradeneeded: 'DBupgradeneeded',
+    clearDownloadRecords: 'clearDownloadRecords',
 };
 // 事件发起者的标识列表
 EVT.InitiatorList = {
@@ -4105,24 +4199,21 @@ class ImgViewer {
 /*!*************************************!*\
   !*** ./src/ts/modules/IndexedDB.ts ***!
   \*************************************/
-/*! exports provided: IDB */
+/*! exports provided: IndexedDB */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "IDB", function() { return IDB; });
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
-
-// 封装操作 IndexedDB 的一些公共方法，仅满足本程序使用，并不完善。
-// 现在这个类是单例模式。如果改成多例模式，有个麻烦的地方: 数据库的升级事件只发生一次，如果多个类里都要使用升级事件，可能只有第一个执行的类会产生升级事件。
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "IndexedDB", function() { return IndexedDB; });
+// 封装操作 IndexedDB 的一些公共方法，仅满足本程序使用，并不完善
 class IndexedDB {
-    async open(DBName, DBVer) {
+    async open(DBName, DBVer, onUpgrade) {
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(DBName, DBVer);
             request.onupgradeneeded = (ev) => {
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.DBupgradeneeded, {
-                    db: request.result
-                });
+                if (onUpgrade) {
+                    onUpgrade(request.result);
+                }
             };
             request.onsuccess = (ev) => {
                 this.db = request.result;
@@ -4172,6 +4263,7 @@ class IndexedDB {
             };
         });
     }
+    // 如果没有找到对应的记录，则返回 null
     async get(storeNames, key, index) {
         return new Promise((resolve, reject) => {
             if (this.db === undefined) {
@@ -4221,6 +4313,25 @@ class IndexedDB {
             };
         });
     }
+    async clear(storeNames) {
+        return new Promise((resolve, reject) => {
+            if (this.db === undefined) {
+                reject('Database is not defined');
+                return;
+            }
+            const r = this.db
+                .transaction(storeNames, 'readwrite')
+                .objectStore(storeNames)
+                .clear();
+            r.onsuccess = (ev) => {
+                resolve();
+            };
+            r.onerror = (ev) => {
+                console.error('clear failed');
+                reject(ev);
+            };
+        });
+    }
     async openCursor(storeNames, CB) {
         return new Promise((resolve, reject) => {
             if (this.db === undefined) {
@@ -4242,7 +4353,6 @@ class IndexedDB {
         });
     }
 }
-const IDB = new IndexedDB();
 
 
 
@@ -6462,13 +6572,11 @@ class QuickBookmark {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "resume", function() { return resume; });
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Config */ "./src/ts/modules/Config.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
-/* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/modules/DownloadStates.ts");
-/* harmony import */ var _IndexedDB__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./IndexedDB */ "./src/ts/modules/IndexedDB.ts");
-
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
+/* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/modules/DownloadStates.ts");
+/* harmony import */ var _IndexedDB__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./IndexedDB */ "./src/ts/modules/IndexedDB.ts");
 
 
 
@@ -6478,6 +6586,8 @@ __webpack_require__.r(__webpack_exports__);
 class Resume {
     constructor() {
         this.flag = false; // 指示是否处于恢复模式
+        this.DBName = 'PBD';
+        this.DBVer = 3;
         this.metaName = 'taskMeta'; // 下载任务元数据的表名
         this.dataName = 'taskData'; // 下载任务数据的表名
         this.statesName = 'taskStates'; // 下载状态列表的表名
@@ -6491,13 +6601,14 @@ class Resume {
         this.putStatesTime = 2000; // 每隔指定时间存储一次最新的下载状态
         this.needPutStates = false; // 指示是否需要更新存储的下载状态
         this.testSave = false; // 调试存储状况的开关
+        this.IDB = new _IndexedDB__WEBPACK_IMPORTED_MODULE_4__["IndexedDB"]();
         this.init();
     }
     async init() {
         if (location.hostname.includes('pixivision.net')) {
             return;
         }
-        this.db = await this.initDB();
+        await this.initDB();
         !this.testSave && this.restoreData();
         this.bindEvent();
         this.regularPutStates();
@@ -6506,9 +6617,8 @@ class Resume {
     }
     // 初始化数据库，获取数据库对象
     async initDB() {
-        // 创建表和索引
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.DBupgradeneeded, (ev) => {
-            const db = ev.detail.data.db;
+        // 在升级事件里创建表和索引
+        const onUpdate = (db) => {
             if (!db.objectStoreNames.contains(this.metaName)) {
                 const metaStore = db.createObjectStore(this.metaName, {
                     keyPath: 'id',
@@ -6528,24 +6638,25 @@ class Resume {
                 });
                 statesStore.createIndex('id', 'id', { unique: true });
             }
-        });
+        };
+        // 打开数据库
         return new Promise(async (resolve, reject) => {
-            resolve(await _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].open(_Config__WEBPACK_IMPORTED_MODULE_0__["default"].DBName, _Config__WEBPACK_IMPORTED_MODULE_0__["default"].DBVer));
+            resolve(await this.IDB.open(this.DBName, this.DBVer, onUpdate));
         });
     }
     // 恢复未完成任务的数据
     async restoreData() {
         // 如果当前不允许展开工作（也就是在抓取或者在下载），则不恢复数据
-        if (!_Store__WEBPACK_IMPORTED_MODULE_2__["store"].states.allowWork) {
+        if (!_Store__WEBPACK_IMPORTED_MODULE_1__["store"].states.allowWork) {
             return;
         }
         // 1 获取任务的元数据
-        const meta = await _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].get(this.metaName, this.getURL(), 'url');
+        const meta = await this.IDB.get(this.metaName, this.getURL(), 'url');
         if (!meta) {
             this.flag = false;
             return;
         }
-        _Log__WEBPACK_IMPORTED_MODULE_3__["log"].warning('Restoring crawl results');
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].warning('Restoring crawl results');
         this.taskId = meta.id;
         // 2 恢复抓取结果
         // 生成每批数据的 id 列表
@@ -6553,45 +6664,45 @@ class Resume {
         // 读取全部数据并恢复
         const promiseList = [];
         for (const id of dataIdList) {
-            promiseList.push(_IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].get(this.dataName, id));
+            promiseList.push(this.IDB.get(this.dataName, id));
         }
         await Promise.all(promiseList).then((res) => {
-            _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result = [];
+            _Store__WEBPACK_IMPORTED_MODULE_1__["store"].result = [];
             const r = res;
             for (const taskData of r) {
                 for (const data of taskData.data) {
-                    _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.push(data);
+                    _Store__WEBPACK_IMPORTED_MODULE_1__["store"].result.push(data);
                 }
             }
         });
         // 3 恢复下载状态
-        const data = (await _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].get(this.statesName, this.taskId));
+        const data = (await this.IDB.get(this.statesName, this.taskId));
         if (data) {
-            _DownloadStates__WEBPACK_IMPORTED_MODULE_4__["downloadStates"].replace(data.states);
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_3__["downloadStates"].replace(data.states);
         }
         // 恢复模式就绪
         this.flag = true;
-        _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success('Crawl results have been restored', 2);
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success('Crawl results have been restored', 2);
         // 发出抓取完毕的信号
-        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, {
-            initiator: _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].InitiatorList.resume,
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, {
+            initiator: _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].InitiatorList.resume,
         });
     }
     bindEvent() {
         // 抓取完成时，保存这次任务的数据
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, async (ev) => {
-            if (ev.detail.data.initiator === _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].InitiatorList.resume) {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, async (ev) => {
+            if (ev.detail.data.initiator === _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].InitiatorList.resume) {
                 // 如果这个事件是这个类自己发出的，则不进行处理
                 return;
             }
             // 首先检查这个网址下是否已经存在有数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
-            const taskData = await _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].get(this.metaName, this.getURL(), 'url');
+            const taskData = await this.IDB.get(this.metaName, this.getURL(), 'url');
             if (taskData) {
-                await _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].delete(this.metaName, taskData.id);
-                await _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].delete(this.statesName, taskData.id);
+                await this.IDB.delete(this.metaName, taskData.id);
+                await this.IDB.delete(this.statesName, taskData.id);
             }
             this.taskId = new Date().getTime();
-            _Log__WEBPACK_IMPORTED_MODULE_3__["log"].warning('Saving crawl results');
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].warning('Saving crawl results');
             // 保存本次任务的数据
             this.part = [];
             await this.saveTaskData();
@@ -6601,39 +6712,39 @@ class Resume {
                 url: this.getURL(),
                 part: this.part.length,
             };
-            _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].add(this.metaName, metaData);
+            this.IDB.add(this.metaName, metaData);
             // 保存 states 数据
             const statesData = {
                 id: this.taskId,
-                states: _DownloadStates__WEBPACK_IMPORTED_MODULE_4__["downloadStates"].states,
+                states: _DownloadStates__WEBPACK_IMPORTED_MODULE_3__["downloadStates"].states,
             };
-            _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].add(this.statesName, statesData);
-            _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success('The crawl results have been saved', 2);
+            this.IDB.add(this.statesName, statesData);
+            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success('The crawl results have been saved', 2);
         });
         // 当有文件下载完成时，更新下载状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadSucccess, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadSucccess, () => {
             this.needPutStates = true;
         });
         // 任务下载完毕时，清除这次任务的数据
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadComplete, async () => {
-            const meta = (await _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].get(this.metaName, this.taskId));
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadComplete, async () => {
+            const meta = (await this.IDB.get(this.metaName, this.taskId));
             if (!meta) {
                 return;
             }
-            _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].delete(this.metaName, this.taskId);
-            _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].delete(this.statesName, this.taskId);
+            this.IDB.delete(this.metaName, this.taskId);
+            this.IDB.delete(this.statesName, this.taskId);
             const dataIdList = this.createIdList(this.taskId, meta.part);
             for (const id of dataIdList) {
-                _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].delete(this.dataName, id);
+                this.IDB.delete(this.dataName, id);
             }
             this.flag = false;
         });
         // 开始新的抓取时，取消恢复模式
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlStart, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlStart, () => {
             this.flag = false;
         });
         // 切换页面时，重新检查恢复数据
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.pageSwitch, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.pageSwitch, () => {
             this.flag = false;
             this.restoreData();
         });
@@ -6644,10 +6755,10 @@ class Resume {
             if (this.needPutStates) {
                 const statesData = {
                     id: this.taskId,
-                    states: _DownloadStates__WEBPACK_IMPORTED_MODULE_4__["downloadStates"].states,
+                    states: _DownloadStates__WEBPACK_IMPORTED_MODULE_3__["downloadStates"].states,
                 };
                 this.needPutStates = false;
-                _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].put(this.statesName, statesData);
+                this.IDB.put(this.statesName, statesData);
             }
         }, this.putStatesTime);
     }
@@ -6657,20 +6768,20 @@ class Resume {
             // 每一批任务的第一次执行会尝试保存所有剩余数据(0.5 的 0 次幂是 1)
             // 如果出错了，则每次执行会尝试保存上一次数据量的一半，直到这次存储成功
             // 之后继续进行下一批任务（如果有）
-            let tryNum = Math.floor(_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length * Math.pow(0.5, this.try));
+            let tryNum = Math.floor(_Store__WEBPACK_IMPORTED_MODULE_1__["store"].result.length * Math.pow(0.5, this.try));
             // 如果这批尝试数据大于指定数量，则设置为指定数量
             tryNum > this.onceMax && (tryNum = this.onceMax);
             let data = {
                 id: this.numAppendNum(this.taskId, this.part.length),
-                data: _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.slice(this.getPartTotal(), this.getPartTotal() + tryNum),
+                data: _Store__WEBPACK_IMPORTED_MODULE_1__["store"].result.slice(this.getPartTotal(), this.getPartTotal() + tryNum),
             };
             try {
                 // 当成功存储了一批数据时
-                await _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].add(this.dataName, data);
+                await this.IDB.add(this.dataName, data);
                 this.part.push(data.data.length); // 记录这一次保存的结果数量
                 this.try = 0; // 重置已尝试次数
                 // 任务数据全部添加完毕
-                if (this.getPartTotal() >= _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
+                if (this.getPartTotal() >= _Store__WEBPACK_IMPORTED_MODULE_1__["store"].result.length) {
                     // console.log('add complete')
                     resolve();
                 }
@@ -6693,7 +6804,7 @@ class Resume {
                     else {
                         // 未知错误，不再进行尝试
                         this.try = 0;
-                        _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error('IndexedDB: ' + msg);
+                        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].error('IndexedDB: ' + msg);
                         reject(error);
                     }
                 }
@@ -6710,17 +6821,17 @@ class Resume {
                 const data = item.value;
                 // 检查数据是否过期
                 if (nowTime - data.id > expiryTime) {
-                    _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].delete(this.metaName, data.id);
-                    _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].delete(this.statesName, data.id);
+                    this.IDB.delete(this.metaName, data.id);
+                    this.IDB.delete(this.statesName, data.id);
                     const dataIdList = this.createIdList(data.id, data.part);
                     for (const id of dataIdList) {
-                        _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].delete(this.dataName, id);
+                        this.IDB.delete(this.dataName, id);
                     }
                 }
                 item.continue();
             }
         };
-        _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IDB"].openCursor(this.metaName, callback);
+        this.IDB.openCursor(this.metaName, callback);
     }
     // 计算 part 数组里的数字之和
     getPartTotal() {
@@ -6756,7 +6867,7 @@ class Resume {
     // 这个数据由于 id 是重复的，所以不能正常下载
     test(num) {
         while (num > 0) {
-            _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.push({
+            _Store__WEBPACK_IMPORTED_MODULE_1__["store"].result.push({
                 bmk: 1644,
                 bookmarked: false,
                 date: '2020-07-11',
@@ -6803,7 +6914,7 @@ class Resume {
             });
             num--;
         }
-        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish);
     }
 }
 const resume = new Resume();
@@ -8944,6 +9055,10 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         };
         this.addBookmark = (event) => {
             const data = event.detail.data;
+            // 如果设置了不启用快速收藏，则把 tag 设置为空，以达到这个效果
+            if (_Settings__WEBPACK_IMPORTED_MODULE_13__["form"].quickBookmarks.checked === false) {
+                data.tags = [];
+            }
             _API__WEBPACK_IMPORTED_MODULE_8__["API"].addBookmark('illusts', data.id.toString(), data.tags, false, _API__WEBPACK_IMPORTED_MODULE_8__["API"].getToken());
             this.resultMeta.forEach((result) => {
                 if (result.idNum === data.id) {
@@ -10894,7 +11009,19 @@ const langText = {
         '清除下载记录',
         '清除下载记录',
         '清除下载记录',
-    ]
+    ],
+    _下载记录已清除: [
+        '下载记录已清除',
+        '下载记录已清除',
+        '下载记录已清除',
+        '下载记录已清除',
+    ],
+    _跳过下载因为重复文件: [
+        '检测到文件 {} 已经下载过，跳过此次下载。',
+        '检测到文件 {} 已经下载过，跳过此次下载。',
+        '检测到文件 {} 已经下载过，跳过此次下载。',
+        '检测到文件 {} 已经下载过，跳过此次下载。',
+    ],
 };
 
 

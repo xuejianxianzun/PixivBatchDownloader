@@ -33,7 +33,8 @@ class EVT {
     skipSaveFile: 'skipSaveFile',
     hasNewVer: 'hasNewVer',
     restoreDownload: 'restoreDownload',
-    DBupgradeneeded:'DBupgradeneeded'
+    DBupgradeneeded: 'DBupgradeneeded',
+    clearDownloadRecords: 'clearDownloadRecords',
   }
 
   // 事件发起者的标识列表

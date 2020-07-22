@@ -1,19 +1,15 @@
-import { EVT } from './EVT'
-
-// 封装操作 IndexedDB 的一些公共方法，仅满足本程序使用，并不完善。
-// 现在这个类是单例模式。如果改成多例模式，有个麻烦的地方: 数据库的升级事件只发生一次，如果多个类里都要使用升级事件，可能只有第一个执行的类会产生升级事件。
+// 封装操作 IndexedDB 的一些公共方法，仅满足本程序使用，并不完善
 class IndexedDB {
+  public db: IDBDatabase | undefined
 
-  private db: IDBDatabase | undefined
-
-  public async open(DBName: string, DBVer: number) {
+  public async open(DBName: string, DBVer: number, onUpgrade?: (db: IDBDatabase) => void) {
     return new Promise<IDBDatabase>((resolve, reject) => {
       const request = indexedDB.open(DBName, DBVer)
 
       request.onupgradeneeded = (ev) => {
-        EVT.fire(EVT.events.DBupgradeneeded, {
-          db: request.result
-        })
+        if (onUpgrade) {
+          onUpgrade(request.result)
+        }
       }
 
       request.onsuccess = (ev) => {
@@ -73,6 +69,7 @@ class IndexedDB {
     })
   }
 
+  // 如果没有找到对应的记录，则返回 null
   public async get(storeNames: string, key: any, index?: string) {
     return new Promise((resolve, reject) => {
       if (this.db === undefined) {
@@ -173,6 +170,4 @@ class IndexedDB {
   }
 }
 
-const IDB = new IndexedDB()
-
-export { IDB }
+export { IndexedDB }

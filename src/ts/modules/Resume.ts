@@ -1,10 +1,9 @@
-import config from './Config'
 import { EVT } from './EVT'
 import { store } from './Store'
 import { log } from './Log'
 import { downloadStates, DLStatesI } from './DownloadStates'
 import { Result } from './Store.d'
-import { IDB } from './IndexedDB'
+import { IndexedDB } from './IndexedDB'
 
 interface TaskMeta {
   id: number
@@ -25,12 +24,15 @@ interface TaskStates {
 // 断点续传。恢复未完成的下载
 class Resume {
   constructor() {
+    this.IDB = new IndexedDB()
     this.init()
   }
 
   public flag = false // 指示是否处于恢复模式
 
-  private db!: IDBDatabase
+  private IDB: IndexedDB
+  private readonly DBName = 'PBD'
+  private readonly DBVer = 3
   private metaName = 'taskMeta' // 下载任务元数据的表名
   private dataName = 'taskData' // 下载任务数据的表名
   private statesName = 'taskStates' // 下载状态列表的表名
@@ -57,7 +59,7 @@ class Resume {
       return
     }
 
-    this.db = await this.initDB()
+    await this.initDB()
     !this.testSave && this.restoreData()
     this.bindEvent()
     this.regularPutStates()
@@ -67,10 +69,8 @@ class Resume {
 
   // 初始化数据库，获取数据库对象
   private async initDB() {
-    // 创建表和索引
-    window.addEventListener(EVT.events.DBupgradeneeded, (ev: CustomEventInit) => {
-      const db = ev.detail.data.db as IDBDatabase
-
+    // 在升级事件里创建表和索引
+    const onUpdate = (db: IDBDatabase) => {
       if (!db.objectStoreNames.contains(this.metaName)) {
         const metaStore = db.createObjectStore(this.metaName, {
           keyPath: 'id',
@@ -92,10 +92,11 @@ class Resume {
         })
         statesStore.createIndex('id', 'id', { unique: true })
       }
-    })
+    }
 
+    // 打开数据库
     return new Promise<IDBDatabase>(async (resolve, reject) => {
-      resolve(await IDB.open(config.DBName, config.DBVer))
+      resolve(await this.IDB.open(this.DBName, this.DBVer, onUpdate))
     })
   }
 
@@ -107,7 +108,7 @@ class Resume {
     }
 
     // 1 获取任务的元数据
-    const meta = await IDB.get(this.metaName, this.getURL(), 'url') as TaskMeta | null
+    const meta = await this.IDB.get(this.metaName, this.getURL(), 'url') as TaskMeta | null
     if (!meta) {
       this.flag = false
       return
@@ -125,7 +126,7 @@ class Resume {
     const promiseList = []
     for (const id of dataIdList) {
 
-      promiseList.push(IDB.get(this.dataName, id))
+      promiseList.push(this.IDB.get(this.dataName, id))
     }
 
     await Promise.all(promiseList).then((res) => {
@@ -139,7 +140,7 @@ class Resume {
     })
 
     // 3 恢复下载状态
-    const data = (await IDB.get(
+    const data = (await this.IDB.get(
       this.statesName,
       this.taskId
     )) as TaskStates
@@ -169,11 +170,11 @@ class Resume {
           return
         }
         // 首先检查这个网址下是否已经存在有数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
-        const taskData = await IDB.get(this.metaName, this.getURL(), 'url') as TaskMeta | null
+        const taskData = await this.IDB.get(this.metaName, this.getURL(), 'url') as TaskMeta | null
 
         if (taskData) {
-          await IDB.delete(this.metaName, taskData.id)
-          await IDB.delete(this.statesName, taskData.id)
+          await this.IDB.delete(this.metaName, taskData.id)
+          await this.IDB.delete(this.statesName, taskData.id)
         }
 
         this.taskId = new Date().getTime()
@@ -191,14 +192,14 @@ class Resume {
           part: this.part.length,
         }
 
-        IDB.add(this.metaName, metaData)
+        this.IDB.add(this.metaName, metaData)
 
         // 保存 states 数据
         const statesData = {
           id: this.taskId,
           states: downloadStates.states,
         }
-        IDB.add(this.statesName, statesData)
+        this.IDB.add(this.statesName, statesData)
 
         log.success('The crawl results have been saved', 2)
       }
@@ -211,18 +212,18 @@ class Resume {
 
     // 任务下载完毕时，清除这次任务的数据
     window.addEventListener(EVT.events.downloadComplete, async () => {
-      const meta = (await IDB.get(this.metaName, this.taskId)) as TaskMeta
+      const meta = (await this.IDB.get(this.metaName, this.taskId)) as TaskMeta
 
       if (!meta) {
         return
       }
 
-      IDB.delete(this.metaName, this.taskId)
-      IDB.delete(this.statesName, this.taskId)
+      this.IDB.delete(this.metaName, this.taskId)
+      this.IDB.delete(this.statesName, this.taskId)
 
       const dataIdList = this.createIdList(this.taskId, meta.part)
       for (const id of dataIdList) {
-        IDB.delete(this.dataName, id)
+        this.IDB.delete(this.dataName, id)
       }
       this.flag = false
     })
@@ -248,7 +249,7 @@ class Resume {
           states: downloadStates.states,
         }
         this.needPutStates = false
-        IDB.put(this.statesName, statesData)
+        this.IDB.put(this.statesName, statesData)
       }
     }, this.putStatesTime)
   }
@@ -272,7 +273,7 @@ class Resume {
 
       try {
         // 当成功存储了一批数据时
-        await IDB.add(this.dataName, data)
+        await this.IDB.add(this.dataName, data)
         this.part.push(data.data.length) // 记录这一次保存的结果数量
         this.try = 0 // 重置已尝试次数
 
@@ -316,19 +317,19 @@ class Resume {
         const data = item.value as TaskMeta
         // 检查数据是否过期
         if (nowTime - data.id > expiryTime) {
-          IDB.delete(this.metaName, data.id)
-          IDB.delete(this.statesName, data.id)
+          this.IDB.delete(this.metaName, data.id)
+          this.IDB.delete(this.statesName, data.id)
 
           const dataIdList = this.createIdList(data.id, data.part)
           for (const id of dataIdList) {
-            IDB.delete(this.dataName, id)
+            this.IDB.delete(this.dataName, id)
           }
         }
         item.continue()
       }
     }
 
-    IDB.openCursor(this.metaName, callback)
+    this.IDB.openCursor(this.metaName, callback)
   }
 
   // 计算 part 数组里的数字之和
