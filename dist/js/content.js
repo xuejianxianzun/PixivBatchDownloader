@@ -3620,7 +3620,7 @@ const formHtml = `<form class="settingForm">
       </p>
       <p class="option" data-no="5">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置收藏数量的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置收藏数量')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="BMKNumSwitch" class="need_beautify checkbox_switch" checked>
+      <input type="checkbox" name="BMKNumSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="BMKNumSwitch">
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_最小值')}&nbsp;</span>
@@ -3793,7 +3793,7 @@ const formHtml = `<form class="settingForm">
       </p>
       <p class="option" data-no="14">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_添加字段名称提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_添加命名标记前缀')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch" checked>
+      <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
       <p class="option" data-no="22">
@@ -3890,7 +3890,7 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="20">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用快速收藏说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用快速收藏')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="quickBookmarks" id="quickBookmarks" class="need_beautify checkbox_switch"> 
+      <input type="checkbox" name="quickBookmarks" id="quickBookmarks" class="need_beautify checkbox_switch" checked> 
       <span class="beautify_switch"></span>
       </p>
 
