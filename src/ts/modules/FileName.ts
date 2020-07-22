@@ -1,10 +1,10 @@
 // 生成文件名
-import { Result } from './Store.d'
 import { EVT } from './EVT'
+import { API } from './API'
+import { lang } from './Lang'
 import { form } from './Settings'
 import { store } from './Store'
-import { lang } from './Lang'
-import { API } from './API'
+import { Result } from './Store.d'
 import config from './Config'
 
 class FileName {

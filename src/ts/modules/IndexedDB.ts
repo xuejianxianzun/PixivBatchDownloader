@@ -2,7 +2,11 @@
 class IndexedDB {
   public db: IDBDatabase | undefined
 
-  public async open(DBName: string, DBVer: number, onUpgrade?: (db: IDBDatabase) => void) {
+  public async open(
+    DBName: string,
+    DBVer: number,
+    onUpgrade?: (db: IDBDatabase) => void
+  ) {
     return new Promise<IDBDatabase>((resolve, reject) => {
       const request = indexedDB.open(DBName, DBVer)
 
@@ -21,14 +25,10 @@ class IndexedDB {
         console.error('open indexDB failed')
         reject(ev)
       }
-
     })
   }
 
-  public async add(
-    storeNames: string,
-    data: object
-  ) {
+  public async add(storeNames: string, data: object) {
     return new Promise((resolve, reject) => {
       if (this.db === undefined) {
         reject('Database is not defined')
@@ -89,7 +89,6 @@ class IndexedDB {
         r = store.get(key)
       }
 
-
       r.onsuccess = (ev) => {
         const data = r.result
         if (data) {
@@ -147,7 +146,10 @@ class IndexedDB {
     })
   }
 
-  public async openCursor(storeNames: string, CB: (c: IDBCursorWithValue | null) => void) {
+  public async openCursor(
+    storeNames: string,
+    CB: (c: IDBCursorWithValue | null) => void
+  ) {
     return new Promise((resolve, reject) => {
       if (this.db === undefined) {
         reject('Database is not defined')

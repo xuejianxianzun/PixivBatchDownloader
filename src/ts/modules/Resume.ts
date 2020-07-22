@@ -108,7 +108,11 @@ class Resume {
     }
 
     // 1 获取任务的元数据
-    const meta = await this.IDB.get(this.metaName, this.getURL(), 'url') as TaskMeta | null
+    const meta = (await this.IDB.get(
+      this.metaName,
+      this.getURL(),
+      'url'
+    )) as TaskMeta | null
     if (!meta) {
       this.flag = false
       return
@@ -125,7 +129,6 @@ class Resume {
     // 读取全部数据并恢复
     const promiseList = []
     for (const id of dataIdList) {
-
       promiseList.push(this.IDB.get(this.dataName, id))
     }
 
@@ -170,18 +173,26 @@ class Resume {
           return
         }
         // 首先检查这个网址下是否已经存在有数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
-        const taskData = await this.IDB.get(this.metaName, this.getURL(), 'url') as TaskMeta | null
+        const taskData = (await this.IDB.get(
+          this.metaName,
+          this.getURL(),
+          'url'
+        )) as TaskMeta | null
 
         if (taskData) {
           await this.IDB.delete(this.metaName, taskData.id)
           await this.IDB.delete(this.statesName, taskData.id)
         }
 
-        this.taskId = new Date().getTime()
+        // 保存本次任务的数据
+        // 如果此时本次任务已经完成，就不进行保存了
+        if (downloadStates.downloadedCount() === store.result.length) {
+          return
+        }
 
         log.warning('Saving crawl results')
+        this.taskId = new Date().getTime()
 
-        // 保存本次任务的数据
         this.part = []
         await this.saveTaskData()
 
@@ -212,6 +223,9 @@ class Resume {
 
     // 任务下载完毕时，清除这次任务的数据
     window.addEventListener(EVT.events.downloadComplete, async () => {
+      if (!this.taskId) {
+        return
+      }
       const meta = (await this.IDB.get(this.metaName, this.taskId)) as TaskMeta
 
       if (!meta) {
@@ -249,6 +263,10 @@ class Resume {
           states: downloadStates.states,
         }
         this.needPutStates = false
+        // 如果此时本次任务已经完成，就不进行保存了
+        if (downloadStates.downloadedCount() === store.result.length) {
+          return
+        }
         this.IDB.put(this.statesName, statesData)
       }
     }, this.putStatesTime)

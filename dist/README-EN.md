@@ -10,8 +10,6 @@
 
 **You can resume the breakpoint!**
 
-**Note:** The latest version has not been approved by the Chrome web store. You can install it offline or use the Edge browser to install it from the Edge store.
-
 <!-- TOC -->
 
 - [Introduction](#introduction)
@@ -44,7 +42,7 @@ Some auxiliary functions have also been added, such as removing ads, quick colle
 
 2. **Microsoft Edge** browser can also install this extension from the **[Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)**.
 
-If you like this extension, please rate it so that it can be seen by more people, thank you!
+**Note:** Sometimes the extension on the Chrome Web Store may not be the latest version. If necessary, you can install it offline or use the Edge browser to install from the Edge store.
 
 ## Offline installation
 

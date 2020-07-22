@@ -412,7 +412,9 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="28">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl('_不下载重复文件的提示')}">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_不下载重复文件的提示'
+      )}">
       ${lang.transl('_不下载重复文件')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
@@ -420,12 +422,18 @@ const formHtml = `<form class="settingForm">
       <span>${lang.transl('_策略')}</span>
       <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
       <span class="beautify_radio"></span>
-      <label class="has_tip" for="dupliStrategy1" data-tip="${lang.transl('_严格模式说明')}">${lang.transl('_严格')}</label>
+      <label class="has_tip" for="dupliStrategy1" data-tip="${lang.transl(
+        '_严格模式说明'
+      )}">${lang.transl('_严格')}</label>
       <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
       <span class="beautify_radio"></span>
-      <label class="has_tip" for="dupliStrategy2" data-tip="${lang.transl('_宽松模式说明')}">${lang.transl('_宽松')}</label>
+      <label class="has_tip" for="dupliStrategy2" data-tip="${lang.transl(
+        '_宽松模式说明'
+      )}">${lang.transl('_宽松')}</label>
       &nbsp;&nbsp;
-      <a class="gray1" id="clearDownloadRecords" href="javascript:void(0)">${lang.transl('_清除下载记录')}</a>
+      <a class="gray1" id="clearDownloadRecords" href="javascript:void(0)">${lang.transl(
+        '_清除下载记录'
+      )}</a>
       </span>
       </p>
 

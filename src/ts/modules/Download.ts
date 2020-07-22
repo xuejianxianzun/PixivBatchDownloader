@@ -48,8 +48,9 @@ class Download {
   }
 
   private skip(data: DonwloadSuccessData, msg = '') {
-    log.warning(msg)
+    this.cancel = true
     EVT.fire(EVT.events.skipSaveFile, data)
+    log.warning(msg)
   }
 
   // 下载文件
@@ -58,7 +59,7 @@ class Download {
 
     // 检查是否是重复文件
     const duplicate = await deduplication.check(arg.id)
-    if(duplicate){
+    if (duplicate) {
       return this.skip(
         {
           url: '',
@@ -89,7 +90,6 @@ class Download {
         if (this.sizeCheck === false) {
           // 当因为体积问题跳过下载时，可能这个下载进度还是 0 或者很少，所以这里直接把进度条拉满
           this.setProgressBar(1, 1)
-          this.cancel = true
           this.skip(
             {
               url: '',
@@ -215,7 +215,6 @@ class Download {
           mini: blobUrl,
         })
         if (!result) {
-          this.cancel = true
           return this.skip(
             {
               url: blobUrl,

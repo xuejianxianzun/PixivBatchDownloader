@@ -74,7 +74,7 @@ class SaveSettings {
         const data = event.detail.data as SettingChangeData
         if (Reflect.has(this.optionDefault, data.name)) {
           if ((this.options[data.name] as any) !== data.value) {
-            ; (this.options[data.name] as any) = data.value
+            ;(this.options[data.name] as any) = data.value
             localStorage.setItem(this.storeName, JSON.stringify(this.options))
           }
         }
@@ -140,7 +140,7 @@ class SaveSettings {
     novelSaveAs: 'txt',
     saveNovelMeta: false,
     deduplication: false,
-    dupliStrategy: 'strict'
+    dupliStrategy: 'strict',
   }
 
   // 需要持久化保存的设置
@@ -379,11 +379,11 @@ class SaveSettings {
 
     // 保存命名规则
     const userSetNameInput = this.form.userSetName
-      ;['change', 'focus'].forEach((ev) => {
-        userSetNameInput.addEventListener(ev, () => {
-          this.emitChange('userSetName', userSetNameInput.value)
-        })
+    ;['change', 'focus'].forEach((ev) => {
+      userSetNameInput.addEventListener(ev, () => {
+        this.emitChange('userSetName', userSetNameInput.value)
       })
+    })
 
     // 保存是否添加标记名称
     this.saveCheckBox('tagNameToFileName')

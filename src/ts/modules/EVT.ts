@@ -47,7 +47,9 @@ class EVT {
     const event = new CustomEvent(type, {
       detail: { data: data },
     })
-    window.dispatchEvent(event)
+    setTimeout(() => {
+      window.dispatchEvent(event)
+    }, 0)
   }
 }
 

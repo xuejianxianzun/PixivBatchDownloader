@@ -118,8 +118,8 @@ class DownloadControl {
     })
   }
 
-  private set setDownloaded(val: number) {
-    this.downloaded = val
+  private setDownloaded() {
+    this.downloaded = downloadStates.downloadedCount()
     this.LogDownloadStates()
 
     // 设置下载进度信息
@@ -176,23 +176,23 @@ class DownloadControl {
     <div class="centerWrap_btns">
     <button class="startDownload" type="button" style="background:${
       Colors.blue
-      };"> ${lang.transl('_下载按钮1')}</button>
+    };"> ${lang.transl('_下载按钮1')}</button>
     <button class="pauseDownload" type="button" style="background:#e49d00;"> ${lang.transl(
-        '_下载按钮2'
-      )}</button>
+      '_下载按钮2'
+    )}</button>
     <button class="stopDownload" type="button" style="background:${
       Colors.red
-      };"> ${lang.transl('_下载按钮3')}</button>
+    };"> ${lang.transl('_下载按钮3')}</button>
     <button class="copyUrl" type="button" style="background:${
       Colors.green
-      };"> ${lang.transl('_复制url')}</button>
+    };"> ${lang.transl('_复制url')}</button>
     </div>
     <div class="centerWrap_down_tips">
     <p>
     <span>${lang.transl('_当前状态')}</span>
     <span class="down_status blue"><span>${lang.transl(
-        '_未开始下载'
-      )}</span></span>
+      '_未开始下载'
+    )}</span></span>
     <span class="convert_tip warn"></span>
     </p>
     </div>
@@ -265,7 +265,7 @@ class DownloadControl {
   private readyDownload() {
     this.totalNumberEl.textContent = store.result.length.toString()
 
-    this.setDownloaded = downloadStates.downloadedCount()
+    this.setDownloaded()
 
     this.setDownloadThread()
 
@@ -305,7 +305,7 @@ class DownloadControl {
       downloadStates.resume()
     }
 
-    this.setDownloaded = downloadStates.downloadedCount()
+    this.setDownloaded()
 
     this.taskBatch = new Date().getTime() // 修改本批下载任务的标记
 
@@ -399,7 +399,7 @@ class DownloadControl {
     }
 
     // 统计已下载数量
-    this.setDownloaded = downloadStates.downloadedCount()
+    this.setDownloaded()
 
     // 是否继续下载
     const no = task.progressBarIndex
@@ -467,4 +467,4 @@ class DownloadControl {
 }
 
 new DownloadControl()
-export { }
+export {}
