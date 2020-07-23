@@ -23,7 +23,7 @@ abstract class InitPageBase {
     this.appendElseEl()
     this.initElse()
 
-    window.addEventListener(EVT.events.destroy, () => {
+    window.addEventListener(EVT.events.pageTypeChange, () => {
       this.destroy()
     })
   }

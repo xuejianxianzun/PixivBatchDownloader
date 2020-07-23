@@ -786,6 +786,9 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
+        /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./Settings */ './src/ts/modules/Settings.ts'
+        )
 
         // 一键收藏本页面上的所有作品
         class BookmarkAllWorks {
@@ -892,6 +895,13 @@
           async addTag() {
             this.btn.textContent = `Add bookmark ${this.index} / ${this.idList.length}`
             const data = this.addTagList[this.index]
+            // 如果设置了不启用快速收藏，则把 tag 设置为空
+            if (
+              _Settings__WEBPACK_IMPORTED_MODULE_4__['form'].quickBookmarks
+                .checked === false
+            ) {
+              data.tags = []
+            }
             await _API__WEBPACK_IMPORTED_MODULE_0__['API'].addBookmark(
               this.type,
               data.id,
@@ -2361,14 +2371,7 @@
                   )
                 }
                 _Log__WEBPACK_IMPORTED_MODULE_1__['log'].error(msg, 1)
-                // 创建 txt 文件，保存提示信息
-                file = new Blob([`${msg}`], {
-                  type: 'text/plain',
-                })
-                this.fileName = this.fileName.replace(
-                  /\.jpg$|\.png$|\.zip$|\.gif$|\.webm$/,
-                  '.txt'
-                )
+                this.cancel = true
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
                   _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadError,
                   arg.id
@@ -2389,7 +2392,7 @@
                 this.retry++
                 if (this.retry >= this.retryMax) {
                   // 重试 retryMax 次依然错误
-                  console.log(arg.data.id + 'retryMax')
+                  // console.log(arg.data.id + ' retryMax')
                   downloadError()
                 } else {
                   return this.download(arg)
@@ -2418,18 +2421,19 @@
                       ].gif(file, arg.data.ugoiraInfo)
                     }
                   } catch (error) {
-                    // 创建 txt 文件，保存提示信息
                     const msg = `Error: convert ugoira error, work id ${arg.data.idNum}.`
-                    _Log__WEBPACK_IMPORTED_MODULE_1__['log'].error(msg, 2)
-                    file = new Blob([`${msg}`], {
-                      type: 'text/plain',
-                    })
-                    this.fileName = this.fileName.replace(
-                      /\.gif$|\.webm$/,
-                      '.txt'
+                    _Log__WEBPACK_IMPORTED_MODULE_1__['log'].error(msg, 1)
+                    this.cancel = true
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+                      _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events
+                        .downloadError,
+                      arg.id
                     )
                   }
                 }
+              }
+              if (this.cancel) {
+                return
               }
               // 生成下载链接
               const blobUrl = URL.createObjectURL(file)
@@ -2590,7 +2594,7 @@
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadError,
               (ev) => {
                 const id = ev.detail.data
-                this.errorIdList.push(id)
+                this.downloadError(id)
               }
             )
             window.addEventListener(
@@ -2624,10 +2628,10 @@
                   `${msg.data.id} download error! code: ${msg.err}. The downloader will try to download the file again `
                 )
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadError
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.saveFileError
                 )
                 // 重新下载这个文件
-                this.downloadError(msg.data)
+                this.saveFileError(msg.data)
               }
               // UUID 的情况
               if (msg.data && msg.data.uuid) {
@@ -2652,7 +2656,7 @@
                 _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_未开始下载')
               )
             }
-            // 下载完毕
+            // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
             if (
               this.downloaded ===
               _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length
@@ -2669,6 +2673,18 @@
                 2
               )
               _TitleBar__WEBPACK_IMPORTED_MODULE_5__['titleBar'].change('✓')
+            }
+            this.checkCompleteWithError()
+          }
+          // 如果带上下载出错的任务的话，是否已经完成了下载
+          checkCompleteWithError() {
+            // 在有文件下载失败的情况下完成了下载，则进入暂停状态
+            if (
+              this.errorIdList.length > 0 &&
+              this.downloaded + this.errorIdList.length ===
+                _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length
+            ) {
+              this.pauseDownload()
             }
           }
           // 显示或隐藏下载区域
@@ -2868,8 +2884,6 @@
               _DownloadStates__WEBPACK_IMPORTED_MODULE_10__[
                 'downloadStates'
               ].initList()
-              // 清空错误 id 列表
-              this.errorIdList = []
             } else {
               // 从上次中断的位置继续下载
               // 把“使用中”的下载状态重置为“未使用”
@@ -2877,6 +2891,8 @@
                 'downloadStates'
               ].resume()
             }
+            // 清空错误 id 列表
+            this.errorIdList = []
             this.setDownloaded()
             this.taskBatch = new Date().getTime() // 修改本批下载任务的标记
             // 重置一些数据
@@ -2959,7 +2975,16 @@
             )
             this.downloadPause = false
           }
-          downloadError(data) {
+          downloadError(id) {
+            this.errorIdList.push(id)
+            // 是否继续下载
+            const task = this.taskList[id]
+            const no = task.progressBarIndex
+            if (this.checkContinueDownload()) {
+              this.createDownload(no)
+            }
+          }
+          saveFileError(data) {
             if (this.downloadPause || this.downloadStop) {
               return false
             }
@@ -2973,24 +2998,15 @@
           }
           downloadSuccess(data) {
             const task = this.taskList[data.id]
-            // 这里的下载成功，指的是浏览器下载文件成功。如果文件本身下载失败，最后生成了一个保存错误信息的 txt 文件，也会进入到这里。可以通过 errorIdList 检查这个文件实际上有没有下载出错。
-            if (this.errorIdList.includes(data.id)) {
-              // 复位这个任务状态为“未下载”
-              _DownloadStates__WEBPACK_IMPORTED_MODULE_10__[
-                'downloadStates'
-              ].setState(task.index, -1)
-            } else {
-              // 更改这个任务状态为“已完成”
-              _DownloadStates__WEBPACK_IMPORTED_MODULE_10__[
-                'downloadStates'
-              ].setState(task.index, 1)
-              // 发送下载成功的事件
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events
-                  .downloadSucccess,
-                data
-              )
-            }
+            // 更改这个任务状态为“已完成”
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_10__[
+              'downloadStates'
+            ].setState(task.index, 1)
+            // 发送下载成功的事件
+            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.downloadSucccess,
+              data
+            )
             // 统计已下载数量
             this.setDownloaded()
             // 是否继续下载
@@ -2999,7 +3015,7 @@
               this.createDownload(no)
             }
           }
-          // 当一个文件下载完成后，检查是否还有后续下载任务
+          // 当一个文件下载成功或失败之后，检查是否还有后续下载任务
           checkContinueDownload() {
             // 如果没有全部下载完毕
             if (
@@ -3038,7 +3054,11 @@
               'downloadStates'
             ].getFirstDownloadItem()
             if (index === undefined) {
-              throw new Error('There are no data to download')
+              // console.log(downloadStates.states)
+              // console.log('getFirstDownloadItem failed')
+              // 当已经没有需要下载的作品时，检查是否带着错误完成了下载。
+              // 如果下载过程中没有出错，就不会执行到这个分支
+              return this.checkCompleteWithError()
             } else {
               const workData =
                 _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result[index]
@@ -3224,6 +3244,7 @@
           destroy: 'destroy',
           convertError: 'convertError',
           skipSaveFile: 'skipSaveFile',
+          saveFileError: 'saveFileError',
           hasNewVer: 'hasNewVer',
           restoreDownload: 'restoreDownload',
           DBupgradeneeded: 'DBupgradeneeded',
@@ -3278,7 +3299,7 @@
             ] // 200 和 2000 的因为数量太少，不添加。40000 的也少
             this.create()
             window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.destroy,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.pageTypeChange,
               () => {
                 this.destroy()
               }
@@ -5068,10 +5089,12 @@
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
         '_不下载重复文件'
       )}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch" >
+      <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="deduplication">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_策略')}</span>
+      <span>&nbsp; ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+        '_策略'
+      )}</span>
       <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
       <span class="beautify_radio"></span>
       <label class="has_tip" for="dupliStrategy1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
@@ -6596,10 +6619,9 @@
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.pageTypeChange,
               () => {
-                _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.destroy
-                )
-                this.initPage()
+                setTimeout(() => {
+                  this.initPage()
+                }, 0)
               }
             )
           }
@@ -6778,7 +6800,7 @@
             this.appendElseEl()
             this.initElse()
             window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_10__['EVT'].events.destroy,
+              _EVT__WEBPACK_IMPORTED_MODULE_10__['EVT'].events.pageTypeChange,
               () => {
                 this.destroy()
               }
@@ -7734,7 +7756,7 @@
             this.colors = ['#00ca19', '#d27e00', '#f00']
             // 切换不同页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
             window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].events.destroy,
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].events.pageTypeChange,
               () => {
                 if (
                   _Store__WEBPACK_IMPORTED_MODULE_2__['store'].states.allowWork
@@ -9158,7 +9180,7 @@
               sizeMax: '100',
               novelSaveAs: 'txt',
               saveNovelMeta: false,
-              deduplication: false,
+              deduplication: true,
               dupliStrategy: 'strict',
             }
             // 需要持久化保存的设置
@@ -9452,26 +9474,26 @@
             return form
           }
         )
-        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./API */ './src/ts/modules/API.ts'
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
-        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Colors */ './src/ts/modules/Colors.ts'
         )
-        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
-        /* harmony import */ var _SaveSettings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _SaveSettings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./SaveSettings */ './src/ts/modules/SaveSettings.ts'
-        )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _FormHTML__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./FormHTML */ './src/ts/modules/FormHTML.ts'
@@ -9483,7 +9505,7 @@
             this.firstFewImages = 0
             this.activeClass = 'active'
             this.chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
-            this.form = _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].useSlot(
+            this.form = _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM'].useSlot(
               'form',
               _FormHTML__WEBPACK_IMPORTED_MODULE_7__['default']
             )
@@ -9496,7 +9518,7 @@
             this.allTabTitle = this.form.querySelectorAll('.tabsTitle .title')
             this.allTabCon = this.form.querySelectorAll('.tabsContnet .con')
             this.bindEvents()
-            new _SaveSettings__WEBPACK_IMPORTED_MODULE_5__['SaveSettings'](
+            new _SaveSettings__WEBPACK_IMPORTED_MODULE_6__['SaveSettings'](
               this.form
             )
             // new SaveSettings 会初始化选项，但可能会有一些选项的值在初始化过程中没有发生改变，也就不会被监听到变化。所以这里需要直接初始化以下状态。
@@ -9533,7 +9555,7 @@
             }
             // 处理 label 状态
             window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.settingChange,
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].events.settingChange,
               () => {
                 this.initFormBueatiful()
               }
@@ -9548,10 +9570,10 @@
             }
             // 当抓取完毕可以开始下载时，切换到“下载”选项卡
             window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.crawlFinish,
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].events.crawlFinish,
               () => {
                 if (
-                  !_Store__WEBPACK_IMPORTED_MODULE_4__['store'].states
+                  !_Store__WEBPACK_IMPORTED_MODULE_5__['store'].states
                     .notAutoDownload
                 ) {
                   this.activeTab(1)
@@ -9559,17 +9581,17 @@
               }
             )
             // 预览文件名
-            _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM']
+            _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM']
               .addBtn(
                 'namingBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].green,
-                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_预览文件名')
+                _Colors__WEBPACK_IMPORTED_MODULE_3__['Colors'].green,
+                _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_预览文件名')
               )
               .addEventListener(
                 'click',
                 () => {
-                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events
+                  _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
+                    _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].events
                       .previewFileName
                   )
                 },
@@ -9579,7 +9601,7 @@
             this.form
               .querySelector('.showFileNameTip')
               .addEventListener('click', () =>
-                _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].toggleEl(
+                _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM'].toggleEl(
                   document.querySelector('.fileNameTip')
                 )
               )
@@ -9655,10 +9677,10 @@
           }
           // 当选项的值被改变时，触发 settingChange 事件
           emitChange(name, value) {
-            _EVT__WEBPACK_IMPORTED_MODULE_0__[
+            _EVT__WEBPACK_IMPORTED_MODULE_1__[
               'EVT'
             ].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].events.settingChange,
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].events.settingChange,
               { name: name, value: value }
             )
           }
@@ -9694,7 +9716,7 @@
           }
           // 获取作品张数设置
           getFirstFewImages() {
-            const check = _API__WEBPACK_IMPORTED_MODULE_6__[
+            const check = _API__WEBPACK_IMPORTED_MODULE_0__[
               'API'
             ].checkNumberGreater0(form.firstFewImages.value)
             if (check.result) {
@@ -9919,7 +9941,7 @@
         // 辅助功能
         class Support {
           constructor() {
-            this.newTag = '_xzNew630'
+            this.newTag = '_xzNew660'
             this.checkConflict()
             this.supportListenHistory()
             this.listenPageSwitch()
@@ -11798,7 +11820,7 @@
             }
             this.addBookmark = (event) => {
               const data = event.detail.data
-              // 如果设置了不启用快速收藏，则把 tag 设置为空，以达到这个效果
+              // 如果设置了不启用快速收藏，则把 tag 设置为空
               if (
                 _Settings__WEBPACK_IMPORTED_MODULE_13__['form'].quickBookmarks
                   .checked === false
@@ -13948,12 +13970,6 @@
             '同時轉換多個動圖會增加資源占用。<br>轉換動圖時，請保持這個分頁啟動，否則瀏覽器會降低轉換速度。',
           ],
           _提示: ['提示', 'ヒント', 'tip', '提示'],
-          _xzNew630: [
-            '在“关注”页面，可以一键下载所有关注的用户的作品。',
-            '「フォロー中」ページでは、すべてのフォロワーの作品をワンクリックでダウンロードできます。',
-            'On the "Following" page, you can download the works of all the followers with one click.',
-            '在“關注”頁面，可以一鍵下載所有關注的使用者的作品。',
-          ],
           _fanboxDownloader: [
             'Fanbox 下载器',
             'Fanbox ダウンロード',
@@ -14017,48 +14033,54 @@
           ],
           _不下载重复文件: [
             '不下载重复文件',
-            '不下载重复文件',
-            '不下载重复文件',
-            '不下载重复文件',
+            '重複ファイルをダウンロードしない',
+            'Don`t download duplicate files',
+            '不下載重複檔案',
           ],
           _不下载重复文件的提示: [
             '下载器会保存自己的下载记录，以避免下载重复的文件。',
-            '下载器会保存自己的下载记录，以避免下载重复的文件。',
-            '下载器会保存自己的下载记录，以避免下载重复的文件。',
-            '下载器会保存自己的下载记录，以避免下载重复的文件。',
+            'ダウンローダーは独自のダウンロード履歴を保存して、重複ファイルのダウンロードを回避する。',
+            'The downloader will save its download record to avoid downloading duplicate files.',
+            '下載器會儲存自己的下載記錄，以避免下載重複的檔案。',
           ],
-          _策略: ['策略：', '策略：', '策略：', '策略：'],
-          _严格: ['严格', '严格', '严格', '严格'],
-          _宽松: ['宽松', '宽松', '宽松', '宽松'],
+          _策略: ['策略：', 'フィルター：', 'Strategy:', '策略：'],
+          _严格: ['严格', '厳格', 'Strict', '嚴格'],
+          _宽松: ['宽松', '緩い', 'Loose', '寬鬆'],
           _严格模式说明: [
-            '当作品的 id 和命名规则都相同时，认为是重复文件',
-            '当作品的 id 和命名规则都相同时，认为是重复文件',
-            '当作品的 id 和命名规则都相同时，认为是重复文件',
-            '当作品的 id 和命名规则都相同时，认为是重复文件',
+            '当文件的 id 和文件名都相同时，认为是重复文件',
+            'ファイルの ID とファイル名が同じ場合、重複ファイルとみなされます',
+            'When the file id and file name are the same, it is considered a duplicate file',
+            '當檔案 id 和檔名都相同時，認為是重複檔案',
           ],
           _宽松模式说明: [
-            '只要作品的 id 相同，就认为是重复文件',
-            '只要作品的 id 相同，就认为是重复文件',
-            '只要作品的 id 相同，就认为是重复文件',
-            '只要作品的 id 相同，就认为是重复文件',
+            '只要文件的 id 相同，就认为是重复文件',
+            'ファイルの ID が同じである限り、重複ファイルと見なされます',
+            'As long as the id of the file is the same, it is considered a duplicate file',
+            '只要檔案 id 相同，就認為是重複檔案',
           ],
           _清除下载记录: [
             '清除下载记录',
-            '清除下载记录',
-            '清除下载记录',
-            '清除下载记录',
+            '履歴をクリア',
+            'Clear download record',
+            '清除下載記錄',
           ],
           _下载记录已清除: [
             '下载记录已清除',
-            '下载记录已清除',
-            '下载记录已清除',
-            '下载记录已清除',
+            'ダウンロード履歴がクリアされました',
+            'Download record has been cleared',
+            '已清除下載記錄',
           ],
           _跳过下载因为重复文件: [
-            '检测到文件 {} 已经下载过，跳过此次下载。',
-            '检测到文件 {} 已经下载过，跳过此次下载。',
-            '检测到文件 {} 已经下载过，跳过此次下载。',
-            '检测到文件 {} 已经下载过，跳过此次下载。',
+            '检测到文件 {} 已经下载过，跳过此次下载',
+            '重複ファイル {} をスキップ',
+            'Skip downloading duplicate files {}',
+            '偵測到檔案 {} 已經下載過，跳過此次下載。',
+          ],
+          _xzNew660: [
+            '添加点续传功能；添加不下载重复文件的功能。',
+            '「レジューム機能を追加しました；重複ファイルの除外機能を追加しました。',
+            'Add breakpoint resume function; add the function not to download duplicate files.',
+            '新增断點續傳功能；新增不下載重複檔案的功能。',
           ],
         }
 

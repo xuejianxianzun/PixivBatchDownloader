@@ -31,6 +31,7 @@ class EVT {
     destroy: 'destroy',
     convertError: 'convertError',
     skipSaveFile: 'skipSaveFile',
+    saveFileError: 'saveFileError',
     hasNewVer: 'hasNewVer',
     restoreDownload: 'restoreDownload',
     DBupgradeneeded: 'DBupgradeneeded',

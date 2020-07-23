@@ -88,7 +88,6 @@ class PageType {
   // 检查是不是进入到了新的页面类型
   private checkPageTypeIsNew() {
     let newType = this.getPageType()
-
     if (this.type !== newType) {
       EVT.fire(EVT.events.pageTypeChange, newType)
     }

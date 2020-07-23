@@ -76,7 +76,7 @@ class DownloadControl {
 
     window.addEventListener(EVT.events.downloadError, (ev: CustomEventInit) => {
       const id = ev.detail.data as string
-      this.errorIdList.push(id)
+      this.downloadError(id)
     })
 
     window.addEventListener(EVT.events.convertChange, (ev: CustomEventInit) => {
@@ -106,9 +106,9 @@ class DownloadControl {
         log.error(
           `${msg.data.id} download error! code: ${msg.err}. The downloader will try to download the file again `
         )
-        EVT.fire(EVT.events.downloadError)
+        EVT.fire(EVT.events.saveFileError)
         // 重新下载这个文件
-        this.downloadError(msg.data)
+        this.saveFileError(msg.data)
       }
 
       // UUID 的情况
@@ -130,13 +130,26 @@ class DownloadControl {
       this.setDownStateText(lang.transl('_未开始下载'))
     }
 
-    // 下载完毕
+    // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
     if (this.downloaded === store.result.length) {
       EVT.fire(EVT.events.downloadComplete)
       this.reset()
       this.setDownStateText(lang.transl('_下载完毕'))
       log.success(lang.transl('_下载完毕'), 2)
       titleBar.change('✓')
+    }
+
+    this.checkCompleteWithError()
+  }
+
+  // 如果带上下载出错的任务的话，是否已经完成了下载
+  private checkCompleteWithError() {
+    // 在有文件下载失败的情况下完成了下载，则进入暂停状态
+    if (
+      this.errorIdList.length > 0 &&
+      this.downloaded + this.errorIdList.length === store.result.length
+    ) {
+      this.pauseDownload()
     }
   }
 
@@ -297,13 +310,14 @@ class DownloadControl {
     if (!this.downloadPause && !resume.flag) {
       // 初始化下载状态列表
       downloadStates.initList()
-      // 清空错误 id 列表
-      this.errorIdList = []
     } else {
       // 从上次中断的位置继续下载
       // 把“使用中”的下载状态重置为“未使用”
       downloadStates.resume()
     }
+
+    // 清空错误 id 列表
+    this.errorIdList = []
 
     this.setDownloaded()
 
@@ -373,7 +387,18 @@ class DownloadControl {
     this.downloadPause = false
   }
 
-  private downloadError(data: DonwloadSuccessData) {
+  private downloadError(id: string) {
+    this.errorIdList.push(id)
+
+    // 是否继续下载
+    const task = this.taskList[id]
+    const no = task.progressBarIndex
+    if (this.checkContinueDownload()) {
+      this.createDownload(no)
+    }
+  }
+
+  private saveFileError(data: DonwloadSuccessData) {
     if (this.downloadPause || this.downloadStop) {
       return false
     }
@@ -387,16 +412,10 @@ class DownloadControl {
   private downloadSuccess(data: DonwloadSuccessData) {
     const task = this.taskList[data.id]
 
-    // 这里的下载成功，指的是浏览器下载文件成功。如果文件本身下载失败，最后生成了一个保存错误信息的 txt 文件，也会进入到这里。可以通过 errorIdList 检查这个文件实际上有没有下载出错。
-    if (this.errorIdList.includes(data.id)) {
-      // 复位这个任务状态为“未下载”
-      downloadStates.setState(task.index, -1)
-    } else {
-      // 更改这个任务状态为“已完成”
-      downloadStates.setState(task.index, 1)
-      // 发送下载成功的事件
-      EVT.fire(EVT.events.downloadSucccess, data)
-    }
+    // 更改这个任务状态为“已完成”
+    downloadStates.setState(task.index, 1)
+    // 发送下载成功的事件
+    EVT.fire(EVT.events.downloadSucccess, data)
 
     // 统计已下载数量
     this.setDownloaded()
@@ -408,7 +427,7 @@ class DownloadControl {
     }
   }
 
-  // 当一个文件下载完成后，检查是否还有后续下载任务
+  // 当一个文件下载成功或失败之后，检查是否还有后续下载任务
   private checkContinueDownload() {
     // 如果没有全部下载完毕
     if (this.downloaded < store.result.length) {
@@ -443,7 +462,11 @@ class DownloadControl {
   private createDownload(progressBarIndex: number) {
     const index = downloadStates.getFirstDownloadItem()
     if (index === undefined) {
-      throw new Error('There are no data to download')
+      // console.log(downloadStates.states)
+      // console.log('getFirstDownloadItem failed')
+      // 当已经没有需要下载的作品时，检查是否带着错误完成了下载。
+      // 如果下载过程中没有出错，就不会执行到这个分支
+      return this.checkCompleteWithError()
     } else {
       const workData = store.result[index]
       const data: downloadArgument = {

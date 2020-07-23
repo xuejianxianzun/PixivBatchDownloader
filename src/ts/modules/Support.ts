@@ -20,7 +20,7 @@ class Support {
     })
   }
 
-  private newTag: langTextKeys = '_xzNew630'
+  private newTag: langTextKeys = '_xzNew660'
 
   // 处理和脚本版的冲突
   private checkConflict(): void {

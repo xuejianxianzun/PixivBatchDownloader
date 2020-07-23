@@ -30,8 +30,9 @@ class InitPage {
 
     // 页面类型变化时，初始化抓取流程
     window.addEventListener(EVT.events.pageTypeChange, () => {
-      EVT.fire(EVT.events.destroy)
-      this.initPage()
+      setTimeout(() => {
+        this.initPage()
+      }, 0)
     })
   }
 

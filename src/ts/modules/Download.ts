@@ -134,16 +134,7 @@ class Download {
 
         log.error(msg, 1)
 
-        // 创建 txt 文件，保存提示信息
-        file = new Blob([`${msg}`], {
-          type: 'text/plain',
-        })
-
-        this.fileName = this.fileName.replace(
-          /\.jpg$|\.png$|\.zip$|\.gif$|\.webm$/,
-          '.txt'
-        )
-
+        this.cancel = true
         EVT.fire(EVT.events.downloadError, arg.id)
       }
 
@@ -162,7 +153,7 @@ class Download {
         this.retry++
         if (this.retry >= this.retryMax) {
           // 重试 retryMax 次依然错误
-          console.log(arg.data.id + 'retryMax')
+          // console.log(arg.data.id + ' retryMax')
           downloadError()
         } else {
           return this.download(arg)
@@ -187,17 +178,17 @@ class Download {
               file = await converter.gif(file, arg.data.ugoiraInfo)
             }
           } catch (error) {
-            // 创建 txt 文件，保存提示信息
             const msg = `Error: convert ugoira error, work id ${arg.data.idNum}.`
-            log.error(msg, 2)
+            log.error(msg, 1)
 
-            file = new Blob([`${msg}`], {
-              type: 'text/plain',
-            })
-
-            this.fileName = this.fileName.replace(/\.gif$|\.webm$/, '.txt')
+            this.cancel = true
+            EVT.fire(EVT.events.downloadError, arg.id)
           }
         }
+      }
+
+      if (this.cancel) {
+        return
       }
 
       // 生成下载链接

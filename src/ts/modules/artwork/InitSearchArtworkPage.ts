@@ -395,7 +395,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
   private addBookmark = (event: CustomEventInit) => {
     const data = event.detail.data as AddBMKData
-    // 如果设置了不启用快速收藏，则把 tag 设置为空，以达到这个效果
+    // 如果设置了不启用快速收藏，则把 tag 设置为空
     if (form.quickBookmarks.checked === false) {
       data.tags = []
     }

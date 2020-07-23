@@ -139,7 +139,7 @@ class SaveSettings {
     sizeMax: '100',
     novelSaveAs: 'txt',
     saveNovelMeta: false,
-    deduplication: false,
+    deduplication: true,
     dupliStrategy: 'strict',
   }
 

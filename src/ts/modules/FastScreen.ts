@@ -7,7 +7,7 @@ class FastScreen {
   constructor() {
     this.create()
 
-    window.addEventListener(EVT.events.destroy, () => {
+    window.addEventListener(EVT.events.pageTypeChange, () => {
       this.destroy()
     })
   }
