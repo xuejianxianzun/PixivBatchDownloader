@@ -5089,7 +5089,7 @@
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
         '_不下载重复文件'
       )}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch" checked>
+      <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="deduplication">
       <span>&nbsp; ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
@@ -9180,7 +9180,7 @@
               sizeMax: '100',
               novelSaveAs: 'txt',
               saveNovelMeta: false,
-              deduplication: true,
+              deduplication: false,
               dupliStrategy: 'strict',
             }
             // 需要持久化保存的设置

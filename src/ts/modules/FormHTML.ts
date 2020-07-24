@@ -416,7 +416,7 @@ const formHtml = `<form class="settingForm">
         '_不下载重复文件的提示'
       )}">
       ${lang.transl('_不下载重复文件')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch" checked>
+      <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="deduplication">
       <span>&nbsp; ${lang.transl('_策略')}</span>
