@@ -25,7 +25,7 @@ class Download {
   private progressBarIndex: number
   private fileName = ''
   private retry = 0
-  private readonly retryMax = 100
+  private readonly retryMax = 30
   private cancel = false // 这个下载被取消（任务停止，或者没有通过某个检查）
 
   private sizeCheck: boolean | undefined = undefined // 检查文件体积

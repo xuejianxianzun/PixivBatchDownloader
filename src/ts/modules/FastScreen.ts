@@ -1,6 +1,7 @@
 import { EVT } from './EVT'
 import { DOM } from './DOM'
 import { pageInfo } from './PageInfo'
+import { themeColor } from './ThemeColor'
 
 // 在搜索页面按收藏数快速筛选
 class FastScreen {
@@ -47,6 +48,8 @@ class FastScreen {
       }
       fastScreenArea.appendChild(a)
     })
+
+    themeColor.register(fastScreenArea)
     ;(target as HTMLDivElement).insertAdjacentElement(
       'afterend',
       fastScreenArea

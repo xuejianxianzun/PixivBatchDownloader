@@ -1079,6 +1079,9 @@
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
+        /* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./ThemeColor */ './src/ts/modules/ThemeColor.ts'
+        )
         // 用户界面
 
         // 中间面板
@@ -1156,6 +1159,9 @@
       `
             document.body.insertAdjacentHTML('beforeend', centerPanelHTML)
             this.centerPanel = document.querySelector('.centerWrap')
+            _ThemeColor__WEBPACK_IMPORTED_MODULE_4__['themeColor'].register(
+              this.centerPanel
+            )
             this.updateLink = this.centerPanel.querySelector('.update')
             const userLang = document.documentElement.lang
             const donateId = ['zh', 'zh-CN', 'zh-Hans'].includes(userLang)
@@ -2250,7 +2256,7 @@
           constructor(progressBarIndex, data) {
             this.fileName = ''
             this.retry = 0
-            this.retryMax = 100
+            this.retryMax = 30
             this.cancel = false // 这个下载被取消（任务停止，或者没有通过某个检查）
             this.sizeCheck = undefined // 检查文件体积
             this.progressBarIndex = progressBarIndex
@@ -2685,6 +2691,10 @@
                 _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length
             ) {
               this.pauseDownload()
+              // 一定时间后自动开始下载
+              setTimeout(() => {
+                this.startDownload()
+              }, 5000)
             }
           }
           // 显示或隐藏下载区域
@@ -3282,6 +3292,9 @@
         /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./PageInfo */ './src/ts/modules/PageInfo.ts'
         )
+        /* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./ThemeColor */ './src/ts/modules/ThemeColor.ts'
+        )
 
         // 在搜索页面按收藏数快速筛选
         class FastScreen {
@@ -3326,6 +3339,9 @@
               }
               fastScreenArea.appendChild(a)
             })
+            _ThemeColor__WEBPACK_IMPORTED_MODULE_3__['themeColor'].register(
+              fastScreenArea
+            )
             target.insertAdjacentElement('afterend', fastScreenArea)
           }
           // 打开快速筛选链接
@@ -7746,6 +7762,9 @@
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
+        /* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./ThemeColor */ './src/ts/modules/ThemeColor.ts'
+        )
 
         // 日志类
         class Log {
@@ -7772,6 +7791,9 @@
             if (test === null) {
               this.logArea.id = this.id
               _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].insertToHead(
+                this.logArea
+              )
+              _ThemeColor__WEBPACK_IMPORTED_MODULE_3__['themeColor'].register(
                 this.logArea
               )
             }
@@ -7931,6 +7953,9 @@
         /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Config */ './src/ts/modules/Config.ts'
         )
+        /* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./ThemeColor */ './src/ts/modules/ThemeColor.ts'
+        )
         // 输出面板
 
         class Output {
@@ -7957,6 +7982,9 @@
     `
             document.body.insertAdjacentHTML('beforeend', outputPanelHTML)
             this.outputPanel = document.querySelector('.outputWrap')
+            _ThemeColor__WEBPACK_IMPORTED_MODULE_5__['themeColor'].register(
+              this.outputPanel
+            )
             this.outputTitle = document.querySelector('.outputTitle')
             this.outputContent = document.querySelector('.outputContent')
             this.copyBtn = document.querySelector('.outputCopy')
@@ -8065,8 +8093,8 @@
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
-        // 获取页面上的一些信息
 
+        // 获取页面标题和页面的 tag，在抓取开始时保存。用于命名规则里
         class PageInfo {
           constructor() {
             this.pageTitle = ''
@@ -10060,6 +10088,93 @@
           }
         }
         new Support()
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/ThemeColor.ts':
+      /*!**************************************!*\
+  !*** ./src/ts/modules/ThemeColor.ts ***!
+  \**************************************/
+      /*! exports provided: themeColor */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'themeColor',
+          function () {
+            return themeColor
+          }
+        )
+        // 检查 pixiv 的颜色模式，并给下载器设置对应的样式。目前只有普通模式和夜间模式。
+        // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
+        // 默认主题是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
+        class ThemeColor {
+          constructor() {
+            this.selector = '#gtm-var-theme-kind' // 通过这个选择器查找含有主题标记的元素
+            this.timer = 0
+            this._theme = '' // 保存当前获取到的主题标记
+            // 主题标记以及对应的 className
+            this.colorMap = new Map([['dark', 'theme-dark']])
+            this.elList = [] // 保存已注册的元素
+            // 初始化时使用定时器查找标记元素
+            this.timer = window.setTimeout(() => {
+              this.findFlag()
+            }, 300)
+          }
+          // 含有主题标记的元素，并监听其变化
+          findFlag() {
+            const el = document.querySelector(this.selector)
+            if (el) {
+              window.clearTimeout(this.timer)
+              this.theme = el.textContent
+              // 监听标记元素的 textContent 变化
+              const ob = new MutationObserver((mutationsList) => {
+                for (const item of mutationsList) {
+                  if (item.type === 'characterData') {
+                    this.theme = item.target.nodeValue
+                    break
+                  }
+                }
+              })
+              ob.observe(el, {
+                characterData: true,
+                subtree: true,
+              })
+            }
+          }
+          set theme(flag) {
+            if (!flag) {
+              return
+            }
+            this._theme = flag
+            for (const el of this.elList) {
+              this.setClass(el)
+            }
+          }
+          get theme() {
+            return this._theme
+          }
+          // 把元素注册到本组件里
+          register(el) {
+            this.elList.push(el)
+            this.setClass(el)
+          }
+          // 给元素设置主题对应的 className
+          setClass(el) {
+            // 先清除所有主题颜色的 className
+            for (const className of this.colorMap.values()) {
+              if (el.classList.contains(className)) {
+                el.classList.remove(className)
+              }
+            }
+            // 添加当前主题对应的 className
+            const name = this.colorMap.get(this._theme)
+            name && el.classList.add(name)
+          }
+        }
+        const themeColor = new ThemeColor()
 
         /***/
       },

@@ -1,8 +1,8 @@
-// 获取页面上的一些信息
 import { API } from './API'
 import { EVT } from './EVT'
 import { store } from './Store'
 
+// 获取页面标题和页面的 tag，在抓取开始时保存。用于命名规则里
 class PageInfo {
   constructor() {
     this.getPageInfo()

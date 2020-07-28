@@ -3,6 +3,7 @@ import { lang } from './Lang'
 import { EVT } from './EVT'
 import { DOM } from './DOM'
 import { store } from './Store'
+import { themeColor } from './ThemeColor'
 
 // 中间面板
 class CenterPanel {
@@ -73,6 +74,8 @@ class CenterPanel {
     document.body.insertAdjacentHTML('beforeend', centerPanelHTML)
 
     this.centerPanel = document.querySelector('.centerWrap') as HTMLDivElement
+
+    themeColor.register(this.centerPanel)
 
     this.updateLink = this.centerPanel.querySelector(
       '.update'

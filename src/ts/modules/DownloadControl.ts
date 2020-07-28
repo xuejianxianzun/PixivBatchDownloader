@@ -150,6 +150,10 @@ class DownloadControl {
       this.downloaded + this.errorIdList.length === store.result.length
     ) {
       this.pauseDownload()
+      // 一定时间后自动开始下载
+      setTimeout(() => {
+        this.startDownload()
+      }, 5000)
     }
   }
 

@@ -4,6 +4,7 @@ import { lang } from './Lang'
 import { store } from './Store'
 import { DOM } from './DOM'
 import config from './Config'
+import { themeColor } from './ThemeColor'
 
 class Output {
   constructor() {
@@ -34,6 +35,8 @@ class Output {
     document.body.insertAdjacentHTML('beforeend', outputPanelHTML)
 
     this.outputPanel = document.querySelector('.outputWrap')! as HTMLDivElement
+
+    themeColor.register(this.outputPanel)
 
     this.outputTitle = document.querySelector('.outputTitle')! as HTMLDivElement
 

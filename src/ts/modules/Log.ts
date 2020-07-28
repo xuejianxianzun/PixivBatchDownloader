@@ -1,6 +1,7 @@
 import { DOM } from './DOM'
 import { EVT } from './EVT'
 import { store } from './Store'
+import { themeColor } from './ThemeColor'
 
 // 日志类
 class Log {
@@ -24,6 +25,7 @@ class Log {
     if (test === null) {
       this.logArea.id = this.id
       DOM.insertToHead(this.logArea)
+      themeColor.register(this.logArea)
     }
   }
 

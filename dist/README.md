@@ -35,6 +35,8 @@
 
 ![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/ui1.png)
 
+[动态截图](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/20200724174827.gif)
+
 [访问官网](https://pixiv.download/)
 
 # 安装

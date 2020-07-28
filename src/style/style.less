@@ -277,7 +277,6 @@
     width: @contentWidth;
     box-sizing: border-box;
     height: @headerHeight;
-    background: #fff;
     padding-top: @contentPadding;
     margin-bottom: 10px;
     img {
@@ -632,6 +631,7 @@
   width: 950px;
   max-height: 300px;
   overflow-y: auto;
+  color: #333;
   br {
     display: inline;
   }
@@ -768,10 +768,10 @@
   line-height: 30px;
   margin-right: 15px;
   cursor: pointer;
-  color: #333;
   text-decoration: none;
   display: block;
 }
+
 .bookmarkedColor {
   color: #ff4060 !important;
 }
@@ -805,6 +805,20 @@
   border: 1px solid @themeBlue;
 }
 
+.warn {
+  color: #d27e00;
+}
+.red {
+  color: #f00;
+}
+.downloadError {
+  color: rgb(255, 160, 160);
+}
+
+.patronText {
+  display: none;
+}
+
 /* block ads */
 #header-banner.ad,
 ._2vNejsc,
@@ -825,7 +839,9 @@ iframe[name='header'],
 iframe[name='footer'],
 ._2vGmESI,
 section.ad,
-aside .sc-LzLtN {
+aside .sc-LzLtN,
+iframe[name='500x500'],
+iframe[name='expandedFooter'] {
   display: none !important;
   z-index: -999 !important;
   width: 0 !important;
@@ -833,16 +849,55 @@ aside .sc-LzLtN {
   opacity: 0 !important;
 }
 
-.warn {
-  color: #d27e00;
-}
-.red {
-  color: #f00;
-}
-.downloadError {
-  color: rgb(255, 160, 160);
+// dark theme start
+.theme-dark {
+  &#logWrap {
+    background: #222;
+    color: #fff;
+  }
 }
 
-.patronText {
-  display: none;
+.theme-dark {
+  &.centerWrap {
+    background: #333;
+    box-shadow: rgb(37 37 37) 0px 0px 15px;
+    color: #fff;
+
+    .setinput_style1,
+    .setinput_style1:focus,
+    .setinput_style1:hover {
+      background: transparent !important;
+    }
+
+    .tip {
+      color: #fff;
+    }
+  }
 }
+
+.theme-dark {
+  &.outputWrap {
+    background: #333;
+    box-shadow: rgb(120 120 120) 0px 0px 15px;
+    .outputContent * {
+      color: #fff !important;
+    }
+  }
+}
+
+.theme-dark {
+  &.fastScreenArea {
+    text-align: center;
+    background: initial;
+    a {
+      display: inline-block;
+      padding: 10px;
+      color: #fff;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+// dark theme end
