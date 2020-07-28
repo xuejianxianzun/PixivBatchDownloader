@@ -5169,6 +5169,9 @@
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./API */ './src/ts/modules/API.ts'
         )
+        /* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./ThemeColor */ './src/ts/modules/ThemeColor.ts'
+        )
         // 图片查看器
         /// <reference path = "./Viewer.d.ts" />
 
@@ -5251,6 +5254,9 @@
             this.viewerWarpper.id = 'viewerWarpper'
             this.viewerUl = document.createElement('ul')
             this.viewerWarpper.appendChild(this.viewerUl)
+            _ThemeColor__WEBPACK_IMPORTED_MODULE_1__['themeColor'].register(
+              this.viewerWarpper
+            )
             document
               .querySelector('main figcaption')
               .insertAdjacentElement('beforebegin', this.viewerWarpper)

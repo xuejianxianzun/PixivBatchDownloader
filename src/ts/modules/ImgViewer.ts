@@ -1,6 +1,7 @@
 // 图片查看器
 /// <reference path = "./Viewer.d.ts" />
 import { API } from './API'
+import { themeColor } from './ThemeColor'
 
 class ImgViewer {
   constructor() {
@@ -94,6 +95,9 @@ class ImgViewer {
     this.viewerWarpper.id = 'viewerWarpper'
     this.viewerUl = document.createElement('ul')
     this.viewerWarpper.appendChild(this.viewerUl)
+
+    themeColor.register(this.viewerWarpper)
+
     document
       .querySelector('main figcaption')!
       .insertAdjacentElement('beforebegin', this.viewerWarpper)
