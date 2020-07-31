@@ -11,6 +11,7 @@ import { userWorksType, tagPageFlag } from './CrawlArgument.d'
 import { UserImageWorksWithTag, UserNovelsWithTag } from './CrawlResult'
 import { IDListType } from './Store.d'
 import { pageInfo } from './PageInfo'
+import { SaveAvatarIcon } from './SaveAvatarIcon'
 
 class InitUserPage extends InitPageBase {
   constructor() {
@@ -18,12 +19,18 @@ class InitUserPage extends InitPageBase {
     this.init()
   }
 
+  // 添加中间按钮
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
+
+    const btn = DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像为图标'), [
+      ['title', lang.transl('_保存用户头像为图标说明')],
+    ])
+    new SaveAvatarIcon(btn)
   }
 
   protected setFormOption() {
@@ -78,7 +85,7 @@ class InitUserPage extends InitPageBase {
       }
     }
 
-    ;(this.tag = pageInfo.getPageTag) ? this.getIdListByTag() : this.getIdList()
+    ; (this.tag = pageInfo.getPageTag) ? this.getIdListByTag() : this.getIdList()
 
     log.log(lang.transl('_正在抓取'))
   }
@@ -232,5 +239,6 @@ class InitUserPage extends InitPageBase {
     // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
     store.result.sort(API.sortByProperty('id'))
   }
+
 }
 export { InitUserPage }

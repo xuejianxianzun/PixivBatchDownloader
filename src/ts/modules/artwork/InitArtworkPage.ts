@@ -11,6 +11,7 @@ import { userWorksType } from '../CrawlArgument'
 import { DOM } from '../DOM'
 import { API } from '../API'
 import { log } from '../Log'
+import { SaveAvatarIcon } from '../SaveAvatarIcon'
 
 class InitArtworkPage extends InitPageBase {
   constructor() {
@@ -71,6 +72,11 @@ class InitArtworkPage extends InitPageBase {
       },
       false
     )
+
+    const btn = DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像为图标'), [
+      ['title', lang.transl('_保存用户头像为图标说明')],
+    ])
+    new SaveAvatarIcon(btn)
   }
 
   protected appendElseEl() {

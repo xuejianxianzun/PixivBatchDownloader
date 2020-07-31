@@ -88,8 +88,13 @@ class Output {
     // 如果结果较多，则不直接输出，改为保存 txt 文件
     if (store.result.length > config.outputMax) {
       const con = content.replace(/<br>/g, '\n') // 替换换行符
+      const file = new Blob([con], {
+        type: 'text/plain'
+      })
+      const url = URL.createObjectURL(file)
       const fileName = new Date().toLocaleString() + '.txt'
-      DOM.downloadFile(con, fileName)
+
+      DOM.downloadFile(url, fileName)
 
       // 禁用复制按钮
       this.copyBtn.disabled = true
@@ -107,4 +112,4 @@ class Output {
 }
 
 new Output()
-export {}
+export { }

@@ -1,6 +1,7 @@
 import { EVT } from './EVT'
-import { store } from './Store'
 import { log } from './Log'
+import { lang } from './Lang'
+import { store } from './Store'
 import { downloadStates, DLStatesI } from './DownloadStates'
 import { Result } from './Store.d'
 import { IndexedDB } from './IndexedDB'
@@ -118,7 +119,7 @@ class Resume {
       return
     }
 
-    log.warning('Restoring crawl results')
+    log.warning(lang.transl('_正在恢复抓取结果'))
 
     this.taskId = meta.id
 
@@ -155,7 +156,7 @@ class Resume {
     // 恢复模式就绪
     this.flag = true
 
-    log.success('Crawl results have been restored', 2)
+    log.success(lang.transl('_已恢复抓取结果'), 2)
 
     // 发出抓取完毕的信号
     EVT.fire(EVT.events.crawlFinish, {
@@ -190,7 +191,7 @@ class Resume {
           return
         }
 
-        log.warning('Saving crawl results')
+        log.warning(lang.transl('_正在保存抓取结果'))
         this.taskId = new Date().getTime()
 
         this.part = []
@@ -212,7 +213,7 @@ class Resume {
         }
         this.IDB.add(this.statesName, statesData)
 
-        log.success('The crawl results have been saved', 2)
+        log.success(lang.transl('_已保存抓取结果'), 2)
       }
     )
 
