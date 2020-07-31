@@ -10,7 +10,6 @@ import { DOM } from '../DOM'
 import { API } from '../API'
 import { log } from '../Log'
 import { EVT } from '../EVT'
-import { SaveAvatarIcon } from '../SaveAvatarIcon'
 
 class InitNovelPage extends InitPageBase {
   constructor() {
@@ -50,10 +49,11 @@ class InitNovelPage extends InitPageBase {
       this.readyCrawl()
     })
 
-    const btn = DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像为图标'), [
+    DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像为图标'), [
       ['title', lang.transl('_保存用户头像为图标说明')],
-    ])
-    new SaveAvatarIcon(btn)
+    ]).addEventListener('click', () => {
+      EVT.fire(EVT.events.saveAvatarIcon)
+    })
   }
 
   protected appendElseEl() {

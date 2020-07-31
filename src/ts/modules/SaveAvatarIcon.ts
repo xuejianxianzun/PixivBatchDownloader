@@ -3,19 +3,18 @@ import { API } from './API'
 import { log } from './Log'
 import { DOM } from './DOM'
 import { centerPanel } from './CenterPanel'
+import {EVT} from './EVT'
 import { img2ico } from './ImageToIcon'
 
 // 保存用户头像为图标
 class SaveAvatarIcon {
-  constructor(btn: HTMLButtonElement) {
-    this.btn = btn
+  constructor() {
     this.bindEvents()
   }
 
-  private btn: HTMLButtonElement
 
   private bindEvents() {
-    this.btn.addEventListener('click', () => {
+    window.addEventListener(EVT.events.saveAvatarIcon, () => {
       this.saveAvatarIcon()
     })
   }
@@ -44,4 +43,6 @@ class SaveAvatarIcon {
   }
 }
 
-export { SaveAvatarIcon }
+new SaveAvatarIcon()
+
+export {  }

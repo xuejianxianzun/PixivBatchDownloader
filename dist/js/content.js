@@ -104,6 +104,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(_modules_Tip__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var _modules_Output__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/Output */ "./src/ts/modules/Output.ts");
 /* harmony import */ var _modules_Support__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modules/Support */ "./src/ts/modules/Support.ts");
+/* harmony import */ var _modules_SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./modules/SaveAvatarIcon */ "./src/ts/modules/SaveAvatarIcon.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -115,6 +116,7 @@ __webpack_require__.r(__webpack_exports__);
  * E-mail:  xuejianxianzun@gmail.com
  * QQ group:  675174717
  */
+
 
 
 
@@ -2595,6 +2597,7 @@ EVT.events = {
     restoreDownload: 'restoreDownload',
     DBupgradeneeded: 'DBupgradeneeded',
     clearDownloadRecords: 'clearDownloadRecords',
+    saveAvatarIcon: 'saveAvatarIcon'
 };
 // 事件发起者的标识列表
 EVT.InitiatorList = {
@@ -5847,7 +5850,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _PageInfo__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./PageInfo */ "./src/ts/modules/PageInfo.ts");
-/* harmony import */ var _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./SaveAvatarIcon */ "./src/ts/modules/SaveAvatarIcon.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 // 初始化用户页面
 
 
@@ -5874,10 +5877,11 @@ class InitUserPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPageB
         ]).addEventListener('click', () => {
             this.readyCrawl();
         });
-        const btn = _DOM__WEBPACK_IMPORTED_MODULE_7__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_7__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标说明')],
-        ]);
-        new _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_9__["SaveAvatarIcon"](btn);
+        ]).addEventListener('click', () => {
+            _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.saveAvatarIcon);
+        });
     }
     setFormOption() {
         // 设置“个数/页数”选项
@@ -6840,9 +6844,9 @@ class QuickBookmark {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "resume", function() { return resume; });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
+/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/modules/DownloadStates.ts");
 /* harmony import */ var _IndexedDB__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./IndexedDB */ "./src/ts/modules/IndexedDB.ts");
 
@@ -6916,7 +6920,7 @@ class Resume {
     // 恢复未完成任务的数据
     async restoreData() {
         // 如果当前不允许展开工作（也就是在抓取或者在下载），则不恢复数据
-        if (!_Store__WEBPACK_IMPORTED_MODULE_1__["store"].states.allowWork) {
+        if (!_Store__WEBPACK_IMPORTED_MODULE_3__["store"].states.allowWork) {
             return;
         }
         // 1 获取任务的元数据
@@ -6925,7 +6929,7 @@ class Resume {
             this.flag = false;
             return;
         }
-        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_正在恢复抓取结果'));
+        _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_正在恢复抓取结果'));
         this.taskId = meta.id;
         // 2 恢复抓取结果
         // 生成每批数据的 id 列表
@@ -6936,11 +6940,11 @@ class Resume {
             promiseList.push(this.IDB.get(this.dataName, id));
         }
         await Promise.all(promiseList).then((res) => {
-            _Store__WEBPACK_IMPORTED_MODULE_1__["store"].result = [];
+            _Store__WEBPACK_IMPORTED_MODULE_3__["store"].result = [];
             const r = res;
             for (const taskData of r) {
                 for (const data of taskData.data) {
-                    _Store__WEBPACK_IMPORTED_MODULE_1__["store"].result.push(data);
+                    _Store__WEBPACK_IMPORTED_MODULE_3__["store"].result.push(data);
                 }
             }
         });
@@ -6951,7 +6955,7 @@ class Resume {
         }
         // 恢复模式就绪
         this.flag = true;
-        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_已恢复抓取结果'), 2);
+        _Log__WEBPACK_IMPORTED_MODULE_1__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已恢复抓取结果'), 2);
         // 发出抓取完毕的信号
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, {
             initiator: _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].InitiatorList.resume,
@@ -6972,10 +6976,10 @@ class Resume {
             }
             // 保存本次任务的数据
             // 如果此时本次任务已经完成，就不进行保存了
-            if (_DownloadStates__WEBPACK_IMPORTED_MODULE_4__["downloadStates"].downloadedCount() === _Store__WEBPACK_IMPORTED_MODULE_1__["store"].result.length) {
+            if (_DownloadStates__WEBPACK_IMPORTED_MODULE_4__["downloadStates"].downloadedCount() === _Store__WEBPACK_IMPORTED_MODULE_3__["store"].result.length) {
                 return;
             }
-            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_正在保存抓取结果'));
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_正在保存抓取结果'));
             this.taskId = new Date().getTime();
             this.part = [];
             await this.saveTaskData();
@@ -6992,7 +6996,7 @@ class Resume {
                 states: _DownloadStates__WEBPACK_IMPORTED_MODULE_4__["downloadStates"].states,
             };
             this.IDB.add(this.statesName, statesData);
-            _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_已保存抓取结果'), 2);
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已保存抓取结果'), 2);
         });
         // 当有文件下载完成时，更新下载状态
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadSucccess, () => {
@@ -7035,7 +7039,7 @@ class Resume {
                 };
                 this.needPutStates = false;
                 // 如果此时本次任务已经完成，就不进行保存了
-                if (_DownloadStates__WEBPACK_IMPORTED_MODULE_4__["downloadStates"].downloadedCount() === _Store__WEBPACK_IMPORTED_MODULE_1__["store"].result.length) {
+                if (_DownloadStates__WEBPACK_IMPORTED_MODULE_4__["downloadStates"].downloadedCount() === _Store__WEBPACK_IMPORTED_MODULE_3__["store"].result.length) {
                     return;
                 }
                 this.IDB.put(this.statesName, statesData);
@@ -7048,12 +7052,12 @@ class Resume {
             // 每一批任务的第一次执行会尝试保存所有剩余数据(0.5 的 0 次幂是 1)
             // 如果出错了，则每次执行会尝试保存上一次数据量的一半，直到这次存储成功
             // 之后继续进行下一批任务（如果有）
-            let tryNum = Math.floor(_Store__WEBPACK_IMPORTED_MODULE_1__["store"].result.length * Math.pow(0.5, this.try));
+            let tryNum = Math.floor(_Store__WEBPACK_IMPORTED_MODULE_3__["store"].result.length * Math.pow(0.5, this.try));
             // 如果这批尝试数据大于指定数量，则设置为指定数量
             tryNum > this.onceMax && (tryNum = this.onceMax);
             let data = {
                 id: this.numAppendNum(this.taskId, this.part.length),
-                data: _Store__WEBPACK_IMPORTED_MODULE_1__["store"].result.slice(this.getPartTotal(), this.getPartTotal() + tryNum),
+                data: _Store__WEBPACK_IMPORTED_MODULE_3__["store"].result.slice(this.getPartTotal(), this.getPartTotal() + tryNum),
             };
             try {
                 // 当成功存储了一批数据时
@@ -7061,7 +7065,7 @@ class Resume {
                 this.part.push(data.data.length); // 记录这一次保存的结果数量
                 this.try = 0; // 重置已尝试次数
                 // 任务数据全部添加完毕
-                if (this.getPartTotal() >= _Store__WEBPACK_IMPORTED_MODULE_1__["store"].result.length) {
+                if (this.getPartTotal() >= _Store__WEBPACK_IMPORTED_MODULE_3__["store"].result.length) {
                     // console.log('add complete')
                     resolve();
                 }
@@ -7084,7 +7088,7 @@ class Resume {
                     else {
                         // 未知错误，不再进行尝试
                         this.try = 0;
-                        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].error('IndexedDB: ' + msg);
+                        _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error('IndexedDB: ' + msg);
                         reject(error);
                     }
                 }
@@ -7147,7 +7151,7 @@ class Resume {
     // 这个数据由于 id 是重复的，所以不能正常下载
     test(num) {
         while (num > 0) {
-            _Store__WEBPACK_IMPORTED_MODULE_1__["store"].result.push({
+            _Store__WEBPACK_IMPORTED_MODULE_3__["store"].result.push({
                 bmk: 1644,
                 bookmarked: false,
                 date: '2020-07-11',
@@ -7255,18 +7259,19 @@ new RightIcon();
 /*!******************************************!*\
   !*** ./src/ts/modules/SaveAvatarIcon.ts ***!
   \******************************************/
-/*! exports provided: SaveAvatarIcon */
+/*! no exports provided */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SaveAvatarIcon", function() { return SaveAvatarIcon; });
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _CenterPanel__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./CenterPanel */ "./src/ts/modules/CenterPanel.ts");
-/* harmony import */ var _ImageToIcon__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ImageToIcon */ "./src/ts/modules/ImageToIcon.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _ImageToIcon__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ImageToIcon */ "./src/ts/modules/ImageToIcon.ts");
+
 
 
 
@@ -7275,12 +7280,11 @@ __webpack_require__.r(__webpack_exports__);
 
 // 保存用户头像为图标
 class SaveAvatarIcon {
-    constructor(btn) {
-        this.btn = btn;
+    constructor() {
         this.bindEvents();
     }
     bindEvents() {
-        this.btn.addEventListener('click', () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.saveAvatarIcon, () => {
             this.saveAvatarIcon();
         });
     }
@@ -7291,7 +7295,7 @@ class SaveAvatarIcon {
         const fullSizeImg = bigImg.replace('_170', ''); // 去掉 170 标记，获取头像图片的原图
         // 生成 ico 文件
         // 尺寸固定为 256，因为尺寸更小的图标如 128 会在 windows 资源管理器里被缩小到 48
-        const blob = await _ImageToIcon__WEBPACK_IMPORTED_MODULE_5__["img2ico"].convert({
+        const blob = await _ImageToIcon__WEBPACK_IMPORTED_MODULE_6__["img2ico"].convert({
             size: 256,
             source: fullSizeImg,
             shape: 'fillet'
@@ -7304,7 +7308,7 @@ class SaveAvatarIcon {
         _CenterPanel__WEBPACK_IMPORTED_MODULE_4__["centerPanel"].close();
     }
 }
-
+new SaveAvatarIcon();
 
 
 /***/ }),
@@ -8479,9 +8483,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
-/* harmony import */ var _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../SaveAvatarIcon */ "./src/ts/modules/SaveAvatarIcon.ts");
 //初始化 artwork 作品页
-
 
 
 
@@ -8534,10 +8536,11 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
             this.crawlRelated = true;
             this.readyCrawl();
         }, false);
-        const btn = _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_保存用户头像为图标'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_保存用户头像为图标'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_保存用户头像为图标说明')],
-        ]);
-        new _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_11__["SaveAvatarIcon"](btn);
+        ]).addEventListener('click', () => {
+            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.saveAvatarIcon);
+        });
     }
     appendElseEl() {
         // 在右侧创建快速下载按钮
@@ -11785,9 +11788,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../SaveAvatarIcon */ "./src/ts/modules/SaveAvatarIcon.ts");
 //初始化小说作品页
-
 
 
 
@@ -11821,10 +11822,11 @@ class InitNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
             this.crawlDirection = 1;
             this.readyCrawl();
         });
-        const btn = _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标说明')],
-        ]);
-        new _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_10__["SaveAvatarIcon"](btn);
+        ]).addEventListener('click', () => {
+            _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.saveAvatarIcon);
+        });
     }
     appendElseEl() {
         // 在右侧创建快速下载按钮

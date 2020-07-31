@@ -11,7 +11,7 @@ import { userWorksType, tagPageFlag } from './CrawlArgument.d'
 import { UserImageWorksWithTag, UserNovelsWithTag } from './CrawlResult'
 import { IDListType } from './Store.d'
 import { pageInfo } from './PageInfo'
-import { SaveAvatarIcon } from './SaveAvatarIcon'
+import { EVT } from './EVT'
 
 class InitUserPage extends InitPageBase {
   constructor() {
@@ -27,10 +27,11 @@ class InitUserPage extends InitPageBase {
       this.readyCrawl()
     })
 
-    const btn = DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像为图标'), [
+    DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像为图标'), [
       ['title', lang.transl('_保存用户头像为图标说明')],
-    ])
-    new SaveAvatarIcon(btn)
+    ]).addEventListener('click', () => {
+      EVT.fire(EVT.events.saveAvatarIcon)
+    })
   }
 
   protected setFormOption() {
