@@ -1296,6 +1296,18 @@ const langText = {
     'Crawl results resumed',
     '已還原擷取結果',
   ],
+  _清空已保存的抓取结果: [
+    '清空已保存的抓取结果',
+    'セーブしたクロール結果をクリアします',
+    'Clear saved crawl results',
+    '清除已儲存的擷取結果',
+  ],
+  _数据清除完毕: [
+    '数据清除完毕',
+    'クリアされたデータ',
+    'Data cleared',
+    '資料清除完畢',
+  ],
 }
 
 export { langText, langTextKeys }

@@ -36,7 +36,8 @@ class EVT {
     restoreDownload: 'restoreDownload',
     DBupgradeneeded: 'DBupgradeneeded',
     clearDownloadRecords: 'clearDownloadRecords',
-    saveAvatarIcon:'saveAvatarIcon'
+    saveAvatarIcon: 'saveAvatarIcon',
+    clearSavedCrawl: 'clearSavedCrawl',
   }
 
   // 事件发起者的标识列表

@@ -7,6 +7,7 @@ import { options } from './Options'
 import { DOM } from './DOM'
 import { store } from './Store'
 import { log } from './Log'
+import { EVT } from './EVT'
 
 class InitIndexPage extends InitPageBase {
   constructor() {
@@ -27,6 +28,14 @@ class InitIndexPage extends InitPageBase {
       lang.transl('_输入id进行抓取'),
       [['id', 'down_id_button']]
     )
+
+    DOM.addBtn(
+      'otherBtns',
+      Colors.green,
+      lang.transl('_清空已保存的抓取结果')
+    ).addEventListener('click', () => {
+      EVT.fire(EVT.events.clearSavedCrawl)
+    })
   }
 
   protected appendElseEl() {

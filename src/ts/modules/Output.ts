@@ -89,7 +89,7 @@ class Output {
     if (store.result.length > config.outputMax) {
       const con = content.replace(/<br>/g, '\n') // 替换换行符
       const file = new Blob([con], {
-        type: 'text/plain'
+        type: 'text/plain',
       })
       const url = URL.createObjectURL(file)
       const fileName = new Date().toLocaleString() + '.txt'
@@ -112,4 +112,4 @@ class Output {
 }
 
 new Output()
-export { }
+export {}

@@ -60,7 +60,7 @@ class DOM {
   }
 
   // 通过创建 a 标签来下载文件
-  static downloadFile(url: string, fileName: string, ) {
+  static downloadFile(url: string, fileName: string) {
     const a = document.createElement('a')
     a.href = url
     a.download = fileName

@@ -10,6 +10,7 @@ import { DOM } from '../DOM'
 import { API } from '../API'
 import { log } from '../Log'
 import { EVT } from '../EVT'
+import '../SaveAvatarIcon'
 
 class InitNovelPage extends InitPageBase {
   constructor() {

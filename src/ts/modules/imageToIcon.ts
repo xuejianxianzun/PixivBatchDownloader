@@ -38,7 +38,7 @@ class ImageToIcon {
   }
 
   private async loadImage(source: string | HTMLImageElement) {
-    return new Promise<HTMLImageElement>(async(resolve, reject) => {
+    return new Promise<HTMLImageElement>(async (resolve, reject) => {
       if (typeof source === 'string') {
         // 请求图片，并为其生成 BlobURL，解决图片跨域导致 canvas 污染的问题
         const res = await fetch(source, {
@@ -88,7 +88,11 @@ class ImageToIcon {
     return c
   }
 
-  private draw(canvas: HTMLCanvasElement, img: HTMLImageElement, shape: Opt['shape']) {
+  private draw(
+    canvas: HTMLCanvasElement,
+    img: HTMLImageElement,
+    shape: Opt['shape']
+  ) {
     const ctx = canvas.getContext('2d')
     if (!ctx) {
       console.error('draw error: ctx is null')
@@ -102,11 +106,11 @@ class ImageToIcon {
     // 竖图
     if (img.naturalWidth < img.naturalHeight) {
       dw = canvas.width
-      dh = dw / img.naturalWidth * img.naturalHeight
+      dh = (dw / img.naturalWidth) * img.naturalHeight
     } else {
       // 横图
       dh = canvas.height
-      dw = dh / img.naturalHeight * img.naturalWidth
+      dw = (dh / img.naturalHeight) * img.naturalWidth
     }
 
     // 绘制方形
@@ -119,14 +123,14 @@ class ImageToIcon {
       let circle = {
         x: canvas.width / 2,
         y: canvas.width / 2,
-        r: canvas.width / 2
+        r: canvas.width / 2,
       }
-      ctx.save();
-      ctx.beginPath();
-      ctx.arc(circle.x, circle.y, circle.r, 0, Math.PI * 2, false);
-      ctx.clip();
+      ctx.save()
+      ctx.beginPath()
+      ctx.arc(circle.x, circle.y, circle.r, 0, Math.PI * 2, false)
+      ctx.clip()
       ctx.drawImage(img, 0, 0, dw, dh)
-      ctx.restore();
+      ctx.restore()
     }
 
     // 绘制圆角矩形
@@ -135,7 +139,7 @@ class ImageToIcon {
       let y = 0
       // 当图标尺寸大于 16 时，设置留白距离
       if (canvas.width > 16) {
-        let num = 10 / 256  // 规定留白的比例，即尺寸为 256 时四周留白均为 10 px
+        let num = 10 / 256 // 规定留白的比例，即尺寸为 256 时四周留白均为 10 px
         x = Math.ceil(num * canvas.width)
         y = Math.ceil(num * canvas.width)
       }
@@ -145,14 +149,14 @@ class ImageToIcon {
       // 圆角的半径，设置为保留区域宽高的 1/8
       const r = Math.floor(w / 8)
 
-      ctx.beginPath();
-      ctx.moveTo(x + r, y);
-      ctx.arcTo(x + w, y, x + w, y + h, r);
-      ctx.arcTo(x + w, y + h, x, y + h, r);
-      ctx.arcTo(x, y + h, x, y, r);
-      ctx.arcTo(x, y, x + w, y, r);
-      ctx.closePath();
-      ctx.clip();
+      ctx.beginPath()
+      ctx.moveTo(x + r, y)
+      ctx.arcTo(x + w, y, x + w, y + h, r)
+      ctx.arcTo(x + w, y + h, x, y + h, r)
+      ctx.arcTo(x, y + h, x, y, r)
+      ctx.arcTo(x, y, x + w, y, r)
+      ctx.closePath()
+      ctx.clip()
       ctx.drawImage(img, 0, 0, 256, 256)
     }
 
@@ -161,7 +165,7 @@ class ImageToIcon {
 
   private async getPngBlob(canvas: HTMLCanvasElement) {
     return new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob(blob => {
+      canvas.toBlob((blob) => {
         if (!blob) {
           reject('blob is null')
         } else {
@@ -193,7 +197,7 @@ class ImageToIcon {
 
     // 生成 blob 对象
     return new Blob([fileHead, imgDataHead, pngBuffer], {
-      type: 'image/vnd.microsoft.icon'
+      type: 'image/vnd.microsoft.icon',
     })
   }
 }

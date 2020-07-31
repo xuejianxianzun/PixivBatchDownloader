@@ -11,6 +11,7 @@ import { userWorksType } from '../CrawlArgument'
 import { DOM } from '../DOM'
 import { API } from '../API'
 import { log } from '../Log'
+import '../SaveAvatarIcon'
 
 class InitArtworkPage extends InitPageBase {
   constructor() {

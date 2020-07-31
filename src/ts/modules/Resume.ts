@@ -253,6 +253,12 @@ class Resume {
       this.flag = false
       this.restoreData()
     })
+
+    // 清空已保存的抓取结果
+    window.addEventListener(EVT.events.clearSavedCrawl, () => {
+      this.flag = false
+      this.clearSavedCrawl()
+    })
   }
 
   // 定时 put 下载状态
@@ -384,6 +390,16 @@ class Resume {
       start++
     }
     return arr
+  }
+
+  // 清空已保存的抓取结果
+  private async clearSavedCrawl() {
+    await Promise.all([
+      this.IDB.clear(this.metaName),
+      this.IDB.clear(this.dataName),
+      this.IDB.clear(this.statesName),
+    ])
+    window.alert(lang.transl('_下载记录已清除'))
   }
 
   // 添加指定数量的测试数据，模拟抓取完毕事件，用于调试存储情况

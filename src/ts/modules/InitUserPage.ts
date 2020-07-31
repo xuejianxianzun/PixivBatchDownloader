@@ -12,6 +12,7 @@ import { UserImageWorksWithTag, UserNovelsWithTag } from './CrawlResult'
 import { IDListType } from './Store.d'
 import { pageInfo } from './PageInfo'
 import { EVT } from './EVT'
+import './SaveAvatarIcon'
 
 class InitUserPage extends InitPageBase {
   constructor() {
@@ -86,7 +87,7 @@ class InitUserPage extends InitPageBase {
       }
     }
 
-    ; (this.tag = pageInfo.getPageTag) ? this.getIdListByTag() : this.getIdList()
+    ;(this.tag = pageInfo.getPageTag) ? this.getIdListByTag() : this.getIdList()
 
     log.log(lang.transl('_正在抓取'))
   }
@@ -240,6 +241,5 @@ class InitUserPage extends InitPageBase {
     // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
     store.result.sort(API.sortByProperty('id'))
   }
-
 }
 export { InitUserPage }
