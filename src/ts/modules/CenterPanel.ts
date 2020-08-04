@@ -1,4 +1,3 @@
-// 用户界面
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { DOM } from './DOM'
@@ -141,6 +140,14 @@ class CenterPanel {
       }
     })
 
+    window.addEventListener(EVT.events.openCenterPanel, () => {
+      this.show()
+    })
+
+    window.addEventListener(EVT.events.closeCenterPanel, () => {
+      this.close()
+    })
+
     // 显示更新按钮
     window.addEventListener(EVT.events.hasNewVer, () => {
       this.updateLink.classList.add(this.updateActiveClass)
@@ -166,15 +173,14 @@ class CenterPanel {
   // 显示中间区域
   public show() {
     this.centerPanel.style.display = 'block'
-    EVT.fire(EVT.events.showCenterPanel)
+    EVT.fire(EVT.events.centerPanelOpened)
   }
 
   // 隐藏中间区域
   public close() {
     this.centerPanel.style.display = 'none'
-    EVT.fire(EVT.events.hideCenterPanel)
+    EVT.fire(EVT.events.centerPanelClosed)
   }
 }
 
-const centerPanel = new CenterPanel()
-export { centerPanel }
+new CenterPanel()

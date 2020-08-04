@@ -58,7 +58,7 @@ class Output {
       this.close()
     })
 
-    window.addEventListener(EVT.events.hideCenterPanel, () => {
+    window.addEventListener(EVT.events.centerPanelClosed, () => {
       this.close()
     })
 

@@ -2,7 +2,6 @@
 import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { centerPanel } from './CenterPanel'
 import { options } from './Options'
 import { DOM } from './DOM'
 import { store } from './Store'
@@ -59,7 +58,7 @@ class InitIndexPage extends InitPageBase {
       () => {
         if (!this.ready) {
           // 还没准备好
-          centerPanel.close()
+          EVT.fire(EVT.events.closeCenterPanel)
           this.downIdInput.style.display = 'block'
           this.downIdInput.focus()
           document.documentElement.scrollTop = 0
@@ -74,11 +73,11 @@ class InitIndexPage extends InitPageBase {
     this.downIdInput.addEventListener('change', () => {
       if (this.downIdInput.value !== '') {
         this.ready = true
-        centerPanel.show()
+        EVT.fire(EVT.events.openCenterPanel)
         this.downIdButton.textContent = lang.transl('_开始抓取')
       } else {
         this.ready = false
-        centerPanel.close()
+        EVT.fire(EVT.events.closeCenterPanel)
         this.downIdButton.textContent = lang.transl('_输入id进行抓取')
       }
     })

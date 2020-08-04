@@ -22,11 +22,11 @@ class RightIcon {
       EVT.fire(EVT.events.clickRightIcon)
     })
 
-    window.addEventListener(EVT.events.hideCenterPanel, () => {
+    window.addEventListener(EVT.events.centerPanelClosed, () => {
       this.show()
     })
 
-    window.addEventListener(EVT.events.showCenterPanel, () => {
+    window.addEventListener(EVT.events.centerPanelOpened, () => {
       this.hide()
     })
   }

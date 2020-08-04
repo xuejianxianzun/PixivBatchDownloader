@@ -3,7 +3,6 @@ import { log } from './Log'
 import { lang } from './Lang'
 import { Colors } from './Colors'
 import { DOM } from './DOM'
-import { centerPanel } from './CenterPanel'
 import { store } from './Store'
 import { EVT } from './EVT'
 
@@ -45,7 +44,7 @@ class DeleteWorks {
         if (!this.allowWork()) {
           return alert(lang.transl('_当前任务尚未完成'))
         }
-        centerPanel.close()
+        EVT.fire(EVT.events.closeCenterPanel)
         this.clearMultiple()
         callback()
       },
@@ -65,7 +64,7 @@ class DeleteWorks {
         if (!this.allowWork()) {
           return alert(lang.transl('_当前任务尚未完成'))
         }
-        centerPanel.close()
+        EVT.fire(EVT.events.closeCenterPanel)
         this.ClearUgoira()
         callback()
       },
@@ -91,8 +90,8 @@ class DeleteWorks {
       if (this.delMode) {
         delBtn.textContent = lang.transl('_退出手动删除')
         setTimeout(() => {
-          centerPanel.close()
-        }, 300)
+          EVT.fire(EVT.events.closeCenterPanel)
+        }, 100)
       } else {
         delBtn.textContent = lang.transl('_手动删除作品')
       }

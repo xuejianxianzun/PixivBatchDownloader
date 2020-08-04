@@ -2,7 +2,6 @@ import { lang } from './Lang'
 import { API } from './API'
 import { log } from './Log'
 import { DOM } from './DOM'
-import { centerPanel } from './CenterPanel'
 import { EVT } from './EVT'
 import { img2ico } from './ImageToIcon'
 
@@ -38,7 +37,7 @@ class SaveAvatarIcon {
     DOM.downloadFile(url, name)
 
     log.success('✓ ' + lang.transl('_保存用户头像为图标'))
-    centerPanel.close()
+    EVT.fire(EVT.events.closeCenterPanel)
   }
 }
 

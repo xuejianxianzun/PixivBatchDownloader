@@ -1,10 +1,10 @@
 <!-- TOC -->
 
 - [API：](#api)
-- [url 中不能直接使用的字段：](#url-中不能直接使用的字段)
+- [url 中不能直接使用的字段：](#url-%e4%b8%ad%e4%b8%8d%e8%83%bd%e7%9b%b4%e6%8e%a5%e4%bd%bf%e7%94%a8%e7%9a%84%e5%ad%97%e6%ae%b5)
   - [pageType:](#pagetype)
   - [p](#p)
-- [url 中可以直接使用的字段：](#url-中可以直接使用的字段)
+- [url 中可以直接使用的字段：](#url-%e4%b8%ad%e5%8f%af%e4%bb%a5%e7%9b%b4%e6%8e%a5%e4%bd%bf%e7%94%a8%e7%9a%84%e5%ad%97%e6%ae%b5)
   - [word](#word)
   - [order](#order)
   - [type](#type)
@@ -12,7 +12,7 @@
   - [hlt](#hlt)
   - [ratio](#ratio)
   - [tool](#tool)
-  - [s_mode](#s_mode)
+  - [s_mode](#smode)
   - [mode](#mode)
   - [scd](#scd)
   - [ecd](#ecd)
@@ -89,7 +89,7 @@ string
 
 *搜索的精准度*
 
-- s_tag        // 部分一致
+-             // 为空时是 "标签"
 - s_tag_full  // 标签（完全一致）
 - s_tc        // 标题，说明文字
 

@@ -6,6 +6,8 @@ import { themeColor } from './ThemeColor'
 // 日志类
 class Log {
   constructor() {
+    this.scrollToBottom()
+
     // 切换不同页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
     window.addEventListener(EVT.events.pageTypeChange, () => {
       if (store.states.allowWork) {
@@ -19,7 +21,9 @@ class Log {
   private refresh = document.createElement('span') // 刷新时使用的元素
   private colors = ['#00ca19', '#d27e00', '#f00']
 
-  // 如果日志元素没有添加到页面上，则添加上去
+  private toBottom = false // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
+
+  // 如果日志区域没有被添加到页面上，则添加上
   private checkElement() {
     let test = document.getElementById(this.id)
     if (test === null) {
@@ -66,8 +70,7 @@ class Log {
 
     this.logArea.appendChild(span)
 
-    // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部
-    this.logArea.scrollTop = this.logArea.scrollHeight
+    this.toBottom = true // 需要把日志滚动到底部
   }
 
   public log(str: string, br: number = 1, keepShow: boolean = true) {
@@ -88,6 +91,16 @@ class Log {
   public error(str: string, br: number = 1, keepShow: boolean = true) {
     this.checkElement()
     this.add(str, 2, br, keepShow)
+  }
+
+  // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部
+  private scrollToBottom() {
+    window.setInterval(() => {
+      if (this.toBottom) {
+        this.logArea.scrollTop = this.logArea.scrollHeight
+        this.toBottom = false
+      }
+    }, 800)
   }
 }
 

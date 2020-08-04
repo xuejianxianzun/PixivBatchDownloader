@@ -13,7 +13,6 @@ import { API } from '../API'
 import { store } from '../Store'
 import { log } from '../Log'
 import { Result } from '../Store.d'
-import { centerPanel } from '../CenterPanel'
 import { titleBar } from '../TitleBar'
 import { setting, form } from '../Settings'
 import { FastScreen } from '../FastScreen'
@@ -43,12 +42,58 @@ class InitSearchArtworkPage extends InitPageBase {
   private readonly countSelector = 'section h3+div span'
   private readonly hotWorkAsideSelector = 'section aside'
 
+  private worksType = ''
+  private option: SearchOption = {}
+  private readonly worksNoPerPage = 60 // 每个页面有多少个作品
+  private needCrawlPageCount = 0 // 一共有有多少个列表页面
+  private sendCrawlTaskCount = 0 // 已经抓取了多少个列表页面
+  private readonly allOption = [
+    'order',
+    'type',
+    'wlt',
+    'wgt',
+    'hlt',
+    'hgt',
+    'ratio',
+    'tool',
+    's_mode',
+    'mode',
+    'scd',
+    'ecd',
+    'blt',
+    'bgt',
+  ]
+
+  private resultMeta: Result[] = [] // 每次“开始筛选”完成后，储存当时所有结果，以备“在结果中筛选”使用
+
+  private worksWrap: HTMLUListElement | null = null
+
+  private deleteId = 0 // 手动删除时，要删除的作品的 id
+
+  private crawlWorks = false // 是否在抓取作品数据（“开始筛选”时改为 true）
+
+  private crawled = false // 是否已经进行过抓取
+
+  private previewResult = true // 是否预览结果
+
+  private optionsCauseResultChange = ['firstFewImagesSwitch', 'firstFewImages'] // 这些选项变更时，需要重新添加结果。例如多图作品“只下载前几张” firstFewImages 会影响生成的结果，但是过滤器 filter 不会检查，所以需要单独检测它的变更
+
+  private needReAdd = false // 是否需要重新添加结果（并且会重新渲染）
+
+  private canCreateWorks = true // 指示当前是否可以创建抓取结果对应的元素。当抓取完成并且生成了排序后的作品列表，则为 false。当开始新的抓取时，复位到 true
+
   protected initElse() {
     this.hotBar()
 
     this.setPreviewResult(form.previewResult.checked)
 
-    window.addEventListener(EVT.events.addResult, this.addWork)
+    window.addEventListener(EVT.events.addResult, this.createWork)
+
+    window.addEventListener(EVT.events.addResult, this.showCount)
+
+    window.addEventListener(EVT.events.crawlStart, () => {
+      this.canCreateWorks = true
+    })
 
     window.addEventListener('addBMK', this.addBookmark)
 
@@ -144,51 +189,13 @@ class InitSearchArtworkPage extends InitPageBase {
   protected destroy() {
     DOM.clearSlot('crawlBtns')
     DOM.clearSlot('otherBtns')
-    window.removeEventListener(EVT.events.addResult, this.addWork)
+    window.removeEventListener(EVT.events.addResult, this.createWork)
     window.removeEventListener(EVT.events.crawlFinish, this.onCrawlFinish)
     window.removeEventListener(EVT.events.crawlFinish, this.showCount)
 
     // 离开下载页面时，取消设置“不自动下载”
     store.states.notAutoDownload = false
   }
-
-  private worksType = ''
-  private option: SearchOption = {}
-  private readonly worksNoPerPage = 60 // 每个页面有多少个作品
-  private needCrawlPageCount = 0 // 一共有有多少个列表页面
-  private sendCrawlTaskCount = 0 // 已经抓取了多少个列表页面
-  private readonly allOption = [
-    'order',
-    'type',
-    'wlt',
-    'wgt',
-    'hlt',
-    'hgt',
-    'ratio',
-    'tool',
-    's_mode',
-    'mode',
-    'scd',
-    'ecd',
-    'blt',
-    'bgt',
-  ]
-
-  private resultMeta: Result[] = [] // 每次“开始筛选”完成后，储存当时所有结果，以备“在结果中筛选”使用
-
-  private worksWrap: HTMLUListElement | null = null
-
-  private deleteId = 0 // 手动删除时，要删除的作品的 id
-
-  private crawlWorks = false // 是否在抓取作品数据（“开始筛选”时改为 true）
-
-  private crawled = false // 是否已经进行过抓取
-
-  private previewResult = true // 是否预览结果
-
-  private optionsCauseResultChange = ['firstFewImagesSwitch', 'firstFewImages'] // 这些选项变更时，需要重新添加结果。例如多图作品“只下载前几张” firstFewImages 会影响生成的结果，但是过滤器 filter 不会检查，所以需要单独检测它的变更
-
-  private needReAdd = false // 是否需要重新添加结果（并且会重新渲染）
 
   private startScreen() {
     if (!store.states.allowWork) {
@@ -255,8 +262,12 @@ class InitSearchArtworkPage extends InitPageBase {
     this.worksWrap.innerHTML = ''
   }
 
-  // 在页面显示作品
-  private addWork = (event: CustomEventInit) => {
+  // 在页面上生成抓取结果对应的作品元素
+  private createWork = (event: CustomEventInit) => {
+    if (!this.canCreateWorks) {
+      return
+    }
+
     if (!this.previewResult || !this.worksWrap) {
       return
     }
@@ -423,7 +434,8 @@ class InitSearchArtworkPage extends InitPageBase {
     }
   }
 
-  // 传入函数，过滤符合条件的结果
+  // 筛选抓取结果。传入函数，过滤符合条件的结果
+  // 在抓取完成之后，所有会从结果合集中删除某些结果的操作都要经过这里
   private async filterResult(callback: FilterCB) {
     if (!this.crawled) {
       return alert(lang.transl('_尚未开始筛选'))
@@ -432,37 +444,66 @@ class InitSearchArtworkPage extends InitPageBase {
       return alert(lang.transl('_没有数据可供使用'))
     }
 
-    centerPanel.close()
+    EVT.fire(EVT.events.closeCenterPanel)
 
     log.clear()
 
-    const nowLength = this.resultMeta.length // 储存过滤前的结果数量
+    const beforeLength = this.resultMeta.length // 储存过滤前的结果数量
 
     const resultMetaTemp: Result[] = []
+
+    const resultMetaRemoved: Result[] = []
     for await (const meta of this.resultMeta) {
       if (await callback(meta)) {
         resultMetaTemp.push(meta)
+      } else {
+        resultMetaRemoved.push(meta)
       }
     }
 
     this.resultMeta = resultMetaTemp
 
     // 如果过滤后，作品元数据发生了改变，或者强制要求重新生成结果，才会重排作品。以免浪费资源。
-    if (this.resultMeta.length !== nowLength || this.needReAdd) {
-      this.reAddResult()
+    if (this.resultMeta.length !== beforeLength || this.needReAdd) {
+      this.reAddResult(resultMetaRemoved)
     }
 
     this.needReAdd = false
     this.crawlWorks = false
-    // 发布 crawlFinish 事件，会在日志上显示下载数量。
+    // 发布 crawlFinish 事件，会在日志上显示下载数量
     EVT.fire(EVT.events.crawlFinish)
   }
 
-  // 当筛选结果的元数据改变时，重新生成抓取结果
-  private reAddResult() {
-    store.resetResult()
+  // 重新添加抓取结果，目前有两个时机：
+  // 1 是作品抓取完毕，添加抓取到的数据
+  // 2 是使用“在结果中筛选”或删除作品，使得作品数据变化了，添加变化后的抓取数据
+  private reAddResult(removedResult?: Result[]) {
+    this.canCreateWorks && this.clearWorks()
+    // clearWorks 清空作品列表，只在作品抓取完毕时使用。之后会生成根据收藏数排列的作品列表。
+    // 在其他情况下，删除作品不会清空作品列表，也不会再次生成作品列表，而是把这个作品的元素移除。这是为了减少 dom 操作耗时以及重绘页面引起的耗时，耗时太长会导致用户体验出现严重的问题。
 
-    this.clearWorks()
+    // 如果传递了被删除的结果，则从作品列表里移除它们
+    if (removedResult) {
+      let ids = []
+      for (const result of removedResult) {
+        ids.push(result.idNum.toString())
+      }
+
+      // #root section ul .searchList
+      const listSelector = `${this.worksWrapSelector} .${this.listClass}`
+      const lists = document.querySelectorAll(listSelector) as NodeListOf<
+        HTMLLIElement
+      >
+      for (const li of lists) {
+        if (li.dataset.id && ids.includes(li.dataset.id)) {
+          li.style.display = 'none'
+          // li.remove()
+          // 推测隐藏元素可以更快的重绘好页面，因为删除元素修改了 dom 结构，花的时间可能会多一些
+        }
+      }
+    }
+
+    store.resetResult()
 
     this.resultMeta.forEach((data) => {
       const dlCount = setting.getDLCount(data.pageCount)
@@ -474,7 +515,12 @@ class InitSearchArtworkPage extends InitPageBase {
       store.addResult(data)
     })
 
-    EVT.fire(EVT.events.worksUpdate)
+    if (this.canCreateWorks) {
+      setTimeout(() => {
+        EVT.fire(EVT.events.worksUpdate)
+        this.canCreateWorks = false // 在抓取完成后，并且生成了排序后的全部作品列表之后，设置该状态
+      }, 0)
+    }
 
     titleBar.change('→')
   }
@@ -597,9 +643,9 @@ class InitSearchArtworkPage extends InitPageBase {
         this.option[param] = value
       }
     })
-    
+
     // 如果没有指定搜索模式，则是精确匹配标签，设置对应的值
-    if(this.option.s_mode===undefined){
+    if (this.option.s_mode === undefined) {
       this.option.s_mode = 's_tag_full'
     }
   }
