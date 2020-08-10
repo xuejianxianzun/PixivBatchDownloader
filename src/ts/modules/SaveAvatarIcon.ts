@@ -29,7 +29,7 @@ class SaveAvatarIcon {
       size: [256],
       source: fullSizeImg,
       shape: 'fillet',
-      bleed:true,
+      bleed: true,
     })
 
     // 直接保存到下载文件夹

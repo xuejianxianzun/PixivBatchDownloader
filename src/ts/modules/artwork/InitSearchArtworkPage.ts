@@ -236,19 +236,14 @@ class InitSearchArtworkPage extends InitPageBase {
     return null
   }
 
+  // 显示抓取到的作品数量
   private showCount = () => {
-    let count
-    if (this.resultMeta.length > 0) {
-      count = this.resultMeta.length.toString()
-    } else {
-      // 当处于恢复模式时，resultMeta 里没有数据，所以直接使用 result 的数据
-      count = store.result.length.toString()
-    }
-    log.success(lang.transl('_调整完毕', count))
-
-    const countEl = document.querySelector(this.countSelector)
-    if (countEl) {
-      countEl.textContent = count
+    const count = this.resultMeta.length || store.resultMeta.length
+    if (count > 0) {
+      const countEl = document.querySelector(this.countSelector)
+      if (countEl) {
+        countEl.textContent = count.toString()
+      }
     }
   }
 
@@ -427,6 +422,14 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // “开始筛选”完成后，保存筛选结果的元数据，并重排结果
   private onCrawlFinish = () => {
+    // 显示作品数量
+    const count = this.resultMeta.length || store.resultMeta.length
+    if (count > 0) {
+      log.log(lang.transl('_当前作品个数', count.toString()))
+    }
+    // 显示文件数量
+    log.success(lang.transl('_共抓取到n个文件', store.result.length.toString()))
+
     if (this.crawlWorks) {
       this.crawled = true
       this.resultMeta = [...store.resultMeta]

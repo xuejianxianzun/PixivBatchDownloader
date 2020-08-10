@@ -34,7 +34,12 @@ class ImageToIcon {
       // 加载图片
       const img = await this.loadImage(opt.source)
       // 生成各尺寸的 png 图像的数据
-      const pngDataArray = await this.createPngBuffer(img, opt.size, opt.shape, opt.bleed)
+      const pngDataArray = await this.createPngBuffer(
+        img,
+        opt.size,
+        opt.shape,
+        opt.bleed
+      )
       // 创建 ico 文件
       const blob = this.createIcon(pngDataArray)
 
@@ -71,7 +76,12 @@ class ImageToIcon {
     })
   }
 
-  private async createPngBuffer(img: HTMLImageElement, size: SizeNumber[] = [16, 48, 96, 256], shape: Opt['shape'] = 'square', bleed = true) {
+  private async createPngBuffer(
+    img: HTMLImageElement,
+    size: SizeNumber[] = [16, 48, 96, 256],
+    shape: Opt['shape'] = 'square',
+    bleed = true
+  ) {
     return new Promise<PngData[]>(async (resolve, reject) => {
       const buffer: PngData[] = []
       let length = size.length
@@ -87,7 +97,7 @@ class ImageToIcon {
         const buf = await pngBlob.arrayBuffer()
         buffer.push({
           size: sizeNumber,
-          buffer: buf
+          buffer: buf,
         })
 
         length--
@@ -96,7 +106,6 @@ class ImageToIcon {
           resolve(buffer)
         }
       }
-
     })
   }
 

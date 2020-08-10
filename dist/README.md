@@ -24,6 +24,7 @@
   - [常见问题](#常见问题)
   - [支持的语言](#支持的语言)
   - [可以使用的页面类型以及测试网址](#可以使用的页面类型以及测试网址)
+- [友情链接](#友情链接)
 
 <!-- /TOC -->
 
@@ -197,3 +198,13 @@ English （机翻，韩语设置下也使用英语文本）
 20 [关注](https://www.pixiv.net/users/9460149/following)
 
 [测试动图转换](https://www.pixiv.net/member.php?id=16274829)
+
+# 友情链接
+
+[PixivUserBatchDownload](https://github.com/Mapaler/PixivUserBatchDownload/)
+
+Pixiv User Batch Download 简称 PUBD，它是一个 UserScript 脚本，可以让你在 Pixiv 的画师页面里批量抓取所有作品，发送到 Aria2 下载，适合动手能力强的用户使用。
+
+- **配合 Aria2 下载，可发送到本地或远端路由器。**
+
+- 可使用掩码自定义保存文件夹、重命名。

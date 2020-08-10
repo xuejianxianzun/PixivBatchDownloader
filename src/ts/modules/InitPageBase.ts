@@ -264,7 +264,7 @@ abstract class InitPageBase {
 
     this.sortResult()
 
-    log.log(lang.transl('_抓取的文件数量', store.result.length.toString()))
+    log.log(lang.transl('_共抓取到n个文件', store.result.length.toString()))
 
     log.log(lang.transl('_抓取完毕'), 2)
 
@@ -318,7 +318,7 @@ abstract class InitPageBase {
   // 在抓取图片网址时，输出提示
   protected logImagesNo() {
     log.log(
-      lang.transl('_抓取的文件数量', store.result.length.toString()),
+      lang.transl('_共抓取到n个文件', store.result.length.toString()),
       1,
       false
     )
