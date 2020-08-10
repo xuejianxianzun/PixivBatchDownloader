@@ -57,7 +57,7 @@ class CenterPanel {
       <a class="wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"> ${lang.transl(
         '_wiki'
       )}</a>
-      <span id="resetOption">${lang.transl('_重置设置')}</span>
+      <a href="javascript:void()" id="resetOption">${lang.transl('_重置设置')}</a>
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${lang.transl(
         '_fanboxDownloader'
       )}</a>
