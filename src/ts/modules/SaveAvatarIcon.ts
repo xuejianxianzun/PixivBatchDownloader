@@ -24,11 +24,12 @@ class SaveAvatarIcon {
     const fullSizeImg = bigImg.replace('_170', '') // 去掉 170 标记，获取头像图片的原图
 
     // 生成 ico 文件
-    // 尺寸固定为 256，因为尺寸更小的图标如 128 会在 windows 资源管理器里被缩小到 48
+    // 尺寸固定为 256，因为尺寸更小的图标如 128，在 windows 资源管理器里会被缩小到 48 显示
     const blob = await img2ico.convert({
-      size: 256,
+      size: [256],
       source: fullSizeImg,
       shape: 'fillet',
+      bleed:true,
     })
 
     // 直接保存到下载文件夹
