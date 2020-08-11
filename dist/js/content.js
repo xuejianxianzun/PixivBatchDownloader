@@ -8530,8 +8530,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
-/* harmony import */ var _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../SaveAvatarIcon */ "./src/ts/modules/SaveAvatarIcon.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../PageType */ "./src/ts/modules/PageType.ts");
+/* harmony import */ var _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../SaveAvatarIcon */ "./src/ts/modules/SaveAvatarIcon.ts");
 //初始化 artwork 作品页
+
 
 
 
@@ -8566,10 +8568,14 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.pageSwitch, this.initImgViewer);
     }
     initImgViewer() {
-        new _ImgViewer__WEBPACK_IMPORTED_MODULE_7__["ImgViewer"]();
+        if (_PageType__WEBPACK_IMPORTED_MODULE_11__["pageType"].getPageType() === 1) {
+            new _ImgViewer__WEBPACK_IMPORTED_MODULE_7__["ImgViewer"]();
+        }
     }
     initQuickBookmark() {
-        new _QuickBookmark__WEBPACK_IMPORTED_MODULE_6__["QuickBookmark"]();
+        if (_PageType__WEBPACK_IMPORTED_MODULE_11__["pageType"].getPageType() === 1) {
+            new _QuickBookmark__WEBPACK_IMPORTED_MODULE_6__["QuickBookmark"]();
+        }
     }
     appendCenterBtns() {
         _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始抓取new')).addEventListener('click', () => {
@@ -11886,8 +11892,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../SaveAvatarIcon */ "./src/ts/modules/SaveAvatarIcon.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../PageType */ "./src/ts/modules/PageType.ts");
+/* harmony import */ var _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../SaveAvatarIcon */ "./src/ts/modules/SaveAvatarIcon.ts");
 //初始化小说作品页
+
 
 
 
@@ -11911,7 +11919,9 @@ class InitNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.pageSwitch, this.initQuickBookmark);
     }
     initQuickBookmark() {
-        new _QuickBookmark__WEBPACK_IMPORTED_MODULE_5__["QuickBookmark"]();
+        if (_PageType__WEBPACK_IMPORTED_MODULE_10__["pageType"].getPageType() === 13) {
+            new _QuickBookmark__WEBPACK_IMPORTED_MODULE_5__["QuickBookmark"]();
+        }
     }
     appendCenterBtns() {
         _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始抓取new')).addEventListener('click', () => {

@@ -10,6 +10,7 @@ import { DOM } from '../DOM'
 import { API } from '../API'
 import { log } from '../Log'
 import { EVT } from '../EVT'
+import { pageType } from '../PageType'
 import '../SaveAvatarIcon'
 
 class InitNovelPage extends InitPageBase {
@@ -28,7 +29,9 @@ class InitNovelPage extends InitPageBase {
   }
 
   private initQuickBookmark() {
-    new QuickBookmark()
+    if (pageType.getPageType() === 13) {
+      new QuickBookmark()
+    }
   }
 
   protected appendCenterBtns() {

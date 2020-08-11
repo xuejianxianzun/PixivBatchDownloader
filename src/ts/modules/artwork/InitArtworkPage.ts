@@ -11,6 +11,7 @@ import { userWorksType } from '../CrawlArgument'
 import { DOM } from '../DOM'
 import { API } from '../API'
 import { log } from '../Log'
+import { pageType } from '../PageType'
 import '../SaveAvatarIcon'
 
 class InitArtworkPage extends InitPageBase {
@@ -33,11 +34,15 @@ class InitArtworkPage extends InitPageBase {
   }
 
   private initImgViewer() {
-    new ImgViewer()
+    if (pageType.getPageType() === 1) {
+      new ImgViewer()
+    }
   }
 
   private initQuickBookmark() {
-    new QuickBookmark()
+    if (pageType.getPageType() === 1) {
+      new QuickBookmark()
+    }
   }
 
   protected appendCenterBtns() {
