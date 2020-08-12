@@ -10,7 +10,6 @@ import { DOM } from '../DOM'
 import { API } from '../API'
 import { log } from '../Log'
 import { EVT } from '../EVT'
-import { pageType } from '../PageType'
 import '../SaveAvatarIcon'
 
 class InitNovelPage extends InitPageBase {
@@ -25,13 +24,14 @@ class InitNovelPage extends InitPageBase {
   protected initElse() {
     this.initQuickBookmark()
 
-    window.addEventListener(EVT.events.pageSwitch, this.initQuickBookmark)
+    window.addEventListener(
+      EVT.events.pageSwitchedTypeNotChange,
+      this.initQuickBookmark
+    )
   }
 
   private initQuickBookmark() {
-    if (pageType.getPageType() === 13) {
-      new QuickBookmark()
-    }
+    new QuickBookmark()
   }
 
   protected appendCenterBtns() {
@@ -96,7 +96,10 @@ class InitNovelPage extends InitPageBase {
     // 删除快速下载按钮
     DOM.removeEl(this.quickDownBtn)
 
-    window.removeEventListener(EVT.events.pageSwitch, this.initQuickBookmark)
+    window.removeEventListener(
+      EVT.events.pageSwitchedTypeNotChange,
+      this.initQuickBookmark
+    )
   }
 
   private crawlDirection: number = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品

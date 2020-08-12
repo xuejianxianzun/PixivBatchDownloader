@@ -11,7 +11,6 @@ import { userWorksType } from '../CrawlArgument'
 import { DOM } from '../DOM'
 import { API } from '../API'
 import { log } from '../Log'
-import { pageType } from '../PageType'
 import '../SaveAvatarIcon'
 
 class InitArtworkPage extends InitPageBase {
@@ -29,20 +28,22 @@ class InitArtworkPage extends InitPageBase {
     this.initImgViewer()
 
     // 页面切换再次初始化
-    window.addEventListener(EVT.events.pageSwitch, this.initQuickBookmark)
-    window.addEventListener(EVT.events.pageSwitch, this.initImgViewer)
+    window.addEventListener(
+      EVT.events.pageSwitchedTypeNotChange,
+      this.initQuickBookmark
+    )
+    window.addEventListener(
+      EVT.events.pageSwitchedTypeNotChange,
+      this.initImgViewer
+    )
   }
 
   private initImgViewer() {
-    if (pageType.getPageType() === 1) {
-      new ImgViewer()
-    }
+    new ImgViewer()
   }
 
   private initQuickBookmark() {
-    if (pageType.getPageType() === 1) {
-      new QuickBookmark()
-    }
+    new QuickBookmark()
   }
 
   protected appendCenterBtns() {
@@ -122,8 +123,14 @@ class InitArtworkPage extends InitPageBase {
     DOM.removeEl(this.quickDownBtn)
 
     // 解除切换页面时绑定的事件
-    window.removeEventListener(EVT.events.pageSwitch, this.initQuickBookmark)
-    window.removeEventListener(EVT.events.pageSwitch, this.initImgViewer)
+    window.removeEventListener(
+      EVT.events.pageSwitchedTypeNotChange,
+      this.initQuickBookmark
+    )
+    window.removeEventListener(
+      EVT.events.pageSwitchedTypeNotChange,
+      this.initImgViewer
+    )
   }
 
   private crawlDirection: number = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品

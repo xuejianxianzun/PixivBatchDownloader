@@ -6,9 +6,16 @@
 
 现在修复了这个 bug。
 
-这个 bug 的教训就是使用 `EVT.events.pageSwitch` 事件时需要留意，因为这个事件触发之后，可能还会触发 `EVT.events.pageTypeChange`。
+这个 bug 的原因在于作品页里监听了 `EVT.events.pageSwitch` 事件，但是当这个事件触发时，只知道是切换了页面，并不知道页面类型是否发生了改变。可能改变了，也可能没变。快速收藏组件只应该在页面类型没有变化时才能重新调用。
 
-当 `pageSwitch` 触发时，只知道切换了页面，但是并不知道页面类型是否发生了改变。可能改变了，也可能没变。如果 `pageSwitch` 里的代码
+之前关于页面切换有两个事件：
+
+- `EVT.events.pageSwitch` 页面切换
+- `EVT.events.pageSwitchedTypeChange` 页面切换并且类型改变
+
+现在增加了一个新的事件，用于解决这个问题。
+
+- `EVT.events.pageSwitchedTypeNotChange` 页面切换并且类型不变
 
 ## 6.8.2  2020-08-10
 

@@ -44,8 +44,8 @@ class TitleBar {
     const ogTitle = document.querySelector(
       'meta[property="og:title"]'
     )! as HTMLMetaElement
-    // 无刷新自动加载的页面里，og:title 标签是最早更新标题的，内容也一致。
-    if (ogTitle && (type == 1 || type === 2)) {
+    // 在一些自动加载的页面里，og:title 标签是最早更新标题的，内容也一致。
+    if (ogTitle && (type == 1 || type === 2 || type === 13)) {
       document.title = ogTitle.content
     } else {
       // 如果当前 title 里有状态提醒，则设置为状态后面的文字

@@ -89,7 +89,9 @@ class PageType {
   private checkPageTypeIsNew() {
     let newType = this.getPageType()
     if (this.type !== newType) {
-      EVT.fire(EVT.events.pageTypeChange, newType)
+      EVT.fire(EVT.events.pageSwitchedTypeChange, newType)
+    } else {
+      EVT.fire(EVT.events.pageSwitchedTypeNotChange, newType)
     }
 
     // 保存当前页面类型
