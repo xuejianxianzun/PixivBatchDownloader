@@ -83,7 +83,7 @@ class InitIndexPage extends InitPageBase {
     })
   }
 
-  protected getWantPage() { }
+  protected getWantPage() {}
 
   protected getIdList() {
     // 检查页面类型，设置输入的 id 的作品类型
@@ -113,7 +113,7 @@ class InitIndexPage extends InitPageBase {
     this.getIdListFinished()
   }
 
-  protected resetGetIdListStatus() { }
+  protected resetGetIdListStatus() {}
 
   protected destroy() {
     DOM.clearSlot('crawlBtns')

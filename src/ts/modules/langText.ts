@@ -916,12 +916,7 @@ const langText = {
     'Add tag to unclassified work',
     '幫未分類的作品加入 tag',
   ],
-  _id不合法: [
-    'id不合法',
-    'id が不正な',
-    'id is illegal',
-    'id 不合法',
-  ],
+  _id不合法: ['id不合法', 'id が不正な', 'id is illegal', 'id 不合法'],
   _快速收藏: [
     '快速收藏',
     'クイックブックマーク',
