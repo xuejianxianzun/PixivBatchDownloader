@@ -29,7 +29,7 @@ abstract class InitPageBase {
   }
 
   // 各个子类私有的初始化内容
-  protected initElse() {}
+  protected initElse() { }
 
   // 销毁初始化页面时添加的元素和事件，恢复设置项等
   protected destroy(): void {
@@ -47,7 +47,7 @@ abstract class InitPageBase {
   }
 
   // 添加其他元素（如果有）
-  protected appendElseEl(): void {}
+  protected appendElseEl(): void { }
 
   // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。
   protected setFormOption(): void {
@@ -133,7 +133,7 @@ abstract class InitPageBase {
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
-  protected getWantPage() {}
+  protected getWantPage() { }
 
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
   protected getMultipleSetting() {
@@ -240,7 +240,7 @@ abstract class InitPageBase {
 
   // 每当获取完一个作品的信息
   private afterGetWorksData() {
-    this.logImagesNo()
+    this.logResultTotal()
 
     if (store.idList.length > 0) {
       // 如果存在下一个作品，则
@@ -316,7 +316,7 @@ abstract class InitPageBase {
   }
 
   // 在抓取图片网址时，输出提示
-  protected logImagesNo() {
+  protected logResultTotal() {
     log.log(
       lang.transl('_共抓取到n个文件', store.result.length.toString()),
       1,
@@ -333,7 +333,7 @@ abstract class InitPageBase {
   }
 
   // 抓取完成后，对结果进行排序
-  protected sortResult() {}
+  protected sortResult() { }
 }
 
 export { InitPageBase }

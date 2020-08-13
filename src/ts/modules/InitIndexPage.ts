@@ -83,37 +83,36 @@ class InitIndexPage extends InitPageBase {
     })
   }
 
-  protected nextStep() {
-    // 在主页通过id抓取时，不需要获取列表页，直接完成
-    log.log(lang.transl('_开始获取作品页面'))
-    this.getIdList()
-  }
-
-  protected getWantPage() {}
+  protected getWantPage() { }
 
   protected getIdList() {
     // 检查页面类型，设置输入的 id 的作品类型
     const type = window.location.pathname === '/novel/' ? 'novels' : 'unknown'
 
-    // 检查 id
-    const tempSet = new Set(this.downIdInput.value.split('\n'))
-    const idValue = Array.from(tempSet)
-    for (const id of idValue) {
-      // 如果有 id 不是数字，或者处于非法区间，中止任务
-      const nowId = parseInt(id)
-      if (isNaN(nowId) || nowId < 22 || nowId > 99999999) {
-        log.error(lang.transl('_id不合法'), 0, false)
+    // 检测 id 是否合法
+    const array = this.downIdInput.value.split('\n')
+    const idSet: Set<number> = new Set()
+    for (const str of array) {
+      const id = parseInt(str)
+      if (isNaN(id) || id < 22 || id > 99999999) {
+        log.error(lang.transl('_id不合法') + ' ' + id, 0, false)
       } else {
-        store.idList.push({
-          type: type,
-          id: nowId.toString(),
-        })
+        idSet.add(id)
       }
     }
+
+    // 添加 id
+    for (const id of idSet.values()) {
+      store.idList.push({
+        type: type,
+        id: id.toString(),
+      })
+    }
+
     this.getIdListFinished()
   }
 
-  protected resetGetIdListStatus() {}
+  protected resetGetIdListStatus() { }
 
   protected destroy() {
     DOM.clearSlot('crawlBtns')

@@ -917,10 +917,10 @@ const langText = {
     '幫未分類的作品加入 tag',
   ],
   _id不合法: [
-    'id不合法，操作取消。',
-    'id が不正な、操作はキャンセルされます。',
-    'id is illegal, the operation is canceled.',
-    'id 不合法，動作取消。',
+    'id不合法',
+    'id が不正な',
+    'id is illegal',
+    'id 不合法',
   ],
   _快速收藏: [
     '快速收藏',

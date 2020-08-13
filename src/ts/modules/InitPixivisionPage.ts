@@ -164,7 +164,7 @@ class InitPixivisionPage extends InitPageBase {
 
       this.addResult(id, url, ext)
 
-      this.logImagesNo()
+      this.logResultTotal()
 
       if (imgNumber !== undefined) {
         this.tested++
