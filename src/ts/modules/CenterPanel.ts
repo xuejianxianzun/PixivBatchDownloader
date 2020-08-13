@@ -51,20 +51,20 @@ class CenterPanel {
       </div>
 
       <div class="gray1 bottom_help_bar"> 
-      <a href="javascript:void()" class="showDownTip">${lang.transl(
+      <a href="javascript:void()" class="showDownTip gray1">${lang.transl(
         '_常见问题'
       )}</a>
-      <a class="wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"> ${lang.transl(
+      <a class="gray1" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"> ${lang.transl(
         '_wiki'
       )}</a>
-      <a href="javascript:void()" id="resetOption">${lang.transl(
+      <a class="gray1" href="javascript:void()" id="resetOption">${lang.transl(
         '_重置设置'
       )}</a>
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${lang.transl(
         '_fanboxDownloader'
       )}</a>
-      <a id="zanzhu" class="wiki2 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">通过“爱发电”网站支持我</a>
-      <a id="patreon" class="wiki2 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
+      <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">通过“爱发电”网站支持我</a>
+      <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
       <br>
       <p class="downTip tip"> ${lang.transl('_下载说明')}</p>

@@ -131,7 +131,7 @@ class InitSearchArtworkPage extends InitPageBase {
         `
         DOM.addStyle(style)
       }
-    }, 500)
+    }, 300)
   }
 
   protected appendCenterBtns() {

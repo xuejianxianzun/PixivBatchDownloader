@@ -95,7 +95,8 @@ class InitIndexPage extends InitPageBase {
     for (const str of array) {
       const id = parseInt(str)
       if (isNaN(id) || id < 22 || id > 99999999) {
-        log.error(lang.transl('_id不合法') + ' ' + id, 0, false)
+        // 对不符合要求的 id 显示提示。如果 id 是空字符串则不显示提示
+        str !== '' && log.error(lang.transl('_id不合法') + ': ' + str)
       } else {
         idSet.add(id)
       }

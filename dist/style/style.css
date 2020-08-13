@@ -291,6 +291,10 @@
   color: #0ea8ef !important;
   fill: #0ea8ef !important;
 }
+.centerWrap .bottom_help_bar {
+  height: 24px;
+  line-height: 24px;
+}
 .centerWrap .bottom_help_bar > * {
   padding-right: 10px;
 }
@@ -625,7 +629,7 @@
   position: relative;
   margin: 30px auto 15px;
   overflow: hidden;
-  padding: 0 16px;
+  padding: 100px 0 16px;
   display: none;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;

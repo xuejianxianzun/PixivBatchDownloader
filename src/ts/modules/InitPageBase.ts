@@ -291,26 +291,26 @@ abstract class InitPageBase {
 
   // 网络请求状态异常时输出提示
   private logErrorStatus(status: number, id: string) {
-    log.error(lang.transl('_无权访问2', id), 1)
 
     switch (status) {
       case 0:
-        console.log(lang.transl('_作品页状态码0'))
+        log.error(id + ': ' + lang.transl('_作品页状态码0'))
         break
 
       case 400:
-        console.log(lang.transl('_作品页状态码400'))
+        log.error(id + ': ' + lang.transl('_作品页状态码400'))
         break
 
       case 403:
-        console.log(lang.transl('_作品页状态码403'))
+        log.error(id + ': ' + lang.transl('_作品页状态码403'))
         break
 
       case 404:
-        console.log(lang.transl('_作品页状态码404') + ' ' + id)
+        log.error(id + ': ' + lang.transl('_作品页状态码404'))
         break
 
       default:
+        log.error(lang.transl('_无权访问2', id))
         break
     }
   }

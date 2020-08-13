@@ -964,12 +964,12 @@ class CenterPanel {
       </div>
 
       <div class="gray1 bottom_help_bar"> 
-      <a href="javascript:void()" class="showDownTip">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_常见问题')}</a>
-      <a class="wiki2" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_wiki')}</a>
-      <a href="javascript:void()" id="resetOption">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_重置设置')}</a>
+      <a href="javascript:void()" class="showDownTip gray1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_常见问题')}</a>
+      <a class="gray1" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_wiki')}</a>
+      <a class="gray1" href="javascript:void()" id="resetOption">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_重置设置')}</a>
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_fanboxDownloader')}</a>
-      <a id="zanzhu" class="wiki2 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">通过“爱发电”网站支持我</a>
-      <a id="patreon" class="wiki2 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
+      <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">通过“爱发电”网站支持我</a>
+      <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
       <br>
       <p class="downTip tip"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载说明')}</p>
@@ -2555,9 +2555,7 @@ class EVT {
         const event = new CustomEvent(type, {
             detail: { data: data },
         });
-        setTimeout(() => {
-            window.dispatchEvent(event);
-        }, 0);
+        window.dispatchEvent(event);
     }
 }
 // 事件名称列表
@@ -5240,7 +5238,8 @@ class InitIndexPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
         for (const str of array) {
             const id = parseInt(str);
             if (isNaN(id) || id < 22 || id > 99999999) {
-                _Log__WEBPACK_IMPORTED_MODULE_6__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_id不合法') + ' ' + id, 0, false);
+                // 对不符合要求的 id 显示提示。如果 id 是空字符串则不显示提示
+                str !== '' && _Log__WEBPACK_IMPORTED_MODULE_6__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_id不合法') + ': ' + str);
             }
             else {
                 idSet.add(id);
@@ -5539,7 +5538,6 @@ class InitPageBase {
             return;
         }
         _EVT__WEBPACK_IMPORTED_MODULE_10__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_10__["EVT"].events.crawlStart);
-        console.log('crawlStart');
         _Log__WEBPACK_IMPORTED_MODULE_9__["log"].clear();
         _Log__WEBPACK_IMPORTED_MODULE_9__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
         _TitleBar__WEBPACK_IMPORTED_MODULE_12__["titleBar"].change('↑');
@@ -5585,9 +5583,7 @@ class InitPageBase {
                 await _novel_SaveNovelData__WEBPACK_IMPORTED_MODULE_5__["saveNovelData"].save(data);
             }
             else {
-                console.log(_Store__WEBPACK_IMPORTED_MODULE_8__["store"].idList.length);
                 const data = await _API__WEBPACK_IMPORTED_MODULE_7__["API"].getArtworkData(id);
-                console.log(_Store__WEBPACK_IMPORTED_MODULE_8__["store"].idList.length);
                 await _artwork_SaveArtworkData__WEBPACK_IMPORTED_MODULE_4__["saveArtworkData"].save(data);
             }
             this.afterGetWorksData();
@@ -5651,21 +5647,21 @@ class InitPageBase {
     }
     // 网络请求状态异常时输出提示
     logErrorStatus(status, id) {
-        _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_无权访问2', id), 1);
         switch (status) {
             case 0:
-                console.log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码0'));
+                _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码0'));
                 break;
             case 400:
-                console.log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码400'));
+                _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码400'));
                 break;
             case 403:
-                console.log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码403'));
+                _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码403'));
                 break;
             case 404:
-                console.log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码404') + ' ' + id);
+                _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码404'));
                 break;
             default:
+                _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_无权访问2', id));
                 break;
         }
     }
@@ -9629,7 +9625,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         `;
                 _DOM__WEBPACK_IMPORTED_MODULE_14__["DOM"].addStyle(style);
             }
-        }, 500);
+        }, 300);
     }
     appendCenterBtns() {
         _DOM__WEBPACK_IMPORTED_MODULE_14__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始筛选'), [
