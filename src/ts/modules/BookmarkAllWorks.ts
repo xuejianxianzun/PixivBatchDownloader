@@ -26,12 +26,12 @@ class BookmarkAllWorks {
 
   public btn: HTMLButtonElement
 
-  private workList: NodeListOf<HTMLElement> | null = null
+  private workList: NodeListOf<HTMLElement> | HTMLElement[] | null = null
 
   private token = API.getToken()
 
   // workList 是作品列表元素的合集。本模块会尝试分析每个作品元素中的超链接，提取出作品 id
-  public setWorkList(list: NodeListOf<HTMLElement>) {
+  public setWorkList(list: NodeListOf<HTMLElement> | HTMLElement[]) {
     if (!list) {
       alert(lang.transl('_没有数据可供使用'))
       return

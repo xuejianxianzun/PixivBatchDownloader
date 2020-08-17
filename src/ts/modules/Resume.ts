@@ -399,7 +399,7 @@ class Resume {
       this.IDB.clear(this.dataName),
       this.IDB.clear(this.statesName),
     ])
-    window.alert(lang.transl('_下载记录已清除'))
+    window.alert(lang.transl('_数据清除完毕'))
   }
 
   // 添加指定数量的测试数据，模拟抓取完毕事件，用于调试存储情况

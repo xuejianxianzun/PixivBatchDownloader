@@ -9349,9 +9349,7 @@
               this.IDB.clear(this.statesName),
             ])
             window.alert(
-              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_下载记录已清除'
-              )
+              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_数据清除完毕')
             )
           }
           // 添加指定数量的测试数据，模拟抓取完毕事件，用于调试存储情况
@@ -12396,32 +12394,32 @@
             }
             // “开始筛选”完成后，保存筛选结果的元数据，并重排结果
             this.onCrawlFinish = () => {
-              // 显示作品数量
-              const count =
-                this.resultMeta.length ||
-                _Store__WEBPACK_IMPORTED_MODULE_9__['store'].resultMeta.length
-              if (count > 0) {
-                _Log__WEBPACK_IMPORTED_MODULE_10__['log'].log(
-                  _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                    '_当前作品个数',
-                    count.toString()
-                  )
-                )
-              }
-              // 显示文件数量
-              _Log__WEBPACK_IMPORTED_MODULE_10__['log'].success(
-                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_共抓取到n个文件',
-                  _Store__WEBPACK_IMPORTED_MODULE_9__[
-                    'store'
-                  ].result.length.toString()
-                )
-              )
               if (this.crawlWorks) {
                 this.crawled = true
                 this.resultMeta = [
                   ..._Store__WEBPACK_IMPORTED_MODULE_9__['store'].resultMeta,
                 ]
+                // 显示作品数量
+                const count =
+                  this.resultMeta.length ||
+                  _Store__WEBPACK_IMPORTED_MODULE_9__['store'].resultMeta.length
+                if (count > 0) {
+                  _Log__WEBPACK_IMPORTED_MODULE_10__['log'].log(
+                    _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                      '_当前作品个数',
+                      count.toString()
+                    )
+                  )
+                }
+                // 显示文件数量
+                _Log__WEBPACK_IMPORTED_MODULE_10__['log'].success(
+                  _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                    '_共抓取到n个文件',
+                    _Store__WEBPACK_IMPORTED_MODULE_9__[
+                      'store'
+                    ].result.length.toString()
+                  )
+                )
                 this.reAddResult()
               }
             }
@@ -12570,7 +12568,11 @@
               const listWrap = this.getWorksWrap()
               if (listWrap) {
                 const list = listWrap.querySelectorAll('li')
-                bookmarkAll.setWorkList(list)
+                // 被二次筛选过滤掉的作品会被隐藏，所以批量添加收藏时，过滤掉隐藏的作品
+                const showList = Array.from(list).filter((el) => {
+                  return el.style.display !== 'none'
+                })
+                bookmarkAll.setWorkList(showList)
               }
             })
           }
@@ -15846,7 +15848,10 @@
                 const list = document.querySelectorAll(
                   '#root section>div>ul>li'
                 )
-                bookmarkAll.setWorkList(list)
+                const showList = Array.from(list).filter((el) => {
+                  return el.style.display !== 'none'
+                })
+                bookmarkAll.setWorkList(showList)
               }
             })
           }

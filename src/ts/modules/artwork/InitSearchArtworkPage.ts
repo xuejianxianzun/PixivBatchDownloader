@@ -153,7 +153,11 @@ class InitSearchArtworkPage extends InitPageBase {
       const listWrap = this.getWorksWrap()
       if (listWrap) {
         const list = listWrap.querySelectorAll('li')
-        bookmarkAll.setWorkList(list)
+        // 被二次筛选过滤掉的作品会被隐藏，所以批量添加收藏时，过滤掉隐藏的作品
+        const showList = Array.from(list).filter((el) => {
+          return el.style.display !== 'none'
+        })
+        bookmarkAll.setWorkList(showList)
       }
     })
   }
@@ -422,17 +426,20 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // “开始筛选”完成后，保存筛选结果的元数据，并重排结果
   private onCrawlFinish = () => {
-    // 显示作品数量
-    const count = this.resultMeta.length || store.resultMeta.length
-    if (count > 0) {
-      log.log(lang.transl('_当前作品个数', count.toString()))
-    }
-    // 显示文件数量
-    log.success(lang.transl('_共抓取到n个文件', store.result.length.toString()))
-
     if (this.crawlWorks) {
       this.crawled = true
       this.resultMeta = [...store.resultMeta]
+
+      // 显示作品数量
+      const count = this.resultMeta.length || store.resultMeta.length
+      if (count > 0) {
+        log.log(lang.transl('_当前作品个数', count.toString()))
+      }
+      // 显示文件数量
+      log.success(
+        lang.transl('_共抓取到n个文件', store.result.length.toString())
+      )
+
       this.reAddResult()
     }
   }

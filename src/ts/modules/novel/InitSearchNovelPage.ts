@@ -75,7 +75,10 @@ class InitSearchNovelPage extends InitPageBase {
         const list = document.querySelectorAll(
           '#root section>div>ul>li'
         ) as NodeListOf<HTMLLIElement>
-        bookmarkAll.setWorkList(list)
+        const showList = Array.from(list).filter((el) => {
+          return el.style.display !== 'none'
+        })
+        bookmarkAll.setWorkList(showList)
       }
     })
   }
