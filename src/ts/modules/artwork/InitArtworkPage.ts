@@ -16,11 +16,10 @@ import '../SaveAvatarIcon'
 class InitArtworkPage extends InitPageBase {
   constructor() {
     super()
-    this.quickDownBtn = document.createElement('div')
     this.init()
   }
 
-  private quickDownBtn: HTMLDivElement
+  private quickDownBtn: HTMLButtonElement= document.createElement('button')
 
   protected initElse() {
     // 初始化快速收藏功能和图片查看器
@@ -86,12 +85,13 @@ class InitArtworkPage extends InitPageBase {
     })
   }
 
+  // 在右侧添加快速下载按钮
   protected appendElseEl() {
-    // 在右侧创建快速下载按钮
     this.quickDownBtn.id = 'quick_down_btn'
     this.quickDownBtn.textContent = '↓'
     this.quickDownBtn.setAttribute('title', lang.transl('_快速下载本页'))
-    document.body.appendChild(this.quickDownBtn)
+    document.body.insertAdjacentElement('afterbegin', this.quickDownBtn)
+    
     this.quickDownBtn.addEventListener(
       'click',
       () => {

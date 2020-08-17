@@ -1,24 +1,24 @@
 import { EVT } from './EVT'
 
 // 右侧的下载图标
-class RightIcon {
+class DownloadButton {
   constructor() {
     this.addIcon()
     this.bindEvents()
   }
 
-  private icon: HTMLDivElement = document.createElement('div')
+  private btn: HTMLButtonElement = document.createElement('button')
 
   // 添加右侧下载按钮
   private addIcon() {
-    this.icon = document.createElement('div')
-    this.icon.textContent = '↓'
-    this.icon.id = 'rightButton'
-    document.body.appendChild(this.icon)
+    this.btn = document.createElement('button')
+    this.btn.textContent = '↓'
+    this.btn.id = 'rightButton'
+    document.body.insertAdjacentElement('afterbegin', this.btn)
   }
 
   private bindEvents() {
-    this.icon.addEventListener('click', () => {
+    this.btn.addEventListener('click', () => {
       EVT.fire(EVT.events.clickRightIcon)
     })
 
@@ -32,13 +32,13 @@ class RightIcon {
   }
 
   private show() {
-    this.icon.style.display = 'block'
+    this.btn.style.display = 'block'
   }
 
   private hide() {
-    this.icon.style.display = 'none'
+    this.btn.style.display = 'none'
   }
 }
 
-new RightIcon()
+new DownloadButton()
 export {}

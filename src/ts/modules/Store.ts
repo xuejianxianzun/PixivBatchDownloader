@@ -1,4 +1,3 @@
-// 仓库
 import { EVT } from './EVT'
 import { Result, WorkInfoOptional, RankList, IDData } from './Store.d'
 
@@ -149,7 +148,6 @@ class Store {
   }
 
   public resetResult() {
-    console.log('reset')
     this.resultMeta = []
     this.resultIDList = []
     this.result = []

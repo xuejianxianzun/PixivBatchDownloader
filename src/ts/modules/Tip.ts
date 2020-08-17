@@ -13,9 +13,9 @@ class Tip {
 
   // 显示提示
   private addTipEl() {
-    const tipHTML = `<div id="tip"></div>`
-    document.body.insertAdjacentHTML('beforeend', tipHTML)
-    this.tipEl = document.getElementById('tip') as HTMLDivElement
+    this.tipEl = document.createElement('div')
+    this.tipEl.id = 'tip'
+    document.body.insertAdjacentElement('afterbegin', this.tipEl)
 
     const tips = document.querySelectorAll('.has_tip') as NodeListOf<
       HTMLElement
