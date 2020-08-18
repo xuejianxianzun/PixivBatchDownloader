@@ -16,6 +16,8 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
     super()
     this.init()
   }
+  
+  private r18 = false
 
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
@@ -39,7 +41,6 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
     })
   }
 
-  private r18 = false
   protected getWantPage() {
     const check = this.checkWantPageInputGreater0()
     if (check == undefined) {

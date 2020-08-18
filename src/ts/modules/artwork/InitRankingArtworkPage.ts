@@ -19,6 +19,10 @@ class InitRankingArtworkPage extends InitPageBase {
     this.init()
   }
 
+  private pageCount: number = 10 // 排行榜的页数
+
+  private option: RankingOption = this.resetOption()
+
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取本排行榜作品'), [
       ['title', lang.transl('_抓取本排行榜作品Title')],
@@ -53,13 +57,10 @@ class InitRankingArtworkPage extends InitPageBase {
     })
   }
 
-  private pageCount: number = 10 // 排行榜的页数
-
   private resetOption(): RankingOption {
     return { mode: 'daily', p: 1, worksType: '', date: '' }
   }
 
-  private option: RankingOption = this.resetOption()
 
   private setPartNum() {
     // 设置页数。排行榜页面一页有50张作品，当页面到达底部时会加载下一页

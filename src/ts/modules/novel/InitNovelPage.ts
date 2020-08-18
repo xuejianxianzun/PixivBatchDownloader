@@ -15,11 +15,17 @@ import '../SaveAvatarIcon'
 class InitNovelPage extends InitPageBase {
   constructor() {
     super()
-    this.quickDownBtn = document.createElement('div')
     this.init()
   }
 
-  private quickDownBtn: HTMLDivElement
+  private quickDownBtn: HTMLButtonElement = document.createElement('button')
+
+  private crawlDirection: number = 0 // 抓取方向，指示抓取新作品还是旧作品
+  /*
+  -1 抓取新作品
+  0 不设置抓取方向
+  1 抓取旧作品
+  */
 
   protected initElse() {
     this.initQuickBookmark()
@@ -65,7 +71,8 @@ class InitNovelPage extends InitPageBase {
     this.quickDownBtn.id = 'quick_down_btn'
     this.quickDownBtn.textContent = '↓'
     this.quickDownBtn.setAttribute('title', lang.transl('_快速下载本页'))
-    document.body.appendChild(this.quickDownBtn)
+    document.body.insertAdjacentElement('afterbegin', this.quickDownBtn)
+    
     this.quickDownBtn.addEventListener(
       'click',
       () => {
@@ -101,13 +108,6 @@ class InitNovelPage extends InitPageBase {
       this.initQuickBookmark
     )
   }
-
-  private crawlDirection: number = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品
-  /*
-  -1 抓取新作品
-  0 不设置抓取方向
-  1 抓取旧作品
-  */
 
   protected getWantPage() {
     if (store.states.quickDownload) {

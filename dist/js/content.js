@@ -935,6 +935,7 @@ class CenterPanel {
         this.updateLink = document.createElement('a');
         this.updateActiveClass = 'updateActiveClass';
         this.addCenterPanel();
+        _ThemeColor__WEBPACK_IMPORTED_MODULE_4__["themeColor"].register(this.centerPanel);
         this.bindEvents();
     }
     // 添加中间面板
@@ -979,7 +980,6 @@ class CenterPanel {
       `;
         document.body.insertAdjacentHTML('beforeend', centerPanelHTML);
         this.centerPanel = document.querySelector('.centerWrap');
-        _ThemeColor__WEBPACK_IMPORTED_MODULE_4__["themeColor"].register(this.centerPanel);
         this.updateLink = this.centerPanel.querySelector('.update');
         const userLang = document.documentElement.lang;
         const donateId = ['zh', 'zh-CN', 'zh-Hans'].includes(userLang)
@@ -987,7 +987,6 @@ class CenterPanel {
             : 'patreon';
         document.getElementById(donateId).style.display = 'inline-block';
     }
-    // 绑定中间面板上的事件
     bindEvents() {
         // 监听点击扩展图标的消息，开关中间面板
         chrome.runtime.onMessage.addListener((msg) => {
@@ -1044,11 +1043,11 @@ class CenterPanel {
             this.updateLink.style.display = 'inline-block';
         });
         // 显示常见问题
-        document
+        this.centerPanel
             .querySelector('.showDownTip')
-            .addEventListener('click', () => _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].toggleEl(document.querySelector('.downTip')));
+            .addEventListener('click', () => _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].toggleEl(this.centerPanel.querySelector('.downTip')));
         // 重置设置
-        document.getElementById('resetOption').addEventListener('click', () => {
+        this.centerPanel.querySelector('#resetOption').addEventListener('click', () => {
             const result = window.confirm(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_是否重置设置'));
             if (result) {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resetOption);
@@ -2049,15 +2048,14 @@ class Download {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 
-// 右侧的下载图标
+// 右侧的下载按钮
 class DownloadButton {
     constructor() {
         this.btn = document.createElement('button');
-        this.addIcon();
+        this.addBtn();
         this.bindEvents();
     }
-    // 添加右侧下载按钮
-    addIcon() {
+    addBtn() {
         this.btn = document.createElement('button');
         this.btn.textContent = '↓';
         this.btn.id = 'rightButton';
@@ -6373,16 +6371,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Config */ "./src/ts/modules/Config.ts");
 /* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ThemeColor */ "./src/ts/modules/ThemeColor.ts");
+
+
+
+
+
+
 // 输出面板
-
-
-
-
-
-
 class Output {
     constructor() {
         this.addOutPutPanel();
+        _ThemeColor__WEBPACK_IMPORTED_MODULE_5__["themeColor"].register(this.outputPanel);
         this.bindEvent();
     }
     addOutPutPanel() {
@@ -6398,18 +6397,18 @@ class Output {
     `;
         document.body.insertAdjacentHTML('beforeend', outputPanelHTML);
         this.outputPanel = document.querySelector('.outputWrap');
-        _ThemeColor__WEBPACK_IMPORTED_MODULE_5__["themeColor"].register(this.outputPanel);
-        this.outputTitle = document.querySelector('.outputTitle');
-        this.outputContent = document.querySelector('.outputContent');
-        this.copyBtn = document.querySelector('.outputCopy');
+        this.outputTitle = this.outputPanel.querySelector('.outputTitle');
+        this.outputContent = this.outputPanel.querySelector('.outputContent');
+        this.copyBtn = this.outputPanel.querySelector('.outputCopy');
+        this.closeBtn = this.outputPanel.querySelector('.outputClose');
     }
+    // 关闭输出面板
     close() {
         this.outputPanel.style.display = 'none';
         this.outputContent.innerHTML = '';
     }
     bindEvent() {
-        // 关闭输出面板
-        document.querySelector('.outputClose').addEventListener('click', () => {
+        this.closeBtn.addEventListener('click', () => {
             this.close();
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.centerPanelClosed, () => {
@@ -6543,8 +6542,8 @@ const pageInfo = new PageInfo();
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "pageType", function() { return pageType; });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
-// 获取页面类型
 
+// 获取页面类型
 class PageType {
     constructor() {
         this.type = 0;
@@ -6554,8 +6553,6 @@ class PageType {
             this.checkPageTypeIsNew();
         });
     }
-    // 判断页面类型
-    // 有些页面类型（如小说）虽然不支持，但它和支持的页面是无刷新切换的，所以视为支持的页面。等到开始抓取时再次判断是否可以抓取
     getPageType() {
         const url = window.location.href;
         const pathname = window.location.pathname;
@@ -6627,7 +6624,7 @@ class PageType {
         }
         else {
             // 没有匹配到可用的页面类型
-            throw new Error('Page type matching failed');
+            throw new Error('Unsupported page type');
         }
         return type;
     }
@@ -8110,32 +8107,36 @@ class Support {
     // 检查新版本
     async checkNew() {
         // 读取上一次检查的时间，如果超过指定的时间，则检查 GitHub 上的信息
-        const lastTime = localStorage.getItem('xzUpdateTime');
+        const timeName = 'xzUpdateTime';
+        const verName = 'xzGithubVer';
+        const interval = 1000 * 60 * 30; // 30 分钟检查一次
+        const lastTime = localStorage.getItem(timeName);
         if (!lastTime ||
-            new Date().getTime() - parseInt(lastTime) > 60 * 30 * 1000) {
+            new Date().getTime() - parseInt(lastTime) > interval) {
             // 获取最新的 releases 信息
             const latest = await fetch(_Config__WEBPACK_IMPORTED_MODULE_3__["default"].latestReleaseAPI);
             const latestJson = await latest.json();
             const latestVer = latestJson.name;
             // 保存 GitHub 上的版本信息
-            localStorage.setItem('xzGithubVer', latestVer);
+            localStorage.setItem(verName, latestVer);
             // 保存本次检查的时间戳
-            localStorage.setItem('xzUpdateTime', new Date().getTime().toString());
+            localStorage.setItem(timeName, new Date().getTime().toString());
         }
         // 获取本地扩展的版本号
         const manifest = await fetch(chrome.extension.getURL('manifest.json'));
         const manifestJson = await manifest.json();
         const manifestVer = manifestJson.version;
         // 比较大小
-        const latestVer = localStorage.getItem('xzGithubVer');
+        const latestVer = localStorage.getItem(verName);
         if (latestVer && manifestVer < latestVer) {
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('hasNewVer');
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.hasNewVer);
         }
     }
     // 显示最近更新内容
     showNew() {
-        if (window.location.host.includes('pixiv.net') &&
-            !localStorage.getItem(this.newTag)) {
+        const storeNmae = 'xzNewVerTag';
+        const value = localStorage.getItem(storeNmae);
+        if (window.location.host.includes('pixiv.net') && (value !== this.newTag)) {
             const whatIsNewHtml = `
       <div class="xz_new">
         <p class="title">Powerful Pixiv Downloader ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_最近更新')}</p>
@@ -8145,7 +8146,7 @@ class Support {
             document.body.insertAdjacentHTML('afterbegin', whatIsNewHtml);
             const whatIsNewEl = document.querySelector('.xz_new');
             whatIsNewEl.querySelector('.btn').addEventListener('click', () => {
-                localStorage.setItem(this.newTag, '1');
+                localStorage.setItem(storeNmae, this.newTag);
                 whatIsNewEl.parentNode.removeChild(whatIsNewEl);
             });
         }
@@ -8173,8 +8174,6 @@ class Support {
     // 监听页面的无刷新切换。某些页面可以无刷新切换，这时需要进行一些处理
     listenPageSwitch() {
         // 绑定无刷新切换页面的事件，只绑定一次
-        // pixiv 的后退使用 replaceState
-        // pushState 判断从列表页进入作品页的情况，popstate 判断从作品页退回列表页的情况
         ;
         ['pushState', 'popstate', 'replaceState'].forEach((item) => {
             window.addEventListener(item, () => {
@@ -8278,17 +8277,19 @@ const themeColor = new ThemeColor();
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-// 显示自定义的提示
+// 显示提示内容
 class Tip {
     constructor() {
         this.tipEl = document.createElement('div'); // tip 元素
         this.addTipEl();
+        this.bindEvent();
     }
-    // 显示提示
     addTipEl() {
         this.tipEl = document.createElement('div');
         this.tipEl.id = 'tip';
         document.body.insertAdjacentElement('afterbegin', this.tipEl);
+    }
+    bindEvent() {
         const tips = document.querySelectorAll('.has_tip');
         for (const el of tips) {
             for (const ev of ['mouseenter', 'mouseleave']) {
@@ -8304,18 +8305,18 @@ class Tip {
             }
         }
     }
-    // 显示中间面板上的提示。参数 arg 指示鼠标是移入还是移出，并包含鼠标位置
-    showTip(text, arg) {
+    // 显示中间面板上的提示。参数 mouse 指示鼠标是移入还是移出，并包含鼠标坐标
+    showTip(text, mouse) {
         if (!text) {
             throw new Error('No tip text.');
         }
-        if (arg.type === 1) {
+        if (mouse.type === 1) {
             this.tipEl.innerHTML = text;
-            this.tipEl.style.left = arg.x + 30 + 'px';
-            this.tipEl.style.top = arg.y - 30 + 'px';
+            this.tipEl.style.left = mouse.x + 30 + 'px';
+            this.tipEl.style.top = mouse.y - 30 + 'px';
             this.tipEl.style.display = 'block';
         }
-        else if (arg.type === 0) {
+        else if (mouse.type === 0) {
             this.tipEl.style.display = 'none';
         }
     }

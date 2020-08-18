@@ -1,16 +1,15 @@
 import { EVT } from './EVT'
 
-// 右侧的下载图标
+// 右侧的下载按钮
 class DownloadButton {
   constructor() {
-    this.addIcon()
+    this.addBtn()
     this.bindEvents()
   }
 
   private btn: HTMLButtonElement = document.createElement('button')
 
-  // 添加右侧下载按钮
-  private addIcon() {
+  private addBtn() {
     this.btn = document.createElement('button')
     this.btn.textContent = '↓'
     this.btn.id = 'rightButton'

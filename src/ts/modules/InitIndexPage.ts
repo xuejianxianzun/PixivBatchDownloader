@@ -11,13 +11,11 @@ import { EVT } from './EVT'
 class InitIndexPage extends InitPageBase {
   constructor() {
     super()
-    this.downIdButton = document.createElement('button')
-    this.downIdInput = document.createElement('textarea')
     this.init()
   }
 
-  private downIdButton: HTMLButtonElement
-  private downIdInput: HTMLTextAreaElement
+  private downIdButton: HTMLButtonElement = document.createElement('button')
+  private downIdInput: HTMLTextAreaElement = document.createElement('textarea')
   private ready = false
 
   protected appendCenterBtns() {
@@ -83,7 +81,7 @@ class InitIndexPage extends InitPageBase {
     })
   }
 
-  protected getWantPage() {}
+  protected getWantPage() { }
 
   protected getIdList() {
     // 检查页面类型，设置输入的 id 的作品类型
@@ -113,7 +111,7 @@ class InitIndexPage extends InitPageBase {
     this.getIdListFinished()
   }
 
-  protected resetGetIdListStatus() {}
+  protected resetGetIdListStatus() { }
 
   protected destroy() {
     DOM.clearSlot('crawlBtns')

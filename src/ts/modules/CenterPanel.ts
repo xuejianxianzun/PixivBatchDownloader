@@ -8,6 +8,9 @@ import { themeColor } from './ThemeColor'
 class CenterPanel {
   constructor() {
     this.addCenterPanel()
+
+    themeColor.register(this.centerPanel)
+
     this.bindEvents()
   }
 
@@ -76,8 +79,6 @@ class CenterPanel {
 
     this.centerPanel = document.querySelector('.centerWrap') as HTMLDivElement
 
-    themeColor.register(this.centerPanel)
-
     this.updateLink = this.centerPanel.querySelector(
       '.update'
     )! as HTMLAnchorElement
@@ -89,7 +90,6 @@ class CenterPanel {
     document.getElementById(donateId)!.style.display = 'inline-block'
   }
 
-  // 绑定中间面板上的事件
   private bindEvents() {
     // 监听点击扩展图标的消息，开关中间面板
     chrome.runtime.onMessage.addListener((msg) => {
@@ -157,14 +157,14 @@ class CenterPanel {
     })
 
     // 显示常见问题
-    document
+    this.centerPanel
       .querySelector('.showDownTip')!
       .addEventListener('click', () =>
-        DOM.toggleEl(document.querySelector('.downTip')! as HTMLDivElement)
+        DOM.toggleEl(this.centerPanel.querySelector('.downTip')! as HTMLDivElement)
       )
 
     // 重置设置
-    document.getElementById('resetOption')!.addEventListener('click', () => {
+    this.centerPanel.querySelector('#resetOption')!.addEventListener('click', () => {
       const result = window.confirm(lang.transl('_是否重置设置'))
       if (result) {
         EVT.fire(EVT.events.resetOption)

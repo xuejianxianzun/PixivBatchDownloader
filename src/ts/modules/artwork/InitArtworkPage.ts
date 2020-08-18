@@ -21,6 +21,15 @@ class InitArtworkPage extends InitPageBase {
 
   private quickDownBtn: HTMLButtonElement= document.createElement('button')
 
+  private crawlDirection: number = 0 // 抓取方向，指示抓取新作品还是旧作品
+  /*
+  -1 抓取新作品
+  0 不设置抓取方向
+  1 抓取旧作品
+  */
+
+  private crawlRelated: boolean = false // 是否下载相关作品
+
   protected initElse() {
     // 初始化快速收藏功能和图片查看器
     this.initQuickBookmark()
@@ -85,8 +94,8 @@ class InitArtworkPage extends InitPageBase {
     })
   }
 
-  // 在右侧添加快速下载按钮
   protected appendElseEl() {
+    // 在右侧添加快速下载按钮
     this.quickDownBtn.id = 'quick_down_btn'
     this.quickDownBtn.textContent = '↓'
     this.quickDownBtn.setAttribute('title', lang.transl('_快速下载本页'))
@@ -132,15 +141,6 @@ class InitArtworkPage extends InitPageBase {
       this.initImgViewer
     )
   }
-
-  private crawlDirection: number = 0 // 抓取方向，在作品页内指示抓取新作品还是旧作品
-  /*
-  -1 抓取新作品
-  0 不设置抓取方向
-  1 抓取旧作品
-  */
-
-  private crawlRelated: boolean = false // 是否下载相关作品（作品页内的）
 
   protected getWantPage() {
     if (store.states.quickDownload) {

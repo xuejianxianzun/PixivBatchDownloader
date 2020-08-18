@@ -33,19 +33,23 @@ class Support {
   // 检查新版本
   private async checkNew() {
     // 读取上一次检查的时间，如果超过指定的时间，则检查 GitHub 上的信息
-    const lastTime = localStorage.getItem('xzUpdateTime')
+    const timeName = 'xzUpdateTime'
+    const verName = 'xzGithubVer'
+    const interval = 1000 * 60 * 30 // 30 分钟检查一次
+
+    const lastTime = localStorage.getItem(timeName)
     if (
       !lastTime ||
-      new Date().getTime() - parseInt(lastTime) > 60 * 30 * 1000
+      new Date().getTime() - parseInt(lastTime) > interval
     ) {
       // 获取最新的 releases 信息
       const latest = await fetch(config.latestReleaseAPI)
       const latestJson = await latest.json()
       const latestVer = latestJson.name
       // 保存 GitHub 上的版本信息
-      localStorage.setItem('xzGithubVer', latestVer)
+      localStorage.setItem(verName, latestVer)
       // 保存本次检查的时间戳
-      localStorage.setItem('xzUpdateTime', new Date().getTime().toString())
+      localStorage.setItem(timeName, new Date().getTime().toString())
     }
 
     // 获取本地扩展的版本号
@@ -53,30 +57,31 @@ class Support {
     const manifestJson = await manifest.json()
     const manifestVer = manifestJson.version
     // 比较大小
-    const latestVer = localStorage.getItem('xzGithubVer')
+    const latestVer = localStorage.getItem(verName)
     if (latestVer && manifestVer < latestVer) {
-      EVT.fire('hasNewVer')
+      EVT.fire(EVT.events.hasNewVer)
     }
   }
 
   // 显示最近更新内容
   private showNew() {
+    const storeNmae = 'xzNewVerTag'
+    const value = localStorage.getItem(storeNmae)
     if (
-      window.location.host.includes('pixiv.net') &&
-      !localStorage.getItem(this.newTag)
+      window.location.host.includes('pixiv.net') && (value !== this.newTag)
     ) {
       const whatIsNewHtml = `
       <div class="xz_new">
         <p class="title">Powerful Pixiv Downloader ${lang.transl(
-          '_最近更新'
-        )}</p>
+        '_最近更新'
+      )}</p>
         <p class="content">${lang.transl(this.newTag)}</p>
         <button class="btn">${lang.transl('_确定')}</button>
       </div>`
       document.body.insertAdjacentHTML('afterbegin', whatIsNewHtml)
       const whatIsNewEl = document.querySelector('.xz_new')!
       whatIsNewEl.querySelector('.btn')!.addEventListener('click', () => {
-        localStorage.setItem(this.newTag, '1')
+        localStorage.setItem(storeNmae, this.newTag)
         whatIsNewEl.parentNode!.removeChild(whatIsNewEl)
       })
     }
@@ -106,8 +111,6 @@ class Support {
   // 监听页面的无刷新切换。某些页面可以无刷新切换，这时需要进行一些处理
   private listenPageSwitch() {
     // 绑定无刷新切换页面的事件，只绑定一次
-    // pixiv 的后退使用 replaceState
-    // pushState 判断从列表页进入作品页的情况，popstate 判断从作品页退回列表页的情况
     ;['pushState', 'popstate', 'replaceState'].forEach((item) => {
       window.addEventListener(item, () => {
         EVT.fire(EVT.events.pageSwitch)
@@ -116,4 +119,4 @@ class Support {
   }
 }
 new Support()
-export {}
+export { }

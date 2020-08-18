@@ -1,4 +1,3 @@
-// 输出面板
 import { EVT } from './EVT'
 import { lang } from './Lang'
 import { store } from './Store'
@@ -6,9 +5,12 @@ import { DOM } from './DOM'
 import config from './Config'
 import { themeColor } from './ThemeColor'
 
+// 输出面板
 class Output {
   constructor() {
     this.addOutPutPanel()
+
+    themeColor.register(this.outputPanel)
 
     this.bindEvent()
   }
@@ -20,6 +22,8 @@ class Output {
   private outputContent!: HTMLDivElement // 输出文本的容器元素
 
   private copyBtn!: HTMLButtonElement
+
+  private closeBtn!: HTMLDivElement
 
   private addOutPutPanel() {
     const outputPanelHTML = `
@@ -36,25 +40,24 @@ class Output {
 
     this.outputPanel = document.querySelector('.outputWrap')! as HTMLDivElement
 
-    themeColor.register(this.outputPanel)
+    this.outputTitle = this.outputPanel.querySelector('.outputTitle')! as HTMLDivElement
 
-    this.outputTitle = document.querySelector('.outputTitle')! as HTMLDivElement
+    this.outputContent = this.outputPanel.querySelector('.outputContent')! as HTMLDivElement
 
-    this.outputContent = document.querySelector(
-      '.outputContent'
-    )! as HTMLDivElement
+    this.copyBtn = this.outputPanel.querySelector('.outputCopy')! as HTMLButtonElement
 
-    this.copyBtn = document.querySelector('.outputCopy')! as HTMLButtonElement
+    this.closeBtn = this.outputPanel.querySelector('.outputClose')! as HTMLDivElement
+
   }
 
+  // 关闭输出面板
   private close() {
     this.outputPanel.style.display = 'none'
     this.outputContent.innerHTML = ''
   }
 
   private bindEvent() {
-    // 关闭输出面板
-    document.querySelector('.outputClose')!.addEventListener('click', () => {
+    this.closeBtn.addEventListener('click', () => {
       this.close()
     })
 
@@ -112,4 +115,4 @@ class Output {
 }
 
 new Output()
-export {}
+export { }

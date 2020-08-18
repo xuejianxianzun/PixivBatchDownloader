@@ -14,6 +14,20 @@ class InitFollowingPage extends InitPageBase {
     this.init()
   }
 
+  private baseOffset = 0 // 开始抓取时，记录初始的偏移量
+  private readonly onceNumber = 24 // 每页 24 个画师
+
+  private getUserListNo = 0 // 获取用户列表时，记录请求的次数
+  private readonly limit = 100 // 每次请求多少个画师的数据
+
+  private totalNeed = Number.MAX_SAFE_INTEGER
+  private myId = ''
+  private rest: 'show' | 'hide' = 'show'
+
+  private userList: string[] = []
+
+  private index = 0 // getIdList 时，对 userList 的索引
+
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
@@ -31,20 +45,6 @@ class InitFollowingPage extends InitPageBase {
       value: '-1',
     })
   }
-
-  private baseOffset = 0 // 开始抓取时，记录初始的偏移量
-  private readonly onceNumber = 24 // 每页 24 个画师
-
-  private getUserListNo = 0 // 获取用户列表时，记录请求的次数
-  private readonly limit = 100 // 每次请求多少个画师的数据
-
-  private totalNeed = Number.MAX_SAFE_INTEGER
-  private myId = ''
-  private rest: 'show' | 'hide' = 'show'
-
-  private userList: string[] = []
-
-  private index = 0 // getIdList 时，对 userList 的索引
 
   protected getWantPage() {
     this.crawlNumber = this.checkWantPageInput(

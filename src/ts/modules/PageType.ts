@@ -1,6 +1,6 @@
-// 获取页面类型
 import { EVT } from './EVT'
 
+// 获取页面类型
 class PageType {
   constructor() {
     this.type = this.getPageType()
@@ -13,8 +13,6 @@ class PageType {
 
   private type: number = 0
 
-  // 判断页面类型
-  // 有些页面类型（如小说）虽然不支持，但它和支持的页面是无刷新切换的，所以视为支持的页面。等到开始抓取时再次判断是否可以抓取
   public getPageType(): number {
     const url = window.location.href
     const pathname = window.location.pathname
@@ -79,7 +77,7 @@ class PageType {
       type = 19
     } else {
       // 没有匹配到可用的页面类型
-      throw new Error('Page type matching failed')
+      throw new Error('Unsupported page type')
     }
 
     return type

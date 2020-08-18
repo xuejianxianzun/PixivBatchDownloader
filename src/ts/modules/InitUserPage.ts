@@ -20,6 +20,12 @@ class InitUserPage extends InitPageBase {
     this.init()
   }
 
+  private tag = '' // 储存当前页面的 tag，可能为空
+
+  private listType = 0 // 细分的列表类型
+
+  private onceNumber = 48 // 每页作品个数，插画是 48 个，小说是 24 个
+
   // 添加中间按钮
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
@@ -44,12 +50,6 @@ class InitUserPage extends InitPageBase {
       value: '-1',
     })
   }
-
-  private tag = '' // 储存当前页面的 tag，可能为空
-
-  private listType = 0 // 细分的列表类型
-
-  private onceNumber = 48 // 每页作品个数，插画是 48 个，小说是 24 个
 
   protected getWantPage() {
     this.crawlNumber = this.checkWantPageInput(

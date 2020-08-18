@@ -18,6 +18,12 @@ class InitNewNovelPage extends InitPageBase {
     this.init()
   }
 
+  private option: NewIllustOption = this.resetOption()
+
+  private readonly limitMax = 20 // 每次请求的数量最大是 20
+
+  private fetchCount = 0 // 已请求的作品数量
+
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_下载大家的新作品')],
@@ -65,12 +71,6 @@ class InitNewNovelPage extends InitPageBase {
       r18: '',
     }
   }
-
-  private option: NewIllustOption = this.resetOption()
-
-  private readonly limitMax = 20 // 每次请求的数量最大是 20
-
-  private fetchCount = 0 // 已请求的作品数量
 
   // 组织要请求的 url
   private initFetchURL() {

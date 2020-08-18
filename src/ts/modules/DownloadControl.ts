@@ -194,7 +194,9 @@ class DownloadControl {
     <button class="startDownload" type="button" style="background:${
       Colors.blue
     };"> ${lang.transl('_下载按钮1')}</button>
-    <button class="pauseDownload" type="button" style="background:#e49d00;"> ${lang.transl(
+    <button class="pauseDownload" type="button" style="background:${
+      Colors.yellow
+    };"> ${lang.transl(
       '_下载按钮2'
     )}</button>
     <button class="stopDownload" type="button" style="background:${

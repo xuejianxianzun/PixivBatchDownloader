@@ -12,6 +12,8 @@ class InitPixivisionPage extends InitPageBase {
     super()
     this.init()
   }
+  
+  private tested: number = 0 // 检查图片后缀名时的计数
 
   protected appendCenterBtns() {
     const typeA = document.querySelector(
@@ -141,8 +143,6 @@ class InitPixivisionPage extends InitPageBase {
       this.crawlFinished()
     }
   }
-
-  private tested: number = 0 // 检查图片后缀名时的计数
 
   // 测试图片 url 是否正确的函数。pixivision 页面直接获取的图片 url，后缀都是jpg的，所以要测试实际上是jpg还是png
   private testExtName(url: string, imgNumber: number, id: string) {
