@@ -18,7 +18,7 @@ class Tip {
     document.body.insertAdjacentElement('afterbegin', this.tipEl)
   }
 
-  private bindEvent(){
+  private bindEvent() {
     const tips = document.querySelectorAll('.has_tip') as NodeListOf<
       HTMLElement
     >

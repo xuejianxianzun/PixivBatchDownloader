@@ -72,7 +72,7 @@ class InitNovelPage extends InitPageBase {
     this.quickDownBtn.textContent = '↓'
     this.quickDownBtn.setAttribute('title', lang.transl('_快速下载本页'))
     document.body.insertAdjacentElement('afterbegin', this.quickDownBtn)
-    
+
     this.quickDownBtn.addEventListener(
       'click',
       () => {

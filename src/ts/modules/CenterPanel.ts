@@ -160,16 +160,20 @@ class CenterPanel {
     this.centerPanel
       .querySelector('.showDownTip')!
       .addEventListener('click', () =>
-        DOM.toggleEl(this.centerPanel.querySelector('.downTip')! as HTMLDivElement)
+        DOM.toggleEl(
+          this.centerPanel.querySelector('.downTip')! as HTMLDivElement
+        )
       )
 
     // 重置设置
-    this.centerPanel.querySelector('#resetOption')!.addEventListener('click', () => {
-      const result = window.confirm(lang.transl('_是否重置设置'))
-      if (result) {
-        EVT.fire(EVT.events.resetOption)
-      }
-    })
+    this.centerPanel
+      .querySelector('#resetOption')!
+      .addEventListener('click', () => {
+        const result = window.confirm(lang.transl('_是否重置设置'))
+        if (result) {
+          EVT.fire(EVT.events.resetOption)
+        }
+      })
   }
 
   // 显示中间区域

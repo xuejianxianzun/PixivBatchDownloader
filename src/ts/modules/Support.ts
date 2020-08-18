@@ -38,10 +38,7 @@ class Support {
     const interval = 1000 * 60 * 30 // 30 分钟检查一次
 
     const lastTime = localStorage.getItem(timeName)
-    if (
-      !lastTime ||
-      new Date().getTime() - parseInt(lastTime) > interval
-    ) {
+    if (!lastTime || new Date().getTime() - parseInt(lastTime) > interval) {
       // 获取最新的 releases 信息
       const latest = await fetch(config.latestReleaseAPI)
       const latestJson = await latest.json()
@@ -67,14 +64,12 @@ class Support {
   private showNew() {
     const storeNmae = 'xzNewVerTag'
     const value = localStorage.getItem(storeNmae)
-    if (
-      window.location.host.includes('pixiv.net') && (value !== this.newTag)
-    ) {
+    if (window.location.host.includes('pixiv.net') && value !== this.newTag) {
       const whatIsNewHtml = `
       <div class="xz_new">
         <p class="title">Powerful Pixiv Downloader ${lang.transl(
-        '_最近更新'
-      )}</p>
+          '_最近更新'
+        )}</p>
         <p class="content">${lang.transl(this.newTag)}</p>
         <button class="btn">${lang.transl('_确定')}</button>
       </div>`
@@ -119,4 +114,4 @@ class Support {
   }
 }
 new Support()
-export { }
+export {}

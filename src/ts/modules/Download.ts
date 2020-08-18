@@ -213,7 +213,31 @@ class Download {
               tabId: 0,
               uuid: false,
             },
-            lang.transl('_不保存图片因为颜色设置', arg.id)
+            lang.transl('_不保存图片因为颜色', arg.id)
+          )
+        }
+      }
+
+      // 检查图片的宽高设置
+      // 因为抓取时只能检查每个作品第一张图片的宽高，所以可能会出现作品的第一张图片符合要求，但后面的图片不符合要求的情况。这里针对第一张之后的其他图片也进行检查，提高准确率。
+      if (
+        (arg.data.type === 0 || arg.data.type === 1) &&
+        !arg.data.id.includes('p0')
+      ) {
+        const img = await this.loadImage(blobUrl)
+        const result = await filter.check({
+          width: img.naturalWidth,
+          height: img.naturalHeight,
+        })
+        if (!result) {
+          return this.skip(
+            {
+              url: blobUrl,
+              id: arg.id,
+              tabId: 0,
+              uuid: false,
+            },
+            lang.transl('_不保存图片因为宽高', arg.id)
           )
         }
       }
@@ -224,6 +248,16 @@ class Download {
       file = null as any
     })
     xhr.send()
+  }
+
+  private async loadImage(url: string) {
+    return new Promise<HTMLImageElement>(async (resolve, reject) => {
+      const i = document.createElement('img')
+      i.src = url
+      i.onload = function () {
+        resolve(i)
+      }
+    })
   }
 
   // 向浏览器发送下载任务

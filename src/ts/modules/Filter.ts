@@ -315,7 +315,7 @@ class Filter {
       }
 
       log.warning(
-        lang.transl('_设置了筛选宽高之后的提示文字p1') +
+        lang.transl('_宽度设置') +
           result.width +
           result.andOr
             .replace('|', lang.transl('_或者'))

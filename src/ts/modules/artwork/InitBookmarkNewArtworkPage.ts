@@ -16,7 +16,7 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
     super()
     this.init()
   }
-  
+
   private r18 = false
 
   protected appendCenterBtns() {

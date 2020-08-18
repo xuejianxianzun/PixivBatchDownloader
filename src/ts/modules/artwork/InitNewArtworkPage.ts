@@ -71,7 +71,7 @@ class InitNewArtworkPage extends InitPageBase {
       r18: '',
     }
   }
-  
+
   // 组织要请求的 url
   private initFetchURL() {
     this.option = this.resetOption()

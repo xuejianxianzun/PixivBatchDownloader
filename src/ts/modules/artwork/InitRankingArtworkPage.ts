@@ -61,7 +61,6 @@ class InitRankingArtworkPage extends InitPageBase {
     return { mode: 'daily', p: 1, worksType: '', date: '' }
   }
 
-
   private setPartNum() {
     // 设置页数。排行榜页面一页有50张作品，当页面到达底部时会加载下一页
     if (location.pathname.includes('r18g')) {

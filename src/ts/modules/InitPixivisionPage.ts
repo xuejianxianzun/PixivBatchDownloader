@@ -12,7 +12,7 @@ class InitPixivisionPage extends InitPageBase {
     super()
     this.init()
   }
-  
+
   private tested: number = 0 // 检查图片后缀名时的计数
 
   protected appendCenterBtns() {

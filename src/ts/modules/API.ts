@@ -51,7 +51,7 @@ class API {
   static unsafeStr = new RegExp(
     /[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g
   )
-  
+
   // 一些需要替换成全角字符的符号，左边是正则表达式的字符
   static fullWidthDict: string[][] = [
     ['\\\\', '＼'],

@@ -40,14 +40,21 @@ class Output {
 
     this.outputPanel = document.querySelector('.outputWrap')! as HTMLDivElement
 
-    this.outputTitle = this.outputPanel.querySelector('.outputTitle')! as HTMLDivElement
+    this.outputTitle = this.outputPanel.querySelector(
+      '.outputTitle'
+    )! as HTMLDivElement
 
-    this.outputContent = this.outputPanel.querySelector('.outputContent')! as HTMLDivElement
+    this.outputContent = this.outputPanel.querySelector(
+      '.outputContent'
+    )! as HTMLDivElement
 
-    this.copyBtn = this.outputPanel.querySelector('.outputCopy')! as HTMLButtonElement
+    this.copyBtn = this.outputPanel.querySelector(
+      '.outputCopy'
+    )! as HTMLButtonElement
 
-    this.closeBtn = this.outputPanel.querySelector('.outputClose')! as HTMLDivElement
-
+    this.closeBtn = this.outputPanel.querySelector(
+      '.outputClose'
+    )! as HTMLDivElement
   }
 
   // 关闭输出面板
@@ -115,4 +122,4 @@ class Output {
 }
 
 new Output()
-export { }
+export {}

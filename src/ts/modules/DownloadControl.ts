@@ -39,15 +39,19 @@ class DownloadControl {
 
   private convertText = ''
 
+  private skipCount = 0 // 跳过下载的数量
+
   private reTryTimer: number = 0 // 重试下载的定时器
 
-  private downloadArea: HTMLDivElement = document.createElement('div') // 下载区域
+  private downloadArea: HTMLDivElement = document.createElement('div')
 
   private totalNumberEl: HTMLSpanElement = document.createElement('span')
 
   private downStatusEl: HTMLSpanElement = document.createElement('span')
 
-  private convertTipEL: HTMLDivElement = document.createElement('div') // 转换动图时显示提示的元素
+  private skipTipEL: HTMLSpanElement = document.createElement('span') // 显示跳过的文件数量
+
+  private convertTipEL: HTMLSpanElement = document.createElement('span') // 转换动图时显示提示文本
 
   private downloadStop: boolean = false // 是否停止下载
 
@@ -58,11 +62,30 @@ class DownloadControl {
     return this.downloadPause || this.downloadStop
   }
 
+  private skipFile() {
+    this.skipCount++
+    this.skipTipEL.innerHTML = lang.transl(
+      '_已跳过n个文件',
+      this.skipCount.toString()
+    )
+  }
+
+  private resetSkipTip() {
+    this.skipCount = 0
+    this.skipTipEL.innerHTML = ''
+  }
+
   private listenEvents() {
     window.addEventListener(EVT.events.crawlStart, () => {
       this.hideDownloadArea()
       this.reset()
+      this.resetSkipTip()
     })
+
+    window.addEventListener(EVT.events.downloadComplete, () => {
+      this.skipCount = 0
+    })
+
 
     window.addEventListener(EVT.events.crawlFinish, () => {
       this.showDownloadArea()
@@ -70,6 +93,7 @@ class DownloadControl {
     })
 
     window.addEventListener(EVT.events.skipSaveFile, (ev: CustomEventInit) => {
+      this.skipFile()
       const data = ev.detail.data as DonwloadSuccessData
       this.downloadSuccess(data)
     })
@@ -196,9 +220,7 @@ class DownloadControl {
     };"> ${lang.transl('_下载按钮1')}</button>
     <button class="pauseDownload" type="button" style="background:${
       Colors.yellow
-    };"> ${lang.transl(
-      '_下载按钮2'
-    )}</button>
+    };"> ${lang.transl('_下载按钮2')}</button>
     <button class="stopDownload" type="button" style="background:${
       Colors.red
     };"> ${lang.transl('_下载按钮3')}</button>
@@ -212,6 +234,7 @@ class DownloadControl {
     <span class="down_status blue"><span>${lang.transl(
       '_未开始下载'
     )}</span></span>
+    <span class="skip_tip warn"></span>
     <span class="convert_tip warn"></span>
     </p>
     </div>
@@ -220,7 +243,8 @@ class DownloadControl {
     const el = DOM.useSlot('downloadArea', html)
     this.downloadArea = el as HTMLDivElement
     this.downStatusEl = el.querySelector('.down_status ') as HTMLSpanElement
-    this.convertTipEL = el.querySelector('.convert_tip') as HTMLDivElement
+    this.convertTipEL = el.querySelector('.convert_tip') as HTMLSpanElement
+    this.skipTipEL = el.querySelector('.skip_tip') as HTMLSpanElement
     this.totalNumberEl = el.querySelector('.imgNum') as HTMLSpanElement
 
     document.querySelector('.startDownload')!.addEventListener('click', () => {
