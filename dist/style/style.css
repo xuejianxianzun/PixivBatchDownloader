@@ -466,10 +466,14 @@
 .centerWrap .download_area {
   display: none;
 }
-.centerWrap .download_area .centerWrap_down_tips {
-  line-height: 28px;
+.centerWrap .download_area .download_status_text_wrap {
+  line-height: 26px;
 }
-.centerWrap .download_area .centerWrap_down_tips .down_status {
+.centerWrap .download_area .download_status_text_wrap > * {
+  padding-right: 5px;
+}
+.centerWrap .download_area .download_status_text_wrap .down_status {
+  color: #0ea8ef;
   display: inline-block;
 }
 .centerWrap .settingNameStyle1 {

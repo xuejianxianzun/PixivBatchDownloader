@@ -16,8 +16,9 @@ import { form } from './Settings'
 import { Download } from './Download'
 import { progressBar } from './ProgressBar'
 import { downloadStates } from './DownloadStates'
+import { ShowSkipCount } from './ShowSkipCount'
+import { ShowConvertCount } from './ShowConvertCount'
 import { resume } from './Resume'
-import {ShowSkipCount} from './ShowSkipCount'
 
 class DownloadControl {
   constructor() {
@@ -25,8 +26,15 @@ class DownloadControl {
 
     this.listenEvents()
 
-    const skipTipEL = this.downloadArea.querySelector('.skip_tip') as HTMLSpanElement
-    new ShowSkipCount(skipTipEL)
+    const skipTipWrap = this.downloadArea.querySelector(
+      '.skip_tip'
+    ) as HTMLSpanElement
+    new ShowSkipCount(skipTipWrap)
+
+    const convertTipWrap = this.downloadArea.querySelector(
+      '.convert_tip'
+    ) as HTMLSpanElement
+    new ShowConvertCount(convertTipWrap)
   }
 
   private readonly downloadThreadMax: number = 5 // 同时下载的线程数的最大值，也是默认值
@@ -41,8 +49,6 @@ class DownloadControl {
 
   private downloaded: number = 0 // 已下载的任务数量
 
-  private convertText = ''
-
   private reTryTimer: number = 0 // 重试下载的定时器
 
   private downloadArea: HTMLDivElement = document.createElement('div')
@@ -50,8 +56,6 @@ class DownloadControl {
   private totalNumberEl: HTMLSpanElement = document.createElement('span')
 
   private downStatusEl: HTMLSpanElement = document.createElement('span')
-
-  private convertTipEL: HTMLSpanElement = document.createElement('span') // 转换动图时显示提示文本
 
   private downloadStop: boolean = false // 是否停止下载
 
@@ -61,8 +65,6 @@ class DownloadControl {
   public get downloadStopped() {
     return this.downloadPause || this.downloadStop
   }
-
-  
 
   private listenEvents() {
     window.addEventListener(EVT.events.crawlStart, () => {
@@ -83,17 +85,6 @@ class DownloadControl {
     window.addEventListener(EVT.events.downloadError, (ev: CustomEventInit) => {
       const id = ev.detail.data as string
       this.downloadError(id)
-    })
-
-    window.addEventListener(EVT.events.convertChange, (ev: CustomEventInit) => {
-      const count = ev.detail.data
-      if (count > 0) {
-        this.convertText = lang.transl('_转换任务提示', count.toString())
-      } else {
-        this.convertText = ''
-      }
-      this.convertTipEL.innerHTML = this.convertText
-      this.LogDownloadStates()
     })
 
     // 监听浏览器下载文件后，返回的消息
@@ -126,21 +117,26 @@ class DownloadControl {
 
   private setDownloaded() {
     this.downloaded = downloadStates.downloadedCount()
-    this.LogDownloadStates()
 
-    // 设置下载进度信息
+    const text = `${this.downloaded} / ${store.result.length}`
+    log.log(text, 2, false)
+
+    // 设置下载进度条
     progressBar.setTotalProgress(this.downloaded)
 
-    // 重置下载进度信息
     if (this.downloaded === 0) {
+      // 重置下载进度信息
       this.setDownStateText(lang.transl('_未开始下载'))
     }
 
     // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
     if (this.downloaded === store.result.length) {
-      EVT.fire(EVT.events.downloadComplete)
+      window.setTimeout(() => {
+        // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
+        EVT.fire(EVT.events.downloadComplete)
+      }, 0)
       this.reset()
-      this.setDownStateText(lang.transl('_下载完毕'))
+      this.setDownStateText(lang.transl('_下载完毕'), Colors.green)
       log.success(lang.transl('_下载完毕'), 2)
       titleBar.change('✓')
     }
@@ -173,14 +169,9 @@ class DownloadControl {
   }
 
   // 设置下载状态文本，默认颜色为主题蓝色
-  private setDownStateText(str: string, color: string = '') {
-    const el = document.createElement('span')
-    el.textContent = str
-    if (color) {
-      el.style.color = color
-    }
-    this.downStatusEl.innerHTML = ''
-    this.downStatusEl.appendChild(el)
+  private setDownStateText(text: string, color: string = Colors.blue) {
+    this.downStatusEl.textContent = text
+    this.downStatusEl.style.color = color
   }
 
   private reset() {
@@ -210,22 +201,17 @@ class DownloadControl {
       Colors.green
     };"> ${lang.transl('_复制url')}</button>
     </div>
-    <div class="centerWrap_down_tips">
-    <p>
+    <div class="download_status_text_wrap">
     <span>${lang.transl('_当前状态')}</span>
-    <span class="down_status blue"><span>${lang.transl(
-      '_未开始下载'
-    )}</span></span>
+    <span class="down_status">${lang.transl('_未开始下载')}</span>
     <span class="skip_tip warn"></span>
     <span class="convert_tip warn"></span>
-    </p>
     </div>
     </div>`
 
     const el = DOM.useSlot('downloadArea', html)
     this.downloadArea = el as HTMLDivElement
-    this.downStatusEl = el.querySelector('.down_status ') as HTMLSpanElement
-    this.convertTipEL = el.querySelector('.convert_tip') as HTMLSpanElement
+    this.downStatusEl = el.querySelector('.down_status') as HTMLSpanElement
     this.totalNumberEl = el.querySelector('.imgNum') as HTMLSpanElement
 
     document.querySelector('.startDownload')!.addEventListener('click', () => {
@@ -455,18 +441,6 @@ class DownloadControl {
     } else {
       return false
     }
-  }
-
-  // 在日志上显示下载进度
-  private LogDownloadStates() {
-    let text = `${this.downloaded} / ${store.result.length}`
-
-    // 追加转换动图的提示
-    if (this.convertText) {
-      text += ', ' + this.convertText
-    }
-
-    log.log(text, 2, false)
   }
 
   // 查找需要进行下载的作品，建立下载

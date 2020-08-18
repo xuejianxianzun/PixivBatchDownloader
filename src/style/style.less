@@ -510,10 +510,14 @@
     display: none;
   }
   .download_area {
-    .centerWrap_down_tips {
-      line-height: 28px;
+    .download_status_text_wrap {
+      line-height: 26px;
+      & > * {
+        padding-right: 5px;
+      }
 
       .down_status {
+        color: @themeBlue;
         display: inline-block;
       }
     }

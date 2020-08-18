@@ -49,8 +49,8 @@ class Download {
 
   private skip(data: DonwloadSuccessData, msg = '') {
     this.cancel = true
-    EVT.fire(EVT.events.skipSaveFile, data)
     log.warning(msg)
+    EVT.fire(EVT.events.skipSaveFile, data)
   }
 
   // 下载文件
