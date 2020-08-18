@@ -17,12 +17,16 @@ import { Download } from './Download'
 import { progressBar } from './ProgressBar'
 import { downloadStates } from './DownloadStates'
 import { resume } from './Resume'
+import {ShowSkipCount} from './ShowSkipCount'
 
 class DownloadControl {
   constructor() {
     this.createDownloadArea()
 
     this.listenEvents()
+
+    const skipTipEL = this.downloadArea.querySelector('.skip_tip') as HTMLSpanElement
+    new ShowSkipCount(skipTipEL)
   }
 
   private readonly downloadThreadMax: number = 5 // 同时下载的线程数的最大值，也是默认值
@@ -39,8 +43,6 @@ class DownloadControl {
 
   private convertText = ''
 
-  private skipCount = 0 // 跳过下载的数量
-
   private reTryTimer: number = 0 // 重试下载的定时器
 
   private downloadArea: HTMLDivElement = document.createElement('div')
@@ -48,8 +50,6 @@ class DownloadControl {
   private totalNumberEl: HTMLSpanElement = document.createElement('span')
 
   private downStatusEl: HTMLSpanElement = document.createElement('span')
-
-  private skipTipEL: HTMLSpanElement = document.createElement('span') // 显示跳过的文件数量
 
   private convertTipEL: HTMLSpanElement = document.createElement('span') // 转换动图时显示提示文本
 
@@ -62,30 +62,13 @@ class DownloadControl {
     return this.downloadPause || this.downloadStop
   }
 
-  private skipFile() {
-    this.skipCount++
-    this.skipTipEL.innerHTML = lang.transl(
-      '_已跳过n个文件',
-      this.skipCount.toString()
-    )
-  }
-
-  private resetSkipTip() {
-    this.skipCount = 0
-    this.skipTipEL.innerHTML = ''
-  }
+  
 
   private listenEvents() {
     window.addEventListener(EVT.events.crawlStart, () => {
       this.hideDownloadArea()
       this.reset()
-      this.resetSkipTip()
     })
-
-    window.addEventListener(EVT.events.downloadComplete, () => {
-      this.skipCount = 0
-    })
-
 
     window.addEventListener(EVT.events.crawlFinish, () => {
       this.showDownloadArea()
@@ -93,7 +76,6 @@ class DownloadControl {
     })
 
     window.addEventListener(EVT.events.skipSaveFile, (ev: CustomEventInit) => {
-      this.skipFile()
       const data = ev.detail.data as DonwloadSuccessData
       this.downloadSuccess(data)
     })
@@ -244,7 +226,6 @@ class DownloadControl {
     this.downloadArea = el as HTMLDivElement
     this.downStatusEl = el.querySelector('.down_status ') as HTMLSpanElement
     this.convertTipEL = el.querySelector('.convert_tip') as HTMLSpanElement
-    this.skipTipEL = el.querySelector('.skip_tip') as HTMLSpanElement
     this.totalNumberEl = el.querySelector('.imgNum') as HTMLSpanElement
 
     document.querySelector('.startDownload')!.addEventListener('click', () => {
