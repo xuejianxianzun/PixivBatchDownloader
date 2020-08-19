@@ -49,8 +49,6 @@ class DownloadControl {
 
   private downloaded: number = 0 // 已下载的任务数量
 
-  private reTryTimer: number = 0 // 重试下载的定时器
-
   private downloadArea: HTMLDivElement = document.createElement('div')
 
   private totalNumberEl: HTMLSpanElement = document.createElement('span')
@@ -60,11 +58,6 @@ class DownloadControl {
   private downloadStop: boolean = false // 是否停止下载
 
   private downloadPause: boolean = false // 是否暂停下载
-
-  // 返回任务停止状态。暂停和停止都视为停止下载
-  public get downloadStopped() {
-    return this.downloadPause || this.downloadStop
-  }
 
   private listenEvents() {
     window.addEventListener(EVT.events.crawlStart, () => {
@@ -125,7 +118,6 @@ class DownloadControl {
     progressBar.setTotalProgress(this.downloaded)
 
     if (this.downloaded === 0) {
-      // 重置下载进度信息
       this.setDownStateText(lang.transl('_未开始下载'))
     }
 
@@ -144,15 +136,14 @@ class DownloadControl {
     this.checkCompleteWithError()
   }
 
-  // 如果带上下载出错的任务的话，是否已经完成了下载
+  // 在有下载出错的任务的情况下，是否已经完成了下载
   private checkCompleteWithError() {
-    // 在有文件下载失败的情况下完成了下载，则进入暂停状态
     if (
       this.errorIdList.length > 0 &&
       this.downloaded + this.errorIdList.length === store.result.length
     ) {
+      // 则进入暂停状态，一定时间后自动开始下载，重试下载出错的文件
       this.pauseDownload()
-      // 一定时间后自动开始下载
       setTimeout(() => {
         this.startDownload()
       }, 5000)
@@ -177,7 +168,7 @@ class DownloadControl {
   private reset() {
     this.downloadPause = false
     this.downloadStop = false
-    clearTimeout(this.reTryTimer)
+    this.errorIdList = []
   }
 
   private createDownloadArea() {
@@ -214,19 +205,19 @@ class DownloadControl {
     this.downStatusEl = el.querySelector('.down_status') as HTMLSpanElement
     this.totalNumberEl = el.querySelector('.imgNum') as HTMLSpanElement
 
-    document.querySelector('.startDownload')!.addEventListener('click', () => {
+    el.querySelector('.startDownload')!.addEventListener('click', () => {
       this.startDownload()
     })
 
-    document.querySelector('.pauseDownload')!.addEventListener('click', () => {
+    el.querySelector('.pauseDownload')!.addEventListener('click', () => {
       this.pauseDownload()
     })
 
-    document.querySelector('.stopDownload')!.addEventListener('click', () => {
+    el.querySelector('.stopDownload')!.addEventListener('click', () => {
       this.stopDownload()
     })
 
-    document.querySelector('.copyUrl')!.addEventListener('click', () => {
+    el.querySelector('.copyUrl')!.addEventListener('click', () => {
       this.showURLs()
     })
   }
@@ -303,8 +294,8 @@ class DownloadControl {
       return
     }
 
-    // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
     if (!this.downloadPause && !resume.flag) {
+      // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
       // 初始化下载状态列表
       downloadStates.initList()
     } else {
@@ -313,22 +304,17 @@ class DownloadControl {
       downloadStates.resume()
     }
 
-    // 清空错误 id 列表
-    this.errorIdList = []
-
+    this.reset()
+    
     this.setDownloaded()
-
+    
     this.taskBatch = new Date().getTime() // 修改本批下载任务的标记
 
-    // 重置一些数据
-    this.downloadPause = false
-    this.downloadStop = false
-    clearTimeout(this.reTryTimer)
     this.setDownloadThread()
 
     EVT.fire(EVT.events.downloadStart)
 
-    // 启动或继续下载，建立并发下载线程
+    // 建立并发下载线程
     for (let i = 0; i < this.downloadThread; i++) {
       this.createDownload(i)
     }
@@ -340,8 +326,6 @@ class DownloadControl {
 
   // 暂停下载
   private pauseDownload() {
-    clearTimeout(this.reTryTimer)
-
     if (store.result.length === 0) {
       return
     }
@@ -369,8 +353,6 @@ class DownloadControl {
 
   // 停止下载
   private stopDownload() {
-    clearTimeout(this.reTryTimer)
-
     if (store.result.length === 0 || this.downloadStop) {
       return
     }
