@@ -10,7 +10,6 @@ import {
 import { store } from './Store'
 import { log } from './Log'
 import { lang } from './Lang'
-import { titleBar } from './TitleBar'
 import { Colors } from './Colors'
 import { form } from './Settings'
 import { Download } from './Download'
@@ -67,7 +66,9 @@ class DownloadControl {
 
     window.addEventListener(EVT.events.crawlFinish, () => {
       this.showDownloadArea()
-      this.readyDownload()
+      window.setTimeout(() => {
+        this.readyDownload()
+      }, 0);
     })
 
     window.addEventListener(EVT.events.skipSaveFile, (ev: CustomEventInit) => {
@@ -130,7 +131,6 @@ class DownloadControl {
       this.reset()
       this.setDownStateText(lang.transl('_下载完毕'), Colors.green)
       log.success(lang.transl('_下载完毕'), 2)
-      titleBar.change('✓')
     }
 
     this.checkCompleteWithError()
@@ -277,10 +277,6 @@ class DownloadControl {
 
     const autoDownload: boolean = form.quietDownload.checked
 
-    if (!autoDownload && !store.states.quickDownload) {
-      titleBar.change('▶')
-    }
-
     // 视情况自动开始下载
     if (autoDownload || store.states.quickDownload) {
       this.startDownload()
@@ -338,12 +334,11 @@ class DownloadControl {
     if (this.downloadPause === false) {
       // 如果正在下载中
       if (!store.states.allowWork) {
-        this.downloadPause = true // 发出暂停信号
-        EVT.fire(EVT.events.downloadPause)
-
-        titleBar.change('║')
+        this.downloadPause = true
         this.setDownStateText(lang.transl('_已暂停'), '#f00')
         log.warning(lang.transl('_已暂停'), 2)
+        
+        EVT.fire(EVT.events.downloadPause)
       } else {
         // 不在下载中的话不允许启用暂停功能
         return
@@ -358,12 +353,11 @@ class DownloadControl {
     }
 
     this.downloadStop = true
-    EVT.fire(EVT.events.downloadStop)
-
-    titleBar.change('■')
     this.setDownStateText(lang.transl('_已停止'), '#f00')
     log.error(lang.transl('_已停止'), 2)
     this.downloadPause = false
+
+    EVT.fire(EVT.events.downloadStop)
   }
 
   private downloadError(id: string) {
@@ -429,9 +423,7 @@ class DownloadControl {
   private createDownload(progressBarIndex: number) {
     const index = downloadStates.getFirstDownloadItem()
     if (index === undefined) {
-      // console.log(downloadStates.states)
-      // console.log('getFirstDownloadItem failed')
-      // 当已经没有需要下载的作品时，检查是否带着错误完成了下载。
+      // 当已经没有需要下载的作品时，检查是否带着错误完成了下载
       // 如果下载过程中没有出错，就不会执行到这个分支
       return this.checkCompleteWithError()
     } else {

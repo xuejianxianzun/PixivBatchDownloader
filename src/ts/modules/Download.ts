@@ -2,7 +2,6 @@
 import { EVT } from './EVT'
 import { log } from './Log'
 import { lang } from './Lang'
-import { titleBar } from './TitleBar'
 import { fileName } from './FileName'
 import { converter } from './ConvertUgoira'
 import {
@@ -55,8 +54,6 @@ class Download {
 
   // 下载文件
   private async download(arg: downloadArgument) {
-    titleBar.change('↓')
-
     // 检查是否是重复文件
     const duplicate = await deduplication.check(arg.id)
     if (duplicate) {

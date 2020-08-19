@@ -11,7 +11,6 @@ import { store } from './Store'
 import { log } from './Log'
 import { EVT } from './EVT'
 import { setting, form } from './Settings'
-import { titleBar } from './TitleBar'
 import { pageInfo } from './PageInfo'
 import { IDData } from './Store.d'
 
@@ -159,8 +158,6 @@ abstract class InitPageBase {
     log.clear()
 
     log.success(lang.transl('_任务开始0'))
-
-    titleBar.change('↑')
 
     this.getWantPage()
 
@@ -326,7 +323,6 @@ abstract class InitPageBase {
   // 抓取结果为 0 时输出提示
   protected noResult() {
     EVT.fire(EVT.events.crawlEmpty)
-    titleBar.reset()
     log.error(lang.transl('_抓取结果为零'), 2)
     window.alert(lang.transl('_抓取结果为零'))
   }
