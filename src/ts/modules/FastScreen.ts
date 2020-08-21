@@ -59,11 +59,11 @@ class FastScreen {
   // 打开快速筛选链接
   private openFastScreenLink(secondTag: string) {
     // 拼接两个 tag。因为搜索页面可以无刷新切换搜索的 tag，所以从这里动态获取
-    const firstTag = pageInfo.getPageTag.split(' ')[0]
+    const firstTag = pageInfo.tag.split(' ')[0]
     const fullTag = encodeURIComponent(firstTag + ' ' + secondTag)
     // 用新的 tag 替换掉当前网址里的 tag
     const newURL = location.href.replace(
-      encodeURIComponent(pageInfo.getPageTag),
+      encodeURIComponent(pageInfo.tag),
       fullTag
     )
     // 添加 s_mode=s_tag 宽松匹配标签

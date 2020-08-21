@@ -5,13 +5,11 @@ import { DOM } from './DOM'
 import { options } from './Options'
 import { saveArtworkData } from './artwork/SaveArtworkData'
 import { saveNovelData } from './novel/SaveNovelData'
-import { filter } from './Filter'
 import { API } from './API'
 import { store } from './Store'
 import { log } from './Log'
 import { EVT } from './EVT'
 import { setting, form } from './Settings'
-import { pageInfo } from './PageInfo'
 import { IDData } from './Store.d'
 
 abstract class InitPageBase {
@@ -162,10 +160,6 @@ abstract class InitPageBase {
     this.getWantPage()
 
     this.getMultipleSetting()
-
-    filter.init()
-
-    pageInfo.store()
 
     // 进入第一个抓取方法
     this.nextStep()

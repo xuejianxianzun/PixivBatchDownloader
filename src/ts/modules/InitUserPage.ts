@@ -20,8 +20,6 @@ class InitUserPage extends InitPageBase {
     this.init()
   }
 
-  private tag = '' // 储存当前页面的 tag，可能为空
-
   private listType = 0 // 细分的列表类型
 
   private onceNumber = 48 // 每页作品个数，插画是 48 个，小说是 24 个
@@ -87,7 +85,7 @@ class InitUserPage extends InitPageBase {
       }
     }
 
-    ;(this.tag = pageInfo.getPageTag) ? this.getIdListByTag() : this.getIdList()
+    ;(pageInfo.tag) ? this.getIdListByTag() : this.getIdList()
 
     log.log(lang.transl('_正在抓取'))
   }
@@ -192,7 +190,7 @@ class InitUserPage extends InitPageBase {
     let data = await API.getUserWorksByTypeWithTag(
       DOM.getUserId(),
       flag,
-      this.tag,
+      pageInfo.tag,
       offset,
       requsetNumber
     )
@@ -232,7 +230,6 @@ class InitUserPage extends InitPageBase {
   }
 
   protected resetGetIdListStatus() {
-    this.tag = ''
     this.listType = 0
     this.listPageFinished = 0
   }

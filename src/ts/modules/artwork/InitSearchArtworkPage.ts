@@ -462,7 +462,7 @@ class InitSearchArtworkPage extends InitPageBase {
     const resultMetaTemp: Result[] = []
 
     const resultMetaRemoved: Result[] = []
-    for await (const meta of this.resultMeta) {
+    for (const meta of this.resultMeta) {
       if (await callback(meta)) {
         resultMetaTemp.push(meta)
       } else {
@@ -599,7 +599,7 @@ class InitSearchArtworkPage extends InitPageBase {
   // 获取搜索页的数据。因为有多处使用，所以进行了封装
   private async getSearchData(p: number) {
     let data = await API.getSearchData(
-      pageInfo.getPageTag,
+      pageInfo.tag,
       this.worksType,
       p,
       this.option

@@ -134,7 +134,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
       this.requsetNumber = onceNumber * this.crawlNumber
     }
 
-    this.tag = pageInfo.getPageTag
+    this.tag = pageInfo.tag
 
     // 判断是公开收藏还是非公开收藏
     // 在新旧版 url 里，rest 都是在查询字符串里的

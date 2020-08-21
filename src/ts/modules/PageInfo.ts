@@ -10,26 +10,25 @@ class PageInfo {
     this.bindEvent()
   }
 
-  private pageTitle = ''
-  private pageTag = ''
+  private _title = ''
+  private _tag = ''
 
-  public get getPageTag() {
-    return this.pageTag
+  public get tag() {
+    return this._tag
   }
 
   // 重置
   // 切换页面时可能旧页面的一些标记在新页面没有了，所以要先重置
   private reset() {
-    this.pageTitle = ''
-    this.pageTag = ''
+    this._title = ''
+    this._tag = ''
   }
 
   // 储存信息
-  // 开始抓取时，把此时的页面信息保存到 store 里。这样即使下载时页面切换了，使用的还是刚开始抓取时的数据。
   public store() {
     this.getPageInfo()
-    store.pageInfo.pageTitle = this.pageTitle
-    store.pageInfo.pageTag = this.pageTag
+    store.pageInfo.pageTitle = this._title
+    store.pageInfo.pageTag = this._tag
   }
 
   // 获取当前页面的一些信息，用于文件名中
@@ -37,18 +36,23 @@ class PageInfo {
     this.reset()
 
     // 去掉标题上的下载状态、消息数量提示
-    this.pageTitle = document.title
+    this._title = document.title
       .replace(/\[(↑|→|▶|↓|║|■|✓| )\] /, '')
       .replace(/^\(\d.*\) /, '')
 
     // 获取当前页面的 tag
-    this.pageTag = decodeURIComponent(API.getTagFromURL(location.href))
+    this._tag = decodeURIComponent(API.getTagFromURL(location.href))
   }
 
   private bindEvent() {
     // 页面切换时获取新的页面信息
     window.addEventListener(EVT.events.pageSwitch, () => {
       this.getPageInfo()
+    })
+
+    // 开始抓取时，把此时的页面信息保存到 store 里。这样即使下载时页面切换了，使用的还是刚开始抓取时的数据。
+    window.addEventListener(EVT.events.crawlStart, () => {
+      this.store()
     })
 
     // 当需要恢复下载时，保存页面信息
