@@ -57,11 +57,8 @@ class PageInfo {
 
     // 当需要恢复下载时，保存页面信息
     window.addEventListener(
-      EVT.events.crawlFinish,
-      async (ev: CustomEventInit) => {
-        if (ev.detail.data.initiator === EVT.InitiatorList.resume) {
-          this.store()
-        }
+      EVT.events.resume, () => {
+        this.store()
       }
     )
   }

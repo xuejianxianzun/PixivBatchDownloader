@@ -18,18 +18,15 @@ class DownloadStates {
   private bindEvent() {
     window.addEventListener(
       EVT.events.crawlFinish,
-      async (ev: CustomEventInit) => {
-        if (ev.detail.data.initiator !== EVT.InitiatorList.resume) {
-          // 当正常抓取完毕时，初始化下载状态列表。
-          // 当需要恢复下载时，不初始化下载状态列表。因为此时 Resume 类会直接传入下载列表
-          this.initList()
-        }
+      () => {
+        // 抓取完毕时初始化下载状态
+        this.init()
       }
     )
   }
 
   // 创建新的状态列表
-  public initList() {
+  public init() {
     this.states = new Array(store.result.length).fill(-1)
   }
 
@@ -45,7 +42,7 @@ class DownloadStates {
     return count
   }
 
-  // 替换所有的状态数据
+  // 接受传入的状态数据
   // 目前只有在恢复下载的时候使用
   public replace(states: DLStatesI) {
     this.states = states

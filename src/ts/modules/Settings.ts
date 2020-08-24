@@ -104,11 +104,13 @@ class Settings {
     }
 
     // 当抓取完毕可以开始下载时，切换到“下载”选项卡
-    window.addEventListener(EVT.events.crawlFinish, () => {
-      if (!store.states.notAutoDownload) {
-        this.activeTab(1)
-      }
-    })
+    for (const ev of [EVT.events.crawlFinish, EVT.events.resume]) {
+      window.addEventListener(ev, () => {
+        if (!store.states.notAutoDownload) {
+          this.activeTab(1)
+        }
+      })
+    }
 
     // 预览文件名
     DOM.addBtn(

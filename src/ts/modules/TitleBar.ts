@@ -21,20 +21,20 @@ const flags = {
   paused: '║',
   stopped: '■',
   completed: '✓',
-  space:' ',
+  space: ' ',
 }
 
 type FlagList = keyof typeof flags
 
 class TitleBar {
-  constructor(){
+  constructor() {
     this.bindEvent()
   }
 
   private timer: number = 0 // title 闪烁时，使用的定时器
 
-  private bindEvent(){
-    window.addEventListener(EVT.events.crawlStart,()=>{
+  private bindEvent() {
+    window.addEventListener(EVT.events.crawlStart, () => {
       this.set('crawling')
     })
 
@@ -42,26 +42,28 @@ class TitleBar {
       this.set('waiting')
     })
 
-    window.addEventListener(EVT.events.crawlFinish,()=>{
-      this.set('readyDownload')
-    })
+    for (const ev of [EVT.events.crawlFinish, EVT.events.resume]) {
+      window.addEventListener(ev, () => {
+        this.set('readyDownload')
+      })
+    }
 
-    window.addEventListener(EVT.events.downloadStart,()=>{
+    window.addEventListener(EVT.events.downloadStart, () => {
       this.set('downloading')
     })
 
-    window.addEventListener(EVT.events.downloadComplete,()=>{
+    window.addEventListener(EVT.events.downloadComplete, () => {
       this.set('completed')
     })
 
-    window.addEventListener(EVT.events.downloadPause,()=>{
+    window.addEventListener(EVT.events.downloadPause, () => {
       this.set('paused')
     })
 
-    window.addEventListener(EVT.events.downloadStop,()=>{
+    window.addEventListener(EVT.events.downloadStop, () => {
       this.set('stopped')
     })
-    window.addEventListener(EVT.events.crawlEmpty,()=>{
+    window.addEventListener(EVT.events.crawlEmpty, () => {
       this.reset()
     })
   }

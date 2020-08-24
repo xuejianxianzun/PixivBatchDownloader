@@ -1028,11 +1028,13 @@ class CenterPanel {
             this.close();
         });
         // 抓取完作品详细数据时，显示
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, () => {
-            if (!_Store__WEBPACK_IMPORTED_MODULE_3__["store"].states.quickDownload && !_Store__WEBPACK_IMPORTED_MODULE_3__["store"].states.notAutoDownload) {
-                this.show();
-            }
-        });
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resume]) {
+            window.addEventListener(ev, () => {
+                if (!_Store__WEBPACK_IMPORTED_MODULE_3__["store"].states.quickDownload && !_Store__WEBPACK_IMPORTED_MODULE_3__["store"].states.notAutoDownload) {
+                    this.show();
+                }
+            });
+        }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.openCenterPanel, () => {
             this.show();
         });
@@ -2173,12 +2175,14 @@ class DownloadControl {
             this.hideDownloadArea();
             this.reset();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, () => {
-            this.showDownloadArea();
-            window.setTimeout(() => {
-                this.readyDownload();
-            }, 0);
-        });
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resume]) {
+            window.addEventListener(ev, () => {
+                this.showDownloadArea();
+                window.setTimeout(() => {
+                    this.readyDownload();
+                }, 0);
+            });
+        }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.skipSaveFile, (ev) => {
             const data = ev.detail.data;
             this.downloadSuccess(data);
@@ -2351,7 +2355,7 @@ class DownloadControl {
         if (!this.downloadPause && !_Resume__WEBPACK_IMPORTED_MODULE_12__["resume"].flag) {
             // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
             // 初始化下载状态列表
-            _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].initList();
+            _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].init();
         }
         else {
             // 从上次中断的位置继续下载
@@ -2510,16 +2514,13 @@ class DownloadStates {
         this.bindEvent();
     }
     bindEvent() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, async (ev) => {
-            if (ev.detail.data.initiator !== _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].InitiatorList.resume) {
-                // 当正常抓取完毕时，初始化下载状态列表。
-                // 当需要恢复下载时，不初始化下载状态列表。因为此时 Resume 类会直接传入下载列表
-                this.initList();
-            }
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, () => {
+            // 抓取完毕时初始化下载状态
+            this.init();
         });
     }
     // 创建新的状态列表
-    initList() {
+    init() {
         this.states = new Array(_Store__WEBPACK_IMPORTED_MODULE_1__["store"].result.length).fill(-1);
     }
     // 统计下载完成的数量
@@ -2533,7 +2534,7 @@ class DownloadStates {
         }
         return count;
     }
-    // 替换所有的状态数据
+    // 接受传入的状态数据
     // 目前只有在恢复下载的时候使用
     replace(states) {
         this.states = states;
@@ -2634,9 +2635,6 @@ EVT.events = {
     clearDownloadRecords: 'clearDownloadRecords',
     saveAvatarIcon: 'saveAvatarIcon',
     clearSavedCrawl: 'clearSavedCrawl',
-};
-// 事件发起者的标识列表
-EVT.InitiatorList = {
     resume: 'resume',
 };
 
@@ -3017,7 +3015,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 审查每个作品的数据，决定是否要存储它
+// 审查作品是否符合过滤条件
 // 可以根据需要，随时进行审查
 class Filter {
     constructor() {
@@ -3618,11 +3616,9 @@ class Filter {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].events.crawlStart, () => {
             this.init();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].events.crawlFinish, async (ev) => {
-            if (ev.detail.data.initiator === _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].InitiatorList.resume) {
-                // 当需要恢复下载时，初始化过滤器。否则过滤器不会进行过滤
-                this.init();
-            }
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].events.resume, () => {
+            // 当需要恢复下载时，初始化过滤器。否则过滤器不会进行过滤
+            this.init();
         });
     }
 }
@@ -6498,10 +6494,8 @@ class PageInfo {
             this.store();
         });
         // 当需要恢复下载时，保存页面信息
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, async (ev) => {
-            if (ev.detail.data.initiator === _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].InitiatorList.resume) {
-                this.store();
-            }
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resume, () => {
+            this.store();
         });
     }
 }
@@ -6933,7 +6927,6 @@ class Resume {
         this.onceMax = 150000;
         this.putStatesTime = 2000; // 每隔指定时间存储一次最新的下载状态
         this.needPutStates = false; // 指示是否需要更新存储的下载状态
-        this.testSave = false; // 调试存储状况的开关
         this.IDB = new _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IndexedDB"]();
         this.init();
     }
@@ -6942,11 +6935,10 @@ class Resume {
             return;
         }
         await this.initDB();
-        !this.testSave && this.restoreData();
+        this.restoreData();
         this.bindEvent();
         this.regularPutStates();
         this.clearExired();
-        this.testSave && this.test(1000000);
     }
     // 初始化数据库，获取数据库对象
     async initDB() {
@@ -7016,19 +7008,13 @@ class Resume {
         // 恢复模式就绪
         this.flag = true;
         _Log__WEBPACK_IMPORTED_MODULE_1__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已恢复抓取结果'), 2);
-        // 发出抓取完毕的信号
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, {
-            initiator: _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].InitiatorList.resume,
-        });
+        // 发出恢复下载的信号
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resume);
     }
     bindEvent() {
         // 抓取完成时，保存这次任务的数据
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, async (ev) => {
-            if (ev.detail.data.initiator === _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].InitiatorList.resume) {
-                // 如果这个事件是这个类自己发出的，则不进行处理
-                return;
-            }
-            // 首先检查这个网址下是否已经存在有数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, async () => {
+            // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
             const taskData = (await this.IDB.get(this.metaName, this.getURL(), 'url'));
             if (taskData) {
                 await this.IDB.delete(this.metaName, taskData.id);
@@ -7220,59 +7206,6 @@ class Resume {
             this.IDB.clear(this.statesName),
         ]);
         window.alert(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数据清除完毕'));
-    }
-    // 添加指定数量的测试数据，模拟抓取完毕事件，用于调试存储情况
-    // 这个数据由于 id 是重复的，所以不能正常下载
-    test(num) {
-        while (num > 0) {
-            _Store__WEBPACK_IMPORTED_MODULE_3__["store"].result.push({
-                bmk: 1644,
-                bookmarked: false,
-                date: '2020-07-11',
-                dlCount: 1,
-                ext: 'jpg',
-                fullHeight: 1152,
-                fullWidth: 2048,
-                id: '82900613_p0',
-                idNum: 82900613,
-                novelBlob: null,
-                pageCount: 1,
-                rank: '',
-                seriesOrder: '',
-                seriesTitle: '',
-                tags: [
-                    '女の子',
-                    'バーチャルYouTuber',
-                    'にじさんじ',
-                    '本間ひまわり',
-                    'にじさんじ',
-                    '本間ひまわり',
-                ],
-                tagsTranslated: [
-                    '女の子',
-                    '女孩子',
-                    'バーチャルYouTuber',
-                    '虚拟YouTuber',
-                    'にじさんじ',
-                    '彩虹社',
-                    '本間ひまわり',
-                    '本间向日葵',
-                    'にじさんじ',
-                    '彩虹社',
-                    '本間ひまわり',
-                    '本间向日葵',
-                ],
-                thumb: 'https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2020/07/11/17/05/41/82900613_p0_custom1200.jpg',
-                title: '本間ひまわり',
-                type: 0,
-                ugoiraInfo: null,
-                url: 'https://i.pximg.net/img-original/img/2020/07/11/17/05/41/82900613_p0.jpg',
-                user: 'らっち。',
-                userId: '10852879',
-            });
-            num--;
-        }
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish);
     }
 }
 const resume = new Resume();
@@ -7755,11 +7688,13 @@ class Settings {
             });
         }
         // 当抓取完毕可以开始下载时，切换到“下载”选项卡
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, () => {
-            if (!_Store__WEBPACK_IMPORTED_MODULE_5__["store"].states.notAutoDownload) {
-                this.activeTab(1);
-            }
-        });
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resume]) {
+            window.addEventListener(ev, () => {
+                if (!_Store__WEBPACK_IMPORTED_MODULE_5__["store"].states.notAutoDownload) {
+                    this.activeTab(1);
+                }
+            });
+        }
         // 预览文件名
         _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].addBtn('namingBtns', _Colors__WEBPACK_IMPORTED_MODULE_3__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_预览文件名')).addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.previewFileName);
@@ -8444,9 +8379,11 @@ class TitleBar {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.worksUpdate, () => {
             this.set('waiting');
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, () => {
-            this.set('readyDownload');
-        });
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resume]) {
+            window.addEventListener(ev, () => {
+                this.set('readyDownload');
+            });
+        }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadStart, () => {
             this.set('downloading');
         });

@@ -41,11 +41,7 @@ class EVT {
     clearDownloadRecords: 'clearDownloadRecords',
     saveAvatarIcon: 'saveAvatarIcon',
     clearSavedCrawl: 'clearSavedCrawl',
-  }
-
-  // 事件发起者的标识列表
-  static readonly InitiatorList = {
-    resume: 'resume',
+    resume:'resume',
   }
 
   // 触发事件，可以携带数据

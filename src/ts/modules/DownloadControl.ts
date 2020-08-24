@@ -64,12 +64,14 @@ class DownloadControl {
       this.reset()
     })
 
-    window.addEventListener(EVT.events.crawlFinish, () => {
-      this.showDownloadArea()
-      window.setTimeout(() => {
-        this.readyDownload()
-      }, 0);
-    })
+    for (const ev of [EVT.events.crawlFinish, EVT.events.resume]) {
+      window.addEventListener(ev, () => {
+        this.showDownloadArea()
+        window.setTimeout(() => {
+          this.readyDownload()
+        }, 0);
+      })
+    }
 
     window.addEventListener(EVT.events.skipSaveFile, (ev: CustomEventInit) => {
       const data = ev.detail.data as DonwloadSuccessData
@@ -181,16 +183,16 @@ class DownloadControl {
     <div class="centerWrap_btns">
     <button class="startDownload" type="button" style="background:${
       Colors.blue
-    };"> ${lang.transl('_下载按钮1')}</button>
+      };"> ${lang.transl('_下载按钮1')}</button>
     <button class="pauseDownload" type="button" style="background:${
       Colors.yellow
-    };"> ${lang.transl('_下载按钮2')}</button>
+      };"> ${lang.transl('_下载按钮2')}</button>
     <button class="stopDownload" type="button" style="background:${
       Colors.red
-    };"> ${lang.transl('_下载按钮3')}</button>
+      };"> ${lang.transl('_下载按钮3')}</button>
     <button class="copyUrl" type="button" style="background:${
       Colors.green
-    };"> ${lang.transl('_复制url')}</button>
+      };"> ${lang.transl('_复制url')}</button>
     </div>
     <div class="download_status_text_wrap">
     <span>${lang.transl('_当前状态')}</span>
@@ -293,7 +295,7 @@ class DownloadControl {
     if (!this.downloadPause && !resume.flag) {
       // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
       // 初始化下载状态列表
-      downloadStates.initList()
+      downloadStates.init()
     } else {
       // 从上次中断的位置继续下载
       // 把“使用中”的下载状态重置为“未使用”
@@ -301,9 +303,9 @@ class DownloadControl {
     }
 
     this.reset()
-    
+
     this.setDownloaded()
-    
+
     this.taskBatch = new Date().getTime() // 修改本批下载任务的标记
 
     this.setDownloadThread()
@@ -337,7 +339,7 @@ class DownloadControl {
         this.downloadPause = true
         this.setDownStateText(lang.transl('_已暂停'), '#f00')
         log.warning(lang.transl('_已暂停'), 2)
-        
+
         EVT.fire(EVT.events.downloadPause)
       } else {
         // 不在下载中的话不允许启用暂停功能
@@ -449,4 +451,4 @@ class DownloadControl {
 }
 
 new DownloadControl()
-export {}
+export { }

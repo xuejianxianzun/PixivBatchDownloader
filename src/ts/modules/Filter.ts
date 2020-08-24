@@ -316,12 +316,12 @@ class Filter {
 
       log.warning(
         lang.transl('_宽度设置') +
-          result.width +
-          result.andOr
-            .replace('|', lang.transl('_或者'))
-            .replace('&', lang.transl('_并且')) +
-          lang.transl('_高度设置') +
-          result.height
+        result.width +
+        result.andOr
+          .replace('|', lang.transl('_或者'))
+          .replace('&', lang.transl('_并且')) +
+        lang.transl('_高度设置') +
+        result.height
       )
     }
 
@@ -429,7 +429,7 @@ class Filter {
         this.postDateEnd = postDateEnd
         log.warning(
           `${lang.transl('_时间范围')}: ${form.postDateStart.value} - ${
-            form.postDateEnd.value
+          form.postDateEnd.value
           }`
         )
         return true
@@ -726,14 +726,12 @@ class Filter {
     window.addEventListener(EVT.events.crawlStart, () => {
       this.init()
     })
-    
+
     window.addEventListener(
-      EVT.events.crawlFinish,
-      async (ev: CustomEventInit) => {
-        if (ev.detail.data.initiator === EVT.InitiatorList.resume) {
-          // 当需要恢复下载时，初始化过滤器。否则过滤器不会进行过滤
-          this.init()
-        }
+      EVT.events.resume,
+      () => {
+        // 当需要恢复下载时，初始化过滤器。否则过滤器不会进行过滤
+        this.init()
       }
     )
   }

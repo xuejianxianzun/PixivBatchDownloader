@@ -53,7 +53,6 @@ class Resume {
 
   private needPutStates = false // 指示是否需要更新存储的下载状态
 
-  private readonly testSave = false // 调试存储状况的开关
 
   private async init() {
     if (location.hostname.includes('pixivision.net')) {
@@ -61,11 +60,10 @@ class Resume {
     }
 
     await this.initDB()
-    !this.testSave && this.restoreData()
+    this.restoreData()
     this.bindEvent()
     this.regularPutStates()
     this.clearExired()
-    this.testSave && this.test(1000000)
   }
 
   // 初始化数据库，获取数据库对象
@@ -158,22 +156,16 @@ class Resume {
 
     log.success(lang.transl('_已恢复抓取结果'), 2)
 
-    // 发出抓取完毕的信号
-    EVT.fire(EVT.events.crawlFinish, {
-      initiator: EVT.InitiatorList.resume,
-    })
+    // 发出恢复下载的信号
+    EVT.fire(EVT.events.resume)
   }
 
   private bindEvent() {
     // 抓取完成时，保存这次任务的数据
     window.addEventListener(
       EVT.events.crawlFinish,
-      async (ev: CustomEventInit) => {
-        if (ev.detail.data.initiator === EVT.InitiatorList.resume) {
-          // 如果这个事件是这个类自己发出的，则不进行处理
-          return
-        }
-        // 首先检查这个网址下是否已经存在有数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
+      async () => {
+        // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
         const taskData = (await this.IDB.get(
           this.metaName,
           this.getURL(),
@@ -402,61 +394,6 @@ class Resume {
     window.alert(lang.transl('_数据清除完毕'))
   }
 
-  // 添加指定数量的测试数据，模拟抓取完毕事件，用于调试存储情况
-  // 这个数据由于 id 是重复的，所以不能正常下载
-  private test(num: number) {
-    while (num > 0) {
-      store.result.push({
-        bmk: 1644,
-        bookmarked: false,
-        date: '2020-07-11',
-        dlCount: 1,
-        ext: 'jpg',
-        fullHeight: 1152,
-        fullWidth: 2048,
-        id: '82900613_p0',
-        idNum: 82900613,
-        novelBlob: null,
-        pageCount: 1,
-        rank: '',
-        seriesOrder: '',
-        seriesTitle: '',
-        tags: [
-          '女の子',
-          'バーチャルYouTuber',
-          'にじさんじ',
-          '本間ひまわり',
-          'にじさんじ',
-          '本間ひまわり',
-        ],
-        tagsTranslated: [
-          '女の子',
-          '女孩子',
-          'バーチャルYouTuber',
-          '虚拟YouTuber',
-          'にじさんじ',
-          '彩虹社',
-          '本間ひまわり',
-          '本间向日葵',
-          'にじさんじ',
-          '彩虹社',
-          '本間ひまわり',
-          '本间向日葵',
-        ],
-        thumb:
-          'https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2020/07/11/17/05/41/82900613_p0_custom1200.jpg',
-        title: '本間ひまわり',
-        type: 0,
-        ugoiraInfo: null,
-        url:
-          'https://i.pximg.net/img-original/img/2020/07/11/17/05/41/82900613_p0.jpg',
-        user: 'らっち。',
-        userId: '10852879',
-      })
-      num--
-    }
-    EVT.fire(EVT.events.crawlFinish)
-  }
 }
 
 const resume = new Resume()
