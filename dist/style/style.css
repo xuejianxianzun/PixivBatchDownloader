@@ -472,7 +472,10 @@
   flex: 1;
 }
 .centerWrap .progressBarWrap .progressBarList .loadedWrap {
+  display: flex;
+  align-items: center;
   padding: 0 10px;
+  font: status-bar;
 }
 .centerWrap .downTip,
 .centerWrap .download_a,

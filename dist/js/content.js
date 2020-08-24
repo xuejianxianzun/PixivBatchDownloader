@@ -6709,7 +6709,7 @@ class ProgressBar {
     setProgress(index, data) {
         const bar = this.allProgressBar[index];
         bar.name.textContent = data.name;
-        bar.loaded.textContent = `${this.loadedText} ${Math.floor(data.loaded / 1024)}/${Math.floor(data.total / 1024)} KiB`;
+        bar.loaded.textContent = `${Math.floor(data.loaded / 1024)}/${Math.floor(data.total / 1024)} KiB`;
         const progress = data.loaded / data.total || 0; // 若结果为 NaN 则设为 0
         bar.progress.style.width = progress * 100 + '%';
     }
