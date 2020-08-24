@@ -56,11 +56,9 @@ class PageInfo {
     })
 
     // 当需要恢复下载时，保存页面信息
-    window.addEventListener(
-      EVT.events.resume, () => {
-        this.store()
-      }
-    )
+    window.addEventListener(EVT.events.resume, () => {
+      this.store()
+    })
   }
 }
 

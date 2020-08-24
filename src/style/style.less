@@ -37,14 +37,11 @@
 
 /* center panel */
 @contentOffsetWidth: 680px;
-@contentPadding: 25px;
 @contentWidth: 630px;
-
-@headerHeight: 65px;
+@headerHeight: 40px;
 
 .beautify_scrollbar {
-
-  // 滚动条整体 
+  // 滚动条整体
   // width 是垂直滚动条的宽度，height 是水平滚动条的高度
   &::-webkit-scrollbar {
     width: 10px;
@@ -56,7 +53,7 @@
 
   // 滚动条的滑块部分
   &::-webkit-scrollbar-thumb {
-    background-color: #3AB8F2;
+    background-color: #3ab8f2;
     border-radius: 10px;
   }
 
@@ -85,7 +82,7 @@
   background: #fff;
   top: 4vh;
   color: #444;
-  padding: 0 @contentPadding @contentPadding;
+  padding: 0 25px 20px;
   border-radius: 15px;
   box-shadow: 0 0 25px #2ca6df;
   max-height: 95vh;
@@ -113,12 +110,12 @@
   }
 
   .blue {
-    color: @themeBlue  !important;
+    color: @themeBlue !important;
   }
 
   .has_tip:hover,
   label:hover {
-    color: @themeBlue  !important;
+    color: @themeBlue !important;
   }
 
   .settingForm {
@@ -222,11 +219,11 @@
       transition: all 0.3s;
     }
 
-    .checkbox_switch:checked+.beautify_switch {
+    .checkbox_switch:checked + .beautify_switch {
       background: @beautifyBlue;
     }
 
-    .checkbox_switch:checked+.beautify_switch::before {
+    .checkbox_switch:checked + .beautify_switch::before {
       margin-left: 12px;
     }
 
@@ -261,7 +258,7 @@
       transform-origin: center;
     }
 
-    .checkbox_common:checked+.beautify_checkbox {
+    .checkbox_common:checked + .beautify_checkbox {
       background: @beautifyBlue;
       border: 1px solid @beautifyBlue;
     }
@@ -270,11 +267,11 @@
       border: 1px solid @beautifyBlue;
     }
 
-    .checkbox_common:checked+.beautify_checkbox::after {
+    .checkbox_common:checked + .beautify_checkbox::after {
       transform: rotate(45deg) scaleY(1);
     }
 
-    .checkbox_common:focus+.beautify_checkbox {
+    .checkbox_common:focus + .beautify_checkbox {
       border: 1px solid @beautifyBlue;
     }
 
@@ -304,7 +301,7 @@
       transition: transform 0.15s ease-in;
     }
 
-    .radio:checked+.beautify_radio {
+    .radio:checked + .beautify_radio {
       background: @beautifyBlue;
       border: 1px solid @beautifyBlue;
     }
@@ -313,18 +310,16 @@
       border: 1px solid @beautifyBlue;
     }
 
-    .radio:checked+.beautify_radio::after {
+    .radio:checked + .beautify_radio::after {
       transform: translate(-50%, -50%) scale(1);
     }
   }
 
   .centerWrap_head {
+    padding-top: 20px;
     position: fixed;
     z-index: 1001;
     width: @contentWidth;
-    box-sizing: border-box;
-    height: @headerHeight;
-    padding-top: @contentPadding;
     margin-bottom: 10px;
     background: #fff;
 
@@ -342,7 +337,6 @@
 
     .btns {
       position: absolute;
-      padding-top: @contentPadding;
       right: 0;
       top: 0;
 
@@ -366,23 +360,23 @@
   }
 
   .centerWrap_con {
-    margin-top: @headerHeight;
+    margin-top: 55px;
   }
 
   .centerWrap_top_btn:hover,
   .showFileNameTip:hover,
   .showFileNameResult:hover,
-  .bottom_help_bar>*:hover,
+  .bottom_help_bar > *:hover,
   .updateActiveClass {
-    color: @themeBlue  !important;
-    fill: @themeBlue  !important;
+    color: @themeBlue !important;
+    fill: @themeBlue !important;
   }
 
   .bottom_help_bar {
     height: 24px;
     line-height: 24px;
 
-    &>* {
+    & > * {
       padding-right: 10px;
     }
   }
@@ -466,7 +460,7 @@
     display: flex;
     flex-wrap: wrap;
 
-    &>* {
+    & > * {
       box-sizing: border-box;
       border: none;
       width: 140px;
@@ -489,7 +483,7 @@
     }
   }
 
-  .centerWrap_btns>*,
+  .centerWrap_btns > *,
   .progressTip {
     color: #fff;
     font-size: 14px;
@@ -611,7 +605,7 @@
     .download_status_text_wrap {
       line-height: 26px;
 
-      &>* {
+      & > * {
         padding-right: 5px;
       }
 
@@ -848,7 +842,6 @@
   }
 
   .viewer-toolbar {
-
     .viewer-next,
     .viewer-prev {
       background-color: rgba(255, 255, 255, 0.1) !important;

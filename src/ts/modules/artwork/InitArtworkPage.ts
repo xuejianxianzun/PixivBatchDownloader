@@ -98,7 +98,10 @@ class InitArtworkPage extends InitPageBase {
     // 在右侧添加快速下载按钮
     this.quickDownBtn.id = 'quick_down_btn'
     this.quickDownBtn.textContent = '↓'
-    this.quickDownBtn.setAttribute('title', lang.transl('_快速下载本页') + ' (Alt + Q)')
+    this.quickDownBtn.setAttribute(
+      'title',
+      lang.transl('_快速下载本页') + ' (Alt + Q)'
+    )
     document.body.insertAdjacentElement('afterbegin', this.quickDownBtn)
 
     this.quickDownBtn.addEventListener(

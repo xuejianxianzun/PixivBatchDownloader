@@ -16,13 +16,10 @@ class DownloadStates {
   public states: (-1 | 0 | 1)[] = []
 
   private bindEvent() {
-    window.addEventListener(
-      EVT.events.crawlFinish,
-      () => {
-        // 抓取完毕时初始化下载状态
-        this.init()
-      }
-    )
+    window.addEventListener(EVT.events.crawlFinish, () => {
+      // 抓取完毕时初始化下载状态
+      this.init()
+    })
   }
 
   // 创建新的状态列表

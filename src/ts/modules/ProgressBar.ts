@@ -110,7 +110,7 @@ class ProgressBar {
   public setProgress(index: number, data: ProgressData) {
     const bar = this.allProgressBar[index]
     bar.name.textContent = data.name
-    
+
     bar.loaded.textContent = `${Math.floor(data.loaded / 1024)}/${Math.floor(
       data.total / 1024
     )} KiB`

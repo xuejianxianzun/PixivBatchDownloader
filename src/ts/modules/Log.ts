@@ -58,7 +58,7 @@ class Log {
     if (!keepShow) {
       span = this.refresh
     }
-    
+
     span.innerHTML = str
 
     if (level > -1) {

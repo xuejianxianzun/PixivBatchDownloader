@@ -35,7 +35,7 @@
   height: 10px;
 }
 .beautify_scrollbar::-webkit-scrollbar-thumb {
-  background-color: #3AB8F2;
+  background-color: #3ab8f2;
   border-radius: 10px;
 }
 .centerWrap {
@@ -50,7 +50,7 @@
   background: #fff;
   top: 4vh;
   color: #444;
-  padding: 0 25px 25px;
+  padding: 0 25px 20px;
   border-radius: 15px;
   box-shadow: 0 0 25px #2ca6df;
   max-height: 95vh;
@@ -250,12 +250,10 @@
   transform: translate(-50%, -50%) scale(1);
 }
 .centerWrap .centerWrap_head {
+  padding-top: 20px;
   position: fixed;
   z-index: 1001;
   width: 630px;
-  box-sizing: border-box;
-  height: 65px;
-  padding-top: 25px;
   margin-bottom: 10px;
   background: #fff;
 }
@@ -271,7 +269,6 @@
 }
 .centerWrap .centerWrap_head .btns {
   position: absolute;
-  padding-top: 25px;
   right: 0;
   top: 0;
 }
@@ -291,7 +288,7 @@
   display: none;
 }
 .centerWrap .centerWrap_con {
-  margin-top: 65px;
+  margin-top: 55px;
 }
 .centerWrap .centerWrap_top_btn:hover,
 .centerWrap .showFileNameTip:hover,

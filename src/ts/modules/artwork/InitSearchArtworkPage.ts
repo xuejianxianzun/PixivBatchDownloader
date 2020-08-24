@@ -492,7 +492,7 @@ class InitSearchArtworkPage extends InitPageBase {
     // 在其他情况下，删除作品不会清空作品列表，也不会再次生成作品列表，而是把这个作品的元素移除。这是为了减少 dom 操作耗时以及重绘页面引起的耗时，耗时太长会导致用户体验出现严重的问题。
 
     // 如果传递了被删除的结果，则从作品列表里移除它们
-    if (removedResult&&this.previewResult) {
+    if (removedResult && this.previewResult) {
       let ids = []
       for (const result of removedResult) {
         ids.push(result.idNum.toString())

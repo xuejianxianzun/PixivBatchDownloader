@@ -53,7 +53,6 @@ class Resume {
 
   private needPutStates = false // 指示是否需要更新存储的下载状态
 
-
   private async init() {
     if (location.hostname.includes('pixivision.net')) {
       return
@@ -162,52 +161,49 @@ class Resume {
 
   private bindEvent() {
     // 抓取完成时，保存这次任务的数据
-    window.addEventListener(
-      EVT.events.crawlFinish,
-      async () => {
-        // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
-        const taskData = (await this.IDB.get(
-          this.metaName,
-          this.getURL(),
-          'url'
-        )) as TaskMeta | null
+    window.addEventListener(EVT.events.crawlFinish, async () => {
+      // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
+      const taskData = (await this.IDB.get(
+        this.metaName,
+        this.getURL(),
+        'url'
+      )) as TaskMeta | null
 
-        if (taskData) {
-          await this.IDB.delete(this.metaName, taskData.id)
-          await this.IDB.delete(this.statesName, taskData.id)
-        }
-
-        // 保存本次任务的数据
-        // 如果此时本次任务已经完成，就不进行保存了
-        if (downloadStates.downloadedCount() === store.result.length) {
-          return
-        }
-
-        log.warning(lang.transl('_正在保存抓取结果'))
-        this.taskId = new Date().getTime()
-
-        this.part = []
-        await this.saveTaskData()
-
-        // 保存 meta 数据
-        const metaData = {
-          id: this.taskId,
-          url: this.getURL(),
-          part: this.part.length,
-        }
-
-        this.IDB.add(this.metaName, metaData)
-
-        // 保存 states 数据
-        const statesData = {
-          id: this.taskId,
-          states: downloadStates.states,
-        }
-        this.IDB.add(this.statesName, statesData)
-
-        log.success(lang.transl('_已保存抓取结果'), 2)
+      if (taskData) {
+        await this.IDB.delete(this.metaName, taskData.id)
+        await this.IDB.delete(this.statesName, taskData.id)
       }
-    )
+
+      // 保存本次任务的数据
+      // 如果此时本次任务已经完成，就不进行保存了
+      if (downloadStates.downloadedCount() === store.result.length) {
+        return
+      }
+
+      log.warning(lang.transl('_正在保存抓取结果'))
+      this.taskId = new Date().getTime()
+
+      this.part = []
+      await this.saveTaskData()
+
+      // 保存 meta 数据
+      const metaData = {
+        id: this.taskId,
+        url: this.getURL(),
+        part: this.part.length,
+      }
+
+      this.IDB.add(this.metaName, metaData)
+
+      // 保存 states 数据
+      const statesData = {
+        id: this.taskId,
+        states: downloadStates.states,
+      }
+      this.IDB.add(this.statesName, statesData)
+
+      log.success(lang.transl('_已保存抓取结果'), 2)
+    })
 
     // 当有文件下载完成时，更新下载状态
     window.addEventListener(EVT.events.downloadSucccess, () => {
@@ -393,7 +389,6 @@ class Resume {
     ])
     window.alert(lang.transl('_数据清除完毕'))
   }
-
 }
 
 const resume = new Resume()

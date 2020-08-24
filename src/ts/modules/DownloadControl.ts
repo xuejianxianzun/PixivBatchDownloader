@@ -69,7 +69,7 @@ class DownloadControl {
         this.showDownloadArea()
         window.setTimeout(() => {
           this.readyDownload()
-        }, 0);
+        }, 0)
       })
     }
 
@@ -183,16 +183,16 @@ class DownloadControl {
     <div class="centerWrap_btns">
     <button class="startDownload" type="button" style="background:${
       Colors.blue
-      };"> ${lang.transl('_下载按钮1')}</button>
+    };"> ${lang.transl('_下载按钮1')}</button>
     <button class="pauseDownload" type="button" style="background:${
       Colors.yellow
-      };"> ${lang.transl('_下载按钮2')}</button>
+    };"> ${lang.transl('_下载按钮2')}</button>
     <button class="stopDownload" type="button" style="background:${
       Colors.red
-      };"> ${lang.transl('_下载按钮3')}</button>
+    };"> ${lang.transl('_下载按钮3')}</button>
     <button class="copyUrl" type="button" style="background:${
       Colors.green
-      };"> ${lang.transl('_复制url')}</button>
+    };"> ${lang.transl('_复制url')}</button>
     </div>
     <div class="download_status_text_wrap">
     <span>${lang.transl('_当前状态')}</span>
@@ -451,4 +451,4 @@ class DownloadControl {
 }
 
 new DownloadControl()
-export { }
+export {}

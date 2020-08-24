@@ -85,7 +85,7 @@ class InitUserPage extends InitPageBase {
       }
     }
 
-    ;(pageInfo.tag) ? this.getIdListByTag() : this.getIdList()
+    pageInfo.tag ? this.getIdListByTag() : this.getIdList()
 
     log.log(lang.transl('_正在抓取'))
   }
