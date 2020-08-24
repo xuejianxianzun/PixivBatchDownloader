@@ -249,6 +249,7 @@
   height: 65px;
   padding-top: 25px;
   margin-bottom: 10px;
+  background: #fff;
 }
 .centerWrap .centerWrap_head img {
   width: 16px;
@@ -801,6 +802,9 @@ iframe[name='expandedFooter'] {
 }
 .theme-dark.centerWrap .tip {
   color: #fff;
+}
+.theme-dark.centerWrap .centerWrap_head {
+  background: #333;
 }
 .theme-dark.outputWrap {
   background: #333;

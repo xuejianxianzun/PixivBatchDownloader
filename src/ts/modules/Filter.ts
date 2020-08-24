@@ -7,7 +7,7 @@ import { API } from './API'
 import { EVT } from './EVT'
 import { blackAndWhiteImage } from './BlackandWhiteImage'
 
-// 审查每个作品的数据，决定是否要存储它
+// 审查作品是否符合过滤条件
 // 可以根据需要，随时进行审查
 class Filter {
   constructor() {

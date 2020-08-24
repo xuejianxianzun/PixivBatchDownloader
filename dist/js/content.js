@@ -5569,11 +5569,11 @@ class InitPageBase {
             window.alert(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成2'));
             return;
         }
-        _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.crawlStart);
         _Log__WEBPACK_IMPORTED_MODULE_8__["log"].clear();
         _Log__WEBPACK_IMPORTED_MODULE_8__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
         this.getWantPage();
         this.getMultipleSetting();
+        _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.crawlStart);
         // 进入第一个抓取方法
         this.nextStep();
     }
@@ -6221,6 +6221,7 @@ class Log {
     2 error 红色
     */
     add(str, level, br, keepShow) {
+        this.checkElement();
         let span = document.createElement('span');
         if (!keepShow) {
             span = this.refresh;
@@ -6237,19 +6238,15 @@ class Log {
         this.toBottom = true; // 需要把日志滚动到底部
     }
     log(str, br = 1, keepShow = true) {
-        this.checkElement();
         this.add(str, -1, br, keepShow);
     }
     success(str, br = 1, keepShow = true) {
-        this.checkElement();
         this.add(str, 0, br, keepShow);
     }
     warning(str, br = 1, keepShow = true) {
-        this.checkElement();
         this.add(str, 1, br, keepShow);
     }
     error(str, br = 1, keepShow = true) {
-        this.checkElement();
         this.add(str, 2, br, keepShow);
     }
     // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部

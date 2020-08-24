@@ -151,16 +151,16 @@ abstract class InitPageBase {
       return
     }
 
-    EVT.fire(EVT.events.crawlStart)
-
     log.clear()
-
+    
     log.success(lang.transl('_任务开始0'))
 
     this.getWantPage()
 
     this.getMultipleSetting()
 
+    EVT.fire(EVT.events.crawlStart)
+    
     // 进入第一个抓取方法
     this.nextStep()
   }

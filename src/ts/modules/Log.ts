@@ -52,11 +52,12 @@ class Log {
   2 error 红色
   */
   private add(str: string, level: number, br: number, keepShow: boolean) {
+    this.checkElement()
     let span = document.createElement('span')
     if (!keepShow) {
       span = this.refresh
     }
-
+    
     span.innerHTML = str
 
     if (level > -1) {
@@ -74,22 +75,18 @@ class Log {
   }
 
   public log(str: string, br: number = 1, keepShow: boolean = true) {
-    this.checkElement()
     this.add(str, -1, br, keepShow)
   }
 
   public success(str: string, br: number = 1, keepShow: boolean = true) {
-    this.checkElement()
     this.add(str, 0, br, keepShow)
   }
 
   public warning(str: string, br: number = 1, keepShow: boolean = true) {
-    this.checkElement()
     this.add(str, 1, br, keepShow)
   }
 
   public error(str: string, br: number = 1, keepShow: boolean = true) {
-    this.checkElement()
     this.add(str, 2, br, keepShow)
   }
 
