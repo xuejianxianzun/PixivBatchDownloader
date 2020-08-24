@@ -424,11 +424,21 @@
 .centerWrap .progressBarWrap .progressTip {
   position: absolute;
   line-height: 22px;
+  display: flex;
+  justify-content: space-between;
 }
 .centerWrap .progressBarWrap .progress1 {
   width: 0;
 }
 .centerWrap .progressBarWrap .progressTip1 {
+  width: 100%;
+  text-align: center;
+}
+.centerWrap .progressBarWrap .totalNumberWrap {
+  position: absolute;
+  height: 22px;
+  line-height: 22px;
+  color: #fff;
   width: 100%;
   text-align: center;
 }
@@ -454,13 +464,15 @@
   width: 100%;
 }
 .centerWrap .progressBarWrap .progressBarList .fileName {
-  max-width: 60%;
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
   vertical-align: top;
-  display: inline-block;
-  text-indent: 1em;
+  padding: 0 10px;
+  flex: 1;
+}
+.centerWrap .progressBarWrap .progressBarList .loadedWrap {
+  padding: 0 10px;
 }
 .centerWrap .downTip,
 .centerWrap .download_a,

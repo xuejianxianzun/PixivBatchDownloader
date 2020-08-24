@@ -41,7 +41,7 @@ class ProgressBar {
   <div class="progressBar progressBar1">
   <div class="progress progress1"></div>
   </div>
-  <div class="progressTip progressTip1">
+  <div class="totalNumberWrap">
   <span class="downloaded">0</span>
   /
   <span class="imgNum totalNumber">0</span>
@@ -58,9 +58,10 @@ class ProgressBar {
   <div class="progress progress2"></div>
   </div>
   <div class="progressTip progressTip2">
-  <span class="fileName"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ${lang.transl(
-    '_已下载'
-  )}&nbsp;&nbsp;<span class="loaded">0/0</span>KB
+  <span class="fileName"></span>
+  <span class="loadedWrap">
+  <span class="loaded"></span>
+  </span>
   </div>
   </li>`
 
@@ -70,6 +71,8 @@ class ProgressBar {
   private listWrap: HTMLUListElement
   private totalNumberEl: HTMLSpanElement
   private allProgressBar: ProgressBarEl[] = []
+
+  private loadedText = lang.transl('_已下载')
 
   // 重设所有进度
   public reset(num: number, downloaded: number = 0) {
@@ -107,10 +110,10 @@ class ProgressBar {
   public setProgress(index: number, data: ProgressData) {
     const bar = this.allProgressBar[index]
     bar.name.textContent = data.name
-
-    bar.loaded.textContent = `${Math.floor(data.loaded / 1024)}/${Math.floor(
+    
+    bar.loaded.textContent = `${this.loadedText} ${Math.floor(data.loaded / 1024)}/${Math.floor(
       data.total / 1024
-    )}`
+    )} KiB`
 
     const progress = data.loaded / data.total || 0 // 若结果为 NaN 则设为 0
     bar.progress.style.width = progress * 100 + '%'
