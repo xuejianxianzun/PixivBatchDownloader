@@ -1,4 +1,5 @@
 @themeBlue: #0ea8ef;
+@beautifyBlue: #29b3f3;
 
 /* right buttons */
 #quick_down_btn,
@@ -40,6 +41,37 @@
 @contentWidth: 630px;
 
 @headerHeight: 65px;
+
+.beautify_scrollbar {
+
+  // 滚动条整体 
+  // width 是垂直滚动条的宽度，height 是水平滚动条的高度
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  // 整个滚动条的底色
+  //&::-webkit-scrollbar-track-piece {background:#fcfcfc;}
+
+  // 滚动条的滑块部分
+  &::-webkit-scrollbar-thumb {
+    background-color: #3AB8F2;
+    border-radius: 10px;
+  }
+
+  // 垂直滚动条的滑块部分
+  // &::-webkit-scrollbar-thumb:vertical {
+  //   background-color: @beautifyBlue;
+  //   border-radius: 10px;
+  // }
+
+  // 水平滚动条的滑块部分
+  // &::-webkit-scrollbar-thumb:horizontal {
+  //   background-color: @beautifyBlue;
+  //   border-radius: 10px;
+  // }
+}
 
 .centerWrap {
   box-sizing: border-box;
@@ -159,7 +191,6 @@
       display: none;
     }
 
-    @beautifyBlue: #29b3f3;
     /*--------美化作为开关的复选框------------*/
 
     label.active {

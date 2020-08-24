@@ -28,6 +28,7 @@ class Log {
     let test = document.getElementById(this.id)
     if (test === null) {
       this.logArea.id = this.id
+      this.logArea.classList.add('beautify_scrollbar')
       DOM.insertToHead(this.logArea)
       themeColor.register(this.logArea)
     }

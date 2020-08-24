@@ -30,6 +30,14 @@
   background: -webkit-linear-gradient(top, #47b4ff 0%, #027fd2 100%);
 }
 /* center panel */
+.beautify_scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.beautify_scrollbar::-webkit-scrollbar-thumb {
+  background-color: #3AB8F2;
+  border-radius: 10px;
+}
 .centerWrap {
   box-sizing: border-box;
   position: fixed;

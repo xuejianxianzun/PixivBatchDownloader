@@ -508,7 +508,7 @@ const langText = {
   _wiki: ['使用手册', 'マニュアル', 'Wiki', 'Wiki'],
   _快捷键切换显示隐藏: [
     '使用 Alt + X，可以显示和隐藏下载面板',
-    'Alt + X を使用してダウンロードパネルを表示および非表示にする',
+    'Alt + X てダウンロードパネルを表示および非表示にする',
     'Use Alt + X to show and hide the download panel',
     'Alt + X 可以顯示或隱藏下載面板。',
   ],
@@ -1303,6 +1303,12 @@ const langText = {
     '{} は幅と高さが設定に合わないため、保存されていません。',
     '{} was not saved because its width and height do not match the settings.',
     '{} 並未儲存，因為它的寬高不符合設定。',
+  ],
+  _显示下载面板: [
+    '显示下载面板',
+    'ダウンロードパネルを表示',
+    'Show download panel',
+    '顯示下載面板',
   ],
 }
 

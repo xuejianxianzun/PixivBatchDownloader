@@ -22,7 +22,7 @@ class CenterPanel {
   // 添加中间面板
   private addCenterPanel() {
     const centerPanelHTML = `
-      <div class="centerWrap">
+      <div class="centerWrap beautify_scrollbar">
       <div class="centerWrap_head">
       <p class="centerWrap_title blue">Powerful Pixiv Downloader</p>
       <div class="btns">

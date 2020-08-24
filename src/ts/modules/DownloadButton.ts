@@ -1,4 +1,5 @@
 import { EVT } from './EVT'
+import { lang } from './Lang'
 
 // 右侧的下载按钮
 class DownloadButton {
@@ -11,8 +12,9 @@ class DownloadButton {
 
   private addBtn() {
     this.btn = document.createElement('button')
-    this.btn.textContent = '↓'
     this.btn.id = 'rightButton'
+    this.btn.textContent = '↓'
+    this.btn.setAttribute('title', lang.transl('_显示下载面板') + ' (Alt + X)')
     document.body.insertAdjacentElement('afterbegin', this.btn)
   }
 

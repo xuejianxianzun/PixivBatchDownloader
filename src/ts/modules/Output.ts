@@ -30,7 +30,7 @@ class Output {
     <div class="outputWrap">
     <div class="outputClose" title="${lang.transl('_关闭')}">X</div>
     <div class="outputTitle">${lang.transl('_输出信息')}</div>
-    <div class="outputContent"></div>
+    <div class="outputContent beautify_scrollbar"></div>
     <div class="outputFooter">
     <button class="outputCopy" title="">${lang.transl('_复制')}</button>
     </div>

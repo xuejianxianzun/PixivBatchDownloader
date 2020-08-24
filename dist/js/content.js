@@ -943,7 +943,7 @@ class CenterPanel {
     // 添加中间面板
     addCenterPanel() {
         const centerPanelHTML = `
-      <div class="centerWrap">
+      <div class="centerWrap beautify_scrollbar">
       <div class="centerWrap_head">
       <p class="centerWrap_title blue">Powerful Pixiv Downloader</p>
       <div class="btns">
@@ -2077,6 +2077,8 @@ class Download {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
+
 
 // 右侧的下载按钮
 class DownloadButton {
@@ -2087,8 +2089,9 @@ class DownloadButton {
     }
     addBtn() {
         this.btn = document.createElement('button');
-        this.btn.textContent = '↓';
         this.btn.id = 'rightButton';
+        this.btn.textContent = '↓';
+        this.btn.setAttribute('title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_显示下载面板') + ' (Alt + X)');
         document.body.insertAdjacentElement('afterbegin', this.btn);
     }
     bindEvents() {
@@ -6195,6 +6198,7 @@ class Log {
         let test = document.getElementById(this.id);
         if (test === null) {
             this.logArea.id = this.id;
+            this.logArea.classList.add('beautify_scrollbar');
             _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].insertToHead(this.logArea);
             _ThemeColor__WEBPACK_IMPORTED_MODULE_3__["themeColor"].register(this.logArea);
         }
@@ -6362,7 +6366,7 @@ class Output {
     <div class="outputWrap">
     <div class="outputClose" title="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_关闭')}">X</div>
     <div class="outputTitle">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_输出信息')}</div>
-    <div class="outputContent"></div>
+    <div class="outputContent beautify_scrollbar"></div>
     <div class="outputFooter">
     <button class="outputCopy" title="">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_复制')}</button>
     </div>
@@ -8651,7 +8655,7 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
         // 在右侧添加快速下载按钮
         this.quickDownBtn.id = 'quick_down_btn';
         this.quickDownBtn.textContent = '↓';
-        this.quickDownBtn.setAttribute('title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_快速下载本页'));
+        this.quickDownBtn.setAttribute('title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_快速下载本页') + ' (Alt + Q)');
         document.body.insertAdjacentElement('afterbegin', this.quickDownBtn);
         this.quickDownBtn.addEventListener('click', () => {
             this.startQuickDownload();
@@ -10825,7 +10829,7 @@ const langText = {
     _wiki: ['使用手册', 'マニュアル', 'Wiki', 'Wiki'],
     _快捷键切换显示隐藏: [
         '使用 Alt + X，可以显示和隐藏下载面板',
-        'Alt + X を使用してダウンロードパネルを表示および非表示にする',
+        'Alt + X てダウンロードパネルを表示および非表示にする',
         'Use Alt + X to show and hide the download panel',
         'Alt + X 可以顯示或隱藏下載面板。',
     ],
@@ -11620,6 +11624,12 @@ const langText = {
         '{} は幅と高さが設定に合わないため、保存されていません。',
         '{} was not saved because its width and height do not match the settings.',
         '{} 並未儲存，因為它的寬高不符合設定。',
+    ],
+    _显示下载面板: [
+        '显示下载面板',
+        'ダウンロードパネルを表示',
+        'Show download panel',
+        '顯示下載面板',
     ],
 };
 
