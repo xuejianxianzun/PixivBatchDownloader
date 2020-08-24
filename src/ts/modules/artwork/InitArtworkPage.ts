@@ -104,11 +104,26 @@ class InitArtworkPage extends InitPageBase {
     this.quickDownBtn.addEventListener(
       'click',
       () => {
-        store.states.quickDownload = true
-        this.readyCrawl()
+        this.startQuickDownload()
       },
       false
     )
+
+    // 使用快捷键 Alt + q 启动快速下载
+    window.addEventListener(
+      'keydown',
+      (ev) => {
+        if (ev.altKey && ev.keyCode === 81) {
+          this.startQuickDownload()
+        }
+      },
+      false
+    )
+  }
+
+  private startQuickDownload() {
+    store.states.quickDownload = true
+    this.readyCrawl()
   }
 
   protected setFormOption() {

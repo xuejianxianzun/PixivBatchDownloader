@@ -8654,9 +8654,18 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
         this.quickDownBtn.setAttribute('title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_快速下载本页'));
         document.body.insertAdjacentElement('afterbegin', this.quickDownBtn);
         this.quickDownBtn.addEventListener('click', () => {
-            _Store__WEBPACK_IMPORTED_MODULE_5__["store"].states.quickDownload = true;
-            this.readyCrawl();
+            this.startQuickDownload();
         }, false);
+        // 使用快捷键 Alt + q 启动快速下载
+        window.addEventListener('keydown', (ev) => {
+            if (ev.altKey && ev.keyCode === 81) {
+                this.startQuickDownload();
+            }
+        }, false);
+    }
+    startQuickDownload() {
+        _Store__WEBPACK_IMPORTED_MODULE_5__["store"].states.quickDownload = true;
+        this.readyCrawl();
     }
     setFormOption() {
         // 设置“个数/页数”选项
