@@ -292,6 +292,8 @@
 }
 .centerWrap .centerWrap_top_btn:hover,
 .centerWrap .showFileNameTip:hover,
+.centerWrap .textButton:hover,
+.centerWrap .textButton:focus,
 .centerWrap .showFileNameResult:hover,
 .centerWrap .bottom_help_bar > *:hover,
 .centerWrap .updateActiveClass {
@@ -351,7 +353,13 @@
   width: 100%;
 }
 .centerWrap .fileNameRule {
-  min-width: 350px;
+  min-width: 300px;
+}
+.centerWrap .textButton {
+  border: none;
+  background: none;
+  outline: none;
+  cursor: pointer;
 }
 .centerWrap .setinput_tag {
   min-width: 300px;
@@ -517,6 +525,58 @@
 }
 .centerWrap .hidden {
   display: none;
+}
+.centerWrap .saveNamingRuleWrap {
+  display: inline-block;
+  position: relative;
+}
+.centerWrap .namingRuleList {
+  position: absolute;
+  right: -30px;
+  top: 25px;
+  z-index: 1002;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: #2ca6df 0px 0px 10px;
+  display: none;
+  /* min-width: 400px; */
+}
+.centerWrap .namingRuleList li {
+  padding: 2px 0 2px 0;
+  color: #555;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: space-between;
+  justify-items: center;
+  align-items: center;
+  min-width: 400px;
+}
+.centerWrap .namingRuleList li > * {
+  min-height: 30px;
+  line-height: 30px;
+}
+.centerWrap .namingRuleList li:hover {
+  background: #e3f5ff;
+}
+.centerWrap .namingRuleList .rule {
+  flex: 1;
+  padding-left: 20px;
+}
+.centerWrap .namingRuleList li:first-child {
+  padding-top: 5px;
+}
+.centerWrap .namingRuleList li:last-child {
+  padding-bottom: 5px;
+}
+.centerWrap .namingRuleList .delete {
+  padding: 0 15px;
+  margin-left: 5px;
+  margin-right: 5px;
+  font-size: 1.3em;
+  color: #999;
+  font-weight: lighter;
 }
 .outputWrap {
   padding: 20px 30px;

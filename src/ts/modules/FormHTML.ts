@@ -188,7 +188,7 @@ const formHtml = `<form class="settingForm">
     <p class="option" data-no="13">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_设置文件夹名的提示'
-      )}">${lang.transl('_设置文件名')}<span class="gray1"> ? </span></span>
+      )}">${lang.transl('_命名规则')}<span class="gray1"> ? </span></span>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
       &nbsp;
       <select name="fileNameSelect">
@@ -211,8 +211,9 @@ const formHtml = `<form class="settingForm">
         <option value="{id_num}">{id_num}</option>
         <option value="{p_num}">{p_num}</option>
         </select>
-      &nbsp;&nbsp;
-      <span class="showFileNameTip">？</span>
+      &nbsp;
+      <slot data-name="saveNamingRule" class=""></slot>
+      <button class="showFileNameTip textButton" type="button">?</button>
       </p>
       <p class="fileNameTip tip">
       <strong>${lang

@@ -4,9 +4,10 @@ import { DOM } from './DOM'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { store } from './Store'
+import formHtml from './FormHTML'
 import { SaveSettings } from './SaveSettings'
 import { SettingsForm } from './Settings.d'
-import formHtml from './FormHTML'
+import { SaveNamingRule } from './SaveNamingRule'
 
 // 设置表单
 class Settings {
@@ -30,6 +31,8 @@ class Settings {
     this.allTabCon = this.form.querySelectorAll('.tabsContnet .con')
 
     this.bindEvents()
+
+    new SaveNamingRule(this.form.userSetName)
 
     new SaveSettings(this.form)
 

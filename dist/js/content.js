@@ -1732,6 +1732,7 @@
             const slot = this.findSlot(name)
             if (typeof element === 'string') {
               // 插入字符串形式的元素
+              // 这里不直接使用 insertAdjacentElement 是为了可以返回生成的元素
               const wrap = document.createElement('div')
               wrap.innerHTML = element
               const el = wrap.children[0]
@@ -4901,7 +4902,7 @@
         'lang'
       ].transl('_设置文件夹名的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
-        ].transl('_设置文件名')}<span class="gray1"> ? </span></span>
+        ].transl('_命名规则')}<span class="gray1"> ? </span></span>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
       &nbsp;
       <select name="fileNameSelect">
@@ -4924,8 +4925,9 @@
         <option value="{id_num}">{id_num}</option>
         <option value="{p_num}">{p_num}</option>
         </select>
-      &nbsp;&nbsp;
-      <span class="showFileNameTip">？</span>
+      &nbsp;
+      <slot data-name="saveNamingRule" class=""></slot>
+      <button class="showFileNameTip textButton" type="button">?</button>
       </p>
       <p class="fileNameTip tip">
       <strong>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang']
@@ -9463,6 +9465,152 @@
         /***/
       },
 
+    /***/ './src/ts/modules/SaveNamingRule.ts':
+      /*!******************************************!*\
+  !*** ./src/ts/modules/SaveNamingRule.ts ***!
+  \******************************************/
+      /*! exports provided: SaveNamingRule */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'SaveNamingRule',
+          function () {
+            return SaveNamingRule
+          }
+        )
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
+        )
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./Log */ './src/ts/modules/Log.ts'
+        )
+
+        // 保存和加载命名规则
+        class SaveNamingRule {
+          constructor(ruleInput) {
+            this.storeName = 'xzNamingList'
+            this.list = [] // 保存明明列表，是一个先进先出的队列
+            this.limit = 10 // 最大保存数量
+            this._show = false // 是否显示列表
+            this.html = `
+  <div class="saveNamingRuleWrap">
+  <button class="nameSave textButton has_tip" type="button" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+    'lang'
+  ].transl(
+    '_保存命名规则提示',
+    this.limit.toString()
+  )}">${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_保存')}</button>
+  <button class="nameLoad textButton" type="button">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+    'lang'
+  ].transl('_加载')}</button>
+  <ul class="namingRuleList"></ul>
+  </div>`
+            this.ruleInput = ruleInput
+            _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].useSlot(
+              'saveNamingRule',
+              this.html
+            )
+            this.saveBtn = document.querySelector('button.nameSave')
+            this.loadBtn = document.querySelector('button.nameLoad')
+            this.listWrap = document.querySelector('ul.namingRuleList')
+            this.createList()
+            this.bindEvent()
+          }
+          set show(boolean) {
+            this._show = boolean
+            boolean ? this.showListWrap() : this.hideListWrap()
+          }
+          get show() {
+            return this._show
+          }
+          bindEvent() {
+            this.saveBtn.addEventListener('click', () => {
+              this.add(this.ruleInput.value)
+            })
+            this.loadBtn.addEventListener('click', () => {
+              this.show = !this.show
+            })
+            this.listWrap.addEventListener('mouseleave', () => {
+              this.show = false
+            })
+          }
+          load() {
+            const data = localStorage.getItem(this.storeName)
+            if (data) {
+              this.list = JSON.parse(data)
+            }
+          }
+          save() {
+            localStorage.setItem(this.storeName, JSON.stringify(this.list))
+          }
+          add(rule) {
+            if (this.list.length === this.limit) {
+              this.list.splice(0, 1)
+            }
+            this.list.push(rule)
+            _Log__WEBPACK_IMPORTED_MODULE_2__['log'].success(
+              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                '_已保存命名规则'
+              )
+            )
+            this.handleChange()
+          }
+          delete(index) {
+            this.list.splice(index, 1)
+            this.handleChange()
+          }
+          select(rule) {
+            this.ruleInput.value = rule
+          }
+          handleChange() {
+            this.save()
+            this.createList()
+          }
+          createList() {
+            this.load()
+            const htmlArr = []
+            for (let i = 0; i < this.list.length; i++) {
+              const html = `<li>
+      <span class="rule">${this.list[i]}</span>
+      <button class="delete textButton" type="button" data-index="${i}">×</button>
+    </li>`
+              htmlArr.push(html)
+            }
+            if (this.list.length === 0) {
+              htmlArr.push(`<li><i>&nbsp;&nbsp;&nbsp;&nbsp;no data</i></li>`)
+            }
+            this.listWrap.innerHTML = htmlArr.join('')
+            const ruleEls = this.listWrap.querySelectorAll('.rule')
+            for (const el of ruleEls) {
+              el.addEventListener('click', () => {
+                this.select(el.textContent)
+                this.show = false
+              })
+            }
+            const deleteEls = this.listWrap.querySelectorAll('.delete')
+            for (const el of deleteEls) {
+              el.addEventListener('click', () => {
+                const index = parseInt(el.dataset.index)
+                this.delete(index)
+              })
+            }
+          }
+          showListWrap() {
+            this.listWrap.style.display = 'block'
+          }
+          hideListWrap() {
+            this.listWrap.style.display = 'none'
+          }
+        }
+
+        /***/
+      },
+
     /***/ './src/ts/modules/SaveSettings.ts':
       /*!****************************************!*\
   !*** ./src/ts/modules/SaveSettings.ts ***!
@@ -9850,11 +9998,14 @@
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
-        /* harmony import */ var _SaveSettings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+        /* harmony import */ var _FormHTML__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ./FormHTML */ './src/ts/modules/FormHTML.ts'
+        )
+        /* harmony import */ var _SaveSettings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./SaveSettings */ './src/ts/modules/SaveSettings.ts'
         )
-        /* harmony import */ var _FormHTML__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./FormHTML */ './src/ts/modules/FormHTML.ts'
+        /* harmony import */ var _SaveNamingRule__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+          /*! ./SaveNamingRule */ './src/ts/modules/SaveNamingRule.ts'
         )
 
         // 设置表单
@@ -9865,7 +10016,7 @@
             this.chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
             this.form = _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM'].useSlot(
               'form',
-              _FormHTML__WEBPACK_IMPORTED_MODULE_7__['default']
+              _FormHTML__WEBPACK_IMPORTED_MODULE_6__['default']
             )
             this.allCheckBox = this.form.querySelectorAll(
               'input[type="checkbox"]'
@@ -9876,7 +10027,10 @@
             this.allTabTitle = this.form.querySelectorAll('.tabsTitle .title')
             this.allTabCon = this.form.querySelectorAll('.tabsContnet .con')
             this.bindEvents()
-            new _SaveSettings__WEBPACK_IMPORTED_MODULE_6__['SaveSettings'](
+            new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_8__['SaveNamingRule'](
+              this.form.userSetName
+            )
+            new _SaveSettings__WEBPACK_IMPORTED_MODULE_7__['SaveSettings'](
               this.form
             )
             // new SaveSettings 会初始化选项，但可能会有一些选项的值在初始化过程中没有发生改变，也就不会被监听到变化。所以这里需要直接初始化以下状态。
@@ -13983,12 +14137,7 @@ flag 及其含义如下：
             'Crawl a total of {} files',
             '共擷取到 {} 個檔案',
           ],
-          _设置文件名: [
-            '设置命名规则',
-            '命名規則を設定する',
-            'Set naming rules',
-            '設定命名規則',
-          ],
+          _命名规则: ['命名规则', '命名規則', 'Naming rules', '命名規則'],
           _设置文件夹名的提示: [
             `可以使用 '/' 建立文件夹<br>示例：{p_title}/{user}/{id}`,
             `フォルダーは '/' で作成できます<br>例：{p_title}/{user}/{id}`,
@@ -14574,7 +14723,6 @@ flag 及其含义如下：
             'Folder name use: ',
             '資料夾名稱使用：',
           ],
-          _命名规则: ['命名规则', '命名規則', 'Naming rule', '命名規則'],
           _启用快速收藏: [
             '启用快速收藏',
             'クイックボックマークを有効にする',
@@ -14824,6 +14972,20 @@ flag 及其含义如下：
             'ダウンロードパネルを表示',
             'Show download panel',
             '顯示下載面板',
+          ],
+          _保存: ['保存', '保存', 'save', '儲存'],
+          _加载: ['加载', 'ロード', 'load', '載入'],
+          _保存命名规则提示: [
+            '保存命名规则，最多 {} 个',
+            'ネームルールを保存します。最大 {} 個まで',
+            'Save naming rules, up to {}',
+            '儲存命名規則，最多 {} 個',
+          ],
+          _已保存命名规则: [
+            '已保存命名规则',
+            'ネームルールを保存しました',
+            'Naming rule saved',
+            '已儲存命名規則',
           ],
         }
 

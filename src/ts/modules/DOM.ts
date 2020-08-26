@@ -134,6 +134,7 @@ class DOM {
 
     if (typeof element === 'string') {
       // 插入字符串形式的元素
+      // 这里不直接使用 insertAdjacentElement 是为了可以返回生成的元素
       const wrap = document.createElement('div')
       wrap.innerHTML = element
       const el = wrap.children[0]

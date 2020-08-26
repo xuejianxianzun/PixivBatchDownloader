@@ -1,5 +1,6 @@
 @themeBlue: #0ea8ef;
 @beautifyBlue: #29b3f3;
+@boxShadowBlue: #2ca6df;
 
 /* right buttons */
 #quick_down_btn,
@@ -84,7 +85,7 @@
   color: #444;
   padding: 0 25px 20px;
   border-radius: 15px;
-  box-shadow: 0 0 25px #2ca6df;
+  box-shadow: 0 0 25px @boxShadowBlue;
   max-height: 95vh;
   overflow: auto;
 
@@ -365,6 +366,8 @@
 
   .centerWrap_top_btn:hover,
   .showFileNameTip:hover,
+  .textButton:hover,
+  .textButton:focus,
   .showFileNameResult:hover,
   .bottom_help_bar > *:hover,
   .updateActiveClass {
@@ -437,7 +440,14 @@
   }
 
   .fileNameRule {
-    min-width: 350px;
+    min-width: 300px;
+  }
+
+  .textButton {
+    border: none;
+    background: none;
+    outline: none;
+    cursor: pointer;
   }
 
   .setinput_tag {
@@ -641,6 +651,69 @@
   .hidden {
     display: none;
   }
+
+  .saveNamingRuleWrap {
+    display: inline-block;
+    position: relative;
+  }
+
+  .namingRuleList {
+    position: absolute;
+    right: -30px;
+    top: 25px;
+    z-index: 1002;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: @boxShadowBlue 0px 0px 10px;
+    display: none;
+    /* min-width: 400px; */
+
+    @liHeight: 30px;
+
+    li {
+      padding: 2px 0 2px 0;
+      color: #555;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      justify-content: space-between;
+      justify-items: center;
+      align-items: center;
+      min-width: 400px;
+
+      & > * {
+        min-height: @liHeight;
+        line-height: @liHeight;
+      }
+    }
+
+    li:hover {
+      background: #e3f5ff;
+    }
+
+    .rule {
+      flex: 1;
+      padding-left: 20px;
+    }
+
+    li:first-child {
+      padding-top: 5px;
+    }
+
+    li:last-child {
+      padding-bottom: 5px;
+    }
+
+    .delete {
+      padding: 0 15px;
+      margin-left: 5px;
+      margin-right: 5px;
+      font-size: 1.3em;
+      color: #999;
+      font-weight: lighter;
+    }
+  }
 }
 
 // output panel
@@ -650,7 +723,7 @@
   background: #fff;
   border-radius: 15px;
   z-index: 9999;
-  box-shadow: 0 0 15px #2ca6df;
+  box-shadow: 0 0 15px @boxShadowBlue;
   display: none;
   position: fixed;
   top: 15%;
@@ -758,7 +831,7 @@
 // what is new panel
 .xz_new {
   background: #fff;
-  box-shadow: 0 0 15px #2ca6df;
+  box-shadow: 0 0 15px @boxShadowBlue;
   position: fixed;
   z-index: 9999;
   width: 400px;
