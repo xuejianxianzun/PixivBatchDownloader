@@ -3,7 +3,7 @@ import { EVT } from './EVT'
 import { log } from './Log'
 import { lang } from './Lang'
 import { fileName } from './FileName'
-import { converter } from './ConvertUgoira'
+import { converter } from './ugoira/ConvertUgoira'
 import {
   downloadArgument,
   SendToBackEndData,
@@ -160,19 +160,22 @@ class Download {
         progressBar.showErrorColor(this.progressBarIndex, false)
 
         // 需要转换动图的情况
+        const convertExt = ['webm', 'gif', 'png']
         if (
-          (arg.data.ext === 'webm' || arg.data.ext === 'gif') &&
+          (convertExt.includes(arg.data.ext)) &&
           arg.data.ugoiraInfo
         ) {
           try {
-            // 需要转换成 webm 视频
             if (arg.data.ext === 'webm') {
               file = await converter.webm(file, arg.data.ugoiraInfo)
             }
 
-            // 需要转换成 gif 动图
             if (arg.data.ext === 'gif') {
               file = await converter.gif(file, arg.data.ugoiraInfo)
+            }
+
+            if (arg.data.ext === 'png') {
+              file = await converter.apng(file, arg.data.ugoiraInfo)
             }
           } catch (error) {
             const msg = `Error: convert ugoira error, work id ${arg.data.idNum}.`

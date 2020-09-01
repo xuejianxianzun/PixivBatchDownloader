@@ -97,7 +97,7 @@ class Deduplication {
 
     // 当有文件下载完成时，存储这个任务的记录
     window.addEventListener(
-      EVT.events.downloadSucccess,
+      EVT.events.downloadSuccess,
       (ev: CustomEventInit) => {
         const successData = ev.detail.data as DonwloadSuccessData
 

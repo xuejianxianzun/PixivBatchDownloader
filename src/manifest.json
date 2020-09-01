@@ -29,7 +29,9 @@
         "lib/handlebars.min.js",
         "lib/jszip-utils.min.js",
         "lib/jszip.min.js",
-        "lib/js-epub-maker.js"
+        "lib/js-epub-maker.js",
+        "lib/UPNG.js",
+        "lib/pako.js"
       ],
       "matches": ["*://www.pixiv.net/*"],
       "run_at": "document_end"

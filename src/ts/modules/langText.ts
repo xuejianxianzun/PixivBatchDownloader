@@ -350,6 +350,7 @@ const langText = {
   ],
   _webmVideo: ['WebM 视频', 'WebM ビデオ', 'WebM video', '影片（WebM）'],
   _gif: ['GIF 图片', 'GIF 画像', 'GIF picture', '圖片（GIF）'],
+  _apng: ['APNG 图片', 'APNG 画像', 'APNG picture', '圖片（APNG）'],
   _zipFile: ['Zip 文件', 'ZIP ファイル', 'Zip file', '壓縮檔（Zip）'],
   _当前作品个数: [
     '当前有 {} 个作品 ',

@@ -14,7 +14,7 @@ interface XzSetting {
   downMultiImg: boolean
   downColorImg: boolean
   downBlackWhiteImg: boolean
-  ugoiraSaveAs: 'webm' | 'gif' | 'zip'
+  ugoiraSaveAs: 'webm' | 'gif' | 'zip' | 'png'
   convertUgoiraThread: number
   needTag: string
   notNeedTag: string

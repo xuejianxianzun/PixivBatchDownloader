@@ -390,7 +390,7 @@ class DownloadControl {
     // 更改这个任务状态为“已完成”
     downloadStates.setState(task.index, 1)
     // 发送下载成功的事件
-    EVT.fire(EVT.events.downloadSucccess, data)
+    EVT.fire(EVT.events.downloadSuccess, data)
 
     // 统计已下载数量
     this.setDownloaded()

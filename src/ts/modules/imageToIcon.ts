@@ -95,6 +95,9 @@ class ImageToIcon {
         const pngBlob = await this.getPngBlob(canvas)
         // 获取 png 图像的 buffer
         const buf = await pngBlob.arrayBuffer()
+        console.log('buff1',buf)
+        const buf2 = canvas.getContext('2d')?.getImageData(0,0,sizeNumber,sizeNumber).data.buffer
+        console.log('buff2',buf2)
         buffer.push({
           size: sizeNumber,
           buffer: buf,
