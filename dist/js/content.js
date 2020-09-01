@@ -3744,7 +3744,7 @@ const formHtml = `<form class="settingForm">
       <label for="ugoiraSaveAs3">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_gif')} &nbsp;</label>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs4" class="need_beautify radio" value="png"> 
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs4">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_apng')} &nbsp;</label>
+      <label for="ugoiraSaveAs4" class="has_tip" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_无损')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_apng')} &nbsp;</label>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip"> 
       <span class="beautify_radio"></span>
       <label for="ugoiraSaveAs2">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_zipFile')} &nbsp;</label>
@@ -10584,7 +10584,7 @@ const langText = {
     _动图: ['动图 ', 'うごイラ', 'Ugoira', '動圖 '],
     _动图保存格式: [
         '动图保存格式',
-        'うごイラをどのタイプが保存するか',
+        'うごイラの保存タイプ',
         'Save the ugoira work as',
         '動圖儲存格式',
     ],
@@ -11565,6 +11565,8 @@ const langText = {
         'Naming rule saved',
         '已儲存命名規則',
     ],
+    _无损: ['无损', 'ロスレス', 'Lossless', '無損',],
+    _文件名长度限制: ['文件名长度限制', 'ファイル名の長さ制限', 'File name length limit', '檔案名稱長度限制'],
 };
 
 

@@ -338,7 +338,7 @@ const langText = {
   _动图: ['动图 ', 'うごイラ', 'Ugoira', '動圖 '],
   _动图保存格式: [
     '动图保存格式',
-    'うごイラをどのタイプが保存するか',
+    'うごイラの保存タイプ',
     'Save the ugoira work as',
     '動圖儲存格式',
   ],
@@ -1319,6 +1319,8 @@ const langText = {
     'Naming rule saved',
     '已儲存命名規則',
   ],
+  _无损: ['无损', 'ロスレス', 'Lossless', '無損',],
+  _文件名长度限制: ['文件名长度限制', 'ファイル名の長さ制限', 'File name length limit', '檔案名稱長度限制'],
 }
 
 export { langText, langTextKeys }
