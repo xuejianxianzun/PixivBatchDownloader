@@ -1639,7 +1639,7 @@ class Download {
     constructor(progressBarIndex, data) {
         this.fileName = '';
         this.retry = 0;
-        this.retryMax = 30;
+        this.retryMax = 1;
         this.cancel = false; // 这个下载被取消（任务停止，或者没有通过某个检查）
         this.sizeCheck = undefined; // 检查文件体积
         this.progressBarIndex = progressBarIndex;

@@ -52,7 +52,9 @@
     "*://www.pixiv.net/*",
     "*://www.pixivision.net/*",
     "*://*.techorus-cdn.com/*",
-    "*://*.pximg.net/*"
+    "*://*.pximg.net/*",
+    "webRequest",
+    "webRequestBlocking"
   ],
   "web_accessible_resources": [
     "lib/z-worker.js",

@@ -1,5 +1,39 @@
 import { DonwloadListData, SendToBackEndData } from './modules/Download.d'
 
+// 设置 referer
+chrome.webRequest.onBeforeSendHeaders.addListener(
+  function (details) {
+    let hasOrigin = false
+    for (const HttpHeader of details.requestHeaders!) {
+      if (HttpHeader.name === 'Referer') {
+        HttpHeader.value='https://i.pximg.net/'
+        hasOrigin = true
+      }
+      if (HttpHeader.name === 'Origin') {
+        HttpHeader.value='https://i.pximg.net/'
+        hasOrigin = true
+      }
+    }
+    if (!hasOrigin) {
+      details.requestHeaders!.push({
+        name: 'Origin',
+        value: 'https://i.pximg.net',
+      })
+      details.requestHeaders!.push({
+        name: 'Referer',
+        value: 'https://i.pximg.net/',
+      })
+    }
+    return {
+      requestHeaders: details.requestHeaders,
+    }
+  },
+  {
+    urls: ['*://*.pximg.net/*'],
+  },
+  ['blocking', 'requestHeaders', 'extraHeaders']
+)
+
 // 当点击扩展图标时，切换显示/隐藏下载面板
 chrome.browserAction.onClicked.addListener(function (tab) {
   // 打开下载面板

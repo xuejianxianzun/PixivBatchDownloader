@@ -13,6 +13,7 @@ import { progressBar } from './ProgressBar'
 import { filter } from './Filter'
 import { deduplication } from './Deduplication'
 import {forwardWrap} from './forwardWrap'
+import {DOM} from './DOM'
 
 class Download {
   constructor(progressBarIndex: number, data: downloadArgument) {
@@ -25,7 +26,7 @@ class Download {
   private progressBarIndex: number
   private fileName = ''
   private retry = 0
-  private readonly retryMax = 30
+  private readonly retryMax = 1
   private cancel = false // 这个下载被取消（任务停止，或者没有通过某个检查）
 
   private sizeCheck: boolean | undefined = undefined // 检查文件体积
@@ -77,6 +78,7 @@ class Download {
 
     const  r =await forwardWrap(arg.data.url)
     console.log(r)
+    
     // 下载文件
     let xhr = new XMLHttpRequest()
     xhr.open('GET', arg.data.url, true)
@@ -288,6 +290,5 @@ class Download {
     chrome.runtime.sendMessage(sendData)
   }
 }
-import { form } from './Settings'
 
 export { Download }
