@@ -1624,7 +1624,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ProgressBar__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ProgressBar */ "./src/ts/modules/ProgressBar.ts");
 /* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Filter */ "./src/ts/modules/Filter.ts");
 /* harmony import */ var _Deduplication__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Deduplication */ "./src/ts/modules/Deduplication.ts");
+/* harmony import */ var _forwardWrap__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./forwardWrap */ "./src/ts/modules/forwardWrap.ts");
 // 下载文件，并发送给浏览器下载
+
 
 
 
@@ -1681,6 +1683,8 @@ class Download {
         this.fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__["fileName"].getFileName(arg.data);
         // 重设当前下载栏的信息
         this.setProgressBar(0, 0);
+        const r = await Object(_forwardWrap__WEBPACK_IMPORTED_MODULE_8__["forwardWrap"])(arg.data.url);
+        console.log(r);
         // 下载文件
         let xhr = new XMLHttpRequest();
         xhr.open('GET', arg.data.url, true);
@@ -3847,12 +3851,17 @@ class ImageToIcon {
     async convertImageURL(source) {
         return new Promise(async (resolve, reject) => {
             if (typeof source === 'string') {
+                // const b = await this.f(source)
+                // const u = URL.createObjectURL(b)
+                // console.log(u)
+                // resolve(u)
                 // 请求图片，并为其生成 BlobURL，解决图片跨域导致 canvas 污染的问题
-                const res = await fetch(source, {
-                    method: 'get',
-                });
-                const blob = await res.blob();
-                resolve(URL.createObjectURL(blob));
+                // const res = await fetch(source, {
+                //   method: 'get',
+                //   credentials:'same-origin'
+                // })
+                // const blob = await res.blob()
+                // resolve(URL.createObjectURL(blob))
             }
             else if (source instanceof File) {
                 resolve(URL.createObjectURL(source));
@@ -10234,6 +10243,36 @@ class SaveArtworkData {
     }
 }
 const saveArtworkData = new SaveArtworkData();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/modules/forwardWrap.ts":
+/*!***************************************!*\
+  !*** ./src/ts/modules/forwardWrap.ts ***!
+  \***************************************/
+/*! exports provided: forwardWrap */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "forwardWrap", function() { return forwardWrap; });
+async function forwardWrap(url) {
+    return new Promise(async (resolve) => {
+        chrome.runtime.onMessage.addListener((msg) => {
+            console.log(msg);
+            if (msg.msg === 'forward response') {
+                resolve(msg.data);
+            }
+        });
+        const req = {
+            msg: 'forward',
+            url: url
+        };
+        chrome.runtime.sendMessage(req);
+    });
+}
 
 
 

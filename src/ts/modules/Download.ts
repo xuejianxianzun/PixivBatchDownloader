@@ -12,6 +12,7 @@ import {
 import { progressBar } from './ProgressBar'
 import { filter } from './Filter'
 import { deduplication } from './Deduplication'
+import {forwardWrap} from './forwardWrap'
 
 class Download {
   constructor(progressBarIndex: number, data: downloadArgument) {
@@ -74,6 +75,8 @@ class Download {
     // 重设当前下载栏的信息
     this.setProgressBar(0, 0)
 
+    const  r =await forwardWrap(arg.data.url)
+    console.log(r)
     // 下载文件
     let xhr = new XMLHttpRequest()
     xhr.open('GET', arg.data.url, true)
@@ -285,5 +288,6 @@ class Download {
     chrome.runtime.sendMessage(sendData)
   }
 }
+import { form } from './Settings'
 
 export { Download }

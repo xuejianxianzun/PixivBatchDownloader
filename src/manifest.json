@@ -44,7 +44,7 @@
     }
   ],
   "background": {
-    "scripts": ["js/background.js"]
+    "scripts": ["js/background.js","js/forward.js"]
   },
   "permissions": [
     "tabs",
