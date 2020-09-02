@@ -1,22 +1,28 @@
 import { DOM } from './DOM'
 import { lang } from './Lang'
 import { log } from './Log'
+import { themeColor } from './ThemeColor'
 
 // 保存和加载命名规则
 class SaveNamingRule {
   constructor(ruleInput: HTMLInputElement) {
     this.ruleInput = ruleInput
-    DOM.useSlot('saveNamingRule', this.html)
-    this.saveBtn = document.querySelector(
+
+    const wrap = DOM.useSlot('saveNamingRule', this.html)
+    themeColor.register(wrap)
+
+    this.saveBtn = wrap.querySelector(
       'button.nameSave'
     )! as HTMLButtonElement
-    this.loadBtn = document.querySelector(
+    this.loadBtn = wrap.querySelector(
       'button.nameLoad'
     )! as HTMLButtonElement
-    this.listWrap = document.querySelector(
+    this.listWrap = wrap.querySelector(
       'ul.namingRuleList'
     )! as HTMLUListElement
+
     this.createList()
+    
     this.bindEvent()
   }
 

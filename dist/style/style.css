@@ -875,6 +875,9 @@ iframe[name='expandedFooter'] {
   box-shadow: rgb(37 37 37) 0px 0px 15px;
   color: #fff;
 }
+.theme-dark.centerWrap button {
+  color: #fff;
+}
 .theme-dark.centerWrap .setinput_style1,
 .theme-dark.centerWrap .setinput_style1:focus,
 .theme-dark.centerWrap .setinput_style1:hover {
@@ -907,4 +910,20 @@ iframe[name='expandedFooter'] {
 }
 .theme-dark#viewerWarpper {
   border: none;
+}
+.theme-dark.saveNamingRuleWrap {
+  color: #fff;
+}
+.theme-dark.saveNamingRuleWrap button {
+  color: #fff;
+}
+.theme-dark.saveNamingRuleWrap .namingRuleList {
+  background: #333;
+  box-shadow: rgb(120 120 120) 0px 0px 10px;
+}
+.theme-dark.saveNamingRuleWrap .namingRuleList li {
+  color: #fff;
+}
+.theme-dark.saveNamingRuleWrap .namingRuleList li:hover {
+  background: #444;
 }
