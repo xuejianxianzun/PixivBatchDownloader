@@ -5,7 +5,6 @@ module.exports = {
   entry: {
     content: './src/ts/content.ts',
     background: './src/ts/background.ts',
-    forward: './src/ts/forward.ts',
   },
   devtool: 'source-map',
   module: {

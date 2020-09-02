@@ -1,38 +1,40 @@
 import { DonwloadListData, SendToBackEndData } from './modules/Download.d'
 
-// 设置 referer
-chrome.webRequest.onBeforeSendHeaders.addListener(
-  function (details) {
-    let hasOrigin = false
-    for (const HttpHeader of details.requestHeaders!) {
-      if (HttpHeader.name === 'Referer') {
-        HttpHeader.value='https://i.pximg.net/'
-        hasOrigin = true
-      }
-      if (HttpHeader.name === 'Origin') {
-        HttpHeader.value='https://i.pximg.net/'
-        hasOrigin = true
-      }
+// 修改 responseHeaders 开始
+const regex = /access-control-allow-origin/i
+
+function removeMatchingHeaders(
+  headers: chrome.webRequest.HttpHeader[],
+  regex: RegExp
+) {
+  for (var i = 0, header; (header = headers[i]); i++) {
+    if (header.name.match(regex)) {
+      headers.splice(i, 1)
+      return
     }
-    if (!hasOrigin) {
-      details.requestHeaders!.push({
-        name: 'Origin',
-        value: 'https://i.pximg.net',
-      })
-      details.requestHeaders!.push({
-        name: 'Referer',
-        value: 'https://i.pximg.net/',
-      })
-    }
-    return {
-      requestHeaders: details.requestHeaders,
-    }
-  },
+  }
+}
+
+function responseListener(
+  details: chrome.webRequest.WebResponseHeadersDetails
+) {
+  removeMatchingHeaders(details.responseHeaders!, regex)
+  details.responseHeaders!.push({
+    name: 'access-control-allow-origin',
+    value: '*',
+  })
+
+  return { responseHeaders: details.responseHeaders }
+}
+
+chrome.webRequest.onHeadersReceived.addListener(
+  responseListener,
   {
     urls: ['*://*.pximg.net/*'],
   },
-  ['blocking', 'requestHeaders', 'extraHeaders']
+  ['blocking', 'responseHeaders', 'extraHeaders']
 )
+// 修改 responseHeaders 结束
 
 // 当点击扩展图标时，切换显示/隐藏下载面板
 chrome.browserAction.onClicked.addListener(function (tab) {

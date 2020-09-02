@@ -12,8 +12,6 @@ import {
 import { progressBar } from './ProgressBar'
 import { filter } from './Filter'
 import { deduplication } from './Deduplication'
-import {forwardWrap} from './forwardWrap'
-import {DOM} from './DOM'
 
 class Download {
   constructor(progressBarIndex: number, data: downloadArgument) {
@@ -76,9 +74,6 @@ class Download {
     // 重设当前下载栏的信息
     this.setProgressBar(0, 0)
 
-    const  r =await forwardWrap(arg.data.url)
-    console.log(r)
-    
     // 下载文件
     let xhr = new XMLHttpRequest()
     xhr.open('GET', arg.data.url, true)
@@ -166,10 +161,7 @@ class Download {
 
         // 需要转换动图的情况
         const convertExt = ['webm', 'gif', 'png']
-        if (
-          (convertExt.includes(arg.data.ext)) &&
-          arg.data.ugoiraInfo
-        ) {
+        if (convertExt.includes(arg.data.ext) && arg.data.ugoiraInfo) {
           try {
             if (arg.data.ext === 'webm') {
               file = await converter.webm(file, arg.data.ugoiraInfo)

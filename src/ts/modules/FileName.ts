@@ -212,7 +212,7 @@ class FileName {
 
     // 添加后缀名
     const ugoiraFormat = ['webm', 'gif', 'png']
-    if ((ugoiraFormat.includes(data.ext)) && data.ugoiraInfo) {
+    if (ugoiraFormat.includes(data.ext) && data.ugoiraInfo) {
       // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
       // 例如，抓取时动图保存格式是 webm，下载开始前，用户改成了 gif，在这里可以响应用户的修改
       data.ext = form.ugoiraSaveAs.value

@@ -7,16 +7,14 @@ import { toAPNG } from './ToAPNG'
 // 控制动图转换
 class ConvertUgoira {
   constructor() {
-
     window.addEventListener(EVT.events.downloadStart, () => {
       this.downloading = true
     })
-
-      ;[EVT.events.downloadPause, EVT.events.downloadStop].forEach((event) => {
-        window.addEventListener(event, () => {
-          this.downloading = false
-        })
+    ;[EVT.events.downloadPause, EVT.events.downloadStop].forEach((event) => {
+      window.addEventListener(event, () => {
+        this.downloading = false
       })
+    })
 
     window.addEventListener(EVT.events.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data
@@ -45,7 +43,11 @@ class ConvertUgoira {
     EVT.fire(EVT.events.convertChange, this._count)
   }
 
-  private async start(file: Blob, info: UgoiraInfo, type: 'webm' | 'gif' | 'png'): Promise<Blob> {
+  private async start(
+    file: Blob,
+    info: UgoiraInfo,
+    type: 'webm' | 'gif' | 'png'
+  ): Promise<Blob> {
     return new Promise(async (resolve, reject) => {
       const t = window.setInterval(async () => {
         if (this._count < this.maxCount) {

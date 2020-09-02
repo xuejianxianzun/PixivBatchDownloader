@@ -1319,8 +1319,13 @@ const langText = {
     'Naming rule saved',
     '已儲存命名規則',
   ],
-  _无损: ['无损', 'ロスレス', 'Lossless', '無損',],
-  _文件名长度限制: ['文件名长度限制', 'ファイル名の長さ制限', 'File name length limit', '檔案名稱長度限制'],
+  _无损: ['无损', 'ロスレス', 'Lossless', '無損'],
+  _文件名长度限制: [
+    '文件名长度限制',
+    'ファイル名の長さ制限',
+    'File name length limit',
+    '檔案名稱長度限制',
+  ],
 }
 
 export { langText, langTextKeys }

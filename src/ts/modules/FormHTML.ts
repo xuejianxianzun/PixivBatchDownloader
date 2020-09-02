@@ -369,7 +369,9 @@ const formHtml = `<form class="settingForm">
       <label for="ugoiraSaveAs3">${lang.transl('_gif')} &nbsp;</label>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs4" class="need_beautify radio" value="png"> 
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs4" class="has_tip" data-tip="${lang.transl('_无损')}">${lang.transl('_apng')} &nbsp;</label>
+      <label for="ugoiraSaveAs4" class="has_tip" data-tip="${lang.transl(
+        '_无损'
+      )}">${lang.transl('_apng')} &nbsp;</label>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip"> 
       <span class="beautify_radio"></span>
       <label for="ugoiraSaveAs2">${lang.transl('_zipFile')} &nbsp;</label>

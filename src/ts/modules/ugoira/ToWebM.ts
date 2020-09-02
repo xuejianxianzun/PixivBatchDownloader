@@ -1,5 +1,5 @@
 import { extractImage } from './ExtractImage'
-import {DOM} from '../DOM'
+import { DOM } from '../DOM'
 import { EVT } from '../EVT'
 import { UgoiraInfo } from '../CrawlResult'
 
@@ -12,9 +12,11 @@ class ToWebM {
       const encoder = new Whammy.Video()
 
       // 获取解压后的图片数据
-      let base64Arr = await extractImage.extractImageAsDataURL(file, info).catch(() => {
-        reject(new Error('Start error'))
-      })
+      let base64Arr = await extractImage
+        .extractImageAsDataURL(file, info)
+        .catch(() => {
+          reject(new Error('Start error'))
+        })
 
       if (!base64Arr) {
         return
@@ -39,11 +41,9 @@ class ToWebM {
   }
 
   // 获取每一帧的数据，传递给编码器使用
-  private async getFrameData(
-    imgFile: string[]
-  ): Promise<HTMLCanvasElement[]> {
-    const resultList:HTMLCanvasElement[] = []
-    return new Promise(async (resolve, reject)=> {
+  private async getFrameData(imgFile: string[]): Promise<HTMLCanvasElement[]> {
+    const resultList: HTMLCanvasElement[] = []
+    return new Promise(async (resolve, reject) => {
       for (const base64 of imgFile) {
         const img = await DOM.loadImg(base64)
         const canvas = document.createElement('canvas')
@@ -51,13 +51,12 @@ class ToWebM {
         canvas.width = img.width
         canvas.height = img.height
         ctx.drawImage(img, 0, 0)
-        
+
         resultList.push(canvas)
       }
       resolve(resultList)
     })
   }
-
 
   // 编码视频
   private async encodeVideo(encoder: any) {

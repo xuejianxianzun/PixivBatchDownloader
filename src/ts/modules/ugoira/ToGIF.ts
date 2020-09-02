@@ -1,5 +1,5 @@
 import { extractImage } from './ExtractImage'
-import {DOM} from '../DOM'
+import { DOM } from '../DOM'
 import { EVT } from '../EVT'
 import { UgoiraInfo } from '../CrawlResult'
 
@@ -36,9 +36,11 @@ class ToGIF {
       })
 
       // 获取解压后的图片数据
-      let base64Arr = await extractImage.extractImageAsDataURL(file, info).catch(() => {
-        reject(new Error('Start error'))
-      })
+      let base64Arr = await extractImage
+        .extractImageAsDataURL(file, info)
+        .catch(() => {
+          reject(new Error('Start error'))
+        })
 
       if (!base64Arr) {
         return
@@ -61,13 +63,10 @@ class ToGIF {
     })
   }
 
-
   // 添加每一帧的数据
-  private async getFrameData(
-    imgFile: string[]
-  ): Promise<HTMLImageElement[]> {
-    const resultList:HTMLImageElement[] = []
-    return new Promise(async (resolve, reject)=> {
+  private async getFrameData(imgFile: string[]): Promise<HTMLImageElement[]> {
+    const resultList: HTMLImageElement[] = []
+    return new Promise(async (resolve, reject) => {
       for (const base64 of imgFile) {
         const img = await DOM.loadImg(base64)
         resultList.push(img)

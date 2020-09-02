@@ -50,17 +50,13 @@ class ImageToIcon {
   private async convertImageURL(source: Opt['source']) {
     return new Promise<string>(async (resolve, reject) => {
       if (typeof source === 'string') {
-        // const b = await this.f(source)
-        // const u = URL.createObjectURL(b)
-        // console.log(u)
-        // resolve(u)
         // 请求图片，并为其生成 BlobURL，解决图片跨域导致 canvas 污染的问题
-        // const res = await fetch(source, {
-        //   method: 'get',
-        //   credentials:'same-origin'
-        // })
-        // const blob = await res.blob()
-        // resolve(URL.createObjectURL(blob))
+        const res = await fetch(source, {
+          method: 'get',
+          credentials: 'same-origin',
+        })
+        const blob = await res.blob()
+        resolve(URL.createObjectURL(blob))
       } else if (source instanceof File) {
         resolve(URL.createObjectURL(source))
       } else {
@@ -100,9 +96,6 @@ class ImageToIcon {
         const pngBlob = await this.getPngBlob(canvas)
         // 获取 png 图像的 buffer
         const buf = await pngBlob.arrayBuffer()
-        console.log('buff1', buf)
-        const buf2 = canvas.getContext('2d')?.getImageData(0, 0, sizeNumber, sizeNumber).data.buffer
-        console.log('buff2', buf2)
         buffer.push({
           size: sizeNumber,
           buffer: buf,

@@ -66,7 +66,6 @@ class ExtractImage {
       )
     })
   }
-
 }
 
 const extractImage = new ExtractImage()
