@@ -6,7 +6,6 @@ module.exports = {
     content: './src/ts/content.ts',
     background: './src/ts/background.ts',
   },
-  devtool: 'source-map',
   module: {
     rules: [
       {
