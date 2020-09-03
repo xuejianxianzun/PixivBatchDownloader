@@ -11,18 +11,12 @@ class SaveNamingRule {
     const wrap = DOM.useSlot('saveNamingRule', this.html)
     themeColor.register(wrap)
 
-    this.saveBtn = wrap.querySelector(
-      'button.nameSave'
-    )! as HTMLButtonElement
-    this.loadBtn = wrap.querySelector(
-      'button.nameLoad'
-    )! as HTMLButtonElement
-    this.listWrap = wrap.querySelector(
-      'ul.namingRuleList'
-    )! as HTMLUListElement
+    this.saveBtn = wrap.querySelector('button.nameSave')! as HTMLButtonElement
+    this.loadBtn = wrap.querySelector('button.nameLoad')! as HTMLButtonElement
+    this.listWrap = wrap.querySelector('ul.namingRuleList')! as HTMLUListElement
 
     this.createList()
-    
+
     this.bindEvent()
   }
 

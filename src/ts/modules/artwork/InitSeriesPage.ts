@@ -16,7 +16,11 @@ class InitSeriesPage extends InitPageBase {
     this.init()
   }
 
+  // 目前存在新版和旧版共存的情况，对这新旧页面采取不同的抓取方式
+  // 一个主要的原因是，旧版一页 18 个作品，新版一页 12 个作品，所以旧版还是使用之前的方式比较省事
   private baseUrl = ''
+
+  private seriesId = ''
 
   protected appendCenterBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
@@ -52,23 +56,30 @@ class InitSeriesPage extends InitPageBase {
     log.warning(lang.transl('_任务开始1', this.crawlNumber.toString()))
   }
 
-  private getPageUrl() {
-    // 设置起始页面
+  protected nextStep() {
+    // 设置起始页码
     const p = API.getURLSearchField(location.href, 'p')
     this.startpageNo = parseInt(p) || 1
 
-    const url = new URL(window.location.href)
-    url.searchParams.set('p', '1')
-    this.baseUrl = url.toString()
-    // https://www.pixiv.net/user/3698796/series/61267?p=1
+    // 判断是否是旧版
+    let old = !!document.querySelector('.badge')
+
+    if (old) {  // 旧版
+      // 设置起始网址
+      const url = new URL(window.location.href)
+      url.searchParams.set('p', '1')
+      this.baseUrl = url.toString()
+
+      this.getIdListOld()
+    } else {  // 新版
+      // 获取系列 id
+      this.seriesId = API.getURLPathField('series')
+
+      this.getIdList()
+    }
   }
 
-  protected nextStep() {
-    this.getPageUrl()
-    this.getIdList()
-  }
-
-  protected async getIdList() {
+  protected async getIdListOld() {
     let p = this.startpageNo + this.listPageFinished
 
     let dom: HTMLDocument
@@ -78,7 +89,7 @@ class InitSeriesPage extends InitPageBase {
       const parse = new DOMParser()
       dom = parse.parseFromString(text, 'text/html')
     } catch (error) {
-      this.getIdList()
+      this.getIdListOld()
       return
     }
 
@@ -130,6 +141,60 @@ class InitSeriesPage extends InitPageBase {
 
     // 抓取完毕
     if (p >= this.maxCount || this.listPageFinished === this.crawlNumber) {
+      log.log(lang.transl('_列表页抓取完成'))
+      this.getIdListFinished()
+    } else {
+      // 继续抓取
+      this.getIdListOld()
+    }
+  }
+
+  protected async getIdList() {
+    let p = this.startpageNo + this.listPageFinished
+
+    const data = await API.getSeriesData(this.seriesId, this.startpageNo)
+    this.listPageFinished++
+
+    for (const work of data.body.thumbnails.illust) {
+      if (work.isAdContainer) {
+        continue
+      }
+      const filterOpt: FilterOption = {
+        id: work.illustId,
+        tags: work.tags,
+        bookmarkData: !!work.bookmarkData,
+        width: work.width,
+        height: work.height,
+        illustType: work.illustType,
+      }
+
+      // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以这里 type 是 unknown
+      if (await filter.check(filterOpt)) {
+        store.idList.push({
+          type: 'unknown',
+          id: work.illustId,
+        })
+      }
+    }
+
+    log.log(
+      lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
+      1,
+      false
+    )
+
+    // 检查每个作品的 order，判断是不是到了最后一页
+    let flag = false
+    const total = data.body.page.total
+    for (const workInfo of data.body.page.series) {
+      if (workInfo.order === total) {
+        flag = true
+        break
+      }
+    }
+
+    // 抓取完毕
+    if (flag && p >= this.maxCount || this.listPageFinished === this.crawlNumber) {
       log.log(lang.transl('_列表页抓取完成'))
       this.getIdListFinished()
     } else {

@@ -3,7 +3,7 @@ import {
   BookmarkData,
   UserProfile,
   UserProfileAllData,
-  IllustData,
+  ArtworkData,
   UgoiraData,
   RecommendData,
   RankingData,
@@ -17,6 +17,7 @@ import {
   NovelSearchData,
   NewNovelData,
   FollowingResponse,
+  SeriesData,
 } from './CrawlResult.d'
 
 import {
@@ -265,7 +266,7 @@ class API {
   ): Promise<BookmarkData> {
     const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
       hide ? 'hide' : 'show'
-    }&rdm=${Math.random()}`
+      }&rdm=${Math.random()}`
 
     return this.request(url)
   }
@@ -370,7 +371,7 @@ class API {
   }
 
   // 获取插画 漫画 的详细信息
-  static getArtworkData(id: string): Promise<IllustData> {
+  static getArtworkData(id: string): Promise<ArtworkData> {
     const url = `https://www.pixiv.net/ajax/illust/${id}`
     return this.request(url)
   }
@@ -563,6 +564,14 @@ class API {
     order_by = 'asc'
   ): Promise<NovelSeriesData> {
     const url = `https://www.pixiv.net/ajax/novel/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`
+    return this.request(url)
+  }
+
+  // 获取系列信息
+  // 这个接口的数据结构里同时有 illust （包含漫画）和 novel 系列数据
+  // 恍惚记得有插画系列来着，但是没找到对应的网址，难道是记错了？
+  static getSeriesData(series_id: number | string, pageNo: number): Promise<SeriesData> {
+    const url = `https://www.pixiv.net/ajax/series/${series_id}?p=${pageNo}`
     return this.request(url)
   }
 }

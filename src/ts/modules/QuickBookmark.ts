@@ -2,7 +2,7 @@
 import { API } from './API'
 import { lang } from './Lang'
 import { form } from './Settings'
-import { IllustData, NovelData } from './CrawlResult.d'
+import { ArtworkData, NovelData } from './CrawlResult.d'
 
 class QuickBookmark {
   constructor() {
@@ -38,7 +38,7 @@ class QuickBookmark {
   }
 
   private async getBookmarkData() {
-    let data: IllustData | NovelData
+    let data: ArtworkData | NovelData
     if (this.isNovel) {
       data = await API.getNovelData(API.getNovelId())
     } else {

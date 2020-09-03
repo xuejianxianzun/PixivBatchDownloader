@@ -232,7 +232,10 @@ class FileName {
       const lastIndex = allPart.length - 1
 
       if (allPart[lastIndex].length + extResult.length > limit) {
-        allPart[lastIndex] = allPart[lastIndex].substr(0, limit - extResult.length)
+        allPart[lastIndex] = allPart[lastIndex].substr(
+          0,
+          limit - extResult.length
+        )
       }
 
       result = allPart.join('/')

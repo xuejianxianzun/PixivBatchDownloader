@@ -548,6 +548,13 @@ class API {
         const url = `https://www.pixiv.net/ajax/novel/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`;
         return this.request(url);
     }
+    // 获取系列信息
+    // 这个接口的数据结构里同时有 illust （包含漫画）和 novel 系列数据
+    // 恍惚记得有插画系列来着，但是没找到对应的网址，难道是记错了？
+    static getSeriesData(series_id, pageNo) {
+        const url = `https://www.pixiv.net/ajax/series/${series_id}?p=${pageNo}`;
+        return this.request(url);
+    }
 }
 // 不安全的字符，这里多数是控制字符，需要替换掉
 API.unsafeStr = new RegExp(/[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g);
@@ -10018,7 +10025,11 @@ __webpack_require__.r(__webpack_exports__);
 class InitSeriesPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPageBase"] {
     constructor() {
         super();
+        // 目前存在新版和旧版共存的情况，对这新旧页面采取不同的抓取方式
+        // 一个主要的原因是，旧版一页 18 个作品，新版一页 12 个作品，所以旧版还是使用之前的方式比较省事
+        // 
         this.baseUrl = '';
+        this.seriesId = '';
         this.init();
     }
     appendCenterBtns() {
@@ -10049,20 +10060,26 @@ class InitSeriesPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPag
         }
         _Log__WEBPACK_IMPORTED_MODULE_8__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_任务开始1', this.crawlNumber.toString()));
     }
-    getPageUrl() {
-        // 设置起始页面
+    nextStep() {
+        // 设置起始页码
         const p = _API__WEBPACK_IMPORTED_MODULE_2__["API"].getURLSearchField(location.href, 'p');
         this.startpageNo = parseInt(p) || 1;
-        const url = new URL(window.location.href);
-        url.searchParams.set('p', '1');
-        this.baseUrl = url.toString();
-        // https://www.pixiv.net/user/3698796/series/61267?p=1
+        // 判断是否是旧版
+        let old = !!document.querySelector('.badge');
+        if (old) { // 旧版
+            // 设置起始网址
+            const url = new URL(window.location.href);
+            url.searchParams.set('p', '1');
+            this.baseUrl = url.toString();
+            this.getIdListOld();
+        }
+        else { // 新版
+            // 获取系列 id
+            this.seriesId = _API__WEBPACK_IMPORTED_MODULE_2__["API"].getURLPathField('series');
+            this.getIdList();
+        }
     }
-    nextStep() {
-        this.getPageUrl();
-        this.getIdList();
-    }
-    async getIdList() {
+    async getIdListOld() {
         let p = this.startpageNo + this.listPageFinished;
         let dom;
         try {
@@ -10072,7 +10089,7 @@ class InitSeriesPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPag
             dom = parse.parseFromString(text, 'text/html');
         }
         catch (error) {
-            this.getIdList();
+            this.getIdListOld();
             return;
         }
         this.listPageFinished++;
@@ -10108,6 +10125,50 @@ class InitSeriesPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPag
         _Log__WEBPACK_IMPORTED_MODULE_8__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_列表页抓取进度', this.listPageFinished.toString()), 1, false);
         // 抓取完毕
         if (p >= this.maxCount || this.listPageFinished === this.crawlNumber) {
+            _Log__WEBPACK_IMPORTED_MODULE_8__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_列表页抓取完成'));
+            this.getIdListFinished();
+        }
+        else {
+            // 继续抓取
+            this.getIdListOld();
+        }
+    }
+    async getIdList() {
+        let p = this.startpageNo + this.listPageFinished;
+        const data = await _API__WEBPACK_IMPORTED_MODULE_2__["API"].getSeriesData(this.seriesId, this.startpageNo);
+        this.listPageFinished++;
+        for (const work of data.body.thumbnails.illust) {
+            if (work.isAdContainer) {
+                continue;
+            }
+            const filterOpt = {
+                id: work.illustId,
+                tags: work.tags,
+                bookmarkData: !!work.bookmarkData,
+                width: work.width,
+                height: work.height,
+                illustType: work.illustType,
+            };
+            // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以这里 type 是 unknown
+            if (await _Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check(filterOpt)) {
+                _Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.push({
+                    type: 'unknown',
+                    id: work.illustId,
+                });
+            }
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_8__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_列表页抓取进度', this.listPageFinished.toString()), 1, false);
+        // 检查每个作品的 order，判断是不是到了最后一页
+        let flag = false;
+        const total = data.body.page.total;
+        for (const workInfo of data.body.page.series) {
+            if (workInfo.order === total) {
+                flag = true;
+                break;
+            }
+        }
+        // 抓取完毕
+        if (flag && p >= this.maxCount || this.listPageFinished === this.crawlNumber) {
             _Log__WEBPACK_IMPORTED_MODULE_8__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_列表页抓取完成'));
             this.getIdListFinished();
         }

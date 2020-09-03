@@ -1,7 +1,7 @@
 // 声明 Pixiv API 返回的数据格式
 
-// 作品的数据
-export interface IllustData {
+// 插画、漫画作品的数据
+export interface ArtworkData {
   error: boolean
   message: string
   body: {
@@ -143,7 +143,7 @@ export interface WorksInfo {
   illustTitle: string
   id: string
   title: string
-  illustType: number
+  illustType: 0|1|2
   xRestrict: number
   restrict: number
   sl: number
@@ -211,26 +211,29 @@ export interface UserProfileTop {
   }
 }
 
+interface CommonUserData {
+  userId: string
+  name: string
+  image: string
+  imageBig: string
+  premium: boolean
+  isFollowed: boolean
+  isMypixiv: boolean
+  isBlocking: boolean
+  background: null | {
+    repeat: null
+    color: null
+    url: string
+    isPrivate: boolean
+  }
+  partial: number
+}
+
 // 画师账户信息 user/id?full=1
 export interface UserProfile {
   error: boolean
   message: '' | string
-  body: {
-    userId: string
-    name: string
-    image: string
-    imageBig: string
-    premium: boolean
-    isFollowed: boolean
-    isMypixiv: boolean
-    isBlocking: boolean
-    background: null | {
-      repeat: null
-      color: null
-      url: string
-      isPrivate: boolean
-    }
-    partial: number
+  body: CommonUserData & {
     following: number
     followedBack: boolean
     comment: string
@@ -274,12 +277,12 @@ export interface UserProfile {
     }
     official: boolean
     group:
-      | null
-      | {
-          id: string
-          title: string
-          iconUrl: string
-        }[]
+    | null
+    | {
+      id: string
+      title: string
+      iconUrl: string
+    }[]
   }
 }
 
@@ -362,20 +365,20 @@ export interface UserProfileAllData {
   message: string
   body: {
     illusts:
-      | []
-      | {
-          [key: string]: null
-        }
+    | []
+    | {
+      [key: string]: null
+    }
     manga:
-      | []
-      | {
-          [key: string]: null
-        }
+    | []
+    | {
+      [key: string]: null
+    }
     novels:
-      | []
-      | {
-          [key: string]: null
-        }
+    | []
+    | {
+      [key: string]: null
+    }
     mangaSeries: [] | {}
     novelSeries: [] | {}
     pickup: object
@@ -939,6 +942,90 @@ interface extraDataCommon {
       image: string
       title: string
       card: string
+    }
+  }
+}
+
+// 系列数据，这个接口的数据结构里同时有插画系列和小说系列，但是小说系列目前使用的是另一套 api，这个 api 里的小说数据不知道是什么样，目前只有空数组
+export interface SeriesData {
+  error: boolean
+  message: string | ''
+  body: {
+    tagTranslation: {
+      [key: string]: {
+        en?: string | ''
+        ko?: string | ''
+        zh?: string | ''
+        zh_tw?: string | ''
+        romaji: string | ''
+      }
+    }
+    thumbnails: {
+      illust: (WorksInfo &
+      {
+        isAdContainer: boolean
+        titleCaptionTranslation: {
+          workTitle: null
+          workCaption: null
+        }
+        createDate: string
+        uploadDate: string
+        urls: {
+          '250x250': string
+          '360x360': string
+          '540x540': string
+        }
+        seriesId: string
+        seriesTitle: string
+        profileImageUrl: string
+      })[]
+      novel: []
+    }
+    illustSeries: [
+      {
+        id: string
+        userId: string
+        title: string
+        description: string
+        total: string
+        url: string
+        coverImageSl: number
+        firstIllustId: string
+        updateDate: string
+      }
+    ]
+    novelSeries: []
+    users: CommonUserData[]
+    page: {
+      series: {
+        workId: string
+        order: number
+      }[]
+      isSetCover: boolean
+      seriesId: number
+      otherSeriesId: string
+      recentUpdatedWorkIds: number[]
+      total: number
+    }
+    extraData: {
+      meta: {
+        title: string
+        description: string | ''
+      }
+    }
+    zoneConfig: {
+      header: {
+        url: string
+      }
+      footer: {
+        url: string
+      }
+      responsive: {
+        url: string
+      }
+      rectangle: {
+        url: string
+      }
     }
   }
 }

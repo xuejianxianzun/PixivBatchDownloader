@@ -275,7 +275,9 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="29">
-      <span class="settingNameStyle1">${lang.transl('_文件名长度限制')}<span class="gray1"> &nbsp; </span></span>
+      <span class="settingNameStyle1">${lang.transl(
+        '_文件名长度限制'
+      )}<span class="gray1"> &nbsp; </span></span>
       <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">

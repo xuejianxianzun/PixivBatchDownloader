@@ -2,12 +2,12 @@ import { API } from '../API'
 import { filter } from '../Filter'
 import { setting, form } from '../Settings'
 import { FilterOption } from '../Filter.d'
-import { IllustData } from '../CrawlResult'
+import { ArtworkData } from '../CrawlResult'
 import { store } from '../Store'
 
 // 保存单个图片作品的数据
 class SaveArtworkData {
-  public async save(data: IllustData) {
+  public async save(data: ArtworkData) {
     // 获取需要检查的信息
     const body = data.body
     const fullWidth = body.width // 原图宽度
