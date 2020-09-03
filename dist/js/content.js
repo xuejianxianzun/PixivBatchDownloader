@@ -5556,10 +5556,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Options */ "./src/ts/modules/Options.ts");
-/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Settings */ "./src/ts/modules/Settings.ts");
-/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
+/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
 // 初始化 pixivision 页面
-
 
 
 
@@ -5611,7 +5609,7 @@ class InitPixivisionPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
             28,
         ]);
         // pixivision 里，文件名只有 id 标记会生效，所以把文件名规则替换成 id
-        _Settings__WEBPACK_IMPORTED_MODULE_5__["form"].userSetName.value = '{p_title}/{id}';
+        // form.userSetName.value = '{p_title}/{id}'
     }
     nextStep() {
         this.getPixivision();
@@ -5620,7 +5618,7 @@ class InitPixivisionPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
     resetGetIdListStatus() { }
     // 保存要下载的图片的信息
     addResult(id, url, ext) {
-        _Store__WEBPACK_IMPORTED_MODULE_6__["store"].addResult({
+        _Store__WEBPACK_IMPORTED_MODULE_5__["store"].addResult({
             id: id,
             url: url,
             ext: ext,
@@ -7118,10 +7116,12 @@ new SaveAvatarIcon();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SaveNamingRule", function() { return SaveNamingRule; });
-/* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
-/* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ThemeColor */ "./src/ts/modules/ThemeColor.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
+/* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ThemeColor */ "./src/ts/modules/ThemeColor.ts");
+
 
 
 
@@ -7135,13 +7135,13 @@ class SaveNamingRule {
         this._show = false; // 是否显示列表
         this.html = `
   <div class="saveNamingRuleWrap">
-  <button class="nameSave textButton has_tip" type="button" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_保存命名规则提示', this.limit.toString())}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_保存')}</button>
-  <button class="nameLoad textButton" type="button">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_加载')}</button>
+  <button class="nameSave textButton has_tip" type="button" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存命名规则提示', this.limit.toString())}">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存')}</button>
+  <button class="nameLoad textButton" type="button">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_加载')}</button>
   <ul class="namingRuleList"></ul>
   </div>`;
         this.ruleInput = ruleInput;
-        const wrap = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].useSlot('saveNamingRule', this.html);
-        _ThemeColor__WEBPACK_IMPORTED_MODULE_3__["themeColor"].register(wrap);
+        const wrap = _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].useSlot('saveNamingRule', this.html);
+        _ThemeColor__WEBPACK_IMPORTED_MODULE_4__["themeColor"].register(wrap);
         this.saveBtn = wrap.querySelector('button.nameSave');
         this.loadBtn = wrap.querySelector('button.nameLoad');
         this.listWrap = wrap.querySelector('ul.namingRuleList');
@@ -7180,7 +7180,7 @@ class SaveNamingRule {
             this.list.splice(0, 1);
         }
         this.list.push(rule);
-        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_已保存命名规则'));
+        _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已保存命名规则'));
         this.handleChange();
     }
     delete(index) {
@@ -7189,6 +7189,7 @@ class SaveNamingRule {
     }
     select(rule) {
         this.ruleInput.value = rule;
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.settingChange, { name: 'userSetName', value: rule });
     }
     handleChange() {
         this.save();

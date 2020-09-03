@@ -1,3 +1,4 @@
+import { EVT } from './EVT'
 import { DOM } from './DOM'
 import { lang } from './Lang'
 import { log } from './Log'
@@ -79,6 +80,8 @@ class SaveNamingRule {
 
   private select(rule: string) {
     this.ruleInput.value = rule
+    EVT.fire(EVT.events.settingChange, { name: 'userSetName', value: rule })
+
   }
 
   private handleChange() {
