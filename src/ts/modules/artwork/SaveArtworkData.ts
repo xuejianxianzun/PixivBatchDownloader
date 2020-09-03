@@ -15,13 +15,21 @@ class SaveArtworkData {
     const bmk = body.bookmarkCount // 收藏数
     const tagArr = body.tags.tags // 取出 tag 信息
     const tags: string[] = [] // 保存 tag 列表
-    const tagTranslation: string[] = [] // 保存 tag 列表，附带翻译后的 tag
+    const tagsWithTransl: string[] = [] // 保存 tag 列表，附带翻译后的 tag
+    const tagsTranslOnly: string[] = [] // 保存翻译后的 tag 列表
 
     for (const tagData of tagArr) {
       tags.push(tagData.tag)
-      tagTranslation.push(tagData.tag)
+      tagsWithTransl.push(tagData.tag)
       if (tagData.translation && tagData.translation.en) {
-        tagTranslation.push(tagData.translation.en)
+        // 有翻译
+        // 不管是什么语种的翻译结果，都保存在 en 属性里
+        tagsWithTransl.push(tagData.translation.en)
+        tagsTranslOnly.push(tagData.translation.en)
+      } else {
+        // 无翻译
+        // 把原 tag 保存到 tagsTranslOnly 里
+        tagsTranslOnly.push(tagData.tag)
       }
     }
 
@@ -29,7 +37,7 @@ class SaveArtworkData {
       createDate: body.createDate,
       id: body.illustId,
       illustType: body.illustType,
-      tags: tags,
+      tags: tagsWithTransl,
       pageCount: body.pageCount,
       bookmarkCount: bmk,
       bookmarkData: body.bookmarkData,
@@ -88,7 +96,8 @@ class SaveArtworkData {
           url: imgUrl,
           title: title,
           tags: tags,
-          tagsTranslated: tagTranslation,
+          tagsWithTransl: tagsWithTransl,
+          tagsTranslOnly: tagsTranslOnly,
           user: user,
           userId: userid,
           fullWidth: fullWidth,
@@ -122,7 +131,8 @@ class SaveArtworkData {
           url: meta.body.originalSrc,
           title: title,
           tags: tags,
-          tagsTranslated: tagTranslation,
+          tagsWithTransl: tagsWithTransl,
+          tagsTranslOnly: tagsTranslOnly,
           user: user,
           userId: userid,
           fullWidth: fullWidth,

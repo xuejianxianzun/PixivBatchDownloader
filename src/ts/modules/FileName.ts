@@ -90,7 +90,12 @@ class FileName {
         safe: false,
       },
       '{tags_translate}': {
-        value: data.tagsTranslated.join(','),
+        value: data.tagsWithTransl.join(','),
+        prefix: 'tags_',
+        safe: false,
+      },
+      '{tags_transl_only}': {
+        value: data.tagsTranslOnly.join(','),
         prefix: 'tags_',
         safe: false,
       },

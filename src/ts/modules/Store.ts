@@ -45,24 +45,6 @@ class Store {
 
   public result: Result[] = [] // 储存抓取结果
 
-  /*
-   id - 其实是默认名，包含两部分：id + 序号，如 44920385_p0。动图只有 id 没有序号
-   url - 图片大图的 url
-   title - 作品的标题
-   tags - 作品的 tag 列表
-   tagsTranslated - 作品的 tag 列表，附带翻译后的 tag（如果有）
-   user - 作品的画师名字
-   userid - 作品的画师id
-   fullWidth - 第一张图片的宽度
-   fullHeight - 第一张图片的高度
-   ext - 图片下载时使用的后缀名
-   bmk - 作品的收藏数量
-   date - 作品的创建日期，格式为 yyyy-MM-dd。如 2019-08-29
-   type - 作品的类型，分为 illustration、manga、ugoira
-   rank - 作品在排行榜中的排名
-   ugoiraInfo - 当作品是动图时才有值，包含 frames（数组）和 mimeType（string）属性
-   */
-
   private assignResult(data: WorkInfoOptional) {
     // 图片详细信息的默认值
     const dataDefault: Result = {
@@ -74,7 +56,8 @@ class Store {
       pageCount: 1,
       dlCount: 1,
       tags: [],
-      tagsTranslated: [],
+      tagsWithTransl: [],
+      tagsTranslOnly: [],
       user: '',
       userId: '',
       fullWidth: 0,

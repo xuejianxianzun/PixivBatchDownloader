@@ -519,7 +519,7 @@ const langText = {
     'Crawl a total of {} files',
     '共擷取到 {} 個檔案',
   ],
-  _命名规则: ['命名规则', '命名規則', 'Naming rules', '命名規則'],
+  _命名规则: ['命名规则', '命名規則', 'Naming rule', '命名規則'],
   _设置文件夹名的提示: [
     `可以使用 '/' 建立文件夹<br>示例：{p_title}/{user}/{id}`,
     `フォルダーは '/' で作成できます<br>例：{p_title}/{user}/{id}`,
@@ -583,6 +583,12 @@ const langText = {
     '作品の tag リスト、翻訳付き tag (あれば)',
     'The tags of the work, with the translated tag (if any)',
     '作品的 tag 清單，包含翻譯後的 tag（如果有的話）。',
+  ],
+  _命名标记tags_transl_only: [
+    '翻译后的 tag 列表',
+    '翻訳后の tag リスト',
+    'Translated tags',
+    '譯後的 tag 清單。',
   ],
   _命名标记date: [
     '作品的创建日期，格式为 yyyy-MM-dd。如 2019-08-29',
@@ -1310,7 +1316,7 @@ const langText = {
   _保存命名规则提示: [
     '保存命名规则，最多 {} 个',
     'ネームルールを保存します。最大 {} 個まで',
-    'Save naming rules, up to {}',
+    'Save naming rule, up to {}',
     '儲存命名規則，最多 {} 個',
   ],
   _已保存命名规则: [

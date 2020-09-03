@@ -143,7 +143,7 @@ export interface WorksInfo {
   illustTitle: string
   id: string
   title: string
-  illustType: 0|1|2
+  illustType: 0 | 1 | 2
   xRestrict: number
   restrict: number
   sl: number
@@ -277,12 +277,12 @@ export interface UserProfile {
     }
     official: boolean
     group:
-    | null
-    | {
-      id: string
-      title: string
-      iconUrl: string
-    }[]
+      | null
+      | {
+          id: string
+          title: string
+          iconUrl: string
+        }[]
   }
 }
 
@@ -365,20 +365,20 @@ export interface UserProfileAllData {
   message: string
   body: {
     illusts:
-    | []
-    | {
-      [key: string]: null
-    }
+      | []
+      | {
+          [key: string]: null
+        }
     manga:
-    | []
-    | {
-      [key: string]: null
-    }
+      | []
+      | {
+          [key: string]: null
+        }
     novels:
-    | []
-    | {
-      [key: string]: null
-    }
+      | []
+      | {
+          [key: string]: null
+        }
     mangaSeries: [] | {}
     novelSeries: [] | {}
     pickup: object
@@ -961,8 +961,7 @@ export interface SeriesData {
       }
     }
     thumbnails: {
-      illust: (WorksInfo &
-      {
+      illust: (WorksInfo & {
         isAdContainer: boolean
         titleCaptionTranslation: {
           workTitle: null

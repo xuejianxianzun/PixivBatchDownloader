@@ -16,6 +16,7 @@ class SaveNovelData {
     const bmk = body.bookmarkCount // 收藏数
     const tagArr = body.tags.tags // 取出 tag 信息
     const tags: string[] = [] // 保存 tag 列表
+    // 小说的标签没有进行翻译，所以没有翻译后的标签
 
     for (const tagData of tagArr) {
       tags.push(tagData.tag)
@@ -97,7 +98,8 @@ class SaveNovelData {
         url: url,
         title: title,
         tags: tags,
-        tagsTranslated: tags,
+        tagsWithTransl: tags,
+        tagsTranslOnly: tags,
         user: user,
         userId: userid,
         ext: ext,

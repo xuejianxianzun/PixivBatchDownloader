@@ -190,7 +190,6 @@ const formHtml = `<form class="settingForm">
         '_设置文件夹名的提示'
       )}">${lang.transl('_命名规则')}<span class="gray1"> ? </span></span>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
-      &nbsp;
       <select name="fileNameSelect">
         <option value="default">…</option>
         <option value="{id}">{id}</option>
@@ -200,6 +199,7 @@ const formHtml = `<form class="settingForm">
         <option value="{p_title}">{p_title}</option>
         <option value="{tags}">{tags}</option>
         <option value="{tags_translate}">{tags_translate}</option>
+        <option value="{tags_transl_only}">{tags_transl_only}</option>
         <option value="{p_tag}">{p_tag}</option>
         <option value="{type}">{type}</option>
         <option value="{bmk}">{bmk}</option>
@@ -240,6 +240,9 @@ const formHtml = `<form class="settingForm">
       <br>
       <span class="blue">{tags_translate}</span>
       ${lang.transl('_命名标记tags_trans')}
+      <br>
+      <span class="blue">{tags_transl_only}</span>
+      ${lang.transl('_命名标记tags_transl_only')}
       <br>
       <span class="blue">{p_tag}</span>
       ${lang.transl('_文件夹标记PTag')}

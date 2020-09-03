@@ -16,7 +16,8 @@ export interface Result {
   dlCount: number
   title: string
   tags: string[]
-  tagsTranslated: string[]
+  tagsWithTransl: string[]
+  tagsTranslOnly: string[]
   user: string
   userId: string
   fullWidth: number
@@ -42,7 +43,8 @@ export interface WorkInfoOptional {
   dlCount?: number
   title?: string
   tags?: string[]
-  tagsTranslated?: string[]
+  tagsWithTransl?: string[]
+  tagsTranslOnly?: string[]
   user?: string
   userId?: string
   fullWidth?: number

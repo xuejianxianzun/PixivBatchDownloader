@@ -61,18 +61,19 @@ class InitSeriesPage extends InitPageBase {
     const p = API.getURLSearchField(location.href, 'p')
     this.startpageNo = parseInt(p) || 1
 
-
     // 判断是否是旧版
     let old = !!document.querySelector('.badge')
 
-    if (old) {  // 旧版
+    if (old) {
+      // 旧版
       // 设置起始网址
       const url = new URL(window.location.href)
       url.searchParams.set('p', '1')
       this.baseUrl = url.toString()
 
       this.getIdListOld()
-    } else {  // 新版
+    } else {
+      // 新版
       // 获取系列 id
       this.seriesId = API.getURLPathField('series')
 
@@ -161,7 +162,7 @@ class InitSeriesPage extends InitPageBase {
     for (const info of data.body.page.series) {
       idList.push(info.workId)
     }
-    // data.body.page.series 里的才是本页面的作品，illust 里则不同，有时它的作品数量比页面上的更多 
+    // data.body.page.series 里的才是本页面的作品，illust 里则不同，有时它的作品数量比页面上的更多
 
     // 从 illust 里查找 id 对应的数据，进行过滤
     for (const work of data.body.thumbnails.illust) {
@@ -191,12 +192,15 @@ class InitSeriesPage extends InitPageBase {
       }
     }
 
-
     // 如果 data.body.page.series 为空，就是到了最后一页
-    const endFlag = data.body.page.series.length===0
+    const endFlag = data.body.page.series.length === 0
 
     // 抓取完毕
-    if (endFlag || p >= this.maxCount || this.listPageFinished === this.crawlNumber) {
+    if (
+      endFlag ||
+      p >= this.maxCount ||
+      this.listPageFinished === this.crawlNumber
+    ) {
       log.log(lang.transl('_列表页抓取完成'))
       this.getIdListFinished()
     } else {
