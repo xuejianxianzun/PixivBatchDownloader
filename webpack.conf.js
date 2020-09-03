@@ -6,6 +6,7 @@ module.exports = {
     content: './src/ts/content.ts',
     background: './src/ts/background.ts',
   },
+  devtool: 'none',
   module: {
     rules: [
       {
