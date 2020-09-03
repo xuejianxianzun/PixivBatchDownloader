@@ -121,6 +121,7 @@ class Filter {
   // 检查作品是否符合过滤器的要求
   // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
   // 所有过滤器里，都必须要检查参数为 undefined 的情况
+  // 这是一个异步函数，所以要记得使用 await 获取检查结果
   public async check(option: FilterOption): Promise<boolean> {
     // 检查下载的作品类型设置
     if (!this.checkDownType(option.illustType)) {

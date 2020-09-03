@@ -17,7 +17,7 @@ class InitSeriesPage extends InitPageBase {
   }
 
   // 目前存在新版和旧版共存的情况，对这新旧页面采取不同的抓取方式
-  // 一个主要的原因是，旧版一页 18 个作品，新版一页 12 个作品，所以旧版还是使用之前的方式比较省事
+  // 一个主要的原因是，旧版一页 18 个作品，新版一页 12 个作品，所以旧版还是继续使用之前的方式比较省事
   private baseUrl = ''
 
   private seriesId = ''
@@ -60,6 +60,7 @@ class InitSeriesPage extends InitPageBase {
     // 设置起始页码
     const p = API.getURLSearchField(location.href, 'p')
     this.startpageNo = parseInt(p) || 1
+
 
     // 判断是否是旧版
     let old = !!document.querySelector('.badge')
@@ -152,13 +153,26 @@ class InitSeriesPage extends InitPageBase {
   protected async getIdList() {
     let p = this.startpageNo + this.listPageFinished
 
-    const data = await API.getSeriesData(this.seriesId, this.startpageNo)
+    const data = await API.getSeriesData(this.seriesId, p)
     this.listPageFinished++
 
+    // 保存本页面的作品的 id 列表
+    const idList: string[] = []
+    for (const info of data.body.page.series) {
+      idList.push(info.workId)
+    }
+    // data.body.page.series 里的才是本页面的作品，illust 里则不同，有时它的作品数量比页面上的更多 
+
+    // 从 illust 里查找 id 对应的数据，进行过滤
     for (const work of data.body.thumbnails.illust) {
+      if (!idList.includes(work.illustId)) {
+        continue
+      }
       if (work.isAdContainer) {
         continue
       }
+
+      // 过滤器进行检查
       const filterOpt: FilterOption = {
         id: work.illustId,
         tags: work.tags,
@@ -168,7 +182,7 @@ class InitSeriesPage extends InitPageBase {
         illustType: work.illustType,
       }
 
-      // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以这里 type 是 unknown
+      // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以 type 是 unknown
       if (await filter.check(filterOpt)) {
         store.idList.push({
           type: 'unknown',
@@ -177,28 +191,22 @@ class InitSeriesPage extends InitPageBase {
       }
     }
 
-    log.log(
-      lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
-      1,
-      false
-    )
 
-    // 检查每个作品的 order，判断是不是到了最后一页
-    let flag = false
-    const total = data.body.page.total
-    for (const workInfo of data.body.page.series) {
-      if (workInfo.order === total) {
-        flag = true
-        break
-      }
-    }
+    // 如果 data.body.page.series 为空，就是到了最后一页
+    const endFlag = data.body.page.series.length===0
 
     // 抓取完毕
-    if (flag && p >= this.maxCount || this.listPageFinished === this.crawlNumber) {
+    if (endFlag || p >= this.maxCount || this.listPageFinished === this.crawlNumber) {
       log.log(lang.transl('_列表页抓取完成'))
       this.getIdListFinished()
     } else {
       // 继续抓取
+      log.log(
+        lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
+        1,
+        false
+      )
+
       this.getIdList()
     }
   }
