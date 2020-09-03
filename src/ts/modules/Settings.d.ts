@@ -52,4 +52,6 @@ export interface SettingsForm extends HTMLFormElement {
   saveNovelMeta: HTMLInputElement
   deduplication: HTMLInputElement
   dupliStrategy: RadioNodeList
+  fileNameLengthLimitSwitch: HTMLInputElement
+  fileNameLengthLimit: HTMLInputElement
 }

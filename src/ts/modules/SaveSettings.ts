@@ -54,6 +54,8 @@ interface XzSetting {
   saveNovelMeta: boolean
   deduplication: boolean
   dupliStrategy: 'strict' | 'loose'
+  fileNameLengthLimitSwitch: boolean
+  fileNameLengthLimit: number
 }
 
 interface SettingChangeData {
@@ -74,7 +76,7 @@ class SaveSettings {
         const data = event.detail.data as SettingChangeData
         if (Reflect.has(this.optionDefault, data.name)) {
           if ((this.options[data.name] as any) !== data.value) {
-            ;(this.options[data.name] as any) = data.value
+            ; (this.options[data.name] as any) = data.value
             localStorage.setItem(this.storeName, JSON.stringify(this.options))
           }
         }
@@ -141,6 +143,8 @@ class SaveSettings {
     saveNovelMeta: false,
     deduplication: false,
     dupliStrategy: 'strict',
+    fileNameLengthLimitSwitch: false,
+    fileNameLengthLimit: 200,
   }
 
   // 需要持久化保存的设置
@@ -281,6 +285,10 @@ class SaveSettings {
     // 恢复去重设置
     this.restoreBoolean('deduplication')
     this.restoreString('dupliStrategy')
+
+    // 恢复文件名长度限制
+    this.restoreBoolean('fileNameLengthLimitSwitch')
+    this.restoreString('fileNameLengthLimit')
   }
 
   // 处理输入框： change 时直接保存 value
@@ -379,11 +387,11 @@ class SaveSettings {
 
     // 保存命名规则
     const userSetNameInput = this.form.userSetName
-    ;['change', 'focus'].forEach((ev) => {
-      userSetNameInput.addEventListener(ev, () => {
-        this.emitChange('userSetName', userSetNameInput.value)
+      ;['change', 'focus'].forEach((ev) => {
+        userSetNameInput.addEventListener(ev, () => {
+          this.emitChange('userSetName', userSetNameInput.value)
+        })
       })
-    })
 
     // 保存是否添加标记名称
     this.saveCheckBox('tagNameToFileName')
@@ -417,6 +425,10 @@ class SaveSettings {
     // 保存去重设置
     this.saveCheckBox('deduplication')
     this.saveRadio('dupliStrategy')
+
+    // 保存文件名长度限制
+    this.saveCheckBox('fileNameLengthLimitSwitch')
+    this.saveTextInput('fileNameLengthLimit')
 
     window.addEventListener(EVT.events.resetOption, () => {
       this.form.reset()

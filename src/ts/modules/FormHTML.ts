@@ -273,6 +273,16 @@ const formHtml = `<form class="settingForm">
       <br>
       ${lang.transl('_命名标记提醒')}
       </p>
+
+      <p class="option" data-no="29">
+      <span class="settingNameStyle1">${lang.transl('_文件名长度限制')}<span class="gray1"> &nbsp; </span></span>
+      <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
+      <input type="text" name="fileNameLengthLimit" class="setinput_style1 blue" value="200">
+      </span>
+      </p>
+
       <p class="option" data-no="14">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_添加字段名称提示'

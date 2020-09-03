@@ -210,14 +210,37 @@ class FileName {
       result = allPart.join('/')
     }
 
-    // 添加后缀名
+    // 生成后缀名
     const ugoiraFormat = ['webm', 'gif', 'png']
     if (ugoiraFormat.includes(data.ext) && data.ugoiraInfo) {
       // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
       // 例如，抓取时动图保存格式是 webm，下载开始前，用户改成了 gif，在这里可以响应用户的修改
       data.ext = form.ugoiraSaveAs.value
     }
-    result += '.' + data.ext
+    const extResult = '.' + data.ext
+
+    // 处理文件名长度限制
+    // 去掉文件夹部分，只处理 文件名+后缀名 部分
+    // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
+    if (form.fileNameLengthLimitSwitch.checked) {
+      let limit = Number.parseInt(form.fileNameLengthLimit.value)
+      if (limit < 1 || isNaN(limit)) {
+        limit = 200 // 如果设置的值不合法，则设置为 200
+      }
+
+      const allPart = result.split('/')
+      const lastIndex = allPart.length - 1
+
+      if (allPart[lastIndex].length + extResult.length > limit) {
+        allPart[lastIndex] = allPart[lastIndex].substr(0, limit - extResult.length)
+      }
+
+      result = allPart.join('/')
+    }
+
+    // 添加后缀名
+    result += extResult
+
     return result
   }
 

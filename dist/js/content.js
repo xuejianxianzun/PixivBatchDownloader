@@ -2726,14 +2726,31 @@ class FileName {
             allPart[lastPartIndex] = lastPart;
             result = allPart.join('/');
         }
-        // 添加后缀名
+        // 生成后缀名
         const ugoiraFormat = ['webm', 'gif', 'png'];
         if (ugoiraFormat.includes(data.ext) && data.ugoiraInfo) {
             // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
             // 例如，抓取时动图保存格式是 webm，下载开始前，用户改成了 gif，在这里可以响应用户的修改
             data.ext = _Settings__WEBPACK_IMPORTED_MODULE_3__["form"].ugoiraSaveAs.value;
         }
-        result += '.' + data.ext;
+        const extResult = '.' + data.ext;
+        // 处理文件名长度限制
+        // 去掉文件夹部分，只处理 文件名+后缀名 部分
+        // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
+        if (_Settings__WEBPACK_IMPORTED_MODULE_3__["form"].fileNameLengthLimitSwitch.checked) {
+            let limit = Number.parseInt(_Settings__WEBPACK_IMPORTED_MODULE_3__["form"].fileNameLengthLimit.value);
+            if (limit < 1 || isNaN(limit)) {
+                limit = 200; // 如果设置的值不合法，则设置为 200
+            }
+            const allPart = result.split('/');
+            const lastIndex = allPart.length - 1;
+            if (allPart[lastIndex].length + extResult.length > limit) {
+                allPart[lastIndex] = allPart[lastIndex].substr(0, limit - extResult.length);
+            }
+            result = allPart.join('/');
+        }
+        // 添加后缀名
+        result += extResult;
         return result;
     }
     // 预览文件名
@@ -3671,6 +3688,16 @@ const formHtml = `<form class="settingForm">
       <br>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记提醒')}
       </p>
+
+      <p class="option" data-no="29">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_文件名长度限制')}<span class="gray1"> &nbsp; </span></span>
+      <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
+      <input type="text" name="fileNameLengthLimit" class="setinput_style1 blue" value="200">
+      </span>
+      </p>
+
       <p class="option" data-no="14">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_添加字段名称提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_添加命名标记前缀')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch">
@@ -7270,6 +7297,8 @@ class SaveSettings {
             saveNovelMeta: false,
             deduplication: false,
             dupliStrategy: 'strict',
+            fileNameLengthLimitSwitch: false,
+            fileNameLengthLimit: 200,
         };
         // 需要持久化保存的设置
         this.options = this.optionDefault;
@@ -7398,6 +7427,9 @@ class SaveSettings {
         // 恢复去重设置
         this.restoreBoolean('deduplication');
         this.restoreString('dupliStrategy');
+        // 恢复文件名长度限制
+        this.restoreBoolean('fileNameLengthLimitSwitch');
+        this.restoreString('fileNameLengthLimit');
     }
     // 处理输入框： change 时直接保存 value
     saveTextInput(name) {
@@ -7504,6 +7536,9 @@ class SaveSettings {
         // 保存去重设置
         this.saveCheckBox('deduplication');
         this.saveRadio('dupliStrategy');
+        // 保存文件名长度限制
+        this.saveCheckBox('fileNameLengthLimitSwitch');
+        this.saveTextInput('fileNameLengthLimit');
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resetOption, () => {
             this.form.reset();
             this.reset();
