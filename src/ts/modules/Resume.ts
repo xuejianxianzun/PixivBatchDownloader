@@ -210,26 +210,32 @@ class Resume {
       this.needPutStates = true
     })
 
-    // 任务下载完毕时，清除这次任务的数据
-    window.addEventListener(EVT.events.downloadComplete, async () => {
-      if (!this.taskId) {
-        return
-      }
-      const meta = (await this.IDB.get(this.metaName, this.taskId)) as TaskMeta
+    // 任务下载完毕时，以及停止任务时，清除这次任务的数据
+    const clearDataEv = [EVT.events.downloadComplete, EVT.events.downloadStop]
+    for (const ev of clearDataEv) {
+      window.addEventListener(ev, async () => {
+        if (!this.taskId) {
+          return
+        }
+        const meta = (await this.IDB.get(
+          this.metaName,
+          this.taskId
+        )) as TaskMeta
 
-      if (!meta) {
-        return
-      }
+        if (!meta) {
+          return
+        }
 
-      this.IDB.delete(this.metaName, this.taskId)
-      this.IDB.delete(this.statesName, this.taskId)
+        this.IDB.delete(this.metaName, this.taskId)
+        this.IDB.delete(this.statesName, this.taskId)
 
-      const dataIdList = this.createIdList(this.taskId, meta.part)
-      for (const id of dataIdList) {
-        this.IDB.delete(this.dataName, id)
-      }
-      this.flag = false
-    })
+        const dataIdList = this.createIdList(this.taskId, meta.part)
+        for (const id of dataIdList) {
+          this.IDB.delete(this.dataName, id)
+        }
+        this.flag = false
+      })
+    }
 
     // 开始新的抓取时，取消恢复模式
     window.addEventListener(EVT.events.crawlStart, () => {
