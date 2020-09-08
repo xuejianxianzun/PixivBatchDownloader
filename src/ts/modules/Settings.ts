@@ -128,6 +128,19 @@ class Settings {
       false
     )
 
+    // 导出 csv
+    DOM.addBtn(
+      'namingBtns',
+      Colors.green,
+      lang.transl('_导出csv')
+    ).addEventListener(
+      'click',
+      () => {
+        EVT.fire(EVT.events.outputCSV)
+      },
+      false
+    )
+
     // 显示命名字段提示
     this.form
       .querySelector('.showFileNameTip')!

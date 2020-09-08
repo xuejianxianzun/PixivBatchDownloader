@@ -408,10 +408,10 @@ const formHtml = `<form class="settingForm">
       )}<span class="gray1"> &nbsp; </span></span>
       <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt" checked>
       <span class="beautify_radio"></span>
-      <label for="novelSaveAs1"> txt &nbsp;</label>
+      <label for="novelSaveAs1"> TXT &nbsp;</label>
       <input type="radio" name="novelSaveAs" id="novelSaveAs2" class="need_beautify radio" value="epub"> 
       <span class="beautify_radio"></span>
-      <label for="novelSaveAs2"> epub &nbsp;</label>
+      <label for="novelSaveAs2"> EPUB &nbsp;</label>
       </p>
       
       <p class="option" data-no="27">

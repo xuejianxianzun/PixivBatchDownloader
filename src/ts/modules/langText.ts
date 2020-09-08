@@ -1332,6 +1332,12 @@ const langText = {
     'File name length limit',
     '檔案名稱長度限制',
   ],
+  _导出csv: [
+    '导出 CSV 文件',
+    'CSV ファイルをエクスポート',
+    'Export CSV file',
+    '導出 CSV 文檔',
+  ],
 }
 
 export { langText, langTextKeys }

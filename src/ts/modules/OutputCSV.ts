@@ -1,0 +1,211 @@
+import { EVT } from './EVT'
+import { DOM } from './DOM'
+import { lang } from './Lang'
+import config from './Config'
+import { store } from './Store'
+import { Result } from './Store.d'
+
+// 定义字段信息
+interface Field {
+  name: string,
+  index: keyof Result,
+  toString: (arg: any) => string,
+  q: boolean,
+}
+// name 这个字段在 csv 里显示的名字。
+// index 这个字段在数据里的索引名
+// toString 输入这个字段的原始数据，将其转换为字符串。
+// q 指 quotation ，指示 toString 的结果是否需要使用双引号包裹
+// 需要双引号包裹的情况：值含有逗号、换行符、空格、双引号
+
+// 导出 csv 文件
+// 参考 https://www.jianshu.com/p/54b3afc06126
+class OutputCSV {
+  constructor() {
+    this.utf8BOM = this.UTF8BOM()
+    window.addEventListener(EVT.events.outputCSV, () => { this.beforeCreate() })
+  }
+
+  private readonly separate = ','  // 分隔符
+  private readonly CRLF = '\r\n' // 换行符
+  private utf8BOM: ArrayBuffer // 在文件头添加 UTF-8 BOM ，避免中文乱码。因为没有 BOM 的话 Excel 会以 ANSI 编码打开文件，导致中文乱码
+
+  private readonly number2String = (arg: number) => { return arg.toString() }
+
+  private readonly array2String = (arg: string[]) => { return arg.join(',') }
+
+  private readonly string2String = (arg: string) => { return arg }
+
+  // 定义要保存的字段
+  private readonly fieldCfg: Field[] = [
+    {
+      name: 'id',
+      index: 'idNum',
+      q: false,
+      toString: this.number2String
+    },
+    {
+      name: 'tags',
+      index: 'tags',
+      q: true,
+      toString: this.array2String
+    },
+    {
+      name: 'tags_transl',
+      index: 'tagsTranslOnly',
+      q: true,
+      toString: this.array2String
+    },
+    {
+      name: 'user',
+      index: 'user',
+      q: true,
+      toString: this.string2String
+    },
+    {
+      name: 'userid',
+      index: 'userId',
+      q: false,
+      toString: this.string2String
+    },
+    {
+      name: 'title',
+      index: 'title',
+      q: true,
+      toString: this.string2String
+    },
+    {
+      name: 'type',
+      index: 'type',
+      q: false,
+      toString: (arg: number) => { return config.illustTypes[arg] }
+    },
+    {
+      name: 'page',
+      index: 'pageCount',
+      q: false,
+      toString: this.number2String
+    },
+    {
+      name: 'bookmark',
+      index: 'bmk',
+      q: false,
+      toString: this.number2String
+    },
+    {
+      name: 'bookmarked',
+      index: 'bookmarked',
+      q: false,
+      toString: (arg: boolean) => { return arg ? 'yes' : 'no' }
+    },
+    {
+      name: 'width',
+      index: 'fullWidth',
+      q: false,
+      toString: this.number2String
+    },
+    {
+      name: 'height',
+      index: 'fullHeight',
+      q: false,
+      toString: this.number2String
+    },
+    {
+      name: 'date',
+      index: 'date',
+      q: false,
+      toString: this.string2String
+    },
+  ]
+
+  private beforeCreate() {
+    // 如果没有数据则不执行
+    if (store.resultMeta.length === 0 && store.result.length === 0) {
+      alert(lang.transl('_没有数据可供使用'))
+      return
+    }
+
+    // 定义使用的数据
+    let data: Result[] = []
+    // 优先使用 resultMeta，因为每个作品在 resultMeta 里只有一份数据
+    data = store.resultMeta
+    // 如果 resultMeta 里没有数据（断点续传情况下），则使用 result
+    // result 比起 resultMeta 有个缺点，就是多图作品在 result 里可能有多份数据，循环次数多，还需要判断
+    if (data.length === 0) {
+      data = store.result
+    }
+
+    this.create(data)
+  }
+
+  private create(data: Result[]) {
+    const result: string[] = []  // 储存结果。每行的结果合并为一个字符串。不带换行符
+    // 首先添加字段一栏
+    const head: string[] = []
+    for (const field of this.fieldCfg) {
+      head.push(field.name)
+    }
+    const headResult = head.join(this.separate)
+    result.push(headResult)
+
+    // 循环每个作品的数据，生成结果
+    for (const d of data) {
+      // 如果是多图作品，并且不是第一张图，则跳过
+      // 这是因为多图作品可能有多个数据，生成 csv 时只使用第一张图的数据
+      // 多图作品 && 带有下划线（说明是 result 里的数据） && 不以 p0 结尾（说明不是第一张图）
+      if (d.pageCount > 1 && d.id.includes('_') && !d.id.endsWith('p0')) {
+        continue
+      }
+
+      const temp: string[] = [] // 储存这个作品的数据
+      for (const field of this.fieldCfg) {
+        // 求值并替换双引号。值原本就有的双引号，要替换成两个双引号
+        let value = field.toString(d[field.index]).replace(/\"/g, '""')
+        // 根据 q 标记决定是否用双引号包裹这个值
+        if (field.q) {
+          value = this.addQuotation(value)
+        }
+        temp.push(value)
+      }
+      // 把这个作品的数据添加到结果里
+      result.push(temp.join(this.separate))
+    }
+
+    // 生成文件的 url
+    const csvData = result.join(this.CRLF)
+    const csvBlob = new Blob([this.utf8BOM, csvData])
+    const url = URL.createObjectURL(csvBlob)
+
+    // 设置文件名
+    let name = ''
+    const ogTitle = document.querySelector(
+      'meta[property="og:title"]'
+    )! as HTMLMetaElement
+    if (ogTitle) {
+      name = ogTitle.content
+    } else {
+      name = document.title
+    }
+
+    // 下载文件
+    DOM.downloadFile(url, name + '.csv')
+  }
+
+  private UTF8BOM() {
+    const buff = new ArrayBuffer(3)
+    const data = new DataView(buff)
+    data.setInt8(0, 0xEF)
+    data.setInt8(1, 0xBB)
+    data.setInt8(2, 0xBF)
+    return buff
+  }
+
+  // 在字符串的两端添加双引号
+  private addQuotation(data: string) {
+    return '"' + data + '"'
+  }
+
+}
+
+new OutputCSV()
+export { }

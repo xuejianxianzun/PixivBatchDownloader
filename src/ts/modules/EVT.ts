@@ -43,6 +43,7 @@ class EVT {
     saveAvatarIcon: 'saveAvatarIcon',
     clearSavedCrawl: 'clearSavedCrawl',
     resume: 'resume',
+    outputCSV: 'outputCSV',
   }
 
   // 触发事件，可以携带数据
