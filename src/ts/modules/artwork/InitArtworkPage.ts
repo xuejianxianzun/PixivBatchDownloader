@@ -11,6 +11,7 @@ import { userWorksType } from '../CrawlArgument'
 import { DOM } from '../DOM'
 import { API } from '../API'
 import { log } from '../Log'
+import { QuickDownloadBtn } from '../QuickDownloadBtn'
 import '../SaveAvatarIcon'
 
 class InitArtworkPage extends InitPageBase {
@@ -18,8 +19,6 @@ class InitArtworkPage extends InitPageBase {
     super()
     this.init()
   }
-
-  private quickDownBtn: HTMLButtonElement = document.createElement('button')
 
   private crawlDirection: number = 0 // 抓取方向，指示抓取新作品还是旧作品
   /*
@@ -43,6 +42,13 @@ class InitArtworkPage extends InitPageBase {
     window.addEventListener(
       EVT.events.pageSwitchedTypeNotChange,
       this.initImgViewer
+    )
+
+    // 初始化快速下载按钮
+    new QuickDownloadBtn()
+    window.addEventListener(
+      EVT.events.QuickDownload,
+      this.startQuickDownload
     )
   }
 
@@ -94,37 +100,7 @@ class InitArtworkPage extends InitPageBase {
     })
   }
 
-  protected appendElseEl() {
-    // 在右侧添加快速下载按钮
-    this.quickDownBtn.id = 'quick_down_btn'
-    this.quickDownBtn.textContent = '↓'
-    this.quickDownBtn.setAttribute(
-      'title',
-      lang.transl('_快速下载本页') + ' (Alt + Q)'
-    )
-    document.body.insertAdjacentElement('afterbegin', this.quickDownBtn)
-
-    this.quickDownBtn.addEventListener(
-      'click',
-      () => {
-        this.startQuickDownload()
-      },
-      false
-    )
-
-    // 使用快捷键 Alt + q 启动快速下载
-    window.addEventListener(
-      'keydown',
-      (ev) => {
-        if (ev.altKey && ev.keyCode === 81) {
-          this.startQuickDownload()
-        }
-      },
-      false
-    )
-  }
-
-  private startQuickDownload() {
+  private startQuickDownload = () => {
     store.states.quickDownload = true
     this.readyCrawl()
   }
@@ -146,17 +122,20 @@ class InitArtworkPage extends InitPageBase {
     DOM.clearSlot('crawlBtns')
     DOM.clearSlot('otherBtns')
 
-    // 删除快速下载按钮
-    DOM.removeEl(this.quickDownBtn)
-
     // 解除切换页面时绑定的事件
     window.removeEventListener(
       EVT.events.pageSwitchedTypeNotChange,
       this.initQuickBookmark
     )
+
     window.removeEventListener(
       EVT.events.pageSwitchedTypeNotChange,
       this.initImgViewer
+    )
+
+    window.removeEventListener(
+      EVT.events.QuickDownload,
+      this.startQuickDownload
     )
   }
 

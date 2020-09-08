@@ -2439,6 +2439,7 @@ EVT.events = {
     clearSavedCrawl: 'clearSavedCrawl',
     resume: 'resume',
     outputCSV: 'outputCSV',
+    QuickDownload: 'QuickDownload',
 };
 
 
@@ -6931,6 +6932,65 @@ class QuickBookmark {
 
 /***/ }),
 
+/***/ "./src/ts/modules/QuickDownloadBtn.ts":
+/*!********************************************!*\
+  !*** ./src/ts/modules/QuickDownloadBtn.ts ***!
+  \********************************************/
+/*! exports provided: QuickDownloadBtn */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "QuickDownloadBtn", function() { return QuickDownloadBtn; });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
+
+
+// 快速下载按钮
+// 只负责触发快速下载事件，不负责后续的业务逻辑
+class QuickDownloadBtn {
+    constructor() {
+        this.live = true; // 存活状态
+        this.addBtn();
+        this.bindEvent();
+    }
+    addBtn() {
+        // 在右侧添加快速下载按钮
+        this.btn = document.createElement('button');
+        this.btn.id = 'quick_down_btn';
+        this.btn.textContent = '↓';
+        this.btn.setAttribute('title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_快速下载本页') + ' (Alt + Q)');
+        document.body.insertAdjacentElement('afterbegin', this.btn);
+    }
+    bindEvent() {
+        // 点击按钮启动快速下载
+        this.btn.addEventListener('click', () => {
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.QuickDownload);
+        }, false);
+        // 使用快捷键 Alt + q 启动快速下载
+        window.addEventListener('keydown', (ev) => {
+            if (this.live && ev.altKey && ev.keyCode === 81) {
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.QuickDownload);
+            }
+        }, false);
+        // 页面类型改变时销毁
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.pageSwitchedTypeChange, () => {
+            this.destroy();
+        });
+    }
+    destroy() {
+        this.live = false;
+        const parent = this.btn.parentNode;
+        if (parent) {
+            parent.removeChild(this.btn);
+        }
+    }
+}
+
+
+
+/***/ }),
+
 /***/ "./src/ts/modules/Resume.ts":
 /*!**********************************!*\
   !*** ./src/ts/modules/Resume.ts ***!
@@ -8758,8 +8818,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
-/* harmony import */ var _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../SaveAvatarIcon */ "./src/ts/modules/SaveAvatarIcon.ts");
+/* harmony import */ var _QuickDownloadBtn__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../QuickDownloadBtn */ "./src/ts/modules/QuickDownloadBtn.ts");
+/* harmony import */ var _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../SaveAvatarIcon */ "./src/ts/modules/SaveAvatarIcon.ts");
 //初始化 artwork 作品页
+
 
 
 
@@ -8775,7 +8837,6 @@ __webpack_require__.r(__webpack_exports__);
 class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPageBase"] {
     constructor() {
         super();
-        this.quickDownBtn = document.createElement('button');
         this.crawlDirection = 0; // 抓取方向，指示抓取新作品还是旧作品
         /*
         -1 抓取新作品
@@ -8783,6 +8844,11 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
         1 抓取旧作品
         */
         this.crawlRelated = false; // 是否下载相关作品
+        this.startQuickDownload = () => {
+            console.log('quick');
+            _Store__WEBPACK_IMPORTED_MODULE_5__["store"].states.quickDownload = true;
+            this.readyCrawl();
+        };
         this.init();
     }
     initElse() {
@@ -8792,6 +8858,9 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
         // 页面切换再次初始化
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.pageSwitchedTypeNotChange, this.initQuickBookmark);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.pageSwitchedTypeNotChange, this.initImgViewer);
+        // 初始化快速下载按钮
+        new _QuickDownloadBtn__WEBPACK_IMPORTED_MODULE_11__["QuickDownloadBtn"]();
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.QuickDownload, this.startQuickDownload);
     }
     initImgViewer() {
         new _ImgViewer__WEBPACK_IMPORTED_MODULE_7__["ImgViewer"]();
@@ -8819,26 +8888,6 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
             _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.saveAvatarIcon);
         });
     }
-    appendElseEl() {
-        // 在右侧添加快速下载按钮
-        this.quickDownBtn.id = 'quick_down_btn';
-        this.quickDownBtn.textContent = '↓';
-        this.quickDownBtn.setAttribute('title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_快速下载本页') + ' (Alt + Q)');
-        document.body.insertAdjacentElement('afterbegin', this.quickDownBtn);
-        this.quickDownBtn.addEventListener('click', () => {
-            this.startQuickDownload();
-        }, false);
-        // 使用快捷键 Alt + q 启动快速下载
-        window.addEventListener('keydown', (ev) => {
-            if (ev.altKey && ev.keyCode === 81) {
-                this.startQuickDownload();
-            }
-        }, false);
-    }
-    startQuickDownload() {
-        _Store__WEBPACK_IMPORTED_MODULE_5__["store"].states.quickDownload = true;
-        this.readyCrawl();
-    }
     setFormOption() {
         // 设置“个数/页数”选项
         _Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPage({
@@ -8853,11 +8902,10 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
     destroy() {
         _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].clearSlot('crawlBtns');
         _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].clearSlot('otherBtns');
-        // 删除快速下载按钮
-        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].removeEl(this.quickDownBtn);
         // 解除切换页面时绑定的事件
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.pageSwitchedTypeNotChange, this.initQuickBookmark);
         window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.pageSwitchedTypeNotChange, this.initImgViewer);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.QuickDownload, this.startQuickDownload);
     }
     getWantPage() {
         if (_Store__WEBPACK_IMPORTED_MODULE_5__["store"].states.quickDownload) {

@@ -44,6 +44,7 @@ class EVT {
     clearSavedCrawl: 'clearSavedCrawl',
     resume: 'resume',
     outputCSV: 'outputCSV',
+    QuickDownload: 'QuickDownload',
   }
 
   // 触发事件，可以携带数据
