@@ -320,7 +320,7 @@ class DownloadControl {
 
     this.setDownStateText(lang.transl('_正在下载中'))
 
-    log.log(lang.transl('_正在下载中'))
+    log.success(lang.transl('_正在下载中'))
   }
 
   // 暂停下载

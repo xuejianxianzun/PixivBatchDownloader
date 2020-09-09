@@ -17,6 +17,7 @@ import { setting, form } from '../Settings'
 import { FastScreen } from '../FastScreen'
 import { DOM } from '../DOM'
 import { BookmarkAllWorks } from '../BookmarkAllWorks'
+import {states} from '../States'
 
 type AddBMKData = {
   id: number
@@ -197,11 +198,11 @@ class InitSearchArtworkPage extends InitPageBase {
     window.removeEventListener(EVT.events.crawlFinish, this.showCount)
 
     // 离开下载页面时，取消设置“不自动下载”
-    store.states.notAutoDownload = false
+    states.notAutoDownload = false
   }
 
   private startScreen() {
-    if (!store.states.allowWork) {
+    if (!states.allowWork) {
       return alert(lang.transl('_当前任务尚未完成'))
     }
 
@@ -534,7 +535,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 在当前结果中再次筛选，会修改第一次筛选的结果
   private screenInResult() {
-    if (!store.states.allowWork) {
+    if (!states.allowWork) {
       return alert(lang.transl('_当前任务尚未完成'))
     }
 
@@ -777,7 +778,7 @@ class InitSearchArtworkPage extends InitPageBase {
     this.previewResult = value
 
     // 如果设置了“预览搜索结果”，则“不自动下载”。否则允许自动下载
-    store.states.notAutoDownload = value ? true : false
+    states.notAutoDownload = value ? true : false
   }
 }
 

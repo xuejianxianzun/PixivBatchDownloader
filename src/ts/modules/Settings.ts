@@ -3,7 +3,7 @@ import { EVT } from './EVT'
 import { DOM } from './DOM'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { store } from './Store'
+import {states} from './States'
 import formHtml from './FormHTML'
 import { SaveSettings } from './SaveSettings'
 import { SettingsForm } from './Settings.d'
@@ -109,7 +109,7 @@ class Settings {
     // 当抓取完毕可以开始下载时，切换到“下载”选项卡
     for (const ev of [EVT.events.crawlFinish, EVT.events.resume]) {
       window.addEventListener(ev, () => {
-        if (!store.states.notAutoDownload) {
+        if (!states.notAutoDownload) {
           this.activeTab(1)
         }
       })

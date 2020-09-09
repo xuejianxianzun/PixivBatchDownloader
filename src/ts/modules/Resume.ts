@@ -2,6 +2,7 @@ import { EVT } from './EVT'
 import { log } from './Log'
 import { lang } from './Lang'
 import { store } from './Store'
+import {states} from './States'
 import { downloadStates, DLStatesI } from './DownloadStates'
 import { Result } from './Store.d'
 import { IndexedDB } from './IndexedDB'
@@ -101,7 +102,7 @@ class Resume {
   // 恢复未完成任务的数据
   private async restoreData() {
     // 如果当前不允许展开工作（也就是在抓取或者在下载），则不恢复数据
-    if (!store.states.allowWork) {
+    if (!states.allowWork) {
       return
     }
 

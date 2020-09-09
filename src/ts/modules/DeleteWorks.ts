@@ -3,7 +3,7 @@ import { log } from './Log'
 import { lang } from './Lang'
 import { Colors } from './Colors'
 import { DOM } from './DOM'
-import { store } from './Store'
+import {states} from './States'
 import { EVT } from './EVT'
 
 class DeleteWorks {
@@ -29,7 +29,7 @@ class DeleteWorks {
   private deleteWorkCallback: Function = () => {} // 保存手动删除作品的回调函数，因为可能会多次绑定手动删除事件，所以需要保存传入的 callback 备用
 
   private allowWork() {
-    return store.states.allowWork
+    return states.allowWork
   }
 
   // 清除多图作品的按钮

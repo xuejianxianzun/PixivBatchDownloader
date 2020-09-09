@@ -1,6 +1,6 @@
 import { DOM } from './DOM'
 import { EVT } from './EVT'
-import { store } from './Store'
+import {states} from './States'
 import { themeColor } from './ThemeColor'
 
 // 日志类
@@ -10,7 +10,7 @@ class Log {
 
     // 切换不同页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
     window.addEventListener(EVT.events.pageSwitch, () => {
-      if (store.states.allowWork) {
+      if (states.allowWork) {
         this.clear()
       }
     })

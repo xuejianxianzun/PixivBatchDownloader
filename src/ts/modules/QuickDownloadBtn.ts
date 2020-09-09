@@ -47,6 +47,20 @@ class QuickDownloadBtn {
       false
     )
 
+    // 下载完成，或者下载中止时，复位状态
+    const evtList = [
+      EVT.events.crawlEmpty,
+      EVT.events.downloadStop,
+      EVT.events.downloadPause,
+      EVT.events.downloadComplete,
+    ]
+
+    for (const ev of evtList) {
+      window.addEventListener(ev, () => {
+        states.quickDownload = false
+      })
+    }
+
     // 页面类型改变时销毁
     window.addEventListener(EVT.events.pageSwitchedTypeChange, () => {
       this.destroy()

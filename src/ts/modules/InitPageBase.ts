@@ -11,6 +11,7 @@ import { log } from './Log'
 import { EVT } from './EVT'
 import { setting, form } from './Settings'
 import { IDData } from './Store.d'
+import {states} from './States'
 
 abstract class InitPageBase {
   protected init() {
@@ -146,7 +147,7 @@ abstract class InitPageBase {
   // 准备抓取，进行抓取之前的一些检查工作。必要时可以在子类中改写
   protected async readyCrawl() {
     // 检查是否可以开始抓取
-    if (!store.states.allowWork) {
+    if (!states.allowWork) {
       window.alert(lang.transl('_当前任务尚未完成2'))
       return
     }
@@ -184,7 +185,7 @@ abstract class InitPageBase {
     log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
 
     // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
-    // return store.resetStates()
+    // return states.allWork = false
 
     if (store.idList.length <= this.ajaxThreadsDefault) {
       this.ajaxThreads = store.idList.length

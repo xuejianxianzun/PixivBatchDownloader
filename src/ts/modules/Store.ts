@@ -1,37 +1,11 @@
 import { EVT } from './EVT'
 import { Result, WorkInfoOptional, RankList, IDData } from './Store.d'
 
-// 存储抓取结果和状态
+// 储存抓取结果
 class Store {
   constructor() {
-    const allowWorkTrue = [
-      EVT.events.crawlFinish,
-      EVT.events.crawlEmpty,
-      EVT.events.crawlError,
-      EVT.events.downloadPause,
-      EVT.events.downloadStop,
-    ]
-
-    allowWorkTrue.forEach((type) => {
-      window.addEventListener(type, () => {
-        this.states.allowWork = true
-      })
-    })
-
-    const allowWorkFalse = [EVT.events.crawlStart, EVT.events.downloadStart]
-
-    allowWorkFalse.forEach((type) => {
-      window.addEventListener(type, () => {
-        this.states.allowWork = false
-      })
-    })
-
     window.addEventListener(EVT.events.crawlStart, () => {
       this.resetResult()
-    })
-
-    window.addEventListener(EVT.events.downloadComplete, () => {
-      this.resetStates()
     })
   }
 
@@ -117,12 +91,6 @@ class Store {
     this.rankList[id] = rank
   }
 
-  // 储存和下载有关的状态
-  public states = {
-    allowWork: true, // 当前是否允许展开工作（如果抓取未完成、下载未完成则应为 false
-    notAutoDownload: false, // 抓取完成后，不自动开始下载
-  }
-
   // 储存页面信息，用来生成文件名
   public pageInfo = {
     pageTitle: '',
@@ -135,10 +103,6 @@ class Store {
     this.result = []
     this.idList = []
     this.rankList = {}
-  }
-
-  public resetStates() {
-    this.states.allowWork = true
   }
 }
 
