@@ -14,11 +14,11 @@ class States {
 
   // 快速下载标记。如果为 true 说明进入了快速下载模式
   // 修改者 1：QuickDownloadBtn 组件里，启动快速下载时设为 true，下载完成或中止时复位到 false
-  public quickDownload = false 
+  public quickDownload = false
 
   // 不自动下载的标记。如果为 true，那么下载器在抓取完成后，不会自动开始下载。（即使用户设置了自动开始下载）
   // 修改者 1：InitSearchArtworkPage 组件根据“预览搜索结果”的设置，修改这个状态
-  public notAutoDownload = false 
+  public notAutoDownload = false
 
   private bindEvent() {
     const idle = [
@@ -43,7 +43,6 @@ class States {
         this.busy = true
       })
     })
-
   }
 }
 

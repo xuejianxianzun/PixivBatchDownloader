@@ -1,6 +1,6 @@
 import { DOM } from './DOM'
 import { EVT } from './EVT'
-import {states} from './States'
+import { states } from './States'
 import { themeColor } from './ThemeColor'
 
 // 日志类

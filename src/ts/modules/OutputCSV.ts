@@ -213,4 +213,4 @@ class OutputCSV {
 }
 
 new OutputCSV()
-export { }
+export {}

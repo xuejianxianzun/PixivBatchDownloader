@@ -3,7 +3,7 @@ import { log } from './Log'
 import { lang } from './Lang'
 import { Colors } from './Colors'
 import { DOM } from './DOM'
-import {states} from './States'
+import { states } from './States'
 import { EVT } from './EVT'
 
 class DeleteWorks {

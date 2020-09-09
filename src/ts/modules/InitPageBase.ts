@@ -11,7 +11,7 @@ import { log } from './Log'
 import { EVT } from './EVT'
 import { setting, form } from './Settings'
 import { IDData } from './Store.d'
-import {states} from './States'
+import { states } from './States'
 
 abstract class InitPageBase {
   protected init() {

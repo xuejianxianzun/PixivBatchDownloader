@@ -17,7 +17,7 @@ import { setting, form } from '../Settings'
 import { FastScreen } from '../FastScreen'
 import { DOM } from '../DOM'
 import { BookmarkAllWorks } from '../BookmarkAllWorks'
-import {states} from '../States'
+import { states } from '../States'
 
 type AddBMKData = {
   id: number
