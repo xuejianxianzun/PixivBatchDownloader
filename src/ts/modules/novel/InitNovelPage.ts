@@ -10,6 +10,8 @@ import { DOM } from '../DOM'
 import { API } from '../API'
 import { log } from '../Log'
 import { EVT } from '../EVT'
+import { states } from '../States'
+import { QuickDownloadBtn } from '../QuickDownloadBtn'
 import '../SaveAvatarIcon'
 
 class InitNovelPage extends InitPageBase {
@@ -34,6 +36,10 @@ class InitNovelPage extends InitPageBase {
       EVT.events.pageSwitchedTypeNotChange,
       this.initQuickBookmark
     )
+
+    // 初始化快速下载按钮
+    new QuickDownloadBtn()
+    window.addEventListener(EVT.events.QuickDownload, this.startQuickDownload)
   }
 
   private initQuickBookmark() {
@@ -66,21 +72,8 @@ class InitNovelPage extends InitPageBase {
     })
   }
 
-  protected appendElseEl() {
-    // 在右侧创建快速下载按钮
-    this.quickDownBtn.id = 'quick_down_btn'
-    this.quickDownBtn.textContent = '↓'
-    this.quickDownBtn.setAttribute('title', lang.transl('_快速下载本页'))
-    document.body.insertAdjacentElement('afterbegin', this.quickDownBtn)
-
-    this.quickDownBtn.addEventListener(
-      'click',
-      () => {
-        store.states.quickDownload = true
-        this.readyCrawl()
-      },
-      false
-    )
+  private startQuickDownload = () => {
+    this.readyCrawl()
   }
 
   protected setFormOption() {
@@ -107,10 +100,15 @@ class InitNovelPage extends InitPageBase {
       EVT.events.pageSwitchedTypeNotChange,
       this.initQuickBookmark
     )
+
+    window.removeEventListener(
+      EVT.events.QuickDownload,
+      this.startQuickDownload
+    )
   }
 
   protected getWantPage() {
-    if (store.states.quickDownload) {
+    if (states.quickDownload) {
       // 快速下载
       this.crawlNumber = 1
     } else {
@@ -127,7 +125,7 @@ class InitNovelPage extends InitPageBase {
   }
 
   protected nextStep() {
-    if (store.states.quickDownload) {
+    if (states.quickDownload) {
       // 快速下载
       store.idList.push({
         type: 'novels',

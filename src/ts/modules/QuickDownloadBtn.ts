@@ -1,5 +1,6 @@
 import { EVT } from './EVT'
 import { lang } from './Lang'
+import { states } from './States'
 
 // 快速下载按钮
 // 只负责触发快速下载事件，不负责后续的业务逻辑
@@ -19,10 +20,7 @@ class QuickDownloadBtn {
     this.btn = document.createElement('button')
     this.btn.id = 'quick_down_btn'
     this.btn.textContent = '↓'
-    this.btn.setAttribute(
-      'title',
-      lang.transl('_快速下载本页') + ' (Alt + Q)'
-    )
+    this.btn.setAttribute('title', lang.transl('_快速下载本页') + ' (Alt + Q)')
     document.body.insertAdjacentElement('afterbegin', this.btn)
   }
 
@@ -31,6 +29,7 @@ class QuickDownloadBtn {
     this.btn.addEventListener(
       'click',
       () => {
+        states.quickDownload = true
         EVT.fire(EVT.events.QuickDownload)
       },
       false
@@ -41,6 +40,7 @@ class QuickDownloadBtn {
       'keydown',
       (ev) => {
         if (this.live && ev.altKey && ev.keyCode === 81) {
+          states.quickDownload = true
           EVT.fire(EVT.events.QuickDownload)
         }
       },

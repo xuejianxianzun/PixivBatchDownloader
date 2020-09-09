@@ -1,7 +1,7 @@
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { DOM } from './DOM'
-import { store } from './Store'
+import { states } from './States'
 import { themeColor } from './ThemeColor'
 
 // 中间面板
@@ -140,7 +140,7 @@ class CenterPanel {
     // 抓取完作品详细数据时，显示
     for (const ev of [EVT.events.crawlFinish, EVT.events.resume]) {
       window.addEventListener(ev, () => {
-        if (!store.states.quickDownload && !store.states.notAutoDownload) {
+        if (!states.quickDownload && !states.notAutoDownload) {
           this.show()
         }
       })

@@ -12,6 +12,7 @@ import { DOM } from '../DOM'
 import { API } from '../API'
 import { log } from '../Log'
 import { QuickDownloadBtn } from '../QuickDownloadBtn'
+import { states } from '../States'
 import '../SaveAvatarIcon'
 
 class InitArtworkPage extends InitPageBase {
@@ -46,10 +47,7 @@ class InitArtworkPage extends InitPageBase {
 
     // 初始化快速下载按钮
     new QuickDownloadBtn()
-    window.addEventListener(
-      EVT.events.QuickDownload,
-      this.startQuickDownload
-    )
+    window.addEventListener(EVT.events.QuickDownload, this.startQuickDownload)
   }
 
   private initImgViewer() {
@@ -101,7 +99,6 @@ class InitArtworkPage extends InitPageBase {
   }
 
   private startQuickDownload = () => {
-    store.states.quickDownload = true
     this.readyCrawl()
   }
 
@@ -140,7 +137,7 @@ class InitArtworkPage extends InitPageBase {
   }
 
   protected getWantPage() {
-    if (store.states.quickDownload) {
+    if (states.quickDownload) {
       // 快速下载
       this.crawlNumber = 1
     } else {
@@ -168,7 +165,7 @@ class InitArtworkPage extends InitPageBase {
     // 下载相关作品
     if (this.crawlRelated) {
       this.getRelatedList()
-    } else if (store.states.quickDownload) {
+    } else if (states.quickDownload) {
       // 快速下载
       store.idList.push({
         type: 'unknown',

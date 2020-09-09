@@ -120,7 +120,6 @@ class Store {
   // 储存和下载有关的状态
   public states = {
     allowWork: true, // 当前是否允许展开工作（如果抓取未完成、下载未完成则应为 false
-    quickDownload: false, // 快速下载当前作品，这个只在作品页内直接下载时使用
     notAutoDownload: false, // 抓取完成后，不自动开始下载
   }
 
@@ -140,7 +139,6 @@ class Store {
 
   public resetStates() {
     this.states.allowWork = true
-    this.states.quickDownload = false
   }
 }
 

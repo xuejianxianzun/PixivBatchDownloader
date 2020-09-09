@@ -6,6 +6,7 @@ import { form } from './Settings'
 import { store } from './Store'
 import { Result } from './Store.d'
 import config from './Config'
+import { states } from './States'
 
 class FileName {
   constructor() {
@@ -18,7 +19,6 @@ class FileName {
   public getFileName(data: Result) {
     // 为空时使用 {id}
     let result = form.userSetName.value || '{id}'
-
 
     // 配置所有命名标记
     const cfg = {
@@ -182,7 +182,7 @@ class FileName {
 
     // 如果快速下载时只有一个文件，根据“始终建立文件夹”选项，决定是否去掉文件夹部分
     if (
-      store.states.quickDownload &&
+      states.quickDownload &&
       store.result.length === 1 &&
       form.alwaysFolder.checked === false
     ) {

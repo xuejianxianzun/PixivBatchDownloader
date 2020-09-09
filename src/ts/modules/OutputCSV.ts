@@ -7,10 +7,10 @@ import { Result } from './Store.d'
 
 // 定义字段信息
 interface Field {
-  name: string,
-  index: keyof Result,
-  toString: (arg: any) => string,
-  q: boolean,
+  name: string
+  index: keyof Result
+  toString: (arg: any) => string
+  q: boolean
 }
 // name 这个字段在 csv 里显示的名字。
 // index 这个字段在数据里的索引名
@@ -23,18 +23,26 @@ interface Field {
 class OutputCSV {
   constructor() {
     this.utf8BOM = this.UTF8BOM()
-    window.addEventListener(EVT.events.outputCSV, () => { this.beforeCreate() })
+    window.addEventListener(EVT.events.outputCSV, () => {
+      this.beforeCreate()
+    })
   }
 
-  private readonly separate = ','  // 分隔符
+  private readonly separate = ',' // 分隔符
   private readonly CRLF = '\r\n' // 换行符
   private utf8BOM: ArrayBuffer // 在文件头添加 UTF-8 BOM ，避免中文乱码。因为没有 BOM 的话 Excel 会以 ANSI 编码打开文件，导致中文乱码
 
-  private readonly number2String = (arg: number) => { return arg.toString() }
+  private readonly number2String = (arg: number) => {
+    return arg.toString()
+  }
 
-  private readonly array2String = (arg: string[]) => { return arg.join(',') }
+  private readonly array2String = (arg: string[]) => {
+    return arg.join(',')
+  }
 
-  private readonly string2String = (arg: string) => { return arg }
+  private readonly string2String = (arg: string) => {
+    return arg
+  }
 
   // 定义要保存的字段
   private readonly fieldCfg: Field[] = [
@@ -42,79 +50,83 @@ class OutputCSV {
       name: 'id',
       index: 'idNum',
       q: false,
-      toString: this.number2String
+      toString: this.number2String,
     },
     {
       name: 'tags',
       index: 'tags',
       q: true,
-      toString: this.array2String
+      toString: this.array2String,
     },
     {
       name: 'tags_transl',
       index: 'tagsTranslOnly',
       q: true,
-      toString: this.array2String
+      toString: this.array2String,
     },
     {
       name: 'user',
       index: 'user',
       q: true,
-      toString: this.string2String
+      toString: this.string2String,
     },
     {
       name: 'userid',
       index: 'userId',
       q: false,
-      toString: this.string2String
+      toString: this.string2String,
     },
     {
       name: 'title',
       index: 'title',
       q: true,
-      toString: this.string2String
+      toString: this.string2String,
     },
     {
       name: 'type',
       index: 'type',
       q: false,
-      toString: (arg: number) => { return config.illustTypes[arg] }
+      toString: (arg: number) => {
+        return config.illustTypes[arg]
+      },
     },
     {
       name: 'page',
       index: 'pageCount',
       q: false,
-      toString: this.number2String
+      toString: this.number2String,
     },
     {
       name: 'bookmark',
       index: 'bmk',
       q: false,
-      toString: this.number2String
+      toString: this.number2String,
     },
     {
       name: 'bookmarked',
       index: 'bookmarked',
       q: false,
-      toString: (arg: boolean) => { return arg ? 'yes' : 'no' }
+      toString: (arg: boolean) => {
+        return arg ? 'yes' : 'no'
+      },
     },
     {
       name: 'width',
       index: 'fullWidth',
       q: false,
-      toString: this.number2String
+      toString: this.number2String,
     },
     {
       name: 'height',
       index: 'fullHeight',
       q: false,
-      toString: this.number2String
+      toString: this.number2String,
     },
     {
       name: 'date',
       index: 'date',
       q: false,
-      toString: this.string2String
+      toString: this.string2String,
     },
   ]
 
@@ -139,7 +151,7 @@ class OutputCSV {
   }
 
   private create(data: Result[]) {
-    const result: string[] = []  // 储存结果。每行的结果合并为一个字符串。不带换行符
+    const result: string[] = [] // 储存结果。每行的结果合并为一个字符串。不带换行符
     // 首先添加字段一栏
     const head: string[] = []
     for (const field of this.fieldCfg) {
@@ -194,9 +206,9 @@ class OutputCSV {
   private UTF8BOM() {
     const buff = new ArrayBuffer(3)
     const data = new DataView(buff)
-    data.setInt8(0, 0xEF)
-    data.setInt8(1, 0xBB)
-    data.setInt8(2, 0xBF)
+    data.setInt8(0, 0xef)
+    data.setInt8(1, 0xbb)
+    data.setInt8(2, 0xbf)
     return buff
   }
 
@@ -204,8 +216,7 @@ class OutputCSV {
   private addQuotation(data: string) {
     return '"' + data + '"'
   }
-
 }
 
 new OutputCSV()
-export { }
+export {}

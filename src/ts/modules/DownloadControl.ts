@@ -18,6 +18,7 @@ import { downloadStates } from './DownloadStates'
 import { ShowSkipCount } from './ShowSkipCount'
 import { ShowConvertCount } from './ShowConvertCount'
 import { resume } from './Resume'
+import { states } from './States'
 
 class DownloadControl {
   constructor() {
@@ -273,14 +274,14 @@ class DownloadControl {
     this.setDownloadThread()
 
     // 检查 不自动开始下载 的标记
-    if (store.states.notAutoDownload) {
+    if (states.notAutoDownload) {
       return
     }
 
     const autoDownload: boolean = form.quietDownload.checked
 
     // 视情况自动开始下载
-    if (autoDownload || store.states.quickDownload) {
+    if (autoDownload || states.quickDownload) {
       this.startDownload()
     }
   }
@@ -288,7 +289,7 @@ class DownloadControl {
   // 开始下载
   private startDownload() {
     // 如果正在下载中，或无结果，则不予处理
-    if (!store.states.allowWork || store.result.length === 0) {
+    if (!states.allowWork || store.result.length === 0) {
       return
     }
 
@@ -335,7 +336,7 @@ class DownloadControl {
 
     if (this.downloadPause === false) {
       // 如果正在下载中
-      if (!store.states.allowWork) {
+      if (!states.allowWork) {
         this.downloadPause = true
         this.setDownStateText(lang.transl('_已暂停'), '#f00')
         log.warning(lang.transl('_已暂停'), 2)
