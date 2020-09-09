@@ -132,22 +132,16 @@ class OutputCSV {
 
   private beforeCreate() {
     // 如果没有数据则不执行
-    if (store.resultMeta.length === 0 && store.result.length === 0) {
+    if (store.result.length === 0) {
       alert(lang.transl('_没有数据可供使用'))
       return
     }
 
-    // 定义使用的数据
-    let data: Result[] = []
-    // 优先使用 resultMeta，因为每个作品在 resultMeta 里只有一份数据
-    data = store.resultMeta
-    // 如果 resultMeta 里没有数据（断点续传情况下），则使用 result
-    // result 比起 resultMeta 有个缺点，就是多图作品在 result 里可能有多份数据，循环次数多，还需要判断
-    if (data.length === 0) {
-      data = store.result
-    }
-
-    this.create(data)
+    // 使用 result 而不使用 resultMeta。主要是因为断点续传时只会恢复 result，不会恢复 resultMeta，所以 result 最可靠。考虑如下情况：
+    // 1：刷新页面后，断点续传恢复了保存的数据，此时只有 result 里有数据，resultMeta 没有数据。
+    // 2: 如果在页面 A 进行了下载，resultMeta 保存的是页面 A 的数据。此时进入页面 B，恢复了 B 页面保存的任务，此时 resultMeta 里还是页面 A 的数据。
+    // 所以还是使用 result 比较可靠，不易出问题。
+    this.create(store.result)
   }
 
   private create(data: Result[]) {
@@ -163,9 +157,9 @@ class OutputCSV {
     // 循环每个作品的数据，生成结果
     for (const d of data) {
       // 如果是多图作品，并且不是第一张图，则跳过
-      // 这是因为多图作品可能有多个数据，生成 csv 时只使用第一张图的数据
-      // 多图作品 && 带有下划线（说明是 result 里的数据） && 不以 p0 结尾（说明不是第一张图）
-      if (d.pageCount > 1 && d.id.includes('_') && !d.id.endsWith('p0')) {
+      // 这是因为多图作品可能有多个数据。在生成 csv 时只使用第一张图的数据
+      // 多图作品 && id 不以 p0 结尾（说明不是第一张图）
+      if (d.pageCount > 1 && !d.id.endsWith('p0')) {
         continue
       }
 
@@ -219,4 +213,4 @@ class OutputCSV {
 }
 
 new OutputCSV()
-export {}
+export { }

@@ -6412,7 +6412,7 @@ class OutputCSV {
     }
     beforeCreate() {
         // 如果没有数据则不执行
-        if (_Store__WEBPACK_IMPORTED_MODULE_4__["store"].resultMeta.length === 0 && _Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length === 0) {
+        if (_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length === 0) {
             alert(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'));
             return;
         }
@@ -6425,7 +6425,7 @@ class OutputCSV {
         if (data.length === 0) {
             data = _Store__WEBPACK_IMPORTED_MODULE_4__["store"].result;
         }
-        this.create(data);
+        this.create(_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result);
     }
     create(data) {
         const result = []; // 储存结果。每行的结果合并为一个字符串。不带换行符
@@ -6439,9 +6439,9 @@ class OutputCSV {
         // 循环每个作品的数据，生成结果
         for (const d of data) {
             // 如果是多图作品，并且不是第一张图，则跳过
-            // 这是因为多图作品可能有多个数据，生成 csv 时只使用第一张图的数据
-            // 多图作品 && 带有下划线（说明是 result 里的数据） && 不以 p0 结尾（说明不是第一张图）
-            if (d.pageCount > 1 && d.id.includes('_') && !d.id.endsWith('p0')) {
+            // 这是因为多图作品可能有多个数据。在生成 csv 时只使用第一张图的数据
+            // 多图作品 && id 不以 p0 结尾（说明不是第一张图）
+            if (d.pageCount > 1 && !d.id.endsWith('p0')) {
                 continue;
             }
             const temp = []; // 储存这个作品的数据
