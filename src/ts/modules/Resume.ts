@@ -101,8 +101,8 @@ class Resume {
 
   // 恢复未完成任务的数据
   private async restoreData() {
-    // 如果当前不允许展开工作（也就是在抓取或者在下载），则不恢复数据
-    if (!states.allowWork) {
+    // 如果下载器在抓取或者在下载，则不恢复数据
+    if (states.busy) {
       return
     }
 

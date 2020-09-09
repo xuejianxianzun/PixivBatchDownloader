@@ -202,7 +202,7 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   private startScreen() {
-    if (!states.allowWork) {
+    if (states.busy) {
       return alert(lang.transl('_当前任务尚未完成'))
     }
 
@@ -535,7 +535,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 在当前结果中再次筛选，会修改第一次筛选的结果
   private screenInResult() {
-    if (!states.allowWork) {
+    if (states.busy) {
       return alert(lang.transl('_当前任务尚未完成'))
     }
 

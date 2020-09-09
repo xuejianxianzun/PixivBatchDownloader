@@ -147,7 +147,7 @@ abstract class InitPageBase {
   // 准备抓取，进行抓取之前的一些检查工作。必要时可以在子类中改写
   protected async readyCrawl() {
     // 检查是否可以开始抓取
-    if (!states.allowWork) {
+    if (states.busy) {
       window.alert(lang.transl('_当前任务尚未完成2'))
       return
     }

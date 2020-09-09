@@ -28,10 +28,6 @@ class DeleteWorks {
 
   private deleteWorkCallback: Function = () => {} // 保存手动删除作品的回调函数，因为可能会多次绑定手动删除事件，所以需要保存传入的 callback 备用
 
-  private allowWork() {
-    return states.allowWork
-  }
-
   // 清除多图作品的按钮
   public addClearMultipleBtn(selector: string, callback: Function = () => {}) {
     this.multipleSelector = selector
@@ -41,7 +37,7 @@ class DeleteWorks {
     ]).addEventListener(
       'click',
       () => {
-        if (!this.allowWork()) {
+        if (states.busy) {
           return alert(lang.transl('_当前任务尚未完成'))
         }
         EVT.fire(EVT.events.closeCenterPanel)
@@ -61,7 +57,7 @@ class DeleteWorks {
     ]).addEventListener(
       'click',
       () => {
-        if (!this.allowWork()) {
+        if (states.busy) {
           return alert(lang.transl('_当前任务尚未完成'))
         }
         EVT.fire(EVT.events.closeCenterPanel)
@@ -131,7 +127,7 @@ class DeleteWorks {
         if (this.delMode) {
           ev.preventDefault()
 
-          if (!this.allowWork()) {
+          if (states.busy) {
             return alert(lang.transl('_当前任务尚未完成'))
           }
 

@@ -7,10 +7,10 @@ class States {
     this.bindEvent()
   }
 
-  // 当前是否允许展开工作（主要影响抓取和下载，也会影响其他一些功能）
-  // 如果下载器处于空闲状态，则为 true；如果下载器正在抓取中，或者正在下载中，则为 false
+  // 表示下载器是否处于繁忙状态
+  // 如果下载器正在抓取中，或者正在下载中，则为 true；如果下载器处于空闲状态，则为 false
   // 修改者 1：本组件根据下载器的事件来修改这个状态
-  public allowWork = true
+  public busy = false
 
   // 快速下载标记。如果为 true 说明进入了快速下载模式
   // 修改者 1：QuickDownloadBtn 组件里，启动快速下载时设为 true，下载完成或中止时复位到 false
@@ -32,7 +32,7 @@ class States {
 
     idle.forEach((type) => {
       window.addEventListener(type, () => {
-        this.allowWork = true
+        this.busy = false
       })
     })
 
@@ -40,7 +40,7 @@ class States {
 
     busy.forEach((type) => {
       window.addEventListener(type, () => {
-        this.allowWork = false
+        this.busy = true
       })
     })
 

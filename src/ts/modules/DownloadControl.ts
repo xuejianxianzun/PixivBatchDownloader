@@ -289,7 +289,7 @@ class DownloadControl {
   // 开始下载
   private startDownload() {
     // 如果正在下载中，或无结果，则不予处理
-    if (!states.allowWork || store.result.length === 0) {
+    if (states.busy || store.result.length === 0) {
       return
     }
 
@@ -336,7 +336,7 @@ class DownloadControl {
 
     if (this.downloadPause === false) {
       // 如果正在下载中
-      if (!states.allowWork) {
+      if (states.busy) {
         this.downloadPause = true
         this.setDownStateText(lang.transl('_已暂停'), '#f00')
         log.warning(lang.transl('_已暂停'), 2)

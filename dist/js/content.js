@@ -1517,16 +1517,13 @@ class DeleteWorks {
             }
         });
     }
-    allowWork() {
-        return _States__WEBPACK_IMPORTED_MODULE_4__["states"].allowWork;
-    }
     // 清除多图作品的按钮
     addClearMultipleBtn(selector, callback = () => { }) {
         this.multipleSelector = selector;
         _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].red, _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除多图作品'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除多图作品Title')],
         ]).addEventListener('click', () => {
-            if (!this.allowWork()) {
+            if (_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
                 return alert(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
             }
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.closeCenterPanel);
@@ -1540,7 +1537,7 @@ class DeleteWorks {
         _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].red, _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除动图作品'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除动图作品Title')],
         ]).addEventListener('click', () => {
-            if (!this.allowWork()) {
+            if (_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
                 return alert(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
             }
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.closeCenterPanel);
@@ -1594,7 +1591,7 @@ class DeleteWorks {
             el.onclick = (ev) => {
                 if (this.delMode) {
                     ev.preventDefault();
-                    if (!this.allowWork()) {
+                    if (_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
                         return alert(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
                     }
                     const target = ev.currentTarget;
@@ -2152,7 +2149,7 @@ class DownloadControl {
     // 开始下载
     startDownload() {
         // 如果正在下载中，或无结果，则不予处理
-        if (!_States__WEBPACK_IMPORTED_MODULE_13__["states"].allowWork || _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
+        if (_States__WEBPACK_IMPORTED_MODULE_13__["states"].busy || _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
             return;
         }
         if (!this.downloadPause && !_Resume__WEBPACK_IMPORTED_MODULE_12__["resume"].flag) {
@@ -2188,7 +2185,7 @@ class DownloadControl {
         }
         if (this.downloadPause === false) {
             // 如果正在下载中
-            if (!_States__WEBPACK_IMPORTED_MODULE_13__["states"].allowWork) {
+            if (_States__WEBPACK_IMPORTED_MODULE_13__["states"].busy) {
                 this.downloadPause = true;
                 this.setDownStateText(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_已暂停'), '#f00');
                 _Log__WEBPACK_IMPORTED_MODULE_3__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_已暂停'), 2);
@@ -5412,7 +5409,7 @@ class InitPageBase {
     // 准备抓取，进行抓取之前的一些检查工作。必要时可以在子类中改写
     async readyCrawl() {
         // 检查是否可以开始抓取
-        if (!_States__WEBPACK_IMPORTED_MODULE_11__["states"].allowWork) {
+        if (_States__WEBPACK_IMPORTED_MODULE_11__["states"].busy) {
             window.alert(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成2'));
             return;
         }
@@ -6033,7 +6030,7 @@ class Log {
         this.scrollToBottom();
         // 切换不同页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.pageSwitch, () => {
-            if (_States__WEBPACK_IMPORTED_MODULE_2__["states"].allowWork) {
+            if (!_States__WEBPACK_IMPORTED_MODULE_2__["states"].busy) {
                 this.clear();
             }
         });
@@ -7112,8 +7109,8 @@ class Resume {
     }
     // 恢复未完成任务的数据
     async restoreData() {
-        // 如果当前不允许展开工作（也就是在抓取或者在下载），则不恢复数据
-        if (!_States__WEBPACK_IMPORTED_MODULE_4__["states"].allowWork) {
+        // 如果下载器在抓取或者在下载，则不恢复数据
+        if (_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
             return;
         }
         // 1 获取任务的元数据
@@ -8222,10 +8219,10 @@ __webpack_require__.r(__webpack_exports__);
 // 某个单一的状态通常只由单一的组件修改，其他组件只是读取状态进行判断
 class States {
     constructor() {
-        // 当前是否允许展开工作（主要影响抓取和下载，也会影响其他一些功能）
-        // 如果下载器处于空闲状态，则为 true；如果下载器正在抓取中，或者正在下载中，则为 false
+        // 表示下载器是否处于繁忙状态
+        // 如果下载器正在抓取中，或者正在下载中，则为 true；如果下载器处于空闲状态，则为 false
         // 修改者 1：本组件根据下载器的事件来修改这个状态
-        this.allowWork = true;
+        this.busy = false;
         // 快速下载标记。如果为 true 说明进入了快速下载模式
         // 修改者 1：QuickDownloadBtn 组件里，启动快速下载时设为 true，下载完成或中止时复位到 false
         this.quickDownload = false;
@@ -8245,13 +8242,13 @@ class States {
         ];
         idle.forEach((type) => {
             window.addEventListener(type, () => {
-                this.allowWork = true;
+                this.busy = false;
             });
         });
         const busy = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlStart, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadStart];
         busy.forEach((type) => {
             window.addEventListener(type, () => {
-                this.allowWork = false;
+                this.busy = true;
             });
         });
     }
@@ -10022,7 +10019,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         _States__WEBPACK_IMPORTED_MODULE_15__["states"].notAutoDownload = false;
     }
     startScreen() {
-        if (!_States__WEBPACK_IMPORTED_MODULE_15__["states"].allowWork) {
+        if (_States__WEBPACK_IMPORTED_MODULE_15__["states"].busy) {
             return alert(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_当前任务尚未完成'));
         }
         this.crawlWorks = true;
@@ -10131,7 +10128,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
     }
     // 在当前结果中再次筛选，会修改第一次筛选的结果
     screenInResult() {
-        if (!_States__WEBPACK_IMPORTED_MODULE_15__["states"].allowWork) {
+        if (_States__WEBPACK_IMPORTED_MODULE_15__["states"].busy) {
             return alert(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_当前任务尚未完成'));
         }
         _Log__WEBPACK_IMPORTED_MODULE_10__["log"].clear();
