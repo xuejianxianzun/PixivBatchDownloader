@@ -27,7 +27,6 @@ class States {
   private bindEvent() {
     const idle = [
       EVT.events.crawlFinish,
-      EVT.events.crawlEmpty,
       EVT.events.crawlError,
       EVT.events.downloadPause,
       EVT.events.downloadStop,

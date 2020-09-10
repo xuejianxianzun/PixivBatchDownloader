@@ -67,7 +67,6 @@ class DownloadControl {
 
     for (const ev of [EVT.events.crawlFinish, EVT.events.resume]) {
       window.addEventListener(ev, () => {
-        this.showDownloadArea()
         window.setTimeout(() => {
           this.readyDownload()
         }, 0)
@@ -184,16 +183,16 @@ class DownloadControl {
     <div class="centerWrap_btns">
     <button class="startDownload" type="button" style="background:${
       Colors.blue
-    };"> ${lang.transl('_下载按钮1')}</button>
+      };"> ${lang.transl('_下载按钮1')}</button>
     <button class="pauseDownload" type="button" style="background:${
       Colors.yellow
-    };"> ${lang.transl('_下载按钮2')}</button>
+      };"> ${lang.transl('_下载按钮2')}</button>
     <button class="stopDownload" type="button" style="background:${
       Colors.red
-    };"> ${lang.transl('_下载按钮3')}</button>
+      };"> ${lang.transl('_下载按钮3')}</button>
     <button class="copyUrl" type="button" style="background:${
       Colors.green
-    };"> ${lang.transl('_复制url')}</button>
+      };"> ${lang.transl('_复制url')}</button>
     </div>
     <div class="download_status_text_wrap">
     <span>${lang.transl('_当前状态')}</span>
@@ -267,6 +266,16 @@ class DownloadControl {
 
   // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
   private readyDownload() {
+    if (states.busy) {
+      return
+    }
+
+    if (store.result.length === 0) {
+      return progressBar.reset(0)
+    }
+
+    this.showDownloadArea()
+
     this.totalNumberEl.textContent = store.result.length.toString()
 
     this.setDownloaded()
@@ -288,11 +297,6 @@ class DownloadControl {
 
   // 开始下载
   private startDownload() {
-    // 如果正在下载中，或无结果，则不予处理
-    if (states.busy || store.result.length === 0) {
-      return
-    }
-
     if (!this.downloadPause && !resume.flag) {
       // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
       // 初始化下载状态列表
@@ -452,4 +456,4 @@ class DownloadControl {
 }
 
 new DownloadControl()
-export {}
+export { }

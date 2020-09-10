@@ -274,7 +274,6 @@ abstract class InitPageBase {
     // console.log(blobSize)
 
     // 发出抓取完毕的信号
-    // 这里是正规流程的抓取完毕信号，其他地方也可能会发出这个信号。如有需要加以区别，可以在事件数据中标明数据的发起者 EVT.InitiatorList[string]
     EVT.fire(EVT.events.crawlFinish)
   }
 
@@ -318,6 +317,7 @@ abstract class InitPageBase {
   // 抓取结果为 0 时输出提示
   protected noResult() {
     EVT.fire(EVT.events.crawlEmpty)
+    EVT.fire(EVT.events.crawlFinish)
     log.error(lang.transl('_抓取结果为零'), 2)
     window.alert(lang.transl('_抓取结果为零'))
   }

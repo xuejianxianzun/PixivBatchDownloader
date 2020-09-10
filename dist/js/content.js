@@ -1977,7 +1977,6 @@ class DownloadControl {
         });
         for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resume]) {
             window.addEventListener(ev, () => {
-                this.showDownloadArea();
                 window.setTimeout(() => {
                     this.readyDownload();
                 }, 0);
@@ -2133,6 +2132,13 @@ class DownloadControl {
     }
     // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
     readyDownload() {
+        if (_States__WEBPACK_IMPORTED_MODULE_13__["states"].busy) {
+            return;
+        }
+        if (_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
+            return _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].reset(0);
+        }
+        this.showDownloadArea();
         this.totalNumberEl.textContent = _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length.toString();
         this.setDownloaded();
         this.setDownloadThread();
@@ -2148,10 +2154,6 @@ class DownloadControl {
     }
     // 开始下载
     startDownload() {
-        // 如果正在下载中，或无结果，则不予处理
-        if (_States__WEBPACK_IMPORTED_MODULE_13__["states"].busy || _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
-            return;
-        }
         if (!this.downloadPause && !_Resume__WEBPACK_IMPORTED_MODULE_12__["resume"].flag) {
             // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
             // 初始化下载状态列表
@@ -5511,7 +5513,6 @@ class InitPageBase {
         // console.log(type)
         // console.log(blobSize)
         // 发出抓取完毕的信号
-        // 这里是正规流程的抓取完毕信号，其他地方也可能会发出这个信号。如有需要加以区别，可以在事件数据中标明数据的发起者 EVT.InitiatorList[string]
         _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.crawlFinish);
     }
     // 网络请求状态异常时输出提示
@@ -5541,6 +5542,7 @@ class InitPageBase {
     // 抓取结果为 0 时输出提示
     noResult() {
         _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.crawlEmpty);
+        _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.crawlFinish);
         _Log__WEBPACK_IMPORTED_MODULE_8__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取结果为零'), 2);
         window.alert(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取结果为零'));
     }
@@ -6719,7 +6721,6 @@ class ProgressBar {
   </div>
   </li>`;
         this.allProgressBar = [];
-        this.loadedText = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已下载');
         this.wrap = _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].useSlot('progressBar', this.wrapHTML);
         this.downloadedEl = this.wrap.querySelector('.downloaded');
         this.progressColorEl = this.wrap.querySelector('.progress1');
@@ -6727,13 +6728,16 @@ class ProgressBar {
         this.totalNumberEl = this.wrap.querySelector('.totalNumber');
     }
     // 重设所有进度
-    reset(num, downloaded = 0) {
+    reset(progressBarNum, downloaded = 0) {
+        if (progressBarNum === 0) { // 如果进度条数量为 0（抓取结果为空），则隐藏进度条区域
+            return this.hide();
+        }
         // 重置总进度条
         this.setTotalProgress(downloaded);
         this.totalNumberEl.textContent = _Store__WEBPACK_IMPORTED_MODULE_0__["store"].result.length.toString();
         // 重置子进度条
-        this.listWrap.innerHTML = this.barHTML.repeat(num);
-        this.wrap.style.display = 'block';
+        this.listWrap.innerHTML = this.barHTML.repeat(progressBarNum);
+        this.show();
         // 保存子进度条上需要使用到的元素
         const allProgressBar = this.listWrap.querySelectorAll('.downloadBar');
         this.allProgressBar = [];
@@ -6764,6 +6768,12 @@ class ProgressBar {
     showErrorColor(index, show) {
         const bar = this.allProgressBar[index];
         bar.name.classList[show ? 'add' : 'remove']('downloadError');
+    }
+    show() {
+        this.wrap.style.display = 'block';
+    }
+    hide() {
+        this.wrap.style.display = 'none';
     }
 }
 const progressBar = new ProgressBar();
@@ -8228,7 +8238,6 @@ class States {
     bindEvent() {
         const idle = [
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlEmpty,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlError,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadPause,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadStop,
@@ -9518,8 +9527,8 @@ class InitRankingArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
             this.readyCrawl();
         });
         // 判断当前页面是否有“首次登场”标记
-        let debutModes = ['daily', 'daily_r18', 'rookie', ''];
-        let mode = _API__WEBPACK_IMPORTED_MODULE_2__["API"].getURLSearchField(location.href, 'mode');
+        const debutModes = ['daily', 'daily_r18', 'rookie', ''];
+        const mode = _API__WEBPACK_IMPORTED_MODULE_2__["API"].getURLSearchField(location.href, 'mode');
         if (debutModes.includes(mode)) {
             _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取首次登场的作品'), [
                 ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取首次登场的作品Title')],
@@ -9568,7 +9577,7 @@ class InitRankingArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
     }
     nextStep() {
         // 设置 option 信息
-        // mode 一定要有值，其他选项不需要
+        // mode 一定要有值，其他字段不需要一定有值
         this.option = this.resetOption();
         this.option.mode = _API__WEBPACK_IMPORTED_MODULE_2__["API"].getURLSearchField(location.href, 'mode') || 'daily';
         this.option.worksType = _API__WEBPACK_IMPORTED_MODULE_2__["API"].getURLSearchField(location.href, 'content');

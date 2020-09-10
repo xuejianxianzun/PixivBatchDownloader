@@ -72,17 +72,19 @@ class ProgressBar {
   private totalNumberEl: HTMLSpanElement
   private allProgressBar: ProgressBarEl[] = []
 
-  private loadedText = lang.transl('_已下载')
-
   // 重设所有进度
-  public reset(num: number, downloaded: number = 0) {
+  public reset(progressBarNum: number, downloaded: number = 0) {
+    if (progressBarNum === 0) {  // 如果进度条数量为 0（抓取结果为空），则隐藏进度条区域
+      return this.hide()
+    }
+
     // 重置总进度条
     this.setTotalProgress(downloaded)
     this.totalNumberEl.textContent = store.result.length.toString()
     // 重置子进度条
-    this.listWrap.innerHTML = this.barHTML.repeat(num)
+    this.listWrap.innerHTML = this.barHTML.repeat(progressBarNum)
 
-    this.wrap.style.display = 'block'
+    this.show()
 
     // 保存子进度条上需要使用到的元素
     const allProgressBar = this.listWrap.querySelectorAll('.downloadBar')
@@ -123,6 +125,14 @@ class ProgressBar {
   public showErrorColor(index: number, show: boolean) {
     const bar = this.allProgressBar[index]
     bar.name.classList[show ? 'add' : 'remove']('downloadError')
+  }
+
+  private show() {
+    this.wrap.style.display = 'block'
+  }
+
+  private hide() {
+    this.wrap.style.display = 'none'
   }
 }
 
