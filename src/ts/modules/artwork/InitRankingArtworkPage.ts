@@ -4,6 +4,7 @@ import { Colors } from '../Colors'
 import { API } from '../API'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
+import { EVT } from '../EVT'
 import { options } from '../Options'
 import { RankingOption } from '../CrawlArgument'
 import { RankingData } from '../CrawlResult'
@@ -27,7 +28,6 @@ class InitRankingArtworkPage extends InitPageBase {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取本排行榜作品'), [
       ['title', lang.transl('_抓取本排行榜作品Title')],
     ]).addEventListener('click', () => {
-      states.debut = false
       this.readyCrawl()
     })
 
@@ -43,6 +43,14 @@ class InitRankingArtworkPage extends InitPageBase {
         this.readyCrawl()
       })
     }
+  }
+
+  protected initElse() {
+    // 抓取完成后，复位 debut 标记
+    // 因为 debut 只在抓取阶段被过滤器使用，所以抓取完成后就可以复位
+    window.addEventListener(EVT.events.crawlFinish, () => {
+      states.debut = false
+    })
   }
 
   protected setFormOption() {

@@ -8217,7 +8217,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 
 // 储存需要跨组件使用的、会变化的状态
-// 状态的值通常只由单一的组件修改，其他组件只是读取状态，并不进行修改
+// 这里的状态不需要持久化保存。
+// 状态的值通常只由单一的组件修改，其他组件只读取不修改
 class States {
     constructor() {
         // 表示下载器是否处于繁忙状态
@@ -8231,7 +8232,7 @@ class States {
         // 修改者 1：InitSearchArtworkPage 组件根据“预览搜索结果”的设置，修改这个状态
         this.notAutoDownload = false;
         // 在排行榜抓取时，是否只抓取“首次登场”的作品
-        // 修改者 1：InitRankingArtworkPage 组件在点击抓取按钮时，设置这个状态的值
+        // 修改者 1：InitRankingArtworkPage 组件修改这个状态
         this.debut = false;
         this.bindEvent();
     }
@@ -9496,12 +9497,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
-/* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Options */ "./src/ts/modules/Options.ts");
-/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Filter */ "./src/ts/modules/Filter.ts");
-/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
-/* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../States */ "./src/ts/modules/States.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Options__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Options */ "./src/ts/modules/Options.ts");
+/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Filter */ "./src/ts/modules/Filter.ts");
+/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
+/* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../States */ "./src/ts/modules/States.ts");
 // 初始化 artwork 排行榜页面
+
 
 
 
@@ -9523,7 +9526,6 @@ class InitRankingArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取本排行榜作品'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取本排行榜作品Title')],
         ]).addEventListener('click', () => {
-            _States__WEBPACK_IMPORTED_MODULE_9__["states"].debut = false;
             this.readyCrawl();
         });
         // 判断当前页面是否有“首次登场”标记
@@ -9533,15 +9535,22 @@ class InitRankingArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
             _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取首次登场的作品'), [
                 ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取首次登场的作品Title')],
             ]).addEventListener('click', () => {
-                _States__WEBPACK_IMPORTED_MODULE_9__["states"].debut = true;
+                _States__WEBPACK_IMPORTED_MODULE_10__["states"].debut = true;
                 this.readyCrawl();
             });
         }
     }
+    initElse() {
+        // 抓取完成后，复位 debut 标记
+        // 因为 debut 只在抓取截断被过滤器使用，所以抓取完成后就可以复位
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.crawlFinish, () => {
+            _States__WEBPACK_IMPORTED_MODULE_10__["states"].debut = false;
+        });
+    }
     setFormOption() {
         // 设置“个数/页数”选项
         this.maxCount = 500;
-        _Options__WEBPACK_IMPORTED_MODULE_5__["options"].setWantPage({
+        _Options__WEBPACK_IMPORTED_MODULE_6__["options"].setWantPage({
             text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_个数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_想要获取多少个作品'),
             rangTip: `1 - ${this.maxCount}`,
@@ -9619,15 +9628,15 @@ class InitRankingArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
                 height: data.height,
                 yes_rank: data.yes_rank,
             };
-            if (await _Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check(filterOpt)) {
-                _Store__WEBPACK_IMPORTED_MODULE_7__["store"].setRankList(data.illust_id.toString(), data.rank.toString());
-                _Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.push({
+            if (await _Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check(filterOpt)) {
+                _Store__WEBPACK_IMPORTED_MODULE_8__["store"].setRankList(data.illust_id.toString(), data.rank.toString());
+                _Store__WEBPACK_IMPORTED_MODULE_8__["store"].idList.push({
                     type: _API__WEBPACK_IMPORTED_MODULE_2__["API"].getWorkType(data.illust_type),
                     id: data.illust_id.toString(),
                 });
             }
         }
-        _Log__WEBPACK_IMPORTED_MODULE_8__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_排行榜进度', this.listPageFinished.toString()), 1, false);
+        _Log__WEBPACK_IMPORTED_MODULE_9__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_排行榜进度', this.listPageFinished.toString()), 1, false);
         // 抓取完毕
         if (this.listPageFinished === this.pageCount) {
             this.getIdListFinished();

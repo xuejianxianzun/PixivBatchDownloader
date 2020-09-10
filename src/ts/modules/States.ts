@@ -1,7 +1,8 @@
 import { EVT } from './EVT'
 
 // 储存需要跨组件使用的、会变化的状态
-// 状态的值通常只由单一的组件修改，其他组件只是读取状态，并不进行修改
+// 这里的状态不需要持久化保存。
+// 状态的值通常只由单一的组件修改，其他组件只读取不修改
 class States {
   constructor() {
     this.bindEvent()
@@ -21,7 +22,7 @@ class States {
   public notAutoDownload = false
 
   // 在排行榜抓取时，是否只抓取“首次登场”的作品
-  // 修改者 1：InitRankingArtworkPage 组件在点击抓取按钮时，设置这个状态的值
+  // 修改者 1：InitRankingArtworkPage 组件修改这个状态
   public debut = false
 
   private bindEvent() {
