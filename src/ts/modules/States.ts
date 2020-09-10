@@ -1,7 +1,7 @@
 import { EVT } from './EVT'
 
 // 储存需要跨组件使用的、会变化的状态
-// 某个单一的状态通常只由单一的组件修改，其他组件只是读取状态进行判断
+// 状态的值通常只由单一的组件修改，其他组件只是读取状态，并不进行修改
 class States {
   constructor() {
     this.bindEvent()
@@ -19,6 +19,10 @@ class States {
   // 不自动下载的标记。如果为 true，那么下载器在抓取完成后，不会自动开始下载。（即使用户设置了自动开始下载）
   // 修改者 1：InitSearchArtworkPage 组件根据“预览搜索结果”的设置，修改这个状态
   public notAutoDownload = false
+
+  // 在排行榜抓取时，是否只抓取“首次登场”的作品
+  // 修改者 1：InitRankingArtworkPage 组件在点击抓取按钮时，设置这个状态的值
+  public debut = false
 
   private bindEvent() {
     const idle = [

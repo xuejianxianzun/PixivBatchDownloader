@@ -5,13 +5,13 @@ import { API } from '../API'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
 import { options } from '../Options'
-import { form } from '../Settings'
 import { RankingOption } from '../CrawlArgument'
 import { RankingData } from '../CrawlResult'
 import { FilterOption } from '../Filter.d'
 import { filter } from '../Filter'
 import { store } from '../Store'
 import { log } from '../Log'
+import { states } from '../States'
 
 class InitRankingArtworkPage extends InitPageBase {
   constructor() {
@@ -27,19 +27,19 @@ class InitRankingArtworkPage extends InitPageBase {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取本排行榜作品'), [
       ['title', lang.transl('_抓取本排行榜作品Title')],
     ]).addEventListener('click', () => {
-      form.debut.value = '0'
+      states.debut = false
       this.readyCrawl()
     })
 
     // 判断当前页面是否有“首次登场”标记
-    let debutModes = ['daily', 'daily_r18', 'rookie', '']
-    let mode = API.getURLSearchField(location.href, 'mode')
+    const debutModes = ['daily', 'daily_r18', 'rookie', '']
+    const mode = API.getURLSearchField(location.href, 'mode')
 
     if (debutModes.includes(mode)) {
       DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取首次登场的作品'), [
         ['title', lang.transl('_抓取首次登场的作品Title')],
       ]).addEventListener('click', () => {
-        form.debut.value = '1'
+        states.debut = true
         this.readyCrawl()
       })
     }
@@ -90,7 +90,7 @@ class InitRankingArtworkPage extends InitPageBase {
 
   protected nextStep() {
     // 设置 option 信息
-    // mode 一定要有值，其他选项不需要
+    // mode 一定要有值，其他字段不需要一定有值
     this.option = this.resetOption()
     this.option.mode = API.getURLSearchField(location.href, 'mode') || 'daily'
     this.option.worksType = API.getURLSearchField(location.href, 'content')

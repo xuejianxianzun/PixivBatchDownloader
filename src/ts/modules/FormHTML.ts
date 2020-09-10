@@ -180,7 +180,6 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="notNeedTag" class="setinput_style1 blue setinput_tag">
       </span>
       </p>
-      <input type="hidden" name="debut" value="0">
 
       <slot data-name="crawlBtns" class="centerWrap_btns"></slot>
     </div>

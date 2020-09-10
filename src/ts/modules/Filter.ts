@@ -5,6 +5,7 @@ import { lang } from './Lang'
 import { log } from './Log'
 import { API } from './API'
 import { EVT } from './EVT'
+import { states } from './States'
 import { blackAndWhiteImage } from './BlackandWhiteImage'
 
 // 审查作品是否符合过滤条件
@@ -63,8 +64,6 @@ class Filter {
   private notNeedTagSwitch = false // 要排除的 tag 开关
   private excludeTag: string = '' // 要排除的 tag
 
-  private debut: boolean = false // 只下载首次登场的作品
-
   // 从下载区域上获取过滤器的各个选项
   public init() {
     // 获取排除作品类型的设置
@@ -113,7 +112,9 @@ class Filter {
     }
 
     // 获取只下载首次登场设置
-    this.debut = this.getDebut()
+    if (states.debut) {
+      log.warning(lang.transl('_抓取首次登场的作品Title'))
+    }
 
     this.getSize()
   }
@@ -438,16 +439,6 @@ class Filter {
     }
   }
 
-  // 获取首次登场设置
-  private getDebut() {
-    const result = form.debut.value === '1'
-    if (result) {
-      log.warning(lang.transl('_抓取首次登场的作品Title'))
-    }
-
-    return result
-  }
-
   // 获取文件体积设置
   private getSize() {
     if (form.sizeSwitch.checked) {
@@ -704,9 +695,11 @@ class Filter {
   // 检查首次登场设置
   // yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
   private checkDebut(yes_rank: FilterOption['yes_rank']) {
-    if (!this.debut || yes_rank === undefined) {
+    if (!states.debut || yes_rank === undefined) {
+      // 如果没有要求首次登场，或者没有此数据
       return true
     } else {
+      // 要求首次登场
       if (yes_rank === 0 || yes_rank === undefined) {
         return true
       } else {
