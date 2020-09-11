@@ -2,10 +2,11 @@ import { EVT } from './EVT'
 import { SettingsForm } from './Settings.d'
 
 // 保存了设置表单的所有设置项，并且在下载器初始化时恢复这些设置的值
-// 例外情况：个数/页数设置（setWantPage）只保存，不恢复。这是因为下载器在初始化时，由 InitXXXPage 类直接设置 setWantPage，而不是使用 localStorage 里保存的值进行恢复。
+// 例外情况：个数/页数设置（setWantPage）只保存，不恢复。这是因为下载器在初始化时，由 InitXXXPage 类直接设置 setWantPage，而不是使用保存的值进行恢复。
 
 // 成员 options 保存着当前页面的所有设置项；当设置项变化时，options 响应变化并保存到 localStorage 里。
-// 注意：如果打开了多个标签页，每个页面都有各自的 options 成员。它们是互相独立的，不会互相影响。但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 options 保存到 localStorage 里。
+// 注意：如果打开了多个标签页，每个页面都有各自的 options 成员。它们是互相独立的，不会互相影响。
+// 但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 options 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
 
 interface XzSetting {
   setWantPage: string
@@ -74,21 +75,9 @@ class SaveSettings {
   constructor(form: SettingsForm) {
     this.form = form
 
-    this.bindOptionEvent()
+    this.ListenOptionChange()
 
-    // 设置发生改变时，保存设置到本地存储
-    window.addEventListener(
-      EVT.events.settingChange,
-      (event: CustomEventInit) => {
-        const data = event.detail.data as SettingChangeData
-        if (Reflect.has(this.optionDefault, data.name)) {
-          if ((this.options[data.name] as any) !== data.value) {
-            ; (this.options[data.name] as any) = data.value
-            localStorage.setItem(this.storeName, JSON.stringify(this.options))
-          }
-        }
-      }
-    )
+    this.handleChange()
 
     this.restoreOption()
   }
@@ -160,7 +149,176 @@ class SaveSettings {
   // 需要持久化保存的设置
   private options: XzSetting = this.optionDefault
 
-  // 恢复值是 Boolean 的设置项
+  // 处理输入框： change 时保存 value
+  private saveTextInput(name: keyof XzSetting) {
+    const el = this.form[name] as HTMLInputElement
+    el.addEventListener('change', () => {
+      this.emitChange(name, el.value)
+    })
+  }
+
+  // 处理复选框： click 时保存 checked
+  private saveCheckBox(name: keyof XzSetting) {
+    const el = this.form[name] as HTMLInputElement
+    el.addEventListener('click', () => {
+      this.emitChange(name, el.checked)
+    })
+  }
+
+  // 处理单选框： click 时保存 value
+  private saveRadio(name: string) {
+    const radios = this.form[name]
+    for (const radio of radios) {
+      radio.addEventListener('click', () => {
+        this.emitChange(name, radio.value)
+      })
+    }
+  }
+
+  // 监听所有选项的变化，触发 settingChange 事件
+  // 该函数可执行一次，否则事件会重复绑定
+  private ListenOptionChange() {
+    // 保存页数/个数设置
+    this.saveTextInput('setWantPage')
+
+    // 保存下载的作品类型
+    this.saveCheckBox('downType0')
+    this.saveCheckBox('downType1')
+    this.saveCheckBox('downType2')
+    this.saveCheckBox('downType3')
+    this.saveCheckBox('downSingleImg')
+    this.saveCheckBox('downMultiImg')
+    this.saveCheckBox('downColorImg')
+    this.saveCheckBox('downBlackWhiteImg')
+
+    // 保存多图作品设置
+    this.saveCheckBox('firstFewImagesSwitch')
+    this.saveTextInput('firstFewImages')
+
+    // 保存只下载已收藏
+    this.saveCheckBox('setOnlyBmk')
+
+    // 保存动图格式选项
+    this.saveRadio('ugoiraSaveAs')
+
+    // 保存动图转换线程数
+    this.saveTextInput('convertUgoiraThread')
+
+    this.saveRadio('novelSaveAs')
+
+    this.saveCheckBox('saveNovelMeta')
+
+    // 保存收藏数量选项
+    this.saveCheckBox('BMKNumSwitch')
+
+    // 保存收藏数量数值
+    this.saveTextInput('BMKNumMin')
+    this.saveTextInput('BMKNumMax')
+
+    // 保存启用快速收藏
+    this.saveCheckBox('quickBookmarks')
+
+    // 保存宽高条件
+    this.saveCheckBox('setWHSwitch')
+    this.saveRadio('setWidthAndOr')
+    this.saveTextInput('setWidth')
+    this.saveTextInput('setHeight')
+
+    // 保存宽高比例
+    this.saveCheckBox('ratioSwitch')
+    this.saveRadio('ratio')
+    this.saveTextInput('userRatio')
+
+    // 保存投稿时间
+    this.saveCheckBox('postDate')
+    this.saveTextInput('postDateStart')
+    this.saveTextInput('postDateEnd')
+
+    // 保存 id 范围
+    this.saveCheckBox('idRangeSwitch')
+    this.saveTextInput('idRangeInput')
+    this.saveRadio('idRange')
+
+    // 保存必须的 tag 设置
+    this.saveCheckBox('needTagSwitch')
+    this.saveTextInput('needTag')
+
+    // 保存排除的 tag 设置
+    this.saveCheckBox('notNeedTagSwitch')
+    this.saveTextInput('notNeedTag')
+
+    // 保存命名规则
+    const userSetNameInput = this.form.userSetName
+      ;['change', 'focus'].forEach((ev) => {
+        userSetNameInput.addEventListener(ev, () => {
+          this.emitChange('userSetName', userSetNameInput.value)
+        })
+      })
+
+    // 保存是否添加标记名称
+    this.saveCheckBox('tagNameToFileName')
+
+    // 保存第一张图不带序号
+    this.saveCheckBox('noSerialNo')
+
+    // 保存是否始终建立文件夹
+    this.saveCheckBox('alwaysFolder')
+
+    // 保存是否为多图作品自动建立文件夹
+    this.saveCheckBox('multipleImageDir')
+
+    // 保存多图建立文件夹时的命名规则
+    this.saveRadio('multipleImageFolderName')
+
+    // 保存文件体积限制
+    this.saveCheckBox('sizeSwitch')
+    this.saveTextInput('sizeMin')
+    this.saveTextInput('sizeMax')
+
+    // 保存自动下载
+    this.saveCheckBox('quietDownload')
+
+    // 保存下载线程
+    this.saveTextInput('downloadThread')
+
+    // 保存预览搜索结果
+    this.saveCheckBox('previewResult')
+
+    // 保存去重设置
+    this.saveCheckBox('deduplication')
+    this.saveRadio('dupliStrategy')
+
+    // 保存文件名长度限制
+    this.saveCheckBox('fileNameLengthLimitSwitch')
+    this.saveTextInput('fileNameLengthLimit')
+
+    window.addEventListener(EVT.events.resetOption, () => {
+      this.form.reset()
+      this.reset()
+    })
+  }
+
+  private emitChange(name: string, value: string | number | boolean) {
+    EVT.fire(EVT.events.settingChange, { name: name, value: value })
+  }
+
+  // 设置发生改变时，保存设置到本地存储
+  private handleChange() {
+    window.addEventListener(
+      EVT.events.settingChange,
+      (event: CustomEventInit) => {
+        const data = event.detail.data as SettingChangeData
+        if (Reflect.has(this.optionDefault, data.name)) {
+          if ((this.options[data.name] as any) !== data.value) {
+            ; (this.options[data.name] as any) = data.value
+            localStorage.setItem(this.storeName, JSON.stringify(this.options))
+          }
+        }
+      }
+    )
+  }
+
+  // 恢复值为 Boolean 的设置项
   // 给复选框使用
   private restoreBoolean(name: keyof XzSetting) {
     // 优先使用用户设置的值
@@ -175,7 +333,7 @@ class SaveSettings {
     // 用户设置为 false，默认值为 true，使用 || 的话就恒为 true 了
   }
 
-  // 恢复值是 string 的设置项
+  // 恢复值为 string 的设置项
   // 给单选按钮和文本框使用
   private restoreString(name: keyof XzSetting) {
     // 优先使用用户设置的值
@@ -303,159 +461,6 @@ class SaveSettings {
     // 恢复文件名长度限制
     this.restoreBoolean('fileNameLengthLimitSwitch')
     this.restoreString('fileNameLengthLimit')
-  }
-
-  // 处理输入框： change 时直接保存 value
-  private saveTextInput(name: keyof XzSetting) {
-    const el = this.form[name] as HTMLInputElement
-    el.addEventListener('change', () => {
-      this.emitChange(name, el.value)
-    })
-  }
-
-  // 处理复选框： click 时直接保存 checked
-  private saveCheckBox(name: keyof XzSetting) {
-    const el = this.form[name] as HTMLInputElement
-    el.addEventListener('click', () => {
-      this.emitChange(name, el.checked)
-    })
-  }
-
-  // 处理单选框： click 时直接保存 value
-  private saveRadio(name: string) {
-    const radios = this.form[name]
-    for (const radio of radios) {
-      radio.addEventListener('click', () => {
-        this.emitChange(name, radio.value)
-      })
-    }
-  }
-
-  // 绑定所有选项的事件，当选项变动触发 settingChange 事件
-  // 只可执行一次，否则事件会重复绑定
-  private bindOptionEvent() {
-    // 保存页数/个数设置
-    this.saveTextInput('setWantPage')
-
-    // 保存下载的作品类型
-    this.saveCheckBox('downType0')
-    this.saveCheckBox('downType1')
-    this.saveCheckBox('downType2')
-    this.saveCheckBox('downType3')
-    this.saveCheckBox('downSingleImg')
-    this.saveCheckBox('downMultiImg')
-    this.saveCheckBox('downColorImg')
-    this.saveCheckBox('downBlackWhiteImg')
-
-    // 保存多图作品设置
-    this.saveCheckBox('firstFewImagesSwitch')
-    this.saveTextInput('firstFewImages')
-
-    // 保存只下载已收藏
-    this.saveCheckBox('setOnlyBmk')
-
-    // 保存动图格式选项
-    this.saveRadio('ugoiraSaveAs')
-
-    // 保存动图转换线程数
-    this.saveTextInput('convertUgoiraThread')
-
-    this.saveRadio('novelSaveAs')
-
-    this.saveCheckBox('saveNovelMeta')
-
-    // 保存收藏数量选项
-    this.saveCheckBox('BMKNumSwitch')
-
-    // 保存收藏数量数值
-    this.saveTextInput('BMKNumMin')
-    this.saveTextInput('BMKNumMax')
-
-    // 保存启用快速收藏
-    this.saveCheckBox('quickBookmarks')
-
-    // 保存宽高条件
-    this.saveCheckBox('setWHSwitch')
-    this.saveRadio('setWidthAndOr')
-    this.saveTextInput('setWidth')
-    this.saveTextInput('setHeight')
-
-    // 保存宽高比例
-    this.saveCheckBox('ratioSwitch')
-    this.saveRadio('ratio')
-    this.saveTextInput('userRatio')
-
-    // 保存投稿时间
-    this.saveCheckBox('postDate')
-    this.saveTextInput('postDateStart')
-    this.saveTextInput('postDateEnd')
-
-    // 保存 id 范围
-    this.saveCheckBox('idRangeSwitch')
-    this.saveTextInput('idRangeInput')
-    this.saveRadio('idRange')
-
-    // 保存必须的 tag 设置
-    this.saveCheckBox('needTagSwitch')
-    this.saveTextInput('needTag')
-
-    // 保存排除的 tag 设置
-    this.saveCheckBox('notNeedTagSwitch')
-    this.saveTextInput('notNeedTag')
-
-    // 保存命名规则
-    const userSetNameInput = this.form.userSetName
-      ;['change', 'focus'].forEach((ev) => {
-        userSetNameInput.addEventListener(ev, () => {
-          this.emitChange('userSetName', userSetNameInput.value)
-        })
-      })
-
-    // 保存是否添加标记名称
-    this.saveCheckBox('tagNameToFileName')
-
-    // 保存第一张图不带序号
-    this.saveCheckBox('noSerialNo')
-
-    // 保存是否始终建立文件夹
-    this.saveCheckBox('alwaysFolder')
-
-    // 保存是否为多图作品自动建立文件夹
-    this.saveCheckBox('multipleImageDir')
-
-    // 保存多图建立文件夹时的命名规则
-    this.saveRadio('multipleImageFolderName')
-
-    // 保存文件体积限制
-    this.saveCheckBox('sizeSwitch')
-    this.saveTextInput('sizeMin')
-    this.saveTextInput('sizeMax')
-
-    // 保存自动下载
-    this.saveCheckBox('quietDownload')
-
-    // 保存下载线程
-    this.saveTextInput('downloadThread')
-
-    // 保存预览搜索结果
-    this.saveCheckBox('previewResult')
-
-    // 保存去重设置
-    this.saveCheckBox('deduplication')
-    this.saveRadio('dupliStrategy')
-
-    // 保存文件名长度限制
-    this.saveCheckBox('fileNameLengthLimitSwitch')
-    this.saveTextInput('fileNameLengthLimit')
-
-    window.addEventListener(EVT.events.resetOption, () => {
-      this.form.reset()
-      this.reset()
-    })
-  }
-
-  private emitChange(name: string, value: string | number | boolean) {
-    EVT.fire(EVT.events.settingChange, { name: name, value: value })
   }
 
   // 重设选项

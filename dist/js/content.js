@@ -5316,6 +5316,7 @@ class InitPageBase {
         this.appendCenterBtns();
         this.appendElseEl();
         this.initElse();
+        // 个数/页数设置可能在 init 里由代码直接进行设置，不会触发 change 事件，无法被监听到。所以手动触发 settingChange 事件，使其他组件能够接收到通知
         _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.settingChange, { name: 'setWantPage', value: _Settings__WEBPACK_IMPORTED_MODULE_10__["form"].setWantPage.value });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.pageSwitchedTypeChange, () => {
             this.destroy();
@@ -7623,152 +7624,25 @@ class SaveSettings {
         // 需要持久化保存的设置
         this.options = this.optionDefault;
         this.form = form;
-        this.bindOptionEvent();
-        // 设置发生改变时，保存设置到本地存储
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.settingChange, (event) => {
-            const data = event.detail.data;
-            if (Reflect.has(this.optionDefault, data.name)) {
-                if (this.options[data.name] !== data.value) {
-                    ;
-                    this.options[data.name] = data.value;
-                    localStorage.setItem(this.storeName, JSON.stringify(this.options));
-                }
-            }
-        });
+        this.ListenOptionChange();
+        this.handleChange();
         this.restoreOption();
     }
-    // 恢复值是 Boolean 的设置项
-    // 给复选框使用
-    restoreBoolean(name) {
-        // 优先使用用户设置的值
-        if (this.options[name] !== undefined) {
-            this.form[name].checked = this.options[name];
-        }
-        else {
-            // 否则使用默认值
-            this.form[name].checked = this.optionDefault[name];
-        }
-        // 这里不能简单的使用 || 符号来处理，考虑如下情况：
-        // this.options[name] || this.optionDefault[name]
-        // 用户设置为 false，默认值为 true，使用 || 的话就恒为 true 了
-    }
-    // 恢复值是 string 的设置项
-    // 给单选按钮和文本框使用
-    restoreString(name) {
-        // 优先使用用户设置的值
-        if (this.options[name] !== undefined) {
-            this.form[name].value = this.options[name].toString();
-        }
-        else {
-            // 否则使用默认值
-            this.form[name].value = this.optionDefault[name].toString();
-        }
-    }
-    // 从持久化设置，缺省使用默认值，恢复下载区域的设置
-    restoreOption() {
-        const savedOption = localStorage.getItem(this.storeName);
-        // 读取保存的设置
-        if (savedOption) {
-            this.options = JSON.parse(savedOption);
-        }
-        else {
-            // 如果没有保存过，则不做处理
-            return;
-        }
-        // 设置下载的作品类型
-        this.restoreBoolean('downType0');
-        this.restoreBoolean('downType1');
-        this.restoreBoolean('downType2');
-        this.restoreBoolean('downType3');
-        this.restoreBoolean('downSingleImg');
-        this.restoreBoolean('downMultiImg');
-        this.restoreBoolean('downColorImg');
-        this.restoreBoolean('downBlackWhiteImg');
-        // 多图下载前几张图作品设置
-        this.restoreBoolean('firstFewImagesSwitch');
-        this.restoreString('firstFewImages');
-        // 设置只下载已收藏
-        this.restoreBoolean('setOnlyBmk');
-        // 设置动图格式选项
-        this.restoreString('ugoiraSaveAs');
-        // 设置动图转换线程数
-        this.restoreString('convertUgoiraThread');
-        this.restoreString('novelSaveAs');
-        this.restoreBoolean('saveNovelMeta');
-        // 设置收藏数量选项
-        this.restoreBoolean('BMKNumSwitch');
-        // 设置收藏数量数值
-        this.restoreString('BMKNumMin');
-        this.restoreString('BMKNumMax');
-        // 设置启用快速收藏
-        this.restoreBoolean('quickBookmarks');
-        // 设置宽高条件
-        this.restoreBoolean('setWHSwitch');
-        this.restoreString('setWidthAndOr');
-        this.restoreString('setWidth');
-        this.restoreString('setHeight');
-        // 设置宽高比例
-        this.restoreBoolean('ratioSwitch');
-        this.restoreString('ratio');
-        this.restoreString('userRatio');
-        // 设置 id 范围
-        this.restoreBoolean('idRangeSwitch');
-        this.restoreString('idRangeInput');
-        this.restoreString('idRange');
-        // 设置必须的 tag
-        this.restoreBoolean('needTagSwitch');
-        this.restoreString('needTag');
-        // 设置排除的 tag
-        this.restoreBoolean('notNeedTagSwitch');
-        this.restoreString('notNeedTag');
-        // 设置投稿时间
-        this.restoreBoolean('postDate');
-        this.restoreString('postDateStart');
-        this.restoreString('postDateEnd');
-        // 设置自动下载
-        this.restoreBoolean('quietDownload');
-        // 设置下载线程
-        this.restoreString('downloadThread');
-        // 设置文件命名规则
-        this.restoreString('userSetName');
-        // 设置是否添加标记名称
-        this.restoreBoolean('tagNameToFileName');
-        // 设置第一张图不带序号
-        this.restoreBoolean('noSerialNo');
-        // 设置是否始终建立文件夹
-        this.restoreBoolean('alwaysFolder');
-        // 设置是否为多图作品自动建立文件夹
-        this.restoreBoolean('multipleImageDir');
-        // 设置多图作品建立文件夹时的文件名规则
-        this.restoreString('multipleImageFolderName');
-        // 设置预览搜索结果
-        this.restoreBoolean('previewResult');
-        // 设置文件体积限制
-        this.restoreBoolean('sizeSwitch');
-        this.restoreString('sizeMin');
-        this.restoreString('sizeMax');
-        // 恢复去重设置
-        this.restoreBoolean('deduplication');
-        this.restoreString('dupliStrategy');
-        // 恢复文件名长度限制
-        this.restoreBoolean('fileNameLengthLimitSwitch');
-        this.restoreString('fileNameLengthLimit');
-    }
-    // 处理输入框： change 时直接保存 value
+    // 处理输入框： change 时保存 value
     saveTextInput(name) {
         const el = this.form[name];
         el.addEventListener('change', () => {
             this.emitChange(name, el.value);
         });
     }
-    // 处理复选框： click 时直接保存 checked
+    // 处理复选框： click 时保存 checked
     saveCheckBox(name) {
         const el = this.form[name];
         el.addEventListener('click', () => {
             this.emitChange(name, el.checked);
         });
     }
-    // 处理单选框： click 时直接保存 value
+    // 处理单选框： click 时保存 value
     saveRadio(name) {
         const radios = this.form[name];
         for (const radio of radios) {
@@ -7777,9 +7651,9 @@ class SaveSettings {
             });
         }
     }
-    // 绑定所有选项的事件，当选项变动触发 settingChange 事件
-    // 只可执行一次，否则事件会重复绑定
-    bindOptionEvent() {
+    // 监听所有选项的变化，触发 settingChange 事件
+    // 该函数可执行一次，否则事件会重复绑定
+    ListenOptionChange() {
         // 保存页数/个数设置
         this.saveTextInput('setWantPage');
         // 保存下载的作品类型
@@ -7872,6 +7746,136 @@ class SaveSettings {
     }
     emitChange(name, value) {
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.settingChange, { name: name, value: value });
+    }
+    // 设置发生改变时，保存设置到本地存储
+    handleChange() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.settingChange, (event) => {
+            const data = event.detail.data;
+            if (Reflect.has(this.optionDefault, data.name)) {
+                if (this.options[data.name] !== data.value) {
+                    ;
+                    this.options[data.name] = data.value;
+                    localStorage.setItem(this.storeName, JSON.stringify(this.options));
+                }
+            }
+        });
+    }
+    // 恢复值为 Boolean 的设置项
+    // 给复选框使用
+    restoreBoolean(name) {
+        // 优先使用用户设置的值
+        if (this.options[name] !== undefined) {
+            this.form[name].checked = this.options[name];
+        }
+        else {
+            // 否则使用默认值
+            this.form[name].checked = this.optionDefault[name];
+        }
+        // 这里不能简单的使用 || 符号来处理，考虑如下情况：
+        // this.options[name] || this.optionDefault[name]
+        // 用户设置为 false，默认值为 true，使用 || 的话就恒为 true 了
+    }
+    // 恢复值为 string 的设置项
+    // 给单选按钮和文本框使用
+    restoreString(name) {
+        // 优先使用用户设置的值
+        if (this.options[name] !== undefined) {
+            this.form[name].value = this.options[name].toString();
+        }
+        else {
+            // 否则使用默认值
+            this.form[name].value = this.optionDefault[name].toString();
+        }
+    }
+    // 读取持久化数据，或使用默认设置，恢复设置表单的设置项
+    restoreOption() {
+        const savedOption = localStorage.getItem(this.storeName);
+        // 读取保存的设置
+        if (savedOption) {
+            this.options = JSON.parse(savedOption);
+        }
+        else {
+            // 如果没有保存过，则不做处理
+            return;
+        }
+        // 设置下载的作品类型
+        this.restoreBoolean('downType0');
+        this.restoreBoolean('downType1');
+        this.restoreBoolean('downType2');
+        this.restoreBoolean('downType3');
+        this.restoreBoolean('downSingleImg');
+        this.restoreBoolean('downMultiImg');
+        this.restoreBoolean('downColorImg');
+        this.restoreBoolean('downBlackWhiteImg');
+        // 多图下载前几张图作品设置
+        this.restoreBoolean('firstFewImagesSwitch');
+        this.restoreString('firstFewImages');
+        // 设置只下载已收藏
+        this.restoreBoolean('setOnlyBmk');
+        // 设置动图格式选项
+        this.restoreString('ugoiraSaveAs');
+        // 设置动图转换线程数
+        this.restoreString('convertUgoiraThread');
+        this.restoreString('novelSaveAs');
+        this.restoreBoolean('saveNovelMeta');
+        // 设置收藏数量选项
+        this.restoreBoolean('BMKNumSwitch');
+        // 设置收藏数量数值
+        this.restoreString('BMKNumMin');
+        this.restoreString('BMKNumMax');
+        // 设置启用快速收藏
+        this.restoreBoolean('quickBookmarks');
+        // 设置宽高条件
+        this.restoreBoolean('setWHSwitch');
+        this.restoreString('setWidthAndOr');
+        this.restoreString('setWidth');
+        this.restoreString('setHeight');
+        // 设置宽高比例
+        this.restoreBoolean('ratioSwitch');
+        this.restoreString('ratio');
+        this.restoreString('userRatio');
+        // 设置 id 范围
+        this.restoreBoolean('idRangeSwitch');
+        this.restoreString('idRangeInput');
+        this.restoreString('idRange');
+        // 设置必须的 tag
+        this.restoreBoolean('needTagSwitch');
+        this.restoreString('needTag');
+        // 设置排除的 tag
+        this.restoreBoolean('notNeedTagSwitch');
+        this.restoreString('notNeedTag');
+        // 设置投稿时间
+        this.restoreBoolean('postDate');
+        this.restoreString('postDateStart');
+        this.restoreString('postDateEnd');
+        // 设置自动下载
+        this.restoreBoolean('quietDownload');
+        // 设置下载线程
+        this.restoreString('downloadThread');
+        // 设置文件命名规则
+        this.restoreString('userSetName');
+        // 设置是否添加标记名称
+        this.restoreBoolean('tagNameToFileName');
+        // 设置第一张图不带序号
+        this.restoreBoolean('noSerialNo');
+        // 设置是否始终建立文件夹
+        this.restoreBoolean('alwaysFolder');
+        // 设置是否为多图作品自动建立文件夹
+        this.restoreBoolean('multipleImageDir');
+        // 设置多图作品建立文件夹时的文件名规则
+        this.restoreString('multipleImageFolderName');
+        // 设置预览搜索结果
+        this.restoreBoolean('previewResult');
+        // 设置文件体积限制
+        this.restoreBoolean('sizeSwitch');
+        this.restoreString('sizeMin');
+        this.restoreString('sizeMax');
+        // 恢复去重设置
+        this.restoreBoolean('deduplication');
+        this.restoreString('dupliStrategy');
+        // 恢复文件名长度限制
+        this.restoreBoolean('fileNameLengthLimitSwitch');
+        this.restoreString('fileNameLengthLimit');
     }
     // 重设选项
     reset() {
