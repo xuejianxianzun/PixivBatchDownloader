@@ -29,6 +29,7 @@ class States {
     const idle = [
       EVT.events.crawlFinish,
       EVT.events.crawlError,
+      EVT.events.filterResult,
       EVT.events.downloadPause,
       EVT.events.downloadStop,
       EVT.events.downloadComplete,

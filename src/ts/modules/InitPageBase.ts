@@ -30,6 +30,7 @@ abstract class InitPageBase {
   }
 
   // 各个子类私有的初始化内容
+  // 可以在这里绑定事件 
   protected initElse() { }
 
   // 销毁初始化页面时添加的元素和事件，恢复设置项等

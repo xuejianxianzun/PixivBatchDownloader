@@ -70,36 +70,22 @@ class InitSearchArtworkPage extends InitPageBase {
 
   private deleteId = 0 // 手动删除时，要删除的作品的 id
 
-  private crawlWorks = false // 是否在抓取作品数据（“开始筛选”时改为 true）
-
-  private crawled = false // 是否已经进行过抓取
-
   private previewResult = true // 是否预览结果
 
   private optionsCauseResultChange = ['firstFewImagesSwitch', 'firstFewImages'] // 这些选项变更时，需要重新添加结果。例如多图作品“只下载前几张” firstFewImages 会影响生成的结果，但是过滤器 filter 不会检查，所以需要单独检测它的变更
 
   private needReAdd = false // 是否需要重新添加结果（并且会重新渲染）
 
-  private canCreateWorks = true // 指示当前是否可以创建抓取结果对应的元素。当抓取完成并且生成了排序后的作品列表，则为 false。当开始新的抓取时，复位到 true
-
   protected initElse() {
     this.hotBar()
 
     this.setPreviewResult(form.previewResult.checked)
 
-    window.addEventListener(EVT.events.addResult, this.createWork)
-
     window.addEventListener(EVT.events.addResult, this.showCount)
-
-    window.addEventListener(EVT.events.crawlStart, () => {
-      this.canCreateWorks = true
-    })
 
     window.addEventListener('addBMK', this.addBookmark)
 
     window.addEventListener(EVT.events.crawlFinish, this.onCrawlFinish)
-
-    window.addEventListener(EVT.events.crawlFinish, this.showCount)
 
     window.addEventListener(EVT.events.clearMultiple, this.clearMultiple)
 
@@ -138,7 +124,11 @@ class InitSearchArtworkPage extends InitPageBase {
     DOM.addBtn('crawlBtns', Colors.green, lang.transl('_开始筛选'), [
       ['title', lang.transl('_开始筛选Title')],
     ]).addEventListener('click', () => {
-      this.startScreen()
+      this.resultMeta = []
+
+      window.addEventListener(EVT.events.addResult, this.createWork)
+
+      this.readyCrawl()
     })
 
     DOM.addBtn('crawlBtns', Colors.red, lang.transl('_在结果中筛选'), [
@@ -193,22 +183,12 @@ class InitSearchArtworkPage extends InitPageBase {
   protected destroy() {
     DOM.clearSlot('crawlBtns')
     DOM.clearSlot('otherBtns')
-    window.removeEventListener(EVT.events.addResult, this.createWork)
+
+    window.removeEventListener(EVT.events.addResult, this.showCount)
     window.removeEventListener(EVT.events.crawlFinish, this.onCrawlFinish)
-    window.removeEventListener(EVT.events.crawlFinish, this.showCount)
 
     // 离开下载页面时，取消设置“不自动下载”
     states.notAutoDownload = false
-  }
-
-  private startScreen() {
-    if (states.busy) {
-      return alert(lang.transl('_当前任务尚未完成'))
-    }
-
-    this.crawlWorks = true
-
-    this.readyCrawl()
   }
 
   protected async nextStep() {
@@ -251,6 +231,9 @@ class InitSearchArtworkPage extends InitPageBase {
     }
   }
 
+
+  // 清空作品列表，只在作品抓取完毕时使用。之后会生成根据收藏数排列的作品列表。
+  // 在其他情况下，删除作品不会清空作品列表，也不会再次生成作品列表，而是把这个作品的元素移除。这是为了减少 dom 操作耗时以及重绘页面引起的耗时，耗时太长会导致用户体验出现严重的问题。
   private clearWorks() {
     this.worksWrap = this.getWorksWrap()
 
@@ -263,10 +246,6 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 在页面上生成抓取结果对应的作品元素
   private createWork = (event: CustomEventInit) => {
-    if (!this.canCreateWorks) {
-      return
-    }
-
     if (!this.previewResult || !this.worksWrap) {
       return
     }
@@ -426,30 +405,29 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // “开始筛选”完成后，保存筛选结果的元数据，并重排结果
   private onCrawlFinish = () => {
-    if (this.crawlWorks) {
-      this.crawled = true
-      this.resultMeta = [...store.resultMeta]
+    this.resultMeta = [...store.resultMeta]
 
-      // 显示作品数量
-      const count = this.resultMeta.length || store.resultMeta.length
-      if (count > 0) {
-        log.log(lang.transl('_当前作品个数', count.toString()))
-      }
-      // 显示文件数量
-      log.success(
-        lang.transl('_共抓取到n个文件', store.result.length.toString())
-      )
-
-      this.reAddResult()
+    // 显示作品数量
+    const count = this.resultMeta.length || store.resultMeta.length
+    if (count > 0) {
+      log.log(lang.transl('_当前作品个数', count.toString()))
     }
+    // 显示文件数量
+    log.success(
+      lang.transl('_共抓取到n个文件', store.result.length.toString())
+    )
+
+    this.clearWorks()
+
+    this.reAddResult()
+
+    // 当抓取完成，并生成了所有作品元素之后，解绑这个事件
+    window.removeEventListener(EVT.events.addResult, this.createWork)
   }
 
   // 筛选抓取结果。传入函数，过滤符合条件的结果
   // 在抓取完成之后，所有会从结果合集中删除某些结果的操作都要经过这里
   private async filterResult(callback: FilterCB) {
-    if (!this.crawled) {
-      return alert(lang.transl('_尚未开始筛选'))
-    }
     if (this.resultMeta.length === 0) {
       return alert(lang.transl('_没有数据可供使用'))
     }
@@ -479,19 +457,14 @@ class InitSearchArtworkPage extends InitPageBase {
     }
 
     this.needReAdd = false
-    this.crawlWorks = false
-    // 发布 crawlFinish 事件，会在日志上显示下载数量
-    EVT.fire(EVT.events.crawlFinish)
+
+    EVT.fire(EVT.events.filterResult)
   }
 
   // 重新添加抓取结果，目前有两个时机：
   // 1 是作品抓取完毕，添加抓取到的数据
-  // 2 是使用“在结果中筛选”或删除作品，使得作品数据变化了，添加变化后的抓取数据
+  // 2 是使用“在结果中筛选”或删除作品，使得作品数据变化了，改变作品列表视图
   private reAddResult(removedResult?: Result[]) {
-    this.canCreateWorks && this.clearWorks()
-    // clearWorks 清空作品列表，只在作品抓取完毕时使用。之后会生成根据收藏数排列的作品列表。
-    // 在其他情况下，删除作品不会清空作品列表，也不会再次生成作品列表，而是把这个作品的元素移除。这是为了减少 dom 操作耗时以及重绘页面引起的耗时，耗时太长会导致用户体验出现严重的问题。
-
     // 如果传递了被删除的结果，则从作品列表里移除它们
     if (removedResult && this.previewResult) {
       let ids = []
@@ -525,12 +498,9 @@ class InitSearchArtworkPage extends InitPageBase {
       store.addResult(data)
     })
 
-    if (this.canCreateWorks) {
-      setTimeout(() => {
-        EVT.fire(EVT.events.worksUpdate)
-        this.canCreateWorks = false // 在抓取完成后，并且生成了排序后的全部作品列表之后，设置该状态
-      }, 0)
-    }
+    setTimeout(() => {
+      EVT.fire(EVT.events.worksUpdate)
+    }, 0)
   }
 
   // 在当前结果中再次筛选，会修改第一次筛选的结果
