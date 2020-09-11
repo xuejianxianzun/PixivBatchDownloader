@@ -185,6 +185,7 @@ class DOM {
   }
 
   static getTitle() {
+    // 从页面标题里删除 TitleBar 的标记，以及未读消息的计数（现在的 p 站似乎没有消息计数了）
     return document.title
       .replace(/\[(↑|→|▶|↓|║|■|✓| )\] /, '')
       .replace(/^\(\d.*\) /, '')

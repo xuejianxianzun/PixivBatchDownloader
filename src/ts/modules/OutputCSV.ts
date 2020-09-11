@@ -190,7 +190,7 @@ class OutputCSV {
     if (ogTitle) {
       name = ogTitle.content
     } else {
-      name = document.title
+      name = DOM.getTitle()
     }
 
     // 下载文件

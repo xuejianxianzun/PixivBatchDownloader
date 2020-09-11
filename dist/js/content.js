@@ -1301,6 +1301,7 @@ class DOM {
         });
     }
     static getTitle() {
+        // 从页面标题里删除 TitleBar 的标记，以及未读消息的计数（现在的 p 站似乎没有消息计数了）
         return document.title
             .replace(/\[(↑|→|▶|↓|║|■|✓| )\] /, '')
             .replace(/^\(\d.*\) /, '');
@@ -6464,7 +6465,7 @@ class OutputCSV {
             name = ogTitle.content;
         }
         else {
-            name = document.title;
+            name = _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].getTitle();
         }
         // 下载文件
         _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].downloadFile(url, name + '.csv');
@@ -8243,20 +8244,9 @@ class Store {
         // resultIDList 可能会有隐患，因为没有区分图片和小说。如果一次抓取任务里，有图片和小说使用了相同的 id，那么只会保留先抓取到的那个。不过目前看来这种情况几乎不会发生。
         this.result = []; // 储存抓取结果
         this.rankList = {}; // 储存作品在排行榜中的排名
-        this.tag = '';
-        this.title = '';
-        // 储存页面信息，用来生成文件名
-        this.pageInfo = {
-            pageTitle: '',
-            pageTag: '',
-        };
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlStart, () => {
-            this.reset();
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resume, () => {
-            this.tag = _API__WEBPACK_IMPORTED_MODULE_0__["API"].getTagFromURL();
-            this.title = _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].getTitle();
-        });
+        this.tag = ''; // 开始抓取时，储存页面此时的 tag
+        this.title = ''; // 开始抓取时，储存页面此时的 title
+        this.bindEvent();
     }
     assignResult(data) {
         // 图片详细信息的默认值
@@ -8329,6 +8319,15 @@ class Store {
         this.rankList = {};
         this.tag = _API__WEBPACK_IMPORTED_MODULE_0__["API"].getTagFromURL();
         this.title = _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].getTitle();
+    }
+    bindEvent() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlStart, () => {
+            this.reset();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resume, () => {
+            this.tag = _API__WEBPACK_IMPORTED_MODULE_0__["API"].getTagFromURL();
+            this.title = _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].getTitle();
+        });
     }
 }
 const store = new Store();
