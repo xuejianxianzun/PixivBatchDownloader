@@ -162,7 +162,7 @@ class Resume {
 
   private bindEvent() {
     // 抓取完成时，保存这次任务的数据
-    const evs = [EVT.events.crawlFinish, EVT.events.filterResult]
+    const evs = [EVT.events.crawlFinish, EVT.events.resultChange]
     for (const ev of evs) {
       window.addEventListener(ev, async () => {
         // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据

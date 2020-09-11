@@ -5,7 +5,7 @@ import { Result, WorkInfoOptional, RankList, IDData } from './Store.d'
 class Store {
   constructor() {
     window.addEventListener(EVT.events.crawlStart, () => {
-      this.resetResult()
+      this.reset()
     })
   }
 
@@ -97,7 +97,7 @@ class Store {
     pageTag: '',
   }
 
-  public resetResult() {
+  public reset() {
     this.resultMeta = []
     this.resultIDList = []
     this.result = []

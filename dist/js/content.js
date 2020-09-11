@@ -1975,7 +1975,7 @@ class DownloadControl {
             this.hideDownloadArea();
             this.reset();
         });
-        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resume]) {
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resultChange, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resume]) {
             window.addEventListener(ev, () => {
                 window.setTimeout(() => {
                     this.readyDownload();
@@ -2317,7 +2317,7 @@ class DownloadStates {
     }
     bindEvent() {
         // 初始化下载状态
-        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.filterResult];
+        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resultChange];
         for (const ev of evs) {
             window.addEventListener(ev, () => {
                 this.init();
@@ -2444,7 +2444,7 @@ EVT.events = {
     resume: 'resume',
     outputCSV: 'outputCSV',
     QuickDownload: 'QuickDownload',
-    filterResult: 'filterResult',
+    resultChange: 'resultChange',
 };
 
 
@@ -7161,7 +7161,7 @@ class Resume {
     }
     bindEvent() {
         // 抓取完成时，保存这次任务的数据
-        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.filterResult];
+        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resultChange];
         for (const ev of evs) {
             window.addEventListener(ev, async () => {
                 // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
@@ -7932,7 +7932,6 @@ __webpack_require__.r(__webpack_exports__);
 // 设置表单
 class Settings {
     constructor() {
-        this.firstFewImages = 0;
         this.activeClass = 'active';
         this.chooseKeys = ['Enter', 'NumpadEnter']; // 让回车键可以控制复选框（浏览器默认只支持空格键）
         this.form = _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_5__["default"]);
@@ -7990,8 +7989,8 @@ class Settings {
                 });
             });
         }
-        // 当抓取完毕可以开始下载时，切换到“下载”选项卡
-        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resume]) {
+        // 当可以开始下载时，切换到“下载”选项卡
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resultChange, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resume]) {
             window.addEventListener(ev, () => {
                 this.activeTab(1);
             });
@@ -8114,14 +8113,14 @@ class Settings {
     getFirstFewImages() {
         const check = _API__WEBPACK_IMPORTED_MODULE_0__["API"].checkNumberGreater0(form.firstFewImages.value);
         if (check.result) {
-            this.firstFewImages = check.value;
             return check.value;
         }
     }
     // 计算要从这个作品里下载几张图片
     getDLCount(pageCount) {
-        if (form.firstFewImagesSwitch.checked && this.firstFewImages <= pageCount) {
-            return this.firstFewImages;
+        const firstFewImages = this.getFirstFewImages();
+        if (firstFewImages && form.firstFewImagesSwitch.checked && firstFewImages <= pageCount) {
+            return firstFewImages;
         }
         return pageCount;
     }
@@ -8260,8 +8259,6 @@ class States {
     bindEvent() {
         const idle = [
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlError,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.filterResult,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadPause,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadStop,
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadComplete,
@@ -8313,7 +8310,7 @@ class Store {
             pageTag: '',
         };
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlStart, () => {
-            this.resetResult();
+            this.reset();
         });
     }
     assignResult(data) {
@@ -8379,7 +8376,7 @@ class Store {
     setRankList(id, rank) {
         this.rankList[id] = rank;
     }
-    resetResult() {
+    reset() {
         this.resultMeta = [];
         this.resultIDList = [];
         this.result = [];
@@ -8700,7 +8697,7 @@ class TitleBar {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.worksUpdate, () => {
             this.set('waiting');
         });
-        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.filterResult, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resume]) {
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resultChange, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resume]) {
             window.addEventListener(ev, () => {
                 this.set('readyDownload');
             });
@@ -9756,8 +9753,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         this.worksWrap = null;
         this.deleteId = 0; // 手动删除时，要删除的作品的 id
         this.previewResult = true; // 是否预览结果
-        this.optionsCauseResultChange = ['firstFewImagesSwitch', 'firstFewImages']; // 这些选项变更时，需要重新添加结果。例如多图作品“只下载前几张” firstFewImages 会影响生成的结果，但是过滤器 filter 不会检查，所以需要单独检测它的变更
-        this.needReAdd = false; // 是否需要重新添加结果（并且会重新渲染）
+        this.causeResultChange = ['firstFewImagesSwitch', 'firstFewImages']; // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
         // 显示抓取到的作品数量
         this.showCount = () => {
             const count = this.resultMeta.length || _Store__WEBPACK_IMPORTED_MODULE_9__["store"].resultMeta.length;
@@ -9907,7 +9903,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
                 }
             });
         };
-        // “开始筛选”完成后，保存筛选结果的元数据，并重排结果
+        // 抓取完成后，保存结果的元数据，并重排结果
         this.onCrawlFinish = () => {
             this.resultMeta = [..._Store__WEBPACK_IMPORTED_MODULE_9__["store"].resultMeta];
             // 显示作品数量
@@ -9919,8 +9915,11 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
             _Log__WEBPACK_IMPORTED_MODULE_10__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_共抓取到n个文件', _Store__WEBPACK_IMPORTED_MODULE_9__["store"].result.length.toString()));
             this.clearWorks();
             this.reAddResult();
-            // 当抓取完成，并生成了所有作品元素之后，解绑这个事件
+            // 解绑创建作品元素的事件
             window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.addResult, this.createWork);
+            setTimeout(() => {
+                _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.worksUpdate);
+            }, 0);
         };
         // 清除多图作品
         this.clearMultiple = () => {
@@ -9947,8 +9946,9 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
             if (data.name === 'previewResult') {
                 this.setPreviewResult(data.value);
             }
-            if (this.optionsCauseResultChange.includes(data.name)) {
-                this.needReAdd = true;
+            if (this.causeResultChange.includes(data.name)) {
+                this.reAddResult();
+                _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.resultChange);
             }
         };
         this.init();
@@ -9964,26 +9964,6 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.clearUgoira, this.clearUgoira);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.deleteWork, this.deleteWork);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.settingChange, this.onSettingChange);
-    }
-    // 去除热门作品上面的遮挡
-    hotBar() {
-        // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
-        const timer = window.setInterval(() => {
-            const hotWorkAside = document.querySelector(this.hotWorkAsideSelector);
-            if (hotWorkAside) {
-                window.clearInterval(timer);
-                // 去掉遮挡作品的购买链接
-                const premiumLink = hotWorkAside.nextSibling;
-                premiumLink && premiumLink.remove();
-                // 去掉遮挡后两个作品的 after。因为是伪元素，所以要通过 css 控制
-                const style = `
-        section aside ul::after{
-          display:none !important;
-        }
-        `;
-                _DOM__WEBPACK_IMPORTED_MODULE_13__["DOM"].addStyle(style);
-            }
-        }, 300);
     }
     appendCenterBtns() {
         _DOM__WEBPACK_IMPORTED_MODULE_13__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始筛选'), [
@@ -10051,6 +10031,26 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         this.startGetIdList();
         this.clearWorks();
     }
+    // 去除热门作品上面的遮挡
+    hotBar() {
+        // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
+        const timer = window.setInterval(() => {
+            const hotWorkAside = document.querySelector(this.hotWorkAsideSelector);
+            if (hotWorkAside) {
+                window.clearInterval(timer);
+                // 去掉遮挡作品的购买链接
+                const premiumLink = hotWorkAside.nextSibling;
+                premiumLink && premiumLink.remove();
+                // 去掉遮挡后两个作品的 after。因为是伪元素，所以要通过 css 控制
+                const style = `
+        section aside ul::after{
+          display:none !important;
+        }
+        `;
+                _DOM__WEBPACK_IMPORTED_MODULE_13__["DOM"].addStyle(style);
+            }
+        }, 300);
+    }
     // 返回包含作品列表的 ul 元素
     getWorksWrap() {
         const test = document.querySelectorAll(this.worksWrapSelector);
@@ -10094,34 +10094,35 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         }
         this.resultMeta = resultMetaTemp;
         // 如果过滤后，作品元数据发生了改变，或者强制要求重新生成结果，才会重排作品。以免浪费资源。
-        if (this.resultMeta.length !== beforeLength || this.needReAdd) {
-            this.reAddResult(resultMetaRemoved);
-        }
-        this.needReAdd = false;
-        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.filterResult);
-    }
-    // 重新添加抓取结果，目前有两个时机：
-    // 1 是作品抓取完毕，添加抓取到的数据
-    // 2 是使用“在结果中筛选”或删除作品，使得作品数据变化了，改变作品列表视图
-    reAddResult(removedResult) {
-        // 如果传递了被删除的结果，则从作品列表里移除它们
-        if (removedResult && this.previewResult) {
+        if (this.resultMeta.length !== beforeLength) {
             let ids = [];
-            for (const result of removedResult) {
+            for (const result of resultMetaRemoved) {
                 ids.push(result.idNum.toString());
             }
-            // #root section ul .searchList
-            const listSelector = `${this.worksWrapSelector} .${this.listClass}`;
-            const lists = document.querySelectorAll(listSelector);
-            for (const li of lists) {
-                if (li.dataset.id && ids.includes(li.dataset.id)) {
-                    li.style.display = 'none';
-                    // li.remove()
-                    // 推测隐藏元素可以更快的重绘好页面，因为删除元素修改了 dom 结构，花的时间可能会多一些
-                }
+            this.removeWorks(ids);
+            this.reAddResult();
+        }
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.resultChange);
+    }
+    // 传递作品 id 列表，从页面上的作品列表里移除这些作品
+    removeWorks(idList) {
+        // #root section ul .searchList
+        const listSelector = `${this.worksWrapSelector} .${this.listClass}`;
+        const lists = document.querySelectorAll(listSelector);
+        for (const li of lists) {
+            if (li.dataset.id && idList.includes(li.dataset.id)) {
+                li.style.display = 'none';
+                // li.remove()
+                // 推测隐藏元素可以更快的重绘好页面，因为删除元素修改了 dom 结构，花的时间可能会多一些
             }
         }
-        _Store__WEBPACK_IMPORTED_MODULE_9__["store"].resetResult();
+    }
+    // 重新添加抓取结果，执行时机：
+    // 1 作品抓取完毕之后，添加抓取到的数据
+    // 2 使用“在结果中筛选”或删除作品，使得作品数据变化了，改变作品列表视图
+    // 3 修改了“多图下载设置”，导致作品数据变化
+    reAddResult() {
+        _Store__WEBPACK_IMPORTED_MODULE_9__["store"].reset();
         this.resultMeta.forEach((data) => {
             const dlCount = _Settings__WEBPACK_IMPORTED_MODULE_11__["setting"].getDLCount(data.pageCount);
             // 如果此时的 dlCount 与之前的 dlCount 不一样，则更新它
@@ -10130,9 +10131,6 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
             }
             _Store__WEBPACK_IMPORTED_MODULE_9__["store"].addResult(data);
         });
-        setTimeout(() => {
-            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.worksUpdate);
-        }, 0);
     }
     // 在当前结果中再次筛选，会修改第一次筛选的结果
     screenInResult() {

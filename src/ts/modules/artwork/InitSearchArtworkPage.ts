@@ -72,9 +72,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
   private previewResult = true // 是否预览结果
 
-  private optionsCauseResultChange = ['firstFewImagesSwitch', 'firstFewImages'] // 这些选项变更时，需要重新添加结果。例如多图作品“只下载前几张” firstFewImages 会影响生成的结果，但是过滤器 filter 不会检查，所以需要单独检测它的变更
-
-  private needReAdd = false // 是否需要重新添加结果（并且会重新渲染）
+  private causeResultChange = ['firstFewImagesSwitch', 'firstFewImages'] // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
 
   protected initElse() {
     this.hotBar()
@@ -94,30 +92,6 @@ class InitSearchArtworkPage extends InitPageBase {
     window.addEventListener(EVT.events.deleteWork, this.deleteWork)
 
     window.addEventListener(EVT.events.settingChange, this.onSettingChange)
-  }
-
-  // 去除热门作品上面的遮挡
-  private hotBar() {
-    // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
-    const timer = window.setInterval(() => {
-      const hotWorkAside = document.querySelector(this.hotWorkAsideSelector)
-
-      if (hotWorkAside) {
-        window.clearInterval(timer)
-
-        // 去掉遮挡作品的购买链接
-        const premiumLink = hotWorkAside.nextSibling
-        premiumLink && premiumLink.remove()
-
-        // 去掉遮挡后两个作品的 after。因为是伪元素，所以要通过 css 控制
-        const style = `
-        section aside ul::after{
-          display:none !important;
-        }
-        `
-        DOM.addStyle(style)
-      }
-    }, 300)
   }
 
   protected appendCenterBtns() {
@@ -205,6 +179,30 @@ class InitSearchArtworkPage extends InitPageBase {
     this.clearWorks()
   }
 
+  // 去除热门作品上面的遮挡
+  private hotBar() {
+    // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
+    const timer = window.setInterval(() => {
+      const hotWorkAside = document.querySelector(this.hotWorkAsideSelector)
+
+      if (hotWorkAside) {
+        window.clearInterval(timer)
+
+        // 去掉遮挡作品的购买链接
+        const premiumLink = hotWorkAside.nextSibling
+        premiumLink && premiumLink.remove()
+
+        // 去掉遮挡后两个作品的 after。因为是伪元素，所以要通过 css 控制
+        const style = `
+        section aside ul::after{
+          display:none !important;
+        }
+        `
+        DOM.addStyle(style)
+      }
+    }, 300)
+  }
+
   // 返回包含作品列表的 ul 元素
   private getWorksWrap() {
     const test = document.querySelectorAll(this.worksWrapSelector)
@@ -230,7 +228,6 @@ class InitSearchArtworkPage extends InitPageBase {
       }
     }
   }
-
 
   // 清空作品列表，只在作品抓取完毕时使用。之后会生成根据收藏数排列的作品列表。
   // 在其他情况下，删除作品不会清空作品列表，也不会再次生成作品列表，而是把这个作品的元素移除。这是为了减少 dom 操作耗时以及重绘页面引起的耗时，耗时太长会导致用户体验出现严重的问题。
@@ -403,7 +400,7 @@ class InitSearchArtworkPage extends InitPageBase {
     })
   }
 
-  // “开始筛选”完成后，保存筛选结果的元数据，并重排结果
+  // 抓取完成后，保存结果的元数据，并重排结果
   private onCrawlFinish = () => {
     this.resultMeta = [...store.resultMeta]
 
@@ -421,8 +418,12 @@ class InitSearchArtworkPage extends InitPageBase {
 
     this.reAddResult()
 
-    // 当抓取完成，并生成了所有作品元素之后，解绑这个事件
+    // 解绑创建作品元素的事件
     window.removeEventListener(EVT.events.addResult, this.createWork)
+
+    setTimeout(() => {
+      EVT.fire(EVT.events.worksUpdate)
+    }, 0)
   }
 
   // 筛选抓取结果。传入函数，过滤符合条件的结果
@@ -439,8 +440,8 @@ class InitSearchArtworkPage extends InitPageBase {
     const beforeLength = this.resultMeta.length // 储存过滤前的结果数量
 
     const resultMetaTemp: Result[] = []
-
     const resultMetaRemoved: Result[] = []
+
     for (const meta of this.resultMeta) {
       if (await callback(meta)) {
         resultMetaTemp.push(meta)
@@ -452,41 +453,40 @@ class InitSearchArtworkPage extends InitPageBase {
     this.resultMeta = resultMetaTemp
 
     // 如果过滤后，作品元数据发生了改变，或者强制要求重新生成结果，才会重排作品。以免浪费资源。
-    if (this.resultMeta.length !== beforeLength || this.needReAdd) {
-      this.reAddResult(resultMetaRemoved)
-    }
-
-    this.needReAdd = false
-
-    EVT.fire(EVT.events.filterResult)
-  }
-
-  // 重新添加抓取结果，目前有两个时机：
-  // 1 是作品抓取完毕，添加抓取到的数据
-  // 2 是使用“在结果中筛选”或删除作品，使得作品数据变化了，改变作品列表视图
-  private reAddResult(removedResult?: Result[]) {
-    // 如果传递了被删除的结果，则从作品列表里移除它们
-    if (removedResult && this.previewResult) {
-      let ids = []
-      for (const result of removedResult) {
+    if (this.resultMeta.length !== beforeLength) {
+      let ids: string[] = []
+      for (const result of resultMetaRemoved) {
         ids.push(result.idNum.toString())
       }
-
-      // #root section ul .searchList
-      const listSelector = `${this.worksWrapSelector} .${this.listClass}`
-      const lists = document.querySelectorAll(listSelector) as NodeListOf<
-        HTMLLIElement
-      >
-      for (const li of lists) {
-        if (li.dataset.id && ids.includes(li.dataset.id)) {
-          li.style.display = 'none'
-          // li.remove()
-          // 推测隐藏元素可以更快的重绘好页面，因为删除元素修改了 dom 结构，花的时间可能会多一些
-        }
-      }
+      this.removeWorks(ids)
+      this.reAddResult()
     }
 
-    store.resetResult()
+    EVT.fire(EVT.events.resultChange)
+  }
+
+  // 传递作品 id 列表，从页面上的作品列表里移除这些作品
+  private removeWorks(idList: string[]) {
+    // #root section ul .searchList
+    const listSelector = `${this.worksWrapSelector} .${this.listClass}`
+    const lists = document.querySelectorAll(listSelector) as NodeListOf<
+      HTMLLIElement
+    >
+    for (const li of lists) {
+      if (li.dataset.id && idList.includes(li.dataset.id)) {
+        li.style.display = 'none'
+        // li.remove()
+        // 推测隐藏元素可以更快的重绘好页面，因为删除元素修改了 dom 结构，花的时间可能会多一些
+      }
+    }
+  }
+
+  // 重新添加抓取结果，执行时机：
+  // 1 作品抓取完毕之后，添加抓取到的数据
+  // 2 使用“在结果中筛选”或删除作品，使得作品数据变化了，改变作品列表视图
+  // 3 修改了“多图下载设置”，导致作品数据变化
+  private reAddResult() {
+    store.reset()
 
     this.resultMeta.forEach((data) => {
       const dlCount = setting.getDLCount(data.pageCount)
@@ -497,10 +497,6 @@ class InitSearchArtworkPage extends InitPageBase {
 
       store.addResult(data)
     })
-
-    setTimeout(() => {
-      EVT.fire(EVT.events.worksUpdate)
-    }, 0)
   }
 
   // 在当前结果中再次筛选，会修改第一次筛选的结果
@@ -739,8 +735,9 @@ class InitSearchArtworkPage extends InitPageBase {
       this.setPreviewResult(data.value)
     }
 
-    if (this.optionsCauseResultChange.includes(data.name)) {
-      this.needReAdd = true
+    if (this.causeResultChange.includes(data.name)) {
+      this.reAddResult()
+      EVT.fire(EVT.events.resultChange)
     }
   }
 

@@ -54,8 +54,6 @@ class Settings {
 
   public form: SettingsForm
 
-  private firstFewImages: number = 0
-
   private allSwitch: NodeListOf<HTMLInputElement> // 所有开关（同时也是复选框）
   private allCheckBox: NodeListOf<HTMLInputElement> // 所有复选框
   private allRadio: NodeListOf<HTMLInputElement> // 单选按钮
@@ -105,15 +103,15 @@ class Settings {
       })
     }
 
-    // 当抓取完毕可以开始下载时，切换到“下载”选项卡
-    for (const ev of [EVT.events.crawlFinish, EVT.events.resume]) {
+    // 当可以开始下载时，切换到“下载”选项卡
+    for (const ev of [EVT.events.crawlFinish, EVT.events.resultChange, EVT.events.resume]) {
       window.addEventListener(ev, () => {
-          this.activeTab(1)
+        this.activeTab(1)
       })
     }
 
     window.addEventListener(EVT.events.crawlEmpty, () => {
-        this.activeTab(0)
+      this.activeTab(0)
     })
 
     // 预览文件名
@@ -270,15 +268,15 @@ class Settings {
     const check = API.checkNumberGreater0(form.firstFewImages.value)
 
     if (check.result) {
-      this.firstFewImages = check.value
       return check.value
     }
   }
 
   // 计算要从这个作品里下载几张图片
   public getDLCount(pageCount: number) {
-    if (form.firstFewImagesSwitch.checked && this.firstFewImages <= pageCount) {
-      return this.firstFewImages
+    const firstFewImages = this.getFirstFewImages()
+    if (firstFewImages && form.firstFewImagesSwitch.checked && firstFewImages <= pageCount) {
+      return firstFewImages
     }
     return pageCount
   }

@@ -65,7 +65,7 @@ class DownloadControl {
       this.reset()
     })
 
-    for (const ev of [EVT.events.crawlFinish, EVT.events.resume]) {
+    for (const ev of [EVT.events.crawlFinish, EVT.events.resultChange, EVT.events.resume]) {
       window.addEventListener(ev, () => {
         window.setTimeout(() => {
           this.readyDownload()

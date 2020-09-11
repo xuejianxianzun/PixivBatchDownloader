@@ -45,7 +45,7 @@ class EVT {
     resume: 'resume',
     outputCSV: 'outputCSV',
     QuickDownload: 'QuickDownload',
-    filterResult: 'filterResult',
+    resultChange: 'resultChange',
   }
 
   // 触发事件，可以携带数据
