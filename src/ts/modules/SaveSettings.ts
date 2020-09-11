@@ -1,14 +1,14 @@
 import { EVT } from './EVT'
 import { SettingsForm } from './Settings.d'
 
-// 保存设置项，并且初始化或恢复设置项
+// 保存了设置表单的所有设置项，并且在下载器初始化时恢复这些设置的值
+// 例外情况：个数/页数设置（setWantPage）只保存，不恢复。这是因为下载器在初始化时，由 InitXXXPage 类直接设置 setWantPage，而不是使用 localStorage 里保存的值进行恢复。
 
-// 以下设置项没有被保存：
-// setWantPage
-
-// 需要注意， 待确认
+// 成员 options 保存着当前页面的所有设置项；当设置项变化时，options 响应变化并保存到 localStorage 里。
+// 注意：如果打开了多个标签页，每个页面都有各自的 options 成员。它们是互相独立的，不会互相影响。但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 options 保存到 localStorage 里。
 
 interface XzSetting {
+  setWantPage: string
   firstFewImagesSwitch: boolean
   firstFewImages: number
   downType0: boolean
@@ -19,7 +19,7 @@ interface XzSetting {
   downMultiImg: boolean
   downColorImg: boolean
   downBlackWhiteImg: boolean
-  setOnlyBmk:boolean
+  setOnlyBmk: boolean
   ugoiraSaveAs: 'webm' | 'gif' | 'zip' | 'png'
   convertUgoiraThread: number
   needTag: string
@@ -100,6 +100,7 @@ class SaveSettings {
 
   // 需要持久化保存的设置的默认值
   private readonly optionDefault: XzSetting = {
+    setWantPage: '-1',
     firstFewImagesSwitch: false,
     firstFewImages: 1,
     downType0: true,
@@ -110,7 +111,7 @@ class SaveSettings {
     downMultiImg: true,
     downColorImg: true,
     downBlackWhiteImg: true,
-    setOnlyBmk:false,
+    setOnlyBmk: false,
     ugoiraSaveAs: 'webm',
     convertUgoiraThread: 1,
     needTag: '',
@@ -186,7 +187,7 @@ class SaveSettings {
     }
   }
 
-  // 从持久化设置，缺省使用默认值，恢复下载区域的设置
+  // 读取持久化数据，或使用默认设置，恢复设置表单的设置项
   private restoreOption() {
     const savedOption = localStorage.getItem(this.storeName)
     // 读取保存的设置
@@ -333,6 +334,9 @@ class SaveSettings {
   // 绑定所有选项的事件，当选项变动触发 settingChange 事件
   // 只可执行一次，否则事件会重复绑定
   private bindOptionEvent() {
+    // 保存页数/个数设置
+    this.saveTextInput('setWantPage')
+
     // 保存下载的作品类型
     this.saveCheckBox('downType0')
     this.saveCheckBox('downType1')

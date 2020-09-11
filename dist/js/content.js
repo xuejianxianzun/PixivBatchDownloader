@@ -5316,6 +5316,7 @@ class InitPageBase {
         this.appendCenterBtns();
         this.appendElseEl();
         this.initElse();
+        _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.settingChange, { name: 'setWantPage', value: _Settings__WEBPACK_IMPORTED_MODULE_10__["form"].setWantPage.value });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.pageSwitchedTypeChange, () => {
             this.destroy();
         });
@@ -5541,6 +5542,8 @@ class InitPageBase {
     }
     // 抓取结果为 0 时输出提示
     noResult() {
+        // 先触发 crawlFinish，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
+        // 如果触发顺序反过来，那么最后执行的都是 crawlFinish，可能会覆盖对 crawlEmpty 的处理
         _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.crawlFinish);
         _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.crawlEmpty);
         _Log__WEBPACK_IMPORTED_MODULE_8__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取结果为零'), 2);
@@ -7561,6 +7564,7 @@ class SaveSettings {
         this.storeName = 'xzSetting';
         // 需要持久化保存的设置的默认值
         this.optionDefault = {
+            setWantPage: '-1',
             firstFewImagesSwitch: false,
             firstFewImages: 1,
             downType0: true,
@@ -7776,6 +7780,8 @@ class SaveSettings {
     // 绑定所有选项的事件，当选项变动触发 settingChange 事件
     // 只可执行一次，否则事件会重复绑定
     bindOptionEvent() {
+        // 保存页数/个数设置
+        this.saveTextInput('setWantPage');
         // 保存下载的作品类型
         this.saveCheckBox('downType0');
         this.saveCheckBox('downType1');

@@ -21,6 +21,9 @@ abstract class InitPageBase {
     this.appendElseEl()
     this.initElse()
 
+    // 个数/页数设置可能在 init 里由代码直接进行设置，不会触发 change 事件，无法被监听到。所以手动触发 settingChange 事件，使其他组件能够接收到通知
+    EVT.fire(EVT.events.settingChange, { name: 'setWantPage', value: form.setWantPage.value })
+
     window.addEventListener(EVT.events.pageSwitchedTypeChange, () => {
       this.destroy()
     })
