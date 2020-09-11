@@ -16,7 +16,7 @@ class DOM {
     }
     if (Reflect.has(el, 'length')) {
       // 如果有 length 属性则循环删除。
-      ;(el as NodeListOf<Element>).forEach((el) => {
+      ; (el as NodeListOf<Element>).forEach((el) => {
         if (el.parentNode) {
           el.parentNode.removeChild(el)
         }
@@ -44,7 +44,7 @@ class DOM {
     if (document.body) {
       document.body.insertAdjacentElement('afterbegin', el)
     } else {
-      ;(
+      ; (
         document.querySelector('.newindex-inner')! ||
         document.querySelector('.layout-body')!
       ).insertAdjacentElement('beforebegin', el)
@@ -182,6 +182,12 @@ class DOM {
         reject(new Error(`Load image error! url: ${url}`))
       }
     })
+  }
+
+  static getTitle() {
+    return document.title
+      .replace(/\[(↑|→|▶|↓|║|■|✓| )\] /, '')
+      .replace(/^\(\d.*\) /, '')
   }
 }
 

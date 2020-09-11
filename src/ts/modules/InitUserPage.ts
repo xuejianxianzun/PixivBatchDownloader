@@ -10,7 +10,6 @@ import { DOM } from './DOM'
 import { userWorksType, tagPageFlag } from './CrawlArgument.d'
 import { UserImageWorksWithTag, UserNovelsWithTag } from './CrawlResult'
 import { IDListType } from './Store.d'
-import { pageInfo } from './PageInfo'
 import { EVT } from './EVT'
 import './SaveAvatarIcon'
 
@@ -85,7 +84,7 @@ class InitUserPage extends InitPageBase {
       }
     }
 
-    pageInfo.tag ? this.getIdListByTag() : this.getIdList()
+    store.tag ? this.getIdListByTag() : this.getIdList()
 
     log.log(lang.transl('_正在抓取'))
   }
@@ -190,7 +189,7 @@ class InitUserPage extends InitPageBase {
     let data = await API.getUserWorksByTypeWithTag(
       DOM.getUserId(),
       flag,
-      pageInfo.tag,
+      store.tag,
       offset,
       requsetNumber
     )

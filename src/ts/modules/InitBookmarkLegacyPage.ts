@@ -14,7 +14,6 @@ import {
 import { store } from './Store'
 import { log } from './Log'
 import { DOM } from './DOM'
-import { pageInfo } from './PageInfo'
 
 class InitBookmarkLegacyPage extends InitPageBase {
   constructor() {
@@ -25,8 +24,6 @@ class InitBookmarkLegacyPage extends InitPageBase {
   private idList: IDData[] = [] // 储存从列表页获取到的 id
 
   private type: 'illusts' | 'novels' = 'illusts' // 页面是图片还是小说
-
-  private tag = '' // 储存当前页面带的 tag，不过有时并没有
 
   private isHide = false // 当前页面是否显示的是非公开收藏
 
@@ -134,8 +131,6 @@ class InitBookmarkLegacyPage extends InitPageBase {
       this.requsetNumber = onceNumber * this.crawlNumber
     }
 
-    this.tag = pageInfo.tag
-
     // 判断是公开收藏还是非公开收藏
     // 在新旧版 url 里，rest 都是在查询字符串里的
     this.isHide = API.getURLSearchField(location.href, 'rest') === 'hide'
@@ -154,7 +149,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
       data = await API.getBookmarkData(
         DOM.getUserId(),
         this.type,
-        this.tag,
+        store.tag,
         this.offset,
         this.isHide
       )
@@ -237,7 +232,6 @@ class InitBookmarkLegacyPage extends InitPageBase {
     this.type = 'illusts'
     this.idList = []
     this.offset = 0
-    this.tag = ''
     this.listPageFinished = 0
     this.crawlRecommended = false // 解除下载推荐作品的标记
   }

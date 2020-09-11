@@ -1,12 +1,12 @@
+import { API } from './API'
 import { EVT } from './EVT'
+import { DOM } from './DOM'
 import { Result, WorkInfoOptional, RankList, IDData } from './Store.d'
 
 // 储存抓取结果
 class Store {
   constructor() {
-    window.addEventListener(EVT.events.crawlStart, () => {
-      this.reset()
-    })
+    this.bindEvent()
   }
 
   public idList: IDData[] = [] // 储存从列表中抓取到的作品的 id
@@ -18,6 +18,12 @@ class Store {
   // resultIDList 可能会有隐患，因为没有区分图片和小说。如果一次抓取任务里，有图片和小说使用了相同的 id，那么只会保留先抓取到的那个。不过目前看来这种情况几乎不会发生。
 
   public result: Result[] = [] // 储存抓取结果
+
+  private rankList: RankList = {} // 储存作品在排行榜中的排名
+
+  public tag = '' // 开始抓取时，储存页面此时的 tag
+
+  public title = '' // 开始抓取时，储存页面此时的 title
 
   private assignResult(data: WorkInfoOptional) {
     // 图片详细信息的默认值
@@ -81,8 +87,6 @@ class Store {
     }
   }
 
-  private rankList: RankList = {} // 储存作品在排行榜中的排名
-
   public getRankList(index: string) {
     return this.rankList[index]
   }
@@ -91,18 +95,25 @@ class Store {
     this.rankList[id] = rank
   }
 
-  // 储存页面信息，用来生成文件名
-  public pageInfo = {
-    pageTitle: '',
-    pageTag: '',
-  }
-
   public reset() {
     this.resultMeta = []
     this.resultIDList = []
     this.result = []
     this.idList = []
     this.rankList = {}
+    this.tag = API.getTagFromURL()
+    this.title = DOM.getTitle()
+  }
+
+  private bindEvent() {
+    window.addEventListener(EVT.events.crawlStart, () => {
+      this.reset()
+    })
+
+    window.addEventListener(EVT.events.resume, () => {
+      this.tag = API.getTagFromURL()
+      this.title = DOM.getTitle()
+    })
   }
 }
 

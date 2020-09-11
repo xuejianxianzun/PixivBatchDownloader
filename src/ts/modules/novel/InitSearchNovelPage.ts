@@ -3,7 +3,6 @@ import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../Options'
-import { pageInfo } from '../PageInfo'
 import { SearchOption } from '../CrawlArgument'
 import { FilterOption } from '../Filter.d'
 import { filter } from '../Filter'
@@ -120,7 +119,7 @@ class InitSearchNovelPage extends InitPageBase {
 
   // 获取搜索页的数据。因为有多处使用，所以进行了封装
   private async getSearchData(p: number) {
-    let data = await API.getNovelSearchData(pageInfo.tag, p, this.option)
+    let data = await API.getNovelSearchData(store.tag, p, this.option)
     return data.body.novel
   }
 

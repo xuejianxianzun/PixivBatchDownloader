@@ -23,12 +23,12 @@ class FileName {
     // 配置所有命名标记
     const cfg = {
       '{p_title}': {
-        value: store.pageInfo.pageTitle,
+        value: store.title,
         prefix: '',
         safe: false,
       },
       '{p_tag}': {
-        value: store.pageInfo.pageTag,
+        value: store.tag,
         prefix: '',
         safe: false,
       },

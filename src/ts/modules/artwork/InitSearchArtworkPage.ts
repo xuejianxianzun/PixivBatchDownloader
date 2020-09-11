@@ -3,7 +3,6 @@ import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../Options'
-import { pageInfo } from '../PageInfo'
 import { DeleteWorks } from '../DeleteWorks'
 import { EVT } from '../EVT'
 import { SearchOption } from '../CrawlArgument'
@@ -566,7 +565,7 @@ class InitSearchArtworkPage extends InitPageBase {
   // 获取搜索页的数据。因为有多处使用，所以进行了封装
   private async getSearchData(p: number) {
     let data = await API.getSearchData(
-      pageInfo.tag,
+      store.tag,
       this.worksType,
       p,
       this.option

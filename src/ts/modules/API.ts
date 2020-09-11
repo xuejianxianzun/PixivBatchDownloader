@@ -109,7 +109,7 @@ class API {
   }
 
   // 从 url 中获取 tag
-  static getTagFromURL(url: string) {
+  static getTagFromURL(url: string = location.href) {
     const nowURL = new URL(url)
 
     // 2 用户作品列表页
@@ -123,7 +123,7 @@ class API {
         const array = str.split('/')
         // ["", "illustrations", "ghostblade"]
         if (array.length > 2) {
-          return array[array.length - 1]
+          return decodeURIComponent(array[array.length - 1])
         }
       }
     }
@@ -144,18 +144,18 @@ class API {
       // https://www.pixiv.net/users/9460149/bookmarks/novels/R-18
       const test = /\/bookmarks\/\w*\/(.[^\/|^\?|^&]*)/.exec(nowURL.pathname)
       if (test !== null && test.length > 1 && !!test[1]) {
-        return test[1]
+        return decodeURIComponent(test[1])
       }
     }
 
     // 5 搜索页面
     if (nowURL.pathname.includes('/tags/')) {
-      return nowURL.pathname.split('tags/')[1].split('/')[0]
+      return decodeURIComponent(nowURL.pathname.split('tags/')[1].split('/')[0])
     }
 
     // 默认情况，从查询字符串里获取，如下网址
     // https://www.pixiv.net/bookmark.php?tag=R-18
-    return this.getURLSearchField(nowURL.href, 'tag')
+    return decodeURIComponent(this.getURLSearchField(nowURL.href, 'tag'))
   }
 
   // 更新 token
@@ -264,9 +264,8 @@ class API {
     offset: number,
     hide: boolean = false
   ): Promise<BookmarkData> {
-    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
-      hide ? 'hide' : 'show'
-    }&rdm=${Math.random()}`
+    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${hide ? 'hide' : 'show'
+      }&rdm=${Math.random()}`
 
     return this.request(url)
   }
