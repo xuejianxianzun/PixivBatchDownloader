@@ -2,7 +2,7 @@
 import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../Colors'
 import { lang } from '../Lang'
-import { options } from '../Options'
+import { options } from '../setting/Options'
 import { store } from '../Store'
 import { QuickBookmark } from '../QuickBookmark'
 import { userWorksType } from '../CrawlArgument'

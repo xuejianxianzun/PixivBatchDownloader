@@ -1,8 +1,8 @@
-import { EVT } from './EVT'
-import { DOM } from './DOM'
-import { lang } from './Lang'
-import { log } from './Log'
-import { themeColor } from './ThemeColor'
+import { EVT } from '../EVT'
+import { DOM } from '../DOM'
+import { lang } from '../Lang'
+import { log } from '../Log'
+import { themeColor } from '../ThemeColor'
 
 // 保存和加载命名规则
 class SaveNamingRule {

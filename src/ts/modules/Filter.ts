@@ -1,6 +1,6 @@
 // 过滤器
 import { FilterOption, FilterWh } from './Filter.d'
-import { form } from './Settings'
+import { form } from './setting/Settings'
 import { lang } from './Lang'
 import { log } from './Log'
 import { API } from './API'

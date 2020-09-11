@@ -4,7 +4,7 @@ import { API } from './API'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { IDData } from './Store.d'
-import { options } from './Options'
+import { options } from './setting/Options'
 import { BookmarksAddTag } from './BookmarksAddTag'
 import {
   BookmarkData,

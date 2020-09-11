@@ -2,7 +2,7 @@
 import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../Colors'
 import { lang } from '../Lang'
-import { options } from '../Options'
+import { options } from '../setting/Options'
 import { NewIllustOption } from '../CrawlArgument'
 import { NewIllustData } from '../CrawlResult'
 import { FilterOption } from '../Filter.d'

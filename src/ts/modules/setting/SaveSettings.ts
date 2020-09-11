@@ -1,4 +1,4 @@
-import { EVT } from './EVT'
+import { EVT } from '../EVT'
 import { SettingsForm } from './Settings.d'
 
 // 保存了设置表单的所有设置项，并且在下载器初始化时恢复这些设置的值

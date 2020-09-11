@@ -3,8 +3,8 @@ import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
 import { DOM } from './DOM'
-import { options } from './Options'
-import { form } from './Settings'
+import { options } from './setting/Options'
+import { form } from './setting/Settings'
 import { store } from './Store'
 
 class InitPixivisionPage extends InitPageBase {

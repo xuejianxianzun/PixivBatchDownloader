@@ -2,7 +2,7 @@
 import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { options } from './Options'
+import { options } from './setting/Options'
 import { API } from './API'
 import { store } from './Store'
 import { log } from './Log'
