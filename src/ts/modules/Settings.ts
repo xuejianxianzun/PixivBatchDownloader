@@ -31,6 +31,8 @@ class Settings {
 
     this.bindEvents()
 
+    this.firstFewImages = this.getFirstFewImages()
+
     new SaveNamingRule(this.form.userSetName)
 
     new SaveSettings(this.form)
@@ -64,6 +66,8 @@ class Settings {
   private readonly activeClass = 'active'
 
   private readonly chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
+
+  private firstFewImages = 0
 
   // 设置激活的选项卡
   private activeTab(no = 0) {
@@ -112,6 +116,14 @@ class Settings {
 
     window.addEventListener(EVT.events.crawlEmpty, () => {
       this.activeTab(0)
+    })
+
+    // 当 firstFewImages 设置改变时，保存它的值
+    window.addEventListener(EVT.events.settingChange, (event: CustomEventInit) => {
+      const data = event.detail.data
+      if (data.name === 'firstFewImages') {
+        this.firstFewImages = this.getFirstFewImages()
+      }
     })
 
     // 预览文件名
@@ -265,18 +277,19 @@ class Settings {
 
   // 获取作品张数设置
   public getFirstFewImages() {
-    const check = API.checkNumberGreater0(form.firstFewImages.value)
+    const check = API.checkNumberGreater0(this.form.firstFewImages.value)
 
     if (check.result) {
       return check.value
+    } else {
+      return 999
     }
   }
 
   // 计算要从这个作品里下载几张图片
   public getDLCount(pageCount: number) {
-    const firstFewImages = this.getFirstFewImages()
-    if (firstFewImages && form.firstFewImagesSwitch.checked && firstFewImages <= pageCount) {
-      return firstFewImages
+    if (this.form.firstFewImagesSwitch.checked && this.firstFewImages <= pageCount) {
+      return this.firstFewImages
     }
     return pageCount
   }

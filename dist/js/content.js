@@ -7934,6 +7934,7 @@ class Settings {
     constructor() {
         this.activeClass = 'active';
         this.chooseKeys = ['Enter', 'NumpadEnter']; // 让回车键可以控制复选框（浏览器默认只支持空格键）
+        this.firstFewImages = 0;
         this.form = _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_5__["default"]);
         this.allCheckBox = this.form.querySelectorAll('input[type="checkbox"]');
         this.allRadio = this.form.querySelectorAll('input[type="radio"]');
@@ -7942,6 +7943,7 @@ class Settings {
         this.allTabTitle = this.form.querySelectorAll('.tabsTitle .title');
         this.allTabCon = this.form.querySelectorAll('.tabsContnet .con');
         this.bindEvents();
+        this.firstFewImages = this.getFirstFewImages();
         new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_7__["SaveNamingRule"](this.form.userSetName);
         new _SaveSettings__WEBPACK_IMPORTED_MODULE_6__["SaveSettings"](this.form);
         // new SaveSettings 会初始化选项，但可能会有一些选项的值在初始化过程中没有发生改变，也就不会被监听到变化。所以这里需要直接初始化以下状态。
@@ -7997,6 +7999,13 @@ class Settings {
         }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlEmpty, () => {
             this.activeTab(0);
+        });
+        // 当 firstFewImages 设置改变时，保存它的值
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.settingChange, (event) => {
+            const data = event.detail.data;
+            if (data.name === 'firstFewImages') {
+                this.firstFewImages = this.getFirstFewImages();
+            }
         });
         // 预览文件名
         _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].addBtn('namingBtns', _Colors__WEBPACK_IMPORTED_MODULE_3__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_预览文件名')).addEventListener('click', () => {
@@ -8111,16 +8120,18 @@ class Settings {
     }
     // 获取作品张数设置
     getFirstFewImages() {
-        const check = _API__WEBPACK_IMPORTED_MODULE_0__["API"].checkNumberGreater0(form.firstFewImages.value);
+        const check = _API__WEBPACK_IMPORTED_MODULE_0__["API"].checkNumberGreater0(this.form.firstFewImages.value);
         if (check.result) {
             return check.value;
+        }
+        else {
+            return 999;
         }
     }
     // 计算要从这个作品里下载几张图片
     getDLCount(pageCount) {
-        const firstFewImages = this.getFirstFewImages();
-        if (firstFewImages && form.firstFewImagesSwitch.checked && firstFewImages <= pageCount) {
-            return firstFewImages;
+        if (this.form.firstFewImagesSwitch.checked && this.firstFewImages <= pageCount) {
+            return this.firstFewImages;
         }
         return pageCount;
     }
@@ -10093,7 +10104,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
             }
         }
         this.resultMeta = resultMetaTemp;
-        // 如果过滤后，作品元数据发生了改变，或者强制要求重新生成结果，才会重排作品。以免浪费资源。
+        // 如果过滤后，作品元数据发生了改变则重排作品
         if (this.resultMeta.length !== beforeLength) {
             let ids = [];
             for (const result of resultMetaRemoved) {
@@ -10123,14 +10134,14 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
     // 3 修改了“多图下载设置”，导致作品数据变化
     reAddResult() {
         _Store__WEBPACK_IMPORTED_MODULE_9__["store"].reset();
-        this.resultMeta.forEach((data) => {
+        for (let data of this.resultMeta) {
             const dlCount = _Settings__WEBPACK_IMPORTED_MODULE_11__["setting"].getDLCount(data.pageCount);
             // 如果此时的 dlCount 与之前的 dlCount 不一样，则更新它
             if (dlCount !== data.dlCount) {
                 data = Object.assign(data, { dlCount: dlCount });
             }
             _Store__WEBPACK_IMPORTED_MODULE_9__["store"].addResult(data);
-        });
+        }
     }
     // 在当前结果中再次筛选，会修改第一次筛选的结果
     screenInResult() {

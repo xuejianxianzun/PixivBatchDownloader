@@ -452,7 +452,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     this.resultMeta = resultMetaTemp
 
-    // 如果过滤后，作品元数据发生了改变，或者强制要求重新生成结果，才会重排作品。以免浪费资源。
+    // 如果过滤后，作品元数据发生了改变则重排作品
     if (this.resultMeta.length !== beforeLength) {
       let ids: string[] = []
       for (const result of resultMetaRemoved) {
@@ -488,7 +488,7 @@ class InitSearchArtworkPage extends InitPageBase {
   private reAddResult() {
     store.reset()
 
-    this.resultMeta.forEach((data) => {
+    for (let data of this.resultMeta) {
       const dlCount = setting.getDLCount(data.pageCount)
       // 如果此时的 dlCount 与之前的 dlCount 不一样，则更新它
       if (dlCount !== data.dlCount) {
@@ -496,7 +496,7 @@ class InitSearchArtworkPage extends InitPageBase {
       }
 
       store.addResult(data)
-    })
+    }
   }
 
   // 在当前结果中再次筛选，会修改第一次筛选的结果
