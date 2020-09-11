@@ -1,7 +1,12 @@
-// 保存和初始化设置项
-// 只有部分设置会被保存
 import { EVT } from './EVT'
 import { SettingsForm } from './Settings.d'
+
+// 保存设置项，并且初始化或恢复设置项
+
+// 以下设置项没有被保存：
+// setWantPage
+
+// 需要注意， 待确认
 
 interface XzSetting {
   firstFewImagesSwitch: boolean
@@ -14,6 +19,7 @@ interface XzSetting {
   downMultiImg: boolean
   downColorImg: boolean
   downBlackWhiteImg: boolean
+  setOnlyBmk:boolean
   ugoiraSaveAs: 'webm' | 'gif' | 'zip' | 'png'
   convertUgoiraThread: number
   needTag: string
@@ -42,6 +48,7 @@ interface XzSetting {
   userRatio: string
   idRangeSwitch: boolean
   idRangeInput: string
+  idRange: '1' | '2'
   needTagSwitch: boolean
   notNeedTagSwitch: boolean
   quickBookmarks: boolean
@@ -76,7 +83,7 @@ class SaveSettings {
         const data = event.detail.data as SettingChangeData
         if (Reflect.has(this.optionDefault, data.name)) {
           if ((this.options[data.name] as any) !== data.value) {
-            ;(this.options[data.name] as any) = data.value
+            ; (this.options[data.name] as any) = data.value
             localStorage.setItem(this.storeName, JSON.stringify(this.options))
           }
         }
@@ -103,6 +110,7 @@ class SaveSettings {
     downMultiImg: true,
     downColorImg: true,
     downBlackWhiteImg: true,
+    setOnlyBmk:false,
     ugoiraSaveAs: 'webm',
     convertUgoiraThread: 1,
     needTag: '',
@@ -131,6 +139,7 @@ class SaveSettings {
     userRatio: '1.4',
     idRangeSwitch: false,
     idRangeInput: '0',
+    idRange: '1',
     needTagSwitch: false,
     notNeedTagSwitch: false,
     quickBookmarks: true,
@@ -202,6 +211,9 @@ class SaveSettings {
     this.restoreBoolean('firstFewImagesSwitch')
     this.restoreString('firstFewImages')
 
+    // 设置只下载已收藏
+    this.restoreBoolean('setOnlyBmk')
+
     // 设置动图格式选项
     this.restoreString('ugoiraSaveAs')
 
@@ -236,6 +248,7 @@ class SaveSettings {
     // 设置 id 范围
     this.restoreBoolean('idRangeSwitch')
     this.restoreString('idRangeInput')
+    this.restoreString('idRange')
 
     // 设置必须的 tag
     this.restoreBoolean('needTagSwitch')
@@ -334,6 +347,9 @@ class SaveSettings {
     this.saveCheckBox('firstFewImagesSwitch')
     this.saveTextInput('firstFewImages')
 
+    // 保存只下载已收藏
+    this.saveCheckBox('setOnlyBmk')
+
     // 保存动图格式选项
     this.saveRadio('ugoiraSaveAs')
 
@@ -373,8 +389,6 @@ class SaveSettings {
     // 保存 id 范围
     this.saveCheckBox('idRangeSwitch')
     this.saveTextInput('idRangeInput')
-
-    // 保存 id 范围
     this.saveRadio('idRange')
 
     // 保存必须的 tag 设置
@@ -387,11 +401,11 @@ class SaveSettings {
 
     // 保存命名规则
     const userSetNameInput = this.form.userSetName
-    ;['change', 'focus'].forEach((ev) => {
-      userSetNameInput.addEventListener(ev, () => {
-        this.emitChange('userSetName', userSetNameInput.value)
+      ;['change', 'focus'].forEach((ev) => {
+        userSetNameInput.addEventListener(ev, () => {
+          this.emitChange('userSetName', userSetNameInput.value)
+        })
       })
-    })
 
     // 保存是否添加标记名称
     this.saveCheckBox('tagNameToFileName')

@@ -7554,8 +7554,6 @@ class SaveNamingRule {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "SaveSettings", function() { return SaveSettings; });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
-// 保存和初始化设置项
-// 只有部分设置会被保存
 
 class SaveSettings {
     constructor(form) {
@@ -7573,6 +7571,7 @@ class SaveSettings {
             downMultiImg: true,
             downColorImg: true,
             downBlackWhiteImg: true,
+            setOnlyBmk: false,
             ugoiraSaveAs: 'webm',
             convertUgoiraThread: 1,
             needTag: '',
@@ -7601,6 +7600,7 @@ class SaveSettings {
             userRatio: '1.4',
             idRangeSwitch: false,
             idRangeInput: '0',
+            idRange: '1',
             needTagSwitch: false,
             notNeedTagSwitch: false,
             quickBookmarks: true,
@@ -7683,6 +7683,8 @@ class SaveSettings {
         // 多图下载前几张图作品设置
         this.restoreBoolean('firstFewImagesSwitch');
         this.restoreString('firstFewImages');
+        // 设置只下载已收藏
+        this.restoreBoolean('setOnlyBmk');
         // 设置动图格式选项
         this.restoreString('ugoiraSaveAs');
         // 设置动图转换线程数
@@ -7708,6 +7710,7 @@ class SaveSettings {
         // 设置 id 范围
         this.restoreBoolean('idRangeSwitch');
         this.restoreString('idRangeInput');
+        this.restoreString('idRange');
         // 设置必须的 tag
         this.restoreBoolean('needTagSwitch');
         this.restoreString('needTag');
@@ -7785,6 +7788,8 @@ class SaveSettings {
         // 保存多图作品设置
         this.saveCheckBox('firstFewImagesSwitch');
         this.saveTextInput('firstFewImages');
+        // 保存只下载已收藏
+        this.saveCheckBox('setOnlyBmk');
         // 保存动图格式选项
         this.saveRadio('ugoiraSaveAs');
         // 保存动图转换线程数
@@ -7814,7 +7819,6 @@ class SaveSettings {
         // 保存 id 范围
         this.saveCheckBox('idRangeSwitch');
         this.saveTextInput('idRangeInput');
-        // 保存 id 范围
         this.saveRadio('idRange');
         // 保存必须的 tag 设置
         this.saveCheckBox('needTagSwitch');
@@ -9542,7 +9546,7 @@ class InitRankingArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
     }
     initElse() {
         // 抓取完成后，复位 debut 标记
-        // 因为 debut 只在抓取截断被过滤器使用，所以抓取完成后就可以复位
+        // 因为 debut 只在抓取阶段被过滤器使用，所以抓取完成后就可以复位
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.crawlFinish, () => {
             _States__WEBPACK_IMPORTED_MODULE_10__["states"].debut = false;
         });
