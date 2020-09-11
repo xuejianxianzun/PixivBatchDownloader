@@ -140,7 +140,7 @@ class CenterPanel {
     // 抓取完作品详细数据时，显示
     for (const ev of [EVT.events.crawlFinish, EVT.events.resume]) {
       window.addEventListener(ev, () => {
-        if (!states.quickDownload && !states.notAutoDownload) {
+        if (!states.quickDownload) {
           this.show()
         }
       })

@@ -27,7 +27,7 @@ abstract class InitPageBase {
   }
 
   // 各个子类私有的初始化内容
-  protected initElse() {}
+  protected initElse() { }
 
   // 销毁初始化页面时添加的元素和事件，恢复设置项等
   protected destroy(): void {
@@ -45,7 +45,7 @@ abstract class InitPageBase {
   }
 
   // 添加其他元素（如果有）
-  protected appendElseEl(): void {}
+  protected appendElseEl(): void { }
 
   // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。
   protected setFormOption(): void {
@@ -131,7 +131,7 @@ abstract class InitPageBase {
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
-  protected getWantPage() {}
+  protected getWantPage() { }
 
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
   protected getMultipleSetting() {
@@ -316,14 +316,16 @@ abstract class InitPageBase {
 
   // 抓取结果为 0 时输出提示
   protected noResult() {
-    EVT.fire(EVT.events.crawlEmpty)
+    // 先触发 crawlFinish，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
+    // 如果触发顺序反过来，那么最后执行的都是 crawlFinish，可能会覆盖对 crawlEmpty 的处理
     EVT.fire(EVT.events.crawlFinish)
+    EVT.fire(EVT.events.crawlEmpty)
     log.error(lang.transl('_抓取结果为零'), 2)
     window.alert(lang.transl('_抓取结果为零'))
   }
 
   // 抓取完成后，对结果进行排序
-  protected sortResult() {}
+  protected sortResult() { }
 }
 
 export { InitPageBase }

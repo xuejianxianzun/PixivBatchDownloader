@@ -3,10 +3,9 @@ import { EVT } from './EVT'
 import { DOM } from './DOM'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { states } from './States'
 import formHtml from './FormHTML'
-import { SaveSettings } from './SaveSettings'
 import { SettingsForm } from './Settings.d'
+import { SaveSettings } from './SaveSettings'
 import { SaveNamingRule } from './SaveNamingRule'
 
 // 设置表单
@@ -109,11 +108,13 @@ class Settings {
     // 当抓取完毕可以开始下载时，切换到“下载”选项卡
     for (const ev of [EVT.events.crawlFinish, EVT.events.resume]) {
       window.addEventListener(ev, () => {
-        if (!states.notAutoDownload) {
           this.activeTab(1)
-        }
       })
     }
+
+    window.addEventListener(EVT.events.crawlEmpty, () => {
+        this.activeTab(0)
+    })
 
     // 预览文件名
     DOM.addBtn(

@@ -1041,7 +1041,7 @@ class CenterPanel {
         // 抓取完作品详细数据时，显示
         for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resume]) {
             window.addEventListener(ev, () => {
-                if (!_States__WEBPACK_IMPORTED_MODULE_3__["states"].quickDownload && !_States__WEBPACK_IMPORTED_MODULE_3__["states"].notAutoDownload) {
+                if (!_States__WEBPACK_IMPORTED_MODULE_3__["states"].quickDownload) {
                     this.show();
                 }
             });
@@ -5541,8 +5541,8 @@ class InitPageBase {
     }
     // 抓取结果为 0 时输出提示
     noResult() {
-        _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.crawlEmpty);
         _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.crawlFinish);
+        _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.crawlEmpty);
         _Log__WEBPACK_IMPORTED_MODULE_8__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取结果为零'), 2);
         window.alert(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取结果为零'));
     }
@@ -7900,11 +7900,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Colors */ "./src/ts/modules/Colors.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
-/* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
-/* harmony import */ var _FormHTML__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./FormHTML */ "./src/ts/modules/FormHTML.ts");
-/* harmony import */ var _SaveSettings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./SaveSettings */ "./src/ts/modules/SaveSettings.ts");
-/* harmony import */ var _SaveNamingRule__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./SaveNamingRule */ "./src/ts/modules/SaveNamingRule.ts");
-
+/* harmony import */ var _FormHTML__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./FormHTML */ "./src/ts/modules/FormHTML.ts");
+/* harmony import */ var _SaveSettings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./SaveSettings */ "./src/ts/modules/SaveSettings.ts");
+/* harmony import */ var _SaveNamingRule__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./SaveNamingRule */ "./src/ts/modules/SaveNamingRule.ts");
 
 
 
@@ -7919,7 +7917,7 @@ class Settings {
         this.firstFewImages = 0;
         this.activeClass = 'active';
         this.chooseKeys = ['Enter', 'NumpadEnter']; // 让回车键可以控制复选框（浏览器默认只支持空格键）
-        this.form = _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_6__["default"]);
+        this.form = _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_5__["default"]);
         this.allCheckBox = this.form.querySelectorAll('input[type="checkbox"]');
         this.allRadio = this.form.querySelectorAll('input[type="radio"]');
         this.allSwitch = this.form.querySelectorAll('.checkbox_switch');
@@ -7927,8 +7925,8 @@ class Settings {
         this.allTabTitle = this.form.querySelectorAll('.tabsTitle .title');
         this.allTabCon = this.form.querySelectorAll('.tabsContnet .con');
         this.bindEvents();
-        new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_8__["SaveNamingRule"](this.form.userSetName);
-        new _SaveSettings__WEBPACK_IMPORTED_MODULE_7__["SaveSettings"](this.form);
+        new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_7__["SaveNamingRule"](this.form.userSetName);
+        new _SaveSettings__WEBPACK_IMPORTED_MODULE_6__["SaveSettings"](this.form);
         // new SaveSettings 会初始化选项，但可能会有一些选项的值在初始化过程中没有发生改变，也就不会被监听到变化。所以这里需要直接初始化以下状态。
         this.initFormBueatiful();
         // 激活第一个选项卡
@@ -7977,11 +7975,12 @@ class Settings {
         // 当抓取完毕可以开始下载时，切换到“下载”选项卡
         for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resume]) {
             window.addEventListener(ev, () => {
-                if (!_States__WEBPACK_IMPORTED_MODULE_5__["states"].notAutoDownload) {
-                    this.activeTab(1);
-                }
+                this.activeTab(1);
             });
         }
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlEmpty, () => {
+            this.activeTab(0);
+        });
         // 预览文件名
         _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].addBtn('namingBtns', _Colors__WEBPACK_IMPORTED_MODULE_3__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_预览文件名')).addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.previewFileName);
