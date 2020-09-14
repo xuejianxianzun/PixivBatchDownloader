@@ -10,6 +10,7 @@ import { store } from './Store'
 import { log } from './Log'
 import { EVT } from './EVT'
 import { form} from './setting/Form'
+import { settings} from './setting/SaveSettings'
 import { settingAPI } from './setting/SettingAPI'
 import { IDData } from './Store.d'
 import { states } from './States'
@@ -90,7 +91,7 @@ abstract class InitPageBase {
   // 检查用户输入的页数/个数设置，并返回提示信息
   // 可以为 -1，或者大于 0
   protected checkWantPageInput(crawlPartTip: string, crawlAllTip: string) {
-    const temp = parseInt(form.setWantPage.value)
+    const temp = parseInt(settings.setWantPage)
 
     // 如果比 1 小，并且不是 -1，则不通过
     if ((temp < 1 && temp !== -1) || isNaN(temp)) {
@@ -110,7 +111,7 @@ abstract class InitPageBase {
   // 检查用户输入的页数/个数设置
   // 必须大于 0
   protected checkWantPageInputGreater0() {
-    const result = API.checkNumberGreater0(form.setWantPage.value)
+    const result = API.checkNumberGreater0(settings.setWantPage)
 
     if (result.result) {
       return result.value
@@ -125,7 +126,7 @@ abstract class InitPageBase {
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
   protected getMultipleSetting() {
     // 获取作品张数设置
-    if (form.firstFewImagesSwitch.checked) {
+    if (settings.firstFewImagesSwitch) {
       this.firstFewImages = settingAPI.getFirstFewImages()
       log.warning(
         lang.transl('_多图作品下载前n张图片', this.firstFewImages.toString())

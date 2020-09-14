@@ -2,7 +2,7 @@
 import { EVT } from './EVT'
 import { API } from './API'
 import { lang } from './Lang'
-import { form } from './setting/Form'
+import { settings } from './setting/SaveSettings'
 import { store } from './Store'
 import { Result } from './Store.d'
 import config from './Config'
@@ -18,7 +18,7 @@ class FileName {
   // 生成文件名
   public getFileName(data: Result) {
     // 为空时使用 {id}
-    let result = form.userSetName.value || '{id}'
+    let result = settings.userSetName || '{id}'
 
     // 配置所有命名标记
     const cfg = {
@@ -131,7 +131,7 @@ class FileName {
     result = result.replace(/／/g, '/')
 
     // 判断这个作品是否要去掉序号
-    const noSerialNo = cfg['{p_num}'].value === 0 && form.noSerialNo.checked
+    const noSerialNo = cfg['{p_num}'].value === 0 && settings.noSerialNo
 
     // 把命名规则的标记替换成实际值
     for (const [key, val] of Object.entries(cfg)) {
@@ -152,7 +152,7 @@ class FileName {
         }
 
         // 添加标记名称
-        if (form.tagNameToFileName.checked) {
+        if (settings.tagNameToFileName) {
           once = val.prefix + once
         }
 
@@ -184,7 +184,7 @@ class FileName {
     if (
       states.quickDownload &&
       store.result.length === 1 &&
-      form.alwaysFolder.checked === false
+      !settings.alwaysFolder
     ) {
       const index = result.lastIndexOf('/')
       result = result.substr(index + 1, result.length)
@@ -192,17 +192,17 @@ class FileName {
 
     // 处理为多图作品自动建立文件夹的情况
     // 多图作品如果只下载前 1 张，不会为它自动建立文件夹。大于 1 张才会自动建立文件夹
-    if (form.multipleImageDir.checked && data.dlCount > 1) {
+    if (settings.multipleImageDir && data.dlCount > 1) {
       // 操作路径中最后一项（即文件名），在它前面添加一层文件夹
       const allPart = result.split('/')
       const lastPartIndex = allPart.length - 1
       let lastPart = allPart[lastPartIndex]
       let addString = ''
 
-      if (form.multipleImageFolderName.value === '1') {
+      if (settings.multipleImageFolderName === '1') {
         // 使用作品 id 作为文件夹名
         addString = data.idNum.toString()
-      } else if (form.multipleImageFolderName.value === '2') {
+      } else if (settings.multipleImageFolderName === '2') {
         // 遵从命名规则，使用文件名做文件夹名
         // 这里进行了一个替换，因为多图每个图片的名字都不同，这主要是因为 id 后面的序号不同。这会导致文件夹名也不同，有多少个文件就会建立多少个文件夹，而不是统一建立一个文件夹。为了只建立一个文件夹，需要把 id 后面的序号部分去掉。
         // 但是如果一些特殊的命名规则并没有包含 {id} 部分，文件名的区别得不到处理，依然会每个文件建立一个文件夹。
@@ -219,15 +219,15 @@ class FileName {
     if (ugoiraFormat.includes(data.ext) && data.ugoiraInfo) {
       // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
       // 例如，抓取时动图保存格式是 webm，下载开始前，用户改成了 gif，在这里可以响应用户的修改
-      data.ext = form.ugoiraSaveAs.value
+      data.ext = settings.ugoiraSaveAs
     }
     const extResult = '.' + data.ext
 
     // 处理文件名长度限制
     // 去掉文件夹部分，只处理 文件名+后缀名 部分
     // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
-    if (form.fileNameLengthLimitSwitch.checked) {
-      let limit = Number.parseInt(form.fileNameLengthLimit.value)
+    if (settings.fileNameLengthLimitSwitch) {
+      let limit = Number.parseInt(settings.fileNameLengthLimit)
       if (limit < 1 || isNaN(limit)) {
         limit = 200 // 如果设置的值不合法，则设置为 200
       }

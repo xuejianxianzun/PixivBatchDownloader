@@ -1,6 +1,6 @@
 import { API } from '../API'
 import { filter } from '../Filter'
-import { form} from '../setting/Form'
+import { settings } from '../setting/SaveSettings'
 import { settingAPI } from '../setting/SettingAPI'
 import { FilterOption } from '../Filter.d'
 import { ArtworkData } from '../CrawlResult'
@@ -122,7 +122,7 @@ class SaveArtworkData {
           mime_type: meta.body.mime_type,
         }
 
-        const ext = form.ugoiraSaveAs.value // 扩展名可能是 webm、gif、zip
+        const ext = settings.ugoiraSaveAs
 
         store.addResult({
           id: illustId,

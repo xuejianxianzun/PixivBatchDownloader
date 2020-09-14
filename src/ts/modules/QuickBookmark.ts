@@ -1,7 +1,7 @@
 // 快速收藏
 import { API } from './API'
 import { lang } from './Lang'
-import { form } from './setting/Form'
+import { settings } from './setting/SaveSettings'
 import { ArtworkData, NovelData } from './CrawlResult.d'
 
 class QuickBookmark {
@@ -22,7 +22,7 @@ class QuickBookmark {
 
   private async init() {
     // 在某些条件下，不展开快速收藏功能
-    if (!API.getToken() || !form.quickBookmarks.checked) {
+    if (!API.getToken() || !settings.quickBookmarks) {
       return
     }
 
@@ -128,7 +128,7 @@ class QuickBookmark {
 
       // 如果设置了快速收藏，则获取 tag
       let tags: string[] = []
-      if (form.quickBookmarks.checked) {
+      if (settings.quickBookmarks) {
         const tagElements = document.querySelectorAll('._1LEXQ_3 li')
         for (const el of tagElements) {
           const nowA = el.querySelector('a')

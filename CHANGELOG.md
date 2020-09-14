@@ -10,6 +10,10 @@
 
 ### 代码优化
 
+checkWantPageInput
+
+checkWantPageInputGreater0
+
 #### setting 相关优化 TODO
 
 使用 option 代替从 form 读取设置？

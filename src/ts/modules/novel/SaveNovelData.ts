@@ -2,7 +2,7 @@ import { filter } from '../Filter'
 import { FilterOption } from '../Filter.d'
 import { NovelData } from '../CrawlResult.d'
 import { store } from '../Store'
-import { form } from '../setting/Form'
+import { settings } from '../setting/SaveSettings'
 import { MakeNovelFile } from './MakeNovelFile'
 
 // 保存单个小说作品的数据
@@ -57,12 +57,12 @@ class SaveNovelData {
       let seriesTitle = body.seriesNavData ? body.seriesNavData.title : ''
       let seriesOrder = body.seriesNavData ? '#' + body.seriesNavData.order : ''
 
-      let ext = form.novelSaveAs.value
+      let ext = settings.novelSaveAs
 
       let metaArr: string[] = []
       let meta = ''
 
-      if (form.saveNovelMeta.checked) {
+      if (settings.saveNovelMeta) {
         const pageUrl = `https://www.pixiv.net/novel/show.php?id=${id}`
         const tagsA = []
         for (const tag of tags) {

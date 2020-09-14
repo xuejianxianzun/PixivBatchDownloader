@@ -2555,7 +2555,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
-/* harmony import */ var _setting_Form__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Form */ "./src/ts/modules/setting/Form.ts");
+/* harmony import */ var _setting_SaveSettings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/SaveSettings */ "./src/ts/modules/setting/SaveSettings.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Config */ "./src/ts/modules/Config.ts");
 /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
@@ -2576,7 +2576,7 @@ class FileName {
     // 生成文件名
     getFileName(data) {
         // 为空时使用 {id}
-        let result = _setting_Form__WEBPACK_IMPORTED_MODULE_3__["form"].userSetName.value || '{id}';
+        let result = _setting_SaveSettings__WEBPACK_IMPORTED_MODULE_3__["settings"].userSetName || '{id}';
         // 配置所有命名标记
         const cfg = {
             '{p_title}': {
@@ -2687,7 +2687,7 @@ class FileName {
         // 上一步会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
         result = result.replace(/／/g, '/');
         // 判断这个作品是否要去掉序号
-        const noSerialNo = cfg['{p_num}'].value === 0 && _setting_Form__WEBPACK_IMPORTED_MODULE_3__["form"].noSerialNo.checked;
+        const noSerialNo = cfg['{p_num}'].value === 0 && _setting_SaveSettings__WEBPACK_IMPORTED_MODULE_3__["settings"].noSerialNo;
         // 把命名规则的标记替换成实际值
         for (const [key, val] of Object.entries(cfg)) {
             if (result.includes(key)) {
@@ -2704,7 +2704,7 @@ class FileName {
                     once = _API__WEBPACK_IMPORTED_MODULE_1__["API"].replaceUnsafeStr(once);
                 }
                 // 添加标记名称
-                if (_setting_Form__WEBPACK_IMPORTED_MODULE_3__["form"].tagNameToFileName.checked) {
+                if (_setting_SaveSettings__WEBPACK_IMPORTED_MODULE_3__["settings"].tagNameToFileName) {
                     once = val.prefix + once;
                 }
                 result = result.replace(new RegExp(key, 'g'), once); // 将标记替换成最终值，如果有重复的标记，全部替换
@@ -2730,23 +2730,23 @@ class FileName {
         // 如果快速下载时只有一个文件，根据“始终建立文件夹”选项，决定是否去掉文件夹部分
         if (_States__WEBPACK_IMPORTED_MODULE_6__["states"].quickDownload &&
             _Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length === 1 &&
-            _setting_Form__WEBPACK_IMPORTED_MODULE_3__["form"].alwaysFolder.checked === false) {
+            !_setting_SaveSettings__WEBPACK_IMPORTED_MODULE_3__["settings"].alwaysFolder) {
             const index = result.lastIndexOf('/');
             result = result.substr(index + 1, result.length);
         }
         // 处理为多图作品自动建立文件夹的情况
         // 多图作品如果只下载前 1 张，不会为它自动建立文件夹。大于 1 张才会自动建立文件夹
-        if (_setting_Form__WEBPACK_IMPORTED_MODULE_3__["form"].multipleImageDir.checked && data.dlCount > 1) {
+        if (_setting_SaveSettings__WEBPACK_IMPORTED_MODULE_3__["settings"].multipleImageDir && data.dlCount > 1) {
             // 操作路径中最后一项（即文件名），在它前面添加一层文件夹
             const allPart = result.split('/');
             const lastPartIndex = allPart.length - 1;
             let lastPart = allPart[lastPartIndex];
             let addString = '';
-            if (_setting_Form__WEBPACK_IMPORTED_MODULE_3__["form"].multipleImageFolderName.value === '1') {
+            if (_setting_SaveSettings__WEBPACK_IMPORTED_MODULE_3__["settings"].multipleImageFolderName === '1') {
                 // 使用作品 id 作为文件夹名
                 addString = data.idNum.toString();
             }
-            else if (_setting_Form__WEBPACK_IMPORTED_MODULE_3__["form"].multipleImageFolderName.value === '2') {
+            else if (_setting_SaveSettings__WEBPACK_IMPORTED_MODULE_3__["settings"].multipleImageFolderName === '2') {
                 // 遵从命名规则，使用文件名做文件夹名
                 // 这里进行了一个替换，因为多图每个图片的名字都不同，这主要是因为 id 后面的序号不同。这会导致文件夹名也不同，有多少个文件就会建立多少个文件夹，而不是统一建立一个文件夹。为了只建立一个文件夹，需要把 id 后面的序号部分去掉。
                 // 但是如果一些特殊的命名规则并没有包含 {id} 部分，文件名的区别得不到处理，依然会每个文件建立一个文件夹。
@@ -2761,14 +2761,14 @@ class FileName {
         if (ugoiraFormat.includes(data.ext) && data.ugoiraInfo) {
             // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
             // 例如，抓取时动图保存格式是 webm，下载开始前，用户改成了 gif，在这里可以响应用户的修改
-            data.ext = _setting_Form__WEBPACK_IMPORTED_MODULE_3__["form"].ugoiraSaveAs.value;
+            data.ext = _setting_SaveSettings__WEBPACK_IMPORTED_MODULE_3__["settings"].ugoiraSaveAs;
         }
         const extResult = '.' + data.ext;
         // 处理文件名长度限制
         // 去掉文件夹部分，只处理 文件名+后缀名 部分
         // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
-        if (_setting_Form__WEBPACK_IMPORTED_MODULE_3__["form"].fileNameLengthLimitSwitch.checked) {
-            let limit = Number.parseInt(_setting_Form__WEBPACK_IMPORTED_MODULE_3__["form"].fileNameLengthLimit.value);
+        if (_setting_SaveSettings__WEBPACK_IMPORTED_MODULE_3__["settings"].fileNameLengthLimitSwitch) {
+            let limit = Number.parseInt(_setting_SaveSettings__WEBPACK_IMPORTED_MODULE_3__["settings"].fileNameLengthLimit);
             if (limit < 1 || isNaN(limit)) {
                 limit = 200; // 如果设置的值不合法，则设置为 200
             }
@@ -5286,9 +5286,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _setting_Form__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./setting/Form */ "./src/ts/modules/setting/Form.ts");
-/* harmony import */ var _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./setting/SettingAPI */ "./src/ts/modules/setting/SettingAPI.ts");
-/* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
+/* harmony import */ var _setting_SaveSettings__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./setting/SaveSettings */ "./src/ts/modules/setting/SaveSettings.ts");
+/* harmony import */ var _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./setting/SettingAPI */ "./src/ts/modules/setting/SettingAPI.ts");
+/* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
 // 初始化所有页面抓取流程的基类
+
 
 
 
@@ -5363,7 +5365,7 @@ class InitPageBase {
     // 检查用户输入的页数/个数设置，并返回提示信息
     // 可以为 -1，或者大于 0
     checkWantPageInput(crawlPartTip, crawlAllTip) {
-        const temp = parseInt(_setting_Form__WEBPACK_IMPORTED_MODULE_10__["form"].setWantPage.value);
+        const temp = parseInt(_setting_SaveSettings__WEBPACK_IMPORTED_MODULE_11__["settings"].setWantPage);
         // 如果比 1 小，并且不是 -1，则不通过
         if ((temp < 1 && temp !== -1) || isNaN(temp)) {
             // 比 1 小的数里，只允许 -1 , 0 也不行
@@ -5380,7 +5382,7 @@ class InitPageBase {
     // 检查用户输入的页数/个数设置
     // 必须大于 0
     checkWantPageInputGreater0() {
-        const result = _API__WEBPACK_IMPORTED_MODULE_6__["API"].checkNumberGreater0(_setting_Form__WEBPACK_IMPORTED_MODULE_10__["form"].setWantPage.value);
+        const result = _API__WEBPACK_IMPORTED_MODULE_6__["API"].checkNumberGreater0(_setting_SaveSettings__WEBPACK_IMPORTED_MODULE_11__["settings"].setWantPage);
         if (result.result) {
             return result.value;
         }
@@ -5393,15 +5395,15 @@ class InitPageBase {
     // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
     getMultipleSetting() {
         // 获取作品张数设置
-        if (_setting_Form__WEBPACK_IMPORTED_MODULE_10__["form"].firstFewImagesSwitch.checked) {
-            this.firstFewImages = _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_11__["settingAPI"].getFirstFewImages();
+        if (_setting_SaveSettings__WEBPACK_IMPORTED_MODULE_11__["settings"].firstFewImagesSwitch) {
+            this.firstFewImages = _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_12__["settingAPI"].getFirstFewImages();
             _Log__WEBPACK_IMPORTED_MODULE_8__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品下载前n张图片', this.firstFewImages.toString()));
         }
     }
     // 准备抓取，进行抓取之前的一些检查工作。必要时可以在子类中改写
     async readyCrawl() {
         // 检查是否可以开始抓取
-        if (_States__WEBPACK_IMPORTED_MODULE_12__["states"].busy) {
+        if (_States__WEBPACK_IMPORTED_MODULE_13__["states"].busy) {
             window.alert(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成2'));
             return;
         }
@@ -6650,7 +6652,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "QuickBookmark", function() { return QuickBookmark; });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
-/* harmony import */ var _setting_Form__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Form */ "./src/ts/modules/setting/Form.ts");
+/* harmony import */ var _setting_SaveSettings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/SaveSettings */ "./src/ts/modules/setting/SaveSettings.ts");
 // 快速收藏
 
 
@@ -6668,7 +6670,7 @@ class QuickBookmark {
     }
     async init() {
         // 在某些条件下，不展开快速收藏功能
-        if (!_API__WEBPACK_IMPORTED_MODULE_0__["API"].getToken() || !_setting_Form__WEBPACK_IMPORTED_MODULE_2__["form"].quickBookmarks.checked) {
+        if (!_API__WEBPACK_IMPORTED_MODULE_0__["API"].getToken() || !_setting_SaveSettings__WEBPACK_IMPORTED_MODULE_2__["settings"].quickBookmarks) {
             return;
         }
         window.clearInterval(this.timer);
@@ -6754,7 +6756,7 @@ class QuickBookmark {
             pixivBMKBtn && pixivBMKBtn.click();
             // 如果设置了快速收藏，则获取 tag
             let tags = [];
-            if (_setting_Form__WEBPACK_IMPORTED_MODULE_2__["form"].quickBookmarks.checked) {
+            if (_setting_SaveSettings__WEBPACK_IMPORTED_MODULE_2__["settings"].quickBookmarks) {
                 const tagElements = document.querySelectorAll('._1LEXQ_3 li');
                 for (const el of tagElements) {
                     const nowA = el.querySelector('a');
@@ -8844,7 +8846,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
-/* harmony import */ var _setting_Form__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../setting/Form */ "./src/ts/modules/setting/Form.ts");
+/* harmony import */ var _setting_SaveSettings__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../setting/SaveSettings */ "./src/ts/modules/setting/SaveSettings.ts");
 /* harmony import */ var _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../setting/SettingAPI */ "./src/ts/modules/setting/SettingAPI.ts");
 /* harmony import */ var _FastScreen__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../FastScreen */ "./src/ts/modules/FastScreen.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
@@ -9043,7 +9045,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         this.addBookmark = (event) => {
             const data = event.detail.data;
             // 如果设置了不启用快速收藏，则把 tag 设置为空
-            if (_setting_Form__WEBPACK_IMPORTED_MODULE_10__["form"].quickBookmarks.checked === false) {
+            if (!_setting_SaveSettings__WEBPACK_IMPORTED_MODULE_10__["settings"].quickBookmarks) {
                 data.tags = [];
             }
             _API__WEBPACK_IMPORTED_MODULE_7__["API"].addBookmark('illusts', data.id.toString(), data.tags, false, _API__WEBPACK_IMPORTED_MODULE_7__["API"].getToken());
@@ -9106,7 +9108,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
     }
     initElse() {
         this.hotBar();
-        this.setPreviewResult(_setting_Form__WEBPACK_IMPORTED_MODULE_10__["form"].previewResult.checked);
+        this.setPreviewResult(_setting_SaveSettings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResult);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.addResult, this.showCount);
         window.addEventListener('addBMK', this.addBookmark);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.crawlFinish, this.onCrawlFinish);
@@ -9672,7 +9674,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "saveArtworkData", function() { return saveArtworkData; });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Filter */ "./src/ts/modules/Filter.ts");
-/* harmony import */ var _setting_Form__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Form */ "./src/ts/modules/setting/Form.ts");
+/* harmony import */ var _setting_SaveSettings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/SaveSettings */ "./src/ts/modules/setting/SaveSettings.ts");
 /* harmony import */ var _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/SettingAPI */ "./src/ts/modules/setting/SettingAPI.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
 
@@ -9786,7 +9788,7 @@ class SaveArtworkData {
                     frames: meta.body.frames,
                     mime_type: meta.body.mime_type,
                 };
-                const ext = _setting_Form__WEBPACK_IMPORTED_MODULE_2__["form"].ugoiraSaveAs.value; // 扩展名可能是 webm、gif、zip
+                const ext = _setting_SaveSettings__WEBPACK_IMPORTED_MODULE_2__["settings"].ugoiraSaveAs;
                 _Store__WEBPACK_IMPORTED_MODULE_4__["store"].addResult({
                     id: illustId,
                     idNum: idNum,
@@ -12164,7 +12166,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "saveNovelData", function() { return saveNovelData; });
 /* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Filter */ "./src/ts/modules/Filter.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
-/* harmony import */ var _setting_Form__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Form */ "./src/ts/modules/setting/Form.ts");
+/* harmony import */ var _setting_SaveSettings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/SaveSettings */ "./src/ts/modules/setting/SaveSettings.ts");
 /* harmony import */ var _MakeNovelFile__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./MakeNovelFile */ "./src/ts/modules/novel/MakeNovelFile.ts");
 
 
@@ -12215,10 +12217,10 @@ class SaveNovelData {
             }
             let seriesTitle = body.seriesNavData ? body.seriesNavData.title : '';
             let seriesOrder = body.seriesNavData ? '#' + body.seriesNavData.order : '';
-            let ext = _setting_Form__WEBPACK_IMPORTED_MODULE_2__["form"].novelSaveAs.value;
+            let ext = _setting_SaveSettings__WEBPACK_IMPORTED_MODULE_2__["settings"].novelSaveAs;
             let metaArr = [];
             let meta = '';
-            if (_setting_Form__WEBPACK_IMPORTED_MODULE_2__["form"].saveNovelMeta.checked) {
+            if (_setting_SaveSettings__WEBPACK_IMPORTED_MODULE_2__["settings"].saveNovelMeta) {
                 const pageUrl = `https://www.pixiv.net/novel/show.php?id=${id}`;
                 const tagsA = [];
                 for (const tag of tags) {
@@ -12813,7 +12815,7 @@ class SaveSettings {
             deduplication: false,
             dupliStrategy: 'strict',
             fileNameLengthLimitSwitch: false,
-            fileNameLengthLimit: 200,
+            fileNameLengthLimit: '200',
         };
         // 需要持久化保存的设置
         this.settings = this.optionDefault;

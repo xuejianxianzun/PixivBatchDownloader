@@ -63,7 +63,7 @@ interface XzSetting {
   deduplication: boolean
   dupliStrategy: 'strict' | 'loose'
   fileNameLengthLimitSwitch: boolean
-  fileNameLengthLimit: number
+  fileNameLengthLimit: string
 }
 
 interface SettingChangeData {
@@ -139,7 +139,7 @@ class SaveSettings {
     deduplication: false,
     dupliStrategy: 'strict',
     fileNameLengthLimitSwitch: false,
-    fileNameLengthLimit: 200,
+    fileNameLengthLimit: '200',
   }
 
   // 需要持久化保存的设置

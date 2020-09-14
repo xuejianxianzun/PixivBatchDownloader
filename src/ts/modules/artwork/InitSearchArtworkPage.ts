@@ -12,7 +12,7 @@ import { API } from '../API'
 import { store } from '../Store'
 import { log } from '../Log'
 import { Result } from '../Store.d'
-import { form} from '../setting/Form'
+import { settings } from '../setting/SaveSettings'
 import { settingAPI } from '../setting/SettingAPI'
 import { FastScreen } from '../FastScreen'
 import { DOM } from '../DOM'
@@ -77,7 +77,7 @@ class InitSearchArtworkPage extends InitPageBase {
   protected initElse() {
     this.hotBar()
 
-    this.setPreviewResult(form.previewResult.checked)
+    this.setPreviewResult(settings.previewResult)
 
     window.addEventListener(EVT.events.addResult, this.showCount)
 
@@ -382,7 +382,7 @@ class InitSearchArtworkPage extends InitPageBase {
   private addBookmark = (event: CustomEventInit) => {
     const data = event.detail.data as AddBMKData
     // 如果设置了不启用快速收藏，则把 tag 设置为空
-    if (form.quickBookmarks.checked === false) {
+    if (!settings.quickBookmarks) {
       data.tags = []
     }
 
