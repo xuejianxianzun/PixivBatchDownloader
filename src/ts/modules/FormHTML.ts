@@ -219,6 +219,8 @@ const formHtml = `<form class="settingForm">
         .transl('_设置文件夹名的提示')
         .replace('<br>', '. ')}</strong>
       <br>
+      ${lang.transl('_命名标记提醒')}
+      <br>
       <span class="blue">{id}</span>
       ${lang.transl('_命名标记id')}
       <br>
@@ -272,8 +274,6 @@ const formHtml = `<form class="settingForm">
       <br>
       <span class="blue">{p_num}</span>
       ${lang.transl('_命名标记p_num')}
-      <br>
-      ${lang.transl('_命名标记提醒')}
       </p>
 
       <p class="option" data-no="29">

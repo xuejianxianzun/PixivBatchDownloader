@@ -3639,6 +3639,8 @@ const formHtml = `<form class="settingForm">
     .transl('_设置文件夹名的提示')
     .replace('<br>', '. ')}</strong>
       <br>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记提醒')}
+      <br>
       <span class="blue">{id}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记id')}
       <br>
@@ -3692,8 +3694,6 @@ const formHtml = `<form class="settingForm">
       <br>
       <span class="blue">{p_num}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记p_num')}
-      <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记提醒')}
       </p>
 
       <p class="option" data-no="29">
@@ -10328,10 +10328,10 @@ const langText = {
     ],
     _命名规则: ['命名规则', '命名規則', 'Naming rule', '命名規則'],
     _设置文件夹名的提示: [
-        `可以使用 '/' 建立文件夹<br>示例：{p_title}/{user}/{id}`,
-        `フォルダーは '/' で作成できます<br>例：{p_title}/{user}/{id}`,
-        `You can create a directory with '/'<br>Example：{p_title}/{user}/{id}`,
-        `可以使用斜線（/）建立資料夾。<br>範例：{p_title}/{user}/{id}`,
+        `可以使用 '/' 建立文件夹<br>示例：{user}/{id}`,
+        `フォルダーは '/' で作成できます<br>例：{user}/{id}`,
+        `You can create a directory with '/'<br>Example：{user}/{id}`,
+        `可以使用斜線（/）建立資料夾。<br>範例：{user}/{id}`,
     ],
     _添加命名标记前缀: [
         '添加命名标记前缀',
@@ -10416,10 +10416,10 @@ const langText = {
         '作品類型，分為 illustration、manga、ugoira、novel。',
     ],
     _命名标记提醒: [
-        '您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}<br>一定要包含 {id} 或者 {id_num}。<br>* 在某些情况下，会有一些标记不可用。',
-        '複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{userid}<br>必ず{id}または{id_num}を含めてください。<br>* 場合によっては、一部の tag が利用できず。',
-        'You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}<br>Be sure to include {id} or {id_num}.<br>* In some cases, some tags will not be available.',
-        '可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{userid}<br>一定要包含 {id} 或者 {id_num}。<br>＊某些情況下有些標記無法使用。',
+        '一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}<br>* 在某些情况下，会有一些标记不可用。',
+        '必ず{id}または{id_num}{p_num}を含めてください。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{userid}<br>* 場合によっては、一部の tag が利用できず。',
+        'Be sure to include {id} or {id_num}{p_num}.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}<br>* In some cases, some tags will not be available.',
+        '一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{userid}<br><br>＊某些情況下有些標記無法使用。',
     ],
     _文件夹标记PTag: [
         '当前页面的 tag。当前页面没有 tag 时不可用。',
