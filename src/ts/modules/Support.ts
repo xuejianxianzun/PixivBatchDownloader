@@ -20,8 +20,6 @@ class Support {
     })
   }
 
-  private newTag: langTextKeys = '_xzNew660'
-
   // 处理和脚本版的冲突
   private checkConflict(): void {
     // 标注自己
@@ -62,21 +60,22 @@ class Support {
 
   // 显示最近更新内容
   private showNew() {
-    const storeNmae = 'xzNewVerTag'
-    const value = localStorage.getItem(storeNmae)
-    if (window.location.host.includes('pixiv.net') && value !== this.newTag) {
+    const storeName = 'xzNewVerTag'
+    const newTag = config.newTag as langTextKeys
+    const value = localStorage.getItem(storeName)
+    if (window.location.host.includes('pixiv.net') && value !== newTag) {
       const whatIsNewHtml = `
       <div class="xz_new">
         <p class="title">Powerful Pixiv Downloader ${lang.transl(
-          '_最近更新'
-        )}</p>
-        <p class="content">${lang.transl(this.newTag)}</p>
+        '_最近更新'
+      )}</p>
+        <p class="content">${lang.transl(newTag)}</p>
         <button class="btn">${lang.transl('_确定')}</button>
       </div>`
       document.body.insertAdjacentHTML('afterbegin', whatIsNewHtml)
       const whatIsNewEl = document.querySelector('.xz_new')!
       whatIsNewEl.querySelector('.btn')!.addEventListener('click', () => {
-        localStorage.setItem(storeNmae, this.newTag)
+        localStorage.setItem(storeName, newTag)
         whatIsNewEl.parentNode!.removeChild(whatIsNewEl)
       })
     }
@@ -114,4 +113,4 @@ class Support {
   }
 }
 new Support()
-export {}
+export { }

@@ -1123,6 +1123,7 @@ __webpack_require__.r(__webpack_exports__);
     outputMax: 5000,
     latestReleaseAPI: 'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest',
     illustTypes: ['illustration', 'manga', 'ugoira', 'novel'],
+    newTag: '_xzNew660',
 });
 
 
@@ -7560,7 +7561,6 @@ __webpack_require__.r(__webpack_exports__);
 // 辅助功能
 class Support {
     constructor() {
-        this.newTag = '_xzNew660';
         this.checkConflict();
         this.supportListenHistory();
         this.listenPageSwitch();
@@ -7608,19 +7608,20 @@ class Support {
     }
     // 显示最近更新内容
     showNew() {
-        const storeNmae = 'xzNewVerTag';
-        const value = localStorage.getItem(storeNmae);
-        if (window.location.host.includes('pixiv.net') && value !== this.newTag) {
+        const storeName = 'xzNewVerTag';
+        const newTag = _Config__WEBPACK_IMPORTED_MODULE_3__["default"].newTag;
+        const value = localStorage.getItem(storeName);
+        if (window.location.host.includes('pixiv.net') && value !== newTag) {
             const whatIsNewHtml = `
       <div class="xz_new">
         <p class="title">Powerful Pixiv Downloader ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_最近更新')}</p>
-        <p class="content">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl(this.newTag)}</p>
+        <p class="content">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl(newTag)}</p>
         <button class="btn">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_确定')}</button>
       </div>`;
             document.body.insertAdjacentHTML('afterbegin', whatIsNewHtml);
             const whatIsNewEl = document.querySelector('.xz_new');
             whatIsNewEl.querySelector('.btn').addEventListener('click', () => {
-                localStorage.setItem(storeNmae, this.newTag);
+                localStorage.setItem(storeName, newTag);
                 whatIsNewEl.parentNode.removeChild(whatIsNewEl);
             });
         }

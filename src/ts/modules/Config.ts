@@ -4,4 +4,5 @@ export default {
   latestReleaseAPI:
     'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest',
   illustTypes: ['illustration', 'manga', 'ugoira', 'novel'],
+  newTag: '_xzNew660',
 }
