@@ -1,6 +1,7 @@
 import { API } from '../API'
 import { filter } from '../Filter'
-import { setting, form } from '../setting/Settings'
+import { form} from '../setting/Form'
+import { settingAPI } from '../setting/SettingAPI'
 import { FilterOption } from '../Filter.d'
 import { ArtworkData } from '../CrawlResult'
 import { store } from '../Store'
@@ -79,7 +80,7 @@ class SaveArtworkData {
         // 插画或漫画
 
         // 下载该作品的前面几张
-        const dlCount = setting.getDLCount(body.pageCount)
+        const dlCount = settingAPI.getDLCount(body.pageCount)
 
         const imgUrl = body.urls.original // 作品的原图 URL
 

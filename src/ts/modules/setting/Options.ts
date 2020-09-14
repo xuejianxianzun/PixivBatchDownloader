@@ -1,5 +1,5 @@
-// 操作 Setting 表单的选项区域
-import { form } from './Settings'
+// 操作设置表单的选项区域
+import { form } from './Form'
 
 interface WantPageArg {
   text: string

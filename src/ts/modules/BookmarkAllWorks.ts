@@ -2,7 +2,7 @@ import { API } from './API'
 import { DOM } from './DOM'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { form } from './setting/Settings'
+import { form } from './setting/Form'
 import { BookmarkResult } from './CrawlResult.d'
 
 // 一键收藏本页面上的所有作品

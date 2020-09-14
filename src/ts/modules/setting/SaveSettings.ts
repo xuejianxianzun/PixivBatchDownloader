@@ -1,7 +1,7 @@
 import { EVT } from '../EVT'
 import { SettingsForm } from './Settings.d'
 
-// 保存了设置表单的所有设置项，并且在下载器初始化时恢复这些设置的值
+// 保存设置表单的所有设置项，并且在下载器初始化时恢复这些设置的值
 // 例外情况：个数/页数设置（setWantPage）只保存，不恢复。这是因为下载器在初始化时，由 InitXXXPage 类直接设置 setWantPage，而不是使用保存的值进行恢复。
 
 // 成员 options 保存着当前页面的所有设置项；当设置项变化时，options 响应变化并保存到 localStorage 里。

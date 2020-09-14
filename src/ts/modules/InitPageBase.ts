@@ -9,7 +9,8 @@ import { API } from './API'
 import { store } from './Store'
 import { log } from './Log'
 import { EVT } from './EVT'
-import { setting, form } from './setting/Settings'
+import { form} from './setting/Form'
+import { settingAPI } from './setting/SettingAPI'
 import { IDData } from './Store.d'
 import { states } from './States'
 
@@ -118,22 +119,6 @@ abstract class InitPageBase {
     }
   }
 
-  // 获取作品张数设置
-  private getFirstFewImages() {
-    const result = setting.getFirstFewImages()
-    if (result === undefined) {
-      EVT.fire(EVT.events.crawlError)
-
-      const msg =
-        lang.transl('_下载前几张图片') + ' ' + lang.transl('_必须大于0')
-      log.error(msg)
-      window.alert(msg)
-      throw new Error(msg)
-    }
-
-    return result
-  }
-
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
   protected getWantPage() { }
 
@@ -141,7 +126,7 @@ abstract class InitPageBase {
   protected getMultipleSetting() {
     // 获取作品张数设置
     if (form.firstFewImagesSwitch.checked) {
-      this.firstFewImages = this.getFirstFewImages()
+      this.firstFewImages = settingAPI.getFirstFewImages()
       log.warning(
         lang.transl('_多图作品下载前n张图片', this.firstFewImages.toString())
       )

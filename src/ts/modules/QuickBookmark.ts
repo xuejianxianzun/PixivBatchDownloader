@@ -1,7 +1,7 @@
 // 快速收藏
 import { API } from './API'
 import { lang } from './Lang'
-import { form } from './setting/Settings'
+import { form } from './setting/Form'
 import { ArtworkData, NovelData } from './CrawlResult.d'
 
 class QuickBookmark {

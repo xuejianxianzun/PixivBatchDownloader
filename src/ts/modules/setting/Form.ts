@@ -1,4 +1,3 @@
-import { API } from '../API'
 import { EVT } from '../EVT'
 import { DOM } from '../DOM'
 import { Colors } from '../Colors'
@@ -9,7 +8,7 @@ import { SaveSettings } from './SaveSettings'
 import { SaveNamingRule } from './SaveNamingRule'
 
 // 设置表单
-class Settings {
+class Form {
   constructor() {
     this.form = DOM.useSlot('form', formHtml) as SettingsForm
 
@@ -30,8 +29,6 @@ class Settings {
     this.allTabCon = this.form.querySelectorAll('.tabsContnet .con')
 
     this.bindEvents()
-
-    this.firstFewImages = this.getFirstFewImages()
 
     new SaveNamingRule(this.form.userSetName)
 
@@ -66,8 +63,6 @@ class Settings {
   private readonly activeClass = 'active'
 
   private readonly chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
-
-  private firstFewImages = 0
 
   // 设置激活的选项卡
   private activeTab(no = 0) {
@@ -116,14 +111,6 @@ class Settings {
 
     window.addEventListener(EVT.events.crawlEmpty, () => {
       this.activeTab(0)
-    })
-
-    // 当 firstFewImages 设置改变时，保存它的值
-    window.addEventListener(EVT.events.settingChange, (event: CustomEventInit) => {
-      const data = event.detail.data
-      if (data.name === 'firstFewImages') {
-        this.firstFewImages = this.getFirstFewImages()
-      }
     })
 
     // 预览文件名
@@ -274,28 +261,8 @@ class Settings {
       }
     }
   }
-
-  // 获取作品张数设置
-  public getFirstFewImages() {
-    const check = API.checkNumberGreater0(this.form.firstFewImages.value)
-
-    if (check.result) {
-      return check.value
-    } else {
-      return 999
-    }
-  }
-
-  // 计算要从这个作品里下载几张图片
-  public getDLCount(pageCount: number) {
-    if (this.form.firstFewImagesSwitch.checked && this.firstFewImages <= pageCount) {
-      return this.firstFewImages
-    }
-    return pageCount
-  }
 }
 
-const setting = new Settings()
-const form = setting.form
+const form = new Form().form
 
-export { setting, form }
+export { form }

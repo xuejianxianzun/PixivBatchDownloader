@@ -1,6 +1,6 @@
 import { EVT } from './EVT'
 import { lang } from './Lang'
-import { form } from './setting/Settings'
+import { form } from './setting/Form'
 import { DonwloadSuccessData } from './Download.d'
 import { IndexedDB } from './IndexedDB'
 import { store } from './Store'
