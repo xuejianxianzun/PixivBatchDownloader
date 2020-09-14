@@ -2,7 +2,7 @@ import { API } from './API'
 import { DOM } from './DOM'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { form } from './setting/Form'
+import { settings } from './setting/SaveSettings'
 import { BookmarkResult } from './CrawlResult.d'
 
 // 一键收藏本页面上的所有作品
@@ -127,8 +127,8 @@ class BookmarkAllWorks {
 
     const data = this.addTagList[this.index]
 
-    // 如果设置了不启用快速收藏，则把 tag 设置为空
-    if (form.quickBookmarks.checked === false) {
+    // 如果没有启用快速收藏，则把 tag 设置为空
+    if (!settings.quickBookmarks) {
       data.tags = []
     }
     await API.addBookmark(

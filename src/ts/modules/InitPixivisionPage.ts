@@ -4,7 +4,6 @@ import { Colors } from './Colors'
 import { lang } from './Lang'
 import { DOM } from './DOM'
 import { options } from './setting/Options'
-import { form } from './setting/Form'
 import { store } from './Store'
 
 class InitPixivisionPage extends InitPageBase {

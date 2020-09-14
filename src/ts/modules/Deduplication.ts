@@ -1,6 +1,6 @@
 import { EVT } from './EVT'
 import { lang } from './Lang'
-import { form } from './setting/Form'
+import { settings } from './setting/SaveSettings'
 import { DonwloadSuccessData } from './Download.d'
 import { IndexedDB } from './IndexedDB'
 import { store } from './Store'
@@ -66,7 +66,7 @@ class Deduplication {
 
   // 生成一个下载记录
   private createRecord(resultId: string): Record {
-    let name = form.userSetName.value
+    let name = settings.userSetName
 
     // 查找这个抓取结果，获取其文件名
     for (const result of store.result) {
@@ -118,12 +118,12 @@ class Deduplication {
       }
     )
 
-    // 当抓取完成、下载完成时，清空 skipIdList 列表
-    ;[EVT.events.crawlFinish, EVT.events.downloadComplete].forEach((val) => {
-      window.addEventListener(val, () => {
-        this.skipIdList = []
+      // 当抓取完成、下载完成时，清空 skipIdList 列表
+      ;[EVT.events.crawlFinish, EVT.events.downloadComplete].forEach((val) => {
+        window.addEventListener(val, () => {
+          this.skipIdList = []
+        })
       })
-    })
 
     // 给“清空下载记录”的按钮绑定事件
     const btn = document.querySelector('#clearDownloadRecords')
@@ -148,7 +148,7 @@ class Deduplication {
   public async check(resultId: string) {
     return new Promise<boolean>(async (resolve, reject) => {
       // 如果未启用去重，直接返回不重复
-      if (form.deduplication.checked === false) {
+      if (!settings.deduplication) {
         resolve(false)
       }
       // 在数据库进行查找
@@ -160,7 +160,7 @@ class Deduplication {
       } else {
         this.existedIdList.push(data.id)
         // 查询到了对应的记录，根据策略进行判断
-        if (form.dupliStrategy.value === 'loose') {
+        if (settings.dupliStrategy === 'loose') {
           // 如果是宽松策略（只考虑 id），返回重复
           resolve(true)
         } else {

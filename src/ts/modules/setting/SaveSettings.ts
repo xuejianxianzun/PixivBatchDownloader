@@ -1,5 +1,5 @@
 import { EVT } from '../EVT'
-import { SettingsForm } from './Settings.d'
+import { form } from './Form'
 
 // 保存设置表单的所有设置项，并且在下载器初始化时恢复这些设置的值
 // 例外情况：个数/页数设置（setWantPage）只保存，不恢复。这是因为下载器在初始化时，由 InitXXXPage 类直接设置 setWantPage，而不是使用保存的值进行恢复。
@@ -11,7 +11,7 @@ import { SettingsForm } from './Settings.d'
 interface XzSetting {
   setWantPage: string
   firstFewImagesSwitch: boolean
-  firstFewImages: number
+  firstFewImages: string
   downType0: boolean
   downType1: boolean
   downType2: boolean
@@ -22,11 +22,11 @@ interface XzSetting {
   downBlackWhiteImg: boolean
   setOnlyBmk: boolean
   ugoiraSaveAs: 'webm' | 'gif' | 'zip' | 'png'
-  convertUgoiraThread: number
+  convertUgoiraThread: string
   needTag: string
   notNeedTag: string
   quietDownload: boolean
-  downloadThread: number
+  downloadThread: string
   userSetName: string
   tagNameToFileName: boolean
   alwaysFolder: boolean
@@ -72,17 +72,13 @@ interface SettingChangeData {
 }
 
 class SaveSettings {
-  constructor(form: SettingsForm) {
-    this.form = form
-
+  constructor() {
     this.ListenOptionChange()
 
     this.handleChange()
 
     this.restoreOption()
   }
-
-  private form: SettingsForm
 
   // 本地存储中使用的 name
   private readonly storeName = 'xzSetting'
@@ -91,7 +87,7 @@ class SaveSettings {
   private readonly optionDefault: XzSetting = {
     setWantPage: '-1',
     firstFewImagesSwitch: false,
-    firstFewImages: 1,
+    firstFewImages: '1',
     downType0: true,
     downType1: true,
     downType2: true,
@@ -102,11 +98,11 @@ class SaveSettings {
     downBlackWhiteImg: true,
     setOnlyBmk: false,
     ugoiraSaveAs: 'webm',
-    convertUgoiraThread: 1,
+    convertUgoiraThread: '1',
     needTag: '',
     notNeedTag: '',
     quietDownload: true,
-    downloadThread: 5,
+    downloadThread: '5',
     userSetName: '{id}',
     tagNameToFileName: false,
     alwaysFolder: true,
@@ -147,11 +143,11 @@ class SaveSettings {
   }
 
   // 需要持久化保存的设置
-  private options: XzSetting = this.optionDefault
+  public settings: XzSetting = this.optionDefault
 
   // 处理输入框： change 时保存 value
   private saveTextInput(name: keyof XzSetting) {
-    const el = this.form[name] as HTMLInputElement
+    const el = form[name] as HTMLInputElement
     el.addEventListener('change', () => {
       this.emitChange(name, el.value)
     })
@@ -159,7 +155,7 @@ class SaveSettings {
 
   // 处理复选框： click 时保存 checked
   private saveCheckBox(name: keyof XzSetting) {
-    const el = this.form[name] as HTMLInputElement
+    const el = form[name] as HTMLInputElement
     el.addEventListener('click', () => {
       this.emitChange(name, el.checked)
     })
@@ -167,7 +163,7 @@ class SaveSettings {
 
   // 处理单选框： click 时保存 value
   private saveRadio(name: string) {
-    const radios = this.form[name]
+    const radios = form[name]
     for (const radio of radios) {
       radio.addEventListener('click', () => {
         this.emitChange(name, radio.value)
@@ -248,7 +244,7 @@ class SaveSettings {
     this.saveTextInput('notNeedTag')
 
     // 保存命名规则
-    const userSetNameInput = this.form.userSetName
+    const userSetNameInput = form.userSetName
       ;['change', 'focus'].forEach((ev) => {
         userSetNameInput.addEventListener(ev, () => {
           this.emitChange('userSetName', userSetNameInput.value)
@@ -293,7 +289,7 @@ class SaveSettings {
     this.saveTextInput('fileNameLengthLimit')
 
     window.addEventListener(EVT.events.resetOption, () => {
-      this.form.reset()
+      form.reset()
       this.reset()
     })
   }
@@ -309,9 +305,9 @@ class SaveSettings {
       (event: CustomEventInit) => {
         const data = event.detail.data as SettingChangeData
         if (Reflect.has(this.optionDefault, data.name)) {
-          if ((this.options[data.name] as any) !== data.value) {
-            ; (this.options[data.name] as any) = data.value
-            localStorage.setItem(this.storeName, JSON.stringify(this.options))
+          if ((this.settings[data.name] as any) !== data.value) {
+            ; (this.settings[data.name] as any) = data.value
+            localStorage.setItem(this.storeName, JSON.stringify(this.settings))
           }
         }
       }
@@ -322,11 +318,11 @@ class SaveSettings {
   // 给复选框使用
   private restoreBoolean(name: keyof XzSetting) {
     // 优先使用用户设置的值
-    if (this.options[name] !== undefined) {
-      this.form[name].checked = this.options[name]
+    if (this.settings[name] !== undefined) {
+      form[name].checked = this.settings[name]
     } else {
       // 否则使用默认值
-      this.form[name].checked = this.optionDefault[name]
+      form[name].checked = this.optionDefault[name]
     }
     // 这里不能简单的使用 || 符号来处理，考虑如下情况：
     // this.options[name] || this.optionDefault[name]
@@ -337,11 +333,11 @@ class SaveSettings {
   // 给单选按钮和文本框使用
   private restoreString(name: keyof XzSetting) {
     // 优先使用用户设置的值
-    if (this.options[name] !== undefined) {
-      this.form[name].value = this.options[name].toString()
+    if (this.settings[name] !== undefined) {
+      form[name].value = this.settings[name].toString()
     } else {
       // 否则使用默认值
-      this.form[name].value = this.optionDefault[name].toString()
+      form[name].value = this.optionDefault[name].toString()
     }
   }
 
@@ -350,7 +346,7 @@ class SaveSettings {
     const savedOption = localStorage.getItem(this.storeName)
     // 读取保存的设置
     if (savedOption) {
-      this.options = JSON.parse(savedOption)
+      this.settings = JSON.parse(savedOption)
     } else {
       // 如果没有保存过，则不做处理
       return
@@ -461,14 +457,17 @@ class SaveSettings {
     // 恢复文件名长度限制
     this.restoreBoolean('fileNameLengthLimitSwitch')
     this.restoreString('fileNameLengthLimit')
+
+    // 恢复完毕之后触发一次设置改变事件
+    EVT.fire(EVT.events.settingChange)
   }
 
   // 重设选项
   private reset() {
     // 将保存的选项恢复为默认值
-    this.options = this.optionDefault
+    this.settings = this.optionDefault
     // 覆写本地存储里的设置为默认值
-    localStorage.setItem(this.storeName, JSON.stringify(this.options))
+    localStorage.setItem(this.storeName, JSON.stringify(this.settings))
     // 重设选项
     this.restoreOption()
     // 触发设置改变事件
@@ -476,4 +475,6 @@ class SaveSettings {
   }
 }
 
-export { SaveSettings }
+const saveSettings = new SaveSettings()
+const settings = saveSettings.settings
+export { settings }

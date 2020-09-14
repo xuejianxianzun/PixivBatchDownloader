@@ -3,8 +3,7 @@ import { DOM } from '../DOM'
 import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import formHtml from '../FormHTML'
-import { SettingsForm } from './Settings.d'
-import { SaveSettings } from './SaveSettings'
+import { SettingsForm } from './Form.d'
 import { SaveNamingRule } from './SaveNamingRule'
 
 // 设置表单
@@ -31,10 +30,6 @@ class Form {
     this.bindEvents()
 
     new SaveNamingRule(this.form.userSetName)
-
-    new SaveSettings(this.form)
-
-    // new SaveSettings 会初始化选项，但可能会有一些选项的值在初始化过程中没有发生改变，也就不会被监听到变化。所以这里需要直接初始化以下状态。
 
     this.initFormBueatiful()
 
@@ -88,8 +83,8 @@ class Form {
       this.bindRadioEvent(radio)
     }
 
-    // 处理 label 状态
-    window.addEventListener(EVT.events.settingChange, () => {
+    // 设置发生改变时，重新设置美化状态
+    window.addEventListener(EVT.events.settingChange, (ev: CustomEventInit) => {
       this.initFormBueatiful()
     })
 

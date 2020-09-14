@@ -2,7 +2,7 @@ import { API } from '../API'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { log } from '../Log'
-import { form } from './Form'
+import { settings } from './SaveSettings'
 
 // 设置相关的 API
 class SettingAPI {
@@ -12,7 +12,7 @@ class SettingAPI {
     this.firstFewImages = this.getFirstFewImages()
   }
 
-  private firstFewImages = 0  // 多图作品设置的值，只下载前几张图片
+  private firstFewImages = 0  // 缓存多图作品只下载前几张图片的值
 
   private bindEvents() {
     // 当 firstFewImages 设置改变时，保存它的值
@@ -26,8 +26,8 @@ class SettingAPI {
 
   // 获取作品张数设置
   public getFirstFewImages() {
-    const check = API.checkNumberGreater0(form.firstFewImages.value)
-
+    const check = API.checkNumberGreater0(settings.firstFewImages)
+    
     if (check.result) {
       return check.value
     }
@@ -44,7 +44,7 @@ class SettingAPI {
 
   // 计算要从这个作品里下载几张图片
   public getDLCount(pageCount: number) {
-    if (form.firstFewImagesSwitch.checked && this.firstFewImages <= pageCount) {
+    if (settings.firstFewImagesSwitch && this.firstFewImages <= pageCount) {
       return this.firstFewImages
     }
     return pageCount

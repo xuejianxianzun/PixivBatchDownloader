@@ -11,7 +11,7 @@ import { store } from './Store'
 import { log } from './Log'
 import { lang } from './Lang'
 import { Colors } from './Colors'
-import { form } from './setting/Form'
+import { settings } from './setting/SaveSettings'
 import { Download } from './Download'
 import { progressBar } from './ProgressBar'
 import { downloadStates } from './DownloadStates'
@@ -243,7 +243,7 @@ class DownloadControl {
 
   // 下载线程设置
   private setDownloadThread() {
-    const setThread = parseInt(form.downloadThread.value)
+    const setThread = parseInt(settings.downloadThread)
     if (
       setThread < 1 ||
       setThread > this.downloadThreadMax ||
@@ -287,10 +287,8 @@ class DownloadControl {
       return
     }
 
-    const autoDownload: boolean = form.quietDownload.checked
-
     // 视情况自动开始下载
-    if (autoDownload || states.quickDownload) {
+    if (settings.quietDownload || states.quickDownload) {
       this.startDownload()
     }
   }
