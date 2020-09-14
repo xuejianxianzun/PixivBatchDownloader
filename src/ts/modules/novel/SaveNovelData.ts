@@ -2,7 +2,7 @@ import { filter } from '../Filter'
 import { FilterOption } from '../Filter.d'
 import { NovelData } from '../CrawlResult.d'
 import { store } from '../Store'
-import { settings } from '../setting/SaveSettings'
+import { settings } from '../setting/Settings'
 import { MakeNovelFile } from './MakeNovelFile'
 
 // 保存单个小说作品的数据

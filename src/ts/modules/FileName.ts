@@ -2,7 +2,7 @@
 import { EVT } from './EVT'
 import { API } from './API'
 import { lang } from './Lang'
-import { settings } from './setting/SaveSettings'
+import { settings } from './setting/Settings'
 import { store } from './Store'
 import { Result } from './Store.d'
 import config from './Config'

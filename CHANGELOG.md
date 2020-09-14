@@ -14,17 +14,31 @@ checkWantPageInput
 
 checkWantPageInputGreater0
 
-#### setting 相关优化 TODO
+#### 建立了 setting 文件夹存放设置相关文件
 
-使用 option 代替从 form 读取设置？
+#### 从 form 读取设置的地方改为从 settings 读取设置
 
-##### 建立了 setting 文件夹存放设置相关文件
+之前因为历史遗留原因，当其他组件要读取表单上的设置时，从 form 读取，如：
+
+```
+form.userSetName.value
+form.downColorImg.checked
+```
+
+form 是设置表单的 view 层， `Settings` 类的成员 settings 是 model 层。所以可以直接从 settings 读取数据，如：
+
+```
+settings.userSetName
+settings.downColorImg
+```
+
+现在修改以后，看起来更加简洁，并且鼠标放在属性上会有类型提示。以前 form 的属性是 input 元素，无法获得类型提示。
 
 #### SettingAPI 和表单 Form 拆分成两个类
 
 #### 保存了设置面板的所有设置项
 
-之前 `SaveSettings` 类里没有保存所有设置项，现在改为保存所有设置项了。
+之前 `Settings` 类里没有保存所有设置项，现在改为保存所有设置项了。
 
 #### 优化“首次登场”的状态管理
 

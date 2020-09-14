@@ -2,7 +2,7 @@ import { API } from '../API'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { log } from '../Log'
-import { settings } from './SaveSettings'
+import { settings } from './Settings'
 
 // 设置相关的 API
 class SettingAPI {

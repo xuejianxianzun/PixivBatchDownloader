@@ -1,6 +1,6 @@
 import { API } from '../API'
 import { filter } from '../Filter'
-import { settings } from '../setting/SaveSettings'
+import { settings } from '../setting/Settings'
 import { settingAPI } from '../setting/SettingAPI'
 import { FilterOption } from '../Filter.d'
 import { ArtworkData } from '../CrawlResult'

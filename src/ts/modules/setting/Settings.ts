@@ -4,9 +4,9 @@ import { form } from './Form'
 // 保存设置表单的所有设置项，并且在下载器初始化时恢复这些设置的值
 // 例外情况：个数/页数设置（setWantPage）只保存，不恢复。这是因为下载器在初始化时，由 InitXXXPage 类直接设置 setWantPage，而不是使用保存的值进行恢复。
 
-// 成员 options 保存着当前页面的所有设置项；当设置项变化时，options 响应变化并保存到 localStorage 里。
-// 注意：如果打开了多个标签页，每个页面都有各自的 options 成员。它们是互相独立的，不会互相影响。
-// 但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 options 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
+// 成员 settings 保存着当前页面的所有设置项；当设置项变化时，settings 响应变化并保存到 localStorage 里。
+// 注意：如果打开了多个标签页，每个页面都有各自的 settings 成员。它们是互相独立的，不会互相影响。
+// 但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
 
 interface XzSetting {
   setWantPage: string

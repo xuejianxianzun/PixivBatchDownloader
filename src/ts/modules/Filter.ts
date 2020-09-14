@@ -1,11 +1,11 @@
 // 过滤器
 import { FilterOption, FilterWh } from './Filter.d'
-import { form } from './setting/Form'
 import { lang } from './Lang'
 import { log } from './Log'
 import { API } from './API'
 import { EVT } from './EVT'
 import { states } from './States'
+import { settings } from './setting/Settings'
 import { blackAndWhiteImage } from './BlackandWhiteImage'
 
 // 审查作品是否符合过滤条件
@@ -15,32 +15,16 @@ class Filter {
     this.bindEvent()
   }
 
-  private downType0 = true
-  private downType1 = true
-  private downType2 = true
-  private downType3 = true
-
-  private downSingleImg = true
-  private downMultiImg = true
-
-  private downColorImg = true
-  private downBlackWhiteImg = true
-
-  private filterBMKNum = false // 是否要求收藏数量
-
   private readonly BMKNumMinDef = 0
-  private readonly BMKNumMaxDef = 999999
+  private readonly BMKNumMaxDef = 9999999
   private BMKNumMin: number = this.BMKNumMinDef // 最小收藏数量
   private BMKNumMax: number = this.BMKNumMaxDef // 最大收藏数量
-
-  private onlyBmk: boolean = false // 是否只下载收藏的作品
 
   private readonly MB = 1024 * 1024
   private sizeMin = 0
   private sizeMax = 100 * this.MB
 
   // 宽高条件
-  private setWHSwitch = false
   private filterWh: FilterWh = {
     andOr: '&',
     width: 0,
@@ -49,67 +33,48 @@ class Filter {
 
   private ratioType: string = '0' // 宽高比例的类型
 
-  private idRangeSwitch = false // id 范围的开关
-  private idRange: number = -1 // id 范围，默认不限制
-
   private postDate: boolean = false // 是否设置投稿时间
 
   private postDateStart = new Date()
 
   private postDateEnd = new Date()
 
-  private needTagSwitch = false // 必须包含的 tag 开关
   private includeTag: string = '' // 必须包含的 tag
 
-  private notNeedTagSwitch = false // 要排除的 tag 开关
   private excludeTag: string = '' // 要排除的 tag
 
   // 从下载区域上获取过滤器的各个选项
   public init() {
-    // 获取排除作品类型的设置
+    // 获取作品类型的设置
     this.getDownType()
 
     this.getDownTypeByImgCount()
 
-    // 获取是否设置了过滤黑白图像
     this.getDownTypeByColor()
 
-    // 获取是否设置了收藏数要求
-    this.filterBMKNum = form.BMKNumSwitch.checked
-    this.filterBMKNum && this.getBMKNum()
-    // 获取是否设置了只下载书签作品
-    this.onlyBmk = this.getOnlyBmk()
+    // 获取收藏数设置
+    this.getBMKNum()
 
-    // 获取是否设置了宽高条件
-    this.setWHSwitch = form.setWHSwitch.checked
-    if (this.setWHSwitch) {
-      this.filterWh = this.getSetWh()
-    }
+    // 获取只下载已收藏设置
+    this.getOnlyBmk()
+
+    // 获取宽高条件设置
+    this.filterWh = this.getSetWh()
 
     // 获取宽高比设置
-    if (form.ratioSwitch.checked) {
-      this.ratioType = this.getRatio()
-    }
+    this.ratioType = this.getRatio()
 
     // 获取 id 范围设置
-    this.idRangeSwitch = form.idRangeSwitch.checked
-    if (this.idRangeSwitch) {
-      this.idRange = this.getIdRange()
-    }
+    this.getIdRange()
 
     // 获取投稿时间设置
     this.postDate = this.getPostDateSetting()
 
     // 获取必须包含的tag
-    this.needTagSwitch = form.needTagSwitch.checked
-    if (this.needTagSwitch) {
-      this.includeTag = this.getIncludeTag()
-    }
+    this.includeTag = this.getIncludeTag()
+
     // 获取要排除的tag
-    this.notNeedTagSwitch = form.notNeedTagSwitch.checked
-    if (this.notNeedTagSwitch) {
-      this.excludeTag = this.getExcludeTag()
-    }
+    this.excludeTag = this.getExcludeTag()
 
     // 获取只下载首次登场设置
     if (states.debut) {
@@ -129,7 +94,7 @@ class Filter {
       return false
     }
 
-    // 检查图片张数是否允许下载
+    // 检查单图、多图的下载
     if (!this.checkPageCount(option.illustType, option.pageCount)) {
       return false
     }
@@ -204,27 +169,22 @@ class Filter {
 
   // 获取下载的作品类型设置
   private getDownType() {
-    this.downType0 = form.downType0.checked
-    this.downType1 = form.downType1.checked
-    this.downType2 = form.downType2.checked
-    this.downType3 = form.downType3.checked
-
     // 如果全部排除则取消任务
     if (
-      !this.downType0 &&
-      !this.downType1 &&
-      !this.downType2 &&
-      !this.downType3
+      !settings.downType0 &&
+      !settings.downType1 &&
+      !settings.downType2 &&
+      !settings.downType3
     ) {
       this.throwError(lang.transl('_checkNotdownTypeAll'))
     }
 
     let notDownTip = ''
 
-    notDownTip += this.downType0 ? '' : lang.transl('_插画')
-    notDownTip += this.downType1 ? '' : lang.transl('_漫画')
-    notDownTip += this.downType2 ? '' : lang.transl('_动图')
-    notDownTip += this.downType3 ? '' : lang.transl('_小说')
+    notDownTip += settings.downType0 ? '' : lang.transl('_插画')
+    notDownTip += settings.downType1 ? '' : lang.transl('_漫画')
+    notDownTip += settings.downType2 ? '' : lang.transl('_动图')
+    notDownTip += settings.downType3 ? '' : lang.transl('_小说')
 
     if (notDownTip) {
       log.warning(lang.transl('_checkNotdownTypeResult') + notDownTip)
@@ -232,13 +192,10 @@ class Filter {
   }
 
   private getDownTypeByImgCount() {
-    this.downSingleImg = form.downSingleImg.checked
-    this.downMultiImg = form.downMultiImg.checked
-
     let notDownTip = ''
 
-    notDownTip += this.downSingleImg ? '' : lang.transl('_单图作品')
-    notDownTip += this.downMultiImg ? '' : lang.transl('_多图作品')
+    notDownTip += settings.downSingleImg ? '' : lang.transl('_单图作品')
+    notDownTip += settings.downMultiImg ? '' : lang.transl('_多图作品')
 
     if (notDownTip) {
       log.warning(lang.transl('_checkNotdownTypeResult') + notDownTip)
@@ -247,18 +204,15 @@ class Filter {
 
   // 获取图像颜色设置
   private getDownTypeByColor() {
-    this.downColorImg = form.downColorImg.checked
-    this.downBlackWhiteImg = form.downBlackWhiteImg.checked
-
     // 如果全部排除则取消任务
-    if (!this.downColorImg && !this.downBlackWhiteImg) {
+    if (!settings.downColorImg && !settings.downBlackWhiteImg) {
       this.throwError(lang.transl('_checkNotdownTypeAll'))
     }
 
     let notDownTip = ''
 
-    notDownTip += this.downColorImg ? '' : lang.transl('_彩色图片')
-    notDownTip += this.downBlackWhiteImg ? '' : lang.transl('_黑白图片')
+    notDownTip += settings.downColorImg ? '' : lang.transl('_彩色图片')
+    notDownTip += settings.downBlackWhiteImg ? '' : lang.transl('_黑白图片')
 
     if (notDownTip) {
       log.warning(lang.transl('_checkNotdownTypeResult') + notDownTip)
@@ -281,7 +235,10 @@ class Filter {
 
   // 获取必须包含的tag
   private getIncludeTag() {
-    const result = '' || this.getTagString(form.needTag.value)
+    if (!settings.needTagSwitch) {
+      return ''
+    }
+    const result = this.getTagString(settings.needTag)
     if (result) {
       log.warning(lang.transl('_设置了必须tag之后的提示') + result)
     }
@@ -290,7 +247,10 @@ class Filter {
 
   // 获取要排除的tag
   private getExcludeTag() {
-    const result = '' || this.getTagString(form.notNeedTag.value)
+    if (!settings.notNeedTagSwitch) {
+      return ''
+    }
+    const result = this.getTagString(settings.notNeedTag)
     if (result) {
       log.warning(lang.transl('_设置了排除tag之后的提示') + result)
     }
@@ -305,25 +265,29 @@ class Filter {
       height: 0,
     }
 
-    const checkWidth = API.checkNumberGreater0(form.setWidth.value)
-    const checkHeight = API.checkNumberGreater0(form.setHeight.value)
+    if (!settings.setWHSwitch) {
+      return result
+    }
+
+    const checkWidth = API.checkNumberGreater0(settings.setWidth)
+    const checkHeight = API.checkNumberGreater0(settings.setHeight)
 
     // 宽高只要有一个条件大于 0 即可
     if (checkWidth.value > 0 || checkHeight.value > 0) {
       result = {
-        andOr: form.setWidthAndOr.value as '&' | '|',
+        andOr: settings.setWidthAndOr,
         width: checkWidth ? checkWidth.value : 0,
         height: checkHeight ? checkHeight.value : 0,
       }
 
       log.warning(
         lang.transl('_宽度设置') +
-          result.width +
-          result.andOr
-            .replace('|', lang.transl('_或者'))
-            .replace('&', lang.transl('_并且')) +
-          lang.transl('_高度设置') +
-          result.height
+        result.width +
+        result.andOr
+          .replace('|', lang.transl('_或者'))
+          .replace('&', lang.transl('_并且')) +
+        lang.transl('_高度设置') +
+        result.height
       )
     }
 
@@ -332,11 +296,15 @@ class Filter {
 
   // 获取输入的收藏数
   private getBMKNum() {
+    if (!settings.BMKNumSwitch) {
+      return
+    }
+
     this.BMKNumMin = this.BMKNumMinDef
     this.BMKNumMax = this.BMKNumMaxDef
 
-    const min = API.checkNumberGreater0(form.BMKNumMin.value)
-    const max = API.checkNumberGreater0(form.BMKNumMax.value)
+    const min = API.checkNumberGreater0(settings.BMKNumMin)
+    const max = API.checkNumberGreater0(settings.BMKNumMax)
 
     if (min.result) {
       this.BMKNumMin = min.value
@@ -351,16 +319,18 @@ class Filter {
 
   // 获取只下载书签作品的设置
   private getOnlyBmk() {
-    const result = form.setOnlyBmk.checked
-    if (result) {
+    if (settings.setOnlyBmk) {
       log.warning(lang.transl('_只下载已收藏的提示'))
     }
-    return result
   }
 
   // 获取宽高比设置
   private getRatio() {
-    let result = form.ratio.value
+    if (!settings.ratioSwitch) {
+      return '0'
+    }
+
+    let result = settings.ratio
 
     if (result === '1') {
       log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_横图')))
@@ -368,13 +338,13 @@ class Filter {
       log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_竖图')))
     } else if (result === '3') {
       // 由用户输入
-      const typeNum = parseFloat(form.userRatio.value)
+      const typeNum = parseFloat(settings.userRatio)
       if (isNaN(typeNum)) {
-        result = '0'
-        form.ratio.value = result
-        window.alert(lang.transl('_宽高比必须是数字'))
+        const msg = lang.transl('_宽高比必须是数字')
+        window.alert(msg)
+        throw new Error(msg)
       } else {
-        log.warning(lang.transl('_输入宽高比') + form.userRatio.value)
+        log.warning(lang.transl('_输入宽高比') + settings.userRatio)
       }
     }
 
@@ -383,10 +353,14 @@ class Filter {
 
   // 获取 id 范围设置
   private getIdRange() {
-    const result = parseInt(form.idRange.value)
+    if (!settings.idRangeSwitch) {
+      return
+    }
 
-    if (result === 1 || result === 2) {
-      let id = parseInt(form.idRangeInput.value)
+    const result = settings.idRange
+
+    if (result === '1' || result === '2') {
+      let id = parseInt(settings.idRangeInput)
       if (isNaN(id)) {
         EVT.fire(EVT.events.crawlError)
 
@@ -397,12 +371,12 @@ class Filter {
       }
     }
 
-    if (result === 1) {
-      log.warning(`id > ${form.idRangeInput.value}`)
+    if (result === '1') {
+      log.warning(`id > ${settings.idRangeInput}`)
     }
 
-    if (result === 2) {
-      log.warning(`id < ${form.idRangeInput.value}`)
+    if (result === '2') {
+      log.warning(`id < ${settings.idRangeInput}`)
     }
 
     return result
@@ -410,12 +384,12 @@ class Filter {
 
   // 获取投稿时间设置
   private getPostDateSetting() {
-    if (form.postDate.checked === false) {
+    if (!settings.postDate) {
       return false
     } else {
       // 如果启用了此设置，需要判断是否是有效的时间格式
-      const postDateStart = new Date(form.postDateStart.value)
-      const postDateEnd = new Date(form.postDateEnd.value)
+      const postDateStart = new Date(settings.postDateStart)
+      const postDateEnd = new Date(settings.postDateEnd)
       // 如果输入的时间可以被转换成有效的时间，则启用
       // 转换时间失败时，值是 Invalid Date，不能转换成数字
       if (isNaN(postDateStart.getTime()) || isNaN(postDateEnd.getTime())) {
@@ -430,8 +404,7 @@ class Filter {
         this.postDateStart = postDateStart
         this.postDateEnd = postDateEnd
         log.warning(
-          `${lang.transl('_时间范围')}: ${form.postDateStart.value} - ${
-            form.postDateEnd.value
+          `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${settings.postDateEnd
           }`
         )
         return true
@@ -441,11 +414,11 @@ class Filter {
 
   // 获取文件体积设置
   private getSize() {
-    if (form.sizeSwitch.checked) {
-      let min = parseFloat(form.sizeMin.value)
+    if (settings.sizeSwitch) {
+      let min = parseFloat(settings.sizeMin)
       isNaN(min) && (min = 0)
 
-      let max = parseFloat(form.sizeMax.value)
+      let max = parseFloat(settings.sizeMax)
       isNaN(max) && (min = 100)
 
       // 如果输入的最小值比最大值还要大，则交换它们的值
@@ -467,13 +440,13 @@ class Filter {
     } else {
       switch (illustType) {
         case 0:
-          return this.downType0 ? true : false
+          return settings.downType0 ? true : false
         case 1:
-          return this.downType1 ? true : false
+          return settings.downType1 ? true : false
         case 2:
-          return this.downType2 ? true : false
+          return settings.downType2 ? true : false
         case 3:
-          return this.downType3 ? true : false
+          return settings.downType3 ? true : false
         default:
           return true
       }
@@ -494,11 +467,11 @@ class Filter {
       return true
     }
 
-    if (pageCount === 1 && this.downSingleImg) {
+    if (pageCount === 1 && settings.downSingleImg) {
       return true
     }
 
-    if (pageCount > 1 && this.downMultiImg) {
+    if (pageCount > 1 && settings.downMultiImg) {
       return true
     }
 
@@ -508,19 +481,19 @@ class Filter {
   // 检查过滤黑白图像设置
   private async checkBlackWhite(imgUrl: FilterOption['mini']) {
     // 如果没有图片网址，或者没有排除任何一个选项，则不检查
-    if (!imgUrl || (this.downColorImg && this.downBlackWhiteImg)) {
+    if (!imgUrl || (settings.downColorImg && settings.downBlackWhiteImg)) {
       return true
     }
 
     // result 为 true，表示它是黑白图片，false 是彩色图片
     const result = await blackAndWhiteImage.check(imgUrl)
 
-    return (result && this.downBlackWhiteImg) || (!result && this.downColorImg)
+    return (result && settings.downBlackWhiteImg) || (!result && settings.downColorImg)
   }
 
   // 检查收藏数要求
   private checkBMK(bmk: FilterOption['bookmarkCount']) {
-    if (bmk === undefined || !this.filterBMKNum) {
+    if (bmk === undefined || !settings.BMKNumSwitch) {
       return true
     } else {
       return bmk >= this.BMKNumMin && bmk <= this.BMKNumMax
@@ -529,7 +502,7 @@ class Filter {
 
   // 检查作品是否符合【只下载书签作品】的条件,返回值 true 表示包含这个作品
   private checkOnlyBmk(bookmarked: any) {
-    if (bookmarked === undefined || !this.onlyBmk) {
+    if (bookmarked === undefined || !settings.setOnlyBmk) {
       return true
     }
 
@@ -538,7 +511,7 @@ class Filter {
 
   // 检查作品是否符合包含 tag 的条件, 如果设置了多个 tag，需要作品里全部包含。返回值表示是否保留这个作品。
   private checkIncludeTag(tags: FilterOption['tags']) {
-    if (!this.needTagSwitch || !this.includeTag || tags === undefined) {
+    if (!settings.needTagSwitch || !this.includeTag || tags === undefined) {
       return true
     }
 
@@ -576,7 +549,7 @@ class Filter {
 
   // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。
   private checkExcludeTag(tags: FilterOption['tags']) {
-    if (!this.notNeedTagSwitch || !this.excludeTag || tags === undefined) {
+    if (!settings.notNeedTagSwitch || !this.excludeTag || tags === undefined) {
       return true
     }
 
@@ -603,7 +576,7 @@ class Filter {
     width: FilterOption['width'],
     height: FilterOption['height']
   ) {
-    if (!this.setWHSwitch) {
+    if (!settings.setWHSwitch) {
       return true
     }
 
@@ -641,7 +614,7 @@ class Filter {
     width: FilterOption['width'],
     height: FilterOption['height']
   ) {
-    if (!form.ratioSwitch.checked) {
+    if (!settings.ratioSwitch) {
       return true
     }
 
@@ -654,23 +627,23 @@ class Filter {
     } else if (this.ratioType === '2') {
       return width / height < 1
     } else {
-      return width / height >= parseFloat(form.userRatio.value)
+      return width / height >= parseFloat(settings.userRatio)
     }
   }
 
   // 检查 id 范围设置
   private checkIdRange(id: FilterOption['id']) {
-    if (id === undefined || !this.idRangeSwitch) {
+    if (id === undefined || !settings.idRangeSwitch) {
       return true
     }
 
     const nowId = parseInt(id.toString())
-    const setId = parseInt(form.idRangeInput.value)
+    const setId = parseInt(settings.idRangeInput)
 
-    if (this.idRange === 1) {
+    if (settings.idRange === '1') {
       // 大于
       return nowId > setId
-    } else if (this.idRange === 2) {
+    } else if (settings.idRange === '2') {
       // 小于
       return nowId < setId
     } else {
@@ -710,7 +683,7 @@ class Filter {
 
   // 检查文件体积
   private checkSize(size: FilterOption['size']) {
-    if (!form.sizeSwitch.checked || size === undefined) {
+    if (!settings.sizeSwitch || size === undefined) {
       return true
     }
     return size >= this.sizeMin && size <= this.sizeMax
