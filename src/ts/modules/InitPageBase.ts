@@ -9,8 +9,8 @@ import { API } from './API'
 import { store } from './Store'
 import { log } from './Log'
 import { EVT } from './EVT'
-import { form} from './setting/Form'
-import { settings} from './setting/Settings'
+import { form } from './setting/Form'
+import { settings } from './setting/Settings'
 import { settingAPI } from './setting/SettingAPI'
 import { IDData } from './Store.d'
 import { states } from './States'
@@ -88,7 +88,7 @@ abstract class InitPageBase {
     throw new Error(msg)
   }
 
-  // 检查用户输入的页数/个数设置，并返回提示信息
+  // 检查用户输入的页数/个数设置
   // 可以为 -1，或者大于 0
   protected checkWantPageInput(crawlPartTip: string, crawlAllTip: string) {
     const temp = parseInt(settings.setWantPage)
@@ -96,7 +96,7 @@ abstract class InitPageBase {
     // 如果比 1 小，并且不是 -1，则不通过
     if ((temp < 1 && temp !== -1) || isNaN(temp)) {
       // 比 1 小的数里，只允许 -1 , 0 也不行
-      this.getWantPageError()
+      throw this.getWantPageError()
     }
 
     if (temp >= 1) {
@@ -109,14 +109,23 @@ abstract class InitPageBase {
   }
 
   // 检查用户输入的页数/个数设置
-  // 必须大于 0
-  protected checkWantPageInputGreater0() {
+  // 要求必须大于 0
+  // 参数 max 为最大值
+  // 参数 page 指示单位是“页”（页面）还是“个”（作品个数）
+  protected checkWantPageInputGreater0(max: number, page: boolean) {
     const result = API.checkNumberGreater0(settings.setWantPage)
 
     if (result.result) {
-      return result.value
+      const r = (result.value > max) ? max : result.value
+
+      if (page) {
+        log.warning(lang.transl('_从本页开始下载x页',r.toString()))
+      }else{
+        log.warning(lang.transl('_从本页开始下载x个',r.toString()))
+      }
+      return r
     } else {
-      this.getWantPageError()
+      throw this.getWantPageError()
     }
   }
 

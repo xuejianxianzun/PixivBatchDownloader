@@ -36,15 +36,7 @@ class InitBookmarkDetailPage extends InitPageBase {
   }
 
   protected getWantPage() {
-    const check = this.checkWantPageInputGreater0()
-    if (check == undefined) {
-      return
-    }
-    this.crawlNumber = check
-
-    if (this.crawlNumber > this.maxCount) {
-      this.crawlNumber = this.maxCount
-    }
+    this.crawlNumber = this.checkWantPageInputGreater0(this.maxCount, false)
   }
 
   // 获取相似的作品列表
@@ -61,6 +53,6 @@ class InitBookmarkDetailPage extends InitPageBase {
     this.getIdListFinished()
   }
 
-  protected resetGetIdListStatus() {}
+  protected resetGetIdListStatus() { }
 }
 export { InitBookmarkDetailPage }

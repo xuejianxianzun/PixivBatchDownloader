@@ -222,12 +222,6 @@ const langText = {
     'Download from this page<br>If you want to set the number of pages to download, type a number starting at 1. This page is 1.',
     '從本頁開始下載。<br>如果要限制下載的頁數，請輸入從 1 開始的數字，1 為僅下載本頁。',
   ],
-  _从本页开始下载x页: [
-    '从本页开始下载-num-页',
-    '現在のページから -num- ページをウンロードします',
-    'download -num- pages from the current page',
-    '從本頁開始下載-num-頁',
-  ],
   _下载所有页面: [
     '下载所有页面',
     'すべてのページをダウンロードする',
@@ -264,11 +258,17 @@ const langText = {
     'The number you entered exceeds the maximum',
     '輸入的數字超出最大值',
   ],
-  _任务开始1: [
-    '从本页开始下载{}页',
+  _从本页开始下载x页: [
+    '从本页开始下载 {} 页',
     'このページから {} ページをダウンロードする',
     'download {} pages from this page',
     '從本頁開始下載 {} 頁',
+  ],
+  _从本页开始下载x个: [
+    '从本页开始下载 {} 个作品',
+    'このページから {} 枚の作品をダウンロード。',
+    'Download {} works from this page.',
+    '從本頁開始下載 {} 個作品',
   ],
   _任务开始0: ['任务开始', 'タスクが開始されます', 'Task starts', '工作開始'],
   _checkNotdownTypeAll: [

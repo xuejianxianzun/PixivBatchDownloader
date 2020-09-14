@@ -5357,14 +5357,23 @@ class InitPageBase {
         return temp;
     }
     // 检查用户输入的页数/个数设置
-    // 必须大于 0
-    checkWantPageInputGreater0() {
+    // 要求必须大于 0
+    // 参数 max 为最大值
+    // 参数 page 指示单位是“页”（页面）还是“个”（作品个数）
+    checkWantPageInputGreater0(max, page) {
         const result = _API__WEBPACK_IMPORTED_MODULE_6__["API"].checkNumberGreater0(_setting_Settings__WEBPACK_IMPORTED_MODULE_11__["settings"].setWantPage);
         if (result.result) {
-            return result.value;
+            const r = (result.value > max) ? max : result.value;
+            if (page) {
+                _Log__WEBPACK_IMPORTED_MODULE_8__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_从本页开始下载x页', r.toString()));
+            }
+            else {
+                _Log__WEBPACK_IMPORTED_MODULE_8__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_从本页开始下载x个', r.toString()));
+            }
+            return r;
         }
         else {
-            this.getWantPageError();
+            throw this.getWantPageError();
         }
     }
     // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
@@ -8262,14 +8271,7 @@ class InitBookmarkDetailPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         });
     }
     getWantPage() {
-        const check = this.checkWantPageInputGreater0();
-        if (check == undefined) {
-            return;
-        }
-        this.crawlNumber = check;
-        if (this.crawlNumber > this.maxCount) {
-            this.crawlNumber = this.maxCount;
-        }
+        this.crawlNumber = this.checkWantPageInputGreater0(this.maxCount, false);
     }
     // 获取相似的作品列表
     async getIdList() {
@@ -8343,15 +8345,7 @@ class InitBookmarkNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_
         });
     }
     getWantPage() {
-        const check = this.checkWantPageInputGreater0();
-        if (check == undefined) {
-            return;
-        }
-        this.crawlNumber = check;
-        if (this.crawlNumber > this.maxCount) {
-            this.crawlNumber = this.maxCount;
-        }
-        _Log__WEBPACK_IMPORTED_MODULE_8__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_任务开始1', this.crawlNumber.toString()));
+        this.crawlNumber = this.checkWantPageInputGreater0(this.maxCount, true);
     }
     nextStep() {
         this.r18 = location.pathname.includes('r18');
@@ -8535,15 +8529,7 @@ class InitNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
         });
     }
     getWantPage() {
-        const check = this.checkWantPageInputGreater0();
-        if (check == undefined) {
-            return;
-        }
-        this.crawlNumber = check;
-        if (this.crawlNumber > this.maxCount) {
-            this.crawlNumber = this.maxCount;
-        }
-        _Log__WEBPACK_IMPORTED_MODULE_7__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取多少个作品', this.crawlNumber.toString()));
+        this.crawlNumber = this.checkWantPageInputGreater0(this.maxCount, false);
     }
     nextStep() {
         this.initFetchURL();
@@ -9495,15 +9481,7 @@ class InitSeriesPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPag
         });
     }
     getWantPage() {
-        const check = this.checkWantPageInputGreater0();
-        if (check == undefined) {
-            return;
-        }
-        this.crawlNumber = check;
-        if (this.crawlNumber > this.maxCount) {
-            this.crawlNumber = this.maxCount;
-        }
-        _Log__WEBPACK_IMPORTED_MODULE_8__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_任务开始1', this.crawlNumber.toString()));
+        this.crawlNumber = this.checkWantPageInputGreater0(this.maxCount, true);
     }
     nextStep() {
         // 设置起始页码
@@ -10029,12 +10007,6 @@ const langText = {
         'Download from this page<br>If you want to set the number of pages to download, type a number starting at 1. This page is 1.',
         '從本頁開始下載。<br>如果要限制下載的頁數，請輸入從 1 開始的數字，1 為僅下載本頁。',
     ],
-    _从本页开始下载x页: [
-        '从本页开始下载-num-页',
-        '現在のページから -num- ページをウンロードします',
-        'download -num- pages from the current page',
-        '從本頁開始下載-num-頁',
-    ],
     _下载所有页面: [
         '下载所有页面',
         'すべてのページをダウンロードする',
@@ -10071,11 +10043,17 @@ const langText = {
         'The number you entered exceeds the maximum',
         '輸入的數字超出最大值',
     ],
-    _任务开始1: [
-        '从本页开始下载{}页',
+    _从本页开始下载x页: [
+        '从本页开始下载 {} 页',
         'このページから {} ページをダウンロードする',
         'download {} pages from this page',
         '從本頁開始下載 {} 頁',
+    ],
+    _从本页开始下载x个: [
+        '从本页开始下载 {} 个作品',
+        'このページから {} 枚の作品をダウンロード。',
+        'Download {} works from this page.',
+        '從本頁開始下載 {} 個作品',
     ],
     _任务开始0: ['任务开始', 'タスクが開始されます', 'Task starts', '工作開始'],
     _checkNotdownTypeAll: [
@@ -11204,15 +11182,7 @@ class InitBookmarkNewNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0_
         });
     }
     getWantPage() {
-        const check = this.checkWantPageInputGreater0();
-        if (check == undefined) {
-            return;
-        }
-        this.crawlNumber = check;
-        if (this.crawlNumber > this.maxCount) {
-            this.crawlNumber = this.maxCount;
-        }
-        _Log__WEBPACK_IMPORTED_MODULE_8__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_任务开始1', this.crawlNumber.toString()));
+        this.crawlNumber = this.checkWantPageInputGreater0(this.maxCount, true);
     }
     getPageUrl() {
         // 设置起始页面
@@ -11353,15 +11323,7 @@ class InitNewNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitP
         });
     }
     getWantPage() {
-        const check = this.checkWantPageInputGreater0();
-        if (check == undefined) {
-            return;
-        }
-        this.crawlNumber = check;
-        if (this.crawlNumber > this.maxCount) {
-            this.crawlNumber = this.maxCount;
-        }
-        _Log__WEBPACK_IMPORTED_MODULE_7__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取多少个作品', this.crawlNumber.toString()));
+        this.crawlNumber = this.checkWantPageInputGreater0(this.maxCount, false);
     }
     nextStep() {
         this.initFetchURL();

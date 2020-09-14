@@ -27,7 +27,7 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
     })
   }
 
-  protected appendElseEl() {}
+  protected appendElseEl() { }
 
   protected setFormOption() {
     // 设置“个数/页数”选项
@@ -42,17 +42,7 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
   }
 
   protected getWantPage() {
-    const check = this.checkWantPageInputGreater0()
-    if (check == undefined) {
-      return
-    }
-    this.crawlNumber = check
-
-    if (this.crawlNumber > this.maxCount) {
-      this.crawlNumber = this.maxCount
-    }
-
-    log.warning(lang.transl('_任务开始1', this.crawlNumber.toString()))
+    this.crawlNumber = this.checkWantPageInputGreater0(this.maxCount, true)
   }
 
   protected nextStep() {

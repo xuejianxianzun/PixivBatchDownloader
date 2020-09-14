@@ -24,7 +24,11 @@
 
 checkWantPageInput
 
-checkWantPageInputGreater0
+替换 -num-
+
+#### 优化 checkWantPageInputGreater0
+
+`checkWantPageInputGreater0` 当页数/个数设置要求大于 0 的时候使用这个方法。现在对它进行了优化，可以直接返回值，并且输出日志提示。
 
 #### 建立了 setting 文件夹存放设置相关文件
 

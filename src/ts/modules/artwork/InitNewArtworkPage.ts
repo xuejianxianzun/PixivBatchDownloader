@@ -45,17 +45,7 @@ class InitNewArtworkPage extends InitPageBase {
   }
 
   protected getWantPage() {
-    const check = this.checkWantPageInputGreater0()
-    if (check == undefined) {
-      return
-    }
-    this.crawlNumber = check
-
-    if (this.crawlNumber > this.maxCount) {
-      this.crawlNumber = this.maxCount
-    }
-
-    log.warning(lang.transl('_抓取多少个作品', this.crawlNumber.toString()))
+    this.crawlNumber = this.checkWantPageInputGreater0(this.maxCount, false)
   }
 
   protected nextStep() {
