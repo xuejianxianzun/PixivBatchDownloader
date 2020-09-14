@@ -148,7 +148,7 @@ class InitArtworkPage extends InitPageBase {
             ? lang.transl('_从本页开始抓取new')
             : lang.transl('_从本页开始抓取old')
         this.crawlNumber = this.checkWantPageInput(
-          lang.transl('_从本页开始下载x个作品'),
+          lang.transl('_从本页开始下载x个'),
           crawlAllTip
         )
       } else {

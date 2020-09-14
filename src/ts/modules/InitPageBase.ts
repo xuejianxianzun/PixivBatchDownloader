@@ -100,7 +100,7 @@ abstract class InitPageBase {
     }
 
     if (temp >= 1) {
-      log.warning(crawlPartTip.replace('-num-', temp.toString()))
+      log.warning(crawlPartTip.replace('{}', temp.toString()))
     } else if (temp === -1) {
       log.warning(crawlAllTip)
     }
@@ -119,9 +119,9 @@ abstract class InitPageBase {
       const r = (result.value > max) ? max : result.value
 
       if (page) {
-        log.warning(lang.transl('_从本页开始下载x页',r.toString()))
-      }else{
-        log.warning(lang.transl('_从本页开始下载x个',r.toString()))
+        log.warning(lang.transl('_从本页开始下载x页', r.toString()))
+      } else {
+        log.warning(lang.transl('_从本页开始下载x个', r.toString()))
       }
       return r
     } else {

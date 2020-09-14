@@ -204,12 +204,6 @@ const langText = {
     'Parameter is not legal, this operation has been canceled.',
     '參數不合法，本次動作已取消。',
   ],
-  _从本页开始下载x个作品: [
-    '从本页开始下载-num-个作品',
-    'このページから -num- 枚の作品をダウンロード。',
-    'Download -num- works from this page.',
-    '從本頁開始下載-num-個作品',
-  ],
   _向下获取所有作品: [
     '向下获取所有作品',
     'このページからすべての作品をダウンロードする。',
@@ -229,10 +223,10 @@ const langText = {
     '下載所有頁面',
   ],
   _下载x个相关作品: [
-    '下载 -num- 个相关作品',
-    '関連作品 -num- 枚をダウンロードする。',
-    'download -num- related works.',
-    '下載 -num- 個相關作品',
+    '下载 {} 个相关作品',
+    '関連作品 {} 枚をダウンロードする。',
+    'download {} related works.',
+    '下載 {} 個相關作品',
   ],
   _下载所有相关作品: [
     '下载所有相关作品',
@@ -247,10 +241,10 @@ const langText = {
     '下載推薦作品',
   ],
   _下载排行榜前x个作品: [
-    '下载排行榜前 -num- 个作品',
-    'ランク前 -num- 位の作品をダウンロードする。',
-    'download the top -num- works in the ranking list',
-    '下載排行榜前 -num- 個作品',
+    '下载排行榜前 {} 个作品',
+    'ランク前 {} 位の作品をダウンロードする。',
+    'download the top {} works in the ranking list',
+    '下載排行榜前 {} 個作品',
   ],
   _输入超过了最大值: [
     '您输入的数字超过了最大值',

@@ -22,15 +22,9 @@
 
 ### 代码优化
 
-checkWantPageInput
-
-替换 -num-
-
-#### 优化 checkWantPageInputGreater0
-
-`checkWantPageInputGreater0` 当页数/个数设置要求大于 0 的时候使用这个方法。现在对它进行了优化，可以直接返回值，并且输出日志提示。
-
 #### 建立了 setting 文件夹存放设置相关文件
+
+统一存放设置表单相关的类的文件。
 
 #### 从 form 读取设置的地方改为从 settings 读取设置
 
@@ -68,9 +62,7 @@ settings.downColorImg
 
 现在进行了修改：不管结果是否为空，都会触发 `crawlFinish` 事件，只监听这个事件就可以了。如果结果为空，则会额外触发 `crawlEmpty` 事件，可以根据需要决定是否监听这个事件。
 
-
-
-#### 优化搜索页的事件和状态
+#### 优化搜索页的事件、状态、代码
 
 之前二次筛选之后触发的是 `crawlFinish` 事件，现在改为一个单独的 `resultChange` 事件。
 
@@ -85,6 +77,16 @@ settings.downColorImg
 `PageInfo` 类获取页面的 tag 和 title，并在开始抓取时保存到 `store` 里。这导致这两个类里都有 tag 和 tiele，引用时需要分辨它们含义的不同，并且显得重复。
 
 现在优化了获取 tag 和 title 的 API，直接在 `store` 里保存，删除了 `PageInfo` 类。
+
+#### 优化 checkWantPageInputGreater0
+
+`checkWantPageInputGreater0` 当页数/个数设置要求大于 0 的时候使用这个方法。现在对它进行了优化，可以直接返回值，并且输出日志提示。
+
+#### -num- 占位符替换成 {}
+
+下载器的界面文本使用 `{}` 作为占位符，如 `下载排行榜前 {} 个作品`。
+
+以前因为历史遗留原因，有些地方用 `-num-` 做占位符，现在替换成 `{}`。
 
 ## 7.4.0  2020-09-08
 

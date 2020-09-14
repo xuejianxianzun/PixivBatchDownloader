@@ -5339,17 +5339,17 @@ class InitPageBase {
         window.alert(msg);
         throw new Error(msg);
     }
-    // 检查用户输入的页数/个数设置，并返回提示信息
+    // 检查用户输入的页数/个数设置
     // 可以为 -1，或者大于 0
     checkWantPageInput(crawlPartTip, crawlAllTip) {
         const temp = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_11__["settings"].setWantPage);
         // 如果比 1 小，并且不是 -1，则不通过
         if ((temp < 1 && temp !== -1) || isNaN(temp)) {
             // 比 1 小的数里，只允许 -1 , 0 也不行
-            this.getWantPageError();
+            throw this.getWantPageError();
         }
         if (temp >= 1) {
-            _Log__WEBPACK_IMPORTED_MODULE_8__["log"].warning(crawlPartTip.replace('-num-', temp.toString()));
+            _Log__WEBPACK_IMPORTED_MODULE_8__["log"].warning(crawlPartTip.replace('{}', temp.toString()));
         }
         else if (temp === -1) {
             _Log__WEBPACK_IMPORTED_MODULE_8__["log"].warning(crawlAllTip);
@@ -8138,7 +8138,7 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
                 const crawlAllTip = this.crawlDirection === -1
                     ? _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始抓取new')
                     : _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始抓取old');
-                this.crawlNumber = this.checkWantPageInput(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载x个作品'), crawlAllTip);
+                this.crawlNumber = this.checkWantPageInput(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载x个'), crawlAllTip);
             }
             else {
                 // 相关作品的提示
@@ -9989,12 +9989,6 @@ const langText = {
         'Parameter is not legal, this operation has been canceled.',
         '參數不合法，本次動作已取消。',
     ],
-    _从本页开始下载x个作品: [
-        '从本页开始下载-num-个作品',
-        'このページから -num- 枚の作品をダウンロード。',
-        'Download -num- works from this page.',
-        '從本頁開始下載-num-個作品',
-    ],
     _向下获取所有作品: [
         '向下获取所有作品',
         'このページからすべての作品をダウンロードする。',
@@ -10014,10 +10008,10 @@ const langText = {
         '下載所有頁面',
     ],
     _下载x个相关作品: [
-        '下载 -num- 个相关作品',
-        '関連作品 -num- 枚をダウンロードする。',
-        'download -num- related works.',
-        '下載 -num- 個相關作品',
+        '下载 {} 个相关作品',
+        '関連作品 {} 枚をダウンロードする。',
+        'download {} related works.',
+        '下載 {} 個相關作品',
     ],
     _下载所有相关作品: [
         '下载所有相关作品',
@@ -10032,10 +10026,10 @@ const langText = {
         '下載推薦作品',
     ],
     _下载排行榜前x个作品: [
-        '下载排行榜前 -num- 个作品',
-        'ランク前 -num- 位の作品をダウンロードする。',
-        'download the top -num- works in the ranking list',
-        '下載排行榜前 -num- 個作品',
+        '下载排行榜前 {} 个作品',
+        'ランク前 {} 位の作品をダウンロードする。',
+        'download the top {} works in the ranking list',
+        '下載排行榜前 {} 個作品',
     ],
     _输入超过了最大值: [
         '您输入的数字超过了最大值',
@@ -11508,7 +11502,7 @@ class InitNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
             const crawlAllTip = this.crawlDirection === -1
                 ? _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始抓取new')
                 : _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始抓取old');
-            this.crawlNumber = this.checkWantPageInput(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载x个作品'), crawlAllTip);
+            this.crawlNumber = this.checkWantPageInput(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载x个'), crawlAllTip);
         }
     }
     nextStep() {
