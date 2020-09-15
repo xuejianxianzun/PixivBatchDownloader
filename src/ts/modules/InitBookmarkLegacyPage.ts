@@ -35,7 +35,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
 
   private crawlRecommended: boolean = false // 是否抓取推荐作品（收藏页面下方）
 
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
@@ -53,7 +53,9 @@ class InitBookmarkLegacyPage extends InitPageBase {
       },
       false
     )
+  }
 
+  protected addAnyElement() {
     // 如果存在 token，则添加“添加 tag”按钮
     if (API.getToken()) {
       const btn = DOM.addBtn(

@@ -24,7 +24,7 @@ class InitNewArtworkPage extends InitPageBase {
 
   private fetchCount = 0 // 已请求的作品数量
 
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_下载大家的新作品')],
     ]).addEventListener('click', () => {

@@ -42,7 +42,11 @@ class TitleBar {
       this.set('waiting')
     })
 
-    for (const ev of [EVT.events.crawlFinish, EVT.events.resultChange, EVT.events.resume]) {
+    for (const ev of [
+      EVT.events.crawlFinish,
+      EVT.events.resultChange,
+      EVT.events.resume,
+    ]) {
       window.addEventListener(ev, () => {
         this.set('readyDownload')
       })

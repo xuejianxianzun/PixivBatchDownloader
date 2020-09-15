@@ -209,7 +209,6 @@ class Resume {
       })
     }
 
-
     // 当有文件下载完成时，更新下载状态
     window.addEventListener(EVT.events.downloadSuccess, () => {
       this.needPutStates = true

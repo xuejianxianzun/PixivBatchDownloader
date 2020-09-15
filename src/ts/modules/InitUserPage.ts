@@ -24,13 +24,15 @@ class InitUserPage extends InitPageBase {
   private onceNumber = 48 // 每页作品个数，插画是 48 个，小说是 24 个
 
   // 添加中间按钮
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
+  }
 
+  protected addAnyElement() {
     DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像为图标'), [
       ['title', lang.transl('_保存用户头像为图标说明')],
     ]).addEventListener('click', () => {

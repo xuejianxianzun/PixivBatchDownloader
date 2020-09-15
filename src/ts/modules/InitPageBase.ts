@@ -15,12 +15,13 @@ import { saveNovelData } from './novel/SaveNovelData'
 import { IDData } from './Store.d'
 
 abstract class InitPageBase {
+  // 不允许子组件重载 init 方法
   protected init() {
     options.showAllOption()
     this.setFormOption()
-    this.appendCenterBtns()
-    this.appendElseEl()
-    this.initElse()
+    this.addCrawlBtns()
+    this.addAnyElement()
+    this.initAny()
 
     window.addEventListener(EVT.events.pageSwitchedTypeChange, () => {
       this.destroy()
@@ -38,8 +39,8 @@ abstract class InitPageBase {
     })
   }
 
-  // 添加中间按钮
-  protected appendCenterBtns() {
+  // 添加抓取区域的按钮
+  protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
@@ -47,12 +48,13 @@ abstract class InitPageBase {
     })
   }
 
-  // 添加其他元素（如果有）
-  protected appendElseEl(): void { }
+  // 添加其他任意元素（如果有）
+  protected addAnyElement(): void {}
 
-  // 如果初始化时有一些代码不能归纳到前面几个方法里，那么就可以放到这个方法里
-  // 通常用来绑定事件；初始化特有的组件、功能、状态
-  protected initElse() { }
+  // 初始化任意内容
+  // 如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里
+  // 通常用来初始化特有的组件、功能、事件、状态等
+  protected initAny() {}
 
   // 销毁初始化页面时添加的元素和事件，恢复设置项等
   protected destroy(): void {
@@ -112,7 +114,7 @@ abstract class InitPageBase {
     const result = API.checkNumberGreater0(settings.setWantPage)
 
     if (result.result) {
-      const r = (result.value > max) ? max : result.value
+      const r = result.value > max ? max : result.value
 
       if (page) {
         log.warning(lang.transl('_从本页开始下载x页', r.toString()))
@@ -126,7 +128,7 @@ abstract class InitPageBase {
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
-  protected getWantPage() { }
+  protected getWantPage() {}
 
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
   protected getMultipleSetting() {
@@ -320,7 +322,7 @@ abstract class InitPageBase {
   }
 
   // 抓取完成后，对结果进行排序
-  protected sortResult() { }
+  protected sortResult() {}
 }
 
 export { InitPageBase }

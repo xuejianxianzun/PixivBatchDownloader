@@ -282,12 +282,12 @@ class Filter {
 
       log.warning(
         lang.transl('_宽度设置') +
-        result.width +
-        result.andOr
-          .replace('|', lang.transl('_或者'))
-          .replace('&', lang.transl('_并且')) +
-        lang.transl('_高度设置') +
-        result.height
+          result.width +
+          result.andOr
+            .replace('|', lang.transl('_或者'))
+            .replace('&', lang.transl('_并且')) +
+          lang.transl('_高度设置') +
+          result.height
       )
     }
 
@@ -404,7 +404,8 @@ class Filter {
         this.postDateStart = postDateStart
         this.postDateEnd = postDateEnd
         log.warning(
-          `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${settings.postDateEnd
+          `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${
+            settings.postDateEnd
           }`
         )
         return true
@@ -488,7 +489,10 @@ class Filter {
     // result 为 true，表示它是黑白图片，false 是彩色图片
     const result = await blackAndWhiteImage.check(imgUrl)
 
-    return (result && settings.downBlackWhiteImg) || (!result && settings.downColorImg)
+    return (
+      (result && settings.downBlackWhiteImg) ||
+      (!result && settings.downColorImg)
+    )
   }
 
   // 检查收藏数要求

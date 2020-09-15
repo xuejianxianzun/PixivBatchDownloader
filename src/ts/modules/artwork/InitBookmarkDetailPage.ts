@@ -13,7 +13,7 @@ class InitBookmarkDetailPage extends InitPageBase {
     this.init()
   }
 
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取相似图片'), [
       ['title', lang.transl('_抓取相似图片')],
     ]).addEventListener(
@@ -53,6 +53,6 @@ class InitBookmarkDetailPage extends InitPageBase {
     this.getIdListFinished()
   }
 
-  protected resetGetIdListStatus() { }
+  protected resetGetIdListStatus() {}
 }
 export { InitBookmarkDetailPage }

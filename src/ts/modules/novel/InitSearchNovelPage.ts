@@ -44,11 +44,11 @@ class InitSearchNovelPage extends InitPageBase {
     'original_only',
   ]
 
-  protected initElse() {
+  protected initAny() {
     new FastScreen()
   }
 
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.green, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
@@ -65,7 +65,7 @@ class InitSearchNovelPage extends InitPageBase {
     return null
   }
 
-  protected appendElseEl() {
+  protected addAnyElement() {
     // 添加收藏本页所有作品的功能
     const bookmarkAll = new BookmarkAllWorks()
     bookmarkAll.btn.addEventListener('click', () => {

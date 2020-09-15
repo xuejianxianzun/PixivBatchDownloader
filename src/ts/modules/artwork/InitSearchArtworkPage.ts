@@ -74,7 +74,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
   private causeResultChange = ['firstFewImagesSwitch', 'firstFewImages'] // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
 
-  protected initElse() {
+  protected initAny() {
     this.hotBar()
 
     this.setPreviewResult(settings.previewResult)
@@ -94,7 +94,7 @@ class InitSearchArtworkPage extends InitPageBase {
     window.addEventListener(EVT.events.settingChange, this.onSettingChange)
   }
 
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.green, lang.transl('_开始筛选'), [
       ['title', lang.transl('_开始筛选Title')],
     ]).addEventListener('click', () => {
@@ -126,7 +126,7 @@ class InitSearchArtworkPage extends InitPageBase {
     })
   }
 
-  protected appendElseEl() {
+  protected addAnyElement() {
     const deleteWorks = new DeleteWorks(`.${this.listClass}`)
 
     deleteWorks.addClearMultipleBtn(`.${this.multipleClass}`, () => {
@@ -410,9 +410,7 @@ class InitSearchArtworkPage extends InitPageBase {
       log.log(lang.transl('_当前作品个数', count.toString()))
     }
     // 显示文件数量
-    log.success(
-      lang.transl('_共抓取到n个文件', store.result.length.toString())
-    )
+    log.success(lang.transl('_共抓取到n个文件', store.result.length.toString()))
 
     this.clearWorks()
 

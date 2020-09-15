@@ -30,7 +30,7 @@ class InitArtworkPage extends InitPageBase {
 
   private crawlRelated: boolean = false // 是否下载相关作品
 
-  protected initElse() {
+  protected initAny() {
     // 初始化快速收藏功能和图片查看器
     this.initQuickBookmark()
     this.initImgViewer()
@@ -58,7 +58,7 @@ class InitArtworkPage extends InitPageBase {
     new QuickBookmark()
   }
 
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     DOM.addBtn(
       'crawlBtns',
       Colors.blue,
@@ -90,7 +90,9 @@ class InitArtworkPage extends InitPageBase {
       },
       false
     )
+  }
 
+  protected addAnyElement() {
     DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像为图标'), [
       ['title', lang.transl('_保存用户头像为图标说明')],
     ]).addEventListener('click', () => {

@@ -14,7 +14,7 @@ class InitDiscoverPage extends InitPageBase {
     this.init()
   }
 
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取当前作品'), [
       ['title', lang.transl('_抓取当前作品Title')],
     ]).addEventListener('click', () => {
@@ -26,7 +26,7 @@ class InitDiscoverPage extends InitPageBase {
     options.hideOption([1])
   }
 
-  protected appendElseEl() {
+  protected addAnyElement() {
     const deleteWorks = new DeleteWorks('._2RNjBox')
 
     deleteWorks.addClearMultipleBtn('._3b8AXEx')

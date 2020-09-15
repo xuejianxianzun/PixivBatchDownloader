@@ -14,7 +14,7 @@ class InitPixivisionPage extends InitPageBase {
 
   private tested: number = 0 // 检查图片后缀名时的计数
 
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     const typeA = document.querySelector(
       'a[data-gtm-action=ClickCategory]'
     )! as HTMLAnchorElement

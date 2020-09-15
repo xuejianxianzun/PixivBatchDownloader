@@ -28,7 +28,7 @@ class InitFollowingPage extends InitPageBase {
 
   private index = 0 // getIdList 时，对 userList 的索引
 
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {

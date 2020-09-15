@@ -18,7 +18,7 @@ class InitBookmarkNewNovelPage extends InitPageBase {
 
   private baseUrl = ''
 
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {

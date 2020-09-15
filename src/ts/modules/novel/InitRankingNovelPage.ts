@@ -17,7 +17,7 @@ class InitRankingNovelPage extends InitPageBase {
 
   private pageUrlList: string[] = []
 
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取本排行榜作品'), [
       ['title', lang.transl('_抓取本排行榜作品Title')],
     ]).addEventListener('click', () => {

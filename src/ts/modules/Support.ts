@@ -67,8 +67,8 @@ class Support {
       const whatIsNewHtml = `
       <div class="xz_new">
         <p class="title">Powerful Pixiv Downloader ${lang.transl(
-        '_最近更新'
-      )}</p>
+          '_最近更新'
+        )}</p>
         <p class="content">${lang.transl(newTag)}</p>
         <button class="btn">${lang.transl('_确定')}</button>
       </div>`
@@ -113,4 +113,4 @@ class Support {
   }
 }
 new Support()
-export { }
+export {}

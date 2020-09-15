@@ -12,22 +12,25 @@ class SettingAPI {
     this.firstFewImages = this.getFirstFewImages()
   }
 
-  private firstFewImages = 0  // 缓存多图作品只下载前几张图片的值
+  private firstFewImages = 0 // 缓存多图作品只下载前几张图片的值
 
   private bindEvents() {
     // 当 firstFewImages 设置改变时，保存它的值
-    window.addEventListener(EVT.events.settingChange, (event: CustomEventInit) => {
-      const data = event.detail.data
-      if (data.name === 'firstFewImages') {
-        this.firstFewImages = this.getFirstFewImages()
+    window.addEventListener(
+      EVT.events.settingChange,
+      (event: CustomEventInit) => {
+        const data = event.detail.data
+        if (data.name === 'firstFewImages') {
+          this.firstFewImages = this.getFirstFewImages()
+        }
       }
-    })
+    )
   }
 
   // 获取作品张数设置
   public getFirstFewImages() {
     const check = API.checkNumberGreater0(settings.firstFewImages)
-    
+
     if (check.result) {
       return check.value
     }
@@ -35,8 +38,7 @@ class SettingAPI {
     // 如果用户输入的数字不合法（不大于0）
     EVT.fire(EVT.events.crawlError)
 
-    const msg =
-      lang.transl('_下载前几张图片') + ' ' + lang.transl('_必须大于0')
+    const msg = lang.transl('_下载前几张图片') + ' ' + lang.transl('_必须大于0')
     log.error(msg)
     window.alert(msg)
     throw new Error(msg)

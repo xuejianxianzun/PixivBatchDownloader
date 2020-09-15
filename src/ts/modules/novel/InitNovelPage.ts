@@ -29,7 +29,7 @@ class InitNovelPage extends InitPageBase {
   1 抓取旧作品
   */
 
-  protected initElse() {
+  protected initAny() {
     this.initQuickBookmark()
 
     window.addEventListener(
@@ -46,7 +46,7 @@ class InitNovelPage extends InitPageBase {
     new QuickBookmark()
   }
 
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     DOM.addBtn(
       'crawlBtns',
       Colors.blue,
@@ -64,7 +64,9 @@ class InitNovelPage extends InitPageBase {
       this.crawlDirection = 1
       this.readyCrawl()
     })
+  }
 
+  protected addAnyElement() {
     DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像为图标'), [
       ['title', lang.transl('_保存用户头像为图标说明')],
     ]).addEventListener('click', () => {

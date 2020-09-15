@@ -63,10 +63,7 @@ class FastScreen {
     const firstTag = nowTag.split(' ')[0]
     const fullTag = encodeURIComponent(firstTag + ' ' + secondTag)
     // 用新的 tag 替换掉当前网址里的 tag
-    const newURL = location.href.replace(
-      encodeURIComponent(nowTag),
-      fullTag
-    )
+    const newURL = location.href.replace(encodeURIComponent(nowTag), fullTag)
     // 添加 s_mode=s_tag 宽松匹配标签
     const u = new URL(newURL)
     u.searchParams.set('s_mode', 's_tag')

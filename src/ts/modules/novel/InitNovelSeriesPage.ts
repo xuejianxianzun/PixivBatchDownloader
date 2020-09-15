@@ -17,7 +17,7 @@ class InitNovelSeriesPage extends InitPageBase {
   private readonly limit = 30
   private last = 0
 
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     DOM.addBtn(
       'crawlBtns',
       Colors.blue,

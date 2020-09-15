@@ -18,13 +18,24 @@ class InitIndexPage extends InitPageBase {
   private downIdInput: HTMLTextAreaElement = document.createElement('textarea')
   private ready = false
 
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     this.downIdButton = DOM.addBtn(
       'crawlBtns',
       Colors.blue,
       lang.transl('_输入id进行抓取'),
       [['id', 'down_id_button']]
     )
+  }
+
+  protected addAnyElement() {
+    // 用于输入id的输入框
+    this.downIdInput.id = 'down_id_input'
+    this.downIdInput.style.display = 'none'
+    this.downIdInput.setAttribute(
+      'placeholder',
+      lang.transl('_输入id进行抓取的提示文字')
+    )
+    DOM.insertToHead<HTMLTextAreaElement>(this.downIdInput)
 
     DOM.addBtn(
       'otherBtns',
@@ -35,22 +46,11 @@ class InitIndexPage extends InitPageBase {
     })
   }
 
-  protected appendElseEl() {
-    // 用于输入id的输入框
-    this.downIdInput.id = 'down_id_input'
-    this.downIdInput.style.display = 'none'
-    this.downIdInput.setAttribute(
-      'placeholder',
-      lang.transl('_输入id进行抓取的提示文字')
-    )
-    DOM.insertToHead<HTMLTextAreaElement>(this.downIdInput)
-  }
-
   protected setFormOption() {
     options.hideOption([1])
   }
 
-  protected initElse() {
+  protected initAny() {
     this.downIdButton.addEventListener(
       'click',
       () => {

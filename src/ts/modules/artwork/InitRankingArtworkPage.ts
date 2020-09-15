@@ -24,7 +24,7 @@ class InitRankingArtworkPage extends InitPageBase {
 
   private option: RankingOption = this.resetOption()
 
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取本排行榜作品'), [
       ['title', lang.transl('_抓取本排行榜作品Title')],
     ]).addEventListener('click', () => {
@@ -45,7 +45,7 @@ class InitRankingArtworkPage extends InitPageBase {
     }
   }
 
-  protected initElse() {
+  protected initAny() {
     // 抓取完成后，复位 debut 标记
     // 因为 debut 只在抓取阶段被过滤器使用，所以抓取完成后就可以复位
     window.addEventListener(EVT.events.crawlFinish, () => {

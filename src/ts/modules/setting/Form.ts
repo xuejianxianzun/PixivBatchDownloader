@@ -98,7 +98,11 @@ class Form {
     }
 
     // 当可以开始下载时，切换到“下载”选项卡
-    for (const ev of [EVT.events.crawlFinish, EVT.events.resultChange, EVT.events.resume]) {
+    for (const ev of [
+      EVT.events.crawlFinish,
+      EVT.events.resultChange,
+      EVT.events.resume,
+    ]) {
       window.addEventListener(ev, () => {
         this.activeTab(1)
       })

@@ -33,13 +33,15 @@ class InitBookmarkPage extends InitPageBase {
 
   private offset: number = 0 // 要去掉的作品数量
 
-  protected appendCenterBtns() {
+  protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
+  }
 
+  protected addAnyElement() {
     // 如果存在 token，则添加“添加 tag”按钮
     if (API.getToken()) {
       const btn = DOM.addBtn(

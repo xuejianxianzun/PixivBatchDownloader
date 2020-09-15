@@ -245,11 +245,11 @@ class SaveSettings {
 
     // 保存命名规则
     const userSetNameInput = form.userSetName
-      ;['change', 'focus'].forEach((ev) => {
-        userSetNameInput.addEventListener(ev, () => {
-          this.emitChange('userSetName', userSetNameInput.value)
-        })
+    ;['change', 'focus'].forEach((ev) => {
+      userSetNameInput.addEventListener(ev, () => {
+        this.emitChange('userSetName', userSetNameInput.value)
       })
+    })
 
     // 保存是否添加标记名称
     this.saveCheckBox('tagNameToFileName')
@@ -306,7 +306,7 @@ class SaveSettings {
         const data = event.detail.data as SettingChangeData
         if (Reflect.has(this.optionDefault, data.name)) {
           if ((this.settings[data.name] as any) !== data.value) {
-            ; (this.settings[data.name] as any) = data.value
+            ;(this.settings[data.name] as any) = data.value
             localStorage.setItem(this.storeName, JSON.stringify(this.settings))
           }
         }

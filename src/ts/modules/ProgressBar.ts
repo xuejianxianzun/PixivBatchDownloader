@@ -74,7 +74,8 @@ class ProgressBar {
 
   // 重设所有进度
   public reset(progressBarNum: number, downloaded: number = 0) {
-    if (progressBarNum === 0) {  // 如果进度条数量为 0（抓取结果为空），则隐藏进度条区域
+    if (progressBarNum === 0) {
+      // 如果进度条数量为 0（抓取结果为空），则隐藏进度条区域
       return this.hide()
     }
 
