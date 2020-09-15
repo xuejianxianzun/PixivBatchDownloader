@@ -39,10 +39,6 @@ class Deduplication {
   private existedIdList: string[] = [] // 检查文件是否重复时，会查询数据库。查询到的数据的 id 会保存到这个列表里。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
 
   private async init() {
-    if (location.hostname.includes('pixivision.net')) {
-      return
-    }
-
     await this.initDB()
     this.bindEvent()
   }
@@ -118,12 +114,12 @@ class Deduplication {
       }
     )
 
-    // 当抓取完成、下载完成时，清空 skipIdList 列表
-    ;[EVT.events.crawlFinish, EVT.events.downloadComplete].forEach((val) => {
-      window.addEventListener(val, () => {
-        this.skipIdList = []
+      // 当抓取完成、下载完成时，清空 skipIdList 列表
+      ;[EVT.events.crawlFinish, EVT.events.downloadComplete].forEach((val) => {
+        window.addEventListener(val, () => {
+          this.skipIdList = []
+        })
       })
-    })
 
     // 给“清空下载记录”的按钮绑定事件
     const btn = document.querySelector('#clearDownloadRecords')
@@ -146,6 +142,10 @@ class Deduplication {
   // 检查一个 id 是否是重复下载
   // 返回值 true 表示重复，false 表示不重复
   public async check(resultId: string) {
+    if (location.hostname.includes('pixivision.net')) {
+      return false
+    }
+    
     return new Promise<boolean>(async (resolve, reject) => {
       // 如果未启用去重，直接返回不重复
       if (!settings.deduplication) {

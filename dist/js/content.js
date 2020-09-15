@@ -597,7 +597,7 @@ class BlackAndWhiteImage {
     }
     async check(imgUrl) {
         const img = await this.loadImg(imgUrl).catch((error) => {
-            console.log(error);
+            console.error(error);
         });
         // 当加载图片失败时，无法进行判断，默认为彩色图片
         if (!img) {
@@ -1346,9 +1346,6 @@ class Deduplication {
         this.init();
     }
     async init() {
-        if (location.hostname.includes('pixivision.net')) {
-            return;
-        }
         await this.initDB();
         this.bindEvent();
     }
@@ -1433,6 +1430,9 @@ class Deduplication {
     // 检查一个 id 是否是重复下载
     // 返回值 true 表示重复，false 表示不重复
     async check(resultId) {
+        if (location.hostname.includes('pixivision.net')) {
+            return false;
+        }
         return new Promise(async (resolve, reject) => {
             // 如果未启用去重，直接返回不重复
             if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].deduplication) {
@@ -5552,7 +5552,6 @@ __webpack_require__.r(__webpack_exports__);
 class InitPixivisionPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPageBase"] {
     constructor() {
         super();
-        this.tested = 0; // 检查图片后缀名时的计数
         this.init();
     }
     addCrawlBtns() {
@@ -5609,7 +5608,7 @@ class InitPixivisionPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
             ext: ext,
         });
     }
-    getPixivision() {
+    async getPixivision() {
         const a = document.querySelector('a[data-gtm-action=ClickCategory]');
         const type = a.dataset.gtmLabel;
         if (type === 'illustration') {
@@ -5620,12 +5619,12 @@ class InitPixivisionPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
                     .replace('c/768x1200_80/img-master', 'img-original')
                     .replace('_master1200', '');
             });
-            this.tested = 0;
-            urls.forEach((url) => {
+            for (const url of urls) {
                 let arr = url.split('/');
                 const id = arr[arr.length - 1].split('.')[0].split('_')[0]; // 作品id，尝试提取出数字部分
-                this.testExtName(url, urls.length, id);
-            });
+                await this.testExtName(url, id);
+            }
+            this.crawlFinished();
         }
         else {
             // 漫画和 cosplay ，直接保存页面上的图片
@@ -5659,31 +5658,16 @@ class InitPixivisionPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
             this.crawlFinished();
         }
     }
-    // 测试图片 url 是否正确的函数。pixivision 页面直接获取的图片 url，后缀都是jpg的，所以要测试实际上是jpg还是png
-    testExtName(url, imgNumber, id) {
-        let ext = '';
-        const testImg = new Image();
-        testImg.src = url;
-        testImg.onload = () => next(true);
-        testImg.onerror = () => next(false);
-        let next = (bool) => {
-            if (bool) {
-                ext = 'jpg';
-            }
-            else {
-                url = url.replace('.jpg', '.png');
-                ext = 'png';
-            }
-            this.addResult(id, url, ext);
-            this.logResultTotal();
-            if (imgNumber !== undefined) {
-                this.tested++;
-                if (this.tested === imgNumber) {
-                    // 如果所有请求都执行完毕
-                    this.crawlFinished();
-                }
-            }
-        };
+    // 通过加载图片来判断图片的后缀名。pixivision 页面直接获取的图片后缀都是 jpg 的
+    async testExtName(url, id) {
+        let ext = 'jpg'; // 默认为 jpg
+        await _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].loadImg(url).catch(() => {
+            // 如果图片加载失败则把后缀改为 png
+            url = url.replace('.jpg', '.png');
+            ext = 'png';
+        });
+        this.addResult(id, url, ext);
+        this.logResultTotal();
     }
 }
 

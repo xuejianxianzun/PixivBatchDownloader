@@ -12,8 +12,6 @@ class InitPixivisionPage extends InitPageBase {
     this.init()
   }
 
-  private tested: number = 0 // 检查图片后缀名时的计数
-
   protected addCrawlBtns() {
     const typeA = document.querySelector(
       'a[data-gtm-action=ClickCategory]'
@@ -73,9 +71,9 @@ class InitPixivisionPage extends InitPageBase {
     this.getPixivision()
   }
 
-  protected getIdList() {}
+  protected getIdList() { }
 
-  protected resetGetIdListStatus() {}
+  protected resetGetIdListStatus() { }
 
   // 保存要下载的图片的信息
   private addResult(id: string, url: string, ext: string) {
@@ -86,7 +84,7 @@ class InitPixivisionPage extends InitPageBase {
     })
   }
 
-  private getPixivision() {
+  private async getPixivision() {
     const a = document.querySelector(
       'a[data-gtm-action=ClickCategory]'
     )! as HTMLAnchorElement
@@ -102,12 +100,13 @@ class InitPixivisionPage extends InitPageBase {
           .replace('c/768x1200_80/img-master', 'img-original')
           .replace('_master1200', '')
       })
-      this.tested = 0
-      urls.forEach((url) => {
+
+      for (const url of urls) {
         let arr = url.split('/')
         const id = arr[arr.length - 1].split('.')[0].split('_')[0] // 作品id，尝试提取出数字部分
-        this.testExtName(url, urls.length, id)
-      })
+        await this.testExtName(url, id)
+      }
+      this.crawlFinished()
     } else {
       // 漫画和 cosplay ，直接保存页面上的图片
       let selector = ''
@@ -143,36 +142,19 @@ class InitPixivisionPage extends InitPageBase {
     }
   }
 
-  // 测试图片 url 是否正确的函数。pixivision 页面直接获取的图片 url，后缀都是jpg的，所以要测试实际上是jpg还是png
-  private testExtName(url: string, imgNumber: number, id: string) {
-    let ext = ''
-    const testImg = new Image()
-    testImg.src = url
+  // 通过加载图片来判断图片的后缀名。pixivision 页面直接获取的图片后缀都是 jpg 的
+  private async testExtName(url: string, id: string) {
+    let ext = 'jpg' // 默认为 jpg
+    await DOM.loadImg(url).catch(() => {
+      // 如果图片加载失败则把后缀改为 png
+      url = url.replace('.jpg', '.png')
+      ext = 'png'
+    })
 
-    testImg.onload = () => next(true)
+    this.addResult(id, url, ext)
 
-    testImg.onerror = () => next(false)
-
-    let next = (bool: boolean) => {
-      if (bool) {
-        ext = 'jpg'
-      } else {
-        url = url.replace('.jpg', '.png')
-        ext = 'png'
-      }
-
-      this.addResult(id, url, ext)
-
-      this.logResultTotal()
-
-      if (imgNumber !== undefined) {
-        this.tested++
-        if (this.tested === imgNumber) {
-          // 如果所有请求都执行完毕
-          this.crawlFinished()
-        }
-      }
-    }
+    this.logResultTotal()
   }
+
 }
 export { InitPixivisionPage }
