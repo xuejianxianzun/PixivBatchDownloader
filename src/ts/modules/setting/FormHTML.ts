@@ -1,4 +1,4 @@
-import { lang } from './Lang'
+import { lang } from '../Lang'
 
 const formHtml = `<form class="settingForm">
   <div class="tabsTitle">

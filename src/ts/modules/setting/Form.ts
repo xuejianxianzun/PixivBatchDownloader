@@ -2,7 +2,7 @@ import { EVT } from '../EVT'
 import { DOM } from '../DOM'
 import { Colors } from '../Colors'
 import { lang } from '../Lang'
-import formHtml from '../FormHTML'
+import formHtml from './FormHTML'
 import { SettingsForm } from './Form.d'
 import { SaveNamingRule } from './SaveNamingRule'
 
