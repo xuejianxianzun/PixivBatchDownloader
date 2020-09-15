@@ -160,6 +160,7 @@ class DownloadControl {
       this.showURLs()
     })
   }
+
   // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
   private readyDownload() {
     if (states.busy) {
@@ -320,7 +321,7 @@ class DownloadControl {
     }
   }
 
-  // 下载线程设置
+  // 设置下载线程数量
   private setDownloadThread() {
     const setThread = parseInt(settings.downloadThread)
     if (

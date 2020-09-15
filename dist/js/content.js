@@ -1640,10 +1640,10 @@ __webpack_require__.r(__webpack_exports__);
 class Download {
     constructor(progressBarIndex, data) {
         this.fileName = '';
-        this.retry = 0;
         this.retryMax = 30;
-        this.cancel = false; // 这个下载被取消（任务停止，或者没有通过某个检查）
-        this.sizeCheck = undefined; // 检查文件体积
+        this.retry = 0; // 重试次数
+        this.cancel = false; // 这个下载是否被取消（下载被停止，或者这个文件没有通过某个检查）
+        this.sizeChecked = false; // 是否对文件体积进行了检查
         this.progressBarIndex = progressBarIndex;
         this.download(data);
         this.listenEvents();
@@ -1692,9 +1692,10 @@ class Download {
         // 显示下载进度
         xhr.addEventListener('progress', async (event) => {
             // 检查体积设置
-            if (this.sizeCheck === undefined) {
-                this.sizeCheck = await _Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check({ size: event.total });
-                if (this.sizeCheck === false) {
+            if (!this.sizeChecked) {
+                this.sizeChecked = true;
+                const result = await _Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check({ size: event.total });
+                if (!result) {
                     // 当因为体积问题跳过下载时，可能这个下载进度还是 0 或者很少，所以这里直接把进度条拉满
                     this.setProgressBar(1, 1);
                     this.skip({
@@ -2171,7 +2172,7 @@ class DownloadControl {
             return false;
         }
     }
-    // 下载线程设置
+    // 设置下载线程数量
     setDownloadThread() {
         const setThread = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].downloadThread);
         if (setThread < 1 ||

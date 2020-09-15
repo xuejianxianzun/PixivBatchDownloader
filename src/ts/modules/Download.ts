@@ -24,11 +24,12 @@ class Download {
 
   private progressBarIndex: number
   private fileName = ''
-  private retry = 0
   private readonly retryMax = 30
-  private cancel = false // 这个下载被取消（任务停止，或者没有通过某个检查）
+  private retry = 0 // 重试次数
 
-  private sizeCheck: boolean | undefined = undefined // 检查文件体积
+  private cancel = false // 这个下载是否被取消（下载被停止，或者这个文件没有通过某个检查）
+
+  private sizeChecked = false // 是否对文件体积进行了检查
 
   private listenEvents() {
     ;[EVT.events.downloadStop, EVT.events.downloadPause].forEach((event) => {
@@ -83,9 +84,10 @@ class Download {
     // 显示下载进度
     xhr.addEventListener('progress', async (event) => {
       // 检查体积设置
-      if (this.sizeCheck === undefined) {
-        this.sizeCheck = await filter.check({ size: event.total })
-        if (this.sizeCheck === false) {
+      if (!this.sizeChecked) {
+        this.sizeChecked = true
+        const result = await filter.check({ size: event.total })
+        if (!result) {
           // 当因为体积问题跳过下载时，可能这个下载进度还是 0 或者很少，所以这里直接把进度条拉满
           this.setProgressBar(1, 1)
           this.skip(
