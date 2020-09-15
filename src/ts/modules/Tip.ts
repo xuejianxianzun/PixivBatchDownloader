@@ -4,7 +4,8 @@ interface MouseArg {
   y: number
 }
 
-// 显示提示内容
+// 自定义的提示，鼠标放上去可以显示
+// 如果要给某个元素添加提示，先给它添加 has_tip 的 className，然后用 data-tip 设置提示内容
 class Tip {
   constructor() {
     this.addTipEl()

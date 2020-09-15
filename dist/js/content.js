@@ -588,6 +588,8 @@ API.fullWidthDict = [
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "blackAndWhiteImage", function() { return blackAndWhiteImage; });
+/* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
+
 // 检查图片是否是黑白图片
 class BlackAndWhiteImage {
     constructor() {
@@ -609,14 +611,9 @@ class BlackAndWhiteImage {
     // 加载图片
     async loadImg(url) {
         return new Promise(async (resolve, reject) => {
-            const img = document.createElement('img');
-            img.onload = () => resolve(img);
-            img.onerror = () => {
-                reject(new Error(`Load image error! url: ${url}`));
-            };
             // 如果传递的时 blobURL 就直接使用，不是的话先获取图片
             if (url.startsWith('blob')) {
-                img.src = url;
+                resolve(_DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].loadImg(url));
             }
             else {
                 const res = await fetch(url).catch((error) => {
@@ -624,7 +621,7 @@ class BlackAndWhiteImage {
                 });
                 const blob = await res.blob();
                 const blobURL = URL.createObjectURL(blob);
-                img.src = blobURL;
+                resolve(_DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].loadImg(blobURL));
             }
         });
     }
@@ -1624,12 +1621,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
-/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./FileName */ "./src/ts/modules/FileName.ts");
-/* harmony import */ var _ugoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ugoira/ConvertUgoira */ "./src/ts/modules/ugoira/ConvertUgoira.ts");
-/* harmony import */ var _ProgressBar__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ProgressBar */ "./src/ts/modules/ProgressBar.ts");
-/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Filter */ "./src/ts/modules/Filter.ts");
-/* harmony import */ var _Deduplication__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Deduplication */ "./src/ts/modules/Deduplication.ts");
+/* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
+/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./FileName */ "./src/ts/modules/FileName.ts");
+/* harmony import */ var _ugoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ugoira/ConvertUgoira */ "./src/ts/modules/ugoira/ConvertUgoira.ts");
+/* harmony import */ var _ProgressBar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ProgressBar */ "./src/ts/modules/ProgressBar.ts");
+/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Filter */ "./src/ts/modules/Filter.ts");
+/* harmony import */ var _Deduplication__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Deduplication */ "./src/ts/modules/Deduplication.ts");
 // 下载文件，并发送给浏览器下载
+
 
 
 
@@ -1659,7 +1658,7 @@ class Download {
     }
     // 设置进度条信息
     setProgressBar(loaded, total) {
-        _ProgressBar__WEBPACK_IMPORTED_MODULE_5__["progressBar"].setProgress(this.progressBarIndex, {
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_6__["progressBar"].setProgress(this.progressBarIndex, {
             name: this.fileName,
             loaded: loaded,
             total: total,
@@ -1673,7 +1672,7 @@ class Download {
     // 下载文件
     async download(arg) {
         // 检查是否是重复文件
-        const duplicate = await _Deduplication__WEBPACK_IMPORTED_MODULE_7__["deduplication"].check(arg.id);
+        const duplicate = await _Deduplication__WEBPACK_IMPORTED_MODULE_8__["deduplication"].check(arg.id);
         if (duplicate) {
             return this.skip({
                 url: '',
@@ -1683,7 +1682,7 @@ class Download {
             }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_跳过下载因为重复文件', arg.id));
         }
         // 获取文件名
-        this.fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__["fileName"].getFileName(arg.data);
+        this.fileName = _FileName__WEBPACK_IMPORTED_MODULE_4__["fileName"].getFileName(arg.data);
         // 重设当前下载栏的信息
         this.setProgressBar(0, 0);
         // 下载文件
@@ -1694,7 +1693,7 @@ class Download {
         xhr.addEventListener('progress', async (event) => {
             // 检查体积设置
             if (this.sizeCheck === undefined) {
-                this.sizeCheck = await _Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check({ size: event.total });
+                this.sizeCheck = await _Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check({ size: event.total });
                 if (this.sizeCheck === false) {
                     // 当因为体积问题跳过下载时，可能这个下载进度还是 0 或者很少，所以这里直接把进度条拉满
                     this.setProgressBar(1, 1);
@@ -1744,7 +1743,7 @@ class Download {
                     return this.download(arg);
                 }
                 // 进入重试环节
-                _ProgressBar__WEBPACK_IMPORTED_MODULE_5__["progressBar"].showErrorColor(this.progressBarIndex, true);
+                _ProgressBar__WEBPACK_IMPORTED_MODULE_6__["progressBar"].showErrorColor(this.progressBarIndex, true);
                 this.retry++;
                 if (this.retry >= this.retryMax) {
                     // 重试 retryMax 次依然错误
@@ -1757,19 +1756,19 @@ class Download {
             }
             else {
                 // 状态码正常
-                _ProgressBar__WEBPACK_IMPORTED_MODULE_5__["progressBar"].showErrorColor(this.progressBarIndex, false);
+                _ProgressBar__WEBPACK_IMPORTED_MODULE_6__["progressBar"].showErrorColor(this.progressBarIndex, false);
                 // 需要转换动图的情况
                 const convertExt = ['webm', 'gif', 'png'];
                 if (convertExt.includes(arg.data.ext) && arg.data.ugoiraInfo) {
                     try {
                         if (arg.data.ext === 'webm') {
-                            file = await _ugoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__["converter"].webm(file, arg.data.ugoiraInfo);
+                            file = await _ugoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__["converter"].webm(file, arg.data.ugoiraInfo);
                         }
                         if (arg.data.ext === 'gif') {
-                            file = await _ugoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__["converter"].gif(file, arg.data.ugoiraInfo);
+                            file = await _ugoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__["converter"].gif(file, arg.data.ugoiraInfo);
                         }
                         if (arg.data.ext === 'png') {
-                            file = await _ugoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__["converter"].apng(file, arg.data.ugoiraInfo);
+                            file = await _ugoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__["converter"].apng(file, arg.data.ugoiraInfo);
                         }
                     }
                     catch (error) {
@@ -1791,7 +1790,7 @@ class Download {
             // 这里并没有让 filter 初始化，如果用户在抓取之后修改了彩色、黑白的设置，filter 不会响应变化。所以这里不检查第一张图，以避免无谓的检查。如果以后使 filter 在这里初始化了，那么第一张图也需要检查。
             if ((arg.data.type === 0 || arg.data.type === 1) &&
                 !arg.data.id.includes('p0')) {
-                const result = await _Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check({
+                const result = await _Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check({
                     mini: blobUrl,
                 });
                 if (!result) {
@@ -1807,8 +1806,8 @@ class Download {
             // 因为抓取时只能检查每个作品第一张图片的宽高，所以可能会出现作品的第一张图片符合要求，但后面的图片不符合要求的情况。这里针对第一张之后的其他图片也进行检查，提高准确率。
             if ((arg.data.type === 0 || arg.data.type === 1) &&
                 !arg.data.id.includes('p0')) {
-                const img = await this.loadImage(blobUrl);
-                const result = await _Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check({
+                const img = await _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].loadImg(blobUrl);
+                const result = await _Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check({
                     width: img.naturalWidth,
                     height: img.naturalHeight,
                 });
@@ -1827,15 +1826,6 @@ class Download {
             file = null;
         });
         xhr.send();
-    }
-    async loadImage(url) {
-        return new Promise(async (resolve, reject) => {
-            const i = document.createElement('img');
-            i.src = url;
-            i.onload = function () {
-                resolve(i);
-            };
-        });
     }
     // 向浏览器发送下载任务
     browserDownload(blobUrl, fileName, id, taskBatch) {
@@ -1950,22 +1940,22 @@ __webpack_require__.r(__webpack_exports__);
 
 class DownloadControl {
     constructor() {
-        this.downloadThreadMax = 5; // 同时下载的线程数的最大值，也是默认值
-        this.downloadThread = this.downloadThreadMax; // 同时下载的线程数
+        this.threadMax = 5; // 同时下载的线程数的最大值，也是默认值
+        this.thread = this.threadMax; // 同时下载的线程数
         this.taskBatch = 0; // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
         this.taskList = {}; // 下载任务列表，使用下载的文件的 id 做 key，保存下载栏编号和它在下载状态列表中的索引
         this.errorIdList = []; // 有任务下载失败时，保存 id
         this.downloaded = 0; // 已下载的任务数量
-        this.downloadArea = document.createElement('div');
+        this.wrapper = document.createElement('div');
         this.totalNumberEl = document.createElement('span');
-        this.downStatusEl = document.createElement('span');
-        this.downloadStop = false; // 是否停止下载
-        this.downloadPause = false; // 是否暂停下载
+        this.statesEl = document.createElement('span');
+        this.stop = false; // 是否停止下载
+        this.pause = false; // 是否暂停下载
         this.createDownloadArea();
         this.listenEvents();
-        const skipTipWrap = this.downloadArea.querySelector('.skip_tip');
+        const skipTipWrap = this.wrapper.querySelector('.skip_tip');
         new _ShowSkipCount__WEBPACK_IMPORTED_MODULE_10__["ShowSkipCount"](skipTipWrap);
-        const convertTipWrap = this.downloadArea.querySelector('.convert_tip');
+        const convertTipWrap = this.wrapper.querySelector('.convert_tip');
         new _ShowConvertCount__WEBPACK_IMPORTED_MODULE_11__["ShowConvertCount"](convertTipWrap);
     }
     listenEvents() {
@@ -1992,7 +1982,7 @@ class DownloadControl {
             const id = ev.detail.data;
             this.downloadError(id);
         });
-        // 监听浏览器下载文件后，返回的消息
+        // 监听浏览器返回的消息
         chrome.runtime.onMessage.addListener((msg) => {
             if (!this.taskBatch) {
                 return;
@@ -2050,19 +2040,19 @@ class DownloadControl {
     }
     // 显示或隐藏下载区域
     showDownloadArea() {
-        this.downloadArea.style.display = 'block';
+        this.wrapper.style.display = 'block';
     }
     hideDownloadArea() {
-        this.downloadArea.style.display = 'none';
+        this.wrapper.style.display = 'none';
     }
     // 设置下载状态文本，默认颜色为主题蓝色
     setDownStateText(text, color = _Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].blue) {
-        this.downStatusEl.textContent = text;
-        this.downStatusEl.style.color = color;
+        this.statesEl.textContent = text;
+        this.statesEl.style.color = color;
     }
     reset() {
-        this.downloadPause = false;
-        this.downloadStop = false;
+        this.pause = false;
+        this.stop = false;
         this.errorIdList = [];
     }
     createDownloadArea() {
@@ -2083,8 +2073,8 @@ class DownloadControl {
     </div>
     </div>`;
         const el = _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].useSlot('downloadArea', html);
-        this.downloadArea = el;
-        this.downStatusEl = el.querySelector('.down_status');
+        this.wrapper = el;
+        this.statesEl = el.querySelector('.down_status');
         this.totalNumberEl = el.querySelector('.imgNum');
         el.querySelector('.startDownload').addEventListener('click', () => {
             this.startDownload();
@@ -2117,20 +2107,20 @@ class DownloadControl {
     setDownloadThread() {
         const setThread = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].downloadThread);
         if (setThread < 1 ||
-            setThread > this.downloadThreadMax ||
+            setThread > this.threadMax ||
             isNaN(setThread)) {
             // 如果数值非法，则重设为默认值
-            this.downloadThread = this.downloadThreadMax;
+            this.thread = this.threadMax;
         }
         else {
-            this.downloadThread = setThread; // 设置为用户输入的值
+            this.thread = setThread; // 设置为用户输入的值
         }
         // 如果剩余任务数量少于下载线程数
-        if (_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded < this.downloadThread) {
-            this.downloadThread = _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
+        if (_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded < this.thread) {
+            this.thread = _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
         }
         // 重设下载进度条
-        _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].reset(this.downloadThread, this.downloaded);
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].reset(this.thread, this.downloaded);
     }
     // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
     readyDownload() {
@@ -2155,7 +2145,7 @@ class DownloadControl {
     }
     // 开始下载
     startDownload() {
-        if (!this.downloadPause && !_Resume__WEBPACK_IMPORTED_MODULE_12__["resume"].flag) {
+        if (!this.pause && !_Resume__WEBPACK_IMPORTED_MODULE_12__["resume"].flag) {
             // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
             // 初始化下载状态列表
             _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].init();
@@ -2171,7 +2161,7 @@ class DownloadControl {
         this.setDownloadThread();
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadStart);
         // 建立并发下载线程
-        for (let i = 0; i < this.downloadThread; i++) {
+        for (let i = 0; i < this.thread; i++) {
             this.createDownload(i);
         }
         this.setDownStateText(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_正在下载中'));
@@ -2183,13 +2173,13 @@ class DownloadControl {
             return;
         }
         // 停止的优先级高于暂停。点击停止可以取消暂停状态，但点击暂停不能取消停止状态
-        if (this.downloadStop === true) {
+        if (this.stop === true) {
             return;
         }
-        if (this.downloadPause === false) {
+        if (this.pause === false) {
             // 如果正在下载中
             if (_States__WEBPACK_IMPORTED_MODULE_13__["states"].busy) {
-                this.downloadPause = true;
+                this.pause = true;
                 this.setDownStateText(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_已暂停'), '#f00');
                 _Log__WEBPACK_IMPORTED_MODULE_3__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_已暂停'), 2);
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadPause);
@@ -2202,13 +2192,13 @@ class DownloadControl {
     }
     // 停止下载
     stopDownload() {
-        if (_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0 || this.downloadStop) {
+        if (_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0 || this.stop) {
             return;
         }
-        this.downloadStop = true;
+        this.stop = true;
         this.setDownStateText(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_已停止'), '#f00');
         _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_已停止'), 2);
-        this.downloadPause = false;
+        this.pause = false;
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadStop);
     }
     downloadError(id) {
@@ -2221,7 +2211,7 @@ class DownloadControl {
         }
     }
     saveFileError(data) {
-        if (this.downloadPause || this.downloadStop) {
+        if (this.pause || this.stop) {
             return false;
         }
         const task = this.taskList[data.id];
@@ -2249,11 +2239,11 @@ class DownloadControl {
         // 如果没有全部下载完毕
         if (this.downloaded < _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
             // 如果任务已停止
-            if (this.downloadPause || this.downloadStop) {
+            if (this.pause || this.stop) {
                 return false;
             }
             // 如果已完成的数量 加上 线程中未完成的数量，仍然没有达到文件总数，继续添加任务
-            if (this.downloaded + this.downloadThread - 1 < _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
+            if (this.downloaded + this.thread - 1 < _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
                 return true;
             }
             else {
@@ -6425,7 +6415,7 @@ class PageType {
         const pathname = window.location.pathname;
         let type;
         if (window.location.hostname === 'www.pixiv.net' &&
-            (pathname === '/' || pathname === '/novel/' || pathname === '/en/')) {
+            (['/', '/manga', '/novel/', '/en/'].includes(pathname))) {
             type = 0;
         }
         else if (/\/artworks\/\d{1,10}/.test(url)) {
@@ -7740,7 +7730,8 @@ const themeColor = new ThemeColor();
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-// 显示提示内容
+// 自定义的提示，鼠标放上去可以显示
+// 如果要给某个元素添加提示，先给它添加 has_tip 的 className，然后用 data-tip 设置提示内容
 class Tip {
     constructor() {
         this.tipEl = document.createElement('div'); // tip 元素

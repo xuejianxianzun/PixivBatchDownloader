@@ -1,10 +1,12 @@
+import { DOM } from './DOM'
+
 // 检查图片是否是黑白图片
 class BlackAndWhiteImage {
   private readonly latitude = 1 // 宽容度
 
   public async check(imgUrl: string): Promise<boolean> {
     const img = await this.loadImg(imgUrl).catch((error) => {
-      console.log(error)
+      console.error(error)
     })
     // 当加载图片失败时，无法进行判断，默认为彩色图片
     if (!img) {
@@ -19,22 +21,16 @@ class BlackAndWhiteImage {
   // 加载图片
   private async loadImg(url: string): Promise<HTMLImageElement> {
     return new Promise(async (resolve, reject) => {
-      const img = document.createElement('img')
-      img.onload = () => resolve(img)
-      img.onerror = () => {
-        reject(new Error(`Load image error! url: ${url}`))
-      }
-
       // 如果传递的时 blobURL 就直接使用，不是的话先获取图片
       if (url.startsWith('blob')) {
-        img.src = url
+        resolve(DOM.loadImg(url))
       } else {
         const res = await fetch(url).catch((error) => {
           throw new Error(`Load image error! url: ${url}`)
         })
         const blob = await res.blob()
         const blobURL = URL.createObjectURL(blob)
-        img.src = blobURL
+        resolve(DOM.loadImg(blobURL))
       }
     })
   }

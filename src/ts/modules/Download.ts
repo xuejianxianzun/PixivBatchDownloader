@@ -2,6 +2,7 @@
 import { EVT } from './EVT'
 import { log } from './Log'
 import { lang } from './Lang'
+import { DOM } from './DOM'
 import { fileName } from './FileName'
 import { converter } from './ugoira/ConvertUgoira'
 import {
@@ -221,7 +222,7 @@ class Download {
         (arg.data.type === 0 || arg.data.type === 1) &&
         !arg.data.id.includes('p0')
       ) {
-        const img = await this.loadImage(blobUrl)
+        const img = await DOM.loadImg(blobUrl)
         const result = await filter.check({
           width: img.naturalWidth,
           height: img.naturalHeight,
@@ -245,16 +246,6 @@ class Download {
       file = null as any
     })
     xhr.send()
-  }
-
-  private async loadImage(url: string) {
-    return new Promise<HTMLImageElement>(async (resolve, reject) => {
-      const i = document.createElement('img')
-      i.src = url
-      i.onload = function () {
-        resolve(i)
-      }
-    })
   }
 
   // 向浏览器发送下载任务

@@ -26,20 +26,20 @@ class DownloadControl {
 
     this.listenEvents()
 
-    const skipTipWrap = this.downloadArea.querySelector(
+    const skipTipWrap = this.wrapper.querySelector(
       '.skip_tip'
     ) as HTMLSpanElement
     new ShowSkipCount(skipTipWrap)
 
-    const convertTipWrap = this.downloadArea.querySelector(
+    const convertTipWrap = this.wrapper.querySelector(
       '.convert_tip'
     ) as HTMLSpanElement
     new ShowConvertCount(convertTipWrap)
   }
 
-  private readonly downloadThreadMax: number = 5 // 同时下载的线程数的最大值，也是默认值
+  private readonly threadMax: number = 5 // 同时下载的线程数的最大值，也是默认值
 
-  private downloadThread: number = this.downloadThreadMax // 同时下载的线程数
+  private thread: number = this.threadMax // 同时下载的线程数
 
   private taskBatch = 0 // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
 
@@ -49,15 +49,15 @@ class DownloadControl {
 
   private downloaded: number = 0 // 已下载的任务数量
 
-  private downloadArea: HTMLDivElement = document.createElement('div')
+  private wrapper: HTMLDivElement = document.createElement('div')
 
   private totalNumberEl: HTMLSpanElement = document.createElement('span')
 
-  private downStatusEl: HTMLSpanElement = document.createElement('span')
+  private statesEl: HTMLSpanElement = document.createElement('span')
 
-  private downloadStop: boolean = false // 是否停止下载
+  private stop: boolean = false // 是否停止下载
 
-  private downloadPause: boolean = false // 是否暂停下载
+  private pause: boolean = false // 是否暂停下载
 
   private listenEvents() {
     window.addEventListener(EVT.events.crawlStart, () => {
@@ -87,7 +87,7 @@ class DownloadControl {
       this.downloadError(id)
     })
 
-    // 监听浏览器下载文件后，返回的消息
+    // 监听浏览器返回的消息
     chrome.runtime.onMessage.addListener((msg: DownloadedMsg) => {
       if (!this.taskBatch) {
         return
@@ -158,22 +158,22 @@ class DownloadControl {
 
   // 显示或隐藏下载区域
   private showDownloadArea() {
-    this.downloadArea.style.display = 'block'
+    this.wrapper.style.display = 'block'
   }
 
   private hideDownloadArea() {
-    this.downloadArea.style.display = 'none'
+    this.wrapper.style.display = 'none'
   }
 
   // 设置下载状态文本，默认颜色为主题蓝色
   private setDownStateText(text: string, color: string = Colors.blue) {
-    this.downStatusEl.textContent = text
-    this.downStatusEl.style.color = color
+    this.statesEl.textContent = text
+    this.statesEl.style.color = color
   }
 
   private reset() {
-    this.downloadPause = false
-    this.downloadStop = false
+    this.pause = false
+    this.stop = false
     this.errorIdList = []
   }
 
@@ -207,8 +207,8 @@ class DownloadControl {
     </div>`
 
     const el = DOM.useSlot('downloadArea', html)
-    this.downloadArea = el as HTMLDivElement
-    this.downStatusEl = el.querySelector('.down_status') as HTMLSpanElement
+    this.wrapper = el as HTMLDivElement
+    this.statesEl = el.querySelector('.down_status') as HTMLSpanElement
     this.totalNumberEl = el.querySelector('.imgNum') as HTMLSpanElement
 
     el.querySelector('.startDownload')!.addEventListener('click', () => {
@@ -250,22 +250,22 @@ class DownloadControl {
     const setThread = parseInt(settings.downloadThread)
     if (
       setThread < 1 ||
-      setThread > this.downloadThreadMax ||
+      setThread > this.threadMax ||
       isNaN(setThread)
     ) {
       // 如果数值非法，则重设为默认值
-      this.downloadThread = this.downloadThreadMax
+      this.thread = this.threadMax
     } else {
-      this.downloadThread = setThread // 设置为用户输入的值
+      this.thread = setThread // 设置为用户输入的值
     }
 
     // 如果剩余任务数量少于下载线程数
-    if (store.result.length - this.downloaded < this.downloadThread) {
-      this.downloadThread = store.result.length - this.downloaded
+    if (store.result.length - this.downloaded < this.thread) {
+      this.thread = store.result.length - this.downloaded
     }
 
     // 重设下载进度条
-    progressBar.reset(this.downloadThread, this.downloaded)
+    progressBar.reset(this.thread, this.downloaded)
   }
 
   // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
@@ -299,7 +299,7 @@ class DownloadControl {
 
   // 开始下载
   private startDownload() {
-    if (!this.downloadPause && !resume.flag) {
+    if (!this.pause && !resume.flag) {
       // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
       // 初始化下载状态列表
       downloadStates.init()
@@ -320,7 +320,7 @@ class DownloadControl {
     EVT.fire(EVT.events.downloadStart)
 
     // 建立并发下载线程
-    for (let i = 0; i < this.downloadThread; i++) {
+    for (let i = 0; i < this.thread; i++) {
       this.createDownload(i)
     }
 
@@ -336,14 +336,14 @@ class DownloadControl {
     }
 
     // 停止的优先级高于暂停。点击停止可以取消暂停状态，但点击暂停不能取消停止状态
-    if (this.downloadStop === true) {
+    if (this.stop === true) {
       return
     }
 
-    if (this.downloadPause === false) {
+    if (this.pause === false) {
       // 如果正在下载中
       if (states.busy) {
-        this.downloadPause = true
+        this.pause = true
         this.setDownStateText(lang.transl('_已暂停'), '#f00')
         log.warning(lang.transl('_已暂停'), 2)
 
@@ -357,14 +357,14 @@ class DownloadControl {
 
   // 停止下载
   private stopDownload() {
-    if (store.result.length === 0 || this.downloadStop) {
+    if (store.result.length === 0 || this.stop) {
       return
     }
 
-    this.downloadStop = true
+    this.stop = true
     this.setDownStateText(lang.transl('_已停止'), '#f00')
     log.error(lang.transl('_已停止'), 2)
-    this.downloadPause = false
+    this.pause = false
 
     EVT.fire(EVT.events.downloadStop)
   }
@@ -381,7 +381,7 @@ class DownloadControl {
   }
 
   private saveFileError(data: DonwloadSuccessData) {
-    if (this.downloadPause || this.downloadStop) {
+    if (this.pause || this.stop) {
       return false
     }
     const task = this.taskList[data.id]
@@ -414,11 +414,11 @@ class DownloadControl {
     // 如果没有全部下载完毕
     if (this.downloaded < store.result.length) {
       // 如果任务已停止
-      if (this.downloadPause || this.downloadStop) {
+      if (this.pause || this.stop) {
         return false
       }
       // 如果已完成的数量 加上 线程中未完成的数量，仍然没有达到文件总数，继续添加任务
-      if (this.downloaded + this.downloadThread - 1 < store.result.length) {
+      if (this.downloaded + this.thread - 1 < store.result.length) {
         return true
       } else {
         return false
