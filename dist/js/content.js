@@ -2006,55 +2006,6 @@ class DownloadControl {
             }
         });
     }
-    setDownloaded() {
-        this.downloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].downloadedCount();
-        const text = `${this.downloaded} / ${_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length}`;
-        _Log__WEBPACK_IMPORTED_MODULE_3__["log"].log(text, 2, false);
-        // 设置下载进度条
-        _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].setTotalProgress(this.downloaded);
-        if (this.downloaded === 0) {
-            this.setDownStateText(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_未开始下载'));
-        }
-        // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
-        if (this.downloaded === _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
-            window.setTimeout(() => {
-                // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadComplete);
-            }, 0);
-            this.reset();
-            this.setDownStateText(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕'), _Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].green);
-            _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕'), 2);
-        }
-        this.checkCompleteWithError();
-    }
-    // 在有下载出错的任务的情况下，是否已经完成了下载
-    checkCompleteWithError() {
-        if (this.errorIdList.length > 0 &&
-            this.downloaded + this.errorIdList.length === _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
-            // 则进入暂停状态，一定时间后自动开始下载，重试下载出错的文件
-            this.pauseDownload();
-            setTimeout(() => {
-                this.startDownload();
-            }, 5000);
-        }
-    }
-    // 显示或隐藏下载区域
-    showDownloadArea() {
-        this.wrapper.style.display = 'block';
-    }
-    hideDownloadArea() {
-        this.wrapper.style.display = 'none';
-    }
-    // 设置下载状态文本，默认颜色为主题蓝色
-    setDownStateText(text, color = _Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].blue) {
-        this.statesEl.textContent = text;
-        this.statesEl.style.color = color;
-    }
-    reset() {
-        this.pause = false;
-        this.stop = false;
-        this.errorIdList = [];
-    }
     createDownloadArea() {
         const html = `<div class="download_area">
     <p> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_共抓取到n个文件', '<span class="fwb blue imgNum">0</span>')}</p>
@@ -2072,55 +2023,21 @@ class DownloadControl {
     <span class="convert_tip warn"></span>
     </div>
     </div>`;
-        const el = _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].useSlot('downloadArea', html);
-        this.wrapper = el;
-        this.statesEl = el.querySelector('.down_status');
-        this.totalNumberEl = el.querySelector('.imgNum');
-        el.querySelector('.startDownload').addEventListener('click', () => {
+        this.wrapper = _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].useSlot('downloadArea', html);
+        this.statesEl = this.wrapper.querySelector('.down_status');
+        this.totalNumberEl = this.wrapper.querySelector('.imgNum');
+        this.wrapper.querySelector('.startDownload').addEventListener('click', () => {
             this.startDownload();
         });
-        el.querySelector('.pauseDownload').addEventListener('click', () => {
+        this.wrapper.querySelector('.pauseDownload').addEventListener('click', () => {
             this.pauseDownload();
         });
-        el.querySelector('.stopDownload').addEventListener('click', () => {
+        this.wrapper.querySelector('.stopDownload').addEventListener('click', () => {
             this.stopDownload();
         });
-        el.querySelector('.copyUrl').addEventListener('click', () => {
+        this.wrapper.querySelector('.copyUrl').addEventListener('click', () => {
             this.showURLs();
         });
-    }
-    // 显示 url
-    showURLs() {
-        if (_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
-            return alert(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_没有数据可供使用'));
-        }
-        let result = '';
-        result = _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.reduce((total, now) => {
-            return (total += now.url + '<br>');
-        }, result);
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.output, {
-            content: result,
-            title: _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_复制url'),
-        });
-    }
-    // 下载线程设置
-    setDownloadThread() {
-        const setThread = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].downloadThread);
-        if (setThread < 1 ||
-            setThread > this.threadMax ||
-            isNaN(setThread)) {
-            // 如果数值非法，则重设为默认值
-            this.thread = this.threadMax;
-        }
-        else {
-            this.thread = setThread; // 设置为用户输入的值
-        }
-        // 如果剩余任务数量少于下载线程数
-        if (_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded < this.thread) {
-            this.thread = _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
-        }
-        // 重设下载进度条
-        _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].reset(this.thread, this.downloaded);
     }
     // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
     readyDownload() {
@@ -2254,6 +2171,25 @@ class DownloadControl {
             return false;
         }
     }
+    // 下载线程设置
+    setDownloadThread() {
+        const setThread = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].downloadThread);
+        if (setThread < 1 ||
+            setThread > this.threadMax ||
+            isNaN(setThread)) {
+            // 如果数值非法，则重设为默认值
+            this.thread = this.threadMax;
+        }
+        else {
+            this.thread = setThread; // 设置为用户输入的值
+        }
+        // 如果剩余任务数量少于下载线程数
+        if (_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded < this.thread) {
+            this.thread = _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length - this.downloaded;
+        }
+        // 重设下载进度条
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].reset(this.thread, this.downloaded);
+    }
     // 查找需要进行下载的作品，建立下载
     createDownload(progressBarIndex) {
         const index = _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].getFirstDownloadItem();
@@ -2279,6 +2215,68 @@ class DownloadControl {
             // 建立下载
             new _Download__WEBPACK_IMPORTED_MODULE_7__["Download"](progressBarIndex, data);
         }
+    }
+    setDownloaded() {
+        this.downloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].downloadedCount();
+        const text = `${this.downloaded} / ${_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length}`;
+        _Log__WEBPACK_IMPORTED_MODULE_3__["log"].log(text, 2, false);
+        // 设置下载进度条
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].setTotalProgress(this.downloaded);
+        if (this.downloaded === 0) {
+            this.setDownStateText(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_未开始下载'));
+        }
+        // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
+        if (this.downloaded === _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
+            window.setTimeout(() => {
+                // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadComplete);
+            }, 0);
+            this.reset();
+            this.setDownStateText(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕'), _Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].green);
+            _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕'), 2);
+        }
+        this.checkCompleteWithError();
+    }
+    // 在有下载出错的任务的情况下，是否已经完成了下载
+    checkCompleteWithError() {
+        if (this.errorIdList.length > 0 &&
+            this.downloaded + this.errorIdList.length === _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
+            // 进入暂停状态，一定时间后自动开始下载，重试下载出错的文件
+            this.pauseDownload();
+            setTimeout(() => {
+                this.startDownload();
+            }, 5000);
+        }
+    }
+    // 设置下载状态文本，默认颜色为主题蓝色
+    setDownStateText(text, color = _Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].blue) {
+        this.statesEl.textContent = text;
+        this.statesEl.style.color = color;
+    }
+    // 显示 url
+    showURLs() {
+        if (_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
+            return alert(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_没有数据可供使用'));
+        }
+        let result = '';
+        result = _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.reduce((total, now) => {
+            return (total += now.url + '<br>');
+        }, result);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.output, {
+            content: result,
+            title: _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_复制url'),
+        });
+    }
+    reset() {
+        this.pause = false;
+        this.stop = false;
+        this.errorIdList = [];
+    }
+    showDownloadArea() {
+        this.wrapper.style.display = 'block';
+    }
+    hideDownloadArea() {
+        this.wrapper.style.display = 'none';
     }
 }
 new DownloadControl();

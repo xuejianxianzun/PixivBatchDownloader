@@ -37,9 +37,9 @@ class DownloadControl {
     new ShowConvertCount(convertTipWrap)
   }
 
-  private readonly threadMax: number = 5 // 同时下载的线程数的最大值，也是默认值
+  private readonly threadMax = 5 // 同时下载的线程数的最大值，也是默认值
 
-  private thread: number = this.threadMax // 同时下载的线程数
+  private thread = this.threadMax // 同时下载的线程数
 
   private taskBatch = 0 // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
 
@@ -47,7 +47,7 @@ class DownloadControl {
 
   private errorIdList: string[] = [] // 有任务下载失败时，保存 id
 
-  private downloaded: number = 0 // 已下载的任务数量
+  private downloaded = 0 // 已下载的任务数量
 
   private wrapper: HTMLDivElement = document.createElement('div')
 
@@ -55,9 +55,9 @@ class DownloadControl {
 
   private statesEl: HTMLSpanElement = document.createElement('span')
 
-  private stop: boolean = false // 是否停止下载
+  private stop = false // 是否停止下载
 
-  private pause: boolean = false // 是否暂停下载
+  private pause = false // 是否暂停下载
 
   private listenEvents() {
     window.addEventListener(EVT.events.crawlStart, () => {
@@ -115,68 +115,6 @@ class DownloadControl {
     })
   }
 
-  private setDownloaded() {
-    this.downloaded = downloadStates.downloadedCount()
-
-    const text = `${this.downloaded} / ${store.result.length}`
-    log.log(text, 2, false)
-
-    // 设置下载进度条
-    progressBar.setTotalProgress(this.downloaded)
-
-    if (this.downloaded === 0) {
-      this.setDownStateText(lang.transl('_未开始下载'))
-    }
-
-    // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
-    if (this.downloaded === store.result.length) {
-      window.setTimeout(() => {
-        // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
-        EVT.fire(EVT.events.downloadComplete)
-      }, 0)
-      this.reset()
-      this.setDownStateText(lang.transl('_下载完毕'), Colors.green)
-      log.success(lang.transl('_下载完毕'), 2)
-    }
-
-    this.checkCompleteWithError()
-  }
-
-  // 在有下载出错的任务的情况下，是否已经完成了下载
-  private checkCompleteWithError() {
-    if (
-      this.errorIdList.length > 0 &&
-      this.downloaded + this.errorIdList.length === store.result.length
-    ) {
-      // 则进入暂停状态，一定时间后自动开始下载，重试下载出错的文件
-      this.pauseDownload()
-      setTimeout(() => {
-        this.startDownload()
-      }, 5000)
-    }
-  }
-
-  // 显示或隐藏下载区域
-  private showDownloadArea() {
-    this.wrapper.style.display = 'block'
-  }
-
-  private hideDownloadArea() {
-    this.wrapper.style.display = 'none'
-  }
-
-  // 设置下载状态文本，默认颜色为主题蓝色
-  private setDownStateText(text: string, color: string = Colors.blue) {
-    this.statesEl.textContent = text
-    this.statesEl.style.color = color
-  }
-
-  private reset() {
-    this.pause = false
-    this.stop = false
-    this.errorIdList = []
-  }
-
   private createDownloadArea() {
     const html = `<div class="download_area">
     <p> ${lang.transl(
@@ -185,18 +123,14 @@ class DownloadControl {
     )}</p>
     
     <div class="centerWrap_btns">
-    <button class="startDownload" type="button" style="background:${
-      Colors.blue
-    };"> ${lang.transl('_下载按钮1')}</button>
-    <button class="pauseDownload" type="button" style="background:${
-      Colors.yellow
-    };"> ${lang.transl('_下载按钮2')}</button>
-    <button class="stopDownload" type="button" style="background:${
-      Colors.red
-    };"> ${lang.transl('_下载按钮3')}</button>
-    <button class="copyUrl" type="button" style="background:${
-      Colors.green
-    };"> ${lang.transl('_复制url')}</button>
+    <button class="startDownload" type="button" style="background:${Colors.blue
+      };"> ${lang.transl('_下载按钮1')}</button>
+    <button class="pauseDownload" type="button" style="background:${Colors.yellow
+      };"> ${lang.transl('_下载按钮2')}</button>
+    <button class="stopDownload" type="button" style="background:${Colors.red
+      };"> ${lang.transl('_下载按钮3')}</button>
+    <button class="copyUrl" type="button" style="background:${Colors.green
+      };"> ${lang.transl('_复制url')}</button>
     </div>
     <div class="download_status_text_wrap">
     <span>${lang.transl('_当前状态')}</span>
@@ -206,68 +140,26 @@ class DownloadControl {
     </div>
     </div>`
 
-    const el = DOM.useSlot('downloadArea', html)
-    this.wrapper = el as HTMLDivElement
-    this.statesEl = el.querySelector('.down_status') as HTMLSpanElement
-    this.totalNumberEl = el.querySelector('.imgNum') as HTMLSpanElement
+    this.wrapper = DOM.useSlot('downloadArea', html) as HTMLDivElement
+    this.statesEl = this.wrapper.querySelector('.down_status') as HTMLSpanElement
+    this.totalNumberEl = this.wrapper.querySelector('.imgNum') as HTMLSpanElement
 
-    el.querySelector('.startDownload')!.addEventListener('click', () => {
+    this.wrapper.querySelector('.startDownload')!.addEventListener('click', () => {
       this.startDownload()
     })
 
-    el.querySelector('.pauseDownload')!.addEventListener('click', () => {
+    this.wrapper.querySelector('.pauseDownload')!.addEventListener('click', () => {
       this.pauseDownload()
     })
 
-    el.querySelector('.stopDownload')!.addEventListener('click', () => {
+    this.wrapper.querySelector('.stopDownload')!.addEventListener('click', () => {
       this.stopDownload()
     })
 
-    el.querySelector('.copyUrl')!.addEventListener('click', () => {
+    this.wrapper.querySelector('.copyUrl')!.addEventListener('click', () => {
       this.showURLs()
     })
   }
-
-  // 显示 url
-  private showURLs() {
-    if (store.result.length === 0) {
-      return alert(lang.transl('_没有数据可供使用'))
-    }
-
-    let result = ''
-    result = store.result.reduce((total, now) => {
-      return (total += now.url + '<br>')
-    }, result)
-
-    EVT.fire(EVT.events.output, {
-      content: result,
-      title: lang.transl('_复制url'),
-    })
-  }
-
-  // 下载线程设置
-  private setDownloadThread() {
-    const setThread = parseInt(settings.downloadThread)
-    if (
-      setThread < 1 ||
-      setThread > this.threadMax ||
-      isNaN(setThread)
-    ) {
-      // 如果数值非法，则重设为默认值
-      this.thread = this.threadMax
-    } else {
-      this.thread = setThread // 设置为用户输入的值
-    }
-
-    // 如果剩余任务数量少于下载线程数
-    if (store.result.length - this.downloaded < this.thread) {
-      this.thread = store.result.length - this.downloaded
-    }
-
-    // 重设下载进度条
-    progressBar.reset(this.thread, this.downloaded)
-  }
-
   // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
   private readyDownload() {
     if (states.busy) {
@@ -428,6 +320,29 @@ class DownloadControl {
     }
   }
 
+  // 下载线程设置
+  private setDownloadThread() {
+    const setThread = parseInt(settings.downloadThread)
+    if (
+      setThread < 1 ||
+      setThread > this.threadMax ||
+      isNaN(setThread)
+    ) {
+      // 如果数值非法，则重设为默认值
+      this.thread = this.threadMax
+    } else {
+      this.thread = setThread // 设置为用户输入的值
+    }
+
+    // 如果剩余任务数量少于下载线程数
+    if (store.result.length - this.downloaded < this.thread) {
+      this.thread = store.result.length - this.downloaded
+    }
+
+    // 重设下载进度条
+    progressBar.reset(this.thread, this.downloaded)
+  }
+
   // 查找需要进行下载的作品，建立下载
   private createDownload(progressBarIndex: number) {
     const index = downloadStates.getFirstDownloadItem()
@@ -455,7 +370,86 @@ class DownloadControl {
       new Download(progressBarIndex, data)
     }
   }
+
+  private setDownloaded() {
+    this.downloaded = downloadStates.downloadedCount()
+
+    const text = `${this.downloaded} / ${store.result.length}`
+    log.log(text, 2, false)
+
+    // 设置下载进度条
+    progressBar.setTotalProgress(this.downloaded)
+
+    if (this.downloaded === 0) {
+      this.setDownStateText(lang.transl('_未开始下载'))
+    }
+
+    // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
+    if (this.downloaded === store.result.length) {
+      window.setTimeout(() => {
+        // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
+        EVT.fire(EVT.events.downloadComplete)
+      }, 0)
+      this.reset()
+      this.setDownStateText(lang.transl('_下载完毕'), Colors.green)
+      log.success(lang.transl('_下载完毕'), 2)
+    }
+
+    this.checkCompleteWithError()
+  }
+
+  // 在有下载出错的任务的情况下，是否已经完成了下载
+  private checkCompleteWithError() {
+    if (
+      this.errorIdList.length > 0 &&
+      this.downloaded + this.errorIdList.length === store.result.length
+    ) {
+      // 进入暂停状态，一定时间后自动开始下载，重试下载出错的文件
+      this.pauseDownload()
+      setTimeout(() => {
+        this.startDownload()
+      }, 5000)
+    }
+  }
+
+  // 设置下载状态文本，默认颜色为主题蓝色
+  private setDownStateText(text: string, color: string = Colors.blue) {
+    this.statesEl.textContent = text
+    this.statesEl.style.color = color
+  }
+
+  // 显示 url
+  private showURLs() {
+    if (store.result.length === 0) {
+      return alert(lang.transl('_没有数据可供使用'))
+    }
+
+    let result = ''
+    result = store.result.reduce((total, now) => {
+      return (total += now.url + '<br>')
+    }, result)
+
+    EVT.fire(EVT.events.output, {
+      content: result,
+      title: lang.transl('_复制url'),
+    })
+  }
+
+  private reset() {
+    this.pause = false
+    this.stop = false
+    this.errorIdList = []
+  }
+
+  private showDownloadArea() {
+    this.wrapper.style.display = 'block'
+  }
+
+  private hideDownloadArea() {
+    this.wrapper.style.display = 'none'
+  }
+
 }
 
 new DownloadControl()
-export {}
+export { }
