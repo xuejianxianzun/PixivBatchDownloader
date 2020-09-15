@@ -2,18 +2,17 @@
 import { lang } from './Lang'
 import { Colors } from './Colors'
 import { DOM } from './DOM'
-import { options } from './setting/Options'
-import { saveArtworkData } from './artwork/SaveArtworkData'
-import { saveNovelData } from './novel/SaveNovelData'
 import { API } from './API'
 import { store } from './Store'
 import { log } from './Log'
 import { EVT } from './EVT'
-import { form } from './setting/Form'
+import { options } from './setting/Options'
 import { settings } from './setting/Settings'
 import { settingAPI } from './setting/SettingAPI'
-import { IDData } from './Store.d'
 import { states } from './States'
+import { saveArtworkData } from './artwork/SaveArtworkData'
+import { saveNovelData } from './novel/SaveNovelData'
+import { IDData } from './Store.d'
 
 abstract class InitPageBase {
   protected init() {
@@ -23,22 +22,20 @@ abstract class InitPageBase {
     this.appendElseEl()
     this.initElse()
 
-    // 个数/页数设置可能在 init 里由代码直接进行设置，不会触发 change 事件，无法被监听到。所以手动触发 settingChange 事件，使其他组件能够接收到通知
-    EVT.fire(EVT.events.settingChange, { name: 'setWantPage', value: form.setWantPage.value })
-
     window.addEventListener(EVT.events.pageSwitchedTypeChange, () => {
       this.destroy()
     })
   }
 
-  // 各个子类私有的初始化内容
-  // 可以在这里绑定事件 
-  protected initElse() { }
-
-  // 销毁初始化页面时添加的元素和事件，恢复设置项等
-  protected destroy(): void {
-    DOM.clearSlot('crawlBtns')
-    DOM.clearSlot('otherBtns')
+  // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。
+  protected setFormOption(): void {
+    // 设置“个数/页数”选项
+    options.setWantPage({
+      text: lang.transl('_页数'),
+      tip: lang.transl('_从本页开始下载提示'),
+      rangTip: lang.transl('_数字提示1'),
+      value: '1',
+    })
   }
 
   // 添加中间按钮
@@ -53,15 +50,14 @@ abstract class InitPageBase {
   // 添加其他元素（如果有）
   protected appendElseEl(): void { }
 
-  // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。
-  protected setFormOption(): void {
-    // 设置“个数/页数”选项
-    options.setWantPage({
-      text: lang.transl('_页数'),
-      tip: lang.transl('_从本页开始下载提示'),
-      rangTip: lang.transl('_数字提示1'),
-      value: '1',
-    })
+  // 如果初始化时有一些代码不能归纳到前面几个方法里，那么就可以放到这个方法里
+  // 通常用来绑定事件；初始化特有的组件、功能、状态
+  protected initElse() { }
+
+  // 销毁初始化页面时添加的元素和事件，恢复设置项等
+  protected destroy(): void {
+    DOM.clearSlot('crawlBtns')
+    DOM.clearSlot('otherBtns')
   }
 
   protected crawlNumber: number = 0 // 要抓取的个数/页数

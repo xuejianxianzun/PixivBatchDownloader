@@ -27,8 +27,6 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
     })
   }
 
-  protected appendElseEl() { }
-
   protected setFormOption() {
     // 设置“个数/页数”选项
     this.maxCount = 100

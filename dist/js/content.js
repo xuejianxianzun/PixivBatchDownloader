@@ -5255,19 +5255,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Colors */ "./src/ts/modules/Colors.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Options */ "./src/ts/modules/setting/Options.ts");
-/* harmony import */ var _artwork_SaveArtworkData__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./artwork/SaveArtworkData */ "./src/ts/modules/artwork/SaveArtworkData.ts");
-/* harmony import */ var _novel_SaveNovelData__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./novel/SaveNovelData */ "./src/ts/modules/novel/SaveNovelData.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./API */ "./src/ts/modules/API.ts");
-/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _setting_Form__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./setting/Form */ "./src/ts/modules/setting/Form.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/modules/setting/Settings.ts");
-/* harmony import */ var _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./setting/SettingAPI */ "./src/ts/modules/setting/SettingAPI.ts");
-/* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./API */ "./src/ts/modules/API.ts");
+/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./setting/Options */ "./src/ts/modules/setting/Options.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/modules/setting/Settings.ts");
+/* harmony import */ var _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./setting/SettingAPI */ "./src/ts/modules/setting/SettingAPI.ts");
+/* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
+/* harmony import */ var _artwork_SaveArtworkData__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./artwork/SaveArtworkData */ "./src/ts/modules/artwork/SaveArtworkData.ts");
+/* harmony import */ var _novel_SaveNovelData__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./novel/SaveNovelData */ "./src/ts/modules/novel/SaveNovelData.ts");
 // 初始化所有页面抓取流程的基类
-
 
 
 
@@ -5293,24 +5291,24 @@ class InitPageBase {
         this.ajaxThreadsFinished = 0; // 统计有几个并发线程完成所有请求。统计的是并发线程（ ajaxThreads ）而非请求数
     }
     init() {
-        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].showAllOption();
+        _setting_Options__WEBPACK_IMPORTED_MODULE_7__["options"].showAllOption();
         this.setFormOption();
         this.appendCenterBtns();
         this.appendElseEl();
         this.initElse();
-        // 个数/页数设置可能在 init 里由代码直接进行设置，不会触发 change 事件，无法被监听到。所以手动触发 settingChange 事件，使其他组件能够接收到通知
-        _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.settingChange, { name: 'setWantPage', value: _setting_Form__WEBPACK_IMPORTED_MODULE_10__["form"].setWantPage.value });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.pageSwitchedTypeChange, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.pageSwitchedTypeChange, () => {
             this.destroy();
         });
     }
-    // 各个子类私有的初始化内容
-    // 可以在这里绑定事件 
-    initElse() { }
-    // 销毁初始化页面时添加的元素和事件，恢复设置项等
-    destroy() {
-        _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].clearSlot('crawlBtns');
-        _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].clearSlot('otherBtns');
+    // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。
+    setFormOption() {
+        // 设置“个数/页数”选项
+        _setting_Options__WEBPACK_IMPORTED_MODULE_7__["options"].setWantPage({
+            text: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_页数'),
+            tip: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_从本页开始下载提示'),
+            rangTip: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_数字提示1'),
+            value: '1',
+        });
     }
     // 添加中间按钮
     appendCenterBtns() {
@@ -5322,19 +5320,17 @@ class InitPageBase {
     }
     // 添加其他元素（如果有）
     appendElseEl() { }
-    // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。
-    setFormOption() {
-        // 设置“个数/页数”选项
-        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPage({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_页数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_从本页开始下载提示'),
-            rangTip: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_数字提示1'),
-            value: '1',
-        });
+    // 如果初始化时有一些代码不能归纳到前面几个方法里，那么就可以放到这个方法里
+    // 通常用来绑定事件；初始化特有的组件、功能、状态
+    initElse() { }
+    // 销毁初始化页面时添加的元素和事件，恢复设置项等
+    destroy() {
+        _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].clearSlot('crawlBtns');
+        _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].clearSlot('otherBtns');
     }
     // 作品个数/页数的输入不合法
     getWantPageError() {
-        _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.crawlError);
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.crawlError);
         const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_参数不合法');
         window.alert(msg);
         throw new Error(msg);
@@ -5342,17 +5338,17 @@ class InitPageBase {
     // 检查用户输入的页数/个数设置
     // 可以为 -1，或者大于 0
     checkWantPageInput(crawlPartTip, crawlAllTip) {
-        const temp = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_11__["settings"].setWantPage);
+        const temp = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setWantPage);
         // 如果比 1 小，并且不是 -1，则不通过
         if ((temp < 1 && temp !== -1) || isNaN(temp)) {
             // 比 1 小的数里，只允许 -1 , 0 也不行
             throw this.getWantPageError();
         }
         if (temp >= 1) {
-            _Log__WEBPACK_IMPORTED_MODULE_8__["log"].warning(crawlPartTip.replace('{}', temp.toString()));
+            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(crawlPartTip.replace('{}', temp.toString()));
         }
         else if (temp === -1) {
-            _Log__WEBPACK_IMPORTED_MODULE_8__["log"].warning(crawlAllTip);
+            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(crawlAllTip);
         }
         return temp;
     }
@@ -5361,14 +5357,14 @@ class InitPageBase {
     // 参数 max 为最大值
     // 参数 page 指示单位是“页”（页面）还是“个”（作品个数）
     checkWantPageInputGreater0(max, page) {
-        const result = _API__WEBPACK_IMPORTED_MODULE_6__["API"].checkNumberGreater0(_setting_Settings__WEBPACK_IMPORTED_MODULE_11__["settings"].setWantPage);
+        const result = _API__WEBPACK_IMPORTED_MODULE_3__["API"].checkNumberGreater0(_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setWantPage);
         if (result.result) {
             const r = (result.value > max) ? max : result.value;
             if (page) {
-                _Log__WEBPACK_IMPORTED_MODULE_8__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_从本页开始下载x页', r.toString()));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_从本页开始下载x页', r.toString()));
             }
             else {
-                _Log__WEBPACK_IMPORTED_MODULE_8__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_从本页开始下载x个', r.toString()));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_从本页开始下载x个', r.toString()));
             }
             return r;
         }
@@ -5381,23 +5377,23 @@ class InitPageBase {
     // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
     getMultipleSetting() {
         // 获取作品张数设置
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_11__["settings"].firstFewImagesSwitch) {
-            this.firstFewImages = _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_12__["settingAPI"].getFirstFewImages();
-            _Log__WEBPACK_IMPORTED_MODULE_8__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品下载前n张图片', this.firstFewImages.toString()));
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].firstFewImagesSwitch) {
+            this.firstFewImages = _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_9__["settingAPI"].getFirstFewImages();
+            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品下载前n张图片', this.firstFewImages.toString()));
         }
     }
     // 准备抓取，进行抓取之前的一些检查工作。必要时可以在子类中改写
     async readyCrawl() {
         // 检查是否可以开始抓取
-        if (_States__WEBPACK_IMPORTED_MODULE_13__["states"].busy) {
+        if (_States__WEBPACK_IMPORTED_MODULE_10__["states"].busy) {
             window.alert(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成2'));
             return;
         }
-        _Log__WEBPACK_IMPORTED_MODULE_8__["log"].clear();
-        _Log__WEBPACK_IMPORTED_MODULE_8__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
+        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
+        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
         this.getWantPage();
         this.getMultipleSetting();
-        _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.crawlStart);
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.crawlStart);
         // 进入第一个抓取方法
         this.nextStep();
     }
@@ -5409,14 +5405,14 @@ class InitPageBase {
     getIdListFinished() {
         // 列表页获取完毕后，可以在这里重置一些变量
         this.resetGetIdListStatus();
-        if (_Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.length === 0) {
+        if (_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length === 0) {
             return this.noResult();
         }
-        _Log__WEBPACK_IMPORTED_MODULE_8__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前作品个数', _Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.length.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前作品个数', _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length.toString()));
         // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
         // return states.allWork = false
-        if (_Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.length <= this.ajaxThreadsDefault) {
-            this.ajaxThreads = _Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.length;
+        if (_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length <= this.ajaxThreadsDefault) {
+            this.ajaxThreads = _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length;
         }
         else {
             this.ajaxThreads = this.ajaxThreadsDefault;
@@ -5427,17 +5423,17 @@ class InitPageBase {
     }
     // 获取作品的数据
     async getWorksData(idData) {
-        idData = idData || _Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.shift();
+        idData = idData || _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.shift();
         const id = idData.id;
         try {
             // 发起请求
             if (idData.type === 'novels') {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_6__["API"].getNovelData(id);
-                await _novel_SaveNovelData__WEBPACK_IMPORTED_MODULE_5__["saveNovelData"].save(data);
+                const data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getNovelData(id);
+                await _novel_SaveNovelData__WEBPACK_IMPORTED_MODULE_12__["saveNovelData"].save(data);
             }
             else {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_6__["API"].getArtworkData(id);
-                await _artwork_SaveArtworkData__WEBPACK_IMPORTED_MODULE_4__["saveArtworkData"].save(data);
+                const data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getArtworkData(id);
+                await _artwork_SaveArtworkData__WEBPACK_IMPORTED_MODULE_11__["saveArtworkData"].save(data);
             }
             this.afterGetWorksData();
         }
@@ -5460,7 +5456,7 @@ class InitPageBase {
     // 每当获取完一个作品的信息
     afterGetWorksData() {
         this.logResultTotal();
-        if (_Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.length > 0) {
+        if (_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length > 0) {
             // 如果存在下一个作品，则
             this.getWorksData();
         }
@@ -5476,12 +5472,12 @@ class InitPageBase {
     }
     // 抓取完毕
     crawlFinished() {
-        if (_Store__WEBPACK_IMPORTED_MODULE_7__["store"].result.length === 0) {
+        if (_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length === 0) {
             return this.noResult();
         }
         this.sortResult();
-        _Log__WEBPACK_IMPORTED_MODULE_8__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个文件', _Store__WEBPACK_IMPORTED_MODULE_7__["store"].result.length.toString()));
-        _Log__WEBPACK_IMPORTED_MODULE_8__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取完毕'), 2);
+        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个文件', _Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length.toString()));
+        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取完毕'), 2);
         // 统计不同类型的文件数量
         // 统计 blob 文件的体积
         // const type = [0, 0, 0, 0]
@@ -5495,39 +5491,39 @@ class InitPageBase {
         // console.log(type)
         // console.log(blobSize)
         // 发出抓取完毕的信号
-        _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.crawlFinish);
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.crawlFinish);
     }
     // 网络请求状态异常时输出提示
     logErrorStatus(status, id) {
         switch (status) {
             case 0:
-                _Log__WEBPACK_IMPORTED_MODULE_8__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码0'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码0'));
                 break;
             case 400:
-                _Log__WEBPACK_IMPORTED_MODULE_8__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码400'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码400'));
                 break;
             case 403:
-                _Log__WEBPACK_IMPORTED_MODULE_8__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码403'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码403'));
                 break;
             case 404:
-                _Log__WEBPACK_IMPORTED_MODULE_8__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码404'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码404'));
                 break;
             default:
-                _Log__WEBPACK_IMPORTED_MODULE_8__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_无权访问2', id));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_无权访问2', id));
                 break;
         }
     }
     // 在抓取图片网址时，输出提示
     logResultTotal() {
-        _Log__WEBPACK_IMPORTED_MODULE_8__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个文件', _Store__WEBPACK_IMPORTED_MODULE_7__["store"].result.length.toString()), 1, false);
+        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个文件', _Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length.toString()), 1, false);
     }
     // 抓取结果为 0 时输出提示
     noResult() {
         // 先触发 crawlFinish，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
         // 如果触发顺序反过来，那么最后执行的都是 crawlFinish，可能会覆盖对 crawlEmpty 的处理
-        _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.crawlFinish);
-        _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.crawlEmpty);
-        _Log__WEBPACK_IMPORTED_MODULE_8__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取结果为零'), 2);
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.crawlFinish);
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.crawlEmpty);
+        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取结果为零'), 2);
         window.alert(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取结果为零'));
     }
     // 抓取完成后，对结果进行排序
@@ -8333,7 +8329,6 @@ class InitBookmarkNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_
             this.readyCrawl();
         });
     }
-    appendElseEl() { }
     setFormOption() {
         // 设置“个数/页数”选项
         this.maxCount = 100;
@@ -8518,7 +8513,6 @@ class InitNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
             this.readyCrawl();
         });
     }
-    appendElseEl() { }
     setFormOption() {
         // 设置“个数/页数”选项
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPage({
@@ -11306,7 +11300,6 @@ class InitNewNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitP
             this.readyCrawl();
         });
     }
-    appendElseEl() { }
     setFormOption() {
         // 设置“个数/页数”选项
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPage({
@@ -11592,13 +11585,11 @@ class InitNovelSeriesPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
         this.last = 0;
         this.init();
     }
-    initElse() { }
     appendCenterBtns() {
         _DOM__WEBPACK_IMPORTED_MODULE_5__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取系列小说')).addEventListener('click', () => {
             this.readyCrawl();
         });
     }
-    appendElseEl() { }
     setFormOption() {
         // 隐藏“个数/页数”选项
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([1]);
@@ -12486,12 +12477,16 @@ const form = new Form().form;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "options", function() { return options; });
-/* harmony import */ var _Form__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Form */ "./src/ts/modules/setting/Form.ts");
-// 操作设置表单的选项区域
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Form__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Form */ "./src/ts/modules/setting/Form.ts");
 
+
+// 操作设置表单的选项区域
+// 可以控制每个设置的隐藏、显示
+// 可以直接设置每个选项的值
 class Options {
     constructor() {
-        this.allOption = _Form__WEBPACK_IMPORTED_MODULE_0__["form"].querySelectorAll('.option');
+        this.allOption = _Form__WEBPACK_IMPORTED_MODULE_1__["form"].querySelectorAll('.option');
         // 获取“页数/个数”设置的元素
         const wantPageOption = this.getOption(1);
         this.wantPageEls = {
@@ -12536,6 +12531,8 @@ class Options {
         this.wantPageEls.text.dataset.tip = arg.tip;
         this.wantPageEls.rangTip.textContent = arg.rangTip;
         this.wantPageEls.input.value = arg.value;
+        // 这里由代码直接进行设置，不会触发 change 事件，所以手动触发 settingChange 事件，使其他组件能够接收到通知
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.settingChange, { name: 'setWantPage', value: arg.value });
     }
 }
 const options = new Options();

@@ -17,8 +17,6 @@ class InitNovelSeriesPage extends InitPageBase {
   private readonly limit = 30
   private last = 0
 
-  protected initElse() {}
-
   protected appendCenterBtns() {
     DOM.addBtn(
       'crawlBtns',
@@ -28,8 +26,6 @@ class InitNovelSeriesPage extends InitPageBase {
       this.readyCrawl()
     })
   }
-
-  protected appendElseEl() {}
 
   protected setFormOption() {
     // 隐藏“个数/页数”选项

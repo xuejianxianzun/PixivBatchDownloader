@@ -1,4 +1,4 @@
-// 操作设置表单的选项区域
+import { EVT } from '../EVT'
 import { form } from './Form'
 
 interface WantPageArg {
@@ -14,6 +14,9 @@ interface WantPageEls {
   input: HTMLInputElement
 }
 
+// 操作设置表单的选项区域
+// 可以控制每个设置的隐藏、显示
+// 可以直接设置每个选项的值
 class Options {
   constructor() {
     this.allOption = form.querySelectorAll('.option')
@@ -76,6 +79,9 @@ class Options {
     this.wantPageEls.text.dataset.tip = arg.tip
     this.wantPageEls.rangTip.textContent = arg.rangTip
     this.wantPageEls.input.value = arg.value
+
+    // 这里由代码直接进行设置，不会触发 change 事件，所以手动触发 settingChange 事件，使其他组件能够接收到通知
+    EVT.fire(EVT.events.settingChange, { name: 'setWantPage', value: arg.value })
   }
 }
 
