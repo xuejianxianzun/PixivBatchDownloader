@@ -1002,32 +1002,21 @@ class CenterPanel {
         // 监听点击扩展图标的消息，开关中间面板
         chrome.runtime.onMessage.addListener((msg) => {
             if (msg.msg === 'click_icon') {
-                if (this.centerPanel.style.display === 'block') {
-                    this.close();
-                }
-                else {
-                    this.show();
-                }
+                this.toggle();
             }
         });
+        // 使用快捷键 Alt + x 切换中间面板显示隐藏
+        window.addEventListener('keydown', (ev) => {
+            if (ev.altKey && ev.code === 'KeyX') {
+                this.toggle();
+            }
+        }, false);
         // 关闭按钮
         document
             .querySelector('.centerWrap_close')
             .addEventListener('click', () => {
             this.close();
         });
-        // 使用快捷键 Alt + x 切换中间面板显示隐藏
-        window.addEventListener('keydown', (ev) => {
-            if (ev.altKey && ev.code === 'KeyX') {
-                const nowDisplay = this.centerPanel.style.display;
-                if (nowDisplay === 'block') {
-                    this.close();
-                }
-                else {
-                    this.show();
-                }
-            }
-        }, false);
         // 点击右侧图标时，显示
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.clickRightIcon, () => {
             this.show();
@@ -1078,6 +1067,10 @@ class CenterPanel {
     close() {
         this.centerPanel.style.display = 'none';
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.centerPanelClosed);
+    }
+    toggle() {
+        const nowDisplay = this.centerPanel.style.display;
+        nowDisplay === 'block' ? this.close() : this.show();
     }
 }
 new CenterPanel();
@@ -7667,8 +7660,8 @@ new Support();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "themeColor", function() { return themeColor; });
-// 检查 pixiv 的颜色模式，并给下载器设置对应的样式。目前只有普通模式和夜间模式。
 // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
+// 目前不能手动设置主题色，这个组件会自动检查 pixiv 的颜色模式，并设置 className
 // 默认主题是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
 class ThemeColor {
     constructor() {

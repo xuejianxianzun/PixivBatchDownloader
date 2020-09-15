@@ -1,5 +1,5 @@
-// 检查 pixiv 的颜色模式，并给下载器设置对应的样式。目前只有普通模式和夜间模式。
 // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
+// 目前不能手动设置主题色，这个组件会自动检查 pixiv 的颜色模式，并设置 className
 // 默认主题是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
 class ThemeColor {
   constructor() {
