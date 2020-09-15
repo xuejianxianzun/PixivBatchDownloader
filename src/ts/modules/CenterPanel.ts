@@ -14,9 +14,8 @@ class CenterPanel {
     this.bindEvents()
   }
 
-  private centerPanel: HTMLDivElement = document.createElement('div') // 中间面板
-
-  private updateLink: HTMLAnchorElement = document.createElement('a')
+  private centerPanel!: HTMLDivElement
+  private updateLink!: HTMLAnchorElement
   private updateActiveClass = 'updateActiveClass'
 
   // 添加中间面板
@@ -115,7 +114,7 @@ class CenterPanel {
     window.addEventListener(
       'keydown',
       (ev) => {
-        if (ev.altKey && ev.keyCode === 88) {
+        if (ev.altKey && ev.code === 'KeyX') {
           const nowDisplay = this.centerPanel.style.display
           if (nowDisplay === 'block') {
             this.close()

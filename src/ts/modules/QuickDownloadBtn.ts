@@ -39,7 +39,7 @@ class QuickDownloadBtn {
     window.addEventListener(
       'keydown',
       (ev) => {
-        if (this.live && ev.altKey && ev.keyCode === 81) {
+        if (this.live && ev.altKey && ev.code === 'KeyQ') {
           states.quickDownload = true
           EVT.fire(EVT.events.QuickDownload)
         }
