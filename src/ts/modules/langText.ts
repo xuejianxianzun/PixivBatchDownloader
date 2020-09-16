@@ -430,7 +430,7 @@ const langText = {
     'Start getting the works page',
     '開始取得作品頁面',
   ],
-  _无权访问2: [
+  _无权访问: [
     '无权访问 {}，跳过该作品。',
     '{} のアクセス権限がありません、作品を無視する。',
     'No access {}, skip.',

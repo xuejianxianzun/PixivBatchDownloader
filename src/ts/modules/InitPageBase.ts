@@ -15,7 +15,7 @@ import { saveNovelData } from './novel/SaveNovelData'
 import { IDData } from './Store.d'
 
 abstract class InitPageBase {
-  // 不允许子组件重载 init 方法
+  // 子组件不应该重载 init 方法
   protected init() {
     options.showAllOption()
     this.setFormOption()
@@ -49,12 +49,12 @@ abstract class InitPageBase {
   }
 
   // 添加其他任意元素（如果有）
-  protected addAnyElement(): void {}
+  protected addAnyElement(): void { }
 
   // 初始化任意内容
   // 如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里
   // 通常用来初始化特有的组件、功能、事件、状态等
-  protected initAny() {}
+  protected initAny() { }
 
   // 销毁初始化页面时添加的元素和事件，恢复设置项等
   protected destroy(): void {
@@ -62,21 +62,19 @@ abstract class InitPageBase {
     DOM.clearSlot('otherBtns')
   }
 
-  protected crawlNumber: number = 0 // 要抓取的个数/页数
-
-  protected firstFewImages: number = 0 // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
+  protected crawlNumber = 0 // 要抓取的个数/页数
 
   protected maxCount = 1000 // 当前页面类型最多有多少个页面/作品
 
-  protected startpageNo: number = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、关注的新作品页使用。
+  protected startpageNo = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、新作品页、系列页面使用。
 
-  protected listPageFinished: number = 0 // 记录一共抓取了多少个列表页。使用范围同上。
+  protected listPageFinished = 0 // 记录一共抓取了多少个列表页。使用范围同上。
 
-  protected readonly ajaxThreadsDefault: number = 10 // 抓取时的并发连接数默认值，也是最大值
+  protected readonly ajaxThreadsDefault = 10 // 抓取时的并发连接数默认值，也是最大值
 
-  protected ajaxThreads: number = this.ajaxThreadsDefault // 抓取时的并发连接数
+  protected ajaxThreads = this.ajaxThreadsDefault // 抓取时的并发连接数
 
-  protected ajaxThreadsFinished: number = 0 // 统计有几个并发线程完成所有请求。统计的是并发线程（ ajaxThreads ）而非请求数
+  protected ajaxThreadsFinished = 0 // 统计有几个并发线程完成所有请求。统计的是并发线程（ ajaxThreads ）而非请求数
 
   // 作品个数/页数的输入不合法
   private getWantPageError() {
@@ -128,15 +126,14 @@ abstract class InitPageBase {
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
-  protected getWantPage() {}
+  protected getWantPage() { }
 
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
   protected getMultipleSetting() {
     // 获取作品张数设置
     if (settings.firstFewImagesSwitch) {
-      this.firstFewImages = settingAPI.getFirstFewImages()
       log.warning(
-        lang.transl('_多图作品下载前n张图片', this.firstFewImages.toString())
+        lang.transl('_多图作品下载前n张图片', settingAPI.getFirstFewImages().toString())
       )
     }
   }
@@ -200,8 +197,9 @@ abstract class InitPageBase {
     idData = idData || store.idList.shift()!
     const id = idData.id
 
+    let failed = false  // 请求失败的标记
+
     try {
-      // 发起请求
       if (idData.type === 'novels') {
         const data = await API.getNovelData(id)
         await saveNovelData.save(data)
@@ -209,21 +207,26 @@ abstract class InitPageBase {
         const data = await API.getArtworkData(id)
         await saveArtworkData.save(data)
       }
-      this.afterGetWorksData()
     } catch (error) {
-      //  请求成功，但 response.ok 错误。不重试请求，跳过该作品继续抓取
       if (error.status) {
+        // 请求成功，但状态码不正常
         this.logErrorStatus(error.status, id)
-        this.afterGetWorksData()
       } else {
-        // 请求失败，会重试这个请求
-        console.log(error)
-        setTimeout(() => {
-          this.getWorksData(idData)
-        }, 2000)
+        // 请求失败，没有获得服务器的返回数据
+        // 实际上这里也会捕获到保存作品数据时的错误
+        failed = true
+        console.error(error)
+        log.error(error)
       }
+    }
 
-      return
+    if (failed) {
+      // 再次发送这个请求
+      setTimeout(() => {
+        this.getWorksData(idData)
+      }, 2000)
+    } else {
+      this.afterGetWorksData()
     }
   }
 
@@ -297,7 +300,7 @@ abstract class InitPageBase {
         break
 
       default:
-        log.error(lang.transl('_无权访问2', id))
+        log.error(lang.transl('_无权访问', id))
         break
     }
   }
@@ -322,7 +325,7 @@ abstract class InitPageBase {
   }
 
   // 抓取完成后，对结果进行排序
-  protected sortResult() {}
+  protected sortResult() { }
 }
 
 export { InitPageBase }

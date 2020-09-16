@@ -4901,15 +4901,14 @@ __webpack_require__.r(__webpack_exports__);
 class InitPageBase {
     constructor() {
         this.crawlNumber = 0; // 要抓取的个数/页数
-        this.firstFewImages = 0; // 每个作品下载几张图片。0为不限制，全部下载。改为1则只下载第一张。这是因为有时候多p作品会导致要下载的图片过多，此时可以设置只下载前几张，减少下载量
         this.maxCount = 1000; // 当前页面类型最多有多少个页面/作品
-        this.startpageNo = 1; // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、关注的新作品页使用。
+        this.startpageNo = 1; // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、新作品页、系列页面使用。
         this.listPageFinished = 0; // 记录一共抓取了多少个列表页。使用范围同上。
         this.ajaxThreadsDefault = 10; // 抓取时的并发连接数默认值，也是最大值
         this.ajaxThreads = this.ajaxThreadsDefault; // 抓取时的并发连接数
         this.ajaxThreadsFinished = 0; // 统计有几个并发线程完成所有请求。统计的是并发线程（ ajaxThreads ）而非请求数
     }
-    // 不允许子组件重载 init 方法
+    // 子组件不应该重载 init 方法
     init() {
         _setting_Options__WEBPACK_IMPORTED_MODULE_7__["options"].showAllOption();
         this.setFormOption();
@@ -4999,8 +4998,7 @@ class InitPageBase {
     getMultipleSetting() {
         // 获取作品张数设置
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].firstFewImagesSwitch) {
-            this.firstFewImages = _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_9__["settingAPI"].getFirstFewImages();
-            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品下载前n张图片', this.firstFewImages.toString()));
+            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品下载前n张图片', _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_9__["settingAPI"].getFirstFewImages().toString()));
         }
     }
     // 准备抓取，进行抓取之前的一些检查工作。必要时可以在子类中改写
@@ -5046,8 +5044,8 @@ class InitPageBase {
     async getWorksData(idData) {
         idData = idData || _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.shift();
         const id = idData.id;
+        let failed = false; // 请求失败的标记
         try {
-            // 发起请求
             if (idData.type === 'novels') {
                 const data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getNovelData(id);
                 await _novel_SaveNovelData__WEBPACK_IMPORTED_MODULE_12__["saveNovelData"].save(data);
@@ -5056,22 +5054,28 @@ class InitPageBase {
                 const data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getArtworkData(id);
                 await _artwork_SaveArtworkData__WEBPACK_IMPORTED_MODULE_11__["saveArtworkData"].save(data);
             }
-            this.afterGetWorksData();
         }
         catch (error) {
-            //  请求成功，但 response.ok 错误。不重试请求，跳过该作品继续抓取
             if (error.status) {
+                // 请求成功，但状态码不正常
                 this.logErrorStatus(error.status, id);
-                this.afterGetWorksData();
             }
             else {
-                // 请求失败，会重试这个请求
-                console.log(error);
-                setTimeout(() => {
-                    this.getWorksData(idData);
-                }, 2000);
+                // 请求失败，没有获得服务器的返回数据
+                // 实际上这里也会捕获到保存作品数据时的错误
+                failed = true;
+                console.error(error);
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(error);
             }
-            return;
+        }
+        if (failed) {
+            // 再次发送这个请求
+            setTimeout(() => {
+                this.getWorksData(idData);
+            }, 2000);
+        }
+        else {
+            this.afterGetWorksData();
         }
     }
     // 每当获取完一个作品的信息
@@ -5130,7 +5134,7 @@ class InitPageBase {
                 _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码404'));
                 break;
             default:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_无权访问2', id));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_无权访问', id));
                 break;
         }
     }
@@ -9823,7 +9827,7 @@ const langText = {
         'Start getting the works page',
         '開始取得作品頁面',
     ],
-    _无权访问2: [
+    _无权访问: [
         '无权访问 {}，跳过该作品。',
         '{} のアクセス権限がありません、作品を無視する。',
         'No access {}, skip.',
