@@ -8841,17 +8841,19 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
             this.getIdList();
         }
     }
-    async getIdList() {
-        let p = this.startpageNo + this.sendCrawlTaskCount;
-        this.sendCrawlTaskCount++;
+    // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
+    async getIdList(p) {
+        if (p === undefined) {
+            p = this.startpageNo + this.sendCrawlTaskCount;
+            this.sendCrawlTaskCount++;
+        }
         // 发起请求，获取列表页
         let data;
         try {
             data = await this.getSearchData(p);
         }
         catch (_a) {
-            this.getIdList();
-            return;
+            return this.getIdList(p);
         }
         data = data.data;
         for (const nowData of data) {
@@ -11561,17 +11563,19 @@ class InitSearchNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
             this.getIdList();
         }
     }
-    async getIdList() {
-        let p = this.startpageNo + this.sendCrawlTaskCount;
-        this.sendCrawlTaskCount++;
+    // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
+    async getIdList(p) {
+        if (p === undefined) {
+            p = this.startpageNo + this.sendCrawlTaskCount;
+            this.sendCrawlTaskCount++;
+        }
         // 发起请求，获取列表页
         let data;
         try {
             data = await this.getSearchData(p);
         }
         catch (_a) {
-            this.getIdList();
-            return;
+            return this.getIdList(p);
         }
         data = data.data;
         for (const nowData of data) {

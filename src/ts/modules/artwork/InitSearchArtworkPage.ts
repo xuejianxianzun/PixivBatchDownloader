@@ -283,18 +283,19 @@ class InitSearchArtworkPage extends InitPageBase {
     }
   }
 
-  protected async getIdList() {
-    let p = this.startpageNo + this.sendCrawlTaskCount
-
-    this.sendCrawlTaskCount++
+  // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
+  protected async getIdList(p?: number): Promise<void> {
+    if (p === undefined) {
+      p = this.startpageNo + this.sendCrawlTaskCount
+      this.sendCrawlTaskCount++
+    }
 
     // 发起请求，获取列表页
     let data
     try {
       data = await this.getSearchData(p)
     } catch {
-      this.getIdList()
-      return
+      return this.getIdList(p)
     }
 
     data = data.data
