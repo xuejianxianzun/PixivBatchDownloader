@@ -160,7 +160,6 @@ class InitFollowingPage extends InitPageBase {
   }
 
   protected resetGetIdListStatus() {
-    this.listPageFinished = 0
     this.userList = []
     this.getUserListNo = 0
     this.index = 0

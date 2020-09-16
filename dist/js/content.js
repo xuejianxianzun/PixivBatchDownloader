@@ -4300,7 +4300,6 @@ class InitBookmarkLegacyPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.type = 'illusts';
         this.idList = [];
         this.offset = 0;
-        this.listPageFinished = 0;
         this.crawlRecommended = false; // 解除下载推荐作品的标记
     }
     sortResult() {
@@ -4457,7 +4456,6 @@ class InitBookmarkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitP
         this.type = 'illusts';
         this.idList = [];
         this.offset = 0;
-        this.listPageFinished = 0;
     }
 }
 
@@ -4610,7 +4608,6 @@ class InitFollowingPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Init
         this.getIdList();
     }
     resetGetIdListStatus() {
-        this.listPageFinished = 0;
         this.userList = [];
         this.getUserListNo = 0;
         this.index = 0;
@@ -5523,7 +5520,6 @@ class InitUserPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPageB
     }
     resetGetIdListStatus() {
         this.listType = 0;
-        this.listPageFinished = 0;
     }
     sortResult() {
         // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品

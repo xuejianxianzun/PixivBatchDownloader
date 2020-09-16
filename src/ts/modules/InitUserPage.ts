@@ -232,7 +232,6 @@ class InitUserPage extends InitPageBase {
 
   protected resetGetIdListStatus() {
     this.listType = 0
-    this.listPageFinished = 0
   }
 
   protected sortResult() {

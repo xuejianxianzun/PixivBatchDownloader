@@ -171,7 +171,6 @@ class InitBookmarkPage extends InitPageBase {
     this.type = 'illusts'
     this.idList = []
     this.offset = 0
-    this.listPageFinished = 0
   }
 }
 export { InitBookmarkPage }

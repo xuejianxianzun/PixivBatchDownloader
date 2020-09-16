@@ -234,7 +234,6 @@ class InitBookmarkLegacyPage extends InitPageBase {
     this.type = 'illusts'
     this.idList = []
     this.offset = 0
-    this.listPageFinished = 0
     this.crawlRecommended = false // 解除下载推荐作品的标记
   }
 
