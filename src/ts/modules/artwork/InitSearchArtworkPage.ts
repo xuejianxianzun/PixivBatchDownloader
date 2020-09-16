@@ -74,24 +74,16 @@ class InitSearchArtworkPage extends InitPageBase {
 
   private causeResultChange = ['firstFewImagesSwitch', 'firstFewImages'] // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
 
-  protected initAny() {
-    this.hotBar()
+  protected setFormOption() {
+    this.maxCount = 1000
 
-    this.setPreviewResult(settings.previewResult)
-
-    window.addEventListener(EVT.events.addResult, this.showCount)
-
-    window.addEventListener('addBMK', this.addBookmark)
-
-    window.addEventListener(EVT.events.crawlFinish, this.onCrawlFinish)
-
-    window.addEventListener(EVT.events.clearMultiple, this.clearMultiple)
-
-    window.addEventListener(EVT.events.clearUgoira, this.clearUgoira)
-
-    window.addEventListener(EVT.events.deleteWork, this.deleteWork)
-
-    window.addEventListener(EVT.events.settingChange, this.onSettingChange)
+    // 设置“个数/页数”选项
+    options.setWantPage({
+      text: lang.transl('_页数'),
+      tip: lang.transl('_从本页开始下载提示'),
+      rangTip: `1 - ${this.maxCount}`,
+      value: this.maxCount.toString(),
+    })
   }
 
   protected addCrawlBtns() {
@@ -142,16 +134,24 @@ class InitSearchArtworkPage extends InitPageBase {
     })
   }
 
-  protected setFormOption() {
-    this.maxCount = 1000
+  protected initAny() {
+    this.hotBar()
 
-    // 设置“个数/页数”选项
-    options.setWantPage({
-      text: lang.transl('_页数'),
-      tip: lang.transl('_从本页开始下载提示'),
-      rangTip: `1 - ${this.maxCount}`,
-      value: this.maxCount.toString(),
-    })
+    this.setPreviewResult(settings.previewResult)
+
+    window.addEventListener(EVT.events.addResult, this.showCount)
+
+    window.addEventListener('addBMK', this.addBookmark)
+
+    window.addEventListener(EVT.events.crawlFinish, this.onCrawlFinish)
+
+    window.addEventListener(EVT.events.clearMultiple, this.clearMultiple)
+
+    window.addEventListener(EVT.events.clearUgoira, this.clearUgoira)
+
+    window.addEventListener(EVT.events.deleteWork, this.deleteWork)
+
+    window.addEventListener(EVT.events.settingChange, this.onSettingChange)
   }
 
   protected destroy() {
@@ -163,6 +163,17 @@ class InitSearchArtworkPage extends InitPageBase {
 
     // 离开下载页面时，取消设置“不自动下载”
     states.notAutoDownload = false
+  }
+
+  protected getWantPage() {
+    this.crawlNumber = this.checkWantPageInput(
+      lang.transl('_从本页开始下载x页'),
+      lang.transl('_下载所有页面')
+    )
+
+    if (this.crawlNumber === -1 || this.crawlNumber > this.maxCount) {
+      this.crawlNumber = this.maxCount
+    }
   }
 
   protected async nextStep() {
@@ -179,28 +190,213 @@ class InitSearchArtworkPage extends InitPageBase {
     this.clearWorks()
   }
 
-  // 去除热门作品上面的遮挡
-  private hotBar() {
-    // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
-    const timer = window.setInterval(() => {
-      const hotWorkAside = document.querySelector(this.hotWorkAsideSelector)
+  // 组织要请求的 url 中的参数
+  private initFetchURL() {
+    // 从 URL 中获取分类。可能有语言标识。
+    /*
+    https://www.pixiv.net/tags/Fate%2FGrandOrder/illustrations
+    https://www.pixiv.net/en/tags/Fate%2FGrandOrder/illustrations
+    */
+    let URLType = location.pathname.split('tags/')[1].split('/')[1]
+    // 但在“顶部”页面的时候是没有分类的，会是 undefined
+    if (URLType === undefined) {
+      URLType = ''
+    }
 
-      if (hotWorkAside) {
-        window.clearInterval(timer)
+    switch (URLType) {
+      case '':
+        this.worksType = 'artworks'
+        break
+      case 'illustrations':
+      case 'illust_and_ugoira':
+      case 'ugoira':
+      case 'illust':
+        this.worksType = 'illustrations'
+        break
+      case 'manga':
+        this.worksType = 'manga'
+        break
 
-        // 去掉遮挡作品的购买链接
-        const premiumLink = hotWorkAside.nextSibling
-        premiumLink && premiumLink.remove()
+      default:
+        this.worksType = 'artworks'
+        break
+    }
 
-        // 去掉遮挡后两个作品的 after。因为是伪元素，所以要通过 css 控制
-        const style = `
-        section aside ul::after{
-          display:none !important;
-        }
-        `
-        DOM.addStyle(style)
+    let p = API.getURLSearchField(location.href, 'p')
+    this.startpageNo = parseInt(p) || 1
+
+    // 从页面 url 中获取可以使用的选项
+    this.option = {}
+    this.allOption.forEach((param) => {
+      let value = API.getURLSearchField(location.href, param)
+      if (value !== '') {
+        this.option[param] = value
       }
-    }, 300)
+    })
+
+    // 如果没有指定搜索模式，则是精确匹配标签，设置对应的值
+    if (this.option.s_mode === undefined) {
+      this.option.s_mode = 's_tag_full'
+    }
+  }
+
+  // 获取搜索页的数据。因为有多处使用，所以进行了封装
+  private async getSearchData(p: number) {
+    let data = await API.getSearchData(
+      store.tag,
+      this.worksType,
+      p,
+      this.option
+    )
+    return data.body.illust || data.body.illustManga || data.body.manga
+  }
+
+  // 计算应该抓取多少页
+  private async calcNeedCrawlPageCount() {
+    let data = await this.getSearchData(1)
+    // 计算总页数
+    let pageCount = Math.ceil(data.total / this.worksNoPerPage)
+    if (pageCount > this.maxCount) {
+      // 最大为 1000
+      pageCount = this.maxCount
+    }
+    // 计算从本页开始抓取的话，有多少页
+    let needFetchPage = pageCount - this.startpageNo + 1
+    // 比较用户设置的页数，取较小的那个数值
+    if (needFetchPage < this.crawlNumber) {
+      return needFetchPage
+    } else {
+      return this.crawlNumber
+    }
+  }
+
+  // 建立并发抓取线程
+  private startGetIdList() {
+    if (this.needCrawlPageCount <= this.ajaxThreadsDefault) {
+      this.ajaxThreads = this.needCrawlPageCount
+    } else {
+      this.ajaxThreads = this.ajaxThreadsDefault
+    }
+
+    for (let i = 0; i < this.ajaxThreads; i++) {
+      this.getIdList()
+    }
+  }
+
+  protected async getIdList() {
+    let p = this.startpageNo + this.sendCrawlTaskCount
+
+    this.sendCrawlTaskCount++
+
+    // 发起请求，获取列表页
+    let data
+    try {
+      data = await this.getSearchData(p)
+    } catch {
+      this.getIdList()
+      return
+    }
+
+    data = data.data
+
+    for (const nowData of data) {
+      // 排除广告信息
+      if (nowData.isAdContainer) {
+        continue
+      }
+
+      const filterOpt: FilterOption = {
+        id: nowData.illustId,
+        width: nowData.width,
+        height: nowData.height,
+        pageCount: nowData.pageCount,
+        bookmarkData: nowData.bookmarkData,
+        illustType: nowData.illustType,
+        tags: nowData.tags,
+      }
+
+      if (await filter.check(filterOpt)) {
+        store.idList.push({
+          type: API.getWorkType(nowData.illustType),
+          id: nowData.illustId,
+        })
+      }
+    }
+
+    this.listPageFinished++
+
+    log.log(
+      lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
+      1,
+      false
+    )
+
+    if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
+      // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
+      this.getIdList()
+    } else {
+      // 抓取任务已经全部发送
+      if (this.listPageFinished === this.needCrawlPageCount) {
+        // 抓取任务全部完成
+        log.log(lang.transl('_列表页抓取完成'))
+        this.getIdListFinished()
+      }
+    }
+  }
+
+  protected resetGetIdListStatus() {
+    this.listPageFinished = 0
+    this.sendCrawlTaskCount = 0
+  }
+
+  // 搜索页把下载任务按收藏数从高到低下载
+  protected sortResult() {
+    store.resultMeta.sort(API.sortByProperty('bmk'))
+    store.result.sort(API.sortByProperty('bmk'))
+  }
+
+  private onSettingChange = (event: CustomEventInit) => {
+    const data = event.detail.data
+
+    if (data.name === 'previewResult') {
+      this.setPreviewResult(data.value)
+    }
+
+    if (this.causeResultChange.includes(data.name)) {
+      this.reAddResult()
+      EVT.fire(EVT.events.resultChange)
+    }
+  }
+
+  private setPreviewResult(value: boolean) {
+    this.previewResult = value
+
+    // 如果设置了“预览搜索结果”，则“不自动下载”。否则允许自动下载
+    states.notAutoDownload = value ? true : false
+  }
+
+  // 抓取完成后，保存结果的元数据，并重排结果
+  private onCrawlFinish = () => {
+    this.resultMeta = [...store.resultMeta]
+
+    // 显示作品数量
+    const count = this.resultMeta.length || store.resultMeta.length
+    if (count > 0) {
+      log.log(lang.transl('_当前作品个数', count.toString()))
+    }
+    // 显示文件数量
+    log.success(lang.transl('_共抓取到n个文件', store.result.length.toString()))
+
+    this.clearWorks()
+
+    this.reAddResult()
+
+    // 解绑创建作品元素的事件
+    window.removeEventListener(EVT.events.addResult, this.createWork)
+
+    setTimeout(() => {
+      EVT.fire(EVT.events.worksUpdate)
+    }, 0)
   }
 
   // 返回包含作品列表的 ul 元素
@@ -227,18 +423,6 @@ class InitSearchArtworkPage extends InitPageBase {
         countEl.textContent = count.toString()
       }
     }
-  }
-
-  // 清空作品列表，只在作品抓取完毕时使用。之后会生成根据收藏数排列的作品列表。
-  // 在其他情况下，删除作品不会清空作品列表，也不会再次生成作品列表，而是把这个作品的元素移除。这是为了减少 dom 操作耗时以及重绘页面引起的耗时，耗时太长会导致用户体验出现严重的问题。
-  private clearWorks() {
-    this.worksWrap = this.getWorksWrap()
-
-    if (!this.previewResult || !this.worksWrap) {
-      return
-    }
-
-    this.worksWrap.innerHTML = ''
   }
 
   // 在页面上生成抓取结果对应的作品元素
@@ -379,49 +563,31 @@ class InitSearchArtworkPage extends InitPageBase {
     })
   }
 
-  private addBookmark = (event: CustomEventInit) => {
-    const data = event.detail.data as AddBMKData
-    // 如果设置了不启用快速收藏，则把 tag 设置为空
-    if (!settings.quickBookmarks) {
-      data.tags = []
+  // 清空作品列表，只在作品抓取完毕时使用。之后会生成根据收藏数排列的作品列表。
+  private clearWorks() {
+    this.worksWrap = this.getWorksWrap()
+
+    if (!this.previewResult || !this.worksWrap) {
+      return
     }
 
-    API.addBookmark(
-      'illusts',
-      data.id.toString(),
-      data.tags,
-      false,
-      API.getToken()
-    )
-    this.resultMeta.forEach((result) => {
-      if (result.idNum === data.id) {
-        result.bookmarked = true
-      }
-    })
+    this.worksWrap.innerHTML = ''
   }
 
-  // 抓取完成后，保存结果的元数据，并重排结果
-  private onCrawlFinish = () => {
-    this.resultMeta = [...store.resultMeta]
-
-    // 显示作品数量
-    const count = this.resultMeta.length || store.resultMeta.length
-    if (count > 0) {
-      log.log(lang.transl('_当前作品个数', count.toString()))
+  // 传递作品 id 列表，从页面上的作品列表里移除这些作品
+  private removeWorks(idList: string[]) {
+    // #root section ul .searchList
+    const listSelector = `${this.worksWrapSelector} .${this.listClass}`
+    const lists = document.querySelectorAll(listSelector) as NodeListOf<
+      HTMLLIElement
+    >
+    for (const li of lists) {
+      if (li.dataset.id && idList.includes(li.dataset.id)) {
+        li.style.display = 'none'
+        // li.remove()
+        // 推测隐藏元素可以更快的重绘好页面，因为删除元素修改了 dom 结构，花的时间可能会多一些
+      }
     }
-    // 显示文件数量
-    log.success(lang.transl('_共抓取到n个文件', store.result.length.toString()))
-
-    this.clearWorks()
-
-    this.reAddResult()
-
-    // 解绑创建作品元素的事件
-    window.removeEventListener(EVT.events.addResult, this.createWork)
-
-    setTimeout(() => {
-      EVT.fire(EVT.events.worksUpdate)
-    }, 0)
   }
 
   // 筛选抓取结果。传入函数，过滤符合条件的结果
@@ -461,22 +627,6 @@ class InitSearchArtworkPage extends InitPageBase {
     }
 
     EVT.fire(EVT.events.resultChange)
-  }
-
-  // 传递作品 id 列表，从页面上的作品列表里移除这些作品
-  private removeWorks(idList: string[]) {
-    // #root section ul .searchList
-    const listSelector = `${this.worksWrapSelector} .${this.listClass}`
-    const lists = document.querySelectorAll(listSelector) as NodeListOf<
-      HTMLLIElement
-    >
-    for (const li of lists) {
-      if (li.dataset.id && idList.includes(li.dataset.id)) {
-        li.style.display = 'none'
-        // li.remove()
-        // 推测隐藏元素可以更快的重绘好页面，因为删除元素修改了 dom 结构，花的时间可能会多一些
-      }
-    }
   }
 
   // 重新添加抓取结果，执行时机：
@@ -550,201 +700,51 @@ class InitSearchArtworkPage extends InitPageBase {
     })
   }
 
-  protected getWantPage() {
-    this.crawlNumber = this.checkWantPageInput(
-      lang.transl('_从本页开始下载x页'),
-      lang.transl('_下载所有页面')
+  private addBookmark = (event: CustomEventInit) => {
+    const data = event.detail.data as AddBMKData
+    // 如果设置了不启用快速收藏，则把 tag 设置为空
+    if (!settings.quickBookmarks) {
+      data.tags = []
+    }
+
+    API.addBookmark(
+      'illusts',
+      data.id.toString(),
+      data.tags,
+      false,
+      API.getToken()
     )
-
-    if (this.crawlNumber === -1 || this.crawlNumber > this.maxCount) {
-      this.crawlNumber = this.maxCount
-    }
-  }
-
-  // 获取搜索页的数据。因为有多处使用，所以进行了封装
-  private async getSearchData(p: number) {
-    let data = await API.getSearchData(
-      store.tag,
-      this.worksType,
-      p,
-      this.option
-    )
-    return data.body.illust || data.body.illustManga || data.body.manga
-  }
-
-  // 组织要请求的 url 中的参数
-  private initFetchURL() {
-    // 从 URL 中获取分类。可能有语言标识。
-    /*
-    https://www.pixiv.net/tags/Fate%2FGrandOrder/illustrations
-    https://www.pixiv.net/en/tags/Fate%2FGrandOrder/illustrations
-    */
-    let URLType = location.pathname.split('tags/')[1].split('/')[1]
-    // 但在“顶部”页面的时候是没有分类的，会是 undefined
-    if (URLType === undefined) {
-      URLType = ''
-    }
-
-    switch (URLType) {
-      case '':
-        this.worksType = 'artworks'
-        break
-      case 'illustrations':
-      case 'illust_and_ugoira':
-      case 'ugoira':
-      case 'illust':
-        this.worksType = 'illustrations'
-        break
-      case 'manga':
-        this.worksType = 'manga'
-        break
-
-      default:
-        this.worksType = 'artworks'
-        break
-    }
-
-    let p = API.getURLSearchField(location.href, 'p')
-    this.startpageNo = parseInt(p) || 1
-
-    // 从页面 url 中获取可以使用的选项
-    this.option = {}
-    this.allOption.forEach((param) => {
-      let value = API.getURLSearchField(location.href, param)
-      if (value !== '') {
-        this.option[param] = value
+    this.resultMeta.forEach((result) => {
+      if (result.idNum === data.id) {
+        result.bookmarked = true
       }
     })
-
-    // 如果没有指定搜索模式，则是精确匹配标签，设置对应的值
-    if (this.option.s_mode === undefined) {
-      this.option.s_mode = 's_tag_full'
-    }
   }
 
-  // 计算应该抓取多少页
-  private async calcNeedCrawlPageCount() {
-    let data = await this.getSearchData(1)
-    // 计算总页数
-    let pageCount = Math.ceil(data.total / this.worksNoPerPage)
-    if (pageCount > this.maxCount) {
-      // 最大为 1000
-      pageCount = this.maxCount
-    }
-    // 计算从本页开始抓取的话，有多少页
-    let needFetchPage = pageCount - this.startpageNo + 1
-    // 比较用户设置的页数，取较小的那个数值
-    if (needFetchPage < this.crawlNumber) {
-      return needFetchPage
-    } else {
-      return this.crawlNumber
-    }
-  }
+  // 去除热门作品上面的遮挡
+  private hotBar() {
+    // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
+    const timer = window.setInterval(() => {
+      const hotWorkAside = document.querySelector(this.hotWorkAsideSelector)
 
-  // 计算页数之后，准备建立并发抓取线程
-  private startGetIdList() {
-    if (this.needCrawlPageCount <= this.ajaxThreadsDefault) {
-      this.ajaxThreads = this.needCrawlPageCount
-    } else {
-      this.ajaxThreads = this.ajaxThreadsDefault
-    }
+      if (hotWorkAside) {
+        window.clearInterval(timer)
 
-    for (let i = 0; i < this.ajaxThreads; i++) {
-      this.getIdList()
-    }
-  }
+        // 去掉遮挡作品的购买链接
+        const premiumLink = hotWorkAside.nextSibling
+        premiumLink && premiumLink.remove()
 
-  protected async getIdList() {
-    let p = this.startpageNo + this.sendCrawlTaskCount
-
-    this.sendCrawlTaskCount++
-
-    // 发起请求，获取列表页
-    let data
-    try {
-      data = await this.getSearchData(p)
-    } catch {
-      this.getIdList()
-      return
-    }
-
-    data = data.data
-
-    for (const nowData of data) {
-      // 排除广告信息
-      if (nowData.isAdContainer) {
-        continue
+        // 去掉遮挡后两个作品的 after。因为是伪元素，所以要通过 css 控制
+        const style = `
+        section aside ul::after{
+          display:none !important;
+        }
+        `
+        DOM.addStyle(style)
       }
-
-      const filterOpt: FilterOption = {
-        id: nowData.illustId,
-        width: nowData.width,
-        height: nowData.height,
-        pageCount: nowData.pageCount,
-        bookmarkData: nowData.bookmarkData,
-        illustType: nowData.illustType,
-        tags: nowData.tags,
-      }
-
-      if (await filter.check(filterOpt)) {
-        store.idList.push({
-          type: API.getWorkType(nowData.illustType),
-          id: nowData.illustId,
-        })
-      }
-    }
-
-    this.listPageFinished++
-
-    log.log(
-      lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
-      1,
-      false
-    )
-
-    if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
-      // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
-      this.getIdList()
-    } else {
-      // 抓取任务已经全部发送
-      if (this.listPageFinished === this.needCrawlPageCount) {
-        // 抓取任务全部完成
-        log.log(lang.transl('_列表页抓取完成'))
-        this.getIdListFinished()
-      }
-    }
+    }, 300)
   }
 
-  protected resetGetIdListStatus() {
-    this.listPageFinished = 0
-    this.sendCrawlTaskCount = 0
-  }
-
-  // 搜索页把下载任务按收藏数从高到低下载
-  protected sortResult() {
-    store.resultMeta.sort(API.sortByProperty('bmk'))
-    store.result.sort(API.sortByProperty('bmk'))
-  }
-
-  private onSettingChange = (event: CustomEventInit) => {
-    const data = event.detail.data
-
-    if (data.name === 'previewResult') {
-      this.setPreviewResult(data.value)
-    }
-
-    if (this.causeResultChange.includes(data.name)) {
-      this.reAddResult()
-      EVT.fire(EVT.events.resultChange)
-    }
-  }
-
-  private setPreviewResult(value: boolean) {
-    this.previewResult = value
-
-    // 如果设置了“预览搜索结果”，则“不自动下载”。否则允许自动下载
-    states.notAutoDownload = value ? true : false
-  }
 }
 
 export { InitSearchArtworkPage }
