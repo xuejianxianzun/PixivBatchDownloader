@@ -31,7 +31,7 @@ class ToGIF {
 
       // 绑定渲染完成事件
       gif.on('finished', (file: Blob) => {
-        EVT.fire(EVT.events.convertSuccess)
+        EVT.fire(EVT.list.convertSuccess)
         resolve(file)
       })
 

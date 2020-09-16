@@ -20,14 +20,14 @@ class DownloadButton {
 
   private bindEvents() {
     this.btn.addEventListener('click', () => {
-      EVT.fire(EVT.events.clickRightIcon)
+      EVT.fire(EVT.list.openCenterPanel)
     })
 
-    window.addEventListener(EVT.events.centerPanelClosed, () => {
+    window.addEventListener(EVT.list.centerPanelClosed, () => {
       this.show()
     })
 
-    window.addEventListener(EVT.events.centerPanelOpened, () => {
+    window.addEventListener(EVT.list.centerPanelOpened, () => {
       this.hide()
     })
   }

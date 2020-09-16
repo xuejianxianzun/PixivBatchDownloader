@@ -23,7 +23,7 @@ abstract class InitPageBase {
     this.addAnyElement()
     this.initAny()
 
-    window.addEventListener(EVT.events.pageSwitchedTypeChange, () => {
+    window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
       this.destroy()
     })
   }
@@ -80,7 +80,7 @@ abstract class InitPageBase {
 
   // 作品个数/页数的输入不合法
   private getWantPageError() {
-    EVT.fire(EVT.events.crawlError)
+    EVT.fire(EVT.list.wrongSetting)
     const msg = lang.transl('_参数不合法')
     window.alert(msg)
     throw new Error(msg)
@@ -157,7 +157,7 @@ abstract class InitPageBase {
 
     this.getMultipleSetting()
 
-    EVT.fire(EVT.events.crawlStart)
+    EVT.fire(EVT.list.crawlStart)
 
     // 进入第一个抓取方法
     this.nextStep()
@@ -271,7 +271,7 @@ abstract class InitPageBase {
     // console.log(blobSize)
 
     // 发出抓取完毕的信号
-    EVT.fire(EVT.events.crawlFinish)
+    EVT.fire(EVT.list.crawlFinish)
   }
 
   // 重设抓取作品列表时使用的变量或标记
@@ -315,8 +315,8 @@ abstract class InitPageBase {
   protected noResult() {
     // 先触发 crawlFinish，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
     // 如果触发顺序反过来，那么最后执行的都是 crawlFinish，可能会覆盖对 crawlEmpty 的处理
-    EVT.fire(EVT.events.crawlFinish)
-    EVT.fire(EVT.events.crawlEmpty)
+    EVT.fire(EVT.list.crawlFinish)
+    EVT.fire(EVT.list.crawlEmpty)
     log.error(lang.transl('_抓取结果为零'), 2)
     window.alert(lang.transl('_抓取结果为零'))
   }

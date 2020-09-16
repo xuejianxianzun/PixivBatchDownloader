@@ -80,7 +80,7 @@ class SaveNamingRule {
 
   private select(rule: string) {
     this.ruleInput.value = rule
-    EVT.fire(EVT.events.settingChange, { name: 'userSetName', value: rule })
+    EVT.fire(EVT.list.settingChange, { name: 'userSetName', value: rule })
   }
 
   private handleChange() {

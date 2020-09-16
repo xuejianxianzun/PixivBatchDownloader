@@ -14,7 +14,7 @@ class Support {
     this.showNew()
     API.updateToken()
 
-    window.addEventListener(EVT.events.resetOption, () => {
+    window.addEventListener(EVT.list.resetSettings, () => {
       localStorage.removeItem('xzToken')
       API.updateToken()
     })
@@ -54,7 +54,7 @@ class Support {
     // 比较大小
     const latestVer = localStorage.getItem(verName)
     if (latestVer && manifestVer < latestVer) {
-      EVT.fire(EVT.events.hasNewVer)
+      EVT.fire(EVT.list.hasNewVer)
     }
   }
 
@@ -107,7 +107,7 @@ class Support {
     // 绑定无刷新切换页面的事件，只绑定一次
     ;['pushState', 'popstate', 'replaceState'].forEach((item) => {
       window.addEventListener(item, () => {
-        EVT.fire(EVT.events.pageSwitch)
+        EVT.fire(EVT.list.pageSwitch)
       })
     })
   }

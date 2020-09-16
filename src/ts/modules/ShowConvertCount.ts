@@ -11,7 +11,7 @@ class ShowConvertCount {
   private el: HTMLElement // 显示提示文本的容器
 
   private bindEvent() {
-    window.addEventListener(EVT.events.convertChange, (ev: CustomEventInit) => {
+    window.addEventListener(EVT.list.convertChange, (ev: CustomEventInit) => {
       const count = ev.detail.data
       let convertText = ''
       if (count > 0) {

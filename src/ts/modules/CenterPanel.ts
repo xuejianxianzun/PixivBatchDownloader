@@ -61,7 +61,7 @@ class CenterPanel {
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"> ${lang.transl(
       '_wiki'
     )}</a>
-      <a class="gray1" href="javascript:void()" id="resetOption">${lang.transl(
+      <a class="gray1" href="javascript:void()" id="resetSettings">${lang.transl(
       '_重置设置'
     )}</a>
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${lang.transl(
@@ -117,18 +117,13 @@ class CenterPanel {
         this.close()
       })
 
-    // 点击右侧图标时，显示
-    window.addEventListener(EVT.events.clickRightIcon, () => {
-      this.show()
-    })
-
     // 开始抓取作品时，隐藏
-    window.addEventListener(EVT.events.crawlStart, () => {
+    window.addEventListener(EVT.list.crawlStart, () => {
       this.close()
     })
 
     // 抓取完作品详细数据时，显示
-    for (const ev of [EVT.events.crawlFinish, EVT.events.resume]) {
+    for (const ev of [EVT.list.crawlFinish, EVT.list.resume]) {
       window.addEventListener(ev, () => {
         if (!states.quickDownload) {
           this.show()
@@ -136,16 +131,16 @@ class CenterPanel {
       })
     }
 
-    window.addEventListener(EVT.events.openCenterPanel, () => {
+    window.addEventListener(EVT.list.openCenterPanel, () => {
       this.show()
     })
 
-    window.addEventListener(EVT.events.closeCenterPanel, () => {
+    window.addEventListener(EVT.list.closeCenterPanel, () => {
       this.close()
     })
 
     // 显示更新按钮
-    window.addEventListener(EVT.events.hasNewVer, () => {
+    window.addEventListener(EVT.list.hasNewVer, () => {
       this.updateLink.classList.add(this.updateActiveClass)
       this.updateLink.style.display = 'inline-block'
     })
@@ -161,11 +156,11 @@ class CenterPanel {
 
     // 重置设置
     this.centerPanel
-      .querySelector('#resetOption')!
+      .querySelector('#resetSettings')!
       .addEventListener('click', () => {
         const result = window.confirm(lang.transl('_是否重置设置'))
         if (result) {
-          EVT.fire(EVT.events.resetOption)
+          EVT.fire(EVT.list.resetSettings)
         }
       })
   }
@@ -173,13 +168,13 @@ class CenterPanel {
   // 显示中间区域
   public show() {
     this.centerPanel.style.display = 'block'
-    EVT.fire(EVT.events.centerPanelOpened)
+    EVT.fire(EVT.list.centerPanelOpened)
   }
 
   // 隐藏中间区域
   public close() {
     this.centerPanel.style.display = 'none'
-    EVT.fire(EVT.events.centerPanelClosed)
+    EVT.fire(EVT.list.centerPanelClosed)
   }
 
   public toggle() {

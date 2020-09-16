@@ -60,15 +60,15 @@ class DownloadControl {
   private pause = false // 是否暂停下载
 
   private listenEvents() {
-    window.addEventListener(EVT.events.crawlStart, () => {
+    window.addEventListener(EVT.list.crawlStart, () => {
       this.hideDownloadArea()
       this.reset()
     })
 
     for (const ev of [
-      EVT.events.crawlFinish,
-      EVT.events.resultChange,
-      EVT.events.resume,
+      EVT.list.crawlFinish,
+      EVT.list.resultChange,
+      EVT.list.resume,
     ]) {
       window.addEventListener(ev, () => {
         window.setTimeout(() => {
@@ -77,12 +77,12 @@ class DownloadControl {
       })
     }
 
-    window.addEventListener(EVT.events.skipSaveFile, (ev: CustomEventInit) => {
+    window.addEventListener(EVT.list.skipDownload, (ev: CustomEventInit) => {
       const data = ev.detail.data as DonwloadSuccessData
       this.downloadSuccess(data)
     })
 
-    window.addEventListener(EVT.events.downloadError, (ev: CustomEventInit) => {
+    window.addEventListener(EVT.list.downloadError, (ev: CustomEventInit) => {
       const id = ev.detail.data as string
       this.downloadError(id)
     })
@@ -103,7 +103,7 @@ class DownloadControl {
         log.error(
           `${msg.data.id} download error! code: ${msg.err}. The downloader will try to download the file again `
         )
-        EVT.fire(EVT.events.saveFileError)
+        EVT.fire(EVT.list.saveFileError)
         // 重新下载这个文件
         this.saveFileError(msg.data)
       }
@@ -210,7 +210,7 @@ class DownloadControl {
 
     this.setDownloadThread()
 
-    EVT.fire(EVT.events.downloadStart)
+    EVT.fire(EVT.list.downloadStart)
 
     // 建立并发下载线程
     for (let i = 0; i < this.thread; i++) {
@@ -240,7 +240,7 @@ class DownloadControl {
         this.setDownStateText(lang.transl('_已暂停'), '#f00')
         log.warning(lang.transl('_已暂停'), 2)
 
-        EVT.fire(EVT.events.downloadPause)
+        EVT.fire(EVT.list.downloadPause)
       } else {
         // 不在下载中的话不允许启用暂停功能
         return
@@ -259,7 +259,7 @@ class DownloadControl {
     log.error(lang.transl('_已停止'), 2)
     this.pause = false
 
-    EVT.fire(EVT.events.downloadStop)
+    EVT.fire(EVT.list.downloadStop)
   }
 
   private downloadError(id: string) {
@@ -290,7 +290,7 @@ class DownloadControl {
     // 更改这个任务状态为“已完成”
     downloadStates.setState(task.index, 1)
     // 发送下载成功的事件
-    EVT.fire(EVT.events.downloadSuccess, data)
+    EVT.fire(EVT.list.downloadSuccess, data)
 
     // 统计已下载数量
     this.setDownloaded()
@@ -389,7 +389,7 @@ class DownloadControl {
     if (this.downloaded === store.result.length) {
       window.setTimeout(() => {
         // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
-        EVT.fire(EVT.events.downloadComplete)
+        EVT.fire(EVT.list.downloadComplete)
       }, 0)
       this.reset()
       this.setDownStateText(lang.transl('_下载完毕'), Colors.green)
@@ -430,7 +430,7 @@ class DownloadControl {
       return (total += now.url + '<br>')
     }, result)
 
-    EVT.fire(EVT.events.output, {
+    EVT.fire(EVT.list.output, {
       content: result,
       title: lang.transl('_复制url'),
     })

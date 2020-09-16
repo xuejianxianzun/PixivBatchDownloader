@@ -23,7 +23,7 @@ interface Field {
 class OutputCSV {
   constructor() {
     this.utf8BOM = this.UTF8BOM()
-    window.addEventListener(EVT.events.outputCSV, () => {
+    window.addEventListener(EVT.list.outputCSV, () => {
       this.beforeCreate()
     })
   }

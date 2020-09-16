@@ -6,7 +6,7 @@ class PageType {
     this.type = this.getPageType()
 
     // 页面切换时检查新旧页面是否不同
-    window.addEventListener(EVT.events.pageSwitch, () => {
+    window.addEventListener(EVT.list.pageSwitch, () => {
       this.checkPageTypeIsNew()
     })
   }
@@ -87,9 +87,9 @@ class PageType {
   private checkPageTypeIsNew() {
     let newType = this.getPageType()
     if (this.type !== newType) {
-      EVT.fire(EVT.events.pageSwitchedTypeChange, newType)
+      EVT.fire(EVT.list.pageSwitchedTypeChange, newType)
     } else {
-      EVT.fire(EVT.events.pageSwitchedTypeNotChange, newType)
+      EVT.fire(EVT.list.pageSwitchedTypeNotChange, newType)
     }
 
     // 保存当前页面类型

@@ -11,7 +11,7 @@ class DeleteWorks {
     this.worksSelector = worksSelectors
 
     // 作品列表更新后，需要重新给作品绑定删除事件
-    window.addEventListener(EVT.events.worksUpdate, () => {
+    window.addEventListener(EVT.list.worksUpdate, () => {
       if (this.delMode) {
         this.bindDeleteEvent()
       }
@@ -40,7 +40,7 @@ class DeleteWorks {
         if (states.busy) {
           return alert(lang.transl('_当前任务尚未完成'))
         }
-        EVT.fire(EVT.events.closeCenterPanel)
+        EVT.fire(EVT.list.closeCenterPanel)
         this.clearMultiple()
         callback()
       },
@@ -60,7 +60,7 @@ class DeleteWorks {
         if (states.busy) {
           return alert(lang.transl('_当前任务尚未完成'))
         }
-        EVT.fire(EVT.events.closeCenterPanel)
+        EVT.fire(EVT.list.closeCenterPanel)
         this.ClearUgoira()
         callback()
       },
@@ -86,7 +86,7 @@ class DeleteWorks {
       if (this.delMode) {
         delBtn.textContent = lang.transl('_退出手动删除')
         setTimeout(() => {
-          EVT.fire(EVT.events.closeCenterPanel)
+          EVT.fire(EVT.list.closeCenterPanel)
         }, 100)
       } else {
         delBtn.textContent = lang.transl('_手动删除作品')

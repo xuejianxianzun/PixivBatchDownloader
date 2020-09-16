@@ -34,40 +34,40 @@ class TitleBar {
   private timer: number = 0 // title 闪烁时，使用的定时器
 
   private bindEvent() {
-    window.addEventListener(EVT.events.crawlStart, () => {
+    window.addEventListener(EVT.list.crawlStart, () => {
       this.set('crawling')
     })
 
-    window.addEventListener(EVT.events.worksUpdate, () => {
+    window.addEventListener(EVT.list.worksUpdate, () => {
       this.set('waiting')
     })
 
     for (const ev of [
-      EVT.events.crawlFinish,
-      EVT.events.resultChange,
-      EVT.events.resume,
+      EVT.list.crawlFinish,
+      EVT.list.resultChange,
+      EVT.list.resume,
     ]) {
       window.addEventListener(ev, () => {
         this.set('readyDownload')
       })
     }
 
-    window.addEventListener(EVT.events.downloadStart, () => {
+    window.addEventListener(EVT.list.downloadStart, () => {
       this.set('downloading')
     })
 
-    window.addEventListener(EVT.events.downloadComplete, () => {
+    window.addEventListener(EVT.list.downloadComplete, () => {
       this.set('completed')
     })
 
-    window.addEventListener(EVT.events.downloadPause, () => {
+    window.addEventListener(EVT.list.downloadPause, () => {
       this.set('paused')
     })
 
-    window.addEventListener(EVT.events.downloadStop, () => {
+    window.addEventListener(EVT.list.downloadStop, () => {
       this.set('stopped')
     })
-    window.addEventListener(EVT.events.crawlEmpty, () => {
+    window.addEventListener(EVT.list.crawlEmpty, () => {
       this.reset()
     })
   }

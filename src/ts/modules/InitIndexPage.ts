@@ -42,7 +42,7 @@ class InitIndexPage extends InitPageBase {
       Colors.green,
       lang.transl('_清空已保存的抓取结果')
     ).addEventListener('click', () => {
-      EVT.fire(EVT.events.clearSavedCrawl)
+      EVT.fire(EVT.list.clearSavedCrawl)
     })
   }
 
@@ -56,7 +56,7 @@ class InitIndexPage extends InitPageBase {
       () => {
         if (!this.ready) {
           // 还没准备好
-          EVT.fire(EVT.events.closeCenterPanel)
+          EVT.fire(EVT.list.closeCenterPanel)
           this.downIdInput.style.display = 'block'
           this.downIdInput.focus()
           document.documentElement.scrollTop = 0
@@ -71,11 +71,11 @@ class InitIndexPage extends InitPageBase {
     this.downIdInput.addEventListener('change', () => {
       if (this.downIdInput.value !== '') {
         this.ready = true
-        EVT.fire(EVT.events.openCenterPanel)
+        EVT.fire(EVT.list.openCenterPanel)
         this.downIdButton.textContent = lang.transl('_开始抓取')
       } else {
         this.ready = false
-        EVT.fire(EVT.events.closeCenterPanel)
+        EVT.fire(EVT.list.closeCenterPanel)
         this.downIdButton.textContent = lang.transl('_输入id进行抓取')
       }
     })

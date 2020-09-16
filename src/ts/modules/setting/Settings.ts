@@ -288,20 +288,20 @@ class SaveSettings {
     this.saveCheckBox('fileNameLengthLimitSwitch')
     this.saveTextInput('fileNameLengthLimit')
 
-    window.addEventListener(EVT.events.resetOption, () => {
+    window.addEventListener(EVT.list.resetSettings, () => {
       form.reset()
       this.reset()
     })
   }
 
   private emitChange(name: string, value: string | number | boolean) {
-    EVT.fire(EVT.events.settingChange, { name: name, value: value })
+    EVT.fire(EVT.list.settingChange, { name: name, value: value })
   }
 
   // 设置发生改变时，保存设置到本地存储
   private handleChange() {
     window.addEventListener(
-      EVT.events.settingChange,
+      EVT.list.settingChange,
       (event: CustomEventInit) => {
         const data = event.detail.data as SettingChangeData
         if (Reflect.has(this.optionDefault, data.name)) {
@@ -459,7 +459,7 @@ class SaveSettings {
     this.restoreString('fileNameLengthLimit')
 
     // 恢复完毕之后触发一次设置改变事件
-    EVT.fire(EVT.events.settingChange)
+    EVT.fire(EVT.list.settingChange)
   }
 
   // 重设选项
@@ -471,7 +471,7 @@ class SaveSettings {
     // 重设选项
     this.restoreOption()
     // 触发设置改变事件
-    EVT.fire(EVT.events.settingChange)
+    EVT.fire(EVT.list.settingChange)
   }
 }
 

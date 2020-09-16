@@ -27,10 +27,10 @@ class States {
 
   private bindEvent() {
     const idle = [
-      EVT.events.crawlFinish,
-      EVT.events.downloadPause,
-      EVT.events.downloadStop,
-      EVT.events.downloadComplete,
+      EVT.list.crawlFinish,
+      EVT.list.downloadPause,
+      EVT.list.downloadStop,
+      EVT.list.downloadComplete,
     ]
 
     idle.forEach((type) => {
@@ -39,7 +39,7 @@ class States {
       })
     })
 
-    const busy = [EVT.events.crawlStart, EVT.events.downloadStart]
+    const busy = [EVT.list.crawlStart, EVT.list.downloadStart]
 
     busy.forEach((type) => {
       window.addEventListener(type, () => {

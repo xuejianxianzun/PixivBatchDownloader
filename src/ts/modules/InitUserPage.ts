@@ -36,7 +36,7 @@ class InitUserPage extends InitPageBase {
     DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像为图标'), [
       ['title', lang.transl('_保存用户头像为图标说明')],
     ]).addEventListener('click', () => {
-      EVT.fire(EVT.events.saveAvatarIcon)
+      EVT.fire(EVT.list.saveAvatarIcon)
     })
   }
 

@@ -81,7 +81,7 @@ class Options {
     this.wantPageEls.input.value = arg.value
 
     // 这里由代码直接进行设置，不会触发 change 事件，所以手动触发 settingChange 事件，使其他组件能够接收到通知
-    EVT.fire(EVT.events.settingChange, {
+    EVT.fire(EVT.list.settingChange, {
       name: 'setWantPage',
       value: arg.value,
     })

@@ -34,7 +34,7 @@ class ToWebM {
       // 获取生成的视频
       file = await this.encodeVideo(encoder)
 
-      EVT.fire(EVT.events.convertSuccess)
+      EVT.fire(EVT.list.convertSuccess)
 
       resolve(file)
     })

@@ -157,12 +157,12 @@ class Resume {
     log.success(lang.transl('_已恢复抓取结果'), 2)
 
     // 发出恢复下载的信号
-    EVT.fire(EVT.events.resume)
+    EVT.fire(EVT.list.resume)
   }
 
   private bindEvent() {
     // 抓取完成时，保存这次任务的数据
-    const evs = [EVT.events.crawlFinish, EVT.events.resultChange]
+    const evs = [EVT.list.crawlFinish, EVT.list.resultChange]
     for (const ev of evs) {
       window.addEventListener(ev, async () => {
         // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
@@ -210,12 +210,12 @@ class Resume {
     }
 
     // 当有文件下载完成时，更新下载状态
-    window.addEventListener(EVT.events.downloadSuccess, () => {
+    window.addEventListener(EVT.list.downloadSuccess, () => {
       this.needPutStates = true
     })
 
     // 任务下载完毕时，以及停止任务时，清除这次任务的数据
-    const clearDataEv = [EVT.events.downloadComplete, EVT.events.downloadStop]
+    const clearDataEv = [EVT.list.downloadComplete, EVT.list.downloadStop]
     for (const ev of clearDataEv) {
       window.addEventListener(ev, async () => {
         if (!this.taskId) {
@@ -242,18 +242,18 @@ class Resume {
     }
 
     // 开始新的抓取时，取消恢复模式
-    window.addEventListener(EVT.events.crawlStart, () => {
+    window.addEventListener(EVT.list.crawlStart, () => {
       this.flag = false
     })
 
     // 切换页面时，重新检查恢复数据
-    window.addEventListener(EVT.events.pageSwitch, () => {
+    window.addEventListener(EVT.list.pageSwitch, () => {
       this.flag = false
       this.restoreData()
     })
 
     // 清空已保存的抓取结果
-    window.addEventListener(EVT.events.clearSavedCrawl, () => {
+    window.addEventListener(EVT.list.clearSavedCrawl, () => {
       this.flag = false
       this.clearSavedCrawl()
     })

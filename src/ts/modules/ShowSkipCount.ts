@@ -12,26 +12,26 @@ class ShowSkipCount {
   private el: HTMLElement // 显示提示文本的容器
 
   private bindEvent() {
-    window.addEventListener(EVT.events.crawlStart, () => {
+    window.addEventListener(EVT.list.crawlStart, () => {
       this.reset()
     })
 
-    window.addEventListener(EVT.events.downloadStop, () => {
+    window.addEventListener(EVT.list.downloadStop, () => {
       // 重置计数但不清空提示文字，因为用户还需要看
       this.count = 0
     })
 
-    window.addEventListener(EVT.events.skipSaveFile, () => {
+    window.addEventListener(EVT.list.skipDownload, () => {
       this.addCount()
     })
 
-    window.addEventListener(EVT.events.downloadStart, () => {
+    window.addEventListener(EVT.list.downloadStart, () => {
       if (this.count === 0) {
         this.reset()
       }
     })
 
-    window.addEventListener(EVT.events.downloadComplete, () => {
+    window.addEventListener(EVT.list.downloadComplete, () => {
       // 重置计数但不清空提示文字，因为用户还需要看
       this.count = 0
     })

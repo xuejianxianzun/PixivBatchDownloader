@@ -12,7 +12,7 @@ class SaveAvatarIcon {
   }
 
   private bindEvents() {
-    window.addEventListener(EVT.events.saveAvatarIcon, () => {
+    window.addEventListener(EVT.list.saveAvatarIcon, () => {
       this.saveAvatarIcon()
     })
   }
@@ -38,7 +38,7 @@ class SaveAvatarIcon {
     DOM.downloadFile(url, name)
 
     log.success('✓ ' + lang.transl('_保存用户头像为图标'))
-    EVT.fire(EVT.events.closeCenterPanel)
+    EVT.fire(EVT.list.closeCenterPanel)
   }
 }
 

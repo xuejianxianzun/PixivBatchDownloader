@@ -29,7 +29,7 @@ class InitPage {
     this.initPage()
 
     // 页面类型变化时，初始化抓取流程
-    window.addEventListener(EVT.events.pageSwitchedTypeChange, () => {
+    window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
       setTimeout(() => {
         this.initPage()
       }, 0)

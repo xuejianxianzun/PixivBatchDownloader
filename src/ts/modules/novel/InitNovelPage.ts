@@ -33,13 +33,13 @@ class InitNovelPage extends InitPageBase {
     this.initQuickBookmark()
 
     window.addEventListener(
-      EVT.events.pageSwitchedTypeNotChange,
+      EVT.list.pageSwitchedTypeNotChange,
       this.initQuickBookmark
     )
 
     // 初始化快速下载按钮
     new QuickDownloadBtn()
-    window.addEventListener(EVT.events.QuickDownload, this.startQuickDownload)
+    window.addEventListener(EVT.list.QuickDownload, this.startQuickDownload)
   }
 
   private initQuickBookmark() {
@@ -70,7 +70,7 @@ class InitNovelPage extends InitPageBase {
     DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像为图标'), [
       ['title', lang.transl('_保存用户头像为图标说明')],
     ]).addEventListener('click', () => {
-      EVT.fire(EVT.events.saveAvatarIcon)
+      EVT.fire(EVT.list.saveAvatarIcon)
     })
   }
 
@@ -99,12 +99,12 @@ class InitNovelPage extends InitPageBase {
     DOM.removeEl(this.quickDownBtn)
 
     window.removeEventListener(
-      EVT.events.pageSwitchedTypeNotChange,
+      EVT.list.pageSwitchedTypeNotChange,
       this.initQuickBookmark
     )
 
     window.removeEventListener(
-      EVT.events.QuickDownload,
+      EVT.list.QuickDownload,
       this.startQuickDownload
     )
   }

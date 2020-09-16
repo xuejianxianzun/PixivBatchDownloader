@@ -30,7 +30,7 @@ class QuickDownloadBtn {
       'click',
       () => {
         states.quickDownload = true
-        EVT.fire(EVT.events.QuickDownload)
+        EVT.fire(EVT.list.QuickDownload)
       },
       false
     )
@@ -41,7 +41,7 @@ class QuickDownloadBtn {
       (ev) => {
         if (this.live && ev.altKey && ev.code === 'KeyQ') {
           states.quickDownload = true
-          EVT.fire(EVT.events.QuickDownload)
+          EVT.fire(EVT.list.QuickDownload)
         }
       },
       false
@@ -49,10 +49,10 @@ class QuickDownloadBtn {
 
     // 下载完成，或者下载中止时，复位状态
     const evtList = [
-      EVT.events.crawlEmpty,
-      EVT.events.downloadStop,
-      EVT.events.downloadPause,
-      EVT.events.downloadComplete,
+      EVT.list.crawlEmpty,
+      EVT.list.downloadStop,
+      EVT.list.downloadPause,
+      EVT.list.downloadComplete,
     ]
 
     for (const ev of evtList) {
@@ -62,7 +62,7 @@ class QuickDownloadBtn {
     }
 
     // 页面类型改变时销毁
-    window.addEventListener(EVT.events.pageSwitchedTypeChange, () => {
+    window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
       this.destroy()
     })
   }

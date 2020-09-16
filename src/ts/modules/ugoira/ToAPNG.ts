@@ -43,7 +43,7 @@ class ToAPNG {
         type: 'image/vnd.mozilla.apng',
       })
 
-      EVT.fire(EVT.events.convertSuccess)
+      EVT.fire(EVT.list.convertSuccess)
 
       resolve(blob)
     })

@@ -71,7 +71,7 @@ class Store {
     // 添加该作品的元数据
     const result = this.assignResult(data)
     this.resultMeta.push(result)
-    EVT.fire(EVT.events.addResult, result)
+    EVT.fire(EVT.list.addResult, result)
 
     if (result.type === 3) {
       this.result.push(result)
@@ -106,11 +106,11 @@ class Store {
   }
 
   private bindEvent() {
-    window.addEventListener(EVT.events.crawlStart, () => {
+    window.addEventListener(EVT.list.crawlStart, () => {
       this.reset()
     })
 
-    window.addEventListener(EVT.events.resume, () => {
+    window.addEventListener(EVT.list.resume, () => {
       this.tag = API.getTagFromURL()
       this.title = DOM.getTitle()
     })

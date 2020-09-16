@@ -32,7 +32,7 @@ class Download {
   private sizeChecked = false // 是否对文件体积进行了检查
 
   private listenEvents() {
-    ;[EVT.events.downloadStop, EVT.events.downloadPause].forEach((event) => {
+    ;[EVT.list.downloadStop, EVT.list.downloadPause].forEach((event) => {
       window.addEventListener(event, () => {
         this.cancel = true
       })
@@ -51,7 +51,7 @@ class Download {
   private skip(data: DonwloadSuccessData, msg = '') {
     this.cancel = true
     log.warning(msg)
-    EVT.fire(EVT.events.skipSaveFile, data)
+    EVT.fire(EVT.list.skipDownload, data)
   }
 
   // 下载文件
@@ -135,7 +135,7 @@ class Download {
         log.error(msg, 1)
 
         this.cancel = true
-        EVT.fire(EVT.events.downloadError, arg.id)
+        EVT.fire(EVT.list.downloadError, arg.id)
       }
 
       if (xhr.status !== 200) {
@@ -182,7 +182,7 @@ class Download {
             log.error(msg, 1)
 
             this.cancel = true
-            EVT.fire(EVT.events.downloadError, arg.id)
+            EVT.fire(EVT.list.downloadError, arg.id)
           }
         }
       }

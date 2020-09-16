@@ -7,27 +7,27 @@ import { toAPNG } from './ToAPNG'
 // 控制动图转换
 class ConvertUgoira {
   constructor() {
-    window.addEventListener(EVT.events.downloadStart, () => {
+    window.addEventListener(EVT.list.downloadStart, () => {
       this.downloading = true
     })
-    ;[EVT.events.downloadPause, EVT.events.downloadStop].forEach((event) => {
+    ;[EVT.list.downloadPause, EVT.list.downloadStop].forEach((event) => {
       window.addEventListener(event, () => {
         this.downloading = false
       })
     })
 
-    window.addEventListener(EVT.events.settingChange, (ev: CustomEventInit) => {
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data
       if (data.name === 'convertUgoiraThread') {
         this.maxCount = parseInt(data.value) || 1
       }
     })
 
-    window.addEventListener(EVT.events.convertSuccess, () => {
+    window.addEventListener(EVT.list.convertSuccess, () => {
       this.complete()
     })
 
-    window.addEventListener(EVT.events.convertError, () => {
+    window.addEventListener(EVT.list.readZipError, () => {
       this.complete()
     })
   }
@@ -40,7 +40,7 @@ class ConvertUgoira {
 
   private set count(num: number) {
     this._count = num
-    EVT.fire(EVT.events.convertChange, this._count)
+    EVT.fire(EVT.list.convertChange, this._count)
   }
 
   private async start(

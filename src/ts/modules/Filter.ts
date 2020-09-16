@@ -161,7 +161,7 @@ class Filter {
 
   // 当需要时抛出错误
   private throwError(msg: string) {
-    EVT.fire(EVT.events.crawlError)
+    EVT.fire(EVT.list.wrongSetting)
     log.error(msg, 2)
     window.alert(msg)
     throw new Error(msg)
@@ -362,7 +362,7 @@ class Filter {
     if (result === '1' || result === '2') {
       let id = parseInt(settings.idRangeInput)
       if (isNaN(id)) {
-        EVT.fire(EVT.events.crawlError)
+        EVT.fire(EVT.list.wrongSetting)
 
         const msg = 'id is not a number!'
         window.alert(msg)
@@ -393,7 +393,7 @@ class Filter {
       // 如果输入的时间可以被转换成有效的时间，则启用
       // 转换时间失败时，值是 Invalid Date，不能转换成数字
       if (isNaN(postDateStart.getTime()) || isNaN(postDateEnd.getTime())) {
-        EVT.fire(EVT.events.crawlError)
+        EVT.fire(EVT.list.wrongSetting)
 
         const msg = 'Date format error!'
         log.error(msg)
@@ -694,11 +694,11 @@ class Filter {
   }
 
   private bindEvent() {
-    window.addEventListener(EVT.events.crawlStart, () => {
+    window.addEventListener(EVT.list.crawlStart, () => {
       this.init()
     })
 
-    window.addEventListener(EVT.events.resume, () => {
+    window.addEventListener(EVT.list.resume, () => {
       // 当需要恢复下载时，初始化过滤器。否则过滤器不会进行过滤
       this.init()
     })

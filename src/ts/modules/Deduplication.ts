@@ -86,14 +86,14 @@ class Deduplication {
 
   private bindEvent() {
     // 当有文件被跳过时，保存到 skipIdList
-    window.addEventListener(EVT.events.skipSaveFile, (ev: CustomEventInit) => {
+    window.addEventListener(EVT.list.skipDownload, (ev: CustomEventInit) => {
       const data = ev.detail.data as DonwloadSuccessData
       this.skipIdList.push(data.id)
     })
 
     // 当有文件下载完成时，存储这个任务的记录
     window.addEventListener(
-      EVT.events.downloadSuccess,
+      EVT.list.downloadSuccess,
       (ev: CustomEventInit) => {
         const successData = ev.detail.data as DonwloadSuccessData
 
@@ -115,7 +115,7 @@ class Deduplication {
     )
 
       // 当抓取完成、下载完成时，清空 skipIdList 列表
-      ;[EVT.events.crawlFinish, EVT.events.downloadComplete].forEach((val) => {
+      ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach((val) => {
         window.addEventListener(val, () => {
           this.skipIdList = []
         })
@@ -125,12 +125,12 @@ class Deduplication {
     const btn = document.querySelector('#clearDownloadRecords')
     if (btn) {
       btn.addEventListener('click', () => {
-        EVT.fire(EVT.events.clearDownloadRecords)
+        EVT.fire(EVT.list.clearDownloadRecords)
       })
     }
 
     // 监听清空下载记录的事件
-    window.addEventListener(EVT.events.clearDownloadRecords, () => {
+    window.addEventListener(EVT.list.clearDownloadRecords, () => {
       // 清空下载记录
       this.clearRecords()
 

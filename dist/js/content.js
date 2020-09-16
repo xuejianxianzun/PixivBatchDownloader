@@ -975,7 +975,7 @@ class CenterPanel {
       <div class="gray1 bottom_help_bar"> 
       <a href="javascript:void()" class="showDownTip gray1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_常见问题')}</a>
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_wiki')}</a>
-      <a class="gray1" href="javascript:void()" id="resetOption">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_重置设置')}</a>
+      <a class="gray1" href="javascript:void()" id="resetSettings">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_重置设置')}</a>
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_fanboxDownloader')}</a>
       <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">通过“爱发电”网站支持我</a>
       <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
@@ -1014,30 +1014,26 @@ class CenterPanel {
             .addEventListener('click', () => {
             this.close();
         });
-        // 点击右侧图标时，显示
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.clickRightIcon, () => {
-            this.show();
-        });
         // 开始抓取作品时，隐藏
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlStart, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlStart, () => {
             this.close();
         });
         // 抓取完作品详细数据时，显示
-        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resume]) {
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume]) {
             window.addEventListener(ev, () => {
                 if (!_States__WEBPACK_IMPORTED_MODULE_3__["states"].quickDownload) {
                     this.show();
                 }
             });
         }
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.openCenterPanel, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.openCenterPanel, () => {
             this.show();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.closeCenterPanel, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.closeCenterPanel, () => {
             this.close();
         });
         // 显示更新按钮
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.hasNewVer, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.hasNewVer, () => {
             this.updateLink.classList.add(this.updateActiveClass);
             this.updateLink.style.display = 'inline-block';
         });
@@ -1047,23 +1043,23 @@ class CenterPanel {
             .addEventListener('click', () => _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].toggleEl(this.centerPanel.querySelector('.downTip')));
         // 重置设置
         this.centerPanel
-            .querySelector('#resetOption')
+            .querySelector('#resetSettings')
             .addEventListener('click', () => {
             const result = window.confirm(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_是否重置设置'));
             if (result) {
-                _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resetOption);
+                _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resetSettings);
             }
         });
     }
     // 显示中间区域
     show() {
         this.centerPanel.style.display = 'block';
-        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.centerPanelOpened);
+        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.centerPanelOpened);
     }
     // 隐藏中间区域
     close() {
         this.centerPanel.style.display = 'none';
-        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.centerPanelClosed);
+        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.centerPanelClosed);
     }
     toggle() {
         const nowDisplay = this.centerPanel.style.display;
@@ -1386,12 +1382,12 @@ class Deduplication {
     }
     bindEvent() {
         // 当有文件被跳过时，保存到 skipIdList
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.skipSaveFile, (ev) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.skipDownload, (ev) => {
             const data = ev.detail.data;
             this.skipIdList.push(data.id);
         });
         // 当有文件下载完成时，存储这个任务的记录
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadSuccess, (ev) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadSuccess, (ev) => {
             const successData = ev.detail.data;
             // 不储存被跳过下载的文件
             if (this.skipIdList.includes(successData.id)) {
@@ -1407,7 +1403,7 @@ class Deduplication {
                 });
             }
         });
-        [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadComplete].forEach((val) => {
+        [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete].forEach((val) => {
             window.addEventListener(val, () => {
                 this.skipIdList = [];
             });
@@ -1416,11 +1412,11 @@ class Deduplication {
         const btn = document.querySelector('#clearDownloadRecords');
         if (btn) {
             btn.addEventListener('click', () => {
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.clearDownloadRecords);
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearDownloadRecords);
             });
         }
         // 监听清空下载记录的事件
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.clearDownloadRecords, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearDownloadRecords, () => {
             // 清空下载记录
             this.clearRecords();
             // 清空 duplicateList
@@ -1506,7 +1502,7 @@ class DeleteWorks {
         this.deleteWorkCallback = () => { }; // 保存手动删除作品的回调函数，因为可能会多次绑定手动删除事件，所以需要保存传入的 callback 备用
         this.worksSelector = worksSelectors;
         // 作品列表更新后，需要重新给作品绑定删除事件
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.worksUpdate, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.worksUpdate, () => {
             if (this.delMode) {
                 this.bindDeleteEvent();
             }
@@ -1521,7 +1517,7 @@ class DeleteWorks {
             if (_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
                 return alert(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
             }
-            _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.closeCenterPanel);
+            _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.closeCenterPanel);
             this.clearMultiple();
             callback();
         }, false);
@@ -1535,7 +1531,7 @@ class DeleteWorks {
             if (_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
                 return alert(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
             }
-            _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.closeCenterPanel);
+            _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.closeCenterPanel);
             this.ClearUgoira();
             callback();
         }, false);
@@ -1550,7 +1546,7 @@ class DeleteWorks {
             if (this.delMode) {
                 delBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_退出手动删除');
                 setTimeout(() => {
-                    _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.closeCenterPanel);
+                    _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.closeCenterPanel);
                 }, 100);
             }
             else {
@@ -1650,7 +1646,7 @@ class Download {
     }
     listenEvents() {
         ;
-        [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadStop, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadPause].forEach((event) => {
+        [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadPause].forEach((event) => {
             window.addEventListener(event, () => {
                 this.cancel = true;
             });
@@ -1667,7 +1663,7 @@ class Download {
     skip(data, msg = '') {
         this.cancel = true;
         _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(msg);
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.skipSaveFile, data);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.skipDownload, data);
     }
     // 下载文件
     async download(arg) {
@@ -1733,7 +1729,7 @@ class Download {
                 }
                 _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(msg, 1);
                 this.cancel = true;
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadError, arg.id);
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadError, arg.id);
             };
             if (xhr.status !== 200) {
                 // 状态码错误
@@ -1776,7 +1772,7 @@ class Download {
                         const msg = `Error: convert ugoira error, work id ${arg.data.idNum}.`;
                         _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(msg, 1);
                         this.cancel = true;
-                        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadError, arg.id);
+                        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadError, arg.id);
                     }
                 }
             }
@@ -1880,12 +1876,12 @@ class DownloadButton {
     }
     bindEvents() {
         this.btn.addEventListener('click', () => {
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.clickRightIcon);
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.openCenterPanel);
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.centerPanelClosed, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.centerPanelClosed, () => {
             this.show();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.centerPanelOpened, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.centerPanelOpened, () => {
             this.hide();
         });
     }
@@ -1960,14 +1956,14 @@ class DownloadControl {
         new _ShowConvertCount__WEBPACK_IMPORTED_MODULE_11__["ShowConvertCount"](convertTipWrap);
     }
     listenEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlStart, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlStart, () => {
             this.hideDownloadArea();
             this.reset();
         });
         for (const ev of [
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resultChange,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resume,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resume,
         ]) {
             window.addEventListener(ev, () => {
                 window.setTimeout(() => {
@@ -1975,11 +1971,11 @@ class DownloadControl {
                 }, 0);
             });
         }
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.skipSaveFile, (ev) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.skipDownload, (ev) => {
             const data = ev.detail.data;
             this.downloadSuccess(data);
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadError, (ev) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadError, (ev) => {
             const id = ev.detail.data;
             this.downloadError(id);
         });
@@ -1997,7 +1993,7 @@ class DownloadControl {
             else if (msg.msg === 'download_err') {
                 // 浏览器把文件保存到本地时出错
                 _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(`${msg.data.id} download error! code: ${msg.err}. The downloader will try to download the file again `);
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.saveFileError);
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.saveFileError);
                 // 重新下载这个文件
                 this.saveFileError(msg.data);
             }
@@ -2077,7 +2073,7 @@ class DownloadControl {
         this.setDownloaded();
         this.taskBatch = new Date().getTime(); // 修改本批下载任务的标记
         this.setDownloadThread();
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadStart);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStart);
         // 建立并发下载线程
         for (let i = 0; i < this.thread; i++) {
             this.createDownload(i);
@@ -2100,7 +2096,7 @@ class DownloadControl {
                 this.pause = true;
                 this.setDownStateText(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_已暂停'), '#f00');
                 _Log__WEBPACK_IMPORTED_MODULE_3__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_已暂停'), 2);
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadPause);
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadPause);
             }
             else {
                 // 不在下载中的话不允许启用暂停功能
@@ -2117,7 +2113,7 @@ class DownloadControl {
         this.setDownStateText(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_已停止'), '#f00');
         _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_已停止'), 2);
         this.pause = false;
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadStop);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop);
     }
     downloadError(id) {
         this.errorIdList.push(id);
@@ -2143,7 +2139,7 @@ class DownloadControl {
         // 更改这个任务状态为“已完成”
         _DownloadStates__WEBPACK_IMPORTED_MODULE_9__["downloadStates"].setState(task.index, 1);
         // 发送下载成功的事件
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadSuccess, data);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadSuccess, data);
         // 统计已下载数量
         this.setDownloaded();
         // 是否继续下载
@@ -2230,7 +2226,7 @@ class DownloadControl {
         if (this.downloaded === _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length) {
             window.setTimeout(() => {
                 // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadComplete);
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete);
             }, 0);
             this.reset();
             this.setDownStateText(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕'), _Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].green);
@@ -2263,7 +2259,7 @@ class DownloadControl {
         result = _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.reduce((total, now) => {
             return (total += now.url + '<br>');
         }, result);
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.output, {
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.output, {
             content: result,
             title: _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_复制url'),
         });
@@ -2307,7 +2303,7 @@ class DownloadStates {
     }
     bindEvent() {
         // 初始化下载状态
-        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resultChange];
+        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange];
         for (const ev of evs) {
             window.addEventListener(ev, () => {
                 this.init();
@@ -2379,7 +2375,7 @@ const downloadStates = new DownloadStates();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "EVT", function() { return EVT; });
-// 事件类
+// 触发自定义事件
 class EVT {
     // 触发事件，可以携带数据
     static fire(type, data = '') {
@@ -2389,52 +2385,87 @@ class EVT {
         window.dispatchEvent(event);
     }
 }
-// 事件名称列表
-EVT.events = {
+EVT.list = {
+    // 当抓取开始时触发
     crawlStart: 'crawlStart',
+    // 当检查到错误的设置时触发
+    wrongSetting: 'wrongSetting',
+    // 当抓取完成时触发。不管结果是否为空都会触发
     crawlFinish: 'crawlFinish',
+    // 当抓取结果为空时触发。触发时机晚于 crawlFinish
     crawlEmpty: 'crawlEmpty',
-    crawlError: 'crawlError',
+    // store 里每存储一个作品的元数据，就触发一次。如果一个元数据产生了多个结果（多图作品），只触发一次
     addResult: 'addResult',
-    downloadStart: 'downloadStart',
-    downloadPause: 'downloadPause',
-    downloadStop: 'downloadStop',
-    download: 'download',
-    downloadSuccess: 'downloadSuccess',
-    downloadError: 'downloadError',
-    downloadComplete: 'downloadComplete',
-    pageSwitch: 'pageSwitch',
-    pageSwitchedTypeChange: 'pageSwitchedTypeChange',
-    pageSwitchedTypeNotChange: 'pageSwitchedTypeNotChange',
-    resetOption: 'resetOption',
-    convertChange: 'convertChange',
-    previewFileName: 'previewFileName',
-    output: 'output',
-    openCenterPanel: 'openCenterPanel',
-    closeCenterPanel: 'closeCenterPanel',
-    centerPanelOpened: 'centerPanelOpened',
-    centerPanelClosed: 'centerPanelClosed',
-    clearMultiple: 'clearMultiple',
-    clearUgoira: 'clearUgoira',
-    deleteWork: 'deleteWork',
-    worksUpdate: 'worksUpdate',
-    settingChange: 'settingChange',
-    clickRightIcon: 'clickRightIcon',
-    destroy: 'destroy',
-    convertError: 'convertError',
-    convertSuccess: 'convertSuccess',
-    skipSaveFile: 'skipSaveFile',
-    saveFileError: 'saveFileError',
-    hasNewVer: 'hasNewVer',
-    restoreDownload: 'restoreDownload',
-    DBupgradeneeded: 'DBupgradeneeded',
-    clearDownloadRecords: 'clearDownloadRecords',
-    saveAvatarIcon: 'saveAvatarIcon',
-    clearSavedCrawl: 'clearSavedCrawl',
-    resume: 'resume',
-    outputCSV: 'outputCSV',
-    QuickDownload: 'QuickDownload',
+    // 当抓取完毕之后，抓取结果又发生变化时触发（比如进行多次筛选、改变设置项等，导致结果变化）
     resultChange: 'resultChange',
+    // 当进行快速下载时触发
+    QuickDownload: 'QuickDownload',
+    // 开始下载时触发
+    downloadStart: 'downloadStart',
+    // 下载状态变成暂停时触发
+    downloadPause: 'downloadPause',
+    // 下载状态变成停止时触发
+    downloadStop: 'downloadStop',
+    // 当文件在下载阶段下载失败时触发
+    // 当动图转换出错时触发
+    downloadError: 'downloadError',
+    // 当一个文件在下载阶段被跳过时触发
+    skipDownload: 'skipDownload',
+    // 当浏览器把一个文件保存到本地失败时触发
+    saveFileError: 'saveFileError',
+    // 当下载的文件传递给浏览器进行保存，并且成功保存之后触发
+    // skipDownload 也会触发这个事件
+    downloadSuccess: 'downloadSuccess',
+    // 下载队列里的所有文件都已经下载并保存完毕，并且没有出错的。如果有出错的，就不会触发这个事件
+    downloadComplete: 'downloadComplete',
+    // 页面切换
+    pageSwitch: 'pageSwitch',
+    // 页面切换，并且页面类型变化
+    pageSwitchedTypeChange: 'pageSwitchedTypeChange',
+    // 页面切换，并且页面类型不变
+    pageSwitchedTypeNotChange: 'pageSwitchedTypeNotChange',
+    // 重置所有设置
+    resetSettings: 'resetSettings',
+    // 当动图转换数量发生变化时触发
+    convertChange: 'convertChange',
+    // 当读取/解压 zip 文件出错时触发
+    readZipError: 'readZipError',
+    // 当动图转换成功时触发
+    convertSuccess: 'convertSuccess',
+    // 指示打开中间面板
+    openCenterPanel: 'openCenterPanel',
+    // 指示关闭中间面板
+    closeCenterPanel: 'closeCenterPanel',
+    // 中间面板已打开
+    centerPanelOpened: 'centerPanelOpened',
+    // 中间面板已关闭
+    centerPanelClosed: 'centerPanelClosed',
+    // 当清除多图作品时触发
+    clearMultiple: 'clearMultiple',
+    // 当清除动图作品时触发
+    clearUgoira: 'clearUgoira',
+    // 当手动删除作品时触发
+    deleteWork: 'deleteWork',
+    // 当下载器在页面上创建的作品列表全部完成时触发
+    worksUpdate: 'worksUpdate',
+    // 当需要清空下载记录时触发（指用于检测重复文件的下载记录）
+    clearDownloadRecords: 'clearDownloadRecords',
+    // 当需要清空断点续传的数据时触发
+    clearSavedCrawl: 'clearSavedCrawl',
+    // 当从断点续传数据恢复了下载时触发
+    resume: 'resume',
+    // 当需要导出 csv 文件时触发
+    outputCSV: 'outputCSV',
+    // 当需要保存用户头像为图标时触发
+    saveAvatarIcon: 'saveAvatarIcon',
+    // 当需要预览文件名时触发
+    previewFileName: 'previewFileName',
+    // 当需要输出面板输出内容时触发
+    output: 'output',
+    // 当设置表单里的设置项发生变化时触发
+    settingChange: 'settingChange',
+    // 当下载器检测到有新版本时触发
+    hasNewVer: 'hasNewVer',
 };
 
 
@@ -2474,7 +2505,7 @@ class FastScreen {
             '50000users入り',
         ]; // 200 和 2000 的因为数量太少，不添加。40000 的也少
         this.create();
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.pageSwitchedTypeChange, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitchedTypeChange, () => {
             this.destroy();
         });
     }
@@ -2553,7 +2584,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class FileName {
     constructor() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.previewFileName, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.previewFileName, () => {
             this.previewFileName();
         });
     }
@@ -2805,7 +2836,7 @@ class FileName {
         }
         // 拼接所有结果
         const result = resultArr.join('');
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.output, {
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.output, {
             content: result,
             title: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_预览文件名'),
         });
@@ -2957,7 +2988,7 @@ class Filter {
     }
     // 当需要时抛出错误
     throwError(msg) {
-        _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].events.crawlError);
+        _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.wrongSetting);
         _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(msg, 2);
         window.alert(msg);
         throw new Error(msg);
@@ -3124,7 +3155,7 @@ class Filter {
         if (result === '1' || result === '2') {
             let id = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].idRangeInput);
             if (isNaN(id)) {
-                _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].events.crawlError);
+                _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.wrongSetting);
                 const msg = 'id is not a number!';
                 window.alert(msg);
                 _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(msg);
@@ -3151,7 +3182,7 @@ class Filter {
             // 如果输入的时间可以被转换成有效的时间，则启用
             // 转换时间失败时，值是 Invalid Date，不能转换成数字
             if (isNaN(postDateStart.getTime()) || isNaN(postDateEnd.getTime())) {
-                _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].events.crawlError);
+                _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.wrongSetting);
                 const msg = 'Date format error!';
                 _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(msg);
                 window.alert(msg);
@@ -3413,10 +3444,10 @@ class Filter {
         return size >= this.sizeMin && size <= this.sizeMax;
     }
     bindEvent() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].events.crawlStart, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.crawlStart, () => {
             this.init();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].events.resume, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.resume, () => {
             // 当需要恢复下载时，初始化过滤器。否则过滤器不会进行过滤
             this.init();
         });
@@ -4639,7 +4670,7 @@ class InitIndexPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
         this.downIdInput.setAttribute('placeholder', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_输入id进行抓取的提示文字'));
         _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].insertToHead(this.downIdInput);
         _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_清空已保存的抓取结果')).addEventListener('click', () => {
-            _EVT__WEBPACK_IMPORTED_MODULE_7__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_7__["EVT"].events.clearSavedCrawl);
+            _EVT__WEBPACK_IMPORTED_MODULE_7__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_7__["EVT"].list.clearSavedCrawl);
         });
     }
     setFormOption() {
@@ -4649,7 +4680,7 @@ class InitIndexPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
         this.downIdButton.addEventListener('click', () => {
             if (!this.ready) {
                 // 还没准备好
-                _EVT__WEBPACK_IMPORTED_MODULE_7__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_7__["EVT"].events.closeCenterPanel);
+                _EVT__WEBPACK_IMPORTED_MODULE_7__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_7__["EVT"].list.closeCenterPanel);
                 this.downIdInput.style.display = 'block';
                 this.downIdInput.focus();
                 document.documentElement.scrollTop = 0;
@@ -4662,12 +4693,12 @@ class InitIndexPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
         this.downIdInput.addEventListener('change', () => {
             if (this.downIdInput.value !== '') {
                 this.ready = true;
-                _EVT__WEBPACK_IMPORTED_MODULE_7__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_7__["EVT"].events.openCenterPanel);
+                _EVT__WEBPACK_IMPORTED_MODULE_7__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_7__["EVT"].list.openCenterPanel);
                 this.downIdButton.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取');
             }
             else {
                 this.ready = false;
-                _EVT__WEBPACK_IMPORTED_MODULE_7__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_7__["EVT"].events.closeCenterPanel);
+                _EVT__WEBPACK_IMPORTED_MODULE_7__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_7__["EVT"].list.closeCenterPanel);
                 this.downIdButton.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_输入id进行抓取');
             }
         });
@@ -4770,7 +4801,7 @@ class InitPage {
     constructor() {
         this.initPage();
         // 页面类型变化时，初始化抓取流程
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.pageSwitchedTypeChange, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, () => {
             setTimeout(() => {
                 this.initPage();
             }, 0);
@@ -4885,7 +4916,7 @@ class InitPageBase {
         this.addCrawlBtns();
         this.addAnyElement();
         this.initAny();
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.pageSwitchedTypeChange, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.pageSwitchedTypeChange, () => {
             this.destroy();
         });
     }
@@ -4920,7 +4951,7 @@ class InitPageBase {
     }
     // 作品个数/页数的输入不合法
     getWantPageError() {
-        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.crawlError);
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.wrongSetting);
         const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_参数不合法');
         window.alert(msg);
         throw new Error(msg);
@@ -4983,7 +5014,7 @@ class InitPageBase {
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
         this.getWantPage();
         this.getMultipleSetting();
-        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.crawlStart);
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.crawlStart);
         // 进入第一个抓取方法
         this.nextStep();
     }
@@ -5081,7 +5112,7 @@ class InitPageBase {
         // console.log(type)
         // console.log(blobSize)
         // 发出抓取完毕的信号
-        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.crawlFinish);
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.crawlFinish);
     }
     // 网络请求状态异常时输出提示
     logErrorStatus(status, id) {
@@ -5111,8 +5142,8 @@ class InitPageBase {
     noResult() {
         // 先触发 crawlFinish，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
         // 如果触发顺序反过来，那么最后执行的都是 crawlFinish，可能会覆盖对 crawlEmpty 的处理
-        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.crawlFinish);
-        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].events.crawlEmpty);
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.crawlFinish);
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.crawlEmpty);
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取结果为零'), 2);
         window.alert(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取结果为零'));
     }
@@ -5323,7 +5354,7 @@ class InitUserPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPageB
         _DOM__WEBPACK_IMPORTED_MODULE_7__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标说明')],
         ]).addEventListener('click', () => {
-            _EVT__WEBPACK_IMPORTED_MODULE_8__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_8__["EVT"].events.saveAvatarIcon);
+            _EVT__WEBPACK_IMPORTED_MODULE_8__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_8__["EVT"].list.saveAvatarIcon);
         });
     }
     setFormOption() {
@@ -5581,7 +5612,7 @@ class Log {
         this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
         this.scrollToBottom();
         // 切换不同页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.pageSwitch, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, () => {
             if (!_States__WEBPACK_IMPORTED_MODULE_2__["states"].busy) {
                 this.clear();
             }
@@ -5714,7 +5745,7 @@ class Output {
         this.closeBtn.addEventListener('click', () => {
             this.close();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.centerPanelClosed, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.centerPanelClosed, () => {
             this.close();
         });
         // 复制输出内容
@@ -5731,7 +5762,7 @@ class Output {
                 this.copyBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_复制');
             }, 1000);
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.output, (ev) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.output, (ev) => {
             this.output(ev.detail.data.content, ev.detail.data.title);
         });
     }
@@ -5890,7 +5921,7 @@ class OutputCSV {
             },
         ];
         this.utf8BOM = this.UTF8BOM();
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.outputCSV, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.outputCSV, () => {
             this.beforeCreate();
         });
     }
@@ -5988,7 +6019,7 @@ class PageType {
         this.type = 0;
         this.type = this.getPageType();
         // 页面切换时检查新旧页面是否不同
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.pageSwitch, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
             this.checkPageTypeIsNew();
         });
     }
@@ -6071,10 +6102,10 @@ class PageType {
     checkPageTypeIsNew() {
         let newType = this.getPageType();
         if (this.type !== newType) {
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.pageSwitchedTypeChange, newType);
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, newType);
         }
         else {
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.pageSwitchedTypeNotChange, newType);
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeNotChange, newType);
         }
         // 保存当前页面类型
         this.type = newType;
@@ -6402,21 +6433,21 @@ class QuickDownloadBtn {
         // 点击按钮启动快速下载
         this.btn.addEventListener('click', () => {
             _States__WEBPACK_IMPORTED_MODULE_2__["states"].quickDownload = true;
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.QuickDownload);
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.QuickDownload);
         }, false);
         // 使用快捷键 Alt + q 启动快速下载
         window.addEventListener('keydown', (ev) => {
             if (this.live && ev.altKey && ev.code === 'KeyQ') {
                 _States__WEBPACK_IMPORTED_MODULE_2__["states"].quickDownload = true;
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.QuickDownload);
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.QuickDownload);
             }
         }, false);
         // 下载完成，或者下载中止时，复位状态
         const evtList = [
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlEmpty,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadStop,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadPause,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadComplete,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlEmpty,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadPause,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete,
         ];
         for (const ev of evtList) {
             window.addEventListener(ev, () => {
@@ -6424,7 +6455,7 @@ class QuickDownloadBtn {
             });
         }
         // 页面类型改变时销毁
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.pageSwitchedTypeChange, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, () => {
             this.destroy();
         });
     }
@@ -6565,11 +6596,11 @@ class Resume {
         this.flag = true;
         _Log__WEBPACK_IMPORTED_MODULE_1__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已恢复抓取结果'), 2);
         // 发出恢复下载的信号
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resume);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resume);
     }
     bindEvent() {
         // 抓取完成时，保存这次任务的数据
-        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resultChange];
+        const evs = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange];
         for (const ev of evs) {
             window.addEventListener(ev, async () => {
                 // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
@@ -6604,11 +6635,11 @@ class Resume {
             });
         }
         // 当有文件下载完成时，更新下载状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadSuccess, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadSuccess, () => {
             this.needPutStates = true;
         });
         // 任务下载完毕时，以及停止任务时，清除这次任务的数据
-        const clearDataEv = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadComplete, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadStop];
+        const clearDataEv = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop];
         for (const ev of clearDataEv) {
             window.addEventListener(ev, async () => {
                 if (!this.taskId) {
@@ -6628,16 +6659,16 @@ class Resume {
             });
         }
         // 开始新的抓取时，取消恢复模式
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlStart, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlStart, () => {
             this.flag = false;
         });
         // 切换页面时，重新检查恢复数据
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.pageSwitch, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
             this.flag = false;
             this.restoreData();
         });
         // 清空已保存的抓取结果
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.clearSavedCrawl, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearSavedCrawl, () => {
             this.flag = false;
             this.clearSavedCrawl();
         });
@@ -6803,7 +6834,7 @@ class SaveAvatarIcon {
         this.bindEvents();
     }
     bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].events.saveAvatarIcon, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.saveAvatarIcon, () => {
             this.saveAvatarIcon();
         });
     }
@@ -6825,7 +6856,7 @@ class SaveAvatarIcon {
         const name = `ico_${userProfile.body.name}_${userId}.ico`;
         _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].downloadFile(url, name);
         _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success('✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_保存用户头像为图标'));
-        _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].events.closeCenterPanel);
+        _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.closeCenterPanel);
     }
 }
 new SaveAvatarIcon();
@@ -6854,7 +6885,7 @@ class ShowConvertCount {
         this.bindEvent();
     }
     bindEvent() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.convertChange, (ev) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.convertChange, (ev) => {
             const count = ev.detail.data;
             let convertText = '';
             if (count > 0) {
@@ -6891,22 +6922,22 @@ class ShowSkipCount {
         this.bindEvent();
     }
     bindEvent() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlStart, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlStart, () => {
             this.reset();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadStop, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop, () => {
             // 重置计数但不清空提示文字，因为用户还需要看
             this.count = 0;
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.skipSaveFile, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.skipDownload, () => {
             this.addCount();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadStart, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStart, () => {
             if (this.count === 0) {
                 this.reset();
             }
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadComplete, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete, () => {
             // 重置计数但不清空提示文字，因为用户还需要看
             this.count = 0;
         });
@@ -6959,17 +6990,17 @@ class States {
     }
     bindEvent() {
         const idle = [
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadPause,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadStop,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadComplete,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadPause,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete,
         ];
         idle.forEach((type) => {
             window.addEventListener(type, () => {
                 this.busy = false;
             });
         });
-        const busy = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlStart, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadStart];
+        const busy = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlStart, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStart];
         busy.forEach((type) => {
             window.addEventListener(type, () => {
                 this.busy = true;
@@ -7055,7 +7086,7 @@ class Store {
         // 添加该作品的元数据
         const result = this.assignResult(data);
         this.resultMeta.push(result);
-        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.addResult, result);
+        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.addResult, result);
         if (result.type === 3) {
             this.result.push(result);
         }
@@ -7086,10 +7117,10 @@ class Store {
         this.title = _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].getTitle();
     }
     bindEvent() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlStart, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlStart, () => {
             this.reset();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resume, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume, () => {
             this.tag = _API__WEBPACK_IMPORTED_MODULE_0__["API"].getTagFromURL();
             this.title = _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].getTitle();
         });
@@ -7127,7 +7158,7 @@ class Support {
         this.checkNew();
         this.showNew();
         _API__WEBPACK_IMPORTED_MODULE_2__["API"].updateToken();
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resetOption, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resetSettings, () => {
             localStorage.removeItem('xzToken');
             _API__WEBPACK_IMPORTED_MODULE_2__["API"].updateToken();
         });
@@ -7163,7 +7194,7 @@ class Support {
         // 比较大小
         const latestVer = localStorage.getItem(verName);
         if (latestVer && manifestVer < latestVer) {
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.hasNewVer);
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.hasNewVer);
         }
     }
     // 显示最近更新内容
@@ -7212,7 +7243,7 @@ class Support {
         ;
         ['pushState', 'popstate', 'replaceState'].forEach((item) => {
             window.addEventListener(item, () => {
-                _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.pageSwitch);
+                _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch);
             });
         });
     }
@@ -7403,34 +7434,34 @@ class TitleBar {
         this.bindEvent();
     }
     bindEvent() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlStart, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlStart, () => {
             this.set('crawling');
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.worksUpdate, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.worksUpdate, () => {
             this.set('waiting');
         });
         for (const ev of [
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlFinish,
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resultChange,
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.resume,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resultChange,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume,
         ]) {
             window.addEventListener(ev, () => {
                 this.set('readyDownload');
             });
         }
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadStart, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadStart, () => {
             this.set('downloading');
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadComplete, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadComplete, () => {
             this.set('completed');
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadPause, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadPause, () => {
             this.set('paused');
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.downloadStop, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadStop, () => {
             this.set('stopped');
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlEmpty, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlEmpty, () => {
             this.reset();
         });
     }
@@ -7654,11 +7685,11 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
         this.initQuickBookmark();
         this.initImgViewer();
         // 页面切换再次初始化
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.pageSwitchedTypeNotChange, this.initQuickBookmark);
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.pageSwitchedTypeNotChange, this.initImgViewer);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.pageSwitchedTypeNotChange, this.initQuickBookmark);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.pageSwitchedTypeNotChange, this.initImgViewer);
         // 初始化快速下载按钮
         new _QuickDownloadBtn__WEBPACK_IMPORTED_MODULE_11__["QuickDownloadBtn"]();
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.QuickDownload, this.startQuickDownload);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.QuickDownload, this.startQuickDownload);
     }
     initImgViewer() {
         new _ImgViewer__WEBPACK_IMPORTED_MODULE_7__["ImgViewer"]();
@@ -7685,7 +7716,7 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
         _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_保存用户头像为图标'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_保存用户头像为图标说明')],
         ]).addEventListener('click', () => {
-            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.saveAvatarIcon);
+            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.saveAvatarIcon);
         });
     }
     setFormOption() {
@@ -7703,9 +7734,9 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
         _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].clearSlot('crawlBtns');
         _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].clearSlot('otherBtns');
         // 解除切换页面时绑定的事件
-        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.pageSwitchedTypeNotChange, this.initQuickBookmark);
-        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.pageSwitchedTypeNotChange, this.initImgViewer);
-        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.QuickDownload, this.startQuickDownload);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.pageSwitchedTypeNotChange, this.initQuickBookmark);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.pageSwitchedTypeNotChange, this.initImgViewer);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.QuickDownload, this.startQuickDownload);
     }
     getWantPage() {
         if (_States__WEBPACK_IMPORTED_MODULE_12__["states"].quickDownload) {
@@ -8255,7 +8286,7 @@ class InitRankingArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
     initAny() {
         // 抓取完成后，复位 debut 标记
         // 因为 debut 只在抓取阶段被过滤器使用，所以抓取完成后就可以复位
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.crawlFinish, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlFinish, () => {
             _States__WEBPACK_IMPORTED_MODULE_10__["states"].debut = false;
         });
     }
@@ -8454,7 +8485,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
             }
             if (this.causeResultChange.includes(data.name)) {
                 this.reAddResult();
-                _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.resultChange);
+                _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.resultChange);
             }
         };
         // 抓取完成后，保存结果的元数据，并重排结果
@@ -8470,9 +8501,9 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
             this.clearWorks();
             this.reAddResult();
             // 解绑创建作品元素的事件
-            window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.addResult, this.createWork);
+            window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.createWork);
             setTimeout(() => {
-                _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.worksUpdate);
+                _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.worksUpdate);
             }, 0);
         };
         // 显示抓取到的作品数量
@@ -8662,7 +8693,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始筛选Title')],
         ]).addEventListener('click', () => {
             this.resultMeta = [];
-            window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.addResult, this.createWork);
+            window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.createWork);
             this.readyCrawl();
         });
         _DOM__WEBPACK_IMPORTED_MODULE_13__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].red, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_在结果中筛选'), [
@@ -8687,31 +8718,31 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
     addAnyElement() {
         const deleteWorks = new _DeleteWorks__WEBPACK_IMPORTED_MODULE_4__["DeleteWorks"](`.${this.listClass}`);
         deleteWorks.addClearMultipleBtn(`.${this.multipleClass}`, () => {
-            _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.clearMultiple);
+            _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.clearMultiple);
         });
         deleteWorks.addClearUgoiraBtn(`.${this.ugoiraClass}`, () => {
-            _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.clearUgoira);
+            _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.clearUgoira);
         });
         deleteWorks.addManuallyDeleteBtn((el) => {
-            _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.deleteWork, el);
+            _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.deleteWork, el);
         });
     }
     initAny() {
         this.hotBar();
         this.setPreviewResult(_setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResult);
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.addResult, this.showCount);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.showCount);
         window.addEventListener('addBMK', this.addBookmark);
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.crawlFinish, this.onCrawlFinish);
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.clearMultiple, this.clearMultiple);
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.clearUgoira, this.clearUgoira);
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.deleteWork, this.deleteWork);
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.settingChange, this.onSettingChange);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlFinish, this.onCrawlFinish);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.clearMultiple, this.clearMultiple);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.clearUgoira, this.clearUgoira);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.deleteWork, this.deleteWork);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.settingChange, this.onSettingChange);
     }
     destroy() {
         _DOM__WEBPACK_IMPORTED_MODULE_13__["DOM"].clearSlot('crawlBtns');
         _DOM__WEBPACK_IMPORTED_MODULE_13__["DOM"].clearSlot('otherBtns');
-        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.addResult, this.showCount);
-        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.crawlFinish, this.onCrawlFinish);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.showCount);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlFinish, this.onCrawlFinish);
         // 离开下载页面时，取消设置“不自动下载”
         _States__WEBPACK_IMPORTED_MODULE_15__["states"].notAutoDownload = false;
     }
@@ -8913,7 +8944,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         if (this.resultMeta.length === 0) {
             return alert(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'));
         }
-        _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.closeCenterPanel);
+        _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.closeCenterPanel);
         _Log__WEBPACK_IMPORTED_MODULE_9__["log"].clear();
         const beforeLength = this.resultMeta.length; // 储存过滤前的结果数量
         const resultMetaTemp = [];
@@ -8936,7 +8967,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
             this.removeWorks(ids);
             this.reAddResult();
         }
-        _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].events.resultChange);
+        _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.resultChange);
     }
     // 重新添加抓取结果，执行时机：
     // 1 作品抓取完毕之后，添加抓取到的数据
@@ -11026,10 +11057,10 @@ class InitNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
     */
     initAny() {
         this.initQuickBookmark();
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.pageSwitchedTypeNotChange, this.initQuickBookmark);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].list.pageSwitchedTypeNotChange, this.initQuickBookmark);
         // 初始化快速下载按钮
         new _QuickDownloadBtn__WEBPACK_IMPORTED_MODULE_11__["QuickDownloadBtn"]();
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.QuickDownload, this.startQuickDownload);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].list.QuickDownload, this.startQuickDownload);
     }
     initQuickBookmark() {
         new _QuickBookmark__WEBPACK_IMPORTED_MODULE_5__["QuickBookmark"]();
@@ -11048,7 +11079,7 @@ class InitNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
         _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标说明')],
         ]).addEventListener('click', () => {
-            _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.saveAvatarIcon);
+            _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].list.saveAvatarIcon);
         });
     }
     setFormOption() {
@@ -11067,8 +11098,8 @@ class InitNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
         _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].clearSlot('otherBtns');
         // 删除快速下载按钮
         _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].removeEl(this.quickDownBtn);
-        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.pageSwitchedTypeNotChange, this.initQuickBookmark);
-        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].events.QuickDownload, this.startQuickDownload);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].list.pageSwitchedTypeNotChange, this.initQuickBookmark);
+        window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].list.QuickDownload, this.startQuickDownload);
     }
     getWantPage() {
         if (_States__WEBPACK_IMPORTED_MODULE_10__["states"].quickDownload) {
@@ -11913,7 +11944,7 @@ class Form {
             this.bindRadioEvent(radio);
         }
         // 设置发生改变时，重新设置美化状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.settingChange, (ev) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
             this.initFormBueatiful();
         });
         // 在选项卡的标题上触发事件时，激活对应的选项卡
@@ -11927,24 +11958,24 @@ class Form {
         }
         // 当可以开始下载时，切换到“下载”选项卡
         for (const ev of [
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlFinish,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resultChange,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resume,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resume,
         ]) {
             window.addEventListener(ev, () => {
                 this.activeTab(1);
             });
         }
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.crawlEmpty, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlEmpty, () => {
             this.activeTab(0);
         });
         // 预览文件名
         _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('namingBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_预览文件名')).addEventListener('click', () => {
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.previewFileName);
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.previewFileName);
         }, false);
         // 导出 csv
         _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('namingBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出csv')).addEventListener('click', () => {
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.outputCSV);
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.outputCSV);
         }, false);
         // 显示命名字段提示
         this.form
@@ -12019,7 +12050,7 @@ class Form {
     }
     // 当选项的值被改变时，触发 settingChange 事件
     emitChange(name, value) {
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.settingChange, { name: name, value: value });
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, { name: name, value: value });
     }
     // 重设 label 的激活状态
     resetLabelActive() {
@@ -12522,7 +12553,7 @@ class Options {
         this.wantPageEls.rangTip.textContent = arg.rangTip;
         this.wantPageEls.input.value = arg.value;
         // 这里由代码直接进行设置，不会触发 change 事件，所以手动触发 settingChange 事件，使其他组件能够接收到通知
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.settingChange, {
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, {
             name: 'setWantPage',
             value: arg.value,
         });
@@ -12617,7 +12648,7 @@ class SaveNamingRule {
     }
     select(rule) {
         this.ruleInput.value = rule;
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.settingChange, { name: 'userSetName', value: rule });
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, { name: 'userSetName', value: rule });
     }
     handleChange() {
         this.save();
@@ -12693,7 +12724,7 @@ class SettingAPI {
     }
     bindEvents() {
         // 当 firstFewImages 设置改变时，保存它的值
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.settingChange, (event) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (event) => {
             const data = event.detail.data;
             if (data.name === 'firstFewImages') {
                 this.firstFewImages = this.getFirstFewImages();
@@ -12707,7 +12738,7 @@ class SettingAPI {
             return check.value;
         }
         // 如果用户输入的数字不合法（不大于0）
-        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].events.crawlError);
+        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.wrongSetting);
         const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载前几张图片') + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_必须大于0');
         _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(msg);
         window.alert(msg);
@@ -12920,17 +12951,17 @@ class SaveSettings {
         // 保存文件名长度限制
         this.saveCheckBox('fileNameLengthLimitSwitch');
         this.saveTextInput('fileNameLengthLimit');
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.resetOption, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettings, () => {
             _Form__WEBPACK_IMPORTED_MODULE_1__["form"].reset();
             this.reset();
         });
     }
     emitChange(name, value) {
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.settingChange, { name: name, value: value });
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, { name: name, value: value });
     }
     // 设置发生改变时，保存设置到本地存储
     handleChange() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.settingChange, (event) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (event) => {
             const data = event.detail.data;
             if (Reflect.has(this.optionDefault, data.name)) {
                 if (this.settings[data.name] !== data.value) {
@@ -13058,7 +13089,7 @@ class SaveSettings {
         this.restoreBoolean('fileNameLengthLimitSwitch');
         this.restoreString('fileNameLengthLimit');
         // 恢复完毕之后触发一次设置改变事件
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.settingChange);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange);
     }
     // 重设选项
     reset() {
@@ -13069,7 +13100,7 @@ class SaveSettings {
         // 重设选项
         this.restoreOption();
         // 触发设置改变事件
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.settingChange);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange);
     }
 }
 const saveSettings = new SaveSettings();
@@ -13103,30 +13134,30 @@ class ConvertUgoira {
         this.downloading = true; // 是否在下载。如果下载停止了则不继续转换后续任务，避免浪费资源
         this._count = 0; // 统计有几个转换任务
         this.maxCount = 1; // 允许同时运行多少个转换任务
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadStart, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStart, () => {
             this.downloading = true;
         });
-        [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadPause, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.downloadStop].forEach((event) => {
+        [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadPause, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop].forEach((event) => {
             window.addEventListener(event, () => {
                 this.downloading = false;
             });
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.settingChange, (ev) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name === 'convertUgoiraThread') {
                 this.maxCount = parseInt(data.value) || 1;
             }
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.convertSuccess, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.convertSuccess, () => {
             this.complete();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.convertError, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.readZipError, () => {
             this.complete();
         });
     }
     set count(num) {
         this._count = num;
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.convertChange, this._count);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.convertChange, this._count);
     }
     async start(file, info, type) {
         return new Promise(async (resolve, reject) => {
@@ -13230,7 +13261,7 @@ class ExtractImage {
                     });
                 });
             }, (message) => {
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].events.convertError);
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.readZipError);
                 reject(new Error('ReadZIP error: ' + message));
             });
         });
@@ -13286,7 +13317,7 @@ class ToAPNG {
             const blob = new Blob([png], {
                 type: 'image/vnd.mozilla.apng',
             });
-            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.convertSuccess);
+            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.convertSuccess);
             resolve(blob);
         });
     }
@@ -13352,7 +13383,7 @@ class ToGIF {
             });
             // 绑定渲染完成事件
             gif.on('finished', (file) => {
-                _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.convertSuccess);
+                _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.convertSuccess);
                 resolve(file);
             });
             // 获取解压后的图片数据
@@ -13436,7 +13467,7 @@ class ToWebM {
             canvasList = null;
             // 获取生成的视频
             file = await this.encodeVideo(encoder);
-            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].events.convertSuccess);
+            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.convertSuccess);
             resolve(file);
         });
     }

@@ -68,7 +68,7 @@ class Output {
       this.close()
     })
 
-    window.addEventListener(EVT.events.centerPanelClosed, () => {
+    window.addEventListener(EVT.list.centerPanelClosed, () => {
       this.close()
     })
 
@@ -88,7 +88,7 @@ class Output {
       }, 1000)
     })
 
-    window.addEventListener(EVT.events.output, (ev: CustomEventInit) => {
+    window.addEventListener(EVT.list.output, (ev: CustomEventInit) => {
       this.output(ev.detail.data.content, ev.detail.data.title)
     })
   }

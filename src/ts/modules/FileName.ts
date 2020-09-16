@@ -10,7 +10,7 @@ import { states } from './States'
 
 class FileName {
   constructor() {
-    window.addEventListener(EVT.events.previewFileName, () => {
+    window.addEventListener(EVT.list.previewFileName, () => {
       this.previewFileName()
     })
   }
@@ -293,7 +293,7 @@ class FileName {
 
     // 拼接所有结果
     const result = resultArr.join('')
-    EVT.fire(EVT.events.output, {
+    EVT.fire(EVT.list.output, {
       content: result,
       title: lang.transl('_预览文件名'),
     })

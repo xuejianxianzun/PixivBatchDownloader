@@ -84,7 +84,7 @@ class Form {
     }
 
     // 设置发生改变时，重新设置美化状态
-    window.addEventListener(EVT.events.settingChange, (ev: CustomEventInit) => {
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       this.initFormBueatiful()
     })
 
@@ -99,16 +99,16 @@ class Form {
 
     // 当可以开始下载时，切换到“下载”选项卡
     for (const ev of [
-      EVT.events.crawlFinish,
-      EVT.events.resultChange,
-      EVT.events.resume,
+      EVT.list.crawlFinish,
+      EVT.list.resultChange,
+      EVT.list.resume,
     ]) {
       window.addEventListener(ev, () => {
         this.activeTab(1)
       })
     }
 
-    window.addEventListener(EVT.events.crawlEmpty, () => {
+    window.addEventListener(EVT.list.crawlEmpty, () => {
       this.activeTab(0)
     })
 
@@ -120,7 +120,7 @@ class Form {
     ).addEventListener(
       'click',
       () => {
-        EVT.fire(EVT.events.previewFileName)
+        EVT.fire(EVT.list.previewFileName)
       },
       false
     )
@@ -133,7 +133,7 @@ class Form {
     ).addEventListener(
       'click',
       () => {
-        EVT.fire(EVT.events.outputCSV)
+        EVT.fire(EVT.list.outputCSV)
       },
       false
     )
@@ -224,7 +224,7 @@ class Form {
 
   // 当选项的值被改变时，触发 settingChange 事件
   private emitChange(name: string, value: string | number | boolean) {
-    EVT.fire(EVT.events.settingChange, { name: name, value: value })
+    EVT.fire(EVT.list.settingChange, { name: name, value: value })
   }
 
   // 重设 label 的激活状态

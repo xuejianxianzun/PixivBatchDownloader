@@ -92,7 +92,7 @@ class InitSearchArtworkPage extends InitPageBase {
     ]).addEventListener('click', () => {
       this.resultMeta = []
 
-      window.addEventListener(EVT.events.addResult, this.createWork)
+      window.addEventListener(EVT.list.addResult, this.createWork)
 
       this.readyCrawl()
     })
@@ -122,15 +122,15 @@ class InitSearchArtworkPage extends InitPageBase {
     const deleteWorks = new DeleteWorks(`.${this.listClass}`)
 
     deleteWorks.addClearMultipleBtn(`.${this.multipleClass}`, () => {
-      EVT.fire(EVT.events.clearMultiple)
+      EVT.fire(EVT.list.clearMultiple)
     })
 
     deleteWorks.addClearUgoiraBtn(`.${this.ugoiraClass}`, () => {
-      EVT.fire(EVT.events.clearUgoira)
+      EVT.fire(EVT.list.clearUgoira)
     })
 
     deleteWorks.addManuallyDeleteBtn((el: HTMLElement) => {
-      EVT.fire(EVT.events.deleteWork, el)
+      EVT.fire(EVT.list.deleteWork, el)
     })
   }
 
@@ -139,27 +139,27 @@ class InitSearchArtworkPage extends InitPageBase {
 
     this.setPreviewResult(settings.previewResult)
 
-    window.addEventListener(EVT.events.addResult, this.showCount)
+    window.addEventListener(EVT.list.addResult, this.showCount)
 
     window.addEventListener('addBMK', this.addBookmark)
 
-    window.addEventListener(EVT.events.crawlFinish, this.onCrawlFinish)
+    window.addEventListener(EVT.list.crawlFinish, this.onCrawlFinish)
 
-    window.addEventListener(EVT.events.clearMultiple, this.clearMultiple)
+    window.addEventListener(EVT.list.clearMultiple, this.clearMultiple)
 
-    window.addEventListener(EVT.events.clearUgoira, this.clearUgoira)
+    window.addEventListener(EVT.list.clearUgoira, this.clearUgoira)
 
-    window.addEventListener(EVT.events.deleteWork, this.deleteWork)
+    window.addEventListener(EVT.list.deleteWork, this.deleteWork)
 
-    window.addEventListener(EVT.events.settingChange, this.onSettingChange)
+    window.addEventListener(EVT.list.settingChange, this.onSettingChange)
   }
 
   protected destroy() {
     DOM.clearSlot('crawlBtns')
     DOM.clearSlot('otherBtns')
 
-    window.removeEventListener(EVT.events.addResult, this.showCount)
-    window.removeEventListener(EVT.events.crawlFinish, this.onCrawlFinish)
+    window.removeEventListener(EVT.list.addResult, this.showCount)
+    window.removeEventListener(EVT.list.crawlFinish, this.onCrawlFinish)
 
     // 离开下载页面时，取消设置“不自动下载”
     states.notAutoDownload = false
@@ -364,7 +364,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     if (this.causeResultChange.includes(data.name)) {
       this.reAddResult()
-      EVT.fire(EVT.events.resultChange)
+      EVT.fire(EVT.list.resultChange)
     }
   }
 
@@ -392,10 +392,10 @@ class InitSearchArtworkPage extends InitPageBase {
     this.reAddResult()
 
     // 解绑创建作品元素的事件
-    window.removeEventListener(EVT.events.addResult, this.createWork)
+    window.removeEventListener(EVT.list.addResult, this.createWork)
 
     setTimeout(() => {
-      EVT.fire(EVT.events.worksUpdate)
+      EVT.fire(EVT.list.worksUpdate)
     }, 0)
   }
 
@@ -597,7 +597,7 @@ class InitSearchArtworkPage extends InitPageBase {
       return alert(lang.transl('_没有数据可供使用'))
     }
 
-    EVT.fire(EVT.events.closeCenterPanel)
+    EVT.fire(EVT.list.closeCenterPanel)
 
     log.clear()
 
@@ -626,7 +626,7 @@ class InitSearchArtworkPage extends InitPageBase {
       this.reAddResult()
     }
 
-    EVT.fire(EVT.events.resultChange)
+    EVT.fire(EVT.list.resultChange)
   }
 
   // 重新添加抓取结果，执行时机：
