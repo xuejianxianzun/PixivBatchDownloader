@@ -6131,6 +6131,8 @@ class ProgressBar {
   </div>
   </li>`;
         this.allProgressBar = [];
+        this.KB = 1024;
+        this.MB = 1024 * 1024;
         this.wrap = _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].useSlot('progressBar', this.wrapHTML);
         this.downloadedEl = this.wrap.querySelector('.downloaded');
         this.progressColorEl = this.wrap.querySelector('.progress1');
@@ -6171,7 +6173,16 @@ class ProgressBar {
     setProgress(index, data) {
         const bar = this.allProgressBar[index];
         bar.name.textContent = data.name;
-        bar.loaded.textContent = `${Math.floor(data.loaded / 1024)}/${Math.floor(data.total / 1024)} KiB`;
+        let text = '';
+        if (data.total >= this.MB) {
+            // 使用 MB 作为单位
+            text = `${(data.loaded / this.MB).toFixed(1)}/${(data.total / this.MB).toFixed(1)} MiB`;
+        }
+        else {
+            // 使用 KB 作为单位
+            text = `${Math.floor(data.loaded / this.KB)}/${Math.floor(data.total / this.KB)} KiB`;
+        }
+        bar.loaded.textContent = text;
         const progress = data.loaded / data.total || 0; // 若结果为 NaN 则设为 0
         bar.progress.style.width = progress * 100 + '%';
     }
