@@ -658,8 +658,6 @@ class InitSearchArtworkPage extends InitPageBase {
 
     log.clear()
 
-    filter.init()
-
     this.getMultipleSetting()
 
     this.filterResult((data) => {

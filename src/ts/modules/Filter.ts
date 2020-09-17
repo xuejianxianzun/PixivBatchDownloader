@@ -1,5 +1,4 @@
-// 过滤器
-import { FilterOption, FilterWh } from './Filter.d'
+import { FilterOption } from './Filter.d'
 import { lang } from './Lang'
 import { log } from './Log'
 import { API } from './API'
@@ -8,8 +7,7 @@ import { states } from './States'
 import { settings } from './setting/Settings'
 import { blackAndWhiteImage } from './BlackandWhiteImage'
 
-// 审查作品是否符合过滤条件
-// 可以根据需要，随时进行审查
+// 检查作品是否符合过滤条件
 class Filter {
   constructor() {
     this.bindEvent()
@@ -17,39 +15,35 @@ class Filter {
 
   private readonly BMKNumMinDef = 0
   private readonly BMKNumMaxDef = 9999999
-  private BMKNumMin: number = this.BMKNumMinDef // 最小收藏数量
-  private BMKNumMax: number = this.BMKNumMaxDef // 最大收藏数量
-
   private readonly MB = 1024 * 1024
-  private sizeMin = 0
-  private sizeMax = 100 * this.MB
 
-  // 宽高条件
-  private filterWh: FilterWh = {
-    andOr: '&',
-    width: 0,
-    height: 0,
-  }
+  // 为了减少不必要的重复计算，缓存一些计算后的值
+  // 可以直接使用的选项不需要缓存;只有需要进行处理后才可以使用的选项需要缓存
+  private _BMKNumMin: number = this.BMKNumMinDef // 最小收藏数量
+  private _BMKNumMax: number = this.BMKNumMaxDef // 最大收藏数量
 
-  private ratioType: string = '0' // 宽高比例的类型
+  private _sizeMin = 0
+  private _sizeMax = 100 * this.MB
 
-  private postDate: boolean = false // 是否设置投稿时间
+  private _setWidth = 0
+  private _setHeight = 0
 
-  private postDateStart = new Date()
+  private _postDateStart = 0
+  private _postDateEnd = 0
 
-  private postDateEnd = new Date()
+  private _needTag: string = ''
+  private _notNeedTag: string = ''
+  // 缓存部分结束
 
-  private includeTag: string = '' // 必须包含的 tag
+  private showTip = false // 是否在日志区域输出提示
 
-  private excludeTag: string = '' // 要排除的 tag
-
-  // 从下载区域上获取过滤器的各个选项
-  public init() {
+  // 检查设置项，获取设置的值
+  // 如果 showTip 为 true，表示允许在日志区域输出提示
+  public init(showTip = false) {
+    this.showTip = showTip
     // 获取作品类型的设置
     this.getDownType()
-
     this.getDownTypeByImgCount()
-
     this.getDownTypeByColor()
 
     // 获取收藏数设置
@@ -59,28 +53,29 @@ class Filter {
     this.getOnlyBmk()
 
     // 获取宽高条件设置
-    this.filterWh = this.getSetWh()
+    this.getSetWh()
 
     // 获取宽高比设置
-    this.ratioType = this.getRatio()
+    this.getRatio()
 
     // 获取 id 范围设置
     this.getIdRange()
 
     // 获取投稿时间设置
-    this.postDate = this.getPostDateSetting()
+    this.getPostDate()
 
     // 获取必须包含的tag
-    this.includeTag = this.getIncludeTag()
+    this.getIncludeTag()
 
     // 获取要排除的tag
-    this.excludeTag = this.getExcludeTag()
+    this.getExcludeTag()
 
     // 获取只下载首次登场设置
     if (states.debut) {
-      log.warning(lang.transl('_抓取首次登场的作品Title'))
+      this.logTip(lang.transl('_抓取首次登场的作品Title'))
     }
 
+    // 获取文件体积设置
     this.getSize()
   }
 
@@ -159,14 +154,6 @@ class Filter {
     return true
   }
 
-  // 当需要时抛出错误
-  private throwError(msg: string) {
-    EVT.fire(EVT.list.wrongSetting)
-    log.error(msg, 2)
-    window.alert(msg)
-    throw new Error(msg)
-  }
-
   // 获取下载的作品类型设置
   private getDownType() {
     // 如果全部排除则取消任务
@@ -176,7 +163,7 @@ class Filter {
       !settings.downType2 &&
       !settings.downType3
     ) {
-      this.throwError(lang.transl('_checkNotdownTypeAll'))
+      this.throwError(lang.transl('_排除了所有作品类型'))
     }
 
     let notDownTip = ''
@@ -187,7 +174,7 @@ class Filter {
     notDownTip += settings.downType3 ? '' : lang.transl('_小说')
 
     if (notDownTip) {
-      log.warning(lang.transl('_checkNotdownTypeResult') + notDownTip)
+      this.logTip(lang.transl('_排除作品类型') + notDownTip)
     }
   }
 
@@ -198,7 +185,7 @@ class Filter {
     notDownTip += settings.downMultiImg ? '' : lang.transl('_多图作品')
 
     if (notDownTip) {
-      log.warning(lang.transl('_checkNotdownTypeResult') + notDownTip)
+      this.logTip(lang.transl('_排除作品类型') + notDownTip)
     }
   }
 
@@ -206,7 +193,7 @@ class Filter {
   private getDownTypeByColor() {
     // 如果全部排除则取消任务
     if (!settings.downColorImg && !settings.downBlackWhiteImg) {
-      this.throwError(lang.transl('_checkNotdownTypeAll'))
+      this.throwError(lang.transl('_排除了所有作品类型'))
     }
 
     let notDownTip = ''
@@ -215,7 +202,7 @@ class Filter {
     notDownTip += settings.downBlackWhiteImg ? '' : lang.transl('_黑白图片')
 
     if (notDownTip) {
-      log.warning(lang.transl('_checkNotdownTypeResult') + notDownTip)
+      this.logTip(lang.transl('_排除作品类型') + notDownTip)
     }
   }
 
@@ -236,62 +223,48 @@ class Filter {
   // 获取必须包含的tag
   private getIncludeTag() {
     if (!settings.needTagSwitch) {
-      return ''
+      return
     }
-    const result = this.getTagString(settings.needTag)
-    if (result) {
-      log.warning(lang.transl('_设置了必须tag之后的提示') + result)
+    this._needTag = this.getTagString(settings.needTag)
+    if (this._needTag) {
+      this.logTip(lang.transl('_设置了必须tag之后的提示') + this._needTag)
     }
-    return result
   }
 
   // 获取要排除的tag
   private getExcludeTag() {
     if (!settings.notNeedTagSwitch) {
-      return ''
+      return
     }
-    const result = this.getTagString(settings.notNeedTag)
-    if (result) {
-      log.warning(lang.transl('_设置了排除tag之后的提示') + result)
+    this._notNeedTag = this.getTagString(settings.notNeedTag)
+    if (this._notNeedTag) {
+      this.logTip(lang.transl('_设置了排除tag之后的提示') + this._notNeedTag)
     }
-    return result
   }
 
   // 获取过滤宽高的设置
   private getSetWh() {
-    let result: FilterWh = {
-      andOr: '&',
-      width: 0,
-      height: 0,
-    }
-
     if (!settings.setWHSwitch) {
-      return result
+      return
     }
 
-    const checkWidth = API.checkNumberGreater0(settings.setWidth)
-    const checkHeight = API.checkNumberGreater0(settings.setHeight)
+    const width = API.checkNumberGreater0(settings.setWidth)
+    const height = API.checkNumberGreater0(settings.setHeight)
 
-    // 宽高只要有一个条件大于 0 即可
-    if (checkWidth.value > 0 || checkHeight.value > 0) {
-      result = {
-        andOr: settings.setWidthAndOr,
-        width: checkWidth ? checkWidth.value : 0,
-        height: checkHeight ? checkHeight.value : 0,
-      }
+    this._setWidth = width.result ? width.value : 0
+    this._setHeight = height.result ? height.value : 0
 
-      log.warning(
+    if (this._setWidth || this._setHeight) {
+      this.logTip(
         lang.transl('_宽度设置') +
-          result.width +
-          result.andOr
-            .replace('|', lang.transl('_或者'))
-            .replace('&', lang.transl('_并且')) +
-          lang.transl('_高度设置') +
-          result.height
+        this._setWidth +
+        settings.setWidthAndOr
+          .replace('|', lang.transl('_或者'))
+          .replace('&', lang.transl('_并且')) +
+        lang.transl('_高度设置') +
+        this._setHeight
       )
     }
-
-    return result
   }
 
   // 获取输入的收藏数
@@ -300,27 +273,27 @@ class Filter {
       return
     }
 
-    this.BMKNumMin = this.BMKNumMinDef
-    this.BMKNumMax = this.BMKNumMaxDef
+    this._BMKNumMin = this.BMKNumMinDef
+    this._BMKNumMax = this.BMKNumMaxDef
 
     const min = API.checkNumberGreater0(settings.BMKNumMin)
     const max = API.checkNumberGreater0(settings.BMKNumMax)
 
     if (min.result) {
-      this.BMKNumMin = min.value
-      log.warning(lang.transl('_收藏数大于') + min.value)
+      this._BMKNumMin = min.value
+      this.logTip(lang.transl('_收藏数大于') + min.value)
     }
 
     if (max.result) {
-      this.BMKNumMax = max.value
-      log.warning(lang.transl('_收藏数小于') + max.value)
+      this._BMKNumMax = max.value
+      this.logTip(lang.transl('_收藏数小于') + max.value)
     }
   }
 
   // 获取只下载书签作品的设置
   private getOnlyBmk() {
     if (settings.setOnlyBmk) {
-      log.warning(lang.transl('_只下载已收藏的提示'))
+      this.logTip(lang.transl('_只下载已收藏的提示'))
     }
   }
 
@@ -333,18 +306,17 @@ class Filter {
     let result = settings.ratio
 
     if (result === '1') {
-      log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_横图')))
+      this.logTip(lang.transl('_设置了宽高比之后的提示', lang.transl('_横图')))
     } else if (result === '2') {
-      log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_竖图')))
+      this.logTip(lang.transl('_设置了宽高比之后的提示', lang.transl('_竖图')))
     } else if (result === '3') {
       // 由用户输入
       const typeNum = parseFloat(settings.userRatio)
       if (isNaN(typeNum)) {
         const msg = lang.transl('_宽高比必须是数字')
-        window.alert(msg)
-        throw new Error(msg)
+        this.throwError(msg)
       } else {
-        log.warning(lang.transl('_输入宽高比') + settings.userRatio)
+        this.logTip(lang.transl('_输入宽高比') + settings.userRatio)
       }
     }
 
@@ -362,54 +334,44 @@ class Filter {
     if (result === '1' || result === '2') {
       let id = parseInt(settings.idRangeInput)
       if (isNaN(id)) {
-        EVT.fire(EVT.list.wrongSetting)
-
-        const msg = 'id is not a number!'
-        window.alert(msg)
-        log.error(msg)
-        throw new Error(msg)
+        const msg = 'Error: id range is not a number!'
+        this.throwError(msg)
       }
     }
 
     if (result === '1') {
-      log.warning(`id > ${settings.idRangeInput}`)
+      this.logTip(`id > ${settings.idRangeInput}`)
     }
 
     if (result === '2') {
-      log.warning(`id < ${settings.idRangeInput}`)
+      this.logTip(`id < ${settings.idRangeInput}`)
     }
 
     return result
   }
 
   // 获取投稿时间设置
-  private getPostDateSetting() {
-    if (!settings.postDate) {
-      return false
-    } else {
-      // 如果启用了此设置，需要判断是否是有效的时间格式
-      const postDateStart = new Date(settings.postDateStart)
-      const postDateEnd = new Date(settings.postDateEnd)
-      // 如果输入的时间可以被转换成有效的时间，则启用
-      // 转换时间失败时，值是 Invalid Date，不能转换成数字
-      if (isNaN(postDateStart.getTime()) || isNaN(postDateEnd.getTime())) {
-        EVT.fire(EVT.list.wrongSetting)
+  private getPostDate() {
+    if (!settings.postDate || settings.postDateStart === '' || settings.postDateEnd === '') {
+      return
+    }
 
-        const msg = 'Date format error!'
-        log.error(msg)
-        window.alert(msg)
-        throw new Error(msg)
-      } else {
-        // 转换时间成功
-        this.postDateStart = postDateStart
-        this.postDateEnd = postDateEnd
-        log.warning(
-          `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${
-            settings.postDateEnd
-          }`
-        )
-        return true
-      }
+    // 判断是否是有效的时间格式
+    const postDateStart = new Date(settings.postDateStart)
+    const postDateEnd = new Date(settings.postDateEnd)
+    // 如果输入的时间可以被转换成有效的时间，则启用
+    // 转换时间失败时，值是 Invalid Date，不能转换成数字
+    if (isNaN(postDateStart.getTime()) || isNaN(postDateEnd.getTime())) {
+      const msg = 'Date format error!'
+      this.throwError(msg)
+    } else {
+      // 转换时间成功
+      this._postDateStart = postDateStart.getTime()
+      this._postDateEnd = postDateEnd.getTime()
+      this.logTip(
+        `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${settings.postDateEnd
+        }`
+      )
     }
   }
 
@@ -427,10 +389,10 @@ class Filter {
         ;[min, max] = [max, min]
       }
 
-      this.sizeMin = min * this.MB
-      this.sizeMax = max * this.MB
+      this._sizeMin = min * this.MB
+      this._sizeMax = max * this.MB
 
-      log.warning(`Size: ${min}MB - ${max}MB`)
+      this.logTip(`Size: ${min}MiB - ${max}MiB`)
     }
   }
 
@@ -459,21 +421,21 @@ class Filter {
     illustType: FilterOption['illustType'],
     pageCount: FilterOption['pageCount']
   ) {
-    // 判断单图、多图时，只对插画、漫画生效，否则跳过检查
-    if (illustType !== 0 && illustType !== 1) {
-      return true
-    }
-
     if (illustType === undefined || pageCount === undefined) {
       return true
     }
 
-    if (pageCount === 1 && settings.downSingleImg) {
-      return true
+    // 将动图视为单图
+    if (illustType === 2) {
+      pageCount = 1
     }
 
-    if (pageCount > 1 && settings.downMultiImg) {
-      return true
+    if (pageCount === 1) {
+      return settings.downSingleImg
+    }
+
+    if (pageCount > 1) {
+      return settings.downMultiImg
     }
 
     return false
@@ -500,7 +462,7 @@ class Filter {
     if (bmk === undefined || !settings.BMKNumSwitch) {
       return true
     } else {
-      return bmk >= this.BMKNumMin && bmk <= this.BMKNumMax
+      return bmk >= this._BMKNumMin && bmk <= this._BMKNumMax
     }
   }
 
@@ -515,12 +477,12 @@ class Filter {
 
   // 检查作品是否符合包含 tag 的条件, 如果设置了多个 tag，需要作品里全部包含。返回值表示是否保留这个作品。
   private checkIncludeTag(tags: FilterOption['tags']) {
-    if (!settings.needTagSwitch || !this.includeTag || tags === undefined) {
+    if (!settings.needTagSwitch || !this._needTag || tags === undefined) {
       return true
     }
 
     let result = false
-    let tempArr = this.includeTag.split(',')
+    let tempArr = this._needTag.split(',')
 
     // 如果设置了必须的 tag
     if (tempArr.length > 0) {
@@ -553,12 +515,12 @@ class Filter {
 
   // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。
   private checkExcludeTag(tags: FilterOption['tags']) {
-    if (!settings.notNeedTagSwitch || !this.excludeTag || tags === undefined) {
+    if (!settings.notNeedTagSwitch || !this._notNeedTag || tags === undefined) {
       return true
     }
 
     let result = true
-    let tempArr = this.excludeTag.split(',')
+    let tempArr = this._notNeedTag.split(',')
 
     // 如果设置了排除 tag
     if (tempArr.length > 0) {
@@ -588,28 +550,19 @@ class Filter {
       return true
     }
 
-    if (this.filterWh.width > 0 || this.filterWh.height > 0) {
-      // 如果宽高都小于要求的宽高
-      if (width < this.filterWh.width && height < this.filterWh.height) {
+    if (this._setWidth > 0 || this._setHeight > 0) {
+      if (width < this._setWidth && height < this._setHeight) {
+        // 如果宽高都小于要求的宽高
         return false
       } else {
-        if (this.filterWh.andOr === '|') {
-          // 判断or的情况
-          if (width >= this.filterWh.width || height >= this.filterWh.height) {
-            return true
-          } else {
-            return false
-          }
-        } else if (this.filterWh.andOr === '&') {
-          // 判断and的情况
-          if (width >= this.filterWh.width && height >= this.filterWh.height) {
-            return true
-          } else {
-            return false
-          }
+        if (settings.setWidthAndOr === '|') {
+          return (width >= this._setWidth || height >= this._setHeight)
+        } else if (settings.setWidthAndOr === '&') {
+          return (width >= this._setWidth && height >= this._setHeight)
         }
       }
     }
+
     return true
   }
 
@@ -626,9 +579,9 @@ class Filter {
       return true
     }
 
-    if (this.ratioType === '1') {
+    if (settings.ratio === '1') {
       return width / height > 1
-    } else if (this.ratioType === '2') {
+    } else if (settings.ratio === '2') {
       return width / height < 1
     } else {
       return width / height >= parseFloat(settings.userRatio)
@@ -657,15 +610,11 @@ class Filter {
 
   // 检查投稿时间设置
   private checkPostDate(date: FilterOption['createDate']) {
-    if (!this.postDate || date === undefined) {
+    if (!settings.postDate || date === undefined || !this._postDateStart || !this._postDateEnd) {
       return true
     } else {
       const nowDate = new Date(date)
-      if (nowDate >= this.postDateStart && nowDate <= this.postDateEnd) {
-        return true
-      } else {
-        return false
-      }
+      return (nowDate.getTime() >= this._postDateStart && nowDate.getTime() <= this._postDateEnd)
     }
   }
 
@@ -677,11 +626,8 @@ class Filter {
       return true
     } else {
       // 要求首次登场
-      if (yes_rank === 0 || yes_rank === undefined) {
-        return true
-      } else {
-        return false
-      }
+      console.log(yes_rank)
+      return yes_rank === 0
     }
   }
 
@@ -690,16 +636,33 @@ class Filter {
     if (!settings.sizeSwitch || size === undefined) {
       return true
     }
-    return size >= this.sizeMin && size <= this.sizeMax
+    return size >= this._sizeMin && size <= this._sizeMax
+  }
+
+  // 在日志区域输出提示
+  private logTip(str: string) {
+    if (!this.showTip) {
+      return
+    }
+    log.warning(str)
+  }
+
+  // 如果设置项的值不合法，则抛出错误
+  private throwError(msg: string) {
+    EVT.fire(EVT.list.wrongSetting)
+    log.error(msg, 2)
+    window.alert(msg)
+    throw new Error(msg)
   }
 
   private bindEvent() {
-    window.addEventListener(EVT.list.crawlStart, () => {
-      this.init()
-    })
+    for (const ev of [EVT.list.crawlStart, EVT.list.resume]) {
+      window.addEventListener(ev, () => {
+        this.init(true)
+      })
+    }
 
-    window.addEventListener(EVT.list.resume, () => {
-      // 当需要恢复下载时，初始化过滤器。否则过滤器不会进行过滤
+    window.addEventListener(EVT.list.settingChange, () => {
       this.init()
     })
   }

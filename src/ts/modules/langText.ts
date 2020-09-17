@@ -1,6 +1,7 @@
-// 在属性名前面加上下划线，和文本内容做出区别。
-// {} 表示需要进行替换的部分
-// <br> 表示换行
+// 储存下载器使用的多语言文本
+// 在属性名前面加上下划线，和文本内容做出区别
+// {} 是占位符
+// <br> 是换行
 type langTextKeys = keyof typeof langText
 
 const langText = {
@@ -265,13 +266,13 @@ const langText = {
     '從本頁開始下載 {} 個作品',
   ],
   _任务开始0: ['任务开始', 'タスクが開始されます', 'Task starts', '工作開始'],
-  _checkNotdownTypeAll: [
+  _排除了所有作品类型: [
     '由于您排除了所有作品类型，本次任务已取消。',
     'すべての種類の作品を除外したため、タスクはキャンセルされました。',
     'Because you excluded all types of work, the task was canceled.',
     '由於排除了所有作品類型，本次工作已取消。',
   ],
-  _checkNotdownTypeResult: [
+  _排除作品类型: [
     '排除作品类型：',
     'これらのタイプの作品を除外します：',
     'Excludes these types of works: ',

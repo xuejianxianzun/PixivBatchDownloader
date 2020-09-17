@@ -23,6 +23,8 @@ interface XzSetting {
   setOnlyBmk: boolean
   ugoiraSaveAs: 'webm' | 'gif' | 'zip' | 'png'
   convertUgoiraThread: string
+  needTagSwitch: boolean
+  notNeedTagSwitch: boolean
   needTag: string
   notNeedTag: string
   quietDownload: boolean
@@ -50,8 +52,6 @@ interface XzSetting {
   idRangeSwitch: boolean
   idRangeInput: string
   idRange: '1' | '2'
-  needTagSwitch: boolean
-  notNeedTagSwitch: boolean
   quickBookmarks: boolean
   noSerialNo: boolean
   filterBlackWhite: boolean

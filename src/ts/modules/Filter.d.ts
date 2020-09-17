@@ -13,9 +13,3 @@ export interface FilterOption {
   mini?: string
   size?: number
 }
-
-export interface FilterWh {
-  andOr: '&' | '|'
-  width: number
-  height: number
-}
