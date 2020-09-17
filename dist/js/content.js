@@ -1771,6 +1771,7 @@ class Download {
                     catch (error) {
                         const msg = `Error: convert ugoira error, work id ${arg.data.idNum}.`;
                         _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(msg, 1);
+                        console.error(error);
                         this.cancel = true;
                         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadError, arg.id);
                     }
@@ -1781,12 +1782,10 @@ class Download {
             }
             // 生成下载链接
             const blobUrl = URL.createObjectURL(file);
-            // 检查图片的彩色、黑白设置
-            // 这里的检查，主要是因为抓取时只能检测第一张的缩略图，有些作品第一张图的颜色和后面不一样。例如某个作品第一张是彩色，后面是黑白；设置条件是只下载彩色。抓取时这个作品通过了检查，后面的黑白图片也会被下载。此时就需要在这里重新检查一次。
-            // 对插画、漫画进行检查。动图抓取时检查了第一张图，已经够了，这里不再检查
-            // 这里并没有让 filter 初始化，如果用户在抓取之后修改了彩色、黑白的设置，filter 不会响应变化。所以这里不检查第一张图，以避免无谓的检查。如果以后使 filter 在这里初始化了，那么第一张图也需要检查。
-            if ((arg.data.type === 0 || arg.data.type === 1) &&
-                !arg.data.id.includes('p0')) {
+            // 对插画、漫画进行颜色检查
+            // 在这里进行检查的主要原因：抓取时只能检测第一张的缩略图，并没有检查后面的图片。所以这里需要对后面的图片进行检查。
+            // 另一个原因：如果抓取时没有设置不下载某种颜色的图片，下载时又开启了设置，那么就在这里进行检查
+            if (arg.data.type === 0 || arg.data.type === 1) {
                 const result = await _Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check({
                     mini: blobUrl,
                 });
@@ -8979,8 +8978,8 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
     reAddResult() {
         _Store__WEBPACK_IMPORTED_MODULE_8__["store"].reset();
         for (let data of this.resultMeta) {
-            const dlCount = _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_11__["settingAPI"].getDLCount(data.pageCount);
             // 如果此时的 dlCount 与之前的 dlCount 不一样，则更新它
+            const dlCount = _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_11__["settingAPI"].getDLCount(data.pageCount);
             if (dlCount !== data.dlCount) {
                 data = Object.assign(data, { dlCount: dlCount });
             }
@@ -9287,6 +9286,7 @@ class SaveArtworkData {
             height: fullHeight,
             mini: body.urls.mini,
         };
+        // 这里检查颜色设置是有一个隐患的：因为有些多图作品第一张图的颜色和后面的图片的颜色不一样，但这里检查时只检查第一张的缩略图。如果第一张被排除掉了，那么它后面的图片也就不会被加入抓取结果。
         // 检查通过
         if (await _Filter__WEBPACK_IMPORTED_MODULE_1__["filter"].check(filterOpt)) {
             const illustId = body.illustId;

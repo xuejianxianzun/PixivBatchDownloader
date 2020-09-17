@@ -46,6 +46,7 @@ class SaveArtworkData {
       height: fullHeight,
       mini: body.urls.mini,
     }
+    // 这里检查颜色设置是有一个隐患的：因为有些多图作品第一张图的颜色和后面的图片的颜色不一样，但这里检查时只检查第一张的缩略图。如果第一张被排除掉了，那么它后面的图片也就不会被加入抓取结果。
 
     // 检查通过
     if (await filter.check(filterOpt)) {

@@ -178,8 +178,9 @@ class Download {
               file = await converter.apng(file, arg.data.ugoiraInfo)
             }
           } catch (error) {
-            const msg = `Error: convert ugoira error, work id ${arg.data.idNum}.`
+            const msg = `Convert ugoira error, id ${arg.data.idNum}.`
             log.error(msg, 1)
+            console.error(error)
 
             this.cancel = true
             EVT.fire(EVT.list.downloadError, arg.id)
@@ -194,14 +195,10 @@ class Download {
       // 生成下载链接
       const blobUrl = URL.createObjectURL(file)
 
-      // 检查图片的彩色、黑白设置
-      // 这里的检查，主要是因为抓取时只能检测第一张的缩略图，有些作品第一张图的颜色和后面不一样。例如某个作品第一张是彩色，后面是黑白；设置条件是只下载彩色。抓取时这个作品通过了检查，后面的黑白图片也会被下载。此时就需要在这里重新检查一次。
-      // 对插画、漫画进行检查。动图抓取时检查了第一张图，已经够了，这里不再检查
-      // 这里并没有让 filter 初始化，如果用户在抓取之后修改了彩色、黑白的设置，filter 不会响应变化。所以这里不检查第一张图，以避免无谓的检查。如果以后使 filter 在这里初始化了，那么第一张图也需要检查。
-      if (
-        (arg.data.type === 0 || arg.data.type === 1) &&
-        !arg.data.id.includes('p0')
-      ) {
+      // 对插画、漫画进行颜色检查
+      // 在这里进行检查的主要原因：抓取时只能检测第一张的缩略图，并没有检查后面的图片。所以这里需要对后面的图片进行检查。
+      // 另一个原因：如果抓取时没有设置不下载某种颜色的图片，下载时又开启了设置，那么就在这里进行检查
+      if (arg.data.type === 0 || arg.data.type === 1) {
         const result = await filter.check({
           mini: blobUrl,
         })
