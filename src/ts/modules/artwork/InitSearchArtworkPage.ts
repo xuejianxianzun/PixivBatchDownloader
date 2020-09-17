@@ -45,8 +45,8 @@ class InitSearchArtworkPage extends InitPageBase {
   private worksType = ''
   private option: SearchOption = {}
   private readonly worksNoPerPage = 60 // 每个页面有多少个作品
-  private needCrawlPageCount = 0 // 一共有有多少个列表页面
-  private sendCrawlTaskCount = 0 // 已经抓取了多少个列表页面
+  private needCrawlPageCount = 0 // 需要抓取多少个列表页面
+  private sendCrawlTaskCount = 0 // 发送抓取请求之前会自增，用于计算要抓取的页码。不是请求完成后自增
   private readonly allOption = [
     'order',
     'type',
@@ -364,8 +364,10 @@ class InitSearchArtworkPage extends InitPageBase {
     }
 
     if (this.causeResultChange.includes(data.name)) {
-      this.reAddResult()
-      EVT.fire(EVT.list.resultChange)
+      if (store.result.length > 0) {
+        this.reAddResult()
+        EVT.fire(EVT.list.resultChange)
+      }
     }
   }
 
@@ -638,8 +640,8 @@ class InitSearchArtworkPage extends InitPageBase {
     store.reset()
 
     for (let data of this.resultMeta) {
-      const dlCount = settingAPI.getDLCount(data.pageCount)
       // 如果此时的 dlCount 与之前的 dlCount 不一样，则更新它
+      const dlCount = settingAPI.getDLCount(data.pageCount)
       if (dlCount !== data.dlCount) {
         data = Object.assign(data, { dlCount: dlCount })
       }

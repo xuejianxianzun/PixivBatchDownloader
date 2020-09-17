@@ -4201,7 +4201,6 @@ class InitBookmarkLegacyPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         }
         else {
             this.readyGetIdList();
-            // 获取 id 列表
             this.getIdList();
         }
     }
@@ -8455,8 +8454,8 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         this.worksType = '';
         this.option = {};
         this.worksNoPerPage = 60; // 每个页面有多少个作品
-        this.needCrawlPageCount = 0; // 一共有有多少个列表页面
-        this.sendCrawlTaskCount = 0; // 已经抓取了多少个列表页面
+        this.needCrawlPageCount = 0; // 需要抓取多少个列表页面
+        this.sendCrawlTaskCount = 0; // 发送抓取请求之前会自增，用于计算要抓取的页码。不是请求完成后自增
         this.allOption = [
             'order',
             'type',
@@ -8484,8 +8483,10 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
                 this.setPreviewResult(data.value);
             }
             if (this.causeResultChange.includes(data.name)) {
-                this.reAddResult();
-                _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.resultChange);
+                if (_Store__WEBPACK_IMPORTED_MODULE_8__["store"].result.length > 0) {
+                    this.reAddResult();
+                    _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.resultChange);
+                }
             }
         };
         // 抓取完成后，保存结果的元数据，并重排结果

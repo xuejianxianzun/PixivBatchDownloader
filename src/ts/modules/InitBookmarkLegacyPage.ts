@@ -106,8 +106,6 @@ class InitBookmarkLegacyPage extends InitPageBase {
       this.getRecommendedList()
     } else {
       this.readyGetIdList()
-
-      // 获取 id 列表
       this.getIdList()
     }
   }
