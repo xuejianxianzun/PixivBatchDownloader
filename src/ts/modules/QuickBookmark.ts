@@ -20,6 +20,8 @@ class QuickBookmark {
   private isBookmarked: boolean | null = null
   private timer: number = 0
 
+  private flag = 'xzFlag' // 当插入快速下载按钮时，给原本的收藏按钮添加一个标记
+
   private async init() {
     // 在某些条件下，不展开快速收藏功能
     if (!API.getToken() || !settings.quickBookmarks) {
@@ -64,11 +66,14 @@ class QuickBookmark {
       // 获取原本的收藏按钮（其实是按钮外层的 div）
       this.pixivBMKDiv = this.toolbar.childNodes[2] as HTMLDivElement
       // 当没有收藏按钮时，停止执行（如用户处于自己作品的页面时没有收藏按钮）
-      if (!this.pixivBMKDiv) {
+      // 当收藏按钮是是上一个页面的，不是这个页面新创建的时，停止执行
+      if (!this.pixivBMKDiv || this.pixivBMKDiv.classList.contains(this.flag)) {
         return
       }
+
       // 隐藏原来的收藏按钮
       this.pixivBMKDiv.style.display = 'none'
+      this.pixivBMKDiv.classList.add(this.flag)
 
       // 如果没有快速收藏元素则添加
       this.btn = this.toolbar.querySelector(
