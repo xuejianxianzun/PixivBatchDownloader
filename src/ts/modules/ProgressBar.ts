@@ -118,13 +118,13 @@ class ProgressBar {
     bar.name.textContent = data.name
 
     let text = ''
-    if (data.total >= this.MB) {
-      // 使用 MB 作为单位
+    if (data.total >= this.MB || data.total ===0) {
+      // 使用 MiB 作为单位
       text = `${(data.loaded / this.MB).toFixed(1)}/${(
         data.total / this.MB
       ).toFixed(1)} MiB`
     } else {
-      // 使用 KB 作为单位
+      // 使用 KiB 作为单位
       text = `${Math.floor(data.loaded / this.KB)}/${Math.floor(
         data.total / this.KB
       )} KiB`

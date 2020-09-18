@@ -3057,7 +3057,7 @@ class Filter {
             this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了排除tag之后的提示') + this._notNeedTag);
         }
     }
-    // 获取过滤宽高的设置
+    // 获取宽高设置
     getSetWh() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWHSwitch) {
             return;
@@ -3067,13 +3067,9 @@ class Filter {
         this._setWidth = width.result ? width.value : 0;
         this._setHeight = height.result ? height.value : 0;
         if (this._setWidth || this._setHeight) {
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽度设置') +
-                this._setWidth +
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidthAndOr
-                    .replace('|', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_或者'))
-                    .replace('&', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_并且')) +
-                _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_高度设置') +
-                this._setHeight);
+            const andOr = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidthAndOr.replace('|', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_或者')).replace('&', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_并且'));
+            const text = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽度')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].widthHeightLimit} ${this._setWidth} ${andOr} ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_高度')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].widthHeightLimit} ${this._setHeight}`;
+            this.logTip(text);
         }
     }
     // 获取输入的收藏数
@@ -3306,24 +3302,41 @@ class Filter {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWHSwitch) {
             return true;
         }
+        // 缺少必要的参数
         if (width === undefined || height === undefined) {
             return true;
         }
-        if (this._setWidth > 0 || this._setHeight > 0) {
-            if (width < this._setWidth && height < this._setHeight) {
-                // 如果宽高都小于要求的宽高
-                return false;
+        // 未设置值，或者值不合法
+        if (this._setWidth === 0 || this._setHeight === 0) {
+            return true;
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].widthHeightLimit === '>=') {
+            // 大于等于
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidthAndOr === '&') {
+                return (width >= this._setWidth && height >= this._setHeight);
             }
             else {
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidthAndOr === '|') {
-                    return (width >= this._setWidth || height >= this._setHeight);
-                }
-                else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidthAndOr === '&') {
-                    return (width >= this._setWidth && height >= this._setHeight);
-                }
+                return (width >= this._setWidth || height >= this._setHeight);
             }
         }
-        return true;
+        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].widthHeightLimit === '<=') {
+            // 小于等于
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidthAndOr === '&') {
+                return (width <= this._setWidth && height <= this._setHeight);
+            }
+            else {
+                return (width <= this._setWidth || height <= this._setHeight);
+            }
+        }
+        else {
+            // 精确等于
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidthAndOr === '&') {
+                return (width === this._setWidth && height === this._setHeight);
+            }
+            else {
+                return (width === this._setWidth || height === this._setHeight);
+            }
+        }
     }
     // 检查作品是否符合宽高比条件
     checkRatio(width, height) {
@@ -3407,14 +3420,14 @@ class Filter {
         throw new Error(msg);
     }
     bindEvent() {
-        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.crawlStart, _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.resume]) {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.crawlStart, () => {
+            this.init(true);
+        });
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.settingChange, _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.resume]) {
             window.addEventListener(ev, () => {
-                this.init(true);
+                this.init();
             });
         }
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.settingChange, () => {
-            this.init();
-        });
     }
 }
 const filter = new Filter();
@@ -6174,12 +6187,12 @@ class ProgressBar {
         const bar = this.allProgressBar[index];
         bar.name.textContent = data.name;
         let text = '';
-        if (data.total >= this.MB) {
-            // 使用 MB 作为单位
+        if (data.total >= this.MB || data.total === 0) {
+            // 使用 MiB 作为单位
             text = `${(data.loaded / this.MB).toFixed(1)}/${(data.total / this.MB).toFixed(1)} MiB`;
         }
         else {
-            // 使用 KB 作为单位
+            // 使用 KiB 作为单位
             text = `${Math.floor(data.loaded / this.KB)}/${Math.floor(data.total / this.KB)} KiB`;
         }
         bar.loaded.textContent = text;
@@ -9499,10 +9512,10 @@ const langText = {
         'Invalid input',
         '本次輸入的數值無效',
     ],
-    _宽度设置: ['宽度 >= ', '幅 >= ', 'Width >= ', '寬度 >= '],
+    _宽度: ['宽度', '幅', 'Width', '寬度'],
     _或者: [' 或者 ', ' または ', ' or ', ' 或是 '],
     _并且: [' 并且 ', ' そして ', ' and ', ' 並且 '],
-    _高度设置: ['高度 >= ', '高さ >= ', 'height >= ', '高度 >= '],
+    _高度: ['高度', '高さ', 'height', '高度'],
     _个数: [
         '设置作品数量',
         '作品数を設定する',
@@ -10464,8 +10477,8 @@ const langText = {
         'Remove the serial number of the first picture of each work. For example 80036479_p0 becomes 80036479.',
         '去掉每個作品第一張圖的序號。例如：80036479_p0 變成 80036479。',
     ],
-    _最小值: ['最小值', '最小値', 'Minimum value', '最小值'],
-    _最大值: ['最大值', '最大値', 'maximum value', '最大值'],
+    _最小值: ['最小值', '最小値', 'Minimum', '最小值'],
+    _最大值: ['最大值', '最大値', 'Maximum', '最大值'],
     _单图作品: [
         '单图作品',
         'シングルイメージ作品',
@@ -12159,6 +12172,19 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="setWHSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="setWHSwitch">
+
+      <input type="radio" name="widthHeightLimit" id="widthHeightLimit1" class="need_beautify radio" value=">=" checked>
+      <span class="beautify_radio"></span>
+      <label for="widthHeightLimit1">&gt;=&nbsp;</label>
+
+      <input type="radio" name="widthHeightLimit" id="widthHeightLimit2" class="need_beautify radio" value="=">
+      <span class="beautify_radio"></span>
+      <label for="widthHeightLimit2">=&nbsp;</label>
+      
+      <input type="radio" name="widthHeightLimit" id="widthHeightLimit3" class="need_beautify radio" value="<=">
+      <span class="beautify_radio"></span>
+      <label for="widthHeightLimit3">&lt;=&nbsp;</label>
+
       <input type="text" name="setWidth" class="setinput_style1 blue" value="0">
       <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" class="need_beautify radio" value="&" checked>
       <span class="beautify_radio"></span>
@@ -12790,6 +12816,7 @@ class SaveSettings {
             BMKNumMin: '0',
             BMKNumMax: '999999',
             setWHSwitch: false,
+            widthHeightLimit: '>=',
             setWidthAndOr: '&',
             setWidth: '0',
             setHeight: '0',
@@ -12877,6 +12904,7 @@ class SaveSettings {
         this.saveCheckBox('quickBookmarks');
         // 保存宽高条件
         this.saveCheckBox('setWHSwitch');
+        this.saveRadio('widthHeightLimit');
         this.saveRadio('setWidthAndOr');
         this.saveTextInput('setWidth');
         this.saveTextInput('setHeight');
@@ -13019,6 +13047,7 @@ class SaveSettings {
         this.restoreBoolean('quickBookmarks');
         // 设置宽高条件
         this.restoreBoolean('setWHSwitch');
+        this.restoreString('widthHeightLimit');
         this.restoreString('setWidthAndOr');
         this.restoreString('setWidth');
         this.restoreString('setHeight');

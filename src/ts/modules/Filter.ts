@@ -242,7 +242,7 @@ class Filter {
     }
   }
 
-  // 获取过滤宽高的设置
+  // 获取宽高设置
   private getSetWh() {
     if (!settings.setWHSwitch) {
       return
@@ -255,15 +255,9 @@ class Filter {
     this._setHeight = height.result ? height.value : 0
 
     if (this._setWidth || this._setHeight) {
-      this.logTip(
-        lang.transl('_宽度设置') +
-        this._setWidth +
-        settings.setWidthAndOr
-          .replace('|', lang.transl('_或者'))
-          .replace('&', lang.transl('_并且')) +
-        lang.transl('_高度设置') +
-        this._setHeight
-      )
+      const andOr = settings.setWidthAndOr.replace('|', lang.transl('_或者')).replace('&', lang.transl('_并且'))
+      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${this._setWidth} ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${this._setHeight}`
+      this.logTip(text)
     }
   }
 
@@ -546,24 +540,38 @@ class Filter {
       return true
     }
 
+    // 缺少必要的参数
     if (width === undefined || height === undefined) {
       return true
     }
 
-    if (this._setWidth > 0 || this._setHeight > 0) {
-      if (width < this._setWidth && height < this._setHeight) {
-        // 如果宽高都小于要求的宽高
-        return false
-      } else {
-        if (settings.setWidthAndOr === '|') {
-          return (width >= this._setWidth || height >= this._setHeight)
-        } else if (settings.setWidthAndOr === '&') {
-          return (width >= this._setWidth && height >= this._setHeight)
-        }
-      }
+    // 未设置值，或者值不合法
+    if (this._setWidth === 0 || this._setHeight === 0) {
+      return true
     }
 
-    return true
+    if (settings.widthHeightLimit === '>=') {
+      // 大于等于
+      if (settings.setWidthAndOr === '&') {
+        return (width >= this._setWidth && height >= this._setHeight)
+      } else {
+        return (width >= this._setWidth || height >= this._setHeight)
+      }
+    } else if (settings.widthHeightLimit === '<=') {
+      // 小于等于
+      if (settings.setWidthAndOr === '&') {
+        return (width <= this._setWidth && height <= this._setHeight)
+      } else {
+        return (width <= this._setWidth || height <= this._setHeight)
+      }
+    } else {
+      // 精确等于
+      if (settings.setWidthAndOr === '&') {
+        return (width === this._setWidth && height === this._setHeight)
+      } else {
+        return (width === this._setWidth || height === this._setHeight)
+      }
+    }
   }
 
   // 检查作品是否符合宽高比条件
@@ -656,15 +664,16 @@ class Filter {
   }
 
   private bindEvent() {
-    for (const ev of [EVT.list.crawlStart, EVT.list.resume]) {
+    window.addEventListener(EVT.list.crawlStart, () => {
+      this.init(true)
+    })
+
+    for (const ev of [EVT.list.settingChange, EVT.list.resume]) {
       window.addEventListener(ev, () => {
-        this.init(true)
+        this.init()
       })
     }
 
-    window.addEventListener(EVT.list.settingChange, () => {
-      this.init()
-    })
   }
 }
 

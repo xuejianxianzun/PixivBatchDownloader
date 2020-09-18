@@ -101,6 +101,19 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="setWHSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="setWHSwitch">
+
+      <input type="radio" name="widthHeightLimit" id="widthHeightLimit1" class="need_beautify radio" value=">=" checked>
+      <span class="beautify_radio"></span>
+      <label for="widthHeightLimit1">&gt;=&nbsp;</label>
+
+      <input type="radio" name="widthHeightLimit" id="widthHeightLimit2" class="need_beautify radio" value="=">
+      <span class="beautify_radio"></span>
+      <label for="widthHeightLimit2">=&nbsp;</label>
+      
+      <input type="radio" name="widthHeightLimit" id="widthHeightLimit3" class="need_beautify radio" value="<=">
+      <span class="beautify_radio"></span>
+      <label for="widthHeightLimit3">&lt;=&nbsp;</label>
+
       <input type="text" name="setWidth" class="setinput_style1 blue" value="0">
       <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" class="need_beautify radio" value="&" checked>
       <span class="beautify_radio"></span>

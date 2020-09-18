@@ -43,6 +43,7 @@ interface XzSetting {
   BMKNumMin: string
   BMKNumMax: string
   setWHSwitch: boolean
+  widthHeightLimit: '>=' | '=' | '<='
   setWidthAndOr: '&' | '|'
   setWidth: string
   setHeight: string
@@ -117,6 +118,7 @@ class SaveSettings {
     BMKNumMin: '0',
     BMKNumMax: '999999',
     setWHSwitch: false,
+    widthHeightLimit: '>=',
     setWidthAndOr: '&',
     setWidth: '0',
     setHeight: '0',
@@ -216,6 +218,7 @@ class SaveSettings {
 
     // 保存宽高条件
     this.saveCheckBox('setWHSwitch')
+    this.saveRadio('widthHeightLimit')
     this.saveRadio('setWidthAndOr')
     this.saveTextInput('setWidth')
     this.saveTextInput('setHeight')
@@ -245,11 +248,11 @@ class SaveSettings {
 
     // 保存命名规则
     const userSetNameInput = form.userSetName
-    ;['change', 'focus'].forEach((ev) => {
-      userSetNameInput.addEventListener(ev, () => {
-        this.emitChange('userSetName', userSetNameInput.value)
+      ;['change', 'focus'].forEach((ev) => {
+        userSetNameInput.addEventListener(ev, () => {
+          this.emitChange('userSetName', userSetNameInput.value)
+        })
       })
-    })
 
     // 保存是否添加标记名称
     this.saveCheckBox('tagNameToFileName')
@@ -306,7 +309,7 @@ class SaveSettings {
         const data = event.detail.data as SettingChangeData
         if (Reflect.has(this.optionDefault, data.name)) {
           if ((this.settings[data.name] as any) !== data.value) {
-            ;(this.settings[data.name] as any) = data.value
+            ; (this.settings[data.name] as any) = data.value
             localStorage.setItem(this.storeName, JSON.stringify(this.settings))
           }
         }
@@ -391,6 +394,7 @@ class SaveSettings {
 
     // 设置宽高条件
     this.restoreBoolean('setWHSwitch')
+    this.restoreString('widthHeightLimit')
     this.restoreString('setWidthAndOr')
     this.restoreString('setWidth')
     this.restoreString('setHeight')
