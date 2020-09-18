@@ -92,34 +92,31 @@ class Deduplication {
     })
 
     // 当有文件下载完成时，存储这个任务的记录
-    window.addEventListener(
-      EVT.list.downloadSuccess,
-      (ev: CustomEventInit) => {
-        const successData = ev.detail.data as DonwloadSuccessData
+    window.addEventListener(EVT.list.downloadSuccess, (ev: CustomEventInit) => {
+      const successData = ev.detail.data as DonwloadSuccessData
 
-        // 不储存被跳过下载的文件
-        if (this.skipIdList.includes(successData.id)) {
-          return
-        }
-
-        const data = this.createRecord(successData.id)
-
-        if (this.existedIdList.includes(successData.id)) {
-          this.IDB.put(this.getStoreName(successData.id), data)
-        } else {
-          this.IDB.add(this.getStoreName(successData.id), data).catch(() => {
-            this.IDB.put(this.getStoreName(successData.id), data)
-          })
-        }
+      // 不储存被跳过下载的文件
+      if (this.skipIdList.includes(successData.id)) {
+        return
       }
-    )
 
-      // 当抓取完成、下载完成时，清空 skipIdList 列表
-      ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach((val) => {
-        window.addEventListener(val, () => {
-          this.skipIdList = []
+      const data = this.createRecord(successData.id)
+
+      if (this.existedIdList.includes(successData.id)) {
+        this.IDB.put(this.getStoreName(successData.id), data)
+      } else {
+        this.IDB.add(this.getStoreName(successData.id), data).catch(() => {
+          this.IDB.put(this.getStoreName(successData.id), data)
         })
+      }
+    })
+
+    // 当抓取完成、下载完成时，清空 skipIdList 列表
+    ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach((val) => {
+      window.addEventListener(val, () => {
+        this.skipIdList = []
       })
+    })
 
     // 给“清空下载记录”的按钮绑定事件
     const btn = document.querySelector('#clearDownloadRecords')
@@ -145,7 +142,7 @@ class Deduplication {
     if (location.hostname.includes('pixivision.net')) {
       return false
     }
-    
+
     return new Promise<boolean>(async (resolve, reject) => {
       // 如果未启用去重，直接返回不重复
       if (!settings.deduplication) {

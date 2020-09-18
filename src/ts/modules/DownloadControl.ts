@@ -123,14 +123,18 @@ class DownloadControl {
     )}</p>
     
     <div class="centerWrap_btns">
-    <button class="startDownload" type="button" style="background:${Colors.blue
-      };"> ${lang.transl('_下载按钮1')}</button>
-    <button class="pauseDownload" type="button" style="background:${Colors.yellow
-      };"> ${lang.transl('_下载按钮2')}</button>
-    <button class="stopDownload" type="button" style="background:${Colors.red
-      };"> ${lang.transl('_下载按钮3')}</button>
-    <button class="copyUrl" type="button" style="background:${Colors.green
-      };"> ${lang.transl('_复制url')}</button>
+    <button class="startDownload" type="button" style="background:${
+      Colors.blue
+    };"> ${lang.transl('_下载按钮1')}</button>
+    <button class="pauseDownload" type="button" style="background:${
+      Colors.yellow
+    };"> ${lang.transl('_下载按钮2')}</button>
+    <button class="stopDownload" type="button" style="background:${
+      Colors.red
+    };"> ${lang.transl('_下载按钮3')}</button>
+    <button class="copyUrl" type="button" style="background:${
+      Colors.green
+    };"> ${lang.transl('_复制url')}</button>
     </div>
     <div class="download_status_text_wrap">
     <span>${lang.transl('_当前状态')}</span>
@@ -141,20 +145,30 @@ class DownloadControl {
     </div>`
 
     this.wrapper = DOM.useSlot('downloadArea', html) as HTMLDivElement
-    this.statesEl = this.wrapper.querySelector('.down_status') as HTMLSpanElement
-    this.totalNumberEl = this.wrapper.querySelector('.imgNum') as HTMLSpanElement
+    this.statesEl = this.wrapper.querySelector(
+      '.down_status'
+    ) as HTMLSpanElement
+    this.totalNumberEl = this.wrapper.querySelector(
+      '.imgNum'
+    ) as HTMLSpanElement
 
-    this.wrapper.querySelector('.startDownload')!.addEventListener('click', () => {
-      this.startDownload()
-    })
+    this.wrapper
+      .querySelector('.startDownload')!
+      .addEventListener('click', () => {
+        this.startDownload()
+      })
 
-    this.wrapper.querySelector('.pauseDownload')!.addEventListener('click', () => {
-      this.pauseDownload()
-    })
+    this.wrapper
+      .querySelector('.pauseDownload')!
+      .addEventListener('click', () => {
+        this.pauseDownload()
+      })
 
-    this.wrapper.querySelector('.stopDownload')!.addEventListener('click', () => {
-      this.stopDownload()
-    })
+    this.wrapper
+      .querySelector('.stopDownload')!
+      .addEventListener('click', () => {
+        this.stopDownload()
+      })
 
     this.wrapper.querySelector('.copyUrl')!.addEventListener('click', () => {
       this.showURLs()
@@ -324,11 +338,7 @@ class DownloadControl {
   // 设置下载线程数量
   private setDownloadThread() {
     const setThread = parseInt(settings.downloadThread)
-    if (
-      setThread < 1 ||
-      setThread > this.threadMax ||
-      isNaN(setThread)
-    ) {
+    if (setThread < 1 || setThread > this.threadMax || isNaN(setThread)) {
       // 如果数值非法，则重设为默认值
       this.thread = this.threadMax
     } else {
@@ -449,8 +459,7 @@ class DownloadControl {
   private hideDownloadArea() {
     this.wrapper.style.display = 'none'
   }
-
 }
 
 new DownloadControl()
-export { }
+export {}

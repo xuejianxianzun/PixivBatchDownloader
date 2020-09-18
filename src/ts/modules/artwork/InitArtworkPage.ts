@@ -132,10 +132,7 @@ class InitArtworkPage extends InitPageBase {
       this.initImgViewer
     )
 
-    window.removeEventListener(
-      EVT.list.QuickDownload,
-      this.startQuickDownload
-    )
+    window.removeEventListener(EVT.list.QuickDownload, this.startQuickDownload)
   }
 
   protected getWantPage() {

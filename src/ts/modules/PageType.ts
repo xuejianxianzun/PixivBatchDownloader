@@ -21,7 +21,7 @@ class PageType {
 
     if (
       window.location.hostname === 'www.pixiv.net' &&
-      (['/', '/manga', '/novel/', '/en/'].includes(pathname))
+      ['/', '/manga', '/novel/', '/en/'].includes(pathname)
     ) {
       type = 0
     } else if (/\/artworks\/\d{1,10}/.test(url)) {

@@ -745,7 +745,6 @@ class InitSearchArtworkPage extends InitPageBase {
       }
     }, 300)
   }
-
 }
 
 export { InitSearchArtworkPage }

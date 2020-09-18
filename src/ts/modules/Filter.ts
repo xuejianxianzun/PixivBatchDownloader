@@ -255,8 +255,14 @@ class Filter {
     this._setHeight = height.result ? height.value : 0
 
     if (this._setWidth || this._setHeight) {
-      const andOr = settings.setWidthAndOr.replace('|', lang.transl('_或者')).replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${this._setWidth} ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${this._setHeight}`
+      const andOr = settings.setWidthAndOr
+        .replace('|', lang.transl('_或者'))
+        .replace('&', lang.transl('_并且'))
+      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${
+        this._setWidth
+      } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${
+        this._setHeight
+      }`
       this.logTip(text)
     }
   }
@@ -346,7 +352,11 @@ class Filter {
 
   // 获取投稿时间设置
   private getPostDate() {
-    if (!settings.postDate || settings.postDateStart === '' || settings.postDateEnd === '') {
+    if (
+      !settings.postDate ||
+      settings.postDateStart === '' ||
+      settings.postDateEnd === ''
+    ) {
       return
     }
 
@@ -363,7 +373,8 @@ class Filter {
       this._postDateStart = postDateStart.getTime()
       this._postDateEnd = postDateEnd.getTime()
       this.logTip(
-        `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${settings.postDateEnd
+        `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${
+          settings.postDateEnd
         }`
       )
     }
@@ -545,31 +556,31 @@ class Filter {
       return true
     }
 
-    // 未设置值，或者值不合法
-    if (this._setWidth === 0 || this._setHeight === 0) {
+    // 未设置宽高，或者设置的宽高都不合法
+    if (this._setWidth === 0 && this._setHeight === 0) {
       return true
     }
 
     if (settings.widthHeightLimit === '>=') {
       // 大于等于
       if (settings.setWidthAndOr === '&') {
-        return (width >= this._setWidth && height >= this._setHeight)
+        return width >= this._setWidth && height >= this._setHeight
       } else {
-        return (width >= this._setWidth || height >= this._setHeight)
+        return width >= this._setWidth || height >= this._setHeight
       }
     } else if (settings.widthHeightLimit === '<=') {
       // 小于等于
       if (settings.setWidthAndOr === '&') {
-        return (width <= this._setWidth && height <= this._setHeight)
+        return width <= this._setWidth && height <= this._setHeight
       } else {
-        return (width <= this._setWidth || height <= this._setHeight)
+        return width <= this._setWidth || height <= this._setHeight
       }
     } else {
       // 精确等于
       if (settings.setWidthAndOr === '&') {
-        return (width === this._setWidth && height === this._setHeight)
+        return width === this._setWidth && height === this._setHeight
       } else {
-        return (width === this._setWidth || height === this._setHeight)
+        return width === this._setWidth || height === this._setHeight
       }
     }
   }
@@ -618,11 +629,19 @@ class Filter {
 
   // 检查投稿时间设置
   private checkPostDate(date: FilterOption['createDate']) {
-    if (!settings.postDate || date === undefined || !this._postDateStart || !this._postDateEnd) {
+    if (
+      !settings.postDate ||
+      date === undefined ||
+      !this._postDateStart ||
+      !this._postDateEnd
+    ) {
       return true
     } else {
       const nowDate = new Date(date)
-      return (nowDate.getTime() >= this._postDateStart && nowDate.getTime() <= this._postDateEnd)
+      return (
+        nowDate.getTime() >= this._postDateStart &&
+        nowDate.getTime() <= this._postDateEnd
+      )
     }
   }
 
@@ -673,7 +692,6 @@ class Filter {
         this.init()
       })
     }
-
   }
 }
 

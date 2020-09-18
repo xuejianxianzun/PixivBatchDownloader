@@ -2022,13 +2022,19 @@ class DownloadControl {
         this.wrapper = _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].useSlot('downloadArea', html);
         this.statesEl = this.wrapper.querySelector('.down_status');
         this.totalNumberEl = this.wrapper.querySelector('.imgNum');
-        this.wrapper.querySelector('.startDownload').addEventListener('click', () => {
+        this.wrapper
+            .querySelector('.startDownload')
+            .addEventListener('click', () => {
             this.startDownload();
         });
-        this.wrapper.querySelector('.pauseDownload').addEventListener('click', () => {
+        this.wrapper
+            .querySelector('.pauseDownload')
+            .addEventListener('click', () => {
             this.pauseDownload();
         });
-        this.wrapper.querySelector('.stopDownload').addEventListener('click', () => {
+        this.wrapper
+            .querySelector('.stopDownload')
+            .addEventListener('click', () => {
             this.stopDownload();
         });
         this.wrapper.querySelector('.copyUrl').addEventListener('click', () => {
@@ -2170,9 +2176,7 @@ class DownloadControl {
     // 设置下载线程数量
     setDownloadThread() {
         const setThread = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].downloadThread);
-        if (setThread < 1 ||
-            setThread > this.threadMax ||
-            isNaN(setThread)) {
+        if (setThread < 1 || setThread > this.threadMax || isNaN(setThread)) {
             // 如果数值非法，则重设为默认值
             this.thread = this.threadMax;
         }
@@ -3067,7 +3071,9 @@ class Filter {
         this._setWidth = width.result ? width.value : 0;
         this._setHeight = height.result ? height.value : 0;
         if (this._setWidth || this._setHeight) {
-            const andOr = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidthAndOr.replace('|', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_或者')).replace('&', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_并且'));
+            const andOr = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidthAndOr
+                .replace('|', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_或者'))
+                .replace('&', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_并且'));
             const text = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽度')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].widthHeightLimit} ${this._setWidth} ${andOr} ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_高度')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].widthHeightLimit} ${this._setHeight}`;
             this.logTip(text);
         }
@@ -3144,7 +3150,9 @@ class Filter {
     }
     // 获取投稿时间设置
     getPostDate() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].postDate || _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].postDateStart === '' || _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].postDateEnd === '') {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].postDate ||
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].postDateStart === '' ||
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].postDateEnd === '') {
             return;
         }
         // 判断是否是有效的时间格式
@@ -3306,35 +3314,35 @@ class Filter {
         if (width === undefined || height === undefined) {
             return true;
         }
-        // 未设置值，或者值不合法
-        if (this._setWidth === 0 || this._setHeight === 0) {
+        // 未设置宽高，或者设置的宽高都不合法
+        if (this._setWidth === 0 && this._setHeight === 0) {
             return true;
         }
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].widthHeightLimit === '>=') {
             // 大于等于
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidthAndOr === '&') {
-                return (width >= this._setWidth && height >= this._setHeight);
+                return width >= this._setWidth && height >= this._setHeight;
             }
             else {
-                return (width >= this._setWidth || height >= this._setHeight);
+                return width >= this._setWidth || height >= this._setHeight;
             }
         }
         else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].widthHeightLimit === '<=') {
             // 小于等于
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidthAndOr === '&') {
-                return (width <= this._setWidth && height <= this._setHeight);
+                return width <= this._setWidth && height <= this._setHeight;
             }
             else {
-                return (width <= this._setWidth || height <= this._setHeight);
+                return width <= this._setWidth || height <= this._setHeight;
             }
         }
         else {
             // 精确等于
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidthAndOr === '&') {
-                return (width === this._setWidth && height === this._setHeight);
+                return width === this._setWidth && height === this._setHeight;
             }
             else {
-                return (width === this._setWidth || height === this._setHeight);
+                return width === this._setWidth || height === this._setHeight;
             }
         }
     }
@@ -3377,12 +3385,16 @@ class Filter {
     }
     // 检查投稿时间设置
     checkPostDate(date) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].postDate || date === undefined || !this._postDateStart || !this._postDateEnd) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].postDate ||
+            date === undefined ||
+            !this._postDateStart ||
+            !this._postDateEnd) {
             return true;
         }
         else {
             const nowDate = new Date(date);
-            return (nowDate.getTime() >= this._postDateStart && nowDate.getTime() <= this._postDateEnd);
+            return (nowDate.getTime() >= this._postDateStart &&
+                nowDate.getTime() <= this._postDateEnd);
         }
     }
     // 检查首次登场设置
@@ -6004,7 +6016,7 @@ class PageType {
         const pathname = window.location.pathname;
         let type;
         if (window.location.hostname === 'www.pixiv.net' &&
-            (['/', '/manga', '/novel/', '/en/'].includes(pathname))) {
+            ['/', '/manga', '/novel/', '/en/'].includes(pathname)) {
             type = 0;
         }
         else if (/\/artworks\/\d{1,10}/.test(url)) {
@@ -13012,10 +13024,11 @@ class SaveSettings {
         const savedOption = localStorage.getItem(this.storeName);
         // 读取保存的设置
         if (savedOption) {
-            this.settings = JSON.parse(savedOption);
+            // 使用 assign 合并选项，而不是直接覆盖 settings
+            // 这样在新版本里可以给默认的 settings 添加新的选项，不会因为旧版本里没有这个选项而导致问题
+            this.settings = Object.assign(this.settings, JSON.parse(savedOption));
         }
         else {
-            // 如果没有保存过，则不做处理
             return;
         }
         // 设置下载的作品类型

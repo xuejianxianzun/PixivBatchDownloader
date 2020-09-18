@@ -349,9 +349,10 @@ class SaveSettings {
     const savedOption = localStorage.getItem(this.storeName)
     // 读取保存的设置
     if (savedOption) {
-      this.settings = JSON.parse(savedOption)
+      // 使用 assign 合并选项，而不是直接覆盖 settings
+      // 这样在新版本里可以给默认的 settings 添加新的选项，不会因为旧版本里没有这个选项而导致问题
+      this.settings = Object.assign(this.settings, JSON.parse(savedOption))
     } else {
-      // 如果没有保存过，则不做处理
       return
     }
 
