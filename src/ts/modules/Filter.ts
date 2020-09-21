@@ -99,7 +99,7 @@ class Filter {
       return false
     }
 
-    // 检查只下载书签作品的要求
+    // 检查只下载已收藏的要求
     if (!this.checkOnlyBmk(option.bookmarkData)) {
       return false
     }
@@ -258,11 +258,9 @@ class Filter {
       const andOr = settings.setWidthAndOr
         .replace('|', lang.transl('_或者'))
         .replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${
-        this._setWidth
-      } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${
-        this._setHeight
-      }`
+      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${this._setWidth
+        } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${this._setHeight
+        }`
       this.logTip(text)
     }
   }
@@ -290,7 +288,7 @@ class Filter {
     }
   }
 
-  // 获取只下载书签作品的设置
+  // 获取只下载已收藏的设置
   private getOnlyBmk() {
     if (settings.setOnlyBmk) {
       this.logTip(lang.transl('_只下载已收藏的提示'))
@@ -373,8 +371,7 @@ class Filter {
       this._postDateStart = postDateStart.getTime()
       this._postDateEnd = postDateEnd.getTime()
       this.logTip(
-        `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${
-          settings.postDateEnd
+        `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${settings.postDateEnd
         }`
       )
     }
@@ -405,20 +402,10 @@ class Filter {
   private checkDownType(illustType: FilterOption['illustType']) {
     if (illustType === undefined) {
       return true
-    } else {
-      switch (illustType) {
-        case 0:
-          return settings.downType0 ? true : false
-        case 1:
-          return settings.downType1 ? true : false
-        case 2:
-          return settings.downType2 ? true : false
-        case 3:
-          return settings.downType3 ? true : false
-        default:
-          return true
-      }
     }
+
+    const name = 'downType' + illustType as 'downType0' | 'downType1' | 'downType2' | 'downType3'
+    return settings[name]
   }
 
   // 依据图片数量，检查下载的作品类型
@@ -466,12 +453,12 @@ class Filter {
   private checkBMK(bmk: FilterOption['bookmarkCount']) {
     if (bmk === undefined || !settings.BMKNumSwitch) {
       return true
-    } else {
-      return bmk >= this._BMKNumMin && bmk <= this._BMKNumMax
     }
+
+    return bmk >= this._BMKNumMin && bmk <= this._BMKNumMax
   }
 
-  // 检查作品是否符合【只下载书签作品】的条件,返回值 true 表示包含这个作品
+  // 检查作品是否符合【只下载已收藏】的条件,返回值 true 表示包含这个作品
   private checkOnlyBmk(bookmarked: any) {
     if (bookmarked === undefined || !settings.setOnlyBmk) {
       return true
@@ -636,26 +623,23 @@ class Filter {
       !this._postDateEnd
     ) {
       return true
-    } else {
-      const nowDate = new Date(date)
-      return (
-        nowDate.getTime() >= this._postDateStart &&
-        nowDate.getTime() <= this._postDateEnd
-      )
     }
+
+    const nowDate = new Date(date)
+    return (
+      nowDate.getTime() >= this._postDateStart &&
+      nowDate.getTime() <= this._postDateEnd
+    )
   }
 
   // 检查首次登场设置
   // yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
   private checkDebut(yes_rank: FilterOption['yes_rank']) {
     if (!states.debut || yes_rank === undefined) {
-      // 如果没有要求首次登场，或者没有此数据
       return true
-    } else {
-      // 要求首次登场
-      console.log(yes_rank)
-      return yes_rank === 0
     }
+
+    return yes_rank === 0
   }
 
   // 检查文件体积

@@ -263,19 +263,6 @@ abstract class InitPageBase {
 
     log.log(lang.transl('_抓取完毕'), 2)
 
-    // 统计不同类型的文件数量
-    // 统计 blob 文件的体积
-    // const type = [0, 0, 0, 0]
-    // let blobSize = 0
-    // for (const result of store.result) {
-    //   type[result.type] = type[result.type] + 1
-    //   if(result.novelBlob){
-    //     blobSize += result.novelBlob.size
-    //   }
-    // }
-    // console.log(type)
-    // console.log(blobSize)
-
     // 发出抓取完毕的信号
     EVT.fire(EVT.list.crawlFinish)
   }
