@@ -5,66 +5,84 @@ import { lang } from './Lang'
 import { settings } from './setting/Settings'
 import { BookmarkResult } from './CrawlResult.d'
 
-// 一键收藏本页面上的所有作品
+// 一键收藏所有作品
+// 可以传入页面上的作品元素列表，也可以直接传入 id 列表
+// 一次任务里要么全部传递插画，要么全部传递小说，不要混合
+type WorkType = 'illusts' | 'novels'
+
 class BookmarkAllWorks {
   constructor() {
-    const btn = DOM.addBtn(
+    this.btn = DOM.addBtn(
       'otherBtns',
       Colors.green,
       lang.transl('_收藏本页面的所有作品')
     )
-    this.btn = btn
   }
 
-  private type: 'illusts' | 'novels' = 'illusts' // 页面是图片还是小说
+  private type: WorkType = 'illusts' // 作品的类型
 
   private idList: string[] = []
 
-  private addTagList: BookmarkResult[] = [] // 需要添加 tag 的作品的数据
+  private bookmarKData: BookmarkResult[] = []
 
-  private index = 0
+  public btn!: HTMLButtonElement
 
-  public btn: HTMLButtonElement
-
-  private workList: NodeListOf<HTMLElement> | HTMLElement[] | null = null
+  private workList!: NodeListOf<HTMLElement> | HTMLElement[]
 
   private token = API.getToken()
 
-  // workList 是作品列表元素的合集。本模块会尝试分析每个作品元素中的超链接，提取出作品 id
-  public setWorkList(list: NodeListOf<HTMLElement> | HTMLElement[]) {
-    if (!list) {
-      alert(lang.transl('_没有数据可供使用'))
-      return
+  // 传递 workList，这是作品列表元素的合集。代码会尝试分析每个作品元素中的超链接，提取出作品 id
+  // 如果传递的作品是本页面上的作品，可以省略 type。代码会根据页面 url 判断是图片还是小说。
+  // 如果传递的作品不是本页面上的，为防止误判，需要显式传递 type
+  public setWorkList(list: NodeListOf<HTMLElement> | HTMLElement[], type?: WorkType) {
+    if (!list || list.length === 0) {
+      return alert(lang.transl('_没有数据可供使用'))
     }
+
+    this.ready(type)
+
     this.workList = list
-    this.readyAddTag()
-  }
-
-  // 准备添加 tag
-  private async readyAddTag(loop: number = 0) {
-    // 每次点击清空结果
-    this.idList = []
-    this.addTagList = []
-    this.index = 0
-
-    this.token = API.getToken()
-
-    this.btn.setAttribute('disabled', 'disabled')
-    this.btn.textContent = `Checking`
-
-    if (window.location.pathname.includes('/novel')) {
-      this.type = 'novels'
-    }
 
     this.getIdList()
+
+    this.startBookmark()
   }
 
-  // 获取作品列表里的作品 id
-  private getIdList() {
-    if (!this.workList) {
-      return
+  // 直接传递作品 id 列表
+  public setIdList(list: string[], type?: WorkType) {
+    this.ready(type)
+
+    this.idList = list
+
+    this.startBookmark()
+  }
+
+  // 启动收藏流程，前提是已经设置了作品 id 列表
+  private async startBookmark() {
+    await this.getTagData()
+    await this.addBookmarkAll()
+    this.complete()
+  }
+
+  // 初始化数据和按钮状态
+  private ready(type?: WorkType) {
+    this.idList = []
+    this.bookmarKData = []
+    this.token = API.getToken()
+
+    if (type) {
+      this.type = type
+    } else {
+      this.type = window.location.pathname.includes('/novel') ? 'novels' : 'illusts'
     }
 
+    this.btn.textContent = `Checking`
+    this.btn.setAttribute('disabled', 'disabled')
+  }
+
+
+  // 获取作品 id 列表
+  private getIdList() {
     const regExp = this.type === 'illusts' ? /\/artworks\/(\d*)/ : /\?id=(\d*)/
     for (const el of this.workList) {
       const a = el.querySelector('a')
@@ -77,79 +95,63 @@ class BookmarkAllWorks {
         }
       }
     }
-
-    this.getTagData()
   }
 
-  // 获取每个作品的详细信息，保存它们的 tag
+  // 获取每个作品的 tag 数据
   private async getTagData() {
-    this.btn.textContent = `Get data ${this.index} / ${this.idList.length}`
+    return new Promise<void>(async (resolve) => {
+      for (const id of this.idList) {
+        this.btn.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`
 
-    const id = this.idList[this.index]
-    try {
-      let data
-      // 发起请求
-      if (this.type === 'novels') {
-        data = await API.getNovelData(id)
-      } else {
-        data = await API.getArtworkData(id)
+        let data
+
+        if (this.type === 'novels') {
+          data = await API.getNovelData(id)
+        } else {
+          data = await API.getArtworkData(id)
+        }
+
+        const tagArr = data.body.tags.tags // 取出 tag 信息
+        const tags: string[] = [] // 保存 tag 列表
+
+        for (const tagData of tagArr) {
+          tags.push(tagData.tag)
+        }
+
+        this.bookmarKData.push({
+          id: data.body.id,
+          tags: tags,
+          restrict: false,
+        })
       }
 
-      const tagArr = data.body.tags.tags // 取出 tag 信息
-      const tags: string[] = [] // 保存 tag 列表
-
-      for (const tagData of tagArr) {
-        tags.push(tagData.tag)
-      }
-
-      this.addTagList.push({
-        id: data.body.id,
-        tags: tags,
-        restrict: false,
-      })
-
-      this.index++
-
-      if (this.index === this.idList.length) {
-        this.index = 0
-        return this.addTag()
-      }
-
-      this.getTagData()
-    } catch (error) {
-      this.getTagData()
-    }
+      resolve()
+    })
   }
 
-  // 给所有作品添加 tag（即使之前收藏过的，也会再次收藏）
-  private async addTag() {
-    this.btn.textContent = `Add bookmark ${this.index} / ${this.idList.length}`
+  // 给所有作品添加收藏（之前收藏过的，新 tag 将覆盖旧 tag）
+  private async addBookmarkAll() {
+    return new Promise<void>(async (resolve) => {
+      let index = 0
+      for (const data of this.bookmarKData) {
+        this.btn.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
+        await API.addBookmark(
+          this.type,
+          data.id,
+          settings.quickBookmarks ? data.tags : [],
+          data.restrict,
+          this.token
+        )
+        index++
+      }
 
-    const data = this.addTagList[this.index]
+      resolve()
+    })
+  }
 
-    // 如果没有启用快速收藏，则把 tag 设置为空
-    if (!settings.quickBookmarks) {
-      data.tags = []
-    }
-    await API.addBookmark(
-      this.type,
-      data.id,
-      data.tags,
-      data.restrict,
-      this.token
-    )
-
-    this.index++
-
-    // 添加完毕
-    if (this.index === this.addTagList.length) {
-      this.btn!.textContent = `✓ Complete`
-      this.btn!.removeAttribute('disabled')
-      return
-    }
-
-    // 继续添加
-    this.addTag()
+  private complete() {
+    this.btn.textContent = `✓ Complete`
+    this.btn.removeAttribute('disabled')
   }
 }
 

@@ -13,7 +13,7 @@ class DownloadStates {
     this.bindEvent()
   }
 
-  public states: (-1 | 0 | 1)[] = []
+  public states: DLStatesI = []
 
   private bindEvent() {
     // 初始化下载状态

@@ -410,12 +410,12 @@ class API {
         const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${limit}`;
         return this.request(url);
     }
-    // 获取插画 漫画 的详细信息
+    // 获取插画 漫画 动图 的详细信息
     static getArtworkData(id) {
         const url = `https://www.pixiv.net/ajax/illust/${id}`;
         return this.request(url);
     }
-    // 获取作品的动图信息
+    // 获取动图的元数据
     static getUgoiraMeta(id) {
         const url = `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`;
         return this.request(url);
@@ -702,46 +702,54 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 一键收藏本页面上的所有作品
 class BookmarkAllWorks {
     constructor() {
-        this.type = 'illusts'; // 页面是图片还是小说
+        this.type = 'illusts'; // 作品的类型
         this.idList = [];
-        this.addTagList = []; // 需要添加 tag 的作品的数据
-        this.index = 0;
-        this.workList = null;
+        this.bookmarKData = [];
         this.token = _API__WEBPACK_IMPORTED_MODULE_0__["API"].getToken();
-        const btn = _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_收藏本页面的所有作品'));
-        this.btn = btn;
+        this.btn = _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_收藏本页面的所有作品'));
     }
-    // workList 是作品列表元素的合集。本模块会尝试分析每个作品元素中的超链接，提取出作品 id
-    setWorkList(list) {
-        if (!list) {
-            alert(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_没有数据可供使用'));
-            return;
+    // 传递 workList，这是作品列表元素的合集。代码会尝试分析每个作品元素中的超链接，提取出作品 id
+    // 如果传递的作品是本页面上的作品，可以省略 type。代码会根据页面 url 判断是图片还是小说。
+    // 如果传递的作品不是本页面上的，为防止误判，需要显式传递 type
+    setWorkList(list, type) {
+        if (!list || list.length === 0) {
+            return alert(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_没有数据可供使用'));
         }
+        this.ready(type);
         this.workList = list;
-        this.readyAddTag();
-    }
-    // 准备添加 tag
-    async readyAddTag(loop = 0) {
-        // 每次点击清空结果
-        this.idList = [];
-        this.addTagList = [];
-        this.index = 0;
-        this.token = _API__WEBPACK_IMPORTED_MODULE_0__["API"].getToken();
-        this.btn.setAttribute('disabled', 'disabled');
-        this.btn.textContent = `Checking`;
-        if (window.location.pathname.includes('/novel')) {
-            this.type = 'novels';
-        }
         this.getIdList();
+        this.startBookmark();
     }
-    // 获取作品列表里的作品 id
-    getIdList() {
-        if (!this.workList) {
-            return;
+    // 直接传递作品 id 列表
+    setIdList(list, type) {
+        this.ready(type);
+        this.idList = list;
+        this.startBookmark();
+    }
+    // 启动收藏流程，前提是已经设置了作品 id 列表
+    async startBookmark() {
+        await this.getTagData();
+        await this.addBookmarkAll();
+        this.complete();
+    }
+    // 初始化数据和按钮状态
+    ready(type) {
+        this.idList = [];
+        this.bookmarKData = [];
+        this.token = _API__WEBPACK_IMPORTED_MODULE_0__["API"].getToken();
+        if (type) {
+            this.type = type;
         }
+        else {
+            this.type = window.location.pathname.includes('/novel') ? 'novels' : 'illusts';
+        }
+        this.btn.textContent = `Checking`;
+        this.btn.setAttribute('disabled', 'disabled');
+    }
+    // 获取作品 id 列表
+    getIdList() {
         const regExp = this.type === 'illusts' ? /\/artworks\/(\d*)/ : /\?id=(\d*)/;
         for (const el of this.workList) {
             const a = el.querySelector('a');
@@ -754,60 +762,48 @@ class BookmarkAllWorks {
                 }
             }
         }
-        this.getTagData();
     }
-    // 获取每个作品的详细信息，保存它们的 tag
+    // 获取每个作品的 tag 数据
     async getTagData() {
-        this.btn.textContent = `Get data ${this.index} / ${this.idList.length}`;
-        const id = this.idList[this.index];
-        try {
-            let data;
-            // 发起请求
-            if (this.type === 'novels') {
-                data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelData(id);
+        return new Promise(async (resolve) => {
+            for (const id of this.idList) {
+                this.btn.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`;
+                let data;
+                if (this.type === 'novels') {
+                    data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelData(id);
+                }
+                else {
+                    data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id);
+                }
+                const tagArr = data.body.tags.tags; // 取出 tag 信息
+                const tags = []; // 保存 tag 列表
+                for (const tagData of tagArr) {
+                    tags.push(tagData.tag);
+                }
+                this.bookmarKData.push({
+                    id: data.body.id,
+                    tags: tags,
+                    restrict: false,
+                });
             }
-            else {
-                data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id);
-            }
-            const tagArr = data.body.tags.tags; // 取出 tag 信息
-            const tags = []; // 保存 tag 列表
-            for (const tagData of tagArr) {
-                tags.push(tagData.tag);
-            }
-            this.addTagList.push({
-                id: data.body.id,
-                tags: tags,
-                restrict: false,
-            });
-            this.index++;
-            if (this.index === this.idList.length) {
-                this.index = 0;
-                return this.addTag();
-            }
-            this.getTagData();
-        }
-        catch (error) {
-            this.getTagData();
-        }
+            resolve();
+        });
     }
-    // 给所有作品添加 tag（即使之前收藏过的，也会再次收藏）
-    async addTag() {
-        this.btn.textContent = `Add bookmark ${this.index} / ${this.idList.length}`;
-        const data = this.addTagList[this.index];
-        // 如果没有启用快速收藏，则把 tag 设置为空
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].quickBookmarks) {
-            data.tags = [];
-        }
-        await _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(this.type, data.id, data.tags, data.restrict, this.token);
-        this.index++;
-        // 添加完毕
-        if (this.index === this.addTagList.length) {
-            this.btn.textContent = `✓ Complete`;
-            this.btn.removeAttribute('disabled');
-            return;
-        }
-        // 继续添加
-        this.addTag();
+    // 给所有作品添加收藏（之前收藏过的，新 tag 将覆盖旧 tag）
+    async addBookmarkAll() {
+        return new Promise(async (resolve) => {
+            let index = 0;
+            for (const data of this.bookmarKData) {
+                this.btn.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`;
+                await _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(this.type, data.id, _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].quickBookmarks ? data.tags : [], data.restrict, this.token);
+                index++;
+            }
+            resolve();
+        });
+    }
+    complete() {
+        this.btn.textContent = `✓ Complete`;
+        this.btn.removeAttribute('disabled');
     }
 }
 

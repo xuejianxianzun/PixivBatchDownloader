@@ -370,13 +370,13 @@ class API {
     return this.request(url)
   }
 
-  // 获取插画 漫画 的详细信息
+  // 获取插画 漫画 动图 的详细信息
   static getArtworkData(id: string): Promise<ArtworkData> {
     const url = `https://www.pixiv.net/ajax/illust/${id}`
     return this.request(url)
   }
 
-  // 获取作品的动图信息
+  // 获取动图的元数据
   static getUgoiraMeta(id: string): Promise<UgoiraData> {
     const url = `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`
     return this.request(url)
