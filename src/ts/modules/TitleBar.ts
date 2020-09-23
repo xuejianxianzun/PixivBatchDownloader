@@ -92,22 +92,22 @@ class TitleBar {
 
   // 重设 title
   private reset() {
-    const type = pageType.getPageType()
     clearInterval(this.timer)
-    // 储存标题的 mete 元素。在某些页面不存在，有时也与实际上的标题不一致。
-    const ogTitle = document.querySelector(
-      'meta[property="og:title"]'
-    )! as HTMLMetaElement
-    // 在一些自动加载的页面里，og:title 标签是最早更新标题的，内容也一致。
-    if (ogTitle && (type == 1 || type === 2 || type === 13)) {
-      document.title = ogTitle.content
-    } else {
-      // 如果当前 title 里有标记，则设置为标记后面的文字
-      if (this.includeFlag()) {
-        const index = document.title.indexOf(']')
-        document.title = document.title.substr(index + 1, document.title.length)
+
+    if (pageType.type == 1 || pageType.type === 2 || pageType.type === 13) {
+      // 从 og:title 标签获取标题。og:title 标签是最早更新标题的。但不确定是否在所有页面上都可以直接使用 og:title 标签的内容，所以这里只在部分页面上使用
+      const ogTitle = document.querySelector(
+        'meta[property="og:title"]'
+      )! as HTMLMetaElement
+      if (ogTitle) {
+        document.title = ogTitle.content
+        return
       }
     }
+
+    // 去掉 title 里的标记
+    const index = document.title.indexOf(']')
+    document.title = document.title.substr(index + 1, document.title.length)
   }
 
   // 在标题上显示指定标记

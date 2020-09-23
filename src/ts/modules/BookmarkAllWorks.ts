@@ -34,7 +34,10 @@ class BookmarkAllWorks {
   // 传递 workList，这是作品列表元素的合集。代码会尝试分析每个作品元素中的超链接，提取出作品 id
   // 如果传递的作品是本页面上的作品，可以省略 type。代码会根据页面 url 判断是图片还是小说。
   // 如果传递的作品不是本页面上的，为防止误判，需要显式传递 type
-  public setWorkList(list: NodeListOf<HTMLElement> | HTMLElement[], type?: WorkType) {
+  public setWorkList(
+    list: NodeListOf<HTMLElement> | HTMLElement[],
+    type?: WorkType
+  ) {
     if (!list || list.length === 0) {
       return alert(lang.transl('_没有数据可供使用'))
     }
@@ -73,13 +76,14 @@ class BookmarkAllWorks {
     if (type) {
       this.type = type
     } else {
-      this.type = window.location.pathname.includes('/novel') ? 'novels' : 'illusts'
+      this.type = window.location.pathname.includes('/novel')
+        ? 'novels'
+        : 'illusts'
     }
 
     this.btn.textContent = `Checking`
     this.btn.setAttribute('disabled', 'disabled')
   }
-
 
   // 获取作品 id 列表
   private getIdList() {

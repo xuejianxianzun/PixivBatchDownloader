@@ -37,7 +37,7 @@ class InitPage {
   }
 
   private initPage() {
-    switch (pageType.getPageType()) {
+    switch (pageType.type) {
       case 0:
         return new InitIndexPage()
       case 1:

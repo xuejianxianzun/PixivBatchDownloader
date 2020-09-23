@@ -79,15 +79,14 @@ class InitNovelPage extends InitPageBase {
   }
 
   protected setFormOption() {
-    // 设置“个数/页数”选项
-    options.setWantPage({
+    // 个数/页数选项的提示
+    options.setWantPageTip({
       text: lang.transl('_个数'),
       tip:
         lang.transl('_从本页开始下载提示') +
         '<br>' +
         lang.transl('_相关作品大于0'),
       rangTip: lang.transl('_数字提示1'),
-      value: '-1',
     })
   }
 

@@ -83,14 +83,11 @@ class InitSearchNovelPage extends InitPageBase {
   }
 
   protected setFormOption() {
-    this.maxCount = 1000
-
-    // 设置“个数/页数”选项
-    options.setWantPage({
+    // 个数/页数选项的提示
+    options.setWantPageTip({
       text: lang.transl('_页数'),
       tip: lang.transl('_从本页开始下载提示'),
       rangTip: `1 - ${this.maxCount}`,
-      value: this.maxCount.toString(),
     })
   }
 

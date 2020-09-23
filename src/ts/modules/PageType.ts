@@ -3,17 +3,16 @@ import { EVT } from './EVT'
 // 获取页面类型
 class PageType {
   constructor() {
-    this.type = this.getPageType()
+    this.type = this.getType()
 
-    // 页面切换时检查新旧页面是否不同
     window.addEventListener(EVT.list.pageSwitch, () => {
-      this.checkPageTypeIsNew()
+      this.checkTypeChange()
     })
   }
 
-  private type: number = 0
+  public type = 0
 
-  public getPageType(): number {
+  private getType() {
     const url = window.location.href
     const pathname = window.location.pathname
 
@@ -83,17 +82,15 @@ class PageType {
     return type
   }
 
-  // 检查是不是进入到了新的页面类型
-  private checkPageTypeIsNew() {
-    let newType = this.getPageType()
-    if (this.type !== newType) {
-      EVT.fire(EVT.list.pageSwitchedTypeChange, newType)
+  // 页面切换时，检查页面类型是否变化
+  private checkTypeChange() {
+    const old = this.type
+    this.type = this.getType()
+    if (this.type !== old) {
+      EVT.fire(EVT.list.pageSwitchedTypeChange, this.type)
     } else {
-      EVT.fire(EVT.list.pageSwitchedTypeNotChange, newType)
+      EVT.fire(EVT.list.pageSwitchedTypeNotChange, this.type)
     }
-
-    // 保存当前页面类型
-    this.type = newType
   }
 }
 

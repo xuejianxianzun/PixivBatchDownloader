@@ -743,7 +743,9 @@ class BookmarkAllWorks {
             this.type = type;
         }
         else {
-            this.type = window.location.pathname.includes('/novel') ? 'novels' : 'illusts';
+            this.type = window.location.pathname.includes('/novel')
+                ? 'novels'
+                : 'illusts';
         }
         this.btn.textContent = `Checking`;
         this.btn.setAttribute('disabled', 'disabled');
@@ -3189,7 +3191,7 @@ class Filter {
         if (illustType === undefined) {
             return true;
         }
-        const name = 'downType' + illustType;
+        const name = ('downType' + illustType);
         return _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"][name];
     }
     // 依据图片数量，检查下载的作品类型
@@ -4135,12 +4137,11 @@ class InitBookmarkLegacyPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         }
     }
     setFormOption() {
-        // 设置“个数/页数”选项
-        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPage({
+        // 个数/页数选项的提示
+        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_页数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载提示'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_数字提示1'),
-            value: '-1',
         });
         // 在书签页面隐藏只要书签选项
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].hideOption([6]);
@@ -4330,12 +4331,11 @@ class InitBookmarkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitP
         }
     }
     setFormOption() {
-        // 设置“个数/页数”选项
-        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPage({
+        // 个数/页数选项的提示
+        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_页数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载提示'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_数字提示1'),
-            value: '-1',
         });
         // 在书签页面隐藏只要书签选项
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].hideOption([6]);
@@ -4475,12 +4475,11 @@ class InitFollowingPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Init
         });
     }
     setFormOption() {
-        // 设置“个数/页数”选项
-        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPage({
+        // 个数/页数选项的提示
+        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_页数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数字提示1'),
-            value: '-1',
         });
     }
     getWantPage() {
@@ -4768,7 +4767,7 @@ class InitPage {
         });
     }
     initPage() {
-        switch (_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].getPageType()) {
+        switch (_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type) {
             case 0:
                 return new _InitIndexPage__WEBPACK_IMPORTED_MODULE_2__["InitIndexPage"]();
             case 1:
@@ -4881,12 +4880,11 @@ class InitPageBase {
     }
     // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。
     setFormOption() {
-        // 设置“个数/页数”选项
-        _setting_Options__WEBPACK_IMPORTED_MODULE_7__["options"].setWantPage({
+        // 个数/页数选项的提示
+        _setting_Options__WEBPACK_IMPORTED_MODULE_7__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_页数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_从本页开始下载提示'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_数字提示1'),
-            value: '1',
         });
     }
     // 添加抓取区域的按钮
@@ -5310,12 +5308,11 @@ class InitUserPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPageB
         });
     }
     setFormOption() {
-        // 设置“个数/页数”选项
-        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPage({
+        // 个数/页数选项的提示
+        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_页数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数字提示1'),
-            value: '-1',
         });
     }
     getWantPage() {
@@ -5968,13 +5965,12 @@ __webpack_require__.r(__webpack_exports__);
 class PageType {
     constructor() {
         this.type = 0;
-        this.type = this.getPageType();
-        // 页面切换时检查新旧页面是否不同
+        this.type = this.getType();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
-            this.checkPageTypeIsNew();
+            this.checkTypeChange();
         });
     }
-    getPageType() {
+    getType() {
         const url = window.location.href;
         const pathname = window.location.pathname;
         let type;
@@ -6049,17 +6045,16 @@ class PageType {
         }
         return type;
     }
-    // 检查是不是进入到了新的页面类型
-    checkPageTypeIsNew() {
-        let newType = this.getPageType();
-        if (this.type !== newType) {
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, newType);
+    // 页面切换时，检查页面类型是否变化
+    checkTypeChange() {
+        const old = this.type;
+        this.type = this.getType();
+        if (this.type !== old) {
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, this.type);
         }
         else {
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeNotChange, newType);
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeNotChange, this.type);
         }
-        // 保存当前页面类型
-        this.type = newType;
     }
 }
 const pageType = new PageType();
@@ -7450,21 +7445,18 @@ class TitleBar {
     }
     // 重设 title
     reset() {
-        const type = _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].getPageType();
         clearInterval(this.timer);
-        // 储存标题的 mete 元素。在某些页面不存在，有时也与实际上的标题不一致。
-        const ogTitle = document.querySelector('meta[property="og:title"]');
-        // 在一些自动加载的页面里，og:title 标签是最早更新标题的，内容也一致。
-        if (ogTitle && (type == 1 || type === 2 || type === 13)) {
-            document.title = ogTitle.content;
-        }
-        else {
-            // 如果当前 title 里有标记，则设置为标记后面的文字
-            if (this.includeFlag()) {
-                const index = document.title.indexOf(']');
-                document.title = document.title.substr(index + 1, document.title.length);
+        if (_PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type == 1 || _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type === 2 || _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type === 13) {
+            // 从 og:title 标签获取标题。og:title 标签是最早更新标题的。但不确定是否在所有页面上都可以直接使用 og:title 标签的内容，所以这里只在部分页面上使用
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle) {
+                document.title = ogTitle.content;
+                return;
             }
         }
+        // 去掉 title 里的标记
+        const index = document.title.indexOf(']');
+        document.title = document.title.substr(index + 1, document.title.length);
     }
     // 在标题上显示指定标记
     set(flagName) {
@@ -7685,14 +7677,13 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
         });
     }
     setFormOption() {
-        // 设置“个数/页数”选项
-        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPage({
+        // 个数/页数选项的提示
+        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_个数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载提示') +
                 '<br>' +
                 _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_相关作品大于0'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_数字提示1'),
-            value: '-1',
         });
     }
     destroy() {
@@ -7838,12 +7829,11 @@ class InitBookmarkDetailPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         }, false);
     }
     setFormOption() {
-        // 设置“个数/页数”选项
-        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPage({
+        // 个数/页数选项的提示
+        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_个数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_想要获取多少个作品'),
             rangTip: `1 - ${this.maxCount}`,
-            value: this.maxCount.toString(),
         });
     }
     getWantPage() {
@@ -7910,13 +7900,12 @@ class InitBookmarkNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_
         });
     }
     setFormOption() {
-        // 设置“个数/页数”选项
+        // 个数/页数选项的提示
         this.maxCount = 100;
-        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPage({
+        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_页数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
             rangTip: `1 - ${this.maxCount}`,
-            value: this.maxCount.toString(),
         });
     }
     getWantPage() {
@@ -8094,12 +8083,11 @@ class InitNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
         });
     }
     setFormOption() {
-        // 设置“个数/页数”选项
-        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPage({
+        // 个数/页数选项的提示
+        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_个数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_想要获取多少个作品'),
             rangTip: `1 - ${this.maxCount}`,
-            value: '100',
         });
     }
     getWantPage() {
@@ -8256,13 +8244,12 @@ class InitRankingArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         });
     }
     setFormOption() {
-        // 设置“个数/页数”选项
+        // 个数/页数选项的提示
         this.maxCount = 500;
-        _setting_Options__WEBPACK_IMPORTED_MODULE_6__["options"].setWantPage({
+        _setting_Options__WEBPACK_IMPORTED_MODULE_6__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_个数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_想要获取多少个作品'),
             rangTip: `1 - ${this.maxCount}`,
-            value: this.maxCount.toString(),
         });
     }
     resetOption() {
@@ -8646,13 +8633,11 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         new _FastScreen__WEBPACK_IMPORTED_MODULE_12__["FastScreen"]();
     }
     setFormOption() {
-        this.maxCount = 1000;
-        // 设置“个数/页数”选项
-        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPage({
+        // 个数/页数选项的提示
+        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_页数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
             rangTip: `1 - ${this.maxCount}`,
-            value: this.maxCount.toString(),
         });
     }
     addCrawlBtns() {
@@ -9047,13 +9032,12 @@ class InitSeriesPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPag
         });
     }
     setFormOption() {
-        // 设置“个数/页数”选项
+        // 个数/页数选项的提示
         this.maxCount = 100;
-        _setting_Options__WEBPACK_IMPORTED_MODULE_5__["options"].setWantPage({
+        _setting_Options__WEBPACK_IMPORTED_MODULE_5__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_页数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载提示'),
             rangTip: `1 - ${this.maxCount}`,
-            value: this.maxCount.toString(),
         });
     }
     getWantPage() {
@@ -10743,13 +10727,12 @@ class InitBookmarkNewNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0_
         });
     }
     setFormOption() {
-        // 设置“个数/页数”选项
+        // 个数/页数选项的提示
         this.maxCount = 100;
-        _setting_Options__WEBPACK_IMPORTED_MODULE_5__["options"].setWantPage({
+        _setting_Options__WEBPACK_IMPORTED_MODULE_5__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_页数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载提示'),
             rangTip: `1 - ${this.maxCount}`,
-            value: this.maxCount.toString(),
         });
     }
     getWantPage() {
@@ -10884,12 +10867,11 @@ class InitNewNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitP
         });
     }
     setFormOption() {
-        // 设置“个数/页数”选项
-        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPage({
+        // 个数/页数选项的提示
+        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_个数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_想要获取多少个作品'),
             rangTip: `1 - ${this.maxCount}`,
-            value: '100',
         });
     }
     getWantPage() {
@@ -11052,14 +11034,13 @@ class InitNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
         });
     }
     setFormOption() {
-        // 设置“个数/页数”选项
-        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPage({
+        // 个数/页数选项的提示
+        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_个数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示') +
                 '<br>' +
                 _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_相关作品大于0'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数字提示1'),
-            value: '-1',
         });
     }
     destroy() {
@@ -11253,13 +11234,12 @@ class InitRankingNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["I
         });
     }
     setFormOption() {
-        // 设置“个数/页数”选项
+        // 个数/页数选项的提示
         this.maxCount = 100;
-        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPage({
+        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_个数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_想要获取多少个作品'),
             rangTip: `1 - ${this.maxCount}`,
-            value: this.maxCount.toString(),
         });
     }
     getWantPage() {
@@ -11454,13 +11434,11 @@ class InitSearchNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
         });
     }
     setFormOption() {
-        this.maxCount = 1000;
-        // 设置“个数/页数”选项
-        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPage({
+        // 个数/页数选项的提示
+        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_页数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
             rangTip: `1 - ${this.maxCount}`,
-            value: this.maxCount.toString(),
         });
     }
     async nextStep() {
@@ -12482,16 +12460,14 @@ const formHtml = `<form class="settingForm">
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "options", function() { return options; });
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _Form__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Form */ "./src/ts/modules/setting/Form.ts");
-
+/* harmony import */ var _Form__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Form */ "./src/ts/modules/setting/Form.ts");
 
 // 操作设置表单的选项区域
 // 可以控制每个设置的隐藏、显示
 // 可以直接设置每个选项的值
 class Options {
     constructor() {
-        this.allOption = _Form__WEBPACK_IMPORTED_MODULE_1__["form"].querySelectorAll('.option');
+        this.allOption = _Form__WEBPACK_IMPORTED_MODULE_0__["form"].querySelectorAll('.option');
         // 获取“页数/个数”设置的元素
         const wantPageOption = this.getOption(1);
         this.wantPageEls = {
@@ -12531,16 +12507,10 @@ class Options {
         this.setOptionDisplay(no, 'block');
     }
     // 设置 “设置页面/作品数量” 选项的提示和预设值
-    setWantPage(arg) {
+    setWantPageTip(arg) {
         this.wantPageEls.text.textContent = arg.text;
         this.wantPageEls.text.dataset.tip = arg.tip;
         this.wantPageEls.rangTip.textContent = arg.rangTip;
-        this.wantPageEls.input.value = arg.value;
-        // 这里由代码直接进行设置，不会触发 change 事件，所以手动触发 settingChange 事件，使其他组件能够接收到通知
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, {
-            name: 'setWantPage',
-            value: arg.value,
-        });
     }
 }
 const options = new Options();
@@ -12753,16 +12723,19 @@ const settingAPI = new SettingAPI();
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "settings", function() { return settings; });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _Form__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Form */ "./src/ts/modules/setting/Form.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../PageType */ "./src/ts/modules/PageType.ts");
+/* harmony import */ var _Form__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Form */ "./src/ts/modules/setting/Form.ts");
 
 
-class SaveSettings {
+
+class Settings {
     constructor() {
         // 本地存储中使用的 name
         this.storeName = 'xzSetting';
         // 需要持久化保存的设置的默认值
         this.optionDefault = {
             setWantPage: '-1',
+            wantPageArr: ['-1', '-1', '-1', '-1', '-1', '1000', '-1', '500', '-1', '1000', '100', '-1', '100', '-1', '-1', '1000', '100', '100', '100', '100', '-1'],
             firstFewImagesSwitch: false,
             firstFewImages: '1',
             downType0: true,
@@ -12820,28 +12793,30 @@ class SaveSettings {
             fileNameLengthLimit: '200',
         };
         // 需要持久化保存的设置
-        this.settings = this.optionDefault;
-        this.ListenOptionChange();
-        this.handleChange();
-        this.restoreOption();
+        this.settings = Object.assign({}, this.optionDefault);
+        this.ListenChange();
+        this.restore();
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, () => {
+            this.restoreWantPage();
+        });
     }
     // 处理输入框： change 时保存 value
     saveTextInput(name) {
-        const el = _Form__WEBPACK_IMPORTED_MODULE_1__["form"][name];
+        const el = _Form__WEBPACK_IMPORTED_MODULE_2__["form"][name];
         el.addEventListener('change', () => {
             this.emitChange(name, el.value);
         });
     }
     // 处理复选框： click 时保存 checked
     saveCheckBox(name) {
-        const el = _Form__WEBPACK_IMPORTED_MODULE_1__["form"][name];
+        const el = _Form__WEBPACK_IMPORTED_MODULE_2__["form"][name];
         el.addEventListener('click', () => {
             this.emitChange(name, el.checked);
         });
     }
     // 处理单选框： click 时保存 value
     saveRadio(name) {
-        const radios = _Form__WEBPACK_IMPORTED_MODULE_1__["form"][name];
+        const radios = _Form__WEBPACK_IMPORTED_MODULE_2__["form"][name];
         for (const radio of radios) {
             radio.addEventListener('click', () => {
                 this.emitChange(name, radio.value);
@@ -12850,9 +12825,16 @@ class SaveSettings {
     }
     // 监听所有选项的变化，触发 settingChange 事件
     // 该函数可执行一次，否则事件会重复绑定
-    ListenOptionChange() {
+    ListenChange() {
+        this.saveChange();
         // 保存页数/个数设置
         this.saveTextInput('setWantPage');
+        // 保存 wantPageArr
+        _Form__WEBPACK_IMPORTED_MODULE_2__["form"].setWantPage.addEventListener('change', () => {
+            const temp = Array.from(this.settings.wantPageArr);
+            temp[_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type] = _Form__WEBPACK_IMPORTED_MODULE_2__["form"].setWantPage.value;
+            this.emitChange('wantPageArr', temp);
+        });
         // 保存下载的作品类型
         this.saveCheckBox('downType0');
         this.saveCheckBox('downType1');
@@ -12905,7 +12887,7 @@ class SaveSettings {
         this.saveCheckBox('notNeedTagSwitch');
         this.saveTextInput('notNeedTag');
         // 保存命名规则
-        const userSetNameInput = _Form__WEBPACK_IMPORTED_MODULE_1__["form"].userSetName;
+        const userSetNameInput = _Form__WEBPACK_IMPORTED_MODULE_2__["form"].userSetName;
         ['change', 'focus'].forEach((ev) => {
             userSetNameInput.addEventListener(ev, () => {
                 this.emitChange('userSetName', userSetNameInput.value);
@@ -12938,7 +12920,7 @@ class SaveSettings {
         this.saveCheckBox('fileNameLengthLimitSwitch');
         this.saveTextInput('fileNameLengthLimit');
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettings, () => {
-            _Form__WEBPACK_IMPORTED_MODULE_1__["form"].reset();
+            _Form__WEBPACK_IMPORTED_MODULE_2__["form"].reset();
             this.reset();
         });
     }
@@ -12946,7 +12928,7 @@ class SaveSettings {
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, { name: name, value: value });
     }
     // 设置发生改变时，保存设置到本地存储
-    handleChange() {
+    saveChange() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (event) => {
             const data = event.detail.data;
             if (Reflect.has(this.optionDefault, data.name)) {
@@ -12963,11 +12945,11 @@ class SaveSettings {
     restoreBoolean(name) {
         // 优先使用用户设置的值
         if (this.settings[name] !== undefined) {
-            _Form__WEBPACK_IMPORTED_MODULE_1__["form"][name].checked = this.settings[name];
+            _Form__WEBPACK_IMPORTED_MODULE_2__["form"][name].checked = this.settings[name];
         }
         else {
             // 否则使用默认值
-            _Form__WEBPACK_IMPORTED_MODULE_1__["form"][name].checked = this.optionDefault[name];
+            _Form__WEBPACK_IMPORTED_MODULE_2__["form"][name].checked = this.optionDefault[name];
         }
         // 这里不能简单的使用 || 符号来处理，考虑如下情况：
         // this.options[name] || this.optionDefault[name]
@@ -12978,15 +12960,23 @@ class SaveSettings {
     restoreString(name) {
         // 优先使用用户设置的值
         if (this.settings[name] !== undefined) {
-            _Form__WEBPACK_IMPORTED_MODULE_1__["form"][name].value = this.settings[name].toString();
+            _Form__WEBPACK_IMPORTED_MODULE_2__["form"][name].value = this.settings[name].toString();
         }
         else {
             // 否则使用默认值
-            _Form__WEBPACK_IMPORTED_MODULE_1__["form"][name].value = this.optionDefault[name].toString();
+            _Form__WEBPACK_IMPORTED_MODULE_2__["form"][name].value = this.optionDefault[name].toString();
+        }
+    }
+    // 设置当前页面类型的 setWantPage
+    restoreWantPage() {
+        const want = this.settings.wantPageArr[_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type];
+        if (want !== '' && want !== undefined) {
+            _Form__WEBPACK_IMPORTED_MODULE_2__["form"].setWantPage.value = want;
+            this.settings.setWantPage = want;
         }
     }
     // 读取持久化数据，或使用默认设置，恢复设置表单的设置项
-    restoreOption() {
+    restore() {
         const savedOption = localStorage.getItem(this.storeName);
         // 读取保存的设置
         if (savedOption) {
@@ -12997,6 +12987,7 @@ class SaveSettings {
         else {
             return;
         }
+        this.restoreWantPage();
         // 设置下载的作品类型
         this.restoreBoolean('downType0');
         this.restoreBoolean('downType1');
@@ -13082,17 +13073,17 @@ class SaveSettings {
     // 重设选项
     reset() {
         // 将保存的选项恢复为默认值
-        this.settings = this.optionDefault;
+        this.settings = Object.assign({}, this.optionDefault);
         // 覆写本地存储里的设置为默认值
         localStorage.setItem(this.storeName, JSON.stringify(this.settings));
         // 重设选项
-        this.restoreOption();
+        this.restore();
         // 触发设置改变事件
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange);
     }
 }
-const saveSettings = new SaveSettings();
-const settings = saveSettings.settings;
+const self = new Settings();
+const settings = self.settings;
 
 
 

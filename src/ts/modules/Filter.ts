@@ -258,9 +258,11 @@ class Filter {
       const andOr = settings.setWidthAndOr
         .replace('|', lang.transl('_或者'))
         .replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${this._setWidth
-        } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${this._setHeight
-        }`
+      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${
+        this._setWidth
+      } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${
+        this._setHeight
+      }`
       this.logTip(text)
     }
   }
@@ -371,7 +373,8 @@ class Filter {
       this._postDateStart = postDateStart.getTime()
       this._postDateEnd = postDateEnd.getTime()
       this.logTip(
-        `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${settings.postDateEnd
+        `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${
+          settings.postDateEnd
         }`
       )
     }
@@ -404,7 +407,11 @@ class Filter {
       return true
     }
 
-    const name = 'downType' + illustType as 'downType0' | 'downType1' | 'downType2' | 'downType3'
+    const name = ('downType' + illustType) as
+      | 'downType0'
+      | 'downType1'
+      | 'downType2'
+      | 'downType3'
     return settings[name]
   }
 

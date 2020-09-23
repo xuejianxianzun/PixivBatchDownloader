@@ -1,15 +1,17 @@
 import { EVT } from '../EVT'
+import { pageType } from '../PageType'
 import { form } from './Form'
 
 // 保存设置表单的所有设置项，并且在下载器初始化时恢复这些设置的值
-// 例外情况：个数/页数设置（setWantPage）只保存，不恢复。这是因为下载器在初始化时，由 InitXXXPage 类直接设置 setWantPage，而不是使用保存的值进行恢复。
 
 // 成员 settings 保存着当前页面的所有设置项；当设置项变化时，settings 响应变化并保存到 localStorage 里。
-// 注意：如果打开了多个标签页，每个页面都有各自的 settings 成员。它们是互相独立的，不会互相影响。
+// 注意：选项 setWantPage 并不需要实际上进行保存和恢复。保存和恢复时使用的是 wantPageArr。
+// 如果打开了多个标签页，每个页面都有各自的 settings 成员。它们是互相独立的，不会互相影响。
 // 但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
 
 interface XzSetting {
   setWantPage: string
+  wantPageArr: string[]
   firstFewImagesSwitch: boolean
   firstFewImages: string
   downType0: boolean
@@ -69,16 +71,18 @@ interface XzSetting {
 
 interface SettingChangeData {
   name: keyof XzSetting
-  value: string | number | boolean
+  value: string | number | boolean | string[]
 }
 
-class SaveSettings {
+class Settings {
   constructor() {
-    this.ListenOptionChange()
+    this.ListenChange()
 
-    this.handleChange()
+    this.restore()
 
-    this.restoreOption()
+    window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
+      this.restoreWantPage()
+    })
   }
 
   // 本地存储中使用的 name
@@ -87,6 +91,8 @@ class SaveSettings {
   // 需要持久化保存的设置的默认值
   private readonly optionDefault: XzSetting = {
     setWantPage: '-1',
+    wantPageArr:
+      ['-1', '-1', '-1', '-1', '-1', '1000', '-1', '500', '-1', '1000', '100', '-1', '100', '-1', '-1', '1000', '100', '100', '100', '100', '-1'],
     firstFewImagesSwitch: false,
     firstFewImages: '1',
     downType0: true,
@@ -145,7 +151,7 @@ class SaveSettings {
   }
 
   // 需要持久化保存的设置
-  public settings: XzSetting = this.optionDefault
+  public settings: XzSetting = Object.assign({}, this.optionDefault)
 
   // 处理输入框： change 时保存 value
   private saveTextInput(name: keyof XzSetting) {
@@ -175,9 +181,18 @@ class SaveSettings {
 
   // 监听所有选项的变化，触发 settingChange 事件
   // 该函数可执行一次，否则事件会重复绑定
-  private ListenOptionChange() {
+  private ListenChange() {
+    this.saveChange()
+
     // 保存页数/个数设置
     this.saveTextInput('setWantPage')
+
+    // 保存 wantPageArr
+    form.setWantPage.addEventListener('change', () => {
+      const temp = Array.from(this.settings.wantPageArr)
+      temp[pageType.type] = form.setWantPage.value
+      this.emitChange('wantPageArr', temp)
+    })
 
     // 保存下载的作品类型
     this.saveCheckBox('downType0')
@@ -248,11 +263,11 @@ class SaveSettings {
 
     // 保存命名规则
     const userSetNameInput = form.userSetName
-    ;['change', 'focus'].forEach((ev) => {
-      userSetNameInput.addEventListener(ev, () => {
-        this.emitChange('userSetName', userSetNameInput.value)
+      ;['change', 'focus'].forEach((ev) => {
+        userSetNameInput.addEventListener(ev, () => {
+          this.emitChange('userSetName', userSetNameInput.value)
+        })
       })
-    })
 
     // 保存是否添加标记名称
     this.saveCheckBox('tagNameToFileName')
@@ -297,19 +312,19 @@ class SaveSettings {
     })
   }
 
-  private emitChange(name: string, value: string | number | boolean) {
+  private emitChange(name: string, value: string | number | boolean | string[]) {
     EVT.fire(EVT.list.settingChange, { name: name, value: value })
   }
 
   // 设置发生改变时，保存设置到本地存储
-  private handleChange() {
+  private saveChange() {
     window.addEventListener(
       EVT.list.settingChange,
       (event: CustomEventInit) => {
         const data = event.detail.data as SettingChangeData
         if (Reflect.has(this.optionDefault, data.name)) {
           if ((this.settings[data.name] as any) !== data.value) {
-            ;(this.settings[data.name] as any) = data.value
+            ; (this.settings[data.name] as any) = data.value
             localStorage.setItem(this.storeName, JSON.stringify(this.settings))
           }
         }
@@ -344,8 +359,17 @@ class SaveSettings {
     }
   }
 
+  // 设置当前页面类型的 setWantPage
+  private restoreWantPage() {
+    const want = this.settings.wantPageArr[pageType.type]
+    if (want !== '' && want !== undefined) {
+      form.setWantPage.value = want
+      this.settings.setWantPage = want
+    }
+  }
+
   // 读取持久化数据，或使用默认设置，恢复设置表单的设置项
-  private restoreOption() {
+  private restore() {
     const savedOption = localStorage.getItem(this.storeName)
     // 读取保存的设置
     if (savedOption) {
@@ -355,6 +379,8 @@ class SaveSettings {
     } else {
       return
     }
+
+    this.restoreWantPage()
 
     // 设置下载的作品类型
     this.restoreBoolean('downType0')
@@ -470,16 +496,16 @@ class SaveSettings {
   // 重设选项
   private reset() {
     // 将保存的选项恢复为默认值
-    this.settings = this.optionDefault
+    this.settings = Object.assign({}, this.optionDefault)
     // 覆写本地存储里的设置为默认值
     localStorage.setItem(this.storeName, JSON.stringify(this.settings))
     // 重设选项
-    this.restoreOption()
+    this.restore()
     // 触发设置改变事件
     EVT.fire(EVT.list.settingChange)
   }
 }
 
-const saveSettings = new SaveSettings()
-const settings = saveSettings.settings
+const self = new Settings()
+const settings = self.settings
 export { settings }

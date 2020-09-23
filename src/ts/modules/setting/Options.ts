@@ -5,7 +5,6 @@ interface WantPageArg {
   text: string
   tip: string
   rangTip: string
-  value: string
 }
 
 interface WantPageEls {
@@ -74,17 +73,10 @@ class Options {
   }
 
   // 设置 “设置页面/作品数量” 选项的提示和预设值
-  public setWantPage(arg: WantPageArg) {
+  public setWantPageTip(arg: WantPageArg) {
     this.wantPageEls.text.textContent = arg.text
     this.wantPageEls.text.dataset.tip = arg.tip
     this.wantPageEls.rangTip.textContent = arg.rangTip
-    this.wantPageEls.input.value = arg.value
-
-    // 这里由代码直接进行设置，不会触发 change 事件，所以手动触发 settingChange 事件，使其他组件能够接收到通知
-    EVT.fire(EVT.list.settingChange, {
-      name: 'setWantPage',
-      value: arg.value,
-    })
   }
 }
 
