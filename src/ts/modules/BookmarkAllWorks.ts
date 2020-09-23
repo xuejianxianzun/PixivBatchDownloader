@@ -1,6 +1,7 @@
 import { API } from './API'
 import { DOM } from './DOM'
 import { Colors } from './Colors'
+import { token } from './Token'
 import { lang } from './Lang'
 import { settings } from './setting/Settings'
 import { BookmarkResult } from './CrawlResult.d'
@@ -29,7 +30,7 @@ class BookmarkAllWorks {
 
   private workList!: NodeListOf<HTMLElement> | HTMLElement[]
 
-  private token = API.getToken()
+  private token!: string
 
   // 传递 workList，这是作品列表元素的合集。代码会尝试分析每个作品元素中的超链接，提取出作品 id
   // 如果传递的作品是本页面上的作品，可以省略 type。代码会根据页面 url 判断是图片还是小说。
@@ -71,7 +72,7 @@ class BookmarkAllWorks {
   private ready(type?: WorkType) {
     this.idList = []
     this.bookmarKData = []
-    this.token = API.getToken()
+    this.token = token.getToken()
 
     if (type) {
       this.type = type

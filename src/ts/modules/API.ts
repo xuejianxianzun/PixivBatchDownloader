@@ -158,50 +158,6 @@ class API {
     return decodeURIComponent(this.getURLSearchField(nowURL.href, 'tag'))
   }
 
-  // 更新 token
-  static updateToken() {
-    // 每隔一段时间更新 token，如果未达到指定时间间隔，则不检查
-    const interval = 300000 // 两次检查之间的间隔。目前设置为 5 分钟
-    const nowTime = new Date().getTime()
-    const lastTimeStr = localStorage.getItem('xzTokenTime')
-    const token = localStorage.getItem('xzToken')
-
-    if (
-      token &&
-      lastTimeStr &&
-      nowTime - Number.parseInt(lastTimeStr) < interval
-    ) {
-      return
-    }
-
-    // 从网页源码里获取用户 token，并储存起来
-    fetch('https://www.pixiv.net/artworks/62751951')
-      .then((response) => {
-        return response.text()
-      })
-      .then((data) => {
-        let result = data.match(/token":"(\w+)"/)
-        if (result) {
-          localStorage.setItem('xzToken', result[1])
-          localStorage.setItem('xzTokenTime', new Date().getTime().toString())
-        } else {
-          console.warn('UpdateToken failed: no token found!')
-        }
-      })
-  }
-
-  // 获取 token
-  // 从本地存储里获取用户 token
-  static getToken() {
-    const token = localStorage.getItem('xzToken')
-    if (token) {
-      return token
-    } else {
-      this.updateToken()
-      return ''
-    }
-  }
-
   // 从 url 里获取 artworks id
   // 可以传入 url，无参数则使用当前页面的 url
   static getIllustId(url?: string) {

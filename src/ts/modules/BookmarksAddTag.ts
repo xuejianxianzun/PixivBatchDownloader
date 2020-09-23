@@ -1,5 +1,6 @@
 import { API } from './API'
 import { DOM } from './DOM'
+import { token } from './Token'
 import {
   BookmarkData,
   BookmarkArtworkData,
@@ -78,7 +79,7 @@ class BookmarksAddTag {
         return
       } else {
         // 开始添加 tag
-        this.addTag(0, this.addTagList, API.getToken())
+        this.addTag(0, this.addTagList, token.getToken())
       }
     } else {
       // 需要继续获取

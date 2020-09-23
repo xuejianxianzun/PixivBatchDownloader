@@ -91,8 +91,29 @@ class Settings {
   // 需要持久化保存的设置的默认值
   private readonly optionDefault: XzSetting = {
     setWantPage: '-1',
-    wantPageArr:
-      ['-1', '-1', '-1', '-1', '-1', '1000', '-1', '500', '-1', '1000', '100', '-1', '100', '-1', '-1', '1000', '100', '100', '100', '100', '-1'],
+    wantPageArr: [
+      '-1',
+      '-1',
+      '-1',
+      '-1',
+      '-1',
+      '1000',
+      '-1',
+      '500',
+      '-1',
+      '1000',
+      '100',
+      '-1',
+      '100',
+      '-1',
+      '-1',
+      '1000',
+      '100',
+      '100',
+      '100',
+      '100',
+      '-1',
+    ],
     firstFewImagesSwitch: false,
     firstFewImages: '1',
     downType0: true,
@@ -263,11 +284,11 @@ class Settings {
 
     // 保存命名规则
     const userSetNameInput = form.userSetName
-      ;['change', 'focus'].forEach((ev) => {
-        userSetNameInput.addEventListener(ev, () => {
-          this.emitChange('userSetName', userSetNameInput.value)
-        })
+    ;['change', 'focus'].forEach((ev) => {
+      userSetNameInput.addEventListener(ev, () => {
+        this.emitChange('userSetName', userSetNameInput.value)
       })
+    })
 
     // 保存是否添加标记名称
     this.saveCheckBox('tagNameToFileName')
@@ -312,7 +333,10 @@ class Settings {
     })
   }
 
-  private emitChange(name: string, value: string | number | boolean | string[]) {
+  private emitChange(
+    name: string,
+    value: string | number | boolean | string[]
+  ) {
     EVT.fire(EVT.list.settingChange, { name: name, value: value })
   }
 
@@ -324,7 +348,7 @@ class Settings {
         const data = event.detail.data as SettingChangeData
         if (Reflect.has(this.optionDefault, data.name)) {
           if ((this.settings[data.name] as any) !== data.value) {
-            ; (this.settings[data.name] as any) = data.value
+            ;(this.settings[data.name] as any) = data.value
             localStorage.setItem(this.storeName, JSON.stringify(this.settings))
           }
         }

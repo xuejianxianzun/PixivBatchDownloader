@@ -2,6 +2,7 @@
 import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../Colors'
 import { lang } from '../Lang'
+import { token } from '../Token'
 import { options } from '../setting/Options'
 import { DeleteWorks } from '../DeleteWorks'
 import { EVT } from '../EVT'
@@ -710,7 +711,7 @@ class InitSearchArtworkPage extends InitPageBase {
       data.id.toString(),
       data.tags,
       false,
-      API.getToken()
+      token.getToken()
     )
     this.resultMeta.forEach((result) => {
       if (result.idNum === data.id) {

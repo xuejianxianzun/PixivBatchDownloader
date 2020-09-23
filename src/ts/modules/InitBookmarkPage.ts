@@ -2,6 +2,7 @@
 import { InitPageBase } from './InitPageBase'
 import { API } from './API'
 import { Colors } from './Colors'
+import { token } from './Token'
 import { lang } from './Lang'
 import { IDData } from './Store.d'
 import { options } from './setting/Options'
@@ -43,7 +44,7 @@ class InitBookmarkPage extends InitPageBase {
 
   protected addAnyElement() {
     // 如果存在 token，则添加“添加 tag”按钮
-    if (API.getToken()) {
+    if (token.getToken()) {
       const btn = DOM.addBtn(
         'otherBtns',
         Colors.green,

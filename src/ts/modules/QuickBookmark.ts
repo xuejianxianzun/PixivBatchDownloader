@@ -1,6 +1,7 @@
 // 快速收藏
 import { API } from './API'
 import { lang } from './Lang'
+import { token } from './Token'
 import { settings } from './setting/Settings'
 import { ArtworkData, NovelData } from './CrawlResult.d'
 
@@ -24,7 +25,7 @@ class QuickBookmark {
 
   private async init() {
     // 在某些条件下，不展开快速收藏功能
-    if (!API.getToken() || !settings.quickBookmarks) {
+    if (!token.getToken() || !settings.quickBookmarks) {
       return
     }
 
@@ -161,7 +162,7 @@ class QuickBookmark {
       // 这里加了个延迟，因为上面先点击了 pixiv 自带的收藏按钮，但不加延迟的话， p 站自己的不带 tag 的请求反而是后发送的。所以这里通过延迟让 p 站不带 tag 的请求先发送，下载器的带 tag 的请求后发送。
       setTimeout(() => {
         // 调用添加收藏的 api
-        API.addBookmark(type, id, tags, false, API.getToken())
+        API.addBookmark(type, id, tags, false, token.getToken())
           .then((response) => response.json())
           .then((data) => {
             if (data.error === false) {

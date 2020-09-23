@@ -1,6 +1,5 @@
 import { lang } from './Lang'
 import { EVT } from './EVT'
-import { API } from './API'
 import { langTextKeys } from './langText'
 import config from './Config'
 
@@ -12,12 +11,6 @@ class Support {
     this.listenPageSwitch()
     this.checkNew()
     this.showNew()
-    API.updateToken()
-
-    window.addEventListener(EVT.list.resetSettings, () => {
-      localStorage.removeItem('xzToken')
-      API.updateToken()
-    })
   }
 
   // 处理和脚本版的冲突
