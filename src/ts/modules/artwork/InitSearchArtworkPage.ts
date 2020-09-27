@@ -711,7 +711,7 @@ class InitSearchArtworkPage extends InitPageBase {
       data.id.toString(),
       data.tags,
       false,
-      token.getToken()
+      token.token
     )
     this.resultMeta.forEach((result) => {
       if (result.idNum === data.id) {

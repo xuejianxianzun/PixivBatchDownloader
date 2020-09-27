@@ -72,7 +72,7 @@ class BookmarkAllWorks {
   private ready(type?: WorkType) {
     this.idList = []
     this.bookmarKData = []
-    this.token = token.getToken()
+    this.token = token.token
 
     if (type) {
       this.type = type

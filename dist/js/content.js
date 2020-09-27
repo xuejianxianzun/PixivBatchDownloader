@@ -725,7 +725,7 @@ class BookmarkAllWorks {
     ready(type) {
         this.idList = [];
         this.bookmarKData = [];
-        this.token = _Token__WEBPACK_IMPORTED_MODULE_3__["token"].getToken();
+        this.token = _Token__WEBPACK_IMPORTED_MODULE_3__["token"].token;
         if (type) {
             this.type = type;
         }
@@ -875,7 +875,7 @@ class BookmarksAddTag {
             }
             else {
                 // 开始添加 tag
-                this.addTag(0, this.addTagList, _Token__WEBPACK_IMPORTED_MODULE_2__["token"].getToken());
+                this.addTag(0, this.addTagList, _Token__WEBPACK_IMPORTED_MODULE_2__["token"].token);
             }
         }
         else {
@@ -4122,7 +4122,7 @@ class InitBookmarkLegacyPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
     }
     addAnyElement() {
         // 如果存在 token，则添加“添加 tag”按钮
-        if (_Token__WEBPACK_IMPORTED_MODULE_3__["token"].getToken()) {
+        if (_Token__WEBPACK_IMPORTED_MODULE_3__["token"].token) {
             const btn = _DOM__WEBPACK_IMPORTED_MODULE_9__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_添加tag'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_添加tag')]]);
             new _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_6__["BookmarksAddTag"](btn);
         }
@@ -4318,7 +4318,7 @@ class InitBookmarkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitP
     }
     addAnyElement() {
         // 如果存在 token，则添加“添加 tag”按钮
-        if (_Token__WEBPACK_IMPORTED_MODULE_3__["token"].getToken()) {
+        if (_Token__WEBPACK_IMPORTED_MODULE_3__["token"].token) {
             const btn = _DOM__WEBPACK_IMPORTED_MODULE_9__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_添加tag'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_添加tag')]]);
             new _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_6__["BookmarksAddTag"](btn);
         }
@@ -6213,7 +6213,7 @@ class QuickBookmark {
     }
     async init() {
         // 在某些条件下，不展开快速收藏功能
-        if (!_Token__WEBPACK_IMPORTED_MODULE_2__["token"].getToken() || !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].quickBookmarks) {
+        if (!_Token__WEBPACK_IMPORTED_MODULE_2__["token"].token || !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].quickBookmarks) {
             return;
         }
         window.clearInterval(this.timer);
@@ -6286,7 +6286,7 @@ class QuickBookmark {
             const type = this.isNovel ? 'novels' : 'illusts';
             const id = this.isNovel ? _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelId() : _API__WEBPACK_IMPORTED_MODULE_0__["API"].getIllustId();
             // 点赞
-            _API__WEBPACK_IMPORTED_MODULE_0__["API"].addLike(id, type, _Token__WEBPACK_IMPORTED_MODULE_2__["token"].getToken());
+            _API__WEBPACK_IMPORTED_MODULE_0__["API"].addLike(id, type, _Token__WEBPACK_IMPORTED_MODULE_2__["token"].token);
             // 将点赞按钮的颜色改为蓝色
             let likeBtn = document.querySelector(`.${this.likeBtnClass}`);
             if (!likeBtn) {
@@ -6326,7 +6326,7 @@ class QuickBookmark {
             // 调用添加收藏的 api
             // 这里加了个延迟，因为上面先点击了 pixiv 自带的收藏按钮，但不加延迟的话， p 站自己的不带 tag 的请求反而是后发送的。
             setTimeout(() => {
-                _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(type, id, tags, false, _Token__WEBPACK_IMPORTED_MODULE_2__["token"].getToken())
+                _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(type, id, tags, false, _Token__WEBPACK_IMPORTED_MODULE_2__["token"].token)
                     .then((response) => response.json())
                     .then((data) => {
                     if (data.error === false) {
@@ -7514,8 +7514,9 @@ class Token {
         this.tokenStore = 'xzToken';
         this.timeStore = 'xzTokenTime';
         this.updateURL = 'https://www.pixiv.net/artworks/62751951';
-        this.bindEvent();
+        this.token = this.getToken();
         this.updateToken();
+        this.bindEvent();
     }
     bindEvent() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettings, () => {
@@ -7523,38 +7524,29 @@ class Token {
             this.updateToken();
         });
     }
-    // 从本地存储里取出保存的 token
     getToken() {
         const token = localStorage.getItem(this.tokenStore);
-        if (token) {
-            return token;
-        }
-        else {
-            this.updateToken();
-            return '';
-        }
+        return token ? token : '';
     }
-    // 更新 token
     updateToken() {
-        // 检查距离上次更新 token 的时间间隔
-        const interval = 300000; // 两次检查之间的间隔。目前设置为 5 分钟
+        const interval = 300000; // 两次更新之间的最小时间间隔。目前设置为 5 分钟
         const nowTime = new Date().getTime();
         const lastTimeStr = localStorage.getItem(this.timeStore);
-        const token = localStorage.getItem(this.tokenStore);
-        if (token &&
+        if (this.token &&
             lastTimeStr &&
-            nowTime - Number.parseInt(lastTimeStr) < interval) {
+            (nowTime - Number.parseInt(lastTimeStr)) < interval) {
             return;
         }
-        // 从网页源码里获取用户 token，并储存起来
+        // 从网页源码里获取用户 token 并储存
         fetch(this.updateURL)
             .then((response) => {
             return response.text();
         })
             .then((data) => {
-            let result = data.match(/token":"(\w+)"/);
+            const result = data.match(/token":"(\w+)"/);
             if (result) {
-                localStorage.setItem(this.tokenStore, result[1]);
+                this.token = result[1];
+                localStorage.setItem(this.tokenStore, this.token);
                 localStorage.setItem(this.timeStore, new Date().getTime().toString());
             }
             else {
@@ -8687,7 +8679,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
             if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_11__["settings"].quickBookmarks) {
                 data.tags = [];
             }
-            _API__WEBPACK_IMPORTED_MODULE_8__["API"].addBookmark('illusts', data.id.toString(), data.tags, false, _Token__WEBPACK_IMPORTED_MODULE_3__["token"].getToken());
+            _API__WEBPACK_IMPORTED_MODULE_8__["API"].addBookmark('illusts', data.id.toString(), data.tags, false, _Token__WEBPACK_IMPORTED_MODULE_3__["token"].token);
             this.resultMeta.forEach((result) => {
                 if (result.idNum === data.id) {
                     result.bookmarked = true;

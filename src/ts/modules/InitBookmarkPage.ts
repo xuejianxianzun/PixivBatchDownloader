@@ -44,7 +44,7 @@ class InitBookmarkPage extends InitPageBase {
 
   protected addAnyElement() {
     // 如果存在 token，则添加“添加 tag”按钮
-    if (token.getToken()) {
+    if (token.token) {
       const btn = DOM.addBtn(
         'otherBtns',
         Colors.green,

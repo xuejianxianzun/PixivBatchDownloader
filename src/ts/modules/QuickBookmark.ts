@@ -25,7 +25,7 @@ class QuickBookmark {
 
   private async init() {
     // 在某些条件下，不展开快速收藏功能
-    if (!token.getToken() || !settings.quickBookmarks) {
+    if (!token.token || !settings.quickBookmarks) {
       return
     }
 
@@ -114,7 +114,7 @@ class QuickBookmark {
       const id = this.isNovel ? API.getNovelId() : API.getIllustId()
 
       // 点赞
-      API.addLike(id, type, token.getToken())
+      API.addLike(id, type, token.token)
 
       // 将点赞按钮的颜色改为蓝色
       let likeBtn = document.querySelector(
@@ -165,7 +165,7 @@ class QuickBookmark {
       // 调用添加收藏的 api
       // 这里加了个延迟，因为上面先点击了 pixiv 自带的收藏按钮，但不加延迟的话， p 站自己的不带 tag 的请求反而是后发送的。
       setTimeout(() => {
-        API.addBookmark(type, id, tags, false, token.getToken())
+        API.addBookmark(type, id, tags, false, token.token)
           .then((response) => response.json())
           .then((data) => {
             if (data.error === false) {

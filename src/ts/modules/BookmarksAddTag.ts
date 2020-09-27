@@ -79,7 +79,7 @@ class BookmarksAddTag {
         return
       } else {
         // 开始添加 tag
-        this.addTag(0, this.addTagList, token.getToken())
+        this.addTag(0, this.addTagList, token.token)
       }
     } else {
       // 需要继续获取
