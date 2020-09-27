@@ -110,18 +110,24 @@ class QuickBookmark {
     this.btn.href = 'javascript:void(0)'
 
     this.btn.addEventListener('click', () => {
-      // 自动点赞
+      const type: 'illusts' | 'novels' = this.isNovel ? 'novels' : 'illusts'
+      const id = this.isNovel ? API.getNovelId() : API.getIllustId()
+
+      // 点赞
+      API.addLike(id, type, token.getToken())
+
+      // 将点赞按钮的颜色改为蓝色
       let likeBtn = document.querySelector(
         `.${this.likeBtnClass}`
       ) as HTMLButtonElement
       if (!likeBtn) {
-        // 上面尝试直接用 class 获取点赞按钮，考虑到 class 可能会变化，这里从工具栏的按钮里选择。
+        // 上面尝试直接用 class 获取点赞按钮，如果获取不到则从工具栏里选择
         // 点赞按钮是工具栏里的最后一个 button 元素
         console.error('likeBtn class is not available')
         const btnList = this.toolbar.querySelectorAll('button')
         likeBtn = btnList[btnList.length - 1]
       }
-      likeBtn.click()
+      likeBtn.style.color = '#0096fa'
 
       if (this.isBookmarked) {
         return
@@ -156,12 +162,9 @@ class QuickBookmark {
         tags.push('オリジナル')
       }
 
-      const type: 'illusts' | 'novels' = this.isNovel ? 'novels' : 'illusts'
-      const id = this.isNovel ? API.getNovelId() : API.getIllustId()
-
-      // 这里加了个延迟，因为上面先点击了 pixiv 自带的收藏按钮，但不加延迟的话， p 站自己的不带 tag 的请求反而是后发送的。所以这里通过延迟让 p 站不带 tag 的请求先发送，下载器的带 tag 的请求后发送。
+      // 调用添加收藏的 api
+      // 这里加了个延迟，因为上面先点击了 pixiv 自带的收藏按钮，但不加延迟的话， p 站自己的不带 tag 的请求反而是后发送的。
       setTimeout(() => {
-        // 调用添加收藏的 api
         API.addBookmark(type, id, tags, false, token.getToken())
           .then((response) => response.json())
           .then((data) => {

@@ -123,18 +123,14 @@ class DownloadControl {
     )}</p>
     
     <div class="centerWrap_btns">
-    <button class="startDownload" type="button" style="background:${
-      Colors.blue
-    };"> ${lang.transl('_下载按钮1')}</button>
-    <button class="pauseDownload" type="button" style="background:${
-      Colors.yellow
-    };"> ${lang.transl('_下载按钮2')}</button>
-    <button class="stopDownload" type="button" style="background:${
-      Colors.red
-    };"> ${lang.transl('_下载按钮3')}</button>
-    <button class="copyUrl" type="button" style="background:${
-      Colors.green
-    };"> ${lang.transl('_复制url')}</button>
+    <button class="startDownload" type="button" style="background:${Colors.blue
+      };"> ${lang.transl('_下载按钮1')}</button>
+    <button class="pauseDownload" type="button" style="background:${Colors.yellow
+      };"> ${lang.transl('_下载按钮2')}</button>
+    <button class="stopDownload" type="button" style="background:${Colors.red
+      };"> ${lang.transl('_下载按钮3')}</button>
+    <button class="copyUrl" type="button" style="background:${Colors.green
+      };"> ${lang.transl('_复制url')}</button>
     </div>
     <div class="download_status_text_wrap">
     <span>${lang.transl('_当前状态')}</span>
@@ -435,13 +431,13 @@ class DownloadControl {
       return alert(lang.transl('_没有数据可供使用'))
     }
 
-    let result = ''
-    result = store.result.reduce((total, now) => {
-      return (total += now.url + '<br>')
-    }, result)
+    const urls: string[] = []
+    for (const result of store.result) {
+      urls.push(result.url)
+    }
 
     EVT.fire(EVT.list.output, {
-      content: result,
+      content: urls.join('<br>'),
       title: lang.transl('_复制url'),
     })
   }
@@ -462,4 +458,4 @@ class DownloadControl {
 }
 
 new DownloadControl()
-export {}
+export { }
