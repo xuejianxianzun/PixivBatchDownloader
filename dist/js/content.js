@@ -1249,6 +1249,15 @@
                   )
                 }
               })
+            this.centerPanel.addEventListener('click', (e) => {
+              const ev = e || window.event
+              ev.stopPropagation()
+            })
+            document.addEventListener('click', () => {
+              if (this.centerPanel.style.display !== 'none') {
+                this.close()
+              }
+            })
           }
           // 显示中间区域
           show() {
@@ -2313,7 +2322,10 @@
             document.body.insertAdjacentElement('afterbegin', this.btn)
           }
           bindEvents() {
-            this.btn.addEventListener('click', () => {
+            // 这里阻止事件冒泡是为了配合 CenterPanel 的“点击页面其他部分隐藏 CenterPanel”的效果
+            this.btn.addEventListener('click', (e) => {
+              const ev = e || window.event
+              ev.stopPropagation()
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.openCenterPanel
               )
@@ -7511,12 +7523,15 @@
             this.closeBtn.addEventListener('click', () => {
               this.close()
             })
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.centerPanelClosed,
-              () => {
+            this.outputPanel.addEventListener('click', (e) => {
+              const ev = e || window.event
+              ev.stopPropagation()
+            })
+            document.addEventListener('click', () => {
+              if (this.outputPanel.style.display !== 'none') {
                 this.close()
               }
-            )
+            })
             // 复制输出内容
             this.copyBtn.addEventListener('click', () => {
               const range = document.createRange()

@@ -68,8 +68,15 @@ class Output {
       this.close()
     })
 
-    window.addEventListener(EVT.list.centerPanelClosed, () => {
-      this.close()
+    this.outputPanel.addEventListener('click', (e) => {
+      const ev = e || window.event
+      ev.stopPropagation()
+    })
+
+    document.addEventListener('click', () => {
+      if (this.outputPanel.style.display !== 'none') {
+        this.close()
+      }
     })
 
     // 复制输出内容

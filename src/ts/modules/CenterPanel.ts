@@ -163,6 +163,17 @@ class CenterPanel {
           EVT.fire(EVT.list.resetSettings)
         }
       })
+
+    this.centerPanel.addEventListener('click', (e) => {
+      const ev = e || window.event
+      ev.stopPropagation()
+    })
+
+    document.addEventListener('click', () => {
+      if (this.centerPanel.style.display !== 'none') {
+        this.close()
+      }
+    })
   }
 
   // 显示中间区域
