@@ -30,8 +30,6 @@ class BookmarkAllWorks {
 
   private workList!: NodeListOf<HTMLElement> | HTMLElement[]
 
-  private token!: string
-
   // 传递 workList，这是作品列表元素的合集。代码会尝试分析每个作品元素中的超链接，提取出作品 id
   // 如果传递的作品是本页面上的作品，可以省略 type。代码会根据页面 url 判断是图片还是小说。
   // 如果传递的作品不是本页面上的，为防止误判，需要显式传递 type
@@ -72,7 +70,6 @@ class BookmarkAllWorks {
   private ready(type?: WorkType) {
     this.idList = []
     this.bookmarKData = []
-    this.token = token.token
 
     if (type) {
       this.type = type
@@ -145,7 +142,7 @@ class BookmarkAllWorks {
           data.id,
           settings.quickBookmarks ? data.tags : [],
           data.restrict,
-          this.token
+          token.token
         )
         index++
       }

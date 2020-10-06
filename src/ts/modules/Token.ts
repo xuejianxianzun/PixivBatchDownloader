@@ -36,7 +36,7 @@ class Token {
     if (
       this.token &&
       lastTimeStr &&
-      (nowTime - Number.parseInt(lastTimeStr)) < interval
+      nowTime - Number.parseInt(lastTimeStr) < interval
     ) {
       return
     }

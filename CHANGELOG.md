@@ -16,6 +16,21 @@
 
 之前其他类获取 token，使用 `token.getToken()` 方法，现在改为使用属性 `token.token`，使用起来更方便，也避免了重复的计算。
 
+### 其他
+
+如果要在下载时添加对所有作品的收藏，或者点赞，应该使用 result meta。
+
+```
+const type: 'illusts' | 'novels' = (workData.type === 2) ? 'novels' : 'illusts'
+API.addBookmark(
+  type,
+  workData.idNum.toString(),
+  settings.quickBookmarks ? workData.tags : [],
+  false,
+  token.token
+)
+```
+
 ## 7.6.0  2020-09-23
 
 ### 可以保存页数设置/个数设置了

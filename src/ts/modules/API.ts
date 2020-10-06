@@ -32,11 +32,13 @@ import { IDData } from './Store.d'
 
 // 点击 like 按钮的返回数据
 interface LikeResponse {
-  error: boolean,
-  message: '' | string,
-  body: [] | {
-    is_liked: boolean
-  }
+  error: boolean
+  message: '' | string
+  body:
+    | []
+    | {
+        is_liked: boolean
+      }
 }
 
 type LikeDataI = { illust_id: string }
@@ -232,8 +234,9 @@ class API {
     offset: number,
     hide: boolean = false
   ): Promise<BookmarkData> {
-    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${hide ? 'hide' : 'show'
-      }&rdm=${Math.random()}`
+    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
+      hide ? 'hide' : 'show'
+    }&rdm=${Math.random()}`
 
     return this.request(url)
   }
@@ -545,17 +548,20 @@ class API {
     return this.request(url)
   }
 
-
   // 点赞
-  static async addLike(id: string, type: 'illusts' | 'novels', token: string): Promise<LikeResponse> {
+  static async addLike(
+    id: string,
+    type: 'illusts' | 'novels',
+    token: string
+  ): Promise<LikeResponse> {
     let data: LikeDataI | LikeDataN
     if (type === 'illusts') {
       data = {
-        illust_id: id
+        illust_id: id,
       }
     } else {
       data = {
-        novel_id: id
+        novel_id: id,
       }
     }
     const r = await fetch(`https://www.pixiv.net/ajax/${type}/like`, {
@@ -568,7 +574,7 @@ class API {
       credentials: 'same-origin',
       body: JSON.stringify(data),
     })
-    const json = await r.json() as LikeResponse
+    const json = (await r.json()) as LikeResponse
     return json
   }
 }
