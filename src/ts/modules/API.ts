@@ -41,9 +41,6 @@ interface LikeResponse {
       }
 }
 
-type LikeDataI = { illust_id: string }
-type LikeDataN = { novel_id: string }
-
 class API {
   // 根据对象某个属性的值（视为数字）排序对象。返回的结果是降序排列
   static sortByProperty(propertyName: string) {
@@ -554,7 +551,7 @@ class API {
     type: 'illusts' | 'novels',
     token: string
   ): Promise<LikeResponse> {
-    let data: LikeDataI | LikeDataN
+    let data = {}
     if (type === 'illusts') {
       data = {
         illust_id: id,

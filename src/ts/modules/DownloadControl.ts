@@ -19,6 +19,7 @@ import { ShowSkipCount } from './ShowSkipCount'
 import { ShowConvertCount } from './ShowConvertCount'
 import { resume } from './Resume'
 import { states } from './States'
+import Config from './Config'
 
 class DownloadControl {
   constructor() {
@@ -37,9 +38,9 @@ class DownloadControl {
     new ShowConvertCount(convertTipWrap)
   }
 
-  private readonly threadMax = 5 // 同时下载的线程数的最大值，也是默认值
-
-  private thread = this.threadMax // 同时下载的线程数
+  private thread = 5 // 同时下载的线程数的默认值
+  // 这里默认设置为 5，是因为国内一些用户的下载速度比较慢，所以不应该同时下载很多文件。
+  // 最大值由 Config.downloadThreadMax 定义
 
   private taskBatch = 0 // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
 
@@ -338,9 +339,13 @@ class DownloadControl {
   // 设置下载线程数量
   private setDownloadThread() {
     const setThread = parseInt(settings.downloadThread)
-    if (setThread < 1 || setThread > this.threadMax || isNaN(setThread)) {
+    if (
+      setThread < 1 ||
+      setThread > Config.downloadThreadMax ||
+      isNaN(setThread)
+    ) {
       // 如果数值非法，则重设为默认值
-      this.thread = this.threadMax
+      this.thread = Config.downloadThreadMax
     } else {
       this.thread = setThread // 设置为用户输入的值
     }

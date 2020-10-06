@@ -604,7 +604,7 @@
           }
           // 点赞
           static async addLike(id, type, token) {
-            let data
+            let data = {}
             if (type === 'illusts') {
               data = {
                 illust_id: id,
@@ -1307,11 +1307,10 @@
       /***/ function (module, __webpack_exports__, __webpack_require__) {
         'use strict'
         __webpack_require__.r(__webpack_exports__)
-        // 储存一些会在多个组件里使用的常量。运行过程中不会被修改的值。
+        // 储存一些配置。修改这些配置会影响本程序的运行。
         /* harmony default export */ __webpack_exports__['default'] = {
           outputMax: 5000,
-          latestReleaseAPI:
-            'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest',
+          downloadThreadMax: 10,
           illustTypes: ['illustration', 'manga', 'ugoira', 'novel'],
           newTag: '_xzNew660',
         }
@@ -2394,12 +2393,16 @@
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
           /*! ./States */ './src/ts/modules/States.ts'
         )
+        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
+          /*! ./Config */ './src/ts/modules/Config.ts'
+        )
         // 下载控制
 
         class DownloadControl {
           constructor() {
-            this.threadMax = 5 // 同时下载的线程数的最大值，也是默认值
-            this.thread = this.threadMax // 同时下载的线程数
+            this.thread = 5 // 同时下载的线程数的默认值
+            // 这里默认设置为 5，是因为国内一些用户的下载速度比较慢，所以不应该同时下载很多文件。
+            // 最大值由 Config.downloadThreadMax 定义
             this.taskBatch = 0 // 标记任务批次，每次重新下载时改变它的值，传递给后台使其知道这是一次新的下载
             this.taskList = {} // 下载任务列表，使用下载的文件的 id 做 key，保存下载栏编号和它在下载状态列表中的索引
             this.errorIdList = [] // 有任务下载失败时，保存 id
@@ -2745,11 +2748,16 @@
             )
             if (
               setThread < 1 ||
-              setThread > this.threadMax ||
+              setThread >
+                _Config__WEBPACK_IMPORTED_MODULE_14__['default']
+                  .downloadThreadMax ||
               isNaN(setThread)
             ) {
               // 如果数值非法，则重设为默认值
-              this.thread = this.threadMax
+              this.thread =
+                _Config__WEBPACK_IMPORTED_MODULE_14__[
+                  'default'
+                ].downloadThreadMax
             } else {
               this.thread = setThread // 设置为用户输入的值
             }
@@ -9286,7 +9294,7 @@
             ) {
               // 获取最新的 releases 信息
               const latest = await fetch(
-                _Config__WEBPACK_IMPORTED_MODULE_2__['default'].latestReleaseAPI
+                'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest'
               )
               const latestJson = await latest.json()
               const latestVer = latestJson.name
@@ -12383,6 +12391,10 @@ flag 及其含义如下：
             return langText
           }
         )
+        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./Config */ './src/ts/modules/Config.ts'
+        )
+
         const langText = {
           _只下载已收藏: [
             '只下载已收藏',
@@ -13065,10 +13077,10 @@ flag 及其含义如下：
             '設定下載執行緒',
           ],
           _线程数字: [
-            '可以输入 1-5 之间的数字，设置同时下载的数量',
-            '同時ダウンロード数を設定、1-5 の数値を入力してください',
-            'You can type a number between 1-5 to set the number of concurrent downloads',
-            '可以輸入 1-5 之間的數字，設定同時下載的數量。',
+            `可以输入 1-${_Config__WEBPACK_IMPORTED_MODULE_0__['default'].downloadThreadMax} 之间的数字，设置同时下载的数量`,
+            `同時ダウンロード数を設定、1-${_Config__WEBPACK_IMPORTED_MODULE_0__['default'].downloadThreadMax} の数値を入力してください`,
+            `You can type a number between 1-${_Config__WEBPACK_IMPORTED_MODULE_0__['default'].downloadThreadMax} to set the number of concurrent downloads`,
+            `可以輸入 1-${_Config__WEBPACK_IMPORTED_MODULE_0__['default'].downloadThreadMax} 之間的數字，設定同時下載的數量。`,
           ],
           _下载按钮1: [
             '开始下载',

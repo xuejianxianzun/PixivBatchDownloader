@@ -1,3 +1,5 @@
+import Config from './Config'
+
 // 储存下载器使用的多语言文本
 // 在属性名前面加上下划线，和文本内容做出区别
 // {} 是占位符
@@ -646,10 +648,10 @@ const langText = {
     '設定下載執行緒',
   ],
   _线程数字: [
-    '可以输入 1-5 之间的数字，设置同时下载的数量',
-    '同時ダウンロード数を設定、1-5 の数値を入力してください',
-    'You can type a number between 1-5 to set the number of concurrent downloads',
-    '可以輸入 1-5 之間的數字，設定同時下載的數量。',
+    `可以输入 1-${Config.downloadThreadMax} 之间的数字，设置同时下载的数量`,
+    `同時ダウンロード数を設定、1-${Config.downloadThreadMax} の数値を入力してください`,
+    `You can type a number between 1-${Config.downloadThreadMax} to set the number of concurrent downloads`,
+    `可以輸入 1-${Config.downloadThreadMax} 之間的數字，設定同時下載的數量。`,
   ],
   _下载按钮1: ['开始下载', 'ダウンロードを開始', 'start download', '開始下載'],
   _下载按钮2: [
