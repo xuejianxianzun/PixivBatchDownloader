@@ -5,6 +5,7 @@ import { lang } from '../Lang'
 import formHtml from './FormHTML'
 import { SettingsForm } from './Form.d'
 import { SaveNamingRule } from './SaveNamingRule'
+import { themeColor } from '../ThemeColor'
 
 // 设置表单
 class Form {
@@ -35,6 +36,8 @@ class Form {
 
     // 激活第一个选项卡
     this.activeTab(0)
+
+    themeColor.register(this.form)
   }
 
   // 设置表单上美化元素的状态

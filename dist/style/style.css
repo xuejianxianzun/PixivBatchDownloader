@@ -53,7 +53,7 @@
   padding: 0 25px 20px;
   border-radius: 15px;
   box-shadow: 0 0 25px #2ca6df;
-  max-height: 95vh;
+  max-height: 94vh;
   overflow: auto;
 }
 .centerWrap p,
@@ -82,6 +82,9 @@
   color: #0ea8ef !important;
 }
 .centerWrap .settingForm {
+  position: relative;
+  z-index: 1001;
+  background: #fff;
   /*--------美化作为开关的复选框------------*/
   /*--------美化普通的复选框------------*/
   /*--------美化单选框------------*/
@@ -111,9 +114,15 @@
   cursor: pointer;
 }
 .centerWrap .settingForm .tabsTitle {
+  position: sticky;
+  left: 0;
+  top: 0;
+  width: 100%;
+  z-index: 1001;
   display: flex;
   border-bottom: 1px solid #eee;
   margin-bottom: 10px;
+  background: #fff;
 }
 .centerWrap .settingForm .tabsTitle .title {
   text-align: center;
@@ -121,8 +130,8 @@
   flex: 1;
   font-size: 1.1em;
   cursor: pointer;
-  height: 30px;
-  line-height: 30px;
+  height: 40px;
+  line-height: 40px;
   position: relative;
 }
 .centerWrap .settingForm .tabsTitle .title.active {
@@ -134,9 +143,9 @@
   height: 2px;
   background: #0ea8ef;
   position: absolute;
-  top: 29px;
+  top: 39px;
   left: 0;
-  z-index: 1000;
+  z-index: 1001;
 }
 .centerWrap .settingForm .tabsTitle .title:hover {
   color: #0ea8ef;
@@ -252,9 +261,8 @@
 .centerWrap .centerWrap_head {
   padding-top: 20px;
   position: fixed;
-  z-index: 1001;
+  z-index: 1000;
   width: 630px;
-  margin-bottom: 10px;
   background: #fff;
 }
 .centerWrap .centerWrap_head img {
@@ -927,4 +935,10 @@ iframe[name='expandedFooter'] {
 }
 .theme-dark.saveNamingRuleWrap .namingRuleList li:hover {
   background: #444;
+}
+.theme-dark.settingForm {
+  background: #333;
+}
+.theme-dark.settingForm .tabsTitle {
+  background: #333;
 }
