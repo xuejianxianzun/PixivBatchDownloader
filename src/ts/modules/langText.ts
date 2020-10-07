@@ -1332,8 +1332,14 @@ const langText = {
   _导出csv: [
     '导出 CSV 文件',
     'CSV ファイルをエクスポート',
-    'Export CSV file',
+    'Output CSV file',
     '導出 CSV 文檔',
+  ],
+  _导出抓取结果: [
+    '导出抓取结果',
+    'クロール結果をエクスポート',
+    'Output crawl results',
+    '導出擷取結果',
   ],
 }
 

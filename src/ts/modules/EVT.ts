@@ -71,6 +71,8 @@ class EVT {
     resume: 'resume',
     // 当需要导出 csv 文件时触发
     outputCSV: 'outputCSV',
+    // 当需要导出抓取结果时触发
+    outputResult: 'outputResult',
     // 当需要保存用户头像为图标时触发
     saveAvatarIcon: 'saveAvatarIcon',
     // 当需要预览文件名时触发

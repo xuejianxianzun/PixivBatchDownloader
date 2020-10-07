@@ -1,5 +1,6 @@
 import { EVT } from './EVT'
 import { DOM } from './DOM'
+import { API } from './API'
 import { lang } from './Lang'
 import config from './Config'
 import { store } from './Store'
@@ -194,7 +195,7 @@ class OutputCSV {
     }
 
     // 下载文件
-    DOM.downloadFile(url, name + '.csv')
+    DOM.downloadFile(url, API.replaceUnsafeStr(name) + '.csv')
   }
 
   private UTF8BOM() {

@@ -158,6 +158,9 @@
         /* harmony import */ var _modules_OutputCSV__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
           /*! ./modules/OutputCSV */ './src/ts/modules/OutputCSV.ts'
         )
+        /* harmony import */ var _modules_OutputResult__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
+          /*! ./modules/OutputResult */ './src/ts/modules/OutputResult.ts'
+        )
         /*
          * project: Powerful Pixiv Downloader
          * author:  xuejianxianzun; 雪见仙尊
@@ -3115,6 +3118,8 @@
           resume: 'resume',
           // 当需要导出 csv 文件时触发
           outputCSV: 'outputCSV',
+          // 当需要导出抓取结果时触发
+          outputResult: 'outputResult',
           // 当需要保存用户头像为图标时触发
           saveAvatarIcon: 'saveAvatarIcon',
           // 当需要预览文件名时触发
@@ -7613,13 +7618,16 @@
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
-        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./API */ './src/ts/modules/API.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Config */ './src/ts/modules/Config.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
 
@@ -7686,7 +7694,7 @@
                 index: 'type',
                 q: false,
                 toString: (arg) => {
-                  return _Config__WEBPACK_IMPORTED_MODULE_3__['default']
+                  return _Config__WEBPACK_IMPORTED_MODULE_4__['default']
                     .illustTypes[arg]
                 },
               },
@@ -7740,10 +7748,10 @@
           beforeCreate() {
             // 如果没有数据则不执行
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_4__['store'].result.length === 0
+              _Store__WEBPACK_IMPORTED_MODULE_5__['store'].result.length === 0
             ) {
               alert(
-                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                   '_没有数据可供使用'
                 )
               )
@@ -7753,7 +7761,7 @@
             // 1：刷新页面后，断点续传恢复了保存的数据，此时只有 result 里有数据，resultMeta 没有数据。
             // 2: 如果在页面 A 进行了下载，resultMeta 保存的是页面 A 的数据。此时进入页面 B，恢复了 B 页面保存的任务，此时 resultMeta 里还是页面 A 的数据。
             // 所以还是使用 result 比较可靠，不易出问题。
-            this.create(_Store__WEBPACK_IMPORTED_MODULE_4__['store'].result)
+            this.create(_Store__WEBPACK_IMPORTED_MODULE_5__['store'].result)
           }
           create(data) {
             const result = [] // 储存结果。每行的结果合并为一个字符串。不带换行符
@@ -7800,7 +7808,8 @@
             // 下载文件
             _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].downloadFile(
               url,
-              name + '.csv'
+              _API__WEBPACK_IMPORTED_MODULE_2__['API'].replaceUnsafeStr(name) +
+                '.csv'
             )
           }
           UTF8BOM() {
@@ -7817,6 +7826,62 @@
           }
         }
         new OutputCSV()
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/OutputResult.ts':
+      /*!****************************************!*\
+  !*** ./src/ts/modules/OutputResult.ts ***!
+  \****************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./API */ './src/ts/modules/API.ts'
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
+        )
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
+        )
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./Store */ './src/ts/modules/Store.ts'
+        )
+
+        class OutputResult {
+          constructor() {
+            this.bindEvents()
+          }
+          bindEvents() {
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.outputResult,
+              () => {
+                this.output()
+              }
+            )
+          }
+          output() {
+            const str = JSON.stringify(
+              _Store__WEBPACK_IMPORTED_MODULE_3__['store'].result,
+              null,
+              2
+            )
+            const blob = new Blob([str], { type: 'application/json' })
+            const url = URL.createObjectURL(blob)
+            _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM'].downloadFile(
+              url,
+              `result-${_API__WEBPACK_IMPORTED_MODULE_0__[
+                'API'
+              ].replaceUnsafeStr(
+                _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM'].getTitle()
+              )}-${new Date().getTime()}.json`
+            )
+          }
+        }
+        new OutputResult()
 
         /***/
       },
@@ -13806,8 +13871,14 @@ flag 及其含义如下：
           _导出csv: [
             '导出 CSV 文件',
             'CSV ファイルをエクスポート',
-            'Export CSV file',
+            'Output CSV file',
             '導出 CSV 文檔',
+          ],
+          _导出抓取结果: [
+            '导出抓取结果',
+            'クロール結果をエクスポート',
+            'Output crawl results',
+            '導出擷取結果',
           ],
         }
 
@@ -15555,6 +15626,24 @@ flag 及其含义如下：
                 () => {
                   _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
                     _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.outputCSV
+                  )
+                },
+                false
+              )
+            // 导出抓取结果
+            _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM']
+              .addBtn(
+                'namingBtns',
+                _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].green,
+                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+                  '_导出抓取结果'
+                )
+              )
+              .addEventListener(
+                'click',
+                () => {
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.outputResult
                   )
                 },
                 false

@@ -141,6 +141,19 @@ class Form {
       false
     )
 
+    // 导出抓取结果
+    DOM.addBtn(
+      'namingBtns',
+      Colors.green,
+      lang.transl('_导出抓取结果')
+    ).addEventListener(
+      'click',
+      () => {
+        EVT.fire(EVT.list.outputResult)
+      },
+      false
+    )
+
     // 显示命名字段提示
     this.form
       .querySelector('.showFileNameTip')!
