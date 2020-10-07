@@ -442,7 +442,7 @@ class DownloadControl {
 
     const urls: string[] = []
     for (const result of store.result) {
-      urls.push(result.url)
+      urls.push(result.original)
     }
 
     EVT.fire(EVT.list.output, {

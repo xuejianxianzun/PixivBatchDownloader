@@ -79,7 +79,7 @@ class InitPixivisionPage extends InitPageBase {
   private addResult(id: string, url: string, ext: string) {
     store.addResult({
       id: id,
-      url: url,
+      original: url,
       ext: ext,
     })
   }

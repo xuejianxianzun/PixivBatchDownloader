@@ -5,6 +5,7 @@ import { lang } from './Lang'
 import config from './Config'
 import { store } from './Store'
 import { Result } from './Store.d'
+import { fileName } from './FileName'
 
 // 定义字段信息
 interface Field {
@@ -43,6 +44,10 @@ class OutputCSV {
 
   private readonly string2String = (arg: string) => {
     return arg
+  }
+
+  private readonly getFileName = (arg: any) => {
+    return fileName.getFileName(arg)
   }
 
   // 定义要保存的字段
@@ -129,7 +134,20 @@ class OutputCSV {
       q: false,
       toString: this.string2String,
     },
+    {
+      name: 'original',
+      index: 'original',
+      q: false,
+      toString: this.string2String,
+    },
+    {
+      name: 'fileName',
+      index: 'title',
+      q: true,
+      toString: this.getFileName,
+    },
   ]
+  // fileName 字段的 index 属性可以随便写，因为没有影响。
 
   private beforeCreate() {
     // 如果没有数据则不执行
@@ -165,9 +183,17 @@ class OutputCSV {
       }
 
       const temp: string[] = [] // 储存这个作品的数据
+      // 生成每个字段的结果
       for (const field of this.fieldCfg) {
+        // 设置生成结果所使用的数据。fileName 需要使用整个作品数据。其他字段则取出对应的属性
+        let originalData = field.name === 'fileName' ? d : d[field.index]
+        if (originalData === undefined) {
+          // 如果某个字段使用的属性在旧版本的数据里不存在性，就会是 undefined
+          // 例如 original 属性在 7.6.0 版本以前不存在，现在使用了这个字段。如果下载器有保存旧版本的断点续传数据，那么获取 original 就是 undefined，需要进行处理。
+          originalData = ''
+        }
         // 求值并替换双引号。值原本就有的双引号，要替换成两个双引号
-        let value = field.toString(d[field.index]).replace(/\"/g, '""')
+        let value = field.toString(originalData).replace(/\"/g, '""')
         // 根据 q 标记决定是否用双引号包裹这个值
         if (field.q) {
           value = this.addQuotation(value)

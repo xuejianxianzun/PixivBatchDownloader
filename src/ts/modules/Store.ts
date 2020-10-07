@@ -30,7 +30,7 @@ class Store {
     const dataDefault: Result = {
       idNum: 0,
       id: '',
-      url: '',
+      original: '',
       thumb: '',
       title: '',
       pageCount: 1,
@@ -81,7 +81,7 @@ class Store {
         const result = this.assignResult(data)
         result.idNum = parseInt(result.id)
         result.id = result.id + `_p${i}`
-        result.url = result.url.replace('p0', 'p' + i)
+        result.original = result.original.replace('p0', 'p' + i)
         this.result.push(result)
       }
     }

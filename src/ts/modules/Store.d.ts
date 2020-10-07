@@ -10,7 +10,7 @@ export interface IDData {
 export interface Result {
   idNum: number
   id: string
-  url: string
+  original: string
   thumb: string
   pageCount: number
   dlCount: number
@@ -37,7 +37,7 @@ export interface Result {
 export interface WorkInfoOptional {
   idNum?: number
   id?: string
-  url?: string
+  original?: string
   thumb?: string
   pageCount?: number
   dlCount?: number

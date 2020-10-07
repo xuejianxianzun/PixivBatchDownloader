@@ -2076,7 +2076,7 @@
             this.setProgressBar(0, 0)
             // 下载文件
             let xhr = new XMLHttpRequest()
-            xhr.open('GET', arg.data.url, true)
+            xhr.open('GET', arg.data.original, true)
             xhr.responseType = 'blob'
             // 显示下载进度
             xhr.addEventListener('progress', async (event) => {
@@ -2145,7 +2145,7 @@
                 // 正常下载完毕的状态码是 200
                 // 处理小说恢复后下载出错的问题，重新生成小说的 url
                 if (arg.data.type === 3 && xhr.status === 0) {
-                  arg.data.url = URL.createObjectURL(arg.data.novelBlob)
+                  arg.data.original = URL.createObjectURL(arg.data.novelBlob)
                   return this.download(arg)
                 }
                 // 进入重试环节
@@ -2897,7 +2897,7 @@
             const urls = []
             for (const result of _Store__WEBPACK_IMPORTED_MODULE_2__['store']
               .result) {
-              urls.push(result.url)
+              urls.push(result.original)
             }
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.output,
@@ -3558,7 +3558,7 @@
               const data =
                 _Store__WEBPACK_IMPORTED_MODULE_4__['store'].result[i]
               // 为默认文件名添加颜色。默认文件名有两种处理方式，一种是取出用其他下载软件下载后的默认文件名，一种是取出本程序使用的默认文件名 data.id。这里使用前者，方便用户用其他下载软件下载后，再用生成的文件名重命名。
-              const defaultName = data.url.replace(/.*\//, '')
+              const defaultName = data.original.replace(/.*\//, '')
               const fullName = this.getFileName(data)
               let nowResult = `${defaultName}: ${fullName}<br>`
               if (
@@ -6890,7 +6890,7 @@
           addResult(id, url, ext) {
             _Store__WEBPACK_IMPORTED_MODULE_5__['store'].addResult({
               id: id,
-              url: url,
+              original: url,
               ext: ext,
             })
           }
@@ -7630,6 +7630,9 @@
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
+        /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ./FileName */ './src/ts/modules/FileName.ts'
+        )
 
         // name 这个字段在 csv 里显示的名字。
         // index 这个字段在数据里的索引名
@@ -7650,6 +7653,11 @@
             }
             this.string2String = (arg) => {
               return arg
+            }
+            this.getFileName = (arg) => {
+              return _FileName__WEBPACK_IMPORTED_MODULE_6__[
+                'fileName'
+              ].getFileName(arg)
             }
             // 定义要保存的字段
             this.fieldCfg = [
@@ -7736,6 +7744,18 @@
                 q: false,
                 toString: this.string2String,
               },
+              {
+                name: 'original',
+                index: 'original',
+                q: false,
+                toString: this.string2String,
+              },
+              {
+                name: 'fileName',
+                index: 'title',
+                q: true,
+                toString: this.getFileName,
+              },
             ]
             this.utf8BOM = this.UTF8BOM()
             window.addEventListener(
@@ -7745,6 +7765,7 @@
               }
             )
           }
+          // fileName 字段的 index 属性可以随便写，因为没有影响。
           beforeCreate() {
             // 如果没有数据则不执行
             if (
@@ -7781,9 +7802,18 @@
                 continue
               }
               const temp = [] // 储存这个作品的数据
+              // 生成每个字段的结果
               for (const field of this.fieldCfg) {
+                // 设置生成结果所使用的数据。fileName 需要使用整个作品数据。其他字段则取出对应的属性
+                let originalData =
+                  field.name === 'fileName' ? d : d[field.index]
+                if (originalData === undefined) {
+                  // 如果某个字段使用的属性在旧版本的数据里不存在性，就会是 undefined
+                  // 例如 original 属性在 7.6.0 版本以前不存在，现在使用了这个字段。如果下载器有保存旧版本的断点续传数据，那么获取 original 就是 undefined，需要进行处理。
+                  originalData = ''
+                }
                 // 求值并替换双引号。值原本就有的双引号，要替换成两个双引号
-                let value = field.toString(d[field.index]).replace(/\"/g, '""')
+                let value = field.toString(originalData).replace(/\"/g, '""')
                 // 根据 q 标记决定是否用双引号包裹这个值
                 if (field.q) {
                   value = this.addQuotation(value)
@@ -9232,7 +9262,7 @@
             const dataDefault = {
               idNum: 0,
               id: '',
-              url: '',
+              original: '',
               thumb: '',
               title: '',
               pageCount: 1,
@@ -9284,7 +9314,7 @@
                 const result = this.assignResult(data)
                 result.idNum = parseInt(result.id)
                 result.id = result.id + `_p${i}`
-                result.url = result.url.replace('p0', 'p' + i)
+                result.original = result.original.replace('p0', 'p' + i)
                 this.result.push(result)
               }
             }
@@ -12391,7 +12421,7 @@ flag 及其含义如下：
                   thumb: thumb,
                   pageCount: pageCount,
                   dlCount: dlCount,
-                  url: imgUrl,
+                  original: imgUrl,
                   title: title,
                   tags: tags,
                   tagsWithTransl: tagsWithTransl,
@@ -12428,7 +12458,7 @@ flag 及其含义如下：
                   idNum: idNum,
                   thumb: thumb,
                   pageCount: pageCount,
-                  url: meta.body.originalSrc,
+                  original: meta.body.originalSrc,
                   title: title,
                   tags: tags,
                   tagsWithTransl: tagsWithTransl,
@@ -15374,14 +15404,13 @@ flag 及其含义如下：
                   ].makeTXT(content)
                 }
               }
-              const url = URL.createObjectURL(blob)
               // 添加作品信息
               _Store__WEBPACK_IMPORTED_MODULE_1__['store'].addResult({
                 id: id,
                 idNum: idNum,
                 thumb: body.coverUrl || undefined,
                 dlCount: 1,
-                url: url,
+                original: URL.createObjectURL(blob),
                 title: title,
                 tags: tags,
                 tagsWithTransl: tags,

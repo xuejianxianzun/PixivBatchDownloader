@@ -87,15 +87,13 @@ class SaveNovelData {
         }
       }
 
-      const url = URL.createObjectURL(blob)
-
       // 添加作品信息
       store.addResult({
         id: id,
         idNum: idNum,
         thumb: body.coverUrl || undefined,
         dlCount: 1,
-        url: url,
+        original: URL.createObjectURL(blob),
         title: title,
         tags: tags,
         tagsWithTransl: tags,

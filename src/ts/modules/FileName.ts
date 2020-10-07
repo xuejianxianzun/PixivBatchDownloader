@@ -264,7 +264,7 @@ class FileName {
     for (let i = 0; i < length; i++) {
       const data = store.result[i]
       // 为默认文件名添加颜色。默认文件名有两种处理方式，一种是取出用其他下载软件下载后的默认文件名，一种是取出本程序使用的默认文件名 data.id。这里使用前者，方便用户用其他下载软件下载后，再用生成的文件名重命名。
-      const defaultName = data.url.replace(/.*\//, '')
+      const defaultName = data.original.replace(/.*\//, '')
       const fullName = this.getFileName(data)
       let nowResult = `${defaultName}: ${fullName}<br>`
 

@@ -78,7 +78,7 @@ class Download {
 
     // 下载文件
     let xhr = new XMLHttpRequest()
-    xhr.open('GET', arg.data.url, true)
+    xhr.open('GET', arg.data.original, true)
     xhr.responseType = 'blob'
 
     // 显示下载进度
@@ -144,7 +144,7 @@ class Download {
 
         // 处理小说恢复后下载出错的问题，重新生成小说的 url
         if (arg.data.type === 3 && xhr.status === 0) {
-          arg.data.url = URL.createObjectURL(arg.data.novelBlob)
+          arg.data.original = URL.createObjectURL(arg.data.novelBlob)
           return this.download(arg)
         }
 
