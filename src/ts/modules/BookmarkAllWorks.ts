@@ -1,6 +1,4 @@
 import { API } from './API'
-import { DOM } from './DOM'
-import { Colors } from './Colors'
 import { token } from './Token'
 import { lang } from './Lang'
 import { settings } from './setting/Settings'
@@ -11,6 +9,15 @@ import { BookmarkResult } from './CrawlResult.d'
 // 一次任务里要么全部传递插画，要么全部传递小说，不要混合
 type WorkType = 'illusts' | 'novels'
 
+interface IDList {
+  type: WorkType
+  id: string
+}
+
+type BookmarkData = BookmarkResult & {
+  type: WorkType
+}
+
 class BookmarkAllWorks {
   constructor(tipWrap?: HTMLElement) {
     if (tipWrap) {
@@ -18,83 +25,98 @@ class BookmarkAllWorks {
     }
   }
 
-  private type: WorkType = 'illusts' // 作品的类型
+  private idList: IDList[] = []
 
-  private idList: string[] = []
-
-  private bookmarKData: BookmarkResult[] = []
+  private bookmarKData: BookmarkData[] = []
 
   public tipWrap: HTMLElement = document.createElement('button')
-
-  private workList!: NodeListOf<HTMLElement> | HTMLElement[]
 
   // 传递 workList，这是作品列表元素的合集。代码会尝试分析每个作品元素中的超链接，提取出作品 id
   // 如果传递的作品是本页面上的作品，可以省略 type。代码会根据页面 url 判断是图片还是小说。
   // 如果传递的作品不是本页面上的，为防止误判，需要显式传递 type
-  public setWorkList(
+  public sendWorkList(
     list: NodeListOf<HTMLElement> | HTMLElement[],
     type?: WorkType
   ) {
-    if (!list || list.length === 0) {
-      return alert(lang.transl('_没有数据可供使用'))
-    }
+    this.reset()
 
-    this.ready(type)
-
-    this.workList = list
-
-    this.getIdList()
+    this.getIdList(list, type)
 
     this.startBookmark()
   }
 
   // 直接传递作品 id 列表
-  public setIdList(list: string[], type?: WorkType) {
-    this.ready(type)
+  // 需要把 id 按图像或者小说分类存放
+  public sendIdList(list: {
+    "illusts"?: string[]
+    "novels"?: string[]
+  }) {
 
-    this.idList = list
+    this.reset()
+
+    if (list.illusts) {
+      for (const id of list.illusts) {
+        this.idList.push({
+          type: 'illusts',
+          id
+        })
+      }
+    }
+
+    if (list.novels) {
+      for (const id of list.novels) {
+        this.idList.push({
+          type: 'novels',
+          id
+        })
+      }
+    }
 
     this.startBookmark()
   }
 
-  // 启动收藏流程，前提是已经设置了作品 id 列表
-  private async startBookmark() {
-    await this.getTagData()
-    await this.addBookmarkAll()
-    this.complete()
-  }
-
-  // 初始化数据和按钮状态
-  private ready(type?: WorkType) {
+  private reset() {
     this.idList = []
     this.bookmarKData = []
+  }
 
-    if (type) {
-      this.type = type
-    } else {
-      this.type = window.location.pathname.includes('/novel')
+  // 获取作品 id 列表
+  private getIdList(list: NodeListOf<HTMLElement> | HTMLElement[], type?: WorkType) {
+    if (type === undefined) {
+      type = window.location.pathname.includes('/novel')
         ? 'novels'
         : 'illusts'
     }
 
-    this.tipWrap.textContent = `Checking`
-    this.tipWrap.setAttribute('disabled', 'disabled')
-  }
-
-  // 获取作品 id 列表
-  private getIdList() {
-    const regExp = this.type === 'illusts' ? /\/artworks\/(\d*)/ : /\?id=(\d*)/
-    for (const el of this.workList) {
+    const regExp = (type === 'illusts') ? /\/artworks\/(\d*)/ : /\?id=(\d*)/
+    for (const el of list) {
       const a = el.querySelector('a')
       if (a) {
         // "https://www.pixiv.net/artworks/82618568"
         // "https://www.pixiv.net/novel/show.php?id=12350618"
         const test = regExp.exec(a.href)
         if (test && test.length > 1) {
-          this.idList.push(test[1])
+          this.idList.push({
+            type,
+            id: test[1]
+          })
         }
       }
     }
+  }
+
+  // 启动收藏流程，前提是已经设置了作品 id 列表
+  private async startBookmark() {
+    if (this.idList.length === 0) {
+      return alert(lang.transl('_没有数据可供使用'))
+    }
+
+    this.tipWrap.textContent = `Checking`
+    this.tipWrap.setAttribute('disabled', 'disabled')
+
+    await this.getTagData()
+    await this.addBookmarkAll()
+    this.complete()
   }
 
   // 获取每个作品的 tag 数据
@@ -105,10 +127,10 @@ class BookmarkAllWorks {
 
         let data
 
-        if (this.type === 'novels') {
-          data = await API.getNovelData(id)
+        if (id.type === 'novels') {
+          data = await API.getNovelData(id.id)
         } else {
-          data = await API.getArtworkData(id)
+          data = await API.getArtworkData(id.id)
         }
 
         const tagArr = data.body.tags.tags // 取出 tag 信息
@@ -119,6 +141,7 @@ class BookmarkAllWorks {
         }
 
         this.bookmarKData.push({
+          type: id.type,
           id: data.body.id,
           tags: tags,
           restrict: false,
@@ -136,7 +159,7 @@ class BookmarkAllWorks {
       for (const data of this.bookmarKData) {
         this.tipWrap.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
         await API.addBookmark(
-          this.type,
+          data.type,
           data.id,
           settings.quickBookmarks ? data.tags : [],
           data.restrict,

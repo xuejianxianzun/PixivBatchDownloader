@@ -83,7 +83,7 @@ class InitSearchNovelPage extends InitPageBase {
         const showList = Array.from(list).filter((el) => {
           return el.style.display !== 'none'
         })
-        bookmarkAll.setWorkList(showList)
+        bookmarkAll.sendWorkList(showList)
       }
     })
   }

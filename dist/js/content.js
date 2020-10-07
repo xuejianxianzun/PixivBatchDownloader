@@ -690,7 +690,6 @@ __webpack_require__.r(__webpack_exports__);
 
 class BookmarkAllWorks {
     constructor(tipWrap) {
-        this.type = 'illusts'; // 作品的类型
         this.idList = [];
         this.bookmarKData = [];
         this.tipWrap = document.createElement('button');
@@ -701,56 +700,70 @@ class BookmarkAllWorks {
     // 传递 workList，这是作品列表元素的合集。代码会尝试分析每个作品元素中的超链接，提取出作品 id
     // 如果传递的作品是本页面上的作品，可以省略 type。代码会根据页面 url 判断是图片还是小说。
     // 如果传递的作品不是本页面上的，为防止误判，需要显式传递 type
-    setWorkList(list, type) {
-        if (!list || list.length === 0) {
-            return alert(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'));
-        }
-        this.ready(type);
-        this.workList = list;
-        this.getIdList();
+    sendWorkList(list, type) {
+        this.reset();
+        this.getIdList(list, type);
         this.startBookmark();
     }
     // 直接传递作品 id 列表
-    setIdList(list, type) {
-        this.ready(type);
-        this.idList = list;
+    // 需要把 id 按图像或者小说分类存放
+    sendIdList(list) {
+        this.reset();
+        if (list.illusts) {
+            for (const id of list.illusts) {
+                this.idList.push({
+                    type: 'illusts',
+                    id
+                });
+            }
+        }
+        if (list.novels) {
+            for (const id of list.novels) {
+                this.idList.push({
+                    type: 'novels',
+                    id
+                });
+            }
+        }
         this.startBookmark();
     }
-    // 启动收藏流程，前提是已经设置了作品 id 列表
-    async startBookmark() {
-        await this.getTagData();
-        await this.addBookmarkAll();
-        this.complete();
-    }
-    // 初始化数据和按钮状态
-    ready(type) {
+    reset() {
         this.idList = [];
         this.bookmarKData = [];
-        if (type) {
-            this.type = type;
-        }
-        else {
-            this.type = window.location.pathname.includes('/novel')
+    }
+    // 获取作品 id 列表
+    getIdList(list, type) {
+        if (type === undefined) {
+            type = window.location.pathname.includes('/novel')
                 ? 'novels'
                 : 'illusts';
         }
-        this.tipWrap.textContent = `Checking`;
-        this.tipWrap.setAttribute('disabled', 'disabled');
-    }
-    // 获取作品 id 列表
-    getIdList() {
-        const regExp = this.type === 'illusts' ? /\/artworks\/(\d*)/ : /\?id=(\d*)/;
-        for (const el of this.workList) {
+        const regExp = (type === 'illusts') ? /\/artworks\/(\d*)/ : /\?id=(\d*)/;
+        for (const el of list) {
             const a = el.querySelector('a');
             if (a) {
                 // "https://www.pixiv.net/artworks/82618568"
                 // "https://www.pixiv.net/novel/show.php?id=12350618"
                 const test = regExp.exec(a.href);
                 if (test && test.length > 1) {
-                    this.idList.push(test[1]);
+                    this.idList.push({
+                        type,
+                        id: test[1]
+                    });
                 }
             }
         }
+    }
+    // 启动收藏流程，前提是已经设置了作品 id 列表
+    async startBookmark() {
+        if (this.idList.length === 0) {
+            return alert(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'));
+        }
+        this.tipWrap.textContent = `Checking`;
+        this.tipWrap.setAttribute('disabled', 'disabled');
+        await this.getTagData();
+        await this.addBookmarkAll();
+        this.complete();
     }
     // 获取每个作品的 tag 数据
     async getTagData() {
@@ -758,11 +771,11 @@ class BookmarkAllWorks {
             for (const id of this.idList) {
                 this.tipWrap.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`;
                 let data;
-                if (this.type === 'novels') {
-                    data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelData(id);
+                if (id.type === 'novels') {
+                    data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelData(id.id);
                 }
                 else {
-                    data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id);
+                    data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id.id);
                 }
                 const tagArr = data.body.tags.tags; // 取出 tag 信息
                 const tags = []; // 保存 tag 列表
@@ -770,6 +783,7 @@ class BookmarkAllWorks {
                     tags.push(tagData.tag);
                 }
                 this.bookmarKData.push({
+                    type: id.type,
                     id: data.body.id,
                     tags: tags,
                     restrict: false,
@@ -784,7 +798,7 @@ class BookmarkAllWorks {
             let index = 0;
             for (const data of this.bookmarKData) {
                 this.tipWrap.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`;
-                await _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(this.type, data.id, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].quickBookmarks ? data.tags : [], data.restrict, _Token__WEBPACK_IMPORTED_MODULE_1__["token"].token);
+                await _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(data.type, data.id, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].quickBookmarks ? data.tags : [], data.restrict, _Token__WEBPACK_IMPORTED_MODULE_1__["token"].token);
                 index++;
             }
             resolve();
@@ -8824,7 +8838,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
                 const showList = Array.from(list).filter((el) => {
                     return el.style.display !== 'none';
                 });
-                bookmarkAll.setWorkList(showList);
+                bookmarkAll.sendWorkList(showList);
             }
         });
     }
@@ -11587,7 +11601,7 @@ class InitSearchNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
                 const showList = Array.from(list).filter((el) => {
                     return el.style.display !== 'none';
                 });
-                bookmarkAll.setWorkList(showList);
+                bookmarkAll.sendWorkList(showList);
             }
         });
     }
