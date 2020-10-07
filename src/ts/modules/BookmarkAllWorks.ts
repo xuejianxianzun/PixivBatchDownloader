@@ -12,12 +12,10 @@ import { BookmarkResult } from './CrawlResult.d'
 type WorkType = 'illusts' | 'novels'
 
 class BookmarkAllWorks {
-  constructor() {
-    this.btn = DOM.addBtn(
-      'otherBtns',
-      Colors.green,
-      lang.transl('_收藏本页面的所有作品')
-    )
+  constructor(tipWrap?: HTMLElement) {
+    if (tipWrap) {
+      this.tipWrap = tipWrap
+    }
   }
 
   private type: WorkType = 'illusts' // 作品的类型
@@ -26,7 +24,7 @@ class BookmarkAllWorks {
 
   private bookmarKData: BookmarkResult[] = []
 
-  public btn!: HTMLButtonElement
+  public tipWrap: HTMLElement = document.createElement('button')
 
   private workList!: NodeListOf<HTMLElement> | HTMLElement[]
 
@@ -79,8 +77,8 @@ class BookmarkAllWorks {
         : 'illusts'
     }
 
-    this.btn.textContent = `Checking`
-    this.btn.setAttribute('disabled', 'disabled')
+    this.tipWrap.textContent = `Checking`
+    this.tipWrap.setAttribute('disabled', 'disabled')
   }
 
   // 获取作品 id 列表
@@ -103,7 +101,7 @@ class BookmarkAllWorks {
   private async getTagData() {
     return new Promise<void>(async (resolve) => {
       for (const id of this.idList) {
-        this.btn.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`
+        this.tipWrap.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`
 
         let data
 
@@ -136,7 +134,7 @@ class BookmarkAllWorks {
     return new Promise<void>(async (resolve) => {
       let index = 0
       for (const data of this.bookmarKData) {
-        this.btn.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
+        this.tipWrap.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
         await API.addBookmark(
           this.type,
           data.id,
@@ -152,8 +150,8 @@ class BookmarkAllWorks {
   }
 
   private complete() {
-    this.btn.textContent = `✓ Complete`
-    this.btn.removeAttribute('disabled')
+    this.tipWrap.textContent = `✓ Complete`
+    this.tipWrap.removeAttribute('disabled')
   }
 }
 

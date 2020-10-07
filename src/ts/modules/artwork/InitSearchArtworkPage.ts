@@ -100,20 +100,6 @@ class InitSearchArtworkPage extends InitPageBase {
     ]).addEventListener('click', () => {
       this.screenInResult()
     })
-
-    // 添加收藏本页所有作品的功能
-    const bookmarkAll = new BookmarkAllWorks()
-    bookmarkAll.btn.addEventListener('click', () => {
-      const listWrap = this.getWorksWrap()
-      if (listWrap) {
-        const list = listWrap.querySelectorAll('li')
-        // 被二次筛选过滤掉的作品会被隐藏，所以批量添加收藏时，过滤掉隐藏的作品
-        const showList = Array.from(list).filter((el) => {
-          return el.style.display !== 'none'
-        })
-        bookmarkAll.setWorkList(showList)
-      }
-    })
   }
 
   protected addAnyElement() {
@@ -129,6 +115,26 @@ class InitSearchArtworkPage extends InitPageBase {
 
     deleteWorks.addManuallyDeleteBtn((el: HTMLElement) => {
       EVT.fire(EVT.list.deleteWork, el)
+    })
+
+    // 添加收藏本页所有作品的功能
+    const bookmarkAllBtn = DOM.addBtn(
+      'otherBtns',
+      Colors.green,
+      lang.transl('_收藏本页面的所有作品')
+    )
+    const bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
+
+    bookmarkAllBtn.addEventListener('click', () => {
+      const listWrap = this.getWorksWrap()
+      if (listWrap) {
+        const list = listWrap.querySelectorAll('li')
+        // 被二次筛选过滤掉的作品会被隐藏，所以批量添加收藏时，过滤掉隐藏的作品
+        const showList = Array.from(list).filter((el) => {
+          return el.style.display !== 'none'
+        })
+        bookmarkAll.setWorkList(showList)
+      }
     })
   }
 

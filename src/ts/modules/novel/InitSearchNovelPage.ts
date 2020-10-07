@@ -67,8 +67,14 @@ class InitSearchNovelPage extends InitPageBase {
 
   protected addAnyElement() {
     // 添加收藏本页所有作品的功能
-    const bookmarkAll = new BookmarkAllWorks()
-    bookmarkAll.btn.addEventListener('click', () => {
+    const bookmarkAllBtn = DOM.addBtn(
+      'otherBtns',
+      Colors.green,
+      lang.transl('_收藏本页面的所有作品')
+    )
+    const bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
+
+    bookmarkAllBtn.addEventListener('click', () => {
       const listWrap = this.getWorksWrap()
       if (listWrap) {
         const list = document.querySelectorAll(
