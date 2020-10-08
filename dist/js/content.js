@@ -7441,7 +7441,7 @@
             this.colors = ['#00ca19', '#d27e00', '#f00']
             this.toBottom = false // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
             this.scrollToBottom()
-            // 切换不同页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
+            // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.pageSwitch,
               () => {
@@ -16923,7 +16923,7 @@ flag 及其含义如下：
               downloadThread: '5',
               userSetName: '{id}',
               tagNameToFileName: false,
-              alwaysFolder: true,
+              alwaysFolder: false,
               multipleImageDir: false,
               multipleImageFolderName: '1',
               showOptions: true,

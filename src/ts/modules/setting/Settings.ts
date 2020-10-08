@@ -133,7 +133,7 @@ class Settings {
     downloadThread: '5',
     userSetName: '{id}',
     tagNameToFileName: false,
-    alwaysFolder: true,
+    alwaysFolder: false,
     multipleImageDir: false,
     multipleImageFolderName: '1',
     showOptions: true,

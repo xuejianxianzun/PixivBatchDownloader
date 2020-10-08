@@ -8,7 +8,7 @@ class Log {
   constructor() {
     this.scrollToBottom()
 
-    // 切换不同页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
+    // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
     window.addEventListener(EVT.list.pageSwitch, () => {
       if (!states.busy) {
         this.clear()
