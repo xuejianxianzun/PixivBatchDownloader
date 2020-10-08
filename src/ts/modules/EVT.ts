@@ -5,6 +5,8 @@ class EVT {
     crawlStart: 'crawlStart',
     // 当检查到错误的设置时触发
     wrongSetting: 'wrongSetting',
+    // 当获取作品的 id 列表完成时触发
+    getIdListFinished: 'getIdListFinished',
     // 当抓取完成时触发。不管结果是否为空都会触发
     crawlFinish: 'crawlFinish',
     // 当抓取结果为空时触发。触发时机晚于 crawlFinish
@@ -83,6 +85,10 @@ class EVT {
     settingChange: 'settingChange',
     // 当下载器检测到有新版本时触发
     hasNewVer: 'hasNewVer',
+    // 进入批量收藏模式时触发
+    bookmarkModeStart: 'bookmarkModeStart',
+    // 批量收藏完成时触发
+    bookmarkModeEnd: 'bookmarkModeEnd',
   }
 
   // 触发事件，可以携带数据

@@ -167,13 +167,17 @@ abstract class InitPageBase {
     this.getIdList()
   }
 
-  // 获取作品列表，由各个子类具体定义
+  // 获取 id 列表，由各个子类具体定义
   protected abstract getIdList(): void
 
-  // 作品列表获取完毕，开始抓取作品内容页
+  // id 列表获取完毕，开始抓取作品内容页
   protected getIdListFinished() {
-    // 列表页获取完毕后，可以在这里重置一些变量
     this.resetGetIdListStatus()
+
+    EVT.fire(EVT.list.getIdListFinished)
+    if (states.bookmarkMode) {
+      return
+    }
 
     if (store.idList.length === 0) {
       return this.noResult()

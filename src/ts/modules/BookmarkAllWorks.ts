@@ -3,13 +3,14 @@ import { token } from './Token'
 import { lang } from './Lang'
 import { settings } from './setting/Settings'
 import { BookmarkResult } from './CrawlResult.d'
+import { EVT } from './EVT'
 
 // 一键收藏所有作品
 // 可以传入页面上的作品元素列表，也可以直接传入 id 列表
 // 一次任务里要么全部传递插画，要么全部传递小说，不要混合
 type WorkType = 'illusts' | 'novels'
 
-interface IDList {
+export interface IDList {
   type: WorkType
   id: string
 }
@@ -40,55 +41,11 @@ class BookmarkAllWorks {
   ) {
     this.reset()
 
-    this.getIdList(list, type)
-
-    this.startBookmark()
-  }
-
-  // 直接传递作品 id 列表
-  // 需要把 id 按图像或者小说分类存放
-  public sendIdList(list: {
-    "illusts"?: string[]
-    "novels"?: string[]
-  }) {
-
-    this.reset()
-
-    if (list.illusts) {
-      for (const id of list.illusts) {
-        this.idList.push({
-          type: 'illusts',
-          id
-        })
-      }
-    }
-
-    if (list.novels) {
-      for (const id of list.novels) {
-        this.idList.push({
-          type: 'novels',
-          id
-        })
-      }
-    }
-
-    this.startBookmark()
-  }
-
-  private reset() {
-    this.idList = []
-    this.bookmarKData = []
-  }
-
-  // 获取作品 id 列表
-  private getIdList(list: NodeListOf<HTMLElement> | HTMLElement[], type?: WorkType) {
     if (type === undefined) {
-      type = window.location.pathname.includes('/novel')
-        ? 'novels'
-        : 'illusts'
+      type = window.location.pathname.includes('/novel') ? 'novels' : 'illusts'
     }
 
-    const regExp = (type === 'illusts') ? /\/artworks\/(\d*)/ : /\?id=(\d*)/
+    const regExp = type === 'illusts' ? /\/artworks\/(\d*)/ : /\?id=(\d*)/
     for (const el of list) {
       const a = el.querySelector('a')
       if (a) {
@@ -98,17 +55,34 @@ class BookmarkAllWorks {
         if (test && test.length > 1) {
           this.idList.push({
             type,
-            id: test[1]
+            id: test[1],
           })
         }
       }
     }
+
+    this.startBookmark()
   }
 
-  // 启动收藏流程，前提是已经设置了作品 id 列表
+  // 直接传递 id 列表
+  public sendIdList(list: IDList[]) {
+    this.reset()
+
+    this.idList = list
+
+    this.startBookmark()
+  }
+
+  private reset() {
+    this.idList = []
+    this.bookmarKData = []
+  }
+
+  // 启动收藏流程
   private async startBookmark() {
     if (this.idList.length === 0) {
-      return alert(lang.transl('_没有数据可供使用'))
+      alert(lang.transl('_没有数据可供使用'))
+      return
     }
 
     this.tipWrap.textContent = `Checking`
@@ -175,6 +149,7 @@ class BookmarkAllWorks {
   private complete() {
     this.tipWrap.textContent = `✓ Complete`
     this.tipWrap.removeAttribute('disabled')
+    EVT.fire(EVT.list.bookmarkModeEnd)
   }
 }
 

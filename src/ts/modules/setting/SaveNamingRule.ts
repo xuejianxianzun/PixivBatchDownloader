@@ -23,7 +23,7 @@ class SaveNamingRule {
 
   private storeName = 'xzNamingList'
   private list: string[] = [] // 保存明明列表，是一个先进先出的队列
-  private readonly limit = 10 // 最大保存数量
+  private readonly limit = 20 // 最大保存数量
   private saveBtn: HTMLButtonElement
   private loadBtn: HTMLButtonElement
   private listWrap: HTMLElement

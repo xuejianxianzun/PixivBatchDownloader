@@ -5,13 +5,15 @@ import { lang } from './Lang'
 import { options } from './setting/Options'
 import { API } from './API'
 import { store } from './Store'
+import { EVT } from './EVT'
 import { log } from './Log'
 import { DOM } from './DOM'
 import { userWorksType, tagPageFlag } from './CrawlArgument.d'
 import { UserImageWorksWithTag, UserNovelsWithTag } from './CrawlResult'
 import { IDListType } from './Store.d'
-import { EVT } from './EVT'
+import { states } from './States'
 import './SaveAvatarIcon'
+import { BookmarkAllWorks, IDList } from './BookmarkAllWorks'
 
 class InitUserPage extends InitPageBase {
   constructor() {
@@ -22,6 +24,8 @@ class InitUserPage extends InitPageBase {
   private listType = 0 // 细分的列表类型
 
   private onceNumber = 48 // 每页作品个数，插画是 48 个，小说是 24 个
+
+  private bookmarkAll = new BookmarkAllWorks()
 
   // 添加中间按钮
   protected addCrawlBtns() {
@@ -38,6 +42,45 @@ class InitUserPage extends InitPageBase {
     ]).addEventListener('click', () => {
       EVT.fire(EVT.list.saveAvatarIcon)
     })
+
+    // 添加收藏本页所有作品的功能
+    const bookmarkAllBtn = DOM.addBtn(
+      'otherBtns',
+      Colors.green,
+      lang.transl('_收藏本页面的所有作品')
+    )
+    this.bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
+
+    bookmarkAllBtn.addEventListener('click', async () => {
+      // 获取该用户的所有作品的 id 列表
+      // 模拟了抓取流程，以获取相同的 id 列表
+      EVT.fire(EVT.list.bookmarkModeStart)
+      store.tag = API.getTagFromURL()
+      this.crawlNumber = 1 // 设置为只抓取 1 页
+      this.readyGetIdList()
+    })
+
+    window.addEventListener(EVT.list.getIdListFinished, this.sendBookmarkIdList)
+  }
+
+  private sendBookmarkIdList = () => {
+    if (states.bookmarkMode) {
+      // 将 id 的 type 设置为 illusts 或 novels
+      const list: IDList[] = []
+      for (const data of store.idList) {
+        if (data.type === 'novels') {
+          list.push(data as IDList)
+        } else {
+          list.push({
+            type: 'illusts',
+            id: data.id,
+          })
+        }
+      }
+
+      store.idList = [] // 清空这次抓取到的 id 列表
+      this.bookmarkAll.sendIdList(list)
+    }
   }
 
   protected setFormOption() {
@@ -58,6 +101,8 @@ class InitUserPage extends InitPageBase {
 
   protected nextStep() {
     this.readyGetIdList()
+
+    log.log(lang.transl('_正在抓取'))
   }
 
   protected readyGetIdList() {
@@ -86,8 +131,6 @@ class InitUserPage extends InitPageBase {
     }
 
     store.tag ? this.getIdListByTag() : this.getIdList()
-
-    log.log(lang.transl('_正在抓取'))
   }
 
   private getOffset() {
@@ -137,8 +180,8 @@ class InitUserPage extends InitPageBase {
     let idList = await API.getUserWorksByType(DOM.getUserId(), type)
 
     // 判断是否全都是小说，如果是，把每页的作品个数设置为 24 个
-    const allWorkIsNovels = idList.every((val) => {
-      return val.type === 'novels'
+    const allWorkIsNovels = idList.every((data) => {
+      return data.type === 'novels'
     })
     allWorkIsNovels && (this.onceNumber = 24)
 
@@ -236,6 +279,16 @@ class InitUserPage extends InitPageBase {
   protected sortResult() {
     // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
     store.result.sort(API.sortByProperty('id'))
+  }
+
+  protected destroy() {
+    DOM.clearSlot('crawlBtns')
+    DOM.clearSlot('otherBtns')
+
+    window.removeEventListener(
+      EVT.list.getIdListFinished,
+      this.sendBookmarkIdList
+    )
   }
 }
 export { InitUserPage }

@@ -88,7 +88,11 @@ class BookmarksAddTag {
   }
 
   // 给未分类作品添加 tag
-  private async addTag(index: number, addList: BookmarkResult[], tt: string) {
+  private async addTag(
+    index: number,
+    addList: BookmarkResult[],
+    tt: string
+  ): Promise<void> {
     const item: BookmarkResult = addList[index] as BookmarkResult
 
     await API.addBookmark(this.type, item.id, item.tags, item.restrict, tt)
@@ -96,7 +100,7 @@ class BookmarksAddTag {
       index++
       this.btn!.textContent = `${index} / ${addList.length}`
       // 继续添加下一个
-      this.addTag(index, addList, tt)
+      return this.addTag(index, addList, tt)
     } else {
       this.btn!.textContent = `✓ Complete`
       this.btn!.removeAttribute('disabled')
