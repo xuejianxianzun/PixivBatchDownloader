@@ -16633,7 +16633,7 @@ flag 及其含义如下：
           constructor(ruleInput) {
             this.storeName = 'xzNamingList'
             this.list = [] // 保存明明列表，是一个先进先出的队列
-            this.limit = 10 // 最大保存数量
+            this.limit = 20 // 最大保存数量
             this._show = false // 是否显示列表
             this.html = `
   <div class="saveNamingRuleWrap">
