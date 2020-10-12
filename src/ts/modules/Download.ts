@@ -13,6 +13,7 @@ import {
 import { progressBar } from './ProgressBar'
 import { filter } from './Filter'
 import { deduplication } from './Deduplication'
+import { settings } from './setting/Settings'
 
 class Download {
   constructor(progressBarIndex: number, data: downloadArgument) {
@@ -77,8 +78,15 @@ class Download {
     this.setProgressBar(0, 0)
 
     // 下载文件
+    let url: string
+    if (arg.data.type === 3) {
+      url = arg.data.original
+    } else {
+      url = arg.data[settings.imageSize] || arg.data.original
+    }
+
     let xhr = new XMLHttpRequest()
-    xhr.open('GET', arg.data.original, true)
+    xhr.open('GET', url, true)
     xhr.responseType = 'blob'
 
     // 显示下载进度

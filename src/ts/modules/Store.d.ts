@@ -12,6 +12,8 @@ export interface Result {
   id: string
   original: string
   thumb: string
+  regular: string
+  small: string
   pageCount: number
   dlCount: number
   title: string
@@ -39,6 +41,8 @@ export interface WorkInfoOptional {
   id?: string
   original?: string
   thumb?: string
+  regular?: string
+  small?: string
   pageCount?: number
   dlCount?: number
   title?: string

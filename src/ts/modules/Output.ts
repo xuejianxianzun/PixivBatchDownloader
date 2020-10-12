@@ -79,6 +79,10 @@ class Output {
       }
     })
 
+    window.addEventListener(EVT.list.closeCenterPanel, () => {
+      this.close()
+    })
+
     // 复制输出内容
     this.copyBtn.addEventListener('click', () => {
       const range = document.createRange()

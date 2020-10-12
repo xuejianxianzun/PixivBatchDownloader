@@ -67,7 +67,7 @@ interface XzSetting {
   dupliStrategy: 'strict' | 'loose'
   fileNameLengthLimitSwitch: boolean
   fileNameLengthLimit: string
-  imageSize:'original'|'regular'|'small'
+  imageSize: 'original' | 'regular' | 'small'
 }
 
 interface SettingChangeData {
@@ -170,7 +170,7 @@ class Settings {
     dupliStrategy: 'strict',
     fileNameLengthLimitSwitch: false,
     fileNameLengthLimit: '200',
-    imageSize:'original'
+    imageSize: 'original',
   }
 
   // 需要持久化保存的设置

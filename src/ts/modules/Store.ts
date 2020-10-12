@@ -32,6 +32,8 @@ class Store {
       id: '',
       original: '',
       thumb: '',
+      regular: '',
+      small: '',
       title: '',
       pageCount: 1,
       dlCount: 1,
@@ -82,6 +84,8 @@ class Store {
         result.idNum = parseInt(result.id)
         result.id = result.id + `_p${i}`
         result.original = result.original.replace('p0', 'p' + i)
+        result.regular = result.regular.replace('p0', 'p' + i)
+        result.small = result.small.replace('p0', 'p' + i)
         this.result.push(result)
       }
     }

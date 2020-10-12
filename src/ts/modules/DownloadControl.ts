@@ -441,8 +441,9 @@ class DownloadControl {
     }
 
     const urls: string[] = []
+    const size = settings.imageSize
     for (const result of store.result) {
-      urls.push(result.original)
+      urls.push(result[size])
     }
 
     EVT.fire(EVT.list.output, {
