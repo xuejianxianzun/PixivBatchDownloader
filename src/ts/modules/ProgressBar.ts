@@ -118,7 +118,9 @@ class ProgressBar {
     bar.name.textContent = data.name
 
     let text = ''
-    if (data.total >= this.MB || data.total === 0) {
+    if (data.total >= this.MB) {
+      // 如果判断条件加上： || data.total === 0
+      // 则文件未下载时显示的默认单位会是 MiB
       // 使用 MiB 作为单位
       text = `${(data.loaded / this.MB).toFixed(1)}/${(
         data.total / this.MB
