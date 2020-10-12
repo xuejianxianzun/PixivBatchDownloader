@@ -67,6 +67,7 @@ interface XzSetting {
   dupliStrategy: 'strict' | 'loose'
   fileNameLengthLimitSwitch: boolean
   fileNameLengthLimit: string
+  imageSize:'original'|'regular'|'small'
 }
 
 interface SettingChangeData {
@@ -169,6 +170,7 @@ class Settings {
     dupliStrategy: 'strict',
     fileNameLengthLimitSwitch: false,
     fileNameLengthLimit: '200',
+    imageSize:'original'
   }
 
   // 需要持久化保存的设置
@@ -326,6 +328,8 @@ class Settings {
     // 保存文件名长度限制
     this.saveCheckBox('fileNameLengthLimitSwitch')
     this.saveTextInput('fileNameLengthLimit')
+
+    this.saveRadio('imageSize')
 
     window.addEventListener(EVT.list.resetSettings, () => {
       form.reset()
@@ -512,6 +516,8 @@ class Settings {
     // 恢复文件名长度限制
     this.restoreBoolean('fileNameLengthLimitSwitch')
     this.restoreString('fileNameLengthLimit')
+
+    this.restoreString('imageSize')
 
     // 恢复完毕之后触发一次设置改变事件
     EVT.fire(EVT.list.settingChange)

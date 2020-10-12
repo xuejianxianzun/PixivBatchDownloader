@@ -292,7 +292,7 @@ const formHtml = `<form class="settingForm">
       <p class="option" data-no="29">
       <span class="settingNameStyle1">${lang.transl(
         '_文件名长度限制'
-      )}<span class="gray1"> &nbsp; </span></span>
+      )}<span class="gray1"> </span></span>
       <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
@@ -349,6 +349,23 @@ const formHtml = `<form class="settingForm">
 
       <slot data-name="namingBtns" class="centerWrap_btns"></slot>
 
+      <p class="option" data-no="30">
+      <span class="settingNameStyle1">${lang.transl('_图片尺寸')} </span>
+      <input type="radio" name="imageSize" id="imageSize1" class="need_beautify radio" value="original" checked>
+      <span class="beautify_radio"></span>
+      <label for="imageSize1"> ${lang.transl('_原图')} </label>
+      &nbsp;
+      <input type="radio" name="imageSize" id="imageSize2" class="need_beautify radio" value="regular">
+      <span class="beautify_radio"></span>
+      <label for="imageSize2"> ${lang.transl('_普通')} </label>
+      <span class="gray1">(1200*1200)</span>
+      &nbsp;
+      <input type="radio" name="imageSize" id="imageSize3" class="need_beautify radio" value="small">
+      <span class="beautify_radio"></span>
+      <label for="imageSize3"> ${lang.transl('_小图')} </label>
+      <span class="gray1">(540*540)</span>
+      </p>
+
       <p class="option" data-no="25">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_不符合要求的文件不会被保存'
@@ -357,9 +374,9 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="sizeSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="sizeSwitch">
-      <input type="text" name="sizeMin" class="setinput_style1 blue" value="0">MB
+      <input type="text" name="sizeMin" class="setinput_style1 blue" value="0">MiB
       &nbsp;-&nbsp;
-      <input type="text" name="sizeMax" class="setinput_style1 blue" value="100">MB
+      <input type="text" name="sizeMax" class="setinput_style1 blue" value="100">MiB
       </span>
       </p>
 

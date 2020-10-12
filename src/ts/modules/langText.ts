@@ -1341,6 +1341,30 @@ const langText = {
     'Output crawl results',
     '導出擷取結果',
   ],
+  _图片尺寸:[
+    '图片尺寸',
+    '画像サイズ',
+    'Image size',
+    '圖片尺寸',
+  ],
+  _原图:[
+    '原图',
+    '原图',
+    'Original',
+    '原图',
+  ],
+  _普通:[
+    '普通',
+    '普通',
+    'Regular',
+    '普通',
+  ],
+  _小图:[
+    '小图',
+    '小图',
+    'Small',
+    '小图',
+  ]
 }
 
 export { langText, langTextKeys }

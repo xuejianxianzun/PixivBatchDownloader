@@ -53,4 +53,5 @@ export interface SettingsForm extends HTMLFormElement {
   dupliStrategy: RadioNodeList
   fileNameLengthLimitSwitch: HTMLInputElement
   fileNameLengthLimit: HTMLInputElement
+  imageSize: RadioNodeList
 }
