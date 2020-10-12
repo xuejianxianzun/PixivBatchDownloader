@@ -161,6 +161,9 @@
         /* harmony import */ var _modules_OutputResult__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
           /*! ./modules/OutputResult */ './src/ts/modules/OutputResult.ts'
         )
+        /* harmony import */ var _modules_OutputLST__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
+          /*! ./modules/OutputLST */ './src/ts/modules/OutputLST.ts'
+        )
         /*
          * project: Powerful Pixiv Downloader
          * author:  xuejianxianzun; 雪见仙尊
@@ -7963,6 +7966,72 @@
           }
         }
         new OutputCSV()
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/OutputLST.ts':
+      /*!*************************************!*\
+  !*** ./src/ts/modules/OutputLST.ts ***!
+  \*************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
+        )
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./Store */ './src/ts/modules/Store.ts'
+        )
+        /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./FileName */ './src/ts/modules/FileName.ts'
+        )
+
+        // 输出 lst 文件
+        class OutputLST {
+          constructor() {
+            this.separate = '?/' // 分隔符
+            this.CRLF = '\r\n' // 换行符
+            this.bindEvent()
+          }
+          bindEvent() {
+            window.addEventListener(
+              'keydown',
+              (ev) => {
+                if (ev.altKey && ev.code === 'KeyL') {
+                  this.createLst()
+                }
+              },
+              false
+            )
+          }
+          createLst() {
+            if (
+              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length === 0
+            ) {
+              return window.alert('现在没有抓取结果可以输出')
+            }
+            const array = []
+            for (const data of _Store__WEBPACK_IMPORTED_MODULE_1__['store']
+              .result) {
+              array.push(
+                data.original +
+                  this.separate +
+                  _FileName__WEBPACK_IMPORTED_MODULE_2__[
+                    'fileName'
+                  ].getFileName(data)
+              )
+            }
+            const result = array.join(this.CRLF)
+            const blob = new Blob([result])
+            const url = URL.createObjectURL(blob)
+            const name =
+              _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].getTitle() + '.lst'
+            _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].downloadFile(url, name)
+          }
+        }
+        new OutputLST()
 
         /***/
       },
