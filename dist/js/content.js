@@ -1307,12 +1307,16 @@ class DOM {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deduplication", function() { return deduplication; });
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/modules/setting/Settings.ts");
-/* harmony import */ var _IndexedDB__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./IndexedDB */ "./src/ts/modules/IndexedDB.ts");
-/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
-/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./FileName */ "./src/ts/modules/FileName.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/modules/API.ts");
+/* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/modules/setting/Settings.ts");
+/* harmony import */ var _IndexedDB__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./IndexedDB */ "./src/ts/modules/IndexedDB.ts");
+/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
+/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./FileName */ "./src/ts/modules/FileName.ts");
+
+
 
 
 
@@ -1338,7 +1342,7 @@ class Deduplication {
         ]; // 表名的列表
         this.skipIdList = []; // 被跳过下载的文件的 id。当收到下载成功事件时，根据这个 id 列表判断这个文件是不是真的被下载了。如果这个文件是被跳过的，则不保存到下载记录里。
         this.existedIdList = []; // 检查文件是否重复时，会查询数据库。查询到的数据的 id 会保存到这个列表里。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
-        this.IDB = new _IndexedDB__WEBPACK_IMPORTED_MODULE_3__["IndexedDB"]();
+        this.IDB = new _IndexedDB__WEBPACK_IMPORTED_MODULE_5__["IndexedDB"]();
         this.init();
     }
     async init() {
@@ -1360,13 +1364,75 @@ class Deduplication {
             resolve(await this.IDB.open(this.DBName, this.DBVer, onUpdate));
         });
     }
+    bindEvent() {
+        // 当有文件被跳过时，保存到 skipIdList
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.skipDownload, (ev) => {
+            const data = ev.detail.data;
+            this.skipIdList.push(data.id);
+        });
+        // 当有文件下载完成时，存储这个任务的记录
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.downloadSuccess, (ev) => {
+            const successData = ev.detail.data;
+            this.add(successData.id);
+        });
+        [_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.downloadComplete].forEach((val) => {
+            window.addEventListener(val, () => {
+                this.skipIdList = [];
+            });
+        });
+        // 导入下载记录的按钮
+        {
+            const btn = document.querySelector('#importDownloadRecord');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.importDownloadRecord);
+                });
+            }
+        }
+        // 监听导入下载记录的事件
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.importDownloadRecord, () => {
+            this.importRecord();
+        });
+        // 导出下载记录的按钮
+        {
+            const btn = document.querySelector('#exportDownloadRecord');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.exportDownloadRecord);
+                });
+            }
+        }
+        // 监听导出下载记录的事件
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.exportDownloadRecord, () => {
+            this.exportRecord();
+        });
+        // 清空下载记录的按钮
+        {
+            const btn = document.querySelector('#clearDownloadRecord');
+            if (btn) {
+                btn.addEventListener('click', () => {
+                    _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.clearDownloadRecord);
+                });
+            }
+        }
+        // 监听清空下载记录的事件
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.clearDownloadRecord, () => {
+            this.clearRecords();
+            this.existedIdList = [];
+        });
+    }
+    // 当要查找或存储一个 id 时，返回它所对应的 storeName
+    getStoreName(id) {
+        const firstNum = parseInt(id[0]);
+        return this.storeNameList[firstNum - 1];
+    }
     // 生成一个下载记录
     createRecord(resultId) {
-        let name = _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].userSetName;
+        let name = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userSetName;
         // 查找这个抓取结果，获取其文件名
-        for (const result of _Store__WEBPACK_IMPORTED_MODULE_4__["store"].result) {
+        for (const result of _Store__WEBPACK_IMPORTED_MODULE_6__["store"].result) {
             if (result.id === resultId) {
-                name = _FileName__WEBPACK_IMPORTED_MODULE_5__["fileName"].getFileName(result);
+                name = _FileName__WEBPACK_IMPORTED_MODULE_7__["fileName"].getFileName(result);
                 break;
             }
         }
@@ -1375,53 +1441,22 @@ class Deduplication {
             n: name,
         };
     }
-    // 当要查找或存储一个 id 时，返回它所对应的 storeName
-    getStoreName(id) {
-        const firstNum = parseInt(id[0]);
-        return this.storeNameList[firstNum - 1];
-    }
-    bindEvent() {
-        // 当有文件被跳过时，保存到 skipIdList
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.skipDownload, (ev) => {
-            const data = ev.detail.data;
-            this.skipIdList.push(data.id);
-        });
-        // 当有文件下载完成时，存储这个任务的记录
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadSuccess, (ev) => {
-            const successData = ev.detail.data;
-            // 不储存被跳过下载的文件
-            if (this.skipIdList.includes(successData.id)) {
-                return;
-            }
-            const data = this.createRecord(successData.id);
-            if (this.existedIdList.includes(successData.id)) {
-                this.IDB.put(this.getStoreName(successData.id), data);
-            }
-            else {
-                this.IDB.add(this.getStoreName(successData.id), data).catch(() => {
-                    this.IDB.put(this.getStoreName(successData.id), data);
-                });
-            }
-        });
-        [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete].forEach((val) => {
-            window.addEventListener(val, () => {
-                this.skipIdList = [];
-            });
-        });
-        // 给“清空下载记录”的按钮绑定事件
-        const btn = document.querySelector('#clearDownloadRecords');
-        if (btn) {
-            btn.addEventListener('click', () => {
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearDownloadRecords);
+    // 添加一条下载记录
+    async add(resultId) {
+        // 不储存被跳过下载的文件
+        if (this.skipIdList.includes(resultId)) {
+            return;
+        }
+        const storeName = this.getStoreName(resultId);
+        const data = this.createRecord(resultId);
+        if (this.existedIdList.includes(resultId)) {
+            this.IDB.put(storeName, data);
+        }
+        else {
+            this.IDB.add(storeName, data).catch(() => {
+                this.IDB.put(storeName, data);
             });
         }
-        // 监听清空下载记录的事件
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearDownloadRecords, () => {
-            // 清空下载记录
-            this.clearRecords();
-            // 清空 duplicateList
-            this.existedIdList = [];
-        });
     }
     // 检查一个 id 是否是重复下载
     // 返回值 true 表示重复，false 表示不重复
@@ -1431,7 +1466,7 @@ class Deduplication {
         }
         return new Promise(async (resolve, reject) => {
             // 如果未启用去重，直接返回不重复
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].deduplication) {
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].deduplication) {
                 resolve(false);
             }
             // 在数据库进行查找
@@ -1444,7 +1479,7 @@ class Deduplication {
             else {
                 this.existedIdList.push(data.id);
                 // 查询到了对应的记录，根据策略进行判断
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].dupliStrategy === 'loose') {
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].dupliStrategy === 'loose') {
                     // 如果是宽松策略（只考虑 id），返回重复
                     resolve(true);
                 }
@@ -1461,8 +1496,20 @@ class Deduplication {
         for (const name of this.storeNameList) {
             this.IDB.clear(name);
         }
-        window.alert(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载记录已清除'));
+        window.alert(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_下载记录已清除'));
     }
+    async exportRecord() {
+        let result = [];
+        for (const name of this.storeNameList) {
+            const r = await this.IDB.getAll(name);
+            result = result.concat(r);
+        }
+        const str = JSON.stringify(result, null, 2);
+        const blob = new Blob([str], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].downloadFile(url, `record-${_API__WEBPACK_IMPORTED_MODULE_0__["API"].replaceUnsafeStr(new Date().toLocaleString())}.json`);
+    }
+    importRecord() { }
 }
 const deduplication = new Deduplication();
 
@@ -2472,7 +2519,11 @@ EVT.list = {
     // 当下载器在页面上创建的作品列表全部完成时触发
     worksUpdate: 'worksUpdate',
     // 当需要清空下载记录时触发（指用于检测重复文件的下载记录）
-    clearDownloadRecords: 'clearDownloadRecords',
+    clearDownloadRecord: 'clearDownloadRecord',
+    // 当需要导出下载记录时触发
+    exportDownloadRecord: 'exportDownloadRecord',
+    // 当需要导入下载记录时触发
+    importDownloadRecord: 'importDownloadRecord',
     // 当需要清空断点续传的数据时触发
     clearSavedCrawl: 'clearSavedCrawl',
     // 当从断点续传数据恢复了下载时触发
@@ -3984,6 +4035,29 @@ class IndexedDB {
             };
             r.onerror = (ev) => {
                 console.error('add failed');
+                reject(ev);
+            };
+        });
+    }
+    async getAll(storeNames) {
+        return new Promise((resolve, reject) => {
+            if (this.db === undefined) {
+                reject('Database is not defined');
+                return;
+            }
+            const r = this.db
+                .transaction(storeNames, 'readwrite')
+                .objectStore(storeNames)
+                .getAll();
+            r.onsuccess = (ev) => {
+                const data = r.result;
+                if (data) {
+                    resolve(data);
+                }
+                resolve(null);
+            };
+            r.onerror = (ev) => {
+                console.error('getAll failed');
                 reject(ev);
             };
         });
@@ -12775,8 +12849,10 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
       <span class="beautify_radio"></span>
       <label class="has_tip" for="dupliStrategy2" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽松模式说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽松')}</label>
-      &nbsp;&nbsp;
-      <a class="gray1" id="clearDownloadRecords" href="javascript:void(0)">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_清除下载记录')}</a>
+      &nbsp;
+      <button class="textButton gray1" type="button" id="exportDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_导出')}</button>
+      <button class="textButton gray1" type="button" id="importDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_导入')}</button>
+      <button class="textButton gray1" type="button" id="clearDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_清除')}</button>
       </span>
       </p>
 

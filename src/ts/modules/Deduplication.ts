@@ -1,3 +1,5 @@
+import { API } from './API'
+import { DOM } from './DOM'
 import { EVT } from './EVT'
 import { lang } from './Lang'
 import { settings } from './setting/Settings'
@@ -60,6 +62,79 @@ class Deduplication {
     })
   }
 
+  private bindEvent() {
+    // 当有文件被跳过时，保存到 skipIdList
+    window.addEventListener(EVT.list.skipDownload, (ev: CustomEventInit) => {
+      const data = ev.detail.data as DonwloadSuccessData
+      this.skipIdList.push(data.id)
+    })
+
+    // 当有文件下载完成时，存储这个任务的记录
+    window.addEventListener(EVT.list.downloadSuccess, (ev: CustomEventInit) => {
+      const successData = ev.detail.data as DonwloadSuccessData
+      this.add(successData.id)
+    })
+
+      // 当抓取完成、下载完成时，清空 skipIdList 列表
+      ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach((val) => {
+        window.addEventListener(val, () => {
+          this.skipIdList = []
+        })
+      })
+
+    // 导入下载记录的按钮
+    {
+      const btn = document.querySelector('#importDownloadRecord')
+      if (btn) {
+        btn.addEventListener('click', () => {
+          EVT.fire(EVT.list.importDownloadRecord)
+        })
+      }
+    }
+
+    // 监听导入下载记录的事件
+    window.addEventListener(EVT.list.importDownloadRecord, () => {
+      this.importRecord()
+    })
+
+    // 导出下载记录的按钮
+    {
+      const btn = document.querySelector('#exportDownloadRecord')
+      if (btn) {
+        btn.addEventListener('click', () => {
+          EVT.fire(EVT.list.exportDownloadRecord)
+        })
+      }
+    }
+
+    // 监听导出下载记录的事件
+    window.addEventListener(EVT.list.exportDownloadRecord, () => {
+      this.exportRecord()
+    })
+
+    // 清空下载记录的按钮
+    {
+      const btn = document.querySelector('#clearDownloadRecord')
+      if (btn) {
+        btn.addEventListener('click', () => {
+          EVT.fire(EVT.list.clearDownloadRecord)
+        })
+      }
+    }
+
+    // 监听清空下载记录的事件
+    window.addEventListener(EVT.list.clearDownloadRecord, () => {
+      this.clearRecords()
+      this.existedIdList = []
+    })
+  }
+
+  // 当要查找或存储一个 id 时，返回它所对应的 storeName
+  private getStoreName(id: string) {
+    const firstNum = parseInt(id[0])
+    return this.storeNameList[firstNum - 1]
+  }
+
   // 生成一个下载记录
   private createRecord(resultId: string): Record {
     let name = settings.userSetName
@@ -78,62 +153,23 @@ class Deduplication {
     }
   }
 
-  // 当要查找或存储一个 id 时，返回它所对应的 storeName
-  private getStoreName(id: string) {
-    const firstNum = parseInt(id[0])
-    return this.storeNameList[firstNum - 1]
-  }
-
-  private bindEvent() {
-    // 当有文件被跳过时，保存到 skipIdList
-    window.addEventListener(EVT.list.skipDownload, (ev: CustomEventInit) => {
-      const data = ev.detail.data as DonwloadSuccessData
-      this.skipIdList.push(data.id)
-    })
-
-    // 当有文件下载完成时，存储这个任务的记录
-    window.addEventListener(EVT.list.downloadSuccess, (ev: CustomEventInit) => {
-      const successData = ev.detail.data as DonwloadSuccessData
-
-      // 不储存被跳过下载的文件
-      if (this.skipIdList.includes(successData.id)) {
-        return
-      }
-
-      const data = this.createRecord(successData.id)
-
-      if (this.existedIdList.includes(successData.id)) {
-        this.IDB.put(this.getStoreName(successData.id), data)
-      } else {
-        this.IDB.add(this.getStoreName(successData.id), data).catch(() => {
-          this.IDB.put(this.getStoreName(successData.id), data)
-        })
-      }
-    })
-
-    // 当抓取完成、下载完成时，清空 skipIdList 列表
-    ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach((val) => {
-      window.addEventListener(val, () => {
-        this.skipIdList = []
-      })
-    })
-
-    // 给“清空下载记录”的按钮绑定事件
-    const btn = document.querySelector('#clearDownloadRecords')
-    if (btn) {
-      btn.addEventListener('click', () => {
-        EVT.fire(EVT.list.clearDownloadRecords)
-      })
+  // 添加一条下载记录
+  private async add(resultId: string) {
+    // 不储存被跳过下载的文件
+    if (this.skipIdList.includes(resultId)) {
+      return
     }
 
-    // 监听清空下载记录的事件
-    window.addEventListener(EVT.list.clearDownloadRecords, () => {
-      // 清空下载记录
-      this.clearRecords()
+    const storeName = this.getStoreName(resultId)
+    const data = this.createRecord(resultId)
 
-      // 清空 duplicateList
-      this.existedIdList = []
-    })
+    if (this.existedIdList.includes(resultId)) {
+      this.IDB.put(storeName, data)
+    } else {
+      this.IDB.add(storeName, data).catch(() => {
+        this.IDB.put(storeName, data)
+      })
+    }
   }
 
   // 检查一个 id 是否是重复下载
@@ -176,6 +212,26 @@ class Deduplication {
     }
     window.alert(lang.transl('_下载记录已清除'))
   }
+
+  private async exportRecord() {
+    let result: Record[] = []
+    for (const name of this.storeNameList) {
+      const r = await this.IDB.getAll(name) as Record[]
+      result = result.concat(r)
+    }
+
+    const str = JSON.stringify(result, null, 2)
+    const blob = new Blob([str], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    DOM.downloadFile(
+      url,
+      `record-${API.replaceUnsafeStr(
+        new Date().toLocaleString()
+      )}.json`
+    )
+  }
+
+  private importRecord() { }
 }
 
 const deduplication = new Deduplication()

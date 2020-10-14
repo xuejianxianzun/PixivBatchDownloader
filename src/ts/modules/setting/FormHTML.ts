@@ -480,10 +480,16 @@ const formHtml = `<form class="settingForm">
       <label class="has_tip" for="dupliStrategy2" data-tip="${lang.transl(
         '_宽松模式说明'
       )}">${lang.transl('_宽松')}</label>
-      &nbsp;&nbsp;
-      <a class="gray1" id="clearDownloadRecords" href="javascript:void(0)">${lang.transl(
-        '_清除下载记录'
-      )}</a>
+      &nbsp;
+      <button class="textButton gray1" type="button" id="exportDownloadRecord">${lang.transl(
+        '_导出'
+      )}</button>
+      <button class="textButton gray1" type="button" id="importDownloadRecord">${lang.transl(
+        '_导入'
+      )}</button>
+      <button class="textButton gray1" type="button" id="clearDownloadRecord">${lang.transl(
+        '_清除'
+      )}</button>
       </span>
       </p>
 

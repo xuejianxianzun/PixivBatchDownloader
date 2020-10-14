@@ -66,7 +66,11 @@ class EVT {
     // 当下载器在页面上创建的作品列表全部完成时触发
     worksUpdate: 'worksUpdate',
     // 当需要清空下载记录时触发（指用于检测重复文件的下载记录）
-    clearDownloadRecords: 'clearDownloadRecords',
+    clearDownloadRecord: 'clearDownloadRecord',
+    // 当需要导出下载记录时触发
+    exportDownloadRecord:'exportDownloadRecord',
+    // 当需要导入下载记录时触发
+    importDownloadRecord:'importDownloadRecord',
     // 当需要清空断点续传的数据时触发
     clearSavedCrawl: 'clearSavedCrawl',
     // 当从断点续传数据恢复了下载时触发

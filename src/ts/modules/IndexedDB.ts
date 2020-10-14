@@ -49,6 +49,31 @@ class IndexedDB {
     })
   }
 
+  public async getAll(storeNames: string,) {
+    return new Promise((resolve, reject) => {
+      if (this.db === undefined) {
+        reject('Database is not defined')
+        return
+      }
+      const r = this.db
+        .transaction(storeNames, 'readwrite')
+        .objectStore(storeNames)
+        .getAll()
+
+      r.onsuccess = (ev) => {
+        const data = r.result
+        if (data) {
+          resolve(data)
+        }
+        resolve(null)
+      }
+      r.onerror = (ev) => {
+        console.error('getAll failed')
+        reject(ev)
+      }
+    })
+  }
+
   public async put(storeNames: string, data: object) {
     return new Promise((resolve, reject) => {
       if (this.db === undefined) {
