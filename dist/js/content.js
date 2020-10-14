@@ -1391,7 +1391,37 @@ class Deduplication {
         }
         // 监听导入下载记录的事件
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.importDownloadRecord, () => {
-            this.importRecord();
+            // 让用户选择一个 json 文件导入
+            const i = document.createElement('input');
+            i.setAttribute('type', 'file');
+            i.setAttribute('accept', 'application/json');
+            i.onchange = () => {
+                if (i.files && i.files.length > 0) {
+                    const reader = new FileReader();
+                    reader.readAsText(i.files[0]);
+                    reader.onload = () => {
+                        const str = reader.result;
+                        // 解析文件内容
+                        let record = [];
+                        try {
+                            record = JSON.parse(str);
+                        }
+                        catch (error) {
+                            const msg = 'Import record error!';
+                            window.alert(msg);
+                            throw new Error(msg);
+                        }
+                        // 判断格式是否符合要求
+                        if (Array.isArray(record) === false || record[0].id === undefined || record[0].n === undefined) {
+                            const msg = 'Format error!';
+                            window.alert(msg);
+                            throw new Error(msg);
+                        }
+                        this.importRecord(record);
+                    };
+                }
+            };
+            i.click();
         });
         // 导出下载记录的按钮
         {
@@ -1499,17 +1529,19 @@ class Deduplication {
         window.alert(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_下载记录已清除'));
     }
     async exportRecord() {
-        let result = [];
+        let record = [];
         for (const name of this.storeNameList) {
             const r = await this.IDB.getAll(name);
-            result = result.concat(r);
+            record = record.concat(r);
         }
-        const str = JSON.stringify(result, null, 2);
+        const str = JSON.stringify(record, null, 2);
         const blob = new Blob([str], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].downloadFile(url, `record-${_API__WEBPACK_IMPORTED_MODULE_0__["API"].replaceUnsafeStr(new Date().toLocaleString())}.json`);
     }
-    importRecord() { }
+    importRecord(record) {
+        console.log(record);
+    }
 }
 const deduplication = new Deduplication();
 

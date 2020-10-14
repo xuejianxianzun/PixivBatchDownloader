@@ -94,7 +94,38 @@ class Deduplication {
 
     // 监听导入下载记录的事件
     window.addEventListener(EVT.list.importDownloadRecord, () => {
-      this.importRecord()
+      // 创建 input 元素选择文件
+      const i = document.createElement('input')
+      i.setAttribute('type', 'file')
+      i.setAttribute('accept', 'application/json')
+      i.onchange = () => {
+        if (i.files && i.files.length > 0) {
+          // 读取文件内容
+          const reader = new FileReader()
+          reader.readAsText(i.files[0])
+          reader.onload = () => {
+            const str = reader.result as string
+            let record: Record[] = []
+            try {
+              record = JSON.parse(str) as Record[]
+            } catch (error) {
+              const msg = 'JSON parse error!'
+              window.alert(msg)
+              throw new Error(msg)
+            }
+            // 判断格式是否符合要求
+            if (Array.isArray(record) === false || record[0].id === undefined || record[0].n === undefined) {
+              const msg = 'Format error!'
+              window.alert(msg)
+              throw new Error(msg)
+            }
+            // 开始导入
+            this.importRecord(record)
+          }
+        }
+      }
+
+      i.click()
     })
 
     // 导出下载记录的按钮
@@ -214,13 +245,13 @@ class Deduplication {
   }
 
   private async exportRecord() {
-    let result: Record[] = []
+    let record: Record[] = []
     for (const name of this.storeNameList) {
       const r = await this.IDB.getAll(name) as Record[]
-      result = result.concat(r)
+      record = record.concat(r)
     }
 
-    const str = JSON.stringify(result, null, 2)
+    const str = JSON.stringify(record, null, 2)
     const blob = new Blob([str], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
     DOM.downloadFile(
@@ -231,7 +262,9 @@ class Deduplication {
     )
   }
 
-  private importRecord() { }
+  private importRecord(record: Record[]) {
+    console.log(record)
+  }
 }
 
 const deduplication = new Deduplication()
