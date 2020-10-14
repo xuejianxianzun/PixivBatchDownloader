@@ -1154,7 +1154,7 @@ const langText = {
     'Files that do not meet the requirements will not be saved.',
     '不符合要求的檔案不會被儲存。',
   ],
-  _小说: ['小说', '小説', 'novel', '小說'],
+  _小说: ['小说', '小説', 'Novel', '小說'],
   _抓取系列小说: [
     '抓取系列小说',
     '小説のシリーズをクロールする',
@@ -1308,8 +1308,8 @@ const langText = {
     'Show download panel',
     '顯示下載面板',
   ],
-  _保存: ['保存', '保存', 'save', '儲存'],
-  _加载: ['加载', 'ロード', 'load', '載入'],
+  _保存: ['保存', '保存', 'Save', '儲存'],
+  _加载: ['加载', 'ロード', 'Load', '載入'],
   _保存命名规则提示: [
     '保存命名规则，最多 {} 个',
     'ネームルールを保存します。最大 {} 個まで',
@@ -1332,19 +1332,37 @@ const langText = {
   _导出csv: [
     '导出 CSV 文件',
     'CSV ファイルをエクスポート',
-    'Output CSV file',
-    '導出 CSV 文檔',
+    'Export CSV file',
+    '匯出 CSV 文檔',
   ],
   _导出抓取结果: [
     '导出抓取结果',
     'クロール結果をエクスポート',
-    'Output crawl results',
-    '導出擷取結果',
+    'Export crawl results',
+    '匯出擷取結果',
   ],
   _图片尺寸: ['图片尺寸', '画像サイズ', 'Image size', '圖片大小'],
   _原图: ['原图', 'Original', 'Original', '原圖'],
   _普通: ['普通', 'Regular', 'Regular', '普通'],
   _小图: ['小图', 'Small', 'Small', '小圖'],
+  _导出: [
+    '导出',
+    'エクスポート',
+    'Export',
+    '匯出',
+  ],
+  _导入: [
+    '导入',
+    'インポート',
+    'Import',
+    '匯入',
+  ],
+  _清除: [
+    '清除',
+    'クリア',
+    'Clear',
+    '清除',
+  ],
 }
 
 export { langText, langTextKeys }
