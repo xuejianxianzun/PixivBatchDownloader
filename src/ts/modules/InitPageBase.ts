@@ -203,6 +203,12 @@ abstract class InitPageBase {
     idData = idData || store.idList.shift()!
     const id = idData.id
 
+    if(!id){
+      const msg = 'Error: work id is invalid!'
+      window.alert(msg)
+      throw new Error(msg)
+    }
+
     let failed = false // 请求失败的标记
 
     try {
