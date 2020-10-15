@@ -75,12 +75,12 @@ class Deduplication {
       this.add(successData.id)
     })
 
-      // 当抓取完成、下载完成时，清空 skipIdList 列表
-      ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach((val) => {
-        window.addEventListener(val, () => {
-          this.skipIdList = []
-        })
+    // 当抓取完成、下载完成时，清空 skipIdList 列表
+    ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach(val => {
+      window.addEventListener(val, () => {
+        this.skipIdList = []
       })
+    })
 
     // 导入下载记录的按钮
     {
@@ -114,7 +114,11 @@ class Deduplication {
               throw new Error(msg)
             }
             // 判断格式是否符合要求
-            if (Array.isArray(record) === false || record[0].id === undefined || record[0].n === undefined) {
+            if (
+              Array.isArray(record) === false ||
+              record[0].id === undefined ||
+              record[0].n === undefined
+            ) {
               const msg = 'Format error!'
               window.alert(msg)
               throw new Error(msg)
@@ -247,7 +251,7 @@ class Deduplication {
   private async exportRecord() {
     let record: Record[] = []
     for (const name of this.storeNameList) {
-      const r = await this.IDB.getAll(name) as Record[]
+      const r = (await this.IDB.getAll(name)) as Record[]
       record = record.concat(r)
     }
 
@@ -256,9 +260,7 @@ class Deduplication {
     const url = URL.createObjectURL(blob)
     DOM.downloadFile(
       url,
-      `record-${API.replaceUnsafeStr(
-        new Date().toLocaleString()
-      )}.json`
+      `record-${API.replaceUnsafeStr(new Date().toLocaleString())}.json`,
     )
   }
 

@@ -33,7 +33,7 @@ class Download {
   private sizeChecked = false // 是否对文件体积进行了检查
 
   private listenEvents() {
-    ;[EVT.list.downloadStop, EVT.list.downloadPause].forEach((event) => {
+    ;[EVT.list.downloadStop, EVT.list.downloadPause].forEach(event => {
       window.addEventListener(event, () => {
         this.cancel = true
       })
@@ -67,7 +67,7 @@ class Download {
           tabId: 0,
           uuid: false,
         },
-        lang.transl('_跳过下载因为重复文件', arg.id)
+        lang.transl('_跳过下载因为重复文件', arg.id),
       )
     }
 
@@ -90,7 +90,7 @@ class Download {
     xhr.responseType = 'blob'
 
     // 显示下载进度
-    xhr.addEventListener('progress', async (event) => {
+    xhr.addEventListener('progress', async event => {
       // 检查体积设置
       if (!this.sizeChecked) {
         this.sizeChecked = true
@@ -105,7 +105,7 @@ class Download {
               tabId: 0,
               uuid: false,
             },
-            lang.transl('_不保存图片因为体积', arg.id)
+            lang.transl('_不保存图片因为体积', arg.id),
           )
         }
       }
@@ -218,7 +218,7 @@ class Download {
               tabId: 0,
               uuid: false,
             },
-            lang.transl('_不保存图片因为颜色', arg.id)
+            lang.transl('_不保存图片因为颜色', arg.id),
           )
         }
       }
@@ -242,7 +242,7 @@ class Download {
               tabId: 0,
               uuid: false,
             },
-            lang.transl('_不保存图片因为宽高', arg.id)
+            lang.transl('_不保存图片因为宽高', arg.id),
           )
         }
       }
@@ -260,7 +260,7 @@ class Download {
     blobUrl: string,
     fileName: string,
     id: string,
-    taskBatch: number
+    taskBatch: number,
   ) {
     // 如果任务已停止，不会向浏览器发送下载任务
     if (this.cancel) {

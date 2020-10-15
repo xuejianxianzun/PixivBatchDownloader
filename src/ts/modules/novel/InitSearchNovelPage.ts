@@ -70,7 +70,7 @@ class InitSearchNovelPage extends InitPageBase {
     const bookmarkAllBtn = DOM.addBtn(
       'otherBtns',
       Colors.green,
-      lang.transl('_收藏本页面的所有作品')
+      lang.transl('_收藏本页面的所有作品'),
     )
     const bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
 
@@ -78,9 +78,9 @@ class InitSearchNovelPage extends InitPageBase {
       const listWrap = this.getWorksWrap()
       if (listWrap) {
         const list = document.querySelectorAll(
-          '#root section>div>ul>li'
+          '#root section>div>ul>li',
         ) as NodeListOf<HTMLLIElement>
-        const showList = Array.from(list).filter((el) => {
+        const showList = Array.from(list).filter(el => {
           return el.style.display !== 'none'
         })
         bookmarkAll.sendWorkList(showList)
@@ -112,7 +112,7 @@ class InitSearchNovelPage extends InitPageBase {
   protected getWantPage() {
     this.crawlNumber = this.checkWantPageInput(
       lang.transl('_从本页开始下载x页'),
-      lang.transl('_下载所有页面')
+      lang.transl('_下载所有页面'),
     )
 
     if (this.crawlNumber === -1 || this.crawlNumber > this.maxCount) {
@@ -133,7 +133,7 @@ class InitSearchNovelPage extends InitPageBase {
 
     // 从页面 url 中获取可以使用的选项
     this.option = {}
-    this.allOption.forEach((param) => {
+    this.allOption.forEach(param => {
       let value = API.getURLSearchField(location.href, param)
       if (value !== '') {
         this.option[param] = value
@@ -216,7 +216,7 @@ class InitSearchNovelPage extends InitPageBase {
     log.log(
       lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
       1,
-      false
+      false,
     )
 
     if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {

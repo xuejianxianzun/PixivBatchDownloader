@@ -21,8 +21,8 @@ class OutputResult {
     DOM.downloadFile(
       url,
       `result-${API.replaceUnsafeStr(
-        DOM.getTitle()
-      )}-${new Date().getTime()}.json`
+        DOM.getTitle(),
+      )}-${new Date().getTime()}.json`,
     )
   }
 }

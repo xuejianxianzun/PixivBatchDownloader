@@ -13,11 +13,11 @@ class Form {
     this.form = DOM.useSlot('form', formHtml) as SettingsForm
 
     this.allCheckBox = this.form.querySelectorAll(
-      'input[type="checkbox"]'
+      'input[type="checkbox"]',
     ) as NodeListOf<HTMLInputElement>
 
     this.allRadio = this.form.querySelectorAll(
-      'input[type="radio"]'
+      'input[type="radio"]',
     ) as NodeListOf<HTMLInputElement>
 
     this.allSwitch = this.form.querySelectorAll('.checkbox_switch')
@@ -93,7 +93,7 @@ class Form {
 
     // 在选项卡的标题上触发事件时，激活对应的选项卡
     for (let index = 0; index < this.allTabTitle.length; index++) {
-      ;['click', 'mouseenter'].forEach((name) => {
+      ;['click', 'mouseenter'].forEach(name => {
         this.allTabTitle[index].addEventListener(name, () => {
           this.activeTab(index)
         })
@@ -119,55 +119,55 @@ class Form {
     DOM.addBtn(
       'namingBtns',
       Colors.green,
-      lang.transl('_预览文件名')
+      lang.transl('_预览文件名'),
     ).addEventListener(
       'click',
       () => {
         EVT.fire(EVT.list.previewFileName)
       },
-      false
+      false,
     )
 
     // 导出 csv
     DOM.addBtn(
       'namingBtns',
       Colors.green,
-      lang.transl('_导出csv')
+      lang.transl('_导出csv'),
     ).addEventListener(
       'click',
       () => {
         EVT.fire(EVT.list.outputCSV)
       },
-      false
+      false,
     )
 
     // 导出抓取结果
     DOM.addBtn(
       'namingBtns',
       Colors.green,
-      lang.transl('_导出抓取结果')
+      lang.transl('_导出抓取结果'),
     ).addEventListener(
       'click',
       () => {
         EVT.fire(EVT.list.outputResult)
       },
-      false
+      false,
     )
 
     // 显示命名字段提示
     this.form
       .querySelector('.showFileNameTip')!
       .addEventListener('click', () =>
-        DOM.toggleEl(document.querySelector('.fileNameTip')! as HTMLDivElement)
+        DOM.toggleEl(document.querySelector('.fileNameTip')! as HTMLDivElement),
       )
 
     // 输入框获得焦点时自动选择文本（文件名输入框例外）
     const centerInputs: NodeListOf<HTMLInputElement> = this.form.querySelectorAll(
-      'input[type=text]'
+      'input[type=text]',
     )
     for (const el of centerInputs) {
       if (el.name !== 'userSetName') {
-        el.addEventListener('focus', function () {
+        el.addEventListener('focus', function() {
           this.select()
         })
       }
@@ -269,7 +269,7 @@ class Form {
   private resetSubOptionDisplay() {
     for (const _switch of this.allSwitch) {
       const subOption = this.form.querySelector(
-        `.subOptionWrap[data-show="${_switch.name}"]`
+        `.subOptionWrap[data-show="${_switch.name}"]`,
       ) as HTMLSpanElement
       if (subOption) {
         subOption.style.display = _switch.checked ? 'inline' : 'none'

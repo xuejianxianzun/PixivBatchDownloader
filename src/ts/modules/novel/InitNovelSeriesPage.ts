@@ -21,7 +21,7 @@ class InitNovelSeriesPage extends InitPageBase {
     DOM.addBtn(
       'crawlBtns',
       Colors.blue,
-      lang.transl('_抓取系列小说')
+      lang.transl('_抓取系列小说'),
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
@@ -45,7 +45,7 @@ class InitNovelSeriesPage extends InitPageBase {
       this.seriesId,
       this.limit,
       this.last,
-      'asc'
+      'asc',
     )
 
     const list = seriesData.body.seriesContents

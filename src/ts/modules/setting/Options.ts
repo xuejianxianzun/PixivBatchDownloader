@@ -24,10 +24,10 @@ class Options {
     const wantPageOption = this.getOption(1)!
     this.wantPageEls = {
       text: wantPageOption.querySelector(
-        '.setWantPageTip1'
+        '.setWantPageTip1',
       )! as HTMLSpanElement,
       rangTip: wantPageOption.querySelector(
-        '.setWantPageTip2'
+        '.setWantPageTip2',
       )! as HTMLSpanElement,
       input: wantPageOption.querySelector('.setWantPage')! as HTMLInputElement,
     }

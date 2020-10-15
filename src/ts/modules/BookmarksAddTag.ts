@@ -45,7 +45,7 @@ class BookmarksAddTag {
     const [showData, hideData]: BookmarkData[] = await Promise.all([
       API.getBookmarkData(DOM.getUserId(), this.type, '未分類', offset, false),
       API.getBookmarkData(DOM.getUserId(), this.type, '未分類', offset, true),
-    ]).catch((error) => {
+    ]).catch(error => {
       if (error.status && error.status === 403) {
         this.btn!.textContent = `× Permission denied`
       }
@@ -91,7 +91,7 @@ class BookmarksAddTag {
   private async addTag(
     index: number,
     addList: BookmarkResult[],
-    tt: string
+    tt: string,
   ): Promise<void> {
     const item: BookmarkResult = addList[index] as BookmarkResult
 

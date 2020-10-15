@@ -64,7 +64,10 @@ class SaveArtworkData {
       const date0 = new Date(body.createDate)
       const y = date0.getFullYear()
       const m = (date0.getMonth() + 1).toString().padStart(2, '0')
-      const d = date0.getDate().toString().padStart(2, '0')
+      const d = date0
+        .getDate()
+        .toString()
+        .padStart(2, '0')
       const date = `${y}-${m}-${d}`
 
       let rank = '' // 保存作品在排行榜上的编号

@@ -5,7 +5,7 @@ const regex = /access-control-allow-origin/i
 
 function removeMatchingHeaders(
   headers: chrome.webRequest.HttpHeader[],
-  regex: RegExp
+  regex: RegExp,
 ) {
   for (var i = 0, header; (header = headers[i]); i++) {
     if (header.name.match(regex)) {
@@ -16,7 +16,7 @@ function removeMatchingHeaders(
 }
 
 function responseListener(
-  details: chrome.webRequest.WebResponseHeadersDetails
+  details: chrome.webRequest.WebResponseHeadersDetails,
 ) {
   removeMatchingHeaders(details.responseHeaders!, regex)
   details.responseHeaders!.push({
@@ -32,12 +32,12 @@ chrome.webRequest.onHeadersReceived.addListener(
   {
     urls: ['*://*.pximg.net/*'],
   },
-  ['blocking', 'responseHeaders', 'extraHeaders']
+  ['blocking', 'responseHeaders', 'extraHeaders'],
 )
 // 修改 responseHeaders 结束
 
 // 当点击扩展图标时，切换显示/隐藏下载面板
-chrome.browserAction.onClicked.addListener(function (tab) {
+chrome.browserAction.onClicked.addListener(function(tab) {
   // 打开下载面板
   chrome.tabs.sendMessage(tab.id!, {
     msg: 'click_icon',
@@ -54,7 +54,7 @@ let dlIndex: string[][] = []
 let dlBatch: number[] = []
 
 // 接收下载请求
-chrome.runtime.onMessage.addListener(function (msg: SendToBackEndData, sender) {
+chrome.runtime.onMessage.addListener(function(msg: SendToBackEndData, sender) {
   // 接收下载任务
   if (msg.msg === 'send_download') {
     const tabId = sender.tab!.id!
@@ -75,7 +75,7 @@ chrome.runtime.onMessage.addListener(function (msg: SendToBackEndData, sender) {
           conflictAction: 'overwrite',
           saveAs: false,
         },
-        (id) => {
+        id => {
           // id 是 Chrome 新建立的下载任务的 id
           dlData[id] = {
             url: msg.fileUrl,
@@ -83,7 +83,7 @@ chrome.runtime.onMessage.addListener(function (msg: SendToBackEndData, sender) {
             tabId: tabId,
             uuid: false,
           }
-        }
+        },
       )
     }
   }
@@ -93,7 +93,7 @@ chrome.runtime.onMessage.addListener(function (msg: SendToBackEndData, sender) {
 const UUIDRegexp = /[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}/
 
 // 监听下载事件
-chrome.downloads.onChanged.addListener(function (detail) {
+chrome.downloads.onChanged.addListener(function(detail) {
   // 根据 detail.id 取出保存的数据
   const data = dlData[detail.id]
   if (data) {
@@ -119,7 +119,7 @@ chrome.downloads.onChanged.addListener(function (detail) {
     if (detail.error && detail.error.current) {
       msg = 'download_err'
       err = detail.error.current
-      const idIndex = dlIndex[data.tabId].findIndex((val) => {
+      const idIndex = dlIndex[data.tabId].findIndex(val => {
         val === data.id
       })
       dlIndex[data.tabId][idIndex] = '' // 从任务列表里删除它，以便前台重试下载

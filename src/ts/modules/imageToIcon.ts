@@ -38,7 +38,7 @@ class ImageToIcon {
         img,
         opt.size,
         opt.shape,
-        opt.bleed
+        opt.bleed,
       )
       // 创建 ico 文件
       const blob = this.createIcon(pngDataArray)
@@ -71,7 +71,7 @@ class ImageToIcon {
 
       const i = document.createElement('img')
       i.src = imgURL
-      i.onload = function () {
+      i.onload = function() {
         resolve(i)
       }
     })
@@ -81,7 +81,7 @@ class ImageToIcon {
     img: HTMLImageElement,
     size: SizeNumber[] = [16, 48, 96, 256],
     shape: Opt['shape'] = 'square',
-    bleed = true
+    bleed = true,
   ) {
     return new Promise<PngData[]>(async (resolve, reject) => {
       const buffer: PngData[] = []
@@ -121,7 +121,7 @@ class ImageToIcon {
     canvas: HTMLCanvasElement,
     img: HTMLImageElement,
     shape: Opt['shape'],
-    bleed = true
+    bleed = true,
   ) {
     const ctx = canvas.getContext('2d')
     if (!ctx) {
@@ -195,7 +195,7 @@ class ImageToIcon {
 
   private async getPngBlob(canvas: HTMLCanvasElement) {
     return new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob((blob) => {
+      canvas.toBlob(blob => {
         if (!blob) {
           reject('blob is null')
         } else {

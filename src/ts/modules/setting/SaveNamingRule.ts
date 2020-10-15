@@ -134,10 +134,10 @@ class SaveNamingRule {
   <div class="saveNamingRuleWrap">
   <button class="nameSave textButton has_tip" type="button" data-tip="${lang.transl(
     '_保存命名规则提示',
-    this.limit.toString()
+    this.limit.toString(),
   )}">${lang.transl('_保存')}</button>
   <button class="nameLoad textButton" type="button">${lang.transl(
-    '_加载'
+    '_加载',
   )}</button>
   <ul class="namingRuleList"></ul>
   </div>`

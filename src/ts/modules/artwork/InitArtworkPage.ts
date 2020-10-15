@@ -38,11 +38,11 @@ class InitArtworkPage extends InitPageBase {
     // 页面切换再次初始化
     window.addEventListener(
       EVT.list.pageSwitchedTypeNotChange,
-      this.initQuickBookmark
+      this.initQuickBookmark,
     )
     window.addEventListener(
       EVT.list.pageSwitchedTypeNotChange,
-      this.initImgViewer
+      this.initImgViewer,
     )
 
     // 初始化快速下载按钮
@@ -62,7 +62,7 @@ class InitArtworkPage extends InitPageBase {
     DOM.addBtn(
       'crawlBtns',
       Colors.blue,
-      lang.transl('_从本页开始抓取new')
+      lang.transl('_从本页开始抓取new'),
     ).addEventListener('click', () => {
       this.crawlDirection = -1
       this.readyCrawl()
@@ -71,7 +71,7 @@ class InitArtworkPage extends InitPageBase {
     DOM.addBtn(
       'crawlBtns',
       Colors.blue,
-      lang.transl('_从本页开始抓取old')
+      lang.transl('_从本页开始抓取old'),
     ).addEventListener('click', () => {
       this.crawlDirection = 1
       this.readyCrawl()
@@ -80,7 +80,7 @@ class InitArtworkPage extends InitPageBase {
     const downRelatedBtn = DOM.addBtn(
       'crawlBtns',
       Colors.blue,
-      lang.transl('_抓取相关作品')
+      lang.transl('_抓取相关作品'),
     )
     downRelatedBtn.addEventListener(
       'click',
@@ -88,7 +88,7 @@ class InitArtworkPage extends InitPageBase {
         this.crawlRelated = true
         this.readyCrawl()
       },
-      false
+      false,
     )
   }
 
@@ -123,12 +123,12 @@ class InitArtworkPage extends InitPageBase {
     // 解除切换页面时绑定的事件
     window.removeEventListener(
       EVT.list.pageSwitchedTypeNotChange,
-      this.initQuickBookmark
+      this.initQuickBookmark,
     )
 
     window.removeEventListener(
       EVT.list.pageSwitchedTypeNotChange,
-      this.initImgViewer
+      this.initImgViewer,
     )
 
     window.removeEventListener(EVT.list.QuickDownload, this.startQuickDownload)
@@ -147,13 +147,13 @@ class InitArtworkPage extends InitPageBase {
             : lang.transl('_从本页开始抓取old')
         this.crawlNumber = this.checkWantPageInput(
           lang.transl('_从本页开始下载x个'),
-          crawlAllTip
+          crawlAllTip,
         )
       } else {
         // 相关作品的提示
         this.crawlNumber = this.checkWantPageInput(
           lang.transl('_下载x个相关作品'),
-          lang.transl('_下载所有相关作品')
+          lang.transl('_下载所有相关作品'),
         )
       }
     }
@@ -185,7 +185,7 @@ class InitArtworkPage extends InitPageBase {
 
     // 储存符合条件的 id
     let nowId = parseInt(API.getIllustId(window.location.href))
-    idList.forEach((id) => {
+    idList.forEach(id => {
       let idNum = parseInt(id.id)
       // 新作品
       if (idNum >= nowId && this.crawlDirection === -1) {

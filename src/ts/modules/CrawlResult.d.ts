@@ -483,7 +483,7 @@ export interface RankingData {
       attr: string
       is_bookmarked: boolean
       bookmarkable: boolean
-    }
+    },
   ]
   mode: string
   content: string
@@ -508,8 +508,6 @@ export interface SearchData {
     'illustManga' | 'manga' | 'illust',
     {
       data: {
-        illustId: string
-        illustTitle: string
         id: string
         title: string
         illustType: 0 | 1 | 2
@@ -531,6 +529,13 @@ export interface SearchData {
         }
         alt: string
         isAdContainer: boolean
+        titleCaptionTranslation: {
+          workTitle: string
+          workCaption: string
+        }
+        createDate: string
+        updateDate: string
+        isUnlisted: boolean
         profileImageUrl: string
       }[]
       total: number
@@ -991,7 +996,7 @@ export interface SeriesData {
         coverImageSl: number
         firstIllustId: string
         updateDate: string
-      }
+      },
     ]
     novelSeries: []
     users: CommonUserData[]

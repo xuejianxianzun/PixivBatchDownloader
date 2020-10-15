@@ -37,7 +37,7 @@ class BookmarkAllWorks {
   // 如果传递的作品不是本页面上的，为防止误判，需要显式传递 type
   public sendWorkList(
     list: NodeListOf<HTMLElement> | HTMLElement[],
-    type?: WorkType
+    type?: WorkType,
   ) {
     this.reset()
 
@@ -95,7 +95,7 @@ class BookmarkAllWorks {
 
   // 获取每个作品的 tag 数据
   private async getTagData() {
-    return new Promise<void>(async (resolve) => {
+    return new Promise<void>(async resolve => {
       for (const id of this.idList) {
         this.tipWrap.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`
 
@@ -128,7 +128,7 @@ class BookmarkAllWorks {
 
   // 给所有作品添加收藏（之前收藏过的，新 tag 将覆盖旧 tag）
   private async addBookmarkAll() {
-    return new Promise<void>(async (resolve) => {
+    return new Promise<void>(async resolve => {
       let index = 0
       for (const data of this.bookmarKData) {
         this.tipWrap.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
@@ -137,7 +137,7 @@ class BookmarkAllWorks {
           data.id,
           settings.quickBookmarks ? data.tags : [],
           data.restrict,
-          token.token
+          token.token,
         )
         index++
       }

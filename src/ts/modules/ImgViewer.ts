@@ -132,7 +132,7 @@ class ImgViewer {
         setTimeout(() => {
           // 通过点击 1:1 按钮，调整为100%并居中。这里必须要加延时，否则点击的时候图片还是旧的
           ;(document.querySelector(
-            '.viewer-one-to-one'
+            '.viewer-one-to-one',
           ) as HTMLLIElement).click()
         }, 50)
       }
@@ -146,7 +146,7 @@ class ImgViewer {
     })
 
     // esc 退出图片查看器
-    document.addEventListener('keyup', (event) => {
+    document.addEventListener('keyup', event => {
       if (event.code === 'Escape') {
         this.myViewer && this.myViewer.hide()
       }
@@ -156,7 +156,7 @@ class ImgViewer {
       'fullscreenchange',
       'webkitfullscreenchange',
       'mozfullscreenchange',
-    ].forEach((arg) => {
+    ].forEach(arg => {
       // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
       document.addEventListener(arg, () => {
         // 退出全屏
@@ -187,7 +187,7 @@ class ImgViewer {
         for (let index = 0; index < body.pageCount; index++) {
           const str = `<li><img src="${thumb.replace(
             'p0',
-            'p' + index
+            'p' + index,
           )}" data-src="${original.replace('p0', 'p' + index)}"></li>`
           html.push(str)
         }
@@ -219,7 +219,7 @@ class ImgViewer {
     // 隐藏底部的其他元素，仍然显示左右切换按钮
     const close = document.querySelector('.viewer-close') as HTMLDivElement
     const oneToOne = document.querySelector(
-      '.viewer-one-to-one'
+      '.viewer-one-to-one',
     ) as HTMLDivElement
     const navbar = document.querySelector('.viewer-navbar') as HTMLDivElement
     for (const element of [close, oneToOne, navbar]) {
@@ -235,7 +235,7 @@ class ImgViewer {
     // 显示底部隐藏的元素
     const close = document.querySelector('.viewer-close') as HTMLDivElement
     const oneToOne = document.querySelector(
-      '.viewer-one-to-one'
+      '.viewer-one-to-one',
     ) as HTMLDivElement
     const navbar = document.querySelector('.viewer-navbar') as HTMLDivElement
     for (const element of [close, oneToOne, navbar]) {

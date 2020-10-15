@@ -32,7 +32,7 @@ class Support {
     if (!lastTime || new Date().getTime() - parseInt(lastTime) > interval) {
       // 获取最新的 releases 信息
       const latest = await fetch(
-        'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest'
+        'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest',
       )
       const latestJson = await latest.json()
       const latestVer = latestJson.name
@@ -62,7 +62,7 @@ class Support {
       const whatIsNewHtml = `
       <div class="xz_new">
         <p class="title">Powerful Pixiv Downloader ${lang.transl(
-          '_最近更新'
+          '_最近更新',
         )}</p>
         <p class="content">${lang.transl(newTag)}</p>
         <button class="btn">${lang.transl('_确定')}</button>
@@ -100,7 +100,7 @@ class Support {
   // 监听页面的无刷新切换。某些页面可以无刷新切换，这时需要进行一些处理
   private listenPageSwitch() {
     // 绑定无刷新切换页面的事件，只绑定一次
-    ;['pushState', 'popstate', 'replaceState'].forEach((item) => {
+    ;['pushState', 'popstate', 'replaceState'].forEach(item => {
       window.addEventListener(item, () => {
         EVT.fire(EVT.list.pageSwitch)
       })

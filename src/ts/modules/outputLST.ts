@@ -14,12 +14,12 @@ class OutputLST {
   private bindEvent() {
     window.addEventListener(
       'keydown',
-      (ev) => {
+      ev => {
         if (ev.altKey && ev.code === 'KeyL') {
           this.createLst()
         }
       },
-      false
+      false,
     )
   }
 

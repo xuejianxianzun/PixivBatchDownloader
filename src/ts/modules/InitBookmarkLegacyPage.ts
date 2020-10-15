@@ -52,7 +52,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
         this.crawlRecommended = true
         this.readyCrawl()
       },
-      false
+      false,
     )
   }
 
@@ -63,7 +63,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
         'otherBtns',
         Colors.green,
         lang.transl('_添加tag'),
-        [['title', lang.transl('_添加tag')]]
+        [['title', lang.transl('_添加tag')]],
       )
 
       new BookmarksAddTag(btn)
@@ -92,7 +92,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
 
     this.crawlNumber = this.checkWantPageInput(
       lang.transl('_从本页开始下载x页'),
-      pageTip
+      pageTip,
     )
   }
 
@@ -151,7 +151,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
         this.type,
         store.tag,
         this.offset,
-        this.isHide
+        this.isHide,
       )
     } catch (error) {
       this.getIdList()
@@ -171,7 +171,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
         this.idList.push({
           type: idType,
           id: data.id,
-        })
+        }),
       )
       this.offset += this.onceRequest // 每次增加偏移量
       // 重复抓取过程

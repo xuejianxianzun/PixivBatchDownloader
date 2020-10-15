@@ -12,7 +12,7 @@ async function copys() {
     // 复制 static 文件夹的内容
     await copy('./static', './dist', {
       overwrite: true,
-    }).catch(function (error) {
+    }).catch(function(error) {
       console.error('Copy failed: ' + error)
       reject()
     })
@@ -26,7 +26,7 @@ async function copys() {
     await copy('./', './dist', {
       overwrite: true,
       filter: ['README.md', 'README-EN.md', 'LICENSE'],
-    }).then(function (results) {
+    }).then(function(results) {
       resolve()
       console.log('Copy success')
     })
@@ -42,7 +42,7 @@ function pack() {
     zlib: { level: 9 }, // Sets the compression level.
   })
 
-  archive.on('error', function (err) {
+  archive.on('error', function(err) {
     throw err
   })
 

@@ -73,7 +73,7 @@ class FileName {
         safe: true,
       },
       '{px}': {
-        value: (function () {
+        value: (function() {
           if (result.includes('{px}') && data.fullWidth !== undefined) {
             return data.fullWidth + 'x' + data.fullHeight
           } else {
@@ -168,7 +168,10 @@ class FileName {
     tempArr.forEach((str, index, arr) => {
       // 替换路径首尾的空格
       // 把每层路径头尾的 . 变成全角的．因为 Chrome 不允许头尾使用 .
-      arr[index] = str.trim().replace(/^\./g, '．').replace(/\.$/g, '．')
+      arr[index] = str
+        .trim()
+        .replace(/^\./g, '．')
+        .replace(/\.$/g, '．')
     })
     result = tempArr.join('/')
 
@@ -238,7 +241,7 @@ class FileName {
       if (allPart[lastIndex].length + extResult.length > limit) {
         allPart[lastIndex] = allPart[lastIndex].substr(
           0,
-          limit - extResult.length
+          limit - extResult.length,
         )
       }
 

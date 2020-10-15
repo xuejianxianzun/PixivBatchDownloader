@@ -87,7 +87,7 @@ class InitRankingArtworkPage extends InitPageBase {
     // 检查下载页数的设置
     this.crawlNumber = this.checkWantPageInput(
       lang.transl('_下载排行榜前x个作品'),
-      lang.transl('_向下获取所有作品')
+      lang.transl('_向下获取所有作品'),
     )
     // 如果设置的作品个数是 -1，则设置为下载所有作品
     if (this.crawlNumber === -1) {
@@ -160,7 +160,7 @@ class InitRankingArtworkPage extends InitPageBase {
     log.log(
       lang.transl('_排行榜进度', this.listPageFinished.toString()),
       1,
-      false
+      false,
     )
 
     // 抓取完毕

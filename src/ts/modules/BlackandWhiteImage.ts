@@ -5,7 +5,7 @@ class BlackAndWhiteImage {
   private readonly latitude = 1 // 宽容度
 
   public async check(imgUrl: string): Promise<boolean> {
-    const img = await this.loadImg(imgUrl).catch((error) => {
+    const img = await this.loadImg(imgUrl).catch(error => {
       console.error(error)
     })
     // 当加载图片失败时，无法进行判断，默认为彩色图片
@@ -25,7 +25,7 @@ class BlackAndWhiteImage {
       if (url.startsWith('blob')) {
         resolve(DOM.loadImg(url))
       } else {
-        const res = await fetch(url).catch((error) => {
+        const res = await fetch(url).catch(error => {
           throw new Error(`Load image error! url: ${url}`)
         })
         const blob = await res.blob()
@@ -87,7 +87,7 @@ class BlackAndWhiteImage {
       const max = Math.max(r, g, b) // 取出 rgb 中的最大值
       const min = max - this.latitude // 允许的最小值
       // 如果 rgb 三个数值与最大的数值相比，差距在宽容度之内，则检查通过
-      return [r, g, b].every((number) => {
+      return [r, g, b].every(number => {
         return number >= min
       })
     }

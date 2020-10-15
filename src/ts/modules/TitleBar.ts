@@ -97,7 +97,7 @@ class TitleBar {
     if (pageType.type == 1 || pageType.type === 2 || pageType.type === 13) {
       // 从 og:title 标签获取标题。og:title 标签是最早更新标题的。但不确定是否在所有页面上都可以直接使用 og:title 标签的内容，所以这里只在部分页面上使用
       const ogTitle = document.querySelector(
-        'meta[property="og:title"]'
+        'meta[property="og:title"]',
       )! as HTMLMetaElement
       if (ogTitle) {
         document.title = ogTitle.content

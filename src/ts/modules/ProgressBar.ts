@@ -20,16 +20,16 @@ class ProgressBar {
   constructor() {
     this.wrap = DOM.useSlot('progressBar', this.wrapHTML) as HTMLDivElement
     this.downloadedEl = this.wrap.querySelector(
-      '.downloaded'
+      '.downloaded',
     ) as HTMLSpanElement
     this.progressColorEl = this.wrap.querySelector(
-      '.progress1'
+      '.progress1',
     ) as HTMLDivElement
     this.listWrap = this.wrap.querySelector(
-      '.progressBarList'
+      '.progressBarList',
     ) as HTMLUListElement
     this.totalNumberEl = this.wrap.querySelector(
-      '.totalNumber'
+      '.totalNumber',
     ) as HTMLSpanElement
   }
 
@@ -128,7 +128,7 @@ class ProgressBar {
     } else {
       // 使用 KiB 作为单位
       text = `${Math.floor(data.loaded / this.KB)}/${Math.floor(
-        data.total / this.KB
+        data.total / this.KB,
       )} KiB`
     }
 

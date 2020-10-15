@@ -68,9 +68,9 @@ class EVT {
     // 当需要清空下载记录时触发（指用于检测重复文件的下载记录）
     clearDownloadRecord: 'clearDownloadRecord',
     // 当需要导出下载记录时触发
-    exportDownloadRecord:'exportDownloadRecord',
+    exportDownloadRecord: 'exportDownloadRecord',
     // 当需要导入下载记录时触发
-    importDownloadRecord:'importDownloadRecord',
+    importDownloadRecord: 'importDownloadRecord',
     // 当需要清空断点续传的数据时触发
     clearSavedCrawl: 'clearSavedCrawl',
     // 当从断点续传数据恢复了下载时触发

@@ -47,7 +47,7 @@ class InitUserPage extends InitPageBase {
     const bookmarkAllBtn = DOM.addBtn(
       'otherBtns',
       Colors.green,
-      lang.transl('_收藏本页面的所有作品')
+      lang.transl('_收藏本页面的所有作品'),
     )
     this.bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
 
@@ -95,7 +95,7 @@ class InitUserPage extends InitPageBase {
   protected getWantPage() {
     this.crawlNumber = this.checkWantPageInput(
       lang.transl('_从本页开始下载x页'),
-      lang.transl('_下载所有页面')
+      lang.transl('_下载所有页面'),
     )
   }
 
@@ -180,7 +180,7 @@ class InitUserPage extends InitPageBase {
     let idList = await API.getUserWorksByType(DOM.getUserId(), type)
 
     // 判断是否全都是小说，如果是，把每页的作品个数设置为 24 个
-    const allWorkIsNovels = idList.every((data) => {
+    const allWorkIsNovels = idList.every(data => {
       return data.type === 'novels'
     })
     allWorkIsNovels && (this.onceNumber = 24)
@@ -235,21 +235,21 @@ class InitUserPage extends InitPageBase {
       flag,
       store.tag,
       offset,
-      requsetNumber
+      requsetNumber,
     )
 
     // 图片和小说返回的数据是不同的，小说并没有 illustType 标记
     if (this.listType === 4) {
       const d = data as UserNovelsWithTag
-      d.body.works.forEach((data) =>
+      d.body.works.forEach(data =>
         store.idList.push({
           type: 'novels',
           id: data.id,
-        })
+        }),
       )
     } else {
       const d = data as UserImageWorksWithTag
-      d.body.works.forEach((data) => {
+      d.body.works.forEach(data => {
         let type: IDListType = 'illusts'
         switch (data.illustType) {
           case 0:
@@ -287,7 +287,7 @@ class InitUserPage extends InitPageBase {
 
     window.removeEventListener(
       EVT.list.getIdListFinished,
-      this.sendBookmarkIdList
+      this.sendBookmarkIdList,
     )
   }
 }

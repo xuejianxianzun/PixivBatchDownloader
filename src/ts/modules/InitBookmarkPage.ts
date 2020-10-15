@@ -49,7 +49,7 @@ class InitBookmarkPage extends InitPageBase {
         'otherBtns',
         Colors.green,
         lang.transl('_添加tag'),
-        [['title', lang.transl('_添加tag')]]
+        [['title', lang.transl('_添加tag')]],
       )
 
       new BookmarksAddTag(btn)
@@ -71,7 +71,7 @@ class InitBookmarkPage extends InitPageBase {
   protected getWantPage() {
     this.crawlNumber = this.checkWantPageInput(
       lang.transl('_从本页开始下载x页'),
-      lang.transl('_下载所有页面')
+      lang.transl('_下载所有页面'),
     )
   }
 
@@ -125,7 +125,7 @@ class InitBookmarkPage extends InitPageBase {
         this.type,
         store.tag,
         this.offset,
-        this.isHide
+        this.isHide,
       )
     } catch (error) {
       this.getIdList()
@@ -145,7 +145,7 @@ class InitBookmarkPage extends InitPageBase {
         this.idList.push({
           type: idType,
           id: data.id,
-        })
+        }),
       )
       this.offset += this.onceRequest // 每次增加偏移量
       // 重复抓取过程

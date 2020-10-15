@@ -21,7 +21,7 @@ class InitBookmarkDetailPage extends InitPageBase {
       () => {
         this.readyCrawl()
       },
-      false
+      false,
     )
   }
 

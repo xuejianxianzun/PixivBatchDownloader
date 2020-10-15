@@ -134,8 +134,8 @@ abstract class InitPageBase {
       log.warning(
         lang.transl(
           '_多图作品下载前n张图片',
-          settingAPI.getFirstFewImages().toString()
-        )
+          settingAPI.getFirstFewImages().toString(),
+        ),
       )
     }
   }
@@ -303,7 +303,7 @@ abstract class InitPageBase {
     log.log(
       lang.transl('_共抓取到n个文件', store.result.length.toString()),
       1,
-      false
+      false,
     )
   }
 

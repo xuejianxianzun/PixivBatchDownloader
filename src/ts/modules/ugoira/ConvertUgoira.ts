@@ -10,7 +10,7 @@ class ConvertUgoira {
     window.addEventListener(EVT.list.downloadStart, () => {
       this.downloading = true
     })
-    ;[EVT.list.downloadPause, EVT.list.downloadStop].forEach((event) => {
+    ;[EVT.list.downloadPause, EVT.list.downloadStop].forEach(event => {
       window.addEventListener(event, () => {
         this.downloading = false
       })
@@ -46,7 +46,7 @@ class ConvertUgoira {
   private async start(
     file: Blob,
     info: UgoiraInfo,
-    type: 'webm' | 'gif' | 'png'
+    type: 'webm' | 'gif' | 'png',
   ): Promise<Blob> {
     return new Promise(async (resolve, reject) => {
       const t = window.setInterval(async () => {

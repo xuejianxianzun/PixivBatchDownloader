@@ -100,7 +100,7 @@ class InitNewArtworkPage extends InitPageBase {
       }
 
       const filterOpt: FilterOption = {
-        id: nowData.illustId,
+        id: nowData.id,
         width: nowData.width,
         height: nowData.height,
         pageCount: nowData.pageCount,
@@ -112,7 +112,7 @@ class InitNewArtworkPage extends InitPageBase {
       if (await filter.check(filterOpt)) {
         store.idList.push({
           type: API.getWorkType(nowData.illustType),
-          id: nowData.illustId,
+          id: nowData.id,
         })
       }
     }

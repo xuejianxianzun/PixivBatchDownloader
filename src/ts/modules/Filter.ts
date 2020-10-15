@@ -375,7 +375,7 @@ class Filter {
       this.logTip(
         `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${
           settings.postDateEnd
-        }`
+        }`,
       )
     }
   }
@@ -418,7 +418,7 @@ class Filter {
   // 依据图片数量，检查下载的作品类型
   private checkPageCount(
     illustType: FilterOption['illustType'],
-    pageCount: FilterOption['pageCount']
+    pageCount: FilterOption['pageCount'],
   ) {
     if (illustType === undefined || pageCount === undefined) {
       return true
@@ -539,7 +539,7 @@ class Filter {
   // 检查作品是否符合过滤宽高的条件
   private checkSetWh(
     width: FilterOption['width'],
-    height: FilterOption['height']
+    height: FilterOption['height'],
   ) {
     if (!settings.setWHSwitch) {
       return true
@@ -582,7 +582,7 @@ class Filter {
   // 检查作品是否符合宽高比条件
   private checkRatio(
     width: FilterOption['width'],
-    height: FilterOption['height']
+    height: FilterOption['height'],
   ) {
     if (!settings.ratioSwitch) {
       return true

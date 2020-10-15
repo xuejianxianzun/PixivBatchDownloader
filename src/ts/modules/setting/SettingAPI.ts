@@ -23,7 +23,7 @@ class SettingAPI {
         if (data.name === 'firstFewImages') {
           this.firstFewImages = this.getFirstFewImages()
         }
-      }
+      },
     )
   }
 

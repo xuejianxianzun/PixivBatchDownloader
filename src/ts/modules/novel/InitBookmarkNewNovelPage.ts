@@ -125,7 +125,7 @@ class InitBookmarkNewNovelPage extends InitPageBase {
     log.log(
       lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
       1,
-      false
+      false,
     )
 
     // 抓取完毕

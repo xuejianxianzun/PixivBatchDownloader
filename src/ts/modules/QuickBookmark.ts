@@ -78,7 +78,7 @@ class QuickBookmark {
 
       // 如果没有快速收藏元素则添加
       this.btn = this.toolbar.querySelector(
-        '#' + this.btnId
+        '#' + this.btnId,
       ) as HTMLAnchorElement
       if (!this.btn) {
         this.btn = this.createBtn()
@@ -118,7 +118,7 @@ class QuickBookmark {
 
       // 将点赞按钮的颜色改为蓝色
       let likeBtn = document.querySelector(
-        `.${this.likeBtnClass}`
+        `.${this.likeBtnClass}`,
       ) as HTMLButtonElement
       if (!likeBtn) {
         // 上面尝试直接用 class 获取点赞按钮，如果获取不到则从工具栏里选择
@@ -166,8 +166,8 @@ class QuickBookmark {
       // 这里加了个延迟，因为上面先点击了 pixiv 自带的收藏按钮，但不加延迟的话， p 站自己的不带 tag 的请求反而是后发送的。
       setTimeout(() => {
         API.addBookmark(type, id, tags, false, token.token)
-          .then((response) => response.json())
-          .then((data) => {
+          .then(response => response.json())
+          .then(data => {
             if (data.error === false) {
               this.isBookmarked = true
               this.bookmarked()

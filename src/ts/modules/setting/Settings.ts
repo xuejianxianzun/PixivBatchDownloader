@@ -286,7 +286,7 @@ class Settings {
 
     // 保存命名规则
     const userSetNameInput = form.userSetName
-    ;['change', 'focus'].forEach((ev) => {
+    ;['change', 'focus'].forEach(ev => {
       userSetNameInput.addEventListener(ev, () => {
         this.emitChange('userSetName', userSetNameInput.value)
       })
@@ -339,7 +339,7 @@ class Settings {
 
   private emitChange(
     name: string,
-    value: string | number | boolean | string[]
+    value: string | number | boolean | string[],
   ) {
     EVT.fire(EVT.list.settingChange, { name: name, value: value })
   }
@@ -356,7 +356,7 @@ class Settings {
             localStorage.setItem(this.storeName, JSON.stringify(this.settings))
           }
         }
-      }
+      },
     )
   }
 

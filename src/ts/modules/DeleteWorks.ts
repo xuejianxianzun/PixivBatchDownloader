@@ -44,7 +44,7 @@ class DeleteWorks {
         this.clearMultiple()
         callback()
       },
-      false
+      false,
     )
   }
 
@@ -64,7 +64,7 @@ class DeleteWorks {
         this.ClearUgoira()
         callback()
       },
-      false
+      false,
     )
   }
 
@@ -75,7 +75,7 @@ class DeleteWorks {
       'crawlBtns',
       Colors.red,
       lang.transl('_手动删除作品'),
-      [['title', lang.transl('_手动删除作品Title')]]
+      [['title', lang.transl('_手动删除作品Title')]],
     )
 
     delBtn.addEventListener('click', () => {
@@ -97,7 +97,7 @@ class DeleteWorks {
   // 清除多图作品
   private clearMultiple() {
     const allPicArea = document.querySelectorAll(this.worksSelector)
-    allPicArea.forEach((el) => {
+    allPicArea.forEach(el => {
       if (el.querySelector(this.multipleSelector)) {
         el.remove()
       }
@@ -108,7 +108,7 @@ class DeleteWorks {
   // 清除动图作品
   private ClearUgoira() {
     const allPicArea = document.querySelectorAll(this.worksSelector)
-    allPicArea.forEach((el) => {
+    allPicArea.forEach(el => {
       if (el.querySelector(this.ugoiraSelector)) {
         el.remove()
       }
@@ -120,10 +120,10 @@ class DeleteWorks {
   // 删除作品后，回调函数可以接收到被删除的元素
   private bindDeleteEvent() {
     const listElement: NodeListOf<HTMLDivElement> = document.querySelectorAll(
-      this.worksSelector
+      this.worksSelector,
     )
-    listElement.forEach((el) => {
-      el.onclick = (ev) => {
+    listElement.forEach(el => {
+      el.onclick = ev => {
         if (this.delMode) {
           ev.preventDefault()
 
@@ -146,7 +146,7 @@ class DeleteWorks {
     log.success(
       lang.transl('_调整完毕', DOM.getVisibleEl(selector).length.toString()),
       2,
-      false
+      false,
     )
   }
 }

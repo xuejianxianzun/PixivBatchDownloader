@@ -48,7 +48,7 @@ class InitFollowingPage extends InitPageBase {
   protected getWantPage() {
     this.crawlNumber = this.checkWantPageInput(
       lang.transl('_从本页开始下载x页'),
-      lang.transl('_下载所有页面')
+      lang.transl('_下载所有页面'),
     )
   }
 
@@ -117,7 +117,7 @@ class InitFollowingPage extends InitPageBase {
     log.log(
       lang.transl('_当前有x个用户', this.userList.length.toString()),
       1,
-      false
+      false,
     )
 
     this.getUserListNo++
@@ -153,7 +153,7 @@ class InitFollowingPage extends InitPageBase {
     log.log(
       lang.transl('_当前作品个数', store.idList.length.toString()),
       1,
-      false
+      false,
     )
     this.getIdList()
   }

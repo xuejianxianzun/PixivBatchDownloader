@@ -212,7 +212,7 @@ class OutputCSV {
     // 设置文件名
     let name = ''
     const ogTitle = document.querySelector(
-      'meta[property="og:title"]'
+      'meta[property="og:title"]',
     )! as HTMLMetaElement
     if (ogTitle) {
       name = ogTitle.content
