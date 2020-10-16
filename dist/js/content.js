@@ -1557,20 +1557,22 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts',
         )
-        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./Log */ './src/ts/modules/Log.ts',
+        )
+        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts',
         )
-        /* harmony import */ var _IndexedDB__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _IndexedDB__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./IndexedDB */ './src/ts/modules/IndexedDB.ts',
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts',
         )
-        /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+        /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ./FileName */ './src/ts/modules/FileName.ts',
         )
 
-        // 去重
         // 通过保存和查询下载记录，判断重复文件
         class Deduplication {
           constructor() {
@@ -1589,7 +1591,7 @@
             ] // 表名的列表
             this.skipIdList = [] // 被跳过下载的文件的 id。当收到下载成功事件时，根据这个 id 列表判断这个文件是不是真的被下载了。如果这个文件是被跳过的，则不保存到下载记录里。
             this.existedIdList = [] // 检查文件是否重复时，会查询数据库。查询到的数据的 id 会保存到这个列表里。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
-            this.IDB = new _IndexedDB__WEBPACK_IMPORTED_MODULE_5__[
+            this.IDB = new _IndexedDB__WEBPACK_IMPORTED_MODULE_6__[
               'IndexedDB'
             ]()
             this.init()
@@ -1597,6 +1599,7 @@
           async init() {
             await this.initDB()
             this.bindEvent()
+            // this.exportTestFile(10)
           }
           // 初始化数据库，获取数据库对象
           async initDB() {
@@ -1654,42 +1657,9 @@
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list
                 .importDownloadRecord,
-              () => {
-                // 创建 input 元素选择文件
-                const i = document.createElement('input')
-                i.setAttribute('type', 'file')
-                i.setAttribute('accept', 'application/json')
-                i.onchange = () => {
-                  if (i.files && i.files.length > 0) {
-                    // 读取文件内容
-                    const reader = new FileReader()
-                    reader.readAsText(i.files[0])
-                    reader.onload = () => {
-                      const str = reader.result
-                      let record = []
-                      try {
-                        record = JSON.parse(str)
-                      } catch (error) {
-                        const msg = 'JSON parse error!'
-                        window.alert(msg)
-                        throw new Error(msg)
-                      }
-                      // 判断格式是否符合要求
-                      if (
-                        Array.isArray(record) === false ||
-                        record[0].id === undefined ||
-                        record[0].n === undefined
-                      ) {
-                        const msg = 'Format error!'
-                        window.alert(msg)
-                        throw new Error(msg)
-                      }
-                      // 开始导入
-                      this.importRecord(record)
-                    }
-                  }
-                }
-                i.click()
+              async () => {
+                const record = await this.loadRecoveryFile()
+                this.importRecord(record)
               },
             )
             // 导出下载记录的按钮
@@ -1733,6 +1703,44 @@
               },
             )
           }
+          async loadRecoveryFile() {
+            return new Promise((resolve) => {
+              // 创建 input 元素选择文件
+              const i = document.createElement('input')
+              i.setAttribute('type', 'file')
+              i.setAttribute('accept', 'application/json')
+              i.onchange = () => {
+                if (i.files && i.files.length > 0) {
+                  // 读取文件内容
+                  const reader = new FileReader()
+                  reader.readAsText(i.files[0])
+                  reader.onload = () => {
+                    const str = reader.result
+                    let record = []
+                    try {
+                      record = JSON.parse(str)
+                    } catch (error) {
+                      const msg = 'JSON parse error!'
+                      window.alert(msg)
+                      throw new Error(msg)
+                    }
+                    // 判断格式是否符合要求
+                    if (
+                      Array.isArray(record) === false ||
+                      record[0].id === undefined ||
+                      record[0].n === undefined
+                    ) {
+                      const msg = 'Format error!'
+                      window.alert(msg)
+                      throw new Error(msg)
+                    }
+                    resolve(record)
+                  }
+                }
+              }
+              i.click()
+            })
+          }
           // 当要查找或存储一个 id 时，返回它所对应的 storeName
           getStoreName(id) {
             const firstNum = parseInt(id[0])
@@ -1741,13 +1749,13 @@
           // 生成一个下载记录
           createRecord(resultId) {
             let name =
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
                 .userSetName
             // 查找这个抓取结果，获取其文件名
-            for (const result of _Store__WEBPACK_IMPORTED_MODULE_6__['store']
+            for (const result of _Store__WEBPACK_IMPORTED_MODULE_7__['store']
               .result) {
               if (result.id === resultId) {
-                name = _FileName__WEBPACK_IMPORTED_MODULE_7__[
+                name = _FileName__WEBPACK_IMPORTED_MODULE_8__[
                   'fileName'
                 ].getFileName(result)
                 break
@@ -1783,7 +1791,7 @@
             return new Promise(async (resolve, reject) => {
               // 如果未启用去重，直接返回不重复
               if (
-                !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+                !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
                   .deduplication
               ) {
                 resolve(false)
@@ -1798,7 +1806,7 @@
                 this.existedIdList.push(data.id)
                 // 查询到了对应的记录，根据策略进行判断
                 if (
-                  _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
                     .dupliStrategy === 'loose'
                 ) {
                   // 如果是宽松策略（只考虑 id），返回重复
@@ -1822,6 +1830,7 @@
               ),
             )
           }
+          // 导出下载记录
           async exportRecord() {
             let record = []
             for (const name of this.storeNameList) {
@@ -1838,8 +1847,61 @@
               ].replaceUnsafeStr(new Date().toLocaleString())}.json`,
             )
           }
-          importRecord(record) {
-            console.log(record)
+          // 导入下载记录
+          async importRecord(records) {
+            // 输出提示信息
+            _Log__WEBPACK_IMPORTED_MODULE_4__['log'].warning(
+              _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+                '_导入下载记录',
+              ),
+            )
+            let stored = 0
+            let total = records.length
+            let t = 0
+            t = window.setInterval(() => {
+              _Log__WEBPACK_IMPORTED_MODULE_4__['log'].log(
+                `${stored}/${total}`,
+                1,
+                false,
+              )
+              if (stored >= total) {
+                _Log__WEBPACK_IMPORTED_MODULE_4__['log'].success(
+                  _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_完成'),
+                )
+                window.clearInterval(t)
+              }
+            }, 500)
+            // 依次处理每个存储库
+            for (let index = 0; index < this.storeNameList.length; index++) {
+              // 提取出要存入这个存储库的数据
+              const data = []
+              for (const r of records) {
+                if (parseInt(r.id[0]) - 1 === index) {
+                  data.push(r)
+                }
+              }
+              // 批量添加数据
+              await this.IDB.batchAddData(this.storeNameList[index], data, 'id')
+              stored += data.length
+            }
+            // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。
+          }
+          // 创建一个文件，模拟导出的下载记录
+          exportTestFile(number) {
+            let r = []
+            for (let index = 1; index <= number; index++) {
+              r.push({
+                id: index.toString(),
+                n: index.toString(),
+              })
+            }
+            const str = JSON.stringify(r, null, 2)
+            const blob = new Blob([str], { type: 'application/json' })
+            const url = URL.createObjectURL(blob)
+            _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].downloadFile(
+              url,
+              `record-test-${number}.json`,
+            )
           }
         }
         const deduplication = new Deduplication()
@@ -5206,29 +5268,6 @@
               }
             })
           }
-          async getAll(storeNames) {
-            return new Promise((resolve, reject) => {
-              if (this.db === undefined) {
-                reject('Database is not defined')
-                return
-              }
-              const r = this.db
-                .transaction(storeNames, 'readwrite')
-                .objectStore(storeNames)
-                .getAll()
-              r.onsuccess = (ev) => {
-                const data = r.result
-                if (data) {
-                  resolve(data)
-                }
-                resolve(null)
-              }
-              r.onerror = (ev) => {
-                console.error('getAll failed')
-                reject(ev)
-              }
-            })
-          }
           async put(storeNames, data) {
             return new Promise((resolve, reject) => {
               if (this.db === undefined) {
@@ -5245,6 +5284,49 @@
               r.onerror = (ev) => {
                 console.error('put failed')
                 reject(ev)
+              }
+            })
+          }
+          // 向一个存储库中批量添加数据
+          async batchAddData(storeName, dataList, key) {
+            return new Promise(async (resolve, reject) => {
+              var _a
+              if (dataList.length === 0) {
+                resolve()
+              }
+              // 获取已存在的 key
+              let existedKeys = await this.getAllKeys(storeName)
+              // 使用事务
+              const tr =
+                (_a = this.db) === null || _a === void 0
+                  ? void 0
+                  : _a.transaction(storeName, 'readwrite')
+              if (!tr) {
+                throw new Error(`transaction ${storeName} is undefined`)
+              }
+              const store = tr.objectStore(storeName)
+              tr.oncomplete = () => {
+                resolve()
+              }
+              tr.onerror = (err) => {
+                console.error(err)
+                reject(err)
+              }
+              for (const data of dataList) {
+                await insert(data)
+              }
+              async function insert(data) {
+                return new Promise((resolve, reject) => {
+                  // 如果 key 已存在，则使用 put
+                  const type = existedKeys.includes(data[key]) ? 'put' : 'add'
+                  const request = store[type](data)
+                  request.onsuccess = () => {
+                    resolve()
+                  }
+                  request.onerror = (err) => {
+                    reject(err)
+                  }
+                })
               }
             })
           }
@@ -5273,7 +5355,53 @@
                 resolve(null)
               }
               r.onerror = (ev) => {
-                console.error('add failed')
+                console.error('get failed')
+                reject(ev)
+              }
+            })
+          }
+          async getAll(storeNames) {
+            return new Promise((resolve, reject) => {
+              if (this.db === undefined) {
+                reject('Database is not defined')
+                return
+              }
+              const r = this.db
+                .transaction(storeNames, 'readwrite')
+                .objectStore(storeNames)
+                .getAll()
+              r.onsuccess = (ev) => {
+                const data = r.result
+                if (data) {
+                  resolve(data)
+                }
+                resolve(null)
+              }
+              r.onerror = (ev) => {
+                console.error('getAll failed')
+                reject(ev)
+              }
+            })
+          }
+          async getAllKeys(storeNames) {
+            return new Promise((resolve, reject) => {
+              if (this.db === undefined) {
+                reject('Database is not defined')
+                return
+              }
+              const r = this.db
+                .transaction(storeNames, 'readonly')
+                .objectStore(storeNames)
+                .getAllKeys()
+              r.onsuccess = (ev) => {
+                const data = r.result
+                if (data) {
+                  resolve(data)
+                }
+                resolve(null)
+              }
+              r.onerror = (ev) => {
+                console.error('getAllKeys failed')
                 reject(ev)
               }
             })
@@ -13601,7 +13729,7 @@ flag 及其含义如下：
             '如果下載後的檔案名稱異常，請停用其他有下載功能的瀏覽器擴充功能。',
           ],
           _下载说明: [
-            "下载的文件保存在浏览器的下载目录里。<br>请不要在浏览器的下载选项里选中'总是询问每个文件的保存位置'。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>QQ群：932980062",
+            "下载的文件保存在浏览器的下载目录里。<br>请不要在浏览器的下载选项里选中'总是询问每个文件的保存位置'。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br>QQ群：932980062",
             'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><b>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。</b>',
             'The downloaded file is saved in the browser`s download directory. <br><b>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.</b>',
             '下載的檔案儲存在瀏覽器的下載目錄裡。<br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><b>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。</b><br>QQ 群：932980062',
@@ -14285,6 +14413,13 @@ flag 及其含义如下：
           _导出: ['导出', 'エクスポート', 'Export', '匯出'],
           _导入: ['导入', 'インポート', 'Import', '匯入'],
           _清除: ['清除', 'クリア', 'Clear', '清除'],
+          _导入下载记录: [
+            '导入下载记录',
+            'ダウンロード記録をインポート',
+            'Import download record',
+            '匯入下載記錄',
+          ],
+          _完成: ['完成', '完了', 'Completed', '完成'],
         }
 
         /***/
@@ -16803,14 +16938,12 @@ flag 及其含义如下：
           'lang'
         ].transl('_宽松')}</label>
       &nbsp;
-      <!--
       <button class="textButton gray1" type="button" id="exportDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_导出')}</button>
       <button class="textButton gray1" type="button" id="importDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_导入')}</button>
-      -->
       <button class="textButton gray1" type="button" id="clearDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_清除')}</button>

@@ -49,31 +49,6 @@ class IndexedDB {
     })
   }
 
-  public async getAll(storeNames: string) {
-    return new Promise((resolve, reject) => {
-      if (this.db === undefined) {
-        reject('Database is not defined')
-        return
-      }
-      const r = this.db
-        .transaction(storeNames, 'readwrite')
-        .objectStore(storeNames)
-        .getAll()
-
-      r.onsuccess = (ev) => {
-        const data = r.result
-        if (data) {
-          resolve(data)
-        }
-        resolve(null)
-      }
-      r.onerror = (ev) => {
-        console.error('getAll failed')
-        reject(ev)
-      }
-    })
-  }
-
   public async put(storeNames: string, data: object) {
     return new Promise((resolve, reject) => {
       if (this.db === undefined) {
@@ -90,6 +65,57 @@ class IndexedDB {
       r.onerror = (ev) => {
         console.error('put failed')
         reject(ev)
+      }
+    })
+  }
+
+  // 向一个存储库中批量添加数据
+  public async batchAddData(storeName: string, dataList: any[], key: any) {
+    return new Promise(async (resolve, reject) => {
+      if (dataList.length === 0) {
+        resolve()
+      }
+
+      // 获取已存在的 key
+      let existedKeys: string[] = (await this.getAllKeys(storeName)) as string[]
+
+      // 使用事务
+      const tr = this.db?.transaction(storeName, 'readwrite')
+      if (!tr) {
+        throw new Error(`transaction ${storeName} is undefined`)
+      }
+      const store = tr.objectStore(storeName)
+
+      tr.oncomplete = () => {
+        resolve()
+      }
+
+      tr.onerror = (err) => {
+        console.error(err)
+        reject(err)
+      }
+
+      for (const data of dataList) {
+        await insert(data)
+      }
+
+      async function insert(data: any) {
+        return new Promise((resolve, reject) => {
+          // 如果 key 已存在，则使用 put
+          const type: 'add' | 'put' = existedKeys.includes(data[key])
+            ? 'put'
+            : 'add'
+
+          const request = store[type](data)
+
+          request.onsuccess = () => {
+            resolve()
+          }
+
+          request.onerror = (err) => {
+            reject(err)
+          }
+        })
       }
     })
   }
@@ -123,7 +149,57 @@ class IndexedDB {
       }
 
       r.onerror = (ev) => {
-        console.error('add failed')
+        console.error('get failed')
+        reject(ev)
+      }
+    })
+  }
+
+  public async getAll(storeNames: string) {
+    return new Promise((resolve, reject) => {
+      if (this.db === undefined) {
+        reject('Database is not defined')
+        return
+      }
+      const r = this.db
+        .transaction(storeNames, 'readwrite')
+        .objectStore(storeNames)
+        .getAll()
+
+      r.onsuccess = (ev) => {
+        const data = r.result
+        if (data) {
+          resolve(data)
+        }
+        resolve(null)
+      }
+      r.onerror = (ev) => {
+        console.error('getAll failed')
+        reject(ev)
+      }
+    })
+  }
+
+  public async getAllKeys(storeNames: string) {
+    return new Promise((resolve, reject) => {
+      if (this.db === undefined) {
+        reject('Database is not defined')
+        return
+      }
+      const r = this.db
+        .transaction(storeNames, 'readonly')
+        .objectStore(storeNames)
+        .getAllKeys()
+
+      r.onsuccess = (ev) => {
+        const data = r.result
+        if (data) {
+          resolve(data)
+        }
+        resolve(null)
+      }
+      r.onerror = (ev) => {
+        console.error('getAllKeys failed')
         reject(ev)
       }
     })

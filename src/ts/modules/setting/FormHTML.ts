@@ -481,14 +481,12 @@ const formHtml = `<form class="settingForm">
         '_宽松模式说明',
       )}">${lang.transl('_宽松')}</label>
       &nbsp;
-      <!--
       <button class="textButton gray1" type="button" id="exportDownloadRecord">${lang.transl(
         '_导出',
       )}</button>
       <button class="textButton gray1" type="button" id="importDownloadRecord">${lang.transl(
         '_导入',
       )}</button>
-      -->
       <button class="textButton gray1" type="button" id="clearDownloadRecord">${lang.transl(
         '_清除',
       )}</button>

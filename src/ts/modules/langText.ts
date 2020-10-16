@@ -1348,6 +1348,13 @@ const langText = {
   _导出: ['导出', 'エクスポート', 'Export', '匯出'],
   _导入: ['导入', 'インポート', 'Import', '匯入'],
   _清除: ['清除', 'クリア', 'Clear', '清除'],
+  _导入下载记录: [
+    '导入下载记录',
+    'ダウンロード記録をインポート',
+    'Import download record',
+    '匯入下載記錄',
+  ],
+  _完成: ['完成', '完了', 'Completed', '完成'],
 }
 
 export { langText, langTextKeys }

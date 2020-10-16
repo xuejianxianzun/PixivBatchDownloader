@@ -2,6 +2,7 @@ import { API } from './API'
 import { DOM } from './DOM'
 import { EVT } from './EVT'
 import { lang } from './Lang'
+import { log } from './Log'
 import { settings } from './setting/Settings'
 import { DonwloadSuccessData } from './Download.d'
 import { IndexedDB } from './IndexedDB'
@@ -13,7 +14,6 @@ interface Record {
   n: string
 }
 
-// 去重
 // 通过保存和查询下载记录，判断重复文件
 class Deduplication {
   constructor() {
@@ -43,6 +43,7 @@ class Deduplication {
   private async init() {
     await this.initDB()
     this.bindEvent()
+    // this.exportTestFile(10)
   }
 
   // 初始化数据库，获取数据库对象
@@ -93,43 +94,9 @@ class Deduplication {
     }
 
     // 监听导入下载记录的事件
-    window.addEventListener(EVT.list.importDownloadRecord, () => {
-      // 创建 input 元素选择文件
-      const i = document.createElement('input')
-      i.setAttribute('type', 'file')
-      i.setAttribute('accept', 'application/json')
-      i.onchange = () => {
-        if (i.files && i.files.length > 0) {
-          // 读取文件内容
-          const reader = new FileReader()
-          reader.readAsText(i.files[0])
-          reader.onload = () => {
-            const str = reader.result as string
-            let record: Record[] = []
-            try {
-              record = JSON.parse(str) as Record[]
-            } catch (error) {
-              const msg = 'JSON parse error!'
-              window.alert(msg)
-              throw new Error(msg)
-            }
-            // 判断格式是否符合要求
-            if (
-              Array.isArray(record) === false ||
-              record[0].id === undefined ||
-              record[0].n === undefined
-            ) {
-              const msg = 'Format error!'
-              window.alert(msg)
-              throw new Error(msg)
-            }
-            // 开始导入
-            this.importRecord(record)
-          }
-        }
-      }
-
-      i.click()
+    window.addEventListener(EVT.list.importDownloadRecord, async () => {
+      const record = await this.loadRecoveryFile()
+      this.importRecord(record)
     })
 
     // 导出下载记录的按钮
@@ -161,6 +128,46 @@ class Deduplication {
     window.addEventListener(EVT.list.clearDownloadRecord, () => {
       this.clearRecords()
       this.existedIdList = []
+    })
+  }
+
+  private async loadRecoveryFile(): Promise<Record[]> {
+    return new Promise<Record[]>((resolve) => {
+      // 创建 input 元素选择文件
+      const i = document.createElement('input')
+      i.setAttribute('type', 'file')
+      i.setAttribute('accept', 'application/json')
+      i.onchange = () => {
+        if (i.files && i.files.length > 0) {
+          // 读取文件内容
+          const reader = new FileReader()
+          reader.readAsText(i.files[0])
+          reader.onload = () => {
+            const str = reader.result as string
+            let record: Record[] = []
+            try {
+              record = JSON.parse(str) as Record[]
+            } catch (error) {
+              const msg = 'JSON parse error!'
+              window.alert(msg)
+              throw new Error(msg)
+            }
+            // 判断格式是否符合要求
+            if (
+              Array.isArray(record) === false ||
+              record[0].id === undefined ||
+              record[0].n === undefined
+            ) {
+              const msg = 'Format error!'
+              window.alert(msg)
+              throw new Error(msg)
+            }
+            resolve(record)
+          }
+        }
+      }
+
+      i.click()
     })
   }
 
@@ -248,6 +255,7 @@ class Deduplication {
     window.alert(lang.transl('_下载记录已清除'))
   }
 
+  // 导出下载记录
   private async exportRecord() {
     let record: Record[] = []
     for (const name of this.storeNameList) {
@@ -264,8 +272,51 @@ class Deduplication {
     )
   }
 
-  private importRecord(record: Record[]) {
-    console.log(record)
+  // 导入下载记录
+  private async importRecord(records: Record[]) {
+    // 输出提示信息
+    log.warning(lang.transl('_导入下载记录'))
+    let stored = 0
+    let total = records.length
+    let t = 0
+    t = window.setInterval(() => {
+      log.log(`${stored}/${total}`, 1, false)
+      if (stored >= total) {
+        log.success(lang.transl('_完成'))
+        window.clearInterval(t)
+      }
+    }, 500)
+
+    // 依次处理每个存储库
+    for (let index = 0; index < this.storeNameList.length; index++) {
+      // 提取出要存入这个存储库的数据
+      const data: Record[] = []
+      for (const r of records) {
+        if (parseInt(r.id[0]) - 1 === index) {
+          data.push(r)
+        }
+      }
+      // 批量添加数据
+      await this.IDB.batchAddData(this.storeNameList[index], data, 'id')
+      stored += data.length
+    }
+
+    // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。
+  }
+
+  // 创建一个文件，模拟导出的下载记录
+  private exportTestFile(number: number) {
+    let r: Record[] = []
+    for (let index = 1; index <= number; index++) {
+      r.push({
+        id: index.toString(),
+        n: index.toString(),
+      })
+    }
+    const str = JSON.stringify(r, null, 2)
+    const blob = new Blob([str], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    DOM.downloadFile(url, `record-test-${number}.json`)
   }
 }
 
