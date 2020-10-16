@@ -180,7 +180,7 @@ class InitUserPage extends InitPageBase {
     let idList = await API.getUserWorksByType(DOM.getUserId(), type)
 
     // 判断是否全都是小说，如果是，把每页的作品个数设置为 24 个
-    const allWorkIsNovels = idList.every(data => {
+    const allWorkIsNovels = idList.every((data) => {
       return data.type === 'novels'
     })
     allWorkIsNovels && (this.onceNumber = 24)
@@ -241,7 +241,7 @@ class InitUserPage extends InitPageBase {
     // 图片和小说返回的数据是不同的，小说并没有 illustType 标记
     if (this.listType === 4) {
       const d = data as UserNovelsWithTag
-      d.body.works.forEach(data =>
+      d.body.works.forEach((data) =>
         store.idList.push({
           type: 'novels',
           id: data.id,
@@ -249,7 +249,7 @@ class InitUserPage extends InitPageBase {
       )
     } else {
       const d = data as UserImageWorksWithTag
-      d.body.works.forEach(data => {
+      d.body.works.forEach((data) => {
         let type: IDListType = 'illusts'
         switch (data.illustType) {
           case 0:

@@ -185,7 +185,7 @@ class InitArtworkPage extends InitPageBase {
 
     // 储存符合条件的 id
     let nowId = parseInt(API.getIllustId(window.location.href))
-    idList.forEach(id => {
+    idList.forEach((id) => {
       let idNum = parseInt(id.id)
       // 新作品
       if (idNum >= nowId && this.crawlDirection === -1) {

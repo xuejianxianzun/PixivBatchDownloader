@@ -97,7 +97,7 @@ class DeleteWorks {
   // 清除多图作品
   private clearMultiple() {
     const allPicArea = document.querySelectorAll(this.worksSelector)
-    allPicArea.forEach(el => {
+    allPicArea.forEach((el) => {
       if (el.querySelector(this.multipleSelector)) {
         el.remove()
       }
@@ -108,7 +108,7 @@ class DeleteWorks {
   // 清除动图作品
   private ClearUgoira() {
     const allPicArea = document.querySelectorAll(this.worksSelector)
-    allPicArea.forEach(el => {
+    allPicArea.forEach((el) => {
       if (el.querySelector(this.ugoiraSelector)) {
         el.remove()
       }
@@ -122,8 +122,8 @@ class DeleteWorks {
     const listElement: NodeListOf<HTMLDivElement> = document.querySelectorAll(
       this.worksSelector,
     )
-    listElement.forEach(el => {
-      el.onclick = ev => {
+    listElement.forEach((el) => {
+      el.onclick = (ev) => {
         if (this.delMode) {
           ev.preventDefault()
 

@@ -60,8 +60,8 @@ class ToWebM {
 
   // 编码视频
   private async encodeVideo(encoder: any) {
-    return new Promise<Blob>(function(resolve, reject) {
-      encoder.compile(false, function(video: Blob) {
+    return new Promise<Blob>(function (resolve, reject) {
+      encoder.compile(false, function (video: Blob) {
         resolve(video)
       })
     })

@@ -76,7 +76,7 @@ class Deduplication {
     })
 
     // 当抓取完成、下载完成时，清空 skipIdList 列表
-    ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach(val => {
+    ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach((val) => {
       window.addEventListener(val, () => {
         this.skipIdList = []
       })

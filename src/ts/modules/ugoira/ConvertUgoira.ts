@@ -10,7 +10,7 @@ class ConvertUgoira {
     window.addEventListener(EVT.list.downloadStart, () => {
       this.downloading = true
     })
-    ;[EVT.list.downloadPause, EVT.list.downloadStop].forEach(event => {
+    ;[EVT.list.downloadPause, EVT.list.downloadStop].forEach((event) => {
       window.addEventListener(event, () => {
         this.downloading = false
       })

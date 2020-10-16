@@ -39,7 +39,7 @@ class FastScreen {
 
     const fastScreenArea = document.createElement('div')
     fastScreenArea.className = 'fastScreenArea'
-    this.favNums.forEach(secondTag => {
+    this.favNums.forEach((secondTag) => {
       const a = document.createElement('a')
       a.innerText = secondTag
       a.href = 'javascript:viod(0)'

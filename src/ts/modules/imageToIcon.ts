@@ -71,7 +71,7 @@ class ImageToIcon {
 
       const i = document.createElement('img')
       i.src = imgURL
-      i.onload = function() {
+      i.onload = function () {
         resolve(i)
       }
     })
@@ -195,7 +195,7 @@ class ImageToIcon {
 
   private async getPngBlob(canvas: HTMLCanvasElement) {
     return new Promise<Blob>((resolve, reject) => {
-      canvas.toBlob(blob => {
+      canvas.toBlob((blob) => {
         if (!blob) {
           reject('blob is null')
         } else {

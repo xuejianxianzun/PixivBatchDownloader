@@ -203,7 +203,7 @@ abstract class InitPageBase {
     idData = idData || store.idList.shift()!
     const id = idData.id
 
-    if(!id){
+    if (!id) {
       const msg = 'Error: work id is invalid!'
       window.alert(msg)
       throw new Error(msg)

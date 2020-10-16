@@ -27,7 +27,7 @@ class ThemeColor {
       window.clearTimeout(this.timer)
       this.theme = el.textContent
       // 监听标记元素的 textContent 变化
-      const ob = new MutationObserver(mutationsList => {
+      const ob = new MutationObserver((mutationsList) => {
         for (const item of mutationsList) {
           if (item.type === 'characterData') {
             this.theme = item.target.nodeValue

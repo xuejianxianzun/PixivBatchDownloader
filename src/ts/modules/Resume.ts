@@ -131,7 +131,7 @@ class Resume {
       promiseList.push(this.IDB.get(this.dataName, id))
     }
 
-    await Promise.all(promiseList).then(res => {
+    await Promise.all(promiseList).then((res) => {
       store.result = []
       const r = res as TaskData[]
       for (const taskData of r) {

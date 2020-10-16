@@ -146,7 +146,7 @@ class ImgViewer {
     })
 
     // esc 退出图片查看器
-    document.addEventListener('keyup', event => {
+    document.addEventListener('keyup', (event) => {
       if (event.code === 'Escape') {
         this.myViewer && this.myViewer.hide()
       }
@@ -156,7 +156,7 @@ class ImgViewer {
       'fullscreenchange',
       'webkitfullscreenchange',
       'mozfullscreenchange',
-    ].forEach(arg => {
+    ].forEach((arg) => {
       // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
       document.addEventListener(arg, () => {
         // 退出全屏

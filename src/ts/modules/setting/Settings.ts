@@ -286,7 +286,7 @@ class Settings {
 
     // 保存命名规则
     const userSetNameInput = form.userSetName
-    ;['change', 'focus'].forEach(ev => {
+    ;['change', 'focus'].forEach((ev) => {
       userSetNameInput.addEventListener(ev, () => {
         this.emitChange('userSetName', userSetNameInput.value)
       })

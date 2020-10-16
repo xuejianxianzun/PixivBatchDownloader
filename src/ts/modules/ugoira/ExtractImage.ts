@@ -28,7 +28,7 @@ class ExtractImage {
     zipFile: any,
     ugoiraInfo: UgoiraInfo,
   ): Promise<string[]> {
-    return new Promise(function(resolve, reject) {
+    return new Promise(function (resolve, reject) {
       zip.createReader(
         new zip.BlobReader(zipFile),
         (zipReader: any) => {

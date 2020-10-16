@@ -44,7 +44,7 @@ interface LikeResponse {
 class API {
   // 根据对象某个属性的值（视为数字）排序对象。返回的结果是降序排列
   static sortByProperty(propertyName: string) {
-    return function(object1: any, object2: any) {
+    return function (object1: any, object2: any) {
       // 排序的内容有时可能是字符串，需要转换成数字排序
       const value1 = parseInt(object1[propertyName])
       const value2 = parseInt(object2[propertyName])
@@ -201,7 +201,7 @@ class API {
         method: 'get',
         credentials: 'same-origin',
       })
-        .then(response => {
+        .then((response) => {
           if (response.ok) {
             return response.json()
           } else {
@@ -212,10 +212,10 @@ class API {
             })
           }
         })
-        .then(data => {
+        .then((data) => {
           resolve(data)
         })
-        .catch(error => {
+        .catch((error) => {
           // 第二种异常，请求失败
           reject(error)
         })
@@ -465,14 +465,14 @@ class API {
         method: 'get',
         credentials: 'same-origin',
       })
-        .then(response => {
+        .then((response) => {
           if (response.ok) {
             return response.text()
           } else {
             throw new Error(response.status.toString())
           }
         })
-        .then(data => {
+        .then((data) => {
           let listPageDocument = new DOMParser().parseFromString(
             data,
             'text/html',
@@ -484,7 +484,7 @@ class API {
 
           resolve(JSON.parse(worksInfoText))
         })
-        .catch(error => {
+        .catch((error) => {
           reject(error)
         })
     })

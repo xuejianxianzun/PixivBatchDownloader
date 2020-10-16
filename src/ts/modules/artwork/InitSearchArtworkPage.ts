@@ -130,7 +130,7 @@ class InitSearchArtworkPage extends InitPageBase {
       if (listWrap) {
         const list = listWrap.querySelectorAll('li')
         // 被二次筛选过滤掉的作品会被隐藏，所以批量添加收藏时，过滤掉隐藏的作品
-        const showList = Array.from(list).filter(el => {
+        const showList = Array.from(list).filter((el) => {
           return el.style.display !== 'none'
         })
         bookmarkAll.sendWorkList(showList)
@@ -231,7 +231,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     // 从页面 url 中获取可以使用的选项
     this.option = {}
-    this.allOption.forEach(param => {
+    this.allOption.forEach((param) => {
       let value = API.getURLSearchField(location.href, param)
       if (value !== '') {
         this.option[param] = value
@@ -561,7 +561,7 @@ class InitSearchArtworkPage extends InitPageBase {
       `.${this.addBMKBtnClass}`,
     ) as HTMLButtonElement
     const bookmarkedClass = this.bookmarkedClass
-    addBMKBtn.addEventListener('click', function() {
+    addBMKBtn.addEventListener('click', function () {
       const e = new CustomEvent('addBMK', {
         detail: { data: { id: data.idNum, tags: data.tags } },
       })
@@ -664,7 +664,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     this.getMultipleSetting()
 
-    this.filterResult(data => {
+    this.filterResult((data) => {
       const filterOpt: FilterOption = {
         id: data.id,
         illustType: data.type,
@@ -683,14 +683,14 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 清除多图作品
   private clearMultiple = () => {
-    this.filterResult(data => {
+    this.filterResult((data) => {
       return data.pageCount <= 1
     })
   }
 
   // 清除动图作品
   private clearUgoira = () => {
-    this.filterResult(data => {
+    this.filterResult((data) => {
       return !data.ugoiraInfo
     })
   }
@@ -700,7 +700,7 @@ class InitSearchArtworkPage extends InitPageBase {
     const el = event.detail.data as HTMLElement
     this.deleteId = parseInt(el.dataset.id!)
 
-    this.filterResult(data => {
+    this.filterResult((data) => {
       return data.idNum !== this.deleteId
     })
   }
@@ -719,7 +719,7 @@ class InitSearchArtworkPage extends InitPageBase {
       false,
       token.token,
     )
-    this.resultMeta.forEach(result => {
+    this.resultMeta.forEach((result) => {
       if (result.idNum === data.id) {
         result.bookmarked = true
       }

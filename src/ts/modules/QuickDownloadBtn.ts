@@ -38,7 +38,7 @@ class QuickDownloadBtn {
     // 使用快捷键 Alt + q 启动快速下载
     window.addEventListener(
       'keydown',
-      ev => {
+      (ev) => {
         if (this.live && ev.altKey && ev.code === 'KeyQ') {
           states.quickDownload = true
           EVT.fire(EVT.list.QuickDownload)

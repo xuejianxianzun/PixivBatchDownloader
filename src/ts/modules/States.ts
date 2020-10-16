@@ -39,7 +39,7 @@ class States {
       EVT.list.bookmarkModeEnd,
     ]
 
-    idle.forEach(type => {
+    idle.forEach((type) => {
       window.addEventListener(type, () => {
         this.busy = false
       })
@@ -51,7 +51,7 @@ class States {
       EVT.list.bookmarkModeStart,
     ]
 
-    busy.forEach(type => {
+    busy.forEach((type) => {
       window.addEventListener(type, () => {
         this.busy = true
       })

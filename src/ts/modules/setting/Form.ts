@@ -93,7 +93,7 @@ class Form {
 
     // 在选项卡的标题上触发事件时，激活对应的选项卡
     for (let index = 0; index < this.allTabTitle.length; index++) {
-      ;['click', 'mouseenter'].forEach(name => {
+      ;['click', 'mouseenter'].forEach((name) => {
         this.allTabTitle[index].addEventListener(name, () => {
           this.activeTab(index)
         })
@@ -167,7 +167,7 @@ class Form {
     )
     for (const el of centerInputs) {
       if (el.name !== 'userSetName') {
-        el.addEventListener('focus', function() {
+        el.addEventListener('focus', function () {
           this.select()
         })
       }

@@ -43,10 +43,10 @@ class Token {
 
     // 从网页源码里获取用户 token 并储存
     fetch(this.updateURL)
-      .then(response => {
+      .then((response) => {
         return response.text()
       })
-      .then(data => {
+      .then((data) => {
         const result = data.match(/token":"(\w+)"/)
         if (result) {
           this.token = result[1]

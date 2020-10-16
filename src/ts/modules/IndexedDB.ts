@@ -10,18 +10,18 @@ class IndexedDB {
     return new Promise<IDBDatabase>((resolve, reject) => {
       const request = indexedDB.open(DBName, DBVer)
 
-      request.onupgradeneeded = ev => {
+      request.onupgradeneeded = (ev) => {
         if (onUpgrade) {
           onUpgrade(request.result)
         }
       }
 
-      request.onsuccess = ev => {
+      request.onsuccess = (ev) => {
         this.db = request.result
         resolve(request.result)
       }
 
-      request.onerror = ev => {
+      request.onerror = (ev) => {
         console.error('open indexDB failed')
         reject(ev)
       }
@@ -39,10 +39,10 @@ class IndexedDB {
         .objectStore(storeNames)
         .add(data)
 
-      r.onsuccess = ev => {
+      r.onsuccess = (ev) => {
         resolve(ev)
       }
-      r.onerror = ev => {
+      r.onerror = (ev) => {
         console.error('add failed')
         reject(ev)
       }
@@ -60,14 +60,14 @@ class IndexedDB {
         .objectStore(storeNames)
         .getAll()
 
-      r.onsuccess = ev => {
+      r.onsuccess = (ev) => {
         const data = r.result
         if (data) {
           resolve(data)
         }
         resolve(null)
       }
-      r.onerror = ev => {
+      r.onerror = (ev) => {
         console.error('getAll failed')
         reject(ev)
       }
@@ -84,10 +84,10 @@ class IndexedDB {
         .transaction(storeNames, 'readwrite')
         .objectStore(storeNames)
         .put(data)
-      r.onsuccess = ev => {
+      r.onsuccess = (ev) => {
         resolve(ev)
       }
-      r.onerror = ev => {
+      r.onerror = (ev) => {
         console.error('put failed')
         reject(ev)
       }
@@ -114,7 +114,7 @@ class IndexedDB {
         r = store.get(key)
       }
 
-      r.onsuccess = ev => {
+      r.onsuccess = (ev) => {
         const data = r.result
         if (data) {
           resolve(data)
@@ -122,7 +122,7 @@ class IndexedDB {
         resolve(null)
       }
 
-      r.onerror = ev => {
+      r.onerror = (ev) => {
         console.error('add failed')
         reject(ev)
       }
@@ -140,10 +140,10 @@ class IndexedDB {
         .objectStore(storeNames)
         .delete(key)
 
-      r.onsuccess = ev => {
+      r.onsuccess = (ev) => {
         resolve(ev)
       }
-      r.onerror = ev => {
+      r.onerror = (ev) => {
         console.error('delete failed')
         reject(ev)
       }
@@ -161,10 +161,10 @@ class IndexedDB {
         .objectStore(storeNames)
         .clear()
 
-      r.onsuccess = ev => {
+      r.onsuccess = (ev) => {
         resolve()
       }
-      r.onerror = ev => {
+      r.onerror = (ev) => {
         console.error('clear failed')
         reject(ev)
       }
@@ -185,11 +185,11 @@ class IndexedDB {
         .objectStore(storeNames)
         .openCursor()
 
-      r.onsuccess = ev => {
+      r.onsuccess = (ev) => {
         CB(r.result)
         resolve() // 这个 resolve 会在 cb 执行一次之后就触发
       }
-      r.onerror = ev => {
+      r.onerror = (ev) => {
         console.error('openCursor failed')
         reject(ev)
       }

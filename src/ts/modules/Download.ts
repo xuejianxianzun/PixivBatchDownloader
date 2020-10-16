@@ -33,7 +33,7 @@ class Download {
   private sizeChecked = false // 是否对文件体积进行了检查
 
   private listenEvents() {
-    ;[EVT.list.downloadStop, EVT.list.downloadPause].forEach(event => {
+    ;[EVT.list.downloadStop, EVT.list.downloadPause].forEach((event) => {
       window.addEventListener(event, () => {
         this.cancel = true
       })
@@ -90,7 +90,7 @@ class Download {
     xhr.responseType = 'blob'
 
     // 显示下载进度
-    xhr.addEventListener('progress', async event => {
+    xhr.addEventListener('progress', async (event) => {
       // 检查体积设置
       if (!this.sizeChecked) {
         this.sizeChecked = true
