@@ -311,6 +311,7 @@ class InitSearchArtworkPage extends InitPageBase {
       }
 
       const filterOpt: FilterOption = {
+        createDate: nowData.createDate,
         id: nowData.id,
         width: nowData.width,
         height: nowData.height,
