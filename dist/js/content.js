@@ -140,29 +140,41 @@
         /* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./modules/DownloadControl */ './src/ts/modules/DownloadControl.ts',
         )
-        /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _modules_ListenPageSwitch__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./modules/ListenPageSwitch */ './src/ts/modules/ListenPageSwitch.ts',
+        )
+        /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./modules/Tip */ './src/ts/modules/Tip.ts',
         )
-        /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/ __webpack_require__.n(
-          _modules_Tip__WEBPACK_IMPORTED_MODULE_5__,
+        /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/ __webpack_require__.n(
+          _modules_Tip__WEBPACK_IMPORTED_MODULE_6__,
         )
-        /* harmony import */ var _modules_Output__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./modules/Output */ './src/ts/modules/Output.ts',
-        )
-        /* harmony import */ var _modules_Support__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./modules/Support */ './src/ts/modules/Support.ts',
-        )
-        /* harmony import */ var _modules_TitleBar__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+        /* harmony import */ var _modules_TitleBar__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./modules/TitleBar */ './src/ts/modules/TitleBar.ts',
         )
-        /* harmony import */ var _modules_OutputCSV__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ./modules/OutputCSV */ './src/ts/modules/OutputCSV.ts',
+        /* harmony import */ var _modules_output_OutputPanel__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+          /*! ./modules/output/OutputPanel */ './src/ts/modules/output/OutputPanel.ts',
         )
-        /* harmony import */ var _modules_OutputResult__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
-          /*! ./modules/OutputResult */ './src/ts/modules/OutputResult.ts',
+        /* harmony import */ var _modules_output_PreviewFileName__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+          /*! ./modules/output/PreviewFileName */ './src/ts/modules/output/PreviewFileName.ts',
         )
-        /* harmony import */ var _modules_OutputLST__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
-          /*! ./modules/OutputLST */ './src/ts/modules/OutputLST.ts',
+        /* harmony import */ var _modules_output_ShowURLs__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
+          /*! ./modules/output/ShowURLs */ './src/ts/modules/output/ShowURLs.ts',
+        )
+        /* harmony import */ var _modules_CheckNew__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
+          /*! ./modules/CheckNew */ './src/ts/modules/CheckNew.ts',
+        )
+        /* harmony import */ var _modules_ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
+          /*! ./modules/ShowWhatIsNew */ './src/ts/modules/ShowWhatIsNew.ts',
+        )
+        /* harmony import */ var _modules_ExportCSV__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
+          /*! ./modules/ExportCSV */ './src/ts/modules/ExportCSV.ts',
+        )
+        /* harmony import */ var _modules_ExportResult__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
+          /*! ./modules/ExportResult */ './src/ts/modules/ExportResult.ts',
+        )
+        /* harmony import */ var _modules_ExportLST__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
+          /*! ./modules/ExportLST */ './src/ts/modules/ExportLST.ts',
         )
         /*
          * project: Powerful Pixiv Downloader
@@ -175,6 +187,13 @@
          * E-mail:  xuejianxianzun@gmail.com
          * QQ group:  932980062
          */
+        // 处理和脚本版的冲突
+        {
+          // 标注自己
+          window.sessionStorage.setItem('xz_pixiv_extension', '1')
+          // 把脚本版的标记设置为 0，这样脚本版就不会运行
+          window.sessionStorage.setItem('xz_pixiv_userscript', '0')
+        }
 
         /***/
       },
@@ -1302,6 +1321,64 @@
         /***/
       },
 
+    /***/ './src/ts/modules/CheckNew.ts':
+      /*!************************************!*\
+  !*** ./src/ts/modules/CheckNew.ts ***!
+  \************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./EVT */ './src/ts/modules/EVT.ts',
+        )
+
+        // 检查新版本
+        class CheckNew {
+          constructor() {
+            this.checkNew()
+          }
+          async checkNew() {
+            // 读取上一次检查的时间，如果超过指定的时间，则检查 GitHub 上的信息
+            const timeName = 'xzUpdateTime'
+            const verName = 'xzGithubVer'
+            const interval = 1000 * 60 * 30 // 30 分钟检查一次
+            const lastTime = localStorage.getItem(timeName)
+            if (
+              !lastTime ||
+              new Date().getTime() - parseInt(lastTime) > interval
+            ) {
+              // 获取最新的 releases 信息
+              const latest = await fetch(
+                'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest',
+              )
+              const latestJson = await latest.json()
+              const latestVer = latestJson.name
+              // 保存 GitHub 上的版本信息
+              localStorage.setItem(verName, latestVer)
+              // 保存本次检查的时间戳
+              localStorage.setItem(timeName, new Date().getTime().toString())
+            }
+            // 获取本地扩展的版本号
+            const manifest = await fetch(
+              chrome.extension.getURL('manifest.json'),
+            )
+            const manifestJson = await manifest.json()
+            const manifestVer = manifestJson.version
+            // 比较大小
+            const latestVer = localStorage.getItem(verName)
+            if (latestVer && manifestVer < latestVer) {
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+                _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.hasNewVer,
+              )
+            }
+          }
+        }
+        new CheckNew()
+
+        /***/
+      },
+
     /***/ './src/ts/modules/Colors.ts':
       /*!**********************************!*\
   !*** ./src/ts/modules/Colors.ts ***!
@@ -1340,7 +1417,6 @@
           outputMax: 5000,
           downloadThreadMax: 10,
           illustTypes: ['illustration', 'manga', 'ugoira', 'novel'],
-          newTag: '_xzNew660',
         }
 
         /***/
@@ -2756,7 +2832,9 @@
             this.wrapper
               .querySelector('.copyUrl')
               .addEventListener('click', () => {
-                this.showURLs()
+                _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.showURLs,
+                )
               })
           }
           // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
@@ -3078,35 +3156,6 @@
             this.statesEl.textContent = text
             this.statesEl.style.color = color
           }
-          // 显示 url
-          showURLs() {
-            if (
-              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length === 0
-            ) {
-              return alert(
-                _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                  '_没有数据可供使用',
-                ),
-              )
-            }
-            const urls = []
-            const size =
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_6__['settings']
-                .imageSize
-            for (const result of _Store__WEBPACK_IMPORTED_MODULE_2__['store']
-              .result) {
-              urls.push(result[size])
-            }
-            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.output,
-              {
-                content: urls.join('<br>'),
-                title: _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                  '_复制url',
-                ),
-              },
-            )
-          }
           reset() {
             this.pause = false
             this.stop = false
@@ -3328,6 +3377,8 @@
           saveAvatarIcon: 'saveAvatarIcon',
           // 当需要预览文件名时触发
           previewFileName: 'previewFileName',
+          // 当需要预览 url 时触发
+          showURLs: 'showURLs',
           // 当需要输出面板输出内容时触发
           output: 'output',
           // 当设置表单里的设置项发生变化时触发
@@ -3339,6 +3390,384 @@
           // 批量收藏完成时触发
           bookmarkModeEnd: 'bookmarkModeEnd',
         }
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/ExportCSV.ts':
+      /*!*************************************!*\
+  !*** ./src/ts/modules/ExportCSV.ts ***!
+  \*************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./EVT */ './src/ts/modules/EVT.ts',
+        )
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts',
+        )
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./API */ './src/ts/modules/API.ts',
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./Lang */ './src/ts/modules/Lang.ts',
+        )
+        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./Config */ './src/ts/modules/Config.ts',
+        )
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./Store */ './src/ts/modules/Store.ts',
+        )
+        /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ./FileName */ './src/ts/modules/FileName.ts',
+        )
+
+        // name 这个字段在 csv 里显示的名字。
+        // index 这个字段在数据里的索引名
+        // toString 输入这个字段的原始数据，将其转换为字符串。
+        // q 指 quotation ，指示 toString 的结果是否需要使用双引号包裹
+        // 需要双引号包裹的情况：值含有逗号、换行符、空格、双引号
+        // 导出 csv 文件
+        // 参考 https://www.jianshu.com/p/54b3afc06126
+        class ExportCSV {
+          constructor() {
+            this.separate = ',' // 分隔符
+            this.CRLF = '\r\n' // 换行符
+            this.number2String = (arg) => {
+              return arg.toString()
+            }
+            this.array2String = (arg) => {
+              return arg.join(',')
+            }
+            this.string2String = (arg) => {
+              return arg
+            }
+            this.getFileName = (arg) => {
+              return _FileName__WEBPACK_IMPORTED_MODULE_6__[
+                'fileName'
+              ].getFileName(arg)
+            }
+            // 定义要保存的字段
+            this.fieldCfg = [
+              {
+                name: 'id',
+                index: 'idNum',
+                q: false,
+                toString: this.number2String,
+              },
+              {
+                name: 'tags',
+                index: 'tags',
+                q: true,
+                toString: this.array2String,
+              },
+              {
+                name: 'tags_transl',
+                index: 'tagsTranslOnly',
+                q: true,
+                toString: this.array2String,
+              },
+              {
+                name: 'user',
+                index: 'user',
+                q: true,
+                toString: this.string2String,
+              },
+              {
+                name: 'userid',
+                index: 'userId',
+                q: false,
+                toString: this.string2String,
+              },
+              {
+                name: 'title',
+                index: 'title',
+                q: true,
+                toString: this.string2String,
+              },
+              {
+                name: 'type',
+                index: 'type',
+                q: false,
+                toString: (arg) => {
+                  return _Config__WEBPACK_IMPORTED_MODULE_4__['default']
+                    .illustTypes[arg]
+                },
+              },
+              {
+                name: 'page',
+                index: 'pageCount',
+                q: false,
+                toString: this.number2String,
+              },
+              {
+                name: 'bookmark',
+                index: 'bmk',
+                q: false,
+                toString: this.number2String,
+              },
+              {
+                name: 'bookmarked',
+                index: 'bookmarked',
+                q: false,
+                toString: (arg) => {
+                  return arg ? 'yes' : 'no'
+                },
+              },
+              {
+                name: 'width',
+                index: 'fullWidth',
+                q: false,
+                toString: this.number2String,
+              },
+              {
+                name: 'height',
+                index: 'fullHeight',
+                q: false,
+                toString: this.number2String,
+              },
+              {
+                name: 'date',
+                index: 'date',
+                q: false,
+                toString: this.string2String,
+              },
+              {
+                name: 'original',
+                index: 'original',
+                q: false,
+                toString: this.string2String,
+              },
+              {
+                name: 'fileName',
+                index: 'title',
+                q: true,
+                toString: this.getFileName,
+              },
+            ]
+            this.utf8BOM = this.UTF8BOM()
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.outputCSV,
+              () => {
+                this.beforeCreate()
+              },
+            )
+          }
+          // fileName 字段的 index 属性可以随便写，因为没有影响。
+          beforeCreate() {
+            // 如果没有数据则不执行
+            if (
+              _Store__WEBPACK_IMPORTED_MODULE_5__['store'].result.length === 0
+            ) {
+              alert(
+                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+                  '_没有数据可供使用',
+                ),
+              )
+              return
+            }
+            // 使用 result 而不使用 resultMeta。主要是因为断点续传时只会恢复 result，不会恢复 resultMeta，所以 result 最可靠。考虑如下情况：
+            // 1：刷新页面后，断点续传恢复了保存的数据，此时只有 result 里有数据，resultMeta 没有数据。
+            // 2: 如果在页面 A 进行了下载，resultMeta 保存的是页面 A 的数据。此时进入页面 B，恢复了 B 页面保存的任务，此时 resultMeta 里还是页面 A 的数据。
+            // 所以还是使用 result 比较可靠，不易出问题。
+            this.create(_Store__WEBPACK_IMPORTED_MODULE_5__['store'].result)
+          }
+          create(data) {
+            const result = [] // 储存结果。每行的结果合并为一个字符串。不带换行符
+            // 首先添加字段一栏
+            const head = []
+            for (const field of this.fieldCfg) {
+              head.push(field.name)
+            }
+            const headResult = head.join(this.separate)
+            result.push(headResult)
+            // 循环每个作品的数据，生成结果
+            for (const d of data) {
+              // 如果是多图作品，并且不是第一张图，则跳过
+              // 这是因为多图作品可能有多个数据。在生成 csv 时只使用第一张图的数据
+              // 多图作品 && id 不以 p0 结尾（说明不是第一张图）
+              if (d.pageCount > 1 && !d.id.endsWith('p0')) {
+                continue
+              }
+              const temp = [] // 储存这个作品的数据
+              // 生成每个字段的结果
+              for (const field of this.fieldCfg) {
+                // 设置生成结果所使用的数据。fileName 需要使用整个作品数据。其他字段则取出对应的属性
+                let originalData =
+                  field.name === 'fileName' ? d : d[field.index]
+                if (originalData === undefined) {
+                  // 如果某个字段使用的属性在旧版本的数据里不存在性，就会是 undefined
+                  // 例如 original 属性在 7.6.0 版本以前不存在，现在使用了这个字段。如果下载器有保存旧版本的断点续传数据，那么获取 original 就是 undefined，需要进行处理。
+                  originalData = ''
+                }
+                // 求值并替换双引号。值原本就有的双引号，要替换成两个双引号
+                let value = field.toString(originalData).replace(/\"/g, '""')
+                // 根据 q 标记决定是否用双引号包裹这个值
+                if (field.q) {
+                  value = this.addQuotation(value)
+                }
+                temp.push(value)
+              }
+              // 把这个作品的数据添加到结果里
+              result.push(temp.join(this.separate))
+            }
+            // 生成文件的 url
+            const csvData = result.join(this.CRLF)
+            const csvBlob = new Blob([this.utf8BOM, csvData])
+            const url = URL.createObjectURL(csvBlob)
+            // 设置文件名
+            let name = ''
+            const ogTitle = document.querySelector('meta[property="og:title"]')
+            if (ogTitle) {
+              name = ogTitle.content
+            } else {
+              name = _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].getTitle()
+            }
+            // 下载文件
+            _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].downloadFile(
+              url,
+              _API__WEBPACK_IMPORTED_MODULE_2__['API'].replaceUnsafeStr(name) +
+                '.csv',
+            )
+          }
+          UTF8BOM() {
+            const buff = new ArrayBuffer(3)
+            const data = new DataView(buff)
+            data.setInt8(0, 0xef)
+            data.setInt8(1, 0xbb)
+            data.setInt8(2, 0xbf)
+            return buff
+          }
+          // 在字符串的两端添加双引号
+          addQuotation(data) {
+            return '"' + data + '"'
+          }
+        }
+        new ExportCSV()
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/ExportLST.ts':
+      /*!*************************************!*\
+  !*** ./src/ts/modules/ExportLST.ts ***!
+  \*************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts',
+        )
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./Store */ './src/ts/modules/Store.ts',
+        )
+        /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./FileName */ './src/ts/modules/FileName.ts',
+        )
+
+        // 输出 lst 文件
+        class ExportLST {
+          constructor() {
+            this.separate = '?/' // 分隔符
+            this.CRLF = '\r\n' // 换行符
+            this.bindEvent()
+          }
+          bindEvent() {
+            window.addEventListener(
+              'keydown',
+              (ev) => {
+                if (ev.altKey && ev.code === 'KeyL') {
+                  this.createLst()
+                }
+              },
+              false,
+            )
+          }
+          createLst() {
+            if (
+              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length === 0
+            ) {
+              return window.alert('现在没有抓取结果可以输出')
+            }
+            const array = []
+            for (const data of _Store__WEBPACK_IMPORTED_MODULE_1__['store']
+              .result) {
+              array.push(
+                data.original +
+                  this.separate +
+                  _FileName__WEBPACK_IMPORTED_MODULE_2__[
+                    'fileName'
+                  ].getFileName(data),
+              )
+            }
+            const result = array.join(this.CRLF)
+            const blob = new Blob([result])
+            const url = URL.createObjectURL(blob)
+            const name =
+              _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].getTitle() + '.lst'
+            _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].downloadFile(url, name)
+          }
+        }
+        new ExportLST()
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/ExportResult.ts':
+      /*!****************************************!*\
+  !*** ./src/ts/modules/ExportResult.ts ***!
+  \****************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./API */ './src/ts/modules/API.ts',
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./EVT */ './src/ts/modules/EVT.ts',
+        )
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts',
+        )
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./Store */ './src/ts/modules/Store.ts',
+        )
+
+        class ExportResult {
+          constructor() {
+            this.bindEvents()
+          }
+          bindEvents() {
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.outputResult,
+              () => {
+                this.output()
+              },
+            )
+          }
+          output() {
+            const str = JSON.stringify(
+              _Store__WEBPACK_IMPORTED_MODULE_3__['store'].result,
+              null,
+              2,
+            )
+            const blob = new Blob([str], { type: 'application/json' })
+            const url = URL.createObjectURL(blob)
+            _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM'].downloadFile(
+              url,
+              `result-${_API__WEBPACK_IMPORTED_MODULE_0__[
+                'API'
+              ].replaceUnsafeStr(
+                _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM'].getTitle(),
+              )}-${new Date().getTime()}.json`,
+            )
+          }
+        }
+        new ExportResult()
 
         /***/
       },
@@ -3463,53 +3892,40 @@
             return fileName
           },
         )
-        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
-        )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./API */ './src/ts/modules/API.ts',
         )
-        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
-        )
-        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts',
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts',
         )
-        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Config */ './src/ts/modules/Config.ts',
         )
-        /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+        /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./States */ './src/ts/modules/States.ts',
         )
         // 生成文件名
 
         class FileName {
-          constructor() {
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.previewFileName,
-              () => {
-                this.previewFileName()
-              },
-            )
-          }
+          constructor() {}
           // 生成文件名
           getFileName(data) {
             // 为空时使用 {id}
             let result =
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
                 .userSetName || '{id}'
             // 配置所有命名标记
             const cfg = {
               '{p_title}': {
-                value: _Store__WEBPACK_IMPORTED_MODULE_4__['store'].title,
+                value: _Store__WEBPACK_IMPORTED_MODULE_2__['store'].title,
                 prefix: '',
                 safe: false,
               },
               '{p_tag}': {
-                value: _Store__WEBPACK_IMPORTED_MODULE_4__['store'].tag,
+                value: _Store__WEBPACK_IMPORTED_MODULE_2__['store'].tag,
                 prefix: '',
                 safe: false,
               },
@@ -3591,7 +4007,7 @@
               },
               '{type}': {
                 value:
-                  _Config__WEBPACK_IMPORTED_MODULE_5__['default'].illustTypes[
+                  _Config__WEBPACK_IMPORTED_MODULE_3__['default'].illustTypes[
                     data.type
                   ],
                 prefix: '',
@@ -3609,7 +4025,7 @@
               },
             }
             // 替换命名规则里的特殊字符
-            result = _API__WEBPACK_IMPORTED_MODULE_1__['API'].replaceUnsafeStr(
+            result = _API__WEBPACK_IMPORTED_MODULE_0__['API'].replaceUnsafeStr(
               result,
             )
             // 上一步会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
@@ -3617,7 +4033,7 @@
             // 判断这个作品是否要去掉序号
             const noSerialNo =
               cfg['{p_num}'].value === 0 &&
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
                 .noSerialNo
             // 把命名规则的标记替换成实际值
             for (const [key, val] of Object.entries(cfg)) {
@@ -3632,13 +4048,13 @@
                 let once = String(val.value)
                 // 处理标记值中的特殊字符
                 if (!val.safe) {
-                  once = _API__WEBPACK_IMPORTED_MODULE_1__[
+                  once = _API__WEBPACK_IMPORTED_MODULE_0__[
                     'API'
                   ].replaceUnsafeStr(once)
                 }
                 // 添加标记名称
                 if (
-                  _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
                     .tagNameToFileName
                 ) {
                   once = val.prefix + once
@@ -3668,10 +4084,10 @@
             }
             // 如果快速下载时只有一个文件，根据“始终建立文件夹”选项，决定是否去掉文件夹部分
             if (
-              _States__WEBPACK_IMPORTED_MODULE_6__['states'].quickDownload &&
-              _Store__WEBPACK_IMPORTED_MODULE_4__['store'].result.length ===
+              _States__WEBPACK_IMPORTED_MODULE_4__['states'].quickDownload &&
+              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length ===
                 1 &&
-              !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
                 .alwaysFolder
             ) {
               const index = result.lastIndexOf('/')
@@ -3680,7 +4096,7 @@
             // 处理为多图作品自动建立文件夹的情况
             // 多图作品如果只下载前 1 张，不会为它自动建立文件夹。大于 1 张才会自动建立文件夹
             if (
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
                 .multipleImageDir &&
               data.dlCount > 1
             ) {
@@ -3690,13 +4106,13 @@
               let lastPart = allPart[lastPartIndex]
               let addString = ''
               if (
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
                   .multipleImageFolderName === '1'
               ) {
                 // 使用作品 id 作为文件夹名
                 addString = data.idNum.toString()
               } else if (
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
                   .multipleImageFolderName === '2'
               ) {
                 // 遵从命名规则，使用文件名做文件夹名
@@ -3714,7 +4130,7 @@
               // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
               // 例如，抓取时动图保存格式是 webm，下载开始前，用户改成了 gif，在这里可以响应用户的修改
               data.ext =
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__[
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_1__[
                   'settings'
                 ].ugoiraSaveAs
             }
@@ -3723,11 +4139,11 @@
             // 去掉文件夹部分，只处理 文件名+后缀名 部分
             // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
             if (
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
                 .fileNameLengthLimitSwitch
             ) {
               let limit = Number.parseInt(
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
                   .fileNameLengthLimit,
               )
               if (limit < 1 || isNaN(limit)) {
@@ -3746,64 +4162,6 @@
             // 添加后缀名
             result += extResult
             return result
-          }
-          // 预览文件名
-          previewFileName() {
-            if (
-              _Store__WEBPACK_IMPORTED_MODULE_4__['store'].result.length === 0
-            ) {
-              return alert(
-                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_没有数据可供使用',
-                ),
-              )
-            }
-            // 使用数组储存和拼接字符串，提高性能
-            const resultArr = []
-            const length =
-              _Store__WEBPACK_IMPORTED_MODULE_4__['store'].result.length
-            for (let i = 0; i < length; i++) {
-              const data =
-                _Store__WEBPACK_IMPORTED_MODULE_4__['store'].result[i]
-              // 为默认文件名添加颜色。默认文件名有两种处理方式，一种是取出用其他下载软件下载后的默认文件名，一种是取出本程序使用的默认文件名 data.id。这里使用前者，方便用户用其他下载软件下载后，再用生成的文件名重命名。
-              const defaultName = data.original.replace(/.*\//, '')
-              const fullName = this.getFileName(data)
-              let nowResult = `${defaultName}: ${fullName}<br>`
-              if (
-                length <
-                _Config__WEBPACK_IMPORTED_MODULE_5__['default'].outputMax
-              ) {
-                // 为生成的文件名添加颜色。只有当文件数量少于一定数值时才添加颜色。这是因为添加颜色会导致生成的 HTML 元素数量增多，复制时资源占用增加。有些用户电脑配置差，如果生成的结果很多，还添加了颜色，可能复制时会导致这个页面卡死。
-                const defaultNameHtml = `<span class="color999">${defaultName}</span>`
-                const part = fullName.split('/')
-                const length = part.length
-                for (let i = 0; i < length; i++) {
-                  const str = part[i]
-                  if (i < length - 1) {
-                    // 如果不是最后一项，说明是文件夹名，添加颜色
-                    part[i] = `<span class="color666">${str}</span>`
-                  } else {
-                    // 最后一项，是文件名，添加颜色
-                    part[i] = `<span class="color000">${str}</span>`
-                  }
-                }
-                const fullNameHtml = part.join('/')
-                nowResult = `<p class="result">${defaultNameHtml}: ${fullNameHtml}</p>`
-              }
-              // 保存本条结果
-              resultArr.push(nowResult)
-            }
-            // 拼接所有结果
-            const result = resultArr.join('')
-            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.output,
-              {
-                content: result,
-                title: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_预览文件名',
-                ),
-              },
-            )
           }
         }
         const fileName = new FileName()
@@ -7692,6 +8050,60 @@
         /***/
       },
 
+    /***/ './src/ts/modules/ListenPageSwitch.ts':
+      /*!********************************************!*\
+  !*** ./src/ts/modules/ListenPageSwitch.ts ***!
+  \********************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./EVT */ './src/ts/modules/EVT.ts',
+        )
+
+        // 监听页面的无刷新切换
+        class ListenPageSwitch {
+          constructor() {
+            this.supportListenHistory()
+            this.listenPageSwitch()
+          }
+          // 为监听 history 的事件提供支持
+          supportListenHistory() {
+            const element = document.createElement('script')
+            element.setAttribute('type', 'text/javascript')
+            element.innerHTML = `
+    let _wr = function (type) {
+      let orig = history[type];
+      return function () {
+        let rv = orig.apply(this, arguments);
+        let e = new Event(type);
+        e.arguments = arguments;
+        window.dispatchEvent(e);
+        return rv;
+      };
+    };
+    history.pushState = _wr('pushState');
+    history.replaceState = _wr('replaceState');
+    `
+            document.head.appendChild(element)
+          }
+          // 无刷新切换页面时派发事件
+          listenPageSwitch() {
+            ;['pushState', 'popstate', 'replaceState'].forEach((item) => {
+              window.addEventListener(item, () => {
+                _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.pageSwitch,
+                )
+              })
+            })
+          }
+        }
+        new ListenPageSwitch()
+
+        /***/
+      },
+
     /***/ './src/ts/modules/Log.ts':
       /*!*******************************!*\
   !*** ./src/ts/modules/Log.ts ***!
@@ -7810,537 +8222,6 @@
           }
         }
         const log = new Log()
-
-        /***/
-      },
-
-    /***/ './src/ts/modules/Output.ts':
-      /*!**********************************!*\
-  !*** ./src/ts/modules/Output.ts ***!
-  \**********************************/
-      /*! no exports provided */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
-        )
-        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
-        )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
-        )
-        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
-        )
-        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./Config */ './src/ts/modules/Config.ts',
-        )
-        /* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./ThemeColor */ './src/ts/modules/ThemeColor.ts',
-        )
-
-        // 输出面板
-        class Output {
-          constructor() {
-            this.addOutPutPanel()
-            _ThemeColor__WEBPACK_IMPORTED_MODULE_5__['themeColor'].register(
-              this.outputPanel,
-            )
-            this.bindEvent()
-          }
-          addOutPutPanel() {
-            const outputPanelHTML = `
-    <div class="outputWrap">
-    <div class="outputClose" title="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
-      'lang'
-    ].transl('_关闭')}">X</div>
-    <div class="outputTitle">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
-      'lang'
-    ].transl('_输出信息')}</div>
-    <div class="outputContent beautify_scrollbar"></div>
-    <div class="outputFooter">
-    <button class="outputCopy" title="">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
-      'lang'
-    ].transl('_复制')}</button>
-    </div>
-    </div>
-    `
-            document.body.insertAdjacentHTML('beforeend', outputPanelHTML)
-            this.outputPanel = document.querySelector('.outputWrap')
-            this.outputTitle = this.outputPanel.querySelector('.outputTitle')
-            this.outputContent = this.outputPanel.querySelector(
-              '.outputContent',
-            )
-            this.copyBtn = this.outputPanel.querySelector('.outputCopy')
-            this.closeBtn = this.outputPanel.querySelector('.outputClose')
-          }
-          // 关闭输出面板
-          close() {
-            this.outputPanel.style.display = 'none'
-            this.outputContent.innerHTML = ''
-          }
-          bindEvent() {
-            this.closeBtn.addEventListener('click', () => {
-              this.close()
-            })
-            this.outputPanel.addEventListener('click', (e) => {
-              const ev = e || window.event
-              ev.stopPropagation()
-            })
-            document.addEventListener('click', () => {
-              if (this.outputPanel.style.display !== 'none') {
-                this.close()
-              }
-            })
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.closeCenterPanel,
-              () => {
-                this.close()
-              },
-            )
-            // 复制输出内容
-            this.copyBtn.addEventListener('click', () => {
-              const range = document.createRange()
-              range.selectNodeContents(this.outputContent)
-              window.getSelection().removeAllRanges()
-              window.getSelection().addRange(range)
-              document.execCommand('copy')
-              // 改变提示文字
-              this.copyBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__[
-                'lang'
-              ].transl('_已复制到剪贴板')
-              setTimeout(() => {
-                window.getSelection().removeAllRanges()
-                this.copyBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__[
-                  'lang'
-                ].transl('_复制')
-              }, 1000)
-            })
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.output,
-              (ev) => {
-                this.output(ev.detail.data.content, ev.detail.data.title)
-              },
-            )
-          }
-          // 输出内容
-          output(
-            content,
-            title = _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-              '_输出信息',
-            ),
-          ) {
-            // 如果结果较多，则不直接输出，改为保存 txt 文件
-            if (
-              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length >
-              _Config__WEBPACK_IMPORTED_MODULE_4__['default'].outputMax
-            ) {
-              const con = content.replace(/<br>/g, '\n') // 替换换行符
-              const file = new Blob([con], {
-                type: 'text/plain',
-              })
-              const url = URL.createObjectURL(file)
-              const fileName = new Date().toLocaleString() + '.txt'
-              _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM'].downloadFile(
-                url,
-                fileName,
-              )
-              // 禁用复制按钮
-              this.copyBtn.disabled = true
-              content = _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                '_输出内容太多已经为你保存到文件',
-              )
-            } else {
-              this.copyBtn.disabled = false
-            }
-            if (content) {
-              this.outputContent.innerHTML = content
-              this.outputPanel.style.display = 'block'
-              this.outputTitle.textContent = title
-            }
-          }
-        }
-        new Output()
-
-        /***/
-      },
-
-    /***/ './src/ts/modules/OutputCSV.ts':
-      /*!*************************************!*\
-  !*** ./src/ts/modules/OutputCSV.ts ***!
-  \*************************************/
-      /*! no exports provided */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
-        )
-        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
-        )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
-        )
-        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
-        )
-        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./Config */ './src/ts/modules/Config.ts',
-        )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
-        )
-        /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./FileName */ './src/ts/modules/FileName.ts',
-        )
-
-        // name 这个字段在 csv 里显示的名字。
-        // index 这个字段在数据里的索引名
-        // toString 输入这个字段的原始数据，将其转换为字符串。
-        // q 指 quotation ，指示 toString 的结果是否需要使用双引号包裹
-        // 需要双引号包裹的情况：值含有逗号、换行符、空格、双引号
-        // 导出 csv 文件
-        // 参考 https://www.jianshu.com/p/54b3afc06126
-        class OutputCSV {
-          constructor() {
-            this.separate = ',' // 分隔符
-            this.CRLF = '\r\n' // 换行符
-            this.number2String = (arg) => {
-              return arg.toString()
-            }
-            this.array2String = (arg) => {
-              return arg.join(',')
-            }
-            this.string2String = (arg) => {
-              return arg
-            }
-            this.getFileName = (arg) => {
-              return _FileName__WEBPACK_IMPORTED_MODULE_6__[
-                'fileName'
-              ].getFileName(arg)
-            }
-            // 定义要保存的字段
-            this.fieldCfg = [
-              {
-                name: 'id',
-                index: 'idNum',
-                q: false,
-                toString: this.number2String,
-              },
-              {
-                name: 'tags',
-                index: 'tags',
-                q: true,
-                toString: this.array2String,
-              },
-              {
-                name: 'tags_transl',
-                index: 'tagsTranslOnly',
-                q: true,
-                toString: this.array2String,
-              },
-              {
-                name: 'user',
-                index: 'user',
-                q: true,
-                toString: this.string2String,
-              },
-              {
-                name: 'userid',
-                index: 'userId',
-                q: false,
-                toString: this.string2String,
-              },
-              {
-                name: 'title',
-                index: 'title',
-                q: true,
-                toString: this.string2String,
-              },
-              {
-                name: 'type',
-                index: 'type',
-                q: false,
-                toString: (arg) => {
-                  return _Config__WEBPACK_IMPORTED_MODULE_4__['default']
-                    .illustTypes[arg]
-                },
-              },
-              {
-                name: 'page',
-                index: 'pageCount',
-                q: false,
-                toString: this.number2String,
-              },
-              {
-                name: 'bookmark',
-                index: 'bmk',
-                q: false,
-                toString: this.number2String,
-              },
-              {
-                name: 'bookmarked',
-                index: 'bookmarked',
-                q: false,
-                toString: (arg) => {
-                  return arg ? 'yes' : 'no'
-                },
-              },
-              {
-                name: 'width',
-                index: 'fullWidth',
-                q: false,
-                toString: this.number2String,
-              },
-              {
-                name: 'height',
-                index: 'fullHeight',
-                q: false,
-                toString: this.number2String,
-              },
-              {
-                name: 'date',
-                index: 'date',
-                q: false,
-                toString: this.string2String,
-              },
-              {
-                name: 'original',
-                index: 'original',
-                q: false,
-                toString: this.string2String,
-              },
-              {
-                name: 'fileName',
-                index: 'title',
-                q: true,
-                toString: this.getFileName,
-              },
-            ]
-            this.utf8BOM = this.UTF8BOM()
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.outputCSV,
-              () => {
-                this.beforeCreate()
-              },
-            )
-          }
-          // fileName 字段的 index 属性可以随便写，因为没有影响。
-          beforeCreate() {
-            // 如果没有数据则不执行
-            if (
-              _Store__WEBPACK_IMPORTED_MODULE_5__['store'].result.length === 0
-            ) {
-              alert(
-                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_没有数据可供使用',
-                ),
-              )
-              return
-            }
-            // 使用 result 而不使用 resultMeta。主要是因为断点续传时只会恢复 result，不会恢复 resultMeta，所以 result 最可靠。考虑如下情况：
-            // 1：刷新页面后，断点续传恢复了保存的数据，此时只有 result 里有数据，resultMeta 没有数据。
-            // 2: 如果在页面 A 进行了下载，resultMeta 保存的是页面 A 的数据。此时进入页面 B，恢复了 B 页面保存的任务，此时 resultMeta 里还是页面 A 的数据。
-            // 所以还是使用 result 比较可靠，不易出问题。
-            this.create(_Store__WEBPACK_IMPORTED_MODULE_5__['store'].result)
-          }
-          create(data) {
-            const result = [] // 储存结果。每行的结果合并为一个字符串。不带换行符
-            // 首先添加字段一栏
-            const head = []
-            for (const field of this.fieldCfg) {
-              head.push(field.name)
-            }
-            const headResult = head.join(this.separate)
-            result.push(headResult)
-            // 循环每个作品的数据，生成结果
-            for (const d of data) {
-              // 如果是多图作品，并且不是第一张图，则跳过
-              // 这是因为多图作品可能有多个数据。在生成 csv 时只使用第一张图的数据
-              // 多图作品 && id 不以 p0 结尾（说明不是第一张图）
-              if (d.pageCount > 1 && !d.id.endsWith('p0')) {
-                continue
-              }
-              const temp = [] // 储存这个作品的数据
-              // 生成每个字段的结果
-              for (const field of this.fieldCfg) {
-                // 设置生成结果所使用的数据。fileName 需要使用整个作品数据。其他字段则取出对应的属性
-                let originalData =
-                  field.name === 'fileName' ? d : d[field.index]
-                if (originalData === undefined) {
-                  // 如果某个字段使用的属性在旧版本的数据里不存在性，就会是 undefined
-                  // 例如 original 属性在 7.6.0 版本以前不存在，现在使用了这个字段。如果下载器有保存旧版本的断点续传数据，那么获取 original 就是 undefined，需要进行处理。
-                  originalData = ''
-                }
-                // 求值并替换双引号。值原本就有的双引号，要替换成两个双引号
-                let value = field.toString(originalData).replace(/\"/g, '""')
-                // 根据 q 标记决定是否用双引号包裹这个值
-                if (field.q) {
-                  value = this.addQuotation(value)
-                }
-                temp.push(value)
-              }
-              // 把这个作品的数据添加到结果里
-              result.push(temp.join(this.separate))
-            }
-            // 生成文件的 url
-            const csvData = result.join(this.CRLF)
-            const csvBlob = new Blob([this.utf8BOM, csvData])
-            const url = URL.createObjectURL(csvBlob)
-            // 设置文件名
-            let name = ''
-            const ogTitle = document.querySelector('meta[property="og:title"]')
-            if (ogTitle) {
-              name = ogTitle.content
-            } else {
-              name = _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].getTitle()
-            }
-            // 下载文件
-            _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].downloadFile(
-              url,
-              _API__WEBPACK_IMPORTED_MODULE_2__['API'].replaceUnsafeStr(name) +
-                '.csv',
-            )
-          }
-          UTF8BOM() {
-            const buff = new ArrayBuffer(3)
-            const data = new DataView(buff)
-            data.setInt8(0, 0xef)
-            data.setInt8(1, 0xbb)
-            data.setInt8(2, 0xbf)
-            return buff
-          }
-          // 在字符串的两端添加双引号
-          addQuotation(data) {
-            return '"' + data + '"'
-          }
-        }
-        new OutputCSV()
-
-        /***/
-      },
-
-    /***/ './src/ts/modules/OutputLST.ts':
-      /*!*************************************!*\
-  !*** ./src/ts/modules/OutputLST.ts ***!
-  \*************************************/
-      /*! no exports provided */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
-        )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
-        )
-        /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./FileName */ './src/ts/modules/FileName.ts',
-        )
-
-        // 输出 lst 文件
-        class OutputLST {
-          constructor() {
-            this.separate = '?/' // 分隔符
-            this.CRLF = '\r\n' // 换行符
-            this.bindEvent()
-          }
-          bindEvent() {
-            window.addEventListener(
-              'keydown',
-              (ev) => {
-                if (ev.altKey && ev.code === 'KeyL') {
-                  this.createLst()
-                }
-              },
-              false,
-            )
-          }
-          createLst() {
-            if (
-              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length === 0
-            ) {
-              return window.alert('现在没有抓取结果可以输出')
-            }
-            const array = []
-            for (const data of _Store__WEBPACK_IMPORTED_MODULE_1__['store']
-              .result) {
-              array.push(
-                data.original +
-                  this.separate +
-                  _FileName__WEBPACK_IMPORTED_MODULE_2__[
-                    'fileName'
-                  ].getFileName(data),
-              )
-            }
-            const result = array.join(this.CRLF)
-            const blob = new Blob([result])
-            const url = URL.createObjectURL(blob)
-            const name =
-              _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].getTitle() + '.lst'
-            _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].downloadFile(url, name)
-          }
-        }
-        new OutputLST()
-
-        /***/
-      },
-
-    /***/ './src/ts/modules/OutputResult.ts':
-      /*!****************************************!*\
-  !*** ./src/ts/modules/OutputResult.ts ***!
-  \****************************************/
-      /*! no exports provided */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
-        )
-        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
-        )
-        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
-        )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
-        )
-
-        class OutputResult {
-          constructor() {
-            this.bindEvents()
-          }
-          bindEvents() {
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.outputResult,
-              () => {
-                this.output()
-              },
-            )
-          }
-          output() {
-            const str = JSON.stringify(
-              _Store__WEBPACK_IMPORTED_MODULE_3__['store'].result,
-              null,
-              2,
-            )
-            const blob = new Blob([str], { type: 'application/json' })
-            const url = URL.createObjectURL(blob)
-            _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM'].downloadFile(
-              url,
-              `result-${_API__WEBPACK_IMPORTED_MODULE_0__[
-                'API'
-              ].replaceUnsafeStr(
-                _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM'].getTitle(),
-              )}-${new Date().getTime()}.json`,
-            )
-          }
-        }
-        new OutputResult()
 
         /***/
       },
@@ -9584,6 +9465,59 @@
         /***/
       },
 
+    /***/ './src/ts/modules/ShowWhatIsNew.ts':
+      /*!*****************************************!*\
+  !*** ./src/ts/modules/ShowWhatIsNew.ts ***!
+  \*****************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./Lang */ './src/ts/modules/Lang.ts',
+        )
+
+        // 显示最近更新内容
+        class ShowWhatIsNew {
+          constructor() {
+            this.newTag = '_xzNew660'
+            this.show()
+          }
+          show() {
+            const storeName = 'xzNewVerTag'
+            const value = localStorage.getItem(storeName)
+            if (
+              window.location.host.includes('pixiv.net') &&
+              value !== this.newTag
+            ) {
+              const whatIsNewHtml = `
+      <div class="xz_new">
+        <p class="title">Powerful Pixiv Downloader ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+          'lang'
+        ].transl('_最近更新')}</p>
+        <p class="content">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+          this.newTag,
+        )}</p>
+        <button class="btn">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+          '_确定',
+        )}</button>
+      </div>`
+              document.body.insertAdjacentHTML('afterbegin', whatIsNewHtml)
+              const whatIsNewEl = document.querySelector('.xz_new')
+              whatIsNewEl
+                .querySelector('.btn')
+                .addEventListener('click', () => {
+                  localStorage.setItem(storeName, this.newTag)
+                  whatIsNewEl.parentNode.removeChild(whatIsNewEl)
+                })
+            }
+          }
+        }
+        new ShowWhatIsNew()
+
+        /***/
+      },
+
     /***/ './src/ts/modules/States.ts':
       /*!**********************************!*\
   !*** ./src/ts/modules/States.ts ***!
@@ -9808,145 +9742,6 @@
           }
         }
         const store = new Store()
-
-        /***/
-      },
-
-    /***/ './src/ts/modules/Support.ts':
-      /*!***********************************!*\
-  !*** ./src/ts/modules/Support.ts ***!
-  \***********************************/
-      /*! no exports provided */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
-        )
-        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
-        )
-        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Config */ './src/ts/modules/Config.ts',
-        )
-
-        // 辅助功能
-        class Support {
-          constructor() {
-            this.checkConflict()
-            this.supportListenHistory()
-            this.listenPageSwitch()
-            this.checkNew()
-            this.showNew()
-          }
-          // 处理和脚本版的冲突
-          checkConflict() {
-            // 标注自己
-            window.sessionStorage.setItem('xz_pixiv_extension', '1')
-            // 把脚本版的标记设置为 0，这样脚本版就不会运行
-            window.sessionStorage.setItem('xz_pixiv_userscript', '0')
-          }
-          // 检查新版本
-          async checkNew() {
-            // 读取上一次检查的时间，如果超过指定的时间，则检查 GitHub 上的信息
-            const timeName = 'xzUpdateTime'
-            const verName = 'xzGithubVer'
-            const interval = 1000 * 60 * 30 // 30 分钟检查一次
-            const lastTime = localStorage.getItem(timeName)
-            if (
-              !lastTime ||
-              new Date().getTime() - parseInt(lastTime) > interval
-            ) {
-              // 获取最新的 releases 信息
-              const latest = await fetch(
-                'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest',
-              )
-              const latestJson = await latest.json()
-              const latestVer = latestJson.name
-              // 保存 GitHub 上的版本信息
-              localStorage.setItem(verName, latestVer)
-              // 保存本次检查的时间戳
-              localStorage.setItem(timeName, new Date().getTime().toString())
-            }
-            // 获取本地扩展的版本号
-            const manifest = await fetch(
-              chrome.extension.getURL('manifest.json'),
-            )
-            const manifestJson = await manifest.json()
-            const manifestVer = manifestJson.version
-            // 比较大小
-            const latestVer = localStorage.getItem(verName)
-            if (latestVer && manifestVer < latestVer) {
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.hasNewVer,
-              )
-            }
-          }
-          // 显示最近更新内容
-          showNew() {
-            const storeName = 'xzNewVerTag'
-            const newTag =
-              _Config__WEBPACK_IMPORTED_MODULE_2__['default'].newTag
-            const value = localStorage.getItem(storeName)
-            if (
-              window.location.host.includes('pixiv.net') &&
-              value !== newTag
-            ) {
-              const whatIsNewHtml = `
-      <div class="xz_new">
-        <p class="title">Powerful Pixiv Downloader ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-          'lang'
-        ].transl('_最近更新')}</p>
-        <p class="content">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-          newTag,
-        )}</p>
-        <button class="btn">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-          '_确定',
-        )}</button>
-      </div>`
-              document.body.insertAdjacentHTML('afterbegin', whatIsNewHtml)
-              const whatIsNewEl = document.querySelector('.xz_new')
-              whatIsNewEl
-                .querySelector('.btn')
-                .addEventListener('click', () => {
-                  localStorage.setItem(storeName, newTag)
-                  whatIsNewEl.parentNode.removeChild(whatIsNewEl)
-                })
-            }
-          }
-          // 使用无刷新加载的页面需要监听 url 的改变，这里为这些事件添加监听支持
-          supportListenHistory() {
-            const element = document.createElement('script')
-            element.setAttribute('type', 'text/javascript')
-            element.innerHTML = `
-    let _wr = function (type) {
-      let orig = history[type];
-      return function () {
-        let rv = orig.apply(this, arguments);
-        let e = new Event(type);
-        e.arguments = arguments;
-        window.dispatchEvent(e);
-        return rv;
-      };
-    };
-    history.pushState = _wr('pushState');
-    history.replaceState = _wr('replaceState');
-    `
-            document.head.appendChild(element)
-          }
-          // 监听页面的无刷新切换。某些页面可以无刷新切换，这时需要进行一些处理
-          listenPageSwitch() {
-            // 绑定无刷新切换页面的事件，只绑定一次
-            ;['pushState', 'popstate', 'replaceState'].forEach((item) => {
-              window.addEventListener(item, () => {
-                _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.pageSwitch,
-                )
-              })
-            })
-          }
-        }
-        new Support()
 
         /***/
       },
@@ -16003,6 +15798,329 @@ flag 及其含义如下：
           }
         }
         const saveNovelData = new SaveNovelData()
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/output/OutputPanel.ts':
+      /*!**********************************************!*\
+  !*** ./src/ts/modules/output/OutputPanel.ts ***!
+  \**********************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/modules/EVT.ts',
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../Lang */ './src/ts/modules/Lang.ts',
+        )
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../Store */ './src/ts/modules/Store.ts',
+        )
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../DOM */ './src/ts/modules/DOM.ts',
+        )
+        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../Config */ './src/ts/modules/Config.ts',
+        )
+        /* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../ThemeColor */ './src/ts/modules/ThemeColor.ts',
+        )
+
+        // 输出面板
+        class OutputPanel {
+          constructor() {
+            this.addOutPutPanel()
+            _ThemeColor__WEBPACK_IMPORTED_MODULE_5__['themeColor'].register(
+              this.outputPanel,
+            )
+            this.bindEvent()
+          }
+          bindEvent() {
+            this.closeBtn.addEventListener('click', () => {
+              this.close()
+            })
+            this.outputPanel.addEventListener('click', (e) => {
+              const ev = e || window.event
+              ev.stopPropagation()
+            })
+            document.addEventListener('click', () => {
+              if (this.outputPanel.style.display !== 'none') {
+                this.close()
+              }
+            })
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.closeCenterPanel,
+              () => {
+                this.close()
+              },
+            )
+            // 复制输出内容
+            this.copyBtn.addEventListener('click', () => {
+              const range = document.createRange()
+              range.selectNodeContents(this.outputContent)
+              window.getSelection().removeAllRanges()
+              window.getSelection().addRange(range)
+              document.execCommand('copy')
+              // 改变提示文字
+              this.copyBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__[
+                'lang'
+              ].transl('_已复制到剪贴板')
+              setTimeout(() => {
+                window.getSelection().removeAllRanges()
+                this.copyBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__[
+                  'lang'
+                ].transl('_复制')
+              }, 1000)
+            })
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.output,
+              (ev) => {
+                this.output(ev.detail.data.content, ev.detail.data.title)
+              },
+            )
+          }
+          addOutPutPanel() {
+            const outputPanelHTML = `
+    <div class="outputWrap">
+    <div class="outputClose" title="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+      'lang'
+    ].transl('_关闭')}">X</div>
+    <div class="outputTitle">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+      'lang'
+    ].transl('_输出信息')}</div>
+    <div class="outputContent beautify_scrollbar"></div>
+    <div class="outputFooter">
+    <button class="outputCopy" title="">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+      'lang'
+    ].transl('_复制')}</button>
+    </div>
+    </div>
+    `
+            document.body.insertAdjacentHTML('beforeend', outputPanelHTML)
+            this.outputPanel = document.querySelector('.outputWrap')
+            this.outputTitle = this.outputPanel.querySelector('.outputTitle')
+            this.outputContent = this.outputPanel.querySelector(
+              '.outputContent',
+            )
+            this.copyBtn = this.outputPanel.querySelector('.outputCopy')
+            this.closeBtn = this.outputPanel.querySelector('.outputClose')
+          }
+          // 输出内容
+          output(
+            content,
+            title = _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+              '_输出信息',
+            ),
+          ) {
+            // 如果结果较多，则不直接输出，改为保存 txt 文件
+            if (
+              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length >
+              _Config__WEBPACK_IMPORTED_MODULE_4__['default'].outputMax
+            ) {
+              const con = content.replace(/<br>/g, '\n') // 替换换行符
+              const file = new Blob([con], {
+                type: 'text/plain',
+              })
+              const url = URL.createObjectURL(file)
+              const fileName = new Date().toLocaleString() + '.txt'
+              _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM'].downloadFile(
+                url,
+                fileName,
+              )
+              // 禁用复制按钮
+              this.copyBtn.disabled = true
+              content = _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                '_输出内容太多已经为你保存到文件',
+              )
+            } else {
+              this.copyBtn.disabled = false
+            }
+            if (content) {
+              this.outputContent.innerHTML = content
+              this.outputPanel.style.display = 'block'
+              this.outputTitle.textContent = title
+            }
+          }
+          // 关闭输出面板
+          close() {
+            this.outputPanel.style.display = 'none'
+            this.outputContent.innerHTML = ''
+          }
+        }
+        new OutputPanel()
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/output/PreviewFileName.ts':
+      /*!**************************************************!*\
+  !*** ./src/ts/modules/output/PreviewFileName.ts ***!
+  \**************************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../Store */ './src/ts/modules/Store.ts',
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/modules/EVT.ts',
+        )
+        /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../FileName */ './src/ts/modules/FileName.ts',
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../Lang */ './src/ts/modules/Lang.ts',
+        )
+        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../Config */ './src/ts/modules/Config.ts',
+        )
+
+        // 预览文件名
+        class PreviewFileName {
+          constructor() {
+            this.bindEvent()
+          }
+          bindEvent() {
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.previewFileName,
+              () => {
+                this.previewFileName()
+              },
+            )
+          }
+          previewFileName() {
+            if (
+              _Store__WEBPACK_IMPORTED_MODULE_0__['store'].result.length === 0
+            ) {
+              return alert(
+                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+                  '_没有数据可供使用',
+                ),
+              )
+            }
+            // 使用数组储存和拼接字符串，提高性能
+            const resultArr = []
+            const length =
+              _Store__WEBPACK_IMPORTED_MODULE_0__['store'].result.length
+            for (let i = 0; i < length; i++) {
+              const data =
+                _Store__WEBPACK_IMPORTED_MODULE_0__['store'].result[i]
+              // 为默认文件名添加颜色。默认文件名有两种处理方式，一种是取出用其他下载软件下载后的默认文件名，一种是取出本程序使用的默认文件名 data.id。这里使用前者，方便用户用其他下载软件下载后，再用生成的文件名重命名。
+              const defaultName = data.original.replace(/.*\//, '')
+              const fullName = _FileName__WEBPACK_IMPORTED_MODULE_2__[
+                'fileName'
+              ].getFileName(data)
+              let nowResult = `${defaultName}: ${fullName}<br>`
+              if (
+                length <
+                _Config__WEBPACK_IMPORTED_MODULE_4__['default'].outputMax
+              ) {
+                // 为生成的文件名添加颜色。只有当文件数量少于一定数值时才添加颜色。这是因为添加颜色会导致生成的 HTML 元素数量增多，复制时资源占用增加。有些用户电脑配置差，如果生成的结果很多，还添加了颜色，可能复制时会导致这个页面卡死。
+                const defaultNameHtml = `<span class="color999">${defaultName}</span>`
+                const part = fullName.split('/')
+                const length = part.length
+                for (let i = 0; i < length; i++) {
+                  const str = part[i]
+                  if (i < length - 1) {
+                    // 如果不是最后一项，说明是文件夹名，添加颜色
+                    part[i] = `<span class="color666">${str}</span>`
+                  } else {
+                    // 最后一项，是文件名，添加颜色
+                    part[i] = `<span class="color000">${str}</span>`
+                  }
+                }
+                const fullNameHtml = part.join('/')
+                nowResult = `<p class="result">${defaultNameHtml}: ${fullNameHtml}</p>`
+              }
+              // 保存本条结果
+              resultArr.push(nowResult)
+            }
+            // 拼接所有结果
+            const result = resultArr.join('')
+            _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.output,
+              {
+                content: result,
+                title: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+                  '_预览文件名',
+                ),
+              },
+            )
+          }
+        }
+        new PreviewFileName()
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/output/ShowURLs.ts':
+      /*!*******************************************!*\
+  !*** ./src/ts/modules/output/ShowURLs.ts ***!
+  \*******************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../Store */ './src/ts/modules/Store.ts',
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/modules/EVT.ts',
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../Lang */ './src/ts/modules/Lang.ts',
+        )
+        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts',
+        )
+
+        // 显示 url
+        class ShowURLs {
+          constructor() {
+            this.bindEvent()
+          }
+          bindEvent() {
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.showURLs,
+              () => {
+                this.showURLs()
+              },
+            )
+          }
+          showURLs() {
+            if (
+              _Store__WEBPACK_IMPORTED_MODULE_0__['store'].result.length === 0
+            ) {
+              return alert(
+                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                  '_没有数据可供使用',
+                ),
+              )
+            }
+            const urls = []
+            const size =
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                .imageSize
+            for (const result of _Store__WEBPACK_IMPORTED_MODULE_0__['store']
+              .result) {
+              urls.push(result[size])
+            }
+            _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.output,
+              {
+                content: urls.join('<br>'),
+                title: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                  '_复制url',
+                ),
+              },
+            )
+          }
+        }
+        new ShowURLs()
 
         /***/
       },

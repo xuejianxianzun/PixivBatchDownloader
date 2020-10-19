@@ -1,12 +1,12 @@
-import { EVT } from './EVT'
-import { lang } from './Lang'
-import { store } from './Store'
-import { DOM } from './DOM'
-import config from './Config'
-import { themeColor } from './ThemeColor'
+import { EVT } from '../EVT'
+import { lang } from '../Lang'
+import { store } from '../Store'
+import { DOM } from '../DOM'
+import config from '../Config'
+import { themeColor } from '../ThemeColor'
 
 // 输出面板
-class Output {
+class OutputPanel {
   constructor() {
     this.addOutPutPanel()
 
@@ -24,44 +24,6 @@ class Output {
   private copyBtn!: HTMLButtonElement
 
   private closeBtn!: HTMLDivElement
-
-  private addOutPutPanel() {
-    const outputPanelHTML = `
-    <div class="outputWrap">
-    <div class="outputClose" title="${lang.transl('_关闭')}">X</div>
-    <div class="outputTitle">${lang.transl('_输出信息')}</div>
-    <div class="outputContent beautify_scrollbar"></div>
-    <div class="outputFooter">
-    <button class="outputCopy" title="">${lang.transl('_复制')}</button>
-    </div>
-    </div>
-    `
-    document.body.insertAdjacentHTML('beforeend', outputPanelHTML)
-
-    this.outputPanel = document.querySelector('.outputWrap')! as HTMLDivElement
-
-    this.outputTitle = this.outputPanel.querySelector(
-      '.outputTitle',
-    )! as HTMLDivElement
-
-    this.outputContent = this.outputPanel.querySelector(
-      '.outputContent',
-    )! as HTMLDivElement
-
-    this.copyBtn = this.outputPanel.querySelector(
-      '.outputCopy',
-    )! as HTMLButtonElement
-
-    this.closeBtn = this.outputPanel.querySelector(
-      '.outputClose',
-    )! as HTMLDivElement
-  }
-
-  // 关闭输出面板
-  private close() {
-    this.outputPanel.style.display = 'none'
-    this.outputContent.innerHTML = ''
-  }
 
   private bindEvent() {
     this.closeBtn.addEventListener('click', () => {
@@ -104,6 +66,38 @@ class Output {
     })
   }
 
+  private addOutPutPanel() {
+    const outputPanelHTML = `
+    <div class="outputWrap">
+    <div class="outputClose" title="${lang.transl('_关闭')}">X</div>
+    <div class="outputTitle">${lang.transl('_输出信息')}</div>
+    <div class="outputContent beautify_scrollbar"></div>
+    <div class="outputFooter">
+    <button class="outputCopy" title="">${lang.transl('_复制')}</button>
+    </div>
+    </div>
+    `
+    document.body.insertAdjacentHTML('beforeend', outputPanelHTML)
+
+    this.outputPanel = document.querySelector('.outputWrap')! as HTMLDivElement
+
+    this.outputTitle = this.outputPanel.querySelector(
+      '.outputTitle',
+    )! as HTMLDivElement
+
+    this.outputContent = this.outputPanel.querySelector(
+      '.outputContent',
+    )! as HTMLDivElement
+
+    this.copyBtn = this.outputPanel.querySelector(
+      '.outputCopy',
+    )! as HTMLButtonElement
+
+    this.closeBtn = this.outputPanel.querySelector(
+      '.outputClose',
+    )! as HTMLDivElement
+  }
+
   // 输出内容
   private output(content: string, title = lang.transl('_输出信息')) {
     // 如果结果较多，则不直接输出，改为保存 txt 文件
@@ -130,7 +124,13 @@ class Output {
       this.outputTitle.textContent = title
     }
   }
+
+  // 关闭输出面板
+  private close() {
+    this.outputPanel.style.display = 'none'
+    this.outputContent.innerHTML = ''
+  }
 }
 
-new Output()
+new OutputPanel()
 export {}

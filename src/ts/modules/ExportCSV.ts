@@ -22,7 +22,7 @@ interface Field {
 
 // 导出 csv 文件
 // 参考 https://www.jianshu.com/p/54b3afc06126
-class OutputCSV {
+class ExportCSV {
   constructor() {
     this.utf8BOM = this.UTF8BOM()
     window.addEventListener(EVT.list.outputCSV, () => {
@@ -239,5 +239,5 @@ class OutputCSV {
   }
 }
 
-new OutputCSV()
+new ExportCSV()
 export {}

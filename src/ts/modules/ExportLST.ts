@@ -3,7 +3,7 @@ import { store } from './Store'
 import { fileName } from './FileName'
 
 // 输出 lst 文件
-class OutputLST {
+class ExportLST {
   constructor() {
     this.bindEvent()
   }
@@ -42,5 +42,5 @@ class OutputLST {
   }
 }
 
-new OutputLST()
+new ExportLST()
 export {}

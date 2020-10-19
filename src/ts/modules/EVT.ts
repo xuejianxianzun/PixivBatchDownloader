@@ -83,6 +83,8 @@ class EVT {
     saveAvatarIcon: 'saveAvatarIcon',
     // 当需要预览文件名时触发
     previewFileName: 'previewFileName',
+    // 当需要预览 url 时触发
+    showURLs: 'showURLs',
     // 当需要输出面板输出内容时触发
     output: 'output',
     // 当设置表单里的设置项发生变化时触发

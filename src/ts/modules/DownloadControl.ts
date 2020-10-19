@@ -172,7 +172,7 @@ class DownloadControl {
       })
 
     this.wrapper.querySelector('.copyUrl')!.addEventListener('click', () => {
-      this.showURLs()
+      EVT.fire(EVT.list.showURLs)
     })
   }
 
@@ -432,24 +432,6 @@ class DownloadControl {
   private setDownStateText(text: string, color: string = Colors.blue) {
     this.statesEl.textContent = text
     this.statesEl.style.color = color
-  }
-
-  // 显示 url
-  private showURLs() {
-    if (store.result.length === 0) {
-      return alert(lang.transl('_没有数据可供使用'))
-    }
-
-    const urls: string[] = []
-    const size = settings.imageSize
-    for (const result of store.result) {
-      urls.push(result[size])
-    }
-
-    EVT.fire(EVT.list.output, {
-      content: urls.join('<br>'),
-      title: lang.transl('_复制url'),
-    })
   }
 
   private reset() {

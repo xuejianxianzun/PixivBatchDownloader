@@ -3,7 +3,7 @@ import { EVT } from './EVT'
 import { DOM } from './DOM'
 import { store } from './Store'
 
-class OutputResult {
+class ExportResult {
   constructor() {
     this.bindEvents()
   }
@@ -27,5 +27,5 @@ class OutputResult {
   }
 }
 
-new OutputResult()
+new ExportResult()
 export {}

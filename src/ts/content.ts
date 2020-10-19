@@ -10,15 +10,27 @@
  * QQ group:  932980062
  */
 
+// 处理和脚本版的冲突
+{
+  // 标注自己
+  window.sessionStorage.setItem('xz_pixiv_extension', '1')
+  // 把脚本版的标记设置为 0，这样脚本版就不会运行
+  window.sessionStorage.setItem('xz_pixiv_userscript', '0')
+}
+
 import './modules/PageType'
 import './modules/DownloadButton'
 import './modules/CenterPanel'
 import './modules/InitPage'
 import './modules/DownloadControl'
+import './modules/ListenPageSwitch'
 import './modules/Tip'
-import './modules/Output'
-import './modules/Support'
 import './modules/TitleBar'
-import './modules/OutputCSV'
-import './modules/OutputResult'
-import './modules/OutputLST'
+import './modules/output/OutputPanel'
+import './modules/output/PreviewFileName'
+import './modules/output/ShowURLs'
+import './modules/CheckNew'
+import './modules/ShowWhatIsNew'
+import './modules/ExportCSV'
+import './modules/ExportResult'
+import './modules/ExportLST'
