@@ -170,7 +170,7 @@ class CenterPanel {
     })
 
     document.addEventListener('click', () => {
-      if (this.centerPanel.style.display !== 'none') {
+      if (getComputedStyle(this.centerPanel)['display'] !== 'none') {
         EVT.fire(EVT.list.closeCenterPanel)
       }
     })

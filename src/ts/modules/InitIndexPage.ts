@@ -71,7 +71,9 @@ class InitIndexPage extends InitPageBase {
     this.downIdInput.addEventListener('change', () => {
       if (this.downIdInput.value !== '') {
         this.ready = true
-        EVT.fire(EVT.list.openCenterPanel)
+        window.setTimeout(() => {
+          EVT.fire(EVT.list.openCenterPanel)
+        }, 300)
         this.downIdButton.textContent = lang.transl('_开始抓取')
       } else {
         this.ready = false

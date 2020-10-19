@@ -196,11 +196,13 @@
         )
         class API {
           // 根据对象某个属性的值（视为数字）排序对象。返回的结果是降序排列
-          static sortByProperty(propertyName) {
-            return function (object1, object2) {
+          static sortByProperty(key) {
+            return function (a, b) {
               // 排序的内容有时可能是字符串，需要转换成数字排序
-              const value1 = parseInt(object1[propertyName])
-              const value2 = parseInt(object2[propertyName])
+              const value1 =
+                typeof a[key] === 'number' ? a[key] : parseFloat(a[key])
+              const value2 =
+                typeof b[key] === 'number' ? b[key] : parseFloat(b[key])
               if (value2 < value1) {
                 return -1
               } else if (value2 > value1) {
@@ -1259,7 +1261,7 @@
               ev.stopPropagation()
             })
             document.addEventListener('click', () => {
-              if (this.centerPanel.style.display !== 'none') {
+              if (getComputedStyle(this.centerPanel)['display'] !== 'none') {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
                   _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list
                     .closeCenterPanel,
@@ -5811,25 +5813,19 @@
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Colors */ './src/ts/modules/Colors.ts',
         )
-        /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Token */ './src/ts/modules/Token.ts',
-        )
-        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts',
         )
-        /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./setting/Options */ './src/ts/modules/setting/Options.ts',
         )
-        /* harmony import */ var _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./BookmarksAddTag */ './src/ts/modules/BookmarksAddTag.ts',
-        )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts',
         )
-        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./Log */ './src/ts/modules/Log.ts',
         )
-        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts',
         )
         // 初始化新版收藏页面
@@ -5848,18 +5844,18 @@
             this.init()
           }
           addCrawlBtns() {
-            _DOM__WEBPACK_IMPORTED_MODULE_9__['DOM']
+            _DOM__WEBPACK_IMPORTED_MODULE_7__['DOM']
               .addBtn(
                 'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].blue,
-                _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_开始抓取'),
+                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_开始抓取'),
                 [
                   [
                     'title',
-                    _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
+                    _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                       '_开始抓取',
                     ) +
-                      _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
+                      _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                         '_默认下载多页',
                       ),
                   ],
@@ -5869,53 +5865,30 @@
                 this.readyCrawl()
               })
           }
-          addAnyElement() {
-            // 如果存在 token，则添加“添加 tag”按钮
-            if (_Token__WEBPACK_IMPORTED_MODULE_3__['token'].token) {
-              const btn = _DOM__WEBPACK_IMPORTED_MODULE_9__[
-                'DOM'
-              ].addBtn(
-                'otherBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].green,
-                _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_添加tag'),
-                [
-                  [
-                    'title',
-                    _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                      '_添加tag',
-                    ),
-                  ],
-                ],
-              )
-              new _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_6__[
-                'BookmarksAddTag'
-              ](btn)
-            }
-          }
           setFormOption() {
             // 个数/页数选项的提示
-            _setting_Options__WEBPACK_IMPORTED_MODULE_5__[
+            _setting_Options__WEBPACK_IMPORTED_MODULE_4__[
               'options'
             ].setWantPageTip({
-              text: _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_页数'),
-              tip: _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
+              text: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_页数'),
+              tip: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                 '_从本页开始下载提示',
               ),
-              rangTip: _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
+              rangTip: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                 '_数字提示1',
               ),
             })
             // 在书签页面隐藏只要书签选项
-            _setting_Options__WEBPACK_IMPORTED_MODULE_5__[
+            _setting_Options__WEBPACK_IMPORTED_MODULE_4__[
               'options'
             ].hideOption([6])
           }
           getWantPage() {
             this.crawlNumber = this.checkWantPageInput(
-              _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
+              _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                 '_从本页开始下载x页',
               ),
-              _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
+              _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                 '_下载所有页面',
               ),
             )
@@ -5954,12 +5927,12 @@
                 location.href,
                 'rest',
               ) === 'hide'
-            _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
-              _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_正在抓取'),
+            _Log__WEBPACK_IMPORTED_MODULE_6__['log'].log(
+              _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_正在抓取'),
             )
             if (this.crawlNumber === -1) {
-              _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
-                _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
+              _Log__WEBPACK_IMPORTED_MODULE_6__['log'].log(
+                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                   '_获取全部书签作品',
                 ),
               )
@@ -5972,9 +5945,9 @@
               data = await _API__WEBPACK_IMPORTED_MODULE_1__[
                 'API'
               ].getBookmarkData(
-                _DOM__WEBPACK_IMPORTED_MODULE_9__['DOM'].getUserId(),
+                _DOM__WEBPACK_IMPORTED_MODULE_7__['DOM'].getUserId(),
                 this.type,
-                _Store__WEBPACK_IMPORTED_MODULE_7__['store'].tag,
+                _Store__WEBPACK_IMPORTED_MODULE_5__['store'].tag,
                 this.offset,
                 this.isHide,
               )
@@ -6010,9 +5983,9 @@
               this.idList.splice(this.requsetNumber, this.idList.length)
               // 书签页面的 api 没有考虑页面上的排序顺序，获取到的 id 列表始终是按收藏顺序由近期到早期排列的
             }
-            _Store__WEBPACK_IMPORTED_MODULE_7__[
+            _Store__WEBPACK_IMPORTED_MODULE_5__[
               'store'
-            ].idList = _Store__WEBPACK_IMPORTED_MODULE_7__[
+            ].idList = _Store__WEBPACK_IMPORTED_MODULE_5__[
               'store'
             ].idList.concat(this.idList)
             this.getIdListFinished()
@@ -6377,9 +6350,12 @@
             this.downIdInput.addEventListener('change', () => {
               if (this.downIdInput.value !== '') {
                 this.ready = true
-                _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].list.openCenterPanel,
-                )
+                window.setTimeout(() => {
+                  _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].fire(
+                    _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].list
+                      .openCenterPanel,
+                  )
+                }, 300)
                 this.downIdButton.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__[
                   'lang'
                 ].transl('_开始抓取')
@@ -10330,8 +10306,7 @@ flag 及其含义如下：
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.resetSettings,
               () => {
-                localStorage.removeItem(this.tokenStore)
-                this.updateToken()
+                this.reset()
               },
             )
           }
@@ -10368,6 +10343,12 @@ flag 及其含义如下：
                   console.error('UpdateToken failed: no token found!')
                 }
               })
+          }
+          reset() {
+            this.token = ''
+            localStorage.removeItem(this.tokenStore)
+            localStorage.removeItem(this.timeStore)
+            this.updateToken()
           }
         }
         const token = new Token()
@@ -10816,16 +10797,17 @@ flag 及其含义如下：
             ].getRelatedData(
               _API__WEBPACK_IMPORTED_MODULE_9__['API'].getIllustId(),
             )
-            const recommendData = data.body.recommendMethods
-            // 取出相关作品的 id 列表
-            let recommendIdList = Object.keys(recommendData)
+            // 相关作品的列表由两部分构成，所以要组合起来
+            let ids = []
+            for (const illust of data.body.illusts) {
+              ids.push(illust.id)
+            }
+            ids = ids.concat(data.body.nextIds)
             // 当设置了下载个数时，进行裁剪
             if (this.crawlNumber !== -1) {
-              recommendIdList = recommendIdList
-                .reverse()
-                .slice(0, this.crawlNumber)
+              ids = ids.slice(0, this.crawlNumber)
             }
-            for (const id of recommendIdList) {
+            for (const id of ids) {
               _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push({
                 type: 'unknown',
                 id,
@@ -12731,7 +12713,7 @@ flag 及其含义如下：
             // data.body.page.series 里的才是本页面的作品，illust 里则不同，有时它的作品数量比页面上的更多
             // 从 illust 里查找 id 对应的数据，进行过滤
             for (const work of data.body.thumbnails.illust) {
-              if (!idList.includes(work.illustId)) {
+              if (!idList.includes(work.id)) {
                 continue
               }
               if (work.isAdContainer) {
@@ -12739,7 +12721,7 @@ flag 及其含义如下：
               }
               // 过滤器进行检查
               const filterOpt = {
-                id: work.illustId,
+                id: work.id,
                 tags: work.tags,
                 bookmarkData: !!work.bookmarkData,
                 width: work.width,
@@ -12754,7 +12736,7 @@ flag 及其含义如下：
               ) {
                 _Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push({
                   type: 'unknown',
-                  id: work.illustId,
+                  id: work.id,
                 })
               }
             }
@@ -12852,7 +12834,7 @@ flag 及其含义如下：
             }
             const filterOpt = {
               createDate: body.createDate,
-              id: body.illustId,
+              id: body.id,
               illustType: body.illustType,
               tags: tagsWithTransl,
               pageCount: body.pageCount,
@@ -12869,9 +12851,8 @@ flag 及其含义如下：
                 filterOpt,
               )
             ) {
-              const illustId = body.illustId
-              const idNum = parseInt(body.illustId)
-              const title = body.illustTitle // 作品标题
+              const idNum = parseInt(body.id)
+              const title = body.title // 作品标题
               const userid = body.userId // 用户id
               const user = body.userName // 用户名
               const thumb = body.urls.thumb
@@ -12887,7 +12868,7 @@ flag 及其含义如下：
               let rank = '' // 保存作品在排行榜上的编号
               let testRank = _Store__WEBPACK_IMPORTED_MODULE_4__[
                 'store'
-              ].getRankList(body.illustId)
+              ].getRankList(body.id)
               if (testRank !== undefined) {
                 rank = '#' + testRank
               }
@@ -12909,7 +12890,7 @@ flag 及其含义如下：
                 const ext = tempExt[tempExt.length - 1]
                 // 添加作品信息
                 _Store__WEBPACK_IMPORTED_MODULE_4__['store'].addResult({
-                  id: illustId,
+                  id: body.id,
                   idNum: idNum,
                   thumb: thumb,
                   pageCount: pageCount,
@@ -12939,7 +12920,7 @@ flag 及其含义如下：
                 // 获取动图的信息
                 const meta = await _API__WEBPACK_IMPORTED_MODULE_0__[
                   'API'
-                ].getUgoiraMeta(illustId)
+                ].getUgoiraMeta(body.id)
                 // 动图帧延迟数据
                 const ugoiraInfo = {
                   frames: meta.body.frames,
@@ -12949,7 +12930,7 @@ flag 及其含义如下：
                   _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
                     .ugoiraSaveAs
                 _Store__WEBPACK_IMPORTED_MODULE_4__['store'].addResult({
-                  id: illustId,
+                  id: body.id,
                   idNum: idNum,
                   thumb: thumb,
                   pageCount: pageCount,

@@ -9,8 +9,8 @@ import { options } from './setting/Options'
 import { BookmarksAddTag } from './BookmarksAddTag'
 import {
   BookmarkData,
-  BookmarkArtworkData,
   NovelCommonData,
+  ArtworkCommonData,
 } from './CrawlResult.d'
 import { store } from './Store'
 import { log } from './Log'
@@ -167,7 +167,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
     } else {
       // 没有抓取完毕时，添加数据
       const idType = this.type === 'illusts' ? 'unknown' : 'novels'
-      data.body.works.forEach((data: BookmarkArtworkData | NovelCommonData) =>
+      data.body.works.forEach((data: ArtworkCommonData | NovelCommonData) =>
         this.idList.push({
           type: idType,
           id: data.id,

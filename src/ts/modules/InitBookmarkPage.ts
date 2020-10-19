@@ -2,15 +2,13 @@
 import { InitPageBase } from './InitPageBase'
 import { API } from './API'
 import { Colors } from './Colors'
-import { token } from './Token'
 import { lang } from './Lang'
 import { IDData } from './Store.d'
 import { options } from './setting/Options'
-import { BookmarksAddTag } from './BookmarksAddTag'
 import {
   BookmarkData,
-  BookmarkArtworkData,
   NovelCommonData,
+  ArtworkCommonData,
 } from './CrawlResult.d'
 import { store } from './Store'
 import { log } from './Log'
@@ -40,20 +38,6 @@ class InitBookmarkPage extends InitPageBase {
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
-  }
-
-  protected addAnyElement() {
-    // 如果存在 token，则添加“添加 tag”按钮
-    if (token.token) {
-      const btn = DOM.addBtn(
-        'otherBtns',
-        Colors.green,
-        lang.transl('_添加tag'),
-        [['title', lang.transl('_添加tag')]],
-      )
-
-      new BookmarksAddTag(btn)
-    }
   }
 
   protected setFormOption() {
@@ -141,7 +125,7 @@ class InitBookmarkPage extends InitPageBase {
     } else {
       // 没有抓取完毕时，添加数据
       const idType = this.type === 'illusts' ? 'unknown' : 'novels'
-      data.body.works.forEach((data: BookmarkArtworkData | NovelCommonData) =>
+      data.body.works.forEach((data: ArtworkCommonData | NovelCommonData) =>
         this.idList.push({
           type: idType,
           id: data.id,

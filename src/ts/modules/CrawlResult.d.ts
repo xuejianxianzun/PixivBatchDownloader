@@ -1,6 +1,6 @@
 // 声明 Pixiv API 返回的数据格式
 
-// 插画、漫画作品的数据
+// 插画、漫画的详细数据（在作品页内使用的）
 export interface ArtworkData {
   error: boolean
   message: string
@@ -46,8 +46,6 @@ export interface ArtworkData {
     userAccount: string
     userIllusts: {
       [key: string]: null | {
-        illustId: string
-        illustTitle: string
         id: string
         title: string
         illustType: number
@@ -137,10 +135,8 @@ export interface ArtworkData {
   }
 }
 
-// 作品信息的通用格式
-export interface WorksInfo {
-  illustId: string
-  illustTitle: string
+// 插画、漫画的通用数据
+export interface ArtworkCommonData {
   id: string
   title: string
   illustType: 0 | 1 | 2
@@ -161,6 +157,15 @@ export interface WorksInfo {
     private: boolean
   }
   alt: string
+  isAdContainer: boolean
+  titleCaptionTranslation: {
+    workTitle: string
+    workCaption: string
+  }
+  createDate: string
+  updateDate: string
+  isUnlisted: boolean
+  profileImageUrl: string
 }
 
 // 画师信息的数据 user/id/profile/Top
@@ -169,10 +174,10 @@ export interface UserProfileTop {
   message: string
   body: {
     illusts: {
-      [key: string]: WorksInfo
+      [key: string]: ArtworkCommonData[]
     }
     manga: {
-      [key: string]: WorksInfo
+      [key: string]: ArtworkCommonData[]
     }
     novels: []
     zoneConfig: {
@@ -211,7 +216,7 @@ export interface UserProfileTop {
   }
 }
 
-interface CommonUserData {
+interface UserCommonData {
   userId: string
   name: string
   image: string
@@ -233,7 +238,7 @@ interface CommonUserData {
 export interface UserProfile {
   error: boolean
   message: '' | string
-  body: CommonUserData & {
+  body: UserCommonData & {
     following: number
     followedBack: boolean
     comment: string
@@ -312,33 +317,7 @@ export interface UgoiraData {
   }
 }
 
-// 获取书签的数据里，图片作品的数据
-export interface BookmarkArtworkData {
-  illustId: string
-  illustTitle: string
-  id: string
-  title: string
-  illustType: 0 | 1 | 2
-  xRestrict: number
-  restrict: number
-  sl: number
-  url: string
-  description: string
-  tags: string[]
-  userId: string
-  userName: string
-  width: number
-  height: number
-  pageCount: number
-  isBookmarkable: boolean
-  bookmarkData: {
-    id: string
-    private: boolean
-  }
-  profileImageUrl: string
-}
-
-// tag 搜索页里，作品信息的数据
+// 关注的的新作品的数据
 export interface BookMarkNewData {
   bookmarkCount: number
   height: number
@@ -392,7 +371,7 @@ export interface BookmarkData {
   error: boolean
   message: string
   body: {
-    works: BookmarkArtworkData[] | NovelCommonData[]
+    works: ArtworkCommonData[] | NovelCommonData[]
     total: number
     zoneConfig: {
       '500x500': {
@@ -435,10 +414,20 @@ export interface RecommendData {
   error: false | true
   message: string
   body: {
-    illusts: WorksInfo[]
+    illusts: ArtworkCommonData[]
     nextIds: string[]
-    recommendMethods: {
-      [key: string]: string
+    details: {
+      [key: string]: {
+        methods:
+          | ['illust_by_illust_table_bq_recommendation_c']
+          | ['illust_by_illust_table_mf_tda']
+          | [
+              'illust_by_illust_table_bq_recommendation_c',
+              'illust_by_illust_table_mf_tda',
+            ]
+        score: number
+        seedIllustIds: string[]
+      }
     }
   }
 }
@@ -507,37 +496,7 @@ export interface SearchData {
   body: Record<
     'illustManga' | 'manga' | 'illust',
     {
-      data: {
-        id: string
-        title: string
-        illustType: 0 | 1 | 2
-        xRestrict: number
-        restrict: number
-        sl: number
-        url: string
-        description: string
-        tags: string[]
-        userId: string
-        userName: string
-        width: number
-        height: number
-        pageCount: number
-        isBookmarkable: boolean
-        bookmarkData: null | {
-          id: string
-          private: boolean
-        }
-        alt: string
-        isAdContainer: boolean
-        titleCaptionTranslation: {
-          workTitle: string
-          workCaption: string
-        }
-        createDate: string
-        updateDate: string
-        isUnlisted: boolean
-        profileImageUrl: string
-      }[]
+      data: ArtworkCommonData[]
       total: number
     }
   >
@@ -596,33 +555,7 @@ export interface NewIllustData {
   error: boolean
   message: string
   body: {
-    illusts: {
-      illustId: string
-      illustTitle: string
-      id: string
-      title: string
-      illustType: 0 | 1 | 2
-      xRestrict: number
-      restrict: number
-      sl: number
-      url: string
-      description: string
-      tags: string[]
-      userId: string
-      userName: string
-      width: number
-      height: number
-      pageCount: number
-      isBookmarkable: boolean
-      bookmarkData: null | {
-        id: string
-        private: boolean
-      }
-      alt: string
-      isAdContainer: boolean
-      profileImageUrl: string
-      type: string
-    }[]
+    illusts: ArtworkCommonData[]
     lastId: string
     zoneConfig: {
       header: {
@@ -640,29 +573,7 @@ export interface UserImageWorksWithTag {
   error: boolean
   message: string
   body: {
-    works: {
-      illustId: string
-      illustTitle: string
-      id: string
-      title: string
-      illustType: number
-      xRestrict: number
-      restrict: number
-      sl: number
-      url: string
-      description: string
-      tags: string[]
-      userId: string
-      userName: string
-      width: number
-      height: number
-      pageCount: number
-      isBookmarkable: boolean
-      bookmarkData: null | {
-        id: string
-        private: boolean
-      }
-    }[]
+    works: ArtworkCommonData[]
     total: number
     zoneConfig: {
       [key: string]: {
@@ -971,14 +882,7 @@ export interface SeriesData {
       }
     }
     thumbnails: {
-      illust: (WorksInfo & {
-        isAdContainer: boolean
-        titleCaptionTranslation: {
-          workTitle: null
-          workCaption: null
-        }
-        createDate: string
-        uploadDate: string
+      illust: (ArtworkCommonData & {
         urls: {
           '250x250': string
           '360x360': string
@@ -986,7 +890,6 @@ export interface SeriesData {
         }
         seriesId: string
         seriesTitle: string
-        profileImageUrl: string
       })[]
       novel: []
     }
@@ -1004,7 +907,7 @@ export interface SeriesData {
       },
     ]
     novelSeries: []
-    users: CommonUserData[]
+    users: UserCommonData[]
     page: {
       series: {
         workId: string

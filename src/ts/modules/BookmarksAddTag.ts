@@ -3,9 +3,9 @@ import { DOM } from './DOM'
 import { token } from './Token'
 import {
   BookmarkData,
-  BookmarkArtworkData,
   NovelCommonData,
   BookmarkResult,
+  ArtworkCommonData,
 } from './CrawlResult.d'
 
 // 给收藏页面里的未分类作品批量添加 tag
@@ -57,7 +57,7 @@ class BookmarksAddTag {
       const works = data.body.works
       // 如果作品的 bookmarkData 为假说明没有实际数据，可能是在获取别人的收藏数据。
       if (works.length > 0 && works[0].bookmarkData) {
-        works.forEach((work: BookmarkArtworkData | NovelCommonData) => {
+        works.forEach((work: ArtworkCommonData | NovelCommonData) => {
           this.addTagList.push({
             id: work.id,
             tags: work.tags,

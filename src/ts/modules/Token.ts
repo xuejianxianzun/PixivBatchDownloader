@@ -18,8 +18,7 @@ class Token {
 
   private bindEvent() {
     window.addEventListener(EVT.list.resetSettings, () => {
-      localStorage.removeItem(this.tokenStore)
-      this.updateToken()
+      this.reset()
     })
   }
 
@@ -56,6 +55,13 @@ class Token {
           console.error('UpdateToken failed: no token found!')
         }
       })
+  }
+
+  private reset() {
+    this.token = ''
+    localStorage.removeItem(this.tokenStore)
+    localStorage.removeItem(this.timeStore)
+    this.updateToken()
   }
 }
 

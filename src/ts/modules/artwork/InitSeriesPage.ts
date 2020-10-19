@@ -155,7 +155,7 @@ class InitSeriesPage extends InitPageBase {
 
     // 从 illust 里查找 id 对应的数据，进行过滤
     for (const work of data.body.thumbnails.illust) {
-      if (!idList.includes(work.illustId)) {
+      if (!idList.includes(work.id)) {
         continue
       }
       if (work.isAdContainer) {
@@ -164,7 +164,7 @@ class InitSeriesPage extends InitPageBase {
 
       // 过滤器进行检查
       const filterOpt: FilterOption = {
-        id: work.illustId,
+        id: work.id,
         tags: work.tags,
         bookmarkData: !!work.bookmarkData,
         width: work.width,
@@ -176,7 +176,7 @@ class InitSeriesPage extends InitPageBase {
       if (await filter.check(filterOpt)) {
         store.idList.push({
           type: 'unknown',
-          id: work.illustId,
+          id: work.id,
         })
       }
     }

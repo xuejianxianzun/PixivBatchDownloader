@@ -43,11 +43,11 @@ interface LikeResponse {
 
 class API {
   // 根据对象某个属性的值（视为数字）排序对象。返回的结果是降序排列
-  static sortByProperty(propertyName: string) {
-    return function (object1: any, object2: any) {
+  static sortByProperty(key: string) {
+    return function (a: any, b: any) {
       // 排序的内容有时可能是字符串，需要转换成数字排序
-      const value1 = parseInt(object1[propertyName])
-      const value2 = parseInt(object2[propertyName])
+      const value1 = typeof a[key] === 'number' ? a[key] : parseFloat(a[key])
+      const value2 = typeof b[key] === 'number' ? b[key] : parseFloat(b[key])
 
       if (value2 < value1) {
         return -1

@@ -36,7 +36,7 @@ class SaveArtworkData {
 
     const filterOpt: FilterOption = {
       createDate: body.createDate,
-      id: body.illustId,
+      id: body.id,
       illustType: body.illustType,
       tags: tagsWithTransl,
       pageCount: body.pageCount,
@@ -50,9 +50,8 @@ class SaveArtworkData {
 
     // 检查通过
     if (await filter.check(filterOpt)) {
-      const illustId = body.illustId
-      const idNum = parseInt(body.illustId)
-      const title = body.illustTitle // 作品标题
+      const idNum = parseInt(body.id)
+      const title = body.title // 作品标题
       const userid = body.userId // 用户id
       const user = body.userName // 用户名
       const thumb = body.urls.thumb
@@ -68,7 +67,7 @@ class SaveArtworkData {
       const date = `${y}-${m}-${d}`
 
       let rank = '' // 保存作品在排行榜上的编号
-      let testRank = store.getRankList(body.illustId)
+      let testRank = store.getRankList(body.id)
       if (testRank !== undefined) {
         rank = '#' + testRank
       }
@@ -90,7 +89,7 @@ class SaveArtworkData {
 
         // 添加作品信息
         store.addResult({
-          id: illustId,
+          id: body.id,
           idNum: idNum,
           thumb: thumb,
           pageCount: pageCount,
@@ -118,7 +117,7 @@ class SaveArtworkData {
       } else if (body.illustType === 2) {
         // 动图
         // 获取动图的信息
-        const meta = await API.getUgoiraMeta(illustId)
+        const meta = await API.getUgoiraMeta(body.id)
         // 动图帧延迟数据
         const ugoiraInfo = {
           frames: meta.body.frames,
@@ -128,7 +127,7 @@ class SaveArtworkData {
         const ext = settings.ugoiraSaveAs
 
         store.addResult({
-          id: illustId,
+          id: body.id,
           idNum: idNum,
           thumb: thumb,
           pageCount: pageCount,
