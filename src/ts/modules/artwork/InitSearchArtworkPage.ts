@@ -602,7 +602,11 @@ class InitSearchArtworkPage extends InitPageBase {
   // 在抓取完成之后，所有会从结果合集中删除某些结果的操作都要经过这里
   private async filterResult(callback: FilterCB) {
     if (this.resultMeta.length === 0) {
-      return alert(lang.transl('_没有数据可供使用'))
+      EVT.sendMsg({
+        msg: lang.transl('_没有数据可供使用'),
+        type: 'error'
+      })
+      return
     }
 
     EVT.fire(EVT.list.closeCenterPanel)
@@ -658,7 +662,11 @@ class InitSearchArtworkPage extends InitPageBase {
   // 在当前结果中再次筛选，会修改第一次筛选的结果
   private screenInResult() {
     if (states.busy) {
-      return alert(lang.transl('_当前任务尚未完成'))
+      EVT.sendMsg({
+        msg: lang.transl('_当前任务尚未完成'),
+        type: 'error'
+      })
+      return
     }
 
     log.clear()

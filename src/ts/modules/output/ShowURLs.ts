@@ -17,7 +17,11 @@ class ShowURLs {
 
   private showURLs() {
     if (store.result.length === 0) {
-      return alert(lang.transl('_没有数据可供使用'))
+      EVT.sendMsg({
+        msg: lang.transl('_没有数据可供使用'),
+        type: 'error'
+      })
+      return
     }
 
     const urls: string[] = []

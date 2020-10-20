@@ -18,7 +18,11 @@ class PreviewFileName {
 
   private previewFileName() {
     if (store.result.length === 0) {
-      return alert(lang.transl('_没有数据可供使用'))
+      EVT.sendMsg({
+        msg: lang.transl('_没有数据可供使用'),
+        type: 'error'
+      })
+      return
     }
 
     // 使用数组储存和拼接字符串，提高性能

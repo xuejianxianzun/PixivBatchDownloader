@@ -67,9 +67,9 @@ class OutputPanel {
   }
 
   private addOutPutPanel() {
-    const outputPanelHTML = `
+    const html = `
     <div class="outputWrap">
-    <div class="outputClose" title="${lang.transl('_关闭')}">X</div>
+    <div class="outputClose" title="${lang.transl('_关闭')}">×</div>
     <div class="outputTitle">${lang.transl('_输出信息')}</div>
     <div class="outputContent beautify_scrollbar"></div>
     <div class="outputFooter">
@@ -77,7 +77,7 @@ class OutputPanel {
     </div>
     </div>
     `
-    document.body.insertAdjacentHTML('beforeend', outputPanelHTML)
+    document.body.insertAdjacentHTML('beforeend', html)
 
     this.outputPanel = document.querySelector('.outputWrap')! as HTMLDivElement
 

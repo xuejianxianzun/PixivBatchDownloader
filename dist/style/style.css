@@ -641,11 +641,12 @@
   position: absolute;
   width: 30px;
   height: 30px;
-  top: 20px;
+  top: 10px;
   right: 30px;
   z-index: 9999;
-  font-size: 18px;
+  font-size: 30px;
   text-align: center;
+  color: #666;
 }
 .outputWrap .outputClose:hover {
   color: #0ea8ef;

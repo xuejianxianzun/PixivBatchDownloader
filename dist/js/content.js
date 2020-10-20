@@ -756,7 +756,10 @@ class BookmarkAllWorks {
     // 启动收藏流程
     async startBookmark() {
         if (this.idList.length === 0) {
-            alert(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'));
+            _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].sendMsg({
+                msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'),
+                type: 'error'
+            });
             return;
         }
         this.tipWrap.textContent = `Checking`;
@@ -1724,7 +1727,11 @@ class DeleteWorks {
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除多图作品Title')],
         ]).addEventListener('click', () => {
             if (_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
-                return alert(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
+                _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].sendMsg({
+                    msg: _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'),
+                    type: 'error'
+                });
+                return;
             }
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.closeCenterPanel);
             this.clearMultiple();
@@ -1738,7 +1745,11 @@ class DeleteWorks {
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除动图作品Title')],
         ]).addEventListener('click', () => {
             if (_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
-                return alert(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
+                _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].sendMsg({
+                    msg: _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'),
+                    type: 'error'
+                });
+                return;
             }
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.closeCenterPanel);
             this.ClearUgoira();
@@ -1792,7 +1803,11 @@ class DeleteWorks {
                 if (this.delMode) {
                     ev.preventDefault();
                     if (_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
-                        return alert(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
+                        _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].sendMsg({
+                            msg: _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'),
+                            type: 'error'
+                        });
+                        return;
                     }
                     const target = ev.currentTarget;
                     _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].removeEl(target);
@@ -2858,7 +2873,10 @@ class ExportCSV {
     beforeCreate() {
         // 如果没有数据则不执行
         if (_Store__WEBPACK_IMPORTED_MODULE_5__["store"].result.length === 0) {
-            alert(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_没有数据可供使用'));
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].sendMsg({
+                msg: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_没有数据可供使用'),
+                type: 'error'
+            });
             return;
         }
         // 使用 result 而不使用 resultMeta。主要是因为断点续传时只会恢复 result，不会恢复 resultMeta，所以 result 最可靠。考虑如下情况：
@@ -9384,7 +9402,11 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
     // 在抓取完成之后，所有会从结果合集中删除某些结果的操作都要经过这里
     async filterResult(callback) {
         if (this.resultMeta.length === 0) {
-            return alert(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'));
+            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].sendMsg({
+                msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'),
+                type: 'error'
+            });
+            return;
         }
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.closeCenterPanel);
         _Log__WEBPACK_IMPORTED_MODULE_10__["log"].clear();
@@ -9429,7 +9451,11 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
     // 在当前结果中再次筛选，会修改第一次筛选的结果
     screenInResult() {
         if (_States__WEBPACK_IMPORTED_MODULE_16__["states"].busy) {
-            return alert(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_当前任务尚未完成'));
+            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].sendMsg({
+                msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_当前任务尚未完成'),
+                type: 'error'
+            });
+            return;
         }
         _Log__WEBPACK_IMPORTED_MODULE_10__["log"].clear();
         this.getMultipleSetting();
@@ -12402,9 +12428,9 @@ class OutputPanel {
         });
     }
     addOutPutPanel() {
-        const outputPanelHTML = `
+        const html = `
     <div class="outputWrap">
-    <div class="outputClose" title="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_关闭')}">X</div>
+    <div class="outputClose" title="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_关闭')}">×</div>
     <div class="outputTitle">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_输出信息')}</div>
     <div class="outputContent beautify_scrollbar"></div>
     <div class="outputFooter">
@@ -12412,7 +12438,7 @@ class OutputPanel {
     </div>
     </div>
     `;
-        document.body.insertAdjacentHTML('beforeend', outputPanelHTML);
+        document.body.insertAdjacentHTML('beforeend', html);
         this.outputPanel = document.querySelector('.outputWrap');
         this.outputTitle = this.outputPanel.querySelector('.outputTitle');
         this.outputContent = this.outputPanel.querySelector('.outputContent');
@@ -12485,7 +12511,11 @@ class PreviewFileName {
     }
     previewFileName() {
         if (_Store__WEBPACK_IMPORTED_MODULE_0__["store"].result.length === 0) {
-            return alert(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_没有数据可供使用'));
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
+                msg: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_没有数据可供使用'),
+                type: 'error'
+            });
+            return;
         }
         // 使用数组储存和拼接字符串，提高性能
         const resultArr = [];
@@ -12560,7 +12590,11 @@ class ShowURLs {
     }
     showURLs() {
         if (_Store__WEBPACK_IMPORTED_MODULE_0__["store"].result.length === 0) {
-            return alert(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'));
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
+                msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'),
+                type: 'error'
+            });
+            return;
         }
         const urls = [];
         const size = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].imageSize;

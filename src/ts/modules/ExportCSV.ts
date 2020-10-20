@@ -152,7 +152,10 @@ class ExportCSV {
   private beforeCreate() {
     // 如果没有数据则不执行
     if (store.result.length === 0) {
-      alert(lang.transl('_没有数据可供使用'))
+      EVT.sendMsg({
+        msg: lang.transl('_没有数据可供使用'),
+        type: 'error'
+      })
       return
     }
 
