@@ -688,32 +688,33 @@
   min-width: 400px;
   max-width: 800px;
   padding: 20px;
-  border-radius: 15px;
-  top: 5%;
+  border-radius: 12px;
+  top: 15%;
   left: 50%;
   transform: translate(-50%);
+  text-align: center;
 }
 .xz_msg_box p {
   margin: 0;
 }
 .xz_msg_box .title {
-  font-size: 18px;
+  font-size: 16px;
   color: #0ea8ef;
+  padding-bottom: 10px;
 }
 .xz_msg_box .content {
-  padding: 15px 0 0;
+  padding: 10px 0;
   font-size: 14px;
   line-height: 1.7;
   color: #555;
+  text-align: left;
 }
 .xz_msg_box .btn {
   cursor: pointer;
   background: #0ea8ef;
   color: #fff;
-  outline: none;
   border: none;
   text-align: center;
-  float: right;
   padding: 5px 10px;
   padding: 7px 14px;
   border-radius: 6px;
@@ -943,8 +944,11 @@ iframe[name='expandedFooter'] {
 }
 .theme-dark.xz_msg_box {
   background: #333;
-  transform: translate(-50%);
+  box-shadow: #9C9C9C 0px 0px 15px;
+}
+.theme-dark.xz_msg_box .title {
+  color: #fff;
 }
 .theme-dark.xz_msg_box .content {
-  color: #fff;
+  color: #eee;
 }

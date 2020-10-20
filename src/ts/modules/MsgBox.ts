@@ -40,9 +40,13 @@ class MsgBox {
 
     document.body.insertAdjacentElement('afterbegin', el)
 
-    const btn = el.querySelector('.btn')
+    const btn = el.querySelector('.btn') as HTMLButtonElement
+    btn.focus()
+
     if (btn) {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (ev) => {
+        ev.preventDefault()
+        ev.stopPropagation()
         this.remove(el)
       })
 
@@ -53,7 +57,7 @@ class MsgBox {
   }
 
   private remove(el: HTMLDivElement) {
-    el!.parentNode!.removeChild(el)
+    el && el.parentNode && el.parentNode.removeChild(el)
   }
 }
 

@@ -1600,7 +1600,10 @@ class Deduplication {
         for (const name of this.storeNameList) {
             this.IDB.clear(name);
         }
-        window.alert(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_下载记录已清除'));
+        // window.alert(lang.transl('_下载记录已清除'))
+        _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.showMsg, {
+            msg: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_下载记录已清除')
+        });
     }
     // 导出下载记录
     async exportRecord() {
@@ -6349,8 +6352,11 @@ class MsgBox {
         _ThemeColor__WEBPACK_IMPORTED_MODULE_2__["themeColor"].register(el);
         document.body.insertAdjacentElement('afterbegin', el);
         const btn = el.querySelector('.btn');
+        btn.focus();
         if (btn) {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', (ev) => {
+                ev.preventDefault();
+                ev.stopPropagation();
                 this.remove(el);
             });
             window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.closeCenterPanel, () => {
@@ -6359,7 +6365,7 @@ class MsgBox {
         }
     }
     remove(el) {
-        el.parentNode.removeChild(el);
+        el && el.parentNode && el.parentNode.removeChild(el);
     }
 }
 new MsgBox();
