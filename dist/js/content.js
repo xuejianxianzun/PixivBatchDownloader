@@ -1146,13 +1146,15 @@ new CheckNew();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Colors", function() { return Colors; });
-// 颜色
-class Colors {
-}
-Colors.blue = '#0ea8ef';
-Colors.green = '#14ad27';
-Colors.red = '#f33939';
-Colors.yellow = '#e49d00';
+const Colors = {
+    blue: '#0ea8ef',
+    green: '#14ad27',
+    red: '#f33939',
+    yellow: '#e49d00',
+    success: '#00ca19',
+    warning: '#d27e00',
+    error: '#f00'
+};
 
 
 
@@ -1600,8 +1602,9 @@ class Deduplication {
         for (const name of this.storeNameList) {
             this.IDB.clear(name);
         }
-        _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.showMsg, {
-            msg: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_下载记录已清除')
+        _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].sendMsg({
+            msg: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_下载记录已清除'),
+            type: 'success'
         });
     }
     // 导出下载记录
@@ -1643,8 +1646,9 @@ class Deduplication {
             await this.IDB.batchAddData(this.storeNameList[index], data, 'id');
             stored += data.length;
         }
-        _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.showMsg, {
-            msg: `${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导入下载记录')}<br>${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_完成')}`
+        _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].sendMsg({
+            msg: `${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导入下载记录')}<br>${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_完成')}`,
+            type: 'success'
         });
         // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。
     }
@@ -2588,6 +2592,9 @@ class EVT {
             detail: { data: data },
         });
         window.dispatchEvent(event);
+    }
+    static sendMsg(data) {
+        this.fire(this.list.showMsg, data);
     }
 }
 EVT.list = {
@@ -6220,6 +6227,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
 /* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ThemeColor */ "./src/ts/modules/ThemeColor.ts");
+/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Colors */ "./src/ts/modules/Colors.ts");
+
 
 
 
@@ -6230,7 +6239,7 @@ class Log {
         this.logArea = document.createElement('div'); // 输出日志的区域
         this.id = 'logWrap'; // 日志区域元素的 id
         this.refresh = document.createElement('span'); // 刷新时使用的元素
-        this.colors = ['#00ca19', '#d27e00', '#f00'];
+        this.level = ['success', 'warning', 'error'];
         this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
         this.scrollToBottom();
         // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
@@ -6275,7 +6284,7 @@ class Log {
         }
         span.innerHTML = str;
         if (level > -1) {
-            span.style.color = this.colors[level];
+            span.style.color = _Colors__WEBPACK_IMPORTED_MODULE_4__["Colors"][this.level[level]];
         }
         while (br > 0) {
             span.appendChild(document.createElement('br'));
@@ -6324,17 +6333,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ThemeColor */ "./src/ts/modules/ThemeColor.ts");
+/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Colors */ "./src/ts/modules/Colors.ts");
 
 
 
-// 一个简单的对话框
+
+// 一个简单的消息框
 class MsgBox {
     constructor() {
-        this.data = {
-            title: 'Powerful Pixiv Downloader',
-            msg: '',
-            btn: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_确定')
-        };
         this.bindEvent();
     }
     bindEvent() {
@@ -6346,10 +6352,14 @@ class MsgBox {
     create(data) {
         const el = document.createElement('div');
         el.classList.add('xz_msg_box');
+        let colorStyle = '';
+        if (data.type) {
+            colorStyle = `style="color:${_Colors__WEBPACK_IMPORTED_MODULE_3__["Colors"][data.type]}"`;
+        }
         el.innerHTML = `
-        <p class="title">${data.title || this.data.title}</p>
-        <p class="content">${data.msg}</p>
-        <button class="btn" type="button">${data.btn || this.data.btn}</button>
+        <p class="title">${data.title || ''}</p>
+        <p class="content" ${colorStyle}>${data.msg}</p>
+        <button class="btn" type="button">${data.btn || _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_确定')}</button>
       `;
         _ThemeColor__WEBPACK_IMPORTED_MODULE_2__["themeColor"].register(el);
         document.body.insertAdjacentElement('afterbegin', el);
@@ -7372,7 +7382,7 @@ class ShowWhatIsNew {
         const storeName = 'xzNewVerTag';
         const value = localStorage.getItem(storeName);
         if (window.location.host.includes('pixiv.net') && value !== this.newTag) {
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.showMsg, {
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
                 title: `Powerful Pixiv Downloader ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_最近更新')}`,
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl(this.newTag)
             });

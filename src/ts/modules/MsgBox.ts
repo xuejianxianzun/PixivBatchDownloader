@@ -1,23 +1,19 @@
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { themeColor } from './ThemeColor'
+import { Colors, colorType } from './Colors'
 
-interface Msg {
+export interface Msg {
   title?: string
   msg: string
   btn?: string
+  type?: colorType
 }
 
-// 一个简单的对话框
+// 一个简单的消息框
 class MsgBox {
   constructor() {
     this.bindEvent()
-  }
-
-  private data: Msg = {
-    title: 'Powerful Pixiv Downloader',
-    msg: '',
-    btn: lang.transl('_确定')
   }
 
   private bindEvent() {
@@ -30,10 +26,15 @@ class MsgBox {
   private create(data: Msg) {
     const el = document.createElement('div')
     el.classList.add('xz_msg_box')
+
+    let colorStyle = ''
+    if (data.type) {
+      colorStyle = `style="color:${Colors[data.type]}"`
+    }
     el.innerHTML = `
-        <p class="title">${data.title || this.data.title}</p>
-        <p class="content">${data.msg}</p>
-        <button class="btn" type="button">${data.btn || this.data.btn}</button>
+        <p class="title">${data.title || ''}</p>
+        <p class="content" ${colorStyle}>${data.msg}</p>
+        <button class="btn" type="button">${data.btn || lang.transl('_确定')}</button>
       `
 
     themeColor.register(el)

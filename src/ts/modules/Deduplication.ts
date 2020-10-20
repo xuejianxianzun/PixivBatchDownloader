@@ -253,8 +253,9 @@ class Deduplication {
       this.IDB.clear(name)
     }
 
-    EVT.fire(EVT.list.showMsg, {
-      msg: lang.transl('_下载记录已清除')
+    EVT.sendMsg({
+      msg: lang.transl('_下载记录已清除'),
+      type:'success'
     })
   }
 
@@ -304,8 +305,9 @@ class Deduplication {
       stored += data.length
     }
 
-    EVT.fire(EVT.list.showMsg, {
-      msg: `${lang.transl('_导入下载记录')}<br>${lang.transl('_完成')}`
+    EVT.sendMsg({
+      msg: `${lang.transl('_导入下载记录')}<br>${lang.transl('_完成')}`,
+      type:'success'
     })
 
     // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。

@@ -1,3 +1,6 @@
+import { Colors, colorType } from './Colors'
+import { Msg } from './MsgBox'
+
 // 触发自定义事件
 class EVT {
   static readonly list = {
@@ -105,6 +108,10 @@ class EVT {
       detail: { data: data },
     })
     window.dispatchEvent(event)
+  }
+
+  static sendMsg(data: Msg) {
+    this.fire(this.list.showMsg, data)
   }
 }
 

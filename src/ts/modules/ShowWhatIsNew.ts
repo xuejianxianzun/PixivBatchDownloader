@@ -14,7 +14,7 @@ class ShowWhatIsNew {
     const storeName = 'xzNewVerTag'
     const value = localStorage.getItem(storeName)
     if (window.location.host.includes('pixiv.net') && value !== this.newTag) {
-      EVT.fire(EVT.list.showMsg, {
+      EVT.sendMsg({
         title: `Powerful Pixiv Downloader ${lang.transl('_最近更新')}`,
         msg: lang.transl(this.newTag)
       })
