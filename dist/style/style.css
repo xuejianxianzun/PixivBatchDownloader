@@ -879,7 +879,7 @@ iframe[name='expandedFooter'] {
   color: #fff;
 }
 .theme-dark.centerWrap {
-  background: #333;
+  background: #222;
   box-shadow: rgb(37 37 37) 0px 0px 15px;
   color: #fff;
 }
@@ -895,10 +895,10 @@ iframe[name='expandedFooter'] {
   color: #fff;
 }
 .theme-dark.centerWrap .centerWrap_head {
-  background: #333;
+  background: #222;
 }
 .theme-dark.outputWrap {
-  background: #333;
+  background: #222;
   box-shadow: rgb(120 120 120) 0px 0px 15px;
 }
 .theme-dark.outputWrap .outputContent * {
@@ -926,23 +926,23 @@ iframe[name='expandedFooter'] {
   color: #fff;
 }
 .theme-dark.saveNamingRuleWrap .namingRuleList {
-  background: #333;
+  background: #222;
   box-shadow: rgb(120 120 120) 0px 0px 10px;
 }
 .theme-dark.saveNamingRuleWrap .namingRuleList li {
   color: #fff;
 }
 .theme-dark.saveNamingRuleWrap .namingRuleList li:hover {
-  background: #444;
+  background: #333;
 }
 .theme-dark.settingForm {
-  background: #333;
+  background: #222;
 }
 .theme-dark.settingForm .tabsTitle {
-  background: #333;
+  background: #222;
 }
 .theme-dark.xz_msg_box {
-  background: #333;
+  background: #222;
   box-shadow: #9C9C9C 0px 0px 15px;
 }
 .theme-dark.xz_msg_box .title {
