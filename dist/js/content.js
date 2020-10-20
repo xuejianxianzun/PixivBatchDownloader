@@ -1509,7 +1509,10 @@ class Deduplication {
                         }
                         catch (error) {
                             const msg = 'JSON parse error!';
-                            window.alert(msg);
+                            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].sendMsg({
+                                msg: msg,
+                                type: 'error'
+                            });
                             throw new Error(msg);
                         }
                         // 判断格式是否符合要求
@@ -1517,7 +1520,10 @@ class Deduplication {
                             record[0].id === undefined ||
                             record[0].n === undefined) {
                             const msg = 'Format error!';
-                            window.alert(msg);
+                            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].sendMsg({
+                                msg: msg,
+                                type: 'error'
+                            });
                             throw new Error(msg);
                         }
                         resolve(record);
@@ -2943,8 +2949,10 @@ new ExportCSV();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
-/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
-/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./FileName */ "./src/ts/modules/FileName.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
+/* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./FileName */ "./src/ts/modules/FileName.ts");
+
 
 
 
@@ -2963,12 +2971,16 @@ class ExportLST {
         }, false);
     }
     createLst() {
-        if (_Store__WEBPACK_IMPORTED_MODULE_1__["store"].result.length === 0) {
-            return window.alert('现在没有抓取结果可以输出');
+        if (_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
+                msg: '现在没有抓取结果可以输出',
+                type: 'error'
+            });
+            return;
         }
         const array = [];
-        for (const data of _Store__WEBPACK_IMPORTED_MODULE_1__["store"].result) {
-            array.push(data.original + this.separate + _FileName__WEBPACK_IMPORTED_MODULE_2__["fileName"].getFileName(data));
+        for (const data of _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result) {
+            array.push(data.original + this.separate + _FileName__WEBPACK_IMPORTED_MODULE_3__["fileName"].getFileName(data));
         }
         const result = array.join(this.CRLF);
         const blob = new Blob([result]);
@@ -3901,7 +3913,10 @@ class Filter {
     throwError(msg) {
         _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.wrongSetting);
         _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(msg, 2);
-        window.alert(msg);
+        _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].sendMsg({
+            msg: msg,
+            type: 'error'
+        });
         throw new Error(msg);
     }
     bindEvent() {
@@ -5489,7 +5504,10 @@ class InitPageBase {
     getWantPageError() {
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.wrongSetting);
         const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_参数不合法');
-        window.alert(msg);
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].sendMsg({
+            msg: msg,
+            type: 'error'
+        });
         throw new Error(msg);
     }
     // 检查用户输入的页数/个数设置
@@ -5542,7 +5560,10 @@ class InitPageBase {
     async readyCrawl() {
         // 检查是否可以开始抓取
         if (_States__WEBPACK_IMPORTED_MODULE_10__["states"].busy) {
-            window.alert(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成2'));
+            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].sendMsg({
+                msg: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成2'),
+                type: 'error'
+            });
             return;
         }
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
@@ -5586,7 +5607,10 @@ class InitPageBase {
         const id = idData.id;
         if (!id) {
             const msg = 'Error: work id is invalid!';
-            window.alert(msg);
+            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].sendMsg({
+                msg: msg,
+                type: 'error'
+            });
             throw new Error(msg);
         }
         let failed = false; // 请求失败的标记
@@ -5681,8 +5705,12 @@ class InitPageBase {
         // 如果触发顺序反过来，那么最后执行的都是 crawlFinish，可能会覆盖对 crawlEmpty 的处理
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.crawlFinish);
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.crawlEmpty);
-        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取结果为零'), 2);
-        window.alert(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取结果为零'));
+        const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取结果为零');
+        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(msg, 2);
+        _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].sendMsg({
+            msg: msg,
+            type: 'error'
+        });
     }
     // 抓取完成后，对结果进行排序
     sortResult() { }
@@ -6370,6 +6398,9 @@ class MsgBox {
                 ev.stopPropagation();
             });
             btn.addEventListener('click', () => {
+                this.remove(el);
+            });
+            document.addEventListener('click', () => {
                 this.remove(el);
             });
             window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.closeCenterPanel, () => {
@@ -7201,7 +7232,10 @@ class Resume {
             this.IDB.clear(this.dataName),
             this.IDB.clear(this.statesName),
         ]);
-        window.alert(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数据清除完毕'));
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].sendMsg({
+            msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数据清除完毕'),
+            type: 'success'
+        });
     }
 }
 const resume = new Resume();
@@ -13440,7 +13474,10 @@ class SettingAPI {
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.wrongSetting);
         const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载前几张图片') + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_必须大于0');
         _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(msg);
-        window.alert(msg);
+        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
+            msg: msg,
+            type: 'error'
+        });
         throw new Error(msg);
     }
     // 计算要从这个作品里下载几张图片

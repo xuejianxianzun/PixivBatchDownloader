@@ -40,7 +40,10 @@ class SettingAPI {
 
     const msg = lang.transl('_下载前几张图片') + ' ' + lang.transl('_必须大于0')
     log.error(msg)
-    window.alert(msg)
+    EVT.sendMsg({
+      msg: msg,
+      type:'error'
+    })
     throw new Error(msg)
   }
 

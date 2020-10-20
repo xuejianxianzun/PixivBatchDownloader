@@ -20,7 +20,7 @@ class Log {
   private logArea = document.createElement('div') // 输出日志的区域
   private id = 'logWrap' // 日志区域元素的 id
   private refresh = document.createElement('span') // 刷新时使用的元素
-  private level: colorType[] = ['success', 'warning', 'error']
+  private readonly level: colorType[] = ['success', 'warning', 'error']
 
   private toBottom = false // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
 

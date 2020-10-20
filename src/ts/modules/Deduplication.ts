@@ -149,7 +149,10 @@ class Deduplication {
               record = JSON.parse(str) as Record[]
             } catch (error) {
               const msg = 'JSON parse error!'
-              window.alert(msg)
+              EVT.sendMsg({
+                msg: msg,
+                type: 'error'
+              })
               throw new Error(msg)
             }
             // 判断格式是否符合要求
@@ -159,7 +162,10 @@ class Deduplication {
               record[0].n === undefined
             ) {
               const msg = 'Format error!'
-              window.alert(msg)
+              EVT.sendMsg({
+                msg: msg,
+                type: 'error'
+              })
               throw new Error(msg)
             }
             resolve(record)
@@ -255,7 +261,7 @@ class Deduplication {
 
     EVT.sendMsg({
       msg: lang.transl('_下载记录已清除'),
-      type:'success'
+      type: 'success'
     })
   }
 
@@ -307,7 +313,7 @@ class Deduplication {
 
     EVT.sendMsg({
       msg: `${lang.transl('_导入下载记录')}<br>${lang.transl('_完成')}`,
-      type:'success'
+      type: 'success'
     })
 
     // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。

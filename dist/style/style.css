@@ -700,10 +700,9 @@
 .xz_msg_box .title {
   font-size: 16px;
   color: #0ea8ef;
-  padding-bottom: 10px;
 }
 .xz_msg_box .content {
-  padding: 10px;
+  padding: 20px 10px;
   font-size: 14px;
   line-height: 1.7;
   color: #555;

@@ -1,4 +1,5 @@
 import { DOM } from './DOM'
+import { EVT } from './EVT'
 import { store } from './Store'
 import { fileName } from './FileName'
 
@@ -25,7 +26,11 @@ class ExportLST {
 
   private createLst() {
     if (store.result.length === 0) {
-      return window.alert('现在没有抓取结果可以输出')
+      EVT.sendMsg({
+        msg: '现在没有抓取结果可以输出',
+        type: 'error'
+      })
+      return
     }
 
     const array: string[] = []
@@ -43,4 +48,4 @@ class ExportLST {
 }
 
 new ExportLST()
-export {}
+export { }

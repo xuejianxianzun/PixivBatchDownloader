@@ -397,7 +397,10 @@ class Resume {
       this.IDB.clear(this.dataName),
       this.IDB.clear(this.statesName),
     ])
-    window.alert(lang.transl('_数据清除完毕'))
+    EVT.sendMsg({
+      msg: lang.transl('_数据清除完毕'),
+      type: 'success'
+    })
   }
 }
 

@@ -53,6 +53,10 @@ class MsgBox {
         this.remove(el)
       })
 
+      document.addEventListener('click', () => {
+        this.remove(el)
+      })
+
       window.addEventListener(EVT.list.closeCenterPanel, () => {
         this.remove(el)
       })
