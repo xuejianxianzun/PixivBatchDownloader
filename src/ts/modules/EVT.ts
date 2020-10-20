@@ -95,6 +95,8 @@ class EVT {
     bookmarkModeStart: 'bookmarkModeStart',
     // 批量收藏完成时触发
     bookmarkModeEnd: 'bookmarkModeEnd',
+    // 需要单独显示信息时触发
+    showMsg: 'showMsg'
   }
 
   // 触发事件，可以携带数据

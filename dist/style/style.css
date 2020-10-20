@@ -680,32 +680,33 @@
 #logWrap br {
   display: inline;
 }
-.xz_new {
+.xz_msg_box {
   background: #fff;
   box-shadow: 0 0 15px #2ca6df;
   position: fixed;
   z-index: 9999;
-  width: 400px;
+  min-width: 400px;
+  max-width: 800px;
   padding: 20px;
   border-radius: 15px;
   top: 5%;
   left: 50%;
   transform: translate(-50%);
 }
-.xz_new p {
+.xz_msg_box p {
   margin: 0;
 }
-.xz_new .title {
+.xz_msg_box .title {
   font-size: 18px;
   color: #0ea8ef;
 }
-.xz_new .content {
+.xz_msg_box .content {
   padding: 15px 0 0;
   font-size: 14px;
   line-height: 1.7;
   color: #555;
 }
-.xz_new .btn {
+.xz_msg_box .btn {
   cursor: pointer;
   background: #0ea8ef;
   color: #fff;
@@ -939,4 +940,11 @@ iframe[name='expandedFooter'] {
 }
 .theme-dark.settingForm .tabsTitle {
   background: #333;
+}
+.theme-dark.xz_msg_box {
+  background: #333;
+  transform: translate(-50%);
+}
+.theme-dark.xz_msg_box .content {
+  color: #fff;
 }
