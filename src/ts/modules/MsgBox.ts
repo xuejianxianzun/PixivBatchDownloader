@@ -44,9 +44,11 @@ class MsgBox {
     btn.focus()
 
     if (btn) {
-      btn.addEventListener('click', (ev) => {
-        ev.preventDefault()
+      el.addEventListener('click', (ev) => {
         ev.stopPropagation()
+      })
+
+      btn.addEventListener('click', () => {
         this.remove(el)
       })
 

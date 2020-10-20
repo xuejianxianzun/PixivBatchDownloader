@@ -1600,7 +1600,6 @@ class Deduplication {
         for (const name of this.storeNameList) {
             this.IDB.clear(name);
         }
-        // window.alert(lang.transl('_下载记录已清除'))
         _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.showMsg, {
             msg: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_下载记录已清除')
         });
@@ -1644,6 +1643,9 @@ class Deduplication {
             await this.IDB.batchAddData(this.storeNameList[index], data, 'id');
             stored += data.length;
         }
+        _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.showMsg, {
+            msg: `${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导入下载记录')}<br>${_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_完成')}`
+        });
         // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。
     }
     // 创建一个文件，模拟导出的下载记录
@@ -6354,9 +6356,10 @@ class MsgBox {
         const btn = el.querySelector('.btn');
         btn.focus();
         if (btn) {
-            btn.addEventListener('click', (ev) => {
-                ev.preventDefault();
+            el.addEventListener('click', (ev) => {
                 ev.stopPropagation();
+            });
+            btn.addEventListener('click', () => {
                 this.remove(el);
             });
             window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.closeCenterPanel, () => {
