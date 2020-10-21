@@ -103,6 +103,11 @@ class FileName {
         prefix: '',
         safe: false,
       },
+      '{task_date}': {
+        value: DateFormat.format(store.crawlCompleteTime, settings.dateFormat),
+        prefix: '',
+        safe: false,
+      },
       '{type}': {
         value: config.illustTypes[data.type],
         prefix: '',

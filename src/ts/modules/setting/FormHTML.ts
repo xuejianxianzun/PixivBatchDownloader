@@ -217,6 +217,7 @@ const formHtml = `<form class="settingForm">
         <option value="{bmk}">{bmk}</option>
         <option value="{rank}">{rank}</option>
         <option value="{date}">{date}</option>
+        <option value="{task_date}">{task_date}</option>
         <option value="{px}">{px}</option>
         <option value="{series_title}">{series_title}</option>
         <option value="{series_order}">{series_order}</option>
@@ -272,6 +273,9 @@ const formHtml = `<form class="settingForm">
       <br>
       <span class="blue">{date}</span>
       ${lang.transl('_命名标记date')}
+      <br>
+      <span class="blue">{task_date}</span>
+      ${lang.transl('_命名标记taskDate')}
       <br>
       <span class="blue">{px}</span>
       ${lang.transl('_命名标记px')}

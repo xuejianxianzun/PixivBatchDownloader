@@ -188,6 +188,7 @@ abstract class InitPageBase {
     if (store.idList.length === 0) {
       return this.noResult()
     }
+
     log.log(lang.transl('_当前作品个数', store.idList.length.toString()))
 
     // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
@@ -274,6 +275,8 @@ abstract class InitPageBase {
     if (store.result.length === 0) {
       return this.noResult()
     }
+
+    store.crawlCompleteTime = new Date()
 
     this.sortResult()
 

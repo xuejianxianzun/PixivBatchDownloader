@@ -588,10 +588,10 @@ const langText = {
     '譯後的 tag 清單。',
   ],
   _命名标记date: [
-    '作品的创建日期。如 2019-08-29',
-    '作品の作成日は。 2019-08-29 など',
-    'The date the creation of the work. Such as 2019-08-29',
-    '作品的建立日期。例如：2019-08-29。',
+    '作品的创建时间。如 2019-08-29',
+    '作品の作成時間。例 2019-08-29',
+    'The time the creation of the work. Such as 2019-08-29',
+    '作品的建立時間。例如：2019-08-29。',
   ],
   _命名标记rank: [
     '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜页面中使用。',
@@ -1367,11 +1367,11 @@ const langText = {
     'You can use the following notation to set the date and time format. This will affect {date} and {task_date} in the naming rules. <br>For time such as 2021-04-30T06:40:08',
     '你可以使用以下標記來設定日期和時間格式。這會影響命名規則裡的 {date} 和 {task_date}。<br>對於資料如：2021-04-30T06:40:08。',
   ],
-  _taskDate: [
-    '本次任务抓取完成时的时间。例如：2019-08-29',
-    'このタスクのクロールが完了した時刻です。 例：2019-08-29',
-    'The time when the task was crawl completed. For example: 2019-08-29',
-    '本次工作擷取完成時的時間。例如：2019-08-29。',
+  _命名标记taskDate: [
+    '本次任务抓取完成时的时间。例如：2020-10-21',
+    'このタスクのクロールが完了した時刻です。 例：2020-10-21',
+    'The time when the task was crawl completed. For example: 2020-10-21',
+    '本次工作擷取完成時的時間。例如：2020-10-21。',
   ],
 }
 

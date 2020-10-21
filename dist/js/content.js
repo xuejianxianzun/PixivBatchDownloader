@@ -4146,6 +4146,18 @@
                 prefix: '',
                 safe: false,
               },
+              '{task_date}': {
+                value: _DateFormat__WEBPACK_IMPORTED_MODULE_5__[
+                  'DateFormat'
+                ].format(
+                  _Store__WEBPACK_IMPORTED_MODULE_2__['store']
+                    .crawlCompleteTime,
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
+                    .dateFormat,
+                ),
+                prefix: '',
+                safe: false,
+              },
               '{type}': {
                 value:
                   _Config__WEBPACK_IMPORTED_MODULE_3__['default'].illustTypes[
@@ -7467,6 +7479,9 @@
             ) {
               return this.noResult()
             }
+            _Store__WEBPACK_IMPORTED_MODULE_4__[
+              'store'
+            ].crawlCompleteTime = new Date()
             this.sortResult()
             _Log__WEBPACK_IMPORTED_MODULE_5__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
@@ -9869,6 +9884,7 @@
             this.rankList = {} // 储存作品在排行榜中的排名
             this.tag = '' // 开始抓取时，储存页面此时的 tag
             this.title = '' // 开始抓取时，储存页面此时的 title
+            this.crawlCompleteTime = new Date()
             this.bindEvent()
           }
           assignResult(data) {
@@ -13624,10 +13640,10 @@ flag 及其含义如下：
             '譯後的 tag 清單。',
           ],
           _命名标记date: [
-            '作品的创建日期。如 2019-08-29',
-            '作品の作成日は。 2019-08-29 など',
-            'The date the creation of the work. Such as 2019-08-29',
-            '作品的建立日期。例如：2019-08-29。',
+            '作品的创建时间。如 2019-08-29',
+            '作品の作成時間。例 2019-08-29',
+            'The time the creation of the work. Such as 2019-08-29',
+            '作品的建立時間。例如：2019-08-29。',
           ],
           _命名标记rank: [
             '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜页面中使用。',
@@ -14433,11 +14449,11 @@ flag 及其含义如下：
             'You can use the following notation to set the date and time format. This will affect {date} and {task_date} in the naming rules. <br>For time such as 2021-04-30T06:40:08',
             '你可以使用以下標記來設定日期和時間格式。這會影響命名規則裡的 {date} 和 {task_date}。<br>對於資料如：2021-04-30T06:40:08。',
           ],
-          _taskDate: [
-            '本次任务抓取完成时的时间。例如：2019-08-29',
-            'このタスクのクロールが完了した時刻です。 例：2019-08-29',
-            'The time when the task was crawl completed. For example: 2019-08-29',
-            '本次工作擷取完成時的時間。例如：2019-08-29。',
+          _命名标记taskDate: [
+            '本次任务抓取完成时的时间。例如：2020-10-21',
+            'このタスクのクロールが完了した時刻です。 例：2020-10-21',
+            'The time when the task was crawl completed. For example: 2020-10-21',
+            '本次工作擷取完成時的時間。例如：2020-10-21。',
           ],
         }
 
@@ -16963,6 +16979,7 @@ flag 及其含义如下：
         <option value="{bmk}">{bmk}</option>
         <option value="{rank}">{rank}</option>
         <option value="{date}">{date}</option>
+        <option value="{task_date}">{task_date}</option>
         <option value="{px}">{px}</option>
         <option value="{series_title}">{series_title}</option>
         <option value="{series_order}">{series_order}</option>
@@ -17022,6 +17039,9 @@ flag 及其含义如下：
       <br>
       <span class="blue">{date}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记date')}
+      <br>
+      <span class="blue">{task_date}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记taskDate')}
       <br>
       <span class="blue">{px}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记px')}

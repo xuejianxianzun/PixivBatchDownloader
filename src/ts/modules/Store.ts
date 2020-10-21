@@ -25,6 +25,8 @@ class Store {
 
   public title = '' // 开始抓取时，储存页面此时的 title
 
+  public crawlCompleteTime: Date = new Date()
+
   private assignResult(data: WorkInfoOptional) {
     // 图片详细信息的默认值
     const dataDefault: Result = {
