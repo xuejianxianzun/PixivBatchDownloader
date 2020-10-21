@@ -42,7 +42,6 @@
 @headerHeight: 40px;
 
 .beautify_scrollbar {
-
   // 滚动条整体
   // width 是垂直滚动条的宽度，height 是水平滚动条的高度
   &::-webkit-scrollbar {
@@ -112,12 +111,12 @@
   }
 
   .blue {
-    color: @themeBlue  !important;
+    color: @themeBlue !important;
   }
 
   .has_tip:hover,
   label:hover {
-    color: @themeBlue  !important;
+    color: @themeBlue !important;
   }
 
   .settingForm {
@@ -233,11 +232,11 @@
       transition: all 0.3s;
     }
 
-    .checkbox_switch:checked+.beautify_switch {
+    .checkbox_switch:checked + .beautify_switch {
       background: @beautifyBlue;
     }
 
-    .checkbox_switch:checked+.beautify_switch::before {
+    .checkbox_switch:checked + .beautify_switch::before {
       margin-left: 12px;
     }
 
@@ -272,7 +271,7 @@
       transform-origin: center;
     }
 
-    .checkbox_common:checked+.beautify_checkbox {
+    .checkbox_common:checked + .beautify_checkbox {
       background: @beautifyBlue;
       border: 1px solid @beautifyBlue;
     }
@@ -281,11 +280,11 @@
       border: 1px solid @beautifyBlue;
     }
 
-    .checkbox_common:checked+.beautify_checkbox::after {
+    .checkbox_common:checked + .beautify_checkbox::after {
       transform: rotate(45deg) scaleY(1);
     }
 
-    .checkbox_common:focus+.beautify_checkbox {
+    .checkbox_common:focus + .beautify_checkbox {
       border: 1px solid @beautifyBlue;
     }
 
@@ -315,7 +314,7 @@
       transition: transform 0.15s ease-in;
     }
 
-    .radio:checked+.beautify_radio {
+    .radio:checked + .beautify_radio {
       background: @beautifyBlue;
       border: 1px solid @beautifyBlue;
     }
@@ -324,7 +323,7 @@
       border: 1px solid @beautifyBlue;
     }
 
-    .radio:checked+.beautify_radio::after {
+    .radio:checked + .beautify_radio::after {
       transform: translate(-50%, -50%) scale(1);
     }
   }
@@ -381,16 +380,16 @@
   .textButton:hover,
   .textButton:focus,
   .showFileNameResult:hover,
-  .bottom_help_bar>*:hover,
+  .bottom_help_bar > *:hover,
   .updateActiveClass {
-    color: @themeBlue  !important;
-    fill: @themeBlue  !important;
+    color: @themeBlue !important;
+    fill: @themeBlue !important;
   }
 
   .bottom_help_bar {
     line-height: 24px;
 
-    &>* {
+    & > * {
       padding-right: 10px;
     }
   }
@@ -482,7 +481,7 @@
     display: flex;
     flex-wrap: wrap;
 
-    &>* {
+    & > * {
       box-sizing: border-box;
       border: none;
       width: 140px;
@@ -505,7 +504,7 @@
     }
   }
 
-  .centerWrap_btns>*,
+  .centerWrap_btns > *,
   .progressTip {
     color: #fff;
     font-size: 14px;
@@ -627,7 +626,7 @@
     .download_status_text_wrap {
       line-height: 26px;
 
-      &>* {
+      & > * {
         padding-right: 5px;
       }
 
@@ -693,7 +692,7 @@
       align-items: center;
       min-width: 400px;
 
-      &>* {
+      & > * {
         min-height: @liHeight;
         line-height: @liHeight;
       }
@@ -927,7 +926,6 @@
   }
 
   .viewer-toolbar {
-
     .viewer-next,
     .viewer-prev {
       background-color: rgba(255, 255, 255, 0.1) !important;
@@ -1173,9 +1171,9 @@ iframe[name='expandedFooter'] {
 .theme-dark {
   &.xz_msg_box {
     background: #222;
-    box-shadow: #9C9C9C 0px 0px 15px;
+    box-shadow: #9c9c9c 0px 0px 15px;
 
-    .title{
+    .title {
       color: #fff;
     }
 

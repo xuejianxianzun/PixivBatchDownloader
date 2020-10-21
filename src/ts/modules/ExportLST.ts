@@ -28,7 +28,7 @@ class ExportLST {
     if (store.result.length === 0) {
       EVT.sendMsg({
         msg: '现在没有抓取结果可以输出',
-        type: 'error'
+        type: 'error',
       })
       return
     }
@@ -48,4 +48,4 @@ class ExportLST {
 }
 
 new ExportLST()
-export { }
+export {}

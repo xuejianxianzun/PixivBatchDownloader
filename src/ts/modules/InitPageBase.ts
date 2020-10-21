@@ -48,12 +48,12 @@ abstract class InitPageBase {
   }
 
   // 添加其他任意元素（如果有）
-  protected addAnyElement(): void { }
+  protected addAnyElement(): void {}
 
   // 初始化任意内容
   // 如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里
   // 通常用来初始化特有的组件、功能、事件、状态等
-  protected initAny() { }
+  protected initAny() {}
 
   // 销毁初始化页面时添加的元素和事件，恢复设置项等
   protected destroy(): void {
@@ -81,7 +81,7 @@ abstract class InitPageBase {
     const msg = lang.transl('_参数不合法')
     EVT.sendMsg({
       msg: msg,
-      type: 'error'
+      type: 'error',
     })
     throw new Error(msg)
   }
@@ -128,7 +128,7 @@ abstract class InitPageBase {
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
-  protected getWantPage() { }
+  protected getWantPage() {}
 
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
   protected getMultipleSetting() {
@@ -149,7 +149,7 @@ abstract class InitPageBase {
     if (states.busy) {
       EVT.sendMsg({
         msg: lang.transl('_当前任务尚未完成2'),
-        type: 'error'
+        type: 'error',
       })
       return
     }
@@ -213,7 +213,7 @@ abstract class InitPageBase {
       const msg = 'Error: work id is invalid!'
       EVT.sendMsg({
         msg: msg,
-        type: 'error'
+        type: 'error',
       })
       throw new Error(msg)
     }
@@ -332,12 +332,12 @@ abstract class InitPageBase {
     log.error(msg, 2)
     EVT.sendMsg({
       msg: msg,
-      type: 'error'
+      type: 'error',
     })
   }
 
   // 抓取完成后，对结果进行排序
-  protected sortResult() { }
+  protected sortResult() {}
 }
 
 export { InitPageBase }

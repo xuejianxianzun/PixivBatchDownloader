@@ -5,6 +5,7 @@ import { settingAPI } from '../setting/SettingAPI'
 import { FilterOption } from '../Filter.d'
 import { ArtworkData } from '../CrawlResult'
 import { store } from '../Store'
+import { DateFormat } from '../DateFormat'
 
 // 保存单个图片作品的数据
 class SaveArtworkData {
@@ -57,23 +58,16 @@ class SaveArtworkData {
       const thumb = body.urls.thumb
       const pageCount = body.pageCount
       const bookmarked = !!body.bookmarkData
+      const date = DateFormat.format(body.createDate, 'yyyy-mm-dd')
 
-      // 时间原数据如 "2019-12-18T22:23:37+00:00"
-      // 网页上显示的日期是转换成了本地时间的，如北京时区显示为 "2019-12-19"，不是显示原始日期 "2019-12-18"。所以这里转换成本地时区的日期，和网页上保持一致，以免用户困惑。
-      const date0 = new Date(body.createDate)
-      const y = date0.getFullYear()
-      const m = (date0.getMonth() + 1).toString().padStart(2, '0')
-      const d = date0.getDate().toString().padStart(2, '0')
-      const date = `${y}-${m}-${d}`
+      // 保存作品在排行榜上的编号
+      const rankData = store.getRankList(body.id)
+      const rank = rankData ? '#' + rankData : ''
 
-      let rank = '' // 保存作品在排行榜上的编号
-      let testRank = store.getRankList(body.id)
-      if (testRank !== undefined) {
-        rank = '#' + testRank
-      }
-
-      let seriesTitle = body.seriesNavData ? body.seriesNavData.title : ''
-      let seriesOrder = body.seriesNavData ? '#' + body.seriesNavData.order : ''
+      const seriesTitle = body.seriesNavData ? body.seriesNavData.title : ''
+      const seriesOrder = body.seriesNavData
+        ? '#' + body.seriesNavData.order
+        : ''
 
       // 储存作品信息
       if (body.illustType !== 2) {

@@ -19,7 +19,7 @@ class ShowURLs {
     if (store.result.length === 0) {
       EVT.sendMsg({
         msg: lang.transl('_没有数据可供使用'),
-        type: 'error'
+        type: 'error',
       })
       return
     }

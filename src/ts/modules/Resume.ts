@@ -399,7 +399,7 @@ class Resume {
     ])
     EVT.sendMsg({
       msg: lang.transl('_数据清除完毕'),
-      type: 'success'
+      type: 'success',
     })
   }
 }

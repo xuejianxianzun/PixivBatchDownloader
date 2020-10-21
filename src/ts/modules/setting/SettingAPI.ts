@@ -42,7 +42,7 @@ class SettingAPI {
     log.error(msg)
     EVT.sendMsg({
       msg: msg,
-      type:'error'
+      type: 'error',
     })
     throw new Error(msg)
   }

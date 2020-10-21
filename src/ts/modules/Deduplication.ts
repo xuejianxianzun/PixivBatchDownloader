@@ -76,12 +76,12 @@ class Deduplication {
       this.add(successData.id)
     })
 
-      // 当抓取完成、下载完成时，清空 skipIdList 列表
-      ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach((val) => {
-        window.addEventListener(val, () => {
-          this.skipIdList = []
-        })
+    // 当抓取完成、下载完成时，清空 skipIdList 列表
+    ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach((val) => {
+      window.addEventListener(val, () => {
+        this.skipIdList = []
       })
+    })
 
     // 导入下载记录的按钮
     {
@@ -151,7 +151,7 @@ class Deduplication {
               const msg = 'JSON parse error!'
               EVT.sendMsg({
                 msg: msg,
-                type: 'error'
+                type: 'error',
               })
               throw new Error(msg)
             }
@@ -164,7 +164,7 @@ class Deduplication {
               const msg = 'Format error!'
               EVT.sendMsg({
                 msg: msg,
-                type: 'error'
+                type: 'error',
               })
               throw new Error(msg)
             }
@@ -261,7 +261,7 @@ class Deduplication {
 
     EVT.sendMsg({
       msg: lang.transl('_下载记录已清除'),
-      type: 'success'
+      type: 'success',
     })
   }
 
@@ -313,7 +313,7 @@ class Deduplication {
 
     EVT.sendMsg({
       msg: `${lang.transl('_导入下载记录')}<br>${lang.transl('_完成')}`,
-      type: 'success'
+      type: 'success',
     })
 
     // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。

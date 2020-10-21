@@ -5,8 +5,7 @@ const Colors = {
   yellow: '#e49d00',
   success: '#00ca19',
   warning: '#d27e00',
-  error: '#f00'
+  error: '#f00',
 }
 type colorType = keyof typeof Colors
 export { Colors, colorType }
-

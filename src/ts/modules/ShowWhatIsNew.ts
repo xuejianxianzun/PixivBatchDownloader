@@ -16,7 +16,7 @@ class ShowWhatIsNew {
     if (window.location.host.includes('pixiv.net') && value !== this.newTag) {
       EVT.sendMsg({
         title: `Powerful Pixiv Downloader ${lang.transl('_最近更新')}`,
-        msg: lang.transl(this.newTag)
+        msg: lang.transl(this.newTag),
       })
       localStorage.setItem(storeName, this.newTag)
     }

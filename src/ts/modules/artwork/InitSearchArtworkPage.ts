@@ -604,7 +604,7 @@ class InitSearchArtworkPage extends InitPageBase {
     if (this.resultMeta.length === 0) {
       EVT.sendMsg({
         msg: lang.transl('_没有数据可供使用'),
-        type: 'error'
+        type: 'error',
       })
       return
     }
@@ -664,7 +664,7 @@ class InitSearchArtworkPage extends InitPageBase {
     if (states.busy) {
       EVT.sendMsg({
         msg: lang.transl('_当前任务尚未完成'),
-        type: 'error'
+        type: 'error',
       })
       return
     }
