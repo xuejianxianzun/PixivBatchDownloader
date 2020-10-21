@@ -10018,7 +10018,7 @@
             this.colorMap = new Map([['dark', 'theme-dark']])
             this.elList = [] // 保存已注册的元素
             // 初始化时使用定时器查找标记元素
-            this.timer = window.setTimeout(() => {
+            this.timer = window.setInterval(() => {
               this.findFlag()
             }, 300)
           }
@@ -10026,7 +10026,7 @@
           findFlag() {
             const el = document.querySelector(this.selector)
             if (el) {
-              window.clearTimeout(this.timer)
+              window.clearInterval(this.timer)
               this.theme = el.textContent
               // 监听标记元素的 textContent 变化
               const ob = new MutationObserver((mutationsList) => {
