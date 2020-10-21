@@ -1,11 +1,12 @@
-// 生成文件名
 import { API } from './API'
 import { settings } from './setting/Settings'
 import { store } from './Store'
 import { Result } from './Store.d'
 import config from './Config'
 import { states } from './States'
+import { DateFormat } from './DateFormat'
 
+// 生成文件名
 class FileName {
   constructor() {}
 
@@ -98,9 +99,9 @@ class FileName {
         safe: true,
       },
       '{date}': {
-        value: data.date,
+        value: DateFormat.format(data.date, settings.dateFormat),
         prefix: '',
-        safe: true,
+        safe: false,
       },
       '{type}': {
         value: config.illustTypes[data.type],

@@ -588,10 +588,10 @@ const langText = {
     '譯後的 tag 清單。',
   ],
   _命名标记date: [
-    '作品的创建日期，格式为 yyyy-MM-dd。如 2019-08-29',
-    '作品の作成日は yyyy-MM-dd の形式でした。 2019-08-29 など',
-    'The date the creation of the work was in the format yyyy-MM-dd. Such as 2019-08-29',
-    '作品的建立日期，格式為 yyyy-MM-dd，例如：2019-08-29。',
+    '作品的创建日期。如 2019-08-29',
+    '作品の作成日は。 2019-08-29 など',
+    'The date the creation of the work. Such as 2019-08-29',
+    '作品的建立日期。例如：2019-08-29。',
   ],
   _命名标记rank: [
     '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜页面中使用。',
@@ -1355,6 +1355,24 @@ const langText = {
     '匯入下載記錄',
   ],
   _完成: ['完成', '完了', 'Completed', '完成'],
+  _日期格式: [
+    '日期和时间格式',
+    '日付と時刻の書式',
+    'Date and time format',
+    '日期和時間格式',
+  ],
+  _日期格式提示: [
+    '你可以使用以下标记来设置日期和时间格式。这会影响命名规则里的 {date} 和 {task_date}。<br>对于时间如 2021-04-30T06:40:08',
+    '以下のタグを使用して日時と時刻の書式を設定することができます。 これは命名規則の {date} と {task_date} に影響します。 <br> 例：2021-04-30T06:40:08',
+    'You can use the following notation to set the date and time format. This will affect {date} and {task_date} in the naming rules. <br>For time such as 2021-04-30T06:40:08',
+    '你可以使用以下標記來設定日期和時間格式。這會影響命名規則裡的 {date} 和 {task_date}。<br>對於資料如：2021-04-30T06:40:08。',
+  ],
+  _taskDate: [
+    '本次任务抓取完成时的时间。例如：2019-08-29',
+    'このタスクのクロールが完了した時刻です。 例：2019-08-29',
+    'The time when the task was crawl completed. For example: 2019-08-29',
+    '本次工作擷取完成時的時間。例如：2019-08-29。',
+  ],
 }
 
 export { langText, langTextKeys }

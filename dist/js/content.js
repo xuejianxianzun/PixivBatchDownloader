@@ -1630,37 +1630,47 @@
             return DateFormat
           },
         )
-        // 格式化日期
+        // 格式化日期（和时间）
         class DateFormat {
-          // format 参数可以由以下格式组合：（不区分大小写）
+          // format 参数可以由以下格式组合：
           /*
-    yyyy
-    yy
+    YYYY
+    YY
+    MM
+    MMM
+    MMMM
+    DD
+    hh
     mm
-    mmm
-    mmmm
-    dd
+    ss
     */
-          //  可以添加空格或其他符号；不要使用上面未包含的格式
-          // 参考资料： https://en.wikipedia.org/wiki/Date_format_by_country
-          static format(date, format = 'yyyy-mm-dd') {
-            // 生成各种年、月、日的值
+          // 区分大小写；可以添加空格或其他符号；不要使用上面未包含的格式。
+          // 参考资料：
+          // https://www.w3.org/TR/NOTE-datetime
+          // https://en.wikipedia.org/wiki/Date_format_by_country
+          static format(date, format = 'YYYY-MM-DD') {
+            // 生成年、月、日、时、分、秒
             const _date = new Date(date)
-            const yyyy = _date.getFullYear()
-            const _y = _date.getFullYear().toString()
-            const yy = _y.substring(_y.length - 2, _y.length)
-            const mm = (_date.getMonth() + 1).toString().padStart(2, '0')
-            const mmm = this.months[_date.getMonth()]
-            const mmmm = this.Months[_date.getMonth()]
-            const dd = _date.getDate().toString().padStart(2, '0')
+            const YYYY = _date.getFullYear().toString()
+            const YY = YYYY.substring(YYYY.length - 2, YYYY.length)
+            const MM = (_date.getMonth() + 1).toString().padStart(2, '0')
+            const MMM = this.months[_date.getMonth()]
+            const MMMM = this.Months[_date.getMonth()]
+            const DD = _date.getDate().toString().padStart(2, '0')
+            const hh = _date.getHours().toString().padStart(2, '0')
+            const mm = _date.getMinutes().toString().padStart(2, '0')
+            const ss = _date.getSeconds().toString().padStart(2, '0')
             // 对格式字符串进行替换
-            let r = format.toLowerCase()
-            r = r.replace('yyyy', yyyy.toString())
-            r = r.replace('yy', yy)
-            r = r.replace('mmmm', mmmm)
-            r = r.replace('mmm', mmm)
+            let r = format
+            r = r.replace('YYYY', YYYY)
+            r = r.replace('YY', YY)
+            r = r.replace('MMMM', MMMM)
+            r = r.replace('MMM', MMM)
+            r = r.replace('MM', MM)
+            r = r.replace('DD', DD)
+            r = r.replace('hh', hh)
             r = r.replace('mm', mm)
-            r = r.replace('dd', dd)
+            r = r.replace('ss', ss)
             return r
           }
         }
@@ -4029,8 +4039,11 @@
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./States */ './src/ts/modules/States.ts',
         )
-        // 生成文件名
+        /* harmony import */ var _DateFormat__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./DateFormat */ './src/ts/modules/DateFormat.ts',
+        )
 
+        // 生成文件名
         class FileName {
           constructor() {}
           // 生成文件名
@@ -4123,9 +4136,15 @@
                 safe: true,
               },
               '{date}': {
-                value: data.date,
+                value: _DateFormat__WEBPACK_IMPORTED_MODULE_5__[
+                  'DateFormat'
+                ].format(
+                  data.date,
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
+                    .dateFormat,
+                ),
                 prefix: '',
-                safe: true,
+                safe: false,
               },
               '{type}': {
                 value:
@@ -12814,9 +12833,6 @@ flag 及其含义如下：
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ../Store */ './src/ts/modules/Store.ts',
         )
-        /* harmony import */ var _DateFormat__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../DateFormat */ './src/ts/modules/DateFormat.ts',
-        )
 
         // 保存单个图片作品的数据
         class SaveArtworkData {
@@ -12870,9 +12886,6 @@ flag 及其含义如下：
               const thumb = body.urls.thumb
               const pageCount = body.pageCount
               const bookmarked = !!body.bookmarkData
-              const date = _DateFormat__WEBPACK_IMPORTED_MODULE_5__[
-                'DateFormat'
-              ].format(body.createDate, 'yyyy-mm-dd')
               // 保存作品在排行榜上的编号
               const rankData = _Store__WEBPACK_IMPORTED_MODULE_4__[
                 'store'
@@ -12915,7 +12928,7 @@ flag 及其含义如下：
                   ext: ext,
                   bmk: bmk,
                   bookmarked: bookmarked,
-                  date: date,
+                  date: body.createDate,
                   type: body.illustType,
                   rank: rank,
                   seriesTitle: seriesTitle,
@@ -12954,7 +12967,7 @@ flag 及其含义如下：
                   ext: ext,
                   bmk: bmk,
                   bookmarked: bookmarked,
-                  date: date,
+                  date: body.createDate,
                   type: body.illustType,
                   rank: rank,
                   ugoiraInfo: ugoiraInfo,
@@ -13611,10 +13624,10 @@ flag 及其含义如下：
             '譯後的 tag 清單。',
           ],
           _命名标记date: [
-            '作品的创建日期，格式为 yyyy-MM-dd。如 2019-08-29',
-            '作品の作成日は yyyy-MM-dd の形式でした。 2019-08-29 など',
-            'The date the creation of the work was in the format yyyy-MM-dd. Such as 2019-08-29',
-            '作品的建立日期，格式為 yyyy-MM-dd，例如：2019-08-29。',
+            '作品的创建日期。如 2019-08-29',
+            '作品の作成日は。 2019-08-29 など',
+            'The date the creation of the work. Such as 2019-08-29',
+            '作品的建立日期。例如：2019-08-29。',
           ],
           _命名标记rank: [
             '作品在排行榜中的排名。如 #1、#2 …… 只能在排行榜页面中使用。',
@@ -14408,6 +14421,24 @@ flag 及其含义如下：
             '匯入下載記錄',
           ],
           _完成: ['完成', '完了', 'Completed', '完成'],
+          _日期格式: [
+            '日期和时间格式',
+            '日付と時刻の書式',
+            'Date and time format',
+            '日期和時間格式',
+          ],
+          _日期格式提示: [
+            '你可以使用以下标记来设置日期和时间格式。这会影响命名规则里的 {date} 和 {task_date}。<br>对于时间如 2021-04-30T06:40:08',
+            '以下のタグを使用して日時と時刻の書式を設定することができます。 これは命名規則の {date} と {task_date} に影響します。 <br> 例：2021-04-30T06:40:08',
+            'You can use the following notation to set the date and time format. This will affect {date} and {task_date} in the naming rules. <br>For time such as 2021-04-30T06:40:08',
+            '你可以使用以下標記來設定日期和時間格式。這會影響命名規則裡的 {date} 和 {task_date}。<br>對於資料如：2021-04-30T06:40:08。',
+          ],
+          _taskDate: [
+            '本次任务抓取完成时的时间。例如：2019-08-29',
+            'このタスクのクロールが完了した時刻です。 例：2019-08-29',
+            'The time when the task was crawl completed. For example: 2019-08-29',
+            '本次工作擷取完成時的時間。例如：2019-08-29。',
+          ],
         }
 
         /***/
@@ -15816,9 +15847,6 @@ flag 及其含义如下：
         /* harmony import */ var _MakeNovelFile__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./MakeNovelFile */ './src/ts/modules/novel/MakeNovelFile.ts',
         )
-        /* harmony import */ var _DateFormat__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../DateFormat */ './src/ts/modules/DateFormat.ts',
-        )
 
         // 保存单个小说作品的数据
         class SaveNovelData {
@@ -15854,9 +15882,6 @@ flag 及其含义如下：
               const userid = body.userId
               const user = body.userName
               const bookmarked = !!body.bookmarkData
-              const date = _DateFormat__WEBPACK_IMPORTED_MODULE_4__[
-                'DateFormat'
-              ].format(body.createDate, 'yyyy-mm-dd')
               // 保存作品在排行榜上的编号
               const rankData = _Store__WEBPACK_IMPORTED_MODULE_1__[
                 'store'
@@ -15926,7 +15951,7 @@ flag 及其含义如下：
                 ext: ext,
                 bmk: bmk,
                 bookmarked: bookmarked,
-                date: date,
+                date: body.createDate,
                 type: illustType,
                 rank: rank,
                 seriesTitle: seriesTitle,
@@ -16518,6 +16543,14 @@ flag 及其含义如下：
               .addEventListener('click', () =>
                 _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].toggleEl(
                   document.querySelector('.fileNameTip'),
+                ),
+              )
+            // 显示日期格式提示
+            this.form
+              .querySelector('.showDateTip')
+              .addEventListener('click', () =>
+                _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].toggleEl(
+                  document.querySelector('.dateFormatTip'),
                 ),
               )
             // 输入框获得焦点时自动选择文本（文件名输入框例外）
@@ -17222,6 +17255,40 @@ flag 及其含义如下：
       <span class="beautify_switch"></span>
       </p>
 
+      <p class="option" data-no="31">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_日期格式')}<span class="gray1"> ? </span></span>
+      <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
+      <button type="button" class="gray1 textButton showDateTip">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_提示')}</button>
+      </p>
+      <p class="dateFormatTip tip" style="display:none">
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+        '_日期格式提示',
+      )}</span>
+      <br>
+      <span class="blue">YYYY</span> <span>2021</span>
+      <br>
+      <span class="blue">YY</span> <span>21</span>
+      <br>
+      <span class="blue">MM</span> <span>04</span>
+      <br>
+      <span class="blue">MMM</span> <span>Apr</span>
+      <br>
+      <span class="blue">MMMM</span> <span>April</span>
+      <br>
+      <span class="blue">DD</span> <span>30</span>
+      <br>
+      <span class="blue">hh</span> <span>06</span>
+      <br>
+      <span class="blue">mm</span> <span>40</span>
+      <br>
+      <span class="blue">ss</span> <span>08</span>
+      <br>
+      </p>
+
       <p class="option" data-no="28">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
@@ -17724,6 +17791,7 @@ flag 及其含义如下：
               fileNameLengthLimitSwitch: false,
               fileNameLengthLimit: '200',
               imageSize: 'original',
+              dateFormat: 'YYYY-MM-DD',
             }
             // 需要持久化保存的设置
             this.settings = Object.assign({}, this.optionDefault)
@@ -17861,6 +17929,7 @@ flag 及其含义如下：
             this.saveCheckBox('fileNameLengthLimitSwitch')
             this.saveTextInput('fileNameLengthLimit')
             this.saveRadio('imageSize')
+            this.saveTextInput('dateFormat')
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.resetSettings,
               () => {
@@ -18035,6 +18104,7 @@ flag 及其含义如下：
             this.restoreBoolean('fileNameLengthLimitSwitch')
             this.restoreString('fileNameLengthLimit')
             this.restoreString('imageSize')
+            this.restoreString('dateFormat')
             // 恢复完毕之后触发一次设置改变事件
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,

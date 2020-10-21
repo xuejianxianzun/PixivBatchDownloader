@@ -5,7 +5,6 @@ import { settingAPI } from '../setting/SettingAPI'
 import { FilterOption } from '../Filter.d'
 import { ArtworkData } from '../CrawlResult'
 import { store } from '../Store'
-import { DateFormat } from '../DateFormat'
 
 // 保存单个图片作品的数据
 class SaveArtworkData {
@@ -58,7 +57,6 @@ class SaveArtworkData {
       const thumb = body.urls.thumb
       const pageCount = body.pageCount
       const bookmarked = !!body.bookmarkData
-      const date = DateFormat.format(body.createDate, 'yyyy-mm-dd')
 
       // 保存作品在排行榜上的编号
       const rankData = store.getRankList(body.id)
@@ -102,7 +100,7 @@ class SaveArtworkData {
           ext: ext,
           bmk: bmk,
           bookmarked: bookmarked,
-          date: date,
+          date: body.createDate,
           type: body.illustType,
           rank: rank,
           seriesTitle: seriesTitle,
@@ -139,7 +137,7 @@ class SaveArtworkData {
           ext: ext,
           bmk: bmk,
           bookmarked: bookmarked,
-          date: date,
+          date: body.createDate,
           type: body.illustType,
           rank: rank,
           ugoiraInfo: ugoiraInfo,

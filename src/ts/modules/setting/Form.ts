@@ -158,7 +158,14 @@ class Form {
     this.form
       .querySelector('.showFileNameTip')!
       .addEventListener('click', () =>
-        DOM.toggleEl(document.querySelector('.fileNameTip')! as HTMLDivElement),
+        DOM.toggleEl(document.querySelector('.fileNameTip')! as HTMLElement),
+      )
+
+    // 显示日期格式提示
+    this.form
+      .querySelector('.showDateTip')!
+      .addEventListener('click', () =>
+        DOM.toggleEl(document.querySelector('.dateFormatTip')! as HTMLElement),
       )
 
     // 输入框获得焦点时自动选择文本（文件名输入框例外）

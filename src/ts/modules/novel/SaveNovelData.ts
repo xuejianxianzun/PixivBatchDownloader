@@ -4,7 +4,6 @@ import { NovelData } from '../CrawlResult.d'
 import { store } from '../Store'
 import { settings } from '../setting/Settings'
 import { MakeNovelFile } from './MakeNovelFile'
-import { DateFormat } from '../DateFormat'
 
 // 保存单个小说作品的数据
 class SaveNovelData {
@@ -39,7 +38,6 @@ class SaveNovelData {
       const userid = body.userId
       const user = body.userName
       const bookmarked = !!body.bookmarkData
-      const date = DateFormat.format(body.createDate, 'yyyy-mm-dd')
 
       // 保存作品在排行榜上的编号
       const rankData = store.getRankList(body.id)
@@ -96,7 +94,7 @@ class SaveNovelData {
         ext: ext,
         bmk: bmk,
         bookmarked: bookmarked,
-        date: date,
+        date: body.createDate,
         type: illustType,
         rank: rank,
         seriesTitle: seriesTitle,

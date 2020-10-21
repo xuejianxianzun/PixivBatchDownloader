@@ -68,6 +68,7 @@ interface XzSetting {
   fileNameLengthLimitSwitch: boolean
   fileNameLengthLimit: string
   imageSize: 'original' | 'regular' | 'small'
+  dateFormat: string
 }
 
 interface SettingChangeData {
@@ -171,6 +172,7 @@ class Settings {
     fileNameLengthLimitSwitch: false,
     fileNameLengthLimit: '200',
     imageSize: 'original',
+    dateFormat: 'YYYY-MM-DD',
   }
 
   // 需要持久化保存的设置
@@ -330,6 +332,8 @@ class Settings {
     this.saveTextInput('fileNameLengthLimit')
 
     this.saveRadio('imageSize')
+
+    this.saveTextInput('dateFormat')
 
     window.addEventListener(EVT.list.resetSettings, () => {
       form.reset()
@@ -518,6 +522,8 @@ class Settings {
     this.restoreString('fileNameLengthLimit')
 
     this.restoreString('imageSize')
+
+    this.restoreString('dateFormat')
 
     // 恢复完毕之后触发一次设置改变事件
     EVT.fire(EVT.list.settingChange)
