@@ -950,4 +950,5 @@ iframe[name='expandedFooter'] {
 }
 .theme-dark.xz_msg_box .content {
   color: #eee;
+  text-shadow: 1px 1px black;
 }
