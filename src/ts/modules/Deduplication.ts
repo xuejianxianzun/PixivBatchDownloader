@@ -76,12 +76,12 @@ class Deduplication {
       this.add(successData.id)
     })
 
-    // 当抓取完成、下载完成时，清空 skipIdList 列表
-    ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach((val) => {
-      window.addEventListener(val, () => {
-        this.skipIdList = []
+      // 当抓取完成、下载完成时，清空 skipIdList 列表
+      ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach((val) => {
+        window.addEventListener(val, () => {
+          this.skipIdList = []
+        })
       })
-    })
 
     // 导入下载记录的按钮
     {
@@ -214,9 +214,10 @@ class Deduplication {
     if (this.existedIdList.includes(resultId)) {
       this.IDB.put(storeName, data)
     } else {
-      this.IDB.add(storeName, data).catch(() => {
-        this.IDB.put(storeName, data)
-      })
+      // 先查询有没有这个记录
+      const result = await this.IDB.get(storeName, data.id)
+      const type: 'add' | 'put' = result ? 'put' : 'add'
+      this.IDB[type](storeName, data)
     }
   }
 

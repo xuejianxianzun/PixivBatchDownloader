@@ -23,6 +23,7 @@ class IndexedDB {
 
       request.onerror = (ev) => {
         console.error('open indexDB failed')
+        console.trace()
         reject(ev)
       }
     })
@@ -44,6 +45,7 @@ class IndexedDB {
       }
       r.onerror = (ev) => {
         console.error('add failed')
+        console.trace()
         reject(ev)
       }
     })
@@ -64,6 +66,7 @@ class IndexedDB {
       }
       r.onerror = (ev) => {
         console.error('put failed')
+        console.trace()
         reject(ev)
       }
     })
@@ -92,6 +95,7 @@ class IndexedDB {
 
       tr.onerror = (err) => {
         console.error(err)
+        console.trace()
         reject(err)
       }
 
@@ -142,14 +146,12 @@ class IndexedDB {
 
       r.onsuccess = (ev) => {
         const data = r.result
-        if (data) {
-          resolve(data)
-        }
-        resolve(null)
+        resolve(data ? data : null)
       }
 
       r.onerror = (ev) => {
         console.error('get failed')
+        console.trace()
         reject(ev)
       }
     })
@@ -171,10 +173,11 @@ class IndexedDB {
         if (data) {
           resolve(data)
         }
-        resolve(null)
+        resolve(data ? data : null)
       }
       r.onerror = (ev) => {
         console.error('getAll failed')
+        console.trace()
         reject(ev)
       }
     })
@@ -193,13 +196,11 @@ class IndexedDB {
 
       r.onsuccess = (ev) => {
         const data = r.result
-        if (data) {
-          resolve(data)
-        }
-        resolve(null)
+        resolve(data ? data : null)
       }
       r.onerror = (ev) => {
         console.error('getAllKeys failed')
+        console.trace()
         reject(ev)
       }
     })
@@ -221,6 +222,7 @@ class IndexedDB {
       }
       r.onerror = (ev) => {
         console.error('delete failed')
+        console.trace()
         reject(ev)
       }
     })
@@ -242,6 +244,7 @@ class IndexedDB {
       }
       r.onerror = (ev) => {
         console.error('clear failed')
+        console.trace()
         reject(ev)
       }
     })
@@ -267,6 +270,7 @@ class IndexedDB {
       }
       r.onerror = (ev) => {
         console.error('openCursor failed')
+        console.trace()
         reject(ev)
       }
     })
