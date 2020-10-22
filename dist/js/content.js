@@ -1976,14 +1976,14 @@
                 !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
                   .deduplication
               ) {
-                resolve(false)
+                return resolve(false)
               }
               // 在数据库进行查找
               const storeNmae = this.getStoreName(resultId)
               const data = await this.IDB.get(storeNmae, resultId)
               // 查询结果为空，返回不重复
               if (data === null) {
-                resolve(false)
+                return resolve(false)
               } else {
                 this.existedIdList.push(data.id)
                 // 查询到了对应的记录，根据策略进行判断
@@ -1992,11 +1992,11 @@
                     .dupliStrategy === 'loose'
                 ) {
                   // 如果是宽松策略（只考虑 id），返回重复
-                  resolve(true)
+                  return resolve(true)
                 } else {
                   // 如果是严格策略（同时考虑 id 和文件名），则比较文件名
                   const record = this.createRecord(resultId)
-                  resolve(record.n === data.n)
+                  return resolve(record.n === data.n)
                 }
               }
             })
@@ -18036,10 +18036,7 @@ flag 及其含义如下：
             if (savedOption) {
               // 使用 assign 合并选项，而不是直接覆盖 settings
               // 这样在新版本里可以给默认的 settings 添加新的选项，不会因为旧版本里没有这个选项而导致问题
-              this.settings = Object.assign(
-                this.settings,
-                JSON.parse(savedOption),
-              )
+              Object.assign(this.settings, JSON.parse(savedOption))
             } else {
               return
             }
@@ -18133,7 +18130,7 @@ flag 及其含义如下：
           // 重设选项
           reset() {
             // 将保存的选项恢复为默认值
-            this.settings = Object.assign({}, this.optionDefault)
+            Object.assign(this.settings, this.optionDefault)
             // 覆写本地存储里的设置为默认值
             localStorage.setItem(this.storeName, JSON.stringify(this.settings))
             // 重设选项

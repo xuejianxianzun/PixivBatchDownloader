@@ -2,7 +2,77 @@
 
 [漫画系列页面](https://www.pixiv.net/user/3698796/series/61267) 处于改版中，我的账号还是旧版，等我的账号也变成新版之后，再过一个月，删除兼容旧版的代码。
 
-## 8.0.0 2020-10-20
+## 8.0.1 2020-10-22
+
+### 修复 bug：重置设置后，修改选项无效的问题
+
+今天发现了这个 bug，比如命名规则是 `{id}-{tags}`，重置设置，之后修改命名规则，但是不管怎么修改，下载时的命名规则还是旧的 `{id}-{tags}`。刷新页面可以解决。现在对这个bug进行了修复。
+
+#### 原因
+
+原因是因为页面初始化时，其他组件引用了 `settings` 对象。重置设置时，用等号 `=` 重新设置了 `settings` 的值，导致 `settings` 的内存地址变化了，然而其他组件里依然是一开始的旧 `settings`，所以修改选项无效。 
+
+此问题可简化为以下模型：
+
+```
+// 导出对象 a
+let a = {
+  name: 'a'
+}
+// 模块 b 引用 a
+let b = a
+// 通过等号赋值改变 a
+a = {
+  name: 'ccc'
+}
+// 模块 b 里还是原来的 a，没有变
+console.log(b.name)
+// 'a'
+// 这是因为通过等号重新给 a 赋值，a 的内存地址变成了新的。但是 b 仍然是原来的 a 的内存地址，所以 b 不会变。
+```
+
+解决办法有两个：
+
+1. 不改变 `settings` 的内存地址就不会出问题，所以不要用等号赋值。可以用 `Object.assign(settings, newObj)` 代替用等号赋值。
+2.  `settings` 是类 `Settings` 的属性。如果在其他类里面使用 `Settings.settings` 来访问，由于类 `Settings` 不会变，所以 `settings` 可以随意改变，不会出问题。但这样写起来麻烦。
+
+使用了方法 1，修改起来很简单。
+
+### 修复 bug：检查重复文件时，代码没能及时返回的问题
+
+如果关闭“不下载重复文件”，那么下载器应该直接返回“通过”的结果，不应该去读取数据库进行数据对比。但是之前不管怎样都会进行对比。
+
+原因是 Promise 函数里有多个 `resolve` 时，没加 `return` 的问题。现在进行了修复。
+
+把情况简化一下，假设有个函数，有 3 个参数作为判断条件，如果检查到某个参数为 false 就直接 resolve，不执行后续代码。那么下面的代码是错误的：
+
+```
+async function t(a, b, c) {
+  return new Promise((resolve) => {
+    if (!a) {
+      console.log(a)
+      resolve(false)
+    }
+    if (!b) {
+      console.log(b)
+      resolve(false)
+    }
+    if (!c) {
+      console.log(c)
+      resolve(false)
+    }
+  })
+}
+
+// 执行测试
+t(false, false, false)
+```
+
+执行上面的代码，会发现里面 3 个判断里的 `resolve` 全都执行了。
+
+以前我对 Promise 存在认知错误，以为 `resolve` 或者 `reject` 一次之后代码就不会执行了，这是错误的。 `resolve` 或者 `reject` 只是确定了 Promise 的状态，后面的代码还是会执行的。所以这种情况需要加 `return` 。
+
+## 8.0.0 2020-10-21
 
 ### 新增命名标记 {task_date}
 

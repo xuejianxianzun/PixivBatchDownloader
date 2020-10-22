@@ -230,24 +230,24 @@ class Deduplication {
     return new Promise<boolean>(async (resolve, reject) => {
       // 如果未启用去重，直接返回不重复
       if (!settings.deduplication) {
-        resolve(false)
+        return resolve(false)
       }
       // 在数据库进行查找
       const storeNmae = this.getStoreName(resultId)
       const data = (await this.IDB.get(storeNmae, resultId)) as Record | null
       // 查询结果为空，返回不重复
       if (data === null) {
-        resolve(false)
+        return resolve(false)
       } else {
         this.existedIdList.push(data.id)
         // 查询到了对应的记录，根据策略进行判断
         if (settings.dupliStrategy === 'loose') {
           // 如果是宽松策略（只考虑 id），返回重复
-          resolve(true)
+          return resolve(true)
         } else {
           // 如果是严格策略（同时考虑 id 和文件名），则比较文件名
           const record = this.createRecord(resultId)
-          resolve(record.n === data.n)
+          return resolve(record.n === data.n)
         }
       }
     })

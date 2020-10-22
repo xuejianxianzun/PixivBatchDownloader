@@ -407,7 +407,7 @@ class Settings {
     if (savedOption) {
       // 使用 assign 合并选项，而不是直接覆盖 settings
       // 这样在新版本里可以给默认的 settings 添加新的选项，不会因为旧版本里没有这个选项而导致问题
-      this.settings = Object.assign(this.settings, JSON.parse(savedOption))
+      Object.assign(this.settings, JSON.parse(savedOption))
     } else {
       return
     }
@@ -532,7 +532,7 @@ class Settings {
   // 重设选项
   private reset() {
     // 将保存的选项恢复为默认值
-    this.settings = Object.assign({}, this.optionDefault)
+    Object.assign(this.settings, this.optionDefault)
     // 覆写本地存储里的设置为默认值
     localStorage.setItem(this.storeName, JSON.stringify(this.settings))
     // 重设选项
