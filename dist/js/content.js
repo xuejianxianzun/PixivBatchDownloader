@@ -3896,7 +3896,9 @@
                 'API'
               ].replaceUnsafeStr(
                 _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM'].getTitle(),
-              )}-${new Date().getTime()}.json`,
+              )}-${_Store__WEBPACK_IMPORTED_MODULE_3__[
+                'store'
+              ].crawlCompleteTime.getTime()}.json`,
             )
           }
         }
@@ -9232,6 +9234,8 @@
                 'downloadStates'
               ].replace(data.states)
             }
+            _Store__WEBPACK_IMPORTED_MODULE_3__['store'].crawlCompleteTime =
+              meta.date
             // 恢复模式就绪
             this.flag = true
             _Log__WEBPACK_IMPORTED_MODULE_1__['log'].success(
@@ -9286,6 +9290,9 @@
                   id: this.taskId,
                   url: this.getURL(),
                   part: this.part.length,
+                  date:
+                    _Store__WEBPACK_IMPORTED_MODULE_3__['store']
+                      .crawlCompleteTime,
                 }
                 this.IDB.add(this.metaName, metaData)
                 // 保存 states 数据

@@ -16,7 +16,10 @@ class DateFormat {
   // 参考资料：
   // https://www.w3.org/TR/NOTE-datetime
   // https://en.wikipedia.org/wiki/Date_format_by_country
-  public static format(date: string | Date, format: string = 'YYYY-MM-DD') {
+  public static format(
+    date: string | number | Date,
+    format: string = 'YYYY-MM-DD',
+  ) {
     // 生成年、月、日、时、分、秒
     const _date = new Date(date)
     const YYYY = _date.getFullYear().toString()

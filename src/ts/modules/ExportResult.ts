@@ -22,7 +22,7 @@ class ExportResult {
       url,
       `result-${API.replaceUnsafeStr(
         DOM.getTitle(),
-      )}-${new Date().getTime()}.json`,
+      )}-${store.crawlCompleteTime.getTime()}.json`,
     )
   }
 }

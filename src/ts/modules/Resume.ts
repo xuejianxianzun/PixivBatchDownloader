@@ -11,6 +11,7 @@ interface TaskMeta {
   id: number
   url: string
   part: number
+  date: Date
 }
 
 interface TaskData {
@@ -151,6 +152,8 @@ class Resume {
       downloadStates.replace(data.states)
     }
 
+    store.crawlCompleteTime = meta.date
+
     // 恢复模式就绪
     this.flag = true
 
@@ -194,6 +197,7 @@ class Resume {
           id: this.taskId,
           url: this.getURL(),
           part: this.part.length,
+          date: store.crawlCompleteTime,
         }
 
         this.IDB.add(this.metaName, metaData)
