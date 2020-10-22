@@ -468,7 +468,7 @@ const formHtml = `<form class="settingForm">
       <p class="option" data-no="31">
       <span class="settingNameStyle1">${lang.transl(
         '_日期格式',
-      )}<span class="gray1"> ? </span></span>
+      )}</span>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
       <button type="button" class="gray1 textButton showDateTip">${lang.transl(
         '_提示',

@@ -5,7 +5,8 @@ import { form } from './Form'
 // 保存设置表单的所有设置项，并且在下载器初始化时恢复这些设置的值
 
 // 成员 settings 保存着当前页面的所有设置项；当设置项变化时，settings 响应变化并保存到 localStorage 里。
-// 注意：选项 setWantPage 并不需要实际上进行保存和恢复。保存和恢复时使用的是 wantPageArr。
+// 注意：
+// 选项 setWantPage 并不需要实际上进行保存和恢复。保存和恢复时使用的是 wantPageArr
 // 如果打开了多个标签页，每个页面都有各自的 settings 成员。它们是互相独立的，不会互相影响。
 // 但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
 
