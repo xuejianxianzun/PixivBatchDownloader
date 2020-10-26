@@ -1,4 +1,3 @@
-import { Colors, colorType } from './Colors'
 import { Msg } from './MsgBox'
 
 // 触发自定义事件

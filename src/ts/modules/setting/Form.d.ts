@@ -55,4 +55,5 @@ export interface SettingsForm extends HTMLFormElement {
   fileNameLengthLimit: HTMLInputElement
   imageSize: RadioNodeList
   dateFormat: HTMLInputElement
+  userSetLang: RadioNodeList
 }

@@ -465,10 +465,16 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
       </p>
 
+      <p class="option" data-no="18">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_预览搜索结果说明',
+      )}">${lang.transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="previewResult" id="setPreviewResult" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
+
       <p class="option" data-no="31">
-      <span class="settingNameStyle1">${lang.transl(
-        '_日期格式',
-      )}</span>
+      <span class="settingNameStyle1">${lang.transl('_日期格式')}</span>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
       <button type="button" class="gray1 textButton showDateTip">${lang.transl(
         '_提示',
@@ -529,12 +535,28 @@ const formHtml = `<form class="settingForm">
       </span>
       </p>
 
-      <p class="option" data-no="18">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_预览搜索结果说明',
-      )}">${lang.transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="previewResult" id="setPreviewResult" class="need_beautify checkbox_switch" checked>
-      <span class="beautify_switch"></span>
+      <p class="option" data-no="32">
+      <span class="settingNameStyle1">Language</span>
+      <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="-1" checked>
+      <span class="beautify_radio"></span>
+      <label for="userSetLang1">${lang.transl('_自动检测')}</label>
+      &nbsp;
+      <input type="radio" name="userSetLang" id="userSetLang2" class="need_beautify radio" value="0">
+      <span class="beautify_radio"></span>
+      <label for="userSetLang2">简体中文</label>
+      &nbsp;
+      <input type="radio" name="userSetLang" id="userSetLang3" class="need_beautify radio" value="3">
+      <span class="beautify_radio"></span>
+      <label for="userSetLang3">繁體中文</label>
+      &nbsp;
+      <input type="radio" name="userSetLang" id="userSetLang4" class="need_beautify radio" value="1">
+      <span class="beautify_radio"></span>
+      <label for="userSetLang4">日本語</label>
+      &nbsp;
+      <input type="radio" name="userSetLang" id="userSetLang5" class="need_beautify radio" value="2">
+      <span class="beautify_radio"></span>
+      <label for="userSetLang5">English</label>
+      &nbsp;
       </p>
 
       <slot data-name="otherBtns" class="centerWrap_btns"></slot>

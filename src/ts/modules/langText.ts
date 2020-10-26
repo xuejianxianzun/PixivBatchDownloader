@@ -1373,6 +1373,13 @@ const langText = {
     'The time when the task was crawl completed. For example: 2020-10-21',
     '本次工作擷取完成時的時間。例如：2020-10-21。',
   ],
+  _自动检测: ['自动检测', '自動検出', 'Auto', '自動偵測'],
+  _变更语言后刷新页面的提示: [
+    '更换语言后，请刷新页面。',
+    '言語を変更した後は、ページを更新してください。',
+    'Please refresh the page after changing the language.',
+    '變更語言後，請重新整理頁面。',
+  ],
 }
 
 export { langText, langTextKeys }

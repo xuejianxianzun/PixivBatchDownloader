@@ -1,37 +1,62 @@
 import { langText } from './langText'
 import { langTextKeys } from './langText'
+import { EVT } from './EVT'
 
 // 语言类
 class Lang {
   constructor() {
-    this.getLangType()
+    this.setFlag()
+    this.bindEvent()
   }
 
   private flag = 0
 
-  // 设置语言类型
+  private readonly storeName = 'xzLang'
+
+  private bindEvent() {
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      const data = ev.detail.data
+      if (data.name === 'userSetLang') {
+        // 储存设置
+        localStorage.setItem(this.storeName, data.value)
+        // 重新设置语言
+        const old = this.flag
+        this.setFlag()
+        if (this.flag !== old) {
+          EVT.sendMsg({
+            msg: this.transl('_变更语言后刷新页面的提示'),
+          })
+        }
+      }
+    })
+  }
+
+  // 从本地存储读取设置
+  // 其实从 settings.userSetLang 可以获取这个设置，但是在这个类里引入 setting 会导致循环依赖，所以不使用 settings，而是转存到本地存储里。这样也算是解耦了。
+  private setFlag() {
+    const userSetLang = parseInt(localStorage.getItem(this.storeName) || '-1')
+    this.flag = userSetLang === -1 ? this.getLangType() : userSetLang
+  }
+
+  // 获取页面使用的语言，返回对应的 flag
   private getLangType() {
-    const userLang = document.documentElement.lang // 获取语言标识
+    const userLang = document.documentElement.lang
     switch (userLang) {
       case 'zh':
       case 'zh-CN':
       case 'zh-Hans':
-        this.flag = 0 // 设置为简体中文
-        break
+        return 0 // 简体中文
 
       case 'ja':
-        this.flag = 1 // 设置为日语
-        break
+        return 1 // 日本語
 
       case 'zh-Hant':
       case 'zh-tw':
       case 'zh-TW':
-        this.flag = 3 // 设置为繁体中文
-        break
+        return 3 // 繁體中文
 
       default:
-        this.flag = 2 // 设置为英语
-        break
+        return 2 // English
     }
   }
 

@@ -70,6 +70,7 @@ interface XzSetting {
   fileNameLengthLimit: string
   imageSize: 'original' | 'regular' | 'small'
   dateFormat: string
+  userSetLang: '-1' | '0' | '1' | '2' | '3'
 }
 
 interface SettingChangeData {
@@ -174,6 +175,7 @@ class Settings {
     fileNameLengthLimit: '200',
     imageSize: 'original',
     dateFormat: 'YYYY-MM-DD',
+    userSetLang: '-1',
   }
 
   // 需要持久化保存的设置
@@ -335,6 +337,8 @@ class Settings {
     this.saveRadio('imageSize')
 
     this.saveTextInput('dateFormat')
+
+    this.saveRadio('userSetLang')
 
     window.addEventListener(EVT.list.resetSettings, () => {
       form.reset()
@@ -525,6 +529,8 @@ class Settings {
     this.restoreString('imageSize')
 
     this.restoreString('dateFormat')
+
+    this.restoreString('userSetLang')
 
     // 恢复完毕之后触发一次设置改变事件
     EVT.fire(EVT.list.settingChange)
