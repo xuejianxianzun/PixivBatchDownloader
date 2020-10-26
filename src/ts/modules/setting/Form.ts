@@ -11,6 +11,7 @@ import { themeColor } from '../ThemeColor'
 class Form {
   constructor() {
     this.form = DOM.useSlot('form', formHtml) as SettingsForm
+    themeColor.register(this.form)
 
     this.allCheckBox = this.form.querySelectorAll(
       'input[type="checkbox"]',
@@ -36,8 +37,6 @@ class Form {
 
     // 激活第一个选项卡
     this.activeTab(0)
-
-    themeColor.register(this.form)
   }
 
   // 设置表单上美化元素的状态

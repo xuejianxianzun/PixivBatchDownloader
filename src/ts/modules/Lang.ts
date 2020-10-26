@@ -7,7 +7,7 @@ class Lang {
     this.getLangType()
   }
 
-  private langType: number = 0
+  private flag = 0
 
   // 设置语言类型
   private getLangType() {
@@ -16,28 +16,28 @@ class Lang {
       case 'zh':
       case 'zh-CN':
       case 'zh-Hans':
-        this.langType = 0 // 设置为简体中文
+        this.flag = 0 // 设置为简体中文
         break
 
       case 'ja':
-        this.langType = 1 // 设置为日语
+        this.flag = 1 // 设置为日语
         break
 
       case 'zh-Hant':
       case 'zh-tw':
       case 'zh-TW':
-        this.langType = 3 // 设置为繁体中文
+        this.flag = 3 // 设置为繁体中文
         break
 
       default:
-        this.langType = 2 // 设置为英语
+        this.flag = 2 // 设置为英语
         break
     }
   }
 
   // translate 翻译
   public transl(name: langTextKeys, ...arg: string[]) {
-    let content = langText[name][this.langType]
+    let content = langText[name][this.flag]
     arg.forEach((val) => (content = content.replace('{}', val)))
     return content
   }

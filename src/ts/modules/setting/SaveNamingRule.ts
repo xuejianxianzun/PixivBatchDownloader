@@ -9,6 +9,7 @@ class SaveNamingRule {
   constructor(ruleInput: HTMLInputElement) {
     this.ruleInput = ruleInput
 
+    DOM.clearSlot('saveNamingRule')
     const wrap = DOM.useSlot('saveNamingRule', this.html)
     themeColor.register(wrap)
 

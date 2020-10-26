@@ -40,7 +40,7 @@ class SaveNovelData {
       const bookmarked = !!body.bookmarkData
 
       // 保存作品在排行榜上的编号
-      const rankData = store.getRankList(body.id)
+      const rankData = store.getRankList(id)
       const rank = rankData ? '#' + rankData : ''
 
       const seriesTitle = body.seriesNavData ? body.seriesNavData.title : ''

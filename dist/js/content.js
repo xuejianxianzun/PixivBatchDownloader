@@ -6269,7 +6269,7 @@ __webpack_require__.r(__webpack_exports__);
 // 语言类
 class Lang {
     constructor() {
-        this.langType = 0;
+        this.flag = 0;
         this.getLangType();
     }
     // 设置语言类型
@@ -6279,24 +6279,24 @@ class Lang {
             case 'zh':
             case 'zh-CN':
             case 'zh-Hans':
-                this.langType = 0; // 设置为简体中文
+                this.flag = 0; // 设置为简体中文
                 break;
             case 'ja':
-                this.langType = 1; // 设置为日语
+                this.flag = 1; // 设置为日语
                 break;
             case 'zh-Hant':
             case 'zh-tw':
             case 'zh-TW':
-                this.langType = 3; // 设置为繁体中文
+                this.flag = 3; // 设置为繁体中文
                 break;
             default:
-                this.langType = 2; // 设置为英语
+                this.flag = 2; // 设置为英语
                 break;
         }
     }
     // translate 翻译
     transl(name, ...arg) {
-        let content = _langText__WEBPACK_IMPORTED_MODULE_0__["langText"][name][this.langType];
+        let content = _langText__WEBPACK_IMPORTED_MODULE_0__["langText"][name][this.flag];
         arg.forEach((val) => (content = content.replace('{}', val)));
         return content;
     }
@@ -12347,7 +12347,7 @@ class SaveNovelData {
             const user = body.userName;
             const bookmarked = !!body.bookmarkData;
             // 保存作品在排行榜上的编号
-            const rankData = _Store__WEBPACK_IMPORTED_MODULE_1__["store"].getRankList(body.id);
+            const rankData = _Store__WEBPACK_IMPORTED_MODULE_1__["store"].getRankList(id);
             const rank = rankData ? '#' + rankData : '';
             const seriesTitle = body.seriesNavData ? body.seriesNavData.title : '';
             const seriesOrder = body.seriesNavData
@@ -12748,6 +12748,7 @@ class Form {
         this.activeClass = 'active';
         this.chooseKeys = ['Enter', 'NumpadEnter']; // 让回车键可以控制复选框（浏览器默认只支持空格键）
         this.form = _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_4__["default"]);
+        _ThemeColor__WEBPACK_IMPORTED_MODULE_6__["themeColor"].register(this.form);
         this.allCheckBox = this.form.querySelectorAll('input[type="checkbox"]');
         this.allRadio = this.form.querySelectorAll('input[type="radio"]');
         this.allSwitch = this.form.querySelectorAll('.checkbox_switch');
@@ -12759,7 +12760,6 @@ class Form {
         this.initFormBueatiful();
         // 激活第一个选项卡
         this.activeTab(0);
-        _ThemeColor__WEBPACK_IMPORTED_MODULE_6__["themeColor"].register(this.form);
     }
     // 设置表单上美化元素的状态
     initFormBueatiful() {
@@ -13508,6 +13508,7 @@ class SaveNamingRule {
   <ul class="namingRuleList"></ul>
   </div>`;
         this.ruleInput = ruleInput;
+        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].clearSlot('saveNamingRule');
         const wrap = _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].useSlot('saveNamingRule', this.html);
         _ThemeColor__WEBPACK_IMPORTED_MODULE_4__["themeColor"].register(wrap);
         this.saveBtn = wrap.querySelector('button.nameSave');
