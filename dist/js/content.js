@@ -1155,15 +1155,15 @@
       </div>
 
       <div class="gray1 bottom_help_bar"> 
-      <a href="javascript:void()" class="showDownTip gray1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <button class="textButton gray1 showDownTip" type="button">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
-      ].transl('_常见问题')}</a>
+      ].transl('_常见问题')}</button>
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_wiki')}</a>
-      <a class="gray1" href="javascript:void()" id="resetSettings">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <button class="textButton gray1 showDownTip" type="button" id="resetSettings">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
-      ].transl('_重置设置')}</a>
+      ].transl('_重置设置')}</button>
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_fanboxDownloader')}</a>

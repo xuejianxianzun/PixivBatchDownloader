@@ -55,15 +55,15 @@ class CenterPanel {
       </div>
 
       <div class="gray1 bottom_help_bar"> 
-      <a href="javascript:void()" class="showDownTip gray1">${lang.transl(
+      <button class="textButton gray1 showDownTip" type="button">${lang.transl(
         '_常见问题',
-      )}</a>
+      )}</button>
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"> ${lang.transl(
         '_wiki',
       )}</a>
-      <a class="gray1" href="javascript:void()" id="resetSettings">${lang.transl(
+      <button class="textButton gray1 showDownTip" type="button" id="resetSettings">${lang.transl(
         '_重置设置',
-      )}</a>
+      )}</button>
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${lang.transl(
         '_fanboxDownloader',
       )}</a>
