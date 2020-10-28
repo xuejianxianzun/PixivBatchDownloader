@@ -185,7 +185,7 @@
          * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
          * Github： https://github.com/xuejianxianzun/PixivBatchDownloader
          * Releases: https://github.com/xuejianxianzun/PixivBatchDownloader/releases
-         * Wiki:    https://github.com/xuejianxianzun/PixivBatchDownloader/wiki
+         * Wiki:    https://xuejianxianzun.github.io/PBDWiki
          * Website: https://pixiv.download/
          * E-mail:  xuejianxianzun@gmail.com
          * QQ group:  932980062
@@ -1138,7 +1138,7 @@
         'lang'
       ].transl(
         '_wiki',
-      )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank">
+      )}" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
       <svg t="1574400169015" class="icon" widht="16" height="16" viewBox="0 0 1088 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1872" xmlns:xlink="http://www.w3.org/1999/xlink" width="17" height="16"><defs><style type="text/css"></style></defs><path d="M1044.286732 3.51978A1138.616836 1138.616836 0 0 0 618.841322 58.172364a198.963565 198.963565 0 0 0-26.814324 10.815324V1023.936004l0.895944-0.383976a979.52278 979.52278 0 0 1 443.236298-68.411724 47.741016 47.741016 0 0 0 51.580776-43.261296V50.172864a47.165052 47.165052 0 0 0-43.453284-46.653084z m-74.299356 632.15249h-224.369977V541.470158h224.369977v94.202112z m0-231.921504h-224.369977V309.484657h224.369977v94.266109zM469.154678 58.172364A1138.296856 1138.296856 0 0 0 43.645272 3.455784 47.421036 47.421036 0 0 0 0 50.172864V908.103244a46.653084 46.653084 0 0 0 15.35904 34.493844 48.060996 48.060996 0 0 0 36.285732 12.415224 980.610712 980.610712 0 0 1 443.300294 68.347728l0.895944 0.575964V68.7957a202.099369 202.099369 0 0 0-26.686332-10.751328zM351.146053 635.800262H126.776076V541.59815h224.369977v94.202112z m0-231.921504H126.776076V309.612649h224.369977v94.266109z" p-id="1873"></path></svg>
       </a>
         <div class="has_tip centerWrap_top_btn centerWrap_close" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
@@ -1158,7 +1158,7 @@
       <button class="textButton gray1 showDownTip" type="button">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_常见问题')}</button>
-      <a class="gray1" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_wiki')}</a>
       <button class="textButton gray1 showDownTip" type="button" id="resetSettings">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
@@ -1167,7 +1167,7 @@
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_fanboxDownloader')}</a>
-      <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">通过“爱发电”网站支持我</a>
+      <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">在“爱发电”支持我</a>
       <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
       <br>
@@ -1181,10 +1181,10 @@
             document.body.insertAdjacentHTML('beforeend', centerPanelHTML)
             this.centerPanel = document.querySelector('.centerWrap')
             this.updateLink = this.centerPanel.querySelector('.update')
-            const userLang = document.documentElement.lang
-            const donateId = ['zh', 'zh-CN', 'zh-Hans'].includes(userLang)
-              ? 'zanzhu'
-              : 'patreon'
+            const donateId =
+              _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].flag === 0
+                ? 'zanzhu'
+                : 'patreon'
             document.getElementById(donateId).style.display = 'inline-block'
           }
           bindEvents() {
@@ -2521,7 +2521,8 @@
                     arg.id,
                   )
                 }
-                _Log__WEBPACK_IMPORTED_MODULE_1__['log'].error(msg, 1)
+                // 超过重试次数的话，这个下载会被暂时跳过。但最后还是会尝试重新下载它，所以这里不输出错误信息。
+                // log.error(msg, 1)
                 this.cancel = true
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
                   _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadError,
@@ -2574,8 +2575,9 @@
                     }
                   } catch (error) {
                     const msg = `Convert ugoira error, id ${arg.data.idNum}.`
-                    _Log__WEBPACK_IMPORTED_MODULE_1__['log'].error(msg, 1)
-                    console.error(error)
+                    // 因为会重试所以不再日志上显示
+                    // log.error(msg, 1)
+                    console.error(msg)
                     this.cancel = true
                     _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
                       _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
@@ -2878,6 +2880,7 @@
                   _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.saveFileError,
                 )
                 // 重新下载这个文件
+                // 但并不确定能否如预期一样重新下载这个文件
                 this.saveFileError(msg.data)
               }
               // UUID 的情况
@@ -7442,14 +7445,13 @@
               }
             } catch (error) {
               if (error.status) {
-                // 请求成功，但状态码不正常
+                // 请求成功，但状态码不正常，不会重试
                 this.logErrorStatus(error.status, id)
               } else {
-                // 请求失败，没有获得服务器的返回数据
-                // 实际上这里也会捕获到保存作品数据时的错误
+                // 请求失败，没有获得服务器的返回数据，会重试
+                // 这里也会捕获到 save 作品数据时的错误
                 failed = true
                 console.error(error)
-                _Log__WEBPACK_IMPORTED_MODULE_5__['log'].error(error)
               }
             }
             if (failed) {

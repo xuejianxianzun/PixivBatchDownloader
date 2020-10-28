@@ -57,7 +57,7 @@ Some auxiliary functions have also been added, such as removing ads, quick colle
 
 # Wiki
 
-[Wiki](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki)
+[Wiki](https://xuejianxianzun.github.io/PBDWiki)
 
 Note: Currently only available in Chinese. Welcome to translate!
 

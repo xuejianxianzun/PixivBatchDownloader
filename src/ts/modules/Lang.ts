@@ -9,7 +9,7 @@ class Lang {
     this.bindEvent()
   }
 
-  private flag = 0
+  public flag = 0
 
   private readonly storeName = 'xzLang'
 

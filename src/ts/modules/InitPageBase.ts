@@ -231,14 +231,13 @@ abstract class InitPageBase {
       }
     } catch (error) {
       if (error.status) {
-        // 请求成功，但状态码不正常
+        // 请求成功，但状态码不正常，不会重试
         this.logErrorStatus(error.status, id)
       } else {
-        // 请求失败，没有获得服务器的返回数据
-        // 实际上这里也会捕获到保存作品数据时的错误
+        // 请求失败，没有获得服务器的返回数据，会重试
+        // 这里也会捕获到 save 作品数据时的错误
         failed = true
         console.error(error)
-        log.error(error)
       }
     }
 

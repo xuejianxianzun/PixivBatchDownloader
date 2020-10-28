@@ -312,7 +312,7 @@
   line-height: 24px;
 }
 .centerWrap .bottom_help_bar > * {
-  padding-right: 10px;
+  padding: 0 3px;
 }
 .centerWrap .showDownTip {
   cursor: pointer;

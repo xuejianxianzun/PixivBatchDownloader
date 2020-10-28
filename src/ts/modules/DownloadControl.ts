@@ -106,6 +106,7 @@ class DownloadControl {
         )
         EVT.fire(EVT.list.saveFileError)
         // 重新下载这个文件
+        // 但并不确定能否如预期一样重新下载这个文件
         this.saveFileError(msg.data)
       }
 

@@ -38,7 +38,7 @@ class CenterPanel {
       </a>
       <a class="has_tip centerWrap_top_btn wiki_url" data-tip="${lang.transl(
         '_wiki',
-      )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank">
+      )}" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
       <svg t="1574400169015" class="icon" widht="16" height="16" viewBox="0 0 1088 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1872" xmlns:xlink="http://www.w3.org/1999/xlink" width="17" height="16"><defs><style type="text/css"></style></defs><path d="M1044.286732 3.51978A1138.616836 1138.616836 0 0 0 618.841322 58.172364a198.963565 198.963565 0 0 0-26.814324 10.815324V1023.936004l0.895944-0.383976a979.52278 979.52278 0 0 1 443.236298-68.411724 47.741016 47.741016 0 0 0 51.580776-43.261296V50.172864a47.165052 47.165052 0 0 0-43.453284-46.653084z m-74.299356 632.15249h-224.369977V541.470158h224.369977v94.202112z m0-231.921504h-224.369977V309.484657h224.369977v94.266109zM469.154678 58.172364A1138.296856 1138.296856 0 0 0 43.645272 3.455784 47.421036 47.421036 0 0 0 0 50.172864V908.103244a46.653084 46.653084 0 0 0 15.35904 34.493844 48.060996 48.060996 0 0 0 36.285732 12.415224 980.610712 980.610712 0 0 1 443.300294 68.347728l0.895944 0.575964V68.7957a202.099369 202.099369 0 0 0-26.686332-10.751328zM351.146053 635.800262H126.776076V541.59815h224.369977v94.202112z m0-231.921504H126.776076V309.612649h224.369977v94.266109z" p-id="1873"></path></svg>
       </a>
         <div class="has_tip centerWrap_top_btn centerWrap_close" data-tip="${lang.transl(
@@ -58,7 +58,7 @@ class CenterPanel {
       <button class="textButton gray1 showDownTip" type="button">${lang.transl(
         '_常见问题',
       )}</button>
-      <a class="gray1" href="https://github.com/xuejianxianzun/PixivBatchDownloader/wiki" target="_blank"> ${lang.transl(
+      <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank"> ${lang.transl(
         '_wiki',
       )}</a>
       <button class="textButton gray1 showDownTip" type="button" id="resetSettings">${lang.transl(
@@ -67,7 +67,7 @@ class CenterPanel {
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${lang.transl(
         '_fanboxDownloader',
       )}</a>
-      <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">通过“爱发电”网站支持我</a>
+      <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">在“爱发电”支持我</a>
       <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
       <br>
@@ -84,10 +84,7 @@ class CenterPanel {
       '.update',
     )! as HTMLAnchorElement
 
-    const userLang = document.documentElement.lang
-    const donateId = ['zh', 'zh-CN', 'zh-Hans'].includes(userLang)
-      ? 'zanzhu'
-      : 'patreon'
+    const donateId = lang.flag === 0 ? 'zanzhu' : 'patreon'
     document.getElementById(donateId)!.style.display = 'inline-block'
   }
 

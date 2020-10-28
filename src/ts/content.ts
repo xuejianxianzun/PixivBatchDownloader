@@ -4,7 +4,7 @@
  * license: GPL-3.0-or-later; http://www.gnu.org/licenses/gpl-3.0.txt
  * Github： https://github.com/xuejianxianzun/PixivBatchDownloader
  * Releases: https://github.com/xuejianxianzun/PixivBatchDownloader/releases
- * Wiki:    https://github.com/xuejianxianzun/PixivBatchDownloader/wiki
+ * Wiki:    https://xuejianxianzun.github.io/PBDWiki
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  * QQ group:  932980062

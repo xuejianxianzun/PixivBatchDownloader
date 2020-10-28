@@ -51,7 +51,7 @@
 
 如果您不能從線上安裝，您可以從 [releases 頁面](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest) 離線安裝。
 
-[查看安裝教學](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki/2.-%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B)
+[查看安裝教學](https://xuejianxianzun.github.io/PBDWiki/2.-%E5%AE%89%E8%A3%85%E6%95%99%E7%A8%8B)
 
 但是離線安裝的話，之後的版本更新需要下載新版本來手動更新。
 
@@ -61,7 +61,7 @@
 
 # Wiki
 
-[查看 Wiki](https://github.com/xuejianxianzun/PixivBatchDownloader/wiki)
+[查看 Wiki](https://xuejianxianzun.github.io/PBDWiki)
 
 # 鳴謝
 

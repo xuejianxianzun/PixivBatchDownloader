@@ -140,7 +140,8 @@ class Download {
           msg = lang.transl('_文件下载失败', arg.id)
         }
 
-        log.error(msg, 1)
+        // 超过重试次数的话，这个下载会被暂时跳过。但最后还是会尝试重新下载它，所以这里不输出错误信息。
+        // log.error(msg, 1)
 
         this.cancel = true
         EVT.fire(EVT.list.downloadError, arg.id)
@@ -187,8 +188,9 @@ class Download {
             }
           } catch (error) {
             const msg = `Convert ugoira error, id ${arg.data.idNum}.`
-            log.error(msg, 1)
-            console.error(error)
+            // 因为会重试所以不再日志上显示
+            // log.error(msg, 1)
+            console.error(msg)
 
             this.cancel = true
             EVT.fire(EVT.list.downloadError, arg.id)
