@@ -615,6 +615,7 @@
   max-height: 350px;
   line-height: 20px;
   min-height: 100px;
+  word-break: break-all;
 }
 .outputWrap .outputContent::selection {
   background: #0ea8ef;
