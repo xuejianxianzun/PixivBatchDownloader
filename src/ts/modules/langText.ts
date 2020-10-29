@@ -1146,7 +1146,7 @@ const langText = {
     '文件体积限制',
     'ファイルサイズ制限',
     'File size limit',
-    '檔案大小限制',
+    '檔案體積限制',
   ],
   _不符合要求的文件不会被保存: [
     '不符合要求的文件不会被保存。',
@@ -1341,7 +1341,7 @@ const langText = {
     'Export crawl results',
     '匯出擷取結果',
   ],
-  _图片尺寸: ['图片尺寸', '画像サイズ', 'Image size', '圖片大小'],
+  _图片尺寸: ['图片尺寸', '画像サイズ', 'Image size', '圖片尺寸'],
   _原图: ['原图', 'Original', 'Original', '原圖'],
   _普通: ['普通', 'Regular', 'Regular', '普通'],
   _小图: ['小图', 'Small', 'Small', '小圖'],

@@ -51,6 +51,8 @@ Some auxiliary functions have also been added, such as removing ads, quick colle
 3. On the extension management page, enable "Developer Mode".
 4. Click the button "Load unpacked" and select the folder where the installation package is unzipped.
 
+----------
+
 - The downloaded file will be saved in your browser's download directory.
 
 - Please turn off "Ask where to save each file before downloading" in browser settings.
