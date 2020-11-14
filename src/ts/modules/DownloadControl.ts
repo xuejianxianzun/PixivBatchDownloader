@@ -38,10 +38,13 @@ class DownloadControl {
     ) as HTMLSpanElement
     new ShowConvertCount(convertTipWrap)
 
-    const bmkAfterDLTipWrap = this.wrapper.querySelector(
-      '.bmkAfterDL_tip',
-    ) as HTMLSpanElement
-    new BookmarkAfterDL(bmkAfterDLTipWrap)
+    // 只在 p 站内启用下载后收藏的功能（因为要区分 pixivision）
+    if (location.hostname.endsWith('.pixiv.net')) {
+      const bmkAfterDLTipWrap = this.wrapper.querySelector(
+        '.bmkAfterDL_tip',
+      ) as HTMLSpanElement
+      new BookmarkAfterDL(bmkAfterDLTipWrap)
+    }
   }
 
   private thread = 5 // 同时下载的线程数的默认值

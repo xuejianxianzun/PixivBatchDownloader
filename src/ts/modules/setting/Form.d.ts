@@ -56,4 +56,6 @@ export interface SettingsForm extends HTMLFormElement {
   imageSize: RadioNodeList
   dateFormat: HTMLInputElement
   userSetLang: RadioNodeList
+  bmkAfterDL: HTMLInputElement
+  restrict: RadioNodeList
 }

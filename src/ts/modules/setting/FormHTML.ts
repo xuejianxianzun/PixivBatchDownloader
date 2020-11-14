@@ -456,6 +456,23 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       </p>
+      
+      <p class="option" data-no="33">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_下载后收藏作品的提示',
+      )}">
+      ${lang.transl('_下载后收藏作品')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="bmkAfterDL">
+      <input type="radio" name="restrict" id="restrict1" class="need_beautify radio" value="-1" checked>
+      <span class="beautify_radio"></span>
+      <label for="restrict1">${lang.transl('_公开')}</label>
+      <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="1">
+      <span class="beautify_radio"></span>
+      <label for="restrict2">${lang.transl('_不公开')}</label>
+      </span>
+      </p>
 
       <p class="option" data-no="20">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(

@@ -71,6 +71,8 @@ interface XzSetting {
   imageSize: 'original' | 'regular' | 'small'
   dateFormat: string
   userSetLang: '-1' | '0' | '1' | '2' | '3'
+  bmkAfterDL:boolean
+  restrict:'-1'|'1'
 }
 
 interface SettingChangeData {
@@ -176,6 +178,8 @@ class Settings {
     imageSize: 'original',
     dateFormat: 'YYYY-MM-DD',
     userSetLang: '-1',
+    bmkAfterDL:false,
+    restrict:'-1'
   }
 
   // 需要持久化保存的设置
@@ -339,6 +343,9 @@ class Settings {
     this.saveTextInput('dateFormat')
 
     this.saveRadio('userSetLang')
+
+    this.saveCheckBox('bmkAfterDL')
+    this.saveRadio('restrict')
 
     window.addEventListener(EVT.list.resetSettings, () => {
       form.reset()
@@ -531,6 +538,9 @@ class Settings {
     this.restoreString('dateFormat')
 
     this.restoreString('userSetLang')
+
+    this.restoreBoolean('bmkAfterDL')
+    this.restoreString('restrict')
 
     // 恢复完毕之后触发一次设置改变事件
     EVT.fire(EVT.list.settingChange)

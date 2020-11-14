@@ -711,8 +711,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const needBookmark = true;
-const hide = false;
 // 当文件下载成功后，收藏这个作品
 class BookmarkAfterDL {
     constructor(tipEl) {
@@ -747,7 +745,7 @@ class BookmarkAfterDL {
     }
     // 接收作品 id，开始收藏
     send(id) {
-        if (!needBookmark) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bmkAfterDL) {
             return;
         }
         if (typeof id !== 'number') {
@@ -774,9 +772,9 @@ class BookmarkAfterDL {
                 }
             }
             if (data === undefined) {
-                return reject(new Error(`Not find ${id} in resultMeta`));
+                return reject(new Error(`Not find ${id} in result`));
             }
-            await _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark((data.type !== 3) ? 'illusts' : 'novels', id.toString(), _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].quickBookmarks ? data.tags : [], hide, _Token__WEBPACK_IMPORTED_MODULE_1__["token"].token).catch(err => {
+            await _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark((data.type !== 3) ? 'illusts' : 'novels', id.toString(), _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].quickBookmarks ? data.tags : [], _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].restrict === '1', _Token__WEBPACK_IMPORTED_MODULE_1__["token"].token).catch(err => {
                 // 如果添加收藏失败，则从 id 列表里删除它，重新开始添加收藏
                 console.error(err);
                 const len = this.savedIds.length;
@@ -2391,8 +2389,11 @@ class DownloadControl {
         new _ShowSkipCount__WEBPACK_IMPORTED_MODULE_10__["ShowSkipCount"](skipTipWrap);
         const convertTipWrap = this.wrapper.querySelector('.convert_tip');
         new _ShowConvertCount__WEBPACK_IMPORTED_MODULE_11__["ShowConvertCount"](convertTipWrap);
-        const bmkAfterDLTipWrap = this.wrapper.querySelector('.bmkAfterDL_tip');
-        new _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_12__["BookmarkAfterDL"](bmkAfterDLTipWrap);
+        // 只在 p 站内启用下载后收藏的功能（因为要区分 pixivision）
+        if (location.hostname.endsWith('.pixiv.net')) {
+            const bmkAfterDLTipWrap = this.wrapper.querySelector('.bmkAfterDL_tip');
+            new _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_12__["BookmarkAfterDL"](bmkAfterDLTipWrap);
+        }
     }
     listenEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlStart, () => {
@@ -11481,6 +11482,30 @@ const langText = {
         'Bookmarked',
         '已收藏',
     ],
+    _下载后收藏作品: [
+        '下载后收藏作品',
+        '下载后收藏作品',
+        '下载后收藏作品',
+        '下载后收藏作品',
+    ],
+    _下载后收藏作品的提示: [
+        '成功下载一个文件后，自动收藏这个作品。',
+        '成功下载一个文件后，自动收藏这个作品。',
+        '成功下载一个文件后，自动收藏这个作品。',
+        '成功下载一个文件后，自动收藏这个作品。',
+    ],
+    _公开: [
+        '公开',
+        '公开',
+        '公开',
+        '公开',
+    ],
+    _不公开: [
+        '不公开',
+        '不公开',
+        '不公开',
+        '不公开',
+    ]
 };
 
 
@@ -13485,6 +13510,21 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       </p>
+      
+      <p class="option" data-no="33">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载后收藏作品的提示')}">
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载后收藏作品')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="bmkAfterDL">
+      <input type="radio" name="restrict" id="restrict1" class="need_beautify radio" value="-1" checked>
+      <span class="beautify_radio"></span>
+      <label for="restrict1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_公开')}</label>
+      <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="1">
+      <span class="beautify_radio"></span>
+      <label for="restrict2">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不公开')}</label>
+      </span>
+      </p>
 
       <p class="option" data-no="20">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用快速收藏说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用快速收藏')}<span class="gray1"> ? </span></span>
@@ -13949,6 +13989,8 @@ class Settings {
             imageSize: 'original',
             dateFormat: 'YYYY-MM-DD',
             userSetLang: '-1',
+            bmkAfterDL: false,
+            restrict: '-1'
         };
         // 需要持久化保存的设置
         this.settings = Object.assign({}, this.optionDefault);
@@ -14080,6 +14122,8 @@ class Settings {
         this.saveRadio('imageSize');
         this.saveTextInput('dateFormat');
         this.saveRadio('userSetLang');
+        this.saveCheckBox('bmkAfterDL');
+        this.saveRadio('restrict');
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettings, () => {
             _Form__WEBPACK_IMPORTED_MODULE_2__["form"].reset();
             this.reset();
@@ -14231,6 +14275,8 @@ class Settings {
         this.restoreString('imageSize');
         this.restoreString('dateFormat');
         this.restoreString('userSetLang');
+        this.restoreBoolean('bmkAfterDL');
+        this.restoreString('restrict');
         // 恢复完毕之后触发一次设置改变事件
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange);
     }

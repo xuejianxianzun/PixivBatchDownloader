@@ -7,9 +7,6 @@ import { lang } from './Lang'
 import { EVT } from './EVT'
 import { DonwloadSuccessData } from './Download.d'
 
-const needBookmark = true
-const hide = false
-
 // 当文件下载成功后，收藏这个作品
 class BookmarkAfterDL {
   constructor(tipEl?: HTMLElement) {
@@ -53,7 +50,7 @@ class BookmarkAfterDL {
 
   // 接收作品 id，开始收藏
   private send(id: number | string) {
-    if (!needBookmark) {
+    if (!settings.bmkAfterDL) {
       return
     }
 
@@ -85,14 +82,14 @@ class BookmarkAfterDL {
         }
       }
       if (data === undefined) {
-        return reject(new Error(`Not find ${id} in resultMeta`))
+        return reject(new Error(`Not find ${id} in result`))
       }
 
       await API.addBookmark(
         (data.type !== 3) ? 'illusts' : 'novels',
         id.toString(),
         settings.quickBookmarks ? data.tags : [],
-        hide,
+        settings.restrict === '1',
         token.token,
       ).catch(err => {
         // 如果添加收藏失败，则从 id 列表里删除它，重新开始添加收藏
