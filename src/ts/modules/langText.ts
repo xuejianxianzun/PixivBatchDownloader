@@ -1380,6 +1380,12 @@ const langText = {
     'Please refresh the page after changing the language.',
     '變更語言後，請重新整理頁面。',
   ],
+  _已收藏: [
+    '已收藏',
+    'ブックマーク',
+    'Bookmarked',
+    '已收藏',
+  ],
 }
 
 export { langText, langTextKeys }

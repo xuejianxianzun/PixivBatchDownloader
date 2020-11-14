@@ -17,6 +17,7 @@ import { progressBar } from './ProgressBar'
 import { downloadStates } from './DownloadStates'
 import { ShowSkipCount } from './ShowSkipCount'
 import { ShowConvertCount } from './ShowConvertCount'
+import { BookmarkAfterDL } from './BookmarkAfterDL'
 import { resume } from './Resume'
 import { states } from './States'
 import Config from './Config'
@@ -36,6 +37,11 @@ class DownloadControl {
       '.convert_tip',
     ) as HTMLSpanElement
     new ShowConvertCount(convertTipWrap)
+
+    const bmkAfterDLTipWrap = this.wrapper.querySelector(
+      '.bmkAfterDL_tip',
+    ) as HTMLSpanElement
+    new BookmarkAfterDL(bmkAfterDLTipWrap)
   }
 
   private thread = 5 // 同时下载的线程数的默认值
@@ -125,24 +131,21 @@ class DownloadControl {
     )}</p>
     
     <div class="centerWrap_btns">
-    <button class="startDownload" type="button" style="background:${
-      Colors.blue
-    };"> ${lang.transl('_下载按钮1')}</button>
-    <button class="pauseDownload" type="button" style="background:${
-      Colors.yellow
-    };"> ${lang.transl('_下载按钮2')}</button>
-    <button class="stopDownload" type="button" style="background:${
-      Colors.red
-    };"> ${lang.transl('_下载按钮3')}</button>
-    <button class="copyUrl" type="button" style="background:${
-      Colors.green
-    };"> ${lang.transl('_复制url')}</button>
+    <button class="startDownload" type="button" style="background:${Colors.blue
+      };"> ${lang.transl('_下载按钮1')}</button>
+    <button class="pauseDownload" type="button" style="background:${Colors.yellow
+      };"> ${lang.transl('_下载按钮2')}</button>
+    <button class="stopDownload" type="button" style="background:${Colors.red
+      };"> ${lang.transl('_下载按钮3')}</button>
+    <button class="copyUrl" type="button" style="background:${Colors.green
+      };"> ${lang.transl('_复制url')}</button>
     </div>
     <div class="download_status_text_wrap">
     <span>${lang.transl('_当前状态')}</span>
     <span class="down_status">${lang.transl('_未开始下载')}</span>
     <span class="skip_tip warn"></span>
     <span class="convert_tip warn"></span>
+    <span class="bmkAfterDL_tip green"></span>
     </div>
     </div>`
 
@@ -451,4 +454,4 @@ class DownloadControl {
 }
 
 new DownloadControl()
-export {}
+export { }

@@ -2,6 +2,8 @@
 
 [漫画系列页面](https://www.pixiv.net/user/3698796/series/61267) 处于改版中，我的账号还是旧版，等我的账号也变成新版之后，再过一个月，删除兼容旧版的代码。
 
+2020/12/10 删除旧版代码
+
 ### 推荐更新级别
 
 - 必要。必须进行更新，因为旧的版本已经不适合继续使用。
@@ -280,10 +282,6 @@ pixiv 的搜索 api 的结果有一点变化，导致搜索页面抓取出错，
 
 小说的原图 url 是 blob url，所以无法用其他下载器进行下载。
 
-
-
-
-
 #### 同时下载数量最大值增加到 10
 
 以前同时下载数量最大值是 5，现在增加到 10。
@@ -339,21 +337,6 @@ tab 栏指的是“抓取、下载、其他”三个控制区块的部分，它�
 #### 修改群号
 
 之前的 qq 群满了，现在修改为新的群号。
-
-#### 下载作品时自动收藏或点赞的尝试
-
-如果要在下载时添加对所有作品的收藏，或者点赞，应该使用 result meta。
-
-```
-const type: 'illusts' | 'novels' = (workData.type === 2) ? 'novels' : 'illusts'
-API.addBookmark(
-  type,
-  workData.idNum.toString(),
-  settings.quickBookmarks ? workData.tags : [],
-  false,
-  token.token
-)
-```
 
 ## 7.6.0  2020-09-23
 

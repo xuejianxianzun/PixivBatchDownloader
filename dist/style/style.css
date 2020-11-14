@@ -505,6 +505,7 @@
 }
 .centerWrap .download_area .download_status_text_wrap {
   line-height: 26px;
+  margin-bottom: 4px;
 }
 .centerWrap .download_area .download_status_text_wrap > * {
   padding-right: 5px;
@@ -839,6 +840,9 @@
 }
 .red {
   color: #f00;
+}
+.green {
+  color: #14AD27;
 }
 .downloadError {
   color: #ffa0a0;
