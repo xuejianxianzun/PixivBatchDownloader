@@ -589,6 +589,21 @@ const formHtml = `<form class="settingForm">
       <br>
       </p>
 
+      <p class="option" data-no="36">
+      <span class="settingNameStyle1">${lang.transl('_颜色主题')}</span>
+      <input type="radio" name="theme" id="theme1" class="need_beautify radio" value="auto" checked>
+      <span class="beautify_radio"></span>
+      <label for="theme1">${lang.transl('_自动检测')}</label>
+      &nbsp;
+      <input type="radio" name="theme" id="theme2" class="need_beautify radio" value="white">
+      <span class="beautify_radio"></span>
+      <label for="theme2">White</label>
+      &nbsp;
+      <input type="radio" name="theme" id="theme3" class="need_beautify radio" value="drak">
+      <span class="beautify_radio"></span>
+      <label for="theme3">Dark</label>
+      </p>
+
       <p class="option" data-no="32">
       <span class="settingNameStyle1">Language</span>
       <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="-1" checked>

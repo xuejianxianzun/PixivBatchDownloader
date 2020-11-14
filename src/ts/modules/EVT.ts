@@ -102,7 +102,7 @@ class EVT {
   }
 
   // 触发事件，可以携带数据
-  static fire(type: string, data: object | string | number | boolean = '') {
+  static fire(type: string, data: object | string | number | boolean = {}) {
     const event = new CustomEvent(type, {
       detail: { data: data },
     })

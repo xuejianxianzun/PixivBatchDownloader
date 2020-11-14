@@ -86,7 +86,7 @@ class Form {
     }
 
     // 设置发生改变时，重新设置美化状态
-    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+    window.addEventListener(EVT.list.settingChange, () => {
       this.initFormBueatiful()
     })
 
@@ -216,14 +216,7 @@ class Form {
       this.emitChange(el.name, el.checked)
     })
 
-    // 点击它的 label 时，传递它的值
-    const label = this.form.querySelector(`label[for="${el.id}"]`)
-    if (label) {
-      label.addEventListener('click', () => {
-        // 点击复选框的 label 不要手动修改 checked ，因为浏览器会自动处理
-        this.emitChange(el.name, el.checked)
-      })
-    }
+    // 点击它的 label 时，不需要传递它的值。因为点击 lable 激活这个 input 控件时，浏览器会自动触发这个控件的 click 事件。settings 模块已经监听了 click 事件，所以这里就不要监听 label 了，否则就会因此多触发了一次 settingChange 事件。而且点击 label 时获得的值还是改变之前的旧的值。
   }
 
   // 设置单选控件的事件
@@ -235,13 +228,7 @@ class Form {
       this.emitChange(el.name, this.form[el.name].value)
     })
 
-    // 点击它的 label 时，传递它的值
-    const label = this.form.querySelector(`label[for="${el.id}"]`)
-    if (label) {
-      label.addEventListener('click', () => {
-        this.emitChange(el.name, this.form[el.name].value)
-      })
-    }
+    // 点击它的 label 时，不需要传递它的值。原因同上。
   }
 
   // 当选项的值被改变时，触发 settingChange 事件

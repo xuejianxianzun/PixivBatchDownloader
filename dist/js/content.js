@@ -2816,7 +2816,7 @@ __webpack_require__.r(__webpack_exports__);
 // 触发自定义事件
 class EVT {
     // 触发事件，可以携带数据
-    static fire(type, data = '') {
+    static fire(type, data = {}) {
         const event = new CustomEvent(type, {
             detail: { data: data },
         });
@@ -6071,6 +6071,7 @@ class InitPixivisionPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
             27,
             28,
             30,
+            31,
             33,
             34,
             35,
@@ -7948,6 +7949,8 @@ const store = new Store();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "themeColor", function() { return themeColor; });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+
 // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
 // 目前不能手动设置主题色，这个组件会自动检查 pixiv 的颜色模式，并设置 className
 // 默认主题是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
@@ -7955,26 +7958,47 @@ class ThemeColor {
     constructor() {
         this.selector = '#gtm-var-theme-kind'; // 通过这个选择器查找含有主题标记的元素
         this.timer = 0;
-        this._theme = ''; // 保存当前获取到的主题标记
+        this.defaultThemet = 'white'; // 默认主题
+        this._theme = ''; // 当前使用的主题
         // 主题标记以及对应的 className
-        this.colorMap = new Map([['dark', 'theme-dark']]);
+        this.classNameMap = new Map([['white', ''], ['dark', 'theme-dark']]);
+        // 页面上储存的主题标记，与本组件里的主题的对应关系
+        this.htmlFlagMap = new Map([['', 'white'], ['default', 'white'], ['dark', 'dark']]);
         this.elList = []; // 保存已注册的元素
+        // 尝试设置一个初始主题，但实际上不一定会使用这个
+        this.theme = this.defaultThemet;
+        this.bindEvent();
+    }
+    bindEvent() {
         // 初始化时使用定时器查找标记元素
         this.timer = window.setInterval(() => {
             this.findFlag();
         }, 300);
+        // 监听主题设置变化的事件
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            console.log(data);
+            if (data.name && data.name === 'theme') {
+                this.theme = data.value;
+            }
+            else {
+                if (data.theme) {
+                    this.theme = data.theme;
+                }
+            }
+        });
     }
-    // 含有主题标记的元素，并监听其变化
+    // 查找含有 pixiv 主题标记的元素，并监听其变化
     findFlag() {
         const el = document.querySelector(this.selector);
         if (el) {
             window.clearInterval(this.timer);
-            this.theme = el.textContent;
+            this.theme = this.htmlFlagMap.get(el.textContent) || this.defaultThemet;
             // 监听标记元素的 textContent 变化
             const ob = new MutationObserver((mutationsList) => {
                 for (const item of mutationsList) {
                     if (item.type === 'characterData') {
-                        this.theme = item.target.nodeValue;
+                        this.theme = this.htmlFlagMap.get(item.target.nodeValue) || this.defaultThemet;
                         break;
                     }
                 }
@@ -7985,13 +8009,44 @@ class ThemeColor {
             });
         }
     }
+    // 从含有 pixiv 主题标记的元素里获取主题
+    getThemeFromHtml() {
+        const el = document.querySelector(this.selector);
+        if (!el) {
+            return this.defaultThemet;
+        }
+        return this.htmlFlagMap.get(el.textContent);
+    }
+    // 设置主题
     set theme(flag) {
-        if (!flag) {
+        if (flag === null) {
             return;
         }
-        this._theme = flag;
-        for (const el of this.elList) {
-            this.setClass(el);
+        let temp = ''; // 储存最终要使用的主题
+        // 如果设置了自动检测，就从 html 标记里获取要使用的主题
+        if (flag === 'auto') {
+            temp = this.getThemeFromHtml() || this.defaultThemet;
+        }
+        else {
+            // 如果不是自动检测，则使用设置里指定的值
+            switch (flag) {
+                case 'white':
+                    temp = 'white';
+                    break;
+                case 'dark':
+                    temp = 'dark';
+                    break;
+                default:
+                    temp = this.getThemeFromHtml() || this.defaultThemet;
+                    break;
+            }
+        }
+        // 如果要使用的主题和当前主题不同，则改变主题
+        if (temp !== this._theme) {
+            this._theme = temp;
+            for (const el of this.elList) {
+                this.setClass(el);
+            }
         }
     }
     get theme() {
@@ -8005,13 +8060,13 @@ class ThemeColor {
     // 给元素设置主题对应的 className
     setClass(el) {
         // 先清除所有主题颜色的 className
-        for (const className of this.colorMap.values()) {
+        for (const className of this.classNameMap.values()) {
             if (el.classList.contains(className)) {
                 el.classList.remove(className);
             }
         }
         // 添加当前主题对应的 className
-        const name = this.colorMap.get(this._theme);
+        const name = this.classNameMap.get(this._theme);
         name && el.classList.add(name);
     }
 }
@@ -11575,6 +11630,12 @@ const langText = {
         '任一',
         'One',
         '任一',
+    ],
+    _颜色主题: [
+        '颜色主题',
+        '颜色主题',
+        '颜色主题',
+        '颜色主题',
     ]
 };
 
@@ -13041,7 +13102,7 @@ class Form {
             this.bindRadioEvent(radio);
         }
         // 设置发生改变时，重新设置美化状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
             this.initFormBueatiful();
         });
         // 在选项卡的标题上触发事件时，激活对应的选项卡
@@ -13128,14 +13189,7 @@ class Form {
             el.checked = !el.checked;
             this.emitChange(el.name, el.checked);
         });
-        // 点击它的 label 时，传递它的值
-        const label = this.form.querySelector(`label[for="${el.id}"]`);
-        if (label) {
-            label.addEventListener('click', () => {
-                // 点击复选框的 label 不要手动修改 checked ，因为浏览器会自动处理
-                this.emitChange(el.name, el.checked);
-            });
-        }
+        // 点击它的 label 时，不需要传递它的值。因为点击 lable 激活这个 input 控件时，浏览器会自动触发这个控件的 click 事件。settings 模块已经监听了 click 事件，所以这里就不要监听 label 了，否则就会因此多触发了一次 settingChange 事件。而且点击 label 时获得的值还是改变之前的旧的值。
     }
     // 设置单选控件的事件
     bindRadioEvent(el) {
@@ -13145,13 +13199,7 @@ class Form {
             // 对于单选按钮，它的值是 value，不是 checked
             this.emitChange(el.name, this.form[el.name].value);
         });
-        // 点击它的 label 时，传递它的值
-        const label = this.form.querySelector(`label[for="${el.id}"]`);
-        if (label) {
-            label.addEventListener('click', () => {
-                this.emitChange(el.name, this.form[el.name].value);
-            });
-        }
+        // 点击它的 label 时，不需要传递它的值。原因同上。
     }
     // 当选项的值被改变时，触发 settingChange 事件
     emitChange(name, value) {
@@ -13700,6 +13748,21 @@ const formHtml = `<form class="settingForm">
       <br>
       </p>
 
+      <p class="option" data-no="36">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_颜色主题')}</span>
+      <input type="radio" name="theme" id="theme1" class="need_beautify radio" value="auto" checked>
+      <span class="beautify_radio"></span>
+      <label for="theme1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_自动检测')}</label>
+      &nbsp;
+      <input type="radio" name="theme" id="theme2" class="need_beautify radio" value="white">
+      <span class="beautify_radio"></span>
+      <label for="theme2">White</label>
+      &nbsp;
+      <input type="radio" name="theme" id="theme3" class="need_beautify radio" value="drak">
+      <span class="beautify_radio"></span>
+      <label for="theme3">Dark</label>
+      </p>
+
       <p class="option" data-no="32">
       <span class="settingNameStyle1">Language</span>
       <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="-1" checked>
@@ -14107,6 +14170,7 @@ class Settings {
             restrict: '-1',
             userBlockList: false,
             blockList: '',
+            theme: 'auto',
             needTagMode: 'all'
         };
         // 需要持久化保存的设置
@@ -14243,6 +14307,7 @@ class Settings {
         this.saveCheckBox('userBlockList');
         this.saveTextInput('blockList');
         this.saveRadio('needTagMode');
+        this.saveRadio('theme');
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettings, () => {
             _Form__WEBPACK_IMPORTED_MODULE_2__["form"].reset();
             this.reset();
@@ -14265,7 +14330,7 @@ class Settings {
         });
     }
     // 恢复值为 Boolean 的设置项
-    // 给复选框使用
+    // input[type='checkbox'] 使用
     restoreBoolean(name) {
         // 优先使用用户设置的值
         if (this.settings[name] !== undefined) {
@@ -14280,7 +14345,7 @@ class Settings {
         // 用户设置为 false，默认值为 true，使用 || 的话就恒为 true 了
     }
     // 恢复值为 string 的设置项
-    // 给单选按钮和文本框使用
+    // input[type='radio'] 和 input[type='text'] 使用
     restoreString(name) {
         // 优先使用用户设置的值
         if (this.settings[name] !== undefined) {
@@ -14398,8 +14463,9 @@ class Settings {
         this.restoreBoolean('userBlockList');
         this.restoreString('blockList');
         this.restoreString('needTagMode');
+        this.restoreString('theme');
         // 恢复完毕之后触发一次设置改变事件
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, this.settings);
     }
     // 重设选项
     reset() {
@@ -14410,7 +14476,7 @@ class Settings {
         // 重设选项
         this.restore();
         // 触发设置改变事件
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, this.settings);
     }
 }
 const self = new Settings();

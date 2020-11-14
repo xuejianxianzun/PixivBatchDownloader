@@ -73,9 +73,10 @@ interface XzSetting {
   bmkAfterDL: boolean
   widthTag: '1' | '-1'
   restrict: '-1' | '1'
-  userBlockList:boolean
-  blockList:string
-  needTagMode:'all'|'one'
+  userBlockList: boolean
+  blockList: string
+  needTagMode: 'all' | 'one'
+  theme: 'auto' | 'white' | 'dark'
 }
 
 interface SettingChangeData {
@@ -183,8 +184,9 @@ class Settings {
     bmkAfterDL: false,
     widthTag: '1',
     restrict: '-1',
-    userBlockList:false,
-    blockList:'',
+    userBlockList: false,
+    blockList: '',
+    theme: 'auto',
     needTagMode:'all'
   }
 
@@ -298,11 +300,11 @@ class Settings {
 
     // 保存命名规则
     const userSetNameInput = form.userSetName
-    ;['change', 'focus'].forEach((ev) => {
-      userSetNameInput.addEventListener(ev, () => {
-        this.emitChange('userSetName', userSetNameInput.value)
+      ;['change', 'focus'].forEach((ev) => {
+        userSetNameInput.addEventListener(ev, () => {
+          this.emitChange('userSetName', userSetNameInput.value)
+        })
       })
-    })
 
     // 保存是否添加标记名称
     this.saveCheckBox('tagNameToFileName')
@@ -357,6 +359,8 @@ class Settings {
 
     this.saveRadio('needTagMode')
 
+    this.saveRadio('theme')
+
     window.addEventListener(EVT.list.resetSettings, () => {
       form.reset()
       this.reset()
@@ -378,7 +382,7 @@ class Settings {
         const data = event.detail.data as SettingChangeData
         if (Reflect.has(this.optionDefault, data.name)) {
           if ((this.settings[data.name] as any) !== data.value) {
-            ;(this.settings[data.name] as any) = data.value
+            ; (this.settings[data.name] as any) = data.value
             localStorage.setItem(this.storeName, JSON.stringify(this.settings))
           }
         }
@@ -387,7 +391,7 @@ class Settings {
   }
 
   // 恢复值为 Boolean 的设置项
-  // 给复选框使用
+  // input[type='checkbox'] 使用
   private restoreBoolean(name: keyof XzSetting) {
     // 优先使用用户设置的值
     if (this.settings[name] !== undefined) {
@@ -402,7 +406,7 @@ class Settings {
   }
 
   // 恢复值为 string 的设置项
-  // 给单选按钮和文本框使用
+  // input[type='radio'] 和 input[type='text'] 使用
   private restoreString(name: keyof XzSetting) {
     // 优先使用用户设置的值
     if (this.settings[name] !== undefined) {
@@ -556,8 +560,10 @@ class Settings {
 
     this.restoreString('needTagMode')
 
+    this.restoreString('theme')
+
     // 恢复完毕之后触发一次设置改变事件
-    EVT.fire(EVT.list.settingChange)
+    EVT.fire(EVT.list.settingChange,this.settings)
   }
 
   // 重设选项
@@ -569,7 +575,7 @@ class Settings {
     // 重设选项
     this.restore()
     // 触发设置改变事件
-    EVT.fire(EVT.list.settingChange)
+    EVT.fire(EVT.list.settingChange,this.settings)
   }
 }
 
