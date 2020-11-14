@@ -75,6 +75,7 @@ interface XzSetting {
   restrict: '-1' | '1'
   userBlockList:boolean
   blockList:string
+  needTagMode:'all'|'one'
 }
 
 interface SettingChangeData {
@@ -183,7 +184,8 @@ class Settings {
     widthTag: '1',
     restrict: '-1',
     userBlockList:false,
-    blockList:''
+    blockList:'',
+    needTagMode:'all'
   }
 
   // 需要持久化保存的设置
@@ -352,6 +354,8 @@ class Settings {
 
     this.saveCheckBox('userBlockList')
     this.saveTextInput('blockList')
+
+    this.saveRadio('needTagMode')
 
     window.addEventListener(EVT.list.resetSettings, () => {
       form.reset()
@@ -549,6 +553,8 @@ class Settings {
 
     this.restoreBoolean('userBlockList')
     this.restoreString('blockList')
+
+    this.restoreString('needTagMode')
 
     // 恢复完毕之后触发一次设置改变事件
     EVT.fire(EVT.list.settingChange)

@@ -3949,7 +3949,6 @@ class Filter {
         if (this.blockList.length > 0) {
             this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_用户阻止名单') + ': ' + this.blockList.join(','));
         }
-        console.log(this.blockList);
     }
     // ---------------- check ---------------- 
     // 检查下载的作品类型设置
@@ -4002,32 +4001,48 @@ class Filter {
         }
         return !!bookmarked;
     }
-    // 检查作品是否符合包含 tag 的条件, 如果设置了多个 tag，需要作品里全部包含。返回值表示是否保留这个作品。
+    // 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。
     checkIncludeTag(tags) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].needTagSwitch || !this._needTag || tags === undefined) {
             return true;
         }
         let result = false;
-        let tempArr = this._needTag.split(',');
+        // 把设置的包含的 tag 转换成小写，生成数组
+        const needTags = this._needTag.split(',').map(val => {
+            return val.toLowerCase();
+        });
         // 如果设置了必须的 tag
-        if (tempArr.length > 0) {
-            let tagNeedMatched = 0;
-            const tempTags = new Set();
+        if (needTags.length > 0) {
+            // 把处理的 tag 变成小写，并且去重
             // 如果不区分大小写的话，Fate/grandorder 和 Fate/GrandOrder 会被算作符合两个 tag，所以用 Set 结构去重。测试 id 51811780
+            const workTags = new Set();
             for (const tag of tags) {
-                tempTags.add(tag.toLowerCase());
+                workTags.add(tag.toLowerCase());
             }
-            for (const tag of tempTags) {
-                for (const need of tempArr) {
-                    if (tag === need.toLowerCase()) {
-                        tagNeedMatched++;
+            // 全部包含
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].needTagMode === 'all') {
+                let tagNeedMatched = 0;
+                for (const tag of workTags) {
+                    for (const need of needTags) {
+                        if (tag === need) {
+                            tagNeedMatched++;
+                            break;
+                        }
+                    }
+                }
+                // 如果全部匹配
+                if (tagNeedMatched >= needTags.length) {
+                    result = true;
+                }
+            }
+            else {
+                // 包含任意一个
+                for (const tag of workTags.values()) {
+                    if (needTags.includes(tag)) {
+                        result = true;
                         break;
                     }
                 }
-            }
-            // 如果全部匹配
-            if (tagNeedMatched >= tempArr.length) {
-                result = true;
             }
         }
         else {
@@ -4041,12 +4056,14 @@ class Filter {
             return true;
         }
         let result = true;
-        let tempArr = this._notNeedTag.split(',');
+        const notNeedTags = this._notNeedTag.split(',').map(val => {
+            return val.toLowerCase();
+        });
         // 如果设置了排除 tag
-        if (tempArr.length > 0) {
+        if (notNeedTags.length > 0) {
             for (const tag of tags) {
-                for (const notNeed of tempArr) {
-                    if (tag.toLowerCase() === notNeed.toLowerCase()) {
+                for (const notNeed of notNeedTags) {
+                    if (tag.toLowerCase() === notNeed) {
                         result = false;
                         break;
                     }
@@ -6046,7 +6063,6 @@ class InitPixivisionPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
             16,
             18,
             19,
-            20,
             21,
             22,
             23,
@@ -6057,6 +6073,7 @@ class InitPixivisionPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
             30,
             33,
             34,
+            35,
         ]);
         // pixivision 里，文件名只有 id 标记会生效，所以把文件名规则替换成 id
         // form.userSetName.value = '{p_title}/{id}'
@@ -11518,13 +11535,13 @@ const langText = {
         '變更語言後，請重新整理頁面。',
     ],
     _已收藏: ['已收藏', 'ブックマーク', 'Bookmarked', '已收藏'],
-    _下载后收藏作品: [
-        '下载后收藏作品',
-        '下载后收藏作品',
-        '下载后收藏作品',
-        '下载后收藏作品',
+    _下载之后收藏作品: [
+        '下载之后收藏作品',
+        '下载之后收藏作品',
+        '下载之后收藏作品',
+        '下载之后收藏作品',
     ],
-    _下载后收藏作品的提示: [
+    _下载之后收藏作品的提示: [
         '成功下载一个文件后，自动收藏这个作品。',
         '成功下载一个文件后，自动收藏这个作品。',
         '成功下载一个文件后，自动收藏这个作品。',
@@ -11542,10 +11559,22 @@ const langText = {
         '用户阻止名单',
     ],
     _用户阻止名单的说明: [
-        '不下载这些用户的作品。需要输入用户 id。如果有多个用户，使用英文逗号,分割。',
-        '不下载这些用户的作品。需要输入用户 id。如果有多个用户，使用英文逗号,分割。',
-        '不下载这些用户的作品。需要输入用户 id。如果有多个用户，使用英文逗号,分割。',
-        '不下载这些用户的作品。需要输入用户 id。如果有多个用户，使用英文逗号,分割。',
+        '不下载这些用户的作品。需要输入用户 id。如果有多个用户 id，使用英文逗号,分割。',
+        '不下载这些用户的作品。需要输入用户 id。如果有多个用户 id，使用英文逗号,分割。',
+        '不下载这些用户的作品。需要输入用户 id。如果有多个用户 id，使用英文逗号,分割。',
+        '不下载这些用户的作品。需要输入用户 id。如果有多个用户 id，使用英文逗号,分割。',
+    ],
+    _全部: [
+        '全部',
+        '全部',
+        'All',
+        '全部',
+    ],
+    _任一: [
+        '任一',
+        '任一',
+        'One',
+        '任一',
     ]
 };
 
@@ -13335,6 +13364,12 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="needTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="needTagSwitch">
+      <input type="radio" name="needTagMode" id="needTagMode1" class="need_beautify radio" value="all" checked>
+      <span class="beautify_radio"></span>
+      <label for="needTagMode1">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_全部')}&nbsp; </label>
+      <input type="radio" name="needTagMode" id="needTagMode2" class="need_beautify radio" value="one">
+      <span class="beautify_radio"></span>
+      <label for="needTagMode2">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任一')}&nbsp; </label>
       <input type="text" name="needTag" class="setinput_style1 blue setinput_tag">
       </span>
       </p>
@@ -13603,8 +13638,8 @@ const formHtml = `<form class="settingForm">
       <hr />
       
       <p class="option" data-no="33">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载后收藏作品的提示')}">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载后收藏作品')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载之后收藏作品的提示')}">
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载之后收藏作品')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
@@ -14071,7 +14106,8 @@ class Settings {
             widthTag: '1',
             restrict: '-1',
             userBlockList: false,
-            blockList: ''
+            blockList: '',
+            needTagMode: 'all'
         };
         // 需要持久化保存的设置
         this.settings = Object.assign({}, this.optionDefault);
@@ -14206,6 +14242,7 @@ class Settings {
         this.saveRadio('widthTag');
         this.saveCheckBox('userBlockList');
         this.saveTextInput('blockList');
+        this.saveRadio('needTagMode');
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettings, () => {
             _Form__WEBPACK_IMPORTED_MODULE_2__["form"].reset();
             this.reset();
@@ -14360,6 +14397,7 @@ class Settings {
         this.restoreString('widthTag');
         this.restoreBoolean('userBlockList');
         this.restoreString('blockList');
+        this.restoreString('needTagMode');
         // 恢复完毕之后触发一次设置改变事件
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange);
     }

@@ -504,37 +504,53 @@ class Filter {
     return !!bookmarked
   }
 
-  // 检查作品是否符合包含 tag 的条件, 如果设置了多个 tag，需要作品里全部包含。返回值表示是否保留这个作品。
+  // 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。
   private checkIncludeTag(tags: FilterOption['tags']) {
     if (!settings.needTagSwitch || !this._needTag || tags === undefined) {
       return true
     }
 
     let result = false
-    let tempArr = this._needTag.split(',')
+    // 把设置的包含的 tag 转换成小写，生成数组
+    const needTags = this._needTag.split(',').map(val => {
+      return val.toLowerCase()
+    })
 
     // 如果设置了必须的 tag
-    if (tempArr.length > 0) {
-      let tagNeedMatched = 0
-      const tempTags = new Set()
+    if (needTags.length > 0) {
+      // 把处理的 tag 变成小写，并且去重
       // 如果不区分大小写的话，Fate/grandorder 和 Fate/GrandOrder 会被算作符合两个 tag，所以用 Set 结构去重。测试 id 51811780
+      const workTags: Set<string> = new Set()
       for (const tag of tags) {
-        tempTags.add(tag.toLowerCase())
+        workTags.add(tag.toLowerCase())
       }
 
-      for (const tag of tempTags) {
-        for (const need of tempArr) {
-          if (tag === need.toLowerCase()) {
-            tagNeedMatched++
+      // 全部包含
+      if (settings.needTagMode === 'all') {
+        let tagNeedMatched = 0
+        for (const tag of workTags) {
+          for (const need of needTags) {
+            if (tag === need) {
+              tagNeedMatched++
+              break
+            }
+          }
+        }
+
+        // 如果全部匹配
+        if (tagNeedMatched >= needTags.length) {
+          result = true
+        }
+      } else {
+        // 包含任意一个
+        for (const tag of workTags.values()) {
+          if (needTags.includes(tag)) {
+            result = true
             break
           }
         }
       }
 
-      // 如果全部匹配
-      if (tagNeedMatched >= tempArr.length) {
-        result = true
-      }
     } else {
       result = true
     }
@@ -549,13 +565,15 @@ class Filter {
     }
 
     let result = true
-    let tempArr = this._notNeedTag.split(',')
+    const notNeedTags = this._notNeedTag.split(',').map(val => {
+      return val.toLowerCase()
+    })
 
     // 如果设置了排除 tag
-    if (tempArr.length > 0) {
+    if (notNeedTags.length > 0) {
       for (const tag of tags) {
-        for (const notNeed of tempArr) {
-          if (tag.toLowerCase() === notNeed.toLowerCase()) {
+        for (const notNeed of notNeedTags) {
+          if (tag.toLowerCase() === notNeed) {
             result = false
             break
           }

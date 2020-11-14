@@ -53,7 +53,6 @@ class InitPixivisionPage extends InitPageBase {
       16,
       18,
       19,
-      20,
       21,
       22,
       23,
@@ -62,8 +61,10 @@ class InitPixivisionPage extends InitPageBase {
       27,
       28,
       30,
+      31,
       33,
       34,
+      35,
     ])
 
     // pixivision 里，文件名只有 id 标记会生效，所以把文件名规则替换成 id
