@@ -202,6 +202,7 @@ class InitSearchNovelPage extends InitPageBase {
         bookmarkCount: nowData.bookmarkCount,
         illustType: 3,
         tags: nowData.tags,
+        userid:nowData.userId
       }
 
       if (await filter.check(filterOpt)) {

@@ -15,15 +15,16 @@ class Filter {
 
   private readonly BMKNumMinDef = 0
   private readonly BMKNumMaxDef = 9999999
-  private readonly MB = 1024 * 1024
+  private readonly MiB = 1024 * 1024
 
-  // 为了减少不必要的重复计算，缓存一些计算后的值
+  // 缓存部分开始
+  // 为了减少不必要的重复计算，缓存一些计算后的值。当有设置改变时，重新计算缓存的值，所以这些值也是会动态更新的。
   // 可以直接使用的选项不需要缓存;只有需要进行处理后才可以使用的选项需要缓存
   private _BMKNumMin: number = this.BMKNumMinDef // 最小收藏数量
   private _BMKNumMax: number = this.BMKNumMaxDef // 最大收藏数量
 
   private _sizeMin = 0
-  private _sizeMax = 100 * this.MB
+  private _sizeMax = 100 * this.MiB
 
   private _setWidth = 0
   private _setHeight = 0
@@ -33,6 +34,8 @@ class Filter {
 
   private _needTag: string = ''
   private _notNeedTag: string = ''
+
+  private blockList: string[] = []
   // 缓存部分结束
 
   private showTip = false // 是否在日志区域输出提示
@@ -75,6 +78,9 @@ class Filter {
       this.logTip(lang.transl('_抓取首次登场的作品Title'))
     }
 
+    // 获取用户阻止名单
+    this.getBlockList()
+
     // 获取文件体积设置
     this.getSize()
   }
@@ -82,7 +88,7 @@ class Filter {
   // 检查作品是否符合过滤器的要求
   // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
   // 所有过滤器里，都必须要检查参数为 undefined 的情况
-  // 这是一个异步函数，所以要记得使用 await 获取检查结果
+  // 注意：这是一个异步函数，所以要记得使用 await 获取检查结果
   public async check(option: FilterOption): Promise<boolean> {
     // 检查下载的作品类型设置
     if (!this.checkDownType(option.illustType)) {
@@ -134,6 +140,12 @@ class Filter {
       return false
     }
 
+    // 检查用户阻止名单
+
+    if (!this.checkBlockList(option.userid)) {
+      return false
+    }
+
     // 检查首次登场设置
     if (!this.checkDebut(option.yes_rank)) {
       return false
@@ -145,7 +157,7 @@ class Filter {
     }
 
     // 检查黑白图片
-    // 这一步需要加载图片，需要较长的时间，较大的资源占用，放到最后检查，以避免无谓的执行
+    // 这一步需要加载图片，需要较长的时间，较躲的资源占用，放到最后检查，以避免无谓的执行
     const blackAndWhiteResult = await this.checkBlackWhite(option.mini)
     if (!blackAndWhiteResult) {
       return false
@@ -153,6 +165,8 @@ class Filter {
 
     return true
   }
+
+  // ---------------- get ---------------- 
 
   // 获取下载的作品类型设置
   private getDownType() {
@@ -258,11 +272,9 @@ class Filter {
       const andOr = settings.setWidthAndOr
         .replace('|', lang.transl('_或者'))
         .replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${
-        this._setWidth
-      } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${
-        this._setHeight
-      }`
+      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${this._setWidth
+        } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${this._setHeight
+        }`
       this.logTip(text)
     }
   }
@@ -373,8 +385,7 @@ class Filter {
       this._postDateStart = postDateStart.getTime()
       this._postDateEnd = postDateEnd.getTime()
       this.logTip(
-        `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${
-          settings.postDateEnd
+        `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${settings.postDateEnd
         }`,
       )
     }
@@ -394,12 +405,31 @@ class Filter {
         ;[min, max] = [max, min]
       }
 
-      this._sizeMin = min * this.MB
-      this._sizeMax = max * this.MB
+      this._sizeMin = min * this.MiB
+      this._sizeMax = max * this.MiB
 
       this.logTip(`Size: ${min}MiB - ${max}MiB`)
     }
   }
+
+  private getBlockList() {
+    if (!settings.userBlockList) {
+      this.blockList = []
+      return
+    }
+
+    const temp = settings.blockList.trim().split(',')
+    // 因为输入的值只用来比较，没有其他用途，所以不必严格检查 id 的有效性
+    this.blockList = temp.filter((val) => {
+      return val !== ''
+    })
+
+    if (this.blockList.length > 0) {
+      this.logTip(lang.transl('_用户阻止名单') + ': ' + this.blockList.join(','))
+    }
+  }
+
+  // ---------------- check ---------------- 
 
   // 检查下载的作品类型设置
   private checkDownType(illustType: FilterOption['illustType']) {
@@ -647,6 +677,15 @@ class Filter {
     }
 
     return yes_rank === 0
+  }
+
+  private checkBlockList(userid: FilterOption['userid']) {
+    if (!settings.userBlockList || userid === undefined) {
+      return true
+    }
+
+    // 如果阻止名单里有这个用户 id，则返回 false 表示阻止这个作品
+    return !this.blockList.includes(userid)
   }
 
   // 检查文件体积

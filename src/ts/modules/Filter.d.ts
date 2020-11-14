@@ -12,4 +12,5 @@ export interface FilterOption {
   createDate?: string
   mini?: string
   size?: number
+  userid?: string
 }

@@ -28,6 +28,7 @@ class SaveNovelData {
       tags: tags,
       bookmarkCount: bmk,
       bookmarkData: body.bookmarkData,
+      userid: body.userId
     }
 
     // 检查通过

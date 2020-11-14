@@ -58,4 +58,6 @@ export interface SettingsForm extends HTMLFormElement {
   bmkAfterDL: HTMLInputElement
   widthTag: RadioNodeList
   restrict: RadioNodeList
+  userBlockList: HTMLInputElement
+  blockList: HTMLInputElement
 }

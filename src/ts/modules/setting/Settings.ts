@@ -73,6 +73,8 @@ interface XzSetting {
   bmkAfterDL: boolean
   widthTag: '1' | '-1'
   restrict: '-1' | '1'
+  userBlockList:boolean
+  blockList:string
 }
 
 interface SettingChangeData {
@@ -180,6 +182,8 @@ class Settings {
     bmkAfterDL: false,
     widthTag: '1',
     restrict: '-1',
+    userBlockList:false,
+    blockList:''
   }
 
   // 需要持久化保存的设置
@@ -345,6 +349,9 @@ class Settings {
     this.saveRadio('restrict')
 
     this.saveRadio('widthTag')
+
+    this.saveCheckBox('userBlockList')
+    this.saveTextInput('blockList')
 
     window.addEventListener(EVT.list.resetSettings, () => {
       form.reset()
@@ -539,6 +546,9 @@ class Settings {
     this.restoreString('restrict')
 
     this.restoreString('widthTag')
+
+    this.restoreBoolean('userBlockList')
+    this.restoreString('blockList')
 
     // 恢复完毕之后触发一次设置改变事件
     EVT.fire(EVT.list.settingChange)

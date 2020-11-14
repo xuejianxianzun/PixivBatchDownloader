@@ -20,6 +20,7 @@ const formHtml = `<form class="settingForm">
       <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
       </span>
       </p>
+
       <p class="option" data-no="2">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_下载作品类型的提示',
@@ -37,6 +38,7 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_checkbox"></span>
       <label for="setWorkType3"> ${lang.transl('_小说')}&nbsp;</label>
       </p>
+
       <p class="option" data-no="21">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_下载作品类型的提示',
@@ -48,6 +50,7 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_checkbox"></span>
       <label for="setDownMultiImg"> ${lang.transl('_多图作品')}&nbsp;</label>
       </p>
+
       <p class="option" data-no="23">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_下载作品类型的提示',
@@ -61,6 +64,7 @@ const formHtml = `<form class="settingForm">
         '_黑白图片',
       )}&nbsp;</label>
       </p>
+
       <p class="option" data-no="3">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_怎样下载多图作品',
@@ -72,6 +76,7 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
       </span>
       </p>
+
       <p class="option" data-no="6">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_只下载已收藏的提示',
@@ -79,6 +84,7 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="setOnlyBmk" id="setOnlyBmk" class="need_beautify checkbox_switch"> 
       <span class="beautify_switch"></span>
       </p>
+
       <p class="option" data-no="5">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_设置收藏数量的提示',
@@ -92,6 +98,7 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="0">
       </span>
       </p>
+
       <p class="option" data-no="7">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_筛选宽高的按钮Title',
@@ -124,6 +131,7 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="setHeight" class="setinput_style1 blue" value="0">
       </span>
       </p>
+
       <p class="option" data-no="8">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_设置宽高比例Title',
@@ -143,6 +151,7 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="userRatio" class="setinput_style1 blue" value="">
       </span>
       </p>
+
       <p class="option" data-no="9">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_设置id范围提示',
@@ -161,6 +170,7 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
       </span>
       </p>
+
       <p class="option" data-no="10">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_设置投稿时间提示',
@@ -173,6 +183,7 @@ const formHtml = `<form class="settingForm">
       <input type="datetime-local" name="postDateEnd" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
       </span>
       </p>
+
       <p class="option" data-no="11">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_必须tag的提示文字',
@@ -183,6 +194,7 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="needTag" class="setinput_style1 blue setinput_tag">
       </span>
       </p>
+
       <p class="option" data-no="12">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_排除tag的提示文字',
@@ -486,6 +498,17 @@ const formHtml = `<form class="settingForm">
       <button class="textButton gray1" type="button" id="clearDownloadRecord">${lang.transl(
         '_清除',
       )}</button>
+      </span>
+      </p>
+
+      <p class="option" data-no="35">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_用户阻止名单的说明',
+      )}">${lang.transl('_用户阻止名单')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="userBlockList">
+      <input type="text" name="blockList" class="setinput_style1 blue setinput_tag">
       </span>
       </p>
 

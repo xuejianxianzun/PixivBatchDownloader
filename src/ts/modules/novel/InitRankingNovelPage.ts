@@ -109,6 +109,8 @@ class InitRankingNovelPage extends InitPageBase {
         tags.push(a.innerText.trim())
       }
 
+      const userid = item.querySelector('img')!.dataset.userId
+
       // 有的作品没有收藏按钮，点进去之后发现这个作品已经被删除了，只是排行榜里没有及时更新。这样的作品没有收藏按钮。
       const bookmarkBtn = item.querySelector('._one-click-bookmark')
       const bookmarked = bookmarkBtn
@@ -121,6 +123,7 @@ class InitRankingNovelPage extends InitPageBase {
         tags: tags,
         bookmarkCount: bmk,
         bookmarkData: bookmarked,
+        userid: userid,
       }
 
       if (await filter.check(filterOpt)) {

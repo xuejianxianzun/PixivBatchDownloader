@@ -59,7 +59,8 @@
 .centerWrap hr {
   border: none;
   height: 1px;
-  background: #eee;
+  background: none;
+  margin: 5px 0;
 }
 .centerWrap p,
 .centerWrap div,

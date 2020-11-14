@@ -3619,19 +3619,21 @@ class Filter {
     constructor() {
         this.BMKNumMinDef = 0;
         this.BMKNumMaxDef = 9999999;
-        this.MB = 1024 * 1024;
-        // 为了减少不必要的重复计算，缓存一些计算后的值
+        this.MiB = 1024 * 1024;
+        // 缓存部分开始
+        // 为了减少不必要的重复计算，缓存一些计算后的值。当有设置改变时，重新计算缓存的值，所以这些值也是会动态更新的。
         // 可以直接使用的选项不需要缓存;只有需要进行处理后才可以使用的选项需要缓存
         this._BMKNumMin = this.BMKNumMinDef; // 最小收藏数量
         this._BMKNumMax = this.BMKNumMaxDef; // 最大收藏数量
         this._sizeMin = 0;
-        this._sizeMax = 100 * this.MB;
+        this._sizeMax = 100 * this.MiB;
         this._setWidth = 0;
         this._setHeight = 0;
         this._postDateStart = 0;
         this._postDateEnd = 0;
         this._needTag = '';
         this._notNeedTag = '';
+        this.blockList = [];
         // 缓存部分结束
         this.showTip = false; // 是否在日志区域输出提示
         this.bindEvent();
@@ -3664,13 +3666,15 @@ class Filter {
         if (_States__WEBPACK_IMPORTED_MODULE_4__["states"].debut) {
             this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取首次登场的作品Title'));
         }
+        // 获取用户阻止名单
+        this.getBlockList();
         // 获取文件体积设置
         this.getSize();
     }
     // 检查作品是否符合过滤器的要求
     // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
     // 所有过滤器里，都必须要检查参数为 undefined 的情况
-    // 这是一个异步函数，所以要记得使用 await 获取检查结果
+    // 注意：这是一个异步函数，所以要记得使用 await 获取检查结果
     async check(option) {
         // 检查下载的作品类型设置
         if (!this.checkDownType(option.illustType)) {
@@ -3712,6 +3716,10 @@ class Filter {
         if (!this.checkPostDate(option.createDate)) {
             return false;
         }
+        // 检查用户阻止名单
+        if (!this.checkBlockList(option.userid)) {
+            return false;
+        }
         // 检查首次登场设置
         if (!this.checkDebut(option.yes_rank)) {
             return false;
@@ -3721,13 +3729,14 @@ class Filter {
             return false;
         }
         // 检查黑白图片
-        // 这一步需要加载图片，需要较长的时间，较大的资源占用，放到最后检查，以避免无谓的执行
+        // 这一步需要加载图片，需要较长的时间，较躲的资源占用，放到最后检查，以避免无谓的执行
         const blackAndWhiteResult = await this.checkBlackWhite(option.mini);
         if (!blackAndWhiteResult) {
             return false;
         }
         return true;
     }
+    // ---------------- get ---------------- 
     // 获取下载的作品类型设置
     getDownType() {
         // 如果全部排除则取消任务
@@ -3922,11 +3931,27 @@ class Filter {
                 ;
                 [min, max] = [max, min];
             }
-            this._sizeMin = min * this.MB;
-            this._sizeMax = max * this.MB;
+            this._sizeMin = min * this.MiB;
+            this._sizeMax = max * this.MiB;
             this.logTip(`Size: ${min}MiB - ${max}MiB`);
         }
     }
+    getBlockList() {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].userBlockList) {
+            this.blockList = [];
+            return;
+        }
+        const temp = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].blockList.trim().split(',');
+        // 因为输入的值只用来比较，没有其他用途，所以不必严格检查 id 的有效性
+        this.blockList = temp.filter((val) => {
+            return val !== '';
+        });
+        if (this.blockList.length > 0) {
+            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_用户阻止名单') + ': ' + this.blockList.join(','));
+        }
+        console.log(this.blockList);
+    }
+    // ---------------- check ---------------- 
     // 检查下载的作品类型设置
     checkDownType(illustType) {
         if (illustType === undefined) {
@@ -4127,6 +4152,13 @@ class Filter {
             return true;
         }
         return yes_rank === 0;
+    }
+    checkBlockList(userid) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].userBlockList || userid === undefined) {
+            return true;
+        }
+        // 如果阻止名单里有这个用户 id，则返回 false 表示阻止这个作品
+        return !this.blockList.includes(userid);
     }
     // 检查文件体积
     checkSize(size) {
@@ -8687,6 +8719,7 @@ class InitBookmarkNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_
                 bookmarkData: data.isBookmarked,
                 illustType: parseInt(data.illustType),
                 tags: data.tags,
+                userid: data.userId
             };
             if (await _Filter__WEBPACK_IMPORTED_MODULE_5__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.push({
@@ -8898,6 +8931,7 @@ class InitNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
                 bookmarkData: nowData.bookmarkData,
                 illustType: nowData.illustType,
                 tags: nowData.tags,
+                userid: nowData.userId
             };
             if (await _Filter__WEBPACK_IMPORTED_MODULE_4__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.push({
@@ -9071,6 +9105,7 @@ class InitRankingArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
                 width: data.width,
                 height: data.height,
                 yes_rank: data.yes_rank,
+                userid: data.user_id.toString()
             };
             if (await _Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_8__["store"].setRankList(data.illust_id.toString(), data.rank.toString());
@@ -9570,6 +9605,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
                 bookmarkData: nowData.bookmarkData,
                 illustType: nowData.illustType,
                 tags: nowData.tags,
+                userid: nowData.userId
             };
             if (await _Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_9__["store"].idList.push({
@@ -9713,6 +9749,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
                 width: data.fullWidth,
                 height: data.fullHeight,
                 createDate: data.date,
+                userid: data.userId,
             };
             return _Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check(filterOpt);
         });
@@ -9901,6 +9938,7 @@ class InitSeriesPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPag
                 width: work.width,
                 height: work.height,
                 illustType: work.illustType,
+                userid: work.userId
             };
             // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以 type 是 unknown
             if (await _Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check(filterOpt)) {
@@ -9992,6 +10030,7 @@ class SaveArtworkData {
             width: fullWidth,
             height: fullHeight,
             mini: body.urls.mini,
+            userid: body.userId
         };
         // 这里检查颜色设置是有一个隐患的：因为有些多图作品第一张图的颜色和后面的图片的颜色不一样，但这里检查时只检查第一张的缩略图。如果第一张被排除掉了，那么它后面的图片也就不会被加入抓取结果。
         // 检查通过
@@ -11496,6 +11535,18 @@ const langText = {
     _收藏设置: ['收藏设置', '收藏设置', '收藏设置', '收藏设置'],
     _添加tag: ['添加 tag', '添加 tag', '添加 tag', '添加 tag'],
     _不添加tag: ['不添加 tag', '不添加 tag', '不添加 tag', '不添加 tag'],
+    _用户阻止名单: [
+        '用户阻止名单',
+        '用户阻止名单',
+        'User block list',
+        '用户阻止名单',
+    ],
+    _用户阻止名单的说明: [
+        '不下载这些用户的作品。需要输入用户 id。如果有多个用户，使用英文逗号,分割。',
+        '不下载这些用户的作品。需要输入用户 id。如果有多个用户，使用英文逗号,分割。',
+        '不下载这些用户的作品。需要输入用户 id。如果有多个用户，使用英文逗号,分割。',
+        '不下载这些用户的作品。需要输入用户 id。如果有多个用户，使用英文逗号,分割。',
+    ]
 };
 
 
@@ -11601,6 +11652,7 @@ class InitBookmarkNewNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             for (const a of tagsA) {
                 tags.push(a.innerText.trim());
             }
+            const userid = item.querySelector('img').dataset.userId;
             // 有的作品没有收藏按钮，点进去之后发现这个作品已经被删除了，只是排行榜里没有及时更新。这样的作品没有收藏按钮。
             const bookmarkBtn = item.querySelector('._one-click-bookmark');
             const bookmarked = bookmarkBtn
@@ -11612,6 +11664,7 @@ class InitBookmarkNewNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0_
                 tags: tags,
                 bookmarkCount: bmk,
                 bookmarkData: bookmarked,
+                userid: userid,
             };
             if (await _Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.push({
@@ -11743,6 +11796,7 @@ class InitNewNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitP
                 bookmarkCount: nowData.bookmarkCount,
                 illustType: 3,
                 tags: nowData.tags,
+                userid: nowData.userId
             };
             if (await _Filter__WEBPACK_IMPORTED_MODULE_4__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.push({
@@ -12117,6 +12171,7 @@ class InitRankingNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["I
             for (const a of tagsA) {
                 tags.push(a.innerText.trim());
             }
+            const userid = item.querySelector('img').dataset.userId;
             // 有的作品没有收藏按钮，点进去之后发现这个作品已经被删除了，只是排行榜里没有及时更新。这样的作品没有收藏按钮。
             const bookmarkBtn = item.querySelector('._one-click-bookmark');
             const bookmarked = bookmarkBtn
@@ -12128,6 +12183,7 @@ class InitRankingNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["I
                 tags: tags,
                 bookmarkCount: bmk,
                 bookmarkData: bookmarked,
+                userid: userid,
             };
             if (await _Filter__WEBPACK_IMPORTED_MODULE_5__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_6__["store"].setRankList(id.toString(), rank.toString());
@@ -12350,6 +12406,7 @@ class InitSearchNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
                 bookmarkCount: nowData.bookmarkCount,
                 illustType: 3,
                 tags: nowData.tags,
+                userid: nowData.userId
             };
             if (await _Filter__WEBPACK_IMPORTED_MODULE_4__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.push({
@@ -12502,6 +12559,7 @@ class SaveNovelData {
             tags: tags,
             bookmarkCount: bmk,
             bookmarkData: body.bookmarkData,
+            userid: body.userId
         };
         // 检查通过
         if (await _Filter__WEBPACK_IMPORTED_MODULE_0__["filter"].check(filterOpt)) {
@@ -13134,6 +13192,7 @@ const formHtml = `<form class="settingForm">
       <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
       </span>
       </p>
+
       <p class="option" data-no="2">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
@@ -13149,6 +13208,7 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_checkbox"></span>
       <label for="setWorkType3"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_小说')}&nbsp;</label>
       </p>
+
       <p class="option" data-no="21">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
@@ -13158,6 +13218,7 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_checkbox"></span>
       <label for="setDownMultiImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品')}&nbsp;</label>
       </p>
+
       <p class="option" data-no="23">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="downColorImg" id="setDownColorImg" class="need_beautify checkbox_common" checked>
@@ -13167,6 +13228,7 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_checkbox"></span>
       <label for="setDownBlackWhiteImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_黑白图片')}&nbsp;</label>
       </p>
+
       <p class="option" data-no="3">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_怎样下载多图作品')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图下载设置')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
@@ -13176,11 +13238,13 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
       </span>
       </p>
+
       <p class="option" data-no="6">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_只下载已收藏的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_只下载已收藏')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="setOnlyBmk" id="setOnlyBmk" class="need_beautify checkbox_switch"> 
       <span class="beautify_switch"></span>
       </p>
+
       <p class="option" data-no="5">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置收藏数量的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置收藏数量')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="BMKNumSwitch" class="need_beautify checkbox_switch">
@@ -13192,6 +13256,7 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="0">
       </span>
       </p>
+
       <p class="option" data-no="7">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_筛选宽高的按钮Title')} ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_筛选宽高的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_筛选宽高的按钮文字')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="setWHSwitch" class="need_beautify checkbox_switch">
@@ -13220,6 +13285,7 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="setHeight" class="setinput_style1 blue" value="0">
       </span>
       </p>
+
       <p class="option" data-no="8">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置宽高比例Title')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
@@ -13237,6 +13303,7 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="userRatio" class="setinput_style1 blue" value="">
       </span>
       </p>
+
       <p class="option" data-no="9">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置id范围提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置id范围')}&nbsp;&nbsp; <span class="gray1"> ? </span></span>
       <input type="checkbox" name="idRangeSwitch" class="need_beautify checkbox_switch">
@@ -13251,6 +13318,7 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
       </span>
       </p>
+
       <p class="option" data-no="10">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置投稿时间提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置投稿时间')} <span class="gray1"> ? </span></span>
       <input type="checkbox" name="postDate" class="need_beautify checkbox_switch">
@@ -13261,6 +13329,7 @@ const formHtml = `<form class="settingForm">
       <input type="datetime-local" name="postDateEnd" placeholder="yyyy-MM-dd HH:mm" class="setinput_style1 postDate blue" value="">
       </span>
       </p>
+
       <p class="option" data-no="11">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_必须tag的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_必须含有tag')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="needTagSwitch" class="need_beautify checkbox_switch">
@@ -13269,6 +13338,7 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="needTag" class="setinput_style1 blue setinput_tag">
       </span>
       </p>
+
       <p class="option" data-no="12">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除tag的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不能含有tag')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="notNeedTagSwitch" class="need_beautify checkbox_switch">
@@ -13518,6 +13588,15 @@ const formHtml = `<form class="settingForm">
       <button class="textButton gray1" type="button" id="exportDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_导出')}</button>
       <button class="textButton gray1" type="button" id="importDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_导入')}</button>
       <button class="textButton gray1" type="button" id="clearDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_清除')}</button>
+      </span>
+      </p>
+
+      <p class="option" data-no="35">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_用户阻止名单的说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_用户阻止名单')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="userBlockList">
+      <input type="text" name="blockList" class="setinput_style1 blue setinput_tag">
       </span>
       </p>
 
@@ -13991,6 +14070,8 @@ class Settings {
             bmkAfterDL: false,
             widthTag: '1',
             restrict: '-1',
+            userBlockList: false,
+            blockList: ''
         };
         // 需要持久化保存的设置
         this.settings = Object.assign({}, this.optionDefault);
@@ -14123,6 +14204,8 @@ class Settings {
         this.saveCheckBox('bmkAfterDL');
         this.saveRadio('restrict');
         this.saveRadio('widthTag');
+        this.saveCheckBox('userBlockList');
+        this.saveTextInput('blockList');
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettings, () => {
             _Form__WEBPACK_IMPORTED_MODULE_2__["form"].reset();
             this.reset();
@@ -14275,6 +14358,8 @@ class Settings {
         this.restoreBoolean('bmkAfterDL');
         this.restoreString('restrict');
         this.restoreString('widthTag');
+        this.restoreBoolean('userBlockList');
+        this.restoreString('blockList');
         // 恢复完毕之后触发一次设置改变事件
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange);
     }
