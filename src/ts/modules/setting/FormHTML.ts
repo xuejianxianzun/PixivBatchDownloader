@@ -353,37 +353,6 @@ const formHtml = `<form class="settingForm">
 
       <slot data-name="namingBtns" class="centerWrap_btns"></slot>
 
-      <p class="option" data-no="30">
-      <span class="settingNameStyle1">${lang.transl('_图片尺寸')} </span>
-      <input type="radio" name="imageSize" id="imageSize1" class="need_beautify radio" value="original" checked>
-      <span class="beautify_radio"></span>
-      <label for="imageSize1"> ${lang.transl('_原图')} </label>
-      &nbsp;
-      <input type="radio" name="imageSize" id="imageSize2" class="need_beautify radio" value="regular">
-      <span class="beautify_radio"></span>
-      <label for="imageSize2"> ${lang.transl('_普通')} </label>
-      <span class="gray1">(1200*1200)</span>
-      &nbsp;
-      <input type="radio" name="imageSize" id="imageSize3" class="need_beautify radio" value="small">
-      <span class="beautify_radio"></span>
-      <label for="imageSize3"> ${lang.transl('_小图')} </label>
-      <span class="gray1">(540*540)</span>
-      </p>
-
-      <p class="option" data-no="25">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_不符合要求的文件不会被保存',
-      )}">
-      ${lang.transl('_文件体积限制')} <span class="gray1"> ? </span></span>
-      <input type="checkbox" name="sizeSwitch" class="need_beautify checkbox_switch">
-      <span class="beautify_switch"></span>
-      <span class="subOptionWrap" data-show="sizeSwitch">
-      <input type="text" name="sizeMin" class="setinput_style1 blue" value="0">MiB
-      &nbsp;-&nbsp;
-      <input type="text" name="sizeMax" class="setinput_style1 blue" value="100">MiB
-      </span>
-      </p>
-
       <p class="option" data-no="16">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_线程数字',
@@ -456,6 +425,71 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       </p>
+
+      <p class="option" data-no="30">
+      <span class="settingNameStyle1">${lang.transl('_图片尺寸')} </span>
+      <input type="radio" name="imageSize" id="imageSize1" class="need_beautify radio" value="original" checked>
+      <span class="beautify_radio"></span>
+      <label for="imageSize1"> ${lang.transl('_原图')} </label>
+      &nbsp;
+      <input type="radio" name="imageSize" id="imageSize2" class="need_beautify radio" value="regular">
+      <span class="beautify_radio"></span>
+      <label for="imageSize2"> ${lang.transl('_普通')} </label>
+      <span class="gray1">(1200*1200)</span>
+      &nbsp;
+      <input type="radio" name="imageSize" id="imageSize3" class="need_beautify radio" value="small">
+      <span class="beautify_radio"></span>
+      <label for="imageSize3"> ${lang.transl('_小图')} </label>
+      <span class="gray1">(540*540)</span>
+      </p>
+  
+      <p class="option" data-no="25">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_不符合要求的文件不会被保存',
+      )}">
+      ${lang.transl('_文件体积限制')} <span class="gray1"> ? </span></span>
+      <input type="checkbox" name="sizeSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="sizeSwitch">
+      <input type="text" name="sizeMin" class="setinput_style1 blue" value="0">MiB
+      &nbsp;-&nbsp;
+      <input type="text" name="sizeMax" class="setinput_style1 blue" value="100">MiB
+      </span>
+      </p>
+
+      <p class="option" data-no="28">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_不下载重复文件的提示',
+      )}">
+      ${lang.transl('_不下载重复文件')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="deduplication">
+      <span>&nbsp; ${lang.transl('_策略')}</span>
+      <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
+      <span class="beautify_radio"></span>
+      <label class="has_tip" for="dupliStrategy1" data-tip="${lang.transl(
+        '_严格模式说明',
+      )}">${lang.transl('_严格')}</label>
+      <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
+      <span class="beautify_radio"></span>
+      <label class="has_tip" for="dupliStrategy2" data-tip="${lang.transl(
+        '_宽松模式说明',
+      )}">${lang.transl('_宽松')}</label>
+      &nbsp;
+      <button class="textButton gray1" type="button" id="exportDownloadRecord">${lang.transl(
+        '_导出',
+      )}</button>
+      <button class="textButton gray1" type="button" id="importDownloadRecord">${lang.transl(
+        '_导入',
+      )}</button>
+      <button class="textButton gray1" type="button" id="clearDownloadRecord">${lang.transl(
+        '_清除',
+      )}</button>
+      </span>
+      </p>
+
+      <hr />
       
       <p class="option" data-no="33">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
@@ -464,23 +498,29 @@ const formHtml = `<form class="settingForm">
       ${lang.transl('_下载后收藏作品')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
-      <span class="subOptionWrap" data-show="bmkAfterDL">
+      </p>
+
+      <p class="option" data-no="34">
+      <span class="settingNameStyle1">${lang.transl('_收藏设置')}</span>
+      
+      <input type="radio" name="widthTag" id="widthTag1" class="need_beautify radio" value="1" checked>
+      <span class="beautify_radio"></span>
+      <label for="widthTag1">${lang.transl('_添加tag')}&nbsp;</label>
+      <input type="radio" name="widthTag" id="widthTag2" class="need_beautify radio" value="-1">
+      <span class="beautify_radio"></span>
+      <label for="widthTag2">${lang.transl('_不添加tag')}</label>
+
+      <span class="verticalSplit"></span>
+      
       <input type="radio" name="restrict" id="restrict1" class="need_beautify radio" value="-1" checked>
       <span class="beautify_radio"></span>
-      <label for="restrict1">${lang.transl('_公开')}</label>
+      <label for="restrict1">${lang.transl('_公开')}&nbsp;</label>
       <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="1">
       <span class="beautify_radio"></span>
       <label for="restrict2">${lang.transl('_不公开')}</label>
-      </span>
       </p>
 
-      <p class="option" data-no="20">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_启用快速收藏说明',
-      )}">${lang.transl('_启用快速收藏')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="quickBookmarks" id="quickBookmarks" class="need_beautify checkbox_switch" checked> 
-      <span class="beautify_switch"></span>
-      </p>
+      <hr />
 
       <p class="option" data-no="18">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
@@ -518,38 +558,6 @@ const formHtml = `<form class="settingForm">
       <br>
       <span class="blue">ss</span> <span>08</span>
       <br>
-      </p>
-
-      <p class="option" data-no="28">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_不下载重复文件的提示',
-      )}">
-      ${lang.transl('_不下载重复文件')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
-      <span class="beautify_switch"></span>
-      <span class="subOptionWrap" data-show="deduplication">
-      <span>&nbsp; ${lang.transl('_策略')}</span>
-      <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
-      <span class="beautify_radio"></span>
-      <label class="has_tip" for="dupliStrategy1" data-tip="${lang.transl(
-        '_严格模式说明',
-      )}">${lang.transl('_严格')}</label>
-      <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
-      <span class="beautify_radio"></span>
-      <label class="has_tip" for="dupliStrategy2" data-tip="${lang.transl(
-        '_宽松模式说明',
-      )}">${lang.transl('_宽松')}</label>
-      &nbsp;
-      <button class="textButton gray1" type="button" id="exportDownloadRecord">${lang.transl(
-        '_导出',
-      )}</button>
-      <button class="textButton gray1" type="button" id="importDownloadRecord">${lang.transl(
-        '_导入',
-      )}</button>
-      <button class="textButton gray1" type="button" id="clearDownloadRecord">${lang.transl(
-        '_清除',
-      )}</button>
-      </span>
       </p>
 
       <p class="option" data-no="32">

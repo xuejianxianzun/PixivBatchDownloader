@@ -56,7 +56,6 @@ interface XzSetting {
   idRangeSwitch: boolean
   idRangeInput: string
   idRange: '1' | '2'
-  quickBookmarks: boolean
   noSerialNo: boolean
   filterBlackWhite: boolean
   sizeSwitch: boolean
@@ -71,8 +70,9 @@ interface XzSetting {
   imageSize: 'original' | 'regular' | 'small'
   dateFormat: string
   userSetLang: '-1' | '0' | '1' | '2' | '3'
-  bmkAfterDL:boolean
-  restrict:'-1'|'1'
+  bmkAfterDL: boolean
+  widthTag: '1' | '-1'
+  restrict: '-1' | '1'
 }
 
 interface SettingChangeData {
@@ -163,7 +163,6 @@ class Settings {
     idRange: '1',
     needTagSwitch: false,
     notNeedTagSwitch: false,
-    quickBookmarks: true,
     noSerialNo: false,
     filterBlackWhite: false,
     sizeSwitch: false,
@@ -178,8 +177,9 @@ class Settings {
     imageSize: 'original',
     dateFormat: 'YYYY-MM-DD',
     userSetLang: '-1',
-    bmkAfterDL:false,
-    restrict:'-1'
+    bmkAfterDL: false,
+    widthTag: '1',
+    restrict: '-1',
   }
 
   // 需要持久化保存的设置
@@ -259,9 +259,6 @@ class Settings {
     // 保存收藏数量数值
     this.saveTextInput('BMKNumMin')
     this.saveTextInput('BMKNumMax')
-
-    // 保存启用快速收藏
-    this.saveCheckBox('quickBookmarks')
 
     // 保存宽高条件
     this.saveCheckBox('setWHSwitch')
@@ -346,6 +343,8 @@ class Settings {
 
     this.saveCheckBox('bmkAfterDL')
     this.saveRadio('restrict')
+
+    this.saveRadio('widthTag')
 
     window.addEventListener(EVT.list.resetSettings, () => {
       form.reset()
@@ -460,9 +459,6 @@ class Settings {
     this.restoreString('BMKNumMin')
     this.restoreString('BMKNumMax')
 
-    // 设置启用快速收藏
-    this.restoreBoolean('quickBookmarks')
-
     // 设置宽高条件
     this.restoreBoolean('setWHSwitch')
     this.restoreString('widthHeightLimit')
@@ -541,6 +537,8 @@ class Settings {
 
     this.restoreBoolean('bmkAfterDL')
     this.restoreString('restrict')
+
+    this.restoreString('widthTag')
 
     // 恢复完毕之后触发一次设置改变事件
     EVT.fire(EVT.list.settingChange)

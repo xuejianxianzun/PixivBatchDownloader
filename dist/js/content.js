@@ -731,12 +731,16 @@ class BookmarkAfterDL {
             const successData = ev.detail.data;
             this.send(Number.parseInt(successData.id));
         });
-        // 当开始新的一批下载任务时，清空之前的数据
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.downloadStart, (ev) => {
+        // 当开始新的抓取时重置状态和提示
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlStart, (ev) => {
             this.reset();
+            this.showProgress();
         });
     }
     showProgress() {
+        if (this.savedIds.length === 0) {
+            return (this.tipEl.textContent = '');
+        }
         this.tipEl.textContent = `${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_已收藏')} ${this.successCount}/${this.savedIds.length}`;
     }
     reset() {
@@ -764,7 +768,7 @@ class BookmarkAfterDL {
             this.showProgress();
             // 从 store 里查找这个作品的数据
             let data = undefined;
-            let dataSource = (_Store__WEBPACK_IMPORTED_MODULE_2__["store"].resultMeta.length > 0) ? _Store__WEBPACK_IMPORTED_MODULE_2__["store"].resultMeta : _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result;
+            let dataSource = _Store__WEBPACK_IMPORTED_MODULE_2__["store"].resultMeta.length > 0 ? _Store__WEBPACK_IMPORTED_MODULE_2__["store"].resultMeta : _Store__WEBPACK_IMPORTED_MODULE_2__["store"].result;
             for (const r of dataSource) {
                 if (r.idNum === id) {
                     data = r;
@@ -774,7 +778,7 @@ class BookmarkAfterDL {
             if (data === undefined) {
                 return reject(new Error(`Not find ${id} in result`));
             }
-            await _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark((data.type !== 3) ? 'illusts' : 'novels', id.toString(), _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].quickBookmarks ? data.tags : [], _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].restrict === '1', _Token__WEBPACK_IMPORTED_MODULE_1__["token"].token).catch(err => {
+            await _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(data.type !== 3 ? 'illusts' : 'novels', id.toString(), _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].widthTag === '1' ? data.tags : [], _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].restrict === '1', _Token__WEBPACK_IMPORTED_MODULE_1__["token"].token).catch((err) => {
                 // 如果添加收藏失败，则从 id 列表里删除它，重新开始添加收藏
                 console.error(err);
                 const len = this.savedIds.length;
@@ -909,7 +913,7 @@ class BookmarkAllWorks {
             let index = 0;
             for (const data of this.bookmarKData) {
                 this.tipWrap.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`;
-                await _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(data.type, data.id, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].quickBookmarks ? data.tags : [], data.restrict, _Token__WEBPACK_IMPORTED_MODULE_1__["token"].token);
+                await _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(data.type, data.id, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].widthTag === '1' ? data.tags : [], _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].restrict === '1', _Token__WEBPACK_IMPORTED_MODULE_1__["token"].token);
                 index++;
             }
             resolve();
@@ -4966,7 +4970,7 @@ class InitBookmarkLegacyPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
     addAnyElement() {
         // 如果存在 token，则添加“添加 tag”按钮
         if (_Token__WEBPACK_IMPORTED_MODULE_3__["token"].token) {
-            const btn = _DOM__WEBPACK_IMPORTED_MODULE_9__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_添加tag'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_添加tag')]]);
+            const btn = _DOM__WEBPACK_IMPORTED_MODULE_9__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_给未分类作品添加添加tag'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_给未分类作品添加添加tag')]]);
             new _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_6__["BookmarksAddTag"](btn);
         }
     }
@@ -6019,6 +6023,8 @@ class InitPixivisionPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
             27,
             28,
             30,
+            33,
+            34,
         ]);
         // pixivision 里，文件名只有 id 标记会生效，所以把文件名规则替换成 id
         // form.userSetName.value = '{p_title}/{id}'
@@ -6946,7 +6952,7 @@ class QuickBookmark {
     }
     async init() {
         // 在某些条件下，不展开快速收藏功能
-        if (!_Token__WEBPACK_IMPORTED_MODULE_2__["token"].token || !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].quickBookmarks) {
+        if (!_Token__WEBPACK_IMPORTED_MODULE_2__["token"].token) {
             return;
         }
         window.clearInterval(this.timer);
@@ -7036,9 +7042,9 @@ class QuickBookmark {
             // 点击 p 站自带的收藏按钮，这是因为这一行为将会在作品下方显示推荐作品。如果不点击自带的按钮，只使用本程序添加的按钮，那么就不会出现推荐作品了。
             const pixivBMKBtn = this.pixivBMKDiv && this.pixivBMKDiv.querySelector('button');
             pixivBMKBtn && pixivBMKBtn.click();
-            // 如果设置了快速收藏，则获取 tag
             let tags = [];
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].quickBookmarks) {
+            // 如果设置了附带 tag，则从页面上获取 tag
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].widthTag === '1') {
                 const tagElements = document.querySelectorAll('._1LEXQ_3 li');
                 for (const el of tagElements) {
                     const nowA = el.querySelector('a');
@@ -7059,7 +7065,7 @@ class QuickBookmark {
             // 调用添加收藏的 api
             // 这里加了个延迟，因为上面先点击了 pixiv 自带的收藏按钮，但不加延迟的话， p 站自己的不带 tag 的请求反而是后发送的。
             setTimeout(() => {
-                _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(type, id, tags, false, _Token__WEBPACK_IMPORTED_MODULE_2__["token"].token)
+                _API__WEBPACK_IMPORTED_MODULE_0__["API"].addBookmark(type, id, tags, _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].restrict === '1', _Token__WEBPACK_IMPORTED_MODULE_2__["token"].token)
                     .then((response) => response.json())
                     .then((data) => {
                     if (data.error === false) {
@@ -9363,11 +9369,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         };
         this.addBookmark = (event) => {
             const data = event.detail.data;
-            // 如果设置了不启用快速收藏，则把 tag 设置为空
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_11__["settings"].quickBookmarks) {
-                data.tags = [];
-            }
-            _API__WEBPACK_IMPORTED_MODULE_8__["API"].addBookmark('illusts', data.id.toString(), data.tags, false, _Token__WEBPACK_IMPORTED_MODULE_3__["token"].token);
+            _API__WEBPACK_IMPORTED_MODULE_8__["API"].addBookmark('illusts', data.id.toString(), _setting_Settings__WEBPACK_IMPORTED_MODULE_11__["settings"].widthTag === '1' ? data.tags : [], _setting_Settings__WEBPACK_IMPORTED_MODULE_11__["settings"].restrict === '1', _Token__WEBPACK_IMPORTED_MODULE_3__["token"].token);
             this.resultMeta.forEach((result) => {
                 if (result.idNum === data.id) {
                     result.bookmarked = true;
@@ -11000,7 +11002,7 @@ const langText = {
         '請輸入作品 id。如果有多個 id，則以換行分隔（即每行一個 id）。',
     ],
     _开始抓取: ['开始抓取', 'クロールを開始する', 'Start crawling', '開始擷取'],
-    _添加tag: [
+    _给未分类作品添加添加tag: [
         '给未分类作品添加 tag',
         '未分類の作品に tag を追加',
         'Add tag to unclassified work',
@@ -11476,12 +11478,7 @@ const langText = {
         'Please refresh the page after changing the language.',
         '變更語言後，請重新整理頁面。',
     ],
-    _已收藏: [
-        '已收藏',
-        'ブックマーク',
-        'Bookmarked',
-        '已收藏',
-    ],
+    _已收藏: ['已收藏', 'ブックマーク', 'Bookmarked', '已收藏'],
     _下载后收藏作品: [
         '下载后收藏作品',
         '下载后收藏作品',
@@ -11494,18 +11491,11 @@ const langText = {
         '成功下载一个文件后，自动收藏这个作品。',
         '成功下载一个文件后，自动收藏这个作品。',
     ],
-    _公开: [
-        '公开',
-        '公开',
-        '公开',
-        '公开',
-    ],
-    _不公开: [
-        '不公开',
-        '不公开',
-        '不公开',
-        '不公开',
-    ]
+    _公开: ['公开', '公开', '公开', '公开'],
+    _不公开: ['不公开', '不公开', '不公开', '不公开'],
+    _收藏设置: ['收藏设置', '收藏设置', '收藏设置', '收藏设置'],
+    _添加tag: ['添加 tag', '添加 tag', '添加 tag', '添加 tag'],
+    _不添加tag: ['不添加 tag', '不添加 tag', '不添加 tag', '不添加 tag'],
 };
 
 
@@ -13427,35 +13417,6 @@ const formHtml = `<form class="settingForm">
 
       <slot data-name="namingBtns" class="centerWrap_btns"></slot>
 
-      <p class="option" data-no="30">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_图片尺寸')} </span>
-      <input type="radio" name="imageSize" id="imageSize1" class="need_beautify radio" value="original" checked>
-      <span class="beautify_radio"></span>
-      <label for="imageSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_原图')} </label>
-      &nbsp;
-      <input type="radio" name="imageSize" id="imageSize2" class="need_beautify radio" value="regular">
-      <span class="beautify_radio"></span>
-      <label for="imageSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_普通')} </label>
-      <span class="gray1">(1200*1200)</span>
-      &nbsp;
-      <input type="radio" name="imageSize" id="imageSize3" class="need_beautify radio" value="small">
-      <span class="beautify_radio"></span>
-      <label for="imageSize3"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_小图')} </label>
-      <span class="gray1">(540*540)</span>
-      </p>
-
-      <p class="option" data-no="25">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不符合要求的文件不会被保存')}">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_文件体积限制')} <span class="gray1"> ? </span></span>
-      <input type="checkbox" name="sizeSwitch" class="need_beautify checkbox_switch">
-      <span class="beautify_switch"></span>
-      <span class="subOptionWrap" data-show="sizeSwitch">
-      <input type="text" name="sizeMin" class="setinput_style1 blue" value="0">MiB
-      &nbsp;-&nbsp;
-      <input type="text" name="sizeMax" class="setinput_style1 blue" value="100">MiB
-      </span>
-      </p>
-
       <p class="option" data-no="16">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_线程数字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置下载线程')}<span class="gray1"> ? </span></span>
       <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
@@ -13510,27 +13471,86 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       </p>
+
+      <p class="option" data-no="30">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_图片尺寸')} </span>
+      <input type="radio" name="imageSize" id="imageSize1" class="need_beautify radio" value="original" checked>
+      <span class="beautify_radio"></span>
+      <label for="imageSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_原图')} </label>
+      &nbsp;
+      <input type="radio" name="imageSize" id="imageSize2" class="need_beautify radio" value="regular">
+      <span class="beautify_radio"></span>
+      <label for="imageSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_普通')} </label>
+      <span class="gray1">(1200*1200)</span>
+      &nbsp;
+      <input type="radio" name="imageSize" id="imageSize3" class="need_beautify radio" value="small">
+      <span class="beautify_radio"></span>
+      <label for="imageSize3"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_小图')} </label>
+      <span class="gray1">(540*540)</span>
+      </p>
+  
+      <p class="option" data-no="25">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不符合要求的文件不会被保存')}">
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_文件体积限制')} <span class="gray1"> ? </span></span>
+      <input type="checkbox" name="sizeSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="sizeSwitch">
+      <input type="text" name="sizeMin" class="setinput_style1 blue" value="0">MiB
+      &nbsp;-&nbsp;
+      <input type="text" name="sizeMax" class="setinput_style1 blue" value="100">MiB
+      </span>
+      </p>
+
+      <p class="option" data-no="28">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不下载重复文件的提示')}">
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不下载重复文件')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="deduplication">
+      <span>&nbsp; ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_策略')}</span>
+      <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
+      <span class="beautify_radio"></span>
+      <label class="has_tip" for="dupliStrategy1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_严格模式说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_严格')}</label>
+      <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
+      <span class="beautify_radio"></span>
+      <label class="has_tip" for="dupliStrategy2" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽松模式说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽松')}</label>
+      &nbsp;
+      <button class="textButton gray1" type="button" id="exportDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_导出')}</button>
+      <button class="textButton gray1" type="button" id="importDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_导入')}</button>
+      <button class="textButton gray1" type="button" id="clearDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_清除')}</button>
+      </span>
+      </p>
+
+      <hr />
       
       <p class="option" data-no="33">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载后收藏作品的提示')}">
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载后收藏作品')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
-      <span class="subOptionWrap" data-show="bmkAfterDL">
+      </p>
+
+      <p class="option" data-no="34">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_收藏设置')}</span>
+      
+      <input type="radio" name="widthTag" id="widthTag1" class="need_beautify radio" value="1" checked>
+      <span class="beautify_radio"></span>
+      <label for="widthTag1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_添加tag')}&nbsp;</label>
+      <input type="radio" name="widthTag" id="widthTag2" class="need_beautify radio" value="-1">
+      <span class="beautify_radio"></span>
+      <label for="widthTag2">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不添加tag')}</label>
+
+      <span class="verticalSplit"></span>
+      
       <input type="radio" name="restrict" id="restrict1" class="need_beautify radio" value="-1" checked>
       <span class="beautify_radio"></span>
-      <label for="restrict1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_公开')}</label>
+      <label for="restrict1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_公开')}&nbsp;</label>
       <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="1">
       <span class="beautify_radio"></span>
       <label for="restrict2">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不公开')}</label>
-      </span>
       </p>
 
-      <p class="option" data-no="20">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用快速收藏说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_启用快速收藏')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="quickBookmarks" id="quickBookmarks" class="need_beautify checkbox_switch" checked> 
-      <span class="beautify_switch"></span>
-      </p>
+      <hr />
 
       <p class="option" data-no="18">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览搜索结果说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
@@ -13564,26 +13584,6 @@ const formHtml = `<form class="settingForm">
       <br>
       <span class="blue">ss</span> <span>08</span>
       <br>
-      </p>
-
-      <p class="option" data-no="28">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不下载重复文件的提示')}">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不下载重复文件')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
-      <span class="beautify_switch"></span>
-      <span class="subOptionWrap" data-show="deduplication">
-      <span>&nbsp; ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_策略')}</span>
-      <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
-      <span class="beautify_radio"></span>
-      <label class="has_tip" for="dupliStrategy1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_严格模式说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_严格')}</label>
-      <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
-      <span class="beautify_radio"></span>
-      <label class="has_tip" for="dupliStrategy2" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽松模式说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽松')}</label>
-      &nbsp;
-      <button class="textButton gray1" type="button" id="exportDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_导出')}</button>
-      <button class="textButton gray1" type="button" id="importDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_导入')}</button>
-      <button class="textButton gray1" type="button" id="clearDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_清除')}</button>
-      </span>
       </p>
 
       <p class="option" data-no="32">
@@ -13974,7 +13974,6 @@ class Settings {
             idRange: '1',
             needTagSwitch: false,
             notNeedTagSwitch: false,
-            quickBookmarks: true,
             noSerialNo: false,
             filterBlackWhite: false,
             sizeSwitch: false,
@@ -13990,7 +13989,8 @@ class Settings {
             dateFormat: 'YYYY-MM-DD',
             userSetLang: '-1',
             bmkAfterDL: false,
-            restrict: '-1'
+            widthTag: '1',
+            restrict: '-1',
         };
         // 需要持久化保存的设置
         this.settings = Object.assign({}, this.optionDefault);
@@ -14060,8 +14060,6 @@ class Settings {
         // 保存收藏数量数值
         this.saveTextInput('BMKNumMin');
         this.saveTextInput('BMKNumMax');
-        // 保存启用快速收藏
-        this.saveCheckBox('quickBookmarks');
         // 保存宽高条件
         this.saveCheckBox('setWHSwitch');
         this.saveRadio('widthHeightLimit');
@@ -14124,6 +14122,7 @@ class Settings {
         this.saveRadio('userSetLang');
         this.saveCheckBox('bmkAfterDL');
         this.saveRadio('restrict');
+        this.saveRadio('widthTag');
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettings, () => {
             _Form__WEBPACK_IMPORTED_MODULE_2__["form"].reset();
             this.reset();
@@ -14218,8 +14217,6 @@ class Settings {
         // 设置收藏数量数值
         this.restoreString('BMKNumMin');
         this.restoreString('BMKNumMax');
-        // 设置启用快速收藏
-        this.restoreBoolean('quickBookmarks');
         // 设置宽高条件
         this.restoreBoolean('setWHSwitch');
         this.restoreString('widthHeightLimit');
@@ -14277,6 +14274,7 @@ class Settings {
         this.restoreString('userSetLang');
         this.restoreBoolean('bmkAfterDL');
         this.restoreString('restrict');
+        this.restoreString('widthTag');
         // 恢复完毕之后触发一次设置改变事件
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange);
     }

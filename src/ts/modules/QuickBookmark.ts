@@ -25,7 +25,7 @@ class QuickBookmark {
 
   private async init() {
     // 在某些条件下，不展开快速收藏功能
-    if (!token.token || !settings.quickBookmarks) {
+    if (!token.token) {
       return
     }
 
@@ -138,9 +138,9 @@ class QuickBookmark {
         this.pixivBMKDiv && this.pixivBMKDiv.querySelector('button')
       pixivBMKBtn && pixivBMKBtn.click()
 
-      // 如果设置了快速收藏，则获取 tag
       let tags: string[] = []
-      if (settings.quickBookmarks) {
+      // 如果设置了附带 tag，则从页面上获取 tag
+      if (settings.widthTag === '1') {
         const tagElements = document.querySelectorAll('._1LEXQ_3 li')
         for (const el of tagElements) {
           const nowA = el.querySelector('a')
@@ -165,7 +165,7 @@ class QuickBookmark {
       // 调用添加收藏的 api
       // 这里加了个延迟，因为上面先点击了 pixiv 自带的收藏按钮，但不加延迟的话， p 站自己的不带 tag 的请求反而是后发送的。
       setTimeout(() => {
-        API.addBookmark(type, id, tags, false, token.token)
+        API.addBookmark(type, id, tags, settings.restrict === '1', token.token)
           .then((response) => response.json())
           .then((data) => {
             if (data.error === false) {

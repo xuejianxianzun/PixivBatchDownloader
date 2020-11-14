@@ -716,16 +716,12 @@ class InitSearchArtworkPage extends InitPageBase {
 
   private addBookmark = (event: CustomEventInit) => {
     const data = event.detail.data as AddBMKData
-    // 如果设置了不启用快速收藏，则把 tag 设置为空
-    if (!settings.quickBookmarks) {
-      data.tags = []
-    }
 
     API.addBookmark(
       'illusts',
       data.id.toString(),
-      data.tags,
-      false,
+      settings.widthTag === '1' ? data.tags : [],
+      settings.restrict === '1',
       token.token,
     )
     this.resultMeta.forEach((result) => {

@@ -14,7 +14,6 @@ export interface SettingsForm extends HTMLFormElement {
   BMKNumMin: HTMLInputElement
   BMKNumMax: HTMLInputElement
   setOnlyBmk: HTMLInputElement
-  quickBookmarks: HTMLInputElement
   setWHSwitch: HTMLInputElement
   setWidth: HTMLInputElement
   idRange: RadioNodeList
@@ -57,5 +56,6 @@ export interface SettingsForm extends HTMLFormElement {
   dateFormat: HTMLInputElement
   userSetLang: RadioNodeList
   bmkAfterDL: HTMLInputElement
+  widthTag: RadioNodeList
   restrict: RadioNodeList
 }

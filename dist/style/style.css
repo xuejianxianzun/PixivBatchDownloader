@@ -56,6 +56,11 @@
   max-height: 94vh;
   overflow: auto;
 }
+.centerWrap hr {
+  border: none;
+  height: 1px;
+  background: #eee;
+}
 .centerWrap p,
 .centerWrap div,
 .centerWrap span,
@@ -525,6 +530,13 @@
 .centerWrap .gray1 {
   color: #999;
 }
+.centerWrap .verticalSplit {
+  display: inline-block;
+  width: 0px;
+  height: 16px;
+  border-right: 1px solid #ccc;
+  margin: 0 10px;
+}
 .centerWrap .wiki2 {
   height: 24px;
   line-height: 24px;
@@ -842,7 +854,7 @@
   color: #f00;
 }
 .green {
-  color: #14AD27;
+  color: #14ad27;
 }
 .downloadError {
   color: #ffa0a0;

@@ -62,8 +62,8 @@ class InitBookmarkLegacyPage extends InitPageBase {
       const btn = DOM.addBtn(
         'otherBtns',
         Colors.green,
-        lang.transl('_添加tag'),
-        [['title', lang.transl('_添加tag')]],
+        lang.transl('_给未分类作品添加添加tag'),
+        [['title', lang.transl('_给未分类作品添加添加tag')]],
       )
 
       new BookmarksAddTag(btn)

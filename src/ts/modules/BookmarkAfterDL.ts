@@ -33,14 +33,19 @@ class BookmarkAfterDL {
       this.send(Number.parseInt(successData.id))
     })
 
-    // 当开始新的一批下载任务时，清空之前的数据
-    window.addEventListener(EVT.list.downloadStart, (ev: CustomEventInit) => {
+    // 当开始新的抓取时重置状态和提示
+    window.addEventListener(EVT.list.crawlStart, (ev: CustomEventInit) => {
       this.reset()
+      this.showProgress()
     })
   }
 
   private showProgress() {
-    this.tipEl.textContent = `${lang.transl('_已收藏')} ${this.successCount}/${this.savedIds.length}`
+    if (this.savedIds.length === 0) {
+      return (this.tipEl.textContent = '')
+    }
+    this.tipEl.textContent = `${lang.transl('_已收藏')} ${this.successCount}/${this.savedIds.length
+      }`
   }
 
   private reset() {
@@ -74,7 +79,8 @@ class BookmarkAfterDL {
 
       // 从 store 里查找这个作品的数据
       let data: Result | undefined = undefined
-      let dataSource = (store.resultMeta.length > 0) ? store.resultMeta : store.result
+      let dataSource =
+        store.resultMeta.length > 0 ? store.resultMeta : store.result
       for (const r of dataSource) {
         if (r.idNum === id) {
           data = r
@@ -86,12 +92,12 @@ class BookmarkAfterDL {
       }
 
       await API.addBookmark(
-        (data.type !== 3) ? 'illusts' : 'novels',
+        data.type !== 3 ? 'illusts' : 'novels',
         id.toString(),
-        settings.quickBookmarks ? data.tags : [],
+        settings.widthTag === '1' ? data.tags : [],
         settings.restrict === '1',
         token.token,
-      ).catch(err => {
+      ).catch((err) => {
         // 如果添加收藏失败，则从 id 列表里删除它，重新开始添加收藏
         console.error(err)
         const len = this.savedIds.length
@@ -103,7 +109,6 @@ class BookmarkAfterDL {
         }
         return resolve(this.send(id))
       })
-
 
       this.successCount++
       this.showProgress()
