@@ -172,7 +172,7 @@ class Settings {
     const url = URL.createObjectURL(blob)
     DOM.downloadFile(
       url,
-      `export-pixiv_batch_downloader-settings.json`,
+      `pixiv_batch_downloader-settings.json`,
     )
   }
 
@@ -187,13 +187,14 @@ class Settings {
       return
     }
     // 检查是否存在设置里的属性
-    if(loadedJSON.downloadThread===undefined){
+    if (loadedJSON.downloadThread === undefined) {
       return EVT.sendMsg({
         type: 'error',
         msg: 'Format error!'
       })
     }
     // 开始恢复导入的设置
+    this.reset(loadedJSON)
   }
 
   // 处理输入框： change 时保存 value
@@ -551,10 +552,15 @@ class Settings {
   }
 
   // 重设选项
-  private reset() {
-    // 将保存的选项恢复为默认值
-    Object.assign(this.settings, this.optionDefault)
-    // 覆写本地存储里的设置为默认值
+  // 可选参数：传递整个设置的数据，用于从配置文件导入，恢复设置
+  private reset(data?: XzSetting) {
+    if (data) {
+      Object.assign(this.settings, data)
+    } else {
+      // 将保存的选项恢复为默认值
+      Object.assign(this.settings, this.optionDefault)
+    }
+    // 覆写本地存储里的设置
     localStorage.setItem(this.storeName, JSON.stringify(this.settings))
     // 重设选项
     this.restore()

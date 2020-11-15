@@ -1459,10 +1459,9 @@ class DOM {
             .replace(/\[(↑|→|▶|↓|║|■|✓| )\] /, '')
             .replace(/^\(\d.*\) /, '');
     }
-    // 使用 input 按钮选择 json 文件
+    // 创建 input 元素选择 json 文件
     static async loadJSONFile() {
         return new Promise((resolve, reject) => {
-            // 创建 input 元素选择文件
             const i = document.createElement('input');
             i.setAttribute('type', 'file');
             i.setAttribute('accept', 'application/json');
@@ -14242,7 +14241,7 @@ class Settings {
         const str = JSON.stringify(this.settings, null, 2);
         const blob = new Blob([str], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
-        _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].downloadFile(url, `export-pixiv_batch_downloader-settings.json`);
+        _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].downloadFile(url, `pixiv_batch_downloader-settings.json`);
     }
     async importSettings() {
         const loadedJSON = await _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].loadJSONFile().catch(err => {
@@ -14261,7 +14260,8 @@ class Settings {
                 msg: 'Format error!'
             });
         }
-        // 开始恢复
+        // 开始恢复导入的设置
+        this.reset(loadedJSON);
     }
     // 处理输入框： change 时保存 value
     saveTextInput(name) {
@@ -14537,10 +14537,16 @@ class Settings {
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, this.settings);
     }
     // 重设选项
-    reset() {
-        // 将保存的选项恢复为默认值
-        Object.assign(this.settings, this.optionDefault);
-        // 覆写本地存储里的设置为默认值
+    // 可选参数：传递整个设置的数据，用于从配置文件导入，恢复设置
+    reset(data) {
+        if (data) {
+            Object.assign(this.settings, data);
+        }
+        else {
+            // 将保存的选项恢复为默认值
+            Object.assign(this.settings, this.optionDefault);
+        }
+        // 覆写本地存储里的设置
         localStorage.setItem(this.storeName, JSON.stringify(this.settings));
         // 重设选项
         this.restore();
