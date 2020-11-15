@@ -18,9 +18,7 @@ class Settings {
 
     this.restore()
 
-    window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
-      this.restoreWantPage()
-    })
+    this.bindEvents()
   }
 
   // 本地存储中使用的 name
@@ -120,6 +118,12 @@ class Settings {
 
   // 需要持久化保存的设置
   public settings: XzSetting = Object.assign({}, this.optionDefault)
+
+  private bindEvents() {
+    window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
+      this.restoreWantPage()
+    })
+  }
 
   // 处理输入框： change 时保存 value
   private saveTextInput(name: keyof XzSetting) {
@@ -226,11 +230,11 @@ class Settings {
 
     // 保存命名规则
     const userSetNameInput = form.userSetName
-    ;['change', 'focus'].forEach((ev) => {
-      userSetNameInput.addEventListener(ev, () => {
-        this.emitChange('userSetName', userSetNameInput.value)
+      ;['change', 'focus'].forEach((ev) => {
+        userSetNameInput.addEventListener(ev, () => {
+          this.emitChange('userSetName', userSetNameInput.value)
+        })
       })
-    })
 
     // 保存是否添加标记名称
     this.saveCheckBox('tagNameToFileName')
@@ -298,7 +302,7 @@ class Settings {
     name: keyof XzSetting,
     value: string | number | boolean | string[],
   ) {
-    ;(this.settings[name] as any) = value
+    ; (this.settings[name] as any) = value
     EVT.fire(EVT.list.settingChange, { name: name, value: value })
     localStorage.setItem(this.storeName, JSON.stringify(this.settings))
   }

@@ -628,6 +628,19 @@ const formHtml = `<form class="settingForm">
       &nbsp;
       </p>
 
+      <p class="option" data-no="37">
+      <span class="settingNameStyle1">${lang.transl('_管理设置')}</span>
+      <button class="textButton gray1" type="button" id="exportSettings">${lang.transl(
+        '_导出设置',
+      )}</button>
+      <button class="textButton gray1" type="button" id="importSettings">${lang.transl(
+        '_导入设置',
+      )}</button>
+      <button class="textButton gray1" type="button" id="resetSettings">${lang.transl(
+        '_重置设置',
+      )}</button>
+      </p>
+
       <slot data-name="otherBtns" class="centerWrap_btns"></slot>
     </div>
   </div>

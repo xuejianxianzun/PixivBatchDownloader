@@ -61,9 +61,6 @@ class CenterPanel {
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank"> ${lang.transl(
         '_wiki',
       )}</a>
-      <button class="textButton gray1 showDownTip" type="button" id="resetSettings">${lang.transl(
-        '_重置设置',
-      )}</button>
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${lang.transl(
         '_fanboxDownloader',
       )}</a>

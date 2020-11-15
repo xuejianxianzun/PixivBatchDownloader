@@ -9,10 +9,6 @@ class Theme {
     this.bindEvent()
   }
 
-  private readonly selector = '#gtm-var-theme-kind' // 通过这个选择器查找含有主题标记的元素
-
-  private timer = 0
-
   private defaultTheme = 'white' // 默认主题
 
   private theme = '' // 当前使用的主题
@@ -22,6 +18,10 @@ class Theme {
     ['white', ''],
     ['dark', 'theme-dark'],
   ])
+
+  private readonly selector = '#gtm-var-theme-kind' // 通过这个选择器查找含有主题标记的元素
+
+  private timer = 0
 
   // 页面上储存的主题标记，与本组件里的主题的对应关系
   private readonly htmlFlagMap = new Map([
