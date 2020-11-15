@@ -18,10 +18,17 @@ class Theme {
   private theme = '' // 当前使用的主题
 
   // 主题标记以及对应的 className
-  private readonly classNameMap = new Map([['white', ''], ['dark', 'theme-dark']])
+  private readonly classNameMap = new Map([
+    ['white', ''],
+    ['dark', 'theme-dark'],
+  ])
 
   // 页面上储存的主题标记，与本组件里的主题的对应关系
-  private readonly htmlFlagMap = new Map([['', 'white'], ['default', 'white'], ['dark', 'dark']])
+  private readonly htmlFlagMap = new Map([
+    ['', 'white'],
+    ['default', 'white'],
+    ['dark', 'dark'],
+  ])
 
   private elList: Element[] = [] // 保存已注册的元素
 
@@ -34,7 +41,6 @@ class Theme {
     // 设置变化时设置主题
     window.addEventListener(EVT.list.settingChange, () => {
       if (window.xzSettings) {
-        console.log(window.xzSettings.theme)
         this.setTheme()
       }
     })
@@ -87,14 +93,14 @@ class Theme {
     switch (themeFlag) {
       case 'white':
         result = 'white'
-        break;
+        break
       case 'dark':
         result = 'dark'
-        break;
+        break
       default:
         // 如果传递的值是本模块不能识别的，包括 'auto'，就都自动获取
         result = this.getThemeFromHtml() || this.defaultTheme
-        break;
+        break
     }
 
     // 如果要使用的主题和当前主题不同，则执行变化
@@ -105,7 +111,6 @@ class Theme {
         this.setClass(el)
       }
     }
-
   }
 
   // 把元素注册到本组件里

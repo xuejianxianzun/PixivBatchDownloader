@@ -50,10 +50,10 @@ class FastScreen {
     })
 
     theme.register(fastScreenArea)
-      ; (target as HTMLDivElement).insertAdjacentElement(
-        'afterend',
-        fastScreenArea,
-      )
+    ;(target as HTMLDivElement).insertAdjacentElement(
+      'afterend',
+      fastScreenArea,
+    )
   }
 
   // 打开快速筛选链接

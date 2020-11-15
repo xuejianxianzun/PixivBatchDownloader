@@ -12,7 +12,6 @@ import { XzSetting } from './Settings.d'
 // 如果打开了多个标签页，每个页面都有各自的 settings 成员。它们是互相独立的，不会互相影响。
 // 但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
 
-
 class Settings {
   constructor() {
     this.ListenChange()
@@ -116,7 +115,7 @@ class Settings {
     userBlockList: false,
     blockList: '',
     theme: 'auto',
-    needTagMode: 'all'
+    needTagMode: 'all',
   }
 
   // 需要持久化保存的设置
@@ -227,11 +226,11 @@ class Settings {
 
     // 保存命名规则
     const userSetNameInput = form.userSetName
-      ;['change', 'focus'].forEach((ev) => {
-        userSetNameInput.addEventListener(ev, () => {
-          this.emitChange('userSetName', userSetNameInput.value)
-        })
+    ;['change', 'focus'].forEach((ev) => {
+      userSetNameInput.addEventListener(ev, () => {
+        this.emitChange('userSetName', userSetNameInput.value)
       })
+    })
 
     // 保存是否添加标记名称
     this.saveCheckBox('tagNameToFileName')
@@ -299,7 +298,7 @@ class Settings {
     name: keyof XzSetting,
     value: string | number | boolean | string[],
   ) {
-    ; (this.settings[name] as any) = value
+    ;(this.settings[name] as any) = value
     EVT.fire(EVT.list.settingChange, { name: name, value: value })
     localStorage.setItem(this.storeName, JSON.stringify(this.settings))
   }

@@ -47,7 +47,6 @@
     "scripts": ["js/background.js"]
   },
   "permissions": [
-    "tabs",
     "downloads",
     "*://www.pixiv.net/*",
     "*://www.pixivision.net/*",

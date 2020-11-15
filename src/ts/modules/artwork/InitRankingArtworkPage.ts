@@ -145,7 +145,7 @@ class InitRankingArtworkPage extends InitPageBase {
         width: data.width,
         height: data.height,
         yes_rank: data.yes_rank,
-        userid:data.user_id.toString()
+        userid: data.user_id.toString(),
       }
 
       if (await filter.check(filterOpt)) {

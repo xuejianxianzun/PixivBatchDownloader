@@ -68,5 +68,7 @@ export interface XzSetting {
 }
 
 declare global {
-  interface Window { xzSettings: XzSetting }
+  interface Window {
+    xzSettings: XzSetting
+  }
 }

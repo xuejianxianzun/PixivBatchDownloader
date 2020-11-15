@@ -73,7 +73,7 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
         bookmarkData: data.isBookmarked,
         illustType: parseInt(data.illustType) as any,
         tags: data.tags,
-        userid:data.userId
+        userid: data.userId,
       }
 
       if (await filter.check(filterOpt)) {

@@ -166,7 +166,7 @@ class Filter {
     return true
   }
 
-  // ---------------- get ---------------- 
+  // ---------------- get ----------------
 
   // 获取下载的作品类型设置
   private getDownType() {
@@ -272,9 +272,11 @@ class Filter {
       const andOr = settings.setWidthAndOr
         .replace('|', lang.transl('_或者'))
         .replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${this._setWidth
-        } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${this._setHeight
-        }`
+      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${
+        this._setWidth
+      } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${
+        this._setHeight
+      }`
       this.logTip(text)
     }
   }
@@ -385,7 +387,8 @@ class Filter {
       this._postDateStart = postDateStart.getTime()
       this._postDateEnd = postDateEnd.getTime()
       this.logTip(
-        `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${settings.postDateEnd
+        `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${
+          settings.postDateEnd
         }`,
       )
     }
@@ -425,11 +428,13 @@ class Filter {
     })
 
     if (this.blockList.length > 0) {
-      this.logTip(lang.transl('_用户阻止名单') + ': ' + this.blockList.join(','))
+      this.logTip(
+        lang.transl('_用户阻止名单') + ': ' + this.blockList.join(','),
+      )
     }
   }
 
-  // ---------------- check ---------------- 
+  // ---------------- check ----------------
 
   // 检查下载的作品类型设置
   private checkDownType(illustType: FilterOption['illustType']) {
@@ -512,7 +517,7 @@ class Filter {
 
     let result = false
     // 把设置的包含的 tag 转换成小写，生成数组
-    const needTags = this._needTag.split(',').map(val => {
+    const needTags = this._needTag.split(',').map((val) => {
       return val.toLowerCase()
     })
 
@@ -550,7 +555,6 @@ class Filter {
           }
         }
       }
-
     } else {
       result = true
     }
@@ -565,7 +569,7 @@ class Filter {
     }
 
     let result = true
-    const notNeedTags = this._notNeedTag.split(',').map(val => {
+    const notNeedTags = this._notNeedTag.split(',').map((val) => {
       return val.toLowerCase()
     })
 

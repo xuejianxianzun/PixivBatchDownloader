@@ -103,9 +103,9 @@ TODO  翻译文本
 
 **注意：** 使用 `window.xzSettings` 的前提是 `settings` 已经生成。所以在使用之前最好先判断一下。或者监听 `EVT.events.settingChange` 事件，因为第一次 `EVT.events.settingChange` 事件是 `Settings` 模块发出的，此时 `window.xzSettings` 已经可用。
 
-### ??? 去掉 tab 权限？
+### 移除 tabs 权限
 
-chrome 审核时说要我去掉 tab 权限。
+Chrome 商店审核时说 `"tabs"` 权限是不必要的，我试了试去掉确实不影响，就去掉了。
 
 ## 8.1.1 2020-10-28
 

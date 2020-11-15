@@ -133,4 +133,4 @@ class OutputPanel {
 }
 
 new OutputPanel()
-export { }
+export {}

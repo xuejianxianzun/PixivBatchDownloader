@@ -170,7 +170,7 @@ class InitSeriesPage extends InitPageBase {
         width: work.width,
         height: work.height,
         illustType: work.illustType,
-        userid: work.userId
+        userid: work.userId,
       }
 
       // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以 type 是 unknown
