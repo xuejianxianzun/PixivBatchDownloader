@@ -28,12 +28,12 @@ type FlagList = keyof typeof flags
 
 class TitleBar {
   constructor() {
-    this.bindEvent()
+    this.bindEvents()
   }
 
   private timer: number = 0 // title 闪烁时，使用的定时器
 
-  private bindEvent() {
+  private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
       this.set('crawling')
     })
@@ -152,4 +152,4 @@ class TitleBar {
   }
 }
 new TitleBar()
-export {}
+export { }

@@ -42,7 +42,7 @@ class Deduplication {
 
   private async init() {
     await this.initDB()
-    this.bindEvent()
+    this.bindEvents()
     // this.exportTestFile(10)
   }
 
@@ -63,7 +63,7 @@ class Deduplication {
     })
   }
 
-  private bindEvent() {
+  private bindEvents() {
     // 当有文件被跳过时，保存到 skipIdList
     window.addEventListener(EVT.list.skipDownload, (ev: CustomEventInit) => {
       const data = ev.detail.data as DonwloadSuccessData
@@ -76,12 +76,12 @@ class Deduplication {
       this.add(successData.id)
     })
 
-    // 当抓取完成、下载完成时，清空 skipIdList 列表
-    ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach((val) => {
-      window.addEventListener(val, () => {
-        this.skipIdList = []
+      // 当抓取完成、下载完成时，清空 skipIdList 列表
+      ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach((val) => {
+        window.addEventListener(val, () => {
+          this.skipIdList = []
+        })
       })
-    })
 
     // 导入下载记录的按钮
     {

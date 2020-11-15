@@ -19,7 +19,7 @@ class SaveNamingRule {
 
     this.createList()
 
-    this.bindEvent()
+    this.bindEvents()
   }
 
   private storeName = 'xzNamingList'
@@ -40,7 +40,7 @@ class SaveNamingRule {
     return this._show
   }
 
-  private bindEvent() {
+  private bindEvents() {
     this.saveBtn.addEventListener('click', () => {
       this.add(this.ruleInput.value)
     })

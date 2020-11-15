@@ -10,12 +10,12 @@ type DLStatesI = (-1 | 0 | 1)[]
 // 下载状态列表
 class DownloadStates {
   constructor() {
-    this.bindEvent()
+    this.bindEvents()
   }
 
   public states: DLStatesI = []
 
-  private bindEvent() {
+  private bindEvents() {
     // 初始化下载状态
     const evs = [EVT.list.crawlFinish, EVT.list.resultChange]
     for (const ev of evs) {

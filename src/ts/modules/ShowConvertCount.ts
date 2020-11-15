@@ -5,12 +5,12 @@ import { lang } from './Lang'
 class ShowConvertCount {
   constructor(el: HTMLElement) {
     this.el = el
-    this.bindEvent()
+    this.bindEvents()
   }
 
   private el: HTMLElement // 显示提示文本的容器
 
-  private bindEvent() {
+  private bindEvents() {
     window.addEventListener(EVT.list.convertChange, (ev: CustomEventInit) => {
       const count = ev.detail.data
       let convertText = ''

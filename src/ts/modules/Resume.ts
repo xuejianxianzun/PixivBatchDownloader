@@ -62,7 +62,7 @@ class Resume {
 
     await this.initDB()
     this.restoreData()
-    this.bindEvent()
+    this.bindEvents()
     this.regularPutStates()
     this.clearExired()
   }
@@ -163,7 +163,7 @@ class Resume {
     EVT.fire(EVT.list.resume)
   }
 
-  private bindEvent() {
+  private bindEvents() {
     // 抓取完成时，保存这次任务的数据
     const evs = [EVT.list.crawlFinish, EVT.list.resultChange]
     for (const ev of evs) {

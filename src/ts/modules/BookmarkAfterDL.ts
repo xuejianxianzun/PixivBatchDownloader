@@ -14,7 +14,7 @@ class BookmarkAfterDL {
       this.tipEl = tipEl
     }
 
-    this.bindEvent()
+    this.bindEvents()
   }
 
   // 储存接收到的 id，用于防止对一个作品重复添加收藏
@@ -26,7 +26,7 @@ class BookmarkAfterDL {
   private tipEl: HTMLElement = document.createElement('span')
 
   // 可选传入一个元素，显示收藏的数量和总数
-  private bindEvent() {
+  private bindEvents() {
     // 当有文件下载完成时，提取 id
     window.addEventListener(EVT.list.downloadSuccess, (ev: CustomEventInit) => {
       const successData = ev.detail.data as DonwloadSuccessData
@@ -44,9 +44,8 @@ class BookmarkAfterDL {
     if (this.savedIds.length === 0) {
       return (this.tipEl.textContent = '')
     }
-    this.tipEl.textContent = `${lang.transl('_已收藏')} ${this.successCount}/${
-      this.savedIds.length
-    }`
+    this.tipEl.textContent = `${lang.transl('_已收藏')} ${this.successCount}/${this.savedIds.length
+      }`
   }
 
   private reset() {

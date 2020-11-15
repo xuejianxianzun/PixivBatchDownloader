@@ -13,10 +13,10 @@ export interface Msg {
 // 一个简单的消息框
 class MsgBox {
   constructor() {
-    this.bindEvent()
+    this.bindEvents()
   }
 
-  private bindEvent() {
+  private bindEvents() {
     window.addEventListener(EVT.list.showMsg, (ev: CustomEventInit) => {
       const msg = ev.detail.data as Msg
       this.create(msg)
@@ -34,9 +34,8 @@ class MsgBox {
     el.innerHTML = `
         <p class="title">${data.title || ''}</p>
         <p class="content" ${colorStyle}>${data.msg}</p>
-        <button class="btn" type="button">${
-          data.btn || lang.transl('_确定')
-        }</button>
+        <button class="btn" type="button">${data.btn || lang.transl('_确定')
+      }</button>
       `
 
     theme.register(el)

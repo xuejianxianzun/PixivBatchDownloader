@@ -6,7 +6,7 @@ class Theme {
   constructor() {
     this.setTheme()
 
-    this.bindEvent()
+    this.bindEvents()
   }
 
   private defaultTheme = 'white' // 默认主题
@@ -32,7 +32,7 @@ class Theme {
 
   private elList: Element[] = [] // 保存已注册的元素
 
-  private bindEvent() {
+  private bindEvents() {
     // 初始化时使用定时器查找标记元素
     this.timer = window.setInterval(() => {
       this.findFlag()

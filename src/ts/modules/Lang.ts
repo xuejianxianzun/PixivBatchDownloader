@@ -6,14 +6,14 @@ import { EVT } from './EVT'
 class Lang {
   constructor() {
     this.setFlag()
-    this.bindEvent()
+    this.bindEvents()
   }
 
   public flag = 0
 
   private readonly storeName = 'xzLang'
 
-  private bindEvent() {
+  private bindEvents() {
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data
       if (data.name === 'userSetLang') {

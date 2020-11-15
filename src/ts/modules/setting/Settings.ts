@@ -1,4 +1,6 @@
 import { EVT } from '../EVT'
+import { lang } from '../Lang'
+import { DOM } from '../DOM'
 import { pageType } from '../PageType'
 import { form } from './Form'
 import { XzSetting } from './Settings.d'
@@ -6,6 +8,7 @@ import { XzSetting } from './Settings.d'
 // 保存设置表单的所有设置项，并且在下载器初始化时恢复这些设置的值
 
 // 成员 settings 保存着当前页面的所有设置项；当设置项变化时，settings 响应变化并保存到 localStorage 里。
+// settings 在 window 上挂载为 window.xzSettings
 
 // 补充说明：
 // 选项 setWantPage 并不需要实际上进行保存和恢复。保存和恢复时使用的是 wantPageArr
@@ -123,6 +126,65 @@ class Settings {
     window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
       this.restoreWantPage()
     })
+
+    window.addEventListener(EVT.list.resetSettings, () => {
+      form.reset()
+      this.reset()
+    })
+
+    // 重置设置按钮
+    {
+      const el = form.querySelector('#resetSettings')
+      if (el) {
+        el.addEventListener('click', () => {
+          const result = window.confirm(lang.transl('_是否重置设置'))
+          if (result) {
+            EVT.fire(EVT.list.resetSettings)
+          }
+        })
+      }
+    }
+
+    // 导出设置按钮
+    {
+      const el = form.querySelector('#exportSettings')
+      if (el) {
+        el.addEventListener('click', () => {
+          this.exportSettings()
+        })
+      }
+    }
+
+    // 导入设置按钮
+    {
+      const el = form.querySelector('#importSettings')
+      if (el) {
+        el.addEventListener('click', () => {
+          this.importSettings()
+        })
+      }
+    }
+  }
+
+  private exportSettings(){
+    const str = JSON.stringify(this.settings, null, 2)
+    const blob = new Blob([str], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    DOM.downloadFile(
+      url,
+      `export-pixiv_batch_downloader-settings.json`,
+    )
+  }
+
+  private async importSettings(){
+    const input = document.createElement('input')
+    input.setAttribute('type','file')
+    input.setAttribute('accept', 'application/json')
+    input.onchange=()=>{
+      if (input.files && input.files.length > 0) {
+      }
+    }
+
   }
 
   // 处理输入框： change 时保存 value
@@ -290,11 +352,6 @@ class Settings {
     this.saveRadio('needTagMode')
 
     this.saveRadio('theme')
-
-    window.addEventListener(EVT.list.resetSettings, () => {
-      form.reset()
-      this.reset()
-    })
   }
 
   // 任何设置项发生改变时，都要调用这个方法，传递选项名和值

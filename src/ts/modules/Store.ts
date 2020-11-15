@@ -6,7 +6,7 @@ import { Result, WorkInfoOptional, RankList, IDData } from './Store.d'
 // 储存抓取结果
 class Store {
   constructor() {
-    this.bindEvent()
+    this.bindEvents()
   }
 
   public idList: IDData[] = [] // 储存从列表中抓取到的作品的 id
@@ -111,7 +111,7 @@ class Store {
     this.title = DOM.getTitle()
   }
 
-  private bindEvent() {
+  private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
       this.reset()
     })

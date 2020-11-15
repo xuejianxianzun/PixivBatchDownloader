@@ -6,13 +6,13 @@ import { fileName } from './FileName'
 // 输出 lst 文件
 class ExportLST {
   constructor() {
-    this.bindEvent()
+    this.bindEvents()
   }
 
   private readonly separate = '?/' // 分隔符
   private readonly CRLF = '\r\n' // 换行符
 
-  private bindEvent() {
+  private bindEvents() {
     window.addEventListener(
       'keydown',
       (ev) => {
@@ -48,4 +48,4 @@ class ExportLST {
 }
 
 new ExportLST()
-export {}
+export { }

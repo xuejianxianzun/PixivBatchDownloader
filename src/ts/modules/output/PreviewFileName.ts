@@ -7,10 +7,10 @@ import config from '../Config'
 // 预览文件名
 class PreviewFileName {
   constructor() {
-    this.bindEvent()
+    this.bindEvents()
   }
 
-  private bindEvent() {
+  private bindEvents() {
     window.addEventListener(EVT.list.previewFileName, () => {
       this.previewFileName()
     })
@@ -69,4 +69,4 @@ class PreviewFileName {
 }
 
 new PreviewFileName()
-export {}
+export { }

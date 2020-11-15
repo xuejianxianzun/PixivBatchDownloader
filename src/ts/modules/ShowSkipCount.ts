@@ -5,13 +5,13 @@ import { lang } from './Lang'
 class ShowSkipCount {
   constructor(el: HTMLElement) {
     this.el = el
-    this.bindEvent()
+    this.bindEvents()
   }
 
   private count = 0 // 跳过下载的数量
   private el: HTMLElement // 显示提示文本的容器
 
-  private bindEvent() {
+  private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
       this.reset()
     })

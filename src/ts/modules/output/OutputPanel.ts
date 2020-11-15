@@ -12,7 +12,7 @@ class OutputPanel {
 
     theme.register(this.outputPanel)
 
-    this.bindEvent()
+    this.bindEvents()
   }
 
   private outputPanel!: HTMLDivElement // 输出面板
@@ -25,7 +25,7 @@ class OutputPanel {
 
   private closeBtn!: HTMLDivElement
 
-  private bindEvent() {
+  private bindEvents() {
     this.closeBtn.addEventListener('click', () => {
       this.close()
     })
@@ -133,4 +133,4 @@ class OutputPanel {
 }
 
 new OutputPanel()
-export {}
+export { }

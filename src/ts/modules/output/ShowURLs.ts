@@ -6,10 +6,10 @@ import { settings } from '../setting/Settings'
 // 显示 url
 class ShowURLs {
   constructor() {
-    this.bindEvent()
+    this.bindEvents()
   }
 
-  private bindEvent() {
+  private bindEvents() {
     window.addEventListener(EVT.list.showURLs, () => {
       this.showURLs()
     })
@@ -38,4 +38,4 @@ class ShowURLs {
 }
 
 new ShowURLs()
-export {}
+export { }

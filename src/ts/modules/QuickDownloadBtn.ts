@@ -8,7 +8,7 @@ import { states } from './States'
 class QuickDownloadBtn {
   constructor() {
     this.addBtn()
-    this.bindEvent()
+    this.bindEvents()
   }
 
   private btn!: HTMLButtonElement
@@ -24,7 +24,7 @@ class QuickDownloadBtn {
     document.body.insertAdjacentElement('afterbegin', this.btn)
   }
 
-  private bindEvent() {
+  private bindEvents() {
     // 点击按钮启动快速下载
     this.btn.addEventListener(
       'click',

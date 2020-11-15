@@ -9,7 +9,7 @@ interface MouseArg {
 class Tip {
   constructor() {
     this.addTipEl()
-    this.bindEvent()
+    this.bindEvents()
   }
   private tipEl: HTMLDivElement = document.createElement('div') // tip 元素
 
@@ -19,7 +19,7 @@ class Tip {
     document.body.insertAdjacentElement('afterbegin', this.tipEl)
   }
 
-  private bindEvent() {
+  private bindEvents() {
     const tips = document.querySelectorAll('.has_tip') as NodeListOf<
       HTMLElement
     >
@@ -56,4 +56,4 @@ class Tip {
 }
 
 new Tip()
-export {}
+export { }

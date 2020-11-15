@@ -5,7 +5,7 @@ import { EVT } from './EVT'
 // 状态的值通常只由单一的组件修改，其他组件只读取不修改
 class States {
   constructor() {
-    this.bindEvent()
+    this.bindEvents()
   }
 
   // 表示下载器是否处于繁忙状态
@@ -30,7 +30,7 @@ class States {
   // 开始批量收藏时设为 true，收藏完成之后复位到 false
   public bookmarkMode = false
 
-  private bindEvent() {
+  private bindEvents() {
     const idle = [
       EVT.list.crawlFinish,
       EVT.list.downloadPause,

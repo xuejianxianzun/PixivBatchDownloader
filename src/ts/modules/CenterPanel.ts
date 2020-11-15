@@ -148,16 +148,6 @@ class CenterPanel {
         ),
       )
 
-    // 重置设置
-    this.centerPanel
-      .querySelector('#resetSettings')!
-      .addEventListener('click', () => {
-        const result = window.confirm(lang.transl('_是否重置设置'))
-        if (result) {
-          EVT.fire(EVT.list.resetSettings)
-        }
-      })
-
     this.centerPanel.addEventListener('click', (e) => {
       const ev = e || window.event
       ev.stopPropagation()

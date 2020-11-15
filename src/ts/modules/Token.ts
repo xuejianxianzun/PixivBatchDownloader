@@ -7,7 +7,7 @@ class Token {
 
     this.updateToken()
 
-    this.bindEvent()
+    this.bindEvents()
   }
 
   private readonly tokenStore = 'xzToken'
@@ -16,7 +16,7 @@ class Token {
 
   public token!: string
 
-  private bindEvent() {
+  private bindEvents() {
     window.addEventListener(EVT.list.resetSettings, () => {
       this.reset()
     })
