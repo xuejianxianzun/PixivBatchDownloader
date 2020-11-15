@@ -489,6 +489,7 @@ const formHtml = `<form class="settingForm">
       <label class="has_tip" for="dupliStrategy1" data-tip="${lang.transl(
         '_严格模式说明',
       )}">${lang.transl('_严格')}</label>
+      &nbsp;
       <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
       <span class="beautify_radio"></span>
       <label class="has_tip" for="dupliStrategy2" data-tip="${lang.transl(

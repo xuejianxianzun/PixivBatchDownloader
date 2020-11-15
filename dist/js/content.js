@@ -98,21 +98,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/PageType */ "./src/ts/modules/PageType.ts");
 /* harmony import */ var _modules_DownloadButton__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/DownloadButton */ "./src/ts/modules/DownloadButton.ts");
 /* harmony import */ var _modules_CenterPanel__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/CenterPanel */ "./src/ts/modules/CenterPanel.ts");
-/* harmony import */ var _modules_InitPage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/InitPage */ "./src/ts/modules/InitPage.ts");
-/* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/DownloadControl */ "./src/ts/modules/DownloadControl.ts");
-/* harmony import */ var _modules_ListenPageSwitch__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/ListenPageSwitch */ "./src/ts/modules/ListenPageSwitch.ts");
-/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/Tip */ "./src/ts/modules/Tip.ts");
-/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_modules_Tip__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var _modules_TitleBar__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modules/TitleBar */ "./src/ts/modules/TitleBar.ts");
-/* harmony import */ var _modules_output_OutputPanel__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./modules/output/OutputPanel */ "./src/ts/modules/output/OutputPanel.ts");
-/* harmony import */ var _modules_output_PreviewFileName__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./modules/output/PreviewFileName */ "./src/ts/modules/output/PreviewFileName.ts");
-/* harmony import */ var _modules_output_ShowURLs__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./modules/output/ShowURLs */ "./src/ts/modules/output/ShowURLs.ts");
-/* harmony import */ var _modules_MsgBox__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./modules/MsgBox */ "./src/ts/modules/MsgBox.ts");
-/* harmony import */ var _modules_CheckNew__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./modules/CheckNew */ "./src/ts/modules/CheckNew.ts");
-/* harmony import */ var _modules_ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./modules/ShowWhatIsNew */ "./src/ts/modules/ShowWhatIsNew.ts");
-/* harmony import */ var _modules_ExportCSV__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./modules/ExportCSV */ "./src/ts/modules/ExportCSV.ts");
-/* harmony import */ var _modules_ExportResult__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./modules/ExportResult */ "./src/ts/modules/ExportResult.ts");
-/* harmony import */ var _modules_ExportLST__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./modules/ExportLST */ "./src/ts/modules/ExportLST.ts");
+/* harmony import */ var _modules_setting_SaveSettings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/setting/SaveSettings */ "./src/ts/modules/setting/SaveSettings.ts");
+/* harmony import */ var _modules_InitPage__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/InitPage */ "./src/ts/modules/InitPage.ts");
+/* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/DownloadControl */ "./src/ts/modules/DownloadControl.ts");
+/* harmony import */ var _modules_ListenPageSwitch__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/ListenPageSwitch */ "./src/ts/modules/ListenPageSwitch.ts");
+/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modules/Tip */ "./src/ts/modules/Tip.ts");
+/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(_modules_Tip__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var _modules_TitleBar__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./modules/TitleBar */ "./src/ts/modules/TitleBar.ts");
+/* harmony import */ var _modules_output_OutputPanel__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./modules/output/OutputPanel */ "./src/ts/modules/output/OutputPanel.ts");
+/* harmony import */ var _modules_output_PreviewFileName__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./modules/output/PreviewFileName */ "./src/ts/modules/output/PreviewFileName.ts");
+/* harmony import */ var _modules_output_ShowURLs__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./modules/output/ShowURLs */ "./src/ts/modules/output/ShowURLs.ts");
+/* harmony import */ var _modules_MsgBox__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./modules/MsgBox */ "./src/ts/modules/MsgBox.ts");
+/* harmony import */ var _modules_CheckNew__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./modules/CheckNew */ "./src/ts/modules/CheckNew.ts");
+/* harmony import */ var _modules_ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./modules/ShowWhatIsNew */ "./src/ts/modules/ShowWhatIsNew.ts");
+/* harmony import */ var _modules_ExportCSV__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./modules/ExportCSV */ "./src/ts/modules/ExportCSV.ts");
+/* harmony import */ var _modules_ExportResult__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./modules/ExportResult */ "./src/ts/modules/ExportResult.ts");
+/* harmony import */ var _modules_ExportLST__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./modules/ExportLST */ "./src/ts/modules/ExportLST.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -131,6 +132,7 @@ __webpack_require__.r(__webpack_exports__);
     // 把脚本版的标记设置为 0，这样脚本版就不会运行
     window.sessionStorage.setItem('xz_pixiv_userscript', '0');
 }
+
 
 
 
@@ -1476,8 +1478,8 @@ class DOM {
                         try {
                             result = JSON.parse(str);
                             // if((result as any).constructor !== Object){
-                            // 允许是
-                            if (typeof result !== 'object') {
+                            // 允许是对象 {} 或者数组 []
+                            if (result === null || (typeof result !== 'object')) {
                                 const msg = 'Data is not an object!';
                                 return reject(new Error(msg));
                             }
@@ -7951,6 +7953,8 @@ const store = new Store();
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "theme", function() { return theme; });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/modules/setting/Settings.ts");
+
 
 // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
 // 默认主题 white 是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
@@ -7982,9 +7986,7 @@ class Theme {
         }, 300);
         // 设置变化时设置主题
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
-            if (window.xzSettings) {
-                this.setTheme();
-            }
+            this.setTheme();
         });
     }
     // 查找含有 pixiv 主题标记的元素，并监听其变化
@@ -8018,15 +8020,9 @@ class Theme {
     }
     // 设置主题。不需要传递值，因为会自动使用设置里的 theme 设置
     setTheme() {
-        // 将主题标记设置为自动
-        let themeFlag = 'auto';
-        // 如果可以获取到设置，就改为设置里的值
-        if (window.xzSettings) {
-            themeFlag = window.xzSettings.theme;
-        }
         let result = ''; // 储存最终要使用的主题
         // 根据标记，设置要使用的主题
-        switch (themeFlag) {
+        switch (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].theme) {
             case 'white':
                 result = 'white';
                 break;
@@ -13179,10 +13175,6 @@ class Form {
         });
         // 点击它的 label 时，不需要传递它的值。原因同上。
     }
-    // 当选项的值被改变时，触发 settingChange 事件
-    emitChange(name, value) {
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, { name: name, value: value });
-    }
     // 重设 label 的激活状态
     resetLabelActive() {
         // 设置复选框的 label 的激活状态
@@ -13642,6 +13634,7 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
       <span class="beautify_radio"></span>
       <label class="has_tip" for="dupliStrategy1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_严格模式说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_严格')}</label>
+      &nbsp;
       <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
       <span class="beautify_radio"></span>
       <label class="has_tip" for="dupliStrategy2" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽松模式说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽松')}</label>
@@ -13865,6 +13858,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Theme */ "./src/ts/modules/Theme.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Settings */ "./src/ts/modules/setting/Settings.ts");
+
 
 
 
@@ -13934,6 +13929,7 @@ class SaveNamingRule {
     }
     select(rule) {
         this.ruleInput.value = rule;
+        _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].userSetName = rule;
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, { name: 'userSetName', value: rule });
     }
     handleChange() {
@@ -13981,87 +13977,22 @@ class SaveNamingRule {
 
 /***/ }),
 
-/***/ "./src/ts/modules/setting/SettingAPI.ts":
-/*!**********************************************!*\
-  !*** ./src/ts/modules/setting/SettingAPI.ts ***!
-  \**********************************************/
-/*! exports provided: settingAPI */
+/***/ "./src/ts/modules/setting/SaveSettings.ts":
+/*!************************************************!*\
+  !*** ./src/ts/modules/setting/SaveSettings.ts ***!
+  \************************************************/
+/*! no exports provided */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "settingAPI", function() { return settingAPI; });
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
-/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Settings */ "./src/ts/modules/setting/Settings.ts");
-
-
-
-
-
-// 设置相关的 API
-class SettingAPI {
-    constructor() {
-        this.firstFewImages = 0; // 缓存多图作品只下载前几张图片的值
-        this.bindEvents();
-        this.firstFewImages = this.getFirstFewImages();
-    }
-    bindEvents() {
-        // 当 firstFewImages 设置改变时，保存它的值
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (event) => {
-            const data = event.detail.data;
-            if (data.name === 'firstFewImages') {
-                this.firstFewImages = this.getFirstFewImages();
-            }
-        });
-    }
-    // 获取作品张数设置
-    getFirstFewImages() {
-        const check = _API__WEBPACK_IMPORTED_MODULE_0__["API"].checkNumberGreater0(_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].firstFewImages);
-        if (check.result) {
-            return check.value;
-        }
-        // 如果用户输入的数字不合法（不大于0）
-        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.wrongSetting);
-        const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载前几张图片') + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_必须大于0');
-        _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(msg);
-        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
-            msg: msg,
-            type: 'error',
-        });
-        throw new Error(msg);
-    }
-    // 计算要从这个作品里下载几张图片
-    getDLCount(pageCount) {
-        if (_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].firstFewImagesSwitch && this.firstFewImages <= pageCount) {
-            return this.firstFewImages;
-        }
-        return pageCount;
-    }
-}
-const settingAPI = new SettingAPI();
-
-
-
-/***/ }),
-
-/***/ "./src/ts/modules/setting/Settings.ts":
-/*!********************************************!*\
-  !*** ./src/ts/modules/setting/Settings.ts ***!
-  \********************************************/
-/*! exports provided: settings */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "settings", function() { return settings; });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../PageType */ "./src/ts/modules/PageType.ts");
 /* harmony import */ var _Form__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Form */ "./src/ts/modules/setting/Form.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Settings */ "./src/ts/modules/setting/Settings.ts");
+
 
 
 
@@ -14069,108 +14000,16 @@ __webpack_require__.r(__webpack_exports__);
 
 // 保存设置表单的所有设置项，并且在下载器初始化时恢复这些设置的值
 // 成员 settings 保存着当前页面的所有设置项；当设置项变化时，settings 响应变化并保存到 localStorage 里。
-// settings 在 window 上挂载为 window.xzSettings
 // 补充说明：
 // 选项 setWantPage 并不需要实际上进行保存和恢复。保存和恢复时使用的是 wantPageArr
-// 如果打开了多个标签页，每个页面都有各自的 settings 成员。它们是互相独立的，不会互相影响。
+// 如果打开了多个标签页，每个页面的 settings 成员是互相独立的。
 // 但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
 class Settings {
     constructor() {
         // 本地存储中使用的 name
         this.storeName = 'xzSetting';
-        // 需要持久化保存的设置的默认值
-        this.optionDefault = {
-            setWantPage: '-1',
-            wantPageArr: [
-                '-1',
-                '-1',
-                '-1',
-                '-1',
-                '-1',
-                '1000',
-                '-1',
-                '500',
-                '-1',
-                '1000',
-                '100',
-                '-1',
-                '100',
-                '-1',
-                '-1',
-                '1000',
-                '100',
-                '100',
-                '100',
-                '100',
-                '-1',
-            ],
-            firstFewImagesSwitch: false,
-            firstFewImages: '1',
-            downType0: true,
-            downType1: true,
-            downType2: true,
-            downType3: true,
-            downSingleImg: true,
-            downMultiImg: true,
-            downColorImg: true,
-            downBlackWhiteImg: true,
-            setOnlyBmk: false,
-            ugoiraSaveAs: 'webm',
-            convertUgoiraThread: '1',
-            needTag: '',
-            notNeedTag: '',
-            quietDownload: true,
-            downloadThread: '5',
-            userSetName: '{id}',
-            tagNameToFileName: false,
-            alwaysFolder: false,
-            multipleImageDir: false,
-            multipleImageFolderName: '1',
-            showOptions: true,
-            postDate: false,
-            postDateStart: '',
-            postDateEnd: '',
-            previewResult: true,
-            BMKNumSwitch: false,
-            BMKNumMin: '0',
-            BMKNumMax: '999999',
-            setWHSwitch: false,
-            widthHeightLimit: '>=',
-            setWidthAndOr: '&',
-            setWidth: '0',
-            setHeight: '0',
-            ratioSwitch: false,
-            ratio: '1',
-            userRatio: '1.4',
-            idRangeSwitch: false,
-            idRangeInput: '0',
-            idRange: '1',
-            needTagSwitch: false,
-            notNeedTagSwitch: false,
-            noSerialNo: false,
-            filterBlackWhite: false,
-            sizeSwitch: false,
-            sizeMin: '0',
-            sizeMax: '100',
-            novelSaveAs: 'txt',
-            saveNovelMeta: false,
-            deduplication: false,
-            dupliStrategy: 'loose',
-            fileNameLengthLimitSwitch: false,
-            fileNameLengthLimit: '200',
-            imageSize: 'original',
-            dateFormat: 'YYYY-MM-DD',
-            userSetLang: '-1',
-            bmkAfterDL: false,
-            widthTag: '1',
-            restrict: '-1',
-            userBlockList: false,
-            blockList: '',
-            theme: 'auto',
-            needTagMode: 'all',
-        };
-        // 需要持久化保存的设置
-        this.settings = Object.assign({}, this.optionDefault);
+        // 把初始设置保存起来，以便在重置设置时使用
+        this.defaultSettings = Object.assign({}, _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"]);
         this.ListenChange();
         this.restore();
         this.bindEvents();
@@ -14215,7 +14054,7 @@ class Settings {
         }
     }
     exportSettings() {
-        const str = JSON.stringify(this.settings, null, 2);
+        const str = JSON.stringify(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"], null, 2);
         const blob = new Blob([str], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].downloadFile(url, `pixiv_batch_downloader-settings.json`);
@@ -14270,7 +14109,7 @@ class Settings {
         this.saveTextInput('setWantPage');
         // 保存 wantPageArr
         _Form__WEBPACK_IMPORTED_MODULE_4__["form"].setWantPage.addEventListener('change', () => {
-            const temp = Array.from(this.settings.wantPageArr);
+            const temp = Array.from(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].wantPageArr);
             temp[_PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].type] = _Form__WEBPACK_IMPORTED_MODULE_4__["form"].setWantPage.value;
             this.emitChange('wantPageArr', temp);
         });
@@ -14370,43 +14209,30 @@ class Settings {
     // 任何设置项发生改变时，都要调用这个方法，传递选项名和值
     emitChange(name, value) {
         ;
-        this.settings[name] = value;
+        _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"][name] = value;
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, { name: name, value: value });
-        localStorage.setItem(this.storeName, JSON.stringify(this.settings));
+        localStorage.setItem(this.storeName, JSON.stringify(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"]));
     }
     // 恢复值为 Boolean 的设置项
     // input[type='checkbox'] 使用
     restoreBoolean(name) {
-        // 优先使用用户设置的值
-        if (this.settings[name] !== undefined) {
-            _Form__WEBPACK_IMPORTED_MODULE_4__["form"][name].checked = this.settings[name];
+        if (_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"][name] !== undefined) {
+            _Form__WEBPACK_IMPORTED_MODULE_4__["form"][name].checked = _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"][name];
         }
-        else {
-            // 否则使用默认值
-            _Form__WEBPACK_IMPORTED_MODULE_4__["form"][name].checked = this.optionDefault[name];
-        }
-        // 这里不能简单的使用 || 符号来处理，考虑如下情况：
-        // this.options[name] || this.optionDefault[name]
-        // 用户设置为 false，默认值为 true，使用 || 的话就恒为 true 了
     }
     // 恢复值为 string 的设置项
     // input[type='radio'] 和 input[type='text'] 使用
     restoreString(name) {
-        // 优先使用用户设置的值
-        if (this.settings[name] !== undefined) {
-            _Form__WEBPACK_IMPORTED_MODULE_4__["form"][name].value = this.settings[name].toString();
-        }
-        else {
-            // 否则使用默认值
-            _Form__WEBPACK_IMPORTED_MODULE_4__["form"][name].value = this.optionDefault[name].toString();
+        if (_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"][name] !== undefined) {
+            _Form__WEBPACK_IMPORTED_MODULE_4__["form"][name].value = _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"][name].toString();
         }
     }
     // 设置当前页面类型的 setWantPage
     restoreWantPage() {
-        const want = this.settings.wantPageArr[_PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].type];
+        const want = _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].wantPageArr[_PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].type];
         if (want !== '' && want !== undefined) {
             _Form__WEBPACK_IMPORTED_MODULE_4__["form"].setWantPage.value = want;
-            this.settings.setWantPage = want;
+            _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWantPage = want;
         }
     }
     // 读取持久化数据，或使用默认设置，恢复设置表单的设置项
@@ -14415,13 +14241,12 @@ class Settings {
         // 读取保存的设置
         if (savedOption) {
             // 使用 assign 合并选项，而不是直接覆盖 settings
-            // 这样在新版本里可以给默认的 settings 添加新的选项，不会因为旧版本里没有这个选项而导致问题
-            Object.assign(this.settings, JSON.parse(savedOption));
+            // 这样如果新版本多了某个设置项，旧版本（本地存储里）没有，这个选项就会使用新版本里的默认值。
+            Object.assign(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"], JSON.parse(savedOption));
         }
         else {
             return;
         }
-        window.xzSettings = this.settings;
         this.restoreWantPage();
         // 设置下载的作品类型
         this.restoreBoolean('downType0');
@@ -14511,28 +14336,200 @@ class Settings {
         this.restoreString('needTagMode');
         this.restoreString('theme');
         // 恢复完毕之后触发一次设置改变事件
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, this.settings);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange);
     }
     // 重设选项
     // 可选参数：传递整个设置的数据，用于从配置文件导入，恢复设置
     reset(data) {
         if (data) {
-            Object.assign(this.settings, data);
+            Object.assign(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"], data);
         }
         else {
-            // 将保存的选项恢复为默认值
-            Object.assign(this.settings, this.optionDefault);
+            // 将选项恢复为默认值
+            Object.assign(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"], this.defaultSettings);
         }
         // 覆写本地存储里的设置
-        localStorage.setItem(this.storeName, JSON.stringify(this.settings));
-        // 重设选项
+        localStorage.setItem(this.storeName, JSON.stringify(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"]));
+        // 读取本地存储，重设选项
         this.restore();
         // 触发设置改变事件
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, this.settings);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange);
     }
 }
-const self = new Settings();
-const settings = self.settings;
+new Settings();
+
+
+/***/ }),
+
+/***/ "./src/ts/modules/setting/SettingAPI.ts":
+/*!**********************************************!*\
+  !*** ./src/ts/modules/setting/SettingAPI.ts ***!
+  \**********************************************/
+/*! exports provided: settingAPI */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "settingAPI", function() { return settingAPI; });
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Settings */ "./src/ts/modules/setting/Settings.ts");
+
+
+
+
+
+// 设置相关的 API
+class SettingAPI {
+    constructor() {
+        this.firstFewImages = 0; // 缓存多图作品只下载前几张图片的值
+        this.bindEvents();
+        this.firstFewImages = this.getFirstFewImages();
+    }
+    bindEvents() {
+        // 当 firstFewImages 设置改变时，保存它的值
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (event) => {
+            const data = event.detail.data;
+            if (data.name === 'firstFewImages') {
+                this.firstFewImages = this.getFirstFewImages();
+            }
+        });
+    }
+    // 获取作品张数设置
+    getFirstFewImages() {
+        const check = _API__WEBPACK_IMPORTED_MODULE_0__["API"].checkNumberGreater0(_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].firstFewImages);
+        if (check.result) {
+            return check.value;
+        }
+        // 如果用户输入的数字不合法（不大于0）
+        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.wrongSetting);
+        const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载前几张图片') + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_必须大于0');
+        _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(msg);
+        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
+            msg: msg,
+            type: 'error',
+        });
+        throw new Error(msg);
+    }
+    // 计算要从这个作品里下载几张图片
+    getDLCount(pageCount) {
+        if (_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].firstFewImagesSwitch && this.firstFewImages <= pageCount) {
+            return this.firstFewImages;
+        }
+        return pageCount;
+    }
+}
+const settingAPI = new SettingAPI();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/modules/setting/Settings.ts":
+/*!********************************************!*\
+  !*** ./src/ts/modules/setting/Settings.ts ***!
+  \********************************************/
+/*! exports provided: settings */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "settings", function() { return settings; });
+// 保存设置表单的所有设置项
+// 这里定义的 settings 只是初始的默认值，后续 SaveSettings 模块会读取用户储存的设置，修改 settings
+// 每当修改了 settings 的值（包括修改某一个属性的值），都要触发 EVT.list.settingChange 事件，让其他模块可以监听到变化。
+const settings = {
+    setWantPage: '-1',
+    wantPageArr: [
+        '-1',
+        '-1',
+        '-1',
+        '-1',
+        '-1',
+        '1000',
+        '-1',
+        '500',
+        '-1',
+        '1000',
+        '100',
+        '-1',
+        '100',
+        '-1',
+        '-1',
+        '1000',
+        '100',
+        '100',
+        '100',
+        '100',
+        '-1',
+    ],
+    firstFewImagesSwitch: false,
+    firstFewImages: '1',
+    downType0: true,
+    downType1: true,
+    downType2: true,
+    downType3: true,
+    downSingleImg: true,
+    downMultiImg: true,
+    downColorImg: true,
+    downBlackWhiteImg: true,
+    setOnlyBmk: false,
+    ugoiraSaveAs: 'webm',
+    convertUgoiraThread: '1',
+    needTag: '',
+    notNeedTag: '',
+    quietDownload: true,
+    downloadThread: '5',
+    userSetName: '{id}',
+    tagNameToFileName: false,
+    alwaysFolder: false,
+    multipleImageDir: false,
+    multipleImageFolderName: '1',
+    showOptions: true,
+    postDate: false,
+    postDateStart: '',
+    postDateEnd: '',
+    previewResult: true,
+    BMKNumSwitch: false,
+    BMKNumMin: '0',
+    BMKNumMax: '999999',
+    setWHSwitch: false,
+    widthHeightLimit: '>=',
+    setWidthAndOr: '&',
+    setWidth: '0',
+    setHeight: '0',
+    ratioSwitch: false,
+    ratio: '1',
+    userRatio: '1.4',
+    idRangeSwitch: false,
+    idRangeInput: '0',
+    idRange: '1',
+    needTagSwitch: false,
+    notNeedTagSwitch: false,
+    noSerialNo: false,
+    filterBlackWhite: false,
+    sizeSwitch: false,
+    sizeMin: '0',
+    sizeMax: '100',
+    novelSaveAs: 'txt',
+    saveNovelMeta: false,
+    deduplication: false,
+    dupliStrategy: 'loose',
+    fileNameLengthLimitSwitch: false,
+    fileNameLengthLimit: '200',
+    imageSize: 'original',
+    dateFormat: 'YYYY-MM-DD',
+    userSetLang: '-1',
+    bmkAfterDL: false,
+    widthTag: '1',
+    restrict: '-1',
+    userBlockList: false,
+    blockList: '',
+    theme: 'auto',
+    needTagMode: 'all',
+};
 
 
 

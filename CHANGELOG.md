@@ -2,6 +2,18 @@
 
 TODO  翻译文本
 
+命名列表要点一下才改变
+
+settings 可以用等号了？
+
+```
+declare global {
+  interface Window {
+    xName: string
+  }
+}
+```
+
 ### 计划任务
 
 [漫画系列页面](https://www.pixiv.net/user/3698796/series/61267) 处于改版中，我的账号还是旧版，等我的账号也变成新版之后，再过一个月，删除兼容旧版的代码。

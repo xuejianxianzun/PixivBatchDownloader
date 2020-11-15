@@ -3,6 +3,7 @@ import { DOM } from '../DOM'
 import { lang } from '../Lang'
 import { log } from '../Log'
 import { theme } from '../Theme'
+import { settings } from './Settings'
 
 // 保存和加载命名规则
 class SaveNamingRule {
@@ -81,6 +82,7 @@ class SaveNamingRule {
 
   private select(rule: string) {
     this.ruleInput.value = rule
+    settings.userSetName = rule
     EVT.fire(EVT.list.settingChange, { name: 'userSetName', value: rule })
   }
 

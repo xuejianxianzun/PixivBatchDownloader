@@ -21,6 +21,7 @@
 import './modules/PageType'
 import './modules/DownloadButton'
 import './modules/CenterPanel'
+import './modules/setting/SaveSettings'
 import './modules/InitPage'
 import './modules/DownloadControl'
 import './modules/ListenPageSwitch'

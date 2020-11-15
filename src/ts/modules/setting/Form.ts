@@ -227,11 +227,6 @@ class Form {
     // 点击它的 label 时，不需要传递它的值。原因同上。
   }
 
-  // 当选项的值被改变时，触发 settingChange 事件
-  private emitChange(name: string, value: string | number | boolean) {
-    EVT.fire(EVT.list.settingChange, { name: name, value: value })
-  }
-
   // 重设 label 的激活状态
   private resetLabelActive() {
     // 设置复选框的 label 的激活状态

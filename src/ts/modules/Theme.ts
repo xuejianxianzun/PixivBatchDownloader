@@ -1,4 +1,5 @@
 import { EVT } from './EVT'
+import { settings } from './setting/Settings'
 
 // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
 // 默认主题 white 是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
@@ -40,9 +41,7 @@ class Theme {
 
     // 设置变化时设置主题
     window.addEventListener(EVT.list.settingChange, () => {
-      if (window.xzSettings) {
-        this.setTheme()
-      }
+      this.setTheme()
     })
   }
 
@@ -79,18 +78,10 @@ class Theme {
 
   // 设置主题。不需要传递值，因为会自动使用设置里的 theme 设置
   private setTheme() {
-    // 将主题标记设置为自动
-    let themeFlag = 'auto'
-
-    // 如果可以获取到设置，就改为设置里的值
-    if (window.xzSettings) {
-      themeFlag = window.xzSettings.theme
-    }
-
     let result = '' // 储存最终要使用的主题
 
     // 根据标记，设置要使用的主题
-    switch (themeFlag) {
+    switch (settings.theme) {
       case 'white':
         result = 'white'
         break
