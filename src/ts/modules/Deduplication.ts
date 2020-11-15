@@ -76,12 +76,12 @@ class Deduplication {
       this.add(successData.id)
     })
 
-      // 当抓取完成、下载完成时，清空 skipIdList 列表
-      ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach((val) => {
-        window.addEventListener(val, () => {
-          this.skipIdList = []
-        })
+    // 当抓取完成、下载完成时，清空 skipIdList 列表
+    ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach((val) => {
+      window.addEventListener(val, () => {
+        this.skipIdList = []
       })
+    })
 
     // 导入下载记录的按钮
     {
@@ -238,12 +238,12 @@ class Deduplication {
 
   // 导入下载记录
   private async importRecord() {
-    const record = await DOM.loadJSONFile().catch(err => {
+    const record = (await DOM.loadJSONFile().catch((err) => {
       return EVT.sendMsg({
         type: 'error',
-        msg: err
+        msg: err,
       })
-    }) as Record[]
+    })) as Record[]
 
     if (!record) {
       return

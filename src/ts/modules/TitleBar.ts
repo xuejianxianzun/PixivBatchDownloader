@@ -152,4 +152,4 @@ class TitleBar {
   }
 }
 new TitleBar()
-export { }
+export {}

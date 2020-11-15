@@ -1,9 +1,7 @@
 import { EVT } from '../EVT'
-import { lang } from '../Lang'
-import { DOM } from '../DOM'
 import { pageType } from '../PageType'
-import { form } from './Form'
 import { settings, XzSetting } from './Settings'
+import { SettingsForm } from './Form.d'
 
 // 管理 from 表单里的选项（类型为 input 元素的选项），从 settings 里设置选项的值；当选项改变时保存到 settings 里
 // 不属于 input 类型的选项，不在这里处理。
@@ -12,95 +10,30 @@ import { settings, XzSetting } from './Settings'
 // 选项 setWantPage 并不需要实际上进行保存和恢复。保存和恢复时使用的是 wantPageArr
 
 class FormSettings {
-  constructor() {
+  constructor(form: SettingsForm) {
+    this.form = form
     this.bindEvents()
 
     this.ListenChange()
 
-    this.restore()
+    this.restoreFormSettings()
   }
 
-  // 把初始设置保存起来，以便在重置设置时使用
-  private readonly defaultSettings: XzSetting = Object.assign({}, settings)
+  private form!: SettingsForm
 
   private bindEvents() {
     window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
       this.restoreWantPage()
     })
 
-    window.addEventListener(EVT.list.resetSettings, () => {
-      form.reset()
-      this.reset()
+    window.addEventListener(EVT.list.resetSettingsEnd, () => {
+      this.restoreFormSettings()
     })
-
-    // 重置设置按钮
-    {
-      const el = form.querySelector('#resetSettings')
-      if (el) {
-        el.addEventListener('click', () => {
-          const result = window.confirm(lang.transl('_是否重置设置'))
-          if (result) {
-            EVT.fire(EVT.list.resetSettings)
-          }
-        })
-      }
-    }
-
-    // 导出设置按钮
-    {
-      const el = form.querySelector('#exportSettings')
-      if (el) {
-        el.addEventListener('click', () => {
-          this.exportSettings()
-        })
-      }
-    }
-
-    // 导入设置按钮
-    {
-      const el = form.querySelector('#importSettings')
-      if (el) {
-        el.addEventListener('click', () => {
-          this.importSettings()
-        })
-      }
-    }
-  }
-
-  private exportSettings() {
-    const str = JSON.stringify(settings, null, 2)
-    const blob = new Blob([str], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    DOM.downloadFile(
-      url,
-      `pixiv_batch_downloader-settings.json`,
-    )
-  }
-
-  private async importSettings() {
-    const loadedJSON = await DOM.loadJSONFile().catch(err => {
-      return EVT.sendMsg({
-        type: 'error',
-        msg: err
-      })
-    }) as XzSetting
-    if (!loadedJSON) {
-      return
-    }
-    // 检查是否存在设置里的属性
-    if (loadedJSON.downloadThread === undefined) {
-      return EVT.sendMsg({
-        type: 'error',
-        msg: 'Format error!'
-      })
-    }
-    // 开始恢复导入的设置
-    this.reset(loadedJSON)
   }
 
   // 处理输入框： change 时保存 value
   private saveTextInput(name: keyof XzSetting) {
-    const el = form[name] as HTMLInputElement
+    const el = this.form[name] as HTMLInputElement
     el.addEventListener('change', () => {
       this.emitChange(name, el.value)
     })
@@ -108,7 +41,7 @@ class FormSettings {
 
   // 处理复选框： click 时保存 checked
   private saveCheckBox(name: keyof XzSetting) {
-    const el = form[name] as HTMLInputElement
+    const el = this.form[name] as HTMLInputElement
     el.addEventListener('click', () => {
       this.emitChange(name, el.checked)
     })
@@ -116,7 +49,7 @@ class FormSettings {
 
   // 处理单选框： click 时保存 value
   private saveRadio(name: keyof XzSetting) {
-    const radios = form[name]
+    const radios = this.form[name]
     for (const radio of radios) {
       radio.addEventListener('click', () => {
         this.emitChange(name, radio.value)
@@ -131,9 +64,9 @@ class FormSettings {
     this.saveTextInput('setWantPage')
 
     // 保存 wantPageArr
-    form.setWantPage.addEventListener('change', () => {
+    this.form.setWantPage.addEventListener('change', () => {
       const temp = Array.from(settings.wantPageArr)
-      temp[pageType.type] = form.setWantPage.value
+      temp[pageType.type] = this.form.setWantPage.value
       this.emitChange('wantPageArr', temp)
     })
 
@@ -202,12 +135,12 @@ class FormSettings {
     this.saveTextInput('notNeedTag')
 
     // 保存命名规则
-    const userSetNameInput = form.userSetName
-      ;['change', 'focus'].forEach((ev) => {
-        userSetNameInput.addEventListener(ev, () => {
-          this.emitChange('userSetName', userSetNameInput.value)
-        })
+    const userSetNameInput = this.form.userSetName
+    ;['change', 'focus'].forEach((ev) => {
+      userSetNameInput.addEventListener(ev, () => {
+        this.emitChange('userSetName', userSetNameInput.value)
       })
+    })
 
     // 保存是否添加标记名称
     this.saveCheckBox('tagNameToFileName')
@@ -270,7 +203,7 @@ class FormSettings {
     name: keyof XzSetting,
     value: string | number | boolean | string[],
   ) {
-    ; (settings[name] as any) = value
+    ;(settings[name] as any) = value
     EVT.fire(EVT.list.settingChange, { name: name, value: value })
   }
 
@@ -278,7 +211,7 @@ class FormSettings {
   // input[type='checkbox'] 使用
   private restoreBoolean(name: keyof XzSetting) {
     if (settings[name] !== undefined) {
-      form[name].checked = settings[name]
+      this.form[name].checked = settings[name]
     }
   }
 
@@ -286,7 +219,7 @@ class FormSettings {
   // input[type='radio'] 和 input[type='text'] 使用
   private restoreString(name: keyof XzSetting) {
     if (settings[name] !== undefined) {
-      form[name].value = settings[name].toString()
+      this.form[name].value = settings[name].toString()
     }
   }
 
@@ -294,13 +227,13 @@ class FormSettings {
   private restoreWantPage() {
     const want = settings.wantPageArr[pageType.type]
     if (want !== '' && want !== undefined) {
-      form.setWantPage.value = want
+      this.form.setWantPage.value = want
       settings.setWantPage = want
     }
   }
 
   // 读取设置，恢复表单里的设置项
-  private restore() {
+  private restoreFormSettings() {
     this.restoreWantPage()
 
     // 设置下载的作品类型
@@ -424,25 +357,7 @@ class FormSettings {
     this.restoreString('needTagMode')
 
     this.restoreString('theme')
-
-    // 恢复完毕之后触发一次设置改变事件
-    EVT.fire(EVT.list.settingChange)
-  }
-
-  // 重设选项
-  // 可选参数：传递整个设置的数据，用于从配置文件导入，恢复设置
-  private reset(data?: XzSetting) {
-    if (data) {
-      Object.assign(settings, data)
-    } else {
-      // 将选项恢复为默认值
-      Object.assign(settings, this.defaultSettings)
-    }
-    // 触发设置改变事件
-    EVT.fire(EVT.list.settingChange)
-    // 读取设置，重设选项
-    this.restore()
   }
 }
 
-new FormSettings()
+export { FormSettings }

@@ -271,9 +271,11 @@ class Filter {
       const andOr = settings.setWidthAndOr
         .replace('|', lang.transl('_或者'))
         .replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${this._setWidth
-        } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${this._setHeight
-        }`
+      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${
+        this._setWidth
+      } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${
+        this._setHeight
+      }`
       this.logTip(text)
     }
   }
@@ -384,7 +386,8 @@ class Filter {
       this._postDateStart = postDateStart.getTime()
       this._postDateEnd = postDateEnd.getTime()
       this.logTip(
-        `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${settings.postDateEnd
+        `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${
+          settings.postDateEnd
         }`,
       )
     }
@@ -703,7 +706,7 @@ class Filter {
     }
 
     // 如果阻止名单里有这个用户 id，则返回 false 表示阻止这个作品
-    return !(this.blockList.includes(userid))
+    return !this.blockList.includes(userid)
   }
 
   // 检查文件体积

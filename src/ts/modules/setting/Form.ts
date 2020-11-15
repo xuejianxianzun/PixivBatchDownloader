@@ -6,6 +6,7 @@ import formHtml from './FormHTML'
 import { SettingsForm } from './Form.d'
 import { SaveNamingRule } from './SaveNamingRule'
 import { theme } from '../Theme'
+import { FormSettings } from './FormSettings'
 
 // 设置表单
 class Form {
@@ -32,6 +33,8 @@ class Form {
     this.bindEvents()
 
     new SaveNamingRule(this.form.userSetName)
+
+    new FormSettings(this.form)
 
     this.initFormBueatiful()
 
@@ -88,6 +91,10 @@ class Form {
     // 设置发生改变时，重新设置美化状态
     window.addEventListener(EVT.list.settingChange, () => {
       this.initFormBueatiful()
+    })
+
+    window.addEventListener(EVT.list.resetSettings, () => {
+      this.form.reset()
     })
 
     // 在选项卡的标题上触发事件时，激活对应的选项卡
@@ -152,6 +159,39 @@ class Form {
       },
       false,
     )
+
+    // 重置设置按钮
+    {
+      const el = this.form.querySelector('#resetSettings')
+      if (el) {
+        el.addEventListener('click', () => {
+          const result = window.confirm(lang.transl('_是否重置设置'))
+          if (result) {
+            EVT.fire(EVT.list.resetSettings)
+          }
+        })
+      }
+    }
+
+    // 导出设置按钮
+    {
+      const el = this.form.querySelector('#exportSettings')
+      if (el) {
+        el.addEventListener('click', () => {
+          EVT.fire(EVT.list.exportSettings)
+        })
+      }
+    }
+
+    // 导入设置按钮
+    {
+      const el = this.form.querySelector('#importSettings')
+      if (el) {
+        el.addEventListener('click', () => {
+          EVT.fire(EVT.list.importSettings)
+        })
+      }
+    }
 
     // 显示命名字段提示
     this.form

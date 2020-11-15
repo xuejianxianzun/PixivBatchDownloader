@@ -69,4 +69,4 @@ class PreviewFileName {
 }
 
 new PreviewFileName()
-export { }
+export {}

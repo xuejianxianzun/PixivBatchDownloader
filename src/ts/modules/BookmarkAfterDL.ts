@@ -44,8 +44,9 @@ class BookmarkAfterDL {
     if (this.savedIds.length === 0) {
       return (this.tipEl.textContent = '')
     }
-    this.tipEl.textContent = `${lang.transl('_已收藏')} ${this.successCount}/${this.savedIds.length
-      }`
+    this.tipEl.textContent = `${lang.transl('_已收藏')} ${this.successCount}/${
+      this.savedIds.length
+    }`
   }
 
   private reset() {

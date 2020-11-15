@@ -38,4 +38,4 @@ class ShowURLs {
 }
 
 new ShowURLs()
-export { }
+export {}

@@ -18,10 +18,11 @@
   window.sessionStorage.setItem('xz_pixiv_userscript', '0')
 }
 
+import './modules/setting/Settings'
 import './modules/PageType'
 import './modules/DownloadButton'
 import './modules/CenterPanel'
-import './modules/setting/SaveSettings'
+import './modules/setting/FormSettings'
 import './modules/InitPage'
 import './modules/DownloadControl'
 import './modules/ListenPageSwitch'

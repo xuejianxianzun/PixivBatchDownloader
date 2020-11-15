@@ -1416,7 +1416,6 @@ const langText = {
   _导出设置: ['导出设置', 'リセット設定', 'Export settings', '匯出設定'],
   _导入设置: ['导入设置', 'リセット設定', 'Import settings', '匯入設定'],
   _重置设置: ['重置设置', 'リセット設定', 'Reset settings', '重設設定'],
-
 }
 
 export { langText, langTextKeys }

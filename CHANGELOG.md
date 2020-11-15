@@ -17,7 +17,6 @@ declare global {
 
 命名规则列表放到了 settings 里
 
-语言设置放到了 settings 里
 
 ### 计划任务
 
@@ -130,6 +129,27 @@ declare global {
 
 原本默认是严格模式，但是很多人不理解，两次文件名不一样，下载器没有认为是重复文件。他们就来问我怎么回事，这怎么不算重复啊？我只好和他们解释说你这种想法应该用宽松模式。这样的人多了之后，我就把默认值改为宽松了，少些麻烦。
 
+### 代码优化
+
+#### 拆分 Settings 类
+
+之前的 `Settings` 类有两方面的主要功能：
+
+1. 管理下载器的设置 `settings`
+2. 管理 `Form` 类的 form 表单的设置
+
+这导致了很多严重的问题：
+
+1. 很多时候其他的类只想使用下载器的设置 `settings`，然而引入 `Settings` 类的话，`Settings` 类依赖于 `Form` 类，这经常导致循环引用。
+2. 由于两者耦合紧密，导致下载器的设置 `settings` 里只能存放 `form` 表单里的的 `input` 元素的设置，其他类型的设置如“命名规则列表”很难放进去，所以之前“命名规则列表”是单独存储到 localStorage 的。这导致设置难以集中管理，分散凌乱。
+
+现在把 `Settings` 类拆分成了两部分：
+
+1. 管理下载器设置的部分放在 `Settings` 类里
+2. 管理form 表单的部分放在 `FormSettings` 类里
+
+这解决了循环引用的问题，而且可以把其他选项都放入 `settings` 里了，用起来舒服多了。
+
 ### 修复 bug
 
 #### 修复了点击选项的 label 会触发两次 settingChange 的问题
@@ -137,16 +157,6 @@ declare global {
 之前存在一个 bug，点击复选框、单选框的 label 会触发两次 settingChange。这是因为之前在点击 label 时会触发 settingChange 事件，这是第一次。而 label 会触发控件的 click 事件，下载器监听 click 事件时也会触发 settingChange 事件，这是第二次。
 
 去掉对 label 的点击事件的监听就解决了。
-
-### 其他优化
-
-#### 将 settings 挂载到 window 上
-
-`settings`（下载器的所有设置） 在 window 上挂载了 `xzSettings` 对象，所以其他模块可以不引入 `Settings.ts`，直接使用 `window.xzSettings`。
-
-这个做法是为了方便处理循环引用。这次某个组件 A 依赖 `Settings`，`Settings` 又依赖 `Form`，`Form` 又引入了 A，形成了循环引用。通过这个方法，组件 A 可以不需要引入 `Settings`，而是从 window 对象上获取设置，解决了这个问题。
-
-**注意：** 使用 `window.xzSettings` 的前提是 `settings` 已经生成。所以在使用之前最好先判断一下。或者监听 `EVT.events.settingChange` 事件，因为第一次 `EVT.events.settingChange` 事件是 `Settings` 模块发出的，此时 `window.xzSettings` 已经可用。
 
 ### 移除 tabs 权限
 

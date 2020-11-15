@@ -40,11 +40,8 @@ class Theme {
     }, 300)
 
     // 设置变化时设置主题
-    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
-      const data = ev.detail.data
-      if (data.name === 'theme') {
-        this.setTheme()
-      }
+    window.addEventListener(EVT.list.settingChange, () => {
+      this.setTheme()
     })
   }
 

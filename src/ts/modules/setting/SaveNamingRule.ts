@@ -83,7 +83,10 @@ class SaveNamingRule {
   }
 
   private handleChange() {
-    EVT.fire(EVT.list.settingChange, { name: 'namingRuleList', value: settings.namingRuleList })
+    EVT.fire(EVT.list.settingChange, {
+      name: 'namingRuleList',
+      value: settings.namingRuleList,
+    })
   }
 
   private createList() {

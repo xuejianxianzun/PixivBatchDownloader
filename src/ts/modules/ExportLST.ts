@@ -48,4 +48,4 @@ class ExportLST {
 }
 
 new ExportLST()
-export { }
+export {}

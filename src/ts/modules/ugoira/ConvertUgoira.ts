@@ -1,4 +1,5 @@
 import { EVT } from '../EVT'
+import { settings } from '../setting/Settings'
 import { UgoiraInfo } from '../CrawlResult'
 import { toWebM } from './ToWebM'
 import { toGIF } from './ToGIF'
@@ -7,6 +8,8 @@ import { toAPNG } from './ToAPNG'
 // 控制动图转换
 class ConvertUgoira {
   constructor() {
+    this.setMaxCount()
+
     window.addEventListener(EVT.list.downloadStart, () => {
       this.downloading = true
     })
@@ -16,11 +19,8 @@ class ConvertUgoira {
       })
     })
 
-    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
-      const data = ev.detail.data
-      if (data.name === 'convertUgoiraThread') {
-        this.maxCount = parseInt(data.value) || 1
-      }
+    window.addEventListener(EVT.list.settingChange, () => {
+      this.setMaxCount()
     })
 
     window.addEventListener(EVT.list.convertSuccess, () => {
@@ -37,6 +37,10 @@ class ConvertUgoira {
   private _count: number = 0 // 统计有几个转换任务
 
   private maxCount = 1 // 允许同时运行多少个转换任务
+
+  private setMaxCount() {
+    this.maxCount = parseInt(settings.convertUgoiraThread) || 1
+  }
 
   private set count(num: number) {
     this._count = num

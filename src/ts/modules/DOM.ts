@@ -16,7 +16,7 @@ class DOM {
     }
     if (Reflect.has(el, 'length')) {
       // 如果有 length 属性则循环删除。
-      ; (el as NodeListOf<Element>).forEach((el) => {
+      ;(el as NodeListOf<Element>).forEach((el) => {
         if (el.parentNode) {
           el.parentNode.removeChild(el)
         }
@@ -44,7 +44,7 @@ class DOM {
     if (document.body) {
       document.body.insertAdjacentElement('afterbegin', el)
     } else {
-      ; (
+      ;(
         document.querySelector('.newindex-inner')! ||
         document.querySelector('.layout-body')!
       ).insertAdjacentElement('beforebegin', el)
@@ -209,7 +209,7 @@ class DOM {
               result = JSON.parse(str)
               // if((result as any).constructor !== Object){
               // 允许是对象 {} 或者数组 []
-              if (result === null || (typeof result !== 'object')) {
+              if (result === null || typeof result !== 'object') {
                 const msg = 'Data is not an object!'
                 return reject(new Error(msg))
               }

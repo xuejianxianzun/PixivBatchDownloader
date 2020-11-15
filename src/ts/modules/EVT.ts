@@ -43,8 +43,14 @@ class EVT {
     pageSwitchedTypeChange: 'pageSwitchedTypeChange',
     // 页面切换，并且页面类型不变
     pageSwitchedTypeNotChange: 'pageSwitchedTypeNotChange',
-    // 重置所有设置
+    // 请求重置所有设置
     resetSettings: 'resetSettings',
+    // 重置所有设置执行完毕
+    resetSettingsEnd: 'resetSettingsEnd',
+    // 请求导出设置
+    exportSettings: 'exportSettings',
+    // 请求导入设置
+    importSettings: 'importSettings',
     // 当动图转换数量发生变化时触发
     convertChange: 'convertChange',
     // 当读取/解压 zip 文件出错时触发
