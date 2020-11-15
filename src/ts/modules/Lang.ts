@@ -1,6 +1,7 @@
 import { langText } from './langText'
 import { langTextKeys } from './langText'
 import { EVT } from './EVT'
+import { settings } from './setting/Settings'
 
 // 语言类
 class Lang {
@@ -11,30 +12,21 @@ class Lang {
 
   public flag = 0
 
-  private readonly storeName = 'xzLang'
-
   private bindEvents() {
-    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
-      const data = ev.detail.data
-      if (data.name === 'userSetLang') {
-        // 储存设置
-        localStorage.setItem(this.storeName, data.value)
-        // 重新设置语言
-        const old = this.flag
-        this.setFlag()
-        if (this.flag !== old) {
-          EVT.sendMsg({
-            msg: this.transl('_变更语言后刷新页面的提示'),
-          })
-        }
+    // 选项变化时重新设置语言
+    window.addEventListener(EVT.list.settingChange, () => {
+      const old = this.flag
+      this.setFlag()
+      if (this.flag !== old) {
+        EVT.sendMsg({
+          msg: this.transl('_变更语言后刷新页面的提示'),
+        })
       }
     })
   }
 
-  // 从本地存储读取设置
-  // 其实从 settings.userSetLang 可以获取这个设置，但是在这个类里引入 setting 会导致循环依赖，所以不使用 settings，而是转存到本地存储里。这样也算是解耦了。
   private setFlag() {
-    const userSetLang = parseInt(localStorage.getItem(this.storeName) || '-1')
+    const userSetLang = parseInt(settings.userSetLang)
     this.flag = userSetLang === -1 ? this.getLangType() : userSetLang
   }
 

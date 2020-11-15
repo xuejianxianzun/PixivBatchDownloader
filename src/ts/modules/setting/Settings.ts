@@ -1,10 +1,14 @@
-// 保存设置表单的所有设置项
-// 这里定义的 settings 只是初始的默认值，后续 SaveSettings 模块会读取用户储存的设置，修改 settings
+// 下载器的所有设置项
 // 每当修改了 settings 的值，都要触发 EVT.list.settingChange 事件，让其他模块可以监听到变化
 // 如果修改的是整个 settings，settingChange 事件没有参数
 // 如果修改的是某一个属性的值，settingChange 事件参数应该传递这个属性的数据 {name:string, value:any}
 
-export interface XzSetting {
+// 如果打开了多个标签页，每个页面的 settings 数据是互相独立的。但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
+
+import config from '../Config'
+import { EVT } from '../EVT'
+
+interface XzSetting {
   setWantPage: string
   wantPageArr: string[]
   firstFewImagesSwitch: boolean
@@ -27,7 +31,7 @@ export interface XzSetting {
   quietDownload: boolean
   downloadThread: string
   userSetName: string
-  namingRuleList:string[]
+  namingRuleList: string[]
   tagNameToFileName: boolean
   alwaysFolder: boolean
   multipleImageDir: boolean
@@ -166,5 +170,23 @@ const settings: XzSetting = {
   needTagMode: 'all',
 }
 
+// 初始化时，读取保存的设置，合并到默认设置上
+function restoreSettings() {
+  const savedSettings = localStorage.getItem(config.settingsStoreName)
+  if (savedSettings) {
+    // 使用 assign 合并设置，而不是直接覆盖 settings
+    // 这样如果新版本多了某个设置项，旧版本（本地存储里）没有，这个选项就会使用新版本里的默认值。
+    Object.assign(settings, JSON.parse(savedSettings))
+  }
+}
 
-export { settings }
+// 第一时间恢复用户设置
+restoreSettings()
+
+// 当设置发生变化时进行本地存储
+window.addEventListener(EVT.list.settingChange, () => {
+  console.log(settings)
+  localStorage.setItem(config.settingsStoreName, JSON.stringify(settings))
+})
+
+export { settings, XzSetting }

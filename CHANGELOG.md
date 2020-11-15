@@ -2,7 +2,6 @@
 
 TODO  翻译文本
 
-命名列表要点一下才改变
 
 settings 可以用等号了？
 
@@ -15,6 +14,10 @@ declare global {
 ```
 
 首次登场也放到settings里？
+
+命名规则列表放到了 settings 里
+
+语言设置放到了 settings 里
 
 ### 计划任务
 

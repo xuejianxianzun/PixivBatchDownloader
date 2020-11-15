@@ -1278,6 +1278,7 @@ __webpack_require__.r(__webpack_exports__);
     outputMax: 5000,
     downloadThreadMax: 10,
     illustTypes: ['illustration', 'manga', 'ugoira', 'novel'],
+    settingsStoreName: 'xzSetting',
 });
 
 
@@ -6440,37 +6441,31 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "lang", function() { return lang; });
 /* harmony import */ var _langText__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./langText */ "./src/ts/modules/langText.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/modules/setting/Settings.ts");
+
 
 
 // 语言类
 class Lang {
     constructor() {
         this.flag = 0;
-        this.storeName = 'xzLang';
         this.setFlag();
         this.bindEvents();
     }
     bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
-            const data = ev.detail.data;
-            if (data.name === 'userSetLang') {
-                // 储存设置
-                localStorage.setItem(this.storeName, data.value);
-                // 重新设置语言
-                const old = this.flag;
-                this.setFlag();
-                if (this.flag !== old) {
-                    _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
-                        msg: this.transl('_变更语言后刷新页面的提示'),
-                    });
-                }
+        // 选项变化时重新设置语言
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, () => {
+            const old = this.flag;
+            this.setFlag();
+            if (this.flag !== old) {
+                _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
+                    msg: this.transl('_变更语言后刷新页面的提示'),
+                });
             }
         });
     }
-    // 从本地存储读取设置
-    // 其实从 settings.userSetLang 可以获取这个设置，但是在这个类里引入 setting 会导致循环依赖，所以不使用 settings，而是转存到本地存储里。这样也算是解耦了。
     setFlag() {
-        const userSetLang = parseInt(localStorage.getItem(this.storeName) || '-1');
+        const userSetLang = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].userSetLang);
         this.flag = userSetLang === -1 ? this.getLangType() : userSetLang;
     }
     // 获取页面使用的语言，返回对应的 flag
@@ -13996,16 +13991,15 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 保存设置表单的所有设置项，并且在下载器初始化时恢复这些设置的值
-// 成员 settings 保存着当前页面的所有设置项；当设置项变化时，settings 响应变化并保存到 localStorage 里。
+// 管理 from 表单里的选项（类型为 input 元素的选项），当选项改变时保存到 settings 里；当恢复设置时设置则从 settings 里设置选项的值。
+// 当 settings 发生变化时，保存到 localStorage 里
+// 不属于 input 类型的选项，不在这里处理。
 // 补充说明：
 // 选项 setWantPage 并不需要实际上进行保存和恢复。保存和恢复时使用的是 wantPageArr
 // 如果打开了多个标签页，每个页面的 settings 成员是互相独立的。
 // 但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
-class Settings {
+class SaveSettings {
     constructor() {
-        // 本地存储中使用的 name
-        this.storeName = 'xzSetting';
         // 把初始设置保存起来，以便在重置设置时使用
         this.defaultSettings = Object.assign({}, _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"]);
         this.bindEvents();
@@ -14015,11 +14009,6 @@ class Settings {
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, () => {
             this.restoreWantPage();
-        });
-        // 当设置发生了变化，进行本地存储
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
-            console.log(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"]);
-            localStorage.setItem(this.storeName, JSON.stringify(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"]));
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettings, () => {
             _Form__WEBPACK_IMPORTED_MODULE_4__["form"].reset();
@@ -14239,16 +14228,6 @@ class Settings {
     }
     // 读取持久化数据，或使用默认设置，恢复设置表单的设置项
     restore() {
-        const savedOption = localStorage.getItem(this.storeName);
-        // 读取保存的设置
-        if (savedOption) {
-            // 使用 assign 合并选项，而不是直接覆盖 settings
-            // 这样如果新版本多了某个设置项，旧版本（本地存储里）没有，这个选项就会使用新版本里的默认值。
-            Object.assign(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"], JSON.parse(savedOption));
-        }
-        else {
-            return;
-        }
         this.restoreWantPage();
         // 设置下载的作品类型
         this.restoreBoolean('downType0');
@@ -14350,15 +14329,13 @@ class Settings {
             // 将选项恢复为默认值
             Object.assign(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"], this.defaultSettings);
         }
-        // 覆写本地存储里的设置
-        localStorage.setItem(this.storeName, JSON.stringify(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"]));
-        // 读取本地存储，重设选项
-        this.restore();
         // 触发设置改变事件
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange);
+        // 读取设置，重设选项
+        this.restore();
     }
 }
-new Settings();
+new SaveSettings();
 
 
 /***/ }),
@@ -14433,16 +14410,22 @@ const settingAPI = new SettingAPI();
 /*!********************************************!*\
   !*** ./src/ts/modules/setting/Settings.ts ***!
   \********************************************/
-/*! exports provided: settings */
+/*! exports provided: settings, restoreSettings */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "settings", function() { return settings; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "restoreSettings", function() { return restoreSettings; });
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Config */ "./src/ts/modules/Config.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
 // 保存设置表单的所有设置项
 // 这里定义的 settings 只是初始的默认值，后续 SaveSettings 模块会读取用户储存的设置，修改 settings
-// 每当修改了 settings 的值，都要触发 EVT.list.settingChange 事件，让其他模块可以监听到变化。
-// 如果修改的是某一个属性的值，settingChange 事件应该传递这个属性的数据 {name:string, value:any}
+// 每当修改了 settings 的值，都要触发 EVT.list.settingChange 事件，让其他模块可以监听到变化
+// 如果修改的是整个 settings，settingChange 事件没有参数
+// 如果修改的是某一个属性的值，settingChange 事件参数应该传递这个属性的数据 {name:string, value:any}
+
+
 const settings = {
     setWantPage: '-1',
     wantPageArr: [
@@ -14534,6 +14517,23 @@ const settings = {
     theme: 'auto',
     needTagMode: 'all',
 };
+// 读取保存的设置，合并到默认设置上
+function restoreSettings() {
+    const savedSettings = localStorage.getItem(_Config__WEBPACK_IMPORTED_MODULE_0__["default"].settingsStoreName);
+    if (savedSettings) {
+        // 使用 assign 合并设置，而不是直接覆盖 settings
+        // 这样如果新版本多了某个设置项，旧版本（本地存储里）没有，这个选项就会使用新版本里的默认值。
+        Object.assign(settings, JSON.parse(savedSettings));
+    }
+    console.log(settings.userSetLang);
+}
+// 第一时间恢复用户设置
+restoreSettings();
+// 当设置发生变化时进行本地存储
+window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, () => {
+    console.log(settings);
+    localStorage.setItem(_Config__WEBPACK_IMPORTED_MODULE_0__["default"].settingsStoreName, JSON.stringify(settings));
+});
 
 
 

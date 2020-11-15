@@ -5,27 +5,20 @@ import { pageType } from '../PageType'
 import { form } from './Form'
 import { settings, XzSetting } from './Settings'
 
-// 保存设置表单的所有设置项，并且在下载器初始化时恢复这些设置的值
-
-// 成员 settings 保存着当前页面的所有设置项；当设置项变化时，settings 响应变化并保存到 localStorage 里。
+// 管理 from 表单里的选项（类型为 input 元素的选项），从 settings 里设置选项的值；当选项改变时保存到 settings 里
+// 不属于 input 类型的选项，不在这里处理。
 
 // 补充说明：
 // 选项 setWantPage 并不需要实际上进行保存和恢复。保存和恢复时使用的是 wantPageArr
-// 如果打开了多个标签页，每个页面的 settings 成员是互相独立的。
-// 但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
 
-class Settings {
+class FormSettings {
   constructor() {
     this.bindEvents()
-    
+
     this.ListenChange()
 
     this.restore()
-
   }
-
-  // 本地存储中使用的 name
-  private readonly storeName = 'xzSetting'
 
   // 把初始设置保存起来，以便在重置设置时使用
   private readonly defaultSettings: XzSetting = Object.assign({}, settings)
@@ -33,12 +26,6 @@ class Settings {
   private bindEvents() {
     window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
       this.restoreWantPage()
-    })
-
-    // 当设置发生了变化，进行本地存储
-    window.addEventListener(EVT.list.settingChange, () => {
-      console.log(settings)
-      localStorage.setItem(this.storeName, JSON.stringify(settings))
     })
 
     window.addEventListener(EVT.list.resetSettings, () => {
@@ -278,7 +265,7 @@ class Settings {
     this.saveRadio('theme')
   }
 
-  // 任何设置项发生改变时，都要调用这个方法，传递选项名和值
+  // 表单里的设置发生改变时，调用这个方法，传递选项名和值
   private emitChange(
     name: keyof XzSetting,
     value: string | number | boolean | string[],
@@ -312,18 +299,8 @@ class Settings {
     }
   }
 
-  // 读取持久化数据，或使用默认设置，恢复设置表单的设置项
+  // 读取设置，恢复表单里的设置项
   private restore() {
-    const savedOption = localStorage.getItem(this.storeName)
-    // 读取保存的设置
-    if (savedOption) {
-      // 使用 assign 合并选项，而不是直接覆盖 settings
-      // 这样如果新版本多了某个设置项，旧版本（本地存储里）没有，这个选项就会使用新版本里的默认值。
-      Object.assign(settings, JSON.parse(savedOption))
-    } else {
-      return
-    }
-
     this.restoreWantPage()
 
     // 设置下载的作品类型
@@ -461,13 +438,11 @@ class Settings {
       // 将选项恢复为默认值
       Object.assign(settings, this.defaultSettings)
     }
-    // 覆写本地存储里的设置
-    localStorage.setItem(this.storeName, JSON.stringify(settings))
-    // 读取本地存储，重设选项
-    this.restore()
     // 触发设置改变事件
     EVT.fire(EVT.list.settingChange)
+    // 读取设置，重设选项
+    this.restore()
   }
 }
 
-new Settings()
+new FormSettings()
