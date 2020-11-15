@@ -1,6 +1,8 @@
 // 保存设置表单的所有设置项
 // 这里定义的 settings 只是初始的默认值，后续 SaveSettings 模块会读取用户储存的设置，修改 settings
-// 每当修改了 settings 的值（包括修改某一个属性的值），都要触发 EVT.list.settingChange 事件，让其他模块可以监听到变化。
+// 每当修改了 settings 的值，都要触发 EVT.list.settingChange 事件，让其他模块可以监听到变化
+// 如果修改的是整个 settings，settingChange 事件没有参数
+// 如果修改的是某一个属性的值，settingChange 事件参数应该传递这个属性的数据 {name:string, value:any}
 
 export interface XzSetting {
   setWantPage: string
@@ -25,6 +27,7 @@ export interface XzSetting {
   quietDownload: boolean
   downloadThread: string
   userSetName: string
+  namingRuleList:string[]
   tagNameToFileName: boolean
   alwaysFolder: boolean
   multipleImageDir: boolean
@@ -114,6 +117,7 @@ const settings: XzSetting = {
   quietDownload: true,
   downloadThread: '5',
   userSetName: '{id}',
+  namingRuleList: [],
   tagNameToFileName: false,
   alwaysFolder: false,
   multipleImageDir: false,
@@ -163,4 +167,4 @@ const settings: XzSetting = {
 }
 
 
-export {settings}
+export { settings }

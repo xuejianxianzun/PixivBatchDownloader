@@ -16,11 +16,12 @@ import { settings, XzSetting } from './Settings'
 
 class Settings {
   constructor() {
+    this.bindEvents()
+    
     this.ListenChange()
 
     this.restore()
 
-    this.bindEvents()
   }
 
   // 本地存储中使用的 name
@@ -32,6 +33,12 @@ class Settings {
   private bindEvents() {
     window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
       this.restoreWantPage()
+    })
+
+    // 当设置发生了变化，进行本地存储
+    window.addEventListener(EVT.list.settingChange, () => {
+      console.log(settings)
+      localStorage.setItem(this.storeName, JSON.stringify(settings))
     })
 
     window.addEventListener(EVT.list.resetSettings, () => {
@@ -278,7 +285,6 @@ class Settings {
   ) {
     ; (settings[name] as any) = value
     EVT.fire(EVT.list.settingChange, { name: name, value: value })
-    localStorage.setItem(this.storeName, JSON.stringify(settings))
   }
 
   // 恢复值为 Boolean 的设置项

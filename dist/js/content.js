@@ -7985,8 +7985,11 @@ class Theme {
             this.findFlag();
         }, 300);
         // 设置变化时设置主题
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
-            this.setTheme();
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'theme') {
+                this.setTheme();
+            }
         });
     }
     // 查找含有 pixiv 主题标记的元素，并监听其变化
@@ -13865,11 +13868,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 保存和加载命名规则
+// 保存和加载命名规则列表
 class SaveNamingRule {
     constructor(ruleInput) {
-        this.storeName = 'xzNamingList';
-        this.list = []; // 保存明明列表，是一个先进先出的队列
         this.limit = 20; // 最大保存数量
         this._show = false; // 是否显示列表
         this.html = `
@@ -13905,26 +13906,25 @@ class SaveNamingRule {
         this.listWrap.addEventListener('mouseleave', () => {
             this.show = false;
         });
-    }
-    load() {
-        const data = localStorage.getItem(this.storeName);
-        if (data) {
-            this.list = JSON.parse(data);
-        }
-    }
-    save() {
-        localStorage.setItem(this.storeName, JSON.stringify(this.list));
+        // 当设置发生了变化，就重新创建列表
+        // 这里不要判断事件的 data.name，因为恢复设置时没有传递 data.name ，但此时依旧需要重新创建列表
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
+            this.createList();
+        });
     }
     add(rule) {
-        if (this.list.length === this.limit) {
-            this.list.splice(0, 1);
+        if (_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList.length === this.limit) {
+            _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList.splice(0, 1);
         }
-        this.list.push(rule);
+        // 如果这个规则已存在，不会重复添加它
+        if (!_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList.includes(rule)) {
+            _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList.push(rule);
+            this.handleChange();
+        }
         _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已保存命名规则'));
-        this.handleChange();
     }
     delete(index) {
-        this.list.splice(index, 1);
+        _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList.splice(index, 1);
         this.handleChange();
     }
     select(rule) {
@@ -13933,20 +13933,18 @@ class SaveNamingRule {
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, { name: 'userSetName', value: rule });
     }
     handleChange() {
-        this.save();
-        this.createList();
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, { name: 'namingRuleList', value: _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList });
     }
     createList() {
-        this.load();
         const htmlArr = [];
-        for (let i = 0; i < this.list.length; i++) {
+        for (let i = 0; i < _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList.length; i++) {
             const html = `<li>
-      <span class="rule">${this.list[i]}</span>
+      <span class="rule">${_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList[i]}</span>
       <button class="delete textButton" type="button" data-index="${i}">×</button>
     </li>`;
             htmlArr.push(html);
         }
-        if (this.list.length === 0) {
+        if (_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList.length === 0) {
             htmlArr.push(`<li><i>&nbsp;&nbsp;&nbsp;&nbsp;no data</i></li>`);
         }
         this.listWrap.innerHTML = htmlArr.join('');
@@ -14010,13 +14008,18 @@ class Settings {
         this.storeName = 'xzSetting';
         // 把初始设置保存起来，以便在重置设置时使用
         this.defaultSettings = Object.assign({}, _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"]);
+        this.bindEvents();
         this.ListenChange();
         this.restore();
-        this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, () => {
             this.restoreWantPage();
+        });
+        // 当设置发生了变化，进行本地存储
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
+            console.log(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"]);
+            localStorage.setItem(this.storeName, JSON.stringify(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"]));
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettings, () => {
             _Form__WEBPACK_IMPORTED_MODULE_4__["form"].reset();
@@ -14211,7 +14214,6 @@ class Settings {
         ;
         _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"][name] = value;
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, { name: name, value: value });
-        localStorage.setItem(this.storeName, JSON.stringify(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"]));
     }
     // 恢复值为 Boolean 的设置项
     // input[type='checkbox'] 使用
@@ -14439,7 +14441,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "settings", function() { return settings; });
 // 保存设置表单的所有设置项
 // 这里定义的 settings 只是初始的默认值，后续 SaveSettings 模块会读取用户储存的设置，修改 settings
-// 每当修改了 settings 的值（包括修改某一个属性的值），都要触发 EVT.list.settingChange 事件，让其他模块可以监听到变化。
+// 每当修改了 settings 的值，都要触发 EVT.list.settingChange 事件，让其他模块可以监听到变化。
+// 如果修改的是某一个属性的值，settingChange 事件应该传递这个属性的数据 {name:string, value:any}
 const settings = {
     setWantPage: '-1',
     wantPageArr: [
@@ -14483,6 +14486,7 @@ const settings = {
     quietDownload: true,
     downloadThread: '5',
     userSetName: '{id}',
+    namingRuleList: [],
     tagNameToFileName: false,
     alwaysFolder: false,
     multipleImageDir: false,

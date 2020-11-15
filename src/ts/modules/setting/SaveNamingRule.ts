@@ -5,7 +5,7 @@ import { log } from '../Log'
 import { theme } from '../Theme'
 import { settings } from './Settings'
 
-// 保存和加载命名规则
+// 保存和加载命名规则列表
 class SaveNamingRule {
   constructor(ruleInput: HTMLInputElement) {
     this.ruleInput = ruleInput
@@ -23,8 +23,6 @@ class SaveNamingRule {
     this.bindEvents()
   }
 
-  private storeName = 'xzNamingList'
-  private list: string[] = [] // 保存明明列表，是一个先进先出的队列
   private readonly limit = 20 // 最大保存数量
   private saveBtn: HTMLButtonElement
   private loadBtn: HTMLButtonElement
@@ -53,30 +51,28 @@ class SaveNamingRule {
     this.listWrap.addEventListener('mouseleave', () => {
       this.show = false
     })
-  }
 
-  private load() {
-    const data = localStorage.getItem(this.storeName)
-    if (data) {
-      this.list = JSON.parse(data)
-    }
-  }
-
-  private save() {
-    localStorage.setItem(this.storeName, JSON.stringify(this.list))
+    // 当设置发生了变化，就重新创建列表
+    // 这里不要判断事件的 data.name，因为恢复设置时没有传递 data.name ，但此时依旧需要重新创建列表
+    window.addEventListener(EVT.list.settingChange, () => {
+      this.createList()
+    })
   }
 
   private add(rule: string) {
-    if (this.list.length === this.limit) {
-      this.list.splice(0, 1)
+    if (settings.namingRuleList.length === this.limit) {
+      settings.namingRuleList.splice(0, 1)
     }
-    this.list.push(rule)
+    // 如果这个规则已存在，不会重复添加它
+    if (!settings.namingRuleList.includes(rule)) {
+      settings.namingRuleList.push(rule)
+      this.handleChange()
+    }
     log.success(lang.transl('_已保存命名规则'))
-    this.handleChange()
   }
 
   private delete(index: number) {
-    this.list.splice(index, 1)
+    settings.namingRuleList.splice(index, 1)
     this.handleChange()
   }
 
@@ -87,21 +83,19 @@ class SaveNamingRule {
   }
 
   private handleChange() {
-    this.save()
-    this.createList()
+    EVT.fire(EVT.list.settingChange, { name: 'namingRuleList', value: settings.namingRuleList })
   }
 
   private createList() {
-    this.load()
     const htmlArr = []
-    for (let i = 0; i < this.list.length; i++) {
+    for (let i = 0; i < settings.namingRuleList.length; i++) {
       const html = `<li>
-      <span class="rule">${this.list[i]}</span>
+      <span class="rule">${settings.namingRuleList[i]}</span>
       <button class="delete textButton" type="button" data-index="${i}">×</button>
     </li>`
       htmlArr.push(html)
     }
-    if (this.list.length === 0) {
+    if (settings.namingRuleList.length === 0) {
       htmlArr.push(`<li><i>&nbsp;&nbsp;&nbsp;&nbsp;no data</i></li>`)
     }
     this.listWrap.innerHTML = htmlArr.join('')
