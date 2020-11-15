@@ -94,9 +94,8 @@ class Deduplication {
     }
 
     // 监听导入下载记录的事件
-    window.addEventListener(EVT.list.importDownloadRecord, async () => {
-      const record = await this.loadRecoveryFile()
-      this.importRecord(record)
+    window.addEventListener(EVT.list.importDownloadRecord, () => {
+      this.importRecord()
     })
 
     // 导出下载记录的按钮
@@ -128,52 +127,6 @@ class Deduplication {
     window.addEventListener(EVT.list.clearDownloadRecord, () => {
       this.clearRecords()
       this.existedIdList = []
-    })
-  }
-
-  private async loadRecoveryFile(): Promise<Record[]> {
-    return new Promise<Record[]>((resolve) => {
-      // 创建 input 元素选择文件
-      const i = document.createElement('input')
-      i.setAttribute('type', 'file')
-      i.setAttribute('accept', 'application/json')
-      i.onchange = () => {
-        if (i.files && i.files.length > 0) {
-          // 读取文件内容
-          const reader = new FileReader()
-          reader.readAsText(i.files[0])
-          reader.onload = () => {
-            const str = reader.result as string
-            let record: Record[] = []
-            try {
-              record = JSON.parse(str) as Record[]
-            } catch (error) {
-              const msg = 'JSON parse error!'
-              EVT.sendMsg({
-                msg: msg,
-                type: 'error',
-              })
-              throw new Error(msg)
-            }
-            // 判断格式是否符合要求
-            if (
-              Array.isArray(record) === false ||
-              record[0].id === undefined ||
-              record[0].n === undefined
-            ) {
-              const msg = 'Format error!'
-              EVT.sendMsg({
-                msg: msg,
-                type: 'error',
-              })
-              throw new Error(msg)
-            }
-            resolve(record)
-          }
-        }
-      }
-
-      i.click()
     })
   }
 
@@ -284,11 +237,35 @@ class Deduplication {
   }
 
   // 导入下载记录
-  private async importRecord(records: Record[]) {
-    // 输出提示信息
+  private async importRecord() {
+    const record = await DOM.loadJSONFile().catch(err => {
+      return EVT.sendMsg({
+        type: 'error',
+        msg: err
+      })
+    }) as Record[]
+
+    if (!record) {
+      return
+    }
+
+    // 判断格式是否符合要求
+    if (
+      Array.isArray(record) === false ||
+      record[0].id === undefined ||
+      record[0].n === undefined
+    ) {
+      const msg = 'Format error!'
+      return EVT.sendMsg({
+        msg: msg,
+        type: 'error',
+      })
+    }
+
+    // 开始导入
     log.warning(lang.transl('_导入下载记录'))
     let stored = 0
-    let total = records.length
+    let total = record.length
     let t = 0
     t = window.setInterval(() => {
       log.log(`${stored}/${total}`, 1, false)
@@ -302,7 +279,7 @@ class Deduplication {
     for (let index = 0; index < this.storeNameList.length; index++) {
       // 提取出要存入这个存储库的数据
       const data: Record[] = []
-      for (const r of records) {
+      for (const r of record) {
         if (parseInt(r.id[0]) - 1 === index) {
           data.push(r)
         }

@@ -1475,7 +1475,9 @@ class DOM {
                         let result;
                         try {
                             result = JSON.parse(str);
-                            if (result.constructor !== Object) {
+                            // if((result as any).constructor !== Object){
+                            // 允许是
+                            if (typeof result !== 'object') {
                                 const msg = 'Data is not an object!';
                                 return reject(new Error(msg));
                             }
@@ -1679,9 +1681,8 @@ class Deduplication {
             }
         }
         // 监听导入下载记录的事件
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.importDownloadRecord, async () => {
-            const record = await this.loadRecoveryFile();
-            this.importRecord(record);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.importDownloadRecord, () => {
+            this.importRecord();
         });
         // 导出下载记录的按钮
         {
@@ -1709,49 +1710,6 @@ class Deduplication {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.clearDownloadRecord, () => {
             this.clearRecords();
             this.existedIdList = [];
-        });
-    }
-    async loadRecoveryFile() {
-        return new Promise((resolve) => {
-            // 创建 input 元素选择文件
-            const i = document.createElement('input');
-            i.setAttribute('type', 'file');
-            i.setAttribute('accept', 'application/json');
-            i.onchange = () => {
-                if (i.files && i.files.length > 0) {
-                    // 读取文件内容
-                    const reader = new FileReader();
-                    reader.readAsText(i.files[0]);
-                    reader.onload = () => {
-                        const str = reader.result;
-                        let record = [];
-                        try {
-                            record = JSON.parse(str);
-                        }
-                        catch (error) {
-                            const msg = 'JSON parse error!';
-                            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].sendMsg({
-                                msg: msg,
-                                type: 'error',
-                            });
-                            throw new Error(msg);
-                        }
-                        // 判断格式是否符合要求
-                        if (Array.isArray(record) === false ||
-                            record[0].id === undefined ||
-                            record[0].n === undefined) {
-                            const msg = 'Format error!';
-                            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].sendMsg({
-                                msg: msg,
-                                type: 'error',
-                            });
-                            throw new Error(msg);
-                        }
-                        resolve(record);
-                    };
-                }
-            };
-            i.click();
         });
     }
     // 当要查找或存储一个 id 时，返回它所对应的 storeName
@@ -1848,11 +1806,30 @@ class Deduplication {
         _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].downloadFile(url, `record-${_API__WEBPACK_IMPORTED_MODULE_0__["API"].replaceUnsafeStr(new Date().toLocaleString())}.json`);
     }
     // 导入下载记录
-    async importRecord(records) {
-        // 输出提示信息
+    async importRecord() {
+        const record = await _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].loadJSONFile().catch(err => {
+            return _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].sendMsg({
+                type: 'error',
+                msg: err
+            });
+        });
+        if (!record) {
+            return;
+        }
+        // 判断格式是否符合要求
+        if (Array.isArray(record) === false ||
+            record[0].id === undefined ||
+            record[0].n === undefined) {
+            const msg = 'Format error!';
+            return _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].sendMsg({
+                msg: msg,
+                type: 'error',
+            });
+        }
+        // 开始导入
         _Log__WEBPACK_IMPORTED_MODULE_4__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导入下载记录'));
         let stored = 0;
-        let total = records.length;
+        let total = record.length;
         let t = 0;
         t = window.setInterval(() => {
             _Log__WEBPACK_IMPORTED_MODULE_4__["log"].log(`${stored}/${total}`, 1, false);
@@ -1865,7 +1842,7 @@ class Deduplication {
         for (let index = 0; index < this.storeNameList.length; index++) {
             // 提取出要存入这个存储库的数据
             const data = [];
-            for (const r of records) {
+            for (const r of record) {
                 if (parseInt(r.id[0]) - 1 === index) {
                     data.push(r);
                 }

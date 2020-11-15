@@ -207,7 +207,9 @@ class DOM {
             let result: T
             try {
               result = JSON.parse(str)
-              if((result as any).constructor !== Object){
+              // if((result as any).constructor !== Object){
+              // 允许是对象 {} 或者数组 []
+              if (result === null || (typeof result !== 'object')) {
                 const msg = 'Data is not an object!'
                 return reject(new Error(msg))
               }
