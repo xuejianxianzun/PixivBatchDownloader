@@ -1,12 +1,10 @@
 import { EVT } from './EVT'
 
 // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
-// 目前不能手动设置主题色，这个组件会自动检查 pixiv 的颜色模式，并设置 className
-// 默认主题是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
-class ThemeColor {
+// 默认主题 white 是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
+class Theme {
   constructor() {
-    // 尝试设置一个初始主题，但实际上不一定会使用这个
-    this.theme = this.defaultThemet
+    this.setTheme()
 
     this.bindEvent()
   }
@@ -15,9 +13,9 @@ class ThemeColor {
 
   private timer = 0
 
-  private defaultThemet = 'white' // 默认主题
+  private defaultTheme = 'white' // 默认主题
 
-  private _theme = '' // 当前使用的主题
+  private theme = '' // 当前使用的主题
 
   // 主题标记以及对应的 className
   private readonly classNameMap = new Map([['white', ''], ['dark', 'theme-dark']])
@@ -33,16 +31,11 @@ class ThemeColor {
       this.findFlag()
     }, 300)
 
-    // 监听主题设置变化的事件
-    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
-      const data = ev.detail.data
-      console.log(data)
-      if (data.name && data.name === 'theme') {
-        this.theme = data.value
-      } else {
-        if (data.theme) {
-          this.theme = data.theme
-        }
+    // 设置变化时设置主题
+    window.addEventListener(EVT.list.settingChange, () => {
+      if (window.xzSettings) {
+        console.log(window.xzSettings.theme)
+        this.setTheme()
       }
     })
   }
@@ -52,12 +45,12 @@ class ThemeColor {
     const el = document.querySelector(this.selector) as HTMLElement
     if (el) {
       window.clearInterval(this.timer)
-      this.theme = this.htmlFlagMap.get(el.textContent!) || this.defaultThemet
+      this.setTheme()
       // 监听标记元素的 textContent 变化
       const ob = new MutationObserver((mutationsList) => {
         for (const item of mutationsList) {
           if (item.type === 'characterData') {
-            this.theme = this.htmlFlagMap.get(item.target.nodeValue!) || this.defaultThemet
+            this.setTheme()
             break
           }
         }
@@ -73,50 +66,46 @@ class ThemeColor {
   private getThemeFromHtml() {
     const el = document.querySelector(this.selector) as HTMLElement
     if (!el) {
-      return this.defaultThemet
+      return this.defaultTheme
     }
     return this.htmlFlagMap.get(el.textContent!)
   }
 
-  // 设置主题
-  private set theme(flag: string | null) {
-    if (flag === null) {
-      return
+  // 设置主题。不需要传递值，因为会自动使用设置里的 theme 设置
+  private setTheme() {
+    // 将主题标记设置为自动
+    let themeFlag = 'auto'
+
+    // 如果可以获取到设置，就改为设置里的值
+    if (window.xzSettings) {
+      themeFlag = window.xzSettings.theme
     }
 
-    let temp = '' // 储存最终要使用的主题
+    let result = '' // 储存最终要使用的主题
 
-    // 如果设置了自动检测，就从 html 标记里获取要使用的主题
-    if (flag === 'auto') {
-      temp = this.getThemeFromHtml() || this.defaultThemet
-    } else {
-      // 如果不是自动检测，则使用设置里指定的值
-      switch (flag) {
-        case 'white':
-          temp = 'white'
-          break;
-        case 'dark':
-          temp = 'dark'
-          break;
-        default:
-          temp = this.getThemeFromHtml() || this.defaultThemet
-          break;
-      }
+    // 根据标记，设置要使用的主题
+    switch (themeFlag) {
+      case 'white':
+        result = 'white'
+        break;
+      case 'dark':
+        result = 'dark'
+        break;
+      default:
+        // 如果传递的值是本模块不能识别的，包括 'auto'，就都自动获取
+        result = this.getThemeFromHtml() || this.defaultTheme
+        break;
     }
 
-    // 如果要使用的主题和当前主题不同，则改变主题
-    if (temp !== this._theme) {
-      this._theme = temp
+    // 如果要使用的主题和当前主题不同，则执行变化
+    if (result !== this.theme) {
+      this.theme = result
 
       for (const el of this.elList) {
         this.setClass(el)
       }
     }
 
-  }
-
-  private get theme() {
-    return this._theme
   }
 
   // 把元素注册到本组件里
@@ -134,10 +123,10 @@ class ThemeColor {
       }
     }
     // 添加当前主题对应的 className
-    const name = this.classNameMap.get(this._theme)
+    const name = this.classNameMap.get(this.theme)
     name && el.classList.add(name)
   }
 }
 
-const themeColor = new ThemeColor()
-export { themeColor }
+const theme = new Theme()
+export { theme }

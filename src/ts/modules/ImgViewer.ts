@@ -1,7 +1,7 @@
 // 图片查看器
 /// <reference path = "./Viewer.d.ts" />
 import { API } from './API'
-import { themeColor } from './ThemeColor'
+import { theme } from './Theme'
 
 class ImgViewer {
   constructor() {
@@ -96,7 +96,7 @@ class ImgViewer {
     this.viewerUl = document.createElement('ul')
     this.viewerWarpper.appendChild(this.viewerUl)
 
-    themeColor.register(this.viewerWarpper)
+    theme.register(this.viewerWarpper)
 
     document
       .querySelector('main figcaption')!
@@ -131,7 +131,7 @@ class ImgViewer {
       if (this.isFullscreen()) {
         setTimeout(() => {
           // 通过点击 1:1 按钮，调整为100%并居中。这里必须要加延时，否则点击的时候图片还是旧的
-          ;(document.querySelector(
+          ; (document.querySelector(
             '.viewer-one-to-one',
           ) as HTMLLIElement).click()
         }, 50)

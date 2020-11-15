@@ -75,7 +75,7 @@ TODO  翻译文本
 
 设置不附带 tag，并且公开收藏，这样它的效果就和 pixiv 原本的收藏按钮一致。
 
-### 新增设置：设置下载器的主题
+### 新增设置项：设置下载器的颜色主题
 
 下载器的主题有白色（默认）和黑色。之前下载器会自动检测 pixiv 的主题是白色还是黑色，自动改变下载器主题。
 
@@ -94,6 +94,14 @@ TODO  翻译文本
 去掉对 label 的点击事件的监听就解决了。
 
 ### 其他优化
+
+#### 将 settings 挂载到 window 上
+
+`settings`（下载器的所有设置） 在 window 上挂载了 `xzSettings` 对象，所以其他模块可以不引入 `Settings.ts`，直接使用 `window.xzSettings`。
+
+这个做法是为了方便处理循环引用。这次某个组件 A 依赖 `Settings`，`Settings` 又依赖 `Form`，`Form` 又引入了 A，形成了循环引用。通过这个方法，组件 A 可以不需要引入 `Settings`，而是从 window 对象上获取设置，解决了这个问题。
+
+**注意：** 使用 `window.xzSettings` 的前提是 `settings` 已经生成。所以在使用之前最好先判断一下。或者监听 `EVT.events.settingChange` 事件，因为第一次 `EVT.events.settingChange` 事件是 `Settings` 模块发出的，此时 `window.xzSettings` 已经可用。
 
 ### ??? 去掉 tab 权限？
 

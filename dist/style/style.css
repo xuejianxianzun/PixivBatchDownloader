@@ -345,12 +345,11 @@
   border-bottom: 1px solid #ccc !important;
   outline: 0;
   padding: 0 !important;
-  transition: all 0.3s;
+  background: none !important;
 }
 .centerWrap .setinput_style1:focus,
 .centerWrap .setinput_style1:hover {
   border-bottom: 1px solid #0096fa !important;
-  background: 0 0 !important;
 }
 .centerWrap .setinput_style1.w100 {
   width: 100px;
@@ -892,6 +891,15 @@ iframe[name='expandedFooter'] {
   height: 0 !important;
   opacity: 0 !important;
 }
+#logWrap,
+.centerWrap,
+.centerWrap_head,
+.outputWrap,
+.settingForm,
+.tabsTitle,
+.xz_msg_box {
+  transition: background 0.5s;
+}
 .theme-dark#logWrap {
   background: #222;
   color: #fff;
@@ -914,6 +922,9 @@ iframe[name='expandedFooter'] {
 }
 .theme-dark.centerWrap .centerWrap_head {
   background: #222;
+}
+.theme-dark.centerWrap .gray1 {
+  color: #999;
 }
 .theme-dark.outputWrap {
   background: #222;

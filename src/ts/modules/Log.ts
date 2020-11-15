@@ -1,7 +1,7 @@
 import { DOM } from './DOM'
 import { EVT } from './EVT'
 import { states } from './States'
-import { themeColor } from './ThemeColor'
+import { theme } from './Theme'
 import { Colors, colorType } from './Colors'
 
 // 日志类
@@ -31,7 +31,7 @@ class Log {
       this.logArea.id = this.id
       this.logArea.classList.add('beautify_scrollbar')
       DOM.insertToHead(this.logArea)
-      themeColor.register(this.logArea)
+      theme.register(this.logArea)
     }
   }
 

@@ -2,7 +2,7 @@ import { EVT } from '../EVT'
 import { DOM } from '../DOM'
 import { lang } from '../Lang'
 import { log } from '../Log'
-import { themeColor } from '../ThemeColor'
+import { theme } from '../Theme'
 
 // 保存和加载命名规则
 class SaveNamingRule {
@@ -11,7 +11,7 @@ class SaveNamingRule {
 
     DOM.clearSlot('saveNamingRule')
     const wrap = DOM.useSlot('saveNamingRule', this.html)
-    themeColor.register(wrap)
+    theme.register(wrap)
 
     this.saveBtn = wrap.querySelector('button.nameSave')! as HTMLButtonElement
     this.loadBtn = wrap.querySelector('button.nameLoad')! as HTMLButtonElement

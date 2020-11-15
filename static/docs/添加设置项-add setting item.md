@@ -8,11 +8,13 @@
 
 在 `src\ts\modules\setting\Form.d.ts` 添加声明。需要从哪些元素上获取值，就添加对应的声明。
 
+在 `src\ts\modules\setting\Settings.d.ts` 里：
+
+在 `interface XzSetting` 里设置选项的类型声明。
+
 ## 使选项能够被获取
 
 在 `src\ts\modules\setting\Settings.ts` 里：
-
-在 `interface XzSetting` 里设置选项的类型声明。
 
 在 `optionDefault` 里设置选项的初始值。
 
@@ -22,8 +24,9 @@
 
 ## 使用
 
-在其它组件里，需要 `import { settings } from './setting/Settings'`，然后使用 `settings.name` 获取选项的值。
+在其它组件里，需要 `import { settings } from '/src/ts/modules/setting/Settings'`，然后使用 `settings.name` 获取选项的值。
 
+另外 `settings` 在 window 上挂载了 `xzSettings` 对象，所以你也可以不引入 `Settings.ts`，直接使用 `window.xzSettings`。(前提是此时 `settings` 已经生成)
 
 ## 额外说明
 

@@ -3,14 +3,14 @@ import { lang } from '../Lang'
 import { store } from '../Store'
 import { DOM } from '../DOM'
 import config from '../Config'
-import { themeColor } from '../ThemeColor'
+import { theme } from '../Theme'
 
 // 输出面板
 class OutputPanel {
   constructor() {
     this.addOutPutPanel()
 
-    themeColor.register(this.outputPanel)
+    theme.register(this.outputPanel)
 
     this.bindEvent()
   }
@@ -133,4 +133,4 @@ class OutputPanel {
 }
 
 new OutputPanel()
-export {}
+export { }

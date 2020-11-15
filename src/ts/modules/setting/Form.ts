@@ -5,13 +5,13 @@ import { lang } from '../Lang'
 import formHtml from './FormHTML'
 import { SettingsForm } from './Form.d'
 import { SaveNamingRule } from './SaveNamingRule'
-import { themeColor } from '../ThemeColor'
+import { theme } from '../Theme'
 
 // 设置表单
 class Form {
   constructor() {
     this.form = DOM.useSlot('form', formHtml) as SettingsForm
-    themeColor.register(this.form)
+    theme.register(this.form)
 
     this.allCheckBox = this.form.querySelectorAll(
       'input[type="checkbox"]',
@@ -205,15 +205,13 @@ class Form {
     // 让复选框支持用回车键选择
     el.addEventListener('keydown', (event: KeyboardEvent) => {
       if (this.chooseKeys.includes(event.code)) {
-        el.checked = !el.checked
-        this.emitChange(el.name, el.checked)
+        el.click()
       }
     })
 
-    // 点击美化按钮，反转复选框的值
+    // 点击美化按钮，点击对应的复选框
     el.nextElementSibling!.addEventListener('click', () => {
-      el.checked = !el.checked
-      this.emitChange(el.name, el.checked)
+      el.click()
     })
 
     // 点击它的 label 时，不需要传递它的值。因为点击 lable 激活这个 input 控件时，浏览器会自动触发这个控件的 click 事件。settings 模块已经监听了 click 事件，所以这里就不要监听 label 了，否则就会因此多触发了一次 settingChange 事件。而且点击 label 时获得的值还是改变之前的旧的值。
@@ -221,11 +219,9 @@ class Form {
 
   // 设置单选控件的事件
   private bindRadioEvent(el: HTMLInputElement) {
-    // 点击美化按钮，选择当前单选控件
+    // 点击美化按钮，选择对应的单选框
     el.nextElementSibling!.addEventListener('click', () => {
-      el.checked = true
-      // 对于单选按钮，它的值是 value，不是 checked
-      this.emitChange(el.name, this.form[el.name].value)
+      el.click()
     })
 
     // 点击它的 label 时，不需要传递它的值。原因同上。

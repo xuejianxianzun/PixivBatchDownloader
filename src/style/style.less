@@ -430,12 +430,11 @@
     border-bottom: 1px solid #ccc !important;
     outline: 0;
     padding: 0 !important;
-    transition: all 0.3s;
+    background: none !important;
 
     &:focus,
     &:hover {
       border-bottom: 1px solid #0096fa !important;
-      background: 0 0 !important;
     }
 
     &.w100 {
@@ -1088,6 +1087,12 @@ iframe[name='expandedFooter'] {
   opacity: 0 !important;
 }
 
+
+// 如果一些元素在切换颜色主题时背景颜色会变化，就给它们加上渐变效果
+#logWrap,.centerWrap,.centerWrap_head,.outputWrap,.settingForm,.tabsTitle,.xz_msg_box{
+  transition: background .5s;
+}
+
 // dark theme start
 .theme-dark {
   &#logWrap {
@@ -1118,6 +1123,9 @@ iframe[name='expandedFooter'] {
 
     .centerWrap_head {
       background: #222;
+    }
+    .gray1 {
+      color: #999;
     }
   }
 }

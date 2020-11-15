@@ -1047,7 +1047,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
-/* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ThemeColor */ "./src/ts/modules/ThemeColor.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Theme */ "./src/ts/modules/Theme.ts");
 
 
 
@@ -1058,7 +1058,7 @@ class CenterPanel {
     constructor() {
         this.updateActiveClass = 'updateActiveClass';
         this.addCenterPanel();
-        _ThemeColor__WEBPACK_IMPORTED_MODULE_4__["themeColor"].register(this.centerPanel);
+        _Theme__WEBPACK_IMPORTED_MODULE_4__["theme"].register(this.centerPanel);
         this.bindEvents();
     }
     // 添加中间面板
@@ -3271,7 +3271,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
-/* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ThemeColor */ "./src/ts/modules/ThemeColor.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Theme */ "./src/ts/modules/Theme.ts");
 
 
 
@@ -3316,7 +3316,7 @@ class FastScreen {
             };
             fastScreenArea.appendChild(a);
         });
-        _ThemeColor__WEBPACK_IMPORTED_MODULE_3__["themeColor"].register(fastScreenArea);
+        _Theme__WEBPACK_IMPORTED_MODULE_3__["theme"].register(fastScreenArea);
         target.insertAdjacentElement('afterend', fastScreenArea);
     }
     // 打开快速筛选链接
@@ -4444,7 +4444,7 @@ const img2ico = new ImageToIcon();
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ImgViewer", function() { return ImgViewer; });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/modules/API.ts");
-/* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ThemeColor */ "./src/ts/modules/ThemeColor.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Theme */ "./src/ts/modules/Theme.ts");
 // 图片查看器
 /// <reference path = "./Viewer.d.ts" />
 
@@ -4528,7 +4528,7 @@ class ImgViewer {
         this.viewerWarpper.id = 'viewerWarpper';
         this.viewerUl = document.createElement('ul');
         this.viewerWarpper.appendChild(this.viewerUl);
-        _ThemeColor__WEBPACK_IMPORTED_MODULE_1__["themeColor"].register(this.viewerWarpper);
+        _Theme__WEBPACK_IMPORTED_MODULE_1__["theme"].register(this.viewerWarpper);
         document
             .querySelector('main figcaption')
             .insertAdjacentElement('beforebegin', this.viewerWarpper);
@@ -6566,7 +6566,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
-/* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ThemeColor */ "./src/ts/modules/ThemeColor.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Theme */ "./src/ts/modules/Theme.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Colors */ "./src/ts/modules/Colors.ts");
 
 
@@ -6596,7 +6596,7 @@ class Log {
             this.logArea.id = this.id;
             this.logArea.classList.add('beautify_scrollbar');
             _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].insertToHead(this.logArea);
-            _ThemeColor__WEBPACK_IMPORTED_MODULE_3__["themeColor"].register(this.logArea);
+            _Theme__WEBPACK_IMPORTED_MODULE_3__["theme"].register(this.logArea);
         }
     }
     // 清空日志
@@ -6672,7 +6672,7 @@ const log = new Log();
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ThemeColor */ "./src/ts/modules/ThemeColor.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Theme */ "./src/ts/modules/Theme.ts");
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Colors */ "./src/ts/modules/Colors.ts");
 
 
@@ -6701,7 +6701,7 @@ class MsgBox {
         <p class="content" ${colorStyle}>${data.msg}</p>
         <button class="btn" type="button">${data.btn || _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_确定')}</button>
       `;
-        _ThemeColor__WEBPACK_IMPORTED_MODULE_2__["themeColor"].register(el);
+        _Theme__WEBPACK_IMPORTED_MODULE_2__["theme"].register(el);
         document.body.insertAdjacentElement('afterbegin', el);
         const btn = el.querySelector('.btn');
         btn.focus();
@@ -7939,34 +7939,32 @@ const store = new Store();
 
 /***/ }),
 
-/***/ "./src/ts/modules/ThemeColor.ts":
-/*!**************************************!*\
-  !*** ./src/ts/modules/ThemeColor.ts ***!
-  \**************************************/
-/*! exports provided: themeColor */
+/***/ "./src/ts/modules/Theme.ts":
+/*!*********************************!*\
+  !*** ./src/ts/modules/Theme.ts ***!
+  \*********************************/
+/*! exports provided: theme */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "themeColor", function() { return themeColor; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "theme", function() { return theme; });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 
 // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
-// 目前不能手动设置主题色，这个组件会自动检查 pixiv 的颜色模式，并设置 className
-// 默认主题是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
-class ThemeColor {
+// 默认主题 white 是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
+class Theme {
     constructor() {
         this.selector = '#gtm-var-theme-kind'; // 通过这个选择器查找含有主题标记的元素
         this.timer = 0;
-        this.defaultThemet = 'white'; // 默认主题
-        this._theme = ''; // 当前使用的主题
+        this.defaultTheme = 'white'; // 默认主题
+        this.theme = ''; // 当前使用的主题
         // 主题标记以及对应的 className
         this.classNameMap = new Map([['white', ''], ['dark', 'theme-dark']]);
         // 页面上储存的主题标记，与本组件里的主题的对应关系
         this.htmlFlagMap = new Map([['', 'white'], ['default', 'white'], ['dark', 'dark']]);
         this.elList = []; // 保存已注册的元素
-        // 尝试设置一个初始主题，但实际上不一定会使用这个
-        this.theme = this.defaultThemet;
+        this.setTheme();
         this.bindEvent();
     }
     bindEvent() {
@@ -7974,17 +7972,11 @@ class ThemeColor {
         this.timer = window.setInterval(() => {
             this.findFlag();
         }, 300);
-        // 监听主题设置变化的事件
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
-            const data = ev.detail.data;
-            console.log(data);
-            if (data.name && data.name === 'theme') {
-                this.theme = data.value;
-            }
-            else {
-                if (data.theme) {
-                    this.theme = data.theme;
-                }
+        // 设置变化时设置主题
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
+            if (window.xzSettings) {
+                console.log(window.xzSettings.theme);
+                this.setTheme();
             }
         });
     }
@@ -7993,12 +7985,12 @@ class ThemeColor {
         const el = document.querySelector(this.selector);
         if (el) {
             window.clearInterval(this.timer);
-            this.theme = this.htmlFlagMap.get(el.textContent) || this.defaultThemet;
+            this.setTheme();
             // 监听标记元素的 textContent 变化
             const ob = new MutationObserver((mutationsList) => {
                 for (const item of mutationsList) {
                     if (item.type === 'characterData') {
-                        this.theme = this.htmlFlagMap.get(item.target.nodeValue) || this.defaultThemet;
+                        this.setTheme();
                         break;
                     }
                 }
@@ -8013,44 +8005,39 @@ class ThemeColor {
     getThemeFromHtml() {
         const el = document.querySelector(this.selector);
         if (!el) {
-            return this.defaultThemet;
+            return this.defaultTheme;
         }
         return this.htmlFlagMap.get(el.textContent);
     }
-    // 设置主题
-    set theme(flag) {
-        if (flag === null) {
-            return;
+    // 设置主题。不需要传递值，因为会自动使用设置里的 theme 设置
+    setTheme() {
+        // 将主题标记设置为自动
+        let themeFlag = 'auto';
+        // 如果可以获取到设置，就改为设置里的值
+        if (window.xzSettings) {
+            themeFlag = window.xzSettings.theme;
         }
-        let temp = ''; // 储存最终要使用的主题
-        // 如果设置了自动检测，就从 html 标记里获取要使用的主题
-        if (flag === 'auto') {
-            temp = this.getThemeFromHtml() || this.defaultThemet;
+        let result = ''; // 储存最终要使用的主题
+        // 根据标记，设置要使用的主题
+        switch (themeFlag) {
+            case 'white':
+                result = 'white';
+                break;
+            case 'dark':
+                result = 'dark';
+                break;
+            default:
+                // 如果传递的值是本模块不能识别的，包括 'auto'，就都自动获取
+                result = this.getThemeFromHtml() || this.defaultTheme;
+                break;
         }
-        else {
-            // 如果不是自动检测，则使用设置里指定的值
-            switch (flag) {
-                case 'white':
-                    temp = 'white';
-                    break;
-                case 'dark':
-                    temp = 'dark';
-                    break;
-                default:
-                    temp = this.getThemeFromHtml() || this.defaultThemet;
-                    break;
-            }
-        }
-        // 如果要使用的主题和当前主题不同，则改变主题
-        if (temp !== this._theme) {
-            this._theme = temp;
+        // 如果要使用的主题和当前主题不同，则执行变化
+        if (result !== this.theme) {
+            this.theme = result;
             for (const el of this.elList) {
                 this.setClass(el);
             }
         }
-    }
-    get theme() {
-        return this._theme;
     }
     // 把元素注册到本组件里
     register(el) {
@@ -8066,11 +8053,11 @@ class ThemeColor {
             }
         }
         // 添加当前主题对应的 className
-        const name = this.classNameMap.get(this._theme);
+        const name = this.classNameMap.get(this.theme);
         name && el.classList.add(name);
     }
 }
-const themeColor = new ThemeColor();
+const theme = new Theme();
 
 
 
@@ -12798,7 +12785,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Config */ "./src/ts/modules/Config.ts");
-/* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../ThemeColor */ "./src/ts/modules/ThemeColor.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Theme */ "./src/ts/modules/Theme.ts");
 
 
 
@@ -12809,7 +12796,7 @@ __webpack_require__.r(__webpack_exports__);
 class OutputPanel {
     constructor() {
         this.addOutPutPanel();
-        _ThemeColor__WEBPACK_IMPORTED_MODULE_5__["themeColor"].register(this.outputPanel);
+        _Theme__WEBPACK_IMPORTED_MODULE_5__["theme"].register(this.outputPanel);
         this.bindEvent();
     }
     bindEvent() {
@@ -13047,7 +13034,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _FormHTML__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./FormHTML */ "./src/ts/modules/setting/FormHTML.ts");
 /* harmony import */ var _SaveNamingRule__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./SaveNamingRule */ "./src/ts/modules/setting/SaveNamingRule.ts");
-/* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../ThemeColor */ "./src/ts/modules/ThemeColor.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Theme */ "./src/ts/modules/Theme.ts");
 
 
 
@@ -13061,7 +13048,7 @@ class Form {
         this.activeClass = 'active';
         this.chooseKeys = ['Enter', 'NumpadEnter']; // 让回车键可以控制复选框（浏览器默认只支持空格键）
         this.form = _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_4__["default"]);
-        _ThemeColor__WEBPACK_IMPORTED_MODULE_6__["themeColor"].register(this.form);
+        _Theme__WEBPACK_IMPORTED_MODULE_6__["theme"].register(this.form);
         this.allCheckBox = this.form.querySelectorAll('input[type="checkbox"]');
         this.allRadio = this.form.querySelectorAll('input[type="radio"]');
         this.allSwitch = this.form.querySelectorAll('.checkbox_switch');
@@ -13180,24 +13167,20 @@ class Form {
         // 让复选框支持用回车键选择
         el.addEventListener('keydown', (event) => {
             if (this.chooseKeys.includes(event.code)) {
-                el.checked = !el.checked;
-                this.emitChange(el.name, el.checked);
+                el.click();
             }
         });
-        // 点击美化按钮，反转复选框的值
+        // 点击美化按钮，点击对应的复选框
         el.nextElementSibling.addEventListener('click', () => {
-            el.checked = !el.checked;
-            this.emitChange(el.name, el.checked);
+            el.click();
         });
         // 点击它的 label 时，不需要传递它的值。因为点击 lable 激活这个 input 控件时，浏览器会自动触发这个控件的 click 事件。settings 模块已经监听了 click 事件，所以这里就不要监听 label 了，否则就会因此多触发了一次 settingChange 事件。而且点击 label 时获得的值还是改变之前的旧的值。
     }
     // 设置单选控件的事件
     bindRadioEvent(el) {
-        // 点击美化按钮，选择当前单选控件
+        // 点击美化按钮，选择对应的单选框
         el.nextElementSibling.addEventListener('click', () => {
-            el.checked = true;
-            // 对于单选按钮，它的值是 value，不是 checked
-            this.emitChange(el.name, this.form[el.name].value);
+            el.click();
         });
         // 点击它的 label 时，不需要传递它的值。原因同上。
     }
@@ -13758,7 +13741,7 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_radio"></span>
       <label for="theme2">White</label>
       &nbsp;
-      <input type="radio" name="theme" id="theme3" class="need_beautify radio" value="drak">
+      <input type="radio" name="theme" id="theme3" class="need_beautify radio" value="dark">
       <span class="beautify_radio"></span>
       <label for="theme3">Dark</label>
       </p>
@@ -13879,7 +13862,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
-/* harmony import */ var _ThemeColor__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ThemeColor */ "./src/ts/modules/ThemeColor.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Theme */ "./src/ts/modules/Theme.ts");
 
 
 
@@ -13901,7 +13884,7 @@ class SaveNamingRule {
         this.ruleInput = ruleInput;
         _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].clearSlot('saveNamingRule');
         const wrap = _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].useSlot('saveNamingRule', this.html);
-        _ThemeColor__WEBPACK_IMPORTED_MODULE_4__["themeColor"].register(wrap);
+        _Theme__WEBPACK_IMPORTED_MODULE_4__["theme"].register(wrap);
         this.saveBtn = wrap.querySelector('button.nameSave');
         this.loadBtn = wrap.querySelector('button.nameLoad');
         this.listWrap = wrap.querySelector('ul.namingRuleList');
@@ -14078,6 +14061,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+// 保存设置表单的所有设置项，并且在下载器初始化时恢复这些设置的值
+// 成员 settings 保存着当前页面的所有设置项；当设置项变化时，settings 响应变化并保存到 localStorage 里。
+// 补充说明：
+// 选项 setWantPage 并不需要实际上进行保存和恢复。保存和恢复时使用的是 wantPageArr
+// 如果打开了多个标签页，每个页面都有各自的 settings 成员。它们是互相独立的，不会互相影响。
+// 但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
 class Settings {
     constructor() {
         // 本地存储中使用的 name
@@ -14207,7 +14196,6 @@ class Settings {
     // 监听所有选项的变化，触发 settingChange 事件
     // 该函数可执行一次，否则事件会重复绑定
     ListenChange() {
-        this.saveChange();
         // 保存页数/个数设置
         this.saveTextInput('setWantPage');
         // 保存 wantPageArr
@@ -14313,21 +14301,12 @@ class Settings {
             this.reset();
         });
     }
+    // 任何设置项发生改变时，都要调用这个方法，传递选项名和值
     emitChange(name, value) {
+        ;
+        this.settings[name] = value;
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, { name: name, value: value });
-    }
-    // 设置发生改变时，保存设置到本地存储
-    saveChange() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (event) => {
-            const data = event.detail.data;
-            if (Reflect.has(this.optionDefault, data.name)) {
-                if (this.settings[data.name] !== data.value) {
-                    ;
-                    this.settings[data.name] = data.value;
-                    localStorage.setItem(this.storeName, JSON.stringify(this.settings));
-                }
-            }
-        });
+        localStorage.setItem(this.storeName, JSON.stringify(this.settings));
     }
     // 恢复值为 Boolean 的设置项
     // input[type='checkbox'] 使用
@@ -14376,6 +14355,7 @@ class Settings {
         else {
             return;
         }
+        window.xzSettings = this.settings;
         this.restoreWantPage();
         // 设置下载的作品类型
         this.restoreBoolean('downType0');

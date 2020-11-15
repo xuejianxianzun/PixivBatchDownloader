@@ -1,88 +1,17 @@
 import { EVT } from '../EVT'
 import { pageType } from '../PageType'
 import { form } from './Form'
+import { XzSetting } from './Settings.d'
 
 // 保存设置表单的所有设置项，并且在下载器初始化时恢复这些设置的值
 
 // 成员 settings 保存着当前页面的所有设置项；当设置项变化时，settings 响应变化并保存到 localStorage 里。
-// 注意：
+
+// 补充说明：
 // 选项 setWantPage 并不需要实际上进行保存和恢复。保存和恢复时使用的是 wantPageArr
 // 如果打开了多个标签页，每个页面都有各自的 settings 成员。它们是互相独立的，不会互相影响。
 // 但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
 
-interface XzSetting {
-  setWantPage: string
-  wantPageArr: string[]
-  firstFewImagesSwitch: boolean
-  firstFewImages: string
-  downType0: boolean
-  downType1: boolean
-  downType2: boolean
-  downType3: boolean
-  downSingleImg: boolean
-  downMultiImg: boolean
-  downColorImg: boolean
-  downBlackWhiteImg: boolean
-  setOnlyBmk: boolean
-  ugoiraSaveAs: 'webm' | 'gif' | 'zip' | 'png'
-  convertUgoiraThread: string
-  needTagSwitch: boolean
-  notNeedTagSwitch: boolean
-  needTag: string
-  notNeedTag: string
-  quietDownload: boolean
-  downloadThread: string
-  userSetName: string
-  tagNameToFileName: boolean
-  alwaysFolder: boolean
-  multipleImageDir: boolean
-  multipleImageFolderName: '1' | '2'
-  showOptions: boolean
-  postDate: boolean
-  postDateStart: string
-  postDateEnd: string
-  previewResult: boolean
-  BMKNumSwitch: boolean
-  BMKNumMin: string
-  BMKNumMax: string
-  setWHSwitch: boolean
-  widthHeightLimit: '>=' | '=' | '<='
-  setWidthAndOr: '&' | '|'
-  setWidth: string
-  setHeight: string
-  ratioSwitch: boolean
-  ratio: '1' | '2' | '3'
-  userRatio: string
-  idRangeSwitch: boolean
-  idRangeInput: string
-  idRange: '1' | '2'
-  noSerialNo: boolean
-  filterBlackWhite: boolean
-  sizeSwitch: boolean
-  sizeMin: string
-  sizeMax: string
-  novelSaveAs: 'txt' | 'epub'
-  saveNovelMeta: boolean
-  deduplication: boolean
-  dupliStrategy: 'strict' | 'loose'
-  fileNameLengthLimitSwitch: boolean
-  fileNameLengthLimit: string
-  imageSize: 'original' | 'regular' | 'small'
-  dateFormat: string
-  userSetLang: '-1' | '0' | '1' | '2' | '3'
-  bmkAfterDL: boolean
-  widthTag: '1' | '-1'
-  restrict: '-1' | '1'
-  userBlockList: boolean
-  blockList: string
-  needTagMode: 'all' | 'one'
-  theme: 'auto' | 'white' | 'dark'
-}
-
-interface SettingChangeData {
-  name: keyof XzSetting
-  value: string | number | boolean | string[]
-}
 
 class Settings {
   constructor() {
@@ -187,7 +116,7 @@ class Settings {
     userBlockList: false,
     blockList: '',
     theme: 'auto',
-    needTagMode:'all'
+    needTagMode: 'all'
   }
 
   // 需要持久化保存的设置
@@ -210,7 +139,7 @@ class Settings {
   }
 
   // 处理单选框： click 时保存 value
-  private saveRadio(name: string) {
+  private saveRadio(name: keyof XzSetting) {
     const radios = form[name]
     for (const radio of radios) {
       radio.addEventListener('click', () => {
@@ -222,8 +151,6 @@ class Settings {
   // 监听所有选项的变化，触发 settingChange 事件
   // 该函数可执行一次，否则事件会重复绑定
   private ListenChange() {
-    this.saveChange()
-
     // 保存页数/个数设置
     this.saveTextInput('setWantPage')
 
@@ -367,27 +294,14 @@ class Settings {
     })
   }
 
+  // 任何设置项发生改变时，都要调用这个方法，传递选项名和值
   private emitChange(
-    name: string,
+    name: keyof XzSetting,
     value: string | number | boolean | string[],
   ) {
+    ; (this.settings[name] as any) = value
     EVT.fire(EVT.list.settingChange, { name: name, value: value })
-  }
-
-  // 设置发生改变时，保存设置到本地存储
-  private saveChange() {
-    window.addEventListener(
-      EVT.list.settingChange,
-      (event: CustomEventInit) => {
-        const data = event.detail.data as SettingChangeData
-        if (Reflect.has(this.optionDefault, data.name)) {
-          if ((this.settings[data.name] as any) !== data.value) {
-            ; (this.settings[data.name] as any) = data.value
-            localStorage.setItem(this.storeName, JSON.stringify(this.settings))
-          }
-        }
-      },
-    )
+    localStorage.setItem(this.storeName, JSON.stringify(this.settings))
   }
 
   // 恢复值为 Boolean 的设置项
@@ -437,6 +351,7 @@ class Settings {
     } else {
       return
     }
+    window.xzSettings = this.settings
 
     this.restoreWantPage()
 
@@ -563,7 +478,7 @@ class Settings {
     this.restoreString('theme')
 
     // 恢复完毕之后触发一次设置改变事件
-    EVT.fire(EVT.list.settingChange,this.settings)
+    EVT.fire(EVT.list.settingChange, this.settings)
   }
 
   // 重设选项
@@ -575,7 +490,7 @@ class Settings {
     // 重设选项
     this.restore()
     // 触发设置改变事件
-    EVT.fire(EVT.list.settingChange,this.settings)
+    EVT.fire(EVT.list.settingChange, this.settings)
   }
 }
 

@@ -599,7 +599,7 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_radio"></span>
       <label for="theme2">White</label>
       &nbsp;
-      <input type="radio" name="theme" id="theme3" class="need_beautify radio" value="drak">
+      <input type="radio" name="theme" id="theme3" class="need_beautify radio" value="dark">
       <span class="beautify_radio"></span>
       <label for="theme3">Dark</label>
       </p>

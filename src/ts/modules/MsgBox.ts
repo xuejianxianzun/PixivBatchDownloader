@@ -1,6 +1,6 @@
 import { lang } from './Lang'
 import { EVT } from './EVT'
-import { themeColor } from './ThemeColor'
+import { theme } from './Theme'
 import { Colors, colorType } from './Colors'
 
 export interface Msg {
@@ -34,12 +34,11 @@ class MsgBox {
     el.innerHTML = `
         <p class="title">${data.title || ''}</p>
         <p class="content" ${colorStyle}>${data.msg}</p>
-        <button class="btn" type="button">${
-          data.btn || lang.transl('_确定')
-        }</button>
+        <button class="btn" type="button">${data.btn || lang.transl('_确定')
+      }</button>
       `
 
-    themeColor.register(el)
+    theme.register(el)
 
     document.body.insertAdjacentElement('afterbegin', el)
 
