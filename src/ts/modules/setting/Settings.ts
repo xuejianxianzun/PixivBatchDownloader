@@ -104,7 +104,7 @@ class Settings {
     novelSaveAs: 'txt',
     saveNovelMeta: false,
     deduplication: false,
-    dupliStrategy: 'strict',
+    dupliStrategy: 'loose',
     fileNameLengthLimitSwitch: false,
     fileNameLengthLimit: '200',
     imageSize: 'original',
@@ -166,7 +166,7 @@ class Settings {
     }
   }
 
-  private exportSettings(){
+  private exportSettings() {
     const str = JSON.stringify(this.settings, null, 2)
     const blob = new Blob([str], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
@@ -176,15 +176,24 @@ class Settings {
     )
   }
 
-  private async importSettings(){
-    const input = document.createElement('input')
-    input.setAttribute('type','file')
-    input.setAttribute('accept', 'application/json')
-    input.onchange=()=>{
-      if (input.files && input.files.length > 0) {
-      }
+  private async importSettings() {
+    const loadedJSON = await DOM.loadJSONFile().catch(err => {
+      return EVT.sendMsg({
+        type: 'error',
+        msg: err
+      })
+    }) as XzSetting
+    if (!loadedJSON) {
+      return
     }
-
+    // 检查是否存在设置里的属性
+    if(loadedJSON.downloadThread===undefined){
+      return EVT.sendMsg({
+        type: 'error',
+        msg: 'Format error!'
+      })
+    }
+    // 开始恢复导入的设置
   }
 
   // 处理输入框： change 时保存 value

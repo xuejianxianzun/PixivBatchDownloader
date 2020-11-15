@@ -1355,7 +1355,6 @@ class DOM {
         a.href = url;
         a.download = fileName;
         a.click();
-        console.log(a);
     }
     // 获取用户 id
     // 这是一个不够可靠的 api
@@ -1459,6 +1458,39 @@ class DOM {
         return document.title
             .replace(/\[(↑|→|▶|↓|║|■|✓| )\] /, '')
             .replace(/^\(\d.*\) /, '');
+    }
+    // 使用 input 按钮选择 json 文件
+    static async loadJSONFile() {
+        return new Promise((resolve, reject) => {
+            // 创建 input 元素选择文件
+            const i = document.createElement('input');
+            i.setAttribute('type', 'file');
+            i.setAttribute('accept', 'application/json');
+            i.onchange = () => {
+                if (i.files && i.files.length > 0) {
+                    // 读取文件内容
+                    const file = new FileReader();
+                    file.readAsText(i.files[0]);
+                    file.onload = () => {
+                        const str = file.result;
+                        let result;
+                        try {
+                            result = JSON.parse(str);
+                            if (result.constructor !== Object) {
+                                const msg = 'Data is not an object!';
+                                return reject(new Error(msg));
+                            }
+                            return resolve(result);
+                        }
+                        catch (error) {
+                            const msg = 'JSON parse error!';
+                            return reject(new Error(msg));
+                        }
+                    };
+                }
+            };
+            i.click();
+        });
     }
 }
 
@@ -3065,7 +3097,6 @@ class ExportCSV {
         ];
         this.utf8BOM = this.UTF8BOM();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.outputCSV, () => {
-            console.log(111);
             this.beforeCreate();
         });
     }
@@ -3136,7 +3167,6 @@ class ExportCSV {
         else {
             name = _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].getTitle();
         }
-        console.log(222);
         // 下载文件
         _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].downloadFile(url, _API__WEBPACK_IMPORTED_MODULE_2__["API"].replaceUnsafeStr(name) + '.csv');
     }
@@ -3977,7 +4007,6 @@ class Filter {
         }
         // result 为 true，表示它是黑白图片，false 是彩色图片
         const result = await _BlackandWhiteImage__WEBPACK_IMPORTED_MODULE_6__["blackAndWhiteImage"].check(imgUrl);
-        console.log(result);
         return ((result && _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downBlackWhiteImg) ||
             (!result && _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downColorImg));
     }
@@ -14064,6 +14093,7 @@ __webpack_require__.r(__webpack_exports__);
 
 // 保存设置表单的所有设置项，并且在下载器初始化时恢复这些设置的值
 // 成员 settings 保存着当前页面的所有设置项；当设置项变化时，settings 响应变化并保存到 localStorage 里。
+// settings 在 window 上挂载为 window.xzSettings
 // 补充说明：
 // 选项 setWantPage 并不需要实际上进行保存和恢复。保存和恢复时使用的是 wantPageArr
 // 如果打开了多个标签页，每个页面都有各自的 settings 成员。它们是互相独立的，不会互相影响。
@@ -14149,7 +14179,7 @@ class Settings {
             novelSaveAs: 'txt',
             saveNovelMeta: false,
             deduplication: false,
-            dupliStrategy: 'strict',
+            dupliStrategy: 'loose',
             fileNameLengthLimitSwitch: false,
             fileNameLengthLimit: '200',
             imageSize: 'original',
@@ -14214,7 +14244,24 @@ class Settings {
         const url = URL.createObjectURL(blob);
         _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].downloadFile(url, `export-pixiv_batch_downloader-settings.json`);
     }
-    importSettings() {
+    async importSettings() {
+        const loadedJSON = await _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].loadJSONFile().catch(err => {
+            return _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].sendMsg({
+                type: 'error',
+                msg: err
+            });
+        });
+        if (!loadedJSON) {
+            return;
+        }
+        // 检查是否存在设置里的属性
+        if (loadedJSON.downloadThread === undefined) {
+            return _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].sendMsg({
+                type: 'error',
+                msg: 'Format error!'
+            });
+        }
+        // 开始恢复
     }
     // 处理输入框： change 时保存 value
     saveTextInput(name) {
