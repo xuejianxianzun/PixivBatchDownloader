@@ -187,7 +187,6 @@ class Settings {
   private bindEvents() {
     // 当设置发生变化时进行本地存储
     window.addEventListener(EVT.list.settingChange, () => {
-      console.log(this.settings)
       localStorage.setItem(this.storeName, JSON.stringify(this.settings))
     })
 
