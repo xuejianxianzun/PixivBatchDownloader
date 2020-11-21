@@ -40,8 +40,10 @@ class InitSearchNovelPage extends InitPageBase {
     'ecd',
     'blt',
     'bgt',
+    'tlt',
     'tgt',
     'original_only',
+    'work_lang',
   ]
 
   protected initAny() {
