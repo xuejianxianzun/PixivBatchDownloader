@@ -282,12 +282,12 @@ export interface UserProfile {
     }
     official: boolean
     group:
-      | null
-      | {
-          id: string
-          title: string
-          iconUrl: string
-        }[]
+    | null
+    | {
+      id: string
+      title: string
+      iconUrl: string
+    }[]
   }
 }
 
@@ -344,20 +344,20 @@ export interface UserProfileAllData {
   message: string
   body: {
     illusts:
-      | []
-      | {
-          [key: string]: null
-        }
+    | []
+    | {
+      [key: string]: null
+    }
     manga:
-      | []
-      | {
-          [key: string]: null
-        }
+    | []
+    | {
+      [key: string]: null
+    }
     novels:
-      | []
-      | {
-          [key: string]: null
-        }
+    | []
+    | {
+      [key: string]: null
+    }
     mangaSeries: [] | {}
     novelSeries: [] | {}
     pickup: object
@@ -419,12 +419,12 @@ export interface RecommendData {
     details: {
       [key: string]: {
         methods:
-          | ['illust_by_illust_table_bq_recommendation_c']
-          | ['illust_by_illust_table_mf_tda']
-          | [
-              'illust_by_illust_table_bq_recommendation_c',
-              'illust_by_illust_table_mf_tda',
-            ]
+        | ['illust_by_illust_table_bq_recommendation_c']
+        | ['illust_by_illust_table_mf_tda']
+        | [
+          'illust_by_illust_table_bq_recommendation_c',
+          'illust_by_illust_table_mf_tda',
+        ]
         score: number
         seedIllustIds: string[]
       }
@@ -591,28 +591,32 @@ export interface UserImageWorksWithTag {
 }
 
 export interface NovelCommonData {
-  id: string
-  title: string
-  xRestrict: number
-  restrict: number
-  url: string
-  tags: string[]
-  userId: string
-  userName: string
-  textCount: number
-  description: string
-  isBookmarkable: boolean
+  bookmarkCount: number
   bookmarkData: null | {
     id: string
     private: boolean
   }
-  bookmarkCount: number
+  createDate: string
+  description: string
+  id: string
+  isBookmarkable: boolean
+  isUnlisted: boolean
   isOriginal: boolean
   marker: null
+  profileImageUrl: string
+  restrict: number
+  tags: string[]
+  textCount: number
+  title: string
   titleCaptionTranslation: {
     workTitle: string | null
     workCaption: string | null
   }
+  updateDate: string
+  xRestrict: number
+  url: string
+  userId: string
+  userName: string
   seriesId?: string
   seriesTitle?: string
 }
@@ -644,6 +648,10 @@ export interface NovelData {
   message: string
   body: {
     bookmarkCount: number
+    bookmarkData: null | {
+      id: string
+      private: boolean
+    }
     commentCount: number
     markerCount: number
     createDate: string
@@ -658,6 +666,8 @@ export interface NovelData {
     viewCount: number
     isOriginal: boolean
     isBungei: boolean
+    isUnlisted: boolean
+    language: string
     xRestrict: number
     restrict: number
     content: string
@@ -669,12 +679,9 @@ export interface NovelData {
       themeSpacing: null
     }
     isBookmarkable: boolean
-    bookmarkData: null | {
-      id: string
-      private: boolean
-    }
     likeData: boolean
     pollData: null
+    request: null
     marker: null
     tags: {
       authorId: string
@@ -713,7 +720,11 @@ export interface NovelData {
     comicPromotion: null
     fanboxPromotion: null
     contestBanners: []
-    contestData: null
+    contestData: null | {
+      icon: string
+      title: string
+      url: string
+    }
     imageResponseOutData: []
     imageResponseData: []
     imageResponseCount: number
