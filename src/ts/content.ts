@@ -7,7 +7,7 @@
  * Wiki:    https://xuejianxianzun.github.io/PBDWiki
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
- * QQ group:  932980062
+ * QQ group:  1060138801
  */
 
 // 处理和脚本版的冲突
