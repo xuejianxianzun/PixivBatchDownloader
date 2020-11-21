@@ -1,10 +1,10 @@
 <!-- TOC -->
 
 - [API：](#api)
-- [url 中不能直接使用的字段：](#url-%e4%b8%ad%e4%b8%8d%e8%83%bd%e7%9b%b4%e6%8e%a5%e4%bd%bf%e7%94%a8%e7%9a%84%e5%ad%97%e6%ae%b5)
+- [url 中不能直接使用的字段：](#url-中不能直接使用的字段)
   - [pageType:](#pagetype)
   - [p](#p)
-- [url 中可以直接使用的字段：](#url-%e4%b8%ad%e5%8f%af%e4%bb%a5%e7%9b%b4%e6%8e%a5%e4%bd%bf%e7%94%a8%e7%9a%84%e5%ad%97%e6%ae%b5)
+- [url 中可以直接使用的字段：](#url-中可以直接使用的字段)
   - [word](#word)
   - [order](#order)
   - [type](#type)
@@ -12,12 +12,16 @@
   - [hlt](#hlt)
   - [ratio](#ratio)
   - [tool](#tool)
-  - [s_mode](#smode)
+  - [s_mode](#s_mode)
   - [mode](#mode)
   - [scd](#scd)
   - [ecd](#ecd)
   - [blt](#blt)
   - [bgt](#bgt)
+  - [tlt](#tlt)
+  - [tgt](#tgt)
+  - [original_only](#original_only)
+  - [work_lang](#work_lang)
 
 <!-- /TOC -->
 
@@ -121,3 +125,25 @@ string
 *收藏数量终止范围*
 
 *如果非会员使用收藏数标记，会被忽略*
+
+## tlt
+
+小说页面筛选字数时的起点
+
+如 0-5000 ，tlt 为 0
+
+## tgt
+
+小说页面筛选字数时的终点
+
+如 0-5000 ，tgt 为 5000
+
+## original_only
+
+仅显示原创作品
+
+小说页面限定？
+
+## work_lang
+
+小说页面的作品语言选项
