@@ -6,6 +6,17 @@ export interface IDData {
   id: string
 }
 
+export interface NovelMeta {
+  id: string
+  title: string
+  content: string
+  description: string
+  coverUrl: string
+  createDate: string
+  userName: string
+  meta: string
+}
+
 // 保存每个要下载的作品的信息
 export interface Result {
   idNum: number
@@ -33,7 +44,7 @@ export interface Result {
   ugoiraInfo: UgoiraInfo | null
   seriesTitle: string | null
   seriesOrder: string | null
-  novelBlob: Blob | null
+  novelMeta: NovelMeta
 }
 
 export interface WorkInfoOptional {
@@ -62,7 +73,7 @@ export interface WorkInfoOptional {
   ugoiraInfo?: UgoiraInfo | null
   seriesTitle?: string | null
   seriesOrder?: string | null
-  novelBlob?: Blob | null
+  novelMeta?: NovelMeta
 }
 
 // 储存作品在排行榜中的排名

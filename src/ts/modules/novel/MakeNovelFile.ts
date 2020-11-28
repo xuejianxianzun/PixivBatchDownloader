@@ -1,12 +1,22 @@
-import { NovelData } from '../CrawlResult.d'
+import { NovelMeta } from '../Store.d'
+import { settings } from '../setting/Settings'
 import { makeEPUB } from './MakeEPUB'
 
 class MakeNovelFile {
-  static async makeEPUB(novelData: NovelData, text: string) {
-    return makeEPUB.make(novelData, text)
+  static async make(data: NovelMeta, type = settings.novelSaveAs) {
+    if (type === 'txt') {
+      return this.makeTXT(data, settings.saveNovelMeta)
+    }
+    return makeEPUB.make(data, settings.saveNovelMeta)
   }
 
-  static makeTXT(content: string) {
+  static makeTXT(data: NovelMeta, saveMeta = true) {
+    let content = data.content
+    // 附带小说元数据
+    if (saveMeta) {
+      content = data.meta + content
+    }
+
     // 替换换行标签，移除 html 标签
     content = content.replace(/<br \/>/g, '\n').replace(/<\/?.+?>/g, '')
 

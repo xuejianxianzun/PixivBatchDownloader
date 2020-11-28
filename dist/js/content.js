@@ -2534,6 +2534,9 @@
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
           /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts',
         )
+        /* harmony import */ var _novel_MakeNovelFile__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
+          /*! ./novel/MakeNovelFile */ './src/ts/modules/novel/MakeNovelFile.ts',
+        )
         // 下载文件，并发送给浏览器下载
 
         class Download {
@@ -2604,8 +2607,13 @@
             // 下载文件
             let url
             if (arg.data.type === 3) {
-              url = arg.data.original
+              // 生成小说的文件
+              let blob = await _novel_MakeNovelFile__WEBPACK_IMPORTED_MODULE_10__[
+                'MakeNovelFile'
+              ].make(arg.data.novelMeta)
+              url = URL.createObjectURL(blob)
             } else {
+              // 对于图像作品，如果设置了图片尺寸就使用指定的 url，否则使用原图 url
               url =
                 arg.data[
                   _setting_Settings__WEBPACK_IMPORTED_MODULE_9__['settings']
@@ -2681,11 +2689,6 @@
               if (xhr.status !== 200) {
                 // 状态码错误
                 // 正常下载完毕的状态码是 200
-                // 处理小说恢复后下载出错的问题，重新生成小说的 url
-                if (arg.data.type === 3 && xhr.status === 0) {
-                  arg.data.original = URL.createObjectURL(arg.data.novelBlob)
-                  return this.download(arg)
-                }
                 // 进入重试环节
                 _ProgressBar__WEBPACK_IMPORTED_MODULE_6__[
                   'progressBar'
@@ -2705,19 +2708,22 @@
                 ].showErrorColor(this.progressBarIndex, false)
                 // 需要转换动图的情况
                 const convertExt = ['webm', 'gif', 'png']
-                if (convertExt.includes(arg.data.ext) && arg.data.ugoiraInfo) {
+                const ext =
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_9__['settings']
+                    .ugoiraSaveAs
+                if (convertExt.includes(ext) && arg.data.ugoiraInfo) {
                   try {
-                    if (arg.data.ext === 'webm') {
+                    if (ext === 'webm') {
                       file = await _ugoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__[
                         'converter'
                       ].webm(file, arg.data.ugoiraInfo)
                     }
-                    if (arg.data.ext === 'gif') {
+                    if (ext === 'gif') {
                       file = await _ugoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__[
                         'converter'
                       ].gif(file, arg.data.ugoiraInfo)
                     }
-                    if (arg.data.ext === 'png') {
+                    if (ext === 'png') {
                       file = await _ugoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__[
                         'converter'
                       ].apng(file, arg.data.ugoiraInfo)
@@ -4452,14 +4458,20 @@
               result = allPart.join('/')
             }
             // 生成后缀名
+            // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
             const ugoiraFormat = ['webm', 'gif', 'png']
             if (ugoiraFormat.includes(data.ext) && data.ugoiraInfo) {
-              // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
-              // 例如，抓取时动图保存格式是 webm，下载开始前，用户改成了 gif，在这里可以响应用户的修改
               data.ext =
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_1__[
                   'settings'
                 ].ugoiraSaveAs
+            }
+            // 如果是小说，那么此时根据用户设置的动图保存格式，更新其后缀名
+            if (data.type === 3) {
+              data.ext =
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_1__[
+                  'settings'
+                ].novelSaveAs
             }
             const extResult = '.' + data.ext
             // 处理文件名长度限制
@@ -10194,7 +10206,16 @@
               ugoiraInfo: null,
               seriesTitle: null,
               seriesOrder: null,
-              novelBlob: null,
+              novelMeta: {
+                id: '',
+                title: '',
+                content: '',
+                description: '',
+                coverUrl: '',
+                createDate: '',
+                userName: '',
+                meta: '',
+              },
             }
             return Object.assign(dataDefault, data)
           }
@@ -16149,31 +16170,37 @@ flag 及其含义如下：
         class MakeEPUB {
           constructor() {}
           // epub 内部会使用标题 title 建立一个文件夹，把一些文件存放进去，所以这里要替换掉标题的特殊字符，特殊字符会导致这个文件夹名被截断，结果就是这个 epub 文件无法被解析。
-          make(data, content = '') {
+          make(data, saveMeta = true) {
             return new Promise((resolve, reject) => {
+              let content = data.content
+              // 附带小说元数据
+              if (saveMeta) {
+                content = data.meta + content
+              }
+              // 把换行符替换成 br 标签
               content = content.replace(/\n/g, '<br/>')
               new EpubMaker()
                 .withTemplate('idpf-wasteland')
                 .withAuthor(
                   _API__WEBPACK_IMPORTED_MODULE_0__['API'].replaceUnsafeStr(
-                    data.body.userName,
+                    data.userName,
                   ),
                 )
-                .withModificationDate(new Date(data.body.createDate))
+                .withModificationDate(new Date(data.createDate))
                 .withRights({
-                  description: data.body.description,
+                  description: data.description,
                   license: '',
                 })
                 .withAttributionUrl(
-                  `https://www.pixiv.net/novel/show.php?id=${data.body.id}`,
+                  `https://www.pixiv.net/novel/show.php?id=${data.id}`,
                 )
-                .withCover(data.body.coverUrl, {
+                .withCover(data.coverUrl, {
                   license: '',
                   attributionUrl: '',
                 })
                 .withTitle(
                   _API__WEBPACK_IMPORTED_MODULE_0__['API'].replaceUnsafeStr(
-                    data.body.title,
+                    data.title,
                   ),
                 )
                 .withSection(
@@ -16212,18 +16239,38 @@ flag 及其含义如下：
             return MakeNovelFile
           },
         )
-        /* harmony import */ var _MakeEPUB__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts',
+        )
+        /* harmony import */ var _MakeEPUB__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./MakeEPUB */ './src/ts/modules/novel/MakeEPUB.ts',
         )
 
         class MakeNovelFile {
-          static async makeEPUB(novelData, text) {
-            return _MakeEPUB__WEBPACK_IMPORTED_MODULE_0__['makeEPUB'].make(
-              novelData,
-              text,
+          static async make(
+            data,
+            type = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
+              .novelSaveAs,
+          ) {
+            if (type === 'txt') {
+              return this.makeTXT(
+                data,
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
+                  .saveNovelMeta,
+              )
+            }
+            return _MakeEPUB__WEBPACK_IMPORTED_MODULE_1__['makeEPUB'].make(
+              data,
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
+                .saveNovelMeta,
             )
           }
-          static makeTXT(content) {
+          static makeTXT(data, saveMeta = true) {
+            let content = data.content
+            // 附带小说元数据
+            if (saveMeta) {
+              content = data.meta + content
+            }
             // 替换换行标签，移除 html 标签
             content = content.replace(/<br \/>/g, '\n').replace(/<\/?.+?>/g, '')
             return new Blob([content], {
@@ -16258,9 +16305,6 @@ flag 及其含义如下：
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts',
-        )
-        /* harmony import */ var _MakeNovelFile__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./MakeNovelFile */ './src/ts/modules/novel/MakeNovelFile.ts',
         )
 
         // 保存单个小说作品的数据
@@ -16303,68 +16347,45 @@ flag 及其含义如下：
                 'store'
               ].getRankList(id)
               const rank = rankData ? '#' + rankData : ''
+              // 系列标题和序号
               const seriesTitle = body.seriesNavData
                 ? body.seriesNavData.title
                 : ''
               const seriesOrder = body.seriesNavData
                 ? '#' + body.seriesNavData.order
                 : ''
-              let ext =
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
-                  .novelSaveAs
-              let metaArr = []
+              // 保存小说的一些元数据
               let meta = ''
-              if (
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
-                  .saveNovelMeta
-              ) {
-                const pageUrl = `https://www.pixiv.net/novel/show.php?id=${id}`
-                const tagsA = []
-                for (const tag of tags) {
-                  tagsA.push('#' + tag)
-                }
-                metaArr.push(
-                  title,
-                  user,
-                  pageUrl,
-                  body.description,
-                  tagsA.join('\n'),
-                )
-                meta = metaArr.join('\n\n') + '\n\n\n'
+              let metaArr = []
+              const pageUrl = `https://www.pixiv.net/novel/show.php?id=${id}`
+              const tagsA = []
+              for (const tag of tags) {
+                tagsA.push('#' + tag)
               }
-              let content = this.replaceFlag(meta + body.content)
-              let blob
-              if (ext === 'txt') {
-                blob = _MakeNovelFile__WEBPACK_IMPORTED_MODULE_3__[
-                  'MakeNovelFile'
-                ].makeTXT(content)
-              } else {
-                // 创建 epub 文件，如果失败则回滚到 txt
-                try {
-                  blob = await _MakeNovelFile__WEBPACK_IMPORTED_MODULE_3__[
-                    'MakeNovelFile'
-                  ].makeEPUB(data, content)
-                } catch (_a) {
-                  ext = 'txt'
-                  blob = _MakeNovelFile__WEBPACK_IMPORTED_MODULE_3__[
-                    'MakeNovelFile'
-                  ].makeTXT(content)
-                }
-              }
+              metaArr.push(
+                title,
+                user,
+                pageUrl,
+                body.description,
+                tagsA.join('\n'),
+              )
+              meta = metaArr.join('\n\n') + '\n\n\n'
               // 添加作品信息
               _Store__WEBPACK_IMPORTED_MODULE_1__['store'].addResult({
                 id: id,
                 idNum: idNum,
                 thumb: body.coverUrl || undefined,
                 dlCount: 1,
-                original: URL.createObjectURL(blob),
                 title: title,
                 tags: tags,
                 tagsWithTransl: tags,
                 tagsTranslOnly: tags,
                 user: user,
                 userId: userid,
-                ext: ext,
+                // 这里的 ext 并不重要，下载时会根据 novelSaveAs 设置自动生成对应的数据
+                ext:
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
+                    .novelSaveAs,
                 bmk: bmk,
                 bookmarked: bookmarked,
                 date: body.createDate,
@@ -16372,7 +16393,16 @@ flag 及其含义如下：
                 rank: rank,
                 seriesTitle: seriesTitle,
                 seriesOrder: seriesOrder,
-                novelBlob: blob,
+                novelMeta: {
+                  id: body.id,
+                  title: body.title,
+                  content: this.replaceFlag(body.content),
+                  description: body.description,
+                  coverUrl: body.coverUrl,
+                  createDate: body.createDate,
+                  userName: body.userName,
+                  meta: meta,
+                },
               })
             }
           }
@@ -16590,6 +16620,13 @@ flag 及其含义如下：
               this.outputContent.innerHTML = content
               this.outputPanel.style.display = 'block'
               this.outputTitle.textContent = title
+            } else {
+              return _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].sendMsg({
+                msg: _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                  '_没有数据可供使用',
+                ),
+                type: 'error',
+              })
             }
           }
           // 关闭输出面板

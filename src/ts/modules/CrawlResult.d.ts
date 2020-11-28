@@ -671,7 +671,7 @@ export interface NovelData {
     xRestrict: number
     restrict: number
     content: string
-    coverUrl: string | null
+    coverUrl: string
     suggestedSettings: {
       viewMode: number
       themeBackground: number

@@ -3,7 +3,6 @@ import { FilterOption } from '../Filter.d'
 import { NovelData } from '../CrawlResult.d'
 import { store } from '../Store'
 import { settings } from '../setting/Settings'
-import { MakeNovelFile } from './MakeNovelFile'
 
 // 保存单个小说作品的数据
 class SaveNovelData {
@@ -44,40 +43,23 @@ class SaveNovelData {
       const rankData = store.getRankList(id)
       const rank = rankData ? '#' + rankData : ''
 
+      // 系列标题和序号
       const seriesTitle = body.seriesNavData ? body.seriesNavData.title : ''
       const seriesOrder = body.seriesNavData
         ? '#' + body.seriesNavData.order
         : ''
 
-      let ext = settings.novelSaveAs
-
-      let metaArr: string[] = []
+      // 保存小说的一些元数据
       let meta = ''
+      let metaArr: string[] = []
 
-      if (settings.saveNovelMeta) {
-        const pageUrl = `https://www.pixiv.net/novel/show.php?id=${id}`
-        const tagsA = []
-        for (const tag of tags) {
-          tagsA.push('#' + tag)
-        }
-        metaArr.push(title, user, pageUrl, body.description, tagsA.join('\n'))
-        meta = metaArr.join('\n\n') + '\n\n\n'
+      const pageUrl = `https://www.pixiv.net/novel/show.php?id=${id}`
+      const tagsA = []
+      for (const tag of tags) {
+        tagsA.push('#' + tag)
       }
-
-      let content = this.replaceFlag(meta + body.content)
-
-      let blob: Blob
-      if (ext === 'txt') {
-        blob = MakeNovelFile.makeTXT(content)
-      } else {
-        // 创建 epub 文件，如果失败则回滚到 txt
-        try {
-          blob = await MakeNovelFile.makeEPUB(data, content)
-        } catch {
-          ext = 'txt'
-          blob = MakeNovelFile.makeTXT(content)
-        }
-      }
+      metaArr.push(title, user, pageUrl, body.description, tagsA.join('\n'))
+      meta = metaArr.join('\n\n') + '\n\n\n'
 
       // 添加作品信息
       store.addResult({
@@ -85,14 +67,14 @@ class SaveNovelData {
         idNum: idNum,
         thumb: body.coverUrl || undefined,
         dlCount: 1,
-        original: URL.createObjectURL(blob),
         title: title,
         tags: tags,
         tagsWithTransl: tags,
         tagsTranslOnly: tags,
         user: user,
         userId: userid,
-        ext: ext,
+        // 这里的 ext 并不重要，下载时会根据 novelSaveAs 设置自动生成对应的数据
+        ext: settings.novelSaveAs,
         bmk: bmk,
         bookmarked: bookmarked,
         date: body.createDate,
@@ -100,7 +82,16 @@ class SaveNovelData {
         rank: rank,
         seriesTitle: seriesTitle,
         seriesOrder: seriesOrder,
-        novelBlob: blob,
+        novelMeta: {
+          id: body.id,
+          title: body.title,
+          content: this.replaceFlag(body.content),
+          description: body.description,
+          coverUrl: body.coverUrl,
+          createDate: body.createDate,
+          userName: body.userName,
+          meta: meta,
+        },
       })
     }
   }

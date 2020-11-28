@@ -14,6 +14,7 @@ import { progressBar } from './ProgressBar'
 import { filter } from './Filter'
 import { deduplication } from './Deduplication'
 import { settings } from './setting/Settings'
+import { MakeNovelFile } from './novel/MakeNovelFile'
 
 class Download {
   constructor(progressBarIndex: number, data: downloadArgument) {
@@ -80,8 +81,11 @@ class Download {
     // 下载文件
     let url: string
     if (arg.data.type === 3) {
-      url = arg.data.original
+      // 生成小说的文件
+      let blob: Blob = await MakeNovelFile.make(arg.data.novelMeta)
+      url = URL.createObjectURL(blob)
     } else {
+      // 对于图像作品，如果设置了图片尺寸就使用指定的 url，否则使用原图 url
       url = arg.data[settings.imageSize] || arg.data.original
     }
 
@@ -151,12 +155,6 @@ class Download {
         // 状态码错误
         // 正常下载完毕的状态码是 200
 
-        // 处理小说恢复后下载出错的问题，重新生成小说的 url
-        if (arg.data.type === 3 && xhr.status === 0) {
-          arg.data.original = URL.createObjectURL(arg.data.novelBlob)
-          return this.download(arg)
-        }
-
         // 进入重试环节
         progressBar.showErrorColor(this.progressBarIndex, true)
         this.retry++
@@ -173,17 +171,18 @@ class Download {
 
         // 需要转换动图的情况
         const convertExt = ['webm', 'gif', 'png']
-        if (convertExt.includes(arg.data.ext) && arg.data.ugoiraInfo) {
+        const ext = settings.ugoiraSaveAs
+        if (convertExt.includes(ext) && arg.data.ugoiraInfo) {
           try {
-            if (arg.data.ext === 'webm') {
+            if (ext === 'webm') {
               file = await converter.webm(file, arg.data.ugoiraInfo)
             }
 
-            if (arg.data.ext === 'gif') {
+            if (ext === 'gif') {
               file = await converter.gif(file, arg.data.ugoiraInfo)
             }
 
-            if (arg.data.ext === 'png') {
+            if (ext === 'png') {
               file = await converter.apng(file, arg.data.ugoiraInfo)
             }
           } catch (error) {

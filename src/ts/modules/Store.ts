@@ -55,7 +55,16 @@ class Store {
       ugoiraInfo: null,
       seriesTitle: null,
       seriesOrder: null,
-      novelBlob: null,
+      novelMeta: {
+        id: '',
+        title: '',
+        content: '',
+        description: '',
+        coverUrl: '',
+        createDate: '',
+        userName: '',
+        meta: '',
+      },
     }
 
     return Object.assign(dataDefault, data)

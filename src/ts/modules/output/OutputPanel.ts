@@ -122,6 +122,11 @@ class OutputPanel {
       this.outputContent.innerHTML = content
       this.outputPanel.style.display = 'block'
       this.outputTitle.textContent = title
+    } else {
+      return EVT.sendMsg({
+        msg: lang.transl('_没有数据可供使用'),
+        type: 'error',
+      })
     }
   }
 
