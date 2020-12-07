@@ -9063,57 +9063,40 @@
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./API */ './src/ts/modules/API.ts',
         )
-        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./DOM */ './src/ts/modules/DOM.ts',
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts',
         )
-        /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+        /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Token */ './src/ts/modules/Token.ts',
         )
-        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts',
         )
-        // 快速收藏
+        // 作品页面内的快速收藏功能
 
         class QuickBookmark {
           constructor() {
             this.btn = document.createElement('a') // 快速收藏按钮
-            this.btnId = 'quickBookmarkEl'
-            this.colorClass = 'bookmarkedColor'
-            this.likeBtnClass = '_35vRH4a'
+            this.btnId = 'quickBookmarkEl' // 快速收藏按钮的 id
+            this.redClass = 'bookmarkedColor' // 收藏后的红色的颜色值
+            this.likeBtnClass = '_35vRH4a' // 点赞按钮的 class
             this.isNovel = false
-            this.isBookmarked = null
             this.timer = 0
             this.flag = 'xzFlag' // 当插入快速下载按钮时，给原本的收藏按钮添加一个标记
             this.init()
           }
           async init() {
-            // 在某些条件下，不展开快速收藏功能
-            if (!_Token__WEBPACK_IMPORTED_MODULE_2__['token'].token) {
+            // 没有 token 就不能进行收藏
+            if (!_Token__WEBPACK_IMPORTED_MODULE_3__['token'].token) {
               return
             }
-            window.clearInterval(this.timer)
             this.isNovel = window.location.href.includes('/novel')
-            this.isBookmarked = !!(await this.getBookmarkData())
             this.timer = window.setInterval(() => {
               this.initBtn()
             }, 300)
-          }
-          async getBookmarkData() {
-            let data
-            if (this.isNovel) {
-              data = await _API__WEBPACK_IMPORTED_MODULE_0__[
-                'API'
-              ].getNovelData(
-                _API__WEBPACK_IMPORTED_MODULE_0__['API'].getNovelId(),
-              )
-            } else {
-              data = await _API__WEBPACK_IMPORTED_MODULE_0__[
-                'API'
-              ].getArtworkData(
-                _API__WEBPACK_IMPORTED_MODULE_0__['API'].getIllustId(),
-              )
-            }
-            return data.body.bookmarkData
           }
           // 插入快速收藏按钮
           initBtn() {
@@ -9127,22 +9110,46 @@
               }
             }
             if (this.toolbar) {
-              // 获取原本的收藏按钮（其实是按钮外层的 div）
+              // 获取心形收藏按钮外层的 div
               this.pixivBMKDiv = this.toolbar.childNodes[2]
-              // 当没有收藏按钮时，停止执行（如用户处于自己作品的页面时没有收藏按钮）
-              // 当收藏按钮是是上一个页面的，不是这个页面新创建的时，停止执行
+              // 当没有心形收藏按钮时，中止这次执行（这可能是用户处于自己的作品页面，此时没有收藏按钮）
+              // 当收藏按钮是是上一个页面的，不是这个页面新创建的时，中止这次执行
               if (
                 !this.pixivBMKDiv ||
                 this.pixivBMKDiv.classList.contains(this.flag)
               ) {
                 return
               }
-              // 隐藏原来的收藏按钮
-              this.pixivBMKDiv.style.display = 'none'
+              // 心形按钮的第一个子元素如果是 a 标签，则证明已经收藏过了
+              const firstChild = this.pixivBMKDiv.firstChild
+              if (firstChild && firstChild.nodeName === 'A') {
+                this.isBookmarked = true
+              } else {
+                this.isBookmarked = false
+              }
+              // 监听心形收藏按钮从未收藏到收藏的变化
+              // 没有收藏时，心形按钮的第一个子元素是 button。收藏之后，button 被移除，然后添加一个 a 标签
+              if (!this.isBookmarked) {
+                this.ob = new MutationObserver((mutations) => {
+                  for (const change of mutations) {
+                    if (change.type === 'childList') {
+                      const added = change.addedNodes
+                      if (added.length > 0 && added[0].nodeName === 'A') {
+                        this.isBookmarked = true
+                        this.bookmarked()
+                      }
+                    }
+                  }
+                })
+                this.ob.observe(this.pixivBMKDiv, {
+                  childList: true,
+                })
+              }
+              // 给心形收藏按钮添加标记，表示已经对其进行处理
               this.pixivBMKDiv.classList.add(this.flag)
               // 如果没有快速收藏元素则添加
-              this.btn = this.toolbar.querySelector('#' + this.btnId)
-              if (!this.btn) {
+              const testBtn = this.toolbar.querySelector('#' + this.btnId)
+              if (!testBtn) {
                 this.btn = this.createBtn()
                 this.toolbar.insertBefore(this.btn, this.toolbar.childNodes[3])
               }
@@ -9154,107 +9161,149 @@
               window.clearInterval(this.timer)
             }
           }
+          //　创建快速收藏的五角星按钮
           createBtn() {
             const btn = document.createElement('a')
             btn.id = this.btnId
             btn.textContent = '✩'
             btn.href = 'javascript:void(0)'
-            btn.title = _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+            btn.title = _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
               '_快速收藏',
             )
             return btn
           }
-          // 准备快速收藏
+          // 给快速收藏按钮添加点击事件
           readyBookmark() {
-            this.btn.classList.remove(this.colorClass)
-            this.btn.href = 'javascript:void(0)'
             this.btn.addEventListener('click', () => {
               const type = this.isNovel ? 'novels' : 'illusts'
               const id = this.isNovel
                 ? _API__WEBPACK_IMPORTED_MODULE_0__['API'].getNovelId()
                 : _API__WEBPACK_IMPORTED_MODULE_0__['API'].getIllustId()
-              // 点赞
-              _API__WEBPACK_IMPORTED_MODULE_0__['API'].addLike(
-                id,
-                type,
-                _Token__WEBPACK_IMPORTED_MODULE_2__['token'].token,
-              )
-              // 将点赞按钮的颜色改为蓝色
-              let likeBtn = document.querySelector(`.${this.likeBtnClass}`)
-              if (!likeBtn) {
-                // 上面尝试直接用 class 获取点赞按钮，如果获取不到则从工具栏里选择
-                // 点赞按钮是工具栏里的最后一个 button 元素
-                console.error('likeBtn class is not available')
-                const btnList = this.toolbar.querySelectorAll('button')
-                likeBtn = btnList[btnList.length - 1]
+              this.like(type, id)
+              if (!this.isBookmarked) {
+                this.bookmark(type, id)
               }
-              likeBtn.style.color = '#0096fa'
-              if (this.isBookmarked) {
-                return
-              }
-              // 点击 p 站自带的收藏按钮，这是因为这一行为将会在作品下方显示推荐作品。如果不点击自带的按钮，只使用本程序添加的按钮，那么就不会出现推荐作品了。
-              const pixivBMKBtn =
-                this.pixivBMKDiv && this.pixivBMKDiv.querySelector('button')
-              pixivBMKBtn && pixivBMKBtn.click()
-              let tags = []
-              // 如果设置了附带 tag，则从页面上获取 tag
-              if (
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
-                  .widthTag === '1'
-              ) {
-                const tagElements = document.querySelectorAll('._1LEXQ_3 li')
-                for (const el of tagElements) {
-                  const nowA = el.querySelector('a')
-                  if (nowA) {
-                    const nowTag = nowA.textContent.trim()
-                    if (nowTag) {
-                      tags.push(nowTag)
-                    }
+            })
+          }
+          // 收藏这个作品
+          bookmark(type, id) {
+            let tags = []
+            // 如果设置了附带 tag，则从页面上获取 tag
+            if (
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+                .widthTag === '1'
+            ) {
+              const tagElements = document.querySelectorAll('._1LEXQ_3 li')
+              for (const el of tagElements) {
+                const nowA = el.querySelector('a')
+                if (nowA) {
+                  const nowTag = nowA.textContent.trim()
+                  if (nowTag) {
+                    tags.push(nowTag)
                   }
                 }
               }
-              // 如果一个作品是原创作品，它的 tag 列表的最前面会显示“原创” tag。以前是统一显示日文的“オリジナル”，现在则会根据用户语言显示不同的文字。这里会把“オリジナル”添加到末尾，保持和以前的习惯一致。
-              if (
-                tags.includes('原创') ||
-                tags.includes('Original') ||
-                tags.includes('창작')
-              ) {
-                tags.push('オリジナル')
-              }
-              // 调用添加收藏的 api
-              // 这里加了个延迟，因为上面先点击了 pixiv 自带的收藏按钮，但不加延迟的话， p 站自己的不带 tag 的请求反而是后发送的。
-              setTimeout(() => {
-                _API__WEBPACK_IMPORTED_MODULE_0__['API']
-                  .addBookmark(
-                    type,
-                    id,
-                    tags,
-                    _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
-                      .restrict === '1',
-                    _Token__WEBPACK_IMPORTED_MODULE_2__['token'].token,
-                  )
-                  .then((response) => response.json())
-                  .then((data) => {
-                    if (data.error === false) {
-                      this.isBookmarked = true
-                      this.bookmarked()
-                    }
-                  })
-              }, 400)
-            })
+            }
+            // 如果一个作品是原创作品，它的 tag 列表的最前面会显示“原创” tag。以前是统一显示日文的“オリジナル”，现在则会根据用户语言显示不同的文字。这里会把“オリジナル”添加到末尾，保持和以前的习惯一致。
+            if (
+              tags.includes('原创') ||
+              tags.includes('Original') ||
+              tags.includes('창작')
+            ) {
+              tags.push('オリジナル')
+            }
+            // 调用添加收藏的 api
+            _API__WEBPACK_IMPORTED_MODULE_0__['API']
+              .addBookmark(
+                type,
+                id,
+                tags,
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+                  .restrict === '1',
+                _Token__WEBPACK_IMPORTED_MODULE_3__['token'].token,
+              )
+              .then((response) => response.json())
+              .then((data) => {
+                if (data.error === false) {
+                  // 收藏成功之后
+                  this.isBookmarked = true
+                  this.bookmarked()
+                  // 让心形收藏按钮也变成收藏后的状态
+                  this.changePixivBMKDiv()
+                }
+              })
           }
-          // 如果这个作品已收藏，则改变样式
-          bookmarked() {
-            this.btn.classList.add(this.colorClass)
+          // 点赞这个作品
+          like(type, id) {
+            _API__WEBPACK_IMPORTED_MODULE_0__['API'].addLike(
+              id,
+              type,
+              _Token__WEBPACK_IMPORTED_MODULE_3__['token'].token,
+            )
+            // 将点赞按钮的颜色改为蓝色
+            let likeBtn = document.querySelector(`.${this.likeBtnClass}`)
+            if (!likeBtn) {
+              // 上面尝试直接用 class 获取点赞按钮，如果获取不到则从工具栏里选择
+              // 点赞按钮是工具栏里的最后一个 button 元素
+              console.error('likeBtn class is not available')
+              const btnList = this.toolbar.querySelectorAll('button')
+              likeBtn = btnList[btnList.length - 1]
+            }
+            likeBtn.style.color = '#0096fa'
+          }
+          getEditBookmarkLink() {
             if (this.isNovel) {
-              this.btn.href = `/novel/bookmark_add.php?id=${_API__WEBPACK_IMPORTED_MODULE_0__[
+              return `/novel/bookmark_add.php?id=${_API__WEBPACK_IMPORTED_MODULE_0__[
                 'API'
               ].getNovelId()}`
             } else {
-              this.btn.href = `/bookmark_add.php?type=illust&illust_id=${_API__WEBPACK_IMPORTED_MODULE_0__[
+              return `/bookmark_add.php?type=illust&illust_id=${_API__WEBPACK_IMPORTED_MODULE_0__[
                 'API'
               ].getIllustId()}`
             }
+          }
+          // 如果这个作品已收藏，则改变快速收藏按钮
+          bookmarked() {
+            this.btn.classList.add(this.redClass)
+            this.btn.href = this.getEditBookmarkLink()
+          }
+          // 把心形收藏按钮从未收藏变成已收藏
+          changePixivBMKDiv() {
+            if (!this.pixivBMKDiv) {
+              return
+            }
+            // 取消监听心形收藏按钮的变化
+            if (this.ob) {
+              this.ob.disconnect()
+            }
+            const svg = this.pixivBMKDiv.querySelector('svg')
+            if (!svg) {
+              return
+            }
+            // 这条规则让心形的内部填充，显示出来完整的心。缺少这个规则的话，心形只有边框，内部还是空的
+            const redStyle = `
+    .${this.redClass} mask path{
+      fill: white !important;
+    }`
+            _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].addStyle(redStyle)
+            // 创建一个 a 标签，用它替换掉 button（模拟心形按钮收藏后的变化）
+            const a = document.createElement('a')
+            a.href = this.getEditBookmarkLink()
+            a.appendChild(svg)
+            // 移除 button，添加 a 标签
+            const btn = this.pixivBMKDiv.querySelector('button')
+            btn && btn.remove()
+            this.pixivBMKDiv.insertAdjacentElement('afterbegin', a)
+            // 给 svg 添加 class，让心形变红
+            svg.classList.add(this.redClass)
+            // 点击 a 标签时阻止事件冒泡。因为不阻止的话，点击这个 a 标签，pixiv 会进行添加收藏的操作。我的目的是让它跳转到编辑 tag 的页面。
+            a.addEventListener(
+              'click',
+              (ev) => {
+                ev.stopPropagation()
+              },
+              true,
+            )
           }
         }
 
