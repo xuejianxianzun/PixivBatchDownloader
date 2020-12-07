@@ -56,4 +56,4 @@ class DownloadButton {
 }
 
 new DownloadButton()
-export { }
+export {}
