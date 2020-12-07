@@ -38,6 +38,8 @@ class InitPage {
 
   private initPage() {
     switch (pageType.type) {
+      case -1:
+        return
       case 0:
         return new InitIndexPage()
       case 1:

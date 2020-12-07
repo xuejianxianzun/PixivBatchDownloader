@@ -10,7 +10,7 @@ class PageType {
     })
   }
 
-  public type = 0
+  public type = 0 // 如果 type 为 -1，说明处于不支持的页面
 
   private getType() {
     const url = window.location.href
@@ -76,7 +76,8 @@ class PageType {
       type = 19
     } else {
       // 没有匹配到可用的页面类型
-      throw new Error('Unsupported page type')
+      // throw new Error('Unsupported page type')
+      type = -1
     }
 
     return type

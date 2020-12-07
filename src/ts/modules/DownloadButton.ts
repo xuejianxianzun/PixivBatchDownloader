@@ -1,10 +1,12 @@
 import { EVT } from './EVT'
 import { lang } from './Lang'
+import { pageType } from './PageType'
 
 // 右侧的下载按钮
 class DownloadButton {
   constructor() {
     this.addBtn()
+    this.setVisible()
     this.bindEvents()
   }
 
@@ -33,6 +35,10 @@ class DownloadButton {
     window.addEventListener(EVT.list.centerPanelOpened, () => {
       this.hide()
     })
+
+    window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
+      this.setVisible()
+    })
   }
 
   private show() {
@@ -42,7 +48,12 @@ class DownloadButton {
   private hide() {
     this.btn.style.display = 'none'
   }
+
+  // 如果当前页面不支持下载，就隐藏按钮。这只是一个障眼法。
+  private setVisible() {
+    pageType.type === -1 ? this.hide() : this.show()
+  }
 }
 
 new DownloadButton()
-export {}
+export { }

@@ -2292,6 +2292,8 @@ class Download {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PageType */ "./src/ts/modules/PageType.ts");
+
 
 
 // 右侧的下载按钮
@@ -2299,6 +2301,7 @@ class DownloadButton {
     constructor() {
         this.btn = document.createElement('button');
         this.addBtn();
+        this.setVisible();
         this.bindEvents();
     }
     addBtn() {
@@ -2321,12 +2324,18 @@ class DownloadButton {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.centerPanelOpened, () => {
             this.hide();
         });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, () => {
+            this.setVisible();
+        });
     }
     show() {
         this.btn.style.display = 'block';
     }
     hide() {
         this.btn.style.display = 'none';
+    }
+    setVisible() {
+        _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === -1 ? this.hide() : this.show();
     }
 }
 new DownloadButton();
@@ -5660,6 +5669,8 @@ class InitPage {
     }
     initPage() {
         switch (_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type) {
+            case -1:
+                return;
             case 0:
                 return new _InitIndexPage__WEBPACK_IMPORTED_MODULE_2__["InitIndexPage"]();
             case 1:
@@ -6752,7 +6763,7 @@ __webpack_require__.r(__webpack_exports__);
 // 获取页面类型
 class PageType {
     constructor() {
-        this.type = 0;
+        this.type = 0; // 如果 type 为 -1，说明处于不支持的页面
         this.type = this.getType();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
             this.checkTypeChange();
@@ -6829,7 +6840,8 @@ class PageType {
         }
         else {
             // 没有匹配到可用的页面类型
-            throw new Error('Unsupported page type');
+            // throw new Error('Unsupported page type')
+            type = -1;
         }
         return type;
     }
