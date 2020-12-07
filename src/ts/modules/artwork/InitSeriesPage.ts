@@ -16,10 +16,6 @@ class InitSeriesPage extends InitPageBase {
     this.init()
   }
 
-  // 目前存在新版和旧版共存的情况，对这新旧页面采取不同的抓取方式
-  // 一个主要的原因是，旧版一页 18 个作品，新版一页 12 个作品，所以旧版还是继续使用之前的方式比较省事
-  private baseUrl = ''
-
   private seriesId = ''
 
   protected addCrawlBtns() {
@@ -50,94 +46,10 @@ class InitSeriesPage extends InitPageBase {
     const p = API.getURLSearchField(location.href, 'p')
     this.startpageNo = parseInt(p) || 1
 
-    // 判断是否是旧版
-    let old = !!document.querySelector('.badge')
+    // 获取系列 id
+    this.seriesId = API.getURLPathField('series')
 
-    if (old) {
-      // 旧版
-      // 设置起始网址
-      const url = new URL(window.location.href)
-      url.searchParams.set('p', '1')
-      this.baseUrl = url.toString()
-
-      this.getIdListOld()
-    } else {
-      // 新版
-      // 获取系列 id
-      this.seriesId = API.getURLPathField('series')
-
-      this.getIdList()
-    }
-  }
-
-  protected async getIdListOld() {
-    let p = this.startpageNo + this.listPageFinished
-
-    let dom: HTMLDocument
-    try {
-      const res = await fetch(this.baseUrl.replace('p=1', 'p=' + p))
-      const text = await res.text()
-      const parse = new DOMParser()
-      dom = parse.parseFromString(text, 'text/html')
-    } catch (error) {
-      this.getIdListOld()
-      return
-    }
-
-    this.listPageFinished++
-
-    if (dom.querySelector('.no-content')) {
-      // 此页没有内容，也就没有后续内容了
-      return this.getIdListFinished()
-    }
-
-    const workList = dom.querySelectorAll('.works .image-item') as NodeListOf<
-      HTMLLIElement
-    >
-
-    // 检查每个作品的信息
-    for (const item of workList) {
-      // https://www.pixiv.net/user/3698796/series/61267
-      const link = (item.querySelector('a') as HTMLAnchorElement)!.href
-      const id = parseInt(link.split('/artworks/')[1])
-
-      const tagString = item.querySelector('img')!.dataset.tags
-      const tags: string[] = tagString ? tagString.split(' ') : []
-
-      const bookmarkBtn = item.querySelector('._one-click-bookmark')
-      const bookmarked = bookmarkBtn
-        ? bookmarkBtn.classList.contains('on')
-        : false
-
-      const filterOpt: FilterOption = {
-        id: id,
-        tags: tags,
-        bookmarkData: bookmarked,
-      }
-
-      // 其实 type 这里有个存疑的地方。如果插画没有系列页面，只有漫画有系列页面，那么这里可以直接断言 type 为 manga。但是这一点尚不能完全确定，所以这里 type 是 unknown
-      if (await filter.check(filterOpt)) {
-        store.idList.push({
-          type: 'unknown',
-          id: id.toString(),
-        })
-      }
-    }
-
-    log.log(
-      lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
-      1,
-      false,
-    )
-
-    // 抓取完毕
-    if (p >= this.maxCount || this.listPageFinished === this.crawlNumber) {
-      log.log(lang.transl('_列表页抓取完成'))
-      this.getIdListFinished()
-    } else {
-      // 继续抓取
-      this.getIdListOld()
-    }
+    this.getIdList()
   }
 
   protected async getIdList() {
