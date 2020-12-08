@@ -1977,7 +1977,9 @@
               _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list.downloadSuccess,
               (ev) => {
                 const successData = ev.detail.data
-                this.add(successData.id)
+                setTimeout(() => {
+                  this.add(successData.id)
+                }, 0)
               },
             )
             ;[
