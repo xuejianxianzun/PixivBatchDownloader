@@ -5,7 +5,7 @@ import { settings } from './setting/Settings'
 import { Result } from './Store.d'
 import { lang } from './Lang'
 import { EVT } from './EVT'
-import { DonwloadSuccessData } from './Download.d'
+import { DonwloadSuccessData, DonwloadSkipData } from './Download.d'
 
 // 当文件下载成功后，收藏这个作品
 class BookmarkAfterDL {
@@ -27,10 +27,20 @@ class BookmarkAfterDL {
 
   // 可选传入一个元素，显示收藏的数量和总数
   private bindEvents() {
-    // 当有文件下载完成时，提取 id
+    // 当有文件下载完成时，提取 id 进行收藏
     window.addEventListener(EVT.list.downloadSuccess, (ev: CustomEventInit) => {
       const successData = ev.detail.data as DonwloadSuccessData
       this.send(Number.parseInt(successData.id))
+    })
+
+    // 当有文件跳过下载时，如果是重复的下载，也进行收藏
+    // 因为重复的下载，本意还是要下载的，只是之前下载过了。所以进行收藏。
+    // 其他跳过下载的原因，则是本意就是不下载，所以不收藏。
+    window.addEventListener(EVT.list.skipDownload, (ev: CustomEventInit) => {
+      const skipData = ev.detail.data as DonwloadSkipData
+      if (skipData.reason === 'duplicate') {
+        this.send(Number.parseInt(skipData.id))
+      }
     })
 
     // 当开始新的抓取时重置状态和提示

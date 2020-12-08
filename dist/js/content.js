@@ -843,12 +843,24 @@
           }
           // 可选传入一个元素，显示收藏的数量和总数
           bindEvents() {
-            // 当有文件下载完成时，提取 id
+            // 当有文件下载完成时，提取 id 进行收藏
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list.downloadSuccess,
               (ev) => {
                 const successData = ev.detail.data
                 this.send(Number.parseInt(successData.id))
+              },
+            )
+            // 当有文件跳过下载时，如果是重复的下载，也进行收藏
+            // 因为重复的下载，本意还是要下载的，只是之前下载过了。所以进行收藏。
+            // 其他跳过下载的原因，则是本意就是不下载，所以不收藏。
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list.skipDownload,
+              (ev) => {
+                const skipData = ev.detail.data
+                if (skipData.reason === 'duplicate') {
+                  this.send(Number.parseInt(skipData.id))
+                }
               },
             )
             // 当开始新的抓取时重置状态和提示
@@ -1936,7 +1948,6 @@
               'record8',
               'record9',
             ] // 表名的列表
-            this.skipIdList = [] // 被跳过下载的文件的 id。当收到下载成功事件时，根据这个 id 列表判断这个文件是不是真的被下载了。如果这个文件是被跳过的，则不保存到下载记录里。
             this.existedIdList = [] // 检查文件是否重复时，会查询数据库。查询到的数据的 id 会保存到这个列表里。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
             this.IDB = new _IndexedDB__WEBPACK_IMPORTED_MODULE_6__[
               'IndexedDB'
@@ -1964,32 +1975,14 @@
             })
           }
           bindEvents() {
-            // 当有文件被跳过时，保存到 skipIdList
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list.skipDownload,
-              (ev) => {
-                const data = ev.detail.data
-                this.skipIdList.push(data.id)
-              },
-            )
             // 当有文件下载完成时，存储这个任务的记录
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list.downloadSuccess,
               (ev) => {
                 const successData = ev.detail.data
-                setTimeout(() => {
-                  this.add(successData.id)
-                }, 0)
+                this.add(successData.id)
               },
             )
-            ;[
-              _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list.crawlFinish,
-              _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list.downloadComplete,
-            ].forEach((val) => {
-              window.addEventListener(val, () => {
-                this.skipIdList = []
-              })
-            })
             // 导入下载记录的按钮
             {
               const btn = document.querySelector('#importDownloadRecord')
@@ -2078,10 +2071,6 @@
           }
           // 添加一条下载记录
           async add(resultId) {
-            // 不储存被跳过下载的文件
-            if (this.skipIdList.includes(resultId)) {
-              return
-            }
             const storeName = this.getStoreName(resultId)
             const data = this.createRecord(resultId)
             if (this.existedIdList.includes(resultId)) {
@@ -2589,10 +2578,8 @@
             if (duplicate) {
               return this.skip(
                 {
-                  url: '',
                   id: arg.id,
-                  tabId: 0,
-                  uuid: false,
+                  reason: 'duplicate',
                 },
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_跳过下载因为重复文件',
@@ -2638,10 +2625,8 @@
                   this.setProgressBar(1, 1)
                   this.skip(
                     {
-                      url: '',
                       id: arg.id,
-                      tabId: 0,
-                      uuid: false,
+                      reason: 'size',
                     },
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                       '_不保存图片因为体积',
@@ -2761,10 +2746,8 @@
                 if (!result) {
                   return this.skip(
                     {
-                      url: blobUrl,
                       id: arg.id,
-                      tabId: 0,
-                      uuid: false,
+                      reason: 'color',
                     },
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                       '_不保存图片因为颜色',
@@ -2791,10 +2774,8 @@
                 if (!result) {
                   return this.skip(
                     {
-                      url: blobUrl,
                       id: arg.id,
-                      tabId: 0,
-                      uuid: false,
+                      reason: 'widthHeight',
                     },
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                       '_不保存图片因为宽高',
@@ -3037,7 +3018,7 @@
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.skipDownload,
               (ev) => {
                 const data = ev.detail.data
-                this.downloadSuccess(data)
+                this.downloadOrSkipAFile(data)
               },
             )
             window.addEventListener(
@@ -3056,7 +3037,12 @@
               if (msg.msg === 'downloaded') {
                 // 释放 BLOBURL
                 URL.revokeObjectURL(msg.data.url)
-                this.downloadSuccess(msg.data)
+                // 发送下载成功的事件
+                _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadSuccess,
+                  msg.data,
+                )
+                this.downloadOrSkipAFile(msg.data)
               } else if (msg.msg === 'download_err') {
                 // 浏览器把文件保存到本地时出错
                 _Log__WEBPACK_IMPORTED_MODULE_3__['log'].error(
@@ -3292,17 +3278,12 @@
             // 建立下载任务，再次下载它
             this.createDownload(task.progressBarIndex)
           }
-          downloadSuccess(data) {
+          downloadOrSkipAFile(data) {
             const task = this.taskList[data.id]
             // 更改这个任务状态为“已完成”
             _DownloadStates__WEBPACK_IMPORTED_MODULE_9__[
               'downloadStates'
             ].setState(task.index, 1)
-            // 发送下载成功的事件
-            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadSuccess,
-              data,
-            )
             // 统计已下载数量
             this.setDownloaded()
             // 是否继续下载
@@ -3455,7 +3436,7 @@
               this.pauseDownload()
               setTimeout(() => {
                 this.startDownload()
-              }, 5000)
+              }, 3000)
             }
           }
           // 设置下载状态文本，默认颜色为主题蓝色

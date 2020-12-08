@@ -8,7 +8,7 @@ import { converter } from './ugoira/ConvertUgoira'
 import {
   downloadArgument,
   SendToBackEndData,
-  DonwloadSuccessData,
+  DonwloadSkipData,
 } from './Download.d'
 import { progressBar } from './ProgressBar'
 import { filter } from './Filter'
@@ -50,7 +50,7 @@ class Download {
     })
   }
 
-  private skip(data: DonwloadSuccessData, msg = '') {
+  private skip(data: DonwloadSkipData, msg = '') {
     this.cancel = true
     log.warning(msg)
     EVT.fire(EVT.list.skipDownload, data)
@@ -63,10 +63,8 @@ class Download {
     if (duplicate) {
       return this.skip(
         {
-          url: '',
           id: arg.id,
-          tabId: 0,
-          uuid: false,
+          reason: 'duplicate',
         },
         lang.transl('_跳过下载因为重复文件', arg.id),
       )
@@ -104,10 +102,8 @@ class Download {
           this.setProgressBar(1, 1)
           this.skip(
             {
-              url: '',
               id: arg.id,
-              tabId: 0,
-              uuid: false,
+              reason: 'size',
             },
             lang.transl('_不保存图片因为体积', arg.id),
           )
@@ -214,10 +210,8 @@ class Download {
         if (!result) {
           return this.skip(
             {
-              url: blobUrl,
               id: arg.id,
-              tabId: 0,
-              uuid: false,
+              reason: 'color',
             },
             lang.transl('_不保存图片因为颜色', arg.id),
           )
@@ -238,10 +232,8 @@ class Download {
         if (!result) {
           return this.skip(
             {
-              url: blobUrl,
               id: arg.id,
-              tabId: 0,
-              uuid: false,
+              reason: 'widthHeight',
             },
             lang.transl('_不保存图片因为宽高', arg.id),
           )

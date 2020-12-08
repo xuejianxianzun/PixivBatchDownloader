@@ -32,6 +32,11 @@ export interface DonwloadSuccessData {
   uuid: boolean
 }
 
+export interface DonwloadSkipData {
+  id: string
+  reason: 'duplicate' | 'size' | 'color' | 'widthHeight'
+}
+
 // 所有任务的信息
 export interface DonwloadListData {
   [key: number]: DonwloadSuccessData | null

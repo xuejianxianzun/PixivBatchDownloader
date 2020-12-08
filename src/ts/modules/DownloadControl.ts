@@ -4,6 +4,7 @@ import { DOM } from './DOM'
 import {
   downloadArgument,
   DonwloadSuccessData,
+  DonwloadSkipData,
   DownloadedMsg,
   TaskList,
 } from './Download.d'
@@ -88,8 +89,8 @@ class DownloadControl {
     }
 
     window.addEventListener(EVT.list.skipDownload, (ev: CustomEventInit) => {
-      const data = ev.detail.data as DonwloadSuccessData
-      this.downloadSuccess(data)
+      const data = ev.detail.data as DonwloadSkipData
+      this.downloadOrSkipAFile(data)
     })
 
     window.addEventListener(EVT.list.downloadError, (ev: CustomEventInit) => {
@@ -107,7 +108,10 @@ class DownloadControl {
         // 释放 BLOBURL
         URL.revokeObjectURL(msg.data.url)
 
-        this.downloadSuccess(msg.data)
+        // 发送下载成功的事件
+        EVT.fire(EVT.list.downloadSuccess, msg.data)
+
+        this.downloadOrSkipAFile(msg.data)
       } else if (msg.msg === 'download_err') {
         // 浏览器把文件保存到本地时出错
         log.error(
@@ -310,13 +314,11 @@ class DownloadControl {
     this.createDownload(task.progressBarIndex)
   }
 
-  private downloadSuccess(data: DonwloadSuccessData) {
+  private downloadOrSkipAFile(data: DonwloadSuccessData | DonwloadSkipData) {
     const task = this.taskList[data.id]
 
     // 更改这个任务状态为“已完成”
     downloadStates.setState(task.index, 1)
-    // 发送下载成功的事件
-    EVT.fire(EVT.list.downloadSuccess, data)
 
     // 统计已下载数量
     this.setDownloaded()
@@ -435,7 +437,7 @@ class DownloadControl {
       this.pauseDownload()
       setTimeout(() => {
         this.startDownload()
-      }, 5000)
+      }, 3000)
     }
   }
 

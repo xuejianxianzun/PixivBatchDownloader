@@ -36,8 +36,6 @@ class Deduplication {
     'record9',
   ] // 表名的列表
 
-  private skipIdList: string[] = [] // 被跳过下载的文件的 id。当收到下载成功事件时，根据这个 id 列表判断这个文件是不是真的被下载了。如果这个文件是被跳过的，则不保存到下载记录里。
-
   private existedIdList: string[] = [] // 检查文件是否重复时，会查询数据库。查询到的数据的 id 会保存到这个列表里。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
 
   private async init() {
@@ -64,25 +62,10 @@ class Deduplication {
   }
 
   private bindEvents() {
-    // 当有文件被跳过时，保存到 skipIdList
-    window.addEventListener(EVT.list.skipDownload, (ev: CustomEventInit) => {
-      const data = ev.detail.data as DonwloadSuccessData
-      this.skipIdList.push(data.id)
-    })
-
     // 当有文件下载完成时，存储这个任务的记录
     window.addEventListener(EVT.list.downloadSuccess, (ev: CustomEventInit) => {
       const successData = ev.detail.data as DonwloadSuccessData
-      setTimeout(() => {
-        this.add(successData.id)
-      }, 0)
-    })
-
-    // 当抓取完成、下载完成时，清空 skipIdList 列表
-    ;[EVT.list.crawlFinish, EVT.list.downloadComplete].forEach((val) => {
-      window.addEventListener(val, () => {
-        this.skipIdList = []
-      })
+      this.add(successData.id)
     })
 
     // 导入下载记录的按钮
@@ -158,11 +141,6 @@ class Deduplication {
 
   // 添加一条下载记录
   private async add(resultId: string) {
-    // 不储存被跳过下载的文件
-    if (this.skipIdList.includes(resultId)) {
-      return
-    }
-
     const storeName = this.getStoreName(resultId)
     const data = this.createRecord(resultId)
 
