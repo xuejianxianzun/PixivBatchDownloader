@@ -21,7 +21,8 @@ interface XzSetting {
   downMultiImg: boolean
   downColorImg: boolean
   downBlackWhiteImg: boolean
-  setOnlyBmk: boolean
+  downNotBookmarked: boolean
+  downBookmarked: boolean
   ugoiraSaveAs: 'webm' | 'gif' | 'zip' | 'png'
   convertUgoiraThread: string
   needTagSwitch: boolean
@@ -124,7 +125,8 @@ class Settings {
     downMultiImg: true,
     downColorImg: true,
     downBlackWhiteImg: true,
-    setOnlyBmk: false,
+    downNotBookmarked: true,
+    downBookmarked: true,
     ugoiraSaveAs: 'webm',
     convertUgoiraThread: '1',
     needTag: '',

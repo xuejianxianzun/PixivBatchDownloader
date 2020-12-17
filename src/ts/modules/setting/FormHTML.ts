@@ -39,18 +39,18 @@ const formHtml = `<form class="settingForm">
       <label for="setWorkType3"> ${lang.transl('_小说')}&nbsp;</label>
       </p>
 
-      <p class="option" data-no="21">
+      <p class="option" data-no="6">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_下载作品类型的提示',
       )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
+      <input type="checkbox" name="downNotBookmarked" id="setDownNotBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownSingleImg"> ${lang.transl('_单图作品')}&nbsp;</label>
-      <input type="checkbox" name="downMultiImg" id="setDownMultiImg" class="need_beautify checkbox_common" checked>
+      <label for="setDownNotBookmarked"> 未收藏&nbsp;</label>
+      <input type="checkbox" name="downBookmarked" id="setDownBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownMultiImg"> ${lang.transl('_多图作品')}&nbsp;</label>
+      <label for="setDownBookmarked"> ${lang.transl('_已收藏')}&nbsp;</label>
       </p>
-
+      
       <p class="option" data-no="23">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_下载作品类型的提示',
@@ -65,6 +65,18 @@ const formHtml = `<form class="settingForm">
       )}&nbsp;</label>
       </p>
 
+      <p class="option" data-no="21">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_下载作品类型的提示',
+      )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="setDownSingleImg"> ${lang.transl('_单图作品')}&nbsp;</label>
+      <input type="checkbox" name="downMultiImg" id="setDownMultiImg" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="setDownMultiImg"> ${lang.transl('_多图作品')}&nbsp;</label>
+      </p>
+
       <p class="option" data-no="3">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_怎样下载多图作品',
@@ -75,14 +87,6 @@ const formHtml = `<form class="settingForm">
       ${lang.transl('_下载前几张图片')}&nbsp;
       <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
       </span>
-      </p>
-
-      <p class="option" data-no="6">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_只下载已收藏的提示',
-      )}">${lang.transl('_只下载已收藏')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="setOnlyBmk" id="setOnlyBmk" class="need_beautify checkbox_switch"> 
-      <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="5">

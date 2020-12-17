@@ -4577,10 +4577,9 @@
             this.getDownType()
             this.getDownTypeByImgCount()
             this.getDownTypeByColor()
+            this.getDownTypeByBmked()
             // 获取收藏数设置
             this.getBMKNum()
-            // 获取只下载已收藏设置
-            this.getOnlyBmk()
             // 获取宽高条件设置
             this.getSetWh()
             // 获取宽高比设置
@@ -4619,12 +4618,12 @@
             if (!this.checkPageCount(option.illustType, option.pageCount)) {
               return false
             }
-            // 检查收藏数要求
-            if (!this.checkBMK(option.bookmarkCount)) {
+            // 检查收藏和未收藏的要求
+            if (!this.checkDownTypeByBmked(option.bookmarkData)) {
               return false
             }
-            // 检查只下载已收藏的要求
-            if (!this.checkOnlyBmk(option.bookmarkData)) {
+            // 检查收藏数要求
+            if (!this.checkBMK(option.bookmarkCount)) {
               return false
             }
             // 检查要排除的 tag
@@ -4774,6 +4773,40 @@
               )
             }
           }
+          // 获取下载收藏和未收藏作品的设置
+          getDownTypeByBmked() {
+            // 如果全部排除则取消任务
+            if (
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                .downNotBookmarked &&
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                .downBookmarked
+            ) {
+              this.throwError(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+                  '_排除了所有作品类型',
+                ),
+              )
+            }
+            let notDownTip = ''
+            notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_5__[
+              'settings'
+            ].downNotBookmarked
+              ? ''
+              : _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_未收藏')
+            notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_5__[
+              'settings'
+            ].downBookmarked
+              ? ''
+              : _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_已收藏')
+            if (notDownTip) {
+              this.logTip(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+                  '_排除作品类型',
+                ) + notDownTip,
+              )
+            }
+          }
           // 获取用户输入的 tag 内容
           getTagString(str) {
             let result = ''
@@ -4911,19 +4944,6 @@
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                   '_收藏数小于',
                 ) + max.value,
-              )
-            }
-          }
-          // 获取只下载已收藏的设置
-          getOnlyBmk() {
-            if (
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
-                .setOnlyBmk
-            ) {
-              this.logTip(
-                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_只下载已收藏的提示',
-                ),
               )
             }
           }
@@ -5161,6 +5181,31 @@
                   .downColorImg)
             )
           }
+          // 检查作品是否符合已收藏、未收藏作品的设置
+          checkDownTypeByBmked(bookmarked) {
+            // 如果没有参数，或者都没有排除，或者都排除了，则视为下载此文件
+            if (bookmarked === undefined) {
+              return true
+            }
+            if (
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                .downNotBookmarked &&
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                .downBookmarked
+            ) {
+              // 只下载已收藏
+              return !!bookmarked
+            } else if (
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                .downNotBookmarked &&
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                .downBookmarked
+            ) {
+              // 只下载未收藏
+              return !bookmarked
+            }
+            return true
+          }
           // 检查收藏数要求
           checkBMK(bmk) {
             if (
@@ -5171,17 +5216,6 @@
               return true
             }
             return bmk >= this._BMKNumMin && bmk <= this._BMKNumMax
-          }
-          // 检查作品是否符合【只下载已收藏】的条件,返回值 true 表示包含这个作品
-          checkOnlyBmk(bookmarked) {
-            if (
-              bookmarked === undefined ||
-              !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
-                .setOnlyBmk
-            ) {
-              return true
-            }
-            return !!bookmarked
           }
           // 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。
           checkIncludeTag(tags) {
@@ -6389,10 +6423,6 @@
                 '_数字提示1',
               ),
             })
-            // 在书签页面隐藏只要书签选项
-            _setting_Options__WEBPACK_IMPORTED_MODULE_5__[
-              'options'
-            ].hideOption([6])
           }
           getWantPage() {
             let pageTip = ''
@@ -6652,10 +6682,6 @@
                 '_数字提示1',
               ),
             })
-            // 在书签页面隐藏只要书签选项
-            _setting_Options__WEBPACK_IMPORTED_MODULE_4__[
-              'options'
-            ].hideOption([6])
           }
           getWantPage() {
             this.crawlNumber = this.checkWantPageInput(
@@ -13346,12 +13372,6 @@ flag 及其含义如下：
             'Download only bookmarked works',
             '只下載已收藏',
           ],
-          _只下载已收藏的提示: [
-            '只下载已经收藏的作品',
-            'ブックマークした作品のみをダウンロードする',
-            'Download only bookmarked works',
-            '只下載已經收藏的作品。',
-          ],
           _下载作品类型: [
             '下载作品类型',
             'ダウンロード作品の種類',
@@ -14785,6 +14805,12 @@ flag 及其含义如下：
           _公开: ['公开', '公開', 'Public', '公開'],
           _不公开: ['不公开', '非公開', 'Private', '非公開'],
           _已收藏: ['已收藏', 'ブックマーク', 'Bookmarked', '已收藏'],
+          _未收藏: [
+            '未收藏',
+            'ブックマークされていない',
+            'Not bookmarked',
+            '未收藏',
+          ],
           _下载之后收藏作品: [
             '下载之后收藏作品',
             'ダウンロードした作品をブックマークする',
@@ -17186,24 +17212,22 @@ flag 及其含义如下：
       ].transl('_小说')}&nbsp;</label>
       </p>
 
-      <p class="option" data-no="21">
+      <p class="option" data-no="6">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
+      <input type="checkbox" name="downNotBookmarked" id="setDownNotBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownSingleImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-        'lang'
-      ].transl('_单图作品')}&nbsp;</label>
-      <input type="checkbox" name="downMultiImg" id="setDownMultiImg" class="need_beautify checkbox_common" checked>
+      <label for="setDownNotBookmarked"> 未收藏&nbsp;</label>
+      <input type="checkbox" name="downBookmarked" id="setDownBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownMultiImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="setDownBookmarked"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
-      ].transl('_多图作品')}&nbsp;</label>
+      ].transl('_已收藏')}&nbsp;</label>
       </p>
-
+      
       <p class="option" data-no="23">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
@@ -17222,6 +17246,24 @@ flag 及其含义如下：
       ].transl('_黑白图片')}&nbsp;</label>
       </p>
 
+      <p class="option" data-no="21">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+          'lang'
+        ].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="setDownSingleImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_单图作品')}&nbsp;</label>
+      <input type="checkbox" name="downMultiImg" id="setDownMultiImg" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="setDownMultiImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_多图作品')}&nbsp;</label>
+      </p>
+
       <p class="option" data-no="3">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
@@ -17236,16 +17278,6 @@ flag 及其含义如下：
       )}&nbsp;
       <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
       </span>
-      </p>
-
-      <p class="option" data-no="6">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-        'lang'
-      ].transl('_只下载已收藏的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-          'lang'
-        ].transl('_只下载已收藏')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="setOnlyBmk" id="setOnlyBmk" class="need_beautify checkbox_switch"> 
-      <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="5">
@@ -18028,11 +18060,11 @@ flag 及其含义如下：
             this.saveCheckBox('downMultiImg')
             this.saveCheckBox('downColorImg')
             this.saveCheckBox('downBlackWhiteImg')
+            this.saveCheckBox('downNotBookmarked')
+            this.saveCheckBox('downBookmarked')
             // 保存多图作品设置
             this.saveCheckBox('firstFewImagesSwitch')
             this.saveTextInput('firstFewImages')
-            // 保存只下载已收藏
-            this.saveCheckBox('setOnlyBmk')
             // 保存动图格式选项
             this.saveRadio('ugoiraSaveAs')
             // 保存动图转换线程数
@@ -18170,11 +18202,11 @@ flag 及其含义如下：
             this.restoreBoolean('downMultiImg')
             this.restoreBoolean('downColorImg')
             this.restoreBoolean('downBlackWhiteImg')
+            this.restoreBoolean('downNotBookmarked')
+            this.restoreBoolean('downBookmarked')
             // 多图下载前几张图作品设置
             this.restoreBoolean('firstFewImagesSwitch')
             this.restoreString('firstFewImages')
-            // 设置只下载已收藏
-            this.restoreBoolean('setOnlyBmk')
             // 设置动图格式选项
             this.restoreString('ugoiraSaveAs')
             // 设置动图转换线程数
@@ -18685,7 +18717,8 @@ flag 及其含义如下：
               downMultiImg: true,
               downColorImg: true,
               downBlackWhiteImg: true,
-              setOnlyBmk: false,
+              downNotBookmarked: true,
+              downBookmarked: true,
               ugoiraSaveAs: 'webm',
               convertUgoiraThread: '1',
               needTag: '',

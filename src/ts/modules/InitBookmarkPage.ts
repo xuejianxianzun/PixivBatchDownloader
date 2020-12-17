@@ -47,9 +47,6 @@ class InitBookmarkPage extends InitPageBase {
       tip: lang.transl('_从本页开始下载提示'),
       rangTip: lang.transl('_数字提示1'),
     })
-
-    // 在书签页面隐藏只要书签选项
-    options.hideOption([6])
   }
 
   protected getWantPage() {

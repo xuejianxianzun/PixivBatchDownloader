@@ -48,12 +48,10 @@ class Filter {
     this.getDownType()
     this.getDownTypeByImgCount()
     this.getDownTypeByColor()
+    this.getDownTypeByBmked()
 
     // 获取收藏数设置
     this.getBMKNum()
-
-    // 获取只下载已收藏设置
-    this.getOnlyBmk()
 
     // 获取宽高条件设置
     this.getSetWh()
@@ -100,13 +98,13 @@ class Filter {
       return false
     }
 
-    // 检查收藏数要求
-    if (!this.checkBMK(option.bookmarkCount)) {
+    // 检查收藏和未收藏的要求
+    if (!this.checkDownTypeByBmked(option.bookmarkData)) {
       return false
     }
 
-    // 检查只下载已收藏的要求
-    if (!this.checkOnlyBmk(option.bookmarkData)) {
+    // 检查收藏数要求
+    if (!this.checkBMK(option.bookmarkCount)) {
       return false
     }
 
@@ -219,6 +217,23 @@ class Filter {
     }
   }
 
+  // 获取下载收藏和未收藏作品的设置
+  private getDownTypeByBmked() {
+    // 如果全部排除则取消任务
+    if (!settings.downNotBookmarked && !settings.downBookmarked) {
+      this.throwError(lang.transl('_排除了所有作品类型'))
+    }
+
+    let notDownTip = ''
+
+    notDownTip += settings.downNotBookmarked ? '' : lang.transl('_未收藏')
+    notDownTip += settings.downBookmarked ? '' : lang.transl('_已收藏')
+
+    if (notDownTip) {
+      this.logTip(lang.transl('_排除作品类型') + notDownTip)
+    }
+  }
+
   // 获取用户输入的 tag 内容
   private getTagString(str: string) {
     let result = ''
@@ -300,13 +315,6 @@ class Filter {
     if (max.result) {
       this._BMKNumMax = max.value
       this.logTip(lang.transl('_收藏数小于') + max.value)
-    }
-  }
-
-  // 获取只下载已收藏的设置
-  private getOnlyBmk() {
-    if (settings.setOnlyBmk) {
-      this.logTip(lang.transl('_只下载已收藏的提示'))
     }
   }
 
@@ -490,6 +498,24 @@ class Filter {
     )
   }
 
+  // 检查作品是否符合已收藏、未收藏作品的设置
+  private checkDownTypeByBmked(bookmarked: any) {
+    // 如果没有参数，或者都没有排除，或者都排除了，则视为下载此文件
+    if (bookmarked === undefined) {
+      return true
+    }
+
+    if (!settings.downNotBookmarked && settings.downBookmarked) {
+      // 只下载已收藏
+      return !!bookmarked
+    } else if (settings.downNotBookmarked && !settings.downBookmarked) {
+      // 只下载未收藏
+      return !bookmarked
+    }
+
+    return true
+  }
+
   // 检查收藏数要求
   private checkBMK(bmk: FilterOption['bookmarkCount']) {
     if (bmk === undefined || !settings.BMKNumSwitch) {
@@ -497,15 +523,6 @@ class Filter {
     }
 
     return bmk >= this._BMKNumMin && bmk <= this._BMKNumMax
-  }
-
-  // 检查作品是否符合【只下载已收藏】的条件,返回值 true 表示包含这个作品
-  private checkOnlyBmk(bookmarked: any) {
-    if (bookmarked === undefined || !settings.setOnlyBmk) {
-      return true
-    }
-
-    return !!bookmarked
   }
 
   // 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。

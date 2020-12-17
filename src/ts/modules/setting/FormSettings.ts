@@ -79,13 +79,12 @@ class FormSettings {
     this.saveCheckBox('downMultiImg')
     this.saveCheckBox('downColorImg')
     this.saveCheckBox('downBlackWhiteImg')
+    this.saveCheckBox('downNotBookmarked')
+    this.saveCheckBox('downBookmarked')
 
     // 保存多图作品设置
     this.saveCheckBox('firstFewImagesSwitch')
     this.saveTextInput('firstFewImages')
-
-    // 保存只下载已收藏
-    this.saveCheckBox('setOnlyBmk')
 
     // 保存动图格式选项
     this.saveRadio('ugoiraSaveAs')
@@ -245,13 +244,12 @@ class FormSettings {
     this.restoreBoolean('downMultiImg')
     this.restoreBoolean('downColorImg')
     this.restoreBoolean('downBlackWhiteImg')
+    this.restoreBoolean('downNotBookmarked')
+    this.restoreBoolean('downBookmarked')
 
     // 多图下载前几张图作品设置
     this.restoreBoolean('firstFewImagesSwitch')
     this.restoreString('firstFewImages')
-
-    // 设置只下载已收藏
-    this.restoreBoolean('setOnlyBmk')
 
     // 设置动图格式选项
     this.restoreString('ugoiraSaveAs')
