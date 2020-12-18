@@ -17063,6 +17063,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.resetSettings,
               () => {
                 this.form.reset()
+                this.initFormBueatiful()
               },
             )
             // 在选项卡的标题上触发事件时，激活对应的选项卡
@@ -17445,7 +17446,7 @@ flag 及其含义如下：
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
         '_最大值',
       )}&nbsp;</span>
-      <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="0">
+      <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="999999">
       <span class="verticalSplit"></span>
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
@@ -17455,7 +17456,7 @@ flag 及其含义如下：
       <input type="checkbox" name="BMKNumAverageSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="BMKNumAverageSwitch">
-        <input type="text" name="BMKNumAverage" class="setinput_style1 blue bmkNum" value="0">
+        <input type="text" name="BMKNumAverage" class="setinput_style1 blue bmkNum" value="600">
       </span>
       </span>
       </p>
@@ -17519,7 +17520,7 @@ flag 及其含义如下：
       <label for="ratio3"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
         '_输入宽高比',
       )}</label>
-      <input type="text" name="userRatio" class="setinput_style1 blue" value="">
+      <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
       </span>
       </p>
 

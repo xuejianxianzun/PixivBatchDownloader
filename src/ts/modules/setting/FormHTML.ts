@@ -99,7 +99,7 @@ const formHtml = `<form class="settingForm">
       <span>${lang.transl('_最小值')}&nbsp;</span>
       <input type="text" name="BMKNumMin" class="setinput_style1 blue bmkNum" value="0">
       <span>${lang.transl('_最大值')}&nbsp;</span>
-      <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="0">
+      <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="999999">
       <span class="verticalSplit"></span>
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_日均收藏数量的提示',
@@ -109,7 +109,7 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="BMKNumAverageSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="BMKNumAverageSwitch">
-        <input type="text" name="BMKNumAverage" class="setinput_style1 blue bmkNum" value="0">
+        <input type="text" name="BMKNumAverage" class="setinput_style1 blue bmkNum" value="600">
       </span>
       </span>
       </p>
@@ -163,7 +163,7 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="3">
       <span class="beautify_radio"></span>
       <label for="ratio3"> ${lang.transl('_输入宽高比')}</label>
-      <input type="text" name="userRatio" class="setinput_style1 blue" value="">
+      <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
       </span>
       </p>
 

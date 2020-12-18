@@ -95,6 +95,7 @@ class Form {
 
     window.addEventListener(EVT.list.resetSettings, () => {
       this.form.reset()
+      this.initFormBueatiful()
     })
 
     // 在选项卡的标题上触发事件时，激活对应的选项卡
