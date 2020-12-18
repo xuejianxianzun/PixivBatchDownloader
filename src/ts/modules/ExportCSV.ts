@@ -77,7 +77,7 @@ class ExportCSV {
       toString: this.string2String,
     },
     {
-      name: 'userid',
+      name: 'userId',
       index: 'userId',
       q: false,
       toString: this.string2String,

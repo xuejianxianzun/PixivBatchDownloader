@@ -12,11 +12,10 @@ import { settingAPI } from './setting/SettingAPI'
 import { states } from './States'
 import { saveArtworkData } from './artwork/SaveArtworkData'
 import { saveNovelData } from './novel/SaveNovelData'
+import { mute } from './Mute'
 import { IDData } from './Store.d'
-import {mute} from './Mute'
 
 abstract class InitPageBase {
-  
   protected crawlNumber = 0 // 要抓取的个数/页数
 
   protected maxCount = 1000 // 当前页面类型最多有多少个页面/作品
@@ -30,7 +29,7 @@ abstract class InitPageBase {
   protected ajaxThreads = this.ajaxThreadsDefault // 抓取时的并发连接数
 
   protected ajaxThreadsFinished = 0 // 统计有几个并发线程完成所有请求。统计的是并发线程（ ajaxThreads ）而非请求数
-  
+
   // 子组件不应该重载 init 方法
   protected init() {
     options.showAllOption()
@@ -41,6 +40,13 @@ abstract class InitPageBase {
 
     window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
       this.destroy()
+    })
+
+    // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      if (!states.busy) {
+        EVT.fire(EVT.list.clearLog)
+      }
     })
   }
 
@@ -161,7 +167,6 @@ abstract class InitPageBase {
 
     await mute.getMuteSettings()
 
-    console.log(222)
     this.getWantPage()
 
     this.getMultipleSetting()

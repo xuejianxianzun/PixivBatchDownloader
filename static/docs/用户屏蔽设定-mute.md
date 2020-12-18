@@ -34,7 +34,7 @@ Pixiv 允许用户屏蔽某些 tag 和用户。普通用户只能设置 1 个屏
 - `iconUrl` 当项目是 tag 时为 `null`；当项目是 user 时为用户头像 url
 - `enabled` 这个项目是否启用。目前看到的都是 `true`
 - `isMuted` 是否屏蔽这个项目。
-- `listType` 这次返回的项目列表的类型。`'existing'` 表示列表里都是已存在的屏蔽项目（每个项目的 isMuted 都是 true）；`'candidate'` 指列表里都是候选的屏蔽项目（每个项目的 isMuted 不固定）。
+- `listType` `'existing'` 表示这个项目存在于“設定中”区域里；`'candidate'` 指这个项目存在于“候補”区域里。这只表示它们显示的区域，不应作为判断的标准。
 
 ## 获取用户的屏蔽设置
 
@@ -78,6 +78,8 @@ Pixiv 允许用户屏蔽某些 tag 和用户。普通用户只能设置 1 个屏
 `GET`
 
 `https://www.pixiv.net/ajax/mute/items?context=user&id=${userId}&lang=zh`
+
+返回值里有个坑： value 的值是 number，而其他 api 里是 string。
 
 ```json
 {

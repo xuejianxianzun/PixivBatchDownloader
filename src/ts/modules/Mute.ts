@@ -1,10 +1,13 @@
 import { API } from './API'
 
 class Mute {
-  private userList: number[] = []
+  private userList: string[] = []
   private tagList: string[] = []
 
-  public checkUser(id: number) {
+  public checkUser(id: number | string) {
+    if (typeof id === 'number') {
+      id = id.toString()
+    }
     return this.userList.includes(id)
   }
 
@@ -26,7 +29,6 @@ class Mute {
         this.tagList.push(item.value)
       }
     }
-    console.log(111)
   }
 }
 

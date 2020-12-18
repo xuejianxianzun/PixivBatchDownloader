@@ -27,7 +27,7 @@ class SaveNovelData {
       tags: tags,
       bookmarkCount: bmk,
       bookmarkData: body.bookmarkData,
-      userid: body.userId,
+      userId: body.userId,
     }
 
     // 检查通过
@@ -35,7 +35,7 @@ class SaveNovelData {
       const id = body.id
       const idNum = parseInt(id)
       const title = body.title
-      const userid = body.userId
+      const userId = body.userId
       const user = body.userName
       const bookmarked = !!body.bookmarkData
 
@@ -72,7 +72,7 @@ class SaveNovelData {
         tagsWithTransl: tags,
         tagsTranslOnly: tags,
         user: user,
-        userId: userid,
+        userId: userId,
         // 这里的 ext 并不重要，下载时会根据 novelSaveAs 设置自动生成对应的数据
         ext: settings.novelSaveAs,
         bmk: bmk,

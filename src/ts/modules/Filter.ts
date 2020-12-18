@@ -6,6 +6,7 @@ import { EVT } from './EVT'
 import { states } from './States'
 import { settings } from './setting/Settings'
 import { blackAndWhiteImage } from './BlackandWhiteImage'
+import { mute } from './Mute'
 
 // 检查作品是否符合过滤条件
 class Filter {
@@ -84,9 +85,10 @@ class Filter {
   }
 
   // 检查作品是否符合过滤器的要求
+  // 注意：这是一个异步函数，所以要使用 await 获取检查结果
   // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
-  // 所有过滤器里，都必须要检查参数为 undefined 的情况
-  // 注意：这是一个异步函数，所以要记得使用 await 获取检查结果
+  // 每个过滤器函数里都必须检查参数为 undefined 的情况
+  // 每个过滤器函数必须返回一个 boolean 值，true 表示保留这个作品，false 表示排除这个作品
   public async check(option: FilterOption): Promise<boolean> {
     // 检查下载的作品类型设置
     if (!this.checkDownType(option.illustType)) {
@@ -139,7 +141,7 @@ class Filter {
     }
 
     // 检查用户阻止名单
-    if (!this.checkBlockList(option.userid)) {
+    if (!this.checkBlockList(option.userId)) {
       return false
     }
 
@@ -153,8 +155,17 @@ class Filter {
       return false
     }
 
+    // 检查屏蔽设定
+    if (!this.checkMuteUser(option.userId)) {
+      return false
+    }
+
+    if (!this.checkMuteTag(option.tags)) {
+      return false
+    }
+
     // 检查黑白图片
-    // 这一步需要加载图片，需要较长的时间，较躲的资源占用，放到最后检查，以避免无谓的执行
+    // 这一步需要加载图片，需要较长的时间，较多的资源占用，所以放到最后检查
     const blackAndWhiteResult = await this.checkBlackWhite(option.mini)
     if (!blackAndWhiteResult) {
       return false
@@ -739,13 +750,13 @@ class Filter {
     return yes_rank === 0
   }
 
-  private checkBlockList(userid: FilterOption['userid']) {
-    if (!settings.userBlockList || userid === undefined) {
+  private checkBlockList(userId: FilterOption['userId']) {
+    if (!settings.userBlockList || userId === undefined) {
       return true
     }
 
     // 如果阻止名单里有这个用户 id，则返回 false 表示阻止这个作品
-    return !this.blockList.includes(userid)
+    return !this.blockList.includes(userId)
   }
 
   // 检查文件体积
@@ -754,6 +765,22 @@ class Filter {
       return true
     }
     return size >= this._sizeMin && size <= this._sizeMax
+  }
+
+  private checkMuteUser(userId: FilterOption['userId']) {
+    if (userId === undefined) {
+      return true
+    }
+    return !mute.checkUser(userId)
+  }
+
+  private checkMuteTag(tags: FilterOption['tags']) {
+    if (tags === undefined) {
+      return true
+    }
+
+    // 如果某些 tag 存在于 mute 列表里，就排除这个作品，所以要取反
+    return !tags.some(mute.checkTag.bind(mute))
   }
 
   // 在日志区域输出提示

@@ -45,7 +45,7 @@ class SaveArtworkData {
       width: fullWidth,
       height: fullHeight,
       mini: body.urls.mini,
-      userid: body.userId,
+      userId: body.userId,
     }
     // 这里检查颜色设置是有一个隐患的：因为有些多图作品第一张图的颜色和后面的图片的颜色不一样，但这里检查时只检查第一张的缩略图。如果第一张被排除掉了，那么它后面的图片也就不会被加入抓取结果。
 
@@ -53,7 +53,7 @@ class SaveArtworkData {
     if (await filter.check(filterOpt)) {
       const idNum = parseInt(body.id)
       const title = body.title // 作品标题
-      const userid = body.userId // 用户id
+      const userId = body.userId // 用户id
       const user = body.userName // 用户名
       const thumb = body.urls.thumb
       const pageCount = body.pageCount
@@ -95,7 +95,7 @@ class SaveArtworkData {
           tagsWithTransl: tagsWithTransl,
           tagsTranslOnly: tagsTranslOnly,
           user: user,
-          userId: userid,
+          userId: userId,
           fullWidth: fullWidth,
           fullHeight: fullHeight,
           ext: ext,
@@ -132,7 +132,7 @@ class SaveArtworkData {
           tagsWithTransl: tagsWithTransl,
           tagsTranslOnly: tagsTranslOnly,
           user: user,
-          userId: userid,
+          userId: userId,
           fullWidth: fullWidth,
           fullHeight: fullHeight,
           ext: ext,

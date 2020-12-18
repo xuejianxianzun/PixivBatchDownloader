@@ -107,7 +107,7 @@ class InitNewArtworkPage extends InitPageBase {
         bookmarkData: nowData.bookmarkData,
         illustType: nowData.illustType,
         tags: nowData.tags,
-        userid: nowData.userId,
+        userId: nowData.userId,
         createDate: nowData.createDate,
       }
 

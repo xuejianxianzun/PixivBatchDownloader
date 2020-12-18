@@ -82,7 +82,7 @@ class InitSeriesPage extends InitPageBase {
         width: work.width,
         height: work.height,
         illustType: work.illustType,
-        userid: work.userId,
+        userId: work.userId,
         createDate: work.createDate,
       }
 

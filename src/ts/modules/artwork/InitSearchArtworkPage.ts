@@ -319,7 +319,7 @@ class InitSearchArtworkPage extends InitPageBase {
         bookmarkData: nowData.bookmarkData,
         illustType: nowData.illustType,
         tags: nowData.tags,
-        userid: nowData.userId,
+        userId: nowData.userId,
       }
 
       if (await filter.check(filterOpt)) {
@@ -685,7 +685,7 @@ class InitSearchArtworkPage extends InitPageBase {
         width: data.fullWidth,
         height: data.fullHeight,
         createDate: data.date,
-        userid: data.userId,
+        userId: data.userId,
       }
 
       return filter.check(filterOpt)
