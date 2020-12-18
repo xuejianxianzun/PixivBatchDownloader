@@ -18,6 +18,7 @@ import {
   NewNovelData,
   FollowingResponse,
   SeriesData,
+  muteData,
 } from './CrawlResult.d'
 
 import {
@@ -35,10 +36,10 @@ interface LikeResponse {
   error: boolean
   message: '' | string
   body:
-    | []
-    | {
-        is_liked: boolean
-      }
+  | []
+  | {
+    is_liked: boolean
+  }
 }
 
 class API {
@@ -231,9 +232,8 @@ class API {
     offset: number,
     hide: boolean = false,
   ): Promise<BookmarkData> {
-    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
-      hide ? 'hide' : 'show'
-    }&rdm=${Math.random()}`
+    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${hide ? 'hide' : 'show'
+      }&rdm=${Math.random()}`
 
     return this.request(url)
   }
@@ -573,6 +573,10 @@ class API {
     })
     const json = (await r.json()) as LikeResponse
     return json
+  }
+
+  static async getMuteSettings(): Promise<muteData> {
+    return this.request(`https://www.pixiv.net/ajax/mute/items?context=setting`)
   }
 }
 

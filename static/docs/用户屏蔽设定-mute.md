@@ -1,4 +1,5 @@
 - [屏蔽设定](#屏蔽设定)
+  - [返回值里通用的数据结构](#返回值里通用的数据结构)
   - [获取用户的屏蔽设置](#获取用户的屏蔽设置)
   - [检查是否屏蔽了指定用户](#检查是否屏蔽了指定用户)
   - [检查是否屏蔽了指定作品](#检查是否屏蔽了指定作品)
@@ -12,6 +13,28 @@ Pixiv 允许用户屏蔽某些 tag 和用户。普通用户只能设置 1 个屏
 在作品页面里，作品的图片下方有 `...` 的扩展菜单，点击可以看到“屏蔽”功能。在用户页面里也有这个菜单。
 
 以下操作都要携带 cookie。
+
+## 返回值里通用的数据结构
+
+```json
+{
+  "type": "tag" | "user",
+  "value": string,
+  "label": string,
+  "iconUrl": null | string,
+  "enabled": boolean,
+  "isMuted": boolean,
+  "listType": "existing" | "candidate"
+}
+```
+
+- `type` 指示这个项目是 tag 还是 user
+- `value` 当项目是 tag 时为 tag 名称；当项目是 user 时为 userId
+- `label` 当项目是 tag 时为 tag 名称；当项目是 user 时为用户名
+- `iconUrl` 当项目是 tag 时为 `null`；当项目是 user 时为用户头像 url
+- `enabled` 这个项目是否启用。目前看到的都是 `true`
+- `isMuted` 是否屏蔽这个项目。
+- `listType` 这次返回的项目列表的类型。`'existing'` 表示列表里都是已存在的屏蔽项目（每个项目的 isMuted 都是 true）；`'candidate'` 指列表里都是候选的屏蔽项目（每个项目的 isMuted 不固定）。
 
 ## 获取用户的屏蔽设置
 
@@ -117,7 +140,7 @@ Pixiv 允许用户屏蔽某些 tag 和用户。普通用户只能设置 1 个屏
                 "label": "FGO",
                 "iconUrl": null,
                 "enabled": true,
-                "isMuted": false,
+                "isMuted": true,
                 "listType": "candidate"
             },
             {
@@ -207,6 +230,16 @@ body:
 ```
 
 `context=illust&type=tag&value=FGO`
+
+返回：
+
+```json
+{
+    "error": false,
+    "message": "",
+    "body": ""
+}
+```
 
 ## 删除一个屏蔽项
 

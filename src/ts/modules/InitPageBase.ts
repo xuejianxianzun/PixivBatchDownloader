@@ -13,8 +13,24 @@ import { states } from './States'
 import { saveArtworkData } from './artwork/SaveArtworkData'
 import { saveNovelData } from './novel/SaveNovelData'
 import { IDData } from './Store.d'
+import {mute} from './Mute'
 
 abstract class InitPageBase {
+  
+  protected crawlNumber = 0 // 要抓取的个数/页数
+
+  protected maxCount = 1000 // 当前页面类型最多有多少个页面/作品
+
+  protected startpageNo = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、新作品页、系列页面使用。
+
+  protected listPageFinished = 0 // 记录一共抓取了多少个列表页。使用范围同上。
+
+  protected readonly ajaxThreadsDefault = 10 // 抓取时的并发连接数默认值，也是最大值
+
+  protected ajaxThreads = this.ajaxThreadsDefault // 抓取时的并发连接数
+
+  protected ajaxThreadsFinished = 0 // 统计有几个并发线程完成所有请求。统计的是并发线程（ ajaxThreads ）而非请求数
+  
   // 子组件不应该重载 init 方法
   protected init() {
     options.showAllOption()
@@ -60,20 +76,6 @@ abstract class InitPageBase {
     DOM.clearSlot('crawlBtns')
     DOM.clearSlot('otherBtns')
   }
-
-  protected crawlNumber = 0 // 要抓取的个数/页数
-
-  protected maxCount = 1000 // 当前页面类型最多有多少个页面/作品
-
-  protected startpageNo = 1 // 列表页开始抓取时的页码，只在 api 需要页码时使用。目前有搜索页、排行榜页、新作品页、系列页面使用。
-
-  protected listPageFinished = 0 // 记录一共抓取了多少个列表页。使用范围同上。
-
-  protected readonly ajaxThreadsDefault = 10 // 抓取时的并发连接数默认值，也是最大值
-
-  protected ajaxThreads = this.ajaxThreadsDefault // 抓取时的并发连接数
-
-  protected ajaxThreadsFinished = 0 // 统计有几个并发线程完成所有请求。统计的是并发线程（ ajaxThreads ）而非请求数
 
   // 作品个数/页数的输入不合法
   private getWantPageError() {
@@ -143,21 +145,23 @@ abstract class InitPageBase {
     }
   }
 
-  // 准备抓取，进行抓取之前的一些检查工作。必要时可以在子类中改写
+  // 准备抓取，进行抓取之前的一些检查工作
   protected async readyCrawl() {
     // 检查是否可以开始抓取
     if (states.busy) {
-      EVT.sendMsg({
+      return EVT.sendMsg({
         msg: lang.transl('_当前任务尚未完成2'),
         type: 'error',
       })
-      return
     }
 
     log.clear()
 
     log.success(lang.transl('_任务开始0'))
 
+    await mute.getMuteSettings()
+
+    console.log(222)
     this.getWantPage()
 
     this.getMultipleSetting()

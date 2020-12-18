@@ -282,12 +282,12 @@ export interface UserProfile {
     }
     official: boolean
     group:
-      | null
-      | {
-          id: string
-          title: string
-          iconUrl: string
-        }[]
+    | null
+    | {
+      id: string
+      title: string
+      iconUrl: string
+    }[]
   }
 }
 
@@ -344,20 +344,20 @@ export interface UserProfileAllData {
   message: string
   body: {
     illusts:
-      | []
-      | {
-          [key: string]: null
-        }
+    | []
+    | {
+      [key: string]: null
+    }
     manga:
-      | []
-      | {
-          [key: string]: null
-        }
+    | []
+    | {
+      [key: string]: null
+    }
     novels:
-      | []
-      | {
-          [key: string]: null
-        }
+    | []
+    | {
+      [key: string]: null
+    }
     mangaSeries: [] | {}
     novelSeries: [] | {}
     pickup: object
@@ -419,12 +419,12 @@ export interface RecommendData {
     details: {
       [key: string]: {
         methods:
-          | ['illust_by_illust_table_bq_recommendation_c']
-          | ['illust_by_illust_table_mf_tda']
-          | [
-              'illust_by_illust_table_bq_recommendation_c',
-              'illust_by_illust_table_mf_tda',
-            ]
+        | ['illust_by_illust_table_bq_recommendation_c']
+        | ['illust_by_illust_table_mf_tda']
+        | [
+          'illust_by_illust_table_bq_recommendation_c',
+          'illust_by_illust_table_mf_tda',
+        ]
         score: number
         seedIllustIds: string[]
       }
@@ -950,5 +950,44 @@ export interface SeriesData {
         url: string
       }
     }
+  }
+}
+
+interface muteItem {
+  "type": "tag" | "user",
+  "value": string | number,
+  "label": string,
+  "iconUrl": null | string,
+  "enabled": boolean,
+  "isMuted": boolean,
+  "listType": "existing" | "candidate"
+}
+
+interface muteItemUser {
+  "type": "user",
+  "value": number,
+  "label": string,
+  "iconUrl": string,
+  "enabled": boolean,
+  "isMuted": boolean,
+  "listType": "existing" | "candidate"
+}
+
+interface muteItemTag {
+  "type": "tag",
+  "value": string,
+  "label": string,
+  "iconUrl": null,
+  "enabled": boolean,
+  "isMuted": boolean,
+  "listType": "existing" | "candidate"
+}
+
+// 获取屏蔽的项目时返回的数据格式
+export interface muteData {
+  error: boolean
+  message: string
+  "body": {
+    "mute_items": (muteItemUser[] | muteItemTag[])
   }
 }
