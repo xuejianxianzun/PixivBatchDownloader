@@ -13,15 +13,15 @@ class Filter {
     this.bindEvents()
   }
 
-  private readonly BMKNumMinDef = 0
-  private readonly BMKNumMaxDef = 9999999
   private readonly MiB = 1024 * 1024
+  private readonly oneDayTime = 24 * 60 * 60 * 1000 // 一天的毫秒数
 
   // 缓存部分开始
   // 为了减少不必要的重复计算，缓存一些计算后的值。当有设置改变时，重新计算缓存的值，所以这些值也是会动态更新的。
-  // 可以直接使用的选项不需要缓存;只有需要进行处理后才可以使用的选项需要缓存
-  private _BMKNumMin: number = this.BMKNumMinDef // 最小收藏数量
-  private _BMKNumMax: number = this.BMKNumMaxDef // 最大收藏数量
+  // 可以直接使用的值不需要缓存;只有需要进行处理的值需要缓存
+  private _BMKNumMin: number = parseInt(settings.BMKNumMin)
+  private _BMKNumMax: number = parseInt(settings.BMKNumMax)
+  private _BMKNumAverage: number = parseInt(settings.BMKNumAverage)
 
   private _sizeMin = 0
   private _sizeMax = 100 * this.MiB
@@ -104,7 +104,7 @@ class Filter {
     }
 
     // 检查收藏数要求
-    if (!this.checkBMK(option.bookmarkCount)) {
+    if (!this.checkBMK(option.bookmarkCount, option.createDate)) {
       return false
     }
 
@@ -301,20 +301,23 @@ class Filter {
       return
     }
 
-    this._BMKNumMin = this.BMKNumMinDef
-    this._BMKNumMax = this.BMKNumMaxDef
+    const min = parseInt(settings.BMKNumMin)
+    const max = parseInt(settings.BMKNumMax)
+    const average = parseInt(settings.BMKNumAverage)
 
-    const min = API.checkNumberGreater0(settings.BMKNumMin)
-    const max = API.checkNumberGreater0(settings.BMKNumMax)
-
-    if (min.result) {
-      this._BMKNumMin = min.value
-      this.logTip(lang.transl('_收藏数大于') + min.value)
+    if (min >= 0) {
+      this._BMKNumMin = min
+      this.logTip(lang.transl('_收藏数大于') + min)
     }
 
-    if (max.result) {
-      this._BMKNumMax = max.value
-      this.logTip(lang.transl('_收藏数小于') + max.value)
+    if (max >= 0) {
+      this._BMKNumMax = max
+      this.logTip(lang.transl('_收藏数小于') + max)
+    }
+
+    if (average >= 0 && settings.BMKNumAverageSwitch) {
+      this._BMKNumAverage = average
+      this.logTip(`${lang.transl('_日均收藏数量')} >= ${average}`)
     }
   }
 
@@ -517,12 +520,31 @@ class Filter {
   }
 
   // 检查收藏数要求
-  private checkBMK(bmk: FilterOption['bookmarkCount']) {
+  private checkBMK(
+    bmk: FilterOption['bookmarkCount'],
+    date: FilterOption['createDate'],
+  ) {
     if (bmk === undefined || !settings.BMKNumSwitch) {
       return true
     }
 
-    return bmk >= this._BMKNumMin && bmk <= this._BMKNumMax
+    // 检查收藏数量是否达到设置的最大值、最小值范围
+    const checkNumber = bmk >= this._BMKNumMin && bmk <= this._BMKNumMax
+
+    // 如果没有设置日均收藏，就直接返回收藏数量的检查结果
+    if (!settings.BMKNumAverageSwitch || date === undefined) {
+      return checkNumber
+    }
+
+    // 检查日均收藏
+    const createTime = new Date(date).getTime()
+    const nowTime = new Date().getTime()
+    const day = (nowTime - createTime) / this.oneDayTime // 计算作品发表以来的天数
+    const average = bmk / day
+    const checkAverage = average >= this._BMKNumAverage
+
+    // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会下载这个作品
+    return checkNumber || checkAverage
   }
 
   // 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。

@@ -108,6 +108,7 @@ class InitNewArtworkPage extends InitPageBase {
         illustType: nowData.illustType,
         tags: nowData.tags,
         userid: nowData.userId,
+        createDate: nowData.createDate,
       }
 
       if (await filter.check(filterOpt)) {

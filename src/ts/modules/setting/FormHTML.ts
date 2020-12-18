@@ -100,6 +100,17 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="BMKNumMin" class="setinput_style1 blue bmkNum" value="0">
       <span>${lang.transl('_最大值')}&nbsp;</span>
       <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="0">
+      <span class="verticalSplit"></span>
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_日均收藏数量的提示',
+      )}">
+      ${lang.transl('_日均收藏数量')}
+      <span class="gray1"> ? </span></span>
+      <input type="checkbox" name="BMKNumAverageSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="BMKNumAverageSwitch">
+        <input type="text" name="BMKNumAverage" class="setinput_style1 blue bmkNum" value="0">
+      </span>
       </span>
       </p>
 

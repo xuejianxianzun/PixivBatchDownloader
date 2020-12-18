@@ -3,7 +3,7 @@ import { pageType } from '../PageType'
 import { settings, XzSetting } from './Settings'
 import { SettingsForm } from './Form.d'
 
-// 管理 from 表单里的选项（类型为 input 元素的选项），从 settings 里设置选项的值；当选项改变时保存到 settings 里
+// 管理 from 表单里的选项（类型为 input 元素的选项），从 settings 里读取选项的值；当选项改变时保存到 settings 里
 // 不属于 input 类型的选项，不在这里处理。
 
 // 补充说明：
@@ -102,6 +102,8 @@ class FormSettings {
     // 保存收藏数量数值
     this.saveTextInput('BMKNumMin')
     this.saveTextInput('BMKNumMax')
+    this.saveCheckBox('BMKNumAverageSwitch')
+    this.saveTextInput('BMKNumAverage')
 
     // 保存宽高条件
     this.saveCheckBox('setWHSwitch')
@@ -267,6 +269,8 @@ class FormSettings {
     // 设置收藏数量数值
     this.restoreString('BMKNumMin')
     this.restoreString('BMKNumMax')
+    this.restoreBoolean('BMKNumAverageSwitch')
+    this.restoreString('BMKNumAverage')
 
     // 设置宽高条件
     this.restoreBoolean('setWHSwitch')

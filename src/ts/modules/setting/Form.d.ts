@@ -13,6 +13,8 @@ export interface SettingsForm extends HTMLFormElement {
   ugoiraSaveAs: RadioNodeList
   BMKNumMin: HTMLInputElement
   BMKNumMax: HTMLInputElement
+  BMKNumAverageSwitch: HTMLInputElement
+  BMKNumAverage: HTMLInputElement
   downNotBookmarked: HTMLInputElement
   downBookmarked: HTMLInputElement
   setWHSwitch: HTMLInputElement

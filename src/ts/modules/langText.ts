@@ -1411,6 +1411,18 @@ const langText = {
   _导出设置: ['导出设置', 'エクスポート設定', 'Export settings', '匯出設定'],
   _导入设置: ['导入设置', 'インポート設定', 'Import settings', '匯入設定'],
   _重置设置: ['重置设置', 'リセット設定', 'Reset settings', '重設設定'],
+  _日均收藏数量: [
+    '日均收藏数量',
+    '1 日の平均ブックマーク数',
+    'Average number of daily bookmarks',
+    '日均收藏數量',
+  ],
+  _日均收藏数量的提示: [
+    '你可以设置作品的平均每日收藏数量。满足条件的作品会被下载。',
+    '作品の 1 日の平均ブックマーク数を設定することができます。条件を満した作品はダウンロードされます。',
+    'You can set the average daily bookmarks number of works. Works that meet the conditions will be downloaded.',
+    '您可以設定作品的平均每日收藏數量。滿足條件的作品會被下載。',
+  ],
 }
 
 export { langText, langTextKeys }

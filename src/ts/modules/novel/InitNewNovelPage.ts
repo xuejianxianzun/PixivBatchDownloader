@@ -99,6 +99,7 @@ class InitNewNovelPage extends InitPageBase {
         illustType: 3,
         tags: nowData.tags,
         userid: nowData.userId,
+        createDate: nowData.createDate,
       }
 
       if (await filter.check(filterOpt)) {

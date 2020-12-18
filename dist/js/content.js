@@ -4548,14 +4548,23 @@
         // 检查作品是否符合过滤条件
         class Filter {
           constructor() {
-            this.BMKNumMinDef = 0
-            this.BMKNumMaxDef = 9999999
             this.MiB = 1024 * 1024
+            this.oneDayTime = 24 * 60 * 60 * 1000 // 一天的毫秒数
             // 缓存部分开始
             // 为了减少不必要的重复计算，缓存一些计算后的值。当有设置改变时，重新计算缓存的值，所以这些值也是会动态更新的。
-            // 可以直接使用的选项不需要缓存;只有需要进行处理后才可以使用的选项需要缓存
-            this._BMKNumMin = this.BMKNumMinDef // 最小收藏数量
-            this._BMKNumMax = this.BMKNumMaxDef // 最大收藏数量
+            // 可以直接使用的值不需要缓存;只有需要进行处理的值需要缓存
+            this._BMKNumMin = parseInt(
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                .BMKNumMin,
+            )
+            this._BMKNumMax = parseInt(
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                .BMKNumMax,
+            )
+            this._BMKNumAverage = parseInt(
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                .BMKNumAverage,
+            )
             this._sizeMin = 0
             this._sizeMax = 100 * this.MiB
             this._setWidth = 0
@@ -4623,7 +4632,7 @@
               return false
             }
             // 检查收藏数要求
-            if (!this.checkBMK(option.bookmarkCount)) {
+            if (!this.checkBMK(option.bookmarkCount, option.createDate)) {
               return false
             }
             // 检查要排除的 tag
@@ -4916,34 +4925,44 @@
             ) {
               return
             }
-            this._BMKNumMin = this.BMKNumMinDef
-            this._BMKNumMax = this.BMKNumMaxDef
-            const min = _API__WEBPACK_IMPORTED_MODULE_2__[
-              'API'
-            ].checkNumberGreater0(
+            const min = parseInt(
               _setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
                 .BMKNumMin,
             )
-            const max = _API__WEBPACK_IMPORTED_MODULE_2__[
-              'API'
-            ].checkNumberGreater0(
+            const max = parseInt(
               _setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
                 .BMKNumMax,
             )
-            if (min.result) {
-              this._BMKNumMin = min.value
+            const average = parseInt(
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                .BMKNumAverage,
+            )
+            if (min >= 0) {
+              this._BMKNumMin = min
               this.logTip(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                   '_收藏数大于',
-                ) + min.value,
+                ) + min,
               )
             }
-            if (max.result) {
-              this._BMKNumMax = max.value
+            if (max >= 0) {
+              this._BMKNumMax = max
               this.logTip(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                   '_收藏数小于',
-                ) + max.value,
+                ) + max,
+              )
+            }
+            if (
+              average >= 0 &&
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                .BMKNumAverageSwitch
+            ) {
+              this._BMKNumAverage = average
+              this.logTip(
+                `${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+                  '_日均收藏数量',
+                )} >= ${average}`,
               )
             }
           }
@@ -5207,7 +5226,7 @@
             return true
           }
           // 检查收藏数要求
-          checkBMK(bmk) {
+          checkBMK(bmk, date) {
             if (
               bmk === undefined ||
               !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
@@ -5215,7 +5234,24 @@
             ) {
               return true
             }
-            return bmk >= this._BMKNumMin && bmk <= this._BMKNumMax
+            // 检查收藏数量是否达到设置的最大值、最小值范围
+            const checkNumber = bmk >= this._BMKNumMin && bmk <= this._BMKNumMax
+            // 如果没有设置日均收藏，就直接返回收藏数量的检查结果
+            if (
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                .BMKNumAverageSwitch ||
+              date === undefined
+            ) {
+              return checkNumber
+            }
+            // 检查日均收藏
+            const createTime = new Date(date).getTime()
+            const nowTime = new Date().getTime()
+            const day = (nowTime - createTime) / this.oneDayTime // 计算作品发表以来的天数
+            const average = bmk / day
+            const checkAverage = average >= this._BMKNumAverage
+            // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会下载这个作品
+            return checkNumber || checkAverage
           }
           // 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。
           checkIncludeTag(tags) {
@@ -11840,6 +11876,7 @@ flag 及其含义如下：
                 illustType: nowData.illustType,
                 tags: nowData.tags,
                 userid: nowData.userId,
+                createDate: nowData.createDate,
               }
               if (
                 await _Filter__WEBPACK_IMPORTED_MODULE_4__['filter'].check(
@@ -13117,6 +13154,7 @@ flag 及其含义如下：
                 height: work.height,
                 illustType: work.illustType,
                 userid: work.userId,
+                createDate: work.createDate,
               }
               // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以 type 是 unknown
               if (
@@ -14860,6 +14898,18 @@ flag 及其含义如下：
             '匯入設定',
           ],
           _重置设置: ['重置设置', 'リセット設定', 'Reset settings', '重設設定'],
+          _日均收藏数量: [
+            '日均收藏数量',
+            '1 日の平均ブックマーク数',
+            'Average number of daily bookmarks',
+            '日均收藏數量',
+          ],
+          _日均收藏数量的提示: [
+            '你可以设置作品的平均每日收藏数量。满足条件的作品会被下载。',
+            '作品の 1 日の平均ブックマーク数を設定することができます。条件を満した作品はダウンロードされます。',
+            'You can set the average daily bookmarks number of works. Works that meet the conditions will be downloaded.',
+            '您可以設定作品的平均每日收藏數量。滿足條件的作品會被下載。',
+          ],
         }
 
         /***/
@@ -15202,6 +15252,7 @@ flag 及其含义如下：
                 illustType: 3,
                 tags: nowData.tags,
                 userid: nowData.userId,
+                createDate: nowData.createDate,
               }
               if (
                 await _Filter__WEBPACK_IMPORTED_MODULE_4__['filter'].check(
@@ -17297,6 +17348,17 @@ flag 及其含义如下：
         '_最大值',
       )}&nbsp;</span>
       <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="0">
+      <span class="verticalSplit"></span>
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_日均收藏数量的提示')}">
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_日均收藏数量')}
+      <span class="gray1"> ? </span></span>
+      <input type="checkbox" name="BMKNumAverageSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="BMKNumAverageSwitch">
+        <input type="text" name="BMKNumAverage" class="setinput_style1 blue bmkNum" value="0">
+      </span>
       </span>
       </p>
 
@@ -17987,7 +18049,7 @@ flag 及其含义如下：
           /*! ./Settings */ './src/ts/modules/setting/Settings.ts',
         )
 
-        // 管理 from 表单里的选项（类型为 input 元素的选项），从 settings 里设置选项的值；当选项改变时保存到 settings 里
+        // 管理 from 表单里的选项（类型为 input 元素的选项），从 settings 里读取选项的值；当选项改变时保存到 settings 里
         // 不属于 input 类型的选项，不在这里处理。
         // 补充说明：
         // 选项 setWantPage 并不需要实际上进行保存和恢复。保存和恢复时使用的是 wantPageArr
@@ -18076,6 +18138,8 @@ flag 及其含义如下：
             // 保存收藏数量数值
             this.saveTextInput('BMKNumMin')
             this.saveTextInput('BMKNumMax')
+            this.saveCheckBox('BMKNumAverageSwitch')
+            this.saveTextInput('BMKNumAverage')
             // 保存宽高条件
             this.saveCheckBox('setWHSwitch')
             this.saveRadio('widthHeightLimit')
@@ -18218,6 +18282,8 @@ flag 及其含义如下：
             // 设置收藏数量数值
             this.restoreString('BMKNumMin')
             this.restoreString('BMKNumMax')
+            this.restoreBoolean('BMKNumAverageSwitch')
+            this.restoreString('BMKNumAverage')
             // 设置宽高条件
             this.restoreBoolean('setWHSwitch')
             this.restoreString('widthHeightLimit')
@@ -18739,6 +18805,8 @@ flag 及其含义如下：
               BMKNumSwitch: false,
               BMKNumMin: '0',
               BMKNumMax: '999999',
+              BMKNumAverageSwitch: false,
+              BMKNumAverage: '600',
               setWHSwitch: false,
               widthHeightLimit: '>=',
               setWidthAndOr: '&',

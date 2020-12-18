@@ -45,6 +45,8 @@ interface XzSetting {
   BMKNumSwitch: boolean
   BMKNumMin: string
   BMKNumMax: string
+  BMKNumAverageSwitch: boolean
+  BMKNumAverage: string
   setWHSwitch: boolean
   widthHeightLimit: '>=' | '=' | '<='
   setWidthAndOr: '&' | '|'
@@ -147,6 +149,8 @@ class Settings {
     BMKNumSwitch: false,
     BMKNumMin: '0',
     BMKNumMax: '999999',
+    BMKNumAverageSwitch: false,
+    BMKNumAverage: '600',
     setWHSwitch: false,
     widthHeightLimit: '>=',
     setWidthAndOr: '&',
