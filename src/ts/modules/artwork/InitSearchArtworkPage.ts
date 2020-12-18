@@ -63,6 +63,7 @@ class InitSearchArtworkPage extends InitPageBase {
     'ecd',
     'blt',
     'bgt',
+    'work_lang',
   ]
 
   private resultMeta: Result[] = [] // 每次“开始筛选”完成后，储存当时所有结果，以备“在结果中筛选”使用
@@ -70,8 +71,6 @@ class InitSearchArtworkPage extends InitPageBase {
   private worksWrap: HTMLUListElement | null = null
 
   private deleteId = 0 // 手动删除时，要删除的作品的 id
-
-  private previewResult = true // 是否预览结果
 
   private causeResultChange = ['firstFewImagesSwitch', 'firstFewImages'] // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
 
@@ -141,7 +140,7 @@ class InitSearchArtworkPage extends InitPageBase {
   protected initAny() {
     this.hotBar()
 
-    this.setPreviewResult(settings.previewResult)
+    this.setNotAutoDownload()
 
     window.addEventListener(EVT.list.addResult, this.showCount)
 
@@ -366,7 +365,7 @@ class InitSearchArtworkPage extends InitPageBase {
     const data = event.detail.data
 
     if (data.name === 'previewResult') {
-      this.setPreviewResult(data.value)
+      this.setNotAutoDownload()
     }
 
     if (this.causeResultChange.includes(data.name)) {
@@ -377,11 +376,9 @@ class InitSearchArtworkPage extends InitPageBase {
     }
   }
 
-  private setPreviewResult(value: boolean) {
-    this.previewResult = value
-
-    // 如果设置了“预览搜索结果”，则“不自动下载”。否则允许自动下载
-    states.notAutoDownload = value ? true : false
+  private setNotAutoDownload() {
+    // 如果设置了“预览搜索结果”，则不启用自动下载
+    states.notAutoDownload = settings.previewResult ? true : false
   }
 
   // 抓取完成后，保存结果的元数据，并重排结果
@@ -436,7 +433,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 在页面上生成抓取结果对应的作品元素
   private createWork = (event: CustomEventInit) => {
-    if (!this.previewResult || !this.worksWrap) {
+    if (!settings.previewResult || !this.worksWrap) {
       return
     }
 
@@ -576,7 +573,7 @@ class InitSearchArtworkPage extends InitPageBase {
   private clearWorks() {
     this.worksWrap = this.getWorksWrap()
 
-    if (!this.previewResult || !this.worksWrap) {
+    if (!settings.previewResult || !this.worksWrap) {
       return
     }
 
