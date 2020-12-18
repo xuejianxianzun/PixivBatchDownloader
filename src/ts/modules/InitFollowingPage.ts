@@ -7,6 +7,15 @@ import { API } from './API'
 import { store } from './Store'
 import { log } from './Log'
 import { DOM } from './DOM'
+import { createCSV } from './CreateCSV'
+
+interface UserInfo {
+  userId: string
+  userName: string
+  homePage: string
+  userComment: string
+  profileImageUrl: string
+}
 
 class InitFollowingPage extends InitPageBase {
   constructor() {
@@ -28,10 +37,25 @@ class InitFollowingPage extends InitPageBase {
 
   private index = 0 // getIdList 时，对 userList 的索引
 
+  private userInfoList: UserInfo[] = [] // 储存关注用户列表，包含 id 和用户名
+
+  private downUserList = false // 下载关注用户列表的标记
+
+  private readonly homePrefix = 'https://www.pixiv.net/users/' // 用户主页的通用链接前缀
+
   protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
+      this.readyCrawl()
+    })
+
+    DOM.addBtn(
+      'crawlBtns',
+      Colors.blue,
+      lang.transl('_下载关注用户列表'),
+    ).addEventListener('click', () => {
+      this.downUserList = true
       this.readyCrawl()
     })
   }
@@ -108,6 +132,17 @@ class InitFollowingPage extends InitPageBase {
 
     for (const userData of users) {
       this.userList.push(userData.userId)
+
+      if (this.downUserList) {
+        this.userInfoList.push({
+          userId: userData.userId,
+          userName: userData.userName,
+          homePage: this.homePrefix + userData.userId,
+          userComment: userData.userComment,
+          profileImageUrl: userData.profileImageUrl,
+        })
+      }
+
       if (this.userList.length >= this.totalNeed) {
         // 抓取到了指定数量的用户
         return this.getUserListComplete()
@@ -126,10 +161,33 @@ class InitFollowingPage extends InitPageBase {
 
   private getUserListComplete() {
     log.log(lang.transl('_当前有x个用户', this.userList.length.toString()))
+
     if (this.userList.length === 0) {
       return this.getIdListFinished()
     }
+
+    // 处理下载用户列表的情况
+    if (this.downUserList) {
+      this.toCSV()
+      return this.getIdListFinished()
+    }
+
     this.getIdList()
+  }
+
+  private toCSV() {
+    // 添加用户信息
+    const body: string[][] = this.userInfoList.map((item) => {
+      return Object.values(item)
+    })
+
+    // 添加用户信息的标题字段
+    body.unshift(Object.keys(this.userInfoList[0]))
+
+    createCSV.create({
+      body: body,
+      download: true,
+    })
   }
 
   // 获取用户的 id 列表
@@ -160,6 +218,8 @@ class InitFollowingPage extends InitPageBase {
 
   protected resetGetIdListStatus() {
     this.userList = []
+    this.userInfoList = []
+    this.downUserList = false
     this.getUserListNo = 0
     this.index = 0
   }
