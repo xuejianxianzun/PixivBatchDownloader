@@ -80,8 +80,12 @@ class Download {
     let url: string
     if (arg.data.type === 3) {
       // 生成小说的文件
-      let blob: Blob = await MakeNovelFile.make(arg.data.novelMeta)
-      url = URL.createObjectURL(blob)
+      if (arg.data.novelMeta) {
+        let blob: Blob = await MakeNovelFile.make(arg.data.novelMeta)
+        url = URL.createObjectURL(blob)
+      } else {
+        throw new Error('Not found novelMeta')
+      }
     } else {
       // 对于图像作品，如果设置了图片尺寸就使用指定的 url，否则使用原图 url
       url = arg.data[settings.imageSize] || arg.data.original

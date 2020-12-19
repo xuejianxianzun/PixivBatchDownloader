@@ -197,6 +197,8 @@ English （机翻，韩语设置下也使用英语文本）
 
 [测试动图转换](https://www.pixiv.net/member.php?id=16274829)
 
+[插画和小说混合](https://www.pixiv.net/users/7836791)
+
 # 友情链接
 
 [PixivUserBatchDownload](https://github.com/Mapaler/PixivUserBatchDownload/)

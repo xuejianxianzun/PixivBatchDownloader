@@ -541,7 +541,7 @@ class InitSearchArtworkPage extends InitPageBase {
       <!--作者信息-->
       <div class="userInfo">
       <!--相比原代码，这里去掉了作者头像的 html 代码。因为抓取到的数据里没有作者头像。-->
-          <a target="_blank" href="/member.php?id=${data.userId}">
+          <a target="_blank" href="/users/${data.userId}">
             <div class="userName">${data.user}</div>
           </a>
         </div>

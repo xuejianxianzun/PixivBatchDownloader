@@ -44,7 +44,7 @@ export interface Result {
   ugoiraInfo: UgoiraInfo | null
   seriesTitle: string | null
   seriesOrder: string | null
-  novelMeta: NovelMeta
+  novelMeta: NovelMeta | null
 }
 
 export interface WorkInfoOptional {
@@ -73,7 +73,7 @@ export interface WorkInfoOptional {
   ugoiraInfo?: UgoiraInfo | null
   seriesTitle?: string | null
   seriesOrder?: string | null
-  novelMeta?: NovelMeta
+  novelMeta?: NovelMeta | null
 }
 
 // 储存作品在排行榜中的排名
