@@ -16,8 +16,8 @@ class SaveArtworkData {
     const bmk = body.bookmarkCount // 收藏数
     const tagArr = body.tags.tags // 取出 tag 信息
     const tags: string[] = [] // 保存 tag 列表
-    const tagsWithTransl: string[] = [] // 保存 tag 列表，附带翻译后的 tag
-    const tagsTranslOnly: string[] = [] // 保存翻译后的 tag 列表
+    let tagsWithTransl: string[] = [] // 保存 tag 列表，附带翻译后的 tag
+    let tagsTranslOnly: string[] = [] // 保存翻译后的 tag 列表
 
     for (const tagData of tagArr) {
       tags.push(tagData.tag)
@@ -33,6 +33,10 @@ class SaveArtworkData {
         tagsTranslOnly.push(tagData.tag)
       }
     }
+
+    // 去除 tag 里重复的内容
+    tagsWithTransl = Array.from(new Set(tagsWithTransl))
+    tagsTranslOnly = Array.from(new Set(tagsTranslOnly))
 
     const filterOpt: FilterOption = {
       createDate: body.createDate,
