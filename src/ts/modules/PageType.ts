@@ -10,7 +10,7 @@ class PageType {
     })
   }
 
-  public type = 0 // 如果 type 为 -1，说明处于不支持的页面
+  public type = -1 // 如果 type 为 -1，说明处于不支持的页面
 
   private getType() {
     const url = window.location.href
@@ -27,7 +27,11 @@ class PageType {
       type = 1
     } else if (/\/users\/\d+/.test(url) && !url.includes('/bookmarks')) {
       type = 2
-      if (pathname.includes('/following')) {
+      if (
+        pathname.includes('/following') ||
+        pathname.includes('/mypixiv') ||
+        pathname.includes('/followers')
+      ) {
         type = 20
       }
     } else if (pathname.endsWith('bookmark.php')) {

@@ -1,4 +1,4 @@
-// 初始化关注列表页面
+// 初始化关注页面、好 P 友页面、粉丝页面
 import { InitPageBase } from './InitPageBase'
 import { Colors } from './Colors'
 import { lang } from './Lang'
@@ -17,17 +17,25 @@ interface UserInfo {
   profileImageUrl: string
 }
 
+type PageType = 0 | 1 | 2
+
 class InitFollowingPage extends InitPageBase {
   constructor() {
     super()
+    this.getPageType()
     this.init()
   }
 
   private baseOffset = 0 // 开始抓取时，记录初始的偏移量
   private readonly onceNumber = 24 // 每页 24 个画师
 
+  private pageType: PageType = 0 // 页面子类型
+  // 0 我的关注
+  // 1 我的好 P 友
+  // 2 我的粉丝
+
   private getUserListNo = 0 // 获取用户列表时，记录请求的次数
-  private readonly limit = 100 // 每次请求多少个画师的数据
+  private readonly limit = 100 // 每次请求多少个用户
 
   private totalNeed = Number.MAX_SAFE_INTEGER
   private myId = ''
@@ -37,11 +45,22 @@ class InitFollowingPage extends InitPageBase {
 
   private index = 0 // getIdList 时，对 userList 的索引
 
-  private userInfoList: UserInfo[] = [] // 储存关注用户列表，包含 id 和用户名
+  private userInfoList: UserInfo[] = [] // 储存用户列表，包含 id 和用户名
 
-  private downUserList = false // 下载关注用户列表的标记
+  private downUserList = false // 下载用户列表的标记
 
   private readonly homePrefix = 'https://www.pixiv.net/users/' // 用户主页的通用链接前缀
+
+  private getPageType() {
+    const pathname = window.location.pathname
+    if (pathname.includes('/following')) {
+      this.pageType = 0
+    } else if (pathname.includes('/mypixiv')) {
+      this.pageType = 1
+    } else if (pathname.includes('/followers')) {
+      this.pageType = 2
+    }
+  }
 
   protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
@@ -53,7 +72,7 @@ class InitFollowingPage extends InitPageBase {
     DOM.addBtn(
       'crawlBtns',
       Colors.blue,
-      lang.transl('_下载关注用户列表'),
+      lang.transl('_下载用户列表'),
     ).addEventListener('click', () => {
       this.downUserList = true
       this.readyCrawl()
@@ -79,6 +98,7 @@ class InitFollowingPage extends InitPageBase {
   protected nextStep() {
     this.readyGet()
     log.log(lang.transl('_正在抓取'))
+    this.getPageType()
     this.getUserList()
   }
 
@@ -111,13 +131,23 @@ class InitFollowingPage extends InitPageBase {
     }
   }
 
-  // 获取关注用户列表，保存用户 id
+  // 获取用户列表
   private async getUserList() {
     const offset = this.baseOffset + this.getUserListNo * this.limit
 
     let res
     try {
-      res = await API.getFollowingList(this.myId, this.rest, offset)
+      switch (this.pageType) {
+        case 0:
+          res = await API.getFollowingList(this.myId, this.rest, offset)
+          break
+        case 1:
+          res = await API.getMyPixivList(this.myId, offset)
+          break
+        case 2:
+          res = await API.getFollowersList(this.myId, offset)
+          break
+      }
     } catch {
       this.getUserList()
       return
@@ -131,8 +161,10 @@ class InitFollowingPage extends InitPageBase {
     }
 
     for (const userData of users) {
+      // 保存用户 id
       this.userList.push(userData.userId)
 
+      // 如果需要下载用户列表
       if (this.downUserList) {
         this.userInfoList.push({
           userId: userData.userId,

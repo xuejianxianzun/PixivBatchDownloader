@@ -291,6 +291,28 @@ class API {
     return this.request(url)
   }
 
+  // 获取好 P 友列表
+  static getMyPixivList(
+    id: string,
+    offset = 0,
+    limit = 100,
+    lang = 'zh',
+  ): Promise<FollowingResponse> {
+    const url = `https://www.pixiv.net/ajax/user/${id}/mypixiv?offset=${offset}&limit=${limit}&lang=${lang}`
+    return this.request(url)
+  }
+
+  // 获取粉丝列表
+  static getFollowersList(
+    id: string,
+    offset = 0,
+    limit = 100,
+    lang = 'zh',
+  ): Promise<FollowingResponse> {
+    const url = `https://www.pixiv.net/ajax/user/${id}/followers?offset=${offset}&limit=${limit}&lang=${lang}`
+    return this.request(url)
+  }
+
   // 获取用户信息
   static getUserProfile(id: string): Promise<UserProfile> {
     // full=1 在画师的作品列表页使用，获取详细信息

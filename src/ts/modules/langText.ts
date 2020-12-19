@@ -1423,11 +1423,11 @@ const langText = {
     'You can set the average daily bookmarks number of works. Works that meet the conditions will be downloaded.',
     '您可以設定作品的平均每日收藏數量。滿足條件的作品會被下載。',
   ],
-  _下载关注用户列表: [
-    '下载关注用户列表',
-    'フォローリストのダウンロード',
-    'Download the list of following users',
-    '下載關注使用者列表',
+  _下载用户列表: [
+    '下载用户列表',
+    'ユーザーリストのダウンロード',
+    'Download users list',
+    '下載使用者列表',
   ],
 }
 
