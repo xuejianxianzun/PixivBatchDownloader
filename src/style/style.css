@@ -1,36 +1,3 @@
-#QueryWorkEl {
-  box-sizing: border-box;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #29b3f3;
-  display: none;
-  pointer-events: none;
-}
-#QueryWorkEl::before {
-  content: '';
-  display: block;
-  position: absolute;
-  width: 200vw;
-  height: 0;
-  left: -100vw;
-  top: 10px;
-  border: 1px dashed #29b3f3;
-}
-#QueryWorkEl::after {
-  content: '';
-  display: block;
-  position: absolute;
-  width: 0;
-  height: 200vh;
-  top: -100vh;
-  left: 10px;
-  border: 1px dashed #29b3f3;
-}
 /* right buttons */
 #quick_down_btn,
 #rightButton {

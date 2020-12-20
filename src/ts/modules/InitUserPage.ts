@@ -10,10 +10,11 @@ import { log } from './Log'
 import { DOM } from './DOM'
 import { userWorksType, tagPageFlag } from './CrawlArgument.d'
 import { UserImageWorksWithTag, UserNovelsWithTag } from './CrawlResult'
-import { IDListType } from './Store.d'
+import { IDData, IDListType } from './Store.d'
 import { states } from './States'
 import './SaveAvatarIcon'
 import { BookmarkAllWorks, IDList } from './BookmarkAllWorks'
+import { QueryWork } from './QueryWork'
 
 class InitUserPage extends InitPageBase {
   constructor() {
@@ -61,6 +62,19 @@ class InitUserPage extends InitPageBase {
     })
 
     window.addEventListener(EVT.list.getIdListFinished, this.sendBookmarkIdList)
+  }
+
+  protected initAny(){
+    new QueryWork()
+
+    window.addEventListener(EVT.list.downloadIdList,(ev:CustomEventInit)=>{
+      const idList = ev.detail.data as IDData[]
+      if(idList){
+        EVT.fire(EVT.list.crawlStart)
+        store.idList = idList
+        this.getIdListFinished()
+      }
+    })
   }
 
   private sendBookmarkIdList = () => {

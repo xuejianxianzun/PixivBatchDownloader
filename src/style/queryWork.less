@@ -1,0 +1,40 @@
+@import './var.less';
+
+#QueryWorkEl{
+    box-sizing: border-box;
+    position: fixed;
+    z-index: 1000;
+    // left: 50%;
+    // top: 50%;
+    left: 0;
+    top: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: @beautifyBlue;
+    // border: 2px solid @beautifyBlue;
+    display: none;
+    pointer-events: none;
+
+    &::before {
+      content: '';
+      display: block;
+      position: absolute;
+      width: 200vw;
+      height: 0;
+      left: -100vw;
+      top: 10px;
+      border: 1px dashed @beautifyBlue;
+  }
+
+  &::after {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 0;
+    height: 200vh;
+    top: -100vh;
+    left: 10px;
+    border: 1px dashed @beautifyBlue;
+  }
+}

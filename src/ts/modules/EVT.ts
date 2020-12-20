@@ -9,6 +9,8 @@ class EVT {
     wrongSetting: 'wrongSetting',
     // 当获取作品的 id 列表完成时触发
     getIdListFinished: 'getIdListFinished',
+    // 获取了作品的 id 列表，需要下载这些 id 列表时使用
+    downloadIdList: 'downloadIdList',
     // 当抓取完成时触发。不管结果是否为空都会触发
     crawlFinish: 'crawlFinish',
     // 当抓取结果为空时触发。触发时机晚于 crawlFinish
