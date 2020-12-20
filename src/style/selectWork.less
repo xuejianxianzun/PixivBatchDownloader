@@ -1,6 +1,6 @@
 @import './var.less';
 
-#QueryWorkEl{
+#selectWorkEl{
     box-sizing: border-box;
     position: fixed;
     z-index: 1000;
@@ -11,7 +11,7 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: @beautifyBlue;
+    background: rgba(41, 179, 243, .6);;
     // border: 2px solid @beautifyBlue;
     display: none;
     pointer-events: none;
@@ -37,4 +37,11 @@
     left: 10px;
     border: 1px dashed @beautifyBlue;
   }
+}
+
+.selectedWorkFlag{
+  color:#FF4060;
+  font-size: 40px;
+  position: absolute;
+  z-index: 1000;
 }

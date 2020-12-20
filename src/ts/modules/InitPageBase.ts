@@ -48,6 +48,14 @@ abstract class InitPageBase {
         EVT.fire(EVT.list.clearLog)
       }
     })
+
+    // 直接下载已有 id 列表
+    window.addEventListener(EVT.list.downloadIdList,(ev:CustomEventInit)=>{
+      const idList = ev.detail.data as IDData[]
+      if(idList){
+        this.downloadIdList(idList)
+      }
+    })
   }
 
   // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。
@@ -151,7 +159,7 @@ abstract class InitPageBase {
     }
   }
 
-  // 准备抓取，进行抓取之前的一些检查工作
+  // 准备正常进行抓取，执行一些检查
   protected async readyCrawl() {
     // 检查是否可以开始抓取
     if (states.busy) {
@@ -175,6 +183,33 @@ abstract class InitPageBase {
 
     // 进入第一个抓取方法
     this.nextStep()
+  }
+
+  // 基于传递的 id 列表直接开始抓取
+  // 这个方法是为了让其他模块可以传递 id 列表，直接进行下载。
+  // 这个类的子类没有必要使用这个方法。当子类想要直接指定 id 列表时，修改自己的 getIdList 方法即可。
+  protected async downloadIdList(idList:IDData[]) {
+    // 检查是否可以开始抓取
+    if (states.busy) {
+      return EVT.sendMsg({
+        msg: lang.transl('_当前任务尚未完成2'),
+        type: 'error',
+      })
+    }
+
+    log.clear()
+
+    log.success(lang.transl('_任务开始0'))
+
+    await mute.getMuteSettings()
+
+    this.getMultipleSetting()
+
+    EVT.fire(EVT.list.crawlStart)
+
+    store.idList = idList
+
+    this.getIdListFinished()
   }
 
   // 当可以开始抓取时，进入下一个流程。默认情况下，开始获取作品列表。如有不同，由子类具体定义

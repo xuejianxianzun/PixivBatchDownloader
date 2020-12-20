@@ -4,8 +4,9 @@ import { lang } from './Lang'
 import { EVT } from './EVT'
 import { states } from './States'
 import { IDData } from './Store.d'
+import { timeStamp } from 'console'
 
-class QueryWork {
+class SelectWork {
   constructor() {
     this.el = this.createQueryEl()
     this.addBtn()
@@ -13,11 +14,15 @@ class QueryWork {
   }
 
   private el: HTMLElement
-  private id = 'QueryWorkEl'
+  private elId = 'selectWorkEl'
   private left = 0
   private top = 0
   private half = 10
   private show = false
+
+  private btn: HTMLButtonElement = document.createElement('button')
+
+  private selectedWorkFlagClass = 'selectedWorkFlag'
 
   private artworkReg = /artworks\/(\d{2,15})/
   private novelReg = /novel\/show\.php\?id=\/(\d{2,15})/
@@ -29,7 +34,7 @@ class QueryWork {
 
   private createQueryEl() {
     const el = document.createElement('div')
-    el.id = this.id
+    el.id = this.elId
     document.body.appendChild(el)
     return el
   }
@@ -41,26 +46,27 @@ class QueryWork {
   }
 
   private addBtn() {
-    const btn = DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_手动选择作品'), [
+    this.btn = DOM.addBtn('crawlBtns', Colors.green, lang.transl('_手动选择作品'), [
       ['title', lang.transl('_手动选择作品的说明')],
     ])
-    btn.addEventListener('click', (ev) => {
+    this.btn.addEventListener('click', (ev) => {
       if (!this.show) {
-        this.startQuery(ev)
-        btn.textContent = lang.transl('_抓取选择的作品')
+        this.startSelect(ev)
+        this.btn.textContent = lang.transl('_抓取选择的作品')
+        this.btn.style.backgroundColor = Colors.blue
       } else {
-        this.downloadQuery(btn)
+        this.downloadSelect()
       }
     })
   }
 
   private bindEvents() {
     window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
-      this.stopQuery()
+      this.stopSelect()
     })
   }
 
-  private startQuery(ev: MouseEvent) {
+  private startSelect(ev: MouseEvent) {
     this.idList = []
 
     this.show = true
@@ -75,14 +81,14 @@ class QueryWork {
     EVT.fire(EVT.list.closeCenterPanel)
   }
 
-  private stopQuery() {
+  private stopSelect() {
     this.show = false
     this.updateEl()
     this.bindClickEvent && window.removeEventListener('click', this.bindClickEvent, true)
     this.bindMoveEvent && window.removeEventListener('mousemove', this.bindMoveEvent, true)
   }
 
-  private downloadQuery(btn: HTMLButtonElement) {
+  private downloadSelect() {
     if (states.busy) {
       EVT.sendMsg({
         msg: lang.transl('_当前任务尚未完成'),
@@ -91,22 +97,40 @@ class QueryWork {
       return
     }
 
-    this.stopQuery()
+    this.stopSelect()
     EVT.fire(EVT.list.downloadIdList, this.idList)
-    
+
+    this.removeAllSelectedFlag()
+
     window.setTimeout(() => {
-      btn.textContent = lang.transl('_手动选择作品')
-    }, 300)
+      this.btn.textContent = lang.transl('_手动选择作品')
+      this.btn.style.backgroundColor = Colors.green
+    }, 500)
   }
 
   private clickEvent(ev: MouseEvent) {
-    ev.preventDefault()
     // ev.stopPropagation()
-    const workId = this.findWork((ev as any).path)
+    const workId = this.findWork((ev as any).path || ev.composedPath())
 
     if (workId) {
-      console.log(workId)
-      this.idList.push(workId)
+      ev.preventDefault()
+
+      const index = this.idList.findIndex(item => item.id === workId.id)
+      console.log(index)
+
+      // 这个 id 不存在于 idList 里
+      if (index === -1) {
+        this.idList.push(workId)
+
+        this.addSelectedFlag(ev.target as HTMLElement, workId.id)
+      } else {
+        // id 已存在，则删除
+        this.idList.splice(index, 1)
+
+        this.removeSelectedFlag(workId.id)
+      }
+
+      this.btn.textContent = lang.transl('_抓取选择的作品') + ` ${this.idList.length}`
     }
   }
 
@@ -141,6 +165,27 @@ class QueryWork {
       }
     }
   }
+
+  private addSelectedFlag(el: HTMLElement, id: string) {
+    const span = document.createElement('span')
+    // span.textContent = '✅'
+    span.textContent = '😊'
+    span.classList.add(this.selectedWorkFlagClass)
+    span.dataset.id = id
+    el.insertAdjacentElement('beforebegin', span)
+  }
+
+  private removeSelectedFlag(id: string) {
+    const el = document.querySelector(`.${this.selectedWorkFlagClass}[data-id='${id}']`)
+    el && el.remove()
+  }
+
+  private removeAllSelectedFlag() {
+    for (const item of this.idList) {
+      this.removeSelectedFlag(item.id)
+    }
+  }
+
 }
 
-export { QueryWork }
+export { SelectWork }

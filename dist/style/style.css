@@ -1,4 +1,4 @@
-#QueryWorkEl {
+#selectWorkEl {
   box-sizing: border-box;
   position: fixed;
   z-index: 1000;
@@ -7,11 +7,11 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #29b3f3;
+  background: rgba(41, 179, 243, 0.6);
   display: none;
   pointer-events: none;
 }
-#QueryWorkEl::before {
+#selectWorkEl::before {
   content: '';
   display: block;
   position: absolute;
@@ -21,7 +21,7 @@
   top: 10px;
   border: 1px dashed #29b3f3;
 }
-#QueryWorkEl::after {
+#selectWorkEl::after {
   content: '';
   display: block;
   position: absolute;
@@ -30,6 +30,12 @@
   top: -100vh;
   left: 10px;
   border: 1px dashed #29b3f3;
+}
+.selectedWorkFlag {
+  color: #FF4060;
+  font-size: 40px;
+  position: absolute;
+  z-index: 1000;
 }
 /* right buttons */
 #quick_down_btn,
