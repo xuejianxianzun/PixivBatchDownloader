@@ -14,6 +14,7 @@ import { saveArtworkData } from './artwork/SaveArtworkData'
 import { saveNovelData } from './novel/SaveNovelData'
 import { mute } from './Mute'
 import { IDData } from './Store.d'
+import { stat } from 'fs'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数
@@ -38,24 +39,10 @@ abstract class InitPageBase {
     this.addAnyElement()
     this.initAny()
 
-    window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
-      this.destroy()
-    })
-
-    // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
-    window.addEventListener(EVT.list.pageSwitch, () => {
-      if (!states.busy) {
-        EVT.fire(EVT.list.clearLog)
-      }
-    })
-
-    // 直接下载已有 id 列表
-    window.addEventListener(EVT.list.downloadIdList,(ev:CustomEventInit)=>{
-      const idList = ev.detail.data as IDData[]
-      if(idList){
-        this.downloadIdList(idList)
-      }
-    })
+    if (!states.addEvented) {
+      this.bindCommonEvent()
+      states.addEvented = true
+    }
   }
 
   // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。
@@ -78,17 +65,38 @@ abstract class InitPageBase {
   }
 
   // 添加其他任意元素（如果有）
-  protected addAnyElement(): void {}
+  protected addAnyElement(): void { }
 
   // 初始化任意内容
   // 如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里
   // 通常用来初始化特有的组件、功能、事件、状态等
-  protected initAny() {}
+  protected initAny() { }
 
   // 销毁初始化页面时添加的元素和事件，恢复设置项等
   protected destroy(): void {
     DOM.clearSlot('crawlBtns')
     DOM.clearSlot('otherBtns')
+  }
+
+  private bindCommonEvent() {
+    window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
+      this.destroy()
+    })
+
+    // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      if (!states.busy) {
+        EVT.fire(EVT.list.clearLog)
+      }
+    })
+
+    // 直接下载已有 id 列表
+    window.addEventListener(EVT.list.downloadIdList, (ev: CustomEventInit) => {
+      const idList = ev.detail.data as IDData[]
+      if (idList) {
+        this.downloadIdList(idList)
+      }
+    })
   }
 
   // 作品个数/页数的输入不合法
@@ -144,7 +152,7 @@ abstract class InitPageBase {
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
-  protected getWantPage() {}
+  protected getWantPage() { }
 
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
   protected getMultipleSetting() {
@@ -188,7 +196,7 @@ abstract class InitPageBase {
   // 基于传递的 id 列表直接开始抓取
   // 这个方法是为了让其他模块可以传递 id 列表，直接进行下载。
   // 这个类的子类没有必要使用这个方法。当子类想要直接指定 id 列表时，修改自己的 getIdList 方法即可。
-  protected async downloadIdList(idList:IDData[]) {
+  protected async downloadIdList(idList: IDData[]) {
     // 检查是否可以开始抓取
     if (states.busy) {
       return EVT.sendMsg({
@@ -385,7 +393,7 @@ abstract class InitPageBase {
   }
 
   // 抓取完成后，对结果进行排序
-  protected sortResult() {}
+  protected sortResult() { }
 }
 
 export { InitPageBase }

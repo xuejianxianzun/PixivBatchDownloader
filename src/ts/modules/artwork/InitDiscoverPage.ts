@@ -7,6 +7,7 @@ import { options } from '../setting/Options'
 import { DeleteWorks } from '../DeleteWorks'
 import { API } from '../API'
 import { store } from '../Store'
+import {SelectWork} from '../SelectWork'
 
 class InitDiscoverPage extends InitPageBase {
   constructor() {
@@ -22,6 +23,10 @@ class InitDiscoverPage extends InitPageBase {
     })
   }
 
+  protected initAny(){
+    new SelectWork()
+  }
+  
   protected setFormOption() {
     options.hideOption([1])
   }

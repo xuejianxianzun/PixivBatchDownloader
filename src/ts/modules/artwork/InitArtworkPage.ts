@@ -14,6 +14,7 @@ import { log } from '../Log'
 import { QuickDownloadBtn } from '../QuickDownloadBtn'
 import { states } from '../States'
 import '../SaveAvatarIcon'
+import {SelectWork} from '../SelectWork'
 
 class InitArtworkPage extends InitPageBase {
   constructor() {
@@ -48,6 +49,8 @@ class InitArtworkPage extends InitPageBase {
     // 初始化快速下载按钮
     new QuickDownloadBtn()
     window.addEventListener(EVT.list.QuickDownload, this.startQuickDownload)
+
+    new SelectWork()
   }
 
   private initImgViewer() {

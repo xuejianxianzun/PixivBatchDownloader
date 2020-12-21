@@ -13,6 +13,7 @@ import {
 import { store } from './Store'
 import { log } from './Log'
 import { DOM } from './DOM'
+import {SelectWork} from './SelectWork'
 
 class InitBookmarkPage extends InitPageBase {
   constructor() {
@@ -38,6 +39,10 @@ class InitBookmarkPage extends InitPageBase {
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
+  }
+
+  protected initAny(){
+    new SelectWork()
   }
 
   protected setFormOption() {

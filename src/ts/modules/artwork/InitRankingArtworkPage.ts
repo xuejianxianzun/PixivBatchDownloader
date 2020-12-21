@@ -13,6 +13,7 @@ import { filter } from '../Filter'
 import { store } from '../Store'
 import { log } from '../Log'
 import { states } from '../States'
+import {SelectWork} from '../SelectWork'
 
 class InitRankingArtworkPage extends InitPageBase {
   constructor() {
@@ -51,6 +52,8 @@ class InitRankingArtworkPage extends InitPageBase {
     window.addEventListener(EVT.list.crawlFinish, () => {
       states.debut = false
     })
+
+    new SelectWork()
   }
 
   protected setFormOption() {

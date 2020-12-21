@@ -6,6 +6,7 @@ import { DOM } from '../DOM'
 import { options } from '../setting/Options'
 import { API } from '../API'
 import { store } from '../Store'
+import {SelectWork} from '../SelectWork'
 
 class InitBookmarkDetailPage extends InitPageBase {
   constructor() {
@@ -25,6 +26,10 @@ class InitBookmarkDetailPage extends InitPageBase {
     )
   }
 
+  protected initAny(){
+    new SelectWork()
+  }
+  
   protected setFormOption() {
     // 个数/页数选项的提示
     options.setWantPageTip({

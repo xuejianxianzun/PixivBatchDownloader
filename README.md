@@ -167,7 +167,7 @@ English （机翻，韩语设置下也使用英语文本）
 
 6 [地区排行榜](https://www.pixiv.net/ranking_area.php?type=state&no=0)
 
-7 [排行榜](https://www.pixiv.net/ranking.php)
+7 [插画、漫画排行榜](https://www.pixiv.net/ranking.php)
 
 8 [Pixivision](https://www.pixivision.net/zh/a/3190)
 

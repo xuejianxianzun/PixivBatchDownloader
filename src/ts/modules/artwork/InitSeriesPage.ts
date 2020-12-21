@@ -9,6 +9,7 @@ import { FilterOption } from '../Filter.d'
 import { filter } from '../Filter'
 import { store } from '../Store'
 import { log } from '../Log'
+import {SelectWork} from '../SelectWork'
 
 class InitSeriesPage extends InitPageBase {
   constructor() {
@@ -24,6 +25,10 @@ class InitSeriesPage extends InitPageBase {
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
+  }
+
+  protected initAny(){
+    new SelectWork()
   }
 
   protected setFormOption() {

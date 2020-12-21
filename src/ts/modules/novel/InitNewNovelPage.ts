@@ -11,6 +11,7 @@ import { API } from '../API'
 import { store } from '../Store'
 import { log } from '../Log'
 import { DOM } from '../DOM'
+import {SelectWork} from '../SelectWork'
 
 class InitNewNovelPage extends InitPageBase {
   constructor() {
@@ -30,6 +31,10 @@ class InitNewNovelPage extends InitPageBase {
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
+  }
+
+  protected initAny(){
+    new SelectWork()
   }
 
   protected setFormOption() {

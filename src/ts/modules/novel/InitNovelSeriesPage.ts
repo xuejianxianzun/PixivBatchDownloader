@@ -6,6 +6,7 @@ import { options } from '../setting/Options'
 import { store } from '../Store'
 import { DOM } from '../DOM'
 import { API } from '../API'
+import {SelectWork} from '../SelectWork'
 
 class InitNovelSeriesPage extends InitPageBase {
   constructor() {
@@ -25,6 +26,10 @@ class InitNovelSeriesPage extends InitPageBase {
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
+  }
+
+  protected initAny(){
+    new SelectWork()
   }
 
   protected setFormOption() {

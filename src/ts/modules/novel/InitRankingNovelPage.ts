@@ -8,6 +8,7 @@ import { FilterOption } from '../Filter.d'
 import { filter } from '../Filter'
 import { store } from '../Store'
 import { log } from '../Log'
+import {SelectWork} from '../SelectWork'
 
 class InitRankingNovelPage extends InitPageBase {
   constructor() {
@@ -23,6 +24,10 @@ class InitRankingNovelPage extends InitPageBase {
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
+  }
+
+  protected initAny(){
+    new SelectWork()
   }
 
   protected setFormOption() {

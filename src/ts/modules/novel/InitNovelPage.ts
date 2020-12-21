@@ -13,6 +13,7 @@ import { EVT } from '../EVT'
 import { states } from '../States'
 import { QuickDownloadBtn } from '../QuickDownloadBtn'
 import '../SaveAvatarIcon'
+import {SelectWork} from '../SelectWork'
 
 class InitNovelPage extends InitPageBase {
   constructor() {
@@ -40,6 +41,8 @@ class InitNovelPage extends InitPageBase {
     // 初始化快速下载按钮
     new QuickDownloadBtn()
     window.addEventListener(EVT.list.QuickDownload, this.startQuickDownload)
+    
+    new SelectWork()
   }
 
   private initQuickBookmark() {

@@ -12,6 +12,7 @@ import { log } from '../Log'
 import { FastScreen } from '../FastScreen'
 import { DOM } from '../DOM'
 import { BookmarkAllWorks } from '../BookmarkAllWorks'
+import {SelectWork} from '../SelectWork'
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
@@ -48,6 +49,8 @@ class InitSearchNovelPage extends InitPageBase {
 
   protected initAny() {
     new FastScreen()
+
+    new SelectWork()
   }
 
   protected addCrawlBtns() {

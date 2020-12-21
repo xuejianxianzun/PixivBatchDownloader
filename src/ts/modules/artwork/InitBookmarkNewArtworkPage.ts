@@ -10,6 +10,7 @@ import { filter } from '../Filter'
 import { API } from '../API'
 import { store } from '../Store'
 import { log } from '../Log'
+import {SelectWork} from '../SelectWork'
 
 class InitBookmarkNewArtworkPage extends InitPageBase {
   constructor() {
@@ -27,6 +28,10 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
     })
   }
 
+  protected initAny(){
+    new SelectWork()
+  }
+  
   protected setFormOption() {
     // 个数/页数选项的提示
     this.maxCount = 100

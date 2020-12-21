@@ -8,11 +8,16 @@ import { FilterOption } from '../Filter.d'
 import { filter } from '../Filter'
 import { API } from '../API'
 import { store } from '../Store'
+import {SelectWork} from '../SelectWork'
 
 class InitAreaRankingPage extends InitPageBase {
   constructor() {
     super()
     this.init()
+  }
+  
+  protected initAny(){
+    new SelectWork()
   }
 
   protected addCrawlBtns() {
