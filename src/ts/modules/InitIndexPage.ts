@@ -7,7 +7,6 @@ import { DOM } from './DOM'
 import { store } from './Store'
 import { log } from './Log'
 import { EVT } from './EVT'
-import {SelectWork} from './SelectWork'
 
 class InitIndexPage extends InitPageBase {
   constructor() {
@@ -82,8 +81,6 @@ class InitIndexPage extends InitPageBase {
         this.downIdButton.textContent = lang.transl('_输入id进行抓取')
       }
     })
-
-    new SelectWork()
   }
 
   protected getWantPage() {}

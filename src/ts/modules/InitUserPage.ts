@@ -14,7 +14,6 @@ import { IDListType } from './Store.d'
 import { states } from './States'
 import './SaveAvatarIcon'
 import { BookmarkAllWorks, IDList } from './BookmarkAllWorks'
-import { SelectWork } from './SelectWork'
 
 class InitUserPage extends InitPageBase {
   constructor() {
@@ -62,10 +61,6 @@ class InitUserPage extends InitPageBase {
     })
 
     window.addEventListener(EVT.list.getIdListFinished, this.sendBookmarkIdList)
-  }
-
-  protected initAny(){
-    new SelectWork()
   }
 
   private sendBookmarkIdList = () => {

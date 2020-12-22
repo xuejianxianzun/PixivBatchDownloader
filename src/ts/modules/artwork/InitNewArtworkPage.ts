@@ -11,7 +11,6 @@ import { API } from '../API'
 import { store } from '../Store'
 import { log } from '../Log'
 import { DOM } from '../DOM'
-import {SelectWork} from '../SelectWork'
 
 class InitNewArtworkPage extends InitPageBase {
   constructor() {
@@ -33,10 +32,8 @@ class InitNewArtworkPage extends InitPageBase {
     })
   }
 
-  protected initAny(){
-    new SelectWork()
-  }
-  
+  protected initAny() {}
+
   protected setFormOption() {
     // 个数/页数选项的提示
     options.setWantPageTip({

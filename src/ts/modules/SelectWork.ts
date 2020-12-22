@@ -5,22 +5,58 @@ import { EVT } from './EVT'
 import { states } from './States'
 import { IDData } from './Store.d'
 
+// 手动选择作品
 class SelectWork {
   constructor() {
-    this.el = this.createQueryEl()
-    this.addBtn()
-    this.bindEvents()
+    if (!this.created && location.hostname.endsWith('.pixiv.net')) {
+      this.created = true
+      this.selector = this.createSelectorEl()
+      this.addBtn()
+      this.bindEvents()
+    }
   }
 
-  private el: HTMLElement
+  private created = false
+
+  private selector?: HTMLElement
   private elId = 'selectWorkEl'
   private left = 0
   private top = 0
   private half = 10
-  private show = false
-  private tempHide = false // 打开下载面板时临时隐藏。这个变量只会影响选择器的 display
 
-  private btn: HTMLButtonElement = document.createElement('button')
+  private _start = false
+  private _pause = false
+  private _tempHide = false // 打开下载面板时临时隐藏。这个变量只会影响选择器的 display
+
+  get start() {
+    return this._start
+  }
+
+  set start(bool: boolean) {
+    this._start = bool
+    this.updateControlBtn()
+  }
+
+  get pause() {
+    return this._pause
+  }
+
+  set pause(bool: boolean) {
+    this._pause = bool
+    this.updateControlBtn()
+  }
+
+  get tempHide() {
+    return this._tempHide
+  }
+
+  set tempHide(bool: boolean) {
+    this._tempHide = bool
+    this.updateEl()
+  }
+
+  private controlBtn: HTMLButtonElement = document.createElement('button') // 启动、暂停、继续选择的按钮
+  private crawlBtn: HTMLButtonElement = document.createElement('button') // 开始抓取选择的作品的按钮，并且会退出选择模式
 
   private selectedWorkFlagClass = 'selectedWorkFlag'
   private positionValue = ['relative', 'absolute', 'fixed']
@@ -30,27 +66,44 @@ class SelectWork {
 
   private idList: IDData[] = []
 
+  private crawlSelectedWork = false // 对选择的作品进行抓取时激活此标记。当触发下一次的抓取完成事件时，表示已经抓取了选择的作品，此时清空 id 列表。
+
   private bindClickEvent!: (ev: MouseEvent) => void | undefined
   private bindMoveEvent!: (ev: MouseEvent) => void | undefined
   private bindEscEvent!: (ev: KeyboardEvent) => void | undefined
 
   private bindEvents() {
-    window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
-      this.stopSelect()
-    })
-
-    window.addEventListener(EVT.list.openCenterPanel,()=>{
+    window.addEventListener(EVT.list.openCenterPanel, () => {
       this.tempHide = true
-      this.updateEl()
     })
 
-    window.addEventListener(EVT.list.closeCenterPanel,()=>{
+    window.addEventListener(EVT.list.closeCenterPanel, () => {
       this.tempHide = false
-      this.updateEl()
+    })
+
+    // 当抓取完成时，如果抓取的是选择的作品，则清空 id 列表
+    window.addEventListener(EVT.list.crawlFinish, () => {
+      if (this.crawlSelectedWork) {
+        this.crawlSelectedWork = false
+        this.clearIdList()
+      }
+    })
+
+    // 可以使用 Alt + S 快捷键来模拟点击控制按钮
+    window.addEventListener('keydown', (ev) => {
+      if (ev.altKey && ev.code === 'KeyS') {
+        this.controlBtn.click()
+      }
     })
   }
 
-  private createQueryEl() {
+  private clearIdList() {
+    this.idList = []
+    this.updateCrawlBtn()
+    this.removeAllSelectedFlag()
+  }
+
+  private createSelectorEl() {
     const el = document.createElement('div')
     el.id = this.elId
     document.body.appendChild(el)
@@ -58,31 +111,89 @@ class SelectWork {
   }
 
   private addBtn() {
-    this.btn = DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_手动选择作品'), [
-      ['title', lang.transl('_手动选择作品的说明')],
-    ])
-    this.btn.addEventListener('click', (ev) => {
-      if (!this.show) {
-        this.startSelect(ev)
-        this.btn.textContent = lang.transl('_抓取选择的作品')
-      } else {
-        this.downloadSelect()
-      }
+    this.controlBtn = DOM.addBtn(
+      'selectWorkBtns',
+      Colors.green,
+      lang.transl('_手动选择作品'),
+      [['title', lang.transl('_手动选择作品的说明')]],
+    )
+    this.updateControlBtn()
+
+    this.crawlBtn = DOM.addBtn(
+      'selectWorkBtns',
+      Colors.blue,
+      lang.transl('_抓取选择的作品'),
+      [['style', 'display:none;']],
+    )
+    this.crawlBtn.addEventListener('click', (ev) => {
+      this.downloadSelect()
     })
   }
 
+  // 切换控制按钮的文字和点击事件
+  private updateControlBtn() {
+    if (!this.start) {
+      this.controlBtn.textContent = lang.transl('_手动选择作品')
+      this.controlBtn.onclick = (ev) => {
+        this.startSelect(ev)
+      }
+    } else {
+      if (!this.pause) {
+        this.controlBtn.textContent = lang.transl('_暂停选择')
+        this.controlBtn.onclick = (ev) => {
+          this.pauseSelect()
+        }
+      } else {
+        this.controlBtn.textContent = lang.transl('_继续选择')
+        this.controlBtn.onclick = (ev) => {
+          this.startSelect(ev)
+        }
+      }
+    }
+  }
+
+  // 在选择作品的数量改变时，在抓取按钮上显示作品数量
+  private updateCrawlBtn() {
+    this.crawlBtn.style.display = this.start ? 'block' : 'none'
+    if (this.idList.length > 0) {
+      this.crawlBtn.textContent =
+        lang.transl('_抓取选择的作品') + ` ${this.idList.length}`
+    } else {
+      this.crawlBtn.textContent = lang.transl('_抓取选择的作品')
+    }
+  }
+
   private updateEl() {
-    this.el.style.left = this.left - this.half + 'px'
-    this.el.style.top = this.top - this.half + 'px'
-    this.el.style.display = (this.show&&!this.tempHide) ? 'block' : 'none'
+    if (!this.selector) {
+      return
+    }
+
+    this.selector.style.left = this.left - this.half + 'px'
+    this.selector.style.top = this.top - this.half + 'px'
+    this.selector.style.display =
+      this.start && !this.pause && !this.tempHide ? 'block' : 'none'
   }
 
   private startSelect(ev: MouseEvent) {
-    this.idList = []
+    this.start = true
 
-    this.show = true
-    this.left = ev.x
-    this.top = ev.y
+    if (this.pause) {
+      // 如果之前暂停了，则继续选择。不清空之前的结果
+      this.pause = false
+    } else {
+      // 如果是全新开始的选择，则清空之前的结果
+      this.clearIdList()
+    }
+
+    if (ev.isTrusted) {
+      this.left = ev.x
+      this.top = ev.y
+    } else {
+      // 如果事件不可信，可能是模拟点击，事件的 x y 均为 0。
+      // 此时如果选择器还处于初始状态，就把它定位到窗口中央
+      this.left = this.left || window.innerWidth / 2
+      this.top = this.top || window.innerHeight / 2
+    }
     this.updateEl()
 
     this.bindClickEvent = this.clickEvent.bind(this)
@@ -95,12 +206,15 @@ class SelectWork {
     EVT.fire(EVT.list.closeCenterPanel)
   }
 
-  private stopSelect() {
-    this.show = false
+  private pauseSelect() {
+    this.pause = true
     this.updateEl()
-    this.bindClickEvent && window.removeEventListener('click', this.bindClickEvent, true)
-    this.bindMoveEvent && window.removeEventListener('mousemove', this.bindMoveEvent, true)
-    this.bindEscEvent && document.removeEventListener('keyup', this.bindEscEvent)
+    this.bindClickEvent &&
+      window.removeEventListener('click', this.bindClickEvent, true)
+    this.bindMoveEvent &&
+      window.removeEventListener('mousemove', this.bindMoveEvent, true)
+    this.bindEscEvent &&
+      document.removeEventListener('keyup', this.bindEscEvent)
   }
 
   private downloadSelect() {
@@ -112,22 +226,19 @@ class SelectWork {
       return
     }
 
-    this.stopSelect()
+    this.pauseSelect()
 
     if (this.idList.length > 0) {
-      EVT.fire(EVT.list.downloadIdList, this.idList)
+      // 传递 id 列表时，将其转换成一个新的数组。否则传递的是引用，外部操作会影响到内部的 id 列表
+      EVT.fire(EVT.list.downloadIdList, Array.from(this.idList))
+
+      this.crawlSelectedWork = true
     } else {
       EVT.sendMsg({
         msg: lang.transl('_没有数据可供使用'),
         type: 'error',
       })
     }
-
-    this.removeAllSelectedFlag()
-
-    window.setTimeout(() => {
-      this.btn.textContent = lang.transl('_手动选择作品')
-    }, 300)
   }
 
   private clickEvent(ev: MouseEvent) {
@@ -136,7 +247,9 @@ class SelectWork {
     const workId = this.findWork((ev as any).path || ev.composedPath())
 
     if (workId) {
-      const index = this.idList.findIndex(item => item.id === workId.id)
+      const index = this.idList.findIndex((item) => {
+        return item.id === workId.id && item.type === workId.type
+      })
       // 这个 id 不存在于 idList 里
       if (index === -1) {
         this.idList.push(workId)
@@ -149,7 +262,7 @@ class SelectWork {
         this.removeSelectedFlag(workId.id)
       }
 
-      this.btn.textContent = lang.transl('_抓取选择的作品') + ` ${this.idList.length}`
+      this.updateCrawlBtn()
     }
   }
 
@@ -161,7 +274,7 @@ class SelectWork {
 
   private escEvent(ev: KeyboardEvent) {
     if (ev.code === 'Escape') {
-      this.stopSelect()
+      this.pauseSelect()
     }
   }
 
@@ -175,7 +288,7 @@ class SelectWork {
         if (test && test[1]) {
           return {
             type: 'unknown',
-            id: test[1]
+            id: test[1],
           }
         }
 
@@ -184,7 +297,7 @@ class SelectWork {
         if (test2 && test2[1]) {
           return {
             type: 'novels',
-            id: test2[1]
+            id: test2[1],
           }
         }
       }
@@ -193,7 +306,6 @@ class SelectWork {
 
   private addSelectedFlag(el: HTMLElement, id: string) {
     const span = document.createElement('span')
-    // span.textContent = '✅'
     span.textContent = '😊'
     span.classList.add(this.selectedWorkFlagClass)
     span.dataset.id = id
@@ -209,7 +321,9 @@ class SelectWork {
   }
 
   private removeSelectedFlag(id: string) {
-    const el = document.querySelector(`.${this.selectedWorkFlagClass}[data-id='${id}']`)
+    const el = document.querySelector(
+      `.${this.selectedWorkFlagClass}[data-id='${id}']`,
+    )
     el && el.remove()
   }
 
@@ -218,7 +332,7 @@ class SelectWork {
       this.removeSelectedFlag(item.id)
     }
   }
-
 }
 
-export { SelectWork }
+new SelectWork()
+export {}

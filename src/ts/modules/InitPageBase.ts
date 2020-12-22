@@ -14,7 +14,7 @@ import { saveArtworkData } from './artwork/SaveArtworkData'
 import { saveNovelData } from './novel/SaveNovelData'
 import { mute } from './Mute'
 import { IDData } from './Store.d'
-import { stat } from 'fs'
+import './SelectWork'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数
@@ -31,7 +31,7 @@ abstract class InitPageBase {
 
   protected ajaxThreadsFinished = 0 // 统计有几个并发线程完成所有请求。统计的是并发线程（ ajaxThreads ）而非请求数
 
-  // 子组件不应该重载 init 方法
+  // 子组件不应该重载 init 方法，但可以重载里面的方法
   protected init() {
     options.showAllOption()
     this.setFormOption()
@@ -65,12 +65,12 @@ abstract class InitPageBase {
   }
 
   // 添加其他任意元素（如果有）
-  protected addAnyElement(): void { }
+  protected addAnyElement(): void {}
 
   // 初始化任意内容
   // 如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里
   // 通常用来初始化特有的组件、功能、事件、状态等
-  protected initAny() { }
+  protected initAny() {}
 
   // 销毁初始化页面时添加的元素和事件，恢复设置项等
   protected destroy(): void {
@@ -152,7 +152,7 @@ abstract class InitPageBase {
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
-  protected getWantPage() { }
+  protected getWantPage() {}
 
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
   protected getMultipleSetting() {
@@ -393,7 +393,7 @@ abstract class InitPageBase {
   }
 
   // 抓取完成后，对结果进行排序
-  protected sortResult() { }
+  protected sortResult() {}
 }
 
 export { InitPageBase }

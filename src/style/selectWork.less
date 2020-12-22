@@ -1,30 +1,30 @@
 @import './var.less';
 
-#selectWorkEl{
-    box-sizing: border-box;
-    position: fixed;
-    z-index: 1000;
-    // left: 50%;
-    // top: 50%;
-    left: 0;
-    top: 0;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background: rgba(41, 179, 243, .6);;
-    // border: 2px solid @beautifyBlue;
-    display: none;
-    pointer-events: none;
+#selectWorkEl {
+  box-sizing: border-box;
+  position: fixed;
+  z-index: 1000;
+  // left: 50%;
+  // top: 50%;
+  left: 0;
+  top: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(41, 179, 243, 0.6);
+  // border: 2px solid @beautifyBlue;
+  display: none;
+  pointer-events: none;
 
-    &::before {
-      content: '';
-      display: block;
-      position: absolute;
-      width: 200vw;
-      height: 0;
-      left: -100vw;
-      top: 10px;
-      border: 1px dashed @beautifyBlue;
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    width: 200vw;
+    height: 0;
+    left: -100vw;
+    top: 10px;
+    border: 1px dashed @beautifyBlue;
   }
 
   &::after {
@@ -39,8 +39,8 @@
   }
 }
 
-.selectedWorkFlag{
-  color:#FF4060;
+.selectedWorkFlag {
+  color: #ff4060;
   font-size: 40px;
   position: absolute;
   z-index: 1000;

@@ -32,7 +32,7 @@
   border: 1px dashed #29b3f3;
 }
 .selectedWorkFlag {
-  color: #FF4060;
+  color: #ff4060;
   font-size: 40px;
   position: absolute;
   z-index: 1000;
@@ -430,7 +430,8 @@
   display: flex;
   flex-wrap: wrap;
 }
-.centerWrap .centerWrap_btns > * {
+.centerWrap .centerWrap_btns button {
+  background-color: #0ea8ef;
   box-sizing: border-box;
   border: none;
   width: 140px;
@@ -446,11 +447,11 @@
   margin-bottom: 10px;
   vertical-align: top;
 }
-.centerWrap .centerWrap_btns > *:hover,
-.centerWrap .centerWrap_btns > *:focus {
+.centerWrap .centerWrap_btns button:hover,
+.centerWrap .centerWrap_btns button:focus {
   opacity: 0.8;
 }
-.centerWrap .centerWrap_btns > *,
+.centerWrap .centerWrap_btns button,
 .centerWrap .progressTip {
   color: #fff;
   font-size: 14px;

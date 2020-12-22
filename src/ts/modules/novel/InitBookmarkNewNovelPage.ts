@@ -9,7 +9,6 @@ import { FilterOption } from '../Filter.d'
 import { filter } from '../Filter'
 import { store } from '../Store'
 import { log } from '../Log'
-import {SelectWork} from '../SelectWork'
 
 class InitBookmarkNewNovelPage extends InitPageBase {
   constructor() {
@@ -27,9 +26,7 @@ class InitBookmarkNewNovelPage extends InitPageBase {
     })
   }
 
-  protected initAny(){
-    new SelectWork()
-  }
+  protected initAny() {}
 
   protected setFormOption() {
     // 个数/页数选项的提示

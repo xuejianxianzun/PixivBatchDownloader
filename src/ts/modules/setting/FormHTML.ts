@@ -227,7 +227,10 @@ const formHtml = `<form class="settingForm">
       </span>
       </p>
 
-      <slot data-name="crawlBtns" class="centerWrap_btns"></slot>
+      <div  class="centerWrap_btns">
+      <slot data-name="crawlBtns"></slot>
+      <slot data-name="selectWorkBtns"></slot>
+      </div>
     </div>
     <div class="con">
     <p class="option" data-no="13">

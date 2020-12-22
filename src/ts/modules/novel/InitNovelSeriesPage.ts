@@ -6,7 +6,6 @@ import { options } from '../setting/Options'
 import { store } from '../Store'
 import { DOM } from '../DOM'
 import { API } from '../API'
-import {SelectWork} from '../SelectWork'
 
 class InitNovelSeriesPage extends InitPageBase {
   constructor() {
@@ -28,9 +27,7 @@ class InitNovelSeriesPage extends InitPageBase {
     })
   }
 
-  protected initAny(){
-    new SelectWork()
-  }
+  protected initAny() {}
 
   protected setFormOption() {
     // 隐藏“个数/页数”选项

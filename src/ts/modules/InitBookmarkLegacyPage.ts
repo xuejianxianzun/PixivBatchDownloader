@@ -15,7 +15,6 @@ import {
 import { store } from './Store'
 import { log } from './Log'
 import { DOM } from './DOM'
-import {SelectWork} from './SelectWork'
 
 class InitBookmarkLegacyPage extends InitPageBase {
   constructor() {
@@ -69,10 +68,6 @@ class InitBookmarkLegacyPage extends InitPageBase {
 
       new BookmarksAddTag(btn)
     }
-  }
-
-  protected initAny(){
-    new SelectWork()
   }
 
   protected setFormOption() {

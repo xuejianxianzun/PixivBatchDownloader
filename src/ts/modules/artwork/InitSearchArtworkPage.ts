@@ -19,7 +19,6 @@ import { FastScreen } from '../FastScreen'
 import { DOM } from '../DOM'
 import { BookmarkAllWorks } from '../BookmarkAllWorks'
 import { states } from '../States'
-import {SelectWork} from '../SelectWork'
 
 type AddBMKData = {
   id: number
@@ -156,8 +155,6 @@ class InitSearchArtworkPage extends InitPageBase {
     window.addEventListener(EVT.list.deleteWork, this.deleteWork)
 
     window.addEventListener(EVT.list.settingChange, this.onSettingChange)
-
-    new SelectWork()
   }
 
   protected destroy() {
