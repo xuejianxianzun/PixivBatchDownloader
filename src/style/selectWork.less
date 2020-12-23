@@ -1,20 +1,20 @@
 @import './var.less';
 
-@keyframes moveRight{
+@keyframes moveRight {
   from {
-    left:-100vw;
+    left: -100vw;
   }
-  to{
-    left:-98vw;
+  to {
+    left: -98vw;
   }
 }
 
-@keyframes moveBottom{
+@keyframes moveBottom {
   from {
-    top:-100vh;
+    top: -100vh;
   }
-  to{
-    top:-98vh;
+  to {
+    top: -98vh;
   }
 }
 
@@ -40,7 +40,12 @@
     left: -100vw;
     top: 10px;
     height: 1px;
-    background-image: linear-gradient(to right, @themeBlue 0%, @themeBlue 50%, transparent 50%);
+    background-image: linear-gradient(
+      to right,
+      @themeBlue 0%,
+      @themeBlue 50%,
+      transparent 50%
+    );
     background-size: 8px 1px;
     background-repeat: repeat-x;
     animation: moveRight 2s linear infinite;
@@ -54,11 +59,16 @@
     top: -100vh;
     left: 10px;
     width: 1px;
-    background-image: linear-gradient(to bottom, @themeBlue 0%, @themeBlue 50%, transparent 50%);
+    background-image: linear-gradient(
+      to bottom,
+      @themeBlue 0%,
+      @themeBlue 50%,
+      transparent 50%
+    );
     background-size: 1px 8px;
     background-repeat: repeat-y;
     animation: moveBottom 1s linear infinite;
-}
+  }
 }
 
 .selectedWorkFlag {

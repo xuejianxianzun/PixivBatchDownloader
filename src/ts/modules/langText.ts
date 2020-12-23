@@ -1443,12 +1443,12 @@ const langText = {
   ],
   _暂停选择: ['暂停选择', '選択を一時停止', 'Pause select', '暫停選擇'],
   _继续选择: ['继续选择', '選択を続ける', 'Continue select', '繼續選擇'],
-  _离开页面前提示选择的作品未抓取:[
-    "选择的作品尚未抓取。现在离开此页面会导致你选择的作品被清空。",
-    "選ばれた作品はまだクロールしていません。今このページを離れると、選ばれた作品がクリアされます。",
-    "The selected work has not been crawled. Leaving this page now will cause your selected work to be cleared.",
-    "選擇的作品尚未抓取。現在離開此頁面會導致您選擇的作品被清空。",
-  ]
+  _离开页面前提示选择的作品未抓取: [
+    '选择的作品尚未抓取。现在离开此页面会导致你选择的作品被清空。',
+    '選ばれた作品はまだクロールしていません。今このページを離れると、選ばれた作品がクリアされます。',
+    'The selected work has not been crawled. Leaving this page now will cause your selected work to be cleared.',
+    '選擇的作品尚未抓取。現在離開此頁面會導致您選擇的作品被清空。',
+  ],
 }
 
 export { langText, langTextKeys }

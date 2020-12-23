@@ -65,7 +65,7 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
       return
     }
 
-    const worksData =  data.data
+    const worksData = data.data
 
     // 检查一些此时可以进行检查的设置项
     for (const data of worksData) {
@@ -98,7 +98,11 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
 
     // 判断任务状态
     // 如果抓取到了最后一页，或者抓取完了指定页面
-    if (data.lastPage || p >= this.maxCount || this.listPageFinished === this.crawlNumber) {
+    if (
+      data.lastPage ||
+      p >= this.maxCount ||
+      this.listPageFinished === this.crawlNumber
+    ) {
       log.log(lang.transl('_列表页抓取完成'))
       this.getIdListFinished()
     } else {

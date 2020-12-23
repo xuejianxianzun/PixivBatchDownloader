@@ -58,7 +58,7 @@ class SelectWork {
   private controlBtn: HTMLButtonElement = document.createElement('button') // 启动、暂停、继续选择的按钮
   private crawlBtn: HTMLButtonElement = document.createElement('button') // 抓取选择的作品的按钮，并且会退出选择模式
 
-  private selectedWorkFlagClass = 'selectedWorkFlag'  // 给已选择的作品添加标记时使用的 class
+  private selectedWorkFlagClass = 'selectedWorkFlag' // 给已选择的作品添加标记时使用的 class
   private positionValue = ['relative', 'absolute', 'fixed'] // 标记元素需要父元素拥有这些定位属性
 
   private artworkReg = /artworks\/(\d{2,15})/
@@ -96,9 +96,13 @@ class SelectWork {
     })
 
     // 鼠标移动时保存鼠标的坐标
-    window.addEventListener('mousemove', (ev) => {
-      this.moveEvent(ev)
-    }, true)
+    window.addEventListener(
+      'mousemove',
+      (ev) => {
+        this.moveEvent(ev)
+      },
+      true,
+    )
 
     // 离开页面前，如果选择的作品没有抓取，则提示用户，并阻止用户直接离开页面
     window.onbeforeunload = () => {
@@ -333,13 +337,21 @@ class SelectWork {
     span.textContent = '😊'
     span.classList.add(this.selectedWorkFlagClass)
     span.dataset.id = id
-    el.insertAdjacentElement('beforebegin', span)
+
+    let target = el
+
+    // 如果点击的元素处于 svg 里，则添加到 svg 外面。因为 svg 里面不会显示添加的标记
+    // 这里的代码只能应对 svg 内只有一层子元素的情况。目前 pixiv 的作品列表都是这样
+    if (el.nodeName === 'svg' || el.parentElement?.nodeName === 'svg') {
+      target = el.parentElement as HTMLElement
+    }
+    target.insertAdjacentElement('beforebegin', span)
 
     // 如果父元素没有某些定位，就会导致标记定位异常。修复此问题
-    if (el.parentElement) {
-      const position = window.getComputedStyle(el.parentElement)['position']
+    if (target.parentElement) {
+      const position = window.getComputedStyle(target.parentElement)['position']
       if (!this.positionValue.includes(position)) {
-        el.parentElement.style.position = 'relative'
+        target.parentElement.style.position = 'relative'
       }
     }
   }
@@ -361,4 +373,4 @@ class SelectWork {
 }
 
 new SelectWork()
-export { }
+export {}
