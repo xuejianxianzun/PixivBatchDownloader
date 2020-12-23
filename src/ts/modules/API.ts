@@ -36,10 +36,10 @@ interface LikeResponse {
   error: boolean
   message: '' | string
   body:
-    | []
-    | {
-        is_liked: boolean
-      }
+  | []
+  | {
+    is_liked: boolean
+  }
 }
 
 class API {
@@ -232,9 +232,8 @@ class API {
     offset: number,
     hide: boolean = false,
   ): Promise<BookmarkData> {
-    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
-      hide ? 'hide' : 'show'
-    }&rdm=${Math.random()}`
+    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${hide ? 'hide' : 'show'
+      }&rdm=${Math.random()}`
 
     return this.request(url)
   }
@@ -478,7 +477,10 @@ class API {
   static getBookmarkNewIllustData(
     p = 1,
     r18 = false,
-  ): Promise<BookMarkNewData[]> {
+  ): Promise<{
+    lastPage: boolean,
+    data: BookMarkNewData[]
+  }> {
     let path = r18 ? 'bookmark_new_illust_r18' : 'bookmark_new_illust'
 
     let url = `https://www.pixiv.net/${path}.php?p=${p}`
@@ -501,11 +503,20 @@ class API {
             'text/html',
           )
 
+          // 查找是否有下一页的按钮，如果没有说明是最后一页了，不再继续抓取下一页
+          let lastPage = false
+          if (!listPageDocument.querySelector('span.next a')) {
+            lastPage = true
+          }
+
           let worksInfoText = (listPageDocument.querySelector(
             '#js-mount-point-latest-following',
           ) as HTMLDivElement).dataset.items!
 
-          resolve(JSON.parse(worksInfoText))
+          resolve({
+            lastPage,
+            data: JSON.parse(worksInfoText)
+          })
         })
         .catch((error) => {
           reject(error)

@@ -503,8 +503,16 @@ class API {
             })
                 .then((data) => {
                 let listPageDocument = new DOMParser().parseFromString(data, 'text/html');
+                // 查找是否有下一页的按钮，如果没有说明是最后一页了，不再继续抓取下一页
+                let lastPage = false;
+                if (!listPageDocument.querySelector('span.next a')) {
+                    lastPage = true;
+                }
                 let worksInfoText = listPageDocument.querySelector('#js-mount-point-latest-following').dataset.items;
-                resolve(JSON.parse(worksInfoText));
+                resolve({
+                    lastPage,
+                    data: JSON.parse(worksInfoText)
+                });
             })
                 .catch((error) => {
                 reject(error);
@@ -9409,7 +9417,7 @@ class InitBookmarkNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_
     initAny() { }
     setFormOption() {
         // 个数/页数选项的提示
-        this.maxCount = 100;
+        this.maxCount = 250;
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_页数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
@@ -9428,14 +9436,15 @@ class InitBookmarkNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_
     async getIdList() {
         let p = this.startpageNo + this.listPageFinished;
         // 发起请求，获取列表页
-        let worksData;
+        let data;
         try {
-            worksData = await _API__WEBPACK_IMPORTED_MODULE_6__["API"].getBookmarkNewIllustData(p, this.r18);
+            data = await _API__WEBPACK_IMPORTED_MODULE_6__["API"].getBookmarkNewIllustData(p, this.r18);
         }
         catch (error) {
             this.getIdList();
             return;
         }
+        const worksData = data.data;
         // 检查一些此时可以进行检查的设置项
         for (const data of worksData) {
             const filterOpt = {
@@ -9458,8 +9467,8 @@ class InitBookmarkNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_
         this.listPageFinished++;
         _Log__WEBPACK_IMPORTED_MODULE_8__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页抓取进度', this.listPageFinished.toString()), 1, false);
         // 判断任务状态
-        // 如果抓取了所有页面，或者抓取完指定页面
-        if (p >= this.maxCount || this.listPageFinished === this.crawlNumber) {
+        // 如果抓取到了最后一页，或者抓取完了指定页面
+        if (data.lastPage || p >= this.maxCount || this.listPageFinished === this.crawlNumber) {
             _Log__WEBPACK_IMPORTED_MODULE_8__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页抓取完成'));
             this.getIdListFinished();
         }
@@ -12301,7 +12310,7 @@ class InitBookmarkNewNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0_
     initAny() { }
     setFormOption() {
         // 个数/页数选项的提示
-        this.maxCount = 100;
+        this.maxCount = 250;
         _setting_Options__WEBPACK_IMPORTED_MODULE_5__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_页数'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载提示'),

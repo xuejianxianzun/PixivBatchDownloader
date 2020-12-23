@@ -30,7 +30,7 @@ class InitBookmarkNewNovelPage extends InitPageBase {
 
   protected setFormOption() {
     // 个数/页数选项的提示
-    this.maxCount = 100
+    this.maxCount = 250
 
     options.setWantPageTip({
       text: lang.transl('_页数'),

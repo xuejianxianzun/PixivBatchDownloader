@@ -31,7 +31,7 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
 
   protected setFormOption() {
     // 个数/页数选项的提示
-    this.maxCount = 100
+    this.maxCount = 250
 
     options.setWantPageTip({
       text: lang.transl('_页数'),
@@ -57,13 +57,15 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
     let p = this.startpageNo + this.listPageFinished
 
     // 发起请求，获取列表页
-    let worksData: BookMarkNewData[]
+    let data
     try {
-      worksData = await API.getBookmarkNewIllustData(p, this.r18)
+      data = await API.getBookmarkNewIllustData(p, this.r18)
     } catch (error) {
       this.getIdList()
       return
     }
+
+    const worksData =  data.data
 
     // 检查一些此时可以进行检查的设置项
     for (const data of worksData) {
@@ -95,8 +97,8 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
     )
 
     // 判断任务状态
-    // 如果抓取了所有页面，或者抓取完指定页面
-    if (p >= this.maxCount || this.listPageFinished === this.crawlNumber) {
+    // 如果抓取到了最后一页，或者抓取完了指定页面
+    if (data.lastPage || p >= this.maxCount || this.listPageFinished === this.crawlNumber) {
       log.log(lang.transl('_列表页抓取完成'))
       this.getIdListFinished()
     } else {
