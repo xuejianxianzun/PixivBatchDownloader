@@ -8053,9 +8053,20 @@ class SelectWork {
                 this.controlBtn.click();
             }
         });
+        // 鼠标移动时保存鼠标的坐标
         window.addEventListener('mousemove', (ev) => {
             this.moveEvent(ev);
         }, true);
+        // 离开页面前，如果选择的作品没有抓取，则提示用户，并阻止用户直接离开页面
+        window.onbeforeunload = () => {
+            if (this.idList.length > 0) {
+                _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].sendMsg({
+                    msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_离开页面前提示选择的作品未抓取'),
+                    type: 'error',
+                });
+                return false;
+            }
+        };
     }
     clearIdList() {
         // 清空标记需要使用 id 数据，所以需要执行之后才能清空 id
@@ -8081,7 +8092,7 @@ class SelectWork {
         }
     }
     addBtn() {
-        this.controlBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].addBtn('selectWorkBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_手动选择作品'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_手动选择作品的说明')]]);
+        this.controlBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].addBtn('selectWorkBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_手动选择作品'));
         this.updateControlBtn();
         this.crawlBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].addBtn('selectWorkBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取选择的作品'), [['style', 'display:none;']]);
         this.crawlBtn.addEventListener('click', (ev) => {
@@ -8124,10 +8135,11 @@ class SelectWork {
     }
     // 监听点击事件
     clickEvent(ev) {
-        ev.preventDefault();
-        // ev.stopPropagation()
         const workId = this.findWork(ev.path || ev.composedPath());
         if (workId) {
+            // 如果点击的元素是作品元素，就阻止默认事件。否则会进入作品页面，导致无法在当前页面继续选择
+            ev.preventDefault();
+            // 如果点击的元素不是作品元素，就不做任何处理
             const index = this.idList.findIndex((item) => {
                 return item.id === workId.id && item.type === workId.type;
             });
@@ -8179,10 +8191,8 @@ class SelectWork {
         }
         this.updateSelectorEl();
         this.bindClickEvent = this.clickEvent.bind(this);
-        // this.bindMoveEvent = this.moveEvent.bind(this)
         this.bindEscEvent = this.escEvent.bind(this);
         window.addEventListener('click', this.bindClickEvent, true);
-        // window.addEventListener('mousemove', this.bindMoveEvent, true)
         document.addEventListener('keyup', this.bindEscEvent);
         _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.closeCenterPanel);
     }
@@ -8191,8 +8201,6 @@ class SelectWork {
         this.updateSelectorEl();
         this.bindClickEvent &&
             window.removeEventListener('click', this.bindClickEvent, true);
-        this.bindMoveEvent &&
-            window.removeEventListener('mousemove', this.bindMoveEvent, true);
         this.bindEscEvent &&
             document.removeEventListener('keyup', this.bindEscEvent);
     }
@@ -12241,24 +12249,24 @@ const langText = {
     ],
     _手动选择作品: [
         '手动选择作品',
-        '手動で作品を選択',
+        '手動で作品を選ぶ',
         'Manually select works',
         '手動選擇作品',
     ],
-    _手动选择作品的说明: [
-        '在当前页面里选择要下载的作品',
-        '現在のページでダウンロードする作品を選択',
-        'Select the work to download in the current page',
-        '在當前頁面裡選擇要下載的作品',
-    ],
     _抓取选择的作品: [
         '抓取选择的作品',
-        '選択した作品をクロール',
+        '選ばれた作品をクロール',
         'Crawl selected works',
         '抓取選擇的作品',
     ],
     _暂停选择: ['暂停选择', '選択を一時停止', 'Pause select', '暫停選擇'],
     _继续选择: ['继续选择', '選択を続ける', 'Continue select', '繼續選擇'],
+    _离开页面前提示选择的作品未抓取: [
+        "选择的作品尚未抓取。现在离开此页面会导致你选择的作品被清空。",
+        "選ばれた作品はまだクロールしていません。今このページを離れると、選ばれた作品がクリアされます。",
+        "The selected work has not been crawled. Leaving this page now will cause your selected work to be cleared.",
+        "選擇的作品尚未抓取。現在離開此頁面會導致您選擇的作品被清空。",
+    ]
 };
 
 

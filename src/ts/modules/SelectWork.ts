@@ -69,7 +69,6 @@ class SelectWork {
   private crawlSelectedWork = false // 对选择的作品进行抓取时激活此标记。当触发下一次的抓取完成事件时，表示已经抓取了选择的作品，此时清空 id 列表。
 
   private bindClickEvent!: (ev: MouseEvent) => void | undefined
-  private bindMoveEvent!: (ev: MouseEvent) => void | undefined
   private bindEscEvent!: (ev: KeyboardEvent) => void | undefined
 
   private bindEvents() {
@@ -96,10 +95,21 @@ class SelectWork {
       }
     })
 
+    // 鼠标移动时保存鼠标的坐标
     window.addEventListener('mousemove', (ev) => {
       this.moveEvent(ev)
     }, true)
 
+    // 离开页面前，如果选择的作品没有抓取，则提示用户，并阻止用户直接离开页面
+    window.onbeforeunload = () => {
+      if (this.idList.length > 0) {
+        EVT.sendMsg({
+          msg: lang.transl('_离开页面前提示选择的作品未抓取'),
+          type: 'error',
+        })
+        return false
+      }
+    }
   }
 
   private clearIdList() {
@@ -136,7 +146,6 @@ class SelectWork {
       'selectWorkBtns',
       Colors.green,
       lang.transl('_手动选择作品'),
-      [['title', lang.transl('_手动选择作品的说明')]],
     )
     this.updateControlBtn()
 
@@ -186,11 +195,13 @@ class SelectWork {
 
   // 监听点击事件
   private clickEvent(ev: MouseEvent) {
-    ev.preventDefault()
-    // ev.stopPropagation()
     const workId = this.findWork((ev as any).path || ev.composedPath())
 
     if (workId) {
+      // 如果点击的元素是作品元素，就阻止默认事件。否则会进入作品页面，导致无法在当前页面继续选择
+      ev.preventDefault()
+      // 如果点击的元素不是作品元素，就不做任何处理，以免影响用户体验
+
       const index = this.idList.findIndex((item) => {
         return item.id === workId.id && item.type === workId.type
       })
@@ -248,10 +259,8 @@ class SelectWork {
     this.updateSelectorEl()
 
     this.bindClickEvent = this.clickEvent.bind(this)
-    // this.bindMoveEvent = this.moveEvent.bind(this)
     this.bindEscEvent = this.escEvent.bind(this)
     window.addEventListener('click', this.bindClickEvent, true)
-    // window.addEventListener('mousemove', this.bindMoveEvent, true)
     document.addEventListener('keyup', this.bindEscEvent)
 
     EVT.fire(EVT.list.closeCenterPanel)
@@ -262,8 +271,6 @@ class SelectWork {
     this.updateSelectorEl()
     this.bindClickEvent &&
       window.removeEventListener('click', this.bindClickEvent, true)
-    this.bindMoveEvent &&
-      window.removeEventListener('mousemove', this.bindMoveEvent, true)
     this.bindEscEvent &&
       document.removeEventListener('keyup', this.bindEscEvent)
   }

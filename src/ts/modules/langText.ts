@@ -1431,24 +1431,24 @@ const langText = {
   ],
   _手动选择作品: [
     '手动选择作品',
-    '手動で作品を選択',
+    '手動で作品を選ぶ',
     'Manually select works',
     '手動選擇作品',
   ],
-  _手动选择作品的说明: [
-    '在当前页面里选择要下载的作品',
-    '現在のページでダウンロードする作品を選択',
-    'Select the work to download in the current page',
-    '在當前頁面裡選擇要下載的作品',
-  ],
   _抓取选择的作品: [
     '抓取选择的作品',
-    '選択した作品をクロール',
+    '選ばれた作品をクロール',
     'Crawl selected works',
     '抓取選擇的作品',
   ],
   _暂停选择: ['暂停选择', '選択を一時停止', 'Pause select', '暫停選擇'],
   _继续选择: ['继续选择', '選択を続ける', 'Continue select', '繼續選擇'],
+  _离开页面前提示选择的作品未抓取:[
+    "选择的作品尚未抓取。现在离开此页面会导致你选择的作品被清空。",
+    "選ばれた作品はまだクロールしていません。今このページを離れると、選ばれた作品がクリアされます。",
+    "The selected work has not been crawled. Leaving this page now will cause your selected work to be cleared.",
+    "選擇的作品尚未抓取。現在離開此頁面會導致您選擇的作品被清空。",
+  ]
 }
 
 export { langText, langTextKeys }
