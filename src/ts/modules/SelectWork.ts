@@ -18,11 +18,11 @@ class SelectWork {
 
   private created = false
 
-  private selector?: HTMLElement
-  private elId = 'selectWorkEl'
+  private selector?: HTMLElement // 用于选择作品的指示器
+  private selectorId = 'selectWorkEl'
   private left = 0
   private top = 0
-  private half = 10
+  private half = 10 // 指示器的一半宽度（用于设置位置）
 
   private _start = false
   private _pause = false
@@ -34,6 +34,7 @@ class SelectWork {
 
   set start(bool: boolean) {
     this._start = bool
+    this.updateSelectorEl()
     this.updateControlBtn()
   }
 
@@ -43,6 +44,7 @@ class SelectWork {
 
   set pause(bool: boolean) {
     this._pause = bool
+    this.updateSelectorEl()
     this.updateControlBtn()
   }
 
@@ -125,7 +127,7 @@ class SelectWork {
 
   private createSelectorEl() {
     const el = document.createElement('div')
-    el.id = this.elId
+    el.id = this.selectorId
     document.body.appendChild(el)
     return el
   }
@@ -251,17 +253,6 @@ class SelectWork {
       this.clearIdList()
     }
 
-    if (ev.isTrusted) {
-      this.left = ev.x
-      this.top = ev.y
-    } else {
-      // 如果事件不可信，可能是模拟点击，事件的 x y 均为 0。
-      // 此时如果选择器还处于初始状态，就把它定位到窗口中央
-      this.left = this.left || window.innerWidth / 2
-      this.top = this.top || window.innerHeight / 2
-    }
-    this.updateSelectorEl()
-
     this.bindClickEvent = this.clickEvent.bind(this)
     this.bindEscEvent = this.escEvent.bind(this)
     window.addEventListener('click', this.bindClickEvent, true)
@@ -272,7 +263,6 @@ class SelectWork {
 
   private pauseSelect() {
     this.pause = true
-    this.updateSelectorEl()
     this.bindClickEvent &&
       window.removeEventListener('click', this.bindClickEvent, true)
     this.bindEscEvent &&

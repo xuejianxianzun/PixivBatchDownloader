@@ -10350,10 +10350,10 @@
         class SelectWork {
           constructor() {
             this.created = false
-            this.elId = 'selectWorkEl'
+            this.selectorId = 'selectWorkEl'
             this.left = 0
             this.top = 0
-            this.half = 10
+            this.half = 10 // 指示器的一半宽度（用于设置位置）
             this._start = false
             this._pause = false
             this._tempHide = false // 打开下载面板时临时隐藏。这个变量只会影响选择器的 display
@@ -10377,6 +10377,7 @@
           }
           set start(bool) {
             this._start = bool
+            this.updateSelectorEl()
             this.updateControlBtn()
           }
           get pause() {
@@ -10384,6 +10385,7 @@
           }
           set pause(bool) {
             this._pause = bool
+            this.updateSelectorEl()
             this.updateControlBtn()
           }
           get tempHide() {
@@ -10451,7 +10453,7 @@
           }
           createSelectorEl() {
             const el = document.createElement('div')
-            el.id = this.elId
+            el.id = this.selectorId
             document.body.appendChild(el)
             return el
           }
@@ -10574,16 +10576,6 @@
               // 如果是全新开始的选择，则清空之前的结果
               this.clearIdList()
             }
-            if (ev.isTrusted) {
-              this.left = ev.x
-              this.top = ev.y
-            } else {
-              // 如果事件不可信，可能是模拟点击，事件的 x y 均为 0。
-              // 此时如果选择器还处于初始状态，就把它定位到窗口中央
-              this.left = this.left || window.innerWidth / 2
-              this.top = this.top || window.innerHeight / 2
-            }
-            this.updateSelectorEl()
             this.bindClickEvent = this.clickEvent.bind(this)
             this.bindEscEvent = this.escEvent.bind(this)
             window.addEventListener('click', this.bindClickEvent, true)
@@ -10594,7 +10586,6 @@
           }
           pauseSelect() {
             this.pause = true
-            this.updateSelectorEl()
             this.bindClickEvent &&
               window.removeEventListener('click', this.bindClickEvent, true)
             this.bindEscEvent &&
