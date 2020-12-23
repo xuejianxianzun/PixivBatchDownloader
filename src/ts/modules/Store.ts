@@ -14,8 +14,8 @@ class Store {
   public resultMeta: Result[] = [] // 储存抓取结果的元数据。
   // 当用于图片作品时，它可以根据每个作品需要下载多少张，生成每一张图片的信息
 
-  private resultIDList: number[] = [] // 储存抓取结果的元数据的 id 列表，用来判断该作品是否已经添加过了，避免重复添加
-  // resultIDList 可能会有隐患，因为没有区分图片和小说。如果一次抓取任务里，有图片和小说使用了相同的 id，那么只会保留先抓取到的那个。不过目前看来这种情况几乎不会发生。
+  private artworkIDList: number[] = [] // 储存抓取到的图片作品的 id 列表，用来避免重复添加
+  private novelIDList: number[] = [] // 储存抓取到的小说作品的 id 列表，用来避免重复添加
 
   public result: Result[] = [] // 储存抓取结果
 
@@ -64,12 +64,20 @@ class Store {
   // 添加每个作品的信息。只需要传递有值的属性
   public addResult(data: WorkInfoOptional) {
     // 检查该作品数据是否已存在，已存在则不添加
-    if (data.idNum !== undefined && this.resultIDList.includes(data.idNum)) {
-      return
-    }
-
-    if (data.idNum !== undefined) {
-      this.resultIDList.push(data.idNum)
+    if (data.type === 3) {
+      if (data.idNum !== undefined) {
+        if (this.novelIDList.includes(data.idNum)) {
+          return
+        }
+        this.novelIDList.push(data.idNum)
+      }
+    } else {
+      if (data.idNum !== undefined) {
+        if (this.artworkIDList.includes(data.idNum)) {
+          return
+        }
+        this.artworkIDList.push(data.idNum)
+      }
     }
 
     // 添加该作品的元数据
@@ -103,7 +111,8 @@ class Store {
 
   public reset() {
     this.resultMeta = []
-    this.resultIDList = []
+    this.artworkIDList = []
+    this.novelIDList = []
     this.result = []
     this.idList = []
     this.rankList = {}
