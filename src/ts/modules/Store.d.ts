@@ -45,9 +45,9 @@ export interface Result {
   seriesTitle: string | null
   seriesOrder: string | null
   novelMeta: NovelMeta | null
-  likeCount:number
-  viewCount:number
-  commentCount:number
+  likeCount: number
+  viewCount: number
+  commentCount: number
 }
 
 export interface WorkInfoOptional {
@@ -77,9 +77,9 @@ export interface WorkInfoOptional {
   seriesTitle?: string | null
   seriesOrder?: string | null
   novelMeta?: NovelMeta | null
-  likeCount?:number
-  viewCount?:number
-  commentCount?:number
+  likeCount?: number
+  viewCount?: number
+  commentCount?: number
 }
 
 // 储存作品在排行榜中的排名

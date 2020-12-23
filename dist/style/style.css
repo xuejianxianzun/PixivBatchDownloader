@@ -64,10 +64,13 @@
   animation: moveBottom 1s linear infinite;
 }
 .selectedWorkFlag {
-  color: #ff4060;
-  font-size: 40px;
   position: absolute;
   z-index: 1000;
+  width: 48px;
+  height: 48px;
+  background: url('chrome-extension://__MSG_@@extension_id__/img/select.png')
+    no-repeat;
+  background-size: cover;
 }
 .searchList {
   margin: 0;

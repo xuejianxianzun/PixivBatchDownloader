@@ -110,9 +110,9 @@ class SaveArtworkData {
           rank: rank,
           seriesTitle: seriesTitle,
           seriesOrder: seriesOrder,
-          viewCount:body.viewCount,
-          likeCount:body.likeCount,
-          commentCount:body.commentCount,
+          viewCount: body.viewCount,
+          likeCount: body.likeCount,
+          commentCount: body.commentCount,
         })
       } else if (body.illustType === 2) {
         // 动图
@@ -151,9 +151,9 @@ class SaveArtworkData {
           ugoiraInfo: ugoiraInfo,
           seriesTitle: seriesTitle,
           seriesOrder: seriesOrder,
-          viewCount:body.viewCount,
-          likeCount:body.likeCount,
-          commentCount:body.commentCount,
+          viewCount: body.viewCount,
+          likeCount: body.likeCount,
+          commentCount: body.commentCount,
         })
       }
     }

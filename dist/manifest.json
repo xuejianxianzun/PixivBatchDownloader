@@ -59,7 +59,8 @@
   "web_accessible_resources": [
     "lib/z-worker.js",
     "lib/gif.worker.js",
-    "manifest.json"
+    "manifest.json",
+    "img/select.png"
   ],
   "homepage_url": "https://github.com/xuejianxianzun/PixivBatchDownloader"
 }

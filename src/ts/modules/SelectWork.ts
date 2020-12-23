@@ -334,7 +334,6 @@ class SelectWork {
   // 当这次点击事件查找到一个作品时，添加一个标记
   private addSelectedFlag(el: HTMLElement, id: string) {
     const span = document.createElement('span')
-    span.textContent = '😊'
     span.classList.add(this.selectedWorkFlagClass)
     span.dataset.id = id
 

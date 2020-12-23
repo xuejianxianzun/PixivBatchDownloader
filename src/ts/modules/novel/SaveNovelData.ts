@@ -82,9 +82,9 @@ class SaveNovelData {
         rank: rank,
         seriesTitle: seriesTitle,
         seriesOrder: seriesOrder,
-        viewCount:body.viewCount,
-        likeCount:body.likeCount,
-        commentCount:body.commentCount,
+        viewCount: body.viewCount,
+        likeCount: body.likeCount,
+        commentCount: body.commentCount,
         novelMeta: {
           id: body.id,
           title: body.title,
