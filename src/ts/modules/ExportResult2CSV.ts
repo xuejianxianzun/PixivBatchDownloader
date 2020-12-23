@@ -66,6 +66,18 @@ class ExportResult2CSV {
       index: 'bookmarked',
     },
     {
+      name: 'likeCount',
+      index: 'likeCount',
+    },
+    {
+      name: 'viewCount',
+      index: 'viewCount',
+    },
+    {
+      name: 'commentCount',
+      index: 'commentCount',
+    },
+    {
       name: 'width',
       index: 'fullWidth',
     },

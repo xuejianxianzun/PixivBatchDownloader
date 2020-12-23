@@ -56,6 +56,9 @@ class Store {
       seriesTitle: null,
       seriesOrder: null,
       novelMeta: null,
+      likeCount: 0,
+      viewCount: 0,
+      commentCount:0,
     }
 
     return Object.assign(dataDefault, data)
