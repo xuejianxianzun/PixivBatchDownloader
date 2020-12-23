@@ -1,3 +1,19 @@
+@keyframes moveRight {
+  from {
+    left: -100vw;
+  }
+  to {
+    left: -98vw;
+  }
+}
+@keyframes moveBottom {
+  from {
+    top: -100vh;
+  }
+  to {
+    top: -98vh;
+  }
+}
 #selectWorkEl {
   box-sizing: border-box;
   position: fixed;
@@ -7,7 +23,7 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: rgba(41, 179, 243, 0.6);
+  background: #29b3f3;
   display: none;
   pointer-events: none;
 }
@@ -16,20 +32,26 @@
   display: block;
   position: absolute;
   width: 200vw;
-  height: 0;
   left: -100vw;
   top: 10px;
-  border: 1px dashed #29b3f3;
+  height: 1px;
+  background-image: linear-gradient(to right, #0ea8ef 0%, #0ea8ef 50%, transparent 50%);
+  background-size: 8px 1px;
+  background-repeat: repeat-x;
+  animation: moveRight 2s linear infinite;
 }
 #selectWorkEl::after {
   content: '';
   display: block;
   position: absolute;
-  width: 0;
   height: 200vh;
   top: -100vh;
   left: 10px;
-  border: 1px dashed #29b3f3;
+  width: 1px;
+  background-image: linear-gradient(to bottom, #0ea8ef 0%, #0ea8ef 50%, transparent 50%);
+  background-size: 1px 8px;
+  background-repeat: repeat-y;
+  animation: moveBottom 1s linear infinite;
 }
 .selectedWorkFlag {
   color: #ff4060;

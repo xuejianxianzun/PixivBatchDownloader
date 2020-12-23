@@ -1,18 +1,34 @@
 @import './var.less';
 
+@keyframes moveRight{
+  from {
+    left:-100vw;
+  }
+  to{
+    left:-98vw;
+  }
+}
+
+@keyframes moveBottom{
+  from {
+    top:-100vh;
+  }
+  to{
+    top:-98vh;
+  }
+}
+
 #selectWorkEl {
   box-sizing: border-box;
   position: fixed;
   z-index: 1000;
-  // left: 50%;
-  // top: 50%;
   left: 0;
   top: 0;
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: rgba(41, 179, 243, 0.6);
-  // border: 2px solid @beautifyBlue;
+  // background: rgba(41, 179, 243, 0.8);
+  background: @beautifyBlue;
   display: none;
   pointer-events: none;
 
@@ -21,22 +37,28 @@
     display: block;
     position: absolute;
     width: 200vw;
-    height: 0;
     left: -100vw;
     top: 10px;
-    border: 1px dashed @beautifyBlue;
+    height: 1px;
+    background-image: linear-gradient(to right, @themeBlue 0%, @themeBlue 50%, transparent 50%);
+    background-size: 8px 1px;
+    background-repeat: repeat-x;
+    animation: moveRight 2s linear infinite;
   }
 
   &::after {
     content: '';
     display: block;
     position: absolute;
-    width: 0;
     height: 200vh;
     top: -100vh;
     left: 10px;
-    border: 1px dashed @beautifyBlue;
-  }
+    width: 1px;
+    background-image: linear-gradient(to bottom, @themeBlue 0%, @themeBlue 50%, transparent 50%);
+    background-size: 1px 8px;
+    background-repeat: repeat-y;
+    animation: moveBottom 1s linear infinite;
+}
 }
 
 .selectedWorkFlag {

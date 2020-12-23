@@ -52,14 +52,14 @@ class SelectWork {
 
   set tempHide(bool: boolean) {
     this._tempHide = bool
-    this.updateEl()
+    this.updateSelectorEl()
   }
 
   private controlBtn: HTMLButtonElement = document.createElement('button') // 启动、暂停、继续选择的按钮
-  private crawlBtn: HTMLButtonElement = document.createElement('button') // 开始抓取选择的作品的按钮，并且会退出选择模式
+  private crawlBtn: HTMLButtonElement = document.createElement('button') // 抓取选择的作品的按钮，并且会退出选择模式
 
-  private selectedWorkFlagClass = 'selectedWorkFlag'
-  private positionValue = ['relative', 'absolute', 'fixed']
+  private selectedWorkFlagClass = 'selectedWorkFlag'  // 给已选择的作品添加标记时使用的 class
+  private positionValue = ['relative', 'absolute', 'fixed'] // 标记元素需要父元素拥有这些定位属性
 
   private artworkReg = /artworks\/(\d{2,15})/
   private novelReg = /novel\/show\.php\?id=(\d{2,15})/
@@ -95,12 +95,18 @@ class SelectWork {
         this.controlBtn.click()
       }
     })
+
+    window.addEventListener('mousemove', (ev) => {
+      this.moveEvent(ev)
+    }, true)
+
   }
 
   private clearIdList() {
+    // 清空标记需要使用 id 数据，所以需要执行之后才能清空 id
+    this.removeAllSelectedFlag()
     this.idList = []
     this.updateCrawlBtn()
-    this.removeAllSelectedFlag()
   }
 
   private createSelectorEl() {
@@ -108,6 +114,21 @@ class SelectWork {
     el.id = this.elId
     document.body.appendChild(el)
     return el
+  }
+
+  private updateSelectorEl() {
+    if (!this.selector) {
+      return
+    }
+
+    const show = this.start && !this.pause && !this.tempHide
+
+    this.selector.style.display = show ? 'block' : 'none'
+
+    if (show) {
+      this.selector.style.left = this.left - this.half + 'px'
+      this.selector.style.top = this.top - this.half + 'px'
+    }
   }
 
   private addBtn() {
@@ -163,84 +184,7 @@ class SelectWork {
     }
   }
 
-  private updateEl() {
-    if (!this.selector) {
-      return
-    }
-
-    this.selector.style.left = this.left - this.half + 'px'
-    this.selector.style.top = this.top - this.half + 'px'
-    this.selector.style.display =
-      this.start && !this.pause && !this.tempHide ? 'block' : 'none'
-  }
-
-  private startSelect(ev: MouseEvent) {
-    this.start = true
-
-    if (this.pause) {
-      // 如果之前暂停了，则继续选择。不清空之前的结果
-      this.pause = false
-    } else {
-      // 如果是全新开始的选择，则清空之前的结果
-      this.clearIdList()
-    }
-
-    if (ev.isTrusted) {
-      this.left = ev.x
-      this.top = ev.y
-    } else {
-      // 如果事件不可信，可能是模拟点击，事件的 x y 均为 0。
-      // 此时如果选择器还处于初始状态，就把它定位到窗口中央
-      this.left = this.left || window.innerWidth / 2
-      this.top = this.top || window.innerHeight / 2
-    }
-    this.updateEl()
-
-    this.bindClickEvent = this.clickEvent.bind(this)
-    this.bindMoveEvent = this.moveEvent.bind(this)
-    this.bindEscEvent = this.escEvent.bind(this)
-    window.addEventListener('click', this.bindClickEvent, true)
-    window.addEventListener('mousemove', this.bindMoveEvent, true)
-    document.addEventListener('keyup', this.bindEscEvent)
-
-    EVT.fire(EVT.list.closeCenterPanel)
-  }
-
-  private pauseSelect() {
-    this.pause = true
-    this.updateEl()
-    this.bindClickEvent &&
-      window.removeEventListener('click', this.bindClickEvent, true)
-    this.bindMoveEvent &&
-      window.removeEventListener('mousemove', this.bindMoveEvent, true)
-    this.bindEscEvent &&
-      document.removeEventListener('keyup', this.bindEscEvent)
-  }
-
-  private downloadSelect() {
-    if (states.busy) {
-      EVT.sendMsg({
-        msg: lang.transl('_当前任务尚未完成'),
-        type: 'error',
-      })
-      return
-    }
-
-    this.pauseSelect()
-
-    if (this.idList.length > 0) {
-      // 传递 id 列表时，将其转换成一个新的数组。否则传递的是引用，外部操作会影响到内部的 id 列表
-      EVT.fire(EVT.list.downloadIdList, Array.from(this.idList))
-
-      this.crawlSelectedWork = true
-    } else {
-      EVT.sendMsg({
-        msg: lang.transl('_没有数据可供使用'),
-        type: 'error',
-      })
-    }
-  }
-
+  // 监听点击事件
   private clickEvent(ev: MouseEvent) {
     ev.preventDefault()
     // ev.stopPropagation()
@@ -266,18 +210,90 @@ class SelectWork {
     }
   }
 
+  // 监听鼠标移动
   private moveEvent(ev: MouseEvent) {
     this.left = ev.x
     this.top = ev.y
-    this.updateEl()
+    this.updateSelectorEl()
   }
 
+  // esc 暂停选择
   private escEvent(ev: KeyboardEvent) {
     if (ev.code === 'Escape') {
       this.pauseSelect()
     }
   }
 
+  // 开始或继续选择
+  private startSelect(ev: MouseEvent) {
+    this.start = true
+
+    if (this.pause) {
+      // 如果之前暂停了，则继续选择。不清空之前的结果
+      this.pause = false
+    } else {
+      // 如果是全新开始的选择，则清空之前的结果
+      this.clearIdList()
+    }
+
+    if (ev.isTrusted) {
+      this.left = ev.x
+      this.top = ev.y
+    } else {
+      // 如果事件不可信，可能是模拟点击，事件的 x y 均为 0。
+      // 此时如果选择器还处于初始状态，就把它定位到窗口中央
+      this.left = this.left || window.innerWidth / 2
+      this.top = this.top || window.innerHeight / 2
+    }
+    this.updateSelectorEl()
+
+    this.bindClickEvent = this.clickEvent.bind(this)
+    // this.bindMoveEvent = this.moveEvent.bind(this)
+    this.bindEscEvent = this.escEvent.bind(this)
+    window.addEventListener('click', this.bindClickEvent, true)
+    // window.addEventListener('mousemove', this.bindMoveEvent, true)
+    document.addEventListener('keyup', this.bindEscEvent)
+
+    EVT.fire(EVT.list.closeCenterPanel)
+  }
+
+  private pauseSelect() {
+    this.pause = true
+    this.updateSelectorEl()
+    this.bindClickEvent &&
+      window.removeEventListener('click', this.bindClickEvent, true)
+    this.bindMoveEvent &&
+      window.removeEventListener('mousemove', this.bindMoveEvent, true)
+    this.bindEscEvent &&
+      document.removeEventListener('keyup', this.bindEscEvent)
+  }
+
+  // 抓取选择的作品，这会暂停选择
+  private downloadSelect() {
+    if (states.busy) {
+      EVT.sendMsg({
+        msg: lang.transl('_当前任务尚未完成'),
+        type: 'error',
+      })
+      return
+    }
+
+    this.pauseSelect()
+
+    if (this.idList.length > 0) {
+      // 传递 id 列表时，将其转换成一个新的数组。否则传递的是引用，外部操作会影响到内部的 id 列表
+      EVT.fire(EVT.list.downloadIdList, Array.from(this.idList))
+
+      this.crawlSelectedWork = true
+    } else {
+      EVT.sendMsg({
+        msg: lang.transl('_没有数据可供使用'),
+        type: 'error',
+      })
+    }
+  }
+
+  // 从传递的元素中查找第一个作品 id
   private findWork(arr: HTMLElement[]): IDData | undefined {
     for (const el of arr) {
       // 查找所有 a 标签
@@ -304,6 +320,7 @@ class SelectWork {
     }
   }
 
+  // 当这次点击事件查找到一个作品时，添加一个标记
   private addSelectedFlag(el: HTMLElement, id: string) {
     const span = document.createElement('span')
     span.textContent = '😊'
@@ -320,6 +337,7 @@ class SelectWork {
     }
   }
 
+  // 清空指定作品的标记
   private removeSelectedFlag(id: string) {
     const el = document.querySelector(
       `.${this.selectedWorkFlagClass}[data-id='${id}']`,
@@ -327,6 +345,7 @@ class SelectWork {
     el && el.remove()
   }
 
+  // 清空所有标记
   private removeAllSelectedFlag() {
     for (const item of this.idList) {
       this.removeSelectedFlag(item.id)
@@ -335,4 +354,4 @@ class SelectWork {
 }
 
 new SelectWork()
-export {}
+export { }
