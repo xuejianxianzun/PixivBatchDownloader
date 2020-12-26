@@ -155,7 +155,7 @@ class FormSettings {
     // 保存是否为多图作品自动建立文件夹
     this.saveCheckBox('multipleImageDir')
 
-    // 保存多图建立文件夹时的命名规则
+    this.saveTextInput('multipleImageFolderNumber')
     this.saveRadio('multipleImageFolderName')
 
     // 保存文件体积限制
@@ -323,7 +323,7 @@ class FormSettings {
     // 设置是否为多图作品自动建立文件夹
     this.restoreBoolean('multipleImageDir')
 
-    // 设置多图作品建立文件夹时的文件名规则
+    this.restoreString('multipleImageFolderNumber')
     this.restoreString('multipleImageFolderName')
 
     // 设置预览搜索结果

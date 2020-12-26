@@ -358,6 +358,7 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="noSerialNo" id="setNoSerialNo" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
+
       <p class="option" data-no="19">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_多图建立目录提示',
@@ -365,6 +366,9 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="multipleImageDir" id="setMultipleImageDir" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="multipleImageDir">
+      <span>${lang.transl('_图片数量大于')}</span>
+      <input type="text" name="multipleImageFolderNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
+      <span>&nbsp;</span>
       <span>${lang.transl('_目录名使用')}</span>
       <input type="radio" name="multipleImageFolderName" id="multipleImageFolderName1" class="need_beautify radio" value="1" checked>
       <span class="beautify_radio"></span>

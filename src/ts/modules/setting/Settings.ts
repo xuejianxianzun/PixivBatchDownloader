@@ -36,6 +36,7 @@ interface XzSetting {
   tagNameToFileName: boolean
   alwaysFolder: boolean
   multipleImageDir: boolean
+  multipleImageFolderNumber: string
   multipleImageFolderName: '1' | '2'
   showOptions: boolean
   postDate: boolean
@@ -140,6 +141,7 @@ class Settings {
     tagNameToFileName: false,
     alwaysFolder: false,
     multipleImageDir: false,
+    multipleImageFolderNumber: '1',
     multipleImageFolderName: '1',
     showOptions: true,
     postDate: false,

@@ -1449,6 +1449,12 @@ const langText = {
     'The selected work has not been crawled. Leaving this page now will cause your selected work to be cleared.',
     '選擇的作品尚未抓取。現在離開此頁面會導致您選擇的作品被清空。',
   ],
+  _图片数量大于:[
+    '图片数量大于',
+    'ファイルの数が >',
+    'Number of images >',
+    '圖片数量大於',
+  ]
 }
 
 export { langText, langTextKeys }
