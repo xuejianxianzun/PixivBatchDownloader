@@ -2,6 +2,7 @@ import { EVT } from '../EVT'
 import { pageType } from '../PageType'
 import { settings, XzSetting, setSetting } from './Settings'
 import { SettingsForm } from './Form.d'
+import { DateFormat } from '../DateFormat'
 
 // 管理 from 表单里的选项（类型为 input 元素的选项），从 settings 里读取选项的值；当选项改变时保存到 settings 里
 // 不属于 input 类型的选项，不在这里处理。
@@ -12,6 +13,7 @@ import { SettingsForm } from './Form.d'
 class FormSettings {
   constructor(form: SettingsForm) {
     this.form = form
+
     this.bindEvents()
 
     this.ListenChange()
@@ -223,12 +225,22 @@ class FormSettings {
     }
   }
 
+  // 恢复日期、时间设置项
+  // input[type='datetime-local'] 使用
+  private restoreDate(name: keyof XzSetting) {
+    if (settings[name] !== undefined) {
+      // 把时间戳转换成 input 使用的字符串
+      const date = settings[name] as number
+      this.form[name].value = DateFormat.format(date, 'YYYY-MM-DDThh:mm')
+    }
+  }
+
   // 设置当前页面类型的 setWantPage
   private restoreWantPage() {
     const want = settings.wantPageArr[pageType.type]
     if (want !== undefined) {
       this.form.setWantPage.value = want.toString()
-      this.emitChange('setWantPage',want)
+      this.emitChange('setWantPage', want)
     }
   }
 
@@ -298,8 +310,8 @@ class FormSettings {
 
     // 设置投稿时间
     this.restoreBoolean('postDate')
-    this.restoreString('postDateStart')
-    this.restoreString('postDateEnd')
+    this.restoreDate('postDateStart')
+    this.restoreDate('postDateEnd')
 
     // 设置自动下载
     this.restoreBoolean('quietDownload')

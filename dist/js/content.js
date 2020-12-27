@@ -3709,17 +3709,6 @@ class Filter {
     constructor() {
         this.MiB = 1024 * 1024;
         this.oneDayTime = 24 * 60 * 60 * 1000; // 一天的毫秒数
-        // 缓存部分开始
-        // 为了减少不必要的重复计算，缓存一些计算后的值。当有设置改变时，重新计算缓存的值，所以这些值也是会动态更新的。
-        // 可以直接使用的值不需要缓存;只有需要进行处理的值需要缓存
-        this._sizeMin = 0;
-        this._sizeMax = 100 * this.MiB;
-        this._postDateStart = 0;
-        this._postDateEnd = 0;
-        this._needTag = '';
-        this._notNeedTag = '';
-        this.blockList = [];
-        // 缓存部分结束
         this.showTip = false; // 是否在日志区域输出提示
         this.bindEvents();
     }
@@ -3836,7 +3825,7 @@ class Filter {
             !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType1 &&
             !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType2 &&
             !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType3) {
-            this.throwError(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除了所有作品类型'));
+            this.showWarning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除了所有作品类型'));
         }
         let notDownTip = '';
         notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType0 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_插画');
@@ -3859,7 +3848,7 @@ class Filter {
     getDownTypeByColor() {
         // 如果全部排除则取消任务
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg && !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg) {
-            this.throwError(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除了所有作品类型'));
+            this.showWarning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除了所有作品类型'));
         }
         let notDownTip = '';
         notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_彩色图片');
@@ -3872,7 +3861,7 @@ class Filter {
     getDownTypeByBmked() {
         // 如果全部排除则取消任务
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked) {
-            this.throwError(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除了所有作品类型'));
+            this.showWarning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除了所有作品类型'));
         }
         let notDownTip = '';
         notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_未收藏');
@@ -3881,27 +3870,13 @@ class Filter {
             this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
         }
     }
-    // 获取用户输入的 tag 内容
-    getTagString(str) {
-        let result = '';
-        if (str) {
-            let tempArr = str.split(',');
-            // 如果用户在末尾也输入了逗号，则会产生一个空值，去掉它
-            if (tempArr[tempArr.length - 1] === '') {
-                tempArr.pop();
-            }
-            result = tempArr.join(',');
-        }
-        return result;
-    }
     // 获取必须包含的tag
     getIncludeTag() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTagSwitch) {
             return;
         }
-        this._needTag = this.getTagString(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag);
-        if (this._needTag) {
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了必须tag之后的提示') + this._needTag);
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag.length > 0) {
+            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了必须tag之后的提示') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag.toString());
         }
     }
     // 获取要排除的tag
@@ -3909,9 +3884,8 @@ class Filter {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTagSwitch) {
             return;
         }
-        this._notNeedTag = this.getTagString(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag);
-        if (this._notNeedTag) {
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了排除tag之后的提示') + this._notNeedTag);
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag.length > 0) {
+            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了排除tag之后的提示') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag.toString());
         }
     }
     // 获取宽高设置
@@ -3959,14 +3933,7 @@ class Filter {
         }
         else if (result === '3') {
             // 由用户输入
-            const typeNum = parseFloat(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio);
-            if (isNaN(typeNum)) {
-                const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽高比必须是数字');
-                this.throwError(msg);
-            }
-            else {
-                this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_输入宽高比') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio);
-            }
+            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_输入宽高比') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio);
         }
         return result;
     }
@@ -3984,54 +3951,32 @@ class Filter {
     }
     // 获取投稿时间设置
     getPostDate() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDate ||
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart === '' ||
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd === '') {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDate) {
             return;
         }
-        // 判断是否是有效的时间格式
-        const postDateStart = new Date(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart);
-        const postDateEnd = new Date(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd);
-        // 如果输入的时间可以被转换成有效的时间，则启用
-        // 转换时间失败时，值是 Invalid Date，不能转换成数字
-        if (isNaN(postDateStart.getTime()) || isNaN(postDateEnd.getTime())) {
+        if (isNaN(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart) || isNaN(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart)) {
             const msg = 'Date format error!';
-            this.throwError(msg);
+            this.showWarning(msg);
         }
         else {
-            // 转换时间成功
-            this._postDateStart = postDateStart.getTime();
-            this._postDateEnd = postDateEnd.getTime();
-            this.logTip(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_时间范围')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart} - ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd}`);
+            const start = new Date(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart).toLocaleString();
+            const end = new Date(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd).toLocaleString();
+            this.logTip(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_时间范围')}: ${start} - ${end}`);
         }
     }
     // 获取文件体积设置
     getSize() {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeSwitch) {
-            let min = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMin;
-            let max = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMax;
-            // 如果输入的最小值比最大值还要大，则交换它们的值
-            if (min > max) {
-                ;
-                [min, max] = [max, min];
-            }
-            this._sizeMin = min * this.MiB;
-            this._sizeMax = max * this.MiB;
-            this.logTip(`Size: ${min}MiB - ${max}MiB`);
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeSwitch) {
+            return;
         }
+        this.logTip(`Size: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMin}MiB - ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMax}MiB`);
     }
     getBlockList() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userBlockList) {
-            this.blockList = [];
             return;
         }
-        const temp = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockList.trim().split(',');
-        // 因为输入的值只用来比较，没有其他用途，所以不必严格检查 id 的有效性
-        this.blockList = temp.filter((val) => {
-            return val !== '';
-        });
-        if (this.blockList.length > 0) {
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_用户阻止名单') + ': ' + this.blockList.join(','));
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockList.length > 0) {
+            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_用户阻止名单') + ': ' + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockList.toString());
         }
     }
     // ---------------- check ----------------
@@ -4073,8 +4018,11 @@ class Filter {
     }
     // 检查作品是否符合已收藏、未收藏作品的设置
     checkDownTypeByBmked(bookmarked) {
-        // 如果没有参数，或者都没有排除，或者都排除了，则视为下载此文件
+        // 如果没有参数，或者都没有排除
         if (bookmarked === undefined) {
+            return true;
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked) {
             return true;
         }
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked) {
@@ -4085,7 +4033,7 @@ class Filter {
             // 只下载未收藏
             return !bookmarked;
         }
-        return true;
+        return false;
     }
     // 检查收藏数要求
     checkBMK(bmk, date) {
@@ -4109,12 +4057,12 @@ class Filter {
     }
     // 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。
     checkIncludeTag(tags) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTagSwitch || !this._needTag || tags === undefined) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTagSwitch || _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag.length === 0 || tags === undefined) {
             return true;
         }
         let result = false;
         // 把设置的包含的 tag 转换成小写，生成数组
-        const needTags = this._needTag.split(',').map((val) => {
+        const needTags = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag.map((val) => {
             return val.toLowerCase();
         });
         // 如果设置了必须的 tag
@@ -4158,11 +4106,11 @@ class Filter {
     }
     // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。
     checkExcludeTag(tags) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTagSwitch || !this._notNeedTag || tags === undefined) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTagSwitch || _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag.length === 0 || tags === undefined) {
             return true;
         }
         let result = true;
-        const notNeedTags = this._notNeedTag.split(',').map((val) => {
+        const notNeedTags = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag.map((val) => {
             return val.toLowerCase();
         });
         // 如果设置了排除 tag
@@ -4236,7 +4184,7 @@ class Filter {
             return width / height < 1;
         }
         else {
-            return width / height >= parseFloat(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio);
+            return width / height >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio;
         }
     }
     // 检查 id 范围设置
@@ -4267,14 +4215,12 @@ class Filter {
     // 检查投稿时间设置
     checkPostDate(date) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDate ||
-            date === undefined ||
-            !this._postDateStart ||
-            !this._postDateEnd) {
+            date === undefined) {
             return true;
         }
         const nowDate = new Date(date);
-        return (nowDate.getTime() >= this._postDateStart &&
-            nowDate.getTime() <= this._postDateEnd);
+        return (nowDate.getTime() >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart &&
+            nowDate.getTime() <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd);
     }
     // 检查首次登场设置
     // yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
@@ -4289,14 +4235,14 @@ class Filter {
             return true;
         }
         // 如果阻止名单里有这个用户 id，则返回 false 表示阻止这个作品
-        return !this.blockList.includes(userId);
+        return !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockList.includes(userId);
     }
     // 检查文件体积
     checkSize(size) {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeSwitch || size === undefined) {
             return true;
         }
-        return size >= this._sizeMin && size <= this._sizeMax;
+        return size >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMin * this.MiB && size <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMax * this.MiB;
     }
     checkMuteUser(userId) {
         if (userId === undefined) {
@@ -4318,25 +4264,18 @@ class Filter {
         }
         _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(str);
     }
-    // 如果设置项的值不合法，则抛出错误
-    throwError(msg) {
+    // 如果设置项的值不合法，则显示提示
+    showWarning(msg) {
         _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.wrongSetting);
-        _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(msg, 2);
         _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].sendMsg({
             msg: msg,
             type: 'error',
         });
-        throw new Error(msg);
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.crawlStart, () => {
             this.init(true);
         });
-        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.settingChange, _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.resume]) {
-            window.addEventListener(ev, () => {
-                this.init();
-            });
-        }
     }
 }
 const filter = new Filter();
@@ -6105,7 +6044,6 @@ class InitPageBase {
             return;
         }
         if (_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length === 0) {
-            console.log('idList 0');
             return this.noResult();
         }
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前作品个数', _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length.toString()));
@@ -6186,7 +6124,6 @@ class InitPageBase {
     // 抓取完毕
     crawlFinished() {
         if (_Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length === 0) {
-            console.log('result 0');
             return this.noResult();
         }
         _Store__WEBPACK_IMPORTED_MODULE_4__["store"].crawlCompleteTime = new Date();
@@ -9004,12 +8941,13 @@ const token = new Token();
 /*!*********************************!*\
   !*** ./src/ts/modules/Tools.ts ***!
   \*********************************/
-/*! exports provided: deepCopy */
+/*! exports provided: deepCopy, string2array */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deepCopy", function() { return deepCopy; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "string2array", function() { return string2array; });
 function deepCopy(data) {
     if (data === null || typeof data !== 'object') {
         return data;
@@ -9019,6 +8957,14 @@ function deepCopy(data) {
         result[key] = (data === null || typeof data !== 'object') ? value : deepCopy(value);
     }
     return result;
+}
+function string2array(str) {
+    const temp = str.trim().split(',');
+    return temp.filter(val => {
+        if (val !== '') {
+            return val.trim();
+        }
+    });
 }
 
 
@@ -13775,7 +13721,7 @@ class Form {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
             this.initFormBueatiful();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettings, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd, () => {
             this.form.reset();
             this.initFormBueatiful();
         });
@@ -14533,6 +14479,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../PageType */ "./src/ts/modules/PageType.ts");
 /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Settings */ "./src/ts/modules/setting/Settings.ts");
+/* harmony import */ var _DateFormat__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../DateFormat */ "./src/ts/modules/DateFormat.ts");
+
 
 
 
@@ -14702,6 +14650,15 @@ class FormSettings {
             this.form[name].value = _Settings__WEBPACK_IMPORTED_MODULE_2__["settings"][name].toString();
         }
     }
+    // 恢复日期、时间设置项
+    // input[type='datetime-local'] 使用
+    restoreDate(name) {
+        if (_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"][name] !== undefined) {
+            // 把时间戳转换成 input 使用的字符串
+            const date = _Settings__WEBPACK_IMPORTED_MODULE_2__["settings"][name];
+            this.form[name].value = _DateFormat__WEBPACK_IMPORTED_MODULE_3__["DateFormat"].format(date, 'YYYY-MM-DDThh:mm');
+        }
+    }
     // 设置当前页面类型的 setWantPage
     restoreWantPage() {
         const want = _Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].wantPageArr[_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type];
@@ -14762,8 +14719,8 @@ class FormSettings {
         this.restoreString('notNeedTag');
         // 设置投稿时间
         this.restoreBoolean('postDate');
-        this.restoreString('postDateStart');
-        this.restoreString('postDateEnd');
+        this.restoreDate('postDateStart');
+        this.restoreDate('postDateEnd');
         // 设置自动下载
         this.restoreBoolean('quietDownload');
         // 设置下载线程
@@ -15038,7 +14995,7 @@ class SettingAPI {
     }
     // 获取作品张数设置
     getFirstFewImages() {
-        if (_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].firstFewImages) {
+        if (_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].firstFewImages > 0) {
             return _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].firstFewImages;
         }
         // 如果用户输入的数字不合法（不大于0）
@@ -15130,8 +15087,8 @@ class Settings {
             downBookmarked: true,
             ugoiraSaveAs: 'webm',
             convertUgoiraThread: 1,
-            needTag: '',
-            notNeedTag: '',
+            needTag: [],
+            notNeedTag: [],
             quietDownload: true,
             downloadThread: 5,
             userSetName: '{id}',
@@ -15143,8 +15100,8 @@ class Settings {
             multipleImageFolderName: '1',
             showOptions: true,
             postDate: false,
-            postDateStart: '',
-            postDateEnd: '',
+            postDateStart: 946684800000,
+            postDateEnd: 4102444800000,
             previewResult: true,
             BMKNumSwitch: false,
             BMKNumMin: 0,
@@ -15158,7 +15115,7 @@ class Settings {
             setHeight: 0,
             ratioSwitch: false,
             ratio: '1',
-            userRatio: '1.4',
+            userRatio: 1.4,
             idRangeSwitch: false,
             idRangeInput: 0,
             idRange: '1',
@@ -15182,12 +15139,14 @@ class Settings {
             widthTag: '1',
             restrict: '-1',
             userBlockList: false,
-            blockList: '',
+            blockList: [],
             theme: 'auto',
             needTagMode: 'all',
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         this.floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax'];
+        this.numberArrayKey = ['wantPageArr'];
+        this.stringArrayKey = ['namingRuleList', 'blockList', 'needTag', 'notNeedTag'];
         // 以默认设置作为初始设置
         this.settings = Object(_Tools__WEBPACK_IMPORTED_MODULE_2__["deepCopy"])(this.defaultSettings);
         // 第一时间恢复用户设置
@@ -15266,8 +15225,17 @@ class Settings {
         }
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd);
     }
+    tipError(key) {
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].sendMsg({
+            msg: `${key}: Invalid value`,
+            type: 'error',
+        });
+    }
     // 更改设置项
-    // 其他模块应该通过这个方法更改设置；尽量不要直接更改设置项
+    // 其他模块应该通过这个方法更改设置
+    // 这里面有一些类型转换的代码，主要目的：
+    // 1. 兼容旧版本的设置。读取旧版本的设置时，将其转换成新版本的设置。例如某个设置在旧版本里是 string 类型，值为 'a,b,c'。新版本里是 string[] 类型，这里会自动将其转换成 ['a','b','c']
+    // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传递 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
     setSetting(key, value, fireEvt = true) {
         if (!this.allSettingKeys.includes(key)) {
             return;
@@ -15279,18 +15247,55 @@ class Settings {
             value = value.toString();
         }
         if (keyType === 'number' && valueType !== 'number') {
-            if (this.floatNumberKey.includes(key)) {
-                value = Number.parseFloat(value);
+            // 时间是需要特殊处理的 number 类型
+            if (key === 'postDateStart' || key == 'postDateEnd') {
+                if (valueType === 'string') {
+                    if (value === '') {
+                        return this.tipError(key);
+                    }
+                    const date = new Date(value);
+                    value = date.getTime();
+                }
             }
             else {
-                value = Number.parseInt(value);
+                // 处理普通的 number 类型
+                if (this.floatNumberKey.includes(key)) {
+                    value = Number.parseFloat(value);
+                }
+                else {
+                    value = Number.parseInt(value);
+                }
             }
             if (isNaN(value)) {
-                return;
+                return this.tipError(key);
             }
         }
         if (keyType === 'boolean' && valueType !== 'boolean') {
             value = !!value;
+        }
+        if (Array.isArray(this.defaultSettings[key])) {
+            if (this.stringArrayKey.includes(key)) {
+                // 字符串转换成 string[]
+                if (valueType === 'string') {
+                    value = Object(_Tools__WEBPACK_IMPORTED_MODULE_2__["string2array"])(value);
+                }
+            }
+            if (this.numberArrayKey.includes(key)) {
+                // 把数组转换成 number[]
+                if (Array.isArray(value)) {
+                    value = value.map((val) => {
+                        if (typeof val !== 'number') {
+                            return Number(val);
+                        }
+                        else {
+                            return val;
+                        }
+                    });
+                }
+                else {
+                    return;
+                }
+            }
         }
         // 更改设置
         this.settings[key] = value;

@@ -93,7 +93,7 @@ class Form {
       this.initFormBueatiful()
     })
 
-    window.addEventListener(EVT.list.resetSettings, () => {
+    window.addEventListener(EVT.list.resetSettingsEnd, () => {
       this.form.reset()
       this.initFormBueatiful()
     })

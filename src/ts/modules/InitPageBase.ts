@@ -236,7 +236,6 @@ abstract class InitPageBase {
     }
 
     if (store.idList.length === 0) {
-      console.log('idList 0')
       return this.noResult()
     }
 
@@ -323,7 +322,6 @@ abstract class InitPageBase {
   // 抓取完毕
   protected crawlFinished() {
     if (store.result.length === 0) {
-      console.log('result 0')
       return this.noResult()
     }
 

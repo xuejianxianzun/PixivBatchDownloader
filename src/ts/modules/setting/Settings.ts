@@ -7,7 +7,7 @@
 
 import { EVT } from '../EVT'
 import { DOM } from '../DOM'
-import { deepCopy } from '../Tools'
+import { deepCopy, string2array } from '../Tools'
 
 interface XzSetting {
   setWantPage: number
@@ -28,8 +28,8 @@ interface XzSetting {
   convertUgoiraThread: number
   needTagSwitch: boolean
   notNeedTagSwitch: boolean
-  needTag: string
-  notNeedTag: string
+  needTag: string[]
+  notNeedTag: string[]
   quietDownload: boolean
   downloadThread: number
   userSetName: string
@@ -41,8 +41,8 @@ interface XzSetting {
   multipleImageFolderName: '1' | '2'
   showOptions: boolean
   postDate: boolean
-  postDateStart: string
-  postDateEnd: string
+  postDateStart: number
+  postDateEnd: number
   previewResult: boolean
   BMKNumSwitch: boolean
   BMKNumMin: number
@@ -56,7 +56,7 @@ interface XzSetting {
   setHeight: number
   ratioSwitch: boolean
   ratio: '1' | '2' | '3'
-  userRatio: string
+  userRatio: number
   idRangeSwitch: boolean
   idRangeInput: number
   idRange: '1' | '2'
@@ -78,7 +78,7 @@ interface XzSetting {
   widthTag: '1' | '-1'
   restrict: '-1' | '1'
   userBlockList: boolean
-  blockList: string
+  blockList: string[]
   needTagMode: 'all' | 'one'
   theme: 'auto' | 'white' | 'dark'
 }
@@ -133,8 +133,8 @@ class Settings {
     downBookmarked: true,
     ugoiraSaveAs: 'webm',
     convertUgoiraThread: 1,
-    needTag: '',
-    notNeedTag: '',
+    needTag: [],
+    notNeedTag: [],
     quietDownload: true,
     downloadThread: 5,
     userSetName: '{id}',
@@ -146,8 +146,8 @@ class Settings {
     multipleImageFolderName: '1',
     showOptions: true,
     postDate: false,
-    postDateStart: '',
-    postDateEnd: '',
+    postDateStart: 946684800000,
+    postDateEnd: 4102444800000,
     previewResult: true,
     BMKNumSwitch: false,
     BMKNumMin: 0,
@@ -161,7 +161,7 @@ class Settings {
     setHeight: 0,
     ratioSwitch: false,
     ratio: '1',
-    userRatio: '1.4',
+    userRatio: 1.4,
     idRangeSwitch: false,
     idRangeInput: 0,
     idRange: '1',
@@ -185,7 +185,7 @@ class Settings {
     widthTag: '1',
     restrict: '-1',
     userBlockList: false,
-    blockList: '',
+    blockList: [],
     theme: 'auto',
     needTagMode: 'all',
   }
@@ -193,6 +193,8 @@ class Settings {
   private allSettingKeys = Object.keys(this.defaultSettings)
 
   private floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax']
+  private numberArrayKey = ['wantPageArr']
+  private stringArrayKey = ['namingRuleList', 'blockList', 'needTag', 'notNeedTag']
 
   // 以默认设置作为初始设置
   public settings: XzSetting = deepCopy(this.defaultSettings)
@@ -277,8 +279,18 @@ class Settings {
     EVT.fire(EVT.list.resetSettingsEnd)
   }
 
+  private tipError(key: string) {
+    EVT.sendMsg({
+      msg: `${key}: Invalid value`,
+      type: 'error',
+    })
+  }
+
   // 更改设置项
-  // 其他模块应该通过这个方法更改设置；尽量不要直接更改设置项
+  // 其他模块应该通过这个方法更改设置
+  // 这里面有一些类型转换的代码，主要目的：
+  // 1. 兼容旧版本的设置。读取旧版本的设置时，将其转换成新版本的设置。例如某个设置在旧版本里是 string 类型，值为 'a,b,c'。新版本里是 string[] 类型，这里会自动将其转换成 ['a','b','c']
+  // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传递 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
   public setSetting(key: keyof XzSetting, value: string | number | boolean | string[] | number[], fireEvt = true) {
     if (!this.allSettingKeys.includes(key)) {
       return
@@ -293,18 +305,55 @@ class Settings {
     }
 
     if (keyType === 'number' && valueType !== 'number') {
-      if (this.floatNumberKey.includes(key)) {
-        value = Number.parseFloat(value as any)
+      // 时间是需要特殊处理的 number 类型
+      if (key === 'postDateStart' || key == 'postDateEnd') {
+        if (valueType === 'string') {
+          if (value === '') {
+            return this.tipError(key)
+          }
+          const date = new Date(value as string)
+          value = date.getTime()
+        }
       } else {
-        value = Number.parseInt(value as any)
+        // 处理普通的 number 类型
+        if (this.floatNumberKey.includes(key)) {
+          value = Number.parseFloat(value as any)
+        } else {
+          value = Number.parseInt(value as any)
+        }
       }
-      if (isNaN(value)) {
-        return
+
+      if (isNaN(value as number)) {
+        return this.tipError(key)
       }
     }
 
     if (keyType === 'boolean' && valueType !== 'boolean') {
       value = !!value
+    }
+
+    if (Array.isArray(this.defaultSettings[key])) {
+      if (this.stringArrayKey.includes(key)) {
+        // 字符串转换成 string[]
+        if (valueType === 'string') {
+          value = string2array(value as string)
+        }
+      }
+
+      if (this.numberArrayKey.includes(key)) {
+        // 把数组转换成 number[]
+        if (Array.isArray(value)) {
+          value = (value as any[]).map((val: string | number) => {
+            if (typeof val !== 'number') {
+              return Number(val)
+            } else {
+              return val
+            }
+          })
+        } else {
+          return
+        }
+      }
     }
 
     // 更改设置

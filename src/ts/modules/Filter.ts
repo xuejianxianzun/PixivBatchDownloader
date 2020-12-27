@@ -16,21 +16,6 @@ class Filter {
   private readonly MiB = 1024 * 1024
   private readonly oneDayTime = 24 * 60 * 60 * 1000 // 一天的毫秒数
 
-  // 缓存部分开始
-  // 为了减少不必要的重复计算，缓存一些计算后的值。当有设置改变时，重新计算缓存的值，所以这些值也是会动态更新的。
-  // 可以直接使用的值不需要缓存;只有需要进行处理的值需要缓存
-  private _sizeMin = 0
-  private _sizeMax = 100 * this.MiB
-
-  private _postDateStart = 0
-  private _postDateEnd = 0
-
-  private _needTag: string = ''
-  private _notNeedTag: string = ''
-
-  private blockList: string[] = []
-  // 缓存部分结束
-
   private showTip = false // 是否在日志区域输出提示
 
   // 检查设置项，获取设置的值
@@ -177,7 +162,7 @@ class Filter {
       !settings.downType2 &&
       !settings.downType3
     ) {
-      this.throwError(lang.transl('_排除了所有作品类型'))
+      this.showWarning(lang.transl('_排除了所有作品类型'))
     }
 
     let notDownTip = ''
@@ -207,7 +192,7 @@ class Filter {
   private getDownTypeByColor() {
     // 如果全部排除则取消任务
     if (!settings.downColorImg && !settings.downBlackWhiteImg) {
-      this.throwError(lang.transl('_排除了所有作品类型'))
+      this.showWarning(lang.transl('_排除了所有作品类型'))
     }
 
     let notDownTip = ''
@@ -224,7 +209,7 @@ class Filter {
   private getDownTypeByBmked() {
     // 如果全部排除则取消任务
     if (!settings.downNotBookmarked && !settings.downBookmarked) {
-      this.throwError(lang.transl('_排除了所有作品类型'))
+      this.showWarning(lang.transl('_排除了所有作品类型'))
     }
 
     let notDownTip = ''
@@ -237,28 +222,14 @@ class Filter {
     }
   }
 
-  // 获取用户输入的 tag 内容
-  private getTagString(str: string) {
-    let result = ''
-    if (str) {
-      let tempArr = str.split(',')
-      // 如果用户在末尾也输入了逗号，则会产生一个空值，去掉它
-      if (tempArr[tempArr.length - 1] === '') {
-        tempArr.pop()
-      }
-      result = tempArr.join(',')
-    }
-    return result
-  }
-
   // 获取必须包含的tag
   private getIncludeTag() {
     if (!settings.needTagSwitch) {
       return
     }
-    this._needTag = this.getTagString(settings.needTag)
-    if (this._needTag) {
-      this.logTip(lang.transl('_设置了必须tag之后的提示') + this._needTag)
+
+    if (settings.needTag.length > 0) {
+      this.logTip(lang.transl('_设置了必须tag之后的提示') + settings.needTag.toString())
     }
   }
 
@@ -267,9 +238,9 @@ class Filter {
     if (!settings.notNeedTagSwitch) {
       return
     }
-    this._notNeedTag = this.getTagString(settings.notNeedTag)
-    if (this._notNeedTag) {
-      this.logTip(lang.transl('_设置了排除tag之后的提示') + this._notNeedTag)
+
+    if (settings.notNeedTag.length > 0) {
+      this.logTip(lang.transl('_设置了排除tag之后的提示') + settings.notNeedTag.toString())
     }
   }
 
@@ -327,13 +298,7 @@ class Filter {
       this.logTip(lang.transl('_设置了宽高比之后的提示', lang.transl('_竖图')))
     } else if (result === '3') {
       // 由用户输入
-      const typeNum = parseFloat(settings.userRatio)
-      if (isNaN(typeNum)) {
-        const msg = lang.transl('_宽高比必须是数字')
-        this.throwError(msg)
-      } else {
-        this.logTip(lang.transl('_输入宽高比') + settings.userRatio)
-      }
+      this.logTip(lang.transl('_输入宽高比') + settings.userRatio)
     }
 
     return result
@@ -355,65 +320,40 @@ class Filter {
   // 获取投稿时间设置
   private getPostDate() {
     if (
-      !settings.postDate ||
-      settings.postDateStart === '' ||
-      settings.postDateEnd === ''
+      !settings.postDate
     ) {
       return
     }
 
-    // 判断是否是有效的时间格式
-    const postDateStart = new Date(settings.postDateStart)
-    const postDateEnd = new Date(settings.postDateEnd)
-    // 如果输入的时间可以被转换成有效的时间，则启用
-    // 转换时间失败时，值是 Invalid Date，不能转换成数字
-    if (isNaN(postDateStart.getTime()) || isNaN(postDateEnd.getTime())) {
+    if (isNaN(settings.postDateStart) || isNaN(settings.postDateStart)) {
       const msg = 'Date format error!'
-      this.throwError(msg)
+      this.showWarning(msg)
     } else {
-      // 转换时间成功
-      this._postDateStart = postDateStart.getTime()
-      this._postDateEnd = postDateEnd.getTime()
+      const start = new Date(settings.postDateStart).toLocaleString()
+      const end = new Date(settings.postDateEnd).toLocaleString()
       this.logTip(
-        `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${settings.postDateEnd
-        }`,
+        `${lang.transl('_时间范围')}: ${start} - ${end}`,
       )
     }
   }
 
   // 获取文件体积设置
   private getSize() {
-    if (settings.sizeSwitch) {
-      let min = settings.sizeMin
-      let max = settings.sizeMax
-
-      // 如果输入的最小值比最大值还要大，则交换它们的值
-      if (min > max) {
-        ;[min, max] = [max, min]
-      }
-
-      this._sizeMin = min * this.MiB
-      this._sizeMax = max * this.MiB
-
-      this.logTip(`Size: ${min}MiB - ${max}MiB`)
+    if (!settings.sizeSwitch) {
+      return
     }
+
+    this.logTip(`Size: ${settings.sizeMin}MiB - ${settings.sizeMax}MiB`)
   }
 
   private getBlockList() {
     if (!settings.userBlockList) {
-      this.blockList = []
       return
     }
 
-    const temp = settings.blockList.trim().split(',')
-    // 因为输入的值只用来比较，没有其他用途，所以不必严格检查 id 的有效性
-    this.blockList = temp.filter((val) => {
-      return val !== ''
-    })
-
-    if (this.blockList.length > 0) {
+    if (settings.blockList.length > 0) {
       this.logTip(
-        lang.transl('_用户阻止名单') + ': ' + this.blockList.join(','),
+        lang.transl('_用户阻止名单') + ': ' + settings.blockList.toString(),
       )
     }
   }
@@ -477,8 +417,12 @@ class Filter {
 
   // 检查作品是否符合已收藏、未收藏作品的设置
   private checkDownTypeByBmked(bookmarked: any) {
-    // 如果没有参数，或者都没有排除，或者都排除了，则视为下载此文件
+    // 如果没有参数，或者都没有排除
     if (bookmarked === undefined) {
+      return true
+    }
+
+    if (settings.downNotBookmarked && settings.downBookmarked) {
       return true
     }
 
@@ -490,7 +434,7 @@ class Filter {
       return !bookmarked
     }
 
-    return true
+    return false
   }
 
   // 检查收藏数要求
@@ -523,13 +467,13 @@ class Filter {
 
   // 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。
   private checkIncludeTag(tags: FilterOption['tags']) {
-    if (!settings.needTagSwitch || !this._needTag || tags === undefined) {
+    if (!settings.needTagSwitch || settings.needTag.length === 0 || tags === undefined) {
       return true
     }
 
     let result = false
     // 把设置的包含的 tag 转换成小写，生成数组
-    const needTags = this._needTag.split(',').map((val) => {
+    const needTags = settings.needTag.map((val) => {
       return val.toLowerCase()
     })
 
@@ -576,12 +520,12 @@ class Filter {
 
   // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。
   private checkExcludeTag(tags: FilterOption['tags']) {
-    if (!settings.notNeedTagSwitch || !this._notNeedTag || tags === undefined) {
+    if (!settings.notNeedTagSwitch || settings.notNeedTag.length === 0 || tags === undefined) {
       return true
     }
 
     let result = true
-    const notNeedTags = this._notNeedTag.split(',').map((val) => {
+    const notNeedTags = settings.notNeedTag.map((val) => {
       return val.toLowerCase()
     })
 
@@ -664,7 +608,7 @@ class Filter {
     } else if (settings.ratio === '2') {
       return width / height < 1
     } else {
-      return width / height >= parseFloat(settings.userRatio)
+      return width / height >= settings.userRatio
     }
   }
 
@@ -698,17 +642,15 @@ class Filter {
   private checkPostDate(date: FilterOption['createDate']) {
     if (
       !settings.postDate ||
-      date === undefined ||
-      !this._postDateStart ||
-      !this._postDateEnd
+      date === undefined
     ) {
       return true
     }
 
     const nowDate = new Date(date)
     return (
-      nowDate.getTime() >= this._postDateStart &&
-      nowDate.getTime() <= this._postDateEnd
+      nowDate.getTime() >= settings.postDateStart &&
+      nowDate.getTime() <= settings.postDateEnd
     )
   }
 
@@ -728,7 +670,7 @@ class Filter {
     }
 
     // 如果阻止名单里有这个用户 id，则返回 false 表示阻止这个作品
-    return !this.blockList.includes(userId)
+    return !settings.blockList.includes(userId)
   }
 
   // 检查文件体积
@@ -736,7 +678,7 @@ class Filter {
     if (!settings.sizeSwitch || size === undefined) {
       return true
     }
-    return size >= this._sizeMin && size <= this._sizeMax
+    return size >= settings.sizeMin * this.MiB && size <= settings.sizeMax * this.MiB
   }
 
   private checkMuteUser(userId: FilterOption['userId']) {
@@ -763,27 +705,19 @@ class Filter {
     log.warning(str)
   }
 
-  // 如果设置项的值不合法，则抛出错误
-  private throwError(msg: string) {
+  // 如果设置项的值不合法，则显示提示
+  private showWarning(msg: string) {
     EVT.fire(EVT.list.wrongSetting)
-    log.error(msg, 2)
     EVT.sendMsg({
       msg: msg,
       type: 'error',
     })
-    throw new Error(msg)
   }
 
   private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
       this.init(true)
     })
-
-    for (const ev of [EVT.list.settingChange, EVT.list.resume]) {
-      window.addEventListener(ev, () => {
-        this.init()
-      })
-    }
   }
 }
 

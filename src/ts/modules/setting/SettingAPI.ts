@@ -26,7 +26,7 @@ class SettingAPI {
 
   // 获取作品张数设置
   public getFirstFewImages() {
-    if (settings.firstFewImages) {
+    if (settings.firstFewImages > 0) {
       return settings.firstFewImages
     }
 
