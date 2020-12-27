@@ -55,7 +55,7 @@ interface XzSetting {
   setWidth: number
   setHeight: number
   ratioSwitch: boolean
-  ratio: '1' | '2' | '3'
+  ratio:  '0'| '1' | '2' | '3'
   userRatio: number
   idRangeSwitch: boolean
   idRangeInput: number

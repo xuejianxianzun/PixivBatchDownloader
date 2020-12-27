@@ -157,9 +157,15 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="1">
       <span class="beautify_radio"></span>
       <label for="ratio1"> ${lang.transl('_横图')}&nbsp; </label>
+
       <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="2">
       <span class="beautify_radio"></span>
       <label for="ratio2"> ${lang.transl('_竖图')}&nbsp; </label>
+      
+      <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="0">
+      <span class="beautify_radio"></span>
+      <label for="ratio0"> ${lang.transl('_正方形')}&nbsp; </label>
+
       <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="3">
       <span class="beautify_radio"></span>
       <label for="ratio3"> ${lang.transl('_输入宽高比')}</label>

@@ -277,7 +277,9 @@ class Filter {
 
     let result = settings.ratio
 
-    if (result === '1') {
+    if (result === '0') {
+      log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_正方形')))
+    } else if (result === '1') {
       log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_横图')))
     } else if (result === '2') {
       log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_竖图')))
@@ -588,7 +590,9 @@ class Filter {
       return true
     }
 
-    if (settings.ratio === '1') {
+    if (settings.ratio === '0') {
+      return width === height
+    } else if (settings.ratio === '1') {
       return width / height > 1
     } else if (settings.ratio === '2') {
       return width / height < 1

@@ -3911,7 +3911,10 @@ class Filter {
             return '0';
         }
         let result = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio;
-        if (result === '1') {
+        if (result === '0') {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_正方形')));
+        }
+        else if (result === '1') {
             _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_横图')));
         }
         else if (result === '2') {
@@ -4163,7 +4166,10 @@ class Filter {
         if (width === undefined || height === undefined) {
             return true;
         }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === '1') {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === '0') {
+            return width === height;
+        }
+        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === '1') {
             return width / height > 1;
         }
         else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === '2') {
@@ -10851,6 +10857,12 @@ const langText = {
     _不限制: ['不限制', '無制限', 'not limited', '不限制'],
     _横图: ['横图', '横長', 'Horizontal', '橫圖'],
     _竖图: ['竖图', '縦長', 'Vertical', '豎圖'],
+    _正方形: [
+        '正方形',
+        '正方形',
+        'Square',
+        '正方形',
+    ],
     _输入宽高比: ['宽高比 >=', '縦横比 >=', 'Aspect ratio >=', '寬高比 >='],
     _设置了宽高比之后的提示: [
         '宽高比：{}',
@@ -14005,9 +14017,15 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="1">
       <span class="beautify_radio"></span>
       <label for="ratio1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_横图')}&nbsp; </label>
+
       <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="2">
       <span class="beautify_radio"></span>
       <label for="ratio2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_竖图')}&nbsp; </label>
+      
+      <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="0">
+      <span class="beautify_radio"></span>
+      <label for="ratio0"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_正方形')}&nbsp; </label>
+
       <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="3">
       <span class="beautify_radio"></span>
       <label for="ratio3"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_输入宽高比')}</label>
