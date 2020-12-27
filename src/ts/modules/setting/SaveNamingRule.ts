@@ -3,7 +3,7 @@ import { DOM } from '../DOM'
 import { lang } from '../Lang'
 import { log } from '../Log'
 import { theme } from '../Theme'
-import { settings } from './Settings'
+import { settings, setSetting } from './Settings'
 
 // 保存和加载命名规则列表
 class SaveNamingRule {
@@ -61,32 +61,26 @@ class SaveNamingRule {
 
   private add(rule: string) {
     if (settings.namingRuleList.length === this.limit) {
-      settings.namingRuleList.splice(0, 1)
+      this.delete(0)
     }
     // 如果这个规则已存在，不会重复添加它
     if (!settings.namingRuleList.includes(rule)) {
-      settings.namingRuleList.push(rule)
-      this.handleChange()
+      const list = Array.from(settings.namingRuleList)
+      list.push(rule)
+      setSetting('namingRuleList', list)
     }
     log.success(lang.transl('_已保存命名规则'))
   }
 
   private delete(index: number) {
-    settings.namingRuleList.splice(index, 1)
-    this.handleChange()
+    const list = Array.from(settings.namingRuleList)
+    list.splice(index, 1)
+    setSetting('namingRuleList', list)
   }
 
   private select(rule: string) {
     this.ruleInput.value = rule
-    settings.userSetName = rule
-    EVT.fire(EVT.list.settingChange, { name: 'userSetName', value: rule })
-  }
-
-  private handleChange() {
-    EVT.fire(EVT.list.settingChange, {
-      name: 'namingRuleList',
-      value: settings.namingRuleList,
-    })
+    setSetting('userSetName', rule)
   }
 
   private createList() {

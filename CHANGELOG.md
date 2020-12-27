@@ -1,5 +1,14 @@
 # CHANGLOG
 
+宽高比例添加正方形？
+
+优化 settings
+
+- 一些 string 类型改为 number 类型
+- 统一了触发 `EVT.list.settingChange` 事件
+
+api 里一些方法移到 tools 里
+
 ## 8.6.0 2020-12-26
 
 ### 多图建立目录时可以设置图片数量

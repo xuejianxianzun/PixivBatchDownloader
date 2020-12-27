@@ -113,7 +113,7 @@ abstract class InitPageBase {
   // 检查用户输入的页数/个数设置
   // 可以为 -1，或者大于 0
   protected checkWantPageInput(crawlPartTip: string, crawlAllTip: string) {
-    const temp = parseInt(settings.setWantPage)
+    const temp = settings.setWantPage
 
     // 如果比 1 小，并且不是 -1，则不通过
     if ((temp < 1 && temp !== -1) || isNaN(temp)) {
@@ -135,17 +135,15 @@ abstract class InitPageBase {
   // 参数 max 为最大值
   // 参数 page 指示单位是“页”（页面）还是“个”（作品个数）
   protected checkWantPageInputGreater0(max: number, page: boolean) {
-    const result = API.checkNumberGreater0(settings.setWantPage)
-
-    if (result.result) {
-      const r = result.value > max ? max : result.value
+    if (settings.setWantPage>0) {
+      const want = settings.setWantPage > max ? max : settings.setWantPage
 
       if (page) {
-        log.warning(lang.transl('_从本页开始下载x页', r.toString()))
+        log.warning(lang.transl('_从本页开始下载x页', want.toString()))
       } else {
-        log.warning(lang.transl('_从本页开始下载x个', r.toString()))
+        log.warning(lang.transl('_从本页开始下载x个', want.toString()))
       }
-      return r
+      return want
     } else {
       throw this.getWantPageError()
     }

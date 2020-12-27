@@ -192,7 +192,7 @@ class FileName {
 
     // 处理为多图作品自动建立文件夹的情况
     // 如果这个多图作品里要下载的文件数量大于指定数量，才会为它建立文件夹
-    if (settings.multipleImageDir && data.dlCount > parseInt(settings.multipleImageFolderNumber)) {
+    if (settings.multipleImageDir && data.dlCount > settings.multipleImageFolderNumber) {
       // 操作路径中最后一项（即文件名），在它前面添加一层文件夹
       const allPart = result.split('/')
       const lastPartIndex = allPart.length - 1
@@ -230,7 +230,7 @@ class FileName {
     // 去掉文件夹部分，只处理 文件名+后缀名 部分
     // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
     if (settings.fileNameLengthLimitSwitch) {
-      let limit = Number.parseInt(settings.fileNameLengthLimit)
+      let limit = settings.fileNameLengthLimit
       if (limit < 1 || isNaN(limit)) {
         limit = 200 // 如果设置的值不合法，则设置为 200
       }

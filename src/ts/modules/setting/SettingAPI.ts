@@ -18,21 +18,16 @@ class SettingAPI {
     // 当 firstFewImages 设置改变时，保存它的值
     window.addEventListener(
       EVT.list.settingChange,
-      (event: CustomEventInit) => {
-        const data = event.detail.data
-        if (data.name === 'firstFewImages') {
-          this.firstFewImages = this.getFirstFewImages()
-        }
+      () => {
+        this.firstFewImages = this.getFirstFewImages()
       },
     )
   }
 
   // 获取作品张数设置
   public getFirstFewImages() {
-    const check = API.checkNumberGreater0(settings.firstFewImages)
-
-    if (check.result) {
-      return check.value
+    if (settings.firstFewImages) {
+      return settings.firstFewImages
     }
 
     // 如果用户输入的数字不合法（不大于0）

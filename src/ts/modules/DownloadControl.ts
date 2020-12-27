@@ -351,7 +351,7 @@ class DownloadControl {
 
   // 设置下载线程数量
   private setDownloadThread() {
-    const setThread = parseInt(settings.downloadThread)
+    const setThread = settings.downloadThread
     if (
       setThread < 1 ||
       setThread > Config.downloadThreadMax ||

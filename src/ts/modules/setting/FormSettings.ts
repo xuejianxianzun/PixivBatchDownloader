@@ -1,6 +1,6 @@
 import { EVT } from '../EVT'
 import { pageType } from '../PageType'
-import { settings, XzSetting } from './Settings'
+import { settings, XzSetting, setSetting } from './Settings'
 import { SettingsForm } from './Form.d'
 
 // 管理 from 表单里的选项（类型为 input 元素的选项），从 settings 里读取选项的值；当选项改变时保存到 settings 里
@@ -66,7 +66,7 @@ class FormSettings {
     // 保存 wantPageArr
     this.form.setWantPage.addEventListener('change', () => {
       const temp = Array.from(settings.wantPageArr)
-      temp[pageType.type] = this.form.setWantPage.value
+      temp[pageType.type] = Number.parseInt(this.form.setWantPage.value)
       this.emitChange('wantPageArr', temp)
     })
 
@@ -137,11 +137,11 @@ class FormSettings {
 
     // 保存命名规则
     const userSetNameInput = this.form.userSetName
-    ;['change', 'focus'].forEach((ev) => {
-      userSetNameInput.addEventListener(ev, () => {
-        this.emitChange('userSetName', userSetNameInput.value)
+      ;['change', 'focus'].forEach((ev) => {
+        userSetNameInput.addEventListener(ev, () => {
+          this.emitChange('userSetName', userSetNameInput.value)
+        })
       })
-    })
 
     // 保存是否添加标记名称
     this.saveCheckBox('tagNameToFileName')
@@ -202,10 +202,9 @@ class FormSettings {
   // 表单里的设置发生改变时，调用这个方法，传递选项名和值
   private emitChange(
     name: keyof XzSetting,
-    value: string | number | boolean | string[],
+    value: string | number | boolean | string[] | number[],
   ) {
-    ;(settings[name] as any) = value
-    EVT.fire(EVT.list.settingChange, { name: name, value: value })
+    setSetting(name, value)
   }
 
   // 恢复值为 Boolean 的设置项
@@ -227,9 +226,9 @@ class FormSettings {
   // 设置当前页面类型的 setWantPage
   private restoreWantPage() {
     const want = settings.wantPageArr[pageType.type]
-    if (want !== '' && want !== undefined) {
-      this.form.setWantPage.value = want
-      settings.setWantPage = want
+    if (want !== undefined) {
+      this.form.setWantPage.value = want.toString()
+      this.emitChange('setWantPage',want)
     }
   }
 

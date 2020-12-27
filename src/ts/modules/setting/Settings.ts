@@ -7,12 +7,13 @@
 
 import { EVT } from '../EVT'
 import { DOM } from '../DOM'
+import { deepCopy } from '../Tools'
 
 interface XzSetting {
-  setWantPage: string
-  wantPageArr: string[]
+  setWantPage: number
+  wantPageArr: number[]
   firstFewImagesSwitch: boolean
-  firstFewImages: string
+  firstFewImages: number
   downType0: boolean
   downType1: boolean
   downType2: boolean
@@ -24,19 +25,19 @@ interface XzSetting {
   downNotBookmarked: boolean
   downBookmarked: boolean
   ugoiraSaveAs: 'webm' | 'gif' | 'zip' | 'png'
-  convertUgoiraThread: string
+  convertUgoiraThread: number
   needTagSwitch: boolean
   notNeedTagSwitch: boolean
   needTag: string
   notNeedTag: string
   quietDownload: boolean
-  downloadThread: string
+  downloadThread: number
   userSetName: string
   namingRuleList: string[]
   tagNameToFileName: boolean
   alwaysFolder: boolean
   multipleImageDir: boolean
-  multipleImageFolderNumber: string
+  multipleImageFolderNumber: number
   multipleImageFolderName: '1' | '2'
   showOptions: boolean
   postDate: boolean
@@ -44,32 +45,32 @@ interface XzSetting {
   postDateEnd: string
   previewResult: boolean
   BMKNumSwitch: boolean
-  BMKNumMin: string
-  BMKNumMax: string
+  BMKNumMin: number
+  BMKNumMax: number
   BMKNumAverageSwitch: boolean
-  BMKNumAverage: string
+  BMKNumAverage: number
   setWHSwitch: boolean
   widthHeightLimit: '>=' | '=' | '<='
   setWidthAndOr: '&' | '|'
-  setWidth: string
-  setHeight: string
+  setWidth: number
+  setHeight: number
   ratioSwitch: boolean
   ratio: '1' | '2' | '3'
   userRatio: string
   idRangeSwitch: boolean
-  idRangeInput: string
+  idRangeInput: number
   idRange: '1' | '2'
   noSerialNo: boolean
   filterBlackWhite: boolean
   sizeSwitch: boolean
-  sizeMin: string
-  sizeMax: string
+  sizeMin: number
+  sizeMax: number
   novelSaveAs: 'txt' | 'epub'
   saveNovelMeta: boolean
   deduplication: boolean
   dupliStrategy: 'strict' | 'loose'
   fileNameLengthLimitSwitch: boolean
-  fileNameLengthLimit: string
+  fileNameLengthLimit: number
   imageSize: 'original' | 'regular' | 'small'
   dateFormat: string
   userSetLang: '-1' | '0' | '1' | '2' | '3'
@@ -94,32 +95,32 @@ class Settings {
 
   // 默认设置
   private readonly defaultSettings: XzSetting = {
-    setWantPage: '-1',
+    setWantPage: -1,
     wantPageArr: [
-      '-1',
-      '-1',
-      '-1',
-      '-1',
-      '-1',
-      '1000',
-      '-1',
-      '500',
-      '-1',
-      '1000',
-      '100',
-      '-1',
-      '100',
-      '-1',
-      '-1',
-      '1000',
-      '100',
-      '100',
-      '100',
-      '100',
-      '-1',
+      -1,
+      -1,
+      -1,
+      -1,
+      -1,
+      1000,
+      -1,
+      500,
+      -1,
+      1000,
+      100,
+      -1,
+      100,
+      -1,
+      -1,
+      1000,
+      100,
+      100,
+      100,
+      100,
+      -1,
     ],
     firstFewImagesSwitch: false,
-    firstFewImages: '1',
+    firstFewImages: 1,
     downType0: true,
     downType1: true,
     downType2: true,
@@ -131,17 +132,17 @@ class Settings {
     downNotBookmarked: true,
     downBookmarked: true,
     ugoiraSaveAs: 'webm',
-    convertUgoiraThread: '1',
+    convertUgoiraThread: 1,
     needTag: '',
     notNeedTag: '',
     quietDownload: true,
-    downloadThread: '5',
+    downloadThread: 5,
     userSetName: '{id}',
     namingRuleList: [],
     tagNameToFileName: false,
     alwaysFolder: false,
     multipleImageDir: false,
-    multipleImageFolderNumber: '1',
+    multipleImageFolderNumber: 1,
     multipleImageFolderName: '1',
     showOptions: true,
     postDate: false,
@@ -149,34 +150,34 @@ class Settings {
     postDateEnd: '',
     previewResult: true,
     BMKNumSwitch: false,
-    BMKNumMin: '0',
-    BMKNumMax: '999999',
+    BMKNumMin: 0,
+    BMKNumMax: 999999,
     BMKNumAverageSwitch: false,
-    BMKNumAverage: '600',
+    BMKNumAverage: 600,
     setWHSwitch: false,
     widthHeightLimit: '>=',
     setWidthAndOr: '&',
-    setWidth: '0',
-    setHeight: '0',
+    setWidth: 0,
+    setHeight: 0,
     ratioSwitch: false,
     ratio: '1',
     userRatio: '1.4',
     idRangeSwitch: false,
-    idRangeInput: '0',
+    idRangeInput: 0,
     idRange: '1',
     needTagSwitch: false,
     notNeedTagSwitch: false,
     noSerialNo: false,
     filterBlackWhite: false,
     sizeSwitch: false,
-    sizeMin: '0',
-    sizeMax: '100',
+    sizeMin: 0,
+    sizeMax: 100,
     novelSaveAs: 'txt',
     saveNovelMeta: false,
     deduplication: false,
     dupliStrategy: 'loose',
     fileNameLengthLimitSwitch: false,
-    fileNameLengthLimit: '200',
+    fileNameLengthLimit: 200,
     imageSize: 'original',
     dateFormat: 'YYYY-MM-DD',
     userSetLang: '-1',
@@ -189,8 +190,12 @@ class Settings {
     needTagMode: 'all',
   }
 
-  // 深拷贝一份设置，作为实际使用的设置
-  public settings: XzSetting = Object.assign({}, this.defaultSettings)
+  private allSettingKeys = Object.keys(this.defaultSettings)
+
+  private floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax']
+
+  // 以默认设置作为初始设置
+  public settings: XzSetting = deepCopy(this.defaultSettings)
 
   private bindEvents() {
     // 当设置发生变化时进行本地存储
@@ -215,11 +220,21 @@ class Settings {
   private restoreSettings() {
     const savedSettings = localStorage.getItem(this.storeName)
     if (savedSettings) {
-      // 使用 assign 合并设置，而不是直接覆盖 settings
-      // 这样如果新版本多了某个设置项，旧版本（本地存储里）没有，这个选项就会使用新版本里的默认值。
-      Object.assign(this.settings, JSON.parse(savedSettings))
-      // 这里 settings 的改变不需要触发 settingChange 事件，因为这个模块是最早执行的，其他模块尚未执行
+      this.assignSettings(JSON.parse(savedSettings))
     }
+  }
+
+  // 接收整个设置项，通过循环将其更新到 settings 上
+  // 循环设置而不是整个替换的原因：
+  // 1. 进行类型转换，如某些设置项是 number ，但是数据来源里是 string，setSetting 可以把它们转换到正确的类型
+  // 2. 某些选项在旧版本里没有，所以不能用旧的设置整个覆盖
+  private assignSettings(data: XzSetting) {
+    const origin = deepCopy(data)
+    for (const [key, value] of Object.entries(origin)) {
+      this.setSetting((key as keyof XzSetting), value, false)
+    }
+    // 触发设置改变事件
+    EVT.fire(EVT.list.settingChange)
   }
 
   private exportSettings() {
@@ -254,17 +269,57 @@ class Settings {
   // 可选参数：传递整个设置的数据，用于从配置文件导入，恢复设置
   private reset(data?: XzSetting) {
     if (data) {
-      Object.assign(settings, data)
+      this.assignSettings(data)
     } else {
       // 将选项恢复为默认值
-      Object.assign(settings, this.defaultSettings)
+      this.assignSettings(this.defaultSettings)
     }
-    // 触发设置改变事件
-    EVT.fire(EVT.list.settingChange)
     EVT.fire(EVT.list.resetSettingsEnd)
+  }
+
+  // 更改设置项
+  // 其他模块应该通过这个方法更改设置；尽量不要直接更改设置项
+  public setSetting(key: keyof XzSetting, value: string | number | boolean | string[] | number[], fireEvt = true) {
+    if (!this.allSettingKeys.includes(key)) {
+      return
+    }
+
+    const keyType = typeof this.defaultSettings[key]
+    const valueType = typeof value
+
+    // 将传入的值转换成选项对应的类型
+    if (keyType === 'string' && valueType !== 'string') {
+      value = value.toString()
+    }
+
+    if (keyType === 'number' && valueType !== 'number') {
+      if (this.floatNumberKey.includes(key)) {
+        value = Number.parseFloat(value as any)
+      } else {
+        value = Number.parseInt(value as any)
+      }
+      if (isNaN(value)) {
+        return
+      }
+    }
+
+    if (keyType === 'boolean' && valueType !== 'boolean') {
+      value = !!value
+    }
+
+    // 更改设置
+    (this.settings[key] as any) = value
+
+    // 触发设置变化的事件
+    // 在进行批量操作（如恢复设置、导入设置、重置设置）的时候，可以将 fireEvt 设为 false，等操作执行之后自行触发这个事件
+    if (fireEvt) {
+      EVT.fire(EVT.list.settingChange, { name: key, value: value })
+    }
   }
 }
 
-const settings = new Settings().settings
+const self = new Settings()
+const settings = self.settings
+const setSetting = self.setSetting.bind(self)
 
-export { settings, XzSetting }
+export { settings, XzSetting, setSetting }

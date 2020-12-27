@@ -199,6 +199,8 @@ English （机翻，韩语设置下也使用英语文本）
 
 [插画和小说混合](https://www.pixiv.net/users/7836791)
 
+[正方形图片](https://www.pixiv.net/artworks/86426057)
+
 # 友情链接
 
 [PixivUserBatchDownload](https://github.com/Mapaler/PixivUserBatchDownload/)

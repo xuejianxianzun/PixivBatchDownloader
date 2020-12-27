@@ -13,11 +13,11 @@ class ConvertUgoira {
     window.addEventListener(EVT.list.downloadStart, () => {
       this.downloading = true
     })
-    ;[EVT.list.downloadPause, EVT.list.downloadStop].forEach((event) => {
-      window.addEventListener(event, () => {
-        this.downloading = false
+      ;[EVT.list.downloadPause, EVT.list.downloadStop].forEach((event) => {
+        window.addEventListener(event, () => {
+          this.downloading = false
+        })
       })
-    })
 
     window.addEventListener(EVT.list.settingChange, () => {
       this.setMaxCount()
@@ -39,7 +39,7 @@ class ConvertUgoira {
   private maxCount = 1 // 允许同时运行多少个转换任务
 
   private setMaxCount() {
-    this.maxCount = parseInt(settings.convertUgoiraThread) || 1
+    this.maxCount = (settings.convertUgoiraThread > 0) ? settings.convertUgoiraThread : 1
   }
 
   private set count(num: number) {

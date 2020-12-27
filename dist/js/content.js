@@ -194,23 +194,6 @@ class API {
         }
         return str;
     }
-    // 检查给定的字符串解析为数字后，是否大于 0
-    static checkNumberGreater0(arg) {
-        let num = parseInt(arg);
-        // 空值会是 NaN
-        if (!isNaN(num) && num > 0) {
-            // 符合条件
-            return {
-                result: true,
-                value: num,
-            };
-        }
-        // 不符合条件
-        return {
-            result: false,
-            value: 0,
-        };
-    }
     // 从 url 中获取指定的查询字段的值
     // 注意：返回值经过 encodeURIComponent 编码！
     static getURLSearchField(url, query) {
@@ -2768,7 +2751,7 @@ class DownloadControl {
     }
     // 设置下载线程数量
     setDownloadThread() {
-        const setThread = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].downloadThread);
+        const setThread = _setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].downloadThread;
         if (setThread < 1 ||
             setThread > _Config__WEBPACK_IMPORTED_MODULE_15__["default"].downloadThreadMax ||
             isNaN(setThread)) {
@@ -3640,7 +3623,7 @@ class FileName {
         }
         // 处理为多图作品自动建立文件夹的情况
         // 如果这个多图作品里要下载的文件数量大于指定数量，才会为它建立文件夹
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].multipleImageDir && data.dlCount > parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].multipleImageFolderNumber)) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].multipleImageDir && data.dlCount > _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].multipleImageFolderNumber) {
             // 操作路径中最后一项（即文件名），在它前面添加一层文件夹
             const allPart = result.split('/');
             const lastPartIndex = allPart.length - 1;
@@ -3675,7 +3658,7 @@ class FileName {
         // 去掉文件夹部分，只处理 文件名+后缀名 部分
         // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].fileNameLengthLimitSwitch) {
-            let limit = Number.parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].fileNameLengthLimit);
+            let limit = _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].fileNameLengthLimit;
             if (limit < 1 || isNaN(limit)) {
                 limit = 200; // 如果设置的值不合法，则设置为 200
             }
@@ -3709,13 +3692,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "filter", function() { return filter; });
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./API */ "./src/ts/modules/API.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/modules/setting/Settings.ts");
-/* harmony import */ var _BlackandWhiteImage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./BlackandWhiteImage */ "./src/ts/modules/BlackandWhiteImage.ts");
-/* harmony import */ var _Mute__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Mute */ "./src/ts/modules/Mute.ts");
-
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/modules/setting/Settings.ts");
+/* harmony import */ var _BlackandWhiteImage__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./BlackandWhiteImage */ "./src/ts/modules/BlackandWhiteImage.ts");
+/* harmony import */ var _Mute__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Mute */ "./src/ts/modules/Mute.ts");
 
 
 
@@ -3731,13 +3712,8 @@ class Filter {
         // 缓存部分开始
         // 为了减少不必要的重复计算，缓存一些计算后的值。当有设置改变时，重新计算缓存的值，所以这些值也是会动态更新的。
         // 可以直接使用的值不需要缓存;只有需要进行处理的值需要缓存
-        this._BMKNumMin = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].BMKNumMin);
-        this._BMKNumMax = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].BMKNumMax);
-        this._BMKNumAverage = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].BMKNumAverage);
         this._sizeMin = 0;
         this._sizeMax = 100 * this.MiB;
-        this._setWidth = 0;
-        this._setHeight = 0;
         this._postDateStart = 0;
         this._postDateEnd = 0;
         this._needTag = '';
@@ -3771,7 +3747,7 @@ class Filter {
         // 获取要排除的tag
         this.getExcludeTag();
         // 获取只下载首次登场设置
-        if (_States__WEBPACK_IMPORTED_MODULE_4__["states"].debut) {
+        if (_States__WEBPACK_IMPORTED_MODULE_3__["states"].debut) {
             this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取首次登场的作品Title'));
         }
         // 获取用户阻止名单
@@ -3856,25 +3832,25 @@ class Filter {
     // 获取下载的作品类型设置
     getDownType() {
         // 如果全部排除则取消任务
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downType0 &&
-            !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downType1 &&
-            !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downType2 &&
-            !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downType3) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType0 &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType1 &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType2 &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType3) {
             this.throwError(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除了所有作品类型'));
         }
         let notDownTip = '';
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downType0 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_插画');
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downType1 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_漫画');
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downType2 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_动图');
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downType3 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_小说');
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType0 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_插画');
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType1 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_漫画');
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType2 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_动图');
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType3 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_小说');
         if (notDownTip) {
             this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
         }
     }
     getDownTypeByImgCount() {
         let notDownTip = '';
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downSingleImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_单图作品');
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downMultiImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品');
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downSingleImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_单图作品');
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downMultiImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品');
         if (notDownTip) {
             this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
         }
@@ -3882,12 +3858,12 @@ class Filter {
     // 获取图像颜色设置
     getDownTypeByColor() {
         // 如果全部排除则取消任务
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downColorImg && !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downBlackWhiteImg) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg && !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg) {
             this.throwError(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除了所有作品类型'));
         }
         let notDownTip = '';
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downColorImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_彩色图片');
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downBlackWhiteImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_黑白图片');
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_彩色图片');
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_黑白图片');
         if (notDownTip) {
             this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
         }
@@ -3895,12 +3871,12 @@ class Filter {
     // 获取下载收藏和未收藏作品的设置
     getDownTypeByBmked() {
         // 如果全部排除则取消任务
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downNotBookmarked && !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downBookmarked) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked) {
             this.throwError(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除了所有作品类型'));
         }
         let notDownTip = '';
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downNotBookmarked ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_未收藏');
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downBookmarked ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_已收藏');
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_未收藏');
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_已收藏');
         if (notDownTip) {
             this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
         }
@@ -3920,68 +3896,61 @@ class Filter {
     }
     // 获取必须包含的tag
     getIncludeTag() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].needTagSwitch) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTagSwitch) {
             return;
         }
-        this._needTag = this.getTagString(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].needTag);
+        this._needTag = this.getTagString(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag);
         if (this._needTag) {
             this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了必须tag之后的提示') + this._needTag);
         }
     }
     // 获取要排除的tag
     getExcludeTag() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].notNeedTagSwitch) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTagSwitch) {
             return;
         }
-        this._notNeedTag = this.getTagString(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].notNeedTag);
+        this._notNeedTag = this.getTagString(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag);
         if (this._notNeedTag) {
             this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了排除tag之后的提示') + this._notNeedTag);
         }
     }
     // 获取宽高设置
     getSetWh() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWHSwitch) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWHSwitch) {
             return;
         }
-        const width = _API__WEBPACK_IMPORTED_MODULE_2__["API"].checkNumberGreater0(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidth);
-        const height = _API__WEBPACK_IMPORTED_MODULE_2__["API"].checkNumberGreater0(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setHeight);
-        this._setWidth = width.result ? width.value : 0;
-        this._setHeight = height.result ? height.value : 0;
-        if (this._setWidth || this._setHeight) {
-            const andOr = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidthAndOr
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidth || _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setHeight) {
+            const andOr = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidthAndOr
                 .replace('|', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_或者'))
                 .replace('&', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_并且'));
-            const text = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽度')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].widthHeightLimit} ${this._setWidth} ${andOr} ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_高度')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].widthHeightLimit} ${this._setHeight}`;
+            const text = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽度')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].widthHeightLimit} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidth} ${andOr} ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_高度')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].widthHeightLimit} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setHeight}`;
             this.logTip(text);
         }
     }
     // 获取输入的收藏数
     getBMKNum() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].BMKNumSwitch) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumSwitch) {
             return;
         }
-        const min = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].BMKNumMin);
-        const max = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].BMKNumMax);
-        const average = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].BMKNumAverage);
+        const min = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumMin;
+        const max = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumMax;
+        const average = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverage;
         if (min >= 0) {
-            this._BMKNumMin = min;
             this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_收藏数大于') + min);
         }
         if (max >= 0) {
-            this._BMKNumMax = max;
             this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_收藏数小于') + max);
         }
-        if (average >= 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].BMKNumAverageSwitch) {
-            this._BMKNumAverage = average;
+        if (average >= 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverageSwitch) {
             this.logTip(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_日均收藏数量')} >= ${average}`);
         }
     }
     // 获取宽高比设置
     getRatio() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].ratioSwitch) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratioSwitch) {
             return '0';
         }
-        let result = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].ratio;
+        let result = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio;
         if (result === '1') {
             this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_横图')));
         }
@@ -3990,48 +3959,39 @@ class Filter {
         }
         else if (result === '3') {
             // 由用户输入
-            const typeNum = parseFloat(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].userRatio);
+            const typeNum = parseFloat(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio);
             if (isNaN(typeNum)) {
                 const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽高比必须是数字');
                 this.throwError(msg);
             }
             else {
-                this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_输入宽高比') + _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].userRatio);
+                this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_输入宽高比') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio);
             }
         }
         return result;
     }
     // 获取 id 范围设置
     getIdRange() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].idRangeSwitch) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeSwitch) {
             return;
         }
-        const result = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].idRange;
-        if (result === '1' || result === '2') {
-            let id = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].idRangeInput);
-            if (isNaN(id)) {
-                const msg = 'Error: id range is not a number!';
-                this.throwError(msg);
-            }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRange === '1') {
+            this.logTip(`id > ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeInput}`);
         }
-        if (result === '1') {
-            this.logTip(`id > ${_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].idRangeInput}`);
+        else {
+            this.logTip(`id < ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeInput}`);
         }
-        if (result === '2') {
-            this.logTip(`id < ${_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].idRangeInput}`);
-        }
-        return result;
     }
     // 获取投稿时间设置
     getPostDate() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].postDate ||
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].postDateStart === '' ||
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].postDateEnd === '') {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDate ||
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart === '' ||
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd === '') {
             return;
         }
         // 判断是否是有效的时间格式
-        const postDateStart = new Date(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].postDateStart);
-        const postDateEnd = new Date(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].postDateEnd);
+        const postDateStart = new Date(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart);
+        const postDateEnd = new Date(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd);
         // 如果输入的时间可以被转换成有效的时间，则启用
         // 转换时间失败时，值是 Invalid Date，不能转换成数字
         if (isNaN(postDateStart.getTime()) || isNaN(postDateEnd.getTime())) {
@@ -4042,16 +4002,14 @@ class Filter {
             // 转换时间成功
             this._postDateStart = postDateStart.getTime();
             this._postDateEnd = postDateEnd.getTime();
-            this.logTip(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_时间范围')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].postDateStart} - ${_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].postDateEnd}`);
+            this.logTip(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_时间范围')}: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart} - ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd}`);
         }
     }
     // 获取文件体积设置
     getSize() {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].sizeSwitch) {
-            let min = parseFloat(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].sizeMin);
-            isNaN(min) && (min = 0);
-            let max = parseFloat(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].sizeMax);
-            isNaN(max) && (min = 100);
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeSwitch) {
+            let min = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMin;
+            let max = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMax;
             // 如果输入的最小值比最大值还要大，则交换它们的值
             if (min > max) {
                 ;
@@ -4063,11 +4021,11 @@ class Filter {
         }
     }
     getBlockList() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].userBlockList) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userBlockList) {
             this.blockList = [];
             return;
         }
-        const temp = _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].blockList.trim().split(',');
+        const temp = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockList.trim().split(',');
         // 因为输入的值只用来比较，没有其他用途，所以不必严格检查 id 的有效性
         this.blockList = temp.filter((val) => {
             return val !== '';
@@ -4083,7 +4041,7 @@ class Filter {
             return true;
         }
         const name = ('downType' + illustType);
-        return _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"][name];
+        return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"][name];
     }
     // 依据图片数量，检查下载的作品类型
     checkPageCount(illustType, pageCount) {
@@ -4095,23 +4053,23 @@ class Filter {
             pageCount = 1;
         }
         if (pageCount === 1) {
-            return _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downSingleImg;
+            return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downSingleImg;
         }
         if (pageCount > 1) {
-            return _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downMultiImg;
+            return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downMultiImg;
         }
         return false;
     }
     // 检查过滤黑白图像设置
     async checkBlackWhite(imgUrl) {
         // 如果没有图片网址，或者没有排除任何一个选项，则不检查
-        if (!imgUrl || (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downColorImg && _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downBlackWhiteImg)) {
+        if (!imgUrl || (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg)) {
             return true;
         }
         // result 为 true，表示它是黑白图片，false 是彩色图片
-        const result = await _BlackandWhiteImage__WEBPACK_IMPORTED_MODULE_6__["blackAndWhiteImage"].check(imgUrl);
-        return ((result && _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downBlackWhiteImg) ||
-            (!result && _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downColorImg));
+        const result = await _BlackandWhiteImage__WEBPACK_IMPORTED_MODULE_5__["blackAndWhiteImage"].check(imgUrl);
+        return ((result && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg) ||
+            (!result && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg));
     }
     // 检查作品是否符合已收藏、未收藏作品的设置
     checkDownTypeByBmked(bookmarked) {
@@ -4119,11 +4077,11 @@ class Filter {
         if (bookmarked === undefined) {
             return true;
         }
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downNotBookmarked && _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downBookmarked) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked) {
             // 只下载已收藏
             return !!bookmarked;
         }
-        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downNotBookmarked && !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].downBookmarked) {
+        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked) {
             // 只下载未收藏
             return !bookmarked;
         }
@@ -4131,13 +4089,13 @@ class Filter {
     }
     // 检查收藏数要求
     checkBMK(bmk, date) {
-        if (bmk === undefined || !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].BMKNumSwitch) {
+        if (bmk === undefined || !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumSwitch) {
             return true;
         }
         // 检查收藏数量是否达到设置的最大值、最小值范围
-        const checkNumber = bmk >= this._BMKNumMin && bmk <= this._BMKNumMax;
+        const checkNumber = bmk >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumMin && bmk <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumMax;
         // 如果没有设置日均收藏，就直接返回收藏数量的检查结果
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].BMKNumAverageSwitch || date === undefined) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverageSwitch || date === undefined) {
             return checkNumber;
         }
         // 检查日均收藏
@@ -4145,13 +4103,13 @@ class Filter {
         const nowTime = new Date().getTime();
         const day = (nowTime - createTime) / this.oneDayTime; // 计算作品发表以来的天数
         const average = bmk / day;
-        const checkAverage = average >= this._BMKNumAverage;
+        const checkAverage = average >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverage;
         // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会下载这个作品
         return checkNumber || checkAverage;
     }
     // 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。
     checkIncludeTag(tags) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].needTagSwitch || !this._needTag || tags === undefined) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTagSwitch || !this._needTag || tags === undefined) {
             return true;
         }
         let result = false;
@@ -4168,7 +4126,7 @@ class Filter {
                 workTags.add(tag.toLowerCase());
             }
             // 全部包含
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].needTagMode === 'all') {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTagMode === 'all') {
                 let tagNeedMatched = 0;
                 for (const tag of workTags) {
                     for (const need of needTags) {
@@ -4200,7 +4158,7 @@ class Filter {
     }
     // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。
     checkExcludeTag(tags) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].notNeedTagSwitch || !this._notNeedTag || tags === undefined) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTagSwitch || !this._notNeedTag || tags === undefined) {
             return true;
         }
         let result = true;
@@ -4222,75 +4180,83 @@ class Filter {
     }
     // 检查作品是否符合过滤宽高的条件
     checkSetWh(width, height) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWHSwitch) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWHSwitch) {
             return true;
         }
         // 缺少必要的参数
         if (width === undefined || height === undefined) {
             return true;
         }
+        const setWidth = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidth;
+        const setHeight = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setHeight;
         // 未设置宽高，或者设置的宽高都不合法
-        if (this._setWidth === 0 && this._setHeight === 0) {
+        if (setWidth === 0 && setHeight === 0) {
             return true;
         }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].widthHeightLimit === '>=') {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].widthHeightLimit === '>=') {
             // 大于等于
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidthAndOr === '&') {
-                return width >= this._setWidth && height >= this._setHeight;
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidthAndOr === '&') {
+                return width >= setWidth && height >= setHeight;
             }
             else {
-                return width >= this._setWidth || height >= this._setHeight;
+                return width >= setWidth || height >= setHeight;
             }
         }
-        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].widthHeightLimit === '<=') {
+        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].widthHeightLimit === '<=') {
             // 小于等于
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidthAndOr === '&') {
-                return width <= this._setWidth && height <= this._setHeight;
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidthAndOr === '&') {
+                return width <= setWidth && height <= setHeight;
             }
             else {
-                return width <= this._setWidth || height <= this._setHeight;
+                return width <= setWidth || height <= setHeight;
             }
         }
         else {
             // 精确等于
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setWidthAndOr === '&') {
-                return width === this._setWidth && height === this._setHeight;
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidthAndOr === '&') {
+                return width === setWidth && height === setHeight;
             }
             else {
-                return width === this._setWidth || height === this._setHeight;
+                return width === setWidth || height === setHeight;
             }
         }
     }
     // 检查作品是否符合宽高比条件
     checkRatio(width, height) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].ratioSwitch) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratioSwitch) {
             return true;
         }
         if (width === undefined || height === undefined) {
             return true;
         }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].ratio === '1') {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === '1') {
             return width / height > 1;
         }
-        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].ratio === '2') {
+        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === '2') {
             return width / height < 1;
         }
         else {
-            return width / height >= parseFloat(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].userRatio);
+            return width / height >= parseFloat(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio);
         }
     }
     // 检查 id 范围设置
     checkIdRange(id) {
-        if (id === undefined || !_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].idRangeSwitch) {
+        if (id === undefined || !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeSwitch) {
             return true;
         }
-        const nowId = parseInt(id.toString());
-        const setId = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].idRangeInput);
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].idRange === '1') {
+        const setId = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeInput;
+        let nowId;
+        if (typeof id !== 'number') {
+            nowId = parseInt(id);
+        }
+        else {
+            nowId = id;
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRange === '1') {
             // 大于
             return nowId > setId;
         }
-        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].idRange === '2') {
+        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRange === '2') {
             // 小于
             return nowId < setId;
         }
@@ -4300,7 +4266,7 @@ class Filter {
     }
     // 检查投稿时间设置
     checkPostDate(date) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].postDate ||
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDate ||
             date === undefined ||
             !this._postDateStart ||
             !this._postDateEnd) {
@@ -4313,13 +4279,13 @@ class Filter {
     // 检查首次登场设置
     // yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
     checkDebut(yes_rank) {
-        if (!_States__WEBPACK_IMPORTED_MODULE_4__["states"].debut || yes_rank === undefined) {
+        if (!_States__WEBPACK_IMPORTED_MODULE_3__["states"].debut || yes_rank === undefined) {
             return true;
         }
         return yes_rank === 0;
     }
     checkBlockList(userId) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].userBlockList || userId === undefined) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userBlockList || userId === undefined) {
             return true;
         }
         // 如果阻止名单里有这个用户 id，则返回 false 表示阻止这个作品
@@ -4327,7 +4293,7 @@ class Filter {
     }
     // 检查文件体积
     checkSize(size) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].sizeSwitch || size === undefined) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeSwitch || size === undefined) {
             return true;
         }
         return size >= this._sizeMin && size <= this._sizeMax;
@@ -4336,14 +4302,14 @@ class Filter {
         if (userId === undefined) {
             return true;
         }
-        return !_Mute__WEBPACK_IMPORTED_MODULE_7__["mute"].checkUser(userId);
+        return !_Mute__WEBPACK_IMPORTED_MODULE_6__["mute"].checkUser(userId);
     }
     checkMuteTag(tags) {
         if (tags === undefined) {
             return true;
         }
         // 如果某些 tag 存在于 mute 列表里，就排除这个作品，所以要取反
-        return !tags.some(_Mute__WEBPACK_IMPORTED_MODULE_7__["mute"].checkTag.bind(_Mute__WEBPACK_IMPORTED_MODULE_7__["mute"]));
+        return !tags.some(_Mute__WEBPACK_IMPORTED_MODULE_6__["mute"].checkTag.bind(_Mute__WEBPACK_IMPORTED_MODULE_6__["mute"]));
     }
     // 在日志区域输出提示
     logTip(str) {
@@ -4354,19 +4320,19 @@ class Filter {
     }
     // 如果设置项的值不合法，则抛出错误
     throwError(msg) {
-        _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.wrongSetting);
+        _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.wrongSetting);
         _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(msg, 2);
-        _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].sendMsg({
+        _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].sendMsg({
             msg: msg,
             type: 'error',
         });
         throw new Error(msg);
     }
     bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.crawlStart, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.crawlStart, () => {
             this.init(true);
         });
-        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.settingChange, _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.resume]) {
+        for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.settingChange, _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.resume]) {
             window.addEventListener(ev, () => {
                 this.init();
             });
@@ -6048,7 +6014,7 @@ class InitPageBase {
     // 检查用户输入的页数/个数设置
     // 可以为 -1，或者大于 0
     checkWantPageInput(crawlPartTip, crawlAllTip) {
-        const temp = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setWantPage);
+        const temp = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setWantPage;
         // 如果比 1 小，并且不是 -1，则不通过
         if ((temp < 1 && temp !== -1) || isNaN(temp)) {
             // 比 1 小的数里，只允许 -1 , 0 也不行
@@ -6067,16 +6033,15 @@ class InitPageBase {
     // 参数 max 为最大值
     // 参数 page 指示单位是“页”（页面）还是“个”（作品个数）
     checkWantPageInputGreater0(max, page) {
-        const result = _API__WEBPACK_IMPORTED_MODULE_3__["API"].checkNumberGreater0(_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setWantPage);
-        if (result.result) {
-            const r = result.value > max ? max : result.value;
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setWantPage > 0) {
+            const want = _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setWantPage > max ? max : _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setWantPage;
             if (page) {
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_从本页开始下载x页', r.toString()));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_从本页开始下载x页', want.toString()));
             }
             else {
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_从本页开始下载x个', r.toString()));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_从本页开始下载x个', want.toString()));
             }
-            return r;
+            return want;
         }
         else {
             throw this.getWantPageError();
@@ -9031,6 +8996,30 @@ class Token {
 }
 const token = new Token();
 
+
+
+/***/ }),
+
+/***/ "./src/ts/modules/Tools.ts":
+/*!*********************************!*\
+  !*** ./src/ts/modules/Tools.ts ***!
+  \*********************************/
+/*! exports provided: deepCopy */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "deepCopy", function() { return deepCopy; });
+function deepCopy(data) {
+    if (data === null || typeof data !== 'object') {
+        return data;
+    }
+    const result = (Array.isArray(data) ? [] : {});
+    for (const [key, value] of Object.entries(data)) {
+        result[key] = (data === null || typeof data !== 'object') ? value : deepCopy(value);
+    }
+    return result;
+}
 
 
 /***/ }),
@@ -14597,7 +14586,7 @@ class FormSettings {
         // 保存 wantPageArr
         this.form.setWantPage.addEventListener('change', () => {
             const temp = Array.from(_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].wantPageArr);
-            temp[_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type] = this.form.setWantPage.value;
+            temp[_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type] = Number.parseInt(this.form.setWantPage.value);
             this.emitChange('wantPageArr', temp);
         });
         // 保存下载的作品类型
@@ -14697,9 +14686,7 @@ class FormSettings {
     }
     // 表单里的设置发生改变时，调用这个方法，传递选项名和值
     emitChange(name, value) {
-        ;
-        _Settings__WEBPACK_IMPORTED_MODULE_2__["settings"][name] = value;
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, { name: name, value: value });
+        Object(_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])(name, value);
     }
     // 恢复值为 Boolean 的设置项
     // input[type='checkbox'] 使用
@@ -14718,9 +14705,9 @@ class FormSettings {
     // 设置当前页面类型的 setWantPage
     restoreWantPage() {
         const want = _Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].wantPageArr[_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type];
-        if (want !== '' && want !== undefined) {
-            this.form.setWantPage.value = want;
-            _Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].setWantPage = want;
+        if (want !== undefined) {
+            this.form.setWantPage.value = want.toString();
+            this.emitChange('setWantPage', want);
         }
     }
     // 读取设置，恢复表单里的设置项
@@ -14959,29 +14946,24 @@ class SaveNamingRule {
     }
     add(rule) {
         if (_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList.length === this.limit) {
-            _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList.splice(0, 1);
+            this.delete(0);
         }
         // 如果这个规则已存在，不会重复添加它
         if (!_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList.includes(rule)) {
-            _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList.push(rule);
-            this.handleChange();
+            const list = Array.from(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList);
+            list.push(rule);
+            Object(_Settings__WEBPACK_IMPORTED_MODULE_5__["setSetting"])('namingRuleList', list);
         }
         _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已保存命名规则'));
     }
     delete(index) {
-        _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList.splice(index, 1);
-        this.handleChange();
+        const list = Array.from(_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList);
+        list.splice(index, 1);
+        Object(_Settings__WEBPACK_IMPORTED_MODULE_5__["setSetting"])('namingRuleList', list);
     }
     select(rule) {
         this.ruleInput.value = rule;
-        _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].userSetName = rule;
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, { name: 'userSetName', value: rule });
-    }
-    handleChange() {
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, {
-            name: 'namingRuleList',
-            value: _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].namingRuleList,
-        });
+        Object(_Settings__WEBPACK_IMPORTED_MODULE_5__["setSetting"])('userSetName', rule);
     }
     createList() {
         const htmlArr = [];
@@ -15033,12 +15015,10 @@ class SaveNamingRule {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "settingAPI", function() { return settingAPI; });
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
-/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Settings */ "./src/ts/modules/setting/Settings.ts");
-
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Settings */ "./src/ts/modules/setting/Settings.ts");
 
 
 
@@ -15052,24 +15032,20 @@ class SettingAPI {
     }
     bindEvents() {
         // 当 firstFewImages 设置改变时，保存它的值
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (event) => {
-            const data = event.detail.data;
-            if (data.name === 'firstFewImages') {
-                this.firstFewImages = this.getFirstFewImages();
-            }
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
+            this.firstFewImages = this.getFirstFewImages();
         });
     }
     // 获取作品张数设置
     getFirstFewImages() {
-        const check = _API__WEBPACK_IMPORTED_MODULE_0__["API"].checkNumberGreater0(_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].firstFewImages);
-        if (check.result) {
-            return check.value;
+        if (_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].firstFewImages) {
+            return _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].firstFewImages;
         }
         // 如果用户输入的数字不合法（不大于0）
-        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.wrongSetting);
-        const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载前几张图片') + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_必须大于0');
-        _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(msg);
-        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.wrongSetting);
+        const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载前几张图片') + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_必须大于0');
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].error(msg);
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].sendMsg({
             msg: msg,
             type: 'error',
         });
@@ -15077,7 +15053,7 @@ class SettingAPI {
     }
     // 计算要从这个作品里下载几张图片
     getDLCount(pageCount) {
-        if (_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].firstFewImagesSwitch && this.firstFewImages <= pageCount) {
+        if (_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].firstFewImagesSwitch && this.firstFewImages <= pageCount) {
             return this.firstFewImages;
         }
         return pageCount;
@@ -15093,14 +15069,16 @@ const settingAPI = new SettingAPI();
 /*!********************************************!*\
   !*** ./src/ts/modules/setting/Settings.ts ***!
   \********************************************/
-/*! exports provided: settings */
+/*! exports provided: settings, setSetting */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "settings", function() { return settings; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "setSetting", function() { return setSetting; });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/modules/Tools.ts");
 // settings 保存了下载器的所有设置项
 // 每当修改了 settings 的值，都要触发 EVT.list.settingChange 事件，让其他模块可以监听到变化
 // 如果修改的是整个 settings，settingChange 事件没有参数
@@ -15108,37 +15086,38 @@ __webpack_require__.r(__webpack_exports__);
 // 如果打开了多个标签页，每个页面的 settings 数据是互相独立的。但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
 
 
+
 class Settings {
     constructor() {
         this.storeName = 'xzSetting';
         // 默认设置
         this.defaultSettings = {
-            setWantPage: '-1',
+            setWantPage: -1,
             wantPageArr: [
-                '-1',
-                '-1',
-                '-1',
-                '-1',
-                '-1',
-                '1000',
-                '-1',
-                '500',
-                '-1',
-                '1000',
-                '100',
-                '-1',
-                '100',
-                '-1',
-                '-1',
-                '1000',
-                '100',
-                '100',
-                '100',
-                '100',
-                '-1',
+                -1,
+                -1,
+                -1,
+                -1,
+                -1,
+                1000,
+                -1,
+                500,
+                -1,
+                1000,
+                100,
+                -1,
+                100,
+                -1,
+                -1,
+                1000,
+                100,
+                100,
+                100,
+                100,
+                -1,
             ],
             firstFewImagesSwitch: false,
-            firstFewImages: '1',
+            firstFewImages: 1,
             downType0: true,
             downType1: true,
             downType2: true,
@@ -15150,17 +15129,17 @@ class Settings {
             downNotBookmarked: true,
             downBookmarked: true,
             ugoiraSaveAs: 'webm',
-            convertUgoiraThread: '1',
+            convertUgoiraThread: 1,
             needTag: '',
             notNeedTag: '',
             quietDownload: true,
-            downloadThread: '5',
+            downloadThread: 5,
             userSetName: '{id}',
             namingRuleList: [],
             tagNameToFileName: false,
             alwaysFolder: false,
             multipleImageDir: false,
-            multipleImageFolderNumber: '1',
+            multipleImageFolderNumber: 1,
             multipleImageFolderName: '1',
             showOptions: true,
             postDate: false,
@@ -15168,34 +15147,34 @@ class Settings {
             postDateEnd: '',
             previewResult: true,
             BMKNumSwitch: false,
-            BMKNumMin: '0',
-            BMKNumMax: '999999',
+            BMKNumMin: 0,
+            BMKNumMax: 999999,
             BMKNumAverageSwitch: false,
-            BMKNumAverage: '600',
+            BMKNumAverage: 600,
             setWHSwitch: false,
             widthHeightLimit: '>=',
             setWidthAndOr: '&',
-            setWidth: '0',
-            setHeight: '0',
+            setWidth: 0,
+            setHeight: 0,
             ratioSwitch: false,
             ratio: '1',
             userRatio: '1.4',
             idRangeSwitch: false,
-            idRangeInput: '0',
+            idRangeInput: 0,
             idRange: '1',
             needTagSwitch: false,
             notNeedTagSwitch: false,
             noSerialNo: false,
             filterBlackWhite: false,
             sizeSwitch: false,
-            sizeMin: '0',
-            sizeMax: '100',
+            sizeMin: 0,
+            sizeMax: 100,
             novelSaveAs: 'txt',
             saveNovelMeta: false,
             deduplication: false,
             dupliStrategy: 'loose',
             fileNameLengthLimitSwitch: false,
-            fileNameLengthLimit: '200',
+            fileNameLengthLimit: 200,
             imageSize: 'original',
             dateFormat: 'YYYY-MM-DD',
             userSetLang: '-1',
@@ -15207,8 +15186,10 @@ class Settings {
             theme: 'auto',
             needTagMode: 'all',
         };
-        // 深拷贝一份设置，作为实际使用的设置
-        this.settings = Object.assign({}, this.defaultSettings);
+        this.allSettingKeys = Object.keys(this.defaultSettings);
+        this.floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax'];
+        // 以默认设置作为初始设置
+        this.settings = Object(_Tools__WEBPACK_IMPORTED_MODULE_2__["deepCopy"])(this.defaultSettings);
         // 第一时间恢复用户设置
         this.restoreSettings();
         this.bindEvents();
@@ -15232,11 +15213,20 @@ class Settings {
     restoreSettings() {
         const savedSettings = localStorage.getItem(this.storeName);
         if (savedSettings) {
-            // 使用 assign 合并设置，而不是直接覆盖 settings
-            // 这样如果新版本多了某个设置项，旧版本（本地存储里）没有，这个选项就会使用新版本里的默认值。
-            Object.assign(this.settings, JSON.parse(savedSettings));
-            // 这里 settings 的改变不需要触发 settingChange 事件，因为这个模块是最早执行的，其他模块尚未执行
+            this.assignSettings(JSON.parse(savedSettings));
         }
+    }
+    // 接收整个设置项，通过循环将其更新到 settings 上
+    // 循环设置而不是整个替换的原因：
+    // 1. 进行类型转换，如某些设置项是 number ，但是数据来源里是 string，setSetting 可以把它们转换到正确的类型
+    // 2. 某些选项在旧版本里没有，所以不能用旧的设置整个覆盖
+    assignSettings(data) {
+        const origin = Object(_Tools__WEBPACK_IMPORTED_MODULE_2__["deepCopy"])(data);
+        for (const [key, value] of Object.entries(origin)) {
+            this.setSetting(key, value, false);
+        }
+        // 触发设置改变事件
+        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange);
     }
     exportSettings() {
         const str = JSON.stringify(settings, null, 2);
@@ -15268,18 +15258,52 @@ class Settings {
     // 可选参数：传递整个设置的数据，用于从配置文件导入，恢复设置
     reset(data) {
         if (data) {
-            Object.assign(settings, data);
+            this.assignSettings(data);
         }
         else {
             // 将选项恢复为默认值
-            Object.assign(settings, this.defaultSettings);
+            this.assignSettings(this.defaultSettings);
         }
-        // 触发设置改变事件
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange);
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd);
     }
+    // 更改设置项
+    // 其他模块应该通过这个方法更改设置；尽量不要直接更改设置项
+    setSetting(key, value, fireEvt = true) {
+        if (!this.allSettingKeys.includes(key)) {
+            return;
+        }
+        const keyType = typeof this.defaultSettings[key];
+        const valueType = typeof value;
+        // 将传入的值转换成选项对应的类型
+        if (keyType === 'string' && valueType !== 'string') {
+            value = value.toString();
+        }
+        if (keyType === 'number' && valueType !== 'number') {
+            if (this.floatNumberKey.includes(key)) {
+                value = Number.parseFloat(value);
+            }
+            else {
+                value = Number.parseInt(value);
+            }
+            if (isNaN(value)) {
+                return;
+            }
+        }
+        if (keyType === 'boolean' && valueType !== 'boolean') {
+            value = !!value;
+        }
+        // 更改设置
+        this.settings[key] = value;
+        // 触发设置变化的事件
+        // 在进行批量操作（如恢复设置、导入设置、重置设置）的时候，可以将 fireEvt 设为 false，等操作执行之后自行触发这个事件
+        if (fireEvt) {
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, { name: key, value: value });
+        }
+    }
 }
-const settings = new Settings().settings;
+const self = new Settings();
+const settings = self.settings;
+const setSetting = self.setSetting.bind(self);
 
 
 
@@ -15331,7 +15355,7 @@ class ConvertUgoira {
         });
     }
     setMaxCount() {
-        this.maxCount = parseInt(_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].convertUgoiraThread) || 1;
+        this.maxCount = (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].convertUgoiraThread > 0) ? _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].convertUgoiraThread : 1;
     }
     set count(num) {
         this._count = num;

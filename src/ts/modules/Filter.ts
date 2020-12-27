@@ -1,7 +1,6 @@
 import { FilterOption } from './Filter.d'
 import { lang } from './Lang'
 import { log } from './Log'
-import { API } from './API'
 import { EVT } from './EVT'
 import { states } from './States'
 import { settings } from './setting/Settings'
@@ -20,15 +19,8 @@ class Filter {
   // 缓存部分开始
   // 为了减少不必要的重复计算，缓存一些计算后的值。当有设置改变时，重新计算缓存的值，所以这些值也是会动态更新的。
   // 可以直接使用的值不需要缓存;只有需要进行处理的值需要缓存
-  private _BMKNumMin: number = parseInt(settings.BMKNumMin)
-  private _BMKNumMax: number = parseInt(settings.BMKNumMax)
-  private _BMKNumAverage: number = parseInt(settings.BMKNumAverage)
-
   private _sizeMin = 0
   private _sizeMax = 100 * this.MiB
-
-  private _setWidth = 0
-  private _setHeight = 0
 
   private _postDateStart = 0
   private _postDateEnd = 0
@@ -287,21 +279,13 @@ class Filter {
       return
     }
 
-    const width = API.checkNumberGreater0(settings.setWidth)
-    const height = API.checkNumberGreater0(settings.setHeight)
-
-    this._setWidth = width.result ? width.value : 0
-    this._setHeight = height.result ? height.value : 0
-
-    if (this._setWidth || this._setHeight) {
+    if (settings.setWidth || settings.setHeight) {
       const andOr = settings.setWidthAndOr
         .replace('|', lang.transl('_或者'))
         .replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${
-        this._setWidth
-      } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${
-        this._setHeight
-      }`
+      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${settings.setWidth
+        } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${settings.setHeight
+        }`
       this.logTip(text)
     }
   }
@@ -312,22 +296,19 @@ class Filter {
       return
     }
 
-    const min = parseInt(settings.BMKNumMin)
-    const max = parseInt(settings.BMKNumMax)
-    const average = parseInt(settings.BMKNumAverage)
+    const min = settings.BMKNumMin
+    const max = settings.BMKNumMax
+    const average = settings.BMKNumAverage
 
     if (min >= 0) {
-      this._BMKNumMin = min
       this.logTip(lang.transl('_收藏数大于') + min)
     }
 
     if (max >= 0) {
-      this._BMKNumMax = max
       this.logTip(lang.transl('_收藏数小于') + max)
     }
 
     if (average >= 0 && settings.BMKNumAverageSwitch) {
-      this._BMKNumAverage = average
       this.logTip(`${lang.transl('_日均收藏数量')} >= ${average}`)
     }
   }
@@ -364,25 +345,11 @@ class Filter {
       return
     }
 
-    const result = settings.idRange
-
-    if (result === '1' || result === '2') {
-      let id = parseInt(settings.idRangeInput)
-      if (isNaN(id)) {
-        const msg = 'Error: id range is not a number!'
-        this.throwError(msg)
-      }
-    }
-
-    if (result === '1') {
+    if (settings.idRange === '1') {
       this.logTip(`id > ${settings.idRangeInput}`)
-    }
-
-    if (result === '2') {
+    } else {
       this.logTip(`id < ${settings.idRangeInput}`)
     }
-
-    return result
   }
 
   // 获取投稿时间设置
@@ -408,8 +375,7 @@ class Filter {
       this._postDateStart = postDateStart.getTime()
       this._postDateEnd = postDateEnd.getTime()
       this.logTip(
-        `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${
-          settings.postDateEnd
+        `${lang.transl('_时间范围')}: ${settings.postDateStart} - ${settings.postDateEnd
         }`,
       )
     }
@@ -418,11 +384,8 @@ class Filter {
   // 获取文件体积设置
   private getSize() {
     if (settings.sizeSwitch) {
-      let min = parseFloat(settings.sizeMin)
-      isNaN(min) && (min = 0)
-
-      let max = parseFloat(settings.sizeMax)
-      isNaN(max) && (min = 100)
+      let min = settings.sizeMin
+      let max = settings.sizeMax
 
       // 如果输入的最小值比最大值还要大，则交换它们的值
       if (min > max) {
@@ -540,7 +503,7 @@ class Filter {
     }
 
     // 检查收藏数量是否达到设置的最大值、最小值范围
-    const checkNumber = bmk >= this._BMKNumMin && bmk <= this._BMKNumMax
+    const checkNumber = bmk >= settings.BMKNumMin && bmk <= settings.BMKNumMax
 
     // 如果没有设置日均收藏，就直接返回收藏数量的检查结果
     if (!settings.BMKNumAverageSwitch || date === undefined) {
@@ -552,7 +515,7 @@ class Filter {
     const nowTime = new Date().getTime()
     const day = (nowTime - createTime) / this.oneDayTime // 计算作品发表以来的天数
     const average = bmk / day
-    const checkAverage = average >= this._BMKNumAverage
+    const checkAverage = average >= settings.BMKNumAverage
 
     // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会下载这个作品
     return checkNumber || checkAverage
@@ -651,31 +614,34 @@ class Filter {
       return true
     }
 
+    const setWidth = settings.setWidth
+    const setHeight = settings.setHeight
+
     // 未设置宽高，或者设置的宽高都不合法
-    if (this._setWidth === 0 && this._setHeight === 0) {
+    if (setWidth === 0 && setHeight === 0) {
       return true
     }
 
     if (settings.widthHeightLimit === '>=') {
       // 大于等于
       if (settings.setWidthAndOr === '&') {
-        return width >= this._setWidth && height >= this._setHeight
+        return width >= setWidth && height >= setHeight
       } else {
-        return width >= this._setWidth || height >= this._setHeight
+        return width >= setWidth || height >= setHeight
       }
     } else if (settings.widthHeightLimit === '<=') {
       // 小于等于
       if (settings.setWidthAndOr === '&') {
-        return width <= this._setWidth && height <= this._setHeight
+        return width <= setWidth && height <= setHeight
       } else {
-        return width <= this._setWidth || height <= this._setHeight
+        return width <= setWidth || height <= setHeight
       }
     } else {
       // 精确等于
       if (settings.setWidthAndOr === '&') {
-        return width === this._setWidth && height === this._setHeight
+        return width === setWidth && height === setHeight
       } else {
-        return width === this._setWidth || height === this._setHeight
+        return width === setWidth || height === setHeight
       }
     }
   }
@@ -708,8 +674,14 @@ class Filter {
       return true
     }
 
-    const nowId = parseInt(id.toString())
-    const setId = parseInt(settings.idRangeInput)
+    const setId = settings.idRangeInput
+    let nowId: number
+
+    if (typeof id !== 'number') {
+      nowId = parseInt(id)
+    } else {
+      nowId = id
+    }
 
     if (settings.idRange === '1') {
       // 大于
