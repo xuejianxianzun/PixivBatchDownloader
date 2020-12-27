@@ -14,6 +14,7 @@ import { IDListType } from './Store.d'
 import { states } from './States'
 import './SaveAvatarIcon'
 import { BookmarkAllWorks, IDList } from './BookmarkAllWorks'
+import { Tools } from './Tools'
 
 class InitUserPage extends InitPageBase {
   constructor() {
@@ -190,7 +191,7 @@ class InitUserPage extends InitPageBase {
     const requsetNumber = this.getRequsetNumber()
 
     // 按照 id 升序排列，之后会删除不需要的部分
-    idList.sort(API.sortByProperty('id')).reverse()
+    idList.sort(Tools.sortByProperty('id')).reverse()
 
     // 不带 tag 获取作品时，由于 API 是一次性返回用户的所有作品，可能大于要求的数量，所以需要去掉多余的作品。
     // 删除 offset 需要去掉的部分。删除后面的 id，也就是近期作品
@@ -278,7 +279,7 @@ class InitUserPage extends InitPageBase {
 
   protected sortResult() {
     // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
-    store.result.sort(API.sortByProperty('id'))
+    store.result.sort(Tools.sortByProperty('id'))
   }
 
   protected destroy() {

@@ -19,6 +19,7 @@ import { FastScreen } from '../FastScreen'
 import { DOM } from '../DOM'
 import { BookmarkAllWorks } from '../BookmarkAllWorks'
 import { states } from '../States'
+import { Tools } from '../Tools'
 
 type AddBMKData = {
   id: number
@@ -357,8 +358,8 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 搜索页把下载任务按收藏数从高到低下载
   protected sortResult() {
-    store.resultMeta.sort(API.sortByProperty('bmk'))
-    store.result.sort(API.sortByProperty('bmk'))
+    store.resultMeta.sort(Tools.sortByProperty('bmk'))
+    store.result.sort(Tools.sortByProperty('bmk'))
   }
 
   private onSettingChange = (event: CustomEventInit) => {

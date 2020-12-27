@@ -12,6 +12,7 @@ import { log } from '../Log'
 import { FastScreen } from '../FastScreen'
 import { DOM } from '../DOM'
 import { BookmarkAllWorks } from '../BookmarkAllWorks'
+import { Tools } from '../Tools'
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
@@ -243,8 +244,8 @@ class InitSearchNovelPage extends InitPageBase {
 
   // 搜索页把下载任务按收藏数从高到低下载
   protected sortResult() {
-    store.resultMeta.sort(API.sortByProperty('bmk'))
-    store.result.sort(API.sortByProperty('bmk'))
+    store.resultMeta.sort(Tools.sortByProperty('bmk'))
+    store.result.sort(Tools.sortByProperty('bmk'))
   }
 }
 

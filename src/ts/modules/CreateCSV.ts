@@ -1,5 +1,5 @@
-import { API } from './API'
 import { DOM } from './DOM'
+import { Tools } from './Tools'
 
 // 生成 csv 文件
 // csv 文件结构参考 https://www.jianshu.com/p/54b3afc06126
@@ -107,7 +107,7 @@ class CreateCSV {
     // 如果需要下载文件
     const url = URL.createObjectURL(csvBlob)
     const name = data.fileName || DOM.getTitle()
-    DOM.downloadFile(url, API.replaceUnsafeStr(name) + '.csv')
+    DOM.downloadFile(url, Tools.replaceUnsafeStr(name) + '.csv')
     return url
   }
 

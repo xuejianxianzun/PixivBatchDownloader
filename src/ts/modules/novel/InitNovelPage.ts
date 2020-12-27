@@ -13,6 +13,7 @@ import { EVT } from '../EVT'
 import { states } from '../States'
 import { QuickDownloadBtn } from '../QuickDownloadBtn'
 import '../SaveAvatarIcon'
+import { Tools } from '../Tools'
 
 class InitNovelPage extends InitPageBase {
   constructor() {
@@ -160,10 +161,10 @@ class InitNovelPage extends InitPageBase {
     if (this.crawlNumber !== -1) {
       // 新作品 升序排列
       if (this.crawlDirection === -1) {
-        store.idList.sort(API.sortByProperty('id')).reverse()
+        store.idList.sort(Tools.sortByProperty('id')).reverse()
       } else {
         // 旧作品 降序排列
-        store.idList.sort(API.sortByProperty('id'))
+        store.idList.sort(Tools.sortByProperty('id'))
       }
 
       store.idList = store.idList.splice(0, this.crawlNumber)

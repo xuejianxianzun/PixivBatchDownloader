@@ -8,6 +8,7 @@ import { store } from './Store'
 import { log } from './Log'
 import { DOM } from './DOM'
 import { createCSV } from './CreateCSV'
+import { Tools } from './Tools'
 
 interface UserInfo {
   userId: string
@@ -258,7 +259,7 @@ class InitFollowingPage extends InitPageBase {
 
   protected sortResult() {
     // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
-    store.result.sort(API.sortByProperty('id'))
+    store.result.sort(Tools.sortByProperty('id'))
   }
 }
 export { InitFollowingPage }

@@ -1,4 +1,3 @@
-import { API } from './API'
 import { DOM } from './DOM'
 import { EVT } from './EVT'
 import { lang } from './Lang'
@@ -8,6 +7,7 @@ import { DonwloadSuccessData } from './Download.d'
 import { IndexedDB } from './IndexedDB'
 import { store } from './Store'
 import { fileName } from './FileName'
+import { Tools } from './Tools'
 
 interface Record {
   id: string
@@ -212,7 +212,7 @@ class Deduplication {
     const url = URL.createObjectURL(blob)
     DOM.downloadFile(
       url,
-      `record-${API.replaceUnsafeStr(new Date().toLocaleString())}.json`,
+      `record-${Tools.replaceUnsafeStr(new Date().toLocaleString())}.json`,
     )
   }
 

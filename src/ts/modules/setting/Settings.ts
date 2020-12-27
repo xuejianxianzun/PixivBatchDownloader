@@ -7,7 +7,7 @@
 
 import { EVT } from '../EVT'
 import { DOM } from '../DOM'
-import { deepCopy, string2array } from '../Tools'
+import { Tools } from '../Tools'
 
 interface XzSetting {
   setWantPage: number
@@ -197,7 +197,7 @@ class Settings {
   private stringArrayKey = ['namingRuleList', 'blockList', 'needTag', 'notNeedTag']
 
   // 以默认设置作为初始设置
-  public settings: XzSetting = deepCopy(this.defaultSettings)
+  public settings: XzSetting = Tools.deepCopy(this.defaultSettings)
 
   private bindEvents() {
     // 当设置发生变化时进行本地存储
@@ -231,7 +231,7 @@ class Settings {
   // 1. 进行类型转换，如某些设置项是 number ，但是数据来源里是 string，setSetting 可以把它们转换到正确的类型
   // 2. 某些选项在旧版本里没有，所以不能用旧的设置整个覆盖
   private assignSettings(data: XzSetting) {
-    const origin = deepCopy(data)
+    const origin = Tools.deepCopy(data)
     for (const [key, value] of Object.entries(origin)) {
       this.setSetting((key as keyof XzSetting), value, false)
     }
@@ -336,7 +336,7 @@ class Settings {
       if (this.stringArrayKey.includes(key)) {
         // 字符串转换成 string[]
         if (valueType === 'string') {
-          value = string2array(value as string)
+          value = Tools.string2array(value as string)
         }
       }
 

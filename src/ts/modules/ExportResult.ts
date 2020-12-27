@@ -1,7 +1,7 @@
-import { API } from './API'
 import { EVT } from './EVT'
 import { DOM } from './DOM'
 import { store } from './Store'
+import { Tools } from './Tools'
 
 class ExportResult {
   constructor() {
@@ -20,7 +20,7 @@ class ExportResult {
     const url = URL.createObjectURL(blob)
     DOM.downloadFile(
       url,
-      `result-${API.replaceUnsafeStr(
+      `result-${Tools.replaceUnsafeStr(
         DOM.getTitle(),
       )}-${store.crawlCompleteTime.getTime()}.json`,
     )

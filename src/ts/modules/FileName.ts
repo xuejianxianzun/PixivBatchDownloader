@@ -1,10 +1,10 @@
-import { API } from './API'
 import { settings } from './setting/Settings'
 import { store } from './Store'
 import { Result } from './Store.d'
 import config from './Config'
 import { states } from './States'
 import { DateFormat } from './DateFormat'
+import { Tools } from './Tools'
 
 // 生成文件名
 class FileName {
@@ -126,7 +126,7 @@ class FileName {
     }
 
     // 替换命名规则里的特殊字符
-    result = API.replaceUnsafeStr(result)
+    result = Tools.replaceUnsafeStr(result)
     // 上一步会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
     result = result.replace(/／/g, '/')
 
@@ -148,7 +148,7 @@ class FileName {
 
         // 处理标记值中的特殊字符
         if (!val.safe) {
-          once = API.replaceUnsafeStr(once)
+          once = Tools.replaceUnsafeStr(once)
         }
 
         // 添加标记名称
