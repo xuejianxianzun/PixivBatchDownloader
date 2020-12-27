@@ -16,48 +16,33 @@ class Filter {
   private readonly MiB = 1024 * 1024
   private readonly oneDayTime = 24 * 60 * 60 * 1000 // 一天的毫秒数
 
-  private showTip = false // 是否在日志区域输出提示
-
-  // 检查设置项，获取设置的值
-  // 如果 showTip 为 true，表示允许在日志区域输出提示
-  public init(showTip = false) {
-    this.showTip = showTip
-    // 获取作品类型的设置
+  // 对启用了的过滤选项输出提示
+  private showTip() {
     this.getDownType()
     this.getDownTypeByImgCount()
     this.getDownTypeByColor()
     this.getDownTypeByBmked()
 
-    // 获取收藏数设置
     this.getBMKNum()
 
-    // 获取宽高条件设置
     this.getSetWh()
 
-    // 获取宽高比设置
     this.getRatio()
 
-    // 获取 id 范围设置
     this.getIdRange()
 
-    // 获取投稿时间设置
     this.getPostDate()
 
-    // 获取必须包含的tag
     this.getIncludeTag()
 
-    // 获取要排除的tag
     this.getExcludeTag()
 
-    // 获取只下载首次登场设置
     if (states.debut) {
-      this.logTip(lang.transl('_抓取首次登场的作品Title'))
+      log.warning(lang.transl('_抓取首次登场的作品Title'))
     }
 
-    // 获取用户阻止名单
     this.getBlockList()
 
-    // 获取文件体积设置
     this.getSize()
   }
 
@@ -153,7 +138,7 @@ class Filter {
 
   // ---------------- get ----------------
 
-  // 获取下载的作品类型设置
+  // 提示下载的作品类型设置
   private getDownType() {
     // 如果全部排除则取消任务
     if (
@@ -173,7 +158,7 @@ class Filter {
     notDownTip += settings.downType3 ? '' : lang.transl('_小说')
 
     if (notDownTip) {
-      this.logTip(lang.transl('_排除作品类型') + notDownTip)
+      log.warning(lang.transl('_排除作品类型') + notDownTip)
     }
   }
 
@@ -184,11 +169,11 @@ class Filter {
     notDownTip += settings.downMultiImg ? '' : lang.transl('_多图作品')
 
     if (notDownTip) {
-      this.logTip(lang.transl('_排除作品类型') + notDownTip)
+      log.warning(lang.transl('_排除作品类型') + notDownTip)
     }
   }
 
-  // 获取图像颜色设置
+  // 提示图像颜色设置
   private getDownTypeByColor() {
     // 如果全部排除则取消任务
     if (!settings.downColorImg && !settings.downBlackWhiteImg) {
@@ -201,11 +186,11 @@ class Filter {
     notDownTip += settings.downBlackWhiteImg ? '' : lang.transl('_黑白图片')
 
     if (notDownTip) {
-      this.logTip(lang.transl('_排除作品类型') + notDownTip)
+      log.warning(lang.transl('_排除作品类型') + notDownTip)
     }
   }
 
-  // 获取下载收藏和未收藏作品的设置
+  // 提示下载收藏和未收藏作品的设置
   private getDownTypeByBmked() {
     // 如果全部排除则取消任务
     if (!settings.downNotBookmarked && !settings.downBookmarked) {
@@ -218,33 +203,33 @@ class Filter {
     notDownTip += settings.downBookmarked ? '' : lang.transl('_已收藏')
 
     if (notDownTip) {
-      this.logTip(lang.transl('_排除作品类型') + notDownTip)
+      log.warning(lang.transl('_排除作品类型') + notDownTip)
     }
   }
 
-  // 获取必须包含的tag
+  // 提示必须包含的tag
   private getIncludeTag() {
     if (!settings.needTagSwitch) {
       return
     }
 
     if (settings.needTag.length > 0) {
-      this.logTip(lang.transl('_设置了必须tag之后的提示') + settings.needTag.toString())
+      log.warning(lang.transl('_设置了必须tag之后的提示') + settings.needTag.toString())
     }
   }
 
-  // 获取要排除的tag
+  // 提示要排除的tag
   private getExcludeTag() {
     if (!settings.notNeedTagSwitch) {
       return
     }
 
     if (settings.notNeedTag.length > 0) {
-      this.logTip(lang.transl('_设置了排除tag之后的提示') + settings.notNeedTag.toString())
+      log.warning(lang.transl('_设置了排除tag之后的提示') + settings.notNeedTag.toString())
     }
   }
 
-  // 获取宽高设置
+  // 提示宽高设置
   private getSetWh() {
     if (!settings.setWHSwitch) {
       return
@@ -257,11 +242,11 @@ class Filter {
       const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${settings.setWidth
         } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${settings.setHeight
         }`
-      this.logTip(text)
+      log.warning(text)
     }
   }
 
-  // 获取输入的收藏数
+  // 提示输入的收藏数
   private getBMKNum() {
     if (!settings.BMKNumSwitch) {
       return
@@ -272,19 +257,19 @@ class Filter {
     const average = settings.BMKNumAverage
 
     if (min >= 0) {
-      this.logTip(lang.transl('_收藏数大于') + min)
+      log.warning(lang.transl('_收藏数大于') + min)
     }
 
     if (max >= 0) {
-      this.logTip(lang.transl('_收藏数小于') + max)
+      log.warning(lang.transl('_收藏数小于') + max)
     }
 
     if (average >= 0 && settings.BMKNumAverageSwitch) {
-      this.logTip(`${lang.transl('_日均收藏数量')} >= ${average}`)
+      log.warning(`${lang.transl('_日均收藏数量')} >= ${average}`)
     }
   }
 
-  // 获取宽高比设置
+  // 提示宽高比设置
   private getRatio() {
     if (!settings.ratioSwitch) {
       return '0'
@@ -293,31 +278,31 @@ class Filter {
     let result = settings.ratio
 
     if (result === '1') {
-      this.logTip(lang.transl('_设置了宽高比之后的提示', lang.transl('_横图')))
+      log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_横图')))
     } else if (result === '2') {
-      this.logTip(lang.transl('_设置了宽高比之后的提示', lang.transl('_竖图')))
+      log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_竖图')))
     } else if (result === '3') {
       // 由用户输入
-      this.logTip(lang.transl('_输入宽高比') + settings.userRatio)
+      log.warning(lang.transl('_输入宽高比') + settings.userRatio)
     }
 
     return result
   }
 
-  // 获取 id 范围设置
+  // 提示 id 范围设置
   private getIdRange() {
     if (!settings.idRangeSwitch) {
       return
     }
 
     if (settings.idRange === '1') {
-      this.logTip(`id > ${settings.idRangeInput}`)
+      log.warning(`id > ${settings.idRangeInput}`)
     } else {
-      this.logTip(`id < ${settings.idRangeInput}`)
+      log.warning(`id < ${settings.idRangeInput}`)
     }
   }
 
-  // 获取投稿时间设置
+  // 提示投稿时间设置
   private getPostDate() {
     if (
       !settings.postDate
@@ -331,19 +316,19 @@ class Filter {
     } else {
       const start = new Date(settings.postDateStart).toLocaleString()
       const end = new Date(settings.postDateEnd).toLocaleString()
-      this.logTip(
+      log.warning(
         `${lang.transl('_时间范围')}: ${start} - ${end}`,
       )
     }
   }
 
-  // 获取文件体积设置
+  // 提示文件体积设置
   private getSize() {
     if (!settings.sizeSwitch) {
       return
     }
 
-    this.logTip(`Size: ${settings.sizeMin}MiB - ${settings.sizeMax}MiB`)
+    log.warning(`Size: ${settings.sizeMin}MiB - ${settings.sizeMax}MiB`)
   }
 
   private getBlockList() {
@@ -352,7 +337,7 @@ class Filter {
     }
 
     if (settings.blockList.length > 0) {
-      this.logTip(
+      log.warning(
         lang.transl('_用户阻止名单') + ': ' + settings.blockList.toString(),
       )
     }
@@ -697,14 +682,6 @@ class Filter {
     return !tags.some(mute.checkTag.bind(mute))
   }
 
-  // 在日志区域输出提示
-  private logTip(str: string) {
-    if (!this.showTip) {
-      return
-    }
-    log.warning(str)
-  }
-
   // 如果设置项的值不合法，则显示提示
   private showWarning(msg: string) {
     EVT.fire(EVT.list.wrongSetting)
@@ -716,7 +693,7 @@ class Filter {
 
   private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
-      this.init(true)
+      this.showTip()
     })
   }
 }

@@ -3709,39 +3709,25 @@ class Filter {
     constructor() {
         this.MiB = 1024 * 1024;
         this.oneDayTime = 24 * 60 * 60 * 1000; // 一天的毫秒数
-        this.showTip = false; // 是否在日志区域输出提示
         this.bindEvents();
     }
-    // 检查设置项，获取设置的值
-    // 如果 showTip 为 true，表示允许在日志区域输出提示
-    init(showTip = false) {
-        this.showTip = showTip;
-        // 获取作品类型的设置
+    // 对启用了的过滤选项输出提示
+    showTip() {
         this.getDownType();
         this.getDownTypeByImgCount();
         this.getDownTypeByColor();
         this.getDownTypeByBmked();
-        // 获取收藏数设置
         this.getBMKNum();
-        // 获取宽高条件设置
         this.getSetWh();
-        // 获取宽高比设置
         this.getRatio();
-        // 获取 id 范围设置
         this.getIdRange();
-        // 获取投稿时间设置
         this.getPostDate();
-        // 获取必须包含的tag
         this.getIncludeTag();
-        // 获取要排除的tag
         this.getExcludeTag();
-        // 获取只下载首次登场设置
         if (_States__WEBPACK_IMPORTED_MODULE_3__["states"].debut) {
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取首次登场的作品Title'));
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取首次登场的作品Title'));
         }
-        // 获取用户阻止名单
         this.getBlockList();
-        // 获取文件体积设置
         this.getSize();
     }
     // 检查作品是否符合过滤器的要求
@@ -3818,7 +3804,7 @@ class Filter {
         return true;
     }
     // ---------------- get ----------------
-    // 获取下载的作品类型设置
+    // 提示下载的作品类型设置
     getDownType() {
         // 如果全部排除则取消任务
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType0 &&
@@ -3833,7 +3819,7 @@ class Filter {
         notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType2 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_动图');
         notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType3 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_小说');
         if (notDownTip) {
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
         }
     }
     getDownTypeByImgCount() {
@@ -3841,10 +3827,10 @@ class Filter {
         notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downSingleImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_单图作品');
         notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downMultiImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品');
         if (notDownTip) {
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
         }
     }
-    // 获取图像颜色设置
+    // 提示图像颜色设置
     getDownTypeByColor() {
         // 如果全部排除则取消任务
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg && !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg) {
@@ -3854,10 +3840,10 @@ class Filter {
         notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_彩色图片');
         notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_黑白图片');
         if (notDownTip) {
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
         }
     }
-    // 获取下载收藏和未收藏作品的设置
+    // 提示下载收藏和未收藏作品的设置
     getDownTypeByBmked() {
         // 如果全部排除则取消任务
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked) {
@@ -3867,28 +3853,28 @@ class Filter {
         notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_未收藏');
         notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_已收藏');
         if (notDownTip) {
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
         }
     }
-    // 获取必须包含的tag
+    // 提示必须包含的tag
     getIncludeTag() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTagSwitch) {
             return;
         }
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag.length > 0) {
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了必须tag之后的提示') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了必须tag之后的提示') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag.toString());
         }
     }
-    // 获取要排除的tag
+    // 提示要排除的tag
     getExcludeTag() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTagSwitch) {
             return;
         }
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag.length > 0) {
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了排除tag之后的提示') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了排除tag之后的提示') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag.toString());
         }
     }
-    // 获取宽高设置
+    // 提示宽高设置
     getSetWh() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWHSwitch) {
             return;
@@ -3898,10 +3884,10 @@ class Filter {
                 .replace('|', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_或者'))
                 .replace('&', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_并且'));
             const text = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽度')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].widthHeightLimit} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidth} ${andOr} ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_高度')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].widthHeightLimit} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setHeight}`;
-            this.logTip(text);
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(text);
         }
     }
-    // 获取输入的收藏数
+    // 提示输入的收藏数
     getBMKNum() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumSwitch) {
             return;
@@ -3910,46 +3896,46 @@ class Filter {
         const max = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumMax;
         const average = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverage;
         if (min >= 0) {
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_收藏数大于') + min);
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_收藏数大于') + min);
         }
         if (max >= 0) {
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_收藏数小于') + max);
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_收藏数小于') + max);
         }
         if (average >= 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverageSwitch) {
-            this.logTip(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_日均收藏数量')} >= ${average}`);
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_日均收藏数量')} >= ${average}`);
         }
     }
-    // 获取宽高比设置
+    // 提示宽高比设置
     getRatio() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratioSwitch) {
             return '0';
         }
         let result = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio;
         if (result === '1') {
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_横图')));
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_横图')));
         }
         else if (result === '2') {
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_竖图')));
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_竖图')));
         }
         else if (result === '3') {
             // 由用户输入
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_输入宽高比') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio);
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_输入宽高比') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio);
         }
         return result;
     }
-    // 获取 id 范围设置
+    // 提示 id 范围设置
     getIdRange() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeSwitch) {
             return;
         }
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRange === '1') {
-            this.logTip(`id > ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeInput}`);
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(`id > ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeInput}`);
         }
         else {
-            this.logTip(`id < ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeInput}`);
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(`id < ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeInput}`);
         }
     }
-    // 获取投稿时间设置
+    // 提示投稿时间设置
     getPostDate() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDate) {
             return;
@@ -3961,22 +3947,22 @@ class Filter {
         else {
             const start = new Date(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart).toLocaleString();
             const end = new Date(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd).toLocaleString();
-            this.logTip(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_时间范围')}: ${start} - ${end}`);
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_时间范围')}: ${start} - ${end}`);
         }
     }
-    // 获取文件体积设置
+    // 提示文件体积设置
     getSize() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeSwitch) {
             return;
         }
-        this.logTip(`Size: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMin}MiB - ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMax}MiB`);
+        _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(`Size: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMin}MiB - ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMax}MiB`);
     }
     getBlockList() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userBlockList) {
             return;
         }
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockList.length > 0) {
-            this.logTip(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_用户阻止名单') + ': ' + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockList.toString());
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_用户阻止名单') + ': ' + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockList.toString());
         }
     }
     // ---------------- check ----------------
@@ -4257,13 +4243,6 @@ class Filter {
         // 如果某些 tag 存在于 mute 列表里，就排除这个作品，所以要取反
         return !tags.some(_Mute__WEBPACK_IMPORTED_MODULE_6__["mute"].checkTag.bind(_Mute__WEBPACK_IMPORTED_MODULE_6__["mute"]));
     }
-    // 在日志区域输出提示
-    logTip(str) {
-        if (!this.showTip) {
-            return;
-        }
-        _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(str);
-    }
     // 如果设置项的值不合法，则显示提示
     showWarning(msg) {
         _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.wrongSetting);
@@ -4274,7 +4253,7 @@ class Filter {
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.crawlStart, () => {
-            this.init(true);
+            this.showTip();
         });
     }
 }
@@ -11034,12 +11013,6 @@ const langText = {
         '從本頁開始下載 {} 個作品',
     ],
     _任务开始0: ['任务开始', 'タスクが開始されます', 'Task starts', '工作開始'],
-    _排除了所有作品类型: [
-        '由于您排除了所有作品类型，本次任务已取消。',
-        'すべての種類の作品を除外したため、タスクはキャンセルされました。',
-        'Because you excluded all types of work, the task was canceled.',
-        '由於排除了所有作品類型，本次工作已取消。',
-    ],
     _排除作品类型: [
         '排除作品类型：',
         'これらのタイプの作品を除外します：',
@@ -12226,7 +12199,13 @@ const langText = {
         '画像数 >',
         'Number of images >',
         '圖片数量大於',
-    ]
+    ],
+    _排除了所有作品类型: [
+        '排除了所有作品类型',
+        'すべての作品種類を除外しました',
+        'Excluded all work types',
+        '排除了所有作品類型',
+    ],
 };
 
 
