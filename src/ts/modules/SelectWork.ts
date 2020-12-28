@@ -59,6 +59,7 @@ class SelectWork {
 
   private controlBtn: HTMLButtonElement = document.createElement('button') // 启动、暂停、继续选择的按钮
   private crawlBtn: HTMLButtonElement = document.createElement('button') // 抓取选择的作品的按钮，并且会退出选择模式
+  private clearBtn: HTMLButtonElement = document.createElement('button') // 清空选择的作品的按钮
 
   private selectedWorkFlagClass = 'selectedWorkFlag' // 给已选择的作品添加标记时使用的 class
   private positionValue = ['relative', 'absolute', 'fixed'] // 标记元素需要父元素拥有这些定位属性
@@ -66,9 +67,18 @@ class SelectWork {
   private artworkReg = /artworks\/(\d{2,15})/
   private novelReg = /novel\/show\.php\?id=(\d{2,15})/
 
+  // 不同页面里的作品列表容器的选择器可能不同，这里储存所有页面里会使用到的的选择器
+  // root 是大部分页面通用的; js-mount-point-discovery 是发现页面使用的
+  private worksWrapperSelectorList: string[] = ['#root', '#js-mount-point-discovery']
+  // 储存当前页面使用的选择器
+  private usedWorksWrapperSelector = this.worksWrapperSelectorList[0]
+
   private idList: IDData[] = []
 
-  private crawlSelectedWork = false // 对选择的作品进行抓取时激活此标记。当触发下一次的抓取完成事件时，表示已经抓取了选择的作品，此时清空 id 列表。
+  private observeTimer = 0
+
+  private sendCrawl = false // 它用来判断抓取的是不是选择的作品。抓取选择的作品时激活此标记；当触发下一次的抓取完成事件时，表示已经抓取了选择的作品。
+  private crawled = false // 是否已经抓取了选择的作品
 
   private bindClickEvent!: (ev: MouseEvent) => void | undefined
   private bindEscEvent!: (ev: KeyboardEvent) => void | undefined
@@ -84,9 +94,9 @@ class SelectWork {
 
     // 当抓取完成时，如果抓取的是选择的作品，则清空 id 列表
     window.addEventListener(EVT.list.crawlFinish, () => {
-      if (this.crawlSelectedWork) {
-        this.crawlSelectedWork = false
-        this.clearIdList()
+      if (this.sendCrawl) {
+        this.sendCrawl = false
+        this.crawled = true
       }
     })
 
@@ -106,9 +116,10 @@ class SelectWork {
       true,
     )
 
-    // 离开页面前，如果选择的作品没有抓取，则提示用户，并阻止用户直接离开页面
+    // 离开页面前提示用户
     window.onbeforeunload = () => {
-      if (this.idList.length > 0) {
+      // 如果存在选择的作品，并且选择的作品（全部或部分）没有被抓取，则进行提示
+      if (this.idList.length > 0 && !this.crawled) {
         EVT.sendMsg({
           msg: lang.transl('_离开页面前提示选择的作品未抓取'),
           type: 'error',
@@ -116,6 +127,40 @@ class SelectWork {
         return false
       }
     }
+
+    // 每次页面切换之后，重新添加被选择的作品上的标记。
+    // 因为 pixiv 的页面切换一般会导致作品列表变化，所以之前添加的标记也没有了。
+    // 监听 dom 变化，当 dom 变化停止一段时间之后，一般作品列表就加载出来了，此时重新添加标记（防抖）
+    // 一个页面里可能产生多轮 dom 变化，所以可能会多次触发 reAddAllFlag 方法。这是必要的。
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      // 查找作品列表容器，并保存使用的选择器
+      let worksWrapper: HTMLElement | null = null
+      for (const selector of this.worksWrapperSelectorList) {
+        worksWrapper = document.querySelector(selector)
+        if (worksWrapper) {
+          this.usedWorksWrapperSelector = selector
+          break
+        }
+      }
+
+      if (worksWrapper === null) {
+        return
+      }
+
+      // 监听作品列表容器的变化
+      const ob = new MutationObserver((records => {
+        window.clearTimeout(this.observeTimer)
+        this.observeTimer = window.setTimeout(() => {
+          this.reAddAllFlag()
+        }, 300);
+        // 延迟时间不宜太小，否则代码执行时可能页面上还没有对应的元素，而且更耗费性能
+      }))
+
+      ob.observe(worksWrapper, {
+        childList: true,
+        subtree: true
+      })
+    })
   }
 
   private clearIdList() {
@@ -155,15 +200,26 @@ class SelectWork {
     )
     this.updateControlBtn()
 
+    this.clearBtn = DOM.addBtn(
+      'selectWorkBtns',
+      Colors.green,
+      lang.transl('_清空选择的作品'),
+    )
+    this.clearBtn.style.display = 'none'
+    this.clearBtn.addEventListener('click', () => {
+      this.clearIdList()
+    })
+
     this.crawlBtn = DOM.addBtn(
       'selectWorkBtns',
       Colors.blue,
       lang.transl('_抓取选择的作品'),
-      [['style', 'display:none;']],
     )
+    this.crawlBtn.style.display = 'none'
     this.crawlBtn.addEventListener('click', (ev) => {
       this.downloadSelect()
     })
+
   }
 
   // 切换控制按钮的文字和点击事件
@@ -172,6 +228,7 @@ class SelectWork {
       this.controlBtn.textContent = lang.transl('_手动选择作品')
       this.controlBtn.onclick = (ev) => {
         this.startSelect(ev)
+        this.clearBtn.style.display = 'block'
       }
     } else {
       if (!this.pause) {
@@ -214,6 +271,7 @@ class SelectWork {
       // 这个 id 不存在于 idList 里
       if (index === -1) {
         this.idList.push(workId)
+        this.crawled = false
 
         this.addSelectedFlag(ev.target as HTMLElement, workId.id)
       } else {
@@ -285,7 +343,8 @@ class SelectWork {
       // 传递 id 列表时，将其转换成一个新的数组。否则传递的是引用，外部操作会影响到内部的 id 列表
       EVT.fire(EVT.list.downloadIdList, Array.from(this.idList))
 
-      this.crawlSelectedWork = true
+      this.sendCrawl = true
+      this.crawled = false
     } else {
       EVT.sendMsg({
         msg: lang.transl('_没有数据可供使用'),
@@ -321,7 +380,7 @@ class SelectWork {
     }
   }
 
-  // 当这次点击事件查找到一个作品时，添加一个标记
+  // 当点击事件查找到一个作品时，给这个作品添加标记
   private addSelectedFlag(el: HTMLElement, id: string) {
     const span = document.createElement('span')
     span.classList.add(this.selectedWorkFlagClass)
@@ -345,11 +404,46 @@ class SelectWork {
     }
   }
 
-  // 清空指定作品的标记
-  private removeSelectedFlag(id: string) {
-    const el = document.querySelector(
+  // 重新添加被选择的作品上的标记
+  private reAddAllFlag() {
+    if (this.idList.length === 0) {
+      return
+    }
+
+    for (const { id, type } of this.idList) {
+      if (this.getSelectedFlag(id)) {
+        // 如果这个作品的标记依旧存在，就不需要重新添加
+        /**
+         * 示例：从作品列表 https://www.pixiv.net/users/18095070/illustrations
+         * 进入 tag 列表页 https://www.pixiv.net/users/18095070/illustrations/%E5%A5%B3%E3%81%AE%E5%AD%90
+         * pixiv 会复用可用的作品，所以这些作品上的标记也依然存在，不需要重新添加
+         */
+        return
+      }
+
+      let el: HTMLAnchorElement | null
+      if (type === 'novels') {
+        el = document.querySelector(`${this.usedWorksWrapperSelector} a[href="/novel/show.php?id=${id}"]`)
+      } else {
+        el = document.querySelector(`${this.usedWorksWrapperSelector} a[href="/artworks/${id}"]`)
+      }
+
+      if (el) {
+        // 如果在当前页面查找到了选择的作品，就给它添加标记
+        this.addSelectedFlag(el, id)
+      }
+    }
+  }
+
+  private getSelectedFlag(id: string) {
+    return document.querySelector(
       `.${this.selectedWorkFlagClass}[data-id='${id}']`,
     )
+  }
+
+  // 清空指定作品的标记
+  private removeSelectedFlag(id: string) {
+    const el = this.getSelectedFlag(id)
     el && el.remove()
   }
 
@@ -362,4 +456,4 @@ class SelectWork {
 }
 
 new SelectWork()
-export {}
+export { }

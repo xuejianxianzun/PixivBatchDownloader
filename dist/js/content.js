@@ -7859,12 +7859,20 @@ class SelectWork {
         this._tempHide = false; // 打开下载面板时临时隐藏。这个变量只会影响选择器的 display
         this.controlBtn = document.createElement('button'); // 启动、暂停、继续选择的按钮
         this.crawlBtn = document.createElement('button'); // 抓取选择的作品的按钮，并且会退出选择模式
+        this.clearBtn = document.createElement('button'); // 清空选择的作品的按钮
         this.selectedWorkFlagClass = 'selectedWorkFlag'; // 给已选择的作品添加标记时使用的 class
         this.positionValue = ['relative', 'absolute', 'fixed']; // 标记元素需要父元素拥有这些定位属性
         this.artworkReg = /artworks\/(\d{2,15})/;
         this.novelReg = /novel\/show\.php\?id=(\d{2,15})/;
+        // 不同页面里的作品列表容器的选择器可能不同，这里储存所有页面里会使用到的的选择器
+        // root 是大部分页面通用的; js-mount-point-discovery 是发现页面使用的
+        this.worksWrapperSelectorList = ['#root', '#js-mount-point-discovery'];
+        // 储存当前页面使用的选择器
+        this.usedWorksWrapperSelector = this.worksWrapperSelectorList[0];
         this.idList = [];
-        this.crawlSelectedWork = false; // 对选择的作品进行抓取时激活此标记。当触发下一次的抓取完成事件时，表示已经抓取了选择的作品，此时清空 id 列表。
+        this.observeTimer = 0;
+        this.sendCrawl = false; // 它用来判断抓取的是不是选择的作品。抓取选择的作品时激活此标记；当触发下一次的抓取完成事件时，表示已经抓取了选择的作品。
+        this.crawled = false; // 是否已经抓取了选择的作品
         if (!this.created && location.hostname.endsWith('.pixiv.net')) {
             this.created = true;
             this.selector = this.createSelectorEl();
@@ -7904,9 +7912,9 @@ class SelectWork {
         });
         // 当抓取完成时，如果抓取的是选择的作品，则清空 id 列表
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.crawlFinish, () => {
-            if (this.crawlSelectedWork) {
-                this.crawlSelectedWork = false;
-                this.clearIdList();
+            if (this.sendCrawl) {
+                this.sendCrawl = false;
+                this.crawled = true;
             }
         });
         // 可以使用 Alt + S 快捷键来模拟点击控制按钮
@@ -7919,9 +7927,10 @@ class SelectWork {
         window.addEventListener('mousemove', (ev) => {
             this.moveEvent(ev);
         }, true);
-        // 离开页面前，如果选择的作品没有抓取，则提示用户，并阻止用户直接离开页面
+        // 离开页面前提示用户
         window.onbeforeunload = () => {
-            if (this.idList.length > 0) {
+            // 如果存在选择的作品，并且选择的作品（全部或部分）没有被抓取，则进行提示
+            if (this.idList.length > 0 && !this.crawled) {
                 _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].sendMsg({
                     msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_离开页面前提示选择的作品未抓取'),
                     type: 'error',
@@ -7929,6 +7938,36 @@ class SelectWork {
                 return false;
             }
         };
+        // 每次页面切换之后，重新添加被选择的作品上的标记。
+        // 因为 pixiv 的页面切换一般会导致作品列表变化，所以之前添加的标记也没有了。
+        // 监听 dom 变化，当 dom 变化停止一段时间之后，一般作品列表就加载出来了，此时重新添加标记（防抖）
+        // 一个页面里可能产生多轮 dom 变化，所以可能会多次触发 reAddAllFlag 方法。这是必要的。
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.pageSwitch, () => {
+            // 查找作品列表容器，并保存使用的选择器
+            let worksWrapper = null;
+            for (const selector of this.worksWrapperSelectorList) {
+                worksWrapper = document.querySelector(selector);
+                if (worksWrapper) {
+                    this.usedWorksWrapperSelector = selector;
+                    break;
+                }
+            }
+            if (worksWrapper === null) {
+                return;
+            }
+            // 监听作品列表容器的变化
+            const ob = new MutationObserver((records => {
+                window.clearTimeout(this.observeTimer);
+                this.observeTimer = window.setTimeout(() => {
+                    this.reAddAllFlag();
+                }, 300);
+                // 延迟时间不宜太小，否则代码执行时可能页面上还没有对应的元素，而且更耗费性能
+            }));
+            ob.observe(worksWrapper, {
+                childList: true,
+                subtree: true
+            });
+        });
     }
     clearIdList() {
         // 清空标记需要使用 id 数据，所以需要执行之后才能清空 id
@@ -7956,7 +7995,13 @@ class SelectWork {
     addBtn() {
         this.controlBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].addBtn('selectWorkBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_手动选择作品'));
         this.updateControlBtn();
-        this.crawlBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].addBtn('selectWorkBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取选择的作品'), [['style', 'display:none;']]);
+        this.clearBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].addBtn('selectWorkBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_清空选择的作品'));
+        this.clearBtn.style.display = 'none';
+        this.clearBtn.addEventListener('click', () => {
+            this.clearIdList();
+        });
+        this.crawlBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].addBtn('selectWorkBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取选择的作品'));
+        this.crawlBtn.style.display = 'none';
         this.crawlBtn.addEventListener('click', (ev) => {
             this.downloadSelect();
         });
@@ -7967,6 +8012,7 @@ class SelectWork {
             this.controlBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_手动选择作品');
             this.controlBtn.onclick = (ev) => {
                 this.startSelect(ev);
+                this.clearBtn.style.display = 'block';
             };
         }
         else {
@@ -8008,6 +8054,7 @@ class SelectWork {
             // 这个 id 不存在于 idList 里
             if (index === -1) {
                 this.idList.push(workId);
+                this.crawled = false;
                 this.addSelectedFlag(ev.target, workId.id);
             }
             else {
@@ -8067,7 +8114,8 @@ class SelectWork {
         if (this.idList.length > 0) {
             // 传递 id 列表时，将其转换成一个新的数组。否则传递的是引用，外部操作会影响到内部的 id 列表
             _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.downloadIdList, Array.from(this.idList));
-            this.crawlSelectedWork = true;
+            this.sendCrawl = true;
+            this.crawled = false;
         }
         else {
             _EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].sendMsg({
@@ -8101,7 +8149,7 @@ class SelectWork {
             }
         }
     }
-    // 当这次点击事件查找到一个作品时，添加一个标记
+    // 当点击事件查找到一个作品时，给这个作品添加标记
     addSelectedFlag(el, id) {
         var _a;
         const span = document.createElement('span');
@@ -8122,9 +8170,40 @@ class SelectWork {
             }
         }
     }
+    // 重新添加被选择的作品上的标记
+    reAddAllFlag() {
+        if (this.idList.length === 0) {
+            return;
+        }
+        for (const { id, type } of this.idList) {
+            if (this.getSelectedFlag(id)) {
+                // 如果这个作品的标记依旧存在，就不需要重新添加
+                /**
+                 * 示例：从作品列表 https://www.pixiv.net/users/18095070/illustrations
+                 * 进入 tag 列表页 https://www.pixiv.net/users/18095070/illustrations/%E5%A5%B3%E3%81%AE%E5%AD%90
+                 * pixiv 会复用可用的作品，所以这些作品上的标记也依然存在，不需要重新添加
+                 */
+                return;
+            }
+            let el;
+            if (type === 'novels') {
+                el = document.querySelector(`${this.usedWorksWrapperSelector} a[href="/novel/show.php?id=${id}"]`);
+            }
+            else {
+                el = document.querySelector(`${this.usedWorksWrapperSelector} a[href="/artworks/${id}"]`);
+            }
+            if (el) {
+                // 如果在当前页面查找到了选择的作品，就给它添加标记
+                this.addSelectedFlag(el, id);
+            }
+        }
+    }
+    getSelectedFlag(id) {
+        return document.querySelector(`.${this.selectedWorkFlagClass}[data-id='${id}']`);
+    }
     // 清空指定作品的标记
     removeSelectedFlag(id) {
-        const el = document.querySelector(`.${this.selectedWorkFlagClass}[data-id='${id}']`);
+        const el = this.getSelectedFlag(id);
         el && el.remove();
     }
     // 清空所有标记
@@ -12209,6 +12288,12 @@ const langText = {
         '選ばれた作品をクロール',
         'Crawl selected works',
         '抓取選擇的作品',
+    ],
+    _清空选择的作品: [
+        '清空选择的作品',
+        '選んだ作品をクリアします',
+        'Clear selected works',
+        '清空選擇的作品',
     ],
     _暂停选择: ['暂停选择', '選択を一時停止', 'Pause select', '暫停選擇'],
     _继续选择: ['继续选择', '選択を続ける', 'Continue select', '繼續選擇'],
