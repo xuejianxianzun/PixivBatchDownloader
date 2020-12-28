@@ -135,7 +135,7 @@ abstract class InitPageBase {
   // 参数 max 为最大值
   // 参数 page 指示单位是“页”（页面）还是“个”（作品个数）
   protected checkWantPageInputGreater0(max: number, page: boolean) {
-    if (settings.setWantPage>0) {
+    if (settings.setWantPage > 0) {
       const want = settings.setWantPage > max ? max : settings.setWantPage
 
       if (page) {

@@ -16,12 +16,9 @@ class SettingAPI {
 
   private bindEvents() {
     // 当 firstFewImages 设置改变时，保存它的值
-    window.addEventListener(
-      EVT.list.settingChange,
-      () => {
-        this.firstFewImages = this.getFirstFewImages()
-      },
-    )
+    window.addEventListener(EVT.list.settingChange, () => {
+      this.firstFewImages = this.getFirstFewImages()
+    })
   }
 
   // 获取作品张数设置

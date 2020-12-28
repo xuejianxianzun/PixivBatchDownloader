@@ -192,7 +192,10 @@ class FileName {
 
     // 处理为多图作品自动建立文件夹的情况
     // 如果这个多图作品里要下载的文件数量大于指定数量，才会为它建立文件夹
-    if (settings.multipleImageDir && data.dlCount > settings.multipleImageFolderNumber) {
+    if (
+      settings.multipleImageDir &&
+      data.dlCount > settings.multipleImageFolderNumber
+    ) {
       // 操作路径中最后一项（即文件名），在它前面添加一层文件夹
       const allPart = result.split('/')
       const lastPartIndex = allPart.length - 1

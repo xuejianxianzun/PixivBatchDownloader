@@ -214,7 +214,9 @@ class Filter {
     }
 
     if (settings.needTag.length > 0) {
-      log.warning(lang.transl('_设置了必须tag之后的提示') + settings.needTag.toString())
+      log.warning(
+        lang.transl('_设置了必须tag之后的提示') + settings.needTag.toString(),
+      )
     }
   }
 
@@ -225,7 +227,10 @@ class Filter {
     }
 
     if (settings.notNeedTag.length > 0) {
-      log.warning(lang.transl('_设置了排除tag之后的提示') + settings.notNeedTag.toString())
+      log.warning(
+        lang.transl('_设置了排除tag之后的提示') +
+          settings.notNeedTag.toString(),
+      )
     }
   }
 
@@ -239,9 +244,11 @@ class Filter {
       const andOr = settings.setWidthAndOr
         .replace('|', lang.transl('_或者'))
         .replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${settings.setWidth
-        } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${settings.setHeight
-        }`
+      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${
+        settings.setWidth
+      } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${
+        settings.setHeight
+      }`
       log.warning(text)
     }
   }
@@ -278,7 +285,9 @@ class Filter {
     let result = settings.ratio
 
     if (result === '0') {
-      log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_正方形')))
+      log.warning(
+        lang.transl('_设置了宽高比之后的提示', lang.transl('_正方形')),
+      )
     } else if (result === '1') {
       log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_横图')))
     } else if (result === '2') {
@@ -306,9 +315,7 @@ class Filter {
 
   // 提示投稿时间设置
   private getPostDate() {
-    if (
-      !settings.postDate
-    ) {
+    if (!settings.postDate) {
       return
     }
 
@@ -318,9 +325,7 @@ class Filter {
     } else {
       const start = new Date(settings.postDateStart).toLocaleString()
       const end = new Date(settings.postDateEnd).toLocaleString()
-      log.warning(
-        `${lang.transl('_时间范围')}: ${start} - ${end}`,
-      )
+      log.warning(`${lang.transl('_时间范围')}: ${start} - ${end}`)
     }
   }
 
@@ -454,7 +459,11 @@ class Filter {
 
   // 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。
   private checkIncludeTag(tags: FilterOption['tags']) {
-    if (!settings.needTagSwitch || settings.needTag.length === 0 || tags === undefined) {
+    if (
+      !settings.needTagSwitch ||
+      settings.needTag.length === 0 ||
+      tags === undefined
+    ) {
       return true
     }
 
@@ -507,7 +516,11 @@ class Filter {
 
   // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。
   private checkExcludeTag(tags: FilterOption['tags']) {
-    if (!settings.notNeedTagSwitch || settings.notNeedTag.length === 0 || tags === undefined) {
+    if (
+      !settings.notNeedTagSwitch ||
+      settings.notNeedTag.length === 0 ||
+      tags === undefined
+    ) {
       return true
     }
 
@@ -629,10 +642,7 @@ class Filter {
 
   // 检查投稿时间设置
   private checkPostDate(date: FilterOption['createDate']) {
-    if (
-      !settings.postDate ||
-      date === undefined
-    ) {
+    if (!settings.postDate || date === undefined) {
       return true
     }
 
@@ -667,7 +677,9 @@ class Filter {
     if (!settings.sizeSwitch || size === undefined) {
       return true
     }
-    return size >= settings.sizeMin * this.MiB && size <= settings.sizeMax * this.MiB
+    return (
+      size >= settings.sizeMin * this.MiB && size <= settings.sizeMax * this.MiB
+    )
   }
 
   private checkMuteUser(userId: FilterOption['userId']) {

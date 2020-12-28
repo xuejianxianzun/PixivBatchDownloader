@@ -39,7 +39,8 @@ class Tools {
     const result = (Array.isArray(data) ? [] : {}) as any
 
     for (const [key, value] of Object.entries(data)) {
-      result[key] = (data === null || typeof data !== 'object') ? value : this.deepCopy(value)
+      result[key] =
+        data === null || typeof data !== 'object' ? value : this.deepCopy(value)
     }
 
     return result
@@ -48,13 +49,13 @@ class Tools {
   // 字符串分割成数组
   static string2array(str: string): string[] {
     const temp = str.trim().split(',')
-    return temp.filter(val => {
+    return temp.filter((val) => {
       if (val !== '') {
         return val.trim()
       }
     })
   }
-  
+
   // 根据对象某个属性的值（视为数字）排序对象。返回的结果是降序排列
   static sortByProperty(key: string) {
     return function (a: any, b: any) {

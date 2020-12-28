@@ -100,12 +100,7 @@ const langText = {
   _不限制: ['不限制', '無制限', 'not limited', '不限制'],
   _横图: ['横图', '横長', 'Horizontal', '橫圖'],
   _竖图: ['竖图', '縦長', 'Vertical', '豎圖'],
-  _正方形:[
-    '正方形',
-    '正方形',
-    'Square',
-    '正方形',
-  ],
+  _正方形: ['正方形', '正方形', 'Square', '正方形'],
   _输入宽高比: ['宽高比 >=', '縦横比 >=', 'Aspect ratio >=', '寬高比 >='],
   _设置了宽高比之后的提示: [
     '宽高比：{}',
@@ -1455,7 +1450,7 @@ const langText = {
     'The selected work has not been crawled. Leaving this page now will cause your selected work to be cleared.',
     '選擇的作品尚未抓取。現在離開此頁面會導致您選擇的作品被清空。',
   ],
-  _图片数量大于:[
+  _图片数量大于: [
     '图片数量大于',
     '画像数 >',
     'Number of images >',

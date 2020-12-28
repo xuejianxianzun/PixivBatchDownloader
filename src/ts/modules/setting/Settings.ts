@@ -55,7 +55,7 @@ interface XzSetting {
   setWidth: number
   setHeight: number
   ratioSwitch: boolean
-  ratio:  '0'| '1' | '2' | '3'
+  ratio: '0' | '1' | '2' | '3'
   userRatio: number
   idRangeSwitch: boolean
   idRangeInput: number
@@ -194,7 +194,12 @@ class Settings {
 
   private floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax']
   private numberArrayKey = ['wantPageArr']
-  private stringArrayKey = ['namingRuleList', 'blockList', 'needTag', 'notNeedTag']
+  private stringArrayKey = [
+    'namingRuleList',
+    'blockList',
+    'needTag',
+    'notNeedTag',
+  ]
 
   // 以默认设置作为初始设置
   public settings: XzSetting = Tools.deepCopy(this.defaultSettings)
@@ -233,7 +238,7 @@ class Settings {
   private assignSettings(data: XzSetting) {
     const origin = Tools.deepCopy(data)
     for (const [key, value] of Object.entries(origin)) {
-      this.setSetting((key as keyof XzSetting), value, false)
+      this.setSetting(key as keyof XzSetting, value, false)
     }
     // 触发设置改变事件
     EVT.fire(EVT.list.settingChange)
@@ -291,7 +296,11 @@ class Settings {
   // 这里面有一些类型转换的代码，主要目的：
   // 1. 兼容旧版本的设置。读取旧版本的设置时，将其转换成新版本的设置。例如某个设置在旧版本里是 string 类型，值为 'a,b,c'。新版本里是 string[] 类型，这里会自动将其转换成 ['a','b','c']
   // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传递 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
-  public setSetting(key: keyof XzSetting, value: string | number | boolean | string[] | number[], fireEvt = true) {
+  public setSetting(
+    key: keyof XzSetting,
+    value: string | number | boolean | string[] | number[],
+    fireEvt = true,
+  ) {
     if (!this.allSettingKeys.includes(key)) {
       return
     }
@@ -357,7 +366,7 @@ class Settings {
     }
 
     // 更改设置
-    (this.settings[key] as any) = value
+    ;(this.settings[key] as any) = value
 
     // 触发设置变化的事件
     // 在进行批量操作（如恢复设置、导入设置、重置设置）的时候，可以将 fireEvt 设为 false，等操作执行之后自行触发这个事件

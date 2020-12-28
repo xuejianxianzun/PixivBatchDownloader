@@ -69,7 +69,10 @@ class SelectWork {
 
   // 不同页面里的作品列表容器的选择器可能不同，这里储存所有页面里会使用到的的选择器
   // root 是大部分页面通用的; js-mount-point-discovery 是发现页面使用的
-  private worksWrapperSelectorList: string[] = ['#root', '#js-mount-point-discovery']
+  private worksWrapperSelectorList: string[] = [
+    '#root',
+    '#js-mount-point-discovery',
+  ]
   // 储存当前页面使用的选择器
   private usedWorksWrapperSelector = this.worksWrapperSelectorList[0]
 
@@ -148,17 +151,17 @@ class SelectWork {
       }
 
       // 监听作品列表容器的变化
-      const ob = new MutationObserver((records => {
+      const ob = new MutationObserver((records) => {
         window.clearTimeout(this.observeTimer)
         this.observeTimer = window.setTimeout(() => {
           this.reAddAllFlag()
-        }, 300);
+        }, 300)
         // 延迟时间不宜太小，否则代码执行时可能页面上还没有对应的元素，而且更耗费性能
-      }))
+      })
 
       ob.observe(worksWrapper, {
         childList: true,
-        subtree: true
+        subtree: true,
       })
     })
   }
@@ -185,7 +188,9 @@ class SelectWork {
     const show = this.start && !this.pause && !this.tempHide
 
     this.selector.style.display = show ? 'block' : 'none'
+    // 设置元素的 style 时，如果新的值和旧的值相同（例如：每次都设置 display 为 none），Chrome 会自动优化，此时不会导致节点发生变化。
 
+    // 如果选择器处于隐藏状态，就不会更新其坐标。这样可以优化性能
     if (show) {
       this.selector.style.left = this.left - this.half + 'px'
       this.selector.style.top = this.top - this.half + 'px'
@@ -219,7 +224,6 @@ class SelectWork {
     this.crawlBtn.addEventListener('click', (ev) => {
       this.downloadSelect()
     })
-
   }
 
   // 切换控制按钮的文字和点击事件
@@ -286,6 +290,7 @@ class SelectWork {
   }
 
   // 监听鼠标移动
+  // 鼠标移动时，由于事件触发频率很高，所以这里的代码也会执行很多次，但是这没有导致明显的性能问题，所以没有加以限制（如：使用节流）
   private moveEvent(ev: MouseEvent) {
     this.left = ev.x
     this.top = ev.y
@@ -423,9 +428,13 @@ class SelectWork {
 
       let el: HTMLAnchorElement | null
       if (type === 'novels') {
-        el = document.querySelector(`${this.usedWorksWrapperSelector} a[href="/novel/show.php?id=${id}"]`)
+        el = document.querySelector(
+          `${this.usedWorksWrapperSelector} a[href="/novel/show.php?id=${id}"]`,
+        )
       } else {
-        el = document.querySelector(`${this.usedWorksWrapperSelector} a[href="/artworks/${id}"]`)
+        el = document.querySelector(
+          `${this.usedWorksWrapperSelector} a[href="/artworks/${id}"]`,
+        )
       }
 
       if (el) {
@@ -456,4 +465,4 @@ class SelectWork {
 }
 
 new SelectWork()
-export { }
+export {}
