@@ -45,7 +45,7 @@ const formHtml = `<form class="settingForm">
       )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="downNotBookmarked" id="setDownNotBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownNotBookmarked"> 未收藏&nbsp;</label>
+      <label for="setDownNotBookmarked"> ${lang.transl('_未收藏')}&nbsp;</label>
       <input type="checkbox" name="downBookmarked" id="setDownBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
       <label for="setDownBookmarked"> ${lang.transl('_已收藏')}&nbsp;</label>

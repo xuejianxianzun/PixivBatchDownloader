@@ -18131,7 +18131,9 @@ flag 及其含义如下：
         ].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="downNotBookmarked" id="setDownNotBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownNotBookmarked"> 未收藏&nbsp;</label>
+      <label for="setDownNotBookmarked"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        'lang'
+      ].transl('_未收藏')}&nbsp;</label>
       <input type="checkbox" name="downBookmarked" id="setDownBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
       <label for="setDownBookmarked"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[

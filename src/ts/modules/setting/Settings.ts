@@ -380,4 +380,4 @@ const self = new Settings()
 const settings = self.settings
 const setSetting = self.setSetting.bind(self)
 
-export { settings, XzSetting, setSetting }
+export { settings, setSetting }

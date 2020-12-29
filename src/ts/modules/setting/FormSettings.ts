@@ -1,6 +1,6 @@
 import { EVT } from '../EVT'
 import { pageType } from '../PageType'
-import { settings, XzSetting, setSetting } from './Settings'
+import { settings, setSetting } from './Settings'
 import { SettingsForm } from './Form.d'
 import { DateFormat } from '../DateFormat'
 
@@ -34,7 +34,7 @@ class FormSettings {
   }
 
   // 处理输入框： change 时保存 value
-  private saveTextInput(name: keyof XzSetting) {
+  private saveTextInput(name: keyof typeof settings) {
     const el = this.form[name] as HTMLInputElement
     el.addEventListener('change', () => {
       this.emitChange(name, el.value)
@@ -42,7 +42,7 @@ class FormSettings {
   }
 
   // 处理复选框： click 时保存 checked
-  private saveCheckBox(name: keyof XzSetting) {
+  private saveCheckBox(name: keyof typeof settings) {
     const el = this.form[name] as HTMLInputElement
     el.addEventListener('click', () => {
       this.emitChange(name, el.checked)
@@ -50,7 +50,7 @@ class FormSettings {
   }
 
   // 处理单选框： click 时保存 value
-  private saveRadio(name: keyof XzSetting) {
+  private saveRadio(name: keyof typeof settings) {
     const radios = this.form[name]
     for (const radio of radios) {
       radio.addEventListener('click', () => {
@@ -203,7 +203,7 @@ class FormSettings {
 
   // 表单里的设置发生改变时，调用这个方法，传递选项名和值
   private emitChange(
-    name: keyof XzSetting,
+    name: keyof typeof settings,
     value: string | number | boolean | string[] | number[],
   ) {
     setSetting(name, value)
@@ -211,7 +211,7 @@ class FormSettings {
 
   // 恢复值为 Boolean 的设置项
   // input[type='checkbox'] 使用
-  private restoreBoolean(name: keyof XzSetting) {
+  private restoreBoolean(name: keyof typeof settings) {
     if (settings[name] !== undefined) {
       this.form[name].checked = settings[name]
     }
@@ -219,7 +219,7 @@ class FormSettings {
 
   // 恢复值为 string 的设置项
   // input[type='radio'] 和 input[type='text'] 使用
-  private restoreString(name: keyof XzSetting) {
+  private restoreString(name: keyof typeof settings) {
     if (settings[name] !== undefined) {
       this.form[name].value = settings[name].toString()
     }
@@ -227,7 +227,7 @@ class FormSettings {
 
   // 恢复日期、时间设置项
   // input[type='datetime-local'] 使用
-  private restoreDate(name: keyof XzSetting) {
+  private restoreDate(name: keyof typeof settings) {
     if (settings[name] !== undefined) {
       // 把时间戳转换成 input 使用的字符串
       const date = settings[name] as number
