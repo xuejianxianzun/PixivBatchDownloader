@@ -37,9 +37,9 @@ export interface SettingsForm extends HTMLFormElement {
   tagNameToFileName: HTMLInputElement
   noSerialNo: HTMLInputElement
   alwaysFolder: HTMLInputElement
-  multipleImageDir: HTMLInputElement
-  multipleImageFolderNumber: HTMLInputElement
-  multipleImageFolderName: RadioNodeList
+  workDir: HTMLInputElement
+  workDirFileNumber: HTMLInputElement
+  workDirName: RadioNodeList
   previewResult: HTMLInputElement
   BMKNumSwitch: HTMLInputElement
   ratioSwitch: HTMLInputElement

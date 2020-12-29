@@ -3578,20 +3578,19 @@ class FileName {
             const index = result.lastIndexOf('/');
             result = result.substr(index + 1, result.length);
         }
-        // 处理为多图作品自动建立文件夹的情况
-        // 如果这个多图作品里要下载的文件数量大于指定数量，才会为它建立文件夹
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].multipleImageDir &&
-            data.dlCount > _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].multipleImageFolderNumber) {
+        // 如果这个作品里要下载的文件数量大于指定数量，则会为它建立单独的文件夹
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].workDir &&
+            data.dlCount > _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].workDirFileNumber) {
             // 操作路径中最后一项（即文件名），在它前面添加一层文件夹
             const allPart = result.split('/');
             const lastPartIndex = allPart.length - 1;
             let lastPart = allPart[lastPartIndex];
             let addString = '';
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].multipleImageFolderName === '1') {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].workDirName === '1') {
                 // 使用作品 id 作为文件夹名
                 addString = data.idNum.toString();
             }
-            else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].multipleImageFolderName === '2') {
+            else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].workDirName === '2') {
                 // 遵从命名规则，使用文件名做文件夹名
                 // 这里进行了一个替换，因为多图每个图片的名字都不同，这主要是因为 id 后面的序号不同。这会导致文件夹名也不同，有多少个文件就会建立多少个文件夹，而不是统一建立一个文件夹。为了只建立一个文件夹，需要把 id 后面的序号部分去掉。
                 // 但是如果一些特殊的命名规则并没有包含 {id} 部分，文件名的区别得不到处理，依然会每个文件建立一个文件夹。
@@ -8337,7 +8336,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.newTag = '_xzNew660';
+        this.newTag = '_xzNew870';
         this.show();
     }
     show() {
@@ -11143,23 +11142,11 @@ const langText = {
         'Download multi-image works',
         '多圖下載設定',
     ],
-    _怎样下载多图作品: [
-        '怎样下载多图作品？',
-        'どのようにマルチイメージ作品をダウンロードしますか？',
-        'How to download multi-image works?',
-        '如何下載多圖作品？',
-    ],
-    _多图建立目录: [
-        '多图建立目录',
-        'マルチイメージにフォルダを作成',
-        'Create directory for multi-image works',
-        '多圖建立目錄',
-    ],
-    _多图建立目录提示: [
-        '当你下载多图作品时，下载器可以自动创建一个目录，保存里面的图片。',
-        'マルチイメージをダウンロードする時、自動的にフォルダを作成し、イメージをその中で保存することができます。',
-        'When you download a multi-image work, the downloader can automatically create a directory and save the images inside.',
-        '當下載多圖作品時，下載器可以自動建立一個目錄，儲存裡面的圖片。',
+    _下载前几张图片提示: [
+        '下载前几张图片',
+        '最初のいくつかの画像',
+        'First few images',
+        '下載前幾張圖片',
     ],
     _不下载: ['不下载', '必要なし', 'No', '不下載'],
     _全部下载: ['全部下载', '全部ダウンロード', 'Yes', '全部下載'],
@@ -12086,12 +12073,6 @@ const langText = {
         'Skip downloading duplicate files {}',
         '偵測到檔案 {} 已經下載過，跳過此次下載。',
     ],
-    _xzNew660: [
-        '添加点续传功能；添加不下载重复文件的功能。',
-        '「レジューム機能を追加しました；重複ファイルの除外機能を追加しました。',
-        'Add breakpoint resume function; add the function not to download duplicate files.',
-        '新增断點續傳功能；新增不下載重複檔案的功能。',
-    ],
     _保存用户头像为图标: [
         '保存用户头像为图标',
         'プロフィール画像をアイコンとして保存',
@@ -12323,6 +12304,24 @@ const langText = {
         'すべての作品種類を除外しました',
         'Excluded all work types',
         '排除了所有作品類型',
+    ],
+    _为作品创建单独的目录: [
+        '为作品创建单独的目录',
+        '作品に個別フォルダを作成',
+        'Create a separate directory for the work',
+        '為作品建立單獨的目錄',
+    ],
+    _文件数量大于: [
+        '文件数量大于',
+        'ファイル数 >',
+        'Number of files >',
+        '檔案数量大於',
+    ],
+    _xzNew870: [
+        '设置项“多图建立目录”变成“为作品创建单独的目录”',
+        '設定項目「マルチイメージにフォルダを作成」は「作品に個別フォルダを作成」になります',
+        'The setting item "Create directory for multi-image works" becomes "Create a separate directory for the work"',
+        '設定項目"多圖建立目錄"变为"為作品建立單獨的目錄"',
     ],
 };
 
@@ -14004,11 +14003,9 @@ const formHtml = `<form class="settingForm">
     <div class="con">
       <p class="option" data-no="1">
       <span class="setWantPageWrap">
-      <span class="has_tip settingNameStyle1 setWantPageTip1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_页数')}" style="margin-right: 0px;">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_页数')}</span>
-      <span class="gray1" style="margin-right: 10px;"> ? </span>
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_页数')}"><span class="setWantPageTip1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_页数')}</span><span class="gray1"> ? </span></span>
       <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
-      value = '-1'>
-      &nbsp;&nbsp;&nbsp;
+      value = '-1'>&nbsp;
       <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
       </span>
       </p>
@@ -14060,7 +14057,7 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="3">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_怎样下载多图作品')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图下载设置')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载前几张图片提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图下载设置')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="firstFewImagesSwitch">
@@ -14294,7 +14291,7 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="29">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_文件名长度限制')}<span class="gray1"> </span></span>
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_文件名长度限制')}</span>
       <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
@@ -14314,20 +14311,20 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="19">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图建立目录提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图建立目录')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="multipleImageDir" id="setMultipleImageDir" class="need_beautify checkbox_switch" >
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_为作品创建单独的目录')}</span>
+      <input type="checkbox" name="workDir" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
-      <span class="subOptionWrap" data-show="multipleImageDir">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_图片数量大于')}</span>
-      <input type="text" name="multipleImageFolderNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
+      <span class="subOptionWrap" data-show="workDir">
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_文件数量大于')}</span>
+      <input type="text" name="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
       <span>&nbsp;</span>
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_目录名使用')}</span>
-      <input type="radio" name="multipleImageFolderName" id="multipleImageFolderName1" class="need_beautify radio" value="1" checked>
+      <input type="radio" name="workDirName" id="workDirName1" class="need_beautify radio" value="1" checked>
       <span class="beautify_radio"></span>
-      <label for="multipleImageFolderName1"> ID&nbsp; </label>
-      <input type="radio" name="multipleImageFolderName" id="multipleImageFolderName2" class="need_beautify radio" value="2">
+      <label for="workDirName1"> ID&nbsp; </label>
+      <input type="radio" name="workDirName" id="workDirName2" class="need_beautify radio" value="2">
       <span class="beautify_radio"></span>
-      <label for="multipleImageFolderName2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名规则')}&nbsp; </label>
+      <label for="workDirName2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名规则')}&nbsp; </label>
       </span>
       </p>
 
@@ -14709,9 +14706,9 @@ class FormSettings {
         // 保存是否始终建立文件夹
         this.saveCheckBox('alwaysFolder');
         // 保存是否为多图作品自动建立文件夹
-        this.saveCheckBox('multipleImageDir');
-        this.saveTextInput('multipleImageFolderNumber');
-        this.saveRadio('multipleImageFolderName');
+        this.saveCheckBox('workDir');
+        this.saveTextInput('workDirFileNumber');
+        this.saveRadio('workDirName');
         // 保存文件体积限制
         this.saveCheckBox('sizeSwitch');
         this.saveTextInput('sizeMin');
@@ -14841,9 +14838,9 @@ class FormSettings {
         // 设置是否始终建立文件夹
         this.restoreBoolean('alwaysFolder');
         // 设置是否为多图作品自动建立文件夹
-        this.restoreBoolean('multipleImageDir');
-        this.restoreString('multipleImageFolderNumber');
-        this.restoreString('multipleImageFolderName');
+        this.restoreBoolean('workDir');
+        this.restoreString('workDirFileNumber');
+        this.restoreString('workDirName');
         // 设置预览搜索结果
         this.restoreBoolean('previewResult');
         // 设置文件体积限制
@@ -15202,9 +15199,9 @@ class Settings {
             namingRuleList: [],
             tagNameToFileName: false,
             alwaysFolder: false,
-            multipleImageDir: false,
-            multipleImageFolderNumber: 1,
-            multipleImageFolderName: '1',
+            workDir: false,
+            workDirFileNumber: 1,
+            workDirName: '1',
             showOptions: true,
             postDate: false,
             postDateStart: 946684800000,

@@ -36,9 +36,9 @@ interface XzSetting {
   namingRuleList: string[]
   tagNameToFileName: boolean
   alwaysFolder: boolean
-  multipleImageDir: boolean
-  multipleImageFolderNumber: number
-  multipleImageFolderName: '1' | '2'
+  workDir: boolean
+  workDirFileNumber: number
+  workDirName: '1' | '2'
   showOptions: boolean
   postDate: boolean
   postDateStart: number
@@ -141,9 +141,9 @@ class Settings {
     namingRuleList: [],
     tagNameToFileName: false,
     alwaysFolder: false,
-    multipleImageDir: false,
-    multipleImageFolderNumber: 1,
-    multipleImageFolderName: '1',
+    workDir: false,
+    workDirFileNumber: 1,
+    workDirName: '1',
     showOptions: true,
     postDate: false,
     postDateStart: 946684800000,
@@ -366,7 +366,7 @@ class Settings {
     }
 
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
 
     // 触发设置变化的事件
     // 在进行批量操作（如恢复设置、导入设置、重置设置）的时候，可以将 fireEvt 设为 false，等操作执行之后自行触发这个事件

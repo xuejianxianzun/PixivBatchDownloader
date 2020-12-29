@@ -281,23 +281,11 @@ const langText = {
     'Download multi-image works',
     '多圖下載設定',
   ],
-  _怎样下载多图作品: [
-    '怎样下载多图作品？',
-    'どのようにマルチイメージ作品をダウンロードしますか？',
-    'How to download multi-image works?',
-    '如何下載多圖作品？',
-  ],
-  _多图建立目录: [
-    '多图建立目录',
-    'マルチイメージにフォルダを作成',
-    'Create directory for multi-image works',
-    '多圖建立目錄',
-  ],
-  _多图建立目录提示: [
-    '当你下载多图作品时，下载器可以自动创建一个目录，保存里面的图片。',
-    'マルチイメージをダウンロードする時、自動的にフォルダを作成し、イメージをその中で保存することができます。',
-    'When you download a multi-image work, the downloader can automatically create a directory and save the images inside.',
-    '當下載多圖作品時，下載器可以自動建立一個目錄，儲存裡面的圖片。',
+  _下载前几张图片提示: [
+    '下载前几张图片',
+    '最初のいくつかの画像',
+    'First few images',
+    '下載前幾張圖片',
   ],
   _不下载: ['不下载', '必要なし', 'No', '不下載'],
   _全部下载: ['全部下载', '全部ダウンロード', 'Yes', '全部下載'],
@@ -1224,12 +1212,6 @@ const langText = {
     'Skip downloading duplicate files {}',
     '偵測到檔案 {} 已經下載過，跳過此次下載。',
   ],
-  _xzNew660: [
-    '添加点续传功能；添加不下载重复文件的功能。',
-    '「レジューム機能を追加しました；重複ファイルの除外機能を追加しました。',
-    'Add breakpoint resume function; add the function not to download duplicate files.',
-    '新增断點續傳功能；新增不下載重複檔案的功能。',
-  ],
   _保存用户头像为图标: [
     '保存用户头像为图标',
     'プロフィール画像をアイコンとして保存',
@@ -1461,6 +1443,24 @@ const langText = {
     'すべての作品種類を除外しました',
     'Excluded all work types',
     '排除了所有作品類型',
+  ],
+  _为作品创建单独的目录: [
+    '为作品创建单独的目录',
+    '作品に個別フォルダを作成',
+    'Create a separate directory for the work',
+    '為作品建立單獨的目錄',
+  ],
+  _文件数量大于: [
+    '文件数量大于',
+    'ファイル数 >',
+    'Number of files >',
+    '檔案数量大於',
+  ],
+  _xzNew870: [
+    '设置项“多图建立目录”变成“为作品创建单独的目录”',
+    '設定項目「マルチイメージにフォルダを作成」は「作品に個別フォルダを作成」になります',
+    'The setting item "Create directory for multi-image works" becomes "Create a separate directory for the work"',
+    '設定項目"多圖建立目錄"变为"為作品建立單獨的目錄"',
   ],
 }
 

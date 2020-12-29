@@ -139,11 +139,11 @@ class FormSettings {
 
     // 保存命名规则
     const userSetNameInput = this.form.userSetName
-    ;['change', 'focus'].forEach((ev) => {
-      userSetNameInput.addEventListener(ev, () => {
-        this.emitChange('userSetName', userSetNameInput.value)
+      ;['change', 'focus'].forEach((ev) => {
+        userSetNameInput.addEventListener(ev, () => {
+          this.emitChange('userSetName', userSetNameInput.value)
+        })
       })
-    })
 
     // 保存是否添加标记名称
     this.saveCheckBox('tagNameToFileName')
@@ -155,10 +155,10 @@ class FormSettings {
     this.saveCheckBox('alwaysFolder')
 
     // 保存是否为多图作品自动建立文件夹
-    this.saveCheckBox('multipleImageDir')
+    this.saveCheckBox('workDir')
 
-    this.saveTextInput('multipleImageFolderNumber')
-    this.saveRadio('multipleImageFolderName')
+    this.saveTextInput('workDirFileNumber')
+    this.saveRadio('workDirName')
 
     // 保存文件体积限制
     this.saveCheckBox('sizeSwitch')
@@ -332,10 +332,10 @@ class FormSettings {
     this.restoreBoolean('alwaysFolder')
 
     // 设置是否为多图作品自动建立文件夹
-    this.restoreBoolean('multipleImageDir')
+    this.restoreBoolean('workDir')
 
-    this.restoreString('multipleImageFolderNumber')
-    this.restoreString('multipleImageFolderName')
+    this.restoreString('workDirFileNumber')
+    this.restoreString('workDirName')
 
     // 设置预览搜索结果
     this.restoreBoolean('previewResult')
