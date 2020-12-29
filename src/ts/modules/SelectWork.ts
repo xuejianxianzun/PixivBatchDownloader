@@ -207,7 +207,7 @@ class SelectWork {
 
     this.clearBtn = DOM.addBtn(
       'selectWorkBtns',
-      Colors.green,
+      Colors.red,
       lang.transl('_清空选择的作品'),
     )
     this.clearBtn.style.display = 'none'
