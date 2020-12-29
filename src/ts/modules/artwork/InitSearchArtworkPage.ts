@@ -424,11 +424,9 @@ class InitSearchArtworkPage extends InitPageBase {
   // 显示抓取到的作品数量
   private showCount = () => {
     const count = this.resultMeta.length || store.resultMeta.length
-    if (count > 0) {
-      const countEl = document.querySelector(this.countSelector)
-      if (countEl) {
-        countEl.textContent = count.toString()
-      }
+    const countEl = document.querySelector(this.countSelector)
+    if (countEl) {
+      countEl.textContent = count.toString()
     }
   }
 
@@ -655,6 +653,11 @@ class InitSearchArtworkPage extends InitPageBase {
       }
 
       store.addResult(data)
+    }
+
+    // showCount 依赖 addResult 事件，但如果清空了所有结果，则不会触发 addResult 事件，所以需要手动调用它
+    if (this.resultMeta.length === 0) {
+      this.showCount()
     }
   }
 

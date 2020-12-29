@@ -13122,11 +13122,9 @@ flag 及其含义如下：
               const count =
                 this.resultMeta.length ||
                 _Store__WEBPACK_IMPORTED_MODULE_9__['store'].resultMeta.length
-              if (count > 0) {
-                const countEl = document.querySelector(this.countSelector)
-                if (countEl) {
-                  countEl.textContent = count.toString()
-                }
+              const countEl = document.querySelector(this.countSelector)
+              if (countEl) {
+                countEl.textContent = count.toString()
               }
             }
             // 在页面上生成抓取结果对应的作品元素
@@ -13746,6 +13744,10 @@ flag 及其含义如下：
                 data = Object.assign(data, { dlCount: dlCount })
               }
               _Store__WEBPACK_IMPORTED_MODULE_9__['store'].addResult(data)
+            }
+            // showCount 依赖 addResult 事件，但如果清空了所有结果，则不会触发 addResult 事件，所以需要手动调用它
+            if (this.resultMeta.length === 0) {
+              this.showCount()
             }
           }
           // 在当前结果中再次筛选，会修改第一次筛选的结果
