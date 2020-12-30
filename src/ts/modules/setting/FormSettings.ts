@@ -139,11 +139,11 @@ class FormSettings {
 
     // 保存命名规则
     const userSetNameInput = this.form.userSetName
-      ;['change', 'focus'].forEach((ev) => {
-        userSetNameInput.addEventListener(ev, () => {
-          this.emitChange('userSetName', userSetNameInput.value)
-        })
+    ;['change', 'focus'].forEach((ev) => {
+      userSetNameInput.addEventListener(ev, () => {
+        this.emitChange('userSetName', userSetNameInput.value)
       })
+    })
 
     // 保存是否添加标记名称
     this.saveCheckBox('tagNameToFileName')

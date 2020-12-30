@@ -8,7 +8,7 @@ import { Tools } from './Tools'
 
 // 生成文件名
 class FileName {
-  constructor() { }
+  constructor() {}
 
   // 生成文件名
   public getFileName(data: Result) {
@@ -191,10 +191,7 @@ class FileName {
     }
 
     // 如果这个作品里要下载的文件数量大于指定数量，则会为它建立单独的文件夹
-    if (
-      settings.workDir &&
-      data.dlCount > settings.workDirFileNumber
-    ) {
+    if (settings.workDir && data.dlCount > settings.workDirFileNumber) {
       // 操作路径中最后一项（即文件名），在它前面添加一层文件夹
       const allPart = result.split('/')
       const lastPartIndex = allPart.length - 1
