@@ -136,7 +136,7 @@ class QuickBookmark {
   private bookmark(type: WorkType, id: string) {
     let tags: string[] = []
     // 如果设置了附带 tag，则从页面上获取 tag
-    if (settings.widthTag === '1') {
+    if (settings.widthTag === 'yes') {
       const tagElements = document.querySelectorAll('._1LEXQ_3 li')
       for (const el of tagElements) {
         const nowA = el.querySelector('a')
@@ -159,7 +159,7 @@ class QuickBookmark {
     }
 
     // 调用添加收藏的 api
-    API.addBookmark(type, id, tags, settings.restrict === '1', token.token)
+    API.addBookmark(type, id, tags, settings.restrict === 'yes', token.token)
       .then((response) => response.json())
       .then((data) => {
         if (data.error === false) {

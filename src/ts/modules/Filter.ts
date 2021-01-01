@@ -284,15 +284,15 @@ class Filter {
 
     let result = settings.ratio
 
-    if (result === '0') {
+    if (result === 'square') {
       log.warning(
         lang.transl('_设置了宽高比之后的提示', lang.transl('_正方形')),
       )
-    } else if (result === '1') {
+    } else if (result === 'horizontal') {
       log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_横图')))
-    } else if (result === '2') {
+    } else if (result === 'vertical') {
       log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_竖图')))
-    } else if (result === '3') {
+    } else if (result === 'userSet') {
       // 由用户输入
       log.warning(lang.transl('_输入宽高比') + settings.userRatio)
     }
@@ -306,11 +306,7 @@ class Filter {
       return
     }
 
-    if (settings.idRange === '1') {
-      log.warning(`id > ${settings.idRangeInput}`)
-    } else {
-      log.warning(`id < ${settings.idRangeInput}`)
-    }
+    log.warning(`id ${settings.idRange} ${settings.idRangeInput}`)
   }
 
   // 提示投稿时间设置
@@ -603,11 +599,11 @@ class Filter {
       return true
     }
 
-    if (settings.ratio === '0') {
+    if (settings.ratio === 'square') {
       return width === height
-    } else if (settings.ratio === '1') {
+    } else if (settings.ratio === 'horizontal') {
       return width / height > 1
-    } else if (settings.ratio === '2') {
+    } else if (settings.ratio === 'vertical') {
       return width / height < 1
     } else {
       return width / height >= settings.userRatio
@@ -629,15 +625,11 @@ class Filter {
       nowId = id
     }
 
-    if (settings.idRange === '1') {
-      // 大于
+    if (settings.idRange === '>') {
       return nowId > setId
-    } else if (settings.idRange === '2') {
-      // 小于
-      return nowId < setId
     } else {
-      return true
-    }
+      return nowId < setId
+    } 
   }
 
   // 检查投稿时间设置

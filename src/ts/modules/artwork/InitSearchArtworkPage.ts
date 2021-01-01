@@ -723,8 +723,8 @@ class InitSearchArtworkPage extends InitPageBase {
     API.addBookmark(
       'illusts',
       data.id.toString(),
-      settings.widthTag === '1' ? data.tags : [],
-      settings.restrict === '1',
+      settings.widthTag === 'yes' ? data.tags : [],
+      settings.restrict === 'yes',
       token.token,
     )
     this.resultMeta.forEach((result) => {

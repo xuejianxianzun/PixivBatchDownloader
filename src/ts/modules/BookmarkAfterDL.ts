@@ -105,8 +105,8 @@ class BookmarkAfterDL {
       await API.addBookmark(
         data.type !== 3 ? 'illusts' : 'novels',
         id.toString(),
-        settings.widthTag === '1' ? data.tags : [],
-        settings.restrict === '1',
+        settings.widthTag === 'yes' ? data.tags : [],
+        settings.restrict === 'yes',
         token.token,
       ).catch((err) => {
         // 如果添加收藏失败，则从 id 列表里删除它，重新开始添加收藏

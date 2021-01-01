@@ -198,10 +198,10 @@ class FileName {
       let lastPart = allPart[lastPartIndex]
       let addString = ''
 
-      if (settings.workDirName === '1') {
+      if (settings.workDirName === 'id') {
         // 使用作品 id 作为文件夹名
         addString = data.idNum.toString()
-      } else if (settings.workDirName === '2') {
+      } else if (settings.workDirName === 'rule') {
         // 遵从命名规则，使用文件名做文件夹名
         // 这里进行了一个替换，因为多图每个图片的名字都不同，这主要是因为 id 后面的序号不同。这会导致文件夹名也不同，有多少个文件就会建立多少个文件夹，而不是统一建立一个文件夹。为了只建立一个文件夹，需要把 id 后面的序号部分去掉。
         // 但是如果一些特殊的命名规则并没有包含 {id} 部分，文件名的区别得不到处理，依然会每个文件建立一个文件夹。

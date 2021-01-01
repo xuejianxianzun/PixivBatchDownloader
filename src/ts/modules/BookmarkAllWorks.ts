@@ -138,8 +138,8 @@ class BookmarkAllWorks {
         await API.addBookmark(
           data.type,
           data.id,
-          settings.widthTag === '1' ? data.tags : [],
-          settings.restrict === '1',
+          settings.widthTag === 'yes' ? data.tags : [],
+          settings.restrict === 'yes',
           token.token,
         )
         index++

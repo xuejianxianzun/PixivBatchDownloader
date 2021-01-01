@@ -154,19 +154,19 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="ratioSwitch">
-      <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="1">
+      <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="horizontal">
       <span class="beautify_radio"></span>
       <label for="ratio1"> ${lang.transl('_横图')}&nbsp; </label>
 
-      <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="2">
+      <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="vertical">
       <span class="beautify_radio"></span>
       <label for="ratio2"> ${lang.transl('_竖图')}&nbsp; </label>
       
-      <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="0">
+      <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="square">
       <span class="beautify_radio"></span>
       <label for="ratio0"> ${lang.transl('_正方形')}&nbsp; </label>
 
-      <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="3">
+      <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
       <span class="beautify_radio"></span>
       <label for="ratio3"> ${lang.transl('_输入宽高比')}</label>
       <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
@@ -182,10 +182,10 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="idRangeSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="idRangeSwitch">
-      <input type="radio" name="idRange" id="idRange1" class="need_beautify radio" value="1" checked>
+      <input type="radio" name="idRange" id="idRange1" class="need_beautify radio" value=">" checked>
       <span class="beautify_radio"></span>
       <label for="idRange1">  ${lang.transl('_大于')}&nbsp; </label>
-      <input type="radio" name="idRange" id="idRange2" class="need_beautify radio" value="2">
+      <input type="radio" name="idRange" id="idRange2" class="need_beautify radio" value="<">
       <span class="beautify_radio"></span>
       <label for="idRange2">  ${lang.transl('_小于')}&nbsp; </label>
       <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
@@ -374,10 +374,10 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
       <span>&nbsp;</span>
       <span>${lang.transl('_目录名使用')}</span>
-      <input type="radio" name="workDirName" id="workDirName1" class="need_beautify radio" value="1" checked>
+      <input type="radio" name="workDirName" id="workDirName1" class="need_beautify radio" value="id" checked>
       <span class="beautify_radio"></span>
       <label for="workDirName1"> ID&nbsp; </label>
-      <input type="radio" name="workDirName" id="workDirName2" class="need_beautify radio" value="2">
+      <input type="radio" name="workDirName" id="workDirName2" class="need_beautify radio" value="rule">
       <span class="beautify_radio"></span>
       <label for="workDirName2"> ${lang.transl('_命名规则')}&nbsp; </label>
       </span>
@@ -557,19 +557,19 @@ const formHtml = `<form class="settingForm">
       <p class="option" data-no="34">
       <span class="settingNameStyle1">${lang.transl('_收藏设置')}</span>
       
-      <input type="radio" name="widthTag" id="widthTag1" class="need_beautify radio" value="1" checked>
+      <input type="radio" name="widthTag" id="widthTag1" class="need_beautify radio" value="yes" checked>
       <span class="beautify_radio"></span>
       <label for="widthTag1">${lang.transl('_添加tag')}&nbsp;</label>
-      <input type="radio" name="widthTag" id="widthTag2" class="need_beautify radio" value="-1">
+      <input type="radio" name="widthTag" id="widthTag2" class="need_beautify radio" value="no">
       <span class="beautify_radio"></span>
       <label for="widthTag2">${lang.transl('_不添加tag')}</label>
 
       <span class="verticalSplit"></span>
       
-      <input type="radio" name="restrict" id="restrict1" class="need_beautify radio" value="-1" checked>
+      <input type="radio" name="restrict" id="restrict1" class="need_beautify radio" value="no" checked>
       <span class="beautify_radio"></span>
       <label for="restrict1">${lang.transl('_公开')}&nbsp;</label>
-      <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="1">
+      <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="yes">
       <span class="beautify_radio"></span>
       <label for="restrict2">${lang.transl('_不公开')}</label>
       </p>
@@ -631,23 +631,23 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="32">
       <span class="settingNameStyle1">Language</span>
-      <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="-1" checked>
+      <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio"></span>
       <label for="userSetLang1">${lang.transl('_自动检测')}</label>
       &nbsp;
-      <input type="radio" name="userSetLang" id="userSetLang2" class="need_beautify radio" value="0">
+      <input type="radio" name="userSetLang" id="userSetLang2" class="need_beautify radio" value="zh-cn">
       <span class="beautify_radio"></span>
       <label for="userSetLang2">简体中文</label>
       &nbsp;
-      <input type="radio" name="userSetLang" id="userSetLang3" class="need_beautify radio" value="3">
+      <input type="radio" name="userSetLang" id="userSetLang3" class="need_beautify radio" value="zh-tw">
       <span class="beautify_radio"></span>
       <label for="userSetLang3">繁體中文</label>
       &nbsp;
-      <input type="radio" name="userSetLang" id="userSetLang4" class="need_beautify radio" value="1">
+      <input type="radio" name="userSetLang" id="userSetLang4" class="need_beautify radio" value="ja">
       <span class="beautify_radio"></span>
       <label for="userSetLang4">日本語</label>
       &nbsp;
-      <input type="radio" name="userSetLang" id="userSetLang5" class="need_beautify radio" value="2">
+      <input type="radio" name="userSetLang" id="userSetLang5" class="need_beautify radio" value="en">
       <span class="beautify_radio"></span>
       <label for="userSetLang5">English</label>
       &nbsp;

@@ -8,6 +8,7 @@
 import { EVT } from '../EVT'
 import { DOM } from '../DOM'
 import { Tools } from '../Tools'
+import { convertOldSettings } from './ConvertOldSettings'
 
 interface XzSetting {
   setWantPage: number
@@ -38,7 +39,7 @@ interface XzSetting {
   alwaysFolder: boolean
   workDir: boolean
   workDirFileNumber: number
-  workDirName: '1' | '2'
+  workDirName: 'id' | 'rule'
   showOptions: boolean
   postDate: boolean
   postDateStart: number
@@ -55,11 +56,11 @@ interface XzSetting {
   setWidth: number
   setHeight: number
   ratioSwitch: boolean
-  ratio: '0' | '1' | '2' | '3'
+  ratio: 'square' | 'horizontal' | 'vertical' | 'userSet'
   userRatio: number
   idRangeSwitch: boolean
   idRangeInput: number
-  idRange: '1' | '2'
+  idRange: '>' | '<'
   noSerialNo: boolean
   filterBlackWhite: boolean
   sizeSwitch: boolean
@@ -73,10 +74,10 @@ interface XzSetting {
   fileNameLengthLimit: number
   imageSize: 'original' | 'regular' | 'small'
   dateFormat: string
-  userSetLang: '-1' | '0' | '1' | '2' | '3'
+  userSetLang: 'zh-cn' | 'zh-tw' | 'ja' | 'en' | 'auto'
   bmkAfterDL: boolean
-  widthTag: '1' | '-1'
-  restrict: '-1' | '1'
+  widthTag: 'yes' | 'no'
+  restrict: 'yes' | 'no'
   userBlockList: boolean
   blockList: string[]
   needTagMode: 'all' | 'one'
@@ -143,7 +144,7 @@ class Settings {
     alwaysFolder: false,
     workDir: false,
     workDirFileNumber: 1,
-    workDirName: '1',
+    workDirName: 'id',
     showOptions: true,
     postDate: false,
     postDateStart: 946684800000,
@@ -160,11 +161,11 @@ class Settings {
     setWidth: 0,
     setHeight: 0,
     ratioSwitch: false,
-    ratio: '1',
+    ratio: 'horizontal',
     userRatio: 1.4,
     idRangeSwitch: false,
     idRangeInput: 0,
-    idRange: '1',
+    idRange: '>',
     needTagSwitch: false,
     notNeedTagSwitch: false,
     noSerialNo: false,
@@ -180,10 +181,10 @@ class Settings {
     fileNameLengthLimit: 200,
     imageSize: 'original',
     dateFormat: 'YYYY-MM-DD',
-    userSetLang: '-1',
+    userSetLang: 'auto',
     bmkAfterDL: false,
-    widthTag: '1',
-    restrict: '-1',
+    widthTag: 'yes',
+    restrict: 'no',
     userBlockList: false,
     blockList: [],
     theme: 'auto',
@@ -308,6 +309,12 @@ class Settings {
     const keyType = typeof this.defaultSettings[key]
     const valueType = typeof value
 
+
+    // 把旧的设置值转换为新的设置值。需要转换的值都是 string 类型
+    if (valueType === 'string') {
+      value = convertOldSettings.convert(key, value as string)
+    }
+
     // 将传入的值转换成选项对应的类型
     if (keyType === 'string' && valueType !== 'string') {
       value = value.toString()
@@ -366,7 +373,7 @@ class Settings {
     }
 
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
 
     // 触发设置变化的事件
     // 在进行批量操作（如恢复设置、导入设置、重置设置）的时候，可以将 fireEvt 设为 false，等操作执行之后自行触发这个事件
