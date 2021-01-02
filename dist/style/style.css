@@ -291,7 +291,6 @@
   text-decoration: none;
   overflow: hidden;
 }
-/* right buttons */
 #quick_down_btn,
 #rightButton {
   display: block;
@@ -321,15 +320,6 @@
   top: 21%;
   background: #0096fa;
   background: -webkit-linear-gradient(top, #47b4ff 0%, #027fd2 100%);
-}
-/* center panel */
-.beautify_scrollbar::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
-}
-.beautify_scrollbar::-webkit-scrollbar-thumb {
-  background-color: #3ab8f2;
-  border-radius: 10px;
 }
 .centerWrap {
   box-sizing: border-box;
@@ -891,6 +881,56 @@
   color: #999;
   font-weight: lighter;
 }
+.theme-dark.centerWrap {
+  background: #222;
+  box-shadow: #10506E 0px 0px 15px;
+  color: #fff;
+}
+.theme-dark.centerWrap button {
+  color: #fff;
+}
+.theme-dark.centerWrap .setinput_style1,
+.theme-dark.centerWrap .setinput_style1:focus,
+.theme-dark.centerWrap .setinput_style1:hover {
+  background: transparent !important;
+}
+.theme-dark.centerWrap .tip {
+  color: #fff;
+}
+.theme-dark.centerWrap .centerWrap_head {
+  background: #222;
+}
+.theme-dark.centerWrap .gray1 {
+  color: #999;
+}
+.theme-dark.saveNamingRuleWrap {
+  color: #fff;
+}
+.theme-dark.saveNamingRuleWrap button {
+  color: #fff;
+}
+.theme-dark.saveNamingRuleWrap .namingRuleList {
+  background: #222;
+  box-shadow: #10506E 0px 0px 10px;
+}
+.theme-dark.saveNamingRuleWrap .namingRuleList li {
+  color: #fff;
+}
+.theme-dark.saveNamingRuleWrap .namingRuleList li:hover {
+  background: #333;
+}
+.theme-dark.settingForm {
+  background: #222;
+}
+.theme-dark.settingForm .tabsTitle {
+  background: #222;
+}
+.downloadError {
+  color: #ffa0a0;
+}
+.patronText {
+  display: none;
+}
 .outputWrap {
   padding: 20px 30px;
   width: 520px;
@@ -975,6 +1015,13 @@
 .outputWrap .outputCopy:hover {
   opacity: 0.8;
 }
+.theme-dark.outputWrap {
+  background: #222;
+  box-shadow: #10506E 0px 0px 15px;
+}
+.theme-dark.outputWrap .outputContent * {
+  color: #fff !important;
+}
 #logWrap {
   margin: 6px auto;
   background: #fff;
@@ -987,6 +1034,10 @@
 }
 #logWrap br {
   display: inline;
+}
+.theme-dark#logWrap {
+  background: #222;
+  color: #fff;
 }
 .xz_msg_box {
   background: #fff;
@@ -1025,7 +1076,45 @@
   padding: 7px 20px;
   border-radius: 6px;
 }
-/* image thumbnail list */
+.theme-dark.xz_msg_box {
+  background: #222;
+  box-shadow: #10506E 0px 0px 15px;
+}
+.theme-dark.xz_msg_box .title {
+  color: #fff;
+}
+.theme-dark.xz_msg_box .content {
+  color: #eee;
+  text-shadow: 1px 1px black;
+}
+#header-banner.ad,
+._2vNejsc,
+._3M6FtEB,
+._3jgsYyw,
+._premium-lead-promotion-banner,
+._1N-LC6t,
+._premium-lead-tag-search-bar,
+.ad-bigbanner,
+.ad-footer,
+.ad-multiple_illust_viewer,
+.ads_anchor,
+.ads_area,
+.adsbygoogle,
+.popular-introduction-overlay,
+.ui-fixed-container aside,
+iframe[name='header'],
+iframe[name='footer'],
+._2vGmESI,
+section.ad,
+aside .sc-LzLtN,
+iframe[name='500x500'],
+iframe[name='expandedFooter'] {
+  display: none !important;
+  z-index: -999 !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+}
 #viewerWarpper {
   position: relative;
   margin: 30px auto 15px;
@@ -1056,7 +1145,6 @@
   max-height: 144px;
   width: auto;
 }
-/* image viewer */
 .viewer-backdrop {
   background: rgba(0, 0, 0, 0.8) !important;
 }
@@ -1092,17 +1180,25 @@
   top: 40px;
   position: absolute;
 }
-.fastScreenArea {
-  text-align: center;
-  background: #fff;
+.theme-dark#viewerWarpper {
+  border: none;
 }
-.fastScreenArea a {
-  display: inline-block;
-  padding: 10px;
-  color: #258fb8;
+.warn {
+  color: #d27e00;
 }
-.fastScreenArea a:hover {
-  text-decoration: underline;
+.red {
+  color: #f00;
+}
+.green {
+  color: #14ad27;
+}
+.beautify_scrollbar::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.beautify_scrollbar::-webkit-scrollbar-thumb {
+  background-color: #3ab8f2;
+  border-radius: 10px;
 }
 #quickBookmarkEl {
   font-size: 34px;
@@ -1140,50 +1236,6 @@
   display: none;
   border: 1px solid #0ea8ef;
 }
-.warn {
-  color: #d27e00;
-}
-.red {
-  color: #f00;
-}
-.green {
-  color: #14ad27;
-}
-.downloadError {
-  color: #ffa0a0;
-}
-.patronText {
-  display: none;
-}
-/* block ads */
-#header-banner.ad,
-._2vNejsc,
-._3M6FtEB,
-._3jgsYyw,
-._premium-lead-promotion-banner,
-._1N-LC6t,
-._premium-lead-tag-search-bar,
-.ad-bigbanner,
-.ad-footer,
-.ad-multiple_illust_viewer,
-.ads_anchor,
-.ads_area,
-.adsbygoogle,
-.popular-introduction-overlay,
-.ui-fixed-container aside,
-iframe[name='header'],
-iframe[name='footer'],
-._2vGmESI,
-section.ad,
-aside .sc-LzLtN,
-iframe[name='500x500'],
-iframe[name='expandedFooter'] {
-  display: none !important;
-  z-index: -999 !important;
-  width: 0 !important;
-  height: 0 !important;
-  opacity: 0 !important;
-}
 #logWrap,
 .centerWrap,
 .centerWrap_head,
@@ -1193,38 +1245,17 @@ iframe[name='expandedFooter'] {
 .xz_msg_box {
   transition: background 0.5s;
 }
-.theme-dark#logWrap {
-  background: #222;
-  color: #fff;
+.fastScreenArea {
+  text-align: center;
+  background: #fff;
 }
-.theme-dark.centerWrap {
-  background: #222;
-  box-shadow: #10506E 0px 0px 15px;
-  color: #fff;
+.fastScreenArea a {
+  display: inline-block;
+  padding: 10px;
+  color: #258fb8;
 }
-.theme-dark.centerWrap button {
-  color: #fff;
-}
-.theme-dark.centerWrap .setinput_style1,
-.theme-dark.centerWrap .setinput_style1:focus,
-.theme-dark.centerWrap .setinput_style1:hover {
-  background: transparent !important;
-}
-.theme-dark.centerWrap .tip {
-  color: #fff;
-}
-.theme-dark.centerWrap .centerWrap_head {
-  background: #222;
-}
-.theme-dark.centerWrap .gray1 {
-  color: #999;
-}
-.theme-dark.outputWrap {
-  background: #222;
-  box-shadow: #10506E 0px 0px 15px;
-}
-.theme-dark.outputWrap .outputContent * {
-  color: #fff !important;
+.fastScreenArea a:hover {
+  text-decoration: underline;
 }
 .theme-dark.fastScreenArea {
   text-align: center;
@@ -1237,40 +1268,4 @@ iframe[name='expandedFooter'] {
 }
 .theme-dark.fastScreenArea a:hover {
   text-decoration: underline;
-}
-.theme-dark#viewerWarpper {
-  border: none;
-}
-.theme-dark.saveNamingRuleWrap {
-  color: #fff;
-}
-.theme-dark.saveNamingRuleWrap button {
-  color: #fff;
-}
-.theme-dark.saveNamingRuleWrap .namingRuleList {
-  background: #222;
-  box-shadow: #10506E 0px 0px 10px;
-}
-.theme-dark.saveNamingRuleWrap .namingRuleList li {
-  color: #fff;
-}
-.theme-dark.saveNamingRuleWrap .namingRuleList li:hover {
-  background: #333;
-}
-.theme-dark.settingForm {
-  background: #222;
-}
-.theme-dark.settingForm .tabsTitle {
-  background: #222;
-}
-.theme-dark.xz_msg_box {
-  background: #222;
-  box-shadow: #10506E 0px 0px 15px;
-}
-.theme-dark.xz_msg_box .title {
-  color: #fff;
-}
-.theme-dark.xz_msg_box .content {
-  color: #eee;
-  text-shadow: 1px 1px black;
 }

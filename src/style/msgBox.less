@@ -1,0 +1,57 @@
+.xz_msg_box {
+  background: #fff;
+  box-shadow: 0 0 15px @boxShadowBlue;
+  position: fixed;
+  z-index: 9999;
+  min-width: 400px;
+  max-width: 800px;
+  padding: 20px;
+  border-radius: 12px;
+  top: 15%;
+  left: 50%;
+  transform: translate(-50%);
+  text-align: center;
+
+  p {
+    margin: 0;
+  }
+
+  .title {
+    font-size: 16px;
+    color: @themeBlue;
+  }
+
+  .content {
+    padding: 20px 10px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #555;
+    text-align: left;
+  }
+
+  .btn {
+    cursor: pointer;
+    background: @themeBlue;
+    color: #fff;
+    border: none;
+    text-align: center;
+    padding: 7px 20px;
+    border-radius: 6px;
+  }
+}
+
+.theme-dark {
+  &.xz_msg_box {
+    background: #222;
+    box-shadow: @darkBoxShadow 0px 0px 15px;
+
+    .title {
+      color: #fff;
+    }
+
+    .content {
+      color: #eee;
+      text-shadow: 1px 1px black;
+    }
+  }
+}

@@ -1,0 +1,742 @@
+@contentOffsetWidth: 680px;
+@contentWidth: 630px;
+
+.centerWrap {
+  box-sizing: border-box;
+  position: fixed;
+  z-index: 5000;
+  font-size: 14px;
+  display: none;
+  width: @contentOffsetWidth;
+  left: -340px;
+  margin-left: 50%;
+  background: #fff;
+  top: 4vh;
+  color: #444;
+  padding: 0 25px 20px;
+  border-radius: 15px;
+  box-shadow: 0 0 25px @boxShadowBlue;
+  max-height: 94vh;
+  overflow: auto;
+
+  hr {
+    border: none;
+    height: 1px;
+    background: none;
+    margin: 5px 0;
+  }
+
+  p,
+  div,
+  span,
+  ul,
+  li,
+  input {
+    padding: 0;
+    margin: 0;
+  }
+
+  p {
+    line-height: 26px;
+    min-height: 26px;
+    height: auto;
+    margin: 0;
+  }
+
+  .tip {
+    color: #999;
+  }
+
+  .blue {
+    color: @themeBlue !important;
+  }
+
+  .has_tip:hover,
+  label:hover {
+    color: @themeBlue !important;
+  }
+
+  .settingForm {
+    position: relative;
+    z-index: 1001;
+    background: #fff;
+
+    select {
+      width: 80px;
+      height: 20px;
+      vertical-align: middle;
+      border-radius: 4px;
+      border: 1px solid rgb(204, 204, 204);
+    }
+
+    option {
+      font-size: 14px !important;
+      line-height: 24px;
+    }
+
+    p * {
+      vertical-align: middle;
+      line-height: 1;
+    }
+
+    .need_beautify {
+      position: absolute;
+      width: 0;
+      height: 0;
+      opacity: 0;
+    }
+
+    label {
+      cursor: pointer;
+    }
+
+    .tabsTitle {
+      position: sticky;
+      left: 0;
+      top: 0;
+      width: 100%;
+      z-index: 1001;
+      display: flex;
+      border-bottom: 1px solid #eee;
+      margin-bottom: 10px;
+      background: #fff;
+
+      .title {
+        text-align: center;
+        width: 100%;
+        flex: 1;
+        font-size: 1.1em;
+        cursor: pointer;
+        height: 40px;
+        line-height: 40px;
+        position: relative;
+      }
+
+      .title.active {
+        color: @themeBlue;
+
+        &::after {
+          content: '';
+          width: 100%;
+          height: 2px;
+          background: @themeBlue;
+          position: absolute;
+          top: 39px;
+          left: 0;
+          z-index: 1001;
+        }
+      }
+
+      .title:hover {
+        color: @themeBlue;
+      }
+    }
+
+    .tabsContnet {
+      .con {
+        display: none;
+      }
+    }
+
+    /*--------美化作为开关的复选框------------*/
+
+    label.active {
+      color: #29b3f3;
+    }
+
+    .beautify_switch {
+      display: inline-block;
+      width: 24px;
+      height: 14px;
+      position: relative;
+      border-radius: 7px;
+      background: #ccc;
+      transition: all 0.3s;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .beautify_switch::before {
+      content: '';
+      position: absolute;
+      top: 1px;
+      height: 12px;
+      width: 12px;
+      border-radius: 50%;
+      background: #fff;
+      left: 0;
+      margin-left: 0px;
+      transition: all 0.3s;
+    }
+
+    .checkbox_switch:checked + .beautify_switch {
+      background: @beautifyBlue;
+    }
+
+    .checkbox_switch:checked + .beautify_switch::before {
+      margin-left: 12px;
+    }
+
+    /*--------美化普通的复选框------------*/
+    .beautify_checkbox {
+      display: inline-block;
+      position: relative;
+      border: 1px solid #dcdfe6;
+      border-radius: 2px;
+      box-sizing: border-box;
+      width: 14px;
+      height: 14px;
+      background-color: #fff;
+      z-index: 1;
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .beautify_checkbox::after {
+      box-sizing: content-box;
+      content: '';
+      border: 1px solid #fff;
+      border-left: 0;
+      border-top: 0;
+      height: 7px;
+      left: 4px;
+      position: absolute;
+      top: 1px;
+      transform: rotate(45deg) scaleY(0);
+      width: 3px;
+      transition: all 0.2s;
+      transform-origin: center;
+    }
+
+    .checkbox_common:checked + .beautify_checkbox {
+      background: @beautifyBlue;
+      border: 1px solid @beautifyBlue;
+    }
+
+    .beautify_checkbox:hover {
+      border: 1px solid @beautifyBlue;
+    }
+
+    .checkbox_common:checked + .beautify_checkbox::after {
+      transform: rotate(45deg) scaleY(1);
+    }
+
+    .checkbox_common:focus + .beautify_checkbox {
+      border: 1px solid @beautifyBlue;
+    }
+
+    /*--------美化单选框------------*/
+    .beautify_radio {
+      border: 1px solid #dcdfe6;
+      border-radius: 100%;
+      width: 12px;
+      height: 12px;
+      background-color: #fff;
+      position: relative;
+      cursor: pointer;
+      display: inline-block;
+      box-sizing: border-box;
+    }
+
+    .beautify_radio::after {
+      width: 6px;
+      height: 6px;
+      border-radius: 100%;
+      background-color: #fff;
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform 0.15s ease-in;
+    }
+
+    .radio:checked + .beautify_radio {
+      background: @beautifyBlue;
+      border: 1px solid @beautifyBlue;
+    }
+
+    .beautify_radio:hover {
+      border: 1px solid @beautifyBlue;
+    }
+
+    .radio:checked + .beautify_radio::after {
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+
+  .centerWrap_head {
+    padding-top: 20px;
+    position: fixed;
+    z-index: 1000;
+    width: @contentWidth;
+    background: #fff;
+
+    img {
+      width: 16px;
+      vertical-align: inherit;
+    }
+
+    .centerWrap_title {
+      line-height: 30px;
+      text-align: center;
+      font-size: 18px;
+      position: relative;
+    }
+
+    .btns {
+      position: absolute;
+      right: 0;
+      top: 0;
+
+      .centerWrap_top_btn {
+        font-size: 20px;
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        cursor: pointer;
+        color: #666;
+        fill: #666;
+        user-select: none;
+        display: inline-block;
+
+        &.update {
+          display: none;
+        }
+      }
+    }
+  }
+
+  .centerWrap_con {
+    margin-top: 45px;
+  }
+
+  .centerWrap_top_btn:hover,
+  .showFileNameTip:hover,
+  .textButton:hover,
+  .textButton:focus,
+  .showFileNameResult:hover,
+  .bottom_help_bar > *:hover,
+  .updateActiveClass {
+    color: @themeBlue !important;
+    fill: @themeBlue !important;
+  }
+
+  .bottom_help_bar {
+    line-height: 24px;
+
+    & > * {
+      padding: 0 3px;
+    }
+  }
+
+  .showDownTip {
+    cursor: pointer;
+  }
+
+  #resetSettings {
+    cursor: pointer;
+  }
+
+  li {
+    list-style: none;
+  }
+
+  .download_progress1,
+  .right1 {
+    position: relative;
+  }
+
+  .setinput_style1 {
+    width: 50px;
+    min-width: 50px;
+    line-height: 20px;
+    font-size: 14px !important;
+    height: 20px;
+    text-indent: 4px;
+    box-sizing: border-box;
+    border: none !important;
+    border-bottom: 1px solid #ccc !important;
+    outline: 0;
+    padding: 0 !important;
+    background: none !important;
+
+    &:focus,
+    &:hover {
+      border-bottom: 1px solid #0096fa !important;
+    }
+
+    &.w100 {
+      width: 100px;
+    }
+
+    &.postDate {
+      width: 190px;
+    }
+
+    &.bmkNum {
+      width: 60px;
+    }
+  }
+
+  .progressBar1,
+  .right1 {
+    width: 100%;
+  }
+
+  .fileNameRule {
+    min-width: 300px;
+  }
+
+  .textButton {
+    border: none;
+    background: none;
+    outline: none;
+    padding: 1px 6px;
+    cursor: pointer;
+  }
+
+  .setinput_tag {
+    min-width: 300px;
+  }
+
+  .showFileNameResult,
+  .showFileNameTip {
+    cursor: pointer;
+  }
+
+  .fileNameTip {
+    display: none;
+    padding-top: 5px;
+  }
+
+  .centerWrap_btns {
+    padding: 10px 0 0;
+    font-size: 0;
+    display: flex;
+    flex-wrap: wrap;
+
+    & button {
+      background-color: @themeBlue;
+      box-sizing: border-box;
+      border: none;
+      width: 140px;
+      margin-right: 10px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-bottom: 10px;
+      vertical-align: top;
+
+      &:hover,
+      &:focus {
+        opacity: 0.8;
+      }
+    }
+  }
+
+  .centerWrap_btns button,
+  .progressTip {
+    color: #fff;
+    font-size: 14px;
+  }
+
+  .progressBarWrap {
+    display: none;
+
+    .total {
+      display: flex;
+
+      .text {
+        margin-right: 10px;
+      }
+
+      .right1 {
+        flex: 1;
+      }
+    }
+
+    .progress,
+    .progressBar {
+      border-radius: 11px;
+      height: 22px;
+      overflow: hidden;
+    }
+
+    .right1 {
+      display: inline-block;
+      height: 22px;
+      vertical-align: middle;
+    }
+
+    .progressBar {
+      position: absolute;
+      background: #6792a2;
+    }
+
+    .progress {
+      background: #0eb3f3;
+      transition: 0.15s;
+    }
+
+    .progressTip {
+      position: absolute;
+      line-height: 22px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .progress1 {
+      width: 0;
+    }
+
+    .progressTip1 {
+      width: 100%;
+      text-align: center;
+    }
+
+    .totalNumberWrap {
+      position: absolute;
+      height: 22px;
+      line-height: 22px;
+      color: #fff;
+      width: 100%;
+      text-align: center;
+    }
+
+    .progressBarList {
+      padding-top: 5px;
+      margin: 0;
+      padding-left: 0;
+
+      .downloadBar {
+        position: relative;
+        width: 100%;
+        padding: 5px 0;
+        height: 22px;
+        box-sizing: content-box;
+      }
+
+      .progressBar2 {
+        width: 100%;
+      }
+
+      .progress2 {
+        width: 0;
+      }
+
+      .progressTip2 {
+        width: 100%;
+      }
+
+      .fileName {
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        vertical-align: top;
+        padding: 0 10px;
+        flex: 1;
+      }
+
+      .loadedWrap {
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        font: status-bar;
+      }
+    }
+  }
+
+  .downTip,
+  .download_a,
+  .download_area {
+    display: none;
+  }
+
+  .download_area {
+    .download_status_text_wrap {
+      line-height: 26px;
+      margin-bottom: 4px;
+
+      & > * {
+        padding-right: 5px;
+      }
+
+      .down_status {
+        color: @themeBlue;
+        display: inline-block;
+      }
+    }
+  }
+
+  .settingNameStyle1 {
+    cursor: pointer;
+    margin-right: 10px;
+  }
+
+  .fwb {
+    font-weight: 700;
+  }
+
+  .gray1 {
+    color: #999;
+  }
+
+  .verticalSplit {
+    display: inline-block;
+    width: 0px;
+    height: 16px;
+    border-right: 1px solid #ccc;
+    margin: 0 10px;
+  }
+
+  .wiki2 {
+    height: 24px;
+    line-height: 24px;
+    width: auto;
+    font-size: 14px;
+    color: #999;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .saveNamingRuleWrap {
+    display: inline-block;
+    position: relative;
+  }
+
+  .namingRuleList {
+    position: absolute;
+    right: -30px;
+    top: 25px;
+    z-index: 1002;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: @boxShadowBlue 0px 0px 10px;
+    display: none;
+
+    @liHeight: 30px;
+
+    li {
+      padding: 2px 0 2px 0;
+      color: #555;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      justify-content: space-between;
+      justify-items: center;
+      align-items: center;
+      min-width: 400px;
+
+      & > * {
+        min-height: @liHeight;
+        line-height: @liHeight;
+      }
+    }
+
+    li:hover {
+      background: #e3f5ff;
+    }
+
+    .rule {
+      flex: 1;
+      padding-left: 20px;
+    }
+
+    li:first-child {
+      padding-top: 5px;
+    }
+
+    li:last-child {
+      padding-bottom: 5px;
+    }
+
+    .delete {
+      padding: 0 15px;
+      margin-left: 5px;
+      margin-right: 5px;
+      font-size: 1.3em;
+      color: #999;
+      font-weight: lighter;
+    }
+  }
+}
+
+.theme-dark {
+  &.centerWrap {
+    background: #222;
+    box-shadow: @darkBoxShadow 0px 0px 15px;
+    color: #fff;
+
+    button {
+      color: #fff;
+    }
+
+    .setinput_style1,
+    .setinput_style1:focus,
+    .setinput_style1:hover {
+      background: transparent !important;
+    }
+
+    .tip {
+      color: #fff;
+    }
+
+    .centerWrap_head {
+      background: #222;
+    }
+    .gray1 {
+      color: #999;
+    }
+  }
+}
+
+.theme-dark {
+  &.saveNamingRuleWrap {
+    color: #fff;
+
+    button {
+      color: #fff;
+    }
+
+    .namingRuleList {
+      background: #222;
+      box-shadow: @darkBoxShadow 0px 0px 10px;
+
+      li {
+        color: #fff;
+      }
+
+      li:hover {
+        background: #333;
+      }
+    }
+  }
+}
+
+.theme-dark {
+  &.settingForm {
+    background: #222;
+
+    .tabsTitle {
+      background: #222;
+    }
+  }
+}
+
+.downloadError {
+  color: rgb(255, 160, 160);
+}
+
+.patronText {
+  display: none;
+}

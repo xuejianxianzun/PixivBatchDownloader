@@ -1,0 +1,84 @@
+
+#viewerWarpper {
+  position: relative;
+  margin: 30px auto 15px;
+  overflow: hidden;
+  padding: 16px 0 100px 0;
+  display: none;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+
+  ul {
+    max-width: 568px;
+    margin: 24px auto;
+    padding: 0 16px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow: auto;
+  }
+
+  li {
+    display: flex;
+    flex-shrink: 0;
+    margin-right: 8px;
+    overflow: hidden;
+
+    img {
+      cursor: pointer;
+      max-height: 144px;
+      width: auto;
+    }
+  }
+}
+
+.viewer-backdrop {
+  background: rgba(0, 0, 0, 0.8) !important;
+
+  .viewer-canvas {
+    background: rgba(0, 0, 0, 0.8) !important;
+  }
+
+  .viewer-toolbar {
+    .viewer-next,
+    .viewer-prev {
+      background-color: rgba(255, 255, 255, 0.1) !important;
+      border-radius: 50%;
+      cursor: pointer;
+      height: 100px;
+      width: 100px;
+      overflow: hidden;
+    }
+
+    .viewer-prev {
+      position: fixed;
+      left: -70px;
+      top: 40%;
+
+      &::before {
+        top: 40px;
+        left: 70px;
+        position: absolute;
+      }
+    }
+
+    .viewer-next {
+      position: fixed;
+      right: -70px;
+      top: 40%;
+
+      &::before {
+        left: 10px;
+        top: 40px;
+        position: absolute;
+      }
+    }
+  }
+}
+
+.theme-dark {
+  &#viewerWarpper {
+    border: none;
+  }
+}
