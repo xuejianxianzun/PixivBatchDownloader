@@ -89,8 +89,12 @@ class EVT {
     outputCSV: 'outputCSV',
     // 当需要导出抓取结果时触发
     outputResult: 'outputResult',
+    // 当需要保存用户头像时触发
+    saveAvatarImage: 'saveAvatarImage',
     // 当需要保存用户头像为图标时触发
     saveAvatarIcon: 'saveAvatarIcon',
+    // 当需要保存用户背景图片时触发
+    saveUserCover: 'saveUserCover',
     // 当需要预览文件名时触发
     previewFileName: 'previewFileName',
     // 当需要预览 url 时触发

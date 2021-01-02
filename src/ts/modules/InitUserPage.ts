@@ -13,6 +13,8 @@ import { UserImageWorksWithTag, UserNovelsWithTag } from './CrawlResult'
 import { IDListType } from './Store.d'
 import { states } from './States'
 import './SaveAvatarIcon'
+import './SaveAvatarImage'
+import './SaveUserCover'
 import { BookmarkAllWorks, IDList } from './BookmarkAllWorks'
 import { Tools } from './Tools'
 
@@ -38,6 +40,14 @@ class InitUserPage extends InitPageBase {
   }
 
   protected addAnyElement() {
+    DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像')).addEventListener('click', () => {
+      EVT.fire(EVT.list.saveAvatarImage)
+    })
+
+    DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户封面')).addEventListener('click', () => {
+      EVT.fire(EVT.list.saveUserCover)
+    })
+
     DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像为图标'), [
       ['title', lang.transl('_保存用户头像为图标说明')],
     ]).addEventListener('click', () => {

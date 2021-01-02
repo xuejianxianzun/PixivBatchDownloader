@@ -2999,8 +2999,12 @@ EVT.list = {
     outputCSV: 'outputCSV',
     // 当需要导出抓取结果时触发
     outputResult: 'outputResult',
+    // 当需要保存用户头像时触发
+    saveAvatarImage: 'saveAvatarImage',
     // 当需要保存用户头像为图标时触发
     saveAvatarIcon: 'saveAvatarIcon',
+    // 当需要保存用户背景图片时触发
+    saveUserCover: 'saveUserCover',
     // 当需要预览文件名时触发
     previewFileName: 'previewFileName',
     // 当需要预览 url 时触发
@@ -6291,9 +6295,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
 /* harmony import */ var _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./SaveAvatarIcon */ "./src/ts/modules/SaveAvatarIcon.ts");
-/* harmony import */ var _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./BookmarkAllWorks */ "./src/ts/modules/BookmarkAllWorks.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./Tools */ "./src/ts/modules/Tools.ts");
+/* harmony import */ var _SaveAvatarImage__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./SaveAvatarImage */ "./src/ts/modules/SaveAvatarImage.ts");
+/* harmony import */ var _SaveUserCover__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./SaveUserCover */ "./src/ts/modules/SaveUserCover.ts");
+/* harmony import */ var _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./BookmarkAllWorks */ "./src/ts/modules/BookmarkAllWorks.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./Tools */ "./src/ts/modules/Tools.ts");
 // 初始化用户页面
+
+
 
 
 
@@ -6312,7 +6320,7 @@ class InitUserPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPageB
         super();
         this.listType = 0; // 细分的列表类型
         this.onceNumber = 48; // 每页作品个数，插画是 48 个，小说是 24 个
-        this.bookmarkAll = new _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_11__["BookmarkAllWorks"]();
+        this.bookmarkAll = new _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__["BookmarkAllWorks"]();
         this.sendBookmarkIdList = () => {
             if (_States__WEBPACK_IMPORTED_MODULE_9__["states"].bookmarkMode) {
                 // 将 id 的 type 设置为 illusts 或 novels
@@ -6343,6 +6351,12 @@ class InitUserPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPageB
         });
     }
     addAnyElement() {
+        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像')).addEventListener('click', () => {
+            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.saveAvatarImage);
+        });
+        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户封面')).addEventListener('click', () => {
+            _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.saveUserCover);
+        });
         _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标说明')],
         ]).addEventListener('click', () => {
@@ -6350,7 +6364,7 @@ class InitUserPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPageB
         });
         // 添加收藏本页所有作品的功能
         const bookmarkAllBtn = _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏本页面的所有作品'));
-        this.bookmarkAll = new _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_11__["BookmarkAllWorks"](bookmarkAllBtn);
+        this.bookmarkAll = new _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__["BookmarkAllWorks"](bookmarkAllBtn);
         bookmarkAllBtn.addEventListener('click', async () => {
             // 获取该用户的所有作品的 id 列表
             // 模拟了抓取流程，以获取相同的 id 列表
@@ -6455,7 +6469,7 @@ class InitUserPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPageB
         const offset = this.getOffset();
         const requsetNumber = this.getRequsetNumber();
         // 按照 id 升序排列，之后会删除不需要的部分
-        idList.sort(_Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].sortByProperty('id')).reverse();
+        idList.sort(_Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].sortByProperty('id')).reverse();
         // 不带 tag 获取作品时，由于 API 是一次性返回用户的所有作品，可能大于要求的数量，所以需要去掉多余的作品。
         // 删除 offset 需要去掉的部分。删除后面的 id，也就是近期作品
         idList.splice(idList.length - offset, idList.length);
@@ -6525,7 +6539,7 @@ class InitUserPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPageB
     }
     sortResult() {
         // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
-        _Store__WEBPACK_IMPORTED_MODULE_5__["store"].result.sort(_Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].sortByProperty('id'));
+        _Store__WEBPACK_IMPORTED_MODULE_5__["store"].result.sort(_Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].sortByProperty('id'));
     }
     destroy() {
         _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].clearSlot('crawlBtns');
@@ -7814,13 +7828,131 @@ class SaveAvatarIcon {
         });
         // 直接保存到下载文件夹
         const url = URL.createObjectURL(blob);
-        const name = `ico_${userProfile.body.name}_${userId}.ico`;
+        const name = `${userProfile.body.name}_${userId}_icon.ico`;
         _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].downloadFile(url, name);
         _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success('✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_保存用户头像为图标'));
         _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.closeCenterPanel);
     }
 }
 new SaveAvatarIcon();
+
+
+/***/ }),
+
+/***/ "./src/ts/modules/SaveAvatarImage.ts":
+/*!*******************************************!*\
+  !*** ./src/ts/modules/SaveAvatarImage.ts ***!
+  \*******************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./API */ "./src/ts/modules/API.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
+/* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+
+
+
+
+
+// 保存用户头像
+class SaveAvatarImage {
+    constructor() {
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.saveAvatarImage, () => {
+            this.saveAvatarImage();
+        });
+    }
+    async saveAvatarImage() {
+        const userId = _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].getUserId();
+        const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__["API"].getUserProfile(userId);
+        const bigImg = userProfile.body.imageBig; // imageBig 并不是头像原图，而是裁剪成 170 px 的尺寸
+        const fullSizeImg = bigImg.replace('_170', ''); // 去掉 170 标记，获取头像图片的原图
+        // 加载文件
+        const img = await fetch(fullSizeImg);
+        const blob = await img.blob();
+        // 提取后缀名
+        const arr = fullSizeImg.split('.');
+        const ext = arr[arr.length - 1];
+        // 直接保存到下载文件夹
+        const url = URL.createObjectURL(blob);
+        const name = `${userProfile.body.name}_${userId}_avatar.${ext}`;
+        _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].downloadFile(url, name);
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success('✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_保存用户头像'));
+        _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.closeCenterPanel);
+    }
+}
+new SaveAvatarImage();
+
+
+/***/ }),
+
+/***/ "./src/ts/modules/SaveUserCover.ts":
+/*!*****************************************!*\
+  !*** ./src/ts/modules/SaveUserCover.ts ***!
+  \*****************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./API */ "./src/ts/modules/API.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
+/* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+
+
+
+
+
+// 保存用户封面图片
+class SaveUserCover {
+    constructor() {
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.saveUserCover, () => {
+            this.saveUserCover();
+        });
+    }
+    async saveUserCover() {
+        const userId = _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].getUserId();
+        const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__["API"].getUserProfile(userId);
+        const bgData = userProfile.body.background;
+        if (bgData === null) {
+            return _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].sendMsg({
+                msg: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_没有数据可供使用'),
+                type: 'error',
+            });
+        }
+        const bgUrl = bgData.url;
+        if (!bgUrl) {
+            return _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].sendMsg({
+                msg: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_没有数据可供使用'),
+                type: 'error',
+            });
+        }
+        // 加载文件
+        const img = await fetch(bgUrl);
+        const blob = await img.blob();
+        // 提取后缀名
+        const arr = bgUrl.split('.');
+        const ext = arr[arr.length - 1];
+        // 直接保存到下载文件夹
+        const url = URL.createObjectURL(blob);
+        const name = `${userProfile.body.name}_${userId}_cover.${ext}`;
+        _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].downloadFile(url, name);
+        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].success('✓ ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_保存用户封面'));
+        _EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.closeCenterPanel);
+    }
+}
+new SaveUserCover();
 
 
 /***/ }),
@@ -9148,10 +9280,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
 /* harmony import */ var _QuickDownloadBtn__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../QuickDownloadBtn */ "./src/ts/modules/QuickDownloadBtn.ts");
 /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../States */ "./src/ts/modules/States.ts");
-/* harmony import */ var _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../SaveAvatarIcon */ "./src/ts/modules/SaveAvatarIcon.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../Tools */ "./src/ts/modules/Tools.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../Tools */ "./src/ts/modules/Tools.ts");
 //初始化 artwork 作品页
-
 
 
 
@@ -9212,13 +9342,6 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
             this.crawlRelated = true;
             this.readyCrawl();
         }, false);
-    }
-    addAnyElement() {
-        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_保存用户头像为图标'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_保存用户头像为图标说明')],
-        ]).addEventListener('click', () => {
-            _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.saveAvatarIcon);
-        });
     }
     setFormOption() {
         // 个数/页数选项的提示
@@ -9296,11 +9419,11 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
         if (this.crawlNumber !== -1) {
             // 新作品 升序排列
             if (this.crawlDirection === -1) {
-                _Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.sort(_Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].sortByProperty('id')).reverse();
+                _Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.sort(_Tools__WEBPACK_IMPORTED_MODULE_13__["Tools"].sortByProperty('id')).reverse();
             }
             else {
                 // 旧作品 降序排列
-                _Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.sort(_Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].sortByProperty('id'));
+                _Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.sort(_Tools__WEBPACK_IMPORTED_MODULE_13__["Tools"].sortByProperty('id'));
             }
             _Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList = _Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.splice(0, this.crawlNumber);
         }
@@ -12317,6 +12440,18 @@ const langText = {
         'The setting item "Create directory for multi-image works" becomes "Create a separate directory for the work"',
         '設定項目"多圖建立目錄"变为"為作品建立單獨的目錄"',
     ],
+    _保存用户头像: [
+        '保存用户头像',
+        'ユーザーアバターを保存する',
+        'Save user avatar',
+        '儲存使用者頭像',
+    ],
+    _保存用户封面: [
+        '保存用户封面',
+        'ユーザーカバーを保存',
+        'Save user cover',
+        '儲存使用者封面',
+    ],
 };
 
 
@@ -12621,10 +12756,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../States */ "./src/ts/modules/States.ts");
 /* harmony import */ var _QuickDownloadBtn__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../QuickDownloadBtn */ "./src/ts/modules/QuickDownloadBtn.ts");
-/* harmony import */ var _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../SaveAvatarIcon */ "./src/ts/modules/SaveAvatarIcon.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../Tools */ "./src/ts/modules/Tools.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../Tools */ "./src/ts/modules/Tools.ts");
 //初始化小说作品页
-
 
 
 
@@ -12671,13 +12804,6 @@ class InitNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
         _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始抓取old')).addEventListener('click', () => {
             this.crawlDirection = 1;
             this.readyCrawl();
-        });
-    }
-    addAnyElement() {
-        _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标说明')],
-        ]).addEventListener('click', () => {
-            _EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_9__["EVT"].list.saveAvatarIcon);
         });
     }
     setFormOption() {
@@ -12746,11 +12872,11 @@ class InitNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
         if (this.crawlNumber !== -1) {
             // 新作品 升序排列
             if (this.crawlDirection === -1) {
-                _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.sort(_Tools__WEBPACK_IMPORTED_MODULE_13__["Tools"].sortByProperty('id')).reverse();
+                _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.sort(_Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].sortByProperty('id')).reverse();
             }
             else {
                 // 旧作品 降序排列
-                _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.sort(_Tools__WEBPACK_IMPORTED_MODULE_13__["Tools"].sortByProperty('id'));
+                _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.sort(_Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].sortByProperty('id'));
             }
             _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList = _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.splice(0, this.crawlNumber);
         }

@@ -12,7 +12,6 @@ import { log } from '../Log'
 import { EVT } from '../EVT'
 import { states } from '../States'
 import { QuickDownloadBtn } from '../QuickDownloadBtn'
-import '../SaveAvatarIcon'
 import { Tools } from '../Tools'
 
 class InitNovelPage extends InitPageBase {
@@ -64,14 +63,6 @@ class InitNovelPage extends InitPageBase {
     ).addEventListener('click', () => {
       this.crawlDirection = 1
       this.readyCrawl()
-    })
-  }
-
-  protected addAnyElement() {
-    DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像为图标'), [
-      ['title', lang.transl('_保存用户头像为图标说明')],
-    ]).addEventListener('click', () => {
-      EVT.fire(EVT.list.saveAvatarIcon)
     })
   }
 

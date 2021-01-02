@@ -13,7 +13,6 @@ import { API } from '../API'
 import { log } from '../Log'
 import { QuickDownloadBtn } from '../QuickDownloadBtn'
 import { states } from '../States'
-import '../SaveAvatarIcon'
 import { Tools } from '../Tools'
 
 class InitArtworkPage extends InitPageBase {
@@ -91,14 +90,6 @@ class InitArtworkPage extends InitPageBase {
       },
       false,
     )
-  }
-
-  protected addAnyElement() {
-    DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像为图标'), [
-      ['title', lang.transl('_保存用户头像为图标说明')],
-    ]).addEventListener('click', () => {
-      EVT.fire(EVT.list.saveAvatarIcon)
-    })
   }
 
   private startQuickDownload = () => {

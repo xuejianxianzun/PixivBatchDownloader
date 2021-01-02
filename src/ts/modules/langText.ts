@@ -1462,6 +1462,18 @@ const langText = {
     'The setting item "Create directory for multi-image works" becomes "Create a separate directory for the work"',
     '設定項目"多圖建立目錄"变为"為作品建立單獨的目錄"',
   ],
+  _保存用户头像: [
+    '保存用户头像',
+    'ユーザーアバターを保存する',
+    'Save user avatar',
+    '儲存使用者頭像',
+  ],
+  _保存用户封面: [
+    '保存用户封面',
+    'ユーザーカバーを保存',
+    'Save user cover',
+    '儲存使用者封面',
+  ],
 }
 
 export { langText, langTextKeys }
