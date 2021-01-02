@@ -356,6 +356,14 @@ class InitSearchArtworkPage extends InitPageBase {
     this.sendCrawlTaskCount = 0
   }
 
+  protected logResultTotal() {
+    log.log(
+      `${lang.transl('_待处理')} ${store.idList.length}, ${lang.transl('_共抓取到n个文件', store.result.length.toString())}`,
+      1,
+      false,
+    )
+  }
+
   // 搜索页把下载任务按收藏数从高到低下载
   protected sortResult() {
     store.resultMeta.sort(Tools.sortByProperty('bmk'))

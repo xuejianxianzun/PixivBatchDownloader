@@ -10577,6 +10577,9 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         this.listPageFinished = 0;
         this.sendCrawlTaskCount = 0;
     }
+    logResultTotal() {
+        _Log__WEBPACK_IMPORTED_MODULE_10__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_待处理')} ${_Store__WEBPACK_IMPORTED_MODULE_9__["store"].idList.length}, ${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_共抓取到n个文件', _Store__WEBPACK_IMPORTED_MODULE_9__["store"].result.length.toString())}`, 1, false);
+    }
     // 搜索页把下载任务按收藏数从高到低下载
     sortResult() {
         _Store__WEBPACK_IMPORTED_MODULE_9__["store"].resultMeta.sort(_Tools__WEBPACK_IMPORTED_MODULE_17__["Tools"].sortByProperty('bmk'));
@@ -12499,6 +12502,12 @@ const langText = {
         'Save user cover',
         '儲存使用者封面',
     ],
+    _待处理: [
+        '待处理',
+        '保留中',
+        'Pending',
+        '待處理',
+    ]
 };
 
 
@@ -13387,6 +13396,9 @@ class InitSearchNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
     resetGetIdListStatus() {
         this.listPageFinished = 0;
         this.sendCrawlTaskCount = 0;
+    }
+    logResultTotal() {
+        _Log__WEBPACK_IMPORTED_MODULE_7__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_待处理')} ${_Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.length}, ${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_共抓取到n个文件', _Store__WEBPACK_IMPORTED_MODULE_6__["store"].result.length.toString())}`, 1, false);
     }
     // 搜索页把下载任务按收藏数从高到低下载
     sortResult() {

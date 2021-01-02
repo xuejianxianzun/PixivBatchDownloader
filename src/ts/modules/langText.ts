@@ -1474,6 +1474,12 @@ const langText = {
     'Save user cover',
     '儲存使用者封面',
   ],
+  _待处理:[
+    '待处理',
+    '保留中',
+    'Pending',
+    '待處理',
+  ]
 }
 
 export { langText, langTextKeys }

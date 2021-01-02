@@ -365,7 +365,7 @@ abstract class InitPageBase {
     }
   }
 
-  // 在抓取图片网址时，输出提示
+  // 每当抓取了一个作品之后，输出提示
   protected logResultTotal() {
     log.log(
       lang.transl('_共抓取到n个文件', store.result.length.toString()),
