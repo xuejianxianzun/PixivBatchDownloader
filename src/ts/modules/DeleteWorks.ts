@@ -10,12 +10,9 @@ class DeleteWorks {
   constructor(worksSelectors: string) {
     this.worksSelector = worksSelectors
 
-    // 作品列表更新后，需要重新给作品绑定删除事件
-    window.addEventListener(EVT.list.worksUpdate, () => {
-      if (this.delMode) {
-        this.bindDeleteEvent()
-      }
-    })
+    this.icon = this.createDeleteIcon()
+
+    this.bindEvents()
   }
 
   private worksSelector: string = '' // 选择页面上所有作品的选择器
@@ -24,12 +21,74 @@ class DeleteWorks {
 
   private ugoiraSelector: string = '' // 动图作品特有的元素的标识
 
-  private delMode: boolean = false // 是否处于删除作品状态
+  private delMode: boolean = false // 是否处于手动删除作品状态
 
-  private deleteWorkCallback: Function = () => {} // 保存手动删除作品的回调函数，因为可能会多次绑定手动删除事件，所以需要保存传入的 callback 备用
+  private delBtn: HTMLButtonElement = document.createElement('button')
+
+
+  private icon?: HTMLElement // 手动删除时，显示一个指示图标
+  private readonly iconId = 'deleteWorkEl'
+  private left = 0
+  private top = 0
+  private half = 12
+
+  private deleteWorkCallback: Function = () => { } // 保存手动删除作品的回调函数，因为可能会多次绑定手动删除事件，所以需要保存传入的 callback 备用
+
+  private createDeleteIcon() {
+    const el = document.createElement('div')
+    el.id = this.iconId
+    document.body.appendChild(el)
+    return el
+  }
+
+  private updateDeleteIcon() {
+    if (!this.icon) {
+      return
+    }
+
+    this.icon.style.display = this.delMode ? 'block' : 'none'
+
+    // 如果指示图标处于隐藏状态，就不会更新其坐标。这样可以优化性能
+    if (this.delMode) {
+      this.icon.style.left = this.left - this.half + 'px'
+      this.icon.style.top = this.top - this.half + 'px'
+    }
+  }
+
+  private bindEvents() {
+    // 作品列表更新后，需要重新给作品绑定手动删除事件
+    window.addEventListener(EVT.list.worksUpdate, () => {
+      if (this.delMode) {
+        this.bindDeleteEvent()
+      }
+    })
+
+    // 切换页面时，退出手动删除模式
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      if (this.delMode) {
+        this.toggleDeleteMode()
+      }
+    })
+
+    // 鼠标移动时保存鼠标的坐标
+    window.addEventListener(
+      'mousemove',
+      (ev) => {
+        this.moveEvent(ev)
+      },
+      true,
+    )
+  }
+
+  // 监听鼠标移动
+  private moveEvent(ev: MouseEvent) {
+    this.left = ev.x
+    this.top = ev.y
+    this.updateDeleteIcon()
+  }
 
   // 清除多图作品的按钮
-  public addClearMultipleBtn(selector: string, callback: Function = () => {}) {
+  public addClearMultipleBtn(selector: string, callback: Function = () => { }) {
     this.multipleSelector = selector
 
     DOM.addBtn('crawlBtns', Colors.red, lang.transl('_清除多图作品'), [
@@ -53,7 +112,7 @@ class DeleteWorks {
   }
 
   // 清除动图作品的按钮
-  public addClearUgoiraBtn(selector: string, callback: Function = () => {}) {
+  public addClearUgoiraBtn(selector: string, callback: Function = () => { }) {
     this.ugoiraSelector = selector
 
     DOM.addBtn('crawlBtns', Colors.red, lang.transl('_清除动图作品'), [
@@ -77,29 +136,36 @@ class DeleteWorks {
   }
 
   // 手动删除作品的按钮
-  public addManuallyDeleteBtn(callback: Function = () => {}) {
+  public addManuallyDeleteBtn(callback: Function = () => { }) {
     this.deleteWorkCallback = callback
-    const delBtn = DOM.addBtn(
+    this.delBtn = DOM.addBtn(
       'crawlBtns',
       Colors.red,
       lang.transl('_手动删除作品'),
       [['title', lang.transl('_手动删除作品Title')]],
     )
 
-    delBtn.addEventListener('click', () => {
-      this.delMode = !this.delMode
-
-      this.bindDeleteEvent()
-
-      if (this.delMode) {
-        delBtn.textContent = lang.transl('_退出手动删除')
-        setTimeout(() => {
-          EVT.fire(EVT.list.closeCenterPanel)
-        }, 100)
-      } else {
-        delBtn.textContent = lang.transl('_手动删除作品')
-      }
+    this.delBtn.addEventListener('click', () => {
+      this.toggleDeleteMode()
     })
+  }
+
+  // 切换删除模式
+  private toggleDeleteMode() {
+    this.delMode = !this.delMode
+
+    this.bindDeleteEvent()
+
+    this.updateDeleteIcon()
+
+    if (this.delMode) {
+      this.delBtn.textContent = lang.transl('_退出手动删除')
+      setTimeout(() => {
+        EVT.fire(EVT.list.closeCenterPanel)
+      }, 100)
+    } else {
+      this.delBtn.textContent = lang.transl('_手动删除作品')
+    }
   }
 
   // 清除多图作品

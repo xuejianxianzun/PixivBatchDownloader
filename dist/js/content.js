@@ -1985,15 +1985,57 @@ class DeleteWorks {
         this.worksSelector = ''; // 选择页面上所有作品的选择器
         this.multipleSelector = ''; // 多图作品特有的元素的标识
         this.ugoiraSelector = ''; // 动图作品特有的元素的标识
-        this.delMode = false; // 是否处于删除作品状态
+        this.delMode = false; // 是否处于手动删除作品状态
+        this.delBtn = document.createElement('button');
+        this.iconId = 'deleteWorkEl';
+        this.left = 0;
+        this.top = 0;
+        this.half = 12;
         this.deleteWorkCallback = () => { }; // 保存手动删除作品的回调函数，因为可能会多次绑定手动删除事件，所以需要保存传入的 callback 备用
         this.worksSelector = worksSelectors;
-        // 作品列表更新后，需要重新给作品绑定删除事件
+        this.icon = this.createDeleteIcon();
+        this.bindEvents();
+    }
+    createDeleteIcon() {
+        const el = document.createElement('div');
+        el.id = this.iconId;
+        document.body.appendChild(el);
+        return el;
+    }
+    updateDeleteIcon() {
+        if (!this.icon) {
+            return;
+        }
+        this.icon.style.display = this.delMode ? 'block' : 'none';
+        // 如果指示图标处于隐藏状态，就不会更新其坐标。这样可以优化性能
+        if (this.delMode) {
+            this.icon.style.left = this.left - this.half + 'px';
+            this.icon.style.top = this.top - this.half + 'px';
+        }
+    }
+    bindEvents() {
+        // 作品列表更新后，需要重新给作品绑定手动删除事件
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.worksUpdate, () => {
             if (this.delMode) {
                 this.bindDeleteEvent();
             }
         });
+        // 切换页面时，退出手动删除模式
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.pageSwitch, () => {
+            if (this.delMode) {
+                this.toggleDeleteMode();
+            }
+        });
+        // 鼠标移动时保存鼠标的坐标
+        window.addEventListener('mousemove', (ev) => {
+            this.moveEvent(ev);
+        }, true);
+    }
+    // 监听鼠标移动
+    moveEvent(ev) {
+        this.left = ev.x;
+        this.top = ev.y;
+        this.updateDeleteIcon();
     }
     // 清除多图作品的按钮
     addClearMultipleBtn(selector, callback = () => { }) {
@@ -2034,20 +2076,25 @@ class DeleteWorks {
     // 手动删除作品的按钮
     addManuallyDeleteBtn(callback = () => { }) {
         this.deleteWorkCallback = callback;
-        const delBtn = _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].red, _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_手动删除作品'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_手动删除作品Title')]]);
-        delBtn.addEventListener('click', () => {
-            this.delMode = !this.delMode;
-            this.bindDeleteEvent();
-            if (this.delMode) {
-                delBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_退出手动删除');
-                setTimeout(() => {
-                    _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.closeCenterPanel);
-                }, 100);
-            }
-            else {
-                delBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_手动删除作品');
-            }
+        this.delBtn = _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].red, _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_手动删除作品'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_手动删除作品Title')]]);
+        this.delBtn.addEventListener('click', () => {
+            this.toggleDeleteMode();
         });
+    }
+    // 切换删除模式
+    toggleDeleteMode() {
+        this.delMode = !this.delMode;
+        this.bindDeleteEvent();
+        this.updateDeleteIcon();
+        if (this.delMode) {
+            this.delBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_退出手动删除');
+            setTimeout(() => {
+                _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.closeCenterPanel);
+            }, 100);
+        }
+        else {
+            this.delBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_手动删除作品');
+        }
     }
     // 清除多图作品
     clearMultiple() {
