@@ -1,5 +1,5 @@
-import { langText } from './langText'
-import { langTextKeys } from './langText'
+import { langText } from './LangText'
+import { langTextKeys } from './LangText'
 import { EVT } from './EVT'
 import { settings } from './setting/Settings'
 
@@ -58,9 +58,9 @@ class Lang {
 
   private readonly flagIndex = {
     'zh-cn': 0,
-    ja: 1,
+    'zh-tw': 1,
     en: 2,
-    'zh-tw': 3,
+    ja: 3,
   }
 
   // translate 翻译

@@ -1,5 +1,5 @@
 import { lang } from './Lang'
-import { langTextKeys } from './langText'
+import { langTextKeys } from './LangText'
 import { EVT } from './EVT'
 
 // 显示最近更新内容
