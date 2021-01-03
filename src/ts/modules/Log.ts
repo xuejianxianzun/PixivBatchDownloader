@@ -3,7 +3,7 @@ import { EVT } from './EVT'
 import { theme } from './Theme'
 import { Colors, colorType } from './Colors'
 
-// 日志类
+// 日志
 class Log {
   constructor() {
     this.scrollToBottom()

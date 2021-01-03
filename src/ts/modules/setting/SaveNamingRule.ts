@@ -70,6 +70,11 @@ class SaveNamingRule {
       setSetting('namingRuleList', list)
     }
     log.success(lang.transl('_已保存命名规则'))
+    // 用对话框提醒，否则用户可能没有感知到反馈
+    EVT.sendMsg({
+      type: 'success',
+      msg: lang.transl('_已保存命名规则'),
+    })
   }
 
   private delete(index: number) {
