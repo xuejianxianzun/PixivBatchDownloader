@@ -6127,8 +6127,9 @@ class InitPageBase {
         }
         _Store__WEBPACK_IMPORTED_MODULE_4__["store"].crawlCompleteTime = new Date();
         this.sortResult();
+        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个作品', _Store__WEBPACK_IMPORTED_MODULE_4__["store"].resultMeta.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个文件', _Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length.toString()));
-        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取完毕'), 2);
+        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取完毕'), 2);
         // 发出抓取完毕的信号
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.crawlFinish);
     }
@@ -6154,7 +6155,7 @@ class InitPageBase {
     }
     // 每当抓取了一个作品之后，输出提示
     logResultTotal() {
-        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个文件', _Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length.toString()), 1, false);
+        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_待处理')} ${_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length}, ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个作品', _Store__WEBPACK_IMPORTED_MODULE_4__["store"].resultMeta.length.toString())}`, 1, false);
     }
     // 抓取结果为 0 时输出提示
     noResult() {
@@ -10191,13 +10192,6 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         // 抓取完成后，保存结果的元数据，并重排结果
         this.onCrawlFinish = () => {
             this.resultMeta = [..._Store__WEBPACK_IMPORTED_MODULE_9__["store"].resultMeta];
-            // 显示作品数量
-            const count = this.resultMeta.length || _Store__WEBPACK_IMPORTED_MODULE_9__["store"].resultMeta.length;
-            if (count > 0) {
-                _Log__WEBPACK_IMPORTED_MODULE_10__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_当前作品个数', count.toString()));
-            }
-            // 显示文件数量
-            _Log__WEBPACK_IMPORTED_MODULE_10__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_共抓取到n个文件', _Store__WEBPACK_IMPORTED_MODULE_9__["store"].result.length.toString()));
             this.clearWorks();
             this.reAddResult();
             // 解绑创建作品元素的事件
@@ -13419,7 +13413,7 @@ class InitSearchNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
         this.sendCrawlTaskCount = 0;
     }
     logResultTotal() {
-        _Log__WEBPACK_IMPORTED_MODULE_7__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_待处理')} ${_Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.length}, ${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_共抓取到n个文件', _Store__WEBPACK_IMPORTED_MODULE_6__["store"].result.length.toString())}`, 1, false);
+        _Log__WEBPACK_IMPORTED_MODULE_7__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_待处理')} ${_Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.length}, ${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_共抓取到n个作品', _Store__WEBPACK_IMPORTED_MODULE_6__["store"].resultMeta.length.toString())}`, 1, false);
     }
     // 搜索页把下载任务按收藏数从高到低下载
     sortResult() {

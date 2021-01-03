@@ -331,9 +331,13 @@ abstract class InitPageBase {
 
     this.sortResult()
 
+    log.log(
+      lang.transl('_共抓取到n个作品', store.resultMeta.length.toString()),
+    )
+
     log.log(lang.transl('_共抓取到n个文件', store.result.length.toString()))
 
-    log.log(lang.transl('_抓取完毕'), 2)
+    log.success(lang.transl('_抓取完毕'), 2)
 
     // 发出抓取完毕的信号
     EVT.fire(EVT.list.crawlFinish)
@@ -370,7 +374,10 @@ abstract class InitPageBase {
   // 每当抓取了一个作品之后，输出提示
   protected logResultTotal() {
     log.log(
-      lang.transl('_共抓取到n个文件', store.result.length.toString()),
+      `${lang.transl('_待处理')} ${store.idList.length}, ${lang.transl(
+        '_共抓取到n个作品',
+        store.resultMeta.length.toString(),
+      )}`,
       1,
       false,
     )

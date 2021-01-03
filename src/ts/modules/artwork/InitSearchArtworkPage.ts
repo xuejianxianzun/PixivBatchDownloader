@@ -356,17 +356,6 @@ class InitSearchArtworkPage extends InitPageBase {
     this.sendCrawlTaskCount = 0
   }
 
-  protected logResultTotal() {
-    log.log(
-      `${lang.transl('_待处理')} ${store.idList.length}, ${lang.transl(
-        '_共抓取到n个作品',
-        store.resultMeta.length.toString(),
-      )}`,
-      1,
-      false,
-    )
-  }
-
   // 搜索页把下载任务按收藏数从高到低下载
   protected sortResult() {
     store.resultMeta.sort(Tools.sortByProperty('bmk'))
@@ -396,14 +385,6 @@ class InitSearchArtworkPage extends InitPageBase {
   // 抓取完成后，保存结果的元数据，并重排结果
   private onCrawlFinish = () => {
     this.resultMeta = [...store.resultMeta]
-
-    // 显示作品数量
-    const count = this.resultMeta.length || store.resultMeta.length
-    if (count > 0) {
-      log.log(lang.transl('_当前作品个数', count.toString()))
-    }
-    // 显示文件数量
-    log.success(lang.transl('_共抓取到n个文件', store.result.length.toString()))
 
     this.clearWorks()
 
