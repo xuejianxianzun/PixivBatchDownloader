@@ -244,6 +244,8 @@ abstract class InitPageBase {
     // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
     // return states.allWork = false
 
+    log.log(lang.transl('_开始获取作品信息'))
+
     if (store.idList.length <= this.ajaxThreadsDefault) {
       this.ajaxThreads = store.idList.length
     } else {

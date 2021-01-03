@@ -34,7 +34,7 @@ class Form {
 
     new SaveNamingRule(this.form.userSetName)
 
-    new FormSettings(this.form)
+    this.formSettings = new FormSettings(this.form)
 
     this.initFormBueatiful()
 
@@ -63,6 +63,8 @@ class Form {
   private readonly activeClass = 'active'
 
   private readonly chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
+
+  private formSettings: FormSettings
 
   // 设置激活的选项卡
   private activeTab(no = 0) {
@@ -95,6 +97,10 @@ class Form {
 
     window.addEventListener(EVT.list.resetSettingsEnd, () => {
       this.form.reset()
+
+      this.formSettings.restoreFormSettings()
+
+      // 美化表单，包括设置子选项区域的显示隐藏。所以这需要在恢复设置之后执行
       this.initFormBueatiful()
     })
 

@@ -1,6 +1,7 @@
 import { EVT } from './EVT'
 import { DOM } from './DOM'
 import { store } from './Store'
+import { lang } from './Lang'
 import { Tools } from './Tools'
 
 class ExportResult {
@@ -15,6 +16,15 @@ class ExportResult {
   }
 
   private output() {
+    // 如果没有数据则不执行
+    if (store.result.length === 0) {
+      EVT.sendMsg({
+        msg: lang.transl('_没有数据可供使用'),
+        type: 'error',
+      })
+      return
+    }
+
     const str = JSON.stringify(store.result, null, 2)
     const blob = new Blob([str], { type: 'application/json' })
     const url = URL.createObjectURL(blob)

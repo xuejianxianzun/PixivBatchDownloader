@@ -27,10 +27,6 @@ class FormSettings {
     window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
       this.restoreWantPage()
     })
-
-    window.addEventListener(EVT.list.resetSettingsEnd, () => {
-      this.restoreFormSettings()
-    })
   }
 
   // 处理输入框： change 时保存 value
@@ -245,7 +241,7 @@ class FormSettings {
   }
 
   // 读取设置，恢复表单里的设置项
-  private restoreFormSettings() {
+  public restoreFormSettings() {
     this.restoreWantPage()
 
     // 设置下载的作品类型

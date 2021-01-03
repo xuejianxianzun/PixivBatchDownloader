@@ -3143,7 +3143,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Tools */ "./src/ts/modules/Tools.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Tools */ "./src/ts/modules/Tools.ts");
+
 
 
 
@@ -3158,10 +3160,18 @@ class ExportResult {
         });
     }
     output() {
+        // 如果没有数据则不执行
+        if (_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 0) {
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].sendMsg({
+                msg: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_没有数据可供使用'),
+                type: 'error',
+            });
+            return;
+        }
         const str = JSON.stringify(_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result, null, 2);
         const blob = new Blob([str], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
-        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].downloadFile(url, `result-${_Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].replaceUnsafeStr(_DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].getTitle())}-${_Store__WEBPACK_IMPORTED_MODULE_2__["store"].crawlCompleteTime.getTime()}.json`);
+        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].downloadFile(url, `result-${_Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].replaceUnsafeStr(_DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].getTitle())}-${_Store__WEBPACK_IMPORTED_MODULE_2__["store"].crawlCompleteTime.getTime()}.json`);
     }
 }
 new ExportResult();
@@ -6037,6 +6047,7 @@ class InitPageBase {
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前作品个数', _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length.toString()));
         // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
         // return states.allWork = false
+        _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始获取作品信息'));
         if (_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length <= this.ajaxThreadsDefault) {
             this.ajaxThreads = _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length;
         }
@@ -6141,7 +6152,7 @@ class InitPageBase {
                 break;
         }
     }
-    // 在抓取图片网址时，输出提示
+    // 每当抓取了一个作品之后，输出提示
     logResultTotal() {
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个文件', _Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length.toString()), 1, false);
     }
@@ -6621,8 +6632,8 @@ class Lang {
         this.flag = 'zh-cn';
         this.flagIndex = {
             'zh-cn': 0,
-            'ja': 1,
-            'en': 2,
+            ja: 1,
+            en: 2,
             'zh-tw': 3,
         };
         this.setFlag();
@@ -6641,7 +6652,10 @@ class Lang {
         });
     }
     setFlag() {
-        this.flag = _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].userSetLang === 'auto' ? this.getLangType() : _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].userSetLang;
+        this.flag =
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].userSetLang === 'auto'
+                ? this.getLangType()
+                : _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].userSetLang;
     }
     // 获取页面使用的语言，返回对应的 flag
     getLangType() {
@@ -10374,7 +10388,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
             window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.addResult, this.createWork);
             this.readyCrawl();
         });
-        _DOM__WEBPACK_IMPORTED_MODULE_14__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].red, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_在结果中筛选'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_14__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_在结果中筛选'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_在结果中筛选Title')],
         ]).addEventListener('click', () => {
             this.screenInResult();
@@ -10578,7 +10592,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         this.sendCrawlTaskCount = 0;
     }
     logResultTotal() {
-        _Log__WEBPACK_IMPORTED_MODULE_10__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_待处理')} ${_Store__WEBPACK_IMPORTED_MODULE_9__["store"].idList.length}, ${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_共抓取到n个文件', _Store__WEBPACK_IMPORTED_MODULE_9__["store"].result.length.toString())}`, 1, false);
+        _Log__WEBPACK_IMPORTED_MODULE_10__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_待处理')} ${_Store__WEBPACK_IMPORTED_MODULE_9__["store"].idList.length}, ${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_共抓取到n个作品', _Store__WEBPACK_IMPORTED_MODULE_9__["store"].resultMeta.length.toString())}`, 1, false);
     }
     // 搜索页把下载任务按收藏数从高到低下载
     sortResult() {
@@ -11396,6 +11410,12 @@ const langText = {
         'This page is crawled and now has {} works.<br> Start getting the works for more information.',
         '本頁面擷取完畢。<br>目前有 {} 個作品，開始取得作品資訊。',
     ],
+    _开始获取作品信息: [
+        '开始获取作品信息',
+        '作品情報の取得を開始します',
+        'Start getting work data',
+        '開始取得作品資訊',
+    ],
     _列表页抓取进度: [
         '已抓取列表页{}个页面',
         '{} のリストページを取得しました',
@@ -11520,6 +11540,12 @@ const langText = {
         '合計 {} つのファイルがあります',
         'Crawl a total of {} files',
         '共擷取到 {} 個檔案',
+    ],
+    _共抓取到n个作品: [
+        '共抓取到 {} 个作品',
+        '合計 {} つの作品があります',
+        'Crawl a total of {} works',
+        '共擷取到 {} 個作品',
     ],
     _命名规则: ['命名规则', '命名規則', 'Naming rule', '命名規則'],
     _设置文件夹名的提示: [
@@ -12492,22 +12518,17 @@ const langText = {
     ],
     _保存用户头像: [
         '保存用户头像',
-        'ユーザーアバターを保存する',
+        'ユーザーアイコンの保存',
         'Save user avatar',
         '儲存使用者頭像',
     ],
     _保存用户封面: [
         '保存用户封面',
-        'ユーザーカバーを保存',
+        'ユーザーカバーの保存',
         'Save user cover',
         '儲存使用者封面',
     ],
-    _待处理: [
-        '待处理',
-        '保留中',
-        'Pending',
-        '待處理',
-    ]
+    _待处理: ['待处理', '処理待ち', 'Pending', '待處理'],
 };
 
 
@@ -13939,34 +13960,34 @@ class ConvertOldSettings {
         // 旧设置和新设置的对应关系
         // 为了集中管理，便于使用，写到了一个对象里
         this.data = {
-            'ratio': {
+            ratio: {
                 '0': 'square',
                 '1': 'horizontal',
                 '2': 'vertical',
-                '3': 'userSet'
+                '3': 'userSet',
             },
-            'workDirName': {
+            workDirName: {
                 '1': 'id',
-                '2': 'rule'
+                '2': 'rule',
             },
-            'idRange': {
+            idRange: {
                 '1': '>',
-                '2': '<'
+                '2': '<',
             },
-            'widthTag': {
+            widthTag: {
                 '1': 'yes',
-                '-1': 'no'
+                '-1': 'no',
             },
-            'restrict': {
+            restrict: {
                 '1': 'yes',
-                '-1': 'no'
+                '-1': 'no',
             },
-            'userSetLang': {
+            userSetLang: {
                 '-1': 'auto',
                 '0': 'zh-cn',
                 '1': 'ja',
                 '2': 'en',
-                '3': 'zh-tw'
+                '3': 'zh-tw',
             },
         };
     }
@@ -14032,7 +14053,7 @@ class Form {
         this.allTabCon = this.form.querySelectorAll('.tabsContnet .con');
         this.bindEvents();
         new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_5__["SaveNamingRule"](this.form.userSetName);
-        new _FormSettings__WEBPACK_IMPORTED_MODULE_7__["FormSettings"](this.form);
+        this.formSettings = new _FormSettings__WEBPACK_IMPORTED_MODULE_7__["FormSettings"](this.form);
         this.initFormBueatiful();
         // 激活第一个选项卡
         this.activeTab(0);
@@ -14070,6 +14091,8 @@ class Form {
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd, () => {
             this.form.reset();
+            this.formSettings.restoreFormSettings();
+            // 美化表单，包括设置子选项区域的显示隐藏。所以这需要在恢复设置之后执行
             this.initFormBueatiful();
         });
         // 在选项卡的标题上触发事件时，激活对应的选项卡
@@ -14849,9 +14872,6 @@ class FormSettings {
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, () => {
             this.restoreWantPage();
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd, () => {
-            this.restoreFormSettings();
         });
     }
     // 处理输入框： change 时保存 value

@@ -25,14 +25,13 @@ class DeleteWorks {
 
   private delBtn: HTMLButtonElement = document.createElement('button')
 
-
   private icon?: HTMLElement // 手动删除时，显示一个指示图标
   private readonly iconId = 'deleteWorkEl'
   private left = 0
   private top = 0
   private half = 12
 
-  private deleteWorkCallback: Function = () => { } // 保存手动删除作品的回调函数，因为可能会多次绑定手动删除事件，所以需要保存传入的 callback 备用
+  private deleteWorkCallback: Function = () => {} // 保存手动删除作品的回调函数，因为可能会多次绑定手动删除事件，所以需要保存传入的 callback 备用
 
   private createDeleteIcon() {
     const el = document.createElement('div')
@@ -88,7 +87,7 @@ class DeleteWorks {
   }
 
   // 清除多图作品的按钮
-  public addClearMultipleBtn(selector: string, callback: Function = () => { }) {
+  public addClearMultipleBtn(selector: string, callback: Function = () => {}) {
     this.multipleSelector = selector
 
     DOM.addBtn('crawlBtns', Colors.red, lang.transl('_清除多图作品'), [
@@ -112,7 +111,7 @@ class DeleteWorks {
   }
 
   // 清除动图作品的按钮
-  public addClearUgoiraBtn(selector: string, callback: Function = () => { }) {
+  public addClearUgoiraBtn(selector: string, callback: Function = () => {}) {
     this.ugoiraSelector = selector
 
     DOM.addBtn('crawlBtns', Colors.red, lang.transl('_清除动图作品'), [
@@ -136,7 +135,7 @@ class DeleteWorks {
   }
 
   // 手动删除作品的按钮
-  public addManuallyDeleteBtn(callback: Function = () => { }) {
+  public addManuallyDeleteBtn(callback: Function = () => {}) {
     this.deleteWorkCallback = callback
     this.delBtn = DOM.addBtn(
       'crawlBtns',

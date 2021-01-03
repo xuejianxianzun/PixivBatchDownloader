@@ -9,34 +9,34 @@ class ConvertOldSettings {
   // 旧设置和新设置的对应关系
   // 为了集中管理，便于使用，写到了一个对象里
   private readonly data: Data = {
-    'ratio': {
+    ratio: {
       '0': 'square',
       '1': 'horizontal',
       '2': 'vertical',
-      '3': 'userSet'
+      '3': 'userSet',
     },
-    'workDirName': {
+    workDirName: {
       '1': 'id',
-      '2': 'rule'
+      '2': 'rule',
     },
-    'idRange': {
+    idRange: {
       '1': '>',
-      '2': '<'
+      '2': '<',
     },
-    'widthTag': {
+    widthTag: {
       '1': 'yes',
-      '-1': 'no'
+      '-1': 'no',
     },
-    'restrict': {
+    restrict: {
       '1': 'yes',
-      '-1': 'no'
+      '-1': 'no',
     },
-    'userSetLang': {
+    userSetLang: {
       '-1': 'auto',
       '0': 'zh-cn',
       '1': 'ja',
       '2': 'en',
-      '3': 'zh-tw'
+      '3': 'zh-tw',
     },
   }
 

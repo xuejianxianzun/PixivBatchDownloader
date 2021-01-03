@@ -95,7 +95,7 @@ class InitSearchArtworkPage extends InitPageBase {
       this.readyCrawl()
     })
 
-    DOM.addBtn('crawlBtns', Colors.red, lang.transl('_在结果中筛选'), [
+    DOM.addBtn('crawlBtns', Colors.green, lang.transl('_在结果中筛选'), [
       ['title', lang.transl('_在结果中筛选Title')],
     ]).addEventListener('click', () => {
       this.screenInResult()
@@ -358,7 +358,10 @@ class InitSearchArtworkPage extends InitPageBase {
 
   protected logResultTotal() {
     log.log(
-      `${lang.transl('_待处理')} ${store.idList.length}, ${lang.transl('_共抓取到n个文件', store.result.length.toString())}`,
+      `${lang.transl('_待处理')} ${store.idList.length}, ${lang.transl(
+        '_共抓取到n个作品',
+        store.resultMeta.length.toString(),
+      )}`,
       1,
       false,
     )

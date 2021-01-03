@@ -629,7 +629,7 @@ class Filter {
       return nowId > setId
     } else {
       return nowId < setId
-    } 
+    }
   }
 
   // 检查投稿时间设置

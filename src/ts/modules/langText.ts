@@ -368,6 +368,12 @@ const langText = {
     'This page is crawled and now has {} works.<br> Start getting the works for more information.',
     '本頁面擷取完畢。<br>目前有 {} 個作品，開始取得作品資訊。',
   ],
+  _开始获取作品信息:[
+    '开始获取作品信息',
+    '作品情報の取得を開始します',
+    'Start getting work data',
+    '開始取得作品資訊',
+  ],
   _列表页抓取进度: [
     '已抓取列表页{}个页面',
     '{} のリストページを取得しました',
@@ -492,6 +498,12 @@ const langText = {
     '合計 {} つのファイルがあります',
     'Crawl a total of {} files',
     '共擷取到 {} 個檔案',
+  ],
+  _共抓取到n个作品: [
+    '共抓取到 {} 个作品',
+    '合計 {} つの作品があります',
+    'Crawl a total of {} works',
+    '共擷取到 {} 個作品',
   ],
   _命名规则: ['命名规则', '命名規則', 'Naming rule', '命名規則'],
   _设置文件夹名的提示: [
@@ -1464,22 +1476,17 @@ const langText = {
   ],
   _保存用户头像: [
     '保存用户头像',
-    'ユーザーアバターを保存する',
+    'ユーザーアイコンの保存',
     'Save user avatar',
     '儲存使用者頭像',
   ],
   _保存用户封面: [
     '保存用户封面',
-    'ユーザーカバーを保存',
+    'ユーザーカバーの保存',
     'Save user cover',
     '儲存使用者封面',
   ],
-  _待处理:[
-    '待处理',
-    '保留中',
-    'Pending',
-    '待處理',
-  ]
+  _待处理: ['待处理', '処理待ち', 'Pending', '待處理'],
 }
 
 export { langText, langTextKeys }

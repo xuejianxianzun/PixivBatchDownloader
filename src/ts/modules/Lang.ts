@@ -28,7 +28,10 @@ class Lang {
   }
 
   private setFlag() {
-    this.flag = settings.userSetLang === 'auto' ? this.getLangType() : settings.userSetLang
+    this.flag =
+      settings.userSetLang === 'auto'
+        ? this.getLangType()
+        : settings.userSetLang
   }
 
   // 获取页面使用的语言，返回对应的 flag
@@ -55,8 +58,8 @@ class Lang {
 
   private readonly flagIndex = {
     'zh-cn': 0,
-    'ja': 1,
-    'en': 2,
+    ja: 1,
+    en: 2,
     'zh-tw': 3,
   }
 

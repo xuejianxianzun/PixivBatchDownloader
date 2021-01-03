@@ -40,11 +40,19 @@ class InitUserPage extends InitPageBase {
   }
 
   protected addAnyElement() {
-    DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像')).addEventListener('click', () => {
+    DOM.addBtn(
+      'otherBtns',
+      Colors.green,
+      lang.transl('_保存用户头像'),
+    ).addEventListener('click', () => {
       EVT.fire(EVT.list.saveAvatarImage)
     })
 
-    DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户封面')).addEventListener('click', () => {
+    DOM.addBtn(
+      'otherBtns',
+      Colors.green,
+      lang.transl('_保存用户封面'),
+    ).addEventListener('click', () => {
       EVT.fire(EVT.list.saveUserCover)
     })
 

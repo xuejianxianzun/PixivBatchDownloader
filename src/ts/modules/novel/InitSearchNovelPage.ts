@@ -244,7 +244,10 @@ class InitSearchNovelPage extends InitPageBase {
 
   protected logResultTotal() {
     log.log(
-      `${lang.transl('_待处理')} ${store.idList.length}, ${lang.transl('_共抓取到n个文件', store.result.length.toString())}`,
+      `${lang.transl('_待处理')} ${store.idList.length}, ${lang.transl(
+        '_共抓取到n个文件',
+        store.result.length.toString(),
+      )}`,
       1,
       false,
     )
