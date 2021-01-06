@@ -6560,7 +6560,7 @@ const langText = {
         '作品の tags',
     ],
     _命名标记user: ['用户名字', '使用者名稱', 'User name', 'ユーザー名'],
-    _命名标记userid: ['用户 id', '使用者 id', 'User id', 'ユーザー ID'],
+    _用户id: ['用户 ID', '使用者 ID', 'User ID', 'ユーザー ID'],
     _命名标记px: ['宽度和高度', '寬度和高度', 'Width and height', '幅と高さ'],
     _命名标记bmk: [
         'bookmark-count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
@@ -7515,6 +7515,12 @@ const langText = {
         '针对特定用户屏蔽 tag',
         '针对特定用户屏蔽 tag',
     ],
+    _展开收起: [
+        '展开/收起',
+        '展開/摺疊',
+        'Expand/Collapse',
+        '展開/折りたたみ',
+    ],
     _展开: [
         '展开',
         '展開',
@@ -7551,18 +7557,22 @@ const langText = {
         'Multiple tags use comma (,) separated',
         '複数のタグの場合「,」分割',
     ],
+    _添加: ['添加', '添加', 'Add', '追加'],
+    _取消: ['取消', '取消', 'Cancel', '取消'],
     _添加成功: [
         '添加成功',
         '添加成功',
         '添加成功',
         '添加成功',
     ],
+    _更新: ['更新', '更新', 'Update', '更新'],
     _更新成功: [
         '更新成功',
         '更新成功',
         '更新成功',
         '更新成功',
     ],
+    _删除: ['删除', '删除', 'Delete', '删除']
 };
 
 
@@ -12000,31 +12010,29 @@ class BlockTagsForSpecificUser {
     constructor() {
         this.rules = [];
         this._addWrapShow = false;
-        this._listWrapShow = false;
         this.wrapHTML = `
   <div class="blockTagsForSpecificUserWrap">
 
     <div class="controlBar">
-      <button type="button" class="textButton gray1 expand">展开</button>
-      <button type="button" class="textButton gray1 collapse">折叠</button>
-      <button type="button" class="textButton gray1 showAdd">添加</button>
+      <button type="button" class="textButton gray1 expand">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收起')}</button>
+      <button type="button" class="textButton gray1 showAdd">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加')}</button>
     </div>
 
     <div class="addWrap">
       <div class="settingItem addInputWrap" >
         <div class="inputItem uid">
-          <span class="label uidLabel">用户 ID</span>
-          <input type="text" class="setinput_style1 blue addUidInput" placehoder="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_用户ID必须是数字')}" />
+          <span class="label uidLabel">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_用户id')}</span>
+          <input type="text" class="setinput_style1 blue addUidInput" placeholder="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_用户ID必须是数字')}" />
         </div>
 
         <div class="inputItem tags">
           <span class="label tagsLabel">Tags</span>
-          <input type="text" class="setinput_style1 blue addTagsInput" placehoder="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_tag用逗号分割')}" />
+          <input type="text" class="setinput_style1 blue addTagsInput" placeholder="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_tag用逗号分割')}" />
         </div>
 
         <div class="btns">
-          <button type="button" class="textButton add">添加</button>
-          <button type="button" class="textButton cancel">取消</button>
+          <button type="button" class="textButton add">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加')}</button>
+          <button type="button" class="textButton cancel">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_取消')}</button>
         </div>
       </div>
     </div>
@@ -12036,6 +12044,7 @@ class BlockTagsForSpecificUser {
         this.getRule();
         this.createWrap();
         this.createAllList();
+        this.listWrapShow = this.listWrapShow;
         this.updateWrapDisplay();
         this.bindEvents();
     }
@@ -12051,17 +12060,17 @@ class BlockTagsForSpecificUser {
         return this._addWrapShow;
     }
     set listWrapShow(val) {
-        this._listWrapShow = val;
+        Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserShowList', val);
         this.listWrap.style.display = val ? 'block' : 'none';
+        this.expandBtn.textContent = val ? _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收起') : _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_展开');
     }
     get listWrapShow() {
-        return this._listWrapShow;
+        return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList;
     }
     // 创建列表外部的容器，静态html
     createWrap() {
         this.wrap = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].useSlot('blockTagsForSpecificUser', this.wrapHTML);
         this.expandBtn = this.wrap.querySelector('.expand');
-        this.collapseBtn = this.wrap.querySelector('.collapse');
         this.showAddBtn = this.wrap.querySelector('.showAdd');
         this.addWrap = this.wrap.querySelector('.addWrap');
         this.addInputUid = this.wrap.querySelector('.addUidInput');
@@ -12069,17 +12078,22 @@ class BlockTagsForSpecificUser {
         this.addBtn = this.wrap.querySelector('.add');
         this.cancelBtn = this.wrap.querySelector('.cancel');
         this.listWrap = this.wrap.querySelector('.listWrap');
-        // 展开
+        // 展开/折叠
         this.expandBtn.addEventListener('click', () => {
-            this.listWrapShow = true;
-        });
-        // 折叠
-        this.collapseBtn.addEventListener('click', () => {
-            this.listWrapShow = false;
+            this.listWrapShow = !this.listWrapShow;
+            if (this.listWrapShow && this.rules.length === 0) {
+                _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
+                    msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'),
+                    type: 'error',
+                });
+            }
         });
         // 切换显示添加区域
         this.showAddBtn.addEventListener('click', () => {
             this.addWrapShow = !this.addWrapShow;
+            if (this.addWrapShow) {
+                this.addInputUid.focus();
+            }
         });
         // 添加规则的按钮
         this.addBtn.addEventListener('click', () => {
@@ -12092,16 +12106,6 @@ class BlockTagsForSpecificUser {
     }
     // 根据规则动态创建 html
     createAllList() {
-        this.rules = [
-            {
-                uid: 2551745,
-                tags: ['R-18']
-            },
-            {
-                uid: 1234,
-                tags: ['原神']
-            },
-        ];
         for (const data of this.rules) {
             const { uid, tags } = data;
             this.createList(uid, tags);
@@ -12112,7 +12116,7 @@ class BlockTagsForSpecificUser {
         const html = `
     <div class="settingItem" data-key="${uid}">
       <div class="inputItem uid">
-        <span class="label uidLabel">用户 ID</span>
+        <span class="label uidLabel">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_用户id')}</span>
         <input type="text" class="setinput_style1 blue" data-uidInput="${uid}" value="${uid}" />
       </div>
 
@@ -12122,8 +12126,8 @@ class BlockTagsForSpecificUser {
       </div>
 
       <div class="btns">
-        <button type="button" class="textButton" data-updateRule="${uid}">更新</button>
-        <button type="button" class="textButton" data-deleteRule="${uid}">删除</button>
+        <button type="button" class="textButton" data-updateRule="${uid}">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_更新')}</button>
+        <button type="button" class="textButton" data-deleteRule="${uid}">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_删除')}</button>
       </div>
     </div>`;
         // 倒序显示，早添加的处于底部，晚添加的处于顶部
@@ -12185,6 +12189,7 @@ class BlockTagsForSpecificUser {
         Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserList', [...this.rules]);
         this.createList(uid, tags);
         this.addWrapShow = false;
+        this.listWrapShow = true;
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
             type: 'success',
             msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加成功')
@@ -12207,6 +12212,7 @@ class BlockTagsForSpecificUser {
             type: 'success',
             msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_更新成功')
         });
+        this.addWrapShow = false;
     }
     // 删除规则
     deleteRule(uid) {
@@ -12232,7 +12238,7 @@ class BlockTagsForSpecificUser {
             this.getRule();
             this.listWrap.innerHTML = '';
             this.createAllList();
-            this.updateWrapDisplay();
+            this.listWrapShow = this.listWrapShow;
         });
     }
     // 如果找到了符合的记录，则返回 true
@@ -12835,7 +12841,7 @@ class Filter {
         return !tags.some(_Mute__WEBPACK_IMPORTED_MODULE_6__["mute"].checkTag.bind(_Mute__WEBPACK_IMPORTED_MODULE_6__["mute"]));
     }
     checkBlockTagsForSpecificUser(userId, tags) {
-        if (userId === undefined || tags === undefined) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUser || userId === undefined || tags === undefined) {
             return true;
         }
         // 对结果取反
@@ -14880,7 +14886,7 @@ const formHtml = `<form class="settingForm">
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记user')}
       <br>
       <span class="blue">{user_id}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记userid')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_用户id')}
       <br>
       <span class="blue">{title}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记title')}
@@ -15919,6 +15925,7 @@ class Settings {
             r18Folder: false,
             r18FolderName: '[R-18&R-18G]',
             blockTagsForSpecificUser: false,
+            blockTagsForSpecificUserShowList: true,
             blockTagsForSpecificUserList: []
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);

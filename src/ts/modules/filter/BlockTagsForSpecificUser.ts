@@ -11,6 +11,8 @@ class BlockTagsForSpecificUser {
 
     this.createWrap()
     this.createAllList()
+
+    this.listWrapShow = this.listWrapShow
     this.updateWrapDisplay()
 
     this.bindEvents()
@@ -20,8 +22,7 @@ class BlockTagsForSpecificUser {
 
   private wrap!: HTMLDivElement  // 最外层元素
 
-  private expandBtn!: HTMLButtonElement // 展开 按钮
-  private collapseBtn!: HTMLButtonElement // 折叠 按钮
+  private expandBtn!: HTMLButtonElement // 展开/折叠 按钮
   private showAddBtn!: HTMLButtonElement // 添加 按钮，点击显示添加区域
 
   private addWrap!: HTMLDivElement  // 用于添加新项目的区域
@@ -33,7 +34,6 @@ class BlockTagsForSpecificUser {
   private listWrap!: HTMLDivElement // 列表区域容器
 
   private _addWrapShow = false
-  private _listWrapShow = false
 
   set addWrapShow(val: boolean) {
     this._addWrapShow = val
@@ -50,38 +50,40 @@ class BlockTagsForSpecificUser {
   }
 
   set listWrapShow(val: boolean) {
-    this._listWrapShow = val
+    setSetting('blockTagsForSpecificUserShowList', val)
+
     this.listWrap.style.display = val ? 'block' : 'none'
+
+    this.expandBtn.textContent = val ? lang.transl('_收起') : lang.transl('_展开')
   }
 
   get listWrapShow() {
-    return this._listWrapShow
+    return settings.blockTagsForSpecificUserShowList
   }
 
   private wrapHTML = `
   <div class="blockTagsForSpecificUserWrap">
 
     <div class="controlBar">
-      <button type="button" class="textButton gray1 expand">展开</button>
-      <button type="button" class="textButton gray1 collapse">折叠</button>
-      <button type="button" class="textButton gray1 showAdd">添加</button>
+      <button type="button" class="textButton gray1 expand">${lang.transl('_收起')}</button>
+      <button type="button" class="textButton gray1 showAdd">${lang.transl('_添加')}</button>
     </div>
 
     <div class="addWrap">
       <div class="settingItem addInputWrap" >
         <div class="inputItem uid">
-          <span class="label uidLabel">用户 ID</span>
-          <input type="text" class="setinput_style1 blue addUidInput" placehoder="${lang.transl('_用户ID必须是数字')}" />
+          <span class="label uidLabel">${lang.transl('_用户id')}</span>
+          <input type="text" class="setinput_style1 blue addUidInput" placeholder="${lang.transl('_用户ID必须是数字')}" />
         </div>
 
         <div class="inputItem tags">
           <span class="label tagsLabel">Tags</span>
-          <input type="text" class="setinput_style1 blue addTagsInput" placehoder="${lang.transl('_tag用逗号分割')}" />
+          <input type="text" class="setinput_style1 blue addTagsInput" placeholder="${lang.transl('_tag用逗号分割')}" />
         </div>
 
         <div class="btns">
-          <button type="button" class="textButton add">添加</button>
-          <button type="button" class="textButton cancel">取消</button>
+          <button type="button" class="textButton add">${lang.transl('_添加')}</button>
+          <button type="button" class="textButton cancel">${lang.transl('_取消')}</button>
         </div>
       </div>
     </div>
@@ -95,7 +97,6 @@ class BlockTagsForSpecificUser {
   private createWrap() {
     this.wrap = DOM.useSlot('blockTagsForSpecificUser', this.wrapHTML)! as HTMLDivElement
     this.expandBtn = this.wrap.querySelector('.expand')! as HTMLButtonElement
-    this.collapseBtn = this.wrap.querySelector('.collapse')! as HTMLButtonElement
     this.showAddBtn = this.wrap.querySelector('.showAdd')! as HTMLButtonElement
     this.addWrap = this.wrap.querySelector('.addWrap')! as HTMLDivElement
     this.addInputUid = this.wrap.querySelector('.addUidInput')! as HTMLInputElement
@@ -104,19 +105,24 @@ class BlockTagsForSpecificUser {
     this.cancelBtn = this.wrap.querySelector('.cancel')! as HTMLButtonElement
     this.listWrap = this.wrap.querySelector('.listWrap')! as HTMLDivElement
 
-    // 展开
+    // 展开/折叠
     this.expandBtn.addEventListener('click', () => {
-      this.listWrapShow = true
-    })
+      this.listWrapShow = !this.listWrapShow
 
-    // 折叠
-    this.collapseBtn.addEventListener('click', () => {
-      this.listWrapShow = false
+      if (this.listWrapShow && this.rules.length === 0) {
+        EVT.sendMsg({
+          msg: lang.transl('_没有数据可供使用'),
+          type: 'error',
+        })
+      }
     })
 
     // 切换显示添加区域
     this.showAddBtn.addEventListener('click', () => {
       this.addWrapShow = !this.addWrapShow
+      if (this.addWrapShow) {
+        this.addInputUid.focus()
+      }
     })
 
     // 添加规则的按钮
@@ -132,17 +138,6 @@ class BlockTagsForSpecificUser {
 
   // 根据规则动态创建 html
   private createAllList() {
-    this.rules = [
-      {
-        uid: 2551745,
-        tags: ['R-18']
-      },
-      {
-        uid: 1234,
-        tags: ['原神']
-      },
-    ]
-
     for (const data of this.rules) {
       const { uid, tags } = data
       this.createList(uid, tags)
@@ -154,7 +149,7 @@ class BlockTagsForSpecificUser {
     const html = `
     <div class="settingItem" data-key="${uid}">
       <div class="inputItem uid">
-        <span class="label uidLabel">用户 ID</span>
+        <span class="label uidLabel">${lang.transl('_用户id')}</span>
         <input type="text" class="setinput_style1 blue" data-uidInput="${uid}" value="${uid}" />
       </div>
 
@@ -164,8 +159,8 @@ class BlockTagsForSpecificUser {
       </div>
 
       <div class="btns">
-        <button type="button" class="textButton" data-updateRule="${uid}">更新</button>
-        <button type="button" class="textButton" data-deleteRule="${uid}">删除</button>
+        <button type="button" class="textButton" data-updateRule="${uid}">${lang.transl('_更新')}</button>
+        <button type="button" class="textButton" data-deleteRule="${uid}">${lang.transl('_删除')}</button>
       </div>
     </div>`
 
@@ -242,6 +237,8 @@ class BlockTagsForSpecificUser {
 
     this.addWrapShow = false
 
+    this.listWrapShow = true
+
     EVT.sendMsg({
       type: 'success',
       msg: lang.transl('_添加成功')
@@ -304,8 +301,7 @@ class BlockTagsForSpecificUser {
 
       this.listWrap.innerHTML = ''
       this.createAllList()
-
-      this.updateWrapDisplay()
+      this.listWrapShow = this.listWrapShow
     })
   }
 

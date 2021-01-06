@@ -701,7 +701,7 @@ class Filter {
   }
 
   private checkBlockTagsForSpecificUser(userId: FilterOption['userId'], tags: FilterOption['tags']) {
-    if (userId === undefined || tags === undefined) {
+    if (!settings.blockTagsForSpecificUser || userId === undefined || tags === undefined) {
       return true
     }
 

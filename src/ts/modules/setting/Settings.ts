@@ -85,7 +85,8 @@ interface XzSetting {
   r18Folder: boolean,
   r18FolderName: string,
   blockTagsForSpecificUser: boolean,
-  blockTagsForSpecificUserList: { uid: number, tags: string[] }[]
+  blockTagsForSpecificUserShowList: boolean,
+  blockTagsForSpecificUserList: { uid: number,user?:string, tags: string[] }[]
 }
 
 class Settings {
@@ -196,6 +197,7 @@ class Settings {
     r18Folder: false,
     r18FolderName: '[R-18&R-18G]',
     blockTagsForSpecificUser: false,
+    blockTagsForSpecificUserShowList:true,
     blockTagsForSpecificUserList: []
   }
 
