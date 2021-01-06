@@ -3639,25 +3639,33 @@ class FileName {
             const index = result.lastIndexOf('/');
             result = result.substr(index + 1, result.length);
         }
+        // 把 R18(G) 作品存入指定目录里
+        // 注意：这必须放在 为作品建立单独的文件夹 之前
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].r18Folder && _Tools__WEBPACK_IMPORTED_MODULE_5__["Tools"].isR18OrR18G(data.tags)) {
+            // 在文件名前面添加一层文件夹
+            const allPart = result.split('/');
+            const folder = _Tools__WEBPACK_IMPORTED_MODULE_5__["Tools"].replaceUnsafeStr(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].r18FolderName);
+            allPart.splice(allPart.length - 1, 0, folder);
+            result = allPart.join('/');
+        }
+        // 为作品建立单独的文件夹
         // 如果这个作品里要下载的文件数量大于指定数量，则会为它建立单独的文件夹
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].workDir && data.dlCount > _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].workDirFileNumber) {
             // 操作路径中最后一项（即文件名），在它前面添加一层文件夹
             const allPart = result.split('/');
-            const lastPartIndex = allPart.length - 1;
-            let lastPart = allPart[lastPartIndex];
-            let addString = '';
+            const name = allPart[allPart.length - 1];
+            let folder = '';
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].workDirName === 'id') {
                 // 使用作品 id 作为文件夹名
-                addString = data.idNum.toString();
+                folder = data.idNum.toString();
             }
             else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].workDirName === 'rule') {
                 // 遵从命名规则，使用文件名做文件夹名
                 // 这里进行了一个替换，因为多图每个图片的名字都不同，这主要是因为 id 后面的序号不同。这会导致文件夹名也不同，有多少个文件就会建立多少个文件夹，而不是统一建立一个文件夹。为了只建立一个文件夹，需要把 id 后面的序号部分去掉。
                 // 但是如果一些特殊的命名规则并没有包含 {id} 部分，文件名的区别得不到处理，依然会每个文件建立一个文件夹。
-                addString = lastPart.replace(data.id, data.idNum.toString());
+                folder = name.replace(data.id, data.idNum.toString());
             }
-            lastPart = addString + '/' + lastPart;
-            allPart[lastPartIndex] = lastPart;
+            allPart.splice(allPart.length - 1, 0, folder);
             result = allPart.join('/');
         }
         // 生成后缀名
@@ -7238,9 +7246,9 @@ const langText = {
         'The tags of the work',
         '作品の tags',
     ],
-    _命名标记user: ['画师名字', '畫師名稱', 'Artist name', 'アーティスト名'],
-    _命名标记userid: ['画师 id', '畫師 id', 'Artist id', 'アーティスト ID'],
-    _命名标记px: ['宽度和高度', '寬度和高度', 'width and height', '幅と高さ'],
+    _命名标记user: ['用户名字', '使用者名稱', 'User name', 'ユーザー名'],
+    _命名标记userid: ['用户 id', '使用者 id', 'User id', 'ユーザー ID'],
+    _命名标记px: ['宽度和高度', '寬度和高度', 'Width and height', '幅と高さ'],
     _命名标记bmk: [
         'bookmark-count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
         'bookmark-count，作品的收藏數。將它放在最前面可以讓檔案依收藏數排序。',
@@ -8187,6 +8195,30 @@ const langText = {
         '超出最大頁碼：',
         'Maximum page number exceeded:',
         '最大ページ数を超えました：',
+    ],
+    _针对特定用户屏蔽tag: [
+        '针对特定用户屏蔽 tag',
+        '针对特定用户屏蔽 tag',
+        '针对特定用户屏蔽 tag',
+        '针对特定用户屏蔽 tag',
+    ],
+    _展开: [
+        '展开',
+        '展開',
+        'Expand',
+        '展開',
+    ],
+    _收起: [
+        '收起',
+        '摺疊',
+        'Collapse',
+        '折りたたみ',
+    ],
+    _把r18作品存入指定的文件夹里: [
+        '把 R-18(G) 作品存入指定的文件夹里',
+        '把 R-18(G) 作品存入指定的文件夹里',
+        '把 R-18(G) 作品存入指定的文件夹里',
+        '把 R-18(G) 作品存入指定的文件夹里',
     ]
 };
 
@@ -10724,6 +10756,10 @@ class Tools {
                 return 0;
             }
         };
+    }
+    static isR18OrR18G(tags) {
+        const str = Array.isArray(tags) ? tags.toString() : tags;
+        return str.includes('R-18') || str.includes('R-18G') || str.includes('R18') || str.includes('R18G');
     }
 }
 // 不安全的字符，这里多数是控制字符，需要替换掉
@@ -14599,6 +14635,16 @@ const formHtml = `<form class="settingForm">
       </span>
       </p>
 
+      <p class="option" data-no="38">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_把r18作品存入指定的文件夹里')}</span>
+      <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch" >
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="r18Folder">
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_目录名使用')}</span>
+      <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
+      </span>
+      </p>
+
       <p class="option" data-no="15">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_快速下载建立文件夹提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_快速下载建立文件夹')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" class="need_beautify checkbox_switch" >
@@ -14977,6 +15023,8 @@ class FormSettings {
         this.saveCheckBox('workDir');
         this.saveTextInput('workDirFileNumber');
         this.saveRadio('workDirName');
+        this.saveCheckBox('r18Folder');
+        this.saveTextInput('r18FolderName');
         // 保存文件体积限制
         this.saveCheckBox('sizeSwitch');
         this.saveTextInput('sizeMin');
@@ -15109,6 +15157,8 @@ class FormSettings {
         this.restoreBoolean('workDir');
         this.restoreString('workDirFileNumber');
         this.restoreString('workDirName');
+        this.restoreBoolean('r18Folder');
+        this.restoreString('r18FolderName');
         // 设置预览搜索结果
         this.restoreBoolean('previewResult');
         // 设置文件体积限制
@@ -15521,6 +15571,8 @@ class Settings {
             blockList: [],
             theme: 'auto',
             needTagMode: 'all',
+            r18Folder: false,
+            r18FolderName: '[R-18&R-18G]',
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         this.floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax'];

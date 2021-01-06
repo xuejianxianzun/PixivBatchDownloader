@@ -156,6 +156,9 @@ class FormSettings {
     this.saveTextInput('workDirFileNumber')
     this.saveRadio('workDirName')
 
+    this.saveCheckBox('r18Folder')
+    this.saveTextInput('r18FolderName')
+
     // 保存文件体积限制
     this.saveCheckBox('sizeSwitch')
     this.saveTextInput('sizeMin')
@@ -332,6 +335,9 @@ class FormSettings {
 
     this.restoreString('workDirFileNumber')
     this.restoreString('workDirName')
+
+    this.restoreBoolean('r18Folder')
+    this.restoreString('r18FolderName')
 
     // 设置预览搜索结果
     this.restoreBoolean('previewResult')

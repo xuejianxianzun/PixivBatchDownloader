@@ -383,6 +383,18 @@ const formHtml = `<form class="settingForm">
       </span>
       </p>
 
+      <p class="option" data-no="38">
+      <span class="settingNameStyle1">${lang.transl(
+        '_把r18作品存入指定的文件夹里',
+      )}</span>
+      <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch" >
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="r18Folder">
+      <span>${lang.transl('_目录名使用')}</span>
+      <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
+      </span>
+      </p>
+
       <p class="option" data-no="15">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_快速下载建立文件夹提示',

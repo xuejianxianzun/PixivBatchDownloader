@@ -81,7 +81,9 @@ interface XzSetting {
   userBlockList: boolean
   blockList: string[]
   needTagMode: 'all' | 'one'
-  theme: 'auto' | 'white' | 'dark'
+  theme: 'auto' | 'white' | 'dark',
+  r18Folder:boolean,
+  r18FolderName:string,
 }
 
 class Settings {
@@ -189,6 +191,8 @@ class Settings {
     blockList: [],
     theme: 'auto',
     needTagMode: 'all',
+    r18Folder:false,
+    r18FolderName:'[R-18&R-18G]',
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
