@@ -10,6 +10,8 @@ import { DOM } from '../DOM'
 import { Tools } from '../Tools'
 import { convertOldSettings } from './ConvertOldSettings'
 
+export interface BlockTagsForSpecificUserItem { uid: number, user?: string, tags: string[] }
+
 interface XzSetting {
   setWantPage: number
   wantPageArr: number[]
@@ -86,7 +88,7 @@ interface XzSetting {
   r18FolderName: string,
   blockTagsForSpecificUser: boolean,
   blockTagsForSpecificUserShowList: boolean,
-  blockTagsForSpecificUserList: { uid: number,user?:string, tags: string[] }[]
+  blockTagsForSpecificUserList: BlockTagsForSpecificUserItem[]
 }
 
 class Settings {
@@ -197,7 +199,7 @@ class Settings {
     r18Folder: false,
     r18FolderName: '[R-18&R-18G]',
     blockTagsForSpecificUser: false,
-    blockTagsForSpecificUserShowList:true,
+    blockTagsForSpecificUserShowList: true,
     blockTagsForSpecificUserList: []
   }
 

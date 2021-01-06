@@ -12000,6 +12000,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/modules/Tools.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/modules/setting/Settings.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
+
 
 
 
@@ -12015,6 +12017,7 @@ class BlockTagsForSpecificUser {
 
     <div class="controlBar">
       <button type="button" class="textButton gray1 expand">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收起')}</button>
+      <span class="gray1 total">0</span>
       <button type="button" class="textButton gray1 showAdd">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加')}</button>
     </div>
 
@@ -12046,6 +12049,7 @@ class BlockTagsForSpecificUser {
         this.createAllList();
         this.listWrapShow = this.listWrapShow;
         this.updateWrapDisplay();
+        this.showTotal();
         this.bindEvents();
     }
     set addWrapShow(val) {
@@ -12072,6 +12076,7 @@ class BlockTagsForSpecificUser {
         this.wrap = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].useSlot('blockTagsForSpecificUser', this.wrapHTML);
         this.expandBtn = this.wrap.querySelector('.expand');
         this.showAddBtn = this.wrap.querySelector('.showAdd');
+        this.totalSpan = this.wrap.querySelector('.total');
         this.addWrap = this.wrap.querySelector('.addWrap');
         this.addInputUid = this.wrap.querySelector('.addUidInput');
         this.addInputTags = this.wrap.querySelector('.addTagsInput');
@@ -12107,12 +12112,12 @@ class BlockTagsForSpecificUser {
     // 根据规则动态创建 html
     createAllList() {
         for (const data of this.rules) {
-            const { uid, tags } = data;
-            this.createList(uid, tags);
+            this.createList(data);
         }
     }
     // 创建规则对应的元素，并绑定事件
-    createList(uid, tags) {
+    createList(data) {
+        const { uid, user, tags } = data;
         const html = `
     <div class="settingItem" data-key="${uid}">
       <div class="inputItem uid">
@@ -12132,6 +12137,13 @@ class BlockTagsForSpecificUser {
     </div>`;
         // 倒序显示，早添加的处于底部，晚添加的处于顶部
         this.listWrap.insertAdjacentHTML('afterbegin', html);
+        const uidLabel = this.listWrap.querySelector('.uidLabel');
+        if (user) {
+            uidLabel.textContent = user;
+        }
+        else {
+            this.updateUserName(data);
+        }
         const updateRule = this.listWrap.querySelector(`button[data-updateRule='${uid}']`);
         const deleteRule = this.listWrap.querySelector(`button[data-deleteRule='${uid}']`);
         const uidInput = this.listWrap.querySelector(`input[data-uidInput='${uid}']`);
@@ -12144,6 +12156,25 @@ class BlockTagsForSpecificUser {
         deleteRule === null || deleteRule === void 0 ? void 0 : deleteRule.addEventListener('click', () => {
             this.deleteRule(uid);
         });
+    }
+    // 如果某个规则没有用户名，就获取用户名储存起来
+    async updateUserName(data) {
+        const profile = await _API__WEBPACK_IMPORTED_MODULE_5__["API"].getUserProfile(data.uid.toString()).catch(err => {
+            console.log(err);
+        });
+        if (profile && profile.body.name) {
+            const name = profile.body.name;
+            const index = this.findIndex(data.uid);
+            if (index > -1) {
+                this.rules[index].user = name;
+                Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserList', [...this.rules]);
+                const listElement = this.listWrap.querySelector(`.settingItem[data-key='${data.uid}']`);
+                if (listElement) {
+                    const label = listElement.querySelector('.uidLabel');
+                    label && (label.textContent = name);
+                }
+            }
+        }
     }
     // 检查用户输入的值
     checkValue(uidInput, tagsInput) {
@@ -12187,7 +12218,10 @@ class BlockTagsForSpecificUser {
         }
         this.rules.push(check);
         Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserList', [...this.rules]);
-        this.createList(uid, tags);
+        this.createList({
+            uid, tags,
+            user: ''
+        });
         this.addWrapShow = false;
         this.listWrapShow = true;
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
@@ -12207,7 +12241,7 @@ class BlockTagsForSpecificUser {
         Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserList', [...this.rules]);
         const listElement = this.listWrap.querySelector(`.settingItem[data-key='${oldUid}']`);
         listElement === null || listElement === void 0 ? void 0 : listElement.remove();
-        this.createList(uid, tags);
+        this.createList({ uid, tags, user: '' });
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
             type: 'success',
             msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_更新成功')
@@ -12228,9 +12262,13 @@ class BlockTagsForSpecificUser {
     updateWrapDisplay() {
         this.wrap.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUser ? "block" : 'none';
     }
+    showTotal() {
+        this.totalSpan.textContent = this.rules.length.toString();
+    }
     bindEvents() {
         // 选项变化
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, () => {
+            this.showTotal();
             this.updateWrapDisplay();
         });
         // 选项重置

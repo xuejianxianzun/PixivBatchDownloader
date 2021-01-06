@@ -2,7 +2,8 @@ import { DOM } from '../DOM'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { Tools } from '../Tools'
-import { settings, setSetting } from '../setting/Settings'
+import { settings, setSetting, BlockTagsForSpecificUserItem } from '../setting/Settings'
+import { API } from '../API'
 
 // 针对特定用户屏蔽 tag
 class BlockTagsForSpecificUser {
@@ -14,6 +15,7 @@ class BlockTagsForSpecificUser {
 
     this.listWrapShow = this.listWrapShow
     this.updateWrapDisplay()
+    this.showTotal()
 
     this.bindEvents()
   }
@@ -23,6 +25,7 @@ class BlockTagsForSpecificUser {
   private wrap!: HTMLDivElement  // 最外层元素
 
   private expandBtn!: HTMLButtonElement // 展开/折叠 按钮
+  private totalSpan!: HTMLSpanElement // 显示规则数量
   private showAddBtn!: HTMLButtonElement // 添加 按钮，点击显示添加区域
 
   private addWrap!: HTMLDivElement  // 用于添加新项目的区域
@@ -66,6 +69,7 @@ class BlockTagsForSpecificUser {
 
     <div class="controlBar">
       <button type="button" class="textButton gray1 expand">${lang.transl('_收起')}</button>
+      <span class="gray1 total">0</span>
       <button type="button" class="textButton gray1 showAdd">${lang.transl('_添加')}</button>
     </div>
 
@@ -98,6 +102,7 @@ class BlockTagsForSpecificUser {
     this.wrap = DOM.useSlot('blockTagsForSpecificUser', this.wrapHTML)! as HTMLDivElement
     this.expandBtn = this.wrap.querySelector('.expand')! as HTMLButtonElement
     this.showAddBtn = this.wrap.querySelector('.showAdd')! as HTMLButtonElement
+    this.totalSpan = this.wrap.querySelector('.total')! as HTMLSpanElement
     this.addWrap = this.wrap.querySelector('.addWrap')! as HTMLDivElement
     this.addInputUid = this.wrap.querySelector('.addUidInput')! as HTMLInputElement
     this.addInputTags = this.wrap.querySelector('.addTagsInput')! as HTMLInputElement
@@ -139,13 +144,13 @@ class BlockTagsForSpecificUser {
   // 根据规则动态创建 html
   private createAllList() {
     for (const data of this.rules) {
-      const { uid, tags } = data
-      this.createList(uid, tags)
+      this.createList(data)
     }
   }
 
   // 创建规则对应的元素，并绑定事件
-  private createList(uid: number, tags: string[]) {
+  private createList(data: BlockTagsForSpecificUserItem) {
+    const { uid, user, tags } = data
     const html = `
     <div class="settingItem" data-key="${uid}">
       <div class="inputItem uid">
@@ -167,6 +172,13 @@ class BlockTagsForSpecificUser {
     // 倒序显示，早添加的处于底部，晚添加的处于顶部
     this.listWrap.insertAdjacentHTML('afterbegin', html)
 
+    const uidLabel = this.listWrap.querySelector('.uidLabel')!
+    if (user) {
+      uidLabel.textContent = user
+    } else {
+      this.updateUserName(data)
+    }
+
     const updateRule = this.listWrap.querySelector(`button[data-updateRule='${uid}']`)
     const deleteRule = this.listWrap.querySelector(`button[data-deleteRule='${uid}']`)
     const uidInput = this.listWrap.querySelector(`input[data-uidInput='${uid}']`)! as HTMLInputElement
@@ -181,6 +193,28 @@ class BlockTagsForSpecificUser {
     deleteRule?.addEventListener('click', () => {
       this.deleteRule(uid)
     })
+  }
+
+  // 如果某个规则没有用户名，就获取用户名储存起来
+  private async updateUserName(data: BlockTagsForSpecificUserItem) {
+    const profile = await API.getUserProfile(data.uid.toString()).catch(err => {
+      console.log(err)
+    })
+    if (profile && profile.body.name) {
+      const name = profile.body.name
+      const index = this.findIndex(data.uid)
+      if (index > -1) {
+        this.rules[index].user = name
+        setSetting('blockTagsForSpecificUserList', [...this.rules])
+
+        // 显示到页面上
+        const listElement = this.listWrap.querySelector(`.settingItem[data-key='${data.uid}']`)
+        if (listElement) {
+          const label = listElement.querySelector('.uidLabel')
+          label && (label.textContent = name)
+        }
+      }
+    }
   }
 
   // 检查用户输入的值
@@ -233,7 +267,10 @@ class BlockTagsForSpecificUser {
     this.rules.push(check)
     setSetting('blockTagsForSpecificUserList', [...this.rules])
 
-    this.createList(uid, tags)
+    this.createList({
+      uid, tags,
+      user: ''
+    })
 
     this.addWrapShow = false
 
@@ -260,7 +297,7 @@ class BlockTagsForSpecificUser {
     const listElement = this.listWrap.querySelector(`.settingItem[data-key='${oldUid}']`)
     listElement?.remove()
 
-    this.createList(uid, tags)
+    this.createList({ uid, tags, user: '' })
 
     EVT.sendMsg({
       type: 'success',
@@ -280,7 +317,6 @@ class BlockTagsForSpecificUser {
     listElement?.remove()
   }
 
-
   private getRule() {
     this.rules = [...settings.blockTagsForSpecificUserList]
   }
@@ -289,9 +325,14 @@ class BlockTagsForSpecificUser {
     this.wrap.style.display = settings.blockTagsForSpecificUser ? "block" : 'none'
   }
 
+  private showTotal() {
+    this.totalSpan.textContent = this.rules.length.toString()
+  }
+
   private bindEvents() {
     // 选项变化
     window.addEventListener(EVT.list.settingChange, () => {
+      this.showTotal()
       this.updateWrapDisplay()
     })
 
