@@ -6,9 +6,13 @@
 
 ### 新增功能：针对特定用户屏蔽 tag
 
+blockTagsForSpecificUser
+
+blockTagsForSpecificUserList
+
 ```json
 {
-  "userid": "tag,tag,",
+  "userid": ["tag","tag"],
 }
 ```
 
@@ -45,6 +49,11 @@ _针对特定用户屏蔽tag
 收起
 
 _为r18作品创建单独的目录
+
+#### 优化一些异常情况的提示
+
+- 当用户在搜索页面 1000 页之后进行抓取时提示；
+- 当用户在用户阻止列表里输入的用户 id 不是数字时提示；
 
 ## 8.8.0 2021/01/03
 

@@ -82,8 +82,10 @@ interface XzSetting {
   blockList: string[]
   needTagMode: 'all' | 'one'
   theme: 'auto' | 'white' | 'dark',
-  r18Folder:boolean,
-  r18FolderName:string,
+  r18Folder: boolean,
+  r18FolderName: string,
+  blockTagsForSpecificUser: boolean,
+  blockTagsForSpecificUserList: { uid: number, tags: string[] }[]
 }
 
 class Settings {
@@ -191,8 +193,10 @@ class Settings {
     blockList: [],
     theme: 'auto',
     needTagMode: 'all',
-    r18Folder:false,
-    r18FolderName:'[R-18&R-18G]',
+    r18Folder: false,
+    r18FolderName: '[R-18&R-18G]',
+    blockTagsForSpecificUser: false,
+    blockTagsForSpecificUserList: []
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -281,6 +285,7 @@ class Settings {
   // 可选参数：传递整个设置的数据，用于从配置文件导入，恢复设置
   private reset(data?: XzSetting) {
     if (data) {
+      // 使用导入的设置
       this.assignSettings(data)
     } else {
       // 将选项恢复为默认值
@@ -303,7 +308,7 @@ class Settings {
   // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传递 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
   public setSetting(
     key: keyof XzSetting,
-    value: string | number | boolean | string[] | number[],
+    value: string | number | boolean | string[] | number[] | object[],
     fireEvt = true,
   ) {
     if (!this.allSettingKeys.includes(key)) {
@@ -376,7 +381,7 @@ class Settings {
     }
 
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
 
     // 触发设置变化的事件
     // 在进行批量操作（如恢复设置、导入设置、重置设置）的时候，可以将 fireEvt 设为 false，等操作执行之后自行触发这个事件

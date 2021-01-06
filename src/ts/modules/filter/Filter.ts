@@ -1,11 +1,12 @@
 import { FilterOption } from './Filter.d'
-import { lang } from './Lang'
-import { log } from './Log'
-import { EVT } from './EVT'
-import { states } from './States'
-import { settings } from './setting/Settings'
+import { lang } from '../Lang'
+import { log } from '../Log'
+import { EVT } from '../EVT'
+import { states } from '../States'
+import { settings } from '../setting/Settings'
 import { blackAndWhiteImage } from './BlackandWhiteImage'
 import { mute } from './Mute'
+import { blockTagsForSpecificUser } from './BlockTagsForSpecificUser'
 
 // 检查作品是否符合过滤条件
 class Filter {
@@ -126,6 +127,11 @@ class Filter {
       return false
     }
 
+    // 检查针对特定用户屏蔽的 tags
+    if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags)) {
+      return false
+    }
+
     // 检查黑白图片
     // 这一步需要加载图片，需要较长的时间，较多的资源占用，所以放到最后检查
     const blackAndWhiteResult = await this.checkBlackWhite(option.mini)
@@ -229,7 +235,7 @@ class Filter {
     if (settings.notNeedTag.length > 0) {
       log.warning(
         lang.transl('_设置了排除tag之后的提示') +
-          settings.notNeedTag.toString(),
+        settings.notNeedTag.toString(),
       )
     }
   }
@@ -244,11 +250,9 @@ class Filter {
       const andOr = settings.setWidthAndOr
         .replace('|', lang.transl('_或者'))
         .replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${
-        settings.setWidth
-      } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${
-        settings.setHeight
-      }`
+      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${settings.setWidth
+        } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${settings.setHeight
+        }`
       log.warning(text)
     }
   }
@@ -337,6 +341,12 @@ class Filter {
   private getBlockList() {
     if (!settings.userBlockList) {
       return
+    }
+
+    for (const uid of settings.blockList) {
+      if (isNaN(Number.parseInt(uid))) {
+        return this.showWarning(lang.transl('_用户ID必须是数字'))
+      }
     }
 
     if (settings.blockList.length > 0) {
@@ -688,6 +698,15 @@ class Filter {
 
     // 如果某些 tag 存在于 mute 列表里，就排除这个作品，所以要取反
     return !tags.some(mute.checkTag.bind(mute))
+  }
+
+  private checkBlockTagsForSpecificUser(userId: FilterOption['userId'], tags: FilterOption['tags']) {
+    if (userId === undefined || tags === undefined) {
+      return true
+    }
+
+    // 对结果取反
+    return !blockTagsForSpecificUser.check(userId, tags)
   }
 
   // 如果设置项的值不合法，则显示提示

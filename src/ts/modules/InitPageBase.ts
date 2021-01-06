@@ -12,7 +12,7 @@ import { settingAPI } from './setting/SettingAPI'
 import { states } from './States'
 import { saveArtworkData } from './artwork/SaveArtworkData'
 import { saveNovelData } from './novel/SaveNovelData'
-import { mute } from './Mute'
+import { mute } from './filter/Mute'
 import { IDData } from './Store.d'
 import './SelectWork'
 

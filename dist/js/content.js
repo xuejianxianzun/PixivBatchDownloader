@@ -549,110 +549,6 @@ class API {
 
 /***/ }),
 
-/***/ "./src/ts/modules/BlackandWhiteImage.ts":
-/*!**********************************************!*\
-  !*** ./src/ts/modules/BlackandWhiteImage.ts ***!
-  \**********************************************/
-/*! exports provided: blackAndWhiteImage */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "blackAndWhiteImage", function() { return blackAndWhiteImage; });
-/* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
-
-// 检查图片是否是黑白图片
-class BlackAndWhiteImage {
-    constructor() {
-        this.latitude = 1; // 宽容度
-    }
-    async check(imgUrl) {
-        const img = await this.loadImg(imgUrl).catch((error) => {
-            console.error(error);
-        });
-        // 当加载图片失败时，无法进行判断，默认为彩色图片
-        if (!img) {
-            return false;
-        }
-        const first = this.getResult(this.getColor(img));
-        return first;
-        // 当判断结果是彩色图片的时候，基本不会是误判。但如果结果是黑白图，可能存在误判。
-        // 因此，如果第一次判断是黑白的，可以考虑进行第二次检测，第二次只检测局部
-    }
-    // 加载图片
-    async loadImg(url) {
-        return new Promise(async (resolve, reject) => {
-            // 如果传递的时 blobURL 就直接使用，不是的话先获取图片
-            if (url.startsWith('blob')) {
-                resolve(_DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].loadImg(url));
-            }
-            else {
-                const res = await fetch(url).catch((error) => {
-                    throw new Error(`Load image error! url: ${url}`);
-                });
-                const blob = await res.blob();
-                const blobURL = URL.createObjectURL(blob);
-                resolve(_DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].loadImg(blobURL));
-            }
-        });
-    }
-    // 获取图片中 rgb 三色的平均值
-    getColor(img) {
-        const width = img.width;
-        const height = img.height;
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const con = canvas.getContext('2d');
-        con.drawImage(img, 0, 0);
-        const imageData = con.getImageData(0, 0, width, height);
-        const data = imageData.data;
-        let r = 0;
-        let g = 0;
-        let b = 0;
-        // 取所有像素的平均值
-        for (let row = 0; row < height; row++) {
-            for (let col = 0; col < width; col++) {
-                r += data[(width * row + col) * 4];
-                g += data[(width * row + col) * 4 + 1];
-                b += data[(width * row + col) * 4 + 2];
-            }
-        }
-        // 求取平均值
-        r /= width * height;
-        g /= width * height;
-        b /= width * height;
-        // 将最终的值取整
-        r = Math.round(r);
-        g = Math.round(g);
-        b = Math.round(b);
-        return [r, g, b];
-    }
-    // 根据 rgb 的值，判断是否是黑白图片
-    getResult(rgb) {
-        const [r, g, b] = rgb;
-        // 如果 rgb 值相同则是黑白图片
-        if (r === g && g === b) {
-            return true;
-        }
-        else {
-            // 如果 rgb 值不相同，则根据宽容度判断是否近似为黑白图片
-            // 这是因为获取 rgb 的结果时，进行了四舍五入，即使 rgb 非常接近，也可能会相差 1（未论证）
-            const max = Math.max(r, g, b); // 取出 rgb 中的最大值
-            const min = max - this.latitude; // 允许的最小值
-            // 如果 rgb 三个数值与最大的数值相比，差距在宽容度之内，则检查通过
-            return [r, g, b].every((number) => {
-                return number >= min;
-            });
-        }
-    }
-}
-const blackAndWhiteImage = new BlackAndWhiteImage();
-
-
-
-/***/ }),
-
 /***/ "./src/ts/modules/BookmarkAfterDL.ts":
 /*!*******************************************!*\
   !*** ./src/ts/modules/BookmarkAfterDL.ts ***!
@@ -2167,7 +2063,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./FileName */ "./src/ts/modules/FileName.ts");
 /* harmony import */ var _ugoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ugoira/ConvertUgoira */ "./src/ts/modules/ugoira/ConvertUgoira.ts");
 /* harmony import */ var _ProgressBar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ProgressBar */ "./src/ts/modules/ProgressBar.ts");
-/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Filter */ "./src/ts/modules/Filter.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./filter/Filter */ "./src/ts/modules/filter/Filter.ts");
 /* harmony import */ var _Deduplication__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Deduplication */ "./src/ts/modules/Deduplication.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/modules/setting/Settings.ts");
 /* harmony import */ var _novel_MakeNovelFile__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./novel/MakeNovelFile */ "./src/ts/modules/novel/MakeNovelFile.ts");
@@ -2253,7 +2149,7 @@ class Download {
             // 检查体积设置
             if (!this.sizeChecked) {
                 this.sizeChecked = true;
-                const result = await _Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check({ size: event.total });
+                const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check({ size: event.total });
                 if (!result) {
                     // 当因为体积问题跳过下载时，可能这个下载进度还是 0 或者很少，所以这里直接把进度条拉满
                     this.setProgressBar(1, 1);
@@ -2345,7 +2241,7 @@ class Download {
             // 在这里进行检查的主要原因：抓取时只能检测第一张的缩略图，并没有检查后面的图片。所以这里需要对后面的图片进行检查。
             // 另一个原因：如果抓取时没有设置不下载某种颜色的图片，下载时又开启了设置，那么就在这里进行检查
             if (arg.data.type === 0 || arg.data.type === 1) {
-                const result = await _Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check({
+                const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check({
                     mini: blobUrl,
                 });
                 if (!result) {
@@ -2360,7 +2256,7 @@ class Download {
             if ((arg.data.type === 0 || arg.data.type === 1) &&
                 !arg.data.id.includes('p0')) {
                 const img = await _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].loadImg(blobUrl);
-                const result = await _Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check({
+                const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check({
                     width: img.naturalWidth,
                     height: img.naturalHeight,
                 });
@@ -3700,589 +3596,6 @@ class FileName {
     }
 }
 const fileName = new FileName();
-
-
-
-/***/ }),
-
-/***/ "./src/ts/modules/Filter.ts":
-/*!**********************************!*\
-  !*** ./src/ts/modules/Filter.ts ***!
-  \**********************************/
-/*! exports provided: filter */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "filter", function() { return filter; });
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/modules/setting/Settings.ts");
-/* harmony import */ var _BlackandWhiteImage__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./BlackandWhiteImage */ "./src/ts/modules/BlackandWhiteImage.ts");
-/* harmony import */ var _Mute__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Mute */ "./src/ts/modules/Mute.ts");
-
-
-
-
-
-
-
-// 检查作品是否符合过滤条件
-class Filter {
-    constructor() {
-        this.MiB = 1024 * 1024;
-        this.oneDayTime = 24 * 60 * 60 * 1000; // 一天的毫秒数
-        this.bindEvents();
-    }
-    // 对启用了的过滤选项输出提示
-    showTip() {
-        this.getDownType();
-        this.getDownTypeByImgCount();
-        this.getDownTypeByColor();
-        this.getDownTypeByBmked();
-        this.getBMKNum();
-        this.getSetWh();
-        this.getRatio();
-        this.getIdRange();
-        this.getPostDate();
-        this.getIncludeTag();
-        this.getExcludeTag();
-        if (_States__WEBPACK_IMPORTED_MODULE_3__["states"].debut) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取首次登场的作品Title'));
-        }
-        this.getBlockList();
-        this.getSize();
-    }
-    // 检查作品是否符合过滤器的要求
-    // 注意：这是一个异步函数，所以要使用 await 获取检查结果
-    // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
-    // 每个过滤器函数里都必须检查参数为 undefined 的情况
-    // 每个过滤器函数必须返回一个 boolean 值，true 表示保留这个作品，false 表示排除这个作品
-    async check(option) {
-        // 检查下载的作品类型设置
-        if (!this.checkDownType(option.illustType)) {
-            return false;
-        }
-        // 检查单图、多图的下载
-        if (!this.checkPageCount(option.illustType, option.pageCount)) {
-            return false;
-        }
-        // 检查收藏和未收藏的要求
-        if (!this.checkDownTypeByBmked(option.bookmarkData)) {
-            return false;
-        }
-        // 检查收藏数要求
-        if (!this.checkBMK(option.bookmarkCount, option.createDate)) {
-            return false;
-        }
-        // 检查要排除的 tag
-        if (!this.checkExcludeTag(option.tags)) {
-            return false;
-        }
-        // 检查必须包含的 tag
-        if (!this.checkIncludeTag(option.tags)) {
-            return false;
-        }
-        // 检查宽高设置
-        if (!this.checkSetWh(option.width, option.height)) {
-            return false;
-        }
-        // 检查宽高比设置
-        if (!this.checkRatio(option.width, option.height)) {
-            return false;
-        }
-        // 检查 id 范围设置
-        if (!this.checkIdRange(option.id)) {
-            return false;
-        }
-        // 检查投稿时间设置
-        if (!this.checkPostDate(option.createDate)) {
-            return false;
-        }
-        // 检查用户阻止名单
-        if (!this.checkBlockList(option.userId)) {
-            return false;
-        }
-        // 检查首次登场设置
-        if (!this.checkDebut(option.yes_rank)) {
-            return false;
-        }
-        // 检查文件体积设置
-        if (!this.checkSize(option.size)) {
-            return false;
-        }
-        // 检查屏蔽设定
-        if (!this.checkMuteUser(option.userId)) {
-            return false;
-        }
-        if (!this.checkMuteTag(option.tags)) {
-            return false;
-        }
-        // 检查黑白图片
-        // 这一步需要加载图片，需要较长的时间，较多的资源占用，所以放到最后检查
-        const blackAndWhiteResult = await this.checkBlackWhite(option.mini);
-        if (!blackAndWhiteResult) {
-            return false;
-        }
-        return true;
-    }
-    // ---------------- get ----------------
-    // 提示下载的作品类型设置
-    getDownType() {
-        // 如果全部排除则取消任务
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType0 &&
-            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType1 &&
-            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType2 &&
-            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType3) {
-            this.showWarning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除了所有作品类型'));
-        }
-        let notDownTip = '';
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType0 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_插画');
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType1 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_漫画');
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType2 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_动图');
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType3 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_小说');
-        if (notDownTip) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
-        }
-    }
-    getDownTypeByImgCount() {
-        let notDownTip = '';
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downSingleImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_单图作品');
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downMultiImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品');
-        if (notDownTip) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
-        }
-    }
-    // 提示图像颜色设置
-    getDownTypeByColor() {
-        // 如果全部排除则取消任务
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg && !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg) {
-            this.showWarning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除了所有作品类型'));
-        }
-        let notDownTip = '';
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_彩色图片');
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_黑白图片');
-        if (notDownTip) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
-        }
-    }
-    // 提示下载收藏和未收藏作品的设置
-    getDownTypeByBmked() {
-        // 如果全部排除则取消任务
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked) {
-            this.showWarning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除了所有作品类型'));
-        }
-        let notDownTip = '';
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_未收藏');
-        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_已收藏');
-        if (notDownTip) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
-        }
-    }
-    // 提示必须包含的tag
-    getIncludeTag() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTagSwitch) {
-            return;
-        }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag.length > 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了必须tag之后的提示') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag.toString());
-        }
-    }
-    // 提示要排除的tag
-    getExcludeTag() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTagSwitch) {
-            return;
-        }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag.length > 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了排除tag之后的提示') +
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag.toString());
-        }
-    }
-    // 提示宽高设置
-    getSetWh() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWHSwitch) {
-            return;
-        }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidth || _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setHeight) {
-            const andOr = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidthAndOr
-                .replace('|', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_或者'))
-                .replace('&', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_并且'));
-            const text = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽度')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].widthHeightLimit} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidth} ${andOr} ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_高度')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].widthHeightLimit} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setHeight}`;
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(text);
-        }
-    }
-    // 提示输入的收藏数
-    getBMKNum() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumSwitch) {
-            return;
-        }
-        const min = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumMin;
-        const max = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumMax;
-        const average = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverage;
-        if (min >= 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_收藏数大于') + min);
-        }
-        if (max >= 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_收藏数小于') + max);
-        }
-        if (average >= 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverageSwitch) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_日均收藏数量')} >= ${average}`);
-        }
-    }
-    // 提示宽高比设置
-    getRatio() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratioSwitch) {
-            return '0';
-        }
-        let result = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio;
-        if (result === 'square') {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_正方形')));
-        }
-        else if (result === 'horizontal') {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_横图')));
-        }
-        else if (result === 'vertical') {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_竖图')));
-        }
-        else if (result === 'userSet') {
-            // 由用户输入
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_输入宽高比') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio);
-        }
-        return result;
-    }
-    // 提示 id 范围设置
-    getIdRange() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeSwitch) {
-            return;
-        }
-        _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(`id ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRange} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeInput}`);
-    }
-    // 提示投稿时间设置
-    getPostDate() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDate) {
-            return;
-        }
-        if (isNaN(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart) || isNaN(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart)) {
-            const msg = 'Date format error!';
-            this.showWarning(msg);
-        }
-        else {
-            const start = new Date(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart).toLocaleString();
-            const end = new Date(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd).toLocaleString();
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_时间范围')}: ${start} - ${end}`);
-        }
-    }
-    // 提示文件体积设置
-    getSize() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeSwitch) {
-            return;
-        }
-        _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(`Size: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMin}MiB - ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMax}MiB`);
-    }
-    getBlockList() {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userBlockList) {
-            return;
-        }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockList.length > 0) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_用户阻止名单') + ': ' + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockList.toString());
-        }
-    }
-    // ---------------- check ----------------
-    // 检查下载的作品类型设置
-    checkDownType(illustType) {
-        if (illustType === undefined) {
-            return true;
-        }
-        const name = ('downType' + illustType);
-        return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"][name];
-    }
-    // 依据图片数量，检查下载的作品类型
-    checkPageCount(illustType, pageCount) {
-        if (illustType === undefined || pageCount === undefined) {
-            return true;
-        }
-        // 将动图视为单图
-        if (illustType === 2) {
-            pageCount = 1;
-        }
-        if (pageCount === 1) {
-            return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downSingleImg;
-        }
-        if (pageCount > 1) {
-            return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downMultiImg;
-        }
-        return false;
-    }
-    // 检查过滤黑白图像设置
-    async checkBlackWhite(imgUrl) {
-        // 如果没有图片网址，或者没有排除任何一个选项，则不检查
-        if (!imgUrl || (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg)) {
-            return true;
-        }
-        // result 为 true，表示它是黑白图片，false 是彩色图片
-        const result = await _BlackandWhiteImage__WEBPACK_IMPORTED_MODULE_5__["blackAndWhiteImage"].check(imgUrl);
-        return ((result && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg) ||
-            (!result && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg));
-    }
-    // 检查作品是否符合已收藏、未收藏作品的设置
-    checkDownTypeByBmked(bookmarked) {
-        // 如果没有参数，或者都没有排除
-        if (bookmarked === undefined) {
-            return true;
-        }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked) {
-            return true;
-        }
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked) {
-            // 只下载已收藏
-            return !!bookmarked;
-        }
-        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked) {
-            // 只下载未收藏
-            return !bookmarked;
-        }
-        return false;
-    }
-    // 检查收藏数要求
-    checkBMK(bmk, date) {
-        if (bmk === undefined || !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumSwitch) {
-            return true;
-        }
-        // 检查收藏数量是否达到设置的最大值、最小值范围
-        const checkNumber = bmk >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumMin && bmk <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumMax;
-        // 如果没有设置日均收藏，就直接返回收藏数量的检查结果
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverageSwitch || date === undefined) {
-            return checkNumber;
-        }
-        // 检查日均收藏
-        const createTime = new Date(date).getTime();
-        const nowTime = new Date().getTime();
-        const day = (nowTime - createTime) / this.oneDayTime; // 计算作品发表以来的天数
-        const average = bmk / day;
-        const checkAverage = average >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverage;
-        // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会下载这个作品
-        return checkNumber || checkAverage;
-    }
-    // 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。
-    checkIncludeTag(tags) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTagSwitch ||
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag.length === 0 ||
-            tags === undefined) {
-            return true;
-        }
-        let result = false;
-        // 把设置的包含的 tag 转换成小写，生成数组
-        const needTags = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag.map((val) => {
-            return val.toLowerCase();
-        });
-        // 如果设置了必须的 tag
-        if (needTags.length > 0) {
-            // 把处理的 tag 变成小写，并且去重
-            // 如果不区分大小写的话，Fate/grandorder 和 Fate/GrandOrder 会被算作符合两个 tag，所以用 Set 结构去重。测试 id 51811780
-            const workTags = new Set();
-            for (const tag of tags) {
-                workTags.add(tag.toLowerCase());
-            }
-            // 全部包含
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTagMode === 'all') {
-                let tagNeedMatched = 0;
-                for (const tag of workTags) {
-                    for (const need of needTags) {
-                        if (tag === need) {
-                            tagNeedMatched++;
-                            break;
-                        }
-                    }
-                }
-                // 如果全部匹配
-                if (tagNeedMatched >= needTags.length) {
-                    result = true;
-                }
-            }
-            else {
-                // 包含任意一个
-                for (const tag of workTags.values()) {
-                    if (needTags.includes(tag)) {
-                        result = true;
-                        break;
-                    }
-                }
-            }
-        }
-        else {
-            result = true;
-        }
-        return result;
-    }
-    // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。
-    checkExcludeTag(tags) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTagSwitch ||
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag.length === 0 ||
-            tags === undefined) {
-            return true;
-        }
-        let result = true;
-        const notNeedTags = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag.map((val) => {
-            return val.toLowerCase();
-        });
-        // 如果设置了排除 tag
-        if (notNeedTags.length > 0) {
-            for (const tag of tags) {
-                for (const notNeed of notNeedTags) {
-                    if (tag.toLowerCase() === notNeed) {
-                        result = false;
-                        break;
-                    }
-                }
-            }
-        }
-        return result;
-    }
-    // 检查作品是否符合过滤宽高的条件
-    checkSetWh(width, height) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWHSwitch) {
-            return true;
-        }
-        // 缺少必要的参数
-        if (width === undefined || height === undefined) {
-            return true;
-        }
-        const setWidth = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidth;
-        const setHeight = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setHeight;
-        // 未设置宽高，或者设置的宽高都不合法
-        if (setWidth === 0 && setHeight === 0) {
-            return true;
-        }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].widthHeightLimit === '>=') {
-            // 大于等于
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidthAndOr === '&') {
-                return width >= setWidth && height >= setHeight;
-            }
-            else {
-                return width >= setWidth || height >= setHeight;
-            }
-        }
-        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].widthHeightLimit === '<=') {
-            // 小于等于
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidthAndOr === '&') {
-                return width <= setWidth && height <= setHeight;
-            }
-            else {
-                return width <= setWidth || height <= setHeight;
-            }
-        }
-        else {
-            // 精确等于
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidthAndOr === '&') {
-                return width === setWidth && height === setHeight;
-            }
-            else {
-                return width === setWidth || height === setHeight;
-            }
-        }
-    }
-    // 检查作品是否符合宽高比条件
-    checkRatio(width, height) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratioSwitch) {
-            return true;
-        }
-        if (width === undefined || height === undefined) {
-            return true;
-        }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === 'square') {
-            return width === height;
-        }
-        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === 'horizontal') {
-            return width / height > 1;
-        }
-        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === 'vertical') {
-            return width / height < 1;
-        }
-        else {
-            return width / height >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio;
-        }
-    }
-    // 检查 id 范围设置
-    checkIdRange(id) {
-        if (id === undefined || !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeSwitch) {
-            return true;
-        }
-        const setId = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeInput;
-        let nowId;
-        if (typeof id !== 'number') {
-            nowId = parseInt(id);
-        }
-        else {
-            nowId = id;
-        }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRange === '>') {
-            return nowId > setId;
-        }
-        else {
-            return nowId < setId;
-        }
-    }
-    // 检查投稿时间设置
-    checkPostDate(date) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDate || date === undefined) {
-            return true;
-        }
-        const nowDate = new Date(date);
-        return (nowDate.getTime() >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart &&
-            nowDate.getTime() <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd);
-    }
-    // 检查首次登场设置
-    // yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
-    checkDebut(yes_rank) {
-        if (!_States__WEBPACK_IMPORTED_MODULE_3__["states"].debut || yes_rank === undefined) {
-            return true;
-        }
-        return yes_rank === 0;
-    }
-    checkBlockList(userId) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userBlockList || userId === undefined) {
-            return true;
-        }
-        // 如果阻止名单里有这个用户 id，则返回 false 表示阻止这个作品
-        return !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockList.includes(userId);
-    }
-    // 检查文件体积
-    checkSize(size) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeSwitch || size === undefined) {
-            return true;
-        }
-        return (size >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMin * this.MiB && size <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMax * this.MiB);
-    }
-    checkMuteUser(userId) {
-        if (userId === undefined) {
-            return true;
-        }
-        return !_Mute__WEBPACK_IMPORTED_MODULE_6__["mute"].checkUser(userId);
-    }
-    checkMuteTag(tags) {
-        if (tags === undefined) {
-            return true;
-        }
-        // 如果某些 tag 存在于 mute 列表里，就排除这个作品，所以要取反
-        return !tags.some(_Mute__WEBPACK_IMPORTED_MODULE_6__["mute"].checkTag.bind(_Mute__WEBPACK_IMPORTED_MODULE_6__["mute"]));
-    }
-    // 如果设置项的值不合法，则显示提示
-    showWarning(msg) {
-        _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.wrongSetting);
-        _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].sendMsg({
-            msg: msg,
-            type: 'error',
-        });
-    }
-    bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.crawlStart, () => {
-            this.showTip();
-        });
-    }
-}
-const filter = new Filter();
 
 
 
@@ -5860,7 +5173,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
 /* harmony import */ var _artwork_SaveArtworkData__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./artwork/SaveArtworkData */ "./src/ts/modules/artwork/SaveArtworkData.ts");
 /* harmony import */ var _novel_SaveNovelData__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./novel/SaveNovelData */ "./src/ts/modules/novel/SaveNovelData.ts");
-/* harmony import */ var _Mute__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Mute */ "./src/ts/modules/Mute.ts");
+/* harmony import */ var _filter_Mute__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./filter/Mute */ "./src/ts/modules/filter/Mute.ts");
 /* harmony import */ var _SelectWork__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./SelectWork */ "./src/ts/modules/SelectWork.ts");
 // 初始化所有页面抓取流程的基类
 
@@ -6012,7 +5325,7 @@ class InitPageBase {
         }
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
-        await _Mute__WEBPACK_IMPORTED_MODULE_13__["mute"].getMuteSettings();
+        await _filter_Mute__WEBPACK_IMPORTED_MODULE_13__["mute"].getMuteSettings();
         this.getWantPage();
         this.getMultipleSetting();
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.crawlStart);
@@ -6032,7 +5345,7 @@ class InitPageBase {
         }
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
-        await _Mute__WEBPACK_IMPORTED_MODULE_13__["mute"].getMuteSettings();
+        await _filter_Mute__WEBPACK_IMPORTED_MODULE_13__["mute"].getMuteSettings();
         this.getMultipleSetting();
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.crawlStart);
         _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList = idList;
@@ -8219,7 +7532,37 @@ const langText = {
         '把 R-18(G) 作品存入指定的文件夹里',
         '把 R-18(G) 作品存入指定的文件夹里',
         '把 R-18(G) 作品存入指定的文件夹里',
-    ]
+    ],
+    _必填项不能为空: [
+        '必填项不能为空',
+        '必填项不能为空',
+        '必填项不能为空',
+        '必填项不能为空',
+    ],
+    _用户ID必须是数字: [
+        '用户 ID 必须是数字',
+        '用户ID必须是数字',
+        '用户ID必须是数字',
+        '用户ID必须是数字',
+    ],
+    _tag用逗号分割: [
+        '多个 tag 使用英文逗号,分割',
+        '多個 tag 使用英文逗號,分隔',
+        'Multiple tags use comma (,) separated',
+        '複数のタグの場合「,」分割',
+    ],
+    _添加成功: [
+        '添加成功',
+        '添加成功',
+        '添加成功',
+        '添加成功',
+    ],
+    _更新成功: [
+        '更新成功',
+        '更新成功',
+        '更新成功',
+        '更新成功',
+    ],
 };
 
 
@@ -8445,53 +7788,6 @@ class MsgBox {
     }
 }
 new MsgBox();
-
-
-/***/ }),
-
-/***/ "./src/ts/modules/Mute.ts":
-/*!********************************!*\
-  !*** ./src/ts/modules/Mute.ts ***!
-  \********************************/
-/*! exports provided: mute */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mute", function() { return mute; });
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/modules/API.ts");
-
-class Mute {
-    constructor() {
-        this.userList = [];
-        this.tagList = [];
-    }
-    checkUser(id) {
-        if (typeof id === 'number') {
-            id = id.toString();
-        }
-        return this.userList.includes(id);
-    }
-    checkTag(tag) {
-        return this.tagList.includes(tag);
-    }
-    async getMuteSettings() {
-        this.userList = [];
-        this.tagList = [];
-        const response = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getMuteSettings();
-        const items = response.body.mute_items;
-        for (const item of items) {
-            if (item.type === 'user') {
-                this.userList.push(item.value);
-            }
-            if (item.type === 'tag') {
-                this.tagList.push(item.value);
-            }
-        }
-    }
-}
-const mute = new Mute();
-
 
 
 /***/ }),
@@ -10797,7 +10093,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/modules/setting/Options.ts");
-/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Filter */ "./src/ts/modules/Filter.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/modules/filter/Filter.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
 // 初始化地区排行榜页面
@@ -10843,7 +10139,7 @@ class InitAreaRankingPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
                 tags: tags,
                 bookmarkData: bookmarked,
             };
-            if (await _Filter__WEBPACK_IMPORTED_MODULE_5__["filter"].check(filterOpt)) {
+            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_5__["filter"].check(filterOpt)) {
                 const id = _API__WEBPACK_IMPORTED_MODULE_6__["API"].getIllustId(el.querySelector('a').href);
                 _Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.push({
                     type: 'unknown',
@@ -11146,7 +10442,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/modules/setting/Options.ts");
-/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Filter */ "./src/ts/modules/Filter.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/modules/filter/Filter.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
@@ -11216,7 +10512,7 @@ class InitBookmarkNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_
                 tags: data.tags,
                 userId: data.userId,
             };
-            if (await _Filter__WEBPACK_IMPORTED_MODULE_5__["filter"].check(filterOpt)) {
+            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_5__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.push({
                     type: _API__WEBPACK_IMPORTED_MODULE_6__["API"].getWorkType(data.illustType),
                     id: data.illustId,
@@ -11332,7 +10628,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Colors */ "./src/ts/modules/Colors.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/modules/setting/Options.ts");
-/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Filter */ "./src/ts/modules/Filter.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/modules/filter/Filter.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
@@ -11433,7 +10729,7 @@ class InitNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
                 userId: nowData.userId,
                 createDate: nowData.createDate,
             };
-            if (await _Filter__WEBPACK_IMPORTED_MODULE_4__["filter"].check(filterOpt)) {
+            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.push({
                     type: _API__WEBPACK_IMPORTED_MODULE_5__["API"].getWorkType(nowData.illustType),
                     id: nowData.id,
@@ -11478,7 +10774,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/modules/setting/Options.ts");
-/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Filter */ "./src/ts/modules/Filter.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/modules/filter/Filter.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
 /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../States */ "./src/ts/modules/States.ts");
@@ -11607,7 +10903,7 @@ class InitRankingArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
                 yes_rank: data.yes_rank,
                 userId: data.user_id.toString(),
             };
-            if (await _Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check(filterOpt)) {
+            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_8__["store"].setRankList(data.illust_id.toString(), data.rank.toString());
                 _Store__WEBPACK_IMPORTED_MODULE_8__["store"].idList.push({
                     type: _API__WEBPACK_IMPORTED_MODULE_2__["API"].getWorkType(data.illust_type),
@@ -11651,7 +10947,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/modules/setting/Options.ts");
 /* harmony import */ var _DeleteWorks__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../DeleteWorks */ "./src/ts/modules/DeleteWorks.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Filter */ "./src/ts/modules/Filter.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/modules/filter/Filter.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
@@ -12107,7 +11403,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
                 tags: nowData.tags,
                 userId: nowData.userId,
             };
-            if (await _Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check(filterOpt)) {
+            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_9__["store"].idList.push({
                     type: _API__WEBPACK_IMPORTED_MODULE_8__["API"].getWorkType(nowData.illustType),
                     id: nowData.id,
@@ -12254,7 +11550,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
                 createDate: data.date,
                 userId: data.userId,
             };
-            return _Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check(filterOpt);
+            return _filter_Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check(filterOpt);
         });
     }
     // 去除热门作品上面的遮挡
@@ -12299,7 +11595,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/modules/setting/Options.ts");
-/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Filter */ "./src/ts/modules/Filter.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/modules/filter/Filter.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
 // 初始化插画/漫画的系列作品页面
@@ -12376,7 +11672,7 @@ class InitSeriesPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPag
                 createDate: work.createDate,
             };
             // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以 type 是 unknown
-            if (await _Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check(filterOpt)) {
+            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.push({
                     type: 'unknown',
                     id: work.id,
@@ -12418,7 +11714,7 @@ class InitSeriesPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPag
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "saveArtworkData", function() { return saveArtworkData; });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
-/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Filter */ "./src/ts/modules/Filter.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/modules/filter/Filter.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/modules/setting/Settings.ts");
 /* harmony import */ var _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/SettingAPI */ "./src/ts/modules/setting/SettingAPI.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
@@ -12472,7 +11768,7 @@ class SaveArtworkData {
         };
         // 这里检查颜色设置是有一个隐患的：因为有些多图作品第一张图的颜色和后面的图片的颜色不一样，但这里检查时只检查第一张的缩略图。如果第一张被排除掉了，那么它后面的图片也就不会被加入抓取结果。
         // 检查通过
-        if (await _Filter__WEBPACK_IMPORTED_MODULE_1__["filter"].check(filterOpt)) {
+        if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_1__["filter"].check(filterOpt)) {
             const idNum = parseInt(body.id);
             const title = body.title; // 作品标题
             const userId = body.userId; // 用户id
@@ -12575,6 +11871,1044 @@ const saveArtworkData = new SaveArtworkData();
 
 /***/ }),
 
+/***/ "./src/ts/modules/filter/BlackandWhiteImage.ts":
+/*!*****************************************************!*\
+  !*** ./src/ts/modules/filter/BlackandWhiteImage.ts ***!
+  \*****************************************************/
+/*! exports provided: blackAndWhiteImage */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "blackAndWhiteImage", function() { return blackAndWhiteImage; });
+/* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
+
+// 检查图片是否是黑白图片
+class BlackAndWhiteImage {
+    constructor() {
+        this.latitude = 1; // 宽容度
+    }
+    async check(imgUrl) {
+        const img = await this.loadImg(imgUrl).catch((error) => {
+            console.error(error);
+        });
+        // 当加载图片失败时，无法进行判断，默认为彩色图片
+        if (!img) {
+            return false;
+        }
+        const first = this.getResult(this.getColor(img));
+        return first;
+        // 当判断结果是彩色图片的时候，基本不会是误判。但如果结果是黑白图，可能存在误判。
+        // 因此，如果第一次判断是黑白的，可以考虑进行第二次检测，第二次只检测局部
+    }
+    // 加载图片
+    async loadImg(url) {
+        return new Promise(async (resolve, reject) => {
+            // 如果传递的时 blobURL 就直接使用，不是的话先获取图片
+            if (url.startsWith('blob')) {
+                resolve(_DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].loadImg(url));
+            }
+            else {
+                const res = await fetch(url).catch((error) => {
+                    throw new Error(`Load image error! url: ${url}`);
+                });
+                const blob = await res.blob();
+                const blobURL = URL.createObjectURL(blob);
+                resolve(_DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].loadImg(blobURL));
+            }
+        });
+    }
+    // 获取图片中 rgb 三色的平均值
+    getColor(img) {
+        const width = img.width;
+        const height = img.height;
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const con = canvas.getContext('2d');
+        con.drawImage(img, 0, 0);
+        const imageData = con.getImageData(0, 0, width, height);
+        const data = imageData.data;
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        // 取所有像素的平均值
+        for (let row = 0; row < height; row++) {
+            for (let col = 0; col < width; col++) {
+                r += data[(width * row + col) * 4];
+                g += data[(width * row + col) * 4 + 1];
+                b += data[(width * row + col) * 4 + 2];
+            }
+        }
+        // 求取平均值
+        r /= width * height;
+        g /= width * height;
+        b /= width * height;
+        // 将最终的值取整
+        r = Math.round(r);
+        g = Math.round(g);
+        b = Math.round(b);
+        return [r, g, b];
+    }
+    // 根据 rgb 的值，判断是否是黑白图片
+    getResult(rgb) {
+        const [r, g, b] = rgb;
+        // 如果 rgb 值相同则是黑白图片
+        if (r === g && g === b) {
+            return true;
+        }
+        else {
+            // 如果 rgb 值不相同，则根据宽容度判断是否近似为黑白图片
+            // 这是因为获取 rgb 的结果时，进行了四舍五入，即使 rgb 非常接近，也可能会相差 1（未论证）
+            const max = Math.max(r, g, b); // 取出 rgb 中的最大值
+            const min = max - this.latitude; // 允许的最小值
+            // 如果 rgb 三个数值与最大的数值相比，差距在宽容度之内，则检查通过
+            return [r, g, b].every((number) => {
+                return number >= min;
+            });
+        }
+    }
+}
+const blackAndWhiteImage = new BlackAndWhiteImage();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/modules/filter/BlockTagsForSpecificUser.ts":
+/*!***********************************************************!*\
+  !*** ./src/ts/modules/filter/BlockTagsForSpecificUser.ts ***!
+  \***********************************************************/
+/*! exports provided: blockTagsForSpecificUser */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "blockTagsForSpecificUser", function() { return blockTagsForSpecificUser; });
+/* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/modules/Tools.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/modules/setting/Settings.ts");
+
+
+
+
+
+// 针对特定用户屏蔽 tag
+class BlockTagsForSpecificUser {
+    constructor() {
+        this.rules = [];
+        this._addWrapShow = false;
+        this._listWrapShow = false;
+        this.wrapHTML = `
+  <div class="blockTagsForSpecificUserWrap">
+
+    <div class="controlBar">
+      <button type="button" class="textButton gray1 expand">展开</button>
+      <button type="button" class="textButton gray1 collapse">折叠</button>
+      <button type="button" class="textButton gray1 showAdd">添加</button>
+    </div>
+
+    <div class="addWrap">
+      <div class="settingItem addInputWrap" >
+        <div class="inputItem uid">
+          <span class="label uidLabel">用户 ID</span>
+          <input type="text" class="setinput_style1 blue addUidInput" placehoder="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_用户ID必须是数字')}" />
+        </div>
+
+        <div class="inputItem tags">
+          <span class="label tagsLabel">Tags</span>
+          <input type="text" class="setinput_style1 blue addTagsInput" placehoder="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_tag用逗号分割')}" />
+        </div>
+
+        <div class="btns">
+          <button type="button" class="textButton add">添加</button>
+          <button type="button" class="textButton cancel">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="listWrap">
+    </div>
+  </div>
+  `;
+        this.getRule();
+        this.createWrap();
+        this.createAllList();
+        this.updateWrapDisplay();
+        this.bindEvents();
+    }
+    set addWrapShow(val) {
+        this._addWrapShow = val;
+        this.addWrap.style.display = val ? 'block' : 'none';
+        if (!val) {
+            this.addInputUid.value = '';
+            this.addInputTags.value = '';
+        }
+    }
+    get addWrapShow() {
+        return this._addWrapShow;
+    }
+    set listWrapShow(val) {
+        this._listWrapShow = val;
+        this.listWrap.style.display = val ? 'block' : 'none';
+    }
+    get listWrapShow() {
+        return this._listWrapShow;
+    }
+    // 创建列表外部的容器，静态html
+    createWrap() {
+        this.wrap = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].useSlot('blockTagsForSpecificUser', this.wrapHTML);
+        this.expandBtn = this.wrap.querySelector('.expand');
+        this.collapseBtn = this.wrap.querySelector('.collapse');
+        this.showAddBtn = this.wrap.querySelector('.showAdd');
+        this.addWrap = this.wrap.querySelector('.addWrap');
+        this.addInputUid = this.wrap.querySelector('.addUidInput');
+        this.addInputTags = this.wrap.querySelector('.addTagsInput');
+        this.addBtn = this.wrap.querySelector('.add');
+        this.cancelBtn = this.wrap.querySelector('.cancel');
+        this.listWrap = this.wrap.querySelector('.listWrap');
+        // 展开
+        this.expandBtn.addEventListener('click', () => {
+            this.listWrapShow = true;
+        });
+        // 折叠
+        this.collapseBtn.addEventListener('click', () => {
+            this.listWrapShow = false;
+        });
+        // 切换显示添加区域
+        this.showAddBtn.addEventListener('click', () => {
+            this.addWrapShow = !this.addWrapShow;
+        });
+        // 添加规则的按钮
+        this.addBtn.addEventListener('click', () => {
+            this.addRule(this.addInputUid.value, this.addInputTags.value);
+        });
+        // 取消添加的按钮
+        this.cancelBtn.addEventListener('click', () => {
+            this.addWrapShow = false;
+        });
+    }
+    // 根据规则动态创建 html
+    createAllList() {
+        this.rules = [
+            {
+                uid: 2551745,
+                tags: ['R-18']
+            },
+            {
+                uid: 1234,
+                tags: ['原神']
+            },
+        ];
+        for (const data of this.rules) {
+            const { uid, tags } = data;
+            this.createList(uid, tags);
+        }
+    }
+    // 创建规则对应的元素，并绑定事件
+    createList(uid, tags) {
+        const html = `
+    <div class="settingItem" data-key="${uid}">
+      <div class="inputItem uid">
+        <span class="label uidLabel">用户 ID</span>
+        <input type="text" class="setinput_style1 blue" data-uidInput="${uid}" value="${uid}" />
+      </div>
+
+      <div class="inputItem tags">
+        <span class="label tagsLabel">Tags</span>
+        <input type="text" class="setinput_style1 blue" data-tagsInput="${uid}" value="${tags.toString()}" />
+      </div>
+
+      <div class="btns">
+        <button type="button" class="textButton" data-updateRule="${uid}">更新</button>
+        <button type="button" class="textButton" data-deleteRule="${uid}">删除</button>
+      </div>
+    </div>`;
+        // 倒序显示，早添加的处于底部，晚添加的处于顶部
+        this.listWrap.insertAdjacentHTML('afterbegin', html);
+        const updateRule = this.listWrap.querySelector(`button[data-updateRule='${uid}']`);
+        const deleteRule = this.listWrap.querySelector(`button[data-deleteRule='${uid}']`);
+        const uidInput = this.listWrap.querySelector(`input[data-uidInput='${uid}']`);
+        const tagsInput = this.listWrap.querySelector(`input[data-tagsInput='${uid}']`);
+        // 更新
+        updateRule === null || updateRule === void 0 ? void 0 : updateRule.addEventListener('click', () => {
+            this.updateRule(uid, uidInput.value, tagsInput.value);
+        });
+        // 删除
+        deleteRule === null || deleteRule === void 0 ? void 0 : deleteRule.addEventListener('click', () => {
+            this.deleteRule(uid);
+        });
+    }
+    // 检查用户输入的值
+    checkValue(uidInput, tagsInput) {
+        const tags = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].string2array(tagsInput);
+        if (!uidInput || !tagsInput || tags.length === 0) {
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
+                type: 'error',
+                msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_必填项不能为空')
+            });
+            return false;
+        }
+        const uid = Number.parseInt(uidInput);
+        if (!uid || isNaN(uid)) {
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
+                type: 'error',
+                msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_用户ID必须是数字')
+            });
+            return false;
+        }
+        return {
+            uid,
+            tags,
+        };
+    }
+    findIndex(uid) {
+        return this.rules.findIndex(rule => rule.uid === uid);
+    }
+    // 添加规则
+    addRule(uidInput, tagsInput) {
+        const check = this.checkValue(uidInput, tagsInput);
+        if (!check) {
+            return;
+        }
+        const { uid, tags } = check;
+        // 查找这个用户是否已经被添加过，如果添加过，则改为更新，而不是添加新规则
+        const index = this.findIndex(uid);
+        if (index > -1) {
+            // 把两次的 tag 合并起来
+            const joinTags = this.rules[index].tags.concat(tags);
+            return this.updateRule(uid, uid.toString(), joinTags.toString());
+        }
+        this.rules.push(check);
+        Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserList', [...this.rules]);
+        this.createList(uid, tags);
+        this.addWrapShow = false;
+        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
+            type: 'success',
+            msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加成功')
+        });
+    }
+    // 更新规则
+    updateRule(oldUid, uidInput, tagsInput) {
+        const check = this.checkValue(uidInput, tagsInput);
+        if (!check) {
+            return;
+        }
+        const { uid, tags } = check;
+        const index = this.findIndex(oldUid);
+        this.rules[index] = check;
+        Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserList', [...this.rules]);
+        const listElement = this.listWrap.querySelector(`.settingItem[data-key='${oldUid}']`);
+        listElement === null || listElement === void 0 ? void 0 : listElement.remove();
+        this.createList(uid, tags);
+        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
+            type: 'success',
+            msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_更新成功')
+        });
+    }
+    // 删除规则
+    deleteRule(uid) {
+        const index = this.findIndex(uid);
+        this.rules.splice(index, 1);
+        Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserList', [...this.rules]);
+        const listElement = this.listWrap.querySelector(`.settingItem[data-key='${uid}']`);
+        listElement === null || listElement === void 0 ? void 0 : listElement.remove();
+    }
+    getRule() {
+        this.rules = [..._setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserList];
+    }
+    updateWrapDisplay() {
+        this.wrap.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUser ? "block" : 'none';
+    }
+    bindEvents() {
+        // 选项变化
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, () => {
+            this.updateWrapDisplay();
+        });
+        // 选项重置
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resetSettingsEnd, () => {
+            this.getRule();
+            this.listWrap.innerHTML = '';
+            this.createAllList();
+            this.updateWrapDisplay();
+        });
+    }
+    // 如果找到了符合的记录，则返回 true
+    check(uid, tags) {
+        // 查找有无记录
+        const index = this.findIndex(Number.parseInt(uid));
+        if (index === -1) {
+            return false;
+        }
+        // 如果有记录则判断是否有相同的 tag，有任意一个就返回
+        const rule = this.rules[index];
+        const tagsString = tags.toString().toLowerCase();
+        for (const tag of rule.tags) {
+            if (tagsString.includes(tag.toLowerCase())) {
+                return true;
+            }
+        }
+        // 没有相同的 tag
+        return false;
+    }
+}
+const blockTagsForSpecificUser = new BlockTagsForSpecificUser();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/modules/filter/Filter.ts":
+/*!*****************************************!*\
+  !*** ./src/ts/modules/filter/Filter.ts ***!
+  \*****************************************/
+/*! exports provided: filter */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "filter", function() { return filter; });
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../States */ "./src/ts/modules/States.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/modules/setting/Settings.ts");
+/* harmony import */ var _BlackandWhiteImage__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./BlackandWhiteImage */ "./src/ts/modules/filter/BlackandWhiteImage.ts");
+/* harmony import */ var _Mute__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Mute */ "./src/ts/modules/filter/Mute.ts");
+/* harmony import */ var _BlockTagsForSpecificUser__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./BlockTagsForSpecificUser */ "./src/ts/modules/filter/BlockTagsForSpecificUser.ts");
+
+
+
+
+
+
+
+
+// 检查作品是否符合过滤条件
+class Filter {
+    constructor() {
+        this.MiB = 1024 * 1024;
+        this.oneDayTime = 24 * 60 * 60 * 1000; // 一天的毫秒数
+        this.bindEvents();
+    }
+    // 对启用了的过滤选项输出提示
+    showTip() {
+        this.getDownType();
+        this.getDownTypeByImgCount();
+        this.getDownTypeByColor();
+        this.getDownTypeByBmked();
+        this.getBMKNum();
+        this.getSetWh();
+        this.getRatio();
+        this.getIdRange();
+        this.getPostDate();
+        this.getIncludeTag();
+        this.getExcludeTag();
+        if (_States__WEBPACK_IMPORTED_MODULE_3__["states"].debut) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取首次登场的作品Title'));
+        }
+        this.getBlockList();
+        this.getSize();
+    }
+    // 检查作品是否符合过滤器的要求
+    // 注意：这是一个异步函数，所以要使用 await 获取检查结果
+    // 想要检查哪些数据就传递哪些数据，不需要传递 FilterOption 的所有选项
+    // 每个过滤器函数里都必须检查参数为 undefined 的情况
+    // 每个过滤器函数必须返回一个 boolean 值，true 表示保留这个作品，false 表示排除这个作品
+    async check(option) {
+        // 检查下载的作品类型设置
+        if (!this.checkDownType(option.illustType)) {
+            return false;
+        }
+        // 检查单图、多图的下载
+        if (!this.checkPageCount(option.illustType, option.pageCount)) {
+            return false;
+        }
+        // 检查收藏和未收藏的要求
+        if (!this.checkDownTypeByBmked(option.bookmarkData)) {
+            return false;
+        }
+        // 检查收藏数要求
+        if (!this.checkBMK(option.bookmarkCount, option.createDate)) {
+            return false;
+        }
+        // 检查要排除的 tag
+        if (!this.checkExcludeTag(option.tags)) {
+            return false;
+        }
+        // 检查必须包含的 tag
+        if (!this.checkIncludeTag(option.tags)) {
+            return false;
+        }
+        // 检查宽高设置
+        if (!this.checkSetWh(option.width, option.height)) {
+            return false;
+        }
+        // 检查宽高比设置
+        if (!this.checkRatio(option.width, option.height)) {
+            return false;
+        }
+        // 检查 id 范围设置
+        if (!this.checkIdRange(option.id)) {
+            return false;
+        }
+        // 检查投稿时间设置
+        if (!this.checkPostDate(option.createDate)) {
+            return false;
+        }
+        // 检查用户阻止名单
+        if (!this.checkBlockList(option.userId)) {
+            return false;
+        }
+        // 检查首次登场设置
+        if (!this.checkDebut(option.yes_rank)) {
+            return false;
+        }
+        // 检查文件体积设置
+        if (!this.checkSize(option.size)) {
+            return false;
+        }
+        // 检查屏蔽设定
+        if (!this.checkMuteUser(option.userId)) {
+            return false;
+        }
+        if (!this.checkMuteTag(option.tags)) {
+            return false;
+        }
+        // 检查针对特定用户屏蔽的 tags
+        if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags)) {
+            return false;
+        }
+        // 检查黑白图片
+        // 这一步需要加载图片，需要较长的时间，较多的资源占用，所以放到最后检查
+        const blackAndWhiteResult = await this.checkBlackWhite(option.mini);
+        if (!blackAndWhiteResult) {
+            return false;
+        }
+        return true;
+    }
+    // ---------------- get ----------------
+    // 提示下载的作品类型设置
+    getDownType() {
+        // 如果全部排除则取消任务
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType0 &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType1 &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType2 &&
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType3) {
+            this.showWarning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除了所有作品类型'));
+        }
+        let notDownTip = '';
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType0 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_插画');
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType1 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_漫画');
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType2 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_动图');
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downType3 ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_小说');
+        if (notDownTip) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
+        }
+    }
+    getDownTypeByImgCount() {
+        let notDownTip = '';
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downSingleImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_单图作品');
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downMultiImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品');
+        if (notDownTip) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
+        }
+    }
+    // 提示图像颜色设置
+    getDownTypeByColor() {
+        // 如果全部排除则取消任务
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg && !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg) {
+            this.showWarning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除了所有作品类型'));
+        }
+        let notDownTip = '';
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_彩色图片');
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_黑白图片');
+        if (notDownTip) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
+        }
+    }
+    // 提示下载收藏和未收藏作品的设置
+    getDownTypeByBmked() {
+        // 如果全部排除则取消任务
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked) {
+            this.showWarning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除了所有作品类型'));
+        }
+        let notDownTip = '';
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_未收藏');
+        notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked ? '' : _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_已收藏');
+        if (notDownTip) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_排除作品类型') + notDownTip);
+        }
+    }
+    // 提示必须包含的tag
+    getIncludeTag() {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTagSwitch) {
+            return;
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag.length > 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了必须tag之后的提示') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag.toString());
+        }
+    }
+    // 提示要排除的tag
+    getExcludeTag() {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTagSwitch) {
+            return;
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag.length > 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了排除tag之后的提示') +
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag.toString());
+        }
+    }
+    // 提示宽高设置
+    getSetWh() {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWHSwitch) {
+            return;
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidth || _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setHeight) {
+            const andOr = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidthAndOr
+                .replace('|', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_或者'))
+                .replace('&', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_并且'));
+            const text = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_宽度')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].widthHeightLimit} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidth} ${andOr} ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_高度')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].widthHeightLimit} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setHeight}`;
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(text);
+        }
+    }
+    // 提示输入的收藏数
+    getBMKNum() {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumSwitch) {
+            return;
+        }
+        const min = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumMin;
+        const max = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumMax;
+        const average = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverage;
+        if (min >= 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_收藏数大于') + min);
+        }
+        if (max >= 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_收藏数小于') + max);
+        }
+        if (average >= 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverageSwitch) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_日均收藏数量')} >= ${average}`);
+        }
+    }
+    // 提示宽高比设置
+    getRatio() {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratioSwitch) {
+            return '0';
+        }
+        let result = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio;
+        if (result === 'square') {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_正方形')));
+        }
+        else if (result === 'horizontal') {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_横图')));
+        }
+        else if (result === 'vertical') {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置了宽高比之后的提示', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_竖图')));
+        }
+        else if (result === 'userSet') {
+            // 由用户输入
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_输入宽高比') + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio);
+        }
+        return result;
+    }
+    // 提示 id 范围设置
+    getIdRange() {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeSwitch) {
+            return;
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(`id ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRange} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeInput}`);
+    }
+    // 提示投稿时间设置
+    getPostDate() {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDate) {
+            return;
+        }
+        if (isNaN(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart) || isNaN(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart)) {
+            const msg = 'Date format error!';
+            this.showWarning(msg);
+        }
+        else {
+            const start = new Date(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart).toLocaleString();
+            const end = new Date(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd).toLocaleString();
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_时间范围')}: ${start} - ${end}`);
+        }
+    }
+    // 提示文件体积设置
+    getSize() {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeSwitch) {
+            return;
+        }
+        _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(`Size: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMin}MiB - ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMax}MiB`);
+    }
+    getBlockList() {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userBlockList) {
+            return;
+        }
+        for (const uid of _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockList) {
+            if (isNaN(Number.parseInt(uid))) {
+                return this.showWarning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_用户ID必须是数字'));
+            }
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockList.length > 0) {
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_用户阻止名单') + ': ' + _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockList.toString());
+        }
+    }
+    // ---------------- check ----------------
+    // 检查下载的作品类型设置
+    checkDownType(illustType) {
+        if (illustType === undefined) {
+            return true;
+        }
+        const name = ('downType' + illustType);
+        return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"][name];
+    }
+    // 依据图片数量，检查下载的作品类型
+    checkPageCount(illustType, pageCount) {
+        if (illustType === undefined || pageCount === undefined) {
+            return true;
+        }
+        // 将动图视为单图
+        if (illustType === 2) {
+            pageCount = 1;
+        }
+        if (pageCount === 1) {
+            return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downSingleImg;
+        }
+        if (pageCount > 1) {
+            return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downMultiImg;
+        }
+        return false;
+    }
+    // 检查过滤黑白图像设置
+    async checkBlackWhite(imgUrl) {
+        // 如果没有图片网址，或者没有排除任何一个选项，则不检查
+        if (!imgUrl || (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg)) {
+            return true;
+        }
+        // result 为 true，表示它是黑白图片，false 是彩色图片
+        const result = await _BlackandWhiteImage__WEBPACK_IMPORTED_MODULE_5__["blackAndWhiteImage"].check(imgUrl);
+        return ((result && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBlackWhiteImg) ||
+            (!result && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downColorImg));
+    }
+    // 检查作品是否符合已收藏、未收藏作品的设置
+    checkDownTypeByBmked(bookmarked) {
+        // 如果没有参数，或者都没有排除
+        if (bookmarked === undefined) {
+            return true;
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked) {
+            return true;
+        }
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked) {
+            // 只下载已收藏
+            return !!bookmarked;
+        }
+        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downNotBookmarked && !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].downBookmarked) {
+            // 只下载未收藏
+            return !bookmarked;
+        }
+        return false;
+    }
+    // 检查收藏数要求
+    checkBMK(bmk, date) {
+        if (bmk === undefined || !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumSwitch) {
+            return true;
+        }
+        // 检查收藏数量是否达到设置的最大值、最小值范围
+        const checkNumber = bmk >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumMin && bmk <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumMax;
+        // 如果没有设置日均收藏，就直接返回收藏数量的检查结果
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverageSwitch || date === undefined) {
+            return checkNumber;
+        }
+        // 检查日均收藏
+        const createTime = new Date(date).getTime();
+        const nowTime = new Date().getTime();
+        const day = (nowTime - createTime) / this.oneDayTime; // 计算作品发表以来的天数
+        const average = bmk / day;
+        const checkAverage = average >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverage;
+        // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会下载这个作品
+        return checkNumber || checkAverage;
+    }
+    // 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。
+    checkIncludeTag(tags) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTagSwitch ||
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag.length === 0 ||
+            tags === undefined) {
+            return true;
+        }
+        let result = false;
+        // 把设置的包含的 tag 转换成小写，生成数组
+        const needTags = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTag.map((val) => {
+            return val.toLowerCase();
+        });
+        // 如果设置了必须的 tag
+        if (needTags.length > 0) {
+            // 把处理的 tag 变成小写，并且去重
+            // 如果不区分大小写的话，Fate/grandorder 和 Fate/GrandOrder 会被算作符合两个 tag，所以用 Set 结构去重。测试 id 51811780
+            const workTags = new Set();
+            for (const tag of tags) {
+                workTags.add(tag.toLowerCase());
+            }
+            // 全部包含
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].needTagMode === 'all') {
+                let tagNeedMatched = 0;
+                for (const tag of workTags) {
+                    for (const need of needTags) {
+                        if (tag === need) {
+                            tagNeedMatched++;
+                            break;
+                        }
+                    }
+                }
+                // 如果全部匹配
+                if (tagNeedMatched >= needTags.length) {
+                    result = true;
+                }
+            }
+            else {
+                // 包含任意一个
+                for (const tag of workTags.values()) {
+                    if (needTags.includes(tag)) {
+                        result = true;
+                        break;
+                    }
+                }
+            }
+        }
+        else {
+            result = true;
+        }
+        return result;
+    }
+    // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。
+    checkExcludeTag(tags) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTagSwitch ||
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag.length === 0 ||
+            tags === undefined) {
+            return true;
+        }
+        let result = true;
+        const notNeedTags = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].notNeedTag.map((val) => {
+            return val.toLowerCase();
+        });
+        // 如果设置了排除 tag
+        if (notNeedTags.length > 0) {
+            for (const tag of tags) {
+                for (const notNeed of notNeedTags) {
+                    if (tag.toLowerCase() === notNeed) {
+                        result = false;
+                        break;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+    // 检查作品是否符合过滤宽高的条件
+    checkSetWh(width, height) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWHSwitch) {
+            return true;
+        }
+        // 缺少必要的参数
+        if (width === undefined || height === undefined) {
+            return true;
+        }
+        const setWidth = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidth;
+        const setHeight = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setHeight;
+        // 未设置宽高，或者设置的宽高都不合法
+        if (setWidth === 0 && setHeight === 0) {
+            return true;
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].widthHeightLimit === '>=') {
+            // 大于等于
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidthAndOr === '&') {
+                return width >= setWidth && height >= setHeight;
+            }
+            else {
+                return width >= setWidth || height >= setHeight;
+            }
+        }
+        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].widthHeightLimit === '<=') {
+            // 小于等于
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidthAndOr === '&') {
+                return width <= setWidth && height <= setHeight;
+            }
+            else {
+                return width <= setWidth || height <= setHeight;
+            }
+        }
+        else {
+            // 精确等于
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidthAndOr === '&') {
+                return width === setWidth && height === setHeight;
+            }
+            else {
+                return width === setWidth || height === setHeight;
+            }
+        }
+    }
+    // 检查作品是否符合宽高比条件
+    checkRatio(width, height) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratioSwitch) {
+            return true;
+        }
+        if (width === undefined || height === undefined) {
+            return true;
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === 'square') {
+            return width === height;
+        }
+        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === 'horizontal') {
+            return width / height > 1;
+        }
+        else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === 'vertical') {
+            return width / height < 1;
+        }
+        else {
+            return width / height >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userRatio;
+        }
+    }
+    // 检查 id 范围设置
+    checkIdRange(id) {
+        if (id === undefined || !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeSwitch) {
+            return true;
+        }
+        const setId = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRangeInput;
+        let nowId;
+        if (typeof id !== 'number') {
+            nowId = parseInt(id);
+        }
+        else {
+            nowId = id;
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].idRange === '>') {
+            return nowId > setId;
+        }
+        else {
+            return nowId < setId;
+        }
+    }
+    // 检查投稿时间设置
+    checkPostDate(date) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDate || date === undefined) {
+            return true;
+        }
+        const nowDate = new Date(date);
+        return (nowDate.getTime() >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateStart &&
+            nowDate.getTime() <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].postDateEnd);
+    }
+    // 检查首次登场设置
+    // yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
+    checkDebut(yes_rank) {
+        if (!_States__WEBPACK_IMPORTED_MODULE_3__["states"].debut || yes_rank === undefined) {
+            return true;
+        }
+        return yes_rank === 0;
+    }
+    checkBlockList(userId) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].userBlockList || userId === undefined) {
+            return true;
+        }
+        // 如果阻止名单里有这个用户 id，则返回 false 表示阻止这个作品
+        return !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockList.includes(userId);
+    }
+    // 检查文件体积
+    checkSize(size) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeSwitch || size === undefined) {
+            return true;
+        }
+        return (size >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMin * this.MiB && size <= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].sizeMax * this.MiB);
+    }
+    checkMuteUser(userId) {
+        if (userId === undefined) {
+            return true;
+        }
+        return !_Mute__WEBPACK_IMPORTED_MODULE_6__["mute"].checkUser(userId);
+    }
+    checkMuteTag(tags) {
+        if (tags === undefined) {
+            return true;
+        }
+        // 如果某些 tag 存在于 mute 列表里，就排除这个作品，所以要取反
+        return !tags.some(_Mute__WEBPACK_IMPORTED_MODULE_6__["mute"].checkTag.bind(_Mute__WEBPACK_IMPORTED_MODULE_6__["mute"]));
+    }
+    checkBlockTagsForSpecificUser(userId, tags) {
+        if (userId === undefined || tags === undefined) {
+            return true;
+        }
+        // 对结果取反
+        return !_BlockTagsForSpecificUser__WEBPACK_IMPORTED_MODULE_7__["blockTagsForSpecificUser"].check(userId, tags);
+    }
+    // 如果设置项的值不合法，则显示提示
+    showWarning(msg) {
+        _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.wrongSetting);
+        _EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].sendMsg({
+            msg: msg,
+            type: 'error',
+        });
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.crawlStart, () => {
+            this.showTip();
+        });
+    }
+}
+const filter = new Filter();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/modules/filter/Mute.ts":
+/*!***************************************!*\
+  !*** ./src/ts/modules/filter/Mute.ts ***!
+  \***************************************/
+/*! exports provided: mute */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "mute", function() { return mute; });
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
+
+// 获取用户在 Pixiv 里屏蔽的用户和/或 tag，进行过滤
+class Mute {
+    constructor() {
+        this.userList = [];
+        this.tagList = [];
+    }
+    checkUser(id) {
+        if (typeof id === 'number') {
+            id = id.toString();
+        }
+        return this.userList.includes(id);
+    }
+    checkTag(tag) {
+        return this.tagList.includes(tag);
+    }
+    async getMuteSettings() {
+        this.userList = [];
+        this.tagList = [];
+        const response = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getMuteSettings();
+        const items = response.body.mute_items;
+        for (const item of items) {
+            if (item.type === 'user') {
+                this.userList.push(item.value);
+            }
+            if (item.type === 'tag') {
+                this.tagList.push(item.value);
+            }
+        }
+    }
+}
+const mute = new Mute();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/modules/novel/InitBookmarkNewNovelPage.ts":
 /*!**********************************************************!*\
   !*** ./src/ts/modules/novel/InitBookmarkNewNovelPage.ts ***!
@@ -12591,7 +12925,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/modules/setting/Options.ts");
-/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Filter */ "./src/ts/modules/Filter.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/modules/filter/Filter.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
 // 初始化收藏的新作小说页面
@@ -12689,7 +13023,7 @@ class InitBookmarkNewNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0_
                 bookmarkData: bookmarked,
                 userId: userId,
             };
-            if (await _Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check(filterOpt)) {
+            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_7__["store"].idList.push({
                     type: 'novels',
                     id: id.toString(),
@@ -12730,7 +13064,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Colors */ "./src/ts/modules/Colors.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/modules/setting/Options.ts");
-/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Filter */ "./src/ts/modules/Filter.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/modules/filter/Filter.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
@@ -12823,7 +13157,7 @@ class InitNewNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitP
                 userId: nowData.userId,
                 createDate: nowData.createDate,
             };
-            if (await _Filter__WEBPACK_IMPORTED_MODULE_4__["filter"].check(filterOpt)) {
+            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.push({
                     type: 'novels',
                     id: nowData.id,
@@ -13099,7 +13433,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/modules/setting/Options.ts");
-/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Filter */ "./src/ts/modules/Filter.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/modules/filter/Filter.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
 // 初始化小说排行榜页面
@@ -13205,7 +13539,7 @@ class InitRankingNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["I
                 bookmarkData: bookmarked,
                 userId: userId,
             };
-            if (await _Filter__WEBPACK_IMPORTED_MODULE_5__["filter"].check(filterOpt)) {
+            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_5__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_6__["store"].setRankList(id.toString(), rank.toString());
                 _Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.push({
                     type: 'novels',
@@ -13248,7 +13582,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Colors */ "./src/ts/modules/Colors.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/modules/setting/Options.ts");
-/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Filter */ "./src/ts/modules/Filter.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/modules/filter/Filter.ts");
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
@@ -13432,7 +13766,7 @@ class InitSearchNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
                 tags: nowData.tags,
                 userId: nowData.userId,
             };
-            if (await _Filter__WEBPACK_IMPORTED_MODULE_4__["filter"].check(filterOpt)) {
+            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__["filter"].check(filterOpt)) {
                 _Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.push({
                     type: 'novels',
                     id: nowData.id,
@@ -13570,7 +13904,7 @@ class MakeNovelFile {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "saveNovelData", function() { return saveNovelData; });
-/* harmony import */ var _Filter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Filter */ "./src/ts/modules/Filter.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/modules/filter/Filter.ts");
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/modules/setting/Settings.ts");
 
@@ -13600,7 +13934,7 @@ class SaveNovelData {
             userId: body.userId,
         };
         // 检查通过
-        if (await _Filter__WEBPACK_IMPORTED_MODULE_0__["filter"].check(filterOpt)) {
+        if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_0__["filter"].check(filterOpt)) {
             const id = body.id;
             const idNum = parseInt(id);
             const title = body.title;
@@ -14767,6 +15101,15 @@ const formHtml = `<form class="settingForm">
       </span>
       </p>
 
+      <p class="option" data-no="39">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_针对特定用户屏蔽tag')}</span>
+      <input type="checkbox" name="blockTagsForSpecificUser" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="blockTagsForSpecificUser">
+      <slot data-name="blockTagsForSpecificUser"></slot>
+      </span>
+      </p>
+
       <hr />
       
       <p class="option" data-no="33">
@@ -15049,6 +15392,7 @@ class FormSettings {
         this.saveRadio('widthTag');
         this.saveCheckBox('userBlockList');
         this.saveTextInput('blockList');
+        this.saveCheckBox('blockTagsForSpecificUser');
         this.saveRadio('needTagMode');
         this.saveRadio('theme');
     }
@@ -15179,6 +15523,7 @@ class FormSettings {
         this.restoreString('widthTag');
         this.restoreBoolean('userBlockList');
         this.restoreString('blockList');
+        this.restoreBoolean('blockTagsForSpecificUser');
         this.restoreString('needTagMode');
         this.restoreString('theme');
     }
@@ -15573,6 +15918,8 @@ class Settings {
             needTagMode: 'all',
             r18Folder: false,
             r18FolderName: '[R-18&R-18G]',
+            blockTagsForSpecificUser: false,
+            blockTagsForSpecificUserList: []
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         this.floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax'];
@@ -15653,6 +16000,7 @@ class Settings {
     // 可选参数：传递整个设置的数据，用于从配置文件导入，恢复设置
     reset(data) {
         if (data) {
+            // 使用导入的设置
             this.assignSettings(data);
         }
         else {

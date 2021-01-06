@@ -68,4 +68,5 @@ export interface SettingsForm extends HTMLFormElement {
   theme: RadioNodeList
   r18Folder: HTMLInputElement
   r18FolderName: HTMLInputElement
+  blockTagsForSpecificUser: HTMLInputElement
 }

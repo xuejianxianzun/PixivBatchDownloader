@@ -195,6 +195,8 @@ class FormSettings {
     this.saveCheckBox('userBlockList')
     this.saveTextInput('blockList')
 
+    this.saveCheckBox('blockTagsForSpecificUser')
+
     this.saveRadio('needTagMode')
 
     this.saveRadio('theme')
@@ -368,6 +370,8 @@ class FormSettings {
 
     this.restoreBoolean('userBlockList')
     this.restoreString('blockList')
+
+    this.restoreBoolean('blockTagsForSpecificUser')
 
     this.restoreString('needTagMode')
 

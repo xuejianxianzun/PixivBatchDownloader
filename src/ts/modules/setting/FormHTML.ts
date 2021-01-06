@@ -555,6 +555,15 @@ const formHtml = `<form class="settingForm">
       </span>
       </p>
 
+      <p class="option" data-no="39">
+      <span class="settingNameStyle1">${lang.transl('_针对特定用户屏蔽tag')}</span>
+      <input type="checkbox" name="blockTagsForSpecificUser" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="blockTagsForSpecificUser">
+      <slot data-name="blockTagsForSpecificUser"></slot>
+      </span>
+      </p>
+
       <hr />
       
       <p class="option" data-no="33">
