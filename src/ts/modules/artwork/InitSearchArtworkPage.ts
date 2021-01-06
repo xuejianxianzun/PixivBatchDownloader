@@ -183,6 +183,14 @@ class InitSearchArtworkPage extends InitPageBase {
   protected async nextStep() {
     this.initFetchURL()
 
+    if (this.startpageNo > 1000) {
+      EVT.sendMsg({
+        type: 'error',
+        msg: `${lang.transl('_超出最大页码')} ${this.maxCount}`
+      })
+      return this.noResult()
+    }
+
     this.needCrawlPageCount = await this.calcNeedCrawlPageCount()
 
     if (this.needCrawlPageCount === 0) {
