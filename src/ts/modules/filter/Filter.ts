@@ -53,6 +53,24 @@ class Filter {
   // 每个过滤器函数里都必须检查参数为 undefined 的情况
   // 每个过滤器函数必须返回一个 boolean 值，true 表示保留这个作品，false 表示排除这个作品
   public async check(option: FilterOption): Promise<boolean> {
+    // 检查屏蔽设定
+    if (!this.checkMuteUser(option.userId)) {
+      return false
+    }
+    if (!this.checkMuteTag(option.tags)) {
+      return false
+    }
+
+    // 检查用户阻止名单
+    if (!this.checkBlockList(option.userId)) {
+      return false
+    }
+
+    // 检查针对特定用户屏蔽的 tags
+    if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags)) {
+      return false
+    }
+
     // 检查下载的作品类型设置
     if (!this.checkDownType(option.illustType)) {
       return false
@@ -103,11 +121,6 @@ class Filter {
       return false
     }
 
-    // 检查用户阻止名单
-    if (!this.checkBlockList(option.userId)) {
-      return false
-    }
-
     // 检查首次登场设置
     if (!this.checkDebut(option.yes_rank)) {
       return false
@@ -115,20 +128,6 @@ class Filter {
 
     // 检查文件体积设置
     if (!this.checkSize(option.size)) {
-      return false
-    }
-
-    // 检查屏蔽设定
-    if (!this.checkMuteUser(option.userId)) {
-      return false
-    }
-
-    if (!this.checkMuteTag(option.tags)) {
-      return false
-    }
-
-    // 检查针对特定用户屏蔽的 tags
-    if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags)) {
       return false
     }
 
@@ -235,7 +234,7 @@ class Filter {
     if (settings.notNeedTag.length > 0) {
       log.warning(
         lang.transl('_设置了排除tag之后的提示') +
-        settings.notNeedTag.toString(),
+          settings.notNeedTag.toString(),
       )
     }
   }
@@ -250,9 +249,11 @@ class Filter {
       const andOr = settings.setWidthAndOr
         .replace('|', lang.transl('_或者'))
         .replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${settings.setWidth
-        } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${settings.setHeight
-        }`
+      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${
+        settings.setWidth
+      } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${
+        settings.setHeight
+      }`
       log.warning(text)
     }
   }
@@ -700,8 +701,15 @@ class Filter {
     return !tags.some(mute.checkTag.bind(mute))
   }
 
-  private checkBlockTagsForSpecificUser(userId: FilterOption['userId'], tags: FilterOption['tags']) {
-    if (!settings.blockTagsForSpecificUser || userId === undefined || tags === undefined) {
+  private checkBlockTagsForSpecificUser(
+    userId: FilterOption['userId'],
+    tags: FilterOption['tags'],
+  ) {
+    if (
+      !settings.blockTagsForSpecificUser ||
+      userId === undefined ||
+      tags === undefined
+    ) {
       return true
     }
 

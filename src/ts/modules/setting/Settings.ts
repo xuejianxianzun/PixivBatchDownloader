@@ -10,7 +10,11 @@ import { DOM } from '../DOM'
 import { Tools } from '../Tools'
 import { convertOldSettings } from './ConvertOldSettings'
 
-export interface BlockTagsForSpecificUserItem { uid: number, user?: string, tags: string[] }
+export interface BlockTagsForSpecificUserItem {
+  uid: number
+  user?: string
+  tags: string[]
+}
 
 interface XzSetting {
   setWantPage: number
@@ -83,11 +87,11 @@ interface XzSetting {
   userBlockList: boolean
   blockList: string[]
   needTagMode: 'all' | 'one'
-  theme: 'auto' | 'white' | 'dark',
-  r18Folder: boolean,
-  r18FolderName: string,
-  blockTagsForSpecificUser: boolean,
-  blockTagsForSpecificUserShowList: boolean,
+  theme: 'auto' | 'white' | 'dark'
+  r18Folder: boolean
+  r18FolderName: string
+  blockTagsForSpecificUser: boolean
+  blockTagsForSpecificUserShowList: boolean
   blockTagsForSpecificUserList: BlockTagsForSpecificUserItem[]
 }
 
@@ -200,7 +204,7 @@ class Settings {
     r18FolderName: '[R-18&R-18G]',
     blockTagsForSpecificUser: false,
     blockTagsForSpecificUserShowList: true,
-    blockTagsForSpecificUserList: []
+    blockTagsForSpecificUserList: [],
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -385,7 +389,7 @@ class Settings {
     }
 
     // 更改设置
-    ; (this.settings[key] as any) = value
+    ;(this.settings[key] as any) = value
 
     // 触发设置变化的事件
     // 在进行批量操作（如恢复设置、导入设置、重置设置）的时候，可以将 fireEvt 设为 false，等操作执行之后自行触发这个事件

@@ -8,7 +8,7 @@ import { Tools } from './Tools'
 
 // 生成文件名
 class FileName {
-  constructor() { }
+  constructor() {}
 
   // 生成文件名
   public getFileName(data: Result) {

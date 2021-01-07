@@ -76,7 +76,12 @@ class Tools {
   static isR18OrR18G(tags: string | string[]) {
     const str: string = Array.isArray(tags) ? tags.toString() : tags
 
-    return str.includes('R-18') || str.includes('R-18G') || str.includes('R18') || str.includes('R18G')
+    return (
+      str.includes('R-18') ||
+      str.includes('R-18G') ||
+      str.includes('R18') ||
+      str.includes('R18G')
+    )
   }
 }
 

@@ -1,59 +1,60 @@
-.blockTagsForSpecificUserWrap{
-  input::-webkit-input-placeholder, textarea::-webkit-input-placeholder {
+.blockTagsForSpecificUserWrap {
+  input::-webkit-input-placeholder,
+  textarea::-webkit-input-placeholder {
     color: #999;
   }
 
-  .icon{
+  .icon {
     font-size: 1.2em;
-    color: #666;
   }
-  
+
   .textButton {
     border: none;
     background: none;
     outline: none;
     padding: 1px 3px;
     cursor: pointer;
+    color: #666;
   }
 
-  .controlBar{
-    padding:5px 0;
+  .controlBar {
+    padding: 5px 0;
   }
 
-  .addWrap{
+  .addWrap {
     display: none;
   }
 
-  .settingItem{
+  .settingItem {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding:5px 0;
-    .inputItem{
+    padding: 5px 0;
+    .inputItem {
       margin-right: 10px;
-      .label{
-        color:#444;
+      .label {
+        color: #444;
       }
-      &.uid{
-        input{
+      &.uid {
+        input {
           width: auto;
           max-width: 100px;
         }
       }
-      &.tags{
-        flex:1;
+      &.tags {
+        flex: 1;
         display: flex;
-        input{
-          flex:1;
+        input {
+          flex: 1;
         }
       }
-      span{
+      span {
         padding-right: 10px;
       }
     }
 
-    .btns{
-      & button:first-child{
+    .btns {
+      & button:first-child {
         display: inline-block;
         margin-right: 6px;
       }
