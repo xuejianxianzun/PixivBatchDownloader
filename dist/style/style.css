@@ -584,6 +584,9 @@
 .centerWrap .centerWrap_head .btns .centerWrap_top_btn.update {
   display: none;
 }
+.centerWrap .centerWrap_head .btns .centerWrap_top_btn.github_icon {
+  color: #777;
+}
 .centerWrap .centerWrap_con {
   margin-top: 45px;
 }
@@ -1189,7 +1192,7 @@ iframe[name='expandedFooter'] {
 }
 .blockTagsForSpecificUserWrap .icon {
   font-size: 1.2em;
-  color: #555;
+  color: #666;
 }
 .blockTagsForSpecificUserWrap .textButton {
   border: none;
@@ -1249,6 +1252,7 @@ iframe[name='expandedFooter'] {
   vertical-align: -0.15em;
   fill: currentColor;
   overflow: hidden;
+  color: #666;
 }
 .beautify_scrollbar::-webkit-scrollbar {
   width: 10px;
