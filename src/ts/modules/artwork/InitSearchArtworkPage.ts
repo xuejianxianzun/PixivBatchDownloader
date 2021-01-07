@@ -186,7 +186,7 @@ class InitSearchArtworkPage extends InitPageBase {
     if (this.startpageNo > 1000) {
       EVT.sendMsg({
         type: 'error',
-        msg: `${lang.transl('_超出最大页码')} ${this.maxCount}`
+        msg: `${lang.transl('_超出最大页码')} ${this.maxCount}`,
       })
       return this.noResult()
     }

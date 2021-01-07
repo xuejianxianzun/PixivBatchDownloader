@@ -13,6 +13,8 @@ import {
 import { store } from './Store'
 import { log } from './Log'
 import { DOM } from './DOM'
+import { token } from './Token'
+import { BookmarksAddTag } from './BookmarksAddTag'
 
 class InitBookmarkPage extends InitPageBase {
   constructor() {
@@ -54,6 +56,20 @@ class InitBookmarkPage extends InitPageBase {
       lang.transl('_从本页开始下载x页'),
       lang.transl('_下载所有页面'),
     )
+  }
+
+  protected addAnyElement() {
+    // 如果存在 token，则添加“添加 tag”按钮
+    if (token.token) {
+      const btn = DOM.addBtn(
+        'otherBtns',
+        Colors.green,
+        lang.transl('_给未分类作品添加添加tag'),
+        [['title', lang.transl('_给未分类作品添加添加tag')]],
+      )
+
+      new BookmarksAddTag(btn)
+    }
   }
 
   protected nextStep() {

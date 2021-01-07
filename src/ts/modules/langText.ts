@@ -1487,12 +1487,12 @@ const langText = {
     'ユーザーカバーの保存',
   ],
   _待处理: ['待处理', '待處理', 'Pending', '処理待ち'],
-  _超出最大页码:[
+  _超出最大页码: [
     '超出最大页码：',
     '超出最大頁碼：',
     'Maximum page number exceeded:',
     '最大ページ数を超えました：',
-  ]
+  ],
 }
 
 export { langText, langTextKeys }
