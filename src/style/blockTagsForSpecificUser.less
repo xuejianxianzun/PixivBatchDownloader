@@ -2,15 +2,22 @@
   input::-webkit-input-placeholder, textarea::-webkit-input-placeholder {
     color: #999;
   }
+
+  .icon{
+    font-size: 1.2em;
+    color: #555;
+  }
+  
+  .textButton {
+    border: none;
+    background: none;
+    outline: none;
+    padding: 1px 3px;
+    cursor: pointer;
+  }
+
   .controlBar{
     padding:5px 0;
-    .textButton {
-      border: none;
-      background: none;
-      outline: none;
-      padding: 1px 6px;
-      cursor: pointer;
-    }
   }
 
   .addWrap{
@@ -30,6 +37,7 @@
       &.uid{
         input{
           width: auto;
+          max-width: 100px;
         }
       }
       &.tags{

@@ -77,7 +77,7 @@ class BlockTagsForSpecificUser {
       <div class="settingItem addInputWrap" >
         <div class="inputItem uid">
           <span class="label uidLabel">${lang.transl('_用户id')}</span>
-          <input type="text" class="setinput_style1 blue addUidInput" placeholder="${lang.transl('_用户ID必须是数字')}" />
+          <input type="text" class="setinput_style1 blue addUidInput" placeholder="${lang.transl('_必须是数字')}" />
         </div>
 
         <div class="inputItem tags">
@@ -86,8 +86,18 @@ class BlockTagsForSpecificUser {
         </div>
 
         <div class="btns">
-          <button type="button" class="textButton add">${lang.transl('_添加')}</button>
-          <button type="button" class="textButton cancel">${lang.transl('_取消')}</button>
+          <button type="button" class="textButton add" title="${lang.transl('_添加')}">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-tianjia"></use>
+            </svg>
+          </button>
+
+          
+          <button type="button" class="textButton cancel" title="${lang.transl('_取消')}">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-quxiao"></use>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
@@ -164,8 +174,18 @@ class BlockTagsForSpecificUser {
       </div>
 
       <div class="btns">
-        <button type="button" class="textButton" data-updateRule="${uid}">${lang.transl('_更新')}</button>
-        <button type="button" class="textButton" data-deleteRule="${uid}">${lang.transl('_删除')}</button>
+
+        <button type="button" class="textButton" data-updateRule="${uid}" title="${lang.transl('_更新')}">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-Update"></use>
+          </svg>
+        </button>
+
+        <button type="button" class="textButton" data-deleteRule="${uid}" title="${lang.transl('_删除')}">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-shanchu1"></use>
+          </svg>
+        </button>
       </div>
     </div>`
 

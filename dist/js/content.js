@@ -5570,6 +5570,8 @@ class InitPixivisionPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
             35,
             36,
             37,
+            38,
+            39,
         ]);
         // pixivision 里，文件名只有 id 标记会生效，所以把文件名规则替换成 id
         // form.userSetName.value = '{p_title}/{id}'
@@ -7550,6 +7552,12 @@ const langText = {
         '用户ID必须是数字',
         '用户ID必须是数字',
         '用户ID必须是数字',
+    ],
+    _必须是数字: [
+        '必须是数字',
+        '必须是数字',
+        '必须是数字',
+        '必须是数字',
     ],
     _tag用逗号分割: [
         '多个 tag 使用英文逗号,分割',
@@ -12025,7 +12033,7 @@ class BlockTagsForSpecificUser {
       <div class="settingItem addInputWrap" >
         <div class="inputItem uid">
           <span class="label uidLabel">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_用户id')}</span>
-          <input type="text" class="setinput_style1 blue addUidInput" placeholder="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_用户ID必须是数字')}" />
+          <input type="text" class="setinput_style1 blue addUidInput" placeholder="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_必须是数字')}" />
         </div>
 
         <div class="inputItem tags">
@@ -12034,8 +12042,18 @@ class BlockTagsForSpecificUser {
         </div>
 
         <div class="btns">
-          <button type="button" class="textButton add">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加')}</button>
-          <button type="button" class="textButton cancel">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_取消')}</button>
+          <button type="button" class="textButton add" title="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加')}">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-tianjia"></use>
+            </svg>
+          </button>
+
+          
+          <button type="button" class="textButton cancel" title="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_取消')}">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-quxiao"></use>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
@@ -12131,8 +12149,18 @@ class BlockTagsForSpecificUser {
       </div>
 
       <div class="btns">
-        <button type="button" class="textButton" data-updateRule="${uid}">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_更新')}</button>
-        <button type="button" class="textButton" data-deleteRule="${uid}">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_删除')}</button>
+
+        <button type="button" class="textButton" data-updateRule="${uid}" title="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_更新')}">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-Update"></use>
+          </svg>
+        </button>
+
+        <button type="button" class="textButton" data-deleteRule="${uid}" title="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_删除')}">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-shanchu1"></use>
+          </svg>
+        </button>
       </div>
     </div>`;
         // 倒序显示，早添加的处于底部，晚添加的处于顶部
@@ -12168,6 +12196,7 @@ class BlockTagsForSpecificUser {
             if (index > -1) {
                 this.rules[index].user = name;
                 Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserList', [...this.rules]);
+                // 显示到页面上
                 const listElement = this.listWrap.querySelector(`.settingItem[data-key='${data.uid}']`);
                 if (listElement) {
                     const label = listElement.querySelector('.uidLabel');

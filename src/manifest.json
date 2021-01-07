@@ -32,14 +32,15 @@
         "lib/js-epub-maker.js",
         "lib/UPNG.js",
         "lib/pako.js",
-        "js/content.js"
+        "js/content.js",
+        "lib/iconfont.js"
       ],
       "matches": ["*://www.pixiv.net/*"],
       "run_at": "document_end"
     },
     {
       "css": ["style/style.css"],
-      "js": ["js/content.js"],
+      "js": ["js/content.js", "lib/iconfont.js"],
       "matches": ["*://www.pixivision.net/*"],
       "run_at": "document_end"
     }

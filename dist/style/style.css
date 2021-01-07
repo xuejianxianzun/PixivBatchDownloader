@@ -1187,15 +1187,19 @@ iframe[name='expandedFooter'] {
 .blockTagsForSpecificUserWrap textarea::-webkit-input-placeholder {
   color: #999;
 }
-.blockTagsForSpecificUserWrap .controlBar {
-  padding: 5px 0;
+.blockTagsForSpecificUserWrap .icon {
+  font-size: 1.2em;
+  color: #555;
 }
-.blockTagsForSpecificUserWrap .controlBar .textButton {
+.blockTagsForSpecificUserWrap .textButton {
   border: none;
   background: none;
   outline: none;
-  padding: 1px 6px;
+  padding: 1px 3px;
   cursor: pointer;
+}
+.blockTagsForSpecificUserWrap .controlBar {
+  padding: 5px 0;
 }
 .blockTagsForSpecificUserWrap .addWrap {
   display: none;
@@ -1214,6 +1218,7 @@ iframe[name='expandedFooter'] {
 }
 .blockTagsForSpecificUserWrap .settingItem .inputItem.uid input {
   width: auto;
+  max-width: 100px;
 }
 .blockTagsForSpecificUserWrap .settingItem .inputItem.tags {
   flex: 1;
@@ -1237,6 +1242,13 @@ iframe[name='expandedFooter'] {
 }
 .green {
   color: #14ad27;
+}
+.icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
 }
 .beautify_scrollbar::-webkit-scrollbar {
   width: 10px;
