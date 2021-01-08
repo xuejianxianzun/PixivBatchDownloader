@@ -8,7 +8,7 @@ import {
   BlockTagsForSpecificUserItem,
 } from '../setting/Settings'
 import { API } from '../API'
-import {theme} from '../Theme'
+import { theme } from '../Theme'
 
 // 针对特定用户屏蔽 tag
 class BlockTagsForSpecificUser {
