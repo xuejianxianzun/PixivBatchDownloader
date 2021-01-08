@@ -8,6 +8,7 @@ import {
   BlockTagsForSpecificUserItem,
 } from '../setting/Settings'
 import { API } from '../API'
+import {theme} from '../Theme'
 
 // 针对特定用户屏蔽 tag
 class BlockTagsForSpecificUser {
@@ -16,6 +17,8 @@ class BlockTagsForSpecificUser {
 
     this.createWrap()
     this.createAllList()
+
+    theme.register(this.wrap)
 
     this.listWrapShow = this.listWrapShow
     this.updateWrapDisplay()
