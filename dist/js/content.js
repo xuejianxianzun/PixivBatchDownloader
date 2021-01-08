@@ -12035,14 +12035,14 @@ class BlockTagsForSpecificUser {
         <div class="btns">
           <button type="button" class="textButton add" title="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加')}">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-tianjia"></use>
+              <use xlink:href="#icon-wanchengqueding"></use>
             </svg>
           </button>
 
           
           <button type="button" class="textButton cancel" title="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_取消')}">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-quxiao"></use>
+              <use xlink:href="#icon-guanbiquxiao"></use>
             </svg>
           </button>
         </div>
@@ -12146,7 +12146,7 @@ class BlockTagsForSpecificUser {
 
         <button type="button" class="textButton" data-updateRule="${uid}" title="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_更新')}">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-Update"></use>
+            <use xlink:href="#icon-gengxin"></use>
           </svg>
         </button>
 

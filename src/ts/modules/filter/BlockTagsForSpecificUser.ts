@@ -107,7 +107,7 @@ class BlockTagsForSpecificUser {
             '_添加',
           )}">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-tianjia"></use>
+              <use xlink:href="#icon-wanchengqueding"></use>
             </svg>
           </button>
 
@@ -116,7 +116,7 @@ class BlockTagsForSpecificUser {
             '_取消',
           )}">
             <svg class="icon" aria-hidden="true">
-              <use xlink:href="#icon-quxiao"></use>
+              <use xlink:href="#icon-guanbiquxiao"></use>
             </svg>
           </button>
         </div>
@@ -207,7 +207,7 @@ class BlockTagsForSpecificUser {
       '_更新',
     )}">
           <svg class="icon" aria-hidden="true">
-            <use xlink:href="#icon-Update"></use>
+            <use xlink:href="#icon-gengxin"></use>
           </svg>
         </button>
 

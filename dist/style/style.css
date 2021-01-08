@@ -604,6 +604,10 @@
 .centerWrap .centerWrap_head .btns .centerWrap_top_btn.github_icon {
   color: #777;
 }
+.centerWrap .centerWrap_head .btns .centerWrap_top_btn .icon {
+  vertical-align: initial;
+  padding-top: 5px;
+}
 .centerWrap .centerWrap_con {
   margin-top: 45px;
 }
@@ -1224,6 +1228,9 @@ iframe[name='expandedFooter'] {
 .blockTagsForSpecificUserWrap .addWrap {
   display: none;
 }
+.blockTagsForSpecificUserWrap .addWrap button.cancel .icon {
+  font-size: 1.3em;
+}
 .blockTagsForSpecificUserWrap .settingItem {
   display: flex;
   justify-content: space-between;
@@ -1253,6 +1260,9 @@ iframe[name='expandedFooter'] {
 .blockTagsForSpecificUserWrap .settingItem .btns button:first-child {
   display: inline-block;
   margin-right: 6px;
+}
+.blockTagsForSpecificUserWrap .settingItem .btns button[data-updaterule] .icon {
+  font-size: 1.4em;
 }
 .theme-dark.blockTagsForSpecificUserWrap div,
 .theme-dark.blockTagsForSpecificUserWrap span {

@@ -23,6 +23,10 @@
 
   .addWrap {
     display: none;
+
+    button.cancel .icon{
+      font-size: 1.3em;
+    }
   }
 
   .settingItem {
@@ -57,6 +61,11 @@
       & button:first-child {
         display: inline-block;
         margin-right: 6px;
+        
+      }
+
+      button[data-updaterule] .icon{
+        font-size: 1.4em;
       }
     }
   }
