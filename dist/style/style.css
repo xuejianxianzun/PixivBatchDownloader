@@ -1300,6 +1300,9 @@ iframe[name='expandedFooter'] {
   cursor: pointer;
   color: #666;
 }
+.blockTagsForSpecificUserWrap .textButton.add {
+  padding: 1px 8px;
+}
 .blockTagsForSpecificUserWrap .controlBar {
   padding: 5px 0;
 }
