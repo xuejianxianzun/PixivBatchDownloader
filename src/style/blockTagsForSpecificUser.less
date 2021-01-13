@@ -1,0 +1,83 @@
+.blockTagsForSpecificUserWrap {
+  input::-webkit-input-placeholder,
+  textarea::-webkit-input-placeholder {
+    color: #999;
+  }
+
+  .icon {
+    font-size: 1.2em;
+  }
+
+  .textButton {
+    border: none;
+    background: none;
+    outline: none;
+    padding: 1px 3px;
+    cursor: pointer;
+    color: #666;
+    &.add {
+      padding: 1px 8px;
+    }
+  }
+
+  .controlBar {
+    padding: 5px 0;
+  }
+
+  .addWrap {
+    display: none;
+
+    button.cancel .icon {
+      font-size: 1.3em;
+    }
+  }
+
+  .settingItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    .inputItem {
+      margin-right: 10px;
+      .label {
+        color: #444;
+      }
+      &.uid {
+        input {
+          width: auto;
+          max-width: 100px;
+        }
+      }
+      &.tags {
+        flex: 1;
+        display: flex;
+        input {
+          flex: 1;
+        }
+      }
+      span {
+        padding-right: 10px;
+      }
+    }
+
+    .btns {
+      & button:first-child {
+        display: inline-block;
+        margin-right: 6px;
+      }
+
+      button[data-updaterule] .icon {
+        font-size: 1.4em;
+      }
+    }
+  }
+}
+
+.theme-dark {
+  &.blockTagsForSpecificUserWrap {
+    div,
+    span {
+      color: #fff !important;
+    }
+  }
+}

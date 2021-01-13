@@ -79,11 +79,27 @@
 .selectedWorkFlag {
   position: absolute;
   z-index: 1000;
-  width: 48px;
-  height: 48px;
-  background: url('chrome-extension://__MSG_@@extension_id__/img/select.png')
-    no-repeat;
-  background-size: cover;
+  width: 60px;
+  height: 60px;
+  font-size: 54px;
+  border-radius: 50%;
+  text-align: center;
+}
+.selectedWorkFlag .icon {
+  color: #29b3f3;
+  vertical-align: baseline;
+}
+.selectedWorkFlag::after {
+  content: '';
+  display: block;
+  position: absolute;
+  width: 60%;
+  height: 60%;
+  border-radius: 50%;
+  background-color: #fff;
+  left: 12px;
+  top: 12px;
+  z-index: -1;
 }
 .searchList {
   margin: 0;
@@ -662,6 +678,13 @@
 }
 .centerWrap .centerWrap_head .btns .centerWrap_top_btn.update {
   display: none;
+}
+.centerWrap .centerWrap_head .btns .centerWrap_top_btn.github_icon {
+  color: #777;
+}
+.centerWrap .centerWrap_head .btns .centerWrap_top_btn .icon {
+  vertical-align: initial;
+  padding-top: 5px;
 }
 .centerWrap .centerWrap_con {
   margin-top: 45px;
@@ -1262,6 +1285,70 @@ iframe[name='expandedFooter'] {
 .theme-dark#viewerWarpper {
   border: none;
 }
+.blockTagsForSpecificUserWrap input::-webkit-input-placeholder,
+.blockTagsForSpecificUserWrap textarea::-webkit-input-placeholder {
+  color: #999;
+}
+.blockTagsForSpecificUserWrap .icon {
+  font-size: 1.2em;
+}
+.blockTagsForSpecificUserWrap .textButton {
+  border: none;
+  background: none;
+  outline: none;
+  padding: 1px 3px;
+  cursor: pointer;
+  color: #666;
+}
+.blockTagsForSpecificUserWrap .textButton.add {
+  padding: 1px 8px;
+}
+.blockTagsForSpecificUserWrap .controlBar {
+  padding: 5px 0;
+}
+.blockTagsForSpecificUserWrap .addWrap {
+  display: none;
+}
+.blockTagsForSpecificUserWrap .addWrap button.cancel .icon {
+  font-size: 1.3em;
+}
+.blockTagsForSpecificUserWrap .settingItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+}
+.blockTagsForSpecificUserWrap .settingItem .inputItem {
+  margin-right: 10px;
+}
+.blockTagsForSpecificUserWrap .settingItem .inputItem .label {
+  color: #444;
+}
+.blockTagsForSpecificUserWrap .settingItem .inputItem.uid input {
+  width: auto;
+  max-width: 100px;
+}
+.blockTagsForSpecificUserWrap .settingItem .inputItem.tags {
+  flex: 1;
+  display: flex;
+}
+.blockTagsForSpecificUserWrap .settingItem .inputItem.tags input {
+  flex: 1;
+}
+.blockTagsForSpecificUserWrap .settingItem .inputItem span {
+  padding-right: 10px;
+}
+.blockTagsForSpecificUserWrap .settingItem .btns button:first-child {
+  display: inline-block;
+  margin-right: 6px;
+}
+.blockTagsForSpecificUserWrap .settingItem .btns button[data-updaterule] .icon {
+  font-size: 1.4em;
+}
+.theme-dark.blockTagsForSpecificUserWrap div,
+.theme-dark.blockTagsForSpecificUserWrap span {
+  color: #fff !important;
+}
 .warn {
   color: #d27e00;
 }
@@ -1270,6 +1357,13 @@ iframe[name='expandedFooter'] {
 }
 .green {
   color: #14ad27;
+}
+.icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
 }
 .beautify_scrollbar::-webkit-scrollbar {
   width: 10px;

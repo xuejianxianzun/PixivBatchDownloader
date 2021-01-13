@@ -11,7 +11,7 @@ import {
   DonwloadSkipData,
 } from './Download.d'
 import { progressBar } from './ProgressBar'
-import { filter } from './Filter'
+import { filter } from './filter/Filter'
 import { deduplication } from './Deduplication'
 import { settings } from './setting/Settings'
 import { MakeNovelFile } from './novel/MakeNovelFile'

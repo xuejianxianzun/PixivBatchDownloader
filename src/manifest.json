@@ -32,14 +32,15 @@
         "lib/js-epub-maker.js",
         "lib/UPNG.js",
         "lib/pako.js",
-        "js/content.js"
+        "js/content.js",
+        "lib/iconfont.js"
       ],
       "matches": ["*://www.pixiv.net/*"],
       "run_at": "document_end"
     },
     {
       "css": ["style/style.css"],
-      "js": ["js/content.js"],
+      "js": ["js/content.js", "lib/iconfont.js"],
       "matches": ["*://www.pixivision.net/*"],
       "run_at": "document_end"
     }
@@ -59,8 +60,7 @@
   "web_accessible_resources": [
     "lib/z-worker.js",
     "lib/gif.worker.js",
-    "manifest.json",
-    "img/select.png"
+    "manifest.json"
   ],
   "homepage_url": "https://github.com/xuejianxianzun/PixivBatchDownloader"
 }

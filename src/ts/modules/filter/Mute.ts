@@ -1,5 +1,6 @@
-import { API } from './API'
+import { API } from '../API'
 
+// 获取用户在 Pixiv 里屏蔽的用户和/或 tag，进行过滤
 class Mute {
   private userList: string[] = []
   private tagList: string[] = []

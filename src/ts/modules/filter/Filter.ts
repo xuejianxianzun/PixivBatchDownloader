@@ -1,11 +1,12 @@
 import { FilterOption } from './Filter.d'
-import { lang } from './Lang'
-import { log } from './Log'
-import { EVT } from './EVT'
-import { states } from './States'
-import { settings } from './setting/Settings'
+import { lang } from '../Lang'
+import { log } from '../Log'
+import { EVT } from '../EVT'
+import { states } from '../States'
+import { settings } from '../setting/Settings'
 import { blackAndWhiteImage } from './BlackandWhiteImage'
 import { mute } from './Mute'
+import { blockTagsForSpecificUser } from './BlockTagsForSpecificUser'
 
 // 检查作品是否符合过滤条件
 class Filter {
@@ -52,6 +53,24 @@ class Filter {
   // 每个过滤器函数里都必须检查参数为 undefined 的情况
   // 每个过滤器函数必须返回一个 boolean 值，true 表示保留这个作品，false 表示排除这个作品
   public async check(option: FilterOption): Promise<boolean> {
+    // 检查屏蔽设定
+    if (!this.checkMuteUser(option.userId)) {
+      return false
+    }
+    if (!this.checkMuteTag(option.tags)) {
+      return false
+    }
+
+    // 检查用户阻止名单
+    if (!this.checkBlockList(option.userId)) {
+      return false
+    }
+
+    // 检查针对特定用户屏蔽的 tags
+    if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags)) {
+      return false
+    }
+
     // 检查下载的作品类型设置
     if (!this.checkDownType(option.illustType)) {
       return false
@@ -102,11 +121,6 @@ class Filter {
       return false
     }
 
-    // 检查用户阻止名单
-    if (!this.checkBlockList(option.userId)) {
-      return false
-    }
-
     // 检查首次登场设置
     if (!this.checkDebut(option.yes_rank)) {
       return false
@@ -114,15 +128,6 @@ class Filter {
 
     // 检查文件体积设置
     if (!this.checkSize(option.size)) {
-      return false
-    }
-
-    // 检查屏蔽设定
-    if (!this.checkMuteUser(option.userId)) {
-      return false
-    }
-
-    if (!this.checkMuteTag(option.tags)) {
       return false
     }
 
@@ -337,6 +342,12 @@ class Filter {
   private getBlockList() {
     if (!settings.userBlockList) {
       return
+    }
+
+    for (const uid of settings.blockList) {
+      if (isNaN(Number.parseInt(uid))) {
+        return this.showWarning(lang.transl('_用户ID必须是数字'))
+      }
     }
 
     if (settings.blockList.length > 0) {
@@ -688,6 +699,22 @@ class Filter {
 
     // 如果某些 tag 存在于 mute 列表里，就排除这个作品，所以要取反
     return !tags.some(mute.checkTag.bind(mute))
+  }
+
+  private checkBlockTagsForSpecificUser(
+    userId: FilterOption['userId'],
+    tags: FilterOption['tags'],
+  ) {
+    if (
+      !settings.blockTagsForSpecificUser ||
+      userId === undefined ||
+      tags === undefined
+    ) {
+      return true
+    }
+
+    // 对结果取反
+    return !blockTagsForSpecificUser.check(userId, tags)
   }
 
   // 如果设置项的值不合法，则显示提示

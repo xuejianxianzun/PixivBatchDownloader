@@ -284,7 +284,7 @@ const formHtml = `<form class="settingForm">
       ${lang.transl('_命名标记user')}
       <br>
       <span class="blue">{user_id}</span>
-      ${lang.transl('_命名标记userid')}
+      ${lang.transl('_用户id')}
       <br>
       <span class="blue">{title}</span>
       ${lang.transl('_命名标记title')}
@@ -365,7 +365,7 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="19">
       <span class="settingNameStyle1">${lang.transl(
-        '_为作品创建单独的目录',
+        '_为作品创建单独的文件夹',
       )}</span>
       <input type="checkbox" name="workDir" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
@@ -380,6 +380,18 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="workDirName" id="workDirName2" class="need_beautify radio" value="rule">
       <span class="beautify_radio"></span>
       <label for="workDirName2"> ${lang.transl('_命名规则')}&nbsp; </label>
+      </span>
+      </p>
+
+      <p class="option" data-no="38">
+      <span class="settingNameStyle1">${lang.transl(
+        '_把r18作品存入指定的文件夹里',
+      )}</span>
+      <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch" >
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="r18Folder">
+      <span>${lang.transl('_目录名使用')}</span>
+      <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
       </span>
       </p>
 
@@ -539,7 +551,20 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="userBlockList">
-      <input type="text" name="blockList" class="setinput_style1 blue setinput_tag">
+      <input type="text" name="blockList" class="setinput_style1 blue setinput_tag" placeholder="${lang.transl(
+        '_用户ID必须是数字',
+      )}">
+      </span>
+      </p>
+
+      <p class="option" data-no="39">
+      <span class="settingNameStyle1">${lang.transl(
+        '_针对特定用户屏蔽tag',
+      )}</span>
+      <input type="checkbox" name="blockTagsForSpecificUser" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="blockTagsForSpecificUser">
+      <slot data-name="blockTagsForSpecificUser"></slot>
       </span>
       </p>
 

@@ -387,9 +387,13 @@ class SelectWork {
 
   // 当点击事件查找到一个作品时，给这个作品添加标记
   private addSelectedFlag(el: HTMLElement, id: string) {
-    const span = document.createElement('span')
-    span.classList.add(this.selectedWorkFlagClass)
-    span.dataset.id = id
+    const i = document.createElement('i')
+    i.classList.add(this.selectedWorkFlagClass)
+    i.dataset.id = id
+
+    i.innerHTML = `<svg class="icon" aria-hidden="true">
+      <use xlink:href="#icon-select"></use>
+    </svg>`
 
     let target = el
 
@@ -398,7 +402,7 @@ class SelectWork {
     if (el.nodeName === 'svg' || el.parentElement?.nodeName === 'svg') {
       target = el.parentElement as HTMLElement
     }
-    target.insertAdjacentElement('beforebegin', span)
+    target.insertAdjacentElement('beforebegin', i)
 
     // 如果父元素没有某些定位，就会导致标记定位异常。修复此问题
     if (target.parentElement) {

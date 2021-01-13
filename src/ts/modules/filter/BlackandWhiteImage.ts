@@ -1,4 +1,4 @@
-import { DOM } from './DOM'
+import { DOM } from '../DOM'
 
 // 检查图片是否是黑白图片
 class BlackAndWhiteImage {

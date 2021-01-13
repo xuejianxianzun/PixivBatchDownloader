@@ -190,26 +190,35 @@ class FileName {
       result = result.substr(index + 1, result.length)
     }
 
+    // 把 R18(G) 作品存入指定目录里
+    // 注意：这必须放在 为作品建立单独的文件夹 之前
+    if (settings.r18Folder && Tools.isR18OrR18G(data.tags)) {
+      // 在文件名前面添加一层文件夹
+      const allPart = result.split('/')
+      const folder = Tools.replaceUnsafeStr(settings.r18FolderName)
+      allPart.splice(allPart.length - 1, 0, folder)
+      result = allPart.join('/')
+    }
+
+    // 为作品建立单独的文件夹
     // 如果这个作品里要下载的文件数量大于指定数量，则会为它建立单独的文件夹
     if (settings.workDir && data.dlCount > settings.workDirFileNumber) {
       // 操作路径中最后一项（即文件名），在它前面添加一层文件夹
       const allPart = result.split('/')
-      const lastPartIndex = allPart.length - 1
-      let lastPart = allPart[lastPartIndex]
-      let addString = ''
+      const name = allPart[allPart.length - 1]
 
+      let folder = ''
       if (settings.workDirName === 'id') {
         // 使用作品 id 作为文件夹名
-        addString = data.idNum.toString()
+        folder = data.idNum.toString()
       } else if (settings.workDirName === 'rule') {
         // 遵从命名规则，使用文件名做文件夹名
         // 这里进行了一个替换，因为多图每个图片的名字都不同，这主要是因为 id 后面的序号不同。这会导致文件夹名也不同，有多少个文件就会建立多少个文件夹，而不是统一建立一个文件夹。为了只建立一个文件夹，需要把 id 后面的序号部分去掉。
         // 但是如果一些特殊的命名规则并没有包含 {id} 部分，文件名的区别得不到处理，依然会每个文件建立一个文件夹。
-        addString = lastPart.replace(data.id, data.idNum.toString())
+        folder = name.replace(data.id, data.idNum.toString())
       }
 
-      lastPart = addString + '/' + lastPart
-      allPart[lastPartIndex] = lastPart
+      allPart.splice(allPart.length - 1, 0, folder)
       result = allPart.join('/')
     }
 
