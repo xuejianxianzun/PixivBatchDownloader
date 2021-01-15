@@ -107,7 +107,7 @@ class BookmarkAfterDL {
         id.toString(),
         settings.widthTag === 'yes' ? data.tags : [],
         settings.restrict === 'yes',
-        token.token,
+        token.token
       ).catch((err) => {
         // 如果添加收藏失败，则从 id 列表里删除它，重新开始添加收藏
         console.error(err)

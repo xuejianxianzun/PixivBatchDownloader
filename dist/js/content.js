@@ -21,7 +21,7 @@
       module.exports,
       module,
       module.exports,
-      __webpack_require__,
+      __webpack_require__
     ) // Flag the module as loaded
     /******/
     /******/ /******/ module.l = true // Return the exports of the module
@@ -59,7 +59,7 @@
   /******/
   /******/ /******/ /******/ /******/ /******/ /******/ __webpack_require__.t = function (
     value,
-    mode,
+    mode
   ) {
     /******/ if (mode & 1) value = __webpack_require__(value)
     /******/ if (mode & 8) return value
@@ -83,7 +83,7 @@
           key,
           function (key) {
             return value[key]
-          }.bind(null, key),
+          }.bind(null, key)
         )
     /******/ return ns
     /******/
@@ -111,7 +111,7 @@
   /******/
   /******/
   /******/ /******/ return __webpack_require__(
-    (__webpack_require__.s = './src/ts/content.ts'),
+    (__webpack_require__.s = './src/ts/content.ts')
   )
   /******/
 })(
@@ -126,64 +126,64 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _modules_setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./modules/setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ./modules/setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
         /* harmony import */ var _modules_PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./modules/PageType */ './src/ts/modules/PageType.ts',
+          /*! ./modules/PageType */ './src/ts/modules/PageType.ts'
         )
         /* harmony import */ var _modules_DownloadButton__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./modules/DownloadButton */ './src/ts/modules/DownloadButton.ts',
+          /*! ./modules/DownloadButton */ './src/ts/modules/DownloadButton.ts'
         )
         /* harmony import */ var _modules_CenterPanel__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./modules/CenterPanel */ './src/ts/modules/CenterPanel.ts',
+          /*! ./modules/CenterPanel */ './src/ts/modules/CenterPanel.ts'
         )
         /* harmony import */ var _modules_setting_FormSettings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./modules/setting/FormSettings */ './src/ts/modules/setting/FormSettings.ts',
+          /*! ./modules/setting/FormSettings */ './src/ts/modules/setting/FormSettings.ts'
         )
         /* harmony import */ var _modules_InitPage__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./modules/InitPage */ './src/ts/modules/InitPage.ts',
+          /*! ./modules/InitPage */ './src/ts/modules/InitPage.ts'
         )
         /* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./modules/DownloadControl */ './src/ts/modules/DownloadControl.ts',
+          /*! ./modules/DownloadControl */ './src/ts/modules/DownloadControl.ts'
         )
         /* harmony import */ var _modules_ListenPageSwitch__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./modules/ListenPageSwitch */ './src/ts/modules/ListenPageSwitch.ts',
+          /*! ./modules/ListenPageSwitch */ './src/ts/modules/ListenPageSwitch.ts'
         )
         /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ./modules/Tip */ './src/ts/modules/Tip.ts',
+          /*! ./modules/Tip */ './src/ts/modules/Tip.ts'
         )
         /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/ __webpack_require__.n(
-          _modules_Tip__WEBPACK_IMPORTED_MODULE_8__,
+          _modules_Tip__WEBPACK_IMPORTED_MODULE_8__
         )
         /* harmony import */ var _modules_TitleBar__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ./modules/TitleBar */ './src/ts/modules/TitleBar.ts',
+          /*! ./modules/TitleBar */ './src/ts/modules/TitleBar.ts'
         )
         /* harmony import */ var _modules_output_OutputPanel__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
-          /*! ./modules/output/OutputPanel */ './src/ts/modules/output/OutputPanel.ts',
+          /*! ./modules/output/OutputPanel */ './src/ts/modules/output/OutputPanel.ts'
         )
         /* harmony import */ var _modules_output_PreviewFileName__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
-          /*! ./modules/output/PreviewFileName */ './src/ts/modules/output/PreviewFileName.ts',
+          /*! ./modules/output/PreviewFileName */ './src/ts/modules/output/PreviewFileName.ts'
         )
         /* harmony import */ var _modules_output_ShowURLs__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
-          /*! ./modules/output/ShowURLs */ './src/ts/modules/output/ShowURLs.ts',
+          /*! ./modules/output/ShowURLs */ './src/ts/modules/output/ShowURLs.ts'
         )
         /* harmony import */ var _modules_MsgBox__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
-          /*! ./modules/MsgBox */ './src/ts/modules/MsgBox.ts',
+          /*! ./modules/MsgBox */ './src/ts/modules/MsgBox.ts'
         )
         /* harmony import */ var _modules_CheckNew__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
-          /*! ./modules/CheckNew */ './src/ts/modules/CheckNew.ts',
+          /*! ./modules/CheckNew */ './src/ts/modules/CheckNew.ts'
         )
         /* harmony import */ var _modules_ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
-          /*! ./modules/ShowWhatIsNew */ './src/ts/modules/ShowWhatIsNew.ts',
+          /*! ./modules/ShowWhatIsNew */ './src/ts/modules/ShowWhatIsNew.ts'
         )
         /* harmony import */ var _modules_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
-          /*! ./modules/ExportResult2CSV */ './src/ts/modules/ExportResult2CSV.ts',
+          /*! ./modules/ExportResult2CSV */ './src/ts/modules/ExportResult2CSV.ts'
         )
         /* harmony import */ var _modules_ExportResult__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(
-          /*! ./modules/ExportResult */ './src/ts/modules/ExportResult.ts',
+          /*! ./modules/ExportResult */ './src/ts/modules/ExportResult.ts'
         )
         /* harmony import */ var _modules_ExportLST__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
-          /*! ./modules/ExportLST */ './src/ts/modules/ExportLST.ts',
+          /*! ./modules/ExportLST */ './src/ts/modules/ExportLST.ts'
         )
         /*
          * project: Powerful Pixiv Downloader
@@ -219,7 +219,7 @@
           'API',
           function () {
             return API
-          },
+          }
         )
         class API {
           // 从 url 中获取指定的查询字段的值
@@ -266,7 +266,7 @@
               // https://www.pixiv.net/users/9460149/bookmarks/artworks/R-18
               // https://www.pixiv.net/users/9460149/bookmarks/novels/R-18
               const test = /\/bookmarks\/\w*\/(.[^\/|^\?|^&]*)/.exec(
-                nowURL.pathname,
+                nowURL.pathname
               )
               if (test !== null && test.length > 1 && !!test[1]) {
                 return decodeURIComponent(test[1])
@@ -275,13 +275,13 @@
             // 5 搜索页面
             if (nowURL.pathname.includes('/tags/')) {
               return decodeURIComponent(
-                nowURL.pathname.split('tags/')[1].split('/')[0],
+                nowURL.pathname.split('tags/')[1].split('/')[0]
               )
             }
             // 默认情况，从查询字符串里获取，如下网址
             // https://www.pixiv.net/bookmark.php?tag=R-18
             return decodeURIComponent(
-              this.getURLSearchField(nowURL.href, 'tag'),
+              this.getURLSearchField(nowURL.href, 'tag')
             )
           }
           // 从 url 里获取 artworks id
@@ -341,7 +341,7 @@
             type = 'illusts',
             tag,
             offset,
-            hide = false,
+            hide = false
           ) {
             const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
               hide ? 'hide' : 'show'
@@ -385,7 +385,7 @@
             offset = 0,
             limit = 100,
             tag = '',
-            lang = 'zh',
+            lang = 'zh'
           ) {
             const url = `https://www.pixiv.net/ajax/user/${id}/following?offset=${offset}&limit=${limit}&rest=${rest}&tag=${tag}&lang=${lang}`
             return this.request(url)
@@ -411,7 +411,7 @@
           // 返回作品的 id 列表，不包含详细信息
           static async getUserWorksByType(
             id,
-            type = ['illusts', 'manga', 'novels'],
+            type = ['illusts', 'manga', 'novels']
           ) {
             let typeSet = new Set(type)
             let result = []
@@ -436,7 +436,7 @@
             type,
             tag,
             offset = 0,
-            limit = 999999,
+            limit = 999999
           ) {
             // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=9999999
             const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${limit}`
@@ -489,7 +489,7 @@
           static getSearchData(word, type = 'artworks', p = 1, option = {}) {
             // 基础的 url
             let url = `https://www.pixiv.net/ajax/search/${type}/${encodeURIComponent(
-              word,
+              word
             )}?word=${encodeURIComponent(word)}&p=${p}`
             // 把可选项添加到 url 里
             let temp = new URL(url)
@@ -504,7 +504,7 @@
           static getNovelSearchData(word, p = 1, option = {}) {
             // 基础的 url
             let url = `https://www.pixiv.net/ajax/search/novels/${encodeURIComponent(
-              word,
+              word
             )}?word=${encodeURIComponent(word)}&p=${p}`
             // 把可选项添加到 url 里
             let temp = new URL(url)
@@ -545,7 +545,7 @@
                 .then((data) => {
                   let listPageDocument = new DOMParser().parseFromString(
                     data,
-                    'text/html',
+                    'text/html'
                   )
                   // 查找是否有下一页的按钮，如果没有说明是最后一页了，不再继续抓取下一页
                   let lastPage = false
@@ -553,7 +553,7 @@
                     lastPage = true
                   }
                   let worksInfoText = listPageDocument.querySelector(
-                    '#js-mount-point-latest-following',
+                    '#js-mount-point-latest-following'
                   ).dataset.items
                   resolve({
                     lastPage,
@@ -598,7 +598,7 @@
             series_id,
             limit = 30,
             last_order,
-            order_by = 'asc',
+            order_by = 'asc'
           ) {
             const url = `https://www.pixiv.net/ajax/novel/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`
             return this.request(url)
@@ -637,7 +637,7 @@
           }
           static async getMuteSettings() {
             return this.request(
-              `https://www.pixiv.net/ajax/mute/items?context=setting`,
+              `https://www.pixiv.net/ajax/mute/items?context=setting`
             )
           }
         }
@@ -658,25 +658,25 @@
           'BookmarkAfterDL',
           function () {
             return BookmarkAfterDL
-          },
+          }
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
+          /*! ./API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Token */ './src/ts/modules/Token.ts',
+          /*! ./Token */ './src/ts/modules/Token.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
 
         // 当文件下载成功后，收藏这个作品
@@ -700,7 +700,7 @@
               (ev) => {
                 const successData = ev.detail.data
                 this.send(Number.parseInt(successData.id))
-              },
+              }
             )
             // 当有文件跳过下载时，如果是重复的下载，也进行收藏
             // 因为重复的下载，本意还是要下载的，只是之前下载过了。所以进行收藏。
@@ -712,7 +712,7 @@
                 if (skipData.reason === 'duplicate') {
                   this.send(Number.parseInt(skipData.id))
                 }
-              },
+              }
             )
             // 当开始新的抓取时重置状态和提示
             window.addEventListener(
@@ -720,7 +720,7 @@
               (ev) => {
                 this.reset()
                 this.showProgress()
-              },
+              }
             )
           }
           showProgress() {
@@ -783,7 +783,7 @@
                     : [],
                   _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
                     .restrict === 'yes',
-                  _Token__WEBPACK_IMPORTED_MODULE_1__['token'].token,
+                  _Token__WEBPACK_IMPORTED_MODULE_1__['token'].token
                 )
                 .catch((err) => {
                   // 如果添加收藏失败，则从 id 列表里删除它，重新开始添加收藏
@@ -820,22 +820,22 @@
           'BookmarkAllWorks',
           function () {
             return BookmarkAllWorks
-          },
+          }
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
+          /*! ./API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Token */ './src/ts/modules/Token.ts',
+          /*! ./Token */ './src/ts/modules/Token.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
 
         class BookmarkAllWorks {
@@ -890,7 +890,7 @@
             if (this.idList.length === 0) {
               _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].sendMsg({
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_没有数据可供使用',
+                  '_没有数据可供使用'
                 ),
                 type: 'error',
               })
@@ -947,7 +947,7 @@
                     : [],
                   _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
                     .restrict === 'yes',
-                  _Token__WEBPACK_IMPORTED_MODULE_1__['token'].token,
+                  _Token__WEBPACK_IMPORTED_MODULE_1__['token'].token
                 )
                 index++
               }
@@ -958,7 +958,7 @@
             this.tipWrap.textContent = `✓ Complete`
             this.tipWrap.removeAttribute('disabled')
             _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].list.bookmarkModeEnd,
+              _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].list.bookmarkModeEnd
             )
           }
         }
@@ -979,16 +979,16 @@
           'BookmarksAddTag',
           function () {
             return BookmarksAddTag
-          },
+          }
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
+          /*! ./API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Token */ './src/ts/modules/Token.ts',
+          /*! ./Token */ './src/ts/modules/Token.ts'
         )
 
         // 给收藏页面里的未分类作品批量添加 tag
@@ -1021,14 +1021,14 @@
                 this.type,
                 '未分類',
                 offset,
-                false,
+                false
               ),
               _API__WEBPACK_IMPORTED_MODULE_0__['API'].getBookmarkData(
                 _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].getUserId(),
                 this.type,
                 '未分類',
                 offset,
-                true,
+                true
               ),
             ]).catch((error) => {
               if (error.status && error.status === 403) {
@@ -1064,7 +1064,7 @@
                 this.addTag(
                   0,
                   this.addTagList,
-                  _Token__WEBPACK_IMPORTED_MODULE_2__['token'].token,
+                  _Token__WEBPACK_IMPORTED_MODULE_2__['token'].token
                 )
               }
             } else {
@@ -1080,7 +1080,7 @@
               item.id,
               item.tags,
               item.restrict,
-              tt,
+              tt
             )
             if (index < addList.length - 1) {
               index++
@@ -1106,19 +1106,19 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts',
+          /*! ./States */ './src/ts/modules/States.ts'
         )
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./Theme */ './src/ts/modules/Theme.ts',
+          /*! ./Theme */ './src/ts/modules/Theme.ts'
         )
 
         // 中间面板
@@ -1127,7 +1127,7 @@
             this.updateActiveClass = 'updateActiveClass'
             this.addCenterPanel()
             _Theme__WEBPACK_IMPORTED_MODULE_4__['theme'].register(
-              this.centerPanel,
+              this.centerPanel
             )
             this.bindEvents()
           }
@@ -1142,7 +1142,7 @@
       <a class="has_tip centerWrap_top_btn update" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl(
-        '_newver',
+        '_newver'
       )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-Update"></use>
@@ -1151,7 +1151,7 @@
       <a class="has_tip centerWrap_top_btn github_icon" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl(
-        '_github',
+        '_github'
       )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-github"></use>
@@ -1160,7 +1160,7 @@
       <a class="has_tip centerWrap_top_btn wiki_url" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl(
-        '_wiki',
+        '_wiki'
       )}" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-help"></use>
@@ -1226,15 +1226,14 @@
                   this.toggle()
                 }
               },
-              false,
+              false
             )
             // 关闭按钮
             document
               .querySelector('.centerWrap_close')
               .addEventListener('click', () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list
-                    .closeCenterPanel,
+                  _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.closeCenterPanel
                 )
               })
             // 开始抓取作品时，隐藏
@@ -1242,10 +1241,9 @@
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.crawlStart,
               () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list
-                    .closeCenterPanel,
+                  _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.closeCenterPanel
                 )
-              },
+              }
             )
             // 抓取完作品详细数据时，显示
             for (const ev of [
@@ -1264,13 +1262,13 @@
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.openCenterPanel,
               () => {
                 this.show()
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.closeCenterPanel,
               () => {
                 this.close()
-              },
+              }
             )
             // 显示更新按钮
             window.addEventListener(
@@ -1278,15 +1276,15 @@
               () => {
                 this.updateLink.classList.add(this.updateActiveClass)
                 this.updateLink.style.display = 'inline-block'
-              },
+              }
             )
             // 显示常见问题
             this.centerPanel
               .querySelector('.showDownTip')
               .addEventListener('click', () =>
                 _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM'].toggleEl(
-                  this.centerPanel.querySelector('.downTip'),
-                ),
+                  this.centerPanel.querySelector('.downTip')
+                )
               )
             this.centerPanel.addEventListener('click', (e) => {
               const ev = e || window.event
@@ -1295,8 +1293,7 @@
             document.addEventListener('click', () => {
               if (getComputedStyle(this.centerPanel)['display'] !== 'none') {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list
-                    .closeCenterPanel,
+                  _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.closeCenterPanel
                 )
               }
             })
@@ -1305,14 +1302,14 @@
           show() {
             this.centerPanel.style.display = 'block'
             _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.centerPanelOpened,
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.centerPanelOpened
             )
           }
           // 隐藏中间区域
           close() {
             this.centerPanel.style.display = 'none'
             _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.centerPanelClosed,
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.centerPanelClosed
             )
           }
           toggle() {
@@ -1320,11 +1317,11 @@
             nowDisplay === 'block' ? this.close() : this.show()
             if (nowDisplay === 'block') {
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.closeCenterPanel,
+                _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.closeCenterPanel
               )
             } else {
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.openCenterPanel,
+                _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.openCenterPanel
               )
             }
           }
@@ -1343,7 +1340,7 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
 
         // 检查新版本
@@ -1363,7 +1360,7 @@
             ) {
               // 获取最新的 releases 信息
               const latest = await fetch(
-                'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest',
+                'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest'
               )
               const latestJson = await latest.json()
               const latestVer = latestJson.name
@@ -1374,7 +1371,7 @@
             }
             // 获取本地扩展的版本号
             const manifest = await fetch(
-              chrome.extension.getURL('manifest.json'),
+              chrome.extension.getURL('manifest.json')
             )
             const manifestJson = await manifest.json()
             const manifestVer = manifestJson.version
@@ -1382,7 +1379,7 @@
             const latestVer = localStorage.getItem(verName)
             if (latestVer && manifestVer < latestVer) {
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.hasNewVer,
+                _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.hasNewVer
               )
             }
           }
@@ -1405,7 +1402,7 @@
           'Colors',
           function () {
             return Colors
-          },
+          }
         )
         const Colors = {
           blue: '#0ea8ef',
@@ -1451,13 +1448,13 @@
           'createCSV',
           function () {
             return createCSV
-          },
+          }
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Tools */ './src/ts/modules/Tools.ts',
+          /*! ./Tools */ './src/ts/modules/Tools.ts'
         )
 
         const example = {
@@ -1548,8 +1545,8 @@
             _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].downloadFile(
               url,
               _Tools__WEBPACK_IMPORTED_MODULE_1__['Tools'].replaceUnsafeStr(
-                name,
-              ) + '.csv',
+                name
+              ) + '.csv'
             )
             return url
           }
@@ -1585,7 +1582,7 @@
           'DOM',
           function () {
             return DOM
-          },
+          }
         )
         // DOM 操作类
         // 保存公用的 DOM 操作方法，以及从 DOM 中获取数据的 API
@@ -1804,7 +1801,7 @@
           'DateFormat',
           function () {
             return DateFormat
-          },
+          }
         )
         // 格式化日期（和时间）
         class DateFormat {
@@ -1895,34 +1892,34 @@
           'deduplication',
           function () {
             return deduplication
-          },
+          }
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Log */ './src/ts/modules/Log.ts',
+          /*! ./Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
         /* harmony import */ var _IndexedDB__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./IndexedDB */ './src/ts/modules/IndexedDB.ts',
+          /*! ./IndexedDB */ './src/ts/modules/IndexedDB.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./FileName */ './src/ts/modules/FileName.ts',
+          /*! ./FileName */ './src/ts/modules/FileName.ts'
         )
         /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ./Tools */ './src/ts/modules/Tools.ts',
+          /*! ./Tools */ './src/ts/modules/Tools.ts'
         )
 
         // 通过保存和查询下载记录，判断重复文件
@@ -1974,7 +1971,7 @@
               (ev) => {
                 const successData = ev.detail.data
                 this.add(successData.id)
-              },
+              }
             )
             // 导入下载记录的按钮
             {
@@ -1983,7 +1980,7 @@
                 btn.addEventListener('click', () => {
                   _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
                     _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list
-                      .importDownloadRecord,
+                      .importDownloadRecord
                   )
                 })
               }
@@ -1994,7 +1991,7 @@
                 .importDownloadRecord,
               () => {
                 this.importRecord()
-              },
+              }
             )
             // 导出下载记录的按钮
             {
@@ -2003,7 +2000,7 @@
                 btn.addEventListener('click', () => {
                   _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
                     _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list
-                      .exportDownloadRecord,
+                      .exportDownloadRecord
                   )
                 })
               }
@@ -2014,7 +2011,7 @@
                 .exportDownloadRecord,
               () => {
                 this.exportRecord()
-              },
+              }
             )
             // 清空下载记录的按钮
             {
@@ -2023,7 +2020,7 @@
                 btn.addEventListener('click', () => {
                   _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
                     _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list
-                      .clearDownloadRecord,
+                      .clearDownloadRecord
                   )
                 })
               }
@@ -2034,7 +2031,7 @@
               () => {
                 this.clearRecords()
                 this.existedIdList = []
-              },
+              }
             )
           }
           // 当要查找或存储一个 id 时，返回它所对应的 storeName
@@ -2119,7 +2116,7 @@
             }
             _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].sendMsg({
               msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_下载记录已清除',
+                '_下载记录已清除'
               ),
               type: 'success',
             })
@@ -2138,7 +2135,7 @@
               url,
               `record-${_Tools__WEBPACK_IMPORTED_MODULE_8__[
                 'Tools'
-              ].replaceUnsafeStr(new Date().toLocaleString())}.json`,
+              ].replaceUnsafeStr(new Date().toLocaleString())}.json`
             )
           }
           // 导入下载记录
@@ -2168,9 +2165,7 @@
             }
             // 开始导入
             _Log__WEBPACK_IMPORTED_MODULE_3__['log'].warning(
-              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_导入下载记录',
-              ),
+              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_导入下载记录')
             )
             let stored = 0
             let total = record.length
@@ -2179,11 +2174,11 @@
               _Log__WEBPACK_IMPORTED_MODULE_3__['log'].log(
                 `${stored}/${total}`,
                 1,
-                false,
+                false
               )
               if (stored >= total) {
                 _Log__WEBPACK_IMPORTED_MODULE_3__['log'].success(
-                  _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_完成'),
+                  _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_完成')
                 )
                 window.clearInterval(t)
               }
@@ -2203,9 +2198,9 @@
             }
             _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].sendMsg({
               msg: `${_Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_导入下载记录',
+                '_导入下载记录'
               )}<br>${_Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_完成',
+                '_完成'
               )}`,
               type: 'success',
             })
@@ -2225,7 +2220,7 @@
             const url = URL.createObjectURL(blob)
             _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].downloadFile(
               url,
-              `record-test-${number}.json`,
+              `record-test-${number}.json`
             )
           }
         }
@@ -2247,25 +2242,25 @@
           'DeleteWorks',
           function () {
             return DeleteWorks
-          },
+          }
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./Log */ './src/ts/modules/Log.ts',
+          /*! ./Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts',
+          /*! ./Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts',
+          /*! ./States */ './src/ts/modules/States.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         // 删除页面上的作品
 
@@ -2310,7 +2305,7 @@
                 if (this.delMode) {
                   this.bindDeleteEvent()
                 }
-              },
+              }
             )
             // 切换页面时，退出手动删除模式
             window.addEventListener(
@@ -2319,7 +2314,7 @@
                 if (this.delMode) {
                   this.toggleDeleteMode()
                 }
-              },
+              }
             )
             // 鼠标移动时保存鼠标的坐标
             window.addEventListener(
@@ -2327,7 +2322,7 @@
               (ev) => {
                 this.moveEvent(ev)
               },
-              true,
+              true
             )
           }
           // 监听鼠标移动
@@ -2344,16 +2339,16 @@
                 'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].red,
                 _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                  '_清除多图作品',
+                  '_清除多图作品'
                 ),
                 [
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                      '_清除多图作品Title',
+                      '_清除多图作品Title'
                     ),
                   ],
-                ],
+                ]
               )
               .addEventListener(
                 'click',
@@ -2361,7 +2356,7 @@
                   if (_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy) {
                     _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].sendMsg({
                       msg: _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                        '_当前任务尚未完成',
+                        '_当前任务尚未完成'
                       ),
                       type: 'error',
                     })
@@ -2369,12 +2364,12 @@
                   }
                   _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].fire(
                     _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list
-                      .closeCenterPanel,
+                      .closeCenterPanel
                   )
                   this.clearMultiple()
                   callback()
                 },
-                false,
+                false
               )
           }
           // 清除动图作品的按钮
@@ -2385,16 +2380,16 @@
                 'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].red,
                 _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                  '_清除动图作品',
+                  '_清除动图作品'
                 ),
                 [
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                      '_清除动图作品Title',
+                      '_清除动图作品Title'
                     ),
                   ],
-                ],
+                ]
               )
               .addEventListener(
                 'click',
@@ -2402,7 +2397,7 @@
                   if (_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy) {
                     _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].sendMsg({
                       msg: _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                        '_当前任务尚未完成',
+                        '_当前任务尚未完成'
                       ),
                       type: 'error',
                     })
@@ -2410,12 +2405,12 @@
                   }
                   _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].fire(
                     _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list
-                      .closeCenterPanel,
+                      .closeCenterPanel
                   )
                   this.ClearUgoira()
                   callback()
                 },
-                false,
+                false
               )
           }
           // 手动删除作品的按钮
@@ -2427,16 +2422,16 @@
               'crawlBtns',
               _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].red,
               _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                '_手动删除作品',
+                '_手动删除作品'
               ),
               [
                 [
                   'title',
                   _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                    '_手动删除作品Title',
+                    '_手动删除作品Title'
                   ),
                 ],
-              ],
+              ]
             )
             this.delBtn.addEventListener('click', () => {
               this.toggleDeleteMode()
@@ -2453,8 +2448,7 @@
               ].transl('_退出手动删除')
               setTimeout(() => {
                 _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list
-                    .closeCenterPanel,
+                  _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list.closeCenterPanel
                 )
               }, 100)
             } else {
@@ -2494,7 +2488,7 @@
                   if (_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy) {
                     _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].sendMsg({
                       msg: _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                        '_当前任务尚未完成',
+                        '_当前任务尚未完成'
                       ),
                       type: 'error',
                     })
@@ -2516,10 +2510,10 @@
                 '_调整完毕',
                 _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
                   .getVisibleEl(selector)
-                  .length.toString(),
+                  .length.toString()
               ),
               2,
-              false,
+              false
             )
           }
         }
@@ -2540,40 +2534,40 @@
           'Download',
           function () {
             return Download
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Log */ './src/ts/modules/Log.ts',
+          /*! ./Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./FileName */ './src/ts/modules/FileName.ts',
+          /*! ./FileName */ './src/ts/modules/FileName.ts'
         )
         /* harmony import */ var _ugoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./ugoira/ConvertUgoira */ './src/ts/modules/ugoira/ConvertUgoira.ts',
+          /*! ./ugoira/ConvertUgoira */ './src/ts/modules/ugoira/ConvertUgoira.ts'
         )
         /* harmony import */ var _ProgressBar__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./ProgressBar */ './src/ts/modules/ProgressBar.ts',
+          /*! ./ProgressBar */ './src/ts/modules/ProgressBar.ts'
         )
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./filter/Filter */ './src/ts/modules/filter/Filter.ts',
+          /*! ./filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
         /* harmony import */ var _Deduplication__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ./Deduplication */ './src/ts/modules/Deduplication.ts',
+          /*! ./Deduplication */ './src/ts/modules/Deduplication.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
         /* harmony import */ var _novel_MakeNovelFile__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
-          /*! ./novel/MakeNovelFile */ './src/ts/modules/novel/MakeNovelFile.ts',
+          /*! ./novel/MakeNovelFile */ './src/ts/modules/novel/MakeNovelFile.ts'
         )
         // 下载文件，并发送给浏览器下载
 
@@ -2613,7 +2607,7 @@
             _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(msg)
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.skipDownload,
-              data,
+              data
             )
           }
           // 下载文件
@@ -2630,8 +2624,8 @@
                 },
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_跳过下载因为重复文件',
-                  arg.id,
-                ),
+                  arg.id
+                )
               )
             }
             // 获取文件名
@@ -2681,8 +2675,8 @@
                     },
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                       '_不保存图片因为体积',
-                      arg.id,
-                    ),
+                      arg.id
+                    )
                   )
                 }
               }
@@ -2707,13 +2701,13 @@
                   // 404 错误时
                   msg = _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                     '_file404',
-                    arg.id,
+                    arg.id
                   )
                 } else {
                   // 无法处理的错误状态
                   msg = _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                     '_文件下载失败',
-                    arg.id,
+                    arg.id
                   )
                 }
                 // 超过重试次数的话，这个下载会被暂时跳过。但最后还是会尝试重新下载它，所以这里不输出错误信息。
@@ -2721,7 +2715,7 @@
                 this.cancel = true
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
                   _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadError,
-                  arg.id,
+                  arg.id
                 )
               }
               if (xhr.status !== 200) {
@@ -2775,7 +2769,7 @@
                     _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
                       _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
                         .downloadError,
-                      arg.id,
+                      arg.id
                     )
                   }
                 }
@@ -2802,8 +2796,8 @@
                     },
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                       '_不保存图片因为颜色',
-                      arg.id,
-                    ),
+                      arg.id
+                    )
                   )
                 }
               }
@@ -2830,8 +2824,8 @@
                     },
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                       '_不保存图片因为宽高',
-                      arg.id,
-                    ),
+                      arg.id
+                    )
                   )
                 }
               }
@@ -2840,7 +2834,7 @@
                 blobUrl,
                 this.fileName,
                 arg.id,
-                arg.taskBatch,
+                arg.taskBatch
               )
               xhr = null
               file = null
@@ -2878,13 +2872,13 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./PageType */ './src/ts/modules/PageType.ts',
+          /*! ./PageType */ './src/ts/modules/PageType.ts'
         )
 
         // 右侧的下载按钮
@@ -2902,8 +2896,8 @@
             this.btn.setAttribute(
               'title',
               _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                '_显示下载面板',
-              ) + ' (Alt + X)',
+                '_显示下载面板'
+              ) + ' (Alt + X)'
             )
             document.body.insertAdjacentElement('afterbegin', this.btn)
           }
@@ -2913,27 +2907,27 @@
               const ev = e || window.event
               ev.stopPropagation()
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.openCenterPanel,
+                _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.openCenterPanel
               )
             })
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.centerPanelClosed,
               () => {
                 this.show()
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.centerPanelOpened,
               () => {
                 this.hide()
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
                 .pageSwitchedTypeChange,
               () => {
                 this.setVisible()
-              },
+              }
             )
           }
           show() {
@@ -2963,52 +2957,52 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Log */ './src/ts/modules/Log.ts',
+          /*! ./Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts',
+          /*! ./Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
         /* harmony import */ var _Download__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./Download */ './src/ts/modules/Download.ts',
+          /*! ./Download */ './src/ts/modules/Download.ts'
         )
         /* harmony import */ var _ProgressBar__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ./ProgressBar */ './src/ts/modules/ProgressBar.ts',
+          /*! ./ProgressBar */ './src/ts/modules/ProgressBar.ts'
         )
         /* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ./DownloadStates */ './src/ts/modules/DownloadStates.ts',
+          /*! ./DownloadStates */ './src/ts/modules/DownloadStates.ts'
         )
         /* harmony import */ var _ShowSkipCount__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
-          /*! ./ShowSkipCount */ './src/ts/modules/ShowSkipCount.ts',
+          /*! ./ShowSkipCount */ './src/ts/modules/ShowSkipCount.ts'
         )
         /* harmony import */ var _ShowConvertCount__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
-          /*! ./ShowConvertCount */ './src/ts/modules/ShowConvertCount.ts',
+          /*! ./ShowConvertCount */ './src/ts/modules/ShowConvertCount.ts'
         )
         /* harmony import */ var _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
-          /*! ./BookmarkAfterDL */ './src/ts/modules/BookmarkAfterDL.ts',
+          /*! ./BookmarkAfterDL */ './src/ts/modules/BookmarkAfterDL.ts'
         )
         /* harmony import */ var _Resume__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
-          /*! ./Resume */ './src/ts/modules/Resume.ts',
+          /*! ./Resume */ './src/ts/modules/Resume.ts'
         )
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts',
+          /*! ./States */ './src/ts/modules/States.ts'
         )
         /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
-          /*! ./Config */ './src/ts/modules/Config.ts',
+          /*! ./Config */ './src/ts/modules/Config.ts'
         )
         // 下载控制
 
@@ -3030,7 +3024,7 @@
             this.listenEvents()
             const skipTipWrap = this.wrapper.querySelector('.skip_tip')
             new _ShowSkipCount__WEBPACK_IMPORTED_MODULE_10__['ShowSkipCount'](
-              skipTipWrap,
+              skipTipWrap
             )
             const convertTipWrap = this.wrapper.querySelector('.convert_tip')
             new _ShowConvertCount__WEBPACK_IMPORTED_MODULE_11__[
@@ -3039,7 +3033,7 @@
             // 只在 p 站内启用下载后收藏的功能（因为要区分 pixivision）
             if (location.hostname.endsWith('.pixiv.net')) {
               const bmkAfterDLTipWrap = this.wrapper.querySelector(
-                '.bmkAfterDL_tip',
+                '.bmkAfterDL_tip'
               )
               new _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_12__[
                 'BookmarkAfterDL'
@@ -3052,7 +3046,7 @@
               () => {
                 this.hideDownloadArea()
                 this.reset()
-              },
+              }
             )
             for (const ev of [
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.crawlFinish,
@@ -3070,14 +3064,14 @@
               (ev) => {
                 const data = ev.detail.data
                 this.downloadOrSkipAFile(data)
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadError,
               (ev) => {
                 const id = ev.detail.data
                 this.downloadError(id)
-              },
+              }
             )
             // 监听浏览器返回的消息
             chrome.runtime.onMessage.addListener((msg) => {
@@ -3091,16 +3085,16 @@
                 // 发送下载成功的事件
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
                   _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadSuccess,
-                  msg.data,
+                  msg.data
                 )
                 this.downloadOrSkipAFile(msg.data)
               } else if (msg.msg === 'download_err') {
                 // 浏览器把文件保存到本地时出错
                 _Log__WEBPACK_IMPORTED_MODULE_3__['log'].error(
-                  `${msg.data.id} download error! code: ${msg.err}. The downloader will try to download the file again `,
+                  `${msg.data.id} download error! code: ${msg.err}. The downloader will try to download the file again `
                 )
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.saveFileError,
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.saveFileError
                 )
                 // 重新下载这个文件
                 // 但并不确定能否如预期一样重新下载这个文件
@@ -3109,7 +3103,7 @@
               // UUID 的情况
               if (msg.data && msg.data.uuid) {
                 _Log__WEBPACK_IMPORTED_MODULE_3__['log'].error(
-                  _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_uuid'),
+                  _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_uuid')
                 )
               }
             })
@@ -3118,34 +3112,34 @@
             const html = `<div class="download_area">
     <p> ${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
       '_共抓取到n个文件',
-      '<span class="fwb blue imgNum">0</span>',
+      '<span class="fwb blue imgNum">0</span>'
     )}</p>
     
     <div class="centerWrap_btns">
     <button class="startDownload" type="button" style="background:${
       _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].blue
     };"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-              '_下载按钮1',
+              '_下载按钮1'
             )}</button>
     <button class="pauseDownload" type="button" style="background:${
       _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].yellow
     };"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-              '_下载按钮2',
+              '_下载按钮2'
             )}</button>
     <button class="stopDownload" type="button" style="background:${
       _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].red
     };"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-              '_下载按钮3',
+              '_下载按钮3'
             )}</button>
     <button class="copyUrl" type="button" style="background:${
       _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].green
     };"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-              '_复制url',
+              '_复制url'
             )}</button>
     </div>
     <div class="download_status_text_wrap">
     <span>${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-      '_当前状态',
+      '_当前状态'
     )}</span>
     <span class="down_status">${_Lang__WEBPACK_IMPORTED_MODULE_4__[
       'lang'
@@ -3157,7 +3151,7 @@
     </div>`
             this.wrapper = _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].useSlot(
               'downloadArea',
-              html,
+              html
             )
             this.statesEl = this.wrapper.querySelector('.down_status')
             this.totalNumberEl = this.wrapper.querySelector('.imgNum')
@@ -3180,7 +3174,7 @@
               .querySelector('.copyUrl')
               .addEventListener('click', () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.showURLs,
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.showURLs
                 )
               })
           }
@@ -3240,17 +3234,17 @@
             this.taskBatch = new Date().getTime() // 修改本批下载任务的标记
             this.setDownloadThread()
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadStart,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadStart
             )
             // 建立并发下载线程
             for (let i = 0; i < this.thread; i++) {
               this.createDownload(i)
             }
             this.setDownStateText(
-              _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_正在下载中'),
+              _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_正在下载中')
             )
             _Log__WEBPACK_IMPORTED_MODULE_3__['log'].success(
-              _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_正在下载中'),
+              _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_正在下载中')
             )
           }
           // 暂停下载
@@ -3270,14 +3264,14 @@
                 this.pause = true
                 this.setDownStateText(
                   _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_已暂停'),
-                  '#f00',
+                  '#f00'
                 )
                 _Log__WEBPACK_IMPORTED_MODULE_3__['log'].warning(
                   _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_已暂停'),
-                  2,
+                  2
                 )
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadPause,
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadPause
                 )
               } else {
                 // 不在下载中的话不允许启用暂停功能
@@ -3297,15 +3291,15 @@
             this.stop = true
             this.setDownStateText(
               _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_已停止'),
-              '#f00',
+              '#f00'
             )
             _Log__WEBPACK_IMPORTED_MODULE_3__['log'].error(
               _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_已停止'),
-              2,
+              2
             )
             this.pause = false
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadStop,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadStop
             )
           }
           downloadError(id) {
@@ -3400,7 +3394,7 @@
             // 重设下载进度条
             _ProgressBar__WEBPACK_IMPORTED_MODULE_8__['progressBar'].reset(
               this.thread,
-              this.downloaded,
+              this.downloaded
             )
           }
           // 查找需要进行下载的作品，建立下载
@@ -3430,7 +3424,7 @@
               // 建立下载
               new _Download__WEBPACK_IMPORTED_MODULE_7__['Download'](
                 progressBarIndex,
-                data,
+                data
               )
             }
           }
@@ -3446,9 +3440,7 @@
             ].setTotalProgress(this.downloaded)
             if (this.downloaded === 0) {
               this.setDownStateText(
-                _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                  '_未开始下载',
-                ),
+                _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_未开始下载')
               )
             }
             // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
@@ -3459,18 +3451,17 @@
               window.setTimeout(() => {
                 // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
-                    .downloadComplete,
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadComplete
                 )
               }, 0)
               this.reset()
               this.setDownStateText(
                 _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_下载完毕'),
-                _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].green,
+                _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].green
               )
               _Log__WEBPACK_IMPORTED_MODULE_3__['log'].success(
                 _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_下载完毕'),
-                2,
+                2
               )
             }
             this.checkCompleteWithError()
@@ -3492,7 +3483,7 @@
           // 设置下载状态文本，默认颜色为主题蓝色
           setDownStateText(
             text,
-            color = _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].blue,
+            color = _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].blue
           ) {
             this.statesEl.textContent = text
             this.statesEl.style.color = color
@@ -3527,13 +3518,13 @@
           'downloadStates',
           function () {
             return downloadStates
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
 
         // 下载状态列表
@@ -3557,7 +3548,7 @@
           // 创建新的状态列表
           init() {
             this.states = new Array(
-              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length,
+              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length
             ).fill(-1)
           }
           // 统计下载完成的数量
@@ -3623,7 +3614,7 @@
           'EVT',
           function () {
             return EVT
-          },
+          }
         )
         // 触发自定义事件
         class EVT {
@@ -3763,16 +3754,16 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./FileName */ './src/ts/modules/FileName.ts',
+          /*! ./FileName */ './src/ts/modules/FileName.ts'
         )
 
         // 输出 lst 文件
@@ -3790,7 +3781,7 @@
                   this.createLst()
                 }
               },
-              false,
+              false
             )
           }
           createLst() {
@@ -3811,7 +3802,7 @@
                   this.separate +
                   _FileName__WEBPACK_IMPORTED_MODULE_3__[
                     'fileName'
-                  ].getFileName(data),
+                  ].getFileName(data)
               )
             }
             const result = array.join(this.CRLF)
@@ -3836,19 +3827,19 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./Tools */ './src/ts/modules/Tools.ts',
+          /*! ./Tools */ './src/ts/modules/Tools.ts'
         )
 
         class ExportResult {
@@ -3860,7 +3851,7 @@
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.outputResult,
               () => {
                 this.output()
-              },
+              }
             )
           }
           output() {
@@ -3870,7 +3861,7 @@
             ) {
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].sendMsg({
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_没有数据可供使用',
+                  '_没有数据可供使用'
                 ),
                 type: 'error',
               })
@@ -3879,7 +3870,7 @@
             const str = JSON.stringify(
               _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result,
               null,
-              2,
+              2
             )
             const blob = new Blob([str], { type: 'application/json' })
             const url = URL.createObjectURL(blob)
@@ -3888,10 +3879,10 @@
               `result-${_Tools__WEBPACK_IMPORTED_MODULE_4__[
                 'Tools'
               ].replaceUnsafeStr(
-                _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].getTitle(),
+                _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].getTitle()
               )}-${_Store__WEBPACK_IMPORTED_MODULE_2__[
                 'store'
-              ].crawlCompleteTime.getTime()}.json`,
+              ].crawlCompleteTime.getTime()}.json`
             )
           }
         }
@@ -3909,25 +3900,25 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Config */ './src/ts/modules/Config.ts',
+          /*! ./Config */ './src/ts/modules/Config.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./FileName */ './src/ts/modules/FileName.ts',
+          /*! ./FileName */ './src/ts/modules/FileName.ts'
         )
         /* harmony import */ var _CreateCSV__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./CreateCSV */ './src/ts/modules/CreateCSV.ts',
+          /*! ./CreateCSV */ './src/ts/modules/CreateCSV.ts'
         )
 
         // name 这个字段在 csv 里的标题
@@ -4015,7 +4006,7 @@
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.outputCSV,
               () => {
                 this.beforeCreate()
-              },
+              }
             )
           }
           beforeCreate() {
@@ -4025,7 +4016,7 @@
             ) {
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].sendMsg({
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_没有数据可供使用',
+                  '_没有数据可供使用'
                 ),
                 type: 'error',
               })
@@ -4060,7 +4051,7 @@
                   bodyItem.push(
                     _FileName__WEBPACK_IMPORTED_MODULE_5__[
                       'fileName'
-                    ].getFileName(d),
+                    ].getFileName(d)
                   )
                 } else {
                   let result = d[field.index]
@@ -4115,19 +4106,19 @@
           'FastScreen',
           function () {
             return FastScreen
-          },
+          }
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
+          /*! ./API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Theme */ './src/ts/modules/Theme.ts',
+          /*! ./Theme */ './src/ts/modules/Theme.ts'
         )
 
         // 在搜索页面按收藏数快速筛选
@@ -4150,7 +4141,7 @@
                 .pageSwitchedTypeChange,
               () => {
                 this.destroy()
-              },
+              }
             )
           }
           // 添加快速筛选功能
@@ -4175,7 +4166,7 @@
               fastScreenArea.appendChild(a)
             })
             _Theme__WEBPACK_IMPORTED_MODULE_3__['theme'].register(
-              fastScreenArea,
+              fastScreenArea
             )
             target.insertAdjacentElement('afterend', fastScreenArea)
           }
@@ -4190,7 +4181,7 @@
             // 用新的 tag 替换掉当前网址里的 tag
             const newURL = location.href.replace(
               encodeURIComponent(nowTag),
-              fullTag,
+              fullTag
             )
             // 添加 s_mode=s_tag 宽松匹配标签
             const u = new URL(newURL)
@@ -4220,25 +4211,25 @@
           'fileName',
           function () {
             return fileName
-          },
+          }
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Config */ './src/ts/modules/Config.ts',
+          /*! ./Config */ './src/ts/modules/Config.ts'
         )
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts',
+          /*! ./States */ './src/ts/modules/States.ts'
         )
         /* harmony import */ var _DateFormat__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./DateFormat */ './src/ts/modules/DateFormat.ts',
+          /*! ./DateFormat */ './src/ts/modules/DateFormat.ts'
         )
         /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Tools */ './src/ts/modules/Tools.ts',
+          /*! ./Tools */ './src/ts/modules/Tools.ts'
         )
 
         // 生成文件名
@@ -4339,7 +4330,7 @@
                 ].format(
                   data.date,
                   _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
-                    .dateFormat,
+                    .dateFormat
                 ),
                 prefix: '',
                 safe: false,
@@ -4351,7 +4342,7 @@
                   _Store__WEBPACK_IMPORTED_MODULE_1__['store']
                     .crawlCompleteTime,
                   _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
-                    .dateFormat,
+                    .dateFormat
                 ),
                 prefix: '',
                 safe: false,
@@ -4450,7 +4441,7 @@
               _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
                 .r18Folder &&
               _Tools__WEBPACK_IMPORTED_MODULE_5__['Tools'].isR18OrR18G(
-                data.tags,
+                data.tags
               )
             ) {
               // 在文件名前面添加一层文件夹
@@ -4459,7 +4450,7 @@
                 'Tools'
               ].replaceUnsafeStr(
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
-                  .r18FolderName,
+                  .r18FolderName
               )
               allPart.splice(allPart.length - 1, 0, folder)
               result = allPart.join('/')
@@ -4530,7 +4521,7 @@
               if (allPart[lastIndex].length + extResult.length > limit) {
                 allPart[lastIndex] = allPart[lastIndex].substr(
                   0,
-                  limit - extResult.length,
+                  limit - extResult.length
                 )
               }
               result = allPart.join('/')
@@ -4558,7 +4549,7 @@
           'img2ico',
           function () {
             return img2ico
-          },
+          }
         )
         // 把图片转换成 icon 文件
         // icon 文件结构 https://www.cnblogs.com/cswuyg/p/3603707.html
@@ -4581,7 +4572,7 @@
                 img,
                 opt.size,
                 opt.shape,
-                opt.bleed,
+                opt.bleed
               )
               // 创建 ico 文件
               const blob = this.createIcon(pngDataArray)
@@ -4619,7 +4610,7 @@
             img,
             size = [16, 48, 96, 256],
             shape = 'square',
-            bleed = true,
+            bleed = true
           ) {
             return new Promise(async (resolve, reject) => {
               const buffer = []
@@ -4783,13 +4774,13 @@
           'ImgViewer',
           function () {
             return ImgViewer
-          },
+          }
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
+          /*! ./API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Theme */ './src/ts/modules/Theme.ts',
+          /*! ./Theme */ './src/ts/modules/Theme.ts'
         )
         // 图片查看器
         /// <reference path = "./Viewer.d.ts" />
@@ -4874,7 +4865,7 @@
             this.viewerUl = document.createElement('ul')
             this.viewerWarpper.appendChild(this.viewerUl)
             _Theme__WEBPACK_IMPORTED_MODULE_1__['theme'].register(
-              this.viewerWarpper,
+              this.viewerWarpper
             )
             document
               .querySelector('main figcaption')
@@ -4942,7 +4933,7 @@
             const data = await _API__WEBPACK_IMPORTED_MODULE_0__[
               'API'
             ].getArtworkData(
-              _API__WEBPACK_IMPORTED_MODULE_0__['API'].getIllustId(),
+              _API__WEBPACK_IMPORTED_MODULE_0__['API'].getIllustId()
             )
             const body = data.body
             // 处理插画或漫画作品，不处理动图作品
@@ -4955,7 +4946,7 @@
                 for (let index = 0; index < body.pageCount; index++) {
                   const str = `<li><img src="${thumb.replace(
                     'p0',
-                    'p' + index,
+                    'p' + index
                   )}" data-src="${original.replace('p0', 'p' + index)}"></li>`
                   html.push(str)
                 }
@@ -5071,7 +5062,7 @@
           'IndexedDB',
           function () {
             return IndexedDB
-          },
+          }
         )
         // 封装操作 IndexedDB 的一些公共方法，仅满足本程序使用，并不完善
         class IndexedDB {
@@ -5330,37 +5321,37 @@
           'InitBookmarkLegacyPage',
           function () {
             return InitBookmarkLegacyPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
+          /*! ./API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts',
+          /*! ./Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Token */ './src/ts/modules/Token.ts',
+          /*! ./Token */ './src/ts/modules/Token.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ./setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./BookmarksAddTag */ './src/ts/modules/BookmarksAddTag.ts',
+          /*! ./BookmarksAddTag */ './src/ts/modules/BookmarksAddTag.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ./Log */ './src/ts/modules/Log.ts',
+          /*! ./Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         // 初始化旧版收藏页面
 
@@ -5388,13 +5379,13 @@
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                      '_开始抓取',
+                      '_开始抓取'
                     ) +
                       _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                        '_默认下载多页',
+                        '_默认下载多页'
                       ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.readyCrawl()
@@ -5405,16 +5396,16 @@
                 'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                  '_抓取推荐作品',
+                  '_抓取推荐作品'
                 ),
                 [
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                      '_抓取推荐作品Title',
+                      '_抓取推荐作品Title'
                     ),
                   ],
-                ],
+                ]
               )
               .addEventListener(
                 'click',
@@ -5422,7 +5413,7 @@
                   this.crawlRecommended = true
                   this.readyCrawl()
                 },
-                false,
+                false
               )
           }
           addAnyElement() {
@@ -5434,16 +5425,16 @@
                 'otherBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].green,
                 _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                  '_给未分类作品添加添加tag',
+                  '_给未分类作品添加添加tag'
                 ),
                 [
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                      '_给未分类作品添加添加tag',
+                      '_给未分类作品添加添加tag'
                     ),
                   ],
-                ],
+                ]
               )
               new _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_6__[
                 'BookmarksAddTag'
@@ -5457,10 +5448,10 @@
             ].setWantPageTip({
               text: _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_页数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                '_从本页开始下载提示',
+                '_从本页开始下载提示'
               ),
               rangTip: _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                '_数字提示1',
+                '_数字提示1'
               ),
             })
           }
@@ -5468,18 +5459,18 @@
             let pageTip = ''
             if (this.crawlRecommended) {
               pageTip = _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                '_下载推荐作品',
+                '_下载推荐作品'
               )
             } else {
               pageTip = _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                '_下载所有页面',
+                '_下载所有页面'
               )
             }
             this.crawlNumber = this.checkWantPageInput(
               _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                '_从本页开始下载x页',
+                '_从本页开始下载x页'
               ),
-              pageTip,
+              pageTip
             )
           }
           nextStep() {
@@ -5519,16 +5510,16 @@
             this.isHide =
               _API__WEBPACK_IMPORTED_MODULE_1__['API'].getURLSearchField(
                 location.href,
-                'rest',
+                'rest'
               ) === 'hide'
             _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
-              _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_正在抓取'),
+              _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_正在抓取')
             )
             if (this.crawlNumber === -1) {
               _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
                 _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                  '_获取全部书签作品',
-                ),
+                  '_获取全部书签作品'
+                )
               )
             }
           }
@@ -5543,7 +5534,7 @@
                 this.type,
                 _Store__WEBPACK_IMPORTED_MODULE_7__['store'].tag,
                 this.offset,
-                this.isHide,
+                this.isHide
               )
             } catch (error) {
               this.getIdList()
@@ -5562,7 +5553,7 @@
                 this.idList.push({
                   type: idType,
                   id: data.id,
-                }),
+                })
               )
               this.offset += this.onceRequest // 每次增加偏移量
               // 重复抓取过程
@@ -5646,37 +5637,37 @@
           'InitBookmarkPage',
           function () {
             return InitBookmarkPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
+          /*! ./API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts',
+          /*! ./Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ./setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./Log */ './src/ts/modules/Log.ts',
+          /*! ./Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ./Token */ './src/ts/modules/Token.ts',
+          /*! ./Token */ './src/ts/modules/Token.ts'
         )
         /* harmony import */ var _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ./BookmarksAddTag */ './src/ts/modules/BookmarksAddTag.ts',
+          /*! ./BookmarksAddTag */ './src/ts/modules/BookmarksAddTag.ts'
         )
         // 初始化新版收藏页面
 
@@ -5703,13 +5694,13 @@
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                      '_开始抓取',
+                      '_开始抓取'
                     ) +
                       _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                        '_默认下载多页',
+                        '_默认下载多页'
                       ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.readyCrawl()
@@ -5722,21 +5713,19 @@
             ].setWantPageTip({
               text: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_页数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                '_从本页开始下载提示',
+                '_从本页开始下载提示'
               ),
               rangTip: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                '_数字提示1',
+                '_数字提示1'
               ),
             })
           }
           getWantPage() {
             this.crawlNumber = this.checkWantPageInput(
               _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                '_从本页开始下载x页',
+                '_从本页开始下载x页'
               ),
-              _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                '_下载所有页面',
-              ),
+              _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_下载所有页面')
             )
           }
           addAnyElement() {
@@ -5748,16 +5737,16 @@
                 'otherBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].green,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_给未分类作品添加添加tag',
+                  '_给未分类作品添加添加tag'
                 ),
                 [
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                      '_给未分类作品添加添加tag',
+                      '_给未分类作品添加添加tag'
                     ),
                   ],
-                ],
+                ]
               )
               new _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_9__[
                 'BookmarksAddTag'
@@ -5796,16 +5785,16 @@
             this.isHide =
               _API__WEBPACK_IMPORTED_MODULE_1__['API'].getURLSearchField(
                 location.href,
-                'rest',
+                'rest'
               ) === 'hide'
             _Log__WEBPACK_IMPORTED_MODULE_6__['log'].log(
-              _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_正在抓取'),
+              _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_正在抓取')
             )
             if (this.crawlNumber === -1) {
               _Log__WEBPACK_IMPORTED_MODULE_6__['log'].log(
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_获取全部书签作品',
-                ),
+                  '_获取全部书签作品'
+                )
               )
             }
           }
@@ -5820,7 +5809,7 @@
                 this.type,
                 _Store__WEBPACK_IMPORTED_MODULE_5__['store'].tag,
                 this.offset,
-                this.isHide,
+                this.isHide
               )
             } catch (error) {
               this.getIdList()
@@ -5839,7 +5828,7 @@
                 this.idList.push({
                   type: idType,
                   id: data.id,
-                }),
+                })
               )
               this.offset += this.onceRequest // 每次增加偏移量
               // 重复抓取过程
@@ -5884,37 +5873,37 @@
           'InitFollowingPage',
           function () {
             return InitFollowingPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts',
+          /*! ./Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ./setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
+          /*! ./API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./Log */ './src/ts/modules/Log.ts',
+          /*! ./Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _CreateCSV__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ./CreateCSV */ './src/ts/modules/CreateCSV.ts',
+          /*! ./CreateCSV */ './src/ts/modules/CreateCSV.ts'
         )
         /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ./Tools */ './src/ts/modules/Tools.ts',
+          /*! ./Tools */ './src/ts/modules/Tools.ts'
         )
         // 初始化关注页面、好 P 友页面、粉丝页面
 
@@ -5962,13 +5951,13 @@
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_开始抓取',
+                      '_开始抓取'
                     ) +
                       _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                        '_默认下载多页',
+                        '_默认下载多页'
                       ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.readyCrawl()
@@ -5978,8 +5967,8 @@
                 'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].green,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_下载用户列表',
-                ),
+                  '_下载用户列表'
+                )
               )
               .addEventListener('click', () => {
                 this.downUserList = true
@@ -5993,27 +5982,25 @@
             ].setWantPageTip({
               text: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_页数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_从本页开始下载提示',
+                '_从本页开始下载提示'
               ),
               rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_数字提示1',
+                '_数字提示1'
               ),
             })
           }
           getWantPage() {
             this.crawlNumber = this.checkWantPageInput(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_从本页开始下载x页',
+                '_从本页开始下载x页'
               ),
-              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_下载所有页面',
-              ),
+              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_下载所有页面')
             )
           }
           nextStep() {
             this.readyGet()
             _Log__WEBPACK_IMPORTED_MODULE_6__['log'].log(
-              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_正在抓取'),
+              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_正在抓取')
             )
             this.getPageType()
             this.getUserList()
@@ -6097,10 +6084,10 @@
             _Log__WEBPACK_IMPORTED_MODULE_6__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_当前有x个用户',
-                this.userList.length.toString(),
+                this.userList.length.toString()
               ),
               1,
-              false,
+              false
             )
             this.getUserListNo++
             this.getUserList()
@@ -6109,8 +6096,8 @@
             _Log__WEBPACK_IMPORTED_MODULE_6__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_当前有x个用户',
-                this.userList.length.toString(),
-              ),
+                this.userList.length.toString()
+              )
             )
             if (this.userList.length === 0) {
               return this.getIdListFinished()
@@ -6159,10 +6146,10 @@
                 '_当前作品个数',
                 _Store__WEBPACK_IMPORTED_MODULE_5__[
                   'store'
-                ].idList.length.toString(),
+                ].idList.length.toString()
               ),
               1,
-              false,
+              false
             )
             this.getIdList()
           }
@@ -6176,7 +6163,7 @@
           sortResult() {
             // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
             _Store__WEBPACK_IMPORTED_MODULE_5__['store'].result.sort(
-              _Tools__WEBPACK_IMPORTED_MODULE_9__['Tools'].sortByProperty('id'),
+              _Tools__WEBPACK_IMPORTED_MODULE_9__['Tools'].sortByProperty('id')
             )
           }
         }
@@ -6197,31 +6184,31 @@
           'InitIndexPage',
           function () {
             return InitIndexPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts',
+          /*! ./Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ./setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./Log */ './src/ts/modules/Log.ts',
+          /*! ./Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         // 初始化首页
 
@@ -6242,9 +6229,9 @@
               'crawlBtns',
               _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_输入id进行抓取',
+                '_输入id进行抓取'
               ),
-              [['id', 'down_id_button']],
+              [['id', 'down_id_button']]
             )
           }
           addAnyElement() {
@@ -6254,23 +6241,23 @@
             this.downIdInput.setAttribute(
               'placeholder',
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_输入id进行抓取的提示文字',
-              ),
+                '_输入id进行抓取的提示文字'
+              )
             )
             _DOM__WEBPACK_IMPORTED_MODULE_4__['DOM'].insertToHead(
-              this.downIdInput,
+              this.downIdInput
             )
             _DOM__WEBPACK_IMPORTED_MODULE_4__['DOM']
               .addBtn(
                 'otherBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].green,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_清空已保存的抓取结果',
-                ),
+                  '_清空已保存的抓取结果'
+                )
               )
               .addEventListener('click', () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].list.clearSavedCrawl,
+                  _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].list.clearSavedCrawl
                 )
               })
           }
@@ -6287,7 +6274,7 @@
                   // 还没准备好
                   _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].fire(
                     _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].list
-                      .closeCenterPanel,
+                      .closeCenterPanel
                   )
                   this.downIdInput.style.display = 'block'
                   this.downIdInput.focus()
@@ -6296,7 +6283,7 @@
                   this.readyCrawl()
                 }
               },
-              false,
+              false
             )
             // 当输入框内容改变时检测，非空值时显示下载区域
             this.downIdInput.addEventListener('change', () => {
@@ -6305,7 +6292,7 @@
                 window.setTimeout(() => {
                   _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].fire(
                     _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].list
-                      .openCenterPanel,
+                      .openCenterPanel
                   )
                 }, 300)
                 this.downIdButton.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__[
@@ -6314,8 +6301,7 @@
               } else {
                 this.ready = false
                 _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].list
-                    .closeCenterPanel,
+                  _EVT__WEBPACK_IMPORTED_MODULE_7__['EVT'].list.closeCenterPanel
                 )
                 this.downIdButton.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__[
                   'lang'
@@ -6338,10 +6324,10 @@
                 str !== '' &&
                   _Log__WEBPACK_IMPORTED_MODULE_6__['log'].error(
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_id不合法',
+                      '_id不合法'
                     ) +
                       ': ' +
-                      str,
+                      str
                   )
               } else {
                 idSet.add(id)
@@ -6376,73 +6362,73 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./PageType */ './src/ts/modules/PageType.ts',
+          /*! ./PageType */ './src/ts/modules/PageType.ts'
         )
         /* harmony import */ var _InitIndexPage__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./InitIndexPage */ './src/ts/modules/InitIndexPage.ts',
+          /*! ./InitIndexPage */ './src/ts/modules/InitIndexPage.ts'
         )
         /* harmony import */ var _artwork_InitArtworkPage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./artwork/InitArtworkPage */ './src/ts/modules/artwork/InitArtworkPage.ts',
+          /*! ./artwork/InitArtworkPage */ './src/ts/modules/artwork/InitArtworkPage.ts'
         )
         /* harmony import */ var _InitUserPage__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./InitUserPage */ './src/ts/modules/InitUserPage.ts',
+          /*! ./InitUserPage */ './src/ts/modules/InitUserPage.ts'
         )
         /* harmony import */ var _InitBookmarkLegacyPage__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./InitBookmarkLegacyPage */ './src/ts/modules/InitBookmarkLegacyPage.ts',
+          /*! ./InitBookmarkLegacyPage */ './src/ts/modules/InitBookmarkLegacyPage.ts'
         )
         /* harmony import */ var _InitBookmarkPage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./InitBookmarkPage */ './src/ts/modules/InitBookmarkPage.ts',
+          /*! ./InitBookmarkPage */ './src/ts/modules/InitBookmarkPage.ts'
         )
         /* harmony import */ var _artwork_InitSearchArtworkPage__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./artwork/InitSearchArtworkPage */ './src/ts/modules/artwork/InitSearchArtworkPage.ts',
+          /*! ./artwork/InitSearchArtworkPage */ './src/ts/modules/artwork/InitSearchArtworkPage.ts'
         )
         /* harmony import */ var _artwork_InitAreaRankingPage__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ./artwork/InitAreaRankingPage */ './src/ts/modules/artwork/InitAreaRankingPage.ts',
+          /*! ./artwork/InitAreaRankingPage */ './src/ts/modules/artwork/InitAreaRankingPage.ts'
         )
         /* harmony import */ var _artwork_InitRankingArtworkPage__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ./artwork/InitRankingArtworkPage */ './src/ts/modules/artwork/InitRankingArtworkPage.ts',
+          /*! ./artwork/InitRankingArtworkPage */ './src/ts/modules/artwork/InitRankingArtworkPage.ts'
         )
         /* harmony import */ var _InitPixivisionPage__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
-          /*! ./InitPixivisionPage */ './src/ts/modules/InitPixivisionPage.ts',
+          /*! ./InitPixivisionPage */ './src/ts/modules/InitPixivisionPage.ts'
         )
         /* harmony import */ var _artwork_InitBookmarkDetailPage__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
-          /*! ./artwork/InitBookmarkDetailPage */ './src/ts/modules/artwork/InitBookmarkDetailPage.ts',
+          /*! ./artwork/InitBookmarkDetailPage */ './src/ts/modules/artwork/InitBookmarkDetailPage.ts'
         )
         /* harmony import */ var _artwork_InitBookmarkNewArtworkPage__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
-          /*! ./artwork/InitBookmarkNewArtworkPage */ './src/ts/modules/artwork/InitBookmarkNewArtworkPage.ts',
+          /*! ./artwork/InitBookmarkNewArtworkPage */ './src/ts/modules/artwork/InitBookmarkNewArtworkPage.ts'
         )
         /* harmony import */ var _artwork_InitDiscoverPage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
-          /*! ./artwork/InitDiscoverPage */ './src/ts/modules/artwork/InitDiscoverPage.ts',
+          /*! ./artwork/InitDiscoverPage */ './src/ts/modules/artwork/InitDiscoverPage.ts'
         )
         /* harmony import */ var _artwork_InitNewArtworkPage__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
-          /*! ./artwork/InitNewArtworkPage */ './src/ts/modules/artwork/InitNewArtworkPage.ts',
+          /*! ./artwork/InitNewArtworkPage */ './src/ts/modules/artwork/InitNewArtworkPage.ts'
         )
         /* harmony import */ var _novel_InitNovelPage__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
-          /*! ./novel/InitNovelPage */ './src/ts/modules/novel/InitNovelPage.ts',
+          /*! ./novel/InitNovelPage */ './src/ts/modules/novel/InitNovelPage.ts'
         )
         /* harmony import */ var _novel_InitNovelSeriesPage__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
-          /*! ./novel/InitNovelSeriesPage */ './src/ts/modules/novel/InitNovelSeriesPage.ts',
+          /*! ./novel/InitNovelSeriesPage */ './src/ts/modules/novel/InitNovelSeriesPage.ts'
         )
         /* harmony import */ var _novel_InitSearchNovelPage__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(
-          /*! ./novel/InitSearchNovelPage */ './src/ts/modules/novel/InitSearchNovelPage.ts',
+          /*! ./novel/InitSearchNovelPage */ './src/ts/modules/novel/InitSearchNovelPage.ts'
         )
         /* harmony import */ var _novel_InitRankingNovelPage__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
-          /*! ./novel/InitRankingNovelPage */ './src/ts/modules/novel/InitRankingNovelPage.ts',
+          /*! ./novel/InitRankingNovelPage */ './src/ts/modules/novel/InitRankingNovelPage.ts'
         )
         /* harmony import */ var _novel_InitBookmarkNewNovelPage__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
-          /*! ./novel/InitBookmarkNewNovelPage */ './src/ts/modules/novel/InitBookmarkNewNovelPage.ts',
+          /*! ./novel/InitBookmarkNewNovelPage */ './src/ts/modules/novel/InitBookmarkNewNovelPage.ts'
         )
         /* harmony import */ var _novel_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
-          /*! ./novel/InitNewNovelPage */ './src/ts/modules/novel/InitNewNovelPage.ts',
+          /*! ./novel/InitNewNovelPage */ './src/ts/modules/novel/InitNewNovelPage.ts'
         )
         /* harmony import */ var _artwork_InitSeriesPage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(
-          /*! ./artwork/InitSeriesPage */ './src/ts/modules/artwork/InitSeriesPage.ts',
+          /*! ./artwork/InitSeriesPage */ './src/ts/modules/artwork/InitSeriesPage.ts'
         )
         /* harmony import */ var _InitFollowingPage__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(
-          /*! ./InitFollowingPage */ './src/ts/modules/InitFollowingPage.ts',
+          /*! ./InitFollowingPage */ './src/ts/modules/InitFollowingPage.ts'
         )
         // 根据不同的页面，初始化下载器的功能
 
@@ -6457,7 +6443,7 @@
                 setTimeout(() => {
                   this.initPage()
                 }, 0)
-              },
+              }
             )
           }
           initPage() {
@@ -6571,52 +6557,52 @@
           'InitPageBase',
           function () {
             return InitPageBase
-          },
+          }
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts',
+          /*! ./Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
+          /*! ./API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Log */ './src/ts/modules/Log.ts',
+          /*! ./Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ./setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
         /* harmony import */ var _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ./setting/SettingAPI */ './src/ts/modules/setting/SettingAPI.ts',
+          /*! ./setting/SettingAPI */ './src/ts/modules/setting/SettingAPI.ts'
         )
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts',
+          /*! ./States */ './src/ts/modules/States.ts'
         )
         /* harmony import */ var _artwork_SaveArtworkData__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
-          /*! ./artwork/SaveArtworkData */ './src/ts/modules/artwork/SaveArtworkData.ts',
+          /*! ./artwork/SaveArtworkData */ './src/ts/modules/artwork/SaveArtworkData.ts'
         )
         /* harmony import */ var _novel_SaveNovelData__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
-          /*! ./novel/SaveNovelData */ './src/ts/modules/novel/SaveNovelData.ts',
+          /*! ./novel/SaveNovelData */ './src/ts/modules/novel/SaveNovelData.ts'
         )
         /* harmony import */ var _filter_Mute__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
-          /*! ./filter/Mute */ './src/ts/modules/filter/Mute.ts',
+          /*! ./filter/Mute */ './src/ts/modules/filter/Mute.ts'
         )
         /* harmony import */ var _SelectWork__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
-          /*! ./SelectWork */ './src/ts/modules/SelectWork.ts',
+          /*! ./SelectWork */ './src/ts/modules/SelectWork.ts'
         )
         // 初始化所有页面抓取流程的基类
 
@@ -6652,10 +6638,10 @@
             ].setWantPageTip({
               text: _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_页数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                '_从本页开始下载提示',
+                '_从本页开始下载提示'
               ),
               rangTip: _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                '_数字提示1',
+                '_数字提示1'
               ),
             })
           }
@@ -6670,13 +6656,13 @@
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                      '_开始抓取',
+                      '_开始抓取'
                     ) +
                       _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                        '_默认下载多页',
+                        '_默认下载多页'
                       ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.readyCrawl()
@@ -6699,7 +6685,7 @@
                 .pageSwitchedTypeChange,
               () => {
                 this.destroy()
-              },
+              }
             )
             // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
             window.addEventListener(
@@ -6707,10 +6693,10 @@
               () => {
                 if (!_States__WEBPACK_IMPORTED_MODULE_10__['states'].busy) {
                   _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-                    _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.clearLog,
+                    _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.clearLog
                   )
                 }
-              },
+              }
             )
             // 直接下载已有 id 列表
             window.addEventListener(
@@ -6720,16 +6706,16 @@
                 if (idList) {
                   this.downloadIdList(idList)
                 }
-              },
+              }
             )
           }
           // 作品个数/页数的输入不合法
           getWantPageError() {
             _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.wrongSetting,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.wrongSetting
             )
             const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-              '_参数不合法',
+              '_参数不合法'
             )
             _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].sendMsg({
               msg: msg,
@@ -6750,7 +6736,7 @@
             }
             if (temp >= 1) {
               _Log__WEBPACK_IMPORTED_MODULE_5__['log'].warning(
-                crawlPartTip.replace('{}', temp.toString()),
+                crawlPartTip.replace('{}', temp.toString())
               )
             } else if (temp === -1) {
               _Log__WEBPACK_IMPORTED_MODULE_5__['log'].warning(crawlAllTip)
@@ -6776,15 +6762,15 @@
                 _Log__WEBPACK_IMPORTED_MODULE_5__['log'].warning(
                   _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                     '_从本页开始下载x页',
-                    want.toString(),
-                  ),
+                    want.toString()
+                  )
                 )
               } else {
                 _Log__WEBPACK_IMPORTED_MODULE_5__['log'].warning(
                   _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                     '_从本页开始下载x个',
-                    want.toString(),
-                  ),
+                    want.toString()
+                  )
                 )
               }
               return want
@@ -6806,8 +6792,8 @@
                   '_多图作品下载前n张图片',
                   _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_9__['settingAPI']
                     .getFirstFewImages()
-                    .toString(),
-                ),
+                    .toString()
+                )
               )
             }
           }
@@ -6817,14 +6803,14 @@
             if (_States__WEBPACK_IMPORTED_MODULE_10__['states'].busy) {
               return _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].sendMsg({
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_当前任务尚未完成2',
+                  '_当前任务尚未完成2'
                 ),
                 type: 'error',
               })
             }
             _Log__WEBPACK_IMPORTED_MODULE_5__['log'].clear()
             _Log__WEBPACK_IMPORTED_MODULE_5__['log'].success(
-              _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_任务开始0'),
+              _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_任务开始0')
             )
             await _filter_Mute__WEBPACK_IMPORTED_MODULE_13__[
               'mute'
@@ -6832,7 +6818,7 @@
             this.getWantPage()
             this.getMultipleSetting()
             _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.crawlStart,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.crawlStart
             )
             // 进入第一个抓取方法
             this.nextStep()
@@ -6845,21 +6831,21 @@
             if (_States__WEBPACK_IMPORTED_MODULE_10__['states'].busy) {
               return _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].sendMsg({
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_当前任务尚未完成2',
+                  '_当前任务尚未完成2'
                 ),
                 type: 'error',
               })
             }
             _Log__WEBPACK_IMPORTED_MODULE_5__['log'].clear()
             _Log__WEBPACK_IMPORTED_MODULE_5__['log'].success(
-              _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_任务开始0'),
+              _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_任务开始0')
             )
             await _filter_Mute__WEBPACK_IMPORTED_MODULE_13__[
               'mute'
             ].getMuteSettings()
             this.getMultipleSetting()
             _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.crawlStart,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.crawlStart
             )
             _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList = idList
             this.getIdListFinished()
@@ -6872,7 +6858,7 @@
           getIdListFinished() {
             this.resetGetIdListStatus()
             _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.getIdListFinished,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.getIdListFinished
             )
             if (_States__WEBPACK_IMPORTED_MODULE_10__['states'].bookmarkMode) {
               return
@@ -6887,15 +6873,15 @@
                 '_当前作品个数',
                 _Store__WEBPACK_IMPORTED_MODULE_4__[
                   'store'
-                ].idList.length.toString(),
-              ),
+                ].idList.length.toString()
+              )
             )
             // 这个 return 在这里重置任务状态，不继续抓取作品的详情了，用于调试时反复进行抓取
             // return states.allWork = false
             _Log__WEBPACK_IMPORTED_MODULE_5__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                '_开始获取作品信息',
-              ),
+                '_开始获取作品信息'
+              )
             )
             if (
               _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.length <=
@@ -6995,24 +6981,24 @@
                 '_共抓取到n个作品',
                 _Store__WEBPACK_IMPORTED_MODULE_4__[
                   'store'
-                ].resultMeta.length.toString(),
-              ),
+                ].resultMeta.length.toString()
+              )
             )
             _Log__WEBPACK_IMPORTED_MODULE_5__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                 '_共抓取到n个文件',
                 _Store__WEBPACK_IMPORTED_MODULE_4__[
                   'store'
-                ].result.length.toString(),
-              ),
+                ].result.length.toString()
+              )
             )
             _Log__WEBPACK_IMPORTED_MODULE_5__['log'].success(
               _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_抓取完毕'),
-              2,
+              2
             )
             // 发出抓取完毕的信号
             _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.crawlFinish,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.crawlFinish
             )
           }
           // 网络请求状态异常时输出提示
@@ -7023,8 +7009,8 @@
                   id +
                     ': ' +
                     _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                      '_作品页状态码0',
-                    ),
+                      '_作品页状态码0'
+                    )
                 )
                 break
               case 400:
@@ -7032,8 +7018,8 @@
                   id +
                     ': ' +
                     _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                      '_作品页状态码400',
-                    ),
+                      '_作品页状态码400'
+                    )
                 )
                 break
               case 403:
@@ -7041,8 +7027,8 @@
                   id +
                     ': ' +
                     _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                      '_作品页状态码403',
-                    ),
+                      '_作品页状态码403'
+                    )
                 )
                 break
               case 404:
@@ -7050,16 +7036,16 @@
                   id +
                     ': ' +
                     _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                      '_作品页状态码404',
-                    ),
+                      '_作品页状态码404'
+                    )
                 )
                 break
               default:
                 _Log__WEBPACK_IMPORTED_MODULE_5__['log'].error(
                   _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                     '_无权访问',
-                    id,
-                  ),
+                    id
+                  )
                 )
                 break
             }
@@ -7068,17 +7054,17 @@
           logResultTotal() {
             _Log__WEBPACK_IMPORTED_MODULE_5__['log'].log(
               `${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                '_待处理',
+                '_待处理'
               )} ${
                 _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.length
               }, ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                 '_共抓取到n个作品',
                 _Store__WEBPACK_IMPORTED_MODULE_4__[
                   'store'
-                ].resultMeta.length.toString(),
+                ].resultMeta.length.toString()
               )}`,
               1,
-              false,
+              false
             )
           }
           // 抓取结果为 0 时输出提示
@@ -7086,13 +7072,13 @@
             // 先触发 crawlFinish，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
             // 如果触发顺序反过来，那么最后执行的都是 crawlFinish，可能会覆盖对 crawlEmpty 的处理
             _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.crawlFinish,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.crawlFinish
             )
             _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.crawlEmpty,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.crawlEmpty
             )
             const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-              '_抓取结果为零',
+              '_抓取结果为零'
             )
             _Log__WEBPACK_IMPORTED_MODULE_5__['log'].error(msg, 2)
             _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].sendMsg({
@@ -7120,25 +7106,25 @@
           'InitPixivisionPage',
           function () {
             return InitPixivisionPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts',
+          /*! ./Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ./setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
         // 初始化 pixivision 页面
 
@@ -7151,7 +7137,7 @@
           }
           addCrawlBtns() {
             const typeA = document.querySelector(
-              'a[data-gtm-action=ClickCategory]',
+              'a[data-gtm-action=ClickCategory]'
             )
             const type = typeA.dataset.gtmLabel
             if (
@@ -7165,15 +7151,15 @@
                   'crawlBtns',
                   _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                   _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                    '_抓取该页面的图片',
-                  ),
+                    '_抓取该页面的图片'
+                  )
                 )
                 .addEventListener(
                   'click',
                   () => {
                     this.readyCrawl()
                   },
-                  false,
+                  false
                 )
             }
           }
@@ -7313,52 +7299,52 @@
           'InitUserPage',
           function () {
             return InitUserPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts',
+          /*! ./Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ./setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
+          /*! ./API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./Log */ './src/ts/modules/Log.ts',
+          /*! ./Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts',
+          /*! ./States */ './src/ts/modules/States.ts'
         )
         /* harmony import */ var _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
-          /*! ./SaveAvatarIcon */ './src/ts/modules/SaveAvatarIcon.ts',
+          /*! ./SaveAvatarIcon */ './src/ts/modules/SaveAvatarIcon.ts'
         )
         /* harmony import */ var _SaveAvatarImage__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
-          /*! ./SaveAvatarImage */ './src/ts/modules/SaveAvatarImage.ts',
+          /*! ./SaveAvatarImage */ './src/ts/modules/SaveAvatarImage.ts'
         )
         /* harmony import */ var _SaveUserCover__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
-          /*! ./SaveUserCover */ './src/ts/modules/SaveUserCover.ts',
+          /*! ./SaveUserCover */ './src/ts/modules/SaveUserCover.ts'
         )
         /* harmony import */ var _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
-          /*! ./BookmarkAllWorks */ './src/ts/modules/BookmarkAllWorks.ts',
+          /*! ./BookmarkAllWorks */ './src/ts/modules/BookmarkAllWorks.ts'
         )
         /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
-          /*! ./Tools */ './src/ts/modules/Tools.ts',
+          /*! ./Tools */ './src/ts/modules/Tools.ts'
         )
         // 初始化用户页面
 
@@ -7404,13 +7390,13 @@
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_开始抓取',
+                      '_开始抓取'
                     ) +
                       _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                        '_默认下载多页',
+                        '_默认下载多页'
                       ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.readyCrawl()
@@ -7422,12 +7408,12 @@
                 'otherBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].green,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_保存用户头像',
-                ),
+                  '_保存用户头像'
+                )
               )
               .addEventListener('click', () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.saveAvatarImage,
+                  _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.saveAvatarImage
                 )
               })
             _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM']
@@ -7435,12 +7421,12 @@
                 'otherBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].green,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_保存用户封面',
-                ),
+                  '_保存用户封面'
+                )
               )
               .addEventListener('click', () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.saveUserCover,
+                  _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.saveUserCover
                 )
               })
             _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM']
@@ -7448,20 +7434,20 @@
                 'otherBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].green,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_保存用户头像为图标',
+                  '_保存用户头像为图标'
                 ),
                 [
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_保存用户头像为图标说明',
+                      '_保存用户头像为图标说明'
                     ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.saveAvatarIcon,
+                  _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.saveAvatarIcon
                 )
               })
             // 添加收藏本页所有作品的功能
@@ -7471,8 +7457,8 @@
               'otherBtns',
               _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].green,
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_收藏本页面的所有作品',
-              ),
+                '_收藏本页面的所有作品'
+              )
             )
             this.bookmarkAll = new _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__[
               'BookmarkAllWorks'
@@ -7481,7 +7467,7 @@
               // 获取该用户的所有作品的 id 列表
               // 模拟了抓取流程，以获取相同的 id 列表
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.bookmarkModeStart,
+                _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.bookmarkModeStart
               )
               _Store__WEBPACK_IMPORTED_MODULE_5__[
                 'store'
@@ -7491,7 +7477,7 @@
             })
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.getIdListFinished,
-              this.sendBookmarkIdList,
+              this.sendBookmarkIdList
             )
           }
           setFormOption() {
@@ -7501,27 +7487,25 @@
             ].setWantPageTip({
               text: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_页数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_从本页开始下载提示',
+                '_从本页开始下载提示'
               ),
               rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_数字提示1',
+                '_数字提示1'
               ),
             })
           }
           getWantPage() {
             this.crawlNumber = this.checkWantPageInput(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_从本页开始下载x页',
+                '_从本页开始下载x页'
               ),
-              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_下载所有页面',
-              ),
+              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_下载所有页面')
             )
           }
           nextStep() {
             this.readyGetIdList()
             _Log__WEBPACK_IMPORTED_MODULE_7__['log'].log(
-              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_正在抓取'),
+              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_正在抓取')
             )
           }
           readyGetIdList() {
@@ -7597,7 +7581,7 @@
               'API'
             ].getUserWorksByType(
               _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM'].getUserId(),
-              type,
+              type
             )
             // 判断是否全都是小说，如果是，把每页的作品个数设置为 24 个
             const allWorkIsNovels = idList.every((data) => {
@@ -7611,8 +7595,8 @@
             idList
               .sort(
                 _Tools__WEBPACK_IMPORTED_MODULE_14__['Tools'].sortByProperty(
-                  'id',
-                ),
+                  'id'
+                )
               )
               .reverse()
             // 不带 tag 获取作品时，由于 API 是一次性返回用户的所有作品，可能大于要求的数量，所以需要去掉多余的作品。
@@ -7658,7 +7642,7 @@
               flag,
               _Store__WEBPACK_IMPORTED_MODULE_5__['store'].tag,
               offset,
-              requsetNumber,
+              requsetNumber
             )
             // 图片和小说返回的数据是不同的，小说并没有 illustType 标记
             if (this.listType === 4) {
@@ -7667,7 +7651,7 @@
                 _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push({
                   type: 'novels',
                   id: data.id,
-                }),
+                })
               )
             } else {
               const d = data
@@ -7698,9 +7682,7 @@
           sortResult() {
             // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
             _Store__WEBPACK_IMPORTED_MODULE_5__['store'].result.sort(
-              _Tools__WEBPACK_IMPORTED_MODULE_14__['Tools'].sortByProperty(
-                'id',
-              ),
+              _Tools__WEBPACK_IMPORTED_MODULE_14__['Tools'].sortByProperty('id')
             )
           }
           destroy() {
@@ -7708,7 +7690,7 @@
             _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM'].clearSlot('otherBtns')
             window.removeEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.getIdListFinished,
-              this.sendBookmarkIdList,
+              this.sendBookmarkIdList
             )
           }
         }
@@ -7729,16 +7711,16 @@
           'lang',
           function () {
             return lang
-          },
+          }
         )
         /* harmony import */ var _LangText__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./LangText */ './src/ts/modules/LangText.ts',
+          /*! ./LangText */ './src/ts/modules/LangText.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
 
         // 语言类
@@ -7766,7 +7748,7 @@
                     msg: this.transl('_变更语言后刷新页面的提示'),
                   })
                 }
-              },
+              }
             )
           }
           setFlag() {
@@ -7823,10 +7805,10 @@
           'langText',
           function () {
             return langText
-          },
+          }
         )
         /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./Config */ './src/ts/modules/Config.ts',
+          /*! ./Config */ './src/ts/modules/Config.ts'
         )
 
         const langText = {
@@ -9470,7 +9452,7 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
 
         // 监听页面的无刷新切换
@@ -9504,7 +9486,7 @@
             ;['pushState', 'popstate', 'replaceState'].forEach((item) => {
               window.addEventListener(item, () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.pageSwitch,
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.pageSwitch
                 )
               })
             })
@@ -9528,19 +9510,19 @@
           'log',
           function () {
             return log
-          },
+          }
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Theme */ './src/ts/modules/Theme.ts',
+          /*! ./Theme */ './src/ts/modules/Theme.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts',
+          /*! ./Colors */ './src/ts/modules/Colors.ts'
         )
 
         // 日志
@@ -9556,7 +9538,7 @@
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.clearLog,
               () => {
                 this.clear()
-              },
+              }
             )
           }
           // 如果日志区域没有被添加到页面上，则添加上
@@ -9566,10 +9548,10 @@
               this.logArea.id = this.id
               this.logArea.classList.add('beautify_scrollbar')
               _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].insertToHead(
-                this.logArea,
+                this.logArea
               )
               _Theme__WEBPACK_IMPORTED_MODULE_2__['theme'].register(
-                this.logArea,
+                this.logArea
               )
             }
           }
@@ -9646,16 +9628,16 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Theme */ './src/ts/modules/Theme.ts',
+          /*! ./Theme */ './src/ts/modules/Theme.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts',
+          /*! ./Colors */ './src/ts/modules/Colors.ts'
         )
 
         // 一个简单的消息框
@@ -9669,7 +9651,7 @@
               (ev) => {
                 const msg = ev.detail.data
                 this.create(msg)
-              },
+              }
             )
           }
           create(data) {
@@ -9706,7 +9688,7 @@
                 _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.closeCenterPanel,
                 () => {
                   this.remove(el)
-                },
+                }
               )
             }
           }
@@ -9732,10 +9714,10 @@
           'pageType',
           function () {
             return pageType
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
 
         // 获取页面类型
@@ -9747,7 +9729,7 @@
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.pageSwitch,
               () => {
                 this.checkTypeChange()
-              },
+              }
             )
           }
           getType() {
@@ -9838,13 +9820,13 @@
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
                   .pageSwitchedTypeChange,
-                this.type,
+                this.type
               )
             } else {
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
                   .pageSwitchedTypeNotChange,
-                this.type,
+                this.type
               )
             }
           }
@@ -9867,16 +9849,16 @@
           'progressBar',
           function () {
             return progressBar
-          },
+          }
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         // 下载进度条
 
@@ -9887,7 +9869,7 @@
   <div class="progressBarWrap">
   <div class="total">
   <span class="text">${_Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-    '_下载进度',
+    '_下载进度'
   )}</span>
   <div class="right1">
   <div class="progressBar progressBar1">
@@ -9920,7 +9902,7 @@
             this.MB = 1024 * 1024
             this.wrap = _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].useSlot(
               'progressBar',
-              this.wrapHTML,
+              this.wrapHTML
             )
             this.downloadedEl = this.wrap.querySelector('.downloaded')
             this.progressColorEl = this.wrap.querySelector('.progress1')
@@ -9943,7 +9925,7 @@
             this.show()
             // 保存子进度条上需要使用到的元素
             const allProgressBar = this.listWrap.querySelectorAll(
-              '.downloadBar',
+              '.downloadBar'
             )
             this.allProgressBar = []
             for (const bar of allProgressBar) {
@@ -9979,7 +9961,7 @@
             } else {
               // 使用 KiB 作为单位
               text = `${Math.floor(data.loaded / this.KB)}/${Math.floor(
-                data.total / this.KB,
+                data.total / this.KB
               )} KiB`
             }
             bar.loaded.textContent = text
@@ -10016,22 +9998,22 @@
           'QuickBookmark',
           function () {
             return QuickBookmark
-          },
+          }
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
+          /*! ./API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Token */ './src/ts/modules/Token.ts',
+          /*! ./Token */ './src/ts/modules/Token.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
         // 作品页面内的快速收藏功能
 
@@ -10126,7 +10108,7 @@
             btn.textContent = '✩'
             btn.href = 'javascript:void(0)'
             btn.title = _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-              '_快速收藏',
+              '_快速收藏'
             )
             return btn
           }
@@ -10178,7 +10160,7 @@
                 tags,
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
                   .restrict === 'yes',
-                _Token__WEBPACK_IMPORTED_MODULE_3__['token'].token,
+                _Token__WEBPACK_IMPORTED_MODULE_3__['token'].token
               )
               .then((response) => response.json())
               .then((data) => {
@@ -10196,7 +10178,7 @@
             _API__WEBPACK_IMPORTED_MODULE_0__['API'].addLike(
               id,
               type,
-              _Token__WEBPACK_IMPORTED_MODULE_3__['token'].token,
+              _Token__WEBPACK_IMPORTED_MODULE_3__['token'].token
             )
             // 将点赞按钮的颜色改为蓝色
             let likeBtn = document.querySelector(`.${this.likeBtnClass}`)
@@ -10260,7 +10242,7 @@
               (ev) => {
                 ev.stopPropagation()
               },
-              true,
+              true
             )
           }
         }
@@ -10281,16 +10263,16 @@
           'QuickDownloadBtn',
           function () {
             return QuickDownloadBtn
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts',
+          /*! ./States */ './src/ts/modules/States.ts'
         )
 
         // 快速下载按钮
@@ -10310,8 +10292,8 @@
             this.btn.setAttribute(
               'title',
               _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                '_快速下载本页',
-              ) + ' (Alt + Q)',
+                '_快速下载本页'
+              ) + ' (Alt + Q)'
             )
             document.body.insertAdjacentElement('afterbegin', this.btn)
           }
@@ -10324,10 +10306,10 @@
                   'states'
                 ].quickDownload = true
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.QuickDownload,
+                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.QuickDownload
                 )
               },
-              false,
+              false
             )
             // 使用快捷键 Alt + q 启动快速下载
             window.addEventListener(
@@ -10338,11 +10320,11 @@
                     'states'
                   ].quickDownload = true
                   _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.QuickDownload,
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.QuickDownload
                   )
                 }
               },
-              false,
+              false
             )
             // 下载完成，或者下载中止时，复位状态
             const evtList = [
@@ -10364,7 +10346,7 @@
                 .pageSwitchedTypeChange,
               () => {
                 this.destroy()
-              },
+              }
             )
           }
           destroy() {
@@ -10392,28 +10374,28 @@
           'resume',
           function () {
             return resume
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Log */ './src/ts/modules/Log.ts',
+          /*! ./Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts',
+          /*! ./Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts',
+          /*! ./States */ './src/ts/modules/States.ts'
         )
         /* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./DownloadStates */ './src/ts/modules/DownloadStates.ts',
+          /*! ./DownloadStates */ './src/ts/modules/DownloadStates.ts'
         )
         /* harmony import */ var _IndexedDB__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./IndexedDB */ './src/ts/modules/IndexedDB.ts',
+          /*! ./IndexedDB */ './src/ts/modules/IndexedDB.ts'
         )
 
         // 断点续传。恢复未完成的下载
@@ -10492,8 +10474,8 @@
             }
             _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_正在恢复抓取结果',
-              ),
+                '_正在恢复抓取结果'
+              )
             )
             this.taskId = meta.id
             // 2 恢复抓取结果
@@ -10526,13 +10508,13 @@
             this.flag = true
             _Log__WEBPACK_IMPORTED_MODULE_1__['log'].success(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_已恢复抓取结果',
+                '_已恢复抓取结果'
               ),
-              2,
+              2
             )
             // 发出恢复下载的信号
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.resume,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.resume
             )
           }
           bindEvents() {
@@ -10547,7 +10529,7 @@
                 const taskData = await this.IDB.get(
                   this.metaName,
                   this.getURL(),
-                  'url',
+                  'url'
                 )
                 if (taskData) {
                   await this.IDB.delete(this.metaName, taskData.id)
@@ -10565,8 +10547,8 @@
                 }
                 _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                   _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                    '_正在保存抓取结果',
-                  ),
+                    '_正在保存抓取结果'
+                  )
                 )
                 this.taskId = new Date().getTime()
                 this.part = []
@@ -10592,9 +10574,9 @@
                 this.IDB.add(this.statesName, statesData)
                 _Log__WEBPACK_IMPORTED_MODULE_1__['log'].success(
                   _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                    '_已保存抓取结果',
+                    '_已保存抓取结果'
                   ),
-                  2,
+                  2
                 )
               })
             }
@@ -10603,7 +10585,7 @@
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadSuccess,
               () => {
                 this.needPutStates = true
-              },
+              }
             )
             // 任务下载完毕时，以及停止任务时，清除这次任务的数据
             const clearDataEv = [
@@ -10633,7 +10615,7 @@
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.crawlStart,
               () => {
                 this.flag = false
-              },
+              }
             )
             // 切换页面时，重新检查恢复数据
             window.addEventListener(
@@ -10641,7 +10623,7 @@
               () => {
                 this.flag = false
                 this.restoreData()
-              },
+              }
             )
             // 清空已保存的抓取结果
             window.addEventListener(
@@ -10649,7 +10631,7 @@
               () => {
                 this.flag = false
                 this.clearSavedCrawl()
-              },
+              }
             )
           }
           // 定时 put 下载状态
@@ -10685,7 +10667,7 @@
               // 之后继续进行下一批任务（如果有）
               let tryNum = Math.floor(
                 _Store__WEBPACK_IMPORTED_MODULE_3__['store'].result.length *
-                  Math.pow(0.5, this.try),
+                  Math.pow(0.5, this.try)
               )
               // 如果这批尝试数据大于指定数量，则设置为指定数量
               tryNum > this.onceMax && (tryNum = this.onceMax)
@@ -10693,7 +10675,7 @@
                 id: this.numAppendNum(this.taskId, this.part.length),
                 data: _Store__WEBPACK_IMPORTED_MODULE_3__['store'].result.slice(
                   this.getPartTotal(),
-                  this.getPartTotal() + tryNum,
+                  this.getPartTotal() + tryNum
                 ),
               }
               try {
@@ -10730,7 +10712,7 @@
                     // 未知错误，不再进行尝试
                     this.try = 0
                     _Log__WEBPACK_IMPORTED_MODULE_1__['log'].error(
-                      'IndexedDB: ' + msg,
+                      'IndexedDB: ' + msg
                     )
                     reject(error)
                   }
@@ -10799,7 +10781,7 @@
             ])
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].sendMsg({
               msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_数据清除完毕',
+                '_数据清除完毕'
               ),
               type: 'success',
             })
@@ -10819,22 +10801,22 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
+          /*! ./API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Log */ './src/ts/modules/Log.ts',
+          /*! ./Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _ImageToIcon__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./ImageToIcon */ './src/ts/modules/ImageToIcon.ts',
+          /*! ./ImageToIcon */ './src/ts/modules/ImageToIcon.ts'
         )
 
         // 保存用户头像为图标
@@ -10847,7 +10829,7 @@
               _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].list.saveAvatarIcon,
               () => {
                 this.saveAvatarIcon()
-              },
+              }
             )
           }
           async saveAvatarIcon() {
@@ -10874,11 +10856,11 @@
             _Log__WEBPACK_IMPORTED_MODULE_2__['log'].success(
               '✓ ' +
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_保存用户头像为图标',
-                ),
+                  '_保存用户头像为图标'
+                )
             )
             _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].list.closeCenterPanel,
+              _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].list.closeCenterPanel
             )
           }
         }
@@ -10896,19 +10878,19 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
+          /*! ./API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Log */ './src/ts/modules/Log.ts',
+          /*! ./Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
 
         // 保存用户头像
@@ -10921,7 +10903,7 @@
               _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].list.saveAvatarImage,
               () => {
                 this.saveAvatarImage()
-              },
+              }
             )
           }
           async saveAvatarImage() {
@@ -10944,11 +10926,11 @@
             _Log__WEBPACK_IMPORTED_MODULE_2__['log'].success(
               '✓ ' +
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_保存用户头像',
-                ),
+                  '_保存用户头像'
+                )
             )
             _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].list.closeCenterPanel,
+              _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].list.closeCenterPanel
             )
           }
         }
@@ -10966,19 +10948,19 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
+          /*! ./API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Log */ './src/ts/modules/Log.ts',
+          /*! ./Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
 
         // 保存用户封面图片
@@ -10991,7 +10973,7 @@
               _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].list.saveUserCover,
               () => {
                 this.saveUserCover()
-              },
+              }
             )
           }
           async saveUserCover() {
@@ -11003,7 +10985,7 @@
             if (bgData === null) {
               return _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].sendMsg({
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_没有数据可供使用',
+                  '_没有数据可供使用'
                 ),
                 type: 'error',
               })
@@ -11012,7 +10994,7 @@
             if (!bgUrl) {
               return _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].sendMsg({
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_没有数据可供使用',
+                  '_没有数据可供使用'
                 ),
                 type: 'error',
               })
@@ -11030,11 +11012,11 @@
             _Log__WEBPACK_IMPORTED_MODULE_2__['log'].success(
               '✓ ' +
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_保存用户封面',
-                ),
+                  '_保存用户封面'
+                )
             )
             _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].list.closeCenterPanel,
+              _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].list.closeCenterPanel
             )
           }
         }
@@ -11052,19 +11034,19 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts',
+          /*! ./Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts',
+          /*! ./States */ './src/ts/modules/States.ts'
         )
 
         // 手动选择作品
@@ -11132,13 +11114,13 @@
               _EVT__WEBPACK_IMPORTED_MODULE_3__['EVT'].list.openCenterPanel,
               () => {
                 this.tempHide = true
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_3__['EVT'].list.closeCenterPanel,
               () => {
                 this.tempHide = false
-              },
+              }
             )
             // 当抓取完成时，如果抓取的是选择的作品，则清空 id 列表
             window.addEventListener(
@@ -11148,7 +11130,7 @@
                   this.sendCrawl = false
                   this.crawled = true
                 }
-              },
+              }
             )
             // 可以使用 Alt + S 快捷键来模拟点击控制按钮
             window.addEventListener('keydown', (ev) => {
@@ -11162,7 +11144,7 @@
               (ev) => {
                 this.moveEvent(ev)
               },
-              true,
+              true
             )
             // 离开页面前提示用户
             window.onbeforeunload = () => {
@@ -11170,7 +11152,7 @@
               if (this.idList.length > 0 && !this.crawled) {
                 _EVT__WEBPACK_IMPORTED_MODULE_3__['EVT'].sendMsg({
                   msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                    '_离开页面前提示选择的作品未抓取',
+                    '_离开页面前提示选择的作品未抓取'
                   ),
                   type: 'error',
                 })
@@ -11208,7 +11190,7 @@
                   childList: true,
                   subtree: true,
                 })
-              },
+              }
             )
           }
           clearIdList() {
@@ -11240,17 +11222,15 @@
             this.controlBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].addBtn(
               'selectWorkBtns',
               _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].green,
-              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_手动选择作品',
-              ),
+              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_手动选择作品')
             )
             this.updateControlBtn()
             this.clearBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].addBtn(
               'selectWorkBtns',
               _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].red,
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_清空选择的作品',
-              ),
+                '_清空选择的作品'
+              )
             )
             this.clearBtn.style.display = 'none'
             this.clearBtn.addEventListener('click', () => {
@@ -11260,8 +11240,8 @@
               'selectWorkBtns',
               _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_抓取选择的作品',
-              ),
+                '_抓取选择的作品'
+              )
             )
             this.crawlBtn.style.display = 'none'
             this.crawlBtn.addEventListener('click', (ev) => {
@@ -11302,7 +11282,7 @@
             if (this.idList.length > 0) {
               this.crawlBtn.textContent =
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_抓取选择的作品',
+                  '_抓取选择的作品'
                 ) + ` ${this.idList.length}`
             } else {
               this.crawlBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__[
@@ -11361,7 +11341,7 @@
             window.addEventListener('click', this.bindClickEvent, true)
             document.addEventListener('keyup', this.bindEscEvent)
             _EVT__WEBPACK_IMPORTED_MODULE_3__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_3__['EVT'].list.closeCenterPanel,
+              _EVT__WEBPACK_IMPORTED_MODULE_3__['EVT'].list.closeCenterPanel
             )
           }
           pauseSelect() {
@@ -11376,7 +11356,7 @@
             if (_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy) {
               _EVT__WEBPACK_IMPORTED_MODULE_3__['EVT'].sendMsg({
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_当前任务尚未完成',
+                  '_当前任务尚未完成'
                 ),
                 type: 'error',
               })
@@ -11387,14 +11367,14 @@
               // 传递 id 列表时，将其转换成一个新的数组。否则传递的是引用，外部操作会影响到内部的 id 列表
               _EVT__WEBPACK_IMPORTED_MODULE_3__['EVT'].fire(
                 _EVT__WEBPACK_IMPORTED_MODULE_3__['EVT'].list.downloadIdList,
-                Array.from(this.idList),
+                Array.from(this.idList)
               )
               this.sendCrawl = true
               this.crawled = false
             } else {
               _EVT__WEBPACK_IMPORTED_MODULE_3__['EVT'].sendMsg({
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_没有数据可供使用',
+                  '_没有数据可供使用'
                 ),
                 type: 'error',
               })
@@ -11474,11 +11454,11 @@
               let el
               if (type === 'novels') {
                 el = document.querySelector(
-                  `${this.usedWorksWrapperSelector} a[href="/novel/show.php?id=${id}"]`,
+                  `${this.usedWorksWrapperSelector} a[href="/novel/show.php?id=${id}"]`
                 )
               } else {
                 el = document.querySelector(
-                  `${this.usedWorksWrapperSelector} a[href="/artworks/${id}"]`,
+                  `${this.usedWorksWrapperSelector} a[href="/artworks/${id}"]`
                 )
               }
               if (el) {
@@ -11489,7 +11469,7 @@
           }
           getSelectedFlag(id) {
             return document.querySelector(
-              `.${this.selectedWorkFlagClass}[data-id='${id}']`,
+              `.${this.selectedWorkFlagClass}[data-id='${id}']`
             )
           }
           // 清空指定作品的标记
@@ -11522,13 +11502,13 @@
           'ShowConvertCount',
           function () {
             return ShowConvertCount
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
 
         // 显示正在转换的文件数量
@@ -11549,7 +11529,7 @@
                   ].transl('_转换任务提示', count.toString())
                 }
                 this.el.textContent = convertText
-              },
+              }
             )
           }
         }
@@ -11570,13 +11550,13 @@
           'ShowSkipCount',
           function () {
             return ShowSkipCount
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
 
         // 显示跳过下载的文件数量
@@ -11591,20 +11571,20 @@
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.crawlStart,
               () => {
                 this.reset()
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadStop,
               () => {
                 // 重置计数但不清空提示文字，因为用户还需要看
                 this.count = 0
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.skipDownload,
               () => {
                 this.addCount()
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadStart,
@@ -11612,14 +11592,14 @@
                 if (this.count === 0) {
                   this.reset()
                 }
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadComplete,
               () => {
                 // 重置计数但不清空提示文字，因为用户还需要看
                 this.count = 0
-              },
+              }
             )
           }
           addCount() {
@@ -11646,10 +11626,10 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./Lang */ './src/ts/modules/Lang.ts',
+          /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
 
         // 显示最近更新内容
@@ -11670,7 +11650,7 @@
                   'lang'
                 ].transl('_最近更新')}`,
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  this.newTag,
+                  this.newTag
                 ),
               })
               localStorage.setItem(storeName, this.newTag)
@@ -11695,10 +11675,10 @@
           'states',
           function () {
             return states
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
 
         // 储存需要跨组件使用的、会变化的状态
@@ -11753,13 +11733,13 @@
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.bookmarkModeStart,
               () => {
                 this.bookmarkMode = true
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.bookmarkModeEnd,
               () => {
                 this.bookmarkMode = false
-              },
+              }
             )
           }
         }
@@ -11781,16 +11761,16 @@
           'store',
           function () {
             return store
-          },
+          }
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts',
+          /*! ./API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts',
+          /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
 
         // 储存抓取结果
@@ -11866,7 +11846,7 @@
             this.resultMeta.push(result)
             _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.addResult,
-              result,
+              result
             )
             if (result.type === 3) {
               this.result.push(result)
@@ -11904,7 +11884,7 @@
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.crawlStart,
               () => {
                 this.reset()
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.resume,
@@ -11913,7 +11893,7 @@
                   'API'
                 ].getTagFromURL()
                 this.title = _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM'].getTitle()
-              },
+              }
             )
           }
         }
@@ -11935,13 +11915,13 @@
           'theme',
           function () {
             return theme
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
 
         // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
@@ -11977,7 +11957,7 @@
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
               () => {
                 this.setTheme()
-              },
+              }
             )
           }
           // 查找含有 pixiv 主题标记的元素，并监听其变化
@@ -12122,10 +12102,10 @@
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./PageType */ './src/ts/modules/PageType.ts',
+          /*! ./PageType */ './src/ts/modules/PageType.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
         // 在标题栏上显示任务状态的标记
 
@@ -12160,13 +12140,13 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.crawlStart,
               () => {
                 this.set('crawling')
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.worksUpdate,
               () => {
                 this.set('waiting')
-              },
+              }
             )
             for (const ev of [
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.crawlFinish,
@@ -12181,31 +12161,31 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.downloadStart,
               () => {
                 this.set('downloading')
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.downloadComplete,
               () => {
                 this.set('completed')
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.downloadPause,
               () => {
                 this.set('paused')
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.downloadStop,
               () => {
                 this.set('stopped')
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.crawlEmpty,
               () => {
                 this.reset()
-              },
+              }
             )
           }
           // 检查标题里是否含有标记
@@ -12235,7 +12215,7 @@ flag 及其含义如下：
             ) {
               // 从 og:title 标签获取标题。og:title 标签是最早更新标题的。但不确定是否在所有页面上都可以直接使用 og:title 标签的内容，所以这里只在部分页面上使用
               const ogTitle = document.querySelector(
-                'meta[property="og:title"]',
+                'meta[property="og:title"]'
               )
               if (ogTitle) {
                 document.title = ogTitle.content
@@ -12246,7 +12226,7 @@ flag 及其含义如下：
             const index = document.title.indexOf(']')
             document.title = document.title.substr(
               index + 1,
-              document.title.length,
+              document.title.length
             )
           }
           // 在标题上显示指定标记
@@ -12306,10 +12286,10 @@ flag 及其含义如下：
           'token',
           function () {
             return token
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts',
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
 
         // 获取和保存 token
@@ -12328,7 +12308,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.resetSettings,
               () => {
                 this.reset()
-              },
+              }
             )
           }
           getToken() {
@@ -12358,7 +12338,7 @@ flag 及其含义如下：
                   localStorage.setItem(this.tokenStore, this.token)
                   localStorage.setItem(
                     this.timeStore,
-                    new Date().getTime().toString(),
+                    new Date().getTime().toString()
                   )
                 } else {
                   console.error('UpdateToken failed: no token found!')
@@ -12390,7 +12370,7 @@ flag 及其含义如下：
           'Tools',
           function () {
             return Tools
-          },
+          }
         )
         class Tools {
           // 用正则过滤不安全的字符，（Chrome 和 Windows 不允许做文件名的字符）
@@ -12456,7 +12436,7 @@ flag 及其含义如下：
         }
         // 不安全的字符，这里多数是控制字符，需要替换掉
         Tools.unsafeStr = new RegExp(
-          /[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g,
+          /[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g
         )
         // 一些需要替换成全角字符的符号，左边是正则表达式的字符
         Tools.fullWidthDict = [
@@ -12488,31 +12468,31 @@ flag 及其含义如下：
           'InitAreaRankingPage',
           function () {
             return InitAreaRankingPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts',
+          /*! ../Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts',
+          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         // 初始化地区排行榜页面
 
@@ -12530,16 +12510,16 @@ flag 及其含义如下：
                 'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_抓取本页作品',
+                  '_抓取本页作品'
                 ),
                 [
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_抓取本页作品Title',
+                      '_抓取本页作品Title'
                     ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.readyCrawl()
@@ -12552,7 +12532,7 @@ flag 及其含义如下：
           }
           async getIdList() {
             const allPicArea = document.querySelectorAll(
-              '.ranking-item>.work_wrapper',
+              '.ranking-item>.work_wrapper'
             )
             for (const el of allPicArea) {
               const img = el.querySelector('._thumbnail')
@@ -12576,7 +12556,7 @@ flag 及其含义如下：
                 ].check(filterOpt)
               ) {
                 const id = _API__WEBPACK_IMPORTED_MODULE_6__['API'].getIllustId(
-                  el.querySelector('a').href,
+                  el.querySelector('a').href
                 )
                 _Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push({
                   type: 'unknown',
@@ -12605,49 +12585,49 @@ flag 及其含义如下：
           'InitArtworkPage',
           function () {
             return InitArtworkPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts',
+          /*! ../Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _QuickBookmark__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../QuickBookmark */ './src/ts/modules/QuickBookmark.ts',
+          /*! ../QuickBookmark */ './src/ts/modules/QuickBookmark.ts'
         )
         /* harmony import */ var _ImgViewer__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../ImgViewer */ './src/ts/modules/ImgViewer.ts',
+          /*! ../ImgViewer */ './src/ts/modules/ImgViewer.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
-          /*! ../Log */ './src/ts/modules/Log.ts',
+          /*! ../Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _QuickDownloadBtn__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
-          /*! ../QuickDownloadBtn */ './src/ts/modules/QuickDownloadBtn.ts',
+          /*! ../QuickDownloadBtn */ './src/ts/modules/QuickDownloadBtn.ts'
         )
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
-          /*! ../States */ './src/ts/modules/States.ts',
+          /*! ../States */ './src/ts/modules/States.ts'
         )
         /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
-          /*! ../Tools */ './src/ts/modules/Tools.ts',
+          /*! ../Tools */ './src/ts/modules/Tools.ts'
         )
         //初始化 artwork 作品页
 
@@ -12676,12 +12656,12 @@ flag 及其含义如下：
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list
                 .pageSwitchedTypeNotChange,
-              this.initQuickBookmark,
+              this.initQuickBookmark
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list
                 .pageSwitchedTypeNotChange,
-              this.initImgViewer,
+              this.initImgViewer
             )
             // 初始化快速下载按钮
             new _QuickDownloadBtn__WEBPACK_IMPORTED_MODULE_11__[
@@ -12689,7 +12669,7 @@ flag 及其含义如下：
             ]()
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list.QuickDownload,
-              this.startQuickDownload,
+              this.startQuickDownload
             )
           }
           initImgViewer() {
@@ -12704,8 +12684,8 @@ flag 及其含义如下：
                 'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_从本页开始抓取new',
-                ),
+                  '_从本页开始抓取new'
+                )
               )
               .addEventListener('click', () => {
                 this.crawlDirection = -1
@@ -12716,8 +12696,8 @@ flag 及其含义如下：
                 'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_从本页开始抓取old',
-                ),
+                  '_从本页开始抓取old'
+                )
               )
               .addEventListener('click', () => {
                 this.crawlDirection = 1
@@ -12728,9 +12708,7 @@ flag 及其含义如下：
             ].addBtn(
               'crawlBtns',
               _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
-              _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                '_抓取相关作品',
-              ),
+              _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_抓取相关作品')
             )
             downRelatedBtn.addEventListener(
               'click',
@@ -12738,7 +12716,7 @@ flag 及其含义如下：
                 this.crawlRelated = true
                 this.readyCrawl()
               },
-              false,
+              false
             )
           }
           setFormOption() {
@@ -12749,14 +12727,14 @@ flag 及其含义如下：
               text: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_个数'),
               tip:
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_从本页开始下载提示',
+                  '_从本页开始下载提示'
                 ) +
                 '<br>' +
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_相关作品大于0',
+                  '_相关作品大于0'
                 ),
               rangTip: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                '_数字提示1',
+                '_数字提示1'
               ),
             })
           }
@@ -12767,16 +12745,16 @@ flag 及其含义如下：
             window.removeEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list
                 .pageSwitchedTypeNotChange,
-              this.initQuickBookmark,
+              this.initQuickBookmark
             )
             window.removeEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list
                 .pageSwitchedTypeNotChange,
-              this.initImgViewer,
+              this.initImgViewer
             )
             window.removeEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list.QuickDownload,
-              this.startQuickDownload,
+              this.startQuickDownload
             )
           }
           getWantPage() {
@@ -12789,26 +12767,26 @@ flag 及其含义如下：
                 const crawlAllTip =
                   this.crawlDirection === -1
                     ? _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                        '_从本页开始抓取new',
+                        '_从本页开始抓取new'
                       )
                     : _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                        '_从本页开始抓取old',
+                        '_从本页开始抓取old'
                       )
                 this.crawlNumber = this.checkWantPageInput(
                   _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                    '_从本页开始下载x个',
+                    '_从本页开始下载x个'
                   ),
-                  crawlAllTip,
+                  crawlAllTip
                 )
               } else {
                 // 相关作品的提示
                 this.crawlNumber = this.checkWantPageInput(
                   _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                    '_下载x个相关作品',
+                    '_下载x个相关作品'
                   ),
                   _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                    '_下载所有相关作品',
-                  ),
+                    '_下载所有相关作品'
+                  )
                 )
               }
             }
@@ -12824,13 +12802,13 @@ flag 及其含义如下：
               _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push({
                 type: 'unknown',
                 id: _API__WEBPACK_IMPORTED_MODULE_9__['API'].getIllustId(
-                  window.location.href,
+                  window.location.href
                 ),
               })
               _Log__WEBPACK_IMPORTED_MODULE_10__['log'].log(
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_开始获取作品页面',
-                ),
+                  '_开始获取作品页面'
+                )
               )
               this.getIdListFinished()
             } else {
@@ -12844,13 +12822,13 @@ flag 及其含义如下：
               'API'
             ].getUserWorksByType(
               _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM'].getUserId(),
-              type,
+              type
             )
             // 储存符合条件的 id
             let nowId = parseInt(
               _API__WEBPACK_IMPORTED_MODULE_9__['API'].getIllustId(
-                window.location.href,
-              ),
+                window.location.href
+              )
             )
             idList.forEach((id) => {
               let idNum = parseInt(id.id)
@@ -12870,15 +12848,15 @@ flag 及其含义如下：
                   .sort(
                     _Tools__WEBPACK_IMPORTED_MODULE_13__[
                       'Tools'
-                    ].sortByProperty('id'),
+                    ].sortByProperty('id')
                   )
                   .reverse()
               } else {
                 // 旧作品 降序排列
                 _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.sort(
                   _Tools__WEBPACK_IMPORTED_MODULE_13__['Tools'].sortByProperty(
-                    'id',
-                  ),
+                    'id'
+                  )
                 )
               }
               _Store__WEBPACK_IMPORTED_MODULE_5__[
@@ -12894,7 +12872,7 @@ flag 及其含义如下：
             let data = await _API__WEBPACK_IMPORTED_MODULE_9__[
               'API'
             ].getRelatedData(
-              _API__WEBPACK_IMPORTED_MODULE_9__['API'].getIllustId(),
+              _API__WEBPACK_IMPORTED_MODULE_9__['API'].getIllustId()
             )
             // 相关作品的列表由两部分构成，所以要组合起来
             let ids = []
@@ -12917,8 +12895,8 @@ flag 及其含义如下：
                 '_相关作品抓取完毕',
                 _Store__WEBPACK_IMPORTED_MODULE_5__[
                   'store'
-                ].idList.length.toString(),
-              ),
+                ].idList.length.toString()
+              )
             )
             this.getIdListFinished()
           }
@@ -12944,28 +12922,28 @@ flag 及其含义如下：
           'InitBookmarkDetailPage',
           function () {
             return InitBookmarkDetailPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts',
+          /*! ../Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         // 初始化 bookmark_detail 页面
 
@@ -12982,23 +12960,23 @@ flag 及其含义如下：
                 'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_抓取相似图片',
+                  '_抓取相似图片'
                 ),
                 [
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_抓取相似图片',
+                      '_抓取相似图片'
                     ),
                   ],
-                ],
+                ]
               )
               .addEventListener(
                 'click',
                 () => {
                   this.readyCrawl()
                 },
-                false,
+                false
               )
           }
           initAny() {}
@@ -13009,7 +12987,7 @@ flag 及其含义如下：
             ].setWantPageTip({
               text: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_个数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_想要获取多少个作品',
+                '_想要获取多少个作品'
               ),
               rangTip: `1 - ${this.maxCount}`,
             })
@@ -13017,7 +12995,7 @@ flag 及其含义如下：
           getWantPage() {
             this.crawlNumber = this.checkWantPageInputGreater0(
               this.maxCount,
-              false,
+              false
             )
           }
           // 获取相似的作品列表
@@ -13026,7 +13004,7 @@ flag 及其含义如下：
               'API'
             ].getRecommenderData(
               _API__WEBPACK_IMPORTED_MODULE_5__['API'].getIllustId(),
-              this.crawlNumber,
+              this.crawlNumber
             )
             for (const id of data.recommendations) {
               _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
@@ -13055,34 +13033,34 @@ flag 及其含义如下：
           'InitBookmarkNewArtworkPage',
           function () {
             return InitBookmarkNewArtworkPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts',
+          /*! ../Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts',
+          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ../Log */ './src/ts/modules/Log.ts',
+          /*! ../Log */ './src/ts/modules/Log.ts'
         )
         // 初始化 关注的新作品 artwork 页面
 
@@ -13104,13 +13082,13 @@ flag 及其含义如下：
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_开始抓取',
+                      '_开始抓取'
                     ) +
                       _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                        '_默认下载多页',
+                        '_默认下载多页'
                       ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.readyCrawl()
@@ -13125,7 +13103,7 @@ flag 及其含义如下：
             ].setWantPageTip({
               text: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_页数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_从本页开始下载提示',
+                '_从本页开始下载提示'
               ),
               rangTip: `1 - ${this.maxCount}`,
             })
@@ -13133,7 +13111,7 @@ flag 及其含义如下：
           getWantPage() {
             this.crawlNumber = this.checkWantPageInputGreater0(
               this.maxCount,
-              true,
+              true
             )
           }
           nextStep() {
@@ -13176,7 +13154,7 @@ flag 及其含义如下：
               ) {
                 _Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push({
                   type: _API__WEBPACK_IMPORTED_MODULE_6__['API'].getWorkType(
-                    data.illustType,
+                    data.illustType
                   ),
                   id: data.illustId,
                 })
@@ -13186,10 +13164,10 @@ flag 及其含义如下：
             _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_列表页抓取进度',
-                this.listPageFinished.toString(),
+                this.listPageFinished.toString()
               ),
               1,
-              false,
+              false
             )
             // 判断任务状态
             // 如果抓取到了最后一页，或者抓取完了指定页面
@@ -13200,8 +13178,8 @@ flag 及其含义如下：
             ) {
               _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_列表页抓取完成',
-                ),
+                  '_列表页抓取完成'
+                )
               )
               this.getIdListFinished()
             } else {
@@ -13230,31 +13208,31 @@ flag 及其含义如下：
           'InitDiscoverPage',
           function () {
             return InitDiscoverPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts',
+          /*! ../Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _DeleteWorks__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../DeleteWorks */ './src/ts/modules/DeleteWorks.ts',
+          /*! ../DeleteWorks */ './src/ts/modules/DeleteWorks.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         // 初始化发现页面
 
@@ -13271,16 +13249,16 @@ flag 及其含义如下：
                 'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_抓取当前作品',
+                  '_抓取当前作品'
                 ),
                 [
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_抓取当前作品Title',
+                      '_抓取当前作品Title'
                     ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.readyCrawl()
@@ -13308,7 +13286,7 @@ flag 及其含义如下：
             Array.from(nowIllust).forEach((el) => {
               // discovery 列表的 url 是有额外后缀的，需要去掉
               const id = _API__WEBPACK_IMPORTED_MODULE_6__['API'].getIllustId(
-                el.href.split('&uarea')[0],
+                el.href.split('&uarea')[0]
               )
               _Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push({
                 type: 'unknown',
@@ -13336,34 +13314,34 @@ flag 及其含义如下：
           'InitNewArtworkPage',
           function () {
             return InitNewArtworkPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts',
+          /*! ../Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts',
+          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../Log */ './src/ts/modules/Log.ts',
+          /*! ../Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         // 初始化 大家的新作品 artwork 页面
 
@@ -13387,10 +13365,10 @@ flag 及其含义如下：
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_下载大家的新作品',
+                      '_下载大家的新作品'
                     ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.readyCrawl()
@@ -13404,7 +13382,7 @@ flag 及其含义如下：
             ].setWantPageTip({
               text: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_个数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_想要获取多少个作品',
+                '_想要获取多少个作品'
               ),
               rangTip: `1 - ${this.maxCount}`,
             })
@@ -13412,7 +13390,7 @@ flag 及其含义如下：
           getWantPage() {
             this.crawlNumber = this.checkWantPageInputGreater0(
               this.maxCount,
-              false,
+              false
             )
           }
           nextStep() {
@@ -13439,7 +13417,7 @@ flag 及其含义如下：
             this.option.type =
               _API__WEBPACK_IMPORTED_MODULE_5__['API'].getURLSearchField(
                 location.href,
-                'type',
+                'type'
               ) || 'illust'
             // 是否是 R18 模式
             this.option.r18 = (
@@ -13486,7 +13464,7 @@ flag 及其含义如下：
               ) {
                 _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
                   type: _API__WEBPACK_IMPORTED_MODULE_5__['API'].getWorkType(
-                    nowData.illustType,
+                    nowData.illustType
                   ),
                   id: nowData.id,
                 })
@@ -13495,10 +13473,10 @@ flag 及其含义如下：
             _Log__WEBPACK_IMPORTED_MODULE_7__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_新作品进度',
-                this.fetchCount.toString(),
+                this.fetchCount.toString()
               ),
               1,
-              false,
+              false
             )
             // 抓取完毕
             if (
@@ -13507,8 +13485,8 @@ flag 及其含义如下：
             ) {
               _Log__WEBPACK_IMPORTED_MODULE_7__['log'].log(
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_开始获取作品页面',
-                ),
+                  '_开始获取作品页面'
+                )
               )
               this.getIdListFinished()
               return
@@ -13538,40 +13516,40 @@ flag 及其含义如下：
           'InitRankingArtworkPage',
           function () {
             return InitRankingArtworkPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts',
+          /*! ../Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts',
+          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ../Log */ './src/ts/modules/Log.ts',
+          /*! ../Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
-          /*! ../States */ './src/ts/modules/States.ts',
+          /*! ../States */ './src/ts/modules/States.ts'
         )
         // 初始化 artwork 排行榜页面
 
@@ -13590,16 +13568,16 @@ flag 及其含义如下：
                 'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_抓取本排行榜作品',
+                  '_抓取本排行榜作品'
                 ),
                 [
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                      '_抓取本排行榜作品Title',
+                      '_抓取本排行榜作品Title'
                     ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.readyCrawl()
@@ -13615,16 +13593,16 @@ flag 及其含义如下：
                   'crawlBtns',
                   _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                   _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                    '_抓取首次登场的作品',
+                    '_抓取首次登场的作品'
                   ),
                   [
                     [
                       'title',
                       _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                        '_抓取首次登场的作品Title',
+                        '_抓取首次登场的作品Title'
                       ),
                     ],
-                  ],
+                  ]
                 )
                 .addEventListener('click', () => {
                   _States__WEBPACK_IMPORTED_MODULE_10__['states'].debut = true
@@ -13639,7 +13617,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list.crawlFinish,
               () => {
                 _States__WEBPACK_IMPORTED_MODULE_10__['states'].debut = false
-              },
+              }
             )
           }
           setFormOption() {
@@ -13650,7 +13628,7 @@ flag 及其含义如下：
             ].setWantPageTip({
               text: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_个数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                '_想要获取多少个作品',
+                '_想要获取多少个作品'
               ),
               rangTip: `1 - ${this.maxCount}`,
             })
@@ -13676,11 +13654,11 @@ flag 及其含义如下：
             // 检查下载页数的设置
             this.crawlNumber = this.checkWantPageInput(
               _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                '_下载排行榜前x个作品',
+                '_下载排行榜前x个作品'
               ),
               _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                '_向下获取所有作品',
-              ),
+                '_向下获取所有作品'
+              )
             )
             // 如果设置的作品个数是 -1，则设置为下载所有作品
             if (this.crawlNumber === -1) {
@@ -13694,7 +13672,7 @@ flag 及其含义如下：
             this.option.mode =
               _API__WEBPACK_IMPORTED_MODULE_2__['API'].getURLSearchField(
                 location.href,
-                'mode',
+                'mode'
               ) || 'daily'
             this.option.worksType = _API__WEBPACK_IMPORTED_MODULE_2__[
               'API'
@@ -13748,11 +13726,11 @@ flag 及其含义如下：
               ) {
                 _Store__WEBPACK_IMPORTED_MODULE_8__['store'].setRankList(
                   data.illust_id.toString(),
-                  data.rank.toString(),
+                  data.rank.toString()
                 )
                 _Store__WEBPACK_IMPORTED_MODULE_8__['store'].idList.push({
                   type: _API__WEBPACK_IMPORTED_MODULE_2__['API'].getWorkType(
-                    data.illust_type,
+                    data.illust_type
                   ),
                   id: data.illust_id.toString(),
                 })
@@ -13761,10 +13739,10 @@ flag 及其含义如下：
             _Log__WEBPACK_IMPORTED_MODULE_9__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                 '_排行榜进度',
-                this.listPageFinished.toString(),
+                this.listPageFinished.toString()
               ),
               1,
-              false,
+              false
             )
             // 抓取完毕
             if (this.listPageFinished === this.pageCount) {
@@ -13795,61 +13773,61 @@ flag 及其含义如下：
           'InitSearchArtworkPage',
           function () {
             return InitSearchArtworkPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts',
+          /*! ../Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../Token */ './src/ts/modules/Token.ts',
+          /*! ../Token */ './src/ts/modules/Token.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _DeleteWorks__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../DeleteWorks */ './src/ts/modules/DeleteWorks.ts',
+          /*! ../DeleteWorks */ './src/ts/modules/DeleteWorks.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts',
+          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
-          /*! ../Log */ './src/ts/modules/Log.ts',
+          /*! ../Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
-          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
         /* harmony import */ var _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
-          /*! ../setting/SettingAPI */ './src/ts/modules/setting/SettingAPI.ts',
+          /*! ../setting/SettingAPI */ './src/ts/modules/setting/SettingAPI.ts'
         )
         /* harmony import */ var _FastScreen__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
-          /*! ../FastScreen */ './src/ts/modules/FastScreen.ts',
+          /*! ../FastScreen */ './src/ts/modules/FastScreen.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
-          /*! ../BookmarkAllWorks */ './src/ts/modules/BookmarkAllWorks.ts',
+          /*! ../BookmarkAllWorks */ './src/ts/modules/BookmarkAllWorks.ts'
         )
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
-          /*! ../States */ './src/ts/modules/States.ts',
+          /*! ../States */ './src/ts/modules/States.ts'
         )
         /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(
-          /*! ../Tools */ './src/ts/modules/Tools.ts',
+          /*! ../Tools */ './src/ts/modules/Tools.ts'
         )
         // 初始化 artwork 搜索页
 
@@ -13903,7 +13881,7 @@ flag 及其含义如下：
                 ) {
                   this.reAddResult()
                   _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-                    _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.resultChange,
+                    _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.resultChange
                   )
                 }
               }
@@ -13918,11 +13896,11 @@ flag 及其含义如下：
               // 解绑创建作品元素的事件
               window.removeEventListener(
                 _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.addResult,
-                this.createWork,
+                this.createWork
               )
               setTimeout(() => {
                 _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.worksUpdate,
+                  _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.worksUpdate
                 )
               }, 0)
             }
@@ -14097,7 +14075,7 @@ flag 及其含义如下：
                   : [],
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_11__['settings']
                   .restrict === 'yes',
-                _Token__WEBPACK_IMPORTED_MODULE_3__['token'].token,
+                _Token__WEBPACK_IMPORTED_MODULE_3__['token'].token
               )
               this.resultMeta.forEach((result) => {
                 if (result.idNum === data.id) {
@@ -14115,7 +14093,7 @@ flag 及其含义如下：
             ].setWantPageTip({
               text: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_页数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_从本页开始下载提示',
+                '_从本页开始下载提示'
               ),
               rangTip: `1 - ${this.maxCount}`,
             })
@@ -14130,16 +14108,16 @@ flag 及其含义如下：
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_开始筛选Title',
+                      '_开始筛选Title'
                     ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.resultMeta = []
                 window.addEventListener(
                   _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.addResult,
-                  this.createWork,
+                  this.createWork
                 )
                 this.readyCrawl()
               })
@@ -14148,16 +14126,16 @@ flag 及其含义如下：
                 'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].green,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_在结果中筛选',
+                  '_在结果中筛选'
                 ),
                 [
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_在结果中筛选Title',
+                      '_在结果中筛选Title'
                     ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.screenInResult()
@@ -14169,18 +14147,18 @@ flag 及其含义如下：
             ](`.${this.listClass}`)
             deleteWorks.addClearMultipleBtn(`.${this.multipleClass}`, () => {
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.clearMultiple,
+                _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.clearMultiple
               )
             })
             deleteWorks.addClearUgoiraBtn(`.${this.ugoiraClass}`, () => {
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.clearUgoira,
+                _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.clearUgoira
               )
             })
             deleteWorks.addManuallyDeleteBtn((el) => {
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
                 _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.deleteWork,
-                el,
+                el
               )
             })
             // 添加收藏本页所有作品的功能
@@ -14190,8 +14168,8 @@ flag 及其含义如下：
               'otherBtns',
               _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].green,
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_收藏本页面的所有作品',
-              ),
+                '_收藏本页面的所有作品'
+              )
             )
             const bookmarkAll = new _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_15__[
               'BookmarkAllWorks'
@@ -14213,28 +14191,28 @@ flag 及其含义如下：
             this.setNotAutoDownload()
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.addResult,
-              this.showCount,
+              this.showCount
             )
             window.addEventListener('addBMK', this.addBookmark)
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.crawlFinish,
-              this.onCrawlFinish,
+              this.onCrawlFinish
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.clearMultiple,
-              this.clearMultiple,
+              this.clearMultiple
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.clearUgoira,
-              this.clearUgoira,
+              this.clearUgoira
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.deleteWork,
-              this.deleteWork,
+              this.deleteWork
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.settingChange,
-              this.onSettingChange,
+              this.onSettingChange
             )
           }
           destroy() {
@@ -14242,11 +14220,11 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_14__['DOM'].clearSlot('otherBtns')
             window.removeEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.addResult,
-              this.showCount,
+              this.showCount
             )
             window.removeEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.crawlFinish,
-              this.onCrawlFinish,
+              this.onCrawlFinish
             )
             // 离开下载页面时，取消设置“不自动下载”
             _States__WEBPACK_IMPORTED_MODULE_16__[
@@ -14256,11 +14234,9 @@ flag 及其含义如下：
           getWantPage() {
             this.crawlNumber = this.checkWantPageInput(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_从本页开始下载x页',
+                '_从本页开始下载x页'
               ),
-              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_下载所有页面',
-              ),
+              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_下载所有页面')
             )
             if (this.crawlNumber === -1 || this.crawlNumber > this.maxCount) {
               this.crawlNumber = this.maxCount
@@ -14272,7 +14248,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].sendMsg({
                 type: 'error',
                 msg: `${_Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_超出最大页码',
+                  '_超出最大页码'
                 )} ${this.maxCount}`,
               })
               return this.noResult()
@@ -14315,7 +14291,7 @@ flag 及其含义如下：
             }
             let p = _API__WEBPACK_IMPORTED_MODULE_8__['API'].getURLSearchField(
               location.href,
-              'p',
+              'p'
             )
             this.startpageNo = parseInt(p) || 1
             // 从页面 url 中获取可以使用的选项
@@ -14341,7 +14317,7 @@ flag 及其含义如下：
               _Store__WEBPACK_IMPORTED_MODULE_9__['store'].tag,
               this.worksType,
               p,
-              this.option,
+              this.option
             )
             return data.body.illust || data.body.illustManga || data.body.manga
           }
@@ -14411,7 +14387,7 @@ flag 及其含义如下：
               ) {
                 _Store__WEBPACK_IMPORTED_MODULE_9__['store'].idList.push({
                   type: _API__WEBPACK_IMPORTED_MODULE_8__['API'].getWorkType(
-                    nowData.illustType,
+                    nowData.illustType
                   ),
                   id: nowData.id,
                 })
@@ -14421,10 +14397,10 @@ flag 及其含义如下：
             _Log__WEBPACK_IMPORTED_MODULE_10__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_列表页抓取进度',
-                this.listPageFinished.toString(),
+                this.listPageFinished.toString()
               ),
               1,
-              false,
+              false
             )
             if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
               // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
@@ -14435,8 +14411,8 @@ flag 及其含义如下：
                 // 抓取任务全部完成
                 _Log__WEBPACK_IMPORTED_MODULE_10__['log'].log(
                   _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                    '_列表页抓取完成',
-                  ),
+                    '_列表页抓取完成'
+                  )
                 )
                 this.getIdListFinished()
               }
@@ -14450,13 +14426,13 @@ flag 及其含义如下：
           sortResult() {
             _Store__WEBPACK_IMPORTED_MODULE_9__['store'].resultMeta.sort(
               _Tools__WEBPACK_IMPORTED_MODULE_17__['Tools'].sortByProperty(
-                'bmk',
-              ),
+                'bmk'
+              )
             )
             _Store__WEBPACK_IMPORTED_MODULE_9__['store'].result.sort(
               _Tools__WEBPACK_IMPORTED_MODULE_17__['Tools'].sortByProperty(
-                'bmk',
-              ),
+                'bmk'
+              )
             )
           }
           setNotAutoDownload() {
@@ -14513,14 +14489,14 @@ flag 及其含义如下：
             if (this.resultMeta.length === 0) {
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].sendMsg({
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_没有数据可供使用',
+                  '_没有数据可供使用'
                 ),
                 type: 'error',
               })
               return
             }
             _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.closeCenterPanel,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.closeCenterPanel
             )
             _Log__WEBPACK_IMPORTED_MODULE_10__['log'].clear()
             const beforeLength = this.resultMeta.length // 储存过滤前的结果数量
@@ -14544,7 +14520,7 @@ flag 及其含义如下：
               this.reAddResult()
             }
             _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.resultChange,
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.resultChange
             )
           }
           // 重新添加抓取结果，执行时机：
@@ -14573,7 +14549,7 @@ flag 及其含义如下：
             if (_States__WEBPACK_IMPORTED_MODULE_16__['states'].busy) {
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].sendMsg({
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_当前任务尚未完成',
+                  '_当前任务尚未完成'
                 ),
                 type: 'error',
               })
@@ -14604,7 +14580,7 @@ flag 及其含义如下：
             // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
             const timer = window.setInterval(() => {
               const hotWorkAside = document.querySelector(
-                this.hotWorkAsideSelector,
+                this.hotWorkAsideSelector
               )
               if (hotWorkAside) {
                 window.clearInterval(timer)
@@ -14639,34 +14615,34 @@ flag 及其含义如下：
           'InitSeriesPage',
           function () {
             return InitSeriesPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts',
+          /*! ../Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts',
+          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ../Log */ './src/ts/modules/Log.ts',
+          /*! ../Log */ './src/ts/modules/Log.ts'
         )
         // 初始化插画/漫画的系列作品页面
 
@@ -14688,13 +14664,13 @@ flag 及其含义如下：
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                      '_开始抓取',
+                      '_开始抓取'
                     ) +
                       _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                        '_默认下载多页',
+                        '_默认下载多页'
                       ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.readyCrawl()
@@ -14709,7 +14685,7 @@ flag 及其含义如下：
             ].setWantPageTip({
               text: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_页数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                '_从本页开始下载提示',
+                '_从本页开始下载提示'
               ),
               rangTip: `1 - ${this.maxCount}`,
             })
@@ -14717,7 +14693,7 @@ flag 及其含义如下：
           getWantPage() {
             this.crawlNumber = this.checkWantPageInputGreater0(
               this.maxCount,
-              true,
+              true
             )
           }
           nextStep() {
@@ -14785,8 +14761,8 @@ flag 及其含义如下：
             ) {
               _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_列表页抓取完成',
-                ),
+                  '_列表页抓取完成'
+                )
               )
               this.getIdListFinished()
             } else {
@@ -14794,10 +14770,10 @@ flag 及其含义如下：
               _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                   '_列表页抓取进度',
-                  this.listPageFinished.toString(),
+                  this.listPageFinished.toString()
                 ),
                 1,
-                false,
+                false
               )
               this.getIdList()
             }
@@ -14823,22 +14799,22 @@ flag 及其含义如下：
           'saveArtworkData',
           function () {
             return saveArtworkData
-          },
+          }
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts',
+          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
         /* harmony import */ var _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../setting/SettingAPI */ './src/ts/modules/setting/SettingAPI.ts',
+          /*! ../setting/SettingAPI */ './src/ts/modules/setting/SettingAPI.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
 
         // 保存单个图片作品的数据
@@ -14887,7 +14863,7 @@ flag 及其含义如下：
             // 检查通过
             if (
               await _filter_Filter__WEBPACK_IMPORTED_MODULE_1__['filter'].check(
-                filterOpt,
+                filterOpt
               )
             ) {
               const idNum = parseInt(body.id)
@@ -15013,10 +14989,10 @@ flag 及其含义如下：
           'blackAndWhiteImage',
           function () {
             return blackAndWhiteImage
-          },
+          }
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
 
         // 检查图片是否是黑白图片
@@ -15050,7 +15026,7 @@ flag 及其含义如下：
                 const blob = await res.blob()
                 const blobURL = URL.createObjectURL(blob)
                 resolve(
-                  _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].loadImg(blobURL),
+                  _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].loadImg(blobURL)
                 )
               }
             })
@@ -15123,28 +15099,28 @@ flag 及其含义如下：
           'blockTagsForSpecificUser',
           function () {
             return blockTagsForSpecificUser
-          },
+          }
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../Tools */ './src/ts/modules/Tools.ts',
+          /*! ../Tools */ './src/ts/modules/Tools.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../Theme */ './src/ts/modules/Theme.ts',
+          /*! ../Theme */ './src/ts/modules/Theme.ts'
         )
 
         // 针对特定用户屏蔽 tag
@@ -15230,7 +15206,7 @@ flag 及其含义如下：
           }
           set listWrapShow(val) {
             Object(
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['setSetting'],
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['setSetting']
             )('blockTagsForSpecificUserShowList', val)
             this.listWrap.style.display = val ? 'block' : 'none'
             this.expandBtn.textContent = val
@@ -15245,7 +15221,7 @@ flag 及其含义如下：
           createWrap() {
             this.wrap = _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].useSlot(
               'blockTagsForSpecificUser',
-              this.wrapHTML,
+              this.wrapHTML
             )
             this.expandBtn = this.wrap.querySelector('.expand')
             this.showAddBtn = this.wrap.querySelector('.showAdd')
@@ -15262,7 +15238,7 @@ flag 及其含义如下：
               if (this.listWrapShow && this.rules.length === 0) {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].sendMsg({
                   msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                    '_没有数据可供使用',
+                    '_没有数据可供使用'
                   ),
                   type: 'error',
                 })
@@ -15335,16 +15311,16 @@ flag 及其含义如下：
               this.updateUserName(data)
             }
             const updateRule = this.listWrap.querySelector(
-              `button[data-updateRule='${uid}']`,
+              `button[data-updateRule='${uid}']`
             )
             const deleteRule = this.listWrap.querySelector(
-              `button[data-deleteRule='${uid}']`,
+              `button[data-deleteRule='${uid}']`
             )
             const uidInput = this.listWrap.querySelector(
-              `input[data-uidInput='${uid}']`,
+              `input[data-uidInput='${uid}']`
             )
             const tagsInput = this.listWrap.querySelector(
-              `input[data-tagsInput='${uid}']`,
+              `input[data-tagsInput='${uid}']`
             )
             ;[uidInput, tagsInput].forEach((el) => {
               el === null || el === void 0
@@ -15355,7 +15331,7 @@ flag 及其含义如下：
                         uid,
                         uidInput.value,
                         tagsInput.value,
-                        false,
+                        false
                       )
                     }
                   })
@@ -15386,11 +15362,11 @@ flag 及其含义如下：
               if (index > -1) {
                 this.rules[index].user = name
                 Object(
-                  _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['setSetting'],
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['setSetting']
                 )('blockTagsForSpecificUserList', [...this.rules])
                 // 显示到页面上
                 const listElement = this.listWrap.querySelector(
-                  `.settingItem[data-key='${data.uid}']`,
+                  `.settingItem[data-key='${data.uid}']`
                 )
                 if (listElement) {
                   const label = listElement.querySelector('.uidLabel')
@@ -15408,7 +15384,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].sendMsg({
                 type: 'error',
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_必填项不能为空',
+                  '_必填项不能为空'
                 ),
               })
               return false
@@ -15418,7 +15394,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].sendMsg({
                 type: 'error',
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_用户ID必须是数字',
+                  '_用户ID必须是数字'
                 ),
               })
               return false
@@ -15447,7 +15423,7 @@ flag 及其含义如下：
             }
             this.rules.push(check)
             Object(
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['setSetting'],
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['setSetting']
             )('blockTagsForSpecificUserList', [...this.rules])
             this.createList({
               uid,
@@ -15459,7 +15435,7 @@ flag 及其含义如下：
             _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].sendMsg({
               type: 'success',
               msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_添加成功',
+                '_添加成功'
               ),
             })
           }
@@ -15474,10 +15450,10 @@ flag 及其含义如下：
             const index = this.findIndex(oldUid)
             this.rules[index] = check
             Object(
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['setSetting'],
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['setSetting']
             )('blockTagsForSpecificUserList', [...this.rules])
             const listElement = this.listWrap.querySelector(
-              `.settingItem[data-key='${oldUid}']`,
+              `.settingItem[data-key='${oldUid}']`
             )
             listElement === null || listElement === void 0
               ? void 0
@@ -15487,7 +15463,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].sendMsg({
                 type: 'success',
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_更新成功',
+                  '_更新成功'
                 ),
               })
             }
@@ -15498,10 +15474,10 @@ flag 及其含义如下：
             const index = this.findIndex(uid)
             this.rules.splice(index, 1)
             Object(
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['setSetting'],
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['setSetting']
             )('blockTagsForSpecificUserList', [...this.rules])
             const listElement = this.listWrap.querySelector(
-              `.settingItem[data-key='${uid}']`,
+              `.settingItem[data-key='${uid}']`
             )
             listElement === null || listElement === void 0
               ? void 0
@@ -15530,7 +15506,7 @@ flag 及其含义如下：
               () => {
                 this.showTotal()
                 this.updateWrapDisplay()
-              },
+              }
             )
             // 选项重置
             window.addEventListener(
@@ -15540,7 +15516,7 @@ flag 及其含义如下：
                 this.listWrap.innerHTML = ''
                 this.createAllList()
                 this.listWrapShow = this.listWrapShow
-              },
+              }
             )
           }
           // 如果找到了符合的记录，则返回 true
@@ -15583,31 +15559,31 @@ flag 及其含义如下：
           'filter',
           function () {
             return filter
-          },
+          }
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Log */ './src/ts/modules/Log.ts',
+          /*! ../Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../States */ './src/ts/modules/States.ts',
+          /*! ../States */ './src/ts/modules/States.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
         /* harmony import */ var _BlackandWhiteImage__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./BlackandWhiteImage */ './src/ts/modules/filter/BlackandWhiteImage.ts',
+          /*! ./BlackandWhiteImage */ './src/ts/modules/filter/BlackandWhiteImage.ts'
         )
         /* harmony import */ var _Mute__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./Mute */ './src/ts/modules/filter/Mute.ts',
+          /*! ./Mute */ './src/ts/modules/filter/Mute.ts'
         )
         /* harmony import */ var _BlockTagsForSpecificUser__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./BlockTagsForSpecificUser */ './src/ts/modules/filter/BlockTagsForSpecificUser.ts',
+          /*! ./BlockTagsForSpecificUser */ './src/ts/modules/filter/BlockTagsForSpecificUser.ts'
         )
 
         // 检查作品是否符合过滤条件
@@ -15633,8 +15609,8 @@ flag 及其含义如下：
             if (_States__WEBPACK_IMPORTED_MODULE_3__['states'].debut) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_抓取首次登场的作品Title',
-                ),
+                  '_抓取首次登场的作品Title'
+                )
               )
             }
             this.getBlockList()
@@ -15735,8 +15711,8 @@ flag 及其含义如下：
             ) {
               this.showWarning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_排除了所有作品类型',
-                ),
+                  '_排除了所有作品类型'
+                )
               )
             }
             let notDownTip = ''
@@ -15763,8 +15739,8 @@ flag 及其含义如下：
             if (notDownTip) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_排除作品类型',
-                ) + notDownTip,
+                  '_排除作品类型'
+                ) + notDownTip
               )
             }
           }
@@ -15783,8 +15759,8 @@ flag 及其含义如下：
             if (notDownTip) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_排除作品类型',
-                ) + notDownTip,
+                  '_排除作品类型'
+                ) + notDownTip
               )
             }
           }
@@ -15799,8 +15775,8 @@ flag 及其含义如下：
             ) {
               this.showWarning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_排除了所有作品类型',
-                ),
+                  '_排除了所有作品类型'
+                )
               )
             }
             let notDownTip = ''
@@ -15817,8 +15793,8 @@ flag 及其含义如下：
             if (notDownTip) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_排除作品类型',
-                ) + notDownTip,
+                  '_排除作品类型'
+                ) + notDownTip
               )
             }
           }
@@ -15833,8 +15809,8 @@ flag 及其含义如下：
             ) {
               this.showWarning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_排除了所有作品类型',
-                ),
+                  '_排除了所有作品类型'
+                )
               )
             }
             let notDownTip = ''
@@ -15851,8 +15827,8 @@ flag 及其含义如下：
             if (notDownTip) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_排除作品类型',
-                ) + notDownTip,
+                  '_排除作品类型'
+                ) + notDownTip
               )
             }
           }
@@ -15870,11 +15846,11 @@ flag 及其含义如下：
             ) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_设置了必须tag之后的提示',
+                  '_设置了必须tag之后的提示'
                 ) +
                   _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
                     'settings'
-                  ].needTag.toString(),
+                  ].needTag.toString()
               )
             }
           }
@@ -15892,11 +15868,11 @@ flag 及其含义如下：
             ) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_设置了排除tag之后的提示',
+                  '_设置了排除tag之后的提示'
                 ) +
                   _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
                     'settings'
-                  ].notNeedTag.toString(),
+                  ].notNeedTag.toString()
               )
             }
           }
@@ -15919,14 +15895,14 @@ flag 及其含义如下：
               ].setWidthAndOr
                 .replace(
                   '|',
-                  _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_或者'),
+                  _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_或者')
                 )
                 .replace(
                   '&',
-                  _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_并且'),
+                  _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_并且')
                 )
               const text = `${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                '_宽度',
+                '_宽度'
               )} ${
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
                   .widthHeightLimit
@@ -15934,7 +15910,7 @@ flag 及其含义如下：
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
                   .setWidth
               } ${andOr} ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                '_高度',
+                '_高度'
               )} ${
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
                   .widthHeightLimit
@@ -15965,15 +15941,15 @@ flag 及其含义如下：
             if (min >= 0) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_收藏数大于',
-                ) + min,
+                  '_收藏数大于'
+                ) + min
               )
             }
             if (max >= 0) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_收藏数小于',
-                ) + max,
+                  '_收藏数小于'
+                ) + max
               )
             }
             if (
@@ -15983,8 +15959,8 @@ flag 及其含义如下：
             ) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 `${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_日均收藏数量',
-                )} >= ${average}`,
+                  '_日均收藏数量'
+                )} >= ${average}`
               )
             }
           }
@@ -16002,31 +15978,31 @@ flag 及其含义如下：
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                   '_设置了宽高比之后的提示',
-                  _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_正方形'),
-                ),
+                  _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_正方形')
+                )
               )
             } else if (result === 'horizontal') {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                   '_设置了宽高比之后的提示',
-                  _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_横图'),
-                ),
+                  _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_横图')
+                )
               )
             } else if (result === 'vertical') {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                   '_设置了宽高比之后的提示',
-                  _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_竖图'),
-                ),
+                  _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_竖图')
+                )
               )
             } else if (result === 'userSet') {
               // 由用户输入
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_输入宽高比',
+                  '_输入宽高比'
                 ) +
                   _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
-                    .userRatio,
+                    .userRatio
               )
             }
             return result
@@ -16040,7 +16016,7 @@ flag 及其含义如下：
               return
             }
             _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
-              `id ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings'].idRange} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings'].idRangeInput}`,
+              `id ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings'].idRange} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings'].idRangeInput}`
             )
           }
           // 提示投稿时间设置
@@ -16054,11 +16030,11 @@ flag 及其含义如下：
             if (
               isNaN(
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
-                  .postDateStart,
+                  .postDateStart
               ) ||
               isNaN(
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
-                  .postDateStart,
+                  .postDateStart
               )
             ) {
               const msg = 'Date format error!'
@@ -16067,17 +16043,17 @@ flag 及其含义如下：
               const start = new Date(
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
                   'settings'
-                ].postDateStart,
+                ].postDateStart
               ).toLocaleString()
               const end = new Date(
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
                   'settings'
-                ].postDateEnd,
+                ].postDateEnd
               ).toLocaleString()
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 `${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_时间范围',
-                )}: ${start} - ${end}`,
+                  '_时间范围'
+                )}: ${start} - ${end}`
               )
             }
           }
@@ -16090,7 +16066,7 @@ flag 及其含义如下：
               return
             }
             _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
-              `Size: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings'].sizeMin}MiB - ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings'].sizeMax}MiB`,
+              `Size: ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings'].sizeMin}MiB - ${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings'].sizeMax}MiB`
             )
           }
           getBlockList() {
@@ -16106,8 +16082,8 @@ flag 及其含义如下：
               if (isNaN(Number.parseInt(uid))) {
                 return this.showWarning(
                   _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                    '_用户ID必须是数字',
-                  ),
+                    '_用户ID必须是数字'
+                  )
                 )
               }
             }
@@ -16117,12 +16093,12 @@ flag 及其含义如下：
             ) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_用户阻止名单',
+                  '_用户阻止名单'
                 ) +
                   ': ' +
                   _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
                     'settings'
-                  ].blockList.toString(),
+                  ].blockList.toString()
               )
             }
           }
@@ -16536,8 +16512,8 @@ flag 及其含义如下：
             // 如果某些 tag 存在于 mute 列表里，就排除这个作品，所以要取反
             return !tags.some(
               _Mute__WEBPACK_IMPORTED_MODULE_6__['mute'].checkTag.bind(
-                _Mute__WEBPACK_IMPORTED_MODULE_6__['mute'],
-              ),
+                _Mute__WEBPACK_IMPORTED_MODULE_6__['mute']
+              )
             )
           }
           checkBlockTagsForSpecificUser(userId, tags) {
@@ -16557,7 +16533,7 @@ flag 及其含义如下：
           // 如果设置项的值不合法，则显示提示
           showWarning(msg) {
             _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list.wrongSetting,
+              _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list.wrongSetting
             )
             _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].sendMsg({
               msg: msg,
@@ -16569,7 +16545,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list.crawlStart,
               () => {
                 this.showTip()
-              },
+              }
             )
           }
         }
@@ -16591,10 +16567,10 @@ flag 及其含义如下：
           'mute',
           function () {
             return mute
-          },
+          }
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
 
         // 获取用户在 Pixiv 里屏蔽的用户和/或 tag，进行过滤
@@ -16647,34 +16623,34 @@ flag 及其含义如下：
           'InitBookmarkNewNovelPage',
           function () {
             return InitBookmarkNewNovelPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts',
+          /*! ../Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts',
+          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ../Log */ './src/ts/modules/Log.ts',
+          /*! ../Log */ './src/ts/modules/Log.ts'
         )
         // 初始化收藏的新作小说页面
 
@@ -16696,13 +16672,13 @@ flag 及其含义如下：
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                      '_开始抓取',
+                      '_开始抓取'
                     ) +
                       _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                        '_默认下载多页',
+                        '_默认下载多页'
                       ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.readyCrawl()
@@ -16717,7 +16693,7 @@ flag 及其含义如下：
             ].setWantPageTip({
               text: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_页数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                '_从本页开始下载提示',
+                '_从本页开始下载提示'
               ),
               rangTip: `1 - ${this.maxCount}`,
             })
@@ -16725,7 +16701,7 @@ flag 及其含义如下：
           getWantPage() {
             this.crawlNumber = this.checkWantPageInputGreater0(
               this.maxCount,
-              true,
+              true
             )
           }
           getPageUrl() {
@@ -16802,10 +16778,10 @@ flag 及其含义如下：
             _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                 '_列表页抓取进度',
-                this.listPageFinished.toString(),
+                this.listPageFinished.toString()
               ),
               1,
-              false,
+              false
             )
             // 抓取完毕
             if (
@@ -16814,8 +16790,8 @@ flag 及其含义如下：
             ) {
               _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_列表页抓取完成',
-                ),
+                  '_列表页抓取完成'
+                )
               )
               this.getIdListFinished()
             } else {
@@ -16844,34 +16820,34 @@ flag 及其含义如下：
           'InitNewNovelPage',
           function () {
             return InitNewNovelPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts',
+          /*! ../Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts',
+          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../Log */ './src/ts/modules/Log.ts',
+          /*! ../Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         // 初始化 大家的新作小说页面
 
@@ -16895,10 +16871,10 @@ flag 及其含义如下：
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_下载大家的新作品',
+                      '_下载大家的新作品'
                     ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.readyCrawl()
@@ -16912,7 +16888,7 @@ flag 及其含义如下：
             ].setWantPageTip({
               text: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_个数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_想要获取多少个作品',
+                '_想要获取多少个作品'
               ),
               rangTip: `1 - ${this.maxCount}`,
             })
@@ -16920,7 +16896,7 @@ flag 及其含义如下：
           getWantPage() {
             this.crawlNumber = this.checkWantPageInputGreater0(
               this.maxCount,
-              false,
+              false
             )
           }
           nextStep() {
@@ -16989,10 +16965,10 @@ flag 及其含义如下：
             _Log__WEBPACK_IMPORTED_MODULE_7__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_新作品进度',
-                this.fetchCount.toString(),
+                this.fetchCount.toString()
               ),
               1,
-              false,
+              false
             )
             // 抓取完毕
             if (
@@ -17001,8 +16977,8 @@ flag 及其含义如下：
             ) {
               _Log__WEBPACK_IMPORTED_MODULE_7__['log'].log(
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_开始获取作品页面',
-                ),
+                  '_开始获取作品页面'
+                )
               )
               this.getIdListFinished()
               return
@@ -17032,46 +17008,46 @@ flag 及其含义如下：
           'InitNovelPage',
           function () {
             return InitNovelPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts',
+          /*! ../Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _QuickBookmark__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../QuickBookmark */ './src/ts/modules/QuickBookmark.ts',
+          /*! ../QuickBookmark */ './src/ts/modules/QuickBookmark.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ../Log */ './src/ts/modules/Log.ts',
+          /*! ../Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
-          /*! ../States */ './src/ts/modules/States.ts',
+          /*! ../States */ './src/ts/modules/States.ts'
         )
         /* harmony import */ var _QuickDownloadBtn__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
-          /*! ../QuickDownloadBtn */ './src/ts/modules/QuickDownloadBtn.ts',
+          /*! ../QuickDownloadBtn */ './src/ts/modules/QuickDownloadBtn.ts'
         )
         /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
-          /*! ../Tools */ './src/ts/modules/Tools.ts',
+          /*! ../Tools */ './src/ts/modules/Tools.ts'
         )
         //初始化小说作品页
 
@@ -17097,7 +17073,7 @@ flag 及其含义如下：
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_9__['EVT'].list
                 .pageSwitchedTypeNotChange,
-              this.initQuickBookmark,
+              this.initQuickBookmark
             )
             // 初始化快速下载按钮
             new _QuickDownloadBtn__WEBPACK_IMPORTED_MODULE_11__[
@@ -17105,7 +17081,7 @@ flag 及其含义如下：
             ]()
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_9__['EVT'].list.QuickDownload,
-              this.startQuickDownload,
+              this.startQuickDownload
             )
           }
           initQuickBookmark() {
@@ -17117,8 +17093,8 @@ flag 及其含义如下：
                 'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_从本页开始抓取new',
-                ),
+                  '_从本页开始抓取new'
+                )
               )
               .addEventListener('click', () => {
                 this.crawlDirection = -1
@@ -17129,8 +17105,8 @@ flag 及其含义如下：
                 'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_从本页开始抓取old',
-                ),
+                  '_从本页开始抓取old'
+                )
               )
               .addEventListener('click', () => {
                 this.crawlDirection = 1
@@ -17145,14 +17121,14 @@ flag 及其含义如下：
               text: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_个数'),
               tip:
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_从本页开始下载提示',
+                  '_从本页开始下载提示'
                 ) +
                 '<br>' +
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_相关作品大于0',
+                  '_相关作品大于0'
                 ),
               rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_数字提示1',
+                '_数字提示1'
               ),
             })
           }
@@ -17164,11 +17140,11 @@ flag 及其含义如下：
             window.removeEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_9__['EVT'].list
                 .pageSwitchedTypeNotChange,
-              this.initQuickBookmark,
+              this.initQuickBookmark
             )
             window.removeEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_9__['EVT'].list.QuickDownload,
-              this.startQuickDownload,
+              this.startQuickDownload
             )
           }
           getWantPage() {
@@ -17180,16 +17156,16 @@ flag 及其含义如下：
               const crawlAllTip =
                 this.crawlDirection === -1
                   ? _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_从本页开始抓取new',
+                      '_从本页开始抓取new'
                     )
                   : _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_从本页开始抓取old',
+                      '_从本页开始抓取old'
                     )
               this.crawlNumber = this.checkWantPageInput(
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_从本页开始下载x个',
+                  '_从本页开始下载x个'
                 ),
-                crawlAllTip,
+                crawlAllTip
               )
             }
           }
@@ -17199,13 +17175,13 @@ flag 及其含义如下：
               _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.push({
                 type: 'novels',
                 id: _API__WEBPACK_IMPORTED_MODULE_7__['API'].getNovelId(
-                  window.location.href,
+                  window.location.href
                 ),
               })
               _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_开始获取作品页面',
-                ),
+                  '_开始获取作品页面'
+                )
               )
               this.getIdListFinished()
             } else {
@@ -17219,13 +17195,13 @@ flag 及其含义如下：
               'API'
             ].getUserWorksByType(
               _DOM__WEBPACK_IMPORTED_MODULE_6__['DOM'].getUserId(),
-              type,
+              type
             )
             // 储存符合条件的 id
             let nowId = parseInt(
               _API__WEBPACK_IMPORTED_MODULE_7__['API'].getIllustId(
-                window.location.href,
-              ),
+                window.location.href
+              )
             )
             idList.forEach((id) => {
               let idNum = parseInt(id.id)
@@ -17245,15 +17221,15 @@ flag 及其含义如下：
                   .sort(
                     _Tools__WEBPACK_IMPORTED_MODULE_12__[
                       'Tools'
-                    ].sortByProperty('id'),
+                    ].sortByProperty('id')
                   )
                   .reverse()
               } else {
                 // 旧作品 降序排列
                 _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.sort(
                   _Tools__WEBPACK_IMPORTED_MODULE_12__['Tools'].sortByProperty(
-                    'id',
-                  ),
+                    'id'
+                  )
                 )
               }
               _Store__WEBPACK_IMPORTED_MODULE_4__[
@@ -17285,28 +17261,28 @@ flag 及其含义如下：
           'InitNovelSeriesPage',
           function () {
             return InitNovelSeriesPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts',
+          /*! ../Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
         //初始化小说系列作品页面
 
@@ -17326,8 +17302,8 @@ flag 及其含义如下：
                 'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_抓取系列小说',
-                ),
+                  '_抓取系列小说'
+                )
               )
               .addEventListener('click', () => {
                 this.readyCrawl()
@@ -17388,31 +17364,31 @@ flag 及其含义如下：
           'InitRankingNovelPage',
           function () {
             return InitRankingNovelPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts',
+          /*! ../Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts',
+          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../Log */ './src/ts/modules/Log.ts',
+          /*! ../Log */ './src/ts/modules/Log.ts'
         )
         // 初始化小说排行榜页面
 
@@ -17430,16 +17406,16 @@ flag 及其含义如下：
                 'crawlBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].blue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_抓取本排行榜作品',
+                  '_抓取本排行榜作品'
                 ),
                 [
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_抓取本排行榜作品Title',
+                      '_抓取本排行榜作品Title'
                     ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.readyCrawl()
@@ -17454,7 +17430,7 @@ flag 及其含义如下：
             ].setWantPageTip({
               text: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_个数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_想要获取多少个作品',
+                '_想要获取多少个作品'
               ),
               rangTip: `1 - ${this.maxCount}`,
             })
@@ -17463,11 +17439,11 @@ flag 及其含义如下：
             // 检查下载页数的设置
             this.crawlNumber = this.checkWantPageInput(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_下载排行榜前x个作品',
+                '_下载排行榜前x个作品'
               ),
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_向下获取所有作品',
-              ),
+                '_向下获取所有作品'
+              )
             )
             // 如果设置的作品个数是 -1，则设置为下载所有作品
             if (this.crawlNumber === -1) {
@@ -17542,7 +17518,7 @@ flag 及其含义如下：
               ) {
                 _Store__WEBPACK_IMPORTED_MODULE_6__['store'].setRankList(
                   id.toString(),
-                  rank.toString(),
+                  rank.toString()
                 )
                 _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
                   type: 'novels',
@@ -17553,10 +17529,10 @@ flag 及其含义如下：
             _Log__WEBPACK_IMPORTED_MODULE_7__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_排行榜进度',
-                this.listPageFinished.toString(),
+                this.listPageFinished.toString()
               ),
               1,
-              false,
+              false
             )
             // 抓取完毕
             if (
@@ -17592,43 +17568,43 @@ flag 及其含义如下：
           'InitSearchNovelPage',
           function () {
             return InitSearchNovelPage
-          },
+          }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts',
+          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts',
+          /*! ../Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts',
+          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts',
+          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts',
+          /*! ../API */ './src/ts/modules/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../Log */ './src/ts/modules/Log.ts',
+          /*! ../Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _FastScreen__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ../FastScreen */ './src/ts/modules/FastScreen.ts',
+          /*! ../FastScreen */ './src/ts/modules/FastScreen.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
-          /*! ../BookmarkAllWorks */ './src/ts/modules/BookmarkAllWorks.ts',
+          /*! ../BookmarkAllWorks */ './src/ts/modules/BookmarkAllWorks.ts'
         )
         /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
-          /*! ../Tools */ './src/ts/modules/Tools.ts',
+          /*! ../Tools */ './src/ts/modules/Tools.ts'
         )
         // 初始化小说搜索页
 
@@ -17677,13 +17653,13 @@ flag 及其含义如下：
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_开始抓取',
+                      '_开始抓取'
                     ) +
                       _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                        '_默认下载多页',
+                        '_默认下载多页'
                       ),
                   ],
-                ],
+                ]
               )
               .addEventListener('click', () => {
                 this.readyCrawl()
@@ -17705,8 +17681,8 @@ flag 及其含义如下：
               'otherBtns',
               _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].green,
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_收藏本页面的所有作品',
-              ),
+                '_收藏本页面的所有作品'
+              )
             )
             const bookmarkAll = new _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_10__[
               'BookmarkAllWorks'
@@ -17715,7 +17691,7 @@ flag 及其含义如下：
               const listWrap = this.getWorksWrap()
               if (listWrap) {
                 const list = document.querySelectorAll(
-                  '#root section>div>ul>li',
+                  '#root section>div>ul>li'
                 )
                 const showList = Array.from(list).filter((el) => {
                   return el.style.display !== 'none'
@@ -17731,7 +17707,7 @@ flag 及其含义如下：
             ].setWantPageTip({
               text: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_页数'),
               tip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_从本页开始下载提示',
+                '_从本页开始下载提示'
               ),
               rangTip: `1 - ${this.maxCount}`,
             })
@@ -17747,11 +17723,9 @@ flag 及其含义如下：
           getWantPage() {
             this.crawlNumber = this.checkWantPageInput(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_从本页开始下载x页',
+                '_从本页开始下载x页'
               ),
-              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_下载所有页面',
-              ),
+              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_下载所有页面')
             )
             if (this.crawlNumber === -1 || this.crawlNumber > this.maxCount) {
               this.crawlNumber = this.maxCount
@@ -17764,7 +17738,7 @@ flag 及其含义如下：
             ].getNovelSearchData(
               _Store__WEBPACK_IMPORTED_MODULE_6__['store'].tag,
               p,
-              this.option,
+              this.option
             )
             return data.body.novel
           }
@@ -17772,7 +17746,7 @@ flag 及其含义如下：
           initFetchURL() {
             let p = _API__WEBPACK_IMPORTED_MODULE_5__['API'].getURLSearchField(
               location.href,
-              'p',
+              'p'
             )
             this.startpageNo = parseInt(p) || 1
             // 从页面 url 中获取可以使用的选项
@@ -17858,10 +17832,10 @@ flag 及其含义如下：
             _Log__WEBPACK_IMPORTED_MODULE_7__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_列表页抓取进度',
-                this.listPageFinished.toString(),
+                this.listPageFinished.toString()
               ),
               1,
-              false,
+              false
             )
             if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
               // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
@@ -17872,8 +17846,8 @@ flag 及其含义如下：
                 // 抓取任务全部完成
                 _Log__WEBPACK_IMPORTED_MODULE_7__['log'].log(
                   _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                    '_列表页抓取完成',
-                  ),
+                    '_列表页抓取完成'
+                  )
                 )
                 this.getIdListFinished()
               }
@@ -17887,13 +17861,13 @@ flag 及其含义如下：
           sortResult() {
             _Store__WEBPACK_IMPORTED_MODULE_6__['store'].resultMeta.sort(
               _Tools__WEBPACK_IMPORTED_MODULE_11__['Tools'].sortByProperty(
-                'bmk',
-              ),
+                'bmk'
+              )
             )
             _Store__WEBPACK_IMPORTED_MODULE_6__['store'].result.sort(
               _Tools__WEBPACK_IMPORTED_MODULE_11__['Tools'].sortByProperty(
-                'bmk',
-              ),
+                'bmk'
+              )
             )
           }
         }
@@ -17914,10 +17888,10 @@ flag 及其含义如下：
           'makeEPUB',
           function () {
             return makeEPUB
-          },
+          }
         )
         /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../Tools */ './src/ts/modules/Tools.ts',
+          /*! ../Tools */ './src/ts/modules/Tools.ts'
         )
 
         class MakeEPUB {
@@ -17936,8 +17910,8 @@ flag 及其含义如下：
                 .withTemplate('idpf-wasteland')
                 .withAuthor(
                   _Tools__WEBPACK_IMPORTED_MODULE_0__['Tools'].replaceUnsafeStr(
-                    data.userName,
-                  ),
+                    data.userName
+                  )
                 )
                 .withModificationDate(new Date(data.createDate))
                 .withRights({
@@ -17945,7 +17919,7 @@ flag 及其含义如下：
                   license: '',
                 })
                 .withAttributionUrl(
-                  `https://www.pixiv.net/novel/show.php?id=${data.id}`,
+                  `https://www.pixiv.net/novel/show.php?id=${data.id}`
                 )
                 .withCover(data.coverUrl, {
                   license: '',
@@ -17953,8 +17927,8 @@ flag 及其含义如下：
                 })
                 .withTitle(
                   _Tools__WEBPACK_IMPORTED_MODULE_0__['Tools'].replaceUnsafeStr(
-                    data.title,
-                  ),
+                    data.title
+                  )
                 )
                 .withSection(
                   new EpubMaker.Section(
@@ -17962,8 +17936,8 @@ flag 及其含义如下：
                     null,
                     { content: content },
                     false,
-                    true,
-                  ),
+                    true
+                  )
                 )
                 .makeEpub()
                 .then((blob) => {
@@ -17990,32 +17964,32 @@ flag 及其含义如下：
           'MakeNovelFile',
           function () {
             return MakeNovelFile
-          },
+          }
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
         /* harmony import */ var _MakeEPUB__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./MakeEPUB */ './src/ts/modules/novel/MakeEPUB.ts',
+          /*! ./MakeEPUB */ './src/ts/modules/novel/MakeEPUB.ts'
         )
 
         class MakeNovelFile {
           static async make(
             data,
             type = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
-              .novelSaveAs,
+              .novelSaveAs
           ) {
             if (type === 'txt') {
               return this.makeTXT(
                 data,
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
-                  .saveNovelMeta,
+                  .saveNovelMeta
               )
             }
             return _MakeEPUB__WEBPACK_IMPORTED_MODULE_1__['makeEPUB'].make(
               data,
               _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
-                .saveNovelMeta,
+                .saveNovelMeta
             )
           }
           static makeTXT(data, saveMeta = true) {
@@ -18048,16 +18022,16 @@ flag 及其含义如下：
           'saveNovelData',
           function () {
             return saveNovelData
-          },
+          }
         )
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts',
+          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
 
         // 保存单个小说作品的数据
@@ -18086,7 +18060,7 @@ flag 及其含义如下：
             // 检查通过
             if (
               await _filter_Filter__WEBPACK_IMPORTED_MODULE_0__['filter'].check(
-                filterOpt,
+                filterOpt
               )
             ) {
               const id = body.id
@@ -18120,7 +18094,7 @@ flag 及其含义如下：
                 user,
                 pageUrl,
                 body.description,
-                tagsA.join('\n'),
+                tagsA.join('\n')
               )
               meta = metaArr.join('\n\n') + '\n\n\n'
               // 添加作品信息
@@ -18171,7 +18145,7 @@ flag 及其含义如下：
             while ((temp = reg.exec(str))) {
               str = str.replace(
                 temp[0],
-                `${temp[1].trim()}（${temp[2].trim()}）`,
+                `${temp[1].trim()}（${temp[2].trim()}）`
               )
               reg.lastIndex = 0
             }
@@ -18186,7 +18160,7 @@ flag 及其含义如下：
             while ((temp = reg.exec(str))) {
               str = str.replace(
                 temp[0],
-                `${temp[1].trim()}（${temp[2].trim()}）`,
+                `${temp[1].trim()}（${temp[2].trim()}）`
               )
               reg.lastIndex = 0
             }
@@ -18214,7 +18188,7 @@ flag 及其含义如下：
               const url = `http://pixiv.net/i/${temp[1].trim()}`
               str = str.replace(
                 temp[0],
-                `[pixiv image link: <a href="${url}" target="_blank">${url}</a>]`,
+                `[pixiv image link: <a href="${url}" target="_blank">${url}</a>]`
               )
               reg.lastIndex = 0
             }
@@ -18245,22 +18219,22 @@ flag 及其含义如下：
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../Config */ './src/ts/modules/Config.ts',
+          /*! ../Config */ './src/ts/modules/Config.ts'
         )
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../Theme */ './src/ts/modules/Theme.ts',
+          /*! ../Theme */ './src/ts/modules/Theme.ts'
         )
 
         // 输出面板
@@ -18268,7 +18242,7 @@ flag 及其含义如下：
           constructor() {
             this.addOutPutPanel()
             _Theme__WEBPACK_IMPORTED_MODULE_5__['theme'].register(
-              this.outputPanel,
+              this.outputPanel
             )
             this.bindEvents()
           }
@@ -18289,7 +18263,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.closeCenterPanel,
               () => {
                 this.close()
-              },
+              }
             )
             // 复制输出内容
             this.copyBtn.addEventListener('click', () => {
@@ -18313,7 +18287,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.output,
               (ev) => {
                 this.output(ev.detail.data.content, ev.detail.data.title)
-              },
+              }
             )
           }
           addOutPutPanel() {
@@ -18337,7 +18311,7 @@ flag 及其含义如下：
             this.outputPanel = document.querySelector('.outputWrap')
             this.outputTitle = this.outputPanel.querySelector('.outputTitle')
             this.outputContent = this.outputPanel.querySelector(
-              '.outputContent',
+              '.outputContent'
             )
             this.copyBtn = this.outputPanel.querySelector('.outputCopy')
             this.closeBtn = this.outputPanel.querySelector('.outputClose')
@@ -18346,8 +18320,8 @@ flag 及其含义如下：
           output(
             content,
             title = _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-              '_输出信息',
-            ),
+              '_输出信息'
+            )
           ) {
             // 如果结果较多，则不直接输出，改为保存 txt 文件
             if (
@@ -18362,12 +18336,12 @@ flag 及其含义如下：
               const fileName = new Date().toLocaleString() + '.txt'
               _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM'].downloadFile(
                 url,
-                fileName,
+                fileName
               )
               // 禁用复制按钮
               this.copyBtn.disabled = true
               content = _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                '_输出内容太多已经为你保存到文件',
+                '_输出内容太多已经为你保存到文件'
               )
             } else {
               this.copyBtn.disabled = false
@@ -18379,7 +18353,7 @@ flag 及其含义如下：
             } else {
               return _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].sendMsg({
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                  '_没有数据可供使用',
+                  '_没有数据可供使用'
                 ),
                 type: 'error',
               })
@@ -18405,19 +18379,19 @@ flag 及其含义如下：
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../FileName */ './src/ts/modules/FileName.ts',
+          /*! ../FileName */ './src/ts/modules/FileName.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../Config */ './src/ts/modules/Config.ts',
+          /*! ../Config */ './src/ts/modules/Config.ts'
         )
 
         // 预览文件名
@@ -18430,7 +18404,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.previewFileName,
               () => {
                 this.previewFileName()
-              },
+              }
             )
           }
           previewFileName() {
@@ -18439,7 +18413,7 @@ flag 及其含义如下：
             ) {
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].sendMsg({
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_没有数据可供使用',
+                  '_没有数据可供使用'
                 ),
                 type: 'error',
               })
@@ -18489,9 +18463,9 @@ flag 及其含义如下：
               {
                 content: result,
                 title: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_预览文件名',
+                  '_预览文件名'
                 ),
-              },
+              }
             )
           }
         }
@@ -18509,16 +18483,16 @@ flag 及其含义如下：
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts',
+          /*! ../Store */ './src/ts/modules/Store.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
 
         // 显示 url
@@ -18531,7 +18505,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.showURLs,
               () => {
                 this.showURLs()
-              },
+              }
             )
           }
           showURLs() {
@@ -18540,7 +18514,7 @@ flag 及其含义如下：
             ) {
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].sendMsg({
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_没有数据可供使用',
+                  '_没有数据可供使用'
                 ),
                 type: 'error',
               })
@@ -18559,9 +18533,9 @@ flag 及其含义如下：
               {
                 content: urls.join('<br>'),
                 title: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_复制url',
+                  '_复制url'
                 ),
-              },
+              }
             )
           }
         }
@@ -18583,7 +18557,7 @@ flag 及其含义如下：
           'convertOldSettings',
           function () {
             return convertOldSettings
-          },
+          }
         )
         // 为了兼容以前的版本的设置，把旧的设置值转换为新版本的设置值
         class ConvertOldSettings {
@@ -18655,31 +18629,31 @@ flag 及其含义如下：
           'form',
           function () {
             return form
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts',
+          /*! ../Colors */ './src/ts/modules/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _FormHTML__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./FormHTML */ './src/ts/modules/setting/FormHTML.ts',
+          /*! ./FormHTML */ './src/ts/modules/setting/FormHTML.ts'
         )
         /* harmony import */ var _SaveNamingRule__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./SaveNamingRule */ './src/ts/modules/setting/SaveNamingRule.ts',
+          /*! ./SaveNamingRule */ './src/ts/modules/setting/SaveNamingRule.ts'
         )
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../Theme */ './src/ts/modules/Theme.ts',
+          /*! ../Theme */ './src/ts/modules/Theme.ts'
         )
         /* harmony import */ var _FormSettings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./FormSettings */ './src/ts/modules/setting/FormSettings.ts',
+          /*! ./FormSettings */ './src/ts/modules/setting/FormSettings.ts'
         )
 
         // 设置表单
@@ -18689,11 +18663,11 @@ flag 及其含义如下：
             this.chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
             this.form = _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].useSlot(
               'form',
-              _FormHTML__WEBPACK_IMPORTED_MODULE_4__['default'],
+              _FormHTML__WEBPACK_IMPORTED_MODULE_4__['default']
             )
             _Theme__WEBPACK_IMPORTED_MODULE_6__['theme'].register(this.form)
             this.allCheckBox = this.form.querySelectorAll(
-              'input[type="checkbox"]',
+              'input[type="checkbox"]'
             )
             this.allRadio = this.form.querySelectorAll('input[type="radio"]')
             this.allSwitch = this.form.querySelectorAll('.checkbox_switch')
@@ -18702,7 +18676,7 @@ flag 及其含义如下：
             this.allTabCon = this.form.querySelectorAll('.tabsContnet .con')
             this.bindEvents()
             new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_5__['SaveNamingRule'](
-              this.form.userSetName,
+              this.form.userSetName
             )
             this.formSettings = new _FormSettings__WEBPACK_IMPORTED_MODULE_7__[
               'FormSettings'
@@ -18743,7 +18717,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
               () => {
                 this.initFormBueatiful()
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.resetSettingsEnd,
@@ -18752,7 +18726,7 @@ flag 及其含义如下：
                 this.formSettings.restoreFormSettings()
                 // 美化表单，包括设置子选项区域的显示隐藏。所以这需要在恢复设置之后执行
                 this.initFormBueatiful()
-              },
+              }
             )
             // 在选项卡的标题上触发事件时，激活对应的选项卡
             for (let index = 0; index < this.allTabTitle.length; index++) {
@@ -18776,42 +18750,40 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.crawlEmpty,
               () => {
                 this.activeTab(0)
-              },
+              }
             )
             // 预览文件名
             _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM']
               .addBtn(
                 'namingBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].green,
-                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_预览文件名',
-                ),
+                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_预览文件名')
               )
               .addEventListener(
                 'click',
                 () => {
                   _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
                     _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
-                      .previewFileName,
+                      .previewFileName
                   )
                 },
-                false,
+                false
               )
             // 导出 csv
             _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM']
               .addBtn(
                 'namingBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].green,
-                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_导出csv'),
+                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_导出csv')
               )
               .addEventListener(
                 'click',
                 () => {
                   _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.outputCSV,
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.outputCSV
                   )
                 },
-                false,
+                false
               )
             // 导出抓取结果
             _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM']
@@ -18819,17 +18791,17 @@ flag 及其含义如下：
                 'namingBtns',
                 _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].green,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_导出抓取结果',
-                ),
+                  '_导出抓取结果'
+                )
               )
               .addEventListener(
                 'click',
                 () => {
                   _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.outputResult,
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.outputResult
                   )
                 },
-                false,
+                false
               )
             // 重置设置按钮
             {
@@ -18838,13 +18810,13 @@ flag 及其含义如下：
                 el.addEventListener('click', () => {
                   const result = window.confirm(
                     _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                      '_是否重置设置',
-                    ),
+                      '_是否重置设置'
+                    )
                   )
                   if (result) {
                     _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
                       _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
-                        .resetSettings,
+                        .resetSettings
                     )
                   }
                 })
@@ -18856,8 +18828,7 @@ flag 及其含义如下：
               if (el) {
                 el.addEventListener('click', () => {
                   _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
-                      .exportSettings,
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.exportSettings
                   )
                 })
               }
@@ -18868,8 +18839,7 @@ flag 及其含义如下：
               if (el) {
                 el.addEventListener('click', () => {
                   _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
-                      .importSettings,
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.importSettings
                   )
                 })
               }
@@ -18879,16 +18849,16 @@ flag 及其含义如下：
               .querySelector('.showFileNameTip')
               .addEventListener('click', () =>
                 _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].toggleEl(
-                  document.querySelector('.fileNameTip'),
-                ),
+                  document.querySelector('.fileNameTip')
+                )
               )
             // 显示日期格式提示
             this.form
               .querySelector('.showDateTip')
               .addEventListener('click', () =>
                 _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].toggleEl(
-                  document.querySelector('.dateFormatTip'),
-                ),
+                  document.querySelector('.dateFormatTip')
+                )
               )
             // 输入框获得焦点时自动选择文本（文件名输入框例外）
             const centerInputs = this.form.querySelectorAll('input[type=text]')
@@ -18902,7 +18872,7 @@ flag 及其含义如下：
             // 把下拉框的选择项插入到文本框里
             this.insertValueToInput(
               this.form.fileNameSelect,
-              this.form.userSetName,
+              this.form.userSetName
             )
           }
           // 把下拉框的选择项插入到文本框里
@@ -18966,7 +18936,7 @@ flag 及其含义如下：
           resetSubOptionDisplay() {
             for (const _switch of this.allSwitch) {
               const subOption = this.form.querySelector(
-                `.subOptionWrap[data-show="${_switch.name}"]`,
+                `.subOptionWrap[data-show="${_switch.name}"]`
               )
               if (subOption) {
                 subOption.style.display = _switch.checked ? 'inline' : 'none'
@@ -18988,19 +18958,19 @@ flag 及其含义如下：
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
 
         const formHtml = `<form class="settingForm">
   <div class="tabsTitle">
     <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-      '_抓取',
+      '_抓取'
     )}</div>
     <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-      '_下载',
+      '_下载'
     )}</div>
     <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-      '_其他',
+      '_其他'
     )}</div>
   </div>
   <div class="tabsContnet">
@@ -19010,7 +18980,7 @@ flag 及其含义如下：
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl(
-        '_页数',
+        '_页数'
       )}"><span class="setWantPageTip1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl('_页数')}</span><span class="gray1"> ? </span></span>
@@ -19112,7 +19082,7 @@ flag 及其含义如下：
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="firstFewImagesSwitch">
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_下载前几张图片',
+        '_下载前几张图片'
       )}&nbsp;
       <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
       </span>
@@ -19128,11 +19098,11 @@ flag 及其含义如下：
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="BMKNumSwitch">
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_最小值',
+        '_最小值'
       )}&nbsp;</span>
       <input type="text" name="BMKNumMin" class="setinput_style1 blue bmkNum" value="0">
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_最大值',
+        '_最大值'
       )}&nbsp;</span>
       <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="999999">
       <span class="verticalSplit"></span>
@@ -19196,25 +19166,25 @@ flag 及其含义如下：
       <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="horizontal">
       <span class="beautify_radio"></span>
       <label for="ratio1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_横图',
+        '_横图'
       )}&nbsp; </label>
 
       <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="vertical">
       <span class="beautify_radio"></span>
       <label for="ratio2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_竖图',
+        '_竖图'
       )}&nbsp; </label>
       
       <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="square">
       <span class="beautify_radio"></span>
       <label for="ratio0"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_正方形',
+        '_正方形'
       )}&nbsp; </label>
 
       <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
       <span class="beautify_radio"></span>
       <label for="ratio3"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_输入宽高比',
+        '_输入宽高比'
       )}</label>
       <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
       </span>
@@ -19226,7 +19196,7 @@ flag 及其含义如下：
       ].transl('_设置id范围提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
           'lang'
         ].transl(
-          '_设置id范围',
+          '_设置id范围'
         )}&nbsp;&nbsp; <span class="gray1"> ? </span></span>
       <input type="checkbox" name="idRangeSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
@@ -19362,12 +19332,12 @@ flag 及其含义如下：
       <br>
       <span class="blue">{tags_translate}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_命名标记tags_trans',
+        '_命名标记tags_trans'
       )}
       <br>
       <span class="blue">{tags_transl_only}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_命名标记tags_transl_only',
+        '_命名标记tags_transl_only'
       )}
       <br>
       <span class="blue">{p_tag}</span>
@@ -19393,12 +19363,12 @@ flag 及其含义如下：
       <br>
       <span class="blue">{series_title}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_命名标记seriesTitle',
+        '_命名标记seriesTitle'
       )}
       <br>
       <span class="blue">{series_order}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_命名标记seriesOrder',
+        '_命名标记seriesOrder'
       )}
       <br>
       <span class="blue">{id_num}</span>
@@ -19446,12 +19416,12 @@ flag 及其含义如下：
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="workDir">
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_文件数量大于',
+        '_文件数量大于'
       )}</span>
       <input type="text" name="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
       <span>&nbsp;</span>
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_目录名使用',
+        '_目录名使用'
       )}</span>
       <input type="radio" name="workDirName" id="workDirName1" class="need_beautify radio" value="id" checked>
       <span class="beautify_radio"></span>
@@ -19472,7 +19442,7 @@ flag 及其含义如下：
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="r18Folder">
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_目录名使用',
+        '_目录名使用'
       )}</span>
       <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
       </span>
@@ -19482,9 +19452,9 @@ flag 及其含义如下：
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl(
-        '_快速下载建立文件夹提示',
+        '_快速下载建立文件夹提示'
       )}">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-          '_快速下载建立文件夹',
+          '_快速下载建立文件夹'
         )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
@@ -19538,7 +19508,7 @@ flag 及其含义如下：
       <label for="ugoiraSaveAs4" class="has_tip" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl('_无损')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-          '_apng',
+          '_apng'
         )} &nbsp;</label>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip"> 
       <span class="beautify_radio"></span>
@@ -19551,15 +19521,15 @@ flag 及其含义如下：
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl(
-        '_同时转换多少个动图警告',
+        '_同时转换多少个动图警告'
       )}">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-          '_同时转换多少个动图',
+          '_同时转换多少个动图'
         )}</span>
       <input type="text" name="convertUgoiraThread" class="setinput_style1 blue" value="1">
       <span class="has_tip gray1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl(
-        '_同时转换多少个动图警告',
+        '_同时转换多少个动图警告'
       )}"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_提示')} </span>
       </p>
 
@@ -19579,9 +19549,9 @@ flag 及其含义如下：
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
       ].transl(
-        '_在小说里保存元数据提示',
+        '_在小说里保存元数据提示'
       )}">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-          '_在小说里保存元数据',
+          '_在小说里保存元数据'
         )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
@@ -19617,7 +19587,7 @@ flag 及其含义如下：
         'lang'
       ].transl('_不符合要求的文件不会被保存')}">
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_文件体积限制',
+        '_文件体积限制'
       )} <span class="gray1"> ? </span></span>
       <input type="checkbox" name="sizeSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
@@ -19633,13 +19603,13 @@ flag 及其含义如下：
         'lang'
       ].transl('_不下载重复文件的提示')}">
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_不下载重复文件',
+        '_不下载重复文件'
       )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="deduplication">
       <span>&nbsp; ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_策略',
+        '_策略'
       )}</span>
       <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
       <span class="beautify_radio"></span>
@@ -19702,7 +19672,7 @@ flag 及其含义如下：
         'lang'
       ].transl('_下载之后收藏作品的提示')}">
       ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_下载之后收藏作品',
+        '_下载之后收藏作品'
       )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
@@ -19761,7 +19731,7 @@ flag 及其含义如下：
       </p>
       <p class="dateFormatTip tip" style="display:none">
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_日期格式提示',
+        '_日期格式提示'
       )}</span>
       <br>
       <span class="blue">YYYY</span> <span>2021</span>
@@ -19791,7 +19761,7 @@ flag 及其含义如下：
       <input type="radio" name="theme" id="theme1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio"></span>
       <label for="theme1">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_自动检测',
+        '_自动检测'
       )}</label>
       &nbsp;
       <input type="radio" name="theme" id="theme2" class="need_beautify radio" value="white">
@@ -19866,19 +19836,19 @@ flag 及其含义如下：
           'FormSettings',
           function () {
             return FormSettings
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../PageType */ './src/ts/modules/PageType.ts',
+          /*! ../PageType */ './src/ts/modules/PageType.ts'
         )
         /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ./Settings */ './src/ts/modules/setting/Settings.ts'
         )
         /* harmony import */ var _DateFormat__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../DateFormat */ './src/ts/modules/DateFormat.ts',
+          /*! ../DateFormat */ './src/ts/modules/DateFormat.ts'
         )
 
         // 管理 from 表单里的选项（类型为 input 元素的选项），从 settings 里读取选项的值；当选项改变时保存到 settings 里
@@ -19898,7 +19868,7 @@ flag 及其含义如下：
                 .pageSwitchedTypeChange,
               () => {
                 this.restoreWantPage()
-              },
+              }
             )
           }
           // 处理输入框： change 时保存 value
@@ -19932,7 +19902,7 @@ flag 及其含义如下：
             // 保存 wantPageArr
             this.form.setWantPage.addEventListener('change', () => {
               const temp = Array.from(
-                _Settings__WEBPACK_IMPORTED_MODULE_2__['settings'].wantPageArr,
+                _Settings__WEBPACK_IMPORTED_MODULE_2__['settings'].wantPageArr
               )
               temp[
                 _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].type
@@ -20041,7 +20011,7 @@ flag 及其含义如下：
           emitChange(name, value) {
             Object(_Settings__WEBPACK_IMPORTED_MODULE_2__['setSetting'])(
               name,
-              value,
+              value
             )
           }
           // 恢复值为 Boolean 的设置项
@@ -20207,10 +20177,10 @@ flag 及其含义如下：
           'options',
           function () {
             return options
-          },
+          }
         )
         /* harmony import */ var _Form__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./Form */ './src/ts/modules/setting/Form.ts',
+          /*! ./Form */ './src/ts/modules/setting/Form.ts'
         )
 
         // 操作设置表单的选项区域
@@ -20284,25 +20254,25 @@ flag 及其含义如下：
           'SaveNamingRule',
           function () {
             return SaveNamingRule
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../Log */ './src/ts/modules/Log.ts',
+          /*! ../Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../Theme */ './src/ts/modules/Theme.ts',
+          /*! ../Theme */ './src/ts/modules/Theme.ts'
         )
         /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ./Settings */ './src/ts/modules/setting/Settings.ts'
         )
 
         // 保存和加载命名规则列表
@@ -20316,7 +20286,7 @@ flag 及其含义如下：
     'lang'
   ].transl(
     '_保存命名规则提示',
-    this.limit.toString(),
+    this.limit.toString()
   )}">${_Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_保存')}</button>
   <button class="nameLoad textButton" type="button">${_Lang__WEBPACK_IMPORTED_MODULE_2__[
     'lang'
@@ -20327,7 +20297,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].clearSlot('saveNamingRule')
             const wrap = _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].useSlot(
               'saveNamingRule',
-              this.html,
+              this.html
             )
             _Theme__WEBPACK_IMPORTED_MODULE_4__['theme'].register(wrap)
             this.saveBtn = wrap.querySelector('button.nameSave')
@@ -20359,7 +20329,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
               () => {
                 this.createList()
-              },
+              }
             )
           }
           add(rule) {
@@ -20377,42 +20347,42 @@ flag 及其含义如下：
             ) {
               const list = Array.from(
                 _Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
-                  .namingRuleList,
+                  .namingRuleList
               )
               list.push(rule)
               Object(_Settings__WEBPACK_IMPORTED_MODULE_5__['setSetting'])(
                 'namingRuleList',
-                list,
+                list
               )
             }
             _Log__WEBPACK_IMPORTED_MODULE_3__['log'].success(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_已保存命名规则',
-              ),
+                '_已保存命名规则'
+              )
             )
             // 用对话框提醒，否则用户可能没有感知到反馈
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].sendMsg({
               type: 'success',
               msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_已保存命名规则',
+                '_已保存命名规则'
               ),
             })
           }
           delete(index) {
             const list = Array.from(
-              _Settings__WEBPACK_IMPORTED_MODULE_5__['settings'].namingRuleList,
+              _Settings__WEBPACK_IMPORTED_MODULE_5__['settings'].namingRuleList
             )
             list.splice(index, 1)
             Object(_Settings__WEBPACK_IMPORTED_MODULE_5__['setSetting'])(
               'namingRuleList',
-              list,
+              list
             )
           }
           select(rule) {
             this.ruleInput.value = rule
             Object(_Settings__WEBPACK_IMPORTED_MODULE_5__['setSetting'])(
               'userSetName',
-              rule,
+              rule
             )
           }
           createList() {
@@ -20476,19 +20446,19 @@ flag 及其含义如下：
           'settingAPI',
           function () {
             return settingAPI
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts',
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Log */ './src/ts/modules/Log.ts',
+          /*! ../Log */ './src/ts/modules/Log.ts'
         )
         /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ./Settings */ './src/ts/modules/setting/Settings.ts'
         )
 
         // 设置相关的 API
@@ -20504,7 +20474,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
               () => {
                 this.firstFewImages = this.getFirstFewImages()
-              },
+              }
             )
           }
           // 获取作品张数设置
@@ -20518,11 +20488,11 @@ flag 及其含义如下：
             }
             // 如果用户输入的数字不合法（不大于0）
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.wrongSetting,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.wrongSetting
             )
             const msg =
               _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                '_下载前几张图片',
+                '_下载前几张图片'
               ) +
               ' ' +
               _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_必须大于0')
@@ -20563,26 +20533,26 @@ flag 及其含义如下：
           'settings',
           function () {
             return settings
-          },
+          }
         )
         /* harmony export (binding) */ __webpack_require__.d(
           __webpack_exports__,
           'setSetting',
           function () {
             return setSetting
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Tools */ './src/ts/modules/Tools.ts',
+          /*! ../Tools */ './src/ts/modules/Tools.ts'
         )
         /* harmony import */ var _ConvertOldSettings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./ConvertOldSettings */ './src/ts/modules/setting/ConvertOldSettings.ts',
+          /*! ./ConvertOldSettings */ './src/ts/modules/setting/ConvertOldSettings.ts'
         )
         // settings 保存了下载器的所有设置项
         // 每当修改了 settings 的值，都要触发 EVT.list.settingChange 事件，让其他模块可以监听到变化
@@ -20718,27 +20688,27 @@ flag 及其含义如下：
               () => {
                 localStorage.setItem(
                   this.storeName,
-                  JSON.stringify(this.settings),
+                  JSON.stringify(this.settings)
                 )
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.resetSettings,
               () => {
                 this.reset()
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.exportSettings,
               () => {
                 this.exportSettings()
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.importSettings,
               () => {
                 this.importSettings()
-              },
+              }
             )
           }
           // 读取保存的设置，合并到当前设置上
@@ -20761,7 +20731,7 @@ flag 及其含义如下：
             }
             // 触发设置改变事件
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange
             )
           }
           exportSettings() {
@@ -20770,7 +20740,7 @@ flag 及其含义如下：
             const url = URL.createObjectURL(blob)
             _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].downloadFile(
               url,
-              `pixiv_batch_downloader-settings.json`,
+              `pixiv_batch_downloader-settings.json`
             )
           }
           async importSettings() {
@@ -20806,7 +20776,7 @@ flag 及其含义如下：
               this.assignSettings(this.defaultSettings)
             }
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.resetSettingsEnd,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.resetSettingsEnd
             )
           }
           tipError(key) {
@@ -20894,7 +20864,7 @@ flag 及其含义如下：
                 'EVT'
               ].fire(
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
-                { name: key, value: value },
+                { name: key, value: value }
               )
             }
           }
@@ -20919,22 +20889,22 @@ flag 及其含义如下：
           'converter',
           function () {
             return converter
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts',
+          /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
         /* harmony import */ var _ToWebM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./ToWebM */ './src/ts/modules/ugoira/ToWebM.ts',
+          /*! ./ToWebM */ './src/ts/modules/ugoira/ToWebM.ts'
         )
         /* harmony import */ var _ToGIF__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./ToGIF */ './src/ts/modules/ugoira/ToGIF.ts',
+          /*! ./ToGIF */ './src/ts/modules/ugoira/ToGIF.ts'
         )
         /* harmony import */ var _ToAPNG__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./ToAPNG */ './src/ts/modules/ugoira/ToAPNG.ts',
+          /*! ./ToAPNG */ './src/ts/modules/ugoira/ToAPNG.ts'
         )
 
         // 控制动图转换
@@ -20948,7 +20918,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadStart,
               () => {
                 this.downloading = true
-              },
+              }
             )
             ;[
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadPause,
@@ -20962,19 +20932,19 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
               () => {
                 this.setMaxCount()
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.convertSuccess,
               () => {
                 this.complete()
-              },
+              }
             )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.readZipError,
               () => {
                 this.complete()
-              },
+              }
             )
           }
           setMaxCount() {
@@ -20989,7 +20959,7 @@ flag 及其含义如下：
             this._count = num
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.convertChange,
-              this._count,
+              this._count
             )
           }
           async start(file, info, type) {
@@ -21005,23 +20975,23 @@ flag 及其含义如下：
                     resolve(
                       _ToGIF__WEBPACK_IMPORTED_MODULE_3__['toGIF'].convert(
                         file,
-                        info,
-                      ),
+                        info
+                      )
                     )
                   } else if (type === 'png') {
                     resolve(
                       _ToAPNG__WEBPACK_IMPORTED_MODULE_4__['toAPNG'].convert(
                         file,
-                        info,
-                      ),
+                        info
+                      )
                     )
                   } else {
                     // 如果没有 type 则默认使用 webm
                     resolve(
                       _ToWebM__WEBPACK_IMPORTED_MODULE_2__['toWebM'].convert(
                         file,
-                        info,
-                      ),
+                        info
+                      )
                     )
                   }
                 }
@@ -21062,10 +21032,10 @@ flag 及其含义如下：
           'extractImage',
           function () {
             return extractImage
-          },
+          }
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
 
         // 从 zip 提取图片数据
@@ -21079,7 +21049,7 @@ flag 及其含义如下：
             }
             // 添加 zip 的 worker 文件
             let zipWorker = await fetch(
-              chrome.extension.getURL('lib/z-worker.js'),
+              chrome.extension.getURL('lib/z-worker.js')
             )
             const zipWorkerBolb = await zipWorker.blob()
             const zipWorkerUrl = URL.createObjectURL(zipWorkerBolb)
@@ -21115,17 +21085,17 @@ flag 及其含义如下：
                               resolve(imgFile)
                             }
                           }
-                        },
+                        }
                       )
                     })
                   })
                 },
                 (message) => {
                   _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.readZipError,
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.readZipError
                   )
                   reject(new Error('ReadZIP error: ' + message))
-                },
+                }
               )
             })
           }
@@ -21148,16 +21118,16 @@ flag 及其含义如下：
           'toAPNG',
           function () {
             return toAPNG
-          },
+          }
         )
         /* harmony import */ var _ExtractImage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./ExtractImage */ './src/ts/modules/ugoira/ExtractImage.ts',
+          /*! ./ExtractImage */ './src/ts/modules/ugoira/ExtractImage.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
 
         class ToAPNG {
@@ -21191,7 +21161,7 @@ flag 及其含义如下：
                 img.width,
                 img.height,
                 0,
-                delayList,
+                delayList
               )
               base64Arr = null
               arrayBuffList = null
@@ -21199,7 +21169,7 @@ flag 及其含义如下：
                 type: 'image/vnd.mozilla.apng',
               })
               _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list.convertSuccess,
+                _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list.convertSuccess
               )
               resolve(blob)
             })
@@ -21243,16 +21213,16 @@ flag 及其含义如下：
           'toGIF',
           function () {
             return toGIF
-          },
+          }
         )
         /* harmony import */ var _ExtractImage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./ExtractImage */ './src/ts/modules/ugoira/ExtractImage.ts',
+          /*! ./ExtractImage */ './src/ts/modules/ugoira/ExtractImage.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
 
         class ToGIF {
@@ -21263,7 +21233,7 @@ flag 及其含义如下：
           async loadWorkerJS() {
             // 添加 gif 的 worker 文件
             let gifWorker = await fetch(
-              chrome.extension.getURL('lib/gif.worker.js'),
+              chrome.extension.getURL('lib/gif.worker.js')
             )
             const gifWorkerBolb = await gifWorker.blob()
             this.gifWorkerUrl = URL.createObjectURL(gifWorkerBolb)
@@ -21280,7 +21250,7 @@ flag 及其含义如下：
               // 绑定渲染完成事件
               gif.on('finished', (file) => {
                 _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list.convertSuccess,
+                  _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list.convertSuccess
                 )
                 resolve(file)
               })
@@ -21341,16 +21311,16 @@ flag 及其含义如下：
           'toWebM',
           function () {
             return toWebM
-          },
+          }
         )
         /* harmony import */ var _ExtractImage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./ExtractImage */ './src/ts/modules/ugoira/ExtractImage.ts',
+          /*! ./ExtractImage */ './src/ts/modules/ugoira/ExtractImage.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts',
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/modules/EVT.ts',
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
 
         class ToWebM {
@@ -21380,7 +21350,7 @@ flag 及其含义如下：
               // 获取生成的视频
               file = await this.encodeVideo(encoder)
               _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list.convertSuccess,
+                _EVT__WEBPACK_IMPORTED_MODULE_2__['EVT'].list.convertSuccess
               )
               resolve(file)
             })
@@ -21418,6 +21388,6 @@ flag 及其含义如下：
       },
 
     /******/
-  },
+  }
 )
 //# sourceMappingURL=content.js.map

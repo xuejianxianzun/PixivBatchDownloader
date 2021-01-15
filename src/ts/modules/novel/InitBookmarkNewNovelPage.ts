@@ -81,9 +81,9 @@ class InitBookmarkNewNovelPage extends InitPageBase {
       return this.getIdListFinished()
     }
 
-    const NovelItem = dom.querySelectorAll('.novel-items>li') as NodeListOf<
-      HTMLLIElement
-    >
+    const NovelItem = dom.querySelectorAll(
+      '.novel-items>li'
+    ) as NodeListOf<HTMLLIElement>
 
     // 检查每个作品的信息
     for (const item of NovelItem) {
@@ -95,9 +95,9 @@ class InitBookmarkNewNovelPage extends InitPageBase {
       let bmk: number = bmkEl ? parseInt(bmkEl.innerText) : 0
 
       const tags: string[] = []
-      const tagsA = item.querySelectorAll('.tags>li>a') as NodeListOf<
-        HTMLAnchorElement
-      >
+      const tagsA = item.querySelectorAll(
+        '.tags>li>a'
+      ) as NodeListOf<HTMLAnchorElement>
       for (const a of tagsA) {
         tags.push(a.innerText.trim())
       }
@@ -130,7 +130,7 @@ class InitBookmarkNewNovelPage extends InitPageBase {
     log.log(
       lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
       1,
-      false,
+      false
     )
 
     // 抓取完毕

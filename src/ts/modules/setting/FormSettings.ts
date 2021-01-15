@@ -205,7 +205,7 @@ class FormSettings {
   // 表单里的设置发生改变时，调用这个方法，传递选项名和值
   private emitChange(
     name: keyof typeof settings,
-    value: string | number | boolean | string[] | number[],
+    value: string | number | boolean | string[] | number[]
   ) {
     setSetting(name, value)
   }

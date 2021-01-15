@@ -159,8 +159,8 @@ abstract class InitPageBase {
       log.warning(
         lang.transl(
           '_多图作品下载前n张图片',
-          settingAPI.getFirstFewImages().toString(),
-        ),
+          settingAPI.getFirstFewImages().toString()
+        )
       )
     }
   }
@@ -374,10 +374,10 @@ abstract class InitPageBase {
     log.log(
       `${lang.transl('_待处理')} ${store.idList.length}, ${lang.transl(
         '_共抓取到n个作品',
-        store.resultMeta.length.toString(),
+        store.resultMeta.length.toString()
       )}`,
       1,
-      false,
+      false
     )
   }
 

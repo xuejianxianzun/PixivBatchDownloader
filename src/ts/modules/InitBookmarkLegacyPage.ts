@@ -52,7 +52,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
         this.crawlRecommended = true
         this.readyCrawl()
       },
-      false,
+      false
     )
   }
 
@@ -63,7 +63,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
         'otherBtns',
         Colors.green,
         lang.transl('_给未分类作品添加添加tag'),
-        [['title', lang.transl('_给未分类作品添加添加tag')]],
+        [['title', lang.transl('_给未分类作品添加添加tag')]]
       )
 
       new BookmarksAddTag(btn)
@@ -89,7 +89,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
 
     this.crawlNumber = this.checkWantPageInput(
       lang.transl('_从本页开始下载x页'),
-      pageTip,
+      pageTip
     )
   }
 
@@ -148,7 +148,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
         this.type,
         store.tag,
         this.offset,
-        this.isHide,
+        this.isHide
       )
     } catch (error) {
       this.getIdList()
@@ -168,7 +168,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
         this.idList.push({
           type: idType,
           id: data.id,
-        }),
+        })
       )
       this.offset += this.onceRequest // 每次增加偏移量
       // 重复抓取过程
@@ -202,9 +202,9 @@ class InitBookmarkLegacyPage extends InitPageBase {
     const getId = this.type === 'illusts' ? API.getIllustId : API.getNovelId
 
     // 获取下方已经加载出来的作品
-    const elements = document.querySelectorAll(selector) as NodeListOf<
-      HTMLLIElement
-    >
+    const elements = document.querySelectorAll(
+      selector
+    ) as NodeListOf<HTMLLIElement>
     if (elements.length === 0) {
       this.crawlRecommended = false
       return this.noResult()

@@ -317,7 +317,7 @@ class Settings {
   public setSetting(
     key: keyof XzSetting,
     value: string | number | boolean | string[] | number[] | object[],
-    fireEvt = true,
+    fireEvt = true
   ) {
     if (!this.allSettingKeys.includes(key)) {
       return

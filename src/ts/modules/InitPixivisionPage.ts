@@ -14,7 +14,7 @@ class InitPixivisionPage extends InitPageBase {
 
   protected addCrawlBtns() {
     const typeA = document.querySelector(
-      'a[data-gtm-action=ClickCategory]',
+      'a[data-gtm-action=ClickCategory]'
     )! as HTMLAnchorElement
     const type = typeA.dataset.gtmLabel
 
@@ -23,13 +23,13 @@ class InitPixivisionPage extends InitPageBase {
       DOM.addBtn(
         'crawlBtns',
         Colors.blue,
-        lang.transl('_抓取该页面的图片'),
+        lang.transl('_抓取该页面的图片')
       ).addEventListener(
         'click',
         () => {
           this.readyCrawl()
         },
-        false,
+        false
       )
     }
   }
@@ -94,14 +94,14 @@ class InitPixivisionPage extends InitPageBase {
 
   private async getPixivision() {
     const a = document.querySelector(
-      'a[data-gtm-action=ClickCategory]',
+      'a[data-gtm-action=ClickCategory]'
     )! as HTMLAnchorElement
     const type = a.dataset.gtmLabel
 
     if (type === 'illustration') {
       // 插画页面，需要对图片进行测试获取原图 url
       const imageList = document.querySelectorAll(
-        '.am__work__main img',
+        '.am__work__main img'
       ) as NodeListOf<HTMLImageElement>
       const urls = Array.from(imageList).map((el) => {
         return el.src
@@ -125,9 +125,9 @@ class InitPixivisionPage extends InitPageBase {
       }
 
       // 把图片url添加进数组
-      const imageList = document.querySelectorAll(selector) as NodeListOf<
-        HTMLImageElement
-      >
+      const imageList = document.querySelectorAll(
+        selector
+      ) as NodeListOf<HTMLImageElement>
       Array.from(imageList).forEach((el) => {
         const url = el.src
         if (url !== 'https://i.pximg.net/imgaz/upload/20170407/256097898.jpg') {

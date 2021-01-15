@@ -5,7 +5,7 @@ const regex = /access-control-allow-origin/i
 
 function removeMatchingHeaders(
   headers: chrome.webRequest.HttpHeader[],
-  regex: RegExp,
+  regex: RegExp
 ) {
   for (var i = 0, header; (header = headers[i]); i++) {
     if (header.name.match(regex)) {
@@ -16,7 +16,7 @@ function removeMatchingHeaders(
 }
 
 function responseListener(
-  details: chrome.webRequest.WebResponseHeadersDetails,
+  details: chrome.webRequest.WebResponseHeadersDetails
 ) {
   removeMatchingHeaders(details.responseHeaders!, regex)
   details.responseHeaders!.push({
@@ -32,7 +32,7 @@ chrome.webRequest.onHeadersReceived.addListener(
   {
     urls: ['*://*.pximg.net/*'],
   },
-  ['blocking', 'responseHeaders', 'extraHeaders'],
+  ['blocking', 'responseHeaders', 'extraHeaders']
 )
 // 修改 responseHeaders 结束
 
@@ -83,7 +83,7 @@ chrome.runtime.onMessage.addListener(function (msg: SendToBackEndData, sender) {
             tabId: tabId,
             uuid: false,
           }
-        },
+        }
       )
     }
   }

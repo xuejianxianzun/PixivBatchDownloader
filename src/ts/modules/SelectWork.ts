@@ -116,7 +116,7 @@ class SelectWork {
       (ev) => {
         this.moveEvent(ev)
       },
-      true,
+      true
     )
 
     // 离开页面前提示用户
@@ -201,14 +201,14 @@ class SelectWork {
     this.controlBtn = DOM.addBtn(
       'selectWorkBtns',
       Colors.green,
-      lang.transl('_手动选择作品'),
+      lang.transl('_手动选择作品')
     )
     this.updateControlBtn()
 
     this.clearBtn = DOM.addBtn(
       'selectWorkBtns',
       Colors.red,
-      lang.transl('_清空选择的作品'),
+      lang.transl('_清空选择的作品')
     )
     this.clearBtn.style.display = 'none'
     this.clearBtn.addEventListener('click', () => {
@@ -218,7 +218,7 @@ class SelectWork {
     this.crawlBtn = DOM.addBtn(
       'selectWorkBtns',
       Colors.blue,
-      lang.transl('_抓取选择的作品'),
+      lang.transl('_抓取选择的作品')
     )
     this.crawlBtn.style.display = 'none'
     this.crawlBtn.addEventListener('click', (ev) => {
@@ -433,11 +433,11 @@ class SelectWork {
       let el: HTMLAnchorElement | null
       if (type === 'novels') {
         el = document.querySelector(
-          `${this.usedWorksWrapperSelector} a[href="/novel/show.php?id=${id}"]`,
+          `${this.usedWorksWrapperSelector} a[href="/novel/show.php?id=${id}"]`
         )
       } else {
         el = document.querySelector(
-          `${this.usedWorksWrapperSelector} a[href="/artworks/${id}"]`,
+          `${this.usedWorksWrapperSelector} a[href="/artworks/${id}"]`
         )
       }
 
@@ -450,7 +450,7 @@ class SelectWork {
 
   private getSelectedFlag(id: string) {
     return document.querySelector(
-      `.${this.selectedWorkFlagClass}[data-id='${id}']`,
+      `.${this.selectedWorkFlagClass}[data-id='${id}']`
     )
   }
 

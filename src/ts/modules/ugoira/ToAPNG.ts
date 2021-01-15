@@ -33,7 +33,7 @@ class ToAPNG {
         img.width,
         img.height,
         0,
-        delayList,
+        delayList
       ) as Uint8Array
 
       base64Arr = null as any

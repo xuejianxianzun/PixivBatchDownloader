@@ -91,7 +91,7 @@ class BookmarksAddTag {
   private async addTag(
     index: number,
     addList: BookmarkResult[],
-    tt: string,
+    tt: string
   ): Promise<void> {
     const item: BookmarkResult = addList[index] as BookmarkResult
 

@@ -78,11 +78,11 @@ class BlockTagsForSpecificUser {
 
     <div class="controlBar">
       <button type="button" class="textButton expand">${lang.transl(
-        '_收起',
+        '_收起'
       )}</button>
       <span class="total">0</span>
       <button type="button" class="textButton showAdd">${lang.transl(
-        '_添加',
+        '_添加'
       )}</button>
     </div>
 
@@ -91,20 +91,20 @@ class BlockTagsForSpecificUser {
         <div class="inputItem uid">
           <span class="label uidLabel">${lang.transl('_用户id')}</span>
           <input type="text" class="setinput_style1 blue addUidInput" placeholder="${lang.transl(
-            '_必须是数字',
+            '_必须是数字'
           )}" />
         </div>
 
         <div class="inputItem tags">
           <span class="label tagsLabel">Tags</span>
           <input type="text" class="setinput_style1 blue addTagsInput" placeholder="${lang.transl(
-            '_tag用逗号分割',
+            '_tag用逗号分割'
           )}" />
         </div>
 
         <div class="btns">
           <button type="button" class="textButton add" title="${lang.transl(
-            '_添加',
+            '_添加'
           )}">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-wanchengqueding"></use>
@@ -113,7 +113,7 @@ class BlockTagsForSpecificUser {
 
           
           <button type="button" class="textButton cancel" title="${lang.transl(
-            '_取消',
+            '_取消'
           )}">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-guanbiquxiao"></use>
@@ -132,17 +132,17 @@ class BlockTagsForSpecificUser {
   private createWrap() {
     this.wrap = DOM.useSlot(
       'blockTagsForSpecificUser',
-      this.wrapHTML,
+      this.wrapHTML
     )! as HTMLDivElement
     this.expandBtn = this.wrap.querySelector('.expand')! as HTMLButtonElement
     this.showAddBtn = this.wrap.querySelector('.showAdd')! as HTMLButtonElement
     this.totalSpan = this.wrap.querySelector('.total')! as HTMLSpanElement
     this.addWrap = this.wrap.querySelector('.addWrap')! as HTMLDivElement
     this.addInputUid = this.wrap.querySelector(
-      '.addUidInput',
+      '.addUidInput'
     )! as HTMLInputElement
     this.addInputTags = this.wrap.querySelector(
-      '.addTagsInput',
+      '.addTagsInput'
     )! as HTMLInputElement
     this.addBtn = this.wrap.querySelector('.add')! as HTMLButtonElement
     this.cancelBtn = this.wrap.querySelector('.cancel')! as HTMLButtonElement
@@ -204,7 +204,7 @@ class BlockTagsForSpecificUser {
       <div class="btns">
 
         <button type="button" class="textButton" data-updateRule="${uid}" title="${lang.transl(
-      '_更新',
+      '_更新'
     )}">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-gengxin"></use>
@@ -212,7 +212,7 @@ class BlockTagsForSpecificUser {
         </button>
 
         <button type="button" class="textButton" data-deleteRule="${uid}" title="${lang.transl(
-      '_删除',
+      '_删除'
     )}">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-shanchu1"></use>
@@ -232,16 +232,16 @@ class BlockTagsForSpecificUser {
     }
 
     const updateRule = this.listWrap.querySelector(
-      `button[data-updateRule='${uid}']`,
+      `button[data-updateRule='${uid}']`
     )
     const deleteRule = this.listWrap.querySelector(
-      `button[data-deleteRule='${uid}']`,
+      `button[data-deleteRule='${uid}']`
     )
     const uidInput = this.listWrap.querySelector(
-      `input[data-uidInput='${uid}']`,
+      `input[data-uidInput='${uid}']`
     )! as HTMLInputElement
     const tagsInput = this.listWrap.querySelector(
-      `input[data-tagsInput='${uid}']`,
+      `input[data-tagsInput='${uid}']`
     )! as HTMLInputElement
 
     // 当输入框发生变化时，进行更新
@@ -269,7 +269,7 @@ class BlockTagsForSpecificUser {
     const profile = await API.getUserProfile(data.uid.toString()).catch(
       (err) => {
         console.log(err)
-      },
+      }
     )
     if (profile && profile.body.name) {
       const name = profile.body.name
@@ -280,7 +280,7 @@ class BlockTagsForSpecificUser {
 
         // 显示到页面上
         const listElement = this.listWrap.querySelector(
-          `.settingItem[data-key='${data.uid}']`,
+          `.settingItem[data-key='${data.uid}']`
         )
         if (listElement) {
           const label = listElement.querySelector('.uidLabel')
@@ -362,7 +362,7 @@ class BlockTagsForSpecificUser {
     oldUid: number,
     uidInput: string,
     tagsInput: string,
-    tip = true,
+    tip = true
   ) {
     const check = this.checkValue(uidInput, tagsInput)
     if (!check) {
@@ -375,7 +375,7 @@ class BlockTagsForSpecificUser {
     setSetting('blockTagsForSpecificUserList', [...this.rules])
 
     const listElement = this.listWrap.querySelector(
-      `.settingItem[data-key='${oldUid}']`,
+      `.settingItem[data-key='${oldUid}']`
     )
     listElement?.remove()
 
@@ -398,7 +398,7 @@ class BlockTagsForSpecificUser {
     setSetting('blockTagsForSpecificUserList', [...this.rules])
 
     const listElement = this.listWrap.querySelector(
-      `.settingItem[data-key='${uid}']`,
+      `.settingItem[data-key='${uid}']`
     )
     listElement?.remove()
   }

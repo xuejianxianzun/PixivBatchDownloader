@@ -212,7 +212,7 @@ class Deduplication {
     const url = URL.createObjectURL(blob)
     DOM.downloadFile(
       url,
-      `record-${Tools.replaceUnsafeStr(new Date().toLocaleString())}.json`,
+      `record-${Tools.replaceUnsafeStr(new Date().toLocaleString())}.json`
     )
   }
 

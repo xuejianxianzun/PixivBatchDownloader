@@ -51,7 +51,7 @@ class ConvertUgoira {
   private async start(
     file: Blob,
     info: UgoiraInfo,
-    type: 'webm' | 'gif' | 'png',
+    type: 'webm' | 'gif' | 'png'
   ): Promise<Blob> {
     return new Promise(async (resolve, reject) => {
       const t = window.setInterval(async () => {

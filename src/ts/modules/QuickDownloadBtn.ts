@@ -32,7 +32,7 @@ class QuickDownloadBtn {
         states.quickDownload = true
         EVT.fire(EVT.list.QuickDownload)
       },
-      false,
+      false
     )
 
     // 使用快捷键 Alt + q 启动快速下载
@@ -44,7 +44,7 @@ class QuickDownloadBtn {
           EVT.fire(EVT.list.QuickDownload)
         }
       },
-      false,
+      false
     )
 
     // 下载完成，或者下载中止时，复位状态

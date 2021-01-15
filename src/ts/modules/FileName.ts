@@ -249,7 +249,7 @@ class FileName {
       if (allPart[lastIndex].length + extResult.length > limit) {
         allPart[lastIndex] = allPart[lastIndex].substr(
           0,
-          limit - extResult.length,
+          limit - extResult.length
         )
       }
 

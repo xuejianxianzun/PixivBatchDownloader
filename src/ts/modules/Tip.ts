@@ -20,9 +20,9 @@ class Tip {
   }
 
   private bindEvents() {
-    const tips = document.querySelectorAll('.has_tip') as NodeListOf<
-      HTMLElement
-    >
+    const tips = document.querySelectorAll(
+      '.has_tip'
+    ) as NodeListOf<HTMLElement>
     for (const el of tips) {
       for (const ev of ['mouseenter', 'mouseleave']) {
         el.addEventListener(ev, (event) => {

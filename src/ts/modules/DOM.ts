@@ -156,7 +156,7 @@ class DOM {
     slot: string,
     bg: string = '',
     text: string = '',
-    attr: string[][] = [],
+    attr: string[][] = []
   ) {
     const e = document.createElement('button')
     e.type = 'button'

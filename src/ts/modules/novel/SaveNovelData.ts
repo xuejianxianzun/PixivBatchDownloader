@@ -149,7 +149,7 @@ class SaveNovelData {
       const url = `http://pixiv.net/i/${temp[1].trim()}`
       str = str.replace(
         temp[0],
-        `[pixiv image link: <a href="${url}" target="_blank">${url}</a>]`,
+        `[pixiv image link: <a href="${url}" target="_blank">${url}</a>]`
       )
       reg.lastIndex = 0
     }

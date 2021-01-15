@@ -82,19 +82,19 @@ class OutputPanel {
     this.outputPanel = document.querySelector('.outputWrap')! as HTMLDivElement
 
     this.outputTitle = this.outputPanel.querySelector(
-      '.outputTitle',
+      '.outputTitle'
     )! as HTMLDivElement
 
     this.outputContent = this.outputPanel.querySelector(
-      '.outputContent',
+      '.outputContent'
     )! as HTMLDivElement
 
     this.copyBtn = this.outputPanel.querySelector(
-      '.outputCopy',
+      '.outputCopy'
     )! as HTMLButtonElement
 
     this.closeBtn = this.outputPanel.querySelector(
-      '.outputClose',
+      '.outputClose'
     )! as HTMLDivElement
   }
 

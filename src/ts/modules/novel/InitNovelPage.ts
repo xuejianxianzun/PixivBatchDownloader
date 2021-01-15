@@ -34,7 +34,7 @@ class InitNovelPage extends InitPageBase {
 
     window.addEventListener(
       EVT.list.pageSwitchedTypeNotChange,
-      this.initQuickBookmark,
+      this.initQuickBookmark
     )
 
     // 初始化快速下载按钮
@@ -50,7 +50,7 @@ class InitNovelPage extends InitPageBase {
     DOM.addBtn(
       'crawlBtns',
       Colors.blue,
-      lang.transl('_从本页开始抓取new'),
+      lang.transl('_从本页开始抓取new')
     ).addEventListener('click', () => {
       this.crawlDirection = -1
       this.readyCrawl()
@@ -59,7 +59,7 @@ class InitNovelPage extends InitPageBase {
     DOM.addBtn(
       'crawlBtns',
       Colors.blue,
-      lang.transl('_从本页开始抓取old'),
+      lang.transl('_从本页开始抓取old')
     ).addEventListener('click', () => {
       this.crawlDirection = 1
       this.readyCrawl()
@@ -91,7 +91,7 @@ class InitNovelPage extends InitPageBase {
 
     window.removeEventListener(
       EVT.list.pageSwitchedTypeNotChange,
-      this.initQuickBookmark,
+      this.initQuickBookmark
     )
 
     window.removeEventListener(EVT.list.QuickDownload, this.startQuickDownload)
@@ -109,7 +109,7 @@ class InitNovelPage extends InitPageBase {
           : lang.transl('_从本页开始抓取old')
       this.crawlNumber = this.checkWantPageInput(
         lang.transl('_从本页开始下载x个'),
-        crawlAllTip,
+        crawlAllTip
       )
     }
   }

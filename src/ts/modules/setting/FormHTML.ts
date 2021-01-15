@@ -11,9 +11,9 @@ const formHtml = `<form class="settingForm">
       <p class="option" data-no="1">
       <span class="setWantPageWrap">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_页数',
+        '_页数'
       )}"><span class="setWantPageTip1">${lang.transl(
-  '_页数',
+  '_页数'
 )}</span><span class="gray1"> ? </span></span>
       <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
       value = '-1'>&nbsp;
@@ -23,7 +23,7 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="2">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_下载作品类型的提示',
+        '_下载作品类型的提示'
       )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
@@ -41,7 +41,7 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="6">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_下载作品类型的提示',
+        '_下载作品类型的提示'
       )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="downNotBookmarked" id="setDownNotBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
@@ -53,7 +53,7 @@ const formHtml = `<form class="settingForm">
       
       <p class="option" data-no="23">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_下载作品类型的提示',
+        '_下载作品类型的提示'
       )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="downColorImg" id="setDownColorImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
@@ -61,13 +61,13 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="downBlackWhiteImg" id="setDownBlackWhiteImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
       <label for="setDownBlackWhiteImg"> ${lang.transl(
-        '_黑白图片',
+        '_黑白图片'
       )}&nbsp;</label>
       </p>
 
       <p class="option" data-no="21">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_下载作品类型的提示',
+        '_下载作品类型的提示'
       )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
@@ -79,7 +79,7 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="3">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_下载前几张图片提示',
+        '_下载前几张图片提示'
       )}">${lang.transl('_多图下载设置')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
@@ -91,7 +91,7 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="5">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_设置收藏数量的提示',
+        '_设置收藏数量的提示'
       )}">${lang.transl('_设置收藏数量')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="BMKNumSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
@@ -102,7 +102,7 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="999999">
       <span class="verticalSplit"></span>
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_日均收藏数量的提示',
+        '_日均收藏数量的提示'
       )}">
       ${lang.transl('_日均收藏数量')}
       <span class="gray1"> ? </span></span>
@@ -116,9 +116,9 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="7">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_筛选宽高的按钮Title',
+        '_筛选宽高的按钮Title'
       )} ${lang.transl('_筛选宽高的提示文字')}">${lang.transl(
-  '_筛选宽高的按钮文字',
+  '_筛选宽高的按钮文字'
 )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="setWHSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
@@ -149,7 +149,7 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="8">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_设置宽高比例Title',
+        '_设置宽高比例Title'
       )}">${lang.transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
@@ -175,9 +175,9 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="9">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_设置id范围提示',
+        '_设置id范围提示'
       )}">${lang.transl(
-  '_设置id范围',
+  '_设置id范围'
 )}&nbsp;&nbsp; <span class="gray1"> ? </span></span>
       <input type="checkbox" name="idRangeSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
@@ -194,7 +194,7 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="10">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_设置投稿时间提示',
+        '_设置投稿时间提示'
       )}">${lang.transl('_设置投稿时间')} <span class="gray1"> ? </span></span>
       <input type="checkbox" name="postDate" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
@@ -207,7 +207,7 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="11">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_必须tag的提示文字',
+        '_必须tag的提示文字'
       )}">${lang.transl('_必须含有tag')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="needTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
@@ -224,7 +224,7 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="12">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_排除tag的提示文字',
+        '_排除tag的提示文字'
       )}">${lang.transl('_不能含有tag')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="notNeedTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
@@ -241,7 +241,7 @@ const formHtml = `<form class="settingForm">
     <div class="con">
     <p class="option" data-no="13">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_设置文件夹名的提示',
+        '_设置文件夹名的提示'
       )}">${lang.transl('_命名规则')}<span class="gray1"> ? </span></span>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
       <select name="fileNameSelect">
@@ -346,18 +346,18 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="14">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_添加字段名称提示',
+        '_添加字段名称提示'
       )}">${lang.transl(
-  '_添加命名标记前缀',
+  '_添加命名标记前缀'
 )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
       <p class="option" data-no="22">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_第一张图不带序号说明',
+        '_第一张图不带序号说明'
       )}">${lang.transl(
-  '_第一张图不带序号',
+  '_第一张图不带序号'
 )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="noSerialNo" id="setNoSerialNo" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
@@ -365,7 +365,7 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="19">
       <span class="settingNameStyle1">${lang.transl(
-        '_为作品创建单独的文件夹',
+        '_为作品创建单独的文件夹'
       )}</span>
       <input type="checkbox" name="workDir" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
@@ -385,7 +385,7 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="38">
       <span class="settingNameStyle1">${lang.transl(
-        '_把r18作品存入指定的文件夹里',
+        '_把r18作品存入指定的文件夹里'
       )}</span>
       <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
@@ -397,9 +397,9 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="15">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_快速下载建立文件夹提示',
+        '_快速下载建立文件夹提示'
       )}">${lang.transl(
-  '_快速下载建立文件夹',
+  '_快速下载建立文件夹'
 )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
@@ -409,14 +409,14 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="16">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_线程数字',
+        '_线程数字'
       )}">${lang.transl('_设置下载线程')}<span class="gray1"> ? </span></span>
       <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
       </p>
 
       <p class="option" data-no="17">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_快速下载的提示',
+        '_快速下载的提示'
       )}">${lang.transl('_自动开始下载')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="quietDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
@@ -430,7 +430,7 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="4">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_动图保存格式title',
+        '_动图保存格式title'
       )}">${lang.transl('_动图保存格式')}<span class="gray1"> ? </span></span>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" class="need_beautify radio" value="webm" checked>
       <span class="beautify_radio"></span>
@@ -441,7 +441,7 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs4" class="need_beautify radio" value="png"> 
       <span class="beautify_radio"></span>
       <label for="ugoiraSaveAs4" class="has_tip" data-tip="${lang.transl(
-        '_无损',
+        '_无损'
       )}">${lang.transl('_apng')} &nbsp;</label>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip"> 
       <span class="beautify_radio"></span>
@@ -450,17 +450,17 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="24">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_同时转换多少个动图警告',
+        '_同时转换多少个动图警告'
       )}">${lang.transl('_同时转换多少个动图')}</span>
       <input type="text" name="convertUgoiraThread" class="setinput_style1 blue" value="1">
       <span class="has_tip gray1" data-tip="${lang.transl(
-        '_同时转换多少个动图警告',
+        '_同时转换多少个动图警告'
       )}"> ${lang.transl('_提示')} </span>
       </p>
 
       <p class="option" data-no="26">
       <span class="settingNameStyle1">${lang.transl(
-        '_小说保存格式',
+        '_小说保存格式'
       )}<span class="gray1"> &nbsp; </span></span>
       <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt" checked>
       <span class="beautify_radio"></span>
@@ -472,9 +472,9 @@ const formHtml = `<form class="settingForm">
       
       <p class="option" data-no="27">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_在小说里保存元数据提示',
+        '_在小说里保存元数据提示'
       )}">${lang.transl(
-  '_在小说里保存元数据',
+  '_在小说里保存元数据'
 )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
@@ -499,7 +499,7 @@ const formHtml = `<form class="settingForm">
   
       <p class="option" data-no="25">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_不符合要求的文件不会被保存',
+        '_不符合要求的文件不会被保存'
       )}">
       ${lang.transl('_文件体积限制')} <span class="gray1"> ? </span></span>
       <input type="checkbox" name="sizeSwitch" class="need_beautify checkbox_switch">
@@ -513,7 +513,7 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="28">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_不下载重复文件的提示',
+        '_不下载重复文件的提示'
       )}">
       ${lang.transl('_不下载重复文件')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
@@ -523,43 +523,43 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
       <span class="beautify_radio"></span>
       <label class="has_tip" for="dupliStrategy1" data-tip="${lang.transl(
-        '_严格模式说明',
+        '_严格模式说明'
       )}">${lang.transl('_严格')}</label>
       &nbsp;
       <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
       <span class="beautify_radio"></span>
       <label class="has_tip" for="dupliStrategy2" data-tip="${lang.transl(
-        '_宽松模式说明',
+        '_宽松模式说明'
       )}">${lang.transl('_宽松')}</label>
       &nbsp;
       <button class="textButton gray1" type="button" id="exportDownloadRecord">${lang.transl(
-        '_导出',
+        '_导出'
       )}</button>
       <button class="textButton gray1" type="button" id="importDownloadRecord">${lang.transl(
-        '_导入',
+        '_导入'
       )}</button>
       <button class="textButton gray1" type="button" id="clearDownloadRecord">${lang.transl(
-        '_清除',
+        '_清除'
       )}</button>
       </span>
       </p>
 
       <p class="option" data-no="35">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_用户阻止名单的说明',
+        '_用户阻止名单的说明'
       )}">${lang.transl('_用户阻止名单')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="userBlockList">
       <input type="text" name="blockList" class="setinput_style1 blue setinput_tag" placeholder="${lang.transl(
-        '_用户ID必须是数字',
+        '_用户ID必须是数字'
       )}">
       </span>
       </p>
 
       <p class="option" data-no="39">
       <span class="settingNameStyle1">${lang.transl(
-        '_针对特定用户屏蔽tag',
+        '_针对特定用户屏蔽tag'
       )}</span>
       <input type="checkbox" name="blockTagsForSpecificUser" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
@@ -572,7 +572,7 @@ const formHtml = `<form class="settingForm">
       
       <p class="option" data-no="33">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_下载之后收藏作品的提示',
+        '_下载之后收藏作品的提示'
       )}">
       ${lang.transl('_下载之后收藏作品')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
@@ -603,7 +603,7 @@ const formHtml = `<form class="settingForm">
 
       <p class="option" data-no="18">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_预览搜索结果说明',
+        '_预览搜索结果说明'
       )}">${lang.transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="previewResult" id="setPreviewResult" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
@@ -613,7 +613,7 @@ const formHtml = `<form class="settingForm">
       <span class="settingNameStyle1">${lang.transl('_日期格式')}</span>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
       <button type="button" class="gray1 textButton showDateTip">${lang.transl(
-        '_提示',
+        '_提示'
       )}</button>
       </p>
       <p class="dateFormatTip tip" style="display:none">
@@ -681,13 +681,13 @@ const formHtml = `<form class="settingForm">
       <p class="option" data-no="37">
       <span class="settingNameStyle1">${lang.transl('_管理设置')}</span>
       <button class="textButton gray1" type="button" id="exportSettings">${lang.transl(
-        '_导出设置',
+        '_导出设置'
       )}</button>
       <button class="textButton gray1" type="button" id="importSettings">${lang.transl(
-        '_导入设置',
+        '_导入设置'
       )}</button>
       <button class="textButton gray1" type="button" id="resetSettings">${lang.transl(
-        '_重置设置',
+        '_重置设置'
       )}</button>
       </p>
 

@@ -92,7 +92,7 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
     log.log(
       lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
       1,
-      false,
+      false
     )
 
     // 判断任务状态

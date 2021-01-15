@@ -27,7 +27,7 @@ class MakeEPUB {
           license: '',
         })
         .withAttributionUrl(
-          `https://www.pixiv.net/novel/show.php?id=${data.id}`,
+          `https://www.pixiv.net/novel/show.php?id=${data.id}`
         )
         .withCover(data.coverUrl, {
           license: '',
@@ -35,7 +35,7 @@ class MakeEPUB {
         })
         .withTitle(Tools.replaceUnsafeStr(data.title))
         .withSection(
-          new EpubMaker.Section('1', null, { content: content }, false, true),
+          new EpubMaker.Section('1', null, { content: content }, false, true)
         )
         .makeEpub()
         .then((blob: Blob) => {

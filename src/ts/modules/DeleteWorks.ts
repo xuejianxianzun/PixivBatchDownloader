@@ -75,7 +75,7 @@ class DeleteWorks {
       (ev) => {
         this.moveEvent(ev)
       },
-      true,
+      true
     )
   }
 
@@ -106,7 +106,7 @@ class DeleteWorks {
         this.clearMultiple()
         callback()
       },
-      false,
+      false
     )
   }
 
@@ -130,7 +130,7 @@ class DeleteWorks {
         this.ClearUgoira()
         callback()
       },
-      false,
+      false
     )
   }
 
@@ -141,7 +141,7 @@ class DeleteWorks {
       'crawlBtns',
       Colors.red,
       lang.transl('_手动删除作品'),
-      [['title', lang.transl('_手动删除作品Title')]],
+      [['title', lang.transl('_手动删除作品Title')]]
     )
 
     this.delBtn.addEventListener('click', () => {
@@ -193,7 +193,7 @@ class DeleteWorks {
   // 删除作品后，回调函数可以接收到被删除的元素
   private bindDeleteEvent() {
     const listElement: NodeListOf<HTMLDivElement> = document.querySelectorAll(
-      this.worksSelector,
+      this.worksSelector
     )
     listElement.forEach((el) => {
       el.onclick = (ev) => {
@@ -223,7 +223,7 @@ class DeleteWorks {
     log.success(
       lang.transl('_调整完毕', DOM.getVisibleEl(selector).length.toString()),
       2,
-      false,
+      false
     )
   }
 }

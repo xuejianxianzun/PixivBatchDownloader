@@ -164,7 +164,7 @@ class API {
     type: 'illusts' | 'novels' = 'illusts',
     tag: string,
     offset: number,
-    hide: boolean = false,
+    hide: boolean = false
   ): Promise<BookmarkData> {
     const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
       hide ? 'hide' : 'show'
@@ -179,7 +179,7 @@ class API {
     id: string,
     tags: string[],
     hide: boolean,
-    token: string,
+    token: string
   ) {
     const restrict: 1 | 0 = hide ? 1 : 0
 
@@ -219,7 +219,7 @@ class API {
     offset = 0,
     limit = 100,
     tag = '',
-    lang = 'zh',
+    lang = 'zh'
   ): Promise<FollowingResponse> {
     const url = `https://www.pixiv.net/ajax/user/${id}/following?offset=${offset}&limit=${limit}&rest=${rest}&tag=${tag}&lang=${lang}`
     return this.request(url)
@@ -230,7 +230,7 @@ class API {
     id: string,
     offset = 0,
     limit = 100,
-    lang = 'zh',
+    lang = 'zh'
   ): Promise<FollowingResponse> {
     const url = `https://www.pixiv.net/ajax/user/${id}/mypixiv?offset=${offset}&limit=${limit}&lang=${lang}`
     return this.request(url)
@@ -241,7 +241,7 @@ class API {
     id: string,
     offset = 0,
     limit = 100,
-    lang = 'zh',
+    lang = 'zh'
   ): Promise<FollowingResponse> {
     const url = `https://www.pixiv.net/ajax/user/${id}/followers?offset=${offset}&limit=${limit}&lang=${lang}`
     return this.request(url)
@@ -259,7 +259,7 @@ class API {
   // 返回作品的 id 列表，不包含详细信息
   static async getUserWorksByType(
     id: string,
-    type: userWorksType[] = ['illusts', 'manga', 'novels'],
+    type: userWorksType[] = ['illusts', 'manga', 'novels']
   ): Promise<IDData[]> {
     let typeSet = new Set(type)
     let result: IDData[] = []
@@ -287,7 +287,7 @@ class API {
     type: tagPageFlag,
     tag: string,
     offset: number = 0,
-    limit: number = 999999,
+    limit: number = 999999
   ): Promise<UserImageWorksWithTag | UserNovelsWithTag> {
     // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=9999999
     const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${limit}`
@@ -344,7 +344,7 @@ class API {
   // 需要传入作品 id 和要抓取的数量。但是实际获取到的数量会比指定的数量少一些
   static getRecommenderData(
     id: string,
-    number: number,
+    number: number
   ): Promise<RecommenderData> {
     const url = `/rpc/recommender.php?type=illust&sample_illusts=${id}&num_recommendations=${number}`
     return this.request(url)
@@ -355,11 +355,11 @@ class API {
     word: string,
     type: string = 'artworks',
     p: number = 1,
-    option: SearchOption = {},
+    option: SearchOption = {}
   ): Promise<SearchData> {
     // 基础的 url
     let url = `https://www.pixiv.net/ajax/search/${type}/${encodeURIComponent(
-      word,
+      word
     )}?word=${encodeURIComponent(word)}&p=${p}`
 
     // 把可选项添加到 url 里
@@ -377,11 +377,11 @@ class API {
   static getNovelSearchData(
     word: string,
     p: number = 1,
-    option: SearchOption = {},
+    option: SearchOption = {}
   ): Promise<NovelSearchData> {
     // 基础的 url
     let url = `https://www.pixiv.net/ajax/search/novels/${encodeURIComponent(
-      word,
+      word
     )}?word=${encodeURIComponent(word)}&p=${p}`
 
     // 把可选项添加到 url 里
@@ -411,7 +411,7 @@ class API {
   // 获取关注的的新作品的数据
   static getBookmarkNewIllustData(
     p = 1,
-    r18 = false,
+    r18 = false
   ): Promise<{
     lastPage: boolean
     data: BookMarkNewData[]
@@ -435,7 +435,7 @@ class API {
         .then((data) => {
           let listPageDocument = new DOMParser().parseFromString(
             data,
-            'text/html',
+            'text/html'
           )
 
           // 查找是否有下一页的按钮，如果没有说明是最后一页了，不再继续抓取下一页
@@ -445,7 +445,7 @@ class API {
           }
 
           let worksInfoText = (listPageDocument.querySelector(
-            '#js-mount-point-latest-following',
+            '#js-mount-point-latest-following'
           ) as HTMLDivElement).dataset.items!
 
           resolve({
@@ -462,7 +462,7 @@ class API {
   // 根据 illustType，返回作品类型的描述
   // 主要用于储存进 idList
   static getWorkType(
-    illustType: 0 | 1 | 2 | 3 | '0' | '1' | '2' | '3',
+    illustType: 0 | 1 | 2 | 3 | '0' | '1' | '2' | '3'
   ): 'illusts' | 'manga' | 'ugoira' | 'novels' | 'unknown' {
     switch (parseInt(illustType.toString())) {
       case 0:
@@ -497,7 +497,7 @@ class API {
     series_id: number | string,
     limit: number = 30,
     last_order: number,
-    order_by = 'asc',
+    order_by = 'asc'
   ): Promise<NovelSeriesData> {
     const url = `https://www.pixiv.net/ajax/novel/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`
     return this.request(url)
@@ -508,7 +508,7 @@ class API {
   // 恍惚记得有插画系列来着，但是没找到对应的网址，难道是记错了？
   static getSeriesData(
     series_id: number | string,
-    pageNo: number,
+    pageNo: number
   ): Promise<SeriesData> {
     const url = `https://www.pixiv.net/ajax/series/${series_id}?p=${pageNo}`
     return this.request(url)
@@ -518,7 +518,7 @@ class API {
   static async addLike(
     id: string,
     type: 'illusts' | 'novels',
-    token: string,
+    token: string
   ): Promise<LikeResponse> {
     let data = {}
     if (type === 'illusts') {

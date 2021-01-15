@@ -31,8 +31,8 @@ class ExportResult {
     DOM.downloadFile(
       url,
       `result-${Tools.replaceUnsafeStr(
-        DOM.getTitle(),
-      )}-${store.crawlCompleteTime.getTime()}.json`,
+        DOM.getTitle()
+      )}-${store.crawlCompleteTime.getTime()}.json`
     )
   }
 }

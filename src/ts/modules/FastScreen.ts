@@ -52,7 +52,7 @@ class FastScreen {
     theme.register(fastScreenArea)
     ;(target as HTMLDivElement).insertAdjacentElement(
       'afterend',
-      fastScreenArea,
+      fastScreenArea
     )
   }
 

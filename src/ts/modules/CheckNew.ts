@@ -16,7 +16,7 @@ class CheckNew {
     if (!lastTime || new Date().getTime() - parseInt(lastTime) > interval) {
       // 获取最新的 releases 信息
       const latest = await fetch(
-        'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest',
+        'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest'
       )
       const latestJson = await latest.json()
       const latestVer = latestJson.name

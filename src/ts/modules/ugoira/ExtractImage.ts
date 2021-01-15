@@ -26,7 +26,7 @@ class ExtractImage {
   // 解压 zip 文件，把里面的图片转换成 DataURL
   public async extractImageAsDataURL(
     zipFile: any,
-    ugoiraInfo: UgoiraInfo,
+    ugoiraInfo: UgoiraInfo
   ): Promise<string[]> {
     return new Promise(function (resolve, reject) {
       zip.createReader(
@@ -54,7 +54,7 @@ class ExtractImage {
                       resolve(imgFile)
                     }
                   }
-                },
+                }
               )
             })
           })
@@ -62,7 +62,7 @@ class ExtractImage {
         (message: any) => {
           EVT.fire(EVT.list.readZipError)
           reject(new Error('ReadZIP error: ' + message))
-        },
+        }
       )
     })
   }

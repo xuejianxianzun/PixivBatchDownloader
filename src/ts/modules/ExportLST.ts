@@ -20,7 +20,7 @@ class ExportLST {
           this.createLst()
         }
       },
-      false,
+      false
     )
   }
 

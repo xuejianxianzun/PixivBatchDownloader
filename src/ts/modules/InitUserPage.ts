@@ -43,7 +43,7 @@ class InitUserPage extends InitPageBase {
     DOM.addBtn(
       'otherBtns',
       Colors.green,
-      lang.transl('_保存用户头像'),
+      lang.transl('_保存用户头像')
     ).addEventListener('click', () => {
       EVT.fire(EVT.list.saveAvatarImage)
     })
@@ -51,7 +51,7 @@ class InitUserPage extends InitPageBase {
     DOM.addBtn(
       'otherBtns',
       Colors.green,
-      lang.transl('_保存用户封面'),
+      lang.transl('_保存用户封面')
     ).addEventListener('click', () => {
       EVT.fire(EVT.list.saveUserCover)
     })
@@ -66,7 +66,7 @@ class InitUserPage extends InitPageBase {
     const bookmarkAllBtn = DOM.addBtn(
       'otherBtns',
       Colors.green,
-      lang.transl('_收藏本页面的所有作品'),
+      lang.transl('_收藏本页面的所有作品')
     )
     this.bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
 
@@ -114,7 +114,7 @@ class InitUserPage extends InitPageBase {
   protected getWantPage() {
     this.crawlNumber = this.checkWantPageInput(
       lang.transl('_从本页开始下载x页'),
-      lang.transl('_下载所有页面'),
+      lang.transl('_下载所有页面')
     )
   }
 
@@ -254,7 +254,7 @@ class InitUserPage extends InitPageBase {
       flag,
       store.tag,
       offset,
-      requsetNumber,
+      requsetNumber
     )
 
     // 图片和小说返回的数据是不同的，小说并没有 illustType 标记
@@ -264,7 +264,7 @@ class InitUserPage extends InitPageBase {
         store.idList.push({
           type: 'novels',
           id: data.id,
-        }),
+        })
       )
     } else {
       const d = data as UserImageWorksWithTag
@@ -306,7 +306,7 @@ class InitUserPage extends InitPageBase {
 
     window.removeEventListener(
       EVT.list.getIdListFinished,
-      this.sendBookmarkIdList,
+      this.sendBookmarkIdList
     )
   }
 }

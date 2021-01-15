@@ -30,19 +30,19 @@ class DownloadControl {
     this.listenEvents()
 
     const skipTipWrap = this.wrapper.querySelector(
-      '.skip_tip',
+      '.skip_tip'
     ) as HTMLSpanElement
     new ShowSkipCount(skipTipWrap)
 
     const convertTipWrap = this.wrapper.querySelector(
-      '.convert_tip',
+      '.convert_tip'
     ) as HTMLSpanElement
     new ShowConvertCount(convertTipWrap)
 
     // 只在 p 站内启用下载后收藏的功能（因为要区分 pixivision）
     if (location.hostname.endsWith('.pixiv.net')) {
       const bmkAfterDLTipWrap = this.wrapper.querySelector(
-        '.bmkAfterDL_tip',
+        '.bmkAfterDL_tip'
       ) as HTMLSpanElement
       new BookmarkAfterDL(bmkAfterDLTipWrap)
     }
@@ -115,7 +115,7 @@ class DownloadControl {
       } else if (msg.msg === 'download_err') {
         // 浏览器把文件保存到本地时出错
         log.error(
-          `${msg.data.id} download error! code: ${msg.err}. The downloader will try to download the file again `,
+          `${msg.data.id} download error! code: ${msg.err}. The downloader will try to download the file again `
         )
         EVT.fire(EVT.list.saveFileError)
         // 重新下载这个文件
@@ -134,7 +134,7 @@ class DownloadControl {
     const html = `<div class="download_area">
     <p> ${lang.transl(
       '_共抓取到n个文件',
-      '<span class="fwb blue imgNum">0</span>',
+      '<span class="fwb blue imgNum">0</span>'
     )}</p>
     
     <div class="centerWrap_btns">
@@ -162,10 +162,10 @@ class DownloadControl {
 
     this.wrapper = DOM.useSlot('downloadArea', html) as HTMLDivElement
     this.statesEl = this.wrapper.querySelector(
-      '.down_status',
+      '.down_status'
     ) as HTMLSpanElement
     this.totalNumberEl = this.wrapper.querySelector(
-      '.imgNum',
+      '.imgNum'
     ) as HTMLSpanElement
 
     this.wrapper

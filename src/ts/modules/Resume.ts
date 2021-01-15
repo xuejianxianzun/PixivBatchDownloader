@@ -111,7 +111,7 @@ class Resume {
     const meta = (await this.IDB.get(
       this.metaName,
       this.getURL(),
-      'url',
+      'url'
     )) as TaskMeta | null
     if (!meta) {
       this.flag = false
@@ -145,7 +145,7 @@ class Resume {
     // 3 恢复下载状态
     const data = (await this.IDB.get(
       this.statesName,
-      this.taskId,
+      this.taskId
     )) as TaskStates
 
     if (data) {
@@ -172,7 +172,7 @@ class Resume {
         const taskData = (await this.IDB.get(
           this.metaName,
           this.getURL(),
-          'url',
+          'url'
         )) as TaskMeta | null
 
         if (taskData) {
@@ -227,7 +227,7 @@ class Resume {
         }
         const meta = (await this.IDB.get(
           this.metaName,
-          this.taskId,
+          this.taskId
         )) as TaskMeta
 
         if (!meta) {
@@ -294,7 +294,7 @@ class Resume {
         id: this.numAppendNum(this.taskId, this.part.length),
         data: store.result.slice(
           this.getPartTotal(),
-          this.getPartTotal() + tryNum,
+          this.getPartTotal() + tryNum
         ),
       }
 

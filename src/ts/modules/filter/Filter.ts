@@ -220,7 +220,7 @@ class Filter {
 
     if (settings.needTag.length > 0) {
       log.warning(
-        lang.transl('_设置了必须tag之后的提示') + settings.needTag.toString(),
+        lang.transl('_设置了必须tag之后的提示') + settings.needTag.toString()
       )
     }
   }
@@ -233,8 +233,7 @@ class Filter {
 
     if (settings.notNeedTag.length > 0) {
       log.warning(
-        lang.transl('_设置了排除tag之后的提示') +
-          settings.notNeedTag.toString(),
+        lang.transl('_设置了排除tag之后的提示') + settings.notNeedTag.toString()
       )
     }
   }
@@ -291,7 +290,7 @@ class Filter {
 
     if (result === 'square') {
       log.warning(
-        lang.transl('_设置了宽高比之后的提示', lang.transl('_正方形')),
+        lang.transl('_设置了宽高比之后的提示', lang.transl('_正方形'))
       )
     } else if (result === 'horizontal') {
       log.warning(lang.transl('_设置了宽高比之后的提示', lang.transl('_横图')))
@@ -352,7 +351,7 @@ class Filter {
 
     if (settings.blockList.length > 0) {
       log.warning(
-        lang.transl('_用户阻止名单') + ': ' + settings.blockList.toString(),
+        lang.transl('_用户阻止名单') + ': ' + settings.blockList.toString()
       )
     }
   }
@@ -376,7 +375,7 @@ class Filter {
   // 依据图片数量，检查下载的作品类型
   private checkPageCount(
     illustType: FilterOption['illustType'],
-    pageCount: FilterOption['pageCount'],
+    pageCount: FilterOption['pageCount']
   ) {
     if (illustType === undefined || pageCount === undefined) {
       return true
@@ -439,7 +438,7 @@ class Filter {
   // 检查收藏数要求
   private checkBMK(
     bmk: FilterOption['bookmarkCount'],
-    date: FilterOption['createDate'],
+    date: FilterOption['createDate']
   ) {
     if (bmk === undefined || !settings.BMKNumSwitch) {
       return true
@@ -554,7 +553,7 @@ class Filter {
   // 检查作品是否符合过滤宽高的条件
   private checkSetWh(
     width: FilterOption['width'],
-    height: FilterOption['height'],
+    height: FilterOption['height']
   ) {
     if (!settings.setWHSwitch) {
       return true
@@ -600,7 +599,7 @@ class Filter {
   // 检查作品是否符合宽高比条件
   private checkRatio(
     width: FilterOption['width'],
-    height: FilterOption['height'],
+    height: FilterOption['height']
   ) {
     if (!settings.ratioSwitch) {
       return true
@@ -703,7 +702,7 @@ class Filter {
 
   private checkBlockTagsForSpecificUser(
     userId: FilterOption['userId'],
-    tags: FilterOption['tags'],
+    tags: FilterOption['tags']
   ) {
     if (
       !settings.blockTagsForSpecificUser ||

@@ -121,7 +121,7 @@ class InitSearchArtworkPage extends InitPageBase {
     const bookmarkAllBtn = DOM.addBtn(
       'otherBtns',
       Colors.green,
-      lang.transl('_收藏本页面的所有作品'),
+      lang.transl('_收藏本页面的所有作品')
     )
     const bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
 
@@ -172,7 +172,7 @@ class InitSearchArtworkPage extends InitPageBase {
   protected getWantPage() {
     this.crawlNumber = this.checkWantPageInput(
       lang.transl('_从本页开始下载x页'),
-      lang.transl('_下载所有页面'),
+      lang.transl('_下载所有页面')
     )
 
     if (this.crawlNumber === -1 || this.crawlNumber > this.maxCount) {
@@ -258,7 +258,7 @@ class InitSearchArtworkPage extends InitPageBase {
       store.tag,
       this.worksType,
       p,
-      this.option,
+      this.option
     )
     return data.body.illust || data.body.illustManga || data.body.manga
   }
@@ -343,7 +343,7 @@ class InitSearchArtworkPage extends InitPageBase {
     log.log(
       lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
       1,
-      false,
+      false
     )
 
     if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
@@ -556,7 +556,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     // 绑定收藏按钮的事件
     const addBMKBtn = li!.querySelector(
-      `.${this.addBMKBtnClass}`,
+      `.${this.addBMKBtnClass}`
     ) as HTMLButtonElement
     const bookmarkedClass = this.bookmarkedClass
     addBMKBtn.addEventListener('click', function () {
@@ -583,9 +583,9 @@ class InitSearchArtworkPage extends InitPageBase {
   private removeWorks(idList: string[]) {
     // #root section ul .searchList
     const listSelector = `${this.worksWrapSelector} .${this.listClass}`
-    const lists = document.querySelectorAll(listSelector) as NodeListOf<
-      HTMLLIElement
-    >
+    const lists = document.querySelectorAll(
+      listSelector
+    ) as NodeListOf<HTMLLIElement>
     for (const li of lists) {
       if (li.dataset.id && idList.includes(li.dataset.id)) {
         li.style.display = 'none'
@@ -725,7 +725,7 @@ class InitSearchArtworkPage extends InitPageBase {
       data.id.toString(),
       settings.widthTag === 'yes' ? data.tags : [],
       settings.restrict === 'yes',
-      token.token,
+      token.token
     )
     this.resultMeta.forEach((result) => {
       if (result.idNum === data.id) {

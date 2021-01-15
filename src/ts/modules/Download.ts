@@ -66,7 +66,7 @@ class Download {
           id: arg.id,
           reason: 'duplicate',
         },
-        lang.transl('_跳过下载因为重复文件', arg.id),
+        lang.transl('_跳过下载因为重复文件', arg.id)
       )
     }
 
@@ -109,7 +109,7 @@ class Download {
               id: arg.id,
               reason: 'size',
             },
-            lang.transl('_不保存图片因为体积', arg.id),
+            lang.transl('_不保存图片因为体积', arg.id)
           )
         }
       }
@@ -217,7 +217,7 @@ class Download {
               id: arg.id,
               reason: 'color',
             },
-            lang.transl('_不保存图片因为颜色', arg.id),
+            lang.transl('_不保存图片因为颜色', arg.id)
           )
         }
       }
@@ -239,7 +239,7 @@ class Download {
               id: arg.id,
               reason: 'widthHeight',
             },
-            lang.transl('_不保存图片因为宽高', arg.id),
+            lang.transl('_不保存图片因为宽高', arg.id)
           )
         }
       }
@@ -257,7 +257,7 @@ class Download {
     blobUrl: string,
     fileName: string,
     id: string,
-    taskBatch: number,
+    taskBatch: number
   ) {
     // 如果任务已停止，不会向浏览器发送下载任务
     if (this.cancel) {

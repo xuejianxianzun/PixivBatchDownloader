@@ -23,7 +23,7 @@ class InitIndexPage extends InitPageBase {
       'crawlBtns',
       Colors.blue,
       lang.transl('_输入id进行抓取'),
-      [['id', 'down_id_button']],
+      [['id', 'down_id_button']]
     )
   }
 
@@ -33,14 +33,14 @@ class InitIndexPage extends InitPageBase {
     this.downIdInput.style.display = 'none'
     this.downIdInput.setAttribute(
       'placeholder',
-      lang.transl('_输入id进行抓取的提示文字'),
+      lang.transl('_输入id进行抓取的提示文字')
     )
     DOM.insertToHead<HTMLTextAreaElement>(this.downIdInput)
 
     DOM.addBtn(
       'otherBtns',
       Colors.green,
-      lang.transl('_清空已保存的抓取结果'),
+      lang.transl('_清空已保存的抓取结果')
     ).addEventListener('click', () => {
       EVT.fire(EVT.list.clearSavedCrawl)
     })
@@ -64,7 +64,7 @@ class InitIndexPage extends InitPageBase {
           this.readyCrawl()
         }
       },
-      false,
+      false
     )
 
     // 当输入框内容改变时检测，非空值时显示下载区域

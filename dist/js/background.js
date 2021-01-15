@@ -21,7 +21,7 @@
       module.exports,
       module,
       module.exports,
-      __webpack_require__,
+      __webpack_require__
     ) // Flag the module as loaded
     /******/
     /******/ /******/ module.l = true // Return the exports of the module
@@ -59,7 +59,7 @@
   /******/
   /******/ /******/ /******/ /******/ /******/ /******/ __webpack_require__.t = function (
     value,
-    mode,
+    mode
   ) {
     /******/ if (mode & 1) value = __webpack_require__(value)
     /******/ if (mode & 8) return value
@@ -83,7 +83,7 @@
           key,
           function (key) {
             return value[key]
-          }.bind(null, key),
+          }.bind(null, key)
         )
     /******/ return ns
     /******/
@@ -111,7 +111,7 @@
   /******/
   /******/
   /******/ /******/ return __webpack_require__(
-    (__webpack_require__.s = './src/ts/background.ts'),
+    (__webpack_require__.s = './src/ts/background.ts')
   )
   /******/
 })(
@@ -146,7 +146,7 @@
           {
             urls: ['*://*.pximg.net/*'],
           },
-          ['blocking', 'responseHeaders', 'extraHeaders'],
+          ['blocking', 'responseHeaders', 'extraHeaders']
         )
         // 修改 responseHeaders 结束
         // 当点击扩展图标时，切换显示/隐藏下载面板
@@ -192,7 +192,7 @@
                     tabId: tabId,
                     uuid: false,
                   }
-                },
+                }
               )
             }
           }
@@ -241,6 +241,6 @@
       },
 
     /******/
-  },
+  }
 )
 //# sourceMappingURL=background.js.map

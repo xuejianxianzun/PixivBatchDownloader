@@ -5,7 +5,7 @@ class IndexedDB {
   public async open(
     DBName: string,
     DBVer: number,
-    onUpgrade?: (db: IDBDatabase) => void,
+    onUpgrade?: (db: IDBDatabase) => void
   ) {
     return new Promise<IDBDatabase>((resolve, reject) => {
       const request = indexedDB.open(DBName, DBVer)
@@ -252,7 +252,7 @@ class IndexedDB {
 
   public async openCursor(
     storeNames: string,
-    CB: (c: IDBCursorWithValue | null) => void,
+    CB: (c: IDBCursorWithValue | null) => void
   ) {
     return new Promise((resolve, reject) => {
       if (this.db === undefined) {

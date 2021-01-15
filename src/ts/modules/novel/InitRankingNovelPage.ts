@@ -42,7 +42,7 @@ class InitRankingNovelPage extends InitPageBase {
     // 检查下载页数的设置
     this.crawlNumber = this.checkWantPageInput(
       lang.transl('_下载排行榜前x个作品'),
-      lang.transl('_向下获取所有作品'),
+      lang.transl('_向下获取所有作品')
     )
     // 如果设置的作品个数是 -1，则设置为下载所有作品
     if (this.crawlNumber === -1) {
@@ -85,7 +85,7 @@ class InitRankingNovelPage extends InitPageBase {
     this.listPageFinished++
 
     const rankingItem = dom.querySelectorAll(
-      '._ranking-items>div',
+      '._ranking-items>div'
     ) as NodeListOf<HTMLDivElement>
 
     // 检查每个作品的信息
@@ -104,9 +104,9 @@ class InitRankingNovelPage extends InitPageBase {
       let bmk: number = bmkEl ? parseInt(bmkEl.innerText) : 0
 
       const tags: string[] = []
-      const tagsA = item.querySelectorAll('.tags>li>a') as NodeListOf<
-        HTMLAnchorElement
-      >
+      const tagsA = item.querySelectorAll(
+        '.tags>li>a'
+      ) as NodeListOf<HTMLAnchorElement>
       for (const a of tagsA) {
         tags.push(a.innerText.trim())
       }
@@ -141,7 +141,7 @@ class InitRankingNovelPage extends InitPageBase {
     log.log(
       lang.transl('_排行榜进度', this.listPageFinished.toString()),
       1,
-      false,
+      false
     )
 
     // 抓取完毕

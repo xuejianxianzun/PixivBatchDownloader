@@ -423,7 +423,7 @@ export interface RecommendData {
           | ['illust_by_illust_table_mf_tda']
           | [
               'illust_by_illust_table_bq_recommendation_c',
-              'illust_by_illust_table_mf_tda',
+              'illust_by_illust_table_mf_tda'
             ]
         score: number
         seedIllustIds: string[]
@@ -472,7 +472,7 @@ export interface RankingData {
       attr: string
       is_bookmarked: boolean
       bookmarkable: boolean
-    },
+    }
   ]
   mode: string
   content: string
@@ -915,7 +915,7 @@ export interface SeriesData {
         coverImageSl: number
         firstIllustId: string
         updateDate: string
-      },
+      }
     ]
     novelSeries: []
     users: UserCommonData[]

@@ -91,7 +91,7 @@ class QuickBookmark {
 
       // 如果没有快速收藏元素则添加
       const testBtn = this.toolbar.querySelector(
-        '#' + this.btnId,
+        '#' + this.btnId
       ) as HTMLAnchorElement
       if (!testBtn) {
         this.btn = this.createBtn()
@@ -178,7 +178,7 @@ class QuickBookmark {
 
     // 将点赞按钮的颜色改为蓝色
     let likeBtn = document.querySelector(
-      `.${this.likeBtnClass}`,
+      `.${this.likeBtnClass}`
     ) as HTMLButtonElement
     if (!likeBtn) {
       // 上面尝试直接用 class 获取点赞按钮，如果获取不到则从工具栏里选择
@@ -246,7 +246,7 @@ class QuickBookmark {
       (ev) => {
         ev.stopPropagation()
       },
-      true,
+      true
     )
   }
 }

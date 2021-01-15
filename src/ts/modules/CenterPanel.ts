@@ -27,28 +27,28 @@ class CenterPanel {
       Powerful Pixiv Downloader
       <div class="btns">
       <a class="has_tip centerWrap_top_btn update" data-tip="${lang.transl(
-        '_newver',
+        '_newver'
       )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-Update"></use>
         </svg>
       </a>
       <a class="has_tip centerWrap_top_btn github_icon" data-tip="${lang.transl(
-        '_github',
+        '_github'
       )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-github"></use>
       </svg>
       </a>
       <a class="has_tip centerWrap_top_btn wiki_url" data-tip="${lang.transl(
-        '_wiki',
+        '_wiki'
       )}" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
         <div class="has_tip centerWrap_top_btn centerWrap_close" data-tip="${lang.transl(
-          '_快捷键切换显示隐藏',
+          '_快捷键切换显示隐藏'
         )}">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
@@ -64,13 +64,13 @@ class CenterPanel {
 
       <div class="gray1 bottom_help_bar"> 
       <button class="textButton gray1 showDownTip" type="button">${lang.transl(
-        '_常见问题',
+        '_常见问题'
       )}</button>
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank"> ${lang.transl(
-        '_wiki',
+        '_wiki'
       )}</a>
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${lang.transl(
-        '_fanboxDownloader',
+        '_fanboxDownloader'
       )}</a>
       <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">在“爱发电”支持我</a>
       <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
@@ -86,7 +86,7 @@ class CenterPanel {
     this.centerPanel = document.querySelector('.centerWrap') as HTMLDivElement
 
     this.updateLink = this.centerPanel.querySelector(
-      '.update',
+      '.update'
     )! as HTMLAnchorElement
 
     const donateId = lang.flag === 'zh-cn' ? 'zanzhu' : 'patreon'
@@ -109,7 +109,7 @@ class CenterPanel {
           this.toggle()
         }
       },
-      false,
+      false
     )
 
     // 关闭按钮
@@ -152,8 +152,8 @@ class CenterPanel {
       .querySelector('.showDownTip')!
       .addEventListener('click', () =>
         DOM.toggleEl(
-          this.centerPanel.querySelector('.downTip')! as HTMLDivElement,
-        ),
+          this.centerPanel.querySelector('.downTip')! as HTMLDivElement
+        )
       )
 
     this.centerPanel.addEventListener('click', (e) => {

@@ -15,11 +15,11 @@ class Form {
     theme.register(this.form)
 
     this.allCheckBox = this.form.querySelectorAll(
-      'input[type="checkbox"]',
+      'input[type="checkbox"]'
     ) as NodeListOf<HTMLInputElement>
 
     this.allRadio = this.form.querySelectorAll(
-      'input[type="radio"]',
+      'input[type="radio"]'
     ) as NodeListOf<HTMLInputElement>
 
     this.allSwitch = this.form.querySelectorAll('.checkbox_switch')
@@ -132,39 +132,39 @@ class Form {
     DOM.addBtn(
       'namingBtns',
       Colors.green,
-      lang.transl('_预览文件名'),
+      lang.transl('_预览文件名')
     ).addEventListener(
       'click',
       () => {
         EVT.fire(EVT.list.previewFileName)
       },
-      false,
+      false
     )
 
     // 导出 csv
     DOM.addBtn(
       'namingBtns',
       Colors.green,
-      lang.transl('_导出csv'),
+      lang.transl('_导出csv')
     ).addEventListener(
       'click',
       () => {
         EVT.fire(EVT.list.outputCSV)
       },
-      false,
+      false
     )
 
     // 导出抓取结果
     DOM.addBtn(
       'namingBtns',
       Colors.green,
-      lang.transl('_导出抓取结果'),
+      lang.transl('_导出抓取结果')
     ).addEventListener(
       'click',
       () => {
         EVT.fire(EVT.list.outputResult)
       },
-      false,
+      false
     )
 
     // 重置设置按钮
@@ -204,19 +204,19 @@ class Form {
     this.form
       .querySelector('.showFileNameTip')!
       .addEventListener('click', () =>
-        DOM.toggleEl(document.querySelector('.fileNameTip')! as HTMLElement),
+        DOM.toggleEl(document.querySelector('.fileNameTip')! as HTMLElement)
       )
 
     // 显示日期格式提示
     this.form
       .querySelector('.showDateTip')!
       .addEventListener('click', () =>
-        DOM.toggleEl(document.querySelector('.dateFormatTip')! as HTMLElement),
+        DOM.toggleEl(document.querySelector('.dateFormatTip')! as HTMLElement)
       )
 
     // 输入框获得焦点时自动选择文本（文件名输入框例外）
     const centerInputs: NodeListOf<HTMLInputElement> = this.form.querySelectorAll(
-      'input[type=text]',
+      'input[type=text]'
     )
     for (const el of centerInputs) {
       if (el.name !== 'userSetName') {
@@ -300,7 +300,7 @@ class Form {
   private resetSubOptionDisplay() {
     for (const _switch of this.allSwitch) {
       const subOption = this.form.querySelector(
-        `.subOptionWrap[data-show="${_switch.name}"]`,
+        `.subOptionWrap[data-show="${_switch.name}"]`
       ) as HTMLSpanElement
       if (subOption) {
         subOption.style.display = _switch.checked ? 'inline' : 'none'

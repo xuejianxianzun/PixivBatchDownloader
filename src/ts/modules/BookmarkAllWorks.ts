@@ -37,7 +37,7 @@ class BookmarkAllWorks {
   // 如果传递的作品不是本页面上的，为防止误判，需要显式传递 type
   public sendWorkList(
     list: NodeListOf<HTMLElement> | HTMLElement[],
-    type?: WorkType,
+    type?: WorkType
   ) {
     this.reset()
 
@@ -140,7 +140,7 @@ class BookmarkAllWorks {
           data.id,
           settings.widthTag === 'yes' ? data.tags : [],
           settings.restrict === 'yes',
-          token.token,
+          token.token
         )
         index++
       }
