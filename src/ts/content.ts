@@ -19,6 +19,7 @@
 
 import './modules/setting/Settings'
 import './modules/PageType'
+import './modules/QuickDownload'
 import './modules/DownloadButton'
 import './modules/CenterPanel'
 import './modules/setting/FormSettings'

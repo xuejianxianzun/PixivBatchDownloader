@@ -8,10 +8,7 @@ import { QuickBookmark } from '../QuickBookmark'
 import { userWorksType } from '../CrawlArgument'
 import { DOM } from '../DOM'
 import { API } from '../API'
-import { log } from '../Log'
 import { EVT } from '../EVT'
-import { states } from '../States'
-import { QuickDownloadBtn } from '../QuickDownloadBtn'
 import { Tools } from '../Tools'
 
 class InitNovelPage extends InitPageBase {
@@ -19,8 +16,6 @@ class InitNovelPage extends InitPageBase {
     super()
     this.init()
   }
-
-  private quickDownBtn: HTMLButtonElement = document.createElement('button')
 
   private crawlDirection: number = 0 // 抓取方向，指示抓取新作品还是旧作品
   /*
@@ -36,10 +31,6 @@ class InitNovelPage extends InitPageBase {
       EVT.list.pageSwitchedTypeNotChange,
       this.initQuickBookmark
     )
-
-    // 初始化快速下载按钮
-    new QuickDownloadBtn()
-    window.addEventListener(EVT.list.QuickDownload, this.startQuickDownload)
   }
 
   private initQuickBookmark() {
@@ -66,10 +57,6 @@ class InitNovelPage extends InitPageBase {
     })
   }
 
-  private startQuickDownload = () => {
-    this.readyCrawl()
-  }
-
   protected setFormOption() {
     // 个数/页数选项的提示
     options.setWantPageTip({
@@ -86,49 +73,22 @@ class InitNovelPage extends InitPageBase {
     DOM.clearSlot('crawlBtns')
     DOM.clearSlot('otherBtns')
 
-    // 删除快速下载按钮
-    DOM.removeEl(this.quickDownBtn)
-
     window.removeEventListener(
       EVT.list.pageSwitchedTypeNotChange,
       this.initQuickBookmark
     )
-
-    window.removeEventListener(EVT.list.QuickDownload, this.startQuickDownload)
   }
 
   protected getWantPage() {
-    if (states.quickDownload) {
-      // 快速下载
-      this.crawlNumber = 1
-    } else {
-      // 检查下载页数的设置
-      const crawlAllTip =
-        this.crawlDirection === -1
-          ? lang.transl('_从本页开始抓取new')
-          : lang.transl('_从本页开始抓取old')
-      this.crawlNumber = this.checkWantPageInput(
-        lang.transl('_从本页开始下载x个'),
-        crawlAllTip
-      )
-    }
-  }
-
-  protected nextStep() {
-    if (states.quickDownload) {
-      // 快速下载
-      store.idList.push({
-        type: 'novels',
-        id: API.getNovelId(window.location.href),
-      })
-
-      log.log(lang.transl('_开始获取作品页面'))
-
-      this.getIdListFinished()
-    } else {
-      // 向前向后下载
-      this.getIdList()
-    }
+    // 检查下载页数的设置
+    const crawlAllTip =
+      this.crawlDirection === -1
+        ? lang.transl('_从本页开始抓取new')
+        : lang.transl('_从本页开始抓取old')
+    this.crawlNumber = this.checkWantPageInput(
+      lang.transl('_从本页开始下载x个'),
+      crawlAllTip
+    )
   }
 
   protected async getIdList() {

@@ -11,8 +11,6 @@ import { userWorksType } from '../CrawlArgument'
 import { DOM } from '../DOM'
 import { API } from '../API'
 import { log } from '../Log'
-import { QuickDownloadBtn } from '../QuickDownloadBtn'
-import { states } from '../States'
 import { Tools } from '../Tools'
 
 class InitArtworkPage extends InitPageBase {
@@ -44,10 +42,6 @@ class InitArtworkPage extends InitPageBase {
       EVT.list.pageSwitchedTypeNotChange,
       this.initImgViewer
     )
-
-    // 初始化快速下载按钮
-    new QuickDownloadBtn()
-    window.addEventListener(EVT.list.QuickDownload, this.startQuickDownload)
   }
 
   private initImgViewer() {
@@ -92,10 +86,6 @@ class InitArtworkPage extends InitPageBase {
     )
   }
 
-  private startQuickDownload = () => {
-    this.readyCrawl()
-  }
-
   protected setFormOption() {
     // 个数/页数选项的提示
     options.setWantPageTip({
@@ -122,32 +112,25 @@ class InitArtworkPage extends InitPageBase {
       EVT.list.pageSwitchedTypeNotChange,
       this.initImgViewer
     )
-
-    window.removeEventListener(EVT.list.QuickDownload, this.startQuickDownload)
   }
 
   protected getWantPage() {
-    if (states.quickDownload) {
-      // 快速下载
-      this.crawlNumber = 1
+    // 检查下载页数的设置
+    if (!this.crawlRelated) {
+      const crawlAllTip =
+        this.crawlDirection === -1
+          ? lang.transl('_从本页开始抓取new')
+          : lang.transl('_从本页开始抓取old')
+      this.crawlNumber = this.checkWantPageInput(
+        lang.transl('_从本页开始下载x个'),
+        crawlAllTip
+      )
     } else {
-      // 检查下载页数的设置
-      if (!this.crawlRelated) {
-        const crawlAllTip =
-          this.crawlDirection === -1
-            ? lang.transl('_从本页开始抓取new')
-            : lang.transl('_从本页开始抓取old')
-        this.crawlNumber = this.checkWantPageInput(
-          lang.transl('_从本页开始下载x个'),
-          crawlAllTip
-        )
-      } else {
-        // 相关作品的提示
-        this.crawlNumber = this.checkWantPageInput(
-          lang.transl('_下载x个相关作品'),
-          lang.transl('_下载所有相关作品')
-        )
-      }
+      // 相关作品的提示
+      this.crawlNumber = this.checkWantPageInput(
+        lang.transl('_下载x个相关作品'),
+        lang.transl('_下载所有相关作品')
+      )
     }
   }
 
@@ -155,16 +138,6 @@ class InitArtworkPage extends InitPageBase {
     // 下载相关作品
     if (this.crawlRelated) {
       this.getRelatedList()
-    } else if (states.quickDownload) {
-      // 快速下载
-      store.idList.push({
-        type: 'unknown',
-        id: API.getIllustId(window.location.href),
-      })
-
-      log.log(lang.transl('_开始获取作品页面'))
-
-      this.getIdListFinished()
     } else {
       // 向前向后下载
       this.getIdList()

@@ -1,19 +1,24 @@
+import { API } from './API'
 import { EVT } from './EVT'
 import { lang } from './Lang'
+import { pageType } from './PageType'
 import { states } from './States'
+import { IDData } from './Store.d'
 
-// 快速下载按钮
-// 只负责触发快速下载事件，不负责后续的业务逻辑
-// 当在无刷新切换的页面里使用快速下载时（监听了 QuickDownload 事件），记得在切换页面时解除事件监听，避免造成重复监听
-class QuickDownloadBtn {
+// 快速下载
+class QuickDownload {
   constructor() {
     this.addBtn()
+    this.toggle()
     this.bindEvents()
   }
 
   private btn!: HTMLButtonElement
 
-  private live = true // 存活状态
+  private show = true // 是否显示
+
+  // 指定在哪些页面类型里启用
+  private readonly enablePageType = [1, 13]
 
   private addBtn() {
     // 在右侧添加快速下载按钮
@@ -29,8 +34,7 @@ class QuickDownloadBtn {
     this.btn.addEventListener(
       'click',
       () => {
-        states.quickDownload = true
-        EVT.fire(EVT.list.QuickDownload)
+        this.sendDownload()
       },
       false
     )
@@ -39,9 +43,8 @@ class QuickDownloadBtn {
     window.addEventListener(
       'keydown',
       (ev) => {
-        if (this.live && ev.altKey && ev.code === 'KeyQ') {
-          states.quickDownload = true
-          EVT.fire(EVT.list.QuickDownload)
+        if (this.show && ev.altKey && ev.code === 'KeyQ') {
+          this.sendDownload()
         }
       },
       false
@@ -61,20 +64,31 @@ class QuickDownloadBtn {
       })
     }
 
-    // 页面类型改变时销毁
-    window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
-      this.destroy()
+    // 页面类型改变时设置按钮的显示隐藏
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      this.toggle()
     })
   }
 
-  private destroy() {
-    this.live = false
+  private sendDownload() {
+    states.quickDownload = true
+    EVT.fire(EVT.list.QuickDownload)
 
-    const parent = this.btn.parentNode
-    if (parent) {
-      parent.removeChild(this.btn)
-    }
+    const isNovel = window.location.href.includes('/novel')
+
+    const idList: IDData[] = [{
+      type: isNovel ? 'novels' : 'unknown',
+      id: API.getIllustId(window.location.href),
+    }]
+
+    EVT.fire(EVT.list.downloadIdList, idList)
+  }
+
+  private toggle() {
+    this.show = this.enablePageType.includes(pageType.type)
+    this.btn.style.display = this.show ? 'block' : 'none'
   }
 }
 
-export { QuickDownloadBtn }
+const quickDownload = new QuickDownload()
+export { quickDownload }
