@@ -1,5 +1,20 @@
 import { Msg } from './MsgBox'
 
+const bindOnceFlagList: string[] = []
+
+// 只绑定某个事件一次，用于防止事件重复绑定
+// 通过 flag 确认是否是同一个事件
+// 可以执行多次，不会自动解绑
+function bindOnce(flag: string, targetEvt: string, evtFun: Function) {
+  const query = bindOnceFlagList.includes(flag)
+  if (!query) {
+    bindOnceFlagList.push(flag)
+    window.addEventListener(targetEvt, function (ev) {
+      evtFun(ev)
+    })
+  }
+}
+
 // 触发自定义事件
 class EVT {
   static readonly list = {
@@ -126,6 +141,8 @@ class EVT {
   static sendMsg(data: Msg) {
     this.fire(this.list.showMsg, data)
   }
+
+  static bindOnce = bindOnce
 }
 
 export { EVT }

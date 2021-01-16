@@ -30,8 +30,6 @@ class States {
   // 开始批量收藏时设为 true，收藏完成之后复位到 false
   public bookmarkMode = false
 
-  public addEvented = false // 因为页面无刷新切换，可能导致重复添加事件，所以使用这个标记避免重复添加
-
   private bindEvents() {
     const idle = [
       EVT.list.crawlFinish,

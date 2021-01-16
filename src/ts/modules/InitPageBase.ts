@@ -43,10 +43,20 @@ abstract class InitPageBase {
     // 注册当前页面的 destroy 函数
     destroyManager.register(this.destroy.bind(this))
 
-    if (!states.addEvented) {
-      this.bindCommonEvent()
-      states.addEvented = true
-    }
+    // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
+    EVT.bindOnce('clearLogAfterPageSwitch', EVT.list.pageSwitch, () => {
+      if (!states.busy) {
+        EVT.fire(EVT.list.clearLog)
+      }
+    })
+
+    // 监听下载 id 列表的事件
+    EVT.bindOnce('downloadIdList', EVT.list.downloadIdList, (ev: CustomEventInit) => {
+      const idList = ev.detail.data as IDData[]
+      if (idList) {
+        this.downloadIdList(idList)
+      }
+    })
   }
 
   // 设置表单里的选项。主要是设置页数，隐藏不需要的选项。
@@ -69,37 +79,17 @@ abstract class InitPageBase {
   }
 
   // 添加其他任意元素（如果有）
-  protected addAnyElement(): void {}
+  protected addAnyElement(): void { }
 
   // 初始化任意内容
   // 如果有一些代码不能归纳到 init 方法的前面几个方法里，那就放在这里
   // 通常用来初始化特有的组件、功能、事件、状态等
-  protected initAny() {}
+  protected initAny() { }
 
   // 销毁初始化页面时添加的元素和事件，恢复设置项等
   protected destroy(): void {
-    window.removeEventListener(EVT.list.pageSwitchedTypeChange, this.destroy)
-
     DOM.clearSlot('crawlBtns')
     DOM.clearSlot('otherBtns')
-  }
-
-  // commonEvent 是全局的，只应该绑定一次
-  protected bindCommonEvent() {
-    // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
-    window.addEventListener(EVT.list.pageSwitch, () => {
-      if (!states.busy) {
-        EVT.fire(EVT.list.clearLog)
-      }
-    })
-
-    // 直接下载已有 id 列表
-    window.addEventListener(EVT.list.downloadIdList, (ev: CustomEventInit) => {
-      const idList = ev.detail.data as IDData[]
-      if (idList) {
-        this.downloadIdList(idList)
-      }
-    })
   }
 
   // 作品个数/页数的输入不合法
@@ -153,7 +143,7 @@ abstract class InitPageBase {
   }
 
   // 设置要获取的作品数或页数。有些页面使用，有些页面不使用。使用时再具体定义
-  protected getWantPage() {}
+  protected getWantPage() { }
 
   // 获取多图作品设置。因为这个不属于过滤器 filter，所以在这里直接获取
   protected getMultipleSetting() {
@@ -227,7 +217,7 @@ abstract class InitPageBase {
   }
 
   // 获取 id 列表，由各个子类具体定义
-  protected abstract getIdList(): void
+  protected getIdList() { }
 
   // id 列表获取完毕，开始抓取作品内容页
   protected getIdListFinished() {
@@ -345,7 +335,7 @@ abstract class InitPageBase {
   }
 
   // 重设抓取作品列表时使用的变量或标记
-  protected abstract resetGetIdListStatus(): void
+  protected resetGetIdListStatus() { }
 
   // 网络请求状态异常时输出提示
   private logErrorStatus(status: number, id: string) {
@@ -399,7 +389,7 @@ abstract class InitPageBase {
   }
 
   // 抓取完成后，对结果进行排序
-  protected sortResult() {}
+  protected sortResult() { }
 }
 
 export { InitPageBase }

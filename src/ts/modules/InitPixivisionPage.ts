@@ -79,9 +79,7 @@ class InitPixivisionPage extends InitPageBase {
     this.getPixivision()
   }
 
-  protected getIdList() {}
 
-  protected resetGetIdListStatus() {}
 
   // 保存要下载的图片的信息
   private addResult(id: string, url: string, ext: string) {

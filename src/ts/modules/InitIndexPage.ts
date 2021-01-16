@@ -4,9 +4,8 @@ import { Colors } from './Colors'
 import { lang } from './Lang'
 import { options } from './setting/Options'
 import { DOM } from './DOM'
-import { store } from './Store'
-import { log } from './Log'
 import { EVT } from './EVT'
+import { IDData } from './Store.d'
 
 class InitIndexPage extends InitPageBase {
   constructor() {
@@ -61,7 +60,7 @@ class InitIndexPage extends InitPageBase {
           this.downIdInput.focus()
           document.documentElement.scrollTop = 0
         } else {
-          this.readyCrawl()
+          this.checkIdList()
         }
       },
       false
@@ -83,37 +82,33 @@ class InitIndexPage extends InitPageBase {
     })
   }
 
-  protected getWantPage() {}
-
-  protected getIdList() {
+  protected checkIdList() {
     // 检查页面类型，设置输入的 id 的作品类型
     const type = window.location.pathname === '/novel/' ? 'novels' : 'unknown'
 
-    // 检测 id 是否合法
+    // 把合法的 id 添加到 Set 结构里去重
     const array = this.downIdInput.value.split('\n')
     const idSet: Set<number> = new Set()
     for (const str of array) {
       const id = parseInt(str)
-      if (isNaN(id) || id < 22 || id > 99999999) {
-        // 对不符合要求的 id 显示提示。如果 id 是空字符串则不显示提示
-        str !== '' && log.error(lang.transl('_id不合法') + ': ' + str)
+      if (isNaN(id) || id < 22 || id > 999999999) {
+        console.log(lang.transl('_id不合法') + ': ' + str)
       } else {
         idSet.add(id)
       }
     }
 
     // 添加 id
+    const idList: IDData[] = []
     for (const id of idSet.values()) {
-      store.idList.push({
+      idList.push({
         type: type,
         id: id.toString(),
       })
     }
 
-    this.getIdListFinished()
+    EVT.fire(EVT.list.downloadIdList, idList)
   }
-
-  protected resetGetIdListStatus() {}
 
   protected destroy() {
     DOM.clearSlot('crawlBtns')

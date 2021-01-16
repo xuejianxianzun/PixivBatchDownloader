@@ -9,7 +9,7 @@ import { IDData } from './Store.d'
 class QuickDownload {
   constructor() {
     this.addBtn()
-    this.toggle()
+    this.setVisible()
     this.bindEvents()
   }
 
@@ -66,7 +66,7 @@ class QuickDownload {
 
     // 页面类型改变时设置按钮的显示隐藏
     window.addEventListener(EVT.list.pageSwitch, () => {
-      this.toggle()
+      this.setVisible()
     })
   }
 
@@ -86,7 +86,7 @@ class QuickDownload {
     EVT.fire(EVT.list.downloadIdList, idList)
   }
 
-  private toggle() {
+  private setVisible() {
     this.show = this.enablePageType.includes(pageType.type)
     this.btn.style.display = this.show ? 'block' : 'none'
   }
