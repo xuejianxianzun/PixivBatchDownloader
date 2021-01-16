@@ -256,7 +256,9 @@ const formHtml = `<form class="settingForm">
         <option value="{tags_transl_only}">{tags_transl_only}</option>
         <option value="{p_tag}">{p_tag}</option>
         <option value="{type}">{type}</option>
+        <option value="{like}">{like}</option>
         <option value="{bmk}">{bmk}</option>
+        <option value="{view}">{view}</option>
         <option value="{rank}">{rank}</option>
         <option value="{date}">{date}</option>
         <option value="{task_date}">{task_date}</option>
@@ -307,8 +309,14 @@ const formHtml = `<form class="settingForm">
       <span class="blue">{type}</span>
       ${lang.transl('_命名标记type')}
       <br>
+      <span class="blue">{like}</span>
+      ${lang.transl('_命名标记like')}
+      <br>
       <span class="blue">{bmk}</span>
       ${lang.transl('_命名标记bmk')}
+      <br>
+      <span class="blue">{view}</span>
+      ${lang.transl('_命名标记view')}
       <br>
       <span class="blue">{rank}</span>
       ${lang.transl('_命名标记rank')}

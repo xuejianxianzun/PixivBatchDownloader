@@ -24,7 +24,6 @@ class DestroyManager {
   public register(fun: Function) {
     this.list.set(pageType.type, fun)
   }
-
 }
 
 const destroyManager = new DestroyManager()

@@ -98,6 +98,16 @@ class FileName {
         prefix: 'bmk_',
         safe: true,
       },
+      '{like}': {
+        value: data.likeCount,
+        prefix: 'like_',
+        safe: true,
+      },
+      '{view}': {
+        value: data.viewCount,
+        prefix: 'view_',
+        safe: true,
+      },
       '{date}': {
         value: DateFormat.format(data.date, settings.dateFormat),
         prefix: '',
@@ -144,9 +154,13 @@ class FileName {
           key === '{id}' && (val.value = cfg['{id_num}'].value)
         }
 
-        let once = String(val.value)
+        // 如果作品数据里没有这个值，则替换为空字符串
+        const value = val.value === undefined ? '' : val.value
 
-        // 处理标记值中的特殊字符
+        // 如果这个值不是字符串则转换为字符串
+        let once = typeof value !== 'string' ? value.toString() : value
+
+        // 替换标记值中的特殊字符
         if (!val.safe) {
           once = Tools.replaceUnsafeStr(once)
         }

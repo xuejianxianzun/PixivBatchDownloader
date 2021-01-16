@@ -547,10 +547,22 @@ const langText = {
   _用户id: ['用户 ID', '使用者 ID', 'User ID', 'ユーザー ID'],
   _命名标记px: ['宽度和高度', '寬度和高度', 'Width and height', '幅と高さ'],
   _命名标记bmk: [
-    'bookmark-count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
-    'bookmark-count，作品的收藏數。將它放在最前面可以讓檔案依收藏數排序。',
-    'bookmark-count, bookmarks number of works.',
-    'bookmark-count，作品のボックマークの数、前に追加することでボックマーク数で并べることができます。',
+    'Bookmark count，作品的收藏数。把它放在最前面可以让文件按收藏数排序。',
+    'Bookmark count，作品的收藏數。將它放在最前面可以讓檔案依收藏數排序。',
+    'Bookmark count, bookmarks number of works.',
+    'Bookmark count，作品のボックマークの数、前に追加することでボックマーク数で并べることができます。',
+  ],
+  _命名标记like: [
+    'Like count，作品的点赞数。',
+    'Like count，作品的點讚數。',
+    'Like count.',
+    'Like count。',
+  ],
+  _命名标记view: [
+    'View count，作品的浏览量。',
+    'View count，作品的瀏覽量。',
+    'View count.',
+    'View count。',
   ],
   _命名标记id_num: [
     '数字 id，如 44920385',

@@ -76,10 +76,12 @@ class QuickDownload {
 
     const isNovel = window.location.href.includes('/novel')
 
-    const idList: IDData[] = [{
-      type: isNovel ? 'novels' : 'unknown',
-      id: API.getIllustId(window.location.href),
-    }]
+    const idList: IDData[] = [
+      {
+        type: isNovel ? 'novels' : 'unknown',
+        id: API.getIllustId(window.location.href),
+      },
+    ]
 
     EVT.fire(EVT.list.downloadIdList, idList)
   }
