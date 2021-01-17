@@ -1,0 +1,27 @@
+@import './var.less';
+
+#ViewBigImageBtn{
+  position: absolute;
+  // 如果使用 fixed，将导致页面滚动时按钮停留在原地，这是不好的体验
+  z-index: 99999;
+  display: none;
+  left: 0px;
+  top: 0px;
+  width: 32px;
+  height: 32px;
+  border:none;
+  padding:0;
+  text-align: center;
+  background-color: @themeBlue;
+  border-radius: 4px;
+  color:#fff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  font-size:22px;
+  &:hover{
+    opacity: .8;
+  }
+}
