@@ -49,7 +49,8 @@ class InitArtworkPage extends InitPageBase {
       showImageList: true,
       imageListId: 'viewerWarpper',
       insertTarget: 'main figcaption',
-      insertPostion: 'beforebegin'
+      insertPostion: 'beforebegin',
+      showDownloadBtn: true,
     })
   }
 

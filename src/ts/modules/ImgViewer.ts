@@ -1,6 +1,8 @@
 // 图片查看器
 /// <reference path = "./Viewer.d.ts" />
 import { API } from './API'
+import { EVT } from './EVT'
+import { lang } from './Lang'
 import { theme } from './Theme'
 
 // 所有参数
@@ -78,6 +80,7 @@ class ImgViewer {
   }
 
   private readonly viewerWarpperFlag = 'viewerWarpperFlag'
+  private readonly downloadBtnClass = 'viewer-download-btn'
 
   private init() {
     // 当创建新的查看器实例时，删除旧的查看器元素。其实不删除也没有问题，但是查看器每初始化一次都会创建全新的对象，所以旧的对象没必要保留。
@@ -190,6 +193,10 @@ class ImgViewer {
   private async configureViewer(pageCount: number, firstBigImgURL: string) {
     // 图片查看器显示之后
     this.viewerUl.addEventListener('shown', () => {
+      if (this.cfg.showDownloadBtn) {
+        this.addDownloadBtn()
+      }
+
       // 显示相关元素
       this.showViewerOther()
 
@@ -300,6 +307,37 @@ class ImgViewer {
     }
   }
 
+  // 在图片查看器里添加下载按钮
+  private addDownloadBtn() {
+    // 最后的查看器元素就是最新添加的查看器
+    const allContainer = document.querySelectorAll('.viewer-container')
+    const last = allContainer[allContainer.length - 1]
+
+    const test = last.querySelector('.' + this.downloadBtnClass)
+    if (test) {
+      return
+    }
+
+    const one2one = last.querySelector('.viewer-one-to-one')
+    if (one2one) {
+      const li = document.createElement('li')
+      li.setAttribute('role', 'button')
+      li.setAttribute('title', lang.transl('_下载'))
+      li.classList.add(this.downloadBtnClass)
+      li.textContent = '↓'
+      const btn = one2one.insertAdjacentElement('afterend', li)!
+      // 点击下载按钮时，发送要下载的作品 id
+      btn.addEventListener('click', () => {
+        EVT.fire(EVT.list.downloadIdList, [
+          {
+            id: this.cfg.workId,
+            type: 'unknown'
+          }
+        ])
+      })
+    }
+  }
+
   // 隐藏查看器的其他元素
   private hideViewerOther() {
     document
@@ -311,8 +349,11 @@ class ImgViewer {
       '.viewer-one-to-one'
     ) as HTMLDivElement
     const navbar = document.querySelector('.viewer-navbar') as HTMLDivElement
-    for (const element of [close, oneToOne, navbar]) {
-      element.style.display = 'none'
+    const downloadBtn = document.querySelector('.' + this.downloadBtnClass) as HTMLLIElement
+    for (const element of [close, oneToOne, navbar, downloadBtn]) {
+      if (element) {
+        element.style.display = 'none'
+      }
     }
   }
 
@@ -327,8 +368,11 @@ class ImgViewer {
       '.viewer-one-to-one'
     ) as HTMLDivElement
     const navbar = document.querySelector('.viewer-navbar') as HTMLDivElement
-    for (const element of [close, oneToOne, navbar]) {
-      element.style.display = 'block'
+    const downloadBtn = document.querySelector('.' + this.downloadBtnClass) as HTMLLIElement
+    for (const element of [close, oneToOne, navbar, downloadBtn]) {
+      if (element) {
+        element.style.display = 'block'
+      }
     }
   }
 

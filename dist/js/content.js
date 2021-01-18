@@ -3912,9 +3912,13 @@ const img2ico = new ImageToIcon();
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ImgViewer", function() { return ImgViewer; });
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/modules/API.ts");
-/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Theme */ "./src/ts/modules/Theme.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Theme */ "./src/ts/modules/Theme.ts");
 // 图片查看器
 /// <reference path = "./Viewer.d.ts" />
+
+
 
 
 // 对 Viewer 进行修改以供下载器使用
@@ -3936,6 +3940,7 @@ class ImgViewer {
             autoStart: false
         };
         this.viewerWarpperFlag = 'viewerWarpperFlag';
+        this.downloadBtnClass = 'viewer-download-btn';
         this.cfg = Object.assign(this.cfg, cfg);
         this.init();
     }
@@ -4019,7 +4024,7 @@ class ImgViewer {
         }
         if (this.cfg.showImageList) {
             // 把缩略图列表添加到页面上
-            _Theme__WEBPACK_IMPORTED_MODULE_1__["theme"].register(this.viewerWarpper);
+            _Theme__WEBPACK_IMPORTED_MODULE_3__["theme"].register(this.viewerWarpper);
             this.viewerWarpper.style.display = 'block';
             const target = document.querySelector(this.cfg.insertTarget);
             if (target) {
@@ -4032,6 +4037,9 @@ class ImgViewer {
     async configureViewer(pageCount, firstBigImgURL) {
         // 图片查看器显示之后
         this.viewerUl.addEventListener('shown', () => {
+            if (this.cfg.showDownloadBtn) {
+                this.addDownloadBtn();
+            }
             // 显示相关元素
             this.showViewerOther();
             // 点击 1：1 按钮时，全屏查看
@@ -4126,6 +4134,34 @@ class ImgViewer {
             this.myViewer.show();
         }
     }
+    // 在图片查看器里添加下载按钮
+    addDownloadBtn() {
+        // 最后的查看器元素就是最新添加的查看器
+        const allContainer = document.querySelectorAll('.viewer-container');
+        const last = allContainer[allContainer.length - 1];
+        const test = last.querySelector('.' + this.downloadBtnClass);
+        if (test) {
+            return;
+        }
+        const one2one = last.querySelector('.viewer-one-to-one');
+        if (one2one) {
+            const li = document.createElement('li');
+            li.setAttribute('role', 'button');
+            li.setAttribute('title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载'));
+            li.classList.add(this.downloadBtnClass);
+            li.textContent = '↓';
+            const btn = one2one.insertAdjacentElement('afterend', li);
+            // 点击下载按钮时，发送要下载的作品 id
+            btn.addEventListener('click', () => {
+                _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadIdList, [
+                    {
+                        id: this.cfg.workId,
+                        type: 'unknown'
+                    }
+                ]);
+            });
+        }
+    }
     // 隐藏查看器的其他元素
     hideViewerOther() {
         document
@@ -4135,8 +4171,11 @@ class ImgViewer {
         const close = document.querySelector('.viewer-close');
         const oneToOne = document.querySelector('.viewer-one-to-one');
         const navbar = document.querySelector('.viewer-navbar');
-        for (const element of [close, oneToOne, navbar]) {
-            element.style.display = 'none';
+        const downloadBtn = document.querySelector('.' + this.downloadBtnClass);
+        for (const element of [close, oneToOne, navbar, downloadBtn]) {
+            if (element) {
+                element.style.display = 'none';
+            }
         }
     }
     // 显示查看器的其他元素
@@ -4148,8 +4187,11 @@ class ImgViewer {
         const close = document.querySelector('.viewer-close');
         const oneToOne = document.querySelector('.viewer-one-to-one');
         const navbar = document.querySelector('.viewer-navbar');
-        for (const element of [close, oneToOne, navbar]) {
-            element.style.display = 'block';
+        const downloadBtn = document.querySelector('.' + this.downloadBtnClass);
+        for (const element of [close, oneToOne, navbar, downloadBtn]) {
+            if (element) {
+                element.style.display = 'block';
+            }
         }
     }
     zoomToMax() {
@@ -10542,7 +10584,8 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
             showImageList: true,
             imageListId: 'viewerWarpper',
             insertTarget: 'main figcaption',
-            insertPostion: 'beforebegin'
+            insertPostion: 'beforebegin',
+            showDownloadBtn: true,
         });
     }
     initQuickBookmark() {
