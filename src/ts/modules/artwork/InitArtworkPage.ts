@@ -45,7 +45,12 @@ class InitArtworkPage extends InitPageBase {
   }
 
   private initImgViewer() {
-    new ImgViewer()
+    new ImgViewer({
+      showImageList: true,
+      imageListId: 'viewerWarpper',
+      insertTarget: 'main figcaption',
+      insertPostion: 'beforebegin'
+    })
   }
 
   private initQuickBookmark() {

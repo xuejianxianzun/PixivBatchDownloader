@@ -36,10 +36,10 @@ interface LikeResponse {
   error: boolean
   message: '' | string
   body:
-    | []
-    | {
-        is_liked: boolean
-      }
+  | []
+  | {
+    is_liked: boolean
+  }
 }
 
 class API {
@@ -116,7 +116,12 @@ class API {
       return /artworks\/(\d*\d)/.exec(str)![1]
     } else {
       // 直接取出 url 中的数字，不保证准确
-      return /\d*\d/.exec(location.href)![0]
+      const test = /\d*\d/.exec(location.href)
+      if (test && test.length > 0) {
+        return test[0]
+      } else {
+        return ''
+      }
     }
   }
 
@@ -166,9 +171,8 @@ class API {
     offset: number,
     hide: boolean = false
   ): Promise<BookmarkData> {
-    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
-      hide ? 'hide' : 'show'
-    }&rdm=${Math.random()}`
+    const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${hide ? 'hide' : 'show'
+      }&rdm=${Math.random()}`
 
     return this.request(url)
   }

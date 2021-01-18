@@ -239,7 +239,13 @@ class API {
         }
         else {
             // 直接取出 url 中的数字，不保证准确
-            return /\d*\d/.exec(location.href)[0];
+            const test = /\d*\d/.exec(location.href);
+            if (test && test.length > 0) {
+                return test[0];
+            }
+            else {
+                return '';
+            }
         }
     }
     // 从 url 里获取 novel id
@@ -3911,14 +3917,160 @@ __webpack_require__.r(__webpack_exports__);
 /// <reference path = "./Viewer.d.ts" />
 
 
+// 对 Viewer 进行修改以供下载器使用
+// 原版是接收页面上已存在的缩略图列表，但在下载器里它需要从作品 id 获取数据，生成缩略图列表
 class ImgViewer {
-    constructor() {
+    constructor(cfg) {
         this.viewerWarpper = document.createElement('div'); // 图片列表的容器
         this.viewerUl = document.createElement('ul'); // 图片列表的 ul 元素
+        // 默认配置
+        this.cfg = {
+            workId: _API__WEBPACK_IMPORTED_MODULE_0__["API"].getIllustId(),
+            showImageList: false,
+            imageListId: '',
+            insertTarget: '',
+            insertPostion: 'beforeend',
+            imageNumber: 2,
+            imageSize: 'original',
+            showDownloadBtn: false,
+            autoStart: false
+        };
+        this.viewerWarpperFlag = 'viewerWarpperFlag';
+        this.cfg = Object.assign(this.cfg, cfg);
         this.init();
     }
-    // 初始化图片查看器
-    newViewer(pageCount, firsturl) {
+    init() {
+        // 当创建新的查看器实例时，删除旧的查看器元素。其实不删除也没有问题，但是查看器每初始化一次都会创建全新的对象，所以旧的对象没必要保留。
+        // 删除之前创建的图片列表，否则旧的图片列表依然存在
+        const oldViewerWarpper = document.querySelector('.' + this.viewerWarpperFlag);
+        oldViewerWarpper && oldViewerWarpper.remove();
+        // 删除旧的查看器的 DOM 节点
+        const oldViewerContainer = document.querySelector('.viewer-container');
+        oldViewerContainer && oldViewerContainer.remove();
+        this.createImageList();
+        this.bindEvent();
+    }
+    // 如果多次初始化查看器，这些事件会被多次绑定。但是因为回调函数内部判断了查看器实例，所以不会有问题
+    bindEvent() {
+        document.addEventListener('keyup', (event) => {
+            if (event.code === 'Escape') {
+                this.myViewer && this.myViewer.hide();
+            }
+        });
+        [
+            'fullscreenchange',
+            'webkitfullscreenchange',
+            'mozfullscreenchange',
+        ].forEach((arg) => {
+            // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
+            document.addEventListener(arg, () => {
+                // 退出全屏
+                if (this.myViewer && !this.isFullscreen()) {
+                    this.showViewerOther();
+                }
+            });
+        });
+    }
+    // 创建缩略图列表
+    async createImageList() {
+        if (this.cfg.showImageList) {
+            // 如果要显示缩略图列表，则等待要插入的容器元素生成
+            if (!document.querySelector(this.cfg.insertTarget)) {
+                window.setTimeout(() => {
+                    this.createImageList();
+                }, 300);
+                return;
+            }
+        }
+        let useBigURL = ''; // 查看大图时的第一张图片的 url
+        // 查看器图片列表元素的结构： div > ul > li > img
+        // 创建图片列表的容器
+        this.viewerWarpper = document.createElement('div');
+        this.viewerWarpper.classList.add(this.viewerWarpperFlag);
+        this.viewerUl = document.createElement('ul');
+        this.viewerWarpper.appendChild(this.viewerUl);
+        this.viewerWarpper.style.display = 'none';
+        if (this.cfg.imageListId) {
+            this.viewerWarpper.id = this.cfg.imageListId;
+        }
+        // 获取作品数据，生成缩略图列表
+        const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(this.cfg.workId);
+        const body = data.body;
+        // 处理插画、漫画、动图作品，不处理其他类型的作品
+        if (body.illustType === 0 || body.illustType === 1 || body.illustType === 2) {
+            // 如果图片数量达到指定值，则会创建创建缩略图，启用查看器
+            if (body.pageCount >= this.cfg.imageNumber) {
+                // 配置大图 url
+                useBigURL = body.urls[this.cfg.imageSize] || body.urls.original;
+                // 生成缩略图列表
+                let html = [];
+                for (let index = 0; index < body.pageCount; index++) {
+                    const str = `<li><img src="${body.urls.thumb.replace('p0', 'p' + index)}" data-src="${useBigURL.replace('p0', 'p' + index)}"></li>`;
+                    html.push(str);
+                }
+                this.viewerUl.innerHTML = html.join('');
+            }
+            else {
+                return;
+            }
+        }
+        else {
+            return;
+        }
+        if (this.cfg.showImageList) {
+            // 把缩略图列表添加到页面上
+            _Theme__WEBPACK_IMPORTED_MODULE_1__["theme"].register(this.viewerWarpper);
+            this.viewerWarpper.style.display = 'block';
+            const target = document.querySelector(this.cfg.insertTarget);
+            if (target) {
+                target.insertAdjacentElement('beforebegin', this.viewerWarpper);
+            }
+        }
+        this.configureViewer(body.pageCount, useBigURL);
+    }
+    // 配置图片查看器
+    async configureViewer(pageCount, firstBigImgURL) {
+        // 图片查看器显示之后
+        this.viewerUl.addEventListener('shown', () => {
+            // 显示相关元素
+            this.showViewerOther();
+            // 点击 1：1 按钮时，全屏查看
+            document
+                .querySelector('.viewer-one-to-one')
+                .addEventListener('click', () => {
+                this.hideViewerOther(); // 隐藏查看器的其他元素
+                // 进入全屏
+                document.body.requestFullscreen();
+                // 使图片居中显示，必须加延迟
+                window.setTimeout(() => {
+                    this.setViewerCenter();
+                }, 100);
+                window.setInterval(() => {
+                    this.zoomToMax();
+                }, 100);
+            });
+        });
+        // 全屏状态下，查看和切换图片时，显示比例始终为 100%
+        this.viewerUl.addEventListener('view', () => {
+            if (this.isFullscreen()) {
+                window.setTimeout(() => {
+                    // 通过点击 1:1 按钮，调整为100%并居中。这里必须要加延时，否则点击的时候图片还是旧的
+                    ;
+                    document.querySelector('.viewer-one-to-one').click();
+                }, 50);
+            }
+        });
+        // 隐藏查看器时，如果还处于全屏，则退出全屏
+        this.viewerUl.addEventListener('hidden', () => {
+            if (this.isFullscreen()) {
+                document.exitFullscreen();
+            }
+        });
+        // 销毁旧的看图组件
+        // 目前不会复用查看器，所以不用销毁
+        // if (this.myViewer) {
+        //   this.myViewer.destroy()
+        // }
         // 因为选项里的 size 是枚举类型，所以在这里也要定义一个枚举
         let ToolbarButtonSize;
         (function (ToolbarButtonSize) {
@@ -3926,6 +4078,7 @@ class ImgViewer {
             ToolbarButtonSize["Medium"] = "medium";
             ToolbarButtonSize["Large"] = "large";
         })(ToolbarButtonSize || (ToolbarButtonSize = {}));
+        // 配置新的看图组件
         this.myViewer = new Viewer(this.viewerUl, {
             toolbar: {
                 zoomIn: 0,
@@ -3952,7 +4105,7 @@ class ImgViewer {
                 if (index < pageCount - 1) {
                     index++;
                 }
-                const nextImg = firsturl.replace('p0', 'p' + index);
+                const nextImg = firstBigImgURL.replace('p0', 'p' + index);
                 const img = new Image();
                 img.src = nextImg;
             },
@@ -3965,122 +4118,12 @@ class ImgViewer {
             // 不显示缩放比例
             tooltip: false,
         });
-    }
-    init() {
-        // 如果之前已经存在图片查看器的元素，则删除重新创建
-        // 最好不要重复使用之前的元素。在页面无刷新切换之后，如果复用了之前的元素，只是修改一些内容，那么 Viewer 还是会使用之前的数据，导致出错。
-        const test = document.querySelector('main #viewerWarpper');
-        test && test.remove();
-        // 每次创建新的图片查看器时，删除之前查看器的元素，否则会存在多个
-        const test2 = document.querySelector('.viewer-container');
-        test2 && test2.remove();
-        this.createViewer();
-    }
-    // 创建图片查看器 html 元素，并绑定一些事件，这个函数只会在初始化时执行一次
-    createViewer() {
-        if (!document.querySelector('main figcaption')) {
-            // 等到作品主体部分的元素生成之后再创建查看器
-            setTimeout(() => {
-                this.createViewer();
-            }, 300);
-            return;
-        }
-        // 查看器图片列表元素的结构： div#viewerWarpper > ul > li > img
-        this.viewerWarpper = document.createElement('div');
-        this.viewerWarpper.id = 'viewerWarpper';
-        this.viewerUl = document.createElement('ul');
-        this.viewerWarpper.appendChild(this.viewerUl);
-        _Theme__WEBPACK_IMPORTED_MODULE_1__["theme"].register(this.viewerWarpper);
-        document
-            .querySelector('main figcaption')
-            .insertAdjacentElement('beforebegin', this.viewerWarpper);
-        // 图片查看器显示之后
-        this.viewerUl.addEventListener('shown', () => {
-            // 显示相关元素
-            this.showViewerOther();
-            // 点击 1：1 按钮时，全屏查看
-            document
-                .querySelector('.viewer-one-to-one')
-                .addEventListener('click', () => {
-                this.hideViewerOther(); // 隐藏查看器的其他元素
-                // 进入全屏
-                document.body.requestFullscreen();
-                // 使图片居中显示，必须加延迟
-                setTimeout(() => {
-                    this.setViewerCenter();
-                }, 100);
-                setInterval(() => {
-                    this.zoomToMax();
-                }, 100);
-            });
-        });
-        // 全屏状态下，查看和切换图片时，显示比例始终为 100%
-        this.viewerUl.addEventListener('view', () => {
-            if (this.isFullscreen()) {
-                setTimeout(() => {
-                    // 通过点击 1:1 按钮，调整为100%并居中。这里必须要加延时，否则点击的时候图片还是旧的
-                    ;
-                    document.querySelector('.viewer-one-to-one').click();
-                }, 50);
-            }
-        });
-        // 隐藏查看器时，如果还处于全屏，则退出全屏
-        this.viewerUl.addEventListener('hidden', () => {
-            if (this.isFullscreen()) {
-                document.exitFullscreen();
-            }
-        });
-        // esc 退出图片查看器
-        document.addEventListener('keyup', (event) => {
-            if (event.code === 'Escape') {
-                this.myViewer && this.myViewer.hide();
-            }
-        });
-        void [
-            'fullscreenchange',
-            'webkitfullscreenchange',
-            'mozfullscreenchange',
-        ].forEach((arg) => {
-            // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
-            document.addEventListener(arg, () => {
-                // 退出全屏
-                if (!this.isFullscreen()) {
-                    this.showViewerOther();
-                }
-            });
-        });
-        this.updateViewer();
-    }
-    // 根据作品信息，更新图片查看器配置。每当页面更新时执行一次
-    async updateViewer() {
-        this.viewerWarpper.style.display = 'none'; // 先隐藏 viewerWarpper
-        // 获取作品信息
-        const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(_API__WEBPACK_IMPORTED_MODULE_0__["API"].getIllustId());
-        const body = data.body;
-        // 处理插画或漫画作品，不处理动图作品
-        if (body.illustType === 0 || body.illustType === 1) {
-            // 有多张图片时，创建缩略图
-            if (body.pageCount > 1) {
-                const { thumb, original } = body.urls;
-                // 生成缩略图列表
-                let html = [];
-                for (let index = 0; index < body.pageCount; index++) {
-                    const str = `<li><img src="${thumb.replace('p0', 'p' + index)}" data-src="${original.replace('p0', 'p' + index)}"></li>`;
-                    html.push(str);
-                }
-                this.viewerUl.innerHTML = html.join('');
-                // 数据更新后，显示 viewerWarpper
-                this.viewerWarpper.style.display = 'block';
-                // 销毁看图组件
-                if (this.myViewer) {
-                    this.myViewer.destroy();
-                }
-                // 配置看图组件
-                this.newViewer(body.pageCount, original);
-                // 预加载第一张图片
-                const img = new Image();
-                img.src = original;
-            }
+        // 预加载第一张图片
+        const img = new Image();
+        img.src = firstBigImgURL;
+        if (this.cfg.autoStart) {
+            // 自动显示
+            this.myViewer.show();
         }
     }
     // 隐藏查看器的其他元素
@@ -4123,7 +4166,7 @@ class ImgViewer {
         const imgInfo = document.querySelector('.viewer-title').textContent;
         // 如果图片尚未加载出来的话，就没有内容，就过一会儿再执行
         if (!imgInfo) {
-            setTimeout(() => {
+            window.setTimeout(() => {
                 this.setViewerCenter();
             }, 200);
             return;
@@ -10192,18 +10235,24 @@ Tools.fullWidthDict = [
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "viewBigImage", function() { return viewBigImage; });
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/modules/API.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PageType */ "./src/ts/modules/PageType.ts");
-// $(document).on("mouseenter", "._work", b);
-//  $(document).on("mouseenter", "figure > div", b); $(document).on("mouseenter", "div[width=184][height=184]", b); $(document).on("mouseenter", "div[width=288][height=288]", b)
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _ImgViewer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ImgViewer */ "./src/ts/modules/ImgViewer.ts");
 
 
+
+
+// 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器，查看大图
 class ViewBigImage {
     constructor() {
         this.btnId = 'ViewBigImageBtn';
         this.btnSize = [32, 32];
         this.hiddenBtnTimer = 0; // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
         this.hiddenBtnDelay = 100;
+        this.currentWorkId = ''; // 显示放大按钮时，保存触发事件的作品 id
+        this.doNotShowBtn = false; // 当点击了放大按钮后，进入此状态，此状态中不会显示放大按钮
+        // 此状态是为了解决这个问题：点击了放大按钮之后，按钮会被隐藏，隐藏之后，鼠标下方就是图片缩略图区域，这会触发缩略图的鼠标事件，导致放大按钮马上就又显示了出来。所以点击放大按钮之后设置这个状态，在其为 true 的期间不会显示放大按钮。过一段时间再把它复位。复位所需的时间很短，因为只要能覆盖这段时间就可以了：从隐藏放大按钮开始算起，到缩略图触发鼠标事件结束。
         // 作品缩略图的选择器
         // 注意不是选择整个作品区域，而是只选择缩略图区域
         this.selectors = ['._work', 'figure > div', 'div[width="136"]', 'div[width="184"]', 'div[width="288"]',];
@@ -10227,6 +10276,7 @@ class ViewBigImage {
         this.btn = document.body.querySelector('#' + this.btnId);
     }
     bindEvent() {
+        // 查找页面主体内容的容器
         let contentRoot = undefined;
         for (const selector of this.allRootSelector) {
             const test = document.body.querySelector(selector);
@@ -10236,36 +10286,39 @@ class ViewBigImage {
             }
         }
         if (contentRoot) {
+            // 对作品缩略图绑定事件
+            this.headleThumbnail(document.body);
+            // 使用监视器，让未来出现的作品缩略图也绑定上事件
             this.createObserver(contentRoot);
-            this.bindWorksEvent(document.body);
         }
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
+        // 页面切换时隐藏按钮
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.pageSwitch, () => {
             this.hiddenBtn();
         });
-        this.btn.addEventListener('mouseenter', () => {
+        // 鼠标移入按钮时取消隐藏按钮
+        this.btn.addEventListener('mouseenter', (ev) => {
             window.clearTimeout(this.hiddenBtnTimer);
         });
+        // 鼠标移出按钮时隐藏按钮
         this.btn.addEventListener('mouseleave', () => {
             this.hiddenBtn();
         });
-    }
-    createObserver(target) {
-        this.observer = new MutationObserver((records) => {
-            for (const record of records) {
-                if (record.addedNodes.length > 0) {
-                    // 遍历被添加的元素
-                    for (const newEl of record.addedNodes) {
-                        this.bindWorksEvent(newEl);
-                    }
-                }
+        // 点击按钮时初始化图片查看器
+        this.btn.addEventListener('click', (ev) => {
+            if (this.currentWorkId) {
+                this.hiddenBtnNow();
+                new _ImgViewer__WEBPACK_IMPORTED_MODULE_3__["ImgViewer"]({
+                    workId: this.currentWorkId,
+                    imageNumber: 1,
+                    imageSize: 'regular',
+                    showDownloadBtn: true,
+                    autoStart: true,
+                });
             }
         });
-        this.observer.observe(target, {
-            childList: true,
-            subtree: true,
-        });
     }
-    bindWorksEvent(parent) {
+    // 判断元素是否含有作品缩略图，如果找到了缩略图则为其绑定事件
+    headleThumbnail(parent) {
         // 有时候 parent 会是纯文本，所以需要判断
         if (!parent.querySelectorAll) {
             return;
@@ -10279,8 +10332,10 @@ class ViewBigImage {
             for (const el of elements) {
                 el.addEventListener('mouseenter', (ev) => {
                     const el = ev.target;
-                    // console.log(el)
-                    this.showBtn(el);
+                    this.currentWorkId = this.findWorkId(el);
+                    if (this.currentWorkId) {
+                        this.showBtn(el);
+                    }
                 });
                 el.addEventListener('mouseleave', () => {
                     this.hiddenBtn();
@@ -10291,18 +10346,57 @@ class ViewBigImage {
             }
         }
     }
+    createObserver(target) {
+        this.observer = new MutationObserver((records) => {
+            for (const record of records) {
+                if (record.addedNodes.length > 0) {
+                    // 遍历被添加的元素
+                    for (const newEl of record.addedNodes) {
+                        this.headleThumbnail(newEl);
+                    }
+                }
+            }
+        });
+        this.observer.observe(target, {
+            childList: true,
+            subtree: true,
+        });
+    }
+    // 从元素中查找作品 id
+    findWorkId(el) {
+        const a = el.querySelector('a');
+        if (!a) {
+            return '';
+        }
+        const href = a.href;
+        return _API__WEBPACK_IMPORTED_MODULE_0__["API"].getIllustId(href);
+    }
+    // 显示放大按钮
     showBtn(target) {
+        if (this.doNotShowBtn) {
+            return;
+        }
         window.clearTimeout(this.hiddenBtnTimer);
         const rect = target.getBoundingClientRect();
         this.btn.style.left = window.pageXOffset + rect.left + rect.width - this.btnSize[0] + 'px';
         this.btn.style.top = window.pageYOffset + rect.top + 'px';
         this.btn.style.display = 'flex';
     }
+    // 延迟隐藏放大按钮
     hiddenBtn() {
         window.clearTimeout(this.hiddenBtnTimer);
         this.hiddenBtnTimer = window.setTimeout(() => {
             this.btn.style.display = 'none';
         }, this.hiddenBtnDelay);
+    }
+    // 立刻隐藏放大按钮
+    hiddenBtnNow() {
+        this.doNotShowBtn = true;
+        window.setTimeout(() => {
+            this.doNotShowBtn = false;
+        }, 100);
+        window.clearTimeout(this.hiddenBtnTimer);
+        this.btn.style.display = 'none';
     }
 }
 const viewBigImage = new ViewBigImage();
@@ -10444,7 +10538,12 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_2__["EVT"].list.pageSwitchedTypeNotChange, this.initImgViewer);
     }
     initImgViewer() {
-        new _ImgViewer__WEBPACK_IMPORTED_MODULE_7__["ImgViewer"]();
+        new _ImgViewer__WEBPACK_IMPORTED_MODULE_7__["ImgViewer"]({
+            showImageList: true,
+            imageListId: 'viewerWarpper',
+            insertTarget: 'main figcaption',
+            insertPostion: 'beforebegin'
+        });
     }
     initQuickBookmark() {
         new _QuickBookmark__WEBPACK_IMPORTED_MODULE_6__["QuickBookmark"]();

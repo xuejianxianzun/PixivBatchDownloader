@@ -3,8 +3,60 @@
 import { API } from './API'
 import { theme } from './Theme'
 
+// 所有参数
+interface Config {
+  // 作品 id
+  // 默认从 url 中获取作品 id，但要考虑到获取 id 失败的情况
+  workId: string
+  // 是否显示缩略图列表
+  // 默认为 false，不会把缩略图列表添加到页面上
+  // 如果需要显示缩略图列表供用户查看，则应为 true
+  showImageList: boolean
+  // 图片列表容器的 id
+  // 默认为空字符串
+  // 对于图片查看器来说没有任何作用。如果需要获取图片列表容器，或者使用 css 控制样式，可以传入 id 作为标记
+  imageListId: string
+  // 图片列表要插入到的父元素的选择器
+  // 默认为空字符串
+  // showImageList 为 false 时可以省略，为 true 时必需
+  insertTarget: string
+  // 插入到父元素的什么位置
+  // 默认为 beforeend
+  // showImageList 为 false 时可以省略，为 true 时必需
+  insertPostion: InsertPosition,
+  // 图片最少有多少张时 >= 才会启用查看器
+  // 默认为 2
+  imageNumber: number
+  // 查看大图时，显示哪种尺寸的图片
+  // 默认为 original
+  imageSize: 'original' | 'regular' | 'small'
+  // 查看大图时，是否显示下载按钮
+  // 默认为 false
+  showDownloadBtn: boolean
+  // 初始化之后，直接启动查看器，无需用户点击缩略图
+  // 默认为 false
+  // showImageList 为 false 时建议 autoStart 为 true
+  autoStart: boolean
+}
+
+// 可选参数
+interface ConfigOptional {
+  workId?: string
+  showImageList?: boolean
+  imageListId?: string
+  insertTarget?: string
+  insertPostion?: InsertPosition,
+  imageNumber?: number
+  imageSize?: 'original' | 'regular' | 'small'
+  showDownloadBtn?: boolean
+  autoStart?: boolean
+}
+
+// 对 Viewer 进行修改以供下载器使用
+// 原版是接收页面上已存在的缩略图列表，但在下载器里它需要从作品 id 获取数据，生成缩略图列表
 class ImgViewer {
-  constructor() {
+  constructor(cfg: ConfigOptional) {
+    this.cfg = Object.assign(this.cfg, cfg)
     this.init()
   }
 
@@ -12,8 +64,179 @@ class ImgViewer {
   private viewerWarpper: HTMLDivElement = document.createElement('div') // 图片列表的容器
   private viewerUl: HTMLUListElement = document.createElement('ul') // 图片列表的 ul 元素
 
-  // 初始化图片查看器
-  private newViewer(pageCount: number, firsturl: string) {
+  // 默认配置
+  private cfg: Config = {
+    workId: API.getIllustId(),
+    showImageList: false,
+    imageListId: '',
+    insertTarget: '',
+    insertPostion: 'beforeend',
+    imageNumber: 2,
+    imageSize: 'original',
+    showDownloadBtn: false,
+    autoStart: false
+  }
+
+  private readonly viewerWarpperFlag = 'viewerWarpperFlag'
+
+  private init() {
+    // 当创建新的查看器实例时，删除旧的查看器元素。其实不删除也没有问题，但是查看器每初始化一次都会创建全新的对象，所以旧的对象没必要保留。
+
+    // 删除之前创建的图片列表，否则旧的图片列表依然存在
+    const oldViewerWarpper = document.querySelector('.' + this.viewerWarpperFlag)
+    oldViewerWarpper && oldViewerWarpper.remove()
+
+    // 删除旧的查看器的 DOM 节点
+    const oldViewerContainer = document.querySelector('.viewer-container')
+    oldViewerContainer && oldViewerContainer.remove()
+
+    this.createImageList()
+
+    this.bindEvent()
+  }
+
+  // 如果多次初始化查看器，这些事件会被多次绑定。但是因为回调函数内部判断了查看器实例，所以不会有问题
+  private bindEvent() {
+    document.addEventListener('keyup', (event) => {
+      if (event.code === 'Escape') {
+        this.myViewer && this.myViewer.hide()
+      }
+    })
+
+      ;[
+        'fullscreenchange',
+        'webkitfullscreenchange',
+        'mozfullscreenchange',
+      ].forEach((arg) => {
+        // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
+        document.addEventListener(arg, () => {
+          // 退出全屏
+          if (this.myViewer && !this.isFullscreen()) {
+            this.showViewerOther()
+          }
+        })
+      })
+  }
+
+  // 创建缩略图列表
+  private async createImageList() {
+    if (this.cfg.showImageList) {
+      // 如果要显示缩略图列表，则等待要插入的容器元素生成
+      if (!document.querySelector(this.cfg.insertTarget)) {
+        window.setTimeout(() => {
+          this.createImageList()
+        }, 300)
+        return
+      }
+    }
+
+    let useBigURL = ''  // 查看大图时的第一张图片的 url
+
+    // 查看器图片列表元素的结构： div > ul > li > img
+    // 创建图片列表的容器
+    this.viewerWarpper = document.createElement('div')
+    this.viewerWarpper.classList.add(this.viewerWarpperFlag)
+    this.viewerUl = document.createElement('ul')
+    this.viewerWarpper.appendChild(this.viewerUl)
+    this.viewerWarpper.style.display = 'none'
+
+    if (this.cfg.imageListId) {
+      this.viewerWarpper.id = this.cfg.imageListId
+    }
+
+    // 获取作品数据，生成缩略图列表
+    const data = await API.getArtworkData(this.cfg.workId)
+    const body = data.body
+    // 处理插画、漫画、动图作品，不处理其他类型的作品
+    if (body.illustType === 0 || body.illustType === 1 || body.illustType === 2) {
+      // 如果图片数量达到指定值，则会创建创建缩略图，启用查看器
+      if (body.pageCount >= this.cfg.imageNumber) {
+        // 配置大图 url
+        useBigURL = body.urls[this.cfg.imageSize] || body.urls.original
+
+        // 生成缩略图列表
+        let html = []
+        for (let index = 0; index < body.pageCount; index++) {
+          const str = `<li><img src="${body.urls.thumb.replace(
+            'p0',
+            'p' + index
+          )}" data-src="${useBigURL.replace('p0', 'p' + index)}"></li>`
+          html.push(str)
+        }
+        this.viewerUl.innerHTML = html.join('')
+      } else {
+        return
+      }
+    } else {
+      return
+    }
+
+    if (this.cfg.showImageList) {
+      // 把缩略图列表添加到页面上
+      theme.register(this.viewerWarpper)
+
+      this.viewerWarpper.style.display = 'block'
+
+      const target = document.querySelector(this.cfg.insertTarget)
+      if (target) {
+        target.insertAdjacentElement('beforebegin', this.viewerWarpper)
+      }
+    }
+
+    this.configureViewer(body.pageCount, useBigURL)
+  }
+
+  // 配置图片查看器
+  private async configureViewer(pageCount: number, firstBigImgURL: string) {
+    // 图片查看器显示之后
+    this.viewerUl.addEventListener('shown', () => {
+      // 显示相关元素
+      this.showViewerOther()
+
+      // 点击 1：1 按钮时，全屏查看
+      document
+        .querySelector('.viewer-one-to-one')!
+        .addEventListener('click', () => {
+          this.hideViewerOther() // 隐藏查看器的其他元素
+          // 进入全屏
+          document.body.requestFullscreen()
+
+          // 使图片居中显示，必须加延迟
+          window.setTimeout(() => {
+            this.setViewerCenter()
+          }, 100)
+
+          window.setInterval(() => {
+            this.zoomToMax()
+          }, 100)
+        })
+    })
+
+    // 全屏状态下，查看和切换图片时，显示比例始终为 100%
+    this.viewerUl.addEventListener('view', () => {
+      if (this.isFullscreen()) {
+        window.setTimeout(() => {
+          // 通过点击 1:1 按钮，调整为100%并居中。这里必须要加延时，否则点击的时候图片还是旧的
+          ; (document.querySelector(
+            '.viewer-one-to-one'
+          ) as HTMLLIElement).click()
+        }, 50)
+      }
+    })
+
+    // 隐藏查看器时，如果还处于全屏，则退出全屏
+    this.viewerUl.addEventListener('hidden', () => {
+      if (this.isFullscreen()) {
+        document.exitFullscreen()
+      }
+    })
+
+    // 销毁旧的看图组件
+    // 目前不会复用查看器，所以不用销毁
+    // if (this.myViewer) {
+    //   this.myViewer.destroy()
+    // }
+
     // 因为选项里的 size 是枚举类型，所以在这里也要定义一个枚举
     enum ToolbarButtonSize {
       Small = 'small',
@@ -21,6 +244,7 @@ class ImgViewer {
       Large = 'large',
     }
 
+    // 配置新的看图组件
     this.myViewer = new Viewer(this.viewerUl, {
       toolbar: {
         zoomIn: 0,
@@ -51,7 +275,7 @@ class ImgViewer {
           index++
         }
 
-        const nextImg = firsturl.replace('p0', 'p' + index)
+        const nextImg = firstBigImgURL.replace('p0', 'p' + index)
         const img = new Image()
         img.src = nextImg
       },
@@ -65,149 +289,14 @@ class ImgViewer {
       // 不显示缩放比例
       tooltip: false,
     })
-  }
 
-  private init() {
-    // 如果之前已经存在图片查看器的元素，则删除重新创建
-    // 最好不要重复使用之前的元素。在页面无刷新切换之后，如果复用了之前的元素，只是修改一些内容，那么 Viewer 还是会使用之前的数据，导致出错。
-    const test = document.querySelector('main #viewerWarpper')
-    test && test.remove()
+    // 预加载第一张图片
+    const img = new Image()
+    img.src = firstBigImgURL
 
-    // 每次创建新的图片查看器时，删除之前查看器的元素，否则会存在多个
-    const test2 = document.querySelector('.viewer-container')
-    test2 && test2.remove()
-
-    this.createViewer()
-  }
-
-  // 创建图片查看器 html 元素，并绑定一些事件，这个函数只会在初始化时执行一次
-  private createViewer() {
-    if (!document.querySelector('main figcaption')) {
-      // 等到作品主体部分的元素生成之后再创建查看器
-      setTimeout(() => {
-        this.createViewer()
-      }, 300)
-      return
-    }
-
-    // 查看器图片列表元素的结构： div#viewerWarpper > ul > li > img
-    this.viewerWarpper = document.createElement('div')
-    this.viewerWarpper.id = 'viewerWarpper'
-    this.viewerUl = document.createElement('ul')
-    this.viewerWarpper.appendChild(this.viewerUl)
-
-    theme.register(this.viewerWarpper)
-
-    document
-      .querySelector('main figcaption')!
-      .insertAdjacentElement('beforebegin', this.viewerWarpper)
-
-    // 图片查看器显示之后
-    this.viewerUl.addEventListener('shown', () => {
-      // 显示相关元素
-      this.showViewerOther()
-
-      // 点击 1：1 按钮时，全屏查看
-      document
-        .querySelector('.viewer-one-to-one')!
-        .addEventListener('click', () => {
-          this.hideViewerOther() // 隐藏查看器的其他元素
-          // 进入全屏
-          document.body.requestFullscreen()
-
-          // 使图片居中显示，必须加延迟
-          setTimeout(() => {
-            this.setViewerCenter()
-          }, 100)
-
-          setInterval(() => {
-            this.zoomToMax()
-          }, 100)
-        })
-    })
-
-    // 全屏状态下，查看和切换图片时，显示比例始终为 100%
-    this.viewerUl.addEventListener('view', () => {
-      if (this.isFullscreen()) {
-        setTimeout(() => {
-          // 通过点击 1:1 按钮，调整为100%并居中。这里必须要加延时，否则点击的时候图片还是旧的
-          ;(document.querySelector(
-            '.viewer-one-to-one'
-          ) as HTMLLIElement).click()
-        }, 50)
-      }
-    })
-
-    // 隐藏查看器时，如果还处于全屏，则退出全屏
-    this.viewerUl.addEventListener('hidden', () => {
-      if (this.isFullscreen()) {
-        document.exitFullscreen()
-      }
-    })
-
-    // esc 退出图片查看器
-    document.addEventListener('keyup', (event) => {
-      if (event.code === 'Escape') {
-        this.myViewer && this.myViewer.hide()
-      }
-    })
-
-    void [
-      'fullscreenchange',
-      'webkitfullscreenchange',
-      'mozfullscreenchange',
-    ].forEach((arg) => {
-      // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
-      document.addEventListener(arg, () => {
-        // 退出全屏
-        if (!this.isFullscreen()) {
-          this.showViewerOther()
-        }
-      })
-    })
-
-    this.updateViewer()
-  }
-
-  // 根据作品信息，更新图片查看器配置。每当页面更新时执行一次
-  private async updateViewer() {
-    this.viewerWarpper.style.display = 'none' // 先隐藏 viewerWarpper
-
-    // 获取作品信息
-    const data = await API.getArtworkData(API.getIllustId())
-    const body = data.body
-    // 处理插画或漫画作品，不处理动图作品
-    if (body.illustType === 0 || body.illustType === 1) {
-      // 有多张图片时，创建缩略图
-      if (body.pageCount > 1) {
-        const { thumb, original } = body.urls
-
-        // 生成缩略图列表
-        let html = []
-        for (let index = 0; index < body.pageCount; index++) {
-          const str = `<li><img src="${thumb.replace(
-            'p0',
-            'p' + index
-          )}" data-src="${original.replace('p0', 'p' + index)}"></li>`
-          html.push(str)
-        }
-        this.viewerUl.innerHTML = html.join('')
-
-        // 数据更新后，显示 viewerWarpper
-        this.viewerWarpper.style.display = 'block'
-
-        // 销毁看图组件
-        if (this.myViewer) {
-          this.myViewer.destroy()
-        }
-
-        // 配置看图组件
-        this.newViewer(body.pageCount, original)
-
-        // 预加载第一张图片
-        const img = new Image()
-        img.src = original
-      }
+    if (this.cfg.autoStart) {
+      // 自动显示
+      this.myViewer.show()
     }
   }
 
@@ -259,7 +348,7 @@ class ImgViewer {
 
     // 如果图片尚未加载出来的话，就没有内容，就过一会儿再执行
     if (!imgInfo) {
-      setTimeout(() => {
+      window.setTimeout(() => {
         this.setViewerCenter()
       }, 200)
       return
