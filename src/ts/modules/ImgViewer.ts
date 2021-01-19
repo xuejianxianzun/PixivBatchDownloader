@@ -4,6 +4,7 @@ import { API } from './API'
 import { EVT } from './EVT'
 import { lang } from './Lang'
 import { theme } from './Theme'
+import {loading} from './Loading'
 
 // 所有参数
 interface Config {
@@ -39,6 +40,9 @@ interface Config {
   // 默认为 false
   // showImageList 为 false 时建议 autoStart 为 true
   autoStart: boolean
+  // 获取作品数据期间，是否显示 loading 动画
+  // 默认为 false
+  showLoading:boolean
 }
 
 // 可选参数
@@ -52,6 +56,7 @@ interface ConfigOptional {
   imageSize?: 'original' | 'regular' | 'small'
   showDownloadBtn?: boolean
   autoStart?: boolean
+  showLoading?: boolean
 }
 
 // 对 Viewer 进行修改以供下载器使用
@@ -76,7 +81,8 @@ class ImgViewer {
     imageNumber: 2,
     imageSize: 'original',
     showDownloadBtn: false,
-    autoStart: false
+    autoStart: false,
+    showLoading:false,
   }
 
   private readonly viewerWarpperFlag = 'viewerWarpperFlag'
@@ -147,6 +153,10 @@ class ImgViewer {
       this.viewerWarpper.id = this.cfg.imageListId
     }
 
+    if(this.cfg.showLoading){
+      loading.show = true
+    }
+
     // 获取作品数据，生成缩略图列表
     const data = await API.getArtworkData(this.cfg.workId)
     const body = data.body
@@ -172,6 +182,11 @@ class ImgViewer {
       }
     } else {
       return
+    }
+
+    
+    if(this.cfg.showLoading){
+      loading.show = false
     }
 
     if (this.cfg.showImageList) {

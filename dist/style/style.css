@@ -1306,6 +1306,44 @@ iframe[name='expandedFooter'] {
 #ViewBigImageBtn:hover {
   opacity: 0.8;
 }
+#xzLoadingWrap {
+  position: fixed;
+  z-index: 2147483647;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  width: 96px;
+  height: 96px;
+  border-radius: 16px;
+  font-size: 48px;
+  display: none;
+  background-color: #fff;
+  color: #29b3f3;
+  justify-content: center;
+  align-items: center;
+  opacity: 0.7;
+  pointer-events: none;
+}
+#xzLoadingWrap .iconWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: rotate360 1.2s infinite;
+}
+.theme-dark#xzLoadingWrap {
+  background: #333;
+  color: #fff;
+}
+@keyframes rotate360 {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
 .warn {
   color: #d27e00;
 }
@@ -1398,4 +1436,17 @@ iframe[name='expandedFooter'] {
 }
 .theme-dark.fastScreenArea a:hover {
   text-decoration: underline;
+}
+#xzMaskWrap {
+  position: fixed;
+  margin: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 2147483647;
+  display: none;
+  background-color: #fff;
+  justify-content: center;
+  align-items: center;
 }

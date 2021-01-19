@@ -90,6 +90,7 @@ class ViewBigImage {
           imageSize: settings.magnifierSize,
           showDownloadBtn: true,
           autoStart: true,
+          showLoading: true,
         })
 
       }
@@ -163,7 +164,7 @@ class ViewBigImage {
     if (this.doNotShowBtn) {
       return
     }
-    if(!settings.magnifier){
+    if (!settings.magnifier) {
       return
     }
 

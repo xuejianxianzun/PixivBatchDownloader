@@ -11,6 +11,7 @@
 @import './imageViewer.less';
 @import './blockTagsForSpecificUser.less';
 @import './ViewBigImage.less';
+@import './Loading.less';
 
 // 储存通用规则和一些零散的元素的规则
 .warn {
@@ -144,4 +145,18 @@
       }
     }
   }
+}
+
+#xzMaskWrap{
+  position: fixed;
+  margin: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 2147483647;
+  display: none;
+  background-color: #fff;
+  justify-content: center;
+  align-items: center;
 }

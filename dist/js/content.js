@@ -3915,8 +3915,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Theme */ "./src/ts/modules/Theme.ts");
+/* harmony import */ var _Loading__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Loading */ "./src/ts/modules/Loading.ts");
 // 图片查看器
 /// <reference path = "./Viewer.d.ts" />
+
 
 
 
@@ -3937,7 +3939,8 @@ class ImgViewer {
             imageNumber: 2,
             imageSize: 'original',
             showDownloadBtn: false,
-            autoStart: false
+            autoStart: false,
+            showLoading: false,
         };
         this.viewerWarpperFlag = 'viewerWarpperFlag';
         this.downloadBtnClass = 'viewer-download-btn';
@@ -3998,6 +4001,9 @@ class ImgViewer {
         if (this.cfg.imageListId) {
             this.viewerWarpper.id = this.cfg.imageListId;
         }
+        if (this.cfg.showLoading) {
+            _Loading__WEBPACK_IMPORTED_MODULE_4__["loading"].show = true;
+        }
         // 获取作品数据，生成缩略图列表
         const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(this.cfg.workId);
         const body = data.body;
@@ -4021,6 +4027,9 @@ class ImgViewer {
         }
         else {
             return;
+        }
+        if (this.cfg.showLoading) {
+            _Loading__WEBPACK_IMPORTED_MODULE_4__["loading"].show = false;
         }
         if (this.cfg.showImageList) {
             // 把缩略图列表添加到页面上
@@ -7804,6 +7813,67 @@ new ListenPageSwitch();
 
 /***/ }),
 
+/***/ "./src/ts/modules/Loading.ts":
+/*!***********************************!*\
+  !*** ./src/ts/modules/Loading.ts ***!
+  \***********************************/
+/*! exports provided: loading */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "loading", function() { return loading; });
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Theme */ "./src/ts/modules/Theme.ts");
+
+// loading 图标
+class Loading {
+    constructor() {
+        this.id = 'xzLoadingWrap';
+        this.html = `
+  <div id="xzLoadingWrap">
+    <div class="iconWrap">
+    <svg class="icon" aria-hidden="true">
+      <use xlink:href="#icon-loading"></use>
+    </svg>
+    </div>
+  </div>`;
+        this._show = false;
+    }
+    set show(val) {
+        this._show = val;
+        this._show ? this.showEl() : this.hiddenEl();
+    }
+    get show() {
+        return this._show;
+    }
+    create() {
+        document.body.insertAdjacentHTML('beforeend', this.html);
+        const el = document.body.querySelector('#' + this.id);
+        _Theme__WEBPACK_IMPORTED_MODULE_0__["theme"].register(el);
+        return el;
+    }
+    getEl() {
+        let el = document.body.querySelector('#' + this.id);
+        if (el) {
+            return el;
+        }
+        else {
+            return this.create();
+        }
+    }
+    showEl() {
+        this.getEl().style.display = 'flex';
+    }
+    hiddenEl() {
+        this.getEl().style.display = 'none';
+    }
+}
+const loading = new Loading();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/modules/Log.ts":
 /*!*******************************!*\
   !*** ./src/ts/modules/Log.ts ***!
@@ -10366,6 +10436,7 @@ class ViewBigImage {
                     imageSize: _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].magnifierSize,
                     showDownloadBtn: true,
                     autoStart: true,
+                    showLoading: true,
                 });
             }
         });
