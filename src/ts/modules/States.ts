@@ -14,8 +14,14 @@ class States {
   public busy = false
 
   // 快速下载标记。如果为 true 说明进入了快速下载模式
+  // 快速下载模式中不会显示下载面板，并且会自动开始下载。也可能会影响命名规则
   // 修改者：QuickDownloadBtn 组件里，启动快速下载时设为 true，下载完成或中止时复位到 false
   public quickDownload = false
+
+  // 这次下载是否是从图片查看器建立的
+  // 如果是，那么下载途中不会显示下载面板，并且会自动开始下载
+  // 基本同 quickDownload，只有一点区别： downloadFromViewer 不会影响命名规则
+  public downloadFromViewer = false
 
   // 不自动下载的标记。如果为 true，那么下载器在抓取完成后，不会自动开始下载。（即使用户设置了自动开始下载）
   // 修改者：InitSearchArtworkPage 组件根据“预览搜索结果”的设置，修改这个状态
@@ -64,6 +70,21 @@ class States {
     window.addEventListener(EVT.list.bookmarkModeEnd, () => {
       this.bookmarkMode = false
     })
+
+    // 下载完成，或者下载中止时，复位快速下载类状态
+    const resetQuickState = [
+      EVT.list.crawlEmpty,
+      EVT.list.downloadStop,
+      EVT.list.downloadPause,
+      EVT.list.downloadComplete,
+    ]
+
+    for (const ev of resetQuickState) {
+      window.addEventListener(ev, () => {
+        this.quickDownload = false
+        this.downloadFromViewer = false
+      })
+    }
   }
 }
 

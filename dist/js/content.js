@@ -1021,7 +1021,7 @@ class CenterPanel {
         // 抓取完作品详细数据时，显示
         for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume]) {
             window.addEventListener(ev, () => {
-                if (!_States__WEBPACK_IMPORTED_MODULE_3__["states"].quickDownload) {
+                if (!_States__WEBPACK_IMPORTED_MODULE_3__["states"].quickDownload && !_States__WEBPACK_IMPORTED_MODULE_3__["states"].downloadFromViewer) {
                     this.show();
                 }
             });
@@ -2594,7 +2594,7 @@ class DownloadControl {
             return;
         }
         // 视情况自动开始下载
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].quietDownload || _States__WEBPACK_IMPORTED_MODULE_14__["states"].quickDownload) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].quietDownload || _States__WEBPACK_IMPORTED_MODULE_14__["states"].quickDownload || _States__WEBPACK_IMPORTED_MODULE_14__["states"].downloadFromViewer) {
             this.startDownload();
         }
     }
@@ -3916,8 +3916,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Theme */ "./src/ts/modules/Theme.ts");
 /* harmony import */ var _Loading__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Loading */ "./src/ts/modules/Loading.ts");
+/* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
 // 图片查看器
 /// <reference path = "./Viewer.d.ts" />
+
 
 
 
@@ -4160,8 +4162,17 @@ class ImgViewer {
             li.classList.add(this.downloadBtnClass);
             li.textContent = '↓';
             const btn = one2one.insertAdjacentElement('afterend', li);
+            // 点击下载按钮
             btn.addEventListener('click', () => {
-                // 点击下载按钮时，发送要下载的作品 id
+                // 因为 downloadFromViewer 状态会影响后续下载行为，所以必须先判断 busy 状态
+                if (_States__WEBPACK_IMPORTED_MODULE_5__["states"].busy) {
+                    return _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
+                        msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_当前任务尚未完成2'),
+                        type: 'error',
+                    });
+                }
+                _States__WEBPACK_IMPORTED_MODULE_5__["states"].downloadFromViewer = true;
+                // 发送要下载的作品 id
                 _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadIdList, [
                     {
                         id: this.cfg.workId,
@@ -4251,13 +4262,12 @@ class ImgViewer {
     }
     // 判断看图器是否处于显示状态
     viewerIsShow() {
-        const viewerContainer = document.querySelector('.viewer-container');
-        if (viewerContainer) {
-            return viewerContainer.classList.contains('viewer-in');
-        }
-        else {
+        const allContainer = document.querySelectorAll('.viewer-container');
+        if (allContainer.length === 0) {
             return false;
         }
+        const last = allContainer[allContainer.length - 1];
+        return last.classList.contains('viewer-in');
     }
 }
 
@@ -7278,7 +7288,7 @@ const langText = {
         '新增设置项',
         '新增設定項目',
         'Added setting items',
-        '新たな機能を追加されました。',
+        '新たな機能を追加されました',
     ],
     _抓取: ['抓取', '擷取', 'Crawl', 'クロール'],
     _下载: ['下载', '下載', 'Download', 'ダウンロード'],
@@ -7679,12 +7689,6 @@ const langText = {
         'Number of files >',
         'ファイル数 >',
     ],
-    _xzNew870: [
-        '设置项“多图建立目录”变成“为作品创建单独的文件夹”',
-        '設定項目"多圖建立目錄"变为"為作品建立單獨的資料夾"',
-        'The setting item "Create directory for multi-image works" becomes "Create a separate directory for the work"',
-        '設定項目「マルチイメージにフォルダを作成」は「作品に個別フォルダを作成」になります',
-    ],
     _保存用户头像: [
         '保存用户头像',
         '儲存使用者頭像',
@@ -7749,12 +7753,18 @@ const langText = {
     _删除: ['删除', '刪除', 'Delete', '削除'],
     _添加成功: ['添加成功', '新增成功', 'Added successfully', '追加されました'],
     _更新成功: ['更新成功', '更新成功', 'update completed', '更新成功'],
-    _在作品封面上显示放大镜: [
-        '在作品封面上显示放大镜',
-        '在作品封面上显示放大镜',
-        '在作品封面上显示放大镜',
-        '在作品封面上显示放大镜',
+    _在作品缩略图上显示放大图标: [
+        '在作品缩略图上显示放大图标',
+        '在作品缩略图上显示放大图标',
+        'Display the zoom icon on the thumbnail of the work',
+        '在作品缩略图上显示放大图标',
     ],
+    _xzNew900: [
+        '新增设置项<br>',
+        '新增設定項目<br>',
+        'Added setting items<br>',
+        '新たな機能を追加されました<br>',
+    ]
 };
 
 
@@ -8560,24 +8570,19 @@ class QuickDownload {
                 this.sendDownload();
             }
         }, false);
-        // 下载完成，或者下载中止时，复位状态
-        const evtList = [
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlEmpty,
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadStop,
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadPause,
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadComplete,
-        ];
-        for (const ev of evtList) {
-            window.addEventListener(ev, () => {
-                _States__WEBPACK_IMPORTED_MODULE_4__["states"].quickDownload = false;
-            });
-        }
         // 页面类型改变时设置按钮的显示隐藏
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, () => {
             this.setVisible();
         });
     }
     sendDownload() {
+        // 因为 quickDownload 状态会影响后续下载行为，所以必须先判断 busy 状态
+        if (_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
+            return _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].sendMsg({
+                msg: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_当前任务尚未完成2'),
+                type: 'error',
+            });
+        }
         _States__WEBPACK_IMPORTED_MODULE_4__["states"].quickDownload = true;
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.QuickDownload);
         const isNovel = window.location.href.includes('/novel');
@@ -9623,7 +9628,7 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.newTag = '_xzNew870';
+        this.newTag = '_xzNew900';
         this.show();
     }
     show() {
@@ -9665,8 +9670,13 @@ class States {
         // 修改者：本组件根据下载器的事件来修改这个状态
         this.busy = false;
         // 快速下载标记。如果为 true 说明进入了快速下载模式
+        // 快速下载模式中不会显示下载面板，并且会自动开始下载。也可能会影响命名规则
         // 修改者：QuickDownloadBtn 组件里，启动快速下载时设为 true，下载完成或中止时复位到 false
         this.quickDownload = false;
+        // 这次下载是否是从图片查看器建立的
+        // 如果是，那么下载途中不会显示下载面板，并且会自动开始下载
+        // 基本同 quickDownload，只有一点区别： downloadFromViewer 不会影响命名规则
+        this.downloadFromViewer = false;
         // 不自动下载的标记。如果为 true，那么下载器在抓取完成后，不会自动开始下载。（即使用户设置了自动开始下载）
         // 修改者：InitSearchArtworkPage 组件根据“预览搜索结果”的设置，修改这个状态
         this.notAutoDownload = false;
@@ -9708,6 +9718,19 @@ class States {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.bookmarkModeEnd, () => {
             this.bookmarkMode = false;
         });
+        // 下载完成，或者下载中止时，复位快速下载类状态
+        const resetQuickState = [
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlEmpty,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadPause,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete,
+        ];
+        for (const ev of resetQuickState) {
+            window.addEventListener(ev, () => {
+                this.quickDownload = false;
+                this.downloadFromViewer = false;
+            });
+        }
     }
 }
 const states = new States();
@@ -15627,7 +15650,7 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="40">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_在作品封面上显示放大镜')} </span>
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_在作品缩略图上显示放大图标')} </span>
       <input type="checkbox" name="magnifier" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
 

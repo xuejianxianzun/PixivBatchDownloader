@@ -8,7 +8,7 @@ class ShowWhatIsNew {
     this.show()
   }
 
-  private newTag: langTextKeys = '_xzNew870'
+  private newTag: langTextKeys = '_xzNew900'
 
   private show() {
     const storeName = 'xzNewVerTag'

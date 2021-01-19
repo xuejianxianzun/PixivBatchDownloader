@@ -4,7 +4,8 @@ import { API } from './API'
 import { EVT } from './EVT'
 import { lang } from './Lang'
 import { theme } from './Theme'
-import {loading} from './Loading'
+import { loading } from './Loading'
+import {states} from './States'
 
 // 所有参数
 interface Config {
@@ -42,7 +43,7 @@ interface Config {
   autoStart: boolean
   // 获取作品数据期间，是否显示 loading 动画
   // 默认为 false
-  showLoading:boolean
+  showLoading: boolean
 }
 
 // 可选参数
@@ -82,7 +83,7 @@ class ImgViewer {
     imageSize: 'original',
     showDownloadBtn: false,
     autoStart: false,
-    showLoading:false,
+    showLoading: false,
   }
 
   private readonly viewerWarpperFlag = 'viewerWarpperFlag'
@@ -153,7 +154,7 @@ class ImgViewer {
       this.viewerWarpper.id = this.cfg.imageListId
     }
 
-    if(this.cfg.showLoading){
+    if (this.cfg.showLoading) {
       loading.show = true
     }
 
@@ -184,8 +185,8 @@ class ImgViewer {
       return
     }
 
-    
-    if(this.cfg.showLoading){
+
+    if (this.cfg.showLoading) {
       loading.show = false
     }
 
@@ -342,8 +343,19 @@ class ImgViewer {
       li.textContent = '↓'
       const btn = one2one.insertAdjacentElement('afterend', li)!
 
+      // 点击下载按钮
       btn.addEventListener('click', () => {
-        // 点击下载按钮时，发送要下载的作品 id
+        // 因为 downloadFromViewer 状态会影响后续下载行为，所以必须先判断 busy 状态
+        if (states.busy) {
+          return EVT.sendMsg({
+            msg: lang.transl('_当前任务尚未完成2'),
+            type: 'error',
+          })
+        }
+
+        states.downloadFromViewer = true
+
+        // 发送要下载的作品 id
         EVT.fire(EVT.list.downloadIdList, [
           {
             id: this.cfg.workId,
@@ -450,13 +462,13 @@ class ImgViewer {
 
   // 判断看图器是否处于显示状态
   private viewerIsShow() {
-    const viewerContainer = document.querySelector('.viewer-container')
-
-    if (viewerContainer) {
-      return viewerContainer.classList.contains('viewer-in')
-    } else {
+    const allContainer = document.querySelectorAll('.viewer-container')
+    if (allContainer.length === 0) {
       return false
     }
+
+    const last = allContainer[allContainer.length - 1]
+    return last.classList.contains('viewer-in')
   }
 }
 

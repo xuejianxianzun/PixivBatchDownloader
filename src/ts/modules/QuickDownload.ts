@@ -50,20 +50,6 @@ class QuickDownload {
       false
     )
 
-    // 下载完成，或者下载中止时，复位状态
-    const evtList = [
-      EVT.list.crawlEmpty,
-      EVT.list.downloadStop,
-      EVT.list.downloadPause,
-      EVT.list.downloadComplete,
-    ]
-
-    for (const ev of evtList) {
-      window.addEventListener(ev, () => {
-        states.quickDownload = false
-      })
-    }
-
     // 页面类型改变时设置按钮的显示隐藏
     window.addEventListener(EVT.list.pageSwitch, () => {
       this.setVisible()
@@ -71,6 +57,14 @@ class QuickDownload {
   }
 
   private sendDownload() {
+    // 因为 quickDownload 状态会影响后续下载行为，所以必须先判断 busy 状态
+    if (states.busy) {
+      return EVT.sendMsg({
+        msg: lang.transl('_当前任务尚未完成2'),
+        type: 'error',
+      })
+    }
+
     states.quickDownload = true
     EVT.fire(EVT.list.QuickDownload)
 

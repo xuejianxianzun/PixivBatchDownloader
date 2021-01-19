@@ -1079,7 +1079,7 @@ const langText = {
     '新增设置项',
     '新增設定項目',
     'Added setting items',
-    '新たな機能を追加されました。',
+    '新たな機能を追加されました',
   ],
   _抓取: ['抓取', '擷取', 'Crawl', 'クロール'],
   _下载: ['下载', '下載', 'Download', 'ダウンロード'],
@@ -1480,12 +1480,6 @@ const langText = {
     'Number of files >',
     'ファイル数 >',
   ],
-  _xzNew870: [
-    '设置项“多图建立目录”变成“为作品创建单独的文件夹”',
-    '設定項目"多圖建立目錄"变为"為作品建立單獨的資料夾"',
-    'The setting item "Create directory for multi-image works" becomes "Create a separate directory for the work"',
-    '設定項目「マルチイメージにフォルダを作成」は「作品に個別フォルダを作成」になります',
-  ],
   _保存用户头像: [
     '保存用户头像',
     '儲存使用者頭像',
@@ -1550,13 +1544,18 @@ const langText = {
   _删除: ['删除', '刪除', 'Delete', '削除'],
   _添加成功: ['添加成功', '新增成功', 'Added successfully', '追加されました'],
   _更新成功: ['更新成功', '更新成功', 'update completed', '更新成功'],
-  _在作品封面上显示放大镜:[
-    '在作品封面上显示放大镜',
-    '在作品封面上显示放大镜',
-    '在作品封面上显示放大镜',
-    '在作品封面上显示放大镜',
+  _在作品缩略图上显示放大图标: [
+    '在作品缩略图上显示放大图标',
+    '在作品缩略图上显示放大图标',
+    'Display the zoom icon on the thumbnail of the work',
+    '在作品缩略图上显示放大图标',
   ],
-
+  _xzNew900:[
+    '新增设置项<br>',
+    '新增設定項目<br>',
+    'Added setting items<br>',
+    '新たな機能を追加されました<br>',
+  ]
 }
 
 export { langText, langTextKeys }
