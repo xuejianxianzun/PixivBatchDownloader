@@ -110,7 +110,7 @@ ImgViewer 类以前只在作品页面内使用，内部配置是固定死的，�
 
 通过修改它的 `show` 属性为 `true` 或者 `false`，可以用它来显示一个 loading 动画。
 
-#### 添加了 BubbleTip 类
+#### 添加了 Toast 类
 
 用于显示轻量的提示。
 

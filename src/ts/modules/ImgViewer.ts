@@ -125,6 +125,15 @@ class ImgViewer {
       }
     })
 
+    // 按 D 下载当前作品
+    document.addEventListener('keydown', (event) => {
+      if (event.code === 'KeyD') {
+        if (this.show) {
+          this.download()
+        }
+      }
+    })
+
     // 监听左右方向键，防止在看图时，左右方向键导致 Pixiv 切换作品
     window.addEventListener(
       'keydown',
@@ -143,19 +152,19 @@ class ImgViewer {
       },
       true
     )
-    ;[
-      'fullscreenchange',
-      'webkitfullscreenchange',
-      'mozfullscreenchange',
-    ].forEach((arg) => {
-      // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
-      document.addEventListener(arg, () => {
-        // 退出全屏
-        if (this.myViewer && !this.isFullscreen()) {
-          this.showViewerOther()
-        }
+      ;[
+        'fullscreenchange',
+        'webkitfullscreenchange',
+        'mozfullscreenchange',
+      ].forEach((arg) => {
+        // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
+        document.addEventListener(arg, () => {
+          // 退出全屏
+          if (this.myViewer && !this.isFullscreen()) {
+            this.showViewerOther()
+          }
+        })
       })
-    })
   }
 
   // 创建缩略图列表
@@ -387,32 +396,41 @@ class ImgViewer {
 
       // 点击下载按钮
       btn.addEventListener('click', () => {
-        // 因为 downloadFromViewer 状态会影响后续下载行为，所以必须先判断 busy 状态
-        if (states.busy) {
-          return EVT.sendMsg({
-            msg: lang.transl('_当前任务尚未完成2'),
-            type: 'error',
-          })
-        }
-
-        states.downloadFromViewer = true
-
-        // 发送要下载的作品 id
-        EVT.fire(EVT.list.downloadIdList, [
-          {
-            id: this.cfg.workId,
-            type: 'unknown',
-          },
-        ])
-
-        // 显示提示
-        EVT.fire(EVT.list.sendBubbleTip, {
-          text: lang.transl('_已发送下载请求'),
-          animation: 'fade',
-          color: '#eee',
-        })
+        this.download()
       })
     }
+  }
+
+  // 下载当前查看的作品
+  private download() {
+    // 因为 downloadFromViewer 状态会影响后续下载行为，所以必须先判断 busy 状态
+    if (states.busy) {
+      return EVT.sendMsg({
+        msg: lang.transl('_当前任务尚未完成2'),
+        type: 'error',
+      })
+    }
+
+    states.downloadFromViewer = true
+
+    // 发送要下载的作品 id
+    EVT.fire(EVT.list.downloadIdList, [
+      {
+        id: this.cfg.workId,
+        type: 'unknown',
+      },
+    ])
+
+    // 显示提示
+    EVT.fire(EVT.list.sendToast, {
+      text: lang.transl('_已发送下载请求'),
+      bgColor: '#222',
+    })
+  }
+
+  // 判断是否处于全屏状态
+  private isFullscreen() {
+    return !!document.fullscreenElement
   }
 
   // 隐藏查看器的其他元素
@@ -455,11 +473,6 @@ class ImgViewer {
         element.style.display = 'block'
       }
     }
-  }
-
-  // 判断是否处于全屏状态
-  private isFullscreen() {
-    return !!document.fullscreenElement
   }
 }
 

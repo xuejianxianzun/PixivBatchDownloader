@@ -626,7 +626,6 @@ const formHtml = `<form class="settingForm">
 
       <span class="subOptionWrap" data-show="magnifier">
       <span class="settingNameStyle1">${lang.transl('_图片尺寸')} </span>
-      &nbsp;
       <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original" checked>
       <span class="beautify_radio"></span>
       <label for="magnifierSize1"> ${lang.transl('_原图')} </label>

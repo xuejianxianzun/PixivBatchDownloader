@@ -127,7 +127,7 @@ class EVT {
     // 需要单独显示信息时触发
     showMsg: 'showMsg',
     // 需要显示冒泡提示时触发
-    sendBubbleTip: 'sendBubbleTip',
+    sendToast: 'sendToast',
     // 需要清空日志区域时触发
     clearLog: 'clearLog',
   }

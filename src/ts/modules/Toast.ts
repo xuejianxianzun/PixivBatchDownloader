@@ -1,46 +1,52 @@
 import { EVT } from './EVT'
 import { Colors, colorType } from './Colors'
 
-// 其他模块可以通过 EVT.list.sendBubbleTip 事件调用此模块，并且一定要传递这个参数
+// 其他模块可以通过 EVT.list.sendToast 事件调用此模块，并且一定要传递这个参数
 // 可选的参数
-export interface BubbleTipArgOptional {
+export interface ToastArgOptional {
   // text 只能传递文字，不能包含 html 标签
   text: string
-  // 可选，使用预定义的颜色
+  // 可选，使用预定义的颜色描述字符
+  // 默认为白色
   type?: colorType
-  // 可选，使用自定义的颜色
+  // 可选，设置字体颜色，优先级高于 type，无默认值
   color?: string
-  // 设置提示出现后的停留时间。停留时间过去之后，提示会飘向页面顶部。
+  // 可选，设置背景颜色，无默认值
+  bgColor?: string
+  // 设置提示出现后的停留时间（毫秒）。停留时间过去之后，提示会飘向页面顶部。
+  // 默认 1000 ms
   stay?: number
   // 消失时的动画效果
-  // 默认 bubble 向上飘动并逐渐消失
-  // fade 逐渐消失
+  // fade 默认, 逐渐消失
+  // bubble 向上移动并逐渐消失
   // none 没有动画，立即消失
   animation?: 'bubble' | 'fade' | 'none'
 }
 
 // 完整的参数
-interface BubbleTipArg {
+interface ToastTipArg {
   text: string
   type: colorType
   color: string
+  bgColor: string
   dealy: number
   animation: 'bubble' | 'fade' | 'none'
 }
 
-// 冒泡提示
+// 轻提示，只显示文字和背景颜色
 // 适用于轻量、无需用户进行确认的提示
-class BubbleTip {
+class Toast {
   constructor() {
     this.bindEvents()
   }
 
-  private defaultCfg: BubbleTipArg = {
+  private defaultCfg: ToastTipArg = {
     text: '',
-    type: 'primary',
+    type: 'white',
     color: '',
+    bgColor: '',
     dealy: 1000,
-    animation: 'bubble',
+    animation: 'fade',
   }
 
   private mousePosition = { x: 0, y: 0 }
@@ -48,8 +54,8 @@ class BubbleTip {
   private readonly tipClassName = 'xzBubbleTip'
 
   private bindEvents() {
-    window.addEventListener(EVT.list.sendBubbleTip, (ev: CustomEventInit) => {
-      const data = ev.detail.data as BubbleTipArgOptional
+    window.addEventListener(EVT.list.sendToast, (ev: CustomEventInit) => {
+      const data = ev.detail.data as ToastArgOptional
       const arg = Object.assign({}, this.defaultCfg, data)
       this.create(arg)
     })
@@ -61,15 +67,19 @@ class BubbleTip {
     })
   }
 
-  private create(arg: BubbleTipArg) {
+  private create(arg: ToastTipArg) {
     const span = document.createElement('span')
     span.textContent = arg.text
 
-    // 颜色设置优先使用 color
+    // 颜色设置，优先使用 color
     span.style.color = arg.color ? arg.color : Colors[arg.type]
 
-    // top 值减去了大约一行文字的高度，这样文字出现时就处于鼠标上方
-    const y = this.mousePosition.y - 28
+    if (arg.bgColor) {
+      span.style.backgroundColor = arg.bgColor
+    }
+
+    // top 值减去一点高度，使文字出现在鼠标上方
+    const y = this.mousePosition.y - 40
     span.style.top = y + 'px'
 
     span.classList.add(this.tipClassName)
@@ -138,4 +148,4 @@ class BubbleTip {
   }
 }
 
-new BubbleTip()
+new Toast()
