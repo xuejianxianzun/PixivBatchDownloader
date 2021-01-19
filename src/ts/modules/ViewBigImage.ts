@@ -2,6 +2,7 @@ import { API } from "./API"
 import { pageType } from "./PageType"
 import { EVT } from "./EVT"
 import { ImgViewer } from './ImgViewer'
+import { settings } from "./setting/Settings"
 
 // 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器，查看大图
 class ViewBigImage {
@@ -86,7 +87,7 @@ class ViewBigImage {
         new ImgViewer({
           workId: this.currentWorkId,
           imageNumber: 1,
-          imageSize: 'regular',
+          imageSize: settings.magnifierSize,
           showDownloadBtn: true,
           autoStart: true,
         })
@@ -162,6 +163,10 @@ class ViewBigImage {
     if (this.doNotShowBtn) {
       return
     }
+    if(!settings.magnifier){
+      return
+    }
+
     window.clearTimeout(this.hiddenBtnTimer)
     const rect = target.getBoundingClientRect()
     this.btn.style.left = window.pageXOffset + rect.left + rect.width - this.btnSize[0] + 'px'

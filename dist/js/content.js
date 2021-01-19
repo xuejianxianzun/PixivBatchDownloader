@@ -4151,14 +4151,19 @@ class ImgViewer {
             li.classList.add(this.downloadBtnClass);
             li.textContent = '↓';
             const btn = one2one.insertAdjacentElement('afterend', li);
-            // 点击下载按钮时，发送要下载的作品 id
             btn.addEventListener('click', () => {
+                // 点击下载按钮时，发送要下载的作品 id
                 _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadIdList, [
                     {
                         id: this.cfg.workId,
                         type: 'unknown'
                     }
                 ]);
+                // 显示简单的动画效果
+                btn.classList.add('rotate360');
+                window.setTimeout(() => {
+                    btn.classList.remove('rotate360');
+                }, 1000);
             });
         }
     }
@@ -5740,6 +5745,7 @@ class InitPixivisionPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
             37,
             38,
             39,
+            40,
         ]);
         // pixivision 里，文件名只有 id 标记会生效，所以把文件名规则替换成 id
         // form.userSetName.value = '{p_title}/{id}'
@@ -7734,6 +7740,12 @@ const langText = {
     _删除: ['删除', '刪除', 'Delete', '削除'],
     _添加成功: ['添加成功', '新增成功', 'Added successfully', '追加されました'],
     _更新成功: ['更新成功', '更新成功', 'update completed', '更新成功'],
+    _在作品封面上显示放大镜: [
+        '在作品封面上显示放大镜',
+        '在作品封面上显示放大镜',
+        '在作品封面上显示放大镜',
+        '在作品封面上显示放大镜',
+    ],
 };
 
 
@@ -7944,9 +7956,6 @@ class MsgBox {
                 ev.stopPropagation();
             });
             btn.addEventListener('click', () => {
-                this.remove(el);
-            });
-            document.addEventListener('click', () => {
                 this.remove(el);
             });
             window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.closeCenterPanel, () => {
@@ -10281,6 +10290,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PageType */ "./src/ts/modules/PageType.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _ImgViewer__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ImgViewer */ "./src/ts/modules/ImgViewer.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/modules/setting/Settings.ts");
+
 
 
 
@@ -10352,7 +10363,7 @@ class ViewBigImage {
                 new _ImgViewer__WEBPACK_IMPORTED_MODULE_3__["ImgViewer"]({
                     workId: this.currentWorkId,
                     imageNumber: 1,
-                    imageSize: 'regular',
+                    imageSize: _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].magnifierSize,
                     showDownloadBtn: true,
                     autoStart: true,
                 });
@@ -10416,6 +10427,9 @@ class ViewBigImage {
     // 显示放大按钮
     showBtn(target) {
         if (this.doNotShowBtn) {
+            return;
+        }
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].magnifier) {
             return;
         }
         window.clearTimeout(this.hiddenBtnTimer);
@@ -15541,6 +15555,24 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
       </p>
 
+      <p class="option" data-no="40">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_在作品封面上显示放大镜')} </span>
+      <input type="checkbox" name="magnifier" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+
+      <span class="subOptionWrap" data-show="magnifier">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_图片尺寸')} </span>
+      &nbsp;
+      <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original" checked>
+      <span class="beautify_radio"></span>
+      <label for="magnifierSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_原图')} </label>
+      &nbsp;
+      <input type="radio" name="magnifierSize" id="magnifierSize2" class="need_beautify radio" value="regular">
+      <span class="beautify_radio"></span>
+      <label for="magnifierSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_普通')} </label>
+      </span>
+      </p>
+
       <p class="option" data-no="31">
       <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_日期格式')}</span>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
@@ -15743,6 +15775,8 @@ class FormSettings {
         // 保存排除的 tag 设置
         this.saveCheckBox('notNeedTagSwitch');
         this.saveTextInput('notNeedTag');
+        this.saveCheckBox('magnifier');
+        this.saveRadio('magnifierSize');
         // 保存命名规则
         const userSetNameInput = this.form.userSetName;
         ['change', 'focus'].forEach((ev) => {
@@ -15920,6 +15954,8 @@ class FormSettings {
         this.restoreBoolean('blockTagsForSpecificUser');
         this.restoreString('needTagMode');
         this.restoreString('theme');
+        this.restoreBoolean('magnifier');
+        this.restoreString('magnifierSize');
     }
 }
 
@@ -16315,6 +16351,8 @@ class Settings {
             blockTagsForSpecificUser: false,
             blockTagsForSpecificUserShowList: true,
             blockTagsForSpecificUserList: [],
+            magnifier: true,
+            magnifierSize: 'regular',
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         this.floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax'];

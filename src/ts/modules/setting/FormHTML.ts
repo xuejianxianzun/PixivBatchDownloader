@@ -617,6 +617,24 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
       </p>
 
+      <p class="option" data-no="40">
+      <span class="settingNameStyle1">${lang.transl('_在作品封面上显示放大镜')} </span>
+      <input type="checkbox" name="magnifier" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+
+      <span class="subOptionWrap" data-show="magnifier">
+      <span class="settingNameStyle1">${lang.transl('_图片尺寸')} </span>
+      &nbsp;
+      <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original" checked>
+      <span class="beautify_radio"></span>
+      <label for="magnifierSize1"> ${lang.transl('_原图')} </label>
+      &nbsp;
+      <input type="radio" name="magnifierSize" id="magnifierSize2" class="need_beautify radio" value="regular">
+      <span class="beautify_radio"></span>
+      <label for="magnifierSize2"> ${lang.transl('_普通')} </label>
+      </span>
+      </p>
+
       <p class="option" data-no="31">
       <span class="settingNameStyle1">${lang.transl('_日期格式')}</span>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">

@@ -326,14 +326,21 @@ class ImgViewer {
       li.classList.add(this.downloadBtnClass)
       li.textContent = '↓'
       const btn = one2one.insertAdjacentElement('afterend', li)!
-      // 点击下载按钮时，发送要下载的作品 id
+
       btn.addEventListener('click', () => {
+        // 点击下载按钮时，发送要下载的作品 id
         EVT.fire(EVT.list.downloadIdList, [
           {
             id: this.cfg.workId,
             type: 'unknown'
           }
         ])
+
+        // 显示简单的动画效果
+        btn.classList.add('rotate360')
+        window.setTimeout(() => {
+          btn.classList.remove('rotate360')
+        }, 1000)
       })
     }
   }

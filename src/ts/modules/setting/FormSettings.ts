@@ -133,6 +133,8 @@ class FormSettings {
     this.saveCheckBox('notNeedTagSwitch')
     this.saveTextInput('notNeedTag')
 
+    this.saveCheckBox('magnifier')
+    this.saveRadio('magnifierSize')
     // 保存命名规则
     const userSetNameInput = this.form.userSetName
     ;['change', 'focus'].forEach((ev) => {
@@ -376,6 +378,9 @@ class FormSettings {
     this.restoreString('needTagMode')
 
     this.restoreString('theme')
+
+    this.restoreBoolean('magnifier')
+    this.restoreString('magnifierSize')
   }
 }
 

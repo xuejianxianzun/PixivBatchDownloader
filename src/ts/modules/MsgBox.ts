@@ -45,17 +45,13 @@ class MsgBox {
 
     const btn = el.querySelector('.btn') as HTMLButtonElement
     btn.focus()
-
+        
     if (btn) {
       el.addEventListener('click', (ev) => {
         ev.stopPropagation()
       })
 
       btn.addEventListener('click', () => {
-        this.remove(el)
-      })
-
-      document.addEventListener('click', () => {
         this.remove(el)
       })
 

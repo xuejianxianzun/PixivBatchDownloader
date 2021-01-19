@@ -1208,9 +1208,13 @@ iframe[name='expandedFooter'] {
   color: #fff;
   font-size: 12px;
   line-height: 24px;
+  transition: all 1s;
 }
 .viewer-backdrop .viewer-toolbar .viewer-download-btn::marker {
   content: none;
+}
+.rotate360 {
+  transform: rotate(360deg);
 }
 .theme-dark#viewerWarpper {
   border: none;

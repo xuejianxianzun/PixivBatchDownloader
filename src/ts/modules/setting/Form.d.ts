@@ -69,4 +69,6 @@ export interface SettingsForm extends HTMLFormElement {
   r18Folder: HTMLInputElement
   r18FolderName: HTMLInputElement
   blockTagsForSpecificUser: HTMLInputElement
+  magnifier: HTMLInputElement
+  magnifierSize: RadioNodeList
 }
