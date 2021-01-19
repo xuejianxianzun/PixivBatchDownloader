@@ -8,7 +8,7 @@ import { settings } from "./setting/Settings"
 class ViewBigImage {
   constructor() {
     this.addBtn()
-    this.bindEvent()
+    this.bindEvents()
   }
 
   private btn!: HTMLButtonElement
@@ -46,7 +46,7 @@ class ViewBigImage {
     this.btn = document.body.querySelector('#' + this.btnId)! as HTMLButtonElement
   }
 
-  private bindEvent() {
+  private bindEvents() {
     // 查找页面主体内容的容器
     let contentRoot: HTMLElement | undefined = undefined
     for (const selector of this.allRootSelector) {

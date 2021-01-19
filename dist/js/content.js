@@ -112,11 +112,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_output_PreviewFileName__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./modules/output/PreviewFileName */ "./src/ts/modules/output/PreviewFileName.ts");
 /* harmony import */ var _modules_output_ShowURLs__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./modules/output/ShowURLs */ "./src/ts/modules/output/ShowURLs.ts");
 /* harmony import */ var _modules_MsgBox__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./modules/MsgBox */ "./src/ts/modules/MsgBox.ts");
-/* harmony import */ var _modules_CheckNew__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./modules/CheckNew */ "./src/ts/modules/CheckNew.ts");
-/* harmony import */ var _modules_ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./modules/ShowWhatIsNew */ "./src/ts/modules/ShowWhatIsNew.ts");
-/* harmony import */ var _modules_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./modules/ExportResult2CSV */ "./src/ts/modules/ExportResult2CSV.ts");
-/* harmony import */ var _modules_ExportResult__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./modules/ExportResult */ "./src/ts/modules/ExportResult.ts");
-/* harmony import */ var _modules_ExportLST__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./modules/ExportLST */ "./src/ts/modules/ExportLST.ts");
+/* harmony import */ var _modules_BubbleTip__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./modules/BubbleTip */ "./src/ts/modules/BubbleTip.ts");
+/* harmony import */ var _modules_CheckNew__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./modules/CheckNew */ "./src/ts/modules/CheckNew.ts");
+/* harmony import */ var _modules_ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./modules/ShowWhatIsNew */ "./src/ts/modules/ShowWhatIsNew.ts");
+/* harmony import */ var _modules_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./modules/ExportResult2CSV */ "./src/ts/modules/ExportResult2CSV.ts");
+/* harmony import */ var _modules_ExportResult__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./modules/ExportResult */ "./src/ts/modules/ExportResult.ts");
+/* harmony import */ var _modules_ExportLST__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./modules/ExportLST */ "./src/ts/modules/ExportLST.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -134,6 +135,7 @@ __webpack_require__.r(__webpack_exports__);
     // 把脚本版的标记设置为 0，这样脚本版就不会运行
     window.sessionStorage.setItem('xz_pixiv_userscript', '0');
 }
+
 
 
 
@@ -913,6 +915,114 @@ class BookmarksAddTag {
 
 /***/ }),
 
+/***/ "./src/ts/modules/BubbleTip.ts":
+/*!*************************************!*\
+  !*** ./src/ts/modules/BubbleTip.ts ***!
+  \*************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Colors */ "./src/ts/modules/Colors.ts");
+
+
+// 冒泡提示
+// 提示会飘向页面顶部，并逐渐消失，适用于轻量、无需用户进行确认的提示
+class BubbleTip {
+    constructor() {
+        this.defaultCfg = {
+            text: '',
+            type: 'primary',
+            color: '',
+            dealy: 1000,
+            animation: 'bubble',
+        };
+        this.mousePosition = { x: 0, y: 0 };
+        this.tipClassName = 'xzBubbleTip';
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.sendBubbleTip, (ev) => {
+            const data = ev.detail.data;
+            const arg = Object.assign({}, this.defaultCfg, data);
+            this.create(arg);
+        });
+        // 必须是监听 mousemove 而不是 click
+        window.addEventListener('mousemove', (ev) => {
+            this.mousePosition.x = ev.x;
+            this.mousePosition.y = ev.y;
+        });
+    }
+    create(arg) {
+        const span = document.createElement('span');
+        span.textContent = arg.text;
+        // 颜色设置优先使用 color
+        span.style.color = arg.color ? arg.color : _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"][arg.type];
+        // top 值减去了大约一行文字的高度，这样文字出现时就处于鼠标上方
+        const y = this.mousePosition.y - 28;
+        span.style.top = y + 'px';
+        span.classList.add(this.tipClassName);
+        // 把提示添加到页面上
+        document.body.appendChild(span);
+        // 修正 left，使提示的中间点对齐鼠标点击的位置
+        const rect = span.getBoundingClientRect();
+        let left = this.mousePosition.x - (rect.width / 2);
+        const minLeft = 0; // 防止提示左侧超出窗口
+        const maxLeft = window.innerWidth - rect.width; // 防止提示右侧超出窗口
+        if (left < minLeft) {
+            left = minLeft;
+        }
+        if (left > maxLeft) {
+            left = maxLeft;
+        }
+        span.style.left = left + 'px';
+        // 一定时间后触发使提示消失
+        window.setTimeout(() => {
+            if (arg.animation === 'none') {
+                span.remove();
+            }
+            else {
+                this.animation(span, y, arg.animation);
+            }
+        }, arg.dealy);
+    }
+    // 让提示从当前位置飘到页面顶部
+    animation(el, top, way) {
+        // 不要给动画设置一个固定的执行总时长，否则根据 top 值的不同，动画的执行速度也不同
+        // const total = 3000 x
+        const onceMove = 3; // 每一帧移动多少像素
+        let numberOfTimes = 0; // 执行次数
+        const frame = function (timestamp) {
+            numberOfTimes++;
+            // 计算总共上移了多少像素
+            const move = onceMove * numberOfTimes;
+            // 计算透明度
+            // 最后乘以的数字是一个加速值，可以让提示以 n 倍的速度变透明
+            // 例如设置为 5，那么提示在走完 20% 的距离的时候就已经变得完全透明了
+            const opacity = 1 - (move / top) * 5;
+            if (top - move > 0 && opacity > 0) {
+                if (way === 'bubble') {
+                    el.style.top = top - move + 'px';
+                }
+                el.style.opacity = opacity.toString();
+                // 请求下一帧
+                window.requestAnimationFrame(frame);
+            }
+            else {
+                // 不再执行动画
+                el.remove();
+            }
+        };
+        window.requestAnimationFrame(frame);
+    }
+}
+new BubbleTip();
+
+
+/***/ }),
+
 /***/ "./src/ts/modules/CenterPanel.ts":
 /*!***************************************!*\
   !*** ./src/ts/modules/CenterPanel.ts ***!
@@ -1140,6 +1250,7 @@ const Colors = {
     green: '#14ad27',
     red: '#f33939',
     yellow: '#e49d00',
+    primary: '#0ea8ef',
     success: '#00ca19',
     warning: '#d27e00',
     error: '#f00',
@@ -2084,9 +2195,9 @@ class DestroyManager {
     constructor() {
         this.list = new Map();
         this.lastType = _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type;
-        this.bindEvent();
+        this.bindEvents();
     }
-    bindEvent() {
+    bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitchedTypeChange, () => {
             const fun = this.list.get(this.lastType);
             fun && fun();
@@ -3035,6 +3146,8 @@ EVT.list = {
     bookmarkModeEnd: 'bookmarkModeEnd',
     // 需要单独显示信息时触发
     showMsg: 'showMsg',
+    // 需要显示冒泡提示时触发
+    sendBubbleTip: 'sendBubbleTip',
     // 需要清空日志区域时触发
     clearLog: 'clearLog',
 };
@@ -3958,10 +4071,10 @@ class ImgViewer {
         const oldViewerContainer = document.querySelector('.viewer-container');
         oldViewerContainer && oldViewerContainer.remove();
         this.createImageList();
-        this.bindEvent();
+        this.bindEvents();
     }
     // 如果多次初始化查看器，这些事件会被多次绑定。但是因为回调函数内部判断了查看器实例，所以不会有问题
-    bindEvent() {
+    bindEvents() {
         document.addEventListener('keyup', (event) => {
             if (event.code === 'Escape') {
                 this.myViewer && this.myViewer.hide();
@@ -4179,11 +4292,12 @@ class ImgViewer {
                         type: 'unknown'
                     }
                 ]);
-                // 显示简单的动画效果
-                btn.classList.add('rotate360');
-                window.setTimeout(() => {
-                    btn.classList.remove('rotate360');
-                }, 1000);
+                // 显示提示
+                _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.sendBubbleTip, {
+                    text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已发送下载请求'),
+                    animation: 'fade',
+                    color: '#eee',
+                });
             });
         }
     }
@@ -7764,7 +7878,13 @@ const langText = {
         '新增設定項目<br>',
         'Added setting items<br>',
         '新たな機能を追加されました<br>',
-    ]
+    ],
+    _已发送下载请求: [
+        '已发送下载请求',
+        '已发送下载请求',
+        'Download request sent',
+        '已发送下载请求',
+    ],
 };
 
 
@@ -10409,7 +10529,7 @@ class ViewBigImage {
             '#js-mount-point-discovery',
         ];
         this.addBtn();
-        this.bindEvent();
+        this.bindEvents();
     }
     addBtn() {
         const btn = document.createElement('button');
@@ -10421,7 +10541,7 @@ class ViewBigImage {
         document.body.appendChild(btn);
         this.btn = document.body.querySelector('#' + this.btnId);
     }
-    bindEvent() {
+    bindEvents() {
         // 查找页面主体内容的容器
         let contentRoot = undefined;
         for (const selector of this.allRootSelector) {

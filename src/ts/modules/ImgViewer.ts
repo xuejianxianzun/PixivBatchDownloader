@@ -5,7 +5,7 @@ import { EVT } from './EVT'
 import { lang } from './Lang'
 import { theme } from './Theme'
 import { loading } from './Loading'
-import {states} from './States'
+import { states } from './States'
 
 // 所有参数
 interface Config {
@@ -102,11 +102,11 @@ class ImgViewer {
 
     this.createImageList()
 
-    this.bindEvent()
+    this.bindEvents()
   }
 
   // 如果多次初始化查看器，这些事件会被多次绑定。但是因为回调函数内部判断了查看器实例，所以不会有问题
-  private bindEvent() {
+  private bindEvents() {
     document.addEventListener('keyup', (event) => {
       if (event.code === 'Escape') {
         this.myViewer && this.myViewer.hide()
@@ -363,11 +363,13 @@ class ImgViewer {
           }
         ])
 
-        // 显示简单的动画效果
-        btn.classList.add('rotate360')
-        window.setTimeout(() => {
-          btn.classList.remove('rotate360')
-        }, 1000)
+        // 显示提示
+        EVT.fire(EVT.list.sendBubbleTip, {
+          text: lang.transl('_已发送下载请求'),
+          animation: 'fade',
+          color: '#eee',
+        })
+
       })
     }
   }

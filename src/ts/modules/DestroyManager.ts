@@ -5,13 +5,13 @@ import { EVT } from './EVT'
 // 页面把自己的 destory 函数注册到这个类里，当页面类型变化时会自动执行对应
 class DestroyManager {
   constructor() {
-    this.bindEvent()
+    this.bindEvents()
   }
 
   private list: Map<number, Function> = new Map()
   private lastType = pageType.type
 
-  private bindEvent() {
+  private bindEvents() {
     window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
       const fun = this.list.get(this.lastType)
       fun && fun()

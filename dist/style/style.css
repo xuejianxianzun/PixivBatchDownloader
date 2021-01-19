@@ -1439,7 +1439,7 @@ iframe[name='expandedFooter'] {
 }
 #xzMaskWrap {
   position: fixed;
-  margin: 0;
+  margin: auto;
   left: 0;
   right: 0;
   top: 0;
@@ -1449,4 +1449,14 @@ iframe[name='expandedFooter'] {
   background-color: #fff;
   justify-content: center;
   align-items: center;
+}
+.xzBubbleTip {
+  position: fixed;
+  z-index: 2147483647;
+  margin: auto;
+  font-size: 16px;
+  pointer-events: none;
+  display: inline-block;
+  max-width: 500px;
+  text-shadow: 0px 0px 1px #fff;
 }

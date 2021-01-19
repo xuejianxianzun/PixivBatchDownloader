@@ -1555,7 +1555,13 @@ const langText = {
     '新增設定項目<br>',
     'Added setting items<br>',
     '新たな機能を追加されました<br>',
-  ]
+  ],
+  _已发送下载请求:[
+    '已发送下载请求',
+    '已发送下载请求',
+    'Download request sent',
+    '已发送下载请求',
+  ],
 }
 
 export { langText, langTextKeys }
