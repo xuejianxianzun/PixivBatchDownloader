@@ -1,8 +1,8 @@
-import { API } from "./API"
-import { pageType } from "./PageType"
-import { EVT } from "./EVT"
+import { API } from './API'
+import { pageType } from './PageType'
+import { EVT } from './EVT'
 import { ImgViewer } from './ImgViewer'
-import { settings } from "./setting/Settings"
+import { settings } from './setting/Settings'
 
 // 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器，查看大图
 class ViewBigImage {
@@ -14,25 +14,31 @@ class ViewBigImage {
   private btn!: HTMLButtonElement
   private btnId = 'ViewBigImageBtn'
   private btnSize: number[] = [32, 32]
-  private hiddenBtnTimer = 0  // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
+  private hiddenBtnTimer = 0 // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
   private hiddenBtnDelay = 100
 
   private observer!: MutationObserver
 
-  private currentWorkId = ''  // 显示放大按钮时，保存触发事件的作品 id
+  private currentWorkId = '' // 显示放大按钮时，保存触发事件的作品 id
 
   private doNotShowBtn = false // 当点击了放大按钮后，进入此状态，此状态中不会显示放大按钮
   // 此状态是为了解决这个问题：点击了放大按钮之后，按钮会被隐藏，隐藏之后，鼠标下方就是图片缩略图区域，这会触发缩略图的鼠标事件，导致放大按钮马上就又显示了出来。所以点击放大按钮之后设置这个状态，在其为 true 的期间不会显示放大按钮。过一段时间再把它复位。复位所需的时间很短，因为只要能覆盖这段时间就可以了：从隐藏放大按钮开始算起，到缩略图触发鼠标事件结束。
 
   // 作品缩略图的选择器
   // 注意不是选择整个作品区域，而是只选择缩略图区域
-  private readonly selectors: string[] = ['._work', 'figure > div', 'div[width="136"]', 'div[width="184"]', 'div[width="288"]',]
+  private readonly selectors: string[] = [
+    '._work',
+    'figure > div',
+    'div[width="136"]',
+    'div[width="184"]',
+    'div[width="288"]',
+  ]
 
   // 页面主要内容区域的选择器
   private readonly allRootSelector: string[] = [
-    '#root',  // 大部分页面使用
+    '#root', // 大部分页面使用
     '#wrapper', // 旧版收藏页面使用
-    '#js-mount-point-discovery',  // 发现页面使用
+    '#js-mount-point-discovery', // 发现页面使用
   ]
 
   private addBtn() {
@@ -43,7 +49,9 @@ class ViewBigImage {
   <use xlink:href="#icon-fangda"></use>
 </svg>`
     document.body.appendChild(btn)
-    this.btn = document.body.querySelector('#' + this.btnId)! as HTMLButtonElement
+    this.btn = document.body.querySelector(
+      '#' + this.btnId
+    )! as HTMLButtonElement
   }
 
   private bindEvents() {
@@ -92,7 +100,6 @@ class ViewBigImage {
           autoStart: true,
           showLoading: true,
         })
-
       }
     })
   }
@@ -170,7 +177,8 @@ class ViewBigImage {
 
     window.clearTimeout(this.hiddenBtnTimer)
     const rect = target.getBoundingClientRect()
-    this.btn.style.left = window.pageXOffset + rect.left + rect.width - this.btnSize[0] + 'px'
+    this.btn.style.left =
+      window.pageXOffset + rect.left + rect.width - this.btnSize[0] + 'px'
     this.btn.style.top = window.pageYOffset + rect.top + 'px'
     this.btn.style.display = 'flex'
   }
@@ -188,7 +196,7 @@ class ViewBigImage {
     this.doNotShowBtn = true
     window.setTimeout(() => {
       this.doNotShowBtn = false
-    }, 100);
+    }, 100)
 
     window.clearTimeout(this.hiddenBtnTimer)
     this.btn.style.display = 'none'

@@ -80,8 +80,6 @@ class InitPixivisionPage extends InitPageBase {
     this.getPixivision()
   }
 
-
-
   // 保存要下载的图片的信息
   private addResult(id: string, url: string, ext: string) {
     store.addResult({

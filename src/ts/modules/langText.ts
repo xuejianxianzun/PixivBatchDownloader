@@ -1550,13 +1550,13 @@ const langText = {
     'Display the zoom icon on the thumbnail of the work',
     '在作品缩略图上显示放大图标',
   ],
-  _xzNew900:[
+  _xzNew900: [
     '新增设置项<br>',
     '新增設定項目<br>',
     'Added setting items<br>',
     '新たな機能を追加されました<br>',
   ],
-  _已发送下载请求:[
+  _已发送下载请求: [
     '已发送下载请求',
     '已发送下载请求',
     'Download request sent',

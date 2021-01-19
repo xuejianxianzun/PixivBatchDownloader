@@ -9,23 +9,23 @@ export interface BubbleTipArgOptional {
   // 可选，使用预定义的颜色
   type?: colorType
   // 可选，使用自定义的颜色
-  color?: string,
+  color?: string
   // 设置提示出现后的停留时间。停留时间过去之后，提示会飘向页面顶部。
-  stay?: number,
+  stay?: number
   // 消失时的动画效果
   // 默认 bubble 向上飘动并逐渐消失
   // fade 逐渐消失
   // none 没有动画，立即消失
-  animation?: 'bubble' | 'fade' | 'none',
+  animation?: 'bubble' | 'fade' | 'none'
 }
 
 // 完整的参数
 interface BubbleTipArg {
   text: string
   type: colorType
-  color: string,
-  dealy: number,
-  animation: 'bubble' | 'fade' | 'none',
+  color: string
+  dealy: number
+  animation: 'bubble' | 'fade' | 'none'
 }
 
 // 冒泡提示
@@ -79,11 +79,15 @@ class BubbleTip {
 
     // 修正 left，使提示的中间点对齐鼠标点击的位置
     const rect = span.getBoundingClientRect()
-    let left = this.mousePosition.x - (rect.width / 2)
+    let left = this.mousePosition.x - rect.width / 2
     const minLeft = 0 // 防止提示左侧超出窗口
-    const maxLeft = window.innerWidth - rect.width   // 防止提示右侧超出窗口
-    if (left < minLeft) { left = minLeft }
-    if (left > maxLeft) { left = maxLeft }
+    const maxLeft = window.innerWidth - rect.width // 防止提示右侧超出窗口
+    if (left < minLeft) {
+      left = minLeft
+    }
+    if (left > maxLeft) {
+      left = maxLeft
+    }
     span.style.left = left + 'px'
 
     // 一定时间后触发使提示消失
@@ -101,7 +105,7 @@ class BubbleTip {
     // 不要给动画设置一个固定的执行总时长，否则根据 top 值的不同，动画的执行速度也不同
     // const total = 3000 x
 
-    const onceMove = 3  // 每一帧移动多少像素
+    const onceMove = 3 // 每一帧移动多少像素
     let numberOfTimes = 0 // 执行次数
 
     const frame = function (timestamp: number) {
@@ -132,7 +136,6 @@ class BubbleTip {
 
     window.requestAnimationFrame(frame)
   }
-
 }
 
 new BubbleTip()

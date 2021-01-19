@@ -215,7 +215,11 @@ class DownloadControl {
     }
 
     // 视情况自动开始下载
-    if (settings.quietDownload || states.quickDownload || states.downloadFromViewer) {
+    if (
+      settings.quietDownload ||
+      states.quickDownload ||
+      states.downloadFromViewer
+    ) {
       this.startDownload()
     }
   }
