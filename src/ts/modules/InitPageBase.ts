@@ -156,7 +156,7 @@ abstract class InitPageBase {
       log.warning(
         lang.transl(
           '_多图作品下载前n张图片',
-          settingAPI.getFirstFewImages().toString()
+          settings.firstFewImages.toString()
         )
       )
     }

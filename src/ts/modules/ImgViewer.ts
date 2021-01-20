@@ -367,11 +367,13 @@ class ImgViewer {
 
     document.body.requestFullscreen()
 
-    // 这里延迟一段时间再把图片放大到 100%
-    // 这是因为进入全屏后，当前显示的这张图不会自动放大到 100%，所以需要对它执行一次放大。延迟时间不能为 0
-    window.setTimeout(() => {
-      this.myViewer.zoomTo(1)
-    }, 100)
+      // 这里延迟一段时间再把图片放大到 100%
+      // 这是因为进入全屏后，当前显示的这张图不会自动放大到 100%，所以需要对它执行一次放大。延迟时间不能太小
+      ;[150, 300].forEach(time => {
+        window.setTimeout(() => {
+          this.myViewer.zoomTo(1)
+        }, time)
+      })
   }
 
   // 在图片查看器里添加下载按钮

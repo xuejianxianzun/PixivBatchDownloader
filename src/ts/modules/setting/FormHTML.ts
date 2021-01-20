@@ -80,7 +80,7 @@ const formHtml = `<form class="settingForm">
       <p class="option" data-no="3">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_下载前几张图片提示'
-      )}">${lang.transl('_多图下载设置')}<span class="gray1"> ? </span></span>
+      ) + ', '+ lang.transl('_必须大于0')}" >${lang.transl('_多图下载设置')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="firstFewImagesSwitch">

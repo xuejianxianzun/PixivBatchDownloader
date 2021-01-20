@@ -4185,11 +4185,11 @@ class ImgViewer {
     enterFullScreenMode() {
         this.hideViewerOther();
         document.body.requestFullscreen();
-        // 这里延迟一段时间再把图片放大到 100%
-        // 这是因为进入全屏后，当前显示的这张图不会自动放大到 100%，所以需要对它执行一次放大。延迟时间不能为 0
-        window.setTimeout(() => {
-            this.myViewer.zoomTo(1);
-        }, 100);
+        [150, 300].forEach(time => {
+            window.setTimeout(() => {
+                this.myViewer.zoomTo(1);
+            }, time);
+        });
     }
     // 在图片查看器里添加下载按钮
     addDownloadBtn() {
@@ -5366,15 +5366,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./setting/Options */ "./src/ts/modules/setting/Options.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/modules/setting/Settings.ts");
-/* harmony import */ var _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./setting/SettingAPI */ "./src/ts/modules/setting/SettingAPI.ts");
-/* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
-/* harmony import */ var _artwork_SaveArtworkData__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./artwork/SaveArtworkData */ "./src/ts/modules/artwork/SaveArtworkData.ts");
-/* harmony import */ var _novel_SaveNovelData__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./novel/SaveNovelData */ "./src/ts/modules/novel/SaveNovelData.ts");
-/* harmony import */ var _filter_Mute__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./filter/Mute */ "./src/ts/modules/filter/Mute.ts");
-/* harmony import */ var _SelectWork__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./SelectWork */ "./src/ts/modules/SelectWork.ts");
-/* harmony import */ var _DestroyManager__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./DestroyManager */ "./src/ts/modules/DestroyManager.ts");
+/* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
+/* harmony import */ var _artwork_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./artwork/SaveArtworkData */ "./src/ts/modules/artwork/SaveArtworkData.ts");
+/* harmony import */ var _novel_SaveNovelData__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./novel/SaveNovelData */ "./src/ts/modules/novel/SaveNovelData.ts");
+/* harmony import */ var _filter_Mute__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./filter/Mute */ "./src/ts/modules/filter/Mute.ts");
+/* harmony import */ var _SelectWork__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./SelectWork */ "./src/ts/modules/SelectWork.ts");
+/* harmony import */ var _DestroyManager__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./DestroyManager */ "./src/ts/modules/DestroyManager.ts");
 // 初始化所有页面抓取流程的基类
-
 
 
 
@@ -5408,10 +5406,10 @@ class InitPageBase {
         this.addAnyElement();
         this.initAny();
         // 注册当前页面的 destroy 函数
-        _DestroyManager__WEBPACK_IMPORTED_MODULE_15__["destroyManager"].register(this.destroy.bind(this));
+        _DestroyManager__WEBPACK_IMPORTED_MODULE_14__["destroyManager"].register(this.destroy.bind(this));
         // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].bindOnce('clearLogAfterPageSwitch', _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.pageSwitch, () => {
-            if (!_States__WEBPACK_IMPORTED_MODULE_10__["states"].busy) {
+            if (!_States__WEBPACK_IMPORTED_MODULE_9__["states"].busy) {
                 _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.clearLog);
             }
         });
@@ -5503,13 +5501,13 @@ class InitPageBase {
     getMultipleSetting() {
         // 获取作品张数设置
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].firstFewImagesSwitch) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品下载前n张图片', _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_9__["settingAPI"].getFirstFewImages().toString()));
+            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品下载前n张图片', _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].firstFewImages.toString()));
         }
     }
     // 准备正常进行抓取，执行一些检查
     async readyCrawl() {
         // 检查是否可以开始抓取
-        if (_States__WEBPACK_IMPORTED_MODULE_10__["states"].busy) {
+        if (_States__WEBPACK_IMPORTED_MODULE_9__["states"].busy) {
             return _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].sendMsg({
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成2'),
                 type: 'error',
@@ -5517,7 +5515,7 @@ class InitPageBase {
         }
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
-        await _filter_Mute__WEBPACK_IMPORTED_MODULE_13__["mute"].getMuteSettings();
+        await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__["mute"].getMuteSettings();
         this.getWantPage();
         this.getMultipleSetting();
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.crawlStart);
@@ -5529,7 +5527,7 @@ class InitPageBase {
     // 这个类的子类没有必要使用这个方法。当子类想要直接指定 id 列表时，修改自己的 getIdList 方法即可。
     async downloadIdList(idList) {
         // 检查是否可以开始抓取
-        if (_States__WEBPACK_IMPORTED_MODULE_10__["states"].busy) {
+        if (_States__WEBPACK_IMPORTED_MODULE_9__["states"].busy) {
             return _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].sendMsg({
                 msg: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_当前任务尚未完成2'),
                 type: 'error',
@@ -5537,7 +5535,7 @@ class InitPageBase {
         }
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].clear();
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_任务开始0'));
-        await _filter_Mute__WEBPACK_IMPORTED_MODULE_13__["mute"].getMuteSettings();
+        await _filter_Mute__WEBPACK_IMPORTED_MODULE_12__["mute"].getMuteSettings();
         this.getMultipleSetting();
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.crawlStart);
         _Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList = idList;
@@ -5553,7 +5551,7 @@ class InitPageBase {
     getIdListFinished() {
         this.resetGetIdListStatus();
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.getIdListFinished);
-        if (_States__WEBPACK_IMPORTED_MODULE_10__["states"].bookmarkMode) {
+        if (_States__WEBPACK_IMPORTED_MODULE_9__["states"].bookmarkMode) {
             return;
         }
         if (_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.length === 0) {
@@ -5589,11 +5587,11 @@ class InitPageBase {
         try {
             if (idData.type === 'novels') {
                 const data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getNovelData(id);
-                await _novel_SaveNovelData__WEBPACK_IMPORTED_MODULE_12__["saveNovelData"].save(data);
+                await _novel_SaveNovelData__WEBPACK_IMPORTED_MODULE_11__["saveNovelData"].save(data);
             }
             else {
                 const data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getArtworkData(id);
-                await _artwork_SaveArtworkData__WEBPACK_IMPORTED_MODULE_11__["saveArtworkData"].save(data);
+                await _artwork_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__["saveArtworkData"].save(data);
             }
         }
         catch (error) {
@@ -15321,7 +15319,7 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="3">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载前几张图片提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图下载设置')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载前几张图片提示') + ', ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_必须大于0')}" >${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图下载设置')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="firstFewImagesSwitch">
@@ -16396,46 +16394,16 @@ class SaveNamingRule {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "settingAPI", function() { return settingAPI; });
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Log */ "./src/ts/modules/Log.ts");
-/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Settings */ "./src/ts/modules/setting/Settings.ts");
-
-
-
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Settings */ "./src/ts/modules/setting/Settings.ts");
 
 // 设置相关的 API
 class SettingAPI {
     constructor() {
-        this.firstFewImages = 0; // 缓存多图作品只下载前几张图片的值
-        this.bindEvents();
-        this.firstFewImages = this.getFirstFewImages();
-    }
-    bindEvents() {
-        // 当 firstFewImages 设置改变时，保存它的值
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
-            this.firstFewImages = this.getFirstFewImages();
-        });
-    }
-    // 获取作品张数设置
-    getFirstFewImages() {
-        if (_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].firstFewImages > 0) {
-            return _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].firstFewImages;
-        }
-        // 如果用户输入的数字不合法（不大于0）
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.wrongSetting);
-        const msg = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载前几张图片') + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_必须大于0');
-        _Log__WEBPACK_IMPORTED_MODULE_2__["log"].error(msg);
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].sendMsg({
-            msg: msg,
-            type: 'error',
-        });
-        throw new Error(msg);
     }
     // 计算要从这个作品里下载几张图片
     getDLCount(pageCount) {
-        if (_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].firstFewImagesSwitch && this.firstFewImages <= pageCount) {
-            return this.firstFewImages;
+        if (_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].firstFewImagesSwitch && _Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].firstFewImages <= pageCount) {
+            return _Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].firstFewImages;
         }
         return pageCount;
     }
@@ -16739,6 +16707,11 @@ class Settings {
                     return;
                 }
             }
+        }
+        // 遇到不合法的设置，不保存
+        if (key === 'firstFewImages' && value < 1) {
+            // value = this.defaultSettings[key]
+            return;
         }
         // 更改设置
         ;

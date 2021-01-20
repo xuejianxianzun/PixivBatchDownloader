@@ -392,8 +392,14 @@ class Settings {
       }
     }
 
+    // 遇到不合法的设置，不保存
+    if (key === 'firstFewImages' && value < 1) {
+      // value = this.defaultSettings[key]
+      return
+    }
+
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
 
     // 触发设置变化的事件
     // 在进行批量操作（如恢复设置、导入设置、重置设置）的时候，可以将 fireEvt 设为 false，等操作执行之后自行触发这个事件
