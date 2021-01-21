@@ -8,7 +8,6 @@ import { log } from './Log'
 import { EVT } from './EVT'
 import { options } from './setting/Options'
 import { settings } from './setting/Settings'
-import { settingAPI } from './setting/SettingAPI'
 import { states } from './States'
 import { saveArtworkData } from './artwork/SaveArtworkData'
 import { saveNovelData } from './novel/SaveNovelData'
@@ -16,6 +15,8 @@ import { mute } from './filter/Mute'
 import { IDData } from './Store.d'
 import './SelectWork'
 import { destroyManager } from './DestroyManager'
+import { vipSearchOptimize } from './VipSearchOptimize'
+import { ArtworkData, NovelData } from './CrawlResult.d'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数
@@ -28,9 +29,11 @@ abstract class InitPageBase {
 
   protected readonly ajaxThreadsDefault = 10 // 抓取时的并发连接数默认值，也是最大值
 
-  protected ajaxThreads = this.ajaxThreadsDefault // 抓取时的并发连接数
+  protected ajaxThread = this.ajaxThreadsDefault // 抓取时的并发请求数
 
-  protected ajaxThreadsFinished = 0 // 统计有几个并发线程完成所有请求。统计的是并发线程（ ajaxThreads ）而非请求数
+  protected finishedRequest = 0 // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
+
+  protected crawlStopped = false // 抓取是否已停止
 
   // 子组件不应该修改 init 方法，但可以重载里面的方法
   protected init() {
@@ -182,9 +185,13 @@ abstract class InitPageBase {
 
     this.getMultipleSetting()
 
+    this.finishedRequest = 0
+
+    this.crawlStopped = false
+
     EVT.fire(EVT.list.crawlStart)
 
-    // 进入第一个抓取方法
+    // 进入第一个抓取流程
     this.nextStep()
   }
 
@@ -207,6 +214,10 @@ abstract class InitPageBase {
     await mute.getMuteSettings()
 
     this.getMultipleSetting()
+
+    this.finishedRequest = 0
+
+    this.crawlStopped = false
 
     EVT.fire(EVT.list.crawlStart)
 
@@ -244,15 +255,18 @@ abstract class InitPageBase {
     log.log(lang.transl('_开始获取作品信息'))
 
     if (store.idList.length <= this.ajaxThreadsDefault) {
-      this.ajaxThreads = store.idList.length
+      this.ajaxThread = store.idList.length
     } else {
-      this.ajaxThreads = this.ajaxThreadsDefault
+      this.ajaxThread = this.ajaxThreadsDefault
     }
 
-    for (let i = 0; i < this.ajaxThreads; i++) {
+    for (let i = 0; i < this.ajaxThread; i++) {
       this.getWorksData()
     }
   }
+
+  // 重设抓取作品列表时使用的变量或标记
+  protected resetGetIdListStatus() {}
 
   // 获取作品的数据
   protected async getWorksData(idData?: IDData) {
@@ -268,51 +282,58 @@ abstract class InitPageBase {
       throw new Error(msg)
     }
 
-    let failed = false // 请求失败的标记
-
     try {
       if (idData.type === 'novels') {
         const data = await API.getNovelData(id)
         await saveNovelData.save(data)
+        this.afterGetWorksData(data)
       } else {
         const data = await API.getArtworkData(id)
         await saveArtworkData.save(data)
+        this.afterGetWorksData(data)
       }
     } catch (error) {
       if (error.status) {
-        // 请求成功，但状态码不正常，不会重试
+        // 请求成功，但状态码不正常，不再重试
         this.logErrorStatus(error.status, id)
+        this.afterGetWorksData()
       } else {
-        // 请求失败，没有获得服务器的返回数据，会重试
+        // 请求失败，没有获得服务器的返回数据
         // 这里也会捕获到 save 作品数据时的错误
-        failed = true
         console.error(error)
-      }
-    }
 
-    if (failed) {
-      // 再次发送这个请求
-      setTimeout(() => {
-        this.getWorksData(idData)
-      }, 2000)
-    } else {
-      this.afterGetWorksData()
+        // 再次发送这个请求
+        setTimeout(() => {
+          this.getWorksData(idData)
+        }, 2000)
+      }
     }
   }
 
   // 每当获取完一个作品的信息
-  private afterGetWorksData() {
+  private async afterGetWorksData(data?: NovelData | ArtworkData) {
+    // 抓取可能中途停止，在停止之后完成的抓取不进行任何处理
+    if (this.crawlStopped) {
+      return
+    }
+
     this.logResultTotal()
+
+    // 如果会员搜索优化策略指示停止抓取，则立即进入完成状态
+    if (data && (await vipSearchOptimize.stopCrawl(data, this.ajaxThread))) {
+      // 指示抓取已停止
+      this.crawlStopped = true
+      this.crawlFinished()
+    }
 
     if (store.idList.length > 0) {
       // 如果存在下一个作品，则
       this.getWorksData()
     } else {
-      // 没有剩余作品
-      this.ajaxThreadsFinished++
-      if (this.ajaxThreadsFinished === this.ajaxThreads) {
-        // 如果所有并发请求都执行完毕，复位
-        this.ajaxThreadsFinished = 0
+      // 没有剩余作品，统计此后有多少个完成的请求
+      this.finishedRequest++
+      // 所有请求都执行完毕
+      if (this.finishedRequest === this.ajaxThread) {
         this.crawlFinished()
       }
     }
@@ -337,9 +358,6 @@ abstract class InitPageBase {
     // 发出抓取完毕的信号
     EVT.fire(EVT.list.crawlFinish)
   }
-
-  // 重设抓取作品列表时使用的变量或标记
-  protected resetGetIdListStatus() {}
 
   // 网络请求状态异常时输出提示
   private logErrorStatus(status: number, id: string) {

@@ -2,8 +2,7 @@ import { settings } from './Settings'
 
 // 设置相关的 API
 class SettingAPI {
-  constructor() {
-  }
+  constructor() {}
 
   // 计算要从这个作品里下载几张图片
   public getDLCount(pageCount: number) {

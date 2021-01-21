@@ -13,6 +13,7 @@ import { FastScreen } from '../FastScreen'
 import { DOM } from '../DOM'
 import { BookmarkAllWorks } from '../BookmarkAllWorks'
 import { Tools } from '../Tools'
+import { idListWithPageNo } from '../IdListWithPageNo'
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
@@ -46,6 +47,8 @@ class InitSearchNovelPage extends InitPageBase {
     'original_only',
     'work_lang',
   ]
+
+  private readonly flag = 'searchNovel'
 
   protected initAny() {
     new FastScreen()
@@ -171,12 +174,12 @@ class InitSearchNovelPage extends InitPageBase {
   // 计算页数之后，准备建立并发抓取线程
   private startGetIdList() {
     if (this.needCrawlPageCount <= this.ajaxThreadsDefault) {
-      this.ajaxThreads = this.needCrawlPageCount
+      this.ajaxThread = this.needCrawlPageCount
     } else {
-      this.ajaxThreads = this.ajaxThreadsDefault
+      this.ajaxThread = this.ajaxThreadsDefault
     }
 
-    for (let i = 0; i < this.ajaxThreads; i++) {
+    for (let i = 0; i < this.ajaxThread; i++) {
       this.getIdList()
     }
   }
@@ -209,10 +212,14 @@ class InitSearchNovelPage extends InitPageBase {
       }
 
       if (await filter.check(filterOpt)) {
-        store.idList.push({
-          type: 'novels',
-          id: nowData.id,
-        })
+        idListWithPageNo.add(
+          this.flag,
+          {
+            type: 'novels',
+            id: nowData.id,
+          },
+          p
+        )
       }
     }
 
@@ -232,6 +239,9 @@ class InitSearchNovelPage extends InitPageBase {
       if (this.listPageFinished === this.needCrawlPageCount) {
         // 抓取任务全部完成
         log.log(lang.transl('_列表页抓取完成'))
+
+        idListWithPageNo.store(this.flag)
+
         this.getIdListFinished()
       }
     }

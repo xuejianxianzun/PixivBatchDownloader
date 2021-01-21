@@ -20,6 +20,7 @@ import { DOM } from '../DOM'
 import { BookmarkAllWorks } from '../BookmarkAllWorks'
 import { states } from '../States'
 import { Tools } from '../Tools'
+import { idListWithPageNo } from '../IdListWithPageNo'
 
 type AddBMKData = {
   id: number
@@ -74,6 +75,8 @@ class InitSearchArtworkPage extends InitPageBase {
   private deleteId = 0 // 手动删除时，要删除的作品的 id
 
   private causeResultChange = ['firstFewImagesSwitch', 'firstFewImages'] // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
+
+  private readonly flag = 'searchArtwork'
 
   protected setFormOption() {
     // 个数/页数选项的提示
@@ -285,12 +288,12 @@ class InitSearchArtworkPage extends InitPageBase {
   // 建立并发抓取线程
   private startGetIdList() {
     if (this.needCrawlPageCount <= this.ajaxThreadsDefault) {
-      this.ajaxThreads = this.needCrawlPageCount
+      this.ajaxThread = this.needCrawlPageCount
     } else {
-      this.ajaxThreads = this.ajaxThreadsDefault
+      this.ajaxThread = this.ajaxThreadsDefault
     }
 
-    for (let i = 0; i < this.ajaxThreads; i++) {
+    for (let i = 0; i < this.ajaxThread; i++) {
       this.getIdList()
     }
   }
@@ -331,10 +334,14 @@ class InitSearchArtworkPage extends InitPageBase {
       }
 
       if (await filter.check(filterOpt)) {
-        store.idList.push({
-          type: API.getWorkType(nowData.illustType),
-          id: nowData.id,
-        })
+        idListWithPageNo.add(
+          this.flag,
+          {
+            type: API.getWorkType(nowData.illustType),
+            id: nowData.id,
+          },
+          p
+        )
       }
     }
 
@@ -354,6 +361,9 @@ class InitSearchArtworkPage extends InitPageBase {
       if (this.listPageFinished === this.needCrawlPageCount) {
         // 抓取任务全部完成
         log.log(lang.transl('_列表页抓取完成'))
+
+        idListWithPageNo.store(this.flag)
+
         this.getIdListFinished()
       }
     }

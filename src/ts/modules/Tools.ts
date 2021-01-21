@@ -57,16 +57,16 @@ class Tools {
   }
 
   // 根据对象某个属性的值（视为数字）排序对象。返回的结果是降序排列
-  static sortByProperty(key: string) {
+  static sortByProperty(key: string, order: 'desc' | 'asc' = 'desc') {
     return function (a: any, b: any) {
       // 排序的内容有时可能是字符串，需要转换成数字排序
       const value1 = typeof a[key] === 'number' ? a[key] : parseFloat(a[key])
       const value2 = typeof b[key] === 'number' ? b[key] : parseFloat(b[key])
 
       if (value2 < value1) {
-        return -1
+        return order === 'desc' ? -1 : 1
       } else if (value2 > value1) {
-        return 1
+        return order === 'desc' ? 1 : -1
       } else {
         return 0
       }
