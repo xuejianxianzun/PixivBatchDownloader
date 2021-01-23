@@ -1431,6 +1431,7 @@
           success: '#00ca19',
           warning: '#d27e00',
           error: '#f00',
+          beautifyBlue: '#29b3f3',
         }
 
         /***/
@@ -7271,7 +7272,6 @@
                 'vipSearchOptimize'
               ].stopCrawl(data, this.ajaxThread))
             ) {
-              console.log('stop')
               // 指示抓取已停止
               this.crawlStopped = true
               this.crawlFinished()
@@ -9770,21 +9770,21 @@
           _更新成功: ['更新成功', '更新成功', 'update completed', '更新成功'],
           _在作品缩略图上显示放大图标: [
             '在作品缩略图上显示放大图标',
-            '在作品缩略图上显示放大图标',
-            'Display the zoom icon on the thumbnail of the work',
-            '在作品缩略图上显示放大图标',
+            '在作品縮圖上顯示放大圖示',
+            'Show zoom icon on thumbnail',
+            '作品のサムネイルに拡大アイコンを表示する',
           ],
           _xzNew900: [
-            '新增设置项<br>',
-            '新增設定項目<br>',
-            'Added setting items<br>',
-            '新たな機能を追加されました<br>',
+            '新增设置项<br>在作品缩略图上显示放大图标',
+            '新增設定項目<br>在作品縮圖上顯示放大圖示',
+            'Added setting items<br>Show zoom icon on the thumbnail of the work',
+            '新たな機能を追加されました<br>作品のサムネイルに拡大アイコンを表示する',
           ],
           _已发送下载请求: [
             '已发送下载请求',
-            '已发送下载请求',
+            '已傳送下載請求',
             'Download request sent',
-            '已发送下载请求',
+            'ダウンロードリクエストを送信しました',
           ],
         }
 
@@ -12732,8 +12732,9 @@ flag 及其含义如下：
           constructor() {
             this.defaultCfg = {
               text: '',
-              type: 'white',
+              colorType: 'white',
               color: '',
+              bgColorType: 'beautifyBlue',
               bgColor: '',
               dealy: 1000,
               animation: 'fade',
@@ -12760,13 +12761,14 @@ flag 及其含义如下：
           create(arg) {
             const span = document.createElement('span')
             span.textContent = arg.text
-            // 颜色设置，优先使用 color
+            // 设置文字颜色，优先使用 color
             span.style.color = arg.color
               ? arg.color
-              : _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'][arg.type]
-            if (arg.bgColor) {
-              span.style.backgroundColor = arg.bgColor
-            }
+              : _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'][arg.colorType]
+            // 设置背景颜色，优先使用 color
+            span.style.backgroundColor = arg.bgColor
+              ? arg.bgColor
+              : _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'][arg.bgColorType]
             // top 值减去一点高度，使文字出现在鼠标上方
             const y = this.mousePosition.y - 40
             span.style.top = y + 'px'
@@ -13285,7 +13287,6 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.crawlStart,
               () => {
                 this.vipSearchOptimize = this.setVipOptimize()
-                console.log('vipSearchOptimize', this.vipSearchOptimize)
               }
             )
             // 抓取完毕时重置状态
@@ -15245,7 +15246,6 @@ flag 及其含义如下：
             let data
             try {
               data = await this.getSearchData(p)
-              console.log(p)
             } catch (_a) {
               return this.getIdList(p)
             }
@@ -15741,7 +15741,6 @@ flag 及其含义如下：
             // 去除 tag 里重复的内容
             tagsWithTransl = Array.from(new Set(tagsWithTransl))
             tagsTranslOnly = Array.from(new Set(tagsTranslOnly))
-            console.log(bmk, body.id)
             const filterOpt = {
               createDate: body.createDate,
               id: body.id,
@@ -21258,13 +21257,16 @@ flag 及其含义如下：
                 '_已保存命名规则'
               )
             )
-            // 用对话框提醒，否则用户可能没有感知到反馈
-            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].sendMsg({
-              type: 'success',
-              msg: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_已保存命名规则'
-              ),
-            })
+            // 显示提示
+            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.sendToast,
+              {
+                text: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                  '_已保存命名规则'
+                ),
+                bgColorType: 'green',
+              }
+            )
           }
           delete(index) {
             const list = Array.from(

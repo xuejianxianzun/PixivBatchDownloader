@@ -1546,21 +1546,21 @@ const langText = {
   _更新成功: ['更新成功', '更新成功', 'update completed', '更新成功'],
   _在作品缩略图上显示放大图标: [
     '在作品缩略图上显示放大图标',
-    '在作品缩略图上显示放大图标',
-    'Display the zoom icon on the thumbnail of the work',
-    '在作品缩略图上显示放大图标',
+    '在作品縮圖上顯示放大圖示',
+    'Show zoom icon on thumbnail',
+    '作品のサムネイルに拡大アイコンを表示する',
   ],
   _xzNew900: [
-    '新增设置项<br>',
-    '新增設定項目<br>',
-    'Added setting items<br>',
-    '新たな機能を追加されました<br>',
+    '新增设置项<br>在作品缩略图上显示放大图标',
+    '新增設定項目<br>在作品縮圖上顯示放大圖示',
+    'Added setting items<br>Show zoom icon on the thumbnail of the work',
+    '新たな機能を追加されました<br>作品のサムネイルに拡大アイコンを表示する',
   ],
   _已发送下载请求: [
     '已发送下载请求',
-    '已发送下载请求',
+    '已傳送下載請求',
     'Download request sent',
-    '已发送下载请求',
+    'ダウンロードリクエストを送信しました',
   ],
 }
 

@@ -8,10 +8,13 @@ export interface ToastArgOptional {
   text: string
   // 可选，使用预定义的颜色描述字符
   // 默认为白色
-  type?: colorType
-  // 可选，设置字体颜色，优先级高于 type，无默认值
+  colorType?: colorType
+  // 可选，设置字体颜色，优先级高于 colorType ，无默认值
   color?: string
-  // 可选，设置背景颜色，无默认值
+  // 可选，使用预定义的颜色描述字符
+  // 默认为浅蓝色
+  bgColorType?: colorType
+  // 可选，设置背景颜色，优先级高于 bgColorType, 无默认值
   bgColor?: string
   // 设置提示出现后的停留时间（毫秒）。停留时间过去之后，提示会飘向页面顶部。
   // 默认 1000 ms
@@ -26,8 +29,9 @@ export interface ToastArgOptional {
 // 完整的参数
 interface ToastTipArg {
   text: string
-  type: colorType
+  colorType: colorType
   color: string
+  bgColorType: colorType
   bgColor: string
   dealy: number
   animation: 'bubble' | 'fade' | 'none'
@@ -42,8 +46,9 @@ class Toast {
 
   private defaultCfg: ToastTipArg = {
     text: '',
-    type: 'white',
+    colorType: 'white',
     color: '',
+    bgColorType: 'beautifyBlue',
     bgColor: '',
     dealy: 1000,
     animation: 'fade',
@@ -71,12 +76,13 @@ class Toast {
     const span = document.createElement('span')
     span.textContent = arg.text
 
-    // 颜色设置，优先使用 color
-    span.style.color = arg.color ? arg.color : Colors[arg.type]
+    // 设置文字颜色，优先使用 color
+    span.style.color = arg.color ? arg.color : Colors[arg.colorType]
 
-    if (arg.bgColor) {
-      span.style.backgroundColor = arg.bgColor
-    }
+    // 设置背景颜色，优先使用 color
+    span.style.backgroundColor = arg.bgColor
+      ? arg.bgColor
+      : Colors[arg.bgColorType]
 
     // top 值减去一点高度，使文字出现在鼠标上方
     const y = this.mousePosition.y - 40

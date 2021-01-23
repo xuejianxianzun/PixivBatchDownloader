@@ -8,6 +8,7 @@ const Colors = {
   success: '#00ca19',
   warning: '#d27e00',
   error: '#f00',
+  beautifyBlue: '#29b3f3',
 }
 type colorType = keyof typeof Colors
 export { Colors, colorType }
