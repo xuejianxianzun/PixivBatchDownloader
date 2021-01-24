@@ -133,29 +133,14 @@ class QuickBookmark {
   }
 
   // 收藏这个作品
-  private bookmark(type: WorkType, id: string) {
+  private async bookmark(type: WorkType, id: string) {
     let tags: string[] = []
-    // 如果设置了附带 tag，则从页面上获取 tag
+    // 如果设置了附带 tag，则获取 tag
     if (settings.widthTag === 'yes') {
-      const tagElements = document.querySelectorAll('._1LEXQ_3 li')
-      for (const el of tagElements) {
-        const nowA = el.querySelector('a')
-        if (nowA) {
-          const nowTag = nowA.textContent!.trim()
-          if (nowTag) {
-            tags.push(nowTag)
-          }
-        }
+      const data = await API.getArtworkData(id)
+      for (const tagData of data.body.tags.tags) {
+        tags.push(tagData.tag)
       }
-    }
-
-    // 如果一个作品是原创作品，它的 tag 列表的最前面会显示“原创” tag。以前是统一显示日文的“オリジナル”，现在则会根据用户语言显示不同的文字。这里会把“オリジナル”添加到末尾，保持和以前的习惯一致。
-    if (
-      tags.includes('原创') ||
-      tags.includes('Original') ||
-      tags.includes('창작')
-    ) {
-      tags.push('オリジナル')
     }
 
     // 调用添加收藏的 api
