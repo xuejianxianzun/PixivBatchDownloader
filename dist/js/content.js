@@ -980,6 +980,13 @@
             _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].list.bookmarkModeEnd
             )
+            _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].fire(
+              _EVT__WEBPACK_IMPORTED_MODULE_4__['EVT'].list.sendToast,
+              {
+                text: `✓ Complete`,
+                bgColorType: 'green',
+              }
+            )
           }
         }
 
@@ -1009,6 +1016,9 @@
         )
         /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Token */ './src/ts/modules/Token.ts'
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
 
         // 给收藏页面里的未分类作品批量添加 tag
@@ -1110,6 +1120,13 @@
             } else {
               this.btn.textContent = `✓ Complete`
               this.btn.removeAttribute('disabled')
+              _EVT__WEBPACK_IMPORTED_MODULE_3__['EVT'].fire(
+                _EVT__WEBPACK_IMPORTED_MODULE_3__['EVT'].list.sendToast,
+                {
+                  text: `✓ Complete`,
+                  bgColorType: 'green',
+                }
+              )
             }
           }
         }

@@ -7,6 +7,7 @@ import {
   BookmarkResult,
   ArtworkCommonData,
 } from './CrawlResult.d'
+import { EVT } from './EVT'
 
 // 给收藏页面里的未分类作品批量添加 tag
 class BookmarksAddTag {
@@ -104,6 +105,11 @@ class BookmarksAddTag {
     } else {
       this.btn!.textContent = `✓ Complete`
       this.btn!.removeAttribute('disabled')
+
+      EVT.fire(EVT.list.sendToast, {
+        text: `✓ Complete`,
+        bgColorType: 'green',
+      })
     }
   }
 }

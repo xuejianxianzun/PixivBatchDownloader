@@ -153,6 +153,11 @@ class BookmarkAllWorks {
     this.tipWrap.textContent = `✓ Complete`
     this.tipWrap.removeAttribute('disabled')
     EVT.fire(EVT.list.bookmarkModeEnd)
+
+    EVT.fire(EVT.list.sendToast, {
+      text: `✓ Complete`,
+      bgColorType: 'green',
+    })
   }
 }
 
