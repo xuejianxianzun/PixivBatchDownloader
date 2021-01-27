@@ -68,8 +68,8 @@ class Form {
 
   private formSettings: FormSettings
 
-  private readonly tipCreateFolderFlag = 'tipCreateFolder'  // 控制“创建文件夹的提示”是否显示
-  private readonly tipCreateFolderId = 'tipCreateFolder'  // “创建文件夹的提示”的容器 id
+  private readonly tipCreateFolderFlag = 'tipCreateFolder' // 控制“创建文件夹的提示”是否显示
+  private readonly tipCreateFolderId = 'tipCreateFolder' // “创建文件夹的提示”的容器 id
 
   // 设置激活的选项卡
   private activeTab(no = 0) {
@@ -315,7 +315,9 @@ class Form {
 
   // 是否显示“创建文件夹的提示”
   private checkTipCreateFolder() {
-    const tip = this.form.querySelector('#' + this.tipCreateFolderId) as HTMLElement
+    const tip = this.form.querySelector(
+      '#' + this.tipCreateFolderId
+    ) as HTMLElement
     if (!tip) {
       return
     }

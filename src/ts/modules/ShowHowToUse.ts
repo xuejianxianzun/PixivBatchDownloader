@@ -20,7 +20,7 @@ class ShowHowToUse {
     EVT.sendMsg({
       title: Config.name,
       msg: lang.transl('_HowToUse'),
-      btn: lang.transl('_我知道了')
+      btn: lang.transl('_我知道了'),
     })
 
     window.localStorage.setItem(this.flag, '1')

@@ -21,18 +21,18 @@ class SaveUserCover {
     const userProfile = await API.getUserProfile(userId)
     const bgData = userProfile.body.background
     if (bgData === null) {
-      return EVT.sendMsg({
-        msg: lang.transl('_没有数据可供使用'),
-        type: 'error',
+      return EVT.fire(EVT.list.sendToast, {
+        text: lang.transl('_没有数据可供使用'),
+        bgColorType: 'error',
       })
     }
 
     const bgUrl = bgData.url
 
     if (!bgUrl) {
-      return EVT.sendMsg({
-        msg: lang.transl('_没有数据可供使用'),
-        type: 'error',
+      return EVT.fire(EVT.list.sendToast, {
+        text: lang.transl('_没有数据可供使用'),
+        bgColorType: 'error',
       })
     }
 

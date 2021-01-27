@@ -240,8 +240,9 @@ const formHtml = `<form class="settingForm">
     </div>
     <div class="con">
     <p class="option" data-no="13">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_设置文件夹名的提示') + '<br>' + '{user}/{id}'}">${lang.transl('_命名规则')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-tip="${
+        lang.transl('_设置文件夹名的提示') + '<br>' + '{user}/{id}'
+      }">${lang.transl('_命名规则')}<span class="gray1"> ? </span></span>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
       <select name="fileNameSelect">
         <option value="default">…</option>

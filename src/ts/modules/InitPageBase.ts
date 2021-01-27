@@ -169,10 +169,11 @@ abstract class InitPageBase {
   protected async readyCrawl() {
     // 检查是否可以开始抓取
     if (states.busy) {
-      return EVT.sendMsg({
-        msg: lang.transl('_当前任务尚未完成2'),
-        type: 'error',
+      EVT.fire(EVT.list.sendToast, {
+        text: lang.transl('_当前任务尚未完成'),
+        bgColorType: 'error',
       })
+      return
     }
 
     log.clear()
@@ -201,10 +202,11 @@ abstract class InitPageBase {
   protected async downloadIdList(idList: IDData[]) {
     // 检查是否可以开始抓取
     if (states.busy) {
-      return EVT.sendMsg({
-        msg: lang.transl('_当前任务尚未完成2'),
-        type: 'error',
+      EVT.fire(EVT.list.sendToast, {
+        text: lang.transl('_当前任务尚未完成'),
+        bgColorType: 'error',
       })
+      return
     }
 
     log.clear()

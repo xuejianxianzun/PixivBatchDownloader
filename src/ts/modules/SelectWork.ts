@@ -335,9 +335,9 @@ class SelectWork {
   // 抓取选择的作品，这会暂停选择
   private downloadSelect() {
     if (states.busy) {
-      EVT.sendMsg({
-        msg: lang.transl('_当前任务尚未完成'),
-        type: 'error',
+      EVT.fire(EVT.list.sendToast, {
+        text: lang.transl('_当前任务尚未完成'),
+        bgColorType: 'error',
       })
       return
     }
@@ -351,9 +351,9 @@ class SelectWork {
       this.sendCrawl = true
       this.crawled = false
     } else {
-      EVT.sendMsg({
-        msg: lang.transl('_没有数据可供使用'),
-        type: 'error',
+      EVT.fire(EVT.list.sendToast, {
+        text: lang.transl('_没有数据可供使用'),
+        bgColorType: 'error',
       })
     }
   }

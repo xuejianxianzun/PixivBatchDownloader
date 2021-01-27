@@ -210,3 +210,7 @@ Pixiv User Batch Download 简称 PUBD，它是一个 UserScript 脚本，可以�
 - **配合 Aria2 下载，可发送到本地或远端路由器。**
 
 - 可使用掩码自定义保存文件夹、重命名。
+
+[PixivFanboxDownloader](https://github.com/xuejianxianzun/PixivFanboxDownloader)
+
+用于批量下载 Pixiv Fanbox 上的文件的浏览器扩展程序。

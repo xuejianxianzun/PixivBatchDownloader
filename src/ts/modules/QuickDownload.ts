@@ -59,10 +59,11 @@ class QuickDownload {
   private sendDownload() {
     // 因为 quickDownload 状态会影响后续下载行为，所以必须先判断 busy 状态
     if (states.busy) {
-      return EVT.sendMsg({
-        msg: lang.transl('_当前任务尚未完成2'),
-        type: 'error',
+      EVT.fire(EVT.list.sendToast, {
+        text: lang.transl('_当前任务尚未完成2'),
+        bgColorType: 'error',
       })
+      return
     }
 
     states.quickDownload = true

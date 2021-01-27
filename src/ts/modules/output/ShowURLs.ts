@@ -17,9 +17,9 @@ class ShowURLs {
 
   private showURLs() {
     if (store.result.length === 0) {
-      EVT.sendMsg({
-        msg: lang.transl('_没有数据可供使用'),
-        type: 'error',
+      EVT.fire(EVT.list.sendToast, {
+        text: lang.transl('_没有数据可供使用'),
+        bgColorType: 'error',
       })
       return
     }

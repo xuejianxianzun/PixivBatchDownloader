@@ -407,10 +407,11 @@ class ImgViewer {
   private download() {
     // 因为 downloadFromViewer 状态会影响后续下载行为，所以必须先判断 busy 状态
     if (states.busy) {
-      return EVT.sendMsg({
-        msg: lang.transl('_当前任务尚未完成2'),
-        type: 'error',
+      EVT.fire(EVT.list.sendToast, {
+        text: lang.transl('_当前任务尚未完成2'),
+        bgColorType: 'error',
       })
+      return
     }
 
     states.downloadFromViewer = true
@@ -426,7 +427,9 @@ class ImgViewer {
     // 显示提示
     EVT.fire(EVT.list.sendToast, {
       text: lang.transl('_已发送下载请求'),
-      bgColor: '#222',
+      bgColor: '#333',
+      position: 'mouse',
+      animation: 'fade',
     })
   }
 

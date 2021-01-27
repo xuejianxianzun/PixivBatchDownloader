@@ -81,9 +81,9 @@ class BookmarkAllWorks {
   // 启动收藏流程
   private async startBookmark() {
     if (this.idList.length === 0) {
-      EVT.sendMsg({
-        msg: lang.transl('_没有数据可供使用'),
-        type: 'error',
+      EVT.fire(EVT.list.sendToast, {
+        text: lang.transl('_没有数据可供使用'),
+        bgColorType: 'error',
       })
       return
     }

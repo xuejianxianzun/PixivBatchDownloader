@@ -103,9 +103,9 @@ class ExportResult2CSV {
   private beforeCreate() {
     // 如果没有数据则不执行
     if (store.result.length === 0) {
-      EVT.sendMsg({
-        msg: lang.transl('_没有数据可供使用'),
-        type: 'error',
+      EVT.fire(EVT.list.sendToast, {
+        text: lang.transl('_没有数据可供使用'),
+        bgColorType: 'error',
       })
       return
     }

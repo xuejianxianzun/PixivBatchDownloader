@@ -2,6 +2,7 @@ import { DOM } from './DOM'
 import { EVT } from './EVT'
 import { store } from './Store'
 import { fileName } from './FileName'
+import { lang } from './Lang'
 
 // 输出 lst 文件
 class ExportLST {
@@ -26,9 +27,9 @@ class ExportLST {
 
   private createLst() {
     if (store.result.length === 0) {
-      EVT.sendMsg({
-        msg: '现在没有抓取结果可以输出',
-        type: 'error',
+      EVT.fire(EVT.list.sendToast, {
+        text: lang.transl('_没有数据可供使用'),
+        bgColorType: 'error',
       })
       return
     }

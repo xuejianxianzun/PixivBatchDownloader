@@ -153,9 +153,9 @@ class BlockTagsForSpecificUser {
       this.listWrapShow = !this.listWrapShow
 
       if (this.listWrapShow && this.rules.length === 0) {
-        EVT.sendMsg({
-          msg: lang.transl('_没有数据可供使用'),
-          type: 'error',
+        EVT.fire(EVT.list.sendToast, {
+          text: lang.transl('_没有数据可供使用'),
+          bgColorType: 'error',
         })
       }
     })
@@ -350,9 +350,9 @@ class BlockTagsForSpecificUser {
 
     this.listWrapShow = true
 
-    EVT.sendMsg({
-      type: 'success',
-      msg: lang.transl('_添加成功'),
+    EVT.fire(EVT.list.sendToast, {
+      text: lang.transl('_添加成功'),
+      bgColorType: 'green',
     })
   }
 
@@ -382,9 +382,9 @@ class BlockTagsForSpecificUser {
     this.createList({ uid, tags, user: '' })
 
     if (tip) {
-      EVT.sendMsg({
-        type: 'success',
-        msg: lang.transl('_更新成功'),
+      EVT.fire(EVT.list.sendToast, {
+        text: lang.transl('_更新成功'),
+        bgColorType: 'green',
       })
     }
 

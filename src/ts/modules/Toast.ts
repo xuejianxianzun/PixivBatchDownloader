@@ -1,8 +1,9 @@
 import { EVT } from './EVT'
 import { Colors, colorType } from './Colors'
 
-// 其他模块可以通过 EVT.list.sendToast 事件调用此模块，并且一定要传递这个参数
-// 可选的参数
+// 其他模块可以调用 EVT.list.sendToast 事件并传递参数来显示提示
+
+// 参数，只有 text 是必选的
 export interface ToastArgOptional {
   // text 只能传递文字，不能包含 html 标签
   text: string
@@ -16,14 +17,17 @@ export interface ToastArgOptional {
   bgColorType?: colorType
   // 可选，设置背景颜色，优先级高于 bgColorType, 无默认值
   bgColor?: string
-  // 设置提示出现后的停留时间（毫秒）。停留时间过去之后，提示会飘向页面顶部。
+  // 设置提示出现后的停留时间（毫秒）
   // 默认 1000 ms
   stay?: number
   // 消失时的动画效果
-  // fade 默认, 逐渐消失
-  // bubble 向上移动并逐渐消失
+  // top 默认,向上移动并逐渐消失
+  // fade  逐渐消失
   // none 没有动画，立即消失
-  animation?: 'bubble' | 'fade' | 'none'
+  animation?: 'top' | 'fade' | 'none'
+  // 提示出现的位置，默认是 topCenter
+  // 如果为 mouse 则提示会出现在鼠标所处位置附近。如果要使用 mouse 请确保这个提示是由鼠标点击触发的
+  position?: 'topCenter' | 'mouse'
 }
 
 // 完整的参数
@@ -34,11 +38,12 @@ interface ToastTipArg {
   bgColorType: colorType
   bgColor: string
   dealy: number
-  animation: 'bubble' | 'fade' | 'none'
+  animation: 'top' | 'fade' | 'none'
+  position: 'topCenter' | 'mouse'
 }
 
 // 轻提示，只显示文字和背景颜色
-// 适用于轻量、无需用户进行确认的提示
+// 适用于无需用户进行确认的提示
 class Toast {
   constructor() {
     this.bindEvents()
@@ -48,15 +53,20 @@ class Toast {
     text: '',
     colorType: 'white',
     color: '',
-    bgColorType: 'beautifyBlue',
+    bgColorType: 'blue',
     bgColor: '',
-    dealy: 1000,
-    animation: 'fade',
+    dealy: 1500,
+    animation: 'top',
+    position: 'topCenter',
   }
 
-  private mousePosition = { x: 0, y: 0 }
-
   private readonly tipClassName = 'xzBubbleTip'
+
+  private mousePosition = { x: 0, y: 0 }
+  private readonly minTop = 20
+
+  private readonly once = 1 // 每一帧移动多少像素
+  private readonly total = 20 // 移动多少像素后消失
 
   private bindEvents() {
     window.addEventListener(EVT.list.sendToast, (ev: CustomEventInit) => {
@@ -84,18 +94,35 @@ class Toast {
       ? arg.bgColor
       : Colors[arg.bgColorType]
 
-    // top 值减去一点高度，使文字出现在鼠标上方
-    const y = this.mousePosition.y - 40
-    span.style.top = y + 'px'
+    // 设置位置
+    if (arg.position === 'topCenter') {
+      span.style.top = this.minTop + 'px'
+    } else if (arg.position === 'mouse') {
+      // 跟随鼠标位置
+      // top 值减去一点高度，使文字出现在鼠标上方
+      let y = this.mousePosition.y - 40
+      if (y < this.minTop) {
+        y = this.minTop
+      }
+      span.style.top = y + 'px'
+    }
 
     span.classList.add(this.tipClassName)
-
-    // 把提示添加到页面上
     document.body.appendChild(span)
 
-    // 修正 left，使提示的中间点对齐鼠标点击的位置
+    // 把提示添加到页面上之后，再设置 left，使其居中
+
+    // 默认的中间点是窗口的中间
+    let centerPoint = window.innerWidth / 2
+
+    if (arg.position === 'mouse') {
+      // 把中间点设置为鼠标所处的位置
+      centerPoint = this.mousePosition.x
+    }
+
+    // 设置 left
     const rect = span.getBoundingClientRect()
-    let left = this.mousePosition.x - rect.width / 2
+    let left = centerPoint - rect.width / 2
     const minLeft = 0 // 防止提示左侧超出窗口
     const maxLeft = window.innerWidth - rect.width // 防止提示右侧超出窗口
     if (left < minLeft) {
@@ -111,33 +138,31 @@ class Toast {
       if (arg.animation === 'none') {
         span.remove()
       } else {
-        this.animation(span, y, arg.animation)
+        this.animation(span, arg.animation)
       }
     }, arg.dealy)
   }
 
-  // 让提示从当前位置飘到页面顶部
-  private animation(el: HTMLElement, top: number, way: 'bubble' | 'fade') {
-    // 不要给动画设置一个固定的执行总时长，否则根据 top 值的不同，动画的执行速度也不同
-    // const total = 3000 x
+  // 让提示消失的动画
+  private animation(el: HTMLElement, way: 'top' | 'fade') {
+    const startTop = Number.parseInt(window.getComputedStyle(el)['top']) // 初始 top 值
+    const once = this.once
+    const total = this.total
 
-    const onceMove = 3 // 每一帧移动多少像素
     let numberOfTimes = 0 // 执行次数
 
     const frame = function (timestamp: number) {
       numberOfTimes++
 
       // 计算总共上移了多少像素
-      const move = onceMove * numberOfTimes
+      const move = once * numberOfTimes
 
       // 计算透明度
-      // 最后乘以的数字是一个加速值，可以让提示以 n 倍的速度变透明
-      // 例如设置为 5，那么提示在走完 20% 的距离的时候就已经变得完全透明了
-      const opacity = 1 - (move / top) * 5
+      const opacity = 1 - move / total
 
-      if (top - move > 0 && opacity > 0) {
-        if (way === 'bubble') {
-          el.style.top = top - move + 'px'
+      if (move < total && opacity > 0) {
+        if (way === 'top') {
+          el.style.top = startTop - move + 'px'
         }
 
         el.style.opacity = opacity.toString()

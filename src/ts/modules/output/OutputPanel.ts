@@ -123,9 +123,9 @@ class OutputPanel {
       this.outputPanel.style.display = 'block'
       this.outputTitle.textContent = title
     } else {
-      return EVT.sendMsg({
-        msg: lang.transl('_没有数据可供使用'),
-        type: 'error',
+      return EVT.fire(EVT.list.sendToast, {
+        text: lang.transl('_没有数据可供使用'),
+        bgColorType: 'error',
       })
     }
   }

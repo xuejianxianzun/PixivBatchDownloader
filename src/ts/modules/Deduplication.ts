@@ -193,9 +193,9 @@ class Deduplication {
       this.IDB.clear(name)
     }
 
-    EVT.sendMsg({
-      msg: lang.transl('_下载记录已清除'),
-      type: 'success',
+    EVT.fire(EVT.list.sendToast, {
+      text: lang.transl('_下载记录已清除'),
+      bgColorType: 'green',
     })
   }
 

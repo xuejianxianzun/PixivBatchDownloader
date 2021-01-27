@@ -1,6 +1,7 @@
 import { lang } from './Lang'
 import { langTextKeys } from './LangText'
 import { EVT } from './EVT'
+import Config from './Config'
 
 // 显示最近更新内容
 class ShowWhatIsNew {
@@ -15,7 +16,7 @@ class ShowWhatIsNew {
     const value = localStorage.getItem(storeName)
     if (window.location.host.includes('pixiv.net') && value !== this.newTag) {
       EVT.sendMsg({
-        title: `Powerful Pixiv Downloader ${lang.transl('_最近更新')}`,
+        title: Config.name + ` ${lang.transl('_最近更新')}`,
         msg: lang.transl(this.newTag),
       })
       localStorage.setItem(storeName, this.newTag)
