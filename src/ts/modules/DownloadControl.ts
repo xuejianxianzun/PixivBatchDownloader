@@ -128,6 +128,15 @@ class DownloadControl {
         log.error(lang.transl('_uuid'))
       }
     })
+
+    window.addEventListener(EVT.list.downloadComplete,()=>{
+      EVT.fire(EVT.list.sendToast,{
+      text: lang.transl('_下载完毕2'),
+      bgColorType: 'green',
+      })
+
+      log.success(lang.transl('_下载完毕'), 2)
+    })
   }
 
   private createDownloadArea() {
@@ -425,7 +434,6 @@ class DownloadControl {
       }, 0)
       this.reset()
       this.setDownStateText(lang.transl('_下载完毕'), Colors.green)
-      log.success(lang.transl('_下载完毕'), 2)
     }
 
     this.checkCompleteWithError()

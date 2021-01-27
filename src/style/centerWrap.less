@@ -79,6 +79,35 @@
       line-height: 1;
     }
 
+    p strong{
+      vertical-align: baseline;
+    }
+
+    #tipCreateFolder{
+      display: none;
+    }
+
+    .flexTip{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      .right{
+        flex-grow: 0;
+        flex-shrink: 0;
+        flex-basis: auto;
+      }
+    }
+
+    .tipWithBtn{
+      .left{
+        display: inline-block;
+      }
+      .right{
+        display: inline-block;
+        margin-left: 20px;
+      }
+    }
+
     .need_beautify {
       position: absolute;
       width: 0;

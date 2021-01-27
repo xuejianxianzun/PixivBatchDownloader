@@ -40,6 +40,8 @@ class Form {
 
     // 激活第一个选项卡
     this.activeTab(0)
+
+    this.checkTipCreateFolder()
   }
 
   // 设置表单上美化元素的状态
@@ -65,6 +67,9 @@ class Form {
   private readonly chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
 
   private formSettings: FormSettings
+
+  private readonly tipCreateFolderFlag = 'tipCreateFolder'  // 控制“创建文件夹的提示”是否显示
+  private readonly tipCreateFolderId = 'tipCreateFolder'  // “创建文件夹的提示”的容器 id
 
   // 设置激活的选项卡
   private activeTab(no = 0) {
@@ -304,6 +309,26 @@ class Form {
       ) as HTMLSpanElement
       if (subOption) {
         subOption.style.display = _switch.checked ? 'inline' : 'none'
+      }
+    }
+  }
+
+  // 是否显示“创建文件夹的提示”
+  private checkTipCreateFolder() {
+    const tip = this.form.querySelector('#' + this.tipCreateFolderId) as HTMLElement
+    if (!tip) {
+      return
+    }
+    // 如果用户没有点击“我知道了”按钮，则显示这个提示
+    if (!window.localStorage.getItem(this.tipCreateFolderFlag)) {
+      tip.style.display = 'block'
+      // 用户点击“我知道了”按钮之后，隐藏这个提示并设置标记
+      const btn = tip.querySelector('button')
+      if (btn) {
+        btn.addEventListener('click', () => {
+          tip.style.display = 'none'
+          window.localStorage.setItem(this.tipCreateFolderFlag, '1')
+        })
       }
     }
   }

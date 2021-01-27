@@ -3,6 +3,7 @@ import { EVT } from './EVT'
 import { DOM } from './DOM'
 import { states } from './States'
 import { theme } from './Theme'
+import Config from './Config'
 
 // 中间面板
 class CenterPanel {
@@ -24,7 +25,7 @@ class CenterPanel {
       <div class="centerWrap beautify_scrollbar">
       <div class="centerWrap_head">
       <div class="centerWrap_title blue">
-      Powerful Pixiv Downloader
+      ${Config.name}
       <div class="btns">
       <a class="has_tip centerWrap_top_btn update" data-tip="${lang.transl(
         '_newver'

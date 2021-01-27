@@ -507,10 +507,10 @@ const langText = {
   ],
   _命名规则: ['命名规则', '命名規則', 'Naming rule', '命名規則'],
   _设置文件夹名的提示: [
-    "可以使用 '/' 建立文件夹<br>示例：{user}/{id}",
-    '可以使用斜線（/）建立資料夾。<br>範例：{user}/{id}',
-    "You can create a directory with '/'<br>Example：{user}/{id}",
-    "フォルダーは '/' で作成できます<br>例：{user}/{id}",
+    "可以使用 '/' 建立文件夹。示例：",
+    '可以使用斜線（/）建立資料夾。範例：',
+    "You can create a directory with '/'. Example：",
+    "フォルダーは '/' で作成できます。例：",
   ],
   _添加命名标记前缀: [
     '添加命名标记前缀',
@@ -685,9 +685,9 @@ const langText = {
     'ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
   ],
   _下载说明: [
-    "下载的文件保存在浏览器的下载目录里。<br>请不要在浏览器的下载选项里选中'总是询问每个文件的保存位置'。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br>QQ群：116015651",
+    "下载的文件保存在浏览器的下载目录里。<br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><b>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。</b><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br>QQ群：116015651",
     '下載的檔案儲存在瀏覽器的下載目錄裡。<br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><b>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。</b>',
-    'The downloaded file is saved in the browser`s download directory. <br><b>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.</b>',
+    'The downloaded file is saved in the browser`s download directory. <br>It is recommended to turn off \"Ask where to save each file before downloading\" in the browser`s download settings.<br><b>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.</b>',
     'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><b>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。</b>',
   ],
   _正在下载中: ['正在下载中', '正在下載', 'Downloading', 'ダウンロード中'],
@@ -696,6 +696,12 @@ const langText = {
     '✓ 下載完畢',
     '✓ Download finished',
     '✓ ダウンロードが完了しました',
+  ],
+  _下载完毕2: [
+    '下载完毕',
+    '下載完畢',
+    'Download finished',
+    'ダウンロードが完了しました',
   ],
   _已暂停: [
     '下载已暂停',
@@ -904,7 +910,7 @@ const langText = {
     'Please type the illustration id. If there is more than one id, one id per line.',
     'イラストレーターIDを入力してください。 複数の id がある場合は、1 行に 1 つの id を付けます。',
   ],
-  _开始抓取: ['开始抓取', '開始擷取', 'Start crawling', 'クロールを開始する'],
+  _开始抓取: ['开始抓取', '開始擷取', 'Start crawl', 'クロールを開始する'],
   _给未分类作品添加添加tag: [
     '给未分类作品添加 tag',
     '幫未分類的作品加入 tag',
@@ -1562,6 +1568,18 @@ const langText = {
     'Download request sent',
     'ダウンロードリクエストを送信しました',
   ],
+  _HowToUse:[
+    '点击页面右侧的蓝色按钮可以打开下载器面板。',
+    '点击页面右侧的蓝色按钮可以打开下载器面板。',
+    '点击页面右侧的蓝色按钮可以打开下载器面板。',
+    '点击页面右侧的蓝色按钮可以打开下载器面板。',
+  ],
+  _我知道了:[
+    '我知道了',
+    '我知道了',
+    '我知道了',
+    '我知道了',
+  ]
 }
 
 export { langText, langTextKeys }

@@ -241,8 +241,7 @@ const formHtml = `<form class="settingForm">
     <div class="con">
     <p class="option" data-no="13">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_设置文件夹名的提示'
-      )}">${lang.transl('_命名规则')}<span class="gray1"> ? </span></span>
+        '_设置文件夹名的提示') + '<br>' + '{user}/{id}'}">${lang.transl('_命名规则')}<span class="gray1"> ? </span></span>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
       <select name="fileNameSelect">
         <option value="default">…</option>
@@ -272,10 +271,18 @@ const formHtml = `<form class="settingForm">
       <slot data-name="saveNamingRule" class=""></slot>
       <button class="showFileNameTip textButton" type="button">?</button>
       </p>
+      <p class="tip tipWithBtn" id="tipCreateFolder">
+        <span class="left">
+        ${lang.transl('_设置文件夹名的提示')}<strong>{user}/{id}</strong>
+        </span>
+        <span class="right">
+         <button type="button" class="textButton gray1" id="tipCreateFolderBtn">
+         ${lang.transl('_我知道了')}
+         </button>
+        </span>
+      </p>
       <p class="fileNameTip tip">
-      <strong>${lang
-        .transl('_设置文件夹名的提示')
-        .replace('<br>', '. ')}</strong>
+      ${lang.transl('_设置文件夹名的提示')}<strong>{user}/{id}</strong>
       <br>
       ${lang.transl('_命名标记提醒')}
       <br>
