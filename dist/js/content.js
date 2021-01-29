@@ -6552,19 +6552,19 @@
         /***/
       },
 
-    /***/ './src/ts/modules/InitIndexPage.ts':
-      /*!*****************************************!*\
-  !*** ./src/ts/modules/InitIndexPage.ts ***!
-  \*****************************************/
-      /*! exports provided: InitIndexPage */
+    /***/ './src/ts/modules/InitHomePage.ts':
+      /*!****************************************!*\
+  !*** ./src/ts/modules/InitHomePage.ts ***!
+  \****************************************/
+      /*! exports provided: InitHomePage */
       /***/ function (module, __webpack_exports__, __webpack_require__) {
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony export (binding) */ __webpack_require__.d(
           __webpack_exports__,
-          'InitIndexPage',
+          'InitHomePage',
           function () {
-            return InitIndexPage
+            return InitHomePage
           }
         )
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
@@ -6587,7 +6587,7 @@
         )
         // 初始化首页
 
-        class InitIndexPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
+        class InitHomePage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
           'InitPageBase'
         ] {
           constructor() {
@@ -6742,8 +6742,8 @@
         /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./PageType */ './src/ts/modules/PageType.ts'
         )
-        /* harmony import */ var _InitIndexPage__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./InitIndexPage */ './src/ts/modules/InitIndexPage.ts'
+        /* harmony import */ var _InitHomePage__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./InitHomePage */ './src/ts/modules/InitHomePage.ts'
         )
         /* harmony import */ var _artwork_InitArtworkPage__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./artwork/InitArtworkPage */ './src/ts/modules/artwork/InitArtworkPage.ts'
@@ -6826,8 +6826,8 @@
               case -1:
                 return
               case 0:
-                return new _InitIndexPage__WEBPACK_IMPORTED_MODULE_2__[
-                  'InitIndexPage'
+                return new _InitHomePage__WEBPACK_IMPORTED_MODULE_2__[
+                  'InitHomePage'
                 ]()
               case 1:
                 return new _artwork_InitArtworkPage__WEBPACK_IMPORTED_MODULE_3__[

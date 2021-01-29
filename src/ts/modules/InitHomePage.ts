@@ -7,7 +7,7 @@ import { DOM } from './DOM'
 import { EVT } from './EVT'
 import { IDData } from './Store.d'
 
-class InitIndexPage extends InitPageBase {
+class InitHomePage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -117,4 +117,4 @@ class InitIndexPage extends InitPageBase {
   }
 }
 
-export { InitIndexPage }
+export { InitHomePage }

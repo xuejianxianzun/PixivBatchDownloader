@@ -6,10 +6,6 @@
 
 ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
 
-**现已支持小说下载！**
-
-**现已支持断点续传！**
-
 <!-- TOC -->
 
 - [简介](#简介)
@@ -39,6 +35,8 @@
 [动态截图](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/20200724174827.gif)
 
 [访问官网](https://pixiv.download/)
+
+[在 Bilibili 查看视频教程](https://www.bilibili.com/video/BV1g54y1v7nV)
 
 # 安装
 
@@ -171,7 +169,7 @@ English （机翻，韩语设置下也使用英语文本）
 
 8 [Pixivision](https://www.pixivision.net/zh/a/3190)
 
-9 [收藏作品的详情](https://www.pixiv.net/bookmark_add.php?id=63148723)
+9 [收藏作品的详情](https://www.pixiv.net/bookmark_detail.php?id=63148723)
 
 10 [关注的新作品](https://www.pixiv.net/bookmark_new_illust.php)
 

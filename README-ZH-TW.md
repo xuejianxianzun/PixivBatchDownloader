@@ -162,7 +162,7 @@ English （機翻，韓語設定下也使用英語文檔）
 
 8 [Pixivision](https://www.pixivision.net/zh/a/3190)
 
-9 [收藏作品的詳情](https://www.pixiv.net/bookmark_add.php?id=63148723)
+9 [收藏作品的詳情](https://www.pixiv.net/bookmark_detail.php?id=63148723)
 
 10 [關注的新作品](https://www.pixiv.net/bookmark_new_illust.php)
 

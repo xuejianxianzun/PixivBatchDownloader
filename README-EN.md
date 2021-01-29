@@ -112,7 +112,7 @@ You can also optimize the translation, thank you very much :)
 
 8 [Pixivision](https://www.pixivision.net/zh/a/3190)
 
-9 [Bookmark detail](https://www.pixiv.net/bookmark_add.php?id=63148723)
+9 [Bookmark detail](https://www.pixiv.net/bookmark_detail.php?id=63148723)
 
 10 [New Work: Following](https://www.pixiv.net/bookmark_new_illust.php)
 

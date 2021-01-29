@@ -2,7 +2,7 @@
 import { EVT } from './EVT'
 import { pageType } from './PageType'
 
-import { InitIndexPage } from './InitIndexPage'
+import { InitHomePage } from './InitHomePage'
 import { InitArtworkPage } from './artwork/InitArtworkPage'
 import { InitUserPage } from './InitUserPage'
 import { InitBookmarkLegacyPage } from './InitBookmarkLegacyPage'
@@ -41,7 +41,7 @@ class InitPage {
       case -1:
         return
       case 0:
-        return new InitIndexPage()
+        return new InitHomePage()
       case 1:
         return new InitArtworkPage()
       case 2:
