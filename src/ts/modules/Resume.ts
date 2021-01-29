@@ -190,6 +190,7 @@ class Resume {
         this.taskId = new Date().getTime()
 
         this.part = []
+
         await this.saveTaskData()
 
         // 保存 meta 数据
@@ -306,8 +307,7 @@ class Resume {
 
         // 任务数据全部添加完毕
         if (this.getPartTotal() >= store.result.length) {
-          // console.log('add complete')
-          resolve()
+          resolve(true)
         } else {
           // 任务数据没有添加完毕，继续添加
           resolve(this.saveTaskData())

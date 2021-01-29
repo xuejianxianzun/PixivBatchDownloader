@@ -18,13 +18,21 @@ import './SaveUserCover'
 import { BookmarkAllWorks, IDList } from './BookmarkAllWorks'
 import { Tools } from './Tools'
 
+enum ListType {
+  UserHome,
+  Artworks,
+  Illustrations,
+  Manga,
+  Novels,
+}
+
 class InitUserPage extends InitPageBase {
   constructor() {
     super()
     this.init()
   }
 
-  private listType = 0 // 细分的列表类型
+  private listType: ListType = ListType.UserHome // 当前页面应该获取哪些类型的作品
 
   private onceNumber = 48 // 每页作品个数，插画是 48 个，小说是 24 个
 
@@ -130,21 +138,21 @@ class InitUserPage extends InitPageBase {
     const test = location.pathname.match(/\/users\/\d+(\/.+)/)
     if (test === null) {
       // 用户主页
-      this.listType = 0
+      this.listType = ListType.UserHome
     } else if (test.length === 2) {
       const str = test[1] //取出用户 id 之后的字符
       if (str.includes('/artworks')) {
         // 插画和漫画列表
-        this.listType = 1
+        this.listType = ListType.Artworks
       } else if (str.includes('/illustrations')) {
         // 插画列表
-        this.listType = 2
+        this.listType = ListType.Illustrations
       } else if (str.includes('/manga')) {
         // 漫画列表
-        this.listType = 3
+        this.listType = ListType.Manga
       } else if (str.includes('/novels')) {
         // 小说列表
-        this.listType = 4
+        this.listType = ListType.Novels
         this.onceNumber = 24 // 如果是在小说列表页，一页只有 24 个作品
       }
     }
@@ -179,19 +187,19 @@ class InitUserPage extends InitPageBase {
     let type: userWorksType[] = []
 
     switch (this.listType) {
-      case 0:
+      case ListType.UserHome:
         type = ['illusts', 'manga', 'novels']
         break
-      case 1:
+      case ListType.Artworks:
         type = ['illusts', 'manga']
         break
-      case 2:
+      case ListType.Illustrations:
         type = ['illusts']
         break
-      case 3:
+      case ListType.Manga:
         type = ['manga']
         break
-      case 4:
+      case ListType.Novels:
         type = ['novels']
         break
     }
@@ -228,19 +236,19 @@ class InitUserPage extends InitPageBase {
 
   // 获取用户某些类型的作品的 id 列表（附带 tag）
   private async getIdListByTag() {
-    // 这里不用判断 0 也就是用户主页的情况，因为用户主页不会带 tag
+    // 这里不用判断用户主页的情况，因为用户主页不会带 tag
     let flag: tagPageFlag = 'illustmanga'
     switch (this.listType) {
-      case 1:
+      case ListType.Artworks:
         flag = 'illustmanga'
         break
-      case 2:
+      case ListType.Illustrations:
         flag = 'illusts'
         break
-      case 3:
+      case ListType.Manga:
         flag = 'manga'
         break
-      case 4:
+      case ListType.Novels:
         flag = 'novels'
         break
     }
@@ -258,7 +266,7 @@ class InitUserPage extends InitPageBase {
     )
 
     // 图片和小说返回的数据是不同的，小说并没有 illustType 标记
-    if (this.listType === 4) {
+    if (this.listType === ListType.Novels) {
       const d = data as UserNovelsWithTag
       d.body.works.forEach((data) =>
         store.idList.push({
@@ -292,7 +300,7 @@ class InitUserPage extends InitPageBase {
   }
 
   protected resetGetIdListStatus() {
-    this.listType = 0
+    this.listType = ListType.UserHome
   }
 
   protected sortResult() {

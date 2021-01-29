@@ -22,6 +22,10 @@ if(pageType.type === pageType.list.Artwork){}
 
 这样不仅易于理解，而且也便于修改。因为 `PageName` 相当于数据源，它维护着页面名称和编号的对应关系，其他模块都是通过它来获取编号，所以修改页面类型编号的话只需要修改它，其他模块不需要任何修改。（不过因为 `settings.wantPageArr` 是使用页面的编号来储存数据的，所以为了保持兼容性，不能更改 `PageName` 里的编号顺序）
 
+#### 使用 enum 描述用户主页里的子页面类型
+
+在 `InitUserPage` 里添加了 `ListType` 的 enum 类型描述。
+
 ### Star
 
 *2021/01/29 Github 仓库达到 1K star*

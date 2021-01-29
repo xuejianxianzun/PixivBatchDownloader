@@ -1044,6 +1044,7 @@
           // 准备添加 tag。loop 表示这是第几轮循环
           async readyAddTag(loop = 0) {
             const offset = loop * this.once // 一次请求只能获取一部分，所以可能有多次请求，要计算偏移量
+            let errorFlag = false
             // 发起请求
             const [showData, hideData] = await Promise.all([
               _API__WEBPACK_IMPORTED_MODULE_0__['API'].getBookmarkData(
@@ -1064,8 +1065,12 @@
               if (error.status && error.status === 403) {
                 this.btn.textContent = `× Permission denied`
               }
-              throw new Error('Permission denied')
+              errorFlag = true
+              return []
             })
+            if (errorFlag) {
+              return
+            }
             // 保存有用的数据
             for (const data of [showData, hideData]) {
               const works = data.body.works
@@ -7765,12 +7770,20 @@
         )
         // 初始化用户页面
 
+        var ListType
+        ;(function (ListType) {
+          ListType[(ListType['UserHome'] = 0)] = 'UserHome'
+          ListType[(ListType['Artworks'] = 1)] = 'Artworks'
+          ListType[(ListType['Illustrations'] = 2)] = 'Illustrations'
+          ListType[(ListType['Manga'] = 3)] = 'Manga'
+          ListType[(ListType['Novels'] = 4)] = 'Novels'
+        })(ListType || (ListType = {}))
         class InitUserPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
           'InitPageBase'
         ] {
           constructor() {
             super()
-            this.listType = 0 // 细分的列表类型
+            this.listType = ListType.UserHome // 当前页面应该获取哪些类型的作品
             this.onceNumber = 48 // 每页作品个数，插画是 48 个，小说是 24 个
             this.bookmarkAll = new _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__[
               'BookmarkAllWorks'
@@ -7931,21 +7944,21 @@
             const test = location.pathname.match(/\/users\/\d+(\/.+)/)
             if (test === null) {
               // 用户主页
-              this.listType = 0
+              this.listType = ListType.UserHome
             } else if (test.length === 2) {
               const str = test[1] //取出用户 id 之后的字符
               if (str.includes('/artworks')) {
                 // 插画和漫画列表
-                this.listType = 1
+                this.listType = ListType.Artworks
               } else if (str.includes('/illustrations')) {
                 // 插画列表
-                this.listType = 2
+                this.listType = ListType.Illustrations
               } else if (str.includes('/manga')) {
                 // 漫画列表
-                this.listType = 3
+                this.listType = ListType.Manga
               } else if (str.includes('/novels')) {
                 // 小说列表
-                this.listType = 4
+                this.listType = ListType.Novels
                 this.onceNumber = 24 // 如果是在小说列表页，一页只有 24 个作品
               }
             }
@@ -7978,19 +7991,19 @@
           async getIdList() {
             let type = []
             switch (this.listType) {
-              case 0:
+              case ListType.UserHome:
                 type = ['illusts', 'manga', 'novels']
                 break
-              case 1:
+              case ListType.Artworks:
                 type = ['illusts', 'manga']
                 break
-              case 2:
+              case ListType.Illustrations:
                 type = ['illusts']
                 break
-              case 3:
+              case ListType.Manga:
                 type = ['manga']
                 break
-              case 4:
+              case ListType.Novels:
                 type = ['novels']
                 break
             }
@@ -8033,19 +8046,19 @@
           }
           // 获取用户某些类型的作品的 id 列表（附带 tag）
           async getIdListByTag() {
-            // 这里不用判断 0 也就是用户主页的情况，因为用户主页不会带 tag
+            // 这里不用判断用户主页的情况，因为用户主页不会带 tag
             let flag = 'illustmanga'
             switch (this.listType) {
-              case 1:
+              case ListType.Artworks:
                 flag = 'illustmanga'
                 break
-              case 2:
+              case ListType.Illustrations:
                 flag = 'illusts'
                 break
-              case 3:
+              case ListType.Manga:
                 flag = 'manga'
                 break
-              case 4:
+              case ListType.Novels:
                 flag = 'novels'
                 break
             }
@@ -8062,7 +8075,7 @@
               requsetNumber
             )
             // 图片和小说返回的数据是不同的，小说并没有 illustType 标记
-            if (this.listType === 4) {
+            if (this.listType === ListType.Novels) {
               const d = data
               d.body.works.forEach((data) =>
                 _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push({
@@ -8094,7 +8107,7 @@
             this.getIdListFinished()
           }
           resetGetIdListStatus() {
-            this.listType = 0
+            this.listType = ListType.UserHome
           }
           sortResult() {
             // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
@@ -11239,8 +11252,7 @@
                   this.getPartTotal() >=
                   _Store__WEBPACK_IMPORTED_MODULE_3__['store'].result.length
                 ) {
-                  // console.log('add complete')
-                  resolve()
+                  resolve(true)
                 } else {
                   // 任务数据没有添加完毕，继续添加
                   resolve(this.saveTaskData())

@@ -41,6 +41,7 @@ class BookmarksAddTag {
   // 准备添加 tag。loop 表示这是第几轮循环
   private async readyAddTag(loop: number = 0) {
     const offset = loop * this.once // 一次请求只能获取一部分，所以可能有多次请求，要计算偏移量
+    let errorFlag = false
 
     // 发起请求
     const [showData, hideData]: BookmarkData[] = await Promise.all([
@@ -50,8 +51,13 @@ class BookmarksAddTag {
       if (error.status && error.status === 403) {
         this.btn!.textContent = `× Permission denied`
       }
-      throw new Error('Permission denied')
+      errorFlag = true
+      return []
     })
+
+    if (errorFlag) {
+      return
+    }
 
     // 保存有用的数据
     for (const data of [showData, hideData]) {
