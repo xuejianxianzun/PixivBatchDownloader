@@ -51,7 +51,7 @@ class DownloadButton {
 
   // 如果当前页面不支持下载，就隐藏按钮。这只是一个障眼法。
   private setVisible() {
-    pageType.type === -1 ? this.hide() : this.show()
+    pageType.type === pageType.list.Unsupported ? this.hide() : this.show()
   }
 }
 

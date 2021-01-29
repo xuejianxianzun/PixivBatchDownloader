@@ -38,55 +38,52 @@ class InitPage {
 
   private initPage() {
     switch (pageType.type) {
-      case -1:
-        return
-      case 0:
+      case pageType.list.Home:
         return new InitHomePage()
-      case 1:
+      case pageType.list.Artwork:
         return new InitArtworkPage()
-      case 2:
+      case pageType.list.UserHome:
         return new InitUserPage()
-      case 3:
+      case pageType.list.BookmarkLegacy:
         return new InitBookmarkLegacyPage()
-      case 4:
+      case pageType.list.Bookmark:
         return new InitBookmarkPage()
-      case 5:
+      case pageType.list.ArtworkSerach:
         return new InitSearchArtworkPage()
-      case 6:
+      case pageType.list.AreaRanking:
         return new InitAreaRankingPage()
-      case 7:
+      case pageType.list.ArtworkRanking:
         return new InitRankingArtworkPage()
-      case 8:
+      case pageType.list.Pixivision:
         return new InitPixivisionPage()
-      case 9:
+      case pageType.list.BookmarkDetail:
         return new InitBookmarkDetailPage()
-      case 10:
+      case pageType.list.NewArtworkBookmark:
         return new InitBookmarkNewArtworkPage()
-      case 11:
+      case pageType.list.Discover:
         return new InitDiscoverPage()
-      case 12:
+      case pageType.list.NewArtwork:
         return new InitNewArtworkPage()
-      case 13:
+      case pageType.list.Novel:
         return new InitNovelPage()
-      case 14:
+      case pageType.list.NovelSeries:
         return new InitNovelSeriesPage()
-      case 15:
+      case pageType.list.NovelSearch:
         return new InitSearchNovelPage()
-      case 16:
+      case pageType.list.NovelRanking:
         return new InitRankingNovelPage()
-      case 17:
+      case pageType.list.NewNovelBookmark:
         return new InitBookmarkNewNovelPage()
-      case 18:
+      case pageType.list.NewNovel:
         return new InitNewNovelPage()
-      case 19:
+      case pageType.list.ArtworkSeries:
         return new InitSeriesPage()
-      case 20:
+      case pageType.list.Following:
         return new InitFollowingPage()
       default:
-        throw new Error('InitPage error: Illegal pageType.')
+        return
     }
   }
 }
 
 new InitPage()
-export {}

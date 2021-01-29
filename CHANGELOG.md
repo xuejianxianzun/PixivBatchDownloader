@@ -1,6 +1,28 @@
 # CHANGLOG
 
-indexpage 改为 homepage
+## 9.x.x 2021/01/xx
+
+### 代码优化
+
+#### IndexPage 改名为 HomePage
+
+#### 使用 enum 描述页面类型
+
+在 `PageType` 类里添加了 enum 类型的 `PageName` 来描述页面类型及其数字编号的对应顺序。
+
+这样在使用页面类型时，可以通过页面名字来引用它所代表的数字编号。示例：
+
+```javascript
+// old
+if(pageType.type === 1){}
+
+// new
+if(pageType.type === pageType.list.Artwork){}
+```
+
+这样不仅易于理解，而且也便于修改。因为 `PageName` 相当于数据源，它维护着页面名称和编号的对应关系，其他模块都是通过它来获取编号，所以修改页面类型编号的话只需要修改它，其他模块不需要任何修改。（不过因为 `settings.wantPageArr` 是使用页面的编号来储存数据的，所以为了保持兼容性，不能更改 `PageName` 里的编号顺序）
+
+### Star
 
 *2021/01/29 Github 仓库达到 1K star*
 

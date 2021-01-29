@@ -113,7 +113,10 @@ class ViewBigImage {
 
     for (const selector of this.selectors) {
       // 在作品页面内不检查指定的选择器。因为这是作品大图区域
-      if (pageType.type === 1 && selector === 'figure > div') {
+      if (
+        pageType.type === pageType.list.Artwork &&
+        selector === 'figure > div'
+      ) {
         continue
       }
 

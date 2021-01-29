@@ -3044,7 +3044,8 @@
           }
           // 如果当前页面不支持下载，就隐藏按钮。这只是一个障眼法。
           setVisible() {
-            _PageType__WEBPACK_IMPORTED_MODULE_2__['pageType'].type === -1
+            _PageType__WEBPACK_IMPORTED_MODULE_2__['pageType'].type ===
+            _PageType__WEBPACK_IMPORTED_MODULE_2__['pageType'].list.Unsupported
               ? this.hide()
               : this.show()
           }
@@ -6823,94 +6824,112 @@
           }
           initPage() {
             switch (_PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].type) {
-              case -1:
-                return
-              case 0:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list.Home:
                 return new _InitHomePage__WEBPACK_IMPORTED_MODULE_2__[
                   'InitHomePage'
                 ]()
-              case 1:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .Artwork:
                 return new _artwork_InitArtworkPage__WEBPACK_IMPORTED_MODULE_3__[
                   'InitArtworkPage'
                 ]()
-              case 2:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .UserHome:
                 return new _InitUserPage__WEBPACK_IMPORTED_MODULE_4__[
                   'InitUserPage'
                 ]()
-              case 3:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .BookmarkLegacy:
                 return new _InitBookmarkLegacyPage__WEBPACK_IMPORTED_MODULE_5__[
                   'InitBookmarkLegacyPage'
                 ]()
-              case 4:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .Bookmark:
                 return new _InitBookmarkPage__WEBPACK_IMPORTED_MODULE_6__[
                   'InitBookmarkPage'
                 ]()
-              case 5:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .ArtworkSerach:
                 return new _artwork_InitSearchArtworkPage__WEBPACK_IMPORTED_MODULE_7__[
                   'InitSearchArtworkPage'
                 ]()
-              case 6:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .AreaRanking:
                 return new _artwork_InitAreaRankingPage__WEBPACK_IMPORTED_MODULE_8__[
                   'InitAreaRankingPage'
                 ]()
-              case 7:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .ArtworkRanking:
                 return new _artwork_InitRankingArtworkPage__WEBPACK_IMPORTED_MODULE_9__[
                   'InitRankingArtworkPage'
                 ]()
-              case 8:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .Pixivision:
                 return new _InitPixivisionPage__WEBPACK_IMPORTED_MODULE_10__[
                   'InitPixivisionPage'
                 ]()
-              case 9:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .BookmarkDetail:
                 return new _artwork_InitBookmarkDetailPage__WEBPACK_IMPORTED_MODULE_11__[
                   'InitBookmarkDetailPage'
                 ]()
-              case 10:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .NewArtworkBookmark:
                 return new _artwork_InitBookmarkNewArtworkPage__WEBPACK_IMPORTED_MODULE_12__[
                   'InitBookmarkNewArtworkPage'
                 ]()
-              case 11:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .Discover:
                 return new _artwork_InitDiscoverPage__WEBPACK_IMPORTED_MODULE_13__[
                   'InitDiscoverPage'
                 ]()
-              case 12:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .NewArtwork:
                 return new _artwork_InitNewArtworkPage__WEBPACK_IMPORTED_MODULE_14__[
                   'InitNewArtworkPage'
                 ]()
-              case 13:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .Novel:
                 return new _novel_InitNovelPage__WEBPACK_IMPORTED_MODULE_15__[
                   'InitNovelPage'
                 ]()
-              case 14:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .NovelSeries:
                 return new _novel_InitNovelSeriesPage__WEBPACK_IMPORTED_MODULE_16__[
                   'InitNovelSeriesPage'
                 ]()
-              case 15:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .NovelSearch:
                 return new _novel_InitSearchNovelPage__WEBPACK_IMPORTED_MODULE_17__[
                   'InitSearchNovelPage'
                 ]()
-              case 16:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .NovelRanking:
                 return new _novel_InitRankingNovelPage__WEBPACK_IMPORTED_MODULE_18__[
                   'InitRankingNovelPage'
                 ]()
-              case 17:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .NewNovelBookmark:
                 return new _novel_InitBookmarkNewNovelPage__WEBPACK_IMPORTED_MODULE_19__[
                   'InitBookmarkNewNovelPage'
                 ]()
-              case 18:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .NewNovel:
                 return new _novel_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_20__[
                   'InitNewNovelPage'
                 ]()
-              case 19:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .ArtworkSeries:
                 return new _artwork_InitSeriesPage__WEBPACK_IMPORTED_MODULE_21__[
                   'InitSeriesPage'
                 ]()
-              case 20:
+              case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .Following:
                 return new _InitFollowingPage__WEBPACK_IMPORTED_MODULE_22__[
                   'InitFollowingPage'
                 ]()
               default:
-                throw new Error('InitPage error: Illegal pageType.')
+                return
             }
           }
         }
@@ -10218,10 +10237,39 @@
           /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
 
+        // 所有页面类型及对应的数字编号
+        var PageName
+        ;(function (PageName) {
+          PageName[(PageName['Unsupported'] = -1)] = 'Unsupported'
+          PageName[(PageName['Home'] = 0)] = 'Home'
+          PageName[(PageName['Artwork'] = 1)] = 'Artwork'
+          PageName[(PageName['UserHome'] = 2)] = 'UserHome'
+          PageName[(PageName['BookmarkLegacy'] = 3)] = 'BookmarkLegacy'
+          PageName[(PageName['Bookmark'] = 4)] = 'Bookmark'
+          PageName[(PageName['ArtworkSerach'] = 5)] = 'ArtworkSerach'
+          PageName[(PageName['AreaRanking'] = 6)] = 'AreaRanking'
+          PageName[(PageName['ArtworkRanking'] = 7)] = 'ArtworkRanking'
+          PageName[(PageName['Pixivision'] = 8)] = 'Pixivision'
+          PageName[(PageName['BookmarkDetail'] = 9)] = 'BookmarkDetail'
+          PageName[(PageName['NewArtworkBookmark'] = 10)] = 'NewArtworkBookmark'
+          PageName[(PageName['Discover'] = 11)] = 'Discover'
+          PageName[(PageName['NewArtwork'] = 12)] = 'NewArtwork'
+          PageName[(PageName['Novel'] = 13)] = 'Novel'
+          PageName[(PageName['NovelSeries'] = 14)] = 'NovelSeries'
+          PageName[(PageName['NovelSearch'] = 15)] = 'NovelSearch'
+          PageName[(PageName['NovelRanking'] = 16)] = 'NovelRanking'
+          PageName[(PageName['NewNovelBookmark'] = 17)] = 'NewNovelBookmark'
+          PageName[(PageName['NewNovel'] = 18)] = 'NewNovel'
+          PageName[(PageName['ArtworkSeries'] = 19)] = 'ArtworkSeries'
+          PageName[(PageName['Following'] = 20)] = 'Following'
+        })(PageName || (PageName = {}))
         // 获取页面类型
         class PageType {
           constructor() {
-            this.type = -1 // 如果 type 为 -1，说明处于不支持的页面
+            // 当前页面类型
+            this.type = PageName.Unsupported
+            // 所有页面类型
+            this.list = PageName
             this.type = this.getType()
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.pageSwitch,
@@ -10233,82 +10281,82 @@
           getType() {
             const url = window.location.href
             const pathname = window.location.pathname
-            let type
             if (
               window.location.hostname === 'www.pixiv.net' &&
               ['/', '/manga', '/novel/', '/en/'].includes(pathname)
             ) {
-              type = 0
+              return PageName.Home
             } else if (/\/artworks\/\d{1,10}/.test(url)) {
-              type = 1
+              return PageName.Artwork
             } else if (
               /\/users\/\d+/.test(url) &&
               !url.includes('/bookmarks')
             ) {
-              type = 2
               if (
                 pathname.includes('/following') ||
                 pathname.includes('/mypixiv') ||
                 pathname.includes('/followers')
               ) {
-                type = 20
+                return PageName.Following
+              } else {
+                return PageName.UserHome
               }
             } else if (pathname.endsWith('bookmark.php')) {
-              type = 3
+              return PageName.BookmarkLegacy
             } else if (pathname.includes('/bookmarks/')) {
-              type = 4
+              return PageName.Bookmark
             } else if (url.includes('/tags/')) {
-              type = pathname.endsWith('/novels') ? 15 : 5
+              return pathname.endsWith('/novels')
+                ? PageName.NovelSearch
+                : PageName.ArtworkSerach
             } else if (
               pathname === '/ranking_area.php' &&
               location.search !== ''
             ) {
-              type = 6
+              return PageName.AreaRanking
             } else if (pathname === '/ranking.php') {
-              type = 7
+              return PageName.ArtworkRanking
             } else if (
               url.includes('https://www.pixivision.net') &&
               url.includes('/a/')
             ) {
-              type = 8
+              return PageName.Pixivision
             } else if (
               url.includes('/bookmark_add.php?id=') ||
               url.includes('/bookmark_detail.php?illust_id=')
             ) {
-              type = 9
+              return PageName.BookmarkDetail
             } else if (
               url.includes('/bookmark_new_illust.php') ||
               url.includes('/bookmark_new_illust_r18.php')
             ) {
-              type = 10
+              return PageName.NewArtworkBookmark
             } else if (pathname === '/discovery') {
-              type = 11
+              return PageName.Discover
             } else if (
               url.includes('/new_illust.php') ||
               url.includes('/new_illust_r18.php')
             ) {
-              type = 12
+              return PageName.NewArtwork
             } else if (pathname === '/novel/show.php') {
-              type = 13
+              return PageName.Novel
             } else if (pathname.startsWith('/novel/series/')) {
-              type = 14
+              return PageName.NovelSeries
             } else if (pathname === '/novel/ranking.php') {
-              type = 16
+              return PageName.NovelRanking
             } else if (pathname.startsWith('/novel/bookmark_new')) {
-              type = 17
+              return PageName.NewNovelBookmark
             } else if (pathname.startsWith('/novel/new')) {
-              type = 18
+              return PageName.NewNovel
             } else if (
               pathname.startsWith('/user/') &&
               pathname.includes('/series/')
             ) {
-              type = 19
+              return PageName.ArtworkSeries
             } else {
               // 没有匹配到可用的页面类型
-              // throw new Error('Unsupported page type')
-              type = -1
+              return PageName.Unsupported
             }
-            return type
           }
           // 页面切换时，检查页面类型是否变化
           checkTypeChange() {
@@ -10772,7 +10820,10 @@
           constructor() {
             this.show = true // 是否显示
             // 指定在哪些页面类型里启用
-            this.enablePageType = [1, 13]
+            this.enablePageType = [
+              _PageType__WEBPACK_IMPORTED_MODULE_3__['pageType'].list.Artwork,
+              _PageType__WEBPACK_IMPORTED_MODULE_3__['pageType'].list.Novel,
+            ]
             this.addBtn()
             this.setVisible()
             this.bindEvents()
@@ -12789,12 +12840,17 @@ flag 及其含义如下：
           // 重设 title
           reset() {
             clearInterval(this.timer)
+            const metaTagPage = [
+              _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].list.Artwork,
+              _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].list.UserHome,
+              _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].list.Novel,
+            ]
+            // 从 og:title 标签获取标题。og:title 标签是最早更新标题的。但不确定是否在所有页面上都可以直接使用 og:title 标签的内容，所以这里只在部分页面上使用
             if (
-              _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].type == 1 ||
-              _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].type === 2 ||
-              _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].type === 13
+              metaTagPage.includes(
+                _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].type
+              )
             ) {
-              // 从 og:title 标签获取标题。og:title 标签是最早更新标题的。但不确定是否在所有页面上都可以直接使用 og:title 标签的内容，所以这里只在部分页面上使用
               const ogTitle = document.querySelector(
                 'meta[property="og:title"]'
               )
@@ -13298,7 +13354,9 @@ flag 及其含义如下：
             for (const selector of this.selectors) {
               // 在作品页面内不检查指定的选择器。因为这是作品大图区域
               if (
-                _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].type === 1 &&
+                _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].type ===
+                  _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                    .Artwork &&
                 selector === 'figure > div'
               ) {
                 continue
@@ -13427,7 +13485,10 @@ flag 及其含义如下：
         class VipSearchOptimize {
           constructor() {
             // 在哪些页面上启用
-            this.enablePageType = [5]
+            this.enablePageType = [
+              _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
+                .ArtworkSerach,
+            ]
             // 小说搜索页面不需要优化，因为列表数据中包含了每个作品的收藏数
             // 只有会员才能使用的排序方式（按热门度排序）
             this.vipOrders = ['popular_d', 'popular_male_d', 'popular_female_d']

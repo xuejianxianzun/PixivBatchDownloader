@@ -14,9 +14,7 @@ class VipSearchOptimize {
   }
 
   // 在哪些页面上启用
-  private readonly enablePageType: number[] = [
-    5, // 插画、漫画搜索页面
-  ]
+  private readonly enablePageType: number[] = [pageType.list.ArtworkSerach]
   // 小说搜索页面不需要优化，因为列表数据中包含了每个作品的收藏数
 
   // 只有会员才能使用的排序方式（按热门度排序）

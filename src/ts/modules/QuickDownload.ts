@@ -18,7 +18,7 @@ class QuickDownload {
   private show = true // 是否显示
 
   // 指定在哪些页面类型里启用
-  private readonly enablePageType = [1, 13]
+  private readonly enablePageType = [pageType.list.Artwork, pageType.list.Novel]
 
   private addBtn() {
     // 在右侧添加快速下载按钮

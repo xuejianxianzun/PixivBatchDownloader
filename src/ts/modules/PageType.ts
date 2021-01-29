@@ -1,5 +1,31 @@
 import { EVT } from './EVT'
 
+// 所有页面类型及对应的数字编号
+enum PageName {
+  Unsupported = -1,
+  Home,
+  Artwork,
+  UserHome,
+  BookmarkLegacy,
+  Bookmark,
+  ArtworkSerach,
+  AreaRanking,
+  ArtworkRanking,
+  Pixivision,
+  BookmarkDetail,
+  NewArtworkBookmark,
+  Discover,
+  NewArtwork,
+  Novel,
+  NovelSeries,
+  NovelSearch,
+  NovelRanking,
+  NewNovelBookmark,
+  NewNovel,
+  ArtworkSeries,
+  Following,
+}
+
 // 获取页面类型
 class PageType {
   constructor() {
@@ -10,81 +36,83 @@ class PageType {
     })
   }
 
-  public type = -1 // 如果 type 为 -1，说明处于不支持的页面
+  // 当前页面类型
+  public type = PageName.Unsupported
 
-  private getType() {
+  // 所有页面类型
+  public readonly list = PageName
+
+  private getType(): PageName {
     const url = window.location.href
     const pathname = window.location.pathname
-
-    let type: number
 
     if (
       window.location.hostname === 'www.pixiv.net' &&
       ['/', '/manga', '/novel/', '/en/'].includes(pathname)
     ) {
-      type = 0
+      return PageName.Home
     } else if (/\/artworks\/\d{1,10}/.test(url)) {
-      type = 1
+      return PageName.Artwork
     } else if (/\/users\/\d+/.test(url) && !url.includes('/bookmarks')) {
-      type = 2
       if (
         pathname.includes('/following') ||
         pathname.includes('/mypixiv') ||
         pathname.includes('/followers')
       ) {
-        type = 20
+        return PageName.Following
+      } else {
+        return PageName.UserHome
       }
     } else if (pathname.endsWith('bookmark.php')) {
-      type = 3
+      return PageName.BookmarkLegacy
     } else if (pathname.includes('/bookmarks/')) {
-      type = 4
+      return PageName.Bookmark
     } else if (url.includes('/tags/')) {
-      type = pathname.endsWith('/novels') ? 15 : 5
+      return pathname.endsWith('/novels')
+        ? PageName.NovelSearch
+        : PageName.ArtworkSerach
     } else if (pathname === '/ranking_area.php' && location.search !== '') {
-      type = 6
+      return PageName.AreaRanking
     } else if (pathname === '/ranking.php') {
-      type = 7
+      return PageName.ArtworkRanking
     } else if (
       url.includes('https://www.pixivision.net') &&
       url.includes('/a/')
     ) {
-      type = 8
+      return PageName.Pixivision
     } else if (
       url.includes('/bookmark_add.php?id=') ||
       url.includes('/bookmark_detail.php?illust_id=')
     ) {
-      type = 9
+      return PageName.BookmarkDetail
     } else if (
       url.includes('/bookmark_new_illust.php') ||
       url.includes('/bookmark_new_illust_r18.php')
     ) {
-      type = 10
+      return PageName.NewArtworkBookmark
     } else if (pathname === '/discovery') {
-      type = 11
+      return PageName.Discover
     } else if (
       url.includes('/new_illust.php') ||
       url.includes('/new_illust_r18.php')
     ) {
-      type = 12
+      return PageName.NewArtwork
     } else if (pathname === '/novel/show.php') {
-      type = 13
+      return PageName.Novel
     } else if (pathname.startsWith('/novel/series/')) {
-      type = 14
+      return PageName.NovelSeries
     } else if (pathname === '/novel/ranking.php') {
-      type = 16
+      return PageName.NovelRanking
     } else if (pathname.startsWith('/novel/bookmark_new')) {
-      type = 17
+      return PageName.NewNovelBookmark
     } else if (pathname.startsWith('/novel/new')) {
-      type = 18
+      return PageName.NewNovel
     } else if (pathname.startsWith('/user/') && pathname.includes('/series/')) {
-      type = 19
+      return PageName.ArtworkSeries
     } else {
       // 没有匹配到可用的页面类型
-      // throw new Error('Unsupported page type')
-      type = -1
+      return PageName.Unsupported
     }
-
-    return type
   }
 
   // 页面切换时，检查页面类型是否变化
@@ -100,4 +128,5 @@ class PageType {
 }
 
 const pageType = new PageType()
+
 export { pageType }
