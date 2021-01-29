@@ -6,10 +6,6 @@
 
 ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
 
-**Already support downloading novels!**
-
-**You can resume the breakpoint!**
-
 <!-- TOC -->
 
 - [Introduction](#introduction)

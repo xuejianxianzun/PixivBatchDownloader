@@ -6,10 +6,6 @@
 
 ![version](https://img.shields.io/github/v/release/xuejianxianzun/PixivBatchDownloader)
 
-**已支援小說下載！**
-
-**已支援斷點續傳！**
-
 <!-- TOC -->
 
 - [簡介](#簡介)
