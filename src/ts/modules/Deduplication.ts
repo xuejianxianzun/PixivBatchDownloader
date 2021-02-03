@@ -210,7 +210,7 @@ class Deduplication {
     const str = JSON.stringify(record, null, 2)
     const blob = new Blob([str], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
-    DOM.downloadFile(
+    Tools.downloadFile(
       url,
       `record-${Tools.replaceUnsafeStr(new Date().toLocaleString())}.json`
     )
@@ -218,7 +218,7 @@ class Deduplication {
 
   // 导入下载记录
   private async importRecord() {
-    const record = (await DOM.loadJSONFile().catch((err) => {
+    const record = (await Tools.loadJSONFile().catch((err) => {
       return EVT.sendMsg({
         type: 'error',
         msg: err,
@@ -289,7 +289,7 @@ class Deduplication {
     const str = JSON.stringify(r, null, 2)
     const blob = new Blob([str], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
-    DOM.downloadFile(url, `record-test-${number}.json`)
+    Tools.downloadFile(url, `record-test-${number}.json`)
   }
 }
 

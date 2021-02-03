@@ -59,14 +59,6 @@ class DOM {
     document.body.append(e)
   }
 
-  // 通过创建 a 标签来下载文件
-  static downloadFile(url: string, fileName: string) {
-    const a = document.createElement('a')
-    a.href = url
-    a.download = fileName
-    a.click()
-  }
-
   // 获取用户 id
   // 这是一个不够可靠的 api
   // 测试：在 https://www.pixiv.net/artworks/79399027 获取 userId ，正确的结果应该是 13895186
@@ -191,40 +183,6 @@ class DOM {
       .replace(/^\(\d.*\) /, '')
   }
 
-  // 创建 input 元素选择 json 文件
-  static async loadJSONFile<T>(): Promise<T> {
-    return new Promise<T>((resolve, reject) => {
-      const i = document.createElement('input')
-      i.setAttribute('type', 'file')
-      i.setAttribute('accept', 'application/json')
-      i.onchange = () => {
-        if (i.files && i.files.length > 0) {
-          // 读取文件内容
-          const file = new FileReader()
-          file.readAsText(i.files[0])
-          file.onload = () => {
-            const str = file.result as string
-            let result: T
-            try {
-              result = JSON.parse(str)
-              // if((result as any).constructor !== Object){
-              // 允许是对象 {} 或者数组 []
-              if (result === null || typeof result !== 'object') {
-                const msg = 'Data is not an object!'
-                return reject(new Error(msg))
-              }
-              return resolve(result)
-            } catch (error) {
-              const msg = 'JSON parse error!'
-              return reject(new Error(msg))
-            }
-          }
-        }
-      }
-
-      i.click()
-    })
-  }
 }
 
 export { DOM }

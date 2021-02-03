@@ -1,7 +1,7 @@
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { store } from '../Store'
-import { DOM } from '../DOM'
+import { Tools } from '../Tools'
 import config from '../Config'
 import { theme } from '../Theme'
 
@@ -109,7 +109,7 @@ class OutputPanel {
       const url = URL.createObjectURL(file)
       const fileName = new Date().toLocaleString() + '.txt'
 
-      DOM.downloadFile(url, fileName)
+      Tools.downloadFile(url, fileName)
 
       // 禁用复制按钮
       this.copyBtn.disabled = true
@@ -138,4 +138,4 @@ class OutputPanel {
 }
 
 new OutputPanel()
-export {}
+export { }

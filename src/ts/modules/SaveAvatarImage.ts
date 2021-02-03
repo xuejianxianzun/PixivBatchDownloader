@@ -3,6 +3,7 @@ import { API } from './API'
 import { log } from './Log'
 import { DOM } from './DOM'
 import { EVT } from './EVT'
+import { Tools } from './Tools'
 
 // 保存用户头像
 class SaveAvatarImage {
@@ -33,7 +34,7 @@ class SaveAvatarImage {
     // 直接保存到下载文件夹
     const url = URL.createObjectURL(blob)
     const name = `${userProfile.body.name}_${userId}_avatar.${ext}`
-    DOM.downloadFile(url, name)
+    Tools.downloadFile(url, name)
 
     log.success('✓ ' + lang.transl('_保存用户头像'))
     EVT.fire(EVT.list.closeCenterPanel)
@@ -42,4 +43,4 @@ class SaveAvatarImage {
 
 new SaveAvatarImage()
 
-export {}
+export { }

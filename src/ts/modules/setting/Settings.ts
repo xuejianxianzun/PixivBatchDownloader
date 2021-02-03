@@ -6,7 +6,6 @@
 // 如果打开了多个标签页，每个页面的 settings 数据是互相独立的。但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
 
 import { EVT } from '../EVT'
-import { DOM } from '../DOM'
 import { Tools } from '../Tools'
 import { convertOldSettings } from './ConvertOldSettings'
 
@@ -269,11 +268,11 @@ class Settings {
     const str = JSON.stringify(settings, null, 2)
     const blob = new Blob([str], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
-    DOM.downloadFile(url, `pixiv_batch_downloader-settings.json`)
+    Tools.downloadFile(url, `pixiv_batch_downloader-settings.json`)
   }
 
   private async importSettings() {
-    const loadedJSON = (await DOM.loadJSONFile().catch((err) => {
+    const loadedJSON = (await Tools.loadJSONFile().catch((err) => {
       return EVT.sendMsg({
         type: 'error',
         msg: err,
@@ -399,7 +398,7 @@ class Settings {
     }
 
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
 
     // 触发设置变化的事件
     // 在进行批量操作（如恢复设置、导入设置、重置设置）的时候，可以将 fireEvt 设为 false，等操作执行之后自行触发这个事件

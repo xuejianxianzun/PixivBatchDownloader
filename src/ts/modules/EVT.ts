@@ -103,7 +103,9 @@ class EVT {
     // 当需要导出 csv 文件时触发
     outputCSV: 'outputCSV',
     // 当需要导出抓取结果时触发
-    outputResult: 'outputResult',
+    exportResult: 'exportResult',
+    // 当需要导出抓取结果时触发
+    importResult: 'importResult',
     // 当需要保存用户头像时触发
     saveAvatarImage: 'saveAvatarImage',
     // 当需要保存用户头像为图标时触发

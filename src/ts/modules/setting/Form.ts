@@ -167,7 +167,20 @@ class Form {
     ).addEventListener(
       'click',
       () => {
-        EVT.fire(EVT.list.outputResult)
+        EVT.fire(EVT.list.exportResult)
+      },
+      false
+    )
+
+    // 导入抓取结果
+    DOM.addBtn(
+      'namingBtns',
+      Colors.green,
+      lang.transl('_导入抓取结果')
+    ).addEventListener(
+      'click',
+      () => {
+        EVT.fire(EVT.list.importResult)
       },
       false
     )

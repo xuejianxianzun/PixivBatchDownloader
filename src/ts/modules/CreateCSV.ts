@@ -107,7 +107,7 @@ class CreateCSV {
     // 如果需要下载文件
     const url = URL.createObjectURL(csvBlob)
     const name = data.fileName || DOM.getTitle()
-    DOM.downloadFile(url, Tools.replaceUnsafeStr(name) + '.csv')
+    Tools.downloadFile(url, Tools.replaceUnsafeStr(name) + '.csv')
     return url
   }
 

@@ -4,6 +4,7 @@ import { log } from './Log'
 import { DOM } from './DOM'
 import { EVT } from './EVT'
 import { img2ico } from './ImageToIcon'
+import { Tools } from './Tools'
 
 // 保存用户头像为图标
 class SaveAvatarIcon {
@@ -35,7 +36,7 @@ class SaveAvatarIcon {
     // 直接保存到下载文件夹
     const url = URL.createObjectURL(blob)
     const name = `${userProfile.body.name}_${userId}_icon.ico`
-    DOM.downloadFile(url, name)
+    Tools.downloadFile(url, name)
 
     log.success('✓ ' + lang.transl('_保存用户头像为图标'))
     EVT.fire(EVT.list.closeCenterPanel)
@@ -44,4 +45,4 @@ class SaveAvatarIcon {
 
 new SaveAvatarIcon()
 
-export {}
+export { }

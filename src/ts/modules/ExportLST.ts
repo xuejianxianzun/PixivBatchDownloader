@@ -3,6 +3,7 @@ import { EVT } from './EVT'
 import { store } from './Store'
 import { fileName } from './FileName'
 import { lang } from './Lang'
+import { Tools } from './Tools'
 
 // 输出 lst 文件
 class ExportLST {
@@ -44,9 +45,9 @@ class ExportLST {
     const url = URL.createObjectURL(blob)
     const name = DOM.getTitle() + '.lst'
 
-    DOM.downloadFile(url, name)
+    Tools.downloadFile(url, name)
   }
 }
 
 new ExportLST()
-export {}
+export { }

@@ -3,6 +3,7 @@ import { API } from './API'
 import { log } from './Log'
 import { DOM } from './DOM'
 import { EVT } from './EVT'
+import { Tools } from './Tools'
 
 // 保存用户封面图片
 class SaveUserCover {
@@ -47,7 +48,7 @@ class SaveUserCover {
     // 直接保存到下载文件夹
     const url = URL.createObjectURL(blob)
     const name = `${userProfile.body.name}_${userId}_cover.${ext}`
-    DOM.downloadFile(url, name)
+    Tools.downloadFile(url, name)
 
     log.success('✓ ' + lang.transl('_保存用户封面'))
     EVT.fire(EVT.list.closeCenterPanel)
@@ -56,4 +57,4 @@ class SaveUserCover {
 
 new SaveUserCover()
 
-export {}
+export { }

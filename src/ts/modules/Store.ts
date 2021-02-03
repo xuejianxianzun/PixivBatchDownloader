@@ -1,7 +1,7 @@
 import { API } from './API'
 import { EVT } from './EVT'
 import { DOM } from './DOM'
-import { Result, WorkInfoOptional, RankList, IDData } from './Store.d'
+import { Result, ResultOptional, RankList, IDData } from './Store.d'
 
 // 储存抓取结果
 class Store {
@@ -27,7 +27,7 @@ class Store {
 
   public crawlCompleteTime: Date = new Date()
 
-  private assignResult(data: WorkInfoOptional) {
+  private assignResult(data: ResultOptional) {
     // 图片详细信息的默认值
     const dataDefault: Result = {
       idNum: 0,
@@ -65,7 +65,7 @@ class Store {
   }
 
   // 添加每个作品的信息。只需要传递有值的属性
-  public addResult(data: WorkInfoOptional) {
+  public addResult(data: ResultOptional) {
     // 检查该作品数据是否已存在，已存在则不添加
     if (data.type === 3) {
       if (data.idNum !== undefined) {

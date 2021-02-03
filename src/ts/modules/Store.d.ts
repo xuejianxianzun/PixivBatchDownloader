@@ -50,7 +50,7 @@ export interface Result {
   commentCount: number
 }
 
-export interface WorkInfoOptional {
+export interface ResultOptional {
   idNum?: number
   id?: string
   original?: string

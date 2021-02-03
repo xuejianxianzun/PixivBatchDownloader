@@ -10,7 +10,7 @@ class ExportResult {
   }
 
   private bindEvents() {
-    window.addEventListener(EVT.list.outputResult, () => {
+    window.addEventListener(EVT.list.exportResult, () => {
       this.output()
     })
   }
@@ -28,14 +28,19 @@ class ExportResult {
     const str = JSON.stringify(store.result, null, 2)
     const blob = new Blob([str], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
-    DOM.downloadFile(
+    Tools.downloadFile(
       url,
       `result-${Tools.replaceUnsafeStr(
         DOM.getTitle()
       )}-${store.crawlCompleteTime.getTime()}.json`
     )
+
+    EVT.fire(EVT.list.sendToast, {
+      text: lang.transl('_导出成功'),
+      bgColorType: 'green',
+    })
   }
 }
 
 new ExportResult()
-export {}
+export { }

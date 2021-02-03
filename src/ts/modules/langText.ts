@@ -654,14 +654,14 @@ const langText = {
     `You can type a number between 1-${Config.downloadThreadMax} to set the number of concurrent downloads`,
     `同時ダウンロード数を設定、1-${Config.downloadThreadMax} の数値を入力してください`,
   ],
-  _下载按钮1: ['开始下载', '開始下載', 'start download', 'ダウンロードを開始'],
-  _下载按钮2: [
+  _开始下载: ['开始下载', '開始下載', 'start download', 'ダウンロードを開始'],
+  _暂停下载: [
     '暂停下载',
     '暫停下載',
     'pause download',
     'ダウンロードを一時停止',
   ],
-  _下载按钮3: ['停止下载', '停止下載', 'stop download', 'ダウンロードを停止'],
+  _停止下载: ['停止下载', '停止下載', 'stop download', 'ダウンロードを停止'],
   _复制url: ['复制 url', '複製下載網址', 'copy urls', 'URL をコピー'],
   _当前状态: ['当前状态 ', '目前狀態：', 'State ', '現在の状態 '],
   _未开始下载: [
@@ -1341,6 +1341,14 @@ const langText = {
     'Export crawl results',
     'クロール結果をエクスポート',
   ],
+  _导入抓取结果: [
+    '导入抓取结果',
+    '匯入擷取結果',
+    'Import crawl results',
+    'クロール結果をインポート',
+  ],
+  _导入成功: ['导入成功', '匯入成功', 'Import successfully', 'インポートされました'],
+  _导出成功: ['导出成功', '匯出成功', '匯出擷取結果 successfully', 'エクスポートされました'],
   _图片尺寸: ['图片尺寸', '圖片尺寸', 'Image size', '画像サイズ'],
   _原图: ['原图', '原圖', 'Original', 'Original'],
   _普通: ['普通', '普通', 'Regular', 'Regular'],
