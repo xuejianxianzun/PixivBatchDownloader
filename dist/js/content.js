@@ -4713,7 +4713,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Log */ "./src/ts/modules/Log.ts");
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./filter/Filter */ "./src/ts/modules/filter/Filter.ts");
 // 初始化旧版收藏页面
+
 
 
 
@@ -4731,6 +4733,7 @@ class InitBookmarkLegacyPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.type = 'illusts'; // 页面是图片还是小说
         this.isHide = false; // 当前页面是否显示的是非公开收藏
         this.requsetNumber = 0; // 根据页数，计算要抓取的作品个数
+        this.filteredNumber = 0; // 记录检查了多少作品（不论结果是否通过都计入）
         this.onceRequest = 100; // 每次请求多少个数量
         this.offset = 0; // 要去掉的作品数量
         this.crawlRecommended = false; // 是否抓取推荐作品（收藏页面下方）
@@ -4826,19 +4829,35 @@ class InitBookmarkLegacyPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
             return;
         }
         if (data.body.works.length === 0 ||
-            this.idList.length >= this.requsetNumber) {
+            this.idList.length >= this.requsetNumber || this.filteredNumber >= this.requsetNumber) {
             // 书签页获取完毕
             return this.afterGetIdList();
         }
         else {
             // 没有抓取完毕时，添加数据
             const idType = this.type === 'illusts' ? 'unknown' : 'novels';
-            data.body.works.forEach((data) => this.idList.push({
-                type: idType,
-                id: data.id,
-            }));
+            for (const workData of data.body.works) {
+                if (this.filteredNumber >= this.requsetNumber) {
+                    return this.afterGetIdList();
+                }
+                const filterOpt = {
+                    id: workData.id,
+                    tags: workData.tags,
+                    bookmarkData: workData.bookmarkData,
+                    createDate: workData.createDate,
+                    userId: workData.userId,
+                };
+                this.filteredNumber++;
+                if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_10__["filter"].check(filterOpt)) {
+                    this.idList.push({
+                        type: idType,
+                        id: workData.id,
+                    });
+                }
+            }
             this.offset += this.onceRequest; // 每次增加偏移量
-            // 重复抓取过程
+            _Log__WEBPACK_IMPORTED_MODULE_8__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_当前作品个数', this.idList.length.toString()), 1, false);
+            // 继续抓取
             this.getIdList();
         }
     }
@@ -4883,6 +4902,7 @@ class InitBookmarkLegacyPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.type = 'illusts';
         this.idList = [];
         this.offset = 0;
+        this.filteredNumber = 0;
         this.crawlRecommended = false; // 解除下载推荐作品的标记
     }
     sortResult() {
@@ -4915,7 +4935,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
 /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Token */ "./src/ts/modules/Token.ts");
 /* harmony import */ var _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./BookmarksAddTag */ "./src/ts/modules/BookmarksAddTag.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./filter/Filter */ "./src/ts/modules/filter/Filter.ts");
 // 初始化新版收藏页面
+
 
 
 
@@ -4933,6 +4955,7 @@ class InitBookmarkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitP
         this.type = 'illusts'; // 页面是图片还是小说
         this.isHide = false; // 当前页面是否显示的是非公开收藏
         this.requsetNumber = 0; // 根据页数，计算要抓取的作品个数
+        this.filteredNumber = 0; // 记录检查了多少作品（不论结果是否通过都计入）
         this.onceRequest = 100; // 每次请求多少个数量
         this.offset = 0; // 要去掉的作品数量
         this.init();
@@ -5007,19 +5030,35 @@ class InitBookmarkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitP
             return;
         }
         if (data.body.works.length === 0 ||
-            this.idList.length >= this.requsetNumber) {
+            this.idList.length >= this.requsetNumber || this.filteredNumber >= this.requsetNumber) {
             // 书签页获取完毕
             return this.afterGetIdList();
         }
         else {
             // 没有抓取完毕时，添加数据
             const idType = this.type === 'illusts' ? 'unknown' : 'novels';
-            data.body.works.forEach((data) => this.idList.push({
-                type: idType,
-                id: data.id,
-            }));
+            for (const workData of data.body.works) {
+                if (this.filteredNumber >= this.requsetNumber) {
+                    return this.afterGetIdList();
+                }
+                const filterOpt = {
+                    id: workData.id,
+                    tags: workData.tags,
+                    bookmarkData: workData.bookmarkData,
+                    createDate: workData.createDate,
+                    userId: workData.userId,
+                };
+                this.filteredNumber++;
+                if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_10__["filter"].check(filterOpt)) {
+                    this.idList.push({
+                        type: idType,
+                        id: workData.id,
+                    });
+                }
+            }
             this.offset += this.onceRequest; // 每次增加偏移量
-            // 重复抓取过程
+            _Log__WEBPACK_IMPORTED_MODULE_6__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_当前作品个数', this.idList.length.toString()), 1, false);
+            // 继续抓取
             this.getIdList();
         }
     }

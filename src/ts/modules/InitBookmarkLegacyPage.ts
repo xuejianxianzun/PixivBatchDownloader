@@ -15,6 +15,8 @@ import {
 import { store } from './Store'
 import { log } from './Log'
 import { DOM } from './DOM'
+import { filter } from './filter/Filter'
+import { FilterOption } from './filter/Filter.d'
 
 class InitBookmarkLegacyPage extends InitPageBase {
   constructor() {
@@ -29,6 +31,8 @@ class InitBookmarkLegacyPage extends InitPageBase {
   private isHide = false // 当前页面是否显示的是非公开收藏
 
   private requsetNumber: number = 0 // 根据页数，计算要抓取的作品个数
+
+  private filteredNumber = 0 // 记录检查了多少作品（不论结果是否通过都计入）
 
   private readonly onceRequest: number = 100 // 每次请求多少个数量
 
@@ -157,21 +161,44 @@ class InitBookmarkLegacyPage extends InitPageBase {
 
     if (
       data.body.works.length === 0 ||
-      this.idList.length >= this.requsetNumber
+      this.idList.length >= this.requsetNumber || this.filteredNumber >= this.requsetNumber
     ) {
       // 书签页获取完毕
       return this.afterGetIdList()
     } else {
       // 没有抓取完毕时，添加数据
       const idType = this.type === 'illusts' ? 'unknown' : 'novels'
-      data.body.works.forEach((data: ArtworkCommonData | NovelCommonData) =>
-        this.idList.push({
-          type: idType,
-          id: data.id,
-        })
-      )
+      for (const workData of data.body.works) {
+        if (this.filteredNumber >= this.requsetNumber) {
+          return this.afterGetIdList()
+        }
+        const filterOpt: FilterOption = {
+          id: workData.id,
+          tags: workData.tags,
+          bookmarkData: workData.bookmarkData,
+          createDate: workData.createDate,
+          userId: workData.userId,
+        }
+
+        this.filteredNumber++
+
+        if (await filter.check(filterOpt)) {
+          this.idList.push({
+            type: idType,
+            id: workData.id,
+          })
+        }
+      }
+
       this.offset += this.onceRequest // 每次增加偏移量
-      // 重复抓取过程
+
+      log.log(
+        lang.transl('_当前作品个数', this.idList.length.toString()),
+        1,
+        false
+      )
+
+      // 继续抓取
       this.getIdList()
     }
   }
@@ -229,6 +256,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
     this.type = 'illusts'
     this.idList = []
     this.offset = 0
+    this.filteredNumber = 0
     this.crawlRecommended = false // 解除下载推荐作品的标记
   }
 
