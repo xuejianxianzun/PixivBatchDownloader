@@ -493,6 +493,12 @@ const langText = {
     'Use Alt + X to show and hide the download panel',
     'Alt + X てダウンロードパネルを表示および非表示にする',
   ],
+  _隐藏下载面板: [
+    '隐藏下载面板（Alt + X）',
+    '隱藏下載面板（Alt + X）',
+    'Hide the download panel (Alt + X)',
+    'ダウンロードパネルを非表示にする（Alt + X）',
+  ],
   _共抓取到n个文件: [
     '共抓取到 {} 个文件',
     '共擷取到 {} 個檔案',

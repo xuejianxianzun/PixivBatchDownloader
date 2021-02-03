@@ -391,7 +391,7 @@ class ImgViewer {
     if (one2one) {
       const li = document.createElement('li')
       li.setAttribute('role', 'button')
-      li.setAttribute('title', lang.transl('_下载'))
+      li.setAttribute('title', lang.transl('_下载')+' (D)')
       li.classList.add(this.downloadBtnClass)
       li.textContent = '↓'
       const btn = one2one.insertAdjacentElement('afterend', li)!

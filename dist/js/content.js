@@ -986,7 +986,7 @@ class CenterPanel {
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
-        <div class="has_tip centerWrap_top_btn centerWrap_close" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_快捷键切换显示隐藏')}">
+        <div class="has_tip centerWrap_top_btn centerWrap_close" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_隐藏下载面板')}">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>
@@ -4282,7 +4282,7 @@ class ImgViewer {
         if (one2one) {
             const li = document.createElement('li');
             li.setAttribute('role', 'button');
-            li.setAttribute('title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载'));
+            li.setAttribute('title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载') + ' (D)');
             li.classList.add(this.downloadBtnClass);
             li.textContent = '↓';
             const btn = one2one.insertAdjacentElement('afterend', li);
@@ -6921,6 +6921,12 @@ const langText = {
         'Alt + X 可以顯示或隱藏下載面板。',
         'Use Alt + X to show and hide the download panel',
         'Alt + X てダウンロードパネルを表示および非表示にする',
+    ],
+    _隐藏下载面板: [
+        '隐藏下载面板（Alt + X）',
+        '隱藏下載面板（Alt + X）',
+        'Hide the download panel (Alt + X)',
+        'ダウンロードパネルを非表示にする（Alt + X）',
     ],
     _共抓取到n个文件: [
         '共抓取到 {} 个文件',
@@ -15619,15 +15625,15 @@ class Form {
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.previewFileName);
         }, false);
         // 导出 csv
-        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('namingBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出csv')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('exportResult', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出csv')).addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.outputCSV);
         }, false);
         // 导出抓取结果
-        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('namingBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出抓取结果')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('exportResult', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出抓取结果')).addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.exportResult);
         }, false);
         // 导入抓取结果
-        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('namingBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导入抓取结果')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('exportResult', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导入抓取结果')).addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.importResult);
         }, false);
         // 重置设置按钮
@@ -15980,9 +15986,9 @@ const formHtml = `<form class="settingForm">
       </span>
       </p>
 
-      <div  class="centerWrap_btns">
-      <slot data-name="crawlBtns"></slot>
-      <slot data-name="selectWorkBtns"></slot>
+      <div class="centerWrap_btns">
+        <slot data-name="crawlBtns"></slot>
+        <slot data-name="selectWorkBtns"></slot>
       </div>
     </div>
     <div class="con">
@@ -16014,7 +16020,7 @@ const formHtml = `<form class="settingForm">
         <option value="{p_num}">{p_num}</option>
         </select>
       &nbsp;
-      <slot data-name="saveNamingRule" class=""></slot>
+      <slot data-name="saveNamingRule"></slot>
       <button class="showFileNameTip textButton" type="button">?</button>
       </p>
       <p class="tip tipWithBtn" id="tipCreateFolder">
@@ -16150,7 +16156,10 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
       </p>
 
-      <slot data-name="namingBtns" class="centerWrap_btns"></slot>
+      <div class="centerWrap_btns">
+        <slot data-name="namingBtns"></slot>
+        <slot data-name="exportResult"></slot>
+      </div>
 
       <p class="option" data-no="16">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_线程数字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置下载线程')}<span class="gray1"> ? </span></span>
@@ -16403,7 +16412,9 @@ const formHtml = `<form class="settingForm">
       <button class="textButton gray1" type="button" id="resetSettings">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_重置设置')}</button>
       </p>
 
-      <slot data-name="otherBtns" class="centerWrap_btns"></slot>
+      <div class="centerWrap_btns">
+        <slot data-name="otherBtns"></slot>
+      </div>
     </div>
   </div>
 </form>`;

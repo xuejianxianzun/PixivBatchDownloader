@@ -233,9 +233,9 @@ const formHtml = `<form class="settingForm">
       </span>
       </p>
 
-      <div  class="centerWrap_btns">
-      <slot data-name="crawlBtns"></slot>
-      <slot data-name="selectWorkBtns"></slot>
+      <div class="centerWrap_btns">
+        <slot data-name="crawlBtns"></slot>
+        <slot data-name="selectWorkBtns"></slot>
       </div>
     </div>
     <div class="con">
@@ -269,7 +269,7 @@ const formHtml = `<form class="settingForm">
         <option value="{p_num}">{p_num}</option>
         </select>
       &nbsp;
-      <slot data-name="saveNamingRule" class=""></slot>
+      <slot data-name="saveNamingRule"></slot>
       <button class="showFileNameTip textButton" type="button">?</button>
       </p>
       <p class="tip tipWithBtn" id="tipCreateFolder">
@@ -421,7 +421,10 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
       </p>
 
-      <slot data-name="namingBtns" class="centerWrap_btns"></slot>
+      <div class="centerWrap_btns">
+        <slot data-name="namingBtns"></slot>
+        <slot data-name="exportResult"></slot>
+      </div>
 
       <p class="option" data-no="16">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
@@ -726,7 +729,9 @@ const formHtml = `<form class="settingForm">
       )}</button>
       </p>
 
-      <slot data-name="otherBtns" class="centerWrap_btns"></slot>
+      <div class="centerWrap_btns">
+        <slot data-name="otherBtns"></slot>
+      </div>
     </div>
   </div>
 </form>`

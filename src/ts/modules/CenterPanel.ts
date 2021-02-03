@@ -49,7 +49,7 @@ class CenterPanel {
         </svg>
       </a>
         <div class="has_tip centerWrap_top_btn centerWrap_close" data-tip="${lang.transl(
-          '_快捷键切换显示隐藏'
+          '_隐藏下载面板'
         )}">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>

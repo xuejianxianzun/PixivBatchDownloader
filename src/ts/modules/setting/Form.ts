@@ -148,7 +148,7 @@ class Form {
 
     // 导出 csv
     DOM.addBtn(
-      'namingBtns',
+      'exportResult',
       Colors.green,
       lang.transl('_导出csv')
     ).addEventListener(
@@ -161,7 +161,7 @@ class Form {
 
     // 导出抓取结果
     DOM.addBtn(
-      'namingBtns',
+      'exportResult',
       Colors.green,
       lang.transl('_导出抓取结果')
     ).addEventListener(
@@ -174,7 +174,7 @@ class Form {
 
     // 导入抓取结果
     DOM.addBtn(
-      'namingBtns',
+      'exportResult',
       Colors.green,
       lang.transl('_导入抓取结果')
     ).addEventListener(
