@@ -41,7 +41,7 @@ class SaveNovelData {
 
       // 保存作品在排行榜上的编号
       const rankData = store.getRankList(id)
-      const rank = rankData ? '#' + rankData : ''
+      const rank = rankData ? rankData : null
 
       // 系列标题和序号
       const seriesTitle = body.seriesNavData ? body.seriesNavData.title : ''

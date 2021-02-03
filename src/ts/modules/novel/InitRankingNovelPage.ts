@@ -129,7 +129,7 @@ class InitRankingNovelPage extends InitPageBase {
       }
 
       if (await filter.check(filterOpt)) {
-        store.setRankList(id.toString(), rank.toString())
+        store.setRankList(id.toString(), rank)
 
         store.idList.push({
           type: 'novels',

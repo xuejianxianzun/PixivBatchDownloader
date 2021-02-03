@@ -55,8 +55,6 @@ class ImportResult {
       }
     }
 
-    console.log(loadedJSON[0])
-
     // 恢复数据并发送通知
     store.reset()
     store.result = loadedJSON

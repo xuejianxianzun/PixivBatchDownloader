@@ -8,7 +8,20 @@ import { Tools } from './Tools'
 
 // 生成文件名
 class FileName {
-  constructor() {}
+  constructor() { }
+
+  private handleRank(rank: number | null): string {
+    // 处理空值
+    if (rank === null) {
+      return ''
+    }
+    // string 是旧版本中使用的，以前抓取结果里的 rank 直接就是 '#1' 这样的字符串，后来改成了数字类型
+    if (typeof rank === 'string') {
+      return rank
+    }
+    // 其他的情况则应该是期望的值（数字类型）
+    return '#' + rank
+  }
 
   // 生成文件名
   public getFileName(data: Result) {
@@ -43,7 +56,7 @@ class FileName {
         safe: true,
       },
       '{rank}': {
-        value: data.rank,
+        value: this.handleRank(data.rank),
         prefix: '',
         safe: true,
       },

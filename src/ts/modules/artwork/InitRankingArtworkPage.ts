@@ -149,7 +149,7 @@ class InitRankingArtworkPage extends InitPageBase {
       }
 
       if (await filter.check(filterOpt)) {
-        store.setRankList(data.illust_id.toString(), data.rank.toString())
+        store.setRankList(data.illust_id.toString(), data.rank)
 
         store.idList.push({
           type: API.getWorkType(data.illust_type),

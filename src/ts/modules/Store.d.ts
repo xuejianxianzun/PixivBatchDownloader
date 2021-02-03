@@ -40,7 +40,7 @@ export interface Result {
   bookmarked: boolean
   date: string
   type: 0 | 1 | 2 | 3
-  rank: string
+  rank: number | null
   ugoiraInfo: UgoiraInfo | null
   seriesTitle: string | null
   seriesOrder: string | null
@@ -72,7 +72,7 @@ export interface ResultOptional {
   bookmarked?: boolean
   date?: string
   type?: 0 | 1 | 2 | 3
-  rank?: string
+  rank?: number|null
   ugoiraInfo?: UgoiraInfo | null
   seriesTitle?: string | null
   seriesOrder?: string | null
@@ -84,5 +84,5 @@ export interface ResultOptional {
 
 // 储存作品在排行榜中的排名
 export interface RankList {
-  [key: string]: string
+  [key: string]: number
 }

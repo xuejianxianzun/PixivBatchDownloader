@@ -3141,7 +3141,7 @@ class ExportResult {
         const url = URL.createObjectURL(blob);
         _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].downloadFile(url, `result-${_Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].replaceUnsafeStr(_DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].getTitle())}-${_Store__WEBPACK_IMPORTED_MODULE_2__["store"].crawlCompleteTime.getTime()}.json`);
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.sendToast, {
-            text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导入成功'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出成功'),
             bgColorType: 'green',
         });
     }
@@ -3445,6 +3445,18 @@ __webpack_require__.r(__webpack_exports__);
 // 生成文件名
 class FileName {
     constructor() { }
+    handleRank(rank) {
+        // 处理空值
+        if (rank === null) {
+            return '';
+        }
+        // string 是旧版本中使用的，以前抓取结果里的 rank 直接就是 '#1' 这样的字符串，后来改成了数字类型
+        if (typeof rank === 'string') {
+            return rank;
+        }
+        // 其他的情况则应该是期望的值（数字类型）
+        return '#' + rank;
+    }
     // 生成文件名
     getFileName(data) {
         // 为空时使用 {id}
@@ -3477,7 +3489,7 @@ class FileName {
                 safe: true,
             },
             '{rank}': {
-                value: data.rank,
+                value: this.handleRank(data.rank),
                 prefix: '',
                 safe: true,
             },
@@ -4411,7 +4423,6 @@ class ImportResult {
                 });
             }
         }
-        console.log(loadedJSON[0]);
         // 恢复数据并发送通知
         _Store__WEBPACK_IMPORTED_MODULE_4__["store"].reset();
         _Store__WEBPACK_IMPORTED_MODULE_4__["store"].result = loadedJSON;
@@ -7726,8 +7737,8 @@ const langText = {
         'Import crawl results',
         'クロール結果をインポート',
     ],
-    _导入成功: ['导入成功', '匯入成功', 'Import successfully', 'インポートされました'],
-    _导出成功: ['导出成功', '匯出成功', '匯出擷取結果 successfully', 'エクスポートされました'],
+    _导入成功: ['导入成功', '匯入成功', 'Import successfully', 'インポート成功'],
+    _导出成功: ['导出成功', '匯出成功', '匯出擷取結果 successfully', 'エクスポート成功'],
     _图片尺寸: ['图片尺寸', '圖片尺寸', 'Image size', '画像サイズ'],
     _原图: ['原图', '原圖', 'Original', 'Original'],
     _普通: ['普通', '普通', 'Regular', 'Regular'],
@@ -10057,7 +10068,7 @@ class Store {
             bookmarked: false,
             date: '',
             type: 0,
-            rank: '',
+            rank: null,
             ugoiraInfo: null,
             seriesTitle: null,
             seriesOrder: null,
@@ -11929,7 +11940,7 @@ class InitRankingArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
                 userId: data.user_id.toString(),
             };
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check(filterOpt)) {
-                _Store__WEBPACK_IMPORTED_MODULE_8__["store"].setRankList(data.illust_id.toString(), data.rank.toString());
+                _Store__WEBPACK_IMPORTED_MODULE_8__["store"].setRankList(data.illust_id.toString(), data.rank);
                 _Store__WEBPACK_IMPORTED_MODULE_8__["store"].idList.push({
                     type: _API__WEBPACK_IMPORTED_MODULE_2__["API"].getWorkType(data.illust_type),
                     id: data.illust_id.toString(),
@@ -12807,7 +12818,7 @@ class SaveArtworkData {
             const bookmarked = !!body.bookmarkData;
             // 保存作品在排行榜上的编号
             const rankData = _Store__WEBPACK_IMPORTED_MODULE_4__["store"].getRankList(body.id);
-            const rank = rankData ? '#' + rankData : '';
+            const rank = rankData ? rankData : null;
             const seriesTitle = body.seriesNavData ? body.seriesNavData.title : '';
             const seriesOrder = body.seriesNavData
                 ? '#' + body.seriesNavData.order
@@ -14609,7 +14620,7 @@ class InitRankingNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["I
                 userId: userId,
             };
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_5__["filter"].check(filterOpt)) {
-                _Store__WEBPACK_IMPORTED_MODULE_6__["store"].setRankList(id.toString(), rank.toString());
+                _Store__WEBPACK_IMPORTED_MODULE_6__["store"].setRankList(id.toString(), rank);
                 _Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.push({
                     type: 'novels',
                     id: id.toString(),
@@ -15016,7 +15027,7 @@ class SaveNovelData {
             const bookmarked = !!body.bookmarkData;
             // 保存作品在排行榜上的编号
             const rankData = _Store__WEBPACK_IMPORTED_MODULE_1__["store"].getRankList(id);
-            const rank = rankData ? '#' + rankData : '';
+            const rank = rankData ? rankData : null;
             // 系列标题和序号
             const seriesTitle = body.seriesNavData ? body.seriesNavData.title : '';
             const seriesOrder = body.seriesNavData

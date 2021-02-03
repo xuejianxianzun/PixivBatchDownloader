@@ -51,7 +51,7 @@ class Store {
       bookmarked: false,
       date: '',
       type: 0,
-      rank: '',
+      rank: null,
       ugoiraInfo: null,
       seriesTitle: null,
       seriesOrder: null,
@@ -108,7 +108,7 @@ class Store {
     return this.rankList[index]
   }
 
-  public setRankList(id: string, rank: string) {
+  public setRankList(id: string, rank: number) {
     this.rankList[id] = rank
   }
 

@@ -65,7 +65,7 @@ class SaveArtworkData {
 
       // 保存作品在排行榜上的编号
       const rankData = store.getRankList(body.id)
-      const rank = rankData ? '#' + rankData : ''
+      const rank = rankData ? rankData : null
 
       const seriesTitle = body.seriesNavData ? body.seriesNavData.title : ''
       const seriesOrder = body.seriesNavData
