@@ -1,6 +1,6 @@
 // 初始化小说排行榜页面
 import { InitPageBase } from '../InitPageBase'
-import { Color } from '../Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
 import { options } from '../setting/Options'
@@ -18,14 +18,14 @@ class InitRankingNovelPage extends InitPageBase {
   private pageUrlList: string[] = []
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_抓取本排行榜作品'), [
+    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取本排行榜作品'), [
       ['title', lang.transl('_抓取本排行榜作品Title')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
   }
 
-  protected initAny() { }
+  protected initAny() {}
 
   protected setFormOption() {
     // 个数/页数选项的提示

@@ -45,4 +45,4 @@ class SaveAvatarIcon {
 
 new SaveAvatarIcon()
 
-export { }
+export {}

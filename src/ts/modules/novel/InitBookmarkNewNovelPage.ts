@@ -1,6 +1,6 @@
 // 初始化收藏的新作小说页面
 import { InitPageBase } from '../InitPageBase'
-import { Color } from '../Colors'
+import { Colors } from '../Colors'
 import { API } from '../API'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
@@ -19,14 +19,14 @@ class InitBookmarkNewNovelPage extends InitPageBase {
   private baseUrl = ''
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_开始抓取'), [
+    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
   }
 
-  protected initAny() { }
+  protected initAny() {}
 
   protected setFormOption() {
     // 个数/页数选项的提示

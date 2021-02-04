@@ -1,9 +1,10 @@
 import { DOM } from './DOM'
-import { Color } from './Colors'
+import { Colors } from './Colors'
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { states } from './States'
 import { IDData } from './Store.d'
+import { toast } from './Toast'
 
 // 手动选择作品
 class SelectWork {
@@ -200,14 +201,14 @@ class SelectWork {
   private addBtn() {
     this.controlBtn = DOM.addBtn(
       'selectWorkBtns',
-      Color.bgGreen,
+      Colors.bgGreen,
       lang.transl('_手动选择作品')
     )
     this.updateControlBtn()
 
     this.clearBtn = DOM.addBtn(
       'selectWorkBtns',
-      Color.bgRed,
+      Colors.bgRed,
       lang.transl('_清空选择的作品')
     )
     this.clearBtn.style.display = 'none'
@@ -217,7 +218,7 @@ class SelectWork {
 
     this.crawlBtn = DOM.addBtn(
       'selectWorkBtns',
-      Color.bgBlue,
+      Colors.bgBlue,
       lang.transl('_抓取选择的作品')
     )
     this.crawlBtn.style.display = 'none'
@@ -335,10 +336,7 @@ class SelectWork {
   // 抓取选择的作品，这会暂停选择
   private downloadSelect() {
     if (states.busy) {
-      EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_当前任务尚未完成'),
-        bgColorType: 'error',
-      })
+      toast.error(lang.transl('_当前任务尚未完成'))
       return
     }
 
@@ -351,10 +349,7 @@ class SelectWork {
       this.sendCrawl = true
       this.crawled = false
     } else {
-      EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_没有数据可供使用'),
-        bgColorType: 'error',
-      })
+      toast.error(lang.transl('_没有数据可供使用'))
     }
   }
 

@@ -3,6 +3,7 @@ import { DOM } from './DOM'
 import { store } from './Store'
 import { lang } from './Lang'
 import { Tools } from './Tools'
+import { toast } from './Toast'
 
 class ExportResult {
   constructor() {
@@ -18,10 +19,7 @@ class ExportResult {
   private output() {
     // 如果没有数据则不执行
     if (store.result.length === 0) {
-      EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_没有数据可供使用'),
-        bgColorType: 'error',
-      })
+      toast.error(lang.transl('_没有数据可供使用'))
       return
     }
 
@@ -35,12 +33,9 @@ class ExportResult {
       )}-${store.crawlCompleteTime.getTime()}.json`
     )
 
-    EVT.fire(EVT.list.sendToast, {
-      text: lang.transl('_导出成功'),
-      bgColorType: 'green',
-    })
+    toast.success(lang.transl('_导出成功'))
   }
 }
 
 new ExportResult()
-export { }
+export {}

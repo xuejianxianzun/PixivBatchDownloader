@@ -4,6 +4,7 @@ import { lang } from './Lang'
 import { Tools } from './Tools'
 import { states } from './States'
 import { store } from './Store'
+import { toast } from './Toast'
 
 class ImportResult {
   constructor() {
@@ -13,10 +14,7 @@ class ImportResult {
   private bindEvents() {
     window.addEventListener(EVT.list.importResult, () => {
       if (states.busy) {
-        EVT.fire(EVT.list.sendToast, {
-          text: lang.transl('_当前任务尚未完成'),
-          bgColorType: 'error',
-        })
+        toast.error(lang.transl('_当前任务尚未完成'))
         return
       }
 
@@ -37,10 +35,7 @@ class ImportResult {
 
     // 要求是数组并且要有内容
     if (!Array.isArray(loadedJSON) || !loadedJSON.length || !loadedJSON[0]) {
-      return EVT.fire(EVT.list.sendToast, {
-        text: `Format error!`,
-        bgColorType: 'error',
-      })
+      return toast.error('Format error!')
     }
 
     // 检查是否含有必须的字段（只检查了一部分）
@@ -48,10 +43,7 @@ class ImportResult {
     const need = ['idNum', 'id', 'original', 'type', 'ext']
     for (const field of need) {
       if (!keys.includes(field)) {
-        return EVT.fire(EVT.list.sendToast, {
-          text: `Format error!`,
-          bgColorType: 'error',
-        })
+        return toast.error('Format error!')
       }
     }
 
@@ -61,12 +53,9 @@ class ImportResult {
 
     EVT.fire(EVT.list.resultChange)
 
-    EVT.fire(EVT.list.sendToast, {
-      text: lang.transl('_导入成功'),
-      bgColorType: 'green',
-    })
+    toast.success(lang.transl('_导入成功'))
   }
 }
 
 new ImportResult()
-export { }
+export {}

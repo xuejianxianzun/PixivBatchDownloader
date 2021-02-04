@@ -6,6 +6,7 @@ import { lang } from './Lang'
 import { theme } from './Theme'
 import { loading } from './Loading'
 import { states } from './States'
+import { toast } from './Toast'
 
 // 所有参数
 interface Config {
@@ -391,7 +392,7 @@ class ImgViewer {
     if (one2one) {
       const li = document.createElement('li')
       li.setAttribute('role', 'button')
-      li.setAttribute('title', lang.transl('_下载')+' (D)')
+      li.setAttribute('title', lang.transl('_下载') + ' (D)')
       li.classList.add(this.downloadBtnClass)
       li.textContent = '↓'
       const btn = one2one.insertAdjacentElement('afterend', li)!
@@ -407,10 +408,7 @@ class ImgViewer {
   private download() {
     // 因为 downloadFromViewer 状态会影响后续下载行为，所以必须先判断 busy 状态
     if (states.busy) {
-      EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_当前任务尚未完成2'),
-        bgColorType: 'error',
-      })
+      toast.error(lang.transl('_当前任务尚未完成'))
       return
     }
 
@@ -425,8 +423,7 @@ class ImgViewer {
     ])
 
     // 显示提示
-    EVT.fire(EVT.list.sendToast, {
-      text: lang.transl('_已发送下载请求'),
+    toast.show(lang.transl('_已发送下载请求'), {
       bgColor: '#333',
       position: 'mouse',
       animation: 'fade',

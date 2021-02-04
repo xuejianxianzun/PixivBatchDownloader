@@ -3,6 +3,7 @@ import { EVT } from '../EVT'
 import { fileName } from '../FileName'
 import { lang } from '../Lang'
 import config from '../Config'
+import { toast } from '../Toast'
 
 // 预览文件名
 class PreviewFileName {
@@ -18,10 +19,7 @@ class PreviewFileName {
 
   private previewFileName() {
     if (store.result.length === 0) {
-      EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_没有数据可供使用'),
-        bgColorType: 'error',
-      })
+      toast.error(lang.transl('_没有数据可供使用'))
       return
     }
 

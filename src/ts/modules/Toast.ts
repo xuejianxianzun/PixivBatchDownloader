@@ -1,41 +1,28 @@
-import { EVT } from './EVT'
-import {Color, Colors, colorType } from './Colors'
+import { Colors } from './Colors'
 
-// 其他模块可以调用 EVT.list.sendToast 事件并传递参数来显示提示
-
-// 参数，只有 text 是必选的
+// 可选参数
 export interface ToastArgOptional {
-  // text 只能传递文字，不能包含 html 标签
-  text: string
-  // 可选，使用预定义的颜色描述字符
-  // 默认为白色
-  colorType?: colorType
-  // 可选，设置字体颜色，优先级高于 colorType ，无默认值
+  // 可选，设置字体颜色，默认为白色
   color?: string
-  // 可选，使用预定义的颜色描述字符
-  // 默认为浅蓝色
-  bgColorType?: colorType
-  // 可选，设置背景颜色，优先级高于 bgColorType, 无默认值
+  // 可选，设置背景颜色，默认为浅蓝色，或者是语义所对应的颜色
   bgColor?: string
   // 设置提示出现后的停留时间（毫秒）
   // 默认 1000 ms
   stay?: number
   // 消失时的动画效果
   // top 默认,向上移动并逐渐消失
-  // fade  逐渐消失
-  // none 没有动画，立即消失
+  // fade 逐渐消失
+  // none 立即消失
   animation?: 'top' | 'fade' | 'none'
   // 提示出现的位置，默认是 topCenter
-  // 如果为 mouse 则提示会出现在鼠标所处位置附近。如果要使用 mouse 请确保这个提示是由鼠标点击触发的
+  // 如果为 mouse 则提示会出现在鼠标所处位置附近。使用 mouse 时请确保这个提示是由鼠标点击触发的
   position?: 'topCenter' | 'mouse'
 }
 
 // 完整的参数
-interface ToastTipArg {
-  text: string
-  colorType: colorType
+interface ToastArg {
+  msg: string
   color: string
-  bgColorType: colorType
   bgColor: string
   dealy: number
   animation: 'top' | 'fade' | 'none'
@@ -49,18 +36,43 @@ class Toast {
     this.bindEvents()
   }
 
-  private defaultCfg: ToastTipArg = {
-    text: '',
-    colorType: 'white',
-    color: '',
-    bgColorType: 'blue',
-    bgColor: '',
+  private readonly defaultCfg: ToastArg = {
+    msg: '',
+    color: Colors.white,
+    bgColor: Colors.bgBrightBlue,
     dealy: 1500,
     animation: 'top',
     position: 'topCenter',
   }
 
-  private readonly tipClassName = 'xzBubbleTip'
+  private readonly successCfg: ToastArg = {
+    msg: '',
+    color: Colors.white,
+    bgColor: Colors.bgSuccess,
+    dealy: 1500,
+    animation: 'top',
+    position: 'topCenter',
+  }
+
+  private readonly warningCfg: ToastArg = {
+    msg: '',
+    color: Colors.white,
+    bgColor: Colors.bgWarning,
+    dealy: 1500,
+    animation: 'top',
+    position: 'topCenter',
+  }
+
+  private readonly errorCfg: ToastArg = {
+    msg: '',
+    color: Colors.white,
+    bgColor: Colors.bgError,
+    dealy: 1500,
+    animation: 'top',
+    position: 'topCenter',
+  }
+
+  private readonly tipClassName = 'xzToast'
 
   private mousePosition = { x: 0, y: 0 }
   private readonly minTop = 20
@@ -69,12 +81,6 @@ class Toast {
   private readonly total = 20 // 移动多少像素后消失
 
   private bindEvents() {
-    window.addEventListener(EVT.list.sendToast, (ev: CustomEventInit) => {
-      const data = ev.detail.data as ToastArgOptional
-      const arg = Object.assign({}, this.defaultCfg, data)
-      this.create(arg)
-    })
-
     // 必须是监听 mousemove 而不是 click
     window.addEventListener('mousemove', (ev) => {
       this.mousePosition.x = ev.x
@@ -82,17 +88,30 @@ class Toast {
     })
   }
 
-  private create(arg: ToastTipArg) {
-    const span = document.createElement('span')
-    span.textContent = arg.text
+  public show(msg: string, arg?: ToastArgOptional) {
+    this.create(Object.assign({}, this.defaultCfg, arg, { msg: msg }))
+  }
 
-    // 设置文字颜色，优先使用 color
-    span.style.color = arg.color ? arg.color : Colors[arg.colorType]
+  public success(msg: string, arg?: ToastArgOptional) {
+    this.create(Object.assign({}, this.successCfg, arg, { msg: msg }))
+  }
+
+  public warning(msg: string, arg?: ToastArgOptional) {
+    this.create(Object.assign({}, this.warningCfg, arg, { msg: msg }))
+  }
+
+  public error(msg: string, arg?: ToastArgOptional) {
+    this.create(Object.assign({}, this.errorCfg, arg, { msg: msg }))
+  }
+
+  private create(arg: ToastArg) {
+    const span = document.createElement('span')
+    span.textContent = arg.msg
+
+    span.style.color = arg.color
 
     // 设置背景颜色，优先使用 color
     span.style.backgroundColor = arg.bgColor
-      ? arg.bgColor
-      : Colors[arg.bgColorType]
 
     // 设置位置
     if (arg.position === 'topCenter') {
@@ -179,4 +198,5 @@ class Toast {
   }
 }
 
-new Toast()
+const toast = new Toast()
+export { toast }

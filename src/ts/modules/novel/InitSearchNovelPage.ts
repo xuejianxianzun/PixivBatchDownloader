@@ -1,6 +1,6 @@
 // 初始化小说搜索页
 import { InitPageBase } from '../InitPageBase'
-import { Color } from '../Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { SearchOption } from '../CrawlArgument'
@@ -55,7 +55,7 @@ class InitSearchNovelPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_开始抓取'), [
+    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
@@ -75,7 +75,7 @@ class InitSearchNovelPage extends InitPageBase {
     // 添加收藏本页所有作品的功能
     const bookmarkAllBtn = DOM.addBtn(
       'otherBtns',
-      Color.bgGreen,
+      Colors.bgGreen,
       lang.transl('_收藏本页面的所有作品')
     )
     const bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)

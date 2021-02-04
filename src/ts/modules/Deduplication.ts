@@ -1,4 +1,3 @@
-import { DOM } from './DOM'
 import { EVT } from './EVT'
 import { lang } from './Lang'
 import { log } from './Log'
@@ -8,6 +7,7 @@ import { IndexedDB } from './IndexedDB'
 import { store } from './Store'
 import { fileName } from './FileName'
 import { Tools } from './Tools'
+import { toast } from './Toast'
 
 interface Record {
   id: string
@@ -193,10 +193,7 @@ class Deduplication {
       this.IDB.clear(name)
     }
 
-    EVT.fire(EVT.list.sendToast, {
-      text: lang.transl('_下载记录已清除'),
-      bgColorType: 'green',
-    })
+    toast.success(lang.transl('_下载记录已清除'))
   }
 
   // 导出下载记录
@@ -250,8 +247,9 @@ class Deduplication {
     t = window.setInterval(() => {
       log.log(`${stored}/${total}`, 1, false)
       if (stored >= total) {
-        log.success(lang.transl('_完成'))
-        window.clearInterval(t)
+        log.success(lang.transl('_导入成功'))
+        toast.success(lang.transl('_导入成功'))
+    window.clearInterval(t)
       }
     }, 500)
 

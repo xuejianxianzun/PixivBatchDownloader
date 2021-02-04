@@ -4,6 +4,7 @@ import { store } from '../Store'
 import { Tools } from '../Tools'
 import config from '../Config'
 import { theme } from '../Theme'
+import { toast } from '../Toast'
 
 // 输出面板
 class OutputPanel {
@@ -123,10 +124,7 @@ class OutputPanel {
       this.outputPanel.style.display = 'block'
       this.outputTitle.textContent = title
     } else {
-      return EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_没有数据可供使用'),
-        bgColorType: 'error',
-      })
+      return toast.error(lang.transl('_没有数据可供使用'))
     }
   }
 
@@ -138,4 +136,4 @@ class OutputPanel {
 }
 
 new OutputPanel()
-export { }
+export {}

@@ -1,6 +1,6 @@
 //初始化 artwork 作品页
 import { InitPageBase } from '../InitPageBase'
-import { Color } from '../Colors'
+import { Colors } from '../Colors'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
@@ -61,7 +61,7 @@ class InitArtworkPage extends InitPageBase {
   protected addCrawlBtns() {
     DOM.addBtn(
       'crawlBtns',
-      Color.bgBlue,
+      Colors.bgBlue,
       lang.transl('_从本页开始抓取new')
     ).addEventListener('click', () => {
       this.crawlDirection = -1
@@ -70,7 +70,7 @@ class InitArtworkPage extends InitPageBase {
 
     DOM.addBtn(
       'crawlBtns',
-      Color.bgBlue,
+      Colors.bgBlue,
       lang.transl('_从本页开始抓取old')
     ).addEventListener('click', () => {
       this.crawlDirection = 1
@@ -79,7 +79,7 @@ class InitArtworkPage extends InitPageBase {
 
     const downRelatedBtn = DOM.addBtn(
       'crawlBtns',
-      Color.bgBlue,
+      Colors.bgBlue,
       lang.transl('_抓取相关作品')
     )
     downRelatedBtn.addEventListener(

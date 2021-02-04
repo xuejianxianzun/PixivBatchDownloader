@@ -182,7 +182,6 @@ class DOM {
       .replace(/\[(↑|→|▶|↓|║|■|✓| )\] /, '')
       .replace(/^\(\d.*\) /, '')
   }
-
 }
 
 export { DOM }

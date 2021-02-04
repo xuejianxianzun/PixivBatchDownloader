@@ -4,6 +4,7 @@ import { lang } from './Lang'
 import { settings } from './setting/Settings'
 import { BookmarkResult } from './CrawlResult.d'
 import { EVT } from './EVT'
+import { toast } from './Toast'
 
 // 一键收藏所有作品
 // 可以传入页面上的作品元素列表，也可以直接传入 id 列表
@@ -81,10 +82,7 @@ class BookmarkAllWorks {
   // 启动收藏流程
   private async startBookmark() {
     if (this.idList.length === 0) {
-      EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_没有数据可供使用'),
-        bgColorType: 'error',
-      })
+      toast.error(lang.transl('_没有数据可供使用'))
       return
     }
 
@@ -154,10 +152,7 @@ class BookmarkAllWorks {
     this.tipWrap.removeAttribute('disabled')
     EVT.fire(EVT.list.bookmarkModeEnd)
 
-    EVT.fire(EVT.list.sendToast, {
-      text: `✓ Complete`,
-      bgColorType: 'green',
-    })
+    toast.success('✓ Complete')
   }
 }
 

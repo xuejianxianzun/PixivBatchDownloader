@@ -11,7 +11,7 @@ import {
 import { store } from './Store'
 import { log } from './Log'
 import { lang } from './Lang'
-import { Color } from './Colors'
+import { Colors } from './Colors'
 import { settings } from './setting/Settings'
 import { Download } from './Download'
 import { progressBar } from './ProgressBar'
@@ -22,6 +22,7 @@ import { BookmarkAfterDL } from './BookmarkAfterDL'
 import { resume } from './Resume'
 import { states } from './States'
 import Config from './Config'
+import { toast } from './Toast'
 
 class DownloadControl {
   constructor() {
@@ -130,12 +131,8 @@ class DownloadControl {
     })
 
     window.addEventListener(EVT.list.downloadComplete, () => {
-      EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_下载完毕2'),
-        bgColorType: 'green',
-      })
-
       log.success(lang.transl('_下载完毕'), 2)
+      toast.success(lang.transl('_下载完毕2'))
     })
   }
 
@@ -147,14 +144,18 @@ class DownloadControl {
     )}</p>
     
     <div class="centerWrap_btns">
-    <button class="startDownload" type="button" style="background:${Color.bgBlue
-      };"> ${lang.transl('_开始下载')}</button>
-    <button class="pauseDownload" type="button" style="background:${Color.bgYellow
-      };"> ${lang.transl('_暂停下载')}</button>
-    <button class="stopDownload" type="button" style="background:${Color.bgRed
-      };"> ${lang.transl('_停止下载')}</button>
-    <button class="copyUrl" type="button" style="background:${Color.bgGreen
-      };"> ${lang.transl('_复制url')}</button>
+    <button class="startDownload" type="button" style="background:${
+      Colors.bgBlue
+    };"> ${lang.transl('_开始下载')}</button>
+    <button class="pauseDownload" type="button" style="background:${
+      Colors.bgYellow
+    };"> ${lang.transl('_暂停下载')}</button>
+    <button class="stopDownload" type="button" style="background:${
+      Colors.bgRed
+    };"> ${lang.transl('_停止下载')}</button>
+    <button class="copyUrl" type="button" style="background:${
+      Colors.bgGreen
+    };"> ${lang.transl('_复制url')}</button>
     </div>
     <div class="download_status_text_wrap">
     <span>${lang.transl('_当前状态')}</span>
@@ -429,7 +430,7 @@ class DownloadControl {
         EVT.fire(EVT.list.downloadComplete)
       }, 0)
       this.reset()
-      this.setDownStateText(lang.transl('_下载完毕'), Color.textSuccess)
+      this.setDownStateText(lang.transl('_下载完毕'), Colors.textSuccess)
     }
 
     this.checkCompleteWithError()
@@ -450,7 +451,7 @@ class DownloadControl {
   }
 
   // 设置下载状态文本，默认颜色为主题蓝色
-  private setDownStateText(text: string, color: string = Color.bgBlue) {
+  private setDownStateText(text: string, color: string = Colors.bgBlue) {
     this.statesEl.textContent = text
     this.statesEl.style.color = color
   }
@@ -471,4 +472,4 @@ class DownloadControl {
 }
 
 new DownloadControl()
-export { }
+export {}

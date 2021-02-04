@@ -1,7 +1,7 @@
 import { DOM } from './DOM'
 import { EVT } from './EVT'
 import { theme } from './Theme'
-import { Color } from './Colors'
+import { Colors } from './Colors'
 
 // 日志
 class Log {
@@ -16,7 +16,12 @@ class Log {
   private logArea = document.createElement('div') // 输出日志的区域
   private id = 'logWrap' // 日志区域元素的 id
   private refresh = document.createElement('span') // 刷新时使用的元素
-  private readonly levelColor = ['inherit', Color.textSuccess, Color.textWarning, Color.textError]
+  private readonly levelColor = [
+    'inherit',
+    Colors.textSuccess,
+    Colors.textWarning,
+    Colors.textError,
+  ]
 
   private toBottom = false // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
 

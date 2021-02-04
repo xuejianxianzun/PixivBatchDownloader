@@ -1,6 +1,6 @@
 // 初始化首页
 import { InitPageBase } from './InitPageBase'
-import { Color } from './Colors'
+import { Colors } from './Colors'
 import { lang } from './Lang'
 import { options } from './setting/Options'
 import { DOM } from './DOM'
@@ -20,7 +20,7 @@ class InitHomePage extends InitPageBase {
   protected addCrawlBtns() {
     this.downIdButton = DOM.addBtn(
       'crawlBtns',
-      Color.bgBlue,
+      Colors.bgBlue,
       lang.transl('_输入id进行抓取'),
       [['id', 'down_id_button']]
     )
@@ -38,7 +38,7 @@ class InitHomePage extends InitPageBase {
 
     DOM.addBtn(
       'otherBtns',
-      Color.bgGreen,
+      Colors.bgGreen,
       lang.transl('_清空已保存的抓取结果')
     ).addEventListener('click', () => {
       EVT.fire(EVT.list.clearSavedCrawl)

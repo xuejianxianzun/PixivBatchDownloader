@@ -8,7 +8,7 @@ import { Tools } from './Tools'
 
 // 生成文件名
 class FileName {
-  constructor() { }
+  constructor() {}
 
   private handleRank(rank: number | null): string {
     // 处理空值

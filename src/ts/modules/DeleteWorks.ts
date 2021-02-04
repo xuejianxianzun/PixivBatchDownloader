@@ -1,7 +1,7 @@
 // 删除页面上的作品
 import { log } from './Log'
 import { lang } from './Lang'
-import { Color } from './Colors'
+import { Colors } from './Colors'
 import { DOM } from './DOM'
 import { states } from './States'
 import { EVT } from './EVT'
@@ -90,7 +90,7 @@ class DeleteWorks {
   public addClearMultipleBtn(selector: string, callback: Function = () => {}) {
     this.multipleSelector = selector
 
-    DOM.addBtn('crawlBtns', Color.bgRed, lang.transl('_清除多图作品'), [
+    DOM.addBtn('crawlBtns', Colors.bgRed, lang.transl('_清除多图作品'), [
       ['title', lang.transl('_清除多图作品Title')],
     ]).addEventListener(
       'click',
@@ -114,7 +114,7 @@ class DeleteWorks {
   public addClearUgoiraBtn(selector: string, callback: Function = () => {}) {
     this.ugoiraSelector = selector
 
-    DOM.addBtn('crawlBtns', Color.bgRed, lang.transl('_清除动图作品'), [
+    DOM.addBtn('crawlBtns', Colors.bgRed, lang.transl('_清除动图作品'), [
       ['title', lang.transl('_清除动图作品Title')],
     ]).addEventListener(
       'click',
@@ -139,7 +139,7 @@ class DeleteWorks {
     this.deleteWorkCallback = callback
     this.delBtn = DOM.addBtn(
       'crawlBtns',
-      Color.bgRed,
+      Colors.bgRed,
       lang.transl('_手动删除作品'),
       [['title', lang.transl('_手动删除作品Title')]]
     )

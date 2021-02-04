@@ -9,6 +9,7 @@ import {
 } from '../setting/Settings'
 import { API } from '../API'
 import { theme } from '../Theme'
+import { toast } from '../Toast'
 
 // 针对特定用户屏蔽 tag
 class BlockTagsForSpecificUser {
@@ -153,10 +154,7 @@ class BlockTagsForSpecificUser {
       this.listWrapShow = !this.listWrapShow
 
       if (this.listWrapShow && this.rules.length === 0) {
-        EVT.fire(EVT.list.sendToast, {
-          text: lang.transl('_没有数据可供使用'),
-          bgColorType: 'error',
-        })
+        toast.error(lang.transl('_没有数据可供使用'))
       }
     })
 
@@ -350,10 +348,7 @@ class BlockTagsForSpecificUser {
 
     this.listWrapShow = true
 
-    EVT.fire(EVT.list.sendToast, {
-      text: lang.transl('_添加成功'),
-      bgColorType: 'green',
-    })
+    toast.success(lang.transl('_添加成功'))
   }
 
   // 更新规则
@@ -382,10 +377,7 @@ class BlockTagsForSpecificUser {
     this.createList({ uid, tags, user: '' })
 
     if (tip) {
-      EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_更新成功'),
-        bgColorType: 'green',
-      })
+      toast.success(lang.transl('_更新成功'))
     }
 
     this.addWrapShow = false

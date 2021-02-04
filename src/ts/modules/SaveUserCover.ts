@@ -4,6 +4,7 @@ import { log } from './Log'
 import { DOM } from './DOM'
 import { EVT } from './EVT'
 import { Tools } from './Tools'
+import { toast } from './Toast'
 
 // 保存用户封面图片
 class SaveUserCover {
@@ -22,19 +23,13 @@ class SaveUserCover {
     const userProfile = await API.getUserProfile(userId)
     const bgData = userProfile.body.background
     if (bgData === null) {
-      return EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_没有数据可供使用'),
-        bgColorType: 'error',
-      })
+      return toast.error(lang.transl('_没有数据可供使用'))
     }
 
     const bgUrl = bgData.url
 
     if (!bgUrl) {
-      return EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_没有数据可供使用'),
-        bgColorType: 'error',
-      })
+      return toast.error(lang.transl('_没有数据可供使用'))
     }
 
     // 加载文件
@@ -57,4 +52,4 @@ class SaveUserCover {
 
 new SaveUserCover()
 
-export { }
+export {}

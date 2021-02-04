@@ -6,6 +6,7 @@ import { store } from './Store'
 import { Result } from './Store.d'
 import { fileName } from './FileName'
 import { createCSV } from './CreateCSV'
+import { toast } from './Toast'
 
 // 定义字段信息
 interface Field {
@@ -103,10 +104,7 @@ class ExportResult2CSV {
   private beforeCreate() {
     // 如果没有数据则不执行
     if (store.result.length === 0) {
-      EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_没有数据可供使用'),
-        bgColorType: 'error',
-      })
+      toast.error(lang.transl('_没有数据可供使用'))
       return
     }
 

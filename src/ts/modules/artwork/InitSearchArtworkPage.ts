@@ -1,6 +1,6 @@
 // 初始化 artwork 搜索页
 import { InitPageBase } from '../InitPageBase'
-import { Color } from '../Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { token } from '../Token'
 import { options } from '../setting/Options'
@@ -21,6 +21,7 @@ import { BookmarkAllWorks } from '../BookmarkAllWorks'
 import { states } from '../States'
 import { Tools } from '../Tools'
 import { idListWithPageNo } from '../IdListWithPageNo'
+import { toast } from '../Toast'
 
 type AddBMKData = {
   id: number
@@ -88,7 +89,7 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Color.bgGreen, lang.transl('_开始筛选'), [
+    DOM.addBtn('crawlBtns', Colors.bgGreen, lang.transl('_开始筛选'), [
       ['title', lang.transl('_开始筛选Title')],
     ]).addEventListener('click', () => {
       this.resultMeta = []
@@ -98,7 +99,7 @@ class InitSearchArtworkPage extends InitPageBase {
       this.readyCrawl()
     })
 
-    DOM.addBtn('crawlBtns', Color.bgGreen, lang.transl('_在结果中筛选'), [
+    DOM.addBtn('crawlBtns', Colors.bgGreen, lang.transl('_在结果中筛选'), [
       ['title', lang.transl('_在结果中筛选Title')],
     ]).addEventListener('click', () => {
       this.screenInResult()
@@ -123,7 +124,7 @@ class InitSearchArtworkPage extends InitPageBase {
     // 添加收藏本页所有作品的功能
     const bookmarkAllBtn = DOM.addBtn(
       'otherBtns',
-      Color.bgGreen,
+      Colors.bgGreen,
       lang.transl('_收藏本页面的所有作品')
     )
     const bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
@@ -609,10 +610,7 @@ class InitSearchArtworkPage extends InitPageBase {
   // 在抓取完成之后，所有会从结果合集中删除某些结果的操作都要经过这里
   private async filterResult(callback: FilterCB) {
     if (this.resultMeta.length === 0) {
-      EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_没有数据可供使用'),
-        bgColorType: 'error',
-      })
+      toast.error(lang.transl('_没有数据可供使用'))
       return
     }
 
@@ -674,10 +672,7 @@ class InitSearchArtworkPage extends InitPageBase {
   // 在当前结果中再次筛选，会修改第一次筛选的结果
   private screenInResult() {
     if (states.busy) {
-      EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_当前任务尚未完成'),
-        bgColorType: 'error',
-      })
+      toast.error(lang.transl('_当前任务尚未完成'))
       return
     }
 

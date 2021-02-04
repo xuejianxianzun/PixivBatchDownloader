@@ -72,7 +72,7 @@ export interface ResultOptional {
   bookmarked?: boolean
   date?: string
   type?: 0 | 1 | 2 | 3
-  rank?: number|null
+  rank?: number | null
   ugoiraInfo?: UgoiraInfo | null
   seriesTitle?: string | null
   seriesOrder?: string | null

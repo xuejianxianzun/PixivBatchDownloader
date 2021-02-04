@@ -1,6 +1,6 @@
 // 初始化 artwork 排行榜页面
 import { InitPageBase } from '../InitPageBase'
-import { Color } from '../Colors'
+import { Colors } from '../Colors'
 import { API } from '../API'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
@@ -25,7 +25,7 @@ class InitRankingArtworkPage extends InitPageBase {
   private option: RankingOption = this.resetOption()
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_抓取本排行榜作品'), [
+    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取本排行榜作品'), [
       ['title', lang.transl('_抓取本排行榜作品Title')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
@@ -36,9 +36,12 @@ class InitRankingArtworkPage extends InitPageBase {
     const mode = API.getURLSearchField(location.href, 'mode')
 
     if (debutModes.includes(mode)) {
-      DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_抓取首次登场的作品'), [
-        ['title', lang.transl('_抓取首次登场的作品Title')],
-      ]).addEventListener('click', () => {
+      DOM.addBtn(
+        'crawlBtns',
+        Colors.bgBlue,
+        lang.transl('_抓取首次登场的作品'),
+        [['title', lang.transl('_抓取首次登场的作品Title')]]
+      ).addEventListener('click', () => {
         states.debut = true
         this.readyCrawl()
       })

@@ -2,6 +2,7 @@ import { store } from '../Store'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { settings } from '../setting/Settings'
+import { toast } from '../Toast'
 
 // 显示 url
 class ShowURLs {
@@ -17,10 +18,7 @@ class ShowURLs {
 
   private showURLs() {
     if (store.result.length === 0) {
-      EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_没有数据可供使用'),
-        bgColorType: 'error',
-      })
+      toast.error(lang.transl('_没有数据可供使用'))
       return
     }
 

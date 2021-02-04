@@ -4,6 +4,7 @@ import { lang } from '../Lang'
 import { log } from '../Log'
 import { theme } from '../Theme'
 import { settings, setSetting } from './Settings'
+import { toast } from '../Toast'
 
 // 保存和加载命名规则列表
 class SaveNamingRule {
@@ -69,12 +70,9 @@ class SaveNamingRule {
       list.push(rule)
       setSetting('namingRuleList', list)
     }
-    log.success(lang.transl('_已保存命名规则'))
     // 显示提示
-    EVT.fire(EVT.list.sendToast, {
-      text: lang.transl('_已保存命名规则'),
-      bgColorType: 'green',
-    })
+    log.success(lang.transl('_已保存命名规则'))
+    toast.success(lang.transl('_已保存命名规则'))
   }
 
   private delete(index: number) {

@@ -1,6 +1,6 @@
 // 初始化所有页面抓取流程的基类
 import { lang } from './Lang'
-import { Color } from './Colors'
+import { Colors } from './Colors'
 import { DOM } from './DOM'
 import { API } from './API'
 import { store } from './Store'
@@ -17,6 +17,7 @@ import './SelectWork'
 import { destroyManager } from './DestroyManager'
 import { vipSearchOptimize } from './VipSearchOptimize'
 import { ArtworkData, NovelData } from './CrawlResult.d'
+import { toast } from './Toast'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数
@@ -78,7 +79,7 @@ abstract class InitPageBase {
 
   // 添加抓取区域的按钮
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_开始抓取'), [
+    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
@@ -169,10 +170,7 @@ abstract class InitPageBase {
   protected async readyCrawl() {
     // 检查是否可以开始抓取
     if (states.busy) {
-      EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_当前任务尚未完成'),
-        bgColorType: 'error',
-      })
+      toast.error(lang.transl('_当前任务尚未完成'))
       return
     }
 
@@ -202,10 +200,7 @@ abstract class InitPageBase {
   protected async downloadIdList(idList: IDData[]) {
     // 检查是否可以开始抓取
     if (states.busy) {
-      EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_当前任务尚未完成'),
-        bgColorType: 'error',
-      })
+      toast.error(lang.transl('_当前任务尚未完成'))
       return
     }
 

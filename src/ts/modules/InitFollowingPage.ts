@@ -1,6 +1,6 @@
 // 初始化关注页面、好 P 友页面、粉丝页面
 import { InitPageBase } from './InitPageBase'
-import { Color } from './Colors'
+import { Colors } from './Colors'
 import { lang } from './Lang'
 import { options } from './setting/Options'
 import { API } from './API'
@@ -64,7 +64,7 @@ class InitFollowingPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_开始抓取'), [
+    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
@@ -72,7 +72,7 @@ class InitFollowingPage extends InitPageBase {
 
     DOM.addBtn(
       'crawlBtns',
-      Color.bgGreen,
+      Colors.bgGreen,
       lang.transl('_下载用户列表')
     ).addEventListener('click', () => {
       this.downUserList = true

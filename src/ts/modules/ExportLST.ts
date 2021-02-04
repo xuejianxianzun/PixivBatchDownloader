@@ -4,6 +4,7 @@ import { store } from './Store'
 import { fileName } from './FileName'
 import { lang } from './Lang'
 import { Tools } from './Tools'
+import { toast } from './Toast'
 
 // 输出 lst 文件
 class ExportLST {
@@ -28,10 +29,7 @@ class ExportLST {
 
   private createLst() {
     if (store.result.length === 0) {
-      EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_没有数据可供使用'),
-        bgColorType: 'error',
-      })
+      toast.error(lang.transl('_没有数据可供使用'))
       return
     }
 
@@ -50,4 +48,4 @@ class ExportLST {
 }
 
 new ExportLST()
-export { }
+export {}

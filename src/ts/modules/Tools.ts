@@ -83,7 +83,7 @@ class Tools {
       str.includes('R18G')
     )
   }
-  
+
   // 创建 input 元素选择 json 文件
   static async loadJSONFile<T>(): Promise<T> {
     return new Promise<T>((resolve, reject) => {
@@ -126,7 +126,6 @@ class Tools {
     a.download = fileName
     a.click()
   }
-
 }
 
 export { Tools }

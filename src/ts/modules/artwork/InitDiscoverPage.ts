@@ -1,6 +1,6 @@
 // 初始化发现页面
 import { InitPageBase } from '../InitPageBase'
-import { Color } from '../Colors'
+import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
 import { options } from '../setting/Options'
@@ -15,7 +15,7 @@ class InitDiscoverPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_抓取当前作品'), [
+    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取当前作品'), [
       ['title', lang.transl('_抓取当前作品Title')],
     ]).addEventListener('click', () => {
       this.readyCrawl()

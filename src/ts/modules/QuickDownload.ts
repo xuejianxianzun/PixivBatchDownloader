@@ -4,6 +4,7 @@ import { lang } from './Lang'
 import { pageType } from './PageType'
 import { states } from './States'
 import { IDData } from './Store.d'
+import { toast } from './Toast'
 
 // 快速下载
 class QuickDownload {
@@ -59,10 +60,7 @@ class QuickDownload {
   private sendDownload() {
     // 因为 quickDownload 状态会影响后续下载行为，所以必须先判断 busy 状态
     if (states.busy) {
-      EVT.fire(EVT.list.sendToast, {
-        text: lang.transl('_当前任务尚未完成2'),
-        bgColorType: 'error',
-      })
+      toast.error(lang.transl('_当前任务尚未完成'))
       return
     }
 
