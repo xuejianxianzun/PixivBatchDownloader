@@ -5,6 +5,7 @@ import { Tools } from './Tools'
 import { states } from './States'
 import { store } from './Store'
 import { toast } from './Toast'
+import { msgBox } from './MsgBox'
 
 class ImportResult {
   constructor() {
@@ -24,10 +25,7 @@ class ImportResult {
 
   private async import() {
     const loadedJSON = (await Tools.loadJSONFile().catch((err) => {
-      return EVT.sendMsg({
-        type: 'error',
-        msg: err,
-      })
+      return msgBox.error(err)
     })) as Result[]
     if (!loadedJSON) {
       return

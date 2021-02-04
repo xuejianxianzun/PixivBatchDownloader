@@ -7,6 +7,7 @@ import { settings } from '../setting/Settings'
 import { blackAndWhiteImage } from './BlackandWhiteImage'
 import { mute } from './Mute'
 import { blockTagsForSpecificUser } from './BlockTagsForSpecificUser'
+import { msgBox } from '../MsgBox'
 
 // 检查作品是否符合过滤条件
 class Filter {
@@ -719,10 +720,7 @@ class Filter {
   // 如果设置项的值不合法，则显示提示
   private showWarning(msg: string) {
     EVT.fire(EVT.list.wrongSetting)
-    EVT.sendMsg({
-      msg: msg,
-      type: 'error',
-    })
+    msgBox.error(msg)
   }
 
   private bindEvents() {

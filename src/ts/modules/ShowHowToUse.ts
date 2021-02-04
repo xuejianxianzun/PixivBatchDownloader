@@ -1,6 +1,7 @@
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import Config from './Config'
+import { msgBox } from './MsgBox'
 
 class ShowHowToUse {
   constructor() {
@@ -17,9 +18,8 @@ class ShowHowToUse {
   }
 
   private show() {
-    EVT.sendMsg({
+    msgBox.show(lang.transl('_HowToUse'), {
       title: Config.name,
-      msg: lang.transl('_HowToUse'),
       btn: lang.transl('_我知道了'),
     })
 

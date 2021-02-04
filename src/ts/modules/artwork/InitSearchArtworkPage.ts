@@ -22,6 +22,7 @@ import { states } from '../States'
 import { Tools } from '../Tools'
 import { idListWithPageNo } from '../IdListWithPageNo'
 import { toast } from '../Toast'
+import { msgBox } from '../MsgBox'
 
 type AddBMKData = {
   id: number
@@ -188,10 +189,7 @@ class InitSearchArtworkPage extends InitPageBase {
     this.initFetchURL()
 
     if (this.startpageNo > 1000) {
-      EVT.sendMsg({
-        type: 'error',
-        msg: `${lang.transl('_超出最大页码')} ${this.maxCount}`,
-      })
+      msgBox.error(`${lang.transl('_超出最大页码')} ${this.maxCount}`)
       return this.noResult()
     }
 

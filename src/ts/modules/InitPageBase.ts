@@ -18,6 +18,7 @@ import { destroyManager } from './DestroyManager'
 import { vipSearchOptimize } from './VipSearchOptimize'
 import { ArtworkData, NovelData } from './CrawlResult.d'
 import { toast } from './Toast'
+import { msgBox } from './MsgBox'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数
@@ -104,10 +105,7 @@ abstract class InitPageBase {
   private getWantPageError() {
     EVT.fire(EVT.list.wrongSetting)
     const msg = lang.transl('_参数不合法')
-    EVT.sendMsg({
-      msg: msg,
-      type: 'error',
-    })
+    msgBox.error(msg)
     throw new Error(msg)
   }
 
@@ -272,10 +270,7 @@ abstract class InitPageBase {
 
     if (!id) {
       const msg = 'Error: work id is invalid!'
-      EVT.sendMsg({
-        msg: msg,
-        type: 'error',
-      })
+      msgBox.error(msg)
       throw new Error(msg)
     }
 
@@ -401,10 +396,7 @@ abstract class InitPageBase {
     EVT.fire(EVT.list.crawlEmpty)
     const msg = lang.transl('_抓取结果为零')
     log.error(msg, 2)
-    EVT.sendMsg({
-      msg: msg,
-      type: 'error',
-    })
+    msgBox.error(msg)
   }
 
   // 抓取完成后，对结果进行排序

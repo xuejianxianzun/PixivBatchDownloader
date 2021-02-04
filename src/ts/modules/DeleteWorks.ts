@@ -5,6 +5,7 @@ import { Colors } from './Colors'
 import { DOM } from './DOM'
 import { states } from './States'
 import { EVT } from './EVT'
+import { msgBox } from './MsgBox'
 
 class DeleteWorks {
   constructor(worksSelectors: string) {
@@ -96,10 +97,7 @@ class DeleteWorks {
       'click',
       () => {
         if (states.busy) {
-          EVT.sendMsg({
-            msg: lang.transl('_当前任务尚未完成'),
-            type: 'error',
-          })
+          msgBox.error(lang.transl('_当前任务尚未完成'))
           return
         }
         EVT.fire(EVT.list.closeCenterPanel)
@@ -120,10 +118,7 @@ class DeleteWorks {
       'click',
       () => {
         if (states.busy) {
-          EVT.sendMsg({
-            msg: lang.transl('_当前任务尚未完成'),
-            type: 'error',
-          })
+          msgBox.error(lang.transl('_当前任务尚未完成'))
           return
         }
         EVT.fire(EVT.list.closeCenterPanel)
@@ -201,10 +196,7 @@ class DeleteWorks {
           ev.preventDefault()
 
           if (states.busy) {
-            EVT.sendMsg({
-              msg: lang.transl('_当前任务尚未完成'),
-              type: 'error',
-            })
+            msgBox.error(lang.transl('_当前任务尚未完成'))
             return
           }
 

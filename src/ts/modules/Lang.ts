@@ -1,6 +1,7 @@
 import { langText } from './LangText'
 import { langTextKeys } from './LangText'
 import { EVT } from './EVT'
+import { msgBox } from './MsgBox'
 import { settings } from './setting/Settings'
 
 type LangTypes = 'zh-cn' | 'zh-tw' | 'ja' | 'en'
@@ -20,9 +21,7 @@ class Lang {
       const old = this.flag
       this.setFlag()
       if (this.flag !== old) {
-        EVT.sendMsg({
-          msg: this.transl('_变更语言后刷新页面的提示'),
-        })
+        msgBox.show(this.transl('_变更语言后刷新页面的提示'))
       }
     })
   }

@@ -10,6 +10,7 @@ import {
 import { API } from '../API'
 import { theme } from '../Theme'
 import { toast } from '../Toast'
+import { msgBox } from '../MsgBox'
 
 // 针对特定用户屏蔽 tag
 class BlockTagsForSpecificUser {
@@ -293,19 +294,13 @@ class BlockTagsForSpecificUser {
     const tags = Tools.string2array(tagsInput)
 
     if (!uidInput || !tagsInput || tags.length === 0) {
-      EVT.sendMsg({
-        type: 'error',
-        msg: lang.transl('_必填项不能为空'),
-      })
+      msgBox.error(lang.transl('_必填项不能为空'))
       return false
     }
 
     const uid = Number.parseInt(uidInput)
     if (!uid || isNaN(uid)) {
-      EVT.sendMsg({
-        type: 'error',
-        msg: lang.transl('_用户ID必须是数字'),
-      })
+      msgBox.error(lang.transl('_用户ID必须是数字'))
       return false
     }
 

@@ -6,6 +6,7 @@ import { states } from './States'
 import { downloadStates, DLStatesI } from './DownloadStates'
 import { Result } from './Store.d'
 import { IndexedDB } from './IndexedDB'
+import { msgBox } from './MsgBox'
 
 interface TaskMeta {
   id: number
@@ -401,10 +402,7 @@ class Resume {
       this.IDB.clear(this.dataName),
       this.IDB.clear(this.statesName),
     ])
-    EVT.sendMsg({
-      msg: lang.transl('_数据清除完毕'),
-      type: 'success',
-    })
+    msgBox.success(lang.transl('_数据清除完毕'))
   }
 }
 

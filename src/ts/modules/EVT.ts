@@ -1,5 +1,3 @@
-import { Msg } from './MsgBox'
-
 const bindOnceFlagList: string[] = []
 
 // 只绑定某个事件一次，用于防止事件重复绑定
@@ -140,10 +138,6 @@ class EVT {
       detail: { data: data },
     })
     window.dispatchEvent(event)
-  }
-
-  static sendMsg(data: Msg) {
-    this.fire(this.list.showMsg, data)
   }
 
   static bindOnce = bindOnce

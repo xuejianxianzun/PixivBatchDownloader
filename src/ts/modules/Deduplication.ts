@@ -8,6 +8,7 @@ import { store } from './Store'
 import { fileName } from './FileName'
 import { Tools } from './Tools'
 import { toast } from './Toast'
+import { msgBox } from './MsgBox'
 
 interface Record {
   id: string
@@ -216,10 +217,8 @@ class Deduplication {
   // 导入下载记录
   private async importRecord() {
     const record = (await Tools.loadJSONFile().catch((err) => {
-      return EVT.sendMsg({
-        type: 'error',
-        msg: err,
-      })
+      msgBox.error(err)
+      return
     })) as Record[]
 
     if (!record) {
@@ -233,10 +232,7 @@ class Deduplication {
       record[0].n === undefined
     ) {
       const msg = 'Format error!'
-      return EVT.sendMsg({
-        msg: msg,
-        type: 'error',
-      })
+      return msgBox.error(msg)
     }
 
     // 开始导入
@@ -249,7 +245,7 @@ class Deduplication {
       if (stored >= total) {
         log.success(lang.transl('_导入成功'))
         toast.success(lang.transl('_导入成功'))
-    window.clearInterval(t)
+        window.clearInterval(t)
       }
     }, 500)
 
@@ -267,10 +263,7 @@ class Deduplication {
       stored += data.length
     }
 
-    EVT.sendMsg({
-      msg: `${lang.transl('_导入下载记录')}<br>${lang.transl('_完成')}`,
-      type: 'success',
-    })
+    msgBox.success(`${lang.transl('_导入下载记录')}<br>${lang.transl('_完成')}`)
 
     // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。
   }

@@ -5,6 +5,7 @@ import { EVT } from './EVT'
 import { states } from './States'
 import { IDData } from './Store.d'
 import { toast } from './Toast'
+import { msgBox } from './MsgBox'
 
 // 手动选择作品
 class SelectWork {
@@ -124,9 +125,8 @@ class SelectWork {
     window.onbeforeunload = () => {
       // 如果存在选择的作品，并且选择的作品（全部或部分）没有被抓取，则进行提示
       if (this.idList.length > 0 && !this.crawled) {
-        EVT.sendMsg({
-          msg: lang.transl('_离开页面前提示选择的作品未抓取'),
-          type: 'error',
+        msgBox.error(lang.transl('_离开页面前提示选择的作品未抓取'), {
+          btn: lang.transl('_我知道了'),
         })
         return false
       }
@@ -464,4 +464,4 @@ class SelectWork {
 }
 
 new SelectWork()
-export {}
+export { }

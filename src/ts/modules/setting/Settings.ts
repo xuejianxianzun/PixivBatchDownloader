@@ -7,6 +7,7 @@
 
 import { EVT } from '../EVT'
 import { Tools } from '../Tools'
+import { msgBox } from '../MsgBox'
 import { convertOldSettings } from './ConvertOldSettings'
 
 export interface BlockTagsForSpecificUserItem {
@@ -273,20 +274,14 @@ class Settings {
 
   private async importSettings() {
     const loadedJSON = (await Tools.loadJSONFile().catch((err) => {
-      return EVT.sendMsg({
-        type: 'error',
-        msg: err,
-      })
+      return msgBox.error(err)
     })) as XzSetting
     if (!loadedJSON) {
       return
     }
     // 检查是否存在设置里的属性
     if (loadedJSON.downloadThread === undefined) {
-      return EVT.sendMsg({
-        type: 'error',
-        msg: 'Format error!',
-      })
+      return msgBox.error('Format error!')
     }
     // 开始恢复导入的设置
     this.reset(loadedJSON)
@@ -306,10 +301,7 @@ class Settings {
   }
 
   private tipError(key: string) {
-    EVT.sendMsg({
-      msg: `${key}: Invalid value`,
-      type: 'error',
-    })
+    msgBox.error(`${key}: Invalid value`)
   }
 
   // 更改设置项
