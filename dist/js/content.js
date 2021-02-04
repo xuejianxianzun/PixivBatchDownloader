@@ -10326,11 +10326,12 @@
         /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./Colors */ './src/ts/modules/Colors.ts'
         )
-        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+        /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./Theme */ './src/ts/modules/Theme.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-
-        // import { theme } from './Theme'
 
         // 简单的消息框
         class MsgBox {
@@ -10386,10 +10387,10 @@
         <p class="title">${data.title || ''}</p>
         <p class="content" ${colorStyle}>${data.msg}</p>
         <button class="btn" type="button">${
-          data.btn || _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_确定')
+          data.btn || _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_确定')
         }</button>
       `
-            // theme.register(el)
+            _Theme__WEBPACK_IMPORTED_MODULE_2__['theme'].register(el)
             document.body.insertAdjacentElement('afterbegin', el)
             const btn = el.querySelector('.btn')
             btn.focus()
@@ -12758,8 +12759,8 @@
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
-        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
+        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./Config */ './src/ts/modules/Config.ts'
         )
 
         // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
@@ -12767,7 +12768,7 @@
         class Theme {
           constructor() {
             this.defaultTheme = 'white' // 默认主题
-            this.theme = '' // 当前使用的主题
+            this.theme = 'white' // 当前使用的主题
             // 主题标记以及对应的 className
             this.classNameMap = new Map([
               ['white', ''],
@@ -12793,8 +12794,12 @@
             // 设置变化时设置主题
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
-              () => {
-                this.setTheme()
+              (ev) => {
+                const data = ev.detail.data
+                if (!data || data.name !== 'theme') {
+                  return
+                }
+                this.setTheme(data.value)
               }
             )
           }
@@ -12819,21 +12824,46 @@
               })
             }
           }
-          // 从含有 pixiv 主题标记的元素里获取主题
           getThemeFromHtml() {
+            // 从含有 pixiv 主题标记的元素里获取主题
             const el = document.querySelector(this.selector)
-            if (!el) {
-              return this.defaultTheme
+            if (el) {
+              return this.htmlFlagMap.get(el.textContent) || this.defaultTheme
             }
-            return this.htmlFlagMap.get(el.textContent)
+            // 根据 html 元素的背景颜色判断
+            // "rgb(245, 245, 245)"
+            // "rgb(0, 0, 0)"
+            const htmlBG = getComputedStyle(document.documentElement)[
+              'backgroundColor'
+            ]
+            if (htmlBG) {
+              if (htmlBG.includes('rgb(2')) {
+                return 'white'
+              } else {
+                return 'dark'
+              }
+            }
+            return this.defaultTheme
           }
-          // 设置主题。不需要传递值，因为会自动使用设置里的 theme 设置
-          setTheme() {
-            let result = '' // 储存最终要使用的主题
+          setTheme(flag) {
+            let theme = 'auto' // 主题标记
+            let result = 'white' // 储存根据标记所选择的主题
+            // 如果没有传递值，就从本地存储读取
+            if (!flag) {
+              const savedSettings = localStorage.getItem(
+                _Config__WEBPACK_IMPORTED_MODULE_1__['default'].settingStoreName
+              )
+              if (savedSettings) {
+                const setting = JSON.parse(savedSettings)
+                if (setting.theme) {
+                  theme = setting.theme
+                }
+              }
+            } else {
+              theme = flag
+            }
             // 根据标记，设置要使用的主题
-            switch (
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings'].theme
-            ) {
+            switch (theme) {
               case 'white':
                 result = 'white'
                 break

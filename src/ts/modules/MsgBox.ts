@@ -1,6 +1,6 @@
 import { EVT } from './EVT'
 import { Colors } from './Colors'
-// import { theme } from './Theme'
+import { theme } from './Theme'
 import { lang } from './Lang'
 
 interface MsgOptional {
@@ -76,7 +76,7 @@ class MsgBox {
         }</button>
       `
 
-    // theme.register(el)
+    theme.register(el)
 
     document.body.insertAdjacentElement('afterbegin', el)
 

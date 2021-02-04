@@ -1,18 +1,19 @@
 import { EVT } from './EVT'
-import { settings } from './setting/Settings'
+import Config from './Config'
+
+type ThemeName = 'white' | 'dark'
 
 // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
 // 默认主题 white 是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
 class Theme {
   constructor() {
     this.setTheme()
-
     this.bindEvents()
   }
 
-  private defaultTheme = 'white' // 默认主题
+  private defaultTheme: ThemeName = 'white' // 默认主题
 
-  private theme = '' // 当前使用的主题
+  private theme: ThemeName = 'white' // 当前使用的主题
 
   // 主题标记以及对应的 className
   private readonly classNameMap = new Map([
@@ -25,7 +26,7 @@ class Theme {
   private timer = 0
 
   // 页面上储存的主题标记，与本组件里的主题的对应关系
-  private readonly htmlFlagMap = new Map([
+  private readonly htmlFlagMap: Map<string, ThemeName> = new Map([
     ['', 'white'],
     ['default', 'white'],
     ['dark', 'dark'],
@@ -40,8 +41,12 @@ class Theme {
     }, 300)
 
     // 设置变化时设置主题
-    window.addEventListener(EVT.list.settingChange, () => {
-      this.setTheme()
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      const data = ev.detail.data as any
+      if (!data || data.name !== 'theme') {
+        return
+      }
+      this.setTheme(data.value)
     })
   }
 
@@ -67,21 +72,48 @@ class Theme {
     }
   }
 
-  // 从含有 pixiv 主题标记的元素里获取主题
-  private getThemeFromHtml() {
+  private getThemeFromHtml(): ThemeName {
+    // 从含有 pixiv 主题标记的元素里获取主题
     const el = document.querySelector(this.selector) as HTMLElement
-    if (!el) {
-      return this.defaultTheme
+    if (el) {
+      return this.htmlFlagMap.get(el.textContent!) || this.defaultTheme
     }
-    return this.htmlFlagMap.get(el.textContent!)
+
+    // 根据 html 元素的背景颜色判断
+    // "rgb(245, 245, 245)"
+    // "rgb(0, 0, 0)"
+    const htmlBG = getComputedStyle(document.documentElement)['backgroundColor']
+    if (htmlBG) {
+      if (htmlBG.includes('rgb(2')) {
+        return 'white'
+      } else {
+        return 'dark'
+      }
+    }
+
+    return this.defaultTheme
   }
 
-  // 设置主题。不需要传递值，因为会自动使用设置里的 theme 设置
-  private setTheme() {
-    let result = '' // 储存最终要使用的主题
+  private setTheme(flag?: string) {
+    let theme = 'auto' // 主题标记
+
+    let result: ThemeName = 'white' // 储存根据标记所选择的主题
+
+    // 如果没有传递值，就从本地存储读取
+    if (!flag) {
+      const savedSettings = localStorage.getItem(Config.settingStoreName)
+      if (savedSettings) {
+        const setting = JSON.parse(savedSettings)
+        if (setting.theme) {
+          theme = setting.theme
+        }
+      }
+    } else {
+      theme = flag
+    }
 
     // 根据标记，设置要使用的主题
-    switch (settings.theme) {
+    switch (theme) {
       case 'white':
         result = 'white'
         break

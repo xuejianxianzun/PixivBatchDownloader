@@ -6,9 +6,6 @@
 
 ----------
 
-
-----------
-
 下载时遇到404错误不重试
 
 ## 9.x.x 2021/02/xx
@@ -91,6 +88,12 @@ MsgBox 之前也是通过触发自定义事件来调用的，现在进行优化�
 例如：`Settings` 引入了 `MsgBox`，`MsgBox` 依赖 `Lang`，`Lang` 依赖 `Settings`，形成了闭环。
 
 现在把 `Lang` 和 `Settings` 解耦了，`Lang` 不再依赖 `Settings`，可以自由的使用了。
+
+#### 优化 Theme
+
+把 Theme 与 Settings 解耦了，理由也是为了避免引起循环依赖。
+
+另外还增添了一种检测 Pixiv 当前主题色的方法：分析 html 元素的背景颜色。
 
 #### 抓取结果里的 rank 数据类型从 string 改成 number
 

@@ -877,6 +877,9 @@
   width: 100%;
   text-align: center;
 }
+.centerWrap .progressBarWrap .totalNumberWrap span {
+  position: initial;
+}
 .centerWrap .progressBarWrap .progressBarList {
   padding-top: 5px;
   margin: 0;
