@@ -7,8 +7,9 @@
 
 import { EVT } from '../EVT'
 import { Tools } from '../Tools'
-import { msgBox } from '../MsgBox'
 import { convertOldSettings } from './ConvertOldSettings'
+import { msgBox } from '../MsgBox'
+import Config from '../Config'
 
 export interface BlockTagsForSpecificUserItem {
   uid: number
@@ -99,13 +100,10 @@ interface XzSetting {
 
 class Settings {
   constructor() {
-    // 第一时间恢复用户设置
     this.restoreSettings()
 
     this.bindEvents()
   }
-
-  private storeName = 'xzSetting'
 
   // 默认设置
   private readonly defaultSettings: XzSetting = {
@@ -228,7 +226,10 @@ class Settings {
   private bindEvents() {
     // 当设置发生变化时进行本地存储
     window.addEventListener(EVT.list.settingChange, () => {
-      localStorage.setItem(this.storeName, JSON.stringify(this.settings))
+      localStorage.setItem(
+        Config.settingStoreName,
+        JSON.stringify(this.settings)
+      )
     })
 
     window.addEventListener(EVT.list.resetSettings, () => {
@@ -246,7 +247,7 @@ class Settings {
 
   // 读取保存的设置，合并到当前设置上
   private restoreSettings() {
-    const savedSettings = localStorage.getItem(this.storeName)
+    const savedSettings = localStorage.getItem(Config.settingStoreName)
     if (savedSettings) {
       this.assignSettings(JSON.parse(savedSettings))
     }

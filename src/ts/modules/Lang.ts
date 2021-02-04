@@ -2,14 +2,14 @@ import { langText } from './LangText'
 import { langTextKeys } from './LangText'
 import { EVT } from './EVT'
 import { msgBox } from './MsgBox'
-import { settings } from './setting/Settings'
+import Config from './Config'
 
 type LangTypes = 'zh-cn' | 'zh-tw' | 'ja' | 'en'
 
 // 语言类
 class Lang {
   constructor() {
-    this.setFlag()
+    this.flag = this.getFlag()
     this.bindEvents()
   }
 
@@ -17,20 +17,36 @@ class Lang {
 
   private bindEvents() {
     // 选项变化时重新设置语言
-    window.addEventListener(EVT.list.settingChange, () => {
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      const data = ev.detail.data as any
+      if (!data || data.name !== 'userSetLang') {
+        return
+      }
       const old = this.flag
-      this.setFlag()
+      this.flag = this.getFlag(data.value)
       if (this.flag !== old) {
         msgBox.show(this.transl('_变更语言后刷新页面的提示'))
       }
     })
   }
 
-  private setFlag() {
-    this.flag =
-      settings.userSetLang === 'auto'
-        ? this.getLangType()
-        : settings.userSetLang
+  private getFlag(value?: string) {
+    let flag = 'auto'
+
+    // 如果没有传递值，就从本地存储读取
+    if (!value) {
+      const savedSettings = localStorage.getItem(Config.settingStoreName)
+      if (savedSettings) {
+        const setting = JSON.parse(savedSettings)
+        if (setting.userSetLang) {
+          flag = setting.userSetLang
+        }
+      }
+    } else {
+      flag = value
+    }
+
+    return flag === 'auto' ? this.getLangType() : (flag as LangTypes)
   }
 
   // 获取页面使用的语言，返回对应的 flag

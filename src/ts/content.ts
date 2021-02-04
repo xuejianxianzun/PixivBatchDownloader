@@ -17,6 +17,7 @@
   window.sessionStorage.setItem('xz_pixiv_userscript', '0')
 }
 
+import './modules/Lang'
 import './modules/setting/Settings'
 import './modules/PageType'
 import './modules/QuickDownload'

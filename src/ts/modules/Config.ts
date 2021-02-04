@@ -4,4 +4,5 @@ export default {
   downloadThreadMax: 10, // 同时下载数量的最大值
   illustTypes: ['illustration', 'manga', 'ugoira', 'novel'],
   name: 'Powerful Pixiv Downloader',
+  settingStoreName: 'xzSetting',
 }

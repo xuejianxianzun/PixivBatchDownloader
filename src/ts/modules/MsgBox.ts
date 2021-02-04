@@ -1,6 +1,7 @@
 import { EVT } from './EVT'
 import { Colors } from './Colors'
 // import { theme } from './Theme'
+import { lang } from './Lang'
 
 interface MsgOptional {
   btn?: string
@@ -37,7 +38,7 @@ class MsgBox {
   }
 
   public show(msg: string, arg?: MsgOptional) {
-    this.create(Object.assign(arg, { msg: msg }))
+    this.create(Object.assign({}, arg, { msg: msg }))
   }
 
   public success(msg: string, arg?: MsgOptional) {
@@ -71,7 +72,7 @@ class MsgBox {
         <p class="title">${data.title || ''}</p>
         <p class="content" ${colorStyle}>${data.msg}</p>
         <button class="btn" type="button">${
-          data.btn || 'OK'
+          data.btn || lang.transl('_确定')
         }</button>
       `
 
