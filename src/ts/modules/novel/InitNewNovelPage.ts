@@ -1,6 +1,6 @@
 // 初始化 大家的新作小说页面
 import { InitPageBase } from '../InitPageBase'
-import { Colors } from '../Colors'
+import { Color } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { NewIllustOption } from '../CrawlArgument.d'
@@ -25,14 +25,14 @@ class InitNewNovelPage extends InitPageBase {
   private fetchCount = 0 // 已请求的作品数量
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
+    DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_下载大家的新作品')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected setFormOption() {
     // 个数/页数选项的提示

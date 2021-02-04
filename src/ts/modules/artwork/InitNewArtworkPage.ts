@@ -1,6 +1,6 @@
 // 初始化 大家的新作品 artwork 页面
 import { InitPageBase } from '../InitPageBase'
-import { Colors } from '../Colors'
+import { Color } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { NewIllustOption } from '../CrawlArgument'
@@ -25,7 +25,7 @@ class InitNewArtworkPage extends InitPageBase {
   private fetchCount = 0 // 已请求的作品数量
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
+    DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_下载大家的新作品')],
     ]).addEventListener('click', () => {
       this.readyCrawl()

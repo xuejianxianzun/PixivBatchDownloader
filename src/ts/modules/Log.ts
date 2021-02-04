@@ -1,7 +1,7 @@
 import { DOM } from './DOM'
 import { EVT } from './EVT'
 import { theme } from './Theme'
-import { Colors, colorType } from './Colors'
+import { Color } from './Colors'
 
 // 日志
 class Log {
@@ -16,7 +16,7 @@ class Log {
   private logArea = document.createElement('div') // 输出日志的区域
   private id = 'logWrap' // 日志区域元素的 id
   private refresh = document.createElement('span') // 刷新时使用的元素
-  private readonly level: colorType[] = ['success', 'warning', 'error']
+  private readonly levelColor = ['inherit', Color.textSuccess, Color.textWarning, Color.textError]
 
   private toBottom = false // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
 
@@ -44,10 +44,10 @@ class Log {
   keepShow 追加日志的模式，默认为 true，把这一条日志添加后不再修改。false 则是刷新显示这条消息。
 
   level 日志等级：
-  -1 auto 不设置颜色
-  0 success 绿色
-  1 warning 黄色
-  2 error 红色
+  0 normal
+  1 success
+  2 warning
+  3 error
   */
   private add(str: string, level: number, br: number, keepShow: boolean) {
     this.checkElement()
@@ -58,9 +58,7 @@ class Log {
 
     span.innerHTML = str
 
-    if (level > -1) {
-      span.style.color = Colors[this.level[level]]
-    }
+    span.style.color = this.levelColor[level]
 
     while (br > 0) {
       span.appendChild(document.createElement('br'))
@@ -73,19 +71,19 @@ class Log {
   }
 
   public log(str: string, br: number = 1, keepShow: boolean = true) {
-    this.add(str, -1, br, keepShow)
-  }
-
-  public success(str: string, br: number = 1, keepShow: boolean = true) {
     this.add(str, 0, br, keepShow)
   }
 
-  public warning(str: string, br: number = 1, keepShow: boolean = true) {
+  public success(str: string, br: number = 1, keepShow: boolean = true) {
     this.add(str, 1, br, keepShow)
   }
 
-  public error(str: string, br: number = 1, keepShow: boolean = true) {
+  public warning(str: string, br: number = 1, keepShow: boolean = true) {
     this.add(str, 2, br, keepShow)
+  }
+
+  public error(str: string, br: number = 1, keepShow: boolean = true) {
+    this.add(str, 3, br, keepShow)
   }
 
   // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部

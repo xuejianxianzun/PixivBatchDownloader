@@ -1,14 +1,12 @@
 // 初始化新版收藏页面
 import { InitPageBase } from './InitPageBase'
 import { API } from './API'
-import { Colors } from './Colors'
+import { Color } from './Colors'
 import { lang } from './Lang'
 import { IDData } from './Store.d'
 import { options } from './setting/Options'
 import {
   BookmarkData,
-  NovelCommonData,
-  ArtworkCommonData,
 } from './CrawlResult.d'
 import { store } from './Store'
 import { log } from './Log'
@@ -39,7 +37,7 @@ class InitBookmarkPage extends InitPageBase {
   private offset: number = 0 // 要去掉的作品数量
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
+    DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
@@ -67,7 +65,7 @@ class InitBookmarkPage extends InitPageBase {
     if (token.token) {
       const btn = DOM.addBtn(
         'otherBtns',
-        Colors.green,
+        Color.bgGreen,
         lang.transl('_给未分类作品添加添加tag'),
         [['title', lang.transl('_给未分类作品添加添加tag')]]
       )

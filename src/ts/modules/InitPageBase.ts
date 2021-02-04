@@ -1,6 +1,6 @@
 // 初始化所有页面抓取流程的基类
 import { lang } from './Lang'
-import { Colors } from './Colors'
+import { Color } from './Colors'
 import { DOM } from './DOM'
 import { API } from './API'
 import { store } from './Store'
@@ -78,7 +78,7 @@ abstract class InitPageBase {
 
   // 添加抓取区域的按钮
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
+    DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()

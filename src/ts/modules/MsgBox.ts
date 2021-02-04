@@ -1,13 +1,13 @@
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { theme } from './Theme'
-import { Colors, colorType } from './Colors'
+import { Color} from './Colors'
 
 export interface Msg {
   title?: string
   msg: string
   btn?: string
-  type?: colorType
+  type?: "success" | "warning" | "error"
 }
 
 // 一个简单的消息框
@@ -15,6 +15,14 @@ class MsgBox {
   constructor() {
     this.bindEvents()
   }
+
+  private readonly typeColor: {
+    [key: string]: Color
+  } = {
+      success: Color.textSuccess,
+      warning: Color.textWarning,
+      error: Color.textError
+    }
 
   private bindEvents() {
     window.addEventListener(EVT.list.showMsg, (ev: CustomEventInit) => {
@@ -29,14 +37,14 @@ class MsgBox {
 
     let colorStyle = ''
     if (data.type) {
-      colorStyle = `style="color:${Colors[data.type]}"`
+      colorStyle = `style="color:${this.typeColor[data.type]}"`
     }
+
     el.innerHTML = `
         <p class="title">${data.title || ''}</p>
         <p class="content" ${colorStyle}>${data.msg}</p>
-        <button class="btn" type="button">${
-          data.btn || lang.transl('_确定')
-        }</button>
+        <button class="btn" type="button">${data.btn || lang.transl('_确定')
+      }</button>
       `
 
     theme.register(el)

@@ -1152,12 +1152,32 @@ new CheckNew();
 /*!**********************************!*\
   !*** ./src/ts/modules/Colors.ts ***!
   \**********************************/
-/*! exports provided: Colors */
+/*! exports provided: Color, Colors */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Color", function() { return Color; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Colors", function() { return Colors; });
+var Color;
+(function (Color) {
+    Color["white"] = "#fff";
+    Color["black"] = "#000";
+    Color["red"] = "#f00";
+    Color["theme"] = "#0ea8ef";
+    Color["textSuccess"] = "#00BD17";
+    Color["textWarning"] = "#d27e00";
+    Color["textError"] = "#f00";
+    Color["bgBlue"] = "#0ea8ef";
+    Color["bgBrightBlue"] = "#29b3f3";
+    Color["bgGreen"] = "#14ad27";
+    Color["bgRed"] = "#f33939";
+    Color["bgYellow"] = "#e49d00";
+    Color["bgSuccess"] = "#14ad27";
+    // 测试下警告的背景颜色是否合适
+    Color["bgWarning"] = "#d27e00";
+    Color["bgError"] = "#f00";
+})(Color || (Color = {}));
 const Colors = {
     white: '#fff',
     blue: '#0ea8ef',
@@ -1938,7 +1958,7 @@ class DeleteWorks {
     // 清除多图作品的按钮
     addClearMultipleBtn(selector, callback = () => { }) {
         this.multipleSelector = selector;
-        _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].red, _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除多图作品'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Color"].bgRed, _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除多图作品'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除多图作品Title')],
         ]).addEventListener('click', () => {
             if (_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
@@ -1956,7 +1976,7 @@ class DeleteWorks {
     // 清除动图作品的按钮
     addClearUgoiraBtn(selector, callback = () => { }) {
         this.ugoiraSelector = selector;
-        _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].red, _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除动图作品'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Color"].bgRed, _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除动图作品'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除动图作品Title')],
         ]).addEventListener('click', () => {
             if (_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
@@ -1974,7 +1994,7 @@ class DeleteWorks {
     // 手动删除作品的按钮
     addManuallyDeleteBtn(callback = () => { }) {
         this.deleteWorkCallback = callback;
-        this.delBtn = _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].red, _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_手动删除作品'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_手动删除作品Title')]]);
+        this.delBtn = _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Color"].bgRed, _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_手动删除作品'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_手动删除作品Title')]]);
         this.delBtn.addEventListener('click', () => {
             this.toggleDeleteMode();
         });
@@ -2533,10 +2553,10 @@ class DownloadControl {
     <p> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_共抓取到n个文件', '<span class="fwb blue imgNum">0</span>')}</p>
     
     <div class="centerWrap_btns">
-    <button class="startDownload" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].blue};"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_开始下载')}</button>
-    <button class="pauseDownload" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].yellow};"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_暂停下载')}</button>
-    <button class="stopDownload" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].red};"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_停止下载')}</button>
-    <button class="copyUrl" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].green};"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_复制url')}</button>
+    <button class="startDownload" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_5__["Color"].bgBlue};"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_开始下载')}</button>
+    <button class="pauseDownload" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_5__["Color"].bgYellow};"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_暂停下载')}</button>
+    <button class="stopDownload" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_5__["Color"].bgRed};"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_停止下载')}</button>
+    <button class="copyUrl" type="button" style="background:${_Colors__WEBPACK_IMPORTED_MODULE_5__["Color"].bgGreen};"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_复制url')}</button>
     </div>
     <div class="download_status_text_wrap">
     <span>${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_当前状态')}</span>
@@ -2761,7 +2781,7 @@ class DownloadControl {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete);
             }, 0);
             this.reset();
-            this.setDownStateText(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕'), _Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].green);
+            this.setDownStateText(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载完毕'), _Colors__WEBPACK_IMPORTED_MODULE_5__["Color"].textSuccess);
         }
         this.checkCompleteWithError();
     }
@@ -2777,7 +2797,7 @@ class DownloadControl {
         }
     }
     // 设置下载状态文本，默认颜色为主题蓝色
-    setDownStateText(text, color = _Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].blue) {
+    setDownStateText(text, color = _Colors__WEBPACK_IMPORTED_MODULE_5__["Color"].bgBlue) {
         this.statesEl.textContent = text;
         this.statesEl.style.color = color;
     }
@@ -4740,13 +4760,13 @@ class InitBookmarkLegacyPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.init();
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_9__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_开始抓取'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_9__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_开始抓取'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_默认下载多页')],
         ]).addEventListener('click', () => {
             this.readyCrawl();
         });
         // 添加下载推荐作品的按钮
-        _DOM__WEBPACK_IMPORTED_MODULE_9__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_抓取推荐作品'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_9__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_抓取推荐作品'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_抓取推荐作品Title')],
         ]).addEventListener('click', () => {
             this.crawlRecommended = true;
@@ -4756,7 +4776,7 @@ class InitBookmarkLegacyPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
     addAnyElement() {
         // 如果存在 token，则添加“添加 tag”按钮
         if (_Token__WEBPACK_IMPORTED_MODULE_3__["token"].token) {
-            const btn = _DOM__WEBPACK_IMPORTED_MODULE_9__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_给未分类作品添加添加tag'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_给未分类作品添加添加tag')]]);
+            const btn = _DOM__WEBPACK_IMPORTED_MODULE_9__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_给未分类作品添加添加tag'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_给未分类作品添加添加tag')]]);
             new _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_6__["BookmarksAddTag"](btn);
         }
     }
@@ -4961,7 +4981,7 @@ class InitBookmarkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitP
         this.init();
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_7__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_7__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_默认下载多页')],
         ]).addEventListener('click', () => {
             this.readyCrawl();
@@ -4981,7 +5001,7 @@ class InitBookmarkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitP
     addAnyElement() {
         // 如果存在 token，则添加“添加 tag”按钮
         if (_Token__WEBPACK_IMPORTED_MODULE_8__["token"].token) {
-            const btn = _DOM__WEBPACK_IMPORTED_MODULE_7__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_给未分类作品添加添加tag'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_给未分类作品添加添加tag')]]);
+            const btn = _DOM__WEBPACK_IMPORTED_MODULE_7__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_给未分类作品添加添加tag'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_给未分类作品添加添加tag')]]);
             new _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_9__["BookmarksAddTag"](btn);
         }
     }
@@ -5150,12 +5170,12 @@ class InitFollowingPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Init
         }
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_7__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_7__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_默认下载多页')],
         ]).addEventListener('click', () => {
             this.readyCrawl();
         });
-        _DOM__WEBPACK_IMPORTED_MODULE_7__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载用户列表')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_7__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载用户列表')).addEventListener('click', () => {
             this.downUserList = true;
             this.readyCrawl();
         });
@@ -5343,7 +5363,7 @@ class InitHomePage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPageB
         this.init();
     }
     addCrawlBtns() {
-        this.downIdButton = _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_输入id进行抓取'), [['id', 'down_id_button']]);
+        this.downIdButton = _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_输入id进行抓取'), [['id', 'down_id_button']]);
     }
     addAnyElement() {
         // 用于输入id的输入框
@@ -5351,7 +5371,7 @@ class InitHomePage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPageB
         this.downIdInput.style.display = 'none';
         this.downIdInput.setAttribute('placeholder', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_输入id进行抓取的提示文字'));
         _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].insertToHead(this.downIdInput);
-        _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_清空已保存的抓取结果')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_清空已保存的抓取结果')).addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.clearSavedCrawl);
         });
     }
@@ -5631,7 +5651,7 @@ class InitPageBase {
     }
     // 添加抓取区域的按钮
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_默认下载多页')],
         ]).addEventListener('click', () => {
             this.readyCrawl();
@@ -5936,7 +5956,7 @@ class InitPixivisionPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
         const type = typeA.dataset.gtmLabel;
         if (type === 'illustration' || type === 'manga' || type === 'cosplay') {
             // 在插画、漫画、cosplay类型的页面上创建下载功能
-            _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取该页面的图片')).addEventListener('click', () => {
+            _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取该页面的图片')).addEventListener('click', () => {
                 this.readyCrawl();
             }, false);
         }
@@ -6137,26 +6157,26 @@ class InitUserPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPageB
     }
     // 添加中间按钮
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_默认下载多页')],
         ]).addEventListener('click', () => {
             this.readyCrawl();
         });
     }
     addAnyElement() {
-        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像')).addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.saveAvatarImage);
         });
-        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户封面')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户封面')).addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.saveUserCover);
         });
-        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标说明')],
         ]).addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.saveAvatarIcon);
         });
         // 添加收藏本页所有作品的功能
-        const bookmarkAllBtn = _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏本页面的所有作品'));
+        const bookmarkAllBtn = _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏本页面的所有作品'));
         this.bookmarkAll = new _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__["BookmarkAllWorks"](bookmarkAllBtn);
         bookmarkAllBtn.addEventListener('click', async () => {
             // 获取该用户的所有作品的 id 列表
@@ -8161,7 +8181,7 @@ class Log {
         this.logArea = document.createElement('div'); // 输出日志的区域
         this.id = 'logWrap'; // 日志区域元素的 id
         this.refresh = document.createElement('span'); // 刷新时使用的元素
-        this.level = ['success', 'warning', 'error'];
+        this.levelColor = ['inherit', _Colors__WEBPACK_IMPORTED_MODULE_3__["Color"].textSuccess, _Colors__WEBPACK_IMPORTED_MODULE_3__["Color"].textWarning, _Colors__WEBPACK_IMPORTED_MODULE_3__["Color"].textError];
         this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
         this.scrollToBottom();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.clearLog, () => {
@@ -8190,10 +8210,10 @@ class Log {
     keepShow 追加日志的模式，默认为 true，把这一条日志添加后不再修改。false 则是刷新显示这条消息。
   
     level 日志等级：
-    -1 auto 不设置颜色
-    0 success 绿色
-    1 warning 黄色
-    2 error 红色
+    0 normal
+    1 success
+    2 warning
+    3 error
     */
     add(str, level, br, keepShow) {
         this.checkElement();
@@ -8202,9 +8222,7 @@ class Log {
             span = this.refresh;
         }
         span.innerHTML = str;
-        if (level > -1) {
-            span.style.color = _Colors__WEBPACK_IMPORTED_MODULE_3__["Colors"][this.level[level]];
-        }
+        span.style.color = this.levelColor[level];
         while (br > 0) {
             span.appendChild(document.createElement('br'));
             br--;
@@ -8213,16 +8231,16 @@ class Log {
         this.toBottom = true; // 需要把日志滚动到底部
     }
     log(str, br = 1, keepShow = true) {
-        this.add(str, -1, br, keepShow);
-    }
-    success(str, br = 1, keepShow = true) {
         this.add(str, 0, br, keepShow);
     }
-    warning(str, br = 1, keepShow = true) {
+    success(str, br = 1, keepShow = true) {
         this.add(str, 1, br, keepShow);
     }
-    error(str, br = 1, keepShow = true) {
+    warning(str, br = 1, keepShow = true) {
         this.add(str, 2, br, keepShow);
+    }
+    error(str, br = 1, keepShow = true) {
+        this.add(str, 3, br, keepShow);
     }
     // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部
     scrollToBottom() {
@@ -8260,6 +8278,11 @@ __webpack_require__.r(__webpack_exports__);
 // 一个简单的消息框
 class MsgBox {
     constructor() {
+        this.typeColor = {
+            success: _Colors__WEBPACK_IMPORTED_MODULE_3__["Color"].textSuccess,
+            warning: _Colors__WEBPACK_IMPORTED_MODULE_3__["Color"].textWarning,
+            error: _Colors__WEBPACK_IMPORTED_MODULE_3__["Color"].textError
+        };
         this.bindEvents();
     }
     bindEvents() {
@@ -8273,7 +8296,7 @@ class MsgBox {
         el.classList.add('xz_msg_box');
         let colorStyle = '';
         if (data.type) {
-            colorStyle = `style="color:${_Colors__WEBPACK_IMPORTED_MODULE_3__["Colors"][data.type]}"`;
+            colorStyle = `style="color:${this.typeColor[data.type]}"`;
         }
         el.innerHTML = `
         <p class="title">${data.title || ''}</p>
@@ -9568,14 +9591,14 @@ class SelectWork {
         }
     }
     addBtn() {
-        this.controlBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].addBtn('selectWorkBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_手动选择作品'));
+        this.controlBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].addBtn('selectWorkBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_手动选择作品'));
         this.updateControlBtn();
-        this.clearBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].addBtn('selectWorkBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].red, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_清空选择的作品'));
+        this.clearBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].addBtn('selectWorkBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgRed, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_清空选择的作品'));
         this.clearBtn.style.display = 'none';
         this.clearBtn.addEventListener('click', () => {
             this.clearIdList();
         });
-        this.crawlBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].addBtn('selectWorkBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取选择的作品'));
+        this.crawlBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].addBtn('selectWorkBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取选择的作品'));
         this.crawlBtn.style.display = 'none';
         this.crawlBtn.addEventListener('click', (ev) => {
             this.downloadSelect();
@@ -11216,7 +11239,7 @@ class InitAreaRankingPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
     }
     initAny() { }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取本页作品'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取本页作品'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取本页作品Title')],
         ]).addEventListener('click', () => {
             this.readyCrawl();
@@ -11327,15 +11350,15 @@ class InitArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPa
         new _QuickBookmark__WEBPACK_IMPORTED_MODULE_6__["QuickBookmark"]();
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始抓取new')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始抓取new')).addEventListener('click', () => {
             this.crawlDirection = -1;
             this.readyCrawl();
         });
-        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始抓取old')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始抓取old')).addEventListener('click', () => {
             this.crawlDirection = 1;
             this.readyCrawl();
         });
-        const downRelatedBtn = _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取相关作品'));
+        const downRelatedBtn = _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取相关作品'));
         downRelatedBtn.addEventListener('click', () => {
             this.crawlRelated = true;
             this.readyCrawl();
@@ -11474,7 +11497,7 @@ class InitBookmarkDetailPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.init();
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取相似图片'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取相似图片'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取相似图片')],
         ]).addEventListener('click', () => {
             this.readyCrawl();
@@ -11545,7 +11568,7 @@ class InitBookmarkNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_
         this.init();
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_默认下载多页')],
         ]).addEventListener('click', () => {
             this.readyCrawl();
@@ -11658,7 +11681,7 @@ class InitDiscoverPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitP
         this.init();
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取当前作品'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取当前作品'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取当前作品Title')],
         ]).addEventListener('click', () => {
             this.readyCrawl();
@@ -11733,7 +11756,7 @@ class InitNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
         this.init();
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载大家的新作品')],
         ]).addEventListener('click', () => {
             this.readyCrawl();
@@ -11879,7 +11902,7 @@ class InitRankingArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.init();
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取本排行榜作品'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取本排行榜作品'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取本排行榜作品Title')],
         ]).addEventListener('click', () => {
             this.readyCrawl();
@@ -11888,7 +11911,7 @@ class InitRankingArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         const debutModes = ['daily', 'daily_r18', 'rookie', ''];
         const mode = _API__WEBPACK_IMPORTED_MODULE_2__["API"].getURLSearchField(location.href, 'mode');
         if (debutModes.includes(mode)) {
-            _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取首次登场的作品'), [
+            _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取首次登场的作品'), [
                 ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取首次登场的作品Title')],
             ]).addEventListener('click', () => {
                 _States__WEBPACK_IMPORTED_MODULE_10__["states"].debut = true;
@@ -12296,14 +12319,14 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         });
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_14__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始筛选'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_14__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始筛选'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始筛选Title')],
         ]).addEventListener('click', () => {
             this.resultMeta = [];
             window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.addResult, this.createWork);
             this.readyCrawl();
         });
-        _DOM__WEBPACK_IMPORTED_MODULE_14__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_在结果中筛选'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_14__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_在结果中筛选'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_在结果中筛选Title')],
         ]).addEventListener('click', () => {
             this.screenInResult();
@@ -12321,7 +12344,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.deleteWork, el);
         });
         // 添加收藏本页所有作品的功能
-        const bookmarkAllBtn = _DOM__WEBPACK_IMPORTED_MODULE_14__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏本页面的所有作品'));
+        const bookmarkAllBtn = _DOM__WEBPACK_IMPORTED_MODULE_14__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏本页面的所有作品'));
         const bookmarkAll = new _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_15__["BookmarkAllWorks"](bookmarkAllBtn);
         bookmarkAllBtn.addEventListener('click', () => {
             const listWrap = this.getWorksWrap();
@@ -12700,7 +12723,7 @@ class InitSeriesPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPag
         this.init();
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_默认下载多页')],
         ]).addEventListener('click', () => {
             this.readyCrawl();
@@ -14107,7 +14130,7 @@ class InitBookmarkNewNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0_
         this.init();
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_4__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_默认下载多页')],
         ]).addEventListener('click', () => {
             this.readyCrawl();
@@ -14250,7 +14273,7 @@ class InitNewNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitP
         this.init();
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_8__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载大家的新作品')],
         ]).addEventListener('click', () => {
             this.readyCrawl();
@@ -14397,11 +14420,11 @@ class InitNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPage
         new _QuickBookmark__WEBPACK_IMPORTED_MODULE_5__["QuickBookmark"]();
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始抓取new')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始抓取new')).addEventListener('click', () => {
             this.crawlDirection = -1;
             this.readyCrawl();
         });
-        _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始抓取old')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_6__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始抓取old')).addEventListener('click', () => {
             this.crawlDirection = 1;
             this.readyCrawl();
         });
@@ -14501,7 +14524,7 @@ class InitNovelSeriesPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
         this.init();
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_5__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取系列小说')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_5__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取系列小说')).addEventListener('click', () => {
             this.readyCrawl();
         });
     }
@@ -14577,7 +14600,7 @@ class InitRankingNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["I
         this.init();
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].blue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取本排行榜作品'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_3__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取本排行榜作品'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取本排行榜作品Title')],
         ]).addEventListener('click', () => {
             this.readyCrawl();
@@ -14765,7 +14788,7 @@ class InitSearchNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
         new _FastScreen__WEBPACK_IMPORTED_MODULE_8__["FastScreen"]();
     }
     addCrawlBtns() {
-        _DOM__WEBPACK_IMPORTED_MODULE_9__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
+        _DOM__WEBPACK_IMPORTED_MODULE_9__["DOM"].addBtn('crawlBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_默认下载多页')],
         ]).addEventListener('click', () => {
             this.readyCrawl();
@@ -14781,7 +14804,7 @@ class InitSearchNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
     }
     addAnyElement() {
         // 添加收藏本页所有作品的功能
-        const bookmarkAllBtn = _DOM__WEBPACK_IMPORTED_MODULE_9__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏本页面的所有作品'));
+        const bookmarkAllBtn = _DOM__WEBPACK_IMPORTED_MODULE_9__["DOM"].addBtn('otherBtns', _Colors__WEBPACK_IMPORTED_MODULE_1__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏本页面的所有作品'));
         const bookmarkAll = new _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_10__["BookmarkAllWorks"](bookmarkAllBtn);
         bookmarkAllBtn.addEventListener('click', () => {
             const listWrap = this.getWorksWrap();
@@ -15621,19 +15644,19 @@ class Form {
             this.activeTab(0);
         });
         // 预览文件名
-        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('namingBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_预览文件名')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('namingBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_预览文件名')).addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.previewFileName);
         }, false);
         // 导出 csv
-        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('exportResult', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出csv')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('exportResult', _Colors__WEBPACK_IMPORTED_MODULE_2__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出csv')).addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.outputCSV);
         }, false);
         // 导出抓取结果
-        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('exportResult', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出抓取结果')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('exportResult', _Colors__WEBPACK_IMPORTED_MODULE_2__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出抓取结果')).addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.exportResult);
         }, false);
         // 导入抓取结果
-        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('exportResult', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].green, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导入抓取结果')).addEventListener('click', () => {
+        _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('exportResult', _Colors__WEBPACK_IMPORTED_MODULE_2__["Color"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导入抓取结果')).addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.importResult);
         }, false);
         // 重置设置按钮

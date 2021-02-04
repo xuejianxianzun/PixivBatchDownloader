@@ -1,6 +1,6 @@
 //初始化小说系列作品页面
 import { InitPageBase } from '../InitPageBase'
-import { Colors } from '../Colors'
+import { Color } from '../Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { store } from '../Store'
@@ -20,21 +20,21 @@ class InitNovelSeriesPage extends InitPageBase {
   protected addCrawlBtns() {
     DOM.addBtn(
       'crawlBtns',
-      Colors.blue,
+      Color.bgBlue,
       lang.transl('_抓取系列小说')
     ).addEventListener('click', () => {
       this.readyCrawl()
     })
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected setFormOption() {
     // 隐藏“个数/页数”选项
     options.hideOption([1])
   }
 
-  protected getWantPage() {}
+  protected getWantPage() { }
 
   protected nextStep() {
     this.seriesId = API.getURLPathField('series')

@@ -1,5 +1,5 @@
 import { DOM } from './DOM'
-import { Colors } from './Colors'
+import { Color } from './Colors'
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { states } from './States'
@@ -200,14 +200,14 @@ class SelectWork {
   private addBtn() {
     this.controlBtn = DOM.addBtn(
       'selectWorkBtns',
-      Colors.green,
+      Color.bgGreen,
       lang.transl('_手动选择作品')
     )
     this.updateControlBtn()
 
     this.clearBtn = DOM.addBtn(
       'selectWorkBtns',
-      Colors.red,
+      Color.bgRed,
       lang.transl('_清空选择的作品')
     )
     this.clearBtn.style.display = 'none'
@@ -217,7 +217,7 @@ class SelectWork {
 
     this.crawlBtn = DOM.addBtn(
       'selectWorkBtns',
-      Colors.blue,
+      Color.bgBlue,
       lang.transl('_抓取选择的作品')
     )
     this.crawlBtn.style.display = 'none'

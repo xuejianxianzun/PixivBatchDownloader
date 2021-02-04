@@ -1,6 +1,6 @@
 // 初始化 bookmark_detail 页面
 import { InitPageBase } from '../InitPageBase'
-import { Colors } from '../Colors'
+import { Color } from '../Colors'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
 import { options } from '../setting/Options'
@@ -14,7 +14,7 @@ class InitBookmarkDetailPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取相似图片'), [
+    DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_抓取相似图片'), [
       ['title', lang.transl('_抓取相似图片')],
     ]).addEventListener(
       'click',

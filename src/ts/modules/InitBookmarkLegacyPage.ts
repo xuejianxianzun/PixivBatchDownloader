@@ -1,7 +1,7 @@
 // 初始化旧版收藏页面
 import { InitPageBase } from './InitPageBase'
 import { API } from './API'
-import { Colors } from './Colors'
+import { Color } from './Colors'
 import { token } from './Token'
 import { lang } from './Lang'
 import { IDData } from './Store.d'
@@ -9,8 +9,6 @@ import { options } from './setting/Options'
 import { BookmarksAddTag } from './BookmarksAddTag'
 import {
   BookmarkData,
-  NovelCommonData,
-  ArtworkCommonData,
 } from './CrawlResult.d'
 import { store } from './Store'
 import { log } from './Log'
@@ -41,14 +39,14 @@ class InitBookmarkLegacyPage extends InitPageBase {
   private crawlRecommended: boolean = false // 是否抓取推荐作品（收藏页面下方）
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
+    DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
 
     // 添加下载推荐作品的按钮
-    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_抓取推荐作品'), [
+    DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_抓取推荐作品'), [
       ['title', lang.transl('_抓取推荐作品Title')],
     ]).addEventListener(
       'click',
@@ -65,7 +63,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
     if (token.token) {
       const btn = DOM.addBtn(
         'otherBtns',
-        Colors.green,
+        Color.bgGreen,
         lang.transl('_给未分类作品添加添加tag'),
         [['title', lang.transl('_给未分类作品添加添加tag')]]
       )

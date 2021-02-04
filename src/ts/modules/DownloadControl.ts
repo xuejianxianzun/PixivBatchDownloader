@@ -11,7 +11,7 @@ import {
 import { store } from './Store'
 import { log } from './Log'
 import { lang } from './Lang'
-import { Colors } from './Colors'
+import { Color } from './Colors'
 import { settings } from './setting/Settings'
 import { Download } from './Download'
 import { progressBar } from './ProgressBar'
@@ -147,13 +147,13 @@ class DownloadControl {
     )}</p>
     
     <div class="centerWrap_btns">
-    <button class="startDownload" type="button" style="background:${Colors.blue
+    <button class="startDownload" type="button" style="background:${Color.bgBlue
       };"> ${lang.transl('_开始下载')}</button>
-    <button class="pauseDownload" type="button" style="background:${Colors.yellow
+    <button class="pauseDownload" type="button" style="background:${Color.bgYellow
       };"> ${lang.transl('_暂停下载')}</button>
-    <button class="stopDownload" type="button" style="background:${Colors.red
+    <button class="stopDownload" type="button" style="background:${Color.bgRed
       };"> ${lang.transl('_停止下载')}</button>
-    <button class="copyUrl" type="button" style="background:${Colors.green
+    <button class="copyUrl" type="button" style="background:${Color.bgGreen
       };"> ${lang.transl('_复制url')}</button>
     </div>
     <div class="download_status_text_wrap">
@@ -429,7 +429,7 @@ class DownloadControl {
         EVT.fire(EVT.list.downloadComplete)
       }, 0)
       this.reset()
-      this.setDownStateText(lang.transl('_下载完毕'), Colors.green)
+      this.setDownStateText(lang.transl('_下载完毕'), Color.textSuccess)
     }
 
     this.checkCompleteWithError()
@@ -450,7 +450,7 @@ class DownloadControl {
   }
 
   // 设置下载状态文本，默认颜色为主题蓝色
-  private setDownStateText(text: string, color: string = Colors.blue) {
+  private setDownStateText(text: string, color: string = Color.bgBlue) {
     this.statesEl.textContent = text
     this.statesEl.style.color = color
   }

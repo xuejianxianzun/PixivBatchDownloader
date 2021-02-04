@@ -1,6 +1,6 @@
 // 初始化用户页面
 import { InitPageBase } from './InitPageBase'
-import { Colors } from './Colors'
+import { Color } from './Colors'
 import { lang } from './Lang'
 import { options } from './setting/Options'
 import { API } from './API'
@@ -40,7 +40,7 @@ class InitUserPage extends InitPageBase {
 
   // 添加中间按钮
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
+    DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
@@ -50,7 +50,7 @@ class InitUserPage extends InitPageBase {
   protected addAnyElement() {
     DOM.addBtn(
       'otherBtns',
-      Colors.green,
+      Color.bgGreen,
       lang.transl('_保存用户头像')
     ).addEventListener('click', () => {
       EVT.fire(EVT.list.saveAvatarImage)
@@ -58,13 +58,13 @@ class InitUserPage extends InitPageBase {
 
     DOM.addBtn(
       'otherBtns',
-      Colors.green,
+      Color.bgGreen,
       lang.transl('_保存用户封面')
     ).addEventListener('click', () => {
       EVT.fire(EVT.list.saveUserCover)
     })
 
-    DOM.addBtn('otherBtns', Colors.green, lang.transl('_保存用户头像为图标'), [
+    DOM.addBtn('otherBtns', Color.bgGreen, lang.transl('_保存用户头像为图标'), [
       ['title', lang.transl('_保存用户头像为图标说明')],
     ]).addEventListener('click', () => {
       EVT.fire(EVT.list.saveAvatarIcon)
@@ -73,7 +73,7 @@ class InitUserPage extends InitPageBase {
     // 添加收藏本页所有作品的功能
     const bookmarkAllBtn = DOM.addBtn(
       'otherBtns',
-      Colors.green,
+      Color.bgGreen,
       lang.transl('_收藏本页面的所有作品')
     )
     this.bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)

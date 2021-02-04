@@ -1,6 +1,6 @@
 // 初始化插画/漫画的系列作品页面
 import { InitPageBase } from '../InitPageBase'
-import { Colors } from '../Colors'
+import { Color } from '../Colors'
 import { API } from '../API'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
@@ -19,7 +19,7 @@ class InitSeriesPage extends InitPageBase {
   private seriesId = ''
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.blue, lang.transl('_开始抓取'), [
+    DOM.addBtn('crawlBtns', Color.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()

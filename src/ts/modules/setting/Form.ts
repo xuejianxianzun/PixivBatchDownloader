@@ -1,6 +1,6 @@
 import { EVT } from '../EVT'
 import { DOM } from '../DOM'
-import { Colors } from '../Colors'
+import { Color } from '../Colors'
 import { lang } from '../Lang'
 import formHtml from './FormHTML'
 import { SettingsForm } from './Form.d'
@@ -136,7 +136,7 @@ class Form {
     // 预览文件名
     DOM.addBtn(
       'namingBtns',
-      Colors.green,
+      Color.bgGreen,
       lang.transl('_预览文件名')
     ).addEventListener(
       'click',
@@ -149,7 +149,7 @@ class Form {
     // 导出 csv
     DOM.addBtn(
       'exportResult',
-      Colors.green,
+      Color.bgGreen,
       lang.transl('_导出csv')
     ).addEventListener(
       'click',
@@ -162,7 +162,7 @@ class Form {
     // 导出抓取结果
     DOM.addBtn(
       'exportResult',
-      Colors.green,
+      Color.bgGreen,
       lang.transl('_导出抓取结果')
     ).addEventListener(
       'click',
@@ -175,7 +175,7 @@ class Form {
     // 导入抓取结果
     DOM.addBtn(
       'exportResult',
-      Colors.green,
+      Color.bgGreen,
       lang.transl('_导入抓取结果')
     ).addEventListener(
       'click',

@@ -1,5 +1,5 @@
 import { EVT } from './EVT'
-import { Colors, colorType } from './Colors'
+import {Color, Colors, colorType } from './Colors'
 
 // 其他模块可以调用 EVT.list.sendToast 事件并传递参数来显示提示
 
