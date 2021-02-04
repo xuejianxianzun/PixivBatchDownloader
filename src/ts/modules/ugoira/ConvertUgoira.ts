@@ -19,8 +19,12 @@ class ConvertUgoira {
       })
     })
 
-    window.addEventListener(EVT.list.settingChange, () => {
-      this.setMaxCount()
+    // 设置发生变化时
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      const data = ev.detail.data as any
+      if (data.name === 'convertUgoiraThread') {
+        this.setMaxCount()
+      }
     })
 
     window.addEventListener(EVT.list.convertSuccess, () => {

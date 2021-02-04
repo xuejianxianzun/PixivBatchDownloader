@@ -19,7 +19,7 @@ class Lang {
     // 选项变化时重新设置语言
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data as any
-      if (!data || data.name !== 'userSetLang') {
+      if (data.name !== 'userSetLang') {
         return
       }
       const old = this.flag

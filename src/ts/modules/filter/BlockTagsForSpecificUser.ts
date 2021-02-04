@@ -406,9 +406,12 @@ class BlockTagsForSpecificUser {
 
   private bindEvents() {
     // 选项变化
-    window.addEventListener(EVT.list.settingChange, () => {
-      this.showTotal()
-      this.updateWrapDisplay()
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      const data = ev.detail.data as any
+      if (data.name.includes('blockTagsForSpecificUser')) {
+        this.showTotal()
+        this.updateWrapDisplay()
+      }
     })
 
     // 选项重置

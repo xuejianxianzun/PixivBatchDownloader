@@ -133,6 +133,7 @@ class EVT {
   }
 
   // 触发事件，可以携带数据
+  // 数据通过 ev.detail.data 获取，不会是空值（默认是空对象）
   static fire(type: string, data: object | string | number | boolean = {}) {
     const event = new CustomEvent(type, {
       detail: { data: data },

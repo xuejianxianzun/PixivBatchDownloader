@@ -53,10 +53,12 @@ class SaveNamingRule {
       this.show = false
     })
 
-    // 当设置发生了变化，就重新创建列表
-    // 这里不要判断事件的 data.name，因为恢复设置时没有传递 data.name ，但此时依旧需要重新创建列表
-    window.addEventListener(EVT.list.settingChange, () => {
-      this.createList()
+    // 设置发生变化时重新创建列表
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      const data = ev.detail.data as any
+      if (data.name === 'namingRuleList') {
+        this.createList()
+      }
     })
   }
 

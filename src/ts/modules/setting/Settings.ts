@@ -1,7 +1,5 @@
 // settings 保存了下载器的所有设置项
-// 每当修改了 settings 的值，都要触发 EVT.list.settingChange 事件，让其他模块可以监听到变化
-// 如果修改的是整个 settings，settingChange 事件没有参数
-// 如果修改的是某一个属性的值，settingChange 事件参数应该传递这个属性的数据 {name:string, value:any}
+// 每当修改了 settings 的任何一个值，都会触发 EVT.list.settingChange 事件，传递这个选项的名称和值 {name:string, value:any}
 
 // 如果打开了多个标签页，每个页面的 settings 数据是互相独立的。但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
 
@@ -260,10 +258,8 @@ class Settings {
   private assignSettings(data: XzSetting) {
     const origin = Tools.deepCopy(data)
     for (const [key, value] of Object.entries(origin)) {
-      this.setSetting(key as keyof XzSetting, value, false)
+      this.setSetting(key as keyof XzSetting, value)
     }
-    // 触发设置改变事件
-    EVT.fire(EVT.list.settingChange)
   }
 
   private exportSettings() {
@@ -312,8 +308,7 @@ class Settings {
   // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传递 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
   public setSetting(
     key: keyof XzSetting,
-    value: string | number | boolean | string[] | number[] | object[],
-    fireEvt = true
+    value: string | number | boolean | string[] | number[] | object[]
   ) {
     if (!this.allSettingKeys.includes(key)) {
       return
@@ -394,10 +389,7 @@ class Settings {
     ;(this.settings[key] as any) = value
 
     // 触发设置变化的事件
-    // 在进行批量操作（如恢复设置、导入设置、重置设置）的时候，可以将 fireEvt 设为 false，等操作执行之后自行触发这个事件
-    if (fireEvt) {
-      EVT.fire(EVT.list.settingChange, { name: key, value: value })
-    }
+    EVT.fire(EVT.list.settingChange, { name: key, value: value })
   }
 }
 
