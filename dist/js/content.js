@@ -2669,12 +2669,39 @@
               total: total,
             })
           }
-          skip(data, msg = '') {
+          // 跳过某个文件的下载，可以传入警告消息
+          skip(data, msg) {
             this.cancel = true
-            _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(msg)
+            if (msg) {
+              _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(msg)
+            }
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.skipDownload,
               data
+            )
+          }
+          // 错误处理函数
+          // 当重试达到最大次数时会执行这个函数
+          downloadError(status, fileId) {
+            // 404 错误时
+            if (status === 404) {
+              // 跳过，不会再尝试下载它
+              _Log__WEBPACK_IMPORTED_MODULE_1__['log'].error(
+                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                  '_file404',
+                  fileId
+                )
+              )
+              return this.skip({
+                id: fileId,
+                reason: '404',
+              })
+            }
+            // 404 之外的错误，暂时跳过这个任务，但最后还是会尝试重新下载它
+            this.cancel = true
+            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadError,
+              fileId
             )
           }
           // 下载文件
@@ -2761,30 +2788,6 @@
                 return
               }
               let file = xhr.response // 要下载的文件
-              // 错误处理
-              const downloadError = () => {
-                let msg = ''
-                if (xhr.status === 404) {
-                  // 404 错误时
-                  msg = _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                    '_file404',
-                    arg.id
-                  )
-                } else {
-                  // 无法处理的错误状态
-                  msg = _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                    '_文件下载失败',
-                    arg.id
-                  )
-                }
-                // 超过重试次数的话，这个下载会被暂时跳过。但最后还是会尝试重新下载它，所以这里不输出错误信息。
-                // log.error(msg, 1)
-                this.cancel = true
-                _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                  _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadError,
-                  arg.id
-                )
-              }
               if (xhr.status !== 200) {
                 // 状态码错误
                 // 正常下载完毕的状态码是 200
@@ -2795,8 +2798,7 @@
                 this.retry++
                 if (this.retry >= this.retryMax) {
                   // 重试 retryMax 次依然错误
-                  // console.log(arg.data.id + ' retryMax')
-                  downloadError()
+                  this.downloadError(xhr.status, arg.id)
                 } else {
                   return this.download(arg)
                 }
@@ -2906,6 +2908,7 @@
               xhr = null
               file = null
             })
+            // 没有设置 timeout，因为默认值是 0，不会超时
             xhr.send()
           }
           // 向浏览器发送下载任务
@@ -22375,7 +22378,7 @@ flag 及其含义如下：
                 this.downloading = false
               })
             })
-            // 设置发生变化时重新创建列表
+            // 设置发生变化时
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
               (ev) => {

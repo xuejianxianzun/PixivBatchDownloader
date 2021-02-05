@@ -139,7 +139,7 @@ class ProgressBar {
   }
 
   // 让某个子进度条显示警告色
-  public showErrorColor(index: number, show: boolean) {
+  public errorColor(index: number, show: boolean) {
     const bar = this.allProgressBar[index]
     bar.name.classList[show ? 'add' : 'remove']('downloadError')
   }

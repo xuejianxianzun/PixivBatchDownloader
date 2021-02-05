@@ -50,10 +50,30 @@ class Download {
     })
   }
 
-  private skip(data: DonwloadSkipData, msg = '') {
+  // 跳过某个文件的下载，可以传入警告消息
+  private skip(data: DonwloadSkipData, msg?: string) {
     this.cancel = true
-    log.warning(msg)
+    if (msg) {
+      log.warning(msg)
+    }
     EVT.fire(EVT.list.skipDownload, data)
+  }
+
+  // 当重试达到最大次数时
+  private afterReTryMax(status: number, fileId: string) {
+    // 404 错误时
+    if (status === 404) {
+      // 跳过，不会再尝试下载它
+      log.error(lang.transl('_file404', fileId))
+      return this.skip({
+        id: fileId,
+        reason: '404',
+      })
+    }
+
+    // 404 之外的错误，暂时跳过这个任务，但最后还是会尝试重新下载它
+    this.cancel = true
+    EVT.fire(EVT.list.downloadError, fileId)
   }
 
   // 下载文件
@@ -132,42 +152,20 @@ class Download {
 
       let file: Blob = xhr.response // 要下载的文件
 
-      // 错误处理
-      const downloadError = () => {
-        let msg = ''
-
-        if (xhr.status === 404) {
-          // 404 错误时
-          msg = lang.transl('_file404', arg.id)
-        } else {
-          // 无法处理的错误状态
-          msg = lang.transl('_文件下载失败', arg.id)
-        }
-
-        // 超过重试次数的话，这个下载会被暂时跳过。但最后还是会尝试重新下载它，所以这里不输出错误信息。
-        // log.error(msg, 1)
-
-        this.cancel = true
-        EVT.fire(EVT.list.downloadError, arg.id)
-      }
-
       if (xhr.status !== 200) {
-        // 状态码错误
+        // 状态码错误，进入重试流程
         // 正常下载完毕的状态码是 200
-
-        // 进入重试环节
-        progressBar.showErrorColor(this.progressBarIndex, true)
+        progressBar.errorColor(this.progressBarIndex, true)
         this.retry++
         if (this.retry >= this.retryMax) {
           // 重试 retryMax 次依然错误
-          // console.log(arg.data.id + ' retryMax')
-          downloadError()
+          this.afterReTryMax(xhr.status, arg.id)
         } else {
           return this.download(arg)
         }
       } else {
         // 状态码正常
-        progressBar.showErrorColor(this.progressBarIndex, false)
+        progressBar.errorColor(this.progressBarIndex, false)
 
         // 需要转换动图的情况
         const convertExt = ['webm', 'gif', 'png']
@@ -249,6 +247,7 @@ class Download {
       xhr = null as any
       file = null as any
     })
+    // 没有设置 timeout，因为默认值是 0，不会超时
     xhr.send()
   }
 
