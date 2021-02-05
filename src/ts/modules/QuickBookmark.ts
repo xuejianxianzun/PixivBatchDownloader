@@ -38,7 +38,7 @@ class QuickBookmark {
   }
 
   // 插入快速收藏按钮
-  private initBtn() {
+  private async initBtn() {
     // 从父元素查找作品下方的工具栏
     const toolbarParent = document.querySelectorAll('main > section')
 
@@ -51,21 +51,36 @@ class QuickBookmark {
     }
 
     if (this.toolbar) {
-      // 获取心形收藏按钮外层的 div
+      // 获取心形收藏按钮的 div
       this.pixivBMKDiv = this.toolbar.childNodes[2] as HTMLDivElement
-      // 当没有心形收藏按钮时，中止这次执行（这可能是用户处于自己的作品页面，此时没有收藏按钮）
-      // 当收藏按钮是是上一个页面的，不是这个页面新创建的时，中止这次执行
-      if (!this.pixivBMKDiv || this.pixivBMKDiv.classList.contains(this.flag)) {
+      // 当没有心形收藏按钮时，中止这次执行（可能是尚未添加；或者是用户处于自己的作品页面）
+      if (!this.pixivBMKDiv) {
         return
       }
 
-      // 心形按钮的第一个子元素如果是 a 标签，则证明已经收藏过了
-      const firstChild = this.pixivBMKDiv.firstChild
-      if (firstChild && firstChild.nodeName === 'A') {
-        this.isBookmarked = true
-      } else {
-        this.isBookmarked = false
+      if (!this.isNovel) {
+        // 在插画漫画作品页面里，给心形收藏按钮添加标记，标记过的就不再处理
+        // 但是在小说页面里不会给心形收藏按钮添加标记，也不会修改它，因为小说页面里切换作品时，工具栏不会重新生成，也就是说小说页面里的心形收藏按钮用的都是一开始的那一个，如果下载器修改了它，就会导致异常
+        if (this.pixivBMKDiv.classList.contains(this.flag)) {
+          return
+        } else {
+          // 给心形收藏按钮添加标记，表示已经对其进行处理
+          this.pixivBMKDiv.classList.add(this.flag)
+        }
       }
+
+      window.clearInterval(this.timer)
+
+      // 删除可能存在的旧的快速收藏按钮
+      const oldBtn = this.toolbar.querySelector(
+        '#' + this.btnId
+      ) as HTMLAnchorElement
+      if (oldBtn) {
+        oldBtn.remove()
+      }
+
+      // 判断这个作品是否收藏过了
+      this.isBookmarked = !!(await this.getWorkData()).body.bookmarkData
 
       // 监听心形收藏按钮从未收藏到收藏的变化
       // 没有收藏时，心形按钮的第一个子元素是 button。收藏之后，button 被移除，然后添加一个 a 标签
@@ -86,31 +101,22 @@ class QuickBookmark {
         })
       }
 
-      // 给心形收藏按钮添加标记，表示已经对其进行处理
-      this.pixivBMKDiv.classList.add(this.flag)
-
-      // 如果没有快速收藏元素则添加
-      const testBtn = this.toolbar.querySelector(
-        '#' + this.btnId
-      ) as HTMLAnchorElement
-      if (!testBtn) {
-        this.btn = this.createBtn()
-        this.toolbar.insertBefore(this.btn, this.toolbar.childNodes[3])
-      }
+      // 添加快速收藏按钮
+      this.btn = this.createBtn()
+      this.toolbar.insertBefore(this.btn, this.toolbar.childNodes[3])
 
       if (this.isBookmarked) {
         this.bookmarked()
       } else {
         this.btn.addEventListener('click', () => {
-          this.readyBookmark()
+          this.addBookmark()
         })
       }
 
-      window.clearInterval(this.timer)
     }
   }
 
-  //　创建快速收藏的五角星按钮
+  //　创建快速收藏按钮
   private createBtn() {
     const btn = document.createElement('a')
     btn.id = this.btnId
@@ -120,7 +126,12 @@ class QuickBookmark {
     return btn
   }
 
-  private async readyBookmark() {
+  private async getWorkData() {
+    const id = this.isNovel ? API.getNovelId() : API.getIllustId()
+    return this.isNovel ? await API.getNovelData(id) : await API.getArtworkData(id)
+  }
+
+  private async addBookmark() {
     const type = this.isNovel ? 'novels' : 'illusts'
     const id = this.isNovel ? API.getNovelId() : API.getIllustId()
 
@@ -133,7 +144,7 @@ class QuickBookmark {
     // 如果设置了附带 tag，则获取 tag
     let tags: string[] = []
     if (settings.widthTag === 'yes') {
-      const data = this.isNovel ? await API.getNovelData(id) : await API.getArtworkData(id)
+      const data = await this.getWorkData()
       for (const tagData of data.body.tags.tags) {
         tags.push(tagData.tag)
       }
@@ -148,7 +159,9 @@ class QuickBookmark {
           this.isBookmarked = true
           this.bookmarked()
           // 让心形收藏按钮也变成收藏后的状态
-          this.changePixivBMKDiv()
+          if(!this.isNovel){
+            this.changePixivBMKDiv()
+          }
         }
       })
   }
@@ -156,6 +169,11 @@ class QuickBookmark {
   // 点赞这个作品
   private like(type: WorkType, id: string) {
     API.addLike(id, type, token.token)
+
+    // 不在小说页面里修改点赞按钮，否则切换到其他小说之后点赞按钮依然是蓝色的
+    if(this.isNovel){
+      return
+    }
 
     // 将点赞按钮的颜色改为蓝色
     let likeBtn = document.querySelector(

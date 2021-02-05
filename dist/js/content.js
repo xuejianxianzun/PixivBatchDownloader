@@ -8620,7 +8620,7 @@ class QuickBookmark {
         }, 300);
     }
     // 插入快速收藏按钮
-    initBtn() {
+    async initBtn() {
         // 从父元素查找作品下方的工具栏
         const toolbarParent = document.querySelectorAll('main > section');
         for (const el of toolbarParent) {
@@ -8631,21 +8631,31 @@ class QuickBookmark {
             }
         }
         if (this.toolbar) {
-            // 获取心形收藏按钮外层的 div
+            // 获取心形收藏按钮的 div
             this.pixivBMKDiv = this.toolbar.childNodes[2];
-            // 当没有心形收藏按钮时，中止这次执行（这可能是用户处于自己的作品页面，此时没有收藏按钮）
-            // 当收藏按钮是是上一个页面的，不是这个页面新创建的时，中止这次执行
-            if (!this.pixivBMKDiv || this.pixivBMKDiv.classList.contains(this.flag)) {
+            // 当没有心形收藏按钮时，中止这次执行（可能是尚未添加；或者是用户处于自己的作品页面）
+            if (!this.pixivBMKDiv) {
                 return;
             }
-            // 心形按钮的第一个子元素如果是 a 标签，则证明已经收藏过了
-            const firstChild = this.pixivBMKDiv.firstChild;
-            if (firstChild && firstChild.nodeName === 'A') {
-                this.isBookmarked = true;
+            if (!this.isNovel) {
+                // 在插画漫画作品页面里，给心形收藏按钮添加标记，标记过的就不再处理
+                // 但是在小说页面里不会给心形收藏按钮添加标记，也不会修改它，因为小说页面里切换作品时，工具栏不会重新生成，也就是说小说页面里的心形收藏按钮用的都是一开始的那一个，如果下载器修改了它，就会导致异常
+                if (this.pixivBMKDiv.classList.contains(this.flag)) {
+                    return;
+                }
+                else {
+                    // 给心形收藏按钮添加标记，表示已经对其进行处理
+                    this.pixivBMKDiv.classList.add(this.flag);
+                }
             }
-            else {
-                this.isBookmarked = false;
+            window.clearInterval(this.timer);
+            // 删除可能存在的旧的快速收藏按钮
+            const oldBtn = this.toolbar.querySelector('#' + this.btnId);
+            if (oldBtn) {
+                oldBtn.remove();
             }
+            // 判断这个作品是否收藏过了
+            this.isBookmarked = !!(await this.getWorkData()).body.bookmarkData;
             // 监听心形收藏按钮从未收藏到收藏的变化
             // 没有收藏时，心形按钮的第一个子元素是 button。收藏之后，button 被移除，然后添加一个 a 标签
             if (!this.isBookmarked) {
@@ -8664,26 +8674,20 @@ class QuickBookmark {
                     childList: true,
                 });
             }
-            // 给心形收藏按钮添加标记，表示已经对其进行处理
-            this.pixivBMKDiv.classList.add(this.flag);
-            // 如果没有快速收藏元素则添加
-            const testBtn = this.toolbar.querySelector('#' + this.btnId);
-            if (!testBtn) {
-                this.btn = this.createBtn();
-                this.toolbar.insertBefore(this.btn, this.toolbar.childNodes[3]);
-            }
+            // 添加快速收藏按钮
+            this.btn = this.createBtn();
+            this.toolbar.insertBefore(this.btn, this.toolbar.childNodes[3]);
             if (this.isBookmarked) {
                 this.bookmarked();
             }
             else {
                 this.btn.addEventListener('click', () => {
-                    this.readyBookmark();
+                    this.addBookmark();
                 });
             }
-            window.clearInterval(this.timer);
         }
     }
-    //　创建快速收藏的五角星按钮
+    //　创建快速收藏按钮
     createBtn() {
         const btn = document.createElement('a');
         btn.id = this.btnId;
@@ -8692,7 +8696,11 @@ class QuickBookmark {
         btn.title = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_快速收藏');
         return btn;
     }
-    async readyBookmark() {
+    async getWorkData() {
+        const id = this.isNovel ? _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelId() : _API__WEBPACK_IMPORTED_MODULE_0__["API"].getIllustId();
+        return this.isNovel ? await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelData(id) : await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id);
+    }
+    async addBookmark() {
         const type = this.isNovel ? 'novels' : 'illusts';
         const id = this.isNovel ? _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelId() : _API__WEBPACK_IMPORTED_MODULE_0__["API"].getIllustId();
         this.like(type, id);
@@ -8702,7 +8710,7 @@ class QuickBookmark {
         // 如果设置了附带 tag，则获取 tag
         let tags = [];
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].widthTag === 'yes') {
-            const data = this.isNovel ? await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelData(id) : await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id);
+            const data = await this.getWorkData();
             for (const tagData of data.body.tags.tags) {
                 tags.push(tagData.tag);
             }
@@ -8716,13 +8724,19 @@ class QuickBookmark {
                 this.isBookmarked = true;
                 this.bookmarked();
                 // 让心形收藏按钮也变成收藏后的状态
-                this.changePixivBMKDiv();
+                if (!this.isNovel) {
+                    this.changePixivBMKDiv();
+                }
             }
         });
     }
     // 点赞这个作品
     like(type, id) {
         _API__WEBPACK_IMPORTED_MODULE_0__["API"].addLike(id, type, _Token__WEBPACK_IMPORTED_MODULE_3__["token"].token);
+        // 不在小说页面里修改点赞按钮，否则切换到其他
+        if (this.isNovel) {
+            return;
+        }
         // 将点赞按钮的颜色改为蓝色
         let likeBtn = document.querySelector(`.${this.likeBtnClass}`);
         if (!likeBtn) {
