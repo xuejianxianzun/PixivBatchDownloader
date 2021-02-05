@@ -101,7 +101,9 @@ class QuickBookmark {
       if (this.isBookmarked) {
         this.bookmarked()
       } else {
-        this.readyBookmark()
+        this.btn.addEventListener('click', () => {
+          this.readyBookmark()
+        })
       }
 
       window.clearInterval(this.timer)
@@ -118,32 +120,26 @@ class QuickBookmark {
     return btn
   }
 
-  // 给快速收藏按钮添加点击事件
-  private readyBookmark() {
-    this.btn.addEventListener('click', () => {
-      const type = this.isNovel ? 'novels' : 'illusts'
-      const id = this.isNovel ? API.getNovelId() : API.getIllustId()
+  private async readyBookmark() {
+    const type = this.isNovel ? 'novels' : 'illusts'
+    const id = this.isNovel ? API.getNovelId() : API.getIllustId()
 
-      this.like(type, id)
+    this.like(type, id)
 
-      if (!this.isBookmarked) {
-        this.bookmark(type, id)
-      }
-    })
-  }
+    if (this.isBookmarked) {
+      return
+    }
 
-  // 收藏这个作品
-  private async bookmark(type: WorkType, id: string) {
-    let tags: string[] = []
     // 如果设置了附带 tag，则获取 tag
+    let tags: string[] = []
     if (settings.widthTag === 'yes') {
-      const data = await API.getArtworkData(id)
+      const data = this.isNovel ? await API.getNovelData(id) : await API.getArtworkData(id)
       for (const tagData of data.body.tags.tags) {
         tags.push(tagData.tag)
       }
     }
 
-    // 调用添加收藏的 api
+    // 添加收藏
     API.addBookmark(type, id, tags, settings.restrict === 'yes', token.token)
       .then((response) => response.json())
       .then((data) => {
