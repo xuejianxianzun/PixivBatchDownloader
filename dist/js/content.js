@@ -8733,7 +8733,7 @@ class QuickBookmark {
     // 点赞这个作品
     like(type, id) {
         _API__WEBPACK_IMPORTED_MODULE_0__["API"].addLike(id, type, _Token__WEBPACK_IMPORTED_MODULE_3__["token"].token);
-        // 不在小说页面里修改点赞按钮，否则切换到其他
+        // 不在小说页面里修改点赞按钮，否则切换到其他小说之后点赞按钮依然是蓝色的
         if (this.isNovel) {
             return;
         }
@@ -16029,6 +16029,7 @@ const formHtml = `<form class="settingForm">
     <p class="option" data-no="13">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置文件夹名的提示') + '<br>' + '{user}/{id}'}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名规则')}<span class="gray1"> ? </span></span>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
+      &nbsp;
       <select name="fileNameSelect">
         <option value="default">…</option>
         <option value="{id}">{id}</option>

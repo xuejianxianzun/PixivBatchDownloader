@@ -1,5 +1,4 @@
-@contentOffsetWidth: 680px;
-@contentWidth: 630px;
+@contentOffsetWidth: 700px;
 
 .centerWrap {
   box-sizing: border-box;
@@ -296,9 +295,8 @@
 
   .centerWrap_head {
     padding-top: 20px;
-    position: fixed;
+    position: sticky;
     z-index: 1000;
-    width: @contentWidth;
     background: #fff;
 
     img {
@@ -344,10 +342,6 @@
         }
       }
     }
-  }
-
-  .centerWrap_con {
-    margin-top: 45px;
   }
 
   .centerWrap_top_btn:hover,
@@ -424,7 +418,7 @@
   }
 
   .fileNameRule {
-    min-width: 300px;
+    min-width: 310px;
   }
 
   .textButton {
@@ -459,7 +453,7 @@
       background-color: @themeBlue;
       box-sizing: border-box;
       border: none;
-      width: 140px;
+      width: 150px;
       margin-right: 10px;
       padding: 8px 10px;
       display: flex;

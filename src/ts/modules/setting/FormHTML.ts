@@ -244,6 +244,7 @@ const formHtml = `<form class="settingForm">
         lang.transl('_设置文件夹名的提示') + '<br>' + '{user}/{id}'
       }">${lang.transl('_命名规则')}<span class="gray1"> ? </span></span>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
+      &nbsp;
       <select name="fileNameSelect">
         <option value="default">…</option>
         <option value="{id}">{id}</option>
