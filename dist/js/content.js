@@ -96,29 +96,30 @@
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modules/Lang */ "./src/ts/modules/Lang.ts");
-/* harmony import */ var _modules_setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/setting/Settings */ "./src/ts/modules/setting/Settings.ts");
-/* harmony import */ var _modules_PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/PageType */ "./src/ts/modules/PageType.ts");
-/* harmony import */ var _modules_QuickDownload__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/QuickDownload */ "./src/ts/modules/QuickDownload.ts");
-/* harmony import */ var _modules_DownloadButton__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/DownloadButton */ "./src/ts/modules/DownloadButton.ts");
-/* harmony import */ var _modules_CenterPanel__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/CenterPanel */ "./src/ts/modules/CenterPanel.ts");
-/* harmony import */ var _modules_setting_FormSettings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/setting/FormSettings */ "./src/ts/modules/setting/FormSettings.ts");
-/* harmony import */ var _modules_InitPage__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modules/InitPage */ "./src/ts/modules/InitPage.ts");
-/* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./modules/DownloadControl */ "./src/ts/modules/DownloadControl.ts");
-/* harmony import */ var _modules_ListenPageSwitch__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./modules/ListenPageSwitch */ "./src/ts/modules/ListenPageSwitch.ts");
-/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./modules/Tip */ "./src/ts/modules/Tip.ts");
-/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(_modules_Tip__WEBPACK_IMPORTED_MODULE_10__);
-/* harmony import */ var _modules_TitleBar__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./modules/TitleBar */ "./src/ts/modules/TitleBar.ts");
-/* harmony import */ var _modules_ViewBigImage__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./modules/ViewBigImage */ "./src/ts/modules/ViewBigImage.ts");
-/* harmony import */ var _modules_output_OutputPanel__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./modules/output/OutputPanel */ "./src/ts/modules/output/OutputPanel.ts");
-/* harmony import */ var _modules_output_PreviewFileName__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./modules/output/PreviewFileName */ "./src/ts/modules/output/PreviewFileName.ts");
-/* harmony import */ var _modules_output_ShowURLs__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./modules/output/ShowURLs */ "./src/ts/modules/output/ShowURLs.ts");
-/* harmony import */ var _modules_CheckNew__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./modules/CheckNew */ "./src/ts/modules/CheckNew.ts");
-/* harmony import */ var _modules_ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./modules/ShowWhatIsNew */ "./src/ts/modules/ShowWhatIsNew.ts");
-/* harmony import */ var _modules_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./modules/ExportResult2CSV */ "./src/ts/modules/ExportResult2CSV.ts");
-/* harmony import */ var _modules_ExportResult__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./modules/ExportResult */ "./src/ts/modules/ExportResult.ts");
-/* harmony import */ var _modules_ImportResult__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./modules/ImportResult */ "./src/ts/modules/ImportResult.ts");
-/* harmony import */ var _modules_ExportLST__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./modules/ExportLST */ "./src/ts/modules/ExportLST.ts");
-/* harmony import */ var _modules_ShowHowToUse__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./modules/ShowHowToUse */ "./src/ts/modules/ShowHowToUse.ts");
+/* harmony import */ var _modules_Theme__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./modules/Theme */ "./src/ts/modules/Theme.ts");
+/* harmony import */ var _modules_setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./modules/setting/Settings */ "./src/ts/modules/setting/Settings.ts");
+/* harmony import */ var _modules_PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./modules/PageType */ "./src/ts/modules/PageType.ts");
+/* harmony import */ var _modules_QuickDownload__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./modules/QuickDownload */ "./src/ts/modules/QuickDownload.ts");
+/* harmony import */ var _modules_DownloadButton__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/DownloadButton */ "./src/ts/modules/DownloadButton.ts");
+/* harmony import */ var _modules_CenterPanel__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/CenterPanel */ "./src/ts/modules/CenterPanel.ts");
+/* harmony import */ var _modules_setting_FormSettings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modules/setting/FormSettings */ "./src/ts/modules/setting/FormSettings.ts");
+/* harmony import */ var _modules_InitPage__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./modules/InitPage */ "./src/ts/modules/InitPage.ts");
+/* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./modules/DownloadControl */ "./src/ts/modules/DownloadControl.ts");
+/* harmony import */ var _modules_ListenPageSwitch__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./modules/ListenPageSwitch */ "./src/ts/modules/ListenPageSwitch.ts");
+/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./modules/Tip */ "./src/ts/modules/Tip.ts");
+/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_modules_Tip__WEBPACK_IMPORTED_MODULE_11__);
+/* harmony import */ var _modules_TitleBar__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./modules/TitleBar */ "./src/ts/modules/TitleBar.ts");
+/* harmony import */ var _modules_ViewBigImage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./modules/ViewBigImage */ "./src/ts/modules/ViewBigImage.ts");
+/* harmony import */ var _modules_output_OutputPanel__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./modules/output/OutputPanel */ "./src/ts/modules/output/OutputPanel.ts");
+/* harmony import */ var _modules_output_PreviewFileName__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./modules/output/PreviewFileName */ "./src/ts/modules/output/PreviewFileName.ts");
+/* harmony import */ var _modules_output_ShowURLs__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./modules/output/ShowURLs */ "./src/ts/modules/output/ShowURLs.ts");
+/* harmony import */ var _modules_CheckNew__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./modules/CheckNew */ "./src/ts/modules/CheckNew.ts");
+/* harmony import */ var _modules_ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./modules/ShowWhatIsNew */ "./src/ts/modules/ShowWhatIsNew.ts");
+/* harmony import */ var _modules_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./modules/ExportResult2CSV */ "./src/ts/modules/ExportResult2CSV.ts");
+/* harmony import */ var _modules_ExportResult__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./modules/ExportResult */ "./src/ts/modules/ExportResult.ts");
+/* harmony import */ var _modules_ImportResult__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./modules/ImportResult */ "./src/ts/modules/ImportResult.ts");
+/* harmony import */ var _modules_ExportLST__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./modules/ExportLST */ "./src/ts/modules/ExportLST.ts");
+/* harmony import */ var _modules_ShowHowToUse__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./modules/ShowHowToUse */ "./src/ts/modules/ShowHowToUse.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -136,6 +137,7 @@ __webpack_require__.r(__webpack_exports__);
     // 把脚本版的标记设置为 0，这样脚本版就不会运行
     window.sessionStorage.setItem('xz_pixiv_userscript', '0');
 }
+
 
 
 
@@ -921,7 +923,7 @@ class CenterPanel {
         document.body.insertAdjacentHTML('beforeend', centerPanelHTML);
         this.centerPanel = document.querySelector('.centerWrap');
         this.updateLink = this.centerPanel.querySelector('.update');
-        const donateId = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].flag === 'zh-cn' ? 'zanzhu' : 'patreon';
+        const donateId = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].type === 'zh-cn' ? 'zanzhu' : 'patreon';
         document.getElementById(donateId).style.display = 'inline-block';
     }
     bindEvents() {
@@ -6243,53 +6245,38 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _LangText__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./LangText */ "./src/ts/modules/LangText.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/modules/MsgBox.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Config */ "./src/ts/modules/Config.ts");
-
 
 
 
 // 语言类
 class Lang {
     constructor() {
-        this.flag = 'zh-cn';
+        this.type = undefined;
         this.flagIndex = {
             'zh-cn': 0,
             'zh-tw': 1,
             en: 2,
             ja: 3,
         };
-        this.flag = this.getFlag();
         this.bindEvents();
     }
     bindEvents() {
-        // 选项变化时重新设置语言
+        // 因为 Settings 初始化时会触发设置变化事件，所以监听事件即可获取语言设置
+        // 本模块必须在 Settings 之前加载，否则监听不到 Settings 初始化的事件
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name !== 'userSetLang') {
                 return;
             }
-            const old = this.flag;
-            this.flag = this.getFlag(data.value);
-            if (this.flag !== old) {
+            console.log('xxxxxxxx');
+            const old = this.type;
+            this.type = this.getType(data.value);
+            if (old !== undefined && this.type !== old) {
                 _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].show(this.transl('_变更语言后刷新页面的提示'));
             }
         });
     }
-    getFlag(value) {
-        let flag = 'auto';
-        // 如果没有传递值，就从本地存储读取
-        if (!value) {
-            const savedSettings = localStorage.getItem(_Config__WEBPACK_IMPORTED_MODULE_3__["default"].settingStoreName);
-            if (savedSettings) {
-                const setting = JSON.parse(savedSettings);
-                if (setting.userSetLang) {
-                    flag = setting.userSetLang;
-                }
-            }
-        }
-        else {
-            flag = value;
-        }
+    getType(flag) {
         return flag === 'auto' ? this.getLangType() : flag;
     }
     // 获取页面使用的语言，返回对应的 flag
@@ -6312,7 +6299,7 @@ class Lang {
     }
     // translate 翻译
     transl(name, ...arg) {
-        let content = _LangText__WEBPACK_IMPORTED_MODULE_0__["langText"][name][this.flagIndex[this.flag]];
+        let content = _LangText__WEBPACK_IMPORTED_MODULE_0__["langText"][name][this.flagIndex[this.type]];
         arg.forEach((val) => (content = content.replace('{}', val)));
         return content;
     }

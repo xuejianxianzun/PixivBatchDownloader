@@ -18,6 +18,7 @@
 }
 
 import './modules/Lang'
+import './modules/Theme'
 import './modules/setting/Settings'
 import './modules/PageType'
 import './modules/QuickDownload'

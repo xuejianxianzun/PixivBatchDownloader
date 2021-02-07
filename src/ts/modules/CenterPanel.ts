@@ -90,7 +90,7 @@ class CenterPanel {
       '.update'
     )! as HTMLAnchorElement
 
-    const donateId = lang.flag === 'zh-cn' ? 'zanzhu' : 'patreon'
+    const donateId = lang.type === 'zh-cn' ? 'zanzhu' : 'patreon'
     document.getElementById(donateId)!.style.display = 'inline-block'
   }
 

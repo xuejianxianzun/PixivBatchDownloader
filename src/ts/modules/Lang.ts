@@ -2,50 +2,35 @@ import { langText } from './LangText'
 import { langTextKeys } from './LangText'
 import { EVT } from './EVT'
 import { msgBox } from './MsgBox'
-import Config from './Config'
 
 type LangTypes = 'zh-cn' | 'zh-tw' | 'ja' | 'en'
 
 // 语言类
 class Lang {
   constructor() {
-    this.flag = this.getFlag()
     this.bindEvents()
   }
 
-  public flag: LangTypes = 'zh-cn'
+  public type: LangTypes | undefined = undefined
 
   private bindEvents() {
-    // 选项变化时重新设置语言
+    // 因为 Settings 初始化时会触发设置变化事件，所以监听事件即可获取语言设置
+    // 本模块必须在 Settings 之前加载，否则监听不到 Settings 初始化的事件
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data as any
       if (data.name !== 'userSetLang') {
         return
       }
-      const old = this.flag
-      this.flag = this.getFlag(data.value)
-      if (this.flag !== old) {
+      console.log('xxxxxxxx')
+      const old = this.type
+      this.type = this.getType(data.value)
+      if (old !== undefined && this.type !== old) {
         msgBox.show(this.transl('_变更语言后刷新页面的提示'))
       }
     })
   }
 
-  private getFlag(value?: string) {
-    let flag = 'auto'
-
-    // 如果没有传递值，就从本地存储读取
-    if (!value) {
-      const savedSettings = localStorage.getItem(Config.settingStoreName)
-      if (savedSettings) {
-        const setting = JSON.parse(savedSettings)
-        if (setting.userSetLang) {
-          flag = setting.userSetLang
-        }
-      }
-    } else {
-      flag = value
-    }
-
+  private getType(flag: string) {
     return flag === 'auto' ? this.getLangType() : (flag as LangTypes)
   }
 
@@ -80,7 +65,7 @@ class Lang {
 
   // translate 翻译
   public transl(name: langTextKeys, ...arg: string[]) {
-    let content = langText[name][this.flagIndex[this.flag]]
+    let content = langText[name][this.flagIndex[this.type!]]
     arg.forEach((val) => (content = content.replace('{}', val)))
     return content
   }
