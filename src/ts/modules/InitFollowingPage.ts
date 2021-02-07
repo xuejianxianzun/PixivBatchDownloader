@@ -107,7 +107,7 @@ class InitFollowingPage extends InitPageBase {
     this.rest = location.href.includes('rest=hide') ? 'hide' : 'show'
 
     // 获取抓取开始时的页码
-    const nowPage = API.getURLSearchField(location.href, 'p')
+    const nowPage = Tools.getURLSearchField(location.href, 'p')
     // 计算开始抓取时的偏移量
     if (nowPage !== '') {
       this.baseOffset = (parseInt(nowPage) - 1) * this.onceNumber

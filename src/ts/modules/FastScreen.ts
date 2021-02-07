@@ -1,7 +1,7 @@
-import { API } from './API'
 import { EVT } from './EVT'
 import { DOM } from './DOM'
 import { theme } from './Theme'
+import { Tools } from './Tools'
 
 // 在搜索页面按收藏数快速筛选
 class FastScreen {
@@ -50,16 +50,16 @@ class FastScreen {
     })
 
     theme.register(fastScreenArea)
-    ;(target as HTMLDivElement).insertAdjacentElement(
-      'afterend',
-      fastScreenArea
-    )
+      ; (target as HTMLDivElement).insertAdjacentElement(
+        'afterend',
+        fastScreenArea
+      )
   }
 
   // 打开快速筛选链接
   private openFastScreenLink(secondTag: string) {
     // 拼接两个 tag。因为搜索页面可以无刷新切换搜索的 tag，所以从这里动态获取
-    const nowTag = API.getTagFromURL()
+    const nowTag = Tools.getTagFromURL()
     const firstTag = nowTag.split(' ')[0]
     const fullTag = encodeURIComponent(firstTag + ' ' + secondTag)
     // 用新的 tag 替换掉当前网址里的 tag

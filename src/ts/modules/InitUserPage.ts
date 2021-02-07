@@ -85,7 +85,7 @@ class InitUserPage extends InitPageBase {
       // 获取该用户的所有作品的 id 列表
       // 模拟了抓取流程，以获取相同的 id 列表
       EVT.fire(EVT.list.bookmarkModeStart)
-      store.tag = API.getTagFromURL()
+      store.tag = Tools.getTagFromURL()
       this.crawlNumber = 1 // 设置为只抓取 1 页
       this.readyGetIdList()
     })
@@ -164,7 +164,7 @@ class InitUserPage extends InitPageBase {
   }
 
   private getOffset() {
-    const nowPage = API.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
+    const nowPage = Tools.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
     let offset: number = 0
     if (nowPage) {
       offset = (parseInt(nowPage) - 1) * this.onceNumber

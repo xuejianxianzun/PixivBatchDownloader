@@ -6,8 +6,8 @@ import { DOM } from '../DOM'
 import { options } from '../setting/Options'
 import { FilterOption } from '../filter/Filter.d'
 import { filter } from '../filter/Filter'
-import { API } from '../API'
 import { store } from '../Store'
+import { Tools } from '../Tools'
 
 class InitAreaRankingPage extends InitPageBase {
   constructor() {
@@ -15,7 +15,7 @@ class InitAreaRankingPage extends InitPageBase {
     this.init()
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取本页作品'), [
@@ -52,7 +52,7 @@ class InitAreaRankingPage extends InitPageBase {
       }
 
       if (await filter.check(filterOpt)) {
-        const id = API.getIllustId(el.querySelector('a')!.href)
+        const id = Tools.getIllustId(el.querySelector('a')!.href)
         store.idList.push({
           type: 'unknown',
           id,

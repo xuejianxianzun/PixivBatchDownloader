@@ -134,13 +134,13 @@ class InitSearchNovelPage extends InitPageBase {
 
   // 组织要请求的 url 中的参数
   private initFetchURL() {
-    let p = API.getURLSearchField(location.href, 'p')
+    let p = Tools.getURLSearchField(location.href, 'p')
     this.startpageNo = parseInt(p) || 1
 
     // 从页面 url 中获取可以使用的选项
     this.option = {}
     this.allOption.forEach((param) => {
-      let value = API.getURLSearchField(location.href, param)
+      let value = Tools.getURLSearchField(location.href, param)
       if (value !== '') {
         this.option[param] = value
       }

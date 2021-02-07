@@ -155,7 +155,7 @@ class InitArtworkPage extends InitPageBase {
     let idList = await API.getUserWorksByType(DOM.getUserId(), type)
 
     // 储存符合条件的 id
-    let nowId = parseInt(API.getIllustId(window.location.href))
+    let nowId = parseInt(Tools.getIllustId(window.location.href))
     idList.forEach((id) => {
       let idNum = parseInt(id.id)
       // 新作品
@@ -185,7 +185,7 @@ class InitArtworkPage extends InitPageBase {
 
   // 下载相关作品时使用
   private async getRelatedList() {
-    let data = await API.getRelatedData(API.getIllustId())
+    let data = await API.getRelatedData(Tools.getIllustId())
     // 相关作品的列表由两部分构成，所以要组合起来
     let ids: string[] = []
     for (const illust of data.body.illusts) {

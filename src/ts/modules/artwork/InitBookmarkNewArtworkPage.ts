@@ -9,6 +9,7 @@ import { filter } from '../filter/Filter'
 import { API } from '../API'
 import { store } from '../Store'
 import { log } from '../Log'
+import { Tools } from '../Tools'
 
 class InitBookmarkNewArtworkPage extends InitPageBase {
   constructor() {
@@ -26,7 +27,7 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
     })
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected setFormOption() {
     // 个数/页数选项的提示
@@ -46,7 +47,7 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
   protected nextStep() {
     this.r18 = location.pathname.includes('r18')
 
-    const p = API.getURLSearchField(location.href, 'p')
+    const p = Tools.getURLSearchField(location.href, 'p')
     this.startpageNo = parseInt(p) || 1
 
     this.getIdList()

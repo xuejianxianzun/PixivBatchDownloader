@@ -4,6 +4,7 @@ import { DOM } from './DOM'
 import { lang } from './Lang'
 import { token } from './Token'
 import { settings } from './setting/Settings'
+import { Tools } from './Tools'
 
 type WorkType = 'illusts' | 'novels'
 
@@ -126,7 +127,7 @@ class QuickBookmark {
   }
 
   private async getWorkData() {
-    const id = this.isNovel ? API.getNovelId() : API.getIllustId()
+    const id = this.isNovel ? Tools.getNovelId() : Tools.getIllustId()
     return this.isNovel
       ? await API.getNovelData(id)
       : await API.getArtworkData(id)
@@ -134,7 +135,7 @@ class QuickBookmark {
 
   private async addBookmark() {
     const type = this.isNovel ? 'novels' : 'illusts'
-    const id = this.isNovel ? API.getNovelId() : API.getIllustId()
+    const id = this.isNovel ? Tools.getNovelId() : Tools.getIllustId()
 
     this.like(type, id)
 
@@ -192,9 +193,9 @@ class QuickBookmark {
 
   private getEditBookmarkLink() {
     if (this.isNovel) {
-      return `/novel/bookmark_add.php?id=${API.getNovelId()}`
+      return `/novel/bookmark_add.php?id=${Tools.getNovelId()}`
     } else {
-      return `/bookmark_add.php?type=illust&illust_id=${API.getIllustId()}`
+      return `/bookmark_add.php?type=illust&illust_id=${Tools.getIllustId()}`
     }
   }
 

@@ -11,6 +11,7 @@ import { API } from '../API'
 import { store } from '../Store'
 import { log } from '../Log'
 import { DOM } from '../DOM'
+import { Tools } from '../Tools'
 
 class InitNewArtworkPage extends InitPageBase {
   constructor() {
@@ -32,7 +33,7 @@ class InitNewArtworkPage extends InitPageBase {
     })
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected setFormOption() {
     // 个数/页数选项的提示
@@ -72,7 +73,7 @@ class InitNewArtworkPage extends InitPageBase {
     }
 
     // 当前页面的作品类型，默认是 illust
-    this.option.type = API.getURLSearchField(location.href, 'type') || 'illust'
+    this.option.type = Tools.getURLSearchField(location.href, 'type') || 'illust'
     // 是否是 R18 模式
     this.option.r18 = (location.href.includes('_r18.php') || false).toString()
   }

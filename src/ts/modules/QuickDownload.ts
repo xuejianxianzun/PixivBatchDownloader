@@ -1,10 +1,10 @@
-import { API } from './API'
 import { EVT } from './EVT'
 import { lang } from './Lang'
 import { pageType } from './PageType'
 import { states } from './States'
 import { IDData } from './Store.d'
 import { toast } from './Toast'
+import { Tools } from './Tools'
 
 // 快速下载
 class QuickDownload {
@@ -72,7 +72,7 @@ class QuickDownload {
     const idList: IDData[] = [
       {
         type: isNovel ? 'novels' : 'unknown',
-        id: API.getIllustId(window.location.href),
+        id: Tools.getIllustId(window.location.href),
       },
     ]
 

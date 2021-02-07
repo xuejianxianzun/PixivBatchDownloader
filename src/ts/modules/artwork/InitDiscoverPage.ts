@@ -5,8 +5,8 @@ import { lang } from '../Lang'
 import { DOM } from '../DOM'
 import { options } from '../setting/Options'
 import { DeleteWorks } from '../DeleteWorks'
-import { API } from '../API'
 import { store } from '../Store'
+import { Tools } from '../Tools'
 
 class InitDiscoverPage extends InitPageBase {
   constructor() {
@@ -22,7 +22,7 @@ class InitDiscoverPage extends InitPageBase {
     })
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected setFormOption() {
     options.hideOption([1])
@@ -38,7 +38,7 @@ class InitDiscoverPage extends InitPageBase {
     deleteWorks.addManuallyDeleteBtn()
   }
 
-  protected getWantPage() {}
+  protected getWantPage() { }
 
   protected getIdList() {
     // 在发现页面，仅下载已有部分，所以不需要去获取列表页
@@ -48,7 +48,7 @@ class InitDiscoverPage extends InitPageBase {
     // 获取已有作品的 id
     Array.from(nowIllust).forEach((el) => {
       // discovery 列表的 url 是有额外后缀的，需要去掉
-      const id = API.getIllustId(el.href.split('&uarea')[0])
+      const id = Tools.getIllustId(el.href.split('&uarea')[0])
       store.idList.push({
         type: 'unknown',
         id,

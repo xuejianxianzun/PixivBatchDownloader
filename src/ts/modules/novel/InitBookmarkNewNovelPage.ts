@@ -1,7 +1,6 @@
 // 初始化收藏的新作小说页面
 import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../Colors'
-import { API } from '../API'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
 import { options } from '../setting/Options'
@@ -9,6 +8,7 @@ import { FilterOption } from '../filter/Filter.d'
 import { filter } from '../filter/Filter'
 import { store } from '../Store'
 import { log } from '../Log'
+import { Tools } from '../Tools'
 
 class InitBookmarkNewNovelPage extends InitPageBase {
   constructor() {
@@ -26,7 +26,7 @@ class InitBookmarkNewNovelPage extends InitPageBase {
     })
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected setFormOption() {
     // 个数/页数选项的提示
@@ -45,7 +45,7 @@ class InitBookmarkNewNovelPage extends InitPageBase {
 
   private getPageUrl() {
     // 设置起始页面
-    const p = API.getURLSearchField(location.href, 'p')
+    const p = Tools.getURLSearchField(location.href, 'p')
     this.startpageNo = parseInt(p) || 1
 
     const url = new URL(window.location.href)

@@ -16,7 +16,7 @@ class DOM {
     }
     if (Reflect.has(el, 'length')) {
       // 如果有 length 属性则循环删除。
-      ;(el as NodeListOf<Element>).forEach((el) => {
+      ; (el as NodeListOf<Element>).forEach((el) => {
         if (el.parentNode) {
           el.parentNode.removeChild(el)
         }
@@ -31,8 +31,9 @@ class DOM {
   }
 
   // 切换 DOM 元素的可见性
-  static toggleEl(el: HTMLElement) {
-    el.style.display = el.style.display === 'block' ? 'none' : 'block'
+  // 第二个参数设置显示时的 display，默认是 block，如果要设置为其他类型，则需要指定第二个参数
+  static toggleEl(el: HTMLElement, showDisplay: string='block') {
+    el.style.display = el.style.display === showDisplay ? 'none' : showDisplay
   }
 
   // 将元素插入到页面顶部
@@ -44,7 +45,7 @@ class DOM {
     if (document.body) {
       document.body.insertAdjacentElement('afterbegin', el)
     } else {
-      ;(
+      ; (
         document.querySelector('.newindex-inner')! ||
         document.querySelector('.layout-body')!
       ).insertAdjacentElement('beforebegin', el)

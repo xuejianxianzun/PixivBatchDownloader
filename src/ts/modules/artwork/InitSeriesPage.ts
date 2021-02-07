@@ -9,6 +9,7 @@ import { FilterOption } from '../filter/Filter.d'
 import { filter } from '../filter/Filter'
 import { store } from '../Store'
 import { log } from '../Log'
+import { Tools } from '../Tools'
 
 class InitSeriesPage extends InitPageBase {
   constructor() {
@@ -26,7 +27,7 @@ class InitSeriesPage extends InitPageBase {
     })
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected setFormOption() {
     // 个数/页数选项的提示
@@ -45,7 +46,7 @@ class InitSeriesPage extends InitPageBase {
 
   protected nextStep() {
     // 设置起始页码
-    const p = API.getURLSearchField(location.href, 'p')
+    const p = Tools.getURLSearchField(location.href, 'p')
     this.startpageNo = parseInt(p) || 1
 
     // 获取系列 id

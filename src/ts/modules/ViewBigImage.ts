@@ -1,8 +1,8 @@
-import { API } from './API'
 import { pageType } from './PageType'
 import { EVT } from './EVT'
 import { ImgViewer } from './ImgViewer'
 import { settings } from './setting/Settings'
+import { Tools } from './Tools'
 
 // 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器，查看大图
 class ViewBigImage {
@@ -166,7 +166,7 @@ class ViewBigImage {
     }
 
     const href = (a as HTMLAnchorElement).href
-    return API.getIllustId(href)
+    return Tools.getIllustId(href)
   }
 
   // 显示放大按钮

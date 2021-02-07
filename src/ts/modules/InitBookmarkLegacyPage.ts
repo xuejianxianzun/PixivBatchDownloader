@@ -13,6 +13,7 @@ import { log } from './Log'
 import { DOM } from './DOM'
 import { filter } from './filter/Filter'
 import { FilterOption } from './filter/Filter.d'
+import { Tools } from './Tools'
 
 class InitBookmarkLegacyPage extends InitPageBase {
   constructor() {
@@ -112,7 +113,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
     const onceNumber = 20
 
     // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
-    const nowPage = API.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
+    const nowPage = Tools.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
     if (nowPage) {
       this.offset = (parseInt(nowPage) - 1) * onceNumber
     }
@@ -130,7 +131,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
 
     // 判断是公开收藏还是非公开收藏
     // 在新旧版 url 里，rest 都是在查询字符串里的
-    this.isHide = API.getURLSearchField(location.href, 'rest') === 'hide'
+    this.isHide = Tools.getURLSearchField(location.href, 'rest') === 'hide'
 
     log.log(lang.transl('_正在抓取'))
 
@@ -223,7 +224,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
 
     const idType = this.type === 'illusts' ? 'unknown' : 'novels'
 
-    const getId = this.type === 'illusts' ? API.getIllustId : API.getNovelId
+    const getId = this.type === 'illusts' ? Tools.getIllustId : Tools.getNovelId
 
     // 获取下方已经加载出来的作品
     const elements = document.querySelectorAll(

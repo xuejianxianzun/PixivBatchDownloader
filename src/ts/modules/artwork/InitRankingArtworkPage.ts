@@ -13,6 +13,7 @@ import { filter } from '../filter/Filter'
 import { store } from '../Store'
 import { log } from '../Log'
 import { states } from '../States'
+import { Tools } from '../Tools'
 
 class InitRankingArtworkPage extends InitPageBase {
   constructor() {
@@ -33,7 +34,7 @@ class InitRankingArtworkPage extends InitPageBase {
 
     // 判断当前页面是否有“首次登场”标记
     const debutModes = ['daily', 'daily_r18', 'rookie', '']
-    const mode = API.getURLSearchField(location.href, 'mode')
+    const mode = Tools.getURLSearchField(location.href, 'mode')
 
     if (debutModes.includes(mode)) {
       DOM.addBtn(
@@ -102,9 +103,9 @@ class InitRankingArtworkPage extends InitPageBase {
     // 设置 option 信息
     // mode 一定要有值，其他字段不需要一定有值
     this.option = this.resetOption()
-    this.option.mode = API.getURLSearchField(location.href, 'mode') || 'daily'
-    this.option.worksType = API.getURLSearchField(location.href, 'content')
-    this.option.date = API.getURLSearchField(location.href, 'date')
+    this.option.mode = Tools.getURLSearchField(location.href, 'mode') || 'daily'
+    this.option.worksType = Tools.getURLSearchField(location.href, 'content')
+    this.option.date = Tools.getURLSearchField(location.href, 'date')
 
     this.startpageNo = 1
 
