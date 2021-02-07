@@ -6268,7 +6268,6 @@ class Lang {
             if (data.name !== 'userSetLang') {
                 return;
             }
-            console.log('xxxxxxxx');
             const old = this.type;
             this.type = this.getType(data.value);
             if (old !== undefined && this.type !== old) {
@@ -10124,15 +10123,15 @@ const store = new Store();
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "theme", function() { return theme; });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Config */ "./src/ts/modules/Config.ts");
-
 
 // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
 // 默认主题 white 是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
 class Theme {
     constructor() {
+        this.allTheme = ['white', 'dark'];
         this.defaultTheme = 'white'; // 默认主题
         this.theme = 'white'; // 当前使用的主题
+        this.settingTheme = ''; // 用户设置的下载器主题
         // 主题标记以及对应的 className
         this.classNameMap = new Map([
             ['white', ''],
@@ -10147,33 +10146,33 @@ class Theme {
             ['dark', 'dark'],
         ]);
         this.elList = []; // 保存已注册的元素
-        this.setTheme();
         this.bindEvents();
     }
     bindEvents() {
-        // 初始化时使用定时器查找标记元素
-        this.timer = window.setInterval(() => {
-            this.findFlag();
-        }, 300);
         // 设置变化时设置主题
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name === 'theme') {
+                this.settingTheme = data.value;
                 this.setTheme(data.value);
             }
         });
+        // 初始化时使用定时器查找标记元素
+        this.timer = window.setInterval(() => {
+            this.findFlag();
+        }, 300);
     }
     // 查找含有 pixiv 主题标记的元素，并监听其变化
     findFlag() {
         const el = document.querySelector(this.selector);
         if (el) {
             window.clearInterval(this.timer);
-            this.setTheme();
+            this.setTheme(this.getThemeFromHtml());
             // 监听标记元素的 textContent 变化
             const ob = new MutationObserver((mutationsList) => {
                 for (const item of mutationsList) {
                     if (item.type === 'characterData') {
-                        this.setTheme();
+                        this.setTheme(this.getThemeFromHtml());
                         break;
                     }
                 }
@@ -10205,23 +10204,12 @@ class Theme {
         return this.defaultTheme;
     }
     setTheme(flag) {
-        let theme = 'auto'; // 主题标记
+        if (this.allTheme.includes(this.settingTheme)) {
+            flag = this.settingTheme;
+        }
         let result = 'white'; // 储存根据标记所选择的主题
-        // 如果没有传递值，就从本地存储读取
-        if (!flag) {
-            const savedSettings = localStorage.getItem(_Config__WEBPACK_IMPORTED_MODULE_1__["default"].settingStoreName);
-            if (savedSettings) {
-                const setting = JSON.parse(savedSettings);
-                if (setting.theme) {
-                    theme = setting.theme;
-                }
-            }
-        }
-        else {
-            theme = flag;
-        }
         // 根据标记，设置要使用的主题
-        switch (theme) {
+        switch (flag) {
             case 'white':
                 result = 'white';
                 break;
@@ -10233,6 +10221,7 @@ class Theme {
                 result = this.getThemeFromHtml() || this.defaultTheme;
                 break;
         }
+        console.log('result', result);
         // 如果要使用的主题和当前主题不同，则执行变化
         if (result !== this.theme) {
             this.theme = result;

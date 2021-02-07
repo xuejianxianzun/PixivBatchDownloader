@@ -21,7 +21,6 @@ class Lang {
       if (data.name !== 'userSetLang') {
         return
       }
-      console.log('xxxxxxxx')
       const old = this.type
       this.type = this.getType(data.value)
       if (old !== undefined && this.type !== old) {

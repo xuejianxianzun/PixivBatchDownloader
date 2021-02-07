@@ -1,21 +1,27 @@
 import { EVT } from './EVT'
-import Config from './Config'
+import { Tools } from './Tools'
 
 type ThemeName = 'white' | 'dark'
 
-// 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
-// 默认主题 white 是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
+// 下载器的主题默认跟随页面主题。如果用户设置了下载器主题，则不再跟随页面主题
 class Theme {
   constructor() {
-    this.setTheme()
-    this.bindEvents()
+    if (Tools.isPixiv()) {
+      this.bindEvents()
+    }
   }
 
-  private defaultTheme: ThemeName = 'white' // 默认主题
+  private readonly allTheme = ['white', 'dark']
 
-  private theme: ThemeName = 'white' // 当前使用的主题
+  private readonly defaultTheme: ThemeName = 'white' // 默认主题
+
+  private theme: ThemeName = 'white' // 保存当前使用的主题
+
+  private settingTheme = '' // 保存用户设置的下载器主题
 
   // 主题标记以及对应的 className
+  // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
+  // 默认主题 white 是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
   private readonly classNameMap = new Map([
     ['white', ''],
     ['dark', 'theme-dark'],
@@ -35,18 +41,19 @@ class Theme {
   private elList: Element[] = [] // 保存已注册的元素
 
   private bindEvents() {
-    // 初始化时使用定时器查找标记元素
-    this.timer = window.setInterval(() => {
-      this.findFlag()
-    }, 300)
-
-    // 设置变化时设置主题
+    // 主题设置变化时修改主题
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data as any
       if (data.name === 'theme') {
+        this.settingTheme = data.value
         this.setTheme(data.value)
       }
     })
+
+    // 使用定时器查找标记元素
+    this.timer = window.setInterval(() => {
+      this.findFlag()
+    }, 300)
   }
 
   // 查找含有 pixiv 主题标记的元素，并监听其变化
@@ -54,12 +61,12 @@ class Theme {
     const el = document.querySelector(this.selector) as HTMLElement
     if (el) {
       window.clearInterval(this.timer)
-      this.setTheme()
+      this.setTheme(this.getThemeFromHtml())
       // 监听标记元素的 textContent 变化
       const ob = new MutationObserver((mutationsList) => {
         for (const item of mutationsList) {
           if (item.type === 'characterData') {
-            this.setTheme()
+            this.setTheme(this.getThemeFromHtml())
             break
           }
         }
@@ -93,26 +100,16 @@ class Theme {
     return this.defaultTheme
   }
 
-  private setTheme(flag?: string) {
-    let theme = 'auto' // 主题标记
+  private setTheme(flag: string) {
+    // 如果用户设置了下载器主题，则始终使用下载器主题（忽略页面主题）
+    if (this.allTheme.includes(this.settingTheme)) {
+      flag = this.settingTheme
+    }
 
     let result: ThemeName = 'white' // 储存根据标记所选择的主题
 
-    // 如果没有传递值，就从本地存储读取
-    if (!flag) {
-      const savedSettings = localStorage.getItem(Config.settingStoreName)
-      if (savedSettings) {
-        const setting = JSON.parse(savedSettings)
-        if (setting.theme) {
-          theme = setting.theme
-        }
-      }
-    } else {
-      theme = flag
-    }
-
     // 根据标记，设置要使用的主题
-    switch (theme) {
+    switch (flag) {
       case 'white':
         result = 'white'
         break
@@ -125,7 +122,7 @@ class Theme {
         break
     }
 
-    // 如果要使用的主题和当前主题不同，则执行变化
+    // 如果计算出的主题和当前主题不同，则执行变化
     if (result !== this.theme) {
       this.theme = result
 
@@ -137,6 +134,10 @@ class Theme {
 
   // 把元素注册到本组件里
   public register(el: Element) {
+    if (!Tools.isPixiv()) {
+      return
+    }
+
     this.elList.push(el)
     this.setClass(el)
   }
