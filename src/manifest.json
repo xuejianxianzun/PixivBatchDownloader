@@ -1,6 +1,6 @@
 {
   "name": "Powerful Pixiv Downloader",
-  "version": "9.0.2",
+  "version": "9.1.0",
   "manifest_version": 2,
   "description": "强大的 Pixiv 下载器，支持批量下载。The powerful Pixiv downloader supports batch downloading.",
   "icons": {

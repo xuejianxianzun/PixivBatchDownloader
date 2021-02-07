@@ -1,13 +1,14 @@
 import { EVT } from './EVT'
+import { Tools } from './Tools'
 
 // 获取和保存 token
 class Token {
   constructor() {
-    this.token = this.getToken()
-
-    this.updateToken()
-
-    this.bindEvents()
+    if (Tools.isPixiv()) {
+      this.token = this.getToken()
+      this.updateToken()
+      this.bindEvents()
+    }
   }
 
   private readonly tokenStore = 'xzToken'

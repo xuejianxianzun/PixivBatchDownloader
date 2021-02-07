@@ -126,6 +126,10 @@ class Tools {
     a.download = fileName
     a.click()
   }
+
+  static isPixiv() {
+    return window.location.host.endsWith('.pixiv.net')
+  }
 }
 
 export { Tools }

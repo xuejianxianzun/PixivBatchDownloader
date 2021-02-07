@@ -85,7 +85,7 @@ class Theme {
     if (htmlBG) {
       if (htmlBG.includes('rgb(2')) {
         return 'white'
-      } else {
+      } else if (htmlBG.includes('rgb(0')) {
         return 'dark'
       }
     }

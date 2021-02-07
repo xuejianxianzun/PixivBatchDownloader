@@ -1,4 +1,4 @@
-import {settings} from './setting/Settings'
+import { settings } from './setting/Settings'
 
 class SendNotification {
   constructor() {
@@ -7,14 +7,11 @@ class SendNotification {
 
   private request() {
     if (Notification.permission !== 'granted') {
-      Notification.requestPermission(
-        function (status) {
-          
-        })
+      Notification.requestPermission(function (status) {})
     }
   }
 
-  public show(){}
+  public show() {}
 }
 
 const sendNotification = new SendNotification()

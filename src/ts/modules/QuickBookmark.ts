@@ -112,7 +112,6 @@ class QuickBookmark {
           this.addBookmark()
         })
       }
-
     }
   }
 
@@ -128,7 +127,9 @@ class QuickBookmark {
 
   private async getWorkData() {
     const id = this.isNovel ? API.getNovelId() : API.getIllustId()
-    return this.isNovel ? await API.getNovelData(id) : await API.getArtworkData(id)
+    return this.isNovel
+      ? await API.getNovelData(id)
+      : await API.getArtworkData(id)
   }
 
   private async addBookmark() {
@@ -159,7 +160,7 @@ class QuickBookmark {
           this.isBookmarked = true
           this.bookmarked()
           // 让心形收藏按钮也变成收藏后的状态
-          if(!this.isNovel){
+          if (!this.isNovel) {
             this.changePixivBMKDiv()
           }
         }
@@ -171,7 +172,7 @@ class QuickBookmark {
     API.addLike(id, type, token.token)
 
     // 不在小说页面里修改点赞按钮，否则切换到其他小说之后点赞按钮依然是蓝色的
-    if(this.isNovel){
+    if (this.isNovel) {
       return
     }
 

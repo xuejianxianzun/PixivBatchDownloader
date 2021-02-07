@@ -19,6 +19,7 @@ import { vipSearchOptimize } from './VipSearchOptimize'
 import { ArtworkData, NovelData } from './CrawlResult.d'
 import { toast } from './Toast'
 import { msgBox } from './MsgBox'
+import { Tools } from './Tools'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数
@@ -176,7 +177,9 @@ abstract class InitPageBase {
 
     log.success(lang.transl('_任务开始0'))
 
-    await mute.getMuteSettings()
+    if (Tools.isPixiv()) {
+      await mute.getMuteSettings()
+    }
 
     this.getWantPage()
 
@@ -206,7 +209,9 @@ abstract class InitPageBase {
 
     log.success(lang.transl('_任务开始0'))
 
-    await mute.getMuteSettings()
+    if (Tools.isPixiv()) {
+      await mute.getMuteSettings()
+    }
 
     this.getMultipleSetting()
 
