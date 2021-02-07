@@ -1,13 +1,7 @@
 import { lang } from '../Lang'
 
 const formHtml = `<form class="settingForm">
-  <div class="tabsTitle">
-    <div class="title">${lang.transl('_抓取')}</div>
-    <div class="title">${lang.transl('_下载')}</div>
-    <div class="title">${lang.transl('_其他')}</div>
-  </div>
-  <div class="tabsContnet">
-    <div class="con">
+    <div class="tabsContnet">
       <p class="option" data-no="1">
       <span class="setWantPageWrap">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
@@ -238,14 +232,14 @@ const formHtml = `<form class="settingForm">
         <slot data-name="selectWorkBtns"></slot>
       </div>
     </div>
-    <div class="con">
+    <div class="tabsContnet">
     <p class="option" data-no="13">
       <span class="has_tip settingNameStyle1" data-tip="${
         lang.transl('_设置文件夹名的提示') + '<br>' + '{user}/{id}'
       }">${lang.transl('_命名规则')}<span class="gray1"> ? </span></span>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
       &nbsp;
-      <select name="fileNameSelect">
+      <select name="fileNameSelect" class="beautify_scrollbar">
         <option value="default">…</option>
         <option value="{id}">{id}</option>
         <option value="{user}">{user}</option>
@@ -446,7 +440,7 @@ const formHtml = `<form class="settingForm">
       <slot data-name="progressBar"></slot>
     </div>
     
-    <div class="con">
+    <div class="tabsContnet">
 
       <p class="option" data-no="4">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
@@ -734,7 +728,6 @@ const formHtml = `<form class="settingForm">
         <slot data-name="otherBtns"></slot>
       </div>
     </div>
-  </div>
 </form>`
 
 export default formHtml

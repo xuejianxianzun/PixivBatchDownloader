@@ -108,7 +108,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_ListenPageSwitch__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./modules/ListenPageSwitch */ "./src/ts/modules/ListenPageSwitch.ts");
 /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./modules/Tip */ "./src/ts/modules/Tip.ts");
 /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_modules_Tip__WEBPACK_IMPORTED_MODULE_11__);
-/* harmony import */ var _modules_TitleBar__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./modules/TitleBar */ "./src/ts/modules/TitleBar.ts");
+/* harmony import */ var _modules_EditTitle__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./modules/EditTitle */ "./src/ts/modules/EditTitle.ts");
 /* harmony import */ var _modules_ViewBigImage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./modules/ViewBigImage */ "./src/ts/modules/ViewBigImage.ts");
 /* harmony import */ var _modules_output_OutputPanel__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./modules/output/OutputPanel */ "./src/ts/modules/output/OutputPanel.ts");
 /* harmony import */ var _modules_output_PreviewFileName__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./modules/output/PreviewFileName */ "./src/ts/modules/output/PreviewFileName.ts");
@@ -853,10 +853,10 @@ class BookmarksAddTag {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Lang */ "./src/ts/modules/Lang.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
-/* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
-/* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
-/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Theme */ "./src/ts/modules/Theme.ts");
-/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Config */ "./src/ts/modules/Config.ts");
+/* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./States */ "./src/ts/modules/States.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Theme */ "./src/ts/modules/Theme.ts");
+/* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Config */ "./src/ts/modules/Config.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/modules/MsgBox.ts");
 
 
 
@@ -867,17 +867,19 @@ __webpack_require__.r(__webpack_exports__);
 class CenterPanel {
     constructor() {
         this.updateActiveClass = 'updateActiveClass';
+        this.activeClass = 'active';
         this.addCenterPanel();
-        _Theme__WEBPACK_IMPORTED_MODULE_4__["theme"].register(this.centerPanel);
+        this.activeTab(0);
+        _Theme__WEBPACK_IMPORTED_MODULE_3__["theme"].register(this.centerPanel);
         this.bindEvents();
     }
     // 添加中间面板
     addCenterPanel() {
         const centerPanelHTML = `
-      <div class="centerWrap beautify_scrollbar">
+      <div class="centerWrap">
       <div class="centerWrap_head">
       <div class="centerWrap_title blue">
-      ${_Config__WEBPACK_IMPORTED_MODULE_5__["default"].name}
+      ${_Config__WEBPACK_IMPORTED_MODULE_4__["default"].name}
       <div class="btns">
       <a class="has_tip centerWrap_top_btn update" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_newver')}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
         <svg class="icon" aria-hidden="true">
@@ -903,11 +905,17 @@ class CenterPanel {
       </div>
       </div>
 
-      <div class="centerWrap_con">
-      <slot data-name="form"></slot>
+      <div class="centerWrap_tabs tabsTitle">
+        <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取')}</div>
+        <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载')}</div>
+        <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_其他')}</div>
       </div>
 
-      <div class="gray1 bottom_help_bar"> 
+      <div class="centerWrap_con beautify_scrollbar">
+
+      <slot data-name="form"></slot>
+
+      <div class="help_bar gray1"> 
       <button class="textButton gray1 showDownTip" type="button">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_常见问题')}</button>
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_wiki')}</a>
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_fanboxDownloader')}</a>
@@ -915,7 +923,8 @@ class CenterPanel {
       <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
       <br>
-      <p class="downTip tip"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载说明')}</p>
+      </div>
+
       </div>
 
       </div>
@@ -925,6 +934,7 @@ class CenterPanel {
         this.updateLink = this.centerPanel.querySelector('.update');
         const donateId = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].type === 'zh-cn' ? 'zanzhu' : 'patreon';
         document.getElementById(donateId).style.display = 'inline-block';
+        this.allTabTitle = this.centerPanel.querySelectorAll('.tabsTitle .title');
     }
     bindEvents() {
         // 监听点击扩展图标的消息，开关中间面板
@@ -952,7 +962,7 @@ class CenterPanel {
         // 抓取完作品详细数据时，显示
         for (const ev of [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume]) {
             window.addEventListener(ev, () => {
-                if (!_States__WEBPACK_IMPORTED_MODULE_3__["states"].quickDownload && !_States__WEBPACK_IMPORTED_MODULE_3__["states"].downloadFromViewer) {
+                if (!_States__WEBPACK_IMPORTED_MODULE_2__["states"].quickDownload && !_States__WEBPACK_IMPORTED_MODULE_2__["states"].downloadFromViewer) {
                     this.show();
                 }
             });
@@ -971,7 +981,9 @@ class CenterPanel {
         // 显示常见问题
         this.centerPanel
             .querySelector('.showDownTip')
-            .addEventListener('click', () => _DOM__WEBPACK_IMPORTED_MODULE_2__["DOM"].toggleEl(this.centerPanel.querySelector('.downTip')));
+            .addEventListener('click', () => _MsgBox__WEBPACK_IMPORTED_MODULE_5__["msgBox"].show(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载说明'), {
+            title: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_常见问题')
+        }));
         this.centerPanel.addEventListener('click', (e) => {
             const ev = e || window.event;
             ev.stopPropagation();
@@ -981,6 +993,39 @@ class CenterPanel {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.closeCenterPanel);
             }
         });
+        // 在选项卡的标题上触发事件时，激活对应的选项卡
+        for (let index = 0; index < this.allTabTitle.length; index++) {
+            ;
+            ['click', 'mouseenter'].forEach((name) => {
+                this.allTabTitle[index].addEventListener(name, () => {
+                    this.activeTab(index);
+                });
+            });
+        }
+        // 当可以开始下载时，切换到“下载”选项卡
+        for (const ev of [
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resultChange,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume,
+        ]) {
+            window.addEventListener(ev, () => {
+                this.activeTab(1);
+            });
+        }
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlEmpty, () => {
+            this.activeTab(0);
+        });
+    }
+    // 设置激活的选项卡
+    activeTab(no = 0) {
+        for (const title of this.allTabTitle) {
+            title.classList.remove(this.activeClass);
+        }
+        this.allTabTitle[no].classList.add(this.activeClass);
+        const allTabCon = this.centerPanel.querySelectorAll('.tabsContnet');
+        for (let index = 0; index < allTabCon.length; index++) {
+            allTabCon[index].style.display = (index === no ? 'block' : 'none');
+        }
     }
     // 显示中间区域
     show() {
@@ -2943,6 +2988,164 @@ EVT.list = {
 };
 EVT.bindOnce = bindOnce;
 
+
+
+/***/ }),
+
+/***/ "./src/ts/modules/EditTitle.ts":
+/*!*************************************!*\
+  !*** ./src/ts/modules/EditTitle.ts ***!
+  \*************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./PageType */ "./src/ts/modules/PageType.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+// 在标题栏上显示任务状态的标记
+
+
+/*
+本程序的标记会以 [flag] 形式添加到 title 最前面
+flag 及其含义如下：
+↑ 抓取中
+→ 等待下一步操作（搜索页）
+▶ 可以开始下载
+↓ 下载中
+║ 下载暂停
+■ 下载停止
+✓ 下载完毕
+*/
+const flags = {
+    crawling: '↑',
+    waiting: '→',
+    readyDownload: '▶',
+    downloading: '↓',
+    paused: '║',
+    stopped: '■',
+    completed: '✓',
+    space: ' ',
+};
+class EditTitle {
+    constructor() {
+        this.timer = 0; // title 闪烁时，使用的定时器
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlStart, () => {
+            this.set('crawling');
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.worksUpdate, () => {
+            this.set('waiting');
+        });
+        for (const ev of [
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resultChange,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume,
+        ]) {
+            window.addEventListener(ev, () => {
+                this.set('readyDownload');
+            });
+        }
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadStart, () => {
+            this.set('downloading');
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadComplete, () => {
+            this.set('completed');
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadPause, () => {
+            this.set('paused');
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadStop, () => {
+            this.set('stopped');
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlEmpty, () => {
+            this.reset();
+        });
+    }
+    // 检查标题里是否含有标记
+    includeFlag(flag = '') {
+        if (!flag) {
+            // 没有传递标记，则检查所有标记
+            for (const flga of Object.values(flags)) {
+                const str = `[${flga}]`;
+                if (document.title.includes(str)) {
+                    return true;
+                }
+            }
+        }
+        else {
+            // 检查指定标记
+            const str = `[${flag}]`;
+            return document.title.includes(str);
+        }
+        return false;
+    }
+    // 重设 title
+    reset() {
+        clearInterval(this.timer);
+        const metaTagPage = [
+            _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.Artwork,
+            _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.UserHome,
+            _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.Novel,
+        ];
+        // 从 og:title 标签获取标题。og:title 标签是最早更新标题的。但不确定是否在所有页面上都可以直接使用 og:title 标签的内容，所以这里只在部分页面上使用
+        if (metaTagPage.includes(_PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type)) {
+            const ogTitle = document.querySelector('meta[property="og:title"]');
+            if (ogTitle) {
+                document.title = ogTitle.content;
+                return;
+            }
+        }
+        // 去掉 title 里的标记
+        const index = document.title.indexOf(']');
+        document.title = document.title.substr(index + 1, document.title.length);
+    }
+    // 在标题上显示指定标记
+    set(flagName) {
+        const flag = flags[flagName];
+        const text = `[${flag}]`;
+        // 如果 title 里没有标记，就添加标记
+        if (!this.includeFlag()) {
+            document.title = `${text} ${document.title}`;
+        }
+        else {
+            // 如果已经有标记了，则替换为新当前传入的标记
+            document.title = document.title.replace(/\[.?\]/, text);
+        }
+        // 可以开始下载，或者等待下一步操作，进行闪烁提醒
+        if (flagName === 'readyDownload' || flagName === 'waiting') {
+            this.flashing(flag);
+        }
+        else {
+            clearInterval(this.timer);
+        }
+    }
+    // 闪烁提醒，其实是把给定的标记替换成空白，来回切换
+    flashing(flag) {
+        clearInterval(this.timer);
+        const text = `[${flag}]`;
+        const whiteSpace = `[${flags.space}]`;
+        this.timer = window.setInterval(() => {
+            if (this.includeFlag(flag)) {
+                // 如果含有标记，就替换成空白
+                document.title = document.title.replace(text, whiteSpace);
+            }
+            else {
+                if (this.includeFlag(flags.space)) {
+                    // 如果含有空白，就替换成标记
+                    document.title = document.title.replace(whiteSpace, text);
+                }
+                else {
+                    // 如果都没有，一般是页面切换了，标题被重置了，取消闪烁
+                    clearInterval(this.timer);
+                }
+            }
+        }, 500);
+    }
+}
+new EditTitle();
 
 
 /***/ }),
@@ -10123,16 +10326,19 @@ const store = new Store();
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "theme", function() { return theme; });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Tools */ "./src/ts/modules/Tools.ts");
 
-// 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
-// 默认主题 white 是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
+
+// 下载器的主题默认跟随页面主题。如果用户设置了下载器主题，则不再跟随页面主题
 class Theme {
     constructor() {
         this.allTheme = ['white', 'dark'];
         this.defaultTheme = 'white'; // 默认主题
-        this.theme = 'white'; // 当前使用的主题
-        this.settingTheme = ''; // 用户设置的下载器主题
+        this.theme = 'white'; // 保存当前使用的主题
+        this.settingTheme = ''; // 保存用户设置的下载器主题
         // 主题标记以及对应的 className
+        // 把需要响应主题变化的元素注册到这个组件里，元素会被添加当前主题的 className
+        // 默认主题 white 是没有 className 的，其他主题通过对应的 className，在默认主题的基础上更改样式。
         this.classNameMap = new Map([
             ['white', ''],
             ['dark', 'theme-dark'],
@@ -10146,10 +10352,12 @@ class Theme {
             ['dark', 'dark'],
         ]);
         this.elList = []; // 保存已注册的元素
-        this.bindEvents();
+        if (_Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].isPixiv()) {
+            this.bindEvents();
+        }
     }
     bindEvents() {
-        // 设置变化时设置主题
+        // 主题设置变化时修改主题
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name === 'theme') {
@@ -10157,7 +10365,7 @@ class Theme {
                 this.setTheme(data.value);
             }
         });
-        // 初始化时使用定时器查找标记元素
+        // 使用定时器查找标记元素
         this.timer = window.setInterval(() => {
             this.findFlag();
         }, 300);
@@ -10204,6 +10412,7 @@ class Theme {
         return this.defaultTheme;
     }
     setTheme(flag) {
+        // 如果用户设置了下载器主题，则始终使用下载器主题（忽略页面主题）
         if (this.allTheme.includes(this.settingTheme)) {
             flag = this.settingTheme;
         }
@@ -10221,8 +10430,7 @@ class Theme {
                 result = this.getThemeFromHtml() || this.defaultTheme;
                 break;
         }
-        console.log('result', result);
-        // 如果要使用的主题和当前主题不同，则执行变化
+        // 如果计算出的主题和当前主题不同，则执行变化
         if (result !== this.theme) {
             this.theme = result;
             for (const el of this.elList) {
@@ -10232,6 +10440,9 @@ class Theme {
     }
     // 把元素注册到本组件里
     register(el) {
+        if (!_Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].isPixiv()) {
+            return;
+        }
         this.elList.push(el);
         this.setClass(el);
     }
@@ -10307,164 +10518,6 @@ class Tip {
     }
 }
 new Tip();
-
-
-/***/ }),
-
-/***/ "./src/ts/modules/TitleBar.ts":
-/*!************************************!*\
-  !*** ./src/ts/modules/TitleBar.ts ***!
-  \************************************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./PageType */ "./src/ts/modules/PageType.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
-// 在标题栏上显示任务状态的标记
-
-
-/*
-本程序的标记会以 [flag] 形式添加到 title 最前面
-flag 及其含义如下：
-↑ 抓取中
-→ 等待下一步操作（搜索页）
-▶ 可以开始下载
-↓ 下载中
-║ 下载暂停
-■ 下载停止
-✓ 下载完毕
-*/
-const flags = {
-    crawling: '↑',
-    waiting: '→',
-    readyDownload: '▶',
-    downloading: '↓',
-    paused: '║',
-    stopped: '■',
-    completed: '✓',
-    space: ' ',
-};
-class TitleBar {
-    constructor() {
-        this.timer = 0; // title 闪烁时，使用的定时器
-        this.bindEvents();
-    }
-    bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlStart, () => {
-            this.set('crawling');
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.worksUpdate, () => {
-            this.set('waiting');
-        });
-        for (const ev of [
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish,
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resultChange,
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume,
-        ]) {
-            window.addEventListener(ev, () => {
-                this.set('readyDownload');
-            });
-        }
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadStart, () => {
-            this.set('downloading');
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadComplete, () => {
-            this.set('completed');
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadPause, () => {
-            this.set('paused');
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadStop, () => {
-            this.set('stopped');
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlEmpty, () => {
-            this.reset();
-        });
-    }
-    // 检查标题里是否含有标记
-    includeFlag(flag = '') {
-        if (!flag) {
-            // 没有传递标记，则检查所有标记
-            for (const flga of Object.values(flags)) {
-                const str = `[${flga}]`;
-                if (document.title.includes(str)) {
-                    return true;
-                }
-            }
-        }
-        else {
-            // 检查指定标记
-            const str = `[${flag}]`;
-            return document.title.includes(str);
-        }
-        return false;
-    }
-    // 重设 title
-    reset() {
-        clearInterval(this.timer);
-        const metaTagPage = [
-            _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.Artwork,
-            _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.UserHome,
-            _PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].list.Novel,
-        ];
-        // 从 og:title 标签获取标题。og:title 标签是最早更新标题的。但不确定是否在所有页面上都可以直接使用 og:title 标签的内容，所以这里只在部分页面上使用
-        if (metaTagPage.includes(_PageType__WEBPACK_IMPORTED_MODULE_0__["pageType"].type)) {
-            const ogTitle = document.querySelector('meta[property="og:title"]');
-            if (ogTitle) {
-                document.title = ogTitle.content;
-                return;
-            }
-        }
-        // 去掉 title 里的标记
-        const index = document.title.indexOf(']');
-        document.title = document.title.substr(index + 1, document.title.length);
-    }
-    // 在标题上显示指定标记
-    set(flagName) {
-        const flag = flags[flagName];
-        const text = `[${flag}]`;
-        // 如果 title 里没有标记，就添加标记
-        if (!this.includeFlag()) {
-            document.title = `${text} ${document.title}`;
-        }
-        else {
-            // 如果已经有标记了，则替换为新当前传入的标记
-            document.title = document.title.replace(/\[.?\]/, text);
-        }
-        // 可以开始下载，或者等待下一步操作，进行闪烁提醒
-        if (flagName === 'readyDownload' || flagName === 'waiting') {
-            this.flashing(flag);
-        }
-        else {
-            clearInterval(this.timer);
-        }
-    }
-    // 闪烁提醒，其实是把给定的标记替换成空白，来回切换
-    flashing(flag) {
-        clearInterval(this.timer);
-        const text = `[${flag}]`;
-        const whiteSpace = `[${flags.space}]`;
-        this.timer = window.setInterval(() => {
-            if (this.includeFlag(flag)) {
-                // 如果含有标记，就替换成空白
-                document.title = document.title.replace(text, whiteSpace);
-            }
-            else {
-                if (this.includeFlag(flags.space)) {
-                    // 如果含有空白，就替换成标记
-                    document.title = document.title.replace(whiteSpace, text);
-                }
-                else {
-                    // 如果都没有，一般是页面切换了，标题被重置了，取消闪烁
-                    clearInterval(this.timer);
-                }
-            }
-        }, 500);
-    }
-}
-new TitleBar();
 
 
 /***/ }),
@@ -15586,7 +15639,6 @@ __webpack_require__.r(__webpack_exports__);
 // 设置表单
 class Form {
     constructor() {
-        this.activeClass = 'active';
         this.chooseKeys = ['Enter', 'NumpadEnter']; // 让回车键可以控制复选框（浏览器默认只支持空格键）
         this.tipCreateFolderFlag = 'tipCreateFolder'; // 控制“创建文件夹的提示”是否显示
         this.tipCreateFolderId = 'tipCreateFolder'; // “创建文件夹的提示”的容器 id
@@ -15596,14 +15648,10 @@ class Form {
         this.allRadio = this.form.querySelectorAll('input[type="radio"]');
         this.allSwitch = this.form.querySelectorAll('.checkbox_switch');
         this.allLabel = this.form.querySelectorAll('label');
-        this.allTabTitle = this.form.querySelectorAll('.tabsTitle .title');
-        this.allTabCon = this.form.querySelectorAll('.tabsContnet .con');
         this.bindEvents();
         new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_5__["SaveNamingRule"](this.form.userSetName);
         this.formSettings = new _FormSettings__WEBPACK_IMPORTED_MODULE_7__["FormSettings"](this.form);
         this.initFormBueatiful();
-        // 激活第一个选项卡
-        this.activeTab(0);
         this.checkTipCreateFolder();
     }
     // 设置表单上美化元素的状态
@@ -15612,17 +15660,6 @@ class Form {
         this.resetLabelActive();
         // 重设该选项的子选项的显示/隐藏
         this.resetSubOptionDisplay();
-    }
-    // 设置激活的选项卡
-    activeTab(no = 0) {
-        for (const title of this.allTabTitle) {
-            title.classList.remove(this.activeClass);
-        }
-        this.allTabTitle[no].classList.add(this.activeClass);
-        for (const con of this.allTabCon) {
-            con.style.display = 'none';
-        }
-        this.allTabCon[no].style.display = 'block';
     }
     bindEvents() {
         // 给美化的复选框绑定功能
@@ -15642,28 +15679,6 @@ class Form {
             this.formSettings.restoreFormSettings();
             // 美化表单，包括设置子选项区域的显示隐藏。所以这需要在恢复设置之后执行
             this.initFormBueatiful();
-        });
-        // 在选项卡的标题上触发事件时，激活对应的选项卡
-        for (let index = 0; index < this.allTabTitle.length; index++) {
-            ;
-            ['click', 'mouseenter'].forEach((name) => {
-                this.allTabTitle[index].addEventListener(name, () => {
-                    this.activeTab(index);
-                });
-            });
-        }
-        // 当可以开始下载时，切换到“下载”选项卡
-        for (const ev of [
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlFinish,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange,
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resume,
-        ]) {
-            window.addEventListener(ev, () => {
-                this.activeTab(1);
-            });
-        }
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlEmpty, () => {
-            this.activeTab(0);
         });
         // 预览文件名
         _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('namingBtns', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_预览文件名')).addEventListener('click', () => {
@@ -15835,13 +15850,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../Lang */ "./src/ts/modules/Lang.ts");
 
 const formHtml = `<form class="settingForm">
-  <div class="tabsTitle">
-    <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取')}</div>
-    <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载')}</div>
-    <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_其他')}</div>
-  </div>
-  <div class="tabsContnet">
-    <div class="con">
+    <div class="tabsContnet">
       <p class="option" data-no="1">
       <span class="setWantPageWrap">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_页数')}"><span class="setWantPageTip1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_页数')}</span><span class="gray1"> ? </span></span>
@@ -16036,12 +16045,12 @@ const formHtml = `<form class="settingForm">
         <slot data-name="selectWorkBtns"></slot>
       </div>
     </div>
-    <div class="con">
+    <div class="tabsContnet">
     <p class="option" data-no="13">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_设置文件夹名的提示') + '<br>' + '{user}/{id}'}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名规则')}<span class="gray1"> ? </span></span>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
       &nbsp;
-      <select name="fileNameSelect">
+      <select name="fileNameSelect" class="beautify_scrollbar">
         <option value="default">…</option>
         <option value="{id}">{id}</option>
         <option value="{user}">{user}</option>
@@ -16222,7 +16231,7 @@ const formHtml = `<form class="settingForm">
       <slot data-name="progressBar"></slot>
     </div>
     
-    <div class="con">
+    <div class="tabsContnet">
 
       <p class="option" data-no="4">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_动图保存格式title')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_动图保存格式')}<span class="gray1"> ? </span></span>
@@ -16462,7 +16471,6 @@ const formHtml = `<form class="settingForm">
         <slot data-name="otherBtns"></slot>
       </div>
     </div>
-  </div>
 </form>`;
 /* harmony default export */ __webpack_exports__["default"] = (formHtml);
 

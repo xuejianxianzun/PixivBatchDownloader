@@ -4,11 +4,14 @@ import { DOM } from './DOM'
 import { states } from './States'
 import { theme } from './Theme'
 import Config from './Config'
+import { msgBox } from './MsgBox'
 
 // 中间面板
 class CenterPanel {
   constructor() {
     this.addCenterPanel()
+
+    this.activeTab(0)
 
     theme.register(this.centerPanel)
 
@@ -19,38 +22,41 @@ class CenterPanel {
   private updateLink!: HTMLAnchorElement
   private updateActiveClass = 'updateActiveClass'
 
+  private allTabTitle!: NodeListOf<HTMLDivElement> // 选项卡的标题区域
+  private readonly activeClass = 'active'
+
   // 添加中间面板
   private addCenterPanel() {
     const centerPanelHTML = `
-      <div class="centerWrap beautify_scrollbar">
+      <div class="centerWrap">
       <div class="centerWrap_head">
       <div class="centerWrap_title blue">
       ${Config.name}
       <div class="btns">
       <a class="has_tip centerWrap_top_btn update" data-tip="${lang.transl(
-        '_newver'
-      )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
+      '_newver'
+    )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-Update"></use>
         </svg>
       </a>
       <a class="has_tip centerWrap_top_btn github_icon" data-tip="${lang.transl(
-        '_github'
-      )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
+      '_github'
+    )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-github"></use>
       </svg>
       </a>
       <a class="has_tip centerWrap_top_btn wiki_url" data-tip="${lang.transl(
-        '_wiki'
-      )}" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
+      '_wiki'
+    )}" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
         <div class="has_tip centerWrap_top_btn centerWrap_close" data-tip="${lang.transl(
-          '_隐藏下载面板'
-        )}">
+      '_隐藏下载面板'
+    )}">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>
@@ -59,25 +65,32 @@ class CenterPanel {
       </div>
       </div>
 
-      <div class="centerWrap_con">
-      <slot data-name="form"></slot>
+      <div class="centerWrap_tabs tabsTitle">
+        <div class="title">${lang.transl('_抓取')}</div>
+        <div class="title">${lang.transl('_下载')}</div>
+        <div class="title">${lang.transl('_其他')}</div>
       </div>
 
-      <div class="gray1 bottom_help_bar"> 
+      <div class="centerWrap_con beautify_scrollbar">
+
+      <slot data-name="form"></slot>
+
+      <div class="help_bar gray1"> 
       <button class="textButton gray1 showDownTip" type="button">${lang.transl(
-        '_常见问题'
-      )}</button>
+      '_常见问题'
+    )}</button>
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank"> ${lang.transl(
-        '_wiki'
-      )}</a>
+      '_wiki'
+    )}</a>
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${lang.transl(
-        '_fanboxDownloader'
-      )}</a>
+      '_fanboxDownloader'
+    )}</a>
       <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">在“爱发电”支持我</a>
       <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
       <br>
-      <p class="downTip tip"> ${lang.transl('_下载说明')}</p>
+      </div>
+
       </div>
 
       </div>
@@ -92,6 +105,8 @@ class CenterPanel {
 
     const donateId = lang.type === 'zh-cn' ? 'zanzhu' : 'patreon'
     document.getElementById(donateId)!.style.display = 'inline-block'
+
+    this.allTabTitle = this.centerPanel.querySelectorAll('.tabsTitle .title')
   }
 
   private bindEvents() {
@@ -152,9 +167,9 @@ class CenterPanel {
     this.centerPanel
       .querySelector('.showDownTip')!
       .addEventListener('click', () =>
-        DOM.toggleEl(
-          this.centerPanel.querySelector('.downTip')! as HTMLDivElement
-        )
+        msgBox.show(lang.transl('_下载说明'),{
+          title:lang.transl('_常见问题')
+        })
       )
 
     this.centerPanel.addEventListener('click', (e) => {
@@ -167,6 +182,43 @@ class CenterPanel {
         EVT.fire(EVT.list.closeCenterPanel)
       }
     })
+
+    // 在选项卡的标题上触发事件时，激活对应的选项卡
+    for (let index = 0; index < this.allTabTitle.length; index++) {
+      ;['click', 'mouseenter'].forEach((name) => {
+        this.allTabTitle[index].addEventListener(name, () => {
+          this.activeTab(index)
+        })
+      })
+    }
+
+    // 当可以开始下载时，切换到“下载”选项卡
+    for (const ev of [
+      EVT.list.crawlFinish,
+      EVT.list.resultChange,
+      EVT.list.resume,
+    ]) {
+      window.addEventListener(ev, () => {
+        this.activeTab(1)
+      })
+    }
+
+    window.addEventListener(EVT.list.crawlEmpty, () => {
+      this.activeTab(0)
+    })
+  }
+
+  // 设置激活的选项卡
+  private activeTab(no = 0) {
+    for (const title of this.allTabTitle) {
+      title.classList.remove(this.activeClass)
+    }
+    this.allTabTitle[no].classList.add(this.activeClass)
+
+    const allTabCon = this.centerPanel.querySelectorAll('.tabsContnet') as NodeListOf<HTMLElement>
+    for (let index = 0; index < allTabCon.length; index++) {
+      allTabCon[index].style.display = (index === no ? 'block' : 'none')
+    }
   }
 
   // 显示中间区域

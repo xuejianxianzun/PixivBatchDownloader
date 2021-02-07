@@ -48,12 +48,7 @@
   left: -100vw;
   top: 10px;
   height: 1px;
-  background-image: linear-gradient(
-    to right,
-    #0ea8ef 0%,
-    #0ea8ef 50%,
-    transparent 50%
-  );
+  background-image: linear-gradient(to right, #0ea8ef 0%, #0ea8ef 50%, transparent 50%);
   background-size: 8px 1px;
   background-repeat: repeat-x;
   animation: moveRight 2s linear infinite;
@@ -66,12 +61,7 @@
   top: -100vh;
   left: 10px;
   width: 1px;
-  background-image: linear-gradient(
-    to bottom,
-    #0ea8ef 0%,
-    #0ea8ef 50%,
-    transparent 50%
-  );
+  background-image: linear-gradient(to bottom, #0ea8ef 0%, #0ea8ef 50%, transparent 50%);
   background-size: 1px 8px;
   background-repeat: repeat-y;
   animation: moveBottom 1s linear infinite;
@@ -131,33 +121,15 @@
   z-index: 1;
   padding: 4px 4px 0px;
 }
-.searchList
-  .searchContent
-  .searchImgArea
-  .searchImgAreaContent
-  .topbar
-  .r18Part {
+.searchList .searchContent .searchImgArea .searchImgAreaContent .topbar .r18Part {
   display: flex;
   align-items: flex-start;
   flex-flow: row wrap;
 }
-.searchList
-  .searchContent
-  .searchImgArea
-  .searchImgAreaContent
-  .topbar
-  .r18Part
-  .child {
+.searchList .searchContent .searchImgArea .searchImgAreaContent .topbar .r18Part .child {
   margin-right: 2px;
 }
-.searchList
-  .searchContent
-  .searchImgArea
-  .searchImgAreaContent
-  .topbar
-  .r18Part
-  .child
-  .text {
+.searchList .searchContent .searchImgArea .searchImgAreaContent .topbar .r18Part .child .text {
   color: #f5f5f5;
   font-weight: bold;
   font-size: 10px;
@@ -166,21 +138,10 @@
   border-radius: 3px;
   background: #ff4060;
 }
-.searchList
-  .searchContent
-  .searchImgArea
-  .searchImgAreaContent
-  .topbar
-  .multiplePart {
+.searchList .searchContent .searchImgArea .searchImgAreaContent .topbar .multiplePart {
   margin-left: auto;
 }
-.searchList
-  .searchContent
-  .searchImgArea
-  .searchImgAreaContent
-  .topbar
-  .multiplePart
-  .child {
+.searchList .searchContent .searchImgArea .searchImgAreaContent .topbar .multiplePart .child {
   display: flex;
   -webkit-box-align: center;
   align-items: center;
@@ -195,41 +156,17 @@
   background: rgba(0, 0, 0, 0.32);
   border-radius: 10px;
 }
-.searchList
-  .searchContent
-  .searchImgArea
-  .searchImgAreaContent
-  .topbar
-  .multiplePart
-  .child
-  .span1 {
+.searchList .searchContent .searchImgArea .searchImgAreaContent .topbar .multiplePart .child .span1 {
   margin-right: 2px;
 }
-.searchList
-  .searchContent
-  .searchImgArea
-  .searchImgAreaContent
-  .topbar
-  .multiplePart
-  .child
-  .span1
-  .span2 {
+.searchList .searchContent .searchImgArea .searchImgAreaContent .topbar .multiplePart .child .span1 .span2 {
   display: inline-flex;
   vertical-align: top;
   -webkit-box-align: center;
   align-items: center;
   height: 10px;
 }
-.searchList
-  .searchContent
-  .searchImgArea
-  .searchImgAreaContent
-  .topbar
-  .multiplePart
-  .child
-  .span1
-  .span2
-  .multipleSvg {
+.searchList .searchContent .searchImgArea .searchImgAreaContent .topbar .multiplePart .child .span1 .span2 .multipleSvg {
   stroke: none;
   fill: currentcolor;
   width: 9px;
@@ -247,11 +184,7 @@
   width: 100%;
   height: 100%;
 }
-.searchList
-  .searchContent
-  .searchImgArea
-  .searchImgAreaContent
-  .imgWrap::before {
+.searchList .searchContent .searchImgArea .searchImgAreaContent .imgWrap::before {
   content: '';
   position: absolute;
   display: block;
@@ -269,12 +202,7 @@
   border-radius: 4px;
   transition: opacity 0.2s ease 0s;
 }
-.searchList
-  .searchContent
-  .searchImgArea
-  .searchImgAreaContent
-  .imgWrap
-  .ugoiraPart {
+.searchList .searchContent .searchImgArea .searchImgAreaContent .imgWrap .ugoiraPart {
   position: absolute;
   stroke: none;
   fill: #ffffff;
@@ -282,13 +210,7 @@
   font-size: 0px;
   vertical-align: middle;
 }
-.searchList
-  .searchContent
-  .searchImgArea
-  .searchImgAreaContent
-  .imgWrap
-  .ugoiraPart
-  .ugoiraCircle {
+.searchList .searchContent .searchImgArea .searchImgAreaContent .imgWrap .ugoiraPart .ugoiraCircle {
   fill: #000000;
   fill-opacity: 0.4;
 }
@@ -428,11 +350,10 @@
   background: #fff;
   top: 4vh;
   color: #444;
-  padding: 0 25px 20px;
+  padding: 20px 0px;
   border-radius: 15px;
   box-shadow: 0 0 25px #2ca6df;
-  max-height: 94vh;
-  overflow: auto;
+  overflow: hidden;
 }
 .centerWrap hr {
   border: none;
@@ -465,211 +386,9 @@
 .centerWrap label:hover {
   color: #0ea8ef !important;
 }
-.centerWrap .settingForm {
-  position: relative;
-  z-index: 1001;
-  background: #fff;
-  /*--------美化作为开关的复选框------------*/
-  /*--------美化普通的复选框------------*/
-  /*--------美化单选框------------*/
-}
-.centerWrap .settingForm select {
-  width: 80px;
-  height: 20px;
-  vertical-align: middle;
-  border-radius: 4px;
-  border: 1px solid #cccccc;
-}
-.centerWrap .settingForm option {
-  font-size: 14px !important;
-  line-height: 24px;
-}
-.centerWrap .settingForm p * {
-  vertical-align: middle;
-  line-height: 1;
-}
-.centerWrap .settingForm p strong {
-  vertical-align: baseline;
-}
-.centerWrap .settingForm #tipCreateFolder {
-  display: none;
-}
-.centerWrap .settingForm .flexTip {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.centerWrap .settingForm .flexTip .right {
-  flex-grow: 0;
-  flex-shrink: 0;
-  flex-basis: auto;
-}
-.centerWrap .settingForm .tipWithBtn .left {
-  display: inline-block;
-}
-.centerWrap .settingForm .tipWithBtn .right {
-  display: inline-block;
-  margin-left: 20px;
-}
-.centerWrap .settingForm .need_beautify {
-  position: absolute;
-  width: 0;
-  height: 0;
-  opacity: 0;
-}
-.centerWrap .settingForm label {
-  cursor: pointer;
-}
-.centerWrap .settingForm .tabsTitle {
-  position: sticky;
-  left: 0;
-  top: 0;
-  width: 100%;
-  z-index: 1001;
-  display: flex;
-  border-bottom: 1px solid #eee;
-  margin-bottom: 10px;
-  background: #fff;
-}
-.centerWrap .settingForm .tabsTitle .title {
-  text-align: center;
-  width: 100%;
-  flex: 1;
-  font-size: 1.1em;
-  cursor: pointer;
-  height: 40px;
-  line-height: 40px;
-  position: relative;
-}
-.centerWrap .settingForm .tabsTitle .title.active {
-  color: #0ea8ef;
-}
-.centerWrap .settingForm .tabsTitle .title.active::after {
-  content: '';
-  width: 100%;
-  height: 2px;
-  background: #0ea8ef;
-  position: absolute;
-  top: 39px;
-  left: 0;
-  z-index: 1001;
-}
-.centerWrap .settingForm .tabsTitle .title:hover {
-  color: #0ea8ef;
-}
-.centerWrap .settingForm .tabsContnet .con {
-  display: none;
-}
-.centerWrap .settingForm label.active {
-  color: #29b3f3;
-}
-.centerWrap .settingForm .beautify_switch {
-  display: inline-block;
-  width: 24px;
-  height: 14px;
-  position: relative;
-  border-radius: 7px;
-  background: #ccc;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-.centerWrap .settingForm .beautify_switch::before {
-  content: '';
-  position: absolute;
-  top: 1px;
-  height: 12px;
-  width: 12px;
-  border-radius: 50%;
-  background: #fff;
-  left: 0;
-  margin-left: 0px;
-  transition: all 0.3s;
-}
-.centerWrap .settingForm .checkbox_switch:checked + .beautify_switch {
-  background: #29b3f3;
-}
-.centerWrap .settingForm .checkbox_switch:checked + .beautify_switch::before {
-  margin-left: 12px;
-}
-.centerWrap .settingForm .beautify_checkbox {
-  display: inline-block;
-  position: relative;
-  border: 1px solid #dcdfe6;
-  border-radius: 2px;
-  box-sizing: border-box;
-  width: 14px;
-  height: 14px;
-  background-color: #fff;
-  z-index: 1;
-  transition: all 0.3s;
-  cursor: pointer;
-}
-.centerWrap .settingForm .beautify_checkbox::after {
-  box-sizing: content-box;
-  content: '';
-  border: 1px solid #fff;
-  border-left: 0;
-  border-top: 0;
-  height: 7px;
-  left: 4px;
-  position: absolute;
-  top: 1px;
-  transform: rotate(45deg) scaleY(0);
-  width: 3px;
-  transition: all 0.2s;
-  transform-origin: center;
-}
-.centerWrap .settingForm .checkbox_common:checked + .beautify_checkbox {
-  background: #29b3f3;
-  border: 1px solid #29b3f3;
-}
-.centerWrap .settingForm .beautify_checkbox:hover {
-  border: 1px solid #29b3f3;
-}
-.centerWrap .settingForm .checkbox_common:checked + .beautify_checkbox::after {
-  transform: rotate(45deg) scaleY(1);
-}
-.centerWrap .settingForm .checkbox_common:focus + .beautify_checkbox {
-  border: 1px solid #29b3f3;
-}
-.centerWrap .settingForm .beautify_radio {
-  border: 1px solid #dcdfe6;
-  border-radius: 100%;
-  width: 12px;
-  height: 12px;
-  background-color: #fff;
-  position: relative;
-  cursor: pointer;
-  display: inline-block;
-  box-sizing: border-box;
-}
-.centerWrap .settingForm .beautify_radio::after {
-  width: 6px;
-  height: 6px;
-  border-radius: 100%;
-  background-color: #fff;
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  transition: transform 0.15s ease-in;
-}
-.centerWrap .settingForm .radio:checked + .beautify_radio {
-  background: #29b3f3;
-  border: 1px solid #29b3f3;
-}
-.centerWrap .settingForm .beautify_radio:hover {
-  border: 1px solid #29b3f3;
-}
-.centerWrap .settingForm .radio:checked + .beautify_radio::after {
-  transform: translate(-50%, -50%) scale(1);
-}
 .centerWrap .centerWrap_head {
-  padding-top: 20px;
-  position: sticky;
-  z-index: 1000;
   background: #fff;
+  padding: 0 25px;
 }
 .centerWrap .centerWrap_head img {
   width: 16px;
@@ -708,27 +427,228 @@
   vertical-align: initial;
   padding-top: 5px;
 }
-.centerWrap .centerWrap_top_btn:hover,
-.centerWrap .showFileNameTip:hover,
-.centerWrap .textButton:hover,
-.centerWrap .textButton:focus,
-.centerWrap .showFileNameResult:hover,
-.centerWrap .bottom_help_bar > *:hover,
-.centerWrap .updateActiveClass {
-  color: #0ea8ef !important;
-  fill: #0ea8ef !important;
+.centerWrap .centerWrap_tabs {
+  display: flex;
+  padding: 0 25px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 8px;
+  background: #fff;
 }
-.centerWrap .bottom_help_bar {
+.centerWrap .centerWrap_tabs .title {
+  text-align: center;
+  width: 100%;
+  flex: 1;
+  font-size: 1.1em;
+  cursor: pointer;
+  height: 36px;
+  line-height: 36px;
+  position: relative;
+}
+.centerWrap .centerWrap_tabs .title.active {
+  color: #0ea8ef;
+}
+.centerWrap .centerWrap_tabs .title.active::after {
+  content: '';
+  width: 100%;
+  height: 2px;
+  background: #0ea8ef;
+  position: absolute;
+  top: 36px;
+  left: 0;
+  z-index: 1001;
+}
+.centerWrap .centerWrap_tabs .title:hover {
+  color: #0ea8ef;
+}
+.centerWrap .centerWrap_con {
+  overflow: auto;
+  max-height: 76vh;
+  padding-left: 25px;
+}
+.centerWrap .centerWrap_con .settingForm {
+  position: relative;
+  max-width: 650px;
+  background: #fff;
+  /*--------美化作为开关的复选框------------*/
+  /*--------美化普通的复选框------------*/
+  /*--------美化单选框------------*/
+}
+.centerWrap .centerWrap_con .settingForm select {
+  width: 80px;
+  height: 20px;
+  vertical-align: middle;
+  border-radius: 4px;
+  border: 1px solid #cccccc;
+}
+.centerWrap .centerWrap_con .settingForm option {
+  font-size: 14px !important;
   line-height: 24px;
 }
-.centerWrap .bottom_help_bar > * {
+.centerWrap .centerWrap_con .settingForm p * {
+  vertical-align: middle;
+  line-height: 1;
+}
+.centerWrap .centerWrap_con .settingForm p strong {
+  vertical-align: baseline;
+}
+.centerWrap .centerWrap_con .settingForm #tipCreateFolder {
+  display: none;
+}
+.centerWrap .centerWrap_con .settingForm .flexTip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.centerWrap .centerWrap_con .settingForm .flexTip .right {
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: auto;
+}
+.centerWrap .centerWrap_con .settingForm .tipWithBtn .left {
+  display: inline-block;
+}
+.centerWrap .centerWrap_con .settingForm .tipWithBtn .right {
+  display: inline-block;
+  margin-left: 20px;
+}
+.centerWrap .centerWrap_con .settingForm .need_beautify {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+.centerWrap .centerWrap_con .settingForm label {
+  cursor: pointer;
+}
+.centerWrap .centerWrap_con .settingForm .tabsContnet {
+  display: none;
+}
+.centerWrap .centerWrap_con .settingForm .tabsContnet:first-child {
+  display: block;
+}
+.centerWrap .centerWrap_con .settingForm label.active {
+  color: #29b3f3;
+}
+.centerWrap .centerWrap_con .settingForm .beautify_switch {
+  display: inline-block;
+  width: 24px;
+  height: 14px;
+  position: relative;
+  border-radius: 7px;
+  background: #ccc;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+.centerWrap .centerWrap_con .settingForm .beautify_switch::before {
+  content: '';
+  position: absolute;
+  top: 1px;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  background: #fff;
+  left: 0;
+  margin-left: 0px;
+  transition: all 0.3s;
+}
+.centerWrap .centerWrap_con .settingForm .checkbox_switch:checked + .beautify_switch {
+  background: #29b3f3;
+}
+.centerWrap .centerWrap_con .settingForm .checkbox_switch:checked + .beautify_switch::before {
+  margin-left: 12px;
+}
+.centerWrap .centerWrap_con .settingForm .beautify_checkbox {
+  display: inline-block;
+  position: relative;
+  border: 1px solid #dcdfe6;
+  border-radius: 2px;
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  background-color: #fff;
+  z-index: 1;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.centerWrap .centerWrap_con .settingForm .beautify_checkbox::after {
+  box-sizing: content-box;
+  content: '';
+  border: 1px solid #fff;
+  border-left: 0;
+  border-top: 0;
+  height: 7px;
+  left: 4px;
+  position: absolute;
+  top: 1px;
+  transform: rotate(45deg) scaleY(0);
+  width: 3px;
+  transition: all 0.2s;
+  transform-origin: center;
+}
+.centerWrap .centerWrap_con .settingForm .checkbox_common:checked + .beautify_checkbox {
+  background: #29b3f3;
+  border: 1px solid #29b3f3;
+}
+.centerWrap .centerWrap_con .settingForm .beautify_checkbox:hover {
+  border: 1px solid #29b3f3;
+}
+.centerWrap .centerWrap_con .settingForm .checkbox_common:checked + .beautify_checkbox::after {
+  transform: rotate(45deg) scaleY(1);
+}
+.centerWrap .centerWrap_con .settingForm .checkbox_common:focus + .beautify_checkbox {
+  border: 1px solid #29b3f3;
+}
+.centerWrap .centerWrap_con .settingForm .beautify_radio {
+  border: 1px solid #dcdfe6;
+  border-radius: 100%;
+  width: 12px;
+  height: 12px;
+  background-color: #fff;
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+  box-sizing: border-box;
+}
+.centerWrap .centerWrap_con .settingForm .beautify_radio::after {
+  width: 6px;
+  height: 6px;
+  border-radius: 100%;
+  background-color: #fff;
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.15s ease-in;
+}
+.centerWrap .centerWrap_con .settingForm .radio:checked + .beautify_radio {
+  background: #29b3f3;
+  border: 1px solid #29b3f3;
+}
+.centerWrap .centerWrap_con .settingForm .beautify_radio:hover {
+  border: 1px solid #29b3f3;
+}
+.centerWrap .centerWrap_con .settingForm .radio:checked + .beautify_radio::after {
+  transform: translate(-50%, -50%) scale(1);
+}
+.centerWrap .help_bar {
+  line-height: 24px;
+}
+.centerWrap .help_bar > * {
   padding: 0 3px;
 }
 .centerWrap .showDownTip {
   cursor: pointer;
 }
-.centerWrap #resetSettings {
-  cursor: pointer;
+.centerWrap .centerWrap_top_btn:hover,
+.centerWrap .showFileNameTip:hover,
+.centerWrap .textButton:hover,
+.centerWrap .textButton:focus,
+.centerWrap .showFileNameResult:hover,
+.centerWrap .help_bar > *:hover,
+.centerWrap .updateActiveClass {
+  color: #0ea8ef !important;
+  fill: #0ea8ef !important;
 }
 .centerWrap li {
   list-style: none;
@@ -790,7 +710,7 @@
   padding-top: 5px;
 }
 .centerWrap .centerWrap_btns {
-  padding: 10px 0 0;
+  padding: 8px 0 0;
   font-size: 0;
   display: flex;
   flex-wrap: wrap;
@@ -809,7 +729,7 @@
   line-height: 20px;
   border-radius: 5px;
   cursor: pointer;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   vertical-align: top;
 }
 .centerWrap .centerWrap_btns button:hover,
@@ -911,8 +831,6 @@
   padding: 0 10px;
   font: status-bar;
 }
-.centerWrap .downTip,
-.centerWrap .download_a,
 .centerWrap .download_area {
   display: none;
 }
@@ -1027,6 +945,9 @@
 .theme-dark.centerWrap .gray1 {
   color: #999;
 }
+.theme-dark.centerWrap .centerWrap_tabs {
+  background: #222;
+}
 .theme-dark.saveNamingRuleWrap {
   color: #fff;
 }
@@ -1044,9 +965,6 @@
   background: #333;
 }
 .theme-dark.settingForm {
-  background: #222;
-}
-.theme-dark.settingForm .tabsTitle {
   background: #222;
 }
 .downloadError {
@@ -1168,7 +1086,7 @@
   box-shadow: 0 0 15px #2ca6df;
   position: fixed;
   z-index: 9999;
-  min-width: 400px;
+  min-width: 500px;
   max-width: 800px;
   padding: 20px;
   border-radius: 12px;
@@ -1348,7 +1266,6 @@ iframe[name='expandedFooter'] {
 }
 .blockTagsForSpecificUserWrap .settingItem {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   padding: 5px 0;
 }
@@ -1365,6 +1282,7 @@ iframe[name='expandedFooter'] {
 .blockTagsForSpecificUserWrap .settingItem .inputItem.tags {
   flex: 1;
   display: flex;
+  max-width: 320px;
 }
 .blockTagsForSpecificUserWrap .settingItem .inputItem.tags input {
   flex: 1;

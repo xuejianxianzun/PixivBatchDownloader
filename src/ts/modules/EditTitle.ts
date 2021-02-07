@@ -26,7 +26,7 @@ const flags = {
 
 type FlagList = keyof typeof flags
 
-class TitleBar {
+class EditTitle {
   constructor() {
     this.bindEvents()
   }
@@ -156,5 +156,5 @@ class TitleBar {
     }, 500)
   }
 }
-new TitleBar()
+new EditTitle()
 export {}

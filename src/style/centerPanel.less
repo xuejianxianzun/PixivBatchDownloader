@@ -1,4 +1,5 @@
 @contentOffsetWidth: 700px;
+@sidePadding:25px;
 
 .centerWrap {
   box-sizing: border-box;
@@ -12,11 +13,10 @@
   background: #fff;
   top: 4vh;
   color: #444;
-  padding: 0 25px 20px;
+  padding: 20px 0px;
   border-radius: 15px;
   box-shadow: 0 0 25px @boxShadowBlue;
-  max-height: 94vh;
-  overflow: auto;
+  overflow: hidden;
 
   hr {
     border: none;
@@ -55,9 +55,102 @@
     color: @themeBlue !important;
   }
 
+  .centerWrap_head {
+    background: #fff;
+    padding: 0 @sidePadding;
+
+    img {
+      width: 16px;
+      vertical-align: inherit;
+    }
+
+    .centerWrap_title {
+      line-height: 30px;
+      text-align: center;
+      font-size: 18px;
+      position: relative;
+    }
+
+    .btns {
+      position: absolute;
+      right: 0;
+      top: 0;
+
+      .centerWrap_top_btn {
+        font-size: 20px;
+        width: 30px;
+        height: 30px;
+        line-height: 30px;
+        text-align: center;
+        cursor: pointer;
+        color: #666;
+        fill: #666;
+        user-select: none;
+        display: inline-block;
+
+        &.update {
+          display: none;
+        }
+
+        &.github_icon {
+          color: #777;
+        }
+
+        .icon {
+          vertical-align: initial;
+          padding-top: 5px;
+        }
+      }
+    }
+  }
+
+  .centerWrap_tabs {
+    display: flex;
+    padding: 0 @sidePadding;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 8px;
+    background: #fff;
+
+    .title {
+      text-align: center;
+      width: 100%;
+      flex: 1;
+      font-size: 1.1em;
+      cursor: pointer;
+      height: 36px;
+      line-height: 36px;
+      position: relative;
+    }
+
+    .title.active {
+      color: @themeBlue;
+
+      &::after {
+        content: '';
+        width: 100%;
+        height: 2px;
+        background: @themeBlue;
+        position: absolute;
+        top: 36px;
+        left: 0;
+        z-index: 1001;
+      }
+    }
+
+    .title:hover {
+      color: @themeBlue;
+    }
+  }
+
+  .centerWrap_con{
+    overflow: auto;
+    max-height: 76vh;
+    padding-left:@sidePadding;
+    // 主要内容区域只设置左 padding，不设置右 padding，因为右边要显示滚动条，所以要多留出可用区域
   .settingForm {
     position: relative;
-    z-index: 1001;
+    // 表单区域设置最大宽度，使其与右侧滚动条保持距离，否则里面的内容会紧贴着滚动条，很难看
+    max-width: 650px;   
     background: #fff;
 
     select {
@@ -118,53 +211,13 @@
       cursor: pointer;
     }
 
-    .tabsTitle {
-      position: sticky;
-      left: 0;
-      top: 0;
-      width: 100%;
-      z-index: 1001;
-      display: flex;
-      border-bottom: 1px solid #eee;
-      margin-bottom: 10px;
-      background: #fff;
-
-      .title {
-        text-align: center;
-        width: 100%;
-        flex: 1;
-        font-size: 1.1em;
-        cursor: pointer;
-        height: 40px;
-        line-height: 40px;
-        position: relative;
-      }
-
-      .title.active {
-        color: @themeBlue;
-
-        &::after {
-          content: '';
-          width: 100%;
-          height: 2px;
-          background: @themeBlue;
-          position: absolute;
-          top: 39px;
-          left: 0;
-          z-index: 1001;
+    
+      .tabsContnet {
+        display: none;
+        &:first-child{
+          display: block;
         }
       }
-
-      .title:hover {
-        color: @themeBlue;
-      }
-    }
-
-    .tabsContnet {
-      .con {
-        display: none;
-      }
-    }
 
     /*--------美化作为开关的复选框------------*/
 
@@ -292,70 +345,10 @@
       transform: translate(-50%, -50%) scale(1);
     }
   }
+}
 
-  .centerWrap_head {
-    padding-top: 20px;
-    position: sticky;
-    z-index: 1000;
-    background: #fff;
-
-    img {
-      width: 16px;
-      vertical-align: inherit;
-    }
-
-    .centerWrap_title {
-      line-height: 30px;
-      text-align: center;
-      font-size: 18px;
-      position: relative;
-    }
-
-    .btns {
-      position: absolute;
-      right: 0;
-      top: 0;
-
-      .centerWrap_top_btn {
-        font-size: 20px;
-        width: 30px;
-        height: 30px;
-        line-height: 30px;
-        text-align: center;
-        cursor: pointer;
-        color: #666;
-        fill: #666;
-        user-select: none;
-        display: inline-block;
-
-        &.update {
-          display: none;
-        }
-
-        &.github_icon {
-          color: #777;
-        }
-
-        .icon {
-          vertical-align: initial;
-          padding-top: 5px;
-        }
-      }
-    }
-  }
-
-  .centerWrap_top_btn:hover,
-  .showFileNameTip:hover,
-  .textButton:hover,
-  .textButton:focus,
-  .showFileNameResult:hover,
-  .bottom_help_bar > *:hover,
-  .updateActiveClass {
-    color: @themeBlue !important;
-    fill: @themeBlue !important;
-  }
-
-  .bottom_help_bar {
+  .help_bar {
+    // padding:0 @sidePadding;
     line-height: 24px;
 
     & > * {
@@ -367,8 +360,15 @@
     cursor: pointer;
   }
 
-  #resetSettings {
-    cursor: pointer;
+  .centerWrap_top_btn:hover,
+  .showFileNameTip:hover,
+  .textButton:hover,
+  .textButton:focus,
+  .showFileNameResult:hover,
+  .help_bar > *:hover,
+  .updateActiveClass {
+    color: @themeBlue !important;
+    fill: @themeBlue !important;
   }
 
   li {
@@ -444,7 +444,7 @@
   }
 
   .centerWrap_btns {
-    padding: 10px 0 0;
+    padding: 8px 0 0;
     font-size: 0;
     display: flex;
     flex-wrap: wrap;
@@ -463,7 +463,7 @@
       line-height: 20px;
       border-radius: 5px;
       cursor: pointer;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       vertical-align: top;
 
       &:hover,
@@ -588,13 +588,8 @@
     }
   }
 
-  .downTip,
-  .download_a,
   .download_area {
     display: none;
-  }
-
-  .download_area {
     .download_status_text_wrap {
       line-height: 26px;
       margin-bottom: 4px;
@@ -732,6 +727,10 @@
     .gray1 {
       color: #999;
     }
+    
+    .centerWrap_tabs {
+      background: #222;
+    }
   }
 }
 
@@ -761,10 +760,6 @@
 .theme-dark {
   &.settingForm {
     background: #222;
-
-    .tabsTitle {
-      background: #222;
-    }
   }
 }
 

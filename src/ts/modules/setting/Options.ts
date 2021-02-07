@@ -1,4 +1,3 @@
-import { EVT } from '../EVT'
 import { form } from './Form'
 
 interface WantPageArg {

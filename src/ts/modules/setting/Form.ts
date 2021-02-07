@@ -26,10 +26,6 @@ class Form {
 
     this.allLabel = this.form.querySelectorAll('label')
 
-    this.allTabTitle = this.form.querySelectorAll('.tabsTitle .title')
-
-    this.allTabCon = this.form.querySelectorAll('.tabsContnet .con')
-
     this.bindEvents()
 
     new SaveNamingRule(this.form.userSetName)
@@ -37,9 +33,6 @@ class Form {
     this.formSettings = new FormSettings(this.form)
 
     this.initFormBueatiful()
-
-    // 激活第一个选项卡
-    this.activeTab(0)
 
     this.checkTipCreateFolder()
   }
@@ -60,9 +53,6 @@ class Form {
   private allRadio: NodeListOf<HTMLInputElement> // 单选按钮
   private allLabel: NodeListOf<HTMLLabelElement> // 所有 label 标签
 
-  private allTabTitle: NodeListOf<HTMLDivElement> // 选项卡的标题区域
-  private allTabCon: NodeListOf<HTMLDivElement> // 选项卡的内容区域
-  private readonly activeClass = 'active'
 
   private readonly chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
 
@@ -71,18 +61,6 @@ class Form {
   private readonly tipCreateFolderFlag = 'tipCreateFolder' // 控制“创建文件夹的提示”是否显示
   private readonly tipCreateFolderId = 'tipCreateFolder' // “创建文件夹的提示”的容器 id
 
-  // 设置激活的选项卡
-  private activeTab(no = 0) {
-    for (const title of this.allTabTitle) {
-      title.classList.remove(this.activeClass)
-    }
-    this.allTabTitle[no].classList.add(this.activeClass)
-
-    for (const con of this.allTabCon) {
-      con.style.display = 'none'
-    }
-    this.allTabCon[no].style.display = 'block'
-  }
 
   private bindEvents() {
     // 给美化的复选框绑定功能
@@ -107,30 +85,6 @@ class Form {
 
       // 美化表单，包括设置子选项区域的显示隐藏。所以这需要在恢复设置之后执行
       this.initFormBueatiful()
-    })
-
-    // 在选项卡的标题上触发事件时，激活对应的选项卡
-    for (let index = 0; index < this.allTabTitle.length; index++) {
-      ;['click', 'mouseenter'].forEach((name) => {
-        this.allTabTitle[index].addEventListener(name, () => {
-          this.activeTab(index)
-        })
-      })
-    }
-
-    // 当可以开始下载时，切换到“下载”选项卡
-    for (const ev of [
-      EVT.list.crawlFinish,
-      EVT.list.resultChange,
-      EVT.list.resume,
-    ]) {
-      window.addEventListener(ev, () => {
-        this.activeTab(1)
-      })
-    }
-
-    window.addEventListener(EVT.list.crawlEmpty, () => {
-      this.activeTab(0)
     })
 
     // 预览文件名
