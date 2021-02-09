@@ -339,6 +339,7 @@
   background: -webkit-linear-gradient(top, #47b4ff 0%, #027fd2 100%);
 }
 .centerWrap {
+  background-color: #fff;
   box-sizing: border-box;
   position: fixed;
   z-index: 5000;
@@ -347,9 +348,9 @@
   width: 700px;
   left: -340px;
   margin-left: 50%;
-  background: #fff;
   top: 4vh;
   color: #444;
+  text-shadow: 1px 1px 5px #fff;
   padding: 20px 0px;
   border-radius: 15px;
   box-shadow: 0 0 25px #2ca6df;
@@ -387,7 +388,6 @@
   color: #0ea8ef !important;
 }
 .centerWrap .centerWrap_head {
-  background: #fff;
   padding: 0 25px;
 }
 .centerWrap .centerWrap_head img {
@@ -432,7 +432,6 @@
   padding: 0 25px;
   border-bottom: 1px solid #eee;
   margin-bottom: 8px;
-  background: #fff;
 }
 .centerWrap .centerWrap_tabs .title {
   text-align: center;
@@ -468,7 +467,6 @@
 .centerWrap .centerWrap_con .settingForm {
   position: relative;
   max-width: 650px;
-  background: #fff;
   /*--------美化作为开关的复选框------------*/
   /*--------美化普通的复选框------------*/
   /*--------美化单选框------------*/
@@ -853,7 +851,7 @@
   font-weight: 700;
 }
 .centerWrap .gray1 {
-  color: #999;
+  color: #666;
 }
 .centerWrap .verticalSplit {
   display: inline-block;
@@ -927,6 +925,7 @@
   background: #222;
   box-shadow: #10506e 0px 0px 15px;
   color: #fff;
+  text-shadow: 1px 1px 5px #000;
 }
 .theme-dark.centerWrap button {
   color: #fff;
@@ -939,14 +938,26 @@
 .theme-dark.centerWrap .tip {
   color: #fff;
 }
-.theme-dark.centerWrap .centerWrap_head {
-  background: #222;
-}
 .theme-dark.centerWrap .gray1 {
-  color: #999;
+  color: #ccc;
 }
-.theme-dark.centerWrap .centerWrap_tabs {
-  background: #222;
+.theme-dark.centerWrap .blue,
+.theme-dark.centerWrap .has_tip:hover,
+.theme-dark.centerWrap label:hover,
+.theme-dark.centerWrap .title.active,
+.theme-dark.centerWrap .title:hover,
+.theme-dark.centerWrap .down_status {
+  color: #29b3f3 !important;
+}
+.theme-dark.centerWrap .centerWrap_top_btn:hover,
+.theme-dark.centerWrap .showFileNameTip:hover,
+.theme-dark.centerWrap .textButton:hover,
+.theme-dark.centerWrap .textButton:focus,
+.theme-dark.centerWrap .showFileNameResult:hover,
+.theme-dark.centerWrap .help_bar > *:hover,
+.theme-dark.centerWrap .updateActiveClass {
+  color: #29b3f3 !important;
+  fill: #29b3f3 !important;
 }
 .theme-dark.saveNamingRuleWrap {
   color: #fff;
@@ -964,14 +975,25 @@
 .theme-dark.saveNamingRuleWrap .namingRuleList li:hover {
   background: #333;
 }
-.theme-dark.settingForm {
-  background: #222;
-}
 .downloadError {
   color: #ffa0a0;
 }
 .patronText {
   display: none;
+}
+#xzBG {
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position-x: center;
+  background-position-y: center;
+  opacity: 0.4;
 }
 .outputWrap {
   padding: 20px 30px;

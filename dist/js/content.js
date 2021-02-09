@@ -103,23 +103,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modules_DownloadButton__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./modules/DownloadButton */ "./src/ts/modules/DownloadButton.ts");
 /* harmony import */ var _modules_CenterPanel__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./modules/CenterPanel */ "./src/ts/modules/CenterPanel.ts");
 /* harmony import */ var _modules_setting_FormSettings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./modules/setting/FormSettings */ "./src/ts/modules/setting/FormSettings.ts");
-/* harmony import */ var _modules_InitPage__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./modules/InitPage */ "./src/ts/modules/InitPage.ts");
-/* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./modules/DownloadControl */ "./src/ts/modules/DownloadControl.ts");
-/* harmony import */ var _modules_ListenPageSwitch__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./modules/ListenPageSwitch */ "./src/ts/modules/ListenPageSwitch.ts");
-/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./modules/Tip */ "./src/ts/modules/Tip.ts");
-/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_modules_Tip__WEBPACK_IMPORTED_MODULE_11__);
-/* harmony import */ var _modules_EditTitle__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./modules/EditTitle */ "./src/ts/modules/EditTitle.ts");
-/* harmony import */ var _modules_ViewBigImage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./modules/ViewBigImage */ "./src/ts/modules/ViewBigImage.ts");
-/* harmony import */ var _modules_output_OutputPanel__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./modules/output/OutputPanel */ "./src/ts/modules/output/OutputPanel.ts");
-/* harmony import */ var _modules_output_PreviewFileName__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./modules/output/PreviewFileName */ "./src/ts/modules/output/PreviewFileName.ts");
-/* harmony import */ var _modules_output_ShowURLs__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./modules/output/ShowURLs */ "./src/ts/modules/output/ShowURLs.ts");
-/* harmony import */ var _modules_CheckNew__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./modules/CheckNew */ "./src/ts/modules/CheckNew.ts");
-/* harmony import */ var _modules_ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./modules/ShowWhatIsNew */ "./src/ts/modules/ShowWhatIsNew.ts");
-/* harmony import */ var _modules_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./modules/ExportResult2CSV */ "./src/ts/modules/ExportResult2CSV.ts");
-/* harmony import */ var _modules_ExportResult__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./modules/ExportResult */ "./src/ts/modules/ExportResult.ts");
-/* harmony import */ var _modules_ImportResult__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./modules/ImportResult */ "./src/ts/modules/ImportResult.ts");
-/* harmony import */ var _modules_ExportLST__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./modules/ExportLST */ "./src/ts/modules/ExportLST.ts");
-/* harmony import */ var _modules_ShowHowToUse__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./modules/ShowHowToUse */ "./src/ts/modules/ShowHowToUse.ts");
+/* harmony import */ var _modules_BG__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./modules/BG */ "./src/ts/modules/BG.ts");
+/* harmony import */ var _modules_InitPage__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./modules/InitPage */ "./src/ts/modules/InitPage.ts");
+/* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./modules/DownloadControl */ "./src/ts/modules/DownloadControl.ts");
+/* harmony import */ var _modules_ListenPageSwitch__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./modules/ListenPageSwitch */ "./src/ts/modules/ListenPageSwitch.ts");
+/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./modules/Tip */ "./src/ts/modules/Tip.ts");
+/* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(_modules_Tip__WEBPACK_IMPORTED_MODULE_12__);
+/* harmony import */ var _modules_EditTitle__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./modules/EditTitle */ "./src/ts/modules/EditTitle.ts");
+/* harmony import */ var _modules_ViewBigImage__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./modules/ViewBigImage */ "./src/ts/modules/ViewBigImage.ts");
+/* harmony import */ var _modules_output_OutputPanel__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./modules/output/OutputPanel */ "./src/ts/modules/output/OutputPanel.ts");
+/* harmony import */ var _modules_output_PreviewFileName__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./modules/output/PreviewFileName */ "./src/ts/modules/output/PreviewFileName.ts");
+/* harmony import */ var _modules_output_ShowURLs__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./modules/output/ShowURLs */ "./src/ts/modules/output/ShowURLs.ts");
+/* harmony import */ var _modules_CheckNew__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./modules/CheckNew */ "./src/ts/modules/CheckNew.ts");
+/* harmony import */ var _modules_ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./modules/ShowWhatIsNew */ "./src/ts/modules/ShowWhatIsNew.ts");
+/* harmony import */ var _modules_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./modules/ExportResult2CSV */ "./src/ts/modules/ExportResult2CSV.ts");
+/* harmony import */ var _modules_ExportResult__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./modules/ExportResult */ "./src/ts/modules/ExportResult.ts");
+/* harmony import */ var _modules_ImportResult__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./modules/ImportResult */ "./src/ts/modules/ImportResult.ts");
+/* harmony import */ var _modules_ExportLST__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./modules/ExportLST */ "./src/ts/modules/ExportLST.ts");
+/* harmony import */ var _modules_ShowHowToUse__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./modules/ShowHowToUse */ "./src/ts/modules/ShowHowToUse.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -137,6 +138,7 @@ __webpack_require__.r(__webpack_exports__);
     // 把脚本版的标记设置为 0，这样脚本版就不会运行
     window.sessionStorage.setItem('xz_pixiv_userscript', '0');
 }
+
 
 
 
@@ -476,6 +478,124 @@ class API {
     }
 }
 
+
+
+/***/ }),
+
+/***/ "./src/ts/modules/BG.ts":
+/*!******************************!*\
+  !*** ./src/ts/modules/BG.ts ***!
+  \******************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./DOM */ "./src/ts/modules/DOM.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/modules/EVT.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tools */ "./src/ts/modules/Tools.ts");
+/* harmony import */ var _IndexedDB__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./IndexedDB */ "./src/ts/modules/IndexedDB.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/modules/setting/Settings.ts");
+
+
+
+
+
+class BG {
+    constructor() {
+        this.id = 'xzBG';
+        this.DBName = 'PBDBG';
+        this.DBVer = 1;
+        this.storeName = 'bg';
+        this.keyName = 'bg';
+        // 在数据库升级事件里创建表
+        this.onUpdate = (db) => {
+            if (!db.objectStoreNames.contains(this.storeName)) {
+                db.createObjectStore(this.storeName, {
+                    keyPath: 'key',
+                });
+            }
+        };
+        this.el = this.createEl();
+        this.IDB = new _IndexedDB__WEBPACK_IMPORTED_MODULE_3__["IndexedDB"]();
+        this.init();
+    }
+    async init() {
+        this.bindEvents();
+        await this.initDB();
+        this.restore();
+    }
+    async initDB() {
+        await this.IDB.open(this.DBName, this.DBVer, this.onUpdate);
+    }
+    createEl() {
+        const div = document.createElement('div');
+        div.id = this.id;
+        return _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].useSlot('bg', div);
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.selectBG, () => {
+            this.selectBG();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.clearBG, () => {
+            this.clearBG();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'bgDisplay') {
+                this.setDisplay();
+            }
+            if (data.name === 'bgOpacity') {
+                this.setOpacity();
+            }
+            if (data.name === 'bgPositionY') {
+                this.setPositionY();
+            }
+        });
+    }
+    async restore() {
+        const data = (await this.IDB.get(this.storeName, this.keyName));
+        if (!data || !data.file) {
+            return;
+        }
+        const url = URL.createObjectURL(data.file);
+        this.setBGImage(url);
+    }
+    async selectBG() {
+        const file = (await _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].selectFile('.jpg,.jpeg,.png,.bmp'))[0];
+        const url = URL.createObjectURL(file);
+        this.setBGImage(url);
+        const data = {
+            key: this.keyName,
+            file: file,
+        };
+        const test = await this.IDB.get(this.storeName, this.keyName);
+        this.IDB[test ? 'put' : 'add'](this.storeName, data);
+    }
+    async setBGImage(url) {
+        this.setDisplay();
+        this.setOpacity();
+        this.setPositionY();
+        // 预加载背景图片
+        // 由于浏览器的工作原理，背景图片在未被显示之前是不会加载的，在显示时才会进行加载。这会导致背景层显示之后出现短暂的空白（因为在加载图片）。为了避免空白，需要预加载图片
+        await _DOM__WEBPACK_IMPORTED_MODULE_0__["DOM"].loadImg(url);
+        this.el.style.backgroundImage = `url(${url})`;
+    }
+    setDisplay() {
+        this.el.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].bgDisplay ? 'block' : 'none';
+    }
+    setOpacity() {
+        this.el.style.opacity = (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].bgOpacity / 100).toString();
+    }
+    setPositionY() {
+        this.el.style.backgroundPositionY = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].bgPositionY;
+    }
+    clearBG() {
+        this.el.style.backgroundImage = 'none';
+        this.IDB.clear(this.storeName);
+    }
+}
+new BG();
 
 
 /***/ }),
@@ -877,6 +997,9 @@ class CenterPanel {
     addCenterPanel() {
         const centerPanelHTML = `
       <div class="centerWrap">
+
+      <slot data-name="bg"></slot>
+
       <div class="centerWrap_head">
       <div class="centerWrap_title blue">
       ${_Config__WEBPACK_IMPORTED_MODULE_4__["default"].name}
@@ -982,7 +1105,7 @@ class CenterPanel {
         this.centerPanel
             .querySelector('.showDownTip')
             .addEventListener('click', () => _MsgBox__WEBPACK_IMPORTED_MODULE_5__["msgBox"].show(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载说明'), {
-            title: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_常见问题')
+            title: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_常见问题'),
         }));
         this.centerPanel.addEventListener('click', (e) => {
             const ev = e || window.event;
@@ -1024,7 +1147,7 @@ class CenterPanel {
         this.allTabTitle[no].classList.add(this.activeClass);
         const allTabCon = this.centerPanel.querySelectorAll('.tabsContnet');
         for (let index = 0; index < allTabCon.length; index++) {
-            allTabCon[index].style.display = (index === no ? 'block' : 'none');
+            allTabCon[index].style.display = index === no ? 'block' : 'none';
         }
     }
     // 显示中间区域
@@ -2985,6 +3108,10 @@ EVT.list = {
     sendToast: 'sendToast',
     // 需要清空日志区域时触发
     clearLog: 'clearLog',
+    // 选择背景图片
+    selectBG: 'selectBG',
+    // 清除背景图片
+    clearBG: 'clearBG',
 };
 EVT.bindOnce = bindOnce;
 
@@ -8112,6 +8239,12 @@ const langText = {
         'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。',
     ],
     _我知道了: ['我知道了', '我知道了', '我知道了', '分かりました'],
+    _背景图片: ['背景图片', '背景图片', '背景图片', '背景图片'],
+    _选择文件: ['选择文件', '选择文件', '选择文件', '选择文件'],
+    _不透明度: ['不透明度', '不透明度', '不透明度', '不透明度'],
+    _对齐方式: ['对齐方式', '对齐方式', '对齐方式', '对齐方式'],
+    _顶部: ['顶部', '顶部', '顶部', '顶部'],
+    _居中: ['居中', '居中', '居中', '居中'],
 };
 
 
@@ -10856,6 +10989,25 @@ class Tools {
             i.click();
         });
     }
+    // 创建 input 元素选择文件
+    static async selectFile(accept) {
+        return new Promise((resolve, reject) => {
+            const i = document.createElement('input');
+            i.setAttribute('type', 'file');
+            if (accept) {
+                i.setAttribute('accept', accept);
+            }
+            i.onchange = () => {
+                if (i.files && i.files.length > 0) {
+                    return resolve(i.files);
+                }
+                else {
+                    return reject();
+                }
+            };
+            i.click();
+        });
+    }
     // 通过创建 a 标签来下载文件
     static downloadFile(url, fileName) {
         const a = document.createElement('a');
@@ -11886,7 +12038,8 @@ class InitNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
             this.option.limit = this.limitMax.toString();
         }
         // 当前页面的作品类型，默认是 illust
-        this.option.type = _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].getURLSearchField(location.href, 'type') || 'illust';
+        this.option.type =
+            _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].getURLSearchField(location.href, 'type') || 'illust';
         // 是否是 R18 模式
         this.option.r18 = (location.href.includes('_r18.php') || false).toString();
     }
@@ -15696,6 +15849,24 @@ class Form {
         _DOM__WEBPACK_IMPORTED_MODULE_1__["DOM"].addBtn('exportResult', _Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导入抓取结果')).addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.importResult);
         }, false);
+        // 选择背景图片
+        {
+            const el = this.form.querySelector('#selectBG');
+            if (el) {
+                el.addEventListener('click', () => {
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.selectBG);
+                });
+            }
+        }
+        // 清除背景图片
+        {
+            const el = this.form.querySelector('#clearBG');
+            if (el) {
+                el.addEventListener('click', () => {
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearBG);
+                });
+            }
+        }
         // 重置设置按钮
         {
             const el = this.form.querySelector('#resetSettings');
@@ -16436,6 +16607,31 @@ const formHtml = `<form class="settingForm">
       <label for="theme3">Dark</label>
       </p>
 
+      <p class="option" data-no="41">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_背景图片')} </span>
+      <input type="checkbox" name="bgDisplay" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+
+      <span class="subOptionWrap" data-show="bgDisplay">
+
+      <button class="textButton gray1" type="button" id="selectBG">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_选择文件')}</button>
+      <button class="textButton gray1" type="button" id="clearBG">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_清除')}</button>
+      
+      &nbsp;
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_对齐方式')}&nbsp;</span>
+      <input type="radio" name="bgPositionY" id="bgPosition1" class="need_beautify radio" value="center" checked>
+      <span class="beautify_radio"></span>
+      <label for="bgPosition1">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_居中')}</label>
+      <input type="radio" name="bgPositionY" id="bgPosition2" class="need_beautify radio" value="top">
+      <span class="beautify_radio"></span>
+      <label for="bgPosition2">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_顶部')}</label>
+
+      &nbsp;
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_不透明度')}&nbsp;</span>
+      <input name="bgOpacity" type="range" />
+      </span>
+      </p>
+
       <p class="option" data-no="32">
       <span class="settingNameStyle1">Language</span>
       <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
@@ -16644,6 +16840,9 @@ class FormSettings {
         this.saveCheckBox('blockTagsForSpecificUser');
         this.saveRadio('needTagMode');
         this.saveRadio('theme');
+        this.saveCheckBox('bgDisplay');
+        this.saveTextInput('bgOpacity');
+        this.saveRadio('bgPositionY');
     }
     // 表单里的设置发生改变时，调用这个方法，传递选项名和值
     emitChange(name, value) {
@@ -16777,6 +16976,9 @@ class FormSettings {
         this.restoreString('theme');
         this.restoreBoolean('magnifier');
         this.restoreString('magnifierSize');
+        this.restoreBoolean('bgDisplay');
+        this.restoreString('bgOpacity');
+        this.restoreString('bgPositionY');
     }
 }
 
@@ -17143,6 +17345,9 @@ class Settings {
             blockTagsForSpecificUserList: [],
             magnifier: true,
             magnifierSize: 'regular',
+            bgDisplay: false,
+            bgOpacity: 40,
+            bgPositionY: 'center',
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         this.floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax'];

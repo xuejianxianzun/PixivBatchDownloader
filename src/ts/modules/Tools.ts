@@ -119,6 +119,26 @@ class Tools {
     })
   }
 
+  // 创建 input 元素选择文件
+  static async selectFile(accept?: string) {
+    return new Promise<FileList>((resolve, reject) => {
+      const i = document.createElement('input')
+      i.setAttribute('type', 'file')
+      if (accept) {
+        i.setAttribute('accept', accept)
+      }
+      i.onchange = () => {
+        if (i.files && i.files.length > 0) {
+          return resolve(i.files)
+        } else {
+          return reject()
+        }
+      }
+
+      i.click()
+    })
+  }
+
   // 通过创建 a 标签来下载文件
   static downloadFile(url: string, fileName: string) {
     const a = document.createElement('a')
@@ -221,7 +241,6 @@ class Tools {
     const test = str.match(/\?id=(\d*)?/)
     return test![1]
   }
-
 }
 
 export { Tools }

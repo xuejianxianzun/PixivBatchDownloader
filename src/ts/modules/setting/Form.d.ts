@@ -71,4 +71,7 @@ export interface SettingsForm extends HTMLFormElement {
   blockTagsForSpecificUser: HTMLInputElement
   magnifier: HTMLInputElement
   magnifierSize: RadioNodeList
+  bgDisplay: HTMLInputElement
+  bgOpacity: HTMLInputElement
+  bgPositionY: HTMLInputElement
 }

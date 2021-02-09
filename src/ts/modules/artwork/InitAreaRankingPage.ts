@@ -15,7 +15,7 @@ class InitAreaRankingPage extends InitPageBase {
     this.init()
   }
 
-  protected initAny() { }
+  protected initAny() {}
 
   protected addCrawlBtns() {
     DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取本页作品'), [

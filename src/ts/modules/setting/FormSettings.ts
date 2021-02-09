@@ -202,6 +202,10 @@ class FormSettings {
     this.saveRadio('needTagMode')
 
     this.saveRadio('theme')
+
+    this.saveCheckBox('bgDisplay')
+    this.saveTextInput('bgOpacity')
+    this.saveRadio('bgPositionY')
   }
 
   // 表单里的设置发生改变时，调用这个方法，传递选项名和值
@@ -381,6 +385,10 @@ class FormSettings {
 
     this.restoreBoolean('magnifier')
     this.restoreString('magnifierSize')
+
+    this.restoreBoolean('bgDisplay')
+    this.restoreString('bgOpacity')
+    this.restoreString('bgPositionY')
   }
 }
 

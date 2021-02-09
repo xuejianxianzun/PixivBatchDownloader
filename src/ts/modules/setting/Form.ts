@@ -53,14 +53,12 @@ class Form {
   private allRadio: NodeListOf<HTMLInputElement> // 单选按钮
   private allLabel: NodeListOf<HTMLLabelElement> // 所有 label 标签
 
-
   private readonly chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
 
   private formSettings: FormSettings
 
   private readonly tipCreateFolderFlag = 'tipCreateFolder' // 控制“创建文件夹的提示”是否显示
   private readonly tipCreateFolderId = 'tipCreateFolder' // “创建文件夹的提示”的容器 id
-
 
   private bindEvents() {
     // 给美化的复选框绑定功能
@@ -138,6 +136,26 @@ class Form {
       },
       false
     )
+
+    // 选择背景图片
+    {
+      const el = this.form.querySelector('#selectBG')
+      if (el) {
+        el.addEventListener('click', () => {
+          EVT.fire(EVT.list.selectBG)
+        })
+      }
+    }
+
+    // 清除背景图片
+    {
+      const el = this.form.querySelector('#clearBG')
+      if (el) {
+        el.addEventListener('click', () => {
+          EVT.fire(EVT.list.clearBG)
+        })
+      }
+    }
 
     // 重置设置按钮
     {

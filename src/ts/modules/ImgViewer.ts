@@ -154,19 +154,19 @@ class ImgViewer {
       },
       true
     )
-      ;[
-        'fullscreenchange',
-        'webkitfullscreenchange',
-        'mozfullscreenchange',
-      ].forEach((arg) => {
-        // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
-        document.addEventListener(arg, () => {
-          // 退出全屏
-          if (this.myViewer && !this.isFullscreen()) {
-            this.showViewerOther()
-          }
-        })
+    ;[
+      'fullscreenchange',
+      'webkitfullscreenchange',
+      'mozfullscreenchange',
+    ].forEach((arg) => {
+      // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
+      document.addEventListener(arg, () => {
+        // 退出全屏
+        if (this.myViewer && !this.isFullscreen()) {
+          this.showViewerOther()
+        }
       })
+    })
   }
 
   // 创建缩略图列表
@@ -369,13 +369,13 @@ class ImgViewer {
 
     document.body.requestFullscreen()
 
-      // 这里延迟一段时间再把图片放大到 100%
-      // 这是因为进入全屏后，当前显示的这张图不会自动放大到 100%，所以需要对它执行一次放大。延迟时间不能太小
-      ;[150, 300].forEach((time) => {
-        window.setTimeout(() => {
-          this.myViewer.zoomTo(1)
-        }, time)
-      })
+    // 这里延迟一段时间再把图片放大到 100%
+    // 这是因为进入全屏后，当前显示的这张图不会自动放大到 100%，所以需要对它执行一次放大。延迟时间不能太小
+    ;[150, 300].forEach((time) => {
+      window.setTimeout(() => {
+        this.myViewer.zoomTo(1)
+      }, time)
+    })
   }
 
   // 在图片查看器里添加下载按钮

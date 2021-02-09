@@ -26,7 +26,7 @@ class InitBookmarkDetailPage extends InitPageBase {
     )
   }
 
-  protected initAny() { }
+  protected initAny() {}
 
   protected setFormOption() {
     // 个数/页数选项的提示
@@ -43,7 +43,10 @@ class InitBookmarkDetailPage extends InitPageBase {
 
   // 获取相似的作品列表
   protected async getIdList() {
-    let data = await API.getRecommenderData(Tools.getIllustId(), this.crawlNumber)
+    let data = await API.getRecommenderData(
+      Tools.getIllustId(),
+      this.crawlNumber
+    )
 
     for (const id of data.recommendations) {
       store.idList.push({

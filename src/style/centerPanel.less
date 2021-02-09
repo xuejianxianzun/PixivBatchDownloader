@@ -1,7 +1,8 @@
 @contentOffsetWidth: 700px;
-@sidePadding:25px;
+@sidePadding: 25px;
 
 .centerWrap {
+  background-color: #fff;
   box-sizing: border-box;
   position: fixed;
   z-index: 5000;
@@ -10,9 +11,9 @@
   width: @contentOffsetWidth;
   left: -340px;
   margin-left: 50%;
-  background: #fff;
   top: 4vh;
   color: #444;
+  text-shadow: 1px 1px 5px #fff;
   padding: 20px 0px;
   border-radius: 15px;
   box-shadow: 0 0 25px @boxShadowBlue;
@@ -56,7 +57,6 @@
   }
 
   .centerWrap_head {
-    background: #fff;
     padding: 0 @sidePadding;
 
     img {
@@ -109,7 +109,6 @@
     padding: 0 @sidePadding;
     border-bottom: 1px solid #eee;
     margin-bottom: 8px;
-    background: #fff;
 
     .title {
       text-align: center;
@@ -142,210 +141,208 @@
     }
   }
 
-  .centerWrap_con{
+  .centerWrap_con {
     overflow: auto;
     max-height: 76vh;
-    padding-left:@sidePadding;
+    padding-left: @sidePadding;
     // 主要内容区域只设置左 padding，不设置右 padding，因为右边要显示滚动条，所以要多留出可用区域
-  .settingForm {
-    position: relative;
-    // 表单区域设置最大宽度，使其与右侧滚动条保持距离，否则里面的内容会紧贴着滚动条，很难看
-    max-width: 650px;   
-    background: #fff;
+    .settingForm {
+      position: relative;
+      // 表单区域设置最大宽度，使其与右侧滚动条保持距离，否则里面的内容会紧贴着滚动条，很难看
+      max-width: 650px;
 
-    select {
-      width: 80px;
-      height: 20px;
-      vertical-align: middle;
-      border-radius: 4px;
-      border: 1px solid rgb(204, 204, 204);
-    }
-
-    option {
-      font-size: 14px !important;
-      line-height: 24px;
-    }
-
-    p * {
-      vertical-align: middle;
-      line-height: 1;
-    }
-
-    p strong {
-      vertical-align: baseline;
-    }
-
-    #tipCreateFolder {
-      display: none;
-    }
-
-    .flexTip {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      .right {
-        flex-grow: 0;
-        flex-shrink: 0;
-        flex-basis: auto;
+      select {
+        width: 80px;
+        height: 20px;
+        vertical-align: middle;
+        border-radius: 4px;
+        border: 1px solid rgb(204, 204, 204);
       }
-    }
 
-    .tipWithBtn {
-      .left {
-        display: inline-block;
+      option {
+        font-size: 14px !important;
+        line-height: 24px;
       }
-      .right {
-        display: inline-block;
-        margin-left: 20px;
+
+      p * {
+        vertical-align: middle;
+        line-height: 1;
       }
-    }
 
-    .need_beautify {
-      position: absolute;
-      width: 0;
-      height: 0;
-      opacity: 0;
-    }
+      p strong {
+        vertical-align: baseline;
+      }
 
-    label {
-      cursor: pointer;
-    }
+      #tipCreateFolder {
+        display: none;
+      }
 
-    
+      .flexTip {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .right {
+          flex-grow: 0;
+          flex-shrink: 0;
+          flex-basis: auto;
+        }
+      }
+
+      .tipWithBtn {
+        .left {
+          display: inline-block;
+        }
+        .right {
+          display: inline-block;
+          margin-left: 20px;
+        }
+      }
+
+      .need_beautify {
+        position: absolute;
+        width: 0;
+        height: 0;
+        opacity: 0;
+      }
+
+      label {
+        cursor: pointer;
+      }
+
       .tabsContnet {
         display: none;
-        &:first-child{
+        &:first-child {
           display: block;
         }
       }
 
-    /*--------美化作为开关的复选框------------*/
+      /*--------美化作为开关的复选框------------*/
 
-    label.active {
-      color: #29b3f3;
-    }
+      label.active {
+        color: @beautifyBlue;
+      }
 
-    .beautify_switch {
-      display: inline-block;
-      width: 24px;
-      height: 14px;
-      position: relative;
-      border-radius: 7px;
-      background: #ccc;
-      transition: all 0.3s;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
+      .beautify_switch {
+        display: inline-block;
+        width: 24px;
+        height: 14px;
+        position: relative;
+        border-radius: 7px;
+        background: #ccc;
+        transition: all 0.3s;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
 
-    .beautify_switch::before {
-      content: '';
-      position: absolute;
-      top: 1px;
-      height: 12px;
-      width: 12px;
-      border-radius: 50%;
-      background: #fff;
-      left: 0;
-      margin-left: 0px;
-      transition: all 0.3s;
-    }
+      .beautify_switch::before {
+        content: '';
+        position: absolute;
+        top: 1px;
+        height: 12px;
+        width: 12px;
+        border-radius: 50%;
+        background: #fff;
+        left: 0;
+        margin-left: 0px;
+        transition: all 0.3s;
+      }
 
-    .checkbox_switch:checked + .beautify_switch {
-      background: @beautifyBlue;
-    }
+      .checkbox_switch:checked + .beautify_switch {
+        background: @beautifyBlue;
+      }
 
-    .checkbox_switch:checked + .beautify_switch::before {
-      margin-left: 12px;
-    }
+      .checkbox_switch:checked + .beautify_switch::before {
+        margin-left: 12px;
+      }
 
-    /*--------美化普通的复选框------------*/
-    .beautify_checkbox {
-      display: inline-block;
-      position: relative;
-      border: 1px solid #dcdfe6;
-      border-radius: 2px;
-      box-sizing: border-box;
-      width: 14px;
-      height: 14px;
-      background-color: #fff;
-      z-index: 1;
-      transition: all 0.3s;
-      cursor: pointer;
-    }
+      /*--------美化普通的复选框------------*/
+      .beautify_checkbox {
+        display: inline-block;
+        position: relative;
+        border: 1px solid #dcdfe6;
+        border-radius: 2px;
+        box-sizing: border-box;
+        width: 14px;
+        height: 14px;
+        background-color: #fff;
+        z-index: 1;
+        transition: all 0.3s;
+        cursor: pointer;
+      }
 
-    .beautify_checkbox::after {
-      box-sizing: content-box;
-      content: '';
-      border: 1px solid #fff;
-      border-left: 0;
-      border-top: 0;
-      height: 7px;
-      left: 4px;
-      position: absolute;
-      top: 1px;
-      transform: rotate(45deg) scaleY(0);
-      width: 3px;
-      transition: all 0.2s;
-      transform-origin: center;
-    }
+      .beautify_checkbox::after {
+        box-sizing: content-box;
+        content: '';
+        border: 1px solid #fff;
+        border-left: 0;
+        border-top: 0;
+        height: 7px;
+        left: 4px;
+        position: absolute;
+        top: 1px;
+        transform: rotate(45deg) scaleY(0);
+        width: 3px;
+        transition: all 0.2s;
+        transform-origin: center;
+      }
 
-    .checkbox_common:checked + .beautify_checkbox {
-      background: @beautifyBlue;
-      border: 1px solid @beautifyBlue;
-    }
+      .checkbox_common:checked + .beautify_checkbox {
+        background: @beautifyBlue;
+        border: 1px solid @beautifyBlue;
+      }
 
-    .beautify_checkbox:hover {
-      border: 1px solid @beautifyBlue;
-    }
+      .beautify_checkbox:hover {
+        border: 1px solid @beautifyBlue;
+      }
 
-    .checkbox_common:checked + .beautify_checkbox::after {
-      transform: rotate(45deg) scaleY(1);
-    }
+      .checkbox_common:checked + .beautify_checkbox::after {
+        transform: rotate(45deg) scaleY(1);
+      }
 
-    .checkbox_common:focus + .beautify_checkbox {
-      border: 1px solid @beautifyBlue;
-    }
+      .checkbox_common:focus + .beautify_checkbox {
+        border: 1px solid @beautifyBlue;
+      }
 
-    /*--------美化单选框------------*/
-    .beautify_radio {
-      border: 1px solid #dcdfe6;
-      border-radius: 100%;
-      width: 12px;
-      height: 12px;
-      background-color: #fff;
-      position: relative;
-      cursor: pointer;
-      display: inline-block;
-      box-sizing: border-box;
-    }
+      /*--------美化单选框------------*/
+      .beautify_radio {
+        border: 1px solid #dcdfe6;
+        border-radius: 100%;
+        width: 12px;
+        height: 12px;
+        background-color: #fff;
+        position: relative;
+        cursor: pointer;
+        display: inline-block;
+        box-sizing: border-box;
+      }
 
-    .beautify_radio::after {
-      width: 6px;
-      height: 6px;
-      border-radius: 100%;
-      background-color: #fff;
-      content: '';
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      transition: transform 0.15s ease-in;
-    }
+      .beautify_radio::after {
+        width: 6px;
+        height: 6px;
+        border-radius: 100%;
+        background-color: #fff;
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) scale(0);
+        transition: transform 0.15s ease-in;
+      }
 
-    .radio:checked + .beautify_radio {
-      background: @beautifyBlue;
-      border: 1px solid @beautifyBlue;
-    }
+      .radio:checked + .beautify_radio {
+        background: @beautifyBlue;
+        border: 1px solid @beautifyBlue;
+      }
 
-    .beautify_radio:hover {
-      border: 1px solid @beautifyBlue;
-    }
+      .beautify_radio:hover {
+        border: 1px solid @beautifyBlue;
+      }
 
-    .radio:checked + .beautify_radio::after {
-      transform: translate(-50%, -50%) scale(1);
+      .radio:checked + .beautify_radio::after {
+        transform: translate(-50%, -50%) scale(1);
+      }
     }
   }
-}
 
   .help_bar {
     // padding:0 @sidePadding;
@@ -615,7 +612,7 @@
   }
 
   .gray1 {
-    color: #999;
+    color: #666;
   }
 
   .verticalSplit {
@@ -706,6 +703,7 @@
     background: #222;
     box-shadow: @darkBoxShadow 0px 0px 15px;
     color: #fff;
+    text-shadow: 1px 1px 5px #000;
 
     button {
       color: #fff;
@@ -721,16 +719,29 @@
       color: #fff;
     }
 
-    .centerWrap_head {
-      background: #222;
-    }
     .gray1 {
-      color: #999;
+      color: #ccc;
     }
-    
-    .centerWrap_tabs {
-      background: #222;
+
+    .blue,
+    .has_tip:hover,
+  label:hover,
+  .title.active,
+  .title:hover,
+  .down_status {
+      color: @beautifyBlue !important;
     }
+
+    .centerWrap_top_btn:hover,
+  .showFileNameTip:hover,
+  .textButton:hover,
+  .textButton:focus,
+  .showFileNameResult:hover,
+  .help_bar > *:hover,
+  .updateActiveClass {
+    color: @beautifyBlue !important;
+    fill: @beautifyBlue !important;
+  }
   }
 }
 
@@ -757,16 +768,26 @@
   }
 }
 
-.theme-dark {
-  &.settingForm {
-    background: #222;
-  }
-}
-
 .downloadError {
   color: rgb(255, 160, 160);
 }
 
 .patronText {
   display: none;
+}
+
+#xzBG {
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position-x: center;
+  background-position-y: center;
+  opacity: 0.4;
+  // filter: blur(1px);
 }

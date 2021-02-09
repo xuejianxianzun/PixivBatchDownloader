@@ -94,6 +94,9 @@ interface XzSetting {
   blockTagsForSpecificUserList: BlockTagsForSpecificUserItem[]
   magnifier: boolean
   magnifierSize: 'original' | 'regular'
+  bgDisplay: boolean
+  bgOpacity: number
+  bgPositionY: 'center' | 'top'
 }
 
 class Settings {
@@ -205,6 +208,9 @@ class Settings {
     blockTagsForSpecificUserList: [],
     magnifier: true,
     magnifierSize: 'regular',
+    bgDisplay: false,
+    bgOpacity: 40,
+    bgPositionY: 'center',
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

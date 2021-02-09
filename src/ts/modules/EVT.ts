@@ -130,6 +130,10 @@ class EVT {
     sendToast: 'sendToast',
     // 需要清空日志区域时触发
     clearLog: 'clearLog',
+    // 选择背景图片
+    selectBG: 'selectBG',
+    // 清除背景图片
+    clearBG: 'clearBG',
   }
 
   // 触发事件，可以携带数据

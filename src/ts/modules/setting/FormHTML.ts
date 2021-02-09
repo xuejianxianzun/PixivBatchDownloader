@@ -687,6 +687,35 @@ const formHtml = `<form class="settingForm">
       <label for="theme3">Dark</label>
       </p>
 
+      <p class="option" data-no="41">
+      <span class="settingNameStyle1">${lang.transl('_背景图片')} </span>
+      <input type="checkbox" name="bgDisplay" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+
+      <span class="subOptionWrap" data-show="bgDisplay">
+
+      <button class="textButton gray1" type="button" id="selectBG">${lang.transl(
+        '_选择文件'
+      )}</button>
+      <button class="textButton gray1" type="button" id="clearBG">${lang.transl(
+        '_清除'
+      )}</button>
+      
+      &nbsp;
+      <span>${lang.transl('_对齐方式')}&nbsp;</span>
+      <input type="radio" name="bgPositionY" id="bgPosition1" class="need_beautify radio" value="center" checked>
+      <span class="beautify_radio"></span>
+      <label for="bgPosition1">${lang.transl('_居中')}</label>
+      <input type="radio" name="bgPositionY" id="bgPosition2" class="need_beautify radio" value="top">
+      <span class="beautify_radio"></span>
+      <label for="bgPosition2">${lang.transl('_顶部')}</label>
+
+      &nbsp;
+      <span>${lang.transl('_不透明度')}&nbsp;</span>
+      <input name="bgOpacity" type="range" />
+      </span>
+      </p>
+
       <p class="option" data-no="32">
       <span class="settingNameStyle1">Language</span>
       <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
