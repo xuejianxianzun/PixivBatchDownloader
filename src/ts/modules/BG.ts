@@ -10,14 +10,19 @@ interface BGData {
 }
 
 class BG {
-  constructor() {
+  constructor(wrap: HTMLElement) {
+    this.wrap = wrap
     this.el = this.createEl() as HTMLElement
     this.IDB = new IndexedDB()
     this.init()
   }
 
-  private readonly id = 'xzBG'
   private el: HTMLElement
+  private wrap: HTMLElement
+  private readonly id = 'xzBG'
+  private readonly flagClassName = 'xzBG'
+  private haveImage = false
+
   private IDB: IndexedDB
   private readonly DBName = 'PBDBG'
   private readonly DBVer = 1
@@ -46,7 +51,8 @@ class BG {
   private createEl() {
     const div = document.createElement('div')
     div.id = this.id
-    return DOM.useSlot('bg', div)
+    const el = this.wrap.insertAdjacentElement('afterbegin', div)
+    return el
   }
 
   private bindEvents() {
@@ -101,19 +107,28 @@ class BG {
   }
 
   private async setBGImage(url: string) {
-    this.setDisplay()
-    this.setOpacity()
     this.setPositionY()
+    this.setOpacity()
 
     // 预加载背景图片
     // 由于浏览器的工作原理，背景图片在未被显示之前是不会加载的，在显示时才会进行加载。这会导致背景层显示之后出现短暂的空白（因为在加载图片）。为了避免空白，需要预加载图片
     await DOM.loadImg(url)
 
     this.el.style.backgroundImage = `url(${url})`
+    this.haveImage = true
+    this.setDisplay()
   }
 
   private setDisplay() {
     this.el.style.display = settings.bgDisplay ? 'block' : 'none'
+
+    if (!this.haveImage) {
+      this.wrap.classList.remove(this.flagClassName)
+    } else {
+      this.wrap.classList[settings.bgDisplay ? 'add' : 'remove'](
+        this.flagClassName
+      )
+    }
   }
 
   private setOpacity() {
@@ -127,7 +142,9 @@ class BG {
   private clearBG() {
     this.el.style.backgroundImage = 'none'
     this.IDB.clear(this.storeName)
+    this.haveImage = false
+    this.setDisplay()
   }
 }
 
-new BG()
+export { BG }

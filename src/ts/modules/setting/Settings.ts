@@ -209,7 +209,7 @@ class Settings {
     magnifier: true,
     magnifierSize: 'regular',
     bgDisplay: false,
-    bgOpacity: 40,
+    bgOpacity: 50,
     bgPositionY: 'center',
   }
 

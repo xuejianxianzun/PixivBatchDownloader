@@ -4,6 +4,7 @@ import { states } from './States'
 import { theme } from './Theme'
 import Config from './Config'
 import { msgBox } from './MsgBox'
+import { BG } from './BG'
 
 // 中间面板
 class CenterPanel {
@@ -13,6 +14,8 @@ class CenterPanel {
     this.activeTab(0)
 
     theme.register(this.centerPanel)
+
+    new BG(this.centerPanel)
 
     this.bindEvents()
   }
@@ -28,8 +31,6 @@ class CenterPanel {
   private addCenterPanel() {
     const centerPanelHTML = `
       <div class="centerWrap">
-
-      <slot data-name="bg"></slot>
 
       <div class="centerWrap_head">
       <div class="centerWrap_title blue">
