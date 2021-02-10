@@ -251,8 +251,8 @@ class FileName {
 
     // 生成后缀名
     // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
-    const ugoiraFormat = ['webm', 'gif', 'png']
-    if (ugoiraFormat.includes(data.ext) && data.ugoiraInfo) {
+    const ugoiraExt = ['zip', 'webm', 'gif', 'png']
+    if (ugoiraExt.includes(data.ext) && data.ugoiraInfo) {
       data.ext = settings.ugoiraSaveAs
     }
     // 如果是小说，那么此时根据用户设置的动图保存格式，更新其后缀名
