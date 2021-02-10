@@ -27,7 +27,7 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
     })
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected setFormOption() {
     // 个数/页数选项的提示
@@ -69,6 +69,10 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
 
     // 检查一些此时可以进行检查的设置项
     for (const data of worksData) {
+      if (data.isAdContainer) {
+        continue
+      }
+
       const filterOpt: FilterOption = {
         id: data.illustId,
         width: data.width,

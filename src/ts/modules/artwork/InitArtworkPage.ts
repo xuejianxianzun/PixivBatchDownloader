@@ -189,14 +189,18 @@ class InitArtworkPage extends InitPageBase {
     // 相关作品的列表由两部分构成，所以要组合起来
     let ids: string[] = []
     for (const illust of data.body.illusts) {
+      if(illust.isAdContainer){
+        continue
+      }
       ids.push(illust.id)
     }
     ids = ids.concat(data.body.nextIds)
-
+    
     // 当设置了下载个数时，进行裁剪
     if (this.crawlNumber !== -1) {
       ids = ids.slice(0, this.crawlNumber)
     }
+
     for (const id of ids) {
       store.idList.push({
         type: 'unknown',
