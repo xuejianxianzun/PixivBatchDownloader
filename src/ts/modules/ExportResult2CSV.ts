@@ -178,6 +178,8 @@ class ExportResult2CSV {
       download: true,
       fileName: name,
     })
+
+    toast.success(lang.transl('_导出成功'))
   }
 }
 

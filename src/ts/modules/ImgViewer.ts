@@ -427,7 +427,6 @@ class ImgViewer {
     toast.show(lang.transl('_已发送下载请求'), {
       bgColor: '#333',
       position: 'mouse',
-      animation: 'fade',
     })
   }
 

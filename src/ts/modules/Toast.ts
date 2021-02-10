@@ -7,13 +7,18 @@ export interface ToastArgOptional {
   // 可选，设置背景颜色，默认为浅蓝色，或者是语义所对应的颜色
   bgColor?: string
   // 设置提示出现后的停留时间（毫秒）
-  // 默认 1000 ms
+  // 默认 1500 ms
   stay?: number
+  // 出现时的动画效果
+  // top 默认,向上移动一段距离并逐渐显示
+  // fade 逐渐显示
+  // none 立即显示
+  enter?: 'up' | 'fade' | 'none'
   // 消失时的动画效果
-  // top 默认,向上移动并逐渐消失
-  // fade 逐渐消失
+  // top 向上移动一段距离并逐渐消失
+  // fade 默认，逐渐消失
   // none 立即消失
-  animation?: 'top' | 'fade' | 'none'
+  leave?: 'up' | 'fade' | 'none'
   // 提示出现的位置，默认是 topCenter
   // 如果为 mouse 则提示会出现在鼠标所处位置附近。使用 mouse 时请确保这个提示是由鼠标点击触发的
   position?: 'topCenter' | 'mouse'
@@ -25,7 +30,8 @@ interface ToastArg {
   color: string
   bgColor: string
   dealy: number
-  animation: 'top' | 'fade' | 'none'
+  enter: 'up' | 'fade' | 'none'
+  leave: 'up' | 'fade' | 'none'
   position: 'topCenter' | 'mouse'
 }
 
@@ -41,7 +47,8 @@ class Toast {
     color: Colors.white,
     bgColor: Colors.bgBrightBlue,
     dealy: 1500,
-    animation: 'top',
+    enter: 'up',
+    leave: 'fade',
     position: 'topCenter',
   }
 
@@ -50,7 +57,8 @@ class Toast {
     color: Colors.white,
     bgColor: Colors.bgSuccess,
     dealy: 1500,
-    animation: 'top',
+    enter: 'up',
+    leave: 'fade',
     position: 'topCenter',
   }
 
@@ -59,7 +67,8 @@ class Toast {
     color: Colors.white,
     bgColor: Colors.bgWarning,
     dealy: 1500,
-    animation: 'top',
+    enter: 'up',
+    leave: 'fade',
     position: 'topCenter',
   }
 
@@ -68,7 +77,8 @@ class Toast {
     color: Colors.white,
     bgColor: Colors.bgError,
     dealy: 1500,
-    animation: 'top',
+    enter: 'up',
+    leave: 'fade',
     position: 'topCenter',
   }
 
@@ -112,24 +122,13 @@ class Toast {
 
     // 设置背景颜色，优先使用 color
     span.style.backgroundColor = arg.bgColor
+    span.style.opacity = '0' // 先使提示完全透明
 
-    // 设置位置
-    if (arg.position === 'topCenter') {
-      span.style.top = this.minTop + 'px'
-    } else if (arg.position === 'mouse') {
-      // 跟随鼠标位置
-      // top 值减去一点高度，使文字出现在鼠标上方
-      let y = this.mousePosition.y - 40
-      if (y < this.minTop) {
-        y = this.minTop
-      }
-      span.style.top = y + 'px'
-    }
-
+    // 把提示添加到页面上
     span.classList.add(this.tipClassName)
     document.body.appendChild(span)
 
-    // 把提示添加到页面上之后，再设置 left，使其居中
+    // 设置 left，使其居中
 
     // 默认的中间点是窗口的中间
     let centerPoint = window.innerWidth / 2
@@ -152,19 +151,74 @@ class Toast {
     }
     span.style.left = left + 'px'
 
-    // 一定时间后触发使提示消失
+    // 设置 top
+    let lastTop = 0
+
+    if (arg.position === 'topCenter') {
+      lastTop = this.minTop
+    } else if (arg.position === 'mouse') {
+      // 跟随鼠标位置
+      // top 值减去一点高度，使文字出现在鼠标上方
+      let y = this.mousePosition.y - 40
+      if (y < this.minTop) {
+        y = this.minTop
+      }
+      lastTop = y
+    }
+
+    // 出现动画
+    if (arg.enter === 'none') {
+      span.style.top = lastTop + 'px'
+      span.style.opacity = '1'
+    } else {
+      this.enter(span, arg.enter, lastTop)
+    }
+
+    // 消失动画
     window.setTimeout(() => {
-      if (arg.animation === 'none') {
+      if (arg.leave === 'none') {
         span.remove()
       } else {
-        this.animation(span, arg.animation)
+        this.leave(span, arg.leave, lastTop)
       }
     }, arg.dealy)
   }
 
-  // 让提示消失的动画
-  private animation(el: HTMLElement, way: 'top' | 'fade') {
-    const startTop = Number.parseInt(window.getComputedStyle(el)['top']) // 初始 top 值
+  // 提示出现的动画
+  private enter(el: HTMLElement, way: 'up' | 'fade', lastTop: number) {
+    const startTop = lastTop + this.total // 初始 top 值
+    const once = 2
+    const total = this.total
+
+    let numberOfTimes = 0 // 执行次数
+
+    const frame = function (timestamp: number) {
+      numberOfTimes++
+
+      // 计算总共上移了多少像素
+      const move = once * numberOfTimes
+
+      // 计算不透明度
+      const opacity = move / total
+
+      if (move <= total && opacity <= 1) {
+        if (way === 'up') {
+          el.style.top = startTop - move + 'px'
+        }
+
+        el.style.opacity = opacity.toString()
+
+        // 请求下一帧
+        window.requestAnimationFrame(frame)
+      }
+    }
+
+    window.requestAnimationFrame(frame)
+  }
+
+  // 提示消失的动画
+  private leave(el: HTMLElement, way: 'up' | 'fade', lastTop: number) {
+    const startTop = lastTop // 初始 top 值
     const once = this.once
     const total = this.total
 
@@ -176,11 +230,11 @@ class Toast {
       // 计算总共上移了多少像素
       const move = once * numberOfTimes
 
-      // 计算透明度
+      // 计算不透明度
       const opacity = 1 - move / total
 
       if (move < total && opacity > 0) {
-        if (way === 'top') {
+        if (way === 'up') {
           el.style.top = startTop - move + 'px'
         }
 
@@ -189,7 +243,7 @@ class Toast {
         // 请求下一帧
         window.requestAnimationFrame(frame)
       } else {
-        // 不再执行动画
+        // 动画执行完毕，删除元素
         el.remove()
       }
     }
