@@ -506,7 +506,7 @@
 }
 .centerWrap .centerWrap_tabs {
   display: flex;
-  padding: 0 25px;
+  padding: 0;
   border-bottom: 1px solid #eee;
   margin-bottom: 8px;
 }
