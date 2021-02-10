@@ -14,7 +14,7 @@ interface WantPageEls {
 
 // 操作设置表单的选项区域
 // 可以控制每个设置的隐藏、显示
-// 可以直接设置每个选项的值
+// 可以设置选项的值
 class Options {
   constructor() {
     this.allOption = form.querySelectorAll('.option')

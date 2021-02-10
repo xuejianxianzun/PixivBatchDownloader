@@ -4,7 +4,6 @@ import Config from './Config'
 // 在属性名前面加上下划线，和文本内容做出区别
 // {} 是占位符
 // <br> 是换行
-type langTextKeys = keyof typeof langText
 
 const langText = {
   _只下载已收藏: [
@@ -1575,12 +1574,6 @@ const langText = {
     'Show zoom icon on thumbnail',
     '作品のサムネイルに拡大アイコンを表示する',
   ],
-  _xzNew900: [
-    '新增设置项<br>在作品缩略图上显示放大图标',
-    '新增設定項目<br>在作品縮圖上顯示放大圖示',
-    'Added setting items<br>Show zoom icon on the thumbnail of the work',
-    '新たな機能を追加されました<br>作品のサムネイルに拡大アイコンを表示する',
-  ],
   _已发送下载请求: [
     '已发送下载请求',
     '已傳送下載請求',
@@ -1602,4 +1595,4 @@ const langText = {
   _居中: ['居中', '居中', 'center', '中央揃え'],
 }
 
-export { langText, langTextKeys }
+export { langText }

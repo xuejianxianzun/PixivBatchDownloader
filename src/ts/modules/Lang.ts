@@ -1,5 +1,4 @@
 import { langText } from './LangText'
-import { langTextKeys } from './LangText'
 import { EVT } from './EVT'
 import { msgBox } from './MsgBox'
 
@@ -63,7 +62,7 @@ class Lang {
   }
 
   // translate 翻译
-  public transl(name: langTextKeys, ...arg: string[]) {
+  public transl(name: keyof typeof langText, ...arg: string[]) {
     let content = langText[name][this.flagIndex[this.type!]]
     arg.forEach((val) => (content = content.replace('{}', val)))
     return content

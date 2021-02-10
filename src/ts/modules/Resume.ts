@@ -7,6 +7,7 @@ import { downloadStates, DLStatesI } from './DownloadStates'
 import { Result } from './Store.d'
 import { IndexedDB } from './IndexedDB'
 import { msgBox } from './MsgBox'
+import { Tools } from './Tools'
 
 interface TaskMeta {
   id: number
@@ -57,7 +58,7 @@ class Resume {
   private needPutStates = false // 指示是否需要更新存储的下载状态
 
   private async init() {
-    if (location.hostname.includes('pixivision.net')) {
+    if (!Tools.isPixiv()) {
       return
     }
 

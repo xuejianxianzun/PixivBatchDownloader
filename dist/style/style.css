@@ -1130,6 +1130,9 @@
   color: #29b3f3 !important;
   fill: #29b3f3 !important;
 }
+.xzBG.centerWrap .progressBar {
+  background-color: #6e9dad !important;
+}
 .xzBG.centerWrap .saveNamingRuleWrap {
   color: #fff;
 }

@@ -23,6 +23,7 @@ import { resume } from './Resume'
 import { states } from './States'
 import Config from './Config'
 import { toast } from './Toast'
+import { Tools } from './Tools'
 
 class DownloadControl {
   constructor() {
@@ -40,8 +41,8 @@ class DownloadControl {
     ) as HTMLSpanElement
     new ShowConvertCount(convertTipWrap)
 
-    // 只在 p 站内启用下载后收藏的功能（因为要区分 pixivision）
-    if (location.hostname.endsWith('.pixiv.net')) {
+    // 只在 p 站内启用下载后收藏的功能
+    if (Tools.isPixiv()) {
       const bmkAfterDLTipWrap = this.wrapper.querySelector(
         '.bmkAfterDL_tip'
       ) as HTMLSpanElement

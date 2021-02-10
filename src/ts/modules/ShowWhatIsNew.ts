@@ -1,7 +1,7 @@
 import { lang } from './Lang'
-import { langTextKeys } from './LangText'
 import Config from './Config'
 import { msgBox } from './MsgBox'
+import { Tools } from './Tools'
 
 // 显示最近更新内容
 class ShowWhatIsNew {
@@ -9,17 +9,19 @@ class ShowWhatIsNew {
     this.show()
   }
 
-  private newTag: langTextKeys = '_xzNew900'
+  private flag = 'xzNew920'
+  private msg = lang.transl('_新增设置项') + ': <br>' + lang.transl('_背景图片')
+
+  private readonly storeName = 'xzNewVerTag'
 
   private show() {
-    const storeName = 'xzNewVerTag'
-    const value = localStorage.getItem(storeName)
-    if (window.location.host.includes('pixiv.net') && value !== this.newTag) {
-      msgBox.show(lang.transl(this.newTag), {
+    const value = localStorage.getItem(this.storeName)
+    if (Tools.isPixiv() && value !== this.flag) {
+      msgBox.show(this.msg, {
         title: Config.name + ` ${lang.transl('_最近更新')}`,
         btn: lang.transl('_我知道了'),
       })
-      localStorage.setItem(storeName, this.newTag)
+      localStorage.setItem(this.storeName, this.flag)
     }
   }
 }

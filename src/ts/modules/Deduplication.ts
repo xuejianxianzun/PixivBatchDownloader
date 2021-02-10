@@ -158,7 +158,7 @@ class Deduplication {
   // 检查一个 id 是否是重复下载
   // 返回值 true 表示重复，false 表示不重复
   public async check(resultId: string) {
-    if (location.hostname.includes('pixivision.net')) {
+    if (!Tools.isPixiv()) {
       return false
     }
 

@@ -72,7 +72,7 @@ class InitPixivisionPage extends InitPageBase {
       40,
     ])
 
-    // pixivision 里，文件名只有 id 标记会生效，所以把文件名规则替换成 id
+    // pixivision 里，文件名只有部分标记会生效，所以把文件名规则替换成下面的预设
     // form.userSetName.value = '{p_title}/{id}'
   }
 
