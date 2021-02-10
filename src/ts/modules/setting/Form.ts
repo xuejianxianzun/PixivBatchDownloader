@@ -7,6 +7,7 @@ import { SettingsForm } from './Form.d'
 import { SaveNamingRule } from './SaveNamingRule'
 import { theme } from '../Theme'
 import { FormSettings } from './FormSettings'
+import { Tools } from '../Tools'
 
 // 设置表单
 class Form {
@@ -300,12 +301,17 @@ class Form {
 
   // 是否显示“创建文件夹的提示”
   private checkTipCreateFolder() {
+    if (!Tools.isPixiv()) {
+      return
+    }
+
     const tip = this.form.querySelector(
       '#' + this.tipCreateFolderId
     ) as HTMLElement
     if (!tip) {
       return
     }
+
     // 如果用户没有点击“我知道了”按钮，则显示这个提示
     if (!window.localStorage.getItem(this.tipCreateFolderFlag)) {
       tip.style.display = 'block'

@@ -10,22 +10,23 @@ const packName = 'powerfulpixivdownloader'
 async function copys() {
   return new Promise(async (resolve, reject) => {
     // 复制 static 文件夹的内容
-    await copy('./static', './dist', {
+    await copy('./src/static', './dist', {
       overwrite: true,
     }).catch(function (error) {
       console.error('Copy failed: ' + error)
       reject()
     })
 
-    // 复制静态文件
+    // 复制 manifest
     await copy('./src', './dist', {
       overwrite: true,
       filter: ['manifest.json'],
     })
 
+    // 复制根目录一些文件
     await copy('./', './dist', {
       overwrite: true,
-      filter: ['README.md', 'README-EN.md', 'LICENSE'],
+      filter: ['README.md', 'README-EN.md', 'README-ZH-TW.md', 'LICENSE'],
     }).then(function (results) {
       resolve()
       console.log('Copy success')

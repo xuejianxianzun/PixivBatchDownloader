@@ -20394,6 +20394,9 @@ flag 及其含义如下：
         /* harmony import */ var _FormSettings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./FormSettings */ './src/ts/modules/setting/FormSettings.ts'
         )
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+          /*! ../Tools */ './src/ts/modules/Tools.ts'
+        )
 
         // 设置表单
         class Form {
@@ -20687,6 +20690,9 @@ flag 及其含义如下：
           }
           // 是否显示“创建文件夹的提示”
           checkTipCreateFolder() {
+            if (!_Tools__WEBPACK_IMPORTED_MODULE_8__['Tools'].isPixiv()) {
+              return
+            }
             const tip = this.form.querySelector('#' + this.tipCreateFolderId)
             if (!tip) {
               return
