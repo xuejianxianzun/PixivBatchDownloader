@@ -70,6 +70,7 @@ class InitPixivisionPage extends InitPageBase {
       38,
       39,
       40,
+      42,
     ])
 
     // pixivision 里，文件名只有部分标记会生效，所以把文件名规则替换成下面的预设

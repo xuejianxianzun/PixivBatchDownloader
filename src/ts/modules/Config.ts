@@ -1,8 +1,8 @@
-// 储存一些配置。修改这些配置会影响本程序的运行。
+// 储存一些配置
 export default {
-  outputMax: 5000, // 输出内容时，如果文件数量大于这个值，就不再直接输出，而是保存到文件
+  outputMax: 5000, // 使用输出面板显示内容时，如果文件数量大于这个值，就不再显示内容，而是保存到 txt 文件
   downloadThreadMax: 10, // 同时下载数量的最大值
-  illustTypes: ['illustration', 'manga', 'ugoira', 'novel'],
-  name: 'Powerful Pixiv Downloader',
+  worksTypeName: ['Illustration', 'Manga', 'Ugoira', 'Novel'], // 作品类型所对应的名称
+  name: 'Powerful Pixiv Downloader', // 程序名
   settingStoreName: 'xzSetting',
 }

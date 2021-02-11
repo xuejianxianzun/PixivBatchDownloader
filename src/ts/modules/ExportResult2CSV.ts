@@ -148,7 +148,7 @@ class ExportResult2CSV {
 
           // 对于某些字段，将其内容特殊化处理
           if (field.name === 'type') {
-            result = config.illustTypes[result as number]
+            result = config.worksTypeName[result as number]
           }
 
           if (field.name === 'bookmarked') {

@@ -132,7 +132,7 @@ class FileName {
         safe: false,
       },
       '{type}': {
-        value: config.illustTypes[data.type],
+        value: config.worksTypeName[data.type],
         prefix: '',
         safe: true,
       },
@@ -207,7 +207,9 @@ class FileName {
       result = result.substr(0, result.length - 1)
     }
 
-    // 如果快速下载时只有一个文件，根据“始终建立文件夹”选项，决定是否去掉文件夹部分
+    // 以下根据设置来修改文件夹的操作，顺序不可随意更改
+
+    // 如果快速下载时只有一个文件，根据“始终建立文件夹”选项，决定是否去掉文件名前面的所有文件夹
     if (
       states.quickDownload &&
       store.result.length === 1 &&
@@ -217,8 +219,25 @@ class FileName {
       result = result.substr(index + 1, result.length)
     }
 
+    // 根据作品类型自动创建对应的文件夹
+    if (settings.createFolderByType) {
+      // 根据作品类型和对应开关确定是否需要要为其建立文件夹
+      const allSwitch = [
+        settings.createFolderByTypeIllust,
+        settings.createFolderByTypeManga,
+        settings.createFolderByTypeUgoira,
+        settings.createFolderByTypeNovel,
+      ]
+      if (allSwitch[data.type]) {
+        // 在文件名前面添加一层文件夹
+        const folder = config.worksTypeName[data.type]
+        const allPart = result.split('/')
+        allPart.splice(allPart.length - 1, 0, folder)
+        result = allPart.join('/')
+      }
+    }
+
     // 把 R18(G) 作品存入指定目录里
-    // 注意：这必须放在 为作品建立单独的文件夹 之前
     if (settings.r18Folder && Tools.isR18OrR18G(data.tags)) {
       // 在文件名前面添加一层文件夹
       const allPart = result.split('/')

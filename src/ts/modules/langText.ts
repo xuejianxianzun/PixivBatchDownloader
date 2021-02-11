@@ -606,10 +606,10 @@ const langText = {
     '作品のランキング。例え　#1、#2 …… ランキングページのみで使用できます。',
   ],
   _命名标记type: [
-    '作品类型，分为 illustration、manga、ugoira、novel',
-    '作品類型，分為 illustration、manga、ugoira、novel。',
-    'The type of work, divided into illustration, manga, ugoira, novel',
-    '作品分類は、illustration、manga、ugoira、novel',
+    '作品类型，分为',
+    '作品類型，分為',
+    'The type of work, divided into',
+    '作品分類は',
   ],
   _命名标记提醒: [
     '一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}<br>* 在某些情况下，会有一些标记不可用。',
@@ -977,13 +977,13 @@ const langText = {
   _快速下载建立文件夹: [
     '快速下载时，始终创建文件夹',
     '快速下載時，始終建立資料夾',
-    'Always create directory when downloading quickly',
+    'Always create folder when downloading quickly',
     'クイックダウンロード時、常にフォルダを作成します',
   ],
   _快速下载建立文件夹提示: [
     '快速下载时，如果只有一张图片，也会建立文件夹',
     '快速下載時，若只有一張圖片，也會建立資料夾',
-    'When downloading quickly, if there is only one picture, a directory is also created',
+    'When downloading quickly, if there is only one picture, a folder is also created',
     'すばやくダウンロードとき、イラストが一枚だけでも、フォルダも作成されます',
   ],
   _设置id范围: [
@@ -1074,6 +1074,7 @@ const langText = {
     'Name: ',
     'ディレクトリ名の使用：',
   ],
+  _目录名: ['目录名：', '資料夾名稱：', 'Name: ', 'ディレクトリ名：'],
   _启用快速收藏: [
     '启用快速收藏',
     '開啟快速收藏',
@@ -1493,10 +1494,10 @@ const langText = {
     'すべての作品種類を除外しました',
   ],
   _为作品创建单独的文件夹: [
-    '为作品创建单独的文件夹',
-    '為作品建立單獨的資料夾',
-    'Create a separate directory for the work',
-    '作品に個別フォルダを作成',
+    '为每个作品创建单独的文件夹',
+    '為每個作品建立單獨的資料夾',
+    'Create a separate folder for each work',
+    '作品ごとに別フォルダを作成',
   ],
   _文件数量大于: [
     '文件数量大于',
@@ -1593,6 +1594,12 @@ const langText = {
   _对齐方式: ['对齐方式', '對齊方式', 'Alignment', '揃え方式'],
   _顶部: ['顶部', '頂部', 'top', '上揃え'],
   _居中: ['居中', '居中', 'center', '中央揃え'],
+  _根据作品类型自动创建文件夹: [
+    '根据作品类型自动创建文件夹',
+    '根據作品型別自動建立資料夾',
+    'Create folders based on the type of work',
+    '作品種類に応じてフォルダを自動作成します',
+  ],
 }
 
 export { langText }

@@ -206,6 +206,12 @@ class FormSettings {
     this.saveCheckBox('bgDisplay')
     this.saveTextInput('bgOpacity')
     this.saveRadio('bgPositionY')
+
+    this.saveCheckBox('createFolderByType')
+    this.saveCheckBox('createFolderByTypeIllust')
+    this.saveCheckBox('createFolderByTypeManga')
+    this.saveCheckBox('createFolderByTypeUgoira')
+    this.saveCheckBox('createFolderByTypeNovel')
   }
 
   // 表单里的设置发生改变时，调用这个方法，传递选项名和值
@@ -389,6 +395,12 @@ class FormSettings {
     this.restoreBoolean('bgDisplay')
     this.restoreString('bgOpacity')
     this.restoreString('bgPositionY')
+
+    this.restoreBoolean('createFolderByType')
+    this.restoreBoolean('createFolderByTypeIllust')
+    this.restoreBoolean('createFolderByTypeManga')
+    this.restoreBoolean('createFolderByTypeUgoira')
+    this.restoreBoolean('createFolderByTypeNovel')
   }
 }
 

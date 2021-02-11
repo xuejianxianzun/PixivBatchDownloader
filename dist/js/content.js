@@ -1623,11 +1623,11 @@
       /***/ function (module, __webpack_exports__, __webpack_require__) {
         'use strict'
         __webpack_require__.r(__webpack_exports__)
-        // 储存一些配置。修改这些配置会影响本程序的运行。
+        // 储存一些配置
         /* harmony default export */ __webpack_exports__['default'] = {
           outputMax: 5000,
           downloadThreadMax: 10,
-          illustTypes: ['illustration', 'manga', 'ugoira', 'novel'],
+          worksTypeName: ['Illustration', 'Manga', 'Ugoira', 'Novel'],
           name: 'Powerful Pixiv Downloader',
           settingStoreName: 'xzSetting',
         }
@@ -4519,7 +4519,7 @@ flag 及其含义如下：
                   if (field.name === 'type') {
                     result =
                       _Config__WEBPACK_IMPORTED_MODULE_3__['default']
-                        .illustTypes[result]
+                        .worksTypeName[result]
                   }
                   if (field.name === 'bookmarked') {
                     result = result ? 'yes' : 'no'
@@ -4831,7 +4831,7 @@ flag 及其含义如下：
               },
               '{type}': {
                 value:
-                  _Config__WEBPACK_IMPORTED_MODULE_2__['default'].illustTypes[
+                  _Config__WEBPACK_IMPORTED_MODULE_2__['default'].worksTypeName[
                     data.type
                   ],
                 prefix: '',
@@ -4909,7 +4909,8 @@ flag 及其含义如下：
             if (result.endsWith('/')) {
               result = result.substr(0, result.length - 1)
             }
-            // 如果快速下载时只有一个文件，根据“始终建立文件夹”选项，决定是否去掉文件夹部分
+            // 以下根据设置来修改文件夹的操作，顺序不可随意更改
+            // 如果快速下载时只有一个文件，根据“始终建立文件夹”选项，决定是否去掉文件名前面的所有文件夹
             if (
               _States__WEBPACK_IMPORTED_MODULE_3__['states'].quickDownload &&
               _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length ===
@@ -4920,8 +4921,34 @@ flag 及其含义如下：
               const index = result.lastIndexOf('/')
               result = result.substr(index + 1, result.length)
             }
+            // 根据作品类型自动创建对应的文件夹
+            if (
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
+                .createFolderByType
+            ) {
+              // 根据作品类型和对应开关确定是否需要要为其建立文件夹
+              const allSwitch = [
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
+                  .createFolderByTypeIllust,
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
+                  .createFolderByTypeManga,
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
+                  .createFolderByTypeUgoira,
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
+                  .createFolderByTypeNovel,
+              ]
+              if (allSwitch[data.type]) {
+                // 在文件名前面添加一层文件夹
+                const folder =
+                  _Config__WEBPACK_IMPORTED_MODULE_2__['default'].worksTypeName[
+                    data.type
+                  ]
+                const allPart = result.split('/')
+                allPart.splice(allPart.length - 1, 0, folder)
+                result = allPart.join('/')
+              }
+            }
             // 把 R18(G) 作品存入指定目录里
-            // 注意：这必须放在 为作品建立单独的文件夹 之前
             if (
               _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
                 .r18Folder &&
@@ -8100,6 +8127,7 @@ flag 及其含义如下：
               38,
               39,
               40,
+              42,
             ])
             // pixivision 里，文件名只有部分标记会生效，所以把文件名规则替换成下面的预设
             // form.userSetName.value = '{p_title}/{id}'
@@ -9353,10 +9381,10 @@ flag 及其含义如下：
             '作品のランキング。例え　#1、#2 …… ランキングページのみで使用できます。',
           ],
           _命名标记type: [
-            '作品类型，分为 illustration、manga、ugoira、novel',
-            '作品類型，分為 illustration、manga、ugoira、novel。',
-            'The type of work, divided into illustration, manga, ugoira, novel',
-            '作品分類は、illustration、manga、ugoira、novel',
+            '作品类型，分为',
+            '作品類型，分為',
+            'The type of work, divided into',
+            '作品分類は',
           ],
           _命名标记提醒: [
             '一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}<br>* 在某些情况下，会有一些标记不可用。',
@@ -9744,13 +9772,13 @@ flag 及其含义如下：
           _快速下载建立文件夹: [
             '快速下载时，始终创建文件夹',
             '快速下載時，始終建立資料夾',
-            'Always create directory when downloading quickly',
+            'Always create folder when downloading quickly',
             'クイックダウンロード時、常にフォルダを作成します',
           ],
           _快速下载建立文件夹提示: [
             '快速下载时，如果只有一张图片，也会建立文件夹',
             '快速下載時，若只有一張圖片，也會建立資料夾',
-            'When downloading quickly, if there is only one picture, a directory is also created',
+            'When downloading quickly, if there is only one picture, a folder is also created',
             'すばやくダウンロードとき、イラストが一枚だけでも、フォルダも作成されます',
           ],
           _设置id范围: [
@@ -9846,6 +9874,7 @@ flag 及其含义如下：
             'Name: ',
             'ディレクトリ名の使用：',
           ],
+          _目录名: ['目录名：', '資料夾名稱：', 'Name: ', 'ディレクトリ名：'],
           _启用快速收藏: [
             '启用快速收藏',
             '開啟快速收藏',
@@ -10300,10 +10329,10 @@ flag 及其含义如下：
             'すべての作品種類を除外しました',
           ],
           _为作品创建单独的文件夹: [
-            '为作品创建单独的文件夹',
-            '為作品建立單獨的資料夾',
-            'Create a separate directory for the work',
-            '作品に個別フォルダを作成',
+            '为每个作品创建单独的文件夹',
+            '為每個作品建立單獨的資料夾',
+            'Create a separate folder for each work',
+            '作品ごとに別フォルダを作成',
           ],
           _文件数量大于: [
             '文件数量大于',
@@ -10415,6 +10444,12 @@ flag 及其含义如下：
           _对齐方式: ['对齐方式', '對齊方式', 'Alignment', '揃え方式'],
           _顶部: ['顶部', '頂部', 'top', '上揃え'],
           _居中: ['居中', '居中', 'center', '中央揃え'],
+          _根据作品类型自动创建文件夹: [
+            '根据作品类型自动创建文件夹',
+            '根據作品型別自動建立資料夾',
+            'Create folders based on the type of work',
+            '作品種類に応じてフォルダを自動作成します',
+          ],
         }
 
         /***/
@@ -20738,7 +20773,10 @@ flag 及其含义如下：
       /***/ function (module, __webpack_exports__, __webpack_require__) {
         'use strict'
         __webpack_require__.r(__webpack_exports__)
-        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../Config */ './src/ts/modules/Config.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
 
@@ -20746,11 +20784,11 @@ flag 及其含义如下：
     <div class="tabsContnet">
       <p class="option" data-no="1">
       <span class="setWantPageWrap">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl(
         '_页数'
-      )}"><span class="setWantPageTip1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      )}"><span class="setWantPageTip1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_页数')}</span><span class="gray1"> ? </span></span>
       <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
@@ -20760,101 +20798,101 @@ flag 及其含义如下：
       </p>
 
       <p class="option" data-no="2">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setWorkType0"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="setWorkType0"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_插画')}&nbsp;</label>
       <input type="checkbox" name="downType1" id="setWorkType1" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setWorkType1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="setWorkType1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_漫画')}&nbsp;</label>
       <input type="checkbox" name="downType2" id="setWorkType2" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setWorkType2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="setWorkType2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_动图')}&nbsp;</label>
       <input type="checkbox" name="downType3" id="setWorkType3" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setWorkType3"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="setWorkType3"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_小说')}&nbsp;</label>
       </p>
 
       <p class="option" data-no="6">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="downNotBookmarked" id="setDownNotBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownNotBookmarked"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="setDownNotBookmarked"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_未收藏')}&nbsp;</label>
       <input type="checkbox" name="downBookmarked" id="setDownBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownBookmarked"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="setDownBookmarked"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_已收藏')}&nbsp;</label>
       </p>
       
       <p class="option" data-no="23">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="downColorImg" id="setDownColorImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownColorImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="setDownColorImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_彩色图片')}&nbsp;</label>
       <input type="checkbox" name="downBlackWhiteImg" id="setDownBlackWhiteImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownBlackWhiteImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="setDownBlackWhiteImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_黑白图片')}&nbsp;</label>
       </p>
 
       <p class="option" data-no="21">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownSingleImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="setDownSingleImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_单图作品')}&nbsp;</label>
       <input type="checkbox" name="downMultiImg" id="setDownMultiImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownMultiImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="setDownMultiImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_多图作品')}&nbsp;</label>
       </p>
 
       <p class="option" data-no="3">
       <span class="has_tip settingNameStyle1" data-tip="${
-        _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+        _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
           '_下载前几张图片提示'
         ) +
         ', ' +
-        _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_必须大于0')
-      }" >${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+        _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_必须大于0')
+      }" >${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
           '_多图下载设置'
         )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="firstFewImagesSwitch">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_下载前几张图片'
       )}&nbsp;
       <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
@@ -20862,27 +20900,27 @@ flag 及其含义如下：
       </p>
 
       <p class="option" data-no="5">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_设置收藏数量的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_设置收藏数量的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_设置收藏数量')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="BMKNumSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="BMKNumSwitch">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_最小值'
       )}&nbsp;</span>
       <input type="text" name="BMKNumMin" class="setinput_style1 blue bmkNum" value="0">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_最大值'
       )}&nbsp;</span>
       <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="999999">
       <span class="verticalSplit"></span>
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_日均收藏数量的提示')}">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_日均收藏数量')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_日均收藏数量')}
       <span class="gray1"> ? </span></span>
       <input type="checkbox" name="BMKNumAverageSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
@@ -20893,11 +20931,11 @@ flag 及其含义如下：
       </p>
 
       <p class="option" data-no="7">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_筛选宽高的按钮Title')} ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_筛选宽高的按钮Title')} ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
-        ].transl('_筛选宽高的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+        ].transl('_筛选宽高的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_筛选宽高的按钮文字')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="setWHSwitch" class="need_beautify checkbox_switch">
@@ -20928,9 +20966,9 @@ flag 及其含义如下：
       </p>
 
       <p class="option" data-no="8">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_设置宽高比例Title')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_设置宽高比例Title')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
@@ -20938,25 +20976,25 @@ flag 及其含义如下：
       <span class="subOptionWrap" data-show="ratioSwitch">
       <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="horizontal">
       <span class="beautify_radio"></span>
-      <label for="ratio1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      <label for="ratio1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_横图'
       )}&nbsp; </label>
 
       <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="vertical">
       <span class="beautify_radio"></span>
-      <label for="ratio2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      <label for="ratio2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_竖图'
       )}&nbsp; </label>
       
       <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="square">
       <span class="beautify_radio"></span>
-      <label for="ratio0"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      <label for="ratio0"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_正方形'
       )}&nbsp; </label>
 
       <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
       <span class="beautify_radio"></span>
-      <label for="ratio3"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      <label for="ratio3"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_输入宽高比'
       )}</label>
       <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
@@ -20964,9 +21002,9 @@ flag 及其含义如下：
       </p>
 
       <p class="option" data-no="9">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_设置id范围提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_设置id范围提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl(
           '_设置id范围'
@@ -20976,12 +21014,12 @@ flag 及其含义如下：
       <span class="subOptionWrap" data-show="idRangeSwitch">
       <input type="radio" name="idRange" id="idRange1" class="need_beautify radio" value=">" checked>
       <span class="beautify_radio"></span>
-      <label for="idRange1">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="idRange1">  ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_大于')}&nbsp; </label>
       <input type="radio" name="idRange" id="idRange2" class="need_beautify radio" value="<">
       <span class="beautify_radio"></span>
-      <label for="idRange2">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="idRange2">  ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_小于')}&nbsp; </label>
       <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
@@ -20989,9 +21027,9 @@ flag 及其含义如下：
       </p>
 
       <p class="option" data-no="10">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_设置投稿时间提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_设置投稿时间提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_设置投稿时间')} <span class="gray1"> ? </span></span>
       <input type="checkbox" name="postDate" class="need_beautify checkbox_switch">
@@ -21004,9 +21042,9 @@ flag 及其含义如下：
       </p>
 
       <p class="option" data-no="11">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_必须tag的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_必须tag的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_必须含有tag')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="needTagSwitch" class="need_beautify checkbox_switch">
@@ -21014,12 +21052,12 @@ flag 及其含义如下：
       <span class="subOptionWrap" data-show="needTagSwitch">
       <input type="radio" name="needTagMode" id="needTagMode1" class="need_beautify radio" value="all" checked>
       <span class="beautify_radio"></span>
-      <label for="needTagMode1">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="needTagMode1">  ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_全部')}&nbsp; </label>
       <input type="radio" name="needTagMode" id="needTagMode2" class="need_beautify radio" value="one">
       <span class="beautify_radio"></span>
-      <label for="needTagMode2">  ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="needTagMode2">  ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_任一')}&nbsp; </label>
       <input type="text" name="needTag" class="setinput_style1 blue setinput_tag">
@@ -21027,9 +21065,9 @@ flag 及其含义如下：
       </p>
 
       <p class="option" data-no="12">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_排除tag的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_排除tag的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_不能含有tag')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="notNeedTagSwitch" class="need_beautify checkbox_switch">
@@ -21047,12 +21085,12 @@ flag 及其含义如下：
     <div class="tabsContnet">
     <p class="option" data-no="13">
       <span class="has_tip settingNameStyle1" data-tip="${
-        _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+        _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
           '_设置文件夹名的提示'
         ) +
         '<br>' +
         '{user}/{id}'
-      }">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      }">${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
           '_命名规则'
         )}<span class="gray1"> ? </span></span>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
@@ -21087,97 +21125,101 @@ flag 及其含义如下：
       </p>
       <p class="tip tipWithBtn" id="tipCreateFolder">
         <span class="left">
-        ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+        ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
           '_设置文件夹名的提示'
         )}<strong>{user}/{id}</strong>
         </span>
         <span class="right">
          <button type="button" class="textButton gray1" id="tipCreateFolderBtn">
-         ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_我知道了')}
+         ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_我知道了')}
          </button>
         </span>
       </p>
       <p class="fileNameTip tip">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_设置文件夹名的提示'
       )}<strong>{user}/{id}</strong>
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记提醒')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记提醒')}
       <br>
       <span class="blue">{id}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记id')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记id')}
       <br>
       <span class="blue">{user}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记user')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记user')}
       <br>
       <span class="blue">{user_id}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_用户id')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_用户id')}
       <br>
       <span class="blue">{title}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记title')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记title')}
       <br>
       <span class="blue">{p_title}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_文件夹标记PTitle')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_文件夹标记PTitle')}
       <br>
       <span class="blue">{tags}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记tags')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记tags')}
       <br>
       <span class="blue">{tags_translate}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_命名标记tags_trans'
       )}
       <br>
       <span class="blue">{tags_transl_only}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_命名标记tags_transl_only'
       )}
       <br>
       <span class="blue">{p_tag}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_文件夹标记PTag')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_文件夹标记PTag')}
       <br>
       <span class="blue">{type}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记type')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+        '_命名标记type'
+      )} ${_Config__WEBPACK_IMPORTED_MODULE_0__['default'].worksTypeName.join(
+          ', '
+        )}
       <br>
       <span class="blue">{like}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记like')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记like')}
       <br>
       <span class="blue">{bmk}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记bmk')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记bmk')}
       <br>
       <span class="blue">{view}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记view')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记view')}
       <br>
       <span class="blue">{rank}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记rank')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记rank')}
       <br>
       <span class="blue">{date}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记date')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记date')}
       <br>
       <span class="blue">{task_date}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记taskDate')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记taskDate')}
       <br>
       <span class="blue">{px}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记px')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记px')}
       <br>
       <span class="blue">{series_title}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_命名标记seriesTitle'
       )}
       <br>
       <span class="blue">{series_order}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_命名标记seriesOrder'
       )}
       <br>
       <span class="blue">{id_num}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记id_num')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记id_num')}
       <br>
       <span class="blue">{p_num}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_命名标记p_num')}
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记p_num')}
       </p>
 
       <p class="option" data-no="29">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_文件名长度限制')}</span>
       <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
@@ -21188,37 +21230,94 @@ flag 及其含义如下：
       </p>
 
       <p class="option" data-no="14">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_添加字段名称提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_添加字段名称提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_添加命名标记前缀')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
+
       <p class="option" data-no="22">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_第一张图不带序号说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_第一张图不带序号说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_第一张图不带序号')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="noSerialNo" id="setNoSerialNo" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
+      
+      <p class="option" data-no="42">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_根据作品类型自动创建文件夹')}</span>
+      <input type="checkbox" name="createFolderByType" class="need_beautify checkbox_switch" >
+      <span class="beautify_switch"></span>
+
+      <span class="subOptionWrap" data-show="createFolderByType">
+      <input type="checkbox" name="createFolderByTypeIllust" id="createFolderByTypeIllust" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox"></span>
+      <label for="createFolderByTypeIllust" class="has_tip" data-tip="${
+        _Config__WEBPACK_IMPORTED_MODULE_0__['default'].worksTypeName[0]
+      }"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+          '_插画'
+        )}&nbsp;</label>
+
+      <input type="checkbox" name="createFolderByTypeManga" id="createFolderByTypeManga" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox"></span>
+      <label for="createFolderByTypeManga" class="has_tip" data-tip="${
+        _Config__WEBPACK_IMPORTED_MODULE_0__['default'].worksTypeName[1]
+      }"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+          '_漫画'
+        )}&nbsp;</label>
+
+      <input type="checkbox" name="createFolderByTypeUgoira" id="createFolderByTypeUgoira" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox"></span>
+      <label for="createFolderByTypeUgoira" class="has_tip" data-tip="${
+        _Config__WEBPACK_IMPORTED_MODULE_0__['default'].worksTypeName[2]
+      }"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+          '_动图'
+        )}&nbsp;</label>
+
+      <input type="checkbox" name="createFolderByTypeNovel" id="createFolderByTypeNovel" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox"></span>
+      <label for="createFolderByTypeNovel" class="has_tip" data-tip="${
+        _Config__WEBPACK_IMPORTED_MODULE_0__['default'].worksTypeName[3]
+      }"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+          '_小说'
+        )}&nbsp;</label>
+      </span>
+      </p>
+
+      <p class="option" data-no="38">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_把r18作品存入指定的文件夹里')}</span>
+      <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch" >
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="r18Folder">
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+        '_目录名'
+      )}</span>
+      <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
+      </span>
+      </p>
 
       <p class="option" data-no="19">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_为作品创建单独的文件夹')}</span>
       <input type="checkbox" name="workDir" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="workDir">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_文件数量大于'
       )}</span>
       <input type="text" name="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
       <span>&nbsp;</span>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_目录名使用'
       )}</span>
       <input type="radio" name="workDirName" id="workDirName1" class="need_beautify radio" value="id" checked>
@@ -21226,32 +21325,18 @@ flag 及其含义如下：
       <label for="workDirName1"> ID&nbsp; </label>
       <input type="radio" name="workDirName" id="workDirName2" class="need_beautify radio" value="rule">
       <span class="beautify_radio"></span>
-      <label for="workDirName2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="workDirName2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_命名规则')}&nbsp; </label>
       </span>
       </p>
 
-      <p class="option" data-no="38">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
-        'lang'
-      ].transl('_把r18作品存入指定的文件夹里')}</span>
-      <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch" >
-      <span class="beautify_switch"></span>
-      <span class="subOptionWrap" data-show="r18Folder">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-        '_目录名使用'
-      )}</span>
-      <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
-      </span>
-      </p>
-
       <p class="option" data-no="15">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl(
         '_快速下载建立文件夹提示'
-      )}">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      )}">${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
           '_快速下载建立文件夹'
         )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" class="need_beautify checkbox_switch" >
@@ -21264,18 +21349,18 @@ flag 及其含义如下：
       </div>
 
       <p class="option" data-no="16">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_线程数字')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_线程数字')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_设置下载线程')}<span class="gray1"> ? </span></span>
       <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
       </p>
 
       <p class="option" data-no="17">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_快速下载的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_快速下载的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_自动开始下载')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="quietDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
@@ -21289,53 +21374,53 @@ flag 及其含义如下：
     <div class="tabsContnet">
 
       <p class="option" data-no="4">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_动图保存格式title')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_动图保存格式title')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_动图保存格式')}<span class="gray1"> ? </span></span>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" class="need_beautify radio" value="webm" checked>
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="ugoiraSaveAs1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_webmVideo')} &nbsp;</label>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" class="need_beautify radio" value="gif"> 
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs3">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="ugoiraSaveAs3">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_gif')} &nbsp;</label>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs4" class="need_beautify radio" value="png"> 
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs4" class="has_tip" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="ugoiraSaveAs4" class="has_tip" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_无损')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      ].transl('_无损')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
           '_apng'
         )} &nbsp;</label>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip"> 
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs2">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="ugoiraSaveAs2">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_zipFile')} &nbsp;</label>
       </p>
 
       <p class="option" data-no="24">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl(
         '_同时转换多少个动图警告'
-      )}">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      )}">${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
           '_同时转换多少个动图'
         )}</span>
       <input type="text" name="convertUgoiraThread" class="setinput_style1 blue" value="1">
-      <span class="has_tip gray1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip gray1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl(
         '_同时转换多少个动图警告'
-      )}"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_提示')} </span>
+      )}"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_提示')} </span>
       </p>
 
       <p class="option" data-no="26">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_小说保存格式')}<span class="gray1"> &nbsp; </span></span>
       <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt" checked>
@@ -21347,11 +21432,11 @@ flag 及其含义如下：
       </p>
       
       <p class="option" data-no="27">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl(
         '_在小说里保存元数据提示'
-      )}">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      )}">${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
           '_在小说里保存元数据'
         )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
@@ -21359,35 +21444,35 @@ flag 及其含义如下：
       </p>
 
       <p class="option" data-no="30">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_图片尺寸')} </span>
       <input type="radio" name="imageSize" id="imageSize1" class="need_beautify radio" value="original" checked>
       <span class="beautify_radio"></span>
-      <label for="imageSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="imageSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_原图')} </label>
       &nbsp;
       <input type="radio" name="imageSize" id="imageSize2" class="need_beautify radio" value="regular">
       <span class="beautify_radio"></span>
-      <label for="imageSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="imageSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_普通')} </label>
       <span class="gray1">(1200*1200)</span>
       &nbsp;
       <input type="radio" name="imageSize" id="imageSize3" class="need_beautify radio" value="small">
       <span class="beautify_radio"></span>
-      <label for="imageSize3"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="imageSize3"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_小图')} </label>
       <span class="gray1">(540*540)</span>
       </p>
   
       <p class="option" data-no="25">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_不符合要求的文件不会被保存')}">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_文件体积限制'
       )} <span class="gray1"> ? </span></span>
       <input type="checkbox" name="sizeSwitch" class="need_beautify checkbox_switch">
@@ -21400,63 +21485,63 @@ flag 及其含义如下：
       </p>
 
       <p class="option" data-no="28">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_不下载重复文件的提示')}">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_不下载重复文件'
       )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="deduplication">
-      <span>&nbsp; ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      <span>&nbsp; ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_策略'
       )}</span>
       <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
       <span class="beautify_radio"></span>
-      <label class="has_tip" for="dupliStrategy1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label class="has_tip" for="dupliStrategy1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_严格模式说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_严格模式说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_严格')}</label>
       &nbsp;
       <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
       <span class="beautify_radio"></span>
-      <label class="has_tip" for="dupliStrategy2" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label class="has_tip" for="dupliStrategy2" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_宽松模式说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_宽松模式说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_宽松')}</label>
       &nbsp;
-      <button class="textButton gray1" type="button" id="exportDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <button class="textButton gray1" type="button" id="exportDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_导出')}</button>
-      <button class="textButton gray1" type="button" id="importDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <button class="textButton gray1" type="button" id="importDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_导入')}</button>
-      <button class="textButton gray1" type="button" id="clearDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <button class="textButton gray1" type="button" id="clearDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_清除')}</button>
       </span>
       </p>
 
       <p class="option" data-no="35">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_用户阻止名单的说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_用户阻止名单的说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_用户阻止名单')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="userBlockList">
-      <input type="text" name="blockList" class="setinput_style1 blue setinput_tag" placeholder="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <input type="text" name="blockList" class="setinput_style1 blue setinput_tag" placeholder="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_用户ID必须是数字')}">
       </span>
       </p>
 
       <p class="option" data-no="39">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_针对特定用户屏蔽tag')}</span>
       <input type="checkbox" name="blockTagsForSpecificUser" class="need_beautify checkbox_switch">
@@ -21469,10 +21554,10 @@ flag 及其含义如下：
       <hr />
       
       <p class="option" data-no="33">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_下载之后收藏作品的提示')}">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_下载之后收藏作品'
       )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
@@ -21480,18 +21565,18 @@ flag 及其含义如下：
       </p>
 
       <p class="option" data-no="34">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_收藏设置')}</span>
       
       <input type="radio" name="widthTag" id="widthTag1" class="need_beautify radio" value="yes" checked>
       <span class="beautify_radio"></span>
-      <label for="widthTag1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="widthTag1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_添加tag')}&nbsp;</label>
       <input type="radio" name="widthTag" id="widthTag2" class="need_beautify radio" value="no">
       <span class="beautify_radio"></span>
-      <label for="widthTag2">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="widthTag2">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_不添加tag')}</label>
 
@@ -21499,12 +21584,12 @@ flag 及其含义如下：
       
       <input type="radio" name="restrict" id="restrict1" class="need_beautify radio" value="no" checked>
       <span class="beautify_radio"></span>
-      <label for="restrict1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="restrict1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_公开')}&nbsp;</label>
       <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="yes">
       <span class="beautify_radio"></span>
-      <label for="restrict2">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="restrict2">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_不公开')}</label>
       </p>
@@ -21512,9 +21597,9 @@ flag 及其含义如下：
       <hr />
 
       <p class="option" data-no="18">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_预览搜索结果说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      ].transl('_预览搜索结果说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="previewResult" id="setPreviewResult" class="need_beautify checkbox_switch" checked>
@@ -21522,41 +21607,41 @@ flag 及其含义如下：
       </p>
 
       <p class="option" data-no="40">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_在作品缩略图上显示放大图标')} </span>
       <input type="checkbox" name="magnifier" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="magnifier">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_图片尺寸')} </span>
       <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original" checked>
       <span class="beautify_radio"></span>
-      <label for="magnifierSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="magnifierSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_原图')} </label>
       &nbsp;
       <input type="radio" name="magnifierSize" id="magnifierSize2" class="need_beautify radio" value="regular">
       <span class="beautify_radio"></span>
-      <label for="magnifierSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="magnifierSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_普通')} </label>
       </span>
       </p>
 
       <p class="option" data-no="31">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_日期格式')}</span>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
-      <button type="button" class="gray1 textButton showDateTip">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <button type="button" class="gray1 textButton showDateTip">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_提示')}</button>
       </p>
       <p class="dateFormatTip tip" style="display:none">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_日期格式提示'
       )}</span>
       <br>
@@ -21581,12 +21666,12 @@ flag 及其含义如下：
       </p>
 
       <p class="option" data-no="36">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_颜色主题')}</span>
       <input type="radio" name="theme" id="theme1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio"></span>
-      <label for="theme1">${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      <label for="theme1">${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_自动检测'
       )}</label>
       &nbsp;
@@ -21600,7 +21685,7 @@ flag 及其含义如下：
       </p>
 
       <p class="option" data-no="41">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_背景图片')} </span>
       <input type="checkbox" name="bgDisplay" class="need_beautify checkbox_switch">
@@ -21608,30 +21693,30 @@ flag 及其含义如下：
 
       <span class="subOptionWrap" data-show="bgDisplay">
 
-      <button class="textButton gray1" type="button" id="selectBG">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <button class="textButton gray1" type="button" id="selectBG">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_选择文件')}</button>
-      <button class="textButton gray1" type="button" id="clearBG">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <button class="textButton gray1" type="button" id="clearBG">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_清除')}</button>
       
       &nbsp;
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_对齐方式'
       )}&nbsp;</span>
       <input type="radio" name="bgPositionY" id="bgPosition1" class="need_beautify radio" value="center" checked>
       <span class="beautify_radio"></span>
-      <label for="bgPosition1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="bgPosition1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_居中')}</label>
       <input type="radio" name="bgPositionY" id="bgPosition2" class="need_beautify radio" value="top">
       <span class="beautify_radio"></span>
-      <label for="bgPosition2">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="bgPosition2">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_顶部')}</label>
 
       &nbsp;
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_不透明度'
       )}&nbsp;</span>
       <input name="bgOpacity" type="range" />
@@ -21642,7 +21727,7 @@ flag 及其含义如下：
       <span class="settingNameStyle1">Language</span>
       <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio"></span>
-      <label for="userSetLang1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <label for="userSetLang1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_自动检测')}</label>
       &nbsp;
@@ -21665,16 +21750,16 @@ flag 及其含义如下：
       </p>
 
       <p class="option" data-no="37">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_管理设置')}</span>
-      <button class="textButton gray1" type="button" id="exportSettings">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <button class="textButton gray1" type="button" id="exportSettings">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_导出设置')}</button>
-      <button class="textButton gray1" type="button" id="importSettings">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <button class="textButton gray1" type="button" id="importSettings">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_导入设置')}</button>
-      <button class="textButton gray1" type="button" id="resetSettings">${_Lang__WEBPACK_IMPORTED_MODULE_0__[
+      <button class="textButton gray1" type="button" id="resetSettings">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_重置设置')}</button>
       </p>
@@ -21877,6 +21962,11 @@ flag 及其含义如下：
             this.saveCheckBox('bgDisplay')
             this.saveTextInput('bgOpacity')
             this.saveRadio('bgPositionY')
+            this.saveCheckBox('createFolderByType')
+            this.saveCheckBox('createFolderByTypeIllust')
+            this.saveCheckBox('createFolderByTypeManga')
+            this.saveCheckBox('createFolderByTypeUgoira')
+            this.saveCheckBox('createFolderByTypeNovel')
           }
           // 表单里的设置发生改变时，调用这个方法，传递选项名和值
           emitChange(name, value) {
@@ -22034,6 +22124,11 @@ flag 及其含义如下：
             this.restoreBoolean('bgDisplay')
             this.restoreString('bgOpacity')
             this.restoreString('bgPositionY')
+            this.restoreBoolean('createFolderByType')
+            this.restoreBoolean('createFolderByTypeIllust')
+            this.restoreBoolean('createFolderByTypeManga')
+            this.restoreBoolean('createFolderByTypeUgoira')
+            this.restoreBoolean('createFolderByTypeNovel')
           }
         }
 
@@ -22502,6 +22597,11 @@ flag 及其含义如下：
               bgDisplay: false,
               bgOpacity: 50,
               bgPositionY: 'center',
+              createFolderByType: false,
+              createFolderByTypeIllust: false,
+              createFolderByTypeManga: false,
+              createFolderByTypeUgoira: false,
+              createFolderByTypeNovel: false,
             }
             this.allSettingKeys = Object.keys(this.defaultSettings)
             this.floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax']

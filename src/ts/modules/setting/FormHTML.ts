@@ -1,3 +1,4 @@
+import Config from '../Config'
 import { lang } from '../Lang'
 
 const formHtml = `<form class="settingForm">
@@ -310,7 +311,7 @@ const formHtml = `<form class="settingForm">
       ${lang.transl('_文件夹标记PTag')}
       <br>
       <span class="blue">{type}</span>
-      ${lang.transl('_命名标记type')}
+      ${lang.transl('_命名标记type')} ${Config.worksTypeName.join(', ')}
       <br>
       <span class="blue">{like}</span>
       ${lang.transl('_命名标记like')}
@@ -364,6 +365,7 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
+
       <p class="option" data-no="22">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_第一张图不带序号说明'
@@ -372,6 +374,52 @@ const formHtml = `<form class="settingForm">
 )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="noSerialNo" id="setNoSerialNo" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
+      </p>
+      
+      <p class="option" data-no="42">
+      <span class="settingNameStyle1">${lang.transl(
+        '_根据作品类型自动创建文件夹'
+      )}</span>
+      <input type="checkbox" name="createFolderByType" class="need_beautify checkbox_switch" >
+      <span class="beautify_switch"></span>
+
+      <span class="subOptionWrap" data-show="createFolderByType">
+      <input type="checkbox" name="createFolderByTypeIllust" id="createFolderByTypeIllust" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox"></span>
+      <label for="createFolderByTypeIllust" class="has_tip" data-tip="${
+        Config.worksTypeName[0]
+      }"> ${lang.transl('_插画')}&nbsp;</label>
+
+      <input type="checkbox" name="createFolderByTypeManga" id="createFolderByTypeManga" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox"></span>
+      <label for="createFolderByTypeManga" class="has_tip" data-tip="${
+        Config.worksTypeName[1]
+      }"> ${lang.transl('_漫画')}&nbsp;</label>
+
+      <input type="checkbox" name="createFolderByTypeUgoira" id="createFolderByTypeUgoira" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox"></span>
+      <label for="createFolderByTypeUgoira" class="has_tip" data-tip="${
+        Config.worksTypeName[2]
+      }"> ${lang.transl('_动图')}&nbsp;</label>
+
+      <input type="checkbox" name="createFolderByTypeNovel" id="createFolderByTypeNovel" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox"></span>
+      <label for="createFolderByTypeNovel" class="has_tip" data-tip="${
+        Config.worksTypeName[3]
+      }"> ${lang.transl('_小说')}&nbsp;</label>
+      </span>
+      </p>
+
+      <p class="option" data-no="38">
+      <span class="settingNameStyle1">${lang.transl(
+        '_把r18作品存入指定的文件夹里'
+      )}</span>
+      <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch" >
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="r18Folder">
+      <span>${lang.transl('_目录名')}</span>
+      <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
+      </span>
       </p>
 
       <p class="option" data-no="19">
@@ -391,18 +439,6 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="workDirName" id="workDirName2" class="need_beautify radio" value="rule">
       <span class="beautify_radio"></span>
       <label for="workDirName2"> ${lang.transl('_命名规则')}&nbsp; </label>
-      </span>
-      </p>
-
-      <p class="option" data-no="38">
-      <span class="settingNameStyle1">${lang.transl(
-        '_把r18作品存入指定的文件夹里'
-      )}</span>
-      <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch" >
-      <span class="beautify_switch"></span>
-      <span class="subOptionWrap" data-show="r18Folder">
-      <span>${lang.transl('_目录名使用')}</span>
-      <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
       </span>
       </p>
 
