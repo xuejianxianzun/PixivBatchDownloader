@@ -149,9 +149,6 @@ class FormSettings {
     // 保存第一张图不带序号
     this.saveCheckBox('noSerialNo')
 
-    // 保存是否始终建立文件夹
-    this.saveCheckBox('alwaysFolder')
-
     // 保存是否为多图作品自动建立文件夹
     this.saveCheckBox('workDir')
 
@@ -340,9 +337,6 @@ class FormSettings {
 
     // 设置第一张图不带序号
     this.restoreBoolean('noSerialNo')
-
-    // 设置是否始终建立文件夹
-    this.restoreBoolean('alwaysFolder')
 
     // 设置是否为多图作品自动建立文件夹
     this.restoreBoolean('workDir')

@@ -209,16 +209,6 @@ class FileName {
 
     // 以下根据设置来修改文件夹的操作，顺序不可随意更改
 
-    // 如果快速下载时只有一个文件，根据“始终建立文件夹”选项，决定是否去掉文件名前面的所有文件夹
-    if (
-      states.quickDownload &&
-      store.result.length === 1 &&
-      !settings.alwaysFolder
-    ) {
-      const index = result.lastIndexOf('/')
-      result = result.substr(index + 1, result.length)
-    }
-
     // 根据作品类型自动创建对应的文件夹
     if (settings.createFolderByType) {
       // 根据作品类型和对应开关确定是否需要要为其建立文件夹

@@ -41,7 +41,6 @@ interface XzSetting {
   userSetName: string
   namingRuleList: string[]
   tagNameToFileName: boolean
-  alwaysFolder: boolean
   workDir: boolean
   workDirFileNumber: number
   workDirName: 'id' | 'rule'
@@ -158,7 +157,6 @@ class Settings {
     userSetName: '{id}',
     namingRuleList: [],
     tagNameToFileName: false,
-    alwaysFolder: false,
     workDir: false,
     workDirFileNumber: 1,
     workDirName: 'id',

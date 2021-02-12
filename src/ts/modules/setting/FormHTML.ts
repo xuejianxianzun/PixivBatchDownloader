@@ -442,16 +442,6 @@ const formHtml = `<form class="settingForm">
       </span>
       </p>
 
-      <p class="option" data-no="15">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_快速下载建立文件夹提示'
-      )}">${lang.transl(
-  '_快速下载建立文件夹'
-)}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="alwaysFolder" id="setAlwaysFolder" class="need_beautify checkbox_switch" >
-      <span class="beautify_switch"></span>
-      </p>
-
       <div class="centerWrap_btns">
         <slot data-name="namingBtns"></slot>
         <slot data-name="exportResult"></slot>
