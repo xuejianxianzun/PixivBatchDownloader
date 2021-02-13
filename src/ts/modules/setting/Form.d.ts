@@ -78,4 +78,6 @@ export interface SettingsForm extends HTMLFormElement {
   createFolderByTypeManga: HTMLInputElement
   createFolderByTypeUgoira: HTMLInputElement
   createFolderByTypeNovel: HTMLInputElement
+  createFolderByTag: HTMLInputElement
+  createFolderTagList: HTMLTextAreaElement
 }

@@ -149,7 +149,9 @@ class FormSettings {
     // 保存第一张图不带序号
     this.saveCheckBox('noSerialNo')
 
-    // 保存是否为多图作品自动建立文件夹
+    this.saveCheckBox('createFolderByTag')
+    this.saveTextInput('createFolderTagList')
+
     this.saveCheckBox('workDir')
 
     this.saveTextInput('workDirFileNumber')
@@ -338,7 +340,9 @@ class FormSettings {
     // 设置第一张图不带序号
     this.restoreBoolean('noSerialNo')
 
-    // 设置是否为多图作品自动建立文件夹
+    this.restoreBoolean('createFolderByTag')
+    this.restoreString('createFolderTagList')
+
     this.restoreBoolean('workDir')
 
     this.restoreString('workDirFileNumber')

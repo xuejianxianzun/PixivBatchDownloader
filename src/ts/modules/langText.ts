@@ -1600,6 +1600,18 @@ const langText = {
     'Create folders based on the type of work',
     '作品種類に応じてフォルダを自動作成します',
   ],
+  _使用第一个匹配的tag建立文件夹: [
+    '使用第一个匹配的 tag 建立文件夹',
+    '使用第一個匹配的 tag 建立資料夾',
+    'Create a folder with the first matched tag',
+    '最初の一致する tag にフォルダを作成',
+  ],
+  _使用匹配的tag建立文件夹的说明: [
+    '如果作品的 tag 列表里含有用户设置的 tag，就会使用这个 tag 建立文件夹（仅限第一个）',
+    '如果作品的 tag 列表裡含有使用者設定的 tag，就會使用這個 tag 建立資料夾（僅限第一個）',
+    'If the tag list of the work contains a tag set by the user, this tag will be used to create a folder (only the first one)',
+    '作品の tag リストにユーザーが設定した tag が含まれている場合、その tag を使用してフォルダが作成されます。(最初の1つだけ)',
+  ],
 }
 
 export { langText }

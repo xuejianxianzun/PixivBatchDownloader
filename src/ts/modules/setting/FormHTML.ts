@@ -410,6 +410,21 @@ const formHtml = `<form class="settingForm">
       </span>
       </p>
 
+      <p class="option" data-no="43">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_使用匹配的tag建立文件夹的说明'
+      )}">${lang.transl(
+  '_使用第一个匹配的tag建立文件夹'
+)}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="createFolderByTag" class="need_beautify checkbox_switch" >
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="createFolderByTag">
+      <span class="gray1">${lang.transl('_tag用逗号分割')}</span>
+      <br>
+      <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1"></textarea>
+      </span>
+      </p>
+
       <p class="option" data-no="38">
       <span class="settingNameStyle1">${lang.transl(
         '_把r18作品存入指定的文件夹里'

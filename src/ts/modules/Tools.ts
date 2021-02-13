@@ -48,12 +48,15 @@ class Tools {
 
   // 字符串分割成数组
   static string2array(str: string): string[] {
+    str = str.replace(/\n/g, '') // textarea 的值可能会存在换行符
     const temp = str.trim().split(',')
-    return temp.filter((val) => {
-      if (val !== '') {
-        return val.trim()
+    const result = []
+    for (const str of temp) {
+      if (str !== '') {
+        result.push(str.trim())
       }
-    })
+    }
+    return result
   }
 
   // 根据对象某个属性的值（视为数字）排序对象。返回的结果是降序排列

@@ -2,7 +2,6 @@ import { settings } from './setting/Settings'
 import { store } from './Store'
 import { Result } from './Store.d'
 import config from './Config'
-import { states } from './States'
 import { DateFormat } from './DateFormat'
 import { Tools } from './Tools'
 
@@ -21,6 +20,13 @@ class FileName {
     }
     // 其他的情况则应该是期望的值（数字类型）
     return '#' + rank
+  }
+
+  // 在文件名前面添加一层文件夹
+  private appendFolder(fullPath: string, folderName: string): string {
+    const allPart = fullPath.split('/')
+    allPart.splice(allPart.length - 1, 0, folderName)
+    return allPart.join('/')
   }
 
   // 生成文件名
@@ -207,7 +213,7 @@ class FileName {
       result = result.substr(0, result.length - 1)
     }
 
-    // 以下根据设置来修改文件夹的操作，顺序不可随意更改
+    // 以下根据设置来修改文件夹的操作，其顺序会影响最后生成的文件夹结构，所以不可随意更改顺序
 
     // 根据作品类型自动创建对应的文件夹
     if (settings.createFolderByType) {
@@ -219,27 +225,41 @@ class FileName {
         settings.createFolderByTypeNovel,
       ]
       if (allSwitch[data.type]) {
-        // 在文件名前面添加一层文件夹
         const folder = config.worksTypeName[data.type]
-        const allPart = result.split('/')
-        allPart.splice(allPart.length - 1, 0, folder)
-        result = allPart.join('/')
+        result = this.appendFolder(result, folder)
+      }
+    }
+
+    // 根据第一个匹配的 tag 建立文件夹
+    if (settings.createFolderByTag && settings.createFolderTagList.length > 0) {
+      const workTags = data.tagsWithTransl.map((val) => val.toLowerCase())
+
+      // 循环用户输入的 tag 列表，查找作品 tag 是否含有匹配项
+      // 这样用户输入的第一个匹配的 tag 就会作为文件夹名字
+      // 不要循环作品 tag 列表，因为那样找到的第一个匹配项未必是用户输入的第一个
+      // 例如 用户输入顺序：巨乳 欧派
+      // 作品 tag 里的顺序：欧派 巨乳
+      for (const tag of settings.createFolderTagList) {
+        // 查找匹配的时候转换成小写
+        const nowTag = tag.toLowerCase()
+        if (workTags.includes(nowTag)) {
+          // 设置为文件夹名字的时候使用原 tag（不转换成小写）
+          const folder = Tools.replaceUnsafeStr(tag)
+          result = this.appendFolder(result, folder)
+          break
+        }
       }
     }
 
     // 把 R18(G) 作品存入指定目录里
     if (settings.r18Folder && Tools.isR18OrR18G(data.tags)) {
-      // 在文件名前面添加一层文件夹
-      const allPart = result.split('/')
       const folder = Tools.replaceUnsafeStr(settings.r18FolderName)
-      allPart.splice(allPart.length - 1, 0, folder)
-      result = allPart.join('/')
+      result = this.appendFolder(result, folder)
     }
 
     // 为作品建立单独的文件夹
     // 如果这个作品里要下载的文件数量大于指定数量，则会为它建立单独的文件夹
     if (settings.workDir && data.dlCount > settings.workDirFileNumber) {
-      // 操作路径中最后一项（即文件名），在它前面添加一层文件夹
       const allPart = result.split('/')
       const name = allPart[allPart.length - 1]
 
@@ -254,8 +274,7 @@ class FileName {
         folder = name.replace(data.id, data.idNum.toString())
       }
 
-      allPart.splice(allPart.length - 1, 0, folder)
-      result = allPart.join('/')
+      result = this.appendFolder(result, folder)
     }
 
     // 生成后缀名

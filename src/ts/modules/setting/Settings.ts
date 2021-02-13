@@ -101,6 +101,8 @@ interface XzSetting {
   createFolderByTypeManga: boolean
   createFolderByTypeUgoira: boolean
   createFolderByTypeNovel: boolean
+  createFolderByTag: boolean
+  createFolderTagList: string[]
 }
 
 class Settings {
@@ -219,6 +221,8 @@ class Settings {
     createFolderByTypeManga: false,
     createFolderByTypeUgoira: false,
     createFolderByTypeNovel: false,
+    createFolderByTag: false,
+    createFolderTagList: [],
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -230,6 +234,7 @@ class Settings {
     'blockList',
     'needTag',
     'notNeedTag',
+    'createFolderTagList',
   ]
 
   // 以默认设置作为初始设置

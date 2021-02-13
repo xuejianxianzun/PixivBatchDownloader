@@ -55,6 +55,26 @@
     color: @themeBlue !important;
   }
 
+  .fwb {
+    font-weight: 700;
+  }
+
+  .gray1 {
+    color: #777;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .textButton {
+    border: none;
+    background: none;
+    outline: none;
+    padding: 1px 6px;
+    cursor: pointer;
+  }
+
   .centerWrap_head {
     padding: 0 @sidePadding;
 
@@ -170,6 +190,18 @@
 
       p strong {
         vertical-align: baseline;
+      }
+
+      .centerPanelTextArea {
+        line-height: 1.5;
+        background: transparent;
+        color: #444;
+        padding: 5px 5px 1px;
+        width: 100%;
+        min-height: 20px;
+        resize: none;
+        border: none;
+        border-bottom: 1px solid #ccc;
       }
 
       #tipCreateFolder {
@@ -340,367 +372,339 @@
       .radio:checked + .beautify_radio::after {
         transform: translate(-50%, -50%) scale(1);
       }
-    }
-  }
 
-  .help_bar {
-    // padding:0 @sidePadding;
-    line-height: 24px;
-
-    & > * {
-      padding: 0 3px;
-    }
-  }
-
-  .showDownTip {
-    cursor: pointer;
-  }
-
-  .centerWrap_top_btn:hover,
-  .showFileNameTip:hover,
-  .textButton:hover,
-  .textButton:focus,
-  .showFileNameResult:hover,
-  .help_bar > *:hover,
-  .updateActiveClass {
-    color: @themeBlue !important;
-    fill: @themeBlue !important;
-  }
-
-  li {
-    list-style: none;
-  }
-
-  .download_progress1,
-  .right1 {
-    position: relative;
-  }
-
-  .setinput_style1 {
-    width: 50px;
-    min-width: 50px;
-    line-height: 20px;
-    font-size: 14px !important;
-    height: 20px;
-    text-indent: 4px;
-    box-sizing: border-box;
-    border: none !important;
-    border-bottom: 1px solid #ccc !important;
-    outline: 0;
-    padding: 0 !important;
-    background: none !important;
-
-    &:focus,
-    &:hover {
-      border-bottom: 1px solid #0096fa !important;
-    }
-
-    &.w100 {
-      width: 100px;
-    }
-
-    &.postDate {
-      width: 190px;
-    }
-
-    &.bmkNum {
-      width: 60px;
-    }
-  }
-
-  .progressBar1,
-  .right1 {
-    width: 100%;
-  }
-
-  .fileNameRule {
-    min-width: 310px;
-  }
-
-  .textButton {
-    border: none;
-    background: none;
-    outline: none;
-    padding: 1px 6px;
-    cursor: pointer;
-  }
-
-  .setinput_tag {
-    min-width: 300px;
-  }
-
-  .showFileNameResult,
-  .showFileNameTip {
-    cursor: pointer;
-  }
-
-  .fileNameTip {
-    display: none;
-    padding-top: 5px;
-  }
-
-  .centerWrap_btns {
-    padding: 8px 0 0;
-    font-size: 0;
-    display: flex;
-    flex-wrap: wrap;
-
-    & button {
-      background-color: @themeBlue;
-      box-sizing: border-box;
-      border: none;
-      width: 150px;
-      margin-right: 10px;
-      padding: 8px 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      line-height: 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-bottom: 8px;
-      vertical-align: top;
-
-      &:hover,
-      &:focus {
-        opacity: 0.8;
+      .showDownTip {
+        cursor: pointer;
       }
-    }
-  }
 
-  .centerWrap_btns button,
-  .progressTip {
-    color: #fff;
-    font-size: 14px;
-  }
+      .centerWrap_top_btn:hover,
+      .showFileNameTip:hover,
+      .textButton:hover,
+      .textButton:focus,
+      .showFileNameResult:hover,
+      .help_bar > *:hover,
+      .updateActiveClass {
+        color: @themeBlue !important;
+        fill: @themeBlue !important;
+      }
 
-  .progressBarWrap {
-    display: none;
+      li {
+        list-style: none;
+      }
 
-    .total {
-      display: flex;
+      .download_progress1,
+      .right1 {
+        position: relative;
+      }
 
-      .text {
+      .setinput_style1 {
+        width: 50px;
+        min-width: 50px;
+        line-height: 20px;
+        font-size: 14px !important;
+        height: 20px;
+        text-indent: 4px;
+        box-sizing: border-box;
+        border: none !important;
+        border-bottom: 1px solid #ccc !important;
+        outline: 0;
+        padding: 0 !important;
+        background: none !important;
+
+        &:focus,
+        &:hover {
+          border-bottom: 1px solid #0096fa !important;
+        }
+
+        &.w100 {
+          width: 100px;
+        }
+
+        &.postDate {
+          width: 190px;
+        }
+
+        &.bmkNum {
+          width: 60px;
+        }
+      }
+
+      .progressBar1,
+      .right1 {
+        width: 100%;
+      }
+
+      .fileNameRule {
+        min-width: 310px;
+      }
+
+      .setinput_tag {
+        min-width: 300px;
+      }
+
+      .showFileNameResult,
+      .showFileNameTip {
+        cursor: pointer;
+      }
+
+      .fileNameTip {
+        display: none;
+        padding-top: 5px;
+      }
+
+      .centerWrap_btns {
+        padding: 8px 0 0;
+        font-size: 0;
+        display: flex;
+        flex-wrap: wrap;
+
+        & button {
+          background-color: @themeBlue;
+          box-sizing: border-box;
+          border: none;
+          width: 150px;
+          margin-right: 10px;
+          padding: 8px 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          line-height: 20px;
+          border-radius: 5px;
+          cursor: pointer;
+          margin-bottom: 8px;
+          vertical-align: top;
+
+          &:hover,
+          &:focus {
+            opacity: 0.8;
+          }
+        }
+      }
+
+      .centerWrap_btns button,
+      .progressTip {
+        color: #fff;
+        font-size: 14px;
+      }
+
+      .progressBarWrap {
+        display: none;
+
+        .total {
+          display: flex;
+
+          .text {
+            margin-right: 10px;
+          }
+
+          .right1 {
+            flex: 1;
+          }
+        }
+
+        .progress,
+        .progressBar {
+          border-radius: 11px;
+          height: 22px;
+          overflow: hidden;
+        }
+
+        .right1 {
+          display: inline-block;
+          height: 22px;
+          vertical-align: middle;
+        }
+
+        .progressBar {
+          position: absolute;
+          background: #6792a2;
+        }
+
+        .progress {
+          background: #0eb3f3;
+          transition: 0.15s;
+        }
+
+        .progressTip {
+          position: absolute;
+          line-height: 22px;
+          display: flex;
+          justify-content: space-between;
+        }
+
+        .progress1 {
+          width: 0;
+        }
+
+        .progressTip1 {
+          width: 100%;
+          text-align: center;
+        }
+
+        .totalNumberWrap {
+          position: absolute;
+          height: 22px;
+          line-height: 22px;
+          color: #fff;
+          width: 100%;
+          text-align: center;
+          span {
+            position: initial;
+          }
+        }
+
+        .progressBarList {
+          padding-top: 5px;
+          margin: 0;
+          padding-left: 0;
+
+          .downloadBar {
+            position: relative;
+            width: 100%;
+            padding: 5px 0;
+            height: 22px;
+            box-sizing: content-box;
+          }
+
+          .progressBar2 {
+            width: 100%;
+          }
+
+          .progress2 {
+            width: 0;
+          }
+
+          .progressTip2 {
+            width: 100%;
+          }
+
+          .fileName {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            vertical-align: top;
+            padding: 0 10px;
+            flex: 1;
+          }
+
+          .loadedWrap {
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            font: status-bar;
+          }
+        }
+      }
+
+      .download_area {
+        display: none;
+        .download_status_text_wrap {
+          line-height: 26px;
+          margin-bottom: 4px;
+
+          & > * {
+            padding-right: 5px;
+          }
+
+          .down_status {
+            color: @themeBlue;
+            display: inline-block;
+          }
+        }
+      }
+
+      .settingNameStyle1 {
+        cursor: pointer;
         margin-right: 10px;
       }
 
-      .right1 {
-        flex: 1;
-      }
-    }
-
-    .progress,
-    .progressBar {
-      border-radius: 11px;
-      height: 22px;
-      overflow: hidden;
-    }
-
-    .right1 {
-      display: inline-block;
-      height: 22px;
-      vertical-align: middle;
-    }
-
-    .progressBar {
-      position: absolute;
-      background: #6792a2;
-    }
-
-    .progress {
-      background: #0eb3f3;
-      transition: 0.15s;
-    }
-
-    .progressTip {
-      position: absolute;
-      line-height: 22px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    .progress1 {
-      width: 0;
-    }
-
-    .progressTip1 {
-      width: 100%;
-      text-align: center;
-    }
-
-    .totalNumberWrap {
-      position: absolute;
-      height: 22px;
-      line-height: 22px;
-      color: #fff;
-      width: 100%;
-      text-align: center;
-      span {
-        position: initial;
-      }
-    }
-
-    .progressBarList {
-      padding-top: 5px;
-      margin: 0;
-      padding-left: 0;
-
-      .downloadBar {
-        position: relative;
-        width: 100%;
-        padding: 5px 0;
-        height: 22px;
-        box-sizing: content-box;
-      }
-
-      .progressBar2 {
-        width: 100%;
-      }
-
-      .progress2 {
-        width: 0;
-      }
-
-      .progressTip2 {
-        width: 100%;
-      }
-
-      .fileName {
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        overflow: hidden;
-        vertical-align: top;
-        padding: 0 10px;
-        flex: 1;
-      }
-
-      .loadedWrap {
-        display: flex;
-        align-items: center;
-        padding: 0 10px;
-        font: status-bar;
-      }
-    }
-  }
-
-  .download_area {
-    display: none;
-    .download_status_text_wrap {
-      line-height: 26px;
-      margin-bottom: 4px;
-
-      & > * {
-        padding-right: 5px;
-      }
-
-      .down_status {
-        color: @themeBlue;
+      .verticalSplit {
         display: inline-block;
+        width: 0px;
+        height: 16px;
+        border-right: 1px solid #ccc;
+        margin: 0 10px;
+      }
+
+      .saveNamingRuleWrap {
+        display: inline-block;
+        position: relative;
+      }
+
+      .namingRuleList {
+        position: absolute;
+        right: -30px;
+        top: 25px;
+        z-index: 1002;
+        background: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: @boxShadowBlue 0px 0px 10px;
+        display: none;
+
+        @liHeight: 30px;
+
+        li {
+          padding: 2px 0 2px 0;
+          color: #555;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: flex;
+          justify-content: space-between;
+          justify-items: center;
+          align-items: center;
+          min-width: 400px;
+
+          & > * {
+            min-height: @liHeight;
+            line-height: @liHeight;
+          }
+        }
+
+        li:hover {
+          background: #e3f5ff;
+        }
+
+        .rule {
+          flex: 1;
+          line-height: @liHeight !important;
+          padding-left: 20px;
+        }
+
+        li:first-child {
+          padding-top: 5px;
+        }
+
+        li:last-child {
+          padding-bottom: 5px;
+        }
+
+        .delete {
+          padding: 0 15px;
+          margin-left: 5px;
+          margin-right: 5px;
+          font-size: 1.3em;
+          color: #999;
+          font-weight: lighter;
+        }
+      }
+
+      .setinput_style1,
+      .setinput_style1:focus,
+      .setinput_style1:hover {
+        background: transparent !important;
       }
     }
-  }
 
-  .settingNameStyle1 {
-    cursor: pointer;
-    margin-right: 10px;
-  }
-
-  .fwb {
-    font-weight: 700;
-  }
-
-  .gray1 {
-    color: #777;
-  }
-
-  .verticalSplit {
-    display: inline-block;
-    width: 0px;
-    height: 16px;
-    border-right: 1px solid #ccc;
-    margin: 0 10px;
-  }
-
-  .wiki2 {
-    height: 24px;
-    line-height: 24px;
-    width: auto;
-    font-size: 14px;
-    color: #999;
-  }
-
-  .hidden {
-    display: none;
-  }
-
-  .saveNamingRuleWrap {
-    display: inline-block;
-    position: relative;
-  }
-
-  .namingRuleList {
-    position: absolute;
-    right: -30px;
-    top: 25px;
-    z-index: 1002;
-    background: #fff;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: @boxShadowBlue 0px 0px 10px;
-    display: none;
-
-    @liHeight: 30px;
-
-    li {
-      padding: 2px 0 2px 0;
-      color: #555;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      justify-content: space-between;
-      justify-items: center;
-      align-items: center;
-      min-width: 400px;
+    .help_bar {
+      // padding:0 @sidePadding;
+      line-height: 24px;
 
       & > * {
-        min-height: @liHeight;
-        line-height: @liHeight;
+        padding: 0 3px;
       }
     }
-
-    li:hover {
-      background: #e3f5ff;
-    }
-
-    .rule {
-      flex: 1;
-      line-height: @liHeight !important;
-      padding-left: 20px;
-    }
-
-    li:first-child {
-      padding-top: 5px;
-    }
-
-    li:last-child {
-      padding-bottom: 5px;
-    }
-
-    .delete {
-      padding: 0 15px;
-      margin-left: 5px;
-      margin-right: 5px;
-      font-size: 1.3em;
-      color: #999;
-      font-weight: lighter;
-    }
-  }
-
-  .setinput_style1,
-  .setinput_style1:focus,
-  .setinput_style1:hover {
-    background: transparent !important;
   }
 }
 
@@ -713,6 +717,10 @@
     button,
     .tip {
       color: #fff;
+    }
+
+    .centerPanelTextArea {
+      color: #fff !important;
     }
 
     .gray1 {
@@ -800,9 +808,14 @@
       color: #fff;
     }
 
+    .centerPanelTextArea {
+      color: #fff !important;
+      text-shadow: 0px 0px 5px #006a9b;
+    }
+
     .gray1,
     .centerWrap_top_btn {
-      color: #eee !important;
+      color: #ddd !important;
     }
 
     .textButton,

@@ -464,6 +464,22 @@
 .centerWrap label:hover {
   color: #0ea8ef !important;
 }
+.centerWrap .fwb {
+  font-weight: 700;
+}
+.centerWrap .gray1 {
+  color: #777;
+}
+.centerWrap .hidden {
+  display: none;
+}
+.centerWrap .textButton {
+  border: none;
+  background: none;
+  outline: none;
+  padding: 1px 6px;
+  cursor: pointer;
+}
 .centerWrap .centerWrap_head {
   padding: 0 25px;
 }
@@ -565,6 +581,17 @@
 }
 .centerWrap .centerWrap_con .settingForm p strong {
   vertical-align: baseline;
+}
+.centerWrap .centerWrap_con .settingForm .centerPanelTextArea {
+  line-height: 1.5;
+  background: transparent;
+  color: #444;
+  padding: 5px 5px 1px;
+  width: 100%;
+  min-height: 20px;
+  resize: none;
+  border: none;
+  border-bottom: 1px solid #ccc;
 }
 .centerWrap .centerWrap_con .settingForm #tipCreateFolder {
   display: none;
@@ -730,33 +757,27 @@
   + .beautify_radio::after {
   transform: translate(-50%, -50%) scale(1);
 }
-.centerWrap .help_bar {
-  line-height: 24px;
-}
-.centerWrap .help_bar > * {
-  padding: 0 3px;
-}
-.centerWrap .showDownTip {
+.centerWrap .centerWrap_con .settingForm .showDownTip {
   cursor: pointer;
 }
-.centerWrap .centerWrap_top_btn:hover,
-.centerWrap .showFileNameTip:hover,
-.centerWrap .textButton:hover,
-.centerWrap .textButton:focus,
-.centerWrap .showFileNameResult:hover,
-.centerWrap .help_bar > *:hover,
-.centerWrap .updateActiveClass {
+.centerWrap .centerWrap_con .settingForm .centerWrap_top_btn:hover,
+.centerWrap .centerWrap_con .settingForm .showFileNameTip:hover,
+.centerWrap .centerWrap_con .settingForm .textButton:hover,
+.centerWrap .centerWrap_con .settingForm .textButton:focus,
+.centerWrap .centerWrap_con .settingForm .showFileNameResult:hover,
+.centerWrap .centerWrap_con .settingForm .help_bar > *:hover,
+.centerWrap .centerWrap_con .settingForm .updateActiveClass {
   color: #0ea8ef !important;
   fill: #0ea8ef !important;
 }
-.centerWrap li {
+.centerWrap .centerWrap_con .settingForm li {
   list-style: none;
 }
-.centerWrap .download_progress1,
-.centerWrap .right1 {
+.centerWrap .centerWrap_con .settingForm .download_progress1,
+.centerWrap .centerWrap_con .settingForm .right1 {
   position: relative;
 }
-.centerWrap .setinput_style1 {
+.centerWrap .centerWrap_con .settingForm .setinput_style1 {
   width: 50px;
   min-width: 50px;
   line-height: 20px;
@@ -770,51 +791,44 @@
   padding: 0 !important;
   background: none !important;
 }
-.centerWrap .setinput_style1:focus,
-.centerWrap .setinput_style1:hover {
+.centerWrap .centerWrap_con .settingForm .setinput_style1:focus,
+.centerWrap .centerWrap_con .settingForm .setinput_style1:hover {
   border-bottom: 1px solid #0096fa !important;
 }
-.centerWrap .setinput_style1.w100 {
+.centerWrap .centerWrap_con .settingForm .setinput_style1.w100 {
   width: 100px;
 }
-.centerWrap .setinput_style1.postDate {
+.centerWrap .centerWrap_con .settingForm .setinput_style1.postDate {
   width: 190px;
 }
-.centerWrap .setinput_style1.bmkNum {
+.centerWrap .centerWrap_con .settingForm .setinput_style1.bmkNum {
   width: 60px;
 }
-.centerWrap .progressBar1,
-.centerWrap .right1 {
+.centerWrap .centerWrap_con .settingForm .progressBar1,
+.centerWrap .centerWrap_con .settingForm .right1 {
   width: 100%;
 }
-.centerWrap .fileNameRule {
+.centerWrap .centerWrap_con .settingForm .fileNameRule {
   min-width: 310px;
 }
-.centerWrap .textButton {
-  border: none;
-  background: none;
-  outline: none;
-  padding: 1px 6px;
-  cursor: pointer;
-}
-.centerWrap .setinput_tag {
+.centerWrap .centerWrap_con .settingForm .setinput_tag {
   min-width: 300px;
 }
-.centerWrap .showFileNameResult,
-.centerWrap .showFileNameTip {
+.centerWrap .centerWrap_con .settingForm .showFileNameResult,
+.centerWrap .centerWrap_con .settingForm .showFileNameTip {
   cursor: pointer;
 }
-.centerWrap .fileNameTip {
+.centerWrap .centerWrap_con .settingForm .fileNameTip {
   display: none;
   padding-top: 5px;
 }
-.centerWrap .centerWrap_btns {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns {
   padding: 8px 0 0;
   font-size: 0;
   display: flex;
   flex-wrap: wrap;
 }
-.centerWrap .centerWrap_btns button {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns button {
   background-color: #0ea8ef;
   box-sizing: border-box;
   border: none;
@@ -831,60 +845,60 @@
   margin-bottom: 8px;
   vertical-align: top;
 }
-.centerWrap .centerWrap_btns button:hover,
-.centerWrap .centerWrap_btns button:focus {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns button:hover,
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns button:focus {
   opacity: 0.8;
 }
-.centerWrap .centerWrap_btns button,
-.centerWrap .progressTip {
+.centerWrap .centerWrap_con .settingForm .centerWrap_btns button,
+.centerWrap .centerWrap_con .settingForm .progressTip {
   color: #fff;
   font-size: 14px;
 }
-.centerWrap .progressBarWrap {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap {
   display: none;
 }
-.centerWrap .progressBarWrap .total {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .total {
   display: flex;
 }
-.centerWrap .progressBarWrap .total .text {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .total .text {
   margin-right: 10px;
 }
-.centerWrap .progressBarWrap .total .right1 {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .total .right1 {
   flex: 1;
 }
-.centerWrap .progressBarWrap .progress,
-.centerWrap .progressBarWrap .progressBar {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .progress,
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .progressBar {
   border-radius: 11px;
   height: 22px;
   overflow: hidden;
 }
-.centerWrap .progressBarWrap .right1 {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .right1 {
   display: inline-block;
   height: 22px;
   vertical-align: middle;
 }
-.centerWrap .progressBarWrap .progressBar {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .progressBar {
   position: absolute;
   background: #6792a2;
 }
-.centerWrap .progressBarWrap .progress {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .progress {
   background: #0eb3f3;
   transition: 0.15s;
 }
-.centerWrap .progressBarWrap .progressTip {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .progressTip {
   position: absolute;
   line-height: 22px;
   display: flex;
   justify-content: space-between;
 }
-.centerWrap .progressBarWrap .progress1 {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .progress1 {
   width: 0;
 }
-.centerWrap .progressBarWrap .progressTip1 {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .progressTip1 {
   width: 100%;
   text-align: center;
 }
-.centerWrap .progressBarWrap .totalNumberWrap {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .totalNumberWrap {
   position: absolute;
   height: 22px;
   line-height: 22px;
@@ -892,31 +906,61 @@
   width: 100%;
   text-align: center;
 }
-.centerWrap .progressBarWrap .totalNumberWrap span {
+.centerWrap
+  .centerWrap_con
+  .settingForm
+  .progressBarWrap
+  .totalNumberWrap
+  span {
   position: initial;
 }
-.centerWrap .progressBarWrap .progressBarList {
+.centerWrap .centerWrap_con .settingForm .progressBarWrap .progressBarList {
   padding-top: 5px;
   margin: 0;
   padding-left: 0;
 }
-.centerWrap .progressBarWrap .progressBarList .downloadBar {
+.centerWrap
+  .centerWrap_con
+  .settingForm
+  .progressBarWrap
+  .progressBarList
+  .downloadBar {
   position: relative;
   width: 100%;
   padding: 5px 0;
   height: 22px;
   box-sizing: content-box;
 }
-.centerWrap .progressBarWrap .progressBarList .progressBar2 {
+.centerWrap
+  .centerWrap_con
+  .settingForm
+  .progressBarWrap
+  .progressBarList
+  .progressBar2 {
   width: 100%;
 }
-.centerWrap .progressBarWrap .progressBarList .progress2 {
+.centerWrap
+  .centerWrap_con
+  .settingForm
+  .progressBarWrap
+  .progressBarList
+  .progress2 {
   width: 0;
 }
-.centerWrap .progressBarWrap .progressBarList .progressTip2 {
+.centerWrap
+  .centerWrap_con
+  .settingForm
+  .progressBarWrap
+  .progressBarList
+  .progressTip2 {
   width: 100%;
 }
-.centerWrap .progressBarWrap .progressBarList .fileName {
+.centerWrap
+  .centerWrap_con
+  .settingForm
+  .progressBarWrap
+  .progressBarList
+  .fileName {
   white-space: nowrap;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -924,58 +968,61 @@
   padding: 0 10px;
   flex: 1;
 }
-.centerWrap .progressBarWrap .progressBarList .loadedWrap {
+.centerWrap
+  .centerWrap_con
+  .settingForm
+  .progressBarWrap
+  .progressBarList
+  .loadedWrap {
   display: flex;
   align-items: center;
   padding: 0 10px;
   font: status-bar;
 }
-.centerWrap .download_area {
+.centerWrap .centerWrap_con .settingForm .download_area {
   display: none;
 }
-.centerWrap .download_area .download_status_text_wrap {
+.centerWrap
+  .centerWrap_con
+  .settingForm
+  .download_area
+  .download_status_text_wrap {
   line-height: 26px;
   margin-bottom: 4px;
 }
-.centerWrap .download_area .download_status_text_wrap > * {
+.centerWrap
+  .centerWrap_con
+  .settingForm
+  .download_area
+  .download_status_text_wrap
+  > * {
   padding-right: 5px;
 }
-.centerWrap .download_area .download_status_text_wrap .down_status {
+.centerWrap
+  .centerWrap_con
+  .settingForm
+  .download_area
+  .download_status_text_wrap
+  .down_status {
   color: #0ea8ef;
   display: inline-block;
 }
-.centerWrap .settingNameStyle1 {
+.centerWrap .centerWrap_con .settingForm .settingNameStyle1 {
   cursor: pointer;
   margin-right: 10px;
 }
-.centerWrap .fwb {
-  font-weight: 700;
-}
-.centerWrap .gray1 {
-  color: #777;
-}
-.centerWrap .verticalSplit {
+.centerWrap .centerWrap_con .settingForm .verticalSplit {
   display: inline-block;
   width: 0px;
   height: 16px;
   border-right: 1px solid #ccc;
   margin: 0 10px;
 }
-.centerWrap .wiki2 {
-  height: 24px;
-  line-height: 24px;
-  width: auto;
-  font-size: 14px;
-  color: #999;
-}
-.centerWrap .hidden {
-  display: none;
-}
-.centerWrap .saveNamingRuleWrap {
+.centerWrap .centerWrap_con .settingForm .saveNamingRuleWrap {
   display: inline-block;
   position: relative;
 }
-.centerWrap .namingRuleList {
+.centerWrap .centerWrap_con .settingForm .namingRuleList {
   position: absolute;
   right: -30px;
   top: 25px;
@@ -986,7 +1033,7 @@
   box-shadow: #2ca6df 0px 0px 10px;
   display: none;
 }
-.centerWrap .namingRuleList li {
+.centerWrap .centerWrap_con .settingForm .namingRuleList li {
   padding: 2px 0 2px 0;
   color: #555;
   cursor: pointer;
@@ -997,25 +1044,25 @@
   align-items: center;
   min-width: 400px;
 }
-.centerWrap .namingRuleList li > * {
+.centerWrap .centerWrap_con .settingForm .namingRuleList li > * {
   min-height: 30px;
   line-height: 30px;
 }
-.centerWrap .namingRuleList li:hover {
+.centerWrap .centerWrap_con .settingForm .namingRuleList li:hover {
   background: #e3f5ff;
 }
-.centerWrap .namingRuleList .rule {
+.centerWrap .centerWrap_con .settingForm .namingRuleList .rule {
   flex: 1;
   line-height: 30px !important;
   padding-left: 20px;
 }
-.centerWrap .namingRuleList li:first-child {
+.centerWrap .centerWrap_con .settingForm .namingRuleList li:first-child {
   padding-top: 5px;
 }
-.centerWrap .namingRuleList li:last-child {
+.centerWrap .centerWrap_con .settingForm .namingRuleList li:last-child {
   padding-bottom: 5px;
 }
-.centerWrap .namingRuleList .delete {
+.centerWrap .centerWrap_con .settingForm .namingRuleList .delete {
   padding: 0 15px;
   margin-left: 5px;
   margin-right: 5px;
@@ -1023,10 +1070,16 @@
   color: #999;
   font-weight: lighter;
 }
-.centerWrap .setinput_style1,
-.centerWrap .setinput_style1:focus,
-.centerWrap .setinput_style1:hover {
+.centerWrap .centerWrap_con .settingForm .setinput_style1,
+.centerWrap .centerWrap_con .settingForm .setinput_style1:focus,
+.centerWrap .centerWrap_con .settingForm .setinput_style1:hover {
   background: transparent !important;
+}
+.centerWrap .centerWrap_con .help_bar {
+  line-height: 24px;
+}
+.centerWrap .centerWrap_con .help_bar > * {
+  padding: 0 3px;
 }
 .theme-dark.centerWrap {
   background: #222;
@@ -1036,6 +1089,9 @@
 .theme-dark.centerWrap button,
 .theme-dark.centerWrap .tip {
   color: #fff;
+}
+.theme-dark.centerWrap .centerPanelTextArea {
+  color: #fff !important;
 }
 .theme-dark.centerWrap .gray1 {
   color: #bbb;
@@ -1104,9 +1160,13 @@
 .xzBG.centerWrap .tip {
   color: #fff;
 }
+.xzBG.centerWrap .centerPanelTextArea {
+  color: #fff !important;
+  text-shadow: 0px 0px 5px #006a9b;
+}
 .xzBG.centerWrap .gray1,
 .xzBG.centerWrap .centerWrap_top_btn {
-  color: #eee !important;
+  color: #ddd !important;
 }
 .xzBG.centerWrap .textButton,
 .xzBG.centerWrap input {
