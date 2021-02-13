@@ -3931,7 +3931,7 @@ class FileName {
             }
         }
         // 把 R18(G) 作品存入指定目录里
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].r18Folder && _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].isR18OrR18G(data.tags)) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].r18Folder && (data.xRestrict === 1 || data.xRestrict === 2)) {
             const folder = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].replaceUnsafeStr(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].r18FolderName);
             result = this.appendFolder(result, folder);
         }
@@ -10455,6 +10455,7 @@ class Store {
             likeCount: 0,
             viewCount: 0,
             commentCount: 0,
+            xRestrict: 0
         };
         return Object.assign(dataDefault, data);
     }
@@ -13202,6 +13203,7 @@ __webpack_require__.r(__webpack_exports__);
 // 保存单个图片作品的数据
 class SaveArtworkData {
     async save(data) {
+        console.log(data.body.sl);
         // 获取需要检查的信息
         const body = data.body;
         const fullWidth = body.width; // 原图宽度
@@ -13296,6 +13298,7 @@ class SaveArtworkData {
                     viewCount: body.viewCount,
                     likeCount: body.likeCount,
                     commentCount: body.commentCount,
+                    xRestrict: body.xRestrict,
                 });
             }
             else if (body.illustType === 2) {
@@ -13336,6 +13339,7 @@ class SaveArtworkData {
                     viewCount: body.viewCount,
                     likeCount: body.likeCount,
                     commentCount: body.commentCount,
+                    xRestrict: body.xRestrict,
                 });
             }
         }
@@ -15504,6 +15508,7 @@ class SaveNovelData {
                     userName: body.userName,
                     meta: meta,
                 },
+                xRestrict: body.xRestrict,
             });
         }
     }

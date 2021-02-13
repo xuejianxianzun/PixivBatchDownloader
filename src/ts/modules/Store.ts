@@ -59,6 +59,7 @@ class Store {
       likeCount: 0,
       viewCount: 0,
       commentCount: 0,
+      xRestrict:0
     }
 
     return Object.assign(dataDefault, data)

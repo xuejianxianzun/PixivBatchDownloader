@@ -7,7 +7,7 @@ import { Tools } from './Tools'
 
 // 生成文件名
 class FileName {
-  constructor() {}
+  constructor() { }
 
   private handleRank(rank: number | null): string {
     // 处理空值
@@ -252,7 +252,7 @@ class FileName {
     }
 
     // 把 R18(G) 作品存入指定目录里
-    if (settings.r18Folder && Tools.isR18OrR18G(data.tags)) {
+    if (settings.r18Folder && (data.xRestrict === 1 || data.xRestrict === 2)) {
       const folder = Tools.replaceUnsafeStr(settings.r18FolderName)
       result = this.appendFolder(result, folder)
     }

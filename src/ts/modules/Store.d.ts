@@ -48,6 +48,7 @@ export interface Result {
   likeCount: number
   viewCount: number
   commentCount: number
+  xRestrict: 0 | 1 | 2
 }
 
 export interface ResultOptional {
@@ -80,6 +81,7 @@ export interface ResultOptional {
   likeCount?: number
   viewCount?: number
   commentCount?: number
+  xRestrict?: 0 | 1 | 2
 }
 
 // 储存作品在排行榜中的排名

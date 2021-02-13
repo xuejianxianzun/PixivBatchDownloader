@@ -1,7 +1,6 @@
 # CHANGLOG
 
 
-https://www.pixiv.net/en/artworks/80533327
 
 没有 r-18 tag 的问题
 
@@ -23,6 +22,22 @@ https://www.pixiv.net/en/artworks/80533327
 移除了这个设置项。
 
 现在快速下载始终会建立文件夹。
+
+### 在抓取结果中添加了 xRestrict 字段
+
+`
+xRestrict: 0 | 1 | 2
+`
+
+- 0 非限制级作品
+- 1 R-18 作品
+- 2 R-18G 作品
+
+以前下载器判断一个作品是否是 R-18（G）靠的是分析 tag，但是一些 R-18（G）作品的 tag 里却没有 R-18 或者 R-18G。
+
+例如： https://www.pixiv.net/en/artworks/80533327
+
+现在使用作品数据里的 xRestrict 来判断，应该不会遗漏了。
 
 ### 代码优化
 

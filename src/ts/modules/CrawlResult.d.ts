@@ -15,7 +15,7 @@ export interface ArtworkData {
     createDate: string
     uploadDate: string
     restrict: number
-    xRestrict: number
+    xRestrict: 0 | 1 | 2
     sl: number
     urls: {
       mini: string
@@ -49,7 +49,7 @@ export interface ArtworkData {
         id: string
         title: string
         illustType: number
-        xRestrict: number
+        xRestrict: 0 | 1 | 2
         restrict: number
         sl: number
         url: string
@@ -140,7 +140,7 @@ export interface ArtworkCommonData {
   id: string
   title: string
   illustType: 0 | 1 | 2
-  xRestrict: number
+  xRestrict: 0 | 1 | 2
   restrict: number
   sl: number
   url: string
@@ -613,7 +613,7 @@ export interface NovelCommonData {
     workCaption: string | null
   }
   updateDate: string
-  xRestrict: number
+  xRestrict: 0 | 1 | 2
   url: string
   userId: string
   userName: string
@@ -668,7 +668,7 @@ export interface NovelData {
     isBungei: boolean
     isUnlisted: boolean
     language: string
-    xRestrict: number
+    xRestrict: 0 | 1 | 2
     restrict: number
     content: string
     coverUrl: string
@@ -799,7 +799,7 @@ export interface NovelSeriesData {
       commentHtml: string
       tags: string[]
       restrict: number
-      xRestrict: number
+      xRestrict: 0 | 1 | 2
       isOriginal: boolean
       textLength: number
       bookmarkCount: number
