@@ -30,12 +30,35 @@ class CheckNew {
     const manifest = await fetch(chrome.extension.getURL('manifest.json'))
     const manifestJson = await manifest.json()
     const manifestVer = manifestJson.version
+
     // 比较大小
     const latestVer = localStorage.getItem(verName)
-    if (latestVer && manifestVer < latestVer) {
+    if (!latestVer) {
+      return
+    }
+    if (this.bigger(latestVer, manifestVer)) {
       EVT.fire(EVT.list.hasNewVer)
     }
   }
+
+  // 传入两个版本号字符串，比较第一个是否比第二个大
+  private bigger(a: string, b: string) {
+    const _a = a.split('.')
+    const _b = b.split('.')
+
+    // 分别比较每一个版本号字段，当首次遇到 a > b 的时候返回 true
+    for (let i = 0; i < _a.length; i++) {
+      if (_b[i] === undefined) {
+        break
+      }
+      if (Number.parseInt(_a[i]) > Number.parseInt(_b[i])) {
+        return true
+      }
+    }
+
+    return false
+  }
+
 }
 
 new CheckNew()

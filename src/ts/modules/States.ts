@@ -14,13 +14,13 @@ class States {
   public busy = false
 
   // 快速下载标记。如果为 true 说明进入了快速下载模式
-  // 快速下载模式中不会显示下载面板，并且会自动开始下载。也可能会影响命名规则
-  // 修改者：QuickDownloadBtn 组件里，启动快速下载时设为 true，下载完成或中止时复位到 false
+  // 快速下载模式中不会显示下载面板，并且会自动开始下载
+  // 启动快速下载时设为 true，下载完成或中止时复位到 false
   public quickDownload = false
 
   // 这次下载是否是从图片查看器建立的
   // 如果是，那么下载途中不会显示下载面板，并且会自动开始下载
-  // 基本同 quickDownload，只有一点区别： downloadFromViewer 不会影响命名规则
+  // 作用同 quickDownload，只是触发方式不同
   public downloadFromViewer = false
 
   // 不自动下载的标记。如果为 true，那么下载器在抓取完成后，不会自动开始下载。（即使用户设置了自动开始下载）
