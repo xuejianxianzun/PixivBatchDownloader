@@ -58,7 +58,6 @@ class CheckNew {
 
     return false
   }
-
 }
 
 new CheckNew()

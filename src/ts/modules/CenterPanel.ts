@@ -40,7 +40,7 @@ class CenterPanel {
         '_newver'
       )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
         <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-Update"></use>
+          <use xlink:href="#icon-gengxin"></use>
         </svg>
       </a>
       <a class="has_tip centerWrap_top_btn github_icon" data-tip="${lang.transl(
