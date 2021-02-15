@@ -8,6 +8,7 @@ import { SaveNamingRule } from './SaveNamingRule'
 import { theme } from '../Theme'
 import { FormSettings } from './FormSettings'
 import { Tools } from '../Tools'
+import {secretSignal} from '../SecretSignal'
 
 // 设置表单
 class Form {
@@ -219,6 +220,11 @@ class Form {
 
     // 把下拉框的选择项插入到文本框里
     this.insertValueToInput(this.form.fileNameSelect, this.form.userSetName)
+
+    // 切换只选择动图/选择全部作品类型
+    secretSignal.register('onlyugoira',()=>{
+      
+    })
   }
 
   // 把下拉框的选择项插入到文本框里

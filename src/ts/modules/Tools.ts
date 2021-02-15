@@ -1,3 +1,5 @@
+import { Result } from "./Store.d"
+
 class Tools {
   // 不安全的字符，这里多数是控制字符，需要替换掉
   static unsafeStr = new RegExp(
@@ -73,6 +75,17 @@ class Tools {
       } else {
         return 0
       }
+    }
+  }
+
+  // 把结果中的动图排列到最前面
+  static sortUgoiraFirst(a: Result, b: Result) {
+    if (a.type === 2 && b.type !== 2) {
+      return -1
+    } else if (a.type === 2 && b.type === 2) {
+      return 0
+    } else {
+      return 1
     }
   }
 

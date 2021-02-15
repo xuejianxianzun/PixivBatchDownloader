@@ -346,7 +346,10 @@ abstract class InitPageBase {
 
     this.sortResult()
 
-    this.sortUgoiraFirst()
+    if(settings.downloadUgoiraFirst){
+      store.resultMeta.sort(Tools.sortUgoiraFirst)
+      store.result.sort(Tools.sortUgoiraFirst)
+    }
 
     log.log(lang.transl('_共抓取到n个作品', store.resultMeta.length.toString()))
 
@@ -408,21 +411,6 @@ abstract class InitPageBase {
 
   // 抓取完成后，对结果进行排序
   protected sortResult() { }
-
-  // 把结果中的动图排列到最前面
-  protected sortUgoiraFirst() {
-    if (settings.downloadUgoiraFirst) {
-      store.result.sort((a, b) => {
-        if (a.type === 2 && b.type !== 2) {
-          return -1
-        } else if (a.type === 2 && b.type === 2) {
-          return 0
-        } else {
-          return 1
-        }
-      })
-    }
-  }
 }
 
 export { InitPageBase }

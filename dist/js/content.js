@@ -3964,6 +3964,7 @@ class FileName {
         // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
         const ugoiraExt = ['zip', 'webm', 'gif', 'png'];
         if (ugoiraExt.includes(data.ext) && data.ugoiraInfo) {
+            console.log(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].ugoiraSaveAs);
             data.ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].ugoiraSaveAs;
         }
         // 如果是小说，那么此时根据用户设置的动图保存格式，更新其后缀名
@@ -6139,7 +6140,11 @@ class InitPageBase {
         }
         _Store__WEBPACK_IMPORTED_MODULE_4__["store"].crawlCompleteTime = new Date();
         this.sortResult();
-        this.sortUgoiraFirst();
+        console.log('1111111111');
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downloadUgoiraFirst) {
+            _Store__WEBPACK_IMPORTED_MODULE_4__["store"].resultMeta.sort(_Tools__WEBPACK_IMPORTED_MODULE_18__["Tools"].sortUgoiraFirst);
+            _Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.sort(_Tools__WEBPACK_IMPORTED_MODULE_18__["Tools"].sortUgoiraFirst);
+        }
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个作品', _Store__WEBPACK_IMPORTED_MODULE_4__["store"].resultMeta.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_共抓取到n个文件', _Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.length.toString()));
         _Log__WEBPACK_IMPORTED_MODULE_5__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取完毕'), 2);
@@ -6182,22 +6187,6 @@ class InitPageBase {
     }
     // 抓取完成后，对结果进行排序
     sortResult() { }
-    // 把结果中的动图排列到最前面，先集中下载动图
-    sortUgoiraFirst() {
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downloadUgoiraFirst) {
-            _Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.sort((a, b) => {
-                if (a.type === 2 && b.type !== 2) {
-                    return -1;
-                }
-                else if (a.type === 2 && b.type === 2) {
-                    return 0;
-                }
-                else {
-                    return 1;
-                }
-            });
-        }
-    }
 }
 
 
@@ -11157,6 +11146,18 @@ class Tools {
             }
         };
     }
+    // 把结果中的动图排列到最前面
+    static sortUgoiraFirst(a, b) {
+        if (a.type === 2 && b.type !== 2) {
+            return -1;
+        }
+        else if (a.type === 2 && b.type === 2) {
+            return 0;
+        }
+        else {
+            return 1;
+        }
+    }
     static isR18OrR18G(tags) {
         const str = Array.isArray(tags) ? tags.toString() : tags;
         return (str.includes('R-18') ||
@@ -16002,6 +16003,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Theme */ "./src/ts/modules/Theme.ts");
 /* harmony import */ var _FormSettings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./FormSettings */ "./src/ts/modules/setting/FormSettings.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/modules/Tools.ts");
+/* harmony import */ var _SecretSignal__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../SecretSignal */ "./src/ts/modules/SecretSignal.ts");
+
 
 
 
@@ -16138,6 +16141,9 @@ class Form {
         }
         // 把下拉框的选择项插入到文本框里
         this.insertValueToInput(this.form.fileNameSelect, this.form.userSetName);
+        // 切换只选择动图/选择全部作品类型
+        _SecretSignal__WEBPACK_IMPORTED_MODULE_9__["secretSignal"].register('onlyugoira', () => {
+        });
     }
     // 把下拉框的选择项插入到文本框里
     insertValueToInput(from, to) {
