@@ -1,5 +1,5 @@
 import { EVT } from './EVT'
-import { Result } from './Store.d'
+import { Result } from './StoreType'
 import { lang } from './Lang'
 import { Tools } from './Tools'
 import { states } from './States'
@@ -67,7 +67,7 @@ class ImportResult {
     }
 
     // 如果没有符合过滤条件的结果
-    if(temp.length===0){
+    if (temp.length === 0) {
       msgBox.warning(lang.transl('_没有数据可供使用'))
       return
     }
@@ -83,4 +83,4 @@ class ImportResult {
 }
 
 new ImportResult()
-export { }
+export {}

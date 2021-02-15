@@ -3,7 +3,7 @@ import { DOM } from '../DOM'
 import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import formHtml from './FormHTML'
-import { SettingsForm } from './Form.d'
+import { SettingsForm } from './SettingsForm'
 import { SaveNamingRule } from './SaveNamingRule'
 import { theme } from '../Theme'
 import { FormSettings } from './FormSettings'
@@ -75,7 +75,7 @@ class Form {
     // 当某个设置发生改变时，重新设置美化状态
     window.addEventListener(EVT.list.settingChange, (ev) => {
       this.formSettings.restoreFormSettings()
-      
+
       this.initFormBueatiful()
     })
 

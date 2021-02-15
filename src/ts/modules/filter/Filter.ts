@@ -1,4 +1,3 @@
-import { FilterOption } from "./FilterOption"
 import { lang } from '../Lang'
 import { log } from '../Log'
 import { EVT } from '../EVT'
@@ -8,6 +7,22 @@ import { blackAndWhiteImage } from './BlackandWhiteImage'
 import { mute } from './Mute'
 import { blockTagsForSpecificUser } from './BlockTagsForSpecificUser'
 import { msgBox } from '../MsgBox'
+
+export interface FilterOption {
+  id?: number | string
+  workType?: 0 | 1 | 2 | 3
+  pageCount?: number
+  tags?: string[]
+  bookmarkCount?: number
+  bookmarkData?: any
+  width?: number
+  height?: number
+  yes_rank?: number
+  createDate?: string
+  mini?: string
+  size?: number
+  userId?: string
+}
 
 // 检查作品是否符合过滤条件
 class Filter {

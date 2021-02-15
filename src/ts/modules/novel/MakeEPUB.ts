@@ -1,4 +1,4 @@
-import { NovelMeta } from '../Store.d'
+import { NovelMeta } from '../StoreType'
 import { Tools } from '../Tools'
 
 declare const EpubMaker: any

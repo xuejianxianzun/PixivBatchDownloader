@@ -3,7 +3,7 @@ import { Colors } from './Colors'
 import { lang } from './Lang'
 import { EVT } from './EVT'
 import { states } from './States'
-import { IDData } from './Store.d'
+import { IDData } from './StoreType'
 import { toast } from './Toast'
 import { msgBox } from './MsgBox'
 

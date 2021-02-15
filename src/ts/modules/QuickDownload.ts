@@ -2,7 +2,7 @@ import { EVT } from './EVT'
 import { lang } from './Lang'
 import { pageType } from './PageType'
 import { states } from './States'
-import { IDData } from './Store.d'
+import { IDData } from './StoreType'
 import { toast } from './Toast'
 import { Tools } from './Tools'
 

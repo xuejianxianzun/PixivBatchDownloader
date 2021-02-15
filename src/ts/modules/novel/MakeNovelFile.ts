@@ -1,4 +1,4 @@
-import { NovelMeta } from '../Store.d'
+import { NovelMeta } from '../StoreType'
 import { settings } from '../setting/Settings'
 import { makeEPUB } from './MakeEPUB'
 

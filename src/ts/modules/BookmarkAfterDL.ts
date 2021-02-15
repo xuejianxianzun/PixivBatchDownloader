@@ -2,10 +2,10 @@ import { API } from './API'
 import { token } from './Token'
 import { store } from './Store'
 import { settings } from './setting/Settings'
-import { Result } from './Store.d'
+import { Result } from './StoreType'
 import { lang } from './Lang'
 import { EVT } from './EVT'
-import { DonwloadSuccessData, DonwloadSkipData } from './Download.d'
+import { DonwloadSuccessData, DonwloadSkipData } from './DownloadType'
 
 // 当文件下载成功后，收藏这个作品
 class BookmarkAfterDL {

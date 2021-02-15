@@ -7,7 +7,7 @@ import {
   DonwloadSkipData,
   DownloadedMsg,
   TaskList,
-} from './Download.d'
+} from './DownloadType'
 import { store } from './Store'
 import { log } from './Log'
 import { lang } from './Lang'

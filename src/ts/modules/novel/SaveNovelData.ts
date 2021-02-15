@@ -1,5 +1,4 @@
-import { filter } from '../filter/Filter'
-import { FilterOption } from "../filter/FilterOption"
+import { filter, FilterOption } from '../filter/Filter'
 import { NovelData } from '../CrawlResult.d'
 import { store } from '../Store'
 import { settings } from '../setting/Settings'

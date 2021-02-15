@@ -3,7 +3,7 @@ import { InitPageBase } from './InitPageBase'
 import { API } from './API'
 import { Colors } from './Colors'
 import { lang } from './Lang'
-import { IDData } from './Store.d'
+import { IDData } from './StoreType'
 import { options } from './setting/Options'
 import { BookmarkData } from './CrawlResult.d'
 import { store } from './Store'
@@ -11,8 +11,7 @@ import { log } from './Log'
 import { DOM } from './DOM'
 import { token } from './Token'
 import { BookmarksAddTag } from './BookmarksAddTag'
-import { filter } from './filter/Filter'
-import { FilterOption } from "./filter/FilterOption"
+import { filter, FilterOption } from './filter/Filter'
 import { Tools } from './Tools'
 
 class InitBookmarkPage extends InitPageBase {

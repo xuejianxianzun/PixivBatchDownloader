@@ -273,7 +273,12 @@ class Settings {
       secretSignal.register(code, () => {
         // 如果只有动图被选中，则选择全部作品类型
         // 反之，只选择动图
-        if (this.settings.downType2 && !this.settings.downType0 && !this.settings.downType1 && !this.settings.downType3) {
+        if (
+          this.settings.downType2 &&
+          !this.settings.downType0 &&
+          !this.settings.downType1 &&
+          !this.settings.downType3
+        ) {
           this.settings.downType0 = true
           this.settings.downType1 = true
           this.settings.downType3 = true
@@ -435,7 +440,7 @@ class Settings {
     }
 
     // 更改设置
-    ; (this.settings[key] as any) = value
+    ;(this.settings[key] as any) = value
 
     // 触发设置变化的事件
     EVT.fire(EVT.list.settingChange, { name: key, value: value })

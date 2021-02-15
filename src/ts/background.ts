@@ -1,4 +1,4 @@
-import { DonwloadListData, SendToBackEndData } from './modules/Download.d'
+import { DonwloadListData, SendToBackEndData } from './modules/DownloadType'
 
 // 修改 responseHeaders 开始
 const regex = /access-control-allow-origin/i

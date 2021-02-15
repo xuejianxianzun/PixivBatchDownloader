@@ -1,5 +1,5 @@
 import { store } from './Store'
-import { IDData } from './Store.d'
+import { IDData } from './StoreType'
 import { Tools } from './Tools'
 
 type IDDataWithPageNo = IDData & {

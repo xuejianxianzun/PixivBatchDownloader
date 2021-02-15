@@ -4,8 +4,7 @@ import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
 import { options } from '../setting/Options'
-import { FilterOption } from "../filter/FilterOption"
-import { filter } from '../filter/Filter'
+import { filter, FilterOption } from '../filter/Filter'
 import { store } from '../Store'
 import { Tools } from '../Tools'
 

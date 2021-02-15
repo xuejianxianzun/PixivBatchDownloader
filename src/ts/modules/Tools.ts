@@ -1,4 +1,4 @@
-import { Result } from "./Store.d"
+import { Result } from './StoreType'
 
 class Tools {
   // 不安全的字符，这里多数是控制字符，需要替换掉

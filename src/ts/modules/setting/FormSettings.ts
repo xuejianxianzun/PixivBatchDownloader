@@ -1,7 +1,7 @@
 import { EVT } from '../EVT'
 import { pageType } from '../PageType'
 import { settings, setSetting } from './Settings'
-import { SettingsForm } from './Form.d'
+import { SettingsForm } from './SettingsForm'
 import { DateFormat } from '../DateFormat'
 
 // 管理 from 表单里的选项（类型为 input 元素的选项），从 settings 里读取选项的值；当选项改变时保存到 settings 里
@@ -245,7 +245,7 @@ class FormSettings {
     if (want !== undefined) {
       const old = this.form.setWantPage.value
       const newer = want.toString()
-      if(old!==newer){
+      if (old !== newer) {
         this.form.setWantPage.value = want.toString()
         setSetting('setWantPage', want)
       }

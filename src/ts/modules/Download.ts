@@ -9,7 +9,7 @@ import {
   downloadArgument,
   SendToBackEndData,
   DonwloadSkipData,
-} from './Download.d'
+} from './DownloadType'
 import { progressBar } from './ProgressBar'
 import { filter } from './filter/Filter'
 import { deduplication } from './Deduplication'

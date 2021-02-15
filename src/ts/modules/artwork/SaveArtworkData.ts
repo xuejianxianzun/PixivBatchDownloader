@@ -1,8 +1,7 @@
 import { API } from '../API'
-import { filter } from '../filter/Filter'
+import { filter, FilterOption } from '../filter/Filter'
 import { settings } from '../setting/Settings'
 import { settingAPI } from '../setting/SettingAPI'
-import { FilterOption } from "../filter/FilterOption"
 import { ArtworkData } from '../CrawlResult'
 import { store } from '../Store'
 

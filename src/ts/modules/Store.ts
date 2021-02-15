@@ -1,6 +1,6 @@
 import { EVT } from './EVT'
 import { DOM } from './DOM'
-import { Result, ResultOptional, RankList, IDData } from './Store.d'
+import { Result, ResultOptional, RankList, IDData } from './StoreType'
 import { Tools } from './Tools'
 
 // 储存抓取结果

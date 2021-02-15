@@ -5,10 +5,9 @@ class SecretSignal {
   }
 
   private list: {
-    code: string,
+    code: string
     cb: Function
   }[] = []
-
 
   // "KeyX"
   // "Digit9"
@@ -20,7 +19,7 @@ class SecretSignal {
   public register(code: string, cb: Function) {
     this.list.push({
       code,
-      cb
+      cb,
     })
   }
 
@@ -39,7 +38,10 @@ class SecretSignal {
 
       // 保存字母和数字的按键
       for (const prefix of this.codePrefix) {
-        if (ev.code.startsWith(prefix) && ev.code.length === prefix.length + 1) {
+        if (
+          ev.code.startsWith(prefix) &&
+          ev.code.length === prefix.length + 1
+        ) {
           const key = ev.code[ev.code.length - 1].toLowerCase()
           this.input += key
           this.check()
