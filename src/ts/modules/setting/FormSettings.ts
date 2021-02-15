@@ -33,7 +33,7 @@ class FormSettings {
   private saveTextInput(name: keyof typeof settings) {
     const el = this.form[name] as HTMLInputElement
     el.addEventListener('change', () => {
-      this.emitChange(name, el.value)
+      setSetting(name, el.value)
     })
   }
 
@@ -41,7 +41,7 @@ class FormSettings {
   private saveCheckBox(name: keyof typeof settings) {
     const el = this.form[name] as HTMLInputElement
     el.addEventListener('click', () => {
-      this.emitChange(name, el.checked)
+      setSetting(name, el.checked)
     })
   }
 
@@ -50,7 +50,7 @@ class FormSettings {
     const radios = this.form[name]
     for (const radio of radios) {
       radio.addEventListener('click', () => {
-        this.emitChange(name, radio.value)
+        setSetting(name, radio.value)
       })
     }
   }
@@ -65,7 +65,7 @@ class FormSettings {
     this.form.setWantPage.addEventListener('change', () => {
       const temp = Array.from(settings.wantPageArr)
       temp[pageType.type] = Number.parseInt(this.form.setWantPage.value)
-      this.emitChange('wantPageArr', temp)
+      setSetting('wantPageArr', temp)
     })
 
     // 保存下载的作品类型
@@ -139,7 +139,7 @@ class FormSettings {
     const userSetNameInput = this.form.userSetName
     ;['change', 'focus'].forEach((ev) => {
       userSetNameInput.addEventListener(ev, () => {
-        this.emitChange('userSetName', userSetNameInput.value)
+        setSetting('userSetName', userSetNameInput.value)
       })
     })
 
@@ -213,14 +213,6 @@ class FormSettings {
     this.saveCheckBox('createFolderByTypeNovel')
   }
 
-  // 表单里的设置发生改变时，调用这个方法，传递选项名和值
-  private emitChange(
-    name: keyof typeof settings,
-    value: string | number | boolean | string[] | number[]
-  ) {
-    setSetting(name, value)
-  }
-
   // 恢复值为 Boolean 的设置项
   // input[type='checkbox'] 使用
   private restoreBoolean(name: keyof typeof settings) {
@@ -251,8 +243,12 @@ class FormSettings {
   private restoreWantPage() {
     const want = settings.wantPageArr[pageType.type]
     if (want !== undefined) {
-      this.form.setWantPage.value = want.toString()
-      this.emitChange('setWantPage', want)
+      const old = this.form.setWantPage.value
+      const newer = want.toString()
+      if(old!==newer){
+        this.form.setWantPage.value = want.toString()
+        setSetting('setWantPage', want)
+      }
     }
   }
 

@@ -8,7 +8,6 @@ import { SaveNamingRule } from './SaveNamingRule'
 import { theme } from '../Theme'
 import { FormSettings } from './FormSettings'
 import { Tools } from '../Tools'
-import {secretSignal} from '../SecretSignal'
 
 // 设置表单
 class Form {
@@ -28,11 +27,11 @@ class Form {
 
     this.allLabel = this.form.querySelectorAll('label')
 
-    this.bindEvents()
-
     new SaveNamingRule(this.form.userSetName)
 
     this.formSettings = new FormSettings(this.form)
+
+    this.bindEvents()
 
     this.initFormBueatiful()
 
@@ -73,11 +72,14 @@ class Form {
       this.bindRadioEvent(radio)
     }
 
-    // 设置发生改变时，重新设置美化状态
-    window.addEventListener(EVT.list.settingChange, () => {
+    // 当某个设置发生改变时，重新设置美化状态
+    window.addEventListener(EVT.list.settingChange, (ev) => {
+      this.formSettings.restoreFormSettings()
+      
       this.initFormBueatiful()
     })
 
+    // 当设置重置时，重新设置美化状态
     window.addEventListener(EVT.list.resetSettingsEnd, () => {
       this.form.reset()
 
@@ -220,11 +222,6 @@ class Form {
 
     // 把下拉框的选择项插入到文本框里
     this.insertValueToInput(this.form.fileNameSelect, this.form.userSetName)
-
-    // 切换只选择动图/选择全部作品类型
-    secretSignal.register('onlyugoira',()=>{
-      
-    })
   }
 
   // 把下拉框的选择项插入到文本框里

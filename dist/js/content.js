@@ -3964,7 +3964,6 @@ class FileName {
         // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
         const ugoiraExt = ['zip', 'webm', 'gif', 'png'];
         if (ugoiraExt.includes(data.ext) && data.ugoiraInfo) {
-            console.log(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].ugoiraSaveAs);
             data.ext = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].ugoiraSaveAs;
         }
         // 如果是小说，那么此时根据用户设置的动图保存格式，更新其后缀名
@@ -6140,7 +6139,6 @@ class InitPageBase {
         }
         _Store__WEBPACK_IMPORTED_MODULE_4__["store"].crawlCompleteTime = new Date();
         this.sortResult();
-        console.log('1111111111');
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downloadUgoiraFirst) {
             _Store__WEBPACK_IMPORTED_MODULE_4__["store"].resultMeta.sort(_Tools__WEBPACK_IMPORTED_MODULE_18__["Tools"].sortUgoiraFirst);
             _Store__WEBPACK_IMPORTED_MODULE_4__["store"].result.sort(_Tools__WEBPACK_IMPORTED_MODULE_18__["Tools"].sortUgoiraFirst);
@@ -16003,8 +16001,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Theme */ "./src/ts/modules/Theme.ts");
 /* harmony import */ var _FormSettings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./FormSettings */ "./src/ts/modules/setting/FormSettings.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/modules/Tools.ts");
-/* harmony import */ var _SecretSignal__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../SecretSignal */ "./src/ts/modules/SecretSignal.ts");
-
 
 
 
@@ -16026,9 +16022,9 @@ class Form {
         this.allRadio = this.form.querySelectorAll('input[type="radio"]');
         this.allSwitch = this.form.querySelectorAll('.checkbox_switch');
         this.allLabel = this.form.querySelectorAll('label');
-        this.bindEvents();
         new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_5__["SaveNamingRule"](this.form.userSetName);
         this.formSettings = new _FormSettings__WEBPACK_IMPORTED_MODULE_7__["FormSettings"](this.form);
+        this.bindEvents();
         this.initFormBueatiful();
         this.checkTipCreateFolder();
     }
@@ -16048,10 +16044,12 @@ class Form {
         for (const radio of this.allRadio) {
             this.bindRadioEvent(radio);
         }
-        // 设置发生改变时，重新设置美化状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
+        // 当某个设置发生改变时，重新设置美化状态
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+            this.formSettings.restoreFormSettings();
             this.initFormBueatiful();
         });
+        // 当设置重置时，重新设置美化状态
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd, () => {
             this.form.reset();
             this.formSettings.restoreFormSettings();
@@ -16141,9 +16139,6 @@ class Form {
         }
         // 把下拉框的选择项插入到文本框里
         this.insertValueToInput(this.form.fileNameSelect, this.form.userSetName);
-        // 切换只选择动图/选择全部作品类型
-        _SecretSignal__WEBPACK_IMPORTED_MODULE_9__["secretSignal"].register('onlyugoira', () => {
-        });
     }
     // 把下拉框的选择项插入到文本框里
     insertValueToInput(from, to) {
@@ -16974,14 +16969,14 @@ class FormSettings {
     saveTextInput(name) {
         const el = this.form[name];
         el.addEventListener('change', () => {
-            this.emitChange(name, el.value);
+            Object(_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])(name, el.value);
         });
     }
     // 处理复选框： click 时保存 checked
     saveCheckBox(name) {
         const el = this.form[name];
         el.addEventListener('click', () => {
-            this.emitChange(name, el.checked);
+            Object(_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])(name, el.checked);
         });
     }
     // 处理单选框： click 时保存 value
@@ -16989,7 +16984,7 @@ class FormSettings {
         const radios = this.form[name];
         for (const radio of radios) {
             radio.addEventListener('click', () => {
-                this.emitChange(name, radio.value);
+                Object(_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])(name, radio.value);
             });
         }
     }
@@ -17002,7 +16997,7 @@ class FormSettings {
         this.form.setWantPage.addEventListener('change', () => {
             const temp = Array.from(_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].wantPageArr);
             temp[_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type] = Number.parseInt(this.form.setWantPage.value);
-            this.emitChange('wantPageArr', temp);
+            Object(_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])('wantPageArr', temp);
         });
         // 保存下载的作品类型
         this.saveCheckBox('downType0');
@@ -17061,7 +17056,7 @@ class FormSettings {
         const userSetNameInput = this.form.userSetName;
         ['change', 'focus'].forEach((ev) => {
             userSetNameInput.addEventListener(ev, () => {
-                this.emitChange('userSetName', userSetNameInput.value);
+                Object(_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])('userSetName', userSetNameInput.value);
             });
         });
         // 保存是否添加标记名称
@@ -17111,10 +17106,6 @@ class FormSettings {
         this.saveCheckBox('createFolderByTypeUgoira');
         this.saveCheckBox('createFolderByTypeNovel');
     }
-    // 表单里的设置发生改变时，调用这个方法，传递选项名和值
-    emitChange(name, value) {
-        Object(_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])(name, value);
-    }
     // 恢复值为 Boolean 的设置项
     // input[type='checkbox'] 使用
     restoreBoolean(name) {
@@ -17142,8 +17133,12 @@ class FormSettings {
     restoreWantPage() {
         const want = _Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].wantPageArr[_PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].type];
         if (want !== undefined) {
-            this.form.setWantPage.value = want.toString();
-            this.emitChange('setWantPage', want);
+            const old = this.form.setWantPage.value;
+            const newer = want.toString();
+            if (old !== newer) {
+                this.form.setWantPage.value = want.toString();
+                Object(_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])('setWantPage', want);
+            }
         }
     }
     // 读取设置，恢复表单里的设置项
@@ -17577,9 +17572,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ConvertOldSettings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ConvertOldSettings */ "./src/ts/modules/setting/ConvertOldSettings.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/modules/MsgBox.ts");
 /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Config */ "./src/ts/modules/Config.ts");
+/* harmony import */ var _SecretSignal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../SecretSignal */ "./src/ts/modules/SecretSignal.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/modules/Toast.ts");
 // settings 保存了下载器的所有设置项
 // 每当修改了 settings 的任何一个值，都会触发 EVT.list.settingChange 事件，传递这个选项的名称和值 {name:string, value:any}
 // 如果打开了多个标签页，每个页面的 settings 数据是互相独立的。但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
+
+
 
 
 
@@ -17730,6 +17729,30 @@ class Settings {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.importSettings, () => {
             this.importSettings();
         });
+        // 切换只选择动图/选择全部作品类型
+        const codes = ['onlyugoira', 'qw333'];
+        for (const code of codes) {
+            _SecretSignal__WEBPACK_IMPORTED_MODULE_5__["secretSignal"].register(code, () => {
+                // 如果只有动图被选中，则选择全部作品类型
+                // 反之，只选择动图
+                if (this.settings.downType2 && !this.settings.downType0 && !this.settings.downType1 && !this.settings.downType3) {
+                    this.settings.downType0 = true;
+                    this.settings.downType1 = true;
+                    this.settings.downType3 = true;
+                    // 多次修改只触发一次改变事件，提高效率
+                    this.setSetting('downType0', true);
+                    _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].warning('onlyUgoira off');
+                }
+                else {
+                    this.settings.downType0 = false;
+                    this.settings.downType1 = false;
+                    this.settings.downType2 = true;
+                    this.settings.downType3 = false;
+                    this.setSetting('downType2', true);
+                    _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success('onlyUgoira on');
+                }
+            });
+        }
     }
     // 读取保存的设置，合并到当前设置上
     restoreSettings() {

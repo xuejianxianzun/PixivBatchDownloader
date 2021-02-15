@@ -8,6 +8,8 @@ import { Tools } from '../Tools'
 import { convertOldSettings } from './ConvertOldSettings'
 import { msgBox } from '../MsgBox'
 import Config from '../Config'
+import { secretSignal } from '../SecretSignal'
+import { toast } from '../Toast'
 
 export interface BlockTagsForSpecificUserItem {
   uid: number
@@ -104,7 +106,7 @@ interface XzSetting {
   createFolderByTag: boolean
   createFolderTagList: string[]
   createFolderBySl: boolean
-  downloadUgoiraFirst:boolean
+  downloadUgoiraFirst: boolean
 }
 
 class Settings {
@@ -264,6 +266,30 @@ class Settings {
     window.addEventListener(EVT.list.importSettings, () => {
       this.importSettings()
     })
+
+    // 切换只选择动图/选择全部作品类型
+    const codes = ['onlyugoira', 'qw333']
+    for (const code of codes) {
+      secretSignal.register(code, () => {
+        // 如果只有动图被选中，则选择全部作品类型
+        // 反之，只选择动图
+        if (this.settings.downType2 && !this.settings.downType0 && !this.settings.downType1 && !this.settings.downType3) {
+          this.settings.downType0 = true
+          this.settings.downType1 = true
+          this.settings.downType3 = true
+          // 多次修改只触发一次改变事件，提高效率
+          this.setSetting('downType0', true)
+          toast.warning('onlyUgoira off')
+        } else {
+          this.settings.downType0 = false
+          this.settings.downType1 = false
+          this.settings.downType2 = true
+          this.settings.downType3 = false
+          this.setSetting('downType2', true)
+          toast.success('onlyUgoira on')
+        }
+      })
+    }
   }
 
   // 读取保存的设置，合并到当前设置上
@@ -409,7 +435,7 @@ class Settings {
     }
 
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
 
     // 触发设置变化的事件
     EVT.fire(EVT.list.settingChange, { name: key, value: value })
