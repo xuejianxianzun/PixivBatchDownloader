@@ -104,6 +104,7 @@ interface XzSetting {
   createFolderByTag: boolean
   createFolderTagList: string[]
   createFolderBySl: boolean
+  downloadUgoiraFirst:boolean
 }
 
 class Settings {
@@ -225,6 +226,7 @@ class Settings {
     createFolderByTag: false,
     createFolderTagList: [],
     createFolderBySl: false,
+    downloadUgoiraFirst: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

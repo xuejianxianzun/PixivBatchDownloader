@@ -193,16 +193,6 @@ English （机翻，韩语设置下也使用英语文本）
 
 20 [关注](https://www.pixiv.net/users/9460149/following)
 
-测试用网址：
-
-[动图转换](https://www.pixiv.net/member.php?id=16274829)
-
-[插画和小说混合](https://www.pixiv.net/users/7836791)
-
-[正方形图片](https://www.pixiv.net/artworks/86426057)
-
-[体积大的图片](https://www.pixiv.net/users/5224036)
-
 # 友情链接
 
 [PixivUserBatchDownload](https://github.com/Mapaler/PixivUserBatchDownload/)
