@@ -21,7 +21,7 @@ class InvisibleSettings {
     },
     {
       name: 'createFolderBySl',
-      code: 'qw111',
+      code: 'kaiguansl',
     },
     {
       name: 'downloadUgoiraFirst',
@@ -29,7 +29,7 @@ class InvisibleSettings {
     },
     {
       name: 'downloadUgoiraFirst',
-      code: 'qw222',
+      code: 'qw111',
     },
   ]
 

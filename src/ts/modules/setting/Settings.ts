@@ -268,7 +268,7 @@ class Settings {
     })
 
     // 切换只选择动图/选择全部作品类型
-    const codes = ['onlyugoira', 'qw333']
+    const codes = ['onlyugoira', 'qw222']
     for (const code of codes) {
       secretSignal.register(code, () => {
         // 如果只有动图被选中，则选择全部作品类型

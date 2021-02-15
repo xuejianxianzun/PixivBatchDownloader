@@ -22376,7 +22376,7 @@ flag 及其含义如下：
               },
               {
                 name: 'createFolderBySl',
-                code: 'qw111',
+                code: 'kaiguansl',
               },
               {
                 name: 'downloadUgoiraFirst',
@@ -22384,7 +22384,7 @@ flag 及其含义如下：
               },
               {
                 name: 'downloadUgoiraFirst',
-                code: 'qw222',
+                code: 'qw111',
               },
             ]
             this.register()
@@ -22954,7 +22954,7 @@ flag 及其含义如下：
               }
             )
             // 切换只选择动图/选择全部作品类型
-            const codes = ['onlyugoira', 'qw333']
+            const codes = ['onlyugoira', 'qw222']
             for (const code of codes) {
               _SecretSignal__WEBPACK_IMPORTED_MODULE_5__[
                 'secretSignal'
