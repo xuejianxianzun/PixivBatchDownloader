@@ -2,7 +2,7 @@ import { API } from '../API'
 import { filter } from '../filter/Filter'
 import { settings } from '../setting/Settings'
 import { settingAPI } from '../setting/SettingAPI'
-import { FilterOption } from '../filter/Filter.d'
+import { FilterOption } from "../filter/FilterOption"
 import { ArtworkData } from '../CrawlResult'
 import { store } from '../Store'
 
@@ -41,7 +41,7 @@ class SaveArtworkData {
     const filterOpt: FilterOption = {
       createDate: body.createDate,
       id: body.id,
-      illustType: body.illustType,
+      workType: body.illustType,
       tags: tagsWithTransl,
       pageCount: body.pageCount,
       bookmarkCount: bmk,

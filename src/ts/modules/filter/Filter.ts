@@ -1,4 +1,4 @@
-import { FilterOption } from './Filter.d'
+import { FilterOption } from "./FilterOption"
 import { lang } from '../Lang'
 import { log } from '../Log'
 import { EVT } from '../EVT'
@@ -73,12 +73,12 @@ class Filter {
     }
 
     // 检查下载的作品类型设置
-    if (!this.checkDownType(option.illustType)) {
+    if (!this.checkDownType(option.workType)) {
       return false
     }
 
     // 检查单图、多图的下载
-    if (!this.checkPageCount(option.illustType, option.pageCount)) {
+    if (!this.checkPageCount(option.workType, option.pageCount)) {
       return false
     }
 
@@ -360,12 +360,12 @@ class Filter {
   // ---------------- check ----------------
 
   // 检查下载的作品类型设置
-  private checkDownType(illustType: FilterOption['illustType']) {
-    if (illustType === undefined) {
+  private checkDownType(workType: FilterOption['workType']) {
+    if (workType === undefined) {
       return true
     }
 
-    const name = ('downType' + illustType) as
+    const name = ('downType' + workType) as
       | 'downType0'
       | 'downType1'
       | 'downType2'
@@ -375,15 +375,15 @@ class Filter {
 
   // 依据图片数量，检查下载的作品类型
   private checkPageCount(
-    illustType: FilterOption['illustType'],
+    workType: FilterOption['workType'],
     pageCount: FilterOption['pageCount']
   ) {
-    if (illustType === undefined || pageCount === undefined) {
+    if (workType === undefined || pageCount === undefined) {
       return true
     }
 
     // 将动图视为单图
-    if (illustType === 2) {
+    if (workType === 2) {
       pageCount = 1
     }
 

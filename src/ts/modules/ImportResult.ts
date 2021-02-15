@@ -6,6 +6,7 @@ import { states } from './States'
 import { store } from './Store'
 import { toast } from './Toast'
 import { msgBox } from './MsgBox'
+import { filter } from './filter/Filter'
 
 class ImportResult {
   constructor() {
@@ -45,15 +46,41 @@ class ImportResult {
       }
     }
 
+    // 根据过滤选项，过滤导入的结果
+    const temp: Result[] = []
+    for (const result of loadedJSON) {
+      const check = await filter.check({
+        id: result.idNum,
+        workType: result.type,
+        pageCount: result.pageCount,
+        tags: result.tagsWithTransl,
+        bookmarkCount: result.bmk,
+        bookmarkData: result.bookmarked,
+        width: result.fullWidth,
+        height: result.fullHeight,
+        createDate: result.date,
+        userId: result.userId,
+      })
+      if (check) {
+        temp.push(result)
+      }
+    }
+
+    // 如果没有符合过滤条件的结果
+    if(temp.length===0){
+      msgBox.warning(lang.transl('_没有数据可供使用'))
+      return
+    }
+
     // 恢复数据并发送通知
     store.reset()
-    store.result = loadedJSON
+    store.result = temp
 
     EVT.fire(EVT.list.resultChange)
 
-    toast.success(lang.transl('_导入成功'))
+    msgBox.success(lang.transl('_导入成功'))
   }
 }
 
 new ImportResult()
-export {}
+export { }

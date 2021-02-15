@@ -4,7 +4,7 @@ import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
 import { options } from '../setting/Options'
-import { FilterOption } from '../filter/Filter.d'
+import { FilterOption } from "../filter/FilterOption"
 import { filter } from '../filter/Filter'
 import { store } from '../Store'
 import { log } from '../Log'
@@ -121,7 +121,7 @@ class InitRankingNovelPage extends InitPageBase {
 
       const filterOpt: FilterOption = {
         id: id,
-        illustType: 3,
+        workType: 3,
         tags: tags,
         bookmarkCount: bmk,
         bookmarkData: bookmarked,

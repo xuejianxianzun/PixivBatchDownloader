@@ -5,7 +5,7 @@ import { API } from '../API'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
 import { options } from '../setting/Options'
-import { FilterOption } from '../filter/Filter.d'
+import { FilterOption } from "../filter/FilterOption"
 import { filter } from '../filter/Filter'
 import { store } from '../Store'
 import { log } from '../Log'
@@ -84,7 +84,7 @@ class InitSeriesPage extends InitPageBase {
         bookmarkData: !!work.bookmarkData,
         width: work.width,
         height: work.height,
-        illustType: work.illustType,
+        workType: work.illustType,
         userId: work.userId,
         createDate: work.createDate,
       }

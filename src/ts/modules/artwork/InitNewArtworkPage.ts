@@ -5,7 +5,7 @@ import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { NewIllustOption } from '../CrawlArgument'
 import { NewIllustData } from '../CrawlResult'
-import { FilterOption } from '../filter/Filter.d'
+import { FilterOption } from "../filter/FilterOption"
 import { filter } from '../filter/Filter'
 import { API } from '../API'
 import { store } from '../Store'
@@ -109,7 +109,7 @@ class InitNewArtworkPage extends InitPageBase {
         height: nowData.height,
         pageCount: nowData.pageCount,
         bookmarkData: nowData.bookmarkData,
-        illustType: nowData.illustType,
+        workType: nowData.illustType,
         tags: nowData.tags,
         userId: nowData.userId,
         createDate: nowData.createDate,

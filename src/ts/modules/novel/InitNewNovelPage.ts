@@ -5,7 +5,7 @@ import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { NewIllustOption } from '../CrawlArgument.d'
 import { NewNovelData } from '../CrawlResult.d'
-import { FilterOption } from '../filter/Filter.d'
+import { FilterOption } from "../filter/FilterOption"
 import { filter } from '../filter/Filter'
 import { API } from '../API'
 import { store } from '../Store'
@@ -98,7 +98,7 @@ class InitNewNovelPage extends InitPageBase {
         id: nowData.id,
         bookmarkData: nowData.bookmarkData,
         bookmarkCount: nowData.bookmarkCount,
-        illustType: 3,
+        workType: 3,
         tags: nowData.tags,
         userId: nowData.userId,
         createDate: nowData.createDate,

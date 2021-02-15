@@ -7,7 +7,7 @@ import { options } from '../setting/Options'
 import { DeleteWorks } from '../DeleteWorks'
 import { EVT } from '../EVT'
 import { SearchOption } from '../CrawlArgument'
-import { FilterOption } from '../filter/Filter.d'
+import { FilterOption } from "../filter/FilterOption"
 import { filter } from '../filter/Filter'
 import { API } from '../API'
 import { store } from '../Store'
@@ -327,7 +327,7 @@ class InitSearchArtworkPage extends InitPageBase {
         height: nowData.height,
         pageCount: nowData.pageCount,
         bookmarkData: nowData.bookmarkData,
-        illustType: nowData.illustType,
+        workType: nowData.illustType,
         tags: nowData.tags,
         userId: nowData.userId,
       }
@@ -681,7 +681,7 @@ class InitSearchArtworkPage extends InitPageBase {
     this.filterResult((data) => {
       const filterOpt: FilterOption = {
         id: data.id,
-        illustType: data.type,
+        workType: data.type,
         pageCount: data.pageCount,
         tags: data.tags,
         bookmarkCount: data.bmk,

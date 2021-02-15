@@ -1,5 +1,5 @@
 import { filter } from '../filter/Filter'
-import { FilterOption } from '../filter/Filter.d'
+import { FilterOption } from "../filter/FilterOption"
 import { NovelData } from '../CrawlResult.d'
 import { store } from '../Store'
 import { settings } from '../setting/Settings'
@@ -23,7 +23,7 @@ class SaveNovelData {
     const filterOpt: FilterOption = {
       createDate: body.createDate,
       id: body.id,
-      illustType: illustType,
+      workType: illustType,
       tags: tags,
       bookmarkCount: bmk,
       bookmarkData: body.bookmarkData,

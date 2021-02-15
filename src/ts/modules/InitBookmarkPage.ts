@@ -12,7 +12,7 @@ import { DOM } from './DOM'
 import { token } from './Token'
 import { BookmarksAddTag } from './BookmarksAddTag'
 import { filter } from './filter/Filter'
-import { FilterOption } from './filter/Filter.d'
+import { FilterOption } from "./filter/FilterOption"
 import { Tools } from './Tools'
 
 class InitBookmarkPage extends InitPageBase {

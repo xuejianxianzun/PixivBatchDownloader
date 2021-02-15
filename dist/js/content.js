@@ -4670,6 +4670,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Store */ "./src/ts/modules/Store.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Toast */ "./src/ts/modules/Toast.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/modules/MsgBox.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./filter/Filter */ "./src/ts/modules/filter/Filter.ts");
+
 
 
 
@@ -4709,11 +4711,35 @@ class ImportResult {
                 return _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error('Format error!');
             }
         }
+        // 根据过滤选项，过滤导入的结果
+        const temp = [];
+        for (const result of loadedJSON) {
+            const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__["filter"].check({
+                id: result.idNum,
+                workType: result.type,
+                pageCount: result.pageCount,
+                tags: result.tagsWithTransl,
+                bookmarkCount: result.bmk,
+                bookmarkData: result.bookmarked,
+                width: result.fullWidth,
+                height: result.fullHeight,
+                createDate: result.date,
+                userId: result.userId,
+            });
+            if (check) {
+                temp.push(result);
+            }
+        }
+        // 如果没有符合过滤条件的结果
+        if (temp.length === 0) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].warning(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_没有数据可供使用'));
+            return;
+        }
         // 恢复数据并发送通知
         _Store__WEBPACK_IMPORTED_MODULE_4__["store"].reset();
-        _Store__WEBPACK_IMPORTED_MODULE_4__["store"].result = loadedJSON;
+        _Store__WEBPACK_IMPORTED_MODULE_4__["store"].result = temp;
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resultChange);
-        _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入成功'));
+        _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入成功'));
     }
 }
 new ImportResult();
@@ -12067,7 +12093,7 @@ class InitBookmarkNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_
                 height: data.height,
                 pageCount: data.pageCount,
                 bookmarkData: data.isBookmarked,
-                illustType: parseInt(data.illustType),
+                workType: parseInt(data.illustType),
                 tags: data.tags,
                 userId: data.userId,
             };
@@ -12285,7 +12311,7 @@ class InitNewArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
                 height: nowData.height,
                 pageCount: nowData.pageCount,
                 bookmarkData: nowData.bookmarkData,
-                illustType: nowData.illustType,
+                workType: nowData.illustType,
                 tags: nowData.tags,
                 userId: nowData.userId,
                 createDate: nowData.createDate,
@@ -12455,7 +12481,7 @@ class InitRankingArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
             // 目前，数据里并没有包含收藏数量，所以在这里没办法检查收藏数量要求
             const filterOpt = {
                 id: data.illust_id,
-                illustType: parseInt(data.illust_type),
+                workType: parseInt(data.illust_type),
                 tags: data.tags,
                 pageCount: parseInt(data.illust_page_count),
                 bookmarkData: data.is_bookmarked,
@@ -12964,7 +12990,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
                 height: nowData.height,
                 pageCount: nowData.pageCount,
                 bookmarkData: nowData.bookmarkData,
-                illustType: nowData.illustType,
+                workType: nowData.illustType,
                 tags: nowData.tags,
                 userId: nowData.userId,
             };
@@ -13100,7 +13126,7 @@ class InitSearchArtworkPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         this.filterResult((data) => {
             const filterOpt = {
                 id: data.id,
-                illustType: data.type,
+                workType: data.type,
                 pageCount: data.pageCount,
                 tags: data.tags,
                 bookmarkCount: data.bmk,
@@ -13229,7 +13255,7 @@ class InitSeriesPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitPag
                 bookmarkData: !!work.bookmarkData,
                 width: work.width,
                 height: work.height,
-                illustType: work.illustType,
+                workType: work.illustType,
                 userId: work.userId,
                 createDate: work.createDate,
             };
@@ -13318,7 +13344,7 @@ class SaveArtworkData {
         const filterOpt = {
             createDate: body.createDate,
             id: body.id,
-            illustType: body.illustType,
+            workType: body.illustType,
             tags: tagsWithTransl,
             pageCount: body.pageCount,
             bookmarkCount: bmk,
@@ -13970,11 +13996,11 @@ class Filter {
             return false;
         }
         // 检查下载的作品类型设置
-        if (!this.checkDownType(option.illustType)) {
+        if (!this.checkDownType(option.workType)) {
             return false;
         }
         // 检查单图、多图的下载
-        if (!this.checkPageCount(option.illustType, option.pageCount)) {
+        if (!this.checkPageCount(option.workType, option.pageCount)) {
             return false;
         }
         // 检查收藏和未收藏的要求
@@ -14192,20 +14218,20 @@ class Filter {
     }
     // ---------------- check ----------------
     // 检查下载的作品类型设置
-    checkDownType(illustType) {
-        if (illustType === undefined) {
+    checkDownType(workType) {
+        if (workType === undefined) {
             return true;
         }
-        const name = ('downType' + illustType);
+        const name = ('downType' + workType);
         return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"][name];
     }
     // 依据图片数量，检查下载的作品类型
-    checkPageCount(illustType, pageCount) {
-        if (illustType === undefined || pageCount === undefined) {
+    checkPageCount(workType, pageCount) {
+        if (workType === undefined || pageCount === undefined) {
             return true;
         }
         // 将动图视为单图
-        if (illustType === 2) {
+        if (workType === 2) {
             pageCount = 1;
         }
         if (pageCount === 1) {
@@ -14651,7 +14677,7 @@ class InitBookmarkNewNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0_
                 : false;
             const filterOpt = {
                 id: id,
-                illustType: 3,
+                workType: 3,
                 tags: tags,
                 bookmarkCount: bmk,
                 bookmarkData: bookmarked,
@@ -14786,7 +14812,7 @@ class InitNewNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["InitP
                 id: nowData.id,
                 bookmarkData: nowData.bookmarkData,
                 bookmarkCount: nowData.bookmarkCount,
-                illustType: 3,
+                workType: 3,
                 tags: nowData.tags,
                 userId: nowData.userId,
                 createDate: nowData.createDate,
@@ -15130,7 +15156,7 @@ class InitRankingNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["I
                 : false;
             const filterOpt = {
                 id: id,
-                illustType: 3,
+                workType: 3,
                 tags: tags,
                 bookmarkCount: bmk,
                 bookmarkData: bookmarked,
@@ -15362,7 +15388,7 @@ class InitSearchNovelPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
                 id: nowData.id,
                 bookmarkData: nowData.bookmarkData,
                 bookmarkCount: nowData.bookmarkCount,
-                illustType: 3,
+                workType: 3,
                 tags: nowData.tags,
                 userId: nowData.userId,
             };
@@ -15528,7 +15554,7 @@ class SaveNovelData {
         const filterOpt = {
             createDate: body.createDate,
             id: body.id,
-            illustType: illustType,
+            workType: illustType,
             tags: tags,
             bookmarkCount: bmk,
             bookmarkData: body.bookmarkData,

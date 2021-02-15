@@ -4,7 +4,7 @@ import { Colors } from '../Colors'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
 import { options } from '../setting/Options'
-import { FilterOption } from '../filter/Filter.d'
+import { FilterOption } from "../filter/FilterOption"
 import { filter } from '../filter/Filter'
 import { API } from '../API'
 import { store } from '../Store'
@@ -79,7 +79,7 @@ class InitBookmarkNewArtworkPage extends InitPageBase {
         height: data.height,
         pageCount: data.pageCount,
         bookmarkData: data.isBookmarked,
-        illustType: parseInt(data.illustType) as any,
+        workType: parseInt(data.illustType) as any,
         tags: data.tags,
         userId: data.userId,
       }
