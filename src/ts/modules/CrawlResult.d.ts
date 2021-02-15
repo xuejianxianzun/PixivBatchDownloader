@@ -16,7 +16,7 @@ export interface ArtworkData {
     uploadDate: string
     restrict: number
     xRestrict: 0 | 1 | 2
-    sl: number
+    sl: 0 | 2 | 4 | 6
     urls: {
       mini: string
       thumb: string
@@ -51,7 +51,7 @@ export interface ArtworkData {
         illustType: number
         xRestrict: 0 | 1 | 2
         restrict: number
-        sl: number
+        sl: 0 | 2 | 4 | 6
         url: string
         description: string
         tags: string[]
@@ -142,7 +142,7 @@ export interface ArtworkCommonData {
   illustType: 0 | 1 | 2
   xRestrict: 0 | 1 | 2
   restrict: number
-  sl: number
+  sl: 0 | 2 | 4 | 6
   url: string
   description: string
   tags: string[]

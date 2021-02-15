@@ -49,6 +49,7 @@ export interface Result {
   viewCount: number
   commentCount: number
   xRestrict: 0 | 1 | 2
+  sl: 0 | 2 | 4 | 6 | null
 }
 
 export interface ResultOptional {
@@ -82,6 +83,7 @@ export interface ResultOptional {
   viewCount?: number
   commentCount?: number
   xRestrict?: 0 | 1 | 2
+  sl?: 0 | 2 | 4 | 6 | null
 }
 
 // 储存作品在排行榜中的排名

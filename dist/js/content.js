@@ -134,70 +134,73 @@
         /* harmony import */ var _modules_setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./modules/setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
-        /* harmony import */ var _modules_PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+        /* harmony import */ var _modules_setting_InvisibleSettings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./modules/setting/InvisibleSettings */ './src/ts/modules/setting/InvisibleSettings.ts'
+        )
+        /* harmony import */ var _modules_PageType__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./modules/PageType */ './src/ts/modules/PageType.ts'
         )
-        /* harmony import */ var _modules_QuickDownload__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+        /* harmony import */ var _modules_QuickDownload__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./modules/QuickDownload */ './src/ts/modules/QuickDownload.ts'
         )
-        /* harmony import */ var _modules_DownloadButton__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _modules_DownloadButton__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./modules/DownloadButton */ './src/ts/modules/DownloadButton.ts'
         )
-        /* harmony import */ var _modules_CenterPanel__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+        /* harmony import */ var _modules_CenterPanel__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./modules/CenterPanel */ './src/ts/modules/CenterPanel.ts'
         )
-        /* harmony import */ var _modules_setting_FormSettings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+        /* harmony import */ var _modules_setting_FormSettings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ./modules/setting/FormSettings */ './src/ts/modules/setting/FormSettings.ts'
         )
-        /* harmony import */ var _modules_InitPage__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+        /* harmony import */ var _modules_InitPage__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
           /*! ./modules/InitPage */ './src/ts/modules/InitPage.ts'
         )
-        /* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+        /* harmony import */ var _modules_DownloadControl__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
           /*! ./modules/DownloadControl */ './src/ts/modules/DownloadControl.ts'
         )
-        /* harmony import */ var _modules_ListenPageSwitch__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
+        /* harmony import */ var _modules_ListenPageSwitch__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
           /*! ./modules/ListenPageSwitch */ './src/ts/modules/ListenPageSwitch.ts'
         )
-        /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
+        /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
           /*! ./modules/Tip */ './src/ts/modules/Tip.ts'
         )
-        /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/ __webpack_require__.n(
-          _modules_Tip__WEBPACK_IMPORTED_MODULE_11__
+        /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/ __webpack_require__.n(
+          _modules_Tip__WEBPACK_IMPORTED_MODULE_12__
         )
-        /* harmony import */ var _modules_EditTitle__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
+        /* harmony import */ var _modules_EditTitle__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
           /*! ./modules/EditTitle */ './src/ts/modules/EditTitle.ts'
         )
-        /* harmony import */ var _modules_ViewBigImage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
+        /* harmony import */ var _modules_ViewBigImage__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
           /*! ./modules/ViewBigImage */ './src/ts/modules/ViewBigImage.ts'
         )
-        /* harmony import */ var _modules_output_OutputPanel__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
+        /* harmony import */ var _modules_output_OutputPanel__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
           /*! ./modules/output/OutputPanel */ './src/ts/modules/output/OutputPanel.ts'
         )
-        /* harmony import */ var _modules_output_PreviewFileName__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
+        /* harmony import */ var _modules_output_PreviewFileName__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
           /*! ./modules/output/PreviewFileName */ './src/ts/modules/output/PreviewFileName.ts'
         )
-        /* harmony import */ var _modules_output_ShowURLs__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
+        /* harmony import */ var _modules_output_ShowURLs__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(
           /*! ./modules/output/ShowURLs */ './src/ts/modules/output/ShowURLs.ts'
         )
-        /* harmony import */ var _modules_CheckNew__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(
+        /* harmony import */ var _modules_CheckNew__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
           /*! ./modules/CheckNew */ './src/ts/modules/CheckNew.ts'
         )
-        /* harmony import */ var _modules_ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
+        /* harmony import */ var _modules_ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
           /*! ./modules/ShowWhatIsNew */ './src/ts/modules/ShowWhatIsNew.ts'
         )
-        /* harmony import */ var _modules_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
+        /* harmony import */ var _modules_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
           /*! ./modules/ExportResult2CSV */ './src/ts/modules/ExportResult2CSV.ts'
         )
-        /* harmony import */ var _modules_ExportResult__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
+        /* harmony import */ var _modules_ExportResult__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(
           /*! ./modules/ExportResult */ './src/ts/modules/ExportResult.ts'
         )
-        /* harmony import */ var _modules_ImportResult__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(
+        /* harmony import */ var _modules_ImportResult__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(
           /*! ./modules/ImportResult */ './src/ts/modules/ImportResult.ts'
         )
-        /* harmony import */ var _modules_ExportLST__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(
+        /* harmony import */ var _modules_ExportLST__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(
           /*! ./modules/ExportLST */ './src/ts/modules/ExportLST.ts'
         )
-        /* harmony import */ var _modules_ShowHowToUse__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(
+        /* harmony import */ var _modules_ShowHowToUse__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(
           /*! ./modules/ShowHowToUse */ './src/ts/modules/ShowHowToUse.ts'
         )
         /*
@@ -4954,6 +4957,15 @@ flag 及其含义如下：
                   ]
                 result = this.appendFolder(result, folder)
               }
+            }
+            // 根据 sl 创建文件夹
+            if (
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
+                .createFolderBySl &&
+              data.sl !== null
+            ) {
+              const folder = 'sl' + data.sl.toString()
+              result = this.appendFolder(result, folder)
             }
             // 根据第一个匹配的 tag 建立文件夹
             if (
@@ -13115,6 +13127,7 @@ flag 及其含义如下：
               viewCount: 0,
               commentCount: 0,
               xRestrict: 0,
+              sl: null,
             }
             return Object.assign(dataDefault, data)
           }
@@ -16792,6 +16805,7 @@ flag 及其含义如下：
                   likeCount: body.likeCount,
                   commentCount: body.commentCount,
                   xRestrict: body.xRestrict,
+                  sl: body.sl,
                 })
               } else if (body.illustType === 2) {
                 // 动图
@@ -16836,6 +16850,7 @@ flag 及其含义如下：
                   likeCount: body.likeCount,
                   commentCount: body.commentCount,
                   xRestrict: body.xRestrict,
+                  sl: body.sl,
                 })
               }
             }
@@ -22189,6 +22204,95 @@ flag 及其含义如下：
         /***/
       },
 
+    /***/ './src/ts/modules/setting/InvisibleSettings.ts':
+      /*!*****************************************************!*\
+  !*** ./src/ts/modules/setting/InvisibleSettings.ts ***!
+  \*****************************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./Settings */ './src/ts/modules/setting/Settings.ts'
+        )
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../Log */ './src/ts/modules/Log.ts'
+        )
+        /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../Toast */ './src/ts/modules/Toast.ts'
+        )
+
+        // 控制不可见的设置。通过预设的按键，切换其开关状态
+        class InvisibleSettings {
+          constructor() {
+            this.list = [
+              {
+                name: 'createFolderBySl',
+                code: 'switchsl',
+              },
+            ]
+            this.codeStart = 'Key'
+            this.input = ''
+            this.bindEvents()
+          }
+          bindEvents() {
+            window.addEventListener('keydown', (ev) => {
+              // 不记录控制按键，不记录输入状态中的按键
+              if (
+                ev.altKey ||
+                ev.ctrlKey ||
+                ev.metaKey ||
+                ev.shiftKey ||
+                ev.isComposing
+              ) {
+                return
+              }
+              // 只记录 26 个字母的按键
+              // 例如 "KeyX"
+              if (ev.code.startsWith(this.codeStart) && ev.code.length === 4) {
+                const key = ev.code[3].toLowerCase()
+                this.input += key
+                this.check()
+              }
+            })
+          }
+          check() {
+            for (const item of this.list) {
+              if (this.input.endsWith(item.code)) {
+                const nowValue =
+                  _Settings__WEBPACK_IMPORTED_MODULE_0__['settings'][item.name]
+                if (typeof nowValue !== 'boolean') {
+                  return
+                }
+                // 如果查找到了符合的记录，则反转这个设置的值
+                const newValue = !_Settings__WEBPACK_IMPORTED_MODULE_0__[
+                  'settings'
+                ][item.name]
+                Object(_Settings__WEBPACK_IMPORTED_MODULE_0__['setSetting'])(
+                  item.name,
+                  newValue
+                )
+                // 显示提示信息
+                if (
+                  _Settings__WEBPACK_IMPORTED_MODULE_0__['settings'][item.name]
+                ) {
+                  const msg = item.name + ' on'
+                  _Log__WEBPACK_IMPORTED_MODULE_1__['log'].success(msg)
+                  _Toast__WEBPACK_IMPORTED_MODULE_2__['toast'].success(msg)
+                } else {
+                  const msg = item.name + ' off'
+                  _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(msg)
+                  _Toast__WEBPACK_IMPORTED_MODULE_2__['toast'].warning(msg)
+                }
+              }
+            }
+          }
+        }
+        new InvisibleSettings()
+
+        /***/
+      },
+
     /***/ './src/ts/modules/setting/Options.ts':
       /*!*******************************************!*\
   !*** ./src/ts/modules/setting/Options.ts ***!
@@ -22657,6 +22761,7 @@ flag 及其含义如下：
               createFolderByTypeNovel: false,
               createFolderByTag: false,
               createFolderTagList: [],
+              createFolderBySl: false,
             }
             this.allSettingKeys = Object.keys(this.defaultSettings)
             this.floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax']

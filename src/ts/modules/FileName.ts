@@ -230,6 +230,12 @@ class FileName {
       }
     }
 
+    // 根据 sl 创建文件夹
+    if (settings.createFolderBySl && data.sl !== null) {
+      const folder = 'sl' + data.sl.toString()
+      result = this.appendFolder(result, folder)
+    }
+
     // 根据第一个匹配的 tag 建立文件夹
     if (settings.createFolderByTag && settings.createFolderTagList.length > 0) {
       const workTags = data.tagsWithTransl.map((val) => val.toLowerCase())

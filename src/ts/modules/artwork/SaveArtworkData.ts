@@ -114,6 +114,7 @@ class SaveArtworkData {
           likeCount: body.likeCount,
           commentCount: body.commentCount,
           xRestrict: body.xRestrict,
+          sl: body.sl,
         })
       } else if (body.illustType === 2) {
         // 动图
@@ -156,6 +157,7 @@ class SaveArtworkData {
           likeCount: body.likeCount,
           commentCount: body.commentCount,
           xRestrict: body.xRestrict,
+          sl: body.sl,
         })
       }
     }

@@ -20,6 +20,7 @@
 import './modules/Lang'
 import './modules/Theme'
 import './modules/setting/Settings'
+import './modules/setting/InvisibleSettings'
 import './modules/PageType'
 import './modules/QuickDownload'
 import './modules/DownloadButton'

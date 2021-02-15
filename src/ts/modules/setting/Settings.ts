@@ -103,6 +103,7 @@ interface XzSetting {
   createFolderByTypeNovel: boolean
   createFolderByTag: boolean
   createFolderTagList: string[]
+  createFolderBySl: boolean
 }
 
 class Settings {
@@ -223,6 +224,7 @@ class Settings {
     createFolderByTypeNovel: false,
     createFolderByTag: false,
     createFolderTagList: [],
+    createFolderBySl: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
