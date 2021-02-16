@@ -473,4 +473,3 @@ class DownloadControl {
 }
 
 new DownloadControl()
-export {}

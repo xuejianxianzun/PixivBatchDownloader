@@ -22995,6 +22995,8 @@ flag 及其含义如下：
             )
             if (savedSettings) {
               this.assignSettings(JSON.parse(savedSettings))
+            } else {
+              this.assignSettings(this.defaultSettings)
             }
           }
           // 接收整个设置项，通过循环将其更新到 settings 上

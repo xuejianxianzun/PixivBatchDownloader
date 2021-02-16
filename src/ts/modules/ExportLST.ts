@@ -1,5 +1,4 @@
 import { DOM } from './DOM'
-import { EVT } from './EVT'
 import { store } from './Store'
 import { fileName } from './FileName'
 import { lang } from './Lang'
@@ -48,4 +47,3 @@ class ExportLST {
 }
 
 new ExportLST()
-export {}

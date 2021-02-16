@@ -184,4 +184,3 @@ class ExportResult2CSV {
 }
 
 new ExportResult2CSV()
-export {}

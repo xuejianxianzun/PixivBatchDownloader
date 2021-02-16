@@ -100,7 +100,7 @@ class BookmarksAddTag {
     addList: BookmarkResult[],
     tt: string
   ): Promise<void> {
-    const item: BookmarkResult = addList[index] as BookmarkResult
+    const item = addList[index]
 
     await API.addBookmark(this.type, item.id, item.tags, item.restrict, tt)
     if (index < addList.length - 1) {

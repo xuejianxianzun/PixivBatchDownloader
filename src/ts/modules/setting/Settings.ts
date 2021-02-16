@@ -302,6 +302,8 @@ class Settings {
     const savedSettings = localStorage.getItem(Config.settingStoreName)
     if (savedSettings) {
       this.assignSettings(JSON.parse(savedSettings))
+    } else {
+      this.assignSettings(this.defaultSettings)
     }
   }
 

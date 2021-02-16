@@ -464,4 +464,3 @@ class SelectWork {
 }
 
 new SelectWork()
-export {}

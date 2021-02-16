@@ -36,4 +36,3 @@ class ShowURLs {
 }
 
 new ShowURLs()
-export {}

@@ -38,4 +38,3 @@ class ExportResult {
 }
 
 new ExportResult()
-export {}

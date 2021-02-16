@@ -1,5 +1,4 @@
 import { lang } from './Lang'
-import { EVT } from './EVT'
 import Config from './Config'
 import { msgBox } from './MsgBox'
 

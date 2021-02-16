@@ -42,5 +42,3 @@ class SaveAvatarImage {
 }
 
 new SaveAvatarImage()
-
-export {}

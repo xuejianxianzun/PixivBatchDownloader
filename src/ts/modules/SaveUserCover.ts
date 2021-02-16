@@ -51,5 +51,3 @@ class SaveUserCover {
 }
 
 new SaveUserCover()
-
-export {}

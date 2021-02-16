@@ -83,4 +83,3 @@ class ImportResult {
 }
 
 new ImportResult()
-export {}

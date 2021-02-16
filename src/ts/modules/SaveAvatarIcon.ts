@@ -44,5 +44,3 @@ class SaveAvatarIcon {
 }
 
 new SaveAvatarIcon()
-
-export {}
