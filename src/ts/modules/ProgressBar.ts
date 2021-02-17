@@ -115,6 +115,10 @@ class ProgressBar {
   // 设置子进度条的进度
   public setProgress(index: number, data: ProgressData) {
     const bar = this.allProgressBar[index]
+    if (!bar) {
+      console.error(index, this.allProgressBar)
+      return
+    }
     bar.name.textContent = data.name
 
     let text = ''
@@ -141,6 +145,10 @@ class ProgressBar {
   // 让某个子进度条显示警告色
   public errorColor(index: number, show: boolean) {
     const bar = this.allProgressBar[index]
+    if (!bar) {
+      console.error(index, this.allProgressBar)
+      return
+    }
     bar.name.classList[show ? 'add' : 'remove']('downloadError')
   }
 

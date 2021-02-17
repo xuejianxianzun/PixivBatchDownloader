@@ -16,6 +16,8 @@ class FormSettings {
 
     this.bindEvents()
 
+    this.restoreWantPage()
+
     this.ListenChange()
 
     this.restoreFormSettings()
@@ -24,6 +26,7 @@ class FormSettings {
   private form!: SettingsForm
 
   private bindEvents() {
+    // 页面切换时，从设置里恢复当前页面的页数/个数
     window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
       this.restoreWantPage()
     })
@@ -239,14 +242,15 @@ class FormSettings {
     }
   }
 
-  // 设置当前页面类型的 setWantPage
+  // 从设置里恢复当前页面的页数/个数
   private restoreWantPage() {
     const want = settings.wantPageArr[pageType.type]
     if (want !== undefined) {
-      const old = this.form.setWantPage.value
-      const newer = want.toString()
-      if (old !== newer) {
+      const now = this.form.setWantPage.value
+      const saved = want.toString()
+      if (now !== saved) {
         this.form.setWantPage.value = want.toString()
+        // 因为这里是通过 js 直接修改 input 的值，所以不会触发 change 事件，需要手动保存变化
         setSetting('setWantPage', want)
       }
     }
@@ -254,8 +258,6 @@ class FormSettings {
 
   // 读取设置，恢复表单里的设置项
   public restoreFormSettings() {
-    this.restoreWantPage()
-
     // 设置下载的作品类型
     this.restoreBoolean('downType0')
     this.restoreBoolean('downType1')

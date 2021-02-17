@@ -126,7 +126,7 @@
         // 修改 responseHeaders 开始
         const regex = /access-control-allow-origin/i
         function removeMatchingHeaders(headers, regex) {
-          for (var i = 0, header; (header = headers[i]); i++) {
+          for (let i = 0, header; (header = headers[i]); i++) {
             if (header.name.match(regex)) {
               headers.splice(i, 1)
               return

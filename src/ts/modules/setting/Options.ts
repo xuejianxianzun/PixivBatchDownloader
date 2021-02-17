@@ -12,9 +12,8 @@ interface WantPageEls {
   input: HTMLInputElement
 }
 
-// 操作设置表单的选项区域
 // 可以控制每个设置的隐藏、显示
-// 可以设置选项的值
+// 可以设置页数/个数的提示内容
 class Options {
   constructor() {
     this.allOption = form.querySelectorAll('.option')

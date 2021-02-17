@@ -11185,6 +11185,10 @@ flag 及其含义如下：
           // 设置子进度条的进度
           setProgress(index, data) {
             const bar = this.allProgressBar[index]
+            if (!bar) {
+              console.error(index, this.allProgressBar)
+              return
+            }
             bar.name.textContent = data.name
             let text = ''
             if (data.total >= this.MB) {
@@ -11207,6 +11211,10 @@ flag 及其含义如下：
           // 让某个子进度条显示警告色
           errorColor(index, show) {
             const bar = this.allProgressBar[index]
+            if (!bar) {
+              console.error(index, this.allProgressBar)
+              return
+            }
             bar.name.classList[show ? 'add' : 'remove']('downloadError')
           }
           show() {
@@ -12327,6 +12335,7 @@ flag 及其含义如下：
             window.addEventListener('keydown', (ev) => {
               // 不保存控制按键，不保存输入状态中的按键
               if (
+                !ev.code ||
                 ev.altKey ||
                 ev.ctrlKey ||
                 ev.metaKey ||
@@ -22007,10 +22016,12 @@ flag 及其含义如下：
           constructor(form) {
             this.form = form
             this.bindEvents()
+            this.restoreWantPage()
             this.ListenChange()
             this.restoreFormSettings()
           }
           bindEvents() {
+            // 页面切换时，从设置里恢复当前页面的页数/个数
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
                 .pageSwitchedTypeChange,
@@ -22217,17 +22228,18 @@ flag 及其含义如下：
               ].format(date, 'YYYY-MM-DDThh:mm')
             }
           }
-          // 设置当前页面类型的 setWantPage
+          // 从设置里恢复当前页面的页数/个数
           restoreWantPage() {
             const want =
               _Settings__WEBPACK_IMPORTED_MODULE_2__['settings'].wantPageArr[
                 _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].type
               ]
             if (want !== undefined) {
-              const old = this.form.setWantPage.value
-              const newer = want.toString()
-              if (old !== newer) {
+              const now = this.form.setWantPage.value
+              const saved = want.toString()
+              if (now !== saved) {
                 this.form.setWantPage.value = want.toString()
+                // 因为这里是通过 js 直接修改 input 的值，所以不会触发 change 事件，需要手动保存变化
                 Object(_Settings__WEBPACK_IMPORTED_MODULE_2__['setSetting'])(
                   'setWantPage',
                   want
@@ -22237,7 +22249,6 @@ flag 及其含义如下：
           }
           // 读取设置，恢复表单里的设置项
           restoreFormSettings() {
-            this.restoreWantPage()
             // 设置下载的作品类型
             this.restoreBoolean('downType0')
             this.restoreBoolean('downType1')
@@ -22448,9 +22459,8 @@ flag 及其含义如下：
           /*! ./Form */ './src/ts/modules/setting/Form.ts'
         )
 
-        // 操作设置表单的选项区域
         // 可以控制每个设置的隐藏、显示
-        // 可以设置选项的值
+        // 可以设置页数/个数的提示内容
         class Options {
           constructor() {
             this.allOption = _Form__WEBPACK_IMPORTED_MODULE_0__[

@@ -27,6 +27,7 @@ class SecretSignal {
     window.addEventListener('keydown', (ev) => {
       // 不保存控制按键，不保存输入状态中的按键
       if (
+        !ev.code ||
         ev.altKey ||
         ev.ctrlKey ||
         ev.metaKey ||
