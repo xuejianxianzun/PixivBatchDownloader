@@ -6410,7 +6410,7 @@ flag 及其含义如下：
             // 根据页数设置，计算要下载的个数
             this.requsetNumber = 0
             if (this.crawlNumber === -1) {
-              this.requsetNumber = 9999999
+              this.requsetNumber = 99999999
             } else {
               this.requsetNumber = onceNumber * this.crawlNumber
             }
@@ -6704,8 +6704,10 @@ flag 及其含义如下：
             this.getIdList()
           }
           readyGetIdList() {
-            // 每页个数
-            const onceNumber = 48
+            // 每页个作品数，插画 48 个，小说 24 个
+            const onceNumber = window.location.pathname.includes('/novels')
+              ? 24
+              : 48
             // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
             const nowPage = _Tools__WEBPACK_IMPORTED_MODULE_11__[
               'Tools'
@@ -6717,9 +6719,8 @@ flag 及其含义如下：
               this.offset = 0
             }
             // 根据页数设置，计算要下载的个数
-            this.requsetNumber = 0
             if (this.crawlNumber === -1) {
-              this.requsetNumber = 9999999
+              this.requsetNumber = 99999999
             } else {
               this.requsetNumber = onceNumber * this.crawlNumber
             }
@@ -6823,6 +6824,8 @@ flag 及其含义如下：
             this.type = 'illusts'
             this.idList = []
             this.offset = 0
+            this.requsetNumber = 0
+            this.filteredNumber = 0
           }
         }
 
@@ -8192,7 +8195,6 @@ flag 及其含义如下：
               11,
               12,
               14,
-              15,
               16,
               18,
               19,
@@ -8573,7 +8575,7 @@ flag 及其含义如下：
           }
           // 根据页数设置，计算要下载的个数
           getRequsetNumber() {
-            let requsetNumber = 9999999
+            let requsetNumber = 99999999
             if (this.crawlNumber !== -1) {
               requsetNumber = this.onceNumber * this.crawlNumber
             }
@@ -14053,31 +14055,38 @@ flag 及其含义如下：
             )
           }
           // 从 url 里获取 artworks id
-          // 可以传入 url，无参数则使用当前页面的 url
+          // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
+          // 如果查找不到 id 会返回空字符串
           static getIllustId(url) {
             const str = url || window.location.search || location.href
+            let result = ''
             if (str.includes('illust_id')) {
               // 传统 url
-              return /illust_id=(\d*\d)/.exec(str)[1]
+              const test = /illust_id=(\d*\d)/.exec(str)
+              if (test && test.length > 1) {
+                result = test[1]
+              }
             } else if (str.includes('/artworks/')) {
               // 新版 url
-              return /artworks\/(\d*\d)/.exec(str)[1]
-            } else {
-              // 直接取出 url 中的数字，不保证准确
-              const test = /\d*\d/.exec(location.href)
-              if (test && test.length > 0) {
-                return test[0]
-              } else {
-                return ''
+              const test = /artworks\/(\d*\d)/.exec(str)
+              if (test && test.length > 1) {
+                result = test[1]
               }
             }
+            return result
           }
           // 从 url 里获取 novel id
+          // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
+          // 如果查找不到 id 会返回空字符串
           // https://www.pixiv.net/novel/show.php?id=12771688
           static getNovelId(url) {
             const str = url || window.location.search || location.href
+            let result = ''
             const test = str.match(/\?id=(\d*)?/)
-            return test[1]
+            if (test && test.length > 1) {
+              result = test[1]
+            }
+            return result
           }
         }
         // 不安全的字符，这里多数是控制字符，需要替换掉

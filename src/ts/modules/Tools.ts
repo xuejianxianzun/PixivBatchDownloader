@@ -230,32 +230,42 @@ class Tools {
   }
 
   // 从 url 里获取 artworks id
-  // 可以传入 url，无参数则使用当前页面的 url
+  // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
+  // 如果查找不到 id 会返回空字符串
   static getIllustId(url?: string) {
     const str = url || window.location.search || location.href
+    let result = ''
     if (str.includes('illust_id')) {
       // 传统 url
-      return /illust_id=(\d*\d)/.exec(str)![1]
+      const test = /illust_id=(\d*\d)/.exec(str)
+      if (test && test.length > 1) {
+        result = test[1]
+      }
     } else if (str.includes('/artworks/')) {
       // 新版 url
-      return /artworks\/(\d*\d)/.exec(str)![1]
-    } else {
-      // 直接取出 url 中的数字，不保证准确
-      const test = /\d*\d/.exec(location.href)
-      if (test && test.length > 0) {
-        return test[0]
-      } else {
-        return ''
+      const test = /artworks\/(\d*\d)/.exec(str)
+      if (test && test.length > 1) {
+        result = test[1]
       }
     }
+
+    return result
   }
 
   // 从 url 里获取 novel id
+  // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
+  // 如果查找不到 id 会返回空字符串
   // https://www.pixiv.net/novel/show.php?id=12771688
   static getNovelId(url?: string) {
     const str = url || window.location.search || location.href
+    let result = ''
+
     const test = str.match(/\?id=(\d*)?/)
-    return test![1]
+    if (test && test.length > 1) {
+      result = test[1]
+    }
+
+    return result
   }
 }
 

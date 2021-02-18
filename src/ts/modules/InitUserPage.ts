@@ -178,7 +178,7 @@ class InitUserPage extends InitPageBase {
 
   // 根据页数设置，计算要下载的个数
   private getRequsetNumber() {
-    let requsetNumber = 9999999
+    let requsetNumber = 99999999
     if (this.crawlNumber !== -1) {
       requsetNumber = this.onceNumber * this.crawlNumber
     }

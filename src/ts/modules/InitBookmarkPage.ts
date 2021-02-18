@@ -82,8 +82,8 @@ class InitBookmarkPage extends InitPageBase {
   }
 
   protected readyGetIdList() {
-    // 每页个数
-    const onceNumber = 48
+    // 每页个作品数，插画 48 个，小说 24 个
+    const onceNumber = window.location.pathname.includes('/novels') ? 24 : 48
 
     // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
     const nowPage = Tools.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
@@ -95,9 +95,8 @@ class InitBookmarkPage extends InitPageBase {
     }
 
     // 根据页数设置，计算要下载的个数
-    this.requsetNumber = 0
     if (this.crawlNumber === -1) {
-      this.requsetNumber = 9999999
+      this.requsetNumber = 99999999
     } else {
       this.requsetNumber = onceNumber * this.crawlNumber
     }
@@ -192,6 +191,8 @@ class InitBookmarkPage extends InitPageBase {
     this.type = 'illusts'
     this.idList = []
     this.offset = 0
+    this.requsetNumber = 0
+    this.filteredNumber = 0
   }
 }
 export { InitBookmarkPage }

@@ -123,7 +123,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
     // 根据页数设置，计算要下载的个数
     this.requsetNumber = 0
     if (this.crawlNumber === -1) {
-      this.requsetNumber = 9999999
+      this.requsetNumber = 99999999
     } else {
       this.requsetNumber = onceNumber * this.crawlNumber
     }
