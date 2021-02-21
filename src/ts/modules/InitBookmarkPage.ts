@@ -148,6 +148,7 @@ class InitBookmarkPage extends InitPageBase {
           bookmarkData: workData.bookmarkData,
           createDate: workData.createDate,
           userId: workData.userId,
+          xRestrict: workData.xRestrict,
         }
 
         this.filteredNumber++

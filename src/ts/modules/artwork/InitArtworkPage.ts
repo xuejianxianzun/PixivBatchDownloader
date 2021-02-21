@@ -6,7 +6,7 @@ import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { store } from '../Store'
 import { QuickBookmark } from '../QuickBookmark'
-import { ImgViewer } from '../ImgViewer'
+import { ImageViewer } from '../ImageViewer'
 import { userWorksType } from '../CrawlArgument'
 import { DOM } from '../DOM'
 import { API } from '../API'
@@ -45,7 +45,7 @@ class InitArtworkPage extends InitPageBase {
   }
 
   private initImgViewer() {
-    new ImgViewer({
+    new ImageViewer({
       showImageList: true,
       imageListId: 'viewerWarpper',
       insertTarget: 'main figcaption',

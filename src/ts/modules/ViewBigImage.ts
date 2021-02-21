@@ -1,6 +1,6 @@
 import { pageType } from './PageType'
 import { EVT } from './EVT'
-import { ImgViewer } from './ImgViewer'
+import { ImageViewer } from './ImageViewer'
 import { settings } from './setting/Settings'
 import { Tools } from './Tools'
 
@@ -92,7 +92,7 @@ class ViewBigImage {
       if (this.currentWorkId) {
         this.hiddenBtnNow()
 
-        new ImgViewer({
+        new ImageViewer({
           workId: this.currentWorkId,
           imageNumber: 1,
           imageSize: settings.magnifierSize,

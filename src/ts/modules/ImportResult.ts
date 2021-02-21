@@ -60,6 +60,7 @@ class ImportResult {
         height: result.fullHeight,
         createDate: result.date,
         userId: result.userId,
+        xRestrict: result.xRestrict,
       })
       if (check) {
         temp.push(result)
@@ -68,7 +69,7 @@ class ImportResult {
 
     // 如果没有符合过滤条件的结果
     if (temp.length === 0) {
-      msgBox.warning(lang.transl('_没有数据可供使用'))
+      msgBox.warning(lang.transl('_没有符合条件的结果'))
       return
     }
 

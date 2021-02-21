@@ -5397,19 +5397,19 @@ flag 及其含义如下：
         /***/
       },
 
-    /***/ './src/ts/modules/ImgViewer.ts':
-      /*!*************************************!*\
-  !*** ./src/ts/modules/ImgViewer.ts ***!
-  \*************************************/
-      /*! exports provided: ImgViewer */
+    /***/ './src/ts/modules/ImageViewer.ts':
+      /*!***************************************!*\
+  !*** ./src/ts/modules/ImageViewer.ts ***!
+  \***************************************/
+      /*! exports provided: ImageViewer */
       /***/ function (module, __webpack_exports__, __webpack_require__) {
         'use strict'
         __webpack_require__.r(__webpack_exports__)
         /* harmony export (binding) */ __webpack_require__.d(
           __webpack_exports__,
-          'ImgViewer',
+          'ImageViewer',
           function () {
-            return ImgViewer
+            return ImageViewer
           }
         )
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
@@ -5441,7 +5441,7 @@ flag 及其含义如下：
 
         // 对 Viewer 进行修改以供下载器使用
         // 原版是接收页面上已存在的缩略图列表，但在下载器里它需要从作品 id 获取数据，生成缩略图列表
-        class ImgViewer {
+        class ImageViewer {
           constructor(cfg) {
             this.viewerWarpper = document.createElement('div') // 图片列表的容器
             this.viewerUl = document.createElement('ul') // 图片列表的 ul 元素
@@ -5921,6 +5921,7 @@ flag 及其含义如下：
                 height: result.fullHeight,
                 createDate: result.date,
                 userId: result.userId,
+                xRestrict: result.xRestrict,
               })
               if (check) {
                 temp.push(result)
@@ -5930,7 +5931,7 @@ flag 及其含义如下：
             if (temp.length === 0) {
               _MsgBox__WEBPACK_IMPORTED_MODULE_6__['msgBox'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                  '_没有数据可供使用'
+                  '_没有符合条件的结果'
                 )
               )
               return
@@ -6779,6 +6780,7 @@ flag 及其含义如下：
                   bookmarkData: workData.bookmarkData,
                   createDate: workData.createDate,
                   userId: workData.userId,
+                  xRestrict: workData.xRestrict,
                 }
                 this.filteredNumber++
                 if (
@@ -8216,6 +8218,8 @@ flag 及其含义如下：
               39,
               40,
               42,
+              43,
+              44,
             ])
             // pixivision 里，文件名只有部分标记会生效，所以把文件名规则替换成下面的预设
             // form.userSetName.value = '{p_title}/{id}'
@@ -9025,13 +9029,13 @@ flag 及其含义如下：
             '本次任务已全部完成。',
             '本次工作已全部完成',
             'This task has been completed.',
-            'このタスクは完了しました。',
+            'この作業は完了しました。',
           ],
           _本次任务条件: [
             '本次任务条件: ',
             '本次工作條件：',
             'This task condition: ',
-            'このタスクの条件：',
+            'この作業の条件：',
           ],
           _参数不合法: [
             '参数不合法，本次操作已取消。',
@@ -9103,13 +9107,13 @@ flag 及其含义如下：
             '任务开始',
             '工作開始',
             'Task starts',
-            'タスクが開始されます',
+            '作業が開始されます',
           ],
           _排除作品类型: [
             '排除作品类型：',
             '排除作品類型：',
             'Excludes these types of works: ',
-            'これらのタイプの作品を除外します：',
+            'これらのタイプの作品を除外：',
           ],
           _多图作品: [
             '多图作品',
@@ -9149,9 +9153,9 @@ flag 及其含义如下：
             'Multi-image works download the first {} images',
             'マルチイメージ作品は、最初の {} イメージをダウンロードします',
           ],
-          _插画: ['插画 ', '插畫 ', 'Illustrations', 'イラスト'],
-          _漫画: ['漫画 ', '漫畫 ', 'Manga', '漫画'],
-          _动图: ['动图 ', '動圖 ', 'Ugoira', 'うごイラ'],
+          _插画: ['插画', '插畫', 'Illustrations', 'イラスト'],
+          _漫画: ['漫画', '漫畫', 'Manga', '漫画'],
+          _动图: ['动图', '動圖', 'Ugoira', 'うごイラ'],
           _动图保存格式: [
             '动图保存格式',
             '動圖儲存格式',
@@ -9243,13 +9247,13 @@ flag 及其含义如下：
             '当前任务尚未完成',
             '目前工作尚未完成',
             'The current task has not yet been completed',
-            '現在のタスクはまだ完了していません',
+            '現在の作業はまだ完了していません',
           ],
           _当前任务尚未完成2: [
             '当前任务尚未完成，请等待完成后再下载。',
             '目前工作尚未完成，請等待完成後再下載。',
             'The current task has not yet been completed',
-            '現在のタスクはまだ完了していません、完了するまでお待ちください',
+            '現在の作業はまだ完了していません、完了するまでお待ちください',
           ],
           _列表抓取完成开始获取作品页: [
             '当前列表中有{}张作品，开始获取作品信息',
@@ -9309,7 +9313,7 @@ flag 及其含义如下：
             '当前任务已中断!',
             '目前工作已中斷！',
             'The current task has been interrupted.',
-            '現在のタスクが中断されました。',
+            '現在の作業が中断されました。',
           ],
           _关闭: ['关闭', '關閉', 'close', 'クローズ'],
           _输出信息: ['输出信息', '輸出資訊', 'Output information', '出力情報'],
@@ -10288,7 +10292,7 @@ flag 及其含义如下：
             '本次任务抓取完成时的时间。例如：2020-10-21',
             '本次工作擷取完成時的時間。例如：2020-10-21。',
             'The time when the task was crawl completed. For example: 2020-10-21',
-            'このタスクのクロールが完了した時刻です。 例：2020-10-21',
+            'この作業のクロールが完了した時刻です。 例：2020-10-21',
           ],
           _自动检测: ['自动检测', '自動偵測', 'Auto', '自動検出'],
           _变更语言后刷新页面的提示: [
@@ -10549,6 +10553,13 @@ flag 及其含义如下：
             '如果作品的 tag 列表裡含有使用者設定的 tag，就會使用這個 tag 建立資料夾（僅限第一個）',
             'If the tag list of the work contains a tag set by the user, this tag will be used to create a folder (only the first one)',
             '作品の tag リストにユーザーが設定した tag が含まれている場合、その tag を使用してフォルダが作成されます。(最初の1つだけ)',
+          ],
+          _全年龄: ['全年龄', '全年齡', 'All ages', '全年齢'],
+          _没有符合条件的结果: [
+            '没有符合条件的结果',
+            '沒有符合條件的結果',
+            'There are no eligible results',
+            '対象となる結果はありません',
           ],
         }
 
@@ -11600,17 +11611,27 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.QuickDownload
             )
             const isNovel = window.location.href.includes('/novel')
-            const idList = [
-              {
-                type: isNovel ? 'novels' : 'unknown',
+            let idData
+            if (isNovel) {
+              idData = {
+                type: 'novels',
+                id: _Tools__WEBPACK_IMPORTED_MODULE_5__['Tools'].getNovelId(
+                  window.location.href
+                ),
+              }
+            } else {
+              idData = {
+                type: 'unknown',
                 id: _Tools__WEBPACK_IMPORTED_MODULE_5__['Tools'].getIllustId(
                   window.location.href
                 ),
-              },
-            ]
-            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+              }
+            }
+            _EVT__WEBPACK_IMPORTED_MODULE_0__[
+              'EVT'
+            ].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadIdList,
-              idList
+              [idData]
             )
           }
           setVisible() {
@@ -14131,8 +14152,8 @@ flag 及其含义如下：
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
-        /* harmony import */ var _ImgViewer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./ImgViewer */ './src/ts/modules/ImgViewer.ts'
+        /* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./ImageViewer */ './src/ts/modules/ImageViewer.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
@@ -14214,7 +14235,7 @@ flag 及其含义如下：
             this.btn.addEventListener('click', (ev) => {
               if (this.currentWorkId) {
                 this.hiddenBtnNow()
-                new _ImgViewer__WEBPACK_IMPORTED_MODULE_2__['ImgViewer']({
+                new _ImageViewer__WEBPACK_IMPORTED_MODULE_2__['ImageViewer']({
                   workId: this.currentWorkId,
                   imageNumber: 1,
                   imageSize:
@@ -14633,8 +14654,8 @@ flag 及其含义如下：
         /* harmony import */ var _QuickBookmark__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ../QuickBookmark */ './src/ts/modules/QuickBookmark.ts'
         )
-        /* harmony import */ var _ImgViewer__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../ImgViewer */ './src/ts/modules/ImgViewer.ts'
+        /* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+          /*! ../ImageViewer */ './src/ts/modules/ImageViewer.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ../DOM */ './src/ts/modules/DOM.ts'
@@ -14681,7 +14702,7 @@ flag 及其含义如下：
             )
           }
           initImgViewer() {
-            new _ImgViewer__WEBPACK_IMPORTED_MODULE_7__['ImgViewer']({
+            new _ImageViewer__WEBPACK_IMPORTED_MODULE_7__['ImageViewer']({
               showImageList: true,
               imageListId: 'viewerWarpper',
               insertTarget: 'main figcaption',
@@ -15458,6 +15479,7 @@ flag 及其含义如下：
                 tags: nowData.tags,
                 userId: nowData.userId,
                 createDate: nowData.createDate,
+                xRestrict: nowData.xRestrict,
               }
               if (
                 await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__[
@@ -15940,10 +15962,10 @@ flag 及其含义如下：
               }
               const data = event.detail.data
               let r18Text = ''
-              if (data.tags.includes('R-18')) {
+              if (data.xRestrict === 1) {
                 r18Text = 'R-18'
               }
-              if (data.tags.includes('R-18G')) {
+              if (data.xRestrict === 2) {
                 r18Text = 'R-18G'
               }
               let r18HTML = r18Text
@@ -16392,6 +16414,7 @@ flag 及其含义如下：
                 workType: nowData.illustType,
                 tags: nowData.tags,
                 userId: nowData.userId,
+                xRestrict: nowData.xRestrict,
               }
               if (
                 await _filter_Filter__WEBPACK_IMPORTED_MODULE_7__[
@@ -16589,6 +16612,7 @@ flag 及其含义如下：
                 height: data.fullHeight,
                 createDate: data.date,
                 userId: data.userId,
+                xRestrict: data.xRestrict,
               }
               return _filter_Filter__WEBPACK_IMPORTED_MODULE_7__[
                 'filter'
@@ -16761,6 +16785,7 @@ flag 及其含义如下：
                 workType: work.illustType,
                 userId: work.userId,
                 createDate: work.createDate,
+                xRestrict: work.xRestrict,
               }
               // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以 type 是 unknown
               if (
@@ -16881,6 +16906,7 @@ flag 及其含义如下：
               height: fullHeight,
               mini: body.urls.mini,
               userId: body.userId,
+              xRestrict: body.xRestrict,
             }
             // 这里检查颜色设置是有一个隐患的：因为有些多图作品第一张图的颜色和后面的图片的颜色不一样，但这里检查时只检查第一张的缩略图。如果第一张被排除掉了，那么它后面的图片也就不会被加入抓取结果。
             // 检查通过
@@ -17626,6 +17652,7 @@ flag 及其含义如下：
           // 对启用了的过滤选项输出提示
           showTip() {
             this.getDownType()
+            this.getDownTypeByAge()
             this.getDownTypeByImgCount()
             this.getDownTypeByColor()
             this.getDownTypeByBmked()
@@ -17671,6 +17698,9 @@ flag 及其含义如下：
             }
             // 检查下载的作品类型设置
             if (!this.checkDownType(option.workType)) {
+              return false
+            }
+            if (!this.checkDownTypeByAge(option.xRestrict)) {
               return false
             }
             // 检查单图、多图的下载
@@ -17745,52 +17775,86 @@ flag 及其含义如下：
                 )
               )
             }
-            let notDownTip = ''
-            notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
-              'settings'
-            ].downType0
-              ? ''
-              : _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_插画')
-            notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
-              'settings'
-            ].downType1
-              ? ''
-              : _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_漫画')
-            notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
-              'settings'
-            ].downType2
-              ? ''
-              : _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_动图')
-            notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
-              'settings'
-            ].downType3
-              ? ''
-              : _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_小说')
-            if (notDownTip) {
+            const tips = []
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+              .downType0 &&
+              tips.push(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_插画')
+              )
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+              .downType1 &&
+              tips.push(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_漫画')
+              )
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+              .downType2 &&
+              tips.push(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_动图')
+              )
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+              .downType3 &&
+              tips.push(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_小说')
+              )
+            if (tips.length > 0) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                   '_排除作品类型'
-                ) + notDownTip
+                ) + tips.toString()
+              )
+            }
+          }
+          getDownTypeByAge() {
+            // 如果全部排除则取消任务
+            if (
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+                .downAllAges &&
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+                .downR18 &&
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+                .downR18G
+            ) {
+              this.showWarning(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+                  '_排除了所有作品类型'
+                )
+              )
+            }
+            const tips = []
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+              .downAllAges &&
+              tips.push(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_全年龄')
+              )
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+              .downR18 && tips.push('R-18')
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+              .downR18G && tips.push('R-18G')
+            if (tips.length > 0) {
+              _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+                  '_排除作品类型'
+                ) + tips.toString()
               )
             }
           }
           getDownTypeByImgCount() {
-            let notDownTip = ''
-            notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
-              'settings'
-            ].downSingleImg
-              ? ''
-              : _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_单图作品')
-            notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
-              'settings'
-            ].downMultiImg
-              ? ''
-              : _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_多图作品')
-            if (notDownTip) {
+            const tips = []
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+              .downSingleImg &&
+              tips.push(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_单图作品')
+              )
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+              .downMultiImg &&
+              tips.push(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_多图作品')
+              )
+            if (tips.length > 0) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                   '_排除作品类型'
-                ) + notDownTip
+                ) + tips.toString()
               )
             }
           }
@@ -17809,22 +17873,22 @@ flag 及其含义如下：
                 )
               )
             }
-            let notDownTip = ''
-            notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
-              'settings'
-            ].downColorImg
-              ? ''
-              : _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_彩色图片')
-            notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
-              'settings'
-            ].downBlackWhiteImg
-              ? ''
-              : _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_黑白图片')
-            if (notDownTip) {
+            const tips = []
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+              .downColorImg &&
+              tips.push(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_彩色图片')
+              )
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+              .downBlackWhiteImg &&
+              tips.push(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_黑白图片')
+              )
+            if (tips.length > 0) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                   '_排除作品类型'
-                ) + notDownTip
+                ) + tips.toString()
               )
             }
           }
@@ -17843,22 +17907,22 @@ flag 及其含义如下：
                 )
               )
             }
-            let notDownTip = ''
-            notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
-              'settings'
-            ].downNotBookmarked
-              ? ''
-              : _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_未收藏')
-            notDownTip += _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
-              'settings'
-            ].downBookmarked
-              ? ''
-              : _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_已收藏')
-            if (notDownTip) {
+            const tips = []
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+              .downNotBookmarked &&
+              tips.push(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_未收藏')
+              )
+            !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+              .downBookmarked &&
+              tips.push(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_已收藏')
+              )
+            if (tips.length > 0) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                   '_排除作品类型'
-                ) + notDownTip
+                ) + tips.toString()
               )
             }
           }
@@ -18135,13 +18199,44 @@ flag 及其含义如下：
           // ---------------- check ----------------
           // 检查下载的作品类型设置
           checkDownType(workType) {
-            if (workType === undefined) {
-              return true
+            switch (workType) {
+              case 0:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
+                  'settings'
+                ].downType0
+              case 1:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
+                  'settings'
+                ].downType1
+              case 2:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
+                  'settings'
+                ].downType2
+              case 3:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
+                  'settings'
+                ].downType3
+              default:
+                return true
             }
-            const name = 'downType' + workType
-            return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings'][
-              name
-            ]
+          }
+          checkDownTypeByAge(xRestrict) {
+            switch (xRestrict) {
+              case 0:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
+                  'settings'
+                ].downAllAges
+              case 1:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
+                  'settings'
+                ].downR18
+              case 2:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
+                  'settings'
+                ].downR18G
+              default:
+                return true
+            }
           }
           // 依据图片数量，检查下载的作品类型
           checkPageCount(workType, pageCount) {
@@ -18977,6 +19072,7 @@ flag 及其含义如下：
                 tags: nowData.tags,
                 userId: nowData.userId,
                 createDate: nowData.createDate,
+                xRestrict: nowData.xRestrict,
               }
               if (
                 await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__[
@@ -19794,6 +19890,7 @@ flag 及其含义如下：
                 workType: 3,
                 tags: nowData.tags,
                 userId: nowData.userId,
+                xRestrict: nowData.xRestrict,
               }
               if (
                 await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__[
@@ -20043,6 +20140,7 @@ flag 及其含义如下：
               bookmarkCount: bmk,
               bookmarkData: body.bookmarkData,
               userId: body.userId,
+              xRestrict: body.xRestrict,
             }
             // 检查通过
             if (
@@ -21031,6 +21129,25 @@ flag 及其含义如下：
       <label for="setWorkType3"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_小说')}&nbsp;</label>
+      </p>
+
+      <p class="option" data-no="44">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+          'lang'
+        ].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="downAllAges" id="downAllAges" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="downAllAges"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_全年龄')}&nbsp;</label>
+      <input type="checkbox" name="downR18" id="downR18" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="downR18"> R-18&nbsp;</label>
+      <input type="checkbox" name="downR18G" id="downR18G" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="downR18G"> R-18G&nbsp;</label>
       </p>
 
       <p class="option" data-no="6">
@@ -22094,6 +22211,9 @@ flag 及其含义如下：
             this.saveCheckBox('downType1')
             this.saveCheckBox('downType2')
             this.saveCheckBox('downType3')
+            this.saveCheckBox('downAllAges')
+            this.saveCheckBox('downR18')
+            this.saveCheckBox('downR18G')
             this.saveCheckBox('downSingleImg')
             this.saveCheckBox('downMultiImg')
             this.saveCheckBox('downColorImg')
@@ -22263,6 +22383,9 @@ flag 及其含义如下：
             this.restoreBoolean('downType1')
             this.restoreBoolean('downType2')
             this.restoreBoolean('downType3')
+            this.restoreBoolean('downAllAges')
+            this.restoreBoolean('downR18')
+            this.restoreBoolean('downR18G')
             this.restoreBoolean('downSingleImg')
             this.restoreBoolean('downMultiImg')
             this.restoreBoolean('downColorImg')
@@ -22843,6 +22966,9 @@ flag 及其含义如下：
               downType1: true,
               downType2: true,
               downType3: true,
+              downAllAges: true,
+              downR18: true,
+              downR18G: true,
               downSingleImg: true,
               downMultiImg: true,
               downColorImg: true,
@@ -22939,7 +23065,7 @@ flag 及其含义如下：
             this.settings = _Tools__WEBPACK_IMPORTED_MODULE_1__[
               'Tools'
             ].deepCopy(this.defaultSettings)
-            this.restoreSettings()
+            this.restore()
             this.bindEvents()
           }
           bindEvents() {
@@ -23007,16 +23133,16 @@ flag 及其含义如下：
               })
             }
           }
-          // 读取保存的设置，合并到当前设置上
-          restoreSettings() {
+          // 初始化时，恢复设置
+          restore() {
+            let restoreData = this.defaultSettings
             const savedSettings = localStorage.getItem(
               _Config__WEBPACK_IMPORTED_MODULE_4__['default'].settingStoreName
             )
             if (savedSettings) {
-              this.assignSettings(JSON.parse(savedSettings))
-            } else {
-              this.assignSettings(this.defaultSettings)
+              restoreData = JSON.parse(savedSettings)
             }
+            this.assignSettings(restoreData)
           }
           // 接收整个设置项，通过循环将其更新到 settings 上
           // 循环设置而不是整个替换的原因：
@@ -23036,7 +23162,8 @@ flag 及其含义如下：
             const url = URL.createObjectURL(blob)
             _Tools__WEBPACK_IMPORTED_MODULE_1__['Tools'].downloadFile(
               url,
-              `pixiv_batch_downloader-settings.json`
+              _Config__WEBPACK_IMPORTED_MODULE_4__['default'].name +
+                ` Settings.json`
             )
           }
           async importSettings() {
@@ -23059,16 +23186,10 @@ flag 及其含义如下：
             // 开始恢复导入的设置
             this.reset(loadedJSON)
           }
-          // 重设选项
-          // 可选参数：传递整个设置的数据，用于从配置文件导入，恢复设置
+          // 重置设置
+          // 可选参数：传递一份设置数据，用于从配置文件导入，恢复设置
           reset(data) {
-            if (data) {
-              // 使用导入的设置
-              this.assignSettings(data)
-            } else {
-              // 将选项恢复为默认值
-              this.assignSettings(this.defaultSettings)
-            }
+            this.assignSettings(data ? data : this.defaultSettings)
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.resetSettingsEnd
             )

@@ -86,6 +86,7 @@ class InitSeriesPage extends InitPageBase {
         workType: work.illustType,
         userId: work.userId,
         createDate: work.createDate,
+        xRestrict: work.xRestrict,
       }
 
       // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以 type 是 unknown

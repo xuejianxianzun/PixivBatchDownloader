@@ -208,6 +208,7 @@ class InitSearchNovelPage extends InitPageBase {
         workType: 3,
         tags: nowData.tags,
         userId: nowData.userId,
+        xRestrict: nowData.xRestrict,
       }
 
       if (await filter.check(filterOpt)) {

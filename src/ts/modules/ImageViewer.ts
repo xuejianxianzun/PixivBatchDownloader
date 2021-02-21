@@ -64,7 +64,7 @@ interface ConfigOptional {
 
 // 对 Viewer 进行修改以供下载器使用
 // 原版是接收页面上已存在的缩略图列表，但在下载器里它需要从作品 id 获取数据，生成缩略图列表
-class ImgViewer {
+class ImageViewer {
   constructor(cfg: ConfigOptional) {
     this.cfg = Object.assign(this.cfg, cfg)
     this.init()
@@ -478,4 +478,4 @@ class ImgViewer {
   }
 }
 
-export { ImgViewer }
+export { ImageViewer }

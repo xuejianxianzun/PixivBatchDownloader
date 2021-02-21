@@ -101,6 +101,7 @@ class InitNewNovelPage extends InitPageBase {
         tags: nowData.tags,
         userId: nowData.userId,
         createDate: nowData.createDate,
+        xRestrict: nowData.xRestrict,
       }
 
       if (await filter.check(filterOpt)) {

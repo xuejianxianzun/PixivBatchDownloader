@@ -80,4 +80,7 @@ export interface SettingsForm extends HTMLFormElement {
   createFolderByTypeNovel: HTMLInputElement
   createFolderByTag: HTMLInputElement
   createFolderTagList: HTMLTextAreaElement
+  downAllAges: HTMLInputElement
+  downR18: HTMLInputElement
+  downR18G: HTMLInputElement
 }

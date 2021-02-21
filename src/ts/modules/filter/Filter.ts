@@ -8,6 +8,7 @@ import { mute } from './Mute'
 import { blockTagsForSpecificUser } from './BlockTagsForSpecificUser'
 import { msgBox } from '../MsgBox'
 
+/** 过滤选项，其中所有字段都是可选的 */
 export interface FilterOption {
   id?: number | string
   workType?: 0 | 1 | 2 | 3
@@ -22,6 +23,7 @@ export interface FilterOption {
   mini?: string
   size?: number
   userId?: string
+  xRestrict?: 0 | 1 | 2
 }
 
 // 检查作品是否符合过滤条件
@@ -36,6 +38,7 @@ class Filter {
   // 对启用了的过滤选项输出提示
   private showTip() {
     this.getDownType()
+    this.getDownTypeByAge()
     this.getDownTypeByImgCount()
     this.getDownTypeByColor()
     this.getDownTypeByBmked()
@@ -89,6 +92,10 @@ class Filter {
 
     // 检查下载的作品类型设置
     if (!this.checkDownType(option.workType)) {
+      return false
+    }
+
+    if (!this.checkDownTypeByAge(option.xRestrict)) {
       return false
     }
 
@@ -171,26 +178,40 @@ class Filter {
       this.showWarning(lang.transl('_排除了所有作品类型'))
     }
 
-    let notDownTip = ''
+    const tips = []
+    !settings.downType0 && tips.push(lang.transl('_插画'))
+    !settings.downType1 && tips.push(lang.transl('_漫画'))
+    !settings.downType2 && tips.push(lang.transl('_动图'))
+    !settings.downType3 && tips.push(lang.transl('_小说'))
 
-    notDownTip += settings.downType0 ? '' : lang.transl('_插画')
-    notDownTip += settings.downType1 ? '' : lang.transl('_漫画')
-    notDownTip += settings.downType2 ? '' : lang.transl('_动图')
-    notDownTip += settings.downType3 ? '' : lang.transl('_小说')
+    if (tips.length > 0) {
+      log.warning(lang.transl('_排除作品类型') + tips.toString())
+    }
+  }
 
-    if (notDownTip) {
-      log.warning(lang.transl('_排除作品类型') + notDownTip)
+  private getDownTypeByAge() {
+    // 如果全部排除则取消任务
+    if (!settings.downAllAges && !settings.downR18 && !settings.downR18G) {
+      this.showWarning(lang.transl('_排除了所有作品类型'))
+    }
+
+    const tips = []
+    !settings.downAllAges && tips.push(lang.transl('_全年龄'))
+    !settings.downR18 && tips.push('R-18')
+    !settings.downR18G && tips.push('R-18G')
+
+    if (tips.length > 0) {
+      log.warning(lang.transl('_排除作品类型') + tips.toString())
     }
   }
 
   private getDownTypeByImgCount() {
-    let notDownTip = ''
+    const tips = []
+    !settings.downSingleImg && tips.push(lang.transl('_单图作品'))
+    !settings.downMultiImg && tips.push(lang.transl('_多图作品'))
 
-    notDownTip += settings.downSingleImg ? '' : lang.transl('_单图作品')
-    notDownTip += settings.downMultiImg ? '' : lang.transl('_多图作品')
-
-    if (notDownTip) {
-      log.warning(lang.transl('_排除作品类型') + notDownTip)
+    if (tips.length > 0) {
+      log.warning(lang.transl('_排除作品类型') + tips.toString())
     }
   }
 
@@ -201,13 +222,12 @@ class Filter {
       this.showWarning(lang.transl('_排除了所有作品类型'))
     }
 
-    let notDownTip = ''
+    const tips = []
+    !settings.downColorImg && tips.push(lang.transl('_彩色图片'))
+    !settings.downBlackWhiteImg && tips.push(lang.transl('_黑白图片'))
 
-    notDownTip += settings.downColorImg ? '' : lang.transl('_彩色图片')
-    notDownTip += settings.downBlackWhiteImg ? '' : lang.transl('_黑白图片')
-
-    if (notDownTip) {
-      log.warning(lang.transl('_排除作品类型') + notDownTip)
+    if (tips.length > 0) {
+      log.warning(lang.transl('_排除作品类型') + tips.toString())
     }
   }
 
@@ -218,13 +238,12 @@ class Filter {
       this.showWarning(lang.transl('_排除了所有作品类型'))
     }
 
-    let notDownTip = ''
+    const tips = []
+    !settings.downNotBookmarked && tips.push(lang.transl('_未收藏'))
+    !settings.downBookmarked && tips.push(lang.transl('_已收藏'))
 
-    notDownTip += settings.downNotBookmarked ? '' : lang.transl('_未收藏')
-    notDownTip += settings.downBookmarked ? '' : lang.transl('_已收藏')
-
-    if (notDownTip) {
-      log.warning(lang.transl('_排除作品类型') + notDownTip)
+    if (tips.length > 0) {
+      log.warning(lang.transl('_排除作品类型') + tips.toString())
     }
   }
 
@@ -376,16 +395,31 @@ class Filter {
 
   // 检查下载的作品类型设置
   private checkDownType(workType: FilterOption['workType']) {
-    if (workType === undefined) {
-      return true
+    switch (workType) {
+      case 0:
+        return settings.downType0
+      case 1:
+        return settings.downType1
+      case 2:
+        return settings.downType2
+      case 3:
+        return settings.downType3
+      default:
+        return true
     }
+  }
 
-    const name = ('downType' + workType) as
-      | 'downType0'
-      | 'downType1'
-      | 'downType2'
-      | 'downType3'
-    return settings[name]
+  private checkDownTypeByAge(xRestrict?: FilterOption['xRestrict']) {
+    switch (xRestrict) {
+      case 0:
+        return settings.downAllAges
+      case 1:
+        return settings.downR18
+      case 2:
+        return settings.downR18G
+      default:
+        return true
+    }
   }
 
   // 依据图片数量，检查下载的作品类型

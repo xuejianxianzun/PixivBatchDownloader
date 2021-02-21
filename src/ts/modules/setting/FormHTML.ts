@@ -34,6 +34,21 @@ const formHtml = `<form class="settingForm">
       <label for="setWorkType3"> ${lang.transl('_小说')}&nbsp;</label>
       </p>
 
+      <p class="option" data-no="44">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_下载作品类型的提示'
+      )}">${lang.transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="downAllAges" id="downAllAges" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="downAllAges"> ${lang.transl('_全年龄')}&nbsp;</label>
+      <input type="checkbox" name="downR18" id="downR18" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="downR18"> R-18&nbsp;</label>
+      <input type="checkbox" name="downR18G" id="downR18G" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="downR18G"> R-18G&nbsp;</label>
+      </p>
+
       <p class="option" data-no="6">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_下载作品类型的提示'

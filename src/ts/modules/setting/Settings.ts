@@ -107,11 +107,14 @@ interface XzSetting {
   createFolderTagList: string[]
   createFolderBySl: boolean
   downloadUgoiraFirst: boolean
+  downAllAges: boolean
+  downR18: boolean
+  downR18G: boolean
 }
 
 class Settings {
   constructor() {
-    this.restoreSettings()
+    this.restore()
 
     this.bindEvents()
   }
@@ -148,6 +151,9 @@ class Settings {
     downType1: true,
     downType2: true,
     downType3: true,
+    downAllAges: true,
+    downR18: true,
+    downR18G: true,
     downSingleImg: true,
     downMultiImg: true,
     downColorImg: true,
@@ -297,14 +303,14 @@ class Settings {
     }
   }
 
-  // 读取保存的设置，合并到当前设置上
-  private restoreSettings() {
+  // 初始化时，恢复设置
+  private restore() {
+    let restoreData = this.defaultSettings
     const savedSettings = localStorage.getItem(Config.settingStoreName)
     if (savedSettings) {
-      this.assignSettings(JSON.parse(savedSettings))
-    } else {
-      this.assignSettings(this.defaultSettings)
+      restoreData = JSON.parse(savedSettings)
     }
+    this.assignSettings(restoreData)
   }
 
   // 接收整个设置项，通过循环将其更新到 settings 上
@@ -322,7 +328,7 @@ class Settings {
     const str = JSON.stringify(settings, null, 2)
     const blob = new Blob([str], { type: 'application/json' })
     const url = URL.createObjectURL(blob)
-    Tools.downloadFile(url, `pixiv_batch_downloader-settings.json`)
+    Tools.downloadFile(url, Config.name + ` Settings.json`)
   }
 
   private async importSettings() {
@@ -340,16 +346,10 @@ class Settings {
     this.reset(loadedJSON)
   }
 
-  // 重设选项
-  // 可选参数：传递整个设置的数据，用于从配置文件导入，恢复设置
+  // 重置设置
+  // 可选参数：传递一份设置数据，用于从配置文件导入，恢复设置
   private reset(data?: XzSetting) {
-    if (data) {
-      // 使用导入的设置
-      this.assignSettings(data)
-    } else {
-      // 将选项恢复为默认值
-      this.assignSettings(this.defaultSettings)
-    }
+    this.assignSettings(data ? data : this.defaultSettings)
     EVT.fire(EVT.list.resetSettingsEnd)
   }
 

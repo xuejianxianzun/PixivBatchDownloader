@@ -329,6 +329,7 @@ class InitSearchArtworkPage extends InitPageBase {
         workType: nowData.illustType,
         tags: nowData.tags,
         userId: nowData.userId,
+        xRestrict: nowData.xRestrict,
       }
 
       if (await filter.check(filterOpt)) {
@@ -447,11 +448,10 @@ class InitSearchArtworkPage extends InitPageBase {
     const data = event.detail.data as Result
 
     let r18Text = ''
-    if (data.tags.includes('R-18')) {
+    if (data.xRestrict === 1) {
       r18Text = 'R-18'
     }
-
-    if (data.tags.includes('R-18G')) {
+    if (data.xRestrict === 2) {
       r18Text = 'R-18G'
     }
 
@@ -689,6 +689,7 @@ class InitSearchArtworkPage extends InitPageBase {
         height: data.fullHeight,
         createDate: data.date,
         userId: data.userId,
+        xRestrict: data.xRestrict,
       }
 
       return filter.check(filterOpt)
