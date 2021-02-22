@@ -4,6 +4,7 @@ import { store } from './Store'
 import { lang } from './Lang'
 import { Tools } from './Tools'
 import { toast } from './Toast'
+import { Json2Blob } from './utils/Json2Blob'
 
 class ExportResult {
   constructor() {
@@ -23,8 +24,7 @@ class ExportResult {
       return
     }
 
-    const str = JSON.stringify(store.result, null, 2)
-    const blob = new Blob([str], { type: 'application/json' })
+    const blob = Json2Blob.convert(store.result)
     const url = URL.createObjectURL(blob)
     Tools.downloadFile(
       url,

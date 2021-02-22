@@ -7,7 +7,7 @@ import { API } from './utils/API'
 import { store } from './Store'
 import { log } from './Log'
 import { DOM } from './DOM'
-import { createCSV } from './CreateCSV'
+import { createCSV } from './utils/CreateCSV'
 import { Tools } from './Tools'
 
 interface UserInfo {

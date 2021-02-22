@@ -5,7 +5,7 @@ import config from './config/Config'
 import { store } from './Store'
 import { Result } from './StoreType'
 import { fileName } from './FileName'
-import { createCSV } from './CreateCSV'
+import { createCSV } from './utils/CreateCSV'
 import { toast } from './Toast'
 import { Tools } from './Tools'
 

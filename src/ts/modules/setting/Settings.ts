@@ -10,6 +10,7 @@ import { msgBox } from '../MsgBox'
 import Config from '../config/Config'
 import { secretSignal } from '../SecretSignal'
 import { toast } from '../Toast'
+import { Json2Blob } from '../utils/Json2Blob'
 
 export interface BlockTagsForSpecificUserItem {
   uid: number
@@ -325,8 +326,7 @@ class Settings {
   }
 
   private exportSettings() {
-    const str = JSON.stringify(settings, null, 2)
-    const blob = new Blob([str], { type: 'application/json' })
+    const blob = Json2Blob.convert(this.settings)
     const url = URL.createObjectURL(blob)
     Tools.downloadFile(url, Config.name + ` Settings.json`)
   }

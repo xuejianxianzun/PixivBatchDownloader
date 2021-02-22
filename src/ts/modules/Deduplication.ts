@@ -9,6 +9,7 @@ import { fileName } from './FileName'
 import { Tools } from './Tools'
 import { toast } from './Toast'
 import { msgBox } from './MsgBox'
+import {Json2Blob} from './utils/Json2Blob'
 
 interface Record {
   id: string
@@ -205,8 +206,7 @@ class Deduplication {
       record = record.concat(r)
     }
 
-    const str = JSON.stringify(record, null, 2)
-    const blob = new Blob([str], { type: 'application/json' })
+    const blob = Json2Blob.convert(record)
     const url = URL.createObjectURL(blob)
     Tools.downloadFile(
       url,
@@ -277,8 +277,8 @@ class Deduplication {
         n: index.toString(),
       })
     }
-    const str = JSON.stringify(r, null, 2)
-    const blob = new Blob([str], { type: 'application/json' })
+
+    const blob = Json2Blob.convert(r)
     const url = URL.createObjectURL(blob)
     Tools.downloadFile(url, `record-test-${number}.json`)
   }
