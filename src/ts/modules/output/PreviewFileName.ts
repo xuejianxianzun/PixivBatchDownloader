@@ -2,7 +2,7 @@ import { store } from '../Store'
 import { EVT } from '../EVT'
 import { fileName } from '../FileName'
 import { lang } from '../Lang'
-import config from '../Config'
+import config from '../config/Config'
 import { toast } from '../Toast'
 
 // 预览文件名

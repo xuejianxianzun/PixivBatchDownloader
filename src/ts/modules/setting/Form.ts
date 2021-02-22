@@ -1,6 +1,6 @@
 import { EVT } from '../EVT'
 import { DOM } from '../DOM'
-import { Colors } from '../Colors'
+import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
 import formHtml from './FormHTML'
 import { SettingsForm } from './SettingsForm'

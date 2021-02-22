@@ -1,4 +1,4 @@
-import { API } from './API'
+import { API } from './utils/API'
 import { DOM } from './DOM'
 import { token } from './Token'
 import {

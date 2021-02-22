@@ -1,8 +1,8 @@
 // 初始化所有页面抓取流程的基类
 import { lang } from './Lang'
-import { Colors } from './Colors'
+import { Colors } from './config/Colors'
 import { DOM } from './DOM'
-import { API } from './API'
+import { API } from './utils/API'
 import { store } from './Store'
 import { log } from './Log'
 import { EVT } from './EVT'

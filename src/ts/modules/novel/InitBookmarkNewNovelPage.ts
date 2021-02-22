@@ -1,6 +1,6 @@
 // 初始化收藏的新作小说页面
 import { InitPageBase } from '../InitPageBase'
-import { Colors } from '../Colors'
+import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
 import { options } from '../setting/Options'

@@ -7,7 +7,7 @@ import {
   setSetting,
   BlockTagsForSpecificUserItem,
 } from '../setting/Settings'
-import { API } from '../API'
+import { API } from '../utils/API'
 import { theme } from '../Theme'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'

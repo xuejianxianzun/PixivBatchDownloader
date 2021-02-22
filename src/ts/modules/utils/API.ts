@@ -19,7 +19,7 @@ import {
   FollowingResponse,
   SeriesData,
   muteData,
-} from './CrawlResult.d'
+} from '../CrawlResult'
 
 import {
   userWorksType,
@@ -27,11 +27,11 @@ import {
   SearchOption,
   NewIllustOption,
   tagPageFlag,
-} from './CrawlArgument.d'
+} from '../CrawlArgument'
 
-import { IDData } from './StoreType'
+import { IDData } from '../StoreType'
 
-// 点击 like 按钮的返回数据
+/** 点击 like 按钮的返回数据 */
 interface LikeResponse {
   error: boolean
   message: '' | string
@@ -43,9 +43,8 @@ interface LikeResponse {
 }
 
 class API {
-  // 通用的请求流程
   // 发送 get 请求，返回 json 数据，抛出异常
-  static request<T>(url: string): Promise<T> {
+  static sendGetRequest<T>(url: string): Promise<T> {
     return new Promise((resolve, reject) => {
       fetch(url, {
         method: 'get',
@@ -85,7 +84,7 @@ class API {
       hide ? 'hide' : 'show'
     }&rdm=${Math.random()}`
 
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 添加收藏
@@ -137,7 +136,7 @@ class API {
     lang = 'zh'
   ): Promise<FollowingResponse> {
     const url = `https://www.pixiv.net/ajax/user/${id}/following?offset=${offset}&limit=${limit}&rest=${rest}&tag=${tag}&lang=${lang}`
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 获取好 P 友列表
@@ -148,7 +147,7 @@ class API {
     lang = 'zh'
   ): Promise<FollowingResponse> {
     const url = `https://www.pixiv.net/ajax/user/${id}/mypixiv?offset=${offset}&limit=${limit}&lang=${lang}`
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 获取粉丝列表
@@ -159,7 +158,7 @@ class API {
     lang = 'zh'
   ): Promise<FollowingResponse> {
     const url = `https://www.pixiv.net/ajax/user/${id}/followers?offset=${offset}&limit=${limit}&lang=${lang}`
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 获取用户信息
@@ -167,7 +166,7 @@ class API {
     // full=1 在画师的作品列表页使用，获取详细信息
     // full=0 在作品页内使用，只获取少量信息
     const url = `https://www.pixiv.net/ajax/user/${id}?full=1`
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 获取用户指定类型的作品列表
@@ -180,7 +179,7 @@ class API {
     let result: IDData[] = []
     const url = `https://www.pixiv.net/ajax/user/${id}/profile/all`
 
-    let data: UserProfileAllData = await this.request(url)
+    let data: UserProfileAllData = await this.sendGetRequest(url)
     for (const type of typeSet.values()) {
       const idList = Object.keys(data.body[type])
       for (const id of idList) {
@@ -206,32 +205,32 @@ class API {
   ): Promise<UserImageWorksWithTag | UserNovelsWithTag> {
     // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=9999999
     const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${limit}`
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 获取插画 漫画 动图 的详细信息
   static getArtworkData(id: string): Promise<ArtworkData> {
     const url = `https://www.pixiv.net/ajax/illust/${id}`
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 获取动图的元数据
   static getUgoiraMeta(id: string): Promise<UgoiraData> {
     const url = `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 获取小说的详细信息
   static getNovelData(id: string): Promise<NovelData> {
     const url = `https://www.pixiv.net/ajax/novel/${id}`
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 获取相关作品
   static getRelatedData(id: string): Promise<RecommendData> {
     // 最后的 18 是预加载首屏的多少个作品的信息，和下载并没有关系
     const url = `https://www.pixiv.net/ajax/illust/${id}/recommend/init?limit=18`
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 获取排行榜数据
@@ -252,7 +251,7 @@ class API {
 
     url = temp.toString()
 
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 获取收藏后的相似作品数据
@@ -262,7 +261,7 @@ class API {
     number: number
   ): Promise<RecommenderData> {
     const url = `/rpc/recommender.php?type=illust&sample_illusts=${id}&num_recommendations=${number}`
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 获取搜索数据
@@ -286,7 +285,7 @@ class API {
     }
     url = temp.toString()
 
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   static getNovelSearchData(
@@ -308,19 +307,19 @@ class API {
     }
     url = temp.toString()
 
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 获取大家的新作品的数据
   static getNewIllustData(option: NewIllustOption): Promise<NewIllustData> {
     let url = `https://www.pixiv.net/ajax/illust/new?lastId=${option.lastId}&limit=${option.limit}&type=${option.type}&r18=${option.r18}`
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 获取大家的新作小说的数据
   static getNewNovleData(option: NewIllustOption): Promise<NewNovelData> {
     let url = `https://www.pixiv.net/ajax/novel/new?lastId=${option.lastId}&limit=${option.limit}&r18=${option.r18}`
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 获取关注的的新作品的数据
@@ -415,7 +414,7 @@ class API {
     order_by = 'asc'
   ): Promise<NovelSeriesData> {
     const url = `https://www.pixiv.net/ajax/novel/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 获取系列信息
@@ -426,7 +425,7 @@ class API {
     pageNo: number
   ): Promise<SeriesData> {
     const url = `https://www.pixiv.net/ajax/series/${series_id}?p=${pageNo}`
-    return this.request(url)
+    return this.sendGetRequest(url)
   }
 
   // 点赞
@@ -460,7 +459,7 @@ class API {
   }
 
   static async getMuteSettings(): Promise<muteData> {
-    return this.request(`https://www.pixiv.net/ajax/mute/items?context=setting`)
+    return this.sendGetRequest(`https://www.pixiv.net/ajax/mute/items?context=setting`)
   }
 }
 

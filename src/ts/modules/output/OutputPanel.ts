@@ -2,7 +2,7 @@ import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { store } from '../Store'
 import { Tools } from '../Tools'
-import config from '../Config'
+import config from '../config/Config'
 import { theme } from '../Theme'
 import { toast } from '../Toast'
 

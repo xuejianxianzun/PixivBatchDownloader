@@ -7,7 +7,7 @@ import { EVT } from '../EVT'
 import { Tools } from '../Tools'
 import { convertOldSettings } from './ConvertOldSettings'
 import { msgBox } from '../MsgBox'
-import Config from '../Config'
+import Config from '../config/Config'
 import { secretSignal } from '../SecretSignal'
 import { toast } from '../Toast'
 

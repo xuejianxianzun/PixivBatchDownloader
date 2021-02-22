@@ -1,5 +1,5 @@
 import { lang } from './Lang'
-import Config from './Config'
+import Config from './config/Config'
 import { msgBox } from './MsgBox'
 import { Tools } from './Tools'
 

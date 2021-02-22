@@ -1,4 +1,4 @@
-import { API } from './API'
+import { API } from './utils/API'
 import { token } from './Token'
 import { lang } from './Lang'
 import { settings } from './setting/Settings'

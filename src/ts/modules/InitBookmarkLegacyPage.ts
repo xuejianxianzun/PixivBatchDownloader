@@ -1,7 +1,7 @@
 // 初始化旧版收藏页面
 import { InitPageBase } from './InitPageBase'
-import { API } from './API'
-import { Colors } from './Colors'
+import { API } from './utils/API'
+import { Colors } from './config/Colors'
 import { token } from './Token'
 import { lang } from './Lang'
 import { IDData } from './StoreType'

@@ -1,5 +1,5 @@
 // 作品页面内的快速收藏功能
-import { API } from './API'
+import { API } from './utils/API'
 import { DOM } from './DOM'
 import { lang } from './Lang'
 import { token } from './Token'

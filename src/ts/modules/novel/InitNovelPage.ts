@@ -1,13 +1,13 @@
 //初始化小说作品页
 import { InitPageBase } from '../InitPageBase'
-import { Colors } from '../Colors'
+import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { store } from '../Store'
 import { QuickBookmark } from '../QuickBookmark'
 import { userWorksType } from '../CrawlArgument'
 import { DOM } from '../DOM'
-import { API } from '../API'
+import { API } from '../utils/API'
 import { EVT } from '../EVT'
 import { Tools } from '../Tools'
 

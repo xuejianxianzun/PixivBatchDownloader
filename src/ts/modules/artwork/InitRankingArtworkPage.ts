@@ -1,7 +1,7 @@
 // 初始化 artwork 排行榜页面
 import { InitPageBase } from '../InitPageBase'
-import { Colors } from '../Colors'
-import { API } from '../API'
+import { Colors } from '../config/Colors'
+import { API } from '../utils/API'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
 import { EVT } from '../EVT'

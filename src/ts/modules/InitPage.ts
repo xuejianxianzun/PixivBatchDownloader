@@ -21,7 +21,7 @@ import { InitSearchNovelPage } from './novel/InitSearchNovelPage'
 import { InitRankingNovelPage } from './novel/InitRankingNovelPage'
 import { InitBookmarkNewNovelPage } from './novel/InitBookmarkNewNovelPage'
 import { InitNewNovelPage } from './novel/InitNewNovelPage'
-import { InitSeriesPage } from './artwork/InitSeriesPage'
+import { InitArtworkSeriesPage } from './artwork/InitArtworkSeriesPage'
 import { InitFollowingPage } from './InitFollowingPage'
 
 class InitPage {
@@ -77,7 +77,7 @@ class InitPage {
       case pageType.list.NewNovel:
         return new InitNewNovelPage()
       case pageType.list.ArtworkSeries:
-        return new InitSeriesPage()
+        return new InitArtworkSeriesPage()
       case pageType.list.Following:
         return new InitFollowingPage()
       default:

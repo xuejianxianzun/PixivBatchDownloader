@@ -1,4 +1,4 @@
-import { API } from '../API'
+import { API } from '../utils/API'
 import { filter, FilterOption } from '../filter/Filter'
 import { settings } from '../setting/Settings'
 import { settingAPI } from '../setting/SettingAPI'

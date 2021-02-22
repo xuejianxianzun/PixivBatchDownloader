@@ -1,4 +1,4 @@
-import Config from '../Config'
+import Config from '../config/Config'
 import { lang } from '../Lang'
 
 const formHtml = `<form class="settingForm">

@@ -1,6 +1,6 @@
 // 图片查看器
 /// <reference path = "./Viewer.d.ts" />
-import { API } from './API'
+import { API } from './utils/API'
 import { EVT } from './EVT'
 import { lang } from './Lang'
 import { theme } from './Theme'

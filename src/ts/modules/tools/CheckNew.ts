@@ -1,4 +1,4 @@
-import { EVT } from './EVT'
+import { EVT } from '../EVT'
 
 // 检查新版本
 class CheckNew {

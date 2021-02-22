@@ -1,6 +1,6 @@
 //初始化 artwork 作品页
 import { InitPageBase } from '../InitPageBase'
-import { Colors } from '../Colors'
+import { Colors } from '../config/Colors'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
@@ -9,7 +9,7 @@ import { QuickBookmark } from '../QuickBookmark'
 import { ImageViewer } from '../ImageViewer'
 import { userWorksType } from '../CrawlArgument'
 import { DOM } from '../DOM'
-import { API } from '../API'
+import { API } from '../utils/API'
 import { log } from '../Log'
 import { Tools } from '../Tools'
 

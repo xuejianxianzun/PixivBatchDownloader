@@ -1,5 +1,5 @@
 import { lang } from './Lang'
-import { API } from './API'
+import { API } from './utils/API'
 import { log } from './Log'
 import { DOM } from './DOM'
 import { EVT } from './EVT'

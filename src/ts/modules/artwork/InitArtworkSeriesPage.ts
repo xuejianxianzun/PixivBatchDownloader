@@ -1,7 +1,7 @@
 // 初始化插画/漫画的系列作品页面
 import { InitPageBase } from '../InitPageBase'
-import { Colors } from '../Colors'
-import { API } from '../API'
+import { Colors } from '../config/Colors'
+import { API } from '../utils/API'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
 import { options } from '../setting/Options'
@@ -10,7 +10,7 @@ import { store } from '../Store'
 import { log } from '../Log'
 import { Tools } from '../Tools'
 
-class InitSeriesPage extends InitPageBase {
+class InitArtworkSeriesPage extends InitPageBase {
   constructor() {
     super()
     this.init()
@@ -26,7 +26,7 @@ class InitSeriesPage extends InitPageBase {
     })
   }
 
-  protected initAny() {}
+  protected initAny() { }
 
   protected setFormOption() {
     // 个数/页数选项的提示
@@ -125,4 +125,4 @@ class InitSeriesPage extends InitPageBase {
     this.listPageFinished = 0
   }
 }
-export { InitSeriesPage }
+export { InitArtworkSeriesPage }

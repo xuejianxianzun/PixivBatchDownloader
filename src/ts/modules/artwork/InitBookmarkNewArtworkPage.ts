@@ -1,11 +1,11 @@
 // 初始化 关注的新作品 artwork 页面
 import { InitPageBase } from '../InitPageBase'
-import { Colors } from '../Colors'
+import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
 import { DOM } from '../DOM'
 import { options } from '../setting/Options'
 import { filter, FilterOption } from '../filter/Filter'
-import { API } from '../API'
+import { API } from '../utils/API'
 import { store } from '../Store'
 import { log } from '../Log'
 import { Tools } from '../Tools'

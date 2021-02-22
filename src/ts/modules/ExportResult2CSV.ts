@@ -1,7 +1,7 @@
 import { EVT } from './EVT'
 import { DOM } from './DOM'
 import { lang } from './Lang'
-import config from './Config'
+import config from './config/Config'
 import { store } from './Store'
 import { Result } from './StoreType'
 import { fileName } from './FileName'

@@ -1,7 +1,7 @@
 import { settings } from './setting/Settings'
 import { store } from './Store'
 import { Result } from './StoreType'
-import config from './Config'
+import config from './config/Config'
 import { DateFormat } from './DateFormat'
 import { Tools } from './Tools'
 

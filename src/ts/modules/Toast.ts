@@ -1,4 +1,4 @@
-import { Colors } from './Colors'
+import { Colors } from './config/Colors'
 
 // 可选参数
 export interface ToastArgOptional {

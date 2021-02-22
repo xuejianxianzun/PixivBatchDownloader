@@ -1,5 +1,5 @@
 import { EVT } from './EVT'
-import { Colors } from './Colors'
+import { Colors } from './config/Colors'
 import { theme } from './Theme'
 import { lang } from './Lang'
 

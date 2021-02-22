@@ -1,7 +1,7 @@
 import { DOM } from './DOM'
 import { EVT } from './EVT'
 import { theme } from './Theme'
-import { Colors } from './Colors'
+import { Colors } from './config/Colors'
 
 // 日志
 class Log {
