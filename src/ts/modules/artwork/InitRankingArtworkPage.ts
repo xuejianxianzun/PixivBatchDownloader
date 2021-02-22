@@ -9,9 +9,9 @@ import { options } from '../setting/Options'
 import { RankingOption } from '../CrawlArgument'
 import { RankingData } from '../CrawlResult'
 import { filter, FilterOption } from '../filter/Filter'
-import { store } from '../Store'
+import { store } from '../store/Store'
 import { log } from '../Log'
-import { states } from '../States'
+import { states } from '../store/States'
 import { Utils } from '../utils/Utils'
 
 class InitRankingArtworkPage extends InitPageBase {

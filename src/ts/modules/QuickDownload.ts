@@ -1,8 +1,8 @@
 import { EVT } from './EVT'
 import { lang } from './Lang'
 import { pageType } from './PageType'
-import { states } from './States'
-import { IDData } from './StoreType'
+import { states } from './store/States'
+import { IDData } from './store/StoreType'
 import { toast } from './Toast'
 import { Tools } from './tools/Tools'
 

@@ -1,4 +1,4 @@
-import { Result } from '../StoreType'
+import { Result } from '../store/StoreType'
 import { Utils } from '../utils/Utils'
 
 class Tools {

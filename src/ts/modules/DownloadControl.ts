@@ -8,7 +8,7 @@ import {
   DownloadedMsg,
   TaskList,
 } from './DownloadType'
-import { store } from './Store'
+import { store } from './store/Store'
 import { log } from './Log'
 import { lang } from './Lang'
 import { Colors } from './config/Colors'
@@ -20,7 +20,7 @@ import { ShowSkipCount } from './ShowSkipCount'
 import { ShowConvertCount } from './ShowConvertCount'
 import { BookmarkAfterDL } from './BookmarkAfterDL'
 import { resume } from './Resume'
-import { states } from './States'
+import { states } from './store/States'
 import Config from './config/Config'
 import { toast } from './Toast'
 import { Utils } from './utils/Utils'

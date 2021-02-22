@@ -3,16 +3,16 @@ import { lang } from './Lang'
 import { Colors } from './config/Colors'
 import { Tools } from './tools/Tools'
 import { API } from './utils/API'
-import { store } from './Store'
+import { store } from './store/Store'
 import { log } from './Log'
 import { EVT } from './EVT'
 import { options } from './setting/Options'
 import { settings } from './setting/Settings'
-import { states } from './States'
+import { states } from './store/States'
 import { saveArtworkData } from './artwork/SaveArtworkData'
 import { saveNovelData } from './novel/SaveNovelData'
 import { mute } from './filter/Mute'
-import { IDData } from './StoreType'
+import { IDData } from './store/StoreType'
 import './SelectWork'
 import { destroyManager } from './DestroyManager'
 import { vipSearchOptimize } from './VipSearchOptimize'
@@ -270,7 +270,7 @@ abstract class InitPageBase {
 
   // 获取作品的数据
   protected async getWorksData(idData?: IDData) {
-    idData = idData || store.idList.shift()!
+    idData = idData || (store.idList.shift()! as IDData)
     const id = idData.id
 
     if (!id) {

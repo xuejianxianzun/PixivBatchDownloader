@@ -1,6 +1,6 @@
 import { EVT } from './EVT'
 import { Utils } from './utils/Utils'
-import { IndexedDB } from './IndexedDB'
+import { IndexedDB } from './utils/IndexedDB'
 import { settings } from './setting/Settings'
 
 interface BGData {

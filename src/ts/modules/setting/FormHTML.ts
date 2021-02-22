@@ -638,8 +638,6 @@ const formHtml = `<form class="settingForm">
       </span>
       </p>
 
-      <hr />
-      
       <p class="option" data-no="33">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_下载之后收藏作品的提示'
@@ -668,8 +666,6 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_radio"></span>
       <label for="restrict2">${lang.transl('_不公开')}</label>
       </p>
-
-      <hr />
 
       <p class="option" data-no="18">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(

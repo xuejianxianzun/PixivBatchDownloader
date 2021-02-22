@@ -4,7 +4,7 @@ import { Colors } from './config/Colors'
 import { lang } from './Lang'
 import { Tools } from './tools/Tools'
 import { options } from './setting/Options'
-import { store } from './Store'
+import { store } from './store/Store'
 import { Utils } from './utils/Utils'
 
 class InitPixivisionPage extends InitPageBase {

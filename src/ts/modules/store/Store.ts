@@ -1,5 +1,5 @@
-import { EVT } from './EVT'
-import { Tools } from './tools/Tools'
+import { EVT } from '../EVT'
+import { Tools } from '../tools/Tools'
 import { Result, ResultOptional, RankList, IDData } from './StoreType'
 
 // 储存抓取结果

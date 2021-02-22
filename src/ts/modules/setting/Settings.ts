@@ -8,7 +8,7 @@ import { Utils } from '../utils/Utils'
 import { convertOldSettings } from './ConvertOldSettings'
 import { msgBox } from '../MsgBox'
 import Config from '../config/Config'
-import { secretSignal } from '../SecretSignal'
+import { secretSignal } from '../utils/SecretSignal'
 import { toast } from '../Toast'
 
 export interface BlockTagsForSpecificUserItem {

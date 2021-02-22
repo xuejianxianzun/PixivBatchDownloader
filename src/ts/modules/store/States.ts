@@ -1,4 +1,4 @@
-import { EVT } from './EVT'
+import { EVT } from '../EVT'
 
 // 储存需要跨组件使用的、会变化的状态
 // 这里的状态不需要持久化保存。

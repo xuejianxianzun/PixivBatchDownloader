@@ -6,13 +6,13 @@ import { options } from '../setting/Options'
 import { SearchOption } from '../CrawlArgument'
 import { filter, FilterOption } from '../filter/Filter'
 import { API } from '../utils/API'
-import { store } from '../Store'
+import { store } from '../store/Store'
 import { log } from '../Log'
 import { FastScreen } from '../FastScreen'
 import { Tools } from '../tools/Tools'
 import { BookmarkAllWorks } from '../BookmarkAllWorks'
 import { Utils } from '../utils/Utils'
-import { idListWithPageNo } from '../IdListWithPageNo'
+import { idListWithPageNo } from '../store/IdListWithPageNo'
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {

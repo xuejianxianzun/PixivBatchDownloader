@@ -1,6 +1,6 @@
 import { EVT } from './EVT'
 import { Tools } from './tools/Tools'
-import { store } from './Store'
+import { store } from './store/Store'
 import { lang } from './Lang'
 import { Utils } from './utils/Utils'
 import { toast } from './Toast'

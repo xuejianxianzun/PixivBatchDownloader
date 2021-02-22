@@ -1,13 +1,13 @@
 import { store } from './Store'
 import { IDData } from './StoreType'
-import { Utils } from './utils/Utils'
+import { Utils } from '../utils/Utils'
 
 type IDDataWithPageNo = IDData & {
   page: number
 }
 
 // 这是为了解决抓取多个列表页面时，获得的 id 数据顺序混乱的问题
-// 这个类会保留每个 id 所处的页码，当抓取完成后，可以把这些 id 按页码顺序排列，保证它们的顺序和页码顺序一致
+// 这个类会保留每个 id 所处的页码。抓取完成后可以把这些 id 按页码顺序排列，保证 id 的顺序和在页码里的顺序一致
 class IdListWithPageNo {
   // 存储 id 列表，按 flag 不同分别存储
   private allList: {

@@ -1,5 +1,5 @@
 import { EVT } from './EVT'
-import { store } from './Store'
+import { store } from './store/Store'
 
 // 每个任务会在数组中的对应位置用一个数字表示它的下载状态。数字和含义：
 // -1 未开始下载

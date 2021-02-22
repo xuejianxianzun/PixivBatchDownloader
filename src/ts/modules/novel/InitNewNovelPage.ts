@@ -7,7 +7,7 @@ import { NewIllustOption } from '../CrawlArgument.d'
 import { NewNovelData } from '../CrawlResult.d'
 import { filter, FilterOption } from '../filter/Filter'
 import { API } from '../utils/API'
-import { store } from '../Store'
+import { store } from '../store/Store'
 import { log } from '../Log'
 import { Tools } from '../tools/Tools'
 

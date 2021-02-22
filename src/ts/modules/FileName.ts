@@ -1,6 +1,6 @@
 import { settings } from './setting/Settings'
-import { store } from './Store'
-import { Result } from './StoreType'
+import { store } from './store/Store'
+import { Result } from './store/StoreType'
 import config from './config/Config'
 import { DateFormat } from './utils/DateFormat'
 import { Utils } from './utils/Utils'

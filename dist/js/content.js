@@ -167,8 +167,8 @@
         /* harmony import */ var _modules_Tip__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/ __webpack_require__.n(
           _modules_Tip__WEBPACK_IMPORTED_MODULE_12__
         )
-        /* harmony import */ var _modules_EditTitle__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
-          /*! ./modules/EditTitle */ './src/ts/modules/EditTitle.ts'
+        /* harmony import */ var _modules_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
+          /*! ./modules/showStatusOnTitle */ './src/ts/modules/showStatusOnTitle.ts'
         )
         /* harmony import */ var _modules_ViewBigImage__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
           /*! ./modules/ViewBigImage */ './src/ts/modules/ViewBigImage.ts'
@@ -245,8 +245,8 @@
         /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./utils/Utils */ './src/ts/modules/utils/Utils.ts'
         )
-        /* harmony import */ var _IndexedDB__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./IndexedDB */ './src/ts/modules/IndexedDB.ts'
+        /* harmony import */ var _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./utils/IndexedDB */ './src/ts/modules/utils/IndexedDB.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
@@ -271,7 +271,7 @@
             }
             this.wrap = wrap
             this.el = this.createEl()
-            this.IDB = new _IndexedDB__WEBPACK_IMPORTED_MODULE_2__[
+            this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__[
               'IndexedDB'
             ]()
             this.init()
@@ -415,8 +415,8 @@
         /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./Token */ './src/ts/modules/Token.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
@@ -509,10 +509,11 @@
               // 从 store 里查找这个作品的数据
               let data = undefined
               let dataSource =
-                _Store__WEBPACK_IMPORTED_MODULE_2__['store'].resultMeta.length >
-                0
-                  ? _Store__WEBPACK_IMPORTED_MODULE_2__['store'].resultMeta
-                  : _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result
+                _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].resultMeta
+                  .length > 0
+                  ? _store_Store__WEBPACK_IMPORTED_MODULE_2__['store']
+                      .resultMeta
+                  : _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result
               for (const r of dataSource) {
                 if (r.idNum === id) {
                   data = r
@@ -874,8 +875,8 @@
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
-        /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts'
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./store/States */ './src/ts/modules/store/States.ts'
         )
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Theme */ './src/ts/modules/Theme.ts'
@@ -1039,9 +1040,9 @@
             ]) {
               window.addEventListener(ev, () => {
                 if (
-                  !_States__WEBPACK_IMPORTED_MODULE_2__['states']
+                  !_store_States__WEBPACK_IMPORTED_MODULE_2__['states']
                     .quickDownload &&
-                  !_States__WEBPACK_IMPORTED_MODULE_2__['states']
+                  !_store_States__WEBPACK_IMPORTED_MODULE_2__['states']
                     .downloadFromViewer
                 ) {
                   this.show()
@@ -1190,11 +1191,11 @@
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
-        /* harmony import */ var _IndexedDB__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./IndexedDB */ './src/ts/modules/IndexedDB.ts'
+        /* harmony import */ var _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./utils/IndexedDB */ './src/ts/modules/utils/IndexedDB.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./FileName */ './src/ts/modules/FileName.ts'
@@ -1226,7 +1227,7 @@
               'record9',
             ] // 表名的列表
             this.existedIdList = [] // 检查文件是否重复时，会查询数据库。查询到的数据的 id 会保存到这个列表里。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
-            this.IDB = new _IndexedDB__WEBPACK_IMPORTED_MODULE_4__[
+            this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_4__[
               'IndexedDB'
             ]()
             this.init()
@@ -1332,8 +1333,9 @@
               _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
                 .userSetName
             // 查找这个抓取结果，获取其文件名
-            for (const result of _Store__WEBPACK_IMPORTED_MODULE_5__['store']
-              .result) {
+            for (const result of _store_Store__WEBPACK_IMPORTED_MODULE_5__[
+              'store'
+            ].result) {
               if (result.id === resultId) {
                 name = _FileName__WEBPACK_IMPORTED_MODULE_6__[
                   'fileName'
@@ -1543,8 +1545,8 @@
         /* harmony import */ var _tools_Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./tools/Tools */ './src/ts/modules/tools/Tools.ts'
         )
-        /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts'
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./store/States */ './src/ts/modules/store/States.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./EVT */ './src/ts/modules/EVT.ts'
@@ -1646,7 +1648,9 @@
               .addEventListener(
                 'click',
                 () => {
-                  if (_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy) {
+                  if (
+                    _store_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy
+                  ) {
                     _MsgBox__WEBPACK_IMPORTED_MODULE_6__['msgBox'].error(
                       _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
                         '_当前任务尚未完成'
@@ -1686,7 +1690,9 @@
               .addEventListener(
                 'click',
                 () => {
-                  if (_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy) {
+                  if (
+                    _store_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy
+                  ) {
                     _MsgBox__WEBPACK_IMPORTED_MODULE_6__['msgBox'].error(
                       _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
                         '_当前任务尚未完成'
@@ -1776,7 +1782,9 @@
               el.onclick = (ev) => {
                 if (this.delMode) {
                   ev.preventDefault()
-                  if (_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy) {
+                  if (
+                    _store_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy
+                  ) {
                     _MsgBox__WEBPACK_IMPORTED_MODULE_6__['msgBox'].error(
                       _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
                         '_当前任务尚未完成'
@@ -2310,8 +2318,8 @@
         /* harmony import */ var _tools_Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./tools/Tools */ './src/ts/modules/tools/Tools.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Log */ './src/ts/modules/Log.ts'
@@ -2346,8 +2354,8 @@
         /* harmony import */ var _Resume__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
           /*! ./Resume */ './src/ts/modules/Resume.ts'
         )
-        /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts'
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
+          /*! ./store/States */ './src/ts/modules/store/States.ts'
         )
         /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
           /*! ./config/Config */ './src/ts/modules/config/Config.ts'
@@ -2549,25 +2557,27 @@
           }
           // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
           readyDownload() {
-            if (_States__WEBPACK_IMPORTED_MODULE_14__['states'].busy) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_14__['states'].busy) {
               return
             }
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length === 0
+              _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result
+                .length === 0
             ) {
               return _ProgressBar__WEBPACK_IMPORTED_MODULE_8__[
                 'progressBar'
               ].reset(0)
             }
             this.showDownloadArea()
-            this.totalNumberEl.textContent = _Store__WEBPACK_IMPORTED_MODULE_2__[
+            this.totalNumberEl.textContent = _store_Store__WEBPACK_IMPORTED_MODULE_2__[
               'store'
             ].result.length.toString()
             this.setDownloaded()
             this.setDownloadThread()
             // 检查 不自动开始下载 的标记
             if (
-              _States__WEBPACK_IMPORTED_MODULE_14__['states'].notAutoDownload
+              _store_States__WEBPACK_IMPORTED_MODULE_14__['states']
+                .notAutoDownload
             ) {
               return
             }
@@ -2575,8 +2585,10 @@
             if (
               _setting_Settings__WEBPACK_IMPORTED_MODULE_6__['settings']
                 .quietDownload ||
-              _States__WEBPACK_IMPORTED_MODULE_14__['states'].quickDownload ||
-              _States__WEBPACK_IMPORTED_MODULE_14__['states'].downloadFromViewer
+              _store_States__WEBPACK_IMPORTED_MODULE_14__['states']
+                .quickDownload ||
+              _store_States__WEBPACK_IMPORTED_MODULE_14__['states']
+                .downloadFromViewer
             ) {
               this.startDownload()
             }
@@ -2620,7 +2632,8 @@
           // 暂停下载
           pauseDownload() {
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length === 0
+              _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result
+                .length === 0
             ) {
               return
             }
@@ -2630,7 +2643,7 @@
             }
             if (this.pause === false) {
               // 如果正在下载中
-              if (_States__WEBPACK_IMPORTED_MODULE_14__['states'].busy) {
+              if (_store_States__WEBPACK_IMPORTED_MODULE_14__['states'].busy) {
                 this.pause = true
                 this.setDownStateText(
                   _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_已暂停'),
@@ -2652,8 +2665,8 @@
           // 停止下载
           stopDownload() {
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length ===
-                0 ||
+              _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result
+                .length === 0 ||
               this.stop
             ) {
               return
@@ -2712,7 +2725,7 @@
             // 如果没有全部下载完毕
             if (
               this.downloaded <
-              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length
+              _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length
             ) {
               // 如果任务已停止
               if (this.pause || this.stop) {
@@ -2721,7 +2734,7 @@
               // 如果已完成的数量 加上 线程中未完成的数量，仍然没有达到文件总数，继续添加任务
               if (
                 this.downloaded + this.thread - 1 <
-                _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length
+                _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length
               ) {
                 return true
               } else {
@@ -2753,13 +2766,13 @@
             }
             // 如果剩余任务数量少于下载线程数
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length -
+              _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length -
                 this.downloaded <
               this.thread
             ) {
               this.thread =
-                _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length -
-                this.downloaded
+                _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result
+                  .length - this.downloaded
             }
             // 重设下载进度条
             _ProgressBar__WEBPACK_IMPORTED_MODULE_8__['progressBar'].reset(
@@ -2778,7 +2791,7 @@
               return this.checkCompleteWithError()
             } else {
               const workData =
-                _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result[index]
+                _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result[index]
               const data = {
                 id: workData.id,
                 data: workData,
@@ -2802,7 +2815,7 @@
             this.downloaded = _DownloadStates__WEBPACK_IMPORTED_MODULE_9__[
               'downloadStates'
             ].downloadedCount()
-            const text = `${this.downloaded} / ${_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length}`
+            const text = `${this.downloaded} / ${_store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length}`
             _Log__WEBPACK_IMPORTED_MODULE_3__['log'].log(text, 2, false)
             // 设置下载进度条
             _ProgressBar__WEBPACK_IMPORTED_MODULE_8__[
@@ -2816,7 +2829,7 @@
             // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
             if (
               this.downloaded ===
-              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length
+              _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length
             ) {
               window.setTimeout(() => {
                 // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
@@ -2838,7 +2851,7 @@
             if (
               this.errorIdList.length > 0 &&
               this.downloaded + this.errorIdList.length ===
-                _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length
+                _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length
             ) {
               // 进入暂停状态，一定时间后自动开始下载，重试下载出错的文件
               this.pauseDownload()
@@ -2890,8 +2903,8 @@
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
 
         // 下载状态列表
@@ -2915,7 +2928,7 @@
           // 创建新的状态列表
           init() {
             this.states = new Array(
-              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length
+              _store_Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length
             ).fill(-1)
           }
           // 统计下载完成的数量
@@ -3132,191 +3145,6 @@
         /***/
       },
 
-    /***/ './src/ts/modules/EditTitle.ts':
-      /*!*************************************!*\
-  !*** ./src/ts/modules/EditTitle.ts ***!
-  \*************************************/
-      /*! no exports provided */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./PageType */ './src/ts/modules/PageType.ts'
-        )
-        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts'
-        )
-        // 在标题栏上显示任务状态的标记
-
-        /*
-本程序的标记会以 [flag] 形式添加到 title 最前面
-flag 及其含义如下：
-↑ 抓取中
-→ 等待下一步操作（搜索页）
-▶ 可以开始下载
-↓ 下载中
-║ 下载暂停
-■ 下载停止
-✓ 下载完毕
-*/
-        const flags = {
-          crawling: '↑',
-          waiting: '→',
-          readyDownload: '▶',
-          downloading: '↓',
-          paused: '║',
-          stopped: '■',
-          completed: '✓',
-          space: ' ',
-        }
-        class EditTitle {
-          constructor() {
-            this.timer = 0 // title 闪烁时，使用的定时器
-            this.bindEvents()
-          }
-          bindEvents() {
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.crawlStart,
-              () => {
-                this.set('crawling')
-              }
-            )
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.worksUpdate,
-              () => {
-                this.set('waiting')
-              }
-            )
-            for (const ev of [
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.crawlFinish,
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.resultChange,
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.resume,
-            ]) {
-              window.addEventListener(ev, () => {
-                this.set('readyDownload')
-              })
-            }
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.downloadStart,
-              () => {
-                this.set('downloading')
-              }
-            )
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.downloadComplete,
-              () => {
-                this.set('completed')
-              }
-            )
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.downloadPause,
-              () => {
-                this.set('paused')
-              }
-            )
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.downloadStop,
-              () => {
-                this.set('stopped')
-              }
-            )
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.crawlEmpty,
-              () => {
-                this.reset()
-              }
-            )
-          }
-          // 检查标题里是否含有标记
-          includeFlag(flag = '') {
-            if (!flag) {
-              // 没有传递标记，则检查所有标记
-              for (const flga of Object.values(flags)) {
-                const str = `[${flga}]`
-                if (document.title.includes(str)) {
-                  return true
-                }
-              }
-            } else {
-              // 检查指定标记
-              const str = `[${flag}]`
-              return document.title.includes(str)
-            }
-            return false
-          }
-          // 重设 title
-          reset() {
-            clearInterval(this.timer)
-            const metaTagPage = [
-              _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].list.Artwork,
-              _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].list.UserHome,
-              _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].list.Novel,
-            ]
-            // 从 og:title 标签获取标题。og:title 标签是最早更新标题的。但不确定是否在所有页面上都可以直接使用 og:title 标签的内容，所以这里只在部分页面上使用
-            if (
-              metaTagPage.includes(
-                _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].type
-              )
-            ) {
-              const ogTitle = document.querySelector(
-                'meta[property="og:title"]'
-              )
-              if (ogTitle) {
-                document.title = ogTitle.content
-                return
-              }
-            }
-            // 去掉 title 里的标记
-            const index = document.title.indexOf(']')
-            document.title = document.title.substr(
-              index + 1,
-              document.title.length
-            )
-          }
-          // 在标题上显示指定标记
-          set(flagName) {
-            const flag = flags[flagName]
-            const text = `[${flag}]`
-            // 如果 title 里没有标记，就添加标记
-            if (!this.includeFlag()) {
-              document.title = `${text} ${document.title}`
-            } else {
-              // 如果已经有标记了，则替换为新当前传入的标记
-              document.title = document.title.replace(/\[.?\]/, text)
-            }
-            // 可以开始下载，或者等待下一步操作，进行闪烁提醒
-            if (flagName === 'readyDownload' || flagName === 'waiting') {
-              this.flashing(flag)
-            } else {
-              clearInterval(this.timer)
-            }
-          }
-          // 闪烁提醒，其实是把给定的标记替换成空白，来回切换
-          flashing(flag) {
-            clearInterval(this.timer)
-            const text = `[${flag}]`
-            const whiteSpace = `[${flags.space}]`
-            this.timer = window.setInterval(() => {
-              if (this.includeFlag(flag)) {
-                // 如果含有标记，就替换成空白
-                document.title = document.title.replace(text, whiteSpace)
-              } else {
-                if (this.includeFlag(flags.space)) {
-                  // 如果含有空白，就替换成标记
-                  document.title = document.title.replace(whiteSpace, text)
-                } else {
-                  // 如果都没有，一般是页面切换了，标题被重置了，取消闪烁
-                  clearInterval(this.timer)
-                }
-              }
-            }, 500)
-          }
-        }
-        new EditTitle()
-
-        /***/
-      },
-
     /***/ './src/ts/modules/ExportLST.ts':
       /*!*************************************!*\
   !*** ./src/ts/modules/ExportLST.ts ***!
@@ -3328,8 +3156,8 @@ flag 及其含义如下：
         /* harmony import */ var _tools_Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./tools/Tools */ './src/ts/modules/tools/Tools.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./FileName */ './src/ts/modules/FileName.ts'
@@ -3364,7 +3192,8 @@ flag 及其含义如下：
           }
           createLst() {
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].result.length === 0
+              _store_Store__WEBPACK_IMPORTED_MODULE_1__['store'].result
+                .length === 0
             ) {
               _Toast__WEBPACK_IMPORTED_MODULE_5__['toast'].error(
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
@@ -3374,8 +3203,9 @@ flag 及其含义如下：
               return
             }
             const array = []
-            for (const data of _Store__WEBPACK_IMPORTED_MODULE_1__['store']
-              .result) {
+            for (const data of _store_Store__WEBPACK_IMPORTED_MODULE_1__[
+              'store'
+            ].result) {
               array.push(
                 data.original +
                   this.separate +
@@ -3415,8 +3245,8 @@ flag 及其含义如下：
         /* harmony import */ var _tools_Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./tools/Tools */ './src/ts/modules/tools/Tools.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
@@ -3443,7 +3273,8 @@ flag 及其含义如下：
           output() {
             // 如果没有数据则不执行
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length === 0
+              _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result
+                .length === 0
             ) {
               _Toast__WEBPACK_IMPORTED_MODULE_5__['toast'].error(
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
@@ -3454,7 +3285,9 @@ flag 及其含义如下：
             }
             const blob = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__[
               'Utils'
-            ].json2Blob(_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result)
+            ].json2Blob(
+              _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result
+            )
             const url = URL.createObjectURL(blob)
             _utils_Utils__WEBPACK_IMPORTED_MODULE_4__['Utils'].downloadFile(
               url,
@@ -3462,7 +3295,7 @@ flag 及其含义如下：
                 'Utils'
               ].replaceUnsafeStr(
                 _tools_Tools__WEBPACK_IMPORTED_MODULE_1__['Tools'].getTitle()
-              )}-${_Store__WEBPACK_IMPORTED_MODULE_2__[
+              )}-${_store_Store__WEBPACK_IMPORTED_MODULE_2__[
                 'store'
               ].crawlCompleteTime.getTime()}.json`
             )
@@ -3496,8 +3329,8 @@ flag 及其含义如下：
         /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./config/Config */ './src/ts/modules/config/Config.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./FileName */ './src/ts/modules/FileName.ts'
@@ -3612,7 +3445,8 @@ flag 及其含义如下：
           beforeCreate() {
             // 如果没有数据则不执行
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_4__['store'].result.length === 0
+              _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].result
+                .length === 0
             ) {
               _Toast__WEBPACK_IMPORTED_MODULE_7__['toast'].error(
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
@@ -3625,7 +3459,9 @@ flag 及其含义如下：
             // 1：刷新页面后，断点续传恢复了保存的数据，此时只有 result 里有数据，resultMeta 没有数据。
             // 2: 如果在页面 A 进行了下载，resultMeta 保存的是页面 A 的数据。此时进入页面 B，恢复了 B 页面保存的任务，此时 resultMeta 里还是页面 A 的数据。
             // 所以还是使用 result 比较可靠，不易出问题。
-            this.create(_Store__WEBPACK_IMPORTED_MODULE_4__['store'].result)
+            this.create(
+              _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].result
+            )
           }
           create(data) {
             const body = [] // 内容数组
@@ -3689,7 +3525,9 @@ flag 及其含义如下：
             }
             csvName = `result-${_utils_Utils__WEBPACK_IMPORTED_MODULE_8__[
               'Utils'
-            ].replaceUnsafeStr(csvName)}-${_Store__WEBPACK_IMPORTED_MODULE_4__[
+            ].replaceUnsafeStr(
+              csvName
+            )}-${_store_Store__WEBPACK_IMPORTED_MODULE_4__[
               'store'
             ].crawlCompleteTime.getTime()}.csv`
             _utils_Utils__WEBPACK_IMPORTED_MODULE_8__['Utils'].downloadFile(
@@ -3828,8 +3666,8 @@ flag 及其含义如下：
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./config/Config */ './src/ts/modules/config/Config.ts'
@@ -3871,12 +3709,12 @@ flag 及其含义如下：
             // 配置所有命名标记
             const cfg = {
               '{p_title}': {
-                value: _Store__WEBPACK_IMPORTED_MODULE_1__['store'].title,
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_1__['store'].title,
                 prefix: '',
                 safe: false,
               },
               '{p_tag}': {
-                value: _Store__WEBPACK_IMPORTED_MODULE_1__['store'].tag,
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_1__['store'].tag,
                 prefix: '',
                 safe: false,
               },
@@ -3976,7 +3814,7 @@ flag 及其含义如下：
                 value: _utils_DateFormat__WEBPACK_IMPORTED_MODULE_3__[
                   'DateFormat'
                 ].format(
-                  _Store__WEBPACK_IMPORTED_MODULE_1__['store']
+                  _store_Store__WEBPACK_IMPORTED_MODULE_1__['store']
                     .crawlCompleteTime,
                   _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
                     .dateFormat
@@ -4219,312 +4057,6 @@ flag 及其含义如下：
         /***/
       },
 
-    /***/ './src/ts/modules/IdListWithPageNo.ts':
-      /*!********************************************!*\
-  !*** ./src/ts/modules/IdListWithPageNo.ts ***!
-  \********************************************/
-      /*! exports provided: idListWithPageNo */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony export (binding) */ __webpack_require__.d(
-          __webpack_exports__,
-          'idListWithPageNo',
-          function () {
-            return idListWithPageNo
-          }
-        )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
-        )
-        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./utils/Utils */ './src/ts/modules/utils/Utils.ts'
-        )
-
-        // 这是为了解决抓取多个列表页面时，获得的 id 数据顺序混乱的问题
-        // 这个类会保留每个 id 所处的页码，当抓取完成后，可以把这些 id 按页码顺序排列，保证它们的顺序和页码顺序一致
-        class IdListWithPageNo {
-          constructor() {
-            // 存储 id 列表，按 flag 不同分别存储
-            this.allList = {}
-          }
-          // 添加一条记录
-          add(flag, idData, page) {
-            if (this.allList[flag] === undefined) {
-              this.allList[flag] = []
-            }
-            this.allList[flag].push({
-              id: idData.id,
-              type: idData.type,
-              page: page,
-            })
-          }
-          // 清空记录
-          clear(flag) {
-            if (this.allList[flag]) {
-              delete this.allList[flag]
-            }
-          }
-          // 排序
-          sort(flag) {
-            if (this.allList[flag]) {
-              this.allList[flag].sort(
-                _utils_Utils__WEBPACK_IMPORTED_MODULE_1__[
-                  'Utils'
-                ].sortByProperty('page', 'asc')
-              )
-            }
-          }
-          // 转储到 store.idList 里
-          // 自动排序
-          // 转储之后自动清空
-          store(flag) {
-            if (this.allList[flag]) {
-              this.sort(flag)
-              for (const data of this.allList[flag]) {
-                _Store__WEBPACK_IMPORTED_MODULE_0__['store'].idList.push({
-                  id: data.id,
-                  type: data.type,
-                })
-              }
-              this.clear(flag)
-            }
-          }
-          // 如果没有值，返回的就是 undefined
-          get(flag) {
-            return this.allList[flag]
-          }
-        }
-        const idListWithPageNo = new IdListWithPageNo()
-
-        /***/
-      },
-
-    /***/ './src/ts/modules/ImageToIcon.ts':
-      /*!***************************************!*\
-  !*** ./src/ts/modules/ImageToIcon.ts ***!
-  \***************************************/
-      /*! exports provided: img2ico */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony export (binding) */ __webpack_require__.d(
-          __webpack_exports__,
-          'img2ico',
-          function () {
-            return img2ico
-          }
-        )
-        // 把图片转换成 icon 文件
-        // icon 文件结构 https://www.cnblogs.com/cswuyg/p/3603707.html
-        // 输入选项
-        // source 图片的 url，或者一个图片文件（如果使用了图片 url，请注意跨域策略的影响）
-        // size 尺寸，可以同时使用多个尺寸。你也可以使用自定义尺寸。
-        // shape 指定图标的形状。square 正方形，circle 圆形，fillet 带有圆角的正方形
-        // bleed 留白，仅当形状是圆角正方形时生效，可以使图片周围有一些留白。
-        // 输出
-        // 转换成功后，返回 icon 文件的 Blob 对象
-        // 生成的 icon 总是正方形（长和宽相等）。如果图片的长度和宽度不相等，则会以窄边作为基准，从窄边开始裁剪出一个正方形
-        // 生成的 icon 可以包含多种尺寸的图标。图标都是 32 位 png 图像。
-        class ImageToIcon {
-          async convert(opt) {
-            return new Promise(async (resolve, reject) => {
-              // 加载图片
-              const img = await this.loadImage(opt.source)
-              // 生成各尺寸的 png 图像的数据
-              const pngDataArray = await this.createPngBuffer(
-                img,
-                opt.size,
-                opt.shape,
-                opt.bleed
-              )
-              // 创建 ico 文件
-              const blob = this.createIcon(pngDataArray)
-              resolve(blob)
-            })
-          }
-          async convertImageURL(source) {
-            return new Promise(async (resolve, reject) => {
-              if (typeof source === 'string') {
-                // 请求图片，并为其生成 BlobURL，解决图片跨域导致 canvas 污染的问题
-                const res = await fetch(source, {
-                  method: 'get',
-                  credentials: 'same-origin',
-                })
-                const blob = await res.blob()
-                resolve(URL.createObjectURL(blob))
-              } else if (source instanceof File) {
-                resolve(URL.createObjectURL(source))
-              } else {
-                reject('Unrecognized opt.source')
-              }
-            })
-          }
-          async loadImage(source) {
-            return new Promise(async (resolve, reject) => {
-              let imgURL = await this.convertImageURL(source)
-              const i = document.createElement('img')
-              i.src = imgURL
-              i.onload = function () {
-                resolve(i)
-              }
-            })
-          }
-          async createPngBuffer(
-            img,
-            size = [16, 48, 96, 256],
-            shape = 'square',
-            bleed = true
-          ) {
-            return new Promise(async (resolve, reject) => {
-              const buffer = []
-              let length = size.length
-              while (length > 0) {
-                const sizeNumber = size[size.length - length]
-                const canvas = this.createCanvas(sizeNumber, img)
-                // 绘制图像
-                this.drawImage(canvas, img, shape, bleed)
-                // 把图像转换为 png 图像
-                const pngBlob = await this.getPngBlob(canvas)
-                // 获取 png 图像的 buffer
-                const buf = await pngBlob.arrayBuffer()
-                buffer.push({
-                  size: sizeNumber,
-                  buffer: buf,
-                })
-                length--
-                if (length === 0) {
-                  resolve(buffer)
-                }
-              }
-            })
-          }
-          createCanvas(size, img) {
-            const c = document.createElement('canvas')
-            c.width = size
-            c.height = size
-            return c
-          }
-          drawImage(canvas, img, shape, bleed = true) {
-            const ctx = canvas.getContext('2d')
-            if (!ctx) {
-              console.error('draw error: ctx is null')
-              return
-            }
-            ctx.clearRect(0, 0, canvas.width, canvas.height)
-            // 计算图像被绘制的宽高。比较短的一边占满画布，比较长的一边则根据比例计算绘制的部分
-            let dw = 0
-            let dh = 0
-            // 竖图
-            if (img.naturalWidth < img.naturalHeight) {
-              dw = canvas.width
-              dh = (dw / img.naturalWidth) * img.naturalHeight
-            } else {
-              // 横图
-              dh = canvas.height
-              dw = (dh / img.naturalHeight) * img.naturalWidth
-            }
-            // 绘制方形
-            if (shape === 'square') {
-              ctx.drawImage(img, 0, 0, dw, dh)
-            }
-            // 绘制圆形
-            if (shape === 'circle') {
-              let circle = {
-                x: canvas.width / 2,
-                y: canvas.width / 2,
-                r: canvas.width / 2,
-              }
-              ctx.save()
-              ctx.beginPath()
-              ctx.arc(circle.x, circle.y, circle.r, 0, Math.PI * 2, false)
-              ctx.clip()
-              ctx.drawImage(img, 0, 0, dw, dh)
-              ctx.restore()
-            }
-            // 绘制圆角矩形
-            if (shape === 'fillet') {
-              let x = 0
-              let y = 0
-              // 当图标尺寸大于 16 时，设置留白距离
-              if (bleed && canvas.width > 16) {
-                let num = 10 / 256 // 规定留白的比例，即尺寸为 256 时四周留白均为 10 px
-                x = Math.ceil(num * canvas.width)
-                y = Math.ceil(num * canvas.width)
-              }
-              // 去掉留白后，最后要保存的图片区域的宽高
-              const w = canvas.width - x * 2
-              const h = canvas.height - y * 2
-              // 圆角的半径，设置为保留区域宽高的 1/8
-              const r = Math.floor(w / 8)
-              ctx.beginPath()
-              ctx.moveTo(x + r, y)
-              ctx.arcTo(x + w, y, x + w, y + h, r)
-              ctx.arcTo(x + w, y + h, x, y + h, r)
-              ctx.arcTo(x, y + h, x, y, r)
-              ctx.arcTo(x, y, x + w, y, r)
-              ctx.closePath()
-              ctx.clip()
-              ctx.drawImage(img, 0, 0, dw, dh)
-            }
-            return ctx
-          }
-          async getPngBlob(canvas) {
-            return new Promise((resolve, reject) => {
-              canvas.toBlob((blob) => {
-                if (!blob) {
-                  reject('blob is null')
-                } else {
-                  resolve(blob)
-                }
-              })
-            })
-          }
-          createIcon(pngData) {
-            const fileData = []
-            const fileHeadSize = 6
-            // icon 文件头
-            const fileHead = new ArrayBuffer(fileHeadSize)
-            const v1 = new DataView(fileHead)
-            v1.setInt16(0, 0, true) // idReserved
-            v1.setInt16(2, 1, true) // idType
-            v1.setInt16(4, pngData.length, true) // idCount
-            fileData.push(fileHead)
-            // 添加 icon 文件入口
-            const entrySize = 16
-            const entryTotalSize = entrySize * pngData.length
-            let fileOffset = fileHeadSize + entryTotalSize
-            let fileLength = 0
-            for (const d of pngData) {
-              fileOffset += fileLength
-              const entry = new ArrayBuffer(entrySize)
-              const v2 = new DataView(entry)
-              v2.setInt8(0, d.size) // Width, in pixels, of the image
-              v2.setInt8(1, d.size) // Height, in pixels, of the image
-              v2.setInt8(2, 0) // Number of colors in image (0 if >=8bpp)
-              v2.setInt8(3, 0) // Reserved ( must be 0)
-              v2.setInt16(4, 1, true) // Color Planes
-              v2.setInt16(6, 32, true) // Bits per pixel
-              v2.setInt32(8, d.buffer.byteLength, true) // How many bytes in this resource?
-              v2.setInt32(12, fileOffset, true) // Where in the file is this image?
-              fileData.push(entry)
-              fileLength = d.buffer.byteLength
-            }
-            // 添加 png 数据
-            for (const d of pngData) {
-              fileData.push(d.buffer)
-            }
-            // 生成 blob 对象
-            return new Blob(fileData, {
-              type: 'image/vnd.microsoft.icon',
-            })
-          }
-        }
-        const img2ico = new ImageToIcon()
-
-        /***/
-      },
-
     /***/ './src/ts/modules/ImageViewer.ts':
       /*!***************************************!*\
   !*** ./src/ts/modules/ImageViewer.ts ***!
@@ -4555,8 +4087,8 @@ flag 及其含义如下：
         /* harmony import */ var _Loading__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Loading */ './src/ts/modules/Loading.ts'
         )
-        /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts'
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./store/States */ './src/ts/modules/store/States.ts'
         )
         /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./Toast */ './src/ts/modules/Toast.ts'
@@ -4872,7 +4404,7 @@ flag 及其含义如下：
           // 下载当前查看的作品
           download() {
             // 因为 downloadFromViewer 状态会影响后续下载行为，所以必须先判断 busy 状态
-            if (_States__WEBPACK_IMPORTED_MODULE_5__['states'].busy) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_5__['states'].busy) {
               _Toast__WEBPACK_IMPORTED_MODULE_6__['toast'].error(
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_当前任务尚未完成'
@@ -4880,7 +4412,7 @@ flag 及其含义如下：
               )
               return
             }
-            _States__WEBPACK_IMPORTED_MODULE_5__[
+            _store_States__WEBPACK_IMPORTED_MODULE_5__[
               'states'
             ].downloadFromViewer = true
             // 发送要下载的作品 id
@@ -4966,11 +4498,11 @@ flag 及其含义如下：
         /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./utils/Utils */ './src/ts/modules/utils/Utils.ts'
         )
-        /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts'
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./store/States */ './src/ts/modules/store/States.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./Toast */ './src/ts/modules/Toast.ts'
@@ -4990,7 +4522,7 @@ flag 及其含义如下：
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.importResult,
               () => {
-                if (_States__WEBPACK_IMPORTED_MODULE_3__['states'].busy) {
+                if (_store_States__WEBPACK_IMPORTED_MODULE_3__['states'].busy) {
                   _Toast__WEBPACK_IMPORTED_MODULE_5__['toast'].error(
                     _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
                       '_当前任务尚未完成'
@@ -5065,8 +4597,8 @@ flag 及其含义如下：
               return
             }
             // 恢复数据并发送通知
-            _Store__WEBPACK_IMPORTED_MODULE_4__['store'].reset()
-            _Store__WEBPACK_IMPORTED_MODULE_4__['store'].result = temp
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].reset()
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].result = temp
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.resultChange
             )
@@ -5076,265 +4608,6 @@ flag 及其含义如下：
           }
         }
         new ImportResult()
-
-        /***/
-      },
-
-    /***/ './src/ts/modules/IndexedDB.ts':
-      /*!*************************************!*\
-  !*** ./src/ts/modules/IndexedDB.ts ***!
-  \*************************************/
-      /*! exports provided: IndexedDB */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony export (binding) */ __webpack_require__.d(
-          __webpack_exports__,
-          'IndexedDB',
-          function () {
-            return IndexedDB
-          }
-        )
-        // 封装操作 IndexedDB 的一些公共方法，仅满足本程序使用，并不完善
-        class IndexedDB {
-          async open(DBName, DBVer, onUpgrade) {
-            return new Promise((resolve, reject) => {
-              const request = indexedDB.open(DBName, DBVer)
-              request.onupgradeneeded = (ev) => {
-                if (onUpgrade) {
-                  onUpgrade(request.result)
-                }
-              }
-              request.onsuccess = (ev) => {
-                this.db = request.result
-                resolve(request.result)
-              }
-              request.onerror = (ev) => {
-                console.error('open indexDB failed')
-                console.trace()
-                reject(ev)
-              }
-            })
-          }
-          async add(storeNames, data) {
-            return new Promise((resolve, reject) => {
-              if (this.db === undefined) {
-                reject('Database is not defined')
-                return
-              }
-              const r = this.db
-                .transaction(storeNames, 'readwrite')
-                .objectStore(storeNames)
-                .add(data)
-              r.onsuccess = (ev) => {
-                resolve(ev)
-              }
-              r.onerror = (ev) => {
-                console.error('add failed')
-                console.trace()
-                reject(ev)
-              }
-            })
-          }
-          async put(storeNames, data) {
-            return new Promise((resolve, reject) => {
-              if (this.db === undefined) {
-                reject('Database is not defined')
-                return
-              }
-              const r = this.db
-                .transaction(storeNames, 'readwrite')
-                .objectStore(storeNames)
-                .put(data)
-              r.onsuccess = (ev) => {
-                resolve(ev)
-              }
-              r.onerror = (ev) => {
-                console.error('put failed')
-                console.trace()
-                reject(ev)
-              }
-            })
-          }
-          // 向一个存储库中批量添加数据
-          async batchAddData(storeName, dataList, key) {
-            return new Promise(async (resolve, reject) => {
-              var _a
-              if (dataList.length === 0) {
-                resolve()
-              }
-              // 获取已存在的 key
-              let existedKeys = await this.getAllKeys(storeName)
-              // 使用事务
-              const tr =
-                (_a = this.db) === null || _a === void 0
-                  ? void 0
-                  : _a.transaction(storeName, 'readwrite')
-              if (!tr) {
-                throw new Error(`transaction ${storeName} is undefined`)
-              }
-              const store = tr.objectStore(storeName)
-              tr.oncomplete = () => {
-                resolve()
-              }
-              tr.onerror = (err) => {
-                console.error(err)
-                console.trace()
-                reject(err)
-              }
-              for (const data of dataList) {
-                await insert(data)
-              }
-              async function insert(data) {
-                return new Promise((resolve, reject) => {
-                  // 如果 key 已存在，则使用 put
-                  const type = existedKeys.includes(data[key]) ? 'put' : 'add'
-                  const request = store[type](data)
-                  request.onsuccess = () => {
-                    resolve()
-                  }
-                  request.onerror = (err) => {
-                    reject(err)
-                  }
-                })
-              }
-            })
-          }
-          // 如果没有找到对应的记录，则返回 null
-          async get(storeNames, key, index) {
-            return new Promise((resolve, reject) => {
-              if (this.db === undefined) {
-                reject('Database is not defined')
-                return
-              }
-              const store = this.db
-                .transaction(storeNames, 'readonly')
-                .objectStore(storeNames)
-              let r
-              if (index !== undefined) {
-                const i = store.index(index)
-                r = i.get(key)
-              } else {
-                r = store.get(key)
-              }
-              r.onsuccess = (ev) => {
-                const data = r.result
-                resolve(data ? data : null)
-              }
-              r.onerror = (ev) => {
-                console.error('get failed')
-                console.trace()
-                reject(ev)
-              }
-            })
-          }
-          async getAll(storeNames) {
-            return new Promise((resolve, reject) => {
-              if (this.db === undefined) {
-                reject('Database is not defined')
-                return
-              }
-              const r = this.db
-                .transaction(storeNames, 'readwrite')
-                .objectStore(storeNames)
-                .getAll()
-              r.onsuccess = (ev) => {
-                const data = r.result
-                if (data) {
-                  resolve(data)
-                }
-                resolve(data ? data : null)
-              }
-              r.onerror = (ev) => {
-                console.error('getAll failed')
-                console.trace()
-                reject(ev)
-              }
-            })
-          }
-          async getAllKeys(storeNames) {
-            return new Promise((resolve, reject) => {
-              if (this.db === undefined) {
-                reject('Database is not defined')
-                return
-              }
-              const r = this.db
-                .transaction(storeNames, 'readonly')
-                .objectStore(storeNames)
-                .getAllKeys()
-              r.onsuccess = (ev) => {
-                const data = r.result
-                resolve(data ? data : null)
-              }
-              r.onerror = (ev) => {
-                console.error('getAllKeys failed')
-                console.trace()
-                reject(ev)
-              }
-            })
-          }
-          async delete(storeNames, key) {
-            return new Promise((resolve, reject) => {
-              if (this.db === undefined) {
-                reject('Database is not defined')
-                return
-              }
-              const r = this.db
-                .transaction(storeNames, 'readwrite')
-                .objectStore(storeNames)
-                .delete(key)
-              r.onsuccess = (ev) => {
-                resolve(ev)
-              }
-              r.onerror = (ev) => {
-                console.error('delete failed')
-                console.trace()
-                reject(ev)
-              }
-            })
-          }
-          async clear(storeNames) {
-            return new Promise((resolve, reject) => {
-              if (this.db === undefined) {
-                reject('Database is not defined')
-                return
-              }
-              const r = this.db
-                .transaction(storeNames, 'readwrite')
-                .objectStore(storeNames)
-                .clear()
-              r.onsuccess = (ev) => {
-                resolve()
-              }
-              r.onerror = (ev) => {
-                console.error('clear failed')
-                console.trace()
-                reject(ev)
-              }
-            })
-          }
-          async openCursor(storeNames, CB) {
-            return new Promise((resolve, reject) => {
-              if (this.db === undefined) {
-                reject('Database is not defined')
-                return
-              }
-              const r = this.db
-                .transaction(storeNames)
-                .objectStore(storeNames)
-                .openCursor()
-              r.onsuccess = (ev) => {
-                CB(r.result)
-                resolve() // 这个 resolve 会在 cb 执行一次之后就触发
-              }
-              r.onerror = (ev) => {
-                console.error('openCursor failed')
-                console.trace()
-                reject(ev)
-              }
-            })
-          }
-        }
 
         /***/
       },
@@ -5375,8 +4648,8 @@ flag 及其含义如下：
         /* harmony import */ var _BookmarksAddTag__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./BookmarksAddTag */ './src/ts/modules/BookmarksAddTag.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ./Log */ './src/ts/modules/Log.ts'
@@ -5569,7 +4842,7 @@ flag 及其含义如下：
               ].getBookmarkData(
                 _tools_Tools__WEBPACK_IMPORTED_MODULE_9__['Tools'].getUserId(),
                 this.type,
-                _Store__WEBPACK_IMPORTED_MODULE_7__['store'].tag,
+                _store_Store__WEBPACK_IMPORTED_MODULE_7__['store'].tag,
                 this.offset,
                 this.isHide
               )
@@ -5631,9 +4904,9 @@ flag 及其含义如下：
               this.idList.splice(this.requsetNumber, this.idList.length)
               // 书签页面的 api 没有考虑页面上的排序顺序，获取到的 id 列表始终是按收藏顺序由近期到早期排列的
             }
-            _Store__WEBPACK_IMPORTED_MODULE_7__[
+            _store_Store__WEBPACK_IMPORTED_MODULE_7__[
               'store'
-            ].idList = _Store__WEBPACK_IMPORTED_MODULE_7__[
+            ].idList = _store_Store__WEBPACK_IMPORTED_MODULE_7__[
               'store'
             ].idList.concat(this.idList)
             this.getIdListFinished()
@@ -5659,12 +4932,12 @@ flag 及其含义如下：
             for (const li of elements) {
               const a = li.querySelector('a')
               if (
-                _Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.length ===
-                this.crawlNumber
+                _store_Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList
+                  .length === this.crawlNumber
               ) {
                 break
               }
-              _Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push({
+              _store_Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push({
                 type: idType,
                 id: getId(a.href),
               })
@@ -5681,7 +4954,9 @@ flag 及其含义如下：
           sortResult() {
             // 把作品数据反转，这样可以先下载收藏时间早的，后下载收藏时间近的
             !this.crawlRecommended &&
-              _Store__WEBPACK_IMPORTED_MODULE_7__['store'].result.reverse()
+              _store_Store__WEBPACK_IMPORTED_MODULE_7__[
+                'store'
+              ].result.reverse()
           }
         }
 
@@ -5718,8 +4993,8 @@ flag 及其含义如下：
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./setting/Options */ './src/ts/modules/setting/Options.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./Log */ './src/ts/modules/Log.ts'
@@ -5878,7 +5153,7 @@ flag 及其含义如下：
               ].getBookmarkData(
                 _tools_Tools__WEBPACK_IMPORTED_MODULE_7__['Tools'].getUserId(),
                 this.type,
-                _Store__WEBPACK_IMPORTED_MODULE_5__['store'].tag,
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__['store'].tag,
                 this.offset,
                 this.isHide
               )
@@ -5941,9 +5216,9 @@ flag 及其含义如下：
               this.idList.splice(this.requsetNumber, this.idList.length)
               // 书签页面的 api 没有考虑页面上的排序顺序，获取到的 id 列表始终是按收藏顺序由近期到早期排列的
             }
-            _Store__WEBPACK_IMPORTED_MODULE_5__[
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__[
               'store'
-            ].idList = _Store__WEBPACK_IMPORTED_MODULE_5__[
+            ].idList = _store_Store__WEBPACK_IMPORTED_MODULE_5__[
               'store'
             ].idList.concat(this.idList)
             this.getIdListFinished()
@@ -5990,8 +5265,8 @@ flag 及其含义如下：
         /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./utils/API */ './src/ts/modules/utils/API.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./Log */ './src/ts/modules/Log.ts'
@@ -6241,9 +5516,9 @@ flag 及其含义如下：
               this.getIdList()
               return
             }
-            _Store__WEBPACK_IMPORTED_MODULE_5__[
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__[
               'store'
-            ].idList = _Store__WEBPACK_IMPORTED_MODULE_5__[
+            ].idList = _store_Store__WEBPACK_IMPORTED_MODULE_5__[
               'store'
             ].idList.concat(idList)
             this.index++
@@ -6253,7 +5528,7 @@ flag 及其含义如下：
             _Log__WEBPACK_IMPORTED_MODULE_6__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_当前作品个数',
-                _Store__WEBPACK_IMPORTED_MODULE_5__[
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__[
                   'store'
                 ].idList.length.toString()
               ),
@@ -6271,7 +5546,7 @@ flag 及其含义如下：
           }
           sortResult() {
             // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
-            _Store__WEBPACK_IMPORTED_MODULE_5__['store'].result.sort(
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__['store'].result.sort(
               _utils_Utils__WEBPACK_IMPORTED_MODULE_9__['Utils'].sortByProperty(
                 'id'
               )
@@ -6698,8 +5973,8 @@ flag 及其含义如下：
         /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./utils/API */ './src/ts/modules/utils/API.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./Log */ './src/ts/modules/Log.ts'
@@ -6713,8 +5988,8 @@ flag 及其含义如下：
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
-        /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts'
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+          /*! ./store/States */ './src/ts/modules/store/States.ts'
         )
         /* harmony import */ var _artwork_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
           /*! ./artwork/SaveArtworkData */ './src/ts/modules/artwork/SaveArtworkData.ts'
@@ -6774,7 +6049,9 @@ flag 及其含义如下：
               'clearLogAfterPageSwitch',
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.pageSwitch,
               () => {
-                if (!_States__WEBPACK_IMPORTED_MODULE_9__['states'].busy) {
+                if (
+                  !_store_States__WEBPACK_IMPORTED_MODULE_9__['states'].busy
+                ) {
                   _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
                     _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.clearLog
                   )
@@ -6934,7 +6211,7 @@ flag 及其含义如下：
           // 准备正常进行抓取，执行一些检查
           async readyCrawl() {
             // 检查是否可以开始抓取
-            if (_States__WEBPACK_IMPORTED_MODULE_9__['states'].busy) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_9__['states'].busy) {
               _Toast__WEBPACK_IMPORTED_MODULE_16__['toast'].error(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                   '_当前任务尚未完成'
@@ -6966,7 +6243,7 @@ flag 及其含义如下：
           // 这个类的子类没有必要使用这个方法。当子类想要直接指定 id 列表时，修改自己的 getIdList 方法即可。
           async downloadIdList(idList) {
             // 检查是否可以开始抓取
-            if (_States__WEBPACK_IMPORTED_MODULE_9__['states'].busy) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_9__['states'].busy) {
               _Toast__WEBPACK_IMPORTED_MODULE_16__['toast'].error(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                   '_当前任务尚未完成'
@@ -6989,7 +6266,7 @@ flag 及其含义如下：
             _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.crawlStart
             )
-            _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList = idList
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList = idList
             this.getIdListFinished()
           }
           // 当可以开始抓取时，进入下一个流程。默认情况下，开始获取作品列表。如有不同，由子类具体定义
@@ -7004,18 +6281,21 @@ flag 及其含义如下：
             _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.getIdListFinished
             )
-            if (_States__WEBPACK_IMPORTED_MODULE_9__['states'].bookmarkMode) {
+            if (
+              _store_States__WEBPACK_IMPORTED_MODULE_9__['states'].bookmarkMode
+            ) {
               return
             }
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.length === 0
+              _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList
+                .length === 0
             ) {
               return this.noResult()
             }
             _Log__WEBPACK_IMPORTED_MODULE_5__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                 '_当前作品个数',
-                _Store__WEBPACK_IMPORTED_MODULE_4__[
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__[
                   'store'
                 ].idList.length.toString()
               )
@@ -7028,11 +6308,11 @@ flag 及其含义如下：
               )
             )
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.length <=
-              this.ajaxThreadsDefault
+              _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList
+                .length <= this.ajaxThreadsDefault
             ) {
               this.ajaxThread =
-                _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.length
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.length
             } else {
               this.ajaxThread = this.ajaxThreadsDefault
             }
@@ -7046,7 +6326,7 @@ flag 及其含义如下：
           async getWorksData(idData) {
             idData =
               idData ||
-              _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.shift()
+              _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.shift()
             const id = idData.id
             if (!id) {
               const msg = 'Error: work id is invalid!'
@@ -7106,7 +6386,8 @@ flag 及其含义如下：
               this.crawlFinished()
             }
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.length > 0
+              _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.length >
+              0
             ) {
               // 如果存在下一个作品，则
               this.getWorksData()
@@ -7122,11 +6403,12 @@ flag 及其含义如下：
           // 抓取完毕
           crawlFinished() {
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_4__['store'].result.length === 0
+              _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].result
+                .length === 0
             ) {
               return this.noResult()
             }
-            _Store__WEBPACK_IMPORTED_MODULE_4__[
+            _store_Store__WEBPACK_IMPORTED_MODULE_4__[
               'store'
             ].crawlCompleteTime = new Date()
             this.sortResult()
@@ -7134,11 +6416,13 @@ flag 及其含义如下：
               _setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
                 .downloadUgoiraFirst
             ) {
-              _Store__WEBPACK_IMPORTED_MODULE_4__['store'].resultMeta.sort(
+              _store_Store__WEBPACK_IMPORTED_MODULE_4__[
+                'store'
+              ].resultMeta.sort(
                 _tools_Tools__WEBPACK_IMPORTED_MODULE_2__['Tools']
                   .sortUgoiraFirst
               )
-              _Store__WEBPACK_IMPORTED_MODULE_4__['store'].result.sort(
+              _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].result.sort(
                 _tools_Tools__WEBPACK_IMPORTED_MODULE_2__['Tools']
                   .sortUgoiraFirst
               )
@@ -7146,7 +6430,7 @@ flag 及其含义如下：
             _Log__WEBPACK_IMPORTED_MODULE_5__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                 '_共抓取到n个作品',
-                _Store__WEBPACK_IMPORTED_MODULE_4__[
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__[
                   'store'
                 ].resultMeta.length.toString()
               )
@@ -7154,7 +6438,7 @@ flag 及其含义如下：
             _Log__WEBPACK_IMPORTED_MODULE_5__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                 '_共抓取到n个文件',
-                _Store__WEBPACK_IMPORTED_MODULE_4__[
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__[
                   'store'
                 ].result.length.toString()
               )
@@ -7223,10 +6507,10 @@ flag 及其含义如下：
               `${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                 '_待处理'
               )} ${
-                _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.length
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.length
               }, ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                 '_共抓取到n个作品',
-                _Store__WEBPACK_IMPORTED_MODULE_4__[
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__[
                   'store'
                 ].resultMeta.length.toString()
               )}`,
@@ -7287,8 +6571,8 @@ flag 及其含义如下：
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./setting/Options */ './src/ts/modules/setting/Options.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./utils/Utils */ './src/ts/modules/utils/Utils.ts'
@@ -7379,7 +6663,7 @@ flag 及其含义如下：
           }
           // 保存要下载的图片的信息
           addResult(id, url, ext) {
-            _Store__WEBPACK_IMPORTED_MODULE_5__['store'].addResult({
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__['store'].addResult({
               id: id,
               original: url,
               ext: ext,
@@ -7484,8 +6768,8 @@ flag 及其含义如下：
         /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./utils/API */ './src/ts/modules/utils/API.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./EVT */ './src/ts/modules/EVT.ts'
@@ -7496,8 +6780,8 @@ flag 及其含义如下：
         /* harmony import */ var _tools_Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ./tools/Tools */ './src/ts/modules/tools/Tools.ts'
         )
-        /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts'
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+          /*! ./store/States */ './src/ts/modules/store/States.ts'
         )
         /* harmony import */ var _SaveAvatarIcon__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
           /*! ./SaveAvatarIcon */ './src/ts/modules/SaveAvatarIcon.ts'
@@ -7535,11 +6819,15 @@ flag 及其含义如下：
               'BookmarkAllWorks'
             ]()
             this.sendBookmarkIdList = () => {
-              if (_States__WEBPACK_IMPORTED_MODULE_9__['states'].bookmarkMode) {
+              if (
+                _store_States__WEBPACK_IMPORTED_MODULE_9__['states']
+                  .bookmarkMode
+              ) {
                 // 将 id 的 type 设置为 illusts 或 novels
                 const list = []
-                for (const data of _Store__WEBPACK_IMPORTED_MODULE_5__['store']
-                  .idList) {
+                for (const data of _store_Store__WEBPACK_IMPORTED_MODULE_5__[
+                  'store'
+                ].idList) {
                   if (data.type === 'novels') {
                     list.push(data)
                   } else {
@@ -7549,7 +6837,7 @@ flag 及其含义如下：
                     })
                   }
                 }
-                _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList = [] // 清空这次抓取到的 id 列表
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList = [] // 清空这次抓取到的 id 列表
                 this.bookmarkAll.sendIdList(list)
               }
             }
@@ -7645,7 +6933,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
                 _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.bookmarkModeStart
               )
-              _Store__WEBPACK_IMPORTED_MODULE_5__[
+              _store_Store__WEBPACK_IMPORTED_MODULE_5__[
                 'store'
               ].tag = _tools_Tools__WEBPACK_IMPORTED_MODULE_8__[
                 'Tools'
@@ -7710,7 +6998,7 @@ flag 及其含义如下：
                 this.onceNumber = 24 // 如果是在小说列表页，一页只有 24 个作品
               }
             }
-            _Store__WEBPACK_IMPORTED_MODULE_5__['store'].tag
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__['store'].tag
               ? this.getIdListByTag()
               : this.getIdList()
           }
@@ -7785,9 +7073,9 @@ flag 及其含义如下：
               idList.splice(0, idList.length - requsetNumber)
             }
             // 储存
-            _Store__WEBPACK_IMPORTED_MODULE_5__[
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__[
               'store'
-            ].idList = _Store__WEBPACK_IMPORTED_MODULE_5__[
+            ].idList = _store_Store__WEBPACK_IMPORTED_MODULE_5__[
               'store'
             ].idList.concat(idList)
             this.getIdListFinished()
@@ -7818,7 +7106,7 @@ flag 及其含义如下：
             ].getUserWorksByTypeWithTag(
               _tools_Tools__WEBPACK_IMPORTED_MODULE_8__['Tools'].getUserId(),
               flag,
-              _Store__WEBPACK_IMPORTED_MODULE_5__['store'].tag,
+              _store_Store__WEBPACK_IMPORTED_MODULE_5__['store'].tag,
               offset,
               requsetNumber
             )
@@ -7826,7 +7114,7 @@ flag 及其含义如下：
             if (this.listType === ListType.Novels) {
               const d = data
               d.body.works.forEach((data) =>
-                _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push({
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push({
                   type: 'novels',
                   id: data.id,
                 })
@@ -7846,7 +7134,7 @@ flag 及其含义如下：
                     type = 'ugoira'
                     break
                 }
-                _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push({
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push({
                   type,
                   id: data.id,
                 })
@@ -7859,7 +7147,7 @@ flag 及其含义如下：
           }
           sortResult() {
             // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
-            _Store__WEBPACK_IMPORTED_MODULE_5__['store'].result.sort(
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__['store'].result.sort(
               _utils_Utils__WEBPACK_IMPORTED_MODULE_14__[
                 'Utils'
               ].sortByProperty('id')
@@ -10259,8 +9547,8 @@ flag 及其含义如下：
             return progressBar
           }
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _tools_Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./tools/Tools */ './src/ts/modules/tools/Tools.ts'
@@ -10324,7 +9612,7 @@ flag 及其含义如下：
             }
             // 重置总进度条
             this.setTotalProgress(downloaded)
-            this.totalNumberEl.textContent = _Store__WEBPACK_IMPORTED_MODULE_0__[
+            this.totalNumberEl.textContent = _store_Store__WEBPACK_IMPORTED_MODULE_0__[
               'store'
             ].result.length.toString()
             // 重置子进度条
@@ -10349,7 +9637,8 @@ flag 及其含义如下：
             this.downloadedEl.textContent = downloaded.toString()
             const progress =
               (downloaded /
-                _Store__WEBPACK_IMPORTED_MODULE_0__['store'].result.length) *
+                _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].result
+                  .length) *
               100
             this.progressColorEl.style.width = progress + '%'
           }
@@ -10695,8 +9984,8 @@ flag 及其含义如下：
         /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./PageType */ './src/ts/modules/PageType.ts'
         )
-        /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts'
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./store/States */ './src/ts/modules/store/States.ts'
         )
         /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Toast */ './src/ts/modules/Toast.ts'
@@ -10760,7 +10049,7 @@ flag 及其含义如下：
           }
           sendDownload() {
             // 因为 quickDownload 状态会影响后续下载行为，所以必须先判断 busy 状态
-            if (_States__WEBPACK_IMPORTED_MODULE_3__['states'].busy) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_3__['states'].busy) {
               _Toast__WEBPACK_IMPORTED_MODULE_4__['toast'].error(
                 _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
                   '_当前任务尚未完成'
@@ -10768,7 +10057,9 @@ flag 及其含义如下：
               )
               return
             }
-            _States__WEBPACK_IMPORTED_MODULE_3__['states'].quickDownload = true
+            _store_States__WEBPACK_IMPORTED_MODULE_3__[
+              'states'
+            ].quickDownload = true
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.QuickDownload
             )
@@ -10832,17 +10123,17 @@ flag 及其含义如下：
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./store/Store */ './src/ts/modules/store/Store.ts'
         )
-        /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts'
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./store/States */ './src/ts/modules/store/States.ts'
         )
         /* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./DownloadStates */ './src/ts/modules/DownloadStates.ts'
         )
-        /* harmony import */ var _IndexedDB__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ./IndexedDB */ './src/ts/modules/IndexedDB.ts'
+        /* harmony import */ var _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ./utils/IndexedDB */ './src/ts/modules/utils/IndexedDB.ts'
         )
         /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./MsgBox */ './src/ts/modules/MsgBox.ts'
@@ -10869,7 +10160,7 @@ flag 及其含义如下：
             this.onceMax = 150000
             this.putStatesTime = 2000 // 每隔指定时间存储一次最新的下载状态
             this.needPutStates = false // 指示是否需要更新存储的下载状态
-            this.IDB = new _IndexedDB__WEBPACK_IMPORTED_MODULE_6__[
+            this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_6__[
               'IndexedDB'
             ]()
             this.init()
@@ -10916,7 +10207,7 @@ flag 及其含义如下：
           // 恢复未完成任务的数据
           async restoreData() {
             // 如果下载器在抓取或者在下载，则不恢复数据
-            if (_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy) {
               return
             }
             // 1 获取任务的元数据
@@ -10940,11 +10231,13 @@ flag 及其含义如下：
               promiseList.push(this.IDB.get(this.dataName, id))
             }
             await Promise.all(promiseList).then((res) => {
-              _Store__WEBPACK_IMPORTED_MODULE_3__['store'].result = []
+              _store_Store__WEBPACK_IMPORTED_MODULE_3__['store'].result = []
               const r = res
               for (const taskData of r) {
                 for (const data of taskData.data) {
-                  _Store__WEBPACK_IMPORTED_MODULE_3__['store'].result.push(data)
+                  _store_Store__WEBPACK_IMPORTED_MODULE_3__[
+                    'store'
+                  ].result.push(data)
                 }
               }
             })
@@ -10955,8 +10248,9 @@ flag 及其含义如下：
                 'downloadStates'
               ].replace(data.states)
             }
-            _Store__WEBPACK_IMPORTED_MODULE_3__['store'].crawlCompleteTime =
-              meta.date
+            _store_Store__WEBPACK_IMPORTED_MODULE_3__[
+              'store'
+            ].crawlCompleteTime = meta.date
             // 恢复模式就绪
             this.flag = true
             _Log__WEBPACK_IMPORTED_MODULE_1__['log'].success(
@@ -10994,7 +10288,8 @@ flag 及其含义如下：
                   _DownloadStates__WEBPACK_IMPORTED_MODULE_5__[
                     'downloadStates'
                   ].downloadedCount() ===
-                  _Store__WEBPACK_IMPORTED_MODULE_3__['store'].result.length
+                  _store_Store__WEBPACK_IMPORTED_MODULE_3__['store'].result
+                    .length
                 ) {
                   return
                 }
@@ -11012,7 +10307,7 @@ flag 及其含义如下：
                   url: this.getURL(),
                   part: this.part.length,
                   date:
-                    _Store__WEBPACK_IMPORTED_MODULE_3__['store']
+                    _store_Store__WEBPACK_IMPORTED_MODULE_3__['store']
                       .crawlCompleteTime,
                 }
                 this.IDB.add(this.metaName, metaData)
@@ -11104,7 +10399,8 @@ flag 及其含义如下：
                   _DownloadStates__WEBPACK_IMPORTED_MODULE_5__[
                     'downloadStates'
                   ].downloadedCount() ===
-                  _Store__WEBPACK_IMPORTED_MODULE_3__['store'].result.length
+                  _store_Store__WEBPACK_IMPORTED_MODULE_3__['store'].result
+                    .length
                 ) {
                   return
                 }
@@ -11119,14 +10415,16 @@ flag 及其含义如下：
               // 如果出错了，则每次执行会尝试保存上一次数据量的一半，直到这次存储成功
               // 之后继续进行下一批任务（如果有）
               let tryNum = Math.floor(
-                _Store__WEBPACK_IMPORTED_MODULE_3__['store'].result.length *
-                  Math.pow(0.5, this.try)
+                _store_Store__WEBPACK_IMPORTED_MODULE_3__['store'].result
+                  .length * Math.pow(0.5, this.try)
               )
               // 如果这批尝试数据大于指定数量，则设置为指定数量
               tryNum > this.onceMax && (tryNum = this.onceMax)
               let data = {
                 id: this.numAppendNum(this.taskId, this.part.length),
-                data: _Store__WEBPACK_IMPORTED_MODULE_3__['store'].result.slice(
+                data: _store_Store__WEBPACK_IMPORTED_MODULE_3__[
+                  'store'
+                ].result.slice(
                   this.getPartTotal(),
                   this.getPartTotal() + tryNum
                 ),
@@ -11139,7 +10437,8 @@ flag 及其含义如下：
                 // 任务数据全部添加完毕
                 if (
                   this.getPartTotal() >=
-                  _Store__WEBPACK_IMPORTED_MODULE_3__['store'].result.length
+                  _store_Store__WEBPACK_IMPORTED_MODULE_3__['store'].result
+                    .length
                 ) {
                   resolve(true)
                 } else {
@@ -11264,8 +10563,8 @@ flag 及其含义如下：
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
-        /* harmony import */ var _ImageToIcon__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./ImageToIcon */ './src/ts/modules/ImageToIcon.ts'
+        /* harmony import */ var _utils_imageToIcon__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./utils/imageToIcon */ './src/ts/modules/utils/imageToIcon.ts'
         )
         /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./utils/Utils */ './src/ts/modules/utils/Utils.ts'
@@ -11295,7 +10594,7 @@ flag 及其含义如下：
             const fullSizeImg = bigImg.replace('_170', '') // 去掉 170 标记，获取头像图片的原图
             // 生成 ico 文件
             // 尺寸固定为 256，因为尺寸更小的图标如 128，在 windows 资源管理器里会被缩小到 48 显示
-            const blob = await _ImageToIcon__WEBPACK_IMPORTED_MODULE_5__[
+            const blob = await _utils_imageToIcon__WEBPACK_IMPORTED_MODULE_5__[
               'img2ico'
             ].convert({
               size: [256],
@@ -11499,77 +10798,6 @@ flag 及其含义如下：
         /***/
       },
 
-    /***/ './src/ts/modules/SecretSignal.ts':
-      /*!****************************************!*\
-  !*** ./src/ts/modules/SecretSignal.ts ***!
-  \****************************************/
-      /*! exports provided: secretSignal */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony export (binding) */ __webpack_require__.d(
-          __webpack_exports__,
-          'secretSignal',
-          function () {
-            return secretSignal
-          }
-        )
-        // 可以用字母和数字组成隐藏口令，注册到这个模块，当用户按下隐藏口令时执行回调函数
-        class SecretSignal {
-          constructor() {
-            this.list = []
-            // "KeyX"
-            // "Digit9"
-            // "Numpad1"
-            this.codePrefix = ['Key', 'Digit', 'Numpad']
-            this.input = ''
-            this.bindEvents()
-          }
-          register(code, cb) {
-            this.list.push({
-              code,
-              cb,
-            })
-          }
-          bindEvents() {
-            window.addEventListener('keydown', (ev) => {
-              // 不保存控制按键，不保存输入状态中的按键
-              if (
-                !ev.code ||
-                ev.altKey ||
-                ev.ctrlKey ||
-                ev.metaKey ||
-                ev.shiftKey ||
-                ev.isComposing
-              ) {
-                return
-              }
-              // 保存字母和数字的按键
-              for (const prefix of this.codePrefix) {
-                if (
-                  ev.code.startsWith(prefix) &&
-                  ev.code.length === prefix.length + 1
-                ) {
-                  const key = ev.code[ev.code.length - 1].toLowerCase()
-                  this.input += key
-                  this.check()
-                }
-              }
-            })
-          }
-          check() {
-            for (const item of this.list) {
-              if (this.input.endsWith(item.code)) {
-                item.cb()
-              }
-            }
-          }
-        }
-        const secretSignal = new SecretSignal()
-
-        /***/
-      },
-
     /***/ './src/ts/modules/SelectWork.ts':
       /*!**************************************!*\
   !*** ./src/ts/modules/SelectWork.ts ***!
@@ -11590,8 +10818,8 @@ flag 及其含义如下：
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
-        /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./States */ './src/ts/modules/States.ts'
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./store/States */ './src/ts/modules/store/States.ts'
         )
         /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./Toast */ './src/ts/modules/Toast.ts'
@@ -11914,7 +11142,7 @@ flag 及其含义如下：
           }
           // 抓取选择的作品，这会暂停选择
           downloadSelect() {
-            if (_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy) {
               _Toast__WEBPACK_IMPORTED_MODULE_5__['toast'].error(
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_当前任务尚未完成'
@@ -12277,268 +11505,6 @@ flag 及其含义如下：
           }
         }
         new ShowWhatIsNew()
-
-        /***/
-      },
-
-    /***/ './src/ts/modules/States.ts':
-      /*!**********************************!*\
-  !*** ./src/ts/modules/States.ts ***!
-  \**********************************/
-      /*! exports provided: states */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony export (binding) */ __webpack_require__.d(
-          __webpack_exports__,
-          'states',
-          function () {
-            return states
-          }
-        )
-        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts'
-        )
-
-        // 储存需要跨组件使用的、会变化的状态
-        // 这里的状态不需要持久化保存。
-        // 状态的值通常只由单一的组件修改，其他组件只读取不修改
-        class States {
-          constructor() {
-            // 表示下载器是否处于繁忙状态
-            // 如果下载器正在抓取中，或者正在下载中，则为 true；如果下载器处于空闲状态，则为 false
-            // 修改者：本组件根据下载器的事件来修改这个状态
-            this.busy = false
-            // 快速下载标记。如果为 true 说明进入了快速下载模式
-            // 快速下载模式中不会显示下载面板，并且会自动开始下载
-            // 启动快速下载时设为 true，下载完成或中止时复位到 false
-            this.quickDownload = false
-            // 这次下载是否是从图片查看器建立的
-            // 如果是，那么下载途中不会显示下载面板，并且会自动开始下载
-            // 作用同 quickDownload，只是触发方式不同
-            this.downloadFromViewer = false
-            // 不自动下载的标记。如果为 true，那么下载器在抓取完成后，不会自动开始下载。（即使用户设置了自动开始下载）
-            // 修改者：InitSearchArtworkPage 组件根据“预览搜索结果”的设置，修改这个状态
-            this.notAutoDownload = false
-            // 在排行榜抓取时，是否只抓取“首次登场”的作品
-            // 修改者：InitRankingArtworkPage 组件修改这个状态
-            this.debut = false
-            // 收藏模式的标记
-            // 修改者：本组件监听批量收藏作品的事件来修改这个标记
-            // 开始批量收藏时设为 true，收藏完成之后复位到 false
-            this.bookmarkMode = false
-            this.bindEvents()
-          }
-          bindEvents() {
-            const idle = [
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.crawlFinish,
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadPause,
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadStop,
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadComplete,
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.bookmarkModeEnd,
-            ]
-            idle.forEach((type) => {
-              window.addEventListener(type, () => {
-                this.busy = false
-              })
-            })
-            const busy = [
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.crawlStart,
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadStart,
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.bookmarkModeStart,
-            ]
-            busy.forEach((type) => {
-              window.addEventListener(type, () => {
-                this.busy = true
-              })
-            })
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.bookmarkModeStart,
-              () => {
-                this.bookmarkMode = true
-              }
-            )
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.bookmarkModeEnd,
-              () => {
-                this.bookmarkMode = false
-              }
-            )
-            // 下载完成，或者下载中止时，复位快速下载类状态
-            const resetQuickState = [
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.crawlEmpty,
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadStop,
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadPause,
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadComplete,
-            ]
-            for (const ev of resetQuickState) {
-              window.addEventListener(ev, () => {
-                this.quickDownload = false
-                this.downloadFromViewer = false
-              })
-            }
-          }
-        }
-        const states = new States()
-
-        /***/
-      },
-
-    /***/ './src/ts/modules/Store.ts':
-      /*!*********************************!*\
-  !*** ./src/ts/modules/Store.ts ***!
-  \*********************************/
-      /*! exports provided: store */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony export (binding) */ __webpack_require__.d(
-          __webpack_exports__,
-          'store',
-          function () {
-            return store
-          }
-        )
-        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts'
-        )
-        /* harmony import */ var _tools_Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./tools/Tools */ './src/ts/modules/tools/Tools.ts'
-        )
-
-        // 储存抓取结果
-        class Store {
-          constructor() {
-            this.idList = [] // 储存从列表中抓取到的作品的 id
-            this.resultMeta = [] // 储存抓取结果的元数据。
-            // 当用于图片作品时，它可以根据每个作品需要下载多少张，生成每一张图片的信息
-            this.artworkIDList = [] // 储存抓取到的图片作品的 id 列表，用来避免重复添加
-            this.novelIDList = [] // 储存抓取到的小说作品的 id 列表，用来避免重复添加
-            this.result = [] // 储存抓取结果
-            this.rankList = {} // 储存作品在排行榜中的排名
-            this.tag = '' // 开始抓取时，储存页面此时的 tag
-            this.title = '' // 开始抓取时，储存页面此时的 title
-            this.crawlCompleteTime = new Date()
-            this.bindEvents()
-          }
-          assignResult(data) {
-            // 图片详细信息的默认值
-            const dataDefault = {
-              idNum: 0,
-              id: '',
-              original: '',
-              thumb: '',
-              regular: '',
-              small: '',
-              title: '',
-              pageCount: 1,
-              dlCount: 1,
-              tags: [],
-              tagsWithTransl: [],
-              tagsTranslOnly: [],
-              user: '',
-              userId: '',
-              fullWidth: 0,
-              fullHeight: 0,
-              ext: '',
-              bmk: 0,
-              bookmarked: false,
-              date: '',
-              type: 0,
-              rank: null,
-              ugoiraInfo: null,
-              seriesTitle: null,
-              seriesOrder: null,
-              novelMeta: null,
-              likeCount: 0,
-              viewCount: 0,
-              commentCount: 0,
-              xRestrict: 0,
-              sl: null,
-            }
-            return Object.assign(dataDefault, data)
-          }
-          // 添加每个作品的信息。只需要传递有值的属性
-          addResult(data) {
-            // 检查该作品数据是否已存在，已存在则不添加
-            if (data.type === 3) {
-              if (data.idNum !== undefined) {
-                if (this.novelIDList.includes(data.idNum)) {
-                  return
-                }
-                this.novelIDList.push(data.idNum)
-              }
-            } else {
-              if (data.idNum !== undefined) {
-                if (this.artworkIDList.includes(data.idNum)) {
-                  return
-                }
-                this.artworkIDList.push(data.idNum)
-              }
-            }
-            // 添加该作品的元数据
-            const result = this.assignResult(data)
-            this.resultMeta.push(result)
-            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.addResult,
-              result
-            )
-            if (result.type === 3) {
-              this.result.push(result)
-            } else {
-              // 添加该作品里每一张图片的数据
-              for (let i = 0; i < result.dlCount; i++) {
-                const result = this.assignResult(data)
-                result.idNum = parseInt(result.id)
-                result.id = result.id + `_p${i}`
-                result.original = result.original.replace('p0', 'p' + i)
-                result.regular = result.regular.replace('p0', 'p' + i)
-                result.small = result.small.replace('p0', 'p' + i)
-                this.result.push(result)
-              }
-            }
-          }
-          getRankList(index) {
-            return this.rankList[index]
-          }
-          setRankList(id, rank) {
-            this.rankList[id] = rank
-          }
-          reset() {
-            this.resultMeta = []
-            this.artworkIDList = []
-            this.novelIDList = []
-            this.result = []
-            this.idList = []
-            this.rankList = {}
-            this.tag = _tools_Tools__WEBPACK_IMPORTED_MODULE_1__[
-              'Tools'
-            ].getTagFromURL()
-            this.title = _tools_Tools__WEBPACK_IMPORTED_MODULE_1__[
-              'Tools'
-            ].getTitle()
-          }
-          bindEvents() {
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.crawlStart,
-              () => {
-                this.reset()
-              }
-            )
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.resume,
-              () => {
-                this.tag = _tools_Tools__WEBPACK_IMPORTED_MODULE_1__[
-                  'Tools'
-                ].getTagFromURL()
-                this.title = _tools_Tools__WEBPACK_IMPORTED_MODULE_1__[
-                  'Tools'
-                ].getTitle()
-              }
-            )
-          }
-        }
-        const store = new Store()
 
         /***/
       },
@@ -13459,8 +12425,8 @@ flag 及其含义如下：
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         // 初始化地区排行榜页面
 
@@ -13526,7 +12492,7 @@ flag 及其含义如下：
                 const id = _tools_Tools__WEBPACK_IMPORTED_MODULE_3__[
                   'Tools'
                 ].getIllustId(el.querySelector('a').href)
-                _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
+                _store_Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
                   type: 'unknown',
                   id,
                 })
@@ -13569,8 +12535,8 @@ flag 及其含义如下：
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _QuickBookmark__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ../QuickBookmark */ './src/ts/modules/QuickBookmark.ts'
@@ -13769,17 +12735,21 @@ flag 及其含义如下：
               let idNum = parseInt(id.id)
               // 新作品
               if (idNum >= nowId && this.crawlDirection === -1) {
-                _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push(id)
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push(
+                  id
+                )
               } else if (idNum <= nowId && this.crawlDirection === 1) {
                 // 旧作品
-                _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push(id)
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push(
+                  id
+                )
               }
             })
             // 当设置了下载个数时，进行裁剪
             if (this.crawlNumber !== -1) {
               // 新作品 升序排列
               if (this.crawlDirection === -1) {
-                _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList
                   .sort(
                     _utils_Utils__WEBPACK_IMPORTED_MODULE_11__[
                       'Utils'
@@ -13788,15 +12758,15 @@ flag 及其含义如下：
                   .reverse()
               } else {
                 // 旧作品 降序排列
-                _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.sort(
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.sort(
                   _utils_Utils__WEBPACK_IMPORTED_MODULE_11__[
                     'Utils'
                   ].sortByProperty('id')
                 )
               }
-              _Store__WEBPACK_IMPORTED_MODULE_5__[
+              _store_Store__WEBPACK_IMPORTED_MODULE_5__[
                 'store'
-              ].idList = _Store__WEBPACK_IMPORTED_MODULE_5__[
+              ].idList = _store_Store__WEBPACK_IMPORTED_MODULE_5__[
                 'store'
               ].idList.splice(0, this.crawlNumber)
             }
@@ -13823,7 +12793,7 @@ flag 及其含义如下：
               ids = ids.slice(0, this.crawlNumber)
             }
             for (const id of ids) {
-              _Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push({
+              _store_Store__WEBPACK_IMPORTED_MODULE_5__['store'].idList.push({
                 type: 'unknown',
                 id,
               })
@@ -13831,7 +12801,7 @@ flag 及其含义如下：
             _Log__WEBPACK_IMPORTED_MODULE_10__['log'].log(
               _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                 '_相关作品抓取完毕',
-                _Store__WEBPACK_IMPORTED_MODULE_5__[
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__[
                   'store'
                 ].idList.length.toString()
               )
@@ -13883,8 +12853,8 @@ flag 及其含义如下：
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ../Log */ './src/ts/modules/Log.ts'
@@ -13994,7 +12964,7 @@ flag 及其含义如下：
                   'filter'
                 ].check(filterOpt)
               ) {
-                _Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push({
+                _store_Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push({
                   type: 'unknown',
                   id: work.id,
                 })
@@ -14068,8 +13038,8 @@ flag 及其含义如下：
         /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         // 初始化 bookmark_detail 页面
 
@@ -14133,7 +13103,7 @@ flag 及其含义如下：
               this.crawlNumber
             )
             for (const id of data.recommendations) {
-              _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
+              _store_Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
                 type: 'unknown',
                 id: id.toString(),
               })
@@ -14181,8 +13151,8 @@ flag 及其含义如下：
         /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ../Log */ './src/ts/modules/Log.ts'
@@ -14283,7 +13253,7 @@ flag 及其含义如下：
                   'filter'
                 ].check(filterOpt)
               ) {
-                _Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push({
+                _store_Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push({
                   type: _utils_API__WEBPACK_IMPORTED_MODULE_6__[
                     'API'
                   ].getWorkType(data.illustType),
@@ -14359,8 +13329,8 @@ flag 及其含义如下：
         /* harmony import */ var _DeleteWorks__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../DeleteWorks */ './src/ts/modules/DeleteWorks.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         // 初始化发现页面
 
@@ -14416,7 +13386,7 @@ flag 及其含义如下：
               const id = _tools_Tools__WEBPACK_IMPORTED_MODULE_3__[
                 'Tools'
               ].getIllustId(el.href.split('&uarea')[0])
-              _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
+              _store_Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
                 type: 'unknown',
                 id,
               })
@@ -14461,8 +13431,8 @@ flag 及其含义如下：
         /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ../Log */ './src/ts/modules/Log.ts'
@@ -14592,7 +13562,7 @@ flag 及其含义如下：
                   'filter'
                 ].check(filterOpt)
               ) {
-                _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
+                _store_Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
                   type: _utils_API__WEBPACK_IMPORTED_MODULE_5__[
                     'API'
                   ].getWorkType(nowData.illustType),
@@ -14672,14 +13642,14 @@ flag 及其含义如下：
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
           /*! ../Log */ './src/ts/modules/Log.ts'
         )
-        /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
-          /*! ../States */ './src/ts/modules/States.ts'
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
+          /*! ../store/States */ './src/ts/modules/store/States.ts'
         )
         /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
           /*! ../utils/Utils */ './src/ts/modules/utils/Utils.ts'
@@ -14738,7 +13708,9 @@ flag 及其含义如下：
                   ]
                 )
                 .addEventListener('click', () => {
-                  _States__WEBPACK_IMPORTED_MODULE_10__['states'].debut = true
+                  _store_States__WEBPACK_IMPORTED_MODULE_10__[
+                    'states'
+                  ].debut = true
                   this.readyCrawl()
                 })
             }
@@ -14749,7 +13721,9 @@ flag 及其含义如下：
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list.crawlFinish,
               () => {
-                _States__WEBPACK_IMPORTED_MODULE_10__['states'].debut = false
+                _store_States__WEBPACK_IMPORTED_MODULE_10__[
+                  'states'
+                ].debut = false
               }
             )
           }
@@ -14856,11 +13830,11 @@ flag 及其含义如下：
                   'filter'
                 ].check(filterOpt)
               ) {
-                _Store__WEBPACK_IMPORTED_MODULE_8__['store'].setRankList(
+                _store_Store__WEBPACK_IMPORTED_MODULE_8__['store'].setRankList(
                   data.illust_id.toString(),
                   data.rank
                 )
-                _Store__WEBPACK_IMPORTED_MODULE_8__['store'].idList.push({
+                _store_Store__WEBPACK_IMPORTED_MODULE_8__['store'].idList.push({
                   type: _utils_API__WEBPACK_IMPORTED_MODULE_2__[
                     'API'
                   ].getWorkType(data.illust_type),
@@ -14934,8 +13908,8 @@ flag 及其含义如下：
         /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
           /*! ../Log */ './src/ts/modules/Log.ts'
@@ -14955,14 +13929,14 @@ flag 及其含义如下：
         /* harmony import */ var _BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
           /*! ../BookmarkAllWorks */ './src/ts/modules/BookmarkAllWorks.ts'
         )
-        /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
-          /*! ../States */ './src/ts/modules/States.ts'
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
+          /*! ../store/States */ './src/ts/modules/store/States.ts'
         )
         /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(
           /*! ../utils/Utils */ './src/ts/modules/utils/Utils.ts'
         )
-        /* harmony import */ var _IdListWithPageNo__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
-          /*! ../IdListWithPageNo */ './src/ts/modules/IdListWithPageNo.ts'
+        /* harmony import */ var _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
+          /*! ../store/IdListWithPageNo */ './src/ts/modules/store/IdListWithPageNo.ts'
         )
         /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
           /*! ../Toast */ './src/ts/modules/Toast.ts'
@@ -15019,7 +13993,8 @@ flag 及其含义如下：
               }
               if (this.causeResultChange.includes(data.name)) {
                 if (
-                  _Store__WEBPACK_IMPORTED_MODULE_9__['store'].result.length > 0
+                  _store_Store__WEBPACK_IMPORTED_MODULE_9__['store'].result
+                    .length > 0
                 ) {
                   this.reAddResult()
                   _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
@@ -15031,7 +14006,8 @@ flag 及其含义如下：
             // 抓取完成后，保存结果的元数据，并重排结果
             this.onCrawlFinish = () => {
               this.resultMeta = [
-                ..._Store__WEBPACK_IMPORTED_MODULE_9__['store'].resultMeta,
+                ..._store_Store__WEBPACK_IMPORTED_MODULE_9__['store']
+                  .resultMeta,
               ]
               this.clearWorks()
               this.reAddResult()
@@ -15050,7 +14026,8 @@ flag 及其含义如下：
             this.showCount = () => {
               const count =
                 this.resultMeta.length ||
-                _Store__WEBPACK_IMPORTED_MODULE_9__['store'].resultMeta.length
+                _store_Store__WEBPACK_IMPORTED_MODULE_9__['store'].resultMeta
+                  .length
               const countEl = document.querySelector(this.countSelector)
               if (countEl) {
                 countEl.textContent = count.toString()
@@ -15373,7 +14350,7 @@ flag 及其含义如下：
               this.onCrawlFinish
             )
             // 离开下载页面时，取消设置“不自动下载”
-            _States__WEBPACK_IMPORTED_MODULE_16__[
+            _store_States__WEBPACK_IMPORTED_MODULE_16__[
               'states'
             ].notAutoDownload = false
           }
@@ -15458,7 +14435,7 @@ flag 及其含义如下：
             let data = await _utils_API__WEBPACK_IMPORTED_MODULE_8__[
               'API'
             ].getSearchData(
-              _Store__WEBPACK_IMPORTED_MODULE_9__['store'].tag,
+              _store_Store__WEBPACK_IMPORTED_MODULE_9__['store'].tag,
               this.worksType,
               p,
               this.option
@@ -15530,7 +14507,7 @@ flag 及其含义如下：
                   'filter'
                 ].check(filterOpt)
               ) {
-                _IdListWithPageNo__WEBPACK_IMPORTED_MODULE_18__[
+                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_18__[
                   'idListWithPageNo'
                 ].add(
                   this.flag,
@@ -15565,7 +14542,7 @@ flag 及其含义如下：
                     '_列表页抓取完成'
                   )
                 )
-                _IdListWithPageNo__WEBPACK_IMPORTED_MODULE_18__[
+                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_18__[
                   'idListWithPageNo'
                 ].store(this.flag)
                 this.getIdListFinished()
@@ -15578,12 +14555,12 @@ flag 及其含义如下：
           }
           // 搜索页把下载任务按收藏数从高到低下载
           sortResult() {
-            _Store__WEBPACK_IMPORTED_MODULE_9__['store'].resultMeta.sort(
+            _store_Store__WEBPACK_IMPORTED_MODULE_9__['store'].resultMeta.sort(
               _utils_Utils__WEBPACK_IMPORTED_MODULE_17__[
                 'Utils'
               ].sortByProperty('bmk')
             )
-            _Store__WEBPACK_IMPORTED_MODULE_9__['store'].result.sort(
+            _store_Store__WEBPACK_IMPORTED_MODULE_9__['store'].result.sort(
               _utils_Utils__WEBPACK_IMPORTED_MODULE_17__[
                 'Utils'
               ].sortByProperty('bmk')
@@ -15591,7 +14568,7 @@ flag 及其含义如下：
           }
           setNotAutoDownload() {
             // 如果设置了“预览搜索结果”，则不启用自动下载
-            _States__WEBPACK_IMPORTED_MODULE_16__[
+            _store_States__WEBPACK_IMPORTED_MODULE_16__[
               'states'
             ].notAutoDownload = _setting_Settings__WEBPACK_IMPORTED_MODULE_11__[
               'settings'
@@ -15681,7 +14658,7 @@ flag 及其含义如下：
           // 2 使用“在结果中筛选”或删除作品，使得作品数据变化了，改变作品列表视图
           // 3 修改了“多图下载设置”，导致作品数据变化
           reAddResult() {
-            _Store__WEBPACK_IMPORTED_MODULE_9__['store'].reset()
+            _store_Store__WEBPACK_IMPORTED_MODULE_9__['store'].reset()
             for (let data of this.resultMeta) {
               // 如果此时的 dlCount 与之前的 dlCount 不一样，则更新它
               const dlCount = _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_12__[
@@ -15690,7 +14667,7 @@ flag 及其含义如下：
               if (dlCount !== data.dlCount) {
                 data = Object.assign(data, { dlCount: dlCount })
               }
-              _Store__WEBPACK_IMPORTED_MODULE_9__['store'].addResult(data)
+              _store_Store__WEBPACK_IMPORTED_MODULE_9__['store'].addResult(data)
             }
             // showCount 依赖 addResult 事件，但如果清空了所有结果，则不会触发 addResult 事件，所以需要手动调用它
             if (this.resultMeta.length === 0) {
@@ -15699,7 +14676,7 @@ flag 及其含义如下：
           }
           // 在当前结果中再次筛选，会修改第一次筛选的结果
           screenInResult() {
-            if (_States__WEBPACK_IMPORTED_MODULE_16__['states'].busy) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_16__['states'].busy) {
               _Toast__WEBPACK_IMPORTED_MODULE_19__['toast'].error(
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_当前任务尚未完成'
@@ -15784,8 +14761,8 @@ flag 及其含义如下：
         /* harmony import */ var _setting_SettingAPI__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ../setting/SettingAPI */ './src/ts/modules/setting/SettingAPI.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
 
         // 保存单个图片作品的数据
@@ -15846,7 +14823,7 @@ flag 及其含义如下：
               const pageCount = body.pageCount
               const bookmarked = !!body.bookmarkData
               // 保存作品在排行榜上的编号
-              const rankData = _Store__WEBPACK_IMPORTED_MODULE_4__[
+              const rankData = _store_Store__WEBPACK_IMPORTED_MODULE_4__[
                 'store'
               ].getRankList(body.id)
               const rank = rankData ? rankData : null
@@ -15867,7 +14844,7 @@ flag 及其含义如下：
                 const tempExt = imgUrl.split('.')
                 const ext = tempExt[tempExt.length - 1]
                 // 添加作品信息
-                _Store__WEBPACK_IMPORTED_MODULE_4__['store'].addResult({
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].addResult({
                   id: body.id,
                   idNum: idNum,
                   thumb: thumb,
@@ -15912,7 +14889,7 @@ flag 及其含义如下：
                 const ext =
                   _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
                     .ugoiraSaveAs
-                _Store__WEBPACK_IMPORTED_MODULE_4__['store'].addResult({
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].addResult({
                   id: body.id,
                   idNum: idNum,
                   thumb: thumb,
@@ -16615,8 +15592,8 @@ flag 及其含义如下：
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../EVT */ './src/ts/modules/EVT.ts'
         )
-        /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../States */ './src/ts/modules/States.ts'
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../store/States */ './src/ts/modules/store/States.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts'
@@ -16655,7 +15632,7 @@ flag 及其含义如下：
             this.getPostDate()
             this.getIncludeTag()
             this.getExcludeTag()
-            if (_States__WEBPACK_IMPORTED_MODULE_3__['states'].debut) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_3__['states'].debut) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                   '_抓取首次登场的作品Title'
@@ -17576,7 +16553,7 @@ flag 及其含义如下：
           // yes_rank 是昨日排名，如果为 0，则此作品是“首次登场”的作品
           checkDebut(yes_rank) {
             if (
-              !_States__WEBPACK_IMPORTED_MODULE_3__['states'].debut ||
+              !_store_States__WEBPACK_IMPORTED_MODULE_3__['states'].debut ||
               yes_rank === undefined
             ) {
               return true
@@ -17757,8 +16734,8 @@ flag 及其含义如下：
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ../Log */ './src/ts/modules/Log.ts'
@@ -17883,7 +16860,7 @@ flag 及其含义如下：
                   'filter'
                 ].check(filterOpt)
               ) {
-                _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
+                _store_Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
                   type: 'novels',
                   id: id.toString(),
                 })
@@ -17954,8 +16931,8 @@ flag 及其含义如下：
         /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ../Log */ './src/ts/modules/Log.ts'
@@ -18071,7 +17048,7 @@ flag 及其含义如下：
                   'filter'
                 ].check(filterOpt)
               ) {
-                _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
+                _store_Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
                   type: 'novels',
                   id: nowData.id,
                 })
@@ -18137,8 +17114,8 @@ flag 及其含义如下：
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _QuickBookmark__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../QuickBookmark */ './src/ts/modules/QuickBookmark.ts'
@@ -18274,17 +17251,21 @@ flag 及其含义如下：
               let idNum = parseInt(id.id)
               // 新作品
               if (idNum >= nowId && this.crawlDirection === -1) {
-                _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.push(id)
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.push(
+                  id
+                )
               } else if (idNum <= nowId && this.crawlDirection === 1) {
                 // 旧作品
-                _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.push(id)
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.push(
+                  id
+                )
               }
             })
             // 当设置了下载个数时，进行裁剪
             if (this.crawlNumber !== -1) {
               // 新作品 升序排列
               if (this.crawlDirection === -1) {
-                _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList
                   .sort(
                     _utils_Utils__WEBPACK_IMPORTED_MODULE_9__[
                       'Utils'
@@ -18293,15 +17274,15 @@ flag 及其含义如下：
                   .reverse()
               } else {
                 // 旧作品 降序排列
-                _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.sort(
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.sort(
                   _utils_Utils__WEBPACK_IMPORTED_MODULE_9__[
                     'Utils'
                   ].sortByProperty('id')
                 )
               }
-              _Store__WEBPACK_IMPORTED_MODULE_4__[
+              _store_Store__WEBPACK_IMPORTED_MODULE_4__[
                 'store'
-              ].idList = _Store__WEBPACK_IMPORTED_MODULE_4__[
+              ].idList = _store_Store__WEBPACK_IMPORTED_MODULE_4__[
                 'store'
               ].idList.splice(0, this.crawlNumber)
             }
@@ -18342,8 +17323,8 @@ flag 及其含义如下：
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _tools_Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../tools/Tools */ './src/ts/modules/tools/Tools.ts'
@@ -18396,7 +17377,7 @@ flag 及其含义如下：
             ].getNovelSeriesData(this.seriesId, this.limit, this.last, 'asc')
             const list = seriesData.body.seriesContents
             for (const item of list) {
-              _Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.push({
+              _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].idList.push({
                 type: 'novels',
                 id: item.id,
               })
@@ -18451,8 +17432,8 @@ flag 及其含义如下：
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ../Log */ './src/ts/modules/Log.ts'
@@ -18583,11 +17564,11 @@ flag 及其含义如下：
                   'filter'
                 ].check(filterOpt)
               ) {
-                _Store__WEBPACK_IMPORTED_MODULE_6__['store'].setRankList(
+                _store_Store__WEBPACK_IMPORTED_MODULE_6__['store'].setRankList(
                   id.toString(),
                   rank
                 )
-                _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
+                _store_Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
                   type: 'novels',
                   id: id.toString(),
                 })
@@ -18603,8 +17584,8 @@ flag 及其含义如下：
             )
             // 抓取完毕
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.length >=
-                this.crawlNumber ||
+              _store_Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList
+                .length >= this.crawlNumber ||
               this.listPageFinished === this.pageUrlList.length
             ) {
               this.getIdListFinished()
@@ -18655,8 +17636,8 @@ flag 及其含义如下：
         /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ../Log */ './src/ts/modules/Log.ts'
@@ -18673,8 +17654,8 @@ flag 及其含义如下：
         /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
           /*! ../utils/Utils */ './src/ts/modules/utils/Utils.ts'
         )
-        /* harmony import */ var _IdListWithPageNo__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
-          /*! ../IdListWithPageNo */ './src/ts/modules/IdListWithPageNo.ts'
+        /* harmony import */ var _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
+          /*! ../store/IdListWithPageNo */ './src/ts/modules/store/IdListWithPageNo.ts'
         )
         // 初始化小说搜索页
 
@@ -18807,7 +17788,7 @@ flag 及其含义如下：
             let data = await _utils_API__WEBPACK_IMPORTED_MODULE_5__[
               'API'
             ].getNovelSearchData(
-              _Store__WEBPACK_IMPORTED_MODULE_6__['store'].tag,
+              _store_Store__WEBPACK_IMPORTED_MODULE_6__['store'].tag,
               p,
               this.option
             )
@@ -18893,7 +17874,7 @@ flag 及其含义如下：
                   'filter'
                 ].check(filterOpt)
               ) {
-                _IdListWithPageNo__WEBPACK_IMPORTED_MODULE_12__[
+                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_12__[
                   'idListWithPageNo'
                 ].add(
                   this.flag,
@@ -18926,7 +17907,7 @@ flag 及其含义如下：
                     '_列表页抓取完成'
                   )
                 )
-                _IdListWithPageNo__WEBPACK_IMPORTED_MODULE_12__[
+                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_12__[
                   'idListWithPageNo'
                 ].store(this.flag)
                 this.getIdListFinished()
@@ -18939,94 +17920,18 @@ flag 及其含义如下：
           }
           // 搜索页把下载任务按收藏数从高到低下载
           sortResult() {
-            _Store__WEBPACK_IMPORTED_MODULE_6__['store'].resultMeta.sort(
+            _store_Store__WEBPACK_IMPORTED_MODULE_6__['store'].resultMeta.sort(
               _utils_Utils__WEBPACK_IMPORTED_MODULE_11__[
                 'Utils'
               ].sortByProperty('bmk')
             )
-            _Store__WEBPACK_IMPORTED_MODULE_6__['store'].result.sort(
+            _store_Store__WEBPACK_IMPORTED_MODULE_6__['store'].result.sort(
               _utils_Utils__WEBPACK_IMPORTED_MODULE_11__[
                 'Utils'
               ].sortByProperty('bmk')
             )
           }
         }
-
-        /***/
-      },
-
-    /***/ './src/ts/modules/novel/MakeEPUB.ts':
-      /*!******************************************!*\
-  !*** ./src/ts/modules/novel/MakeEPUB.ts ***!
-  \******************************************/
-      /*! exports provided: makeEPUB */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony export (binding) */ __webpack_require__.d(
-          __webpack_exports__,
-          'makeEPUB',
-          function () {
-            return makeEPUB
-          }
-        )
-        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../utils/Utils */ './src/ts/modules/utils/Utils.ts'
-        )
-
-        class MakeEPUB {
-          constructor() {}
-          // epub 内部会使用标题 title 建立一个文件夹，把一些文件存放进去，所以这里要替换掉标题的特殊字符，特殊字符会导致这个文件夹名被截断，结果就是这个 epub 文件无法被解析。
-          make(data, saveMeta = true) {
-            return new Promise((resolve, reject) => {
-              let content = data.content
-              // 附带小说元数据
-              if (saveMeta) {
-                content = data.meta + content
-              }
-              // 把换行符替换成 br 标签
-              content = content.replace(/\n/g, '<br/>')
-              new EpubMaker()
-                .withTemplate('idpf-wasteland')
-                .withAuthor(
-                  _utils_Utils__WEBPACK_IMPORTED_MODULE_0__[
-                    'Utils'
-                  ].replaceUnsafeStr(data.userName)
-                )
-                .withModificationDate(new Date(data.createDate))
-                .withRights({
-                  description: data.description,
-                  license: '',
-                })
-                .withAttributionUrl(
-                  `https://www.pixiv.net/novel/show.php?id=${data.id}`
-                )
-                .withCover(data.coverUrl, {
-                  license: '',
-                  attributionUrl: '',
-                })
-                .withTitle(
-                  _utils_Utils__WEBPACK_IMPORTED_MODULE_0__[
-                    'Utils'
-                  ].replaceUnsafeStr(data.title)
-                )
-                .withSection(
-                  new EpubMaker.Section(
-                    '1',
-                    null,
-                    { content: content },
-                    false,
-                    true
-                  )
-                )
-                .makeEpub()
-                .then((blob) => {
-                  resolve(blob)
-                })
-            })
-          }
-        }
-        const makeEPUB = new MakeEPUB()
 
         /***/
       },
@@ -19049,8 +17954,8 @@ flag 及其含义如下：
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
-        /* harmony import */ var _MakeEPUB__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./MakeEPUB */ './src/ts/modules/novel/MakeEPUB.ts'
+        /* harmony import */ var _tools_MakeEPUB__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../tools/MakeEPUB */ './src/ts/modules/tools/MakeEPUB.ts'
         )
 
         class MakeNovelFile {
@@ -19066,7 +17971,9 @@ flag 及其含义如下：
                   .saveNovelMeta
               )
             }
-            return _MakeEPUB__WEBPACK_IMPORTED_MODULE_1__['makeEPUB'].make(
+            return _tools_MakeEPUB__WEBPACK_IMPORTED_MODULE_1__[
+              'makeEPUB'
+            ].make(
               data,
               _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
                 .saveNovelMeta
@@ -19107,8 +18014,8 @@ flag 及其含义如下：
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts'
@@ -19151,7 +18058,7 @@ flag 及其含义如下：
               const user = body.userName
               const bookmarked = !!body.bookmarkData
               // 保存作品在排行榜上的编号
-              const rankData = _Store__WEBPACK_IMPORTED_MODULE_1__[
+              const rankData = _store_Store__WEBPACK_IMPORTED_MODULE_1__[
                 'store'
               ].getRankList(id)
               const rank = rankData ? rankData : null
@@ -19179,7 +18086,7 @@ flag 及其含义如下：
               )
               meta = metaArr.join('\n\n') + '\n\n\n'
               // 添加作品信息
-              _Store__WEBPACK_IMPORTED_MODULE_1__['store'].addResult({
+              _store_Store__WEBPACK_IMPORTED_MODULE_1__['store'].addResult({
                 id: id,
                 idNum: idNum,
                 thumb: body.coverUrl || undefined,
@@ -19306,8 +18213,8 @@ flag 及其含义如下：
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ../utils/Utils */ './src/ts/modules/utils/Utils.ts'
@@ -19410,7 +18317,7 @@ flag 及其含义如下：
           ) {
             // 如果结果较多，则不直接输出，改为保存 txt 文件
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length >
+              _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length >
               _config_Config__WEBPACK_IMPORTED_MODULE_4__['default'].outputMax
             ) {
               const con = content.replace(/<br>/g, '\n') // 替换换行符
@@ -19462,8 +18369,8 @@ flag 及其含义如下：
       /***/ function (module, __webpack_exports__, __webpack_require__) {
         'use strict'
         __webpack_require__.r(__webpack_exports__)
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ../EVT */ './src/ts/modules/EVT.ts'
@@ -19496,7 +18403,8 @@ flag 及其含义如下：
           }
           previewFileName() {
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_0__['store'].result.length === 0
+              _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].result
+                .length === 0
             ) {
               _Toast__WEBPACK_IMPORTED_MODULE_5__['toast'].error(
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
@@ -19508,10 +18416,10 @@ flag 及其含义如下：
             // 使用数组储存和拼接字符串，提高性能
             const resultArr = []
             const length =
-              _Store__WEBPACK_IMPORTED_MODULE_0__['store'].result.length
+              _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].result.length
             for (let i = 0; i < length; i++) {
               const data =
-                _Store__WEBPACK_IMPORTED_MODULE_0__['store'].result[i]
+                _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].result[i]
               // 为默认文件名添加颜色。默认文件名有两种处理方式，一种是取出用其他下载软件下载后的默认文件名，一种是取出本程序使用的默认文件名 data.id。这里使用前者，方便用户用其他下载软件下载后，再用生成的文件名重命名。
               const defaultName = data.original.replace(/.*\//, '')
               const fullName = _FileName__WEBPACK_IMPORTED_MODULE_2__[
@@ -19568,8 +18476,8 @@ flag 及其含义如下：
       /***/ function (module, __webpack_exports__, __webpack_require__) {
         'use strict'
         __webpack_require__.r(__webpack_exports__)
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/modules/store/Store.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ../EVT */ './src/ts/modules/EVT.ts'
@@ -19599,7 +18507,8 @@ flag 及其含义如下：
           }
           showURLs() {
             if (
-              _Store__WEBPACK_IMPORTED_MODULE_0__['store'].result.length === 0
+              _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].result
+                .length === 0
             ) {
               _Toast__WEBPACK_IMPORTED_MODULE_4__['toast'].error(
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
@@ -19612,8 +18521,9 @@ flag 及其含义如下：
             const size =
               _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
                 .imageSize
-            for (const result of _Store__WEBPACK_IMPORTED_MODULE_0__['store']
-              .result) {
+            for (const result of _store_Store__WEBPACK_IMPORTED_MODULE_0__[
+              'store'
+            ].result) {
               urls.push(result[size])
             }
             _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire(
@@ -20878,8 +19788,6 @@ flag 及其含义如下：
       </span>
       </p>
 
-      <hr />
-      
       <p class="option" data-no="33">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
@@ -20920,8 +19828,6 @@ flag 及其含义如下：
         'lang'
       ].transl('_不公开')}</label>
       </p>
-
-      <hr />
 
       <p class="option" data-no="18">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
@@ -21496,8 +20402,8 @@ flag 及其含义如下：
         /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./Settings */ './src/ts/modules/setting/Settings.ts'
         )
-        /* harmony import */ var _SecretSignal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../SecretSignal */ './src/ts/modules/SecretSignal.ts'
+        /* harmony import */ var _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../utils/SecretSignal */ './src/ts/modules/utils/SecretSignal.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Log */ './src/ts/modules/Log.ts'
@@ -21531,7 +20437,7 @@ flag 及其含义如下：
           }
           register() {
             for (const item of this.list) {
-              _SecretSignal__WEBPACK_IMPORTED_MODULE_1__[
+              _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_1__[
                 'secretSignal'
               ].register(item.code, () => {
                 this.onChange(item.name)
@@ -21920,8 +20826,8 @@ flag 及其含义如下：
         /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ../config/Config */ './src/ts/modules/config/Config.ts'
         )
-        /* harmony import */ var _SecretSignal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../SecretSignal */ './src/ts/modules/SecretSignal.ts'
+        /* harmony import */ var _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../utils/SecretSignal */ './src/ts/modules/utils/SecretSignal.ts'
         )
         /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ../Toast */ './src/ts/modules/Toast.ts'
@@ -22099,7 +21005,7 @@ flag 及其含义如下：
             // 切换只选择动图/选择全部作品类型
             const codes = ['onlyugoira', 'qw222']
             for (const code of codes) {
-              _SecretSignal__WEBPACK_IMPORTED_MODULE_5__[
+              _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_5__[
                 'secretSignal'
               ].register(code, () => {
                 // 如果只有动图被选中，则选择全部作品类型
@@ -22292,6 +21198,534 @@ flag 及其含义如下：
         /***/
       },
 
+    /***/ './src/ts/modules/showStatusOnTitle.ts':
+      /*!*********************************************!*\
+  !*** ./src/ts/modules/showStatusOnTitle.ts ***!
+  \*********************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./PageType */ './src/ts/modules/PageType.ts'
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./EVT */ './src/ts/modules/EVT.ts'
+        )
+        // 在标题栏上显示任务状态的标记
+
+        /*
+本程序的标记会以 [flag] 形式添加到 title 最前面
+flag 及其含义如下：
+↑ 抓取中
+→ 等待下一步操作（搜索页）
+▶ 可以开始下载
+↓ 下载中
+║ 下载暂停
+■ 下载停止
+✓ 下载完毕
+*/
+        const flags = {
+          crawling: '↑',
+          waiting: '→',
+          readyDownload: '▶',
+          downloading: '↓',
+          paused: '║',
+          stopped: '■',
+          completed: '✓',
+          space: ' ',
+        }
+        class showStatusOnTitle {
+          constructor() {
+            this.timer = 0 // title 闪烁时，使用的定时器
+            this.bindEvents()
+          }
+          bindEvents() {
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.crawlStart,
+              () => {
+                this.set('crawling')
+              }
+            )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.worksUpdate,
+              () => {
+                this.set('waiting')
+              }
+            )
+            for (const ev of [
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.crawlFinish,
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.resultChange,
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.resume,
+            ]) {
+              window.addEventListener(ev, () => {
+                this.set('readyDownload')
+              })
+            }
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.downloadStart,
+              () => {
+                this.set('downloading')
+              }
+            )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.downloadComplete,
+              () => {
+                this.set('completed')
+              }
+            )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.downloadPause,
+              () => {
+                this.set('paused')
+              }
+            )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.downloadStop,
+              () => {
+                this.set('stopped')
+              }
+            )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.crawlEmpty,
+              () => {
+                this.reset()
+              }
+            )
+          }
+          // 检查标题里是否含有标记
+          includeFlag(flag = '') {
+            if (!flag) {
+              // 没有传递标记，则检查所有标记
+              for (const flga of Object.values(flags)) {
+                const str = `[${flga}]`
+                if (document.title.includes(str)) {
+                  return true
+                }
+              }
+            } else {
+              // 检查指定标记
+              const str = `[${flag}]`
+              return document.title.includes(str)
+            }
+            return false
+          }
+          // 重设 title
+          reset() {
+            clearInterval(this.timer)
+            const metaTagPage = [
+              _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].list.Artwork,
+              _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].list.UserHome,
+              _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].list.Novel,
+            ]
+            // 从 og:title 标签获取标题。og:title 标签是最早更新标题的。但不确定是否在所有页面上都可以直接使用 og:title 标签的内容，所以这里只在部分页面上使用
+            if (
+              metaTagPage.includes(
+                _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].type
+              )
+            ) {
+              const ogTitle = document.querySelector(
+                'meta[property="og:title"]'
+              )
+              if (ogTitle) {
+                document.title = ogTitle.content
+                return
+              }
+            }
+            // 去掉 title 里的标记
+            const index = document.title.indexOf(']')
+            document.title = document.title.substr(
+              index + 1,
+              document.title.length
+            )
+          }
+          // 在标题上显示指定标记
+          set(flagName) {
+            const flag = flags[flagName]
+            const text = `[${flag}]`
+            // 如果 title 里没有标记，就添加标记
+            if (!this.includeFlag()) {
+              document.title = `${text} ${document.title}`
+            } else {
+              // 如果已经有标记了，则替换为新当前传入的标记
+              document.title = document.title.replace(/\[.?\]/, text)
+            }
+            // 可以开始下载，或者等待下一步操作，进行闪烁提醒
+            if (flagName === 'readyDownload' || flagName === 'waiting') {
+              this.flashing(flag)
+            } else {
+              clearInterval(this.timer)
+            }
+          }
+          // 闪烁提醒，其实是把给定的标记替换成空白，来回切换
+          flashing(flag) {
+            clearInterval(this.timer)
+            const text = `[${flag}]`
+            const whiteSpace = `[${flags.space}]`
+            this.timer = window.setInterval(() => {
+              if (this.includeFlag(flag)) {
+                // 如果含有标记，就替换成空白
+                document.title = document.title.replace(text, whiteSpace)
+              } else {
+                if (this.includeFlag(flags.space)) {
+                  // 如果含有空白，就替换成标记
+                  document.title = document.title.replace(whiteSpace, text)
+                } else {
+                  // 如果都没有，一般是页面切换了，标题被重置了，取消闪烁
+                  clearInterval(this.timer)
+                }
+              }
+            }, 500)
+          }
+        }
+        new showStatusOnTitle()
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/store/IdListWithPageNo.ts':
+      /*!**************************************************!*\
+  !*** ./src/ts/modules/store/IdListWithPageNo.ts ***!
+  \**************************************************/
+      /*! exports provided: idListWithPageNo */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'idListWithPageNo',
+          function () {
+            return idListWithPageNo
+          }
+        )
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./Store */ './src/ts/modules/store/Store.ts'
+        )
+        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../utils/Utils */ './src/ts/modules/utils/Utils.ts'
+        )
+
+        // 这是为了解决抓取多个列表页面时，获得的 id 数据顺序混乱的问题
+        // 这个类会保留每个 id 所处的页码。抓取完成后可以把这些 id 按页码顺序排列，保证 id 的顺序和在页码里的顺序一致
+        class IdListWithPageNo {
+          constructor() {
+            // 存储 id 列表，按 flag 不同分别存储
+            this.allList = {}
+          }
+          // 添加一条记录
+          add(flag, idData, page) {
+            if (this.allList[flag] === undefined) {
+              this.allList[flag] = []
+            }
+            this.allList[flag].push({
+              id: idData.id,
+              type: idData.type,
+              page: page,
+            })
+          }
+          // 清空记录
+          clear(flag) {
+            if (this.allList[flag]) {
+              delete this.allList[flag]
+            }
+          }
+          // 排序
+          sort(flag) {
+            if (this.allList[flag]) {
+              this.allList[flag].sort(
+                _utils_Utils__WEBPACK_IMPORTED_MODULE_1__[
+                  'Utils'
+                ].sortByProperty('page', 'asc')
+              )
+            }
+          }
+          // 转储到 store.idList 里
+          // 自动排序
+          // 转储之后自动清空
+          store(flag) {
+            if (this.allList[flag]) {
+              this.sort(flag)
+              for (const data of this.allList[flag]) {
+                _Store__WEBPACK_IMPORTED_MODULE_0__['store'].idList.push({
+                  id: data.id,
+                  type: data.type,
+                })
+              }
+              this.clear(flag)
+            }
+          }
+          // 如果没有值，返回的就是 undefined
+          get(flag) {
+            return this.allList[flag]
+          }
+        }
+        const idListWithPageNo = new IdListWithPageNo()
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/store/States.ts':
+      /*!****************************************!*\
+  !*** ./src/ts/modules/store/States.ts ***!
+  \****************************************/
+      /*! exports provided: states */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'states',
+          function () {
+            return states
+          }
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
+        )
+
+        // 储存需要跨组件使用的、会变化的状态
+        // 这里的状态不需要持久化保存。
+        // 状态的值通常只由单一的组件修改，其他组件只读取不修改
+        class States {
+          constructor() {
+            // 表示下载器是否处于繁忙状态
+            // 如果下载器正在抓取中，或者正在下载中，则为 true；如果下载器处于空闲状态，则为 false
+            // 修改者：本组件根据下载器的事件来修改这个状态
+            this.busy = false
+            // 快速下载标记。如果为 true 说明进入了快速下载模式
+            // 快速下载模式中不会显示下载面板，并且会自动开始下载
+            // 启动快速下载时设为 true，下载完成或中止时复位到 false
+            this.quickDownload = false
+            // 这次下载是否是从图片查看器建立的
+            // 如果是，那么下载途中不会显示下载面板，并且会自动开始下载
+            // 作用同 quickDownload，只是触发方式不同
+            this.downloadFromViewer = false
+            // 不自动下载的标记。如果为 true，那么下载器在抓取完成后，不会自动开始下载。（即使用户设置了自动开始下载）
+            // 修改者：InitSearchArtworkPage 组件根据“预览搜索结果”的设置，修改这个状态
+            this.notAutoDownload = false
+            // 在排行榜抓取时，是否只抓取“首次登场”的作品
+            // 修改者：InitRankingArtworkPage 组件修改这个状态
+            this.debut = false
+            // 收藏模式的标记
+            // 修改者：本组件监听批量收藏作品的事件来修改这个标记
+            // 开始批量收藏时设为 true，收藏完成之后复位到 false
+            this.bookmarkMode = false
+            this.bindEvents()
+          }
+          bindEvents() {
+            const idle = [
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.crawlFinish,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadPause,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadStop,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadComplete,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.bookmarkModeEnd,
+            ]
+            idle.forEach((type) => {
+              window.addEventListener(type, () => {
+                this.busy = false
+              })
+            })
+            const busy = [
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.crawlStart,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadStart,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.bookmarkModeStart,
+            ]
+            busy.forEach((type) => {
+              window.addEventListener(type, () => {
+                this.busy = true
+              })
+            })
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.bookmarkModeStart,
+              () => {
+                this.bookmarkMode = true
+              }
+            )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.bookmarkModeEnd,
+              () => {
+                this.bookmarkMode = false
+              }
+            )
+            // 下载完成，或者下载中止时，复位快速下载类状态
+            const resetQuickState = [
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.crawlEmpty,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadStop,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadPause,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadComplete,
+            ]
+            for (const ev of resetQuickState) {
+              window.addEventListener(ev, () => {
+                this.quickDownload = false
+                this.downloadFromViewer = false
+              })
+            }
+          }
+        }
+        const states = new States()
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/store/Store.ts':
+      /*!***************************************!*\
+  !*** ./src/ts/modules/store/Store.ts ***!
+  \***************************************/
+      /*! exports provided: store */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'store',
+          function () {
+            return store
+          }
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
+        )
+        /* harmony import */ var _tools_Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../tools/Tools */ './src/ts/modules/tools/Tools.ts'
+        )
+
+        // 储存抓取结果
+        class Store {
+          constructor() {
+            this.idList = [] // 储存从列表中抓取到的作品的 id
+            this.resultMeta = [] // 储存抓取结果的元数据。
+            // 当用于图片作品时，它可以根据每个作品需要下载多少张，生成每一张图片的信息
+            this.artworkIDList = [] // 储存抓取到的图片作品的 id 列表，用来避免重复添加
+            this.novelIDList = [] // 储存抓取到的小说作品的 id 列表，用来避免重复添加
+            this.result = [] // 储存抓取结果
+            this.rankList = {} // 储存作品在排行榜中的排名
+            this.tag = '' // 开始抓取时，储存页面此时的 tag
+            this.title = '' // 开始抓取时，储存页面此时的 title
+            this.crawlCompleteTime = new Date()
+            this.bindEvents()
+          }
+          assignResult(data) {
+            // 图片详细信息的默认值
+            const dataDefault = {
+              idNum: 0,
+              id: '',
+              original: '',
+              thumb: '',
+              regular: '',
+              small: '',
+              title: '',
+              pageCount: 1,
+              dlCount: 1,
+              tags: [],
+              tagsWithTransl: [],
+              tagsTranslOnly: [],
+              user: '',
+              userId: '',
+              fullWidth: 0,
+              fullHeight: 0,
+              ext: '',
+              bmk: 0,
+              bookmarked: false,
+              date: '',
+              type: 0,
+              rank: null,
+              ugoiraInfo: null,
+              seriesTitle: null,
+              seriesOrder: null,
+              novelMeta: null,
+              likeCount: 0,
+              viewCount: 0,
+              commentCount: 0,
+              xRestrict: 0,
+              sl: null,
+            }
+            return Object.assign(dataDefault, data)
+          }
+          // 添加每个作品的信息。只需要传递有值的属性
+          addResult(data) {
+            // 检查该作品数据是否已存在，已存在则不添加
+            if (data.type === 3) {
+              if (data.idNum !== undefined) {
+                if (this.novelIDList.includes(data.idNum)) {
+                  return
+                }
+                this.novelIDList.push(data.idNum)
+              }
+            } else {
+              if (data.idNum !== undefined) {
+                if (this.artworkIDList.includes(data.idNum)) {
+                  return
+                }
+                this.artworkIDList.push(data.idNum)
+              }
+            }
+            // 添加该作品的元数据
+            const result = this.assignResult(data)
+            this.resultMeta.push(result)
+            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.addResult,
+              result
+            )
+            if (result.type === 3) {
+              this.result.push(result)
+            } else {
+              // 添加该作品里每一张图片的数据
+              for (let i = 0; i < result.dlCount; i++) {
+                const result = this.assignResult(data)
+                result.idNum = parseInt(result.id)
+                result.id = result.id + `_p${i}`
+                result.original = result.original.replace('p0', 'p' + i)
+                result.regular = result.regular.replace('p0', 'p' + i)
+                result.small = result.small.replace('p0', 'p' + i)
+                this.result.push(result)
+              }
+            }
+          }
+          getRankList(index) {
+            return this.rankList[index]
+          }
+          setRankList(id, rank) {
+            this.rankList[id] = rank
+          }
+          reset() {
+            this.resultMeta = []
+            this.artworkIDList = []
+            this.novelIDList = []
+            this.result = []
+            this.idList = []
+            this.rankList = {}
+            this.tag = _tools_Tools__WEBPACK_IMPORTED_MODULE_1__[
+              'Tools'
+            ].getTagFromURL()
+            this.title = _tools_Tools__WEBPACK_IMPORTED_MODULE_1__[
+              'Tools'
+            ].getTitle()
+          }
+          bindEvents() {
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.crawlStart,
+              () => {
+                this.reset()
+              }
+            )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.resume,
+              () => {
+                this.tag = _tools_Tools__WEBPACK_IMPORTED_MODULE_1__[
+                  'Tools'
+                ].getTagFromURL()
+                this.title = _tools_Tools__WEBPACK_IMPORTED_MODULE_1__[
+                  'Tools'
+                ].getTitle()
+              }
+            )
+          }
+        }
+        const store = new Store()
+
+        /***/
+      },
+
     /***/ './src/ts/modules/tools/CheckNew.ts':
       /*!******************************************!*\
   !*** ./src/ts/modules/tools/CheckNew.ts ***!
@@ -22364,6 +21798,82 @@ flag 及其含义如下：
           }
         }
         new CheckNew()
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/tools/MakeEPUB.ts':
+      /*!******************************************!*\
+  !*** ./src/ts/modules/tools/MakeEPUB.ts ***!
+  \******************************************/
+      /*! exports provided: makeEPUB */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'makeEPUB',
+          function () {
+            return makeEPUB
+          }
+        )
+        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../utils/Utils */ './src/ts/modules/utils/Utils.ts'
+        )
+
+        class MakeEPUB {
+          constructor() {}
+          // epub 内部会使用标题 title 建立一个文件夹，把一些文件存放进去，所以这里要替换掉标题的特殊字符，特殊字符会导致这个文件夹名被截断，结果就是这个 epub 文件无法被解析。
+          make(data, saveMeta = true) {
+            return new Promise((resolve, reject) => {
+              let content = data.content
+              // 附带小说元数据
+              if (saveMeta) {
+                content = data.meta + content
+              }
+              // 把换行符替换成 br 标签
+              content = content.replace(/\n/g, '<br/>')
+              new EpubMaker()
+                .withTemplate('idpf-wasteland')
+                .withAuthor(
+                  _utils_Utils__WEBPACK_IMPORTED_MODULE_0__[
+                    'Utils'
+                  ].replaceUnsafeStr(data.userName)
+                )
+                .withModificationDate(new Date(data.createDate))
+                .withRights({
+                  description: data.description,
+                  license: '',
+                })
+                .withAttributionUrl(
+                  `https://www.pixiv.net/novel/show.php?id=${data.id}`
+                )
+                .withCover(data.coverUrl, {
+                  license: '',
+                  attributionUrl: '',
+                })
+                .withTitle(
+                  _utils_Utils__WEBPACK_IMPORTED_MODULE_0__[
+                    'Utils'
+                  ].replaceUnsafeStr(data.title)
+                )
+                .withSection(
+                  new EpubMaker.Section(
+                    '1',
+                    null,
+                    { content: content },
+                    false,
+                    true
+                  )
+                )
+                .makeEpub()
+                .then((blob) => {
+                  resolve(blob)
+                })
+            })
+          }
+        }
+        const makeEPUB = new MakeEPUB()
 
         /***/
       },
@@ -23683,6 +23193,337 @@ flag 及其含义如下：
         /***/
       },
 
+    /***/ './src/ts/modules/utils/IndexedDB.ts':
+      /*!*******************************************!*\
+  !*** ./src/ts/modules/utils/IndexedDB.ts ***!
+  \*******************************************/
+      /*! exports provided: IndexedDB */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'IndexedDB',
+          function () {
+            return IndexedDB
+          }
+        )
+        // 封装操作 IndexedDB 的一些公共方法，仅满足本程序使用，并不完善
+        class IndexedDB {
+          async open(DBName, DBVer, onUpgrade) {
+            return new Promise((resolve, reject) => {
+              const request = indexedDB.open(DBName, DBVer)
+              request.onupgradeneeded = (ev) => {
+                if (onUpgrade) {
+                  onUpgrade(request.result)
+                }
+              }
+              request.onsuccess = (ev) => {
+                this.db = request.result
+                resolve(request.result)
+              }
+              request.onerror = (ev) => {
+                console.error('open indexDB failed')
+                console.trace()
+                reject(ev)
+              }
+            })
+          }
+          async add(storeNames, data) {
+            return new Promise((resolve, reject) => {
+              if (this.db === undefined) {
+                reject('Database is not defined')
+                return
+              }
+              const r = this.db
+                .transaction(storeNames, 'readwrite')
+                .objectStore(storeNames)
+                .add(data)
+              r.onsuccess = (ev) => {
+                resolve(ev)
+              }
+              r.onerror = (ev) => {
+                console.error('add failed')
+                console.trace()
+                reject(ev)
+              }
+            })
+          }
+          async put(storeNames, data) {
+            return new Promise((resolve, reject) => {
+              if (this.db === undefined) {
+                reject('Database is not defined')
+                return
+              }
+              const r = this.db
+                .transaction(storeNames, 'readwrite')
+                .objectStore(storeNames)
+                .put(data)
+              r.onsuccess = (ev) => {
+                resolve(ev)
+              }
+              r.onerror = (ev) => {
+                console.error('put failed')
+                console.trace()
+                reject(ev)
+              }
+            })
+          }
+          // 向一个存储库中批量添加数据
+          async batchAddData(storeName, dataList, key) {
+            return new Promise(async (resolve, reject) => {
+              var _a
+              if (dataList.length === 0) {
+                resolve()
+              }
+              // 获取已存在的 key
+              let existedKeys = await this.getAllKeys(storeName)
+              // 使用事务
+              const tr =
+                (_a = this.db) === null || _a === void 0
+                  ? void 0
+                  : _a.transaction(storeName, 'readwrite')
+              if (!tr) {
+                throw new Error(`transaction ${storeName} is undefined`)
+              }
+              const store = tr.objectStore(storeName)
+              tr.oncomplete = () => {
+                resolve()
+              }
+              tr.onerror = (err) => {
+                console.error(err)
+                console.trace()
+                reject(err)
+              }
+              for (const data of dataList) {
+                await insert(data)
+              }
+              async function insert(data) {
+                return new Promise((resolve, reject) => {
+                  // 如果 key 已存在，则使用 put
+                  const type = existedKeys.includes(data[key]) ? 'put' : 'add'
+                  const request = store[type](data)
+                  request.onsuccess = () => {
+                    resolve()
+                  }
+                  request.onerror = (err) => {
+                    reject(err)
+                  }
+                })
+              }
+            })
+          }
+          // 如果没有找到对应的记录，则返回 null
+          async get(storeNames, key, index) {
+            return new Promise((resolve, reject) => {
+              if (this.db === undefined) {
+                reject('Database is not defined')
+                return
+              }
+              const store = this.db
+                .transaction(storeNames, 'readonly')
+                .objectStore(storeNames)
+              let r
+              if (index !== undefined) {
+                const i = store.index(index)
+                r = i.get(key)
+              } else {
+                r = store.get(key)
+              }
+              r.onsuccess = (ev) => {
+                const data = r.result
+                resolve(data ? data : null)
+              }
+              r.onerror = (ev) => {
+                console.error('get failed')
+                console.trace()
+                reject(ev)
+              }
+            })
+          }
+          async getAll(storeNames) {
+            return new Promise((resolve, reject) => {
+              if (this.db === undefined) {
+                reject('Database is not defined')
+                return
+              }
+              const r = this.db
+                .transaction(storeNames, 'readwrite')
+                .objectStore(storeNames)
+                .getAll()
+              r.onsuccess = (ev) => {
+                const data = r.result
+                if (data) {
+                  resolve(data)
+                }
+                resolve(data ? data : null)
+              }
+              r.onerror = (ev) => {
+                console.error('getAll failed')
+                console.trace()
+                reject(ev)
+              }
+            })
+          }
+          async getAllKeys(storeNames) {
+            return new Promise((resolve, reject) => {
+              if (this.db === undefined) {
+                reject('Database is not defined')
+                return
+              }
+              const r = this.db
+                .transaction(storeNames, 'readonly')
+                .objectStore(storeNames)
+                .getAllKeys()
+              r.onsuccess = (ev) => {
+                const data = r.result
+                resolve(data ? data : null)
+              }
+              r.onerror = (ev) => {
+                console.error('getAllKeys failed')
+                console.trace()
+                reject(ev)
+              }
+            })
+          }
+          async delete(storeNames, key) {
+            return new Promise((resolve, reject) => {
+              if (this.db === undefined) {
+                reject('Database is not defined')
+                return
+              }
+              const r = this.db
+                .transaction(storeNames, 'readwrite')
+                .objectStore(storeNames)
+                .delete(key)
+              r.onsuccess = (ev) => {
+                resolve(ev)
+              }
+              r.onerror = (ev) => {
+                console.error('delete failed')
+                console.trace()
+                reject(ev)
+              }
+            })
+          }
+          async clear(storeNames) {
+            return new Promise((resolve, reject) => {
+              if (this.db === undefined) {
+                reject('Database is not defined')
+                return
+              }
+              const r = this.db
+                .transaction(storeNames, 'readwrite')
+                .objectStore(storeNames)
+                .clear()
+              r.onsuccess = (ev) => {
+                resolve()
+              }
+              r.onerror = (ev) => {
+                console.error('clear failed')
+                console.trace()
+                reject(ev)
+              }
+            })
+          }
+          async openCursor(storeNames, CB) {
+            return new Promise((resolve, reject) => {
+              if (this.db === undefined) {
+                reject('Database is not defined')
+                return
+              }
+              const r = this.db
+                .transaction(storeNames)
+                .objectStore(storeNames)
+                .openCursor()
+              r.onsuccess = (ev) => {
+                CB(r.result)
+                resolve() // 这个 resolve 会在 cb 执行一次之后就触发
+              }
+              r.onerror = (ev) => {
+                console.error('openCursor failed')
+                console.trace()
+                reject(ev)
+              }
+            })
+          }
+        }
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/utils/SecretSignal.ts':
+      /*!**********************************************!*\
+  !*** ./src/ts/modules/utils/SecretSignal.ts ***!
+  \**********************************************/
+      /*! exports provided: secretSignal */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'secretSignal',
+          function () {
+            return secretSignal
+          }
+        )
+        // 可以用字母和数字组成隐藏口令，注册到这个模块，当用户按下隐藏口令时执行回调函数
+        class SecretSignal {
+          constructor() {
+            this.list = []
+            // 允许的按键：字母键，数字键，小键盘数字键
+            // "KeyX"
+            // "Digit9"
+            // "Numpad1"
+            this.codePrefix = ['Key', 'Digit', 'Numpad']
+            this.input = ''
+            this.bindEvents()
+          }
+          register(code, cb) {
+            this.list.push({
+              code,
+              cb,
+            })
+          }
+          bindEvents() {
+            window.addEventListener('keydown', (ev) => {
+              // 不保存控制按键，不保存输入状态中的按键
+              if (
+                !ev.code ||
+                ev.altKey ||
+                ev.ctrlKey ||
+                ev.metaKey ||
+                ev.shiftKey ||
+                ev.isComposing
+              ) {
+                return
+              }
+              // 保存字母和数字的按键
+              for (const prefix of this.codePrefix) {
+                if (
+                  ev.code.startsWith(prefix) &&
+                  ev.code.length === prefix.length + 1
+                ) {
+                  const key = ev.code[ev.code.length - 1].toLowerCase()
+                  this.input += key
+                  this.check()
+                }
+              }
+            })
+          }
+          check() {
+            for (const item of this.list) {
+              if (this.input.endsWith(item.code)) {
+                item.cb()
+              }
+            }
+          }
+        }
+        const secretSignal = new SecretSignal()
+
+        /***/
+      },
+
     /***/ './src/ts/modules/utils/Utils.ts':
       /*!***************************************!*\
   !*** ./src/ts/modules/utils/Utils.ts ***!
@@ -23899,6 +23740,231 @@ flag 及其含义如下：
           ['\\|', '｜'],
           ['~', '～'],
         ]
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/utils/imageToIcon.ts':
+      /*!*********************************************!*\
+  !*** ./src/ts/modules/utils/imageToIcon.ts ***!
+  \*********************************************/
+      /*! exports provided: img2ico */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'img2ico',
+          function () {
+            return img2ico
+          }
+        )
+        // 把图片转换成 icon 文件
+        // icon 文件结构 https://www.cnblogs.com/cswuyg/p/3603707.html
+        // 输入选项
+        // source 图片的 url，或者一个图片文件（如果使用了图片 url，请注意跨域策略的影响）
+        // size 尺寸，可以同时使用多个尺寸。你也可以使用自定义尺寸。
+        // shape 指定图标的形状。square 正方形，circle 圆形，fillet 带有圆角的正方形
+        // bleed 留白，仅当形状是圆角正方形时生效，可以使图片周围有一些留白。
+        // 输出
+        // 转换成功后，返回 icon 文件的 Blob 对象
+        // 生成的 icon 总是正方形（长和宽相等）。如果图片的长度和宽度不相等，则会以窄边作为基准，从窄边开始裁剪出一个正方形
+        // 生成的 icon 可以包含多种尺寸的图标。图标都是 32 位 png 图像。
+        class ImageToIcon {
+          async convert(opt) {
+            return new Promise(async (resolve, reject) => {
+              // 加载图片
+              const img = await this.loadImage(opt.source)
+              // 生成各尺寸的 png 图像的数据
+              const pngDataArray = await this.createPngBuffer(
+                img,
+                opt.size,
+                opt.shape,
+                opt.bleed
+              )
+              // 创建 ico 文件
+              const blob = this.createIcon(pngDataArray)
+              resolve(blob)
+            })
+          }
+          async convertImageURL(source) {
+            return new Promise(async (resolve, reject) => {
+              if (typeof source === 'string') {
+                // 请求图片，并为其生成 BlobURL，解决图片跨域导致 canvas 污染的问题
+                const res = await fetch(source, {
+                  method: 'get',
+                  credentials: 'same-origin',
+                })
+                const blob = await res.blob()
+                resolve(URL.createObjectURL(blob))
+              } else if (source instanceof File) {
+                resolve(URL.createObjectURL(source))
+              } else {
+                reject('Unrecognized opt.source')
+              }
+            })
+          }
+          async loadImage(source) {
+            return new Promise(async (resolve, reject) => {
+              let imgURL = await this.convertImageURL(source)
+              const i = document.createElement('img')
+              i.src = imgURL
+              i.onload = function () {
+                resolve(i)
+              }
+            })
+          }
+          async createPngBuffer(
+            img,
+            size = [16, 48, 96, 256],
+            shape = 'square',
+            bleed = true
+          ) {
+            return new Promise(async (resolve, reject) => {
+              const buffer = []
+              let length = size.length
+              while (length > 0) {
+                const sizeNumber = size[size.length - length]
+                const canvas = this.createCanvas(sizeNumber, img)
+                // 绘制图像
+                this.drawImage(canvas, img, shape, bleed)
+                // 把图像转换为 png 图像
+                const pngBlob = await this.getPngBlob(canvas)
+                // 获取 png 图像的 buffer
+                const buf = await pngBlob.arrayBuffer()
+                buffer.push({
+                  size: sizeNumber,
+                  buffer: buf,
+                })
+                length--
+                if (length === 0) {
+                  resolve(buffer)
+                }
+              }
+            })
+          }
+          createCanvas(size, img) {
+            const c = document.createElement('canvas')
+            c.width = size
+            c.height = size
+            return c
+          }
+          drawImage(canvas, img, shape, bleed = true) {
+            const ctx = canvas.getContext('2d')
+            if (!ctx) {
+              console.error('draw error: ctx is null')
+              return
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            // 计算图像被绘制的宽高。比较短的一边占满画布，比较长的一边则根据比例计算绘制的部分
+            let dw = 0
+            let dh = 0
+            // 竖图
+            if (img.naturalWidth < img.naturalHeight) {
+              dw = canvas.width
+              dh = (dw / img.naturalWidth) * img.naturalHeight
+            } else {
+              // 横图
+              dh = canvas.height
+              dw = (dh / img.naturalHeight) * img.naturalWidth
+            }
+            // 绘制方形
+            if (shape === 'square') {
+              ctx.drawImage(img, 0, 0, dw, dh)
+            }
+            // 绘制圆形
+            if (shape === 'circle') {
+              let circle = {
+                x: canvas.width / 2,
+                y: canvas.width / 2,
+                r: canvas.width / 2,
+              }
+              ctx.save()
+              ctx.beginPath()
+              ctx.arc(circle.x, circle.y, circle.r, 0, Math.PI * 2, false)
+              ctx.clip()
+              ctx.drawImage(img, 0, 0, dw, dh)
+              ctx.restore()
+            }
+            // 绘制圆角矩形
+            if (shape === 'fillet') {
+              let x = 0
+              let y = 0
+              // 当图标尺寸大于 16 时，设置留白距离
+              if (bleed && canvas.width > 16) {
+                let num = 10 / 256 // 规定留白的比例，即尺寸为 256 时四周留白均为 10 px
+                x = Math.ceil(num * canvas.width)
+                y = Math.ceil(num * canvas.width)
+              }
+              // 去掉留白后，最后要保存的图片区域的宽高
+              const w = canvas.width - x * 2
+              const h = canvas.height - y * 2
+              // 圆角的半径，设置为保留区域宽高的 1/8
+              const r = Math.floor(w / 8)
+              ctx.beginPath()
+              ctx.moveTo(x + r, y)
+              ctx.arcTo(x + w, y, x + w, y + h, r)
+              ctx.arcTo(x + w, y + h, x, y + h, r)
+              ctx.arcTo(x, y + h, x, y, r)
+              ctx.arcTo(x, y, x + w, y, r)
+              ctx.closePath()
+              ctx.clip()
+              ctx.drawImage(img, 0, 0, dw, dh)
+            }
+            return ctx
+          }
+          async getPngBlob(canvas) {
+            return new Promise((resolve, reject) => {
+              canvas.toBlob((blob) => {
+                if (!blob) {
+                  reject('blob is null')
+                } else {
+                  resolve(blob)
+                }
+              })
+            })
+          }
+          createIcon(pngData) {
+            const fileData = []
+            const fileHeadSize = 6
+            // icon 文件头
+            const fileHead = new ArrayBuffer(fileHeadSize)
+            const v1 = new DataView(fileHead)
+            v1.setInt16(0, 0, true) // idReserved
+            v1.setInt16(2, 1, true) // idType
+            v1.setInt16(4, pngData.length, true) // idCount
+            fileData.push(fileHead)
+            // 添加 icon 文件入口
+            const entrySize = 16
+            const entryTotalSize = entrySize * pngData.length
+            let fileOffset = fileHeadSize + entryTotalSize
+            let fileLength = 0
+            for (const d of pngData) {
+              fileOffset += fileLength
+              const entry = new ArrayBuffer(entrySize)
+              const v2 = new DataView(entry)
+              v2.setInt8(0, d.size) // Width, in pixels, of the image
+              v2.setInt8(1, d.size) // Height, in pixels, of the image
+              v2.setInt8(2, 0) // Number of colors in image (0 if >=8bpp)
+              v2.setInt8(3, 0) // Reserved ( must be 0)
+              v2.setInt16(4, 1, true) // Color Planes
+              v2.setInt16(6, 32, true) // Bits per pixel
+              v2.setInt32(8, d.buffer.byteLength, true) // How many bytes in this resource?
+              v2.setInt32(12, fileOffset, true) // Where in the file is this image?
+              fileData.push(entry)
+              fileLength = d.buffer.byteLength
+            }
+            // 添加 png 数据
+            for (const d of pngData) {
+              fileData.push(d.buffer)
+            }
+            // 生成 blob 对象
+            return new Blob(fileData, {
+              type: 'image/vnd.microsoft.icon',
+            })
+          }
+        }
+        const img2ico = new ImageToIcon()
 
         /***/
       },

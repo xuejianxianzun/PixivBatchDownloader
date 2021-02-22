@@ -6,7 +6,7 @@ import { Tools } from '../tools/Tools'
 import { options } from '../setting/Options'
 import { filter, FilterOption } from '../filter/Filter'
 import { API } from '../utils/API'
-import { store } from '../Store'
+import { store } from '../store/Store'
 import { log } from '../Log'
 import { Utils } from '../utils/Utils'
 

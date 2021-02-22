@@ -1,4 +1,4 @@
-import { UgoiraInfo } from './CrawlResult'
+import { UgoiraInfo } from '../CrawlResult'
 export type IDListType = 'illusts' | 'manga' | 'novels' | 'ugoira' | 'unknown'
 
 export interface IDData {

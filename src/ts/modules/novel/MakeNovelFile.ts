@@ -1,6 +1,6 @@
-import { NovelMeta } from '../StoreType'
+import { NovelMeta } from '../store/StoreType'
 import { settings } from '../setting/Settings'
-import { makeEPUB } from './MakeEPUB'
+import { makeEPUB } from '../tools/MakeEPUB'
 
 class MakeNovelFile {
   static async make(data: NovelMeta, type = settings.novelSaveAs) {

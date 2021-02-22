@@ -5,7 +5,7 @@ import { EVT } from './EVT'
 import { lang } from './Lang'
 import { theme } from './Theme'
 import { loading } from './Loading'
-import { states } from './States'
+import { states } from './store/States'
 import { toast } from './Toast'
 import { Tools } from './tools/Tools'
 

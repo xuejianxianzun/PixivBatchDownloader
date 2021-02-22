@@ -14,7 +14,12 @@ private readonly xRestrictMap = new Map([
 ])
 ```
 
-### 优化项目结构，优化代码
+### 优化项目结构
+
+建立了 tools 文件夹和 utils 文件夹。
+
+- tools 存放的是本项目专用的工具类。
+- utils 存放的和项目无关的通用的工具类。
 
 ## 9.6.0 2021/02/21
 

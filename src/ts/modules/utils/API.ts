@@ -29,7 +29,7 @@ import {
   tagPageFlag,
 } from '../CrawlArgument'
 
-import { IDData } from '../StoreType'
+import { IDData } from '../store/StoreType'
 
 /** 点击 like 按钮的返回数据 */
 interface LikeResponse {

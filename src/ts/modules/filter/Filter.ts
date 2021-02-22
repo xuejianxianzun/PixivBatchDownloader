@@ -1,7 +1,7 @@
 import { lang } from '../Lang'
 import { log } from '../Log'
 import { EVT } from '../EVT'
-import { states } from '../States'
+import { states } from '../store/States'
 import { settings } from '../setting/Settings'
 import { blackAndWhiteImage } from './BlackandWhiteImage'
 import { mute } from './Mute'

@@ -3,7 +3,7 @@ import { filter, FilterOption } from '../filter/Filter'
 import { settings } from '../setting/Settings'
 import { settingAPI } from '../setting/SettingAPI'
 import { ArtworkData } from '../CrawlResult'
-import { store } from '../Store'
+import { store } from '../store/Store'
 
 // 保存单个图片作品的数据
 class SaveArtworkData {

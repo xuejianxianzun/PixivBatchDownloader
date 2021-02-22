@@ -1,6 +1,6 @@
 import { filter, FilterOption } from '../filter/Filter'
 import { NovelData } from '../CrawlResult.d'
-import { store } from '../Store'
+import { store } from '../store/Store'
 import { settings } from '../setting/Settings'
 
 // 保存单个小说作品的数据

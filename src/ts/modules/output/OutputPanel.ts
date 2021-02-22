@@ -1,6 +1,6 @@
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
-import { store } from '../Store'
+import { store } from '../store/Store'
 import { Utils } from '../utils/Utils'
 import config from '../config/Config'
 import { theme } from '../Theme'

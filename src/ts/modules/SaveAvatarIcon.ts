@@ -3,7 +3,7 @@ import { API } from './utils/API'
 import { log } from './Log'
 import { Tools } from './tools/Tools'
 import { EVT } from './EVT'
-import { img2ico } from './ImageToIcon'
+import { img2ico } from './utils/imageToIcon'
 import { Utils } from './utils/Utils'
 
 // 保存用户头像为图标

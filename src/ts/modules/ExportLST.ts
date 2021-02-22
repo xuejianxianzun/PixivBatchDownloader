@@ -1,5 +1,5 @@
 import { Tools } from './tools/Tools'
-import { store } from './Store'
+import { store } from './store/Store'
 import { fileName } from './FileName'
 import { lang } from './Lang'
 import { Utils } from './utils/Utils'

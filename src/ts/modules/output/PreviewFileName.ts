@@ -1,4 +1,4 @@
-import { store } from '../Store'
+import { store } from '../store/Store'
 import { EVT } from '../EVT'
 import { fileName } from '../FileName'
 import { lang } from '../Lang'

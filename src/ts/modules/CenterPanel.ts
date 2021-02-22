@@ -1,6 +1,6 @@
 import { lang } from './Lang'
 import { EVT } from './EVT'
-import { states } from './States'
+import { states } from './store/States'
 import { theme } from './Theme'
 import Config from './config/Config'
 import { msgBox } from './MsgBox'

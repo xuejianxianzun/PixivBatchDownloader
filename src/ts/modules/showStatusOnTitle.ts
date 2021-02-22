@@ -26,7 +26,7 @@ const flags = {
 
 type FlagList = keyof typeof flags
 
-class EditTitle {
+class showStatusOnTitle {
   constructor() {
     this.bindEvents()
   }
@@ -156,4 +156,4 @@ class EditTitle {
     }, 500)
   }
 }
-new EditTitle()
+new showStatusOnTitle()

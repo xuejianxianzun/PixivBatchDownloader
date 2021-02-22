@@ -3,7 +3,7 @@ import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
-import { store } from '../Store'
+import { store } from '../store/Store'
 import { Tools } from '../tools/Tools'
 import { API } from '../utils/API'
 

@@ -1,5 +1,5 @@
 import { settings, setSetting } from './Settings'
-import { secretSignal } from '../SecretSignal'
+import { secretSignal } from '../utils/SecretSignal'
 import { log } from '../Log'
 import { toast } from '../Toast'
 

@@ -5,7 +5,7 @@ import { lang } from '../Lang'
 import { Tools } from '../tools/Tools'
 import { options } from '../setting/Options'
 import { DeleteWorks } from '../DeleteWorks'
-import { store } from '../Store'
+import { store } from '../store/Store'
 import { Utils } from '../utils/Utils'
 
 class InitDiscoverPage extends InitPageBase {

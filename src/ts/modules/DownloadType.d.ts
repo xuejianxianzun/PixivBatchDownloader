@@ -1,4 +1,4 @@
-import { Result } from './StoreType'
+import { Result } from './store/StoreType'
 
 export interface TaskList {
   [id: string]: {

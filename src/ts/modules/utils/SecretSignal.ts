@@ -9,6 +9,7 @@ class SecretSignal {
     cb: Function
   }[] = []
 
+  // 允许的按键：字母键，数字键，小键盘数字键
   // "KeyX"
   // "Digit9"
   // "Numpad1"

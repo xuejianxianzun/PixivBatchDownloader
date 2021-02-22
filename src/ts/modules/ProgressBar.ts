@@ -1,5 +1,5 @@
 // 下载进度条
-import { store } from './Store'
+import { store } from './store/Store'
 import { Tools } from './tools/Tools'
 import { lang } from './Lang'
 

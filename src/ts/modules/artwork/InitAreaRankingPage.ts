@@ -5,7 +5,7 @@ import { lang } from '../Lang'
 import { Tools } from '../tools/Tools'
 import { options } from '../setting/Options'
 import { filter, FilterOption } from '../filter/Filter'
-import { store } from '../Store'
+import { store } from '../store/Store'
 import { Utils } from '../utils/Utils'
 
 class InitAreaRankingPage extends InitPageBase {

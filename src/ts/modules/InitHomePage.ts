@@ -5,7 +5,7 @@ import { lang } from './Lang'
 import { options } from './setting/Options'
 import { Tools } from './tools/Tools'
 import { EVT } from './EVT'
-import { IDData } from './StoreType'
+import { IDData } from './store/StoreType'
 
 class InitHomePage extends InitPageBase {
   constructor() {
