@@ -1,25 +1,14 @@
-import { DOM } from './DOM'
-import { Tools } from './Tools'
-
 // 生成 csv 文件
 // csv 文件结构参考 https://www.jianshu.com/p/54b3afc06126
 
-interface CSVData {
-  body: any[][]
-  download?: boolean
-  fileName?: string
-}
+type CSVData = any[][]
 
-const example: CSVData = {
-  body: [
-    ['titleA', 'titleB', 'titleC'],
-    ['a1', 'b1', 'c1'],
-    [[1, 2, 3], false, 456],
-    [undefined, 'b,b,b', 'c c c'],
-  ],
-  download: true,
-  fileName: 'test',
-}
+const example: CSVData = [
+  ['titleA', 'titleB', 'titleC'],
+  ['a1', 'b1', 'c1'],
+  [[1, 2, 3], false, 456],
+  [undefined, 'b,b,b', 'c c c'],
+]
 
 // 每一项数据可以是任何类型（any）。如果它不是 String，它会被自动转换为 String。
 // 自动转换的结果可能不符合你的预期。如果你要完全控制输出的内容，你应该自己把内容全部转换成字符串，再传递到这个类里。
@@ -92,23 +81,13 @@ class CreateCSV {
     const result: string[] = [] // 储存结果。每行的结果合并为一个字符串
 
     // 添加每一行的数据
-    for (const row of data.body) {
+    for (const row of data) {
       result.push(this.format(row).join(this.separate))
     }
 
     const csvData = result.join(this.CRLF)
     const csvBlob = new Blob([this.utf8BOM, csvData])
-
-    // 如果不需要下载，就返回 blob 文件
-    if (!data.download) {
-      return csvBlob
-    }
-
-    // 如果需要下载文件
-    const url = URL.createObjectURL(csvBlob)
-    const name = data.fileName || DOM.getTitle()
-    Tools.downloadFile(url, Tools.replaceUnsafeStr(name) + '.csv')
-    return url
+    return csvBlob
   }
 
   private UTF8BOM() {

@@ -1,5 +1,25 @@
 # CHANGLOG
 
+type: 'application/json'
+
+改为一个导出 json 的工具函数
+
+## 9.6.1 2021/02/22
+
+### 导出结果为 csv 文件时，增加了 xRestrict 数据
+
+根据 xRestrict 的含义，输出对应的字符串。
+
+```ts
+private readonly xRestrictMap = new Map([
+  [0, 'AllAges'],
+  [1, 'R-18'],
+  [2, 'R-18G'],
+])
+```
+
+### 优化项目结构，优化代码
+
 ## 9.6.0 2021/02/21
 
 ### 新增设置项：按照分级限制筛选作品

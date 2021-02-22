@@ -182,8 +182,8 @@
         /* harmony import */ var _modules_output_ShowURLs__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(
           /*! ./modules/output/ShowURLs */ './src/ts/modules/output/ShowURLs.ts'
         )
-        /* harmony import */ var _modules_CheckNew__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
-          /*! ./modules/CheckNew */ './src/ts/modules/CheckNew.ts'
+        /* harmony import */ var _modules_tools_CheckNew__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
+          /*! ./modules/tools/CheckNew */ './src/ts/modules/tools/CheckNew.ts'
         )
         /* harmony import */ var _modules_ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
           /*! ./modules/ShowWhatIsNew */ './src/ts/modules/ShowWhatIsNew.ts'
@@ -219,361 +219,6 @@
           window.sessionStorage.setItem('xz_pixiv_extension', '1')
           // 把脚本版的标记设置为 0，这样脚本版就不会运行
           window.sessionStorage.setItem('xz_pixiv_userscript', '0')
-        }
-
-        /***/
-      },
-
-    /***/ './src/ts/modules/API.ts':
-      /*!*******************************!*\
-  !*** ./src/ts/modules/API.ts ***!
-  \*******************************/
-      /*! exports provided: API */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony export (binding) */ __webpack_require__.d(
-          __webpack_exports__,
-          'API',
-          function () {
-            return API
-          }
-        )
-        class API {
-          // 通用的请求流程
-          // 发送 get 请求，返回 json 数据，抛出异常
-          static request(url) {
-            return new Promise((resolve, reject) => {
-              fetch(url, {
-                method: 'get',
-                credentials: 'same-origin',
-              })
-                .then((response) => {
-                  if (response.ok) {
-                    return response.json()
-                  } else {
-                    // 第一种异常，请求成功但状态不对
-                    reject({
-                      status: response.status,
-                      statusText: response.statusText,
-                    })
-                  }
-                })
-                .then((data) => {
-                  resolve(data)
-                })
-                .catch((error) => {
-                  // 第二种异常，请求失败
-                  reject(error)
-                })
-            })
-          }
-          // 获取收藏数据
-          // 这个 api 返回的作品列表顺序是按收藏顺序由近期到早期排列的
-          static async getBookmarkData(
-            id,
-            type = 'illusts',
-            tag,
-            offset,
-            hide = false
-          ) {
-            const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
-              hide ? 'hide' : 'show'
-            }&rdm=${Math.random()}`
-            return this.request(url)
-          }
-          // 添加收藏
-          static async addBookmark(type, id, tags, hide, token) {
-            const restrict = hide ? 1 : 0
-            let body = {}
-            if (type === 'illusts') {
-              body = {
-                comment: '',
-                illust_id: id,
-                restrict: restrict,
-                tags: tags,
-              }
-            } else {
-              body = {
-                comment: '',
-                novel_id: id,
-                restrict: restrict,
-                tags: tags,
-              }
-            }
-            return fetch(`https://www.pixiv.net/ajax/${type}/bookmarks/add`, {
-              method: 'POST',
-              credentials: 'same-origin',
-              headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json; charset=utf-8',
-                'x-csrf-token': token,
-              },
-              body: JSON.stringify(body),
-            })
-          }
-          // 获取关注的用户列表
-          static getFollowingList(
-            id,
-            rest = 'show',
-            offset = 0,
-            limit = 100,
-            tag = '',
-            lang = 'zh'
-          ) {
-            const url = `https://www.pixiv.net/ajax/user/${id}/following?offset=${offset}&limit=${limit}&rest=${rest}&tag=${tag}&lang=${lang}`
-            return this.request(url)
-          }
-          // 获取好 P 友列表
-          static getMyPixivList(id, offset = 0, limit = 100, lang = 'zh') {
-            const url = `https://www.pixiv.net/ajax/user/${id}/mypixiv?offset=${offset}&limit=${limit}&lang=${lang}`
-            return this.request(url)
-          }
-          // 获取粉丝列表
-          static getFollowersList(id, offset = 0, limit = 100, lang = 'zh') {
-            const url = `https://www.pixiv.net/ajax/user/${id}/followers?offset=${offset}&limit=${limit}&lang=${lang}`
-            return this.request(url)
-          }
-          // 获取用户信息
-          static getUserProfile(id) {
-            // full=1 在画师的作品列表页使用，获取详细信息
-            // full=0 在作品页内使用，只获取少量信息
-            const url = `https://www.pixiv.net/ajax/user/${id}?full=1`
-            return this.request(url)
-          }
-          // 获取用户指定类型的作品列表
-          // 返回作品的 id 列表，不包含详细信息
-          static async getUserWorksByType(
-            id,
-            type = ['illusts', 'manga', 'novels']
-          ) {
-            let typeSet = new Set(type)
-            let result = []
-            const url = `https://www.pixiv.net/ajax/user/${id}/profile/all`
-            let data = await this.request(url)
-            for (const type of typeSet.values()) {
-              const idList = Object.keys(data.body[type])
-              for (const id of idList) {
-                result.push({
-                  type,
-                  id,
-                })
-              }
-            }
-            return result
-          }
-          // 获取用户指定类型、并且指定 tag 的作品列表
-          // 返回整个请求的结果，里面包含作品的详细信息
-          // 必须带 tag 使用。不带 tag 虽然也能获得数据，但是获得的并不全，很奇怪。
-          static getUserWorksByTypeWithTag(
-            id,
-            type,
-            tag,
-            offset = 0,
-            limit = 999999
-          ) {
-            // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=9999999
-            const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${limit}`
-            return this.request(url)
-          }
-          // 获取插画 漫画 动图 的详细信息
-          static getArtworkData(id) {
-            const url = `https://www.pixiv.net/ajax/illust/${id}`
-            return this.request(url)
-          }
-          // 获取动图的元数据
-          static getUgoiraMeta(id) {
-            const url = `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`
-            return this.request(url)
-          }
-          // 获取小说的详细信息
-          static getNovelData(id) {
-            const url = `https://www.pixiv.net/ajax/novel/${id}`
-            return this.request(url)
-          }
-          // 获取相关作品
-          static getRelatedData(id) {
-            // 最后的 18 是预加载首屏的多少个作品的信息，和下载并没有关系
-            const url = `https://www.pixiv.net/ajax/illust/${id}/recommend/init?limit=18`
-            return this.request(url)
-          }
-          // 获取排行榜数据
-          // 排行榜数据基本是一批 50 条作品信息
-          static getRankingData(option) {
-            let url = `https://www.pixiv.net/ranking.php?mode=${option.mode}&p=${option.p}&format=json`
-            // 把可选项添加到 url 里
-            let temp = new URL(url)
-            // 下面两项需要判断有值再添加。不可以添加了这些字段却使用空值。
-            if (option.worksType) {
-              temp.searchParams.set('content', option.worksType)
-            }
-            if (option.date) {
-              temp.searchParams.set('date', option.date)
-            }
-            url = temp.toString()
-            return this.request(url)
-          }
-          // 获取收藏后的相似作品数据
-          // 需要传入作品 id 和要抓取的数量。但是实际获取到的数量会比指定的数量少一些
-          static getRecommenderData(id, number) {
-            const url = `/rpc/recommender.php?type=illust&sample_illusts=${id}&num_recommendations=${number}`
-            return this.request(url)
-          }
-          // 获取搜索数据
-          static getSearchData(word, type = 'artworks', p = 1, option = {}) {
-            // 基础的 url
-            let url = `https://www.pixiv.net/ajax/search/${type}/${encodeURIComponent(
-              word
-            )}?word=${encodeURIComponent(word)}&p=${p}`
-            // 把可选项添加到 url 里
-            let temp = new URL(url)
-            for (const [key, value] of Object.entries(option)) {
-              if (value) {
-                temp.searchParams.set(key, value)
-              }
-            }
-            url = temp.toString()
-            return this.request(url)
-          }
-          static getNovelSearchData(word, p = 1, option = {}) {
-            // 基础的 url
-            let url = `https://www.pixiv.net/ajax/search/novels/${encodeURIComponent(
-              word
-            )}?word=${encodeURIComponent(word)}&p=${p}`
-            // 把可选项添加到 url 里
-            let temp = new URL(url)
-            for (const [key, value] of Object.entries(option)) {
-              if (value) {
-                temp.searchParams.set(key, value)
-              }
-            }
-            url = temp.toString()
-            return this.request(url)
-          }
-          // 获取大家的新作品的数据
-          static getNewIllustData(option) {
-            let url = `https://www.pixiv.net/ajax/illust/new?lastId=${option.lastId}&limit=${option.limit}&type=${option.type}&r18=${option.r18}`
-            return this.request(url)
-          }
-          // 获取大家的新作小说的数据
-          static getNewNovleData(option) {
-            let url = `https://www.pixiv.net/ajax/novel/new?lastId=${option.lastId}&limit=${option.limit}&r18=${option.r18}`
-            return this.request(url)
-          }
-          // 获取关注的的新作品的数据
-          static getBookmarkNewIllustData(p = 1, r18 = false) {
-            let path = r18 ? 'bookmark_new_illust_r18' : 'bookmark_new_illust'
-            let url = `https://www.pixiv.net/${path}.php?p=${p}`
-            return new Promise((resolve, reject) => {
-              fetch(url, {
-                method: 'get',
-                credentials: 'same-origin',
-              })
-                .then((response) => {
-                  if (response.ok) {
-                    return response.text()
-                  } else {
-                    throw new Error(response.status.toString())
-                  }
-                })
-                .then((data) => {
-                  let listPageDocument = new DOMParser().parseFromString(
-                    data,
-                    'text/html'
-                  )
-                  // 查找是否有下一页的按钮，如果没有说明是最后一页了，不再继续抓取下一页
-                  let lastPage = false
-                  if (!listPageDocument.querySelector('span.next a')) {
-                    lastPage = true
-                  }
-                  let worksInfoText = listPageDocument.querySelector(
-                    '#js-mount-point-latest-following'
-                  ).dataset.items
-                  resolve({
-                    lastPage,
-                    data: JSON.parse(worksInfoText),
-                  })
-                })
-                .catch((error) => {
-                  reject(error)
-                })
-            })
-          }
-          // 根据 illustType，返回作品类型的描述
-          // 主要用于储存进 idList
-          static getWorkType(illustType) {
-            switch (parseInt(illustType.toString())) {
-              case 0:
-                return 'illusts'
-              case 1:
-                return 'manga'
-              case 2:
-                return 'ugoira'
-              case 3:
-                return 'novels'
-              default:
-                return 'unknown'
-            }
-          }
-          // 从 URL 中获取指定路径名的值，适用于符合 RESTful API 风格的路径
-          // 如 https://www.pixiv.net/novel/series/1090654
-          // 把路径用 / 分割，查找 key 所在的位置，后面一项就是它的 value
-          static getURLPathField(query) {
-            const pathArr = location.pathname.split('/')
-            const index = pathArr.indexOf(query)
-            if (index > 0) {
-              return pathArr[index + 1]
-            }
-            throw new Error(`getURLPathField ${query} failed!`)
-          }
-          // 获取小说的系列作品信息
-          // 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取
-          static getNovelSeriesData(
-            series_id,
-            limit = 30,
-            last_order,
-            order_by = 'asc'
-          ) {
-            const url = `https://www.pixiv.net/ajax/novel/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`
-            return this.request(url)
-          }
-          // 获取系列信息
-          // 这个接口的数据结构里同时有 illust （包含漫画）和 novel 系列数据
-          // 恍惚记得有插画系列来着，但是没找到对应的网址，难道是记错了？
-          static getSeriesData(series_id, pageNo) {
-            const url = `https://www.pixiv.net/ajax/series/${series_id}?p=${pageNo}`
-            return this.request(url)
-          }
-          // 点赞
-          static async addLike(id, type, token) {
-            let data = {}
-            if (type === 'illusts') {
-              data = {
-                illust_id: id,
-              }
-            } else {
-              data = {
-                novel_id: id,
-              }
-            }
-            const r = await fetch(`https://www.pixiv.net/ajax/${type}/like`, {
-              method: 'POST',
-              headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json; charset=utf-8',
-                'x-csrf-token': token,
-              },
-              credentials: 'same-origin',
-              body: JSON.stringify(data),
-            })
-            const json = await r.json()
-            return json
-          }
-          static async getMuteSettings() {
-            return this.request(
-              `https://www.pixiv.net/ajax/mute/items?context=setting`
-            )
-          }
         }
 
         /***/
@@ -765,8 +410,8 @@
             return BookmarkAfterDL
           }
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./Token */ './src/ts/modules/Token.ts'
@@ -878,7 +523,7 @@
               if (data === undefined) {
                 return reject(new Error(`Not find ${id} in result`))
               }
-              await _API__WEBPACK_IMPORTED_MODULE_0__['API']
+              await _utils_API__WEBPACK_IMPORTED_MODULE_0__['API']
                 .addBookmark(
                   data.type !== 3 ? 'illusts' : 'novels',
                   id.toString(),
@@ -927,8 +572,8 @@
             return BookmarkAllWorks
           }
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./Token */ './src/ts/modules/Token.ts'
@@ -1016,11 +661,11 @@
                 this.tipWrap.textContent = `Get data ${this.bookmarKData.length} / ${this.idList.length}`
                 let data
                 if (id.type === 'novels') {
-                  data = await _API__WEBPACK_IMPORTED_MODULE_0__[
+                  data = await _utils_API__WEBPACK_IMPORTED_MODULE_0__[
                     'API'
                   ].getNovelData(id.id)
                 } else {
-                  data = await _API__WEBPACK_IMPORTED_MODULE_0__[
+                  data = await _utils_API__WEBPACK_IMPORTED_MODULE_0__[
                     'API'
                   ].getArtworkData(id.id)
                 }
@@ -1045,7 +690,9 @@
               let index = 0
               for (const data of this.bookmarKData) {
                 this.tipWrap.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
-                await _API__WEBPACK_IMPORTED_MODULE_0__['API'].addBookmark(
+                await _utils_API__WEBPACK_IMPORTED_MODULE_0__[
+                  'API'
+                ].addBookmark(
                   data.type,
                   data.id,
                   _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
@@ -1089,8 +736,8 @@
             return BookmarksAddTag
           }
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts'
@@ -1128,14 +775,14 @@
             let errorFlag = false
             // 发起请求
             const [showData, hideData] = await Promise.all([
-              _API__WEBPACK_IMPORTED_MODULE_0__['API'].getBookmarkData(
+              _utils_API__WEBPACK_IMPORTED_MODULE_0__['API'].getBookmarkData(
                 _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].getUserId(),
                 this.type,
                 '未分類',
                 offset,
                 false
               ),
-              _API__WEBPACK_IMPORTED_MODULE_0__['API'].getBookmarkData(
+              _utils_API__WEBPACK_IMPORTED_MODULE_0__['API'].getBookmarkData(
                 _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].getUserId(),
                 this.type,
                 '未分類',
@@ -1191,7 +838,7 @@
           // 给未分类作品添加 tag
           async addTag(index, addList, tt) {
             const item = addList[index]
-            await _API__WEBPACK_IMPORTED_MODULE_0__['API'].addBookmark(
+            await _utils_API__WEBPACK_IMPORTED_MODULE_0__['API'].addBookmark(
               this.type,
               item.id,
               item.tags,
@@ -1234,8 +881,8 @@
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Theme */ './src/ts/modules/Theme.ts'
         )
-        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./Config */ './src/ts/modules/Config.ts'
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./config/Config */ './src/ts/modules/config/Config.ts'
         )
         /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./MsgBox */ './src/ts/modules/MsgBox.ts'
@@ -1264,7 +911,7 @@
 
       <div class="centerWrap_head">
       <div class="centerWrap_title blue">
-      ${_Config__WEBPACK_IMPORTED_MODULE_4__['default'].name}
+      ${_config_Config__WEBPACK_IMPORTED_MODULE_4__['default'].name}
       <div class="btns">
       <a class="has_tip centerWrap_top_btn update" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__[
         'lang'
@@ -1517,145 +1164,6 @@
         /***/
       },
 
-    /***/ './src/ts/modules/CheckNew.ts':
-      /*!************************************!*\
-  !*** ./src/ts/modules/CheckNew.ts ***!
-  \************************************/
-      /*! no exports provided */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./EVT */ './src/ts/modules/EVT.ts'
-        )
-
-        // 检查新版本
-        class CheckNew {
-          constructor() {
-            this.checkNew()
-          }
-          async checkNew() {
-            // 读取上一次检查的时间，如果超过指定的时间，则检查 GitHub 上的信息
-            const timeName = 'xzUpdateTime'
-            const verName = 'xzGithubVer'
-            const interval = 1000 * 60 * 30 // 30 分钟检查一次
-            const lastTime = localStorage.getItem(timeName)
-            if (
-              !lastTime ||
-              new Date().getTime() - parseInt(lastTime) > interval
-            ) {
-              // 获取最新的 releases 信息
-              const latest = await fetch(
-                'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest'
-              )
-              const latestJson = await latest.json()
-              const latestVer = latestJson.name
-              // 保存 GitHub 上的版本信息
-              localStorage.setItem(verName, latestVer)
-              // 保存本次检查的时间戳
-              localStorage.setItem(timeName, new Date().getTime().toString())
-            }
-            // 获取本地扩展的版本号
-            const manifest = await fetch(
-              chrome.extension.getURL('manifest.json')
-            )
-            const manifestJson = await manifest.json()
-            const manifestVer = manifestJson.version
-            // 比较大小
-            const latestVer = localStorage.getItem(verName)
-            if (!latestVer) {
-              return
-            }
-            if (this.bigger(latestVer, manifestVer)) {
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
-                _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.hasNewVer
-              )
-            }
-          }
-          // 传入两个版本号字符串，比较第一个是否比第二个大
-          bigger(a, b) {
-            const _a = a.split('.')
-            const _b = b.split('.')
-            // 分别比较每一个版本号字段，当首次遇到 a > b 的时候返回 true
-            for (let i = 0; i < _a.length; i++) {
-              if (_b[i] === undefined) {
-                break
-              }
-              if (Number.parseInt(_a[i]) > Number.parseInt(_b[i])) {
-                return true
-              }
-            }
-            return false
-          }
-        }
-        new CheckNew()
-
-        /***/
-      },
-
-    /***/ './src/ts/modules/Colors.ts':
-      /*!**********************************!*\
-  !*** ./src/ts/modules/Colors.ts ***!
-  \**********************************/
-      /*! exports provided: Colors */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony export (binding) */ __webpack_require__.d(
-          __webpack_exports__,
-          'Colors',
-          function () {
-            return Colors
-          }
-        )
-        var Colors
-        ;(function (Colors) {
-          // 通用颜色
-          Colors['white'] = '#fff'
-          Colors['black'] = '#000'
-          Colors['red'] = '#f00'
-          Colors['theme'] = '#0ea8ef'
-          // 带有语义的字体颜色
-          Colors['textSuccess'] = '#00BD17'
-          Colors['textWarning'] = '#d27e00'
-          Colors['textError'] = '#f00'
-          // 背景颜色
-          // 稍暗，适合在颜色区域的面积较大时使用
-          Colors['bgBlue'] = '#0ea8ef'
-          Colors['bgGreen'] = '#14ad27'
-          Colors['bgRed'] = '#f33939'
-          Colors['bgYellow'] = '#e49d00'
-          // 带有语义的背景颜色
-          // 稍亮，适合在小区域使用
-          Colors['bgBrightBlue'] = '#29b3f3'
-          Colors['bgSuccess'] = '#00BD17'
-          Colors['bgWarning'] = '#e49d00'
-          Colors['bgError'] = '#f00'
-        })(Colors || (Colors = {}))
-
-        /***/
-      },
-
-    /***/ './src/ts/modules/Config.ts':
-      /*!**********************************!*\
-  !*** ./src/ts/modules/Config.ts ***!
-  \**********************************/
-      /*! exports provided: default */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        // 储存一些配置
-        /* harmony default export */ __webpack_exports__['default'] = {
-          outputMax: 5000,
-          downloadThreadMax: 10,
-          worksTypeName: ['Illustration', 'Manga', 'Ugoira', 'Novel'],
-          name: 'Powerful Pixiv Downloader',
-          settingStoreName: 'xzSetting',
-        }
-
-        /***/
-      },
-
     /***/ './src/ts/modules/CreateCSV.ts':
       /*!*************************************!*\
   !*** ./src/ts/modules/CreateCSV.ts ***!
@@ -1671,23 +1179,14 @@
             return createCSV
           }
         )
-        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./DOM */ './src/ts/modules/DOM.ts'
-        )
-        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Tools */ './src/ts/modules/Tools.ts'
-        )
-
-        const example = {
-          body: [
-            ['titleA', 'titleB', 'titleC'],
-            ['a1', 'b1', 'c1'],
-            [[1, 2, 3], false, 456],
-            [undefined, 'b,b,b', 'c c c'],
-          ],
-          download: true,
-          fileName: 'test',
-        }
+        // 生成 csv 文件
+        // csv 文件结构参考 https://www.jianshu.com/p/54b3afc06126
+        const example = [
+          ['titleA', 'titleB', 'titleC'],
+          ['a1', 'b1', 'c1'],
+          [[1, 2, 3], false, 456],
+          [undefined, 'b,b,b', 'c c c'],
+        ]
         // 每一项数据可以是任何类型（any）。如果它不是 String，它会被自动转换为 String。
         // 自动转换的结果可能不符合你的预期。如果你要完全控制输出的内容，你应该自己把内容全部转换成字符串，再传递到这个类里。
         // 这个类会自动处理需要添加双引号的情况，所以你不用自己添加双引号。
@@ -1749,27 +1248,12 @@
           create(data) {
             const result = [] // 储存结果。每行的结果合并为一个字符串
             // 添加每一行的数据
-            for (const row of data.body) {
+            for (const row of data) {
               result.push(this.format(row).join(this.separate))
             }
             const csvData = result.join(this.CRLF)
             const csvBlob = new Blob([this.utf8BOM, csvData])
-            // 如果不需要下载，就返回 blob 文件
-            if (!data.download) {
-              return csvBlob
-            }
-            // 如果需要下载文件
-            const url = URL.createObjectURL(csvBlob)
-            const name =
-              data.fileName ||
-              _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].getTitle()
-            _Tools__WEBPACK_IMPORTED_MODULE_1__['Tools'].downloadFile(
-              url,
-              _Tools__WEBPACK_IMPORTED_MODULE_1__['Tools'].replaceUnsafeStr(
-                name
-              ) + '.csv'
-            )
-            return url
+            return csvBlob
           }
           UTF8BOM() {
             const buff = new ArrayBuffer(3)
@@ -2432,8 +1916,8 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts'
@@ -2522,7 +2006,7 @@
             _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgRed,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgRed,
                 _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
                   '_清除多图作品'
                 ),
@@ -2562,7 +2046,7 @@
             _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgRed,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgRed,
                 _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
                   '_清除动图作品'
                 ),
@@ -2603,7 +2087,7 @@
               'DOM'
             ].addBtn(
               'crawlBtns',
-              _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgRed,
+              _config_Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgRed,
               _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
                 '_手动删除作品'
               ),
@@ -3211,8 +2695,8 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./setting/Settings */ './src/ts/modules/setting/Settings.ts'
@@ -3241,8 +2725,8 @@
         /* harmony import */ var _States__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
           /*! ./States */ './src/ts/modules/States.ts'
         )
-        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
-          /*! ./Config */ './src/ts/modules/Config.ts'
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
+          /*! ./config/Config */ './src/ts/modules/config/Config.ts'
         )
         /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
           /*! ./Toast */ './src/ts/modules/Toast.ts'
@@ -3379,22 +2863,22 @@
     
     <div class="centerWrap_btns">
     <button class="startDownload" type="button" style="background:${
-      _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].bgBlue
+      _config_Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].bgBlue
     };"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
               '_开始下载'
             )}</button>
     <button class="pauseDownload" type="button" style="background:${
-      _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].bgYellow
+      _config_Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].bgYellow
     };"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
               '_暂停下载'
             )}</button>
     <button class="stopDownload" type="button" style="background:${
-      _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].bgRed
+      _config_Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].bgRed
     };"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
               '_停止下载'
             )}</button>
     <button class="copyUrl" type="button" style="background:${
-      _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].bgGreen
+      _config_Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].bgGreen
     };"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
               '_复制url'
             )}</button>
@@ -3632,13 +3116,13 @@
             if (
               setThread < 1 ||
               setThread >
-                _Config__WEBPACK_IMPORTED_MODULE_15__['default']
+                _config_Config__WEBPACK_IMPORTED_MODULE_15__['default']
                   .downloadThreadMax ||
               isNaN(setThread)
             ) {
               // 如果数值非法，则重设为默认值
               this.thread =
-                _Config__WEBPACK_IMPORTED_MODULE_15__[
+                _config_Config__WEBPACK_IMPORTED_MODULE_15__[
                   'default'
                 ].downloadThreadMax
             } else {
@@ -3720,7 +3204,8 @@
               this.reset()
               this.setDownStateText(
                 _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_下载完毕'),
-                _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].textSuccess
+                _config_Colors__WEBPACK_IMPORTED_MODULE_5__['Colors']
+                  .textSuccess
               )
             }
             this.checkCompleteWithError()
@@ -3742,7 +3227,7 @@
           // 设置下载状态文本，默认颜色为主题蓝色
           setDownStateText(
             text,
-            color = _Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].bgBlue
+            color = _config_Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].bgBlue
           ) {
             this.statesEl.textContent = text
             this.statesEl.style.color = color
@@ -4384,8 +3869,8 @@ flag 及其含义如下：
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Config */ './src/ts/modules/Config.ts'
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./config/Config */ './src/ts/modules/config/Config.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
@@ -4399,12 +3884,20 @@ flag 及其含义如下：
         /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./Toast */ './src/ts/modules/Toast.ts'
         )
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+          /*! ./Tools */ './src/ts/modules/Tools.ts'
+        )
 
         // name 这个字段在 csv 里的标题
         // index 这个字段在数据里的索引名
         // 导出抓取结果为 csv 文件
         class ExportResult2CSV {
           constructor() {
+            this.xRestrictMap = new Map([
+              [0, 'AllAges'],
+              [1, 'R-18'],
+              [2, 'R-18G'],
+            ])
             // 定义要保存的字段
             this.fieldCfg = [
               {
@@ -4480,6 +3973,10 @@ flag 及其含义如下：
                 name: 'fileName',
                 index: 'title',
               },
+              {
+                name: 'xRestrict',
+                index: 'xRestrict',
+              },
             ]
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.outputCSV,
@@ -4539,11 +4036,14 @@ flag 及其含义如下：
                   // 对于某些字段，将其内容特殊化处理
                   if (field.name === 'type') {
                     result =
-                      _Config__WEBPACK_IMPORTED_MODULE_3__['default']
+                      _config_Config__WEBPACK_IMPORTED_MODULE_3__['default']
                         .worksTypeName[result]
                   }
                   if (field.name === 'bookmarked') {
-                    result = result ? 'yes' : 'no'
+                    result = result ? 'Yes' : 'No'
+                  }
+                  if (field.name === 'xRestrict') {
+                    result = this.xRestrictMap.get(result) || ''
                   }
                   bodyItem.push(result)
                 }
@@ -4551,19 +4051,25 @@ flag 及其含义如下：
               // 把这个作品的数据添加到内容数组里
               body.push(bodyItem)
             }
+            const csv = _CreateCSV__WEBPACK_IMPORTED_MODULE_6__[
+              'createCSV'
+            ].create(body)
+            const csvURL = URL.createObjectURL(csv)
             // 设置文件名
-            let name = ''
+            let csvName = _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].getTitle()
             const ogTitle = document.querySelector('meta[property="og:title"]')
             if (ogTitle) {
-              name = ogTitle.content
-            } else {
-              name = _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM'].getTitle()
+              csvName = ogTitle.content
             }
-            _CreateCSV__WEBPACK_IMPORTED_MODULE_6__['createCSV'].create({
-              body: body,
-              download: true,
-              fileName: name,
-            })
+            csvName = `result-${_Tools__WEBPACK_IMPORTED_MODULE_8__[
+              'Tools'
+            ].replaceUnsafeStr(csvName)}-${_Store__WEBPACK_IMPORTED_MODULE_4__[
+              'store'
+            ].crawlCompleteTime.getTime()}.csv`
+            _Tools__WEBPACK_IMPORTED_MODULE_8__['Tools'].downloadFile(
+              csvURL,
+              csvName
+            )
             _Toast__WEBPACK_IMPORTED_MODULE_7__['toast'].success(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_导出成功')
             )
@@ -4700,8 +4206,8 @@ flag 及其含义如下：
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
         )
-        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Config */ './src/ts/modules/Config.ts'
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./config/Config */ './src/ts/modules/config/Config.ts'
         )
         /* harmony import */ var _DateFormat__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./DateFormat */ './src/ts/modules/DateFormat.ts'
@@ -4855,9 +4361,8 @@ flag 及其含义如下：
               },
               '{type}': {
                 value:
-                  _Config__WEBPACK_IMPORTED_MODULE_2__['default'].worksTypeName[
-                    data.type
-                  ],
+                  _config_Config__WEBPACK_IMPORTED_MODULE_2__['default']
+                    .worksTypeName[data.type],
                 prefix: '',
                 safe: true,
               },
@@ -4952,9 +4457,8 @@ flag 及其含义如下：
               ]
               if (allSwitch[data.type]) {
                 const folder =
-                  _Config__WEBPACK_IMPORTED_MODULE_2__['default'].worksTypeName[
-                    data.type
-                  ]
+                  _config_Config__WEBPACK_IMPORTED_MODULE_2__['default']
+                    .worksTypeName[data.type]
                 result = this.appendFolder(result, folder)
               }
             }
@@ -5412,8 +4916,8 @@ flag 及其含义如下：
             return ImageViewer
           }
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./EVT */ './src/ts/modules/EVT.ts'
@@ -5561,7 +5065,7 @@ flag 及其含义如下：
               _Loading__WEBPACK_IMPORTED_MODULE_4__['loading'].show = true
             }
             // 获取作品数据，生成缩略图列表
-            const data = await _API__WEBPACK_IMPORTED_MODULE_0__[
+            const data = await _utils_API__WEBPACK_IMPORTED_MODULE_0__[
               'API'
             ].getArtworkData(this.cfg.workId)
             const body = data.body
@@ -6229,11 +5733,11 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./utils/API */ './src/ts/modules/utils/API.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Token */ './src/ts/modules/Token.ts'
@@ -6283,7 +5787,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_9__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_开始抓取'),
                 [
                   [
@@ -6304,7 +5808,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_9__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
                   '_抓取推荐作品'
                 ),
@@ -6333,7 +5837,7 @@ flag 及其含义如下：
                 'DOM'
               ].addBtn(
                 'otherBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgGreen,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgGreen,
                 _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
                   '_给未分类作品添加添加tag'
                 ),
@@ -6437,7 +5941,7 @@ flag 及其含义如下：
           async getIdList() {
             let data
             try {
-              data = await _API__WEBPACK_IMPORTED_MODULE_1__[
+              data = await _utils_API__WEBPACK_IMPORTED_MODULE_1__[
                 'API'
               ].getBookmarkData(
                 _DOM__WEBPACK_IMPORTED_MODULE_9__['DOM'].getUserId(),
@@ -6579,11 +6083,11 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./utils/API */ './src/ts/modules/utils/API.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
@@ -6632,7 +6136,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_7__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_开始抓取'),
                 [
                   [
@@ -6679,7 +6183,7 @@ flag 及其含义如下：
                 'DOM'
               ].addBtn(
                 'otherBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgGreen,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgGreen,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                   '_给未分类作品添加添加tag'
                 ),
@@ -6747,7 +6251,7 @@ flag 及其含义如下：
           async getIdList() {
             let data
             try {
-              data = await _API__WEBPACK_IMPORTED_MODULE_1__[
+              data = await _utils_API__WEBPACK_IMPORTED_MODULE_1__[
                 'API'
               ].getBookmarkData(
                 _DOM__WEBPACK_IMPORTED_MODULE_7__['DOM'].getUserId(),
@@ -6852,8 +6356,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
@@ -6861,8 +6365,8 @@ flag 及其含义如下：
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./setting/Options */ './src/ts/modules/setting/Options.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
@@ -6919,7 +6423,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_7__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_开始抓取'),
                 [
                   [
@@ -6939,7 +6443,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_7__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_下载用户列表'
                 )
@@ -7013,17 +6517,17 @@ flag 及其含义如下：
             try {
               switch (this.pageType) {
                 case 0:
-                  res = await _API__WEBPACK_IMPORTED_MODULE_4__[
+                  res = await _utils_API__WEBPACK_IMPORTED_MODULE_4__[
                     'API'
                   ].getFollowingList(this.myId, this.rest, offset)
                   break
                 case 1:
-                  res = await _API__WEBPACK_IMPORTED_MODULE_4__[
+                  res = await _utils_API__WEBPACK_IMPORTED_MODULE_4__[
                     'API'
                   ].getMyPixivList(this.myId, offset)
                   break
                 case 2:
-                  res = await _API__WEBPACK_IMPORTED_MODULE_4__[
+                  res = await _utils_API__WEBPACK_IMPORTED_MODULE_4__[
                     'API'
                   ].getFollowersList(this.myId, offset)
                   break
@@ -7085,21 +6589,28 @@ flag 及其含义如下：
           }
           toCSV() {
             // 添加用户信息
-            const body = this.userInfoList.map((item) => {
+            const data = this.userInfoList.map((item) => {
               return Object.values(item)
             })
             // 添加用户信息的标题字段
-            body.unshift(Object.keys(this.userInfoList[0]))
-            _CreateCSV__WEBPACK_IMPORTED_MODULE_8__['createCSV'].create({
-              body: body,
-              download: true,
-            })
+            data.unshift(Object.keys(this.userInfoList[0]))
+            const csv = _CreateCSV__WEBPACK_IMPORTED_MODULE_8__[
+              'createCSV'
+            ].create(data)
+            const csvURL = URL.createObjectURL(csv)
+            const csvName = _DOM__WEBPACK_IMPORTED_MODULE_7__['DOM'].getTitle()
+            _Tools__WEBPACK_IMPORTED_MODULE_9__['Tools'].downloadFile(
+              csvURL,
+              _Tools__WEBPACK_IMPORTED_MODULE_9__['Tools'].replaceUnsafeStr(
+                csvName
+              ) + '.csv'
+            )
           }
           // 获取用户的 id 列表
           async getIdList() {
             let idList = []
             try {
-              idList = await _API__WEBPACK_IMPORTED_MODULE_4__[
+              idList = await _utils_API__WEBPACK_IMPORTED_MODULE_4__[
                 'API'
               ].getUserWorksByType(this.userList[this.index])
             } catch (_a) {
@@ -7163,8 +6674,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
@@ -7195,7 +6706,7 @@ flag 及其含义如下：
               'DOM'
             ].addBtn(
               'crawlBtns',
-              _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+              _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_输入id进行抓取'
               ),
@@ -7218,7 +6729,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_4__['DOM']
               .addBtn(
                 'otherBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_清空已保存的抓取结果'
                 )
@@ -7392,8 +6903,8 @@ flag 及其含义如下：
         /* harmony import */ var _novel_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
           /*! ./novel/InitNewNovelPage */ './src/ts/modules/novel/InitNewNovelPage.ts'
         )
-        /* harmony import */ var _artwork_InitSeriesPage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(
-          /*! ./artwork/InitSeriesPage */ './src/ts/modules/artwork/InitSeriesPage.ts'
+        /* harmony import */ var _artwork_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(
+          /*! ./artwork/InitArtworkSeriesPage */ './src/ts/modules/artwork/InitArtworkSeriesPage.ts'
         )
         /* harmony import */ var _InitFollowingPage__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(
           /*! ./InitFollowingPage */ './src/ts/modules/InitFollowingPage.ts'
@@ -7512,8 +7023,8 @@ flag 及其含义如下：
                 ]()
               case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
                 .ArtworkSeries:
-                return new _artwork_InitSeriesPage__WEBPACK_IMPORTED_MODULE_21__[
-                  'InitSeriesPage'
+                return new _artwork_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_21__[
+                  'InitArtworkSeriesPage'
                 ]()
               case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
                 .Following:
@@ -7548,14 +7059,14 @@ flag 及其含义如下：
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
@@ -7672,7 +7183,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_2__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_开始抓取'),
                 [
                   [
@@ -7910,7 +7421,7 @@ flag 及其含义如下：
             }
             try {
               if (idData.type === 'novels') {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_3__[
+                const data = await _utils_API__WEBPACK_IMPORTED_MODULE_3__[
                   'API'
                 ].getNovelData(id)
                 await _novel_SaveNovelData__WEBPACK_IMPORTED_MODULE_11__[
@@ -7918,7 +7429,7 @@ flag 及其含义如下：
                 ].save(data)
                 this.afterGetWorksData(data)
               } else {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_3__[
+                const data = await _utils_API__WEBPACK_IMPORTED_MODULE_3__[
                   'API'
                 ].getArtworkData(id)
                 await _artwork_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__[
@@ -8128,8 +7639,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
@@ -8166,7 +7677,7 @@ flag 及其含义如下：
               _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
                 .addBtn(
                   'crawlBtns',
-                  _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                  _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                   _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                     '_抓取该页面的图片'
                   )
@@ -8322,8 +7833,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
@@ -8331,8 +7842,8 @@ flag 及其含义如下：
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./setting/Options */ './src/ts/modules/setting/Options.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./Store */ './src/ts/modules/Store.ts'
@@ -8410,7 +7921,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_开始抓取'),
                 [
                   [
@@ -8432,7 +7943,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM']
               .addBtn(
                 'otherBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_保存用户头像'
                 )
@@ -8445,7 +7956,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM']
               .addBtn(
                 'otherBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_保存用户封面'
                 )
@@ -8458,7 +7969,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM']
               .addBtn(
                 'otherBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_保存用户头像为图标'
                 ),
@@ -8481,7 +7992,7 @@ flag 及其含义如下：
               'DOM'
             ].addBtn(
               'otherBtns',
-              _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
+              _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_收藏本页面的所有作品'
               )
@@ -8605,7 +8116,7 @@ flag 及其含义如下：
                 type = ['novels']
                 break
             }
-            let idList = await _API__WEBPACK_IMPORTED_MODULE_4__[
+            let idList = await _utils_API__WEBPACK_IMPORTED_MODULE_4__[
               'API'
             ].getUserWorksByType(
               _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM'].getUserId(),
@@ -8663,7 +8174,7 @@ flag 及其含义如下：
             // 计算偏移量和需要保留的作品个数
             const offset = this.getOffset()
             const requsetNumber = this.getRequsetNumber()
-            let data = await _API__WEBPACK_IMPORTED_MODULE_4__[
+            let data = await _utils_API__WEBPACK_IMPORTED_MODULE_4__[
               'API'
             ].getUserWorksByTypeWithTag(
               _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM'].getUserId(),
@@ -8834,8 +8345,8 @@ flag 及其含义如下：
             return langText
           }
         )
-        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./Config */ './src/ts/modules/Config.ts'
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./config/Config */ './src/ts/modules/config/Config.ts'
         )
 
         // 储存下载器使用的多语言文本
@@ -9521,10 +9032,10 @@ flag 及其含义如下：
             'ダウンロードスレッドを設定する',
           ],
           _线程数字: [
-            `可以输入 1-${_Config__WEBPACK_IMPORTED_MODULE_0__['default'].downloadThreadMax} 之间的数字，设置同时下载的数量`,
-            `可以輸入 1-${_Config__WEBPACK_IMPORTED_MODULE_0__['default'].downloadThreadMax} 之間的數字，設定同時下載的數量。`,
-            `You can type a number between 1-${_Config__WEBPACK_IMPORTED_MODULE_0__['default'].downloadThreadMax} to set the number of concurrent downloads`,
-            `同時ダウンロード数を設定、1-${_Config__WEBPACK_IMPORTED_MODULE_0__['default'].downloadThreadMax} の数値を入力してください`,
+            `可以输入 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__['default'].downloadThreadMax} 之间的数字，设置同时下载的数量`,
+            `可以輸入 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__['default'].downloadThreadMax} 之間的數字，設定同時下載的數量。`,
+            `You can type a number between 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__['default'].downloadThreadMax} to set the number of concurrent downloads`,
+            `同時ダウンロード数を設定、1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__['default'].downloadThreadMax} の数値を入力してください`,
           ],
           _开始下载: [
             '开始下载',
@@ -10710,8 +10221,8 @@ flag 及其含义如下：
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Theme */ './src/ts/modules/Theme.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./config/Colors */ './src/ts/modules/config/Colors.ts'
         )
 
         // 日志
@@ -10722,9 +10233,9 @@ flag 及其含义如下：
             this.refresh = document.createElement('span') // 刷新时使用的元素
             this.levelColor = [
               'inherit',
-              _Colors__WEBPACK_IMPORTED_MODULE_3__['Colors'].textSuccess,
-              _Colors__WEBPACK_IMPORTED_MODULE_3__['Colors'].textWarning,
-              _Colors__WEBPACK_IMPORTED_MODULE_3__['Colors'].textError,
+              _config_Colors__WEBPACK_IMPORTED_MODULE_3__['Colors'].textSuccess,
+              _config_Colors__WEBPACK_IMPORTED_MODULE_3__['Colors'].textWarning,
+              _config_Colors__WEBPACK_IMPORTED_MODULE_3__['Colors'].textError,
             ]
             this.toBottom = false // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
             this.scrollToBottom()
@@ -10826,8 +10337,8 @@ flag 及其含义如下：
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./EVT */ './src/ts/modules/EVT.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Theme */ './src/ts/modules/Theme.ts'
@@ -10841,10 +10352,13 @@ flag 及其含义如下：
           constructor() {
             this.typeColor = {
               success:
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].textSuccess,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors']
+                  .textSuccess,
               warning:
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].textWarning,
-              error: _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].textError,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors']
+                  .textWarning,
+              error:
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].textError,
             }
             this.bindEvents()
           }
@@ -11257,8 +10771,8 @@ flag 及其含义如下：
             return QuickBookmark
           }
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts'
@@ -11380,10 +10894,12 @@ flag 及其含义如下：
               ? _Tools__WEBPACK_IMPORTED_MODULE_5__['Tools'].getNovelId()
               : _Tools__WEBPACK_IMPORTED_MODULE_5__['Tools'].getIllustId()
             return this.isNovel
-              ? await _API__WEBPACK_IMPORTED_MODULE_0__['API'].getNovelData(id)
-              : await _API__WEBPACK_IMPORTED_MODULE_0__['API'].getArtworkData(
-                  id
-                )
+              ? await _utils_API__WEBPACK_IMPORTED_MODULE_0__[
+                  'API'
+                ].getNovelData(id)
+              : await _utils_API__WEBPACK_IMPORTED_MODULE_0__[
+                  'API'
+                ].getArtworkData(id)
           }
           async addBookmark() {
             const type = this.isNovel ? 'novels' : 'illusts'
@@ -11406,7 +10922,7 @@ flag 及其含义如下：
               }
             }
             // 添加收藏
-            _API__WEBPACK_IMPORTED_MODULE_0__['API']
+            _utils_API__WEBPACK_IMPORTED_MODULE_0__['API']
               .addBookmark(
                 type,
                 id,
@@ -11430,7 +10946,7 @@ flag 及其含义如下：
           }
           // 点赞这个作品
           like(type, id) {
-            _API__WEBPACK_IMPORTED_MODULE_0__['API'].addLike(
+            _utils_API__WEBPACK_IMPORTED_MODULE_0__['API'].addLike(
               id,
               type,
               _Token__WEBPACK_IMPORTED_MODULE_3__['token'].token
@@ -12090,8 +11606,8 @@ flag 及其含义如下：
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Log */ './src/ts/modules/Log.ts'
@@ -12124,7 +11640,7 @@ flag 及其含义如下：
           }
           async saveAvatarIcon() {
             const userId = _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM'].getUserId()
-            const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__[
+            const userProfile = await _utils_API__WEBPACK_IMPORTED_MODULE_1__[
               'API'
             ].getUserProfile(userId)
             const bigImg = userProfile.body.imageBig // imageBig 并不是头像原图，而是裁剪成 170 px 的尺寸
@@ -12170,8 +11686,8 @@ flag 及其含义如下：
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Log */ './src/ts/modules/Log.ts'
@@ -12201,7 +11717,7 @@ flag 及其含义如下：
           }
           async saveAvatarImage() {
             const userId = _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM'].getUserId()
-            const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__[
+            const userProfile = await _utils_API__WEBPACK_IMPORTED_MODULE_1__[
               'API'
             ].getUserProfile(userId)
             const bigImg = userProfile.body.imageBig // imageBig 并不是头像原图，而是裁剪成 170 px 的尺寸
@@ -12243,8 +11759,8 @@ flag 及其含义如下：
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Log */ './src/ts/modules/Log.ts'
@@ -12277,7 +11793,7 @@ flag 及其含义如下：
           }
           async saveUserCover() {
             const userId = _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM'].getUserId()
-            const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__[
+            const userProfile = await _utils_API__WEBPACK_IMPORTED_MODULE_1__[
               'API'
             ].getUserProfile(userId)
             const bgData = userProfile.body.background
@@ -12404,8 +11920,8 @@ flag 及其含义如下：
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./DOM */ './src/ts/modules/DOM.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
@@ -12599,13 +12115,13 @@ flag 及其含义如下：
           addBtn() {
             this.controlBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].addBtn(
               'selectWorkBtns',
-              _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
+              _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_手动选择作品')
             )
             this.updateControlBtn()
             this.clearBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].addBtn(
               'selectWorkBtns',
-              _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgRed,
+              _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgRed,
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_清空选择的作品'
               )
@@ -12616,7 +12132,7 @@ flag 及其含义如下：
             })
             this.crawlBtn = _DOM__WEBPACK_IMPORTED_MODULE_0__['DOM'].addBtn(
               'selectWorkBtns',
-              _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+              _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_抓取选择的作品'
               )
@@ -12924,8 +12440,8 @@ flag 及其含义如下：
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Config */ './src/ts/modules/Config.ts'
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./config/Config */ './src/ts/modules/config/Config.ts'
         )
         /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./MsgBox */ './src/ts/modules/MsgBox.ts'
@@ -12946,7 +12462,8 @@ flag 及其含义如下：
             _MsgBox__WEBPACK_IMPORTED_MODULE_2__['msgBox'].show(
               _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_HowToUse'),
               {
-                title: _Config__WEBPACK_IMPORTED_MODULE_1__['default'].name,
+                title:
+                  _config_Config__WEBPACK_IMPORTED_MODULE_1__['default'].name,
                 btn: _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                   '_我知道了'
                 ),
@@ -13051,8 +12568,8 @@ flag 及其含义如下：
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ./Config */ './src/ts/modules/Config.ts'
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./config/Config */ './src/ts/modules/config/Config.ts'
         )
         /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./MsgBox */ './src/ts/modules/MsgBox.ts'
@@ -13080,7 +12597,7 @@ flag 及其含义如下：
             ) {
               _MsgBox__WEBPACK_IMPORTED_MODULE_2__['msgBox'].show(this.msg, {
                 title:
-                  _Config__WEBPACK_IMPORTED_MODULE_1__['default'].name +
+                  _config_Config__WEBPACK_IMPORTED_MODULE_1__['default'].name +
                   ` ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                     '_最近更新'
                   )}`,
@@ -13589,8 +13106,8 @@ flag 及其含义如下：
             return toast
           }
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./config/Colors */ './src/ts/modules/config/Colors.ts'
         )
 
         // 轻提示，只显示文字和背景颜色
@@ -13599,9 +13116,11 @@ flag 及其含义如下：
           constructor() {
             this.defaultCfg = {
               msg: '',
-              color: _Colors__WEBPACK_IMPORTED_MODULE_0__['Colors'].white,
+              color:
+                _config_Colors__WEBPACK_IMPORTED_MODULE_0__['Colors'].white,
               bgColor:
-                _Colors__WEBPACK_IMPORTED_MODULE_0__['Colors'].bgBrightBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_0__['Colors']
+                  .bgBrightBlue,
               dealy: 1500,
               enter: 'up',
               leave: 'fade',
@@ -13609,8 +13128,10 @@ flag 及其含义如下：
             }
             this.successCfg = {
               msg: '',
-              color: _Colors__WEBPACK_IMPORTED_MODULE_0__['Colors'].white,
-              bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__['Colors'].bgSuccess,
+              color:
+                _config_Colors__WEBPACK_IMPORTED_MODULE_0__['Colors'].white,
+              bgColor:
+                _config_Colors__WEBPACK_IMPORTED_MODULE_0__['Colors'].bgSuccess,
               dealy: 1500,
               enter: 'up',
               leave: 'fade',
@@ -13618,8 +13139,10 @@ flag 及其含义如下：
             }
             this.warningCfg = {
               msg: '',
-              color: _Colors__WEBPACK_IMPORTED_MODULE_0__['Colors'].white,
-              bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__['Colors'].bgWarning,
+              color:
+                _config_Colors__WEBPACK_IMPORTED_MODULE_0__['Colors'].white,
+              bgColor:
+                _config_Colors__WEBPACK_IMPORTED_MODULE_0__['Colors'].bgWarning,
               dealy: 1500,
               enter: 'up',
               leave: 'fade',
@@ -13627,8 +13150,10 @@ flag 及其含义如下：
             }
             this.errorCfg = {
               msg: '',
-              color: _Colors__WEBPACK_IMPORTED_MODULE_0__['Colors'].white,
-              bgColor: _Colors__WEBPACK_IMPORTED_MODULE_0__['Colors'].bgError,
+              color:
+                _config_Colors__WEBPACK_IMPORTED_MODULE_0__['Colors'].white,
+              bgColor:
+                _config_Colors__WEBPACK_IMPORTED_MODULE_0__['Colors'].bgError,
               dealy: 1500,
               enter: 'up',
               leave: 'fade',
@@ -14520,8 +14045,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
@@ -14555,7 +14080,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_抓取本页作品'
                 ),
@@ -14636,8 +14161,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../EVT */ './src/ts/modules/EVT.ts'
@@ -14660,8 +14185,8 @@ flag 及其含义如下：
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+          /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
           /*! ../Log */ './src/ts/modules/Log.ts'
@@ -14717,7 +14242,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                   '_从本页开始抓取new'
                 )
@@ -14729,7 +14254,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                   '_从本页开始抓取old'
                 )
@@ -14742,7 +14267,7 @@ flag 及其含义如下：
               'DOM'
             ].addBtn(
               'crawlBtns',
-              _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+              _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
               _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_抓取相关作品')
             )
             downRelatedBtn.addEventListener(
@@ -14828,7 +14353,7 @@ flag 及其含义如下：
           }
           async getIdList() {
             let type = ['illusts', 'manga']
-            let idList = await _API__WEBPACK_IMPORTED_MODULE_9__[
+            let idList = await _utils_API__WEBPACK_IMPORTED_MODULE_9__[
               'API'
             ].getUserWorksByType(
               _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM'].getUserId(),
@@ -14879,7 +14404,7 @@ flag 及其含义如下：
           }
           // 下载相关作品时使用
           async getRelatedList() {
-            let data = await _API__WEBPACK_IMPORTED_MODULE_9__[
+            let data = await _utils_API__WEBPACK_IMPORTED_MODULE_9__[
               'API'
             ].getRelatedData(
               _Tools__WEBPACK_IMPORTED_MODULE_11__['Tools'].getIllustId()
@@ -14922,6 +14447,194 @@ flag 及其含义如下：
         /***/
       },
 
+    /***/ './src/ts/modules/artwork/InitArtworkSeriesPage.ts':
+      /*!*********************************************************!*\
+  !*** ./src/ts/modules/artwork/InitArtworkSeriesPage.ts ***!
+  \*********************************************************/
+      /*! exports provided: InitArtworkSeriesPage */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'InitArtworkSeriesPage',
+          function () {
+            return InitArtworkSeriesPage
+          }
+        )
+        /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
+        )
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/modules/config/Colors.ts'
+        )
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../utils/API */ './src/ts/modules/utils/API.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../Lang */ './src/ts/modules/Lang.ts'
+        )
+        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../DOM */ './src/ts/modules/DOM.ts'
+        )
+        /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
+        )
+        /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
+        )
+        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+          /*! ../Store */ './src/ts/modules/Store.ts'
+        )
+        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+          /*! ../Log */ './src/ts/modules/Log.ts'
+        )
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+          /*! ../Tools */ './src/ts/modules/Tools.ts'
+        )
+        // 初始化插画/漫画的系列作品页面
+
+        class InitArtworkSeriesPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
+          'InitPageBase'
+        ] {
+          constructor() {
+            super()
+            this.seriesId = ''
+            this.init()
+          }
+          addCrawlBtns() {
+            _DOM__WEBPACK_IMPORTED_MODULE_4__['DOM']
+              .addBtn(
+                'crawlBtns',
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_开始抓取'),
+                [
+                  [
+                    'title',
+                    _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+                      '_开始抓取'
+                    ) +
+                      _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+                        '_默认下载多页'
+                      ),
+                  ],
+                ]
+              )
+              .addEventListener('click', () => {
+                this.readyCrawl()
+              })
+          }
+          initAny() {}
+          setFormOption() {
+            // 个数/页数选项的提示
+            this.maxCount = 100
+            _setting_Options__WEBPACK_IMPORTED_MODULE_5__[
+              'options'
+            ].setWantPageTip({
+              text: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_页数'),
+              tip: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+                '_从本页开始下载提示'
+              ),
+              rangTip: `1 - ${this.maxCount}`,
+            })
+          }
+          getWantPage() {
+            this.crawlNumber = this.checkWantPageInputGreater0(
+              this.maxCount,
+              true
+            )
+          }
+          nextStep() {
+            // 设置起始页码
+            const p = _Tools__WEBPACK_IMPORTED_MODULE_9__[
+              'Tools'
+            ].getURLSearchField(location.href, 'p')
+            this.startpageNo = parseInt(p) || 1
+            // 获取系列 id
+            this.seriesId = _utils_API__WEBPACK_IMPORTED_MODULE_2__[
+              'API'
+            ].getURLPathField('series')
+            this.getIdList()
+          }
+          async getIdList() {
+            let p = this.startpageNo + this.listPageFinished
+            const data = await _utils_API__WEBPACK_IMPORTED_MODULE_2__[
+              'API'
+            ].getSeriesData(this.seriesId, p)
+            this.listPageFinished++
+            // 保存本页面的作品的 id 列表
+            const idList = []
+            for (const info of data.body.page.series) {
+              idList.push(info.workId)
+            }
+            // data.body.page.series 里的才是本页面的作品，illust 里则不同，有时它的作品数量比页面上的更多
+            // 从 illust 里查找 id 对应的数据，进行过滤
+            for (const work of data.body.thumbnails.illust) {
+              if (!idList.includes(work.id)) {
+                continue
+              }
+              if (work.isAdContainer) {
+                continue
+              }
+              // 过滤器进行检查
+              const filterOpt = {
+                id: work.id,
+                tags: work.tags,
+                bookmarkData: !!work.bookmarkData,
+                width: work.width,
+                height: work.height,
+                workType: work.illustType,
+                userId: work.userId,
+                createDate: work.createDate,
+                xRestrict: work.xRestrict,
+              }
+              // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以 type 是 unknown
+              if (
+                await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__[
+                  'filter'
+                ].check(filterOpt)
+              ) {
+                _Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push({
+                  type: 'unknown',
+                  id: work.id,
+                })
+              }
+            }
+            // 如果 data.body.page.series 为空，就是到了最后一页
+            const endFlag = data.body.page.series.length === 0
+            // 抓取完毕
+            if (
+              endFlag ||
+              p >= this.maxCount ||
+              this.listPageFinished === this.crawlNumber
+            ) {
+              _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
+                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+                  '_列表页抓取完成'
+                )
+              )
+              this.getIdListFinished()
+            } else {
+              // 继续抓取
+              _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
+                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
+                  '_列表页抓取进度',
+                  this.listPageFinished.toString()
+                ),
+                1,
+                false
+              )
+              this.getIdList()
+            }
+          }
+          resetGetIdListStatus() {
+            this.listPageFinished = 0
+          }
+        }
+
+        /***/
+      },
+
     /***/ './src/ts/modules/artwork/InitBookmarkDetailPage.ts':
       /*!**********************************************************!*\
   !*** ./src/ts/modules/artwork/InitBookmarkDetailPage.ts ***!
@@ -14940,8 +14653,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
@@ -14952,8 +14665,8 @@ flag 及其含义如下：
         /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ../Store */ './src/ts/modules/Store.ts'
@@ -14974,7 +14687,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_抓取相似图片'
                 ),
@@ -15016,7 +14729,7 @@ flag 及其含义如下：
           }
           // 获取相似的作品列表
           async getIdList() {
-            let data = await _API__WEBPACK_IMPORTED_MODULE_5__[
+            let data = await _utils_API__WEBPACK_IMPORTED_MODULE_5__[
               'API'
             ].getRecommenderData(
               _Tools__WEBPACK_IMPORTED_MODULE_7__['Tools'].getIllustId(),
@@ -15053,8 +14766,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
@@ -15068,8 +14781,8 @@ flag 及其含义如下：
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ../Store */ './src/ts/modules/Store.ts'
@@ -15094,7 +14807,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_开始抓取'),
                 [
                   [
@@ -15145,7 +14858,7 @@ flag 及其含义如下：
             // 发起请求，获取列表页
             let data
             try {
-              data = await _API__WEBPACK_IMPORTED_MODULE_6__[
+              data = await _utils_API__WEBPACK_IMPORTED_MODULE_6__[
                 'API'
               ].getBookmarkNewIllustData(p, this.r18)
             } catch (error) {
@@ -15174,9 +14887,9 @@ flag 及其含义如下：
                 ].check(filterOpt)
               ) {
                 _Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push({
-                  type: _API__WEBPACK_IMPORTED_MODULE_6__['API'].getWorkType(
-                    data.illustType
-                  ),
+                  type: _utils_API__WEBPACK_IMPORTED_MODULE_6__[
+                    'API'
+                  ].getWorkType(data.illustType),
                   id: data.illustId,
                 })
               }
@@ -15234,8 +14947,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
@@ -15268,7 +14981,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_抓取当前作品'
                 ),
@@ -15339,8 +15052,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
@@ -15351,8 +15064,8 @@ flag 及其含义如下：
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ../Store */ './src/ts/modules/Store.ts'
@@ -15382,7 +15095,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_开始抓取'),
                 [
                   [
@@ -15450,7 +15163,7 @@ flag 及其含义如下：
           async getIdList() {
             let data
             try {
-              data = await _API__WEBPACK_IMPORTED_MODULE_5__[
+              data = await _utils_API__WEBPACK_IMPORTED_MODULE_5__[
                 'API'
               ].getNewIllustData(this.option)
             } catch (error) {
@@ -15487,9 +15200,9 @@ flag 及其含义如下：
                 ].check(filterOpt)
               ) {
                 _Store__WEBPACK_IMPORTED_MODULE_6__['store'].idList.push({
-                  type: _API__WEBPACK_IMPORTED_MODULE_5__['API'].getWorkType(
-                    nowData.illustType
-                  ),
+                  type: _utils_API__WEBPACK_IMPORTED_MODULE_5__[
+                    'API'
+                  ].getWorkType(nowData.illustType),
                   id: nowData.id,
                 })
               }
@@ -15545,11 +15258,11 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/modules/config/Colors.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
@@ -15593,7 +15306,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_4__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                   '_抓取本排行榜作品'
                 ),
@@ -15618,7 +15331,7 @@ flag 及其含义如下：
               _DOM__WEBPACK_IMPORTED_MODULE_4__['DOM']
                 .addBtn(
                   'crawlBtns',
-                  _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                  _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                   _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                     '_抓取首次登场的作品'
                   ),
@@ -15716,7 +15429,7 @@ flag 及其含义如下：
             // 发起请求，获取作品列表
             let data
             try {
-              data = await _API__WEBPACK_IMPORTED_MODULE_2__[
+              data = await _utils_API__WEBPACK_IMPORTED_MODULE_2__[
                 'API'
               ].getRankingData(this.option)
             } catch (error) {
@@ -15756,9 +15469,9 @@ flag 及其含义如下：
                   data.rank
                 )
                 _Store__WEBPACK_IMPORTED_MODULE_8__['store'].idList.push({
-                  type: _API__WEBPACK_IMPORTED_MODULE_2__['API'].getWorkType(
-                    data.illust_type
-                  ),
+                  type: _utils_API__WEBPACK_IMPORTED_MODULE_2__[
+                    'API'
+                  ].getWorkType(data.illust_type),
                   id: data.illust_id.toString(),
                 })
               }
@@ -15805,8 +15518,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
@@ -15826,8 +15539,8 @@ flag 及其含义如下：
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+          /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
           /*! ../Store */ './src/ts/modules/Store.ts'
@@ -16103,7 +15816,7 @@ flag 及其含义如下：
             }
             this.addBookmark = (event) => {
               const data = event.detail.data
-              _API__WEBPACK_IMPORTED_MODULE_8__['API'].addBookmark(
+              _utils_API__WEBPACK_IMPORTED_MODULE_8__['API'].addBookmark(
                 'illusts',
                 data.id.toString(),
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_11__['settings']
@@ -16139,7 +15852,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_14__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_开始筛选'),
                 [
                   [
@@ -16161,7 +15874,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_14__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_在结果中筛选'
                 ),
@@ -16203,7 +15916,7 @@ flag 及其含义如下：
               'DOM'
             ].addBtn(
               'otherBtns',
-              _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
+              _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_收藏本页面的所有作品'
               )
@@ -16346,7 +16059,7 @@ flag 及其含义如下：
           }
           // 获取搜索页的数据。因为有多处使用，所以进行了封装
           async getSearchData(p) {
-            let data = await _API__WEBPACK_IMPORTED_MODULE_8__[
+            let data = await _utils_API__WEBPACK_IMPORTED_MODULE_8__[
               'API'
             ].getSearchData(
               _Store__WEBPACK_IMPORTED_MODULE_9__['store'].tag,
@@ -16426,9 +16139,9 @@ flag 及其含义如下：
                 ].add(
                   this.flag,
                   {
-                    type: _API__WEBPACK_IMPORTED_MODULE_8__['API'].getWorkType(
-                      nowData.illustType
-                    ),
+                    type: _utils_API__WEBPACK_IMPORTED_MODULE_8__[
+                      'API'
+                    ].getWorkType(nowData.illustType),
                     id: nowData.id,
                   },
                   p
@@ -16646,194 +16359,6 @@ flag 及其含义如下：
         /***/
       },
 
-    /***/ './src/ts/modules/artwork/InitSeriesPage.ts':
-      /*!**************************************************!*\
-  !*** ./src/ts/modules/artwork/InitSeriesPage.ts ***!
-  \**************************************************/
-      /*! exports provided: InitSeriesPage */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony export (binding) */ __webpack_require__.d(
-          __webpack_exports__,
-          'InitSeriesPage',
-          function () {
-            return InitSeriesPage
-          }
-        )
-        /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
-        )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts'
-        )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts'
-        )
-        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/modules/Lang.ts'
-        )
-        /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../DOM */ './src/ts/modules/DOM.ts'
-        )
-        /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../setting/Options */ './src/ts/modules/setting/Options.ts'
-        )
-        /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
-        )
-        /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../Store */ './src/ts/modules/Store.ts'
-        )
-        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
-          /*! ../Log */ './src/ts/modules/Log.ts'
-        )
-        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
-          /*! ../Tools */ './src/ts/modules/Tools.ts'
-        )
-        // 初始化插画/漫画的系列作品页面
-
-        class InitSeriesPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
-          'InitPageBase'
-        ] {
-          constructor() {
-            super()
-            this.seriesId = ''
-            this.init()
-          }
-          addCrawlBtns() {
-            _DOM__WEBPACK_IMPORTED_MODULE_4__['DOM']
-              .addBtn(
-                'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
-                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_开始抓取'),
-                [
-                  [
-                    'title',
-                    _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                      '_开始抓取'
-                    ) +
-                      _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                        '_默认下载多页'
-                      ),
-                  ],
-                ]
-              )
-              .addEventListener('click', () => {
-                this.readyCrawl()
-              })
-          }
-          initAny() {}
-          setFormOption() {
-            // 个数/页数选项的提示
-            this.maxCount = 100
-            _setting_Options__WEBPACK_IMPORTED_MODULE_5__[
-              'options'
-            ].setWantPageTip({
-              text: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_页数'),
-              tip: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                '_从本页开始下载提示'
-              ),
-              rangTip: `1 - ${this.maxCount}`,
-            })
-          }
-          getWantPage() {
-            this.crawlNumber = this.checkWantPageInputGreater0(
-              this.maxCount,
-              true
-            )
-          }
-          nextStep() {
-            // 设置起始页码
-            const p = _Tools__WEBPACK_IMPORTED_MODULE_9__[
-              'Tools'
-            ].getURLSearchField(location.href, 'p')
-            this.startpageNo = parseInt(p) || 1
-            // 获取系列 id
-            this.seriesId = _API__WEBPACK_IMPORTED_MODULE_2__[
-              'API'
-            ].getURLPathField('series')
-            this.getIdList()
-          }
-          async getIdList() {
-            let p = this.startpageNo + this.listPageFinished
-            const data = await _API__WEBPACK_IMPORTED_MODULE_2__[
-              'API'
-            ].getSeriesData(this.seriesId, p)
-            this.listPageFinished++
-            // 保存本页面的作品的 id 列表
-            const idList = []
-            for (const info of data.body.page.series) {
-              idList.push(info.workId)
-            }
-            // data.body.page.series 里的才是本页面的作品，illust 里则不同，有时它的作品数量比页面上的更多
-            // 从 illust 里查找 id 对应的数据，进行过滤
-            for (const work of data.body.thumbnails.illust) {
-              if (!idList.includes(work.id)) {
-                continue
-              }
-              if (work.isAdContainer) {
-                continue
-              }
-              // 过滤器进行检查
-              const filterOpt = {
-                id: work.id,
-                tags: work.tags,
-                bookmarkData: !!work.bookmarkData,
-                width: work.width,
-                height: work.height,
-                workType: work.illustType,
-                userId: work.userId,
-                createDate: work.createDate,
-                xRestrict: work.xRestrict,
-              }
-              // 因为这个 api 的 illust 数据可能是插画也可能是漫画，所以 type 是 unknown
-              if (
-                await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__[
-                  'filter'
-                ].check(filterOpt)
-              ) {
-                _Store__WEBPACK_IMPORTED_MODULE_7__['store'].idList.push({
-                  type: 'unknown',
-                  id: work.id,
-                })
-              }
-            }
-            // 如果 data.body.page.series 为空，就是到了最后一页
-            const endFlag = data.body.page.series.length === 0
-            // 抓取完毕
-            if (
-              endFlag ||
-              p >= this.maxCount ||
-              this.listPageFinished === this.crawlNumber
-            ) {
-              _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
-                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_列表页抓取完成'
-                )
-              )
-              this.getIdListFinished()
-            } else {
-              // 继续抓取
-              _Log__WEBPACK_IMPORTED_MODULE_8__['log'].log(
-                _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
-                  '_列表页抓取进度',
-                  this.listPageFinished.toString()
-                ),
-                1,
-                false
-              )
-              this.getIdList()
-            }
-          }
-          resetGetIdListStatus() {
-            this.listPageFinished = 0
-          }
-        }
-
-        /***/
-      },
-
     /***/ './src/ts/modules/artwork/SaveArtworkData.ts':
       /*!***************************************************!*\
   !*** ./src/ts/modules/artwork/SaveArtworkData.ts ***!
@@ -16849,8 +16374,8 @@ flag 及其含义如下：
             return saveArtworkData
           }
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
@@ -16978,7 +16503,7 @@ flag 及其含义如下：
               } else if (body.illustType === 2) {
                 // 动图
                 // 获取动图的信息
-                const meta = await _API__WEBPACK_IMPORTED_MODULE_0__[
+                const meta = await _utils_API__WEBPACK_IMPORTED_MODULE_0__[
                   'API'
                 ].getUgoiraMeta(body.id)
                 // 动图帧延迟数据
@@ -17025,6 +16550,70 @@ flag 及其含义如下：
           }
         }
         const saveArtworkData = new SaveArtworkData()
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/config/Colors.ts':
+      /*!*****************************************!*\
+  !*** ./src/ts/modules/config/Colors.ts ***!
+  \*****************************************/
+      /*! exports provided: Colors */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'Colors',
+          function () {
+            return Colors
+          }
+        )
+        var Colors
+        ;(function (Colors) {
+          // 通用颜色
+          Colors['white'] = '#fff'
+          Colors['black'] = '#000'
+          Colors['red'] = '#f00'
+          Colors['theme'] = '#0ea8ef'
+          // 带有语义的字体颜色
+          Colors['textSuccess'] = '#00BD17'
+          Colors['textWarning'] = '#d27e00'
+          Colors['textError'] = '#f00'
+          // 背景颜色
+          // 稍暗，适合在颜色区域的面积较大时使用
+          Colors['bgBlue'] = '#0ea8ef'
+          Colors['bgGreen'] = '#14ad27'
+          Colors['bgRed'] = '#f33939'
+          Colors['bgYellow'] = '#e49d00'
+          // 带有语义的背景颜色
+          // 稍亮，适合在小区域使用
+          Colors['bgBrightBlue'] = '#29b3f3'
+          Colors['bgSuccess'] = '#00BD17'
+          Colors['bgWarning'] = '#e49d00'
+          Colors['bgError'] = '#f00'
+        })(Colors || (Colors = {}))
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/config/Config.ts':
+      /*!*****************************************!*\
+  !*** ./src/ts/modules/config/Config.ts ***!
+  \*****************************************/
+      /*! exports provided: default */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        // 储存一些配置
+        // 用户不可以修改这里的配置
+        /* harmony default export */ __webpack_exports__['default'] = {
+          outputMax: 5000,
+          downloadThreadMax: 10,
+          worksTypeName: ['Illustration', 'Manga', 'Ugoira', 'Novel'],
+          name: 'Powerful Pixiv Downloader',
+          settingStoreName: 'xzSetting',
+        }
 
         /***/
       },
@@ -17169,8 +16758,8 @@ flag 及其含义如下：
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ../setting/Settings */ './src/ts/modules/setting/Settings.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ../Theme */ './src/ts/modules/Theme.ts'
@@ -17409,7 +16998,7 @@ flag 及其含义如下：
           }
           // 如果某个规则没有用户名，就获取用户名储存起来
           async updateUserName(data) {
-            const profile = await _API__WEBPACK_IMPORTED_MODULE_5__['API']
+            const profile = await _utils_API__WEBPACK_IMPORTED_MODULE_5__['API']
               .getUserProfile(data.uid.toString())
               .catch((err) => {
                 console.log(err)
@@ -18691,8 +18280,8 @@ flag 及其含义如下：
             return mute
           }
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
 
         // 获取用户在 Pixiv 里屏蔽的用户和/或 tag，进行过滤
@@ -18713,7 +18302,7 @@ flag 及其含义如下：
           async getMuteSettings() {
             this.userList = []
             this.tagList = []
-            const response = await _API__WEBPACK_IMPORTED_MODULE_0__[
+            const response = await _utils_API__WEBPACK_IMPORTED_MODULE_0__[
               'API'
             ].getMuteSettings()
             const items = response.body.mute_items
@@ -18750,8 +18339,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
@@ -18788,7 +18377,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_开始抓取'),
                 [
                   [
@@ -18947,8 +18536,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
@@ -18959,8 +18548,8 @@ flag 及其含义如下：
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ../Store */ './src/ts/modules/Store.ts'
@@ -18987,7 +18576,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_8__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_开始抓取'),
                 [
                   [
@@ -19049,7 +18638,7 @@ flag 及其含义如下：
           async getIdList() {
             let data
             try {
-              data = await _API__WEBPACK_IMPORTED_MODULE_5__[
+              data = await _utils_API__WEBPACK_IMPORTED_MODULE_5__[
                 'API'
               ].getNewNovleData(this.option)
             } catch (error) {
@@ -19136,8 +18725,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
@@ -19154,8 +18743,8 @@ flag 及其含义如下：
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+          /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ../EVT */ './src/ts/modules/EVT.ts'
@@ -19193,7 +18782,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_6__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_从本页开始抓取new'
                 )
@@ -19205,7 +18794,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_6__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_从本页开始抓取old'
                 )
@@ -19262,7 +18851,7 @@ flag 及其含义如下：
           }
           async getIdList() {
             let type = ['novels']
-            let idList = await _API__WEBPACK_IMPORTED_MODULE_7__[
+            let idList = await _utils_API__WEBPACK_IMPORTED_MODULE_7__[
               'API'
             ].getUserWorksByType(
               _DOM__WEBPACK_IMPORTED_MODULE_6__['DOM'].getUserId(),
@@ -19337,8 +18926,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
@@ -19352,8 +18941,8 @@ flag 及其含义如下：
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
         //初始化小说系列作品页面
 
@@ -19371,7 +18960,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_5__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_抓取系列小说'
                 )
@@ -19389,13 +18978,13 @@ flag 及其含义如下：
           }
           getWantPage() {}
           nextStep() {
-            this.seriesId = _API__WEBPACK_IMPORTED_MODULE_6__[
+            this.seriesId = _utils_API__WEBPACK_IMPORTED_MODULE_6__[
               'API'
             ].getURLPathField('series')
             this.getIdList()
           }
           async getIdList() {
-            const seriesData = await _API__WEBPACK_IMPORTED_MODULE_6__[
+            const seriesData = await _utils_API__WEBPACK_IMPORTED_MODULE_6__[
               'API'
             ].getNovelSeriesData(this.seriesId, this.limit, this.last, 'asc')
             const list = seriesData.body.seriesContents
@@ -19440,8 +19029,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
@@ -19475,7 +19064,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_3__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_抓取本排行榜作品'
                 ),
@@ -19644,8 +19233,8 @@ flag 及其含义如下：
         /* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../InitPageBase */ './src/ts/modules/InitPageBase.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
@@ -19656,8 +19245,8 @@ flag 及其含义如下：
         /* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ../filter/Filter */ './src/ts/modules/filter/Filter.ts'
         )
-        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../API */ './src/ts/modules/API.ts'
+        /* harmony import */ var _utils_API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../utils/API */ './src/ts/modules/utils/API.ts'
         )
         /* harmony import */ var _Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ../Store */ './src/ts/modules/Store.ts'
@@ -19722,7 +19311,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_9__['DOM']
               .addBtn(
                 'crawlBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_开始抓取'),
                 [
                   [
@@ -19754,7 +19343,7 @@ flag 及其含义如下：
               'DOM'
             ].addBtn(
               'otherBtns',
-              _Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
+              _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_收藏本页面的所有作品'
               )
@@ -19808,7 +19397,7 @@ flag 及其含义如下：
           }
           // 获取搜索页的数据。因为有多处使用，所以进行了封装
           async getSearchData(p) {
-            let data = await _API__WEBPACK_IMPORTED_MODULE_5__[
+            let data = await _utils_API__WEBPACK_IMPORTED_MODULE_5__[
               'API'
             ].getNovelSearchData(
               _Store__WEBPACK_IMPORTED_MODULE_6__['store'].tag,
@@ -20316,8 +19905,8 @@ flag 及其含义如下：
         /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ../Tools */ './src/ts/modules/Tools.ts'
         )
-        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../Config */ './src/ts/modules/Config.ts'
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../config/Config */ './src/ts/modules/config/Config.ts'
         )
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../Theme */ './src/ts/modules/Theme.ts'
@@ -20415,7 +20004,7 @@ flag 及其含义如下：
             // 如果结果较多，则不直接输出，改为保存 txt 文件
             if (
               _Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length >
-              _Config__WEBPACK_IMPORTED_MODULE_4__['default'].outputMax
+              _config_Config__WEBPACK_IMPORTED_MODULE_4__['default'].outputMax
             ) {
               const con = content.replace(/<br>/g, '\n') // 替换换行符
               const file = new Blob([con], {
@@ -20478,8 +20067,8 @@ flag 及其含义如下：
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
         )
-        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../Config */ './src/ts/modules/Config.ts'
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../config/Config */ './src/ts/modules/config/Config.ts'
         )
         /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../Toast */ './src/ts/modules/Toast.ts'
@@ -20524,7 +20113,7 @@ flag 及其含义如下：
               let nowResult = `${defaultName}: ${fullName}<br>`
               if (
                 length <
-                _Config__WEBPACK_IMPORTED_MODULE_4__['default'].outputMax
+                _config_Config__WEBPACK_IMPORTED_MODULE_4__['default'].outputMax
               ) {
                 // 为生成的文件名添加颜色。只有当文件数量少于一定数值时才添加颜色。这是因为添加颜色会导致生成的 HTML 元素数量增多，复制时资源占用增加。有些用户电脑配置差，如果生成的结果很多，还添加了颜色，可能复制时会导致这个页面卡死。
                 const defaultNameHtml = `<span class="color999">${defaultName}</span>`
@@ -20729,8 +20318,8 @@ flag 及其含义如下：
         /* harmony import */ var _DOM__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ../DOM */ './src/ts/modules/DOM.ts'
         )
-        /* harmony import */ var _Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Colors */ './src/ts/modules/Colors.ts'
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/modules/config/Colors.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
@@ -20816,7 +20405,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM']
               .addBtn(
                 'namingBtns',
-                _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgGreen,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgGreen,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_预览文件名')
               )
               .addEventListener(
@@ -20833,7 +20422,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM']
               .addBtn(
                 'exportResult',
-                _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgGreen,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgGreen,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_导出csv')
               )
               .addEventListener(
@@ -20849,7 +20438,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM']
               .addBtn(
                 'exportResult',
-                _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgGreen,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgGreen,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                   '_导出抓取结果'
                 )
@@ -20867,7 +20456,7 @@ flag 及其含义如下：
             _DOM__WEBPACK_IMPORTED_MODULE_1__['DOM']
               .addBtn(
                 'exportResult',
-                _Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgGreen,
+                _config_Colors__WEBPACK_IMPORTED_MODULE_2__['Colors'].bgGreen,
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                   '_导入抓取结果'
                 )
@@ -21079,8 +20668,8 @@ flag 及其含义如下：
       /***/ function (module, __webpack_exports__, __webpack_require__) {
         'use strict'
         __webpack_require__.r(__webpack_exports__)
-        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../Config */ './src/ts/modules/Config.ts'
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../config/Config */ './src/ts/modules/config/Config.ts'
         )
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ../Lang */ './src/ts/modules/Lang.ts'
@@ -21501,9 +21090,9 @@ flag 及其含义如下：
       <span class="blue">{type}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
         '_命名标记type'
-      )} ${_Config__WEBPACK_IMPORTED_MODULE_0__['default'].worksTypeName.join(
-          ', '
-        )}
+      )} ${_config_Config__WEBPACK_IMPORTED_MODULE_0__[
+          'default'
+        ].worksTypeName.join(', ')}
       <br>
       <span class="blue">{like}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记like')}
@@ -21585,7 +21174,7 @@ flag 及其含义如下：
       <input type="checkbox" name="createFolderByTypeIllust" id="createFolderByTypeIllust" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
       <label for="createFolderByTypeIllust" class="has_tip" data-tip="${
-        _Config__WEBPACK_IMPORTED_MODULE_0__['default'].worksTypeName[0]
+        _config_Config__WEBPACK_IMPORTED_MODULE_0__['default'].worksTypeName[0]
       }"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
           '_插画'
         )}&nbsp;</label>
@@ -21593,7 +21182,7 @@ flag 及其含义如下：
       <input type="checkbox" name="createFolderByTypeManga" id="createFolderByTypeManga" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
       <label for="createFolderByTypeManga" class="has_tip" data-tip="${
-        _Config__WEBPACK_IMPORTED_MODULE_0__['default'].worksTypeName[1]
+        _config_Config__WEBPACK_IMPORTED_MODULE_0__['default'].worksTypeName[1]
       }"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
           '_漫画'
         )}&nbsp;</label>
@@ -21601,7 +21190,7 @@ flag 及其含义如下：
       <input type="checkbox" name="createFolderByTypeUgoira" id="createFolderByTypeUgoira" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
       <label for="createFolderByTypeUgoira" class="has_tip" data-tip="${
-        _Config__WEBPACK_IMPORTED_MODULE_0__['default'].worksTypeName[2]
+        _config_Config__WEBPACK_IMPORTED_MODULE_0__['default'].worksTypeName[2]
       }"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
           '_动图'
         )}&nbsp;</label>
@@ -21609,7 +21198,7 @@ flag 及其含义如下：
       <input type="checkbox" name="createFolderByTypeNovel" id="createFolderByTypeNovel" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
       <label for="createFolderByTypeNovel" class="has_tip" data-tip="${
-        _Config__WEBPACK_IMPORTED_MODULE_0__['default'].worksTypeName[3]
+        _config_Config__WEBPACK_IMPORTED_MODULE_0__['default'].worksTypeName[3]
       }"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
           '_小说'
         )}&nbsp;</label>
@@ -22919,8 +22508,8 @@ flag 及其含义如下：
         /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ../MsgBox */ './src/ts/modules/MsgBox.ts'
         )
-        /* harmony import */ var _Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../Config */ './src/ts/modules/Config.ts'
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../config/Config */ './src/ts/modules/config/Config.ts'
         )
         /* harmony import */ var _SecretSignal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../SecretSignal */ './src/ts/modules/SecretSignal.ts'
@@ -23074,7 +22663,7 @@ flag 及其含义如下：
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
               () => {
                 localStorage.setItem(
-                  _Config__WEBPACK_IMPORTED_MODULE_4__['default']
+                  _config_Config__WEBPACK_IMPORTED_MODULE_4__['default']
                     .settingStoreName,
                   JSON.stringify(this.settings)
                 )
@@ -23137,7 +22726,8 @@ flag 及其含义如下：
           restore() {
             let restoreData = this.defaultSettings
             const savedSettings = localStorage.getItem(
-              _Config__WEBPACK_IMPORTED_MODULE_4__['default'].settingStoreName
+              _config_Config__WEBPACK_IMPORTED_MODULE_4__['default']
+                .settingStoreName
             )
             if (savedSettings) {
               restoreData = JSON.parse(savedSettings)
@@ -23162,7 +22752,7 @@ flag 及其含义如下：
             const url = URL.createObjectURL(blob)
             _Tools__WEBPACK_IMPORTED_MODULE_1__['Tools'].downloadFile(
               url,
-              _Config__WEBPACK_IMPORTED_MODULE_4__['default'].name +
+              _config_Config__WEBPACK_IMPORTED_MODULE_4__['default'].name +
                 ` Settings.json`
             )
           }
@@ -23288,6 +22878,82 @@ flag 及其含义如下：
         const self = new Settings()
         const settings = self.settings
         const setSetting = self.setSetting.bind(self)
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/tools/CheckNew.ts':
+      /*!******************************************!*\
+  !*** ./src/ts/modules/tools/CheckNew.ts ***!
+  \******************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/modules/EVT.ts'
+        )
+
+        // 检查新版本
+        class CheckNew {
+          constructor() {
+            this.checkNew()
+          }
+          async checkNew() {
+            // 读取上一次检查的时间，如果超过指定的时间，则检查 GitHub 上的信息
+            const timeName = 'xzUpdateTime'
+            const verName = 'xzGithubVer'
+            const interval = 1000 * 60 * 30 // 30 分钟检查一次
+            const lastTime = localStorage.getItem(timeName)
+            if (
+              !lastTime ||
+              new Date().getTime() - parseInt(lastTime) > interval
+            ) {
+              // 获取最新的 releases 信息
+              const latest = await fetch(
+                'https://api.github.com/repos/xuejianxianzun/PixivBatchDownloader/releases/latest'
+              )
+              const latestJson = await latest.json()
+              const latestVer = latestJson.name
+              // 保存 GitHub 上的版本信息
+              localStorage.setItem(verName, latestVer)
+              // 保存本次检查的时间戳
+              localStorage.setItem(timeName, new Date().getTime().toString())
+            }
+            // 获取本地扩展的版本号
+            const manifest = await fetch(
+              chrome.extension.getURL('manifest.json')
+            )
+            const manifestJson = await manifest.json()
+            const manifestVer = manifestJson.version
+            // 比较大小
+            const latestVer = localStorage.getItem(verName)
+            if (!latestVer) {
+              return
+            }
+            if (this.bigger(latestVer, manifestVer)) {
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+                _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.hasNewVer
+              )
+            }
+          }
+          // 传入两个版本号字符串，比较第一个是否比第二个大
+          bigger(a, b) {
+            const _a = a.split('.')
+            const _b = b.split('.')
+            // 分别比较每一个版本号字段，当首次遇到 a > b 的时候返回 true
+            for (let i = 0; i < _a.length; i++) {
+              if (_b[i] === undefined) {
+                break
+              }
+              if (Number.parseInt(_a[i]) > Number.parseInt(_b[i])) {
+                return true
+              }
+            }
+            return false
+          }
+        }
+        new CheckNew()
 
         /***/
       },
@@ -23803,6 +23469,360 @@ flag 及其含义如下：
           }
         }
         const toWebM = new ToWebM()
+
+        /***/
+      },
+
+    /***/ './src/ts/modules/utils/API.ts':
+      /*!*************************************!*\
+  !*** ./src/ts/modules/utils/API.ts ***!
+  \*************************************/
+      /*! exports provided: API */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'API',
+          function () {
+            return API
+          }
+        )
+        class API {
+          // 发送 get 请求，返回 json 数据，抛出异常
+          static sendGetRequest(url) {
+            return new Promise((resolve, reject) => {
+              fetch(url, {
+                method: 'get',
+                credentials: 'same-origin',
+              })
+                .then((response) => {
+                  if (response.ok) {
+                    return response.json()
+                  } else {
+                    // 第一种异常，请求成功但状态不对
+                    reject({
+                      status: response.status,
+                      statusText: response.statusText,
+                    })
+                  }
+                })
+                .then((data) => {
+                  resolve(data)
+                })
+                .catch((error) => {
+                  // 第二种异常，请求失败
+                  reject(error)
+                })
+            })
+          }
+          // 获取收藏数据
+          // 这个 api 返回的作品列表顺序是按收藏顺序由近期到早期排列的
+          static async getBookmarkData(
+            id,
+            type = 'illusts',
+            tag,
+            offset,
+            hide = false
+          ) {
+            const url = `https://www.pixiv.net/ajax/user/${id}/${type}/bookmarks?tag=${tag}&offset=${offset}&limit=100&rest=${
+              hide ? 'hide' : 'show'
+            }&rdm=${Math.random()}`
+            return this.sendGetRequest(url)
+          }
+          // 添加收藏
+          static async addBookmark(type, id, tags, hide, token) {
+            const restrict = hide ? 1 : 0
+            let body = {}
+            if (type === 'illusts') {
+              body = {
+                comment: '',
+                illust_id: id,
+                restrict: restrict,
+                tags: tags,
+              }
+            } else {
+              body = {
+                comment: '',
+                novel_id: id,
+                restrict: restrict,
+                tags: tags,
+              }
+            }
+            return fetch(`https://www.pixiv.net/ajax/${type}/bookmarks/add`, {
+              method: 'POST',
+              credentials: 'same-origin',
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json; charset=utf-8',
+                'x-csrf-token': token,
+              },
+              body: JSON.stringify(body),
+            })
+          }
+          // 获取关注的用户列表
+          static getFollowingList(
+            id,
+            rest = 'show',
+            offset = 0,
+            limit = 100,
+            tag = '',
+            lang = 'zh'
+          ) {
+            const url = `https://www.pixiv.net/ajax/user/${id}/following?offset=${offset}&limit=${limit}&rest=${rest}&tag=${tag}&lang=${lang}`
+            return this.sendGetRequest(url)
+          }
+          // 获取好 P 友列表
+          static getMyPixivList(id, offset = 0, limit = 100, lang = 'zh') {
+            const url = `https://www.pixiv.net/ajax/user/${id}/mypixiv?offset=${offset}&limit=${limit}&lang=${lang}`
+            return this.sendGetRequest(url)
+          }
+          // 获取粉丝列表
+          static getFollowersList(id, offset = 0, limit = 100, lang = 'zh') {
+            const url = `https://www.pixiv.net/ajax/user/${id}/followers?offset=${offset}&limit=${limit}&lang=${lang}`
+            return this.sendGetRequest(url)
+          }
+          // 获取用户信息
+          static getUserProfile(id) {
+            // full=1 在画师的作品列表页使用，获取详细信息
+            // full=0 在作品页内使用，只获取少量信息
+            const url = `https://www.pixiv.net/ajax/user/${id}?full=1`
+            return this.sendGetRequest(url)
+          }
+          // 获取用户指定类型的作品列表
+          // 返回作品的 id 列表，不包含详细信息
+          static async getUserWorksByType(
+            id,
+            type = ['illusts', 'manga', 'novels']
+          ) {
+            let typeSet = new Set(type)
+            let result = []
+            const url = `https://www.pixiv.net/ajax/user/${id}/profile/all`
+            let data = await this.sendGetRequest(url)
+            for (const type of typeSet.values()) {
+              const idList = Object.keys(data.body[type])
+              for (const id of idList) {
+                result.push({
+                  type,
+                  id,
+                })
+              }
+            }
+            return result
+          }
+          // 获取用户指定类型、并且指定 tag 的作品列表
+          // 返回整个请求的结果，里面包含作品的详细信息
+          // 必须带 tag 使用。不带 tag 虽然也能获得数据，但是获得的并不全，很奇怪。
+          static getUserWorksByTypeWithTag(
+            id,
+            type,
+            tag,
+            offset = 0,
+            limit = 999999
+          ) {
+            // https://www.pixiv.net/ajax/user/2369321/illusts/tag?tag=Fate/GrandOrder&offset=0&limit=9999999
+            const url = `https://www.pixiv.net/ajax/user/${id}/${type}/tag?tag=${tag}&offset=${offset}&limit=${limit}`
+            return this.sendGetRequest(url)
+          }
+          // 获取插画 漫画 动图 的详细信息
+          static getArtworkData(id) {
+            const url = `https://www.pixiv.net/ajax/illust/${id}`
+            return this.sendGetRequest(url)
+          }
+          // 获取动图的元数据
+          static getUgoiraMeta(id) {
+            const url = `https://www.pixiv.net/ajax/illust/${id}/ugoira_meta`
+            return this.sendGetRequest(url)
+          }
+          // 获取小说的详细信息
+          static getNovelData(id) {
+            const url = `https://www.pixiv.net/ajax/novel/${id}`
+            return this.sendGetRequest(url)
+          }
+          // 获取相关作品
+          static getRelatedData(id) {
+            // 最后的 18 是预加载首屏的多少个作品的信息，和下载并没有关系
+            const url = `https://www.pixiv.net/ajax/illust/${id}/recommend/init?limit=18`
+            return this.sendGetRequest(url)
+          }
+          // 获取排行榜数据
+          // 排行榜数据基本是一批 50 条作品信息
+          static getRankingData(option) {
+            let url = `https://www.pixiv.net/ranking.php?mode=${option.mode}&p=${option.p}&format=json`
+            // 把可选项添加到 url 里
+            let temp = new URL(url)
+            // 下面两项需要判断有值再添加。不可以添加了这些字段却使用空值。
+            if (option.worksType) {
+              temp.searchParams.set('content', option.worksType)
+            }
+            if (option.date) {
+              temp.searchParams.set('date', option.date)
+            }
+            url = temp.toString()
+            return this.sendGetRequest(url)
+          }
+          // 获取收藏后的相似作品数据
+          // 需要传入作品 id 和要抓取的数量。但是实际获取到的数量会比指定的数量少一些
+          static getRecommenderData(id, number) {
+            const url = `/rpc/recommender.php?type=illust&sample_illusts=${id}&num_recommendations=${number}`
+            return this.sendGetRequest(url)
+          }
+          // 获取搜索数据
+          static getSearchData(word, type = 'artworks', p = 1, option = {}) {
+            // 基础的 url
+            let url = `https://www.pixiv.net/ajax/search/${type}/${encodeURIComponent(
+              word
+            )}?word=${encodeURIComponent(word)}&p=${p}`
+            // 把可选项添加到 url 里
+            let temp = new URL(url)
+            for (const [key, value] of Object.entries(option)) {
+              if (value) {
+                temp.searchParams.set(key, value)
+              }
+            }
+            url = temp.toString()
+            return this.sendGetRequest(url)
+          }
+          static getNovelSearchData(word, p = 1, option = {}) {
+            // 基础的 url
+            let url = `https://www.pixiv.net/ajax/search/novels/${encodeURIComponent(
+              word
+            )}?word=${encodeURIComponent(word)}&p=${p}`
+            // 把可选项添加到 url 里
+            let temp = new URL(url)
+            for (const [key, value] of Object.entries(option)) {
+              if (value) {
+                temp.searchParams.set(key, value)
+              }
+            }
+            url = temp.toString()
+            return this.sendGetRequest(url)
+          }
+          // 获取大家的新作品的数据
+          static getNewIllustData(option) {
+            let url = `https://www.pixiv.net/ajax/illust/new?lastId=${option.lastId}&limit=${option.limit}&type=${option.type}&r18=${option.r18}`
+            return this.sendGetRequest(url)
+          }
+          // 获取大家的新作小说的数据
+          static getNewNovleData(option) {
+            let url = `https://www.pixiv.net/ajax/novel/new?lastId=${option.lastId}&limit=${option.limit}&r18=${option.r18}`
+            return this.sendGetRequest(url)
+          }
+          // 获取关注的的新作品的数据
+          static getBookmarkNewIllustData(p = 1, r18 = false) {
+            let path = r18 ? 'bookmark_new_illust_r18' : 'bookmark_new_illust'
+            let url = `https://www.pixiv.net/${path}.php?p=${p}`
+            return new Promise((resolve, reject) => {
+              fetch(url, {
+                method: 'get',
+                credentials: 'same-origin',
+              })
+                .then((response) => {
+                  if (response.ok) {
+                    return response.text()
+                  } else {
+                    throw new Error(response.status.toString())
+                  }
+                })
+                .then((data) => {
+                  let listPageDocument = new DOMParser().parseFromString(
+                    data,
+                    'text/html'
+                  )
+                  // 查找是否有下一页的按钮，如果没有说明是最后一页了，不再继续抓取下一页
+                  let lastPage = false
+                  if (!listPageDocument.querySelector('span.next a')) {
+                    lastPage = true
+                  }
+                  let worksInfoText = listPageDocument.querySelector(
+                    '#js-mount-point-latest-following'
+                  ).dataset.items
+                  resolve({
+                    lastPage,
+                    data: JSON.parse(worksInfoText),
+                  })
+                })
+                .catch((error) => {
+                  reject(error)
+                })
+            })
+          }
+          // 根据 illustType，返回作品类型的描述
+          // 主要用于储存进 idList
+          static getWorkType(illustType) {
+            switch (parseInt(illustType.toString())) {
+              case 0:
+                return 'illusts'
+              case 1:
+                return 'manga'
+              case 2:
+                return 'ugoira'
+              case 3:
+                return 'novels'
+              default:
+                return 'unknown'
+            }
+          }
+          // 从 URL 中获取指定路径名的值，适用于符合 RESTful API 风格的路径
+          // 如 https://www.pixiv.net/novel/series/1090654
+          // 把路径用 / 分割，查找 key 所在的位置，后面一项就是它的 value
+          static getURLPathField(query) {
+            const pathArr = location.pathname.split('/')
+            const index = pathArr.indexOf(query)
+            if (index > 0) {
+              return pathArr[index + 1]
+            }
+            throw new Error(`getURLPathField ${query} failed!`)
+          }
+          // 获取小说的系列作品信息
+          // 这个 api 目前一批最多只能返回 30 个作品的数据，所以可能需要多次获取
+          static getNovelSeriesData(
+            series_id,
+            limit = 30,
+            last_order,
+            order_by = 'asc'
+          ) {
+            const url = `https://www.pixiv.net/ajax/novel/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`
+            return this.sendGetRequest(url)
+          }
+          // 获取系列信息
+          // 这个接口的数据结构里同时有 illust （包含漫画）和 novel 系列数据
+          // 恍惚记得有插画系列来着，但是没找到对应的网址，难道是记错了？
+          static getSeriesData(series_id, pageNo) {
+            const url = `https://www.pixiv.net/ajax/series/${series_id}?p=${pageNo}`
+            return this.sendGetRequest(url)
+          }
+          // 点赞
+          static async addLike(id, type, token) {
+            let data = {}
+            if (type === 'illusts') {
+              data = {
+                illust_id: id,
+              }
+            } else {
+              data = {
+                novel_id: id,
+              }
+            }
+            const r = await fetch(`https://www.pixiv.net/ajax/${type}/like`, {
+              method: 'POST',
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json; charset=utf-8',
+                'x-csrf-token': token,
+              },
+              credentials: 'same-origin',
+              body: JSON.stringify(data),
+            })
+            const json = await r.json()
+            return json
+          }
+          static async getMuteSettings() {
+            return this.sendGetRequest(
+              `https://www.pixiv.net/ajax/mute/items?context=setting`
+            )
+          }
+        }
 
         /***/
       },

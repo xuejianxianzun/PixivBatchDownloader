@@ -7,6 +7,7 @@ import { Result } from './StoreType'
 import { fileName } from './FileName'
 import { createCSV } from './CreateCSV'
 import { toast } from './Toast'
+import { Tools } from './Tools'
 
 // 定义字段信息
 interface Field {
@@ -23,6 +24,12 @@ class ExportResult2CSV {
       this.beforeCreate()
     })
   }
+
+  private readonly xRestrictMap = new Map([
+    [0, 'AllAges'],
+    [1, 'R-18'],
+    [2, 'R-18G'],
+  ])
 
   // 定义要保存的字段
   private readonly fieldCfg: Field[] = [
@@ -99,6 +106,10 @@ class ExportResult2CSV {
       name: 'fileName',
       index: 'title',
     },
+    {
+      name: 'xRestrict',
+      index: 'xRestrict',
+    },
   ]
 
   private beforeCreate() {
@@ -152,7 +163,11 @@ class ExportResult2CSV {
           }
 
           if (field.name === 'bookmarked') {
-            result = (result as boolean) ? 'yes' : 'no'
+            result = (result as boolean) ? 'Yes' : 'No'
+          }
+
+          if (field.name === 'xRestrict') {
+            result = this.xRestrictMap.get(result as number) || ''
           }
 
           bodyItem.push(result)
@@ -162,22 +177,22 @@ class ExportResult2CSV {
       body.push(bodyItem)
     }
 
+    const csv = createCSV.create(body)
+    const csvURL = URL.createObjectURL(csv)
+
     // 设置文件名
-    let name = ''
+    let csvName = DOM.getTitle()
     const ogTitle = document.querySelector(
       'meta[property="og:title"]'
     )! as HTMLMetaElement
     if (ogTitle) {
-      name = ogTitle.content
-    } else {
-      name = DOM.getTitle()
+      csvName = ogTitle.content
     }
+    csvName = `result-${Tools.replaceUnsafeStr(
+      csvName
+    )}-${store.crawlCompleteTime.getTime()}.csv`
 
-    createCSV.create({
-      body: body,
-      download: true,
-      fileName: name,
-    })
+    Tools.downloadFile(csvURL, csvName)
 
     toast.success(lang.transl('_导出成功'))
   }

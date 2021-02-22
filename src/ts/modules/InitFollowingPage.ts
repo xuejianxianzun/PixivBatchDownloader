@@ -210,17 +210,19 @@ class InitFollowingPage extends InitPageBase {
 
   private toCSV() {
     // 添加用户信息
-    const body: string[][] = this.userInfoList.map((item) => {
+    const data: string[][] = this.userInfoList.map((item) => {
       return Object.values(item)
     })
 
     // 添加用户信息的标题字段
-    body.unshift(Object.keys(this.userInfoList[0]))
+    data.unshift(Object.keys(this.userInfoList[0]))
 
-    createCSV.create({
-      body: body,
-      download: true,
-    })
+    const csv = createCSV.create(data)
+    const csvURL = URL.createObjectURL(csv)
+
+    const csvName = DOM.getTitle()
+
+    Tools.downloadFile(csvURL, Tools.replaceUnsafeStr(csvName) + '.csv')
   }
 
   // 获取用户的 id 列表

@@ -459,7 +459,9 @@ class API {
   }
 
   static async getMuteSettings(): Promise<muteData> {
-    return this.sendGetRequest(`https://www.pixiv.net/ajax/mute/items?context=setting`)
+    return this.sendGetRequest(
+      `https://www.pixiv.net/ajax/mute/items?context=setting`
+    )
   }
 }
 
