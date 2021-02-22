@@ -6,9 +6,9 @@ import { options } from './setting/Options'
 import { API } from './utils/API'
 import { store } from './Store'
 import { log } from './Log'
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { createCSV } from './utils/CreateCSV'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 
 interface UserInfo {
   userId: string
@@ -64,13 +64,13 @@ class InitFollowingPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
 
-    DOM.addBtn(
+    Tools.addBtn(
       'crawlBtns',
       Colors.bgGreen,
       lang.transl('_下载用户列表')
@@ -107,7 +107,7 @@ class InitFollowingPage extends InitPageBase {
     this.rest = location.href.includes('rest=hide') ? 'hide' : 'show'
 
     // 获取抓取开始时的页码
-    const nowPage = Tools.getURLSearchField(location.href, 'p')
+    const nowPage = Utils.getURLSearchField(location.href, 'p')
     // 计算开始抓取时的偏移量
     if (nowPage !== '') {
       this.baseOffset = (parseInt(nowPage) - 1) * this.onceNumber
@@ -220,9 +220,9 @@ class InitFollowingPage extends InitPageBase {
     const csv = createCSV.create(data)
     const csvURL = URL.createObjectURL(csv)
 
-    const csvName = DOM.getTitle()
+    const csvName = Tools.getTitle()
 
-    Tools.downloadFile(csvURL, Tools.replaceUnsafeStr(csvName) + '.csv')
+    Utils.downloadFile(csvURL, Utils.replaceUnsafeStr(csvName) + '.csv')
   }
 
   // 获取用户的 id 列表
@@ -261,7 +261,7 @@ class InitFollowingPage extends InitPageBase {
 
   protected sortResult() {
     // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
-    store.result.sort(Tools.sortByProperty('id'))
+    store.result.sort(Utils.sortByProperty('id'))
   }
 }
 export { InitFollowingPage }

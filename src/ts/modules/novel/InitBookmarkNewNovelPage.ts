@@ -2,12 +2,12 @@
 import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 import { options } from '../setting/Options'
 import { filter, FilterOption } from '../filter/Filter'
 import { store } from '../Store'
 import { log } from '../Log'
-import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 
 class InitBookmarkNewNovelPage extends InitPageBase {
   constructor() {
@@ -18,7 +18,7 @@ class InitBookmarkNewNovelPage extends InitPageBase {
   private baseUrl = ''
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
@@ -44,7 +44,7 @@ class InitBookmarkNewNovelPage extends InitPageBase {
 
   private getPageUrl() {
     // 设置起始页面
-    const p = Tools.getURLSearchField(location.href, 'p')
+    const p = Utils.getURLSearchField(location.href, 'p')
     this.startpageNo = parseInt(p) || 1
 
     const url = new URL(window.location.href)

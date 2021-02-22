@@ -2,7 +2,6 @@
 import { EVT } from './EVT'
 import { log } from './Log'
 import { lang } from './Lang'
-import { DOM } from './DOM'
 import { fileName } from './FileName'
 import { converter } from './ugoira/ConvertUgoira'
 import {
@@ -15,6 +14,7 @@ import { filter } from './filter/Filter'
 import { deduplication } from './Deduplication'
 import { settings } from './setting/Settings'
 import { MakeNovelFile } from './novel/MakeNovelFile'
+import { Utils } from './utils/Utils'
 
 class Download {
   constructor(progressBarIndex: number, data: downloadArgument) {
@@ -226,7 +226,7 @@ class Download {
         (arg.data.type === 0 || arg.data.type === 1) &&
         !arg.data.id.includes('p0')
       ) {
-        const img = await DOM.loadImg(blobUrl)
+        const img = await Utils.loadImg(blobUrl)
         const result = await filter.check({
           width: img.naturalWidth,
           height: img.naturalHeight,

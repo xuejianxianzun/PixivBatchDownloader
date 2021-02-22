@@ -1,7 +1,7 @@
 // 初始化所有页面抓取流程的基类
 import { lang } from './Lang'
 import { Colors } from './config/Colors'
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { API } from './utils/API'
 import { store } from './Store'
 import { log } from './Log'
@@ -19,7 +19,7 @@ import { vipSearchOptimize } from './VipSearchOptimize'
 import { ArtworkData, NovelData } from './CrawlResult.d'
 import { toast } from './Toast'
 import { msgBox } from './MsgBox'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数
@@ -81,7 +81,7 @@ abstract class InitPageBase {
 
   // 添加抓取区域的按钮
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
@@ -98,8 +98,8 @@ abstract class InitPageBase {
 
   // 销毁初始化页面时添加的元素和事件，恢复设置项等
   protected destroy(): void {
-    DOM.clearSlot('crawlBtns')
-    DOM.clearSlot('otherBtns')
+    Tools.clearSlot('crawlBtns')
+    Tools.clearSlot('otherBtns')
   }
 
   // 作品个数/页数的输入不合法
@@ -177,7 +177,7 @@ abstract class InitPageBase {
 
     log.success(lang.transl('_任务开始0'))
 
-    if (Tools.isPixiv()) {
+    if (Utils.isPixiv()) {
       await mute.getMuteSettings()
     }
 
@@ -209,7 +209,7 @@ abstract class InitPageBase {
 
     log.success(lang.transl('_任务开始0'))
 
-    if (Tools.isPixiv()) {
+    if (Utils.isPixiv()) {
       await mute.getMuteSettings()
     }
 

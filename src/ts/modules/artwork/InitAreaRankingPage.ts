@@ -2,11 +2,11 @@
 import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 import { options } from '../setting/Options'
 import { filter, FilterOption } from '../filter/Filter'
 import { store } from '../Store'
-import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 
 class InitAreaRankingPage extends InitPageBase {
   constructor() {
@@ -17,7 +17,7 @@ class InitAreaRankingPage extends InitPageBase {
   protected initAny() {}
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取本页作品'), [
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取本页作品'), [
       ['title', lang.transl('_抓取本页作品Title')],
     ]).addEventListener('click', () => {
       this.readyCrawl()

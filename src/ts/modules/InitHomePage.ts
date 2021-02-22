@@ -3,7 +3,7 @@ import { InitPageBase } from './InitPageBase'
 import { Colors } from './config/Colors'
 import { lang } from './Lang'
 import { options } from './setting/Options'
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { EVT } from './EVT'
 import { IDData } from './StoreType'
 
@@ -18,7 +18,7 @@ class InitHomePage extends InitPageBase {
   private ready = false
 
   protected addCrawlBtns() {
-    this.downIdButton = DOM.addBtn(
+    this.downIdButton = Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
       lang.transl('_输入id进行抓取'),
@@ -34,9 +34,9 @@ class InitHomePage extends InitPageBase {
       'placeholder',
       lang.transl('_输入id进行抓取的提示文字')
     )
-    DOM.insertToHead<HTMLTextAreaElement>(this.downIdInput)
+    Tools.insertToHead<HTMLTextAreaElement>(this.downIdInput)
 
-    DOM.addBtn(
+    Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
       lang.transl('_清空已保存的抓取结果')
@@ -111,9 +111,9 @@ class InitHomePage extends InitPageBase {
   }
 
   protected destroy() {
-    DOM.clearSlot('crawlBtns')
-    DOM.clearSlot('otherBtns')
-    DOM.removeEl(this.downIdInput)
+    Tools.clearSlot('crawlBtns')
+    Tools.clearSlot('otherBtns')
+    this.downIdInput.remove()
   }
 }
 

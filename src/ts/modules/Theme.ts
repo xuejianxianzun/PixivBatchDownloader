@@ -1,12 +1,12 @@
 import { EVT } from './EVT'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 
 type ThemeName = 'white' | 'dark'
 
 // 下载器的主题默认跟随页面主题。如果用户设置了下载器主题，则不再跟随页面主题
 class Theme {
   constructor() {
-    if (Tools.isPixiv()) {
+    if (Utils.isPixiv()) {
       this.bindEvents()
     }
   }
@@ -134,7 +134,7 @@ class Theme {
 
   // 把元素注册到本组件里
   public register(el: Element) {
-    if (!Tools.isPixiv()) {
+    if (!Utils.isPixiv()) {
       return
     }
 

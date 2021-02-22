@@ -2,7 +2,7 @@
 import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 import { options } from '../setting/Options'
 import { filter, FilterOption } from '../filter/Filter'
 import { store } from '../Store'
@@ -17,7 +17,7 @@ class InitRankingNovelPage extends InitPageBase {
   private pageUrlList: string[] = []
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取本排行榜作品'), [
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取本排行榜作品'), [
       ['title', lang.transl('_抓取本排行榜作品Title')],
     ]).addEventListener('click', () => {
       this.readyCrawl()

@@ -7,7 +7,7 @@ import { API } from './utils/API'
 import { store } from './Store'
 import { EVT } from './EVT'
 import { log } from './Log'
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { userWorksType, tagPageFlag } from './CrawlArgument.d'
 import { UserImageWorksWithTag, UserNovelsWithTag } from './CrawlResult'
 import { IDListType } from './StoreType'
@@ -16,7 +16,7 @@ import './SaveAvatarIcon'
 import './SaveAvatarImage'
 import './SaveUserCover'
 import { BookmarkAllWorks, IDList } from './BookmarkAllWorks'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 
 enum ListType {
   UserHome,
@@ -40,7 +40,7 @@ class InitUserPage extends InitPageBase {
 
   // 添加中间按钮
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
@@ -48,7 +48,7 @@ class InitUserPage extends InitPageBase {
   }
 
   protected addAnyElement() {
-    DOM.addBtn(
+    Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
       lang.transl('_保存用户头像')
@@ -56,7 +56,7 @@ class InitUserPage extends InitPageBase {
       EVT.fire(EVT.list.saveAvatarImage)
     })
 
-    DOM.addBtn(
+    Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
       lang.transl('_保存用户封面')
@@ -64,7 +64,7 @@ class InitUserPage extends InitPageBase {
       EVT.fire(EVT.list.saveUserCover)
     })
 
-    DOM.addBtn(
+    Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
       lang.transl('_保存用户头像为图标'),
@@ -74,7 +74,7 @@ class InitUserPage extends InitPageBase {
     })
 
     // 添加收藏本页所有作品的功能
-    const bookmarkAllBtn = DOM.addBtn(
+    const bookmarkAllBtn = Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
       lang.transl('_收藏本页面的所有作品')
@@ -164,7 +164,7 @@ class InitUserPage extends InitPageBase {
   }
 
   private getOffset() {
-    const nowPage = Tools.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
+    const nowPage = Utils.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
     let offset: number = 0
     if (nowPage) {
       offset = (parseInt(nowPage) - 1) * this.onceNumber
@@ -207,7 +207,7 @@ class InitUserPage extends InitPageBase {
         break
     }
 
-    let idList = await API.getUserWorksByType(DOM.getUserId(), type)
+    let idList = await API.getUserWorksByType(Tools.getUserId(), type)
 
     // 判断是否全都是小说，如果是，把每页的作品个数设置为 24 个
     const allWorkIsNovels = idList.every((data) => {
@@ -220,7 +220,7 @@ class InitUserPage extends InitPageBase {
     const requsetNumber = this.getRequsetNumber()
 
     // 按照 id 升序排列，之后会删除不需要的部分
-    idList.sort(Tools.sortByProperty('id')).reverse()
+    idList.sort(Utils.sortByProperty('id')).reverse()
 
     // 不带 tag 获取作品时，由于 API 是一次性返回用户的所有作品，可能大于要求的数量，所以需要去掉多余的作品。
     // 删除 offset 需要去掉的部分。删除后面的 id，也就是近期作品
@@ -261,7 +261,7 @@ class InitUserPage extends InitPageBase {
     const requsetNumber = this.getRequsetNumber()
 
     let data = await API.getUserWorksByTypeWithTag(
-      DOM.getUserId(),
+      Tools.getUserId(),
       flag,
       store.tag,
       offset,
@@ -308,12 +308,12 @@ class InitUserPage extends InitPageBase {
 
   protected sortResult() {
     // 把作品数据按 id 倒序排列，id 大的在前面，这样可以先下载最新作品，后下载早期作品
-    store.result.sort(Tools.sortByProperty('id'))
+    store.result.sort(Utils.sortByProperty('id'))
   }
 
   protected destroy() {
-    DOM.clearSlot('crawlBtns')
-    DOM.clearSlot('otherBtns')
+    Tools.clearSlot('crawlBtns')
+    Tools.clearSlot('otherBtns')
 
     window.removeEventListener(
       EVT.list.getIdListFinished,

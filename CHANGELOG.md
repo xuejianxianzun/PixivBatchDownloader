@@ -1,9 +1,5 @@
 # CHANGLOG
 
-type: 'application/json'
-
-改为一个
-
 ## 9.6.1 2021/02/22
 
 ### 导出结果为 csv 文件时，增加了 xRestrict 数据
@@ -19,10 +15,6 @@ private readonly xRestrictMap = new Map([
 ```
 
 ### 优化项目结构，优化代码
-
-#### 提取了把 json 转换成 blob 的工具类
-
-提取出了把数据导出为 json 文件时使用的通用代码。
 
 ## 9.6.0 2021/02/21
 

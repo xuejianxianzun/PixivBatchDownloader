@@ -1,7 +1,7 @@
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { store } from '../Store'
-import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 import config from '../config/Config'
 import { theme } from '../Theme'
 import { toast } from '../Toast'
@@ -110,7 +110,7 @@ class OutputPanel {
       const url = URL.createObjectURL(file)
       const fileName = new Date().toLocaleString() + '.txt'
 
-      Tools.downloadFile(url, fileName)
+      Utils.downloadFile(url, fileName)
 
       // 禁用复制按钮
       this.copyBtn.disabled = true

@@ -1,10 +1,10 @@
 import { EVT } from './EVT'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 
 // 获取和保存 token
 class Token {
   constructor() {
-    if (Tools.isPixiv()) {
+    if (Utils.isPixiv()) {
       this.token = this.getToken()
       this.updateToken()
       this.bindEvents()

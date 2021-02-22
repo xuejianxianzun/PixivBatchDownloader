@@ -1,6 +1,6 @@
 // 下载控制
 import { EVT } from './EVT'
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import {
   downloadArgument,
   DonwloadSuccessData,
@@ -23,7 +23,7 @@ import { resume } from './Resume'
 import { states } from './States'
 import Config from './config/Config'
 import { toast } from './Toast'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 
 class DownloadControl {
   constructor() {
@@ -42,7 +42,7 @@ class DownloadControl {
     new ShowConvertCount(convertTipWrap)
 
     // 只在 p 站内启用下载后收藏的功能
-    if (Tools.isPixiv()) {
+    if (Utils.isPixiv()) {
       const bmkAfterDLTipWrap = this.wrapper.querySelector(
         '.bmkAfterDL_tip'
       ) as HTMLSpanElement
@@ -167,7 +167,7 @@ class DownloadControl {
     </div>
     </div>`
 
-    this.wrapper = DOM.useSlot('downloadArea', html) as HTMLDivElement
+    this.wrapper = Tools.useSlot('downloadArea', html) as HTMLDivElement
     this.statesEl = this.wrapper.querySelector(
       '.down_status'
     ) as HTMLSpanElement

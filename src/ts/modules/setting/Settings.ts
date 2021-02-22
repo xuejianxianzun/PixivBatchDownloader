@@ -4,13 +4,12 @@
 // 如果打开了多个标签页，每个页面的 settings 数据是互相独立的。但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
 
 import { EVT } from '../EVT'
-import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 import { convertOldSettings } from './ConvertOldSettings'
 import { msgBox } from '../MsgBox'
 import Config from '../config/Config'
 import { secretSignal } from '../SecretSignal'
 import { toast } from '../Toast'
-import { Json2Blob } from '../utils/Json2Blob'
 
 export interface BlockTagsForSpecificUserItem {
   uid: number
@@ -251,7 +250,7 @@ class Settings {
   ]
 
   // 以默认设置作为初始设置
-  public settings: XzSetting = Tools.deepCopy(this.defaultSettings)
+  public settings: XzSetting = Utils.deepCopy(this.defaultSettings)
 
   private bindEvents() {
     // 当设置发生变化时进行本地存储
@@ -319,20 +318,20 @@ class Settings {
   // 1. 进行类型转换，如某些设置项是 number ，但是数据来源里是 string，setSetting 可以把它们转换到正确的类型
   // 2. 某些选项在旧版本里没有，所以不能用旧的设置整个覆盖
   private assignSettings(data: XzSetting) {
-    const origin = Tools.deepCopy(data)
+    const origin = Utils.deepCopy(data)
     for (const [key, value] of Object.entries(origin)) {
       this.setSetting(key as keyof XzSetting, value)
     }
   }
 
   private exportSettings() {
-    const blob = Json2Blob.convert(this.settings)
+    const blob = Utils.json2Blob(this.settings)
     const url = URL.createObjectURL(blob)
-    Tools.downloadFile(url, Config.name + ` Settings.json`)
+    Utils.downloadFile(url, Config.name + ` Settings.json`)
   }
 
   private async importSettings() {
-    const loadedJSON = (await Tools.loadJSONFile().catch((err) => {
+    const loadedJSON = (await Utils.loadJSONFile().catch((err) => {
       return msgBox.error(err)
     })) as XzSetting
     if (!loadedJSON) {
@@ -415,7 +414,7 @@ class Settings {
       if (this.stringArrayKey.includes(key)) {
         // 字符串转换成 string[]
         if (valueType === 'string') {
-          value = Tools.string2array(value as string)
+          value = Utils.string2array(value as string)
         }
       }
 

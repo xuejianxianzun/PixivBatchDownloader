@@ -1,8 +1,8 @@
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { store } from './Store'
 import { fileName } from './FileName'
 import { lang } from './Lang'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 import { toast } from './Toast'
 
 // 输出 lst 文件
@@ -40,9 +40,9 @@ class ExportLST {
     const result = array.join(this.CRLF)
     const blob = new Blob([result])
     const url = URL.createObjectURL(blob)
-    const name = DOM.getTitle() + '.lst'
+    const name = Tools.getTitle() + '.lst'
 
-    Tools.downloadFile(url, name)
+    Utils.downloadFile(url, name)
   }
 }
 

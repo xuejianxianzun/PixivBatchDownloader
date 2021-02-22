@@ -2,10 +2,11 @@
 import { log } from './Log'
 import { lang } from './Lang'
 import { Colors } from './config/Colors'
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { states } from './States'
 import { EVT } from './EVT'
 import { msgBox } from './MsgBox'
+import { Utils } from './utils/Utils'
 
 class DeleteWorks {
   constructor(worksSelectors: string) {
@@ -91,7 +92,7 @@ class DeleteWorks {
   public addClearMultipleBtn(selector: string, callback: Function = () => {}) {
     this.multipleSelector = selector
 
-    DOM.addBtn('crawlBtns', Colors.bgRed, lang.transl('_清除多图作品'), [
+    Tools.addBtn('crawlBtns', Colors.bgRed, lang.transl('_清除多图作品'), [
       ['title', lang.transl('_清除多图作品Title')],
     ]).addEventListener(
       'click',
@@ -112,7 +113,7 @@ class DeleteWorks {
   public addClearUgoiraBtn(selector: string, callback: Function = () => {}) {
     this.ugoiraSelector = selector
 
-    DOM.addBtn('crawlBtns', Colors.bgRed, lang.transl('_清除动图作品'), [
+    Tools.addBtn('crawlBtns', Colors.bgRed, lang.transl('_清除动图作品'), [
       ['title', lang.transl('_清除动图作品Title')],
     ]).addEventListener(
       'click',
@@ -132,7 +133,7 @@ class DeleteWorks {
   // 手动删除作品的按钮
   public addManuallyDeleteBtn(callback: Function = () => {}) {
     this.deleteWorkCallback = callback
-    this.delBtn = DOM.addBtn(
+    this.delBtn = Tools.addBtn(
       'crawlBtns',
       Colors.bgRed,
       lang.transl('_手动删除作品'),
@@ -201,7 +202,7 @@ class DeleteWorks {
           }
 
           const target = ev.currentTarget as HTMLElement
-          DOM.removeEl(target)
+          target.remove()
           this.showWorksCount()
           this.deleteWorkCallback(target)
         }
@@ -213,7 +214,7 @@ class DeleteWorks {
   private showWorksCount() {
     const selector = this.worksSelector
     log.success(
-      lang.transl('_调整完毕', DOM.getVisibleEl(selector).length.toString()),
+      lang.transl('_调整完毕', Utils.getVisibleEl(selector).length.toString()),
       2,
       false
     )

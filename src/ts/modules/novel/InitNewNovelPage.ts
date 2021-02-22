@@ -9,7 +9,7 @@ import { filter, FilterOption } from '../filter/Filter'
 import { API } from '../utils/API'
 import { store } from '../Store'
 import { log } from '../Log'
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 
 class InitNewNovelPage extends InitPageBase {
   constructor() {
@@ -24,7 +24,7 @@ class InitNewNovelPage extends InitPageBase {
   private fetchCount = 0 // 已请求的作品数量
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_下载大家的新作品')],
     ]).addEventListener('click', () => {
       this.readyCrawl()

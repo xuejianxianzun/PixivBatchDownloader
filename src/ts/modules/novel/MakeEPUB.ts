@@ -1,5 +1,5 @@
 import { NovelMeta } from '../StoreType'
-import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 
 declare const EpubMaker: any
 
@@ -20,7 +20,7 @@ class MakeEPUB {
 
       new EpubMaker()
         .withTemplate('idpf-wasteland')
-        .withAuthor(Tools.replaceUnsafeStr(data.userName))
+        .withAuthor(Utils.replaceUnsafeStr(data.userName))
         .withModificationDate(new Date(data.createDate))
         .withRights({
           description: data.description,
@@ -33,7 +33,7 @@ class MakeEPUB {
           license: '',
           attributionUrl: '',
         })
-        .withTitle(Tools.replaceUnsafeStr(data.title))
+        .withTitle(Utils.replaceUnsafeStr(data.title))
         .withSection(
           new EpubMaker.Section('1', null, { content: content }, false, true)
         )

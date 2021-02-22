@@ -2,11 +2,11 @@
 import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 import { options } from '../setting/Options'
 import { API } from '../utils/API'
 import { store } from '../Store'
-import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 
 class InitBookmarkDetailPage extends InitPageBase {
   constructor() {
@@ -15,7 +15,7 @@ class InitBookmarkDetailPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取相似图片'), [
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取相似图片'), [
       ['title', lang.transl('_抓取相似图片')],
     ]).addEventListener(
       'click',

@@ -1,6 +1,6 @@
 // 下载进度条
 import { store } from './Store'
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { lang } from './Lang'
 
 interface ProgressBarEl {
@@ -18,7 +18,7 @@ interface ProgressData {
 // 进度条
 class ProgressBar {
   constructor() {
-    this.wrap = DOM.useSlot('progressBar', this.wrapHTML) as HTMLDivElement
+    this.wrap = Tools.useSlot('progressBar', this.wrapHTML) as HTMLDivElement
     this.downloadedEl = this.wrap.querySelector(
       '.downloaded'
     ) as HTMLSpanElement

@@ -1,5 +1,5 @@
 import { EVT } from './EVT'
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { lang } from './Lang'
 import config from './config/Config'
 import { store } from './Store'
@@ -7,7 +7,7 @@ import { Result } from './StoreType'
 import { fileName } from './FileName'
 import { createCSV } from './utils/CreateCSV'
 import { toast } from './Toast'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 
 // 定义字段信息
 interface Field {
@@ -181,18 +181,18 @@ class ExportResult2CSV {
     const csvURL = URL.createObjectURL(csv)
 
     // 设置文件名
-    let csvName = DOM.getTitle()
+    let csvName = Tools.getTitle()
     const ogTitle = document.querySelector(
       'meta[property="og:title"]'
     )! as HTMLMetaElement
     if (ogTitle) {
       csvName = ogTitle.content
     }
-    csvName = `result-${Tools.replaceUnsafeStr(
+    csvName = `result-${Utils.replaceUnsafeStr(
       csvName
     )}-${store.crawlCompleteTime.getTime()}.csv`
 
-    Tools.downloadFile(csvURL, csvName)
+    Utils.downloadFile(csvURL, csvName)
 
     toast.success(lang.transl('_导出成功'))
   }

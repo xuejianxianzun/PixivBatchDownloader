@@ -2,9 +2,10 @@
 import { InitPageBase } from './InitPageBase'
 import { Colors } from './config/Colors'
 import { lang } from './Lang'
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { options } from './setting/Options'
 import { store } from './Store'
+import { Utils } from './utils/Utils'
 
 class InitPixivisionPage extends InitPageBase {
   constructor() {
@@ -20,7 +21,7 @@ class InitPixivisionPage extends InitPageBase {
 
     if (type === 'illustration' || type === 'manga' || type === 'cosplay') {
       // 在插画、漫画、cosplay类型的页面上创建下载功能
-      DOM.addBtn(
+      Tools.addBtn(
         'crawlBtns',
         Colors.bgBlue,
         lang.transl('_抓取该页面的图片')
@@ -152,7 +153,7 @@ class InitPixivisionPage extends InitPageBase {
   // 通过加载图片来判断图片的后缀名。pixivision 页面直接获取的图片后缀都是 jpg 的
   private async testExtName(url: string, id: string) {
     let ext = 'jpg' // 默认为 jpg
-    await DOM.loadImg(url).catch(() => {
+    await Utils.loadImg(url).catch(() => {
       // 如果图片加载失败则把后缀改为 png
       url = url.replace('.jpg', '.png')
       ext = 'png'

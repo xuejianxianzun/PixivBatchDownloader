@@ -1,10 +1,10 @@
 // 作品页面内的快速收藏功能
 import { API } from './utils/API'
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { lang } from './Lang'
 import { token } from './Token'
 import { settings } from './setting/Settings'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 
 type WorkType = 'illusts' | 'novels'
 
@@ -226,7 +226,7 @@ class QuickBookmark {
     .${this.redClass} mask path{
       fill: white !important;
     }`
-    DOM.addStyle(redStyle)
+    Utils.addStyle(redStyle)
 
     // 创建一个 a 标签，用它替换掉 button（模拟心形按钮收藏后的变化）
     const a = document.createElement('a')

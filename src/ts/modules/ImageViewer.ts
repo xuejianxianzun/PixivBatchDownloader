@@ -7,7 +7,7 @@ import { theme } from './Theme'
 import { loading } from './Loading'
 import { states } from './States'
 import { toast } from './Toast'
-import { Tools } from './Tools'
+import { Tools } from './tools/Tools'
 
 // 所有参数
 interface Config {

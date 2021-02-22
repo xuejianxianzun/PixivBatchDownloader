@@ -1,4 +1,4 @@
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { Colors } from './config/Colors'
 import { lang } from './Lang'
 import { EVT } from './EVT'
@@ -199,14 +199,14 @@ class SelectWork {
   }
 
   private addBtn() {
-    this.controlBtn = DOM.addBtn(
+    this.controlBtn = Tools.addBtn(
       'selectWorkBtns',
       Colors.bgGreen,
       lang.transl('_手动选择作品')
     )
     this.updateControlBtn()
 
-    this.clearBtn = DOM.addBtn(
+    this.clearBtn = Tools.addBtn(
       'selectWorkBtns',
       Colors.bgRed,
       lang.transl('_清空选择的作品')
@@ -216,7 +216,7 @@ class SelectWork {
       this.clearIdList()
     })
 
-    this.crawlBtn = DOM.addBtn(
+    this.crawlBtn = Tools.addBtn(
       'selectWorkBtns',
       Colors.bgBlue,
       lang.transl('_抓取选择的作品')

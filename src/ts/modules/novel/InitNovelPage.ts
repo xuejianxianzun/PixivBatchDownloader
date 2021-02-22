@@ -6,10 +6,10 @@ import { options } from '../setting/Options'
 import { store } from '../Store'
 import { QuickBookmark } from '../QuickBookmark'
 import { userWorksType } from '../CrawlArgument'
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 import { API } from '../utils/API'
 import { EVT } from '../EVT'
-import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 
 class InitNovelPage extends InitPageBase {
   constructor() {
@@ -38,7 +38,7 @@ class InitNovelPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    DOM.addBtn(
+    Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
       lang.transl('_从本页开始抓取new')
@@ -47,7 +47,7 @@ class InitNovelPage extends InitPageBase {
       this.readyCrawl()
     })
 
-    DOM.addBtn(
+    Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
       lang.transl('_从本页开始抓取old')
@@ -70,8 +70,8 @@ class InitNovelPage extends InitPageBase {
   }
 
   protected destroy() {
-    DOM.clearSlot('crawlBtns')
-    DOM.clearSlot('otherBtns')
+    Tools.clearSlot('crawlBtns')
+    Tools.clearSlot('otherBtns')
 
     window.removeEventListener(
       EVT.list.pageSwitchedTypeNotChange,
@@ -93,7 +93,7 @@ class InitNovelPage extends InitPageBase {
 
   protected async getIdList() {
     let type: userWorksType[] = ['novels']
-    let idList = await API.getUserWorksByType(DOM.getUserId(), type)
+    let idList = await API.getUserWorksByType(Tools.getUserId(), type)
 
     // 储存符合条件的 id
     let nowId = parseInt(Tools.getIllustId(window.location.href))
@@ -112,10 +112,10 @@ class InitNovelPage extends InitPageBase {
     if (this.crawlNumber !== -1) {
       // 新作品 升序排列
       if (this.crawlDirection === -1) {
-        store.idList.sort(Tools.sortByProperty('id')).reverse()
+        store.idList.sort(Utils.sortByProperty('id')).reverse()
       } else {
         // 旧作品 降序排列
-        store.idList.sort(Tools.sortByProperty('id'))
+        store.idList.sort(Utils.sortByProperty('id'))
       }
 
       store.idList = store.idList.splice(0, this.crawlNumber)

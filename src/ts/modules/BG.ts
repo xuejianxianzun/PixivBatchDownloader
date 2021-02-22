@@ -1,6 +1,5 @@
-import { DOM } from './DOM'
 import { EVT } from './EVT'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 import { IndexedDB } from './IndexedDB'
 import { settings } from './setting/Settings'
 
@@ -93,7 +92,7 @@ class BG {
   }
 
   private async selectBG() {
-    const file = (await Tools.selectFile('.jpg,.jpeg,.png,.bmp'))[0]
+    const file = (await Utils.selectFile('.jpg,.jpeg,.png,.bmp'))[0]
     const url = URL.createObjectURL(file)
     this.setBGImage(url)
 
@@ -112,7 +111,7 @@ class BG {
 
     // 预加载背景图片
     // 由于浏览器的工作原理，背景图片在未被显示之前是不会加载的，在显示时才会进行加载。这会导致背景层显示之后出现短暂的空白（因为在加载图片）。为了避免空白，需要预加载图片
-    await DOM.loadImg(url)
+    await Utils.loadImg(url)
 
     this.el.style.backgroundImage = `url(${url})`
     this.haveImage = true

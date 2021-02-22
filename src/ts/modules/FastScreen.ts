@@ -1,7 +1,6 @@
 import { EVT } from './EVT'
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { theme } from './Theme'
-import { Tools } from './Tools'
 
 // 在搜索页面按收藏数快速筛选
 class FastScreen {
@@ -73,7 +72,7 @@ class FastScreen {
   private destroy() {
     // 删除快速筛选元素
     const fastScreen = document.querySelector('.fastScreenArea')
-    DOM.removeEl(fastScreen as HTMLDivElement)
+    fastScreen?.remove()
   }
 }
 

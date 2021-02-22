@@ -1,7 +1,7 @@
 import { lang } from './Lang'
 import Config from './config/Config'
 import { msgBox } from './MsgBox'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 
 // 显示最近更新内容
 class ShowWhatIsNew {
@@ -16,7 +16,7 @@ class ShowWhatIsNew {
 
   private show() {
     const value = localStorage.getItem(this.storeName)
-    if (Tools.isPixiv() && value !== this.flag) {
+    if (Utils.isPixiv() && value !== this.flag) {
       msgBox.show(this.msg, {
         title: Config.name + ` ${lang.transl('_最近更新')}`,
         btn: lang.transl('_我知道了'),

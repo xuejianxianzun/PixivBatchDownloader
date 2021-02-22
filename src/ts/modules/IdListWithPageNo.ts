@@ -1,6 +1,6 @@
 import { store } from './Store'
 import { IDData } from './StoreType'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 
 type IDDataWithPageNo = IDData & {
   page: number
@@ -36,7 +36,7 @@ class IdListWithPageNo {
   // 排序
   private sort(flag: string) {
     if (this.allList[flag]) {
-      this.allList[flag].sort(Tools.sortByProperty('page', 'asc'))
+      this.allList[flag].sort(Utils.sortByProperty('page', 'asc'))
     }
   }
 

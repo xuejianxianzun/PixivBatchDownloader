@@ -1,6 +1,4 @@
-import { Result } from './StoreType'
-
-class Tools {
+class Utils {
   // 不安全的字符，这里多数是控制字符，需要替换掉
   static unsafeStr = new RegExp(
     /[\u0001-\u001f\u007f-\u009f\u00ad\u0600-\u0605\u061c\u06dd\u070f\u08e2\u180e\u200b-\u200f\u202a-\u202e\u2060-\u2064\u2066-\u206f\ufdd0-\ufdef\ufeff\ufff9-\ufffb\ufffe\uffff]/g
@@ -76,28 +74,6 @@ class Tools {
         return 0
       }
     }
-  }
-
-  // 把结果中的动图排列到最前面
-  static sortUgoiraFirst(a: Result, b: Result) {
-    if (a.type === 2 && b.type !== 2) {
-      return -1
-    } else if (a.type === 2 && b.type === 2) {
-      return 0
-    } else {
-      return 1
-    }
-  }
-
-  static isR18OrR18G(tags: string | string[]) {
-    const str: string = Array.isArray(tags) ? tags.toString() : tags
-
-    return (
-      str.includes('R-18') ||
-      str.includes('R-18G') ||
-      str.includes('R18') ||
-      str.includes('R18G')
-    )
   }
 
   // 创建 input 元素选择 json 文件
@@ -179,94 +155,66 @@ class Tools {
     }
   }
 
-  // 从 url 中获取 tag
-  static getTagFromURL(url: string = location.href) {
-    const nowURL = new URL(url)
+  // 获取指定元素里，可见的结果
+  static getVisibleEl(selector: string) {
+    const list: NodeListOf<HTMLElement> = document.querySelectorAll(selector)
+    return Array.from(list).filter((el) => {
+      return el.style.display !== 'none'
+    })
+  }
 
-    // 2 用户作品列表页
-    if (/\/users\/\d+/.test(url) && !url.includes('/bookmarks')) {
-      // 匹配 pathname 里用户 id 之后的字符
-      const test = nowURL.pathname.match(/\/users\/\d+(\/.+)/)
-      if (test && test.length === 2) {
-        const str = test[1]
-        // 如果用户 id 之后的字符多于一个路径，则把最后一个路径作为 tag，示例
-        // https://www.pixiv.net/users/2188232/illustrations/ghostblade
-        const array = str.split('/')
-        // ["", "illustrations", "ghostblade"]
-        if (array.length > 2) {
-          return decodeURIComponent(array[array.length - 1])
+  // 删除 DOM 元素，或者 DOM 元素列表
+  static removeEl(el: NodeListOf<Element> | HTMLElement) {
+    if (!el) {
+      return
+    }
+    if (Reflect.has(el, 'length')) {
+      // 如果有 length 属性则循环删除。
+      ;(el as NodeListOf<Element>).forEach((el) => {
+        if (el.parentNode) {
+          el.parentNode.removeChild(el)
         }
+      })
+    } else {
+      // 没有 length 属性的直接删除（querySelector 的返回值是 HTMLElement）
+      const parent = (el as HTMLElement).parentNode
+      if (parent) {
+        parent.removeChild(el as HTMLElement)
       }
     }
-
-    // 4 旧版收藏页面
-    if (nowURL.pathname === '/bookmark.php') {
-      if (parseInt(this.getURLSearchField(nowURL.href, 'untagged')) === 1) {
-        // 旧版 “未分类” tag 是个特殊标记
-        // https://www.pixiv.net/bookmark.php?untagged=1
-        return '未分類'
-      }
-    }
-
-    // 4 新版收藏页面
-    if (nowURL.pathname.includes('/bookmarks/')) {
-      // 新版收藏页 url，tag 在路径末端，如
-      // https://www.pixiv.net/users/9460149/bookmarks/artworks/R-18
-      // https://www.pixiv.net/users/9460149/bookmarks/novels/R-18
-      const test = /\/bookmarks\/\w*\/(.[^\/|^\?|^&]*)/.exec(nowURL.pathname)
-      if (test !== null && test.length > 1 && !!test[1]) {
-        return decodeURIComponent(test[1])
-      }
-    }
-
-    // 5 搜索页面
-    if (nowURL.pathname.includes('/tags/')) {
-      return decodeURIComponent(nowURL.pathname.split('tags/')[1].split('/')[0])
-    }
-
-    // 默认情况，从查询字符串里获取，如下网址
-    // https://www.pixiv.net/bookmark.php?tag=R-18
-    return decodeURIComponent(this.getURLSearchField(nowURL.href, 'tag'))
   }
 
-  // 从 url 里获取 artworks id
-  // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
-  // 如果查找不到 id 会返回空字符串
-  static getIllustId(url?: string) {
-    const str = url || window.location.search || location.href
-    let result = ''
-    if (str.includes('illust_id')) {
-      // 传统 url
-      const test = /illust_id=(\d*\d)/.exec(str)
-      if (test && test.length > 1) {
-        result = test[1]
-      }
-    } else if (str.includes('/artworks/')) {
-      // 新版 url
-      const test = /artworks\/(\d*\d)/.exec(str)
-      if (test && test.length > 1) {
-        result = test[1]
-      }
-    }
-
-    return result
+  // 切换 DOM 元素的可见性
+  // 第二个参数设置显示时的 display，默认是 block，如果要设置为其他类型，则需要指定第二个参数
+  static toggleEl(el: HTMLElement, showDisplay: string = 'block') {
+    el.style.display = el.style.display === showDisplay ? 'none' : showDisplay
   }
 
-  // 从 url 里获取 novel id
-  // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
-  // 如果查找不到 id 会返回空字符串
-  // https://www.pixiv.net/novel/show.php?id=12771688
-  static getNovelId(url?: string) {
-    const str = url || window.location.search || location.href
-    let result = ''
+  // 动态添加 css 样式
+  static addStyle(css: string) {
+    const e = document.createElement('style')
+    e.innerHTML = css
+    document.body.append(e)
+  }
 
-    const test = str.match(/\?id=(\d*)?/)
-    if (test && test.length > 1) {
-      result = test[1]
-    }
+  static async loadImg(url: string) {
+    return new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image()
+      img.src = url
+      img.onload = function () {
+        resolve(img)
+      }
+      img.onerror = () => {
+        reject(new Error(`Load image error! url: ${url}`))
+      }
+    })
+  }
 
-    return result
+  static json2Blob(data: any) {
+    const str = JSON.stringify(data, null, 2)
+    const blob = new Blob([str], { type: 'application/json' })
+    return blob
   }
 }
 
-export { Tools }
+export { Utils }

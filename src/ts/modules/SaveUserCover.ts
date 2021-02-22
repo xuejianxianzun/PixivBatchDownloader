@@ -1,9 +1,9 @@
 import { lang } from './Lang'
 import { API } from './utils/API'
 import { log } from './Log'
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { EVT } from './EVT'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 import { toast } from './Toast'
 
 // 保存用户封面图片
@@ -19,7 +19,7 @@ class SaveUserCover {
   }
 
   private async saveUserCover() {
-    const userId = DOM.getUserId()
+    const userId = Tools.getUserId()
     const userProfile = await API.getUserProfile(userId)
     const bgData = userProfile.body.background
     if (bgData === null) {
@@ -43,7 +43,7 @@ class SaveUserCover {
     // 直接保存到下载文件夹
     const url = URL.createObjectURL(blob)
     const name = `${userProfile.body.name}_${userId}_cover.${ext}`
-    Tools.downloadFile(url, name)
+    Utils.downloadFile(url, name)
 
     log.success('✓ ' + lang.transl('_保存用户封面'))
     EVT.fire(EVT.list.closeCenterPanel)

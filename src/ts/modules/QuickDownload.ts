@@ -4,7 +4,7 @@ import { pageType } from './PageType'
 import { states } from './States'
 import { IDData } from './StoreType'
 import { toast } from './Toast'
-import { Tools } from './Tools'
+import { Tools } from './tools/Tools'
 
 // 快速下载
 class QuickDownload {

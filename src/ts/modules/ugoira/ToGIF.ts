@@ -1,7 +1,8 @@
 import { extractImage } from './ExtractImage'
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 import { EVT } from '../EVT'
 import { UgoiraInfo } from '../CrawlResult'
+import { Utils } from '../utils/Utils'
 
 declare const GIF: any
 
@@ -68,7 +69,7 @@ class ToGIF {
     const resultList: HTMLImageElement[] = []
     return new Promise(async (resolve, reject) => {
       for (const base64 of imgFile) {
-        const img = await DOM.loadImg(base64)
+        const img = await Utils.loadImg(base64)
         resultList.push(img)
       }
       resolve(resultList)

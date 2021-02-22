@@ -6,10 +6,9 @@ import { DonwloadSuccessData } from './DownloadType'
 import { IndexedDB } from './IndexedDB'
 import { store } from './Store'
 import { fileName } from './FileName'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 import { toast } from './Toast'
 import { msgBox } from './MsgBox'
-import {Json2Blob} from './utils/Json2Blob'
 
 interface Record {
   id: string
@@ -159,7 +158,7 @@ class Deduplication {
   // 检查一个 id 是否是重复下载
   // 返回值 true 表示重复，false 表示不重复
   public async check(resultId: string) {
-    if (!Tools.isPixiv()) {
+    if (!Utils.isPixiv()) {
       return false
     }
 
@@ -206,17 +205,17 @@ class Deduplication {
       record = record.concat(r)
     }
 
-    const blob = Json2Blob.convert(record)
+    const blob = Utils.json2Blob(record)
     const url = URL.createObjectURL(blob)
-    Tools.downloadFile(
+    Utils.downloadFile(
       url,
-      `record-${Tools.replaceUnsafeStr(new Date().toLocaleString())}.json`
+      `record-${Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`
     )
   }
 
   // 导入下载记录
   private async importRecord() {
-    const record = (await Tools.loadJSONFile().catch((err) => {
+    const record = (await Utils.loadJSONFile().catch((err) => {
       msgBox.error(err)
       return
     })) as Record[]
@@ -278,9 +277,9 @@ class Deduplication {
       })
     }
 
-    const blob = Json2Blob.convert(r)
+    const blob = Utils.json2Blob(r)
     const url = URL.createObjectURL(blob)
-    Tools.downloadFile(url, `record-test-${number}.json`)
+    Utils.downloadFile(url, `record-test-${number}.json`)
   }
 }
 

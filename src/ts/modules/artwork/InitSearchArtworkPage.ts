@@ -15,10 +15,10 @@ import { Result } from '../StoreType'
 import { settings } from '../setting/Settings'
 import { settingAPI } from '../setting/SettingAPI'
 import { FastScreen } from '../FastScreen'
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 import { BookmarkAllWorks } from '../BookmarkAllWorks'
 import { states } from '../States'
-import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 import { idListWithPageNo } from '../IdListWithPageNo'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
@@ -89,7 +89,7 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.bgGreen, lang.transl('_开始筛选'), [
+    Tools.addBtn('crawlBtns', Colors.bgGreen, lang.transl('_开始筛选'), [
       ['title', lang.transl('_开始筛选Title')],
     ]).addEventListener('click', () => {
       this.resultMeta = []
@@ -99,7 +99,7 @@ class InitSearchArtworkPage extends InitPageBase {
       this.readyCrawl()
     })
 
-    DOM.addBtn('crawlBtns', Colors.bgGreen, lang.transl('_在结果中筛选'), [
+    Tools.addBtn('crawlBtns', Colors.bgGreen, lang.transl('_在结果中筛选'), [
       ['title', lang.transl('_在结果中筛选Title')],
     ]).addEventListener('click', () => {
       this.screenInResult()
@@ -122,7 +122,7 @@ class InitSearchArtworkPage extends InitPageBase {
     })
 
     // 添加收藏本页所有作品的功能
-    const bookmarkAllBtn = DOM.addBtn(
+    const bookmarkAllBtn = Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
       lang.transl('_收藏本页面的所有作品')
@@ -163,8 +163,8 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   protected destroy() {
-    DOM.clearSlot('crawlBtns')
-    DOM.clearSlot('otherBtns')
+    Tools.clearSlot('crawlBtns')
+    Tools.clearSlot('otherBtns')
 
     window.removeEventListener(EVT.list.addResult, this.showCount)
     window.removeEventListener(EVT.list.crawlFinish, this.onCrawlFinish)
@@ -235,13 +235,13 @@ class InitSearchArtworkPage extends InitPageBase {
         break
     }
 
-    let p = Tools.getURLSearchField(location.href, 'p')
+    let p = Utils.getURLSearchField(location.href, 'p')
     this.startpageNo = parseInt(p) || 1
 
     // 从页面 url 中获取可以使用的选项
     this.option = {}
     this.allOption.forEach((param) => {
-      let value = Tools.getURLSearchField(location.href, param)
+      let value = Utils.getURLSearchField(location.href, param)
       if (value !== '') {
         this.option[param] = value
       }
@@ -375,8 +375,8 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 搜索页把下载任务按收藏数从高到低下载
   protected sortResult() {
-    store.resultMeta.sort(Tools.sortByProperty('bmk'))
-    store.result.sort(Tools.sortByProperty('bmk'))
+    store.resultMeta.sort(Utils.sortByProperty('bmk'))
+    store.result.sort(Utils.sortByProperty('bmk'))
   }
 
   private onSettingChange = (event: CustomEventInit) => {
@@ -756,7 +756,7 @@ class InitSearchArtworkPage extends InitPageBase {
           display:none !important;
         }
         `
-        DOM.addStyle(style)
+        Utils.addStyle(style)
       }
     }, 300)
   }

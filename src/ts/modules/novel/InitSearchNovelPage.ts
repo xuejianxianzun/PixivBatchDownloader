@@ -9,9 +9,9 @@ import { API } from '../utils/API'
 import { store } from '../Store'
 import { log } from '../Log'
 import { FastScreen } from '../FastScreen'
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 import { BookmarkAllWorks } from '../BookmarkAllWorks'
-import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 import { idListWithPageNo } from '../IdListWithPageNo'
 
 class InitSearchNovelPage extends InitPageBase {
@@ -54,7 +54,7 @@ class InitSearchNovelPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
@@ -72,7 +72,7 @@ class InitSearchNovelPage extends InitPageBase {
 
   protected addAnyElement() {
     // 添加收藏本页所有作品的功能
-    const bookmarkAllBtn = DOM.addBtn(
+    const bookmarkAllBtn = Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
       lang.transl('_收藏本页面的所有作品')
@@ -133,13 +133,13 @@ class InitSearchNovelPage extends InitPageBase {
 
   // 组织要请求的 url 中的参数
   private initFetchURL() {
-    let p = Tools.getURLSearchField(location.href, 'p')
+    let p = Utils.getURLSearchField(location.href, 'p')
     this.startpageNo = parseInt(p) || 1
 
     // 从页面 url 中获取可以使用的选项
     this.option = {}
     this.allOption.forEach((param) => {
-      let value = Tools.getURLSearchField(location.href, param)
+      let value = Utils.getURLSearchField(location.href, param)
       if (value !== '') {
         this.option[param] = value
       }
@@ -254,8 +254,8 @@ class InitSearchNovelPage extends InitPageBase {
 
   // 搜索页把下载任务按收藏数从高到低下载
   protected sortResult() {
-    store.resultMeta.sort(Tools.sortByProperty('bmk'))
-    store.result.sort(Tools.sortByProperty('bmk'))
+    store.resultMeta.sort(Utils.sortByProperty('bmk'))
+    store.result.sort(Utils.sortByProperty('bmk'))
   }
 }
 

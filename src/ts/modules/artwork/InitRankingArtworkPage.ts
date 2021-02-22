@@ -3,7 +3,7 @@ import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../config/Colors'
 import { API } from '../utils/API'
 import { lang } from '../Lang'
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 import { EVT } from '../EVT'
 import { options } from '../setting/Options'
 import { RankingOption } from '../CrawlArgument'
@@ -12,7 +12,7 @@ import { filter, FilterOption } from '../filter/Filter'
 import { store } from '../Store'
 import { log } from '../Log'
 import { states } from '../States'
-import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 
 class InitRankingArtworkPage extends InitPageBase {
   constructor() {
@@ -25,7 +25,7 @@ class InitRankingArtworkPage extends InitPageBase {
   private option: RankingOption = this.resetOption()
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取本排行榜作品'), [
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取本排行榜作品'), [
       ['title', lang.transl('_抓取本排行榜作品Title')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
@@ -33,10 +33,10 @@ class InitRankingArtworkPage extends InitPageBase {
 
     // 判断当前页面是否有“首次登场”标记
     const debutModes = ['daily', 'daily_r18', 'rookie', '']
-    const mode = Tools.getURLSearchField(location.href, 'mode')
+    const mode = Utils.getURLSearchField(location.href, 'mode')
 
     if (debutModes.includes(mode)) {
-      DOM.addBtn(
+      Tools.addBtn(
         'crawlBtns',
         Colors.bgBlue,
         lang.transl('_抓取首次登场的作品'),
@@ -102,9 +102,9 @@ class InitRankingArtworkPage extends InitPageBase {
     // 设置 option 信息
     // mode 一定要有值，其他字段不需要一定有值
     this.option = this.resetOption()
-    this.option.mode = Tools.getURLSearchField(location.href, 'mode') || 'daily'
-    this.option.worksType = Tools.getURLSearchField(location.href, 'content')
-    this.option.date = Tools.getURLSearchField(location.href, 'date')
+    this.option.mode = Utils.getURLSearchField(location.href, 'mode') || 'daily'
+    this.option.worksType = Utils.getURLSearchField(location.href, 'content')
+    this.option.date = Utils.getURLSearchField(location.href, 'date')
 
     this.startpageNo = 1
 

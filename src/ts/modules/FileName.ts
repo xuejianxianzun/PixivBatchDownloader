@@ -2,8 +2,8 @@ import { settings } from './setting/Settings'
 import { store } from './Store'
 import { Result } from './StoreType'
 import config from './config/Config'
-import { DateFormat } from './DateFormat'
-import { Tools } from './Tools'
+import { DateFormat } from './utils/DateFormat'
+import { Utils } from './utils/Utils'
 
 // 生成文件名
 class FileName {
@@ -155,7 +155,7 @@ class FileName {
     }
 
     // 替换命名规则里的特殊字符
-    result = Tools.replaceUnsafeStr(result)
+    result = Utils.replaceUnsafeStr(result)
     // 上一步会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
     result = result.replace(/／/g, '/')
 
@@ -181,7 +181,7 @@ class FileName {
 
         // 替换标记值中的特殊字符
         if (!val.safe) {
-          once = Tools.replaceUnsafeStr(once)
+          once = Utils.replaceUnsafeStr(once)
         }
 
         // 添加标记名称
@@ -250,7 +250,7 @@ class FileName {
         const nowTag = tag.toLowerCase()
         if (workTags.includes(nowTag)) {
           // 设置为文件夹名字的时候使用原 tag（不转换成小写）
-          const folder = Tools.replaceUnsafeStr(tag)
+          const folder = Utils.replaceUnsafeStr(tag)
           result = this.appendFolder(result, folder)
           break
         }
@@ -259,7 +259,7 @@ class FileName {
 
     // 把 R18(G) 作品存入指定目录里
     if (settings.r18Folder && (data.xRestrict === 1 || data.xRestrict === 2)) {
-      const folder = Tools.replaceUnsafeStr(settings.r18FolderName)
+      const folder = Utils.replaceUnsafeStr(settings.r18FolderName)
       result = this.appendFolder(result, folder)
     }
 

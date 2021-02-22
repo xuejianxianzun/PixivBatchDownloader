@@ -2,7 +2,7 @@ import { EVT } from '../EVT'
 import { pageType } from '../PageType'
 import { settings, setSetting } from './Settings'
 import { SettingsForm } from './SettingsForm'
-import { DateFormat } from '../DateFormat'
+import { DateFormat } from '../utils/DateFormat'
 
 // 管理 from 表单里的选项（类型为 input 元素的选项），从 settings 里读取选项的值；当选项改变时保存到 settings 里
 // 不属于 input 类型的选项，不在这里处理。

@@ -4,7 +4,7 @@ import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
 import { options } from '../setting/Options'
 import { store } from '../Store'
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 import { API } from '../utils/API'
 
 class InitNovelSeriesPage extends InitPageBase {
@@ -18,7 +18,7 @@ class InitNovelSeriesPage extends InitPageBase {
   private last = 0
 
   protected addCrawlBtns() {
-    DOM.addBtn(
+    Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
       lang.transl('_抓取系列小说')

@@ -1,7 +1,6 @@
 import { EVT } from './EVT'
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { Result, ResultOptional, RankList, IDData } from './StoreType'
-import { Tools } from './Tools'
 
 // 储存抓取结果
 class Store {
@@ -122,7 +121,7 @@ class Store {
     this.idList = []
     this.rankList = {}
     this.tag = Tools.getTagFromURL()
-    this.title = DOM.getTitle()
+    this.title = Tools.getTitle()
   }
 
   private bindEvents() {
@@ -132,7 +131,7 @@ class Store {
 
     window.addEventListener(EVT.list.resume, () => {
       this.tag = Tools.getTagFromURL()
-      this.title = DOM.getTitle()
+      this.title = Tools.getTitle()
     })
   }
 }

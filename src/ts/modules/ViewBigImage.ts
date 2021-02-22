@@ -2,7 +2,7 @@ import { pageType } from './PageType'
 import { EVT } from './EVT'
 import { ImageViewer } from './ImageViewer'
 import { settings } from './setting/Settings'
-import { Tools } from './Tools'
+import { Tools } from './tools/Tools'
 
 // 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器，查看大图
 class ViewBigImage {

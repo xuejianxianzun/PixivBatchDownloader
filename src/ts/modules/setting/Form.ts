@@ -1,5 +1,5 @@
 import { EVT } from '../EVT'
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
 import formHtml from './FormHTML'
@@ -7,12 +7,12 @@ import { SettingsForm } from './SettingsForm'
 import { SaveNamingRule } from './SaveNamingRule'
 import { theme } from '../Theme'
 import { FormSettings } from './FormSettings'
-import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 
 // 设置表单
 class Form {
   constructor() {
-    this.form = DOM.useSlot('form', formHtml) as SettingsForm
+    this.form = Tools.useSlot('form', formHtml) as SettingsForm
     theme.register(this.form)
 
     this.allCheckBox = this.form.querySelectorAll(
@@ -90,7 +90,7 @@ class Form {
     })
 
     // 预览文件名
-    DOM.addBtn(
+    Tools.addBtn(
       'namingBtns',
       Colors.bgGreen,
       lang.transl('_预览文件名')
@@ -103,7 +103,7 @@ class Form {
     )
 
     // 导出 csv
-    DOM.addBtn(
+    Tools.addBtn(
       'exportResult',
       Colors.bgGreen,
       lang.transl('_导出csv')
@@ -116,7 +116,7 @@ class Form {
     )
 
     // 导出抓取结果
-    DOM.addBtn(
+    Tools.addBtn(
       'exportResult',
       Colors.bgGreen,
       lang.transl('_导出抓取结果')
@@ -129,7 +129,7 @@ class Form {
     )
 
     // 导入抓取结果
-    DOM.addBtn(
+    Tools.addBtn(
       'exportResult',
       Colors.bgGreen,
       lang.transl('_导入抓取结果')
@@ -198,14 +198,14 @@ class Form {
     this.form
       .querySelector('.showFileNameTip')!
       .addEventListener('click', () =>
-        DOM.toggleEl(document.querySelector('.fileNameTip')! as HTMLElement)
+        Utils.toggleEl(document.querySelector('.fileNameTip')! as HTMLElement)
       )
 
     // 显示日期格式提示
     this.form
       .querySelector('.showDateTip')!
       .addEventListener('click', () =>
-        DOM.toggleEl(document.querySelector('.dateFormatTip')! as HTMLElement)
+        Utils.toggleEl(document.querySelector('.dateFormatTip')! as HTMLElement)
       )
 
     // 输入框获得焦点时自动选择文本（文件名输入框例外）
@@ -304,7 +304,7 @@ class Form {
 
   // 是否显示“创建文件夹的提示”
   private checkTipCreateFolder() {
-    if (!Tools.isPixiv()) {
+    if (!Utils.isPixiv()) {
       return
     }
 

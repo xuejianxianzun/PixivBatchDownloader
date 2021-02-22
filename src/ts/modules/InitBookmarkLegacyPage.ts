@@ -10,9 +10,9 @@ import { BookmarksAddTag } from './BookmarksAddTag'
 import { BookmarkData } from './CrawlResult.d'
 import { store } from './Store'
 import { log } from './Log'
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { filter, FilterOption } from './filter/Filter'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 
 class InitBookmarkLegacyPage extends InitPageBase {
   constructor() {
@@ -37,14 +37,14 @@ class InitBookmarkLegacyPage extends InitPageBase {
   private crawlRecommended: boolean = false // 是否抓取推荐作品（收藏页面下方）
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
     })
 
     // 添加下载推荐作品的按钮
-    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取推荐作品'), [
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取推荐作品'), [
       ['title', lang.transl('_抓取推荐作品Title')],
     ]).addEventListener(
       'click',
@@ -59,7 +59,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
   protected addAnyElement() {
     // 如果存在 token，则添加“添加 tag”按钮
     if (token.token) {
-      const btn = DOM.addBtn(
+      const btn = Tools.addBtn(
         'otherBtns',
         Colors.bgGreen,
         lang.transl('_给未分类作品添加添加tag'),
@@ -112,7 +112,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
     const onceNumber = 20
 
     // 如果前面有页数，就去掉前面页数的作品数量。即：从本页开始下载
-    const nowPage = Tools.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
+    const nowPage = Utils.getURLSearchField(location.href, 'p') // 判断当前处于第几页，页码从 1 开始。也可能没有页码
     if (nowPage) {
       this.offset = (parseInt(nowPage) - 1) * onceNumber
     }
@@ -130,7 +130,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
 
     // 判断是公开收藏还是非公开收藏
     // 在新旧版 url 里，rest 都是在查询字符串里的
-    this.isHide = Tools.getURLSearchField(location.href, 'rest') === 'hide'
+    this.isHide = Utils.getURLSearchField(location.href, 'rest') === 'hide'
 
     log.log(lang.transl('_正在抓取'))
 
@@ -144,7 +144,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
     let data: BookmarkData
     try {
       data = await API.getBookmarkData(
-        DOM.getUserId(),
+        Tools.getUserId(),
         this.type,
         store.tag,
         this.offset,

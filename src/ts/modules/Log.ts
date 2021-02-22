@@ -1,4 +1,4 @@
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { EVT } from './EVT'
 import { theme } from './Theme'
 import { Colors } from './config/Colors'
@@ -31,7 +31,7 @@ class Log {
     if (test === null) {
       this.logArea.id = this.id
       this.logArea.classList.add('beautify_scrollbar')
-      DOM.insertToHead(this.logArea)
+      Tools.insertToHead(this.logArea)
       theme.register(this.logArea)
     }
   }

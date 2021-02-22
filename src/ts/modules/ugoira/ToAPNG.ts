@@ -1,7 +1,8 @@
 import { extractImage } from './ExtractImage'
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 import { EVT } from '../EVT'
 import { UgoiraInfo } from '../CrawlResult'
+import { Utils } from '../utils/Utils'
 
 declare const UPNG: any
 
@@ -26,7 +27,7 @@ class ToAPNG {
         delayList.push(d.delay)
       }
       // 获取宽高
-      const img = await DOM.loadImg(base64Arr[0])
+      const img = await Utils.loadImg(base64Arr[0])
       // 编码
       const png = UPNG.encode(
         arrayBuffList,
@@ -54,7 +55,7 @@ class ToAPNG {
     const resultList: ArrayBuffer[] = []
     return new Promise(async (resolve, reject) => {
       for (const base64 of imgFile) {
-        const img = await DOM.loadImg(base64)
+        const img = await Utils.loadImg(base64)
         const canvas = document.createElement('canvas')
         const ctx = canvas.getContext('2d')!
         canvas.width = img.width

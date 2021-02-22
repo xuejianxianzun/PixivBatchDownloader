@@ -1,10 +1,10 @@
 import { lang } from './Lang'
 import { API } from './utils/API'
 import { log } from './Log'
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { EVT } from './EVT'
 import { img2ico } from './ImageToIcon'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 
 // 保存用户头像为图标
 class SaveAvatarIcon {
@@ -19,7 +19,7 @@ class SaveAvatarIcon {
   }
 
   private async saveAvatarIcon() {
-    const userId = DOM.getUserId()
+    const userId = Tools.getUserId()
     const userProfile = await API.getUserProfile(userId)
     const bigImg = userProfile.body.imageBig // imageBig 并不是头像原图，而是裁剪成 170 px 的尺寸
     const fullSizeImg = bigImg.replace('_170', '') // 去掉 170 标记，获取头像图片的原图
@@ -36,7 +36,7 @@ class SaveAvatarIcon {
     // 直接保存到下载文件夹
     const url = URL.createObjectURL(blob)
     const name = `${userProfile.body.name}_${userId}_icon.ico`
-    Tools.downloadFile(url, name)
+    Utils.downloadFile(url, name)
 
     log.success('✓ ' + lang.transl('_保存用户头像为图标'))
     EVT.fire(EVT.list.closeCenterPanel)

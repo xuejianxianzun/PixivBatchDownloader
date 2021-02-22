@@ -9,8 +9,8 @@ import { filter, FilterOption } from '../filter/Filter'
 import { API } from '../utils/API'
 import { store } from '../Store'
 import { log } from '../Log'
-import { DOM } from '../DOM'
-import { Tools } from '../Tools'
+import { Tools } from '../tools/Tools'
+import { Utils } from '../utils/Utils'
 
 class InitNewArtworkPage extends InitPageBase {
   constructor() {
@@ -25,7 +25,7 @@ class InitNewArtworkPage extends InitPageBase {
   private fetchCount = 0 // 已请求的作品数量
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_下载大家的新作品')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
@@ -73,7 +73,7 @@ class InitNewArtworkPage extends InitPageBase {
 
     // 当前页面的作品类型，默认是 illust
     this.option.type =
-      Tools.getURLSearchField(location.href, 'type') || 'illust'
+      Utils.getURLSearchField(location.href, 'type') || 'illust'
     // 是否是 R18 模式
     this.option.r18 = (location.href.includes('_r18.php') || false).toString()
   }

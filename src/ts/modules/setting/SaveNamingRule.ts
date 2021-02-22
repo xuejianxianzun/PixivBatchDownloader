@@ -1,5 +1,5 @@
 import { EVT } from '../EVT'
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 import { lang } from '../Lang'
 import { log } from '../Log'
 import { theme } from '../Theme'
@@ -11,8 +11,8 @@ class SaveNamingRule {
   constructor(ruleInput: HTMLInputElement) {
     this.ruleInput = ruleInput
 
-    DOM.clearSlot('saveNamingRule')
-    const wrap = DOM.useSlot('saveNamingRule', this.html)
+    Tools.clearSlot('saveNamingRule')
+    const wrap = Tools.useSlot('saveNamingRule', this.html)
     theme.register(wrap)
 
     this.saveBtn = wrap.querySelector('button.nameSave')! as HTMLButtonElement

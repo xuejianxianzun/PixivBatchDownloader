@@ -3,7 +3,7 @@ import { pageType } from './PageType'
 import { settings } from './setting/Settings'
 import { ArtworkData, NovelData } from './CrawlResult.d'
 import { filter } from './filter/Filter'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 
 // 当 Pixiv 会员使用按热门度排序搜索时，进行优化
 // 优化的原理：当会员使用热门度排序时，Pixiv 返回的数据是按收藏数量从高到低排序的。（但不是严格一致，经常有少量作品顺序不对）
@@ -90,7 +90,7 @@ class VipSearchOptimize {
     }
 
     // 判断 order 方式
-    const order = Tools.getURLSearchField(window.location.href, 'order')
+    const order = Utils.getURLSearchField(window.location.href, 'order')
     // 无排序方式
     if (!order) {
       return false

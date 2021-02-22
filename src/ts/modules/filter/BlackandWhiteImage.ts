@@ -1,4 +1,5 @@
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
+import { Utils } from '../utils/Utils'
 
 // 检查图片是否是黑白图片
 class BlackAndWhiteImage {
@@ -23,14 +24,14 @@ class BlackAndWhiteImage {
     return new Promise(async (resolve, reject) => {
       // 如果传递的时 blobURL 就直接使用，不是的话先获取图片
       if (url.startsWith('blob')) {
-        resolve(DOM.loadImg(url))
+        resolve(Utils.loadImg(url))
       } else {
         const res = await fetch(url).catch((error) => {
           throw new Error(`Load image error! url: ${url}`)
         })
         const blob = await res.blob()
         const blobURL = URL.createObjectURL(blob)
-        resolve(DOM.loadImg(blobURL))
+        resolve(Utils.loadImg(blobURL))
       }
     })
   }

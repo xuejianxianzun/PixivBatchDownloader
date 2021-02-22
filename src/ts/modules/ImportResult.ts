@@ -1,7 +1,7 @@
 import { EVT } from './EVT'
 import { Result } from './StoreType'
 import { lang } from './Lang'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 import { states } from './States'
 import { store } from './Store'
 import { toast } from './Toast'
@@ -25,7 +25,7 @@ class ImportResult {
   }
 
   private async import() {
-    const loadedJSON = (await Tools.loadJSONFile().catch((err) => {
+    const loadedJSON = (await Utils.loadJSONFile().catch((err) => {
       return msgBox.error(err)
     })) as Result[]
     if (!loadedJSON) {

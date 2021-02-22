@@ -1,10 +1,9 @@
 import { EVT } from './EVT'
-import { DOM } from './DOM'
+import { Tools } from './tools/Tools'
 import { store } from './Store'
 import { lang } from './Lang'
-import { Tools } from './Tools'
+import { Utils } from './utils/Utils'
 import { toast } from './Toast'
-import { Json2Blob } from './utils/Json2Blob'
 
 class ExportResult {
   constructor() {
@@ -24,12 +23,12 @@ class ExportResult {
       return
     }
 
-    const blob = Json2Blob.convert(store.result)
+    const blob = Utils.json2Blob(store.result)
     const url = URL.createObjectURL(blob)
-    Tools.downloadFile(
+    Utils.downloadFile(
       url,
-      `result-${Tools.replaceUnsafeStr(
-        DOM.getTitle()
+      `result-${Utils.replaceUnsafeStr(
+        Tools.getTitle()
       )}-${store.crawlCompleteTime.getTime()}.json`
     )
 

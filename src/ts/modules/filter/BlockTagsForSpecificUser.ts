@@ -1,7 +1,7 @@
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
-import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 import {
   settings,
   setSetting,
@@ -132,7 +132,7 @@ class BlockTagsForSpecificUser {
 
   // 创建列表外部的容器，静态html
   private createWrap() {
-    this.wrap = DOM.useSlot(
+    this.wrap = Tools.useSlot(
       'blockTagsForSpecificUser',
       this.wrapHTML
     )! as HTMLDivElement
@@ -291,7 +291,7 @@ class BlockTagsForSpecificUser {
 
   // 检查用户输入的值
   private checkValue(uidInput: string, tagsInput: string) {
-    const tags = Tools.string2array(tagsInput)
+    const tags = Utils.string2array(tagsInput)
 
     if (!uidInput || !tagsInput || tags.length === 0) {
       msgBox.error(lang.transl('_必填项不能为空'))

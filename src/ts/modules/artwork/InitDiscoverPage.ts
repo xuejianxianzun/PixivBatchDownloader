@@ -2,11 +2,11 @@
 import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 import { options } from '../setting/Options'
 import { DeleteWorks } from '../DeleteWorks'
 import { store } from '../Store'
-import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 
 class InitDiscoverPage extends InitPageBase {
   constructor() {
@@ -15,7 +15,7 @@ class InitDiscoverPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取当前作品'), [
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取当前作品'), [
       ['title', lang.transl('_抓取当前作品Title')],
     ]).addEventListener('click', () => {
       this.readyCrawl()

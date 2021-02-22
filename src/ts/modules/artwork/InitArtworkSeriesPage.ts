@@ -3,12 +3,12 @@ import { InitPageBase } from '../InitPageBase'
 import { Colors } from '../config/Colors'
 import { API } from '../utils/API'
 import { lang } from '../Lang'
-import { DOM } from '../DOM'
+import { Tools } from '../tools/Tools'
 import { options } from '../setting/Options'
 import { filter, FilterOption } from '../filter/Filter'
 import { store } from '../Store'
 import { log } from '../Log'
-import { Tools } from '../Tools'
+import { Utils } from '../utils/Utils'
 
 class InitArtworkSeriesPage extends InitPageBase {
   constructor() {
@@ -19,7 +19,7 @@ class InitArtworkSeriesPage extends InitPageBase {
   private seriesId = ''
 
   protected addCrawlBtns() {
-    DOM.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
@@ -45,7 +45,7 @@ class InitArtworkSeriesPage extends InitPageBase {
 
   protected nextStep() {
     // 设置起始页码
-    const p = Tools.getURLSearchField(location.href, 'p')
+    const p = Utils.getURLSearchField(location.href, 'p')
     this.startpageNo = parseInt(p) || 1
 
     // 获取系列 id
