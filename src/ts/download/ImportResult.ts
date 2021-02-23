@@ -73,10 +73,14 @@ class ImportResult {
       return
     }
 
-    // 恢复数据并发送通知
+    // 恢复数据
+    // 通过 store.addResult 添加数据，可以应用多图作品设置，对导入的结果进行调整
     store.reset()
-    store.result = temp
+    for (const r of temp) {
+      store.addResult(r)
+    }
 
+    // 发送通知
     EVT.fire(EVT.list.resultChange)
 
     msgBox.success(lang.transl('_导入成功'))

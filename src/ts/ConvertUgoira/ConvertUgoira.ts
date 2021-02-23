@@ -13,11 +13,11 @@ class ConvertUgoira {
     window.addEventListener(EVT.list.downloadStart, () => {
       this.downloading = true
     })
-      ;[EVT.list.downloadPause, EVT.list.downloadStop].forEach((event) => {
-        window.addEventListener(event, () => {
-          this.downloading = false
-        })
+    ;[EVT.list.downloadPause, EVT.list.downloadStop].forEach((event) => {
+      window.addEventListener(event, () => {
+        this.downloading = false
       })
+    })
 
     // 设置发生变化时
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {

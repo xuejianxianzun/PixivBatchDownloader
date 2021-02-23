@@ -85,7 +85,8 @@ class InitHomePage extends InitPageBase {
 
   protected checkIdList() {
     // 检查页面类型，设置输入的 id 的作品类型
-    const type = window.location.pathname === '/novelPage/' ? 'novels' : 'unknown'
+    const type =
+      window.location.pathname === '/novelPage/' ? 'novels' : 'unknown'
 
     // 把合法的 id 添加到 Set 结构里去重
     const array = this.downIdInput.value.split('\n')

@@ -1,4 +1,5 @@
 import { EVT } from '../EVT'
+import { settings } from '../setting/Settings'
 import { Tools } from '../Tools'
 import { Result, ResultOptional, RankList, IDData } from './StoreType'
 
@@ -27,7 +28,7 @@ class Store {
   public crawlCompleteTime: Date = new Date()
 
   private assignResult(data: ResultOptional) {
-    // 图片详细信息的默认值
+    // 抓取结果的默认值
     const dataDefault: Result = {
       idNum: 0,
       id: '',
@@ -65,7 +66,16 @@ class Store {
     return Object.assign(dataDefault, data)
   }
 
+  // 计算要从这个作品里下载几张图片
+  private getDLCount(pageCount: number) {
+    if (settings.firstFewImagesSwitch && settings.firstFewImages <= pageCount) {
+      return settings.firstFewImages
+    }
+    return pageCount
+  }
+
   // 添加每个作品的信息。只需要传递有值的属性
+  // 如果一个作品有多张图片，只需要传递第一张图片的数据。后面的数据会根据设置自动生成
   public addResult(data: ResultOptional) {
     // 检查该作品数据是否已存在，已存在则不添加
     if (data.type === 3) {
@@ -86,13 +96,20 @@ class Store {
 
     // 添加该作品的元数据
     const result = this.assignResult(data)
+
+    // 设置这个作品要下载的数量
+    if (result.type === 0 || result.type === 1) {
+      result.dlCount = this.getDLCount(result.pageCount)
+    }
+
     this.resultMeta.push(result)
     EVT.fire(EVT.list.addResult, result)
 
     if (result.type === 3) {
+      // 小说作品直接添加到结果里
       this.result.push(result)
     } else {
-      // 添加该作品里每一张图片的数据
+      // 图片作品循环添加该作品里每一个图片文件的数据
       for (let i = 0; i < result.dlCount; i++) {
         const result = this.assignResult(data)
         result.idNum = parseInt(result.id)

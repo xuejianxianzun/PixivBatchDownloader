@@ -27,14 +27,14 @@ class InitNovelSeriesPage extends InitPageBase {
     })
   }
 
-  protected initAny() { }
+  protected initAny() {}
 
   protected setFormOption() {
     // 隐藏“个数/页数”选项
     options.hideOption([1])
   }
 
-  protected getWantPage() { }
+  protected getWantPage() {}
 
   protected nextStep() {
     this.seriesId = API.getURLPathField('series')

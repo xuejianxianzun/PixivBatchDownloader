@@ -109,7 +109,9 @@ const formHtml = `<form class="settingForm">
       <span>${lang.transl('_最小值')}&nbsp;</span>
       <input type="text" name="BMKNumMin" class="setinput_style1 blue bmkNum" value="0">
       <span>${lang.transl('_最大值')}&nbsp;</span>
-      <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="${Config.BookmarkCountLimit}">
+      <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="${
+        Config.BookmarkCountLimit
+      }">
       <span class="verticalSplit"></span>
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_日均收藏数量的提示'

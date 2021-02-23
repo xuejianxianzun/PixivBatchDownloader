@@ -1,7 +1,6 @@
 import { API } from '../API'
 import { filter, FilterOption } from '../filter/Filter'
 import { settings } from '../setting/Settings'
-import { settingAPI } from '../setting/SettingAPI'
 import { ArtworkData } from '../crawl/CrawlResult'
 import { store } from './Store'
 
@@ -75,10 +74,6 @@ class SaveArtworkData {
       // 储存作品信息
       if (body.illustType !== 2) {
         // 插画或漫画
-
-        // 下载该作品的前面几张
-        const dlCount = settingAPI.getDLCount(body.pageCount)
-
         const imgUrl = body.urls.original // 作品的原图 URL
 
         const tempExt = imgUrl.split('.')
@@ -90,7 +85,6 @@ class SaveArtworkData {
           idNum: idNum,
           thumb: thumb,
           pageCount: pageCount,
-          dlCount: dlCount,
           original: imgUrl,
           regular: body.urls.regular,
           small: body.urls.small,

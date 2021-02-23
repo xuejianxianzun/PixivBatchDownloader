@@ -21,7 +21,7 @@ class InitDiscoverPage extends InitPageBase {
     })
   }
 
-  protected initAny() { }
+  protected initAny() {}
 
   protected setFormOption() {
     options.hideOption([1])
@@ -37,7 +37,7 @@ class InitDiscoverPage extends InitPageBase {
     deleteWorks.addManuallyDeleteBtn()
   }
 
-  protected getWantPage() { }
+  protected getWantPage() {}
 
   protected getIdList() {
     // 在发现页面，仅下载已有部分，所以不需要去获取列表页

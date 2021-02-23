@@ -175,7 +175,7 @@ class Tools {
     if (document.body) {
       document.body.insertAdjacentElement('afterbegin', el)
     } else {
-      ; (
+      ;(
         document.querySelector('.newindex-inner')! ||
         document.querySelector('.layout-body')!
       ).insertAdjacentElement('beforebegin', el)

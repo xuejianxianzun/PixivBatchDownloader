@@ -135,6 +135,8 @@ class Resume {
     }
 
     await Promise.all(promiseList).then((res) => {
+      // 恢复数据时不适合使用 store.addResult，因为那样会被多图作品设置影响，可能导致恢复的数据和之前下载时不一致
+      // 所以这里直接替换整个 store.result
       store.result = []
       const r = res as TaskData[]
       for (const taskData of r) {

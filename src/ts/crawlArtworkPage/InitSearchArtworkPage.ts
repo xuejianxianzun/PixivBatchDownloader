@@ -13,7 +13,6 @@ import { store } from '../store/Store'
 import { log } from '../Log'
 import { Result } from '../store/StoreType'
 import { settings } from '../setting/Settings'
-import { settingAPI } from '../setting/SettingAPI'
 import { FastScreen } from '../pageFunciton/FastScreen'
 import { Tools } from '../Tools'
 import { BookmarkAllWorks } from '../pageFunciton/BookmarkAllWorks'
@@ -651,12 +650,6 @@ class InitSearchArtworkPage extends InitPageBase {
     store.reset()
 
     for (let data of this.resultMeta) {
-      // 如果此时的 dlCount 与之前的 dlCount 不一样，则更新它
-      const dlCount = settingAPI.getDLCount(data.pageCount)
-      if (dlCount !== data.dlCount) {
-        data = Object.assign(data, { dlCount: dlCount })
-      }
-
       store.addResult(data)
     }
 
