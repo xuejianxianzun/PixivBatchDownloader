@@ -1,4 +1,4 @@
-import { Tools } from './tools/Tools'
+import { Tools } from './Tools'
 import { EVT } from './EVT'
 import { theme } from './Theme'
 import { Colors } from './config/Colors'

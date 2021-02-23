@@ -18,7 +18,7 @@ class ShowWhatIsNew {
     const value = localStorage.getItem(this.storeName)
     if (Utils.isPixiv() && value !== this.flag) {
       msgBox.show(this.msg, {
-        title: Config.name + ` ${lang.transl('_最近更新')}`,
+        title: Config.appName + ` ${lang.transl('_最近更新')}`,
         btn: lang.transl('_我知道了'),
       })
       localStorage.setItem(this.storeName, this.flag)

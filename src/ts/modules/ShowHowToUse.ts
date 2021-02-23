@@ -18,7 +18,7 @@ class ShowHowToUse {
 
   private show() {
     msgBox.show(lang.transl('_HowToUse'), {
-      title: Config.name,
+      title: Config.appName,
       btn: lang.transl('_我知道了'),
     })
 

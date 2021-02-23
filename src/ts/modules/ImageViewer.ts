@@ -1,13 +1,13 @@
 // 图片查看器
-/// <reference path = "./Viewer.d.ts" />
-import { API } from './utils/API'
+/// <reference path = "./ImageViewer.d.ts" />
+import { API } from './API'
 import { EVT } from './EVT'
 import { lang } from './Lang'
 import { theme } from './Theme'
 import { loading } from './Loading'
 import { states } from './store/States'
 import { toast } from './Toast'
-import { Tools } from './tools/Tools'
+import { Tools } from './Tools'
 
 // 所有参数
 interface Config {

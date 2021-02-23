@@ -1,4 +1,4 @@
-import { Tools } from '../tools/Tools'
+import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { Utils } from '../utils/Utils'
@@ -7,7 +7,7 @@ import {
   setSetting,
   BlockTagsForSpecificUserItem,
 } from '../setting/Settings'
-import { API } from '../utils/API'
+import { API } from '../API'
 import { theme } from '../Theme'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'

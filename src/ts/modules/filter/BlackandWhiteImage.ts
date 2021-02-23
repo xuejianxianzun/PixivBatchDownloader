@@ -1,4 +1,4 @@
-import { Tools } from '../tools/Tools'
+import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 
 // 检查图片是否是黑白图片

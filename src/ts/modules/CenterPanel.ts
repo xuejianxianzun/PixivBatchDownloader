@@ -4,7 +4,7 @@ import { states } from './store/States'
 import { theme } from './Theme'
 import Config from './config/Config'
 import { msgBox } from './MsgBox'
-import { BG } from './BG'
+import { BG } from './setting/BG'
 
 // 中间面板
 class CenterPanel {
@@ -34,7 +34,7 @@ class CenterPanel {
 
       <div class="centerWrap_head">
       <div class="centerWrap_title blue">
-      ${Config.name}
+      ${Config.appName}
       <div class="btns">
       <a class="has_tip centerWrap_top_btn update" data-tip="${lang.transl(
         '_newver'

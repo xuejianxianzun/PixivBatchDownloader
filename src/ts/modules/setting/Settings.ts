@@ -179,7 +179,7 @@ class Settings {
     previewResult: true,
     BMKNumSwitch: false,
     BMKNumMin: 0,
-    BMKNumMax: 999999,
+    BMKNumMax: Config.BookmarkCountLimit,
     BMKNumAverageSwitch: false,
     BMKNumAverage: 600,
     setWHSwitch: false,
@@ -327,7 +327,7 @@ class Settings {
   private exportSettings() {
     const blob = Utils.json2Blob(this.settings)
     const url = URL.createObjectURL(blob)
-    Utils.downloadFile(url, Config.name + ` Settings.json`)
+    Utils.downloadFile(url, Config.appName + ` Settings.json`)
   }
 
   private async importSettings() {

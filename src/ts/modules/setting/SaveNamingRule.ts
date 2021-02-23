@@ -1,5 +1,5 @@
 import { EVT } from '../EVT'
-import { Tools } from '../tools/Tools'
+import { Tools } from '../Tools'
 import { lang } from '../Lang'
 import { log } from '../Log'
 import { theme } from '../Theme'

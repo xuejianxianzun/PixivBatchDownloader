@@ -1,5 +1,5 @@
 import { EVT } from '../EVT'
-import { Tools } from '../tools/Tools'
+import { Tools } from '../Tools'
 import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
 import formHtml from './FormHTML'

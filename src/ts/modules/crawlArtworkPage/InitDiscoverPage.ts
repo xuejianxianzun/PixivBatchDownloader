@@ -1,0 +1,60 @@
+// 初始化发现页面
+import { InitPageBase } from '../crawl/InitPageBase'
+import { Colors } from '../config/Colors'
+import { lang } from '../Lang'
+import { Tools } from '../Tools'
+import { options } from '../setting/Options'
+import { DeleteWorks } from '../pageFunciton/DeleteWorks'
+import { store } from '../store/Store'
+
+class InitDiscoverPage extends InitPageBase {
+  constructor() {
+    super()
+    this.init()
+  }
+
+  protected addCrawlBtns() {
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取当前作品'), [
+      ['title', lang.transl('_抓取当前作品Title')],
+    ]).addEventListener('click', () => {
+      this.readyCrawl()
+    })
+  }
+
+  protected initAny() { }
+
+  protected setFormOption() {
+    options.hideOption([1])
+  }
+
+  protected addAnyElement() {
+    const deleteWorks = new DeleteWorks('._2RNjBox')
+
+    deleteWorks.addClearMultipleBtn('._3b8AXEx')
+
+    deleteWorks.addClearUgoiraBtn('.AGgsUWZ')
+
+    deleteWorks.addManuallyDeleteBtn()
+  }
+
+  protected getWantPage() { }
+
+  protected getIdList() {
+    // 在发现页面，仅下载已有部分，所以不需要去获取列表页
+    const nowIllust = document.querySelectorAll(
+      'figure>div>a'
+    ) as NodeListOf<HTMLAnchorElement>
+    // 获取已有作品的 id
+    Array.from(nowIllust).forEach((el) => {
+      // discovery 列表的 url 是有额外后缀的，需要去掉
+      const id = Tools.getIllustId(el.href.split('&uarea')[0])
+      store.idList.push({
+        type: 'unknown',
+        id,
+      })
+    })
+
+    this.getIdListFinished()
+  }
+}
+export { InitDiscoverPage }
