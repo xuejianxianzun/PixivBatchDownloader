@@ -94,6 +94,10 @@ class ExportResult2CSV {
       index: 'fullHeight',
     },
     {
+      name: 'xRestrict',
+      index: 'xRestrict',
+    },
+    {
       name: 'date',
       index: 'date',
     },
@@ -105,10 +109,6 @@ class ExportResult2CSV {
     {
       name: 'fileName',
       index: 'title',
-    },
-    {
-      name: 'xRestrict',
-      index: 'xRestrict',
     },
   ]
 

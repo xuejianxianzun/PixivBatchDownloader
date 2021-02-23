@@ -101,7 +101,7 @@ class Tools {
   // 从 url 里获取 novel id
   // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
   // 如果查找不到 id 会返回空字符串
-  // https://www.pixiv.net/novelPage/show.php?id=12771688
+  // https://www.pixiv.net/novel/show.php?id=12771688
   static getNovelId(url?: string) {
     const str = url || window.location.search || location.href
     let result = ''

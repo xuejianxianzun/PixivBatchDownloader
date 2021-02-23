@@ -53,7 +53,7 @@ class SaveNovelData {
       let meta = ''
       let metaArr: string[] = []
 
-      const pageUrl = `https://www.pixiv.net/novelPage/show.php?id=${id}`
+      const pageUrl = `https://www.pixiv.net/novel/show.php?id=${id}`
       const tagsA = []
       for (const tag of tags) {
         tagsA.push('#' + tag)

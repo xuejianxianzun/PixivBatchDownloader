@@ -50,8 +50,8 @@ class InitBookmarkNewNovelPage extends InitPageBase {
     const url = new URL(window.location.href)
     url.searchParams.set('p', '1')
     this.baseUrl = url.toString()
-    // https://www.pixiv.net/novelPage/bookmark_new.php?p=1
-    // https://www.pixiv.net/novelPage/bookmark_new_r18.php?p=1
+    // https://www.pixiv.net/novel/bookmark_new.php?p=1
+    // https://www.pixiv.net/novel/bookmark_new_r18.php?p=1
   }
 
   protected nextStep() {
@@ -86,7 +86,7 @@ class InitBookmarkNewNovelPage extends InitPageBase {
 
     // 检查每个作品的信息
     for (const item of NovelItem) {
-      // https://www.pixiv.net/novelPage/show.php?id=12831389
+      // https://www.pixiv.net/novel/show.php?id=12831389
       const link = (item.querySelector('.imgbox a') as HTMLAnchorElement)!.href
       const id = parseInt(link.split('id=')[1])
 

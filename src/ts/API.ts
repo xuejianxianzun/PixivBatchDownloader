@@ -222,7 +222,7 @@ class API {
 
   // 获取小说的详细信息
   static getNovelData(id: string): Promise<NovelData> {
-    const url = `https://www.pixiv.net/ajax/novelPage/${id}`
+    const url = `https://www.pixiv.net/ajax/novel/${id}`
     return this.sendGetRequest(url)
   }
 
@@ -318,7 +318,7 @@ class API {
 
   // 获取大家的新作小说的数据
   static getNewNovleData(option: NewIllustOption): Promise<NewNovelData> {
-    let url = `https://www.pixiv.net/ajax/novelPage/new?lastId=${option.lastId}&limit=${option.limit}&r18=${option.r18}`
+    let url = `https://www.pixiv.net/ajax/novel/new?lastId=${option.lastId}&limit=${option.limit}&r18=${option.r18}`
     return this.sendGetRequest(url)
   }
 
@@ -393,7 +393,7 @@ class API {
   }
 
   // 从 URL 中获取指定路径名的值，适用于符合 RESTful API 风格的路径
-  // 如 https://www.pixiv.net/novelPage/series/1090654
+  // 如 https://www.pixiv.net/novel/series/1090654
   // 把路径用 / 分割，查找 key 所在的位置，后面一项就是它的 value
   static getURLPathField(query: string) {
     const pathArr = location.pathname.split('/')
@@ -413,7 +413,7 @@ class API {
     last_order: number,
     order_by = 'asc'
   ): Promise<NovelSeriesData> {
-    const url = `https://www.pixiv.net/ajax/novelPage/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`
+    const url = `https://www.pixiv.net/ajax/novel/series_content/${series_id}?limit=${limit}&last_order=${last_order}&order_by=${order_by}`
     return this.sendGetRequest(url)
   }
 

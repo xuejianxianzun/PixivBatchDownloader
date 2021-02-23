@@ -428,7 +428,7 @@ class SelectWork {
       let el: HTMLAnchorElement | null
       if (type === 'novels') {
         el = document.querySelector(
-          `${this.usedWorksWrapperSelector} a[href="/novelPage/show.php?id=${id}"]`
+          `${this.usedWorksWrapperSelector} a[href="/novel/show.php?id=${id}"]`
         )
       } else {
         el = document.querySelector(

@@ -193,7 +193,7 @@ class QuickBookmark {
 
   private getEditBookmarkLink() {
     if (this.isNovel) {
-      return `/novelPage/bookmark_add.php?id=${Tools.getNovelId()}`
+      return `/novel/bookmark_add.php?id=${Tools.getNovelId()}`
     } else {
       return `/bookmark_add.php?type=illust&illust_id=${Tools.getIllustId()}`
     }

@@ -51,7 +51,7 @@ class BookmarkAllWorks {
       const a = el.querySelector('a')
       if (a) {
         // "https://www.pixiv.net/artworks/82618568"
-        // "https://www.pixiv.net/novelPage/show.php?id=12350618"
+        // "https://www.pixiv.net/novel/show.php?id=12350618"
         const test = regExp.exec(a.href)
         if (test && test.length > 1) {
           this.idList.push({

@@ -48,7 +48,7 @@ class PageType {
 
     if (
       window.location.hostname === 'www.pixiv.net' &&
-      ['/', '/manga', '/novelPage/', '/en/'].includes(pathname)
+      ['/', '/manga', '/novel/', '/en/'].includes(pathname)
     ) {
       return PageName.Home
     } else if (/\/artworks\/\d{1,10}/.test(url)) {
@@ -97,15 +97,15 @@ class PageType {
       url.includes('/new_illust_r18.php')
     ) {
       return PageName.NewArtwork
-    } else if (pathname === '/novelPage/show.php') {
+    } else if (pathname === '/novel/show.php') {
       return PageName.Novel
-    } else if (pathname.startsWith('/novelPage/series/')) {
+    } else if (pathname.startsWith('/novel/series/')) {
       return PageName.NovelSeries
-    } else if (pathname === '/novelPage/ranking.php') {
+    } else if (pathname === '/novel/ranking.php') {
       return PageName.NovelRanking
-    } else if (pathname.startsWith('/novelPage/bookmark_new')) {
+    } else if (pathname.startsWith('/novel/bookmark_new')) {
       return PageName.NewNovelBookmark
-    } else if (pathname.startsWith('/novelPage/new')) {
+    } else if (pathname.startsWith('/novel/new')) {
       return PageName.NewNovel
     } else if (pathname.startsWith('/user/') && pathname.includes('/series/')) {
       return PageName.ArtworkSeries

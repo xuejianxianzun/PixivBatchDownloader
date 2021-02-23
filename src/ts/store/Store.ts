@@ -77,7 +77,7 @@ class Store {
   // 添加每个作品的信息。只需要传递有值的属性
   // 如果一个作品有多张图片，只需要传递第一张图片的数据。后面的数据会根据设置自动生成
   public addResult(data: ResultOptional) {
-    // 检查该作品数据是否已存在，已存在则不添加
+    // 检查该作品 id 是否已存在，已存在则不添加
     if (data.type === 3) {
       if (data.idNum !== undefined) {
         if (this.novelIDList.includes(data.idNum)) {
@@ -103,6 +103,7 @@ class Store {
     }
 
     this.resultMeta.push(result)
+
     EVT.fire(EVT.list.addResult, result)
 
     if (result.type === 3) {

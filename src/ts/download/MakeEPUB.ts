@@ -27,7 +27,7 @@ class MakeEPUB {
           license: '',
         })
         .withAttributionUrl(
-          `https://www.pixiv.net/novelPage/show.php?id=${data.id}`
+          `https://www.pixiv.net/novel/show.php?id=${data.id}`
         )
         .withCover(data.coverUrl, {
           license: '',

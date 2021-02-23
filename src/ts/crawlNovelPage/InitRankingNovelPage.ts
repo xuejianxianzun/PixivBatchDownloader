@@ -95,7 +95,7 @@ class InitRankingNovelPage extends InitPageBase {
         return this.getIdListFinished()
       }
 
-      // https://www.pixiv.net/novelPage/show.php?id=12831389
+      // https://www.pixiv.net/novel/show.php?id=12831389
       const link = (item.querySelector('.imgbox a') as HTMLAnchorElement)!.href
       const id = parseInt(link.split('id=')[1])
 
