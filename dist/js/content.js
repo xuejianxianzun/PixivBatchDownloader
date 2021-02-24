@@ -500,6 +500,9 @@
         /* harmony import */ var _setting_BG__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./setting/BG */ './src/ts/setting/BG.ts'
         )
+        /* harmony import */ var _OpenCenterPanel__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+          /*! ./OpenCenterPanel */ './src/ts/OpenCenterPanel.ts'
+        )
 
         // 中间面板
         class CenterPanel {
@@ -513,6 +516,9 @@
             )
             new _setting_BG__WEBPACK_IMPORTED_MODULE_6__['BG'](this.centerPanel)
             this.bindEvents()
+            new _OpenCenterPanel__WEBPACK_IMPORTED_MODULE_7__[
+              'OpenCenterPanel'
+            ]()
           }
           // 添加中间面板
           addCenterPanel() {
@@ -4773,10 +4779,17 @@
       /*!***********************************!*\
   !*** ./src/ts/OpenCenterPanel.ts ***!
   \***********************************/
-      /*! no exports provided */
+      /*! exports provided: OpenCenterPanel */
       /***/ function (module, __webpack_exports__, __webpack_require__) {
         'use strict'
         __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'OpenCenterPanel',
+          function () {
+            return OpenCenterPanel
+          }
+        )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./EVT */ './src/ts/EVT.ts'
         )
@@ -4852,7 +4865,6 @@
               : this.show()
           }
         }
-        new OpenCenterPanel()
 
         /***/
       },
@@ -6677,14 +6689,14 @@
         /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./PageType */ './src/ts/PageType.ts'
         )
-        /* harmony import */ var _download_QuickDownload__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _ListenPageSwitch__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./ListenPageSwitch */ './src/ts/ListenPageSwitch.ts'
+        )
+        /* harmony import */ var _download_QuickDownload__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./download/QuickDownload */ './src/ts/download/QuickDownload.ts'
         )
-        /* harmony import */ var _CenterPanel__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+        /* harmony import */ var _CenterPanel__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
           /*! ./CenterPanel */ './src/ts/CenterPanel.ts'
-        )
-        /* harmony import */ var _OpenCenterPanel__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./OpenCenterPanel */ './src/ts/OpenCenterPanel.ts'
         )
         /* harmony import */ var _setting_FormSettings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ./setting/FormSettings */ './src/ts/setting/FormSettings.ts'
@@ -6695,49 +6707,46 @@
         /* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
           /*! ./download/DownloadControl */ './src/ts/download/DownloadControl.ts'
         )
-        /* harmony import */ var _ListenPageSwitch__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
-          /*! ./ListenPageSwitch */ './src/ts/ListenPageSwitch.ts'
-        )
-        /* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
+        /* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
           /*! ./Tip */ './src/ts/Tip.ts'
         )
-        /* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/ __webpack_require__.n(
-          _Tip__WEBPACK_IMPORTED_MODULE_12__
+        /* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/ __webpack_require__.n(
+          _Tip__WEBPACK_IMPORTED_MODULE_11__
         )
-        /* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
+        /* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
           /*! ./download/showStatusOnTitle */ './src/ts/download/showStatusOnTitle.ts'
         )
-        /* harmony import */ var _ViewBigImage__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
+        /* harmony import */ var _ViewBigImage__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
           /*! ./ViewBigImage */ './src/ts/ViewBigImage.ts'
         )
-        /* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
+        /* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
           /*! ./output/OutputPanel */ './src/ts/output/OutputPanel.ts'
         )
-        /* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
+        /* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
           /*! ./output/PreviewFileName */ './src/ts/output/PreviewFileName.ts'
         )
-        /* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(
+        /* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
           /*! ./output/ShowURLs */ './src/ts/output/ShowURLs.ts'
         )
-        /* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
+        /* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(
           /*! ./download/ExportResult2CSV */ './src/ts/download/ExportResult2CSV.ts'
         )
-        /* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
+        /* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
           /*! ./download/ExportResult */ './src/ts/download/ExportResult.ts'
         )
-        /* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
+        /* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
           /*! ./download/ImportResult */ './src/ts/download/ImportResult.ts'
         )
-        /* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(
+        /* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
           /*! ./download/ExportLST */ './src/ts/download/ExportLST.ts'
         )
-        /* harmony import */ var _CheckNew__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(
+        /* harmony import */ var _CheckNew__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(
           /*! ./CheckNew */ './src/ts/CheckNew.ts'
         )
-        /* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(
+        /* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(
           /*! ./ShowWhatIsNew */ './src/ts/ShowWhatIsNew.ts'
         )
-        /* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(
+        /* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(
           /*! ./ShowHowToUse */ './src/ts/ShowHowToUse.ts'
         )
         /*
@@ -9645,6 +9654,10 @@
             window.removeEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.crawlFinish,
               this.onCrawlFinish
+            )
+            window.removeEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.settingChange,
+              this.onSettingChange
             )
             // 离开下载页面时，取消设置“不自动下载”
             _store_States__WEBPACK_IMPORTED_MODULE_15__[

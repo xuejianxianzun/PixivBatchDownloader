@@ -57,4 +57,4 @@ class OpenCenterPanel {
   }
 }
 
-new OpenCenterPanel()
+export { OpenCenterPanel }

@@ -167,6 +167,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     window.removeEventListener(EVT.list.addResult, this.showCount)
     window.removeEventListener(EVT.list.crawlFinish, this.onCrawlFinish)
+    window.removeEventListener(EVT.list.settingChange, this.onSettingChange)
 
     // 离开下载页面时，取消设置“不自动下载”
     states.notAutoDownload = false

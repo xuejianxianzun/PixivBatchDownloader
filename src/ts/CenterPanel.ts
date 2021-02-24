@@ -5,6 +5,7 @@ import { theme } from './Theme'
 import Config from './config/Config'
 import { msgBox } from './MsgBox'
 import { BG } from './setting/BG'
+import { OpenCenterPanel } from './OpenCenterPanel'
 
 // 中间面板
 class CenterPanel {
@@ -18,6 +19,8 @@ class CenterPanel {
     new BG(this.centerPanel)
 
     this.bindEvents()
+
+    new OpenCenterPanel()
   }
 
   private centerPanel!: HTMLDivElement
