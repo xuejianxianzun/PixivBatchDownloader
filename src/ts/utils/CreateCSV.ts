@@ -78,15 +78,19 @@ class CreateCSV {
   }
 
   public create(data: CSVData) {
-    const result: string[] = [] // 储存结果。每行的结果合并为一个字符串
+    // 储存结果。每行的结果合并为一个字符串
+    const result: string[] = []
 
-    // 添加每一行的数据
+    // 在顶部添加 utf8BOM
+    result.push((this.utf8BOM as unknown) as string)
+
+    // 添加每一行的数据和换行符
     for (const row of data) {
       result.push(this.format(row).join(this.separate))
+      result.push(this.CRLF)
     }
 
-    const csvData = result.join(this.CRLF)
-    const csvBlob = new Blob([this.utf8BOM, csvData])
+    const csvBlob = new Blob(result)
     return csvBlob
   }
 

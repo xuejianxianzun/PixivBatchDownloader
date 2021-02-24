@@ -24,7 +24,7 @@ class ExportResult {
     }
 
     // 使用数组储存文件数据
-    let resultArray:string[] = []
+    let resultArray: string[] = []
 
     // 定义数组项的分隔字符
     const split = ','
@@ -37,6 +37,9 @@ class ExportResult {
       resultArray.push(JSON.stringify(result))
       resultArray.push(split)
     }
+
+    // 删除最后一个分隔符（不去掉的话会导致格式错误）
+    resultArray.pop()
 
     // 在数组末尾添加数组的结束符号
     resultArray.push(']')
