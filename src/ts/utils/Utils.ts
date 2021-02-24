@@ -210,6 +210,7 @@ class Utils {
     })
   }
 
+  /**如果数据量多大，不应该使用这个方法 */
   static json2Blob(data: any) {
     const str = JSON.stringify(data, null, 2)
     const blob = new Blob([str], { type: 'application/json' })

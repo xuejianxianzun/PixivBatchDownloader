@@ -23,7 +23,28 @@ class ExportResult {
       return
     }
 
-    const blob = Utils.json2Blob(store.result)
+    // 使用数组储存文件数据
+    let resultArray:string[] = []
+
+    // 定义数组项的分隔字符
+    const split = ','
+
+    // 在数组开头添加数组的开始符号
+    resultArray.push('[')
+
+    // 循环添加每一个结果，以及分割字符
+    for (const result of store.result) {
+      resultArray.push(JSON.stringify(result))
+      resultArray.push(split)
+    }
+
+    // 在数组末尾添加数组的结束符号
+    resultArray.push(']')
+
+    // 创建 blob 对象
+    const blob = new Blob(resultArray, { type: 'application/json' })
+    resultArray = []
+
     const url = URL.createObjectURL(blob)
     Utils.downloadFile(
       url,
