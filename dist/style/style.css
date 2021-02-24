@@ -388,23 +388,31 @@
 }
 #quick_down_btn,
 #rightButton {
+  display: flex;
   display: none;
-  line-height: 20px;
+  justify-content: center;
+  align-items: center;
   border: none;
   border-radius: 3px;
   color: #fff;
-  padding: 10px;
-  box-sizing: content-box;
+  box-sizing: border-box;
+  width: 30px;
+  height: 32px;
+  padding: 3px;
   right: 0;
   text-align: center;
   cursor: pointer;
   position: fixed;
   z-index: 1000;
-  font-size: 14px;
+  font-size: 18px;
 }
 #quick_down_btn:hover,
 #rightButton:hover {
   opacity: 0.8;
+}
+#quick_down_btn .icon,
+#rightButton .icon {
+  vertical-align: middle;
 }
 #rightButton {
   top: 15%;

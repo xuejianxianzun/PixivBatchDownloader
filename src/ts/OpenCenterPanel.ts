@@ -15,8 +15,10 @@ class OpenCenterPanel {
   private addBtn() {
     this.btn = document.createElement('button')
     this.btn.id = 'rightButton'
-    this.btn.textContent = '↓'
     this.btn.setAttribute('title', lang.transl('_显示下载面板') + ' (Alt + X)')
+    this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-dakai"></use>
+</svg>`
     document.body.insertAdjacentElement('afterbegin', this.btn)
   }
 
@@ -42,7 +44,7 @@ class OpenCenterPanel {
   }
 
   private show() {
-    this.btn.style.display = 'block'
+    this.btn.style.display = 'flex'
   }
 
   private hide() {

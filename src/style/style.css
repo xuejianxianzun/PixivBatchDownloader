@@ -6,14 +6,15 @@
   border: none;
   border-radius: 3px;
   color: #fff;
-  padding: 10px;
-  box-sizing: content-box;
+  width: 30px;
+  box-sizing: border-box;
+  padding: 4px;
   right: 0;
   text-align: center;
   cursor: pointer;
   position: fixed;
   z-index: 1000;
-  font-size: 14px;
+  font-size: 20px;
 }
 #quick_down_btn:hover,
 #rightButton:hover {

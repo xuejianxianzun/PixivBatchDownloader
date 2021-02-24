@@ -25,8 +25,10 @@ class QuickDownload {
     // 在右侧添加快速下载按钮
     this.btn = document.createElement('button')
     this.btn.id = 'quick_down_btn'
-    this.btn.textContent = '↓'
     this.btn.setAttribute('title', lang.transl('_快速下载本页') + ' (Alt + Q)')
+    this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-download"></use>
+</svg>`
     document.body.insertAdjacentElement('afterbegin', this.btn)
   }
 
@@ -88,7 +90,7 @@ class QuickDownload {
 
   private setVisible() {
     this.show = this.enablePageType.includes(pageType.type)
-    this.btn.style.display = this.show ? 'block' : 'none'
+    this.btn.style.display = this.show ? 'flex' : 'none'
   }
 }
 
