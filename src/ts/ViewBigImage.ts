@@ -1,10 +1,9 @@
-import { pageType } from './PageType'
 import { EVT } from './EVT'
 import { ImageViewer } from './ImageViewer'
 import { settings } from './setting/Settings'
 import { Tools } from './Tools'
 
-// 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器，查看大图
+// 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器来查看大图
 class ViewBigImage {
   constructor() {
     this.addBtn()
@@ -26,19 +25,14 @@ class ViewBigImage {
 
   // 作品缩略图的选择器
   // 注意不是选择整个作品区域，而是只选择缩略图区域
-  private readonly selectors: string[] = [
+  private readonly selectors = [
+    'div[width="136"]',
+    'div[width="288"]',
+    'div[width="184"]',
+    'div[width="112"]',
+    'div[width="90"]',
     '._work',
     'figure > div',
-    'div[width="136"]',
-    'div[width="184"]',
-    'div[width="288"]',
-  ]
-
-  // 页面主要内容区域的选择器
-  private readonly allRootSelector: string[] = [
-    '#root', // 大部分页面使用
-    '#wrapper', // 旧版收藏页面使用
-    '#js-mount-point-discovery', // 发现页面使用
   ]
 
   private addBtn() {
@@ -48,29 +42,14 @@ class ViewBigImage {
     <svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-fangda"></use>
 </svg>`
-    document.body.appendChild(btn)
-    this.btn = document.body.querySelector(
-      '#' + this.btnId
-    )! as HTMLButtonElement
+    this.btn = document.body.appendChild(btn)
   }
 
   private bindEvents() {
-    // 查找页面主体内容的容器
-    let contentRoot: HTMLElement | undefined = undefined
-    for (const selector of this.allRootSelector) {
-      const test = document.body.querySelector(selector)
-      if (test) {
-        contentRoot = test as HTMLElement
-        break
-      }
-    }
-
-    if (contentRoot) {
-      // 对作品缩略图绑定事件
-      this.headleThumbnail(document.body)
-      // 使用监视器，让未来出现的作品缩略图也绑定上事件
-      this.createObserver(contentRoot)
-    }
+    // 立即对作品缩略图绑定事件
+    this.headleThumbnail(document.body)
+    // 使用监视器，让未来出现的作品缩略图也绑定上事件
+    this.createObserver(document.body)
 
     // 页面切换时隐藏按钮
     window.addEventListener(EVT.list.pageSwitch, () => {
@@ -106,20 +85,14 @@ class ViewBigImage {
 
   // 判断元素是否含有作品缩略图，如果找到了缩略图则为其绑定事件
   private headleThumbnail(parent: HTMLElement) {
-    // 有时候 parent 会是纯文本，所以需要判断
     if (!parent.querySelectorAll) {
       return
     }
 
+    // 遍历所有的选择器，为找到的元素绑定事件
+    // 注意：有时候一个节点里会含有多种尺寸的缩略图，为了全部查找到它们，必须遍历所有的选择器。
+    // 如果在查找到某个选择器之后，不再查找剩余的选择器，就会遗漏一部分缩略图。
     for (const selector of this.selectors) {
-      // 在作品页面内不检查指定的选择器。因为这是作品大图区域
-      if (
-        pageType.type === pageType.list.Artwork &&
-        selector === 'figure > div'
-      ) {
-        continue
-      }
-
       const elements = parent.querySelectorAll(selector)
       for (const el of elements) {
         el.addEventListener('mouseenter', (ev) => {
@@ -134,18 +107,14 @@ class ViewBigImage {
           this.hiddenBtn()
         })
       }
-
-      if (elements.length > 0) {
-        break
-      }
     }
   }
 
   private createObserver(target: HTMLElement) {
     this.observer = new MutationObserver((records) => {
       for (const record of records) {
+        // 遍历被添加的元素
         if (record.addedNodes.length > 0) {
-          // 遍历被添加的元素
           for (const newEl of record.addedNodes) {
             this.headleThumbnail(newEl as HTMLElement)
           }

@@ -6387,23 +6387,20 @@
             return viewBigImage
           }
         )
-        /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ./PageType */ './src/ts/PageType.ts'
-        )
-        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./EVT */ './src/ts/EVT.ts'
         )
-        /* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+        /* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./ImageViewer */ './src/ts/ImageViewer.ts'
         )
-        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./setting/Settings */ './src/ts/setting/Settings.ts'
         )
-        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./Tools */ './src/ts/Tools.ts'
         )
 
-        // 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器，查看大图
+        // 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器来查看大图
         class ViewBigImage {
           constructor() {
             this.btnId = 'ViewBigImageBtn'
@@ -6416,17 +6413,13 @@
             // 作品缩略图的选择器
             // 注意不是选择整个作品区域，而是只选择缩略图区域
             this.selectors = [
+              'div[width="136"]',
+              'div[width="288"]',
+              'div[width="184"]',
+              'div[width="112"]',
+              'div[width="90"]',
               '._work',
               'figure > div',
-              'div[width="136"]',
-              'div[width="184"]',
-              'div[width="288"]',
-            ]
-            // 页面主要内容区域的选择器
-            this.allRootSelector = [
-              '#root',
-              '#wrapper',
-              '#js-mount-point-discovery',
             ]
             this.addBtn()
             this.bindEvents()
@@ -6438,28 +6431,16 @@
     <svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-fangda"></use>
 </svg>`
-            document.body.appendChild(btn)
-            this.btn = document.body.querySelector('#' + this.btnId)
+            this.btn = document.body.appendChild(btn)
           }
           bindEvents() {
-            // 查找页面主体内容的容器
-            let contentRoot = undefined
-            for (const selector of this.allRootSelector) {
-              const test = document.body.querySelector(selector)
-              if (test) {
-                contentRoot = test
-                break
-              }
-            }
-            if (contentRoot) {
-              // 对作品缩略图绑定事件
-              this.headleThumbnail(document.body)
-              // 使用监视器，让未来出现的作品缩略图也绑定上事件
-              this.createObserver(contentRoot)
-            }
+            // 立即对作品缩略图绑定事件
+            this.headleThumbnail(document.body)
+            // 使用监视器，让未来出现的作品缩略图也绑定上事件
+            this.createObserver(document.body)
             // 页面切换时隐藏按钮
             window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.pageSwitch,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.pageSwitch,
               () => {
                 this.hiddenBtn()
               }
@@ -6476,11 +6457,11 @@
             this.btn.addEventListener('click', (ev) => {
               if (this.currentWorkId) {
                 this.hiddenBtnNow()
-                new _ImageViewer__WEBPACK_IMPORTED_MODULE_2__['ImageViewer']({
+                new _ImageViewer__WEBPACK_IMPORTED_MODULE_1__['ImageViewer']({
                   workId: this.currentWorkId,
                   imageNumber: 1,
                   imageSize:
-                    _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                    _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
                       .magnifierSize,
                   showDownloadBtn: true,
                   autoStart: true,
@@ -6491,20 +6472,13 @@
           }
           // 判断元素是否含有作品缩略图，如果找到了缩略图则为其绑定事件
           headleThumbnail(parent) {
-            // 有时候 parent 会是纯文本，所以需要判断
             if (!parent.querySelectorAll) {
               return
             }
+            // 遍历所有的选择器，为找到的元素绑定事件
+            // 注意：有时候一个节点里会含有多种尺寸的缩略图，为了全部查找到它们，必须遍历所有的选择器。
+            // 如果在查找到某个选择器之后，不再查找剩余的选择器，就会遗漏一部分缩略图。
             for (const selector of this.selectors) {
-              // 在作品页面内不检查指定的选择器。因为这是作品大图区域
-              if (
-                _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].type ===
-                  _PageType__WEBPACK_IMPORTED_MODULE_0__['pageType'].list
-                    .Artwork &&
-                selector === 'figure > div'
-              ) {
-                continue
-              }
               const elements = parent.querySelectorAll(selector)
               for (const el of elements) {
                 el.addEventListener('mouseenter', (ev) => {
@@ -6518,16 +6492,14 @@
                   this.hiddenBtn()
                 })
               }
-              if (elements.length > 0) {
-                break
-              }
             }
           }
           createObserver(target) {
             this.observer = new MutationObserver((records) => {
               for (const record of records) {
+                // 遍历被添加的元素
                 if (record.addedNodes.length > 0) {
-                  // 遍历被添加的元素
+                  // console.log(record)
                   for (const newEl of record.addedNodes) {
                     this.headleThumbnail(newEl)
                   }
@@ -6546,7 +6518,7 @@
               return ''
             }
             const href = a.href
-            return _Tools__WEBPACK_IMPORTED_MODULE_4__['Tools'].getIllustId(
+            return _Tools__WEBPACK_IMPORTED_MODULE_3__['Tools'].getIllustId(
               href
             )
           }
@@ -6556,7 +6528,7 @@
               return
             }
             if (
-              !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
                 .magnifier
             ) {
               return
