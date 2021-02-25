@@ -24,7 +24,8 @@ class QuickDownload {
   private addBtn() {
     // 在右侧添加快速下载按钮
     this.btn = document.createElement('button')
-    this.btn.id = 'quick_down_btn'
+    this.btn.classList.add('rightButton')
+    this.btn.id = 'quickDownloadBtn'
     this.btn.setAttribute('title', lang.transl('_快速下载本页') + ' (Alt + Q)')
     this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-download"></use>

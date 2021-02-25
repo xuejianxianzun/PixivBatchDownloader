@@ -386,8 +386,7 @@
   text-decoration: none;
   overflow: hidden;
 }
-#quick_down_btn,
-#rightButton {
+.rightButton {
   display: flex;
   display: none;
   justify-content: center;
@@ -406,23 +405,22 @@
   z-index: 1000;
   font-size: 18px;
 }
-#quick_down_btn:hover,
-#rightButton:hover {
+.rightButton:hover {
   opacity: 0.8;
 }
-#quick_down_btn .icon,
-#rightButton .icon {
+.rightButton .icon {
   vertical-align: middle;
 }
-#rightButton {
+#openCenterPanelBtn {
   top: 15%;
   background: #80b9f7;
   background: -webkit-linear-gradient(top, #bce4ff 0%, #35adfd 100%);
 }
-#quick_down_btn {
+#quickDownloadBtn {
   top: 21%;
   background: #0096fa;
   background: -webkit-linear-gradient(top, #47b4ff 0%, #027fd2 100%);
+  font-size: 17px;
 }
 .centerWrap {
   background-color: #fff;
@@ -1052,7 +1050,7 @@
   justify-content: space-between;
   justify-items: center;
   align-items: center;
-  min-width: 400px;
+  min-width: 500px;
 }
 .centerWrap .centerWrap_con .settingForm .namingRuleList li > * {
   min-height: 30px;
@@ -1124,20 +1122,20 @@
   color: #29b3f3 !important;
   fill: #29b3f3 !important;
 }
-.theme-dark.centerWrap.saveNamingRuleWrap {
+.theme-dark.centerWrap .saveNamingRuleWrap {
   color: #fff;
 }
-.theme-dark.centerWrap.saveNamingRuleWrap button {
+.theme-dark.centerWrap .saveNamingRuleWrap button {
   color: #fff;
 }
-.theme-dark.centerWrap.saveNamingRuleWrap .namingRuleList {
+.theme-dark.centerWrap .saveNamingRuleWrap .namingRuleList {
   background: #222;
   box-shadow: #10506e 0px 0px 10px;
 }
-.theme-dark.centerWrap.saveNamingRuleWrap .namingRuleList li {
+.theme-dark.centerWrap .saveNamingRuleWrap .namingRuleList li {
   color: #fff;
 }
-.theme-dark.centerWrap.saveNamingRuleWrap .namingRuleList li:hover {
+.theme-dark.centerWrap .saveNamingRuleWrap .namingRuleList li:hover {
   background: #333;
 }
 .downloadError {
@@ -1208,16 +1206,11 @@
 }
 .xzBG.centerWrap .saveNamingRuleWrap button {
   color: #fff;
+  text-shadow: none;
 }
 .xzBG.centerWrap .saveNamingRuleWrap .namingRuleList {
-  background: #222;
-  box-shadow: #10506e 0px 0px 10px;
-}
-.xzBG.centerWrap .saveNamingRuleWrap .namingRuleList li {
-  color: #fff;
-}
-.xzBG.centerWrap .saveNamingRuleWrap .namingRuleList li:hover {
-  background: #333;
+  text-shadow: none;
+  opacity: 0.9 !important;
 }
 .outputWrap {
   padding: 20px 30px;

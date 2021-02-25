@@ -14,7 +14,8 @@ class OpenCenterPanel {
 
   private addBtn() {
     this.btn = document.createElement('button')
-    this.btn.id = 'rightButton'
+    this.btn.classList.add('rightButton')
+    this.btn.id = 'openCenterPanelBtn'
     this.btn.setAttribute('title', lang.transl('_显示下载面板') + ' (Alt + X)')
     this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-dakai"></use>

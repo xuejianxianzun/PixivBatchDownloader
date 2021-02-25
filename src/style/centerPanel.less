@@ -656,7 +656,7 @@
           justify-content: space-between;
           justify-items: center;
           align-items: center;
-          min-width: 400px;
+          min-width: 500px;
 
           & > * {
             min-height: @liHeight;
@@ -749,7 +749,7 @@
       fill: @beautifyBlue !important;
     }
 
-    &.saveNamingRuleWrap {
+    .saveNamingRuleWrap {
       color: #fff;
 
       button {
@@ -854,19 +854,12 @@
 
       button {
         color: #fff;
+        text-shadow: none;
       }
 
       .namingRuleList {
-        background: #222;
-        box-shadow: @darkBoxShadow 0px 0px 10px;
-
-        li {
-          color: #fff;
-        }
-
-        li:hover {
-          background: #333;
-        }
+        text-shadow: none;
+        opacity: 0.9 !important;
       }
     }
   }

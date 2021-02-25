@@ -300,7 +300,7 @@ class FileName {
     // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
     if (settings.fileNameLengthLimitSwitch) {
       let limit = settings.fileNameLengthLimit
-      if (limit < 1 || isNaN(limit)) {
+      if (limit < 1) {
         limit = 200 // 如果设置的值不合法，则设置为 200
       }
 

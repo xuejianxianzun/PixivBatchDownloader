@@ -1921,7 +1921,7 @@
               let limit =
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
                   .fileNameLengthLimit
-              if (limit < 1 || isNaN(limit)) {
+              if (limit < 1) {
                 limit = 200 // 如果设置的值不合法，则设置为 200
               }
               const allPart = result.split('/')
@@ -4810,7 +4810,8 @@
           }
           addBtn() {
             this.btn = document.createElement('button')
-            this.btn.id = 'rightButton'
+            this.btn.classList.add('rightButton')
+            this.btn.id = 'openCenterPanelBtn'
             this.btn.setAttribute(
               'title',
               _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
@@ -15275,7 +15276,8 @@
           addBtn() {
             // 在右侧添加快速下载按钮
             this.btn = document.createElement('button')
-            this.btn.id = 'quick_down_btn'
+            this.btn.classList.add('rightButton')
+            this.btn.id = 'quickDownloadBtn'
             this.btn.setAttribute(
               'title',
               _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
@@ -20540,17 +20542,6 @@ flag 及其含义如下：
       ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记p_num')}
       </p>
 
-      <p class="option" data-no="29">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
-        'lang'
-      ].transl('_文件名长度限制')}</span>
-      <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
-      <span class="beautify_switch"></span>
-      <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
-      <input type="text" name="fileNameLengthLimit" class="setinput_style1 blue" value="200">
-      </span>
-      </p>
-
       <p class="option" data-no="14">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
@@ -20696,6 +20687,17 @@ flag 及其含义如下：
       <span class="beautify_switch"></span>
       </p>
 
+      <p class="option" data-no="33">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_下载之后收藏作品的提示')}">
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+        '_下载之后收藏作品'
+      )}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      </p>
+
       <slot data-name="downloadArea"></slot>
       <slot data-name="progressBar"></slot>
     </div>
@@ -20770,6 +20772,17 @@ flag 及其含义如下：
         )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
+      </p>
+
+      <p class="option" data-no="29">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_文件名长度限制')}</span>
+      <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
+      <input type="text" name="fileNameLengthLimit" class="setinput_style1 blue" value="200">
+      </span>
       </p>
 
       <p class="option" data-no="30">
@@ -20878,17 +20891,6 @@ flag 及其含义如下：
       <span class="subOptionWrap" data-show="blockTagsForSpecificUser">
       <slot data-name="blockTagsForSpecificUser"></slot>
       </span>
-      </p>
-
-      <p class="option" data-no="33">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
-        'lang'
-      ].transl('_下载之后收藏作品的提示')}">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-        '_下载之后收藏作品'
-      )}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
-      <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="34">
@@ -21667,16 +21669,13 @@ flag 及其含义如下：
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Lang */ './src/ts/Lang.ts'
         )
-        /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../Log */ './src/ts/Log.ts'
-        )
-        /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+        /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ../Theme */ './src/ts/Theme.ts'
         )
-        /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Settings */ './src/ts/setting/Settings.ts'
         )
-        /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+        /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../Toast */ './src/ts/Toast.ts'
         )
 
@@ -21706,7 +21705,7 @@ flag 及其含义如下：
               'saveNamingRule',
               this.html
             )
-            _Theme__WEBPACK_IMPORTED_MODULE_4__['theme'].register(wrap)
+            _Theme__WEBPACK_IMPORTED_MODULE_3__['theme'].register(wrap)
             this.saveBtn = wrap.querySelector('button.nameSave')
             this.loadBtn = wrap.querySelector('button.nameLoad')
             this.listWrap = wrap.querySelector('ul.namingRuleList')
@@ -21743,34 +21742,28 @@ flag 及其含义如下：
           }
           add(rule) {
             if (
-              _Settings__WEBPACK_IMPORTED_MODULE_5__['settings'].namingRuleList
+              _Settings__WEBPACK_IMPORTED_MODULE_4__['settings'].namingRuleList
                 .length === this.limit
             ) {
               this.delete(0)
             }
             // 如果这个规则已存在，不会重复添加它
             if (
-              !_Settings__WEBPACK_IMPORTED_MODULE_5__[
+              !_Settings__WEBPACK_IMPORTED_MODULE_4__[
                 'settings'
               ].namingRuleList.includes(rule)
             ) {
               const list = Array.from(
-                _Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                _Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
                   .namingRuleList
               )
               list.push(rule)
-              Object(_Settings__WEBPACK_IMPORTED_MODULE_5__['setSetting'])(
+              Object(_Settings__WEBPACK_IMPORTED_MODULE_4__['setSetting'])(
                 'namingRuleList',
                 list
               )
             }
-            // 显示提示
-            _Log__WEBPACK_IMPORTED_MODULE_3__['log'].success(
-              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                '_已保存命名规则'
-              )
-            )
-            _Toast__WEBPACK_IMPORTED_MODULE_6__['toast'].success(
+            _Toast__WEBPACK_IMPORTED_MODULE_5__['toast'].success(
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_已保存命名规则'
               )
@@ -21778,17 +21771,17 @@ flag 及其含义如下：
           }
           delete(index) {
             const list = Array.from(
-              _Settings__WEBPACK_IMPORTED_MODULE_5__['settings'].namingRuleList
+              _Settings__WEBPACK_IMPORTED_MODULE_4__['settings'].namingRuleList
             )
             list.splice(index, 1)
-            Object(_Settings__WEBPACK_IMPORTED_MODULE_5__['setSetting'])(
+            Object(_Settings__WEBPACK_IMPORTED_MODULE_4__['setSetting'])(
               'namingRuleList',
               list
             )
           }
           select(rule) {
             this.ruleInput.value = rule
-            Object(_Settings__WEBPACK_IMPORTED_MODULE_5__['setSetting'])(
+            Object(_Settings__WEBPACK_IMPORTED_MODULE_4__['setSetting'])(
               'userSetName',
               rule
             )
@@ -21798,18 +21791,18 @@ flag 及其含义如下：
             for (
               let i = 0;
               i <
-              _Settings__WEBPACK_IMPORTED_MODULE_5__['settings'].namingRuleList
+              _Settings__WEBPACK_IMPORTED_MODULE_4__['settings'].namingRuleList
                 .length;
               i++
             ) {
               const html = `<li>
-      <span class="rule">${_Settings__WEBPACK_IMPORTED_MODULE_5__['settings'].namingRuleList[i]}</span>
+      <span class="rule">${_Settings__WEBPACK_IMPORTED_MODULE_4__['settings'].namingRuleList[i]}</span>
       <button class="delete textButton" type="button" data-index="${i}">×</button>
     </li>`
               htmlArr.push(html)
             }
             if (
-              _Settings__WEBPACK_IMPORTED_MODULE_5__['settings'].namingRuleList
+              _Settings__WEBPACK_IMPORTED_MODULE_4__['settings'].namingRuleList
                 .length === 0
             ) {
               htmlArr.push(`<li><i>&nbsp;&nbsp;&nbsp;&nbsp;no data</i></li>`)

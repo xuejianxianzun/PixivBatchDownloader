@@ -364,15 +364,6 @@ const formHtml = `<form class="settingForm">
       ${lang.transl('_命名标记p_num')}
       </p>
 
-      <p class="option" data-no="29">
-      <span class="settingNameStyle1">${lang.transl('_文件名长度限制')}</span>
-      <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
-      <span class="beautify_switch"></span>
-      <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
-      <input type="text" name="fileNameLengthLimit" class="setinput_style1 blue" value="200">
-      </span>
-      </p>
-
       <p class="option" data-no="14">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_添加字段名称提示'
@@ -494,6 +485,15 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
       </p>
 
+      <p class="option" data-no="33">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_下载之后收藏作品的提示'
+      )}">
+      ${lang.transl('_下载之后收藏作品')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      </p>
+
       <slot data-name="downloadArea"></slot>
       <slot data-name="progressBar"></slot>
     </div>
@@ -550,6 +550,15 @@ const formHtml = `<form class="settingForm">
 )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
+      </p>
+
+      <p class="option" data-no="29">
+      <span class="settingNameStyle1">${lang.transl('_文件名长度限制')}</span>
+      <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
+      <input type="text" name="fileNameLengthLimit" class="setinput_style1 blue" value="200">
+      </span>
       </p>
 
       <p class="option" data-no="30">
@@ -638,15 +647,6 @@ const formHtml = `<form class="settingForm">
       <span class="subOptionWrap" data-show="blockTagsForSpecificUser">
       <slot data-name="blockTagsForSpecificUser"></slot>
       </span>
-      </p>
-
-      <p class="option" data-no="33">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_下载之后收藏作品的提示'
-      )}">
-      ${lang.transl('_下载之后收藏作品')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
-      <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="34">

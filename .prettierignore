@@ -16,5 +16,7 @@ LICENSE
 *.yml
 *.png
 *.map
+*.jpg
+*.png
 
 yarn-error.log

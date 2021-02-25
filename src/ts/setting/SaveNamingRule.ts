@@ -1,7 +1,6 @@
 import { EVT } from '../EVT'
 import { Tools } from '../Tools'
 import { lang } from '../Lang'
-import { log } from '../Log'
 import { theme } from '../Theme'
 import { settings, setSetting } from './Settings'
 import { toast } from '../Toast'
@@ -72,8 +71,7 @@ class SaveNamingRule {
       list.push(rule)
       setSetting('namingRuleList', list)
     }
-    // 显示提示
-    log.success(lang.transl('_已保存命名规则'))
+
     toast.success(lang.transl('_已保存命名规则'))
   }
 
