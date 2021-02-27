@@ -387,10 +387,13 @@ class Settings {
       if (key === 'postDateStart' || key == 'postDateEnd') {
         if (valueType === 'string') {
           if (value === '') {
-            return this.tipError(key)
+            // 如果日期是空字符串，则替换为默认值
+            value = this.defaultSettings[key]
+          } else {
+            // 把日期字符串转换成时间戳
+            const date = new Date(value as string)
+            value = date.getTime()
           }
-          const date = new Date(value as string)
-          value = date.getTime()
         }
       } else {
         // 处理普通的 number 类型

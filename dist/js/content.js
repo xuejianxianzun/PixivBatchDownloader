@@ -6499,7 +6499,6 @@
               for (const record of records) {
                 // 遍历被添加的元素
                 if (record.addedNodes.length > 0) {
-                  // console.log(record)
                   for (const newEl of record.addedNodes) {
                     this.headleThumbnail(newEl)
                   }
@@ -22150,10 +22149,13 @@ flag 及其含义如下：
               if (key === 'postDateStart' || key == 'postDateEnd') {
                 if (valueType === 'string') {
                   if (value === '') {
-                    return this.tipError(key)
+                    // 如果日期是空字符串，则替换为默认值
+                    value = this.defaultSettings[key]
+                  } else {
+                    // 把日期字符串转换成时间戳
+                    const date = new Date(value)
+                    value = date.getTime()
                   }
-                  const date = new Date(value)
-                  value = date.getTime()
                 }
               } else {
                 // 处理普通的 number 类型
@@ -22828,11 +22830,7 @@ flag 及其含义如下：
             this.tag = '' // 开始抓取时，储存页面此时的 tag
             this.title = '' // 开始抓取时，储存页面此时的 title
             this.crawlCompleteTime = new Date()
-            this.bindEvents()
-          }
-          assignResult(data) {
-            // 抓取结果的默认值
-            const dataDefault = {
+            this.fileDataDefault = {
               idNum: 0,
               id: '',
               original: '',
@@ -22865,7 +22863,7 @@ flag 及其含义如下：
               xRestrict: 0,
               sl: null,
             }
-            return Object.assign(dataDefault, data)
+            this.bindEvents()
           }
           // 计算要从这个作品里下载几张图片
           getDLCount(pageCount) {
@@ -22900,29 +22898,31 @@ flag 及其含义如下：
               }
             }
             // 添加该作品的元数据
-            const result = this.assignResult(data)
-            // 设置这个作品要下载的数量
-            if (result.type === 0 || result.type === 1) {
-              result.dlCount = this.getDLCount(result.pageCount)
+            const workData = Object.assign({}, this.fileDataDefault, data)
+            // 注意：由于 Object.assign 不是深拷贝，所以不可以修改 result 的引用类型数据，否则会影响到源对象
+            // 可以修改基础类型的数据
+            // 设置这个作品要下载的文件数量
+            if (workData.type === 0 || workData.type === 1) {
+              workData.dlCount = this.getDLCount(workData.pageCount)
             }
-            this.resultMeta.push(result)
+            this.resultMeta.push(workData)
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.addResult,
-              result
+              workData
             )
-            if (result.type === 3) {
-              // 小说作品直接添加到结果里
-              this.result.push(result)
+            // 把该作品里的每个文件的数据添加到结果里
+            if (workData.type === 3) {
+              // 小说作品直接添加
+              this.result.push(workData)
             } else {
               // 图片作品循环添加该作品里每一个图片文件的数据
-              for (let i = 0; i < result.dlCount; i++) {
-                const result = this.assignResult(data)
-                result.idNum = parseInt(result.id)
-                result.id = result.id + `_p${i}`
-                result.original = result.original.replace('p0', 'p' + i)
-                result.regular = result.regular.replace('p0', 'p' + i)
-                result.small = result.small.replace('p0', 'p' + i)
-                this.result.push(result)
+              for (let i = 0; i < workData.dlCount; i++) {
+                const fileData = Object.assign({}, workData)
+                fileData.id = fileData.id + `_p${i}`
+                fileData.original = fileData.original.replace('p0', 'p' + i)
+                fileData.regular = fileData.regular.replace('p0', 'p' + i)
+                fileData.small = fileData.small.replace('p0', 'p' + i)
+                this.result.push(fileData)
               }
             }
           }

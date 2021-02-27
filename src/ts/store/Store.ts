@@ -27,43 +27,38 @@ class Store {
 
   public crawlCompleteTime: Date = new Date()
 
-  private assignResult(data: ResultOptional) {
-    // 抓取结果的默认值
-    const dataDefault: Result = {
-      idNum: 0,
-      id: '',
-      original: '',
-      thumb: '',
-      regular: '',
-      small: '',
-      title: '',
-      pageCount: 1,
-      dlCount: 1,
-      tags: [],
-      tagsWithTransl: [],
-      tagsTranslOnly: [],
-      user: '',
-      userId: '',
-      fullWidth: 0,
-      fullHeight: 0,
-      ext: '',
-      bmk: 0,
-      bookmarked: false,
-      date: '',
-      type: 0,
-      rank: null,
-      ugoiraInfo: null,
-      seriesTitle: null,
-      seriesOrder: null,
-      novelMeta: null,
-      likeCount: 0,
-      viewCount: 0,
-      commentCount: 0,
-      xRestrict: 0,
-      sl: null,
-    }
-
-    return Object.assign(dataDefault, data)
+  private readonly fileDataDefault: Result = {
+    idNum: 0,
+    id: '',
+    original: '',
+    thumb: '',
+    regular: '',
+    small: '',
+    title: '',
+    pageCount: 1,
+    dlCount: 1,
+    tags: [],
+    tagsWithTransl: [],
+    tagsTranslOnly: [],
+    user: '',
+    userId: '',
+    fullWidth: 0,
+    fullHeight: 0,
+    ext: '',
+    bmk: 0,
+    bookmarked: false,
+    date: '',
+    type: 0,
+    rank: null,
+    ugoiraInfo: null,
+    seriesTitle: null,
+    seriesOrder: null,
+    novelMeta: null,
+    likeCount: 0,
+    viewCount: 0,
+    commentCount: 0,
+    xRestrict: 0,
+    sl: null,
   }
 
   // 计算要从这个作品里下载几张图片
@@ -95,30 +90,32 @@ class Store {
     }
 
     // 添加该作品的元数据
-    const result = this.assignResult(data)
+    const workData = Object.assign({}, this.fileDataDefault, data)
+    // 注意：由于 Object.assign 不是深拷贝，所以不可以修改 result 的引用类型数据，否则会影响到源对象
+    // 可以修改基础类型的数据
 
-    // 设置这个作品要下载的数量
-    if (result.type === 0 || result.type === 1) {
-      result.dlCount = this.getDLCount(result.pageCount)
+    // 设置这个作品要下载的文件数量
+    if (workData.type === 0 || workData.type === 1) {
+      workData.dlCount = this.getDLCount(workData.pageCount)
     }
 
-    this.resultMeta.push(result)
+    this.resultMeta.push(workData)
 
-    EVT.fire(EVT.list.addResult, result)
+    EVT.fire(EVT.list.addResult, workData)
 
-    if (result.type === 3) {
-      // 小说作品直接添加到结果里
-      this.result.push(result)
+    // 把该作品里的每个文件的数据添加到结果里
+    if (workData.type === 3) {
+      // 小说作品直接添加
+      this.result.push(workData)
     } else {
       // 图片作品循环添加该作品里每一个图片文件的数据
-      for (let i = 0; i < result.dlCount; i++) {
-        const result = this.assignResult(data)
-        result.idNum = parseInt(result.id)
-        result.id = result.id + `_p${i}`
-        result.original = result.original.replace('p0', 'p' + i)
-        result.regular = result.regular.replace('p0', 'p' + i)
-        result.small = result.small.replace('p0', 'p' + i)
-        this.result.push(result)
+      for (let i = 0; i < workData.dlCount; i++) {
+        const fileData = Object.assign({}, workData)
+        fileData.id = fileData.id + `_p${i}`
+        fileData.original = fileData.original.replace('p0', 'p' + i)
+        fileData.regular = fileData.regular.replace('p0', 'p' + i)
+        fileData.small = fileData.small.replace('p0', 'p' + i)
+        this.result.push(fileData)
       }
     }
   }
