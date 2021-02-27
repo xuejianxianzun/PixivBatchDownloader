@@ -1,7 +1,7 @@
 import { EVT } from '../EVT'
 import { Tools } from '../Tools'
 import { lang } from '../Lang'
-import config from '../config/Config'
+import { Config } from '../config/Config'
 import { store } from '../store/Store'
 import { Result } from '../store/StoreType'
 import { fileName } from '../FileName'
@@ -159,7 +159,7 @@ class ExportResult2CSV {
 
           // 对于某些字段，将其内容特殊化处理
           if (field.name === 'type') {
-            result = config.worksTypeName[result as number]
+            result = Config.worksTypeName[result as number]
           }
 
           if (field.name === 'bookmarked') {

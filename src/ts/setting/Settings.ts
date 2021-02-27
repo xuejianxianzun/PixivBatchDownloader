@@ -7,7 +7,7 @@ import { EVT } from '../EVT'
 import { Utils } from '../utils/Utils'
 import { convertOldSettings } from './ConvertOldSettings'
 import { msgBox } from '../MsgBox'
-import Config from '../config/Config'
+import { Config } from '../config/Config'
 import { secretSignal } from '../utils/SecretSignal'
 import { toast } from '../Toast'
 
@@ -444,7 +444,7 @@ class Settings {
     }
 
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
 
     // 触发设置变化的事件
     EVT.fire(EVT.list.settingChange, { name: key, value: value })

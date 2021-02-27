@@ -1,7 +1,7 @@
 import { EVT } from './EVT'
 
 // 检查新版本
-class CheckNew {
+class CheckNewVersion {
   constructor() {
     this.checkNew()
   }
@@ -60,4 +60,4 @@ class CheckNew {
   }
 }
 
-new CheckNew()
+new CheckNewVersion()

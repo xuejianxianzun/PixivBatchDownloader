@@ -1,13 +1,13 @@
 import { settings } from './setting/Settings'
 import { store } from './store/Store'
 import { Result } from './store/StoreType'
-import config from './config/Config'
+import { Config } from './config/Config'
 import { DateFormat } from './utils/DateFormat'
 import { Utils } from './utils/Utils'
 
 // 生成文件名
 class FileName {
-  constructor() {}
+  constructor() { }
 
   private handleRank(rank: number | null): string {
     // 处理空值
@@ -138,7 +138,7 @@ class FileName {
         safe: false,
       },
       '{type}': {
-        value: config.worksTypeName[data.type],
+        value: Config.worksTypeName[data.type],
         prefix: '',
         safe: true,
       },
@@ -225,7 +225,7 @@ class FileName {
         settings.createFolderByTypeNovel,
       ]
       if (allSwitch[data.type]) {
-        const folder = config.worksTypeName[data.type]
+        const folder = Config.worksTypeName[data.type]
         result = this.appendFolder(result, folder)
       }
     }

@@ -2,7 +2,7 @@ import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { store } from '../store/Store'
 import { Utils } from '../utils/Utils'
-import config from '../config/Config'
+import { Config } from '../config/Config'
 import { theme } from '../Theme'
 import { toast } from '../Toast'
 
@@ -102,7 +102,7 @@ class OutputPanel {
   // 输出内容
   private output(content: string, title = lang.transl('_输出信息')) {
     // 如果结果较多，则不直接输出，改为保存 txt 文件
-    if (store.result.length > config.outputMax) {
+    if (store.result.length > Config.outputMax) {
       const con = content.replace(/<br>/g, '\n') // 替换换行符
       const file = new Blob([con], {
         type: 'text/plain',

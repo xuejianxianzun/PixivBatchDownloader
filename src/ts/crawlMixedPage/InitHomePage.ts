@@ -6,7 +6,7 @@ import { options } from '../setting/Options'
 import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { IDData } from '../store/StoreType'
-import Config from '../config/Config'
+import { Config } from '../config/Config'
 
 class InitHomePage extends InitPageBase {
   constructor() {

@@ -13,7 +13,7 @@ import { log } from '../Log'
 import { Tools } from '../Tools'
 import { filter, FilterOption } from '../filter/Filter'
 import { Utils } from '../utils/Utils'
-import Config from '../config/Config'
+import { Config } from '../config/Config'
 
 class InitBookmarkLegacyPage extends InitPageBase {
   constructor() {

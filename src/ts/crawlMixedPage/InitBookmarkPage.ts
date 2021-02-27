@@ -13,7 +13,7 @@ import { token } from '../Token'
 import { BookmarksAddTag } from '../pageFunciton/BookmarksAddTag'
 import { filter, FilterOption } from '../filter/Filter'
 import { Utils } from '../utils/Utils'
-import Config from '../config/Config'
+import { Config } from '../config/Config'
 
 class InitBookmarkPage extends InitPageBase {
   constructor() {

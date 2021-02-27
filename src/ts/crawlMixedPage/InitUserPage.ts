@@ -17,7 +17,7 @@ import '../pageFunciton/SaveAvatarImage'
 import '../pageFunciton/SaveUserCover'
 import { BookmarkAllWorks, IDList } from '../pageFunciton/BookmarkAllWorks'
 import { Utils } from '../utils/Utils'
-import Config from '../config/Config'
+import { Config } from '../config/Config'
 
 enum ListType {
   UserHome,

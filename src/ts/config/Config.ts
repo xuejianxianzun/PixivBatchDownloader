@@ -17,4 +17,4 @@ class Config {
   static readonly worksNumberLimit = 999999999
 }
 
-export default Config
+export { Config }
