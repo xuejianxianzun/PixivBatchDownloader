@@ -20,6 +20,7 @@ import { ArtworkData, NovelData } from './CrawlResult.d'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
 import { Utils } from '../utils/Utils'
+import { pageType } from '../PageType'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数
@@ -110,40 +111,40 @@ abstract class InitPageBase {
     throw new Error(msg)
   }
 
-  // 检查用户输入的页数/个数设置
+  // 在某些页面检查页数/个数设置
   // 可以为 -1，或者大于 0
   protected checkWantPageInput(crawlPartTip: string, crawlAllTip: string) {
-    const temp = settings.setWantPage
+    const want = settings.wantPageArr[pageType.type]
 
     // 如果比 1 小，并且不是 -1，则不通过
-    if ((temp < 1 && temp !== -1) || isNaN(temp)) {
+    if ((want < 1 && want !== -1) || isNaN(want)) {
       // 比 1 小的数里，只允许 -1 , 0 也不行
       throw this.getWantPageError()
     }
 
-    if (temp >= 1) {
-      log.warning(crawlPartTip.replace('{}', temp.toString()))
-    } else if (temp === -1) {
+    if (want >= 1) {
+      log.warning(crawlPartTip.replace('{}', want.toString()))
+    } else if (want === -1) {
       log.warning(crawlAllTip)
     }
 
-    return temp
+    return want
   }
 
-  // 检查用户输入的页数/个数设置
-  // 要求必须大于 0
+  // 在某些页面检查页数/个数设置，要求必须大于 0
   // 参数 max 为最大值
   // 参数 page 指示单位是“页”（页面）还是“个”（作品个数）
   protected checkWantPageInputGreater0(max: number, page: boolean) {
-    if (settings.setWantPage > 0) {
-      const want = settings.setWantPage > max ? max : settings.setWantPage
+    const want = settings.wantPageArr[pageType.type]
+    if (want > 0) {
+      const result = want > max ? max : want
 
       if (page) {
-        log.warning(lang.transl('_从本页开始下载x页', want.toString()))
+        log.warning(lang.transl('_从本页开始下载x页', result.toString()))
       } else {
-        log.warning(lang.transl('_从本页开始下载x个', want.toString()))
+        log.warning(lang.transl('_从本页开始下载x个', result.toString()))
       }
-      return want
+      return result
     } else {
       throw this.getWantPageError()
     }

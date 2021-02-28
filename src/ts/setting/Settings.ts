@@ -112,6 +112,8 @@ interface XzSetting {
   downR18G: boolean
 }
 
+type SettingsKeys = keyof XzSetting
+
 class Settings {
   constructor() {
     this.restore()
@@ -320,7 +322,7 @@ class Settings {
   private assignSettings(data: XzSetting) {
     const origin = Utils.deepCopy(data)
     for (const [key, value] of Object.entries(origin)) {
-      this.setSetting(key as keyof XzSetting, value)
+      this.setSetting(key as SettingsKeys, value)
     }
   }
 
@@ -362,7 +364,7 @@ class Settings {
   // 1. 兼容旧版本的设置。读取旧版本的设置时，将其转换成新版本的设置。例如某个设置在旧版本里是 string 类型，值为 'a,b,c'。新版本里是 string[] 类型，这里会自动将其转换成 ['a','b','c']
   // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传递 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
   public setSetting(
-    key: keyof XzSetting,
+    key: SettingsKeys,
     value: string | number | boolean | string[] | number[] | object[]
   ) {
     if (!this.allSettingKeys.includes(key)) {
@@ -444,7 +446,7 @@ class Settings {
     }
 
     // 更改设置
-    ; (this.settings[key] as any) = value
+    ;(this.settings[key] as any) = value
 
     // 触发设置变化的事件
     EVT.fire(EVT.list.settingChange, { name: key, value: value })
@@ -455,4 +457,4 @@ const self = new Settings()
 const settings = self.settings
 const setSetting = self.setSetting.bind(self)
 
-export { settings, setSetting }
+export { settings, setSetting, SettingsKeys as SettingKeys }

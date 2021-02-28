@@ -1,10 +1,10 @@
-import { settings, setSetting } from './Settings'
+import { settings, setSetting, SettingKeys } from './Settings'
 import { secretSignal } from '../utils/SecretSignal'
 import { log } from '../Log'
 import { toast } from '../Toast'
 
 interface List {
-  name: keyof typeof settings
+  name: SettingKeys
   code: string
 }
 
@@ -41,7 +41,7 @@ class InvisibleSettings {
     }
   }
 
-  private onChange(name: keyof typeof settings) {
+  private onChange(name: SettingKeys) {
     const nowValue = settings[name]
     if (typeof nowValue !== 'boolean') {
       return

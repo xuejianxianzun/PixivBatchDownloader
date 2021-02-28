@@ -1,14 +1,20 @@
 import { EVT } from '../EVT'
 import { pageType } from '../PageType'
-import { settings, setSetting } from './Settings'
+import { settings, setSetting, SettingKeys } from './Settings'
 import { SettingsForm } from './SettingsForm'
 import { DateFormat } from '../utils/DateFormat'
 
-// 管理 from 表单里的选项（类型为 input 元素的选项），从 settings 里读取选项的值；当选项改变时保存到 settings 里
-// 不属于 input 类型的选项，不在这里处理。
+// 管理 from 表单里的输入选项（input 元素和 textarea 元素）
+// 从 settings 里恢复选项的值；当选项改变时保存到 settings 里
+// 不属于输入选项的设置，不在这里处理
 
-// 补充说明：
-// 选项 setWantPage 并不需要实际上进行保存和恢复。保存和恢复时使用的是 wantPageArr
+interface InputFileds {
+  text: SettingKeys[]
+  textarea: SettingKeys[]
+  checkbox: SettingKeys[]
+  radio: SettingKeys[]
+  datetime: SettingKeys[]
+}
 
 class FormSettings {
   constructor(form: SettingsForm) {
@@ -16,14 +22,104 @@ class FormSettings {
 
     this.bindEvents()
 
-    this.restoreWantPage()
+    this.restoreFormSettings()
 
     this.ListenChange()
-
-    this.restoreFormSettings()
   }
 
   private form!: SettingsForm
+
+  private readonly inputFileds: InputFileds = {
+    checkbox: [
+      'downType0',
+      'downType1',
+      'downType2',
+      'downType3',
+      'downAllAges',
+      'downR18',
+      'downR18G',
+      'downSingleImg',
+      'downMultiImg',
+      'downColorImg',
+      'downBlackWhiteImg',
+      'downNotBookmarked',
+      'downBookmarked',
+      'firstFewImagesSwitch',
+      'saveNovelMeta',
+      'BMKNumSwitch',
+      'BMKNumAverageSwitch',
+      'setWHSwitch',
+      'ratioSwitch',
+      'postDate',
+      'idRangeSwitch',
+      'needTagSwitch',
+      'notNeedTagSwitch',
+      'magnifier',
+      'tagNameToFileName',
+      'noSerialNo',
+      'createFolderByTag',
+      'workDir',
+      'r18Folder',
+      'sizeSwitch',
+      'quietDownload',
+      'previewResult',
+      'deduplication',
+      'fileNameLengthLimitSwitch',
+      'bmkAfterDL',
+      'userBlockList',
+      'blockTagsForSpecificUser',
+      'bgDisplay',
+      'createFolderByType',
+      'createFolderByTypeIllust',
+      'createFolderByTypeManga',
+      'createFolderByTypeUgoira',
+      'createFolderByTypeNovel',
+    ],
+    text: [
+      'setWantPage',
+      'firstFewImages',
+      'convertUgoiraThread',
+      'BMKNumMin',
+      'BMKNumMax',
+      'BMKNumAverage',
+      'setWidth',
+      'setHeight',
+      'userRatio',
+      'idRangeInput',
+      'needTag',
+      'notNeedTag',
+      'userSetName',
+      'workDirFileNumber',
+      'r18FolderName',
+      'sizeMin',
+      'sizeMax',
+      'downloadThread',
+      'fileNameLengthLimit',
+      'dateFormat',
+      'blockList',
+      'bgOpacity',
+    ],
+    radio: [
+      'ugoiraSaveAs',
+      'novelSaveAs',
+      'widthHeightLimit',
+      'setWidthAndOr',
+      'ratio',
+      'idRange',
+      'magnifierSize',
+      'workDirName',
+      'dupliStrategy',
+      'imageSize',
+      'userSetLang',
+      'restrict',
+      'widthTag',
+      'needTagMode',
+      'theme',
+      'bgPositionY',
+    ],
+    textarea: ['createFolderTagList'],
+    datetime: ['postDateStart', 'postDateEnd'],
+  }
 
   private bindEvents() {
     // 页面切换时，从设置里恢复当前页面的页数/个数
@@ -32,16 +128,89 @@ class FormSettings {
     })
   }
 
+  // 监听所有输入选项的变化
+  // 该函数可执行一次，否则事件会重复绑定
+  private ListenChange() {
+    for (const name of this.inputFileds.text) {
+      // setWantPage 变化时，保存到 wantPageArr
+      if (name === 'setWantPage') {
+        this.form.setWantPage.addEventListener('change', () => {
+          const temp = Array.from(settings.wantPageArr)
+          temp[pageType.type] = Number.parseInt(this.form.setWantPage.value)
+          setSetting('wantPageArr', temp)
+        })
+        continue
+      }
+
+      // 对于命名规则，额外监听 focus 事件
+      if (name === 'userSetName') {
+        this.form.userSetName.addEventListener('focus', (ev) => {
+          setSetting(name, this.form.userSetName.value)
+        })
+      }
+
+      this.saveTextInput(name)
+    }
+
+    for (const name of this.inputFileds.textarea) {
+      this.saveTextInput(name)
+    }
+
+    for (const name of this.inputFileds.datetime) {
+      this.saveTextInput(name)
+    }
+
+    for (const name of this.inputFileds.radio) {
+      this.saveRadio(name)
+    }
+
+    for (const name of this.inputFileds.checkbox) {
+      this.saveCheckBox(name)
+    }
+  }
+
+  // 读取设置，恢复表单里的设置项
+  public restoreFormSettings() {
+    for (const name of this.inputFileds.text) {
+      // setWantPage 需要从 wantPageArr 恢复
+      if (name === 'setWantPage') {
+        this.restoreWantPage()
+        continue
+      }
+
+      this.restoreString(name)
+    }
+
+    for (const name of this.inputFileds.radio) {
+      this.restoreString(name)
+    }
+
+    for (const name of this.inputFileds.textarea) {
+      this.restoreString(name)
+    }
+
+    for (const name of this.inputFileds.checkbox) {
+      this.restoreBoolean(name)
+    }
+
+    for (const name of this.inputFileds.datetime) {
+      this.restoreDate(name)
+    }
+  }
+
+  // ---------------------
+
   // 处理输入框： change 时保存 value
-  private saveTextInput(name: keyof typeof settings) {
+  private saveTextInput(name: SettingKeys) {
     const el = this.form[name] as HTMLInputElement
     el.addEventListener('change', () => {
       setSetting(name, el.value)
+      setSetting('setWidthAndOr', '')
     })
   }
 
   // 处理复选框： click 时保存 checked
-  private saveCheckBox(name: keyof typeof settings) {
+  private saveCheckBox(name: SettingKeys) {
     const el = this.form[name] as HTMLInputElement
     el.addEventListener('click', () => {
       setSetting(name, el.checked)
@@ -49,7 +218,7 @@ class FormSettings {
   }
 
   // 处理单选框： click 时保存 value
-  private saveRadio(name: keyof typeof settings) {
+  private saveRadio(name: SettingKeys) {
     const radios = this.form[name]
     for (const radio of radios) {
       radio.addEventListener('click', () => {
@@ -58,186 +227,22 @@ class FormSettings {
     }
   }
 
-  // 监听所有选项的变化，触发 settingChange 事件
-  // 该函数可执行一次，否则事件会重复绑定
-  private ListenChange() {
-    // 保存页数/个数设置
-    this.saveTextInput('setWantPage')
-
-    // 保存 wantPageArr
-    this.form.setWantPage.addEventListener('change', () => {
-      const temp = Array.from(settings.wantPageArr)
-      temp[pageType.type] = Number.parseInt(this.form.setWantPage.value)
-      setSetting('wantPageArr', temp)
-    })
-
-    // 保存下载的作品类型
-    this.saveCheckBox('downType0')
-    this.saveCheckBox('downType1')
-    this.saveCheckBox('downType2')
-    this.saveCheckBox('downType3')
-    this.saveCheckBox('downAllAges')
-    this.saveCheckBox('downR18')
-    this.saveCheckBox('downR18G')
-    this.saveCheckBox('downSingleImg')
-    this.saveCheckBox('downMultiImg')
-    this.saveCheckBox('downColorImg')
-    this.saveCheckBox('downBlackWhiteImg')
-    this.saveCheckBox('downNotBookmarked')
-    this.saveCheckBox('downBookmarked')
-
-    // 保存多图作品设置
-    this.saveCheckBox('firstFewImagesSwitch')
-    this.saveTextInput('firstFewImages')
-
-    // 保存动图格式选项
-    this.saveRadio('ugoiraSaveAs')
-
-    // 保存动图转换线程数
-    this.saveTextInput('convertUgoiraThread')
-
-    this.saveRadio('novelSaveAs')
-
-    this.saveCheckBox('saveNovelMeta')
-
-    // 保存收藏数量选项
-    this.saveCheckBox('BMKNumSwitch')
-
-    // 保存收藏数量数值
-    this.saveTextInput('BMKNumMin')
-    this.saveTextInput('BMKNumMax')
-    this.saveCheckBox('BMKNumAverageSwitch')
-    this.saveTextInput('BMKNumAverage')
-
-    // 保存宽高条件
-    this.saveCheckBox('setWHSwitch')
-    this.saveRadio('widthHeightLimit')
-    this.saveRadio('setWidthAndOr')
-    this.saveTextInput('setWidth')
-    this.saveTextInput('setHeight')
-
-    // 保存宽高比例
-    this.saveCheckBox('ratioSwitch')
-    this.saveRadio('ratio')
-    this.saveTextInput('userRatio')
-
-    // 保存投稿时间
-    this.saveCheckBox('postDate')
-    this.saveTextInput('postDateStart')
-    this.saveTextInput('postDateEnd')
-
-    // 保存 id 范围
-    this.saveCheckBox('idRangeSwitch')
-    this.saveTextInput('idRangeInput')
-    this.saveRadio('idRange')
-
-    // 保存必须的 tag 设置
-    this.saveCheckBox('needTagSwitch')
-    this.saveTextInput('needTag')
-
-    // 保存排除的 tag 设置
-    this.saveCheckBox('notNeedTagSwitch')
-    this.saveTextInput('notNeedTag')
-
-    this.saveCheckBox('magnifier')
-    this.saveRadio('magnifierSize')
-    // 保存命名规则
-    const userSetNameInput = this.form.userSetName
-    ;['change', 'focus'].forEach((ev) => {
-      userSetNameInput.addEventListener(ev, () => {
-        setSetting('userSetName', userSetNameInput.value)
-      })
-    })
-
-    // 保存是否添加标记名称
-    this.saveCheckBox('tagNameToFileName')
-
-    // 保存第一张图不带序号
-    this.saveCheckBox('noSerialNo')
-
-    this.saveCheckBox('createFolderByTag')
-    this.saveTextInput('createFolderTagList')
-
-    this.saveCheckBox('workDir')
-
-    this.saveTextInput('workDirFileNumber')
-    this.saveRadio('workDirName')
-
-    this.saveCheckBox('r18Folder')
-    this.saveTextInput('r18FolderName')
-
-    // 保存文件体积限制
-    this.saveCheckBox('sizeSwitch')
-    this.saveTextInput('sizeMin')
-    this.saveTextInput('sizeMax')
-
-    // 保存自动下载
-    this.saveCheckBox('quietDownload')
-
-    // 保存下载线程
-    this.saveTextInput('downloadThread')
-
-    // 保存预览搜索结果
-    this.saveCheckBox('previewResult')
-
-    // 保存去重设置
-    this.saveCheckBox('deduplication')
-    this.saveRadio('dupliStrategy')
-
-    // 保存文件名长度限制
-    this.saveCheckBox('fileNameLengthLimitSwitch')
-    this.saveTextInput('fileNameLengthLimit')
-
-    this.saveRadio('imageSize')
-
-    this.saveTextInput('dateFormat')
-
-    this.saveRadio('userSetLang')
-
-    this.saveCheckBox('bmkAfterDL')
-    this.saveRadio('restrict')
-
-    this.saveRadio('widthTag')
-
-    this.saveCheckBox('userBlockList')
-    this.saveTextInput('blockList')
-
-    this.saveCheckBox('blockTagsForSpecificUser')
-
-    this.saveRadio('needTagMode')
-
-    this.saveRadio('theme')
-
-    this.saveCheckBox('bgDisplay')
-    this.saveTextInput('bgOpacity')
-    this.saveRadio('bgPositionY')
-
-    this.saveCheckBox('createFolderByType')
-    this.saveCheckBox('createFolderByTypeIllust')
-    this.saveCheckBox('createFolderByTypeManga')
-    this.saveCheckBox('createFolderByTypeUgoira')
-    this.saveCheckBox('createFolderByTypeNovel')
-  }
-
   // 恢复值为 Boolean 的设置项
-  // input[type='checkbox'] 使用
-  private restoreBoolean(name: keyof typeof settings) {
+  private restoreBoolean(name: SettingKeys) {
     if (settings[name] !== undefined) {
       this.form[name].checked = settings[name]
     }
   }
 
   // 恢复值为 string 的设置项
-  // input[type='radio'] 和 input[type='text'] 使用
-  private restoreString(name: keyof typeof settings) {
+  private restoreString(name: SettingKeys) {
     if (settings[name] !== undefined) {
       this.form[name].value = settings[name].toString()
     }
   }
 
   // 恢复日期、时间设置项
-  // input[type='datetime-local'] 使用
-  private restoreDate(name: keyof typeof settings) {
+  private restoreDate(name: SettingKeys) {
     if (settings[name] !== undefined) {
       // 把时间戳转换成 input 使用的字符串
       const date = settings[name] as number
@@ -249,160 +254,8 @@ class FormSettings {
   private restoreWantPage() {
     const want = settings.wantPageArr[pageType.type]
     if (want !== undefined) {
-      const now = this.form.setWantPage.value
-      const saved = want.toString()
-      if (now !== saved) {
-        this.form.setWantPage.value = want.toString()
-        // 因为这里是通过 js 直接修改 input 的值，所以不会触发 change 事件，需要手动保存变化
-        setSetting('setWantPage', want)
-      }
+      this.form.setWantPage.value = want.toString()
     }
-  }
-
-  // 读取设置，恢复表单里的设置项
-  public restoreFormSettings() {
-    // 设置下载的作品类型
-    this.restoreBoolean('downType0')
-    this.restoreBoolean('downType1')
-    this.restoreBoolean('downType2')
-    this.restoreBoolean('downType3')
-    this.restoreBoolean('downAllAges')
-    this.restoreBoolean('downR18')
-    this.restoreBoolean('downR18G')
-    this.restoreBoolean('downSingleImg')
-    this.restoreBoolean('downMultiImg')
-    this.restoreBoolean('downColorImg')
-    this.restoreBoolean('downBlackWhiteImg')
-    this.restoreBoolean('downNotBookmarked')
-    this.restoreBoolean('downBookmarked')
-
-    // 多图下载前几张图作品设置
-    this.restoreBoolean('firstFewImagesSwitch')
-    this.restoreString('firstFewImages')
-
-    // 设置动图格式选项
-    this.restoreString('ugoiraSaveAs')
-
-    // 设置动图转换线程数
-    this.restoreString('convertUgoiraThread')
-
-    this.restoreString('novelSaveAs')
-
-    this.restoreBoolean('saveNovelMeta')
-
-    // 设置收藏数量选项
-    this.restoreBoolean('BMKNumSwitch')
-
-    // 设置收藏数量数值
-    this.restoreString('BMKNumMin')
-    this.restoreString('BMKNumMax')
-    this.restoreBoolean('BMKNumAverageSwitch')
-    this.restoreString('BMKNumAverage')
-
-    // 设置宽高条件
-    this.restoreBoolean('setWHSwitch')
-    this.restoreString('widthHeightLimit')
-    this.restoreString('setWidthAndOr')
-    this.restoreString('setWidth')
-    this.restoreString('setHeight')
-
-    // 设置宽高比例
-    this.restoreBoolean('ratioSwitch')
-    this.restoreString('ratio')
-    this.restoreString('userRatio')
-
-    // 设置 id 范围
-    this.restoreBoolean('idRangeSwitch')
-    this.restoreString('idRangeInput')
-    this.restoreString('idRange')
-
-    // 设置必须的 tag
-    this.restoreBoolean('needTagSwitch')
-    this.restoreString('needTag')
-
-    // 设置排除的 tag
-    this.restoreBoolean('notNeedTagSwitch')
-    this.restoreString('notNeedTag')
-
-    // 设置投稿时间
-    this.restoreBoolean('postDate')
-    this.restoreDate('postDateStart')
-    this.restoreDate('postDateEnd')
-
-    // 设置自动下载
-    this.restoreBoolean('quietDownload')
-
-    // 设置下载线程
-    this.restoreString('downloadThread')
-
-    // 设置文件命名规则
-    this.restoreString('userSetName')
-
-    // 设置是否添加标记名称
-    this.restoreBoolean('tagNameToFileName')
-
-    // 设置第一张图不带序号
-    this.restoreBoolean('noSerialNo')
-
-    this.restoreBoolean('createFolderByTag')
-    this.restoreString('createFolderTagList')
-
-    this.restoreBoolean('workDir')
-
-    this.restoreString('workDirFileNumber')
-    this.restoreString('workDirName')
-
-    this.restoreBoolean('r18Folder')
-    this.restoreString('r18FolderName')
-
-    // 设置预览搜索结果
-    this.restoreBoolean('previewResult')
-
-    // 设置文件体积限制
-    this.restoreBoolean('sizeSwitch')
-    this.restoreString('sizeMin')
-    this.restoreString('sizeMax')
-
-    // 恢复去重设置
-    this.restoreBoolean('deduplication')
-    this.restoreString('dupliStrategy')
-
-    // 恢复文件名长度限制
-    this.restoreBoolean('fileNameLengthLimitSwitch')
-    this.restoreString('fileNameLengthLimit')
-
-    this.restoreString('imageSize')
-
-    this.restoreString('dateFormat')
-
-    this.restoreString('userSetLang')
-
-    this.restoreBoolean('bmkAfterDL')
-    this.restoreString('restrict')
-
-    this.restoreString('widthTag')
-
-    this.restoreBoolean('userBlockList')
-    this.restoreString('blockList')
-
-    this.restoreBoolean('blockTagsForSpecificUser')
-
-    this.restoreString('needTagMode')
-
-    this.restoreString('theme')
-
-    this.restoreBoolean('magnifier')
-    this.restoreString('magnifierSize')
-
-    this.restoreBoolean('bgDisplay')
-    this.restoreString('bgOpacity')
-    this.restoreString('bgPositionY')
-
-    this.restoreBoolean('createFolderByType')
-    this.restoreBoolean('createFolderByTypeIllust')
-    this.restoreBoolean('createFolderByTypeManga')
-    this.restoreBoolean('createFolderByTypeUgoira')
-    this.restoreBoolean('createFolderByTypeNovel')
   }
 }
 
