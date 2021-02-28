@@ -9,6 +9,7 @@ import { fileName } from '../FileName'
 import { Utils } from '../utils/Utils'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
+import { secretSignal } from '../utils/SecretSignal'
 
 interface Record {
   id: string
@@ -69,6 +70,11 @@ class Deduplication {
       this.add(successData.id)
     })
 
+    // 导入含有 id 列表的 txt 文件
+    secretSignal.register('recordtxt', () => {
+      this.importRecordFromTxt()
+    })
+
     // 导入下载记录的按钮
     {
       const btn = document.querySelector('#importDownloadRecord')
@@ -81,7 +87,7 @@ class Deduplication {
 
     // 监听导入下载记录的事件
     window.addEventListener(EVT.list.importDownloadRecord, () => {
-      this.importRecord()
+      this.importRecordFromJSON()
     })
 
     // 导出下载记录的按钮
@@ -211,10 +217,47 @@ class Deduplication {
       url,
       `record-${Utils.replaceUnsafeStr(new Date().toLocaleString())}.json`
     )
+
+    toast.success(lang.transl('_导出成功'))
   }
 
   // 导入下载记录
-  private async importRecord() {
+  private async importRecord(record: Record[]) {
+    log.warning(lang.transl('_导入下载记录'))
+
+    // 器显示导入进度
+    let stored = 0
+    let total = record.length
+    log.log(`${stored}/${total}`, 1, false)
+
+    // 依次处理每个存储库
+    for (let index = 0; index < this.storeNameList.length; index++) {
+      // 提取出要存入这个存储库的数据
+      const data: Record[] = []
+      for (const r of record) {
+        if (parseInt(r.id[0]) - 1 === index) {
+          data.push(r)
+        }
+      }
+      // 批量添加数据
+      await this.IDB.batchAddData(this.storeNameList[index], data, 'id')
+
+      stored += data.length
+      log.log(`${stored}/${total}`, 1, false)
+    }
+
+    log.success(lang.transl('_导入成功'))
+    toast.success(lang.transl('_导入成功'))
+
+    msgBox.success(lang.transl('_导入成功'), {
+      title: lang.transl('_导入下载记录'),
+    })
+
+    // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。
+  }
+
+  // 从 json 文件导入
+  private async importRecordFromJSON() {
     const record = (await Utils.loadJSONFile().catch((err) => {
       msgBox.error(err)
       return
@@ -234,37 +277,33 @@ class Deduplication {
       return msgBox.error(msg)
     }
 
-    // 开始导入
-    log.warning(lang.transl('_导入下载记录'))
-    let stored = 0
-    let total = record.length
-    let t = 0
-    t = window.setInterval(() => {
-      log.log(`${stored}/${total}`, 1, false)
-      if (stored >= total) {
-        log.success(lang.transl('_导入成功'))
-        toast.success(lang.transl('_导入成功'))
-        window.clearInterval(t)
-      }
-    }, 500)
+    this.importRecord(record)
+  }
 
-    // 依次处理每个存储库
-    for (let index = 0; index < this.storeNameList.length; index++) {
-      // 提取出要存入这个存储库的数据
-      const data: Record[] = []
-      for (const r of record) {
-        if (parseInt(r.id[0]) - 1 === index) {
-          data.push(r)
-        }
-      }
-      // 批量添加数据
-      await this.IDB.batchAddData(this.storeNameList[index], data, 'id')
-      stored += data.length
+  // 从 txt 文件导入
+  // 每行一个文件 id（带序号），以换行分割
+  private async importRecordFromTxt() {
+    const file = (await Utils.selectFile('.txt'))[0]
+    const text = await file.text()
+
+    // 以换行分割
+    let split = '\r\n'
+    if (!text.includes(split)) {
+      split = '\n'
     }
+    const arr = text.split(split)
 
-    msgBox.success(`${lang.transl('_导入下载记录')}<br>${lang.transl('_完成')}`)
-
-    // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。
+    // 把每一行视为一个 id，进行导入
+    const record: Record[] = []
+    for (const str of arr) {
+      if (str) {
+        record.push({
+          id: str,
+          n: str,
+        })
+      }
+    }
+    this.importRecord(record)
   }
 
   // 创建一个文件，模拟导出的下载记录

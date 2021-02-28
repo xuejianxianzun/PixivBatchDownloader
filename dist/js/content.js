@@ -4738,7 +4738,7 @@
               colorStyle = `style="color:${data.color}"`
             }
             el.innerHTML = `
-        <p class="title">${data.title || ''}</p>
+        <p class="title" ${colorStyle}>${data.title || ''}</p>
         <p class="content" ${colorStyle}>${data.msg}</p>
         <button class="btn" type="button">${
           data.btn || _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl('_确定')
@@ -13018,6 +13018,9 @@
         /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
           /*! ../MsgBox */ './src/ts/MsgBox.ts'
         )
+        /* harmony import */ var _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
+          /*! ../utils/SecretSignal */ './src/ts/utils/SecretSignal.ts'
+        )
 
         // 通过保存和查询下载记录，判断重复文件
         class Deduplication {
@@ -13070,6 +13073,12 @@
                 this.add(successData.id)
               }
             )
+            // 导入含有 id 列表的 txt 文件
+            _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_10__[
+              'secretSignal'
+            ].register('recordtxt', () => {
+              this.importRecordFromTxt()
+            })
             // 导入下载记录的按钮
             {
               const btn = document.querySelector('#importDownloadRecord')
@@ -13087,7 +13096,7 @@
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
                 .importDownloadRecord,
               () => {
-                this.importRecord()
+                this.importRecordFromJSON()
               }
             )
             // 导出下载记录的按钮
@@ -13235,9 +13244,59 @@
                 'Utils'
               ].replaceUnsafeStr(new Date().toLocaleString())}.json`
             )
+            _Toast__WEBPACK_IMPORTED_MODULE_8__['toast'].success(
+              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_导出成功')
+            )
           }
           // 导入下载记录
-          async importRecord() {
+          async importRecord(record) {
+            _Log__WEBPACK_IMPORTED_MODULE_2__['log'].warning(
+              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_导入下载记录')
+            )
+            // 器显示导入进度
+            let stored = 0
+            let total = record.length
+            _Log__WEBPACK_IMPORTED_MODULE_2__['log'].log(
+              `${stored}/${total}`,
+              1,
+              false
+            )
+            // 依次处理每个存储库
+            for (let index = 0; index < this.storeNameList.length; index++) {
+              // 提取出要存入这个存储库的数据
+              const data = []
+              for (const r of record) {
+                if (parseInt(r.id[0]) - 1 === index) {
+                  data.push(r)
+                }
+              }
+              // 批量添加数据
+              await this.IDB.batchAddData(this.storeNameList[index], data, 'id')
+              stored += data.length
+              _Log__WEBPACK_IMPORTED_MODULE_2__['log'].log(
+                `${stored}/${total}`,
+                1,
+                false
+              )
+            }
+            _Log__WEBPACK_IMPORTED_MODULE_2__['log'].success(
+              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_导入成功')
+            )
+            _Toast__WEBPACK_IMPORTED_MODULE_8__['toast'].success(
+              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_导入成功')
+            )
+            _MsgBox__WEBPACK_IMPORTED_MODULE_9__['msgBox'].success(
+              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_导入成功'),
+              {
+                title: _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                  '_导入下载记录'
+                ),
+              }
+            )
+            // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。
+          }
+          // 从 json 文件导入
+          async importRecordFromJSON() {
             const record = await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__[
               'Utils'
             ]
@@ -13258,50 +13317,34 @@
               const msg = 'Format error!'
               return _MsgBox__WEBPACK_IMPORTED_MODULE_9__['msgBox'].error(msg)
             }
-            // 开始导入
-            _Log__WEBPACK_IMPORTED_MODULE_2__['log'].warning(
-              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_导入下载记录')
-            )
-            let stored = 0
-            let total = record.length
-            let t = 0
-            t = window.setInterval(() => {
-              _Log__WEBPACK_IMPORTED_MODULE_2__['log'].log(
-                `${stored}/${total}`,
-                1,
-                false
-              )
-              if (stored >= total) {
-                _Log__WEBPACK_IMPORTED_MODULE_2__['log'].success(
-                  _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_导入成功')
-                )
-                _Toast__WEBPACK_IMPORTED_MODULE_8__['toast'].success(
-                  _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_导入成功')
-                )
-                window.clearInterval(t)
-              }
-            }, 500)
-            // 依次处理每个存储库
-            for (let index = 0; index < this.storeNameList.length; index++) {
-              // 提取出要存入这个存储库的数据
-              const data = []
-              for (const r of record) {
-                if (parseInt(r.id[0]) - 1 === index) {
-                  data.push(r)
-                }
-              }
-              // 批量添加数据
-              await this.IDB.batchAddData(this.storeNameList[index], data, 'id')
-              stored += data.length
+            this.importRecord(record)
+          }
+          // 从 txt 文件导入
+          // 每行一个文件 id（带序号），以换行分割
+          async importRecordFromTxt() {
+            const file = (
+              await _utils_Utils__WEBPACK_IMPORTED_MODULE_7__[
+                'Utils'
+              ].selectFile('.txt')
+            )[0]
+            const text = await file.text()
+            // 以换行分割
+            let split = '\r\n'
+            if (!text.includes(split)) {
+              split = '\n'
             }
-            _MsgBox__WEBPACK_IMPORTED_MODULE_9__['msgBox'].success(
-              `${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                '_导入下载记录'
-              )}<br>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                '_完成'
-              )}`
-            )
-            // 时间参考：导入 100000 条下载记录，花费的时间在 30 秒以内。但偶尔会有例外，中途像卡住了一样，很久没动，最后花了两分钟多的时间。
+            const arr = text.split(split)
+            // 把每一行视为一个 id，进行导入
+            const record = []
+            for (const str of arr) {
+              if (str) {
+                record.push({
+                  id: str,
+                  n: str,
+                })
+              }
+            }
+            this.importRecord(record)
           }
           // 创建一个文件，模拟导出的下载记录
           exportTestFile(number) {
