@@ -26,7 +26,6 @@ class QuickBookmark {
   private timer: number = 0
   private flag = 'xzFlag' // 当插入快速下载按钮时，给原本的收藏按钮添加一个标记
 
-
   // 初始化时，会获取作品数据，保存到这个成员
   private workData: ArtworkData | NovelData | undefined
 

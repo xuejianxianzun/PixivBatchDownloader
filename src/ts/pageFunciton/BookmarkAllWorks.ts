@@ -127,11 +127,7 @@ class BookmarkAllWorks {
       for (const data of this.bookmarKData) {
         this.tipWrap.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
 
-        await Bookmark.add(
-          data.id,
-          data.type,
-          data.tags
-        )
+        await Bookmark.add(data.id, data.type, data.tags)
         index++
       }
 

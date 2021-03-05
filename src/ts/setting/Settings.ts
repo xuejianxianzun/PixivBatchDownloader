@@ -457,14 +457,14 @@ class Settings {
     }
 
     // 更改设置
-    ; (this.settings[key] as any) = value
+    ;(this.settings[key] as any) = value
 
     // 把一些表单中的值转换为实际使用的值
     if (key === 'widthTag') {
-      this.settings.widthTagBoolean = (value === 'yes')
+      this.settings.widthTagBoolean = value === 'yes'
     }
     if (key === 'restrict') {
-      this.settings.restrictBoolean = (value === 'yes')
+      this.settings.restrictBoolean = value === 'yes'
     }
 
     // 触发设置变化的事件

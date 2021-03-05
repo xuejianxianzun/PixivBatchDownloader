@@ -719,11 +719,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     for (const r of store.result) {
       if (r.idNum === data.id) {
-        Bookmark.add(
-          data.id.toString(),
-          'illusts',
-          data.tags
-        )
+        Bookmark.add(data.id.toString(), 'illusts', data.tags)
 
         // 同步数据
         r.bookmarked = true
@@ -737,7 +733,6 @@ class InitSearchArtworkPage extends InitPageBase {
         break
       }
     }
-
   }
 
   // 去除热门作品上面的遮挡

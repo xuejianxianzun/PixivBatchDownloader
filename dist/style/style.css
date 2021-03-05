@@ -1464,13 +1464,13 @@ iframe[name='expandedFooter'] {
   top: 40px;
   position: absolute;
 }
-.viewer-backdrop .viewer-toolbar .viewer-download-btn {
+.viewer-backdrop .viewer-toolbar .viewer-add-btn {
   color: #fff;
   font-size: 12px;
   line-height: 24px;
   transition: all 1s;
 }
-.viewer-backdrop .viewer-toolbar .viewer-download-btn::marker {
+.viewer-backdrop .viewer-toolbar .viewer-add-btn::marker {
   content: none;
 }
 .rotate360 {

@@ -75,7 +75,6 @@ class ViewBigImage {
           workId: this.currentWorkId,
           imageNumber: 1,
           imageSize: settings.magnifierSize,
-          showDownloadBtn: true,
           autoStart: true,
           showLoading: true,
         })

@@ -53,8 +53,9 @@ class BookmarkAfterDL {
     if (this.savedIds.length === 0) {
       return (this.tipEl.textContent = '')
     }
-    this.tipEl.textContent = `${lang.transl('_已收藏')} ${this.successCount}/${this.savedIds.length
-      }`
+    this.tipEl.textContent = `${lang.transl('_已收藏')} ${this.successCount}/${
+      this.savedIds.length
+    }`
   }
 
   private reset() {
@@ -103,7 +104,7 @@ class BookmarkAfterDL {
       await Bookmark.add(
         id.toString(),
         data.type !== 3 ? 'illusts' : 'novels',
-        data.tags,
+        data.tags
       ).catch((err) => {
         // 如果添加收藏失败，则从 id 列表里删除它，重新开始添加收藏
         console.error(err)

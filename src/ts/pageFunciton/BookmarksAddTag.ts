@@ -29,7 +29,7 @@ class BookmarksAddTag {
   private bindEvents() {
     this.btn.addEventListener('click', () => {
       // 每次点击重置状态
-      this.addTagList = [] 
+      this.addTagList = []
       this.addIndex = 0
 
       this.btn.setAttribute('disabled', 'disabled')
@@ -106,12 +106,17 @@ class BookmarksAddTag {
   }
 
   // 给未分类作品添加 tag
-  private async addTag(
-  ): Promise<void> {
+  private async addTag(): Promise<void> {
     const item = this.addTagList[this.addIndex]
 
     // 这里不能使用 Bookmark.add 方法，因为这里始终需要添加 tags
-    await API.addBookmark(this.type, item.id, item.tags, item.restrict, token.token)
+    await API.addBookmark(
+      this.type,
+      item.id,
+      item.tags,
+      item.restrict,
+      token.token
+    )
     if (this.addIndex < this.addTagList.length - 1) {
       this.addIndex++
       this.btn!.textContent = `${this.addIndex} / ${this.addTagList.length}`

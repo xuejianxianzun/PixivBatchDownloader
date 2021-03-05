@@ -9,6 +9,7 @@ import { states } from './store/States'
 import { toast } from './Toast'
 import { Tools } from './Tools'
 import { ArtworkData } from './crawl/CrawlResult'
+import { Bookmark } from './Bookmark'
 
 // 所有参数
 interface Config {
@@ -37,9 +38,12 @@ interface Config {
   // 查看大图时，显示哪种尺寸的图片
   // 默认为 original
   imageSize: 'original' | 'regular' | 'small'
-  // 查看大图时，是否显示下载按钮
-  // 默认为 false
+  // 是否显示下载按钮
+  // 默认为 true
   showDownloadBtn: boolean
+  // 是否显示收藏按钮
+  // 默认为 true
+  showBookmarkBtn: boolean
   // 初始化之后，直接启动查看器，无需用户点击缩略图
   // 默认为 false
   // showImageList 为 false 时建议 autoStart 为 true
@@ -59,6 +63,7 @@ interface ConfigOptional {
   imageNumber?: number
   imageSize?: 'original' | 'regular' | 'small'
   showDownloadBtn?: boolean
+  showBookmarkBtn?: boolean
   autoStart?: boolean
   showLoading?: boolean
 }
@@ -93,14 +98,14 @@ class ImageViewer {
     insertPostion: 'beforeend',
     imageNumber: 2,
     imageSize: 'original',
-    showDownloadBtn: false,
+    showDownloadBtn: true,
+    showBookmarkBtn: true,
     autoStart: false,
     showLoading: false,
   }
 
   private readonly viewerWarpperFlag = 'viewerWarpperFlag'
-  private readonly downloadBtnClass = 'viewer-download-btn'
-  private readonly bookmarkBtnClass = 'viewer-bookmark-btn'
+  private readonly addBtnClass = 'viewer-add-btn'
 
   private init() {
     // 当创建新的查看器实例时，删除旧的查看器元素。其实不删除也没有问题，但是查看器每初始化一次都会创建全新的对象，所以旧的对象没必要保留。
@@ -133,6 +138,16 @@ class ImageViewer {
       }
     })
 
+    // 按 Alt + B 收藏当前作品
+    // 因为 Pixiv 会在按下 B 键时收藏当前作品，所以下载器不能使用 B 键。尝试阻止 Pixiv 的事件但是没有成功
+    document.addEventListener('keydown', (event) => {
+      if (event.altKey && event.code === 'KeyB') {
+        if (this.show) {
+          this.addBookmark()
+        }
+      }
+    })
+
     // 按 D 下载当前作品
     document.addEventListener('keydown', (event) => {
       if (event.code === 'KeyD') {
@@ -160,19 +175,19 @@ class ImageViewer {
       },
       true
     )
-      ;[
-        'fullscreenchange',
-        'webkitfullscreenchange',
-        'mozfullscreenchange',
-      ].forEach((arg) => {
-        // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
-        document.addEventListener(arg, () => {
-          // 退出全屏
-          if (this.myViewer && !this.isFullscreen()) {
-            this.showViewerOther()
-          }
-        })
+    ;[
+      'fullscreenchange',
+      'webkitfullscreenchange',
+      'mozfullscreenchange',
+    ].forEach((arg) => {
+      // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
+      document.addEventListener(arg, () => {
+        // 退出全屏
+        if (this.myViewer && !this.isFullscreen()) {
+          this.showViewerOther()
+        }
       })
+    })
   }
 
   // 创建缩略图列表
@@ -268,15 +283,21 @@ class ImageViewer {
         this.addDownloadBtn()
       }
 
+      if (this.cfg.showBookmarkBtn) {
+        this.addBookmarkBtn()
+      }
+
       // 显示相关元素
       this.showViewerOther()
 
       // 点击 1：1 按钮时，全屏查看
-      document
-        .querySelector('.viewer-one-to-one')!
-        .addEventListener('click', () => {
+      const oneToOne = document.querySelector('.viewer-one-to-one')
+      if (oneToOne) {
+        oneToOne.setAttribute('title', lang.transl('_全屏查看') + ' (F)')
+        oneToOne.addEventListener('click', () => {
           this.enterFullScreenMode()
         })
+      }
     })
 
     // 退出图片查看器时（可能尚未完全退出）
@@ -375,70 +396,82 @@ class ImageViewer {
 
     document.body.requestFullscreen()
 
-      // 这里延迟一段时间再把图片放大到 100%
-      // 这是因为进入全屏后，当前显示的这张图不会自动放大到 100%，所以需要对它执行一次放大。延迟时间不能太小
-      ;[150, 300].forEach((time) => {
-        window.setTimeout(() => {
-          this.myViewer.zoomTo(1)
-        }, time)
-      })
+    // 这里延迟一段时间再把图片放大到 100%
+    // 这是因为进入全屏后，当前显示的这张图不会自动放大到 100%，所以需要对它执行一次放大。延迟时间不能太小
+    ;[150, 300].forEach((time) => {
+      window.setTimeout(() => {
+        this.myViewer.zoomTo(1)
+      }, time)
+    })
+  }
+
+  /**在图片查看器的工具栏里添加按钮
+   *
+   * 元素必须具有 id 属性，用于区分
+   */
+  private addBtn(btn: HTMLElement) {
+    // 最后的查看器元素就是最新添加的查看器
+    const allContainer = document.querySelectorAll('.viewer-container')
+    const last = allContainer[allContainer.length - 1]
+
+    const test = last.querySelector('#' + btn.id)
+    if (test) {
+      return
+    }
+
+    const one2one = last.querySelector('.viewer-one-to-one')
+    if (one2one) {
+      return one2one.insertAdjacentElement('afterend', btn) as HTMLElement
+    } else {
+      console.error('Add btn failed')
+    }
   }
 
   // 在图片查看器里添加下载按钮
   private addDownloadBtn() {
-    // 最后的查看器元素就是最新添加的查看器
-    const allContainer = document.querySelectorAll('.viewer-container')
-    const last = allContainer[allContainer.length - 1]
+    const li = document.createElement('li')
+    li.setAttribute('role', 'button')
+    li.setAttribute('title', lang.transl('_下载') + ' (D)')
+    li.classList.add(this.addBtnClass)
+    li.textContent = '↓'
+    li.id = 'imageViewerDownloadBtn'
 
-    const test = last.querySelector('.' + this.downloadBtnClass)
-    if (test) {
-      return
-    }
+    this.addBtn(li)
 
-    const one2one = last.querySelector('.viewer-one-to-one')
-    if (one2one) {
-      const li = document.createElement('li')
-      li.setAttribute('role', 'button')
-      li.setAttribute('title', lang.transl('_下载') + ' (D)')
-      li.classList.add(this.downloadBtnClass)
-      li.textContent = '↓'
-      const btn = one2one.insertAdjacentElement('afterend', li)!
-
-      // 点击下载按钮
-      btn.addEventListener('click', () => {
-        this.download()
-      })
-    }
+    li.addEventListener('click', () => {
+      this.download()
+    })
   }
 
   // 在图片查看器里添加收藏按钮
   private addBookmarkBtn() {
-    // 最后的查看器元素就是最新添加的查看器
-    const allContainer = document.querySelectorAll('.viewer-container')
-    const last = allContainer[allContainer.length - 1]
+    const li = document.createElement('li')
+    li.setAttribute('role', 'button')
+    li.setAttribute('title', lang.transl('_收藏') + ' (Alt + B)')
+    li.classList.add(this.addBtnClass)
+    li.style.fontSize = '14px'
+    li.textContent = '❤'
+    li.id = 'imageViewerBookmarkBtn'
+    this.addBtn(li)
 
-    const test = last.querySelector('.' + this.bookmarkBtnClass)
-    if (test) {
-      return
-    }
+    li.addEventListener('click', async () => {
+      this.addBookmark()
+    })
+  }
 
-    const one2one = last.querySelector('.viewer-one-to-one')
-    if (one2one) {
-      const li = document.createElement('li')
-      li.setAttribute('role', 'button')
-      li.setAttribute('title', lang.transl('_收藏') + ' (B)')
-      li.classList.add(this.bookmarkBtnClass)
-      li.textContent = '❤'
-      const btn = one2one.insertAdjacentElement('afterend', li)!
+  private async addBookmark() {
+    // 显示提示
+    toast.show(lang.transl('_收藏'), {
+      bgColor: '#333',
+      position: 'mouse',
+    })
 
-      // 点击收藏按钮
-      btn.addEventListener('click', () => {
-        // this.download()
-        window.setTimeout(()=>{
-          toast.success(lang.transl('_已加入收藏'))
-        },500)
-      })
-    }
+    await Bookmark.add(
+      this.cfg.workId,
+      'illusts',
+      Tools.extractTags(this.workData!)
+    )
+    toast.success(lang.transl('_已收藏'))
   }
 
   // 下载当前查看的作品
@@ -482,10 +515,10 @@ class ImageViewer {
       '.viewer-one-to-one'
     ) as HTMLDivElement
     const navbar = document.querySelector('.viewer-navbar') as HTMLDivElement
-    const downloadBtn = document.querySelector(
-      '.' + this.downloadBtnClass
-    ) as HTMLLIElement
-    for (const element of [close, oneToOne, navbar, downloadBtn]) {
+    const addBtns = document.querySelectorAll(
+      '.' + this.addBtnClass
+    ) as NodeListOf<HTMLElement>
+    for (const element of [close, oneToOne, navbar, ...addBtns]) {
       if (element) {
         element.style.display = 'none'
       }
@@ -503,10 +536,10 @@ class ImageViewer {
       '.viewer-one-to-one'
     ) as HTMLDivElement
     const navbar = document.querySelector('.viewer-navbar') as HTMLDivElement
-    const downloadBtn = document.querySelector(
-      '.' + this.downloadBtnClass
-    ) as HTMLLIElement
-    for (const element of [close, oneToOne, navbar, downloadBtn]) {
+    const addBtns = document.querySelectorAll(
+      '.' + this.addBtnClass
+    ) as NodeListOf<HTMLElement>
+    for (const element of [close, oneToOne, navbar, ...addBtns]) {
       if (element) {
         element.style.display = 'block'
       }

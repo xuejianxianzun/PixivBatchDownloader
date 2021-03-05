@@ -13,10 +13,10 @@ class SaveArtworkData {
     const fullWidth = body.width // 原图宽度
     const fullHeight = body.height // 原图高度
     const bmk = body.bookmarkCount // 收藏数
-    
+
     const tags: string[] = Tools.extractTags(data) // tag 列表
-    let tagsWithTransl: string[] = Tools.extractTags(data,'both')  // 保存 tag 列表，附带翻译后的 tag
-    let tagsTranslOnly: string[] = Tools.extractTags(data,'transl')  // 保存翻译后的 tag 列表
+    let tagsWithTransl: string[] = Tools.extractTags(data, 'both') // 保存 tag 列表，附带翻译后的 tag
+    let tagsTranslOnly: string[] = Tools.extractTags(data, 'transl') // 保存翻译后的 tag 列表
 
     const filterOpt: FilterOption = {
       createDate: body.createDate,
