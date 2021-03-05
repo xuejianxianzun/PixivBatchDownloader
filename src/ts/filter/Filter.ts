@@ -72,24 +72,6 @@ class Filter {
   // 每个过滤器函数里都必须检查参数为 undefined 的情况
   // 每个过滤器函数必须返回一个 boolean 值，true 表示保留这个作品，false 表示排除这个作品
   public async check(option: FilterOption): Promise<boolean> {
-    // 检查屏蔽设定
-    if (!this.checkMuteUser(option.userId)) {
-      return false
-    }
-    if (!this.checkMuteTag(option.tags)) {
-      return false
-    }
-
-    // 检查用户阻止名单
-    if (!this.checkBlockList(option.userId)) {
-      return false
-    }
-
-    // 检查针对特定用户屏蔽的 tags
-    if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags)) {
-      return false
-    }
-
     // 检查下载的作品类型设置
     if (!this.checkDownType(option.workType)) {
       return false
@@ -139,6 +121,24 @@ class Filter {
       return false
     }
 
+    // 检查用户在 Pixiv 的屏蔽设定
+    if (!(await this.checkMuteUser(option.userId))) {
+      return false
+    }
+    if (!(await this.checkMuteTag(option.tags))) {
+      return false
+    }
+
+    // 检查用户阻止名单
+    if (!this.checkBlockList(option.userId)) {
+      return false
+    }
+
+    // 检查针对特定用户屏蔽的 tags
+    if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags)) {
+      return false
+    }
+
     // 检查投稿时间设置
     if (!this.checkPostDate(option.createDate)) {
       return false
@@ -156,8 +156,7 @@ class Filter {
 
     // 检查黑白图片
     // 这一步需要加载图片，需要较长的时间，较多的资源占用，所以放到最后检查
-    const blackAndWhiteResult = await this.checkBlackWhite(option.mini)
-    if (!blackAndWhiteResult) {
+    if (!(await this.checkBlackWhite(option.mini))) {
       return false
     }
 
@@ -283,11 +282,9 @@ class Filter {
       const andOr = settings.setWidthAndOr
         .replace('|', lang.transl('_或者'))
         .replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${
-        settings.setWidth
-      } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${
-        settings.setHeight
-      }`
+      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${settings.setWidth
+        } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${settings.setHeight
+        }`
       log.warning(text)
     }
   }
@@ -734,20 +731,28 @@ class Filter {
     )
   }
 
-  private checkMuteUser(userId: FilterOption['userId']) {
+  private async checkMuteUser(userId: FilterOption['userId']) {
     if (userId === undefined) {
       return true
     }
-    return !mute.checkUser(userId)
+    return !(await mute.checkUser(userId))
   }
 
-  private checkMuteTag(tags: FilterOption['tags']) {
+  private async checkMuteTag(tags: FilterOption['tags']) {
     if (tags === undefined) {
       return true
     }
 
-    // 如果某些 tag 存在于 mute 列表里，就排除这个作品，所以要取反
-    return !tags.some(mute.checkTag.bind(mute))
+    // 一旦检查到某个 tag 存在于 mute 列表里，就排除这个作品
+    for (const tag of tags) {
+      if (await mute.checkTag(tag)) {
+        return false
+      }
+    }
+
+    return true
+
+    // return !(tags.some((mute.checkTag.bind(mute))))
   }
 
   private checkBlockTagsForSpecificUser(

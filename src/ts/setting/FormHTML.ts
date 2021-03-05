@@ -126,6 +126,32 @@ export const formHtml = `<form class="settingForm">
       </span>
       </p>
 
+      <p class="option" data-no="8">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_设置宽高比例Title'
+      )}">${lang.transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="ratioSwitch">
+      <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="horizontal">
+      <span class="beautify_radio"></span>
+      <label for="ratio1"> ${lang.transl('_横图')}&nbsp; </label>
+
+      <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="vertical">
+      <span class="beautify_radio"></span>
+      <label for="ratio2"> ${lang.transl('_竖图')}&nbsp; </label>
+      
+      <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="square">
+      <span class="beautify_radio"></span>
+      <label for="ratio0"> ${lang.transl('_正方形')}&nbsp; </label>
+
+      <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
+      <span class="beautify_radio"></span>
+      <label for="ratio3"> ${lang.transl('_输入宽高比')}</label>
+      <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
+      </span>
+      </p>
+
       <p class="option" data-no="7">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_筛选宽高的按钮Title'
@@ -156,32 +182,6 @@ export const formHtml = `<form class="settingForm">
       <span class="beautify_radio"></span>
       <label for="setWidth_AndOr2">or&nbsp;</label>
       <input type="text" name="setHeight" class="setinput_style1 blue" value="0">
-      </span>
-      </p>
-
-      <p class="option" data-no="8">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_设置宽高比例Title'
-      )}">${lang.transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
-      <span class="beautify_switch"></span>
-      <span class="subOptionWrap" data-show="ratioSwitch">
-      <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="horizontal">
-      <span class="beautify_radio"></span>
-      <label for="ratio1"> ${lang.transl('_横图')}&nbsp; </label>
-
-      <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="vertical">
-      <span class="beautify_radio"></span>
-      <label for="ratio2"> ${lang.transl('_竖图')}&nbsp; </label>
-      
-      <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="square">
-      <span class="beautify_radio"></span>
-      <label for="ratio0"> ${lang.transl('_正方形')}&nbsp; </label>
-
-      <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
-      <span class="beautify_radio"></span>
-      <label for="ratio3"> ${lang.transl('_输入宽高比')}</label>
-      <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
       </span>
       </p>
 

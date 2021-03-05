@@ -4,18 +4,33 @@ import { API } from '../API'
 class Mute {
   private userList: string[] = []
   private tagList: string[] = []
+  private got = false // 是否获取过用户设置
 
-  public checkUser(id: number | string) {
+  /**检查传入的 user id 是否包含在用户屏蔽设置里 */
+  public async checkUser(id: number | string) {
+    // 检查时，要求至少进行过一次获取用户设置的操作
+    if(!this.got){
+      await this.getMuteSettings()
+    }
+    
     if (typeof id === 'number') {
       id = id.toString()
     }
     return this.userList.includes(id)
   }
 
-  public checkTag(tag: string) {
+  /**检查传入的 tag 是否包含在用户屏蔽设置里 */
+  public async checkTag(tag: string) {
+    if(!this.got){
+      await this.getMuteSettings()
+    }
+    
     return this.tagList.includes(tag)
   }
 
+  // 此模块不会在初始化时获取设置，这是为了避免增加一次无谓的网络请求
+  // 当执行此模块的 check 方法时，如果没有获取过设置，则此模块会主动获取一次设置
+  // 其他模块也可以在必要的时候（如开始抓取时）直接执行此方法，预先获取设置，为后面的流程做准备
   public async getMuteSettings() {
     this.userList = []
     this.tagList = []
@@ -30,6 +45,8 @@ class Mute {
         this.tagList.push(item.value)
       }
     }
+
+    this.got = true
   }
 }
 
