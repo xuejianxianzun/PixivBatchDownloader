@@ -1,5 +1,27 @@
+import { ArtworkData, NovelData } from './crawl/CrawlResult'
 import { Result } from './store/StoreType'
 import { Utils } from './utils/Utils'
+
+
+type artworkDataTagsItem = {
+  tag: string;
+  locked: boolean;
+  deletable: boolean;
+  userId: string;
+  romaji: string;
+  translation?: {
+    en: string;
+  } | undefined;
+  userName: string;
+}
+
+type novelDataTagsItem = {
+  tag: string;
+  locked: boolean;
+  deletable: boolean;
+  userId: string;
+  userName: string;
+}
 
 class Tools {
   // 把结果中的动图排列到最前面
@@ -175,7 +197,7 @@ class Tools {
     if (document.body) {
       document.body.insertAdjacentElement('afterbegin', el)
     } else {
-      ;(
+      ; (
         document.querySelector('.newindex-inner')! ||
         document.querySelector('.layout-body')!
       ).insertAdjacentElement('beforebegin', el)
@@ -241,6 +263,52 @@ class Tools {
     return document.title
       .replace(/\[(↑|→|▶|↓|║|■|✓| )\] /, '')
       .replace(/^\(\d.*\) /, '')
+  }
+
+  // 自定义的类型保护
+  static isArtworkTags(data: artworkDataTagsItem | novelDataTagsItem): data is artworkDataTagsItem {
+    return (<artworkDataTagsItem>data).translation !== undefined
+  }
+
+  /**从作品数据里提取出 tag 列表。
+   * 
+   * 可选参数 type:
+   * 
+   * 'origin' 默认值，获取原版 tag
+   * 
+   * 'transl' 获取翻译后的 tag。只有图片作品有翻译，小说作品的 tag 没有翻译。如果某个 tag 没有翻译，则会保存它的原版 tag
+   * 
+   * 'both' 同时获取原版 tag 和翻译后的 tag。此时可能会有重复的值，所以返回值做了去重处理。
+   */
+  static extractTags(data: ArtworkData | NovelData, type: 'origin' | 'transl' | 'both' = 'origin') {
+    const tags: string[] = []
+    const tagsTransl: string[] = []
+
+    const tagArr: artworkDataTagsItem[] | novelDataTagsItem[] = data.body.tags.tags
+
+    for (const tagData of tagArr) {
+      // 添加原版 tag
+      tags.push(tagData.tag)
+
+      // 添加翻译的 tag
+      if (this.isArtworkTags(tagData)) {
+        if (tagData.translation && tagData.translation.en) {
+          // 不管是什么语种的翻译结果，都保存在 en 属性里
+          tagsTransl.push(tagData.translation.en)
+        } else {
+          // 如果没有翻译，则把原 tag 保存到翻译里
+          tagsTransl.push(tagData.tag)
+        }
+      }
+    }
+
+    if (type === 'origin') {
+      return tags
+    } else if (type === 'transl') {
+      return Array.from(new Set(tagsTransl))
+    } else {
+      return Array.from(new Set(tags.concat(tagsTransl)))
+    }
   }
 }
 

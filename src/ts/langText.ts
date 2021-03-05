@@ -1619,6 +1619,18 @@ const langText = {
     'There are no eligible results',
     '対象となる結果はありません',
   ],
+  _收藏: [
+    '收藏',
+    '收藏',
+    'Bookmark',
+    'ブックマーク',
+  ],
+  _已加入收藏: [
+    '已加入收藏',
+    '已加入收藏',
+    'Bookmarked',
+    'ブックマーク',
+  ],
 }
 
 export { langText }

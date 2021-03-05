@@ -3,6 +3,7 @@ import { filter, FilterOption } from '../filter/Filter'
 import { settings } from '../setting/Settings'
 import { ArtworkData } from '../crawl/CrawlResult'
 import { store } from './Store'
+import { Tools } from '../Tools'
 
 // 保存单个图片作品的数据
 class SaveArtworkData {
@@ -12,29 +13,10 @@ class SaveArtworkData {
     const fullWidth = body.width // 原图宽度
     const fullHeight = body.height // 原图高度
     const bmk = body.bookmarkCount // 收藏数
-    const tagArr = body.tags.tags // 取出 tag 信息
-    const tags: string[] = [] // 保存 tag 列表
-    let tagsWithTransl: string[] = [] // 保存 tag 列表，附带翻译后的 tag
-    let tagsTranslOnly: string[] = [] // 保存翻译后的 tag 列表
-
-    for (const tagData of tagArr) {
-      tags.push(tagData.tag)
-      tagsWithTransl.push(tagData.tag)
-      if (tagData.translation && tagData.translation.en) {
-        // 有翻译
-        // 不管是什么语种的翻译结果，都保存在 en 属性里
-        tagsWithTransl.push(tagData.translation.en)
-        tagsTranslOnly.push(tagData.translation.en)
-      } else {
-        // 无翻译
-        // 把原 tag 保存到 tagsTranslOnly 里
-        tagsTranslOnly.push(tagData.tag)
-      }
-    }
-
-    // 去除 tag 里重复的内容
-    tagsWithTransl = Array.from(new Set(tagsWithTransl))
-    tagsTranslOnly = Array.from(new Set(tagsTranslOnly))
+    
+    const tags: string[] = Tools.extractTags(data) // tag 列表
+    let tagsWithTransl: string[] = Tools.extractTags(data,'both')  // 保存 tag 列表，附带翻译后的 tag
+    let tagsTranslOnly: string[] = Tools.extractTags(data,'transl')  // 保存翻译后的 tag 列表
 
     const filterOpt: FilterOption = {
       createDate: body.createDate,

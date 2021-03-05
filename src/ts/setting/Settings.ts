@@ -82,8 +82,17 @@ interface XzSetting {
   dateFormat: string
   userSetLang: 'zh-cn' | 'zh-tw' | 'ja' | 'en' | 'auto'
   bmkAfterDL: boolean
+
+  // 选项在表单中的值
   widthTag: 'yes' | 'no'
+  // 根据表单中的值转换为实际使用的值
+  widthTagBoolean: boolean
+
+  // 选项在表单中的值
   restrict: 'yes' | 'no'
+  // 根据表单中的值转换为实际使用的值
+  restrictBoolean: boolean
+
   userBlockList: boolean
   blockList: string[]
   needTagMode: 'all' | 'one'
@@ -214,6 +223,8 @@ class Settings {
     bmkAfterDL: false,
     widthTag: 'yes',
     restrict: 'no',
+    widthTagBoolean: true,
+    restrictBoolean: false,
     userBlockList: false,
     blockList: [],
     theme: 'auto',
@@ -446,7 +457,15 @@ class Settings {
     }
 
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
+
+    // 把一些表单中的值转换为实际使用的值
+    if (key === 'widthTag') {
+      this.settings.widthTagBoolean = (value === 'yes')
+    }
+    if (key === 'restrict') {
+      this.settings.restrictBoolean = (value === 'yes')
+    }
 
     // 触发设置变化的事件
     EVT.fire(EVT.list.settingChange, { name: key, value: value })

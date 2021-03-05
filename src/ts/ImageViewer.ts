@@ -8,6 +8,7 @@ import { loading } from './Loading'
 import { states } from './store/States'
 import { toast } from './Toast'
 import { Tools } from './Tools'
+import { ArtworkData } from './crawl/CrawlResult'
 
 // 所有参数
 interface Config {
@@ -76,8 +77,12 @@ class ImageViewer {
 
   private show = false // 当前查看器实例是否处于显示状态
 
+  // 图片查看器显示时，保存页面滚动位置
   private scrollX = 0
   private scrollY = 0
+
+  // 图片查看器初始化时，会获取作品数据，保存到这个成员
+  private workData: ArtworkData | undefined
 
   // 默认配置
   private cfg: Config = {
@@ -95,6 +100,7 @@ class ImageViewer {
 
   private readonly viewerWarpperFlag = 'viewerWarpperFlag'
   private readonly downloadBtnClass = 'viewer-download-btn'
+  private readonly bookmarkBtnClass = 'viewer-bookmark-btn'
 
   private init() {
     // 当创建新的查看器实例时，删除旧的查看器元素。其实不删除也没有问题，但是查看器每初始化一次都会创建全新的对象，所以旧的对象没必要保留。
@@ -154,19 +160,19 @@ class ImageViewer {
       },
       true
     )
-    ;[
-      'fullscreenchange',
-      'webkitfullscreenchange',
-      'mozfullscreenchange',
-    ].forEach((arg) => {
-      // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
-      document.addEventListener(arg, () => {
-        // 退出全屏
-        if (this.myViewer && !this.isFullscreen()) {
-          this.showViewerOther()
-        }
+      ;[
+        'fullscreenchange',
+        'webkitfullscreenchange',
+        'mozfullscreenchange',
+      ].forEach((arg) => {
+        // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
+        document.addEventListener(arg, () => {
+          // 退出全屏
+          if (this.myViewer && !this.isFullscreen()) {
+            this.showViewerOther()
+          }
+        })
       })
-    })
   }
 
   // 创建缩略图列表
@@ -200,8 +206,8 @@ class ImageViewer {
     }
 
     // 获取作品数据，生成缩略图列表
-    const data = await API.getArtworkData(this.cfg.workId)
-    const body = data.body
+    this.workData = await API.getArtworkData(this.cfg.workId)
+    const body = this.workData.body
     // 处理插画、漫画、动图作品，不处理其他类型的作品
     if (
       body.illustType === 0 ||
@@ -369,13 +375,13 @@ class ImageViewer {
 
     document.body.requestFullscreen()
 
-    // 这里延迟一段时间再把图片放大到 100%
-    // 这是因为进入全屏后，当前显示的这张图不会自动放大到 100%，所以需要对它执行一次放大。延迟时间不能太小
-    ;[150, 300].forEach((time) => {
-      window.setTimeout(() => {
-        this.myViewer.zoomTo(1)
-      }, time)
-    })
+      // 这里延迟一段时间再把图片放大到 100%
+      // 这是因为进入全屏后，当前显示的这张图不会自动放大到 100%，所以需要对它执行一次放大。延迟时间不能太小
+      ;[150, 300].forEach((time) => {
+        window.setTimeout(() => {
+          this.myViewer.zoomTo(1)
+        }, time)
+      })
   }
 
   // 在图片查看器里添加下载按钮
@@ -401,6 +407,36 @@ class ImageViewer {
       // 点击下载按钮
       btn.addEventListener('click', () => {
         this.download()
+      })
+    }
+  }
+
+  // 在图片查看器里添加收藏按钮
+  private addBookmarkBtn() {
+    // 最后的查看器元素就是最新添加的查看器
+    const allContainer = document.querySelectorAll('.viewer-container')
+    const last = allContainer[allContainer.length - 1]
+
+    const test = last.querySelector('.' + this.bookmarkBtnClass)
+    if (test) {
+      return
+    }
+
+    const one2one = last.querySelector('.viewer-one-to-one')
+    if (one2one) {
+      const li = document.createElement('li')
+      li.setAttribute('role', 'button')
+      li.setAttribute('title', lang.transl('_收藏') + ' (B)')
+      li.classList.add(this.bookmarkBtnClass)
+      li.textContent = '❤'
+      const btn = one2one.insertAdjacentElement('afterend', li)!
+
+      // 点击收藏按钮
+      btn.addEventListener('click', () => {
+        // this.download()
+        window.setTimeout(()=>{
+          toast.success(lang.transl('_已加入收藏'))
+        },500)
       })
     }
   }

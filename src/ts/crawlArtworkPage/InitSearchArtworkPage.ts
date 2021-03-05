@@ -2,7 +2,6 @@
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
-import { token } from '../Token'
 import { options } from '../setting/Options'
 import { DeleteWorks } from '../pageFunciton/DeleteWorks'
 import { EVT } from '../EVT'
@@ -21,6 +20,7 @@ import { Utils } from '../utils/Utils'
 import { idListWithPageNo } from '../store/IdListWithPageNo'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
+import { Bookmark } from '../Bookmark'
 
 type AddBMKData = {
   id: number
@@ -717,18 +717,27 @@ class InitSearchArtworkPage extends InitPageBase {
   private addBookmark = (event: CustomEventInit) => {
     const data = event.detail.data as AddBMKData
 
-    API.addBookmark(
-      'illusts',
-      data.id.toString(),
-      settings.widthTag === 'yes' ? data.tags : [],
-      settings.restrict === 'yes',
-      token.token
-    )
-    this.resultMeta.forEach((result) => {
-      if (result.idNum === data.id) {
-        result.bookmarked = true
+    for (const r of store.result) {
+      if (r.idNum === data.id) {
+        Bookmark.add(
+          data.id.toString(),
+          'illusts',
+          data.tags
+        )
+
+        // 同步数据
+        r.bookmarked = true
+
+        this.resultMeta.forEach((result) => {
+          if (result.idNum === data.id) {
+            result.bookmarked = true
+          }
+        })
+
+        break
       }
-    })
+    }
+
   }
 
   // 去除热门作品上面的遮挡

@@ -1,10 +1,10 @@
 import { API } from '../API'
-import { token } from '../Token'
 import { lang } from '../Lang'
-import { settings } from '../setting/Settings'
 import { BookmarkResult } from '../crawl/CrawlResult'
 import { EVT } from '../EVT'
 import { toast } from '../Toast'
+import { Bookmark } from '../Bookmark'
+import { Tools } from '../Tools'
 
 // 一键收藏所有作品
 // 可以传入页面上的作品元素列表，也可以直接传入 id 列表
@@ -108,17 +108,10 @@ class BookmarkAllWorks {
           data = await API.getArtworkData(id.id)
         }
 
-        const tagArr = data.body.tags.tags // 取出 tag 信息
-        const tags: string[] = [] // 保存 tag 列表
-
-        for (const tagData of tagArr) {
-          tags.push(tagData.tag)
-        }
-
         this.bookmarKData.push({
           type: id.type,
           id: data.body.id,
-          tags: tags,
+          tags: Tools.extractTags(data),
           restrict: false,
         })
       }
@@ -133,12 +126,11 @@ class BookmarkAllWorks {
       let index = 0
       for (const data of this.bookmarKData) {
         this.tipWrap.textContent = `Add bookmark ${index} / ${this.bookmarKData.length}`
-        await API.addBookmark(
-          data.type,
+
+        await Bookmark.add(
           data.id,
-          settings.widthTag === 'yes' ? data.tags : [],
-          settings.restrict === 'yes',
-          token.token
+          data.type,
+          data.tags
         )
         index++
       }

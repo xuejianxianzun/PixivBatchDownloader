@@ -2,6 +2,7 @@ import { filter, FilterOption } from '../filter/Filter'
 import { NovelData } from '../crawl/CrawlResult'
 import { store } from './Store'
 import { settings } from '../setting/Settings'
+import { Tools } from '../Tools'
 
 // 保存单个小说作品的数据
 class SaveNovelData {
@@ -12,13 +13,10 @@ class SaveNovelData {
     // 获取需要检查的信息
     const body = data.body
     const bmk = body.bookmarkCount // 收藏数
-    const tagArr = body.tags.tags // 取出 tag 信息
-    const tags: string[] = [] // 保存 tag 列表
+
+    const tags: string[] = Tools.extractTags(data) // tag 列表
     // 小说的标签没有进行翻译，所以没有翻译后的标签
 
-    for (const tagData of tagArr) {
-      tags.push(tagData.tag)
-    }
     const filterOpt: FilterOption = {
       createDate: body.createDate,
       id: body.id,

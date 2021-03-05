@@ -1,11 +1,10 @@
-import { API } from '../API'
-import { token } from '../Token'
 import { store } from '../store/Store'
 import { settings } from '../setting/Settings'
 import { Result } from '../store/StoreType'
 import { lang } from '../Lang'
 import { EVT } from '../EVT'
 import { DonwloadSuccessData, DonwloadSkipData } from './DownloadType'
+import { Bookmark } from '../Bookmark'
 
 // 当文件下载成功后，收藏这个作品
 class BookmarkAfterDL {
@@ -54,9 +53,8 @@ class BookmarkAfterDL {
     if (this.savedIds.length === 0) {
       return (this.tipEl.textContent = '')
     }
-    this.tipEl.textContent = `${lang.transl('_已收藏')} ${this.successCount}/${
-      this.savedIds.length
-    }`
+    this.tipEl.textContent = `${lang.transl('_已收藏')} ${this.successCount}/${this.savedIds.length
+      }`
   }
 
   private reset() {
@@ -102,12 +100,10 @@ class BookmarkAfterDL {
         return reject(new Error(`Not find ${id} in result`))
       }
 
-      await API.addBookmark(
-        data.type !== 3 ? 'illusts' : 'novels',
+      await Bookmark.add(
         id.toString(),
-        settings.widthTag === 'yes' ? data.tags : [],
-        settings.restrict === 'yes',
-        token.token
+        data.type !== 3 ? 'illusts' : 'novels',
+        data.tags,
       ).catch((err) => {
         // 如果添加收藏失败，则从 id 列表里删除它，重新开始添加收藏
         console.error(err)

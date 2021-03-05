@@ -20,13 +20,18 @@ class BookmarksAddTag {
 
   private addTagList: BookmarkResult[] = [] // 需要添加 tag 的作品的数据
 
+  private addIndex = 0 // 添加 tag 时的计数
+
   private btn: HTMLButtonElement
 
   private readonly once = 100 // 一次请求多少个作品的数据
 
   private bindEvents() {
     this.btn.addEventListener('click', () => {
-      this.addTagList = [] // 每次点击清空结果
+      // 每次点击重置状态
+      this.addTagList = [] 
+      this.addIndex = 0
+
       this.btn.setAttribute('disabled', 'disabled')
       this.btn.textContent = `Checking`
 
@@ -92,7 +97,7 @@ class BookmarksAddTag {
         return
       } else {
         // 开始添加 tag
-        this.addTag(0, this.addTagList, token.token)
+        this.addTag()
       }
     } else {
       // 需要继续获取
@@ -102,22 +107,20 @@ class BookmarksAddTag {
 
   // 给未分类作品添加 tag
   private async addTag(
-    index: number,
-    addList: BookmarkResult[],
-    tt: string
   ): Promise<void> {
-    const item = addList[index]
+    const item = this.addTagList[this.addIndex]
 
-    await API.addBookmark(this.type, item.id, item.tags, item.restrict, tt)
-    if (index < addList.length - 1) {
-      index++
-      this.btn!.textContent = `${index} / ${addList.length}`
+    // 这里不能使用 Bookmark.add 方法，因为这里始终需要添加 tags
+    await API.addBookmark(this.type, item.id, item.tags, item.restrict, token.token)
+    if (this.addIndex < this.addTagList.length - 1) {
+      this.addIndex++
+      this.btn!.textContent = `${this.addIndex} / ${this.addTagList.length}`
       // 继续添加下一个
-      return this.addTag(index, addList, tt)
+      return this.addTag()
     } else {
+      // 添加完成
       this.btn!.textContent = `✓ Complete`
       this.btn!.removeAttribute('disabled')
-
       toast.success('✓ Complete')
     }
   }

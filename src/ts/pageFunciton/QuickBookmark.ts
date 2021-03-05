@@ -3,8 +3,9 @@ import { API } from '../API'
 import { Tools } from '../Tools'
 import { lang } from '../Lang'
 import { token } from '../Token'
-import { settings } from '../setting/Settings'
 import { Utils } from '../utils/Utils'
+import { Bookmark } from '../Bookmark'
+import { ArtworkData, NovelData } from '../crawl/CrawlResult'
 
 type WorkType = 'illusts' | 'novels'
 
@@ -24,6 +25,10 @@ class QuickBookmark {
   private isBookmarked: boolean | undefined
   private timer: number = 0
   private flag = 'xzFlag' // 当插入快速下载按钮时，给原本的收藏按钮添加一个标记
+
+
+  // 初始化时，会获取作品数据，保存到这个成员
+  private workData: ArtworkData | NovelData | undefined
 
   private async init() {
     // 没有 token 就不能进行收藏
@@ -81,7 +86,8 @@ class QuickBookmark {
       }
 
       // 判断这个作品是否收藏过了
-      this.isBookmarked = !!(await this.getWorkData()).body.bookmarkData
+      this.workData = await this.getWorkData()
+      this.isBookmarked = !!this.workData.body.bookmarkData
 
       // 监听心形收藏按钮从未收藏到收藏的变化
       // 没有收藏时，心形按钮的第一个子元素是 button。收藏之后，button 被移除，然后添加一个 a 标签
@@ -143,29 +149,15 @@ class QuickBookmark {
       return
     }
 
-    // 如果设置了附带 tag，则获取 tag
-    let tags: string[] = []
-    if (settings.widthTag === 'yes') {
-      const data = await this.getWorkData()
-      for (const tagData of data.body.tags.tags) {
-        tags.push(tagData.tag)
-      }
-    }
+    await Bookmark.add(id, type, Tools.extractTags(this.workData!))
 
-    // 添加收藏
-    API.addBookmark(type, id, tags, settings.restrict === 'yes', token.token)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error === false) {
-          // 收藏成功之后
-          this.isBookmarked = true
-          this.bookmarked()
-          // 让心形收藏按钮也变成收藏后的状态
-          if (!this.isNovel) {
-            this.changePixivBMKDiv()
-          }
-        }
-      })
+    // 收藏成功之后
+    this.isBookmarked = true
+    this.bookmarked()
+    // 让心形收藏按钮也变成收藏后的状态
+    if (!this.isNovel) {
+      this.changePixivBMKDiv()
+    }
   }
 
   // 点赞这个作品
