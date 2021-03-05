@@ -5,7 +5,7 @@ class Utils {
   )
 
   // 一些需要替换成全角字符的符号，左边是正则表达式的字符
-  static fullWidthDict: string[][] = [
+  static readonly fullWidthDict: string[][] = [
     ['\\\\', '＼'],
     ['/', '／'],
     [':', '：'],
@@ -18,16 +18,58 @@ class Utils {
     ['~', '～'],
   ]
 
-  // 用正则过滤不安全的字符，（Chrome 和 Windows 不允许做文件名的字符）
-  // 把一些特殊字符替换成全角字符
   static replaceUnsafeStr(str: string) {
+    // 用正则去掉不安全的字符
     str = str.replace(this.unsafeStr, '')
+    // 把一些特殊字符替换成全角字符
     for (let index = 0; index < this.fullWidthDict.length; index++) {
       const rule = this.fullWidthDict[index]
       const reg = new RegExp(rule[0], 'g')
       str = str.replace(reg, rule[1])
     }
     return str
+  }
+
+  /** Windows 保留文件名，不可单独作为文件名，不区分大小写 */
+  // 为了效率，这里把大写和小写都直接列出，避免在使用时进行转换
+  static readonly windowsReservedNames = [
+    'CON',
+    'PRN',
+    'AUX',
+    'NUL',
+    'COM1',
+    'LPT1',
+    'LPT2',
+    'LPT3',
+    'COM2',
+    'COM3',
+    'COM4',
+    'con',
+    'prn',
+    'aux',
+    'nul',
+    'com1',
+    'lpt1',
+    'lpt2',
+    'lpt3',
+    'com2',
+    'com3',
+    'com4',
+  ]
+
+  /** 检查并处理 Windows 保留文件名。
+   * 如果不传递可选参数，则将其替换为空字符串。
+   * 如果传递了可选参数，则在其后添加传递的可选参数的值 */
+  static handleWindowsReservedName(str: string, addStr?: string) {
+    if (this.windowsReservedNames.includes(str)) {
+      if (addStr) {
+        return str + addStr
+      } else {
+        return ''
+      }
+    } else {
+      return str
+    }
   }
 
   // 对象深拷贝

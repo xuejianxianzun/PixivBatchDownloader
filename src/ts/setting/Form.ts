@@ -102,44 +102,47 @@ class Form {
       false
     )
 
-    // 导出 csv
-    Tools.addBtn(
-      'exportResult',
-      Colors.bgGreen,
-      lang.transl('_导出csv')
-    ).addEventListener(
-      'click',
-      () => {
-        EVT.fire(EVT.list.outputCSV)
-      },
-      false
-    )
+    // 添加只在 pixiv 上使用的按钮
+    if (Utils.isPixiv()) {
+      // 导出 csv
+      Tools.addBtn(
+        'exportResult',
+        Colors.bgGreen,
+        lang.transl('_导出csv')
+      ).addEventListener(
+        'click',
+        () => {
+          EVT.fire(EVT.list.outputCSV)
+        },
+        false
+      )
 
-    // 导出抓取结果
-    Tools.addBtn(
-      'exportResult',
-      Colors.bgGreen,
-      lang.transl('_导出抓取结果')
-    ).addEventListener(
-      'click',
-      () => {
-        EVT.fire(EVT.list.exportResult)
-      },
-      false
-    )
+      // 导出抓取结果
+      Tools.addBtn(
+        'exportResult',
+        Colors.bgGreen,
+        lang.transl('_导出抓取结果')
+      ).addEventListener(
+        'click',
+        () => {
+          EVT.fire(EVT.list.exportResult)
+        },
+        false
+      )
 
-    // 导入抓取结果
-    Tools.addBtn(
-      'exportResult',
-      Colors.bgGreen,
-      lang.transl('_导入抓取结果')
-    ).addEventListener(
-      'click',
-      () => {
-        EVT.fire(EVT.list.importResult)
-      },
-      false
-    )
+      // 导入抓取结果
+      Tools.addBtn(
+        'exportResult',
+        Colors.bgGreen,
+        lang.transl('_导入抓取结果')
+      ).addEventListener(
+        'click',
+        () => {
+          EVT.fire(EVT.list.importResult)
+        },
+        false
+      )
+    }
 
     // 选择背景图片
     {

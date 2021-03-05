@@ -9,6 +9,8 @@ import { Utils } from './utils/Utils'
 class FileName {
   constructor() {}
 
+  private readonly addStr = '[downloader_add]'
+
   private handleRank(rank: number | null): string {
     // 处理空值
     if (rank === null) {
@@ -34,6 +36,7 @@ class FileName {
     // 为空时使用 {id}
     let result = settings.userSetName || '{id}'
 
+    // 1 预处理
     // 配置所有命名标记
     const cfg = {
       '{p_title}': {
@@ -154,15 +157,15 @@ class FileName {
       },
     }
 
-    // 替换命名规则里的特殊字符
+    // 判断这个作品是否要去掉序号
+    const noSerialNo = settings.noSerialNo && cfg['{p_num}'].value === 0
+
+    // 2 替换命名规则里的特殊字符
     result = Utils.replaceUnsafeStr(result)
     // 上一步会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
     result = result.replace(/／/g, '/')
 
-    // 判断这个作品是否要去掉序号
-    const noSerialNo = cfg['{p_num}'].value === 0 && settings.noSerialNo
-
-    // 把命名规则的标记替换成实际值
+    // 3 把命名规则的标记替换成实际值
     for (const [key, val] of Object.entries(cfg)) {
       if (result.includes(key)) {
         // 处理去掉序号的情况
@@ -179,7 +182,7 @@ class FileName {
         // 如果这个值不是字符串则转换为字符串
         let once = typeof value !== 'string' ? value.toString() : value
 
-        // 替换标记值中的特殊字符
+        // 替换值里不可以作为文件名的特殊字符
         if (!val.safe) {
           once = Utils.replaceUnsafeStr(once)
         }
@@ -189,21 +192,33 @@ class FileName {
           once = val.prefix + once
         }
 
-        result = result.replace(new RegExp(key, 'g'), once) // 将标记替换成最终值，如果有重复的标记，全部替换
+        // 将标记替换成对应的结果，如果有重复的标记，全部替换
+        result = result.replace(new RegExp(key, 'g'), once)
       }
     }
+
+    // 4 处理文件名中的边界情况
 
     // 处理空值，连续的 '//'。 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
     result = result.replace(/undefined/g, '').replace(/\/{2,9}/, '/')
 
     // 对每一层路径进行处理
-    let tempArr = result.split('/')
-    tempArr.forEach((str, index, arr) => {
-      // 替换路径首尾的空格
-      // 把每层路径头尾的 . 变成全角的．因为 Chrome 不允许头尾使用 .
-      arr[index] = str.trim().replace(/^\./g, '．').replace(/\.$/g, '．')
-    })
-    result = tempArr.join('/')
+    const pathArray = result.split('/')
+
+    for (let index = 0; index < pathArray.length; index++) {
+      let str = pathArray[index]
+
+      // 去掉每层路径首尾的空格
+      // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
+      str = str.trim().replace(/^\./g, '．').replace(/\.$/g, '．')
+
+      // 处理每层路径是 Windows 保留文件名的情况（不需要处理后缀名）
+      str = Utils.handleWindowsReservedName(str, this.addStr)
+
+      pathArray[index] = str
+    }
+
+    result = pathArray.join('/')
 
     // 去掉头尾的 /
     if (result.startsWith('/')) {
@@ -213,7 +228,7 @@ class FileName {
       result = result.substr(0, result.length - 1)
     }
 
-    // 以下根据设置来修改文件夹的操作，其顺序会影响最后生成的文件夹结构，所以不可随意更改顺序
+    // 5 以下根据设置来修改文件夹的操作，其顺序会影响最后生成的文件夹结构，所以不可随意更改顺序
 
     // 根据作品类型自动创建对应的文件夹
     if (settings.createFolderByType) {
@@ -283,7 +298,7 @@ class FileName {
       result = this.appendFolder(result, folder)
     }
 
-    // 生成后缀名
+    // 6 生成后缀名
     // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
     const ugoiraExt = ['zip', 'webm', 'gif', 'png']
     if (ugoiraExt.includes(data.ext) && data.ugoiraInfo) {
@@ -295,7 +310,7 @@ class FileName {
     }
     const extResult = '.' + data.ext
 
-    // 处理文件名长度限制
+    // 7 处理文件名长度限制
     // 去掉文件夹部分，只处理 文件名+后缀名 部分
     // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
     if (settings.fileNameLengthLimitSwitch) {
@@ -317,7 +332,7 @@ class FileName {
       result = allPart.join('/')
     }
 
-    // 添加后缀名
+    // 8 添加后缀名
     result += extResult
 
     return result

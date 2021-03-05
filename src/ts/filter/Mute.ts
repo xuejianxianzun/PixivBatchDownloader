@@ -9,10 +9,10 @@ class Mute {
   /**检查传入的 user id 是否包含在用户屏蔽设置里 */
   public async checkUser(id: number | string) {
     // 检查时，要求至少进行过一次获取用户设置的操作
-    if(!this.got){
+    if (!this.got) {
       await this.getMuteSettings()
     }
-    
+
     if (typeof id === 'number') {
       id = id.toString()
     }
@@ -21,10 +21,10 @@ class Mute {
 
   /**检查传入的 tag 是否包含在用户屏蔽设置里 */
   public async checkTag(tag: string) {
-    if(!this.got){
+    if (!this.got) {
       await this.getMuteSettings()
     }
-    
+
     return this.tagList.includes(tag)
   }
 
