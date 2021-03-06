@@ -116,7 +116,7 @@ class FileName {
         safe: true,
       },
       '{px}': {
-        value: data.fullWidth ? (data.fullWidth + 'x' + data.fullHeight) : '',
+        value: data.fullWidth ? data.fullWidth + 'x' + data.fullHeight : '',
         prefix: '',
         safe: true,
       },
@@ -193,7 +193,8 @@ class FileName {
         }
 
         // 如果作品数据里没有这个值，则替换为空字符串
-        const value = (val.value === undefined || val.value === null) ? '' : val.value
+        const value =
+          val.value === undefined || val.value === null ? '' : val.value
 
         // 如果这个值不是字符串则转换为字符串
         let once = typeof value !== 'string' ? value.toString() : value

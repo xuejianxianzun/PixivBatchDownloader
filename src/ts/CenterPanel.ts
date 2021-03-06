@@ -6,13 +6,21 @@ import { Config } from './config/Config'
 import { msgBox } from './MsgBox'
 import { BG } from './setting/BG'
 import './OpenCenterPanel'
+import { settings } from './setting/Settings'
+
+// 选项卡的名称和索引
+enum Tabbar {
+  Crawl,
+  Download,
+  Other,
+}
 
 // 中间面板
 class CenterPanel {
   constructor() {
     this.addCenterPanel()
 
-    this.activeTab(0)
+    this.activeTab(Tabbar.Crawl)
 
     theme.register(this.centerPanel)
 
@@ -188,9 +196,14 @@ class CenterPanel {
     })
 
     // 在选项卡的标题上触发事件时，激活对应的选项卡
+    const eventList = ['click', 'mouseenter']
     for (let index = 0; index < this.allTabTitle.length; index++) {
-      ;['click', 'mouseenter'].forEach((name) => {
-        this.allTabTitle[index].addEventListener(name, () => {
+      eventList.forEach((eventName) => {
+        this.allTabTitle[index].addEventListener(eventName, () => {
+          // 触发鼠标经过事件时，根据设置决定是否可以切换选项卡
+          if (eventName === 'mouseenter' && !settings.mouseEnterSwitchTabbar) {
+            return
+          }
           this.activeTab(index)
         })
       })
@@ -203,12 +216,12 @@ class CenterPanel {
       EVT.list.resume,
     ]) {
       window.addEventListener(ev, () => {
-        this.activeTab(1)
+        this.activeTab(Tabbar.Download)
       })
     }
 
     window.addEventListener(EVT.list.crawlEmpty, () => {
-      this.activeTab(0)
+      this.activeTab(Tabbar.Crawl)
     })
   }
 

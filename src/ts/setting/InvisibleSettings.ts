@@ -31,6 +31,10 @@ class InvisibleSettings {
       name: 'downloadUgoiraFirst',
       code: 'qw111',
     },
+    {
+      name: 'mouseEnterSwitchTabbar',
+      code: 'mouseenter',
+    },
   ]
 
   private register() {
