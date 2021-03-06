@@ -1,4 +1,4 @@
-import { settings } from './setting/Settings'
+import { setSetting, settings } from './setting/Settings'
 import { store } from './store/Store'
 import { Result } from './store/StoreType'
 import { Config } from './config/Config'
@@ -7,10 +7,9 @@ import { Utils } from './utils/Utils'
 
 // 生成文件名
 class FileName {
-  constructor() {}
-
   private readonly addStr = '[downloader_add]'
 
+  // 为 {rank} 标记生成结果字符串
   private handleRank(rank: number | null): string {
     // 处理空值
     if (rank === null) {
@@ -27,17 +26,44 @@ class FileName {
   // 在文件名前面添加一层文件夹
   private appendFolder(fullPath: string, folderName: string): string {
     const allPart = fullPath.split('/')
-    allPart.splice(allPart.length - 1, 0, folderName)
+    allPart.splice(allPart.length - 1, 0, Utils.replaceUnsafeStr(folderName))
     return allPart.join('/')
   }
 
-  // 生成文件名
   public getFileName(data: Result) {
-    // 为空时使用 {id}
+    // 1 使命名规则合法化
+
+    // 测试用例
+    // /|/{user}////<//{rank}/{px}/{sl}/{p_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
+    // ｜/{user}/＜/{rank}/{px}/{sl}/{p_tag}/{id}-{user}-{user_id}＂＂-？{tags_transl_only}
+
+    // 命名规则为空时使用 {id}
     let result = settings.userSetName || '{id}'
 
-    // 1 预处理
-    // 配置所有命名标记
+    // 处理连续的 /
+    result = result.replace(/\/{2,100}/g, '/')
+
+    // 如果命名规则头部或者尾部是 / 则去掉
+    if (result.startsWith('/')) {
+      result = result.replace('/', '')
+    }
+    if (result.endsWith('/')) {
+      result = result.substr(0, result.length - 1)
+    }
+
+    // 替换命名规则里可能存在的非法字符
+    result = Utils.replaceUnsafeStr(result)
+    // replaceUnsafeStr 会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
+    // 这一步会对斜线进行特殊处理，所以不可以移动到后面
+    result = result.replace(/／/g, '/')
+
+    // 如果经过处理后的命名规则和用户设置的命名规则不一致，说明用户设置的命名规则存在问题。
+    // 此时使用处理后的命名规则替换用户设置的命名规则
+    if (result !== settings.userSetName) {
+      setSetting('userSetName', result)
+    }
+
+    // 2 配置所有命名标记
     const cfg = {
       '{p_title}': {
         value: store.title,
@@ -90,13 +116,7 @@ class FileName {
         safe: true,
       },
       '{px}': {
-        value: (function () {
-          if (result.includes('{px}') && data.fullWidth !== undefined) {
-            return data.fullWidth + 'x' + data.fullHeight
-          } else {
-            return ''
-          }
-        })(),
+        value: data.fullWidth ? (data.fullWidth + 'x' + data.fullHeight) : '',
         prefix: '',
         safe: true,
       },
@@ -157,15 +177,11 @@ class FileName {
       },
     }
 
+    // 3 把命名规则里的标记替换成实际值
+
     // 判断这个作品是否要去掉序号
     const noSerialNo = settings.noSerialNo && cfg['{p_num}'].value === 0
 
-    // 2 替换命名规则里的特殊字符
-    result = Utils.replaceUnsafeStr(result)
-    // 上一步会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
-    result = result.replace(/／/g, '/')
-
-    // 3 把命名规则的标记替换成实际值
     for (const [key, val] of Object.entries(cfg)) {
       if (result.includes(key)) {
         // 处理去掉序号的情况
@@ -177,7 +193,7 @@ class FileName {
         }
 
         // 如果作品数据里没有这个值，则替换为空字符串
-        const value = val.value === undefined ? '' : val.value
+        const value = (val.value === undefined || val.value === null) ? '' : val.value
 
         // 如果这个值不是字符串则转换为字符串
         let once = typeof value !== 'string' ? value.toString() : value
@@ -197,38 +213,9 @@ class FileName {
       }
     }
 
-    // 4 处理文件名中的边界情况
-
-    // 处理空值，连续的 '//'。 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
-    result = result.replace(/undefined/g, '').replace(/\/{2,9}/, '/')
-
-    // 对每一层路径进行处理
-    const pathArray = result.split('/')
-
-    for (let index = 0; index < pathArray.length; index++) {
-      let str = pathArray[index]
-
-      // 去掉每层路径首尾的空格
-      // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
-      str = str.trim().replace(/^\./g, '．').replace(/\.$/g, '．')
-
-      // 处理每层路径是 Windows 保留文件名的情况（不需要处理后缀名）
-      str = Utils.handleWindowsReservedName(str, this.addStr)
-
-      pathArray[index] = str
-    }
-
-    result = pathArray.join('/')
-
-    // 去掉头尾的 /
-    if (result.startsWith('/')) {
-      result = result.replace('/', '')
-    }
-    if (result.endsWith('/')) {
-      result = result.substr(0, result.length - 1)
-    }
-
-    // 5 以下根据设置来修改文件夹的操作，其顺序会影响最后生成的文件夹结构，所以不可随意更改顺序
+    // 4 根据某些设置向结果中添加新的文件夹
+    // 其顺序会影响最后生成的文件夹层级，不可随意更改顺序
+    // appendFolder 方法会对非法字符进行处理（主要是因为 tags 可能含有斜线 /，需要替换）
 
     // 根据作品类型自动创建对应的文件夹
     if (settings.createFolderByType) {
@@ -265,8 +252,7 @@ class FileName {
         const nowTag = tag.toLowerCase()
         if (workTags.includes(nowTag)) {
           // 设置为文件夹名字的时候使用原 tag（不转换成小写）
-          const folder = Utils.replaceUnsafeStr(tag)
-          result = this.appendFolder(result, folder)
+          result = this.appendFolder(result, tag)
           break
         }
       }
@@ -274,8 +260,7 @@ class FileName {
 
     // 把 R18(G) 作品存入指定目录里
     if (settings.r18Folder && (data.xRestrict === 1 || data.xRestrict === 2)) {
-      const folder = Utils.replaceUnsafeStr(settings.r18FolderName)
-      result = this.appendFolder(result, folder)
+      result = this.appendFolder(result, settings.r18FolderName)
     }
 
     // 为作品建立单独的文件夹
@@ -298,6 +283,29 @@ class FileName {
       result = this.appendFolder(result, folder)
     }
 
+    // 5 文件夹部分和文件名已经全部生成完毕，处理一些边界情况
+
+    // 处理连续的 / 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
+    result = result.replace(/\/{2,100}/g, '/')
+
+    // 对每一层路径和文件名进行处理
+    const pathArray = result.split('/')
+
+    for (let index = 0; index < pathArray.length; index++) {
+      let str = pathArray[index]
+
+      // 去掉每层路径首尾的空格
+      // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
+      str = str.trim().replace(/^\./g, '．').replace(/\.$/g, '．')
+
+      // 处理每层路径是 Windows 保留文件名的情况（不需要处理后缀名）
+      str = Utils.handleWindowsReservedName(str, this.addStr)
+
+      pathArray[index] = str
+    }
+
+    result = pathArray.join('/')
+
     // 6 生成后缀名
     // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
     const ugoiraExt = ['zip', 'webm', 'gif', 'png']
@@ -310,7 +318,7 @@ class FileName {
     }
     const extResult = '.' + data.ext
 
-    // 7 处理文件名长度限制
+    // 7 文件名长度限制
     // 去掉文件夹部分，只处理 文件名+后缀名 部分
     // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
     if (settings.fileNameLengthLimitSwitch) {
