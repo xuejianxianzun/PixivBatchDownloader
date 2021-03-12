@@ -181,7 +181,7 @@ class ExportResult2CSV {
     const csvURL = URL.createObjectURL(csv)
 
     // 设置文件名
-    let csvName = Tools.getTitle()
+    let csvName = Tools.getPageTitle()
     const ogTitle = document.querySelector(
       'meta[property="og:title"]'
     )! as HTMLMetaElement

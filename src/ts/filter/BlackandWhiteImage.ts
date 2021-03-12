@@ -1,7 +1,7 @@
-import { Tools } from '../Tools'
 import { Utils } from '../utils/Utils'
 
 // 检查图片是否是黑白图片
+// 获取图片中 rgb 三色的平均值，如果很接近就判断为黑白图片。这是一个不保证准确的方法
 class BlackAndWhiteImage {
   private readonly latitude = 1 // 宽容度
 

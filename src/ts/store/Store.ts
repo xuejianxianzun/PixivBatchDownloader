@@ -136,7 +136,7 @@ class Store {
     this.idList = []
     this.rankList = {}
     this.tag = Tools.getTagFromURL()
-    this.title = Tools.getTitle()
+    this.title = Tools.getPageTitle()
   }
 
   private bindEvents() {
@@ -146,7 +146,7 @@ class Store {
 
     window.addEventListener(EVT.list.resume, () => {
       this.tag = Tools.getTagFromURL()
-      this.title = Tools.getTitle()
+      this.title = Tools.getPageTitle()
     })
   }
 }

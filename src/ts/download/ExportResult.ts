@@ -52,7 +52,7 @@ class ExportResult {
     Utils.downloadFile(
       url,
       `result-${Utils.replaceUnsafeStr(
-        Tools.getTitle()
+        Tools.getPageTitle()
       )}-${store.crawlCompleteTime.getTime()}.json`
     )
 

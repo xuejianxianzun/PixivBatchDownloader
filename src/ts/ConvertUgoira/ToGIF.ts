@@ -1,5 +1,4 @@
 import { extractImage } from './ExtractImage'
-import { Tools } from '../Tools'
 import { EVT } from '../EVT'
 import { UgoiraInfo } from '../crawl/CrawlResult'
 import { Utils } from '../utils/Utils'

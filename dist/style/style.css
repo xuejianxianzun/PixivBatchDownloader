@@ -852,6 +852,7 @@
   cursor: pointer;
   margin-bottom: 8px;
   vertical-align: top;
+  box-shadow: 0 1px 6px #ddd;
 }
 .centerWrap .centerWrap_con .settingForm .centerWrap_btns button:hover,
 .centerWrap .centerWrap_con .settingForm .centerWrap_btns button:focus {
@@ -1138,6 +1139,9 @@
 .theme-dark.centerWrap .saveNamingRuleWrap .namingRuleList li:hover {
   background: #333;
 }
+.theme-dark.centerWrap .centerWrap_btns button {
+  box-shadow: none !important;
+}
 .downloadError {
   color: #ffa0a0;
 }
@@ -1211,6 +1215,9 @@
 .xzBG.centerWrap .saveNamingRuleWrap .namingRuleList {
   text-shadow: none;
   opacity: 0.9 !important;
+}
+.xzBG.centerWrap .centerWrap_btns button {
+  box-shadow: none !important;
 }
 .outputWrap {
   padding: 20px 30px;

@@ -220,7 +220,7 @@ class InitFollowingPage extends InitPageBase {
     const csv = createCSV.create(data)
     const csvURL = URL.createObjectURL(csv)
 
-    const csvName = Tools.getTitle()
+    const csvName = Tools.getPageTitle()
 
     Utils.downloadFile(csvURL, Utils.replaceUnsafeStr(csvName) + '.csv')
   }

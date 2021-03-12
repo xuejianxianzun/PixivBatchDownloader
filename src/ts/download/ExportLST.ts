@@ -40,7 +40,7 @@ class ExportLST {
     const result = array.join(this.CRLF)
     const blob = new Blob([result])
     const url = URL.createObjectURL(blob)
-    const name = Tools.getTitle() + '.lst'
+    const name = Tools.getPageTitle() + '.lst'
 
     Utils.downloadFile(url, name)
   }

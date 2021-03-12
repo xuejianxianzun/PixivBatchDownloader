@@ -6541,8 +6541,8 @@
             this.useSlot(slot, e)
             return e
           }
-          // 获取页面标题，并且删除 TitleBar 的标记和未读消息的计数（现在 p 站似乎没有消息计数了）
-          static getTitle() {
+          /**获取页面标题，并且删除 TitleBar 的标记和未读消息的计数（现在 p 站似乎没有消息计数了） */
+          static getPageTitle() {
             return document.title
               .replace(/\[(↑|→|▶|↓|║|■|✓| )\] /, '')
               .replace(/^\(\d.*\) /, '')
@@ -6551,7 +6551,7 @@
           static isArtworkTags(data) {
             return data.translation !== undefined
           }
-          /**从作品数据里提取出 tag 列表。
+          /**从作品数据里提取出 tag 列表
            *
            * 可选参数 type:
            *
@@ -11127,7 +11127,7 @@
             const csvURL = URL.createObjectURL(csv)
             const csvName = _Tools__WEBPACK_IMPORTED_MODULE_7__[
               'Tools'
-            ].getTitle()
+            ].getPageTitle()
             _utils_Utils__WEBPACK_IMPORTED_MODULE_9__['Utils'].downloadFile(
               csvURL,
               _utils_Utils__WEBPACK_IMPORTED_MODULE_9__[
@@ -14685,7 +14685,8 @@
             const blob = new Blob([result])
             const url = URL.createObjectURL(blob)
             const name =
-              _Tools__WEBPACK_IMPORTED_MODULE_0__['Tools'].getTitle() + '.lst'
+              _Tools__WEBPACK_IMPORTED_MODULE_0__['Tools'].getPageTitle() +
+              '.lst'
             _utils_Utils__WEBPACK_IMPORTED_MODULE_4__['Utils'].downloadFile(
               url,
               name
@@ -14775,7 +14776,7 @@
               `result-${_utils_Utils__WEBPACK_IMPORTED_MODULE_4__[
                 'Utils'
               ].replaceUnsafeStr(
-                _Tools__WEBPACK_IMPORTED_MODULE_1__['Tools'].getTitle()
+                _Tools__WEBPACK_IMPORTED_MODULE_1__['Tools'].getPageTitle()
               )}-${_store_Store__WEBPACK_IMPORTED_MODULE_2__[
                 'store'
               ].crawlCompleteTime.getTime()}.json`
@@ -14999,7 +15000,7 @@
             // 设置文件名
             let csvName = _Tools__WEBPACK_IMPORTED_MODULE_1__[
               'Tools'
-            ].getTitle()
+            ].getPageTitle()
             const ogTitle = document.querySelector('meta[property="og:title"]')
             if (ogTitle) {
               csvName = ogTitle.content
@@ -16370,6 +16371,7 @@ flag 及其含义如下：
         )
 
         // 检查图片是否是黑白图片
+        // 获取图片中 rgb 三色的平均值，如果很接近就判断为黑白图片。这是一个不保证准确的方法
         class BlackAndWhiteImage {
           constructor() {
             this.latitude = 1 // 宽容度
@@ -23125,7 +23127,9 @@ flag 及其含义如下：
             this.tag = _Tools__WEBPACK_IMPORTED_MODULE_2__[
               'Tools'
             ].getTagFromURL()
-            this.title = _Tools__WEBPACK_IMPORTED_MODULE_2__['Tools'].getTitle()
+            this.title = _Tools__WEBPACK_IMPORTED_MODULE_2__[
+              'Tools'
+            ].getPageTitle()
           }
           bindEvents() {
             window.addEventListener(
@@ -23142,7 +23146,7 @@ flag 及其含义如下：
                 ].getTagFromURL()
                 this.title = _Tools__WEBPACK_IMPORTED_MODULE_2__[
                   'Tools'
-                ].getTitle()
+                ].getPageTitle()
               }
             )
           }

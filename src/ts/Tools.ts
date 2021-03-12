@@ -259,8 +259,8 @@ class Tools {
     return e
   }
 
-  // 获取页面标题，并且删除 TitleBar 的标记和未读消息的计数（现在 p 站似乎没有消息计数了）
-  static getTitle() {
+  /**获取页面标题，并且删除 TitleBar 的标记和未读消息的计数（现在 p 站似乎没有消息计数了） */
+  static getPageTitle() {
     return document.title
       .replace(/\[(↑|→|▶|↓|║|■|✓| )\] /, '')
       .replace(/^\(\d.*\) /, '')
@@ -273,7 +273,7 @@ class Tools {
     return (<artworkDataTagsItem>data).translation !== undefined
   }
 
-  /**从作品数据里提取出 tag 列表。
+  /**从作品数据里提取出 tag 列表
    *
    * 可选参数 type:
    *
