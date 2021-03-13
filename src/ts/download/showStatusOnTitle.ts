@@ -1,10 +1,7 @@
-// 在标题栏上显示任务状态的标记
 import { pageType } from '../PageType'
 import { EVT } from '../EVT'
 
-/*
-本程序的标记会以 [flag] 形式添加到 title 最前面
-flag 及其含义如下：
+/**
 ↑ 抓取中
 → 等待下一步操作（搜索页）
 ▶ 可以开始下载
@@ -13,19 +10,18 @@ flag 及其含义如下：
 ■ 下载停止
 ✓ 下载完毕
 */
-const flags = {
-  crawling: '↑',
-  waiting: '→',
-  readyDownload: '▶',
-  downloading: '↓',
-  paused: '║',
-  stopped: '■',
-  completed: '✓',
-  space: ' ',
+enum Flags {
+  crawling = '↑',
+  waiting = '→',
+  readyDownload = '▶',
+  downloading = '↓',
+  paused = '║',
+  stopped = '■',
+  completed = '✓',
+  space = ' ',
 }
 
-type FlagList = keyof typeof flags
-
+// 把下载器运行中的状态添加到页面标题前面
 class showStatusOnTitle {
   constructor() {
     this.bindEvents()
@@ -35,11 +31,11 @@ class showStatusOnTitle {
 
   private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
-      this.set('crawling')
+      this.set(Flags.crawling)
     })
 
     window.addEventListener(EVT.list.worksUpdate, () => {
-      this.set('waiting')
+      this.set(Flags.waiting)
     })
 
     for (const ev of [
@@ -48,24 +44,24 @@ class showStatusOnTitle {
       EVT.list.resume,
     ]) {
       window.addEventListener(ev, () => {
-        this.set('readyDownload')
+        this.set(Flags.readyDownload)
       })
     }
 
     window.addEventListener(EVT.list.downloadStart, () => {
-      this.set('downloading')
+      this.set(Flags.downloading)
     })
 
     window.addEventListener(EVT.list.downloadComplete, () => {
-      this.set('completed')
+      this.set(Flags.completed)
     })
 
     window.addEventListener(EVT.list.downloadPause, () => {
-      this.set('paused')
+      this.set(Flags.paused)
     })
 
     window.addEventListener(EVT.list.downloadStop, () => {
-      this.set('stopped')
+      this.set(Flags.stopped)
     })
     window.addEventListener(EVT.list.crawlEmpty, () => {
       this.reset()
@@ -73,17 +69,17 @@ class showStatusOnTitle {
   }
 
   // 检查标题里是否含有标记
-  private includeFlag(flag: string = '') {
+  private includeFlag(flag?: Flags) {
     if (!flag) {
       // 没有传递标记，则检查所有标记
-      for (const flga of Object.values(flags)) {
-        const str = `[${flga}]`
+      for (const value of Object.values(Flags)) {
+        const str = `[${value}]`
         if (document.title.includes(str)) {
           return true
         }
       }
     } else {
-      // 检查指定标记
+      // 否则检查指定标记
       const str = `[${flag}]`
       return document.title.includes(str)
     }
@@ -116,38 +112,37 @@ class showStatusOnTitle {
   }
 
   // 在标题上显示指定标记
-  private set(flagName: FlagList) {
-    const flag = flags[flagName]
-    const text = `[${flag}]`
+  private set(flag: Flags) {
+    const str = `[${flag}]`
     // 如果 title 里没有标记，就添加标记
     if (!this.includeFlag()) {
-      document.title = `${text} ${document.title}`
+      document.title = `${str} ${document.title}`
     } else {
       // 如果已经有标记了，则替换为新当前传入的标记
-      document.title = document.title.replace(/\[.?\]/, text)
+      document.title = document.title.replace(/\[.?\]/, str)
     }
 
     // 可以开始下载，或者等待下一步操作，进行闪烁提醒
-    if (flagName === 'readyDownload' || flagName === 'waiting') {
+    if (flag === Flags.readyDownload || flag === Flags.waiting) {
       this.flashing(flag)
     } else {
       clearInterval(this.timer)
     }
   }
 
-  // 闪烁提醒，其实是把给定的标记替换成空白，来回切换
-  private flashing(flag: string) {
+  // 闪烁提醒，把给定的标记替换成空白，来回切换
+  private flashing(flag: Flags.readyDownload | Flags.waiting) {
     clearInterval(this.timer)
-    const text = `[${flag}]`
-    const whiteSpace = `[${flags.space}]`
+    const str = `[${flag}]`
+    const whiteSpace = `[${Flags.space}]`
     this.timer = window.setInterval(() => {
       if (this.includeFlag(flag)) {
         // 如果含有标记，就替换成空白
-        document.title = document.title.replace(text, whiteSpace)
+        document.title = document.title.replace(str, whiteSpace)
       } else {
-        if (this.includeFlag(flags.space)) {
+        if (this.includeFlag(Flags.space)) {
           // 如果含有空白，就替换成标记
-          document.title = document.title.replace(whiteSpace, text)
+          document.title = document.title.replace(whiteSpace, str)
         } else {
           // 如果都没有，一般是页面切换了，标题被重置了，取消闪烁
           clearInterval(this.timer)
@@ -156,4 +151,5 @@ class showStatusOnTitle {
     }, 500)
   }
 }
+
 new showStatusOnTitle()

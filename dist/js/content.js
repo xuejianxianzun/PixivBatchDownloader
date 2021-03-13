@@ -12448,12 +12448,9 @@ class ShowSkipCount {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-// 在标题栏上显示任务状态的标记
 
 
-/*
-本程序的标记会以 [flag] 形式添加到 title 最前面
-flag 及其含义如下：
+/**
 ↑ 抓取中
 → 等待下一步操作（搜索页）
 ▶ 可以开始下载
@@ -12462,16 +12459,18 @@ flag 及其含义如下：
 ■ 下载停止
 ✓ 下载完毕
 */
-const flags = {
-    crawling: '↑',
-    waiting: '→',
-    readyDownload: '▶',
-    downloading: '↓',
-    paused: '║',
-    stopped: '■',
-    completed: '✓',
-    space: ' ',
-};
+var Flags;
+(function (Flags) {
+    Flags["crawling"] = "\u2191";
+    Flags["waiting"] = "\u2192";
+    Flags["readyDownload"] = "\u25B6";
+    Flags["downloading"] = "\u2193";
+    Flags["paused"] = "\u2551";
+    Flags["stopped"] = "\u25A0";
+    Flags["completed"] = "\u2713";
+    Flags["space"] = " ";
+})(Flags || (Flags = {}));
+// 把下载器运行中的状态添加到页面标题前面
 class showStatusOnTitle {
     constructor() {
         this.timer = 0; // title 闪烁时，使用的定时器
@@ -12479,10 +12478,10 @@ class showStatusOnTitle {
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlStart, () => {
-            this.set('crawling');
+            this.set(Flags.crawling);
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.worksUpdate, () => {
-            this.set('waiting');
+            this.set(Flags.waiting);
         });
         for (const ev of [
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlFinish,
@@ -12490,38 +12489,38 @@ class showStatusOnTitle {
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume,
         ]) {
             window.addEventListener(ev, () => {
-                this.set('readyDownload');
+                this.set(Flags.readyDownload);
             });
         }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadStart, () => {
-            this.set('downloading');
+            this.set(Flags.downloading);
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadComplete, () => {
-            this.set('completed');
+            this.set(Flags.completed);
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadPause, () => {
-            this.set('paused');
+            this.set(Flags.paused);
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadStop, () => {
-            this.set('stopped');
+            this.set(Flags.stopped);
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlEmpty, () => {
             this.reset();
         });
     }
     // 检查标题里是否含有标记
-    includeFlag(flag = '') {
+    includeFlag(flag) {
         if (!flag) {
             // 没有传递标记，则检查所有标记
-            for (const flga of Object.values(flags)) {
-                const str = `[${flga}]`;
+            for (const value of Object.values(Flags)) {
+                const str = `[${value}]`;
                 if (document.title.includes(str)) {
                     return true;
                 }
             }
         }
         else {
-            // 检查指定标记
+            // 否则检查指定标记
             const str = `[${flag}]`;
             return document.title.includes(str);
         }
@@ -12548,8 +12547,7 @@ class showStatusOnTitle {
         document.title = document.title.substr(index + 1, document.title.length);
     }
     // 在标题上显示指定标记
-    set(flagName) {
-        const flag = flags[flagName];
+    set(flag) {
         const text = `[${flag}]`;
         // 如果 title 里没有标记，就添加标记
         if (!this.includeFlag()) {
@@ -12560,25 +12558,25 @@ class showStatusOnTitle {
             document.title = document.title.replace(/\[.?\]/, text);
         }
         // 可以开始下载，或者等待下一步操作，进行闪烁提醒
-        if (flagName === 'readyDownload' || flagName === 'waiting') {
+        if (flag === Flags.readyDownload || flag === Flags.waiting) {
             this.flashing(flag);
         }
         else {
             clearInterval(this.timer);
         }
     }
-    // 闪烁提醒，其实是把给定的标记替换成空白，来回切换
+    // 闪烁提醒，把给定的标记替换成空白，来回切换
     flashing(flag) {
         clearInterval(this.timer);
         const text = `[${flag}]`;
-        const whiteSpace = `[${flags.space}]`;
+        const whiteSpace = `[${Flags.space}]`;
         this.timer = window.setInterval(() => {
             if (this.includeFlag(flag)) {
                 // 如果含有标记，就替换成空白
                 document.title = document.title.replace(text, whiteSpace);
             }
             else {
-                if (this.includeFlag(flags.space)) {
+                if (this.includeFlag(Flags.space)) {
                     // 如果含有空白，就替换成标记
                     document.title = document.title.replace(whiteSpace, text);
                 }
