@@ -39,7 +39,7 @@ class SaveAvatarIcon {
     Utils.downloadFile(url, name)
 
     log.success('✓ ' + lang.transl('_保存用户头像为图标'))
-    EVT.fire(EVT.list.closeCenterPanel)
+    EVT.fire('closeCenterPanel')
   }
 }
 

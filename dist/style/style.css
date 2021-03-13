@@ -1243,7 +1243,7 @@
   border: 1px solid #ccc;
   transition: 0.3s;
   font-size: 14px;
-  margin-top: 10px;
+  margin-top: 20px;
   padding: 5px 10px;
   overflow: auto;
   max-height: 350px;
@@ -1268,7 +1268,6 @@
   color: #000;
 }
 .outputWrap .outputFooter {
-  height: 60px;
   text-align: center;
 }
 .outputWrap .outputClose {

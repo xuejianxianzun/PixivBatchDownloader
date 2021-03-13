@@ -6,6 +6,11 @@ import { Config } from '../config/Config'
 import { theme } from '../Theme'
 import { toast } from '../Toast'
 
+export type OutputData = {
+  content: string
+  title: string
+}
+
 // 输出面板
 class OutputPanel {
   constructor() {
@@ -63,7 +68,7 @@ class OutputPanel {
     })
 
     window.addEventListener(EVT.list.output, (ev: CustomEventInit) => {
-      this.output(ev.detail.data.content, ev.detail.data.title)
+      this.output(ev.detail.data)
     })
   }
 
@@ -100,10 +105,10 @@ class OutputPanel {
   }
 
   // 输出内容
-  private output(content: string, title = lang.transl('_输出信息')) {
+  private output(data: OutputData) {
     // 如果结果较多，则不直接输出，改为保存 txt 文件
     if (store.result.length > Config.outputMax) {
-      const con = content.replace(/<br>/g, '\n') // 替换换行符
+      const con = data.content.replace(/<br>/g, '\n') // 替换换行符
       const file = new Blob([con], {
         type: 'text/plain',
       })
@@ -114,15 +119,15 @@ class OutputPanel {
 
       // 禁用复制按钮
       this.copyBtn.disabled = true
-      content = lang.transl('_输出内容太多已经为你保存到文件')
+      data.content = lang.transl('_输出内容太多已经为你保存到文件')
     } else {
       this.copyBtn.disabled = false
     }
 
-    if (content) {
-      this.outputContent.innerHTML = content
+    if (data.content) {
+      this.outputContent.innerHTML = data.content
       this.outputPanel.style.display = 'block'
-      this.outputTitle.textContent = title
+      this.outputTitle.textContent = data.title
     } else {
       return toast.error(lang.transl('_没有数据可供使用'))
     }

@@ -164,7 +164,7 @@ class Resume {
     log.success(lang.transl('_已恢复抓取结果'), 2)
 
     // 发出恢复下载的信号
-    EVT.fire(EVT.list.resume)
+    EVT.fire('resume')
   }
 
   private bindEvents() {

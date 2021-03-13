@@ -56,7 +56,7 @@ class Download {
     if (msg) {
       log.warning(msg)
     }
-    EVT.fire(EVT.list.skipDownload, data)
+    EVT.fire('skipDownload', data)
   }
 
   // 当重试达到最大次数时
@@ -73,7 +73,7 @@ class Download {
 
     // 404 之外的错误，暂时跳过这个任务，但最后还是会尝试重新下载它
     this.cancel = true
-    EVT.fire(EVT.list.downloadError, fileId)
+    EVT.fire('downloadError', fileId)
   }
 
   // 下载文件
@@ -190,7 +190,7 @@ class Download {
             console.error(msg)
 
             this.cancel = true
-            EVT.fire(EVT.list.downloadError, arg.id)
+            EVT.fire('downloadError', arg.id)
           }
         }
       }

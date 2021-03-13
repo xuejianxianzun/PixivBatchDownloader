@@ -37,7 +37,7 @@ class CheckNewVersion {
       return
     }
     if (this.bigger(latestVer, manifestVer)) {
-      EVT.fire(EVT.list.hasNewVer)
+      EVT.fire('hasNewVer')
     }
   }
 

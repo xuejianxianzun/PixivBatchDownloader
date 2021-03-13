@@ -54,7 +54,7 @@ class InitUserPage extends InitPageBase {
       Colors.bgGreen,
       lang.transl('_保存用户头像')
     ).addEventListener('click', () => {
-      EVT.fire(EVT.list.saveAvatarImage)
+      EVT.fire('saveAvatarImage')
     })
 
     Tools.addBtn(
@@ -62,7 +62,7 @@ class InitUserPage extends InitPageBase {
       Colors.bgGreen,
       lang.transl('_保存用户封面')
     ).addEventListener('click', () => {
-      EVT.fire(EVT.list.saveUserCover)
+      EVT.fire('saveUserCover')
     })
 
     Tools.addBtn(
@@ -71,7 +71,7 @@ class InitUserPage extends InitPageBase {
       lang.transl('_保存用户头像为图标'),
       [['title', lang.transl('_保存用户头像为图标说明')]]
     ).addEventListener('click', () => {
-      EVT.fire(EVT.list.saveAvatarIcon)
+      EVT.fire('saveAvatarIcon')
     })
 
     // 添加收藏本页所有作品的功能
@@ -85,7 +85,7 @@ class InitUserPage extends InitPageBase {
     bookmarkAllBtn.addEventListener('click', async () => {
       // 获取该用户的所有作品的 id 列表
       // 模拟了抓取流程，以获取相同的 id 列表
-      EVT.fire(EVT.list.bookmarkModeStart)
+      EVT.fire('bookmarkModeStart')
       store.tag = Tools.getTagFromURL()
       this.crawlNumber = 1 // 设置为只抓取 1 页
       this.readyGetIdList()

@@ -1,21 +1,28 @@
-const bindOnceFlagList: string[] = []
+import { DonwloadSkipData, DonwloadSuccessData } from './download/DownloadType'
+import { IDData, Result } from './store/StoreType'
+import { OutputData } from './output/OutputPanel'
+import { SettingChangeData } from './setting/Settings'
 
-// 只绑定某个事件一次，用于防止事件重复绑定
-// 通过 flag 确认是否是同一个事件
-// 可以执行多次，不会自动解绑
-function bindOnce(flag: string, targetEvt: string, evtFun: Function) {
-  const query = bindOnceFlagList.includes(flag)
-  if (!query) {
-    bindOnceFlagList.push(flag)
-    window.addEventListener(targetEvt, function (ev) {
-      evtFun(ev)
-    })
+type eventNames = keyof typeof EVT.list
+
+// 管理自定义事件
+class EVENT {
+  private bindOnceFlagList: string[] = []
+
+  // 只绑定某个事件一次，用于防止事件重复绑定
+  // 通过 flag 确认是否是同一个事件
+  // 可以执行多次，不会自动解绑
+  public bindOnce(flag: string, targetEvt: string, evtFun: Function) {
+    const query = this.bindOnceFlagList.includes(flag)
+    if (!query) {
+      this.bindOnceFlagList.push(flag)
+      window.addEventListener(targetEvt, function (ev) {
+        evtFun(ev)
+      })
+    }
   }
-}
 
-// 触发自定义事件
-class EVT {
-  static readonly list = {
+  public readonly list = {
     // 当抓取开始时触发
     crawlStart: 'crawlStart',
     // 当检查到错误的设置时触发
@@ -138,16 +145,95 @@ class EVT {
     clearBG: 'clearBG',
   }
 
+  // 触发自定义事件，大部分事件都不需要携带数据
+  public fire(
+    type:
+      | 'crawlStart'
+      | 'wrongSetting'
+      | 'getIdListFinished'
+      | 'crawlFinish'
+      | 'crawlEmpty'
+      | 'resultChange'
+      | 'QuickDownload'
+      | 'downloadCancel'
+      | 'downloadStart'
+      | 'downloadPause'
+      | 'downloadStop'
+      | 'saveFileError'
+      | 'downloadComplete'
+      | 'pageSwitch'
+      | 'resetSettings'
+      | 'resetSettingsEnd'
+      | 'exportSettings'
+      | 'importSettings'
+      | 'readZipError'
+      | 'convertSuccess'
+      | 'openCenterPanel'
+      | 'closeCenterPanel'
+      | 'centerPanelOpened'
+      | 'centerPanelClosed'
+      | 'clearMultiple'
+      | 'clearUgoira'
+      | 'worksUpdate'
+      | 'clearDownloadRecord'
+      | 'exportDownloadRecord'
+      | 'importDownloadRecord'
+      | 'clearSavedCrawl'
+      | 'resume'
+      | 'outputCSV'
+      | 'exportResult'
+      | 'importResult'
+      | 'saveAvatarImage'
+      | 'saveAvatarIcon'
+      | 'saveUserCover'
+      | 'previewFileName'
+      | 'showURLs'
+      | 'hasNewVer'
+      | 'bookmarkModeStart'
+      | 'bookmarkModeEnd'
+      | 'showMsg'
+      | 'sendToast'
+      | 'clearLog'
+      | 'selectBG'
+      | 'clearBG'
+  ): void
+
+  // 对于需要携带数据的事件进行重载
+
+  public fire(type: 'downloadError', data: string): void
+
+  public fire(type: 'downloadSuccess', data: DonwloadSuccessData): void
+
+  public fire(
+    type:
+      | 'pageSwitchedTypeChange'
+      | 'pageSwitchedTypeNotChange'
+      | 'convertChange',
+    data: number
+  ): void
+
+  public fire(type: 'downloadIdList', data: IDData[]): void
+
+  public fire(type: 'addResult', data: Result): void
+
+  public fire(type: 'output', data: OutputData): void
+
+  public fire(type: 'settingChange', data: SettingChangeData): void
+
+  public fire(type: 'deleteWork', data: HTMLElement): void
+
+  public fire(type: 'skipDownload', data: DonwloadSkipData): void
+
   // 触发事件，可以携带数据
-  // 数据通过 ev.detail.data 获取，不会是空值（默认是空对象）
-  static fire(type: string, data: object | string | number | boolean = {}) {
+  // 数据通过 ev.detail.data 获取，如果未传递则是空对象
+  public fire(type: eventNames, data = {}) {
     const event = new CustomEvent(type, {
-      detail: { data: data },
+      detail: { data },
     })
     window.dispatchEvent(event)
   }
-
-  static bindOnce = bindOnce
 }
+
+const EVT = new EVENT()
 
 export { EVT }

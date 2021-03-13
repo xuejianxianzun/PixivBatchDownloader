@@ -97,7 +97,7 @@ class Form {
     ).addEventListener(
       'click',
       () => {
-        EVT.fire(EVT.list.previewFileName)
+        EVT.fire('previewFileName')
       },
       false
     )
@@ -112,7 +112,7 @@ class Form {
       ).addEventListener(
         'click',
         () => {
-          EVT.fire(EVT.list.outputCSV)
+          EVT.fire('outputCSV')
         },
         false
       )
@@ -125,7 +125,7 @@ class Form {
       ).addEventListener(
         'click',
         () => {
-          EVT.fire(EVT.list.exportResult)
+          EVT.fire('exportResult')
         },
         false
       )
@@ -138,7 +138,7 @@ class Form {
       ).addEventListener(
         'click',
         () => {
-          EVT.fire(EVT.list.importResult)
+          EVT.fire('importResult')
         },
         false
       )
@@ -149,7 +149,7 @@ class Form {
       const el = this.form.querySelector('#selectBG')
       if (el) {
         el.addEventListener('click', () => {
-          EVT.fire(EVT.list.selectBG)
+          EVT.fire('selectBG')
         })
       }
     }
@@ -159,7 +159,7 @@ class Form {
       const el = this.form.querySelector('#clearBG')
       if (el) {
         el.addEventListener('click', () => {
-          EVT.fire(EVT.list.clearBG)
+          EVT.fire('clearBG')
         })
       }
     }
@@ -171,7 +171,7 @@ class Form {
         el.addEventListener('click', () => {
           const result = window.confirm(lang.transl('_是否重置设置'))
           if (result) {
-            EVT.fire(EVT.list.resetSettings)
+            EVT.fire('resetSettings')
           }
         })
       }
@@ -182,7 +182,7 @@ class Form {
       const el = this.form.querySelector('#exportSettings')
       if (el) {
         el.addEventListener('click', () => {
-          EVT.fire(EVT.list.exportSettings)
+          EVT.fire('exportSettings')
         })
       }
     }
@@ -192,7 +192,7 @@ class Form {
       const el = this.form.querySelector('#importSettings')
       if (el) {
         el.addEventListener('click', () => {
-          EVT.fire(EVT.list.importSettings)
+          EVT.fire('importSettings')
         })
       }
     }

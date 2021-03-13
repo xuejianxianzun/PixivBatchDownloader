@@ -113,7 +113,7 @@ class DownloadControl {
         URL.revokeObjectURL(msg.data.url)
 
         // 发送下载成功的事件
-        EVT.fire(EVT.list.downloadSuccess, msg.data)
+        EVT.fire('downloadSuccess', msg.data)
 
         this.downloadOrSkipAFile(msg.data)
       } else if (msg.msg === 'download_err') {
@@ -121,7 +121,7 @@ class DownloadControl {
         log.error(
           `${msg.data.id} download error! code: ${msg.err}. The downloader will try to download the file again `
         )
-        EVT.fire(EVT.list.saveFileError)
+        EVT.fire('saveFileError')
         // 重新下载这个文件
         // 但并不确定能否如预期一样重新下载这个文件
         this.saveFileError(msg.data)
@@ -141,12 +141,16 @@ class DownloadControl {
 
   /**为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num} */
   private checkNamingRule() {
-    if (settings.userSetName.includes('{id}') || (settings.userSetName.includes('{id_num}') && settings.userSetName.includes('{p_num}'))) {
+    if (
+      settings.userSetName.includes('{id}') ||
+      (settings.userSetName.includes('{id_num}') &&
+        settings.userSetName.includes('{p_num}'))
+    ) {
       return true
     } else {
       msgBox.error(lang.transl('_命名规则一定要包含id'))
-      EVT.fire(EVT.list.openCenterPanel)
-      EVT.fire(EVT.list.downloadCancel)
+      EVT.fire('openCenterPanel')
+      EVT.fire('downloadCancel')
       return false
     }
   }
@@ -159,14 +163,18 @@ class DownloadControl {
     )}</p>
     
     <div class="centerWrap_btns">
-    <button class="startDownload" type="button" style="background:${Colors.bgBlue
-      };"> ${lang.transl('_开始下载')}</button>
-    <button class="pauseDownload" type="button" style="background:${Colors.bgYellow
-      };"> ${lang.transl('_暂停下载')}</button>
-    <button class="stopDownload" type="button" style="background:${Colors.bgRed
-      };"> ${lang.transl('_停止下载')}</button>
-    <button class="copyUrl" type="button" style="background:${Colors.bgGreen
-      };"> ${lang.transl('_复制url')}</button>
+    <button class="startDownload" type="button" style="background:${
+      Colors.bgBlue
+    };"> ${lang.transl('_开始下载')}</button>
+    <button class="pauseDownload" type="button" style="background:${
+      Colors.bgYellow
+    };"> ${lang.transl('_暂停下载')}</button>
+    <button class="stopDownload" type="button" style="background:${
+      Colors.bgRed
+    };"> ${lang.transl('_停止下载')}</button>
+    <button class="copyUrl" type="button" style="background:${
+      Colors.bgGreen
+    };"> ${lang.transl('_复制url')}</button>
     </div>
     <div class="download_status_text_wrap">
     <span>${lang.transl('_当前状态')}</span>
@@ -204,7 +212,7 @@ class DownloadControl {
       })
 
     this.wrapper.querySelector('.copyUrl')!.addEventListener('click', () => {
-      EVT.fire(EVT.list.showURLs)
+      EVT.fire('showURLs')
     })
   }
 
@@ -266,7 +274,7 @@ class DownloadControl {
 
     this.setDownloadThread()
 
-    EVT.fire(EVT.list.downloadStart)
+    EVT.fire('downloadStart')
 
     // 建立并发下载线程
     for (let i = 0; i < this.thread; i++) {
@@ -296,7 +304,7 @@ class DownloadControl {
         this.setDownStateText(lang.transl('_已暂停'), '#f00')
         log.warning(lang.transl('_已暂停'), 2)
 
-        EVT.fire(EVT.list.downloadPause)
+        EVT.fire('downloadPause')
       } else {
         // 不在下载中的话不允许启用暂停功能
         return
@@ -315,7 +323,7 @@ class DownloadControl {
     log.error(lang.transl('_已停止'), 2)
     this.pause = false
 
-    EVT.fire(EVT.list.downloadStop)
+    EVT.fire('downloadStop')
   }
 
   private downloadError(id: string) {
@@ -443,7 +451,7 @@ class DownloadControl {
     if (this.downloaded === store.result.length) {
       window.setTimeout(() => {
         // 延后触发下载完成的事件。因为下载完成事件是由上游事件（跳过下载，或下载成功事件）派生的，如果这里不延迟触发，可能导致其他模块先接收到下载完成事件，后接收到上游事件。
-        EVT.fire(EVT.list.downloadComplete)
+        EVT.fire('downloadComplete')
       }, 0)
       this.reset()
       this.setDownStateText(lang.transl('_下载完毕'), Colors.textSuccess)

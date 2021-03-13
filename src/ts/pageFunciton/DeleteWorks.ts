@@ -101,7 +101,7 @@ class DeleteWorks {
           msgBox.error(lang.transl('_当前任务尚未完成'))
           return
         }
-        EVT.fire(EVT.list.closeCenterPanel)
+        EVT.fire('closeCenterPanel')
         this.clearMultiple()
         callback()
       },
@@ -122,7 +122,7 @@ class DeleteWorks {
           msgBox.error(lang.transl('_当前任务尚未完成'))
           return
         }
-        EVT.fire(EVT.list.closeCenterPanel)
+        EVT.fire('closeCenterPanel')
         this.ClearUgoira()
         callback()
       },
@@ -156,7 +156,7 @@ class DeleteWorks {
     if (this.delMode) {
       this.delBtn.textContent = lang.transl('_退出手动删除')
       setTimeout(() => {
-        EVT.fire(EVT.list.closeCenterPanel)
+        EVT.fire('closeCenterPanel')
       }, 100)
     } else {
       this.delBtn.textContent = lang.transl('_手动删除作品')

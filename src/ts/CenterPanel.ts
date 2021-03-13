@@ -144,12 +144,12 @@ class CenterPanel {
     document
       .querySelector('.centerWrap_close')!
       .addEventListener('click', () => {
-        EVT.fire(EVT.list.closeCenterPanel)
+        EVT.fire('closeCenterPanel')
       })
 
     // 开始抓取作品时，隐藏
     window.addEventListener(EVT.list.crawlStart, () => {
-      EVT.fire(EVT.list.closeCenterPanel)
+      EVT.fire('closeCenterPanel')
     })
 
     // 抓取完作品详细数据时，显示
@@ -191,7 +191,7 @@ class CenterPanel {
 
     document.addEventListener('click', () => {
       if (getComputedStyle(this.centerPanel)['display'] !== 'none') {
-        EVT.fire(EVT.list.closeCenterPanel)
+        EVT.fire('closeCenterPanel')
       }
     })
 
@@ -243,22 +243,22 @@ class CenterPanel {
   // 显示中间区域
   public show() {
     this.centerPanel.style.display = 'block'
-    EVT.fire(EVT.list.centerPanelOpened)
+    EVT.fire('centerPanelOpened')
   }
 
   // 隐藏中间区域
   public close() {
     this.centerPanel.style.display = 'none'
-    EVT.fire(EVT.list.centerPanelClosed)
+    EVT.fire('centerPanelClosed')
   }
 
   public toggle() {
     const nowDisplay = this.centerPanel.style.display
     nowDisplay === 'block' ? this.close() : this.show()
     if (nowDisplay === 'block') {
-      EVT.fire(EVT.list.closeCenterPanel)
+      EVT.fire('closeCenterPanel')
     } else {
-      EVT.fire(EVT.list.openCenterPanel)
+      EVT.fire('openCenterPanel')
     }
   }
 }

@@ -109,15 +109,15 @@ class InitSearchArtworkPage extends InitPageBase {
     const deleteWorks = new DeleteWorks(`.${this.listClass}`)
 
     deleteWorks.addClearMultipleBtn(`.${this.multipleClass}`, () => {
-      EVT.fire(EVT.list.clearMultiple)
+      EVT.fire('clearMultiple')
     })
 
     deleteWorks.addClearUgoiraBtn(`.${this.ugoiraClass}`, () => {
-      EVT.fire(EVT.list.clearUgoira)
+      EVT.fire('clearUgoira')
     })
 
     deleteWorks.addManuallyDeleteBtn((el: HTMLElement) => {
-      EVT.fire(EVT.list.deleteWork, el)
+      EVT.fire('deleteWork', el)
     })
 
     // 添加收藏本页所有作品的功能
@@ -389,7 +389,7 @@ class InitSearchArtworkPage extends InitPageBase {
     if (this.causeResultChange.includes(data.name)) {
       if (store.result.length > 0) {
         this.reAddResult()
-        EVT.fire(EVT.list.resultChange)
+        EVT.fire('resultChange')
       }
     }
   }
@@ -411,7 +411,7 @@ class InitSearchArtworkPage extends InitPageBase {
     window.removeEventListener(EVT.list.addResult, this.createWork)
 
     setTimeout(() => {
-      EVT.fire(EVT.list.worksUpdate)
+      EVT.fire('worksUpdate')
     }, 0)
   }
 
@@ -611,7 +611,7 @@ class InitSearchArtworkPage extends InitPageBase {
       return
     }
 
-    EVT.fire(EVT.list.closeCenterPanel)
+    EVT.fire('closeCenterPanel')
 
     log.clear()
 
@@ -640,7 +640,7 @@ class InitSearchArtworkPage extends InitPageBase {
       this.reAddResult()
     }
 
-    EVT.fire(EVT.list.resultChange)
+    EVT.fire('resultChange')
   }
 
   // 重新添加抓取结果，执行时机：

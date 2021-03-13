@@ -775,7 +775,7 @@ class Filter {
 
   // 如果设置项的值不合法，则显示提示
   private showWarning(msg: string) {
-    EVT.fire(EVT.list.wrongSetting)
+    EVT.fire('wrongSetting')
     msgBox.error(msg)
   }
 

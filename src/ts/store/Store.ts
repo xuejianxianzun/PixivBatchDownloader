@@ -101,7 +101,7 @@ class Store {
 
     this.resultMeta.push(workData)
 
-    EVT.fire(EVT.list.addResult, workData)
+    EVT.fire('addResult', workData)
 
     // 把该作品里的每个文件的数据添加到结果里
     if (workData.type === 3) {

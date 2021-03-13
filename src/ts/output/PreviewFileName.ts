@@ -74,7 +74,7 @@ class PreviewFileName {
 
     // 拼接所有结果
     const result = resultArr.join('')
-    EVT.fire(EVT.list.output, {
+    EVT.fire('output', {
       content: result,
       title: lang.transl('_预览文件名'),
     })

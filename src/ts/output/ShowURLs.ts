@@ -28,7 +28,7 @@ class ShowURLs {
       urls.push(result[size])
     }
 
-    EVT.fire(EVT.list.output, {
+    EVT.fire('output', {
       content: urls.join('<br>'),
       title: lang.transl('_复制url'),
     })

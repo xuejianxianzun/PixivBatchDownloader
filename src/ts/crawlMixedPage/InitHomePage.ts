@@ -42,7 +42,7 @@ class InitHomePage extends InitPageBase {
       Colors.bgGreen,
       lang.transl('_清空已保存的抓取结果')
     ).addEventListener('click', () => {
-      EVT.fire(EVT.list.clearSavedCrawl)
+      EVT.fire('clearSavedCrawl')
     })
   }
 
@@ -56,7 +56,7 @@ class InitHomePage extends InitPageBase {
       () => {
         if (!this.ready) {
           // 还没准备好
-          EVT.fire(EVT.list.closeCenterPanel)
+          EVT.fire('closeCenterPanel')
           this.downIdInput.style.display = 'block'
           this.downIdInput.focus()
           document.documentElement.scrollTop = 0
@@ -72,12 +72,12 @@ class InitHomePage extends InitPageBase {
       if (this.downIdInput.value !== '') {
         this.ready = true
         window.setTimeout(() => {
-          EVT.fire(EVT.list.openCenterPanel)
+          EVT.fire('openCenterPanel')
         }, 300)
         this.downIdButton.textContent = lang.transl('_开始抓取')
       } else {
         this.ready = false
-        EVT.fire(EVT.list.closeCenterPanel)
+        EVT.fire('closeCenterPanel')
         this.downIdButton.textContent = lang.transl('_输入id进行抓取')
       }
     })
@@ -108,7 +108,7 @@ class InitHomePage extends InitPageBase {
       })
     }
 
-    EVT.fire(EVT.list.downloadIdList, idList)
+    EVT.fire('downloadIdList', idList)
   }
 
   protected destroy() {

@@ -485,7 +485,7 @@ class ImageViewer {
     states.downloadFromViewer = true
 
     // 发送要下载的作品 id
-    EVT.fire(EVT.list.downloadIdList, [
+    EVT.fire('downloadIdList', [
       {
         id: this.cfg.workId,
         type: 'unknown',

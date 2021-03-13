@@ -49,7 +49,7 @@ class ConvertUgoira {
 
   private set count(num: number) {
     this._count = num
-    EVT.fire(EVT.list.convertChange, this._count)
+    EVT.fire('convertChange', this._count)
   }
 
   private async start(

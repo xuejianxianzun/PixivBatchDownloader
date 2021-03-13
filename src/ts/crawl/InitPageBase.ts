@@ -53,7 +53,7 @@ abstract class InitPageBase {
     // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
     EVT.bindOnce('clearLogAfterPageSwitch', EVT.list.pageSwitch, () => {
       if (!states.busy) {
-        EVT.fire(EVT.list.clearLog)
+        EVT.fire('clearLog')
       }
     })
 
@@ -105,7 +105,7 @@ abstract class InitPageBase {
 
   // 作品个数/页数的输入不合法
   private getWantPageError() {
-    EVT.fire(EVT.list.wrongSetting)
+    EVT.fire('wrongSetting')
     const msg = lang.transl('_参数不合法')
     msgBox.error(msg)
     throw new Error(msg)
@@ -190,7 +190,7 @@ abstract class InitPageBase {
 
     this.crawlStopped = false
 
-    EVT.fire(EVT.list.crawlStart)
+    EVT.fire('crawlStart')
 
     // 进入第一个抓取流程
     this.nextStep()
@@ -220,7 +220,7 @@ abstract class InitPageBase {
 
     this.crawlStopped = false
 
-    EVT.fire(EVT.list.crawlStart)
+    EVT.fire('crawlStart')
 
     store.idList = idList
 
@@ -239,7 +239,7 @@ abstract class InitPageBase {
   protected getIdListFinished() {
     this.resetGetIdListStatus()
 
-    EVT.fire(EVT.list.getIdListFinished)
+    EVT.fire('getIdListFinished')
     if (states.bookmarkMode) {
       return
     }
@@ -359,7 +359,7 @@ abstract class InitPageBase {
     log.success(lang.transl('_抓取完毕'), 2)
 
     // 发出抓取完毕的信号
-    EVT.fire(EVT.list.crawlFinish)
+    EVT.fire('crawlFinish')
   }
 
   // 网络请求状态异常时输出提示
@@ -403,8 +403,8 @@ abstract class InitPageBase {
   protected noResult() {
     // 先触发 crawlFinish，后触发 crawlEmpty。这样便于其他组件处理 crawlEmpty 这个例外情况
     // 如果触发顺序反过来，那么最后执行的都是 crawlFinish，可能会覆盖对 crawlEmpty 的处理
-    EVT.fire(EVT.list.crawlFinish)
-    EVT.fire(EVT.list.crawlEmpty)
+    EVT.fire('crawlFinish')
+    EVT.fire('crawlEmpty')
     const msg = lang.transl('_抓取结果为零')
     log.error(msg, 2)
     msgBox.error(msg)

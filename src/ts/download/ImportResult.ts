@@ -81,7 +81,7 @@ class ImportResult {
     }
 
     // 发送通知
-    EVT.fire(EVT.list.resultChange)
+    EVT.fire('resultChange')
 
     msgBox.success(lang.transl('_导入成功'))
   }

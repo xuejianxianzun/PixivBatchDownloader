@@ -80,7 +80,7 @@ class Deduplication {
       const btn = document.querySelector('#importDownloadRecord')
       if (btn) {
         btn.addEventListener('click', () => {
-          EVT.fire(EVT.list.importDownloadRecord)
+          EVT.fire('importDownloadRecord')
         })
       }
     }
@@ -95,7 +95,7 @@ class Deduplication {
       const btn = document.querySelector('#exportDownloadRecord')
       if (btn) {
         btn.addEventListener('click', () => {
-          EVT.fire(EVT.list.exportDownloadRecord)
+          EVT.fire('exportDownloadRecord')
         })
       }
     }
@@ -110,7 +110,7 @@ class Deduplication {
       const btn = document.querySelector('#clearDownloadRecord')
       if (btn) {
         btn.addEventListener('click', () => {
-          EVT.fire(EVT.list.clearDownloadRecord)
+          EVT.fire('clearDownloadRecord')
         })
       }
     }

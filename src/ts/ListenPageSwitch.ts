@@ -32,7 +32,7 @@ class ListenPageSwitch {
   private listenPageSwitch() {
     ;['pushState', 'popstate', 'replaceState'].forEach((item) => {
       window.addEventListener(item, () => {
-        EVT.fire(EVT.list.pageSwitch)
+        EVT.fire('pageSwitch')
       })
     })
   }

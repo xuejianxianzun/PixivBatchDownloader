@@ -28,7 +28,7 @@ class OpenCenterPanel {
     this.btn.addEventListener('click', (e) => {
       const ev = e || window.event
       ev.stopPropagation()
-      EVT.fire(EVT.list.openCenterPanel)
+      EVT.fire('openCenterPanel')
     })
 
     window.addEventListener(EVT.list.centerPanelClosed, () => {

@@ -120,9 +120,9 @@ class PageType {
     const old = this.type
     this.type = this.getType()
     if (this.type !== old) {
-      EVT.fire(EVT.list.pageSwitchedTypeChange, this.type)
+      EVT.fire('pageSwitchedTypeChange', this.type)
     } else {
-      EVT.fire(EVT.list.pageSwitchedTypeNotChange, this.type)
+      EVT.fire('pageSwitchedTypeNotChange', this.type)
     }
   }
 }

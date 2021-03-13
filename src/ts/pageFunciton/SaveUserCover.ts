@@ -46,7 +46,7 @@ class SaveUserCover {
     Utils.downloadFile(url, name)
 
     log.success('✓ ' + lang.transl('_保存用户封面'))
-    EVT.fire(EVT.list.closeCenterPanel)
+    EVT.fire('closeCenterPanel')
   }
 }
 

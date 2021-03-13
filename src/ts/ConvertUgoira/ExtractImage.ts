@@ -60,7 +60,7 @@ class ExtractImage {
           })
         },
         (message: any) => {
-          EVT.fire(EVT.list.readZipError)
+          EVT.fire('readZipError')
           reject(new Error('ReadZIP error: ' + message))
         }
       )

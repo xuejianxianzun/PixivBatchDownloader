@@ -138,7 +138,7 @@ class BookmarkAllWorks {
   private complete() {
     this.tipWrap.textContent = `✓ Complete`
     this.tipWrap.removeAttribute('disabled')
-    EVT.fire(EVT.list.bookmarkModeEnd)
+    EVT.fire('bookmarkModeEnd')
 
     toast.success('✓ Complete')
   }

@@ -68,7 +68,7 @@ class QuickDownload {
     }
 
     states.quickDownload = true
-    EVT.fire(EVT.list.QuickDownload)
+    EVT.fire('QuickDownload')
 
     const isNovel = window.location.href.includes('/novel')
 
@@ -86,7 +86,7 @@ class QuickDownload {
       }
     }
 
-    EVT.fire(EVT.list.downloadIdList, [idData])
+    EVT.fire('downloadIdList', [idData])
   }
 
   private setVisible() {

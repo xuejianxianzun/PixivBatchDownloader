@@ -17,6 +17,13 @@ export interface BlockTagsForSpecificUserItem {
   tags: string[]
 }
 
+type SettingValue = string | number | boolean | string[] | number[] | object[]
+
+export interface SettingChangeData {
+  name: SettingsKeys
+  value: SettingValue
+}
+
 interface XzSetting {
   setWantPage: number
   wantPageArr: number[]
@@ -364,7 +371,7 @@ class Settings {
   // 可选参数：传递一份设置数据，用于从配置文件导入，恢复设置
   private reset(data?: XzSetting) {
     this.assignSettings(data ? data : this.defaultSettings)
-    EVT.fire(EVT.list.resetSettingsEnd)
+    EVT.fire('resetSettingsEnd')
   }
 
   private tipError(key: string) {
@@ -376,10 +383,7 @@ class Settings {
   // 这里面有一些类型转换的代码，主要目的：
   // 1. 兼容旧版本的设置。读取旧版本的设置时，将其转换成新版本的设置。例如某个设置在旧版本里是 string 类型，值为 'a,b,c'。新版本里是 string[] 类型，这里会自动将其转换成 ['a','b','c']
   // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传递 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
-  public setSetting(
-    key: SettingsKeys,
-    value: string | number | boolean | string[] | number[] | object[]
-  ) {
+  public setSetting(key: SettingsKeys, value: SettingValue) {
     if (!this.allSettingKeys.includes(key)) {
       return
     }
@@ -470,7 +474,7 @@ class Settings {
     }
 
     // 触发设置变化的事件
-    EVT.fire(EVT.list.settingChange, { name: key, value: value })
+    EVT.fire('settingChange', { name: key, value: value })
   }
 }
 
