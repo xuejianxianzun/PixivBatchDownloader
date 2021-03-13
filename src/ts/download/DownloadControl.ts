@@ -24,12 +24,13 @@ import { states } from '../store/States'
 import { Config } from '../config/Config'
 import { toast } from '../Toast'
 import { Utils } from '../utils/Utils'
+import { msgBox } from '../MsgBox'
 
 class DownloadControl {
   constructor() {
     this.createDownloadArea()
 
-    this.listenEvents()
+    this.bindEvents()
 
     const skipTipWrap = this.wrapper.querySelector(
       '.skip_tip'
@@ -72,7 +73,7 @@ class DownloadControl {
 
   private pause = false // 是否暂停下载
 
-  private listenEvents() {
+  private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
       this.hideDownloadArea()
       this.reset()
@@ -84,6 +85,7 @@ class DownloadControl {
       EVT.list.resume,
     ]) {
       window.addEventListener(ev, () => {
+        // 让开始下载的方法进入任务队列，以便让监听上述事件的其他部分的代码先执行完毕
         window.setTimeout(() => {
           this.readyDownload()
         }, 0)
@@ -137,6 +139,18 @@ class DownloadControl {
     })
   }
 
+  /**为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num} */
+  private checkNamingRule() {
+    if (settings.userSetName.includes('{id}') || (settings.userSetName.includes('{id_num}') && settings.userSetName.includes('{p_num}'))) {
+      return true
+    } else {
+      msgBox.error(lang.transl('_命名规则一定要包含id'))
+      EVT.fire(EVT.list.openCenterPanel)
+      EVT.fire(EVT.list.downloadCancel)
+      return false
+    }
+  }
+
   private createDownloadArea() {
     const html = `<div class="download_area">
     <p> ${lang.transl(
@@ -145,18 +159,14 @@ class DownloadControl {
     )}</p>
     
     <div class="centerWrap_btns">
-    <button class="startDownload" type="button" style="background:${
-      Colors.bgBlue
-    };"> ${lang.transl('_开始下载')}</button>
-    <button class="pauseDownload" type="button" style="background:${
-      Colors.bgYellow
-    };"> ${lang.transl('_暂停下载')}</button>
-    <button class="stopDownload" type="button" style="background:${
-      Colors.bgRed
-    };"> ${lang.transl('_停止下载')}</button>
-    <button class="copyUrl" type="button" style="background:${
-      Colors.bgGreen
-    };"> ${lang.transl('_复制url')}</button>
+    <button class="startDownload" type="button" style="background:${Colors.bgBlue
+      };"> ${lang.transl('_开始下载')}</button>
+    <button class="pauseDownload" type="button" style="background:${Colors.bgYellow
+      };"> ${lang.transl('_暂停下载')}</button>
+    <button class="stopDownload" type="button" style="background:${Colors.bgRed
+      };"> ${lang.transl('_停止下载')}</button>
+    <button class="copyUrl" type="button" style="background:${Colors.bgGreen
+      };"> ${lang.transl('_复制url')}</button>
     </div>
     <div class="download_status_text_wrap">
     <span>${lang.transl('_当前状态')}</span>
@@ -233,6 +243,11 @@ class DownloadControl {
 
   // 开始下载
   private startDownload() {
+    // 检查命名规则里必须包含的标记
+    if (!this.checkNamingRule()) {
+      return false
+    }
+
     if (!this.pause && !resume.flag) {
       // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
       // 初始化下载状态列表

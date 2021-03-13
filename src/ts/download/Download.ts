@@ -21,7 +21,7 @@ class Download {
     this.progressBarIndex = progressBarIndex
 
     this.download(data)
-    this.listenEvents()
+    this.bindEvents()
   }
 
   private progressBarIndex: number
@@ -33,7 +33,7 @@ class Download {
 
   private sizeChecked = false // 是否对文件体积进行了检查
 
-  private listenEvents() {
+  private bindEvents() {
     ;[EVT.list.downloadStop, EVT.list.downloadPause].forEach((event) => {
       window.addEventListener(event, () => {
         this.cancel = true

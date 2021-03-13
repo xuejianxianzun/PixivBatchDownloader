@@ -34,6 +34,8 @@ class EVT {
     resultChange: 'resultChange',
     // 当进行快速下载时触发
     QuickDownload: 'QuickDownload',
+    // 下载被取消（取消是在尚未开始下载前触发的，它不同于下载停止）
+    downloadCancel: 'downloadCancel',
     // 开始下载时触发
     downloadStart: 'downloadStart',
     // 下载状态变成暂停时触发

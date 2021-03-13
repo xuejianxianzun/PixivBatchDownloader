@@ -77,6 +77,7 @@ class States {
       EVT.list.downloadStop,
       EVT.list.downloadPause,
       EVT.list.downloadComplete,
+      EVT.list.downloadCancel,
     ]
 
     for (const ev of resetQuickState) {
