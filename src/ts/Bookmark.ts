@@ -18,12 +18,14 @@ class Bookmark {
    * 如果未传入 tags，但收藏设置要求 tags，则此方法会发送请求获取作品数据
    */
   static async add(id: string, type: 'illusts' | 'novels', tags?: string[]) {
-    if (!tags) {
-      // 如果未传入 tags，则初始化为空数组
+    if (!settings.widthTagBoolean) {
+      // 设置了不添加 tag
       tags = []
-
-      // 如果需要附带 tag，则获取作品数据，提取 tag
-      if (settings.widthTagBoolean) {
+    } else {
+      // 需要添加 tag
+      if (!tags) {
+        tags = []
+        // 如果需要附带 tag，则获取作品数据，提取 tag
         const data = await this.getWorkData(type, id)
         tags = Tools.extractTags(data)
       }

@@ -515,14 +515,17 @@
            * 如果未传入 tags，但收藏设置要求 tags，则此方法会发送请求获取作品数据
            */
           static async add(id, type, tags) {
-            if (!tags) {
-              // 如果未传入 tags，则初始化为空数组
+            if (
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
+                .widthTagBoolean
+            ) {
+              // 设置了不添加 tag
               tags = []
-              // 如果需要附带 tag，则获取作品数据，提取 tag
-              if (
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
-                  .widthTagBoolean
-              ) {
+            } else {
+              // 需要添加 tag
+              if (!tags) {
+                tags = []
+                // 如果需要附带 tag，则获取作品数据，提取 tag
                 const data = await this.getWorkData(type, id)
                 tags = _Tools__WEBPACK_IMPORTED_MODULE_3__['Tools'].extractTags(
                   data
