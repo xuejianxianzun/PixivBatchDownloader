@@ -30,7 +30,7 @@ class Log {
     let test = document.getElementById(this.id)
     if (test === null) {
       this.logArea.id = this.id
-      this.logArea.classList.add('beautify_scrollbar')
+      this.logArea.classList.add('beautify_scrollbar', 'logWrap')
       Tools.insertToHead(this.logArea)
       theme.register(this.logArea)
     }

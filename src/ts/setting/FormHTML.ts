@@ -112,7 +112,7 @@ export const formHtml = `<form class="settingForm">
       <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="${
         Config.BookmarkCountLimit
       }">
-      <span class="verticalSplit"></span>
+      <span>${lang.transl('_或者')}</span>
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_日均收藏数量的提示'
       )}">

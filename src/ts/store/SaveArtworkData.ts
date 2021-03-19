@@ -40,7 +40,6 @@ class SaveArtworkData {
       const title = body.title // 作品标题
       const userId = body.userId // 用户id
       const user = body.userName // 用户名
-      const thumb = body.urls.thumb
       const pageCount = body.pageCount
       const bookmarked = !!body.bookmarkData
 
@@ -54,7 +53,7 @@ class SaveArtworkData {
         : ''
 
       // 储存作品信息
-      if (body.illustType !== 2) {
+      if (body.illustType === 0 || body.illustType === 1) {
         // 插画或漫画
         const imgUrl = body.urls.original // 作品的原图 URL
 
@@ -65,7 +64,11 @@ class SaveArtworkData {
         store.addResult({
           id: body.id,
           idNum: idNum,
-          thumb: thumb,
+          // 对于插画和漫画的缩略图，当一个作品包含多个图片文件时，需要转换缩略图 url
+          thumb:
+            body.pageCount > 1
+              ? Tools.convertArtworkThumbURL(body.urls.thumb, 0)
+              : body.urls.thumb,
           pageCount: pageCount,
           original: imgUrl,
           regular: body.urls.regular,
@@ -107,7 +110,7 @@ class SaveArtworkData {
         store.addResult({
           id: body.id,
           idNum: idNum,
-          thumb: thumb,
+          thumb: body.urls.thumb,
           pageCount: pageCount,
           original: meta.body.originalSrc,
           regular: meta.body.src,

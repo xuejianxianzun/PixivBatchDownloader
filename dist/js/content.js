@@ -736,7 +736,7 @@
               window.addEventListener(ev, () => {
                 if (
                   !_store_States__WEBPACK_IMPORTED_MODULE_2__['states']
-                    .quickDownload &&
+                    .quickCrawl &&
                   !_store_States__WEBPACK_IMPORTED_MODULE_2__['states']
                     .downloadFromViewer
                 ) {
@@ -1468,7 +1468,7 @@
               // 当获取作品的 id 列表完成时触发
               getIdListFinished: 'getIdListFinished',
               // 获取了作品的 id 列表，需要下载这些 id 列表时使用
-              downloadIdList: 'downloadIdList',
+              crawlIdList: 'crawlIdList',
               // 当抓取完成时触发。不管结果是否为空都会触发
               crawlFinish: 'crawlFinish',
               // 当抓取结果为空时触发。触发时机晚于 crawlFinish
@@ -1477,8 +1477,8 @@
               addResult: 'addResult',
               // 当抓取完毕之后，抓取结果又发生变化时触发（比如进行多次筛选、改变设置项等，导致结果变化）
               resultChange: 'resultChange',
-              // 当进行快速下载时触发
-              QuickDownload: 'QuickDownload',
+              // 当进行快速抓取时触发
+              quickCrawl: 'quickCrawl',
               // 下载被取消（取消是在尚未开始下载前触发的，它不同于下载停止）
               downloadCancel: 'downloadCancel',
               // 开始下载时触发
@@ -1670,24 +1670,15 @@
             )
             return allPart.join('/')
           }
+          // 传入抓取结果，获取文件名
           getFileName(data) {
             // 1 使命名规则合法化
-            // 测试用例
-            // /|/{user}////<//{rank}/{px}/{sl}/{p_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
-            // ｜/{user}/＜/{rank}/{px}/{sl}/{p_tag}/{id}-{user}-{user_id}＂＂-？{tags_transl_only}
+            // 测试用例：在作品页面内使用下面的命名规则
+            // /{p_tag}/|/{user}////<//{rank}/{px}/{sl}/{p_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
             // 命名规则为空时使用 {id}
             let result =
               _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
                 .userSetName || '{id}'
-            // 处理连续的 /
-            result = result.replace(/\/{2,100}/g, '/')
-            // 如果命名规则头部或者尾部是 / 则去掉
-            if (result.startsWith('/')) {
-              result = result.replace('/', '')
-            }
-            if (result.endsWith('/')) {
-              result = result.substr(0, result.length - 1)
-            }
             // 替换命名规则里可能存在的非法字符
             result = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__[
               'Utils'
@@ -1695,8 +1686,8 @@
             // replaceUnsafeStr 会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
             // 这一步会对斜线进行特殊处理，所以不可以移动到后面
             result = result.replace(/／/g, '/')
-            // 如果经过处理后的命名规则和用户设置的命名规则不一致，说明用户设置的命名规则存在问题。
-            // 此时使用处理后的命名规则替换用户设置的命名规则
+            // 如果经过处理后的命名规则和用户设置的命名规则不一致，说明用户设置的命名规则存在问题。此时使用处理后的命名规则替换用户设置的命名规则
+            // 此时没有处理连续的下划线和开头结尾的下划线。为了效率，这部分只在后面处理一次，所以此时的命名规则看起来可能仍然存在问题，但是实际上能够正常下载。
             if (
               result !==
               _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
@@ -1871,6 +1862,15 @@
                 // 将标记替换成对应的结果，如果有重复的标记，全部替换
                 result = result.replace(new RegExp(key, 'g'), once)
               }
+            }
+            // 处理连续的 /
+            result = result.replace(/\/{2,100}/g, '/')
+            // 如果命名规则头部或者尾部是 / 则去掉
+            if (result.startsWith('/')) {
+              result = result.replace('/', '')
+            }
+            if (result.endsWith('/')) {
+              result = result.substr(0, result.length - 1)
             }
             // 4 根据某些设置向结果中添加新的文件夹
             // 其顺序会影响最后生成的文件夹层级，不可随意更改顺序
@@ -2237,9 +2237,14 @@
                 // 生成缩略图列表
                 let html = []
                 for (let index = 0; index < body.pageCount; index++) {
-                  const str = `<li><img src="${body.urls.thumb.replace(
-                    'p0',
-                    'p' + index
+                  // 使用 thumb url 的话，p0 之后的图片经常没有对应的文件，导致缩略图因为 404 无法显示。根据 issues/140 使用另一套 url 作为缩略图 url，不会产生 404。前后对比示例：
+                  // https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2021/03/03/06/29/53/88179809_p1_custom1200.jpg
+                  // https://i.pximg.net/c/128x128/img-master/img/2021/03/03/06/29/53/88179809_p1_square1200.jpg
+                  const str = `<li><img src="${_Tools__WEBPACK_IMPORTED_MODULE_7__[
+                    'Tools'
+                  ].convertArtworkThumbURL(
+                    body.urls.thumb,
+                    index
                   )}" data-src="${useBigURL.replace('p0', 'p' + index)}"></li>`
                   html.push(str)
                 }
@@ -2472,7 +2477,7 @@
               'states'
             ].downloadFromViewer = true
             // 发送要下载的作品 id
-            _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire('downloadIdList', [
+            _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire('crawlIdList', [
               {
                 id: this.cfg.workId,
                 type: 'unknown',
@@ -3805,13 +3810,13 @@
           _屏蔽设定: ['屏蔽設定', '封鎖設定', 'Mute settings', 'ミュート設定'],
           _举报: ['举报', '回報', 'Report', '報告'],
           _输入id进行抓取: [
-            '输入id进行抓取',
+            '输入 id 进行抓取',
             '輸入 id 進行擷取',
             'Type id to crawl',
             'idを入力してダウンロードする',
           ],
           _输入id进行抓取的提示文字: [
-            '请输入作品id。如果有多个id，则以换行分割（即每行一个id）',
+            '请输入作品 id。如果有多个 id，则以换行分割（即每行一个id）',
             '請輸入作品 id。如果有多個 id，則以換行分隔（即每行一個 id）。',
             'Please type the illustration id. If there is more than one id, one id per line.',
             'イラストレーターIDを入力してください。 複数の id がある場合は、1 行に 1 つの id を付けます。',
@@ -4126,10 +4131,10 @@
             '重複ファイルをダウンロードしない',
           ],
           _不下载重复文件的提示: [
-            '下载器会保存自己的下载记录，以避免下载重复的文件。',
-            '下載器會儲存自己的下載記錄，以避免下載重複的檔案。',
-            'The downloader will save its download record to avoid downloading duplicate files.',
-            'ダウンローダーは独自のダウンロード履歴を保存して、重複ファイルのダウンロードを回避する。',
+            '下载器会保存自己的下载记录，以避免下载重复的文件。<br>当你清除 Cookie 和其他站点数据时，下载器的记录也会被清除。',
+            '下載器會儲存自己的下載記錄，以避免下載重複的檔案。<br>當你清除 Cookie 和其他站點資料時，下載器的記錄也會被清除。',
+            `The downloader will save its download record to avoid downloading duplicate files.<br>When you clear cookies and other site data, the downloader's records will also be cleared.`,
+            'ダウンローダーは独自のダウンロード履歴を保存して、重複ファイルのダウンロードを回避する。<br>cookie と他のサイトデータを削除すると、ダウンローダーの記録も削除されます。',
           ],
           _策略: ['策略：', '策略：', 'Strategy:', 'フィルター：'],
           _严格: ['严格', '嚴格', 'Strict', '厳格'],
@@ -4588,6 +4593,30 @@
             'ブックマークした',
           ],
           _全屏查看: ['全屏', '全屏', 'Full screen view', '全画面表示'],
+          _抓取id区间: [
+            '抓取 id 区间',
+            '抓取 id 區間',
+            'Crawl id range',
+            'id 範囲をクロール',
+          ],
+          _抓取id区间说明: [
+            '你可以设置一个作品 id 范围，抓取此范围内的所有作品（包含开始和结束的 id）。\n注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。',
+            '你可以設定一個作品 id 範圍，抓取此範圍內的所有作品（包含開始和結束的 id）。\n注意：如果一次任務中產生的抓取結果數量太多，可能會導致頁面崩潰。',
+            'You can set a range of work id and grab all works in this range (including the begin and end id). \nNote: If the number of crawling results in a task is too much, it may cause the page to crash.',
+            '作品 id の範囲を設定し、その範囲内のすべての作品をクロールすることができます。「開始 id と終了 id を含む」\n注意：1 つのタスクであまりにも多くのクロール結果を生成すると、ページがクラッシュする可能性があります。',
+          ],
+          _抓取id区间起点: [
+            '请输入开始的 id',
+            '請輸入開始的 id',
+            'Please type in the beginning id',
+            '開始 id を入力してください',
+          ],
+          _抓取id区间终点: [
+            '请输入结束的 id',
+            '請輸入結束的 id',
+            'Please type  in the ending id',
+            '終了 id を入力してください',
+          ],
         }
 
         /***/
@@ -4765,7 +4794,7 @@
             let test = document.getElementById(this.id)
             if (test === null) {
               this.logArea.id = this.id
-              this.logArea.classList.add('beautify_scrollbar')
+              this.logArea.classList.add('beautify_scrollbar', 'logWrap')
               _Tools__WEBPACK_IMPORTED_MODULE_0__['Tools'].insertToHead(
                 this.logArea
               )
@@ -5548,7 +5577,7 @@
             if (this.idList.length > 0) {
               // 传递 id 列表时，将其转换成一个新的数组。否则传递的是引用，外部操作会影响到内部的 id 列表
               _EVT__WEBPACK_IMPORTED_MODULE_3__['EVT'].fire(
-                'downloadIdList',
+                'crawlIdList',
                 Array.from(this.idList)
               )
               this.sendCrawl = true
@@ -6568,6 +6597,21 @@
               return Array.from(new Set(tags.concat(tagsTransl)))
             }
           }
+          /**转换 thumb url
+           *
+           * 因为现在 pixiv 的多图作品的数据里，thumb url 只是第一张图的，后面的图片没有 thumb url 数据
+           *
+           * 此方法使用另一套缩略图 url，这样所有的图片都能够获得可用的缩略图 url
+           */
+          // 根据 issues/140 进行此优化。前后对比示例：
+          // https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2021/03/03/06/29/53/88179809_p1_custom1200.jpg
+          // https://i.pximg.net/c/128x128/img-master/img/2021/03/03/06/29/53/88179809_p1_square1200.jpg
+          static convertArtworkThumbURL(thumbURL, no) {
+            return thumbURL
+              .replace('250x250_80_a2/custom-thumb', '128x128/img-master')
+              .replace('custom1200', 'square1200')
+              .replace('p0', 'p' + no)
+          }
         }
 
         /***/
@@ -6618,6 +6662,7 @@
               'div[width="288"]',
               'div[width="184"]',
               'div[width="112"]',
+              'div[width="104"]',
               'div[width="90"]',
               '._work',
               'figure > div',
@@ -6873,8 +6918,8 @@
         /* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./InitPage */ './src/ts/InitPage.ts'
         )
-        /* harmony import */ var _download_QuickDownload__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ./download/QuickDownload */ './src/ts/download/QuickDownload.ts'
+        /* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+          /*! ./crawlMixedPage/QuickCrawl */ './src/ts/crawlMixedPage/QuickCrawl.ts'
         )
         /* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ./download/DownloadControl */ './src/ts/download/DownloadControl.ts'
@@ -7057,12 +7102,12 @@
             )
             // 监听下载 id 列表的事件
             _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].bindOnce(
-              'downloadIdList',
-              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.downloadIdList,
+              'crawlIdList',
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.crawlIdList,
               (ev) => {
                 const idList = ev.detail.data
                 if (idList) {
-                  this.downloadIdList(idList)
+                  this.crawlIdList(idList)
                 }
               }
             )
@@ -7228,7 +7273,7 @@
           // 基于传递的 id 列表直接开始抓取
           // 这个方法是为了让其他模块可以传递 id 列表，直接进行下载。
           // 这个类的子类没有必要使用这个方法。当子类想要直接指定 id 列表时，修改自己的 getIdList 方法即可。
-          async downloadIdList(idList) {
+          async crawlIdList(idList) {
             // 检查是否可以开始抓取
             if (_store_States__WEBPACK_IMPORTED_MODULE_9__['states'].busy) {
               _Toast__WEBPACK_IMPORTED_MODULE_16__['toast'].error(
@@ -9766,6 +9811,13 @@
             this.hotBar()
             this.setNotAutoDownload()
             window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list
+                .pageSwitchedTypeNotChange,
+              () => {
+                this.hotBar()
+              }
+            )
+            window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list.addResult,
               this.showCount
             )
@@ -11173,6 +11225,12 @@
         /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ../config/Config */ './src/ts/config/Config.ts'
         )
+        /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+          /*! ../Toast */ './src/ts/Toast.ts'
+        )
+        /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
+          /*! ../Theme */ './src/ts/Theme.ts'
+        )
         // 初始化首页
 
         class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
@@ -11184,6 +11242,7 @@
             this.downIdInput = document.createElement('textarea')
             this.ready = false
             this.init()
+            this.idRangeTip = this.createidRangeTip()
           }
           addCrawlBtns() {
             this.downIdButton = _Tools__WEBPACK_IMPORTED_MODULE_4__[
@@ -11196,6 +11255,16 @@
               ),
               [['id', 'down_id_button']]
             )
+            const crawlIdRange = _Tools__WEBPACK_IMPORTED_MODULE_4__[
+              'Tools'
+            ].addBtn(
+              'crawlBtns',
+              _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_抓取id区间')
+            )
+            crawlIdRange.addEventListener('click', () => {
+              this.crawlIdRange()
+            })
           }
           addAnyElement() {
             // 用于输入id的输入框
@@ -11268,13 +11337,20 @@
               }
             })
           }
+          // 单独添加一个用于提示 id 范围的元素，因为上面的日志显示在日志区域的顶端，不便于查看
+          createidRangeTip() {
+            const div = document.createElement('div')
+            div.classList.add('id_range_tip', 'beautify_scrollbar', 'logWrap')
+            _Theme__WEBPACK_IMPORTED_MODULE_8__['theme'].register(div)
+            return _Tools__WEBPACK_IMPORTED_MODULE_4__['Tools'].insertToHead(
+              div
+            )
+          }
+          // 把合法的 id 添加到数组里
           checkIdList() {
-            // 检查页面类型，设置输入的 id 的作品类型
-            const type =
-              window.location.pathname === '/novel/' ? 'novels' : 'unknown'
-            // 把合法的 id 添加到 Set 结构里去重
+            // 不必去重，因为 store 存储抓取结果时会去重
             const array = this.downIdInput.value.split('\n')
-            const idSet = new Set()
+            const result = []
             for (const str of array) {
               const id = parseInt(str)
               if (
@@ -11292,21 +11368,91 @@
                     str
                 )
               } else {
-                idSet.add(id)
+                result.push(id.toString())
               }
             }
-            // 添加 id
+            this.addIdList(result)
+          }
+          crawlIdRange() {
+            let start = 0
+            let end = 0
+            // 接收起点
+            const startInput = window.prompt(
+              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                '_抓取id区间说明'
+              ) +
+                '\n' +
+                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                  '_抓取id区间起点'
+                ),
+              '0'
+            )
+            if (startInput) {
+              const num = Number.parseInt(startInput)
+              if (!isNaN(num) && num >= 0) {
+                start = num
+              } else {
+                return _Toast__WEBPACK_IMPORTED_MODULE_7__['toast'].error(
+                  _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                    '_参数不合法'
+                  )
+                )
+              }
+            } else {
+              return
+            }
+            // 接收终点
+            const endInput = window.prompt(
+              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                '_抓取id区间终点'
+              ),
+              '1'
+            )
+            if (endInput) {
+              const num = Number.parseInt(endInput)
+              if (!isNaN(num) && num > start) {
+                end = num
+              } else {
+                return _Toast__WEBPACK_IMPORTED_MODULE_7__['toast'].error(
+                  _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                    '_参数不合法'
+                  )
+                )
+              }
+            } else {
+              return
+            }
+            // 提示抓取范围，便于用户分批次抓取的时候查看
+            const tip =
+              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_抓取id区间') +
+              `: ${start} - ${end}`
+            this.idRangeTip.textContent = tip
+            this.idRangeTip.style.display = 'block'
+            // 不要在这里使用 log.log ，因为之后开始抓取时，日志区域会被清空，所以用户在日志区域里看不到这个提示
+            // 生成 id 列表
+            const ids = []
+            while (start <= end) {
+              ids.push(start.toString())
+              start++
+            }
+            this.addIdList(ids)
+            _Toast__WEBPACK_IMPORTED_MODULE_7__['toast'].success(
+              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_开始抓取')
+            )
+          }
+          // 把 id 列表添加到 store 里，然后开始抓取
+          addIdList(ids) {
+            // 检查页面类型，设置输入的 id 的作品类型
+            const type =
+              window.location.pathname === '/novel/' ? 'novels' : 'unknown'
             const idList = []
-            for (const id of idSet.values()) {
+            for (const id of ids) {
               idList.push({
                 type: type,
-                id: id.toString(),
+                id: id,
               })
             }
-            _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].fire(
-              'downloadIdList',
-              idList
-            )
+            _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].fire('crawlIdList', idList)
           }
           destroy() {
             _Tools__WEBPACK_IMPORTED_MODULE_4__['Tools'].clearSlot('crawlBtns')
@@ -11739,6 +11885,136 @@
             )
           }
         }
+
+        /***/
+      },
+
+    /***/ './src/ts/crawlMixedPage/QuickCrawl.ts':
+      /*!*********************************************!*\
+  !*** ./src/ts/crawlMixedPage/QuickCrawl.ts ***!
+  \*********************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../Lang */ './src/ts/Lang.ts'
+        )
+        /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../PageType */ './src/ts/PageType.ts'
+        )
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../store/States */ './src/ts/store/States.ts'
+        )
+        /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../Toast */ './src/ts/Toast.ts'
+        )
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../Tools */ './src/ts/Tools.ts'
+        )
+
+        // 快速抓取
+        class QuickCrawl {
+          constructor() {
+            this.show = true // 是否显示
+            // 指定在哪些页面类型里启用
+            this.enablePageType = [
+              _PageType__WEBPACK_IMPORTED_MODULE_2__['pageType'].list.Artwork,
+              _PageType__WEBPACK_IMPORTED_MODULE_2__['pageType'].list.Novel,
+            ]
+            this.addBtn()
+            this.setVisible()
+            this.bindEvents()
+          }
+          addBtn() {
+            // 在右侧添加快速抓取按钮
+            this.btn = document.createElement('button')
+            this.btn.classList.add('rightButton')
+            this.btn.id = 'quickCrawlBtn'
+            this.btn.setAttribute(
+              'title',
+              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                '_快速下载本页'
+              ) + ' (Alt + Q)'
+            )
+            this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-download"></use>
+</svg>`
+            document.body.insertAdjacentElement('afterbegin', this.btn)
+          }
+          bindEvents() {
+            // 点击按钮启动快速抓取
+            this.btn.addEventListener(
+              'click',
+              () => {
+                this.sendDownload()
+              },
+              false
+            )
+            // 使用快捷键 Alt + q 启动快速抓取
+            window.addEventListener(
+              'keydown',
+              (ev) => {
+                if (this.show && ev.altKey && ev.code === 'KeyQ') {
+                  this.sendDownload()
+                }
+              },
+              false
+            )
+            // 页面类型改变时设置按钮的显示隐藏
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.pageSwitch,
+              () => {
+                this.setVisible()
+              }
+            )
+          }
+          sendDownload() {
+            // 因为 quickCrawl 状态会影响后续下载行为，所以必须先判断 busy 状态
+            if (_store_States__WEBPACK_IMPORTED_MODULE_3__['states'].busy) {
+              _Toast__WEBPACK_IMPORTED_MODULE_4__['toast'].error(
+                _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                  '_当前任务尚未完成'
+                )
+              )
+              return
+            }
+            _store_States__WEBPACK_IMPORTED_MODULE_3__[
+              'states'
+            ].quickCrawl = true
+            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('quickCrawl')
+            const isNovel = window.location.href.includes('/novel')
+            let idData
+            if (isNovel) {
+              idData = {
+                type: 'novels',
+                id: _Tools__WEBPACK_IMPORTED_MODULE_5__['Tools'].getNovelId(
+                  window.location.href
+                ),
+              }
+            } else {
+              idData = {
+                type: 'unknown',
+                id: _Tools__WEBPACK_IMPORTED_MODULE_5__['Tools'].getIllustId(
+                  window.location.href
+                ),
+              }
+            }
+            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('crawlIdList', [
+              idData,
+            ])
+          }
+          setVisible() {
+            this.show = this.enablePageType.includes(
+              _PageType__WEBPACK_IMPORTED_MODULE_2__['pageType'].type
+            )
+            this.btn.style.display = this.show ? 'flex' : 'none'
+          }
+        }
+        new QuickCrawl()
 
         /***/
       },
@@ -14173,7 +14449,7 @@
               _setting_Settings__WEBPACK_IMPORTED_MODULE_6__['settings']
                 .quietDownload ||
               _store_States__WEBPACK_IMPORTED_MODULE_14__['states']
-                .quickDownload ||
+                .quickCrawl ||
               _store_States__WEBPACK_IMPORTED_MODULE_14__['states']
                 .downloadFromViewer
             ) {
@@ -14865,6 +15141,10 @@
                 name: 'original',
                 index: 'original',
               },
+              {
+                name: 'thumb',
+                index: 'thumb',
+              },
               // fileName 字段的 index 属性可以随便写，因为没有影响。
               {
                 name: 'fileName',
@@ -15401,143 +15681,6 @@
           }
         }
         const progressBar = new ProgressBar()
-
-        /***/
-      },
-
-    /***/ './src/ts/download/QuickDownload.ts':
-      /*!******************************************!*\
-  !*** ./src/ts/download/QuickDownload.ts ***!
-  \******************************************/
-      /*! exports provided: quickDownload */
-      /***/ function (module, __webpack_exports__, __webpack_require__) {
-        'use strict'
-        __webpack_require__.r(__webpack_exports__)
-        /* harmony export (binding) */ __webpack_require__.d(
-          __webpack_exports__,
-          'quickDownload',
-          function () {
-            return quickDownload
-          }
-        )
-        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
-          /*! ../EVT */ './src/ts/EVT.ts'
-        )
-        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
-          /*! ../Lang */ './src/ts/Lang.ts'
-        )
-        /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../PageType */ './src/ts/PageType.ts'
-        )
-        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ../store/States */ './src/ts/store/States.ts'
-        )
-        /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
-          /*! ../Toast */ './src/ts/Toast.ts'
-        )
-        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
-          /*! ../Tools */ './src/ts/Tools.ts'
-        )
-
-        // 快速下载
-        class QuickDownload {
-          constructor() {
-            this.show = true // 是否显示
-            // 指定在哪些页面类型里启用
-            this.enablePageType = [
-              _PageType__WEBPACK_IMPORTED_MODULE_2__['pageType'].list.Artwork,
-              _PageType__WEBPACK_IMPORTED_MODULE_2__['pageType'].list.Novel,
-            ]
-            this.addBtn()
-            this.setVisible()
-            this.bindEvents()
-          }
-          addBtn() {
-            // 在右侧添加快速下载按钮
-            this.btn = document.createElement('button')
-            this.btn.classList.add('rightButton')
-            this.btn.id = 'quickDownloadBtn'
-            this.btn.setAttribute(
-              'title',
-              _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                '_快速下载本页'
-              ) + ' (Alt + Q)'
-            )
-            this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-download"></use>
-</svg>`
-            document.body.insertAdjacentElement('afterbegin', this.btn)
-          }
-          bindEvents() {
-            // 点击按钮启动快速下载
-            this.btn.addEventListener(
-              'click',
-              () => {
-                this.sendDownload()
-              },
-              false
-            )
-            // 使用快捷键 Alt + q 启动快速下载
-            window.addEventListener(
-              'keydown',
-              (ev) => {
-                if (this.show && ev.altKey && ev.code === 'KeyQ') {
-                  this.sendDownload()
-                }
-              },
-              false
-            )
-            // 页面类型改变时设置按钮的显示隐藏
-            window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.pageSwitch,
-              () => {
-                this.setVisible()
-              }
-            )
-          }
-          sendDownload() {
-            // 因为 quickDownload 状态会影响后续下载行为，所以必须先判断 busy 状态
-            if (_store_States__WEBPACK_IMPORTED_MODULE_3__['states'].busy) {
-              _Toast__WEBPACK_IMPORTED_MODULE_4__['toast'].error(
-                _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                  '_当前任务尚未完成'
-                )
-              )
-              return
-            }
-            _store_States__WEBPACK_IMPORTED_MODULE_3__[
-              'states'
-            ].quickDownload = true
-            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('QuickDownload')
-            const isNovel = window.location.href.includes('/novel')
-            let idData
-            if (isNovel) {
-              idData = {
-                type: 'novels',
-                id: _Tools__WEBPACK_IMPORTED_MODULE_5__['Tools'].getNovelId(
-                  window.location.href
-                ),
-              }
-            } else {
-              idData = {
-                type: 'unknown',
-                id: _Tools__WEBPACK_IMPORTED_MODULE_5__['Tools'].getIllustId(
-                  window.location.href
-                ),
-              }
-            }
-            _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('downloadIdList', [
-              idData,
-            ])
-          }
-          setVisible() {
-            this.show = this.enablePageType.includes(
-              _PageType__WEBPACK_IMPORTED_MODULE_2__['pageType'].type
-            )
-            this.btn.style.display = this.show ? 'flex' : 'none'
-          }
-        }
-        const quickDownload = new QuickDownload()
 
         /***/
       },
@@ -20394,7 +20537,7 @@
       <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="${
         _config_Config__WEBPACK_IMPORTED_MODULE_0__['Config'].BookmarkCountLimit
       }">
-      <span class="verticalSplit"></span>
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_或者')}</span>
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_日均收藏数量的提示')}">
@@ -22474,7 +22617,6 @@
               const title = body.title // 作品标题
               const userId = body.userId // 用户id
               const user = body.userName // 用户名
-              const thumb = body.urls.thumb
               const pageCount = body.pageCount
               const bookmarked = !!body.bookmarkData
               // 保存作品在排行榜上的编号
@@ -22489,7 +22631,7 @@
                 ? '#' + body.seriesNavData.order
                 : ''
               // 储存作品信息
-              if (body.illustType !== 2) {
+              if (body.illustType === 0 || body.illustType === 1) {
                 // 插画或漫画
                 const imgUrl = body.urls.original // 作品的原图 URL
                 const tempExt = imgUrl.split('.')
@@ -22498,7 +22640,13 @@
                 _Store__WEBPACK_IMPORTED_MODULE_3__['store'].addResult({
                   id: body.id,
                   idNum: idNum,
-                  thumb: thumb,
+                  // 对于插画和漫画的缩略图，当一个作品包含多个图片文件时，需要转换缩略图 url
+                  thumb:
+                    body.pageCount > 1
+                      ? _Tools__WEBPACK_IMPORTED_MODULE_4__[
+                          'Tools'
+                        ].convertArtworkThumbURL(body.urls.thumb, 0)
+                      : body.urls.thumb,
                   pageCount: pageCount,
                   original: imgUrl,
                   regular: body.urls.regular,
@@ -22542,7 +22690,7 @@
                 _Store__WEBPACK_IMPORTED_MODULE_3__['store'].addResult({
                   id: body.id,
                   idNum: idNum,
-                  thumb: thumb,
+                  thumb: body.urls.thumb,
                   pageCount: pageCount,
                   original: meta.body.originalSrc,
                   regular: meta.body.src,
@@ -22813,10 +22961,10 @@
             // 快速下载标记。如果为 true 说明进入了快速下载模式
             // 快速下载模式中不会显示下载面板，并且会自动开始下载
             // 启动快速下载时设为 true，下载完成或中止时复位到 false
-            this.quickDownload = false
+            this.quickCrawl = false
             // 这次下载是否是从图片查看器建立的
             // 如果是，那么下载途中不会显示下载面板，并且会自动开始下载
-            // 作用同 quickDownload，只是触发方式不同
+            // 作用同 quickCrawl，只是触发方式不同
             this.downloadFromViewer = false
             // 不自动下载的标记。如果为 true，那么下载器在抓取完成后，不会自动开始下载。（即使用户设置了自动开始下载）
             // 修改者：InitSearchArtworkPage 组件根据“预览搜索结果”的设置，修改这个状态
@@ -22875,7 +23023,7 @@
             ]
             for (const ev of resetQuickState) {
               window.addEventListener(ev, () => {
-                this.quickDownload = false
+                this.quickCrawl = false
                 this.downloadFromViewer = false
               })
             }
@@ -22999,6 +23147,7 @@
             if (workData.type === 0 || workData.type === 1) {
               workData.dlCount = this.getDLCount(workData.pageCount)
             }
+            workData.id = workData.idNum + `_p0`
             this.resultMeta.push(workData)
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('addResult', workData)
             // 把该作品里的每个文件的数据添加到结果里
@@ -23006,14 +23155,20 @@
               // 小说作品直接添加
               this.result.push(workData)
             } else {
-              // 图片作品循环添加该作品里每一个图片文件的数据
-              for (let i = 0; i < workData.dlCount; i++) {
-                const fileData = Object.assign({}, workData)
-                fileData.id = fileData.id + `_p${i}`
-                fileData.original = fileData.original.replace('p0', 'p' + i)
-                fileData.regular = fileData.regular.replace('p0', 'p' + i)
-                fileData.small = fileData.small.replace('p0', 'p' + i)
-                this.result.push(fileData)
+              // 对于图片作品，如果需要添加多个图片文件，则需要循环生成每一个图片文件的数据
+              if (workData.dlCount === 1) {
+                this.result.push(workData)
+              }
+              if (workData.dlCount > 1) {
+                for (let i = 0; i < workData.dlCount; i++) {
+                  const fileData = Object.assign({}, workData)
+                  fileData.id = fileData.id.replace('p0', 'p' + i)
+                  fileData.original = fileData.original.replace('p0', 'p' + i)
+                  fileData.regular = fileData.regular.replace('p0', 'p' + i)
+                  fileData.small = fileData.small.replace('p0', 'p' + i)
+                  fileData.thumb = fileData.thumb.replace('p0', 'p' + i)
+                  this.result.push(fileData)
+                }
               }
             }
           }
@@ -23153,7 +23308,9 @@
               result.push(this.format(row).join(this.separate))
               result.push(this.CRLF)
             }
-            const csvBlob = new Blob(result)
+            const csvBlob = new Blob(result, {
+              type: 'text/csv',
+            })
             return csvBlob
           }
           UTF8BOM() {

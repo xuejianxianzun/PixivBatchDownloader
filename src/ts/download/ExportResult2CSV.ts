@@ -105,6 +105,10 @@ class ExportResult2CSV {
       name: 'original',
       index: 'original',
     },
+    {
+      name: 'thumb',
+      index: 'thumb',
+    },
     // fileName 字段的 index 属性可以随便写，因为没有影响。
     {
       name: 'fileName',

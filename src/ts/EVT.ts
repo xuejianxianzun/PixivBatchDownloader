@@ -30,7 +30,7 @@ class EVENT {
     // 当获取作品的 id 列表完成时触发
     getIdListFinished: 'getIdListFinished',
     // 获取了作品的 id 列表，需要下载这些 id 列表时使用
-    downloadIdList: 'downloadIdList',
+    crawlIdList: 'crawlIdList',
     // 当抓取完成时触发。不管结果是否为空都会触发
     crawlFinish: 'crawlFinish',
     // 当抓取结果为空时触发。触发时机晚于 crawlFinish
@@ -39,8 +39,8 @@ class EVENT {
     addResult: 'addResult',
     // 当抓取完毕之后，抓取结果又发生变化时触发（比如进行多次筛选、改变设置项等，导致结果变化）
     resultChange: 'resultChange',
-    // 当进行快速下载时触发
-    QuickDownload: 'QuickDownload',
+    // 当进行快速抓取时触发
+    quickCrawl: 'quickCrawl',
     // 下载被取消（取消是在尚未开始下载前触发的，它不同于下载停止）
     downloadCancel: 'downloadCancel',
     // 开始下载时触发
@@ -154,7 +154,7 @@ class EVENT {
       | 'crawlFinish'
       | 'crawlEmpty'
       | 'resultChange'
-      | 'QuickDownload'
+      | 'quickCrawl'
       | 'downloadCancel'
       | 'downloadStart'
       | 'downloadPause'
@@ -212,7 +212,7 @@ class EVENT {
     data: number
   ): void
 
-  public fire(type: 'downloadIdList', data: IDData[]): void
+  public fire(type: 'crawlIdList', data: IDData[]): void
 
   public fire(type: 'addResult', data: Result): void
 

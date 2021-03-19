@@ -344,7 +344,7 @@ class SelectWork {
 
     if (this.idList.length > 0) {
       // 传递 id 列表时，将其转换成一个新的数组。否则传递的是引用，外部操作会影响到内部的 id 列表
-      EVT.fire('downloadIdList', Array.from(this.idList))
+      EVT.fire('crawlIdList', Array.from(this.idList))
 
       this.sendCrawl = true
       this.crawled = false

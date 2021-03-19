@@ -1,10 +1,9 @@
-#logWrap {
+.logWrap {
   margin: 6px auto;
   background: #fff;
   padding: 10px;
   font-size: 14px;
   width: 950px;
-  max-height: 300px;
   overflow-y: auto;
   color: #333;
 
@@ -13,8 +12,16 @@
   }
 }
 
+#logWrap {
+  max-height: 300px;
+}
+
+.id_range_tip {
+  display: none;
+}
+
 .theme-dark {
-  &#logWrap {
+  &.logWrap {
     background: #222;
     color: #fff;
   }

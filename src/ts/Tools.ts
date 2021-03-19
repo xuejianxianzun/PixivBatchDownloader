@@ -317,6 +317,22 @@ class Tools {
       return Array.from(new Set(tags.concat(tagsTransl)))
     }
   }
+
+  /**转换 thumb url
+   *
+   * 因为现在 pixiv 的多图作品的数据里，thumb url 只是第一张图的，后面的图片没有 thumb url 数据
+   *
+   * 此方法使用另一套缩略图 url，这样所有的图片都能够获得可用的缩略图 url
+   */
+  // 根据 issues/140 进行此优化。前后对比示例：
+  // https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2021/03/03/06/29/53/88179809_p1_custom1200.jpg
+  // https://i.pximg.net/c/128x128/img-master/img/2021/03/03/06/29/53/88179809_p1_square1200.jpg
+  static convertArtworkThumbURL(thumbURL: string, no: number | string) {
+    return thumbURL
+      .replace('250x250_80_a2/custom-thumb', '128x128/img-master')
+      .replace('custom1200', 'square1200')
+      .replace('p0', 'p' + no)
+  }
 }
 
 export { Tools }

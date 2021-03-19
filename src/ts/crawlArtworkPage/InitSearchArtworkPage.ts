@@ -146,6 +146,10 @@ class InitSearchArtworkPage extends InitPageBase {
 
     this.setNotAutoDownload()
 
+    window.addEventListener(EVT.list.pageSwitchedTypeNotChange, () => {
+      this.hotBar()
+    })
+
     window.addEventListener(EVT.list.addResult, this.showCount)
 
     window.addEventListener('addBMK', this.addBookmark)
@@ -740,7 +744,6 @@ class InitSearchArtworkPage extends InitPageBase {
     // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
     const timer = window.setInterval(() => {
       const hotWorkAside = document.querySelector(this.hotWorkAsideSelector)
-
       if (hotWorkAside) {
         window.clearInterval(timer)
 

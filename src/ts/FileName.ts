@@ -30,26 +30,15 @@ class FileName {
     return allPart.join('/')
   }
 
+  // 传入抓取结果，获取文件名
   public getFileName(data: Result) {
     // 1 使命名规则合法化
 
-    // 测试用例
-    // /|/{user}////<//{rank}/{px}/{sl}/{p_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
-    // ｜/{user}/＜/{rank}/{px}/{sl}/{p_tag}/{id}-{user}-{user_id}＂＂-？{tags_transl_only}
+    // 测试用例：在作品页面内使用下面的命名规则
+    // /{p_tag}/|/{user}////<//{rank}/{px}/{sl}/{p_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
 
     // 命名规则为空时使用 {id}
     let result = settings.userSetName || '{id}'
-
-    // 处理连续的 /
-    result = result.replace(/\/{2,100}/g, '/')
-
-    // 如果命名规则头部或者尾部是 / 则去掉
-    if (result.startsWith('/')) {
-      result = result.replace('/', '')
-    }
-    if (result.endsWith('/')) {
-      result = result.substr(0, result.length - 1)
-    }
 
     // 替换命名规则里可能存在的非法字符
     result = Utils.replaceUnsafeStr(result)
@@ -57,8 +46,8 @@ class FileName {
     // 这一步会对斜线进行特殊处理，所以不可以移动到后面
     result = result.replace(/／/g, '/')
 
-    // 如果经过处理后的命名规则和用户设置的命名规则不一致，说明用户设置的命名规则存在问题。
-    // 此时使用处理后的命名规则替换用户设置的命名规则
+    // 如果经过处理后的命名规则和用户设置的命名规则不一致，说明用户设置的命名规则存在问题。此时使用处理后的命名规则替换用户设置的命名规则
+    // 此时没有处理连续的下划线和开头结尾的下划线。为了效率，这部分只在后面处理一次，所以此时的命名规则看起来可能仍然存在问题，但是实际上能够正常下载。
     if (result !== settings.userSetName) {
       setSetting('userSetName', result)
     }
@@ -212,6 +201,17 @@ class FileName {
         // 将标记替换成对应的结果，如果有重复的标记，全部替换
         result = result.replace(new RegExp(key, 'g'), once)
       }
+    }
+
+    // 处理连续的 /
+    result = result.replace(/\/{2,100}/g, '/')
+
+    // 如果命名规则头部或者尾部是 / 则去掉
+    if (result.startsWith('/')) {
+      result = result.replace('/', '')
+    }
+    if (result.endsWith('/')) {
+      result = result.substr(0, result.length - 1)
     }
 
     // 4 根据某些设置向结果中添加新的文件夹

@@ -99,6 +99,8 @@ class Store {
       workData.dlCount = this.getDLCount(workData.pageCount)
     }
 
+    workData.id = workData.idNum + `_p0`
+
     this.resultMeta.push(workData)
 
     EVT.fire('addResult', workData)
@@ -108,14 +110,20 @@ class Store {
       // 小说作品直接添加
       this.result.push(workData)
     } else {
-      // 图片作品循环添加该作品里每一个图片文件的数据
-      for (let i = 0; i < workData.dlCount; i++) {
-        const fileData = Object.assign({}, workData)
-        fileData.id = fileData.id + `_p${i}`
-        fileData.original = fileData.original.replace('p0', 'p' + i)
-        fileData.regular = fileData.regular.replace('p0', 'p' + i)
-        fileData.small = fileData.small.replace('p0', 'p' + i)
-        this.result.push(fileData)
+      // 对于图片作品，如果需要添加多个图片文件，则需要循环生成每一个图片文件的数据
+      if (workData.dlCount === 1) {
+        this.result.push(workData)
+      }
+      if (workData.dlCount > 1) {
+        for (let i = 0; i < workData.dlCount; i++) {
+          const fileData = Object.assign({}, workData)
+          fileData.id = fileData.id.replace('p0', 'p' + i)
+          fileData.original = fileData.original.replace('p0', 'p' + i)
+          fileData.regular = fileData.regular.replace('p0', 'p' + i)
+          fileData.small = fileData.small.replace('p0', 'p' + i)
+          fileData.thumb = fileData.thumb.replace('p0', 'p' + i)
+          this.result.push(fileData)
+        }
       }
     }
   }

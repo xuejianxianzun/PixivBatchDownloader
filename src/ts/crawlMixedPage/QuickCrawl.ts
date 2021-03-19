@@ -6,8 +6,8 @@ import { IDData } from '../store/StoreType'
 import { toast } from '../Toast'
 import { Tools } from '../Tools'
 
-// 快速下载
-class QuickDownload {
+// 快速抓取
+class QuickCrawl {
   constructor() {
     this.addBtn()
     this.setVisible()
@@ -22,10 +22,10 @@ class QuickDownload {
   private readonly enablePageType = [pageType.list.Artwork, pageType.list.Novel]
 
   private addBtn() {
-    // 在右侧添加快速下载按钮
+    // 在右侧添加快速抓取按钮
     this.btn = document.createElement('button')
     this.btn.classList.add('rightButton')
-    this.btn.id = 'quickDownloadBtn'
+    this.btn.id = 'quickCrawlBtn'
     this.btn.setAttribute('title', lang.transl('_快速下载本页') + ' (Alt + Q)')
     this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-download"></use>
@@ -34,7 +34,7 @@ class QuickDownload {
   }
 
   private bindEvents() {
-    // 点击按钮启动快速下载
+    // 点击按钮启动快速抓取
     this.btn.addEventListener(
       'click',
       () => {
@@ -43,7 +43,7 @@ class QuickDownload {
       false
     )
 
-    // 使用快捷键 Alt + q 启动快速下载
+    // 使用快捷键 Alt + q 启动快速抓取
     window.addEventListener(
       'keydown',
       (ev) => {
@@ -61,14 +61,14 @@ class QuickDownload {
   }
 
   private sendDownload() {
-    // 因为 quickDownload 状态会影响后续下载行为，所以必须先判断 busy 状态
+    // 因为 quickCrawl 状态会影响后续下载行为，所以必须先判断 busy 状态
     if (states.busy) {
       toast.error(lang.transl('_当前任务尚未完成'))
       return
     }
 
-    states.quickDownload = true
-    EVT.fire('QuickDownload')
+    states.quickCrawl = true
+    EVT.fire('quickCrawl')
 
     const isNovel = window.location.href.includes('/novel')
 
@@ -86,7 +86,7 @@ class QuickDownload {
       }
     }
 
-    EVT.fire('downloadIdList', [idData])
+    EVT.fire('crawlIdList', [idData])
   }
 
   private setVisible() {
@@ -95,5 +95,4 @@ class QuickDownload {
   }
 }
 
-const quickDownload = new QuickDownload()
-export { quickDownload }
+new QuickCrawl()

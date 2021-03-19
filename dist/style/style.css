@@ -416,7 +416,7 @@
   background: #80b9f7;
   background: -webkit-linear-gradient(top, #bce4ff 0%, #35adfd 100%);
 }
-#quickDownloadBtn {
+#quickCrawlBtn {
   top: 21%;
   background: #0096fa;
   background: -webkit-linear-gradient(top, #47b4ff 0%, #027fd2 100%);
@@ -852,7 +852,7 @@
   cursor: pointer;
   margin-bottom: 8px;
   vertical-align: top;
-  box-shadow: 0 1px 6px #ddd;
+  box-shadow: 0 1px 6px #eee;
 }
 .centerWrap .centerWrap_con .settingForm .centerWrap_btns button:hover,
 .centerWrap .centerWrap_con .settingForm .centerWrap_btns button:focus {
@@ -1312,20 +1312,25 @@
 .theme-dark.outputWrap .outputContent * {
   color: #fff !important;
 }
-#logWrap {
+.logWrap {
   margin: 6px auto;
   background: #fff;
   padding: 10px;
   font-size: 14px;
   width: 950px;
-  max-height: 300px;
   overflow-y: auto;
   color: #333;
 }
-#logWrap br {
+.logWrap br {
   display: inline;
 }
-.theme-dark#logWrap {
+#logWrap {
+  max-height: 300px;
+}
+.id_range_tip {
+  display: none;
+}
+.theme-dark.logWrap {
   background: #222;
   color: #fff;
 }

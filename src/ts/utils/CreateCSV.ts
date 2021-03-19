@@ -90,7 +90,9 @@ class CreateCSV {
       result.push(this.CRLF)
     }
 
-    const csvBlob = new Blob(result)
+    const csvBlob = new Blob(result, {
+      type: 'text/csv',
+    })
     return csvBlob
   }
 

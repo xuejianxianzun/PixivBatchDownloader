@@ -910,13 +910,13 @@ const langText = {
   _屏蔽设定: ['屏蔽設定', '封鎖設定', 'Mute settings', 'ミュート設定'],
   _举报: ['举报', '回報', 'Report', '報告'],
   _输入id进行抓取: [
-    '输入id进行抓取',
+    '输入 id 进行抓取',
     '輸入 id 進行擷取',
     'Type id to crawl',
     'idを入力してダウンロードする',
   ],
   _输入id进行抓取的提示文字: [
-    '请输入作品id。如果有多个id，则以换行分割（即每行一个id）',
+    '请输入作品 id。如果有多个 id，则以换行分割（即每行一个id）',
     '請輸入作品 id。如果有多個 id，則以換行分隔（即每行一個 id）。',
     'Please type the illustration id. If there is more than one id, one id per line.',
     'イラストレーターIDを入力してください。 複数の id がある場合は、1 行に 1 つの id を付けます。',
@@ -1216,10 +1216,10 @@ const langText = {
     '重複ファイルをダウンロードしない',
   ],
   _不下载重复文件的提示: [
-    '下载器会保存自己的下载记录，以避免下载重复的文件。',
-    '下載器會儲存自己的下載記錄，以避免下載重複的檔案。',
-    'The downloader will save its download record to avoid downloading duplicate files.',
-    'ダウンローダーは独自のダウンロード履歴を保存して、重複ファイルのダウンロードを回避する。',
+    '下载器会保存自己的下载记录，以避免下载重复的文件。<br>当你清除 Cookie 和其他站点数据时，下载器的记录也会被清除。',
+    '下載器會儲存自己的下載記錄，以避免下載重複的檔案。<br>當你清除 Cookie 和其他站點資料時，下載器的記錄也會被清除。',
+    `The downloader will save its download record to avoid downloading duplicate files.<br>When you clear cookies and other site data, the downloader's records will also be cleared.`,
+    'ダウンローダーは独自のダウンロード履歴を保存して、重複ファイルのダウンロードを回避する。<br>cookie と他のサイトデータを削除すると、ダウンローダーの記録も削除されます。',
   ],
   _策略: ['策略：', '策略：', 'Strategy:', 'フィルター：'],
   _严格: ['严格', '嚴格', 'Strict', '厳格'],
@@ -1628,6 +1628,30 @@ const langText = {
   _收藏: ['收藏', '收藏', 'Bookmark', 'ブックマーク'],
   _已加入收藏: ['已加入收藏', '已加入收藏', 'Bookmarked', 'ブックマークした'],
   _全屏查看: ['全屏', '全屏', 'Full screen view', '全画面表示'],
+  _抓取id区间: [
+    '抓取 id 区间',
+    '抓取 id 區間',
+    'Crawl id range',
+    'id 範囲をクロール',
+  ],
+  _抓取id区间说明: [
+    '你可以设置一个作品 id 范围，抓取此范围内的所有作品（包含开始和结束的 id）。\n注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。',
+    '你可以設定一個作品 id 範圍，抓取此範圍內的所有作品（包含開始和結束的 id）。\n注意：如果一次任務中產生的抓取結果數量太多，可能會導致頁面崩潰。',
+    'You can set a range of work id and grab all works in this range (including the begin and end id). \nNote: If the number of crawling results in a task is too much, it may cause the page to crash.',
+    '作品 id の範囲を設定し、その範囲内のすべての作品をクロールすることができます。「開始 id と終了 id を含む」\n注意：1 つのタスクであまりにも多くのクロール結果を生成すると、ページがクラッシュする可能性があります。',
+  ],
+  _抓取id区间起点: [
+    '请输入开始的 id',
+    '請輸入開始的 id',
+    'Please type in the beginning id',
+    '開始 id を入力してください',
+  ],
+  _抓取id区间终点: [
+    '请输入结束的 id',
+    '請輸入結束的 id',
+    'Please type  in the ending id',
+    '終了 id を入力してください',
+  ],
 }
 
 export { langText }
