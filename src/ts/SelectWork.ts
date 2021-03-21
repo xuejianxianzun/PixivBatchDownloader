@@ -7,7 +7,7 @@ import { IDData } from './store/StoreType'
 import { toast } from './Toast'
 import { msgBox } from './MsgBox'
 
-// 手动选择作品
+// 手动选择作品，图片作品和小说都可以选择
 class SelectWork {
   constructor() {
     if (!this.created && location.hostname.endsWith('.pixiv.net')) {

@@ -292,8 +292,9 @@ abstract class InitPageBase {
         this.logErrorStatus(error.status, id)
         this.afterGetWorksData()
       } else {
-        // 请求失败，没有获得服务器的返回数据
-        // 这里也会捕获到 save 作品数据时的错误
+        // 请求失败，没有获得服务器的返回数据，一般都是
+        // TypeError: Failed to fetch
+        // 此外这里也会捕获到 save 作品数据时的错误（如果有）
         console.error(error)
 
         // 再次发送这个请求

@@ -96,7 +96,7 @@ class InitNovelPage extends InitPageBase {
     let idList = await API.getUserWorksByType(Tools.getUserId(), type)
 
     // 储存符合条件的 id
-    let nowId = parseInt(Tools.getIllustId(window.location.href))
+    let nowId = parseInt(Tools.getNovelId(window.location.href))
     idList.forEach((id) => {
       let idNum = parseInt(id.id)
       // 新作品

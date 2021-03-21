@@ -7388,8 +7388,9 @@
                 this.logErrorStatus(error.status, id)
                 this.afterGetWorksData()
               } else {
-                // 请求失败，没有获得服务器的返回数据
-                // 这里也会捕获到 save 作品数据时的错误
+                // 请求失败，没有获得服务器的返回数据，一般都是
+                // TypeError: Failed to fetch
+                // 此外这里也会捕获到 save 作品数据时的错误（如果有）
                 console.error(error)
                 // 再次发送这个请求
                 setTimeout(() => {
@@ -12562,7 +12563,7 @@
             )
             // 储存符合条件的 id
             let nowId = parseInt(
-              _Tools__WEBPACK_IMPORTED_MODULE_6__['Tools'].getIllustId(
+              _Tools__WEBPACK_IMPORTED_MODULE_6__['Tools'].getNovelId(
                 window.location.href
               )
             )
@@ -16490,8 +16491,12 @@
                 )
               } else {
                 const res = await fetch(url).catch((error) => {
-                  throw new Error(`Load image error! url: ${url}`)
+                  console.log(error)
+                  console.log(`Load image error! url: ${url}`)
                 })
+                if (!res) {
+                  return
+                }
                 const blob = await res.blob()
                 const blobURL = URL.createObjectURL(blob)
                 resolve(
@@ -23146,11 +23151,12 @@
             const workData = Object.assign({}, this.fileDataDefault, data)
             // 注意：由于 Object.assign 不是深拷贝，所以不可以修改 result 的引用类型数据，否则会影响到源对象
             // 可以修改基础类型的数据
-            // 设置这个作品要下载的文件数量
             if (workData.type === 0 || workData.type === 1) {
               workData.dlCount = this.getDLCount(workData.pageCount)
+              workData.id = workData.idNum + `_p0`
+            } else {
+              workData.id = workData.idNum.toString()
             }
-            workData.id = workData.idNum + `_p0`
             this.resultMeta.push(workData)
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('addResult', workData)
             // 把该作品里的每个文件的数据添加到结果里

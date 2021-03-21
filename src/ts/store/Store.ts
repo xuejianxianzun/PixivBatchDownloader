@@ -94,12 +94,12 @@ class Store {
     // 注意：由于 Object.assign 不是深拷贝，所以不可以修改 result 的引用类型数据，否则会影响到源对象
     // 可以修改基础类型的数据
 
-    // 设置这个作品要下载的文件数量
     if (workData.type === 0 || workData.type === 1) {
       workData.dlCount = this.getDLCount(workData.pageCount)
+      workData.id = workData.idNum + `_p0`
+    } else {
+      workData.id = workData.idNum.toString()
     }
-
-    workData.id = workData.idNum + `_p0`
 
     this.resultMeta.push(workData)
 

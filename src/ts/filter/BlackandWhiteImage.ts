@@ -27,8 +27,12 @@ class BlackAndWhiteImage {
         resolve(Utils.loadImg(url))
       } else {
         const res = await fetch(url).catch((error) => {
-          throw new Error(`Load image error! url: ${url}`)
+          console.log(error)
+          console.log(`Load image error! url: ${url}`)
         })
+        if (!res) {
+          return
+        }
         const blob = await res.blob()
         const blobURL = URL.createObjectURL(blob)
         resolve(Utils.loadImg(blobURL))
