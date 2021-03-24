@@ -2771,16 +2771,38 @@
         /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./MsgBox */ './src/ts/MsgBox.ts'
         )
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./config/Config */ './src/ts/config/Config.ts'
+        )
 
         // 语言类
         class Lang {
           constructor() {
-            this.type = undefined
-            this.flagIndex = {
-              'zh-cn': 0,
-              'zh-tw': 1,
-              en: 2,
-              ja: 3,
+            this.langTypes = ['zh-cn', 'zh-tw', 'en', 'ja']
+            this.flagIndex = new Map([
+              ['zh-cn', 0],
+              ['zh-tw', 1],
+              ['en', 2],
+              ['ja', 3],
+            ])
+            // 读取本地存储的设置
+            const savedSettings = localStorage.getItem(
+              _config_Config__WEBPACK_IMPORTED_MODULE_3__['Config']
+                .settingStoreName
+            )
+            if (savedSettings) {
+              // 有储存的设置
+              const restoreData = JSON.parse(savedSettings)
+              if (this.langTypes.includes(restoreData.userSetLang)) {
+                // 恢复设置里的语言类型
+                this.type = restoreData.userSetLang
+              } else {
+                // 自动获取语言类型
+                this.type = this.getLangType()
+              }
+            } else {
+              // 如果没有储存的设置，则自动获取语言类型
+              this.type = this.getLangType()
             }
             this.bindEvents()
           }
@@ -2796,7 +2818,7 @@
                 }
                 const old = this.type
                 this.type = this.getType(data.value)
-                if (old !== undefined && this.type !== old) {
+                if (this.type !== old) {
                   _MsgBox__WEBPACK_IMPORTED_MODULE_2__['msgBox'].show(
                     this.transl('_变更语言后刷新页面的提示')
                   )
@@ -2829,7 +2851,7 @@
           transl(name, ...arg) {
             let content =
               _LangText__WEBPACK_IMPORTED_MODULE_0__['langText'][name][
-                this.flagIndex[this.type]
+                this.flagIndex.get(this.type)
               ]
             arg.forEach((val) => (content = content.replace('{}', val)))
             return content
@@ -5260,7 +5282,7 @@
           /*! ./MsgBox */ './src/ts/MsgBox.ts'
         )
 
-        // 手动选择作品
+        // 手动选择作品，图片作品和小说都可以选择
         class SelectWork {
           constructor() {
             this.created = false
