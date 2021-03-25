@@ -1,4 +1,4 @@
-// 下载文件，并发送给浏览器下载
+// 下载文件，然后发送给浏览器进行保存
 import { EVT } from '../EVT'
 import { log } from '../Log'
 import { lang } from '../Lang'
@@ -15,6 +15,7 @@ import { deduplication } from './Deduplication'
 import { settings } from '../setting/Settings'
 import { MakeNovelFile } from './MakeNovelFile'
 import { Utils } from '../utils/Utils'
+import { Config } from '../config/Config'
 
 class Download {
   constructor(progressBarIndex: number, data: downloadArgument) {
@@ -26,7 +27,6 @@ class Download {
 
   private progressBarIndex: number
   private fileName = ''
-  private readonly retryMax = 30
   private retry = 0 // 重试次数
 
   private cancel = false // 这个下载是否被取消（下载被停止，或者这个文件没有通过某个检查）
@@ -61,17 +61,16 @@ class Download {
 
   // 当重试达到最大次数时
   private afterReTryMax(status: number, fileId: string) {
-    // 404 错误时
-    if (status === 404) {
-      // 跳过，不会再尝试下载它
-      log.error(lang.transl('_file404', fileId))
+    // 404, 500 错误，跳过，不会再尝试下载这个文件（因为没有触发 downloadError 事件，所以不会重试下载）
+    if (status === 404 || status === 500) {
+      log.error(`Error: ${fileId} Code: ${status}`)
       return this.skip({
         id: fileId,
-        reason: '404',
+        reason: status.toString() as '404' | '500',
       })
     }
 
-    // 404 之外的错误，暂时跳过这个任务，但最后还是会尝试重新下载它
+    // 其他状态码，暂时跳过这个任务，但最后还是会尝试重新下载它
     this.cancel = true
     EVT.fire('downloadError', fileId)
   }
@@ -157,8 +156,8 @@ class Download {
         // 正常下载完毕的状态码是 200
         progressBar.errorColor(this.progressBarIndex, true)
         this.retry++
-        if (this.retry >= this.retryMax) {
-          // 重试 retryMax 次依然错误
+        if (this.retry >= Config.retryMax) {
+          // 重试达到最大次数依然错误
           this.afterReTryMax(xhr.status, arg.id)
         } else {
           return this.download(arg)

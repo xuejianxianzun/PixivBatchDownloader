@@ -52,6 +52,8 @@
 
 如果您不能在线安装，您可以从 [releases 页面](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest) 离线安装。
 
+[离线安装指南](https://xuejianxianzun.github.io/PBDWiki/#/zh-cn/%E7%A6%BB%E7%BA%BF%E5%AE%89%E8%A3%85)
+
 ---------
 
 - 下载的文件会保存在浏览器的下载目录里。

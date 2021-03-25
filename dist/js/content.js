@@ -6900,6 +6900,8 @@
         Config.outputMax = 5000
         /**同时下载的文件数量的最大值 */
         Config.downloadThreadMax = 10
+        /**下载某个文件出错时，最大重试次数 */
+        Config.retryMax = 10
         /**作品类型所对应的字符串名称 */
         Config.worksTypeName = ['Illustration', 'Manga', 'Ugoira', 'Novel']
         /**程序名 */
@@ -13876,12 +13878,14 @@
         /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
           /*! ../utils/Utils */ './src/ts/utils/Utils.ts'
         )
-        // 下载文件，并发送给浏览器下载
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
+          /*! ../config/Config */ './src/ts/config/Config.ts'
+        )
+        // 下载文件，然后发送给浏览器进行保存
 
         class Download {
           constructor(progressBarIndex, data) {
             this.fileName = ''
-            this.retryMax = 30
             this.retry = 0 // 重试次数
             this.cancel = false // 这个下载是否被取消（下载被停止，或者这个文件没有通过某个检查）
             this.sizeChecked = false // 是否对文件体积进行了检查
@@ -13919,21 +13923,17 @@
           }
           // 当重试达到最大次数时
           afterReTryMax(status, fileId) {
-            // 404 错误时
-            if (status === 404) {
-              // 跳过，不会再尝试下载它
+            // 404, 500 错误，跳过，不会再尝试下载这个文件（因为没有触发 downloadError 事件，所以不会重试下载）
+            if (status === 404 || status === 500) {
               _Log__WEBPACK_IMPORTED_MODULE_1__['log'].error(
-                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                  '_file404',
-                  fileId
-                )
+                `Error: ${fileId} Code: ${status}`
               )
               return this.skip({
                 id: fileId,
-                reason: '404',
+                reason: status.toString(),
               })
             }
-            // 404 之外的错误，暂时跳过这个任务，但最后还是会尝试重新下载它
+            // 其他状态码，暂时跳过这个任务，但最后还是会尝试重新下载它
             this.cancel = true
             _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
               'downloadError',
@@ -14031,8 +14031,12 @@
                   'progressBar'
                 ].errorColor(this.progressBarIndex, true)
                 this.retry++
-                if (this.retry >= this.retryMax) {
-                  // 重试 retryMax 次依然错误
+                if (
+                  this.retry >=
+                  _config_Config__WEBPACK_IMPORTED_MODULE_11__['Config']
+                    .retryMax
+                ) {
+                  // 重试达到最大次数依然错误
                   this.afterReTryMax(xhr.status, arg.id)
                 } else {
                   return this.download(arg)
@@ -14579,6 +14583,8 @@
             const no = task.progressBarIndex
             if (this.checkContinueDownload()) {
               this.createDownload(no)
+            } else {
+              this.checkCompleteWithError()
             }
           }
           saveFileError(data) {
@@ -14733,7 +14739,7 @@
             }
             this.checkCompleteWithError()
           }
-          // 在有下载出错的任务的情况下，是否已经完成了下载
+          // 在有下载出错的情况下，是否已经完成了下载
           checkCompleteWithError() {
             if (
               this.errorIdList.length > 0 &&
@@ -14744,7 +14750,7 @@
               this.pauseDownload()
               setTimeout(() => {
                 this.startDownload()
-              }, 3000)
+              }, 2000)
             }
           }
           // 设置下载状态文本，默认颜色为主题蓝色

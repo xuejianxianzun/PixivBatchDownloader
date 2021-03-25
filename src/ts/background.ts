@@ -30,7 +30,7 @@ function responseListener(
 chrome.webRequest.onHeadersReceived.addListener(
   responseListener,
   {
-    urls: ['*://*.pximg.net/*'],
+    urls: ['*://*.pximg.net/*', '*://*.pixiv.cat/*'],
   },
   ['blocking', 'responseHeaders', 'extraHeaders']
 )

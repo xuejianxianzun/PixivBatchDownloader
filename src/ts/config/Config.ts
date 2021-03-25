@@ -5,6 +5,8 @@ class Config {
   static readonly outputMax = 5000
   /**同时下载的文件数量的最大值 */
   static readonly downloadThreadMax = 10
+  /**下载某个文件出错时，最大重试次数 */
+  static readonly retryMax = 10
   /**作品类型所对应的字符串名称 */
   static readonly worksTypeName = ['Illustration', 'Manga', 'Ugoira', 'Novel']
   /**程序名 */

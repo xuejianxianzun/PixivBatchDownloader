@@ -334,6 +334,8 @@ class DownloadControl {
     const no = task.progressBarIndex
     if (this.checkContinueDownload()) {
       this.createDownload(no)
+    } else {
+      this.checkCompleteWithError()
     }
   }
 
@@ -460,7 +462,7 @@ class DownloadControl {
     this.checkCompleteWithError()
   }
 
-  // 在有下载出错的任务的情况下，是否已经完成了下载
+  // 在有下载出错的情况下，是否已经完成了下载
   private checkCompleteWithError() {
     if (
       this.errorIdList.length > 0 &&
@@ -470,7 +472,7 @@ class DownloadControl {
       this.pauseDownload()
       setTimeout(() => {
         this.startDownload()
-      }, 3000)
+      }, 2000)
     }
   }
 
