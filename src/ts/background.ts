@@ -119,10 +119,9 @@ chrome.downloads.onChanged.addListener(function (detail) {
     if (detail.error && detail.error.current) {
       msg = 'download_err'
       err = detail.error.current
-      const idIndex = dlIndex[data.tabId].findIndex((val) => {
-        val === data.id
-      })
-      dlIndex[data.tabId][idIndex] = '' // 从任务列表里删除它，以便前台重试下载
+      // 当保存一个文件出错时，从任务记录列表里删除它，以便前台重试下载
+      const idIndex = dlIndex[data.tabId].findIndex((val) => val === data.id)
+      dlIndex[data.tabId][idIndex] = ''
     }
 
     // 返回信息
