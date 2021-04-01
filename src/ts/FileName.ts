@@ -37,7 +37,9 @@ class FileName {
     if (data.type === 0 || data.type === 1) {
       const p = index.toString()
       // 根据需要在前面填充 0
-      return settings.zeroPadding ? p.padStart(settings.zeroPaddingLength, '0') : p
+      return settings.zeroPadding
+        ? p.padStart(settings.zeroPaddingLength, '0')
+        : p
     } else {
       // 其他类型没有编号，返回空字符串
       return ''
@@ -59,7 +61,11 @@ class FileName {
       // 需要填充 0 的情况
       // 只有插画和漫画有编号
       if (data.type === 0 || data.type === 1) {
-        return data.idNum + '_p' + index.toString().padStart(settings.zeroPaddingLength, '0')
+        return (
+          data.idNum +
+          '_p' +
+          index.toString().padStart(settings.zeroPaddingLength, '0')
+        )
       } else {
         // 其他类型没有编号，所以不会进行填充，直接返回 id
         return data.id
@@ -73,8 +79,6 @@ class FileName {
     allPart.splice(allPart.length - 1, 0, Utils.replaceUnsafeStr(folderName))
     return allPart.join('/')
   }
-
-
 
   // 传入抓取结果，获取文件名
   public getFileName(data: Result) {
@@ -134,7 +138,11 @@ class FileName {
         safe: true,
       },
       '{px}': {
-        value: !result.includes('{px}') ? null : data.fullWidth ? data.fullWidth + 'x' + data.fullHeight : '',
+        value: !result.includes('{px}')
+          ? null
+          : data.fullWidth
+          ? data.fullWidth + 'x' + data.fullHeight
+          : '',
         prefix: '',
         safe: true,
       },
@@ -144,12 +152,16 @@ class FileName {
         safe: false,
       },
       '{tags_translate}': {
-        value: !result.includes('{tags_translate}') ? null : data.tagsWithTransl.join(','),
+        value: !result.includes('{tags_translate}')
+          ? null
+          : data.tagsWithTransl.join(','),
         prefix: 'tags_',
         safe: false,
       },
       '{tags_transl_only}': {
-        value: !result.includes('{tags_transl_only}') ? null : data.tagsTranslOnly.join(','),
+        value: !result.includes('{tags_transl_only}')
+          ? null
+          : data.tagsTranslOnly.join(','),
         prefix: 'tags_',
         safe: false,
       },
@@ -169,12 +181,16 @@ class FileName {
         safe: true,
       },
       '{date}': {
-        value: !result.includes('{date}') ? null : DateFormat.format(data.date, settings.dateFormat),
+        value: !result.includes('{date}')
+          ? null
+          : DateFormat.format(data.date, settings.dateFormat),
         prefix: '',
         safe: false,
       },
       '{task_date}': {
-        value: !result.includes('{task_date}') ? null : DateFormat.format(store.crawlCompleteTime, settings.dateFormat),
+        value: !result.includes('{task_date}')
+          ? null
+          : DateFormat.format(store.crawlCompleteTime, settings.dateFormat),
         prefix: '',
         safe: false,
       },

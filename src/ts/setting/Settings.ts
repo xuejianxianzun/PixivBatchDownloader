@@ -260,7 +260,7 @@ class Settings {
     downloadUgoiraFirst: false,
     switchTabBar: 'over',
     zeroPadding: false,
-    zeroPaddingLength: 3
+    zeroPaddingLength: 3,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -401,8 +401,8 @@ class Settings {
     result = Utils.replaceUnsafeStr(result)
     // replaceUnsafeStr 会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
     result = result.replace(/／/g, '/')
-    
-    // 处理连续的 / 
+
+    // 处理连续的 /
     result = result.replace(/\/{2,100}/g, '/')
 
     // 如果命名规则头部或者尾部是 / 则去掉
@@ -412,7 +412,7 @@ class Settings {
     if (result.endsWith('/')) {
       result = result.substr(0, result.length - 1)
     }
-    
+
     return result
   }
 
@@ -499,7 +499,7 @@ class Settings {
       value = this.defaultSettings[key]
     }
 
-    if(key==='setWidthAndOr'&&value===''){
+    if (key === 'setWidthAndOr' && value === '') {
       value = this.defaultSettings[key]
     }
 
@@ -509,7 +509,7 @@ class Settings {
     }
 
     // 更改设置
-    ; (this.settings[key] as any) = value
+    ;(this.settings[key] as any) = value
 
     // 当修改某些设置时，顺便修改和它有对应关系的设置
     if (key === 'widthTag') {

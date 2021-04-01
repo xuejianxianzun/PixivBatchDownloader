@@ -385,9 +385,7 @@ export const formHtml = `<form class="settingForm">
       </p>
       
       <p class="option" data-no="46">
-      <span class="settingNameStyle1">${lang.transl(
-        '_在序号前面填充0'
-      )}</span>
+      <span class="settingNameStyle1">${lang.transl('_在序号前面填充0')}</span>
       <input type="checkbox" name="zeroPadding" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="zeroPadding">

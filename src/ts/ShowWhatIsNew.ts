@@ -9,8 +9,13 @@ class ShowWhatIsNew {
     this.show()
   }
 
-  private flag = 'xzNew920'
-  private msg = lang.transl('_新增设置项') + ': <br>' + lang.transl('_背景图片')
+  private flag = 'xzNew990'
+  private msg = `${lang.transl('_新增设置项')}:
+<br>
+${lang.transl('_选项卡切换方式')}
+<br>
+${lang.transl('_在序号前面填充0')}
+`
 
   private readonly storeName = 'xzNewVerTag'
 
