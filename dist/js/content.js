@@ -1406,6 +1406,7 @@ class FileName {
     getFileName(data) {
         let result = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].userSetName || '{id}';
         // 1 生成所有命名标记的值
+        // 对于一些较为耗时的计算，先判断用户是否使用了这个标记，如果未使用则不计算
         const cfg = {
             '{p_title}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].title,
@@ -1428,12 +1429,12 @@ class FileName {
                 safe: true,
             },
             '{p_num}': {
-                value: this.createPNum(data),
+                value: !result.includes('{p_num}') ? null : this.createPNum(data),
                 prefix: '',
                 safe: true,
             },
             '{rank}': {
-                value: this.createRank(data.rank),
+                value: !result.includes('{rank}') ? null : this.createRank(data.rank),
                 prefix: '',
                 safe: true,
             },
@@ -1458,22 +1459,22 @@ class FileName {
                 safe: true,
             },
             '{px}': {
-                value: data.fullWidth ? data.fullWidth + 'x' + data.fullHeight : '',
+                value: !result.includes('{px}') ? null : data.fullWidth ? data.fullWidth + 'x' + data.fullHeight : '',
                 prefix: '',
                 safe: true,
             },
             '{tags}': {
-                value: data.tags.join(','),
+                value: !result.includes('{tags}') ? null : data.tags.join(','),
                 prefix: 'tags_',
                 safe: false,
             },
             '{tags_translate}': {
-                value: data.tagsWithTransl.join(','),
+                value: !result.includes('{tags_translate}') ? null : data.tagsWithTransl.join(','),
                 prefix: 'tags_',
                 safe: false,
             },
             '{tags_transl_only}': {
-                value: data.tagsTranslOnly.join(','),
+                value: !result.includes('{tags_transl_only}') ? null : data.tagsTranslOnly.join(','),
                 prefix: 'tags_',
                 safe: false,
             },
@@ -1493,12 +1494,12 @@ class FileName {
                 safe: true,
             },
             '{date}': {
-                value: _utils_DateFormat__WEBPACK_IMPORTED_MODULE_3__["DateFormat"].format(data.date, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].dateFormat),
+                value: !result.includes('{date}') ? null : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_3__["DateFormat"].format(data.date, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].dateFormat),
                 prefix: '',
                 safe: false,
             },
             '{task_date}': {
-                value: _utils_DateFormat__WEBPACK_IMPORTED_MODULE_3__["DateFormat"].format(_store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].crawlCompleteTime, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].dateFormat),
+                value: !result.includes('{task_date}') ? null : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_3__["DateFormat"].format(_store_Store__WEBPACK_IMPORTED_MODULE_1__["store"].crawlCompleteTime, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].dateFormat),
                 prefix: '',
                 safe: false,
             },
