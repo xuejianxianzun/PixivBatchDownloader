@@ -798,11 +798,12 @@
             for (let index = 0; index < this.allTabTitle.length; index++) {
               eventList.forEach((eventName) => {
                 this.allTabTitle[index].addEventListener(eventName, () => {
-                  // 触发鼠标经过事件时，根据设置决定是否可以切换选项卡
+                  // 触发 mouseenter 时，如果用户设置了通过点击切换选项卡，则直接返回
+                  // 触发 click 时无需检测，始终可以切换
                   if (
                     eventName === 'mouseenter' &&
-                    !_setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
-                      .mouseEnterSwitchTabbar
+                    _setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
+                      .switchTabBar === 'click'
                   ) {
                     return
                   }
@@ -4642,6 +4643,14 @@
             'Please type  in the ending id',
             '終了 id を入力してください',
           ],
+          _选项卡切换方式: [
+            '选项卡切换方式',
+            '選項卡切換方式',
+            'How to switch tabs',
+            'タブを切り替える方法',
+          ],
+          _鼠标经过: ['鼠标经过', '滑鼠經過', 'Mouse over', 'マウスオーバー'],
+          _鼠标点击: ['鼠标点击', '滑鼠點選', 'Mouse click', 'マウスクリック'],
         }
 
         /***/
@@ -21383,6 +21392,23 @@
       <input name="bgOpacity" type="range" />
       </span>
       </p>
+      
+      <p class="option" data-no="45">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_选项卡切换方式')}</span>
+      <input type="radio" name="switchTabBar" id="switchTabBar1" class="need_beautify radio" value="over" checked>
+      <span class="beautify_radio"></span>
+      <label for="switchTabBar1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_鼠标经过')}</label>
+      &nbsp;
+      <input type="radio" name="switchTabBar" id="switchTabBar2" class="need_beautify radio" value="click">
+      <span class="beautify_radio"></span>
+      <label for="switchTabBar2">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_鼠标点击')}</label>
+      </p>
 
       <p class="option" data-no="32">
       <span class="settingNameStyle1">Language</span>
@@ -21551,6 +21577,7 @@
                 'needTagMode',
                 'theme',
                 'bgPositionY',
+                'switchTabBar',
               ],
               textarea: ['createFolderTagList'],
               datetime: ['postDateStart', 'postDateEnd'],
@@ -21767,10 +21794,6 @@
               {
                 name: 'downloadUgoiraFirst',
                 code: 'qw111',
-              },
-              {
-                name: 'mouseEnterSwitchTabbar',
-                code: 'mouseenter',
               },
             ]
             this.register()
@@ -22249,7 +22272,7 @@
               createFolderTagList: [],
               createFolderBySl: false,
               downloadUgoiraFirst: false,
-              mouseEnterSwitchTabbar: true,
+              switchTabBar: 'over',
             }
             this.allSettingKeys = Object.keys(this.defaultSettings)
             this.floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax']

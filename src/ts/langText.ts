@@ -1652,6 +1652,14 @@ const langText = {
     'Please type  in the ending id',
     '終了 id を入力してください',
   ],
+  _选项卡切换方式: [
+    '选项卡切换方式',
+    '選項卡切換方式',
+    'How to switch tabs',
+    'タブを切り替える方法',
+  ],
+  _鼠标经过: ['鼠标经过', '滑鼠經過', 'Mouse over', 'マウスオーバー'],
+  _鼠标点击: ['鼠标点击', '滑鼠點選', 'Mouse click', 'マウスクリック'],
 }
 
 export { langText }

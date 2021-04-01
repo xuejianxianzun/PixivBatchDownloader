@@ -200,8 +200,9 @@ class CenterPanel {
     for (let index = 0; index < this.allTabTitle.length; index++) {
       eventList.forEach((eventName) => {
         this.allTabTitle[index].addEventListener(eventName, () => {
-          // 触发鼠标经过事件时，根据设置决定是否可以切换选项卡
-          if (eventName === 'mouseenter' && !settings.mouseEnterSwitchTabbar) {
+          // 触发 mouseenter 时，如果用户设置了通过点击切换选项卡，则直接返回
+          // 触发 click 时无需检测，始终可以切换
+          if (eventName === 'mouseenter' && settings.switchTabBar === 'click') {
             return
           }
           this.activeTab(index)

@@ -116,6 +116,7 @@ class FormSettings {
       'needTagMode',
       'theme',
       'bgPositionY',
+      'switchTabBar',
     ],
     textarea: ['createFolderTagList'],
     datetime: ['postDateStart', 'postDateEnd'],

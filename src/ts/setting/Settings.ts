@@ -126,7 +126,7 @@ interface XzSetting {
   downAllAges: boolean
   downR18: boolean
   downR18G: boolean
-  mouseEnterSwitchTabbar: boolean
+  switchTabBar: 'over' | 'click'
 }
 
 type SettingsKeys = keyof XzSetting
@@ -256,7 +256,7 @@ class Settings {
     createFolderTagList: [],
     createFolderBySl: false,
     downloadUgoiraFirst: false,
-    mouseEnterSwitchTabbar: true,
+    switchTabBar: 'over',
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

@@ -769,6 +769,17 @@ export const formHtml = `<form class="settingForm">
       <input name="bgOpacity" type="range" />
       </span>
       </p>
+      
+      <p class="option" data-no="45">
+      <span class="settingNameStyle1">${lang.transl('_选项卡切换方式')}</span>
+      <input type="radio" name="switchTabBar" id="switchTabBar1" class="need_beautify radio" value="over" checked>
+      <span class="beautify_radio"></span>
+      <label for="switchTabBar1">${lang.transl('_鼠标经过')}</label>
+      &nbsp;
+      <input type="radio" name="switchTabBar" id="switchTabBar2" class="need_beautify radio" value="click">
+      <span class="beautify_radio"></span>
+      <label for="switchTabBar2">${lang.transl('_鼠标点击')}</label>
+      </p>
 
       <p class="option" data-no="32">
       <span class="settingNameStyle1">Language</span>
