@@ -524,16 +524,16 @@ const langText = {
     '前に tag の名前を追加',
   ],
   _添加字段名称提示: [
-    '例如，在用户名前面添加“user_”标记',
+    `例如，在用户名前面添加“user_”标记`,
     '例如，在使用者名稱前面加入「user_」標記。',
-    'For example, add the "user_" tag in front of the username',
+    `For example, add the 'user_' tag in front of the username`,
     'たとえば、ユーザー名の前に 「user_」 tag を追加します。',
   ],
   _查看标记的含义: [
     '查看标记的含义',
     '檢視標記的意義',
     'View the meaning of the tag',
-    ' tag の意味を表示する',
+    'tag の意味を表示する',
   ],
   _命名标记id: [
     '默认文件名，如 44920385_p0',
@@ -696,10 +696,10 @@ const langText = {
     'ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
   ],
   _下载说明: [
-    '下载的文件保存在浏览器的下载目录里。<br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br>QQ群：1160156511',
-    '下載的檔案儲存在瀏覽器的下載目錄裡。<br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。',
-    'The downloaded file is saved in the browser`s download directory. <br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.',
-    'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
+    '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br><br>QQ群：1160156511',
+    '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。',
+    'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.',
+    'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
   ],
   _正在下载中: ['正在下载中', '正在下載', 'Downloading', 'ダウンロード中'],
   _下载完毕: [
@@ -1656,10 +1656,22 @@ const langText = {
     '选项卡切换方式',
     '選項卡切換方式',
     'How to switch tabs',
-    'タブを切り替える方法',
+    'タブ切り替え方式',
   ],
   _鼠标经过: ['鼠标经过', '滑鼠經過', 'Mouse over', 'マウスオーバー'],
   _鼠标点击: ['鼠标点击', '滑鼠點選', 'Mouse click', 'マウスクリック'],
+  _在序号前面填充0: [
+    '在序号前面填充 0',
+    '在序號前面填充 0',
+    'Add 0 in front of the serial number',
+    'シリアル番号の前に 0 を記入',
+  ],
+  _序号总长度: [
+    '序号总长度',
+    '序號總長度',
+    'Total length of serial number',
+    'シリアル番号の全長',
+  ],
 }
 
 export { langText }

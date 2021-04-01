@@ -37,6 +37,7 @@ class Store {
     title: '',
     pageCount: 1,
     dlCount: 1,
+    index: 0,
     tags: [],
     tagsWithTransl: [],
     tagsTranslOnly: [],
@@ -106,24 +107,23 @@ class Store {
     EVT.fire('addResult', workData)
 
     // 把该作品里的每个文件的数据添加到结果里
-    if (workData.type === 3) {
-      // 小说作品直接添加
+    if (workData.type === 2 || workData.type === 3) {
+      // 动图和小说作品直接添加
       this.result.push(workData)
     } else {
-      // 对于图片作品，如果需要添加多个图片文件，则需要循环生成每一个图片文件的数据
-      if (workData.dlCount === 1) {
-        this.result.push(workData)
-      }
-      if (workData.dlCount > 1) {
-        for (let i = 0; i < workData.dlCount; i++) {
-          const fileData = Object.assign({}, workData)
-          fileData.id = fileData.id.replace('p0', 'p' + i)
-          fileData.original = fileData.original.replace('p0', 'p' + i)
-          fileData.regular = fileData.regular.replace('p0', 'p' + i)
-          fileData.small = fileData.small.replace('p0', 'p' + i)
-          fileData.thumb = fileData.thumb.replace('p0', 'p' + i)
-          this.result.push(fileData)
-        }
+      // 插画和漫画
+      // 循环生成每一个图片文件的数据
+      const p0 = 'p0'
+      for (let i = 0; i < workData.dlCount; i++) {
+        const fileData = Object.assign({}, workData)
+        const pi = 'p' + i
+        fileData.index = i
+        fileData.id = fileData.id.replace(p0, pi)
+        fileData.original = fileData.original.replace(p0, pi)
+        fileData.regular = fileData.regular.replace(p0, pi)
+        fileData.small = fileData.small.replace(p0, pi)
+        fileData.thumb = fileData.thumb.replace(p0, pi)
+        this.result.push(fileData)
       }
     }
   }

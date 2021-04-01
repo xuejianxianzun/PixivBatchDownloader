@@ -74,6 +74,7 @@ class FormSettings {
       'createFolderByTypeManga',
       'createFolderByTypeUgoira',
       'createFolderByTypeNovel',
+      'zeroPadding',
     ],
     text: [
       'setWantPage',
@@ -98,6 +99,7 @@ class FormSettings {
       'dateFormat',
       'blockList',
       'bgOpacity',
+      'zeroPaddingLength',
     ],
     radio: [
       'ugoiraSaveAs',
@@ -206,7 +208,6 @@ class FormSettings {
     const el = this.form[name] as HTMLInputElement
     el.addEventListener('change', () => {
       setSetting(name, el.value)
-      setSetting('setWidthAndOr', '')
     })
   }
 

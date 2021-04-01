@@ -142,10 +142,10 @@ class ExportResult2CSV {
 
     // 循环每个作品的数据
     for (const d of data) {
-      // 如果是多图作品，并且不是第一张图，则跳过
-      // 这是因为多图作品可能有多个数据。在生成 csv 时只使用第一张图的数据
-      // 多图作品 && id 不以 p0 结尾（说明不是第一张图）
-      if (d.pageCount > 1 && !d.id.endsWith('p0')) {
+      // 每个作品只导出一条记录
+      // 如果是多图作品里第一张图之后的图片数据，则跳过
+      const index = d.index ?? Tools.getResultIndex(d)
+      if (index > 0) {
         continue
       }
 

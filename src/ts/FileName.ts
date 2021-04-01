@@ -4,13 +4,14 @@ import { Result } from './store/StoreType'
 import { Config } from './config/Config'
 import { DateFormat } from './utils/DateFormat'
 import { Utils } from './utils/Utils'
+import { Tools } from './Tools'
 
 // 生成文件名
 class FileName {
   private readonly addStr = '[downloader_add]'
 
-  // 为 {rank} 标记生成结果字符串
-  private handleRank(rank: number | null): string {
+  // 生成 {rank} 标记的值
+  private createRank(rank: number | null): string {
     // 处理空值
     if (rank === null) {
       return ''
@@ -23,6 +24,49 @@ class FileName {
     return '#' + rank
   }
 
+  // 生成 {p_num} 标记的值
+  private createPNum(data: Result) {
+    const index = data.index ?? Tools.getResultIndex(data)
+
+    // 处理第一张图不带序号的情况
+    if (index === 0 && settings.noSerialNo) {
+      return ''
+    }
+
+    // 只有插画和漫画有编号
+    if (data.type === 0 || data.type === 1) {
+      const p = index.toString()
+      // 根据需要在前面填充 0
+      return settings.zeroPadding ? p.padStart(settings.zeroPaddingLength, '0') : p
+    } else {
+      // 其他类型没有编号，返回空字符串
+      return ''
+    }
+  }
+
+  // 生成 {id} 标记的值
+  private createId(data: Result) {
+    const index = data.index ?? Tools.getResultIndex(data)
+
+    // 处理第一张图不带序号的情况
+    if (index === 0 && settings.noSerialNo) {
+      return data.idNum.toString()
+    }
+
+    if (!settings.zeroPadding) {
+      return data.id
+    } else {
+      // 需要填充 0 的情况
+      // 只有插画和漫画有编号
+      if (data.type === 0 || data.type === 1) {
+        return data.idNum + '_p' + index.toString().padStart(settings.zeroPaddingLength, '0')
+      } else {
+        // 其他类型没有编号，所以不会进行填充，直接返回 id
+        return data.id
+      }
+    }
+  }
+
   // 在文件名前面添加一层文件夹
   private appendFolder(fullPath: string, folderName: string): string {
     const allPart = fullPath.split('/')
@@ -32,27 +76,9 @@ class FileName {
 
   // 传入抓取结果，获取文件名
   public getFileName(data: Result) {
-    // 1 使命名规则合法化
-
-    // 测试用例：在作品页面内使用下面的命名规则
-    // /{p_tag}/|/{user}////<//{rank}/{px}/{sl}/{p_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
-
-    // 命名规则为空时使用 {id}
     let result = settings.userSetName || '{id}'
 
-    // 替换命名规则里可能存在的非法字符
-    result = Utils.replaceUnsafeStr(result)
-    // replaceUnsafeStr 会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
-    // 这一步会对斜线进行特殊处理，所以不可以移动到后面
-    result = result.replace(/／/g, '/')
-
-    // 如果经过处理后的命名规则和用户设置的命名规则不一致，说明用户设置的命名规则存在问题。此时使用处理后的命名规则替换用户设置的命名规则
-    // 此时没有处理连续的下划线和开头结尾的下划线。为了效率，这部分只在后面处理一次，所以此时的命名规则看起来可能仍然存在问题，但是实际上能够正常下载。
-    if (result !== settings.userSetName) {
-      setSetting('userSetName', result)
-    }
-
-    // 2 配置所有命名标记
+    // 1 生成所有命名标记的值
     const cfg = {
       '{p_title}': {
         value: store.title,
@@ -65,7 +91,7 @@ class FileName {
         safe: false,
       },
       '{id}': {
-        value: data.id,
+        value: this.createId(data),
         prefix: '',
         safe: true,
       },
@@ -75,12 +101,12 @@ class FileName {
         safe: true,
       },
       '{p_num}': {
-        value: parseInt(/\d*$/.exec(data.id)![0]),
+        value: this.createPNum(data),
         prefix: '',
         safe: true,
       },
       '{rank}': {
-        value: this.handleRank(data.rank),
+        value: this.createRank(data.rank),
         prefix: '',
         safe: true,
       },
@@ -166,47 +192,37 @@ class FileName {
       },
     }
 
-    // 3 把命名规则里的标记替换成实际值
-
-    // 判断这个作品是否要去掉序号
-    const noSerialNo = settings.noSerialNo && cfg['{p_num}'].value === 0
-
+    // 2 把命名规则里的标记替换成实际值
     for (const [key, val] of Object.entries(cfg)) {
       if (result.includes(key)) {
-        // 处理去掉序号的情况
-        if (noSerialNo) {
-          // 把 p_num 设为空字符串
-          key === '{p_num}' && (val.value = '' as any)
-          // 去掉 id 后面的序号。因为 idNum 不带序号，所以直接拿来用了
-          key === '{id}' && (val.value = cfg['{id_num}'].value)
-        }
-
-        // 如果作品数据里没有这个值，则替换为空字符串
-        const value =
+        // 替换空值
+        let temp =
           val.value === undefined || val.value === null ? '' : val.value
 
         // 如果这个值不是字符串则转换为字符串
-        let once = typeof value !== 'string' ? value.toString() : value
+        temp = typeof temp !== 'string' ? temp.toString() : temp
 
         // 替换值里不可以作为文件名的特殊字符
         if (!val.safe) {
-          once = Utils.replaceUnsafeStr(once)
+          temp = Utils.replaceUnsafeStr(temp)
         }
 
         // 添加标记名称
         if (settings.tagNameToFileName) {
-          once = val.prefix + once
+          temp = val.prefix + temp
         }
 
         // 将标记替换成对应的结果，如果有重复的标记，全部替换
-        result = result.replace(new RegExp(key, 'g'), once)
+        result = result.replace(new RegExp(key, 'g'), temp)
       }
     }
 
-    // 处理连续的 /
+    // 3 处理文件名里的一些边界情况
+
+    // 处理结果中连续的 /
     result = result.replace(/\/{2,100}/g, '/')
 
-    // 如果命名规则头部或者尾部是 / 则去掉
+    // 如果结果的头部或者尾部是 / 则去掉
     if (result.startsWith('/')) {
       result = result.replace('/', '')
     }
@@ -292,17 +308,17 @@ class FileName {
     // 对每一层路径和文件名进行处理
     const pathArray = result.split('/')
 
-    for (let index = 0; index < pathArray.length; index++) {
-      let str = pathArray[index]
+    for (let i = 0; i < pathArray.length; i++) {
+      let str = pathArray[i]
 
       // 去掉每层路径首尾的空格
       // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
       str = str.trim().replace(/^\./g, '．').replace(/\.$/g, '．')
 
-      // 处理每层路径是 Windows 保留文件名的情况（不需要处理后缀名）
+      // 处理路径是 Windows 保留文件名的情况（不需要处理后缀名）
       str = Utils.handleWindowsReservedName(str, this.addStr)
 
-      pathArray[index] = str
+      pathArray[i] = str
     }
 
     result = pathArray.join('/')

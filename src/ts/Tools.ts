@@ -9,10 +9,10 @@ type artworkDataTagsItem = {
   userId: string
   romaji: string
   translation?:
-    | {
-        en: string
-      }
-    | undefined
+  | {
+    en: string
+  }
+  | undefined
   userName: string
 }
 
@@ -198,7 +198,7 @@ class Tools {
     if (document.body) {
       document.body.insertAdjacentElement('afterbegin', el)
     } else {
-      ;(
+      ; (
         document.querySelector('.newindex-inner')! ||
         document.querySelector('.layout-body')!
       ).insertAdjacentElement('beforebegin', el)
@@ -332,6 +332,17 @@ class Tools {
       .replace('250x250_80_a2/custom-thumb', '128x128/img-master')
       .replace('custom1200', 'square1200')
       .replace('p0', 'p' + no)
+  }
+
+  // 旧版本的 Result 数据中没有 index 属性，使用此方法进行兼容性处理
+  static getResultIndex(data: Result) {
+    if (data.type === 0 || data.type === 1) {
+      // 插画和漫画，从 id 里取出序号
+      return parseInt(/\d*$/.exec(data.id)![0])
+    } else {
+      // 其他作品类型只有 1 个文件所以值为 0
+      return 0
+    }
   }
 }
 

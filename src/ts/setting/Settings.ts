@@ -127,6 +127,8 @@ interface XzSetting {
   downR18: boolean
   downR18G: boolean
   switchTabBar: 'over' | 'click'
+  zeroPadding: boolean
+  zeroPaddingLength: number
 }
 
 type SettingsKeys = keyof XzSetting
@@ -257,12 +259,21 @@ class Settings {
     createFolderBySl: false,
     downloadUgoiraFirst: false,
     switchTabBar: 'over',
+    zeroPadding: false,
+    zeroPaddingLength: 3
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
 
+  // 值为浮点数的选项
   private floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax']
+
+  // 值为整数的选项不必单独列出
+
+  // 值为数字数组的选项
   private numberArrayKey = ['wantPageArr']
+
+  // 值为字符串数组的选项
   private stringArrayKey = [
     'namingRuleList',
     'blockList',
@@ -378,6 +389,33 @@ class Settings {
     msgBox.error(`${key}: Invalid value`)
   }
 
+  // 处理用户设置的命名规则，对一些非法情况进行处理。
+  // 这里不必处理得非常详尽，因为在生成文件名时，还会对结果进行处理
+  // 测试用例：在作品页面内使用下面的命名规则，会自动进行更正
+  // /{p_tag}/|/{user}////<//{rank}/{px}/{sl}/{p_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
+  private handleUserSetName(val: string) {
+    // 命名规则为空时使用 {id}
+    let result = val || '{id}'
+
+    // 替换命名规则里可能存在的非法字符
+    result = Utils.replaceUnsafeStr(result)
+    // replaceUnsafeStr 会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
+    result = result.replace(/／/g, '/')
+    
+    // 处理连续的 / 
+    result = result.replace(/\/{2,100}/g, '/')
+
+    // 如果命名规则头部或者尾部是 / 则去掉
+    if (result.startsWith('/')) {
+      result = result.replace('/', '')
+    }
+    if (result.endsWith('/')) {
+      result = result.substr(0, result.length - 1)
+    }
+    
+    return result
+  }
+
   // 更改设置项
   // 其他模块应该通过这个方法更改设置
   // 这里面有一些类型转换的代码，主要目的：
@@ -456,16 +494,24 @@ class Settings {
       }
     }
 
-    // 遇到不合法的设置，不保存
+    // 对于一些不合法的值，重置为默认值
     if (key === 'firstFewImages' && value < 1) {
-      // value = this.defaultSettings[key]
-      return
+      value = this.defaultSettings[key]
+    }
+
+    if(key==='setWidthAndOr'&&value===''){
+      value = this.defaultSettings[key]
+    }
+
+    // 对命名规则进行合法化处理
+    if (key === 'userSetName') {
+      value = this.handleUserSetName(value as string)
     }
 
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
 
-    // 把一些表单中的值转换为实际使用的值
+    // 当修改某些设置时，顺便修改和它有对应关系的设置
     if (key === 'widthTag') {
       this.settings.widthTagBoolean = value === 'yes'
     }

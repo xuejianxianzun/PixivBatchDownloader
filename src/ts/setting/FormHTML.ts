@@ -384,6 +384,18 @@ export const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
       </p>
       
+      <p class="option" data-no="46">
+      <span class="settingNameStyle1">${lang.transl(
+        '_在序号前面填充0'
+      )}</span>
+      <input type="checkbox" name="zeroPadding" class="need_beautify checkbox_switch" >
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="zeroPadding">
+      <span>${lang.transl('_序号总长度')}</span>
+      <input type="text" name="zeroPaddingLength" class="setinput_style1 blue" value="3" style="width:30px;min-width: 30px;">
+      </span>
+      </p>
+      
       <p class="option" data-no="42">
       <span class="settingNameStyle1">${lang.transl(
         '_根据作品类型自动创建文件夹'

@@ -27,6 +27,9 @@ export interface Result {
   small: string
   pageCount: number
   dlCount: number
+  /**该文件在作品中的索引，从 0 开始。所有类型的文件都有这个值
+   */
+  index: number
   title: string
   tags: string[]
   tagsWithTransl: string[]

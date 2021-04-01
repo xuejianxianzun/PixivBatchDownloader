@@ -83,4 +83,7 @@ export interface SettingsForm extends HTMLFormElement {
   downAllAges: HTMLInputElement
   downR18: HTMLInputElement
   downR18G: HTMLInputElement
+  switchTabBar: RadioNodeList
+  zeroPadding: HTMLInputElement
+  zeroPaddingLength: HTMLInputElement
 }
