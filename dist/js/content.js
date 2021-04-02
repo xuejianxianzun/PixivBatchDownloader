@@ -1756,6 +1756,7 @@
           }
           // 传入抓取结果，获取文件名
           getFileName(data) {
+            var _a
             let result =
               _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
                 .userSetName || '{id}'
@@ -1907,25 +1908,24 @@
             // 2 把命名规则里的标记替换成实际值
             for (const [key, val] of Object.entries(cfg)) {
               if (result.includes(key)) {
-                // 替换空值
-                let temp =
-                  val.value === undefined || val.value === null ? '' : val.value
-                // 如果这个值不是字符串则转换为字符串
+                // 空值替换成空字符串
+                let temp = (_a = val.value) !== null && _a !== void 0 ? _a : ''
+                // 如果这个值不是字符串类型则转换为字符串
                 temp = typeof temp !== 'string' ? temp.toString() : temp
-                // 替换值里不可以作为文件名的特殊字符
+                // 替换不可以作为文件名的特殊字符
                 if (!val.safe) {
                   temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__[
                     'Utils'
                   ].replaceUnsafeStr(temp)
                 }
-                // 添加标记名称
+                // 添加标记前缀
                 if (
                   _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
                     .tagNameToFileName
                 ) {
                   temp = val.prefix + temp
                 }
-                // 将标记替换成对应的结果，如果有重复的标记，全部替换
+                // 将标记替换成结果，如果有重复的标记，全部替换
                 result = result.replace(new RegExp(key, 'g'), temp)
               }
             }
@@ -10019,16 +10019,18 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
           }
           // 组织要请求的 url 中的参数
           initFetchURL() {
+            var _a, _b
             // 从 URL 中获取分类。可能有语言标识。
             /*
         https://www.pixiv.net/tags/Fate%2FGrandOrder/illustrations
         https://www.pixiv.net/en/tags/Fate%2FGrandOrder/illustrations
         */
-            let URLType = location.pathname.split('tags/')[1].split('/')[1]
-            // 但在“顶部”页面的时候是没有分类的，会是 undefined
-            if (URLType === undefined) {
-              URLType = ''
-            }
+            const URLType =
+              (_a = location.pathname.split('tags/')[1].split('/')[1]) !==
+                null && _a !== void 0
+                ? _a
+                : ''
+            // 在“顶部”页面的时候是没有分类的，会是 undefined，此时使用成空字符串
             switch (URLType) {
               case '':
                 this.worksType = 'artworks'
@@ -10061,9 +10063,10 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
               }
             })
             // 如果没有指定搜索模式，则是精确匹配标签，设置对应的值
-            if (this.option.s_mode === undefined) {
-              this.option.s_mode = 's_tag_full'
-            }
+            this.option.s_mode =
+              (_b = this.option.s_mode) !== null && _b !== void 0
+                ? _b
+                : 's_tag_full'
           }
           // 获取搜索页的数据。因为有多处使用，所以进行了封装
           async getSearchData(p) {
@@ -13240,6 +13243,7 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
           }
           // 组织要请求的 url 中的参数
           initFetchURL() {
+            var _a
             let p = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__[
               'Utils'
             ].getURLSearchField(location.href, 'p')
@@ -13255,9 +13259,10 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
               }
             })
             // 如果没有指定搜索模式，则是精确匹配标签，设置对应的值
-            if (this.option.s_mode === undefined) {
-              this.option.s_mode = 's_tag_full'
-            }
+            this.option.s_mode =
+              (_a = this.option.s_mode) !== null && _a !== void 0
+                ? _a
+                : 's_tag_full'
           }
           // 计算应该抓取多少页
           async calcNeedCrawlPageCount() {
@@ -15310,7 +15315,7 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
             )
           }
           create(data) {
-            var _a
+            var _a, _b
             const body = [] // 内容数组
             // 标题数组
             const head = []
@@ -15341,10 +15346,8 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
                     ].getFileName(d)
                   )
                 } else {
-                  let result = d[field.index]
-                  if (result === undefined) {
-                    result = ''
-                  }
+                  let result =
+                    (_b = d[field.index]) !== null && _b !== void 0 ? _b : ''
                   // 对于某些字段，将其内容特殊化处理
                   if (field.name === 'type') {
                     result =
@@ -18696,11 +18699,12 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
           // 如果传递的作品不是本页面上的，为防止误判，需要显式传递 type
           sendWorkList(list, type) {
             this.reset()
-            if (type === undefined) {
-              type = window.location.pathname.includes('/novel')
+            type =
+              type !== null && type !== void 0
+                ? type
+                : window.location.pathname.includes('/novel')
                 ? 'novels'
                 : 'illusts'
-            }
             const regExp =
               type === 'illusts' ? /\/artworks\/(\d*)/ : /\?id=(\d*)/
             for (const el of list) {

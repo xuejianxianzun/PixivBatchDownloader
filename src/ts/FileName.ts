@@ -214,24 +214,23 @@ class FileName {
     // 2 把命名规则里的标记替换成实际值
     for (const [key, val] of Object.entries(cfg)) {
       if (result.includes(key)) {
-        // 替换空值
-        let temp =
-          val.value === undefined || val.value === null ? '' : val.value
+        // 空值替换成空字符串
+        let temp = val.value ?? ''
 
-        // 如果这个值不是字符串则转换为字符串
+        // 如果这个值不是字符串类型则转换为字符串
         temp = typeof temp !== 'string' ? temp.toString() : temp
 
-        // 替换值里不可以作为文件名的特殊字符
+        // 替换不可以作为文件名的特殊字符
         if (!val.safe) {
           temp = Utils.replaceUnsafeStr(temp)
         }
 
-        // 添加标记名称
+        // 添加标记前缀
         if (settings.tagNameToFileName) {
           temp = val.prefix + temp
         }
 
-        // 将标记替换成对应的结果，如果有重复的标记，全部替换
+        // 将标记替换成结果，如果有重复的标记，全部替换
         result = result.replace(new RegExp(key, 'g'), temp)
       }
     }

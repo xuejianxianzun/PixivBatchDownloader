@@ -214,11 +214,8 @@ class InitSearchArtworkPage extends InitPageBase {
     https://www.pixiv.net/tags/Fate%2FGrandOrder/illustrations
     https://www.pixiv.net/en/tags/Fate%2FGrandOrder/illustrations
     */
-    let URLType = location.pathname.split('tags/')[1].split('/')[1]
-    // 但在“顶部”页面的时候是没有分类的，会是 undefined
-    if (URLType === undefined) {
-      URLType = ''
-    }
+    const URLType = location.pathname.split('tags/')[1].split('/')[1] ?? ''
+    // 在“顶部”页面的时候是没有分类的，会是 undefined，此时使用成空字符串
 
     switch (URLType) {
       case '':
@@ -251,10 +248,8 @@ class InitSearchArtworkPage extends InitPageBase {
       }
     })
 
-    // 如果没有指定搜索模式，则是精确匹配标签，设置对应的值
-    if (this.option.s_mode === undefined) {
-      this.option.s_mode = 's_tag_full'
-    }
+    // 如果没有指定搜索模式，则是精确匹配标签
+    this.option.s_mode = this.option.s_mode ?? 's_tag_full'
   }
 
   // 获取搜索页的数据。因为有多处使用，所以进行了封装

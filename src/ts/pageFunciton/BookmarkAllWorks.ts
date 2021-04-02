@@ -42,9 +42,9 @@ class BookmarkAllWorks {
   ) {
     this.reset()
 
-    if (type === undefined) {
-      type = window.location.pathname.includes('/novel') ? 'novels' : 'illusts'
-    }
+    type =
+      type ??
+      (window.location.pathname.includes('/novel') ? 'novels' : 'illusts')
 
     const regExp = type === 'illusts' ? /\/artworks\/(\d*)/ : /\?id=(\d*)/
     for (const el of list) {

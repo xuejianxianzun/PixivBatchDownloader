@@ -155,11 +155,7 @@ class ExportResult2CSV {
         if (field.name === 'fileName') {
           bodyItem.push(fileName.getFileName(d))
         } else {
-          let result = d[field.index]
-
-          if (result === undefined) {
-            result = ''
-          }
+          let result = d[field.index] ?? ''
 
           // 对于某些字段，将其内容特殊化处理
           if (field.name === 'type') {

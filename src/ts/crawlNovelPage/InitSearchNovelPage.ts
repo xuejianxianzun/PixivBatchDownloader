@@ -145,10 +145,8 @@ class InitSearchNovelPage extends InitPageBase {
       }
     })
 
-    // 如果没有指定搜索模式，则是精确匹配标签，设置对应的值
-    if (this.option.s_mode === undefined) {
-      this.option.s_mode = 's_tag_full'
-    }
+    // 如果没有指定搜索模式，则是精确匹配标签
+    this.option.s_mode = this.option.s_mode ?? 's_tag_full'
   }
 
   // 计算应该抓取多少页
