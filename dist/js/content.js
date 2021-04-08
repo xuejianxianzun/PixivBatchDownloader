@@ -1310,7 +1310,8 @@
                 workerScript: this.gifWorkerUrl,
               })
               // 绑定渲染完成事件
-              gif.on('finished', (file) => {
+              gif.on('finished', (file, data) => {
+                data = null
                 _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire('convertSuccess')
                 resolve(file)
               })
@@ -6700,6 +6701,9 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
                   // 如果没有翻译，则把原 tag 保存到翻译里
                   tagsTransl.push(tagData.tag)
                 }
+              } else {
+                // 没有翻译
+                tagsTransl.push(tagData.tag)
               }
             }
             if (type === 'origin') {
@@ -10062,7 +10066,7 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
                 this.option[param] = value
               }
             })
-            // 如果没有指定搜索模式，则是精确匹配标签，设置对应的值
+            // 如果没有指定搜索模式，则是精确匹配标签
             this.option.s_mode =
               (_b = this.option.s_mode) !== null && _b !== void 0
                 ? _b
@@ -13258,7 +13262,7 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
                 this.option[param] = value
               }
             })
-            // 如果没有指定搜索模式，则是精确匹配标签，设置对应的值
+            // 如果没有指定搜索模式，则是精确匹配标签
             this.option.s_mode =
               (_a = this.option.s_mode) !== null && _a !== void 0
                 ? _a

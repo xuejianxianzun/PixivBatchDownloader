@@ -306,6 +306,9 @@ class Tools {
           // 如果没有翻译，则把原 tag 保存到翻译里
           tagsTransl.push(tagData.tag)
         }
+      } else {
+        // 没有翻译
+        tagsTransl.push(tagData.tag)
       }
     }
 

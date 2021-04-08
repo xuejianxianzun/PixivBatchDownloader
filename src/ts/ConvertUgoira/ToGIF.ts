@@ -30,7 +30,8 @@ class ToGIF {
       })
 
       // 绑定渲染完成事件
-      gif.on('finished', (file: Blob) => {
+      gif.on('finished', (file: Blob, data: Uint8Array) => {
+        data = null as any
         EVT.fire('convertSuccess')
         resolve(file)
       })
