@@ -317,7 +317,7 @@ const langText = {
   ],
   _动图保存格式title: [
     '下载动图时，可以把它转换成视频文件',
-    '下載動圖時，可以將它轉換為影片檔案。',
+    '下載動圖時，可轉換為影片檔。',
     'When you download a ugoira work, you can convert it to a video file.',
     'うごイラをダウンロードするとき、動画に変換することができます。',
   ],
@@ -1168,7 +1168,7 @@ const langText = {
   ],
   _不符合要求的文件不会被保存: [
     '不符合要求的文件不会被保存。',
-    '不符合要求的檔案不會被儲存。',
+    '不會儲存不符合要求的檔案。',
     'Files that do not meet the requirements will not be saved.',
     '設定 に合わないファイルは保存されません。',
   ],
@@ -1193,7 +1193,7 @@ const langText = {
   ],
   _在小说里保存元数据提示: [
     '把作者、网址等信息保存到小說里',
-    '將作者、網址等訊息儲存到小說裡',
+    '將作者、網址等資訊儲存到小說裡',
     'Save the author, url and other information in the file',
     '作者やURLなどの情報をファイルの中に保存します。',
   ],
@@ -1205,7 +1205,7 @@ const langText = {
   ],
   _输出内容太多已经为你保存到文件: [
     '因为输出内容太多，已经为您保存到文件。',
-    '因為輸出內容太多，已經為你保存到檔案。',
+    '因為輸出內容太多，已經為你儲存到檔案。',
     'Because the output is too much, it has been saved to a file.',
     '出力内容が多いため、txt ファイルに保存しました。',
   ],
@@ -1217,7 +1217,7 @@ const langText = {
   ],
   _不下载重复文件的提示: [
     '下载器会保存自己的下载记录，以避免下载重复的文件。<br>当你清除 Cookie 和其他站点数据时，下载器的记录也会被清除。',
-    '下載器會儲存自己的下載記錄，以避免下載重複的檔案。<br>當你清除 Cookie 和其他站點資料時，下載器的記錄也會被清除。',
+    '下載器會儲存自己的下載紀錄，以避免下載重複的檔案。<br>當你清除 Cookie 和其他站點資料時，下載器的紀錄也會被清除。',
     `The downloader will save its download record to avoid downloading duplicate files.<br>When you clear cookies and other site data, the downloader's records will also be cleared.`,
     'ダウンローダーは独自のダウンロード履歴を保存して、重複ファイルのダウンロードを回避する。<br>cookie と他のサイトデータを削除すると、ダウンローダーの記録も削除されます。',
   ],
@@ -1238,13 +1238,13 @@ const langText = {
   ],
   _清除下载记录: [
     '清除下载记录',
-    '清除下載記錄',
+    '清除下載紀錄',
     'Clear download record',
     '履歴をクリア',
   ],
   _下载记录已清除: [
     '下载记录已清除',
-    '已清除下載記錄',
+    '已清除下載紀錄',
     'Download record has been cleared',
     'ダウンロード履歴がクリアされました',
   ],
@@ -1304,7 +1304,7 @@ const langText = {
   ],
   _已跳过n个文件: [
     '已跳过 {} 个文件',
-    '已跳过 {} 个文件',
+    '已跳過 {} 個檔案',
     '{} files skipped',
     '{} つのファイルをスキップしました',
   ],
@@ -1343,7 +1343,7 @@ const langText = {
   ],
   _导出csv: [
     '导出 CSV 文件',
-    '匯出 CSV 文檔',
+    '匯出 CSV 檔',
     'Export CSV file',
     'CSV ファイルをエクスポート',
   ],
@@ -1363,7 +1363,7 @@ const langText = {
   _导出成功: [
     '导出成功',
     '匯出成功',
-    '匯出擷取結果 successfully',
+    'Export successfully',
     'エクスポート成功',
   ],
   _图片尺寸: ['图片尺寸', '圖片尺寸', 'Image size', '画像サイズ'],
@@ -1375,7 +1375,7 @@ const langText = {
   _清除: ['清除', '清除', 'Clear', 'クリア'],
   _导入下载记录: [
     '导入下载记录',
-    '匯入下載記錄',
+    '匯入下載紀錄',
     'Import download record',
     'ダウンロード記録をインポート',
   ],
@@ -1432,7 +1432,7 @@ const langText = {
   ],
   _用户阻止名单的说明: [
     '不下载这些用户的作品。需要输入用户 id。如果有多个用户 id，使用英文逗号,分割。',
-    '不下載這些使用者的作品。需要輸入使用者 id。若有多個使用者 id，使用英文逗號,分隔。',
+    '不下載這些使用者的作品。需要輸入使用者 id。若有多個使用者 id，使用半形逗號（,）分隔。',
     'The works of these users will not be downloaded. Need to type the user ID. If there are multiple user ID, use comma (,) separated.',
     'これらのユーザーの作品はダウンロードしません。ユーザー ID が必要です。複数のユーザ ID は "," で区切ってください。',
   ],
@@ -1469,7 +1469,7 @@ const langText = {
   ],
   _抓取选择的作品: [
     '抓取选择的作品',
-    '抓取選擇的作品',
+    '擷取選擇的作品',
     'Crawl selected works',
     '選ばれた作品をクロール',
   ],
@@ -1483,13 +1483,13 @@ const langText = {
   _继续选择: ['继续选择', '繼續選擇', 'Continue select', '選択を続ける'],
   _离开页面前提示选择的作品未抓取: [
     '选择的作品尚未抓取。现在离开此页面会导致你选择的作品被清空。',
-    '選擇的作品尚未抓取。現在離開此頁面會導致您選擇的作品被清空。',
+    '選擇的作品尚未擷取。現在離開此頁面會導致您選擇的作品被清空。',
     'The selected work has not been crawled. Leaving this page now will cause your selected work to be cleared.',
     '選ばれた作品はまだクロールしていません。今このページを離れると、選ばれた作品がクリアされます。',
   ],
   _图片数量大于: [
     '图片数量大于',
-    '圖片数量大於',
+    '圖片數量大於',
     'Number of images >',
     '画像数 >',
   ],
@@ -1507,7 +1507,7 @@ const langText = {
   ],
   _文件数量大于: [
     '文件数量大于',
-    '檔案数量大於',
+    '檔案數量大於',
     'Number of files >',
     'ファイル数 >',
   ],
@@ -1532,7 +1532,7 @@ const langText = {
   ],
   _针对特定用户屏蔽tag: [
     '针对特定用户屏蔽 tag',
-    '針對特定使用者遮蔽 tag',
+    '針對特定使用者排除 tag',
     'Block tags for specific users',
     '特定のユーザーに対して tag をブロック',
   ],
@@ -1565,7 +1565,7 @@ const langText = {
   ],
   _tag用逗号分割: [
     '多个 tag 使用英文逗号,分割',
-    '多個 tag 使用英文逗號,分割',
+    '多個 tag 使用半形逗號（,）分割',
     'Multiple tags use comma (,) split',
     '複数の tag はカンマ「,」で区切ってください',
   ],
@@ -1602,13 +1602,13 @@ const langText = {
   _居中: ['居中', '居中', 'center', '中央揃え'],
   _根据作品类型自动创建文件夹: [
     '根据作品类型自动创建文件夹',
-    '根據作品型別自動建立資料夾',
+    '根據作品類型自動建立資料夾',
     'Create folders based on the type of work',
     '作品種類に応じてフォルダを自動作成します',
   ],
   _使用第一个匹配的tag建立文件夹: [
     '使用第一个匹配的 tag 建立文件夹',
-    '使用第一個匹配的 tag 建立資料夾',
+    '使用第一個符合的 tag 建立資料夾',
     'Create a folder with the first matched tag',
     '最初の一致する tag にフォルダを作成',
   ],
@@ -1627,16 +1627,16 @@ const langText = {
   ],
   _收藏: ['收藏', '收藏', 'Bookmark', 'ブックマーク'],
   _已加入收藏: ['已加入收藏', '已加入收藏', 'Bookmarked', 'ブックマークした'],
-  _全屏查看: ['全屏', '全屏', 'Full screen view', '全画面表示'],
+  _全屏查看: ['全屏', '全螢幕', 'Full screen view', '全画面表示'],
   _抓取id区间: [
     '抓取 id 区间',
-    '抓取 id 區間',
+    '擷取 id 區間',
     'Crawl id range',
     'id 範囲をクロール',
   ],
   _抓取id区间说明: [
     '你可以设置一个作品 id 范围，抓取此范围内的所有作品（包含开始和结束的 id）。\n注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。',
-    '你可以設定一個作品 id 範圍，抓取此範圍內的所有作品（包含開始和結束的 id）。\n注意：如果一次任務中產生的抓取結果數量太多，可能會導致頁面崩潰。',
+    '你可以設定一個作品 id 範圍，擷取此範圍內的所有作品（包含開始和結束的 id）。\n注意：如果一次任務中產生的擷取結果數量太多，可能會導致頁面崩潰。',
     'You can set a range of work id and grab all works in this range (including the begin and end id). \nNote: If the number of crawling results in a task is too much, it may cause the page to crash.',
     '作品 id の範囲を設定し、その範囲内のすべての作品をクロールすることができます。「開始 id と終了 id を含む」\n注意：1 つのタスクであまりにも多くのクロール結果を生成すると、ページがクラッシュする可能性があります。',
   ],
@@ -1654,7 +1654,7 @@ const langText = {
   ],
   _选项卡切换方式: [
     '选项卡切换方式',
-    '選項卡切換方式',
+    '頁籤切換方式',
     'How to switch tabs',
     'タブ切り替え方式',
   ],
