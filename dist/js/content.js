@@ -921,13 +921,16 @@
           bigger(a, b) {
             const _a = a.split('.')
             const _b = b.split('.')
-            // 分别比较每一个版本号字段，当首次遇到 a > b 的时候返回 true
+            // 分别比较每一个版本号字段，从主版本号比较到子版本号
             for (let i = 0; i < _a.length; i++) {
               if (_b[i] === undefined) {
                 break
               }
+              // 一旦某个版本号不相等，就立即返回结果
               if (Number.parseInt(_a[i]) > Number.parseInt(_b[i])) {
                 return true
+              } else if (Number.parseInt(_a[i]) < Number.parseInt(_b[i])) {
+                return false
               }
             }
             return false
@@ -4727,6 +4730,8 @@
             'Total length of serial number',
             'シリアル番号の全長',
           ],
+          _完全一致: ['完全一致', '完全一致', 'Perfect match', '完全一致'],
+          _部分一致: ['部分一致', '部分一致', 'Partial match', '部分一致'],
         }
 
         /***/
@@ -17982,24 +17987,28 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
             ) {
               return true
             }
-            let result = true
             const notNeedTags = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__[
               'settings'
-            ].notNeedTag.map((val) => {
-              return val.toLowerCase()
-            })
-            // 如果设置了排除 tag
-            if (notNeedTags.length > 0) {
-              for (const tag of tags) {
-                for (const notNeed of notNeedTags) {
+            ].notNeedTag.map((str) => str.toLowerCase())
+            for (const tag of tags) {
+              for (const notNeed of notNeedTags) {
+                // 部分匹配
+                if (
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+                    .tagMatchMode === 'partial'
+                ) {
+                  if (tag.toLowerCase().includes(notNeed)) {
+                    return false
+                  }
+                } else {
+                  // 全词匹配
                   if (tag.toLowerCase() === notNeed) {
-                    result = false
-                    break
+                    return false
                   }
                 }
               }
             }
-            return result
+            return true
           }
           // 检查作品是否符合过滤宽高的条件
           checkSetWh(width, height) {
@@ -20843,7 +20852,21 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
       <input type="checkbox" name="notNeedTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="notNeedTagSwitch">
-      <input type="text" name="notNeedTag" class="setinput_style1 blue setinput_tag">
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+        '_任一'
+      )}&nbsp;</span>
+      <input type="radio" id="tagMatchMode1" class="need_beautify radio" name="tagMatchMode" value="partial" checked>
+      <span class="beautify_radio"></span>
+      <label for="tagMatchMode1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_部分一致')}&nbsp; </label>
+      <input type="radio" id="tagMatchMode2" class="need_beautify radio" name="tagMatchMode" value="whole" checked>
+      <span class="beautify_radio"></span>
+      <label for="tagMatchMode2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_完全一致')}&nbsp; </label>
+      <br>
+      <textarea class="centerPanelTextArea beautify_scrollbar" name="notNeedTag" rows="1"></textarea>
       </span>
       </p>
 
@@ -21697,6 +21720,7 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
                 'theme',
                 'bgPositionY',
                 'switchTabBar',
+                'tagMatchMode',
               ],
               textarea: ['createFolderTagList'],
               datetime: ['postDateStart', 'postDateEnd'],
@@ -22390,6 +22414,7 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
               switchTabBar: 'over',
               zeroPadding: false,
               zeroPaddingLength: 3,
+              tagMatchMode: 'partial',
             }
             this.allSettingKeys = Object.keys(this.defaultSettings)
             // 值为浮点数的选项

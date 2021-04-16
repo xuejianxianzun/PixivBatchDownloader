@@ -579,24 +579,25 @@ class Filter {
       return true
     }
 
-    let result = true
-    const notNeedTags = settings.notNeedTag.map((val) => {
-      return val.toLowerCase()
-    })
+    const notNeedTags = settings.notNeedTag.map((str) => str.toLowerCase())
 
-    // 如果设置了排除 tag
-    if (notNeedTags.length > 0) {
-      for (const tag of tags) {
-        for (const notNeed of notNeedTags) {
+    for (const tag of tags) {
+      for (const notNeed of notNeedTags) {
+        // 部分匹配
+        if (settings.tagMatchMode === 'partial') {
+          if (tag.toLowerCase().includes(notNeed)) {
+            return false
+          }
+        } else {
+          // 全词匹配
           if (tag.toLowerCase() === notNeed) {
-            result = false
-            break
+            return false
           }
         }
       }
     }
 
-    return result
+    return true
   }
 
   // 检查作品是否符合过滤宽高的条件

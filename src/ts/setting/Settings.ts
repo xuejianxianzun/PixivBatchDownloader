@@ -129,6 +129,7 @@ interface XzSetting {
   switchTabBar: 'over' | 'click'
   zeroPadding: boolean
   zeroPaddingLength: number
+  tagMatchMode: 'partial' | 'whole'
 }
 
 type SettingsKeys = keyof XzSetting
@@ -261,6 +262,7 @@ class Settings {
     switchTabBar: 'over',
     zeroPadding: false,
     zeroPaddingLength: 3,
+    tagMatchMode: 'partial',
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

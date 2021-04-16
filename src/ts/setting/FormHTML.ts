@@ -241,7 +241,15 @@ export const formHtml = `<form class="settingForm">
       <input type="checkbox" name="notNeedTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="notNeedTagSwitch">
-      <input type="text" name="notNeedTag" class="setinput_style1 blue setinput_tag">
+      <span>${lang.transl('_任一')}&nbsp;</span>
+      <input type="radio" id="tagMatchMode1" class="need_beautify radio" name="tagMatchMode" value="partial" checked>
+      <span class="beautify_radio"></span>
+      <label for="tagMatchMode1"> ${lang.transl('_部分一致')}&nbsp; </label>
+      <input type="radio" id="tagMatchMode2" class="need_beautify radio" name="tagMatchMode" value="whole" checked>
+      <span class="beautify_radio"></span>
+      <label for="tagMatchMode2"> ${lang.transl('_完全一致')}&nbsp; </label>
+      <br>
+      <textarea class="centerPanelTextArea beautify_scrollbar" name="notNeedTag" rows="1"></textarea>
       </span>
       </p>
 

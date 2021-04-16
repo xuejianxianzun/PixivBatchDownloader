@@ -46,13 +46,16 @@ class CheckNewVersion {
     const _a = a.split('.')
     const _b = b.split('.')
 
-    // 分别比较每一个版本号字段，当首次遇到 a > b 的时候返回 true
+    // 分别比较每一个版本号字段，从主版本号比较到子版本号
     for (let i = 0; i < _a.length; i++) {
       if (_b[i] === undefined) {
         break
       }
+      // 一旦某个版本号不相等，就立即返回结果
       if (Number.parseInt(_a[i]) > Number.parseInt(_b[i])) {
         return true
+      } else if (Number.parseInt(_a[i]) < Number.parseInt(_b[i])) {
+        return false
       }
     }
 

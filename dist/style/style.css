@@ -590,10 +590,10 @@
 }
 .centerWrap .centerWrap_con .settingForm .centerPanelTextArea {
   font-family: 'aria';
+  color: #29b3f3;
   font-size: 14px;
   line-height: 1.5;
   background: transparent;
-  color: #444;
   padding: 5px 5px 1px;
   width: 100%;
   min-height: 20px;
@@ -1099,9 +1099,6 @@
 .theme-dark.centerWrap .tip {
   color: #fff;
 }
-.theme-dark.centerWrap .centerPanelTextArea {
-  color: #fff !important;
-}
 .theme-dark.centerWrap .gray1 {
   color: #bbb;
 }
@@ -1171,10 +1168,6 @@
 .xzBG.centerWrap button,
 .xzBG.centerWrap .tip {
   color: #fff;
-}
-.xzBG.centerWrap .centerPanelTextArea {
-  color: #fff !important;
-  text-shadow: 0px 0px 5px #006a9b;
 }
 .xzBG.centerWrap .gray1,
 .xzBG.centerWrap .centerWrap_top_btn {

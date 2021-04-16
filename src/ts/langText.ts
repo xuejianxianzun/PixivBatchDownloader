@@ -1672,6 +1672,8 @@ const langText = {
     'Total length of serial number',
     'シリアル番号の全長',
   ],
+  _完全一致: ['完全一致', '完全一致', 'Perfect match', '完全一致'],
+  _部分一致: ['部分一致', '部分一致', 'Partial match', '部分一致'],
 }
 
 export { langText }

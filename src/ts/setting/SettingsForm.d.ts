@@ -86,4 +86,5 @@ export interface SettingsForm extends HTMLFormElement {
   switchTabBar: RadioNodeList
   zeroPadding: HTMLInputElement
   zeroPaddingLength: HTMLInputElement
+  tagMatchMode: RadioNodeList
 }
