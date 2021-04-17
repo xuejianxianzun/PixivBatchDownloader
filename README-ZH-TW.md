@@ -27,7 +27,7 @@
 
 這是一個 Chrome 瀏覽器擴充功能，用於批次下載 Pixiv 上的圖片和小說。功能強大，支援多種頁面類型。
 
-現在也增加了一些輔助功能，如去除廣告、快速收藏、看圖模式、替未分類作品添加 tag 等。
+現在也增加了一些輔助功能，如去除廣告、快速收藏、看圖模式、替未分類作品加入 tag 等。
 
 ![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/ui4.png)
 
@@ -37,11 +37,11 @@
 
 ## 線上安裝
 
-1. **Chromium 内核**的瀏覽器可以从 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 安装本擴充功能。
+1. **Chromium 核心**的瀏覽器可以從 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**  安裝本擴充功能。
 
-2. **Microsoft Edge** 瀏覽器也可以从 **[Microsoft Edge 外接程序](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)** 安装本擴充功能。
+2. **Microsoft Edge** 瀏覽器也可以從 **[Microsoft Edge 外掛程式](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)** 安裝本擴充功能。
 
-**注意：** 有時 Chrome Web Store 上的擴展可能不是最新版本。如果有需要，你可以進行離線安裝，或者使用 Edge 瀏覽器從 Edge 商店安裝。
+**注意：** 有時 Chrome Web Store 上的擴充功能可能不是最新版本。如果有需要，你可以進行離線安裝，或者使用 Edge 瀏覽器從 Edge 商店安裝。
 
 ## 離線安裝
 
@@ -132,7 +132,7 @@ npm run build
 
 繁體中文
 
-English （機翻，韓語設定下也使用英語文檔）
+English （機翻，韓語設定下也使用英語文件）
 
 日本語
 
