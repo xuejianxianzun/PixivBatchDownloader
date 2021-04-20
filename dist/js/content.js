@@ -2366,9 +2366,15 @@
                     '_全屏查看'
                   ) + ' (F)'
                 )
-                oneToOne.addEventListener('click', () => {
-                  this.enterFullScreenMode()
-                })
+                oneToOne.addEventListener(
+                  'click',
+                  (ev) => {
+                    // 阻止冒泡，否则放大过程中会多一次闪烁（推测可能是这个按钮原有的事件导致的，停止冒泡之后就好了）
+                    ev.stopPropagation()
+                    this.enterFullScreenMode()
+                  },
+                  true
+                )
               }
             })
             // 退出图片查看器时（可能尚未完全退出）
@@ -2403,6 +2409,7 @@
               ToolbarButtonSize['Large'] = 'large'
             })(ToolbarButtonSize || (ToolbarButtonSize = {}))
             // 配置新的看图组件
+            const handleCenter = this.handleCenter.bind(this)
             this.myViewer = new Viewer(this.viewerUl, {
               toolbar: {
                 zoomIn: 0,
@@ -2424,6 +2431,7 @@
                 return image.dataset.src
               },
               viewed(ev) {
+                handleCenter()
                 // 当图片显示完成（加载完成）后，预加载下一张图片
                 let index = ev.detail.index
                 if (index < pageCount - 1) {
@@ -2452,12 +2460,38 @@
           // 进入全屏模式
           enterFullScreenMode() {
             this.toggleBottomBtns(false)
-            document.body.requestFullscreen()
-            ;[150, 300].forEach((time) => {
+            // 请求全屏模式
+            document.body.requestFullscreen().then(() => {
+              // 把图片按 100% 比例显示，需要延迟执行
               window.setTimeout(() => {
+                // 放大图片
                 this.myViewer.zoomTo(1)
-              }, time)
+                this.handleCenter()
+                // 延迟时间不能设置为 0，也不能设置的太小，否则存在问题：
+                // 在打开调试工具时（即网页宽度被减少），如果延迟时间太小，按 F 进入全屏之后实际上不会放大图片（但是按 1:1 按钮却可以放大，原因不清楚）
+              }, 150)
             })
+          }
+          // 处理居中问题
+          handleCenter() {
+            var _a
+            // 当图片高度大于网页视口高度时，在垂直方向上，图片查看器默认是居中显示
+            // 当图片类型为漫画时，改为显示顶部，这样便于查看漫画
+            if (
+              ((_a = this.workData) === null || _a === void 0
+                ? void 0
+                : _a.body.illustType) === 1
+            ) {
+              // 判断图片的高度是否超出网页视图高度。使用图片的显示高度，而不是自然高度
+              const img = this.myViewer.image
+              const windowHeight = window.innerHeight
+              if (img.height <= windowHeight) {
+                return
+              }
+              // 如果图片高度大于视口高度，将其移动以达到显示顶部的效果
+              const hiddenHeight = img.height / 2 - windowHeight / 2
+              this.myViewer.move(0, hiddenHeight)
+            }
           }
           /**在图片查看器的工具栏里添加按钮
            *

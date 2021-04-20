@@ -132,6 +132,7 @@ declare namespace Viewer {
 }
 
 declare class Viewer {
+  image: HTMLImageElement
   constructor(element: Element, options?: Viewer.Options)
   destroy(): Viewer
   exit(): Viewer
