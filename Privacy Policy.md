@@ -6,7 +6,7 @@ This program will request some URLs on pixiv.net according to the user's operati
 
 This program will not modify the user's account settings, Nor will the user's information be sent to other websites.
 
-## Use user token
+## Use pixiv token
 
 pixiv.net will generate a token for the logged-in user, some network requests need to use the token.
 
@@ -14,7 +14,7 @@ This program will store the user's token locally, which is used when some reques
 
 The user's token will not be sent to sites other than pixiv.net.
 
-## Use user cookies
+## Use pixiv cookies
 
 pixiv.net will generate cookies for users to save some information about users.
 
@@ -34,4 +34,4 @@ This program does not track user activities.
 
 --------------
 
-2020/06/01
+2021/04/20
