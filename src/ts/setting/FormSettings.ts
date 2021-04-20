@@ -109,6 +109,7 @@ class FormSettings {
       'ratio',
       'idRange',
       'magnifierSize',
+      'magnifierPosition',
       'workDirName',
       'dupliStrategy',
       'imageSize',

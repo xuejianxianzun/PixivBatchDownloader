@@ -1674,6 +1674,9 @@ const langText = {
   ],
   _完全一致: ['完全一致', '完全一致', 'Perfect match', '完全一致'],
   _部分一致: ['部分一致', '部分一致', 'Partial match', '部分一致'],
+  _位置: ['位置', '位置', 'Position', '位置'],
+  _左: ['左', '左', 'Left', '左'],
+  _右: ['右', '右', 'Right', '右'],
 }
 
 export { langText }

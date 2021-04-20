@@ -2260,7 +2260,7 @@
               document.addEventListener(arg, () => {
                 // 退出全屏
                 if (this.myViewer && !this.isFullscreen()) {
-                  this.showViewerOther()
+                  this.toggleBottomBtns(true)
                 }
               })
             })
@@ -2356,7 +2356,7 @@
                 this.addBookmarkBtn()
               }
               // 显示相关元素
-              this.showViewerOther()
+              this.toggleBottomBtns(true)
               // 点击 1：1 按钮时，全屏查看
               const oneToOne = document.querySelector('.viewer-one-to-one')
               if (oneToOne) {
@@ -2451,7 +2451,7 @@
           }
           // 进入全屏模式
           enterFullScreenMode() {
-            this.hideViewerOther()
+            this.toggleBottomBtns(false)
             document.body.requestFullscreen()
             ;[150, 300].forEach((time) => {
               window.setTimeout(() => {
@@ -2569,24 +2569,8 @@
           isFullscreen() {
             return !!document.fullscreenElement
           }
-          // 隐藏查看器的其他元素
-          hideViewerOther() {
-            document
-              .querySelector('.viewer-container')
-              .classList.add('black-background')
-            // 隐藏底部的其他元素，仍然显示左右切换按钮
-            const close = document.querySelector('.viewer-close')
-            const oneToOne = document.querySelector('.viewer-one-to-one')
-            const navbar = document.querySelector('.viewer-navbar')
-            const addBtns = document.querySelectorAll('.' + this.addBtnClass)
-            for (const element of [close, oneToOne, navbar, ...addBtns]) {
-              if (element) {
-                element.style.display = 'none'
-              }
-            }
-          }
-          // 显示查看器的其他元素
-          showViewerOther() {
+          // 控制查看器底部的一些元素的显示和隐藏
+          toggleBottomBtns(show) {
             document
               .querySelector('.viewer-container')
               .classList.remove('black-background')
@@ -2597,7 +2581,7 @@
             const addBtns = document.querySelectorAll('.' + this.addBtnClass)
             for (const element of [close, oneToOne, navbar, ...addBtns]) {
               if (element) {
-                element.style.display = 'block'
+                element.style.display = show ? 'block' : 'none'
               }
             }
           }
@@ -3275,7 +3259,7 @@
           ],
           _动图保存格式title: [
             '下载动图时，可以把它转换成视频文件',
-            '下載動圖時，可以將它轉換為影片檔案。',
+            '下載動圖時，可轉換為影片檔。',
             'When you download a ugoira work, you can convert it to a video file.',
             'うごイラをダウンロードするとき、動画に変換することができます。',
           ],
@@ -4176,7 +4160,7 @@
           ],
           _不符合要求的文件不会被保存: [
             '不符合要求的文件不会被保存。',
-            '不符合要求的檔案不會被儲存。',
+            '不會儲存不符合要求的檔案。',
             'Files that do not meet the requirements will not be saved.',
             '設定 に合わないファイルは保存されません。',
           ],
@@ -4201,7 +4185,7 @@
           ],
           _在小说里保存元数据提示: [
             '把作者、网址等信息保存到小說里',
-            '將作者、網址等訊息儲存到小說裡',
+            '將作者、網址等資訊儲存到小說裡',
             'Save the author, url and other information in the file',
             '作者やURLなどの情報をファイルの中に保存します。',
           ],
@@ -4213,7 +4197,7 @@
           ],
           _输出内容太多已经为你保存到文件: [
             '因为输出内容太多，已经为您保存到文件。',
-            '因為輸出內容太多，已經為你保存到檔案。',
+            '因為輸出內容太多，已經為你儲存到檔案。',
             'Because the output is too much, it has been saved to a file.',
             '出力内容が多いため、txt ファイルに保存しました。',
           ],
@@ -4225,7 +4209,7 @@
           ],
           _不下载重复文件的提示: [
             '下载器会保存自己的下载记录，以避免下载重复的文件。<br>当你清除 Cookie 和其他站点数据时，下载器的记录也会被清除。',
-            '下載器會儲存自己的下載記錄，以避免下載重複的檔案。<br>當你清除 Cookie 和其他站點資料時，下載器的記錄也會被清除。',
+            '下載器會儲存自己的下載紀錄，以避免下載重複的檔案。<br>當你清除 Cookie 和其他站點資料時，下載器的紀錄也會被清除。',
             `The downloader will save its download record to avoid downloading duplicate files.<br>When you clear cookies and other site data, the downloader's records will also be cleared.`,
             'ダウンローダーは独自のダウンロード履歴を保存して、重複ファイルのダウンロードを回避する。<br>cookie と他のサイトデータを削除すると、ダウンローダーの記録も削除されます。',
           ],
@@ -4246,13 +4230,13 @@
           ],
           _清除下载记录: [
             '清除下载记录',
-            '清除下載記錄',
+            '清除下載紀錄',
             'Clear download record',
             '履歴をクリア',
           ],
           _下载记录已清除: [
             '下载记录已清除',
-            '已清除下載記錄',
+            '已清除下載紀錄',
             'Download record has been cleared',
             'ダウンロード履歴がクリアされました',
           ],
@@ -4312,7 +4296,7 @@
           ],
           _已跳过n个文件: [
             '已跳过 {} 个文件',
-            '已跳过 {} 个文件',
+            '已跳過 {} 個檔案',
             '{} files skipped',
             '{} つのファイルをスキップしました',
           ],
@@ -4351,7 +4335,7 @@
           ],
           _导出csv: [
             '导出 CSV 文件',
-            '匯出 CSV 文檔',
+            '匯出 CSV 檔',
             'Export CSV file',
             'CSV ファイルをエクスポート',
           ],
@@ -4376,7 +4360,7 @@
           _导出成功: [
             '导出成功',
             '匯出成功',
-            '匯出擷取結果 successfully',
+            'Export successfully',
             'エクスポート成功',
           ],
           _图片尺寸: ['图片尺寸', '圖片尺寸', 'Image size', '画像サイズ'],
@@ -4388,7 +4372,7 @@
           _清除: ['清除', '清除', 'Clear', 'クリア'],
           _导入下载记录: [
             '导入下载记录',
-            '匯入下載記錄',
+            '匯入下載紀錄',
             'Import download record',
             'ダウンロード記録をインポート',
           ],
@@ -4455,7 +4439,7 @@
           ],
           _用户阻止名单的说明: [
             '不下载这些用户的作品。需要输入用户 id。如果有多个用户 id，使用英文逗号,分割。',
-            '不下載這些使用者的作品。需要輸入使用者 id。若有多個使用者 id，使用英文逗號,分隔。',
+            '不下載這些使用者的作品。需要輸入使用者 id。若有多個使用者 id，使用半形逗號（,）分隔。',
             'The works of these users will not be downloaded. Need to type the user ID. If there are multiple user ID, use comma (,) separated.',
             'これらのユーザーの作品はダウンロードしません。ユーザー ID が必要です。複数のユーザ ID は "," で区切ってください。',
           ],
@@ -4502,7 +4486,7 @@
           ],
           _抓取选择的作品: [
             '抓取选择的作品',
-            '抓取選擇的作品',
+            '擷取選擇的作品',
             'Crawl selected works',
             '選ばれた作品をクロール',
           ],
@@ -4521,13 +4505,13 @@
           ],
           _离开页面前提示选择的作品未抓取: [
             '选择的作品尚未抓取。现在离开此页面会导致你选择的作品被清空。',
-            '選擇的作品尚未抓取。現在離開此頁面會導致您選擇的作品被清空。',
+            '選擇的作品尚未擷取。現在離開此頁面會導致您選擇的作品被清空。',
             'The selected work has not been crawled. Leaving this page now will cause your selected work to be cleared.',
             '選ばれた作品はまだクロールしていません。今このページを離れると、選ばれた作品がクリアされます。',
           ],
           _图片数量大于: [
             '图片数量大于',
-            '圖片数量大於',
+            '圖片數量大於',
             'Number of images >',
             '画像数 >',
           ],
@@ -4545,7 +4529,7 @@
           ],
           _文件数量大于: [
             '文件数量大于',
-            '檔案数量大於',
+            '檔案數量大於',
             'Number of files >',
             'ファイル数 >',
           ],
@@ -4570,7 +4554,7 @@
           ],
           _针对特定用户屏蔽tag: [
             '针对特定用户屏蔽 tag',
-            '針對特定使用者遮蔽 tag',
+            '針對特定使用者排除 tag',
             'Block tags for specific users',
             '特定のユーザーに対して tag をブロック',
           ],
@@ -4608,7 +4592,7 @@
           ],
           _tag用逗号分割: [
             '多个 tag 使用英文逗号,分割',
-            '多個 tag 使用英文逗號,分割',
+            '多個 tag 使用半形逗號（,）分割',
             'Multiple tags use comma (,) split',
             '複数の tag はカンマ「,」で区切ってください',
           ],
@@ -4655,13 +4639,13 @@
           _居中: ['居中', '居中', 'center', '中央揃え'],
           _根据作品类型自动创建文件夹: [
             '根据作品类型自动创建文件夹',
-            '根據作品型別自動建立資料夾',
+            '根據作品類型自動建立資料夾',
             'Create folders based on the type of work',
             '作品種類に応じてフォルダを自動作成します',
           ],
           _使用第一个匹配的tag建立文件夹: [
             '使用第一个匹配的 tag 建立文件夹',
-            '使用第一個匹配的 tag 建立資料夾',
+            '使用第一個符合的 tag 建立資料夾',
             'Create a folder with the first matched tag',
             '最初の一致する tag にフォルダを作成',
           ],
@@ -4685,16 +4669,16 @@
             'Bookmarked',
             'ブックマークした',
           ],
-          _全屏查看: ['全屏', '全屏', 'Full screen view', '全画面表示'],
+          _全屏查看: ['全屏', '全螢幕', 'Full screen view', '全画面表示'],
           _抓取id区间: [
             '抓取 id 区间',
-            '抓取 id 區間',
+            '擷取 id 區間',
             'Crawl id range',
             'id 範囲をクロール',
           ],
           _抓取id区间说明: [
             '你可以设置一个作品 id 范围，抓取此范围内的所有作品（包含开始和结束的 id）。\n注意：如果一次任务中产生的抓取结果数量太多，可能会导致页面崩溃。',
-            '你可以設定一個作品 id 範圍，抓取此範圍內的所有作品（包含開始和結束的 id）。\n注意：如果一次任務中產生的抓取結果數量太多，可能會導致頁面崩潰。',
+            '你可以設定一個作品 id 範圍，擷取此範圍內的所有作品（包含開始和結束的 id）。\n注意：如果一次任務中產生的擷取結果數量太多，可能會導致頁面崩潰。',
             'You can set a range of work id and grab all works in this range (including the begin and end id). \nNote: If the number of crawling results in a task is too much, it may cause the page to crash.',
             '作品 id の範囲を設定し、その範囲内のすべての作品をクロールすることができます。「開始 id と終了 id を含む」\n注意：1 つのタスクであまりにも多くのクロール結果を生成すると、ページがクラッシュする可能性があります。',
           ],
@@ -4712,7 +4696,7 @@
           ],
           _选项卡切换方式: [
             '选项卡切换方式',
-            '選項卡切換方式',
+            '頁籤切換方式',
             'How to switch tabs',
             'タブ切り替え方式',
           ],
@@ -4732,6 +4716,9 @@
           ],
           _完全一致: ['完全一致', '完全一致', 'Perfect match', '完全一致'],
           _部分一致: ['部分一致', '部分一致', 'Partial match', '部分一致'],
+          _位置: ['位置', '位置', 'Position', '位置'],
+          _左: ['左', '左', 'Left', '左'],
+          _右: ['右', '右', 'Right', '右'],
         }
 
         /***/
@@ -6914,8 +6901,10 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
             this.btn.style.left =
               window.pageXOffset +
               rect.left +
-              rect.width -
-              this.btnSize[0] +
+              (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
+                .magnifierPosition === 'left'
+                ? 0
+                : rect.width - this.btnSize[0]) +
               'px'
             this.btn.style.top = window.pageYOffset + rect.top + 'px'
             this.btn.style.display = 'flex'
@@ -21424,20 +21413,39 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="magnifier">
+
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_位置')} </span>
+      <input type="radio" name="magnifierPosition" id="magnifierPosition1" class="need_beautify radio" value="left">
+      <span class="beautify_radio"></span>
+      <label for="magnifierPosition1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_左')} </label>
+      &nbsp;
+      <input type="radio" name="magnifierPosition" id="magnifierPosition2" class="need_beautify radio" value="right" checked>
+      <span class="beautify_radio"></span>
+      <label for="magnifierPosition2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_右')} </label>
+
+      <span class="verticalSplit"></span>
+
       <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_图片尺寸')} </span>
-      <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original" checked>
+      <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
       <label for="magnifierSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_原图')} </label>
       &nbsp;
-      <input type="radio" name="magnifierSize" id="magnifierSize2" class="need_beautify radio" value="regular">
+      <input type="radio" name="magnifierSize" id="magnifierSize2" class="need_beautify radio" value="regular" checked>
       <span class="beautify_radio"></span>
       <label for="magnifierSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_普通')} </label>
+
       </span>
       </p>
 
@@ -21710,6 +21718,7 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
                 'ratio',
                 'idRange',
                 'magnifierSize',
+                'magnifierPosition',
                 'workDirName',
                 'dupliStrategy',
                 'imageSize',
@@ -22399,6 +22408,7 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
               blockTagsForSpecificUserList: [],
               magnifier: true,
               magnifierSize: 'regular',
+              magnifierPosition: 'right',
               bgDisplay: false,
               bgOpacity: 50,
               bgPositionY: 'center',

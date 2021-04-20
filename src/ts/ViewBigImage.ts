@@ -150,7 +150,12 @@ class ViewBigImage {
     window.clearTimeout(this.hiddenBtnTimer)
     const rect = target.getBoundingClientRect()
     this.btn.style.left =
-      window.pageXOffset + rect.left + rect.width - this.btnSize[0] + 'px'
+      window.pageXOffset +
+      rect.left +
+      (settings.magnifierPosition === 'left'
+        ? 0
+        : rect.width - this.btnSize[0]) +
+      'px'
     this.btn.style.top = window.pageYOffset + rect.top + 'px'
     this.btn.style.display = 'flex'
   }

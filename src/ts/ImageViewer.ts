@@ -184,7 +184,7 @@ class ImageViewer {
       document.addEventListener(arg, () => {
         // 退出全屏
         if (this.myViewer && !this.isFullscreen()) {
-          this.showViewerOther()
+          this.toggleBottomBtns(true)
         }
       })
     })
@@ -291,7 +291,7 @@ class ImageViewer {
       }
 
       // 显示相关元素
-      this.showViewerOther()
+      this.toggleBottomBtns(true)
 
       // 点击 1：1 按钮时，全屏查看
       const oneToOne = document.querySelector('.viewer-one-to-one')
@@ -395,7 +395,7 @@ class ImageViewer {
 
   // 进入全屏模式
   private enterFullScreenMode() {
-    this.hideViewerOther()
+    this.toggleBottomBtns(false)
 
     document.body.requestFullscreen()
 
@@ -507,29 +507,8 @@ class ImageViewer {
     return !!document.fullscreenElement
   }
 
-  // 隐藏查看器的其他元素
-  private hideViewerOther() {
-    document
-      .querySelector('.viewer-container')!
-      .classList.add('black-background')
-    // 隐藏底部的其他元素，仍然显示左右切换按钮
-    const close = document.querySelector('.viewer-close') as HTMLDivElement
-    const oneToOne = document.querySelector(
-      '.viewer-one-to-one'
-    ) as HTMLDivElement
-    const navbar = document.querySelector('.viewer-navbar') as HTMLDivElement
-    const addBtns = document.querySelectorAll(
-      '.' + this.addBtnClass
-    ) as NodeListOf<HTMLElement>
-    for (const element of [close, oneToOne, navbar, ...addBtns]) {
-      if (element) {
-        element.style.display = 'none'
-      }
-    }
-  }
-
-  // 显示查看器的其他元素
-  private showViewerOther() {
+  // 控制查看器底部的一些元素的显示和隐藏
+  private toggleBottomBtns(show: boolean) {
     document
       .querySelector('.viewer-container')!
       .classList.remove('black-background')
@@ -544,7 +523,7 @@ class ImageViewer {
     ) as NodeListOf<HTMLElement>
     for (const element of [close, oneToOne, navbar, ...addBtns]) {
       if (element) {
-        element.style.display = 'block'
+        element.style.display = show ? 'block' : 'none'
       }
     }
   }

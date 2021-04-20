@@ -111,6 +111,7 @@ interface XzSetting {
   blockTagsForSpecificUserList: BlockTagsForSpecificUserItem[]
   magnifier: boolean
   magnifierSize: 'original' | 'regular'
+  magnifierPosition: 'left' | 'right'
   bgDisplay: boolean
   bgOpacity: number
   bgPositionY: 'center' | 'top'
@@ -247,6 +248,7 @@ class Settings {
     blockTagsForSpecificUserList: [],
     magnifier: true,
     magnifierSize: 'regular',
+    magnifierPosition: 'right',
     bgDisplay: false,
     bgOpacity: 50,
     bgPositionY: 'center',
