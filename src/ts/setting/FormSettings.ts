@@ -45,6 +45,7 @@ class FormSettings {
       'downNotBookmarked',
       'downBookmarked',
       'firstFewImagesSwitch',
+      'multiImageWorkImageLimitSwitch',
       'saveNovelMeta',
       'BMKNumSwitch',
       'BMKNumAverageSwitch',
@@ -79,6 +80,7 @@ class FormSettings {
     text: [
       'setWantPage',
       'firstFewImages',
+      'multiImageWorkImageLimit',
       'convertUgoiraThread',
       'BMKNumMin',
       'BMKNumMax',

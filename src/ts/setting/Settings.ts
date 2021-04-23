@@ -29,6 +29,8 @@ interface XzSetting {
   wantPageArr: number[]
   firstFewImagesSwitch: boolean
   firstFewImages: number
+  multiImageWorkImageLimitSwitch: boolean
+  multiImageWorkImageLimit: number
   downType0: boolean
   downType1: boolean
   downType2: boolean
@@ -170,6 +172,8 @@ class Settings {
     ],
     firstFewImagesSwitch: false,
     firstFewImages: 1,
+    multiImageWorkImageLimitSwitch: false,
+    multiImageWorkImageLimit: 10,
     downType0: true,
     downType1: true,
     downType2: true,

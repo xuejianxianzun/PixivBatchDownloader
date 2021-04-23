@@ -24,18 +24,6 @@ const langText = {
     'Which types of works to download',
     'どの種類の作品をダウンロードしますか',
   ],
-  _多p下载前几张: [
-    '设置作品张数',
-    '設定作品張數',
-    'Number of images downloaded per work',
-    '作品ごとにダウンロード画像の数',
-  ],
-  _多p下载前几张提示: [
-    '下载每个作品的前几张图片。默认值 0 表示全部下载。',
-    '下載每個作品的前幾張圖片。預設值 0 表示全部下載。',
-    'Download the first few images of each piece. The default value of 0 means all downloads.',
-    '各作品の画像が最初の何枚をダウンロードしますか？ デフォルト値の 0 は、すべてをダウンロードします。',
-  ],
   _不能含有tag: [
     '不能含有 tag&nbsp;',
     '不能含有 tag&nbsp;',
@@ -280,32 +268,8 @@ const langText = {
     'Download multi-image works',
     'マルチイメージ設定',
   ],
-  _下载前几张图片提示: [
-    '下载前几张图片',
-    '下載前幾張圖片',
-    'First few images',
-    '最初のいくつかの画像',
-  ],
   _不下载: ['不下载', '不下載', 'No', '必要なし'],
   _全部下载: ['全部下载', '全部下載', 'Yes', '全部ダウンロード'],
-  _下载前几张图片: [
-    '下载前几张图片：',
-    '下載前幾張圖片：',
-    'First few images:',
-    '最初のいくつかの画像：',
-  ],
-  _不下载多图作品: [
-    '不下载多图作品',
-    '不下載多圖作品',
-    'Do not download multi-image works',
-    'マルチイメージ作品をダウンロードしない',
-  ],
-  _多图作品下载前n张图片: [
-    '多图作品下载前 {} 张图片',
-    '多圖作品下載前 {} 張圖片',
-    'Multi-image works download the first {} images',
-    'マルチイメージ作品は、最初の {} イメージをダウンロードします',
-  ],
   _插画: ['插画', '插畫', 'Illustrations', 'イラスト'],
   _漫画: ['漫画', '漫畫', 'Manga', '漫画'],
   _动图: ['动图', '動圖', 'Ugoira', 'うごイラ'],
@@ -1487,12 +1451,6 @@ const langText = {
     'The selected work has not been crawled. Leaving this page now will cause your selected work to be cleared.',
     '選ばれた作品はまだクロールしていません。今このページを離れると、選ばれた作品がクリアされます。',
   ],
-  _图片数量大于: [
-    '图片数量大于',
-    '圖片數量大於',
-    'Number of images >',
-    '画像数 >',
-  ],
   _排除了所有作品类型: [
     '排除了所有作品类型',
     '排除了所有作品類型',
@@ -1677,6 +1635,24 @@ const langText = {
   _位置: ['位置', '位置', 'Position', '位置'],
   _左: ['左', '左', 'Left', '左'],
   _右: ['右', '右', 'Right', '右'],
+  _多图作品只下载前几张图片: [
+    '多图作品只下载前几张图片',
+    '多圖作品只下載前幾張圖片',
+    'Multi-picture works only download the first few pictures',
+    'マルチ作品は最初の何枚の画像のみをダウンロードする',
+  ],
+  _多图作品的图片数量限制: [
+    '多图作品的图片数量限制',
+    '多圖作品的圖片數量限制',
+    'Limits on the number of images for multi-picture works',
+    'マルチ作品の画像数の制限',
+  ],
+  _超出此限制的多图作品不会被下载: [
+    '超出此限制的多图作品不会被下载',
+    '超出此限制的多圖作品不會被下載',
+    'Multi-image works exceeding this limit will not be downloaded',
+    'この制限を超えたマルチ作品はダウンロードされません',
+  ],
 }
 
 export { langText }

@@ -88,14 +88,31 @@ export const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="3">
-      <span class="has_tip settingNameStyle1" data-tip="${
-        lang.transl('_下载前几张图片提示') + ', ' + lang.transl('_必须大于0')
-      }" >${lang.transl('_多图下载设置')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_必须大于0'
+      )}" >${lang.transl(
+  '_多图作品只下载前几张图片'
+)}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="firstFewImagesSwitch">
-      ${lang.transl('_下载前几张图片')}&nbsp;
       <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
+      </span>
+      </p>
+
+      <p class="option" data-no="47">
+      <span class="has_tip settingNameStyle1" data-tip="${
+        lang.transl('_超出此限制的多图作品不会被下载') +
+        '. ' +
+        lang.transl('_必须大于0')
+      }" >${lang.transl(
+  '_多图作品的图片数量限制'
+)}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="multiImageWorkImageLimitSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="multiImageWorkImageLimitSwitch">
+      &lt;=&nbsp;
+      <input type="text" name="multiImageWorkImageLimit" class="setinput_style1 blue" value="1">
       </span>
       </p>
 
@@ -106,13 +123,13 @@ export const formHtml = `<form class="settingForm">
       <input type="checkbox" name="BMKNumSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="BMKNumSwitch">
-      <span>${lang.transl('_最小值')}&nbsp;</span>
+      &gt;=&nbsp;
       <input type="text" name="BMKNumMin" class="setinput_style1 blue bmkNum" value="0">
-      <span>${lang.transl('_最大值')}&nbsp;</span>
+      &lt;=&nbsp;
       <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="${
         Config.BookmarkCountLimit
       }">
-      <span>${lang.transl('_或者')}</span>
+      <span>&nbsp;${lang.transl('_或者')}</span>
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_日均收藏数量的提示'
       )}">
@@ -174,6 +191,7 @@ export const formHtml = `<form class="settingForm">
       <span class="beautify_radio"></span>
       <label for="widthHeightLimit3">&lt;=&nbsp;</label>
 
+      <span class="">${lang.transl('_宽度')}</span>
       <input type="text" name="setWidth" class="setinput_style1 blue" value="0">
       <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" class="need_beautify radio" value="&" checked>
       <span class="beautify_radio"></span>
@@ -181,6 +199,7 @@ export const formHtml = `<form class="settingForm">
       <input type="radio" name="setWidthAndOr" id="setWidth_AndOr2" class="need_beautify radio" value="|">
       <span class="beautify_radio"></span>
       <label for="setWidth_AndOr2">or&nbsp;</label>
+      <span class="">${lang.transl('_高度')}</span>
       <input type="text" name="setHeight" class="setinput_style1 blue" value="0">
       </span>
       </p>
@@ -196,10 +215,10 @@ export const formHtml = `<form class="settingForm">
       <span class="subOptionWrap" data-show="idRangeSwitch">
       <input type="radio" name="idRange" id="idRange1" class="need_beautify radio" value=">" checked>
       <span class="beautify_radio"></span>
-      <label for="idRange1">  ${lang.transl('_大于')}&nbsp; </label>
+      <label for="idRange1">  &gt;&nbsp; </label>
       <input type="radio" name="idRange" id="idRange2" class="need_beautify radio" value="<">
       <span class="beautify_radio"></span>
-      <label for="idRange2">  ${lang.transl('_小于')}&nbsp; </label>
+      <label for="idRange2">  &lt;&nbsp; </label>
       <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
       </span>
       </p>

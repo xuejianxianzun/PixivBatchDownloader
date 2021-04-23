@@ -2990,18 +2990,6 @@
             'Which types of works to download',
             'どの種類の作品をダウンロードしますか',
           ],
-          _多p下载前几张: [
-            '设置作品张数',
-            '設定作品張數',
-            'Number of images downloaded per work',
-            '作品ごとにダウンロード画像の数',
-          ],
-          _多p下载前几张提示: [
-            '下载每个作品的前几张图片。默认值 0 表示全部下载。',
-            '下載每個作品的前幾張圖片。預設值 0 表示全部下載。',
-            'Download the first few images of each piece. The default value of 0 means all downloads.',
-            '各作品の画像が最初の何枚をダウンロードしますか？ デフォルト値の 0 は、すべてをダウンロードします。',
-          ],
           _不能含有tag: [
             '不能含有 tag&nbsp;',
             '不能含有 tag&nbsp;',
@@ -3256,32 +3244,8 @@
             'Download multi-image works',
             'マルチイメージ設定',
           ],
-          _下载前几张图片提示: [
-            '下载前几张图片',
-            '下載前幾張圖片',
-            'First few images',
-            '最初のいくつかの画像',
-          ],
           _不下载: ['不下载', '不下載', 'No', '必要なし'],
           _全部下载: ['全部下载', '全部下載', 'Yes', '全部ダウンロード'],
-          _下载前几张图片: [
-            '下载前几张图片：',
-            '下載前幾張圖片：',
-            'First few images:',
-            '最初のいくつかの画像：',
-          ],
-          _不下载多图作品: [
-            '不下载多图作品',
-            '不下載多圖作品',
-            'Do not download multi-image works',
-            'マルチイメージ作品をダウンロードしない',
-          ],
-          _多图作品下载前n张图片: [
-            '多图作品下载前 {} 张图片',
-            '多圖作品下載前 {} 張圖片',
-            'Multi-image works download the first {} images',
-            'マルチイメージ作品は、最初の {} イメージをダウンロードします',
-          ],
           _插画: ['插画', '插畫', 'Illustrations', 'イラスト'],
           _漫画: ['漫画', '漫畫', 'Manga', '漫画'],
           _动图: ['动图', '動圖', 'Ugoira', 'うごイラ'],
@@ -4543,12 +4507,6 @@
             'The selected work has not been crawled. Leaving this page now will cause your selected work to be cleared.',
             '選ばれた作品はまだクロールしていません。今このページを離れると、選ばれた作品がクリアされます。',
           ],
-          _图片数量大于: [
-            '图片数量大于',
-            '圖片數量大於',
-            'Number of images >',
-            '画像数 >',
-          ],
           _排除了所有作品类型: [
             '排除了所有作品类型',
             '排除了所有作品類型',
@@ -4753,6 +4711,24 @@
           _位置: ['位置', '位置', 'Position', '位置'],
           _左: ['左', '左', 'Left', '左'],
           _右: ['右', '右', 'Right', '右'],
+          _多图作品只下载前几张图片: [
+            '多图作品只下载前几张图片',
+            '多圖作品只下載前幾張圖片',
+            'Multi-picture works only download the first few pictures',
+            'マルチ作品は最初の何枚の画像のみをダウンロードする',
+          ],
+          _多图作品的图片数量限制: [
+            '多图作品的图片数量限制',
+            '多圖作品的圖片數量限制',
+            'Limits on the number of images for multi-picture works',
+            'マルチ作品の画像数の制限',
+          ],
+          _超出此限制的多图作品不会被下载: [
+            '超出此限制的多图作品不会被下载',
+            '超出此限制的多圖作品不會被下載',
+            'Multi-image works exceeding this limit will not be downloaded',
+            'この制限を超えたマルチ作品はダウンロードされません',
+          ],
         }
 
         /***/
@@ -5907,14 +5883,12 @@
         // 显示最近更新内容
         class ShowWhatIsNew {
           constructor() {
-            this.flag = 'xzNew990'
+            this.flag = 'xzNew1010'
             this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
               '_新增设置项'
             )}:
 <br>
-${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_选项卡切换方式')}
-<br>
-${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
+${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_多图作品的图片数量限制')}
 `
             this.storeName = 'xzNewVerTag'
             this.show()
@@ -7391,11 +7365,10 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
             ) {
               _Log__WEBPACK_IMPORTED_MODULE_5__['log'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-                  '_多图作品下载前n张图片',
-                  _setting_Settings__WEBPACK_IMPORTED_MODULE_8__[
-                    'settings'
-                  ].firstFewImages.toString()
-                )
+                  '_多图作品只下载前几张图片'
+                ) +
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
+                    .firstFewImages
               )
             }
           }
@@ -17246,6 +17219,7 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
             this.getDownTypeByImgCount()
             this.getDownTypeByColor()
             this.getDownTypeByBmked()
+            this.getMultiImageWorkImageLimit()
             this.getBMKNum()
             this.getSetWh()
             this.getRatio()
@@ -17278,6 +17252,15 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
             }
             // 检查单图、多图的下载
             if (!this.checkPageCount(option.workType, option.pageCount)) {
+              return false
+            }
+            // 检查单图、多图的下载
+            if (
+              !this.checkMultiImageWorkImageLimit(
+                option.workType,
+                option.pageCount
+              )
+            ) {
               return false
             }
             // 检查收藏和未收藏的要求
@@ -17512,6 +17495,28 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
                 _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
                   '_排除作品类型'
                 ) + tips.toString()
+              )
+            }
+          }
+          // 提示多图作品的图片数量限制
+          getMultiImageWorkImageLimit() {
+            if (
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+                .multiImageWorkImageLimitSwitch
+            ) {
+              return
+            }
+            if (
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+                .multiImageWorkImageLimit > 0
+            ) {
+              _Log__WEBPACK_IMPORTED_MODULE_1__['log'].warning(
+                _Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+                  '_多图作品的图片数量限制'
+                ) +
+                  '：' +
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+                    .multiImageWorkImageLimit
               )
             }
           }
@@ -17826,6 +17831,26 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
               default:
                 return true
             }
+          }
+          // 检查多图作品的图片数量限制
+          checkMultiImageWorkImageLimit(workType, pageCount) {
+            // 此过滤条件只检查插画和漫画，只对多图作品生效。如果图片数量小于 2 则不检查
+            if (
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+                .multiImageWorkImageLimitSwitch ||
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+                .multiImageWorkImageLimit < 1 ||
+              pageCount === undefined ||
+              pageCount < 2 ||
+              (workType !== 0 && workType !== 1)
+            ) {
+              return true
+            }
+            return (
+              pageCount <=
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+                .multiImageWorkImageLimit
+            )
           }
           // 依据图片数量，检查下载的作品类型
           checkPageCount(workType, pageCount) {
@@ -20680,22 +20705,35 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
       </p>
 
       <p class="option" data-no="3">
-      <span class="has_tip settingNameStyle1" data-tip="${
-        _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-          '_下载前几张图片提示'
-        ) +
-        ', ' +
-        _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_必须大于0')
-      }" >${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-          '_多图下载设置'
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_必须大于0')}" >${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+          'lang'
+        ].transl(
+          '_多图作品只下载前几张图片'
         )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="firstFewImagesSwitch">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-        '_下载前几张图片'
-      )}&nbsp;
       <input type="text" name="firstFewImages" class="setinput_style1 blue" value="1">
+      </span>
+      </p>
+
+      <p class="option" data-no="47">
+      <span class="has_tip settingNameStyle1" data-tip="${
+        _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+          '_超出此限制的多图作品不会被下载'
+        ) +
+        '. ' +
+        _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_必须大于0')
+      }" >${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+          '_多图作品的图片数量限制'
+        )}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="multiImageWorkImageLimitSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="multiImageWorkImageLimitSwitch">
+      &lt;=&nbsp;
+      <input type="text" name="multiImageWorkImageLimit" class="setinput_style1 blue" value="1">
       </span>
       </p>
 
@@ -20708,17 +20746,15 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
       <input type="checkbox" name="BMKNumSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="BMKNumSwitch">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-        '_最小值'
-      )}&nbsp;</span>
+      &gt;=&nbsp;
       <input type="text" name="BMKNumMin" class="setinput_style1 blue bmkNum" value="0">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-        '_最大值'
-      )}&nbsp;</span>
+      &lt;=&nbsp;
       <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="${
         _config_Config__WEBPACK_IMPORTED_MODULE_0__['Config'].BookmarkCountLimit
       }">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_或者')}</span>
+      <span>&nbsp;${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+        '_或者'
+      )}</span>
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_日均收藏数量的提示')}">
@@ -20792,6 +20828,9 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
       <span class="beautify_radio"></span>
       <label for="widthHeightLimit3">&lt;=&nbsp;</label>
 
+      <span class="">${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+        '_宽度'
+      )}</span>
       <input type="text" name="setWidth" class="setinput_style1 blue" value="0">
       <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" class="need_beautify radio" value="&" checked>
       <span class="beautify_radio"></span>
@@ -20799,6 +20838,9 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
       <input type="radio" name="setWidthAndOr" id="setWidth_AndOr2" class="need_beautify radio" value="|">
       <span class="beautify_radio"></span>
       <label for="setWidth_AndOr2">or&nbsp;</label>
+      <span class="">${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+        '_高度'
+      )}</span>
       <input type="text" name="setHeight" class="setinput_style1 blue" value="0">
       </span>
       </p>
@@ -20816,14 +20858,10 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
       <span class="subOptionWrap" data-show="idRangeSwitch">
       <input type="radio" name="idRange" id="idRange1" class="need_beautify radio" value=">" checked>
       <span class="beautify_radio"></span>
-      <label for="idRange1">  ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
-        'lang'
-      ].transl('_大于')}&nbsp; </label>
+      <label for="idRange1">  &gt;&nbsp; </label>
       <input type="radio" name="idRange" id="idRange2" class="need_beautify radio" value="<">
       <span class="beautify_radio"></span>
-      <label for="idRange2">  ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
-        'lang'
-      ].transl('_小于')}&nbsp; </label>
+      <label for="idRange2">  &lt;&nbsp; </label>
       <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
       </span>
       </p>
@@ -21688,6 +21726,7 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
                 'downNotBookmarked',
                 'downBookmarked',
                 'firstFewImagesSwitch',
+                'multiImageWorkImageLimitSwitch',
                 'saveNovelMeta',
                 'BMKNumSwitch',
                 'BMKNumAverageSwitch',
@@ -21722,6 +21761,7 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
               text: [
                 'setWantPage',
                 'firstFewImages',
+                'multiImageWorkImageLimit',
                 'convertUgoiraThread',
                 'BMKNumMin',
                 'BMKNumMax',
@@ -22362,6 +22402,8 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_在序号前面填充0')}
               ],
               firstFewImagesSwitch: false,
               firstFewImages: 1,
+              multiImageWorkImageLimitSwitch: false,
+              multiImageWorkImageLimit: 10,
               downType0: true,
               downType1: true,
               downType2: true,

@@ -43,6 +43,8 @@ class Filter {
     this.getDownTypeByColor()
     this.getDownTypeByBmked()
 
+    this.getMultiImageWorkImageLimit()
+
     this.getBMKNum()
 
     this.getSetWh()
@@ -83,6 +85,13 @@ class Filter {
 
     // 检查单图、多图的下载
     if (!this.checkPageCount(option.workType, option.pageCount)) {
+      return false
+    }
+
+    // 检查单图、多图的下载
+    if (
+      !this.checkMultiImageWorkImageLimit(option.workType, option.pageCount)
+    ) {
       return false
     }
 
@@ -243,6 +252,21 @@ class Filter {
 
     if (tips.length > 0) {
       log.warning(lang.transl('_排除作品类型') + tips.toString())
+    }
+  }
+
+  // 提示多图作品的图片数量限制
+  private getMultiImageWorkImageLimit() {
+    if (!settings.multiImageWorkImageLimitSwitch) {
+      return
+    }
+
+    if (settings.multiImageWorkImageLimit > 0) {
+      log.warning(
+        lang.transl('_多图作品的图片数量限制') +
+          '：' +
+          settings.multiImageWorkImageLimit
+      )
     }
   }
 
@@ -419,6 +443,25 @@ class Filter {
       default:
         return true
     }
+  }
+
+  // 检查多图作品的图片数量限制
+  private checkMultiImageWorkImageLimit(
+    workType: FilterOption['workType'],
+    pageCount: FilterOption['pageCount']
+  ) {
+    // 此过滤条件只检查插画和漫画，只对多图作品生效。如果图片数量小于 2 则不检查
+    if (
+      !settings.multiImageWorkImageLimitSwitch ||
+      settings.multiImageWorkImageLimit < 1 ||
+      pageCount === undefined ||
+      pageCount < 2 ||
+      (workType !== 0 && workType !== 1)
+    ) {
+      return true
+    }
+
+    return pageCount <= settings.multiImageWorkImageLimit
   }
 
   // 依据图片数量，检查下载的作品类型

@@ -154,10 +154,7 @@ abstract class InitPageBase {
     // 获取作品张数设置
     if (settings.firstFewImagesSwitch) {
       log.warning(
-        lang.transl(
-          '_多图作品下载前n张图片',
-          settings.firstFewImages.toString()
-        )
+        lang.transl('_多图作品只下载前几张图片') + settings.firstFewImages
       )
     }
   }

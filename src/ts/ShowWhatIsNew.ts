@@ -9,12 +9,10 @@ class ShowWhatIsNew {
     this.show()
   }
 
-  private flag = 'xzNew990'
+  private flag = 'xzNew1010'
   private msg = `${lang.transl('_新增设置项')}:
 <br>
-${lang.transl('_选项卡切换方式')}
-<br>
-${lang.transl('_在序号前面填充0')}
+${lang.transl('_多图作品的图片数量限制')}
 `
 
   private readonly storeName = 'xzNewVerTag'
