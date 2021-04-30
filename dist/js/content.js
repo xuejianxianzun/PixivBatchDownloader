@@ -9173,6 +9173,7 @@ ${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl('_多图作品的图片数�
           addResult(id, url, ext) {
             _store_Store__WEBPACK_IMPORTED_MODULE_5__['store'].addResult({
               id: id,
+              idNum: Number.parseInt(id),
               original: url,
               ext: ext,
             })
