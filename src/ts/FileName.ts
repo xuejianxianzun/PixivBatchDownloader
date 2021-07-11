@@ -80,8 +80,6 @@ class FileName {
     return allPart.join('/')
   }
 
-
-
   // 不能出现在文件名开头的一些特定字符
   private readonly checkStartCharList = ['/', ' ', ' /']
 
@@ -166,8 +164,8 @@ class FileName {
         value: !result.includes('{px}')
           ? null
           : data.fullWidth
-            ? data.fullWidth + 'x' + data.fullHeight
-            : '',
+          ? data.fullWidth + 'x' + data.fullHeight
+          : '',
         prefix: '',
         safe: true,
       },
@@ -275,7 +273,6 @@ class FileName {
     if (result.startsWith('/')) {
       result = result.replace('/', '')
     }
-
 
     if (result.endsWith('/')) {
       result = result.substr(0, result.length - 1)
