@@ -80,6 +80,31 @@ class FileName {
     return allPart.join('/')
   }
 
+
+
+  // 不能出现在文件名开头的一些特定字符
+  private readonly checkStartCharList = ['/', ' ', ' /']
+
+  // 检查文件名开头是否含有特定字符
+  private checkStartChar(str: string) {
+    for (const check of this.checkStartCharList) {
+      if (str.startsWith(check)) {
+        return true
+      }
+    }
+    return false
+  }
+
+  // 移除文件名开头的特定字符
+  private removeStartChar(str: string) {
+    while (this.checkStartChar(str)) {
+      for (const check of this.checkStartCharList) {
+        str = str.replace(check, '')
+      }
+    }
+    return str
+  }
+
   // 传入抓取结果，获取文件名
   public getFileName(data: Result) {
     let result = settings.userSetName || '{id}'
@@ -141,8 +166,8 @@ class FileName {
         value: !result.includes('{px}')
           ? null
           : data.fullWidth
-          ? data.fullWidth + 'x' + data.fullHeight
-          : '',
+            ? data.fullWidth + 'x' + data.fullHeight
+            : '',
         prefix: '',
         safe: true,
       },
@@ -240,10 +265,18 @@ class FileName {
     // 处理结果中连续的 /
     result = result.replace(/\/{2,100}/g, '/')
 
-    // 如果结果的头部或者尾部是 / 则去掉
+    result = this.removeStartChar(result)
+
+    // 测试用例：文件名开头是不可用的特殊字符
+    // const testStr = ' / /// /123/{id}'
+    // console.log(this.removeStartChar(testStr))
+
+    // 如果文件名的尾部是 / 则去掉
     if (result.startsWith('/')) {
       result = result.replace('/', '')
     }
+
+
     if (result.endsWith('/')) {
       result = result.substr(0, result.length - 1)
     }

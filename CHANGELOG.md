@@ -1,5 +1,15 @@
 # CHANGLOG
 
+## 10.1.2 2021/07/12
+
+### 完善对异常文件名的处理
+
+修复了 [issues 161](https://github.com/xuejianxianzun/PixivBatchDownloader/issues/161) 遇到的异常情况。
+
+当文件名开头是空格加斜线时，Chrome 不能下载这样的文件，所以导致了下载出错。
+
+以前只考虑了开头是斜线的异常情况，没考虑到空格加斜线的情况。现在对此加以处理。
+
 ## 10.1.1 2021/04/30
 
 ### 修复 pixivision 下载时文件名都是 0 的 bug
