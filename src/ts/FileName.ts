@@ -81,7 +81,7 @@ class FileName {
   }
 
   // 不能出现在文件名开头的一些特定字符
-  private readonly checkStartCharList = ['/', ' ', ' /']
+  private readonly checkStartCharList = ['/', ' ']
 
   // 检查文件名开头是否含有特定字符
   private checkStartChar(str: string) {
@@ -97,7 +97,9 @@ class FileName {
   private removeStartChar(str: string) {
     while (this.checkStartChar(str)) {
       for (const check of this.checkStartCharList) {
-        str = str.replace(check, '')
+        if (str.startsWith(check)) {
+          str = str.replace(check, '')
+        }
       }
     }
     return str
@@ -260,23 +262,19 @@ class FileName {
 
     // 3 处理文件名里的一些边界情况
 
-    // 处理结果中连续的 /
-    result = result.replace(/\/{2,100}/g, '/')
-
+    // 如果文件名开头不可用的特殊字符
     result = this.removeStartChar(result)
-
-    // 测试用例：文件名开头是不可用的特殊字符
-    // const testStr = ' / /// /123/{id}'
+    // 测试用例
+    // const testStr = ' / / {p_tag} / {p_title} /{id}-{user}'
     // console.log(this.removeStartChar(testStr))
 
     // 如果文件名的尾部是 / 则去掉
-    if (result.startsWith('/')) {
-      result = result.replace('/', '')
-    }
-
     if (result.endsWith('/')) {
       result = result.substr(0, result.length - 1)
     }
+
+    // 处理连续的 /
+    result = result.replace(/\/{2,100}/g, '/')
 
     // 4 根据某些设置向结果中添加新的文件夹
     // 其顺序会影响最后生成的文件夹层级，不可随意更改顺序

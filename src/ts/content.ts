@@ -9,14 +9,6 @@
  * E-mail:  xuejianxianzun@gmail.com
  */
 
-// 处理和脚本版的冲突
-{
-  // 标注自己
-  window.sessionStorage.setItem('xz_pixiv_extension', '1')
-  // 把脚本版的标记设置为 0，这样脚本版就不会运行
-  window.sessionStorage.setItem('xz_pixiv_userscript', '0')
-}
-
 import './Lang'
 import './Theme'
 import './setting/Settings'
