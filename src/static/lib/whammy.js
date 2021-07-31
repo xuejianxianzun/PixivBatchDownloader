@@ -590,7 +590,19 @@ window.Whammy = (function () {
       function () {
         var webm = new toWebM(
           this.frames.map(function (frame) {
-            var webp = parseWebP(parseRIFF(atob(frame.image.slice(23))))
+            var str = atob(frame.image.slice(23))
+
+            // Process for WEBPVP8X encoding
+            if (str.includes('WEBPVP8X')) {
+              // save 0-15
+              // The length to be removed in the middle is 562 B, which is to remove 16-577
+              // save 578-end
+              var p1 = str.substr(0, 15)
+              var p2 = str.substr(577)
+              str = p1 + p2
+            }
+
+            var webp = parseWebP(parseRIFF(str))
             webp.duration = frame.duration
             return webp
           }),

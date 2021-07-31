@@ -1653,6 +1653,12 @@ const langText = {
     'Multi-image works exceeding this limit will not be downloaded',
     'この制限を超えたマルチ作品はダウンロードされません',
   ],
+  _fixwebm: [
+    '修复了 WebM 视频无法播放的问题。如果你最近下载到了无法播放的 webm 视频，请重新下载一遍。',
+    '修復了 WebM 影片無法播放的問題。如果你最近下載到了無法播放的 webm 影片，請重新下載一遍。',
+    'Fixed the problem that WebM videos could not be played. If you recently downloaded some unplayable webm videos, please download them again.',
+    'WebMビデオを再生できない問題を修正しました。 最近、再生できないWebMビデオをダウンロードした場合は、もう一度ダウンロードしてください。',
+  ],
 }
 
 export { langText }

@@ -1,5 +1,23 @@
 # CHANGLOG
 
+## 10.2.0 2021/07/31
+
+### 修复 Chrome 新版本导致的动图转换为 webm 出错的问题
+
+Chrome 浏览器从版本号 92 开始，升级了 webp 图片的编码。
+
+下载器使用了一个把图片转换为 webm 的库：whammy.js，但是它已经很久没更新了，不能适应这个情况。
+
+对于这样的代码：
+
+```js
+Canvas.toDataURL('image/webp')
+```
+
+以前版本的 Chrome 是 `WEBPVP8` 编码，新版本的 Chrome 是 `WEBPVP8X` 编码，生成的图片文件有所不同。新编码比旧编码多了一段内容，导致新版本的图片合称 webm 之后出现问题，无法播放。现在对这个问题进行修复。
+
+[whammy/issues/70](https://github.com/antimatter15/whammy/issues/70)
+
 ## 10.1.2 2021/07/12
 
 ### 完善对异常文件名的处理
