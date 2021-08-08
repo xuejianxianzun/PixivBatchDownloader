@@ -25,6 +25,7 @@ import { Config } from '../config/Config'
 import { toast } from '../Toast'
 import { Utils } from '../utils/Utils'
 import { msgBox } from '../MsgBox'
+import { help } from '../Help'
 
 class DownloadControl {
   constructor() {
@@ -284,6 +285,8 @@ class DownloadControl {
     this.setDownStateText(lang.transl('_正在下载中'))
 
     log.success(lang.transl('_正在下载中'))
+
+    help.showDownloadTip()
   }
 
   // 暂停下载

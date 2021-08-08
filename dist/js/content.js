@@ -2137,6 +2137,51 @@
         /***/
       },
 
+    /***/ './src/ts/Help.ts':
+      /*!************************!*\
+  !*** ./src/ts/Help.ts ***!
+  \************************/
+      /*! exports provided: help */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'help',
+          function () {
+            return help
+          }
+        )
+        /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./MsgBox */ './src/ts/MsgBox.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./Lang */ './src/ts/Lang.ts'
+        )
+
+        // 显示新手指南信息。在某些时候给出一次性的提示
+        class Help {
+          showDownloadTip() {
+            const flag = {
+              name: 'PBDDownloadTip',
+              value: '1',
+            }
+            const getValue = localStorage.getItem(flag.name)
+            if (getValue === null) {
+              _MsgBox__WEBPACK_IMPORTED_MODULE_0__['msgBox'].show(
+                _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                  '_下载说明提示2'
+                )
+              )
+              localStorage.setItem(flag.name, flag.value)
+            }
+          }
+        }
+        const help = new Help()
+
+        /***/
+      },
+
     /***/ './src/ts/ImageViewer.ts':
       /*!*******************************!*\
   !*** ./src/ts/ImageViewer.ts ***!
@@ -3694,6 +3739,12 @@
             '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。',
             'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.',
             'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
+          ],
+          _下载说明提示2: [
+            '下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。',
+            '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。',
+            'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.',
+            'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。',
           ],
           _正在下载中: [
             '正在下载中',
@@ -6119,7 +6170,7 @@
   \***********************/
       /*! no static exports found */
       /***/ function (module, exports) {
-        // 自定义的提示，鼠标放上去可以显示
+        // 给下载器的界面元素添加提示文本，当鼠标移动到元素上时会显示提示
         // 如果要给某个元素添加提示，先给它添加 has_tip 的 className，然后用 data-tip 设置提示内容
         class Tip {
           constructor() {
@@ -14371,6 +14422,9 @@
         /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
           /*! ../MsgBox */ './src/ts/MsgBox.ts'
         )
+        /* harmony import */ var _Help__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
+          /*! ../Help */ './src/ts/Help.ts'
+        )
         // 下载控制
 
         class DownloadControl {
@@ -14658,6 +14712,7 @@
             _Log__WEBPACK_IMPORTED_MODULE_3__['log'].success(
               _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_正在下载中')
             )
+            _Help__WEBPACK_IMPORTED_MODULE_19__['help'].showDownloadTip()
           }
           // 暂停下载
           pauseDownload() {
