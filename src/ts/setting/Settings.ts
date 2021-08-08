@@ -87,7 +87,7 @@ interface XzSetting {
   dupliStrategy: 'strict' | 'loose'
   fileNameLengthLimitSwitch: boolean
   fileNameLengthLimit: number
-  imageSize: 'original' | 'regular' | 'small'
+  imageSize: 'original' | 'regular' | 'small' | 'thumb'
   dateFormat: string
   userSetLang: 'zh-cn' | 'zh-tw' | 'ja' | 'en' | 'auto'
   bmkAfterDL: boolean

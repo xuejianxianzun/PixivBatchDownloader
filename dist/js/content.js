@@ -4389,6 +4389,12 @@
           _原图: ['原图', '原圖', 'Original', 'Original'],
           _普通: ['普通', '普通', 'Regular', 'Regular'],
           _小图: ['小图', '小圖', 'Small', 'Small'],
+          _方形缩略图: [
+            '方形缩略图',
+            '方形縮圖',
+            'Square thumbnail',
+            'Square thumbnail',
+          ],
           _导出: ['导出', '匯出', 'Export', 'エクスポート'],
           _导入: ['导入', '匯入', 'Import', 'インポート'],
           _清除: ['清除', '清除', 'Clear', 'クリア'],
@@ -4753,11 +4759,11 @@
             'Multi-image works exceeding this limit will not be downloaded',
             'この制限を超えたマルチ作品はダウンロードされません',
           ],
-          _fixwebm: [
-            '修复了 WebM 视频无法播放的问题。如果你最近下载到了无法播放的 webm 视频，请重新下载一遍。',
-            '修復了 WebM 影片無法播放的問題。如果你最近下載到了無法播放的 webm 影片，請重新下載一遍。',
-            'Fixed the problem that WebM videos could not be played. If you recently downloaded some unplayable webm videos, please download them again.',
-            'WebMビデオを再生できない問題を修正しました。 最近、再生できないWebMビデオをダウンロードした場合は、もう一度ダウンロードしてください。',
+          _whatisnew: [
+            '“图片尺寸”设置里新增了选项：方形缩略图',
+            '“圖片尺寸”設定裡新增了選項：方形縮圖',
+            'A new option has been added to the "Image size" setting: square thumbnail',
+            '「画像サイズ」設定に新しいオプションが追加されました：正方形のサムネイル',
           ],
         }
 
@@ -5913,13 +5919,9 @@
         // 显示最近更新内容
         class ShowWhatIsNew {
           constructor() {
-            this.flag = 'xzNew1020'
-            //   private msg = `${lang.transl('_新增设置项')}:
-            // <br>
-            // ${lang.transl('_多图作品的图片数量限制')}
-            // `
+            this.flag = 'xzNew1030'
             this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-              '_fixwebm'
+              '_whatisnew'
             )}`
             this.storeName = 'xzNewVerTag'
             this.show()
@@ -21369,14 +21371,21 @@
       <label for="imageSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_普通')} </label>
-      <span class="gray1">(1200*1200)</span>
+      <span class="gray1">(1200px)</span>
       &nbsp;
       <input type="radio" name="imageSize" id="imageSize3" class="need_beautify radio" value="small">
       <span class="beautify_radio"></span>
       <label for="imageSize3"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
       ].transl('_小图')} </label>
-      <span class="gray1">(540*540)</span>
+      <span class="gray1">(540px)</span>
+      &nbsp;
+      <input type="radio" name="imageSize" id="imageSize4" class="need_beautify radio" value="thumb">
+      <span class="beautify_radio"></span>
+      <label for="imageSize4"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_方形缩略图')} </label>
+      <span class="gray1">(250px)</span>
       </p>
   
       <p class="option" data-no="25">

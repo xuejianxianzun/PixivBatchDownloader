@@ -9,13 +9,9 @@ class ShowWhatIsNew {
     this.show()
   }
 
-  private flag = 'xzNew1020'
-  //   private msg = `${lang.transl('_新增设置项')}:
-  // <br>
-  // ${lang.transl('_多图作品的图片数量限制')}
-  // `
+  private flag = 'xzNew1030'
 
-  private msg = `${lang.transl('_fixwebm')}`
+  private msg = `${lang.transl('_whatisnew')}`
 
   private readonly storeName = 'xzNewVerTag'
 

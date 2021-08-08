@@ -607,12 +607,17 @@ export const formHtml = `<form class="settingForm">
       <input type="radio" name="imageSize" id="imageSize2" class="need_beautify radio" value="regular">
       <span class="beautify_radio"></span>
       <label for="imageSize2"> ${lang.transl('_普通')} </label>
-      <span class="gray1">(1200*1200)</span>
+      <span class="gray1">(1200px)</span>
       &nbsp;
       <input type="radio" name="imageSize" id="imageSize3" class="need_beautify radio" value="small">
       <span class="beautify_radio"></span>
       <label for="imageSize3"> ${lang.transl('_小图')} </label>
-      <span class="gray1">(540*540)</span>
+      <span class="gray1">(540px)</span>
+      &nbsp;
+      <input type="radio" name="imageSize" id="imageSize4" class="need_beautify radio" value="thumb">
+      <span class="beautify_radio"></span>
+      <label for="imageSize4"> ${lang.transl('_方形缩略图')} </label>
+      <span class="gray1">(250px)</span>
       </p>
   
       <p class="option" data-no="25">
