@@ -32,9 +32,6 @@ class Filter {
     this.bindEvents()
   }
 
-  private readonly MiB = 1024 * 1024
-  private readonly oneDayTime = 24 * 60 * 60 * 1000 // 一天的毫秒数
-
   // 对启用了的过滤选项输出提示
   private showTip() {
     this.getDownType()
@@ -528,6 +525,8 @@ class Filter {
   }
 
   // 检查收藏数要求
+  private readonly oneDayTime = 24 * 60 * 60 * 1000 // 一天的毫秒数
+  private readonly minimumTime = 4 * 60 * 60 * 1000 // 检查日均收藏数量时，要求作品发表之后经过的时间大于这个值。因为发表之后经过时间很短的作品，其日均收藏数量非常不可靠，所以对于小于这个值的作品不进行日均收藏数量的检查。
   private checkBMK(
     bmk: FilterOption['bookmarkCount'],
     date: FilterOption['createDate']
@@ -539,7 +538,7 @@ class Filter {
     // 检查收藏数量是否达到设置的最大值、最小值范围
     const checkNumber = bmk >= settings.BMKNumMin && bmk <= settings.BMKNumMax
 
-    // 如果没有设置日均收藏，就直接返回收藏数量的检查结果
+    // 如果没有设置检查日均收藏，就直接返回收藏数量的检查结果
     if (!settings.BMKNumAverageSwitch || date === undefined) {
       return checkNumber
     }
@@ -547,11 +546,17 @@ class Filter {
     // 检查日均收藏
     const createTime = new Date(date).getTime()
     const nowTime = new Date().getTime()
+
+    // 如果作品发表时间太短，则不再检查日均收藏数量，只返回收藏数量的检查结果
+    if (nowTime - createTime < this.minimumTime) {
+      return checkNumber
+    }
+
     const day = (nowTime - createTime) / this.oneDayTime // 计算作品发表以来的天数
     const average = bmk / day
     const checkAverage = average >= settings.BMKNumAverage
 
-    // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会下载这个作品
+    // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会保留这个作品
     return checkNumber || checkAverage
   }
 
@@ -768,6 +773,7 @@ class Filter {
   }
 
   // 检查文件体积
+  private readonly MiB = 1024 * 1024
   private checkSize(size: FilterOption['size']) {
     if (!settings.sizeSwitch || size === undefined) {
       return true

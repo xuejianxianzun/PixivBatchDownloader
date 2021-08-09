@@ -2159,7 +2159,8 @@
           /*! ./Lang */ './src/ts/Lang.ts'
         )
 
-        // 显示新手指南信息。在某些时候给出一次性的提示
+        // 显示帮助信息
+        // 在第一次使用某些功能的时候显示一次性的帮助信息
         class Help {
           showDownloadTip() {
             const flag = {
@@ -17290,8 +17291,11 @@
         // 检查作品是否符合过滤条件
         class Filter {
           constructor() {
-            this.MiB = 1024 * 1024
+            // 检查收藏数要求
             this.oneDayTime = 24 * 60 * 60 * 1000 // 一天的毫秒数
+            this.minimumTime = 4 * 60 * 60 * 1000 // 检查日均收藏数量时，要求作品发表之后经过的时间大于这个值。因为发表之后经过时间很短的作品，其日均收藏数量非常不可靠，所以对于小于这个值的作品不进行日均收藏数量的检查。
+            // 检查文件体积
+            this.MiB = 1024 * 1024
             this.bindEvents()
           }
           // 对启用了的过滤选项输出提示
@@ -18011,7 +18015,6 @@
             }
             return false
           }
-          // 检查收藏数要求
           checkBMK(bmk, date) {
             if (
               bmk === undefined ||
@@ -18028,7 +18031,7 @@
               bmk <=
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
                   .BMKNumMax
-            // 如果没有设置日均收藏，就直接返回收藏数量的检查结果
+            // 如果没有设置检查日均收藏，就直接返回收藏数量的检查结果
             if (
               !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
                 .BMKNumAverageSwitch ||
@@ -18039,13 +18042,17 @@
             // 检查日均收藏
             const createTime = new Date(date).getTime()
             const nowTime = new Date().getTime()
+            // 如果作品发表时间太短，则不再检查日均收藏数量，只返回收藏数量的检查结果
+            if (nowTime - createTime < this.minimumTime) {
+              return checkNumber
+            }
             const day = (nowTime - createTime) / this.oneDayTime // 计算作品发表以来的天数
             const average = bmk / day
             const checkAverage =
               average >=
               _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
                 .BMKNumAverage
-            // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会下载这个作品
+            // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会保留这个作品
             return checkNumber || checkAverage
           }
           // 检查作品是否符合包含 tag 的条件。返回值表示是否保留这个作品。
@@ -18304,7 +18311,6 @@
               'settings'
             ].blockList.includes(userId)
           }
-          // 检查文件体积
           checkSize(size) {
             if (
               !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
