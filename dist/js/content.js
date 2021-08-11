@@ -7088,7 +7088,7 @@
         /**使用输出面板显示内容时，如果文件数量大于这个值，就不再显示内容，而是保存到 txt 文件 */
         Config.outputMax = 5000
         /**同时下载的文件数量的最大值 */
-        Config.downloadThreadMax = 10
+        Config.downloadThreadMax = 6
         /**下载某个文件出错时，最大重试次数 */
         Config.retryMax = 10
         /**作品类型所对应的字符串名称 */
@@ -14845,6 +14845,13 @@
                 _config_Config__WEBPACK_IMPORTED_MODULE_15__[
                   'Config'
                 ].downloadThreadMax
+              Object(
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_6__['setSetting']
+              )(
+                'downloadThread',
+                _config_Config__WEBPACK_IMPORTED_MODULE_15__['Config']
+                  .downloadThreadMax
+              )
             } else {
               this.thread = setThread // 设置为用户输入的值
             }

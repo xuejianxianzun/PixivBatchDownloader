@@ -12,7 +12,7 @@ import { store } from '../store/Store'
 import { log } from '../Log'
 import { lang } from '../Lang'
 import { Colors } from '../config/Colors'
-import { settings } from '../setting/Settings'
+import { setSetting, settings } from '../setting/Settings'
 import { Download } from '../download/Download'
 import { progressBar } from './ProgressBar'
 import { downloadStates } from './DownloadStates'
@@ -398,6 +398,7 @@ class DownloadControl {
     ) {
       // 如果数值非法，则重设为默认值
       this.thread = Config.downloadThreadMax
+      setSetting('downloadThread', Config.downloadThreadMax)
     } else {
       this.thread = setThread // 设置为用户输入的值
     }

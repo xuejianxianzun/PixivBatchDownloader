@@ -4,7 +4,7 @@ class Config {
   /**使用输出面板显示内容时，如果文件数量大于这个值，就不再显示内容，而是保存到 txt 文件 */
   static readonly outputMax = 5000
   /**同时下载的文件数量的最大值 */
-  static readonly downloadThreadMax = 10
+  static readonly downloadThreadMax = 6
   /**下载某个文件出错时，最大重试次数 */
   static readonly retryMax = 10
   /**作品类型所对应的字符串名称 */
