@@ -1,7 +1,8 @@
 import { Utils } from '../utils/Utils'
 
 // 检查图片是否是黑白图片
-// 获取图片中 rgb 三色的平均值，如果很接近就判断为黑白图片。这是一个不保证准确的方法
+// 获取图片中 rgb 三色的平均值，如果很接近就判断为黑白图片
+// 这是一个不太可靠的方法，在少数情况下，彩色图片可能会被误判为黑白图片
 class BlackAndWhiteImage {
   private readonly latitude = 1 // 宽容度
 
@@ -10,10 +11,9 @@ class BlackAndWhiteImage {
       const img = await this.loadImg(imgUrl)
       const first = this.getResult(this.getColor(img))
       return first
-      // 当判断结果是彩色图片的时候，基本不会是误判。但如果结果是黑白图，可能存在误判
     } catch (error) {
-      // loadImg 失败时 reject 会在被这里捕获
-      // 直接把这个图片判断为彩色图片
+      // loadImg 失败时返回的 reject 会在这里被捕获
+      // 直接把这个图片视为彩色图片
       return false
     }
   }
@@ -25,8 +25,9 @@ class BlackAndWhiteImage {
       if (url.startsWith('blob')) {
         resolve(Utils.loadImg(url))
       } else {
+        // 不是 blobURL 的话先获取图片
         const res = await fetch(url).catch((error) => {
-          console.log(error)
+          // fetch 加载图片可能会失败 TypeError: Failed to fetch
           console.log(`Load image error! url: ${url}`)
         })
         // 如果 fetch 加载图片失败，res 会是 undefined
