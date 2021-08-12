@@ -25,7 +25,6 @@ class BlackAndWhiteImage {
       if (url.startsWith('blob')) {
         resolve(Utils.loadImg(url))
       } else {
-        // 不是 blobURL 的话先获取图片
         const res = await fetch(url).catch((error) => {
           console.log(error)
           console.log(`Load image error! url: ${url}`)
