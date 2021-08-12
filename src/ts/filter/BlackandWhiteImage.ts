@@ -6,32 +6,33 @@ class BlackAndWhiteImage {
   private readonly latitude = 1 // 宽容度
 
   public async check(imgUrl: string): Promise<boolean> {
-    const img = await this.loadImg(imgUrl).catch((error) => {
-      console.error(error)
-    })
-    // 当加载图片失败时，无法进行判断，默认为彩色图片
-    if (!img) {
+    try {
+      const img = await this.loadImg(imgUrl)
+      const first = this.getResult(this.getColor(img))
+      return first
+      // 当判断结果是彩色图片的时候，基本不会是误判。但如果结果是黑白图，可能存在误判
+    } catch (error) {
+      // loadImg 失败时 reject 会在被这里捕获
+      // 直接把这个图片判断为彩色图片
       return false
     }
-    const first = this.getResult(this.getColor(img))
-    return first
-    // 当判断结果是彩色图片的时候，基本不会是误判。但如果结果是黑白图，可能存在误判。
-    // 因此，如果第一次判断是黑白的，可以考虑进行第二次检测，第二次只检测局部
   }
 
   // 加载图片
   private async loadImg(url: string): Promise<HTMLImageElement> {
     return new Promise(async (resolve, reject) => {
-      // 如果传递的时 blobURL 就直接使用，不是的话先获取图片
+      // 如果传递的是 blobURL 就直接使用
       if (url.startsWith('blob')) {
         resolve(Utils.loadImg(url))
       } else {
+        // 不是 blobURL 的话先获取图片
         const res = await fetch(url).catch((error) => {
           console.log(error)
           console.log(`Load image error! url: ${url}`)
         })
+        // 如果 fetch 加载图片失败，res 会是 undefined
         if (!res) {
-          return
+          return reject()
         }
         const blob = await res.blob()
         const blobURL = URL.createObjectURL(blob)
