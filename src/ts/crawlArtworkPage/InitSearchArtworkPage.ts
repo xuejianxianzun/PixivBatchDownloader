@@ -144,8 +144,6 @@ class InitSearchArtworkPage extends InitPageBase {
   protected initAny() {
     this.hotBar()
 
-    this.setNotAutoDownload()
-
     window.addEventListener(EVT.list.pageSwitchedTypeNotChange, () => {
       this.hotBar()
     })
@@ -172,9 +170,6 @@ class InitSearchArtworkPage extends InitPageBase {
     window.removeEventListener(EVT.list.addResult, this.showCount)
     window.removeEventListener(EVT.list.crawlFinish, this.onCrawlFinish)
     window.removeEventListener(EVT.list.settingChange, this.onSettingChange)
-
-    // 离开下载页面时，取消设置“不自动下载”
-    states.notAutoDownload = false
   }
 
   protected getWantPage() {
@@ -380,11 +375,6 @@ class InitSearchArtworkPage extends InitPageBase {
 
   private onSettingChange = (event: CustomEventInit) => {
     const data = event.detail.data
-
-    if (data.name === 'previewResult') {
-      this.setNotAutoDownload()
-    }
-
     if (this.causeResultChange.includes(data.name)) {
       if (store.result.length > 0) {
         this.reAddResult()
@@ -393,13 +383,13 @@ class InitSearchArtworkPage extends InitPageBase {
     }
   }
 
-  private setNotAutoDownload() {
-    // 如果设置了“预览搜索结果”，则不启用自动下载
-    states.notAutoDownload = settings.previewResult ? true : false
-  }
-
   // 抓取完成后，保存结果的元数据，并重排结果
   private onCrawlFinish = () => {
+    // 当从图片查看器发起下载时，也会触发抓取完毕的事件，但此时不应该调整搜索页面的结果。
+    if (states.downloadFromViewer) {
+      return
+    }
+
     this.resultMeta = [...store.resultMeta]
 
     this.clearWorks()

@@ -23,10 +23,6 @@ class States {
   // 作用同 quickCrawl，只是触发方式不同
   public downloadFromViewer = false
 
-  // 不自动下载的标记。如果为 true，那么下载器在抓取完成后，不会自动开始下载。（即使用户设置了自动开始下载）
-  // 修改者：InitSearchArtworkPage 组件根据“预览搜索结果”的设置，修改这个状态
-  public notAutoDownload = false
-
   // 在排行榜抓取时，是否只抓取“首次登场”的作品
   // 修改者：InitRankingArtworkPage 组件修改这个状态
   public debut = false

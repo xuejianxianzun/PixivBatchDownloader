@@ -26,6 +26,7 @@ import { toast } from '../Toast'
 import { Utils } from '../utils/Utils'
 import { msgBox } from '../MsgBox'
 import { help } from '../Help'
+import { pageType } from '../PageType'
 
 class DownloadControl {
   constructor() {
@@ -235,12 +236,18 @@ class DownloadControl {
 
     this.setDownloadThread()
 
-    // 检查 不自动开始下载 的标记
-    if (states.notAutoDownload) {
-      return
+    // 在插画漫画搜索页面里，如果启用了“预览搜索页面的筛选结果”
+    if (
+      pageType.type === pageType.list.ArtworkSearch &&
+      settings.previewResult
+    ) {
+      // 只允许由图片查看器发起的下载自动下载，其他情况不自动下载
+      if (!states.downloadFromViewer) {
+        return
+      }
     }
 
-    // 视情况自动开始下载
+    // 自动开始下载的情况
     if (
       settings.quietDownload ||
       states.quickCrawl ||

@@ -2814,7 +2814,7 @@
                   'InitBookmarkPage'
                 ]()
               case _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
-                .ArtworkSerach:
+                .ArtworkSearch:
                 return new _crawlArtworkPage_InitSearchArtworkPage__WEBPACK_IMPORTED_MODULE_7__[
                   'InitSearchArtworkPage'
                 ]()
@@ -5299,7 +5299,7 @@
           PageName[(PageName['UserHome'] = 2)] = 'UserHome'
           PageName[(PageName['BookmarkLegacy'] = 3)] = 'BookmarkLegacy'
           PageName[(PageName['Bookmark'] = 4)] = 'Bookmark'
-          PageName[(PageName['ArtworkSerach'] = 5)] = 'ArtworkSerach'
+          PageName[(PageName['ArtworkSearch'] = 5)] = 'ArtworkSearch'
           PageName[(PageName['AreaRanking'] = 6)] = 'AreaRanking'
           PageName[(PageName['ArtworkRanking'] = 7)] = 'ArtworkRanking'
           PageName[(PageName['Pixivision'] = 8)] = 'Pixivision'
@@ -5361,7 +5361,7 @@
             } else if (url.includes('/tags/')) {
               return pathname.endsWith('/novels')
                 ? PageName.NovelSearch
-                : PageName.ArtworkSerach
+                : PageName.ArtworkSearch
             } else if (
               pathname === '/ranking_area.php' &&
               location.search !== ''
@@ -7816,7 +7816,7 @@
             // 在哪些页面上启用
             this.enablePageType = [
               _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].list
-                .ArtworkSerach,
+                .ArtworkSearch,
             ]
             // 小说搜索页面不需要优化，因为列表数据中包含了每个作品的收藏数
             // 只有会员才能使用的排序方式（按热门度排序）
@@ -9714,9 +9714,6 @@
             this.flag = 'searchArtwork'
             this.onSettingChange = (event) => {
               const data = event.detail.data
-              if (data.name === 'previewResult') {
-                this.setNotAutoDownload()
-              }
               if (this.causeResultChange.includes(data.name)) {
                 if (
                   _store_Store__WEBPACK_IMPORTED_MODULE_8__['store'].result
@@ -9729,6 +9726,13 @@
             }
             // 抓取完成后，保存结果的元数据，并重排结果
             this.onCrawlFinish = () => {
+              // 当从图片查看器发起下载时，也会触发抓取完毕的事件，但此时不应该调整搜索页面的结果。
+              if (
+                _store_States__WEBPACK_IMPORTED_MODULE_14__['states']
+                  .downloadFromViewer
+              ) {
+                return
+              }
               this.resultMeta = [
                 ..._store_Store__WEBPACK_IMPORTED_MODULE_8__['store']
                   .resultMeta,
@@ -10026,7 +10030,6 @@
           }
           initAny() {
             this.hotBar()
-            this.setNotAutoDownload()
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list
                 .pageSwitchedTypeNotChange,
@@ -10075,10 +10078,6 @@
               _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list.settingChange,
               this.onSettingChange
             )
-            // 离开下载页面时，取消设置“不自动下载”
-            _store_States__WEBPACK_IMPORTED_MODULE_14__[
-              'states'
-            ].notAutoDownload = false
           }
           getWantPage() {
             this.crawlNumber = this.checkWantPageInput(
@@ -10294,16 +10293,6 @@
                 'Utils'
               ].sortByProperty('bmk')
             )
-          }
-          setNotAutoDownload() {
-            // 如果设置了“预览搜索结果”，则不启用自动下载
-            _store_States__WEBPACK_IMPORTED_MODULE_14__[
-              'states'
-            ].notAutoDownload = _setting_Settings__WEBPACK_IMPORTED_MODULE_10__[
-              'settings'
-            ].previewResult
-              ? true
-              : false
           }
           // 返回包含作品列表的 ul 元素
           getWorksWrap() {
@@ -14433,6 +14422,9 @@
         /* harmony import */ var _Help__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
           /*! ../Help */ './src/ts/Help.ts'
         )
+        /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
+          /*! ../PageType */ './src/ts/PageType.ts'
+        )
         // 下载控制
 
         class DownloadControl {
@@ -14664,14 +14656,23 @@
             ].result.length.toString()
             this.setDownloaded()
             this.setDownloadThread()
-            // 检查 不自动开始下载 的标记
+            // 在插画漫画搜索页面里，如果启用了“预览搜索页面的筛选结果”
             if (
-              _store_States__WEBPACK_IMPORTED_MODULE_14__['states']
-                .notAutoDownload
+              _PageType__WEBPACK_IMPORTED_MODULE_20__['pageType'].type ===
+                _PageType__WEBPACK_IMPORTED_MODULE_20__['pageType'].list
+                  .ArtworkSearch &&
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_6__['settings']
+                .previewResult
             ) {
-              return
+              // 只允许由图片查看器发起的下载自动下载，其他情况不自动下载
+              if (
+                !_store_States__WEBPACK_IMPORTED_MODULE_14__['states']
+                  .downloadFromViewer
+              ) {
+                return
+              }
             }
-            // 视情况自动开始下载
+            // 自动开始下载的情况
             if (
               _setting_Settings__WEBPACK_IMPORTED_MODULE_6__['settings']
                 .quietDownload ||
@@ -23433,9 +23434,6 @@
             // 如果是，那么下载途中不会显示下载面板，并且会自动开始下载
             // 作用同 quickCrawl，只是触发方式不同
             this.downloadFromViewer = false
-            // 不自动下载的标记。如果为 true，那么下载器在抓取完成后，不会自动开始下载。（即使用户设置了自动开始下载）
-            // 修改者：InitSearchArtworkPage 组件根据“预览搜索结果”的设置，修改这个状态
-            this.notAutoDownload = false
             // 在排行榜抓取时，是否只抓取“首次登场”的作品
             // 修改者：InitRankingArtworkPage 组件修改这个状态
             this.debut = false

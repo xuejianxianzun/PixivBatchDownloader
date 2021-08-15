@@ -8,7 +8,7 @@ enum PageName {
   UserHome,
   BookmarkLegacy,
   Bookmark,
-  ArtworkSerach,
+  ArtworkSearch,
   AreaRanking,
   ArtworkRanking,
   Pixivision,
@@ -70,7 +70,7 @@ class PageType {
     } else if (url.includes('/tags/')) {
       return pathname.endsWith('/novels')
         ? PageName.NovelSearch
-        : PageName.ArtworkSerach
+        : PageName.ArtworkSearch
     } else if (pathname === '/ranking_area.php' && location.search !== '') {
       return PageName.AreaRanking
     } else if (pathname === '/ranking.php') {

@@ -48,7 +48,7 @@ class InitPage {
         return new InitBookmarkLegacyPage()
       case pageType.list.Bookmark:
         return new InitBookmarkPage()
-      case pageType.list.ArtworkSerach:
+      case pageType.list.ArtworkSearch:
         return new InitSearchArtworkPage()
       case pageType.list.AreaRanking:
         return new InitAreaRankingPage()
