@@ -32,6 +32,7 @@ class ViewBigImage {
     'div[width="112"]',
     'div[width="104"]',
     'div[width="90"]',
+    'div[width="118"]',
     '._work',
     'figure > div',
   ]
