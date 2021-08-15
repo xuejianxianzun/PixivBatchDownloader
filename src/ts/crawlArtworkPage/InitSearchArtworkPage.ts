@@ -215,7 +215,7 @@ class InitSearchArtworkPage extends InitPageBase {
     https://www.pixiv.net/en/tags/Fate%2FGrandOrder/illustrations
     */
     const URLType = location.pathname.split('tags/')[1].split('/')[1] ?? ''
-    // 在“顶部”页面的时候是没有分类的，会是 undefined，此时使用成空字符串
+    // 在“顶部”页面的时候是没有分类的，会是 undefined，此时使用空字符串
 
     switch (URLType) {
       case '':

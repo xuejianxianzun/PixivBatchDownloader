@@ -715,7 +715,15 @@ export const formHtml = `<form class="settingForm">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_预览搜索结果说明'
       )}">${lang.transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="previewResult" id="setPreviewResult" class="need_beautify checkbox_switch" checked>
+      <input type="checkbox" name="previewResult" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
+
+      <p class="option" data-no="48">
+      <span class="settingNameStyle1">${lang.transl(
+        '_在搜索页面添加快捷搜索区域'
+      )} </span>
+      <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
       </p>
 

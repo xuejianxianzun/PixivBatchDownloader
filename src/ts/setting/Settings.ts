@@ -133,6 +133,7 @@ interface XzSetting {
   zeroPadding: boolean
   zeroPaddingLength: number
   tagMatchMode: 'partial' | 'whole'
+  showFastSearchArea: boolean
 }
 
 type SettingsKeys = keyof XzSetting
@@ -269,6 +270,7 @@ class Settings {
     zeroPadding: false,
     zeroPaddingLength: 3,
     tagMatchMode: 'partial',
+    showFastSearchArea: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

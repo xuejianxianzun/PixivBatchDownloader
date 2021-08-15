@@ -101,6 +101,34 @@
   top: 12px;
   z-index: -1;
 }
+.fastScreenArea {
+  text-align: center;
+  background: #fff;
+  display: none;
+}
+.fastScreenArea button {
+  background: none;
+  border: none;
+  display: inline-block;
+  padding: 10px;
+  color: #258fb8;
+}
+.fastScreenArea button:hover {
+  text-decoration: underline;
+}
+.theme-dark.fastScreenArea {
+  text-align: center;
+  background: #1f1f1f;
+  display: none;
+}
+.theme-dark.fastScreenArea a {
+  display: inline-block;
+  padding: 10px;
+  color: #fff;
+}
+.theme-dark.fastScreenArea a:hover {
+  text-decoration: underline;
+}
 .searchList {
   margin: 0;
 }
@@ -1688,30 +1716,6 @@ iframe[name='expandedFooter'] {
 .tabsTitle,
 .xz_msg_box {
   transition: background 0.5s;
-}
-.fastScreenArea {
-  text-align: center;
-  background: #fff;
-}
-.fastScreenArea a {
-  display: inline-block;
-  padding: 10px;
-  color: #258fb8;
-}
-.fastScreenArea a:hover {
-  text-decoration: underline;
-}
-.theme-dark.fastScreenArea {
-  text-align: center;
-  background: #1f1f1f;
-}
-.theme-dark.fastScreenArea a {
-  display: inline-block;
-  padding: 10px;
-  color: #fff;
-}
-.theme-dark.fastScreenArea a:hover {
-  text-decoration: underline;
 }
 #xzMaskWrap {
   position: fixed;

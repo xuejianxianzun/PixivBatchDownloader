@@ -241,7 +241,7 @@ class API {
     // 把可选项添加到 url 里
     let temp = new URL(url)
 
-    // 下面两项需要判断有值再添加。不可以添加了这些字段却使用空值。
+    // 下面两项需要判断有值再添加。不可以让这些字段使用空值
     if (option.worksType) {
       temp.searchParams.set('content', option.worksType)
     }

@@ -1671,6 +1671,12 @@ const langText = {
     'A new option has been added to the "Image size" setting: square thumbnail',
     '「画像サイズ」設定に新しいオプションが追加されました：正方形のサムネイル',
   ],
+  _在搜索页面添加快捷搜索区域: [
+    '在搜索页面添加快捷搜索区域',
+    '在搜尋頁面新增快捷搜尋區域',
+    'Add a quick search area on the search page',
+    '検索ページにクイック検索領域を追加します',
+  ],
 }
 
 export { langText }

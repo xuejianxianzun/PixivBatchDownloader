@@ -1,3 +1,39 @@
+.fastScreenArea {
+  text-align: center;
+  background: #fff;
+  display: none;
+
+  button {
+    background: none;
+    border: none;
+    display: inline-block;
+    padding: 10px;
+    color: #258fb8;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.theme-dark {
+  &.fastScreenArea {
+    text-align: center;
+    background: #1f1f1f;
+    display: none;
+
+    a {
+      display: inline-block;
+      padding: 10px;
+      color: #fff;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
 .searchList {
   margin: 0;
   .searchContent {

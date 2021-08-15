@@ -295,7 +295,7 @@
             let url = `https://www.pixiv.net/ranking.php?mode=${option.mode}&p=${option.p}&format=json`
             // 把可选项添加到 url 里
             let temp = new URL(url)
-            // 下面两项需要判断有值再添加。不可以添加了这些字段却使用空值。
+            // 下面两项需要判断有值再添加。不可以让这些字段使用空值
             if (option.worksType) {
               temp.searchParams.set('content', option.worksType)
             }
@@ -4816,6 +4816,12 @@
             '“圖片尺寸”設定裡新增了選項：方形縮圖',
             'A new option has been added to the "Image size" setting: square thumbnail',
             '「画像サイズ」設定に新しいオプションが追加されました：正方形のサムネイル',
+          ],
+          _在搜索页面添加快捷搜索区域: [
+            '在搜索页面添加快捷搜索区域',
+            '在搜尋頁面新增快捷搜尋區域',
+            'Add a quick search area on the search page',
+            '検索ページにクイック検索領域を追加します',
           ],
         }
 
@@ -10115,7 +10121,7 @@
                 null && _a !== void 0
                 ? _a
                 : ''
-            // 在“顶部”页面的时候是没有分类的，会是 undefined，此时使用成空字符串
+            // 在“顶部”页面的时候是没有分类的，会是 undefined，此时使用空字符串
             switch (URLType) {
               case '':
                 this.worksType = 'artworks'
@@ -19481,22 +19487,35 @@
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Theme */ './src/ts/Theme.ts'
         )
+        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../setting/Settings */ './src/ts/setting/Settings.ts'
+        )
 
         // 在搜索页面按收藏数快速筛选
         class FastScreen {
           constructor() {
-            this.favNums = [
+            this.fastScreenArea = document.createElement('div')
+            this.tagList = [
               '100users入り',
               '500users入り',
               '1000users入り',
-              '3000users入り',
               '5000users入り',
               '10000users入り',
               '20000users入り',
               '30000users入り',
               '50000users入り',
-            ] // 200 和 2000 的因为数量太少，不添加。40000 的也少
+              '100000users入り',
+            ]
             this.create()
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
+              (ev) => {
+                const data = ev.detail.data
+                if (data.name === 'showFastSearchArea') {
+                  this.setDisplay()
+                }
+              }
+            )
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
                 .pageSwitchedTypeChange,
@@ -19515,46 +19534,58 @@
               }, 300)
               return
             }
-            const fastScreenArea = document.createElement('div')
-            fastScreenArea.className = 'fastScreenArea'
-            this.favNums.forEach((secondTag) => {
-              const a = document.createElement('a')
-              a.innerText = secondTag
-              a.href = 'javascript:viod(0)'
-              a.onclick = () => {
-                this.openFastScreenLink(secondTag)
+            this.fastScreenArea.className = 'fastScreenArea'
+            this.tagList.forEach((tag) => {
+              const btn = document.createElement('button')
+              btn.innerText = tag
+              btn.onclick = () => {
+                this.openFastScreenLink(tag)
               }
-              fastScreenArea.appendChild(a)
+              this.fastScreenArea.appendChild(btn)
             })
             _Theme__WEBPACK_IMPORTED_MODULE_2__['theme'].register(
-              fastScreenArea
+              this.fastScreenArea
             )
-            target.insertAdjacentElement('afterend', fastScreenArea)
+            target.insertAdjacentElement('afterend', this.fastScreenArea)
+            this.setDisplay()
+          }
+          // 设置是否显示快速筛选区域
+          setDisplay() {
+            this.fastScreenArea.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__[
+              'settings'
+            ].showFastSearchArea
+              ? 'block'
+              : 'none'
           }
           // 打开快速筛选链接
-          openFastScreenLink(secondTag) {
-            // 拼接两个 tag。因为搜索页面可以无刷新切换搜索的 tag，所以从这里动态获取
+          openFastScreenLink(fastTag) {
+            // 拼接 tag。因为搜索页面可以无刷新切换搜索的 tag，所以需要动态获取当前 tag
             const nowTag = _Tools__WEBPACK_IMPORTED_MODULE_1__[
               'Tools'
             ].getTagFromURL()
             const firstTag = nowTag.split(' ')[0]
-            const fullTag = encodeURIComponent(firstTag + ' ' + secondTag)
-            // 用新的 tag 替换掉当前网址里的 tag
-            const newURL = location.href.replace(
+            const fullTag = firstTag + ' ' + fastTag
+            // 用组合后的 tag 替换掉当前网址里的 tag
+            let newURL = location.href.replace(
               encodeURIComponent(nowTag),
-              fullTag
+              encodeURIComponent(fullTag)
             )
-            // 添加 s_mode=s_tag 宽松匹配标签
+            // 如果 url 路径的 tags/ 后面没有子路径，代表是在“顶部”分类。
+            // “顶部”分类里始终是严格的搜索模式，即使添加 s_mode=s_tag 也无效，这经常会导致搜索结果为 0。所以如果分类是“顶部”，就自动修改为“插画·漫画”分类以获取更多搜索结果。
+            // “顶部”分类的 url 示例
+            // https://www.pixiv.net/tags/%E9%9B%AA%E8%8A%B1%E3%83%A9%E3%83%9F%E3%82%A3%2010000users%E5%85%A5%E3%82%8A?s_mode=s_tag
+            const str = new URL(newURL).pathname.split('tags/')[1]
+            if (str.includes('/') === false) {
+              // 在 tag 后面添加“插画·漫画”分类的路径
+              newURL = newURL.replace(str, str + '/artworks')
+            }
+            // 设置宽松的搜索模式 s_mode=s_tag
             const u = new URL(newURL)
             u.searchParams.set('s_mode', 's_tag')
             location.href = u.toString()
           }
           destroy() {
-            // 删除快速筛选元素
-            const fastScreen = document.querySelector('.fastScreenArea')
-            fastScreen === null || fastScreen === void 0
-              ? void 0
-              : fastScreen.remove()
+            this.fastScreenArea.remove()
           }
         }
 
@@ -21577,7 +21608,15 @@
       ].transl('_预览搜索结果说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="previewResult" id="setPreviewResult" class="need_beautify checkbox_switch" checked>
+      <input type="checkbox" name="previewResult" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
+
+      <p class="option" data-no="48">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_在搜索页面添加快捷搜索区域')} </span>
+      <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
       </p>
 
@@ -21861,6 +21900,7 @@
                 'createFolderByTypeUgoira',
                 'createFolderByTypeNovel',
                 'zeroPadding',
+                'showFastSearchArea',
               ],
               text: [
                 'setWantPage',
@@ -22605,6 +22645,7 @@
               zeroPadding: false,
               zeroPaddingLength: 3,
               tagMatchMode: 'partial',
+              showFastSearchArea: true,
             }
             this.allSettingKeys = Object.keys(this.defaultSettings)
             // 值为浮点数的选项

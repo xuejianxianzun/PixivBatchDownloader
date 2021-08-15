@@ -76,6 +76,7 @@ class FormSettings {
       'createFolderByTypeUgoira',
       'createFolderByTypeNovel',
       'zeroPadding',
+      'showFastSearchArea',
     ],
     text: [
       'setWantPage',
