@@ -260,7 +260,7 @@ export const formHtml = `<form class="settingForm">
       <input type="checkbox" name="notNeedTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="notNeedTagSwitch">
-      <span>${lang.transl('_任一')}&nbsp;</span>
+      <span class="gray1">${lang.transl('_任一')}&nbsp;</span>
       <input type="radio" id="tagMatchMode1" class="need_beautify radio" name="tagMatchMode" value="partial" checked>
       <span class="beautify_radio"></span>
       <label for="tagMatchMode1"> ${lang.transl('_部分一致')}&nbsp; </label>
