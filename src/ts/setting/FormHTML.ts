@@ -492,13 +492,8 @@ export const formHtml = `<form class="settingForm">
       <span>${lang.transl('_文件数量大于')}</span>
       <input type="text" name="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
       <span>&nbsp;</span>
-      <span>${lang.transl('_目录名使用')}</span>
-      <input type="radio" name="workDirName" id="workDirName1" class="need_beautify radio" value="id" checked>
-      <span class="beautify_radio"></span>
-      <label for="workDirName1"> ID&nbsp; </label>
-      <input type="radio" name="workDirName" id="workDirName2" class="need_beautify radio" value="rule">
-      <span class="beautify_radio"></span>
-      <label for="workDirName2"> ${lang.transl('_命名规则')}&nbsp; </label>
+      <span>${lang.transl('_目录名')}</span>
+      <input type="text" name="workDirNameRule" class="setinput_style1 blue" value="{id_num}">
       </span>
       </p>
 

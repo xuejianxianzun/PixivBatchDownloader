@@ -103,6 +103,7 @@ class FormSettings {
       'blockList',
       'bgOpacity',
       'zeroPaddingLength',
+      'workDirNameRule',
     ],
     radio: [
       'ugoiraSaveAs',
@@ -113,7 +114,6 @@ class FormSettings {
       'idRange',
       'magnifierSize',
       'magnifierPosition',
-      'workDirName',
       'dupliStrategy',
       'imageSize',
       'userSetLang',

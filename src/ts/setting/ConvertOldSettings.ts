@@ -15,10 +15,6 @@ class ConvertOldSettings {
       '2': 'vertical',
       '3': 'userSet',
     },
-    workDirName: {
-      '1': 'id',
-      '2': 'rule',
-    },
     idRange: {
       '1': '>',
       '2': '<',

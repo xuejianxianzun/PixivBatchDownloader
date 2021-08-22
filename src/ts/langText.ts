@@ -6,6 +6,7 @@ import { Config } from './config/Config'
 // <br> 是换行
 
 const langText = {
+  _type: ['cn', 'tw', 'en', 'ja'],
   _只下载已收藏: [
     '只下载已收藏',
     '只下載已收藏',
@@ -1666,10 +1667,10 @@ const langText = {
     'この制限を超えたマルチ作品はダウンロードされません',
   ],
   _whatisnew: [
-    '“图片尺寸”设置里新增了选项：方形缩略图',
-    '“圖片尺寸”設定裡新增了選項：方形縮圖',
-    'A new option has been added to the "Image size" setting: square thumbnail',
-    '「画像サイズ」設定に新しいオプションが追加されました：正方形のサムネイル',
+    '优化设置：为每个作品创建单独的文件夹<br><br>在这个设置里可以使用命名规则了。',
+    '最佳化設定：為每個作品建立單獨的資料夾<br><br>在這個設定裡可以使用命名規則了。',
+    'Optimized settings: Create a separate folder for each work<br><br>In this setting, you can use naming rules.',
+    '最適化された設定：作品ごとに個別のフォルダーを作成します<br> <br>この設定では、命名規則を使用できます。',
   ],
   _在搜索页面添加快捷搜索区域: [
     '在搜索页面添加快捷搜索区域',

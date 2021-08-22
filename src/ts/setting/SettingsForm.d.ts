@@ -40,7 +40,7 @@ export interface SettingsForm extends HTMLFormElement {
   noSerialNo: HTMLInputElement
   workDir: HTMLInputElement
   workDirFileNumber: HTMLInputElement
-  workDirName: RadioNodeList
+  workDirNameRule: HTMLInputElement
   previewResult: HTMLInputElement
   BMKNumSwitch: HTMLInputElement
   ratioSwitch: HTMLInputElement

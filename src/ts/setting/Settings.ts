@@ -54,7 +54,7 @@ interface XzSetting {
   tagNameToFileName: boolean
   workDir: boolean
   workDirFileNumber: number
-  workDirName: 'id' | 'rule'
+  workDirNameRule: string
   showOptions: boolean
   postDate: boolean
   postDateStart: number
@@ -146,7 +146,7 @@ class Settings {
   }
 
   // 默认设置
-  private readonly defaultSettings: XzSetting = {
+  public readonly defaultSettings: XzSetting = {
     setWantPage: -1,
     wantPageArr: [
       -1,
@@ -199,7 +199,7 @@ class Settings {
     tagNameToFileName: false,
     workDir: false,
     workDirFileNumber: 1,
-    workDirName: 'id',
+    workDirNameRule: '{id_num}',
     showOptions: true,
     postDate: false,
     postDateStart: 946684800000,
@@ -506,6 +506,10 @@ class Settings {
 
     // 对于一些不合法的值，重置为默认值
     if (key === 'firstFewImages' && value < 1) {
+      value = this.defaultSettings[key]
+    }
+
+    if (key === 'fileNameLengthLimit' && value < 1) {
       value = this.defaultSettings[key]
     }
 

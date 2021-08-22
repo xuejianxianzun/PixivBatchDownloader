@@ -39,7 +39,7 @@ class CenterPanel {
   // 添加中间面板
   private addCenterPanel() {
     const centerPanelHTML = `
-      <div class="centerWrap">
+      <div class="centerWrap ${'lang_' + lang.type}">
 
       <div class="centerWrap_head">
       <div class="centerWrap_title blue">

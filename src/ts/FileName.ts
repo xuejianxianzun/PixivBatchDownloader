@@ -8,6 +8,9 @@ import { Tools } from './Tools'
 
 // 生成文件名
 class FileName {
+  // 下载器所有的动图文件名后缀
+  private readonly ugoiraExt = ['zip', 'webm', 'gif', 'png']
+
   private readonly addStr = '[downloader_add]'
 
   // 生成 {rank} 标记的值
@@ -74,6 +77,7 @@ class FileName {
   }
 
   // 在文件名前面添加一层文件夹
+  // appendFolder 方法会对非法字符进行处理（包括处理路径分隔符 / 这主要是因为 tags 可能含有斜线 /，需要替换）
   private appendFolder(fullPath: string, folderName: string): string {
     const allPart = fullPath.split('/')
     allPart.splice(allPart.length - 1, 0, Utils.replaceUnsafeStr(folderName))
@@ -105,12 +109,20 @@ class FileName {
     return str
   }
 
-  // 传入抓取结果，获取文件名
+  // 传入一个抓取结果，获取其文件名
   public getFileName(data: Result) {
-    let result = settings.userSetName || '{id}'
+    // 命名规则
+    let userSetName = settings.userSetName || '{id}'
+
+    // 判断是否要为每个作品创建单独的文件夹
+    let createFolderForEachWork =
+      settings.workDir && data.dlCount > settings.workDirFileNumber
+
+    const allNameRule =
+      userSetName + (createFolderForEachWork ? settings.workDirNameRule : '')
 
     // 1 生成所有命名标记的值
-    // 对于一些较为耗时的计算，先判断用户是否使用了这个标记，如果未使用则不计算
+    // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
     const cfg = {
       '{p_title}': {
         value: store.title,
@@ -133,12 +145,14 @@ class FileName {
         safe: true,
       },
       '{p_num}': {
-        value: !result.includes('{p_num}') ? null : this.createPNum(data),
+        value: !allNameRule.includes('{p_num}') ? null : this.createPNum(data),
         prefix: '',
         safe: true,
       },
       '{rank}': {
-        value: !result.includes('{rank}') ? null : this.createRank(data.rank),
+        value: !allNameRule.includes('{rank}')
+          ? null
+          : this.createRank(data.rank),
         prefix: '',
         safe: true,
       },
@@ -163,7 +177,7 @@ class FileName {
         safe: true,
       },
       '{px}': {
-        value: !result.includes('{px}')
+        value: !allNameRule.includes('{px}')
           ? null
           : data.fullWidth
           ? data.fullWidth + 'x' + data.fullHeight
@@ -172,19 +186,19 @@ class FileName {
         safe: true,
       },
       '{tags}': {
-        value: !result.includes('{tags}') ? null : data.tags.join(','),
+        value: !allNameRule.includes('{tags}') ? null : data.tags.join(','),
         prefix: 'tags_',
         safe: false,
       },
       '{tags_translate}': {
-        value: !result.includes('{tags_translate}')
+        value: !allNameRule.includes('{tags_translate}')
           ? null
           : data.tagsWithTransl.join(','),
         prefix: 'tags_',
         safe: false,
       },
       '{tags_transl_only}': {
-        value: !result.includes('{tags_transl_only}')
+        value: !allNameRule.includes('{tags_transl_only}')
           ? null
           : data.tagsTranslOnly.join(','),
         prefix: 'tags_',
@@ -206,14 +220,14 @@ class FileName {
         safe: true,
       },
       '{date}': {
-        value: !result.includes('{date}')
+        value: !allNameRule.includes('{date}')
           ? null
           : DateFormat.format(data.date, settings.dateFormat),
         prefix: '',
         safe: false,
       },
       '{task_date}': {
-        value: !result.includes('{task_date}')
+        value: !allNameRule.includes('{task_date}')
           ? null
           : DateFormat.format(store.crawlCompleteTime, settings.dateFormat),
         prefix: '',
@@ -236,49 +250,58 @@ class FileName {
       },
     }
 
-    // 2 把命名规则里的标记替换成实际值
-    for (const [key, val] of Object.entries(cfg)) {
-      if (result.includes(key)) {
-        // 空值替换成空字符串
-        let temp = val.value ?? ''
+    // 2 生成文件名的函数
+    // 传入命名规则，返回生成的文件名
+    const generateFileName = (rule: string) => {
+      let result = rule
+      // 把命名规则里的标记替换成实际值
+      for (const [key, val] of Object.entries(cfg)) {
+        if (rule.includes(key)) {
+          // 空值替换成空字符串
+          let temp = val.value ?? ''
 
-        // 如果这个值不是字符串类型则转换为字符串
-        temp = typeof temp !== 'string' ? temp.toString() : temp
+          // 如果这个值不是字符串类型则转换为字符串
+          temp = typeof temp !== 'string' ? temp.toString() : temp
 
-        // 替换不可以作为文件名的特殊字符
-        if (!val.safe) {
-          temp = Utils.replaceUnsafeStr(temp)
+          // 替换不可以作为文件名的特殊字符
+          if (!val.safe) {
+            temp = Utils.replaceUnsafeStr(temp)
+          }
+
+          // 添加标记前缀
+          if (settings.tagNameToFileName) {
+            temp = val.prefix + temp
+          }
+
+          // 将标记替换成结果，如果有重复的标记，全部替换
+          result = result.replace(new RegExp(key, 'g'), temp)
         }
-
-        // 添加标记前缀
-        if (settings.tagNameToFileName) {
-          temp = val.prefix + temp
-        }
-
-        // 将标记替换成结果，如果有重复的标记，全部替换
-        result = result.replace(new RegExp(key, 'g'), temp)
       }
+
+      // 处理文件名里的一些边界情况
+
+      // 如果文件名开头不可用的特殊字符
+      result = this.removeStartChar(result)
+      // 测试用例
+      // const testStr = ' / / {p_tag} / {p_title} /{id}-{user}'
+      // console.log(this.removeStartChar(testStr))
+
+      // 如果文件名的尾部是 / 则去掉
+      if (result.endsWith('/')) {
+        result = result.substr(0, result.length - 1)
+      }
+
+      // 处理连续的 /
+      result = result.replace(/\/{2,100}/g, '/')
+
+      return result
     }
 
-    // 3 处理文件名里的一些边界情况
-
-    // 如果文件名开头不可用的特殊字符
-    result = this.removeStartChar(result)
-    // 测试用例
-    // const testStr = ' / / {p_tag} / {p_title} /{id}-{user}'
-    // console.log(this.removeStartChar(testStr))
-
-    // 如果文件名的尾部是 / 则去掉
-    if (result.endsWith('/')) {
-      result = result.substr(0, result.length - 1)
-    }
-
-    // 处理连续的 /
-    result = result.replace(/\/{2,100}/g, '/')
+    // 3 生成文件名
+    let result = generateFileName(userSetName)
 
     // 4 根据某些设置向结果中添加新的文件夹
-    // 其顺序会影响最后生成的文件夹层级，不可随意更改顺序
-    // appendFolder 方法会对非法字符进行处理（主要是因为 tags 可能含有斜线 /，需要替换）
+    // 注意：添加文件夹的顺序会影响文件夹的层级，所以不可随意更改顺序
 
     // 根据作品类型自动创建对应的文件夹
     if (settings.createFolderByType) {
@@ -326,24 +349,16 @@ class FileName {
       result = this.appendFolder(result, settings.r18FolderName)
     }
 
-    // 为作品建立单独的文件夹
-    // 如果这个作品里要下载的文件数量大于指定数量，则会为它建立单独的文件夹
-    if (settings.workDir && data.dlCount > settings.workDirFileNumber) {
-      const allPart = result.split('/')
-      const name = allPart[allPart.length - 1]
-
-      let folder = ''
-      if (settings.workDirName === 'id') {
-        // 使用作品 id 作为文件夹名
-        folder = data.idNum.toString()
-      } else if (settings.workDirName === 'rule') {
-        // 遵从命名规则，使用文件名做文件夹名
-        // 这里进行了一个替换，因为多图每个图片的名字都不同，这主要是因为 id 后面的序号不同。这会导致文件夹名也不同，有多少个文件就会建立多少个文件夹，而不是统一建立一个文件夹。为了只建立一个文件夹，需要把 id 后面的序号部分去掉。
-        // 但是如果一些特殊的命名规则并没有包含 {id} 部分，文件名的区别得不到处理，依然会每个文件建立一个文件夹。
-        folder = name.replace(data.id, data.idNum.toString())
+    // 为每个作品创建单独的文件夹
+    if (createFolderForEachWork) {
+      const workDirName = generateFileName(settings.workDirNameRule)
+      // 生成文件名。由于用户可能会添加斜线来建立多层路径，所以需要循环添加每个路径
+      const allPath = workDirName.split('/')
+      for (const path of allPath) {
+        if (path.length > 0) {
+          result = this.appendFolder(result, path)
+        }
       }
-
-      result = this.appendFolder(result, folder)
     }
 
     // 5 文件夹部分和文件名已经全部生成完毕，处理一些边界情况
@@ -371,8 +386,7 @@ class FileName {
 
     // 6 生成后缀名
     // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
-    const ugoiraExt = ['zip', 'webm', 'gif', 'png']
-    if (ugoiraExt.includes(data.ext) && data.ugoiraInfo) {
+    if (this.ugoiraExt.includes(data.ext) && data.ugoiraInfo) {
       data.ext = settings.ugoiraSaveAs
     }
     // 如果是小说，那么此时根据用户设置的动图保存格式，更新其后缀名
@@ -386,10 +400,6 @@ class FileName {
     // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
     if (settings.fileNameLengthLimitSwitch) {
       let limit = settings.fileNameLengthLimit
-      if (limit < 1) {
-        limit = 200 // 如果设置的值不合法，则设置为 200
-      }
-
       const allPart = result.split('/')
       const lastIndex = allPart.length - 1
 
@@ -406,6 +416,7 @@ class FileName {
     // 8 添加后缀名
     result += extResult
 
+    // 9 返回结果
     return result
   }
 }

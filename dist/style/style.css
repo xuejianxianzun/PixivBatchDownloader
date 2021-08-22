@@ -1240,6 +1240,18 @@
 .xzBG.centerWrap .centerWrap_btns button {
   box-shadow: none !important;
 }
+.lang_zh-cn input[name='workDirNameRule'] {
+  width: 200px !important;
+}
+.lang_zh-tw input[name='workDirNameRule'] {
+  width: 200px !important;
+}
+.lang_en input[name='workDirNameRule'] {
+  width: 138px !important;
+}
+.lang_ja input[name='workDirNameRule'] {
+  width: 170px !important;
+}
 .outputWrap {
   padding: 20px 30px;
   width: 520px;
