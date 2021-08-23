@@ -18163,7 +18163,22 @@
                     .tagMatchMode === 'partial'
                 ) {
                   if (tag.toLowerCase().includes(notNeed)) {
-                    return false
+                    // 如果检查到了排除的 tag，进行复查
+                    // 使用空格对 tag 进行分词，尝试提高准确率
+                    // 例如：用户本意是排除腐向作品（bl），但是如果作品的 tag 是 Strike the Blood 或者 Blue Poison 都会导致作品被排除。这是错误的。
+                    // 所以在有分词的情况下，应当对分词进行全等匹配以提高准确度
+                    const words = tag.split(' ')
+                    if (words.length > 1) {
+                      // 如果 tag 有空格，依次使用每个分词进行全词匹配。如果有任一一个 tag 被匹配到则排除这个作品
+                      if (
+                        words.some((word) => word.toLowerCase() === notNeed)
+                      ) {
+                        return false
+                      }
+                    } else {
+                      // 如果 tag 没有空格，直接返回结果
+                      return false
+                    }
                   }
                 } else {
                   // 全词匹配
@@ -22646,7 +22661,7 @@
               switchTabBar: 'over',
               zeroPadding: false,
               zeroPaddingLength: 3,
-              tagMatchMode: 'partial',
+              tagMatchMode: 'whole',
               showFastSearchArea: true,
             }
             this.allSettingKeys = Object.keys(this.defaultSettings)

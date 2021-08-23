@@ -269,7 +269,7 @@ class Settings {
     switchTabBar: 'over',
     zeroPadding: false,
     zeroPaddingLength: 3,
-    tagMatchMode: 'partial',
+    tagMatchMode: 'whole',
     showFastSearchArea: true,
   }
 
