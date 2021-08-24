@@ -175,7 +175,7 @@
             return this.sendGetRequest(url)
           }
           // 添加收藏
-          static async addBookmark(type, id, tags, hide, token) {
+          static async addBookmark(id, type, tags, hide, token) {
             const restrict = hide ? 1 : 0
             let body = {}
             if (type === 'illusts') {
@@ -499,6 +499,7 @@
           /*! ./Tools */ './src/ts/Tools.ts'
         )
 
+        // 对 API.addBookmark 进行封装
         class Bookmark {
           static async getWorkData(type, id) {
             return type === 'illusts'
@@ -507,37 +508,46 @@
                 )
               : await _API__WEBPACK_IMPORTED_MODULE_0__['API'].getNovelData(id)
           }
-          // 对 API.addBookmark 进行封装
           /**添加收藏
            *
            * 可选参数 tags：可以直接传入这个作品的 tag 列表
            *
            * 如果未传入 tags，但收藏设置要求 tags，则此方法会发送请求获取作品数据
+           *
+           * 可选参数 needAddTag：控制是否添加 tag。缺省时使用 settings.widthTagBoolean
+           *
+           * 可选参数 restrict：指示这个收藏是否为非公开收藏。缺省时使用 settings.restrictBoolean
+           *
            */
-          static async add(id, type, tags) {
-            if (
-              !_setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
-                .widthTagBoolean
-            ) {
-              // 设置了不添加 tag
-              tags = []
-            } else {
-              // 需要添加 tag
-              if (!tags) {
-                tags = []
-                // 如果需要附带 tag，则获取作品数据，提取 tag
+          static async add(id, type, tags, needAddTag, restrict) {
+            const _needAddTag =
+              needAddTag === undefined
+                ? _setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
+                    .widthTagBoolean
+                : !!needAddTag
+            if (_needAddTag) {
+              // 需要添加 tags
+              if (tags === undefined) {
+                // 如果未传递 tags，则请求作品数据来获取 tags
                 const data = await this.getWorkData(type, id)
                 tags = _Tools__WEBPACK_IMPORTED_MODULE_3__['Tools'].extractTags(
                   data
                 )
               }
+            } else {
+              // 不需要添加 tags
+              tags = []
             }
+            const _restrict =
+              restrict === undefined
+                ? _setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
+                    .restrictBoolean
+                : !!restrict
             return _API__WEBPACK_IMPORTED_MODULE_0__['API'].addBookmark(
-              type,
               id,
+              type,
               tags,
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
-                .restrictBoolean,
+              _restrict,
               _Token__WEBPACK_IMPORTED_MODULE_2__['token'].token
             )
           }
@@ -19016,11 +19026,11 @@
         /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ../Tools */ './src/ts/Tools.ts'
         )
-        /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
-          /*! ../Token */ './src/ts/Token.ts'
-        )
-        /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+        /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Toast */ './src/ts/Toast.ts'
+        )
+        /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../Bookmark */ './src/ts/Bookmark.ts'
         )
 
         // 给收藏页面里的未分类作品批量添加 tag
@@ -19111,13 +19121,12 @@
           // 给未分类作品添加 tag
           async addTag() {
             const item = this.addTagList[this.addIndex]
-            // 这里不能使用 Bookmark.add 方法，因为这里始终需要添加 tags
-            await _API__WEBPACK_IMPORTED_MODULE_0__['API'].addBookmark(
-              this.type,
+            await _Bookmark__WEBPACK_IMPORTED_MODULE_3__['Bookmark'].add(
               item.id,
+              this.type,
               item.tags,
-              item.restrict,
-              _Token__WEBPACK_IMPORTED_MODULE_2__['token'].token
+              true,
+              item.restrict
             )
             if (this.addIndex < this.addTagList.length - 1) {
               this.addIndex++
@@ -19128,7 +19137,7 @@
               // 添加完成
               this.btn.textContent = `✓ Complete`
               this.btn.removeAttribute('disabled')
-              _Toast__WEBPACK_IMPORTED_MODULE_3__['toast'].success('✓ Complete')
+              _Toast__WEBPACK_IMPORTED_MODULE_2__['toast'].success('✓ Complete')
             }
           }
         }
@@ -23436,14 +23445,14 @@
           /*! ../EVT */ './src/ts/EVT.ts'
         )
 
-        // 储存需要跨组件使用的、会变化的状态
+        // 储存需要跨模块使用的、会变化的状态
         // 这里的状态不需要持久化保存。
-        // 状态的值通常只由单一的组件修改，其他组件只读取不修改
+        // 状态的值通常只由单一的模块修改，其他模块只读取不修改
         class States {
           constructor() {
             // 表示下载器是否处于繁忙状态
             // 如果下载器正在抓取中，或者正在下载中，则为 true；如果下载器处于空闲状态，则为 false
-            // 修改者：本组件根据下载器的事件来修改这个状态
+            // 修改者：本模块根据下载器的事件来修改这个状态
             this.busy = false
             // 快速下载标记。如果为 true 说明进入了快速下载模式
             // 快速下载模式中不会显示下载面板，并且会自动开始下载
@@ -23454,10 +23463,10 @@
             // 作用同 quickCrawl，只是触发方式不同
             this.downloadFromViewer = false
             // 在排行榜抓取时，是否只抓取“首次登场”的作品
-            // 修改者：InitRankingArtworkPage 组件修改这个状态
+            // 修改者：InitRankingArtworkPage 模块修改这个状态
             this.debut = false
             // 收藏模式的标记
-            // 修改者：本组件监听批量收藏作品的事件来修改这个标记
+            // 修改者：本模块监听批量收藏作品的事件来修改这个标记
             // 开始批量收藏时设为 true，收藏完成之后复位到 false
             this.bookmarkMode = false
             this.bindEvents()

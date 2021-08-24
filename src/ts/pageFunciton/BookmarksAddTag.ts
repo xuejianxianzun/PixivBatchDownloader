@@ -1,6 +1,5 @@
 import { API } from '../API'
 import { Tools } from '../Tools'
-import { token } from '../Token'
 import {
   BookmarkData,
   NovelCommonData,
@@ -8,6 +7,7 @@ import {
   ArtworkCommonData,
 } from '../crawl/CrawlResult'
 import { toast } from '../Toast'
+import { Bookmark } from '../Bookmark'
 
 // 给收藏页面里的未分类作品批量添加 tag
 class BookmarksAddTag {
@@ -109,14 +109,8 @@ class BookmarksAddTag {
   private async addTag(): Promise<void> {
     const item = this.addTagList[this.addIndex]
 
-    // 这里不能使用 Bookmark.add 方法，因为这里始终需要添加 tags
-    await API.addBookmark(
-      this.type,
-      item.id,
-      item.tags,
-      item.restrict,
-      token.token
-    )
+    await Bookmark.add(item.id, this.type, item.tags, true, item.restrict)
+
     if (this.addIndex < this.addTagList.length - 1) {
       this.addIndex++
       this.btn!.textContent = `${this.addIndex} / ${this.addTagList.length}`

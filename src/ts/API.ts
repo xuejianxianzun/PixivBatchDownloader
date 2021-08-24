@@ -89,8 +89,8 @@ class API {
 
   // 添加收藏
   static async addBookmark(
-    type: 'illusts' | 'novels',
     id: string,
+    type: 'illusts' | 'novels',
     tags: string[],
     hide: boolean,
     token: string

@@ -1,8 +1,8 @@
 import { EVT } from '../EVT'
 
-// 储存需要跨组件使用的、会变化的状态
+// 储存需要跨模块使用的、会变化的状态
 // 这里的状态不需要持久化保存。
-// 状态的值通常只由单一的组件修改，其他组件只读取不修改
+// 状态的值通常只由单一的模块修改，其他模块只读取不修改
 class States {
   constructor() {
     this.bindEvents()
@@ -10,7 +10,7 @@ class States {
 
   // 表示下载器是否处于繁忙状态
   // 如果下载器正在抓取中，或者正在下载中，则为 true；如果下载器处于空闲状态，则为 false
-  // 修改者：本组件根据下载器的事件来修改这个状态
+  // 修改者：本模块根据下载器的事件来修改这个状态
   public busy = false
 
   // 快速下载标记。如果为 true 说明进入了快速下载模式
@@ -24,11 +24,11 @@ class States {
   public downloadFromViewer = false
 
   // 在排行榜抓取时，是否只抓取“首次登场”的作品
-  // 修改者：InitRankingArtworkPage 组件修改这个状态
+  // 修改者：InitRankingArtworkPage 模块修改这个状态
   public debut = false
 
   // 收藏模式的标记
-  // 修改者：本组件监听批量收藏作品的事件来修改这个标记
+  // 修改者：本模块监听批量收藏作品的事件来修改这个标记
   // 开始批量收藏时设为 true，收藏完成之后复位到 false
   public bookmarkMode = false
 
