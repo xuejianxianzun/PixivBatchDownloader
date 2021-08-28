@@ -220,7 +220,7 @@ class DownloadControl {
 
   // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
   private readyDownload() {
-    if (states.busy) {
+    if (states.busy || states.mergeNovel) {
       return
     }
 

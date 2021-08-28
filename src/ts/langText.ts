@@ -1150,6 +1150,12 @@ const langText = {
     'Crawl series of novels',
     '小説のシリーズをクロールする',
   ],
+  _合并系列小说: [
+    '合并系列小说',
+    '合併系列小說',
+    'Merge series of novels',
+    'シリーズ小説の統合',
+  ],
   _小说保存格式: [
     '小说保存格式',
     '小說儲存格式',
@@ -1667,10 +1673,10 @@ const langText = {
     'この制限を超えたマルチ作品はダウンロードされません',
   ],
   _whatisnew: [
-    '优化设置：为每个作品创建单独的文件夹<br><br>在这个设置里可以使用命名规则了。',
-    '最佳化設定：為每個作品建立單獨的資料夾<br><br>在這個設定裡可以使用命名規則了。',
-    'Optimized settings: Create a separate folder for each work<br><br>In this setting, you can use naming rules.',
-    '最適化された設定：作品ごとに個別のフォルダーを作成します<br> <br>この設定では、命名規則を使用できます。',
+    '优化设置：为每个作品创建单独的文件夹<br>在这个设置里可以使用命名规则了。<br><br>在系列小说页面添加了新的功能按钮：合并系列小说<br>这个功能可以把系列中的多个小说合并到一个文件中。',
+    '最佳化設定：為每個作品建立單獨的資料夾<br>在這個設定裡可以使用命名規則了。<br><br>在系列小說頁面添加了新的功能按鈕：合併系列小說<br>這個功能可以把系列中的多個小說合併到一個檔案中。',
+    'Optimized settings: Create a separate folder for each work<br>In this setting, you can use naming rules.<br><br>A new function button has been added to the series novel page: Merge series novels<br>This function can merge multiple novels in the series into one file.',
+    '最適化された設定：作品ごとに個別のフォルダーを作成します<br>この設定では、命名規則を使用できます。<br><br>シリーズ小説ページに新しい機能ボタンが追加されました。シリーズ小説の統合<br>この機能は、シリーズ内の複数の小説を1つのファイルにマージできます。',
   ],
   _在搜索页面添加快捷搜索区域: [
     '在搜索页面添加快捷搜索区域',

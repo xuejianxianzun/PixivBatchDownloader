@@ -101,7 +101,7 @@ class Utils {
     return result
   }
 
-  // 根据对象某个属性的值（视为数字）排序对象。返回的结果是降序排列
+  // 依据对象某个属性的值（视为数字）来排序对象数组。默认降序排列
   static sortByProperty(key: string, order: 'desc' | 'asc' = 'desc') {
     return function (a: any, b: any) {
       // 排序的内容有时可能是字符串，需要转换成数字排序

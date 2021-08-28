@@ -97,7 +97,6 @@ class SelectWork {
       this.tempHide = false
     })
 
-    // 当抓取完成时，如果抓取的是选择的作品，则清空 id 列表
     window.addEventListener(EVT.list.crawlFinish, () => {
       if (this.sendCrawl) {
         this.sendCrawl = false

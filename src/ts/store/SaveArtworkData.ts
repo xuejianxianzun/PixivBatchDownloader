@@ -48,9 +48,7 @@ class SaveArtworkData {
       const rank = rankData ? rankData : null
 
       const seriesTitle = body.seriesNavData ? body.seriesNavData.title : ''
-      const seriesOrder = body.seriesNavData
-        ? '#' + body.seriesNavData.order
-        : ''
+      const seriesOrder = body.seriesNavData ? body.seriesNavData.order : null
 
       // 储存作品信息
       if (body.illustType === 0 || body.illustType === 1) {
@@ -89,6 +87,7 @@ class SaveArtworkData {
           rank: rank,
           seriesTitle: seriesTitle,
           seriesOrder: seriesOrder,
+          seriesId: body.seriesNavData ? body.seriesNavData!.seriesId : null,
           viewCount: body.viewCount,
           likeCount: body.likeCount,
           commentCount: body.commentCount,

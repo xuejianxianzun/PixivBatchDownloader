@@ -13,7 +13,7 @@ class States {
   // 修改者：本模块根据下载器的事件来修改这个状态
   public busy = false
 
-  // 快速下载标记。如果为 true 说明进入了快速下载模式
+  // 快速下载标记
   // 快速下载模式中不会显示下载面板，并且会自动开始下载
   // 启动快速下载时设为 true，下载完成或中止时复位到 false
   public quickCrawl = false
@@ -31,6 +31,9 @@ class States {
   // 修改者：本模块监听批量收藏作品的事件来修改这个标记
   // 开始批量收藏时设为 true，收藏完成之后复位到 false
   public bookmarkMode = false
+
+  // 合并系列小说时使用的标记
+  public mergeNovel = false
 
   private bindEvents() {
     const idle = [

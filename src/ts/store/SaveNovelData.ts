@@ -43,9 +43,7 @@ class SaveNovelData {
 
       // 系列标题和序号
       const seriesTitle = body.seriesNavData ? body.seriesNavData.title : ''
-      const seriesOrder = body.seriesNavData
-        ? '#' + body.seriesNavData.order
-        : ''
+      const seriesOrder = body.seriesNavData ? body.seriesNavData.order : null
 
       // 保存小说的一些元数据
       let meta = ''
@@ -79,6 +77,7 @@ class SaveNovelData {
         rank: rank,
         seriesTitle: seriesTitle,
         seriesOrder: seriesOrder,
+        seriesId: body.seriesNavData ? body.seriesNavData!.seriesId : null,
         viewCount: body.viewCount,
         likeCount: body.likeCount,
         commentCount: body.commentCount,

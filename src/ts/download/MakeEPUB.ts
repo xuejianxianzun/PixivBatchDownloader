@@ -35,7 +35,13 @@ class MakeEPUB {
         })
         .withTitle(Utils.replaceUnsafeStr(data.title))
         .withSection(
-          new EpubMaker.Section('1', null, { content: content }, false, true)
+          new EpubMaker.Section(
+            'chapter',
+            null,
+            { content: content },
+            false,
+            true
+          )
         )
         .makeEpub()
         .then((blob: Blob) => {

@@ -217,6 +217,9 @@ class CenterPanel {
       EVT.list.resume,
     ]) {
       window.addEventListener(ev, () => {
+        if (states.mergeNovel) {
+          return
+        }
         this.activeTab(Tabbar.Download)
       })
     }
@@ -243,6 +246,9 @@ class CenterPanel {
 
   // 显示中间区域
   public show() {
+    if (states.mergeNovel) {
+      return
+    }
     this.centerPanel.style.display = 'block'
     EVT.fire('centerPanelOpened')
   }

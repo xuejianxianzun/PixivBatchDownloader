@@ -830,6 +830,12 @@
               _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.resume,
             ]) {
               window.addEventListener(ev, () => {
+                if (
+                  _store_States__WEBPACK_IMPORTED_MODULE_2__['states']
+                    .mergeNovel
+                ) {
+                  return
+                }
                 this.activeTab(Tabbar.Download)
               })
             }
@@ -853,6 +859,11 @@
           }
           // 显示中间区域
           show() {
+            if (
+              _store_States__WEBPACK_IMPORTED_MODULE_2__['states'].mergeNovel
+            ) {
+              return
+            }
             this.centerPanel.style.display = 'block'
             _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire('centerPanelOpened')
           }
@@ -1956,7 +1967,7 @@
                 safe: false,
               },
               '{series_order}': {
-                value: data.seriesOrder || '',
+                value: data.seriesOrder === null ? '' : '#' + data.seriesOrder,
                 prefix: '',
                 safe: true,
               },
@@ -4267,6 +4278,12 @@
             'Crawl series of novels',
             '小説のシリーズをクロールする',
           ],
+          _合并系列小说: [
+            '合并系列小说',
+            '合併系列小說',
+            'Merge series of novels',
+            'シリーズ小説の統合',
+          ],
           _小说保存格式: [
             '小说保存格式',
             '小說儲存格式',
@@ -4834,10 +4851,10 @@
             'この制限を超えたマルチ作品はダウンロードされません',
           ],
           _whatisnew: [
-            '优化设置：为每个作品创建单独的文件夹<br><br>在这个设置里可以使用命名规则了。',
-            '最佳化設定：為每個作品建立單獨的資料夾<br><br>在這個設定裡可以使用命名規則了。',
-            'Optimized settings: Create a separate folder for each work<br><br>In this setting, you can use naming rules.',
-            '最適化された設定：作品ごとに個別のフォルダーを作成します<br> <br>この設定では、命名規則を使用できます。',
+            '优化设置：为每个作品创建单独的文件夹<br>在这个设置里可以使用命名规则了。<br><br>在系列小说页面添加了新的功能按钮：合并系列小说<br>这个功能可以把系列中的多个小说合并到一个文件中。',
+            '最佳化設定：為每個作品建立單獨的資料夾<br>在這個設定裡可以使用命名規則了。<br><br>在系列小說頁面添加了新的功能按鈕：合併系列小說<br>這個功能可以把系列中的多個小說合併到一個檔案中。',
+            'Optimized settings: Create a separate folder for each work<br>In this setting, you can use naming rules.<br><br>A new function button has been added to the series novel page: Merge series novels<br>This function can merge multiple novels in the series into one file.',
+            '最適化された設定：作品ごとに個別のフォルダーを作成します<br>この設定では、命名規則を使用できます。<br><br>シリーズ小説ページに新しい機能ボタンが追加されました。シリーズ小説の統合<br>この機能は、シリーズ内の複数の小説を1つのファイルにマージできます。',
           ],
           _在搜索页面添加快捷搜索区域: [
             '在搜索页面添加快捷搜索区域',
@@ -5558,7 +5575,6 @@
                 this.tempHide = false
               }
             )
-            // 当抓取完成时，如果抓取的是选择的作品，则清空 id 列表
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_3__['EVT'].list.crawlFinish,
               () => {
@@ -5999,7 +6015,7 @@
         // 显示最近更新内容
         class ShowWhatIsNew {
           constructor() {
-            this.flag = 'xzNew1050'
+            this.flag = 'xzNew1060'
             this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
               '_whatisnew'
             )}`
@@ -7202,13 +7218,16 @@
         /* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
           /*! ./download/ExportLST */ './src/ts/download/ExportLST.ts'
         )
-        /* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
+        /* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
+          /*! ./download/MergeNovel */ './src/ts/download/MergeNovel.ts'
+        )
+        /* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
           /*! ./CheckNewVersion */ './src/ts/CheckNewVersion.ts'
         )
-        /* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
+        /* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(
           /*! ./ShowWhatIsNew */ './src/ts/ShowWhatIsNew.ts'
         )
-        /* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(
+        /* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(
           /*! ./ShowHowToUse */ './src/ts/ShowHowToUse.ts'
         )
         /*
@@ -12879,6 +12898,9 @@
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ../API */ './src/ts/API.ts'
         )
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+          /*! ../store/States */ './src/ts/store/States.ts'
+        )
         //初始化小说系列作品页面
 
         class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
@@ -12901,6 +12923,22 @@
                 )
               )
               .addEventListener('click', () => {
+                this.readyCrawl()
+              })
+          }
+          addAnyElement() {
+            _Tools__WEBPACK_IMPORTED_MODULE_5__['Tools']
+              .addBtn(
+                'crawlBtns',
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                  '_合并系列小说'
+                )
+              )
+              .addEventListener('click', () => {
+                _store_States__WEBPACK_IMPORTED_MODULE_7__[
+                  'states'
+                ].mergeNovel = true
                 this.readyCrawl()
               })
           }
@@ -14661,7 +14699,10 @@
           }
           // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
           readyDownload() {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_14__['states'].busy) {
+            if (
+              _store_States__WEBPACK_IMPORTED_MODULE_14__['states'].busy ||
+              _store_States__WEBPACK_IMPORTED_MODULE_14__['states'].mergeNovel
+            ) {
               return
             }
             if (
@@ -15714,7 +15755,7 @@
                 )
                 .withSection(
                   new EpubMaker.Section(
-                    '1',
+                    'chapter',
                     null,
                     { content: content },
                     false,
@@ -15787,6 +15828,219 @@
             })
           }
         }
+
+        /***/
+      },
+
+    /***/ './src/ts/download/MergeNovel.ts':
+      /*!***************************************!*\
+  !*** ./src/ts/download/MergeNovel.ts ***!
+  \***************************************/
+      /*! exports provided: mergeNovel */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'mergeNovel',
+          function () {
+            return mergeNovel
+          }
+        )
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/store/Store.ts'
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../utils/Utils */ './src/ts/utils/Utils.ts'
+        )
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../store/States */ './src/ts/store/States.ts'
+        )
+        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../setting/Settings */ './src/ts/setting/Settings.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../Lang */ './src/ts/Lang.ts'
+        )
+
+        class MergeNovel {
+          constructor() {
+            this.CRLF = '\n' // pixiv 小说的换行符
+            this.init()
+          }
+          init() {
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.crawlFinish,
+              () => {
+                window.setTimeout(() => {
+                  if (
+                    _store_States__WEBPACK_IMPORTED_MODULE_3__['states']
+                      .mergeNovel
+                  ) {
+                    this.merge()
+                  }
+                }, 0)
+              }
+            )
+          }
+          async merge() {
+            if (
+              _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].resultMeta
+                .length === 0 ||
+              _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].resultMeta[0]
+                .novelMeta === null
+            ) {
+              _store_States__WEBPACK_IMPORTED_MODULE_3__[
+                'states'
+              ].mergeNovel = false
+              return
+            }
+            // 因为结果里的小说顺序可能是乱的，所以需要按照小说的序号对结果进行排序
+            const allResult = _store_Store__WEBPACK_IMPORTED_MODULE_0__[
+              'store'
+            ].resultMeta.sort(
+              _utils_Utils__WEBPACK_IMPORTED_MODULE_2__['Utils'].sortByProperty(
+                'seriesOrder',
+                'asc'
+              )
+            )
+            const firstResult =
+              _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].resultMeta[0]
+            // 汇总小说数据
+            const allNovelData = []
+            for (const result of allResult) {
+              allNovelData.push({
+                no: result.seriesOrder,
+                title: result.title,
+                content: result.novelMeta.content,
+              })
+            }
+            // 生成小说文件并下载
+            let file = null
+            if (
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings']
+                .novelSaveAs === 'txt'
+            ) {
+              file = this.makeTXT(allNovelData)
+            } else {
+              file = await this.makeEPUB(allNovelData, firstResult)
+            }
+            const url = URL.createObjectURL(file)
+            const fileName = `${firstResult.seriesTitle}-tags_${firstResult.tags}-user_${firstResult.user}-seriesId_${firstResult.seriesId}.${_setting_Settings__WEBPACK_IMPORTED_MODULE_4__['settings'].novelSaveAs}`
+            _utils_Utils__WEBPACK_IMPORTED_MODULE_2__['Utils'].downloadFile(
+              url,
+              fileName
+            )
+            _store_States__WEBPACK_IMPORTED_MODULE_3__[
+              'states'
+            ].mergeNovel = false
+            _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire('downloadComplete')
+            _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].reset()
+          }
+          makeTXT(novelDataArray) {
+            const result = []
+            for (const data of novelDataArray) {
+              // 添加章节名
+              result.push(`${this.chapterNo(data.no)} ${data.title}`)
+              // 在章节名与正文之间添加换行
+              result.push(this.CRLF.repeat(2))
+              // 添加正文
+              // 替换换行标签，移除 html 标签
+              result.push(
+                data.content
+                  .replace(/<br \/>/g, this.CRLF)
+                  .replace(/<\/?.+?>/g, '')
+              )
+              // 在正文结尾添加换行标记，使得不同章节之间区分开来
+              result.push(this.CRLF.repeat(4))
+            }
+            return new Blob(result, {
+              type: 'text/plain',
+            })
+          }
+          makeEPUB(novelDataArray, firstResult) {
+            return new Promise((resolve, reject) => {
+              // 添加一些元数据
+              let epubData = new EpubMaker()
+                .withTemplate('idpf-wasteland')
+                .withAuthor(
+                  _utils_Utils__WEBPACK_IMPORTED_MODULE_2__[
+                    'Utils'
+                  ].replaceUnsafeStr(firstResult.novelMeta.userName)
+                )
+                .withModificationDate(
+                  new Date(firstResult.novelMeta.createDate)
+                )
+                .withRights({
+                  description: firstResult.novelMeta.description,
+                  license: '',
+                })
+                .withAttributionUrl(
+                  `https://www.pixiv.net/novel/show.php?id=${firstResult.novelMeta.id}`
+                )
+                .withCover(firstResult.novelMeta.coverUrl, {
+                  license: '',
+                  attributionUrl: '',
+                })
+                .withTitle(
+                  _utils_Utils__WEBPACK_IMPORTED_MODULE_2__[
+                    'Utils'
+                  ].replaceUnsafeStr(firstResult.seriesTitle)
+                )
+              // 下面注释的伪代码是用于创建二级目录用的。目前 pixiv 的小说只需要一层目录就够了，所以这里的代码未被使用
+              // const Section = new EpubMaker.Section(...........)
+              // for (const data of novelDataArray) {
+              //   Section.withSubSection(
+              //     new EpubMaker.Section(...........)
+              //   )
+              // }
+              // epubData = epubData.withSection(Section)
+              // 为每一篇小说创建一个章节
+              for (const data of novelDataArray) {
+                // 创建 epub 文件时不需要在标题和正文后面添加换行符
+                epubData.withSection(
+                  new EpubMaker.Section(
+                    'chapter',
+                    data.no,
+                    {
+                      title: `${this.chapterNo(data.no)} ${data.title}`,
+                      // 把换行符替换成 br 标签
+                      content: data.content.replace(/\n/g, '<br/>'),
+                    },
+                    true,
+                    true
+                  )
+                  // 倒数第二个参数是 includeInToc，必须为 true，否则某些小说阅读软件无法读取章节信息
+                  // includeInToc 的作用是在 .ncx 文件和 nav.xhtml 文件里添加导航信息
+                )
+              }
+              epubData.makeEpub().then((blob) => {
+                resolve(blob)
+              })
+            })
+          }
+          // 在每个小说的开头加上章节编号
+          // 在 TXT 格式的小说里添加章节编号，可以使小说阅读软件能够识别章节，以及显示章节导航，提高阅读体验
+          // 对于 EPUB 格式的小说，由于其内部自带分章结构，所以并不依赖这里的章节编号
+          chapterNo(number) {
+            // 如果是中文用户，返回“第N章”。这样最容易被国内的小说阅读软件识别出来
+            if (
+              _Lang__WEBPACK_IMPORTED_MODULE_5__['lang'].type === 'zh-cn' ||
+              _Lang__WEBPACK_IMPORTED_MODULE_5__['lang'].type === 'zh-tw' ||
+              _Lang__WEBPACK_IMPORTED_MODULE_5__['lang'].type === 'ja'
+            ) {
+              return `第${number}章`
+            } else {
+              // 对于其他地区，返回 `Chapter N`。但是由于我没有使用过国外的小说阅读软件，所以并不清楚是否能够起到分章作用
+              return `Chapter ${number}`
+            }
+            // 我还尝试过使用 #1 这样的编号，但是这种方式并不可靠，有的小说可以分章有的小说不可以，我也不知道怎么回事
+          }
+        }
+        const mergeNovel = new MergeNovel()
 
         /***/
       },
@@ -16122,6 +16376,12 @@
             ]
             for (const ev of evs) {
               window.addEventListener(ev, async () => {
+                if (
+                  _store_States__WEBPACK_IMPORTED_MODULE_4__['states']
+                    .mergeNovel
+                ) {
+                  return
+                }
                 // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
                 const taskData = await this.IDB.get(
                   this.metaName,
@@ -23124,8 +23384,8 @@
                 ? body.seriesNavData.title
                 : ''
               const seriesOrder = body.seriesNavData
-                ? '#' + body.seriesNavData.order
-                : ''
+                ? body.seriesNavData.order
+                : null
               // 储存作品信息
               if (body.illustType === 0 || body.illustType === 1) {
                 // 插画或漫画
@@ -23163,6 +23423,9 @@
                   rank: rank,
                   seriesTitle: seriesTitle,
                   seriesOrder: seriesOrder,
+                  seriesId: body.seriesNavData
+                    ? body.seriesNavData.seriesId
+                    : null,
                   viewCount: body.viewCount,
                   likeCount: body.likeCount,
                   commentCount: body.commentCount,
@@ -23295,8 +23558,8 @@
                 ? body.seriesNavData.title
                 : ''
               const seriesOrder = body.seriesNavData
-                ? '#' + body.seriesNavData.order
-                : ''
+                ? body.seriesNavData.order
+                : null
               // 保存小说的一些元数据
               let meta = ''
               let metaArr = []
@@ -23335,6 +23598,9 @@
                 rank: rank,
                 seriesTitle: seriesTitle,
                 seriesOrder: seriesOrder,
+                seriesId: body.seriesNavData
+                  ? body.seriesNavData.seriesId
+                  : null,
                 viewCount: body.viewCount,
                 likeCount: body.likeCount,
                 commentCount: body.commentCount,
@@ -23454,7 +23720,7 @@
             // 如果下载器正在抓取中，或者正在下载中，则为 true；如果下载器处于空闲状态，则为 false
             // 修改者：本模块根据下载器的事件来修改这个状态
             this.busy = false
-            // 快速下载标记。如果为 true 说明进入了快速下载模式
+            // 快速下载标记
             // 快速下载模式中不会显示下载面板，并且会自动开始下载
             // 启动快速下载时设为 true，下载完成或中止时复位到 false
             this.quickCrawl = false
@@ -23469,6 +23735,8 @@
             // 修改者：本模块监听批量收藏作品的事件来修改这个标记
             // 开始批量收藏时设为 true，收藏完成之后复位到 false
             this.bookmarkMode = false
+            // 合并系列小说时使用的标记
+            this.mergeNovel = false
             this.bindEvents()
           }
           bindEvents() {
@@ -23592,6 +23860,7 @@
               ugoiraInfo: null,
               seriesTitle: null,
               seriesOrder: null,
+              seriesId: null,
               novelMeta: null,
               likeCount: 0,
               viewCount: 0,
@@ -24310,7 +24579,7 @@
             }
             return result
           }
-          // 根据对象某个属性的值（视为数字）排序对象。返回的结果是降序排列
+          // 依据对象某个属性的值（视为数字）来排序对象数组。默认降序排列
           static sortByProperty(key, order = 'desc') {
             return function (a, b) {
               // 排序的内容有时可能是字符串，需要转换成数字排序

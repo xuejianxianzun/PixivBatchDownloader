@@ -46,7 +46,8 @@ export interface Result {
   rank: number | null
   ugoiraInfo: UgoiraInfo | null
   seriesTitle: string | null
-  seriesOrder: string | null
+  seriesOrder: number | null
+  seriesId: string | null
   novelMeta: NovelMeta | null
   likeCount: number
   viewCount: number
@@ -80,7 +81,8 @@ export interface ResultOptional {
   rank?: number | null
   ugoiraInfo?: UgoiraInfo | null
   seriesTitle?: string | null
-  seriesOrder?: string | null
+  seriesOrder?: number | null
+  seriesId?: string | null
   novelMeta?: NovelMeta | null
   likeCount?: number
   viewCount?: number

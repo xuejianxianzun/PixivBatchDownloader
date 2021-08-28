@@ -244,7 +244,7 @@ class FileName {
         safe: false,
       },
       '{series_order}': {
-        value: data.seriesOrder || '',
+        value: data.seriesOrder === null ? '' : '#' + data.seriesOrder,
         prefix: '',
         safe: true,
       },

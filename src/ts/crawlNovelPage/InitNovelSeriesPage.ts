@@ -6,6 +6,7 @@ import { options } from '../setting/Options'
 import { store } from '../store/Store'
 import { Tools } from '../Tools'
 import { API } from '../API'
+import { states } from '../store/States'
 
 class InitNovelSeriesPage extends InitPageBase {
   constructor() {
@@ -23,6 +24,17 @@ class InitNovelSeriesPage extends InitPageBase {
       Colors.bgBlue,
       lang.transl('_抓取系列小说')
     ).addEventListener('click', () => {
+      this.readyCrawl()
+    })
+  }
+
+  protected addAnyElement() {
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      lang.transl('_合并系列小说')
+    ).addEventListener('click', () => {
+      states.mergeNovel = true
       this.readyCrawl()
     })
   }

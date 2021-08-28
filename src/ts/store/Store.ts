@@ -54,6 +54,7 @@ class Store {
     ugoiraInfo: null,
     seriesTitle: null,
     seriesOrder: null,
+    seriesId: null,
     novelMeta: null,
     likeCount: 0,
     viewCount: 0,

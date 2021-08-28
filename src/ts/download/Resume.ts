@@ -172,6 +172,9 @@ class Resume {
     const evs = [EVT.list.crawlFinish, EVT.list.resultChange]
     for (const ev of evs) {
       window.addEventListener(ev, async () => {
+        if (states.mergeNovel) {
+          return
+        }
         // 首先检查这个网址下是否已经存在数据，如果有数据，则清除之前的数据，保持每个网址只有一份数据
         const taskData = (await this.IDB.get(
           this.metaName,
