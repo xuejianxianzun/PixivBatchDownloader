@@ -38,6 +38,10 @@ class Mute {
     const response = await API.getMuteSettings()
     const items = response.body.mute_items
     for (const item of items) {
+      // 如果这个屏蔽项未启用，则不保存
+      if (item.enabled === false) {
+        continue
+      }
       if (item.type === 'user') {
         this.userList.push(item.value)
       }
