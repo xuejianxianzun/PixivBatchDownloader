@@ -532,6 +532,10 @@ export const formHtml = `<form class="settingForm">
     
     <div class="tabsContnet">
 
+    <div class="centerWrap_btns">
+      <slot data-name="otherBtns"></slot>
+    </div>
+
     <p class="option" data-no="49">
     <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
       '_保存作品的元数据说明'
@@ -893,9 +897,5 @@ export const formHtml = `<form class="settingForm">
         '_重置设置'
       )}</button>
       </p>
-
-      <div class="centerWrap_btns">
-        <slot data-name="otherBtns"></slot>
-      </div>
     </div>
 </form>`

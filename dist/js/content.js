@@ -21845,6 +21845,10 @@
     
     <div class="tabsContnet">
 
+    <div class="centerWrap_btns">
+      <slot data-name="otherBtns"></slot>
+    </div>
+
     <p class="option" data-no="49">
     <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
       'lang'
@@ -22310,10 +22314,6 @@
         'lang'
       ].transl('_重置设置')}</button>
       </p>
-
-      <div class="centerWrap_btns">
-        <slot data-name="otherBtns"></slot>
-      </div>
     </div>
 </form>`
 
