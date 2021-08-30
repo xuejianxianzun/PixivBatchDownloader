@@ -4292,7 +4292,7 @@
           ],
           _在小说里保存元数据: [
             '在小说里保存元数据',
-            '將中繼資料（metadata）儲存在小說裡',
+            '將元資料（metadata）儲存在小說裡',
             'Save metadata in the novel',
             '小説の中にメタデータを保存する',
           ],
@@ -4851,16 +4851,28 @@
             'この制限を超えたマルチ作品はダウンロードされません',
           ],
           _whatisnew: [
-            '优化设置：为每个作品创建单独的文件夹<br>在这个设置里可以使用命名规则了。<br><br>在系列小说页面添加了新的功能按钮：合并系列小说<br>这个功能可以把系列中的多个小说合并到一个文件中。',
-            '最佳化設定：為每個作品建立單獨的資料夾<br>在這個設定裡可以使用命名規則了。<br><br>在系列小說頁面添加了新的功能按鈕：合併系列小說<br>這個功能可以把系列中的多個小說合併到一個檔案中。',
-            'Optimized settings: Create a separate folder for each work<br>In this setting, you can use naming rules.<br><br>A new function button has been added to the series novel page: Merge series novels<br>This function can merge multiple novels in the series into one file.',
-            '最適化された設定：作品ごとに個別のフォルダーを作成します<br>この設定では、命名規則を使用できます。<br><br>シリーズ小説ページに新しい機能ボタンが追加されました。シリーズ小説の統合<br>この機能は、シリーズ内の複数の小説を1つのファイルにマージできます。',
+            '优化设置：为每个作品创建单独的文件夹<br>在这个设置里可以使用命名规则了。<br><br>在系列小说页面添加了新的功能按钮：合并系列小说<br>这个功能可以把系列中的多个小说合并到一个文件中。<br><br>新增选项：保存作品的元数据',
+            '最佳化設定：為每個作品建立單獨的資料夾<br>在這個設定裡可以使用命名規則了。<br><br>在系列小說頁面添加了新的功能按鈕：合併系列小說<br>這個功能可以把系列中的多個小說合併到一個檔案中。<br><br>新增選項：儲存作品的元資料',
+            'Optimized settings: Create a separate folder for each work<br>In this setting, you can use naming rules.<br><br>A new function button has been added to the series novel page: Merge series novels<br>This function can merge multiple novels in the series into one file.<br><br>New option: save the metadata of the work',
+            '最適化された設定：作品ごとに個別のフォルダーを作成します<br>この設定では、命名規則を使用できます。<br><br>シリーズ小説ページに新しい機能ボタンが追加されました。シリーズ小説の統合<br>この機能は、シリーズ内の複数の小説を1つのファイルにマージできます。<br><br>新しいオプション：作品のメタデータを保存する',
           ],
           _在搜索页面添加快捷搜索区域: [
             '在搜索页面添加快捷搜索区域',
             '在搜尋頁面新增快捷搜尋區域',
             'Add a quick search area on the search page',
             '検索ページにクイック検索領域を追加します',
+          ],
+          _保存作品的元数据: [
+            '保存作品的元数据',
+            '儲存作品的元資料',
+            'Save the metadata of the work',
+            '作品のメタデータを保存する',
+          ],
+          _保存作品的元数据说明: [
+            '为每个作品建立一个 txt 文件保存它的元数据',
+            '為每個作品建立一個 txt 檔案儲存它的元資料',
+            'Create a txt file for each work to save its metadata',
+            '作品ごとに txt ファイルを作成して、メタデータを保存します',
           ],
         }
 
@@ -6015,7 +6027,7 @@
         // 显示最近更新内容
         class ShowWhatIsNew {
           constructor() {
-            this.flag = 'xzNew1060'
+            this.flag = 'xzNew1070'
             this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
               '_whatisnew'
             )}`
@@ -7221,13 +7233,16 @@
         /* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
           /*! ./download/MergeNovel */ './src/ts/download/MergeNovel.ts'
         )
-        /* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
+        /* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
+          /*! ./download/SaveWorkMeta */ './src/ts/download/SaveWorkMeta.ts'
+        )
+        /* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(
           /*! ./CheckNewVersion */ './src/ts/CheckNewVersion.ts'
         )
-        /* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(
+        /* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(
           /*! ./ShowWhatIsNew */ './src/ts/ShowWhatIsNew.ts'
         )
-        /* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(
+        /* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(
           /*! ./ShowHowToUse */ './src/ts/ShowHowToUse.ts'
         )
         /*
@@ -9211,6 +9226,9 @@
         /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ../utils/Utils */ './src/ts/utils/Utils.ts'
         )
+        /* harmony import */ var _setting_Form__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+          /*! ../setting/Form */ './src/ts/setting/Form.ts'
+        )
         // 初始化 pixivision 页面
 
         class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
@@ -9288,9 +9306,15 @@
               42,
               43,
               44,
+              46,
+              47,
+              48,
+              49,
             ])
             // pixivision 里，文件名只有部分标记会生效，所以把文件名规则替换成下面的预设
-            // form.userSetName.value = '{p_title}/{id}'
+            _setting_Form__WEBPACK_IMPORTED_MODULE_7__[
+              'form'
+            ].userSetName.value = '{p_title}/{id}'
           }
           nextStep() {
             this.getPixivision()
@@ -13635,19 +13659,13 @@
               this.savedIds.push(id)
               this.showProgress()
               // 从 store 里查找这个作品的数据
-              let data = undefined
-              let dataSource =
+              const dataSource =
                 _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].resultMeta
                   .length > 0
                   ? _store_Store__WEBPACK_IMPORTED_MODULE_0__['store']
                       .resultMeta
                   : _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].result
-              for (const r of dataSource) {
-                if (r.idNum === id) {
-                  data = r
-                  break
-                }
-              }
+              const data = dataSource.find((val) => val.idNum === id)
               if (data === undefined) {
                 return reject(new Error(`Not find ${id} in result`))
               }
@@ -14401,7 +14419,7 @@
               return
             }
             const sendData = {
-              msg: 'send_download',
+              msg: 'save_work_file',
               fileUrl: blobUrl,
               fileName: fileName,
               id,
@@ -15395,6 +15413,10 @@
                 index: 'title',
               },
               {
+                name: 'description',
+                index: 'description',
+              },
+              {
                 name: 'type',
                 index: 'type',
               },
@@ -15836,17 +15858,10 @@
       /*!***************************************!*\
   !*** ./src/ts/download/MergeNovel.ts ***!
   \***************************************/
-      /*! exports provided: mergeNovel */
+      /*! no exports provided */
       /***/ function (module, __webpack_exports__, __webpack_require__) {
         'use strict'
         __webpack_require__.r(__webpack_exports__)
-        /* harmony export (binding) */ __webpack_require__.d(
-          __webpack_exports__,
-          'mergeNovel',
-          function () {
-            return mergeNovel
-          }
-        )
         /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../store/Store */ './src/ts/store/Store.ts'
         )
@@ -16040,7 +16055,7 @@
             // 我还尝试过使用 #1 这样的编号，但是这种方式并不可靠，有的小说可以分章有的小说不可以，我也不知道怎么回事
           }
         }
-        const mergeNovel = new MergeNovel()
+        new MergeNovel()
 
         /***/
       },
@@ -16646,6 +16661,170 @@
           }
         }
         const resume = new Resume()
+
+        /***/
+      },
+
+    /***/ './src/ts/download/SaveWorkMeta.ts':
+      /*!*****************************************!*\
+  !*** ./src/ts/download/SaveWorkMeta.ts ***!
+  \*****************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../store/Store */ './src/ts/store/Store.ts'
+        )
+        /* harmony import */ var _FileName__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../FileName */ './src/ts/FileName.ts'
+        )
+        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../setting/Settings */ './src/ts/setting/Settings.ts'
+        )
+
+        // 为每个作品创建一个 txt 文件，保存这个作品的元数据
+        class SaveWorkMeta {
+          constructor() {
+            // 保存已经下载了元数据的作品的 id
+            this.savedIds = []
+            this.CRLF = '\n' // txt 文件中使用的换行符
+            this.bindEvents()
+          }
+          bindEvents() {
+            // 当有作品文件下载成功时，保存其元数据
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadSuccess,
+              (ev) => {
+                const successData = ev.detail.data
+                this.saveMeta(Number.parseInt(successData.id))
+              }
+            )
+            // 当开始新的抓取时，清空保存的 id 列表
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.crawlStart,
+              () => {
+                this.savedIds = []
+              }
+            )
+          }
+          // 添加一项元数据
+          // 在 name 和 value 后面添加换行符
+          addMeta(name, value) {
+            return `${name}${this.CRLF}${value}${this.CRLF.repeat(2)}`
+          }
+          getWorkURL(data) {
+            return `https://www.pixiv.net/${data.type === 3 ? 'n' : 'i'}/${
+              data.idNum
+            }`
+          }
+          joinTags(tags) {
+            const format = tags.map((tag) => '#' + tag)
+            return format.join(this.CRLF)
+          }
+          // 替换换行标签，移除 html 标签
+          handleHTML(str) {
+            return str.replace(/<br \/>/g, this.CRLF).replace(/<\/?.+?>/g, '')
+          }
+          // 根据作品类型判断是否需要保存它的元数据
+          checkNeedSave(type) {
+            switch (type) {
+              case 0:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_3__[
+                  'settings'
+                ].saveMetaType0
+              case 1:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_3__[
+                  'settings'
+                ].saveMetaType1
+              case 2:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_3__[
+                  'settings'
+                ].saveMetaType2
+              case 3:
+                return _setting_Settings__WEBPACK_IMPORTED_MODULE_3__[
+                  'settings'
+                ].saveMetaType3
+              default:
+                return false
+            }
+          }
+          saveMeta(id) {
+            // 如果所有类型的作品都不需要保存元数据
+            if (
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                .saveMetaType0 &&
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                .saveMetaType1 &&
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                .saveMetaType2 &&
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                .saveMetaType3
+            ) {
+              return
+            }
+            if (this.savedIds.includes(id)) {
+              return
+            }
+            // 查找这个作品的数据
+            const dataSource =
+              _store_Store__WEBPACK_IMPORTED_MODULE_1__['store'].resultMeta
+                .length > 0
+                ? _store_Store__WEBPACK_IMPORTED_MODULE_1__['store'].resultMeta
+                : _store_Store__WEBPACK_IMPORTED_MODULE_1__['store'].result
+            const data = dataSource.find((val) => val.idNum === id)
+            if (data === undefined) {
+              console.error(`Not find ${id} in result`)
+              return
+            }
+            if (this.checkNeedSave(data.type) === false) {
+              return
+            }
+            // 添加文件内容
+            const fileContent = []
+            fileContent.push(this.addMeta('Id', data.idNum.toString()))
+            fileContent.push(this.addMeta('Title', data.title))
+            fileContent.push(this.addMeta('User', data.user))
+            fileContent.push(this.addMeta('UserId', data.userId))
+            fileContent.push(this.addMeta('URL', this.getWorkURL(data)))
+            fileContent.push(this.addMeta('Tags', this.joinTags(data.tags)))
+            fileContent.push(this.addMeta('Date', data.date))
+            // description 的标题下面多添加一行空格，便于和 description 内容进行区分
+            fileContent.push(
+              this.addMeta('Description\n', this.handleHTML(data.description))
+            )
+            // 生成文件
+            const blob = new Blob(fileContent, {
+              type: 'text/plain',
+            })
+            // 生成文件名
+            // 元数据文件需要和它对应的图片/小说文件的路径相同，文件名相似，这样它们才能在资源管理器里排在一起，便于查看
+            // 生成这个数据的路径和文件名
+            const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_2__[
+              'fileName'
+            ].getFileName(data)
+            // 取出后缀名之前的部分
+            const index = _fileName.lastIndexOf('.')
+            // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
+            let part1 = _fileName
+              .substring(0, index)
+              .replace(data.id, data.idNum.toString())
+            // 拼接出元数据文件的文件名
+            const metaFileName = `${part1}-meta.txt`
+            // 发送下载请求
+            // 因为我偷懒，所以后台不会返回下载状态，默认为下载成功
+            chrome.runtime.sendMessage({
+              msg: 'save_description_file',
+              fileUrl: URL.createObjectURL(blob),
+              fileName: metaFileName,
+            })
+            this.savedIds.push(id)
+          }
+        }
+        new SaveWorkMeta()
 
         /***/
       },
@@ -21662,6 +21841,34 @@
     
     <div class="tabsContnet">
 
+    <p class="option" data-no="49">
+    <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+      'lang'
+    ].transl('_保存作品的元数据说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+          'lang'
+        ].transl('_保存作品的元数据')}<span class="gray1"> ? </span></span>
+    <input type="checkbox" name="saveMetaType0" id="setSaveMetaType0" class="need_beautify checkbox_common">
+    <span class="beautify_checkbox"></span>
+    <label for="setSaveMetaType0"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+      'lang'
+    ].transl('_插画')}&nbsp;</label>
+    <input type="checkbox" name="saveMetaType1" id="setSaveMetaType1" class="need_beautify checkbox_common">
+    <span class="beautify_checkbox"></span>
+    <label for="setSaveMetaType1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+      'lang'
+    ].transl('_漫画')}&nbsp;</label>
+    <input type="checkbox" name="saveMetaType2" id="setSaveMetaType2" class="need_beautify checkbox_common">
+    <span class="beautify_checkbox"></span>
+    <label for="setSaveMetaType2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+      'lang'
+    ].transl('_动图')}&nbsp;</label>
+    <input type="checkbox" name="saveMetaType3" id="setSaveMetaType3" class="need_beautify checkbox_common">
+    <span class="beautify_checkbox"></span>
+    <label for="setSaveMetaType3"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+      'lang'
+    ].transl('_小说')}&nbsp;</label>
+    </p>
+
       <p class="option" data-no="4">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
@@ -22187,6 +22394,10 @@
                 'createFolderByTypeNovel',
                 'zeroPadding',
                 'showFastSearchArea',
+                'saveMetaType0',
+                'saveMetaType1',
+                'saveMetaType2',
+                'saveMetaType3',
               ],
               text: [
                 'setWantPage',
@@ -22932,6 +23143,10 @@
               zeroPaddingLength: 3,
               tagMatchMode: 'whole',
               showFastSearchArea: true,
+              saveMetaType0: false,
+              saveMetaType1: false,
+              saveMetaType2: false,
+              saveMetaType3: false,
             }
             this.allSettingKeys = Object.keys(this.defaultSettings)
             // 值为浮点数的选项
@@ -23408,6 +23623,7 @@
                   regular: body.urls.regular,
                   small: body.urls.small,
                   title: title,
+                  description: body.description,
                   tags: tags,
                   tagsWithTransl: tagsWithTransl,
                   tagsTranslOnly: tagsTranslOnly,
@@ -23443,9 +23659,6 @@
                   frames: meta.body.frames,
                   mime_type: meta.body.mime_type,
                 }
-                const ext =
-                  _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
-                    .ugoiraSaveAs
                 _Store__WEBPACK_IMPORTED_MODULE_3__['store'].addResult({
                   id: body.id,
                   idNum: idNum,
@@ -23455,6 +23668,7 @@
                   regular: meta.body.src,
                   small: meta.body.src,
                   title: title,
+                  description: body.description,
                   tags: tags,
                   tagsWithTransl: tagsWithTransl,
                   tagsTranslOnly: tagsTranslOnly,
@@ -23462,7 +23676,9 @@
                   userId: userId,
                   fullWidth: fullWidth,
                   fullHeight: fullHeight,
-                  ext: ext,
+                  ext:
+                    _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
+                      .ugoiraSaveAs,
                   bmk: bmk,
                   bookmarked: bookmarked,
                   date: body.createDate,
@@ -23582,6 +23798,7 @@
                 idNum: idNum,
                 thumb: body.coverUrl || undefined,
                 title: title,
+                description: body.description,
                 tags: tags,
                 tagsWithTransl: tags,
                 tagsTranslOnly: tags,
@@ -23841,6 +24058,7 @@
               regular: '',
               small: '',
               title: '',
+              description: '',
               pageCount: 1,
               dlCount: 1,
               index: 0,

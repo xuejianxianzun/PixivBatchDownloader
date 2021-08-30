@@ -31,6 +31,7 @@ export interface Result {
    */
   index: number
   title: string
+  description: string
   tags: string[]
   tagsWithTransl: string[]
   tagsTranslOnly: string[]
@@ -42,6 +43,11 @@ export interface Result {
   bmk: number
   bookmarked: boolean
   date: string
+  /** 0 插画
+   * 1 漫画
+   * 2 动图
+   * 3 小说
+   */
   type: 0 | 1 | 2 | 3
   rank: number | null
   ugoiraInfo: UgoiraInfo | null
@@ -66,6 +72,7 @@ export interface ResultOptional {
   pageCount?: number
   dlCount?: number
   title?: string
+  description?: string
   tags?: string[]
   tagsWithTransl?: string[]
   tagsTranslOnly?: string[]

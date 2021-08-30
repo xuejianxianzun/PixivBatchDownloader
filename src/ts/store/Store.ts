@@ -35,6 +35,7 @@ class Store {
     regular: '',
     small: '',
     title: '',
+    description: '',
     pageCount: 1,
     dlCount: 1,
     index: 0,

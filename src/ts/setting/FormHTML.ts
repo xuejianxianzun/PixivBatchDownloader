@@ -532,6 +532,24 @@ export const formHtml = `<form class="settingForm">
     
     <div class="tabsContnet">
 
+    <p class="option" data-no="49">
+    <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+      '_保存作品的元数据说明'
+    )}">${lang.transl('_保存作品的元数据')}<span class="gray1"> ? </span></span>
+    <input type="checkbox" name="saveMetaType0" id="setSaveMetaType0" class="need_beautify checkbox_common">
+    <span class="beautify_checkbox"></span>
+    <label for="setSaveMetaType0"> ${lang.transl('_插画')}&nbsp;</label>
+    <input type="checkbox" name="saveMetaType1" id="setSaveMetaType1" class="need_beautify checkbox_common">
+    <span class="beautify_checkbox"></span>
+    <label for="setSaveMetaType1"> ${lang.transl('_漫画')}&nbsp;</label>
+    <input type="checkbox" name="saveMetaType2" id="setSaveMetaType2" class="need_beautify checkbox_common">
+    <span class="beautify_checkbox"></span>
+    <label for="setSaveMetaType2"> ${lang.transl('_动图')}&nbsp;</label>
+    <input type="checkbox" name="saveMetaType3" id="setSaveMetaType3" class="need_beautify checkbox_common">
+    <span class="beautify_checkbox"></span>
+    <label for="setSaveMetaType3"> ${lang.transl('_小说')}&nbsp;</label>
+    </p>
+
       <p class="option" data-no="4">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_动图保存格式title'

@@ -88,15 +88,9 @@ class BookmarkAfterDL {
       this.showProgress()
 
       // 从 store 里查找这个作品的数据
-      let data: Result | undefined = undefined
-      let dataSource =
+      const dataSource =
         store.resultMeta.length > 0 ? store.resultMeta : store.result
-      for (const r of dataSource) {
-        if (r.idNum === id) {
-          data = r
-          break
-        }
-      }
+      const data = dataSource.find((val) => val.idNum === id)
       if (data === undefined) {
         return reject(new Error(`Not find ${id} in result`))
       }

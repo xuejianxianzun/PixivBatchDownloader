@@ -72,6 +72,7 @@ class SaveArtworkData {
           regular: body.urls.regular,
           small: body.urls.small,
           title: title,
+          description: body.description,
           tags: tags,
           tagsWithTransl: tagsWithTransl,
           tagsTranslOnly: tagsTranslOnly,
@@ -104,8 +105,6 @@ class SaveArtworkData {
           mime_type: meta.body.mime_type,
         }
 
-        const ext = settings.ugoiraSaveAs
-
         store.addResult({
           id: body.id,
           idNum: idNum,
@@ -115,6 +114,7 @@ class SaveArtworkData {
           regular: meta.body.src,
           small: meta.body.src,
           title: title,
+          description: body.description,
           tags: tags,
           tagsWithTransl: tagsWithTransl,
           tagsTranslOnly: tagsTranslOnly,
@@ -122,7 +122,7 @@ class SaveArtworkData {
           userId: userId,
           fullWidth: fullWidth,
           fullHeight: fullHeight,
-          ext: ext,
+          ext: settings.ugoiraSaveAs,
           bmk: bmk,
           bookmarked: bookmarked,
           date: body.createDate,

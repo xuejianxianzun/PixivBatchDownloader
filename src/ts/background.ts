@@ -55,8 +55,8 @@ let dlBatch: number[] = []
 
 // 接收下载请求
 chrome.runtime.onMessage.addListener(function (msg: SendToBackEndData, sender) {
-  // 接收下载任务
-  if (msg.msg === 'send_download') {
+  // save_work_file 下载作品的文件
+  if (msg.msg === 'save_work_file') {
     const tabId = sender.tab!.id!
     // 如果开始了新一批的下载，重设批次编号，清空下载索引
     if (dlBatch[tabId] !== msg.taskBatch) {
@@ -86,6 +86,16 @@ chrome.runtime.onMessage.addListener(function (msg: SendToBackEndData, sender) {
         }
       )
     }
+  }
+
+  // save_description_file 下载作品的简介文件，不需要返回下载状态
+  if (msg.msg === 'save_description_file') {
+    chrome.downloads.download({
+      url: msg.fileUrl,
+      filename: msg.fileName,
+      conflictAction: 'overwrite',
+      saveAs: false,
+    })
   }
 })
 

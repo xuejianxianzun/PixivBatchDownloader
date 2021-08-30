@@ -63,6 +63,7 @@ class SaveNovelData {
         idNum: idNum,
         thumb: body.coverUrl || undefined,
         title: title,
+        description: body.description,
         tags: tags,
         tagsWithTransl: tags,
         tagsTranslOnly: tags,

@@ -58,6 +58,10 @@ class ExportResult2CSV {
       index: 'title',
     },
     {
+      name: 'description',
+      index: 'description',
+    },
+    {
       name: 'type',
       index: 'type',
     },

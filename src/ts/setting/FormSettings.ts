@@ -77,6 +77,10 @@ class FormSettings {
       'createFolderByTypeNovel',
       'zeroPadding',
       'showFastSearchArea',
+      'saveMetaType0',
+      'saveMetaType1',
+      'saveMetaType2',
+      'saveMetaType3',
     ],
     text: [
       'setWantPage',

@@ -265,7 +265,7 @@ class Download {
     }
 
     const sendData: SendToBackEndData = {
-      msg: 'send_download',
+      msg: 'save_work_file',
       fileUrl: blobUrl,
       fileName: fileName,
       id,

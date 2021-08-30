@@ -1,5 +1,5 @@
 import { store } from '../store/Store'
-import { NovelMeta, Result } from '../store/StoreType'
+import { Result } from '../store/StoreType'
 import { EVT } from '../EVT'
 import { Utils } from '../utils/Utils'
 import { states } from '../store/States'
@@ -171,5 +171,4 @@ class MergeNovel {
   }
 }
 
-const mergeNovel = new MergeNovel()
-export { mergeNovel }
+new MergeNovel()

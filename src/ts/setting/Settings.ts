@@ -134,6 +134,10 @@ interface XzSetting {
   zeroPaddingLength: number
   tagMatchMode: 'partial' | 'whole'
   showFastSearchArea: boolean
+  saveMetaType0: boolean
+  saveMetaType1: boolean
+  saveMetaType2: boolean
+  saveMetaType3: boolean
 }
 
 type SettingsKeys = keyof XzSetting
@@ -271,6 +275,10 @@ class Settings {
     zeroPaddingLength: 3,
     tagMatchMode: 'whole',
     showFastSearchArea: true,
+    saveMetaType0: false,
+    saveMetaType1: false,
+    saveMetaType2: false,
+    saveMetaType3: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

@@ -91,4 +91,8 @@ export interface SettingsForm extends HTMLFormElement {
   zeroPaddingLength: HTMLInputElement
   tagMatchMode: RadioNodeList
   showFastSearchArea: HTMLInputElement
+  saveMetaType0: HTMLInputElement
+  saveMetaType1: HTMLInputElement
+  saveMetaType2: HTMLInputElement
+  saveMetaType3: HTMLInputElement
 }
