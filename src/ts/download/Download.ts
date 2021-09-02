@@ -169,7 +169,12 @@ class Download {
         // 需要转换动图的情况
         const convertExt = ['webm', 'gif', 'png']
         const ext = settings.ugoiraSaveAs
-        if (convertExt.includes(ext) && arg.data.ugoiraInfo) {
+        if (
+          convertExt.includes(ext) &&
+          arg.data.ugoiraInfo &&
+          settings.imageSize !== 'thumb'
+        ) {
+          // 当下载图片的方形缩略图时，不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
           try {
             if (ext === 'webm') {
               file = await convertUgoira.webm(file, arg.data.ugoiraInfo)

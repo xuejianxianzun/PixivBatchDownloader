@@ -898,6 +898,9 @@
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./EVT */ './src/ts/EVT.ts'
         )
+        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./utils/Utils */ './src/ts/utils/Utils.ts'
+        )
 
         // 检查新版本
         class CheckNewVersion {
@@ -905,6 +908,9 @@
             this.checkNew()
           }
           async checkNew() {
+            if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_1__['Utils'].isPixiv()) {
+              return
+            }
             // 读取上一次检查的时间，如果超过指定的时间，则检查 GitHub 上的信息
             const timeName = 'xzUpdateTime'
             const verName = 'xzGithubVer'
@@ -926,9 +932,7 @@
               localStorage.setItem(timeName, new Date().getTime().toString())
             }
             // 获取本地扩展的版本号
-            const manifest = await fetch(
-              chrome.extension.getURL('manifest.json')
-            )
+            const manifest = await fetch(chrome.runtime.getURL('manifest.json'))
             const manifestJson = await manifest.json()
             const manifestVer = manifestJson.version
             // 比较大小
@@ -1141,7 +1145,7 @@
             }
             // 添加 zip 的 worker 文件
             let zipWorker = await fetch(
-              chrome.extension.getURL('lib/z-worker.js')
+              chrome.runtime.getURL('lib/z-worker.js')
             )
             const zipWorkerBolb = await zipWorker.blob()
             const zipWorkerUrl = URL.createObjectURL(zipWorkerBolb)
@@ -1321,7 +1325,7 @@
           async loadWorkerJS() {
             // 添加 gif 的 worker 文件
             let gifWorker = await fetch(
-              chrome.extension.getURL('lib/gif.worker.js')
+              chrome.runtime.getURL('lib/gif.worker.js')
             )
             const gifWorkerBolb = await gifWorker.blob()
             this.gifWorkerUrl = URL.createObjectURL(gifWorkerBolb)
@@ -2124,7 +2128,13 @@
             result = pathArray.join('/')
             // 6 生成后缀名
             // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
-            if (this.ugoiraExt.includes(data.ext) && data.ugoiraInfo) {
+            if (
+              this.ugoiraExt.includes(data.ext) &&
+              data.ugoiraInfo &&
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
+                .imageSize !== 'thumb'
+            ) {
+              // 当下载图片的方形缩略图时，不修改其后缀名，因为此时下载的是作品的静态缩略图，不是动图
               data.ext =
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_0__[
                   'settings'
@@ -4897,28 +4907,18 @@
             this.supportListenHistory()
             this.listenPageSwitch()
           }
-          // 为监听 history 的事件提供支持
+          // 为监听 url 变化的事件提供支持
           supportListenHistory() {
-            const element = document.createElement('script')
-            element.setAttribute('type', 'text/javascript')
-            element.innerHTML = `
-    let _wr = function (type) {
-      let orig = history[type];
-      return function () {
-        let rv = orig.apply(this, arguments);
-        let e = new Event(type);
-        e.arguments = arguments;
-        window.dispatchEvent(e);
-        return rv;
-      };
-    };
-    history.pushState = _wr('pushState');
-    history.replaceState = _wr('replaceState');
-    `
-            document.head.appendChild(element)
+            const s = document.createElement('script')
+            const url = chrome.runtime.getURL('lib/listen_history_change.js')
+            s.src = url
+            document.head.appendChild(s)
           }
           // 无刷新切换页面时派发事件
           listenPageSwitch() {
+            // 点击浏览器的前进或后退按钮会触发 popstate 事件
+            // 点击链接进入一个 url 不同的页面是 pushState 操作
+            // 现在还没有遇到 replaceState 操作
             ;['pushState', 'popstate', 'replaceState'].forEach((item) => {
               window.addEventListener(item, () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('pageSwitch')
@@ -14312,7 +14312,13 @@
                 const ext =
                   _setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
                     .ugoiraSaveAs
-                if (convertExt.includes(ext) && arg.data.ugoiraInfo) {
+                if (
+                  convertExt.includes(ext) &&
+                  arg.data.ugoiraInfo &&
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
+                    .imageSize !== 'thumb'
+                ) {
+                  // 当下载图片的方形缩略图时，不转换动图，因为此时下载的是作品的静态缩略图，无法进行转换
                   try {
                     if (ext === 'webm') {
                       file = await _ConvertUgoira_ConvertUgoira__WEBPACK_IMPORTED_MODULE_4__[
@@ -20453,15 +20459,18 @@
             const userProfile = await _API__WEBPACK_IMPORTED_MODULE_1__[
               'API'
             ].getUserProfile(userId)
+            const imageURL = userProfile.body.imageBig
+            // 提取图片的后缀名
+            const arr = imageURL.split('.')
+            const ext = arr[arr.length - 1]
             // imageBig 并不是头像原图，而是裁剪成 170 px 的尺寸
-            // 去掉 170 标记，获取头像图片的原图
-            const fullSizeImgURL = userProfile.body.imageBig.replace('_170', '')
+            // 如果是 gif 格式，则不生成其大图 url，因为生成的大图是静态图。不知道 gif 头像是否有大图，以及其 url 是什么样的
+            // 如果是其他格式，则去掉 170 标记，获取头像图片的原图
+            const fullSizeImgURL =
+              ext === 'gif' ? imageURL : imageURL.replace('_170', '')
             // 加载文件
             const img = await fetch(fullSizeImgURL)
             const blob = await img.blob()
-            // 提取后缀名
-            const arr = fullSizeImgURL.split('.')
-            const ext = arr[arr.length - 1]
             // 直接保存到下载文件夹
             const url = URL.createObjectURL(blob)
             const name = `${userProfile.body.name}_${userId}_avatar.${ext}`
@@ -23663,6 +23672,18 @@
                   frames: meta.body.frames,
                   mime_type: meta.body.mime_type,
                 }
+                // 当下载图片的方形缩略图时，它的后缀名从 url 中提取。
+                // 此时不应该把它的后缀名设置为动图的保存格式，因为缩略图无法转换成动图
+                let ext =
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
+                    .ugoiraSaveAs
+                if (
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
+                    .imageSize === 'thumb'
+                ) {
+                  const tempExt = body.urls.thumb.split('.')
+                  ext = tempExt[tempExt.length - 1]
+                }
                 _Store__WEBPACK_IMPORTED_MODULE_3__['store'].addResult({
                   id: body.id,
                   idNum: idNum,
@@ -23680,9 +23701,7 @@
                   userId: userId,
                   fullWidth: fullWidth,
                   fullHeight: fullHeight,
-                  ext:
-                    _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
-                      .ugoiraSaveAs,
+                  ext: ext,
                   bmk: bmk,
                   bookmarked: bookmarked,
                   date: body.createDate,

@@ -105,6 +105,14 @@ class SaveArtworkData {
           mime_type: meta.body.mime_type,
         }
 
+        // 当下载图片的方形缩略图时，它的后缀名从 url 中提取。
+        // 此时不应该把它的后缀名设置为动图的保存格式，因为缩略图无法转换成动图
+        let ext: string = settings.ugoiraSaveAs
+        if (settings.imageSize === 'thumb') {
+          const tempExt = body.urls.thumb.split('.')
+          ext = tempExt[tempExt.length - 1]
+        }
+
         store.addResult({
           id: body.id,
           idNum: idNum,
@@ -122,7 +130,7 @@ class SaveArtworkData {
           userId: userId,
           fullWidth: fullWidth,
           fullHeight: fullHeight,
-          ext: settings.ugoiraSaveAs,
+          ext: ext,
           bmk: bmk,
           bookmarked: bookmarked,
           date: body.createDate,

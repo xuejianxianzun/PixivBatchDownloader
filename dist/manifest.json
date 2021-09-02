@@ -1,6 +1,6 @@
 {
   "name": "Powerful Pixiv Downloader",
-  "version": "10.7.2",
+  "version": "10.8.1",
   "manifest_version": 2,
   "description": "强大的 Pixiv 下载器，支持批量下载。強力な Pixiv ダウンローダー。The powerful Pixiv downloader supports batch downloading.",
   "icons": {
@@ -61,6 +61,7 @@
   "web_accessible_resources": [
     "lib/z-worker.js",
     "lib/gif.worker.js",
+    "lib/listen_history_change.js",
     "manifest.json"
   ],
   "homepage_url": "https://github.com/xuejianxianzun/PixivBatchDownloader"

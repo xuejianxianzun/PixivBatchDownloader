@@ -386,7 +386,12 @@ class FileName {
 
     // 6 生成后缀名
     // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
-    if (this.ugoiraExt.includes(data.ext) && data.ugoiraInfo) {
+    if (
+      this.ugoiraExt.includes(data.ext) &&
+      data.ugoiraInfo &&
+      settings.imageSize !== 'thumb'
+    ) {
+      // 当下载图片的方形缩略图时，不修改其后缀名，因为此时下载的是作品的静态缩略图，不是动图
       data.ext = settings.ugoiraSaveAs
     }
     // 如果是小说，那么此时根据用户设置的动图保存格式，更新其后缀名
