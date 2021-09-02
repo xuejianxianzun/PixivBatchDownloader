@@ -15,7 +15,7 @@ class ExtractImage {
     }
 
     // 添加 zip 的 worker 文件
-    let zipWorker = await fetch(chrome.extension.getURL('lib/z-worker.js'))
+    let zipWorker = await fetch(chrome.runtime.getURL('lib/z-worker.js'))
     const zipWorkerBolb = await zipWorker.blob()
     const zipWorkerUrl = URL.createObjectURL(zipWorkerBolb)
     zip.workerScripts = {

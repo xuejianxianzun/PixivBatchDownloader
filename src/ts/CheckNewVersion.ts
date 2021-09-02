@@ -1,4 +1,5 @@
 import { EVT } from './EVT'
+import { Utils } from './utils/Utils'
 
 // 检查新版本
 class CheckNewVersion {
@@ -7,6 +8,9 @@ class CheckNewVersion {
   }
 
   private async checkNew() {
+    if (!Utils.isPixiv()) {
+      return
+    }
     // 读取上一次检查的时间，如果超过指定的时间，则检查 GitHub 上的信息
     const timeName = 'xzUpdateTime'
     const verName = 'xzGithubVer'
@@ -27,7 +31,7 @@ class CheckNewVersion {
     }
 
     // 获取本地扩展的版本号
-    const manifest = await fetch(chrome.extension.getURL('manifest.json'))
+    const manifest = await fetch(chrome.runtime.getURL('manifest.json'))
     const manifestJson = await manifest.json()
     const manifestVer = manifestJson.version
 

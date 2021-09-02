@@ -14,7 +14,7 @@ class ToGIF {
 
   private async loadWorkerJS() {
     // 添加 gif 的 worker 文件
-    let gifWorker = await fetch(chrome.extension.getURL('lib/gif.worker.js'))
+    let gifWorker = await fetch(chrome.runtime.getURL('lib/gif.worker.js'))
     const gifWorkerBolb = await gifWorker.blob()
     this.gifWorkerUrl = URL.createObjectURL(gifWorkerBolb)
   }

@@ -17,13 +17,13 @@ async function copys() {
       reject()
     })
 
-    // 复制 manifest
+    // 复制 manifest 和修改网络请求的 rule
     await copy('./src', './dist', {
       overwrite: true,
-      filter: ['manifest.json'],
+      filter: ['manifest.json', 'declarative_net_request_rules.json'],
     })
 
-    // 复制根目录一些文件
+    // 复制根目录的一些文件
     await copy('./', './dist', {
       overwrite: true,
       filter: ['README.md', 'README-EN.md', 'README-ZH-TW.md', 'LICENSE'],

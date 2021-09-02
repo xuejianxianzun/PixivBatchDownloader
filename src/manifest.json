@@ -1,7 +1,7 @@
 {
   "name": "Powerful Pixiv Downloader",
-  "version": "10.7.2",
-  "manifest_version": 2,
+  "version": "10.8.0",
+  "manifest_version": 3,
   "description": "强大的 Pixiv 下载器，支持批量下载。強力な Pixiv ダウンローダー。The powerful Pixiv downloader supports batch downloading.",
   "icons": {
     "16": "icon/logo16.png",
@@ -9,7 +9,7 @@
     "48": "icon/logo48.png",
     "128": "icon/logo128.png"
   },
-  "browser_action": {
+  "action": {
     "default_icon": {
       "16": "icon/logo16.png",
       "32": "icon/logo32.png",
@@ -32,7 +32,7 @@
         "lib/js-epub-maker.js",
         "lib/UPNG.js",
         "lib/pako.js",
-        "js/content.js",
+        "content.js",
         "lib/iconfont.js"
       ],
       "matches": ["*://www.pixiv.net/*"],
@@ -40,28 +40,41 @@
     },
     {
       "css": ["style/style.css"],
-      "js": ["js/content.js", "lib/iconfont.js"],
+      "js": ["content.js", "lib/iconfont.js"],
       "matches": ["*://www.pixivision.net/*"],
       "run_at": "document_end"
     }
   ],
   "background": {
-    "scripts": ["js/background.js"]
+    "service_worker": "background.js"
   },
-  "permissions": [
-    "downloads",
+  "permissions": ["downloads", "storage", "declarativeNetRequest"],
+  "host_permissions": [
     "*://www.pixiv.net/*",
     "*://www.pixivision.net/*",
     "*://*.techorus-cdn.com/*",
     "*://*.pximg.net/*",
-    "*://*.pixiv.cat/*",
-    "webRequest",
-    "webRequestBlocking"
+    "*://*.pixiv.cat/*"
   ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ruleset_1",
+        "enabled": true,
+        "path": "declarative_net_request_rules.json"
+      }
+    ]
+  },
   "web_accessible_resources": [
-    "lib/z-worker.js",
-    "lib/gif.worker.js",
-    "manifest.json"
+    {
+      "resources": [
+        "lib/z-worker.js",
+        "lib/gif.worker.js",
+        "lib/listen_history_change.js",
+        "manifest.json"
+      ],
+      "matches": ["*://www.pixiv.net/*"]
+    }
   ],
   "homepage_url": "https://github.com/xuejianxianzun/PixivBatchDownloader"
 }
