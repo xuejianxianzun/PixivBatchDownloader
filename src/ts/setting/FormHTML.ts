@@ -87,6 +87,14 @@ export const formHtml = `<form class="settingForm">
       <label for="setDownMultiImg"> ${lang.transl('_多图作品')}&nbsp;</label>
       </p>
 
+      <p class="option" data-no="51">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_显示高级设置说明'
+      )}">${lang.transl('_显示高级设置')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="showAdvancedSettings" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      </p>
+
       <p class="option" data-no="3">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_必须大于0'
@@ -310,7 +318,9 @@ export const formHtml = `<form class="settingForm">
         </select>
       &nbsp;
       <slot data-name="saveNamingRule"></slot>
-      <button class="showFileNameTip textButton" type="button">?</button>
+      <button class="showFileNameTip textButton" type="button">${lang.transl(
+        '_提示2'
+      )}</button>
       </p>
       <p class="tip tipWithBtn" id="tipCreateFolder">
         <span class="left">
@@ -414,7 +424,7 @@ export const formHtml = `<form class="settingForm">
       )}">${lang.transl(
   '_第一张图不带序号'
 )}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="noSerialNo" id="setNoSerialNo" class="need_beautify checkbox_switch">
+      <input type="checkbox" name="noSerialNo" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
       

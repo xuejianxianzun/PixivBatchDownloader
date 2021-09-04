@@ -86,6 +86,7 @@ class FormSettings {
       'saveMetaType2',
       'saveMetaType3',
       'setNameRuleForEachPageType',
+      'showAdvancedSettings',
     ],
     text: [
       'setWantPage',

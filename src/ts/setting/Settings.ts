@@ -152,6 +152,7 @@ interface XzSetting {
   nameRuleForEachPageType: {
     [key: number]: string
   }
+  showAdvancedSettings: boolean
 }
 
 type SettingsKeys = keyof XzSetting
@@ -318,6 +319,7 @@ class Settings {
       '19': '{user}/{series_title}/{series_order} {id}',
       '20': '{p_title}/{id}',
     },
+    showAdvancedSettings: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

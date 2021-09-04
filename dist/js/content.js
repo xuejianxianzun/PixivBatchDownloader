@@ -3690,7 +3690,7 @@
           ],
           _命名标记提醒: [
             '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}<br>* 在某些情况下，会有一些标记不可用。',
-            '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{userid}<br><br>＊某些情況下有些標記無法使用。',
+            '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{userid}<br>＊某些情況下有些標記無法使用。',
             'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}<br>* In some cases, some tags will not be available.',
             'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{userid}<br>* 場合によっては、一部の tag が利用できず。',
           ],
@@ -4260,7 +4260,8 @@
             'Converting multiple animations at the same time will increase resource consumption. <br> Please keep the tab active when converting animation, otherwise the browser will reduce the conversion speed.',
             '複数の動画を同時に変換すると、リソースの占有が増加します。<br>うごイラを変換するときは、このタブを有効にしてください。そうしないと、ブラウザは変換速度を下げます。',
           ],
-          _提示: ['提示', '提示', 'tip', 'ヒント'],
+          _提示: ['提示', '提示', 'Tip', 'ヒント'],
+          _提示2: ['提示', '提示', 'Tip', '？'],
           _fanboxDownloader: [
             'Fanbox 下载器',
             'Fanbox 下載器',
@@ -4865,10 +4866,10 @@
             'この制限を超えたマルチ作品はダウンロードされません',
           ],
           _whatisnew: [
-            '新增设置项：<br>在不同的页面类型中使用不同的命名规则',
-            '新增設定項目：<br>在不同的頁面型別中使用不同的命名規則',
-            'Added setting items:<br>Use different naming rules in different page types',
-            '新たな機能を追加されました：<br>さまざまなページタイプでさまざまな命名規則を使用する',
+            '新增设置项：<br>显示高级设置<br>在不同的页面类型中使用不同的命名规则',
+            '新增設定項目：<br>顯示進階設定<br>在不同的頁面型別中使用不同的命名規則',
+            'Added setting items:<br>Show advanced settings<br>Use different naming rules in different page types',
+            '新たな機能を追加されました：<br>詳細設定を表示する<br>さまざまなページタイプでさまざまな命名規則を使用する',
           ],
           _在搜索页面添加快捷搜索区域: [
             '在搜索页面添加快捷搜索区域',
@@ -4893,6 +4894,18 @@
             '在不同的頁面型別中使用不同的命名規則',
             'Use different naming rules in different page types',
             'ページの種類によって異なる命名規則を使用',
+          ],
+          _显示高级设置: [
+            '显示高级设置',
+            '顯示進階設定',
+            'Show advanced settings',
+            '詳細設定を表示する',
+          ],
+          _显示高级设置说明: [
+            '被隐藏的设置仍然会发挥作用',
+            '被隱藏的設定仍然會發揮作用',
+            'Hidden settings will still work',
+            '隠していた設定がそのまま機能する',
           ],
         }
 
@@ -6045,7 +6058,7 @@
         // 显示最近更新内容
         class ShowWhatIsNew {
           constructor() {
-            this.flag = 'xzNew1090'
+            this.flag = 'xzNew1100'
             this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
               '_whatisnew'
             )}`
@@ -7365,11 +7378,8 @@
             this.finishedRequest = 0 // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
             this.crawlStopped = false // 抓取是否已停止
           }
-          // 子组件不应该修改 init 方法，但可以重载里面的方法
+          // 子组件不可以修改 init 方法，只可以f里面的方法
           init() {
-            _setting_Options__WEBPACK_IMPORTED_MODULE_7__[
-              'options'
-            ].showAllOption()
             this.setFormOption()
             this.addCrawlBtns()
             this.addAnyElement()
@@ -21301,6 +21311,16 @@
       ].transl('_多图作品')}&nbsp;</label>
       </p>
 
+      <p class="option" data-no="51">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_显示高级设置说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+          'lang'
+        ].transl('_显示高级设置')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="showAdvancedSettings" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      </p>
+
       <p class="option" data-no="3">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
@@ -21572,7 +21592,9 @@
         </select>
       &nbsp;
       <slot data-name="saveNamingRule"></slot>
-      <button class="showFileNameTip textButton" type="button">?</button>
+      <button class="showFileNameTip textButton" type="button">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_提示2')}</button>
       </p>
       <p class="tip tipWithBtn" id="tipCreateFolder">
         <span class="left">
@@ -21694,7 +21716,7 @@
       ].transl('_第一张图不带序号说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
         ].transl('_第一张图不带序号')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="noSerialNo" id="setNoSerialNo" class="need_beautify checkbox_switch">
+      <input type="checkbox" name="noSerialNo" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
       
@@ -22409,6 +22431,7 @@
                 'saveMetaType2',
                 'saveMetaType3',
                 'setNameRuleForEachPageType',
+                'showAdvancedSettings',
               ],
               text: [
                 'setWantPage',
@@ -22915,15 +22938,26 @@
             return options
           }
         )
-        /* harmony import */ var _Form__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _Form__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
           /*! ./Form */ './src/ts/setting/Form.ts'
+        )
+        /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./Settings */ './src/ts/setting/Settings.ts'
         )
 
         // 可以控制每个设置的隐藏、显示
         // 可以设置页数/个数的提示内容
         class Options {
           constructor() {
-            this.allOption = _Form__WEBPACK_IMPORTED_MODULE_0__[
+            // 保持显示的选项的 id
+            this.whiteList = [1, 2, 13, 17, 32, 44, 23, 50, 51]
+            // 某些页面类型需要隐藏某些选项。当调用 hideOption 方法时，把选项 id 保存起来
+            // 优先级高于 whiteList
+            this.hiddenList = []
+            this.allOption = _Form__WEBPACK_IMPORTED_MODULE_1__[
               'form'
             ].querySelectorAll('.option')
             // 获取“页数/个数”设置的元素
@@ -22932,6 +22966,68 @@
               text: wantPageOption.querySelector('.setWantPageTip1'),
               rangTip: wantPageOption.querySelector('.setWantPageTip2'),
               input: wantPageOption.querySelector('.setWantPage'),
+            }
+            this.handleShowAdvancedSettings()
+            this.bindEvents()
+          }
+          bindEvents() {
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
+              (ev) => {
+                const data = ev.detail.data
+                if (data.name === 'showAdvancedSettings') {
+                  this.handleShowAdvancedSettings()
+                }
+              }
+            )
+            const list = [
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
+                .pageSwitchedTypeNotChange,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
+                .pageSwitchedTypeChange,
+            ]
+            list.forEach((ev) => {
+              window.addEventListener(ev, () => {
+                this.hiddenList = []
+                window.setTimeout(() => {
+                  this.handleShowAdvancedSettings()
+                })
+              })
+            })
+          }
+          handleShowAdvancedSettings() {
+            for (const option of this.allOption) {
+              if (option.dataset.no === undefined) {
+                continue
+              }
+              const no = Number.parseInt(option.dataset.no)
+              // 如果需要隐藏高级设置
+              if (
+                !_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
+                  .showAdvancedSettings
+              ) {
+                // 如果在白名单中，并且当前页面不需要隐藏它，那么它就是显示的
+                if (
+                  this.whiteList.includes(no) &&
+                  !this.hiddenList.includes(no)
+                ) {
+                  this.showOption([no])
+                }
+                // 如果没有在白名单中，或者当前页面需要隐藏它，就隐藏它
+                if (
+                  !this.whiteList.includes(no) ||
+                  this.hiddenList.includes(no)
+                ) {
+                  option.style.display = 'none'
+                }
+              } else {
+                // 如果需要显示高级设置，那么只隐藏当前页面需要隐藏的选项
+                if (this.hiddenList.includes(no)) {
+                  option.style.display = 'none'
+                } else {
+                  this.showOption([no])
+                }
+              }
             }
           }
           // 使用编号获取指定选项的元素
@@ -22957,7 +23053,10 @@
             }
           }
           // 隐藏指定的选项。参数是数组，传递设置项的编号。
+          // 注意：由于这个方法会修改 hiddenList，所以它是有副作用的
+          // 这个方法只应该在其他类里面使用，在这个类里不要直接调用它
           hideOption(no) {
+            this.hiddenList = no
             this.setOptionDisplay(no, 'none')
           }
           // 显示指定的选项。因为页面无刷新加载，所以一些选项被隐藏后，可能需要再次显示
@@ -23373,6 +23472,7 @@
                 19: '{user}/{series_title}/{series_order} {id}',
                 20: '{p_title}/{id}',
               },
+              showAdvancedSettings: false,
             }
             this.allSettingKeys = Object.keys(this.defaultSettings)
             // 值为浮点数的选项

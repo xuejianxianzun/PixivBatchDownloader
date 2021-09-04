@@ -1,4 +1,6 @@
+import { EVT } from '../EVT'
 import { form } from './Form'
+import { settings } from './Settings'
 
 interface WantPageArg {
   text: string
@@ -29,11 +31,73 @@ class Options {
       )! as HTMLSpanElement,
       input: wantPageOption.querySelector('.setWantPage')! as HTMLInputElement,
     }
+
+    this.handleShowAdvancedSettings()
+    this.bindEvents()
   }
 
   private allOption: NodeListOf<HTMLElement>
 
   private wantPageEls: WantPageEls
+
+  // 保持显示的选项的 id
+  private readonly whiteList: number[] = [1, 2, 13, 17, 32, 44, 23, 50, 51]
+
+  // 某些页面类型需要隐藏某些选项。当调用 hideOption 方法时，把选项 id 保存起来
+  // 优先级高于 whiteList
+  private hiddenList: number[] = []
+
+  private bindEvents() {
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      const data = ev.detail.data as any
+      if (data.name === 'showAdvancedSettings') {
+        this.handleShowAdvancedSettings()
+      }
+    })
+
+    const list = [
+      EVT.list.pageSwitchedTypeNotChange,
+      EVT.list.pageSwitchedTypeChange,
+    ]
+    list.forEach((ev) => {
+      window.addEventListener(ev, () => {
+        this.hiddenList = []
+        window.setTimeout(() => {
+          this.handleShowAdvancedSettings()
+        })
+      })
+    })
+  }
+
+  private handleShowAdvancedSettings() {
+    for (const option of this.allOption) {
+      if (option.dataset.no === undefined) {
+        continue
+      }
+
+      const no = Number.parseInt(option.dataset.no)
+
+      // 如果需要隐藏高级设置
+      if (!settings.showAdvancedSettings) {
+        // 如果在白名单中，并且当前页面不需要隐藏它，那么它就是显示的
+        if (this.whiteList.includes(no) && !this.hiddenList.includes(no)) {
+          this.showOption([no])
+        }
+
+        // 如果没有在白名单中，或者当前页面需要隐藏它，就隐藏它
+        if (!this.whiteList.includes(no) || this.hiddenList.includes(no)) {
+          option.style.display = 'none'
+        }
+      } else {
+        // 如果需要显示高级设置，那么只隐藏当前页面需要隐藏的选项
+        if (this.hiddenList.includes(no)) {
+          option.style.display = 'none'
+        } else {
+          this.showOption([no])
+        }
+      }
+    }
+  }
 
   // 使用编号获取指定选项的元素
   private getOption(no: number) {
@@ -61,7 +125,10 @@ class Options {
   }
 
   // 隐藏指定的选项。参数是数组，传递设置项的编号。
+  // 注意：由于这个方法会修改 hiddenList，所以它是有副作用的
+  // 这个方法只应该在其他类里面使用，在这个类里不要直接调用它
   public hideOption(no: number[]) {
+    this.hiddenList = no
     this.setOptionDisplay(no, 'none')
   }
 
