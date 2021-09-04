@@ -9,7 +9,7 @@ class ShowWhatIsNew {
     this.show()
   }
 
-  private flag = 'xzNew1070'
+  private flag = 'xzNew1090'
 
   private msg = `${lang.transl('_whatisnew')}`
 

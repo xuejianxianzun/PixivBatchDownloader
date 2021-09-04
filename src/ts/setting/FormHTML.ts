@@ -282,7 +282,7 @@ export const formHtml = `<form class="settingForm">
       <span class="has_tip settingNameStyle1" data-tip="${
         lang.transl('_设置文件夹名的提示') + '<br>' + '{user}/{id}'
       }">${lang.transl('_命名规则')}<span class="gray1"> ? </span></span>
-      <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
+      <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{p_title}/{id}">
       &nbsp;
       <select name="fileNameSelect" class="beautify_scrollbar">
         <option value="default">…</option>
@@ -389,6 +389,13 @@ export const formHtml = `<form class="settingForm">
       <br>
       <span class="blue">{p_num}</span>
       ${lang.transl('_命名标记p_num')}
+      </p>
+
+      <p class="option" data-no="50">
+      <span class="settingNameStyle1"">
+      ${lang.transl('_在不同的页面类型中使用不同的命名规则')}</span>
+      <input type="checkbox" name="setNameRuleForEachPageType" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="14">

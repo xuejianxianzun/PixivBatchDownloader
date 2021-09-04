@@ -4,6 +4,7 @@ import { lang } from '../Lang'
 import { theme } from '../Theme'
 import { settings, setSetting } from './Settings'
 import { toast } from '../Toast'
+import { nameRuleManager } from './NameRuleManager'
 
 // 保存和加载命名规则列表
 class SaveNamingRule {
@@ -83,7 +84,7 @@ class SaveNamingRule {
 
   private select(rule: string) {
     this.ruleInput.value = rule
-    setSetting('userSetName', rule)
+    nameRuleManager.rule = rule
   }
 
   private createList() {

@@ -1,4 +1,5 @@
 import { settings } from './setting/Settings'
+import { nameRuleManager } from './setting/NameRuleManager'
 import { store } from './store/Store'
 import { Result } from './store/StoreType'
 import { Config } from './config/Config'
@@ -112,7 +113,7 @@ class FileName {
   // 传入一个抓取结果，获取其文件名
   public getFileName(data: Result) {
     // 命名规则
-    let userSetName = settings.userSetName || '{id}'
+    const userSetName = nameRuleManager.rule
 
     // 判断是否要为每个作品创建单独的文件夹
     let createFolderForEachWork =

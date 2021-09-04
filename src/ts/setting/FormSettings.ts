@@ -3,6 +3,7 @@ import { pageType } from '../PageType'
 import { settings, setSetting, SettingKeys } from './Settings'
 import { SettingsForm } from './SettingsForm'
 import { DateFormat } from '../utils/DateFormat'
+import { nameRuleManager } from './NameRuleManager'
 
 // 管理 from 表单里的输入选项（input 元素和 textarea 元素）
 // 从 settings 里恢复选项的值；当选项改变时保存到 settings 里
@@ -20,6 +21,8 @@ class FormSettings {
   constructor(form: SettingsForm) {
     this.form = form
 
+    nameRuleManager.registerInput(this.form.userSetName)
+
     this.bindEvents()
 
     this.restoreFormSettings()
@@ -29,6 +32,7 @@ class FormSettings {
 
   private form!: SettingsForm
 
+  // 没有填写 userSetName 字段，因为这个字段由 nameRuleManager 管理
   private readonly inputFileds: InputFileds = {
     checkbox: [
       'downType0',
@@ -81,6 +85,7 @@ class FormSettings {
       'saveMetaType1',
       'saveMetaType2',
       'saveMetaType3',
+      'setNameRuleForEachPageType',
     ],
     text: [
       'setWantPage',
@@ -96,7 +101,6 @@ class FormSettings {
       'idRangeInput',
       'needTag',
       'notNeedTag',
-      'userSetName',
       'workDirFileNumber',
       'r18FolderName',
       'sizeMin',
@@ -144,25 +148,20 @@ class FormSettings {
   // 该函数可执行一次，否则事件会重复绑定
   private ListenChange() {
     for (const name of this.inputFileds.text) {
-      // setWantPage 变化时，保存到 wantPageArr
+      // 对于某些特定输入框，不使用通用的事件处理函数
       if (name === 'setWantPage') {
-        this.form.setWantPage.addEventListener('change', () => {
-          const temp = Array.from(settings.wantPageArr)
-          temp[pageType.type] = Number.parseInt(this.form.setWantPage.value)
-          setSetting('wantPageArr', temp)
-        })
         continue
-      }
-
-      // 对于命名规则，额外监听 focus 事件
-      if (name === 'userSetName') {
-        this.form.userSetName.addEventListener('focus', (ev) => {
-          setSetting(name, this.form.userSetName.value)
-        })
       }
 
       this.saveTextInput(name)
     }
+
+    // setWantPage 变化时，保存到 wantPageArr
+    this.form.setWantPage.addEventListener('change', () => {
+      const temp = Array.from(settings.wantPageArr)
+      temp[pageType.type] = Number.parseInt(this.form.setWantPage.value)
+      setSetting('wantPageArr', temp)
+    })
 
     for (const name of this.inputFileds.textarea) {
       this.saveTextInput(name)

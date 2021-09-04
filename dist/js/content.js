@@ -1662,19 +1662,22 @@
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./setting/Settings */ './src/ts/setting/Settings.ts'
         )
-        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+        /* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./setting/NameRuleManager */ './src/ts/setting/NameRuleManager.ts'
+        )
+        /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./store/Store */ './src/ts/store/Store.ts'
         )
-        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ./config/Config */ './src/ts/config/Config.ts'
         )
-        /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+        /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./utils/DateFormat */ './src/ts/utils/DateFormat.ts'
         )
-        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ./utils/Utils */ './src/ts/utils/Utils.ts'
         )
-        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ./Tools */ './src/ts/Tools.ts'
         )
 
@@ -1706,7 +1709,7 @@
             const index =
               (_a = data.index) !== null && _a !== void 0
                 ? _a
-                : _Tools__WEBPACK_IMPORTED_MODULE_5__['Tools'].getResultIndex(
+                : _Tools__WEBPACK_IMPORTED_MODULE_6__['Tools'].getResultIndex(
                     data
                   )
             // 处理第一张图不带序号的情况
@@ -1740,7 +1743,7 @@
             const index =
               (_a = data.index) !== null && _a !== void 0
                 ? _a
-                : _Tools__WEBPACK_IMPORTED_MODULE_5__['Tools'].getResultIndex(
+                : _Tools__WEBPACK_IMPORTED_MODULE_6__['Tools'].getResultIndex(
                     data
                   )
             // 处理第一张图不带序号的情况
@@ -1784,7 +1787,7 @@
             allPart.splice(
               allPart.length - 1,
               0,
-              _utils_Utils__WEBPACK_IMPORTED_MODULE_4__[
+              _utils_Utils__WEBPACK_IMPORTED_MODULE_5__[
                 'Utils'
               ].replaceUnsafeStr(folderName)
             )
@@ -1813,9 +1816,10 @@
           // 传入一个抓取结果，获取其文件名
           getFileName(data) {
             // 命名规则
-            let userSetName =
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
-                .userSetName || '{id}'
+            const userSetName =
+              _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_1__[
+                'nameRuleManager'
+              ].rule
             // 判断是否要为每个作品创建单独的文件夹
             let createFolderForEachWork =
               _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
@@ -1833,12 +1837,12 @@
             // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
             const cfg = {
               '{p_title}': {
-                value: _store_Store__WEBPACK_IMPORTED_MODULE_1__['store'].title,
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].title,
                 prefix: '',
                 safe: false,
               },
               '{p_tag}': {
-                value: _store_Store__WEBPACK_IMPORTED_MODULE_1__['store'].tag,
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].tag,
                 prefix: '',
                 safe: false,
               },
@@ -1934,7 +1938,7 @@
               '{date}': {
                 value: !allNameRule.includes('{date}')
                   ? null
-                  : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_3__[
+                  : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_4__[
                       'DateFormat'
                     ].format(
                       data.date,
@@ -1947,10 +1951,10 @@
               '{task_date}': {
                 value: !allNameRule.includes('{task_date}')
                   ? null
-                  : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_3__[
+                  : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_4__[
                       'DateFormat'
                     ].format(
-                      _store_Store__WEBPACK_IMPORTED_MODULE_1__['store']
+                      _store_Store__WEBPACK_IMPORTED_MODULE_2__['store']
                         .crawlCompleteTime,
                       _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
                         .dateFormat
@@ -1960,7 +1964,7 @@
               },
               '{type}': {
                 value:
-                  _config_Config__WEBPACK_IMPORTED_MODULE_2__['Config']
+                  _config_Config__WEBPACK_IMPORTED_MODULE_3__['Config']
                     .worksTypeName[data.type],
                 prefix: '',
                 safe: true,
@@ -1991,7 +1995,7 @@
                   temp = typeof temp !== 'string' ? temp.toString() : temp
                   // 替换不可以作为文件名的特殊字符
                   if (!val.safe) {
-                    temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__[
+                    temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__[
                       'Utils'
                     ].replaceUnsafeStr(temp)
                   }
@@ -2042,7 +2046,7 @@
               ]
               if (allSwitch[data.type]) {
                 const folder =
-                  _config_Config__WEBPACK_IMPORTED_MODULE_2__['Config']
+                  _config_Config__WEBPACK_IMPORTED_MODULE_3__['Config']
                     .worksTypeName[data.type]
                 result = this.appendFolder(result, folder)
               }
@@ -2120,7 +2124,7 @@
               // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
               str = str.trim().replace(/^\./g, '．').replace(/\.$/g, '．')
               // 处理路径是 Windows 保留文件名的情况（不需要处理后缀名）
-              str = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__[
+              str = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__[
                 'Utils'
               ].handleWindowsReservedName(str, this.addStr)
               pathArray[i] = str
@@ -3730,7 +3734,7 @@
             '设置下载线程',
             '設定下載執行緒',
             'Set the download thread',
-            'ダウンロードスレッドを設定する',
+            'ダンロードスレッドの設定',
           ],
           _线程数字: [
             `可以输入 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__['Config'].downloadThreadMax} 之间的数字，设置同时下载的数量`,
@@ -4210,7 +4214,7 @@
             '第一张图不带序号',
             '第一張圖片不包含序號',
             'The first picture without a serial number',
-            '最初のイメージの番号を削除します',
+            '最初のイメージの番号を削除',
           ],
           _第一张图不带序号说明: [
             '去掉每个作品第一张图的序号。例如 80036479_p0 变成 80036479',
@@ -4764,7 +4768,7 @@
             '根据作品类型自动创建文件夹',
             '根據作品類型自動建立資料夾',
             'Create folders based on the type of work',
-            '作品種類に応じてフォルダを自動作成します',
+            '作品種類に応じてフォルダを自動作成',
           ],
           _使用第一个匹配的tag建立文件夹: [
             '使用第一个匹配的 tag 建立文件夹',
@@ -4861,10 +4865,10 @@
             'この制限を超えたマルチ作品はダウンロードされません',
           ],
           _whatisnew: [
-            '优化设置：为每个作品创建单独的文件夹<br>在这个设置里可以使用命名规则了。<br><br>在系列小说页面添加了新的功能按钮：合并系列小说<br>这个功能可以把系列中的多个小说合并到一个文件中。<br><br>新增选项：保存作品的元数据',
-            '最佳化設定：為每個作品建立單獨的資料夾<br>在這個設定裡可以使用命名規則了。<br><br>在系列小說頁面添加了新的功能按鈕：合併系列小說<br>這個功能可以把系列中的多個小說合併到一個檔案中。<br><br>新增選項：儲存作品的元資料',
-            'Optimized settings: Create a separate folder for each work<br>In this setting, you can use naming rules.<br><br>A new function button has been added to the series novel page: Merge series novels<br>This function can merge multiple novels in the series into one file.<br><br>New option: save the metadata of the work',
-            '最適化された設定：作品ごとに個別のフォルダーを作成します<br>この設定では、命名規則を使用できます。<br><br>シリーズ小説ページに新しい機能ボタンが追加されました。シリーズ小説の統合<br>この機能は、シリーズ内の複数の小説を1つのファイルにマージできます。<br><br>新しいオプション：作品のメタデータを保存する',
+            '新增设置项：<br>在不同的页面类型中使用不同的命名规则',
+            '新增設定項目：<br>在不同的頁面型別中使用不同的命名規則',
+            'Added setting items:<br>Use different naming rules in different page types',
+            '新たな機能を追加されました：<br>さまざまなページタイプでさまざまな命名規則を使用する',
           ],
           _在搜索页面添加快捷搜索区域: [
             '在搜索页面添加快捷搜索区域',
@@ -4883,6 +4887,12 @@
             '為每個作品建立一個 txt 檔案儲存它的元資料',
             'Create a txt file for each work to save its metadata',
             '作品ごとに txt ファイルを作成して、メタデータを保存します',
+          ],
+          _在不同的页面类型中使用不同的命名规则: [
+            '在不同的页面类型中使用不同的命名规则',
+            '在不同的頁面型別中使用不同的命名規則',
+            'Use different naming rules in different page types',
+            'ページの種類によって異なる命名規則を使用',
           ],
         }
 
@@ -5326,7 +5336,7 @@
       /*!****************************!*\
   !*** ./src/ts/PageType.ts ***!
   \****************************/
-      /*! exports provided: pageType */
+      /*! exports provided: pageType, PageName */
       /***/ function (module, __webpack_exports__, __webpack_require__) {
         'use strict'
         __webpack_require__.r(__webpack_exports__)
@@ -5337,11 +5347,19 @@
             return pageType
           }
         )
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'PageName',
+          function () {
+            return PageName
+          }
+        )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./EVT */ './src/ts/EVT.ts'
         )
 
         // 所有页面类型及对应的数字编号
+        // 可以通过 pageType.list 使用
         var PageName
         ;(function (PageName) {
           PageName[(PageName['Unsupported'] = -1)] = 'Unsupported'
@@ -6027,7 +6045,7 @@
         // 显示最近更新内容
         class ShowWhatIsNew {
           constructor() {
-            this.flag = 'xzNew1070'
+            this.flag = 'xzNew1090'
             this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
               '_whatisnew'
             )}`
@@ -9226,9 +9244,6 @@
         /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ../utils/Utils */ './src/ts/utils/Utils.ts'
         )
-        /* harmony import */ var _setting_Form__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
-          /*! ../setting/Form */ './src/ts/setting/Form.ts'
-        )
         // 初始化 pixivision 页面
 
         class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
@@ -9310,11 +9325,8 @@
               47,
               48,
               49,
+              50,
             ])
-            // pixivision 里，文件名只有部分标记会生效，所以把文件名规则替换成下面的预设
-            _setting_Form__WEBPACK_IMPORTED_MODULE_7__[
-              'form'
-            ].userSetName.value = '{p_title}/{id}'
           }
           nextStep() {
             this.getPixivision()
@@ -13745,6 +13757,9 @@
         /* harmony import */ var _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
           /*! ../utils/SecretSignal */ './src/ts/utils/SecretSignal.ts'
         )
+        /* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
+          /*! ../setting/NameRuleManager */ './src/ts/setting/NameRuleManager.ts'
+        )
 
         // 通过保存和查询下载记录，判断重复文件
         class Deduplication {
@@ -13869,8 +13884,9 @@
           // 生成一个下载记录
           createRecord(resultId) {
             let name =
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
-                .userSetName
+              _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_11__[
+                'nameRuleManager'
+              ].rule
             // 查找这个抓取结果，获取其文件名
             for (const result of _store_Store__WEBPACK_IMPORTED_MODULE_5__[
               'store'
@@ -14500,13 +14516,10 @@
         /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(
           /*! ../utils/Utils */ './src/ts/utils/Utils.ts'
         )
-        /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
-          /*! ../MsgBox */ './src/ts/MsgBox.ts'
-        )
-        /* harmony import */ var _Help__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
+        /* harmony import */ var _Help__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
           /*! ../Help */ './src/ts/Help.ts'
         )
-        /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
+        /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
           /*! ../PageType */ './src/ts/PageType.ts'
         )
         // 下载控制
@@ -14628,31 +14641,6 @@
               }
             )
           }
-          /**为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num} */
-          checkNamingRule() {
-            if (
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_6__[
-                'settings'
-              ].userSetName.includes('{id}') ||
-              (_setting_Settings__WEBPACK_IMPORTED_MODULE_6__[
-                'settings'
-              ].userSetName.includes('{id_num}') &&
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_6__[
-                  'settings'
-                ].userSetName.includes('{p_num}'))
-            ) {
-              return true
-            } else {
-              _MsgBox__WEBPACK_IMPORTED_MODULE_18__['msgBox'].error(
-                _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
-                  '_命名规则一定要包含id'
-                )
-              )
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('openCenterPanel')
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('downloadCancel')
-              return false
-            }
-          }
           createDownloadArea() {
             const html = `<div class="download_area">
     <p> ${_Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
@@ -14745,8 +14733,8 @@
             this.setDownloadThread()
             // 在插画漫画搜索页面里，如果启用了“预览搜索页面的筛选结果”
             if (
-              _PageType__WEBPACK_IMPORTED_MODULE_20__['pageType'].type ===
-                _PageType__WEBPACK_IMPORTED_MODULE_20__['pageType'].list
+              _PageType__WEBPACK_IMPORTED_MODULE_19__['pageType'].type ===
+                _PageType__WEBPACK_IMPORTED_MODULE_19__['pageType'].list
                   .ArtworkSearch &&
               _setting_Settings__WEBPACK_IMPORTED_MODULE_6__['settings']
                 .previewResult
@@ -14773,10 +14761,6 @@
           }
           // 开始下载
           startDownload() {
-            // 检查命名规则里必须包含的标记
-            if (!this.checkNamingRule()) {
-              return false
-            }
             if (
               !this.pause &&
               !_Resume__WEBPACK_IMPORTED_MODULE_13__['resume'].flag
@@ -14808,7 +14792,7 @@
             _Log__WEBPACK_IMPORTED_MODULE_3__['log'].success(
               _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_正在下载中')
             )
-            _Help__WEBPACK_IMPORTED_MODULE_19__['help'].showDownloadTip()
+            _Help__WEBPACK_IMPORTED_MODULE_18__['help'].showDownloadTip()
           }
           // 暂停下载
           pauseDownload() {
@@ -21560,7 +21544,7 @@
       }">${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
           '_命名规则'
         )}<span class="gray1"> ? </span></span>
-      <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{id}">
+      <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{p_title}/{id}">
       &nbsp;
       <select name="fileNameSelect" class="beautify_scrollbar">
         <option value="default">…</option>
@@ -21683,6 +21667,15 @@
       <br>
       <span class="blue">{p_num}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记p_num')}
+      </p>
+
+      <p class="option" data-no="50">
+      <span class="settingNameStyle1"">
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+        '_在不同的页面类型中使用不同的命名规则'
+      )}</span>
+      <input type="checkbox" name="setNameRuleForEachPageType" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="14">
@@ -22356,9 +22349,13 @@
         /* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
           /*! ../utils/DateFormat */ './src/ts/utils/DateFormat.ts'
         )
+        /* harmony import */ var _NameRuleManager__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./NameRuleManager */ './src/ts/setting/NameRuleManager.ts'
+        )
 
         class FormSettings {
           constructor(form) {
+            // 没有填写 userSetName 字段，因为这个字段由 nameRuleManager 管理
             this.inputFileds = {
               checkbox: [
                 'downType0',
@@ -22411,6 +22408,7 @@
                 'saveMetaType1',
                 'saveMetaType2',
                 'saveMetaType3',
+                'setNameRuleForEachPageType',
               ],
               text: [
                 'setWantPage',
@@ -22426,7 +22424,6 @@
                 'idRangeInput',
                 'needTag',
                 'notNeedTag',
-                'userSetName',
                 'workDirFileNumber',
                 'r18FolderName',
                 'sizeMin',
@@ -22463,6 +22460,9 @@
               datetime: ['postDateStart', 'postDateEnd'],
             }
             this.form = form
+            _NameRuleManager__WEBPACK_IMPORTED_MODULE_4__[
+              'nameRuleManager'
+            ].registerInput(this.form.userSetName)
             this.bindEvents()
             this.restoreFormSettings()
             this.ListenChange()
@@ -22481,34 +22481,25 @@
           // 该函数可执行一次，否则事件会重复绑定
           ListenChange() {
             for (const name of this.inputFileds.text) {
-              // setWantPage 变化时，保存到 wantPageArr
+              // 对于某些特定输入框，不使用通用的事件处理函数
               if (name === 'setWantPage') {
-                this.form.setWantPage.addEventListener('change', () => {
-                  const temp = Array.from(
-                    _Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
-                      .wantPageArr
-                  )
-                  temp[
-                    _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].type
-                  ] = Number.parseInt(this.form.setWantPage.value)
-                  Object(_Settings__WEBPACK_IMPORTED_MODULE_2__['setSetting'])(
-                    'wantPageArr',
-                    temp
-                  )
-                })
                 continue
-              }
-              // 对于命名规则，额外监听 focus 事件
-              if (name === 'userSetName') {
-                this.form.userSetName.addEventListener('focus', (ev) => {
-                  Object(_Settings__WEBPACK_IMPORTED_MODULE_2__['setSetting'])(
-                    name,
-                    this.form.userSetName.value
-                  )
-                })
               }
               this.saveTextInput(name)
             }
+            // setWantPage 变化时，保存到 wantPageArr
+            this.form.setWantPage.addEventListener('change', () => {
+              const temp = Array.from(
+                _Settings__WEBPACK_IMPORTED_MODULE_2__['settings'].wantPageArr
+              )
+              temp[
+                _PageType__WEBPACK_IMPORTED_MODULE_1__['pageType'].type
+              ] = Number.parseInt(this.form.setWantPage.value)
+              Object(_Settings__WEBPACK_IMPORTED_MODULE_2__['setSetting'])(
+                'wantPageArr',
+                temp
+              )
+            })
             for (const name of this.inputFileds.textarea) {
               this.saveTextInput(name)
             }
@@ -22714,6 +22705,201 @@
         /***/
       },
 
+    /***/ './src/ts/setting/NameRuleManager.ts':
+      /*!*******************************************!*\
+  !*** ./src/ts/setting/NameRuleManager.ts ***!
+  \*******************************************/
+      /*! exports provided: nameRuleManager */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'nameRuleManager',
+          function () {
+            return nameRuleManager
+          }
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../Lang */ './src/ts/Lang.ts'
+        )
+        /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../MsgBox */ './src/ts/MsgBox.ts'
+        )
+        /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../PageType */ './src/ts/PageType.ts'
+        )
+        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../utils/Utils */ './src/ts/utils/Utils.ts'
+        )
+        /* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ./Settings */ './src/ts/setting/Settings.ts'
+        )
+
+        // 管理命名规则
+        // 在实际使用中，作为 settings.userSetName 的代理
+        // 其他类必须使用 nameRuleManager.rule 存取器来存取命名规则
+        class NameRuleManager {
+          constructor() {
+            // 命名规则输入框的集合
+            this.inputList = []
+            // 可以在所有页面使用的通用命名规则
+            this.generalRule = '{p_title}/{id}'
+            this.bindEvents()
+          }
+          bindEvents() {
+            // 页面类型变化时，设置命名规则
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
+                .pageSwitchedTypeChange,
+              () => {
+                this.setInputValue()
+              }
+            )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
+              (ev) => {
+                const data = ev.detail.data
+                // 当用户开启这个开关时，设置当前页面类型的命名规则
+                if (
+                  data.name === 'setNameRuleForEachPageType' &&
+                  _Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                    .setNameRuleForEachPageType
+                ) {
+                  if (
+                    _Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                      .nameRuleForEachPageType[
+                      _PageType__WEBPACK_IMPORTED_MODULE_3__['pageType'].type
+                    ] !==
+                    _Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                      .userSetName
+                  ) {
+                    this.setInputValue()
+                  }
+                }
+              }
+            )
+          }
+          // 注册命名规则输入框
+          registerInput(input) {
+            this.inputList.push(input)
+            this.setInputValue()
+            ;['change', 'focus'].forEach((ev) => {
+              input.addEventListener(ev, () => {
+                if (
+                  _Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                    .nameRuleForEachPageType[
+                    _PageType__WEBPACK_IMPORTED_MODULE_3__['pageType'].type
+                  ] !== input.value
+                ) {
+                  this.rule = input.value
+                }
+              })
+            })
+          }
+          // 设置输入框的值为当前命名规则
+          setInputValue() {
+            const rule = this.rule
+            this.inputList.forEach((input) => {
+              input.value = rule
+            })
+            if (
+              rule !==
+              _Settings__WEBPACK_IMPORTED_MODULE_5__['settings'].userSetName
+            ) {
+              Object(_Settings__WEBPACK_IMPORTED_MODULE_5__['setSetting'])(
+                'userSetName',
+                this.rule
+              )
+            }
+          }
+          get rule() {
+            if (
+              _Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                .setNameRuleForEachPageType
+            ) {
+              return _Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                .nameRuleForEachPageType[
+                _PageType__WEBPACK_IMPORTED_MODULE_3__['pageType'].type
+              ]
+            } else {
+              return _Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                .userSetName
+            }
+          }
+          set rule(str) {
+            // 检查传递的命名规则的合法性
+            // 为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}
+            const check =
+              str.includes('{id}') ||
+              (str.includes('{id_num}') && str.includes('{p_num}'))
+            if (!check) {
+              _MsgBox__WEBPACK_IMPORTED_MODULE_2__['msgBox'].error(
+                _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                  '_命名规则一定要包含id'
+                )
+              )
+            } else {
+              // 检查合法性通过
+              if (str) {
+                // 替换特殊字符
+                str = this.handleUserSetName(str)
+              } else {
+                str = this.generalRule
+              }
+              Object(_Settings__WEBPACK_IMPORTED_MODULE_5__['setSetting'])(
+                'userSetName',
+                str
+              )
+              if (
+                _Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                  .setNameRuleForEachPageType
+              ) {
+                _Settings__WEBPACK_IMPORTED_MODULE_5__[
+                  'settings'
+                ].nameRuleForEachPageType[
+                  _PageType__WEBPACK_IMPORTED_MODULE_3__['pageType'].type
+                ] = str
+                Object(_Settings__WEBPACK_IMPORTED_MODULE_5__['setSetting'])(
+                  'nameRuleForEachPageType',
+                  _Settings__WEBPACK_IMPORTED_MODULE_5__['settings']
+                    .nameRuleForEachPageType
+                )
+              }
+              this.setInputValue()
+            }
+          }
+          // 处理用命名规则的非法字符和非法规则
+          // 这里不必处理得非常详尽，因为在生成文件名时，还会对结果进行处理
+          // 测试用例：在作品页面内设置下面的命名规则，下载器会自动进行更正
+          // /{p_tag}/|/{user}////<//{rank}/{px}/{sl}/{p_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
+          handleUserSetName(str) {
+            // 替换命名规则里可能存在的非法字符
+            str = _utils_Utils__WEBPACK_IMPORTED_MODULE_4__[
+              'Utils'
+            ].replaceUnsafeStr(str)
+            // replaceUnsafeStr 会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
+            str = str.replace(/／/g, '/')
+            // 处理连续的 /
+            str = str.replace(/\/{2,100}/g, '/')
+            // 如果命名规则头部或者尾部是 / 则去掉
+            if (str.startsWith('/')) {
+              str = str.replace('/', '')
+            }
+            if (str.endsWith('/')) {
+              str = str.substr(0, str.length - 1)
+            }
+            return str
+          }
+        }
+        const nameRuleManager = new NameRuleManager()
+
+        /***/
+      },
+
     /***/ './src/ts/setting/Options.ts':
       /*!***********************************!*\
   !*** ./src/ts/setting/Options.ts ***!
@@ -22823,6 +23009,9 @@
         /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../Toast */ './src/ts/Toast.ts'
         )
+        /* harmony import */ var _NameRuleManager__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ./NameRuleManager */ './src/ts/setting/NameRuleManager.ts'
+        )
 
         // 保存和加载命名规则列表
         class SaveNamingRule {
@@ -22926,10 +23115,9 @@
           }
           select(rule) {
             this.ruleInput.value = rule
-            Object(_Settings__WEBPACK_IMPORTED_MODULE_4__['setSetting'])(
-              'userSetName',
-              rule
-            )
+            _NameRuleManager__WEBPACK_IMPORTED_MODULE_6__[
+              'nameRuleManager'
+            ].rule = rule
           }
           createList() {
             const htmlArr = []
@@ -23077,7 +23265,7 @@
               notNeedTag: [],
               quietDownload: true,
               downloadThread: 5,
-              userSetName: '{id}',
+              userSetName: '{p_title}/{id}',
               namingRuleList: [],
               tagNameToFileName: false,
               workDir: false,
@@ -23160,15 +23348,40 @@
               saveMetaType1: false,
               saveMetaType2: false,
               saveMetaType3: false,
+              setNameRuleForEachPageType: false,
+              nameRuleForEachPageType: {
+                '-1': '{p_title}/{id}',
+                0: '{p_title}/{id}',
+                1: '{p_title}/{id}',
+                2: '{user}/{id}',
+                3: '{p_title}/{id}',
+                4: '{p_title}/{id}',
+                5: '{p_tag}/{id}',
+                6: '{p_title}/{id}',
+                7: '{p_title}/{rank}-{id}',
+                8: '{p_title}/{id}',
+                9: '{p_title}/{id}',
+                10: '{p_title}/{id}',
+                11: '{p_title}/{id}',
+                12: '{p_title}/{id}',
+                13: '{p_title}/{id}',
+                14: '{user}/{series_title}/{series_order} {id}',
+                15: '{p_tag}/{id}',
+                16: '{p_title}/{rank}-{id}',
+                17: '{p_title}/{id}',
+                18: '{p_title}/{id}',
+                19: '{user}/{series_title}/{series_order} {id}',
+                20: '{p_title}/{id}',
+              },
             }
             this.allSettingKeys = Object.keys(this.defaultSettings)
             // 值为浮点数的选项
             this.floatNumberKey = ['userRatio', 'sizeMin', 'sizeMax']
             // 值为整数的选项不必单独列出
             // 值为数字数组的选项
-            this.numberArrayKey = ['wantPageArr']
+            this.numberArrayKeys = ['wantPageArr']
             // 值为字符串数组的选项
-            this.stringArrayKey = [
+            this.stringArrayKeys = [
               'namingRuleList',
               'blockList',
               'needTag',
@@ -23313,30 +23526,6 @@
               `${key}: Invalid value`
             )
           }
-          // 处理用户设置的命名规则，对一些非法情况进行处理。
-          // 这里不必处理得非常详尽，因为在生成文件名时，还会对结果进行处理
-          // 测试用例：在作品页面内使用下面的命名规则，会自动进行更正
-          // /{p_tag}/|/{user}////<//{rank}/{px}/{sl}/{p_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
-          handleUserSetName(val) {
-            // 命名规则为空时使用 {id}
-            let result = val || '{id}'
-            // 替换命名规则里可能存在的非法字符
-            result = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__[
-              'Utils'
-            ].replaceUnsafeStr(result)
-            // replaceUnsafeStr 会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
-            result = result.replace(/／/g, '/')
-            // 处理连续的 /
-            result = result.replace(/\/{2,100}/g, '/')
-            // 如果命名规则头部或者尾部是 / 则去掉
-            if (result.startsWith('/')) {
-              result = result.replace('/', '')
-            }
-            if (result.endsWith('/')) {
-              result = result.substr(0, result.length - 1)
-            }
-            return result
-          }
           // 更改设置项
           // 其他模块应该通过这个方法更改设置
           // 这里面有一些类型转换的代码，主要目的：
@@ -23386,8 +23575,9 @@
             if (keyType === 'boolean' && valueType !== 'boolean') {
               value = !!value
             }
+            // 处理数组类型的值
             if (Array.isArray(this.defaultSettings[key])) {
-              if (this.stringArrayKey.includes(key)) {
+              if (this.stringArrayKeys.includes(key)) {
                 // 字符串转换成 string[]
                 if (valueType === 'string') {
                   value = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__[
@@ -23395,7 +23585,7 @@
                   ].string2array(value)
                 }
               }
-              if (this.numberArrayKey.includes(key)) {
+              if (this.numberArrayKeys.includes(key)) {
                 // 把数组转换成 number[]
                 if (Array.isArray(value)) {
                   value = value.map((val) => {
@@ -23419,10 +23609,6 @@
             }
             if (key === 'setWidthAndOr' && value === '') {
               value = this.defaultSettings[key]
-            }
-            // 对命名规则进行合法化处理
-            if (key === 'userSetName') {
-              value = this.handleUserSetName(value)
             }
             // 更改设置
             this.settings[key] = value

@@ -6,7 +6,6 @@ import { Tools } from '../Tools'
 import { options } from '../setting/Options'
 import { store } from '../store/Store'
 import { Utils } from '../utils/Utils'
-import { form } from '../setting/Form'
 
 class InitPixivisionPage extends InitPageBase {
   constructor() {
@@ -78,10 +77,8 @@ class InitPixivisionPage extends InitPageBase {
       47,
       48,
       49,
+      50,
     ])
-
-    // pixivision 里，文件名只有部分标记会生效，所以把文件名规则替换成下面的预设
-    form.userSetName.value = '{p_title}/{id}'
   }
 
   protected nextStep() {

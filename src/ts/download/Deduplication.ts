@@ -10,6 +10,7 @@ import { Utils } from '../utils/Utils'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
 import { secretSignal } from '../utils/SecretSignal'
+import { nameRuleManager } from '../setting/NameRuleManager'
 
 interface Record {
   id: string
@@ -130,7 +131,7 @@ class Deduplication {
 
   // 生成一个下载记录
   private createRecord(resultId: string): Record {
-    let name = settings.userSetName
+    let name = nameRuleManager.rule
 
     // 查找这个抓取结果，获取其文件名
     for (const result of store.result) {

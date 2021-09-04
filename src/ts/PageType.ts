@@ -1,6 +1,7 @@
 import { EVT } from './EVT'
 
 // 所有页面类型及对应的数字编号
+// 可以通过 pageType.list 使用
 enum PageName {
   Unsupported = -1,
   Home,
@@ -129,4 +130,4 @@ class PageType {
 
 const pageType = new PageType()
 
-export { pageType }
+export { pageType, PageName }

@@ -141,22 +141,6 @@ class DownloadControl {
     })
   }
 
-  /**为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num} */
-  private checkNamingRule() {
-    if (
-      settings.userSetName.includes('{id}') ||
-      (settings.userSetName.includes('{id_num}') &&
-        settings.userSetName.includes('{p_num}'))
-    ) {
-      return true
-    } else {
-      msgBox.error(lang.transl('_命名规则一定要包含id'))
-      EVT.fire('openCenterPanel')
-      EVT.fire('downloadCancel')
-      return false
-    }
-  }
-
   private createDownloadArea() {
     const html = `<div class="download_area">
     <p> ${lang.transl(
@@ -259,11 +243,6 @@ class DownloadControl {
 
   // 开始下载
   private startDownload() {
-    // 检查命名规则里必须包含的标记
-    if (!this.checkNamingRule()) {
-      return false
-    }
-
     if (!this.pause && !resume.flag) {
       // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
       // 初始化下载状态列表

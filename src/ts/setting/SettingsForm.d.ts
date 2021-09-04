@@ -95,4 +95,5 @@ export interface SettingsForm extends HTMLFormElement {
   saveMetaType1: HTMLInputElement
   saveMetaType2: HTMLInputElement
   saveMetaType3: HTMLInputElement
+  setNameRuleForEachPageType: HTMLInputElement
 }

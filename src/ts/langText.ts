@@ -622,7 +622,7 @@ const langText = {
     '设置下载线程',
     '設定下載執行緒',
     'Set the download thread',
-    'ダウンロードスレッドを設定する',
+    'ダンロードスレッドの設定',
   ],
   _线程数字: [
     `可以输入 1-${Config.downloadThreadMax} 之间的数字，设置同时下载的数量`,
@@ -1077,7 +1077,7 @@ const langText = {
     '第一张图不带序号',
     '第一張圖片不包含序號',
     'The first picture without a serial number',
-    '最初のイメージの番号を削除します',
+    '最初のイメージの番号を削除',
   ],
   _第一张图不带序号说明: [
     '去掉每个作品第一张图的序号。例如 80036479_p0 变成 80036479',
@@ -1581,7 +1581,7 @@ const langText = {
     '根据作品类型自动创建文件夹',
     '根據作品類型自動建立資料夾',
     'Create folders based on the type of work',
-    '作品種類に応じてフォルダを自動作成します',
+    '作品種類に応じてフォルダを自動作成',
   ],
   _使用第一个匹配的tag建立文件夹: [
     '使用第一个匹配的 tag 建立文件夹',
@@ -1673,10 +1673,10 @@ const langText = {
     'この制限を超えたマルチ作品はダウンロードされません',
   ],
   _whatisnew: [
-    '优化设置：为每个作品创建单独的文件夹<br>在这个设置里可以使用命名规则了。<br><br>在系列小说页面添加了新的功能按钮：合并系列小说<br>这个功能可以把系列中的多个小说合并到一个文件中。<br><br>新增选项：保存作品的元数据',
-    '最佳化設定：為每個作品建立單獨的資料夾<br>在這個設定裡可以使用命名規則了。<br><br>在系列小說頁面添加了新的功能按鈕：合併系列小說<br>這個功能可以把系列中的多個小說合併到一個檔案中。<br><br>新增選項：儲存作品的元資料',
-    'Optimized settings: Create a separate folder for each work<br>In this setting, you can use naming rules.<br><br>A new function button has been added to the series novel page: Merge series novels<br>This function can merge multiple novels in the series into one file.<br><br>New option: save the metadata of the work',
-    '最適化された設定：作品ごとに個別のフォルダーを作成します<br>この設定では、命名規則を使用できます。<br><br>シリーズ小説ページに新しい機能ボタンが追加されました。シリーズ小説の統合<br>この機能は、シリーズ内の複数の小説を1つのファイルにマージできます。<br><br>新しいオプション：作品のメタデータを保存する',
+    '新增设置项：<br>在不同的页面类型中使用不同的命名规则',
+    '新增設定項目：<br>在不同的頁面型別中使用不同的命名規則',
+    'Added setting items:<br>Use different naming rules in different page types',
+    '新たな機能を追加されました：<br>さまざまなページタイプでさまざまな命名規則を使用する',
   ],
   _在搜索页面添加快捷搜索区域: [
     '在搜索页面添加快捷搜索区域',
@@ -1695,6 +1695,12 @@ const langText = {
     '為每個作品建立一個 txt 檔案儲存它的元資料',
     'Create a txt file for each work to save its metadata',
     '作品ごとに txt ファイルを作成して、メタデータを保存します',
+  ],
+  _在不同的页面类型中使用不同的命名规则: [
+    '在不同的页面类型中使用不同的命名规则',
+    '在不同的頁面型別中使用不同的命名規則',
+    'Use different naming rules in different page types',
+    'ページの種類によって異なる命名規則を使用',
   ],
 }
 

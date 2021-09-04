@@ -17,7 +17,14 @@ export interface BlockTagsForSpecificUserItem {
   tags: string[]
 }
 
-type SettingValue = string | number | boolean | string[] | number[] | object[]
+type SettingValue =
+  | string
+  | number
+  | boolean
+  | string[]
+  | number[]
+  | object[]
+  | { [key: number]: string }
 
 export interface SettingChangeData {
   name: SettingsKeys
@@ -138,6 +145,13 @@ interface XzSetting {
   saveMetaType1: boolean
   saveMetaType2: boolean
   saveMetaType3: boolean
+  /** 为每个页面类型设置不同的命名规则的开关 */
+  setNameRuleForEachPageType: boolean
+  /** 每个页面类型所使用的命名规则 */
+  // 这里应该使用 Map 结构，但是 JSON.stringify 不能处理 Map 类型，所以简化成了 Object
+  nameRuleForEachPageType: {
+    [key: number]: string
+  }
 }
 
 type SettingsKeys = keyof XzSetting
@@ -198,7 +212,7 @@ class Settings {
     notNeedTag: [],
     quietDownload: true,
     downloadThread: 5,
-    userSetName: '{id}',
+    userSetName: '{p_title}/{id}',
     namingRuleList: [],
     tagNameToFileName: false,
     workDir: false,
@@ -279,6 +293,31 @@ class Settings {
     saveMetaType1: false,
     saveMetaType2: false,
     saveMetaType3: false,
+    setNameRuleForEachPageType: false,
+    nameRuleForEachPageType: {
+      '-1': '{p_title}/{id}',
+      '0': '{p_title}/{id}',
+      '1': '{p_title}/{id}',
+      '2': '{user}/{id}',
+      '3': '{p_title}/{id}',
+      '4': '{p_title}/{id}',
+      '5': '{p_tag}/{id}',
+      '6': '{p_title}/{id}',
+      '7': '{p_title}/{rank}-{id}',
+      '8': '{p_title}/{id}',
+      '9': '{p_title}/{id}',
+      '10': '{p_title}/{id}',
+      '11': '{p_title}/{id}',
+      '12': '{p_title}/{id}',
+      '13': '{p_title}/{id}',
+      '14': '{user}/{series_title}/{series_order} {id}',
+      '15': '{p_tag}/{id}',
+      '16': '{p_title}/{rank}-{id}',
+      '17': '{p_title}/{id}',
+      '18': '{p_title}/{id}',
+      '19': '{user}/{series_title}/{series_order} {id}',
+      '20': '{p_title}/{id}',
+    },
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -289,10 +328,10 @@ class Settings {
   // 值为整数的选项不必单独列出
 
   // 值为数字数组的选项
-  private numberArrayKey = ['wantPageArr']
+  private numberArrayKeys = ['wantPageArr']
 
   // 值为字符串数组的选项
-  private stringArrayKey = [
+  private stringArrayKeys = [
     'namingRuleList',
     'blockList',
     'needTag',
@@ -407,33 +446,6 @@ class Settings {
     msgBox.error(`${key}: Invalid value`)
   }
 
-  // 处理用户设置的命名规则，对一些非法情况进行处理。
-  // 这里不必处理得非常详尽，因为在生成文件名时，还会对结果进行处理
-  // 测试用例：在作品页面内使用下面的命名规则，会自动进行更正
-  // /{p_tag}/|/{user}////<//{rank}/{px}/{sl}/{p_tag}///{id}-{user}-{user_id}""-?{tags_transl_only}////
-  private handleUserSetName(val: string) {
-    // 命名规则为空时使用 {id}
-    let result = val || '{id}'
-
-    // 替换命名规则里可能存在的非法字符
-    result = Utils.replaceUnsafeStr(result)
-    // replaceUnsafeStr 会把斜线 / 替换成全角的斜线 ／，这里再替换回来，否则就不能建立文件夹了
-    result = result.replace(/／/g, '/')
-
-    // 处理连续的 /
-    result = result.replace(/\/{2,100}/g, '/')
-
-    // 如果命名规则头部或者尾部是 / 则去掉
-    if (result.startsWith('/')) {
-      result = result.replace('/', '')
-    }
-    if (result.endsWith('/')) {
-      result = result.substr(0, result.length - 1)
-    }
-
-    return result
-  }
-
   // 更改设置项
   // 其他模块应该通过这个方法更改设置
   // 这里面有一些类型转换的代码，主要目的：
@@ -488,15 +500,16 @@ class Settings {
       value = !!value
     }
 
+    // 处理数组类型的值
     if (Array.isArray(this.defaultSettings[key])) {
-      if (this.stringArrayKey.includes(key)) {
+      if (this.stringArrayKeys.includes(key)) {
         // 字符串转换成 string[]
         if (valueType === 'string') {
           value = Utils.string2array(value as string)
         }
       }
 
-      if (this.numberArrayKey.includes(key)) {
+      if (this.numberArrayKeys.includes(key)) {
         // 把数组转换成 number[]
         if (Array.isArray(value)) {
           value = (value as any[]).map((val: string | number) => {
@@ -523,11 +536,6 @@ class Settings {
 
     if (key === 'setWidthAndOr' && value === '') {
       value = this.defaultSettings[key]
-    }
-
-    // 对命名规则进行合法化处理
-    if (key === 'userSetName') {
-      value = this.handleUserSetName(value as string)
     }
 
     // 更改设置
