@@ -39,7 +39,7 @@ abstract class InitPageBase {
 
   protected crawlStopped = false // 抓取是否已停止
 
-  // 子组件不可以修改 init 方法，只可以f里面的方法
+  // 子组件不可以修改 init 方法
   protected init() {
     this.setFormOption()
     this.addCrawlBtns()

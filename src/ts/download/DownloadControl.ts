@@ -104,6 +104,11 @@ class DownloadControl {
       this.downloadError(id)
     })
 
+    window.addEventListener(EVT.list.requestPauseDownload, (ev) => {
+      // 请求暂停下载
+      this.pauseDownload()
+    })
+
     // 监听浏览器返回的消息
     chrome.runtime.onMessage.addListener((msg: DownloadedMsg) => {
       if (!this.taskBatch) {

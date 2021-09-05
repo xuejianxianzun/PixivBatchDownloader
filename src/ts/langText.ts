@@ -1715,6 +1715,12 @@ const langText = {
     'Hidden settings will still work',
     '隠していた設定がそのまま機能する',
   ],
+  _系统磁盘空间不足提醒: [
+    '下载时发生错误，可能的原因：<br>系统磁盘的剩余空间可能不足。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。',
+    '下載時發生錯誤，可能的原因：<br>系統磁碟的剩餘空間可能不足。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。',
+    'An error occurred while downloading, possible causes：<br>The remaining space of the system disk may be too low. Please try to clear the system disk space, and then restart the browser to continue the unfinished download.',
+    'ダウンロード中にエラーが発生しました、考えられる原因<br>「システムディスクに領域不足の可能性があります。システムディスクの領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。」',
+  ],
 }
 
 export { langText }

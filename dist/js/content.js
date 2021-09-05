@@ -1520,6 +1520,8 @@
               downloadStart: 'downloadStart',
               // 下载状态变成暂停时触发
               downloadPause: 'downloadPause',
+              // 请求停止下载
+              requestPauseDownload: 'requestPauseDownload',
               // 下载状态变成停止时触发
               downloadStop: 'downloadStop',
               // 当文件在下载阶段下载失败时触发
@@ -4907,6 +4909,12 @@
             'Hidden settings will still work',
             '隠していた設定がそのまま機能する',
           ],
+          _系统磁盘空间不足提醒: [
+            '下载时发生错误，可能的原因：<br>系统磁盘的剩余空间可能不足。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。',
+            '下載時發生錯誤，可能的原因：<br>系統磁碟的剩餘空間可能不足。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。',
+            'An error occurred while downloading, possible causes：<br>The remaining space of the system disk may be too low. Please try to clear the system disk space, and then restart the browser to continue the unfinished download.',
+            'ダウンロード中にエラーが発生しました、考えられる原因<br>「システムディスクに領域不足の可能性があります。システムディスクの領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。」',
+          ],
         }
 
         /***/
@@ -7378,7 +7386,7 @@
             this.finishedRequest = 0 // 抓取作品之后，如果 id 队列为空，则统计有几个并发线程完成了请求。当这个数量等于 ajaxThreads 时，说明所有请求都完成了
             this.crawlStopped = false // 抓取是否已停止
           }
-          // 子组件不可以修改 init 方法，只可以f里面的方法
+          // 子组件不可以修改 init 方法
           init() {
             this.setFormOption()
             this.addCrawlBtns()
@@ -14168,12 +14176,17 @@
         /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
           /*! ../config/Config */ './src/ts/config/Config.ts'
         )
+        /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
+          /*! ../MsgBox */ './src/ts/MsgBox.ts'
+        )
         // 下载文件，然后发送给浏览器进行保存
 
         class Download {
           constructor(progressBarIndex, data) {
             this.fileName = ''
             this.retry = 0 // 重试次数
+            this.lastRequestTime = 0 // 最后一次发起请求的时间戳
+            this.retryInterval = [] // 保存每次到达重试环节时，距离上一次请求的时间差
             this.cancel = false // 这个下载是否被取消（下载被停止，或者这个文件没有通过某个检查）
             this.sizeChecked = false // 是否对文件体积进行了检查
             this.progressBarIndex = progressBarIndex
@@ -14219,6 +14232,29 @@
                 id: fileId,
                 reason: status.toString(),
               })
+            }
+            // 状态码为 0 ，可能是系统磁盘空间不足导致的错误，也可能是超时等错误
+            if (status === 0) {
+              // 判断是否是磁盘空间不足。特征是每次重试之间的间隔时间比较短。
+              // 超时的特征是等待时间比较长，可能超过 20 秒
+              const timeLimit = 10000 // 如果从发起请求到进入重试的时间间隔小于这个值，则视为磁盘空间不足的情况
+              const result = this.retryInterval.filter(
+                (val) => val <= timeLimit
+              )
+              // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就认为是磁盘空间不足。
+              if (result.length > 9) {
+                _Log__WEBPACK_IMPORTED_MODULE_1__['log'].error(
+                  `Error: ${fileId} Code: ${status}`
+                )
+                const tip = _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                  '_系统磁盘空间不足提醒'
+                )
+                _Log__WEBPACK_IMPORTED_MODULE_1__['log'].error(tip)
+                _MsgBox__WEBPACK_IMPORTED_MODULE_12__['msgBox'].error(tip)
+                return _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire(
+                  'requestPauseDownload'
+                )
+              }
             }
             // 其他状态码，暂时跳过这个任务，但最后还是会尝试重新下载它
             this.cancel = true
@@ -14311,9 +14347,13 @@
                 return
               }
               let file = xhr.response // 要下载的文件
+              // 状态码错误，进入重试流程
               if (xhr.status !== 200) {
-                // 状态码错误，进入重试流程
                 // 正常下载完毕的状态码是 200
+                // 储存重试的时间戳等信息
+                this.retryInterval.push(
+                  new Date().getTime() - this.lastRequestTime
+                )
                 _ProgressBar__WEBPACK_IMPORTED_MODULE_5__[
                   'progressBar'
                 ].errorColor(this.progressBarIndex, true)
@@ -14323,9 +14363,10 @@
                   _config_Config__WEBPACK_IMPORTED_MODULE_11__['Config']
                     .retryMax
                 ) {
-                  // 重试达到最大次数依然错误
+                  // 重试达到最大次数
                   this.afterReTryMax(xhr.status, arg.id)
                 } else {
+                  // 开始重试
                   return this.download(arg)
                 }
               } else {
@@ -14439,7 +14480,8 @@
               xhr = null
               file = null
             })
-            // 没有设置 timeout，因为默认值是 0，不会超时
+            this.lastRequestTime = new Date().getTime()
+            // 没有设置 timeout，默认值是 0，不会超时
             xhr.send()
           }
           // 向浏览器发送下载任务
@@ -14600,6 +14642,14 @@
               (ev) => {
                 const id = ev.detail.data
                 this.downloadError(id)
+              }
+            )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list
+                .requestPauseDownload,
+              (ev) => {
+                // 请求暂停下载
+                this.pauseDownload()
               }
             )
             // 监听浏览器返回的消息

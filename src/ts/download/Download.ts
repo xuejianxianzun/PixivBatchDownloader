@@ -16,6 +16,7 @@ import { settings } from '../setting/Settings'
 import { MakeNovelFile } from './MakeNovelFile'
 import { Utils } from '../utils/Utils'
 import { Config } from '../config/Config'
+import { msgBox } from '../MsgBox'
 
 class Download {
   constructor(progressBarIndex: number, data: downloadArgument) {
@@ -27,7 +28,10 @@ class Download {
 
   private progressBarIndex: number
   private fileName = ''
+
   private retry = 0 // 重试次数
+  private lastRequestTime = 0 // 最后一次发起请求的时间戳
+  private retryInterval: number[] = [] // 保存每次到达重试环节时，距离上一次请求的时间差
 
   private cancel = false // 这个下载是否被取消（下载被停止，或者这个文件没有通过某个检查）
 
@@ -68,6 +72,22 @@ class Download {
         id: fileId,
         reason: status.toString() as '404' | '500',
       })
+    }
+
+    // 状态码为 0 ，可能是系统磁盘空间不足导致的错误，也可能是超时等错误
+    if (status === 0) {
+      // 判断是否是磁盘空间不足。特征是每次重试之间的间隔时间比较短。
+      // 超时的特征是等待时间比较长，可能超过 20 秒
+      const timeLimit = 10000 // 如果从发起请求到进入重试的时间间隔小于这个值，则视为磁盘空间不足的情况
+      const result = this.retryInterval.filter((val) => val <= timeLimit)
+      // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就认为是磁盘空间不足。
+      if (result.length > 9) {
+        log.error(`Error: ${fileId} Code: ${status}`)
+        const tip = lang.transl('_系统磁盘空间不足提醒')
+        log.error(tip)
+        msgBox.error(tip)
+        return EVT.fire('requestPauseDownload')
+      }
     }
 
     // 其他状态码，暂时跳过这个任务，但最后还是会尝试重新下载它
@@ -150,16 +170,20 @@ class Download {
       }
 
       let file: Blob = xhr.response // 要下载的文件
-
+      // 状态码错误，进入重试流程
       if (xhr.status !== 200) {
-        // 状态码错误，进入重试流程
         // 正常下载完毕的状态码是 200
+        // 储存重试的时间戳等信息
+        this.retryInterval.push(new Date().getTime() - this.lastRequestTime)
+
         progressBar.errorColor(this.progressBarIndex, true)
         this.retry++
+
         if (this.retry >= Config.retryMax) {
-          // 重试达到最大次数依然错误
+          // 重试达到最大次数
           this.afterReTryMax(xhr.status, arg.id)
         } else {
+          // 开始重试
           return this.download(arg)
         }
       } else {
@@ -251,7 +275,9 @@ class Download {
       xhr = null as any
       file = null as any
     })
-    // 没有设置 timeout，因为默认值是 0，不会超时
+
+    this.lastRequestTime = new Date().getTime()
+    // 没有设置 timeout，默认值是 0，不会超时
     xhr.send()
   }
 

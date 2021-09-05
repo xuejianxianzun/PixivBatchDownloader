@@ -47,6 +47,8 @@ class EVENT {
     downloadStart: 'downloadStart',
     // 下载状态变成暂停时触发
     downloadPause: 'downloadPause',
+    // 请求停止下载
+    requestPauseDownload: 'requestPauseDownload',
     // 下载状态变成停止时触发
     downloadStop: 'downloadStop',
     // 当文件在下载阶段下载失败时触发
@@ -158,6 +160,7 @@ class EVENT {
       | 'downloadCancel'
       | 'downloadStart'
       | 'downloadPause'
+      | 'requestPauseDownload'
       | 'downloadStop'
       | 'saveFileError'
       | 'downloadComplete'
