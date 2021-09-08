@@ -110,6 +110,52 @@ class FileName {
     return str
   }
 
+  // 传入命名规则和所有标记，生成文件名
+  private generateFileName(rule: string, cfg: Object) {
+    let result = rule
+    // 把命名规则里的标记替换成实际值
+    for (const [key, val] of Object.entries(cfg)) {
+      if (rule.includes(key)) {
+        // 空值替换成空字符串
+        let temp = val.value ?? ''
+
+        // 如果这个值不是字符串类型则转换为字符串
+        temp = typeof temp !== 'string' ? temp.toString() : temp
+
+        // 替换不可以作为文件名的特殊字符
+        if (!val.safe) {
+          temp = Utils.replaceUnsafeStr(temp)
+        }
+
+        // 添加标记前缀
+        if (settings.tagNameToFileName) {
+          temp = val.prefix + temp
+        }
+
+        // 将标记替换成结果，如果有重复的标记，全部替换
+        result = result.replace(new RegExp(key, 'g'), temp)
+      }
+    }
+
+    // 处理文件名里的一些边界情况
+
+    // 如果文件名开头不可用的特殊字符
+    result = this.removeStartChar(result)
+    // 测试用例
+    // const testStr = ' / / {p_tag} / {p_title} /{id}-{user}'
+    // console.log(this.removeStartChar(testStr))
+
+    // 如果文件名的尾部是 / 则去掉
+    if (result.endsWith('/')) {
+      result = result.substr(0, result.length - 1)
+    }
+
+    // 处理连续的 /
+    result = result.replace(/\/{2,100}/g, '/')
+
+    return result
+  }
+
   // 传入一个抓取结果，获取其文件名
   public getFileName(data: Result) {
     // 命名规则
@@ -251,57 +297,10 @@ class FileName {
       },
     }
 
-    // 2 生成文件名的函数
-    // 传入命名规则，返回生成的文件名
-    const generateFileName = (rule: string) => {
-      let result = rule
-      // 把命名规则里的标记替换成实际值
-      for (const [key, val] of Object.entries(cfg)) {
-        if (rule.includes(key)) {
-          // 空值替换成空字符串
-          let temp = val.value ?? ''
+    // 2 生成文件名
+    let result = this.generateFileName(userSetName, cfg)
 
-          // 如果这个值不是字符串类型则转换为字符串
-          temp = typeof temp !== 'string' ? temp.toString() : temp
-
-          // 替换不可以作为文件名的特殊字符
-          if (!val.safe) {
-            temp = Utils.replaceUnsafeStr(temp)
-          }
-
-          // 添加标记前缀
-          if (settings.tagNameToFileName) {
-            temp = val.prefix + temp
-          }
-
-          // 将标记替换成结果，如果有重复的标记，全部替换
-          result = result.replace(new RegExp(key, 'g'), temp)
-        }
-      }
-
-      // 处理文件名里的一些边界情况
-
-      // 如果文件名开头不可用的特殊字符
-      result = this.removeStartChar(result)
-      // 测试用例
-      // const testStr = ' / / {p_tag} / {p_title} /{id}-{user}'
-      // console.log(this.removeStartChar(testStr))
-
-      // 如果文件名的尾部是 / 则去掉
-      if (result.endsWith('/')) {
-        result = result.substr(0, result.length - 1)
-      }
-
-      // 处理连续的 /
-      result = result.replace(/\/{2,100}/g, '/')
-
-      return result
-    }
-
-    // 3 生成文件名
-    let result = generateFileName(userSetName)
-
-    // 4 根据某些设置向结果中添加新的文件夹
+    // 3 根据某些设置向结果中添加新的文件夹
     // 注意：添加文件夹的顺序会影响文件夹的层级，所以不可随意更改顺序
 
     // 根据作品类型自动创建对应的文件夹
@@ -352,7 +351,7 @@ class FileName {
 
     // 为每个作品创建单独的文件夹
     if (createFolderForEachWork) {
-      const workDirName = generateFileName(settings.workDirNameRule)
+      const workDirName = this.generateFileName(settings.workDirNameRule, cfg)
       // 生成文件名。由于用户可能会添加斜线来建立多层路径，所以需要循环添加每个路径
       const allPath = workDirName.split('/')
       for (const path of allPath) {
@@ -362,7 +361,7 @@ class FileName {
       }
     }
 
-    // 5 文件夹部分和文件名已经全部生成完毕，处理一些边界情况
+    // 4 文件夹部分和文件名已经全部生成完毕，处理一些边界情况
 
     // 处理连续的 / 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
     result = result.replace(/\/{2,100}/g, '/')
@@ -385,7 +384,7 @@ class FileName {
 
     result = pathArray.join('/')
 
-    // 6 生成后缀名
+    // 5 生成后缀名
     // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
     if (
       this.ugoiraExt.includes(data.ext) &&
@@ -401,7 +400,7 @@ class FileName {
     }
     const extResult = '.' + data.ext
 
-    // 7 文件名长度限制
+    // 6 文件名长度限制
     // 去掉文件夹部分，只处理 文件名+后缀名 部分
     // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
     if (settings.fileNameLengthLimitSwitch) {
@@ -419,10 +418,10 @@ class FileName {
       result = allPart.join('/')
     }
 
-    // 8 添加后缀名
+    // 7 添加后缀名
     result += extResult
 
-    // 9 返回结果
+    // 8 返回结果
     return result
   }
 }

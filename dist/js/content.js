@@ -1815,6 +1815,48 @@
             }
             return str
           }
+          // 传入命名规则和所有标记，生成文件名
+          generateFileName(rule, cfg) {
+            var _a
+            let result = rule
+            // 把命名规则里的标记替换成实际值
+            for (const [key, val] of Object.entries(cfg)) {
+              if (rule.includes(key)) {
+                // 空值替换成空字符串
+                let temp = (_a = val.value) !== null && _a !== void 0 ? _a : ''
+                // 如果这个值不是字符串类型则转换为字符串
+                temp = typeof temp !== 'string' ? temp.toString() : temp
+                // 替换不可以作为文件名的特殊字符
+                if (!val.safe) {
+                  temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__[
+                    'Utils'
+                  ].replaceUnsafeStr(temp)
+                }
+                // 添加标记前缀
+                if (
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
+                    .tagNameToFileName
+                ) {
+                  temp = val.prefix + temp
+                }
+                // 将标记替换成结果，如果有重复的标记，全部替换
+                result = result.replace(new RegExp(key, 'g'), temp)
+              }
+            }
+            // 处理文件名里的一些边界情况
+            // 如果文件名开头不可用的特殊字符
+            result = this.removeStartChar(result)
+            // 测试用例
+            // const testStr = ' / / {p_tag} / {p_title} /{id}-{user}'
+            // console.log(this.removeStartChar(testStr))
+            // 如果文件名的尾部是 / 则去掉
+            if (result.endsWith('/')) {
+              result = result.substr(0, result.length - 1)
+            }
+            // 处理连续的 /
+            result = result.replace(/\/{2,100}/g, '/')
+            return result
+          }
           // 传入一个抓取结果，获取其文件名
           getFileName(data) {
             // 命名规则
@@ -1982,53 +2024,9 @@
                 safe: true,
               },
             }
-            // 2 生成文件名的函数
-            // 传入命名规则，返回生成的文件名
-            const generateFileName = (rule) => {
-              var _a
-              let result = rule
-              // 把命名规则里的标记替换成实际值
-              for (const [key, val] of Object.entries(cfg)) {
-                if (rule.includes(key)) {
-                  // 空值替换成空字符串
-                  let temp =
-                    (_a = val.value) !== null && _a !== void 0 ? _a : ''
-                  // 如果这个值不是字符串类型则转换为字符串
-                  temp = typeof temp !== 'string' ? temp.toString() : temp
-                  // 替换不可以作为文件名的特殊字符
-                  if (!val.safe) {
-                    temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__[
-                      'Utils'
-                    ].replaceUnsafeStr(temp)
-                  }
-                  // 添加标记前缀
-                  if (
-                    _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
-                      .tagNameToFileName
-                  ) {
-                    temp = val.prefix + temp
-                  }
-                  // 将标记替换成结果，如果有重复的标记，全部替换
-                  result = result.replace(new RegExp(key, 'g'), temp)
-                }
-              }
-              // 处理文件名里的一些边界情况
-              // 如果文件名开头不可用的特殊字符
-              result = this.removeStartChar(result)
-              // 测试用例
-              // const testStr = ' / / {p_tag} / {p_title} /{id}-{user}'
-              // console.log(this.removeStartChar(testStr))
-              // 如果文件名的尾部是 / 则去掉
-              if (result.endsWith('/')) {
-                result = result.substr(0, result.length - 1)
-              }
-              // 处理连续的 /
-              result = result.replace(/\/{2,100}/g, '/')
-              return result
-            }
-            // 3 生成文件名
-            let result = generateFileName(userSetName)
-            // 4 根据某些设置向结果中添加新的文件夹
+            // 2 生成文件名
+            let result = this.generateFileName(userSetName, cfg)
+            // 3 根据某些设置向结果中添加新的文件夹
             // 注意：添加文件夹的顺序会影响文件夹的层级，所以不可随意更改顺序
             // 根据作品类型自动创建对应的文件夹
             if (
@@ -2103,9 +2101,10 @@
             }
             // 为每个作品创建单独的文件夹
             if (createFolderForEachWork) {
-              const workDirName = generateFileName(
+              const workDirName = this.generateFileName(
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
-                  .workDirNameRule
+                  .workDirNameRule,
+                cfg
               )
               // 生成文件名。由于用户可能会添加斜线来建立多层路径，所以需要循环添加每个路径
               const allPath = workDirName.split('/')
@@ -2115,7 +2114,7 @@
                 }
               }
             }
-            // 5 文件夹部分和文件名已经全部生成完毕，处理一些边界情况
+            // 4 文件夹部分和文件名已经全部生成完毕，处理一些边界情况
             // 处理连续的 / 有时候两个斜线中间的字段是空值，最后就变成两个斜线挨在一起了
             result = result.replace(/\/{2,100}/g, '/')
             // 对每一层路径和文件名进行处理
@@ -2132,7 +2131,7 @@
               pathArray[i] = str
             }
             result = pathArray.join('/')
-            // 6 生成后缀名
+            // 5 生成后缀名
             // 如果是动图，那么此时根据用户设置的动图保存格式，更新其后缀名
             if (
               this.ugoiraExt.includes(data.ext) &&
@@ -2154,7 +2153,7 @@
                 ].novelSaveAs
             }
             const extResult = '.' + data.ext
-            // 7 文件名长度限制
+            // 6 文件名长度限制
             // 去掉文件夹部分，只处理 文件名+后缀名 部分
             // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
             if (
@@ -2174,9 +2173,9 @@
               }
               result = allPart.join('/')
             }
-            // 8 添加后缀名
+            // 7 添加后缀名
             result += extResult
-            // 9 返回结果
+            // 8 返回结果
             return result
           }
         }
@@ -19028,8 +19027,8 @@
         /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
           /*! ../Theme */ './src/ts/Theme.ts'
         )
-        /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
-          /*! ../Toast */ './src/ts/Toast.ts'
+        /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../MsgBox */ './src/ts/MsgBox.ts'
         )
 
         // 输出面板
@@ -19113,37 +19112,29 @@
           }
           // 输出内容
           output(data) {
-            // 如果结果较多，则不直接输出，改为保存 txt 文件
             if (
-              _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length >
+              _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length <
               _config_Config__WEBPACK_IMPORTED_MODULE_4__['Config'].outputMax
             ) {
-              const con = data.content.replace(/<br>/g, '\n') // 替换换行符
-              const file = new Blob([con], {
+              this.copyBtn.disabled = false
+              this.outputTitle.textContent = data.title
+              this.outputContent.innerHTML = data.content
+              this.outputPanel.style.display = 'block'
+            } else {
+              // 如果结果较多，则不直接输出，改为保存 txt 文件
+              const file = new Blob([data.content], {
                 type: 'text/plain',
               })
               const url = URL.createObjectURL(file)
-              const fileName = new Date().toLocaleString() + '.txt'
+              const fileName = `Output-${new Date().toLocaleString()}.txt`
               _utils_Utils__WEBPACK_IMPORTED_MODULE_3__['Utils'].downloadFile(
                 url,
                 fileName
               )
-              // 禁用复制按钮
               this.copyBtn.disabled = true
-              data.content = _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                '_输出内容太多已经为你保存到文件'
-              )
-            } else {
-              this.copyBtn.disabled = false
-            }
-            if (data.content) {
-              this.outputContent.innerHTML = data.content
-              this.outputPanel.style.display = 'block'
-              this.outputTitle.textContent = data.title
-            } else {
-              return _Toast__WEBPACK_IMPORTED_MODULE_6__['toast'].error(
+              _MsgBox__WEBPACK_IMPORTED_MODULE_6__['msgBox'].warning(
                 _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                  '_没有数据可供使用'
+                  '_输出内容太多已经为你保存到文件'
                 )
               )
             }
@@ -19152,6 +19143,9 @@
           close() {
             this.outputPanel.style.display = 'none'
             this.outputContent.innerHTML = ''
+            this.outputTitle.innerText = _Lang__WEBPACK_IMPORTED_MODULE_1__[
+              'lang'
+            ].transl('_输出信息')
           }
         }
         new OutputPanel()
@@ -19213,55 +19207,66 @@
             }
             // 使用数组储存和拼接字符串，提高性能
             const resultArr = []
+            let result = ''
             const length =
               _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].result.length
-            for (let i = 0; i < length; i++) {
-              const data =
-                _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].result[i]
-              // 为默认文件名添加颜色。默认文件名有两种处理方式，一种是取出用其他下载软件下载后的默认文件名，一种是取出本程序使用的默认文件名 data.id。这里使用前者，方便用户用其他下载软件下载后，再用生成的文件名重命名。
-              let nowResult = ''
-              let defaultName = ''
-              const fullName = _FileName__WEBPACK_IMPORTED_MODULE_2__[
-                'fileName'
-              ].getFileName(data)
-              if (data.type !== 3) {
-                // 对于图片作品，在文件名前面显示文件 url 里的文件名
-                defaultName = data.original.replace(/.*\//, '')
-                nowResult = `${defaultName}: ${fullName}<br>`
-              } else {
-                // 小说作品不显示原文件名（因为没有此数据）
-                nowResult = `${fullName}<br>`
-              }
-              if (
-                length <
-                _config_Config__WEBPACK_IMPORTED_MODULE_4__['Config'].outputMax
-              ) {
-                // 为生成的文件名添加颜色。只有当文件数量少于一定数值时才添加颜色。这是因为添加颜色会导致生成的 HTML 元素数量增多，复制时资源占用增加。有些用户电脑配置差，如果生成的结果很多，还添加了颜色，可能复制时会导致这个页面卡死。
-                const defaultNameHtml = `<span class="color999">${defaultName}</span>`
-                const part = fullName.split('/')
+            if (
+              length <
+              _config_Config__WEBPACK_IMPORTED_MODULE_4__['Config'].outputMax
+            ) {
+              // 输出结果，添加 html 标签
+              for (let i = 0; i < length; i++) {
+                const data =
+                  _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].result[i]
+                // 生成文件名，并为文件名添加颜色显示
+                // 只有当文件数量少于限制值时才添加颜色。这是因为添加颜色会导致生成的 HTML 元素数量增多，渲染和复制时的资源占用增多
+                const part = _FileName__WEBPACK_IMPORTED_MODULE_2__['fileName']
+                  .getFileName(data)
+                  .split('/')
                 const length = part.length
                 for (let i = 0; i < length; i++) {
                   const str = part[i]
                   if (i < length - 1) {
-                    // 如果不是最后一项，说明是文件夹名，添加颜色
-                    part[i] = `<span class="color666">${str}</span>`
+                    // 如果不是最后一项，说明是文件夹名，添加特定的颜色
+                    part[i] = `<span class="colorFolder">${str}</span>`
                   } else {
-                    // 最后一项，是文件名，添加颜色
+                    // 最后一项是文件名，设置为黑色
                     part[i] = `<span class="color000">${str}</span>`
                   }
                 }
                 const fullNameHtml = part.join('/')
-                if (defaultName) {
-                  nowResult = `<p class="result">${defaultNameHtml}: ${fullNameHtml}</p>`
+                if (data.type !== 3) {
+                  // 对于图片作品，在文件名前面显示默认文件名
+                  // 默认文件名有两种选择，一种是使用 url 里的文件名，一种是使用 data.id。这里使用前者，方便用户用其他下载软件下载后，复制输出的内容制作重命名脚本
+                  const defaultName = data.original.replace(/.*\//, '')
+                  const nowResult = `<p class="result"><span class="color999">${defaultName}</span>: ${fullNameHtml}</p>`
+                  resultArr.push(nowResult)
                 } else {
-                  nowResult = `<p class="result">${fullNameHtml}</p>`
+                  // 小说作品不显示原文件名（因为没有此数据）
+                  const nowResult = `<p class="result">${fullNameHtml}</p>`
+                  resultArr.push(nowResult)
                 }
               }
-              // 保存本条结果
-              resultArr.push(nowResult)
+              result = resultArr.join('')
+            } else {
+              // 不生成 html 标签，只生成纯文本，保存为 txt 文件
+              for (let i = 0; i < length; i++) {
+                const data =
+                  _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].result[i]
+                const fullName = _FileName__WEBPACK_IMPORTED_MODULE_2__[
+                  'fileName'
+                ].getFileName(data)
+                if (data.type !== 3) {
+                  // 图片作品，在文件名前面显示文件 url 里的文件名
+                  let defaultName = data.original.replace(/.*\//, '')
+                  resultArr.push(`${defaultName}: ${fullName}`)
+                } else {
+                  // 小说作品不显示原文件名（因为没有此数据）
+                  resultArr.push(fullName)
+                }
+              }
+              result = resultArr.join('\n')
             }
-            // 拼接所有结果
-            const result = resultArr.join('')
             _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire('output', {
               content: result,
               title: _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
@@ -19298,6 +19303,9 @@
         /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ../Toast */ './src/ts/Toast.ts'
         )
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../config/Config */ './src/ts/config/Config.ts'
+        )
 
         // 显示 url
         class ShowURLs {
@@ -19324,17 +19332,23 @@
               )
               return
             }
-            const urls = []
             const size =
               _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
                 .imageSize
-            for (const result of _store_Store__WEBPACK_IMPORTED_MODULE_0__[
+            const urls = _store_Store__WEBPACK_IMPORTED_MODULE_0__[
               'store'
-            ].result) {
-              urls.push(result[size])
+            ].result.map((data) => data[size])
+            let result = ''
+            if (
+              _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].result.length <
+              _config_Config__WEBPACK_IMPORTED_MODULE_5__['Config'].outputMax
+            ) {
+              result = urls.join('<br>')
+            } else {
+              result = urls.join('\n')
             }
             _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].fire('output', {
-              content: urls.join('<br>'),
+              content: result,
               title: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_复制url'
               ),

@@ -3,6 +3,7 @@ import { EVT } from '../EVT'
 import { lang } from '../Lang'
 import { settings } from '../setting/Settings'
 import { toast } from '../Toast'
+import { Config } from '../config/Config'
 
 // 显示 url
 class ShowURLs {
@@ -22,14 +23,18 @@ class ShowURLs {
       return
     }
 
-    const urls: string[] = []
     const size = settings.imageSize
-    for (const result of store.result) {
-      urls.push(result[size])
+    const urls = store.result.map((data) => data[size])
+
+    let result = ''
+    if (store.result.length < Config.outputMax) {
+      result = urls.join('<br>')
+    } else {
+      result = urls.join('\n')
     }
 
     EVT.fire('output', {
-      content: urls.join('<br>'),
+      content: result,
       title: lang.transl('_复制url'),
     })
   }

@@ -4,7 +4,7 @@ import { store } from '../store/Store'
 import { Utils } from '../utils/Utils'
 import { Config } from '../config/Config'
 import { theme } from '../Theme'
-import { toast } from '../Toast'
+import { msgBox } from '../MsgBox'
 
 export type OutputData = {
   content: string
@@ -106,30 +106,22 @@ class OutputPanel {
 
   // 输出内容
   private output(data: OutputData) {
-    // 如果结果较多，则不直接输出，改为保存 txt 文件
-    if (store.result.length > Config.outputMax) {
-      const con = data.content.replace(/<br>/g, '\n') // 替换换行符
-      const file = new Blob([con], {
+    if (store.result.length < Config.outputMax) {
+      this.copyBtn.disabled = false
+      this.outputTitle.textContent = data.title
+      this.outputContent.innerHTML = data.content
+      this.outputPanel.style.display = 'block'
+    } else {
+      // 如果结果较多，则不直接输出，改为保存 txt 文件
+      const file = new Blob([data.content], {
         type: 'text/plain',
       })
       const url = URL.createObjectURL(file)
-      const fileName = new Date().toLocaleString() + '.txt'
-
+      const fileName = `Output-${new Date().toLocaleString()}.txt`
       Utils.downloadFile(url, fileName)
 
-      // 禁用复制按钮
       this.copyBtn.disabled = true
-      data.content = lang.transl('_输出内容太多已经为你保存到文件')
-    } else {
-      this.copyBtn.disabled = false
-    }
-
-    if (data.content) {
-      this.outputContent.innerHTML = data.content
-      this.outputPanel.style.display = 'block'
-      this.outputTitle.textContent = data.title
-    } else {
-      return toast.error(lang.transl('_没有数据可供使用'))
+      msgBox.warning(lang.transl('_输出内容太多已经为你保存到文件'))
     }
   }
 
@@ -137,6 +129,7 @@ class OutputPanel {
   private close() {
     this.outputPanel.style.display = 'none'
     this.outputContent.innerHTML = ''
+    this.outputTitle.innerText = lang.transl('_输出信息')
   }
 }
 

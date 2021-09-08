@@ -1294,6 +1294,9 @@
 .outputWrap .outputContent .color999 {
   color: #999;
 }
+.outputWrap .outputContent .colorFolder {
+  color: #0ea8ef;
+}
 .outputWrap .outputContent .color666 {
   color: #666;
 }
