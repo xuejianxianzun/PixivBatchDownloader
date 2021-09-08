@@ -60,15 +60,15 @@ class MsgBox {
   }
 
   private create(data: Msg) {
-    const el = document.createElement('div')
-    el.classList.add('xz_msg_box')
+    const wrap = document.createElement('div')
+    wrap.classList.add('xz_msg_box')
 
     let colorStyle = ''
     if (data.color) {
       colorStyle = `style="color:${data.color}"`
     }
 
-    el.innerHTML = `
+    wrap.innerHTML = `
         <p class="title" ${colorStyle}>${data.title || ''}</p>
         <p class="content" ${colorStyle}>${data.msg}</p>
         <button class="btn" type="button">${
@@ -76,26 +76,26 @@ class MsgBox {
         }</button>
       `
 
-    theme.register(el)
+    theme.register(wrap)
 
-    document.body.insertAdjacentElement('afterbegin', el)
-
-    const btn = el.querySelector('.btn') as HTMLButtonElement
-    btn.focus()
+    const btn = wrap.querySelector('.btn') as HTMLButtonElement
 
     if (btn) {
-      el.addEventListener('click', (ev) => {
+      wrap.addEventListener('click', (ev) => {
         ev.stopPropagation()
       })
 
       btn.addEventListener('click', () => {
-        this.remove(el)
+        this.remove(wrap)
       })
 
       window.addEventListener(EVT.list.closeCenterPanel, () => {
-        this.remove(el)
+        this.remove(wrap)
       })
     }
+
+    document.body.insertAdjacentElement('afterbegin', wrap)
+    btn.focus()
   }
 
   private remove(el: HTMLDivElement) {

@@ -44,10 +44,24 @@ class NameRuleManager {
     this.inputList.push(input)
     this.setInputValue()
 
+    // 保存事件被触发之前的值
+    let lastValue = input.value
+
     // 给输入框绑定事件
-    // 额外监听 focus 事件。因为用户从下拉框添加一个命名标记之后，输入框会获得焦点
-    ;['change', 'focus'].forEach((ev) => {
-      input.addEventListener(ev, () => {
+    const evList = ['change', 'focus']
+    // change 事件只对用户手动输入有效
+    // 当用户从下拉框添加一个命名标记时，不会触发 change 事件，需要监听 focus 事件
+    evList.forEach((evName) => {
+      input.addEventListener(evName, () => {
+        // 当事件触发时，比较输入框的值是否与事件触发之前发生了变化
+        // 如果值没有变化，就什么都不做
+        // 对于 change 事件来说，值必然发生了变化，但是 focus 就不一定了
+        // 试想：用户修改命名规则为非法的规则，例如输入 111，触发 change 事件之后下载器会提示命名规则非法
+        // 然后用户点击输入框（focus 事件）想要修改规则，此时值没有变化，就不应该执行后续代码。如果依然执行后续代码，那么每当用户点击输入框，下载器就会马上显示提示，这导致用户根本没办法在输入框里修改命名规则
+        if (input.value === lastValue) {
+          return
+        }
+        lastValue = input.value
         if (settings.nameRuleForEachPageType[pageType.type] !== input.value) {
           this.rule = input.value
         }
@@ -85,7 +99,9 @@ class NameRuleManager {
       str.includes('{id}') ||
       (str.includes('{id_num}') && str.includes('{p_num}'))
     if (!check) {
-      msgBox.error(lang.transl('_命名规则一定要包含id'))
+      window.setTimeout(() => {
+        msgBox.error(lang.transl('_命名规则一定要包含id'))
+      }, 300)
     } else {
       // 检查合法性通过
       if (str) {
