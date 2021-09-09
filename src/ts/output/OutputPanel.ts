@@ -5,6 +5,7 @@ import { Utils } from '../utils/Utils'
 import { Config } from '../config/Config'
 import { theme } from '../Theme'
 import { msgBox } from '../MsgBox'
+import { toast } from '../Toast'
 
 export type OutputData = {
   content: string
@@ -23,9 +24,9 @@ class OutputPanel {
 
   private outputPanel!: HTMLDivElement // 输出面板
 
-  private outputTitle!: HTMLDivElement // 输出面板的标题容器
+  private outputTitle!: HTMLDivElement // 标题容器
 
-  private outputContent!: HTMLDivElement // 输出文本的容器元素
+  private outputContent!: HTMLDivElement // 内容容器
 
   private copyBtn!: HTMLButtonElement
 
@@ -106,6 +107,10 @@ class OutputPanel {
 
   // 输出内容
   private output(data: OutputData) {
+    if (!data.content) {
+      return toast.error(lang.transl('_没有数据可供使用'))
+    }
+
     if (store.result.length < Config.outputMax) {
       this.copyBtn.disabled = false
       this.outputTitle.textContent = data.title

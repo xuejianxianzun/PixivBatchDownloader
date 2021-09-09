@@ -19030,6 +19030,9 @@
         /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
           /*! ../MsgBox */ './src/ts/MsgBox.ts'
         )
+        /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+          /*! ../Toast */ './src/ts/Toast.ts'
+        )
 
         // 输出面板
         class OutputPanel {
@@ -19112,6 +19115,13 @@
           }
           // 输出内容
           output(data) {
+            if (!data.content) {
+              return _Toast__WEBPACK_IMPORTED_MODULE_7__['toast'].error(
+                _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                  '_没有数据可供使用'
+                )
+              )
+            }
             if (
               _store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length <
               _config_Config__WEBPACK_IMPORTED_MODULE_4__['Config'].outputMax
@@ -19198,12 +19208,11 @@
               _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].result
                 .length === 0
             ) {
-              _Toast__WEBPACK_IMPORTED_MODULE_5__['toast'].error(
+              return _Toast__WEBPACK_IMPORTED_MODULE_5__['toast'].error(
                 _Lang__WEBPACK_IMPORTED_MODULE_3__['lang'].transl(
                   '_没有数据可供使用'
                 )
               )
-              return
             }
             // 使用数组储存和拼接字符串，提高性能
             const resultArr = []
@@ -19321,23 +19330,30 @@
             )
           }
           showURLs() {
+            const urls = []
+            const size =
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                .imageSize
+            for (const data of _store_Store__WEBPACK_IMPORTED_MODULE_0__[
+              'store'
+            ].result) {
+              // 只输出图片文件的 url
+              // 小说文件没有固定的 url 所以不输出
+              if (data.type !== 3) {
+                urls.push(data[size])
+              }
+            }
             if (
               _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].result
-                .length === 0
+                .length === 0 ||
+              urls.length === 0
             ) {
-              _Toast__WEBPACK_IMPORTED_MODULE_4__['toast'].error(
+              return _Toast__WEBPACK_IMPORTED_MODULE_4__['toast'].error(
                 _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_没有数据可供使用'
                 )
               )
-              return
             }
-            const size =
-              _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
-                .imageSize
-            const urls = _store_Store__WEBPACK_IMPORTED_MODULE_0__[
-              'store'
-            ].result.map((data) => data[size])
             let result = ''
             if (
               _store_Store__WEBPACK_IMPORTED_MODULE_0__['store'].result.length <

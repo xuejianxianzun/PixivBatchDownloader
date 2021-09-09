@@ -19,8 +19,7 @@ class PreviewFileName {
 
   private previewFileName() {
     if (store.result.length === 0) {
-      toast.error(lang.transl('_没有数据可供使用'))
-      return
+      return toast.error(lang.transl('_没有数据可供使用'))
     }
 
     // 使用数组储存和拼接字符串，提高性能
