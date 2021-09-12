@@ -547,9 +547,11 @@ class Filter {
     const createTime = new Date(date).getTime()
     const nowTime = new Date().getTime()
 
-    // 如果作品发表时间太短，则不再检查日均收藏数量，只返回收藏数量的检查结果
+    // 如果作品发表时间太短（小于 4 小时）
     if (nowTime - createTime < this.minimumTime) {
-      return checkNumber
+      // 如果 4 小时里的收藏数量已经达到要求，则保留这个作品
+      // 如果 4 小时里的收藏数量没有达到要求，则不检查继续它的日均收藏数量，返回收藏数量的检查结果
+      return bmk >= settings.BMKNumAverage ? true : checkNumber
     }
 
     const day = (nowTime - createTime) / this.oneDayTime // 计算作品发表以来的天数
