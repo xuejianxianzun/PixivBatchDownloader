@@ -20,6 +20,30 @@ incognito 的默认值是 `spanning`，这个模式意味着无痕模式里，�
 
 官方文档：https://developer.chrome.com/docs/extensions/mv2/manifest/incognito/
 
+### 缩短清单中的介绍文本
+
+旧版和新版对比：
+
+```
+强大的 Pixiv 下载器，支持批量下载。強力な Pixiv ダウンローダー。The powerful Pixiv downloader supports batch downloading.
+
+强大的 Pixiv 批量下载器。Powerful Pixiv batch downloader. 強力な Pixiv ダウンローダー。
+```
+
+修改的主要原因是：介绍文本会显示在应用商店里。之前的介绍文本太长了，不能完整显示，现在修改后可以完整显示了：
+
+![20210915020329.png](https://i.loli.net/2021/09/15/6N4mAlYfThjGcLH.png)
+
+此外，在管理后台的统计数据中，下载器用户的语言分布从高到低是：
+
+1. 简体中文 （大约一半）
+2. 英语
+3. 繁体中文
+4. 日语
+5. 其他
+
+由于英语用户比日语用户多，所以新的介绍文本里，英语处于日语之前。
+
 ## 11.0.5 2021/09/12
 
 ### 优化对日均收藏数量的检查

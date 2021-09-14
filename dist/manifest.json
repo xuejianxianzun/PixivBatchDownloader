@@ -2,7 +2,7 @@
   "name": "Powerful Pixiv Downloader",
   "version": "11.0.6",
   "manifest_version": 2,
-  "description": "强大的 Pixiv 下载器，支持批量下载。強力な Pixiv ダウンローダー。The powerful Pixiv downloader supports batch downloading.",
+  "description": "强大的 Pixiv 批量下载器。Powerful Pixiv batch downloader. 強力な Pixiv ダウンローダー。",
   "icons": {
     "16": "icon/logo16.png",
     "32": "icon/logo32.png",
