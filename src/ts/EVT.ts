@@ -2,6 +2,7 @@ import { DonwloadSkipData, DonwloadSuccessData } from './download/DownloadType'
 import { IDData, Result } from './store/StoreType'
 import { OutputData } from './output/OutputPanel'
 import { SettingChangeData } from './setting/Settings'
+import { Msg } from './MsgBox'
 
 type eventNames = keyof typeof EVT.list
 
@@ -226,6 +227,8 @@ class EVENT {
   public fire(type: 'deleteWork', data: HTMLElement): void
 
   public fire(type: 'skipDownload', data: DonwloadSkipData): void
+
+  public fire(type: 'showMsg', data: Msg): void
 
   // 触发事件，可以携带数据
   // 数据通过 ev.detail.data 获取，如果未传递则是空对象

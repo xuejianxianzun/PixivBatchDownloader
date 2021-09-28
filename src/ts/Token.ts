@@ -49,6 +49,9 @@ class Token {
       })
       .then((data) => {
         const result = data.match(/token":"(\w+)"/)
+        // 不论用户是否登录，都有 token，所以不能根据 token 来判断用户是否登录
+        // 如果存在下面的字符串，则说明用户未登录：
+        // "userData":null
         if (result) {
           this.token = result[1]
           localStorage.setItem(this.tokenStore, this.token)

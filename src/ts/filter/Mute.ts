@@ -1,4 +1,6 @@
 import { API } from '../API'
+import { lang } from '../Lang'
+import { msgBox } from '../MsgBox'
 
 // 获取用户在 Pixiv 里屏蔽的用户和/或 tag，进行过滤
 class Mute {
@@ -35,22 +37,32 @@ class Mute {
     this.userList = []
     this.tagList = []
 
-    const response = await API.getMuteSettings()
-    const items = response.body.mute_items
-    for (const item of items) {
-      // 如果这个屏蔽项未启用，则不保存
-      if (item.enabled === false) {
-        continue
-      }
-      if (item.type === 'user') {
-        this.userList.push(item.value)
-      }
-      if (item.type === 'tag') {
-        this.tagList.push(item.value)
-      }
-    }
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await API.getMuteSettings()
+        const items = response.body.mute_items
+        for (const item of items) {
+          // 如果这个屏蔽项未启用，则不保存
+          if (item.enabled === false) {
+            continue
+          }
+          if (item.type === 'user') {
+            this.userList.push(item.value)
+          }
+          if (item.type === 'tag') {
+            this.tagList.push(item.value)
+          }
+        }
 
-    this.got = true
+        this.got = true
+        return resolve(items)
+      } catch (error) {
+        if (error.status === 401) {
+          msgBox.error(lang.transl('_提示登录pixiv账号'))
+        }
+        return reject(error.status)
+      }
+    })
   }
 }
 

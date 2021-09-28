@@ -54,18 +54,48 @@ class API {
           if (response.ok) {
             return response.json()
           } else {
-            // 第一种异常，请求成功但状态不对
+            // 请求成功但状态不对
             reject({
               status: response.status,
               statusText: response.statusText,
             })
+            switch (response.status) {
+              case 400:
+                return console.error(
+                  'Status Code: 400（Bad Request）。服务器无法理解此请求'
+                )
+              case 401:
+                return console.error(
+                  'Status Code: 401（Unauthorized）。您可能需要登录 Pixiv 账号'
+                )
+              case 403:
+                return console.error(
+                  'Status Code: 403（Forbidden）。服务器拒绝了这个请求'
+                )
+              case 404:
+                return console.error(
+                  'Status Code: 404（Not Found）。服务器找不到请求的资源'
+                )
+              case 500:
+                return console.error(
+                  'Status Code: 500（Internal Server Error）。服务器内部错误'
+                )
+              case 503:
+                return console.error(
+                  'Status Code: 503（Service Unavailable）。服务器忙或者在维护'
+                )
+              default:
+                return console.error(
+                  `请求的状态不正确，状态码：${response.status}`
+                )
+            }
           }
         })
         .then((data) => {
           resolve(data)
         })
         .catch((error) => {
-          // 第二种异常，请求失败
+          // 请求失败
           reject(error)
         })
     })

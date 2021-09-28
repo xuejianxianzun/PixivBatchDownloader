@@ -144,18 +144,48 @@
                   if (response.ok) {
                     return response.json()
                   } else {
-                    // 第一种异常，请求成功但状态不对
+                    // 请求成功但状态不对
                     reject({
                       status: response.status,
                       statusText: response.statusText,
                     })
+                    switch (response.status) {
+                      case 400:
+                        return console.error(
+                          'Status Code: 400（Bad Request）。服务器无法理解此请求'
+                        )
+                      case 401:
+                        return console.error(
+                          'Status Code: 401（Unauthorized）。您可能需要登录 Pixiv 账号'
+                        )
+                      case 403:
+                        return console.error(
+                          'Status Code: 403（Forbidden）。服务器拒绝了这个请求'
+                        )
+                      case 404:
+                        return console.error(
+                          'Status Code: 404（Not Found）。服务器找不到请求的资源'
+                        )
+                      case 500:
+                        return console.error(
+                          'Status Code: 500（Internal Server Error）。服务器内部错误'
+                        )
+                      case 503:
+                        return console.error(
+                          'Status Code: 503（Service Unavailable）。服务器忙或者在维护'
+                        )
+                      default:
+                        return console.error(
+                          `请求的状态不正确，状态码：${response.status}`
+                        )
+                    }
                   }
                 })
                 .then((data) => {
                   resolve(data)
                 })
                 .catch((error) => {
-                  // 第二种异常，请求失败
+                  // 请求失败
                   reject(error)
                 })
             })
@@ -4978,6 +5008,12 @@
             'An error occurred while downloading, possible causes：<br>The remaining space of the system disk may be too low. Please try to clear the system disk space, and then restart the browser to continue the unfinished download.',
             'ダウンロード中にエラーが発生しました、考えられる原因<br>「システムディスクに領域不足の可能性があります。システムディスクの領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。」',
           ],
+          _提示登录pixiv账号: [
+            '请您登录 Pixiv 账号然后重试。',
+            '請您登入 Pixiv 賬號然後重試。',
+            'Please log in to your Pixiv account and try again.',
+            'Pixiv アカウントにログインして、もう一度お試しください。',
+          ],
         }
 
         /***/
@@ -6650,6 +6686,9 @@
               })
               .then((data) => {
                 const result = data.match(/token":"(\w+)"/)
+                // 不论用户是否登录，都有 token，所以不能根据 token 来判断用户是否登录
+                // 如果存在下面的字符串，则说明用户未登录：
+                // "userData":null
                 if (result) {
                   this.token = result[1]
                   localStorage.setItem(this.tokenStore, this.token)
@@ -7645,7 +7684,7 @@
           }
           // 基于传递的 id 列表直接开始抓取
           // 这个方法是为了让其他模块可以传递 id 列表，直接进行下载。
-          // 这个类的子类没有必要使用这个方法。当子类想要直接指定 id 列表时，修改自己的 getIdList 方法即可。
+          // 这个类的子类没有必要使用这个方法。当子类需要直接指定 id 列表时，修改自己的 getIdList 方法即可。
           async crawlIdList(idList) {
             // 检查是否可以开始抓取
             if (_store_States__WEBPACK_IMPORTED_MODULE_9__['states'].busy) {
@@ -19018,6 +19057,12 @@
         /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ../API */ './src/ts/API.ts'
         )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../Lang */ './src/ts/Lang.ts'
+        )
+        /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../MsgBox */ './src/ts/MsgBox.ts'
+        )
 
         // 获取用户在 Pixiv 里屏蔽的用户和/或 tag，进行过滤
         class Mute {
@@ -19050,23 +19095,37 @@
           async getMuteSettings() {
             this.userList = []
             this.tagList = []
-            const response = await _API__WEBPACK_IMPORTED_MODULE_0__[
-              'API'
-            ].getMuteSettings()
-            const items = response.body.mute_items
-            for (const item of items) {
-              // 如果这个屏蔽项未启用，则不保存
-              if (item.enabled === false) {
-                continue
+            return new Promise(async (resolve, reject) => {
+              try {
+                const response = await _API__WEBPACK_IMPORTED_MODULE_0__[
+                  'API'
+                ].getMuteSettings()
+                const items = response.body.mute_items
+                for (const item of items) {
+                  // 如果这个屏蔽项未启用，则不保存
+                  if (item.enabled === false) {
+                    continue
+                  }
+                  if (item.type === 'user') {
+                    this.userList.push(item.value)
+                  }
+                  if (item.type === 'tag') {
+                    this.tagList.push(item.value)
+                  }
+                }
+                this.got = true
+                return resolve(items)
+              } catch (error) {
+                if (error.status === 401) {
+                  _MsgBox__WEBPACK_IMPORTED_MODULE_2__['msgBox'].error(
+                    _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                      '_提示登录pixiv账号'
+                    )
+                  )
+                }
+                return reject(error.status)
               }
-              if (item.type === 'user') {
-                this.userList.push(item.value)
-              }
-              if (item.type === 'tag') {
-                this.tagList.push(item.value)
-              }
-            }
-            this.got = true
+            })
           }
         }
         const mute = new Mute()

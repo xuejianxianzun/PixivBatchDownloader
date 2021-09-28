@@ -1721,6 +1721,12 @@ const langText = {
     'An error occurred while downloading, possible causes：<br>The remaining space of the system disk may be too low. Please try to clear the system disk space, and then restart the browser to continue the unfinished download.',
     'ダウンロード中にエラーが発生しました、考えられる原因<br>「システムディスクに領域不足の可能性があります。システムディスクの領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。」',
   ],
+  _提示登录pixiv账号: [
+    '请您登录 Pixiv 账号然后重试。',
+    '請您登入 Pixiv 賬號然後重試。',
+    'Please log in to your Pixiv account and try again.',
+    'Pixiv アカウントにログインして、もう一度お試しください。',
+  ],
 }
 
 export { langText }
