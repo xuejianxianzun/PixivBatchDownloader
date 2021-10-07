@@ -577,6 +577,12 @@
                 }
               }
               image = new Blob([data], { type: 'image/gif' })
+              // releasing memory
+              this.freeWorkers.forEach((worker) => {
+                if (worker !== null) {
+                  worker.terminate()
+                }
+              })
               return this.emit('finished', image, data)
             }
             GIF.prototype.renderNextFrame = function () {
