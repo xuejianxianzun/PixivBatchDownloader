@@ -87,6 +87,7 @@ class FormSettings {
       'saveMetaType3',
       'setNameRuleForEachPageType',
       'showAdvancedSettings',
+      'showNotificationAfterDownloadComplete',
     ],
     text: [
       'setWantPage',

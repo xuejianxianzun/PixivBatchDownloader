@@ -543,6 +543,13 @@ export const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
       </p>
 
+      <p class="option" data-no="52">
+      <span class="settingNameStyle1">
+      ${lang.transl('_下载完成后显示通知')}</span>
+      <input type="checkbox" name="showNotificationAfterDownloadComplete" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      </p>
+
       <slot data-name="downloadArea"></slot>
       <slot data-name="progressBar"></slot>
     </div>

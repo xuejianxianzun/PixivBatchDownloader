@@ -353,7 +353,7 @@ const langText = {
   _抓取结果为零: [
     '抓取完毕，但没有找到符合筛选条件的作品。',
     '擷取完畢，但沒有找到符合篩選條件的作品。',
-    'Crawl finished but did not find works that match the filter criteria.',
+    'Crawl complete but did not find works that match the filter criteria.',
     'クロールは終了しましたが、フィルタ条件に一致する作品が見つかりませんでした。',
   ],
   _当前任务尚未完成: [
@@ -676,13 +676,13 @@ const langText = {
   _下载完毕: [
     '✓ 下载完毕',
     '✓ 下載完畢',
-    '✓ Download finished',
+    '✓ Download complete',
     '✓ ダウンロードが完了しました',
   ],
   _下载完毕2: [
     '下载完毕',
     '下載完畢',
-    'Download finished',
+    'Download complete',
     'ダウンロードが完了しました',
   ],
   _已暂停: [
@@ -701,7 +701,7 @@ const langText = {
   _抓取完毕: [
     '抓取完毕！',
     '擷取完畢！',
-    'Crawl finished!',
+    'Crawl complete!',
     'クロールが終了しました！',
   ],
   _快速下载本页: [
@@ -1673,12 +1673,6 @@ const langText = {
     'Multi-image works exceeding this limit will not be downloaded',
     'この制限を超えたマルチ作品はダウンロードされません',
   ],
-  _whatisnew: [
-    '新增设置项：<br>显示高级设置<br>在不同的页面类型中使用不同的命名规则',
-    '新增設定項目：<br>顯示進階設定<br>在不同的頁面型別中使用不同的命名規則',
-    'Added setting items:<br>Show advanced settings<br>Use different naming rules in different page types',
-    '新たな機能を追加されました：<br>詳細設定を表示する<br>さまざまなページタイプでさまざまな命名規則を使用する',
-  ],
   _在搜索页面添加快捷搜索区域: [
     '在搜索页面添加快捷搜索区域',
     '在搜尋頁面新增快捷搜尋區域',
@@ -1726,6 +1720,18 @@ const langText = {
     '請您登入 Pixiv 賬號然後重試。',
     'Please log in to your Pixiv account and try again.',
     'Pixiv アカウントにログインして、もう一度お試しください。',
+  ],
+  _下载完成后显示通知: [
+    '下载完成后显示通知',
+    '下載完成後顯示通知',
+    'Show notification after download is complete',
+    'ダウンロードが完了した後に通知を表示する',
+  ],
+  _whatisnew: [
+    '新增设置项：<br>下载完成后显示通知',
+    '新增設定項目：<br>下載完成後顯示通知',
+    'Added setting items:<br>Show notification after download is complete',
+    '新たな機能を追加されました：<br>ダウンロードが完了した後に通知を表示する',
   ],
 }
 

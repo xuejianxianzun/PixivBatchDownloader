@@ -153,6 +153,7 @@ interface XzSetting {
     [key: number]: string
   }
   showAdvancedSettings: boolean
+  showNotificationAfterDownloadComplete: boolean
 }
 
 type SettingsKeys = keyof XzSetting
@@ -320,6 +321,7 @@ class Settings {
       '20': '{p_title}/{id}',
     },
     showAdvancedSettings: false,
+    showNotificationAfterDownloadComplete: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

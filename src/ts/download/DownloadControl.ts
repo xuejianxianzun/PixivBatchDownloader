@@ -24,7 +24,6 @@ import { states } from '../store/States'
 import { Config } from '../config/Config'
 import { toast } from '../Toast'
 import { Utils } from '../utils/Utils'
-import { msgBox } from '../MsgBox'
 import { help } from '../Help'
 import { pageType } from '../PageType'
 

@@ -3545,7 +3545,7 @@
           _抓取结果为零: [
             '抓取完毕，但没有找到符合筛选条件的作品。',
             '擷取完畢，但沒有找到符合篩選條件的作品。',
-            'Crawl finished but did not find works that match the filter criteria.',
+            'Crawl complete but did not find works that match the filter criteria.',
             'クロールは終了しましたが、フィルタ条件に一致する作品が見つかりませんでした。',
           ],
           _当前任务尚未完成: [
@@ -3898,13 +3898,13 @@
           _下载完毕: [
             '✓ 下载完毕',
             '✓ 下載完畢',
-            '✓ Download finished',
+            '✓ Download complete',
             '✓ ダウンロードが完了しました',
           ],
           _下载完毕2: [
             '下载完毕',
             '下載完畢',
-            'Download finished',
+            'Download complete',
             'ダウンロードが完了しました',
           ],
           _已暂停: [
@@ -3923,7 +3923,7 @@
           _抓取完毕: [
             '抓取完毕！',
             '擷取完畢！',
-            'Crawl finished!',
+            'Crawl complete!',
             'クロールが終了しました！',
           ],
           _快速下载本页: [
@@ -4960,12 +4960,6 @@
             'Multi-image works exceeding this limit will not be downloaded',
             'この制限を超えたマルチ作品はダウンロードされません',
           ],
-          _whatisnew: [
-            '新增设置项：<br>显示高级设置<br>在不同的页面类型中使用不同的命名规则',
-            '新增設定項目：<br>顯示進階設定<br>在不同的頁面型別中使用不同的命名規則',
-            'Added setting items:<br>Show advanced settings<br>Use different naming rules in different page types',
-            '新たな機能を追加されました：<br>詳細設定を表示する<br>さまざまなページタイプでさまざまな命名規則を使用する',
-          ],
           _在搜索页面添加快捷搜索区域: [
             '在搜索页面添加快捷搜索区域',
             '在搜尋頁面新增快捷搜尋區域',
@@ -5013,6 +5007,18 @@
             '請您登入 Pixiv 賬號然後重試。',
             'Please log in to your Pixiv account and try again.',
             'Pixiv アカウントにログインして、もう一度お試しください。',
+          ],
+          _下载完成后显示通知: [
+            '下载完成后显示通知',
+            '下載完成後顯示通知',
+            'Show notification after download is complete',
+            'ダウンロードが完了した後に通知を表示する',
+          ],
+          _whatisnew: [
+            '新增设置项：<br>下载完成后显示通知',
+            '新增設定項目：<br>下載完成後顯示通知',
+            'Added setting items:<br>Show notification after download is complete',
+            '新たな機能を追加されました：<br>ダウンロードが完了した後に通知を表示する',
           ],
         }
 
@@ -6141,6 +6147,85 @@
         /***/
       },
 
+    /***/ './src/ts/ShowNotification.ts':
+      /*!************************************!*\
+  !*** ./src/ts/ShowNotification.ts ***!
+  \************************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./Lang */ './src/ts/Lang.ts'
+        )
+        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./setting/Settings */ './src/ts/setting/Settings.ts'
+        )
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./Tools */ './src/ts/Tools.ts'
+        )
+
+        class ShowNotification {
+          constructor() {
+            this.iconURL = ''
+            this.iconURL = chrome.runtime.getURL('icon/logo128.png')
+            this.bindEvents()
+          }
+          bindEvents() {
+            // 当用户开启“下载完成后显示通知”的提示时，请求权限
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
+              (ev) => {
+                const data = ev.detail.data
+                if (
+                  data.name === 'showNotificationAfterDownloadComplete' &&
+                  data.value
+                ) {
+                  this.requstPremission()
+                }
+              }
+            )
+            // 当下载任务完毕时，显示通知
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadComplete,
+              () => {
+                if (
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
+                    .showNotificationAfterDownloadComplete
+                ) {
+                  this.show(
+                    _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                      '_下载完毕2'
+                    ),
+                    _Tools__WEBPACK_IMPORTED_MODULE_3__['Tools'].getPageTitle()
+                  )
+                }
+              }
+            )
+          }
+          async show(title, text) {
+            await this.requstPremission()
+            new Notification(title, {
+              body: text,
+              // 不设置 tag。如果设置了相同的 tag，那么新的通知会覆盖旧的通知，导致如果有多个页面下载完毕，用户只能看到最后一个页面的通知
+              // tag: 'PowerfulPixivDownloader',
+              icon: this.iconURL,
+            })
+          }
+          requstPremission() {
+            if (Notification.permission !== 'granted') {
+              return Notification.requestPermission()
+            }
+          }
+        }
+        new ShowNotification()
+
+        /***/
+      },
+
     /***/ './src/ts/ShowWhatIsNew.ts':
       /*!*********************************!*\
   !*** ./src/ts/ShowWhatIsNew.ts ***!
@@ -6165,7 +6250,7 @@
         // 显示最近更新内容
         class ShowWhatIsNew {
           constructor() {
-            this.flag = 'xzNew1100'
+            this.flag = 'xzNew1120'
             this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
               '_whatisnew'
             )}`
@@ -7388,6 +7473,9 @@
         )
         /* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(
           /*! ./CheckUnsupportBrowser */ './src/ts/CheckUnsupportBrowser.ts'
+        )
+        /* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(
+          /*! ./ShowNotification */ './src/ts/ShowNotification.ts'
         )
         /*
          * project: Powerful Pixiv Downloader
@@ -22075,6 +22163,15 @@
       <span class="beautify_switch"></span>
       </p>
 
+      <p class="option" data-no="52">
+      <span class="settingNameStyle1">
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+        '_下载完成后显示通知'
+      )}</span>
+      <input type="checkbox" name="showNotificationAfterDownloadComplete" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      </p>
+
       <slot data-name="downloadArea"></slot>
       <slot data-name="progressBar"></slot>
     </div>
@@ -22644,6 +22741,7 @@
                 'saveMetaType3',
                 'setNameRuleForEachPageType',
                 'showAdvancedSettings',
+                'showNotificationAfterDownloadComplete',
               ],
               text: [
                 'setWantPage',
@@ -23702,6 +23800,7 @@
                 20: '{p_title}/{id}',
               },
               showAdvancedSettings: false,
+              showNotificationAfterDownloadComplete: false,
             }
             this.allSettingKeys = Object.keys(this.defaultSettings)
             // 值为浮点数的选项
