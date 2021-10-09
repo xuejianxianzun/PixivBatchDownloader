@@ -4372,7 +4372,7 @@
             '小説の中にメタデータを保存する',
           ],
           _在小说里保存元数据提示: [
-            '把作者、网址等信息保存到小說里',
+            '把作者、网址等信息保存到小说里',
             '將作者、網址等資訊儲存到小說裡',
             'Save the author, url and other information in the file',
             '作者やURLなどの情報をファイルの中に保存します。',
@@ -7302,8 +7302,8 @@
           // 稍暗，适合在颜色区域的面积较大时使用
           Colors['bgBlue'] = '#0ea8ef'
           Colors['bgGreen'] = '#14ad27'
-          Colors['bgRed'] = '#f33939'
           Colors['bgYellow'] = '#e49d00'
+          Colors['bgRed'] = '#f33939'
           // 带有语义的背景颜色
           // 稍亮，适合在小区域使用
           Colors['bgBrightBlue'] = '#29b3f3'
@@ -10935,9 +10935,6 @@
             // 如果数据重复就停止抓取，因为后面的每一页的数据都是完全相同的
             this.firstWorkId = ''
             this.init()
-            this.type = window.location.pathname.includes('/novel')
-              ? 'novel'
-              : 'illust'
           }
           addCrawlBtns() {
             _Tools__WEBPACK_IMPORTED_MODULE_3__['Tools']
@@ -10982,6 +10979,9 @@
             )
           }
           nextStep() {
+            this.type = window.location.pathname.includes('/novel')
+              ? 'novel'
+              : 'illust'
             this.r18 = location.pathname.includes('r18')
             this.newVer = !document.querySelector('h1')
             // 根据页数计算最多抓取多少个作品。新版一页 60 个作品，旧版一页 20 个作品
@@ -14599,34 +14599,37 @@
         /* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
           /*! ./DownloadStates */ './src/ts/download/DownloadStates.ts'
         )
-        /* harmony import */ var _ShowSkipCount__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
+        /* harmony import */ var _ShowDownloadStates__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
+          /*! ./ShowDownloadStates */ './src/ts/download/ShowDownloadStates.ts'
+        )
+        /* harmony import */ var _ShowSkipCount__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
           /*! ./ShowSkipCount */ './src/ts/download/ShowSkipCount.ts'
         )
-        /* harmony import */ var _ShowConvertCount__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
+        /* harmony import */ var _ShowConvertCount__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
           /*! ./ShowConvertCount */ './src/ts/download/ShowConvertCount.ts'
         )
-        /* harmony import */ var _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
+        /* harmony import */ var _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
           /*! ./BookmarkAfterDL */ './src/ts/download/BookmarkAfterDL.ts'
         )
-        /* harmony import */ var _Resume__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
+        /* harmony import */ var _Resume__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
           /*! ./Resume */ './src/ts/download/Resume.ts'
         )
-        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
           /*! ../store/States */ './src/ts/store/States.ts'
         )
-        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
+        /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
           /*! ../config/Config */ './src/ts/config/Config.ts'
         )
-        /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
+        /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(
           /*! ../Toast */ './src/ts/Toast.ts'
         )
-        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(
+        /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
           /*! ../utils/Utils */ './src/ts/utils/Utils.ts'
         )
-        /* harmony import */ var _Help__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
+        /* harmony import */ var _Help__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
           /*! ../Help */ './src/ts/Help.ts'
         )
-        /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
+        /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
           /*! ../PageType */ './src/ts/PageType.ts'
         )
         // 下载控制
@@ -14642,25 +14645,28 @@
             this.downloaded = 0 // 已下载的任务数量
             this.wrapper = document.createElement('div')
             this.totalNumberEl = document.createElement('span')
-            this.statesEl = document.createElement('span')
             this.stop = false // 是否停止下载
             this.pause = false // 是否暂停下载
             this.createDownloadArea()
             this.bindEvents()
+            const statusTipWrap = this.wrapper.querySelector('.down_status')
+            new _ShowDownloadStates__WEBPACK_IMPORTED_MODULE_10__[
+              'ShowDownloadStates'
+            ](statusTipWrap)
             const skipTipWrap = this.wrapper.querySelector('.skip_tip')
-            new _ShowSkipCount__WEBPACK_IMPORTED_MODULE_10__['ShowSkipCount'](
+            new _ShowSkipCount__WEBPACK_IMPORTED_MODULE_11__['ShowSkipCount'](
               skipTipWrap
             )
             const convertTipWrap = this.wrapper.querySelector('.convert_tip')
-            new _ShowConvertCount__WEBPACK_IMPORTED_MODULE_11__[
+            new _ShowConvertCount__WEBPACK_IMPORTED_MODULE_12__[
               'ShowConvertCount'
             ](convertTipWrap)
             // 只在 p 站内启用下载后收藏的功能
-            if (_utils_Utils__WEBPACK_IMPORTED_MODULE_17__['Utils'].isPixiv()) {
+            if (_utils_Utils__WEBPACK_IMPORTED_MODULE_18__['Utils'].isPixiv()) {
               const bmkAfterDLTipWrap = this.wrapper.querySelector(
                 '.bmkAfterDL_tip'
               )
-              new _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_12__[
+              new _BookmarkAfterDL__WEBPACK_IMPORTED_MODULE_13__[
                 'BookmarkAfterDL'
               ](bmkAfterDLTipWrap)
             }
@@ -14748,7 +14754,7 @@
                   ),
                   2
                 )
-                _Toast__WEBPACK_IMPORTED_MODULE_16__['toast'].success(
+                _Toast__WEBPACK_IMPORTED_MODULE_17__['toast'].success(
                   _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl(
                     '_下载完毕2'
                   )
@@ -14801,7 +14807,6 @@
               'downloadArea',
               html
             )
-            this.statesEl = this.wrapper.querySelector('.down_status')
             this.totalNumberEl = this.wrapper.querySelector('.imgNum')
             this.wrapper
               .querySelector('.startDownload')
@@ -14827,8 +14832,8 @@
           // 抓取完毕之后，已经可以开始下载时，显示必要的信息，并决定是否立即开始下载
           readyDownload() {
             if (
-              _store_States__WEBPACK_IMPORTED_MODULE_14__['states'].busy ||
-              _store_States__WEBPACK_IMPORTED_MODULE_14__['states'].mergeNovel
+              _store_States__WEBPACK_IMPORTED_MODULE_15__['states'].busy ||
+              _store_States__WEBPACK_IMPORTED_MODULE_15__['states'].mergeNovel
             ) {
               return
             }
@@ -14848,15 +14853,15 @@
             this.setDownloadThread()
             // 在插画漫画搜索页面里，如果启用了“预览搜索页面的筛选结果”
             if (
-              _PageType__WEBPACK_IMPORTED_MODULE_19__['pageType'].type ===
-                _PageType__WEBPACK_IMPORTED_MODULE_19__['pageType'].list
+              _PageType__WEBPACK_IMPORTED_MODULE_20__['pageType'].type ===
+                _PageType__WEBPACK_IMPORTED_MODULE_20__['pageType'].list
                   .ArtworkSearch &&
               _setting_Settings__WEBPACK_IMPORTED_MODULE_6__['settings']
                 .previewResult
             ) {
               // 只允许由图片查看器发起的下载自动下载，其他情况不自动下载
               if (
-                !_store_States__WEBPACK_IMPORTED_MODULE_14__['states']
+                !_store_States__WEBPACK_IMPORTED_MODULE_15__['states']
                   .downloadFromViewer
               ) {
                 return
@@ -14866,9 +14871,9 @@
             if (
               _setting_Settings__WEBPACK_IMPORTED_MODULE_6__['settings']
                 .quietDownload ||
-              _store_States__WEBPACK_IMPORTED_MODULE_14__['states']
+              _store_States__WEBPACK_IMPORTED_MODULE_15__['states']
                 .quickCrawl ||
-              _store_States__WEBPACK_IMPORTED_MODULE_14__['states']
+              _store_States__WEBPACK_IMPORTED_MODULE_15__['states']
                 .downloadFromViewer
             ) {
               this.startDownload()
@@ -14878,7 +14883,7 @@
           startDownload() {
             if (
               !this.pause &&
-              !_Resume__WEBPACK_IMPORTED_MODULE_13__['resume'].flag
+              !_Resume__WEBPACK_IMPORTED_MODULE_14__['resume'].flag
             ) {
               // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
               // 初始化下载状态列表
@@ -14901,13 +14906,10 @@
             for (let i = 0; i < this.thread; i++) {
               this.createDownload(i)
             }
-            this.setDownStateText(
-              _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_正在下载中')
-            )
             _Log__WEBPACK_IMPORTED_MODULE_3__['log'].success(
               _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_正在下载中')
             )
-            _Help__WEBPACK_IMPORTED_MODULE_18__['help'].showDownloadTip()
+            _Help__WEBPACK_IMPORTED_MODULE_19__['help'].showDownloadTip()
           }
           // 暂停下载
           pauseDownload() {
@@ -14923,12 +14925,8 @@
             }
             if (this.pause === false) {
               // 如果正在下载中
-              if (_store_States__WEBPACK_IMPORTED_MODULE_14__['states'].busy) {
+              if (_store_States__WEBPACK_IMPORTED_MODULE_15__['states'].busy) {
                 this.pause = true
-                this.setDownStateText(
-                  _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_已暂停'),
-                  '#f00'
-                )
                 _Log__WEBPACK_IMPORTED_MODULE_3__['log'].warning(
                   _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_已暂停'),
                   2
@@ -14950,10 +14948,6 @@
               return
             }
             this.stop = true
-            this.setDownStateText(
-              _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_已停止'),
-              '#f00'
-            )
             _Log__WEBPACK_IMPORTED_MODULE_3__['log'].error(
               _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_已停止'),
               2
@@ -15030,20 +15024,20 @@
             if (
               setThread < 1 ||
               setThread >
-                _config_Config__WEBPACK_IMPORTED_MODULE_15__['Config']
+                _config_Config__WEBPACK_IMPORTED_MODULE_16__['Config']
                   .downloadThreadMax ||
               isNaN(setThread)
             ) {
               // 如果数值非法，则重设为默认值
               this.thread =
-                _config_Config__WEBPACK_IMPORTED_MODULE_15__[
+                _config_Config__WEBPACK_IMPORTED_MODULE_16__[
                   'Config'
                 ].downloadThreadMax
               Object(
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_6__['setSetting']
               )(
                 'downloadThread',
-                _config_Config__WEBPACK_IMPORTED_MODULE_15__['Config']
+                _config_Config__WEBPACK_IMPORTED_MODULE_16__['Config']
                   .downloadThreadMax
               )
             } else {
@@ -15102,15 +15096,10 @@
             ].downloadedCount()
             const text = `${this.downloaded} / ${_store_Store__WEBPACK_IMPORTED_MODULE_2__['store'].result.length}`
             _Log__WEBPACK_IMPORTED_MODULE_3__['log'].log(text, 2, false)
-            // 设置下载进度条
+            // 设置总下载进度条
             _ProgressBar__WEBPACK_IMPORTED_MODULE_8__[
               'progressBar'
             ].setTotalProgress(this.downloaded)
-            if (this.downloaded === 0) {
-              this.setDownStateText(
-                _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_未开始下载')
-              )
-            }
             // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
             if (
               this.downloaded ===
@@ -15123,11 +15112,6 @@
                 )
               }, 0)
               this.reset()
-              this.setDownStateText(
-                _Lang__WEBPACK_IMPORTED_MODULE_4__['lang'].transl('_下载完毕'),
-                _config_Colors__WEBPACK_IMPORTED_MODULE_5__['Colors']
-                  .textSuccess
-              )
             }
             this.checkCompleteWithError()
           }
@@ -15144,14 +15128,6 @@
                 this.startDownload()
               }, 2000)
             }
-          }
-          // 设置下载状态文本，默认颜色为主题蓝色
-          setDownStateText(
-            text,
-            color = _config_Colors__WEBPACK_IMPORTED_MODULE_5__['Colors'].bgBlue
-          ) {
-            this.statesEl.textContent = text
-            this.statesEl.style.color = color
           }
           reset() {
             this.pause = false
@@ -16189,6 +16165,9 @@
         /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ../Lang */ './src/ts/Lang.ts'
         )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
         // 下载进度条
 
         // 进度条
@@ -16229,6 +16208,10 @@
             this.allProgressBar = []
             this.KB = 1024
             this.MB = 1024 * 1024
+            this.createElements()
+            this.bindEvents()
+          }
+          createElements() {
             this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_1__['Tools'].useSlot(
               'progressBar',
               this.wrapHTML
@@ -16237,6 +16220,14 @@
             this.progressColorEl = this.wrap.querySelector('.progress1')
             this.listWrap = this.wrap.querySelector('.progressBarList')
             this.totalNumberEl = this.wrap.querySelector('.totalNumber')
+          }
+          bindEvents() {
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_3__['EVT'].list.crawlStart,
+              () => {
+                this.hide()
+              }
+            )
           }
           // 重设所有进度
           reset(progressBarNum, downloaded = 0) {
@@ -16976,6 +16967,104 @@
                 this.el.textContent = convertText
               }
             )
+          }
+        }
+
+        /***/
+      },
+
+    /***/ './src/ts/download/ShowDownloadStates.ts':
+      /*!***********************************************!*\
+  !*** ./src/ts/download/ShowDownloadStates.ts ***!
+  \***********************************************/
+      /*! exports provided: ShowDownloadStates */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'ShowDownloadStates',
+          function () {
+            return ShowDownloadStates
+          }
+        )
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/config/Colors.ts'
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../Lang */ './src/ts/Lang.ts'
+        )
+
+        // 显示下载状态
+        class ShowDownloadStates {
+          constructor(el) {
+            this.el = el
+            this.bindEvents()
+          }
+          bindEvents() {
+            for (const ev of [
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.crawlFinish,
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.resultChange,
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.resume,
+            ]) {
+              window.addEventListener(ev, () => {
+                this.setText(
+                  _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                    '_未开始下载'
+                  )
+                )
+              })
+            }
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.downloadStart,
+              () => {
+                this.setText(
+                  _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                    '_正在下载中'
+                  )
+                )
+              }
+            )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.downloadPause,
+              () => {
+                this.setText(
+                  _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_已暂停'),
+                  '#f00'
+                )
+              }
+            )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.downloadStop,
+              () => {
+                this.setText(
+                  _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_已停止'),
+                  '#f00'
+                )
+              }
+            )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.downloadComplete,
+              () => {
+                this.setText(
+                  _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                    '_下载完毕'
+                  ),
+                  _config_Colors__WEBPACK_IMPORTED_MODULE_0__['Colors']
+                    .textSuccess
+                )
+              }
+            )
+          }
+          setText(
+            text,
+            color = _config_Colors__WEBPACK_IMPORTED_MODULE_0__['Colors'].bgBlue
+          ) {
+            this.el.textContent = text
+            this.el.style.color = color
           }
         }
 

@@ -16,6 +16,7 @@ import { setSetting, settings } from '../setting/Settings'
 import { Download } from '../download/Download'
 import { progressBar } from './ProgressBar'
 import { downloadStates } from './DownloadStates'
+import { ShowDownloadStates } from './ShowDownloadStates'
 import { ShowSkipCount } from './ShowSkipCount'
 import { ShowConvertCount } from './ShowConvertCount'
 import { BookmarkAfterDL } from './BookmarkAfterDL'
@@ -32,6 +33,11 @@ class DownloadControl {
     this.createDownloadArea()
 
     this.bindEvents()
+
+    const statusTipWrap = this.wrapper.querySelector(
+      '.down_status'
+    ) as HTMLSpanElement
+    new ShowDownloadStates(statusTipWrap)
 
     const skipTipWrap = this.wrapper.querySelector(
       '.skip_tip'
@@ -67,8 +73,6 @@ class DownloadControl {
   private wrapper: HTMLDivElement = document.createElement('div')
 
   private totalNumberEl: HTMLSpanElement = document.createElement('span')
-
-  private statesEl: HTMLSpanElement = document.createElement('span')
 
   private stop = false // 是否停止下载
 
@@ -176,9 +180,7 @@ class DownloadControl {
     </div>`
 
     this.wrapper = Tools.useSlot('downloadArea', html) as HTMLDivElement
-    this.statesEl = this.wrapper.querySelector(
-      '.down_status'
-    ) as HTMLSpanElement
+
     this.totalNumberEl = this.wrapper.querySelector(
       '.imgNum'
     ) as HTMLSpanElement
@@ -272,8 +274,6 @@ class DownloadControl {
       this.createDownload(i)
     }
 
-    this.setDownStateText(lang.transl('_正在下载中'))
-
     log.success(lang.transl('_正在下载中'))
 
     help.showDownloadTip()
@@ -294,7 +294,6 @@ class DownloadControl {
       // 如果正在下载中
       if (states.busy) {
         this.pause = true
-        this.setDownStateText(lang.transl('_已暂停'), '#f00')
         log.warning(lang.transl('_已暂停'), 2)
 
         EVT.fire('downloadPause')
@@ -312,7 +311,6 @@ class DownloadControl {
     }
 
     this.stop = true
-    this.setDownStateText(lang.transl('_已停止'), '#f00')
     log.error(lang.transl('_已停止'), 2)
     this.pause = false
 
@@ -436,12 +434,8 @@ class DownloadControl {
     const text = `${this.downloaded} / ${store.result.length}`
     log.log(text, 2, false)
 
-    // 设置下载进度条
+    // 设置总下载进度条
     progressBar.setTotalProgress(this.downloaded)
-
-    if (this.downloaded === 0) {
-      this.setDownStateText(lang.transl('_未开始下载'))
-    }
 
     // 所有文件正常下载完毕（跳过下载的文件也算正常下载）
     if (this.downloaded === store.result.length) {
@@ -450,7 +444,6 @@ class DownloadControl {
         EVT.fire('downloadComplete')
       }, 0)
       this.reset()
-      this.setDownStateText(lang.transl('_下载完毕'), Colors.textSuccess)
     }
 
     this.checkCompleteWithError()
@@ -468,12 +461,6 @@ class DownloadControl {
         this.startDownload()
       }, 2000)
     }
-  }
-
-  // 设置下载状态文本，默认颜色为主题蓝色
-  private setDownStateText(text: string, color: string = Colors.bgBlue) {
-    this.statesEl.textContent = text
-    this.statesEl.style.color = color
   }
 
   private reset() {

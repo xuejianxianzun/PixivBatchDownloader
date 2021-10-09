@@ -2,6 +2,7 @@
 import { store } from '../store/Store'
 import { Tools } from '../Tools'
 import { lang } from '../Lang'
+import { EVT } from '../EVT'
 
 interface ProgressBarEl {
   name: HTMLSpanElement
@@ -18,19 +19,8 @@ interface ProgressData {
 // 进度条
 class ProgressBar {
   constructor() {
-    this.wrap = Tools.useSlot('progressBar', this.wrapHTML) as HTMLDivElement
-    this.downloadedEl = this.wrap.querySelector(
-      '.downloaded'
-    ) as HTMLSpanElement
-    this.progressColorEl = this.wrap.querySelector(
-      '.progress1'
-    ) as HTMLDivElement
-    this.listWrap = this.wrap.querySelector(
-      '.progressBarList'
-    ) as HTMLUListElement
-    this.totalNumberEl = this.wrap.querySelector(
-      '.totalNumber'
-    ) as HTMLSpanElement
+    this.createElements()
+    this.bindEvents()
   }
 
   private readonly wrapHTML = `
@@ -65,15 +55,37 @@ class ProgressBar {
   </div>
   </li>`
 
-  private wrap: HTMLDivElement
-  private downloadedEl: HTMLSpanElement
-  private progressColorEl: HTMLDivElement
-  private listWrap: HTMLUListElement
-  private totalNumberEl: HTMLSpanElement
+  private wrap!: HTMLDivElement
+  private downloadedEl!: HTMLSpanElement
+  private progressColorEl!: HTMLDivElement
+  private listWrap!: HTMLUListElement
+  private totalNumberEl!: HTMLSpanElement
   private allProgressBar: ProgressBarEl[] = []
 
   private readonly KB = 1024
   private readonly MB = 1024 * 1024
+
+  private createElements() {
+    this.wrap = Tools.useSlot('progressBar', this.wrapHTML) as HTMLDivElement
+    this.downloadedEl = this.wrap.querySelector(
+      '.downloaded'
+    ) as HTMLSpanElement
+    this.progressColorEl = this.wrap.querySelector(
+      '.progress1'
+    ) as HTMLDivElement
+    this.listWrap = this.wrap.querySelector(
+      '.progressBarList'
+    ) as HTMLUListElement
+    this.totalNumberEl = this.wrap.querySelector(
+      '.totalNumber'
+    ) as HTMLSpanElement
+  }
+
+  private bindEvents() {
+    window.addEventListener(EVT.list.crawlStart, () => {
+      this.hide()
+    })
+  }
 
   // 重设所有进度
   public reset(progressBarNum: number, downloaded: number = 0) {
