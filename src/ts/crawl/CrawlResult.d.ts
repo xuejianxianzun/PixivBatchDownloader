@@ -317,25 +317,62 @@ export interface UgoiraData {
   }
 }
 
-// 关注的的新作品的数据
+export type BookMarkNewIllustData = ArtworkCommonData & {
+  urls: {
+    '250x250': string
+    '360x360': string
+    '540x540': string
+  }
+  isMasked: boolean
+}
+
+export type BookMarkNewNovelData = NovelCommonData & {
+  isMasked: boolean
+}
+
+// 关注的用户的新作品的数据
 export interface BookMarkNewData {
-  bookmarkCount: number
-  height: number
-  illustId: string
-  illustTitle: string
-  illustType: '0' | '1' | '2'
-  isBookmarkable: boolean
-  isBookmarked: boolean
-  isPrivateBookmark: boolean
-  isAdContainer: boolean
-  pageCount: number
-  responseCount: number
-  tags: string[]
-  url: string
-  userId: string
-  userImage: string
-  userName: string
-  width: number
+  error: boolean
+  message: string | ''
+  body: {
+    page: {
+      /**这一批数据里所有作品的 id 集合 */
+      ids: string[]
+      tags: []
+    }
+    /**这一批数据里所有作品的 tag 集合。如果请求的是小说则是空集合 */
+    tagTranslation: {
+      [key: string]: {
+        en?: string | ''
+        ko?: string | ''
+        zh?: string | ''
+        zh_tw?: string | ''
+        romaji: string | ''
+      }
+    }
+    thumbnails: {
+      /**插画·漫画作品的数据集合 */
+      illust: BookMarkNewIllustData[]
+      /**小说作品的数据集合 */
+      novel: BookMarkNewNovelData[]
+      novelSeries: []
+      novelDraft: []
+    }
+    illustSeries: []
+    requests: []
+    users: []
+    zoneConfig: {
+      header: {
+        url: string
+      }
+      footer: {
+        url: string
+      }
+      logo: {
+        url: string
+      }
+    }
+  }
 }
 
 // 画师列表页的列表数据，不带 tag。一些不需要使用的数据就简化了

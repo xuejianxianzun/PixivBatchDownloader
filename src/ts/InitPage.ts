@@ -12,14 +12,13 @@ import { InitAreaRankingPage } from './crawlArtworkPage/InitAreaRankingPage'
 import { InitRankingArtworkPage } from './crawlArtworkPage/InitRankingArtworkPage'
 import { InitPixivisionPage } from './crawlArtworkPage/InitPixivisionPage'
 import { InitBookmarkDetailPage } from './crawlArtworkPage/InitBookmarkDetailPage'
-import { InitBookmarkNewArtworkPage } from './crawlArtworkPage/InitBookmarkNewArtworkPage'
+import { InitBookmarkNewPage } from './crawlMixedPage/InitBookmarkNewPage'
 import { InitDiscoverPage } from './crawlArtworkPage/InitDiscoverPage'
 import { InitNewArtworkPage } from './crawlArtworkPage/InitNewArtworkPage'
 import { InitNovelPage } from './crawlNovelPage/InitNovelPage'
 import { InitNovelSeriesPage } from './crawlNovelPage/InitNovelSeriesPage'
 import { InitSearchNovelPage } from './crawlNovelPage/InitSearchNovelPage'
 import { InitRankingNovelPage } from './crawlNovelPage/InitRankingNovelPage'
-import { InitBookmarkNewNovelPage } from './crawlNovelPage/InitBookmarkNewNovelPage'
 import { InitNewNovelPage } from './crawlNovelPage/InitNewNovelPage'
 import { InitArtworkSeriesPage } from './crawlArtworkPage/InitArtworkSeriesPage'
 import { InitFollowingPage } from './crawlMixedPage/InitFollowingPage'
@@ -59,7 +58,7 @@ class InitPage {
       case pageType.list.BookmarkDetail:
         return new InitBookmarkDetailPage()
       case pageType.list.NewArtworkBookmark:
-        return new InitBookmarkNewArtworkPage()
+        return new InitBookmarkNewPage()
       case pageType.list.Discover:
         return new InitDiscoverPage()
       case pageType.list.NewArtwork:
@@ -73,7 +72,7 @@ class InitPage {
       case pageType.list.NovelRanking:
         return new InitRankingNovelPage()
       case pageType.list.NewNovelBookmark:
-        return new InitBookmarkNewNovelPage()
+        return new InitBookmarkNewPage()
       case pageType.list.NewNovel:
         return new InitNewNovelPage()
       case pageType.list.ArtworkSeries:

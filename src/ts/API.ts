@@ -342,65 +342,27 @@ class API {
 
   // 获取大家的新作品的数据
   static getNewIllustData(option: NewIllustOption): Promise<NewIllustData> {
-    let url = `https://www.pixiv.net/ajax/illust/new?lastId=${option.lastId}&limit=${option.limit}&type=${option.type}&r18=${option.r18}`
+    const url = `https://www.pixiv.net/ajax/illust/new?lastId=${option.lastId}&limit=${option.limit}&type=${option.type}&r18=${option.r18}`
     return this.sendGetRequest(url)
   }
 
   // 获取大家的新作小说的数据
   static getNewNovleData(option: NewIllustOption): Promise<NewNovelData> {
-    let url = `https://www.pixiv.net/ajax/novel/new?lastId=${option.lastId}&limit=${option.limit}&r18=${option.r18}`
+    const url = `https://www.pixiv.net/ajax/novel/new?lastId=${option.lastId}&limit=${option.limit}&r18=${option.r18}`
     return this.sendGetRequest(url)
   }
 
-  // 获取关注的的新作品的数据
-  static getBookmarkNewIllustData(
-    p = 1,
-    r18 = false
-  ): Promise<{
-    lastPage: boolean
-    data: BookMarkNewData[]
-  }> {
-    let path = r18 ? 'bookmark_new_illust_r18' : 'bookmark_new_illust'
-
-    let url = `https://www.pixiv.net/${path}.php?p=${p}`
-
-    return new Promise((resolve, reject) => {
-      fetch(url, {
-        method: 'get',
-        credentials: 'same-origin',
-      })
-        .then((response) => {
-          if (response.ok) {
-            return response.text()
-          } else {
-            throw new Error(response.status.toString())
-          }
-        })
-        .then((data) => {
-          let listPageDocument = new DOMParser().parseFromString(
-            data,
-            'text/html'
-          )
-
-          // 查找是否有下一页的按钮，如果没有说明是最后一页了，不再继续抓取下一页
-          let lastPage = false
-          if (!listPageDocument.querySelector('span.next a')) {
-            lastPage = true
-          }
-
-          let worksInfoText = (listPageDocument.querySelector(
-            '#js-mount-point-latest-following'
-          ) as HTMLDivElement).dataset.items!
-
-          resolve({
-            lastPage,
-            data: JSON.parse(worksInfoText),
-          })
-        })
-        .catch((error) => {
-          reject(error)
-        })
-    })
+  // 获取关注的用户的新作品的数据
+  static getBookmarkNewWorkData(
+    type: 'illust' | 'novel',
+    p: number,
+    r18: boolean,
+    lang = 'zh'
+  ): Promise<BookMarkNewData> {
+    const url = `https://www.pixiv.net/ajax/follow_latest/${type}?p=${p}&mode=${
+      r18 ? 'r18' : 'all'
+    }&lang=${lang}`
+    return this.sendGetRequest(url)
   }
 
   // 根据 illustType，返回作品类型的描述

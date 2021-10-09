@@ -70,7 +70,7 @@ class InitRankingNovelPage extends InitPageBase {
   }
 
   protected async getIdList() {
-    let dom: HTMLDocument
+    let dom: Document
     try {
       const res = await fetch(this.pageUrlList[this.listPageFinished])
       const text = await res.text()
