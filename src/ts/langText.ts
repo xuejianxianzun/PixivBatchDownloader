@@ -522,6 +522,12 @@ const langText = {
     'Bookmark count, bookmarks number of works.',
     'Bookmark count，作品のボックマークの数、前に追加することでボックマーク数で并べることができます。',
   ],
+  _命名标记bmk_1000: [
+    '作品收藏数的简化显示。例如：0+、1000+、2000+、15000+',
+    '作品收藏數的簡化顯示。例如：0+、1000+、2000+、15000+',
+    'Simplified number of bookmark, e.g. 0+、1000+、2000+、15000+',
+    '作品のボックマークの数の簡略表示。 例：0+、1000+、2000+、15000+',
+  ],
   _命名标记like: [
     'Like count，作品的点赞数。',
     'Like count，作品的點讚數。',
@@ -1571,7 +1577,7 @@ const langText = {
     'Click the blue button on the right side of the page to open the downloader panel.',
     'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。',
   ],
-  _我知道了: ['我知道了', '我知道了', 'I know', '分かりました'],
+  _我知道了: ['我知道了', '我知道了', 'Got it', '分かりました'],
   _背景图片: ['背景图片', '背景圖片', 'Background image', '背景画像'],
   _选择文件: ['选择文件', '選擇檔案', 'Select a file', 'ファイルを選択'],
   _不透明度: ['不透明度', '不透明度', 'Opacity', '不透明度'],

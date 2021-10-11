@@ -34,7 +34,14 @@ export interface DonwloadSuccessData {
 
 export interface DonwloadSkipData {
   id: string
-  reason: 'duplicate' | 'size' | 'color' | 'widthHeight' | '404' | '500'
+  reason:
+    | 'duplicate'
+    | 'size'
+    | 'color'
+    | 'widthHeight'
+    | '404'
+    | '500'
+    | 'excludedType'
 }
 
 // 所有任务的信息

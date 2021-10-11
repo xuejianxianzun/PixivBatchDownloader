@@ -109,6 +109,15 @@ class Download {
       )
     }
 
+    // 如果是动图，再次检查是否排除了动图
+    // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
+    if (arg.data.type === 2 && !settings.downType2) {
+      return this.skip({
+        id: arg.id,
+        reason: 'excludedType',
+      })
+    }
+
     // 获取文件名
     this.fileName = fileName.getFileName(arg.data)
 

@@ -306,6 +306,7 @@ export const formHtml = `<form class="settingForm">
         <option value="{type}">{type}</option>
         <option value="{like}">{like}</option>
         <option value="{bmk}">{bmk}</option>
+        <option value="{bmk_1000}">{bmk_1000}</option>
         <option value="{view}">{view}</option>
         <option value="{rank}">{rank}</option>
         <option value="{date}">{date}</option>
@@ -372,6 +373,9 @@ export const formHtml = `<form class="settingForm">
       <br>
       <span class="blue">{bmk}</span>
       ${lang.transl('_命名标记bmk')}
+      <br>
+      <span class="blue">{bmk_1000}</span>
+      ${lang.transl('_命名标记bmk_1000')}
       <br>
       <span class="blue">{view}</span>
       ${lang.transl('_命名标记view')}

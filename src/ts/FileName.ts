@@ -77,6 +77,17 @@ class FileName {
     }
   }
 
+  // 返回收藏数的简化显示
+  private getBKM1000(bmk: number): string {
+    if (bmk < 1000) {
+      return '0+'
+    } else {
+      // 1000 以上，以 1000 为单位
+      const str = bmk.toString()
+      return str.slice(0, str.length - 3) + '000+'
+    }
+  }
+
   // 在文件名前面添加一层文件夹
   // appendFolder 方法会对非法字符进行处理（包括处理路径分隔符 / 这主要是因为 tags 可能含有斜线 /，需要替换）
   private appendFolder(fullPath: string, folderName: string): string {
@@ -253,6 +264,11 @@ class FileName {
       },
       '{bmk}': {
         value: data.bmk,
+        prefix: 'bmk_',
+        safe: true,
+      },
+      '{bmk_1000}': {
+        value: this.getBKM1000(data.bmk),
         prefix: 'bmk_',
         safe: true,
       },

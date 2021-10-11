@@ -1844,6 +1844,16 @@
               }
             }
           }
+          // 返回收藏数的简化显示
+          getBKM1000(bmk) {
+            if (bmk < 1000) {
+              return '0+'
+            } else {
+              // 1000 以上，以 1000 为单位
+              const str = bmk.toString()
+              return str.slice(0, str.length - 3) + '000+'
+            }
+          }
           // 在文件名前面添加一层文件夹
           // appendFolder 方法会对非法字符进行处理（包括处理路径分隔符 / 这主要是因为 tags 可能含有斜线 /，需要替换）
           appendFolder(fullPath, folderName) {
@@ -2028,6 +2038,11 @@
               },
               '{bmk}': {
                 value: data.bmk,
+                prefix: 'bmk_',
+                safe: true,
+              },
+              '{bmk_1000}': {
+                value: this.getBKM1000(data.bmk),
                 prefix: 'bmk_',
                 safe: true,
               },
@@ -3694,6 +3709,12 @@
             'Bookmark count, bookmarks number of works.',
             'Bookmark count，作品のボックマークの数、前に追加することでボックマーク数で并べることができます。',
           ],
+          _命名标记bmk_1000: [
+            '作品收藏数的简化显示。例如：0+、1000+、2000+、15000+',
+            '作品收藏數的簡化顯示。例如：0+、1000+、2000+、15000+',
+            'Simplified number of bookmark, e.g. 0+、1000+、2000+、15000+',
+            '作品のボックマークの数の簡略表示。 例：0+、1000+、2000+、15000+',
+          ],
           _命名标记like: [
             'Like count，作品的点赞数。',
             'Like count，作品的點讚數。',
@@ -4813,7 +4834,7 @@
             'Click the blue button on the right side of the page to open the downloader panel.',
             'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。',
           ],
-          _我知道了: ['我知道了', '我知道了', 'I know', '分かりました'],
+          _我知道了: ['我知道了', '我知道了', 'Got it', '分かりました'],
           _背景图片: ['背景图片', '背景圖片', 'Background image', '背景画像'],
           _选择文件: [
             '选择文件',
@@ -14336,6 +14357,18 @@
                 )
               )
             }
+            // 如果是动图，再次检查是否排除了动图
+            // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
+            if (
+              arg.data.type === 2 &&
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
+                .downType2
+            ) {
+              return this.skip({
+                id: arg.id,
+                reason: 'excludedType',
+              })
+            }
             // 获取文件名
             this.fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__[
               'fileName'
@@ -21831,6 +21864,7 @@
         <option value="{type}">{type}</option>
         <option value="{like}">{like}</option>
         <option value="{bmk}">{bmk}</option>
+        <option value="{bmk_1000}">{bmk_1000}</option>
         <option value="{view}">{view}</option>
         <option value="{rank}">{rank}</option>
         <option value="{date}">{date}</option>
@@ -21909,6 +21943,9 @@
       <br>
       <span class="blue">{bmk}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记bmk')}
+      <br>
+      <span class="blue">{bmk_1000}</span>
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记bmk_1000')}
       <br>
       <span class="blue">{view}</span>
       ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_命名标记view')}
