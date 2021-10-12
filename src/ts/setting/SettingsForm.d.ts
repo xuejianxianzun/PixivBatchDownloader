@@ -98,4 +98,5 @@ export interface SettingsForm extends HTMLFormElement {
   setNameRuleForEachPageType: HTMLInputElement
   showAdvancedSettings: HTMLInputElement
   showNotificationAfterDownloadComplete: HTMLInputElement
+  boldKeywords: HTMLInputElement
 }

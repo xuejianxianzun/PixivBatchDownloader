@@ -176,8 +176,12 @@ class FileName {
     let createFolderForEachWork =
       settings.workDir && data.dlCount > settings.workDirFileNumber
 
+    let r18FolderName = settings.r18Folder ? settings.r18FolderName : ''
+
     const allNameRule =
-      userSetName + (createFolderForEachWork ? settings.workDirNameRule : '')
+      userSetName +
+      (createFolderForEachWork ? settings.workDirNameRule : '') +
+      r18FolderName
 
     // 1 生成所有命名标记的值
     // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
@@ -362,7 +366,10 @@ class FileName {
 
     // 把 R18(G) 作品存入指定目录里
     if (settings.r18Folder && (data.xRestrict === 1 || data.xRestrict === 2)) {
-      result = this.appendFolder(result, settings.r18FolderName)
+      result = this.appendFolder(
+        result,
+        this.generateFileName(r18FolderName, cfg)
+      )
     }
 
     // 为每个作品创建单独的文件夹

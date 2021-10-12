@@ -154,6 +154,7 @@ interface XzSetting {
   }
   showAdvancedSettings: boolean
   showNotificationAfterDownloadComplete: boolean
+  boldKeywords: boolean
 }
 
 type SettingsKeys = keyof XzSetting
@@ -322,6 +323,7 @@ class Settings {
     },
     showAdvancedSettings: false,
     showNotificationAfterDownloadComplete: false,
+    boldKeywords: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

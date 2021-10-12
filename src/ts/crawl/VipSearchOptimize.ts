@@ -52,7 +52,7 @@ class VipSearchOptimize {
   }
 
   // 指示是否停止抓取作品
-  public async stopCrawl(data: NovelData | ArtworkData, ajaxThread: number) {
+  public async stopCrawl(data: NovelData | ArtworkData) {
     // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
     if (!this.vipSearchOptimize || !settings.BMKNumSwitch) {
       return false

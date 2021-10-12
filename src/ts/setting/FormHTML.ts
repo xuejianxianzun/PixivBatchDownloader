@@ -217,7 +217,7 @@ export const formHtml = `<form class="settingForm">
         '_设置id范围提示'
       )}">${lang.transl(
   '_设置id范围'
-)}&nbsp;&nbsp; <span class="gray1"> ? </span></span>
+)}&nbsp; <span class="gray1"> ? </span></span>
       <input type="checkbox" name="idRangeSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="idRangeSwitch">
@@ -287,9 +287,7 @@ export const formHtml = `<form class="settingForm">
     </div>
     <div class="tabsContnet">
     <p class="option" data-no="13">
-      <span class="has_tip settingNameStyle1" data-tip="${
-        lang.transl('_设置文件夹名的提示') + '<br>' + '{user}/{id}'
-      }">${lang.transl('_命名规则')}<span class="gray1"> ? </span></span>
+      <span class="settingNameStyle1">${lang.transl('_命名规则')}</span>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{p_title}/{id}">
       &nbsp;
       <select name="fileNameSelect" class="beautify_scrollbar">
@@ -792,7 +790,7 @@ export const formHtml = `<form class="settingForm">
 
       <span class="verticalSplit"></span>
 
-      <span class="settingNameStyle1">${lang.transl('_图片尺寸')} </span>
+      <span class="settingNameStyle1">${lang.transl('_图片尺寸2')} </span>
       <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
       <label for="magnifierSize1"> ${lang.transl('_原图')} </label>
@@ -890,7 +888,7 @@ export const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="32">
-      <span class="settingNameStyle1">Language</span>
+      <span class="settingNameStyle1"><span class="key">Language</span></span>
       <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio"></span>
       <label for="userSetLang1">${lang.transl('_自动检测')}</label>
@@ -911,6 +909,13 @@ export const formHtml = `<form class="settingForm">
       <span class="beautify_radio"></span>
       <label for="userSetLang5">English</label>
       &nbsp;
+      </p>
+
+      <p class="option" data-no="53">
+      <span class="settingNameStyle1">
+      ${lang.transl('_以粗体显示关键字')}</span>
+      <input type="checkbox" name="boldKeywords" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="37">

@@ -311,7 +311,7 @@ abstract class InitPageBase {
     this.logResultTotal()
 
     // 如果会员搜索优化策略指示停止抓取，则立即进入完成状态
-    if (data && (await vipSearchOptimize.stopCrawl(data, this.ajaxThread))) {
+    if (data && (await vipSearchOptimize.stopCrawl(data))) {
       // 指示抓取已停止
       this.crawlStopped = true
       this.crawlFinished()

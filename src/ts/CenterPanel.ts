@@ -7,6 +7,7 @@ import { msgBox } from './MsgBox'
 import { BG } from './setting/BG'
 import './OpenCenterPanel'
 import { settings } from './setting/Settings'
+import { BoldKeywords } from './BoldKeywords'
 
 // 选项卡的名称和索引
 enum Tabbar {
@@ -25,6 +26,8 @@ class CenterPanel {
     theme.register(this.centerPanel)
 
     new BG(this.centerPanel)
+
+    new BoldKeywords(this.centerPanel)
 
     this.bindEvents()
   }

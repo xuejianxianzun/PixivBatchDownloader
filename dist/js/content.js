@@ -469,6 +469,59 @@
         /***/
       },
 
+    /***/ './src/ts/BoldKeywords.ts':
+      /*!********************************!*\
+  !*** ./src/ts/BoldKeywords.ts ***!
+  \********************************/
+      /*! exports provided: BoldKeywords */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'BoldKeywords',
+          function () {
+            return BoldKeywords
+          }
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./setting/Settings */ './src/ts/setting/Settings.ts'
+        )
+
+        class BoldKeywords {
+          constructor(wrap) {
+            this.className = 'showBlobKeywords'
+            this.wrap = wrap
+            this.bindEvent()
+            this.setClassName()
+          }
+          bindEvent() {
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.settingChange,
+              (ev) => {
+                const data = ev.detail.data
+                if (data.name === 'boldKeywords') {
+                  this.setClassName()
+                }
+              }
+            )
+          }
+          setClassName() {
+            this.wrap.classList[
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_1__['settings']
+                .boldKeywords
+                ? 'add'
+                : 'remove'
+            ](this.className)
+          }
+        }
+
+        /***/
+      },
+
     /***/ './src/ts/Bookmark.ts':
       /*!****************************!*\
   !*** ./src/ts/Bookmark.ts ***!
@@ -589,6 +642,9 @@
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(
           /*! ./setting/Settings */ './src/ts/setting/Settings.ts'
         )
+        /* harmony import */ var _BoldKeywords__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(
+          /*! ./BoldKeywords */ './src/ts/BoldKeywords.ts'
+        )
 
         // 选项卡的名称和索引
         var Tabbar
@@ -608,6 +664,9 @@
               this.centerPanel
             )
             new _setting_BG__WEBPACK_IMPORTED_MODULE_6__['BG'](this.centerPanel)
+            new _BoldKeywords__WEBPACK_IMPORTED_MODULE_9__['BoldKeywords'](
+              this.centerPanel
+            )
             this.bindEvents()
           }
           // 添加中间面板
@@ -1943,12 +2002,19 @@
               data.dlCount >
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
                   .workDirFileNumber
+            let r18FolderName = _setting_Settings__WEBPACK_IMPORTED_MODULE_0__[
+              'settings'
+            ].r18Folder
+              ? _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
+                  .r18FolderName
+              : ''
             const allNameRule =
               userSetName +
               (createFolderForEachWork
                 ? _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
                     .workDirNameRule
-                : '')
+                : '') +
+              r18FolderName
             // 1 生成所有命名标记的值
             // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
             const cfg = {
@@ -2172,8 +2238,7 @@
             ) {
               result = this.appendFolder(
                 result,
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_0__['settings']
-                  .r18FolderName
+                this.generateFileName(r18FolderName, cfg)
               )
             }
             // 为每个作品创建单独的文件夹
@@ -3183,45 +3248,45 @@
             'どの種類の作品をダウンロードしますか',
           ],
           _不能含有tag: [
-            '不能含有 tag&nbsp;',
-            '不能含有 tag&nbsp;',
-            'Exclude specified tag',
-            '指定した tag を除外する',
+            '<span class="key">不能</span>含有标签',
+            '<span class="key">不能</span>含有標籤',
+            '<span class="key">Exclude</span> specified tag',
+            '指定したタグを除外する',
           ],
           _排除tag的提示文字: [
-            '您可在下载前设置要排除的tag，这样在下载时将不会下载含有这些tag的作品。不区分大小写；如需排除多个tag，请使用英文逗号分隔。请注意要排除的tag的优先级大于要包含的tag的优先级。',
-            '可在下載前設定要排除的 tag，下載時將排除含有這些 tag 的作品，不區分大小寫；如需排除多個 tag，請使用半形逗號（,）分隔。請注意，要排除的 tag 優先於要包含的 tag。',
+            '您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。不区分大小写；如需排除多个标签，请使用英文逗号分隔。请注意要排除的标签的优先级大于要包含的tag的优先级。',
+            '可在下載前設定要排除的標籤，下載時將排除含有這些標籤 的作品，不區分大小寫；如需排除多個標籤，請使用半形逗號（,）分隔。請注意，要排除的標籤 優先於要包含的標籤。',
             'Before downloading, you can set the tag you want to exclude. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated. The excluded tag takes precedence over the included tag',
-            'ダウンロード前に、除外する tag を設定できます。大文字と小文字を区別しない；複数の tag を設定する必要がある場合は、「,」で区切ってください。除外された tag は、必要な tag よりも優先されます',
+            'ダウンロード前に、除外するタグを設定できます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。除外されたタグは、必要なタグよりも優先されます',
           ],
           _设置了排除tag之后的提示: [
-            '排除 tag：',
-            '排除 tag：',
+            '排除标签：',
+            '排除標籤：',
             'Excludes tag: ',
-            '以下の tag を除外：',
+            '以下のタグを除外：',
           ],
           _必须含有tag: [
-            '必须含有 tag&nbsp;',
-            '必須含有 tag&nbsp;',
-            'Must contain tag',
-            '必要な tag&nbsp;',
+            '<span class="key">必须</span>含有标签',
+            '<span class="key">必須</span>含有標籤',
+            '<span class="key">Include</span> tag',
+            '<span class="key">必要な</span>タグ',
           ],
           _必须tag的提示文字: [
-            '您可在下载前设置作品里必须包含的tag，不区分大小写；如需包含多个tag，请使用英文逗号分隔。',
-            '可在下載前設定作品裡必須包含的 tag，不區分大小寫；如需包含多個 tag，請使用半形逗號（,）分隔。',
+            '您可在下载前设置作品里必须包含的标签，不区分大小写；如需包含多个标签，请使用英文逗号分隔。',
+            '可在下載前設定作品裡必須包含的標籤，不區分大小寫；如需包含多個標籤，請使用半形逗號（,）分隔。',
             'Before downloading, you can set the tag that must be included. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated. ',
-            'ダウンロードする前に、必要な tag を設定することができます。大文字と小文字を区別しない；複数の tag を設定する必要がある場合は、「,」で区切ってください。',
+            'ダウンロードする前に、必要なタグを設定することができます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。',
           ],
           _设置了必须tag之后的提示: [
-            '包含 tag：',
-            '包含 tag：',
+            '包含标签：',
+            '包含標籤：',
             'Include tag: ',
-            '以下の tag を含める：',
+            '以下の タグ を含める：',
           ],
           _筛选宽高的按钮文字: [
-            '设置宽高条件',
-            '設定寬高條件',
-            'Set the width and height',
+            '设置<span class="key">宽高</span>条件',
+            '設定<span class="key">寬高</span>條件',
+            'Set the <span class="key">width and height</span>',
             '幅と高さの条件を設定する',
           ],
           _筛选宽高的按钮Title: [
@@ -3231,9 +3296,9 @@
             'ダウンロードする前に、画像の幅と高さの条件を設定できます。',
           ],
           _设置宽高比例: [
-            '设置宽高比例',
-            '設定寬高比例',
-            'Set the aspect ratio',
+            '设置宽高<span class="key">比例</span>',
+            '設定寬高<span class="key">比例</span>',
+            'Set the aspect <span class="key">ratio</span>',
             '縦横比を設定する',
           ],
           _设置宽高比例Title: [
@@ -3292,12 +3357,6 @@
             'Set the number of pages',
             'ページ数を設定する',
           ],
-          _筛选收藏数的按钮文字: [
-            '设置收藏数量',
-            '設定收藏數量',
-            'Set the bookmarkCount conditions',
-            'ブックマークされた数を設定する',
-          ],
           _筛选收藏数的按钮Title: [
             '在下载前，您可以设置对收藏数量的要求。',
             '下載前可以設定對收藏數量的要求。',
@@ -3305,9 +3364,9 @@
             'ダウンロードする前に、ブックマークされた数の条件を設定することができます。',
           ],
           _设置收藏数量: [
-            '设置收藏数量',
-            '設定收藏數量',
-            'Set the number of bookmarks',
+            '设置<span class="key">收藏</span>数量',
+            '設定<span class="key">收藏</span>數量',
+            'Set the number of <span class="key">bookmarks</span>',
             'ブックマークされた数を設定する',
           ],
           _设置收藏数量的提示: [
@@ -3442,9 +3501,9 @@
           _漫画: ['漫画', '漫畫', 'Manga', '漫画'],
           _动图: ['动图', '動圖', 'Ugoira', 'うごイラ'],
           _动图保存格式: [
-            '动图保存格式',
-            '動圖儲存格式',
-            'Save the ugoira work as',
+            '<span class="key">动图</span>保存格式',
+            '<span class="key">動圖</span>儲存格式',
+            'Save the <span class="key">ugoira</span> work as',
             'うごイラの保存タイプ',
           ],
           _动图保存格式title: [
@@ -3660,22 +3719,16 @@
             "フォルダーは '/' で作成できます。例：",
           ],
           _添加命名标记前缀: [
-            '添加命名标记前缀',
-            '加入命名標記前綴',
-            'Add named tag prefix',
-            '前に tag の名前を追加',
+            '添加命名标记<span class="key">前缀</span>',
+            '加入命名標記<span class="key">前綴</span>',
+            'Add named tag <span class="key">prefix</span>',
+            '前にタグの名前を追加',
           ],
           _添加字段名称提示: [
             `例如，在用户名前面添加“user_”标记`,
             '例如，在使用者名稱前面加入「user_」標記。',
             `For example, add the 'user_' tag in front of the username`,
-            'たとえば、ユーザー名の前に 「user_」 tag を追加します。',
-          ],
-          _查看标记的含义: [
-            '查看标记的含义',
-            '檢視標記的意義',
-            'View the meaning of the tag',
-            'tag の意味を表示する',
+            'たとえば、ユーザー名の前に 「user_」タグを追加します。',
           ],
           _命名标记id: [
             '默认文件名，如 44920385_p0',
@@ -3690,10 +3743,10 @@
             '作品のタイトル',
           ],
           _命名标记tags: [
-            '作品的 tag 列表',
-            '作品的 tag 清單',
+            '作品的标签列表',
+            '作品的標籤清單',
             'The tags of the work',
-            '作品の tags',
+            '作品のタグ',
           ],
           _命名标记user: ['用户名字', '使用者名稱', 'User name', 'ユーザー名'],
           _用户id: ['用户 ID', '使用者 ID', 'User ID', 'ユーザー ID'],
@@ -3740,16 +3793,16 @@
             '0、1、2 など、作品の画像のシリアル番号。各ピースは再集計されます。',
           ],
           _命名标记tags_trans: [
-            '作品的 tag 列表，附带翻译后的 tag（如果有）',
-            '作品的 tag 清單，包含翻譯後的 tag（如果有的話）。',
+            '作品的标签列表，附带翻译后的标签（如果有）',
+            '作品的標籤清單，包含翻譯後的標籤（如果有的話）。',
             'The tags of the work, with the translated tag (if any)',
-            '作品の tag リスト、翻訳付き tag (あれば)',
+            '作品のタグリスト、翻訳付きタグ(あれば)',
           ],
           _命名标记tags_transl_only: [
-            '翻译后的 tag 列表',
-            '譯後的 tag 清單。',
+            '翻译后的标签列表',
+            '譯後的標籤清單。',
             'Translated tags',
-            '翻訳后の tag リスト',
+            '翻訳后のタグリスト',
           ],
           _命名标记date: [
             '作品的创建时间。如 2019-08-29',
@@ -3773,7 +3826,7 @@
             '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}<br>* 在某些情况下，会有一些标记不可用。',
             '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{userid}<br>＊某些情況下有些標記無法使用。',
             'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}<br>* In some cases, some tags will not be available.',
-            'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{userid}<br>* 場合によっては、一部の tag が利用できず。',
+            'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{userid}<br>* 場合によっては、一部のタグが利用できず。',
           ],
           _命名规则一定要包含id: [
             '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
@@ -3782,10 +3835,10 @@
             'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。',
           ],
           _文件夹标记PTag: [
-            '当前页面的 tag。当前页面没有 tag 时不可用。',
-            '目前頁面的 tag。目前頁面沒有 tag 時無法使用。',
+            '当前页面的标签。当前页面没有标签时不可用。',
+            '目前頁面的標籤。目前頁面沒有標籤時無法使用。',
             'The tag of the current page. Not available if the current page has no tag.',
-            '現在のページの tag。現在のページの tag がないときは使用できません。',
+            '現在のページのタグ。現在のページのタグ がないときは使用できません。',
           ],
           _命名标记seriesTitle: [
             '系列标题（可能为空）',
@@ -3812,9 +3865,9 @@
             'ファイル名のプレビュー',
           ],
           _设置下载线程: [
-            '设置下载线程',
-            '設定下載執行緒',
-            'Set the download thread',
+            '设置下载<span class="key">线程</span>',
+            '設定下載<span class="key">執行緒</span>',
+            'Set the download <span class="key">thread</span>',
             'ダンロードスレッドの設定',
           ],
           _线程数字: [
@@ -4107,10 +4160,10 @@
             'クロールを開始する',
           ],
           _给未分类作品添加添加tag: [
-            '给未分类作品添加 tag',
-            '幫未分類的作品加入 tag',
+            '给未分类作品添加标签',
+            '幫未分類的作品加入標籤',
             'Add tag to unclassified work',
-            '未分類の作品に tag を追加',
+            '未分類の作品にタグを追加',
           ],
           _id不合法: ['id不合法', 'id 不合法', 'id is illegal', 'id が不正な'],
           _快速收藏: [
@@ -4121,9 +4174,9 @@
           ],
           _启用: ['启用', '啟用', 'Enable', '有効にする'],
           _自动开始下载: [
-            '自动开始下载',
-            '自動開始下載',
-            'Download starts automatically',
+            '<span class="key">自动</span>开始下载',
+            '<span class="key">自動</span>開始下載',
+            'Download starts <span class="key">automatically</span>',
             'ダウンロードは自動的に開始されます',
           ],
           _快速下载的提示: [
@@ -4177,10 +4230,10 @@
             'すばやくダウンロードとき、イラストが一枚だけでも、フォルダも作成されます',
           ],
           _设置id范围: [
-            '设置 id 范围',
-            '設定 id 範圍',
-            'Set id range',
-            'id 範囲を設定',
+            '设置 <span class="key">ID</span> 范围',
+            '設定 <span class="key">ID</span> 範圍',
+            'Set <span class="key">ID</span> range',
+            '<span class="key">ID</span> 範囲を設定',
           ],
           _设置id范围提示: [
             '您可以输入一个作品 id，抓取比它新或者比它旧的作品',
@@ -4191,9 +4244,9 @@
           _大于: ['大于', '大於', 'Bigger than', 'より大きい'],
           _小于: ['小于', '小於', 'Less than', 'より小さい'],
           _设置投稿时间: [
-            '设置投稿时间',
-            '設定投稿時間',
-            'Set posting date',
+            '设置投稿<span class="key">时间</span>',
+            '設定投稿<span class="key">時間</span>',
+            'Set posting <span class="key">date</span>',
             '投稿日時を設定する',
           ],
           _设置投稿时间提示: [
@@ -4216,10 +4269,10 @@
             'スクリーニング開始',
           ],
           _开始筛选Title: [
-            '按照设置来筛选当前 tag 里的作品。',
-            '按照設定來篩選目前 tag 裡的作品。',
+            '按照设置来筛选当前标签里的作品。',
+            '按照設定來篩選目前標籤裡的作品。',
             'Screen the works in the current tag.',
-            '現在の tag にある作品を設定によってスクリーニングする',
+            '現在のタグにある作品を設定によってスクリーニングする',
           ],
           _在结果中筛选: [
             '在结果中筛选',
@@ -4252,9 +4305,9 @@
             '使用可能なデータはない',
           ],
           _预览搜索结果: [
-            '预览搜索页面的筛选结果',
-            '預覽搜尋頁面的篩選結果',
-            'Preview filter results on search page',
+            '<span class="key">预览</span>搜索页面的筛选结果',
+            '<span class="key">預覽</span>搜尋頁面的篩選結果',
+            '<span class="key">Preview</span> filter results on search page',
             '検索ページのフィルタ結果をプレビューします',
           ],
           _预览搜索结果说明: [
@@ -4277,10 +4330,10 @@
             'クイックボックマークを有効にする',
           ],
           _启用快速收藏说明: [
-            '当你点击下载器添加的收藏按钮(☆)，把作品添加到书签时，自动添加这个作品的 tag。',
-            '當點選下載器新增的收藏按鈕（☆），將作品加入書籤時，自動新增這個作品的 tag。',
+            '当你点击下载器添加的收藏按钮(☆)，把作品添加到书签时，自动添加这个作品的标签。',
+            '當點選下載器新增的收藏按鈕（☆），將作品加入書籤時，自動新增這個作品的標籤。',
             'When you click the favorite button (☆) added by the downloader to bookmark a work, the tag of the work is automatically added.',
-            'ダウンローダーに追加されたボックマークボタン「☆」をクリックして、作品をブックマークに追加すると、自動的に作品の tag が追加されます。',
+            'ダウンローダーに追加されたボックマークボタン「☆」をクリックして、作品をブックマークに追加すると、自動的に作品のタグが追加されます。',
           ],
           _新增设置项: [
             '新增设置项',
@@ -4292,9 +4345,9 @@
           _下载: ['下载', '下載', 'Download', 'ダウンロード'],
           _其他: ['其他', '其他', 'Other', 'その他'],
           _第一张图不带序号: [
-            '第一张图不带序号',
-            '第一張圖片不包含序號',
-            'The first picture without a serial number',
+            '第一张图不带<span class="key">序号</span>',
+            '第一張圖片不包含<span class="key">序號</span>',
+            'The first picture without a <span class="key">serial number</span>',
             '最初のイメージの番号を削除',
           ],
           _第一张图不带序号说明: [
@@ -4330,9 +4383,9 @@
             '{} は色が設定に合わないため、保存されていません。',
           ],
           _同时转换多少个动图: [
-            '同时转换多少个动图',
-            '同時轉換多少個動圖',
-            'How many animations are converted at the same time',
+            '同时<span class="key">转换</span>多少个动图',
+            '同時<span class="key">轉換</span>多少個動圖',
+            'How many animations are <span class="key">converted</span> at the same time',
             '同時変換のうごイラの上限',
           ],
           _同时转换多少个动图警告: [
@@ -4356,9 +4409,9 @@
             '{} はファイルサイズが設定に合わないため、保存されていません。',
           ],
           _文件体积限制: [
-            '文件体积限制',
-            '檔案體積限制',
-            'File size limit',
+            '文件<span class="key">体积</span>限制',
+            '檔案<span class="key">體積</span>限制',
+            'File <span class="key">size</span> limit',
             'ファイルサイズ制限',
           ],
           _不符合要求的文件不会被保存: [
@@ -4381,15 +4434,15 @@
             'シリーズ小説の統合',
           ],
           _小说保存格式: [
-            '小说保存格式',
-            '小說儲存格式',
-            'Save the novel as',
-            '小説の保存形式',
+            '<span class="key">小说</span>保存格式',
+            '<span class="key">小說</span>儲存格式',
+            'Save the <span class="key">novel</span> as',
+            '<span class="key">小説</span>の保存形式',
           ],
           _在小说里保存元数据: [
-            '在小说里保存元数据',
-            '將元資料（metadata）儲存在小說裡',
-            'Save metadata in the novel',
+            '在小说里保存<span class="key">元数据</span>',
+            '在小說裡儲存<span class="key">元資料</span>',
+            'Save <span class="key">metadata</span> in the novel',
             '小説の中にメタデータを保存する',
           ],
           _在小说里保存元数据提示: [
@@ -4411,9 +4464,9 @@
             '出力内容が多いため、txt ファイルに保存しました。',
           ],
           _不下载重复文件: [
-            '不下载重复文件',
-            '不下載重複檔案',
-            'Don`t download duplicate files',
+            '不下载<span class="key">重复</span>文件',
+            '不下載<span class="key">重複</span>檔案',
+            'Don`t download <span class="key">duplicate</span> files',
             '重複ファイルをダウンロードしない',
           ],
           _不下载重复文件的提示: [
@@ -4537,9 +4590,9 @@
           ],
           _无损: ['无损', '無損', 'Lossless', 'ロスレス'],
           _文件名长度限制: [
-            '文件名长度限制',
-            '檔案名稱長度限制',
-            'File name length limit',
+            '文件名<span class="key">长度</span>限制',
+            '檔案名稱<span class="key">長度</span>限制',
+            'File name <span class="key">length</span> limit',
             'ファイル名の長さ制限',
           ],
           _导出csv: [
@@ -4572,7 +4625,13 @@
             'Export successfully',
             'エクスポート成功',
           ],
-          _图片尺寸: ['图片尺寸', '圖片尺寸', 'Image size', '画像サイズ'],
+          _图片尺寸: [
+            '图片<span class="key">尺寸</span>',
+            '圖片<span class="key">尺寸</span>',
+            'Image <span class="key">size</span>',
+            '画像<span class="key">サイズ</span>',
+          ],
+          _图片尺寸2: ['图片尺寸', '圖片尺寸', 'Image size', '画像サイズ'],
           _原图: ['原图', '原圖', 'Original', 'Original'],
           _普通: ['普通', '普通', 'Regular', 'Regular'],
           _小图: ['小图', '小圖', 'Small', 'Small'],
@@ -4593,9 +4652,9 @@
           ],
           _完成: ['完成', '完成', 'Completed', '完了'],
           _日期格式: [
-            '日期和时间格式',
-            '日期和時間格式',
-            'Date and time format',
+            '日期和时间<span class="key">格式</span>',
+            '日期和時間<span class="key">格式</span>',
+            'Date and time <span class="key">format</span>',
             '日付と時刻の書式',
           ],
           _日期格式提示: [
@@ -4627,9 +4686,9 @@
             'ブックマークされていない',
           ],
           _下载之后收藏作品: [
-            '下载之后收藏作品',
-            '下載之後收藏作品',
-            'Bookmark works after downloading',
+            '下载之后<span class="key">收藏</span>作品',
+            '下載之後<span class="key">收藏</span>作品',
+            '<span class="key">Bookmark</span> works after downloading',
             'ダウンロードした作品をブックマークする',
           ],
           _下载之后收藏作品的提示: [
@@ -4639,17 +4698,17 @@
             'ダウンロード後、作品は自動的にブックマークされます。',
           ],
           _收藏设置: [
-            '收藏设置',
-            '收藏設定',
-            'Bookmark settings',
+            '<span class="key">收藏</span>设置',
+            '<span class="key">收藏</span>設定',
+            '<span class="key">Bookmark</span> settings',
             'ブックマーク設定 ',
           ],
-          _添加tag: ['添加 tag', '加入 tag', 'Add tag', 'tag を追加'],
-          _不添加tag: ['不添加 tag', '不加入 tag', "Don't add tag", 'tag なし'],
+          _添加tag: ['添加标签', '加入標籤', 'Add tag', 'タグを追加'],
+          _不添加tag: ['不添加标签', '不加入標籤', "Don't add tag", 'タグなし'],
           _用户阻止名单: [
-            '用户阻止名单',
-            '使用者阻止名單',
-            'User block list',
+            '用户<span class="key">阻止</span>名单',
+            '使用者<span class="key">阻止</span>名單',
+            'User <span class="key">block</span> list',
             'ユーザーブロックリスト',
           ],
           _用户阻止名单的说明: [
@@ -4660,8 +4719,18 @@
           ],
           _全部: ['全部', '全部', 'All', '全部'],
           _任一: ['任一', '任一', 'One', '何れか'],
-          _颜色主题: ['颜色主题', '色彩主題', 'Color theme', 'カラーテーマ'],
-          _管理设置: ['管理设置', '管理設定', 'Manage settings', '設定の管理'],
+          _颜色主题: [
+            '颜色<span class="key">主题</span>',
+            '色彩<span class="key">主題</span>',
+            'Color <span class="key">theme</span>',
+            'カラーテーマ',
+          ],
+          _管理设置: [
+            '管理<span class="key">设置</span>',
+            '管理<span class="key">設定</span>',
+            'Manage <span class="key">settings</span>',
+            '<span class="key">設定</span>の管理',
+          ],
           _导出设置: [
             '导出设置',
             '匯出設定',
@@ -4731,9 +4800,9 @@
             'すべての作品種類を除外しました',
           ],
           _为作品创建单独的文件夹: [
-            '为每个作品创建单独的文件夹',
-            '為每個作品建立單獨的資料夾',
-            'Create a separate folder for each work',
+            '为<span class="key">每个</span>作品创建单独的文件夹',
+            '為<span class="key">每個</span>作品建立單獨的資料夾',
+            'Create a separate folder for <span class="key">each</span> work',
             '作品ごとに別フォルダを作成',
           ],
           _文件数量大于: [
@@ -4762,10 +4831,10 @@
             '最大ページ数を超えました：',
           ],
           _针对特定用户屏蔽tag: [
-            '针对特定用户屏蔽 tag',
-            '針對特定使用者排除 tag',
-            'Block tags for specific users',
-            '特定のユーザーに対して tag をブロック',
+            '针对特定用户屏蔽<span class="key">标签</span>',
+            '針對特定使用者排除<span class="key">標籤</span>',
+            'Block <span class="key">tags</span> for specific users',
+            '特定のユーザーに対して<span class="key">タグ</span>をブロック',
           ],
           _展开收起: [
             '展开/收起',
@@ -4776,10 +4845,10 @@
           _展开: ['展开', '展開', 'Expand', '展開'],
           _收起: ['收起', '摺疊', 'Collapse', '折りたたみ'],
           _把r18作品存入指定的文件夹里: [
-            '把 R-18(G) 作品存入指定的文件夹里',
-            '把 R-18(G) 作品存入指定的資料夾裡',
-            'Save the R-18(G) works in the designated folder',
-            'R-18(G) の作品を指定のフォルダに入れる',
+            '把 <span class="key">R-18(G)</span> 作品存入指定的文件夹里',
+            '把 <span class="key">R-18(G)</span> 作品存入指定的資料夾裡',
+            'Save the <span class="key">R-18(G)</span> works in the designated folder',
+            '<span class="key">R-18(G)</span> の作品を指定のフォルダに入れる',
           ],
           _必填项不能为空: [
             '必填项不能为空',
@@ -4800,10 +4869,10 @@
             '数字でなければなりません',
           ],
           _tag用逗号分割: [
-            '多个 tag 使用英文逗号,分割',
-            '多個 tag 使用半形逗號（,）分割',
+            '多个标签使用英文逗号,分割',
+            '多個標籤使用半形逗號（,）分割',
             'Multiple tags use comma (,) split',
-            '複数の tag はカンマ「,」で区切ってください',
+            '複数のタグはカンマ「,」で区切ってください',
           ],
           _添加: ['添加', '新增', 'Add', '追加'],
           _取消: ['取消', '取消', 'Cancel', 'キャンセル'],
@@ -4817,9 +4886,9 @@
           ],
           _更新成功: ['更新成功', '更新成功', 'update completed', '更新成功'],
           _在作品缩略图上显示放大图标: [
-            '在作品缩略图上显示放大图标',
-            '在作品縮圖上顯示放大圖示',
-            'Show zoom icon on thumbnail',
+            '在作品缩略图上显示<span class="key">放大</span>图标',
+            '在作品縮圖上顯示<span class="key">放大</span>圖示',
+            'Show <span class="key">zoom</span> icon on thumbnail',
             '作品のサムネイルに拡大アイコンを表示する',
           ],
           _已发送下载请求: [
@@ -4835,7 +4904,12 @@
             'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。',
           ],
           _我知道了: ['我知道了', '我知道了', 'Got it', '分かりました'],
-          _背景图片: ['背景图片', '背景圖片', 'Background image', '背景画像'],
+          _背景图片: [
+            '<span class="key">背景</span>图片',
+            '<span class="key">背景</span>圖片',
+            '<span class="key">Background</span> image',
+            '<span class="key">背景</span>画像',
+          ],
           _选择文件: [
             '选择文件',
             '選擇檔案',
@@ -4847,22 +4921,22 @@
           _顶部: ['顶部', '頂部', 'top', '上揃え'],
           _居中: ['居中', '居中', 'center', '中央揃え'],
           _根据作品类型自动创建文件夹: [
-            '根据作品类型自动创建文件夹',
-            '根據作品類型自動建立資料夾',
-            'Create folders based on the type of work',
+            '根据作品<span class="key">类型</span>自动创建文件夹',
+            '根據作品<span class="key">類型</span>自動建立資料夾',
+            'Create folders based on the <span class="key">type</span> of work',
             '作品種類に応じてフォルダを自動作成',
           ],
           _使用第一个匹配的tag建立文件夹: [
-            '使用第一个匹配的 tag 建立文件夹',
-            '使用第一個符合的 tag 建立資料夾',
-            'Create a folder with the first matched tag',
-            '最初の一致する tag にフォルダを作成',
+            '使用第一个匹配的<span class="key">标签</span>建立文件夹',
+            '使用第一個符合的<span class="key">標籤</span>建立資料夾',
+            'Create a folder with the first matched <span class="key">tag</span>',
+            '最初の一致するタグにフォルダを作成',
           ],
           _使用匹配的tag建立文件夹的说明: [
-            '如果作品的 tag 列表里含有用户设置的 tag，就会使用这个 tag 建立文件夹（仅限第一个）',
-            '如果作品的 tag 列表裡含有使用者設定的 tag，就會使用這個 tag 建立資料夾（僅限第一個）',
+            '如果作品的标签列表里含有用户设置的标签，就会使用这个标签建立文件夹（仅限第一个）',
+            '如果作品的標籤列表裡含有使用者設定的標籤，就會使用這個標籤建立資料夾（僅限第一個）',
             'If the tag list of the work contains a tag set by the user, this tag will be used to create a folder (only the first one)',
-            '作品の tag リストにユーザーが設定した tag が含まれている場合、その tag を使用してフォルダが作成されます。(最初の1つだけ)',
+            '作品のタグリストにユーザーが設定したタグが含まれている場合、そのタグを使用してフォルダが作成されます。(最初の1つだけ)',
           ],
           _全年龄: ['全年龄', '全年齡', 'All ages', '全年齢'],
           _没有符合条件的结果: [
@@ -4904,17 +4978,17 @@
             '終了 id を入力してください',
           ],
           _选项卡切换方式: [
-            '选项卡切换方式',
-            '頁籤切換方式',
-            'How to switch tabs',
+            '<span class="key">选项卡</span>切换方式',
+            '<span class="key">頁籤</span>切換方式',
+            'How to switch <span class="key">tabs</span>',
             'タブ切り替え方式',
           ],
           _鼠标经过: ['鼠标经过', '滑鼠經過', 'Mouse over', 'マウスオーバー'],
           _鼠标点击: ['鼠标点击', '滑鼠點選', 'Mouse click', 'マウスクリック'],
           _在序号前面填充0: [
-            '在序号前面填充 0',
-            '在序號前面填充 0',
-            'Add 0 in front of the serial number',
+            '在序号前面<span class="key">填充 0</span>',
+            '在序號前面<span class="key">填充 0</span>',
+            '<span class="key">Add 0</span> in front of the serial number',
             'シリアル番号の前に 0 を記入',
           ],
           _序号总长度: [
@@ -4929,15 +5003,15 @@
           _左: ['左', '左', 'Left', '左'],
           _右: ['右', '右', 'Right', '右'],
           _多图作品只下载前几张图片: [
-            '多图作品只下载前几张图片',
-            '多圖作品只下載前幾張圖片',
-            'Multi-picture works only download the first few pictures',
+            '多图作品只下载<span class="key">前几张</span>图片',
+            '多圖作品只下載<span class="key">前幾張</span>圖片',
+            'Multi-picture works only download the <span class="key">first few</span> pictures',
             'マルチ作品は最初の何枚の画像のみをダウンロードする',
           ],
           _多图作品的图片数量限制: [
-            '多图作品的图片数量限制',
-            '多圖作品的圖片數量限制',
-            'Limits on the number of images for multi-picture works',
+            '多图作品的图片<span class="key">数量</span>限制',
+            '多圖作品的圖片<span class="key">數量</span>限制',
+            'Limits on the <span class="key">number</span> of images for multi-picture works',
             'マルチ作品の画像数の制限',
           ],
           _超出此限制的多图作品不会被下载: [
@@ -4947,15 +5021,15 @@
             'この制限を超えたマルチ作品はダウンロードされません',
           ],
           _在搜索页面添加快捷搜索区域: [
-            '在搜索页面添加快捷搜索区域',
-            '在搜尋頁面新增快捷搜尋區域',
-            'Add a quick search area on the search page',
+            '在搜索页面添加快捷<span class="key">搜索</span>区域',
+            '在搜尋頁面新增快捷<span class="key">搜尋</span>區域',
+            'Add a quick <span class="key">search</span> area on the search page',
             '検索ページにクイック検索領域を追加します',
           ],
           _保存作品的元数据: [
-            '保存作品的元数据',
-            '儲存作品的元資料',
-            'Save the metadata of the work',
+            '保存作品的<span class="key">元数据</span>',
+            '儲存作品的<span class="key">元資料</span>',
+            'Save the <span class="key">metadata</span> of the work',
             '作品のメタデータを保存する',
           ],
           _保存作品的元数据说明: [
@@ -4965,15 +5039,15 @@
             '作品ごとに txt ファイルを作成して、メタデータを保存します',
           ],
           _在不同的页面类型中使用不同的命名规则: [
-            '在不同的页面类型中使用不同的命名规则',
-            '在不同的頁面型別中使用不同的命名規則',
-            'Use different naming rules in different page types',
+            '在不同的页面类型中使用<span class="key">不同</span>的命名规则',
+            '在不同的頁面型別中使用<span class="key">不同</span>的命名規則',
+            'Use <span class="key">different</span> naming rules in different page types',
             'ページの種類によって異なる命名規則を使用',
           ],
           _显示高级设置: [
-            '显示高级设置',
-            '顯示進階設定',
-            'Show advanced settings',
+            '显示<span class="key">高级</span>设置',
+            '顯示<span class="key">進階</span>設定',
+            'Show <span class="key">advanced</span> settings',
             '詳細設定を表示する',
           ],
           _显示高级设置说明: [
@@ -4995,10 +5069,16 @@
             'Pixiv アカウントにログインして、もう一度お試しください。',
           ],
           _下载完成后显示通知: [
-            '下载完成后显示通知',
-            '下載完成後顯示通知',
-            'Show notification after download is complete',
+            '下载完成后显示<span class="key">通知</span>',
+            '下載完成後顯示<span class="key">通知</span>',
+            'Show <span class="key">notification</span> after download is complete',
             'ダウンロードが完了した後に通知を表示する',
+          ],
+          _以粗体显示关键字: [
+            '用<span class="key">粗体</span>显示关键字',
+            '用<span class="key">粗體</span>顯示關鍵字粗体',
+            'Show keywords in <span class="key">bold</span>',
+            'キーワードを太字で表示',
           ],
           _whatisnew: [
             '新增设置项：<br>下载完成后显示通知',
@@ -7894,7 +7974,7 @@
               data &&
               (await _VipSearchOptimize__WEBPACK_IMPORTED_MODULE_15__[
                 'vipSearchOptimize'
-              ].stopCrawl(data, this.ajaxThread))
+              ].stopCrawl(data))
             ) {
               // 指示抓取已停止
               this.crawlStopped = true
@@ -8123,7 +8203,7 @@
             this.filterFailed = 0
           }
           // 指示是否停止抓取作品
-          async stopCrawl(data, ajaxThread) {
+          async stopCrawl(data) {
             // 如果未启用会员搜索优化，或者没有设置收藏数量要求，则不停止抓取
             if (
               !this.vipSearchOptimize ||
@@ -21751,9 +21831,7 @@
         'lang'
       ].transl('_设置id范围提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
           'lang'
-        ].transl(
-          '_设置id范围'
-        )}&nbsp;&nbsp; <span class="gray1"> ? </span></span>
+        ].transl('_设置id范围')}&nbsp; <span class="gray1"> ? </span></span>
       <input type="checkbox" name="idRangeSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="idRangeSwitch">
@@ -21839,15 +21917,9 @@
     </div>
     <div class="tabsContnet">
     <p class="option" data-no="13">
-      <span class="has_tip settingNameStyle1" data-tip="${
-        _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-          '_设置文件夹名的提示'
-        ) +
-        '<br>' +
-        '{user}/{id}'
-      }">${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-          '_命名规则'
-        )}<span class="gray1"> ? </span></span>
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_命名规则')}</span>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{p_title}/{id}">
       &nbsp;
       <select name="fileNameSelect" class="beautify_scrollbar">
@@ -22470,7 +22542,7 @@
 
       <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_图片尺寸')} </span>
+      ].transl('_图片尺寸2')} </span>
       <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
       <label for="magnifierSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__[
@@ -22596,7 +22668,7 @@
       </p>
 
       <p class="option" data-no="32">
-      <span class="settingNameStyle1">Language</span>
+      <span class="settingNameStyle1"><span class="key">Language</span></span>
       <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio"></span>
       <label for="userSetLang1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
@@ -22619,6 +22691,15 @@
       <span class="beautify_radio"></span>
       <label for="userSetLang5">English</label>
       &nbsp;
+      </p>
+
+      <p class="option" data-no="53">
+      <span class="settingNameStyle1">
+      ${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+        '_以粗体显示关键字'
+      )}</span>
+      <input type="checkbox" name="boldKeywords" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="37">
@@ -22730,6 +22811,7 @@
                 'setNameRuleForEachPageType',
                 'showAdvancedSettings',
                 'showNotificationAfterDownloadComplete',
+                'boldKeywords',
               ],
               text: [
                 'setWantPage',
@@ -23789,6 +23871,7 @@
               },
               showAdvancedSettings: false,
               showNotificationAfterDownloadComplete: false,
+              boldKeywords: false,
             }
             this.allSettingKeys = Object.keys(this.defaultSettings)
             // 值为浮点数的选项

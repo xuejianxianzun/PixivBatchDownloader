@@ -88,6 +88,7 @@ class FormSettings {
       'setNameRuleForEachPageType',
       'showAdvancedSettings',
       'showNotificationAfterDownloadComplete',
+      'boldKeywords',
     ],
     text: [
       'setWantPage',
