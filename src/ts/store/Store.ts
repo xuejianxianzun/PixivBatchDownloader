@@ -131,6 +131,14 @@ class Store {
     this.rankList[id] = rank
   }
 
+  public findResult(id: string) {
+    for (const result of this.result) {
+      if (result.id === id) {
+        return result
+      }
+    }
+  }
+
   public reset() {
     this.resultMeta = []
     this.artworkIDList = []

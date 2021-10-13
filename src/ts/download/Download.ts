@@ -98,7 +98,7 @@ class Download {
   // 下载文件
   private async download(arg: downloadArgument) {
     // 检查是否是重复文件
-    const duplicate = await deduplication.check(arg.id)
+    const duplicate = await deduplication.check(arg.data)
     if (duplicate) {
       return this.skip(
         {

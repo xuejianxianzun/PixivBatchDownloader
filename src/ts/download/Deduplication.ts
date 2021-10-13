@@ -10,11 +10,13 @@ import { Utils } from '../utils/Utils'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
 import { secretSignal } from '../utils/SecretSignal'
-import { nameRuleManager } from '../setting/NameRuleManager'
+import { Result } from '../store/StoreType'
 
 interface Record {
   id: string
   n: string
+  /**文件 URL 里的作品的日期。可能为 undefined，因为旧版本没有这个数据，小说也没有这个数据 */
+  d?: string
 }
 
 // 通过保存和查询下载记录，判断重复文件
@@ -40,6 +42,9 @@ class Deduplication {
   ] // 表名的列表
 
   private existedIdList: string[] = [] // 检查文件是否重复时，会查询数据库。查询到的数据的 id 会保存到这个列表里。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
+
+  // 从图片 url 里取出日期字符串的正则表达式
+  private readonly dateRegExp = /img\/(.*)\//
 
   private async init() {
     await this.initDB()
@@ -130,20 +135,31 @@ class Deduplication {
   }
 
   // 生成一个下载记录
-  private createRecord(resultId: string): Record {
-    let name = nameRuleManager.rule
-
-    // 查找这个抓取结果，获取其文件名
-    for (const result of store.result) {
-      if (result.id === resultId) {
-        name = fileName.getFileName(result)
-        break
-      }
+  private createRecord(data: Result | string): Record {
+    let result: Result | undefined = undefined
+    if (typeof data === 'string') {
+      result = store.findResult(data)
+    } else {
+      result = data
+    }
+    if (result === undefined) {
+      throw new Error('createRecord failed')
     }
 
     return {
-      id: resultId,
-      n: name,
+      id: result.id,
+      n: fileName.getFileName(result),
+      d: this.getDateString(result),
+    }
+  }
+
+  // 从文件 URL 里取出日期字符串。例如
+  // 'https://i.pximg.net/img-original/img/2021/10/11/00/00/06/93364702_p0.png'
+  // 返回
+  // '2021/10/11/00/00/06'
+  private getDateString(result: Result) {
+    if (result.type !== 3) {
+      return result.original.match(this.dateRegExp)![1]
     }
   }
 
@@ -157,14 +173,13 @@ class Deduplication {
     } else {
       // 先查询有没有这个记录
       const result = await this.IDB.get(storeName, data.id)
-      const type: 'add' | 'put' = result ? 'put' : 'add'
-      this.IDB[type](storeName, data)
+      this.IDB[result ? 'put' : 'add'](storeName, data)
     }
   }
 
-  // 检查一个 id 是否是重复下载
+  // 检查一个作品是否是重复下载
   // 返回值 true 表示重复，false 表示不重复
-  public async check(resultId: string) {
+  public async check(result: Result) {
     if (!Utils.isPixiv()) {
       return false
     }
@@ -175,21 +190,30 @@ class Deduplication {
         return resolve(false)
       }
       // 在数据库进行查找
-      const storeNmae = this.getStoreName(resultId)
-      const data = (await this.IDB.get(storeNmae, resultId)) as Record | null
-      // 查询结果为空，返回不重复
+      const storeNmae = this.getStoreName(result.id)
+      const data = (await this.IDB.get(storeNmae, result.id)) as Record | null
       if (data === null) {
         return resolve(false)
       } else {
+        // 有记录，说明这个文件下载过
         this.existedIdList.push(data.id)
-        // 查询到了对应的记录，根据策略进行判断
+        // 首先检查日期字符串是否发生了变化
+        let dateChange = false
+        if (data.d) {
+          dateChange = data.d !== this.getDateString(result)
+          // 如果日期字符串变化了，则不视为重复文件
+          if (dateChange) {
+            return false
+          }
+        }
+        // 如果日期字符串没有变化，再根据策略进行判断
         if (settings.dupliStrategy === 'loose') {
-          // 如果是宽松策略（只考虑 id），返回重复
+          // 如果是宽松策略（不比较文件名）
           return resolve(true)
         } else {
-          // 如果是严格策略（同时考虑 id 和文件名），则比较文件名
-          const record = this.createRecord(resultId)
-          return resolve(record.n === data.n)
+          // 如果是严格策略（考虑文件名）
+          const name = fileName.getFileName(result)
+          return resolve(name === data.n)
         }
       }
     })

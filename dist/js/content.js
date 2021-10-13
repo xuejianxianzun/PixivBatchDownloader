@@ -13974,9 +13974,6 @@
         /* harmony import */ var _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(
           /*! ../utils/SecretSignal */ './src/ts/utils/SecretSignal.ts'
         )
-        /* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
-          /*! ../setting/NameRuleManager */ './src/ts/setting/NameRuleManager.ts'
-        )
 
         // 通过保存和查询下载记录，判断重复文件
         class Deduplication {
@@ -13995,6 +13992,8 @@
               'record9',
             ] // 表名的列表
             this.existedIdList = [] // 检查文件是否重复时，会查询数据库。查询到的数据的 id 会保存到这个列表里。当向数据库添加记录时，可以先查询这个列表，如果已经有过记录就改为 put 而不是 add，因为添加主键重复的数据会报错
+            // 从图片 url 里取出日期字符串的正则表达式
+            this.dateRegExp = /img\/(.*)\//
             this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_4__[
               'IndexedDB'
             ]()
@@ -14099,25 +14098,33 @@
             return this.storeNameList[firstNum - 1]
           }
           // 生成一个下载记录
-          createRecord(resultId) {
-            let name =
-              _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_11__[
-                'nameRuleManager'
-              ].rule
-            // 查找这个抓取结果，获取其文件名
-            for (const result of _store_Store__WEBPACK_IMPORTED_MODULE_5__[
-              'store'
-            ].result) {
-              if (result.id === resultId) {
-                name = _FileName__WEBPACK_IMPORTED_MODULE_6__[
-                  'fileName'
-                ].getFileName(result)
-                break
-              }
+          createRecord(data) {
+            let result = undefined
+            if (typeof data === 'string') {
+              result = _store_Store__WEBPACK_IMPORTED_MODULE_5__[
+                'store'
+              ].findResult(data)
+            } else {
+              result = data
+            }
+            if (result === undefined) {
+              throw new Error('createRecord failed')
             }
             return {
-              id: resultId,
-              n: name,
+              id: result.id,
+              n: _FileName__WEBPACK_IMPORTED_MODULE_6__['fileName'].getFileName(
+                result
+              ),
+              d: this.getDateString(result),
+            }
+          }
+          // 从文件 URL 里取出日期字符串。例如
+          // 'https://i.pximg.net/img-original/img/2021/10/11/00/00/06/93364702_p0.png'
+          // 返回
+          // '2021/10/11/00/00/06'
+          getDateString(result) {
+            if (result.type !== 3) {
+              return result.original.match(this.dateRegExp)[1]
             }
           }
           // 添加一条下载记录
@@ -14129,13 +14136,12 @@
             } else {
               // 先查询有没有这个记录
               const result = await this.IDB.get(storeName, data.id)
-              const type = result ? 'put' : 'add'
-              this.IDB[type](storeName, data)
+              this.IDB[result ? 'put' : 'add'](storeName, data)
             }
           }
-          // 检查一个 id 是否是重复下载
+          // 检查一个作品是否是重复下载
           // 返回值 true 表示重复，false 表示不重复
-          async check(resultId) {
+          async check(result) {
             if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_7__['Utils'].isPixiv()) {
               return false
             }
@@ -14148,24 +14154,35 @@
                 return resolve(false)
               }
               // 在数据库进行查找
-              const storeNmae = this.getStoreName(resultId)
-              const data = await this.IDB.get(storeNmae, resultId)
-              // 查询结果为空，返回不重复
+              const storeNmae = this.getStoreName(result.id)
+              const data = await this.IDB.get(storeNmae, result.id)
               if (data === null) {
                 return resolve(false)
               } else {
+                // 有记录，说明这个文件下载过
                 this.existedIdList.push(data.id)
-                // 查询到了对应的记录，根据策略进行判断
+                // 首先检查日期字符串是否发生了变化
+                let dateChange = false
+                if (data.d) {
+                  dateChange = data.d !== this.getDateString(result)
+                  // 如果日期字符串变化了，则不视为重复文件
+                  if (dateChange) {
+                    return false
+                  }
+                }
+                // 如果日期字符串没有变化，再根据策略进行判断
                 if (
                   _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
                     .dupliStrategy === 'loose'
                 ) {
-                  // 如果是宽松策略（只考虑 id），返回重复
+                  // 如果是宽松策略（不比较文件名）
                   return resolve(true)
                 } else {
-                  // 如果是严格策略（同时考虑 id 和文件名），则比较文件名
-                  const record = this.createRecord(resultId)
-                  return resolve(record.n === data.n)
+                  // 如果是严格策略（考虑文件名）
+                  const name = _FileName__WEBPACK_IMPORTED_MODULE_6__[
+                    'fileName'
+                  ].getFileName(result)
+                  return resolve(name === data.n)
                 }
               }
             })
@@ -14467,7 +14484,7 @@
             // 检查是否是重复文件
             const duplicate = await _Deduplication__WEBPACK_IMPORTED_MODULE_7__[
               'deduplication'
-            ].check(arg.id)
+            ].check(arg.data)
             if (duplicate) {
               return this.skip(
                 {
@@ -24906,6 +24923,13 @@
           }
           setRankList(id, rank) {
             this.rankList[id] = rank
+          }
+          findResult(id) {
+            for (const result of this.result) {
+              if (result.id === id) {
+                return result
+              }
+            }
           }
           reset() {
             this.resultMeta = []
