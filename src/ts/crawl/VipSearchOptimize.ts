@@ -4,6 +4,7 @@ import { settings } from '../setting/Settings'
 import { ArtworkData, NovelData } from './CrawlResult.d'
 import { filter } from '../filter/Filter'
 import { Utils } from '../utils/Utils'
+import { Tools } from '../Tools'
 
 // 当 Pixiv 会员使用按热门度排序搜索时，进行优化
 // 优化的原理：当会员使用热门度排序时，Pixiv 返回的数据是按收藏数量从高到低排序的。（但不是严格一致，经常有少量作品顺序不对）
@@ -85,7 +86,7 @@ class VipSearchOptimize {
     }
 
     // 判断是否是会员
-    if (!this.isVip()) {
+    if (!Tools.isPremium()) {
       return false
     }
 
@@ -105,18 +106,6 @@ class VipSearchOptimize {
     // 按热门度排序
     // 判断是否启用了收藏数设置，如果是，则启用会员搜索优化
     return settings.BMKNumSwitch
-  }
-
-  private isVip() {
-    // 在 body 的一个 script 标签里包含有当前用户是否是会员的信息
-    // premium: 'yes'
-    // premium: 'no'
-    const test = document.body.innerHTML.match(/premium: '(\w+)'/)
-    if (test && test.length > 1) {
-      return test[1] === 'yes'
-    }
-
-    return false
   }
 }
 

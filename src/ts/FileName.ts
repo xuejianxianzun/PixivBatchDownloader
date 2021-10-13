@@ -315,6 +315,11 @@ class FileName {
         prefix: '',
         safe: true,
       },
+      '{sl}': {
+        value: data.sl ?? 0,
+        prefix: '',
+        safe: true,
+      },
     }
 
     // 2 生成文件名

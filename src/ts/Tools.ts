@@ -347,6 +347,18 @@ class Tools {
       return 0
     }
   }
+
+  static isPremium() {
+    // 在 body 的一个 script 标签里包含有当前用户是否是会员的信息
+    // premium: 'yes'
+    // premium: 'no'
+    const test = document.body.innerHTML.match(/premium: '(\w+)'/)
+    if (test && test.length > 1) {
+      return test[1] === 'yes'
+    }
+
+    return false
+  }
 }
 
 export { Tools }

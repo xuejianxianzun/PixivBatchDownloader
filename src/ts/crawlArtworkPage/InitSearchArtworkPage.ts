@@ -44,6 +44,7 @@ class InitSearchArtworkPage extends InitPageBase {
   private readonly bookmarkedClass = 'bookmarked'
   private readonly countSelector = 'section h3+div span'
   private readonly hotWorkAsideSelector = 'section aside'
+  private countEl?: HTMLElement
 
   private worksType = ''
   private option: SearchOption = {}
@@ -83,7 +84,7 @@ class InitSearchArtworkPage extends InitPageBase {
     options.setWantPageTip({
       text: lang.transl('_页数'),
       tip: lang.transl('_从本页开始下载提示'),
-      rangTip: `1 - ${this.maxCount}`,
+      rangTip: lang.transl('_数字提示1'),
     })
   }
 
@@ -177,21 +178,44 @@ class InitSearchArtworkPage extends InitPageBase {
       lang.transl('_从本页开始下载x页'),
       lang.transl('_下载所有页面')
     )
-
-    if (this.crawlNumber === -1 || this.crawlNumber > this.maxCount) {
-      this.crawlNumber = this.maxCount
-    }
   }
 
   protected async nextStep() {
     this.initFetchURL()
 
-    if (this.startpageNo > 1000) {
-      msgBox.error(`${lang.transl('_超出最大页码')} ${this.maxCount}`)
-      return this.noResult()
+    // 计算应该抓取多少页
+    const data = await this.getSearchData(1)
+    // 计算总页数
+    let pageCount = Math.ceil(data.total / this.worksNoPerPage)
+    if (pageCount > 1000) {
+      // 如果作品页数大于 1000 页，则判断当前用户是否是 pixiv 会员
+      const isPremium = Tools.isPremium()
+      if (!isPremium) {
+        // 如果用户不是会员，则最多只能抓取到 1000 页
+        pageCount = 1000
+      } else {
+        // 如果用户是会员，最多可以抓取到 5000 页
+        if (pageCount > 5000) {
+          pageCount = 5000
+        }
+      }
     }
 
-    this.needCrawlPageCount = await this.calcNeedCrawlPageCount()
+    // 如果当前页面的页码大于有效页码，则不进行抓取
+    if (this.startpageNo > pageCount) {
+      EVT.fire('crawlFinish')
+      EVT.fire('crawlEmpty')
+      return msgBox.error(`${lang.transl('_超出最大页码')} ${pageCount}`)
+    }
+
+    if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
+      this.crawlNumber = pageCount
+    }
+
+    // 计算从当前页面开始抓取的话，有多少页
+    let needFetchPage = pageCount - this.startpageNo + 1
+    // 比较用户设置的页数，取较小的那个数值
+    this.needCrawlPageCount = Math.min(needFetchPage, this.crawlNumber)
 
     if (this.needCrawlPageCount === 0) {
       return this.noResult()
@@ -200,6 +224,8 @@ class InitSearchArtworkPage extends InitPageBase {
     this.startGetIdList()
 
     this.clearWorks()
+
+    this.countEl = document.querySelector(this.countSelector) as HTMLElement
   }
 
   // 组织要请求的 url 中的参数
@@ -256,25 +282,6 @@ class InitSearchArtworkPage extends InitPageBase {
       this.option
     )
     return data.body.illust || data.body.illustManga || data.body.manga
-  }
-
-  // 计算应该抓取多少页
-  private async calcNeedCrawlPageCount() {
-    let data = await this.getSearchData(1)
-    // 计算总页数
-    let pageCount = Math.ceil(data.total / this.worksNoPerPage)
-    if (pageCount > this.maxCount) {
-      // 最大为 1000
-      pageCount = this.maxCount
-    }
-    // 计算从本页开始抓取的话，有多少页
-    let needFetchPage = pageCount - this.startpageNo + 1
-    // 比较用户设置的页数，取较小的那个数值
-    if (needFetchPage < this.crawlNumber) {
-      return needFetchPage
-    } else {
-      return this.crawlNumber
-    }
   }
 
   // 建立并发抓取线程
@@ -421,10 +428,9 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 显示抓取到的作品数量
   private showCount = () => {
-    const count = this.resultMeta.length || store.resultMeta.length
-    const countEl = document.querySelector(this.countSelector)
-    if (countEl) {
-      countEl.textContent = count.toString()
+    if (settings.previewResult && this.countEl) {
+      const count = this.resultMeta.length || store.resultMeta.length
+      this.countEl.textContent = count.toString()
     }
   }
 

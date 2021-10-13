@@ -13,6 +13,8 @@ import { Tools } from '../Tools'
 import { BookmarkAllWorks } from '../pageFunciton/BookmarkAllWorks'
 import { Utils } from '../utils/Utils'
 import { idListWithPageNo } from '../store/IdListWithPageNo'
+import { EVT } from '../EVT'
+import { msgBox } from '../MsgBox'
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
@@ -98,14 +100,46 @@ class InitSearchNovelPage extends InitPageBase {
     options.setWantPageTip({
       text: lang.transl('_页数'),
       tip: lang.transl('_从本页开始下载提示'),
-      rangTip: `1 - ${this.maxCount}`,
+      rangTip: lang.transl('_数字提示1'),
     })
   }
 
   protected async nextStep() {
     this.initFetchURL()
 
-    this.needCrawlPageCount = await this.calcNeedCrawlPageCount()
+    // 计算应该抓取多少页
+    const data = await this.getSearchData(1)
+    // 计算总页数
+    let pageCount = Math.ceil(data.total / this.worksNoPerPage)
+    if (pageCount > 1000) {
+      // 如果作品页数大于 1000 页，则判断当前用户是否是 pixiv 会员
+      const isPremium = Tools.isPremium()
+      if (!isPremium) {
+        // 如果用户不是会员，则最多只能抓取到 1000 页
+        pageCount = 1000
+      } else {
+        // 如果用户是会员，最多可以抓取到 5000 页
+        if (pageCount > 5000) {
+          pageCount = 5000
+        }
+      }
+    }
+
+    // 如果当前页面的页码大于有效页码，则不进行抓取
+    if (this.startpageNo > pageCount) {
+      EVT.fire('crawlFinish')
+      EVT.fire('crawlEmpty')
+      return msgBox.error(`${lang.transl('_超出最大页码')} ${pageCount}`)
+    }
+
+    if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
+      this.crawlNumber = pageCount
+    }
+
+    // 计算从当前页面开始抓取的话，有多少页
+    let needFetchPage = pageCount - this.startpageNo + 1
+    // 比较用户设置的页数，取较小的那个数值
+    this.needCrawlPageCount = Math.min(needFetchPage, this.crawlNumber)
 
     if (this.needCrawlPageCount === 0) {
       return this.noResult()
@@ -119,10 +153,6 @@ class InitSearchNovelPage extends InitPageBase {
       lang.transl('_从本页开始下载x页'),
       lang.transl('_下载所有页面')
     )
-
-    if (this.crawlNumber === -1 || this.crawlNumber > this.maxCount) {
-      this.crawlNumber = this.maxCount
-    }
   }
 
   // 获取搜索页的数据。因为有多处使用，所以进行了封装
@@ -147,25 +177,6 @@ class InitSearchNovelPage extends InitPageBase {
 
     // 如果没有指定搜索模式，则是精确匹配标签
     this.option.s_mode = this.option.s_mode ?? 's_tag_full'
-  }
-
-  // 计算应该抓取多少页
-  private async calcNeedCrawlPageCount() {
-    let data = await this.getSearchData(1)
-    // 计算总页数
-    let pageCount = Math.ceil(data.total / this.worksNoPerPage)
-    if (pageCount > this.maxCount) {
-      // 最大为 1000
-      pageCount = this.maxCount
-    }
-    // 计算从本页开始抓取的话，有多少页
-    let needFetchPage = pageCount - this.startpageNo + 1
-    // 比较用户设置的页数，取较小的那个数值
-    if (needFetchPage < this.crawlNumber) {
-      return needFetchPage
-    } else {
-      return this.crawlNumber
-    }
   }
 
   // 计算页数之后，准备建立并发抓取线程

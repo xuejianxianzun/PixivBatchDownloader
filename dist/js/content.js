@@ -1990,6 +1990,7 @@
           }
           // 传入一个抓取结果，获取其文件名
           getFileName(data) {
+            var _a
             // 命名规则
             const userSetName =
               _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_1__[
@@ -2163,6 +2164,11 @@
               },
               '{series_order}': {
                 value: data.seriesOrder === null ? '' : '#' + data.seriesOrder,
+                prefix: '',
+                safe: true,
+              },
+              '{sl}': {
+                value: (_a = data.sl) !== null && _a !== void 0 ? _a : 0,
                 prefix: '',
                 safe: true,
               },
@@ -7172,6 +7178,16 @@
               return 0
             }
           }
+          static isPremium() {
+            // 在 body 的一个 script 标签里包含有当前用户是否是会员的信息
+            // premium: 'yes'
+            // premium: 'no'
+            const test = document.body.innerHTML.match(/premium: '(\w+)'/)
+            if (test && test.length > 1) {
+              return test[1] === 'yes'
+            }
+            return false
+          }
         }
 
         /***/
@@ -8158,6 +8174,9 @@
         /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ../utils/Utils */ './src/ts/utils/Utils.ts'
         )
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../Tools */ './src/ts/Tools.ts'
+        )
 
         // 当 Pixiv 会员使用按热门度排序搜索时，进行优化
         // 优化的原理：当会员使用热门度排序时，Pixiv 返回的数据是按收藏数量从高到低排序的。（但不是严格一致，经常有少量作品顺序不对）
@@ -8240,7 +8259,7 @@
               return false
             }
             // 判断是否是会员
-            if (!this.isVip()) {
+            if (!_Tools__WEBPACK_IMPORTED_MODULE_5__['Tools'].isPremium()) {
               return false
             }
             // 判断 order 方式
@@ -8260,16 +8279,6 @@
             // 判断是否启用了收藏数设置，如果是，则启用会员搜索优化
             return _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
               .BMKNumSwitch
-          }
-          isVip() {
-            // 在 body 的一个 script 标签里包含有当前用户是否是会员的信息
-            // premium: 'yes'
-            // premium: 'no'
-            const test = document.body.innerHTML.match(/premium: '(\w+)'/)
-            if (test && test.length > 1) {
-              return test[1] === 'yes'
-            }
-            return false
           }
         }
         const vipSearchOptimize = new VipSearchOptimize()
@@ -9923,13 +9932,16 @@
             }
             // 显示抓取到的作品数量
             this.showCount = () => {
-              const count =
-                this.resultMeta.length ||
-                _store_Store__WEBPACK_IMPORTED_MODULE_8__['store'].resultMeta
-                  .length
-              const countEl = document.querySelector(this.countSelector)
-              if (countEl) {
-                countEl.textContent = count.toString()
+              if (
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_10__['settings']
+                  .previewResult &&
+                this.countEl
+              ) {
+                const count =
+                  this.resultMeta.length ||
+                  _store_Store__WEBPACK_IMPORTED_MODULE_8__['store'].resultMeta
+                    .length
+                this.countEl.textContent = count.toString()
               }
             }
             // 在页面上生成抓取结果对应的作品元素
@@ -10117,7 +10129,9 @@
               tip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_从本页开始下载提示'
               ),
-              rangTip: `1 - ${this.maxCount}`,
+              rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                '_数字提示1'
+              ),
             })
           }
           addCrawlBtns() {
@@ -10259,26 +10273,51 @@
               ),
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_下载所有页面')
             )
-            if (this.crawlNumber === -1 || this.crawlNumber > this.maxCount) {
-              this.crawlNumber = this.maxCount
-            }
           }
           async nextStep() {
             this.initFetchURL()
-            if (this.startpageNo > 1000) {
-              _MsgBox__WEBPACK_IMPORTED_MODULE_18__['msgBox'].error(
+            // 计算应该抓取多少页
+            const data = await this.getSearchData(1)
+            // 计算总页数
+            let pageCount = Math.ceil(data.total / this.worksNoPerPage)
+            if (pageCount > 1000) {
+              // 如果作品页数大于 1000 页，则判断当前用户是否是 pixiv 会员
+              const isPremium = _Tools__WEBPACK_IMPORTED_MODULE_12__[
+                'Tools'
+              ].isPremium()
+              if (!isPremium) {
+                // 如果用户不是会员，则最多只能抓取到 1000 页
+                pageCount = 1000
+              } else {
+                // 如果用户是会员，最多可以抓取到 5000 页
+                if (pageCount > 5000) {
+                  pageCount = 5000
+                }
+              }
+            }
+            // 如果当前页面的页码大于有效页码，则不进行抓取
+            if (this.startpageNo > pageCount) {
+              _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].fire('crawlFinish')
+              _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].fire('crawlEmpty')
+              return _MsgBox__WEBPACK_IMPORTED_MODULE_18__['msgBox'].error(
                 `${_Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                   '_超出最大页码'
-                )} ${this.maxCount}`
+                )} ${pageCount}`
               )
-              return this.noResult()
             }
-            this.needCrawlPageCount = await this.calcNeedCrawlPageCount()
+            if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
+              this.crawlNumber = pageCount
+            }
+            // 计算从当前页面开始抓取的话，有多少页
+            let needFetchPage = pageCount - this.startpageNo + 1
+            // 比较用户设置的页数，取较小的那个数值
+            this.needCrawlPageCount = Math.min(needFetchPage, this.crawlNumber)
             if (this.needCrawlPageCount === 0) {
               return this.noResult()
             }
             this.startGetIdList()
             this.clearWorks()
+            this.countEl = document.querySelector(this.countSelector)
           }
           // 组织要请求的 url 中的参数
           initFetchURL() {
@@ -10342,24 +10381,6 @@
               this.option
             )
             return data.body.illust || data.body.illustManga || data.body.manga
-          }
-          // 计算应该抓取多少页
-          async calcNeedCrawlPageCount() {
-            let data = await this.getSearchData(1)
-            // 计算总页数
-            let pageCount = Math.ceil(data.total / this.worksNoPerPage)
-            if (pageCount > this.maxCount) {
-              // 最大为 1000
-              pageCount = this.maxCount
-            }
-            // 计算从本页开始抓取的话，有多少页
-            let needFetchPage = pageCount - this.startpageNo + 1
-            // 比较用户设置的页数，取较小的那个数值
-            if (needFetchPage < this.crawlNumber) {
-              return needFetchPage
-            } else {
-              return this.crawlNumber
-            }
           }
           // 建立并发抓取线程
           startGetIdList() {
@@ -13452,6 +13473,12 @@
         /* harmony import */ var _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
           /*! ../store/IdListWithPageNo */ './src/ts/store/IdListWithPageNo.ts'
         )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
+          /*! ../MsgBox */ './src/ts/MsgBox.ts'
+        )
         // 初始化小说搜索页
 
         class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
@@ -13558,12 +13585,49 @@
               tip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
                 '_从本页开始下载提示'
               ),
-              rangTip: `1 - ${this.maxCount}`,
+              rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                '_数字提示1'
+              ),
             })
           }
           async nextStep() {
             this.initFetchURL()
-            this.needCrawlPageCount = await this.calcNeedCrawlPageCount()
+            // 计算应该抓取多少页
+            const data = await this.getSearchData(1)
+            // 计算总页数
+            let pageCount = Math.ceil(data.total / this.worksNoPerPage)
+            if (pageCount > 1000) {
+              // 如果作品页数大于 1000 页，则判断当前用户是否是 pixiv 会员
+              const isPremium = _Tools__WEBPACK_IMPORTED_MODULE_9__[
+                'Tools'
+              ].isPremium()
+              if (!isPremium) {
+                // 如果用户不是会员，则最多只能抓取到 1000 页
+                pageCount = 1000
+              } else {
+                // 如果用户是会员，最多可以抓取到 5000 页
+                if (pageCount > 5000) {
+                  pageCount = 5000
+                }
+              }
+            }
+            // 如果当前页面的页码大于有效页码，则不进行抓取
+            if (this.startpageNo > pageCount) {
+              _EVT__WEBPACK_IMPORTED_MODULE_13__['EVT'].fire('crawlFinish')
+              _EVT__WEBPACK_IMPORTED_MODULE_13__['EVT'].fire('crawlEmpty')
+              return _MsgBox__WEBPACK_IMPORTED_MODULE_14__['msgBox'].error(
+                `${_Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                  '_超出最大页码'
+                )} ${pageCount}`
+              )
+            }
+            if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
+              this.crawlNumber = pageCount
+            }
+            // 计算从当前页面开始抓取的话，有多少页
+            let needFetchPage = pageCount - this.startpageNo + 1
+            // 比较用户设置的页数，取较小的那个数值
+            this.needCrawlPageCount = Math.min(needFetchPage, this.crawlNumber)
             if (this.needCrawlPageCount === 0) {
               return this.noResult()
             }
@@ -13576,9 +13640,6 @@
               ),
               _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_下载所有页面')
             )
-            if (this.crawlNumber === -1 || this.crawlNumber > this.maxCount) {
-              this.crawlNumber = this.maxCount
-            }
           }
           // 获取搜索页的数据。因为有多处使用，所以进行了封装
           async getSearchData(p) {
@@ -13613,24 +13674,6 @@
               (_a = this.option.s_mode) !== null && _a !== void 0
                 ? _a
                 : 's_tag_full'
-          }
-          // 计算应该抓取多少页
-          async calcNeedCrawlPageCount() {
-            let data = await this.getSearchData(1)
-            // 计算总页数
-            let pageCount = Math.ceil(data.total / this.worksNoPerPage)
-            if (pageCount > this.maxCount) {
-              // 最大为 1000
-              pageCount = this.maxCount
-            }
-            // 计算从本页开始抓取的话，有多少页
-            let needFetchPage = pageCount - this.startpageNo + 1
-            // 比较用户设置的页数，取较小的那个数值
-            if (needFetchPage < this.crawlNumber) {
-              return needFetchPage
-            } else {
-              return this.crawlNumber
-            }
           }
           // 计算页数之后，准备建立并发抓取线程
           startGetIdList() {
@@ -23463,7 +23506,7 @@
           // 设置 “设置页面/作品数量” 选项的提示和预设值
           setWantPageTip(arg) {
             this.wantPageEls.text.textContent = arg.text
-            this.wantPageEls.text.dataset.tip = arg.tip
+            this.wantPageEls.text.parentElement.dataset.tip = arg.tip
             this.wantPageEls.rangTip.textContent = arg.rangTip
           }
         }

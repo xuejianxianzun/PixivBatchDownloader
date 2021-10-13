@@ -140,7 +140,7 @@ class Options {
   // 设置 “设置页面/作品数量” 选项的提示和预设值
   public setWantPageTip(arg: WantPageArg) {
     this.wantPageEls.text.textContent = arg.text
-    this.wantPageEls.text.dataset.tip = arg.tip
+    this.wantPageEls.text.parentElement!.dataset.tip = arg.tip
     this.wantPageEls.rangTip.textContent = arg.rangTip
   }
 }
