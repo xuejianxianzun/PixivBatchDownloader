@@ -114,17 +114,8 @@ class SaveWorkMeta {
 
     // 生成文件名
     // 元数据文件需要和它对应的图片/小说文件的路径相同，文件名相似，这样它们才能在资源管理器里排在一起，便于查看
-
-    // 生成这个数据的路径和文件名
-    const _fileName = fileName.getFileName(data)
-    // 取出后缀名之前的部分
-    const index = _fileName.lastIndexOf('.')
-    // 把 id 字符串换成数字 id，这是为了去除 id 后面可能存在的序号，如 p0
-    let part1 = _fileName
-      .substring(0, index)
-      .replace(data.id, data.idNum.toString())
-    // 拼接出元数据文件的文件名
-    const metaFileName = `${part1}-meta.txt`
+    // 定制：保存元数据到Meta文件夹，以作品id命名文件
+    const metaFileName = 'Meta/' + data.idNum + '.txt'
 
     // 发送下载请求
     // 因为我偷懒，所以后台不会返回下载状态，默认为下载成功

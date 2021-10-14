@@ -75,7 +75,8 @@ class ImportResult {
 
     // 恢复数据
     // 通过 store.addResult 添加数据，可以应用多图作品设置，对导入的结果进行调整
-    store.reset()
+    // 定制：每次导入数据之前不清空结果，可以多次连续导入
+    // store.reset()
     for (const r of temp) {
       store.addResult(r)
     }

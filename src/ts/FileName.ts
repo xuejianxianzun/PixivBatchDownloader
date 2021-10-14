@@ -78,13 +78,18 @@ class FileName {
   }
 
   // 返回收藏数的简化显示
+  // 定制：bmk_1000 使用和原版不同的区间
   private getBKM1000(bmk: number): string {
-    if (bmk < 1000) {
+    if (bmk < 3000) {
       return '0+'
+    } else if (bmk < 6000) {
+      return '3000+'
+    } else if (bmk < 10000) {
+      return '6000+'
     } else {
-      // 1000 以上，以 1000 为单位
-      const str = bmk.toString()
-      return str.slice(0, str.length - 3) + '000+'
+      // 10000 以上，以 10000 为单位
+      const num = Math.floor(bmk / 10000)
+      return num + '0000+'
     }
   }
 
@@ -363,7 +368,8 @@ class FileName {
         const nowTag = tag.toLowerCase()
         if (workTags.includes(nowTag)) {
           // 设置为文件夹名字的时候使用原 tag（不转换成小写）
-          result = this.appendFolder(result, tag)
+          // 定制：在 tag 前面添加 bmk_1000 标记
+          result = this.appendFolder(result, cfg['{bmk_1000}'].value + tag)
           break
         }
       }
