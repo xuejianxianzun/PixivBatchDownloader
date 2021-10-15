@@ -8,7 +8,6 @@ import { EVT } from '../EVT'
 import { IDData } from '../store/StoreType'
 import { Config } from '../config/Config'
 import { toast } from '../Toast'
-import { log } from '../Log'
 import { theme } from '../Theme'
 
 class InitHomePage extends InitPageBase {

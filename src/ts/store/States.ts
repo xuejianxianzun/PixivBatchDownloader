@@ -35,6 +35,9 @@ class States {
   // 合并系列小说时使用的标记
   public mergeNovel = false
 
+  // 抓取标签列表时使用的标记
+  public crawlTagList = false
+
   private bindEvents() {
     const idle = [
       EVT.list.crawlFinish,

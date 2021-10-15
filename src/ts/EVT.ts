@@ -26,6 +26,7 @@ class EVENT {
   public readonly list = {
     // 当抓取开始时触发
     crawlStart: 'crawlStart',
+    readyCrawlTagList: 'readyCrawlTagList',
     // 当检查到错误的设置时触发
     wrongSetting: 'wrongSetting',
     // 当获取作品的 id 列表完成时触发
@@ -152,6 +153,7 @@ class EVENT {
   public fire(
     type:
       | 'crawlStart'
+      | 'readyCrawlTagList'
       | 'wrongSetting'
       | 'getIdListFinished'
       | 'crawlFinish'
