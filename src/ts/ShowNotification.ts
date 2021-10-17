@@ -1,6 +1,7 @@
 import { EVT } from './EVT'
 import { lang } from './Lang'
 import { settings } from './setting/Settings'
+import { states } from './store/States'
 import { Tools } from './Tools'
 
 class ShowNotification {
@@ -22,9 +23,16 @@ class ShowNotification {
 
     // 当下载任务完毕时，显示通知
     window.addEventListener(EVT.list.downloadComplete, () => {
-      if (settings.showNotificationAfterDownloadComplete) {
-        this.show(lang.transl('_下载完毕2'), Tools.getPageTitle())
-      }
+      window.setTimeout(() => {
+        // 如果抓取标签列表没有完成，则不显示通知
+        // 在一次抓取多个标签时，当最后一个标签下载完之后会解除 crawlTagList 状态，这时可以显示一条通知
+        if (
+          !states.crawlTagList &&
+          settings.showNotificationAfterDownloadComplete
+        ) {
+          this.show(lang.transl('_下载完毕2'), Tools.getPageTitle())
+        }
+      }, 300)
     })
   }
 

@@ -21,6 +21,7 @@ import { idListWithPageNo } from '../store/IdListWithPageNo'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
 import { Bookmark } from '../Bookmark'
+import { CrawlTagList } from '../crawlMixedPage/CrawlTagList'
 
 type AddBMKData = {
   id: number
@@ -34,6 +35,7 @@ class InitSearchArtworkPage extends InitPageBase {
     super()
     this.init()
     new FastScreen()
+    new CrawlTagList()
   }
 
   private readonly worksWrapSelector = '#root section ul'
@@ -89,8 +91,8 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgGreen, lang.transl('_开始筛选'), [
-      ['title', lang.transl('_开始筛选Title')],
+    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
+      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.resultMeta = []
 
@@ -162,6 +164,8 @@ class InitSearchArtworkPage extends InitPageBase {
     window.addEventListener(EVT.list.deleteWork, this.deleteWork)
 
     window.addEventListener(EVT.list.settingChange, this.onSettingChange)
+
+    window.addEventListener(EVT.list.crawlTag, this.crawlTag)
   }
 
   protected destroy() {
@@ -171,6 +175,7 @@ class InitSearchArtworkPage extends InitPageBase {
     window.removeEventListener(EVT.list.addResult, this.showCount)
     window.removeEventListener(EVT.list.crawlFinish, this.onCrawlFinish)
     window.removeEventListener(EVT.list.settingChange, this.onSettingChange)
+    window.removeEventListener(EVT.list.crawlTag, this.crawlTag)
   }
 
   protected getWantPage() {
@@ -381,6 +386,9 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   private onSettingChange = (event: CustomEventInit) => {
+    if (states.crawlTagList) {
+      return
+    }
     const data = event.detail.data
     if (this.causeResultChange.includes(data.name)) {
       if (store.result.length > 0) {
@@ -394,6 +402,10 @@ class InitSearchArtworkPage extends InitPageBase {
   private onCrawlFinish = () => {
     // 当从图片查看器发起下载时，也会触发抓取完毕的事件，但此时不应该调整搜索页面的结果。
     if (states.downloadFromViewer) {
+      return
+    }
+
+    if (states.crawlTagList) {
       return
     }
 
@@ -428,6 +440,9 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 显示抓取到的作品数量
   private showCount = () => {
+    if (states.crawlTagList) {
+      return
+    }
     if (settings.previewResult && this.countEl) {
       const count = this.resultMeta.length || store.resultMeta.length
       this.countEl.textContent = count.toString()
@@ -436,6 +451,9 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 在页面上生成抓取结果对应的作品元素
   private createWork = (event: CustomEventInit) => {
+    if (states.crawlTagList) {
+      return
+    }
     if (!settings.previewResult || !this.worksWrap) {
       return
     }
@@ -573,6 +591,10 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 清空作品列表，只在作品抓取完毕时使用。之后会生成根据收藏数排列的作品列表。
   private clearWorks() {
+    if (states.crawlTagList) {
+      return
+    }
+
     this.worksWrap = this.getWorksWrap()
 
     if (!settings.previewResult || !this.worksWrap) {
@@ -751,6 +773,13 @@ class InitSearchArtworkPage extends InitPageBase {
         Utils.addStyle(style)
       }
     }, 300)
+  }
+
+
+  private crawlTag = () => {
+    if (states.crawlTagList) {
+      this.readyCrawl()
+    }
   }
 }
 

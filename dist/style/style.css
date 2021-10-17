@@ -414,6 +414,95 @@
   text-decoration: none;
   overflow: hidden;
 }
+#crawlTagListInputWrap {
+  display: none;
+  background: #fff;
+  padding: 6px;
+  font-size: 14px;
+}
+#crawlTagListInputWrap #crawlTagListTextArea {
+  box-sizing: border-box;
+  display: block;
+  width: 600px;
+  min-height: 120px;
+  line-height: 1.4;
+  padding: 4px;
+  margin: 0 auto 8px;
+}
+#crawlTagListInputWrap #crawlTagListTip {
+  width: 600px;
+  margin: 0 auto 8px;
+  color: #666;
+}
+#crawlTagListInputWrap #crawlTagListBtnsWrap {
+  display: flex;
+  justify-items: center;
+  width: 600px;
+  margin: 0 auto 8px;
+}
+#crawlTagListInputWrap #crawlTagListBtnsWrap button {
+  box-sizing: border-box;
+  width: 160px;
+  max-width: 200px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 20px;
+  cursor: pointer;
+  vertical-align: top;
+  box-shadow: #eeeeee 0px 1px 6px;
+  color: #fff;
+  border-radius: 5px;
+  border: none;
+  margin-right: 10px;
+}
+#crawlTagListInputWrap #crawlTagListBtnsWrap button:hover,
+#crawlTagListInputWrap #crawlTagListBtnsWrap button:active {
+  opacity: 0.8;
+}
+#crawlTagListInputWrap #crawlTagListBtnsWrap #crawlTagListBtn {
+  background: #0ea8ef;
+}
+#crawlTagListInputWrap #crawlTagListBtnsWrap #clearTagListBtn {
+  background: #ff4060;
+}
+#crawlTagListInputWrap #tagListWrap {
+  width: 600px;
+  margin: 0 auto 8px;
+}
+#crawlTagListInputWrap #tagListWrap p {
+  color: #666;
+  margin: 14px 0 12px;
+  font-weight: bold;
+}
+#crawlTagListInputWrap #tagListWrap ul {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+#crawlTagListInputWrap #tagListWrap ul li {
+  -webkit-text-size-adjust: 100%;
+  font-weight: bold;
+  font-kerning: normal;
+  font-family: win-bug-omega, system-ui, -apple-system, 'Segoe UI', Roboto,
+    Ubuntu, Cantarell, 'Noto Sans', 'Hiragino Kaku Gothic ProN', Meiryo,
+    sans-serif;
+  margin: 0px;
+  margin-right: 8px;
+  padding: 0px;
+  text-align: center;
+  box-sizing: border-box;
+  text-decoration: none;
+  border-radius: 4px;
+  height: 40px;
+  line-height: 40px;
+  padding-right: 24px;
+  padding-left: 24px;
+  color: #555;
+  background-color: rgba(0, 0, 0, 0.04);
+}
 .rightButton {
   display: flex;
   display: none;

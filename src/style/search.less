@@ -1,3 +1,5 @@
+@import './var.less';
+
 .fastScreenArea {
   text-align: center;
   background: #fff;
@@ -248,6 +250,97 @@
         white-space: nowrap;
         text-decoration: none;
         overflow: hidden;
+      }
+    }
+  }
+}
+
+#crawlTagListInputWrap {
+  display: none;
+  background: #fff;
+  padding: 6px;
+  font-size: 14px;
+  #crawlTagListTextArea {
+    box-sizing: border-box;
+    display: block;
+    width: 600px;
+    min-height: 120px;
+    line-height: 1.4;
+    padding: 4px;
+    margin: 0 auto 8px;
+  }
+  #crawlTagListTip {
+    width: 600px;
+    margin: 0 auto 8px;
+    color: #666;
+  }
+  #crawlTagListBtnsWrap {
+    display: flex;
+    justify-items: center;
+    width: 600px;
+    margin: 0 auto 8px;
+
+    button {
+      box-sizing: border-box;
+      width: 160px;
+      max-width: 200px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      line-height: 20px;
+      cursor: pointer;
+      vertical-align: top;
+      box-shadow: rgb(238, 238, 238) 0px 1px 6px;
+      color: #fff;
+      border-radius: 5px;
+      border: none;
+      margin-right: 10px;
+      &:hover,
+      &:active {
+        opacity: 0.8;
+      }
+    }
+    #crawlTagListBtn {
+      background: @themeBlue;
+    }
+    #clearTagListBtn {
+      background: #ff4060;
+    }
+  }
+  #tagListWrap {
+    width: 600px;
+    margin: 0 auto 8px;
+    p {
+      color: #666;
+      margin: 14px 0 12px;
+      font-weight: bold;
+    }
+    ul {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      li {
+        -webkit-text-size-adjust: 100%;
+        font-weight: bold;
+        font-kerning: normal;
+        font-family: win-bug-omega, system-ui, -apple-system, 'Segoe UI', Roboto,
+          Ubuntu, Cantarell, 'Noto Sans', 'Hiragino Kaku Gothic ProN', Meiryo,
+          sans-serif;
+        margin: 0px;
+        margin-right: 8px;
+        padding: 0px;
+        text-align: center;
+        box-sizing: border-box;
+        text-decoration: none;
+        border-radius: 4px;
+        height: 40px;
+        line-height: 40px;
+        padding-right: 24px;
+        padding-left: 24px;
+        color: #555;
+        background-color: rgba(0, 0, 0, 0.04);
       }
     }
   }
