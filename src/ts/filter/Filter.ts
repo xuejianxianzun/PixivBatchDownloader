@@ -103,7 +103,7 @@ class Filter {
     }
 
     // 检查要排除的 tag
-    if (!this.checkExcludeTag(option.tags)) {
+    if (!this.checkExcludeTag(option.tags, option.id)) {
       return false
     }
 
@@ -136,12 +136,12 @@ class Filter {
     }
 
     // 检查用户阻止名单
-    if (!this.checkBlockList(option.userId)) {
+    if (!this.checkBlockList(option.userId, option.id)) {
       return false
     }
 
     // 检查针对特定用户屏蔽的 tags
-    if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags)) {
+    if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags, option.id)) {
       return false
     }
 
@@ -261,8 +261,8 @@ class Filter {
     if (settings.multiImageWorkImageLimit > 0) {
       log.warning(
         lang.transl('_多图作品的图片数量限制') +
-          '：' +
-          settings.multiImageWorkImageLimit
+        '：' +
+        settings.multiImageWorkImageLimit
       )
     }
   }
@@ -303,11 +303,9 @@ class Filter {
       const andOr = settings.setWidthAndOr
         .replace('|', lang.transl('_或者'))
         .replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${
-        settings.setWidth
-      } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${
-        settings.setHeight
-      }`
+      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${settings.setWidth
+        } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${settings.setHeight
+        }`
       log.warning(text)
     }
   }
@@ -620,7 +618,7 @@ class Filter {
   }
 
   // 检查作品是否符合排除 tag 的条件, 只要作品包含其中一个就排除。返回值表示是否保留这个作品。
-  private checkExcludeTag(tags: FilterOption['tags']) {
+  private checkExcludeTag(tags: FilterOption['tags'], id?: FilterOption['id']) {
     if (
       !settings.notNeedTagSwitch ||
       settings.notNeedTag.length === 0 ||
@@ -629,10 +627,9 @@ class Filter {
       return true
     }
 
-    const notNeedTags = settings.notNeedTag.map((str) => str.toLowerCase())
-
     for (const tag of tags) {
-      for (const notNeed of notNeedTags) {
+      for (const str of settings.notNeedTag) {
+        const notNeed = str.toLowerCase()
         // 部分匹配
         if (settings.tagMatchMode === 'partial') {
           if (tag.toLowerCase().includes(notNeed)) {
@@ -645,10 +642,14 @@ class Filter {
             if (words.length > 1) {
               // 如果 tag 有空格，依次使用每个分词进行全词匹配。如果有任一一个 tag 被匹配到则排除这个作品
               if (words.some((word) => word.toLowerCase() === notNeed)) {
+                // 定制：显示被排除的原因
+                log.warning(`id ${id || '未知'} 被排除，因为排除了 tag：${tag}`)
                 return false
               }
             } else {
               // 如果 tag 没有空格，直接返回结果
+              // 定制：显示被排除的原因
+              log.warning(`id ${id || '未知'} 被排除，因为排除了 tag：${tag}`)
               return false
             }
           }
@@ -779,13 +780,19 @@ class Filter {
     return yes_rank === 0
   }
 
-  private checkBlockList(userId: FilterOption['userId']) {
+  private checkBlockList(userId: FilterOption['userId'], id?: FilterOption['id']) {
     if (!settings.userBlockList || userId === undefined) {
       return true
     }
 
     // 如果阻止名单里有这个用户 id，则返回 false 表示阻止这个作品
-    return !settings.blockList.includes(userId)
+    const result = settings.blockList.includes(userId)
+    // 定制：显示被排除的原因
+    if (result) {
+      log.warning(`id ${id || '未知'} 被排除，因为用户阻止名单中排除了该用户：${userId}`)
+    }
+
+    return !result
   }
 
   // 检查文件体积
@@ -825,7 +832,8 @@ class Filter {
 
   private checkBlockTagsForSpecificUser(
     userId: FilterOption['userId'],
-    tags: FilterOption['tags']
+    tags: FilterOption['tags'],
+    id?: FilterOption['id']
   ) {
     if (
       !settings.blockTagsForSpecificUser ||
@@ -835,8 +843,13 @@ class Filter {
       return true
     }
 
+    // 定制：显示被排除的原因
+    const checkResult = blockTagsForSpecificUser.check(userId, tags)
+    if (checkResult.result) {
+      log.warning(`id ${id || '未知'} 被排除，因为屏蔽了用户 ${userId} 的 tag：${checkResult.tag}`)
+    }
     // 对结果取反
-    return !blockTagsForSpecificUser.check(userId, tags)
+    return !checkResult.result
   }
 
   // 如果设置项的值不合法，则显示提示

@@ -11,6 +11,7 @@ import { API } from '../API'
 import { theme } from '../Theme'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
+import { log } from '../Log'
 
 // 针对特定用户屏蔽 tag
 class BlockTagsForSpecificUser {
@@ -80,12 +81,12 @@ class BlockTagsForSpecificUser {
 
     <div class="controlBar">
       <button type="button" class="textButton expand">${lang.transl(
-        '_收起'
-      )}</button>
+    '_收起'
+  )}</button>
       <span class="total">0</span>
       <button type="button" class="textButton showAdd">${lang.transl(
-        '_添加'
-      )}</button>
+    '_添加'
+  )}</button>
     </div>
 
     <div class="addWrap">
@@ -93,21 +94,21 @@ class BlockTagsForSpecificUser {
         <div class="inputItem uid">
           <span class="label uidLabel">${lang.transl('_用户id')}</span>
           <input type="text" class="setinput_style1 blue addUidInput" placeholder="${lang.transl(
-            '_必须是数字'
-          )}" />
+    '_必须是数字'
+  )}" />
         </div>
 
         <div class="inputItem tags">
           <span class="label tagsLabel">Tags</span>
           <input type="text" class="setinput_style1 blue addTagsInput" placeholder="${lang.transl(
-            '_tag用逗号分割'
-          )}" />
+    '_tag用逗号分割'
+  )}" />
         </div>
 
         <div class="btns">
           <button type="button" class="textButton add" title="${lang.transl(
-            '_添加'
-          )}">
+    '_添加'
+  )}">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-wanchengqueding"></use>
             </svg>
@@ -115,8 +116,8 @@ class BlockTagsForSpecificUser {
 
           
           <button type="button" class="textButton cancel" title="${lang.transl(
-            '_取消'
-          )}">
+    '_取消'
+  )}">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-guanbiquxiao"></use>
             </svg>
@@ -243,14 +244,14 @@ class BlockTagsForSpecificUser {
       `input[data-tagsInput='${uid}']`
     )! as HTMLInputElement
 
-    // 当输入框发生变化时，进行更新
-    ;[uidInput, tagsInput].forEach((el) => {
-      el?.addEventListener('change', () => {
-        if (el.value) {
-          this.updateRule(uid, uidInput.value, tagsInput.value, false)
-        }
+      // 当输入框发生变化时，进行更新
+      ;[uidInput, tagsInput].forEach((el) => {
+        el?.addEventListener('change', () => {
+          if (el.value) {
+            this.updateRule(uid, uidInput.value, tagsInput.value, false)
+          }
+        })
       })
-    })
 
     // 更新按钮
     updateRule?.addEventListener('click', () => {
@@ -425,7 +426,12 @@ class BlockTagsForSpecificUser {
   }
 
   // 如果找到了符合的记录，则返回 true
-  public check(uid: string | number, tags: string[]) {
+  public check(uid: string | number, tags: string[]): {
+    result: false
+  } | {
+    result: true,
+    tag: string
+  } {
     if (typeof uid === 'string') {
       uid = Number.parseInt(uid)
     }
@@ -433,7 +439,9 @@ class BlockTagsForSpecificUser {
     // 查找有无记录
     const index = this.findIndex(uid)
     if (index === -1) {
-      return false
+      return {
+        result: false
+      }
     }
 
     // 如果有记录则判断是否有相同的 tag，有任意一个就返回
@@ -441,12 +449,17 @@ class BlockTagsForSpecificUser {
     const tagsString = tags.toString().toLowerCase()
     for (const tag of rule.tags) {
       if (tagsString.includes(tag.toLowerCase())) {
-        return true
+        return {
+          result: true,
+          tag: tag
+        }
       }
     }
 
     // 没有相同的 tag
-    return false
+    return {
+      result: false
+    }
   }
 }
 

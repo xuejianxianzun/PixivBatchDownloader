@@ -6,6 +6,7 @@ import { states } from './store/States'
 import { IDData } from './store/StoreType'
 import { toast } from './Toast'
 import { msgBox } from './MsgBox'
+import { pageType } from './PageType'
 
 // 手动选择作品，图片作品和小说都可以选择
 class SelectWork {
@@ -14,7 +15,9 @@ class SelectWork {
       this.created = true
       this.selector = this.createSelectorEl()
       this.addBtn()
+      this.addRightBtn()
       this.bindEvents()
+      this.toggleRightBtn()
     }
   }
 
@@ -30,11 +33,11 @@ class SelectWork {
   private _pause = false
   private _tempHide = false // 打开下载面板时临时隐藏。这个变量只会影响选择器的 display
 
-  get start() {
+  private get start() {
     return this._start
   }
 
-  set start(bool: boolean) {
+  private set start(bool: boolean) {
     this._start = bool
     this.updateSelectorEl()
     this.updateControlBtn()
@@ -84,6 +87,33 @@ class SelectWork {
 
   private sendCrawl = false // 它用来判断抓取的是不是选择的作品。抓取选择的作品时激活此标记；当触发下一次的抓取完成事件时，表示已经抓取了选择的作品。
   private crawled = false // 是否已经抓取了选择的作品
+
+  // 定制：在一些页面类型上启用“全选”、“退出选择”功能
+  private selectAllPageType = [pageType.list.UserHome, pageType.list.NewNovelBookmark, pageType.list.NewArtworkBookmark]
+  private selectAllBtn!: HTMLButtonElement
+  private exitSelectBtn!: HTMLButtonElement
+
+  private addRightBtn() {
+    // 在右侧添加全选按钮
+    this.selectAllBtn = document.createElement('button')
+    this.selectAllBtn.classList.add('rightButton')
+    this.selectAllBtn.id = 'selectAllBtn'
+    this.selectAllBtn.setAttribute('title', '全选')
+    this.selectAllBtn.innerHTML = `<svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-quanxuan"></use>
+</svg>`
+    document.body.insertAdjacentElement('afterbegin', this.selectAllBtn)
+
+    // 在右侧添加退出选择按钮
+    this.exitSelectBtn = document.createElement('button')
+    this.exitSelectBtn.classList.add('rightButton')
+    this.exitSelectBtn.id = 'exitSelectBtn'
+    this.exitSelectBtn.setAttribute('title', '退出全选')
+    this.exitSelectBtn.innerHTML = `<svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-quxiao"></use>
+</svg>`
+    document.body.insertAdjacentElement('afterbegin', this.exitSelectBtn)
+  }
 
   private bindClickEvent!: (ev: MouseEvent) => void | undefined
   private bindEscEvent!: (ev: KeyboardEvent) => void | undefined
@@ -164,7 +194,29 @@ class SelectWork {
         subtree: true,
       })
     })
+
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      this.toggleRightBtn()
+    })
+
+    this.selectAllBtn.addEventListener('click',()=>{
+      this.selectAll()
+    })
+
+    this.exitSelectBtn.addEventListener('click',()=>{
+      this.exitSelect()
+    })
   }
+
+  private toggleRightBtn() {
+    const enable = this.selectAllPageType.includes(pageType.type)
+    this.selectAllBtn.style.display = enable ? 'flex' : 'none'
+    this.exitSelectBtn.style.display = enable ? 'flex' : 'none'
+  }
+
+  private selectAll(){}
+  
+  private exitSelect(){}
 
   private clearIdList() {
     // 清空标记需要使用 id 数据，所以需要执行之后才能清空 id

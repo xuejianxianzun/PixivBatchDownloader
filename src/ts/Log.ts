@@ -19,7 +19,8 @@ class Log {
   private readonly levelColor = [
     'inherit',
     Colors.textSuccess,
-    Colors.textWarning,
+    // Colors.textWarning,
+    '#E95701',
     Colors.textError,
   ]
 

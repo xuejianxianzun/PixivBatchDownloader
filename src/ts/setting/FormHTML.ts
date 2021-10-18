@@ -525,7 +525,7 @@ export const formHtml = `<form class="settingForm">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_线程数字'
       )}">${lang.transl('_设置下载线程')}<span class="gray1"> ? </span></span>
-      <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
+      <input type="text" name="downloadThread" class="setinput_style1 blue" value="24">
       </p>
 
       <p class="option" data-no="17">
