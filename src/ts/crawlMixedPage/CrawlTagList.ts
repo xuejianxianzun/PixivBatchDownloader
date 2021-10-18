@@ -1,4 +1,5 @@
 // 在搜索页面抓取 tag 列表，抓取完一个 tag 就立即开始下载。下载完毕后再抓取下一个 tag
+// 这是个单例类，为了控制其执行时机，需要手动执行 init 方法来进行一部分初始化
 import { Tools } from '../Tools'
 import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
@@ -6,22 +7,28 @@ import { msgBox } from '../MsgBox'
 import { states } from '../store/States'
 import { toast } from '../Toast'
 import { EVT } from '../EVT'
+import { pageType } from '../PageType'
 
 class CrawlTagList {
-  constructor() {
+  constructor() {}
+
+  public init() {
     this.addCrawlBtns()
     this.addElement()
     this.bindEvents()
     this.restoreData()
   }
 
+  private bindEventFlag = false
+
+  private EnablPage = [pageType.list.ArtworkSearch, pageType.list.NovelSearch]
+
   private _tagList: string[] = []
-  get tagList() {
+
+  private get tagList() {
     return this._tagList
   }
-  set tagList(val: string[]) {
-    console.log('set',val)
-    // debugger;
+  private set tagList(val: string[]) {
     this._tagList = val
     this.storeData()
     this.showTagList()
@@ -38,29 +45,30 @@ class CrawlTagList {
   private showTagListWrap!: HTMLUListElement
 
   private addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, '抓取标签列表').addEventListener(
-      'click',
-      () => {
-        EVT.fire('closeCenterPanel')
-        this.toggleWrap(true)
-        // 跳转到页面顶部，否则用户可能看不到输入区域
-        window.scrollTo(0, 0)
-      }
-    )
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      lang.transl('_抓取标签列表')
+    ).addEventListener('click', () => {
+      EVT.fire('closeCenterPanel')
+      this.toggleWrap(true)
+      // 跳转到页面顶部，否则用户可能看不到输入区域
+      window.scrollTo(0, 0)
+    })
   }
 
   private addElement() {
     const htmlText = `<textarea
       id="crawlTagListTextArea"
-      placeholder="请输入要抓取的标签列表。多个标签之间使用换行分割"
+      placeholder="${lang.transl('_抓取标签列表的输入框提示')}"
     ></textarea>
-    <p id="crawlTagListTip">在抓取标签列表时，你可以使用 {p_tag} 或者 {p_title} 标记获取当前抓取的标签，用来建立文件夹。例如：{p_tag}/{id}</p>
+    <p id="crawlTagListTip">${lang.transl('_抓取标签列表的文件夹提示')}</p>
     <div id="crawlTagListBtnsWrap">
-      <button id="crawlTagListBtn">抓取标签列表</button>
-      <button id="clearTagListBtn">停止抓取标签列表</button>
+      <button id="crawlTagListBtn">${lang.transl('_抓取标签列表')}</button>
+      <button id="clearTagListBtn">${lang.transl('_停止抓取标签列表')}</button>
     </div>
     <div id="tagListWrap">
-      <p>等待下载的标签</p>
+      <p>${lang.transl('_等待下载的标签')}</p>
       <ul id="showTagList">
       <ul>
     </div>
@@ -89,9 +97,7 @@ class CrawlTagList {
     this.showTagListWrap = this.wrap.querySelector(
       '#showTagList'
     )! as HTMLUListElement
-  }
 
-  private bindEvents() {
     this.startCrawlBtn.addEventListener('click', () => {
       this.checkInput()
     })
@@ -99,26 +105,39 @@ class CrawlTagList {
     this.clearCrawlBtn.addEventListener('click', () => {
       this.clear()
     })
+  }
 
-    window.removeEventListener(EVT.list.downloadComplete, this.onDownloadComplete)
-
+  private bindEvents() {
+    // 防止事件重复绑定
+    if (this.bindEventFlag) {
+      return
+    }
     window.addEventListener(EVT.list.downloadComplete, this.onDownloadComplete)
+    this.bindEventFlag = true
+
+    // 当页面类型变化时，如果进入到了不支持的页面类型，则隐藏输入区域
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      if (
+        !this.EnablPage.includes(pageType.type) &&
+        this._tagList.length === 0
+      ) {
+        this.toggleWrap(false)
+      }
+    })
   }
 
   private onDownloadComplete = () => {
     window.setTimeout(() => {
-      console.log('states.crawlTagList', states.crawlTagList)
       if (states.crawlTagList) {
-        console.log('shift 之前', this._tagList)
         this._tagList.shift()
-        console.log('shift 之后', this._tagList)
         this.tagList = this._tagList
 
         if (this._tagList.length === 0) {
           states.crawlTagList = false
           // 输出提示
-          this.showTagListWrap.innerHTML = `<span style="color:${Colors.textSuccess
-            }">${lang.transl('_下载完毕')}</span>`
+          this.showTagListWrap.innerHTML = `<span style="color:${
+            Colors.textSuccess
+          }">${lang.transl('_下载完毕')}</span>`
           return
         }
 
@@ -151,6 +170,15 @@ class CrawlTagList {
     if (states.busy) {
       return toast.error(lang.transl('_当前任务尚未完成'))
     }
+
+    if (!this.EnablPage.includes(pageType.type)) {
+      return msgBox.error(
+        lang.transl('_抓取标签列表') +
+          '<br>' +
+          lang.transl('_只能在搜索页面使用')
+      )
+    }
+
     states.crawlTagList = true
     const tag = this._tagList[0]
     // 修改 title，便于使用 P_title 建立文件夹
@@ -185,7 +213,7 @@ class CrawlTagList {
     if (this.tagList.length === 0) {
       return
     }
-    const confirm = window.confirm('你确定要停止抓取吗？')
+    const confirm = window.confirm(lang.transl('_你确定要停止抓取吗'))
     if (confirm) {
       this.tagList = []
       location.reload()
@@ -220,4 +248,6 @@ class CrawlTagList {
     // 2. 如果自动开始抓取，那么用户每打开一个新的搜索页面，下载器都会自动开始抓取，影响用户正常使用
   }
 }
-export { CrawlTagList }
+
+const crawlTagList = new CrawlTagList()
+export { crawlTagList }

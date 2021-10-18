@@ -15,7 +15,7 @@ import { Utils } from '../utils/Utils'
 import { idListWithPageNo } from '../store/IdListWithPageNo'
 import { EVT } from '../EVT'
 import { msgBox } from '../MsgBox'
-import { CrawlTagList } from '../crawlMixedPage/CrawlTagList'
+import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { states } from '../store/States'
 
 class InitSearchNovelPage extends InitPageBase {
@@ -23,7 +23,7 @@ class InitSearchNovelPage extends InitPageBase {
     super()
     this.init()
     new FastScreen()
-    new CrawlTagList()
+    crawlTagList.init()
   }
 
   private readonly worksWrapSelector = '#root section>div>ul'
@@ -107,7 +107,7 @@ class InitSearchNovelPage extends InitPageBase {
   protected initAny() {
     window.addEventListener(EVT.list.crawlTag, this.crawlTag)
   }
-  
+
   protected destroy() {
     Tools.clearSlot('crawlBtns')
     Tools.clearSlot('otherBtns')
@@ -277,7 +277,6 @@ class InitSearchNovelPage extends InitPageBase {
     store.resultMeta.sort(Utils.sortByProperty('bmk'))
     store.result.sort(Utils.sortByProperty('bmk'))
   }
-  
 
   private crawlTag = () => {
     if (states.crawlTagList) {

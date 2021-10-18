@@ -21,7 +21,7 @@ import { idListWithPageNo } from '../store/IdListWithPageNo'
 import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
 import { Bookmark } from '../Bookmark'
-import { CrawlTagList } from '../crawlMixedPage/CrawlTagList'
+import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 
 type AddBMKData = {
   id: number
@@ -35,7 +35,7 @@ class InitSearchArtworkPage extends InitPageBase {
     super()
     this.init()
     new FastScreen()
-    new CrawlTagList()
+    crawlTagList.init()
   }
 
   private readonly worksWrapSelector = '#root section ul'
@@ -774,7 +774,6 @@ class InitSearchArtworkPage extends InitPageBase {
       }
     }, 300)
   }
-
 
   private crawlTag = () => {
     if (states.crawlTagList) {

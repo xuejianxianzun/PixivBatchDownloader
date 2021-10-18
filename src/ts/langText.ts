@@ -28,8 +28,8 @@ const langText = {
   _不能含有tag: [
     '<span class="key">不能</span>含有标签',
     '<span class="key">不能</span>含有標籤',
-    '<span class="key">Exclude</span> specified tag',
-    '指定したタグを除外する',
+    '<span class="key">Exclude</span> tag',
+    'タグを除外する',
   ],
   _排除tag的提示文字: [
     '您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。不区分大小写；如需排除多个标签，请使用英文逗号分隔。请注意要排除的标签的优先级大于要包含的tag的优先级。',
@@ -1758,6 +1758,48 @@ const langText = {
     '新增設定項目：<br>下載完成後顯示通知',
     'Added setting items:<br>Show notification after download is complete',
     '新たな機能を追加されました：<br>ダウンロードが完了した後に通知を表示する',
+  ],
+  _抓取标签列表: [
+    '抓取标签列表',
+    '抓取標籤列表',
+    'Crawl a list of tags',
+    'タグのリストを取得します',
+  ],
+  _抓取标签列表的输入框提示: [
+    '请输入你要抓取的标签列表。多个标签之间使用换行分割',
+    '請輸入你要抓取的標籤列表。多個標籤之間使用換行分割',
+    'Please type the list of tags you want to crawl. Use line breaks between multiple tags',
+    'クロールするタグのリストを入力してください。 複数のラベルの間に改行を使用する',
+  ],
+  _抓取标签列表的文件夹提示: [
+    '在抓取标签列表时，你可以使用 {p_tag} 或者 {p_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{p_tag}/{id}',
+    '在抓取標籤列表時，你可以使用 {p_tag} 或者 {p_title} 標記獲取當前抓取的標籤，並用來建立資料夾。例如：{p_tag}/{id}',
+    'When crawling the tag list, you can use {p_tag} or {p_title} tags to get the tags currently crawled and use them to create folders. For example: {p_tag}/{id}',
+    'タグリストをフェッチするときは、{p_tag}または{p_title}タグを使用して、現在フェッチされているタグを取得し、それらを使用してフォルダを作成できます。 例：{p_tag} / {id}',
+  ],
+  _停止抓取标签列表: [
+    '停止抓取标签列表',
+    '停止抓取標籤列表',
+    'Stop crawling the list of tags',
+    'タグリストのクロールを停止します',
+  ],
+  _等待下载的标签: [
+    '等待下载的标签',
+    '等待下載的標籤',
+    'Tags waiting to be downloaded',
+    'ダウンロードを待っているタグ',
+  ],
+  _你确定要停止抓取吗: [
+    '你确定要停止抓取吗？',
+    '你確定要停止抓取嗎？',
+    'Are you sure you want to stop crawling?',
+    'クロールを停止してもよろしいですか？',
+  ],
+  _只能在搜索页面使用: [
+    '只能在搜索页面使用',
+    '只能在搜尋頁面使用',
+    'Can only be used on the search page',
+    '検索ページでのみ使用できます',
   ],
 }
 
