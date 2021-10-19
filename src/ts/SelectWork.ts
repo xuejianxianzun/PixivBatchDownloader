@@ -209,8 +209,8 @@ class SelectWork {
 
     // 退出手动选择模式，并取消所有选择的作品
     this.exitSelectBtn.addEventListener('click', () => {
-      // 解绑 click 事件的回调函数
-      this.pauseSelect()
+      // 解绑一些事件的回调函数
+      this.removeEventListener()
 
       this.clearIdList()
       this.start = false
@@ -427,6 +427,8 @@ class SelectWork {
       this.clearIdList()
     }
 
+    this.removeEventListener()
+
     this.bindClickEvent = this.clickEvent.bind(this)
     this.bindEscEvent = this.escEvent.bind(this)
     window.addEventListener('click', this.bindClickEvent, true)
@@ -437,6 +439,10 @@ class SelectWork {
 
   private pauseSelect() {
     this.pause = true
+    this.removeEventListener()
+  }
+
+  private removeEventListener() {
     this.bindClickEvent &&
       window.removeEventListener('click', this.bindClickEvent, true)
     this.bindEscEvent &&
