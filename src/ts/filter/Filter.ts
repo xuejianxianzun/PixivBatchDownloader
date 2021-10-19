@@ -141,7 +141,9 @@ class Filter {
     }
 
     // 检查针对特定用户屏蔽的 tags
-    if (!this.checkBlockTagsForSpecificUser(option.userId, option.tags, option.id)) {
+    if (
+      !this.checkBlockTagsForSpecificUser(option.userId, option.tags, option.id)
+    ) {
       return false
     }
 
@@ -261,8 +263,8 @@ class Filter {
     if (settings.multiImageWorkImageLimit > 0) {
       log.warning(
         lang.transl('_多图作品的图片数量限制') +
-        '：' +
-        settings.multiImageWorkImageLimit
+          '：' +
+          settings.multiImageWorkImageLimit
       )
     }
   }
@@ -303,9 +305,11 @@ class Filter {
       const andOr = settings.setWidthAndOr
         .replace('|', lang.transl('_或者'))
         .replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${settings.setWidth
-        } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${settings.setHeight
-        }`
+      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${
+        settings.setWidth
+      } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${
+        settings.setHeight
+      }`
       log.warning(text)
     }
   }
@@ -780,7 +784,10 @@ class Filter {
     return yes_rank === 0
   }
 
-  private checkBlockList(userId: FilterOption['userId'], id?: FilterOption['id']) {
+  private checkBlockList(
+    userId: FilterOption['userId'],
+    id?: FilterOption['id']
+  ) {
     if (!settings.userBlockList || userId === undefined) {
       return true
     }
@@ -789,7 +796,9 @@ class Filter {
     const result = settings.blockList.includes(userId)
     // 定制：显示被排除的原因
     if (result) {
-      log.warning(`id ${id || '未知'} 被排除，因为用户阻止名单中排除了该用户：${userId}`)
+      log.warning(
+        `id ${id || '未知'} 被排除，因为用户阻止名单中排除了该用户：${userId}`
+      )
     }
 
     return !result
@@ -846,7 +855,11 @@ class Filter {
     // 定制：显示被排除的原因
     const checkResult = blockTagsForSpecificUser.check(userId, tags)
     if (checkResult.result) {
-      log.warning(`id ${id || '未知'} 被排除，因为屏蔽了用户 ${userId} 的 tag：${checkResult.tag}`)
+      log.warning(
+        `id ${id || '未知'} 被排除，因为屏蔽了用户 ${userId} 的 tag：${
+          checkResult.tag
+        }`
+      )
     }
     // 对结果取反
     return !checkResult.result
