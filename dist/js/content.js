@@ -10468,11 +10468,10 @@
                 this.option[param] = value
               }
             })
-            // 如果没有指定搜索模式，则是精确匹配标签
+            // 如果没有指定标签匹配模式，则使用 s_tag 标签（部分一致）
+            // s_tag_full 是标签（完全一致）
             this.option.s_mode =
-              (_b = this.option.s_mode) !== null && _b !== void 0
-                ? _b
-                : 's_tag_full'
+              (_b = this.option.s_mode) !== null && _b !== void 0 ? _b : 's_tag'
           }
           // 获取搜索页的数据。因为有多处使用，所以进行了封装
           async getSearchData(p) {
@@ -14121,11 +14120,10 @@
                 this.option[param] = value
               }
             })
-            // 如果没有指定搜索模式，则是精确匹配标签
+            // 如果没有指定标签匹配模式，则使用 s_tag 标签（部分一致）
+            // s_tag_full 是标签（完全一致）
             this.option.s_mode =
-              (_a = this.option.s_mode) !== null && _a !== void 0
-                ? _a
-                : 's_tag_full'
+              (_a = this.option.s_mode) !== null && _a !== void 0 ? _a : 's_tag'
           }
           // 计算页数之后，准备建立并发抓取线程
           startGetIdList() {
