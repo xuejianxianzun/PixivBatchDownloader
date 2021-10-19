@@ -710,6 +710,29 @@ export const formHtml = `<form class="settingForm">
       </span>
       </p>
 
+      <p class="option" data-no="54">
+      <span class="settingNameStyle1">${lang.transl(
+        '_自动导出抓取结果'
+      )} </span>
+      <input type="checkbox" name="autoExportResult" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+
+      <span class="subOptionWrap" data-show="autoExportResult">
+      <span>${lang.transl('_文件数量大于')}</span>
+      <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
+      <span>&nbsp;</span>
+      <span class="settingNameStyle1">${lang.transl('_文件格式')} </span>
+      <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="autoExportResultCSV"> CSV </label>
+      &nbsp;
+      <input type="checkbox" name="autoExportResultJSON" id="autoExportResultJSON" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="autoExportResultJSON"> JSON </label>
+
+      </span>
+      </p>
+
       <p class="option" data-no="35">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_用户阻止名单的说明'

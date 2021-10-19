@@ -113,7 +113,7 @@ class EVENT {
     // 当从断点续传数据恢复了下载时触发
     resume: 'resume',
     // 当需要导出 csv 文件时触发
-    outputCSV: 'outputCSV',
+    exportCSV: 'exportCSV',
     // 当需要导出抓取结果时触发
     exportResult: 'exportResult',
     // 当需要导出抓取结果时触发
@@ -186,7 +186,7 @@ class EVENT {
       | 'importDownloadRecord'
       | 'clearSavedCrawl'
       | 'resume'
-      | 'outputCSV'
+      | 'exportCSV'
       | 'exportResult'
       | 'importResult'
       | 'saveAvatarImage'

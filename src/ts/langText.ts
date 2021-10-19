@@ -1045,7 +1045,7 @@ const langText = {
     'Name: ',
     'ディレクトリ名の使用：',
   ],
-  _目录名: ['目录名：', '資料夾名稱：', 'Name: ', 'ディレクトリ名：'],
+  _目录名: ['目录名', '資料夾名稱', 'Name', 'ディレクトリ名'],
   _启用快速收藏: [
     '启用快速收藏',
     '開啟快速收藏',
@@ -1499,8 +1499,8 @@ const langText = {
     '作品ごとに別フォルダを作成',
   ],
   _文件数量大于: [
-    '文件数量大于',
-    '檔案數量大於',
+    '文件数量 >',
+    '檔案數量 >',
     'Number of files >',
     'ファイル数 >',
   ],
@@ -1800,6 +1800,19 @@ const langText = {
     '只能在搜尋頁面使用',
     'Can only be used on the search page',
     '検索ページでのみ使用できます',
+  ],
+  _自动导出抓取结果: [
+    '自动<span class="key">导出</span>抓取结果',
+    '自動<span class="key">匯出</span>抓取結果',
+    'Automatically <span class="key">export</span> crawl results',
+    'クロール結果を自動的にエクスポートする',
+  ],
+  _文件格式: ['文件格式', '檔案格式', 'File format', 'ファイル形式'],
+  _预览作品: [
+    '<span class="key">预览</span>作品',
+    '<span class="key">預覽</span>作品',
+    '<span class="key">Preview</span> works',
+    'プレビューは機能します',
   ],
 }
 

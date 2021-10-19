@@ -216,7 +216,10 @@ class CrawlTagList {
     const confirm = window.confirm(lang.transl('_你确定要停止抓取吗'))
     if (confirm) {
       this.tagList = []
-      location.reload()
+      // states.busy 有可能是因为下载器正在抓取作品，通过刷新页面可以取消抓取。
+      if (states.busy) {
+        location.reload()
+      }
     }
   }
 

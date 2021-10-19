@@ -1625,7 +1625,7 @@
               // 当从断点续传数据恢复了下载时触发
               resume: 'resume',
               // 当需要导出 csv 文件时触发
-              outputCSV: 'outputCSV',
+              exportCSV: 'exportCSV',
               // 当需要导出抓取结果时触发
               exportResult: 'exportResult',
               // 当需要导出抓取结果时触发
@@ -4249,7 +4249,7 @@
             'Name: ',
             'ディレクトリ名の使用：',
           ],
-          _目录名: ['目录名：', '資料夾名稱：', 'Name: ', 'ディレクトリ名：'],
+          _目录名: ['目录名', '資料夾名稱', 'Name', 'ディレクトリ名'],
           _启用快速收藏: [
             '启用快速收藏',
             '開啟快速收藏',
@@ -4733,8 +4733,8 @@
             '作品ごとに別フォルダを作成',
           ],
           _文件数量大于: [
-            '文件数量大于',
-            '檔案數量大於',
+            '文件数量 >',
+            '檔案數量 >',
             'Number of files >',
             'ファイル数 >',
           ],
@@ -5054,6 +5054,19 @@
             '只能在搜尋頁面使用',
             'Can only be used on the search page',
             '検索ページでのみ使用できます',
+          ],
+          _自动导出抓取结果: [
+            '自动<span class="key">导出</span>抓取结果',
+            '自動<span class="key">匯出</span>抓取結果',
+            'Automatically <span class="key">export</span> crawl results',
+            'クロール結果を自動的にエクスポートする',
+          ],
+          _文件格式: ['文件格式', '檔案格式', 'File format', 'ファイル形式'],
+          _预览作品: [
+            '<span class="key">预览</span>作品',
+            '<span class="key">預覽</span>作品',
+            '<span class="key">Preview</span> works',
+            'プレビューは機能します',
           ],
         }
 
@@ -8031,6 +8044,27 @@
             )
             // 发出抓取完毕的信号
             _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire('crawlFinish')
+            // 自动导出抓取结果
+            if (
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
+                .autoExportResult &&
+              _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].result.length >
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
+                  .autoExportResultNumber
+            ) {
+              if (
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
+                  .autoExportResultCSV
+              ) {
+                _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire('exportCSV')
+              }
+              if (
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
+                  .autoExportResultJSON
+              ) {
+                _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire('exportResult')
+              }
+            }
           }
           // 网络请求状态异常时输出提示
           logErrorStatus(status, id) {
@@ -9404,6 +9438,7 @@
               48,
               49,
               50,
+              54,
             ])
           }
           nextStep() {
@@ -10942,7 +10977,10 @@
             )
             if (confirm) {
               this.tagList = []
-              location.reload()
+              // states.busy 有可能是因为下载器正在抓取作品，通过刷新页面可以取消抓取。
+              if (_store_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy) {
+                location.reload()
+              }
             }
           }
           // 每当 tagList 状态变化时，保存 tagList 到本地存储
@@ -16102,7 +16140,7 @@
               },
             ]
             window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.outputCSV,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.exportCSV,
               () => {
                 this.beforeCreate()
               }
@@ -21748,7 +21786,7 @@
                 .addEventListener(
                   'click',
                   () => {
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('outputCSV')
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('exportCSV')
                   },
                   false
                 )
@@ -22879,6 +22917,33 @@
       </span>
       </p>
 
+      <p class="option" data-no="54">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_自动导出抓取结果')} </span>
+      <input type="checkbox" name="autoExportResult" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+
+      <span class="subOptionWrap" data-show="autoExportResult">
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+        '_文件数量大于'
+      )}</span>
+      <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
+      <span>&nbsp;</span>
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_文件格式')} </span>
+      <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="autoExportResultCSV"> CSV </label>
+      &nbsp;
+      <input type="checkbox" name="autoExportResultJSON" id="autoExportResultJSON" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="autoExportResultJSON"> JSON </label>
+
+      </span>
+      </p>
+
       <p class="option" data-no="35">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
@@ -23251,6 +23316,9 @@
                 'showAdvancedSettings',
                 'showNotificationAfterDownloadComplete',
                 'boldKeywords',
+                'autoExportResult',
+                'autoExportResultCSV',
+                'autoExportResultJSON',
               ],
               text: [
                 'setWantPage',
@@ -23277,6 +23345,7 @@
                 'bgOpacity',
                 'zeroPaddingLength',
                 'workDirNameRule',
+                'autoExportResultNumber',
               ],
               radio: [
                 'ugoiraSaveAs',
@@ -24311,6 +24380,10 @@
               showAdvancedSettings: false,
               showNotificationAfterDownloadComplete: false,
               boldKeywords: false,
+              autoExportResult: false,
+              autoExportResultCSV: true,
+              autoExportResultJSON: false,
+              autoExportResultNumber: 1,
             }
             this.allSettingKeys = Object.keys(this.defaultSettings)
             // 值为浮点数的选项
