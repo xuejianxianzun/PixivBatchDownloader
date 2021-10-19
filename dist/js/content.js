@@ -1619,6 +1619,8 @@
             this.list = {
               // 当抓取开始时触发
               crawlStart: 'crawlStart',
+              // 让下载器抓取特定的 tag，而不是自动获取当前页面的 tag（仅在 tag 搜索页面有效）
+              crawlTag: 'crawlTag',
               // 当检查到错误的设置时触发
               wrongSetting: 'wrongSetting',
               // 当获取作品的 id 列表完成时触发
@@ -1755,9 +1757,9 @@
           }
           // 触发事件，可以携带数据
           // 数据通过 ev.detail.data 获取，如果未传递则是空对象
-          fire(type, data = {}) {
+          fire(type, data) {
             const event = new CustomEvent(type, {
-              detail: { data },
+              detail: { data: data === undefined ? {} : data },
             })
             window.dispatchEvent(event)
           }
@@ -3256,8 +3258,8 @@
           _不能含有tag: [
             '<span class="key">不能</span>含有标签',
             '<span class="key">不能</span>含有標籤',
-            '<span class="key">Exclude</span> specified tag',
-            '指定したタグを除外する',
+            '<span class="key">Exclude</span> tag',
+            'タグを除外する',
           ],
           _排除tag的提示文字: [
             '您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。不区分大小写；如需排除多个标签，请使用英文逗号分隔。请注意要排除的标签的优先级大于要包含的tag的优先级。',
@@ -5092,6 +5094,48 @@
             'Added setting items:<br>Show notification after download is complete',
             '新たな機能を追加されました：<br>ダウンロードが完了した後に通知を表示する',
           ],
+          _抓取标签列表: [
+            '抓取标签列表',
+            '抓取標籤列表',
+            'Crawl a list of tags',
+            'タグのリストをクロール',
+          ],
+          _抓取标签列表的输入框提示: [
+            '请输入你要抓取的标签列表。多个标签之间使用换行分割',
+            '請輸入你要抓取的標籤列表。多個標籤之間使用換行分割',
+            'Please type the list of tags you want to crawl. Use line breaks between multiple tags',
+            'クロールしたいタグのリストを入力してください。 複数のタグを改行で分割',
+          ],
+          _抓取标签列表的文件夹提示: [
+            '在抓取标签列表时，你可以使用 {p_tag} 或者 {p_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{p_tag}/{id}',
+            '在抓取標籤列表時，你可以使用 {p_tag} 或者 {p_title} 標記獲取當前抓取的標籤，並用來建立資料夾。例如：{p_tag}/{id}',
+            'When crawling the tag list, you can use {p_tag} or {p_title} tags to get the tags currently crawled and use them to create folders. For example: {p_tag}/{id}',
+            'タグリストをクロールする時に、 {p_tag} や {p_title}を使用すると、現在クロールされているタグを取得し、それらを使ってフォルダを作成することができます。例：{p_tag}/{id}',
+          ],
+          _停止抓取标签列表: [
+            '停止抓取标签列表',
+            '停止抓取標籤列表',
+            'Stop crawling the list of tags',
+            'タグリストのクロールを停止',
+          ],
+          _等待下载的标签: [
+            '等待下载的标签',
+            '等待下載的標籤',
+            'Tags waiting to be downloaded',
+            'ダウンロード待ちのタグ',
+          ],
+          _你确定要停止抓取吗: [
+            '你确定要停止抓取吗？',
+            '你確定要停止抓取嗎？',
+            'Are you sure you want to stop crawling?',
+            '本当にクロールをやめたいのか',
+          ],
+          _只能在搜索页面使用: [
+            '只能在搜索页面使用',
+            '只能在搜尋頁面使用',
+            'Can only be used on the search page',
+            '検索ページでのみ使用できます',
+          ],
         }
 
         /***/
@@ -6236,7 +6280,10 @@
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./setting/Settings */ './src/ts/setting/Settings.ts'
         )
-        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./store/States */ './src/ts/store/States.ts'
+        )
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
           /*! ./Tools */ './src/ts/Tools.ts'
         )
 
@@ -6264,17 +6311,25 @@
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.downloadComplete,
               () => {
-                if (
-                  _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
-                    .showNotificationAfterDownloadComplete
-                ) {
-                  this.show(
-                    _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
-                      '_下载完毕2'
-                    ),
-                    _Tools__WEBPACK_IMPORTED_MODULE_3__['Tools'].getPageTitle()
-                  )
-                }
+                window.setTimeout(() => {
+                  // 如果抓取标签列表没有完成，则不显示通知
+                  // 在一次抓取多个标签时，当最后一个标签下载完之后会解除 crawlTagList 状态，这时可以显示一条通知
+                  if (
+                    !_store_States__WEBPACK_IMPORTED_MODULE_3__['states']
+                      .crawlTagList &&
+                    _setting_Settings__WEBPACK_IMPORTED_MODULE_2__['settings']
+                      .showNotificationAfterDownloadComplete
+                  ) {
+                    this.show(
+                      _Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+                        '_下载完毕2'
+                      ),
+                      _Tools__WEBPACK_IMPORTED_MODULE_4__[
+                        'Tools'
+                      ].getPageTitle()
+                    )
+                  }
+                }, 300)
               }
             )
           }
@@ -9852,6 +9907,9 @@
         /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
           /*! ../Bookmark */ './src/ts/Bookmark.ts'
         )
+        /* harmony import */ var _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
+          /*! ../crawlMixedPage/CrawlTagList */ './src/ts/crawlMixedPage/CrawlTagList.ts'
+        )
         // 初始化 artwork 搜索页
 
         class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
@@ -9895,6 +9953,12 @@
             this.causeResultChange = ['firstFewImagesSwitch', 'firstFewImages'] // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
             this.flag = 'searchArtwork'
             this.onSettingChange = (event) => {
+              if (
+                _store_States__WEBPACK_IMPORTED_MODULE_14__['states']
+                  .crawlTagList
+              ) {
+                return
+              }
               const data = event.detail.data
               if (this.causeResultChange.includes(data.name)) {
                 if (
@@ -9912,6 +9976,12 @@
               if (
                 _store_States__WEBPACK_IMPORTED_MODULE_14__['states']
                   .downloadFromViewer
+              ) {
+                return
+              }
+              if (
+                _store_States__WEBPACK_IMPORTED_MODULE_14__['states']
+                  .crawlTagList
               ) {
                 return
               }
@@ -9933,6 +10003,12 @@
             // 显示抓取到的作品数量
             this.showCount = () => {
               if (
+                _store_States__WEBPACK_IMPORTED_MODULE_14__['states']
+                  .crawlTagList
+              ) {
+                return
+              }
+              if (
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_10__['settings']
                   .previewResult &&
                 this.countEl
@@ -9946,6 +10022,12 @@
             }
             // 在页面上生成抓取结果对应的作品元素
             this.createWork = (event) => {
+              if (
+                _store_States__WEBPACK_IMPORTED_MODULE_14__['states']
+                  .crawlTagList
+              ) {
+                return
+              }
               if (
                 !_setting_Settings__WEBPACK_IMPORTED_MODULE_10__['settings']
                   .previewResult ||
@@ -10115,10 +10197,21 @@
                 }
               }
             }
+            this.crawlTag = () => {
+              if (
+                _store_States__WEBPACK_IMPORTED_MODULE_14__['states']
+                  .crawlTagList
+              ) {
+                this.readyCrawl()
+              }
+            }
             this.init()
             new _pageFunciton_FastScreen__WEBPACK_IMPORTED_MODULE_11__[
               'FastScreen'
             ]()
+            _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_20__[
+              'crawlTagList'
+            ].init()
           }
           setFormOption() {
             // 个数/页数选项的提示
@@ -10138,14 +10231,17 @@
             _Tools__WEBPACK_IMPORTED_MODULE_12__['Tools']
               .addBtn(
                 'crawlBtns',
-                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgGreen,
-                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_开始筛选'),
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl('_开始抓取'),
                 [
                   [
                     'title',
                     _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
-                      '_开始筛选Title'
-                    ),
+                      '_开始抓取'
+                    ) +
+                      _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                        '_默认下载多页'
+                      ),
                   ],
                 ]
               )
@@ -10249,6 +10345,10 @@
               _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list.settingChange,
               this.onSettingChange
             )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list.crawlTag,
+              this.crawlTag
+            )
           }
           destroy() {
             _Tools__WEBPACK_IMPORTED_MODULE_12__['Tools'].clearSlot('crawlBtns')
@@ -10264,6 +10364,10 @@
             window.removeEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list.settingChange,
               this.onSettingChange
+            )
+            window.removeEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_5__['EVT'].list.crawlTag,
+              this.crawlTag
             )
           }
           getWantPage() {
@@ -10503,6 +10607,11 @@
           }
           // 清空作品列表，只在作品抓取完毕时使用。之后会生成根据收藏数排列的作品列表。
           clearWorks() {
+            if (
+              _store_States__WEBPACK_IMPORTED_MODULE_14__['states'].crawlTagList
+            ) {
+              return
+            }
             this.worksWrap = this.getWorksWrap()
             if (
               !_setting_Settings__WEBPACK_IMPORTED_MODULE_10__['settings']
@@ -10631,6 +10740,320 @@
             }, 300)
           }
         }
+
+        /***/
+      },
+
+    /***/ './src/ts/crawlMixedPage/CrawlTagList.ts':
+      /*!***********************************************!*\
+  !*** ./src/ts/crawlMixedPage/CrawlTagList.ts ***!
+  \***********************************************/
+      /*! exports provided: crawlTagList */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'crawlTagList',
+          function () {
+            return crawlTagList
+          }
+        )
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ../Tools */ './src/ts/Tools.ts'
+        )
+        /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ../config/Colors */ './src/ts/config/Colors.ts'
+        )
+        /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ../Lang */ './src/ts/Lang.ts'
+        )
+        /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ../MsgBox */ './src/ts/MsgBox.ts'
+        )
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ../store/States */ './src/ts/store/States.ts'
+        )
+        /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(
+          /*! ../Toast */ './src/ts/Toast.ts'
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(
+          /*! ../EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(
+          /*! ../PageType */ './src/ts/PageType.ts'
+        )
+        // 在搜索页面抓取 tag 列表，抓取完一个 tag 就立即开始下载。下载完毕后再抓取下一个 tag
+        // 这是个单例类，为了控制其执行时机，需要手动执行 init 方法来进行一部分初始化
+
+        class CrawlTagList {
+          constructor() {
+            this.bindEventFlag = false
+            this.EnablPage = [
+              _PageType__WEBPACK_IMPORTED_MODULE_7__['pageType'].list
+                .ArtworkSearch,
+              _PageType__WEBPACK_IMPORTED_MODULE_7__['pageType'].list
+                .NovelSearch,
+            ]
+            this._tagList = []
+            this.storeName = 'crawlTagList'
+            this.wrapId = 'crawlTagListInputWrap'
+            this.onDownloadComplete = () => {
+              window.setTimeout(() => {
+                if (
+                  _store_States__WEBPACK_IMPORTED_MODULE_4__['states']
+                    .crawlTagList
+                ) {
+                  this._tagList.shift()
+                  this.tagList = this._tagList
+                  if (this._tagList.length === 0) {
+                    _store_States__WEBPACK_IMPORTED_MODULE_4__[
+                      'states'
+                    ].crawlTagList = false
+                    // 输出提示
+                    this.showTagListWrap.innerHTML = `<span style="color:${
+                      _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors']
+                        .textSuccess
+                    }">${_Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                      '_下载完毕'
+                    )}</span>`
+                    return
+                  }
+                  // 继续抓取下一个标签
+                  this.readyCrawl()
+                }
+              }, 0)
+            }
+          }
+          init() {
+            this.addCrawlBtns()
+            this.addElement()
+            this.bindEvents()
+            this.restoreData()
+          }
+          get tagList() {
+            return this._tagList
+          }
+          set tagList(val) {
+            this._tagList = val
+            this.storeData()
+            this.showTagList()
+            this.toggleWrap(true)
+          }
+          addCrawlBtns() {
+            _Tools__WEBPACK_IMPORTED_MODULE_0__['Tools']
+              .addBtn(
+                'crawlBtns',
+                _config_Colors__WEBPACK_IMPORTED_MODULE_1__['Colors'].bgBlue,
+                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                  '_抓取标签列表'
+                )
+              )
+              .addEventListener('click', () => {
+                _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire(
+                  'closeCenterPanel'
+                )
+                this.toggleWrap(true)
+                // 跳转到页面顶部，否则用户可能看不到输入区域
+                window.scrollTo(0, 0)
+              })
+          }
+          addElement() {
+            const htmlText = `<textarea
+      id="crawlTagListTextArea"
+      placeholder="${_Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+        '_抓取标签列表的输入框提示'
+      )}"
+    ></textarea>
+    <p id="crawlTagListTip">${_Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+      '_抓取标签列表的文件夹提示'
+    )}</p>
+    <div id="crawlTagListBtnsWrap">
+      <button id="crawlTagListBtn">${_Lang__WEBPACK_IMPORTED_MODULE_2__[
+        'lang'
+      ].transl('_抓取标签列表')}</button>
+      <button id="clearTagListBtn">${_Lang__WEBPACK_IMPORTED_MODULE_2__[
+        'lang'
+      ].transl('_停止抓取标签列表')}</button>
+    </div>
+    <div id="tagListWrap">
+      <p>${_Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+        '_等待下载的标签'
+      )}</p>
+      <ul id="showTagList">
+      <ul>
+    </div>
+  `
+            // 创建输入标签列表的区域。如果页面上已存在该区域，则移除它，重新创建
+            const test = document.getElementById(this.wrapId)
+            if (test !== null) {
+              test.remove()
+            }
+            const wrap = document.createElement('div')
+            wrap.id = this.wrapId
+            wrap.innerHTML = htmlText
+            this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__[
+              'Tools'
+            ].insertToHead(wrap)
+            this.input = this.wrap.querySelector('#crawlTagListTextArea')
+            this.startCrawlBtn = this.wrap.querySelector('#crawlTagListBtn')
+            this.clearCrawlBtn = this.wrap.querySelector('#clearTagListBtn')
+            this.showTagListWrap = this.wrap.querySelector('#showTagList')
+            this.startCrawlBtn.addEventListener('click', () => {
+              this.checkInput()
+            })
+            this.clearCrawlBtn.addEventListener('click', () => {
+              this.clear()
+            })
+          }
+          bindEvents() {
+            // 防止事件重复绑定
+            if (this.bindEventFlag) {
+              return
+            }
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.downloadComplete,
+              this.onDownloadComplete
+            )
+            this.bindEventFlag = true
+            // 当页面类型变化时，如果进入到了不支持的页面类型，则隐藏输入区域
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].list.pageSwitch,
+              () => {
+                if (
+                  !this.EnablPage.includes(
+                    _PageType__WEBPACK_IMPORTED_MODULE_7__['pageType'].type
+                  ) &&
+                  this._tagList.length === 0
+                ) {
+                  this.toggleWrap(false)
+                }
+              }
+            )
+          }
+          checkInput() {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy) {
+              return _Toast__WEBPACK_IMPORTED_MODULE_5__['toast'].error(
+                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                  '_当前任务尚未完成'
+                )
+              )
+            }
+            const value = this.input.value.trim()
+            if (value === '') {
+              return _MsgBox__WEBPACK_IMPORTED_MODULE_3__['msgBox'].error(
+                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                  '_没有数据可供使用'
+                )
+              )
+            }
+            const array = value
+              .split('\n')
+              .filter((val) => val !== '' && val !== ' ')
+            if (array.length === 0) {
+              return _MsgBox__WEBPACK_IMPORTED_MODULE_3__['msgBox'].error(
+                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                  '_没有数据可供使用'
+                )
+              )
+            }
+            this.tagList = array
+            this.readyCrawl()
+          }
+          readyCrawl() {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy) {
+              return _Toast__WEBPACK_IMPORTED_MODULE_5__['toast'].error(
+                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                  '_当前任务尚未完成'
+                )
+              )
+            }
+            if (
+              !this.EnablPage.includes(
+                _PageType__WEBPACK_IMPORTED_MODULE_7__['pageType'].type
+              )
+            ) {
+              return _MsgBox__WEBPACK_IMPORTED_MODULE_3__['msgBox'].error(
+                _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                  '_抓取标签列表'
+                ) +
+                  '<br>' +
+                  _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                    '_只能在搜索页面使用'
+                  )
+              )
+            }
+            _store_States__WEBPACK_IMPORTED_MODULE_4__[
+              'states'
+            ].crawlTagList = true
+            const tag = this._tagList[0]
+            // 修改 title，便于使用 P_title 建立文件夹
+            document.title = tag
+            // 修改 url，使用当前抓取的标签替换原本 url 里的标签，便于使用 p_tag  建立文件夹
+            const urlTag = _Tools__WEBPACK_IMPORTED_MODULE_0__[
+              'Tools'
+            ].getTagFromURL()
+            const newURL = location.href.replace(
+              encodeURIComponent(urlTag),
+              encodeURIComponent(tag)
+            )
+            history.pushState({ p_tag: tag }, tag, newURL)
+            // 触发抓取事件
+            _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire('crawlTag', tag)
+          }
+          // 控制 wrap 的显示，如果不传入参数，则自行切换显示/隐藏状态
+          toggleWrap(flag) {
+            if (flag !== undefined) {
+              this.wrap.style.display = flag ? 'block' : 'none'
+            } else {
+              const now = this.wrap.style.display
+              this.wrap.style.display = now === 'block' ? 'none' : 'block'
+            }
+          }
+          showTagList() {
+            const text = this.tagList.map((val) => `<li>${val}</li>`)
+            this.showTagListWrap.innerHTML = text.join('')
+          }
+          clear() {
+            if (this.tagList.length === 0) {
+              return
+            }
+            const confirm = window.confirm(
+              _Lang__WEBPACK_IMPORTED_MODULE_2__['lang'].transl(
+                '_你确定要停止抓取吗'
+              )
+            )
+            if (confirm) {
+              this.tagList = []
+              location.reload()
+            }
+          }
+          // 每当 tagList 状态变化时，保存 tagList 到本地存储
+          storeData() {
+            if (this.tagList.length === 0) {
+              return localStorage.removeItem(this.storeName)
+            }
+            localStorage.setItem(this.storeName, JSON.stringify(this.tagList))
+          }
+          // 启动时从本地存储里读取 tagList 数据
+          restoreData() {
+            const str = localStorage.getItem(this.storeName)
+            if (!str) {
+              return
+            }
+            const data = JSON.parse(str)
+            if (str.length === 0) {
+              return
+            }
+            this.tagList = data
+            // 在输入框里显示需要抓取的标签列表
+            this.input.value = this.tagList.map((val) => val).join('\n')
+            // 不会自动开始抓取未完成的标签。这是基于以下考虑：
+            // 1. 如果之前有未完成的下载，那么下载器会自动恢复下载。如果此时自动开始抓取，会造成冲突
+            // 2. 如果自动开始抓取，那么用户每打开一个新的搜索页面，下载器都会自动开始抓取，影响用户正常使用
+          }
+        }
+        const crawlTagList = new CrawlTagList()
 
         /***/
       },
@@ -13479,6 +13902,12 @@
         /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
           /*! ../MsgBox */ './src/ts/MsgBox.ts'
         )
+        /* harmony import */ var _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
+          /*! ../crawlMixedPage/CrawlTagList */ './src/ts/crawlMixedPage/CrawlTagList.ts'
+        )
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
+          /*! ../store/States */ './src/ts/store/States.ts'
+        )
         // 初始化小说搜索页
 
         class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
@@ -13512,12 +13941,21 @@
               'work_lang',
             ]
             this.flag = 'searchNovel'
+            this.crawlTag = () => {
+              if (
+                _store_States__WEBPACK_IMPORTED_MODULE_16__['states']
+                  .crawlTagList
+              ) {
+                this.readyCrawl()
+              }
+            }
             this.init()
-          }
-          initAny() {
             new _pageFunciton_FastScreen__WEBPACK_IMPORTED_MODULE_8__[
               'FastScreen'
             ]()
+            _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_15__[
+              'crawlTagList'
+            ].init()
           }
           addCrawlBtns() {
             _Tools__WEBPACK_IMPORTED_MODULE_9__['Tools']
@@ -13589,6 +14027,20 @@
                 '_数字提示1'
               ),
             })
+          }
+          initAny() {
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_13__['EVT'].list.crawlTag,
+              this.crawlTag
+            )
+          }
+          destroy() {
+            _Tools__WEBPACK_IMPORTED_MODULE_9__['Tools'].clearSlot('crawlBtns')
+            _Tools__WEBPACK_IMPORTED_MODULE_9__['Tools'].clearSlot('otherBtns')
+            window.removeEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_13__['EVT'].list.crawlTag,
+              this.crawlTag
+            )
           }
           async nextStep() {
             this.initFetchURL()
@@ -15032,10 +15484,14 @@
               _setting_Settings__WEBPACK_IMPORTED_MODULE_6__['settings']
                 .previewResult
             ) {
-              // 只允许由图片查看器发起的下载自动下载，其他情况不自动下载
+              // “预览搜索页面的筛选结果”会阻止自动开始下载。但是一些情况例外
+              // 允许由图片查看器发起的下载请求自动开始下载
+              // 允许由抓取标签列表功能发起的下载请求自动开始下载
               if (
                 !_store_States__WEBPACK_IMPORTED_MODULE_15__['states']
-                  .downloadFromViewer
+                  .downloadFromViewer &&
+                !_store_States__WEBPACK_IMPORTED_MODULE_15__['states']
+                  .crawlTagList
               ) {
                 return
               }
@@ -15047,7 +15503,8 @@
               _store_States__WEBPACK_IMPORTED_MODULE_15__['states']
                 .quickCrawl ||
               _store_States__WEBPACK_IMPORTED_MODULE_15__['states']
-                .downloadFromViewer
+                .downloadFromViewer ||
+              _store_States__WEBPACK_IMPORTED_MODULE_15__['states'].crawlTagList
             ) {
               this.startDownload()
             }
@@ -17299,6 +17756,12 @@
                 if (this.count === 0) {
                   this.reset()
                 }
+              }
+            )
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.resultChange,
+              () => {
+                this.reset()
               }
             )
             window.addEventListener(
@@ -24724,6 +25187,8 @@
             this.bookmarkMode = false
             // 合并系列小说时使用的标记
             this.mergeNovel = false
+            // 抓取标签列表时使用的标记
+            this.crawlTagList = false
             this.bindEvents()
           }
           bindEvents() {

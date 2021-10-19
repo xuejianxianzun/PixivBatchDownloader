@@ -231,8 +231,10 @@ class DownloadControl {
       pageType.type === pageType.list.ArtworkSearch &&
       settings.previewResult
     ) {
-      // 只允许由图片查看器发起的下载自动下载，其他情况不自动下载
-      if (!states.downloadFromViewer) {
+      // “预览搜索页面的筛选结果”会阻止自动开始下载。但是一些情况例外
+      // 允许由图片查看器发起的下载请求自动开始下载
+      // 允许由抓取标签列表功能发起的下载请求自动开始下载
+      if (!states.downloadFromViewer && !states.crawlTagList) {
         return
       }
     }
@@ -241,7 +243,8 @@ class DownloadControl {
     if (
       settings.quietDownload ||
       states.quickCrawl ||
-      states.downloadFromViewer
+      states.downloadFromViewer ||
+      states.crawlTagList
     ) {
       this.startDownload()
     }

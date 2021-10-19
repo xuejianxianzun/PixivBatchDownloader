@@ -26,6 +26,8 @@ class EVENT {
   public readonly list = {
     // 当抓取开始时触发
     crawlStart: 'crawlStart',
+    // 让下载器抓取特定的 tag，而不是自动获取当前页面的 tag（仅在 tag 搜索页面有效）
+    crawlTag: 'crawlTag',
     // 当检查到错误的设置时触发
     wrongSetting: 'wrongSetting',
     // 当获取作品的 id 列表完成时触发
@@ -195,7 +197,6 @@ class EVENT {
       | 'hasNewVer'
       | 'bookmarkModeStart'
       | 'bookmarkModeEnd'
-      | 'showMsg'
       | 'sendToast'
       | 'clearLog'
       | 'selectBG'
@@ -204,9 +205,7 @@ class EVENT {
 
   // 对于需要携带数据的事件进行重载
 
-  public fire(type: 'downloadError', data: string): void
-
-  public fire(type: 'downloadSuccess', data: DonwloadSuccessData): void
+  public fire(type: 'downloadError' | 'crawlTag', data: string): void
 
   public fire(
     type:
@@ -215,6 +214,8 @@ class EVENT {
       | 'convertChange',
     data: number
   ): void
+
+  public fire(type: 'downloadSuccess', data: DonwloadSuccessData): void
 
   public fire(type: 'crawlIdList', data: IDData[]): void
 
@@ -232,9 +233,9 @@ class EVENT {
 
   // 触发事件，可以携带数据
   // 数据通过 ev.detail.data 获取，如果未传递则是空对象
-  public fire(type: eventNames, data = {}) {
+  public fire(type: eventNames, data?: unknown) {
     const event = new CustomEvent(type, {
-      detail: { data },
+      detail: { data: data === undefined ? {} : data },
     })
     window.dispatchEvent(event)
   }

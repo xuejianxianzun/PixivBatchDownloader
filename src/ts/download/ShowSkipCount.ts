@@ -31,6 +31,10 @@ class ShowSkipCount {
       }
     })
 
+    window.addEventListener(EVT.list.resultChange, () => {
+      this.reset()
+    })
+
     window.addEventListener(EVT.list.downloadComplete, () => {
       // 重置计数但不清空提示文字，因为用户还需要看
       this.count = 0

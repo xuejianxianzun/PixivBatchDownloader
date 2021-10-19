@@ -15,11 +15,15 @@ import { Utils } from '../utils/Utils'
 import { idListWithPageNo } from '../store/IdListWithPageNo'
 import { EVT } from '../EVT'
 import { msgBox } from '../MsgBox'
+import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
+import { states } from '../store/States'
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
     super()
     this.init()
+    new FastScreen()
+    crawlTagList.init()
   }
 
   private readonly worksWrapSelector = '#root section>div>ul'
@@ -50,10 +54,6 @@ class InitSearchNovelPage extends InitPageBase {
   ]
 
   private readonly flag = 'searchNovel'
-
-  protected initAny() {
-    new FastScreen()
-  }
 
   protected addCrawlBtns() {
     Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
@@ -102,6 +102,17 @@ class InitSearchNovelPage extends InitPageBase {
       tip: lang.transl('_从本页开始下载提示'),
       rangTip: lang.transl('_数字提示1'),
     })
+  }
+
+  protected initAny() {
+    window.addEventListener(EVT.list.crawlTag, this.crawlTag)
+  }
+
+  protected destroy() {
+    Tools.clearSlot('crawlBtns')
+    Tools.clearSlot('otherBtns')
+
+    window.removeEventListener(EVT.list.crawlTag, this.crawlTag)
   }
 
   protected async nextStep() {
@@ -265,6 +276,12 @@ class InitSearchNovelPage extends InitPageBase {
   protected sortResult() {
     store.resultMeta.sort(Utils.sortByProperty('bmk'))
     store.result.sort(Utils.sortByProperty('bmk'))
+  }
+
+  private crawlTag = () => {
+    if (states.crawlTagList) {
+      this.readyCrawl()
+    }
   }
 }
 
