@@ -274,8 +274,9 @@ class InitSearchArtworkPage extends InitPageBase {
       }
     })
 
-    // 如果没有指定搜索模式，则是精确匹配标签
-    this.option.s_mode = this.option.s_mode ?? 's_tag_full'
+    // 如果没有指定标签匹配模式，则使用 s_tag 标签（部分一致）
+    // s_tag_full 是标签（完全一致）
+    this.option.s_mode = this.option.s_mode ?? 's_tag'
   }
 
   // 获取搜索页的数据。因为有多处使用，所以进行了封装
