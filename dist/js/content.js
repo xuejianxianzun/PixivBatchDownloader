@@ -4965,6 +4965,7 @@ class SelectWork {
     }
     set start(bool) {
         this._start = bool;
+        _store_States__WEBPACK_IMPORTED_MODULE_4__["states"].selectWork = bool;
         this.updateSelectorEl();
         this.updateControlBtn();
     }
@@ -4973,6 +4974,9 @@ class SelectWork {
     }
     set pause(bool) {
         this._pause = bool;
+        if (bool) {
+            _store_States__WEBPACK_IMPORTED_MODULE_4__["states"].selectWork = false;
+        }
         this.updateSelectorEl();
         this.updateControlBtn();
     }
@@ -5308,17 +5312,23 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
 /* harmony import */ var _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./MouseOverThumbnail */ "./src/ts/MouseOverThumbnail.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+
 
 
 
 // 鼠标经过作品的缩略图时，显示更大尺寸的缩略图
 class ShowBigThumb {
     constructor() {
-        // 加载图像的延迟时间。
-        // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成时候不会立即加载缩略图。
-        // 这是因为要加载的图片体积比较大，1200px 的 regular 尺寸可能达到 800KB，如果立即加载的话会浪费网络资源
+        // 加载图像的延迟时间
+        // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
         // 如果鼠标在缩略图上停留达到 delay 的时间，才会加载 regular 尺寸的图片
-        this.delay = 200;
+        // 这是因为要加载的图片体积比较大，regular 规格的图片的体积可能达到 800KB，如果立即加载的话会浪费网络资源
+        this.showDelay = 400;
+        // 鼠标离开缩略图之后，经过指定的时间才会隐藏 wrap
+        // 如果在这个时间内又进入缩略图，或者进入 wrap，则取消隐藏定时器，继续显示 wrap
+        // 如果不使用延迟隐藏，而是立即隐藏的话，用户就不能滚动页面来查看完整的 wrap
+        this.hiddenDelay = 100;
         this.wrapId = 'bigThumbWrap';
         this.border = 8; // wrap 的 border 占据的空间
         // 保存最后一个缩略图的作品的 id
@@ -5342,7 +5352,7 @@ class ShowBigThumb {
             }
         }
         else {
-            window.clearTimeout(this.timer);
+            window.clearTimeout(this.showTimer);
             this._show = val;
             this.wrap.style.display = 'none';
             this.workData = undefined;
@@ -5351,7 +5361,10 @@ class ShowBigThumb {
     }
     bindEvents() {
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_1__["mouseOverThumbnail"].onEnter((el, id) => {
-            console.log(id);
+            window.clearTimeout(this.hiddenTimer);
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].PreviewWork || _store_States__WEBPACK_IMPORTED_MODULE_3__["states"].selectWork) {
+                return;
+            }
             this.workId = id;
             this.getWorkData();
             this.workEL = el;
@@ -5359,7 +5372,13 @@ class ShowBigThumb {
             this.readyShow();
         });
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_1__["mouseOverThumbnail"].onLeave(() => {
-            this.show = false;
+            this.readyHidden();
+        });
+        this.wrap.addEventListener('mouseenter', () => {
+            window.clearTimeout(this.hiddenTimer);
+        });
+        this.wrap.addEventListener('mouseleave', () => {
+            this.readyHidden();
         });
     }
     createWrap() {
@@ -5371,17 +5390,21 @@ class ShowBigThumb {
         this.workData = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(this.workId);
     }
     readyShow() {
+        this.showTimer = window.setTimeout(() => {
+            this.show = true;
+        }, this.showDelay);
+    }
+    readyHidden() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].PreviewWork) {
             return;
         }
-        this.timer = window.setTimeout(() => {
-            this.show = true;
-        }, this.delay);
+        this.hiddenTimer = window.setTimeout(() => {
+            this.show = false;
+        }, this.hiddenDelay);
     }
     showWrap() {
         var _a;
-        if (!this.workEL) {
-            console.log('没有 workEL');
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].PreviewWork || !this.workEL) {
             return;
         }
         const maxSize = _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].PreviewWorkSize;
@@ -19338,6 +19361,8 @@ class States {
         this.mergeNovel = false;
         // 抓取标签列表时使用的标记
         this.crawlTagList = false;
+        // 是否处于手动选择作品状态
+        this.selectWork = false;
         this.bindEvents();
     }
     bindEvents() {

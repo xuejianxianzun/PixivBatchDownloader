@@ -2,6 +2,7 @@ import { API } from './API'
 import { ArtworkData } from './crawl/CrawlResult'
 import { mouseOverThumbnail } from './MouseOverThumbnail'
 import { settings } from './setting/Settings'
+import { states } from './store/States'
 
 // 鼠标经过作品的缩略图时，显示更大尺寸的缩略图
 class ShowBigThumb {
@@ -9,12 +10,19 @@ class ShowBigThumb {
     this.createWrap()
     this.bindEvents()
   }
-  // 加载图像的延迟时间。
-  // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成时候不会立即加载缩略图。
-  // 这是因为要加载的图片体积比较大，1200px 的 regular 尺寸可能达到 800KB，如果立即加载的话会浪费网络资源
+
+  // 加载图像的延迟时间
+  // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
   // 如果鼠标在缩略图上停留达到 delay 的时间，才会加载 regular 尺寸的图片
-  private readonly delay = 200
-  private timer!: number
+  // 这是因为要加载的图片体积比较大，regular 规格的图片的体积可能达到 800KB，如果立即加载的话会浪费网络资源
+  private readonly showDelay = 400
+  private showTimer!: number
+
+  // 鼠标离开缩略图之后，经过指定的时间才会隐藏 wrap
+  // 如果在这个时间内又进入缩略图，或者进入 wrap，则取消隐藏定时器，继续显示 wrap
+  // 如果不使用延迟隐藏，而是立即隐藏的话，用户就不能滚动页面来查看完整的 wrap
+  private readonly hiddenDelay = 100
+  private hiddenTimer!: number
 
   private wrapId = 'bigThumbWrap'
   private wrap!: HTMLElement
@@ -41,7 +49,7 @@ class ShowBigThumb {
         this.showWrap()
       }
     } else {
-      window.clearTimeout(this.timer)
+      window.clearTimeout(this.showTimer)
       this._show = val
       this.wrap.style.display = 'none'
       this.workData = undefined
@@ -51,7 +59,12 @@ class ShowBigThumb {
 
   private bindEvents() {
     mouseOverThumbnail.onEnter((el: HTMLElement, id: string) => {
-      console.log(id)
+      window.clearTimeout(this.hiddenTimer)
+
+      if (!settings.PreviewWork || states.selectWork) {
+        return
+      }
+
       this.workId = id
       this.getWorkData()
       this.workEL = el
@@ -60,7 +73,15 @@ class ShowBigThumb {
     })
 
     mouseOverThumbnail.onLeave(() => {
-      this.show = false
+      this.readyHidden()
+    })
+
+    this.wrap.addEventListener('mouseenter', () => {
+      window.clearTimeout(this.hiddenTimer)
+    })
+
+    this.wrap.addEventListener('mouseleave', () => {
+      this.readyHidden()
     })
   }
 
@@ -75,17 +96,22 @@ class ShowBigThumb {
   }
 
   private readyShow() {
+    this.showTimer = window.setTimeout(() => {
+      this.show = true
+    }, this.showDelay)
+  }
+
+  private readyHidden() {
     if (!settings.PreviewWork) {
       return
     }
-    this.timer = window.setTimeout(() => {
-      this.show = true
-    }, this.delay)
+    this.hiddenTimer = window.setTimeout(() => {
+      this.show = false
+    }, this.hiddenDelay)
   }
 
   private showWrap() {
-    if (!this.workEL) {
-      console.log('没有 workEL')
+    if (!settings.PreviewWork || !this.workEL) {
       return
     }
 
@@ -120,10 +146,11 @@ class ShowBigThumb {
     const rect = this.workEL.getBoundingClientRect()
 
     // top 位置：从元素的顶端坐标 减去 wrap 的高度
+    // 让 wrap 显示在缩略图的上面
     cfg.top = window.scrollY + rect.top - cfg.height - this.border
     // 检查 wrap 是否超出了窗口可视宽度的顶端
-    if (cfg.top <  window.scrollY) {
-      cfg.top =  window.scrollY
+    if (cfg.top < window.scrollY) {
+      cfg.top = window.scrollY
     }
 
     // left 位置：让 wrap 相对于作品缩略图居中显示
