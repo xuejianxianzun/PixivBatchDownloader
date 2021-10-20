@@ -62,7 +62,7 @@ class ViewBigImage {
       }
     })
 
-    mouseOverThumbnail.onEnter((el: HTMLElement, id:string) => {
+    mouseOverThumbnail.onEnter((el: HTMLElement, id: string) => {
       this.currentWorkId = id
       this.showBtn(el)
     })

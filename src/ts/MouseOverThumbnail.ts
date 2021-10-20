@@ -1,5 +1,5 @@
 // 查找（图像）作品的缩略图，当鼠标进入、移出时触发回调
-import { Tools } from "./Tools"
+import { Tools } from './Tools'
 
 class MouseOverThumbnail {
   constructor() {
@@ -41,12 +41,12 @@ class MouseOverThumbnail {
           const id = this.findWorkId(el as HTMLElement)
           // 只有查找到作品 id 时才会调用回调函数
           if (id) {
-            this.enterCallback.forEach(cb => cb(el, id, ev))
+            this.enterCallback.forEach((cb) => cb(el, id, ev))
           }
         })
 
         el.addEventListener('mouseleave', (ev) => {
-          this.leaveCallback.forEach(cb => cb(el, ev))
+          this.leaveCallback.forEach((cb) => cb(el, ev))
         })
       }
     }
