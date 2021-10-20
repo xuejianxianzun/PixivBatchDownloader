@@ -92,6 +92,7 @@ class FormSettings {
       'autoExportResult',
       'autoExportResultCSV',
       'autoExportResultJSON',
+      'PreviewWork',
     ],
     text: [
       'setWantPage',
@@ -119,6 +120,7 @@ class FormSettings {
       'zeroPaddingLength',
       'workDirNameRule',
       'autoExportResultNumber',
+      'PreviewWorkSize',
     ],
     radio: [
       'ugoiraSaveAs',

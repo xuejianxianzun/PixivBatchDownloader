@@ -757,24 +757,12 @@ export const formHtml = `<form class="settingForm">
       </span>
       </p>
 
-      <p class="option" data-no="34">
-      <span class="settingNameStyle1">${lang.transl('_收藏设置')}</span>
-      
-      <input type="radio" name="widthTag" id="widthTag1" class="need_beautify radio" value="yes" checked>
-      <span class="beautify_radio"></span>
-      <label for="widthTag1">${lang.transl('_添加tag')}&nbsp;</label>
-      <input type="radio" name="widthTag" id="widthTag2" class="need_beautify radio" value="no">
-      <span class="beautify_radio"></span>
-      <label for="widthTag2">${lang.transl('_不添加tag')}</label>
-
-      <span class="verticalSplit"></span>
-      
-      <input type="radio" name="restrict" id="restrict1" class="need_beautify radio" value="no" checked>
-      <span class="beautify_radio"></span>
-      <label for="restrict1">${lang.transl('_公开')}&nbsp;</label>
-      <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="yes">
-      <span class="beautify_radio"></span>
-      <label for="restrict2">${lang.transl('_不公开')}</label>
+      <p class="option" data-no="48">
+      <span class="settingNameStyle1">${lang.transl(
+        '_在搜索页面添加快捷搜索区域'
+      )} </span>
+      <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="18">
@@ -785,12 +773,17 @@ export const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
       </p>
 
-      <p class="option" data-no="48">
+      <p class="option" data-no="55">
       <span class="settingNameStyle1">${lang.transl(
-        '_在搜索页面添加快捷搜索区域'
+        '_预览作品'
       )} </span>
-      <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
+      <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
+
+      <span class="subOptionWrap" data-show="PreviewWork">
+      <span>${lang.transl('_图片尺寸2')}</span>
+      <input type="text" name="PreviewWorkSize" class="setinput_style1 blue" value="600" style="width:50px;min-width: 50px;">&nbsp;px
+      </span>
       </p>
 
       <p class="option" data-no="40">
@@ -823,6 +816,26 @@ export const formHtml = `<form class="settingForm">
       <label for="magnifierSize2"> ${lang.transl('_普通')} </label>
 
       </span>
+      </p>
+
+      <p class="option" data-no="34">
+      <span class="settingNameStyle1">${lang.transl('_收藏设置')}</span>
+      
+      <input type="radio" name="widthTag" id="widthTag1" class="need_beautify radio" value="yes" checked>
+      <span class="beautify_radio"></span>
+      <label for="widthTag1">${lang.transl('_添加tag')}&nbsp;</label>
+      <input type="radio" name="widthTag" id="widthTag2" class="need_beautify radio" value="no">
+      <span class="beautify_radio"></span>
+      <label for="widthTag2">${lang.transl('_不添加tag')}</label>
+
+      <span class="verticalSplit"></span>
+      
+      <input type="radio" name="restrict" id="restrict1" class="need_beautify radio" value="no" checked>
+      <span class="beautify_radio"></span>
+      <label for="restrict1">${lang.transl('_公开')}&nbsp;</label>
+      <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="yes">
+      <span class="beautify_radio"></span>
+      <label for="restrict2">${lang.transl('_不公开')}</label>
       </p>
 
       <p class="option" data-no="31">

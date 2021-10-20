@@ -49,7 +49,7 @@ class ViewBigImage {
 
   private bindEvents() {
     // 立即对作品缩略图绑定事件
-    this.headleThumbnail(document.body)
+    this.handleThumbnail(document.body)
     // 使用监视器，让未来出现的作品缩略图也绑定上事件
     this.createObserver(document.body)
 
@@ -85,7 +85,7 @@ class ViewBigImage {
   }
 
   // 判断元素是否含有作品缩略图，如果找到了缩略图则为其绑定事件
-  private headleThumbnail(parent: HTMLElement) {
+  private handleThumbnail(parent: HTMLElement) {
     if (!parent.querySelectorAll) {
       return
     }
@@ -97,10 +97,10 @@ class ViewBigImage {
       const elements = parent.querySelectorAll(selector)
       for (const el of elements) {
         el.addEventListener('mouseenter', (ev) => {
-          const el = ev.target as HTMLElement
-          this.currentWorkId = this.findWorkId(el)
+          const target = ev.target as HTMLElement
+          this.currentWorkId = this.findWorkId(target)
           if (this.currentWorkId) {
-            this.showBtn(el)
+            this.showBtn(target)
           }
         })
 
@@ -117,7 +117,7 @@ class ViewBigImage {
         // 遍历被添加的元素
         if (record.addedNodes.length > 0) {
           for (const newEl of record.addedNodes) {
-            this.headleThumbnail(newEl as HTMLElement)
+            this.handleThumbnail(newEl as HTMLElement)
           }
         }
       }
@@ -181,5 +181,4 @@ class ViewBigImage {
   }
 }
 
-const viewBigImage = new ViewBigImage()
-export { viewBigImage }
+new ViewBigImage()
