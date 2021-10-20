@@ -121,22 +121,25 @@ class ShowBigThumb {
 
     // top 位置：从元素的顶端坐标 减去 wrap 的高度
     cfg.top = window.scrollY + rect.top - cfg.height - this.border
-    // 检查顶部是否超出了页面顶端
-    if (cfg.top < 0) {
-      cfg.top = 0
+    // 检查 wrap 是否超出了窗口可视宽度的顶端
+    if (cfg.top <  window.scrollY) {
+      cfg.top =  window.scrollY
     }
-    // left 位置：让 wrap 居中显示
+
+    // left 位置：让 wrap 相对于作品缩略图居中显示
     cfg.left =
       window.scrollX + rect.left - (cfg.width + this.border - rect.width) / 2
-    if (cfg.left < 0) {
-      cfg.left = 0
-    } else {
-      // 检查 wrap 是否超出了窗口可视宽度的右侧
-      // 17 是 Chrome 滚动条的宽度。因为 window.innerWidth 包含滚动条，所以要减去它
-      const num = window.innerWidth - 17 - (cfg.left + cfg.width + this.border)
-      if (num < 0) {
-        cfg.left = cfg.left + num
-      }
+
+    // 检查 wrap 是否超出了窗口可视宽度的左侧
+    if (cfg.left < window.scrollX) {
+      cfg.left = window.scrollX
+    }
+
+    // 检查 wrap 是否超出了窗口可视宽度的右侧
+    // 17 是 Chrome 滚动条的宽度。因为 window.innerWidth 包含滚动条，所以要减去它
+    const num = window.innerWidth - 17 + window.scrollX - (cfg.left + cfg.width + this.border)
+    if (num < 0) {
+      cfg.left = cfg.left + num
     }
 
     // 3. 设置 wrap 的 style
