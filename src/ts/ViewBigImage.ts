@@ -1,7 +1,6 @@
 import { EVT } from './EVT'
 import { ImageViewer } from './ImageViewer'
 import { settings } from './setting/Settings'
-import { Tools } from './Tools'
 import { mouseOverThumbnail } from './MouseOverThumbnail'
 
 // 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器来查看大图
@@ -63,28 +62,14 @@ class ViewBigImage {
       }
     })
 
-    mouseOverThumbnail.onEnter((el: HTMLElement, ev: Event) => {
-      const target = ev.target as HTMLElement
-      this.currentWorkId = this.findWorkId(target)
-      if (this.currentWorkId) {
-        this.showBtn(target)
-      }
+    mouseOverThumbnail.onEnter((el: HTMLElement, id:string) => {
+      this.currentWorkId = id
+      this.showBtn(el)
     })
 
     mouseOverThumbnail.onLeave(() => {
       this.hiddenBtn()
     })
-  }
-
-  // 从元素中查找作品 id
-  private findWorkId(el: HTMLElement) {
-    const a = el.querySelector('a')
-    if (!a) {
-      return ''
-    }
-
-    const href = (a as HTMLAnchorElement).href
-    return Tools.getIllustId(href)
   }
 
   // 显示放大按钮

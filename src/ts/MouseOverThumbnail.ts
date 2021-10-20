@@ -1,7 +1,6 @@
 // 查找（图像）作品的缩略图，当鼠标进入、移出时触发回调
-// 回调函数会接收到两个参数：
-// el 作品缩略图的元素
-// ev 鼠标进入或者移出 el 时的 event
+import { Tools } from "./Tools"
+
 class MouseOverThumbnail {
   constructor() {
     // 立即对作品缩略图绑定事件
@@ -39,15 +38,15 @@ class MouseOverThumbnail {
       const elements = parent.querySelectorAll(selector)
       for (const el of elements) {
         el.addEventListener('mouseenter', (ev) => {
-          for (const cb of this.enterCallback) {
-            cb(el, ev)
+          const id = this.findWorkId(el as HTMLElement)
+          // 只有查找到作品 id 时才会调用回调函数
+          if (id) {
+            this.enterCallback.forEach(cb => cb(el, id, ev))
           }
         })
 
         el.addEventListener('mouseleave', (ev) => {
-          for (const cb of this.leaveCallback) {
-            cb(el, ev)
-          }
+          this.leaveCallback.forEach(cb => cb(el, ev))
         })
       }
     }
@@ -70,12 +69,24 @@ class MouseOverThumbnail {
     })
   }
 
+  // onEnter 回调函数会接收到 3 个参数：
+  // el 作品缩略图的元素
+  // id 作品 id
+  // ev 鼠标进入或者移出 el 时的 event
   public onEnter(fn: Function) {
     this.enterCallback.push(fn)
   }
 
+  // onLeave 的回调函数没有 id 参数，因为鼠标离开时的 id 就是鼠标进入时的 id
   public onLeave(fn: Function) {
     this.leaveCallback.push(fn)
+  }
+
+  // 从元素中查找图片作品的 id
+  // 如果查找不到 id，返回空字符串 ''
+  private findWorkId(el: HTMLElement): string | '' {
+    const a = el.querySelector('a') as HTMLAnchorElement
+    return a === null ? '' : Tools.getIllustId(a.href)
   }
 }
 
