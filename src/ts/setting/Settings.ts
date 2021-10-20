@@ -159,8 +159,8 @@ interface XzSetting {
   autoExportResultCSV: boolean
   autoExportResultJSON: boolean
   autoExportResultNumber: number
-  PreviewWork:boolean
-  PreviewWorkSize:number
+  PreviewWork: boolean
+  PreviewWorkSize: number
 }
 
 type SettingsKeys = keyof XzSetting
@@ -334,8 +334,8 @@ class Settings {
     autoExportResultCSV: true,
     autoExportResultJSON: false,
     autoExportResultNumber: 1,
-    PreviewWork:true,
-    PreviewWorkSize:600,
+    PreviewWork: true,
+    PreviewWorkSize: 600,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

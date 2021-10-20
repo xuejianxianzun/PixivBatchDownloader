@@ -103,6 +103,6 @@ export interface SettingsForm extends HTMLFormElement {
   autoExportResultCSV: HTMLInputElement
   autoExportResultJSON: HTMLInputElement
   autoExportResultNumber: HTMLInputElement
-  PreviewWork:HTMLInputElement
-  PreviewWorkSize:HTMLInputElement
+  PreviewWork: HTMLInputElement
+  PreviewWorkSize: HTMLInputElement
 }

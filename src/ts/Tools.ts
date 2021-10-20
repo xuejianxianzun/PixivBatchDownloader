@@ -108,14 +108,14 @@ class Tools {
     if (str.includes('/artworks/')) {
       // 新版 url
       test = /artworks\/(\d*\d)/.exec(str)
-    }else if (str.includes('illust_id')) {
+    } else if (str.includes('illust_id')) {
       // 传统 url
       test = /illust_id=(\d*\d)/.exec(str)
     }
 
     if (test && test.length > 1) {
       return test[1]
-    }else{
+    } else {
       return ''
     }
   }

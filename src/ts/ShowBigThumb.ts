@@ -4,17 +4,15 @@ class ShowBigThumb {
   private delay = 200
   private wrapId = 'xzBigThumbWrap'
 
-  private createThumbWrap(){
+  private createThumbWrap() {}
 
-  }
+  private calcPosition() {}
 
-  private calcPosition(){}
+  private getImageURL() {}
 
-  private getImageURL(){}
+  private onEnter() {}
 
-  private onEnter(){}
-
-  private onLeave(){}
- }
+  private onLeave() {}
+}
 
 new ShowBigThumb()
