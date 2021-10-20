@@ -236,13 +236,15 @@ class SelectWork {
     }
     // 在已关注用户的最新作品-插画里
     if (pageType.type === pageType.list.NewArtworkBookmark) {
-      works = document.querySelectorAll(
-        '#js-mount-point-latest-following>div>div'
-      )
+      const newPage = !document.querySelector('h1')
+      const selector = newPage ? 'li[size="1"]': '#js-mount-point-latest-following>div>div'
+      works = document.querySelectorAll(selector)
     }
     // 在已关注用户的最新作品-小说里
     if (pageType.type === pageType.list.NewNovelBookmark) {
-      works = document.querySelectorAll('.novel-list>li')
+      const newPage = !document.querySelector('h1')
+      const selector = newPage ? 'li[size="1"]': '#js-mount-point-latest-following>div>div'
+      works = document.querySelectorAll(selector)
     }
     if (works.length === 0) {
       return msgBox.error(
