@@ -5450,20 +5450,21 @@ class ShowBigThumb {
         // 1. 设置宽高
         const w = this.workData.body.width;
         const h = this.workData.body.height;
+        // 如果图片的宽高小于 wrap 的宽高，则让 wrap 缩小，适应图片的大小
         // 竖图
         if (w < h) {
-            cfg.height = maxSize;
-            cfg.width = (maxSize / h) * w;
+            cfg.height = Math.min(maxSize, h);
+            cfg.width = (cfg.height / h) * w;
         }
         else if (w > h) {
             // 横图
-            cfg.width = maxSize;
-            cfg.height = (maxSize / w) * h;
+            cfg.width = Math.min(maxSize, w);
+            cfg.height = (cfg.width / w) * h;
         }
         else {
             // 正方形图片
-            cfg.height = maxSize;
-            cfg.width = maxSize;
+            cfg.height = Math.min(maxSize, h);
+            cfg.width = Math.min(maxSize, w);
         }
         // 2. 计算位置
         const rect = this.workEL.getBoundingClientRect();
