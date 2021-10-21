@@ -1706,7 +1706,7 @@
               // 当从断点续传数据恢复了下载时触发
               resume: 'resume',
               // 当需要导出 csv 文件时触发
-              outputCSV: 'outputCSV',
+              exportCSV: 'exportCSV',
               // 当需要导出抓取结果时触发
               exportResult: 'exportResult',
               // 当需要导出抓取结果时触发
@@ -4330,7 +4330,7 @@
             'Name: ',
             'ディレクトリ名の使用：',
           ],
-          _目录名: ['目录名：', '資料夾名稱：', 'Name: ', 'ディレクトリ名：'],
+          _目录名: ['目录名', '資料夾名稱', 'Name', 'ディレクトリ名'],
           _启用快速收藏: [
             '启用快速收藏',
             '開啟快速收藏',
@@ -4814,8 +4814,8 @@
             '作品ごとに別フォルダを作成',
           ],
           _文件数量大于: [
-            '文件数量大于',
-            '檔案數量大於',
+            '文件数量 >',
+            '檔案數量 >',
             'Number of files >',
             'ファイル数 >',
           ],
@@ -5088,12 +5088,6 @@
             'Show keywords in <span class="key">bold</span>',
             'キーワードを太字で表示',
           ],
-          _whatisnew: [
-            '新增设置项：<br>下载完成后显示通知',
-            '新增設定項目：<br>下載完成後顯示通知',
-            'Added setting items:<br>Show notification after download is complete',
-            '新たな機能を追加されました：<br>ダウンロードが完了した後に通知を表示する',
-          ],
           _抓取标签列表: [
             '抓取标签列表',
             '抓取標籤列表',
@@ -5135,6 +5129,32 @@
             '只能在搜尋頁面使用',
             'Can only be used on the search page',
             '検索ページでのみ使用できます',
+          ],
+          _自动导出抓取结果: [
+            '自动<span class="key">导出</span>抓取结果',
+            '自動<span class="key">匯出</span>抓取結果',
+            'Automatically <span class="key">export</span> crawl results',
+            'クロール結果を自動的にエクスポートする',
+          ],
+          _文件格式: ['文件格式', '檔案格式', 'File format', 'ファイル形式'],
+          _预览作品: [
+            '<span class="key">预览</span>作品',
+            '<span class="key">預覽</span>作品',
+            '<span class="key">Preview</span> works',
+            'プレビューは機能します',
+          ],
+          _点击鼠标左键可以关闭预览图: [
+            '点击鼠标左键可以关闭预览图',
+            '點選滑鼠左鍵可以關閉預覽圖',
+            'Click the left mouse button to close the preview',
+            'マウスの左ボタンをクリックしてプレビューを閉じます',
+          ],
+          _尺寸: ['尺寸', '尺寸', 'Size', 'サイズ'],
+          _whatisnew: [
+            '新增设置项：<br>预览作品',
+            '新增設定項目：<br>預覽作品',
+            'Added setting items:<br>Preview works',
+            '新たな機能を追加されました：<br>プレビューは機能します',
           ],
         }
 
@@ -5367,6 +5387,113 @@
           }
         }
         const log = new Log()
+
+        /***/
+      },
+
+    /***/ './src/ts/MouseOverThumbnail.ts':
+      /*!**************************************!*\
+  !*** ./src/ts/MouseOverThumbnail.ts ***!
+  \**************************************/
+      /*! exports provided: mouseOverThumbnail */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony export (binding) */ __webpack_require__.d(
+          __webpack_exports__,
+          'mouseOverThumbnail',
+          function () {
+            return mouseOverThumbnail
+          }
+        )
+        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./Tools */ './src/ts/Tools.ts'
+        )
+        // 查找（图像）作品的缩略图，当鼠标进入、移出时触发回调
+
+        class MouseOverThumbnail {
+          constructor() {
+            // 作品缩略图的选择器
+            // 注意不是选择整个作品区域，而是只选择缩略图区域
+            this.selectors = [
+              'div[width="136"]',
+              'div[width="288"]',
+              'div[width="184"]',
+              'div[width="112"]',
+              'div[width="104"]',
+              'div[width="90"]',
+              'div[width="118"]',
+              '._work',
+              'figure > div',
+            ]
+            this.enterCallback = []
+            this.leaveCallback = []
+            // 立即对作品缩略图绑定事件
+            this.handleThumbnail(document.body)
+            // 使用监视器，让未来出现的作品缩略图也绑定上事件
+            this.createObserver(document.body)
+          }
+          // 判断元素是否含有作品缩略图，如果找到了缩略图则为其绑定事件
+          handleThumbnail(parent) {
+            if (!parent.querySelectorAll) {
+              return
+            }
+            // 遍历所有的选择器，为找到的元素绑定事件
+            // 注意：有时候一个节点里会含有多种尺寸的缩略图，为了全部查找到它们，必须遍历所有的选择器。
+            // 如果在查找到某个选择器之后，不再查找剩余的选择器，就会遗漏一部分缩略图。
+            for (const selector of this.selectors) {
+              const elements = parent.querySelectorAll(selector)
+              for (const el of elements) {
+                el.addEventListener('mouseenter', (ev) => {
+                  const id = this.findWorkId(el)
+                  // 只有查找到作品 id 时才会调用回调函数
+                  if (id) {
+                    this.enterCallback.forEach((cb) => cb(el, id, ev))
+                  }
+                })
+                el.addEventListener('mouseleave', (ev) => {
+                  this.leaveCallback.forEach((cb) => cb(el, ev))
+                })
+              }
+            }
+          }
+          createObserver(target) {
+            const observer = new MutationObserver((records) => {
+              for (const record of records) {
+                if (record.addedNodes.length > 0) {
+                  // 遍历被添加的元素
+                  for (const newEl of record.addedNodes) {
+                    this.handleThumbnail(newEl)
+                  }
+                }
+              }
+            })
+            observer.observe(target, {
+              childList: true,
+              subtree: true,
+            })
+          }
+          // onEnter 回调函数会接收到 3 个参数：
+          // el 作品缩略图的元素
+          // id 作品 id
+          // ev 鼠标进入或者移出 el 时的 event
+          onEnter(fn) {
+            this.enterCallback.push(fn)
+          }
+          // onLeave 的回调函数没有 id 参数，因为鼠标离开时的 id 就是鼠标进入时的 id
+          onLeave(fn) {
+            this.leaveCallback.push(fn)
+          }
+          // 从元素中查找图片作品的 id
+          // 如果查找不到 id，返回空字符串 ''
+          findWorkId(el) {
+            const a = el.querySelector('a')
+            return a === null
+              ? ''
+              : _Tools__WEBPACK_IMPORTED_MODULE_0__['Tools'].getIllustId(a.href)
+          }
+        }
+        const mouseOverThumbnail = new MouseOverThumbnail()
 
         /***/
       },
@@ -5816,6 +5943,9 @@
           }
           set start(bool) {
             this._start = bool
+            _store_States__WEBPACK_IMPORTED_MODULE_4__[
+              'states'
+            ].selectWork = bool
             this.updateSelectorEl()
             this.updateControlBtn()
           }
@@ -5824,6 +5954,11 @@
           }
           set pause(bool) {
             this._pause = bool
+            if (bool) {
+              _store_States__WEBPACK_IMPORTED_MODULE_4__[
+                'states'
+              ].selectWork = false
+            }
             this.updateSelectorEl()
             this.updateControlBtn()
           }
@@ -6215,6 +6350,241 @@
         /***/
       },
 
+    /***/ './src/ts/ShowBigThumb.ts':
+      /*!********************************!*\
+  !*** ./src/ts/ShowBigThumb.ts ***!
+  \********************************/
+      /*! no exports provided */
+      /***/ function (module, __webpack_exports__, __webpack_require__) {
+        'use strict'
+        __webpack_require__.r(__webpack_exports__)
+        /* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
+          /*! ./API */ './src/ts/API.ts'
+        )
+        /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(
+          /*! ./EVT */ './src/ts/EVT.ts'
+        )
+        /* harmony import */ var _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
+          /*! ./MouseOverThumbnail */ './src/ts/MouseOverThumbnail.ts'
+        )
+        /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./setting/Settings */ './src/ts/setting/Settings.ts'
+        )
+        /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(
+          /*! ./store/States */ './src/ts/store/States.ts'
+        )
+
+        // 鼠标经过作品的缩略图时，显示更大尺寸的缩略图
+        class ShowBigThumb {
+          constructor() {
+            // 容器元素的相关数据
+            this.wrapId = 'bigThumbWrap'
+            this.border = 8 // wrap 的 border 占据的空间
+            // 保存最后一个缩略图的作品的 id
+            this.workId = ''
+            // 显示/隐藏
+            this._show = false
+            // 加载图像的延迟时间
+            // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
+            // 如果鼠标在缩略图上停留达到 delay 的时间，才会加载 regular 尺寸的图片
+            // 这是因为要加载的图片体积比较大，regular 规格的图片的体积可能达到 800KB，如果立即加载的话会浪费网络资源
+            this.showDelay = 400
+            this.showTimer = 0
+            // 鼠标离开缩略图之后，经过指定的时间才会隐藏 wrap
+            // 如果在这个时间内又进入缩略图，或者进入 wrap，则取消隐藏定时器，继续显示 wrap
+            // 如果不使用延迟隐藏，而是立即隐藏的话，用户就不能滚动页面来查看完整的 wrap
+            this.hiddenDelay = 100
+            this.hiddenTimer = 0
+            // 鼠标点击 wrap 可以隐藏 wrap。在之后的一段时间里，临时禁用预览功能
+            this.afterClick = false
+            this.afterClickDisable = 200
+            this.createWrap()
+            this.bindEvents()
+          }
+          get show() {
+            return this._show
+          }
+          set show(val) {
+            if (val) {
+              // 如果保存的作品数据不是最后一个鼠标经过的作品，可能是请求尚未完成，此时延长等待时间
+              if (!this.workData || this.workData.body.id !== this.workId) {
+                this.readyShow()
+              } else {
+                this._show = val
+                this.showWrap()
+              }
+            } else {
+              window.clearTimeout(this.showTimer)
+              this._show = val
+              this.wrap.style.display = 'none'
+              this.workData = undefined
+              this.workEL = undefined
+            }
+          }
+          bindEvents() {
+            _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__[
+              'mouseOverThumbnail'
+            ].onEnter((el, id) => {
+              window.clearTimeout(this.hiddenTimer)
+              if (
+                !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                  .PreviewWork ||
+                _store_States__WEBPACK_IMPORTED_MODULE_4__['states']
+                  .selectWork ||
+                this.afterClick
+              ) {
+                return
+              }
+              this.workId = id
+              this.getWorkData()
+              this.workEL = el
+              // 一定时间后，显示容器，加载大图
+              this.readyShow()
+            })
+            _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__[
+              'mouseOverThumbnail'
+            ].onLeave(() => {
+              this.readyHidden()
+            })
+            this.wrap.addEventListener('mouseenter', () => {
+              window.clearTimeout(this.hiddenTimer)
+            })
+            this.wrap.addEventListener('mouseleave', () => {
+              this.readyHidden()
+            })
+            this.wrap.addEventListener('click', () => {
+              this.show = false
+              this.afterClick = true
+              window.setTimeout(() => {
+                this.afterClick = false
+              }, this.afterClickDisable)
+            })
+            // 可以使用 Alt + P 快捷键来启用/禁用此功能
+            window.addEventListener('keydown', (ev) => {
+              if (ev.altKey && ev.code === 'KeyP') {
+                Object(
+                  _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['setSetting']
+                )(
+                  'PreviewWork',
+                  !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                    .PreviewWork
+                )
+              }
+            })
+            window.addEventListener(
+              _EVT__WEBPACK_IMPORTED_MODULE_1__['EVT'].list.pageSwitch,
+              () => {
+                this.show = false
+              }
+            )
+          }
+          createWrap() {
+            this.wrap = document.createElement('div')
+            this.wrap.id = this.wrapId
+            document.body.appendChild(this.wrap)
+          }
+          async getWorkData() {
+            const data = await _API__WEBPACK_IMPORTED_MODULE_0__[
+              'API'
+            ].getArtworkData(this.workId)
+            if (data.body.id === this.workId) {
+              this.workData = data
+            }
+          }
+          readyShow() {
+            this.showTimer = window.setTimeout(() => {
+              this.show = true
+            }, this.showDelay)
+          }
+          readyHidden() {
+            window.clearTimeout(this.showTimer)
+            this.hiddenTimer = window.setTimeout(() => {
+              this.show = false
+            }, this.hiddenDelay)
+          }
+          showWrap() {
+            var _a
+            if (
+              !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                .PreviewWork ||
+              !this.workEL
+            ) {
+              return
+            }
+            const maxSize =
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_3__['settings']
+                .PreviewWorkSize
+            const cfg = {
+              width: maxSize,
+              height: maxSize,
+              left: 0,
+              top: 0,
+            }
+            // 1. 设置宽高
+            const w = this.workData.body.width
+            const h = this.workData.body.height
+            // 竖图
+            if (w < h) {
+              cfg.height = maxSize
+              cfg.width = (maxSize / h) * w
+            } else if (w > h) {
+              // 横图
+              cfg.width = maxSize
+              cfg.height = (maxSize / w) * h
+            } else {
+              // 正方形图片
+              cfg.height = maxSize
+              cfg.width = maxSize
+            }
+            // 2. 计算位置
+            const rect = this.workEL.getBoundingClientRect()
+            // top 位置：从元素的顶端坐标 减去 wrap 的高度
+            // 让 wrap 显示在缩略图的上面
+            cfg.top = window.scrollY + rect.top - cfg.height - this.border
+            // 检查 wrap 是否超出了窗口可视宽度的顶端
+            if (cfg.top < window.scrollY) {
+              cfg.top = window.scrollY
+            }
+            // left 位置：让 wrap 相对于作品缩略图居中显示
+            cfg.left =
+              window.scrollX +
+              rect.left -
+              (cfg.width + this.border - rect.width) / 2
+            // 检查 wrap 是否超出了窗口可视宽度的左侧
+            if (cfg.left < window.scrollX) {
+              cfg.left = window.scrollX
+            }
+            // 检查 wrap 是否超出了窗口可视宽度的右侧
+            // 17 是 Chrome 滚动条的宽度。因为 window.innerWidth 包含滚动条，所以要减去它
+            const num =
+              window.innerWidth -
+              17 +
+              window.scrollX -
+              (cfg.left + cfg.width + this.border)
+            if (num < 0) {
+              cfg.left = cfg.left + num
+            }
+            // 3. 设置 wrap 的 style
+            const styleArray = []
+            for (const [key, value] of Object.entries(cfg)) {
+              styleArray.push(`${key}:${value}px;`)
+            }
+            styleArray.push(
+              `background-image:url("${
+                (_a = this.workData) === null || _a === void 0
+                  ? void 0
+                  : _a.body.urls.regular
+              }");`
+            )
+            styleArray.push('display:block;')
+            this.wrap.setAttribute('style', styleArray.join(''))
+          }
+        }
+        new ShowBigThumb()
+
+        /***/
+      },
+
     /***/ './src/ts/ShowHowToUse.ts':
       /*!********************************!*\
   !*** ./src/ts/ShowHowToUse.ts ***!
@@ -6377,10 +6747,14 @@
         // 显示最近更新内容
         class ShowWhatIsNew {
           constructor() {
-            this.flag = 'xzNew1120'
+            this.flag = 'xzNew1130'
             this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
-              '_whatisnew'
-            )}`
+              '_新增设置项'
+            )}<br>${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+              '_预览作品'
+            )} （${_Lang__WEBPACK_IMPORTED_MODULE_0__['lang'].transl(
+              '_点击鼠标左键可以关闭预览图'
+            )}）`
             this.storeName = 'xzNewVerTag'
             this.show()
           }
@@ -7028,21 +7402,19 @@
           // 如果查找不到 id 会返回空字符串
           static getIllustId(url) {
             const str = url || window.location.search || location.href
-            let result = ''
-            if (str.includes('illust_id')) {
-              // 传统 url
-              const test = /illust_id=(\d*\d)/.exec(str)
-              if (test && test.length > 1) {
-                result = test[1]
-              }
-            } else if (str.includes('/artworks/')) {
+            let test = null
+            if (str.includes('/artworks/')) {
               // 新版 url
-              const test = /artworks\/(\d*\d)/.exec(str)
-              if (test && test.length > 1) {
-                result = test[1]
-              }
+              test = /artworks\/(\d*\d)/.exec(str)
+            } else if (str.includes('illust_id')) {
+              // 传统 url
+              test = /illust_id=(\d*\d)/.exec(str)
             }
-            return result
+            if (test && test.length > 1) {
+              return test[1]
+            } else {
+              return ''
+            }
           }
           // 从 url 里获取 novel id
           // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
@@ -7252,17 +7624,10 @@
       /*!********************************!*\
   !*** ./src/ts/ViewBigImage.ts ***!
   \********************************/
-      /*! exports provided: viewBigImage */
+      /*! no exports provided */
       /***/ function (module, __webpack_exports__, __webpack_require__) {
         'use strict'
         __webpack_require__.r(__webpack_exports__)
-        /* harmony export (binding) */ __webpack_require__.d(
-          __webpack_exports__,
-          'viewBigImage',
-          function () {
-            return viewBigImage
-          }
-        )
         /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(
           /*! ./EVT */ './src/ts/EVT.ts'
         )
@@ -7272,8 +7637,8 @@
         /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(
           /*! ./setting/Settings */ './src/ts/setting/Settings.ts'
         )
-        /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
-          /*! ./Tools */ './src/ts/Tools.ts'
+        /* harmony import */ var _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(
+          /*! ./MouseOverThumbnail */ './src/ts/MouseOverThumbnail.ts'
         )
 
         // 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器来查看大图
@@ -7285,23 +7650,10 @@
             this.hiddenBtnDelay = 100
             this.currentWorkId = '' // 显示放大按钮时，保存触发事件的作品 id
             this.doNotShowBtn = false // 当点击了放大按钮后，进入此状态，此状态中不会显示放大按钮
-            // 此状态是为了解决这个问题：点击了放大按钮之后，按钮会被隐藏，隐藏之后，鼠标下方就是图片缩略图区域，这会触发缩略图的鼠标事件，导致放大按钮马上就又显示了出来。所以点击放大按钮之后设置这个状态，在其为 true 的期间不会显示放大按钮。过一段时间再把它复位。复位所需的时间很短，因为只要能覆盖这段时间就可以了：从隐藏放大按钮开始算起，到缩略图触发鼠标事件结束。
-            // 作品缩略图的选择器
-            // 注意不是选择整个作品区域，而是只选择缩略图区域
-            this.selectors = [
-              'div[width="136"]',
-              'div[width="288"]',
-              'div[width="184"]',
-              'div[width="112"]',
-              'div[width="104"]',
-              'div[width="90"]',
-              'div[width="118"]',
-              '._work',
-              'figure > div',
-            ]
             this.addBtn()
             this.bindEvents()
           }
+          // 此状态是为了解决这个问题：点击了放大按钮之后，按钮会被隐藏，隐藏之后，鼠标下方就是图片缩略图区域，这会触发缩略图的鼠标事件，导致放大按钮马上就又显示了出来。所以点击放大按钮之后设置这个状态，在其为 true 的期间不会显示放大按钮。过一段时间再把它复位。复位所需的时间很短，因为只要能覆盖这段时间就可以了：从隐藏放大按钮开始算起，到缩略图触发鼠标事件结束。
           addBtn() {
             const btn = document.createElement('button')
             btn.id = this.btnId
@@ -7312,10 +7664,6 @@
             this.btn = document.body.appendChild(btn)
           }
           bindEvents() {
-            // 立即对作品缩略图绑定事件
-            this.headleThumbnail(document.body)
-            // 使用监视器，让未来出现的作品缩略图也绑定上事件
-            this.createObserver(document.body)
             // 页面切换时隐藏按钮
             window.addEventListener(
               _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.pageSwitch,
@@ -7346,57 +7694,17 @@
                 })
               }
             })
-          }
-          // 判断元素是否含有作品缩略图，如果找到了缩略图则为其绑定事件
-          headleThumbnail(parent) {
-            if (!parent.querySelectorAll) {
-              return
-            }
-            // 遍历所有的选择器，为找到的元素绑定事件
-            // 注意：有时候一个节点里会含有多种尺寸的缩略图，为了全部查找到它们，必须遍历所有的选择器。
-            // 如果在查找到某个选择器之后，不再查找剩余的选择器，就会遗漏一部分缩略图。
-            for (const selector of this.selectors) {
-              const elements = parent.querySelectorAll(selector)
-              for (const el of elements) {
-                el.addEventListener('mouseenter', (ev) => {
-                  const el = ev.target
-                  this.currentWorkId = this.findWorkId(el)
-                  if (this.currentWorkId) {
-                    this.showBtn(el)
-                  }
-                })
-                el.addEventListener('mouseleave', () => {
-                  this.hiddenBtn()
-                })
-              }
-            }
-          }
-          createObserver(target) {
-            this.observer = new MutationObserver((records) => {
-              for (const record of records) {
-                // 遍历被添加的元素
-                if (record.addedNodes.length > 0) {
-                  for (const newEl of record.addedNodes) {
-                    this.headleThumbnail(newEl)
-                  }
-                }
-              }
+            _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__[
+              'mouseOverThumbnail'
+            ].onEnter((el, id) => {
+              this.currentWorkId = id
+              this.showBtn(el)
             })
-            this.observer.observe(target, {
-              childList: true,
-              subtree: true,
+            _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__[
+              'mouseOverThumbnail'
+            ].onLeave(() => {
+              this.hiddenBtn()
             })
-          }
-          // 从元素中查找作品 id
-          findWorkId(el) {
-            const a = el.querySelector('a')
-            if (!a) {
-              return ''
-            }
-            const href = a.href
-            return _Tools__WEBPACK_IMPORTED_MODULE_3__['Tools'].getIllustId(
-              href
-            )
           }
           // 显示放大按钮
           showBtn(target) {
@@ -7439,7 +7747,7 @@
             this.btn.style.display = 'none'
           }
         }
-        const viewBigImage = new ViewBigImage()
+        new ViewBigImage()
 
         /***/
       },
@@ -7572,46 +7880,49 @@
         /* harmony import */ var _ViewBigImage__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(
           /*! ./ViewBigImage */ './src/ts/ViewBigImage.ts'
         )
-        /* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
+        /* harmony import */ var _ShowBigThumb__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(
+          /*! ./ShowBigThumb */ './src/ts/ShowBigThumb.ts'
+        )
+        /* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
           /*! ./output/OutputPanel */ './src/ts/output/OutputPanel.ts'
         )
-        /* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(
+        /* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
           /*! ./output/PreviewFileName */ './src/ts/output/PreviewFileName.ts'
         )
-        /* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(
+        /* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
           /*! ./output/ShowURLs */ './src/ts/output/ShowURLs.ts'
         )
-        /* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(
+        /* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
           /*! ./download/ExportResult2CSV */ './src/ts/download/ExportResult2CSV.ts'
         )
-        /* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(
+        /* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(
           /*! ./download/ExportResult */ './src/ts/download/ExportResult.ts'
         )
-        /* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(
+        /* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
           /*! ./download/ImportResult */ './src/ts/download/ImportResult.ts'
         )
-        /* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(
+        /* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
           /*! ./download/ExportLST */ './src/ts/download/ExportLST.ts'
         )
-        /* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(
+        /* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
           /*! ./download/MergeNovel */ './src/ts/download/MergeNovel.ts'
         )
-        /* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(
+        /* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(
           /*! ./download/SaveWorkMeta */ './src/ts/download/SaveWorkMeta.ts'
         )
-        /* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(
+        /* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(
           /*! ./CheckNewVersion */ './src/ts/CheckNewVersion.ts'
         )
-        /* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(
+        /* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(
           /*! ./ShowWhatIsNew */ './src/ts/ShowWhatIsNew.ts'
         )
-        /* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(
+        /* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(
           /*! ./ShowHowToUse */ './src/ts/ShowHowToUse.ts'
         )
-        /* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(
+        /* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(
           /*! ./CheckUnsupportBrowser */ './src/ts/CheckUnsupportBrowser.ts'
         )
-        /* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(
+        /* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(
           /*! ./ShowNotification */ './src/ts/ShowNotification.ts'
         )
         /*
@@ -8113,6 +8424,27 @@
             )
             // 发出抓取完毕的信号
             _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire('crawlFinish')
+            // 自动导出抓取结果
+            if (
+              _setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
+                .autoExportResult &&
+              _store_Store__WEBPACK_IMPORTED_MODULE_4__['store'].result.length >
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
+                  .autoExportResultNumber
+            ) {
+              if (
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
+                  .autoExportResultCSV
+              ) {
+                _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire('exportCSV')
+              }
+              if (
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_8__['settings']
+                  .autoExportResultJSON
+              ) {
+                _EVT__WEBPACK_IMPORTED_MODULE_6__['EVT'].fire('exportResult')
+              }
+            }
           }
           // 网络请求状态异常时输出提示
           logErrorStatus(status, id) {
@@ -9486,6 +9818,8 @@
               48,
               49,
               50,
+              54,
+              55,
             ])
           }
           nextStep() {
@@ -11024,7 +11358,10 @@
             )
             if (confirm) {
               this.tagList = []
-              location.reload()
+              // states.busy 有可能是因为下载器正在抓取作品，通过刷新页面可以取消抓取。
+              if (_store_States__WEBPACK_IMPORTED_MODULE_4__['states'].busy) {
+                location.reload()
+              }
             }
           }
           // 每当 tagList 状态变化时，保存 tagList 到本地存储
@@ -16184,7 +16521,7 @@
               },
             ]
             window.addEventListener(
-              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.outputCSV,
+              _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].list.exportCSV,
               () => {
                 this.beforeCreate()
               }
@@ -21830,7 +22167,7 @@
                 .addEventListener(
                   'click',
                   () => {
-                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('outputCSV')
+                    _EVT__WEBPACK_IMPORTED_MODULE_0__['EVT'].fire('exportCSV')
                   },
                   false
                 )
@@ -22961,6 +23298,33 @@
       </span>
       </p>
 
+      <p class="option" data-no="54">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_自动导出抓取结果')} </span>
+      <input type="checkbox" name="autoExportResult" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+
+      <span class="subOptionWrap" data-show="autoExportResult">
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl(
+        '_文件数量大于'
+      )}</span>
+      <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
+      <span>&nbsp;</span>
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_文件格式')} </span>
+      <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="autoExportResultCSV"> CSV </label>
+      &nbsp;
+      <input type="checkbox" name="autoExportResultJSON" id="autoExportResultJSON" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="autoExportResultJSON"> JSON </label>
+
+      </span>
+      </p>
+
       <p class="option" data-no="35">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
@@ -22987,34 +23351,12 @@
       </span>
       </p>
 
-      <p class="option" data-no="34">
+      <p class="option" data-no="48">
       <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_收藏设置')}</span>
-      
-      <input type="radio" name="widthTag" id="widthTag1" class="need_beautify radio" value="yes" checked>
-      <span class="beautify_radio"></span>
-      <label for="widthTag1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
-        'lang'
-      ].transl('_添加tag')}&nbsp;</label>
-      <input type="radio" name="widthTag" id="widthTag2" class="need_beautify radio" value="no">
-      <span class="beautify_radio"></span>
-      <label for="widthTag2">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
-        'lang'
-      ].transl('_不添加tag')}</label>
-
-      <span class="verticalSplit"></span>
-      
-      <input type="radio" name="restrict" id="restrict1" class="need_beautify radio" value="no" checked>
-      <span class="beautify_radio"></span>
-      <label for="restrict1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
-        'lang'
-      ].transl('_公开')}&nbsp;</label>
-      <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="yes">
-      <span class="beautify_radio"></span>
-      <label for="restrict2">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
-        'lang'
-      ].transl('_不公开')}</label>
+      ].transl('_在搜索页面添加快捷搜索区域')} </span>
+      <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="18">
@@ -23027,12 +23369,21 @@
       <span class="beautify_switch"></span>
       </p>
 
-      <p class="option" data-no="48">
+      <p class="option" data-no="55">
       <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
         'lang'
-      ].transl('_在搜索页面添加快捷搜索区域')} </span>
-      <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
+      ].transl('_预览作品')} </span>
+      <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
+
+      <span class="subOptionWrap" data-show="PreviewWork">
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__['lang'].transl('_尺寸')}</span>
+      <input type="text" name="PreviewWorkSize" class="setinput_style1 blue" value="600" style="width:50px;min-width: 50px;">&nbsp;px
+      &nbsp;
+      <span class="gray1">(Alt+P)&nbsp;${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_点击鼠标左键可以关闭预览图')}</span>
+      </span>
       </p>
 
       <p class="option" data-no="40">
@@ -23077,6 +23428,36 @@
       ].transl('_普通')} </label>
 
       </span>
+      </p>
+
+      <p class="option" data-no="34">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_收藏设置')}</span>
+      
+      <input type="radio" name="widthTag" id="widthTag1" class="need_beautify radio" value="yes" checked>
+      <span class="beautify_radio"></span>
+      <label for="widthTag1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_添加tag')}&nbsp;</label>
+      <input type="radio" name="widthTag" id="widthTag2" class="need_beautify radio" value="no">
+      <span class="beautify_radio"></span>
+      <label for="widthTag2">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_不添加tag')}</label>
+
+      <span class="verticalSplit"></span>
+      
+      <input type="radio" name="restrict" id="restrict1" class="need_beautify radio" value="no" checked>
+      <span class="beautify_radio"></span>
+      <label for="restrict1">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_公开')}&nbsp;</label>
+      <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="yes">
+      <span class="beautify_radio"></span>
+      <label for="restrict2">${_Lang__WEBPACK_IMPORTED_MODULE_1__[
+        'lang'
+      ].transl('_不公开')}</label>
       </p>
 
       <p class="option" data-no="31">
@@ -23333,6 +23714,10 @@
                 'showAdvancedSettings',
                 'showNotificationAfterDownloadComplete',
                 'boldKeywords',
+                'autoExportResult',
+                'autoExportResultCSV',
+                'autoExportResultJSON',
+                'PreviewWork',
               ],
               text: [
                 'setWantPage',
@@ -23359,6 +23744,8 @@
                 'bgOpacity',
                 'zeroPaddingLength',
                 'workDirNameRule',
+                'autoExportResultNumber',
+                'PreviewWorkSize',
               ],
               radio: [
                 'ugoiraSaveAs',
@@ -23871,7 +24258,7 @@
         class Options {
           constructor() {
             // 保持显示的选项的 id
-            this.whiteList = [1, 2, 13, 17, 32, 44, 23, 50, 51]
+            this.whiteList = [1, 2, 4, 13, 17, 32, 44, 23, 50, 51, 55]
             // 某些页面类型需要隐藏某些选项。当调用 hideOption 方法时，把选项 id 保存起来
             // 优先级高于 whiteList
             this.hiddenList = []
@@ -24393,6 +24780,12 @@
               showAdvancedSettings: false,
               showNotificationAfterDownloadComplete: false,
               boldKeywords: false,
+              autoExportResult: false,
+              autoExportResultCSV: true,
+              autoExportResultJSON: false,
+              autoExportResultNumber: 1,
+              PreviewWork: true,
+              PreviewWorkSize: 600,
             }
             this.allSettingKeys = Object.keys(this.defaultSettings)
             // 值为浮点数的选项
@@ -25187,6 +25580,8 @@
             this.mergeNovel = false
             // 抓取标签列表时使用的标记
             this.crawlTagList = false
+            // 是否处于手动选择作品状态
+            this.selectWork = false
             this.bindEvents()
           }
           bindEvents() {

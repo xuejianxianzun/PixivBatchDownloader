@@ -103,22 +103,21 @@ class Tools {
   // 如果查找不到 id 会返回空字符串
   static getIllustId(url?: string) {
     const str = url || window.location.search || location.href
-    let result = ''
-    if (str.includes('illust_id')) {
-      // 传统 url
-      const test = /illust_id=(\d*\d)/.exec(str)
-      if (test && test.length > 1) {
-        result = test[1]
-      }
-    } else if (str.includes('/artworks/')) {
+    let test: RegExpExecArray | null = null
+
+    if (str.includes('/artworks/')) {
       // 新版 url
-      const test = /artworks\/(\d*\d)/.exec(str)
-      if (test && test.length > 1) {
-        result = test[1]
-      }
+      test = /artworks\/(\d*\d)/.exec(str)
+    } else if (str.includes('illust_id')) {
+      // 传统 url
+      test = /illust_id=(\d*\d)/.exec(str)
     }
 
-    return result
+    if (test && test.length > 1) {
+      return test[1]
+    } else {
+      return ''
+    }
   }
 
   // 从 url 里获取 novel id
