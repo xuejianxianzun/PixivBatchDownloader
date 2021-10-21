@@ -22,7 +22,7 @@ package-lock.json
 
 # build file
 *.zip
-/dist/
-/dist-special-HongYe/
+/dist/**
+/dist-special-HongYe/**
 
 *special*
