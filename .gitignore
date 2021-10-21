@@ -22,5 +22,5 @@ package-lock.json
 
 # build file
 *.zip
-
+/dist/**
 *special*
