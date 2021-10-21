@@ -22,6 +22,7 @@ package-lock.json
 
 # build file
 *.zip
-dist\*
+/dist/
+/dist-special-DelMemory/
 
 *special*
