@@ -4,13 +4,14 @@ const path = require('path')
 const copy = require('recursive-copy')
 const archiver = require('archiver')
 
-const packName = 'powerfulpixivdownloader'
+const packName = 'powerfulpixivdownloader-online'
+const distPath = './dist'
 
-// 复制一些文件到 dist 目录
+// 复制一些文件到发布目录
 async function copys() {
   return new Promise(async (resolve, reject) => {
     // 复制 static 文件夹的内容
-    await copy('./src/static', './dist', {
+    await copy('./src/static', distPath, {
       overwrite: true,
     }).catch(function (error) {
       console.error('Copy failed: ' + error)
@@ -18,13 +19,13 @@ async function copys() {
     })
 
     // 复制 manifest
-    await copy('./src', './dist', {
+    await copy('./src', distPath, {
       overwrite: true,
       filter: ['manifest.json'],
     })
 
     // 复制根目录一些文件
-    await copy('./', './dist', {
+    await copy('./', distPath, {
       overwrite: true,
       filter: ['README.md', 'README-EN.md', 'README-ZH-TW.md', 'LICENSE'],
     }).then(function (results) {
@@ -34,7 +35,7 @@ async function copys() {
   })
 }
 
-// 打包 dist 目录
+// 打包发布目录
 function pack() {
   const zipName = path.resolve(__dirname, packName + '.zip')
   const output = fs.createWriteStream(zipName)
@@ -55,7 +56,7 @@ function pack() {
   archive.pipe(output)
 
   // 添加文件夹
-  archive.directory('dist', packName)
+  archive.directory(distPath, packName)
 
   archive.finalize()
 }
