@@ -8,7 +8,7 @@
   "scripts": {
     "less": "lessc ./src/style/style.less ./dist-special-HongYe/style/style.css",
     "ts": "webpack --config ./webpack.conf.js",
-    "fmt": "prettier -c --write \"**/*\"",
+    "fmt": "prettier -c --write \"src\\*\" && prettier -c --write \"dist-special-HongYe\\*\"",
     "pre-build": "npm run ts && npm run less && npm run fmt",
     "build": "npm run pre-build && node ./pack.js"
   },
