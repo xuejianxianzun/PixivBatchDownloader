@@ -5349,7 +5349,7 @@ class ShowBigThumb {
         this.hiddenTimer = 0;
         // 鼠标点击 wrap 可以隐藏 wrap。在之后的一段时间里，临时禁用预览功能
         this.afterClick = false;
-        this.afterClickDisable = 200;
+        this.afterClickDisable = 100;
         this.createWrap();
         this.bindEvents();
     }
