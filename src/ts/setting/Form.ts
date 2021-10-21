@@ -112,7 +112,7 @@ class Form {
       ).addEventListener(
         'click',
         () => {
-          EVT.fire('outputCSV')
+          EVT.fire('exportCSV')
         },
         false
       )

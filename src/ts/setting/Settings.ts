@@ -155,6 +155,12 @@ interface XzSetting {
   showAdvancedSettings: boolean
   showNotificationAfterDownloadComplete: boolean
   boldKeywords: boolean
+  autoExportResult: boolean
+  autoExportResultCSV: boolean
+  autoExportResultJSON: boolean
+  autoExportResultNumber: number
+  PreviewWork: boolean
+  PreviewWorkSize: number
 }
 
 type SettingsKeys = keyof XzSetting
@@ -324,6 +330,12 @@ class Settings {
     showAdvancedSettings: false,
     showNotificationAfterDownloadComplete: false,
     boldKeywords: false,
+    autoExportResult: false,
+    autoExportResultCSV: true,
+    autoExportResultJSON: false,
+    autoExportResultNumber: 1,
+    PreviewWork: true,
+    PreviewWorkSize: 600,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

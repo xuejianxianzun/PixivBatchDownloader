@@ -39,6 +39,7 @@ class SelectWork {
 
   private set start(bool: boolean) {
     this._start = bool
+    states.selectWork = bool
     this.updateSelectorEl()
     this.updateControlBtn()
   }
@@ -49,6 +50,9 @@ class SelectWork {
 
   set pause(bool: boolean) {
     this._pause = bool
+    if (bool) {
+      states.selectWork = false
+    }
     this.updateSelectorEl()
     this.updateControlBtn()
   }
@@ -142,6 +146,13 @@ class SelectWork {
     window.addEventListener('keydown', (ev) => {
       if (ev.altKey && ev.code === 'KeyS') {
         this.controlBtn.click()
+      }
+    })
+
+    // 定制：使用 Alt + A 快捷键来全选
+    window.addEventListener('keydown', (ev) => {
+      if (ev.altKey && ev.code === 'KeyA') {
+        this.selectAllBtn.click()
       }
     })
 
