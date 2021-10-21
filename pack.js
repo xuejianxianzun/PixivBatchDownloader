@@ -7,7 +7,7 @@ const archiver = require('archiver')
 const packName = 'powerfulpixivdownloader-special-HongYe'
 const dir = './dist-special-HongYe'
 
-// 复制一些文件到 dist 目录
+// 复制一些文件到发布目录
 async function copys() {
   return new Promise(async (resolve, reject) => {
     // 复制 static 文件夹的内容
@@ -35,7 +35,7 @@ async function copys() {
   })
 }
 
-// 打包 dist 目录
+// 打包发布目录
 function pack() {
   const zipName = path.resolve(__dirname, packName + '.zip')
   const output = fs.createWriteStream(zipName)
