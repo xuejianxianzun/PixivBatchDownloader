@@ -40,7 +40,7 @@ class ShowBigThumb {
 
   // 鼠标点击 wrap 可以隐藏 wrap。在之后的一段时间里，临时禁用预览功能
   private afterClick = false
-  private afterClickDisable = 200
+  private afterClickDisable = 100
 
   private get show() {
     return this._show
