@@ -1,7 +1,8 @@
 import { API } from './API'
 import { ArtworkData } from './crawl/CrawlResult'
+import { EVT } from './EVT'
 import { mouseOverThumbnail } from './MouseOverThumbnail'
-import { settings } from './setting/Settings'
+import { settings, setSetting } from './setting/Settings'
 import { states } from './store/States'
 
 // 鼠标经过作品的缩略图时，显示更大尺寸的缩略图
@@ -11,19 +12,7 @@ class ShowBigThumb {
     this.bindEvents()
   }
 
-  // 加载图像的延迟时间
-  // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
-  // 如果鼠标在缩略图上停留达到 delay 的时间，才会加载 regular 尺寸的图片
-  // 这是因为要加载的图片体积比较大，regular 规格的图片的体积可能达到 800KB，如果立即加载的话会浪费网络资源
-  private readonly showDelay = 400
-  private showTimer!: number
-
-  // 鼠标离开缩略图之后，经过指定的时间才会隐藏 wrap
-  // 如果在这个时间内又进入缩略图，或者进入 wrap，则取消隐藏定时器，继续显示 wrap
-  // 如果不使用延迟隐藏，而是立即隐藏的话，用户就不能滚动页面来查看完整的 wrap
-  private readonly hiddenDelay = 100
-  private hiddenTimer!: number
-
+  // 容器元素的相关数据
   private wrapId = 'bigThumbWrap'
   private wrap!: HTMLElement
   private readonly border = 8 // wrap 的 border 占据的空间
@@ -33,7 +22,25 @@ class ShowBigThumb {
   private workData?: ArtworkData
   private workEL?: HTMLElement
 
+  // 显示/隐藏
   private _show = false
+
+  // 加载图像的延迟时间
+  // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
+  // 如果鼠标在缩略图上停留达到 delay 的时间，才会加载 regular 尺寸的图片
+  // 这是因为要加载的图片体积比较大，regular 规格的图片的体积可能达到 800KB，如果立即加载的话会浪费网络资源
+  private readonly showDelay = 400
+  private showTimer: number = 0
+
+  // 鼠标离开缩略图之后，经过指定的时间才会隐藏 wrap
+  // 如果在这个时间内又进入缩略图，或者进入 wrap，则取消隐藏定时器，继续显示 wrap
+  // 如果不使用延迟隐藏，而是立即隐藏的话，用户就不能滚动页面来查看完整的 wrap
+  private readonly hiddenDelay = 100
+  private hiddenTimer: number = 0
+
+  // 鼠标点击 wrap 可以隐藏 wrap。在之后的一段时间里，临时禁用预览功能
+  private afterClick = false
+  private afterClickDisable = 200
 
   private get show() {
     return this._show
@@ -61,7 +68,7 @@ class ShowBigThumb {
     mouseOverThumbnail.onEnter((el: HTMLElement, id: string) => {
       window.clearTimeout(this.hiddenTimer)
 
-      if (!settings.PreviewWork || states.selectWork) {
+      if (!settings.PreviewWork || states.selectWork || this.afterClick) {
         return
       }
 
@@ -83,6 +90,25 @@ class ShowBigThumb {
     this.wrap.addEventListener('mouseleave', () => {
       this.readyHidden()
     })
+
+    this.wrap.addEventListener('click', () => {
+      this.show = false
+      this.afterClick = true
+      window.setTimeout(() => {
+        this.afterClick = false
+      }, this.afterClickDisable)
+    })
+
+    // 可以使用 Alt + P 快捷键来启用/禁用此功能
+    window.addEventListener('keydown', (ev) => {
+      if (ev.altKey && ev.code === 'KeyP') {
+        setSetting('PreviewWork', !settings.PreviewWork)
+      }
+    })
+
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      this.show = false
+    })
   }
 
   private createWrap() {
@@ -92,7 +118,10 @@ class ShowBigThumb {
   }
 
   private async getWorkData() {
-    this.workData = await API.getArtworkData(this.workId)
+    const data = await API.getArtworkData(this.workId)
+    if (data.body.id === this.workId) {
+      this.workData = data
+    }
   }
 
   private readyShow() {
@@ -102,9 +131,7 @@ class ShowBigThumb {
   }
 
   private readyHidden() {
-    if (!settings.PreviewWork) {
-      return
-    }
+    window.clearTimeout(this.showTimer)
     this.hiddenTimer = window.setTimeout(() => {
       this.show = false
     }, this.hiddenDelay)
@@ -164,7 +191,11 @@ class ShowBigThumb {
 
     // 检查 wrap 是否超出了窗口可视宽度的右侧
     // 17 是 Chrome 滚动条的宽度。因为 window.innerWidth 包含滚动条，所以要减去它
-    const num = window.innerWidth - 17 + window.scrollX - (cfg.left + cfg.width + this.border)
+    const num =
+      window.innerWidth -
+      17 +
+      window.scrollX -
+      (cfg.left + cfg.width + this.border)
     if (num < 0) {
       cfg.left = cfg.left + num
     }

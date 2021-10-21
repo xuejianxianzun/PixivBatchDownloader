@@ -1753,12 +1753,6 @@ const langText = {
     'Show keywords in <span class="key">bold</span>',
     'キーワードを太字で表示',
   ],
-  _whatisnew: [
-    '新增设置项：<br>下载完成后显示通知',
-    '新增設定項目：<br>下載完成後顯示通知',
-    'Added setting items:<br>Show notification after download is complete',
-    '新たな機能を追加されました：<br>ダウンロードが完了した後に通知を表示する',
-  ],
   _抓取标签列表: [
     '抓取标签列表',
     '抓取標籤列表',
@@ -1813,6 +1807,19 @@ const langText = {
     '<span class="key">預覽</span>作品',
     '<span class="key">Preview</span> works',
     'プレビューは機能します',
+  ],
+  _点击鼠标左键可以关闭预览图: [
+    '点击鼠标左键可以关闭预览图',
+    '點選滑鼠左鍵可以關閉預覽圖',
+    'Click the left mouse button to close the preview',
+    'マウスの左ボタンをクリックしてプレビューを閉じます',
+  ],
+  _尺寸: ['尺寸', '尺寸', 'Size', 'サイズ'],
+  _whatisnew: [
+    '新增设置项：<br>预览作品',
+    '新增設定項目：<br>預覽作品',
+    'Added setting items:<br>Preview works',
+    '新たな機能を追加されました：<br>プレビューは機能します',
   ],
 }
 
