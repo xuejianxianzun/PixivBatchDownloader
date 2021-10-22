@@ -624,14 +624,9 @@ const langText = {
     `You can type a number between 1-${Config.downloadThreadMax} to set the number of concurrent downloads`,
     `同時ダウンロード数を設定、1-${Config.downloadThreadMax} の数値を入力してください`,
   ],
-  _开始下载: ['开始下载', '開始下載', 'start download', 'ダウンロードを開始'],
-  _暂停下载: [
-    '暂停下载',
-    '暫停下載',
-    'pause download',
-    'ダウンロードを一時停止',
-  ],
-  _停止下载: ['停止下载', '停止下載', 'stop download', 'ダウンロードを停止'],
+  _开始下载: ['开始下载', '開始下載', 'start download', '開始'],
+  _暂停下载: ['暂停下载', '暫停下載', 'pause download', '一時停止'],
+  _停止下载: ['停止下载', '停止下載', 'stop download', '停止'],
   _复制url: ['复制 url', '複製下載網址', 'copy urls', 'URL をコピー'],
   _当前状态: ['当前状态 ', '目前狀態：', 'State ', '現在の状態 '],
   _未开始下载: [
@@ -640,12 +635,7 @@ const langText = {
     'Not yet started downloading',
     'まだダウンロードを開始していません',
   ],
-  _下载进度: [
-    '下载进度：',
-    '下載進度：',
-    'Total progress: ',
-    'ダウンロードの進行状況：',
-  ],
+  _下载进度: ['下载进度', '下載進度', 'Total progress', '概要'],
   _下载线程: ['下载线程：', '下載執行緒：', 'Thread: ', 'スレッド：'],
   _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問'],
   _uuid: [
@@ -1045,7 +1035,7 @@ const langText = {
     'Name: ',
     'ディレクトリ名の使用：',
   ],
-  _目录名: ['目录名：', '資料夾名稱：', 'Name: ', 'ディレクトリ名：'],
+  _目录名: ['目录名', '資料夾名稱', 'Name', 'ディレクトリ名'],
   _启用快速收藏: [
     '启用快速收藏',
     '開啟快速收藏',
@@ -1499,8 +1489,8 @@ const langText = {
     '作品ごとに別フォルダを作成',
   ],
   _文件数量大于: [
-    '文件数量大于',
-    '檔案數量大於',
+    '文件数量 >',
+    '檔案數量 >',
     'Number of files >',
     'ファイル数 >',
   ],
@@ -1753,12 +1743,6 @@ const langText = {
     'Show keywords in <span class="key">bold</span>',
     'キーワードを太字で表示',
   ],
-  _whatisnew: [
-    '新增设置项：<br>下载完成后显示通知',
-    '新增設定項目：<br>下載完成後顯示通知',
-    'Added setting items:<br>Show notification after download is complete',
-    '新たな機能を追加されました：<br>ダウンロードが完了した後に通知を表示する',
-  ],
   _抓取标签列表: [
     '抓取标签列表',
     '抓取標籤列表',
@@ -1800,6 +1784,50 @@ const langText = {
     '只能在搜尋頁面使用',
     'Can only be used on the search page',
     '検索ページでのみ使用できます',
+  ],
+  _自动导出抓取结果: [
+    '自动<span class="key">导出</span>抓取结果',
+    '自動<span class="key">匯出</span>抓取結果',
+    'Automatically <span class="key">export</span> crawl results',
+    'クロール結果の自動エクスポート',
+  ],
+  _文件格式: ['文件格式', '檔案格式', 'File format', 'ファイル形式'],
+  _预览作品: [
+    '<span class="key">预览</span>作品',
+    '<span class="key">預覽</span>作品',
+    '<span class="key">Preview</span> works',
+    '作品のプレビュー',
+  ],
+  _点击鼠标左键可以关闭预览图: [
+    '点击鼠标左键可以关闭预览图',
+    '點選滑鼠左鍵可以關閉預覽圖',
+    'Click the left mouse button to close the preview',
+    'マウスの左クリックでプレビュー画像を閉じる',
+  ],
+  _尺寸: ['尺寸', '尺寸', 'Size', 'サイズ'],
+  _允许鼠标停留在预览图上: [
+    '允许鼠标停留在预览图上',
+    '允許滑鼠停留在預覽圖上',
+    'Allow the mouse to stay on the preview image',
+    'プレビュー画像の上にマウスを置くことができます',
+  ],
+  _点击预览图时下载作品: [
+    '点击预览图时下载作品',
+    '點選預覽圖時下載作品',
+    'Download the work when you click on the preview',
+    'プレビュー画像をクリックするとその作品がダウンロードされます',
+  ],
+  _转换动图时页面被隐藏的提示: [
+    '这个标签页正在转换动图。如果这个标签页被隐藏了，转换速度可能会变慢。',
+    '這個標籤頁正在轉換動圖。如果這個標籤頁被隱藏了，轉換速度可能會變慢。',
+    'This tab page is converting ugoira. If this tab page is hidden, the conversion speed may slow down.',
+    'このタブページはうごイラを変換しています。 このタブを非表示にすると、変換速度が低下する場合があります。',
+  ],
+  _whatisnew: [
+    '新增设置项：<br>预览作品',
+    '新增設定項目：<br>預覽作品',
+    'Added setting items:<br>Preview works',
+    '新たな機能を追加されました：<br>プレビューは機能します',
   ],
 }
 

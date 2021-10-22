@@ -89,6 +89,11 @@ class FormSettings {
       'showAdvancedSettings',
       'showNotificationAfterDownloadComplete',
       'boldKeywords',
+      'autoExportResult',
+      'autoExportResultCSV',
+      'autoExportResultJSON',
+      'PreviewWork',
+      'PreviewWorkMouseStay',
     ],
     text: [
       'setWantPage',
@@ -115,6 +120,8 @@ class FormSettings {
       'bgOpacity',
       'zeroPaddingLength',
       'workDirNameRule',
+      'autoExportResultNumber',
+      'PreviewWorkSize',
     ],
     radio: [
       'ugoiraSaveAs',

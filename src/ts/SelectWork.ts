@@ -36,6 +36,7 @@ class SelectWork {
 
   set start(bool: boolean) {
     this._start = bool
+    states.selectWork = bool
     this.updateSelectorEl()
     this.updateControlBtn()
   }
@@ -46,6 +47,9 @@ class SelectWork {
 
   set pause(bool: boolean) {
     this._pause = bool
+    if (bool) {
+      states.selectWork = false
+    }
     this.updateSelectorEl()
     this.updateControlBtn()
   }

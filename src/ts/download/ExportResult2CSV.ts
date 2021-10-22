@@ -20,7 +20,7 @@ interface Field {
 // 导出抓取结果为 csv 文件
 class ExportResult2CSV {
   constructor() {
-    window.addEventListener(EVT.list.outputCSV, () => {
+    window.addEventListener(EVT.list.exportCSV, () => {
       this.beforeCreate()
     })
   }

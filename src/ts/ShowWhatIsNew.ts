@@ -9,9 +9,11 @@ class ShowWhatIsNew {
     this.show()
   }
 
-  private flag = 'xzNew1120'
+  private flag = 'xzNew1130'
 
-  private msg = `${lang.transl('_whatisnew')}`
+  private msg = `${lang.transl('_新增设置项')}<br>${lang.transl(
+    '_预览作品'
+  )} （${lang.transl('_点击鼠标左键可以关闭预览图')}）`
 
   private readonly storeName = 'xzNewVerTag'
 

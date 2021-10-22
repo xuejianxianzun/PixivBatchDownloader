@@ -99,4 +99,11 @@ export interface SettingsForm extends HTMLFormElement {
   showAdvancedSettings: HTMLInputElement
   showNotificationAfterDownloadComplete: HTMLInputElement
   boldKeywords: HTMLInputElement
+  autoExportResult: HTMLInputElement
+  autoExportResultCSV: HTMLInputElement
+  autoExportResultJSON: HTMLInputElement
+  autoExportResultNumber: HTMLInputElement
+  PreviewWork: HTMLInputElement
+  PreviewWorkSize: HTMLInputElement
+  PreviewWorkMouseStay: HTMLInputElement
 }

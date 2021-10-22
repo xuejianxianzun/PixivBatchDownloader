@@ -99,6 +99,7 @@ class DownloadControl {
 
     window.addEventListener(EVT.list.skipDownload, (ev: CustomEventInit) => {
       const data = ev.detail.data as DonwloadSkipData
+      // 跳过下载的文件不会触发下载成功事件
       this.downloadOrSkipAFile(data)
     })
 
@@ -226,6 +227,8 @@ class DownloadControl {
 
     this.setDownloadThread()
 
+    help.showDownloadTip()
+
     // 在插画漫画搜索页面里，如果启用了“预览搜索页面的筛选结果”
     if (
       pageType.type === pageType.list.ArtworkSearch &&
@@ -234,7 +237,11 @@ class DownloadControl {
       // “预览搜索页面的筛选结果”会阻止自动开始下载。但是一些情况例外
       // 允许由图片查看器发起的下载请求自动开始下载
       // 允许由抓取标签列表功能发起的下载请求自动开始下载
-      if (!states.downloadFromViewer && !states.crawlTagList) {
+      if (
+        !states.downloadFromViewer &&
+        !states.quickCrawl &&
+        !states.crawlTagList
+      ) {
         return
       }
     }
@@ -278,8 +285,6 @@ class DownloadControl {
     }
 
     log.success(lang.transl('_正在下载中'))
-
-    help.showDownloadTip()
   }
 
   // 暂停下载

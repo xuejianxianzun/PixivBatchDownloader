@@ -353,6 +353,19 @@ abstract class InitPageBase {
 
     // 发出抓取完毕的信号
     EVT.fire('crawlFinish')
+
+    // 自动导出抓取结果
+    if (
+      settings.autoExportResult &&
+      store.result.length > settings.autoExportResultNumber
+    ) {
+      if (settings.autoExportResultCSV) {
+        EVT.fire('exportCSV')
+      }
+      if (settings.autoExportResultJSON) {
+        EVT.fire('exportResult')
+      }
+    }
   }
 
   // 网络请求状态异常时输出提示

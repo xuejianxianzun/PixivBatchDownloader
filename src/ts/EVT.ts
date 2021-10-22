@@ -113,7 +113,7 @@ class EVENT {
     // 当从断点续传数据恢复了下载时触发
     resume: 'resume',
     // 当需要导出 csv 文件时触发
-    outputCSV: 'outputCSV',
+    exportCSV: 'exportCSV',
     // 当需要导出抓取结果时触发
     exportResult: 'exportResult',
     // 当需要导出抓取结果时触发
@@ -148,6 +148,9 @@ class EVENT {
     selectBG: 'selectBG',
     // 清除背景图片
     clearBG: 'clearBG',
+    // 点击了下载器在作品缩略图上添加的按钮时触发
+    // 其他按钮监听这个事件后隐藏自己，就可以避免其他按钮出现闪烁、残留的问题
+    clickBtnOnThumb: 'clickBtnOnThumb',
   }
 
   // 触发自定义事件，大部分事件都不需要携带数据
@@ -186,7 +189,7 @@ class EVENT {
       | 'importDownloadRecord'
       | 'clearSavedCrawl'
       | 'resume'
-      | 'outputCSV'
+      | 'exportCSV'
       | 'exportResult'
       | 'importResult'
       | 'saveAvatarImage'
@@ -201,6 +204,7 @@ class EVENT {
       | 'clearLog'
       | 'selectBG'
       | 'clearBG'
+      | 'clickBtnOnThumb'
   ): void
 
   // 对于需要携带数据的事件进行重载

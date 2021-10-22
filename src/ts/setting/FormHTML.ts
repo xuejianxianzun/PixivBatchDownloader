@@ -562,24 +562,6 @@ export const formHtml = `<form class="settingForm">
       <slot data-name="otherBtns"></slot>
     </div>
 
-    <p class="option" data-no="49">
-    <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-      '_保存作品的元数据说明'
-    )}">${lang.transl('_保存作品的元数据')}<span class="gray1"> ? </span></span>
-    <input type="checkbox" name="saveMetaType0" id="setSaveMetaType0" class="need_beautify checkbox_common">
-    <span class="beautify_checkbox"></span>
-    <label for="setSaveMetaType0"> ${lang.transl('_插画')}&nbsp;</label>
-    <input type="checkbox" name="saveMetaType1" id="setSaveMetaType1" class="need_beautify checkbox_common">
-    <span class="beautify_checkbox"></span>
-    <label for="setSaveMetaType1"> ${lang.transl('_漫画')}&nbsp;</label>
-    <input type="checkbox" name="saveMetaType2" id="setSaveMetaType2" class="need_beautify checkbox_common">
-    <span class="beautify_checkbox"></span>
-    <label for="setSaveMetaType2"> ${lang.transl('_动图')}&nbsp;</label>
-    <input type="checkbox" name="saveMetaType3" id="setSaveMetaType3" class="need_beautify checkbox_common">
-    <span class="beautify_checkbox"></span>
-    <label for="setSaveMetaType3"> ${lang.transl('_小说')}&nbsp;</label>
-    </p>
-
       <p class="option" data-no="4">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_动图保存格式title'
@@ -630,6 +612,26 @@ export const formHtml = `<form class="settingForm">
 )}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
+      </p>
+
+      <p class="option" data-no="49">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_保存作品的元数据说明'
+      )}">${lang.transl(
+  '_保存作品的元数据'
+)}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="saveMetaType0" id="setSaveMetaType0" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox"></span>
+      <label for="setSaveMetaType0"> ${lang.transl('_插画')}&nbsp;</label>
+      <input type="checkbox" name="saveMetaType1" id="setSaveMetaType1" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox"></span>
+      <label for="setSaveMetaType1"> ${lang.transl('_漫画')}&nbsp;</label>
+      <input type="checkbox" name="saveMetaType2" id="setSaveMetaType2" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox"></span>
+      <label for="setSaveMetaType2"> ${lang.transl('_动图')}&nbsp;</label>
+      <input type="checkbox" name="saveMetaType3" id="setSaveMetaType3" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox"></span>
+      <label for="setSaveMetaType3"> ${lang.transl('_小说')}&nbsp;</label>
       </p>
 
       <p class="option" data-no="29">
@@ -710,6 +712,29 @@ export const formHtml = `<form class="settingForm">
       </span>
       </p>
 
+      <p class="option" data-no="54">
+      <span class="settingNameStyle1">${lang.transl(
+        '_自动导出抓取结果'
+      )} </span>
+      <input type="checkbox" name="autoExportResult" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+
+      <span class="subOptionWrap" data-show="autoExportResult">
+      <span>${lang.transl('_文件数量大于')}</span>
+      <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
+      <span>&nbsp;</span>
+      <span class="settingNameStyle1">${lang.transl('_文件格式')} </span>
+      <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="autoExportResultCSV"> CSV </label>
+      &nbsp;
+      <input type="checkbox" name="autoExportResultJSON" id="autoExportResultJSON" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="autoExportResultJSON"> JSON </label>
+
+      </span>
+      </p>
+
       <p class="option" data-no="35">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_用户阻止名单的说明'
@@ -734,24 +759,12 @@ export const formHtml = `<form class="settingForm">
       </span>
       </p>
 
-      <p class="option" data-no="34">
-      <span class="settingNameStyle1">${lang.transl('_收藏设置')}</span>
-      
-      <input type="radio" name="widthTag" id="widthTag1" class="need_beautify radio" value="yes" checked>
-      <span class="beautify_radio"></span>
-      <label for="widthTag1">${lang.transl('_添加tag')}&nbsp;</label>
-      <input type="radio" name="widthTag" id="widthTag2" class="need_beautify radio" value="no">
-      <span class="beautify_radio"></span>
-      <label for="widthTag2">${lang.transl('_不添加tag')}</label>
-
-      <span class="verticalSplit"></span>
-      
-      <input type="radio" name="restrict" id="restrict1" class="need_beautify radio" value="no" checked>
-      <span class="beautify_radio"></span>
-      <label for="restrict1">${lang.transl('_公开')}&nbsp;</label>
-      <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="yes">
-      <span class="beautify_radio"></span>
-      <label for="restrict2">${lang.transl('_不公开')}</label>
+      <p class="option" data-no="48">
+      <span class="settingNameStyle1">${lang.transl(
+        '_在搜索页面添加快捷搜索区域'
+      )} </span>
+      <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="18">
@@ -762,12 +775,20 @@ export const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
       </p>
 
-      <p class="option" data-no="48">
-      <span class="settingNameStyle1">${lang.transl(
-        '_在搜索页面添加快捷搜索区域'
-      )} </span>
-      <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
+      <p class="option" data-no="55">
+      <span class="settingNameStyle1">${lang.transl('_预览作品')} </span>
+      <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
+
+      <span class="subOptionWrap" data-show="PreviewWork">
+      <span>${lang.transl('_尺寸')}</span>
+      <input type="text" name="PreviewWorkSize" class="setinput_style1 blue" value="600" style="width:50px;min-width: 50px;">&nbsp;px
+      &nbsp;
+      <input type="checkbox" name="PreviewWorkMouseStay" id="PreviewWorkMouseStay" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox"></span>
+      <label for="PreviewWorkMouseStay">${lang.transl(
+        '_允许鼠标停留在预览图上'
+      )}</label>
       </p>
 
       <p class="option" data-no="40">
@@ -800,6 +821,26 @@ export const formHtml = `<form class="settingForm">
       <label for="magnifierSize2"> ${lang.transl('_普通')} </label>
 
       </span>
+      </p>
+
+      <p class="option" data-no="34">
+      <span class="settingNameStyle1">${lang.transl('_收藏设置')}</span>
+      
+      <input type="radio" name="widthTag" id="widthTag1" class="need_beautify radio" value="yes" checked>
+      <span class="beautify_radio"></span>
+      <label for="widthTag1">${lang.transl('_添加tag')}&nbsp;</label>
+      <input type="radio" name="widthTag" id="widthTag2" class="need_beautify radio" value="no">
+      <span class="beautify_radio"></span>
+      <label for="widthTag2">${lang.transl('_不添加tag')}</label>
+
+      <span class="verticalSplit"></span>
+      
+      <input type="radio" name="restrict" id="restrict1" class="need_beautify radio" value="no" checked>
+      <span class="beautify_radio"></span>
+      <label for="restrict1">${lang.transl('_公开')}&nbsp;</label>
+      <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="yes">
+      <span class="beautify_radio"></span>
+      <label for="restrict2">${lang.transl('_不公开')}</label>
       </p>
 
       <p class="option" data-no="31">

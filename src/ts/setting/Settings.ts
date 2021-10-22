@@ -155,6 +155,13 @@ interface XzSetting {
   showAdvancedSettings: boolean
   showNotificationAfterDownloadComplete: boolean
   boldKeywords: boolean
+  autoExportResult: boolean
+  autoExportResultCSV: boolean
+  autoExportResultJSON: boolean
+  autoExportResultNumber: number
+  PreviewWork: boolean
+  PreviewWorkSize: number
+  PreviewWorkMouseStay: boolean
 }
 
 type SettingsKeys = keyof XzSetting
@@ -324,6 +331,13 @@ class Settings {
     showAdvancedSettings: false,
     showNotificationAfterDownloadComplete: false,
     boldKeywords: false,
+    autoExportResult: false,
+    autoExportResultCSV: true,
+    autoExportResultJSON: false,
+    autoExportResultNumber: 1,
+    PreviewWork: true,
+    PreviewWorkSize: 600,
+    PreviewWorkMouseStay: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -542,6 +556,10 @@ class Settings {
 
     if (key === 'setWidthAndOr' && value === '') {
       value = this.defaultSettings[key]
+    }
+
+    if (key === 'PreviewWorkSize' && value < 300) {
+      value = 300
     }
 
     // 更改设置

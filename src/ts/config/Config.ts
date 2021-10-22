@@ -11,7 +11,7 @@ class Config {
   /**作品类型所对应的字符串名称 */
   static readonly worksTypeName = ['Illustration', 'Manga', 'Ugoira', 'Novel']
   /**程序名 */
-  static readonly appName = 'Powerful Pixiv Downloader'
+  static readonly appName = 'Powerful Pixiv Downloader DelMemory'
   /**下载器设置在 localStorage 里储存时的 name */
   static readonly settingStoreName = 'xzSetting'
   /**按收藏数量过滤作品时，预设的最大收藏数量 */

@@ -78,6 +78,8 @@ class InitPixivisionPage extends InitPageBase {
       48,
       49,
       50,
+      54,
+      55,
     ])
   }
 

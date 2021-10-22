@@ -38,6 +38,9 @@ class States {
   // 抓取标签列表时使用的标记
   public crawlTagList = false
 
+  // 是否处于手动选择作品状态
+  public selectWork = false
+
   private bindEvents() {
     const idle = [
       EVT.list.crawlFinish,
