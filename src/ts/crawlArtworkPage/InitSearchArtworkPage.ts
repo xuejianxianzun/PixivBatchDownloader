@@ -444,11 +444,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 显示抓取到的作品数量
   private showCount = () => {
-    if (
-      states.crawlTagList ||
-      !settings.previewResult ||
-      !this.crawlStartBySelf
-    ) {
+    if (states.crawlTagList || !settings.previewResult) {
       return
     }
 
