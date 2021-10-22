@@ -1,0 +1,70 @@
+{
+  "name": "Powerful Pixiv Downloader HongYe",
+  "version": "11.3.0",
+  "manifest_version": 2,
+  "description": "强大的 Pixiv 批量下载器。Powerful Pixiv batch downloader. 強力な Pixiv ダウンローダー。",
+  "icons": {
+    "16": "icon/logo16.png",
+    "32": "icon/logo32.png",
+    "48": "icon/logo48.png",
+    "128": "icon/logo128.png"
+  },
+  "browser_action": {
+    "default_icon": {
+      "16": "icon/logo16.png",
+      "32": "icon/logo32.png",
+      "48": "icon/logo48.png",
+      "128": "icon/logo128.png"
+    },
+    "default_title": "Powerful Pixiv Downloader"
+  },
+  "content_scripts": [
+    {
+      "css": ["style/viewer.min.css", "style/style.css"],
+      "js": [
+        "lib/viewer.min.js",
+        "lib/zip.js",
+        "lib/whammy.js",
+        "lib/gif.js",
+        "lib/handlebars.min.js",
+        "lib/jszip-utils.min.js",
+        "lib/jszip.min.js",
+        "lib/js-epub-maker.js",
+        "lib/UPNG.js",
+        "lib/pako.js",
+        "js/content.js",
+        "lib/iconfont.js"
+      ],
+      "matches": ["*://www.pixiv.net/*"],
+      "run_at": "document_end"
+    },
+    {
+      "css": ["style/style.css"],
+      "js": ["js/content.js", "lib/iconfont.js"],
+      "matches": ["*://www.pixivision.net/*"],
+      "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "scripts": ["js/background.js"]
+  },
+  "permissions": [
+    "downloads",
+    "*://www.pixiv.net/*",
+    "*://www.pixivision.net/*",
+    "*://*.techorus-cdn.com/*",
+    "*://*.pximg.net/*",
+    "*://*.pixiv.cat/*",
+    "webRequest",
+    "webRequestBlocking"
+  ],
+  "web_accessible_resources": [
+    "lib/z-worker.js",
+    "lib/gif.worker.js",
+    "lib/listen_history_change.js",
+    "manifest.json",
+    "icon/logo128.png"
+  ],
+  "incognito": "split",
+  "homepage_url": "https://github.com/xuejianxianzun/PixivBatchDownloader"
+}
