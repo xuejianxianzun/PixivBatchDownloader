@@ -4,12 +4,23 @@ import { UgoiraInfo } from '../crawl/CrawlResult'
 import { toWebM } from './ToWebM'
 import { toGIF } from './ToGIF'
 import { toAPNG } from './ToAPNG'
+import { msgBox } from '../MsgBox'
+import { lang } from '../Lang'
 
 // 控制动图转换
 class ConvertUgoira {
   constructor() {
     this.setMaxCount()
+    this.bindEvents()
+  }
 
+  private downloading = true // 是否在下载。如果下载停止了则不继续转换后续任务，避免浪费资源
+
+  private _count: number = 0 // 统计有几个转换任务
+
+  private maxCount = 1 // 允许同时运行多少个转换任务
+
+  private bindEvents() {
     window.addEventListener(EVT.list.downloadStart, () => {
       this.downloading = true
     })
@@ -34,13 +45,12 @@ class ConvertUgoira {
     window.addEventListener(EVT.list.readZipError, () => {
       this.complete()
     })
+
+    // 如果转换动图时页面被隐藏了，则显示一次提示
+    document.addEventListener('visibilitychange', () => {
+      this.checkHidden()
+    })
   }
-
-  private downloading = true // 是否在下载。如果下载停止了则不继续转换后续任务，避免浪费资源
-
-  private _count: number = 0 // 统计有几个转换任务
-
-  private maxCount = 1 // 允许同时运行多少个转换任务
 
   private setMaxCount() {
     this.maxCount =
@@ -50,6 +60,7 @@ class ConvertUgoira {
   private set count(num: number) {
     this._count = num
     EVT.fire('convertChange', this._count)
+    this.checkHidden()
   }
 
   private async start(
@@ -96,6 +107,17 @@ class ConvertUgoira {
   // 转换成 APNG
   public async apng(file: Blob, info: UgoiraInfo): Promise<Blob> {
     return await this.start(file, info, 'png')
+  }
+
+  private checkHidden() {
+    if (this._count > 0 && document.visibilityState === 'hidden') {
+      const name = 'tipConvertUgoira'
+      const test = sessionStorage.getItem(name)
+      if (test === null) {
+        msgBox.warning(lang.transl('_转换动图时页面被隐藏的提示'))
+        sessionStorage.setItem(name, '1')
+      }
+    }
   }
 }
 

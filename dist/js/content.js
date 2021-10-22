@@ -798,6 +798,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ToWebM__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ToWebM */ "./src/ts/ConvertUgoira/ToWebM.ts");
 /* harmony import */ var _ToGIF__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./ToGIF */ "./src/ts/ConvertUgoira/ToGIF.ts");
 /* harmony import */ var _ToAPNG__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ToAPNG */ "./src/ts/ConvertUgoira/ToAPNG.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+
+
 
 
 
@@ -810,6 +814,9 @@ class ConvertUgoira {
         this._count = 0; // 统计有几个转换任务
         this.maxCount = 1; // 允许同时运行多少个转换任务
         this.setMaxCount();
+        this.bindEvents();
+    }
+    bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStart, () => {
             this.downloading = true;
         });
@@ -831,6 +838,10 @@ class ConvertUgoira {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.readZipError, () => {
             this.complete();
         });
+        // 如果转换动图时页面被隐藏了，则显示一次提示
+        document.addEventListener('visibilitychange', () => {
+            this.checkHidden();
+        });
     }
     setMaxCount() {
         this.maxCount =
@@ -839,6 +850,7 @@ class ConvertUgoira {
     set count(num) {
         this._count = num;
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('convertChange', this._count);
+        this.checkHidden();
     }
     async start(file, info, type) {
         return new Promise(async (resolve, reject) => {
@@ -877,6 +889,16 @@ class ConvertUgoira {
     // 转换成 APNG
     async apng(file, info) {
         return await this.start(file, info, 'png');
+    }
+    checkHidden() {
+        if (this._count > 0 && document.visibilityState === 'hidden') {
+            const name = 'tipConvertUgoira';
+            const test = sessionStorage.getItem(name);
+            if (test === null) {
+                _MsgBox__WEBPACK_IMPORTED_MODULE_5__["msgBox"].warning(_Lang__WEBPACK_IMPORTED_MODULE_6__["lang"].transl('_转换动图时页面被隐藏的提示'));
+                sessionStorage.setItem(name, '1');
+            }
+        }
     }
 }
 const convertUgoira = new ConvertUgoira();
@@ -4292,6 +4314,12 @@ const langText = {
         '點選預覽圖時下載作品',
         'Download the work when you click on the preview',
         'プレビュー画像をクリックするとその作品がダウンロードされます',
+    ],
+    _转换动图时页面被隐藏的提示: [
+        '这个标签页正在转换动图。如果这个标签页被隐藏了，转换速度可能会变慢。',
+        '這個標籤頁正在轉換動圖。如果這個標籤頁被隱藏了，轉換速度可能會變慢。',
+        'This tab page is converting ugoira. If this tab page is hidden, the conversion speed may slow down.',
+        'このタブページはうごイラを変換しています。 このタブを非表示にすると、変換速度が低下する場合があります。',
     ],
     _whatisnew: [
         '新增设置项：<br>预览作品',
