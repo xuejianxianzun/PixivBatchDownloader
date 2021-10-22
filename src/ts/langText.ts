@@ -1817,6 +1817,12 @@ const langText = {
     'Download the work when you click on the preview',
     'プレビュー画像をクリックするとその作品がダウンロードされます',
   ],
+  _转换动图时页面被隐藏的提示: [
+    '这个标签页正在转换动图。如果这个标签页被隐藏了，转换速度可能会变慢。',
+    '這個標籤頁正在轉換動圖。如果這個標籤頁被隱藏了，轉換速度可能會變慢。',
+    'This tab page is converting ugoira. If this tab page is hidden, the conversion speed may slow down.',
+    'このタブページはうごイラを変換しています。 このタブを非表示にすると、変換速度が低下する場合があります。',
+  ],
   _whatisnew: [
     '新增设置项：<br>预览作品',
     '新增設定項目：<br>預覽作品',

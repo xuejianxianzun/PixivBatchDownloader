@@ -146,8 +146,6 @@ class SaveArtworkData {
           sl: body.sl,
         })
       }
-    } else {
-      console.log('xxx')
     }
   }
 }

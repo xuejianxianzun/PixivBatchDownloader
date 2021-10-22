@@ -22,7 +22,6 @@ import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
 import { Bookmark } from '../Bookmark'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
-import { stat } from 'fs'
 
 type AddBMKData = {
   id: number
@@ -82,6 +81,8 @@ class InitSearchArtworkPage extends InitPageBase {
 
   private readonly flag = 'searchArtwork'
 
+  private crawlStartBySelf = false
+
   protected setFormOption() {
     // 个数/页数选项的提示
     options.setWantPageTip({
@@ -96,9 +97,9 @@ class InitSearchArtworkPage extends InitPageBase {
       ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
     ]).addEventListener('click', () => {
       this.resultMeta = []
+      this.crawlStartBySelf = true
 
       window.addEventListener(EVT.list.addResult, this.createWork)
-
       this.readyCrawl()
     })
 
@@ -406,6 +407,9 @@ class InitSearchArtworkPage extends InitPageBase {
     if (states.downloadFromViewer || states.crawlTagList || states.quickCrawl) {
       return
     }
+    if (!this.crawlStartBySelf) {
+      return
+    }
 
     this.resultMeta = [...store.resultMeta]
 
@@ -419,6 +423,8 @@ class InitSearchArtworkPage extends InitPageBase {
     setTimeout(() => {
       EVT.fire('worksUpdate')
     }, 0)
+
+    this.crawlStartBySelf = false
   }
 
   // 返回包含作品列表的 ul 元素
@@ -438,9 +444,14 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 显示抓取到的作品数量
   private showCount = () => {
-    if (states.crawlTagList) {
+    if (
+      states.crawlTagList ||
+      !settings.previewResult ||
+      !this.crawlStartBySelf
+    ) {
       return
     }
+
     if (settings.previewResult && this.countEl) {
       const count = this.resultMeta.length || store.resultMeta.length
       this.countEl.textContent = count.toString()
@@ -589,13 +600,13 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 清空作品列表，只在作品抓取完毕时使用。之后会生成根据收藏数排列的作品列表。
   private clearWorks() {
-    this.worksWrap = this.getWorksWrap()
-
-    if (!settings.previewResult || !this.worksWrap) {
+    if (!settings.previewResult || !this.crawlStartBySelf) {
       return
     }
-
-    this.worksWrap.innerHTML = ''
+    this.worksWrap = this.getWorksWrap()
+    if (this.worksWrap) {
+      this.worksWrap.innerHTML = ''
+    }
   }
 
   // 传递作品 id 列表，从页面上的作品列表里移除这些作品
