@@ -39,7 +39,7 @@ class Log {
 
   // 清空日志
   public clear() {
-    this.logArea.innerHTML = ''
+    this.logArea.remove()
   }
 
   // 添加日志

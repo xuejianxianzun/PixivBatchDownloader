@@ -161,6 +161,7 @@ interface XzSetting {
   autoExportResultNumber: number
   PreviewWork: boolean
   PreviewWorkSize: number
+  PreviewWorkMouseStay: boolean
 }
 
 type SettingsKeys = keyof XzSetting
@@ -336,6 +337,7 @@ class Settings {
     autoExportResultNumber: 1,
     PreviewWork: true,
     PreviewWorkSize: 600,
+    PreviewWorkMouseStay: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -554,6 +556,10 @@ class Settings {
 
     if (key === 'setWidthAndOr' && value === '') {
       value = this.defaultSettings[key]
+    }
+
+    if (key === 'PreviewWorkSize' && value < 300) {
+      value = 300
     }
 
     // 更改设置
