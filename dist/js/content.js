@@ -12162,6 +12162,7 @@ class DownloadControl {
         }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.skipDownload, (ev) => {
             const data = ev.detail.data;
+            // 跳过下载的文件不会触发下载成功事件
             this.downloadOrSkipAFile(data);
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadError, (ev) => {
@@ -13532,9 +13533,12 @@ class Resume {
                 _Log__WEBPACK_IMPORTED_MODULE_1__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已保存抓取结果'), 2);
             });
         }
-        // 当有文件下载完成时，更新下载状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadSuccess, () => {
-            this.needPutStates = true;
+        // 当有文件下载完成或者跳过下载时，更新下载状态
+        const saveEv = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadSuccess, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.skipDownload];
+        saveEv.forEach((val) => {
+            window.addEventListener(val, () => {
+                this.needPutStates = true;
+            });
         });
         // 任务下载完毕时，以及停止任务时，清除这次任务的数据
         const clearDataEv = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop];
@@ -13573,7 +13577,7 @@ class Resume {
     }
     // 定时 put 下载状态
     async regularPutStates() {
-        setInterval(() => {
+        window.setInterval(() => {
             if (this.needPutStates) {
                 const statesData = {
                     id: this.taskId,

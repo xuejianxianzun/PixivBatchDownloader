@@ -221,9 +221,12 @@ class Resume {
       })
     }
 
-    // 当有文件下载完成时，更新下载状态
-    window.addEventListener(EVT.list.downloadSuccess, () => {
-      this.needPutStates = true
+    // 当有文件下载完成或者跳过下载时，更新下载状态
+    const saveEv = [EVT.list.downloadSuccess, EVT.list.skipDownload]
+    saveEv.forEach((val) => {
+      window.addEventListener(val, () => {
+        this.needPutStates = true
+      })
     })
 
     // 任务下载完毕时，以及停止任务时，清除这次任务的数据
@@ -273,7 +276,7 @@ class Resume {
 
   // 定时 put 下载状态
   private async regularPutStates() {
-    setInterval(() => {
+    window.setInterval(() => {
       if (this.needPutStates) {
         const statesData = {
           id: this.taskId,
