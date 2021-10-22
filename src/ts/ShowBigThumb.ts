@@ -172,62 +172,71 @@ class ShowBigThumb {
 
     // 2. 计算位置
     const rect = this.workEL.getBoundingClientRect()
-    // 指示 wrap 是否应该显示在侧面
-    let showOnAside = false
+    // 下面注释掉的代码，思路是：
+    // 如果是横图，优先把 wrap 显示在缩略图的上方或下方
+    // 其他情况则把 wrap 显示在缩略图的左侧或右侧
+    // 现在改为不再显示在上方、下方，只会在左侧、右侧显示
+    // 这主要是因为在缩略图左侧、右侧显示的话，会让预览图更加靠近屏幕中心区域，位置变化不会很大，这样看起来不容易分散注意力，体验比较好。如果允许某些预览图显示在缩略图的上方、下方，那么预览图可能会脱离中心区域，导致体验变差
+    // 另一个原因是：电脑屏幕大多是横向空间比纵向空间大，这导致上方或下方经常空间不够用，最终还是需要放到左右侧。
 
-    if (cfg.width > cfg.height) {
-      // 如果是横图，优先把 wrap 显示在缩略图的上方或下方
-      // 先设置 top
-      const topSpace = rect.top
-      const bottomSpace = window.innerHeight - topSpace - rect.height
-      // 如果上方空间可以容纳 wrap，就显示在上方
-      if (topSpace >= cfg.height + this.border) {
-        cfg.top = window.scrollY + rect.top - cfg.height - this.border
-      } else if (bottomSpace >= cfg.height + this.border) {
-        // 上方空间不够的情况下，如果下方可以容纳 wrap，就显示在下方
-        cfg.top = window.scrollY + rect.top + rect.height
-      } else {
-        // 如果上下方都不能容纳 wrap，就把 wrap 显示在侧面
-        showOnAside = true
-      }
+    // // 指示 wrap 是否应该显示在侧面
+    // let showOnAside = false
+    // if (cfg.width > cfg.height) {
+    //   // 如果是横图，优先把 wrap 显示在缩略图的上方或下方
+    //   // 先设置 top
+    //   const topSpace = rect.top
+    //   const bottomSpace = window.innerHeight - topSpace - rect.height
+    //   // 如果上方空间可以容纳 wrap，就显示在上方
+    //   if (topSpace >= cfg.height + this.border) {
+    //     cfg.top = window.scrollY + rect.top - cfg.height - this.border
+    //   } else if (bottomSpace >= cfg.height + this.border) {
+    //     // 上方空间不够的情况下，如果下方可以容纳 wrap，就显示在下方
+    //     cfg.top = window.scrollY + rect.top + rect.height
+    //   } else {
+    //     // 如果上下方都不能容纳 wrap，就把 wrap 显示在侧面
+    //     showOnAside = true
+    //   }
 
-      if (!showOnAside) {
-        // 然后设置 left
-        // 让 wrap 相对于作品缩略图居中显示
-        cfg.left =
-          window.scrollX +
-          rect.left -
-          (cfg.width + this.border - rect.width) / 2
+    //   if (!showOnAside) {
+    //     // 然后设置 left
+    //     // 让 wrap 相对于作品缩略图居中显示
+    //     cfg.left =
+    //       window.scrollX +
+    //       rect.left -
+    //       (cfg.width + this.border - rect.width) / 2
 
-        // 检查 wrap 左侧是否超出了窗口可视区域
-        if (cfg.left < window.scrollX) {
-          cfg.left = window.scrollX
-        }
+    //     // 检查 wrap 左侧是否超出了窗口可视区域
+    //     if (cfg.left < window.scrollX) {
+    //       cfg.left = window.scrollX
+    //     }
 
-        // 检查 wrap 右侧是否超出了窗口可视区域
-        const scrollBarWidth =
-          window.innerWidth - document.documentElement.clientWidth
-        const num =
-          window.innerWidth -
-          scrollBarWidth +
-          window.scrollX -
-          (cfg.left + cfg.width + this.border)
-        if (num < 0) {
-          cfg.left = cfg.left + num
-        }
-      }
-    }
+    //     // 检查 wrap 右侧是否超出了窗口可视区域
+    //     const scrollBarWidth =
+    //       window.innerWidth - document.documentElement.clientWidth
+    //     const num =
+    //       window.innerWidth -
+    //       scrollBarWidth +
+    //       window.scrollX -
+    //       (cfg.left + cfg.width + this.border)
+    //     if (num < 0) {
+    //       cfg.left = cfg.left + num
+    //     }
+    //   }
+    // }
 
     // 如果是竖图或者正方形图片，或者需要放在侧面，就把 wrap 显示在缩略图的左侧或右侧
-    if (cfg.width <= cfg.height || showOnAside) {
+    // if (cfg.width <= cfg.height || showOnAside) {
       // 先设置 left
       const leftSpace = rect.left
       const rightSpace = window.innerWidth - rect.right
-      // 如果左侧空间大，把 wrap 显示在缩略图的左侧
-      if (leftSpace >= rightSpace) {
-        cfg.left = rect.left - cfg.width - this.border + window.scrollX
+      // 如果左侧空间比右侧大，并且左侧空间可以容纳大部分（80%） wrap，就把 wrap 显示在左侧
+      const left = rect.left - cfg.width - this.border + window.scrollX
+      const leftCanUse = left >= 0 || cfg.width * 0.2 + left >= 0
+      // 为什么要计算 leftCanUse？因为如果 left 是负值，就会导致 wrap 被隐藏了一部分，但是页面不可以向左滚动以显示隐藏的内容。所以如果被隐藏的部分比较多，就让 wrap 显示在右侧。页面可以向右滚动以显示隐藏的内容。
+      if (leftSpace >= rightSpace && leftCanUse) {
+        cfg.left = left
       } else {
-        // 如果右侧空间大，把 wrap 显示在缩略图的右侧
+        // 如果左侧空间没有右侧空间大，或者左侧空间不足以容纳 wrap，就把 wrap 显示在缩略图的右侧
         cfg.left = rect.right + window.scrollX
       }
 
@@ -257,7 +266,7 @@ class ShowBigThumb {
             cfg.top - Math.min(bottomOver, topFreeSpace) - scrollBarHeight
         }
       }
-    }
+    // }
 
     // 3. 显示 wrap
     this.wrap.innerHTML = `<img src="${this.workData?.body.urls.regular}" width="${cfg.width}" height="${cfg.height}">`
