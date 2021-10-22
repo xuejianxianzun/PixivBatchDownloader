@@ -93,6 +93,7 @@ class FormSettings {
       'autoExportResultCSV',
       'autoExportResultJSON',
       'PreviewWork',
+      'PreviewWorkMouseStay',
     ],
     text: [
       'setWantPage',

@@ -105,4 +105,5 @@ export interface SettingsForm extends HTMLFormElement {
   autoExportResultNumber: HTMLInputElement
   PreviewWork: HTMLInputElement
   PreviewWorkSize: HTMLInputElement
+  PreviewWorkMouseStay: HTMLInputElement
 }
