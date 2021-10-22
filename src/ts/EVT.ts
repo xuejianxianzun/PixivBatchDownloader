@@ -148,6 +148,9 @@ class EVENT {
     selectBG: 'selectBG',
     // 清除背景图片
     clearBG: 'clearBG',
+    // 点击了下载器在作品缩略图上添加的按钮时触发
+    // 其他按钮监听这个事件后隐藏自己，就可以避免其他按钮出现闪烁、残留的问题
+    clickBtnOnThumb: 'clickBtnOnThumb',
   }
 
   // 触发自定义事件，大部分事件都不需要携带数据
@@ -201,6 +204,7 @@ class EVENT {
       | 'clearLog'
       | 'selectBG'
       | 'clearBG'
+      | 'clickBtnOnThumb'
   ): void
 
   // 对于需要携带数据的事件进行重载

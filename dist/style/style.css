@@ -1713,3 +1713,26 @@ iframe[name='expandedFooter'] {
   background-size: cover;
   box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
 }
+#downloadBtnOnThumb {
+  position: absolute;
+  z-index: 99999;
+  left: 0px;
+  top: 0px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  padding: 0;
+  text-align: center;
+  background-color: #29b3f3;
+  border-radius: 4px;
+  color: #fff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  font-size: 22px;
+}
+#downloadBtnOnThumb:hover {
+  opacity: 0.8;
+}

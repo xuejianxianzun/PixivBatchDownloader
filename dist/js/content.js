@@ -1398,6 +1398,9 @@ class EVENT {
             selectBG: 'selectBG',
             // 清除背景图片
             clearBG: 'clearBG',
+            // 点击了下载器在作品缩略图上添加的按钮时触发
+            // 其他按钮监听这个事件后隐藏自己，就可以避免其他按钮出现闪烁、残留的问题
+            clickBtnOnThumb: 'clickBtnOnThumb',
         };
     }
     // 只绑定某个事件一次，用于防止事件重复绑定
@@ -5545,89 +5548,97 @@ class ShowBigThumb {
         }
         // 2. 计算位置
         const rect = this.workEL.getBoundingClientRect();
-        // 指示 wrap 是否应该显示在侧面
-        let showOnAside = false;
-        if (cfg.width > cfg.height) {
-            // 如果是横图，优先把 wrap 显示在缩略图的上方或下方
-            // 先设置 top
-            const topSpace = rect.top;
-            const bottomSpace = window.innerHeight - topSpace - rect.height;
-            // 如果上方空间可以容纳 wrap，就显示在上方
-            if (topSpace >= cfg.height + this.border) {
-                cfg.top = window.scrollY + rect.top - cfg.height - this.border;
-            }
-            else if (bottomSpace >= cfg.height + this.border) {
-                // 上方空间不够的情况下，如果下方可以容纳 wrap，就显示在下方
-                cfg.top = window.scrollY + rect.top + rect.height;
-            }
-            else {
-                // 如果上下方都不能容纳 wrap，就把 wrap 显示在侧面
-                showOnAside = true;
-            }
-            if (!showOnAside) {
-                // 然后设置 left
-                // 让 wrap 相对于作品缩略图居中显示
-                cfg.left =
-                    window.scrollX +
-                        rect.left -
-                        (cfg.width + this.border - rect.width) / 2;
-                // 检查 wrap 左侧是否超出了窗口可视区域
-                if (cfg.left < window.scrollX) {
-                    cfg.left = window.scrollX;
-                }
-                // 检查 wrap 右侧是否超出了窗口可视区域
-                const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
-                const num = window.innerWidth -
-                    scrollBarWidth +
-                    window.scrollX -
-                    (cfg.left + cfg.width + this.border);
-                if (num < 0) {
-                    cfg.left = cfg.left + num;
-                }
-            }
-        }
+        // 下面注释掉的代码，思路是：
+        // 如果是横图，优先把 wrap 显示在缩略图的上方或下方
+        // 其他情况则把 wrap 显示在缩略图的左侧或右侧
+        // 现在改为不再显示在上方、下方，只会在左侧、右侧显示
+        // 这主要是因为在缩略图左侧、右侧显示的话，会让预览图更加靠近屏幕中心区域，位置变化不会很大，这样看起来不容易分散注意力，体验比较好。如果允许某些预览图显示在缩略图的上方、下方，那么预览图可能会脱离中心区域，导致体验变差
+        // 另一个原因是：电脑屏幕大多是横向空间比纵向空间大，这导致上方或下方经常空间不够用，最终还是需要放到左右侧。
+        // // 指示 wrap 是否应该显示在侧面
+        // let showOnAside = false
+        // if (cfg.width > cfg.height) {
+        //   // 如果是横图，优先把 wrap 显示在缩略图的上方或下方
+        //   // 先设置 top
+        //   const topSpace = rect.top
+        //   const bottomSpace = window.innerHeight - topSpace - rect.height
+        //   // 如果上方空间可以容纳 wrap，就显示在上方
+        //   if (topSpace >= cfg.height + this.border) {
+        //     cfg.top = window.scrollY + rect.top - cfg.height - this.border
+        //   } else if (bottomSpace >= cfg.height + this.border) {
+        //     // 上方空间不够的情况下，如果下方可以容纳 wrap，就显示在下方
+        //     cfg.top = window.scrollY + rect.top + rect.height
+        //   } else {
+        //     // 如果上下方都不能容纳 wrap，就把 wrap 显示在侧面
+        //     showOnAside = true
+        //   }
+        //   if (!showOnAside) {
+        //     // 然后设置 left
+        //     // 让 wrap 相对于作品缩略图居中显示
+        //     cfg.left =
+        //       window.scrollX +
+        //       rect.left -
+        //       (cfg.width + this.border - rect.width) / 2
+        //     // 检查 wrap 左侧是否超出了窗口可视区域
+        //     if (cfg.left < window.scrollX) {
+        //       cfg.left = window.scrollX
+        //     }
+        //     // 检查 wrap 右侧是否超出了窗口可视区域
+        //     const scrollBarWidth =
+        //       window.innerWidth - document.documentElement.clientWidth
+        //     const num =
+        //       window.innerWidth -
+        //       scrollBarWidth +
+        //       window.scrollX -
+        //       (cfg.left + cfg.width + this.border)
+        //     if (num < 0) {
+        //       cfg.left = cfg.left + num
+        //     }
+        //   }
+        // }
         // 如果是竖图或者正方形图片，或者需要放在侧面，就把 wrap 显示在缩略图的左侧或右侧
-        if (cfg.width <= cfg.height || showOnAside) {
-            // 先设置 left
-            const leftSpace = rect.left;
-            const rightSpace = window.innerWidth - rect.right;
-            // 如果左侧空间大，把 wrap 显示在缩略图的左侧
-            if (leftSpace >= rightSpace) {
-                cfg.left = rect.left - cfg.width - this.border + window.scrollX;
-            }
-            else {
-                // 如果右侧空间大，把 wrap 显示在缩略图的右侧
-                cfg.left = rect.right + window.scrollX;
-            }
-            // 然后设置 top
-            // 让 wrap 和缩略图在垂直方向上居中对齐
-            cfg.top = window.scrollY + rect.top;
-            const wrapHalfHeight = (cfg.height + this.border) / 2;
-            const workHalfHeight = rect.height / 2;
-            cfg.top = cfg.top - wrapHalfHeight + workHalfHeight;
-            // 检查 wrap 顶端是否超出了窗口可视区域
-            if (cfg.top < window.scrollY) {
-                cfg.top = window.scrollY;
-            }
-            // 检查 wrap 底部是否超出了窗口可视区域
-            const bottomOver = cfg.top + cfg.height + this.border - window.scrollY - window.innerHeight;
-            if (bottomOver > 0) {
-                // 如果底部超出了窗口可视区域，则计算顶部是否还有可用空间
-                const topFreeSpace = cfg.top - window.scrollY;
-                if (topFreeSpace > 0) {
-                    // 如果顶部还有空间可用，就尽量向上移动，但不会导致顶端超出可视区域
-                    const scrollBarHeight = window.innerHeight - document.documentElement.clientHeight;
-                    cfg.top =
-                        cfg.top - Math.min(bottomOver, topFreeSpace) - scrollBarHeight;
-                }
+        // if (cfg.width <= cfg.height || showOnAside) {
+        // 先设置 left
+        const leftSpace = rect.left;
+        const rightSpace = window.innerWidth - rect.right;
+        // 如果左侧空间比右侧大，并且左侧空间可以容纳大部分（80%） wrap，就把 wrap 显示在左侧
+        const left = rect.left - cfg.width - this.border + window.scrollX;
+        const leftCanUse = left >= 0 || cfg.width * 0.2 + left >= 0;
+        // 为什么要计算 leftCanUse？因为如果 left 是负值，就会导致 wrap 被隐藏了一部分，但是页面不可以向左滚动以显示隐藏的内容。所以如果被隐藏的部分比较多，就让 wrap 显示在右侧。页面可以向右滚动以显示隐藏的内容。
+        if (leftSpace >= rightSpace && leftCanUse) {
+            cfg.left = left;
+        }
+        else {
+            // 如果左侧空间没有右侧空间大，或者左侧空间不足以容纳 wrap，就把 wrap 显示在缩略图的右侧
+            cfg.left = rect.right + window.scrollX;
+        }
+        // 然后设置 top
+        // 让 wrap 和缩略图在垂直方向上居中对齐
+        cfg.top = window.scrollY + rect.top;
+        const wrapHalfHeight = (cfg.height + this.border) / 2;
+        const workHalfHeight = rect.height / 2;
+        cfg.top = cfg.top - wrapHalfHeight + workHalfHeight;
+        // 检查 wrap 顶端是否超出了窗口可视区域
+        if (cfg.top < window.scrollY) {
+            cfg.top = window.scrollY;
+        }
+        // 检查 wrap 底部是否超出了窗口可视区域
+        const bottomOver = cfg.top + cfg.height + this.border - window.scrollY - window.innerHeight;
+        if (bottomOver > 0) {
+            // 如果底部超出了窗口可视区域，则计算顶部是否还有可用空间
+            const topFreeSpace = cfg.top - window.scrollY;
+            if (topFreeSpace > 0) {
+                // 如果顶部还有空间可用，就尽量向上移动，但不会导致顶端超出可视区域
+                const scrollBarHeight = window.innerHeight - document.documentElement.clientHeight;
+                cfg.top = cfg.top - Math.min(bottomOver, topFreeSpace) - scrollBarHeight;
             }
         }
-        // 3. 设置 wrap 的 style
+        // }
+        // 3. 显示 wrap
+        this.wrap.innerHTML = `<img src="${(_a = this.workData) === null || _a === void 0 ? void 0 : _a.body.urls.regular}" width="${cfg.width}" height="${cfg.height}">`;
         const styleArray = [];
         for (const [key, value] of Object.entries(cfg)) {
             styleArray.push(`${key}:${value}px;`);
         }
-        styleArray.push(`background-image:url("${(_a = this.workData) === null || _a === void 0 ? void 0 : _a.body.urls.regular}");`);
         styleArray.push('display:block;');
         this.wrap.setAttribute('style', styleArray.join(''));
     }
@@ -6615,6 +6626,13 @@ class ViewBigImage {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
             this.hiddenBtn();
         });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clickBtnOnThumb, () => {
+            this.hiddenBtnNow();
+        });
+        // 页面切换时隐藏按钮
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlStart, () => {
+            this.hiddenBtn();
+        });
         // 鼠标移入按钮时取消隐藏按钮
         this.btn.addEventListener('mouseenter', (ev) => {
             window.clearTimeout(this.hiddenBtnTimer);
@@ -6625,8 +6643,9 @@ class ViewBigImage {
         });
         // 点击按钮时初始化图片查看器
         this.btn.addEventListener('click', (ev) => {
+            this.hiddenBtnNow();
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('clickBtnOnThumb');
             if (this.currentWorkId) {
-                this.hiddenBtnNow();
                 new _ImageViewer__WEBPACK_IMPORTED_MODULE_1__["ImageViewer"]({
                     workId: this.currentWorkId,
                     imageNumber: 1,
@@ -8437,10 +8456,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         // 抓取完成后，保存结果的元数据，并重排结果
         this.onCrawlFinish = () => {
             // 当从图片查看器发起下载时，也会触发抓取完毕的事件，但此时不应该调整搜索页面的结果。
-            if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].downloadFromViewer) {
-                return;
-            }
-            if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].downloadFromViewer || _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList || _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].quickCrawl) {
                 return;
             }
             this.resultMeta = [..._store_Store__WEBPACK_IMPORTED_MODULE_8__["store"].resultMeta];
@@ -8886,9 +8902,6 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     }
     // 清空作品列表，只在作品抓取完毕时使用。之后会生成根据收藏数排列的作品列表。
     clearWorks() {
-        if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
-            return;
-        }
         this.worksWrap = this.getWorksWrap();
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResult || !this.worksWrap) {
             return;
@@ -12284,7 +12297,9 @@ class DownloadControl {
             // “预览搜索页面的筛选结果”会阻止自动开始下载。但是一些情况例外
             // 允许由图片查看器发起的下载请求自动开始下载
             // 允许由抓取标签列表功能发起的下载请求自动开始下载
-            if (!_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].downloadFromViewer && !_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].crawlTagList) {
+            if (!_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].downloadFromViewer &&
+                !_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].quickCrawl &&
+                !_store_States__WEBPACK_IMPORTED_MODULE_15__["states"].crawlTagList) {
                 return;
             }
         }
@@ -18445,19 +18460,7 @@ __webpack_require__.r(__webpack_exports__);
 class Options {
     constructor() {
         // 保持显示的选项的 id
-        this.whiteList = [
-            1,
-            2,
-            4,
-            13,
-            17,
-            32,
-            44,
-            23,
-            50,
-            51,
-            55,
-        ];
+        this.whiteList = [1, 2, 4, 13, 17, 32, 44, 23, 50, 51];
         // 某些页面类型需要隐藏某些选项。当调用 hideOption 方法时，把选项 id 保存起来
         // 优先级高于 whiteList
         this.hiddenList = [];
@@ -19107,6 +19110,135 @@ const self = new Settings();
 const settings = self.settings;
 const setSetting = self.setSetting.bind(self);
 
+
+
+/***/ }),
+
+/***/ "./src/ts/showDownloadBtnOnThumb.ts":
+/*!******************************************!*\
+  !*** ./src/ts/showDownloadBtnOnThumb.ts ***!
+  \******************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MouseOverThumbnail */ "./src/ts/MouseOverThumbnail.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./config/Colors */ "./src/ts/config/Colors.ts");
+
+
+
+
+
+
+
+// 在图片作品的缩略图上显示下载按钮，点击按钮会直接下载这个作品
+class showDownloadBtnOnThumb {
+    constructor() {
+        this.btnId = 'downloadBtnOnThumb';
+        this.btnSize = 32;
+        this.currentWorkId = ''; // 保存触发事件的缩略图的作品 id
+        this.hiddenBtnTimer = 0; // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
+        this.hiddenBtnDelay = 100;
+        this.doNotShowBtn = false; // 当点击了按钮后，进入此状态，此状态中不会显示按钮
+        this.addBtn();
+        this.bindEvents();
+    }
+    // 此状态是为了解决这个问题：点击了按钮之后，按钮会被隐藏，隐藏之后，鼠标下方就是图片缩略图区域，这会触发缩略图的鼠标事件，导致按钮马上就又显示了出来。所以点击按钮之后设置这个状态，在其为 true 的期间不会显示按钮。过一段时间再把它复位。复位所需的时间很短，因为只要能覆盖这段时间就可以了：从隐藏按钮开始算起，到缩略图触发鼠标事件结束。
+    addBtn() {
+        const btn = document.createElement('button');
+        btn.id = this.btnId;
+        btn.innerHTML = `
+    <svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-download"></use>
+</svg>`;
+        this.btn = document.body.appendChild(btn);
+    }
+    bindEvents() {
+        // 页面切换时隐藏按钮
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
+            this.hiddenBtn();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clickBtnOnThumb, () => {
+            this.hiddenBtnNow();
+        });
+        // 鼠标移入按钮时取消隐藏按钮
+        this.btn.addEventListener('mouseenter', (ev) => {
+            window.clearTimeout(this.hiddenBtnTimer);
+        });
+        // 鼠标移出按钮时隐藏按钮
+        this.btn.addEventListener('mouseleave', () => {
+            this.hiddenBtn();
+        });
+        // 点击按钮时初始化图片查看器
+        this.btn.addEventListener('click', (ev) => {
+            this.hiddenBtnNow();
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('clickBtnOnThumb');
+            if (this.currentWorkId) {
+                const IDData = {
+                    type: 'illusts',
+                    id: this.currentWorkId,
+                };
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlIdList', [IDData]);
+                // 点击 wrap 建立下载任务，下载时不显示下载面板
+                _store_States__WEBPACK_IMPORTED_MODULE_3__["states"].quickCrawl = true;
+                _Toast__WEBPACK_IMPORTED_MODULE_4__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_5__["lang"].transl('_已发送下载请求'), {
+                    bgColor: _config_Colors__WEBPACK_IMPORTED_MODULE_6__["Colors"].bgBlue,
+                    position: 'mouse',
+                });
+            }
+        });
+        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onEnter((el, id) => {
+            this.currentWorkId = id;
+            this.showBtn(el);
+        });
+        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave(() => {
+            this.hiddenBtn();
+        });
+    }
+    // 显示按钮
+    showBtn(target) {
+        if (this.doNotShowBtn) {
+            return;
+        }
+        window.clearTimeout(this.hiddenBtnTimer);
+        const rect = target.getBoundingClientRect();
+        this.btn.style.left =
+            window.pageXOffset +
+                rect.left +
+                (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].magnifierPosition === 'left' ? 0 : rect.width - this.btnSize) +
+                'px';
+        let top = window.pageYOffset + rect.top;
+        // 如果显示了放大按钮，就需要加大 top，让下载按钮显示在放大按钮下面
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].magnifier) {
+            top = top + this.btnSize + 8;
+        }
+        this.btn.style.top = top + 'px';
+        this.btn.style.display = 'flex';
+    }
+    // 延迟隐藏按钮
+    hiddenBtn() {
+        window.clearTimeout(this.hiddenBtnTimer);
+        this.hiddenBtnTimer = window.setTimeout(() => {
+            this.btn.style.display = 'none';
+        }, this.hiddenBtnDelay);
+    }
+    // 立刻隐藏按钮
+    hiddenBtnNow() {
+        this.doNotShowBtn = true;
+        window.setTimeout(() => {
+            this.doNotShowBtn = false;
+        }, 100);
+        window.clearTimeout(this.hiddenBtnTimer);
+        this.btn.style.display = 'none';
+    }
+}
+new showDownloadBtnOnThumb();
 
 
 /***/ }),

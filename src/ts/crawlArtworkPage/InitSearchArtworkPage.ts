@@ -22,6 +22,7 @@ import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
 import { Bookmark } from '../Bookmark'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
+import { stat } from 'fs'
 
 type AddBMKData = {
   id: number
@@ -402,11 +403,7 @@ class InitSearchArtworkPage extends InitPageBase {
   // 抓取完成后，保存结果的元数据，并重排结果
   private onCrawlFinish = () => {
     // 当从图片查看器发起下载时，也会触发抓取完毕的事件，但此时不应该调整搜索页面的结果。
-    if (states.downloadFromViewer) {
-      return
-    }
-
-    if (states.crawlTagList) {
+    if (states.downloadFromViewer || states.crawlTagList || states.quickCrawl) {
       return
     }
 
@@ -592,10 +589,6 @@ class InitSearchArtworkPage extends InitPageBase {
 
   // 清空作品列表，只在作品抓取完毕时使用。之后会生成根据收藏数排列的作品列表。
   private clearWorks() {
-    if (states.crawlTagList) {
-      return
-    }
-
     this.worksWrap = this.getWorksWrap()
 
     if (!settings.previewResult || !this.worksWrap) {
