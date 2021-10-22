@@ -3172,14 +3172,9 @@ const langText = {
         `You can type a number between 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} to set the number of concurrent downloads`,
         `同時ダウンロード数を設定、1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} の数値を入力してください`,
     ],
-    _开始下载: ['开始下载', '開始下載', 'start download', 'ダウンロードを開始'],
-    _暂停下载: [
-        '暂停下载',
-        '暫停下載',
-        'pause download',
-        'ダウンロードを一時停止',
-    ],
-    _停止下载: ['停止下载', '停止下載', 'stop download', 'ダウンロードを停止'],
+    _开始下载: ['开始下载', '開始下載', 'start download', '開始'],
+    _暂停下载: ['暂停下载', '暫停下載', 'pause download', '一時停止'],
+    _停止下载: ['停止下载', '停止下載', 'stop download', '停止'],
     _复制url: ['复制 url', '複製下載網址', 'copy urls', 'URL をコピー'],
     _当前状态: ['当前状态 ', '目前狀態：', 'State ', '現在の状態 '],
     _未开始下载: [
@@ -3188,12 +3183,7 @@ const langText = {
         'Not yet started downloading',
         'まだダウンロードを開始していません',
     ],
-    _下载进度: [
-        '下载进度：',
-        '下載進度：',
-        'Total progress: ',
-        'ダウンロードの進行状況：',
-    ],
+    _下载进度: ['下载进度', '下載進度', 'Total progress', '概要'],
     _下载线程: ['下载线程：', '下載執行緒：', 'Thread: ', 'スレッド：'],
     _常见问题: ['常见问题', '常見問題', 'Help', 'よくある質問'],
     _uuid: [
@@ -4347,22 +4337,34 @@ const langText = {
         '自动<span class="key">导出</span>抓取结果',
         '自動<span class="key">匯出</span>抓取結果',
         'Automatically <span class="key">export</span> crawl results',
-        'クロール結果を自動的にエクスポートする',
+        'クロール結果の自動エクスポート',
     ],
     _文件格式: ['文件格式', '檔案格式', 'File format', 'ファイル形式'],
     _预览作品: [
         '<span class="key">预览</span>作品',
         '<span class="key">預覽</span>作品',
         '<span class="key">Preview</span> works',
-        'プレビューは機能します',
+        '作品のプレビュー',
     ],
     _点击鼠标左键可以关闭预览图: [
         '点击鼠标左键可以关闭预览图',
         '點選滑鼠左鍵可以關閉預覽圖',
         'Click the left mouse button to close the preview',
-        'マウスの左ボタンをクリックしてプレビューを閉じます',
+        'マウスの左クリックでプレビュー画像を閉じる',
     ],
     _尺寸: ['尺寸', '尺寸', 'Size', 'サイズ'],
+    _允许鼠标停留在预览图上: [
+        '允许鼠标停留在预览图上',
+        '允許滑鼠停留在預覽圖上',
+        'Allow the mouse to stay on the preview image',
+        'プレビュー画像の上にマウスを置くことができます',
+    ],
+    _点击预览图时下载作品: [
+        '点击预览图时下载作品',
+        '點選預覽圖時下載作品',
+        'Download the work when you click on the preview',
+        'プレビュー画像をクリックするとその作品がダウンロードされます',
+    ],
     _whatisnew: [
         '新增设置项：<br>预览作品',
         '新增設定項目：<br>預覽作品',
@@ -5415,16 +5417,13 @@ class ShowBigThumb {
         // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
         // 如果鼠标在缩略图上停留达到 delay 的时间，才会加载 regular 尺寸的图片
         // 这是因为要加载的图片体积比较大，regular 规格的图片的体积可能达到 800KB，如果立即加载的话会浪费网络资源
-        this.showDelay = 400;
+        this.showDelay = 300;
         this.showTimer = 0;
         // 鼠标离开缩略图之后，经过指定的时间才会隐藏 wrap
         // 如果在这个时间内又进入缩略图，或者进入 wrap，则取消隐藏定时器，继续显示 wrap
         // 如果不使用延迟隐藏，而是立即隐藏的话，用户就不能滚动页面来查看完整的 wrap
-        this.hiddenDelay = 100;
+        this.hiddenDelay = 50;
         this.hiddenTimer = 0;
-        // 鼠标点击 wrap 可以隐藏 wrap。在之后的一段时间里，临时禁用预览功能
-        this.afterClick = false;
-        this.afterClickDisable = 100;
         this.createWrap();
         this.bindEvents();
     }
@@ -5453,7 +5452,7 @@ class ShowBigThumb {
     bindEvents() {
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onEnter((el, id) => {
             window.clearTimeout(this.hiddenTimer);
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork || _store_States__WEBPACK_IMPORTED_MODULE_4__["states"].selectWork || this.afterClick) {
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork) {
                 return;
             }
             this.workId = id;
@@ -5466,17 +5465,16 @@ class ShowBigThumb {
             this.readyHidden();
         });
         this.wrap.addEventListener('mouseenter', () => {
-            window.clearTimeout(this.hiddenTimer);
+            // 允许鼠标停留在预览图上的情况
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWorkMouseStay && !_store_States__WEBPACK_IMPORTED_MODULE_4__["states"].selectWork) {
+                window.clearTimeout(this.hiddenTimer);
+            }
         });
         this.wrap.addEventListener('mouseleave', () => {
-            this.readyHidden();
+            this.show = false;
         });
         this.wrap.addEventListener('click', () => {
             this.show = false;
-            this.afterClick = true;
-            window.setTimeout(() => {
-                this.afterClick = false;
-            }, this.afterClickDisable);
         });
         // 可以使用 Alt + P 快捷键来启用/禁用此功能
         window.addEventListener('keydown', (ev) => {
@@ -5485,6 +5483,9 @@ class ShowBigThumb {
             }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, () => {
+            this.show = false;
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.centerPanelOpened, () => {
             this.show = false;
         });
     }
@@ -5510,9 +5511,10 @@ class ShowBigThumb {
             this.show = false;
         }, this.hiddenDelay);
     }
+    // 显示大缩略图。尽量不遮挡住小缩略图
     showWrap() {
         var _a;
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork || !this.workEL) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork || !this.workEL || !this.workData) {
             return;
         }
         const maxSize = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWorkSize;
@@ -5525,45 +5527,100 @@ class ShowBigThumb {
         // 1. 设置宽高
         const w = this.workData.body.width;
         const h = this.workData.body.height;
+        // 如果图片的宽高小于 wrap 的宽高，则让 wrap 缩小，适应图片的大小
         // 竖图
         if (w < h) {
-            cfg.height = maxSize;
-            cfg.width = (maxSize / h) * w;
+            cfg.height = Math.min(maxSize, h);
+            cfg.width = (cfg.height / h) * w;
         }
         else if (w > h) {
             // 横图
-            cfg.width = maxSize;
-            cfg.height = (maxSize / w) * h;
+            cfg.width = Math.min(maxSize, w);
+            cfg.height = (cfg.width / w) * h;
         }
         else {
             // 正方形图片
-            cfg.height = maxSize;
-            cfg.width = maxSize;
+            cfg.height = Math.min(maxSize, h);
+            cfg.width = Math.min(maxSize, w);
         }
         // 2. 计算位置
         const rect = this.workEL.getBoundingClientRect();
-        // top 位置：从元素的顶端坐标 减去 wrap 的高度
-        // 让 wrap 显示在缩略图的上面
-        cfg.top = window.scrollY + rect.top - cfg.height - this.border;
-        // 检查 wrap 是否超出了窗口可视宽度的顶端
-        if (cfg.top < window.scrollY) {
-            cfg.top = window.scrollY;
+        // 指示 wrap 是否应该显示在侧面
+        let showOnAside = false;
+        if (cfg.width > cfg.height) {
+            // 如果是横图，优先把 wrap 显示在缩略图的上方或下方
+            // 先设置 top
+            const topSpace = rect.top;
+            const bottomSpace = window.innerHeight - topSpace - rect.height;
+            // 如果上方空间可以容纳 wrap，就显示在上方
+            if (topSpace >= cfg.height + this.border) {
+                cfg.top = window.scrollY + rect.top - cfg.height - this.border;
+            }
+            else if (bottomSpace >= cfg.height + this.border) {
+                // 上方空间不够的情况下，如果下方可以容纳 wrap，就显示在下方
+                cfg.top = window.scrollY + rect.top + rect.height;
+            }
+            else {
+                // 如果上下方都不能容纳 wrap，就把 wrap 显示在侧面
+                showOnAside = true;
+            }
+            if (!showOnAside) {
+                // 然后设置 left
+                // 让 wrap 相对于作品缩略图居中显示
+                cfg.left =
+                    window.scrollX +
+                        rect.left -
+                        (cfg.width + this.border - rect.width) / 2;
+                // 检查 wrap 左侧是否超出了窗口可视区域
+                if (cfg.left < window.scrollX) {
+                    cfg.left = window.scrollX;
+                }
+                // 检查 wrap 右侧是否超出了窗口可视区域
+                const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+                const num = window.innerWidth -
+                    scrollBarWidth +
+                    window.scrollX -
+                    (cfg.left + cfg.width + this.border);
+                if (num < 0) {
+                    cfg.left = cfg.left + num;
+                }
+            }
         }
-        // left 位置：让 wrap 相对于作品缩略图居中显示
-        cfg.left =
-            window.scrollX + rect.left - (cfg.width + this.border - rect.width) / 2;
-        // 检查 wrap 是否超出了窗口可视宽度的左侧
-        if (cfg.left < window.scrollX) {
-            cfg.left = window.scrollX;
-        }
-        // 检查 wrap 是否超出了窗口可视宽度的右侧
-        // 17 是 Chrome 滚动条的宽度。因为 window.innerWidth 包含滚动条，所以要减去它
-        const num = window.innerWidth -
-            17 +
-            window.scrollX -
-            (cfg.left + cfg.width + this.border);
-        if (num < 0) {
-            cfg.left = cfg.left + num;
+        // 如果是竖图或者正方形图片，或者需要放在侧面，就把 wrap 显示在缩略图的左侧或右侧
+        if (cfg.width <= cfg.height || showOnAside) {
+            // 先设置 left
+            const leftSpace = rect.left;
+            const rightSpace = window.innerWidth - rect.right;
+            // 如果左侧空间大，把 wrap 显示在缩略图的左侧
+            if (leftSpace >= rightSpace) {
+                cfg.left = rect.left - cfg.width - this.border + window.scrollX;
+            }
+            else {
+                // 如果右侧空间大，把 wrap 显示在缩略图的右侧
+                cfg.left = rect.right + window.scrollX;
+            }
+            // 然后设置 top
+            // 让 wrap 和缩略图在垂直方向上居中对齐
+            cfg.top = window.scrollY + rect.top;
+            const wrapHalfHeight = (cfg.height + this.border) / 2;
+            const workHalfHeight = rect.height / 2;
+            cfg.top = cfg.top - wrapHalfHeight + workHalfHeight;
+            // 检查 wrap 顶端是否超出了窗口可视区域
+            if (cfg.top < window.scrollY) {
+                cfg.top = window.scrollY;
+            }
+            // 检查 wrap 底部是否超出了窗口可视区域
+            const bottomOver = cfg.top + cfg.height + this.border - window.scrollY - window.innerHeight;
+            if (bottomOver > 0) {
+                // 如果底部超出了窗口可视区域，则计算顶部是否还有可用空间
+                const topFreeSpace = cfg.top - window.scrollY;
+                if (topFreeSpace > 0) {
+                    // 如果顶部还有空间可用，就尽量向上移动，但不会导致顶端超出可视区域
+                    const scrollBarHeight = window.innerHeight - document.documentElement.clientHeight;
+                    cfg.top =
+                        cfg.top - Math.min(bottomOver, topFreeSpace) - scrollBarHeight;
+                }
+            }
         }
         // 3. 设置 wrap 的 style
         const styleArray = [];
@@ -12220,6 +12277,7 @@ class DownloadControl {
         this.totalNumberEl.textContent = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length.toString();
         this.setDownloaded();
         this.setDownloadThread();
+        _Help__WEBPACK_IMPORTED_MODULE_19__["help"].showDownloadTip();
         // 在插画漫画搜索页面里，如果启用了“预览搜索页面的筛选结果”
         if (_PageType__WEBPACK_IMPORTED_MODULE_20__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_20__["pageType"].list.ArtworkSearch &&
             _setting_Settings__WEBPACK_IMPORTED_MODULE_6__["settings"].previewResult) {
@@ -12260,7 +12318,6 @@ class DownloadControl {
             this.createDownload(i);
         }
         _Log__WEBPACK_IMPORTED_MODULE_3__["log"].success(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_正在下载中'));
-        _Help__WEBPACK_IMPORTED_MODULE_19__["help"].showDownloadTip();
     }
     // 暂停下载
     pauseDownload() {
@@ -17711,8 +17768,9 @@ const formHtml = `<form class="settingForm">
       <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_尺寸')}</span>
       <input type="text" name="PreviewWorkSize" class="setinput_style1 blue" value="600" style="width:50px;min-width: 50px;">&nbsp;px
       &nbsp;
-      <span class="gray1">(Alt+P)&nbsp;${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_点击鼠标左键可以关闭预览图')}</span>
-      </span>
+      <input type="checkbox" name="PreviewWorkMouseStay" id="PreviewWorkMouseStay" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox"></span>
+      <label for="PreviewWorkMouseStay">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_允许鼠标停留在预览图上')}</label>
       </p>
 
       <p class="option" data-no="40">
@@ -17970,6 +18028,7 @@ class FormSettings {
                 'autoExportResultCSV',
                 'autoExportResultJSON',
                 'PreviewWork',
+                'PreviewWorkMouseStay',
             ],
             text: [
                 'setWantPage',
@@ -18832,6 +18891,7 @@ class Settings {
             autoExportResultNumber: 1,
             PreviewWork: true,
             PreviewWorkSize: 600,
+            PreviewWorkMouseStay: false,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -19025,6 +19085,9 @@ class Settings {
         }
         if (key === 'setWidthAndOr' && value === '') {
             value = this.defaultSettings[key];
+        }
+        if (key === 'PreviewWorkSize' && value < 300) {
+            value = 300;
         }
         // 更改设置
         ;

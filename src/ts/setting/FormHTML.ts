@@ -784,10 +784,11 @@ export const formHtml = `<form class="settingForm">
       <span>${lang.transl('_尺寸')}</span>
       <input type="text" name="PreviewWorkSize" class="setinput_style1 blue" value="600" style="width:50px;min-width: 50px;">&nbsp;px
       &nbsp;
-      <span class="gray1">(Alt+P)&nbsp;${lang.transl(
-        '_点击鼠标左键可以关闭预览图'
-      )}</span>
-      </span>
+      <input type="checkbox" name="PreviewWorkMouseStay" id="PreviewWorkMouseStay" class="need_beautify checkbox_common">
+      <span class="beautify_checkbox"></span>
+      <label for="PreviewWorkMouseStay">${lang.transl(
+        '_允许鼠标停留在预览图上'
+      )}</label>
       </p>
 
       <p class="option" data-no="40">

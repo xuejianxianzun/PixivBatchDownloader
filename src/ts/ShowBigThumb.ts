@@ -29,18 +29,14 @@ class ShowBigThumb {
   // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
   // 如果鼠标在缩略图上停留达到 delay 的时间，才会加载 regular 尺寸的图片
   // 这是因为要加载的图片体积比较大，regular 规格的图片的体积可能达到 800KB，如果立即加载的话会浪费网络资源
-  private readonly showDelay = 400
+  private readonly showDelay = 300
   private showTimer: number = 0
 
   // 鼠标离开缩略图之后，经过指定的时间才会隐藏 wrap
   // 如果在这个时间内又进入缩略图，或者进入 wrap，则取消隐藏定时器，继续显示 wrap
   // 如果不使用延迟隐藏，而是立即隐藏的话，用户就不能滚动页面来查看完整的 wrap
-  private readonly hiddenDelay = 100
+  private readonly hiddenDelay = 50
   private hiddenTimer: number = 0
-
-  // 鼠标点击 wrap 可以隐藏 wrap。在之后的一段时间里，临时禁用预览功能
-  private afterClick = false
-  private afterClickDisable = 100
 
   private get show() {
     return this._show
@@ -68,7 +64,7 @@ class ShowBigThumb {
     mouseOverThumbnail.onEnter((el: HTMLElement, id: string) => {
       window.clearTimeout(this.hiddenTimer)
 
-      if (!settings.PreviewWork || states.selectWork || this.afterClick) {
+      if (!settings.PreviewWork) {
         return
       }
 
@@ -84,19 +80,18 @@ class ShowBigThumb {
     })
 
     this.wrap.addEventListener('mouseenter', () => {
-      window.clearTimeout(this.hiddenTimer)
+      // 允许鼠标停留在预览图上的情况
+      if (settings.PreviewWorkMouseStay && !states.selectWork) {
+        window.clearTimeout(this.hiddenTimer)
+      }
     })
 
     this.wrap.addEventListener('mouseleave', () => {
-      this.readyHidden()
+      this.show = false
     })
 
     this.wrap.addEventListener('click', () => {
       this.show = false
-      this.afterClick = true
-      window.setTimeout(() => {
-        this.afterClick = false
-      }, this.afterClickDisable)
     })
 
     // 可以使用 Alt + P 快捷键来启用/禁用此功能
@@ -107,6 +102,10 @@ class ShowBigThumb {
     })
 
     window.addEventListener(EVT.list.pageSwitch, () => {
+      this.show = false
+    })
+
+    window.addEventListener(EVT.list.centerPanelOpened, () => {
       this.show = false
     })
   }
@@ -137,8 +136,9 @@ class ShowBigThumb {
     }, this.hiddenDelay)
   }
 
+  // 显示大缩略图。尽量不遮挡住小缩略图
   private showWrap() {
-    if (!settings.PreviewWork || !this.workEL) {
+    if (!settings.PreviewWork || !this.workEL || !this.workData) {
       return
     }
 
@@ -152,52 +152,111 @@ class ShowBigThumb {
     }
 
     // 1. 设置宽高
-    const w = this.workData!.body.width
-    const h = this.workData!.body.height
+    const w = this.workData.body.width
+    const h = this.workData.body.height
 
+    // 如果图片的宽高小于 wrap 的宽高，则让 wrap 缩小，适应图片的大小
     // 竖图
     if (w < h) {
-      cfg.height = maxSize
-      cfg.width = (maxSize / h) * w
+      cfg.height = Math.min(maxSize, h)
+      cfg.width = (cfg.height / h) * w
     } else if (w > h) {
       // 横图
-      cfg.width = maxSize
-      cfg.height = (maxSize / w) * h
+      cfg.width = Math.min(maxSize, w)
+      cfg.height = (cfg.width / w) * h
     } else {
       // 正方形图片
-      cfg.height = maxSize
-      cfg.width = maxSize
+      cfg.height = Math.min(maxSize, h)
+      cfg.width = Math.min(maxSize, w)
     }
 
     // 2. 计算位置
     const rect = this.workEL.getBoundingClientRect()
+    // 指示 wrap 是否应该显示在侧面
+    let showOnAside = false
 
-    // top 位置：从元素的顶端坐标 减去 wrap 的高度
-    // 让 wrap 显示在缩略图的上面
-    cfg.top = window.scrollY + rect.top - cfg.height - this.border
-    // 检查 wrap 是否超出了窗口可视宽度的顶端
-    if (cfg.top < window.scrollY) {
-      cfg.top = window.scrollY
+    if (cfg.width > cfg.height) {
+      // 如果是横图，优先把 wrap 显示在缩略图的上方或下方
+      // 先设置 top
+      const topSpace = rect.top
+      const bottomSpace = window.innerHeight - topSpace - rect.height
+      // 如果上方空间可以容纳 wrap，就显示在上方
+      if (topSpace >= cfg.height + this.border) {
+        cfg.top = window.scrollY + rect.top - cfg.height - this.border
+      } else if (bottomSpace >= cfg.height + this.border) {
+        // 上方空间不够的情况下，如果下方可以容纳 wrap，就显示在下方
+        cfg.top = window.scrollY + rect.top + rect.height
+      } else {
+        // 如果上下方都不能容纳 wrap，就把 wrap 显示在侧面
+        showOnAside = true
+      }
+
+      if (!showOnAside) {
+        // 然后设置 left
+        // 让 wrap 相对于作品缩略图居中显示
+        cfg.left =
+          window.scrollX +
+          rect.left -
+          (cfg.width + this.border - rect.width) / 2
+
+        // 检查 wrap 左侧是否超出了窗口可视区域
+        if (cfg.left < window.scrollX) {
+          cfg.left = window.scrollX
+        }
+
+        // 检查 wrap 右侧是否超出了窗口可视区域
+        const scrollBarWidth =
+          window.innerWidth - document.documentElement.clientWidth
+        const num =
+          window.innerWidth -
+          scrollBarWidth +
+          window.scrollX -
+          (cfg.left + cfg.width + this.border)
+        if (num < 0) {
+          cfg.left = cfg.left + num
+        }
+      }
     }
 
-    // left 位置：让 wrap 相对于作品缩略图居中显示
-    cfg.left =
-      window.scrollX + rect.left - (cfg.width + this.border - rect.width) / 2
+    // 如果是竖图或者正方形图片，或者需要放在侧面，就把 wrap 显示在缩略图的左侧或右侧
+    if (cfg.width <= cfg.height || showOnAside) {
+      // 先设置 left
+      const leftSpace = rect.left
+      const rightSpace = window.innerWidth - rect.right
+      // 如果左侧空间大，把 wrap 显示在缩略图的左侧
+      if (leftSpace >= rightSpace) {
+        cfg.left = rect.left - cfg.width - this.border + window.scrollX
+      } else {
+        // 如果右侧空间大，把 wrap 显示在缩略图的右侧
+        cfg.left = rect.right + window.scrollX
+      }
 
-    // 检查 wrap 是否超出了窗口可视宽度的左侧
-    if (cfg.left < window.scrollX) {
-      cfg.left = window.scrollX
-    }
+      // 然后设置 top
+      // 让 wrap 和缩略图在垂直方向上居中对齐
+      cfg.top = window.scrollY + rect.top
+      const wrapHalfHeight = (cfg.height + this.border) / 2
+      const workHalfHeight = rect.height / 2
+      cfg.top = cfg.top - wrapHalfHeight + workHalfHeight
 
-    // 检查 wrap 是否超出了窗口可视宽度的右侧
-    // 17 是 Chrome 滚动条的宽度。因为 window.innerWidth 包含滚动条，所以要减去它
-    const num =
-      window.innerWidth -
-      17 +
-      window.scrollX -
-      (cfg.left + cfg.width + this.border)
-    if (num < 0) {
-      cfg.left = cfg.left + num
+      // 检查 wrap 顶端是否超出了窗口可视区域
+      if (cfg.top < window.scrollY) {
+        cfg.top = window.scrollY
+      }
+
+      // 检查 wrap 底部是否超出了窗口可视区域
+      const bottomOver =
+        cfg.top + cfg.height + this.border - window.scrollY - window.innerHeight
+      if (bottomOver > 0) {
+        // 如果底部超出了窗口可视区域，则计算顶部是否还有可用空间
+        const topFreeSpace = cfg.top - window.scrollY
+        if (topFreeSpace > 0) {
+          // 如果顶部还有空间可用，就尽量向上移动，但不会导致顶端超出可视区域
+          const scrollBarHeight =
+            window.innerHeight - document.documentElement.clientHeight
+          cfg.top =
+            cfg.top - Math.min(bottomOver, topFreeSpace) - scrollBarHeight
+        }
+      }
     }
 
     // 3. 设置 wrap 的 style
