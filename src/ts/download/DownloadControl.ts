@@ -99,6 +99,7 @@ class DownloadControl {
 
     window.addEventListener(EVT.list.skipDownload, (ev: CustomEventInit) => {
       const data = ev.detail.data as DonwloadSkipData
+      // 跳过下载的文件不会触发下载成功事件
       this.downloadOrSkipAFile(data)
     })
 
