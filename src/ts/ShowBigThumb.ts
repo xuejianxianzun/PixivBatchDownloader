@@ -226,46 +226,45 @@ class ShowBigThumb {
 
     // 如果是竖图或者正方形图片，或者需要放在侧面，就把 wrap 显示在缩略图的左侧或右侧
     // if (cfg.width <= cfg.height || showOnAside) {
-      // 先设置 left
-      const leftSpace = rect.left
-      const rightSpace = window.innerWidth - rect.right
-      // 如果左侧空间比右侧大，并且左侧空间可以容纳大部分（80%） wrap，就把 wrap 显示在左侧
-      const left = rect.left - cfg.width - this.border + window.scrollX
-      const leftCanUse = left >= 0 || cfg.width * 0.2 + left >= 0
-      // 为什么要计算 leftCanUse？因为如果 left 是负值，就会导致 wrap 被隐藏了一部分，但是页面不可以向左滚动以显示隐藏的内容。所以如果被隐藏的部分比较多，就让 wrap 显示在右侧。页面可以向右滚动以显示隐藏的内容。
-      if (leftSpace >= rightSpace && leftCanUse) {
-        cfg.left = left
-      } else {
-        // 如果左侧空间没有右侧空间大，或者左侧空间不足以容纳 wrap，就把 wrap 显示在缩略图的右侧
-        cfg.left = rect.right + window.scrollX
-      }
+    // 先设置 left
+    const leftSpace = rect.left
+    const rightSpace = window.innerWidth - rect.right
+    // 如果左侧空间比右侧大，并且左侧空间可以容纳大部分（80%） wrap，就把 wrap 显示在左侧
+    const left = rect.left - cfg.width - this.border + window.scrollX
+    const leftCanUse = left >= 0 || cfg.width * 0.2 + left >= 0
+    // 为什么要计算 leftCanUse？因为如果 left 是负值，就会导致 wrap 被隐藏了一部分，但是页面不可以向左滚动以显示隐藏的内容。所以如果被隐藏的部分比较多，就让 wrap 显示在右侧。页面可以向右滚动以显示隐藏的内容。
+    if (leftSpace >= rightSpace && leftCanUse) {
+      cfg.left = left
+    } else {
+      // 如果左侧空间没有右侧空间大，或者左侧空间不足以容纳 wrap，就把 wrap 显示在缩略图的右侧
+      cfg.left = rect.right + window.scrollX
+    }
 
-      // 然后设置 top
-      // 让 wrap 和缩略图在垂直方向上居中对齐
-      cfg.top = window.scrollY + rect.top
-      const wrapHalfHeight = (cfg.height + this.border) / 2
-      const workHalfHeight = rect.height / 2
-      cfg.top = cfg.top - wrapHalfHeight + workHalfHeight
+    // 然后设置 top
+    // 让 wrap 和缩略图在垂直方向上居中对齐
+    cfg.top = window.scrollY + rect.top
+    const wrapHalfHeight = (cfg.height + this.border) / 2
+    const workHalfHeight = rect.height / 2
+    cfg.top = cfg.top - wrapHalfHeight + workHalfHeight
 
-      // 检查 wrap 顶端是否超出了窗口可视区域
-      if (cfg.top < window.scrollY) {
-        cfg.top = window.scrollY
-      }
+    // 检查 wrap 顶端是否超出了窗口可视区域
+    if (cfg.top < window.scrollY) {
+      cfg.top = window.scrollY
+    }
 
-      // 检查 wrap 底部是否超出了窗口可视区域
-      const bottomOver =
-        cfg.top + cfg.height + this.border - window.scrollY - window.innerHeight
-      if (bottomOver > 0) {
-        // 如果底部超出了窗口可视区域，则计算顶部是否还有可用空间
-        const topFreeSpace = cfg.top - window.scrollY
-        if (topFreeSpace > 0) {
-          // 如果顶部还有空间可用，就尽量向上移动，但不会导致顶端超出可视区域
-          const scrollBarHeight =
-            window.innerHeight - document.documentElement.clientHeight
-          cfg.top =
-            cfg.top - Math.min(bottomOver, topFreeSpace) - scrollBarHeight
-        }
+    // 检查 wrap 底部是否超出了窗口可视区域
+    const bottomOver =
+      cfg.top + cfg.height + this.border - window.scrollY - window.innerHeight
+    if (bottomOver > 0) {
+      // 如果底部超出了窗口可视区域，则计算顶部是否还有可用空间
+      const topFreeSpace = cfg.top - window.scrollY
+      if (topFreeSpace > 0) {
+        // 如果顶部还有空间可用，就尽量向上移动，但不会导致顶端超出可视区域
+        const scrollBarHeight =
+          window.innerHeight - document.documentElement.clientHeight
+        cfg.top = cfg.top - Math.min(bottomOver, topFreeSpace) - scrollBarHeight
       }
+    }
     // }
 
     // 3. 显示 wrap
