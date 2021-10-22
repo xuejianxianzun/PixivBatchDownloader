@@ -8429,9 +8429,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         };
         // 显示抓取到的作品数量
         this.showCount = () => {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList ||
-                !_setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResult ||
-                !this.crawlStartBySelf) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList || !_setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResult) {
                 return;
             }
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResult && this.countEl) {
