@@ -8395,6 +8395,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.deleteId = 0; // 手动删除时，要删除的作品的 id
         this.causeResultChange = ['firstFewImagesSwitch', 'firstFewImages']; // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
         this.flag = 'searchArtwork';
+        this.crawlStartBySelf = false;
         this.onSettingChange = (event) => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
                 return;
@@ -8413,6 +8414,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].downloadFromViewer || _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList || _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].quickCrawl) {
                 return;
             }
+            if (!this.crawlStartBySelf) {
+                return;
+            }
             this.resultMeta = [..._store_Store__WEBPACK_IMPORTED_MODULE_8__["store"].resultMeta];
             this.clearWorks();
             this.reAddResult();
@@ -8421,10 +8425,13 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             setTimeout(() => {
                 _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('worksUpdate');
             }, 0);
+            this.crawlStartBySelf = false;
         };
         // 显示抓取到的作品数量
         this.showCount = () => {
-            if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
+            if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList ||
+                !_setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResult ||
+                !this.crawlStartBySelf) {
                 return;
             }
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResult && this.countEl) {
@@ -8619,6 +8626,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_默认下载多页')],
         ]).addEventListener('click', () => {
             this.resultMeta = [];
+            this.crawlStartBySelf = true;
             window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.createWork);
             this.readyCrawl();
         });
@@ -8856,11 +8864,13 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     }
     // 清空作品列表，只在作品抓取完毕时使用。之后会生成根据收藏数排列的作品列表。
     clearWorks() {
-        this.worksWrap = this.getWorksWrap();
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResult || !this.worksWrap) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResult || !this.crawlStartBySelf) {
             return;
         }
-        this.worksWrap.innerHTML = '';
+        this.worksWrap = this.getWorksWrap();
+        if (this.worksWrap) {
+            this.worksWrap.innerHTML = '';
+        }
     }
     // 传递作品 id 列表，从页面上的作品列表里移除这些作品
     removeWorks(idList) {
@@ -19418,9 +19428,6 @@ class SaveArtworkData {
                     sl: body.sl,
                 });
             }
-        }
-        else {
-            console.log('xxx');
         }
     }
 }
