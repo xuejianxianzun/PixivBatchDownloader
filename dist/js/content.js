@@ -5547,12 +5547,12 @@ class ShowBigThumb {
                 }
             }
         }
-        // 3. 设置 wrap 的 style
+        // 3. 显示 wrap
+        this.wrap.innerHTML = `<img src="${(_a = this.workData) === null || _a === void 0 ? void 0 : _a.body.urls.regular}" width="${cfg.width}" height="${cfg.height}">`;
         const styleArray = [];
         for (const [key, value] of Object.entries(cfg)) {
             styleArray.push(`${key}:${value}px;`);
         }
-        styleArray.push(`background-image:url("${(_a = this.workData) === null || _a === void 0 ? void 0 : _a.body.urls.regular}");`);
         styleArray.push('display:block;');
         this.wrap.setAttribute('style', styleArray.join(''));
     }

@@ -259,14 +259,12 @@ class ShowBigThumb {
       }
     }
 
-    // 3. 设置 wrap 的 style
+    // 3. 显示 wrap
+    this.wrap.innerHTML = `<img src="${this.workData?.body.urls.regular}" width="${cfg.width}" height="${cfg.height}">`
     const styleArray: string[] = []
     for (const [key, value] of Object.entries(cfg)) {
       styleArray.push(`${key}:${value}px;`)
     }
-    styleArray.push(
-      `background-image:url("${this.workData?.body.urls.regular}");`
-    )
     styleArray.push('display:block;')
     this.wrap.setAttribute('style', styleArray.join(''))
   }
