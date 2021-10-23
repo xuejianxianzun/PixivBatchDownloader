@@ -8,7 +8,7 @@ import { IDData } from './store/StoreType'
 import { Colors } from './config/Colors'
 
 // 在图片作品的缩略图上显示下载按钮，点击按钮会直接下载这个作品
-class showDownloadBtnOnThumb {
+class ShowDownloadBtnOnThumb {
   constructor() {
     this.addBtn()
     this.bindEvents()
@@ -88,7 +88,7 @@ class showDownloadBtnOnThumb {
 
   // 显示按钮
   private showBtn(target: HTMLElement) {
-    if (this.doNotShowBtn) {
+    if (this.doNotShowBtn || !settings.showDownloadBtnOnThumb) {
       return
     }
 
@@ -130,4 +130,4 @@ class showDownloadBtnOnThumb {
   }
 }
 
-new showDownloadBtnOnThumb()
+new ShowDownloadBtnOnThumb()
