@@ -13187,12 +13187,7 @@ class ExportResult2CSV {
         const csv = _utils_CreateCSV__WEBPACK_IMPORTED_MODULE_6__["createCSV"].create(body);
         const csvURL = URL.createObjectURL(csv);
         // 设置文件名
-        let csvName = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getPageTitle();
-        const ogTitle = document.querySelector('meta[property="og:title"]');
-        if (ogTitle) {
-            csvName = ogTitle.content;
-        }
-        csvName = `result-${_utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].replaceUnsafeStr(csvName)}-${_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].crawlCompleteTime.getTime()}.csv`;
+        let csvName = `result-${_utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].replaceUnsafeStr(_Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getPageTitle())}-${_store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].crawlCompleteTime.getTime()}.csv`;
         _utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].downloadFile(csvURL, csvName);
         _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_导出成功'));
     }
