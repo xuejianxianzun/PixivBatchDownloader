@@ -185,15 +185,8 @@ class ExportResult2CSV {
     const csvURL = URL.createObjectURL(csv)
 
     // 设置文件名
-    let csvName = Tools.getPageTitle()
-    const ogTitle = document.querySelector(
-      'meta[property="og:title"]'
-    )! as HTMLMetaElement
-    if (ogTitle) {
-      csvName = ogTitle.content
-    }
-    csvName = `result-${Utils.replaceUnsafeStr(
-      csvName
+    let csvName = `result-${Utils.replaceUnsafeStr(
+      Tools.getPageTitle()
     )}-${store.crawlCompleteTime.getTime()}.csv`
 
     Utils.downloadFile(csvURL, csvName)
