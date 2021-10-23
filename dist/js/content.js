@@ -9096,8 +9096,9 @@ class CrawlTagList {
         if (this.bindEventFlag) {
             return;
         }
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.downloadComplete, this.onDownloadComplete);
         this.bindEventFlag = true;
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.downloadComplete, this.onDownloadComplete);
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.crawlEmpty, this.onDownloadComplete);
         // 当页面类型变化时，如果进入到了不支持的页面类型，则隐藏输入区域
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.pageSwitch, () => {
             if (!this.EnablPage.includes(_PageType__WEBPACK_IMPORTED_MODULE_7__["pageType"].type) &&
