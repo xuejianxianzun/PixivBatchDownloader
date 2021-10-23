@@ -4143,7 +4143,13 @@ const langText = {
         '在作品缩略图上显示<span class="key">放大</span>图标',
         '在作品縮圖上顯示<span class="key">放大</span>圖示',
         'Show <span class="key">zoom</span> icon on thumbnail',
-        '作品のサムネイルに拡大アイコンを表示する',
+        '作品のサムネイルに<span class="key">拡大</span>アイコンを表示する',
+    ],
+    _在作品缩略图上显示下载按钮: [
+        '在作品缩略图上显示<span class="key">下载</span>按钮',
+        '在作品縮圖上顯示<span class="key">下載</span>按鈕',
+        'Show <span class="key">download</span> button on thumbnail',
+        '作品のサムネイルに<span class="key">ダウンロード</span>ボタンを表示',
     ],
     _已发送下载请求: [
         '已发送下载请求',
@@ -5684,6 +5690,135 @@ new ShowBigThumb();
 
 /***/ }),
 
+/***/ "./src/ts/ShowDownloadBtnOnThumb.ts":
+/*!******************************************!*\
+  !*** ./src/ts/ShowDownloadBtnOnThumb.ts ***!
+  \******************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MouseOverThumbnail */ "./src/ts/MouseOverThumbnail.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./config/Colors */ "./src/ts/config/Colors.ts");
+
+
+
+
+
+
+
+// 在图片作品的缩略图上显示下载按钮，点击按钮会直接下载这个作品
+class ShowDownloadBtnOnThumb {
+    constructor() {
+        this.btnId = 'downloadBtnOnThumb';
+        this.btnSize = 32;
+        this.currentWorkId = ''; // 保存触发事件的缩略图的作品 id
+        this.hiddenBtnTimer = 0; // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
+        this.hiddenBtnDelay = 100;
+        this.doNotShowBtn = false; // 当点击了按钮后，进入此状态，此状态中不会显示按钮
+        this.addBtn();
+        this.bindEvents();
+    }
+    // 此状态是为了解决这个问题：点击了按钮之后，按钮会被隐藏，隐藏之后，鼠标下方就是图片缩略图区域，这会触发缩略图的鼠标事件，导致按钮马上就又显示了出来。所以点击按钮之后设置这个状态，在其为 true 的期间不会显示按钮。过一段时间再把它复位。复位所需的时间很短，因为只要能覆盖这段时间就可以了：从隐藏按钮开始算起，到缩略图触发鼠标事件结束。
+    addBtn() {
+        const btn = document.createElement('button');
+        btn.id = this.btnId;
+        btn.innerHTML = `
+    <svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-download"></use>
+</svg>`;
+        this.btn = document.body.appendChild(btn);
+    }
+    bindEvents() {
+        // 页面切换时隐藏按钮
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
+            this.hiddenBtn();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clickBtnOnThumb, () => {
+            this.hiddenBtnNow();
+        });
+        // 鼠标移入按钮时取消隐藏按钮
+        this.btn.addEventListener('mouseenter', (ev) => {
+            window.clearTimeout(this.hiddenBtnTimer);
+        });
+        // 鼠标移出按钮时隐藏按钮
+        this.btn.addEventListener('mouseleave', () => {
+            this.hiddenBtn();
+        });
+        // 点击按钮时初始化图片查看器
+        this.btn.addEventListener('click', (ev) => {
+            this.hiddenBtnNow();
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('clickBtnOnThumb');
+            if (this.currentWorkId) {
+                const IDData = {
+                    type: 'illusts',
+                    id: this.currentWorkId,
+                };
+                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlIdList', [IDData]);
+                // 点击 wrap 建立下载任务，下载时不显示下载面板
+                _store_States__WEBPACK_IMPORTED_MODULE_3__["states"].quickCrawl = true;
+                _Toast__WEBPACK_IMPORTED_MODULE_4__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_5__["lang"].transl('_已发送下载请求'), {
+                    bgColor: _config_Colors__WEBPACK_IMPORTED_MODULE_6__["Colors"].bgBlue,
+                    position: 'mouse',
+                });
+            }
+        });
+        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onEnter((el, id) => {
+            this.currentWorkId = id;
+            this.showBtn(el);
+        });
+        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave(() => {
+            this.hiddenBtn();
+        });
+    }
+    // 显示按钮
+    showBtn(target) {
+        if (this.doNotShowBtn || !_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showDownloadBtnOnThumb) {
+            return;
+        }
+        window.clearTimeout(this.hiddenBtnTimer);
+        const rect = target.getBoundingClientRect();
+        this.btn.style.left =
+            window.pageXOffset +
+                rect.left +
+                (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].magnifierPosition === 'left' ? 0 : rect.width - this.btnSize) +
+                'px';
+        let top = window.pageYOffset + rect.top;
+        // 如果显示了放大按钮，就需要加大 top，让下载按钮显示在放大按钮下面
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].magnifier) {
+            top = top + this.btnSize + 8;
+        }
+        this.btn.style.top = top + 'px';
+        this.btn.style.display = 'flex';
+    }
+    // 延迟隐藏按钮
+    hiddenBtn() {
+        window.clearTimeout(this.hiddenBtnTimer);
+        this.hiddenBtnTimer = window.setTimeout(() => {
+            this.btn.style.display = 'none';
+        }, this.hiddenBtnDelay);
+    }
+    // 立刻隐藏按钮
+    hiddenBtnNow() {
+        this.doNotShowBtn = true;
+        window.setTimeout(() => {
+            this.doNotShowBtn = false;
+        }, 100);
+        window.clearTimeout(this.hiddenBtnTimer);
+        this.btn.style.display = 'none';
+    }
+}
+new ShowDownloadBtnOnThumb();
+
+
+/***/ }),
+
 /***/ "./src/ts/ShowHowToUse.ts":
 /*!********************************!*\
   !*** ./src/ts/ShowHowToUse.ts ***!
@@ -6839,7 +6974,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_10__);
 /* harmony import */ var _ShowBigThumb__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowBigThumb */ "./src/ts/ShowBigThumb.ts");
 /* harmony import */ var _ViewBigImage__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ViewBigImage */ "./src/ts/ViewBigImage.ts");
-/* harmony import */ var _showDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./showDownloadBtnOnThumb */ "./src/ts/showDownloadBtnOnThumb.ts");
+/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
 /* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
 /* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
 /* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
@@ -17861,6 +17996,12 @@ const formHtml = `<form class="settingForm">
       </span>
       </p>
 
+      <p class="option" data-no="56">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在作品缩略图上显示下载按钮')}</span>
+      <input type="checkbox" name="showDownloadBtnOnThumb" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
+
       <p class="option" data-no="34">
       <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_收藏设置')}</span>
       
@@ -18087,6 +18228,7 @@ class FormSettings {
                 'autoExportResultJSON',
                 'PreviewWork',
                 'PreviewWorkMouseStay',
+                'showDownloadBtnOnThumb',
             ],
             text: [
                 'setWantPage',
@@ -18938,6 +19080,7 @@ class Settings {
             PreviewWork: true,
             PreviewWorkSize: 600,
             PreviewWorkMouseStay: false,
+            showDownloadBtnOnThumb: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -19153,135 +19296,6 @@ const self = new Settings();
 const settings = self.settings;
 const setSetting = self.setSetting.bind(self);
 
-
-
-/***/ }),
-
-/***/ "./src/ts/showDownloadBtnOnThumb.ts":
-/*!******************************************!*\
-  !*** ./src/ts/showDownloadBtnOnThumb.ts ***!
-  \******************************************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MouseOverThumbnail */ "./src/ts/MouseOverThumbnail.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
-/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./config/Colors */ "./src/ts/config/Colors.ts");
-
-
-
-
-
-
-
-// 在图片作品的缩略图上显示下载按钮，点击按钮会直接下载这个作品
-class showDownloadBtnOnThumb {
-    constructor() {
-        this.btnId = 'downloadBtnOnThumb';
-        this.btnSize = 32;
-        this.currentWorkId = ''; // 保存触发事件的缩略图的作品 id
-        this.hiddenBtnTimer = 0; // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
-        this.hiddenBtnDelay = 100;
-        this.doNotShowBtn = false; // 当点击了按钮后，进入此状态，此状态中不会显示按钮
-        this.addBtn();
-        this.bindEvents();
-    }
-    // 此状态是为了解决这个问题：点击了按钮之后，按钮会被隐藏，隐藏之后，鼠标下方就是图片缩略图区域，这会触发缩略图的鼠标事件，导致按钮马上就又显示了出来。所以点击按钮之后设置这个状态，在其为 true 的期间不会显示按钮。过一段时间再把它复位。复位所需的时间很短，因为只要能覆盖这段时间就可以了：从隐藏按钮开始算起，到缩略图触发鼠标事件结束。
-    addBtn() {
-        const btn = document.createElement('button');
-        btn.id = this.btnId;
-        btn.innerHTML = `
-    <svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-download"></use>
-</svg>`;
-        this.btn = document.body.appendChild(btn);
-    }
-    bindEvents() {
-        // 页面切换时隐藏按钮
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
-            this.hiddenBtn();
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clickBtnOnThumb, () => {
-            this.hiddenBtnNow();
-        });
-        // 鼠标移入按钮时取消隐藏按钮
-        this.btn.addEventListener('mouseenter', (ev) => {
-            window.clearTimeout(this.hiddenBtnTimer);
-        });
-        // 鼠标移出按钮时隐藏按钮
-        this.btn.addEventListener('mouseleave', () => {
-            this.hiddenBtn();
-        });
-        // 点击按钮时初始化图片查看器
-        this.btn.addEventListener('click', (ev) => {
-            this.hiddenBtnNow();
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('clickBtnOnThumb');
-            if (this.currentWorkId) {
-                const IDData = {
-                    type: 'illusts',
-                    id: this.currentWorkId,
-                };
-                _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('crawlIdList', [IDData]);
-                // 点击 wrap 建立下载任务，下载时不显示下载面板
-                _store_States__WEBPACK_IMPORTED_MODULE_3__["states"].quickCrawl = true;
-                _Toast__WEBPACK_IMPORTED_MODULE_4__["toast"].show(_Lang__WEBPACK_IMPORTED_MODULE_5__["lang"].transl('_已发送下载请求'), {
-                    bgColor: _config_Colors__WEBPACK_IMPORTED_MODULE_6__["Colors"].bgBlue,
-                    position: 'mouse',
-                });
-            }
-        });
-        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onEnter((el, id) => {
-            this.currentWorkId = id;
-            this.showBtn(el);
-        });
-        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave(() => {
-            this.hiddenBtn();
-        });
-    }
-    // 显示按钮
-    showBtn(target) {
-        if (this.doNotShowBtn) {
-            return;
-        }
-        window.clearTimeout(this.hiddenBtnTimer);
-        const rect = target.getBoundingClientRect();
-        this.btn.style.left =
-            window.pageXOffset +
-                rect.left +
-                (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].magnifierPosition === 'left' ? 0 : rect.width - this.btnSize) +
-                'px';
-        let top = window.pageYOffset + rect.top;
-        // 如果显示了放大按钮，就需要加大 top，让下载按钮显示在放大按钮下面
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].magnifier) {
-            top = top + this.btnSize + 8;
-        }
-        this.btn.style.top = top + 'px';
-        this.btn.style.display = 'flex';
-    }
-    // 延迟隐藏按钮
-    hiddenBtn() {
-        window.clearTimeout(this.hiddenBtnTimer);
-        this.hiddenBtnTimer = window.setTimeout(() => {
-            this.btn.style.display = 'none';
-        }, this.hiddenBtnDelay);
-    }
-    // 立刻隐藏按钮
-    hiddenBtnNow() {
-        this.doNotShowBtn = true;
-        window.setTimeout(() => {
-            this.doNotShowBtn = false;
-        }, 100);
-        window.clearTimeout(this.hiddenBtnTimer);
-        this.btn.style.display = 'none';
-    }
-}
-new showDownloadBtnOnThumb();
 
 
 /***/ }),

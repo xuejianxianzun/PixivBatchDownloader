@@ -162,6 +162,7 @@ interface XzSetting {
   PreviewWork: boolean
   PreviewWorkSize: number
   PreviewWorkMouseStay: boolean
+  showDownloadBtnOnThumb: boolean
 }
 
 type SettingsKeys = keyof XzSetting
@@ -338,6 +339,7 @@ class Settings {
     PreviewWork: true,
     PreviewWorkSize: 600,
     PreviewWorkMouseStay: false,
+    showDownloadBtnOnThumb: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
