@@ -106,4 +106,5 @@ export interface SettingsForm extends HTMLFormElement {
   PreviewWork: HTMLInputElement
   PreviewWorkSize: HTMLInputElement
   PreviewWorkMouseStay: HTMLInputElement
+  showDownloadBtnOnThumb: HTMLInputElement
 }
