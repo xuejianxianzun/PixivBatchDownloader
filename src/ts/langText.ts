@@ -1562,7 +1562,13 @@ const langText = {
     '在作品缩略图上显示<span class="key">放大</span>图标',
     '在作品縮圖上顯示<span class="key">放大</span>圖示',
     'Show <span class="key">zoom</span> icon on thumbnail',
-    '作品のサムネイルに拡大アイコンを表示する',
+    '作品のサムネイルに<span class="key">拡大</span>アイコンを表示する',
+  ],
+  _在作品缩略图上显示下载按钮: [
+    '在作品缩略图上显示<span class="key">下载</span>按钮',
+    '在作品縮圖上顯示<span class="key">下載</span>按鈕',
+    'Show <span class="key">download</span> button on thumbnail',
+    '作品のサムネイルに<span class="key">ダウンロード</span>ボタンを表示',
   ],
   _已发送下载请求: [
     '已发送下载请求',

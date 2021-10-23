@@ -94,6 +94,7 @@ class FormSettings {
       'autoExportResultJSON',
       'PreviewWork',
       'PreviewWorkMouseStay',
+      'showDownloadBtnOnThumb',
     ],
     text: [
       'setWantPage',

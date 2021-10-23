@@ -823,6 +823,14 @@ export const formHtml = `<form class="settingForm">
       </span>
       </p>
 
+      <p class="option" data-no="56">
+      <span class="settingNameStyle1">${lang.transl(
+        '_在作品缩略图上显示下载按钮'
+      )}</span>
+      <input type="checkbox" name="showDownloadBtnOnThumb" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
+
       <p class="option" data-no="34">
       <span class="settingNameStyle1">${lang.transl('_收藏设置')}</span>
       
