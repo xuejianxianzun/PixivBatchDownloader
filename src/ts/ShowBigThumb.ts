@@ -76,7 +76,11 @@ class ShowBigThumb {
     })
 
     mouseOverThumbnail.onLeave(() => {
-      this.readyHidden()
+      if (this.show) {
+        settings.PreviewWorkMouseStay ? this.readyHidden() : (this.show = false)
+      } else {
+        this.show = false
+      }
     })
 
     this.wrap.addEventListener('mouseenter', () => {
