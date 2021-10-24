@@ -10,7 +10,7 @@ class MouseOverThumbnail {
   }
 
   // 作品缩略图的选择器
-  // 注意不是选择整个作品区域，而是只选择缩略图区域
+  // 选择器的元素必须含有作品的超链接（超链接可以在这个元素上，也可以在这个元素的子元素上）
   private readonly selectors = [
     'div[width="136"]',
     'div[width="288"]',
@@ -21,6 +21,7 @@ class MouseOverThumbnail {
     'div[width="118"]',
     '._work',
     'figure > div',
+    '._work.item',
   ]
 
   private enterCallback: Function[] = []
@@ -37,17 +38,17 @@ class MouseOverThumbnail {
     for (const selector of this.selectors) {
       const elements = parent.querySelectorAll(selector)
       for (const el of elements) {
-        el.addEventListener('mouseenter', (ev) => {
-          const id = this.findWorkId(el as HTMLElement)
-          // 只有查找到作品 id 时才会调用回调函数
-          if (id) {
+        const id = this.findWorkId(el as HTMLElement)
+        // 只有查找到作品 id 时才会执行回调函数
+        if (id) {
+          el.addEventListener('mouseenter', (ev) => {
             this.enterCallback.forEach((cb) => cb(el, id, ev))
-          }
-        })
+          })
 
-        el.addEventListener('mouseleave', (ev) => {
-          this.leaveCallback.forEach((cb) => cb(el, ev))
-        })
+          el.addEventListener('mouseleave', (ev) => {
+            this.leaveCallback.forEach((cb) => cb(el, ev))
+          })
+        }
       }
     }
   }
@@ -85,7 +86,12 @@ class MouseOverThumbnail {
   // 从元素中查找图片作品的 id
   // 如果查找不到 id，返回空字符串 ''
   private findWorkId(el: HTMLElement): string | '' {
-    const a = el.querySelector('a') as HTMLAnchorElement
+    let a: HTMLAnchorElement
+    if (el.nodeName === 'A') {
+      a = el as HTMLAnchorElement
+    } else {
+      a = el.querySelector('a') as HTMLAnchorElement
+    }
     return a === null ? '' : Tools.getIllustId(a.href)
   }
 }
