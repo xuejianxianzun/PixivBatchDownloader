@@ -28,7 +28,7 @@ This is a browser extension for **Chrome** that lets you download images and nov
 
 ![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/ui2.png)
 
-Some auxiliary functions have also been added, such as removing ads, quick collections, Add tag to unclassified work, and viewing pictures.
+Some auxiliary functions have also been added, such as removing ads, quick collections, add tag to unclassified work, and viewing pictures.
 
 # Install
 
@@ -43,7 +43,7 @@ Some auxiliary functions have also been added, such as removing ads, quick colle
 ## Offline installation
 
 1. Download the latest version of the installation package from [release page](https://github.com/xuejianxianzun/PixivBatchDownloader/releases/) and unzip it to a folder.
-2. Enter the extension management. Chrome clicks "More Tools"-"Extensions Management" in the menu; Edge clicks "Extensions" in the menu.
+2. Enter the extension management. Chrome clicks "More Tools" - "Extensions Management" in the menu; Edge clicks "Extensions" in the menu.
 3. On the extension management page, enable "Developer Mode".
 4. Click the button "Load unpacked" and select the folder where the installation package is unzipped.
 
@@ -94,7 +94,7 @@ You can also optimize the translation, thank you very much :)
 
 0 [Home page](https://www.pixiv.net/)
 
-1 [ArtWork page](https://www.pixiv.net/artworks/72503012)
+1 [Artwork page](https://www.pixiv.net/artworks/72503012)
 
 2 [List page](https://www.pixiv.net/users/544479/artworks)
 
@@ -128,9 +128,9 @@ You can also optimize the translation, thank you very much :)
 
 16 [Novel ranking](https://www.pixiv.net/novel/ranking.php?mode=daily)
 
-17 [New Novle: Following](https://www.pixiv.net/novel/bookmark_new.php)
+17 [New Novel: Following](https://www.pixiv.net/novel/bookmark_new.php)
 
-18 [New Novle from All users](https://www.pixiv.net/novel/new.php)
+18 [New Novel from All users](https://www.pixiv.net/novel/new.php)
 
 19 [Manga series page](https://www.pixiv.net/user/3698796/series/61267)
 
