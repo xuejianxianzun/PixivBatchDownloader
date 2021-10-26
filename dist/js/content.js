@@ -18995,7 +18995,7 @@ class Settings {
                 '13': '{p_title}/{id}-{title}',
                 '14': '{user}/{series_title}/{series_order} {title} {id}',
                 '15': '{p_tag}/{id}-{title}',
-                '16': '{p_title}/{rank}-{id}',
+                '16': '{p_title}/{rank}-{id}-{title}',
                 '17': '{p_title}/{id}-{title}',
                 '18': '{p_title}/{id}-{title}',
                 '19': '{user}/{series_title}/{series_order} {title} {id}',
