@@ -64,12 +64,19 @@ class Form {
   private bindEvents() {
     // 给美化的复选框绑定功能
     for (const checkbox of this.allCheckBox) {
-      this.bindCheckboxEvent(checkbox)
+      this.bindBeautifyEvent(checkbox)
+
+      // 让复选框支持用回车键选择
+      checkbox.addEventListener('keydown', (event: KeyboardEvent) => {
+        if (this.chooseKeys.includes(event.code)) {
+          checkbox.click()
+        }
+      })
     }
 
     // 给美化的单选按钮绑定功能
     for (const radio of this.allRadio) {
-      this.bindRadioEvent(radio)
+      this.bindBeautifyEvent(radio)
     }
 
     // 当某个设置发生改变时，重新设置美化状态
@@ -244,31 +251,11 @@ class Form {
     })
   }
 
-  // 设置复选框的事件
-  private bindCheckboxEvent(el: HTMLInputElement) {
-    // 让复选框支持用回车键选择
-    el.addEventListener('keydown', (event: KeyboardEvent) => {
-      if (this.chooseKeys.includes(event.code)) {
-        el.click()
-      }
-    })
-
-    // 点击美化按钮，点击对应的复选框
+  // 点击美化按钮时，点击对应的 input 控件
+  private bindBeautifyEvent(el: HTMLInputElement) {
     el.nextElementSibling!.addEventListener('click', () => {
       el.click()
     })
-
-    // 点击它的 label 时，不需要传递它的值。因为点击 lable 激活这个 input 控件时，浏览器会自动触发这个控件的 click 事件。settings 模块已经监听了 click 事件，所以这里就不要监听 label 了，否则就会因此多触发了一次 settingChange 事件。而且点击 label 时获得的值还是改变之前的旧的值。
-  }
-
-  // 设置单选控件的事件
-  private bindRadioEvent(el: HTMLInputElement) {
-    // 点击美化按钮，选择对应的单选框
-    el.nextElementSibling!.addEventListener('click', () => {
-      el.click()
-    })
-
-    // 点击它的 label 时，不需要传递它的值。原因同上。
   }
 
   // 重设 label 的激活状态

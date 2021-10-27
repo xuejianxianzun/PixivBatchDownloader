@@ -562,6 +562,14 @@ export const formHtml = `<form class="settingForm">
       <slot data-name="otherBtns"></slot>
     </div>
 
+    <p class="option" data-no="57">
+    <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+      '_显示高级设置说明'
+    )}">${lang.transl('_显示高级设置')}<span class="gray1"> ? </span></span>
+    <input type="checkbox" name="showAdvancedSettings" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    </p>
+
       <p class="option" data-no="4">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_动图保存格式title'
