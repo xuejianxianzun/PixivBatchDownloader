@@ -331,7 +331,7 @@ class Settings {
     },
     showAdvancedSettings: false,
     showNotificationAfterDownloadComplete: false,
-    boldKeywords: false,
+    boldKeywords: true,
     autoExportResult: false,
     autoExportResultCSV: true,
     autoExportResultJSON: false,

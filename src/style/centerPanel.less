@@ -875,6 +875,15 @@
 .showBlobKeywords {
   .key {
     font-weight: bold;
+    color: @themeBlue;
+  }
+}
+
+.theme-dark {
+  &.showBlobKeywords {
+    .key {
+      color: #42c3ff;
+    }
   }
 }
 
@@ -904,6 +913,14 @@
   }
 }
 
-.lang_ja input[name='workDirNameRule'] {
-  width: 170px !important;
+.lang_ja {
+  input[name='workDirNameRule'] {
+    width: 170px !important;
+  }
+  &.showBlobKeywords {
+    .key {
+      font-weight: normal !important;
+      color: inherit !important;
+    }
+  }
 }
