@@ -5873,7 +5873,7 @@ __webpack_require__.r(__webpack_exports__);
 class ShowWhatIsNew {
     constructor() {
         this.flag = 'xzNew1130';
-        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}<br>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览作品')} （${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_点击鼠标左键可以关闭预览图')}）`;
+        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}<br>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览作品')}`;
         this.storeName = 'xzNewVerTag';
         this.show();
     }
