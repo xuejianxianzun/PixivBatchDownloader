@@ -4080,7 +4080,7 @@ const langText = {
         'Click the blue button on the right side of the page to open the downloader panel.',
         'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。',
     ],
-    _我知道了: ['我知道了', '我知道了', 'Got it', '分かりました'],
+    _我知道了: ['我知道了', '我知道了', 'OK', '分かりました'],
     _背景图片: [
         '<span class="key">背景</span>图片',
         '<span class="key">背景</span>圖片',
