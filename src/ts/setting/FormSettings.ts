@@ -232,9 +232,21 @@ class FormSettings {
 
   // 处理复选框： click 时保存 checked
   private saveCheckBox(name: SettingKeys) {
-    const el = this.form[name] as HTMLInputElement
-    el.addEventListener('click', () => {
-      setSetting(name, el.checked)
+    // 由于表单里存在两个 showAdvancedSettings 设置，会获取到 NodeListOf<HTMLInputElement>
+    // 其他设置只有一个，是 HTMLInputElement
+    const el = this.form[name] as
+      | HTMLInputElement
+      | NodeListOf<HTMLInputElement>
+    let elArray: HTMLInputElement[] = []
+    if ((el as NodeListOf<HTMLInputElement>).length !== undefined) {
+      elArray = Array.from(el as NodeListOf<HTMLInputElement>)
+    } else {
+      elArray.push(el as HTMLInputElement)
+    }
+    elArray.forEach((el) => {
+      el.addEventListener('click', () => {
+        setSetting(name, el.checked)
+      })
     })
   }
 
@@ -251,7 +263,20 @@ class FormSettings {
   // 恢复值为 Boolean 的设置项
   private restoreBoolean(name: SettingKeys) {
     if (settings[name] !== undefined) {
-      this.form[name].checked = settings[name]
+      // 由于表单里存在两个 showAdvancedSettings 设置，会获取到 NodeListOf<HTMLInputElement>
+      // 其他设置只有一个，是 HTMLInputElement
+      const el = this.form[name] as
+        | HTMLInputElement
+        | NodeListOf<HTMLInputElement>
+      let elArray: HTMLInputElement[] = []
+      if ((el as NodeListOf<HTMLInputElement>).length !== undefined) {
+        elArray = Array.from(el as NodeListOf<HTMLInputElement>)
+      } else {
+        elArray.push(el as HTMLInputElement)
+      }
+      elArray.forEach((el) => {
+        el.checked = settings[name] as boolean
+      })
     }
   }
 

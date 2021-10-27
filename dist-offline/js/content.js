@@ -8273,6 +8273,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             50,
             54,
             55,
+            56,
         ]);
     }
     nextStep() {
@@ -17097,11 +17098,17 @@ class Form {
     bindEvents() {
         // 给美化的复选框绑定功能
         for (const checkbox of this.allCheckBox) {
-            this.bindCheckboxEvent(checkbox);
+            this.bindBeautifyEvent(checkbox);
+            // 让复选框支持用回车键选择
+            checkbox.addEventListener('keydown', (event) => {
+                if (this.chooseKeys.includes(event.code)) {
+                    checkbox.click();
+                }
+            });
         }
         // 给美化的单选按钮绑定功能
         for (const radio of this.allRadio) {
-            this.bindRadioEvent(radio);
+            this.bindBeautifyEvent(radio);
         }
         // 当某个设置发生改变时，重新设置美化状态
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
@@ -17218,27 +17225,11 @@ class Form {
             }
         });
     }
-    // 设置复选框的事件
-    bindCheckboxEvent(el) {
-        // 让复选框支持用回车键选择
-        el.addEventListener('keydown', (event) => {
-            if (this.chooseKeys.includes(event.code)) {
-                el.click();
-            }
-        });
-        // 点击美化按钮，点击对应的复选框
+    // 点击美化按钮时，点击对应的 input 控件
+    bindBeautifyEvent(el) {
         el.nextElementSibling.addEventListener('click', () => {
             el.click();
         });
-        // 点击它的 label 时，不需要传递它的值。因为点击 lable 激活这个 input 控件时，浏览器会自动触发这个控件的 click 事件。settings 模块已经监听了 click 事件，所以这里就不要监听 label 了，否则就会因此多触发了一次 settingChange 事件。而且点击 label 时获得的值还是改变之前的旧的值。
-    }
-    // 设置单选控件的事件
-    bindRadioEvent(el) {
-        // 点击美化按钮，选择对应的单选框
-        el.nextElementSibling.addEventListener('click', () => {
-            el.click();
-        });
-        // 点击它的 label 时，不需要传递它的值。原因同上。
     }
     // 重设 label 的激活状态
     resetLabelActive() {
@@ -17789,6 +17780,12 @@ const formHtml = `<form class="settingForm">
     <div class="centerWrap_btns">
       <slot data-name="otherBtns"></slot>
     </div>
+
+    <p class="option" data-no="57">
+    <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_显示高级设置说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_显示高级设置')}<span class="gray1"> ? </span></span>
+    <input type="checkbox" name="showAdvancedSettings" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    </p>
 
       <p class="option" data-no="4">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_动图保存格式title')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_动图保存格式')}<span class="gray1"> ? </span></span>
@@ -18362,9 +18359,20 @@ class FormSettings {
     }
     // 处理复选框： click 时保存 checked
     saveCheckBox(name) {
+        // 由于表单里存在两个 showAdvancedSettings 设置，会获取到 NodeListOf<HTMLInputElement>
+        // 其他设置只有一个，是 HTMLInputElement
         const el = this.form[name];
-        el.addEventListener('click', () => {
-            Object(_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])(name, el.checked);
+        let elArray = [];
+        if (el.length !== undefined) {
+            elArray = Array.from(el);
+        }
+        else {
+            elArray.push(el);
+        }
+        elArray.forEach((el) => {
+            el.addEventListener('click', () => {
+                Object(_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])(name, el.checked);
+            });
         });
     }
     // 处理单选框： click 时保存 value
@@ -18379,7 +18387,19 @@ class FormSettings {
     // 恢复值为 Boolean 的设置项
     restoreBoolean(name) {
         if (_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"][name] !== undefined) {
-            this.form[name].checked = _Settings__WEBPACK_IMPORTED_MODULE_2__["settings"][name];
+            // 由于表单里存在两个 showAdvancedSettings 设置，会获取到 NodeListOf<HTMLInputElement>
+            // 其他设置只有一个，是 HTMLInputElement
+            const el = this.form[name];
+            let elArray = [];
+            if (el.length !== undefined) {
+                elArray = Array.from(el);
+            }
+            else {
+                elArray.push(el);
+            }
+            elArray.forEach((el) => {
+                el.checked = _Settings__WEBPACK_IMPORTED_MODULE_2__["settings"][name];
+            });
         }
     }
     // 恢复值为 string 的设置项
@@ -18652,7 +18672,19 @@ __webpack_require__.r(__webpack_exports__);
 class Options {
     constructor() {
         // 保持显示的选项的 id
-        this.whiteList = [1, 2, 4, 13, 17, 32, 44, 23, 50, 51];
+        this.whiteList = [
+            1,
+            2,
+            4,
+            13,
+            17,
+            32,
+            44,
+            23,
+            50,
+            51,
+            57,
+        ];
         // 某些页面类型需要隐藏某些选项。当调用 hideOption 方法时，把选项 id 保存起来
         // 优先级高于 whiteList
         this.hiddenList = [];
@@ -19079,7 +19111,7 @@ class Settings {
             },
             showAdvancedSettings: false,
             showNotificationAfterDownloadComplete: false,
-            boldKeywords: false,
+            boldKeywords: true,
             autoExportResult: false,
             autoExportResultCSV: true,
             autoExportResultJSON: false,
