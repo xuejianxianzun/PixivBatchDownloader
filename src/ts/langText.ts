@@ -1829,6 +1829,7 @@ const langText = {
     'This tab page is converting ugoira. If this tab page is hidden, the conversion speed may slow down.',
     'このタブページはうごイラを変換しています。 このタブを非表示にすると、変換速度が低下する場合があります。',
   ],
+  _原始尺寸: ['原始尺寸', '原始尺寸', 'Original size', 'オリジナルサイズ'],
   _whatisnew: [
     '新增设置项：<br>预览作品',
     '新增設定項目：<br>預覽作品',

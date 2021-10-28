@@ -1469,6 +1469,9 @@ iframe[name='expandedFooter'] {
 .viewer-backdrop .viewer-toolbar .viewer-add-btn::marker {
   content: none;
 }
+.viewer-backdrop .viewer-navbar {
+  background: rgba(0, 0, 0, 0.3);
+}
 .rotate360 {
   transform: rotate(360deg);
 }
