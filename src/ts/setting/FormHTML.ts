@@ -570,6 +570,10 @@ export const formHtml = `<form class="settingForm">
     <span class="beautify_switch"></span>
     </p>
 
+    <p class="option settingCategoryName" data-no="58">
+      <span>${lang.transl('_下载')}</span>
+    </p>
+
       <p class="option" data-no="4">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_动图保存格式title'
@@ -743,6 +747,10 @@ export const formHtml = `<form class="settingForm">
       </span>
       </p>
 
+      <p class="option settingCategoryName" data-no="59">
+        <span>${lang.transl('_抓取')}</span>
+      </p>
+
       <p class="option" data-no="35">
       <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
         '_用户阻止名单的说明'
@@ -767,20 +775,8 @@ export const formHtml = `<form class="settingForm">
       </span>
       </p>
 
-      <p class="option" data-no="48">
-      <span class="settingNameStyle1">${lang.transl(
-        '_在搜索页面添加快捷搜索区域'
-      )} </span>
-      <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
-      <span class="beautify_switch"></span>
-      </p>
-
-      <p class="option" data-no="18">
-      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
-        '_预览搜索结果说明'
-      )}">${lang.transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="previewResult" class="need_beautify checkbox_switch" checked>
-      <span class="beautify_switch"></span>
+      <p class="option settingCategoryName" data-no="60">
+        <span>${lang.transl('_增强')}</span>
       </p>
 
       <p class="option" data-no="55">
@@ -839,6 +835,22 @@ export const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
       </p>
 
+      <p class="option" data-no="48">
+      <span class="settingNameStyle1">${lang.transl(
+        '_在搜索页面添加快捷搜索区域'
+      )} </span>
+      <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
+
+      <p class="option" data-no="18">
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_预览搜索结果说明'
+      )}">${lang.transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="previewResult" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
+
       <p class="option" data-no="34">
       <span class="settingNameStyle1">${lang.transl('_收藏设置')}</span>
       
@@ -857,6 +869,10 @@ export const formHtml = `<form class="settingForm">
       <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="yes">
       <span class="beautify_radio"></span>
       <label for="restrict2">${lang.transl('_不公开')}</label>
+      </p>
+
+      <p class="option settingCategoryName" data-no="61">
+        <span>${lang.transl('_其他')}</span>
       </p>
 
       <p class="option" data-no="31">

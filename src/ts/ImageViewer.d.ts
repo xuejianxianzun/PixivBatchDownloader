@@ -159,6 +159,7 @@ declare class Viewer {
   zoomTo(ratio: number, hasTooltip?: boolean): Viewer
   static noConflict(): Viewer
   static setDefaults(options: Viewer.Options): void
+  viewerData: { width: number; height: number }
 }
 
 declare module 'viewerjs' {
