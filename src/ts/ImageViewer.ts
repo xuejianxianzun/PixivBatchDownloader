@@ -81,10 +81,7 @@ class ImageViewer {
   private viewerUl: HTMLUListElement = document.createElement('ul') // 图片列表的 ul 元素
 
   private show = false // 当前查看器实例是否处于显示状态
-
-  // 图片查看器显示时，保存页面滚动位置
-  private scrollX = 0
-  private scrollY = 0
+  private isOriginalSize = false // 是否原尺寸显示图片
 
   // 图片查看器初始化时，会获取作品数据，保存到这个成员
   private workData: ArtworkData | undefined
@@ -127,13 +124,12 @@ class ImageViewer {
 
   // 如果多次初始化查看器，这些事件会被多次绑定。但是因为回调函数内部判断了查看器实例，所以不会有问题
   private bindEvents() {
-    // 按 F 进入/退出全屏模式
+    // 按 F 进入/退出 1:1 查看模式
     document.addEventListener('keydown', (event) => {
       if (event.code === 'KeyF') {
         if (this.show) {
-          this.isFullscreen()
-            ? document.exitFullscreen()
-            : this.enterFullScreenMode()
+          this.isOriginalSize = !this.isOriginalSize
+          this.setOriginalSize()
         }
       }
     })
@@ -175,19 +171,6 @@ class ImageViewer {
       },
       true
     )
-    ;[
-      'fullscreenchange',
-      'webkitfullscreenchange',
-      'mozfullscreenchange',
-    ].forEach((arg) => {
-      // 检测全屏状态变化，目前有兼容性问题（这里也相当于绑定了按 esc 退出的事件）
-      document.addEventListener(arg, () => {
-        // 退出全屏
-        if (this.myViewer && !this.isFullscreen()) {
-          this.toggleBottomBtns(true)
-        }
-      })
-    })
   }
 
   // 创建缩略图列表
@@ -279,9 +262,6 @@ class ImageViewer {
     this.viewerUl.addEventListener('shown', () => {
       this.show = true
 
-      this.scrollX = window.scrollX
-      this.scrollY = window.scrollY
-
       if (this.cfg.showDownloadBtn) {
         this.addDownloadBtn()
       }
@@ -290,19 +270,24 @@ class ImageViewer {
         this.addBookmarkBtn()
       }
 
-      // 显示相关元素
-      this.toggleBottomBtns(true)
+      // 如果图片数量只有 1 个，则不显示缩略图一栏
+      const navbar = document.querySelector('.viewer-navbar') as HTMLDivElement
+      if (navbar) {
+        // 控制不透明度，这样它依然会占据空间，不会导致工具栏下移
+        navbar.style.opacity = pageCount > 1 ? '1' : '0'
+      }
 
-      // 点击 1：1 按钮时，全屏查看
+      // 点击 1：1 按钮时
       const oneToOne = document.querySelector('.viewer-one-to-one')
       if (oneToOne) {
-        oneToOne.setAttribute('title', lang.transl('_全屏查看') + ' (F)')
+        oneToOne.setAttribute('title', lang.transl('_原始尺寸') + ' (F)')
         oneToOne.addEventListener(
           'click',
           (ev) => {
             // 阻止冒泡，否则放大过程中会多一次闪烁（推测可能是这个按钮原有的事件导致的，停止冒泡之后就好了）
             ev.stopPropagation()
-            this.enterFullScreenMode()
+            this.isOriginalSize = !this.isOriginalSize
+            this.setOriginalSize()
           },
           true
         )
@@ -312,30 +297,15 @@ class ImageViewer {
     // 退出图片查看器时（可能尚未完全退出）
     this.viewerUl.addEventListener('hide', () => {
       this.show = false
-      // 如果查看图片时进入了全屏模式，退出全屏后页面就会滚动到最顶端。在这里让页面滚动到查看图片之前的位置
-      window.scrollTo(this.scrollX, this.scrollY)
     })
 
-    // 查看每一张图片时，如果处于全屏模式，就把图片缩放到 100%
+    // 查看每一张图片时，如果处于 1:1 模式，就把图片缩放到 100%
     // viewed 事件是图片加载完成时触发的
     this.viewerUl.addEventListener('viewed', () => {
-      if (this.isFullscreen()) {
-        this.myViewer.zoomTo(1)
+      if (this.isOriginalSize) {
+        this.setOriginalSize()
       }
     })
-
-    // 隐藏查看器时，如果还处于全屏，则退出全屏
-    this.viewerUl.addEventListener('hidden', () => {
-      if (this.isFullscreen()) {
-        document.exitFullscreen()
-      }
-    })
-
-    // 销毁旧的看图组件
-    // 目前不会复用查看器，所以不用销毁
-    // if (this.myViewer) {
-    //   this.myViewer.destroy()
-    // }
 
     // 因为选项里的 size 是枚举类型，所以在这里也要定义一个枚举
     enum ToolbarButtonSize {
@@ -345,7 +315,7 @@ class ImageViewer {
     }
 
     // 配置新的看图组件
-    const handleCenter = this.handleCenter.bind(this)
+    const handleToTop = this.moveToTop.bind(this)
 
     this.myViewer = new Viewer(this.viewerUl, {
       toolbar: {
@@ -370,7 +340,7 @@ class ImageViewer {
       },
 
       viewed(ev) {
-        handleCenter()
+        handleToTop()
         // 当图片显示完成（加载完成）后，预加载下一张图片
         let index = ev.detail.index
 
@@ -402,39 +372,42 @@ class ImageViewer {
     }
   }
 
-  // 进入全屏模式
-  private enterFullScreenMode() {
-    this.toggleBottomBtns(false)
-
-    // 请求全屏模式
-    document.body.requestFullscreen().then(() => {
-      // 把图片按 100% 比例显示，需要延迟执行
-      window.setTimeout(() => {
-        // 放大图片
-        this.myViewer.zoomTo(1)
-
-        this.handleCenter()
-        // 延迟时间不能设置为 0，也不能设置的太小，否则存在问题：
-        // 在打开调试工具时（即网页宽度被减少），如果延迟时间太小，按 F 进入全屏之后实际上不会放大图片（但是按 1:1 按钮却可以放大，原因不清楚）
-      }, 150)
-    })
-  }
-
-  // 处理居中问题
-  private handleCenter() {
-    // 当图片高度大于网页视口高度时，在垂直方向上，图片查看器默认是居中显示
-    // 当图片类型为漫画时，改为显示顶部，这样便于查看漫画
-    if (this.workData?.body.illustType === 1) {
-      // 判断图片的高度是否超出网页视图高度。使用图片的显示高度，而不是自然高度
-      const img = this.myViewer.image as HTMLImageElement
-      const windowHeight = window.innerHeight
-      if (img.height <= windowHeight) {
+  // 设置原始尺寸显示
+  private setOriginalSize() {
+    if (this.isOriginalSize) {
+      // 1:1 显示图片
+      this.myViewer.zoomTo(1)
+      this.moveToTop()
+    } else {
+      // 缩小图片以适应可视区域
+      const w = this.myViewer.image.naturalWidth
+      const h = this.myViewer.image.naturalHeight
+      const vw = this.myViewer.viewerData.width * 0.9
+      const vh = this.myViewer.viewerData.height * 0.9
+      const wScale = vw / w
+      const hScale = vh / h
+      let scale = Math.min(wScale, hScale)
+      if (scale >= 1) {
         return
       }
-      // 如果图片高度大于视口高度，将其移动以达到显示顶部的效果
-      const hiddenHeight = img.height / 2 - windowHeight / 2
-      this.myViewer.move(0, hiddenHeight)
+      this.myViewer.zoomTo(scale)
+
+      const nowTop = Number.parseInt(this.myViewer.image.style.marginTop)
+      this.myViewer.move(0, vh * 0.05 - nowTop)
     }
+  }
+
+  // 如果图片的高度超出可视区域高度，则从图片的顶部开始显示
+  private moveToTop() {
+    const img = this.myViewer.image as HTMLImageElement
+    const windowHeight = window.innerHeight
+    if (img.height <= windowHeight) {
+      return
+    }
+    // 如果图片高度大于视口高度，让它从顶部显示
+    // 目的是把图片的 marginTop 设为 0，但不能直接修改 marginTop，否则鼠标拖动图片时会抖动
+    const nowTop = Number.parseInt(this.myViewer.image.style.marginTop)
+    this.myViewer.move(0, 0 - nowTop)
   }
 
   /**在图片查看器的工具栏里添加按钮
@@ -529,32 +502,6 @@ class ImageViewer {
       bgColor: '#333',
       position: 'mouse',
     })
-  }
-
-  // 判断是否处于全屏状态
-  private isFullscreen() {
-    return !!document.fullscreenElement
-  }
-
-  // 控制查看器底部的一些元素的显示和隐藏
-  private toggleBottomBtns(show: boolean) {
-    document
-      .querySelector('.viewer-container')!
-      .classList.remove('black-background')
-    // 显示底部隐藏的元素
-    const close = document.querySelector('.viewer-close') as HTMLDivElement
-    const oneToOne = document.querySelector(
-      '.viewer-one-to-one'
-    ) as HTMLDivElement
-    const navbar = document.querySelector('.viewer-navbar') as HTMLDivElement
-    const addBtns = document.querySelectorAll(
-      '.' + this.addBtnClass
-    ) as NodeListOf<HTMLElement>
-    for (const element of [close, oneToOne, navbar, ...addBtns]) {
-      if (element) {
-        element.style.display = show ? 'block' : 'none'
-      }
-    }
   }
 }
 

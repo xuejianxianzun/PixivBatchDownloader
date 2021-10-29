@@ -1582,7 +1582,7 @@ const langText = {
     'Click the blue button on the right side of the page to open the downloader panel.',
     'ページ右側の青いボタンをクリックすると、ダウンローダーパネルが開きます。',
   ],
-  _我知道了: ['我知道了', '我知道了', 'Got it', '分かりました'],
+  _我知道了: ['我知道了', '我知道了', 'OK', '分かりました'],
   _背景图片: [
     '<span class="key">背景</span>图片',
     '<span class="key">背景</span>圖片',
@@ -1829,6 +1829,8 @@ const langText = {
     'This tab page is converting ugoira. If this tab page is hidden, the conversion speed may slow down.',
     'このタブページはうごイラを変換しています。 このタブを非表示にすると、変換速度が低下する場合があります。',
   ],
+  _原始尺寸: ['原始尺寸', '原始尺寸', 'Original size', 'オリジナルサイズ'],
+  _增强: ['增强', '增強', 'Enhance', '強化機能'],
   _whatisnew: [
     '新增设置项：<br>预览作品',
     '新增設定項目：<br>預覽作品',
