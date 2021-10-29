@@ -4286,6 +4286,7 @@ const langText = {
         'このタブページはうごイラを変換しています。 このタブを非表示にすると、変換速度が低下する場合があります。',
     ],
     _原始尺寸: ['原始尺寸', '原始尺寸', 'Original size', 'オリジナルサイズ'],
+    _增强: ['增强', '增強', 'Enhance', '強化機能'],
     _whatisnew: [
         '新增设置项：<br>预览作品',
         '新增設定項目：<br>預覽作品',
@@ -8154,9 +8155,14 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             48,
             49,
             50,
+            51,
             54,
             55,
             56,
+            58,
+            59,
+            60,
+            61,
         ]);
     }
     nextStep() {
@@ -17670,6 +17676,10 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_switch"></span>
     </p>
 
+    <p class="option settingCategoryName" data-no="58">
+      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载')}</span>
+    </p>
+
       <p class="option" data-no="4">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_动图保存格式title')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_动图保存格式')}<span class="gray1"> ? </span></span>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" class="need_beautify radio" value="webm" checked>
@@ -17809,6 +17819,10 @@ const formHtml = `<form class="settingForm">
       </span>
       </p>
 
+      <p class="option settingCategoryName" data-no="59">
+        <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_抓取')}</span>
+      </p>
+
       <p class="option" data-no="35">
       <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_用户阻止名单的说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_用户阻止名单')}<span class="gray1"> ? </span></span>
       <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
@@ -17827,16 +17841,8 @@ const formHtml = `<form class="settingForm">
       </span>
       </p>
 
-      <p class="option" data-no="48">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在搜索页面添加快捷搜索区域')} </span>
-      <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
-      <span class="beautify_switch"></span>
-      </p>
-
-      <p class="option" data-no="18">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_预览搜索结果说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
-      <input type="checkbox" name="previewResult" class="need_beautify checkbox_switch" checked>
-      <span class="beautify_switch"></span>
+      <p class="option settingCategoryName" data-no="60">
+        <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_增强')}</span>
       </p>
 
       <p class="option" data-no="55">
@@ -17889,6 +17895,18 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
       </p>
 
+      <p class="option" data-no="48">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在搜索页面添加快捷搜索区域')} </span>
+      <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
+
+      <p class="option" data-no="18">
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_预览搜索结果说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
+      <input type="checkbox" name="previewResult" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
+
       <p class="option" data-no="34">
       <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_收藏设置')}</span>
       
@@ -17907,6 +17925,10 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="yes">
       <span class="beautify_radio"></span>
       <label for="restrict2">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_不公开')}</label>
+      </p>
+
+      <p class="option settingCategoryName" data-no="61">
+        <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_其他')}</span>
       </p>
 
       <p class="option" data-no="31">

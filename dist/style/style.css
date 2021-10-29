@@ -1050,6 +1050,32 @@
 .centerWrap .centerWrap_con .help_bar > * {
   padding: 0 3px;
 }
+.centerWrap .settingCategoryName {
+  position: relative;
+  text-align: center;
+  margin: 6px auto;
+}
+.centerWrap .settingCategoryName span {
+  display: inline-block;
+  height: 26px;
+  padding: 0px 20px;
+  line-height: 26px !important;
+  font-size: 1.1em;
+  color: #666;
+  font-weight: bold;
+  background-color: #fff;
+  border-radius: 4px;
+}
+.centerWrap .settingCategoryName::after {
+  display: block;
+  content: '';
+  position: absolute;
+  top: 14px;
+  width: 100%;
+  height: 1px;
+  background-color: #eee;
+  z-index: -1;
+}
 .theme-dark.centerWrap {
   background: #222;
   box-shadow: #10506e 0px 0px 15px;
@@ -1099,6 +1125,10 @@
 .theme-dark.centerWrap .centerWrap_btns button {
   box-shadow: none !important;
 }
+.theme-dark.centerWrap .settingCategoryName span {
+  color: #fff;
+  background-color: #222;
+}
 .downloadError {
   color: #ffa0a0;
 }
@@ -1120,7 +1150,7 @@
   opacity: 0.4;
 }
 .xzBG.centerWrap {
-  text-shadow: 0px 0px 5px #006a9b;
+  text-shadow: #003247 0px 0px 2px;
   box-shadow: #10506e 0px 0px 15px;
   background: #222;
   color: #fff;
@@ -1132,18 +1162,17 @@
 .xzBG.centerWrap .gray1,
 .xzBG.centerWrap .centerWrap_top_btn {
   color: #ddd !important;
-}
-.xzBG.centerWrap .textButton,
-.xzBG.centerWrap input {
-  text-shadow: 0px 0px 5px #006a9b;
+  text-shadow: #003247 0px 0px 2px;
 }
 .xzBG.centerWrap .blue,
 .xzBG.centerWrap .has_tip:hover,
+.xzBG.centerWrap label,
 .xzBG.centerWrap label:hover,
 .xzBG.centerWrap .title.active,
 .xzBG.centerWrap .title:hover,
-.xzBG.centerWrap .down_status {
-  color: #29b3f3 !important;
+.xzBG.centerWrap .down_status,
+.xzBG.centerWrap .centerPanelTextArea {
+  color: #fff !important;
 }
 .xzBG.centerWrap .centerWrap_top_btn:hover,
 .xzBG.centerWrap .showFileNameTip:hover,
@@ -1152,8 +1181,8 @@
 .xzBG.centerWrap .showFileNameResult:hover,
 .xzBG.centerWrap .help_bar > *:hover,
 .xzBG.centerWrap .updateActiveClass {
-  color: #29b3f3 !important;
-  fill: #29b3f3 !important;
+  color: #fff !important;
+  fill: #fff !important;
 }
 .xzBG.centerWrap .progressBar {
   background-color: #6e9dad !important;
@@ -1171,6 +1200,13 @@
 }
 .xzBG.centerWrap .centerWrap_btns button {
   box-shadow: none !important;
+}
+.xzBG.centerWrap.showBlobKeywords .key {
+  color: #fff;
+}
+.xzBG.centerWrap .settingCategoryName span {
+  color: #fff;
+  background-color: #777;
 }
 .showBlobKeywords .key {
   font-weight: bold;
