@@ -206,9 +206,7 @@ class SelectWork {
       'selectWorkBtns',
       Colors.bgGreen,
       lang.transl('_手动选择作品'),
-      [
-        ['title', 'Alt + S']
-      ]
+      [['title', 'Alt + S']]
     )
     this.updateControlBtn()
 

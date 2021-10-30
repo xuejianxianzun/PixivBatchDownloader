@@ -785,9 +785,6 @@ export const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="PreviewWork">
-      <span>${lang.transl('_尺寸')}</span>
-      <input type="text" name="PreviewWorkSize" class="setinput_style1 blue" value="600" style="width:50px;min-width: 50px;">&nbsp;px
-      &nbsp;
       <input type="checkbox" name="PreviewWorkMouseStay" id="PreviewWorkMouseStay" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
       <label for="PreviewWorkMouseStay">${lang.transl(

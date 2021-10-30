@@ -146,11 +146,11 @@ class ShowBigThumb {
       return
     }
 
-    const maxSize = settings.PreviewWorkSize
+    const defaultSize = 1200
 
     const cfg = {
-      width: maxSize,
-      height: maxSize,
+      width: defaultSize,
+      height: defaultSize,
       left: 0,
       top: 0,
     }
@@ -173,28 +173,27 @@ class ShowBigThumb {
     // 宽高从图片宽高、wrap 宽高、可视区域的宽高中，取最小值，使图片不会超出可视区域外
     // 竖图
     if (w < h) {
-      cfg.height = Math.min(maxSize, innerHeight, h)
+      cfg.height = Math.min(defaultSize, innerHeight, h)
       cfg.width = (cfg.height / h) * w
     } else if (w > h) {
       // 横图
-      cfg.width = Math.min(maxSize, xSpace, w)
+      cfg.width = Math.min(defaultSize, xSpace, w)
       cfg.height = (cfg.width / w) * h
-
     } else {
       // 正方形图片
-      cfg.height = Math.min(maxSize, innerHeight, xSpace, h)
-      cfg.width = Math.min(maxSize, w, innerHeight)
+      cfg.height = Math.min(defaultSize, innerHeight, xSpace, h)
+      cfg.width = Math.min(defaultSize, w, innerHeight)
     }
 
     // 如果 wrap 宽度超过了可视窗口宽度，则需要再次调整宽高
     if (cfg.width > xSpace) {
-      cfg.height = xSpace / cfg.width * cfg.height
+      cfg.height = (xSpace / cfg.width) * cfg.height
       cfg.width = xSpace
     }
 
     // 如果 wrap 高度超过了可视窗口高度，则需要再次调整宽高
     if (cfg.height > innerHeight) {
-      cfg.width = innerHeight / cfg.height * cfg.width
+      cfg.width = (innerHeight / cfg.height) * cfg.width
       cfg.height = innerHeight
     }
 

@@ -5090,9 +5090,7 @@ class SelectWork {
         }
     }
     addBtn() {
-        this.controlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_手动选择作品'), [
-            ['title', 'Alt + S']
-        ]);
+        this.controlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_手动选择作品'), [['title', 'Alt + S']]);
         this.updateControlBtn();
         this.clearBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgRed, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_清空选择的作品'));
         this.clearBtn.style.display = 'none';
@@ -5453,10 +5451,10 @@ class ShowBigThumb {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork || !this.workEL || !this.workData) {
             return;
         }
-        const maxSize = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWorkSize;
+        const defaultSize = 1200;
         const cfg = {
-            width: maxSize,
-            height: maxSize,
+            width: defaultSize,
+            height: defaultSize,
             left: 0,
             top: 0,
         };
@@ -5473,27 +5471,27 @@ class ShowBigThumb {
         // 宽高从图片宽高、wrap 宽高、可视区域的宽高中，取最小值，使图片不会超出可视区域外
         // 竖图
         if (w < h) {
-            cfg.height = Math.min(maxSize, innerHeight, h);
+            cfg.height = Math.min(defaultSize, innerHeight, h);
             cfg.width = (cfg.height / h) * w;
         }
         else if (w > h) {
             // 横图
-            cfg.width = Math.min(maxSize, xSpace, w);
+            cfg.width = Math.min(defaultSize, xSpace, w);
             cfg.height = (cfg.width / w) * h;
         }
         else {
             // 正方形图片
-            cfg.height = Math.min(maxSize, innerHeight, xSpace, h);
-            cfg.width = Math.min(maxSize, w, innerHeight);
+            cfg.height = Math.min(defaultSize, innerHeight, xSpace, h);
+            cfg.width = Math.min(defaultSize, w, innerHeight);
         }
         // 如果 wrap 宽度超过了可视窗口宽度，则需要再次调整宽高
         if (cfg.width > xSpace) {
-            cfg.height = xSpace / cfg.width * cfg.height;
+            cfg.height = (xSpace / cfg.width) * cfg.height;
             cfg.width = xSpace;
         }
         // 如果 wrap 高度超过了可视窗口高度，则需要再次调整宽高
         if (cfg.height > innerHeight) {
-            cfg.width = innerHeight / cfg.height * cfg.width;
+            cfg.width = (innerHeight / cfg.height) * cfg.width;
             cfg.height = innerHeight;
         }
         // 减去 border 的空间
@@ -17814,9 +17812,6 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="PreviewWork">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_尺寸')}</span>
-      <input type="text" name="PreviewWorkSize" class="setinput_style1 blue" value="600" style="width:50px;min-width: 50px;">&nbsp;px
-      &nbsp;
       <input type="checkbox" name="PreviewWorkMouseStay" id="PreviewWorkMouseStay" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
       <label for="PreviewWorkMouseStay">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_允许鼠标停留在预览图上')}</label>
@@ -18128,7 +18123,6 @@ class FormSettings {
                 'zeroPaddingLength',
                 'workDirNameRule',
                 'autoExportResultNumber',
-                'PreviewWorkSize',
             ],
             radio: [
                 'ugoiraSaveAs',
@@ -18985,7 +18979,6 @@ class Settings {
             autoExportResultJSON: false,
             autoExportResultNumber: 1,
             PreviewWork: true,
-            PreviewWorkSize: 600,
             PreviewWorkMouseStay: false,
             showDownloadBtnOnThumb: true,
         };
@@ -19181,9 +19174,6 @@ class Settings {
         }
         if (key === 'setWidthAndOr' && value === '') {
             value = this.defaultSettings[key];
-        }
-        if (key === 'PreviewWorkSize' && value < 300) {
-            value = 300;
         }
         // 更改设置
         ;
