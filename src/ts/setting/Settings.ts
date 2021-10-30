@@ -162,6 +162,7 @@ interface XzSetting {
   PreviewWork: boolean
   PreviewWorkMouseStay: boolean
   showDownloadBtnOnThumb: boolean
+  prevWorkSize: 'original' | 'regular'
 }
 
 type SettingsKeys = keyof XzSetting
@@ -338,6 +339,7 @@ class Settings {
     PreviewWork: true,
     PreviewWorkMouseStay: false,
     showDownloadBtnOnThumb: true,
+    prevWorkSize: 'regular',
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -559,7 +561,7 @@ class Settings {
     }
 
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
 
     // 当修改某些设置时，顺便修改和它有对应关系的设置
     if (key === 'widthTag') {

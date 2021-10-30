@@ -234,7 +234,8 @@ class ShowBigThumb {
     }
 
     // 3. 显示 wrap
-    this.wrap.innerHTML = `<img src="${this.workData?.body.urls.regular}" width="${cfg.width}" height="${cfg.height}">`
+    const url = this.workData?.body.urls[settings.prevWorkSize]
+    this.wrap.innerHTML = `<img src="${url}" width="${cfg.width}" height="${cfg.height}">`
     const styleArray: string[] = []
     for (const [key, value] of Object.entries(cfg)) {
       styleArray.push(`${key}:${value}px;`)

@@ -5526,7 +5526,8 @@ class ShowBigThumb {
             }
         }
         // 3. 显示 wrap
-        this.wrap.innerHTML = `<img src="${(_a = this.workData) === null || _a === void 0 ? void 0 : _a.body.urls.regular}" width="${cfg.width}" height="${cfg.height}">`;
+        const url = (_a = this.workData) === null || _a === void 0 ? void 0 : _a.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize];
+        this.wrap.innerHTML = `<img src="${url}" width="${cfg.width}" height="${cfg.height}">`;
         const styleArray = [];
         for (const [key, value] of Object.entries(cfg)) {
             styleArray.push(`${key}:${value}px;`);
@@ -17812,6 +17813,18 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="PreviewWork">
+      
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸2')} </span>
+      <input type="radio" name="prevWorkSize" id="prevWorkSize1" class="need_beautify radio" value="original">
+      <span class="beautify_radio"></span>
+      <label for="prevWorkSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_原图')} </label>
+      &nbsp;
+      <input type="radio" name="prevWorkSize" id="prevWorkSize2" class="need_beautify radio" value="regular" checked>
+      <span class="beautify_radio"></span>
+      <label for="prevWorkSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_普通')} </label>
+
+      <span class="verticalSplit"></span>
+
       <input type="checkbox" name="PreviewWorkMouseStay" id="PreviewWorkMouseStay" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
       <label for="PreviewWorkMouseStay">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_允许鼠标停留在预览图上')}</label>
@@ -18143,6 +18156,7 @@ class FormSettings {
                 'bgPositionY',
                 'switchTabBar',
                 'tagMatchMode',
+                'prevWorkSize',
             ],
             textarea: ['createFolderTagList'],
             datetime: ['postDateStart', 'postDateEnd'],
@@ -18981,6 +18995,7 @@ class Settings {
             PreviewWork: true,
             PreviewWorkMouseStay: false,
             showDownloadBtnOnThumb: true,
+            prevWorkSize: 'regular',
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项

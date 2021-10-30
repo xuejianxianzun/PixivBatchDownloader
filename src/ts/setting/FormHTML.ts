@@ -785,6 +785,18 @@ export const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="PreviewWork">
+      
+      <span class="settingNameStyle1">${lang.transl('_图片尺寸2')}</span>
+      <input type="radio" name="prevWorkSize" id="prevWorkSize1" class="need_beautify radio" value="original">
+      <span class="beautify_radio"></span>
+      <label for="prevWorkSize1"> ${lang.transl('_原图')} </label>
+      &nbsp;
+      <input type="radio" name="prevWorkSize" id="prevWorkSize2" class="need_beautify radio" value="regular" checked>
+      <span class="beautify_radio"></span>
+      <label for="prevWorkSize2"> ${lang.transl('_普通')} </label>
+
+      <span class="verticalSplit"></span>
+
       <input type="checkbox" name="PreviewWorkMouseStay" id="PreviewWorkMouseStay" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
       <label for="PreviewWorkMouseStay">${lang.transl(
@@ -812,7 +824,7 @@ export const formHtml = `<form class="settingForm">
 
       <span class="verticalSplit"></span>
 
-      <span class="settingNameStyle1">${lang.transl('_图片尺寸2')} </span>
+      <span class="settingNameStyle1">${lang.transl('_图片尺寸2')}</span>
       <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
       <label for="magnifierSize1"> ${lang.transl('_原图')} </label>
