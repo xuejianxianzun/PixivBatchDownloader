@@ -12,17 +12,21 @@ class ShowBigThumb {
     this.bindEvents()
   }
 
-  // 容器元素的相关数据
+  // wrap 容器元素
   private wrapId = 'bigThumbWrap'
   private wrap!: HTMLElement
   private readonly border = 8 // wrap 的 border 占据的空间
 
-  // 保存最后一个缩略图的作品的 id
+  // 原比例查看的元素
+  private originSizeWrapId = 'originSizeWrap'
+  private originSizeWrap!: HTMLElement
+
+  // 保存当前鼠标经过的缩略图的数据
   private workId = ''
   private workData?: ArtworkData
   private workEL?: HTMLElement
 
-  // 显示/隐藏
+  // 显示/隐藏 wrap
   private _show = false
 
   // 加载图像的延迟时间
@@ -57,6 +61,12 @@ class ShowBigThumb {
       this.wrap.style.display = 'none'
       this.workData = undefined
       this.workEL = undefined
+      // 隐藏 wrap 时，把 img 的 src 设置为空
+      // 这样如果图片没有加载完就会停止加载，避免浪费网络资源
+      const img = this.wrap.querySelector('img')
+      if (img) {
+        img.src = ''
+      }
     }
   }
 
@@ -118,6 +128,10 @@ class ShowBigThumb {
     this.wrap = document.createElement('div')
     this.wrap.id = this.wrapId
     document.body.appendChild(this.wrap)
+
+    this.originSizeWrap = document.createElement('div')
+    this.originSizeWrap.id = this.originSizeWrapId
+    document.documentElement.appendChild(this.originSizeWrap)
   }
 
   private async getWorkData() {

@@ -5335,12 +5335,14 @@ __webpack_require__.r(__webpack_exports__);
 // 鼠标经过作品的缩略图时，显示更大尺寸的缩略图
 class ShowBigThumb {
     constructor() {
-        // 容器元素的相关数据
+        // wrap 容器元素
         this.wrapId = 'bigThumbWrap';
         this.border = 8; // wrap 的 border 占据的空间
-        // 保存最后一个缩略图的作品的 id
+        // 原比例查看的元素
+        this.originSizeWrapId = 'originSizeWrap';
+        // 保存当前鼠标经过的缩略图的数据
         this.workId = '';
-        // 显示/隐藏
+        // 显示/隐藏 wrap
         this._show = false;
         // 加载图像的延迟时间
         // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
@@ -5376,6 +5378,10 @@ class ShowBigThumb {
             this.wrap.style.display = 'none';
             this.workData = undefined;
             this.workEL = undefined;
+            const img = this.wrap.querySelector('img');
+            if (img) {
+                img.src = '';
+            }
         }
     }
     bindEvents() {
@@ -5427,6 +5433,9 @@ class ShowBigThumb {
         this.wrap = document.createElement('div');
         this.wrap.id = this.wrapId;
         document.body.appendChild(this.wrap);
+        this.originSizeWrap = document.createElement('div');
+        this.originSizeWrap.id = this.originSizeWrapId;
+        document.documentElement.appendChild(this.originSizeWrap);
     }
     async getWorkData() {
         const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(this.workId);
@@ -17814,7 +17823,7 @@ const formHtml = `<form class="settingForm">
 
       <span class="subOptionWrap" data-show="PreviewWork">
       
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸2')} </span>
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸2')}</span>
       <input type="radio" name="prevWorkSize" id="prevWorkSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
       <label for="prevWorkSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_原图')} </label>
@@ -17848,7 +17857,7 @@ const formHtml = `<form class="settingForm">
 
       <span class="verticalSplit"></span>
 
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸2')} </span>
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸2')}</span>
       <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
       <label for="magnifierSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_原图')} </label>
