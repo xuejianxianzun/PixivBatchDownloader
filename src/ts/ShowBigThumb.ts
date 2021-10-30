@@ -8,66 +8,83 @@ import { states } from './store/States'
 // 鼠标经过作品的缩略图时，显示更大尺寸的缩略图
 class ShowBigThumb {
   constructor() {
-    this.createWrap()
+    this.createElements()
     this.bindEvents()
   }
 
-  // wrap 容器元素
-  private wrapId = 'bigThumbWrap'
-  private wrap!: HTMLElement
+  // 预览作品的容器的元素
+  private prewWrapId = 'bigThumbWrap'
+  private prewWrap!: HTMLElement
+  private prevWrapImg!: HTMLImageElement
   private readonly border = 8 // wrap 的 border 占据的空间
-
-  // 原比例查看的元素
-  private originSizeWrapId = 'originSizeWrap'
-  private originSizeWrap!: HTMLElement
 
   // 保存当前鼠标经过的缩略图的数据
   private workId = ''
   private workData?: ArtworkData
   private workEL?: HTMLElement
 
-  // 显示/隐藏 wrap
-  private _show = false
-
-  // 加载图像的延迟时间
+  // 显示预览区域的延迟时间
   // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
   // 如果鼠标在缩略图上停留达到 delay 的时间，才会加载 regular 尺寸的图片
   // 这是因为要加载的图片体积比较大，regular 规格的图片的体积可能达到 800KB，如果立即加载的话会浪费网络资源
-  private readonly showDelay = 300
-  private showTimer: number = 0
+  private readonly showPrevDelay = 300
+  private showPrevTimer = 0
 
   // 鼠标离开缩略图之后，经过指定的时间才会隐藏 wrap
   // 如果在这个时间内又进入缩略图，或者进入 wrap，则取消隐藏定时器，继续显示 wrap
   // 如果不使用延迟隐藏，而是立即隐藏的话，用户就不能滚动页面来查看完整的 wrap
   private readonly hiddenDelay = 50
-  private hiddenTimer: number = 0
+  private hiddenTimer = 0
 
-  private get show() {
-    return this._show
+  // 预览 wrap 的状态
+  private _prevShow = false
+
+  private get prevShow() {
+    return this._prevShow
   }
 
-  private set show(val: boolean) {
+  private set prevShow(val: boolean) {
     if (val) {
       // 如果保存的作品数据不是最后一个鼠标经过的作品，可能是请求尚未完成，此时延长等待时间
       if (!this.workData || this.workData.body.id !== this.workId) {
-        this.readyShow()
+        this.readyShowPrev()
       } else {
-        this._show = val
-        this.showWrap()
+        this._prevShow = val
+        this.showPrev()
       }
     } else {
-      window.clearTimeout(this.showTimer)
-      this._show = val
-      this.wrap.style.display = 'none'
+      window.clearTimeout(this.showPrevTimer)
+      this._prevShow = val
+      this.prewWrap.style.display = 'none'
       this.workData = undefined
       this.workEL = undefined
       // 隐藏 wrap 时，把 img 的 src 设置为空
       // 这样如果图片没有加载完就会停止加载，避免浪费网络资源
-      const img = this.wrap.querySelector('img')
-      if (img) {
-        img.src = ''
-      }
+      this.prevWrapImg.src = ''
     }
+  }
+
+  // 原比例查看图片的容器的元素
+  private originSizeWrapId = 'originSizeWrap'
+  private originSizeWrap!: HTMLElement
+  private originImg!: HTMLImageElement
+
+  private originShow = false
+  private showOriginTimer = 0
+  private zoom = 1
+
+  private createElements() {
+    this.prewWrap = document.createElement('div')
+    this.prewWrap.id = this.prewWrapId
+    this.prevWrapImg = document.createElement('img')
+    this.prewWrap.appendChild(this.prevWrapImg)
+    document.body.appendChild(this.prewWrap)
+
+    this.originSizeWrap = document.createElement('div')
+    this.originSizeWrap.id = this.originSizeWrapId
+    this.originImg = document.createElement('img')
+    this.originSizeWrap.appendChild(this.originImg)
+    document.documentElement.appendChild(this.originSizeWrap)
   }
 
   private bindEvents() {
@@ -82,30 +99,36 @@ class ShowBigThumb {
       this.getWorkData()
       this.workEL = el
       // 一定时间后，显示容器，加载大图
-      this.readyShow()
+      this.readyShowPrev()
+
+      el.addEventListener('mousedown', this.readyShowOrigin)
+      el.addEventListener('mouseup', this.cancelShowOrigin)
     })
 
-    mouseOverThumbnail.onLeave(() => {
-      if (this.show) {
-        settings.PreviewWorkMouseStay ? this.readyHidden() : (this.show = false)
+    mouseOverThumbnail.onLeave((el: HTMLElement) => {
+      if (this.prevShow) {
+        settings.PreviewWorkMouseStay ? this.readyHiddenPrev() : (this.prevShow = false)
+
+        el.removeEventListener('mousedown', this.readyShowOrigin)
+        el.removeEventListener('mouseup', this.cancelShowOrigin)
       } else {
-        this.show = false
+        this.prevShow = false
       }
     })
 
-    this.wrap.addEventListener('mouseenter', () => {
+    this.prewWrap.addEventListener('mouseenter', () => {
       // 允许鼠标停留在预览图上的情况
       if (settings.PreviewWorkMouseStay && !states.selectWork) {
         window.clearTimeout(this.hiddenTimer)
       }
     })
 
-    this.wrap.addEventListener('mouseleave', () => {
-      this.show = false
+    this.prewWrap.addEventListener('mouseleave', () => {
+      this.prevShow = false
     })
 
-    this.wrap.addEventListener('click', () => {
-      this.show = false
+    this.prewWrap.addEventListener('click', () => {
+      this.prevShow = false
     })
 
     // 可以使用 Alt + P 快捷键来启用/禁用此功能
@@ -116,22 +139,16 @@ class ShowBigThumb {
     })
 
     window.addEventListener(EVT.list.pageSwitch, () => {
-      this.show = false
+      this.prevShow = false
     })
 
     window.addEventListener(EVT.list.centerPanelOpened, () => {
-      this.show = false
+      this.prevShow = false
     })
-  }
 
-  private createWrap() {
-    this.wrap = document.createElement('div')
-    this.wrap.id = this.wrapId
-    document.body.appendChild(this.wrap)
-
-    this.originSizeWrap = document.createElement('div')
-    this.originSizeWrap.id = this.originSizeWrapId
-    document.documentElement.appendChild(this.originSizeWrap)
+    this.originSizeWrap.addEventListener('mouseleave', () => {
+      this.hiddenOrigin()
+    })
   }
 
   private async getWorkData() {
@@ -141,21 +158,21 @@ class ShowBigThumb {
     }
   }
 
-  private readyShow() {
-    this.showTimer = window.setTimeout(() => {
-      this.show = true
-    }, this.showDelay)
+  private readyShowPrev() {
+    this.showPrevTimer = window.setTimeout(() => {
+      this.prevShow = true
+    }, this.showPrevDelay)
   }
 
-  private readyHidden() {
-    window.clearTimeout(this.showTimer)
+  private readyHiddenPrev() {
+    window.clearTimeout(this.showPrevTimer)
     this.hiddenTimer = window.setTimeout(() => {
-      this.show = false
+      this.prevShow = false
     }, this.hiddenDelay)
   }
 
-  // 显示大缩略图。尽量不遮挡住小缩略图
-  private showWrap() {
+  // 显示预览 wrap
+  private showPrev() {
     if (!settings.PreviewWork || !this.workEL || !this.workData) {
       return
     }
@@ -248,15 +265,51 @@ class ShowBigThumb {
     }
 
     // 3. 显示 wrap
-    const url = this.workData?.body.urls[settings.prevWorkSize]
-    this.wrap.innerHTML = `<img src="${url}" width="${cfg.width}" height="${cfg.height}">`
+    this.prevWrapImg.src = this.getImageURL()
     const styleArray: string[] = []
     for (const [key, value] of Object.entries(cfg)) {
       styleArray.push(`${key}:${value}px;`)
     }
     styleArray.push('display:block;')
-    this.wrap.setAttribute('style', styleArray.join(''))
+    this.prewWrap.setAttribute('style', styleArray.join(''))
   }
+
+  private getImageURL() {
+    return this.workData?.body.urls[settings.prevWorkSize] || ''
+  }
+
+  private readyShowOrigin = (ev: MouseEvent) => {
+    // 长按鼠标右键一定时间之后，显示原尺寸区域
+    console.log(ev.button)
+    // 0 左键 1 滚轮 2 右键
+    if(ev.button===2){
+      this.showOriginTimer = window.setTimeout(() => {
+        this.showOrigin()
+      }, 500)
+    }
+  }
+
+  private cancelShowOrigin = (ev: MouseEvent) => {
+    // 当鼠标右键弹起的时候，如果已经显示了原尺寸区域，就阻止右键的显示
+    if (this.originShow) {
+      ev.preventDefault()
+    }
+    window.clearTimeout(this.showOriginTimer)
+  }
+
+  private showOrigin() {
+    console.log('showOrigin')
+    this.originShow = true
+    this.originSizeWrap.style.display = 'block'
+    this.originImg.src = this.getImageURL()
+  }
+
+  private hiddenOrigin() {
+    this.originShow = false
+    this.originSizeWrap.style.display = 'none'
+    this.originImg.src = ''
+  }
+
 }
 
 new ShowBigThumb()

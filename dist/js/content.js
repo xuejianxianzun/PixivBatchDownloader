@@ -5335,54 +5335,84 @@ __webpack_require__.r(__webpack_exports__);
 // 鼠标经过作品的缩略图时，显示更大尺寸的缩略图
 class ShowBigThumb {
     constructor() {
-        // wrap 容器元素
-        this.wrapId = 'bigThumbWrap';
+        // 预览作品的容器的元素
+        this.prewWrapId = 'bigThumbWrap';
         this.border = 8; // wrap 的 border 占据的空间
-        // 原比例查看的元素
-        this.originSizeWrapId = 'originSizeWrap';
         // 保存当前鼠标经过的缩略图的数据
         this.workId = '';
-        // 显示/隐藏 wrap
-        this._show = false;
-        // 加载图像的延迟时间
+        // 显示预览区域的延迟时间
         // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
         // 如果鼠标在缩略图上停留达到 delay 的时间，才会加载 regular 尺寸的图片
         // 这是因为要加载的图片体积比较大，regular 规格的图片的体积可能达到 800KB，如果立即加载的话会浪费网络资源
-        this.showDelay = 300;
-        this.showTimer = 0;
+        this.showPrevDelay = 300;
+        this.showPrevTimer = 0;
         // 鼠标离开缩略图之后，经过指定的时间才会隐藏 wrap
         // 如果在这个时间内又进入缩略图，或者进入 wrap，则取消隐藏定时器，继续显示 wrap
         // 如果不使用延迟隐藏，而是立即隐藏的话，用户就不能滚动页面来查看完整的 wrap
         this.hiddenDelay = 50;
         this.hiddenTimer = 0;
-        this.createWrap();
+        // 预览 wrap 的状态
+        this._prevShow = false;
+        // 原比例查看图片的容器的元素
+        this.originSizeWrapId = 'originSizeWrap';
+        this.originShow = false;
+        this.showOriginTimer = 0;
+        this.zoom = 1;
+        this.readyShowOrigin = (ev) => {
+            // 长按鼠标右键一定时间之后，显示原尺寸区域
+            console.log(ev.button);
+            if (ev.button === 2) {
+                this.showOriginTimer = window.setTimeout(() => {
+                    this.showOrigin();
+                }, 500);
+            }
+        };
+        this.cancelShowOrigin = (ev) => {
+            // 当鼠标右键弹起的时候，如果已经显示了原尺寸区域，就阻止右键的显示
+            if (this.originShow) {
+                ev.preventDefault();
+            }
+            window.clearTimeout(this.showOriginTimer);
+        };
+        this.createElements();
         this.bindEvents();
     }
-    get show() {
-        return this._show;
+    get prevShow() {
+        return this._prevShow;
     }
-    set show(val) {
+    set prevShow(val) {
         if (val) {
             // 如果保存的作品数据不是最后一个鼠标经过的作品，可能是请求尚未完成，此时延长等待时间
             if (!this.workData || this.workData.body.id !== this.workId) {
-                this.readyShow();
+                this.readyShowPrev();
             }
             else {
-                this._show = val;
-                this.showWrap();
+                this._prevShow = val;
+                this.showPrev();
             }
         }
         else {
-            window.clearTimeout(this.showTimer);
-            this._show = val;
-            this.wrap.style.display = 'none';
+            window.clearTimeout(this.showPrevTimer);
+            this._prevShow = val;
+            this.prewWrap.style.display = 'none';
             this.workData = undefined;
             this.workEL = undefined;
-            const img = this.wrap.querySelector('img');
-            if (img) {
-                img.src = '';
-            }
+            // 隐藏 wrap 时，把 img 的 src 设置为空
+            // 这样如果图片没有加载完就会停止加载，避免浪费网络资源
+            this.prevWrapImg.src = '';
         }
+    }
+    createElements() {
+        this.prewWrap = document.createElement('div');
+        this.prewWrap.id = this.prewWrapId;
+        this.prevWrapImg = document.createElement('img');
+        this.prewWrap.appendChild(this.prevWrapImg);
+        document.body.appendChild(this.prewWrap);
+        this.originSizeWrap = document.createElement('div');
+        this.originSizeWrap.id = this.originSizeWrapId;
+        this.originImg = document.createElement('img');
+        this.originSizeWrap.appendChild(this.originImg);
+        document.documentElement.appendChild(this.originSizeWrap);
     }
     bindEvents() {
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onEnter((el, id) => {
@@ -5394,27 +5424,31 @@ class ShowBigThumb {
             this.getWorkData();
             this.workEL = el;
             // 一定时间后，显示容器，加载大图
-            this.readyShow();
+            this.readyShowPrev();
+            el.addEventListener('mousedown', this.readyShowOrigin);
+            el.addEventListener('mouseup', this.cancelShowOrigin);
         });
-        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave(() => {
-            if (this.show) {
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWorkMouseStay ? this.readyHidden() : (this.show = false);
+        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave((el) => {
+            if (this.prevShow) {
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWorkMouseStay ? this.readyHiddenPrev() : (this.prevShow = false);
+                el.removeEventListener('mousedown', this.readyShowOrigin);
+                el.removeEventListener('mouseup', this.cancelShowOrigin);
             }
             else {
-                this.show = false;
+                this.prevShow = false;
             }
         });
-        this.wrap.addEventListener('mouseenter', () => {
+        this.prewWrap.addEventListener('mouseenter', () => {
             // 允许鼠标停留在预览图上的情况
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWorkMouseStay && !_store_States__WEBPACK_IMPORTED_MODULE_4__["states"].selectWork) {
                 window.clearTimeout(this.hiddenTimer);
             }
         });
-        this.wrap.addEventListener('mouseleave', () => {
-            this.show = false;
+        this.prewWrap.addEventListener('mouseleave', () => {
+            this.prevShow = false;
         });
-        this.wrap.addEventListener('click', () => {
-            this.show = false;
+        this.prewWrap.addEventListener('click', () => {
+            this.prevShow = false;
         });
         // 可以使用 Alt + P 快捷键来启用/禁用此功能
         window.addEventListener('keydown', (ev) => {
@@ -5423,19 +5457,14 @@ class ShowBigThumb {
             }
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, () => {
-            this.show = false;
+            this.prevShow = false;
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.centerPanelOpened, () => {
-            this.show = false;
+            this.prevShow = false;
         });
-    }
-    createWrap() {
-        this.wrap = document.createElement('div');
-        this.wrap.id = this.wrapId;
-        document.body.appendChild(this.wrap);
-        this.originSizeWrap = document.createElement('div');
-        this.originSizeWrap.id = this.originSizeWrapId;
-        document.documentElement.appendChild(this.originSizeWrap);
+        this.originSizeWrap.addEventListener('mouseleave', () => {
+            this.hiddenOrigin();
+        });
     }
     async getWorkData() {
         const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(this.workId);
@@ -5443,20 +5472,19 @@ class ShowBigThumb {
             this.workData = data;
         }
     }
-    readyShow() {
-        this.showTimer = window.setTimeout(() => {
-            this.show = true;
-        }, this.showDelay);
+    readyShowPrev() {
+        this.showPrevTimer = window.setTimeout(() => {
+            this.prevShow = true;
+        }, this.showPrevDelay);
     }
-    readyHidden() {
-        window.clearTimeout(this.showTimer);
+    readyHiddenPrev() {
+        window.clearTimeout(this.showPrevTimer);
         this.hiddenTimer = window.setTimeout(() => {
-            this.show = false;
+            this.prevShow = false;
         }, this.hiddenDelay);
     }
-    // 显示大缩略图。尽量不遮挡住小缩略图
-    showWrap() {
-        var _a;
+    // 显示预览 wrap
+    showPrev() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork || !this.workEL || !this.workData) {
             return;
         }
@@ -5535,14 +5563,28 @@ class ShowBigThumb {
             }
         }
         // 3. 显示 wrap
-        const url = (_a = this.workData) === null || _a === void 0 ? void 0 : _a.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize];
-        this.wrap.innerHTML = `<img src="${url}" width="${cfg.width}" height="${cfg.height}">`;
+        this.prevWrapImg.src = this.getImageURL();
         const styleArray = [];
         for (const [key, value] of Object.entries(cfg)) {
             styleArray.push(`${key}:${value}px;`);
         }
         styleArray.push('display:block;');
-        this.wrap.setAttribute('style', styleArray.join(''));
+        this.prewWrap.setAttribute('style', styleArray.join(''));
+    }
+    getImageURL() {
+        var _a;
+        return ((_a = this.workData) === null || _a === void 0 ? void 0 : _a.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize]) || '';
+    }
+    showOrigin() {
+        console.log('showOrigin');
+        this.originShow = true;
+        this.originSizeWrap.style.display = 'block';
+        this.originImg.src = this.getImageURL();
+    }
+    hiddenOrigin() {
+        this.originShow = false;
+        this.originSizeWrap.style.display = 'none';
+        this.originImg.src = '';
     }
 }
 new ShowBigThumb();
