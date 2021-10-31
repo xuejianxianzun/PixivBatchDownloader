@@ -4432,25 +4432,13 @@ class Log {
             _config_Colors__WEBPACK_IMPORTED_MODULE_3__["Colors"].textWarning,
             _config_Colors__WEBPACK_IMPORTED_MODULE_3__["Colors"].textError,
         ];
+        this.max = 200;
+        this.count = 0;
         this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
         this.scrollToBottom();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.clearLog, () => {
             this.clear();
         });
-    }
-    // 如果日志区域没有被添加到页面上，则添加上
-    checkElement() {
-        let test = document.getElementById(this.id);
-        if (test === null) {
-            this.logArea.id = this.id;
-            this.logArea.classList.add('beautify_scrollbar', 'logWrap');
-            _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].insertToHead(this.logArea);
-            _Theme__WEBPACK_IMPORTED_MODULE_2__["theme"].register(this.logArea);
-        }
-    }
-    // 清空日志
-    clear() {
-        this.logArea.remove();
     }
     // 添加日志
     /*
@@ -4470,6 +4458,9 @@ class Log {
         let span = document.createElement('span');
         if (!keepShow) {
             span = this.refresh;
+        }
+        else {
+            this.count++;
         }
         span.innerHTML = str;
         span.style.color = this.levelColor[level];
@@ -4491,6 +4482,26 @@ class Log {
     }
     error(str, br = 1, keepShow = true) {
         this.add(str, 3, br, keepShow);
+    }
+    checkElement() {
+        // 如果日志区域没有被添加到页面上，则添加
+        let test = document.getElementById(this.id);
+        if (test === null) {
+            this.logArea.id = this.id;
+            this.logArea.classList.add('beautify_scrollbar', 'logWrap');
+            _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].insertToHead(this.logArea);
+            _Theme__WEBPACK_IMPORTED_MODULE_2__["theme"].register(this.logArea);
+        }
+        // 如果页面上的日志条数超过指定数量，则清空
+        // 因为日志数量太多的话会占用很大的内存。同时显示 8000 条日志可能占用接近 1 GB 的内存
+        if (this.count > this.max) {
+            this.logArea.innerHTML = '';
+            this.count = 0;
+        }
+    }
+    // 清空日志
+    clear() {
+        this.logArea.remove();
     }
     // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部
     scrollToBottom() {
@@ -5361,6 +5372,7 @@ class ShowBigThumb {
         this.readyShowOrigin = (ev) => {
             // 长按鼠标右键一定时间之后，显示原尺寸区域
             console.log(ev.button);
+            // 0 左键 1 滚轮 2 右键
             if (ev.button === 2) {
                 this.showOriginTimer = window.setTimeout(() => {
                     this.showOrigin();
@@ -5430,7 +5442,9 @@ class ShowBigThumb {
         });
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave((el) => {
             if (this.prevShow) {
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWorkMouseStay ? this.readyHiddenPrev() : (this.prevShow = false);
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWorkMouseStay
+                    ? this.readyHiddenPrev()
+                    : (this.prevShow = false);
                 el.removeEventListener('mousedown', this.readyShowOrigin);
                 el.removeEventListener('mouseup', this.cancelShowOrigin);
             }
@@ -11765,33 +11779,31 @@ class Deduplication {
                 return resolve(false);
             }
             // 在数据库进行查找
-            const storeNmae = this.getStoreName(result.id);
-            const data = (await this.IDB.get(storeNmae, result.id));
+            const storeName = this.getStoreName(result.id);
+            const data = (await this.IDB.get(storeName, result.id));
             if (data === null) {
                 return resolve(false);
             }
+            // 有记录，说明这个文件下载过
+            this.existedIdList.push(data.id);
+            // 首先检查日期字符串是否发生了变化
+            let dateChange = false;
+            if (data.d) {
+                dateChange = data.d !== this.getDateString(result);
+                // 如果日期字符串变化了，则不视为重复文件
+                if (dateChange) {
+                    return resolve(false);
+                }
+            }
+            // 如果日期字符串没有变化，再根据策略进行判断
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].dupliStrategy === 'loose') {
+                // 如果是宽松策略（不比较文件名）
+                return resolve(true);
+            }
             else {
-                // 有记录，说明这个文件下载过
-                this.existedIdList.push(data.id);
-                // 首先检查日期字符串是否发生了变化
-                let dateChange = false;
-                if (data.d) {
-                    dateChange = data.d !== this.getDateString(result);
-                    // 如果日期字符串变化了，则不视为重复文件
-                    if (dateChange) {
-                        return false;
-                    }
-                }
-                // 如果日期字符串没有变化，再根据策略进行判断
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].dupliStrategy === 'loose') {
-                    // 如果是宽松策略（不比较文件名）
-                    return resolve(true);
-                }
-                else {
-                    // 如果是严格策略（考虑文件名）
-                    const name = _FileName__WEBPACK_IMPORTED_MODULE_6__["fileName"].getFileName(result);
-                    return resolve(name === data.n);
-                }
+                // 如果是严格策略（考虑文件名）
+                const name = _FileName__WEBPACK_IMPORTED_MODULE_6__["fileName"].getFileName(result);
+                return resolve(name === data.n);
             }
         });
     }

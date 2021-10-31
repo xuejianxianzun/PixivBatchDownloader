@@ -107,7 +107,9 @@ class ShowBigThumb {
 
     mouseOverThumbnail.onLeave((el: HTMLElement) => {
       if (this.prevShow) {
-        settings.PreviewWorkMouseStay ? this.readyHiddenPrev() : (this.prevShow = false)
+        settings.PreviewWorkMouseStay
+          ? this.readyHiddenPrev()
+          : (this.prevShow = false)
 
         el.removeEventListener('mousedown', this.readyShowOrigin)
         el.removeEventListener('mouseup', this.cancelShowOrigin)
@@ -282,7 +284,7 @@ class ShowBigThumb {
     // 长按鼠标右键一定时间之后，显示原尺寸区域
     console.log(ev.button)
     // 0 左键 1 滚轮 2 右键
-    if(ev.button===2){
+    if (ev.button === 2) {
       this.showOriginTimer = window.setTimeout(() => {
         this.showOrigin()
       }, 500)
@@ -309,7 +311,6 @@ class ShowBigThumb {
     this.originSizeWrap.style.display = 'none'
     this.originImg.src = ''
   }
-
 }
 
 new ShowBigThumb()

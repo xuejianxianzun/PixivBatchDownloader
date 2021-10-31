@@ -23,23 +23,10 @@ class Log {
     Colors.textError,
   ]
 
+  private max = 200
+  private count = 0
+
   private toBottom = false // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
-
-  // 如果日志区域没有被添加到页面上，则添加上
-  private checkElement() {
-    let test = document.getElementById(this.id)
-    if (test === null) {
-      this.logArea.id = this.id
-      this.logArea.classList.add('beautify_scrollbar', 'logWrap')
-      Tools.insertToHead(this.logArea)
-      theme.register(this.logArea)
-    }
-  }
-
-  // 清空日志
-  public clear() {
-    this.logArea.remove()
-  }
 
   // 添加日志
   /*
@@ -59,6 +46,8 @@ class Log {
     let span = document.createElement('span')
     if (!keepShow) {
       span = this.refresh
+    } else {
+      this.count++
     }
 
     span.innerHTML = str
@@ -71,7 +60,6 @@ class Log {
     }
 
     this.logArea.appendChild(span)
-
     this.toBottom = true // 需要把日志滚动到底部
   }
 
@@ -89,6 +77,29 @@ class Log {
 
   public error(str: string, br: number = 1, keepShow: boolean = true) {
     this.add(str, 3, br, keepShow)
+  }
+
+  private checkElement() {
+    // 如果日志区域没有被添加到页面上，则添加
+    let test = document.getElementById(this.id)
+    if (test === null) {
+      this.logArea.id = this.id
+      this.logArea.classList.add('beautify_scrollbar', 'logWrap')
+      Tools.insertToHead(this.logArea)
+      theme.register(this.logArea)
+    }
+
+    // 如果页面上的日志条数超过指定数量，则清空
+    // 因为日志数量太多的话会占用很大的内存。同时显示 8000 条日志可能占用接近 1 GB 的内存
+    if (this.count > this.max) {
+      this.logArea.innerHTML = ''
+      this.count = 0
+    }
+  }
+
+  // 清空日志
+  public clear() {
+    this.logArea.remove()
   }
 
   // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部
