@@ -149,11 +149,17 @@ class ShowBigThumb {
     })
 
     this.originSizeWrap.addEventListener('mouseleave', () => {
-      this.hiddenOrigin()
+      // this.hiddenOrigin()
     })
 
     this.originSizeWrap.addEventListener('click', () => {
       this.hiddenOrigin()
+    })
+
+    this.originSizeWrap.addEventListener('mousewheel', (ev) => {
+      ev.preventDefault()
+      // 向上滚 deltaY 是负数（-125），向下滚是正数（125）
+      this.originZoom((ev as WheelEvent).deltaY < 0)
     })
 
     window.addEventListener('contextmenu', (ev) => {
@@ -316,11 +322,24 @@ class ShowBigThumb {
 
     this.prevShow = false
     this.originShow = true
-    this.zoom = 1
+    this.originImg.src = this.getImageURL()
+    this.setOriginWrap()
+    this.originSizeWrap.style.display = 'block'
+  }
 
+  private originZoom(add: boolean) {
+    if ((add && this.zoom >= 4) || (!add && this.zoom <= 0.5)) {
+      return
+    }
+
+    this.zoom += (add ? 0.5 : -0.5)
+    this.setOriginWrap()
+  }
+
+  private setOriginWrap() {
     // 计算显示的图片的宽高
-    const originWidth = this.workData.body.width
-    const originHeight = this.workData.body.height
+    const originWidth = this.workData!.body.width
+    const originHeight = this.workData!.body.height
     let imgWidth = originWidth
     let imgHeight = originHeight
     // 如果加载的是“原图”尺寸，需要根据原图的比例计算宽高
@@ -333,6 +352,18 @@ class ShowBigThumb {
         imgHeight = Math.min(originHeight, this.defaultSize)
         imgWidth = imgHeight / originHeight * imgWidth
       }
+    }
+
+    imgWidth = imgWidth * this.zoom
+    imgHeight = imgHeight * this.zoom
+
+    const max = Math.max(imgWidth, imgHeight)
+    // 限制缩放的尺寸范围。如果超出了范围就取消对缩放比例的修改
+    if (max < 600) {
+      return this.zoom += 0.5
+    }
+    if (max > 15000) {
+      return this.zoom -= 0.5
     }
 
     this.originSizeWrap.style.width = imgWidth + 'px'
@@ -350,13 +381,11 @@ class ShowBigThumb {
     // 总是居中显示
     let left = (window.innerWidth - 17 - imgWidth - this.border) / 2
     this.originSizeWrap.style.left = left + 'px'
-
-    this.originSizeWrap.style.display = 'block'
-    this.originImg.src = this.getImageURL()
   }
 
   private hiddenOrigin() {
     this.originShow = false
+    this.zoom = 1
     this.originSizeWrap.style.display = 'none'
     this.originImg.src = ''
   }

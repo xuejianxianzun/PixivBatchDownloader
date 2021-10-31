@@ -5477,10 +5477,15 @@ class ShowBigThumb {
             this.prevShow = false;
         });
         this.originSizeWrap.addEventListener('mouseleave', () => {
-            this.hiddenOrigin();
+            // this.hiddenOrigin()
         });
         this.originSizeWrap.addEventListener('click', () => {
             this.hiddenOrigin();
+        });
+        this.originSizeWrap.addEventListener('mousewheel', (ev) => {
+            ev.preventDefault();
+            // 向上滚 deltaY 是负数（-125），向下滚是正数（125）
+            this.originZoom(ev.deltaY < 0);
         });
         window.addEventListener('contextmenu', (ev) => {
             // 如果是在原图区域显示之前按下了右键，并且随后显示了原图区域，那么就屏蔽这一次右键菜单
@@ -5604,7 +5609,18 @@ class ShowBigThumb {
         }
         this.prevShow = false;
         this.originShow = true;
-        this.zoom = 1;
+        this.originImg.src = this.getImageURL();
+        this.setOriginWrap();
+        this.originSizeWrap.style.display = 'block';
+    }
+    originZoom(add) {
+        if ((add && this.zoom >= 4) || (!add && this.zoom <= 0.5)) {
+            return;
+        }
+        this.zoom += (add ? 0.5 : -0.5);
+        this.setOriginWrap();
+    }
+    setOriginWrap() {
         // 计算显示的图片的宽高
         const originWidth = this.workData.body.width;
         const originHeight = this.workData.body.height;
@@ -5622,6 +5638,16 @@ class ShowBigThumb {
                 imgWidth = imgHeight / originHeight * imgWidth;
             }
         }
+        imgWidth = imgWidth * this.zoom;
+        imgHeight = imgHeight * this.zoom;
+        const max = Math.max(imgWidth, imgHeight);
+        // 限制缩放的尺寸范围。如果超出了范围就取消对缩放比例的修改
+        if (max < 600) {
+            return this.zoom += 0.5;
+        }
+        if (max > 15000) {
+            return this.zoom -= 0.5;
+        }
         this.originSizeWrap.style.width = imgWidth + 'px';
         this.originSizeWrap.style.height = imgHeight + 'px';
         // 设置 top，默认从顶部显示
@@ -5635,11 +5661,10 @@ class ShowBigThumb {
         // 总是居中显示
         let left = (window.innerWidth - 17 - imgWidth - this.border) / 2;
         this.originSizeWrap.style.left = left + 'px';
-        this.originSizeWrap.style.display = 'block';
-        this.originImg.src = this.getImageURL();
     }
     hiddenOrigin() {
         this.originShow = false;
+        this.zoom = 1;
         this.originSizeWrap.style.display = 'none';
         this.originImg.src = '';
     }
