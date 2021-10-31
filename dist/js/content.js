@@ -5346,6 +5346,7 @@ __webpack_require__.r(__webpack_exports__);
 // 鼠标经过作品的缩略图时，显示更大尺寸的缩略图
 class ShowBigThumb {
     constructor() {
+        this.defaultSize = 1200;
         // 预览作品的容器的元素
         this.prewWrapId = 'bigThumbWrap';
         this.border = 8; // wrap 的 border 占据的空间
@@ -5369,12 +5370,13 @@ class ShowBigThumb {
         this.originShow = false;
         this.showOriginTimer = 0;
         this.zoom = 1;
+        this.rightClickBeforeOriginShow = false;
         this.readyShowOrigin = (ev) => {
-            // 长按鼠标右键一定时间之后，显示原尺寸区域
-            console.log(ev.button);
+            // 当预览区域显示之后，在作品缩略图上长按鼠标右键，显示原尺寸图片
             // 0 左键 1 滚轮 2 右键
             if (ev.button === 2) {
                 this.showOriginTimer = window.setTimeout(() => {
+                    this.rightClickBeforeOriginShow = true;
                     this.showOrigin();
                 }, 500);
             }
@@ -5407,8 +5409,6 @@ class ShowBigThumb {
             window.clearTimeout(this.showPrevTimer);
             this._prevShow = val;
             this.prewWrap.style.display = 'none';
-            this.workData = undefined;
-            this.workEL = undefined;
             // 隐藏 wrap 时，把 img 的 src 设置为空
             // 这样如果图片没有加载完就会停止加载，避免浪费网络资源
             this.prevWrapImg.src = '';
@@ -5479,6 +5479,16 @@ class ShowBigThumb {
         this.originSizeWrap.addEventListener('mouseleave', () => {
             this.hiddenOrigin();
         });
+        this.originSizeWrap.addEventListener('click', () => {
+            this.hiddenOrigin();
+        });
+        window.addEventListener('contextmenu', (ev) => {
+            // 如果是在原图区域显示之前按下了右键，并且随后显示了原图区域，那么就屏蔽这一次右键菜单
+            if (this.rightClickBeforeOriginShow) {
+                ev.preventDefault();
+                this.rightClickBeforeOriginShow = false;
+            }
+        });
     }
     async getWorkData() {
         const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(this.workId);
@@ -5502,10 +5512,9 @@ class ShowBigThumb {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork || !this.workEL || !this.workData) {
             return;
         }
-        const defaultSize = 1200;
         const cfg = {
-            width: defaultSize,
-            height: defaultSize,
+            width: this.defaultSize,
+            height: this.defaultSize,
             left: 0,
             top: 0,
         };
@@ -5522,18 +5531,18 @@ class ShowBigThumb {
         // 宽高从图片宽高、wrap 宽高、可视区域的宽高中，取最小值，使图片不会超出可视区域外
         // 竖图
         if (w < h) {
-            cfg.height = Math.min(defaultSize, innerHeight, h);
+            cfg.height = Math.min(this.defaultSize, innerHeight, h);
             cfg.width = (cfg.height / h) * w;
         }
         else if (w > h) {
             // 横图
-            cfg.width = Math.min(defaultSize, xSpace, w);
+            cfg.width = Math.min(this.defaultSize, xSpace, w);
             cfg.height = (cfg.width / w) * h;
         }
         else {
             // 正方形图片
-            cfg.height = Math.min(defaultSize, innerHeight, xSpace, h);
-            cfg.width = Math.min(defaultSize, w, innerHeight);
+            cfg.height = Math.min(this.defaultSize, innerHeight, xSpace, h);
+            cfg.width = Math.min(this.defaultSize, w, innerHeight);
         }
         // 如果 wrap 宽度超过了可视窗口宽度，则需要再次调整宽高
         if (cfg.width > xSpace) {
@@ -5590,8 +5599,42 @@ class ShowBigThumb {
         return ((_a = this.workData) === null || _a === void 0 ? void 0 : _a.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize]) || '';
     }
     showOrigin() {
-        console.log('showOrigin');
+        if (!this.workData || this.workData.body.id !== this.workId) {
+            return;
+        }
+        this.prevShow = false;
         this.originShow = true;
+        this.zoom = 1;
+        // 计算显示的图片的宽高
+        const originWidth = this.workData.body.width;
+        const originHeight = this.workData.body.height;
+        let imgWidth = originWidth;
+        let imgHeight = originHeight;
+        // 如果加载的是“原图”尺寸，需要根据原图的比例计算宽高
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize === 'regular') {
+            if (originWidth >= originHeight) {
+                // 横图或者正方形
+                imgWidth = Math.min(originWidth, this.defaultSize);
+                imgHeight = imgWidth / originWidth * originHeight;
+            }
+            else {
+                imgHeight = Math.min(originHeight, this.defaultSize);
+                imgWidth = imgHeight / originHeight * imgWidth;
+            }
+        }
+        this.originSizeWrap.style.width = imgWidth + 'px';
+        this.originSizeWrap.style.height = imgHeight + 'px';
+        // 设置 top，默认从顶部显示
+        let top = 0;
+        // 如果图片小于可视区域高度，则居中显示
+        if (imgHeight < window.innerHeight) {
+            top = (window.innerHeight - imgHeight - this.border) / 2;
+        }
+        this.originSizeWrap.style.top = top + 'px';
+        // 设置 left
+        // 总是居中显示
+        let left = (window.innerWidth - 17 - imgWidth - this.border) / 2;
+        this.originSizeWrap.style.left = left + 'px';
         this.originSizeWrap.style.display = 'block';
         this.originImg.src = this.getImageURL();
     }
