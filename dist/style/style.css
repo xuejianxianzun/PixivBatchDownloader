@@ -1171,7 +1171,8 @@
 .xzBG.centerWrap .title.active,
 .xzBG.centerWrap .title:hover,
 .xzBG.centerWrap .down_status,
-.xzBG.centerWrap .centerPanelTextArea {
+.xzBG.centerWrap .centerPanelTextArea,
+.xzBG.centerWrap .download_status_text_wrap span {
   color: #fff !important;
 }
 .xzBG.centerWrap .centerWrap_top_btn:hover,
