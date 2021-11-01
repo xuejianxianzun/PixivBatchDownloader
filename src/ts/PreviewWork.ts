@@ -3,7 +3,6 @@ import { ArtworkData } from './crawl/CrawlResult'
 import { EVT } from './EVT'
 import { mouseOverThumbnail } from './MouseOverThumbnail'
 import { settings, setSetting } from './setting/Settings'
-import { states } from './store/States'
 import { showOriginSizeImage } from './ShowOriginSizeImage'
 
 // 鼠标经过作品的缩略图时，显示更大尺寸的缩略图
@@ -15,7 +14,7 @@ class PreviewWork {
 
   private readonly defaultSize = 1200
   // 预览作品的容器的元素
-  private wrapId = 'bigThumbWrap'
+  private wrapId = 'previewWorkWrap'
   private wrap!: HTMLElement
   private img!: HTMLImageElement
   private readonly border = 8 // wrap 的 border 占据的空间
@@ -90,27 +89,7 @@ class PreviewWork {
     })
 
     mouseOverThumbnail.onLeave((el: HTMLElement) => {
-      if (this.show) {
-        settings.PreviewWorkMouseStay ? this.readyHidden() : (this.show = false)
-
-        showOriginSizeImage.leaveEl(el)
-      } else {
-        this.show = false
-      }
-    })
-
-    this.wrap.addEventListener('mouseenter', () => {
-      // 允许鼠标停留在预览图上的情况
-      if (settings.PreviewWorkMouseStay && !states.selectWork) {
-        window.clearTimeout(this.hiddenTimer)
-      }
-    })
-
-    this.wrap.addEventListener('mouseleave', () => {
-      this.show = false
-    })
-
-    this.wrap.addEventListener('click', () => {
+      showOriginSizeImage.leaveEl(el)
       this.show = false
     })
 

@@ -160,9 +160,10 @@ interface XzSetting {
   autoExportResultJSON: boolean
   autoExportResultNumber: number
   PreviewWork: boolean
-  PreviewWorkMouseStay: boolean
   showDownloadBtnOnThumb: boolean
   prevWorkSize: 'original' | 'regular'
+  showOriginImage: boolean
+  showOriginImageSize: 'original' | 'regular'
 }
 
 type SettingsKeys = keyof XzSetting
@@ -337,9 +338,10 @@ class Settings {
     autoExportResultJSON: false,
     autoExportResultNumber: 1,
     PreviewWork: true,
-    PreviewWorkMouseStay: false,
     showDownloadBtnOnThumb: true,
     prevWorkSize: 'regular',
+    showOriginImage: true,
+    showOriginImageSize: 'original',
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

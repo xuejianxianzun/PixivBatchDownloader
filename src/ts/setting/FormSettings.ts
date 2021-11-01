@@ -93,8 +93,9 @@ class FormSettings {
       'autoExportResultCSV',
       'autoExportResultJSON',
       'PreviewWork',
-      'PreviewWorkMouseStay',
       'showDownloadBtnOnThumb',
+      'prevWorkSize',
+      'showOriginImage',
     ],
     text: [
       'setWantPage',
@@ -143,6 +144,7 @@ class FormSettings {
       'switchTabBar',
       'tagMatchMode',
       'prevWorkSize',
+      'showOriginImageSize',
     ],
     textarea: ['createFolderTagList'],
     datetime: ['postDateStart', 'postDateEnd'],
