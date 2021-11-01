@@ -5367,6 +5367,16 @@ class ShowBigThumb {
         this._prevShow = false;
         // 原比例查看图片的容器的元素
         this.originSizeWrapId = 'originSizeWrap';
+        // 不可以把 left、top 设置为负值，否则超出屏幕的区域无法查看
+        // 所以通过修改 margin 来达到定位的效果
+        this.oStyle = {
+            width: this.defaultSize,
+            imgW: this.defaultSize,
+            height: this.defaultSize,
+            imgH: this.defaultSize,
+            mt: 0,
+            ml: 0,
+        };
         this.originShow = false;
         this.showOriginTimer = 0;
         this.zoom = 1;
@@ -5377,7 +5387,14 @@ class ShowBigThumb {
             if (ev.button === 2) {
                 this.showOriginTimer = window.setTimeout(() => {
                     this.rightClickBeforeOriginShow = true;
-                    this.showOrigin();
+                    if (this.originShow || !this.workData || this.workData.body.id !== this.workId) {
+                        return;
+                    }
+                    this.prevShow = false;
+                    this.originShow = true;
+                    this.originImg.src = this.getImageURL();
+                    this.setOriginWrap();
+                    this.originSizeWrap.style.display = 'block';
                 }, 500);
             }
         };
@@ -5485,7 +5502,29 @@ class ShowBigThumb {
         this.originSizeWrap.addEventListener('mousewheel', (ev) => {
             ev.preventDefault();
             // 向上滚 deltaY 是负数（-125），向下滚是正数（125）
-            this.originZoom(ev.deltaY < 0);
+            const zoomAdd = ev.deltaY < 0;
+            // zoom 取值范围： 0.5 | 1 | 2 | 3 | 4
+            if ((zoomAdd && this.zoom >= 4) || (!zoomAdd && this.zoom <= 0.5)) {
+                return;
+            }
+            const oldZoom = this.zoom;
+            if (zoomAdd) {
+                this.zoom += (this.zoom === 0.5 ? 0.5 : 1);
+            }
+            else {
+                this.zoom -= (this.zoom === 1 ? 0.5 : 1);
+            }
+            // 检查缩放后的图片的尺寸是否超出了限制
+            const testWidth = this.oStyle.imgW * this.zoom;
+            const testHeight = this.oStyle.imgH * this.zoom;
+            const max = Math.max(testWidth, testHeight);
+            // 如果超出了限制就取消对缩放比例的修改
+            if (max < 600 || max > 15000) {
+                this.zoom = oldZoom;
+                return;
+            }
+            // client x y 是可视区域，不包含滚动区域
+            this.setOriginWrap(ev, oldZoom);
         });
         window.addEventListener('contextmenu', (ev) => {
             // 如果是在原图区域显示之前按下了右键，并且随后显示了原图区域，那么就屏蔽这一次右键菜单
@@ -5603,70 +5642,67 @@ class ShowBigThumb {
         var _a;
         return ((_a = this.workData) === null || _a === void 0 ? void 0 : _a.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize]) || '';
     }
-    showOrigin() {
-        if (!this.workData || this.workData.body.id !== this.workId) {
-            return;
-        }
-        this.prevShow = false;
-        this.originShow = true;
-        this.originImg.src = this.getImageURL();
-        this.setOriginWrap();
-        this.originSizeWrap.style.display = 'block';
-    }
-    originZoom(add) {
-        if ((add && this.zoom >= 4) || (!add && this.zoom <= 0.5)) {
-            return;
-        }
-        this.zoom += (add ? 0.5 : -0.5);
-        this.setOriginWrap();
-    }
-    setOriginWrap() {
-        // 计算显示的图片的宽高
-        const originWidth = this.workData.body.width;
-        const originHeight = this.workData.body.height;
-        let imgWidth = originWidth;
-        let imgHeight = originHeight;
-        // 如果加载的是“原图”尺寸，需要根据原图的比例计算宽高
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize === 'regular') {
-            if (originWidth >= originHeight) {
-                // 横图或者正方形
-                imgWidth = Math.min(originWidth, this.defaultSize);
-                imgHeight = imgWidth / originWidth * originHeight;
-            }
-            else {
-                imgHeight = Math.min(originHeight, this.defaultSize);
-                imgWidth = imgHeight / originHeight * imgWidth;
+    // 当用户滚动鼠标滚轮时，传递鼠标相对于原图区域的坐标（不包含 border）
+    setOriginWrap(ev, oldZoom) {
+        if (!ev) {
+            // 初次显示时，计算图片的原始宽高
+            const originWidth = this.workData.body.width;
+            const originHeight = this.workData.body.height;
+            // 如果加载的是“普通”尺寸，需要根据原图的比例计算宽高
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize === 'regular') {
+                if (originWidth >= originHeight) {
+                    // 横图或者正方形
+                    this.oStyle.imgW = Math.min(originWidth, this.defaultSize);
+                    this.oStyle.imgH = this.oStyle.imgW / originWidth * originHeight;
+                }
+                else {
+                    this.oStyle.imgH = Math.min(originHeight, this.defaultSize);
+                    this.oStyle.imgW = this.oStyle.imgH / originHeight * originWidth;
+                }
             }
         }
-        imgWidth = imgWidth * this.zoom;
-        imgHeight = imgHeight * this.zoom;
-        const max = Math.max(imgWidth, imgHeight);
-        // 限制缩放的尺寸范围。如果超出了范围就取消对缩放比例的修改
-        if (max < 600) {
-            return this.zoom += 0.5;
+        console.log(this.oStyle, this.zoom);
+        this.oStyle.width = this.oStyle.imgW * this.zoom;
+        this.oStyle.height = this.oStyle.imgH * this.zoom;
+        if (!ev) {
+            // 初次显示
+            // 设置水平位置，默认居中显示
+            this.oStyle.ml = (window.innerWidth - 17 - this.oStyle.width - this.border) / 2;
+            // 设置垂直位置，默认居中显示
+            this.oStyle.mt = (window.innerHeight - this.oStyle.height - this.border) / 2;
         }
-        if (max > 15000) {
-            return this.zoom -= 0.5;
+        else {
+            // 进行缩放
+            // 以用户鼠标所在位置为中心点缩放
+            // 例如，鼠标放在角色的眼睛上面进行缩放，在缩放之后，依然把眼睛定位到鼠标所在位置
+            // 计算这次缩放相对于上次缩放增加的倍率（容器的尺寸会增加多少倍）
+            const zoom = (this.zoom - oldZoom) / oldZoom;
+            // 缩放之前，鼠标与容器顶点形成了一个矩形（0, 0, offsetX, offsetY）
+            // 计算这个矩形在缩放之后，相比于缩放之前增加了多少像素
+            const offsetXAdd = ev.offsetX * zoom;
+            const offsetYAdd = ev.offsetY * zoom;
+            // 对缩放之前的 margin 值加以修改，使缩放之前的鼠标位置的图像现在仍然位于鼠标位置
+            this.oStyle.ml = this.oStyle.ml - offsetXAdd;
+            this.oStyle.mt = this.oStyle.mt - offsetYAdd;
         }
-        this.originSizeWrap.style.width = imgWidth + 'px';
-        this.originSizeWrap.style.height = imgHeight + 'px';
-        // 设置 top，默认从顶部显示
-        let top = 0;
-        // 如果图片小于可视区域高度，则居中显示
-        if (imgHeight < window.innerHeight) {
-            top = (window.innerHeight - imgHeight - this.border) / 2;
-        }
-        this.originSizeWrap.style.top = top + 'px';
-        // 设置 left
-        // 总是居中显示
-        let left = (window.innerWidth - 17 - imgWidth - this.border) / 2;
-        this.originSizeWrap.style.left = left + 'px';
+        this.originSizeWrap.style.width = this.oStyle.width + 'px';
+        this.originSizeWrap.style.height = this.oStyle.height + 'px';
+        this.originSizeWrap.style.marginTop = this.oStyle.mt + 'px';
+        this.originSizeWrap.style.marginLeft = this.oStyle.ml + 'px';
     }
     hiddenOrigin() {
         this.originShow = false;
         this.zoom = 1;
         this.originSizeWrap.style.display = 'none';
         this.originImg.src = '';
+        this.oStyle = {
+            width: this.defaultSize,
+            imgW: this.defaultSize,
+            height: this.defaultSize,
+            imgH: this.defaultSize,
+            mt: 0,
+            ml: 0,
+        };
     }
 }
 new ShowBigThumb();
