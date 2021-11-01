@@ -5012,8 +5012,11 @@ class PreviewWork {
             if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork) {
                 return;
             }
-            this.workId = id;
-            this.getWorkData();
+            // 如果重复进入同一个作品的缩略图，不会重复获取数据
+            if (id !== this.workId) {
+                this.workId = id;
+                this.getWorkData();
+            }
             this.workEL = el;
             // 一定时间后，显示容器，加载大图
             this.readyShow();
@@ -5029,14 +5032,11 @@ class PreviewWork {
                 Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('PreviewWork', !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork);
             }
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, () => {
-            this.show = false;
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.centerPanelOpened, () => {
-            this.show = false;
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.showOriginSizeImage, () => {
-            this.show = false;
+        const hiddenEvtList = [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.showOriginSizeImage];
+        hiddenEvtList.forEach(evt => {
+            window.addEventListener(evt, () => {
+                this.show = false;
+            });
         });
     }
     async getWorkData() {
@@ -5050,12 +5050,6 @@ class PreviewWork {
         this.showTimer = window.setTimeout(() => {
             this.show = true;
         }, this.showDelay);
-    }
-    readyHidden() {
-        window.clearTimeout(this.showTimer);
-        this.hiddenTimer = window.setTimeout(() => {
-            this.show = false;
-        }, this.hiddenDelay);
     }
     // 显示预览 wrap
     showWrap() {
@@ -5821,9 +5815,24 @@ class ShowOriginSizeImage {
             ml: 0,
         };
         this.defaultStyle = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].deepCopy(this.style);
-        this.zoomList = [0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5];
+        this.zoomList = [
+            0.1,
+            0.2,
+            0.3,
+            0.4,
+            0.5,
+            0.75,
+            1,
+            1.5,
+            2,
+            2.5,
+            3,
+            3.5,
+            4,
+            5,
+        ];
         this.zoomIndex = 6;
-        // 默认的缩放比例为 1 
+        // 默认的缩放比例为 1
         this.zoom = this.zoomList[this.zoomIndex];
         // 定义当鼠标移动 1 像素时，wrap 移动多少像素
         this.onePxMove = 10;
@@ -5953,7 +5962,7 @@ class ShowOriginSizeImage {
             onePxMove = this.style.imgW / (window.innerWidth - 17);
         }
         else {
-            onePxMove = this.style.imgH / (window.innerHeight);
+            onePxMove = this.style.imgH / window.innerHeight;
         }
         // 乘以修正系数，加大 onePxMove
         // 这样可以让用户在移动鼠标时，不需要移动到边界上就可以查看到图片的边界
@@ -5971,7 +5980,8 @@ class ShowOriginSizeImage {
         }
         else {
             // 否则水平居中显示
-            this.style.ml = (window.innerWidth - 17 - this.style.width - this.border) / 2;
+            this.style.ml =
+                (window.innerWidth - 17 - this.style.width - this.border) / 2;
         }
         if (this.style.height > window.innerHeight) {
             // 如果图片高度超过了可视区域，则根据鼠标点击位置在可视宽度中的比例，将 top 设置为同样的比例
@@ -5980,8 +5990,7 @@ class ShowOriginSizeImage {
         }
         else {
             // 否则垂直居中显示
-            this.style.mt =
-                (window.innerHeight - this.style.height - this.border) / 2;
+            this.style.mt = (window.innerHeight - this.style.height - this.border) / 2;
         }
         this.setWrapStyle();
         this.wrap.style.display = 'block';
@@ -6041,7 +6050,7 @@ class ShowOriginSizeImage {
         let mt;
         // 鼠标向左移动，wrap 向右移动，ml 增加
         if (mouseMoveX < 0) {
-            // 如果 wrap 左侧还有被隐藏的部分，才允许向右移动 
+            // 如果 wrap 左侧还有被隐藏的部分，才允许向右移动
             if (this.style.ml < tolerance) {
                 ml = this.style.ml - moveX;
             }
@@ -6069,14 +6078,16 @@ class ShowOriginSizeImage {
         }
         // 设置 margin 时，需要检查容器是否处于可视区域之外。如果超出了可视区域则不赋值
         if (ml !== undefined) {
-            if ((ml > 0 && ml < window.innerWidth) || (ml < 0 && ml + this.style.width > tolerance)) {
+            if ((ml > 0 && ml < window.innerWidth) ||
+                (ml < 0 && ml + this.style.width > tolerance)) {
                 // 如果 ml 小于 0，其右边的坐标不可以小于 0
                 this.style.ml = ml;
             }
         }
         if (mt !== undefined) {
-            if ((mt > 0 && mt < window.innerHeight) || (mt < 0 && mt + this.style.height > tolerance)) {
-                // 如果 mt 小于 0，其底边的坐标不可以小于 0 
+            if ((mt > 0 && mt < window.innerHeight) ||
+                (mt < 0 && mt + this.style.height > tolerance)) {
+                // 如果 mt 小于 0，其底边的坐标不可以小于 0
                 this.style.mt = mt;
             }
         }
@@ -19336,7 +19347,7 @@ class Settings {
             showDownloadBtnOnThumb: true,
             prevWorkSize: 'regular',
             showOriginImage: true,
-            showOriginImageSize: 'original'
+            showOriginImageSize: 'original',
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项

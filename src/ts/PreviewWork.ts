@@ -79,8 +79,12 @@ class PreviewWork {
         return
       }
 
-      this.workId = id
-      this.getWorkData()
+      // 如果重复进入同一个作品的缩略图，不会重复获取数据
+      if (id !== this.workId) {
+        this.workId = id
+        this.getWorkData()
+      }
+
       this.workEL = el
       // 一定时间后，显示容器，加载大图
       this.readyShow()
@@ -100,16 +104,11 @@ class PreviewWork {
       }
     })
 
-    window.addEventListener(EVT.list.pageSwitch, () => {
-      this.show = false
-    })
-
-    window.addEventListener(EVT.list.centerPanelOpened, () => {
-      this.show = false
-    })
-
-    window.addEventListener(EVT.list.showOriginSizeImage, () => {
-      this.show = false
+    const hiddenEvtList = [EVT.list.pageSwitch, EVT.list.pageSwitch, EVT.list.showOriginSizeImage]
+    hiddenEvtList.forEach(evt => {
+      window.addEventListener(evt, () => {
+        this.show = false
+      })
     })
   }
 
@@ -125,13 +124,6 @@ class PreviewWork {
     this.showTimer = window.setTimeout(() => {
       this.show = true
     }, this.showDelay)
-  }
-
-  private readyHidden() {
-    window.clearTimeout(this.showTimer)
-    this.hiddenTimer = window.setTimeout(() => {
-      this.show = false
-    }, this.hiddenDelay)
   }
 
   // 显示预览 wrap
