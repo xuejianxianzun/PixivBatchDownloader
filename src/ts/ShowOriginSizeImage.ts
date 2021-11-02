@@ -368,7 +368,7 @@ class ShowOriginSizeImage {
     this.wrap.style.marginLeft = this.style.ml + 'px'
   }
 
-  public setData(data: Urls) {
+  public setUrls(data: Urls) {
     this.urls = data
   }
 }

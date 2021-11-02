@@ -5024,7 +5024,7 @@ class PreviewWork {
                 this.readyShow();
             }
             else {
-                this.sendData();
+                this.sendUrls();
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork) {
                     this._show = true;
                     this.showWrap();
@@ -5182,7 +5182,7 @@ class PreviewWork {
         else {
             // 正方形图片
             cfg.height = Math.min(ySpace, xSpace, h);
-            cfg.width = Math.min(w, ySpace);
+            cfg.width = cfg.height;
         }
         // 如果 wrap 宽度超过了可视窗口宽度，则需要再次调整宽高
         if (cfg.width > xSpace) {
@@ -5229,7 +5229,15 @@ class PreviewWork {
             const text = [];
             const body = this.workData.body;
             text.push(`${this.index + 1}/${body.pageCount}`);
-            text.push(`${w}x${h}`);
+            // 加载原图时，可以获取到每张图片的真实尺寸
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize === 'original') {
+                text.push(`${w}x${h}`);
+            }
+            else {
+                // 如果加载的是普通尺寸，则永远显示第一张图的原始尺寸
+                // 因为此时获取不到后续图片的原始尺寸
+                text.push(`${this.workData.body.width}x${this.workData.body.height}`);
+            }
             text.push(body.title);
             text.push(body.description);
             this.tip.innerHTML = text
@@ -5251,12 +5259,12 @@ class PreviewWork {
         styleArray.push('display:block;');
         this.wrap.setAttribute('style', styleArray.join(''));
         // 每次显示图片后，传递图片的 url
-        this.sendData();
+        this.sendUrls();
     }
     replaceUrl(url) {
         return url.replace('p0', `p${this.index}`);
     }
-    sendData() {
+    sendUrls() {
         const data = this.workData;
         if (!data) {
             return;
@@ -5264,7 +5272,7 @@ class PreviewWork {
         // 传递图片的 url，但是不传递尺寸。
         // 因为预览图片默认加载“普通”尺寸的图片，但是 showOriginSizeImage 默认显示“原图”尺寸。
         // 而且对于第一张之后的图片，加载“普通”尺寸的图片时，无法获取“原图”的尺寸。
-        _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__["showOriginSizeImage"].setData({
+        _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__["showOriginSizeImage"].setUrls({
             original: this.replaceUrl(data.body.urls.original),
             regular: this.replaceUrl(data.body.urls.regular),
         });
@@ -6231,7 +6239,7 @@ class ShowOriginSizeImage {
         this.wrap.style.marginTop = this.style.mt + 'px';
         this.wrap.style.marginLeft = this.style.ml + 'px';
     }
-    setData(data) {
+    setUrls(data) {
         this.urls = data;
     }
 }
