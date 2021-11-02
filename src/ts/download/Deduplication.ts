@@ -190,31 +190,31 @@ class Deduplication {
         return resolve(false)
       }
       // 在数据库进行查找
-      const storeNmae = this.getStoreName(result.id)
-      const data = (await this.IDB.get(storeNmae, result.id)) as Record | null
+      const storeName = this.getStoreName(result.id)
+      const data = (await this.IDB.get(storeName, result.id)) as Record | null
       if (data === null) {
         return resolve(false)
+      }
+
+      // 有记录，说明这个文件下载过
+      this.existedIdList.push(data.id)
+      // 首先检查日期字符串是否发生了变化
+      let dateChange = false
+      if (data.d) {
+        dateChange = data.d !== this.getDateString(result)
+        // 如果日期字符串变化了，则不视为重复文件
+        if (dateChange) {
+          return resolve(false)
+        }
+      }
+      // 如果日期字符串没有变化，再根据策略进行判断
+      if (settings.dupliStrategy === 'loose') {
+        // 如果是宽松策略（不比较文件名）
+        return resolve(true)
       } else {
-        // 有记录，说明这个文件下载过
-        this.existedIdList.push(data.id)
-        // 首先检查日期字符串是否发生了变化
-        let dateChange = false
-        if (data.d) {
-          dateChange = data.d !== this.getDateString(result)
-          // 如果日期字符串变化了，则不视为重复文件
-          if (dateChange) {
-            return false
-          }
-        }
-        // 如果日期字符串没有变化，再根据策略进行判断
-        if (settings.dupliStrategy === 'loose') {
-          // 如果是宽松策略（不比较文件名）
-          return resolve(true)
-        } else {
-          // 如果是严格策略（考虑文件名）
-          const name = fileName.getFileName(result)
-          return resolve(name === data.n)
-        }
+        // 如果是严格策略（考虑文件名）
+        const name = fileName.getFileName(result)
+        return resolve(name === data.n)
       }
     })
   }
