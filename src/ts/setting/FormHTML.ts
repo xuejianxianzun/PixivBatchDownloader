@@ -785,14 +785,34 @@ export const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="PreviewWork">
-      <span>${lang.transl('_尺寸')}</span>
-      <input type="text" name="PreviewWorkSize" class="setinput_style1 blue" value="600" style="width:50px;min-width: 50px;">&nbsp;px
+      
+      <span class="settingNameStyle1">${lang.transl('_图片尺寸2')}</span>
+      <input type="radio" name="prevWorkSize" id="prevWorkSize1" class="need_beautify radio" value="original">
+      <span class="beautify_radio"></span>
+      <label for="prevWorkSize1"> ${lang.transl('_原图')} </label>
       &nbsp;
-      <input type="checkbox" name="PreviewWorkMouseStay" id="PreviewWorkMouseStay" class="need_beautify checkbox_common">
-      <span class="beautify_checkbox"></span>
-      <label for="PreviewWorkMouseStay">${lang.transl(
-        '_允许鼠标停留在预览图上'
-      )}</label>
+      <input type="radio" name="prevWorkSize" id="prevWorkSize2" class="need_beautify radio" value="regular" checked>
+      <span class="beautify_radio"></span>
+      <label for="prevWorkSize2"> ${lang.transl('_普通')} </label>
+      </p>
+
+      <p class="option" data-no="62">
+      <span class="settingNameStyle1">${lang.transl(
+        '_长按右键显示大图'
+      )} </span>
+      <input type="checkbox" name="showOriginImage" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+
+      <span class="subOptionWrap" data-show="showOriginImage">
+      
+      <span class="settingNameStyle1">${lang.transl('_图片尺寸2')}</span>
+      <input type="radio" name="showOriginImageSize" id="showOriginImageSize1" class="need_beautify radio" value="original">
+      <span class="beautify_radio"></span>
+      <label for="showOriginImageSize1"> ${lang.transl('_原图')} </label>
+      &nbsp;
+      <input type="radio" name="showOriginImageSize" id="showOriginImageSize2" class="need_beautify radio" value="regular" checked>
+      <span class="beautify_radio"></span>
+      <label for="showOriginImageSize2"> ${lang.transl('_普通')} </label>
       </p>
 
       <p class="option" data-no="40">
@@ -815,7 +835,7 @@ export const formHtml = `<form class="settingForm">
 
       <span class="verticalSplit"></span>
 
-      <span class="settingNameStyle1">${lang.transl('_图片尺寸2')} </span>
+      <span class="settingNameStyle1">${lang.transl('_图片尺寸2')}</span>
       <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
       <label for="magnifierSize1"> ${lang.transl('_原图')} </label>

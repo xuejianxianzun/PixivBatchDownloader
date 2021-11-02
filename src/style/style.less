@@ -10,7 +10,6 @@
 @import './blockAds.less';
 @import './imageViewer.less';
 @import './blockTagsForSpecificUser.less';
-@import './ViewBigImage.less';
 @import './Loading.less';
 
 // 储存通用规则和一些零散的元素的规则
@@ -143,7 +142,7 @@
   border-radius: 4px;
 }
 
-#bigThumbWrap {
+#previewWorkWrap {
   position: absolute;
   z-index: 100000;
   display: none;
@@ -154,8 +153,71 @@
   padding: 0;
   border: 4px solid @beautifyBlue;
   background-color: rgba(41, 179, 243, 0.1);
-  background-size: cover;
   box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+#previewWorkTip {
+  background-color: @beautifyBlue;
+  color: #fff;
+  height: 26px;
+  // 因为摘要信息上面有 border，两者在视觉上是连在一起的，所以 line-height 要小一些，使文字向上提一些
+  line-height: 24px;
+  overflow: hidden;
+  display: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  span {
+    padding: 0 5px;
+  }
+}
+
+#originSizeWrap {
+  display: none;
+  position: fixed;
+  z-index: 100001;
+  top: 0;
+  left: 0;
+  right: 0;
+  overflow: hidden;
+  width: 1200px;
+  height: 1200px;
+  border: 4px solid @beautifyBlue;
+  background-color: rgba(41, 179, 243, 0.2);
+  box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
+  img {
+    width: 100%;
+    height: auto;
+  }
+}
+
+#zoomBtnOnThumb {
+  position: absolute;
+  z-index: 99999;
+  display: none;
+  left: 0px;
+  top: 0px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  padding: 0;
+  text-align: center;
+  background-color: @beautifyBlue;
+  border-radius: 4px;
+  color: #fff;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  font-size: 22px;
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 #downloadBtnOnThumb {

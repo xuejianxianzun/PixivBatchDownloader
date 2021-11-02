@@ -160,9 +160,10 @@ interface XzSetting {
   autoExportResultJSON: boolean
   autoExportResultNumber: number
   PreviewWork: boolean
-  PreviewWorkSize: number
-  PreviewWorkMouseStay: boolean
   showDownloadBtnOnThumb: boolean
+  prevWorkSize: 'original' | 'regular'
+  showOriginImage: boolean
+  showOriginImageSize: 'original' | 'regular'
 }
 
 type SettingsKeys = keyof XzSetting
@@ -337,9 +338,10 @@ class Settings {
     autoExportResultJSON: false,
     autoExportResultNumber: 1,
     PreviewWork: true,
-    PreviewWorkSize: 600,
-    PreviewWorkMouseStay: false,
     showDownloadBtnOnThumb: true,
+    prevWorkSize: 'regular',
+    showOriginImage: true,
+    showOriginImageSize: 'original',
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -558,10 +560,6 @@ class Settings {
 
     if (key === 'setWidthAndOr' && value === '') {
       value = this.defaultSettings[key]
-    }
-
-    if (key === 'PreviewWorkSize' && value < 300) {
-      value = 300
     }
 
     // 更改设置

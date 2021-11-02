@@ -4,14 +4,14 @@ import { settings } from './setting/Settings'
 import { mouseOverThumbnail } from './MouseOverThumbnail'
 
 // 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器来查看大图
-class ViewBigImage {
+class ShowZoomBtnOnThumb {
   constructor() {
     this.addBtn()
     this.bindEvents()
   }
 
   private btn!: HTMLButtonElement
-  private btnId = 'ViewBigImageBtn'
+  private btnId = 'zoomBtnOnThumb'
   private btnSize: number[] = [32, 32]
   private hiddenBtnTimer = 0 // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
   private hiddenBtnDelay = 100
@@ -124,4 +124,4 @@ class ViewBigImage {
   }
 }
 
-new ViewBigImage()
+new ShowZoomBtnOnThumb()

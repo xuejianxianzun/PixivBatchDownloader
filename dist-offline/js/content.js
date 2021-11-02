@@ -1423,6 +1423,8 @@ class EVENT {
             // 点击了下载器在作品缩略图上添加的按钮时触发
             // 其他按钮监听这个事件后隐藏自己，就可以避免其他按钮出现闪烁、残留的问题
             clickBtnOnThumb: 'clickBtnOnThumb',
+            // 显示原比例图片时触发
+            showOriginSizeImage: 'showOriginSizeImage',
         };
     }
     // 只绑定某个事件一次，用于防止事件重复绑定
@@ -1930,8 +1932,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 // 图片查看器
 /// <reference path = "./ImageViewer.d.ts" />
+
 
 
 
@@ -2048,7 +2052,14 @@ class ImageViewer {
             _Loading__WEBPACK_IMPORTED_MODULE_4__["loading"].show = true;
         }
         // 获取作品数据，生成缩略图列表
-        this.workData = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(this.cfg.workId);
+        if (_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__["cacheWorkData"].has(this.cfg.workId)) {
+            this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__["cacheWorkData"].get(this.cfg.workId);
+        }
+        else {
+            const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(this.cfg.workId);
+            this.workData = data;
+            _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__["cacheWorkData"].set(data);
+        }
         const body = this.workData.body;
         // 处理插画、漫画、动图作品，不处理其他类型的作品
         if (body.illustType === 0 ||
@@ -4362,6 +4373,12 @@ const langText = {
     ],
     _原始尺寸: ['原始尺寸', '原始尺寸', 'Original size', 'オリジナルサイズ'],
     _增强: ['增强', '增強', 'Enhance', '強化機能'],
+    _长按右键显示大图: [
+        '在缩略图上长按鼠标右键时显示大图',
+        '在缩略图上长按鼠标右键时显示大图',
+        '在缩略图上长按鼠标右键时显示大图',
+        '在缩略图上长按鼠标右键时显示大图',
+    ],
     _whatisnew: [
         '新增设置项：<br>预览作品',
         '新增設定項目：<br>預覽作品',
@@ -4507,25 +4524,13 @@ class Log {
             _config_Colors__WEBPACK_IMPORTED_MODULE_3__["Colors"].textWarning,
             _config_Colors__WEBPACK_IMPORTED_MODULE_3__["Colors"].textError,
         ];
+        this.max = 200;
+        this.count = 0;
         this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
         this.scrollToBottom();
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.clearLog, () => {
             this.clear();
         });
-    }
-    // 如果日志区域没有被添加到页面上，则添加上
-    checkElement() {
-        let test = document.getElementById(this.id);
-        if (test === null) {
-            this.logArea.id = this.id;
-            this.logArea.classList.add('beautify_scrollbar', 'logWrap');
-            _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].insertToHead(this.logArea);
-            _Theme__WEBPACK_IMPORTED_MODULE_2__["theme"].register(this.logArea);
-        }
-    }
-    // 清空日志
-    clear() {
-        this.logArea.remove();
     }
     // 添加日志
     /*
@@ -4545,6 +4550,9 @@ class Log {
         let span = document.createElement('span');
         if (!keepShow) {
             span = this.refresh;
+        }
+        else {
+            this.count++;
         }
         span.innerHTML = str;
         span.style.color = this.levelColor[level];
@@ -4566,6 +4574,26 @@ class Log {
     }
     error(str, br = 1, keepShow = true) {
         this.add(str, 3, br, keepShow);
+    }
+    checkElement() {
+        // 如果日志区域没有被添加到页面上，则添加
+        let test = document.getElementById(this.id);
+        if (test === null) {
+            this.logArea.id = this.id;
+            this.logArea.classList.add('beautify_scrollbar', 'logWrap');
+            _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].insertToHead(this.logArea);
+            _Theme__WEBPACK_IMPORTED_MODULE_2__["theme"].register(this.logArea);
+        }
+        // 如果页面上的日志条数超过指定数量，则清空
+        // 因为日志数量太多的话会占用很大的内存。同时显示 8000 条日志可能占用接近 1 GB 的内存
+        if (this.count > this.max) {
+            this.logArea.innerHTML = '';
+            this.count = 0;
+        }
+    }
+    // 清空日志
+    clear() {
+        this.logArea.remove();
     }
     // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部
     scrollToBottom() {
@@ -4988,6 +5016,322 @@ const pageType = new PageType();
 
 /***/ }),
 
+/***/ "./src/ts/PreviewWork.ts":
+/*!*******************************!*\
+  !*** ./src/ts/PreviewWork.ts ***!
+  \*******************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MouseOverThumbnail */ "./src/ts/MouseOverThumbnail.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ShowOriginSizeImage */ "./src/ts/ShowOriginSizeImage.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+
+
+
+
+
+
+// 鼠标停留在作品的缩略图上时，预览作品
+class PreviewWork {
+    constructor() {
+        // 预览作品的容器的元素
+        this.wrapId = 'previewWorkWrap';
+        this.border = 8; // border 占据的空间
+        this.tipId = 'previewWorkTip';
+        this.tipHeight = 26;
+        // 保存当前鼠标经过的缩略图的数据
+        this.workId = '';
+        // 显示作品中的第几张图片
+        this.index = 0;
+        // 显示预览区域的延迟时间
+        // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
+        // 如果鼠标在缩略图上停留达到 delay 的时间，才会加载 regular 尺寸的图片
+        // 这是因为要加载的图片体积比较大，regular 规格的图片的体积可能达到 800KB，如果立即加载的话会浪费网络资源
+        this.showDelay = 300;
+        this.showTimer = 0;
+        this.testImg = document.createElement('img');
+        this.getImageSizeTimer = 0;
+        this._show = false;
+        this.mouseScroll = (ev) => {
+            // 此事件没有必要使用节流
+            // 因为每次执行时，后续代码里都会重置定时器，停止图片加载，不会造成严重的性能问题
+            if (this.show) {
+                const count = this.workData.body.pageCount;
+                if (count === 1) {
+                    return;
+                }
+                ev.preventDefault();
+                const up = ev.deltaY < 0;
+                if (up) {
+                    if (this.index > 0) {
+                        this.index--;
+                    }
+                    else {
+                        this.index = count - 1;
+                    }
+                }
+                else {
+                    if (this.index < count - 1) {
+                        this.index++;
+                    }
+                    else {
+                        this.index = 0;
+                    }
+                }
+                this.showWrap();
+            }
+        };
+        this.createElements();
+        this.bindEvents();
+    }
+    get show() {
+        return this._show;
+    }
+    set show(val) {
+        if (val) {
+            this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__["cacheWorkData"].get(this.workId);
+            // 如果保存的作品数据不是最后一个鼠标经过的作品，可能是请求尚未完成，此时延长等待时间
+            if (!this.workData || this.workData.body.id !== this.workId) {
+                this.readyShow();
+            }
+            else {
+                const w = this.workData.body.width;
+                const h = this.workData.body.height;
+                this.sendData(w, h);
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork) {
+                    this._show = true;
+                    this.showWrap();
+                }
+            }
+        }
+        else {
+            // 隐藏时重置一些变量
+            window.clearTimeout(this.showTimer);
+            this._show = false;
+            this.wrap.style.display = 'none';
+            // 隐藏 wrap 时，把 img 的 src 设置为空
+            // 这样图片会停止加载，避免浪费网络资源
+            this.img.src = '';
+        }
+    }
+    createElements() {
+        this.wrap = document.createElement('div');
+        this.wrap.id = this.wrapId;
+        this.tip = document.createElement('div');
+        this.tip.id = this.tipId;
+        this.wrap.appendChild(this.tip);
+        this.img = document.createElement('img');
+        this.wrap.appendChild(this.img);
+        document.body.appendChild(this.wrap);
+    }
+    bindEvents() {
+        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onEnter((el, id) => {
+            if (this.workId !== id) {
+                // 切换到不同作品时，重置 index
+                this.index = 0;
+            }
+            this.workId = id;
+            this.workEL = el;
+            if (!_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__["cacheWorkData"].has(id)) {
+                // 如果在缓存中没有找到这个作品的数据，则发起请求
+                this.fetchWorkData();
+            }
+            else {
+                this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__["cacheWorkData"].get(id);
+            }
+            this.readyShow();
+            el.addEventListener('mousewheel', this.mouseScroll);
+        });
+        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave((el) => {
+            this.show = false;
+            el.removeEventListener('mousewheel', this.mouseScroll);
+        });
+        // 可以使用 Alt + P 快捷键来启用/禁用此功能
+        window.addEventListener('keydown', (ev) => {
+            if (ev.altKey && ev.code === 'KeyP') {
+                Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('PreviewWork', !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork);
+            }
+        });
+        const hiddenEvtList = [
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.showOriginSizeImage,
+        ];
+        hiddenEvtList.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.show = false;
+            });
+        });
+    }
+    async fetchWorkData() {
+        const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(this.workId);
+        _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__["cacheWorkData"].set(data);
+    }
+    readyShow() {
+        this.showTimer = window.setTimeout(() => {
+            this.show = true;
+        }, this.showDelay);
+    }
+    // 通过 img 元素加载图片，等到可以获取到宽高信息时返回这个 img
+    async getImageSize(url) {
+        // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。所以每次执行前需要重置一些变量
+        window.clearInterval(this.getImageSizeTimer);
+        this.testImg.src = '';
+        return new Promise((resolve) => {
+            this.testImg = new Image();
+            this.testImg.src = url;
+            this.getImageSizeTimer = window.setInterval(() => {
+                if (this.testImg.naturalWidth > 0) {
+                    window.clearInterval(this.getImageSizeTimer);
+                    return resolve(this.testImg);
+                }
+            }, 100);
+        });
+    }
+    // 显示预览 wrap
+    async showWrap() {
+        if (!this.workEL || !this.workData) {
+            return;
+        }
+        const url = this.replaceUrl(this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize]);
+        this.img = await this.getImageSize(url);
+        const w = this.img.naturalWidth;
+        const h = this.img.naturalHeight;
+        const cfg = {
+            width: w,
+            height: h,
+            left: 0,
+            top: 0,
+        };
+        // 1. 计算图片显示的尺寸
+        const rect = this.workEL.getBoundingClientRect();
+        // 计算各个可用区域的尺寸，提前减去了 border、tip 等元素占据的空间
+        const innerWidth = window.innerWidth - 17;
+        const leftSpace = rect.left - this.border;
+        const rightSpace = innerWidth - rect.right - this.border;
+        const xSpace = Math.max(leftSpace, rightSpace);
+        const showPreviewWorkTip = true;
+        const tipHeight = showPreviewWorkTip ? this.tipHeight : 0;
+        const scrollBarHeight = window.innerHeight - document.documentElement.clientHeight;
+        const ySpace = window.innerHeight - scrollBarHeight - this.border - tipHeight;
+        // 宽高从图片宽高、可视区域的宽高中，取最小值，使图片不会超出可视区域外
+        // 竖图
+        if (w < h) {
+            cfg.height = Math.min(ySpace, h);
+            cfg.width = (cfg.height / h) * w;
+        }
+        else if (w > h) {
+            // 横图
+            cfg.width = Math.min(xSpace, w);
+            cfg.height = (cfg.width / w) * h;
+        }
+        else {
+            // 正方形图片
+            cfg.height = Math.min(ySpace, xSpace, h);
+            cfg.width = Math.min(w, ySpace);
+        }
+        // 如果 wrap 宽度超过了可视窗口宽度，则需要再次调整宽高
+        if (cfg.width > xSpace) {
+            cfg.height = (xSpace / cfg.width) * cfg.height;
+            cfg.width = xSpace;
+        }
+        // 如果 wrap 高度超过了可视窗口高度，则需要再次调整宽高
+        if (cfg.height > ySpace) {
+            cfg.width = (ySpace / cfg.height) * cfg.width;
+            cfg.height = ySpace;
+        }
+        // 上面计算的高度是图片的高度，现在设置 wrap 的宽高，需要加上内部其他元素的高度
+        cfg.height = cfg.height + tipHeight;
+        // 2. 计算位置
+        // 在页面可视区域内，比较缩略图左侧和右侧空间，把 wrap 显示在空间比较大的那一侧
+        if (leftSpace >= rightSpace) {
+            cfg.left = rect.left - cfg.width - this.border + window.scrollX;
+        }
+        else {
+            cfg.left = rect.right + window.scrollX;
+        }
+        // 然后设置 top
+        // 让 wrap 和缩略图在垂直方向上居中对齐
+        cfg.top = window.scrollY + rect.top;
+        const wrapHalfHeight = (cfg.height + this.border) / 2;
+        const workHalfHeight = rect.height / 2;
+        cfg.top = cfg.top - wrapHalfHeight + workHalfHeight;
+        // 检查 wrap 顶端是否超出了窗口可视区域
+        if (cfg.top < window.scrollY) {
+            cfg.top = window.scrollY;
+        }
+        // 检查 wrap 底部是否超出了窗口可视区域
+        const bottomOver = cfg.top + cfg.height + this.border - window.scrollY - window.innerHeight;
+        if (bottomOver > 0) {
+            // 如果底部超出了窗口可视区域，则计算顶部是否还有可用空间
+            const topFreeSpace = cfg.top - window.scrollY;
+            if (topFreeSpace > 0) {
+                // 如果顶部还有空间可用，就尽量向上移动，但不会导致顶端超出可视区域
+                cfg.top = cfg.top - Math.min(bottomOver, topFreeSpace) - scrollBarHeight;
+            }
+        }
+        // 3. 设置顶部提示区域的内容
+        if (showPreviewWorkTip) {
+            const text = [];
+            const body = this.workData.body;
+            text.push(`${this.index + 1}/${body.pageCount}`);
+            text.push(`${body.width}x${body.height}`);
+            text.push(body.title);
+            text.push(body.description);
+            this.tip.innerHTML = text
+                .map((str) => {
+                return `<span>${str}</span>`;
+            })
+                .join('');
+            this.tip.style.display = 'block';
+        }
+        else {
+            this.tip.style.display = 'none';
+        }
+        // 4. 替换 img 元素
+        this.wrap.querySelector('img').remove();
+        this.wrap.appendChild(this.img);
+        // 5. 显示 wrap
+        const styleArray = [];
+        for (const [key, value] of Object.entries(cfg)) {
+            styleArray.push(`${key}:${value}px;`);
+        }
+        styleArray.push('display:block;');
+        this.wrap.setAttribute('style', styleArray.join(''));
+        // 每次显示图片后，传递图片的一些数据
+        this.sendData(w, h);
+    }
+    replaceUrl(url) {
+        return url.replace('p0', `p${this.index}`);
+    }
+    sendData(w, h) {
+        const data = this.workData;
+        if (!data) {
+            return;
+        }
+        _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__["showOriginSizeImage"].setData({
+            urls: {
+                original: this.replaceUrl(data.body.urls.original),
+                regular: this.replaceUrl(data.body.urls.regular),
+            },
+            img: {
+                width: w,
+                height: h,
+            },
+        });
+    }
+}
+new PreviewWork();
+
+
+/***/ }),
+
 /***/ "./src/ts/SelectWork.ts":
 /*!******************************!*\
   !*** ./src/ts/SelectWork.ts ***!
@@ -5165,7 +5509,7 @@ class SelectWork {
         }
     }
     addBtn() {
-        this.controlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_手动选择作品'));
+        this.controlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_手动选择作品'), [['title', 'Alt + S']]);
         this.updateControlBtn();
         this.clearBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgRed, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_清空选择的作品'));
         this.clearBtn.style.display = 'none';
@@ -5384,272 +5728,6 @@ class SelectWork {
     }
 }
 new SelectWork();
-
-
-/***/ }),
-
-/***/ "./src/ts/ShowBigThumb.ts":
-/*!********************************!*\
-  !*** ./src/ts/ShowBigThumb.ts ***!
-  \********************************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./API */ "./src/ts/API.ts");
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MouseOverThumbnail */ "./src/ts/MouseOverThumbnail.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
-
-
-
-
-
-// 鼠标经过作品的缩略图时，显示更大尺寸的缩略图
-class ShowBigThumb {
-    constructor() {
-        // 容器元素的相关数据
-        this.wrapId = 'bigThumbWrap';
-        this.border = 8; // wrap 的 border 占据的空间
-        // 保存最后一个缩略图的作品的 id
-        this.workId = '';
-        // 显示/隐藏
-        this._show = false;
-        // 加载图像的延迟时间
-        // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
-        // 如果鼠标在缩略图上停留达到 delay 的时间，才会加载 regular 尺寸的图片
-        // 这是因为要加载的图片体积比较大，regular 规格的图片的体积可能达到 800KB，如果立即加载的话会浪费网络资源
-        this.showDelay = 300;
-        this.showTimer = 0;
-        // 鼠标离开缩略图之后，经过指定的时间才会隐藏 wrap
-        // 如果在这个时间内又进入缩略图，或者进入 wrap，则取消隐藏定时器，继续显示 wrap
-        // 如果不使用延迟隐藏，而是立即隐藏的话，用户就不能滚动页面来查看完整的 wrap
-        this.hiddenDelay = 50;
-        this.hiddenTimer = 0;
-        this.createWrap();
-        this.bindEvents();
-    }
-    get show() {
-        return this._show;
-    }
-    set show(val) {
-        if (val) {
-            // 如果保存的作品数据不是最后一个鼠标经过的作品，可能是请求尚未完成，此时延长等待时间
-            if (!this.workData || this.workData.body.id !== this.workId) {
-                this.readyShow();
-            }
-            else {
-                this._show = val;
-                this.showWrap();
-            }
-        }
-        else {
-            window.clearTimeout(this.showTimer);
-            this._show = val;
-            this.wrap.style.display = 'none';
-            this.workData = undefined;
-            this.workEL = undefined;
-        }
-    }
-    bindEvents() {
-        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onEnter((el, id) => {
-            window.clearTimeout(this.hiddenTimer);
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork) {
-                return;
-            }
-            this.workId = id;
-            this.getWorkData();
-            this.workEL = el;
-            // 一定时间后，显示容器，加载大图
-            this.readyShow();
-        });
-        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave(() => {
-            if (this.show) {
-                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWorkMouseStay ? this.readyHidden() : (this.show = false);
-            }
-            else {
-                this.show = false;
-            }
-        });
-        this.wrap.addEventListener('mouseenter', () => {
-            // 允许鼠标停留在预览图上的情况
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWorkMouseStay && !_store_States__WEBPACK_IMPORTED_MODULE_4__["states"].selectWork) {
-                window.clearTimeout(this.hiddenTimer);
-            }
-        });
-        this.wrap.addEventListener('mouseleave', () => {
-            this.show = false;
-        });
-        this.wrap.addEventListener('click', () => {
-            this.show = false;
-        });
-        // 可以使用 Alt + P 快捷键来启用/禁用此功能
-        window.addEventListener('keydown', (ev) => {
-            if (ev.altKey && ev.code === 'KeyP') {
-                Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('PreviewWork', !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork);
-            }
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, () => {
-            this.show = false;
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.centerPanelOpened, () => {
-            this.show = false;
-        });
-    }
-    createWrap() {
-        this.wrap = document.createElement('div');
-        this.wrap.id = this.wrapId;
-        document.body.appendChild(this.wrap);
-    }
-    async getWorkData() {
-        const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(this.workId);
-        if (data.body.id === this.workId) {
-            this.workData = data;
-        }
-    }
-    readyShow() {
-        this.showTimer = window.setTimeout(() => {
-            this.show = true;
-        }, this.showDelay);
-    }
-    readyHidden() {
-        window.clearTimeout(this.showTimer);
-        this.hiddenTimer = window.setTimeout(() => {
-            this.show = false;
-        }, this.hiddenDelay);
-    }
-    // 显示大缩略图。尽量不遮挡住小缩略图
-    showWrap() {
-        var _a;
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork || !this.workEL || !this.workData) {
-            return;
-        }
-        const maxSize = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWorkSize;
-        const cfg = {
-            width: maxSize,
-            height: maxSize,
-            left: 0,
-            top: 0,
-        };
-        // 1. 设置宽高
-        const w = this.workData.body.width;
-        const h = this.workData.body.height;
-        // 如果图片的宽高小于 wrap 的宽高，则让 wrap 缩小，适应图片的大小
-        // 竖图
-        if (w < h) {
-            cfg.height = Math.min(maxSize, h);
-            cfg.width = (cfg.height / h) * w;
-        }
-        else if (w > h) {
-            // 横图
-            cfg.width = Math.min(maxSize, w);
-            cfg.height = (cfg.width / w) * h;
-        }
-        else {
-            // 正方形图片
-            cfg.height = Math.min(maxSize, h);
-            cfg.width = Math.min(maxSize, w);
-        }
-        // 2. 计算位置
-        const rect = this.workEL.getBoundingClientRect();
-        // 下面注释掉的代码，思路是：
-        // 如果是横图，优先把 wrap 显示在缩略图的上方或下方
-        // 其他情况则把 wrap 显示在缩略图的左侧或右侧
-        // 现在改为不再显示在上方、下方，只会在左侧、右侧显示
-        // 这主要是因为在缩略图左侧、右侧显示的话，会让预览图更加靠近屏幕中心区域，位置变化不会很大，这样看起来不容易分散注意力，体验比较好。如果允许某些预览图显示在缩略图的上方、下方，那么预览图可能会脱离中心区域，导致体验变差
-        // 另一个原因是：电脑屏幕大多是横向空间比纵向空间大，这导致上方或下方经常空间不够用，最终还是需要放到左右侧。
-        // // 指示 wrap 是否应该显示在侧面
-        // let showOnAside = false
-        // if (cfg.width > cfg.height) {
-        //   // 如果是横图，优先把 wrap 显示在缩略图的上方或下方
-        //   // 先设置 top
-        //   const topSpace = rect.top
-        //   const bottomSpace = window.innerHeight - topSpace - rect.height
-        //   // 如果上方空间可以容纳 wrap，就显示在上方
-        //   if (topSpace >= cfg.height + this.border) {
-        //     cfg.top = window.scrollY + rect.top - cfg.height - this.border
-        //   } else if (bottomSpace >= cfg.height + this.border) {
-        //     // 上方空间不够的情况下，如果下方可以容纳 wrap，就显示在下方
-        //     cfg.top = window.scrollY + rect.top + rect.height
-        //   } else {
-        //     // 如果上下方都不能容纳 wrap，就把 wrap 显示在侧面
-        //     showOnAside = true
-        //   }
-        //   if (!showOnAside) {
-        //     // 然后设置 left
-        //     // 让 wrap 相对于作品缩略图居中显示
-        //     cfg.left =
-        //       window.scrollX +
-        //       rect.left -
-        //       (cfg.width + this.border - rect.width) / 2
-        //     // 检查 wrap 左侧是否超出了窗口可视区域
-        //     if (cfg.left < window.scrollX) {
-        //       cfg.left = window.scrollX
-        //     }
-        //     // 检查 wrap 右侧是否超出了窗口可视区域
-        //     const scrollBarWidth =
-        //       window.innerWidth - document.documentElement.clientWidth
-        //     const num =
-        //       window.innerWidth -
-        //       scrollBarWidth +
-        //       window.scrollX -
-        //       (cfg.left + cfg.width + this.border)
-        //     if (num < 0) {
-        //       cfg.left = cfg.left + num
-        //     }
-        //   }
-        // }
-        // 如果是竖图或者正方形图片，或者需要放在侧面，就把 wrap 显示在缩略图的左侧或右侧
-        // if (cfg.width <= cfg.height || showOnAside) {
-        // 先设置 left
-        const leftSpace = rect.left;
-        const rightSpace = window.innerWidth - rect.right;
-        // 如果左侧空间比右侧大，并且左侧空间可以容纳大部分（80%） wrap，就把 wrap 显示在左侧
-        const left = rect.left - cfg.width - this.border + window.scrollX;
-        const leftCanUse = left >= 0 || cfg.width * 0.2 + left >= 0;
-        // 为什么要计算 leftCanUse？因为如果 left 是负值，就会导致 wrap 被隐藏了一部分，但是页面不可以向左滚动以显示隐藏的内容。所以如果被隐藏的部分比较多，就让 wrap 显示在右侧。页面可以向右滚动以显示隐藏的内容。
-        if (leftSpace >= rightSpace && leftCanUse) {
-            cfg.left = left;
-        }
-        else {
-            // 如果左侧空间没有右侧空间大，或者左侧空间不足以容纳 wrap，就把 wrap 显示在缩略图的右侧
-            cfg.left = rect.right + window.scrollX;
-        }
-        // 然后设置 top
-        // 让 wrap 和缩略图在垂直方向上居中对齐
-        cfg.top = window.scrollY + rect.top;
-        const wrapHalfHeight = (cfg.height + this.border) / 2;
-        const workHalfHeight = rect.height / 2;
-        cfg.top = cfg.top - wrapHalfHeight + workHalfHeight;
-        // 检查 wrap 顶端是否超出了窗口可视区域
-        if (cfg.top < window.scrollY) {
-            cfg.top = window.scrollY;
-        }
-        // 检查 wrap 底部是否超出了窗口可视区域
-        const bottomOver = cfg.top + cfg.height + this.border - window.scrollY - window.innerHeight;
-        if (bottomOver > 0) {
-            // 如果底部超出了窗口可视区域，则计算顶部是否还有可用空间
-            const topFreeSpace = cfg.top - window.scrollY;
-            if (topFreeSpace > 0) {
-                // 如果顶部还有空间可用，就尽量向上移动，但不会导致顶端超出可视区域
-                const scrollBarHeight = window.innerHeight - document.documentElement.clientHeight;
-                cfg.top = cfg.top - Math.min(bottomOver, topFreeSpace) - scrollBarHeight;
-            }
-        }
-        // }
-        // 3. 显示 wrap
-        this.wrap.innerHTML = `<img src="${(_a = this.workData) === null || _a === void 0 ? void 0 : _a.body.urls.regular}" width="${cfg.width}" height="${cfg.height}">`;
-        const styleArray = [];
-        for (const [key, value] of Object.entries(cfg)) {
-            styleArray.push(`${key}:${value}px;`);
-        }
-        styleArray.push('display:block;');
-        this.wrap.setAttribute('style', styleArray.join(''));
-    }
-}
-new ShowBigThumb();
 
 
 /***/ }),
@@ -5887,6 +5965,344 @@ new ShowNotification();
 
 /***/ }),
 
+/***/ "./src/ts/ShowOriginSizeImage.ts":
+/*!***************************************!*\
+  !*** ./src/ts/ShowOriginSizeImage.ts ***!
+  \***************************************/
+/*! exports provided: showOriginSizeImage */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "showOriginSizeImage", function() { return showOriginSizeImage; });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./MouseOverThumbnail */ "./src/ts/MouseOverThumbnail.ts");
+
+
+
+
+class ShowOriginSizeImage {
+    constructor() {
+        // 原比例查看图片的容器的元素
+        this.wrapId = 'originSizeWrap';
+        this.defaultSize = 1200;
+        this.border = 8; // wrap 的 border 占据的空间
+        // 不可以把 left、top 设置为负值，否则超出屏幕的区域无法查看
+        // 所以通过修改 margin 来达到定位的效果
+        this.style = {
+            imgW: this.defaultSize,
+            imgH: this.defaultSize,
+            width: this.defaultSize,
+            height: this.defaultSize,
+            mt: 0,
+            ml: 0,
+        };
+        this.defaultStyle = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].deepCopy(this.style);
+        this.zoomList = [
+            0.1,
+            0.2,
+            0.3,
+            0.4,
+            0.5,
+            0.75,
+            1,
+            1.5,
+            2,
+            2.5,
+            3,
+            3.5,
+            4,
+            5,
+        ];
+        this.zoomIndex = 6;
+        // 默认的缩放比例为 1
+        this.zoom = this.zoomList[this.zoomIndex];
+        // 定义当鼠标移动 1 像素时，wrap 移动多少像素
+        this.onePxMove = 10;
+        this.moveX = 0;
+        this.moveY = 0;
+        this._show = false;
+        this.showTimer = 0;
+        this.rightClickBeforeShow = false;
+        this.data = {
+            urls: {
+                original: '',
+                regular: '',
+            },
+            img: {
+                width: 1200,
+                height: 1200,
+            },
+        };
+        this.readyShow = (ev) => {
+            // 当预览区域显示之后，在作品缩略图上长按鼠标右键，显示原尺寸图片
+            // 0 左键 1 滚轮 2 右键
+            if (ev.button === 2) {
+                this.showTimer = window.setTimeout(() => {
+                    this.rightClickBeforeShow = true;
+                    this.initWrap(ev);
+                }, 500);
+            }
+        };
+        this.cancelShow = (ev) => {
+            window.clearTimeout(this.showTimer);
+        };
+        this.createElements();
+        this.bindEvents();
+    }
+    get show() {
+        return this._show;
+    }
+    set show(val) {
+        this._show = val;
+        if (val) {
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('showOriginSizeImage');
+        }
+    }
+    createElements() {
+        this.wrap = document.createElement('div');
+        this.wrap.id = this.wrapId;
+        this.img = document.createElement('img');
+        this.wrap.appendChild(this.img);
+        document.documentElement.appendChild(this.wrap);
+    }
+    bindEvents() {
+        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__["mouseOverThumbnail"].onEnter((el) => {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImage) {
+                el.addEventListener('mousedown', this.readyShow);
+                el.addEventListener('mouseup', this.cancelShow);
+            }
+        });
+        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__["mouseOverThumbnail"].onLeave((el) => {
+            el.removeEventListener('mousedown', this.readyShow);
+            el.removeEventListener('mouseup', this.cancelShow);
+            this.show = false;
+        });
+        this.wrap.addEventListener('click', () => {
+            this.hidden();
+        });
+        document.body.addEventListener('click', () => {
+            this.hidden();
+        });
+        this.wrap.addEventListener('mousewheel', (ev) => {
+            ev.preventDefault();
+            // 向上滚 deltaY 是负数（-125），向下滚是正数（125）
+            const zoomAdd = ev.deltaY < 0;
+            this.zoomWrap(ev, zoomAdd);
+        });
+        this.wrap.addEventListener('mousemove', (ev) => {
+            if (this.moveX === 0) {
+                // client x y 是可视区域，不包含滚动区域
+                this.moveX = ev.clientX;
+                this.moveY = ev.clientY;
+            }
+            // 本来我对此事件进行了节流处理，但是节流的话容易显得画面不流畅。
+            // 而且我试了试，不节流也不会产生太高的 CPU 负荷。所以现在不再做节流处理
+            this.moveWrap(ev);
+            this.moveX = ev.clientX;
+            this.moveY = ev.clientY;
+        });
+        window.addEventListener('contextmenu', (ev) => {
+            // 如果是在原图区域显示之前按下了右键，并且随后显示了原图区域，那么就屏蔽这一次右键菜单
+            if (this.rightClickBeforeShow) {
+                ev.preventDefault();
+                this.rightClickBeforeShow = false;
+                this.moveX = ev.clientX;
+                this.moveY = ev.clientY;
+            }
+        });
+    }
+    // 初次显示一个图片时，初始化 wrap 的样式
+    initWrap(ev) {
+        const url = this.data.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImageSize];
+        if (!url) {
+            return;
+        }
+        this.img.src = '';
+        this.img.src = url;
+        this.zoomIndex = 6;
+        this.zoom = this.zoomList[this.zoomIndex];
+        this.style = this.defaultStyle;
+        this.show = true;
+        // 计算图片的原始宽高
+        const originWidth = this.data.img.width;
+        const originHeight = this.data.img.height;
+        // 如果加载的是“普通”尺寸，需要根据原图的比例计算宽高
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImageSize === 'regular') {
+            if (originWidth >= originHeight) {
+                // 横图或者正方形
+                this.style.imgW = Math.min(originWidth, this.defaultSize);
+                this.style.imgH = (this.style.imgW / originWidth) * originHeight;
+            }
+            else {
+                this.style.imgH = Math.min(originHeight, this.defaultSize);
+                this.style.imgW = (this.style.imgH / originHeight) * originWidth;
+            }
+        }
+        else {
+            this.style.imgW = originWidth;
+            this.style.imgH = originHeight;
+        }
+        // 可视区域的 1 像素等于图片尺寸的多少像素
+        let onePxMove = 1;
+        if (originWidth >= originHeight) {
+            onePxMove = this.style.imgW / (window.innerWidth - 17);
+        }
+        else {
+            onePxMove = this.style.imgH / window.innerHeight;
+        }
+        // 乘以修正系数，加大 onePxMove
+        // 这样可以让用户在移动鼠标时，不需要移动到边界上就可以查看到图片的边界
+        this.onePxMove = onePxMove * 1.1;
+        this.style.width = this.style.imgW;
+        this.style.height = this.style.imgH;
+        const innerWidth = window.innerWidth - 17;
+        if (this.style.width > innerWidth) {
+            // 如果图片宽度超过了可视区域，则根据鼠标在可视宽度中的点击位置，将图片等比例移动到这里
+            // 这样用户向左移动鼠标时，可以看到图片的左边界
+            // 设想把图片居中显示，但是鼠标位置在左侧，那么用户向左移动鼠标，是看不到图片的左边界的。所以此时不能居中显示
+            const leftSpace = this.style.width * (ev.clientX / innerWidth);
+            // 计算需要向左移动的距离
+            this.style.ml = 0 - (leftSpace - ev.clientX);
+        }
+        else {
+            // 否则水平居中显示
+            this.style.ml =
+                (window.innerWidth - 17 - this.style.width - this.border) / 2;
+        }
+        if (this.style.height > window.innerHeight) {
+            // 如果图片高度超过了可视区域，则根据鼠标点击位置在可视宽度中的比例，将 top 设置为同样的比例
+            const topSpace = this.style.height * (ev.clientY / window.innerHeight);
+            this.style.mt = 0 - (topSpace - ev.clientY);
+        }
+        else {
+            // 否则垂直居中显示
+            this.style.mt = (window.innerHeight - this.style.height - this.border) / 2;
+        }
+        this.setWrapStyle();
+        this.wrap.style.display = 'block';
+    }
+    // 以鼠标所在位置为中心点缩放
+    // 例如，鼠标放在角色的眼睛上面进行缩放，在缩放之后，依然把眼睛定位到鼠标所在位置
+    // 当用户滚动鼠标滚轮时，传递鼠标相对于原图区域的坐标（不包含 border）
+    zoomWrap(ev, zoomAdd) {
+        // 设置 zoom 等级
+        const oldZoom = this.zoom;
+        const oldZoomIndex = this.zoomIndex;
+        let cancel = false;
+        this.zoomIndex += zoomAdd ? 1 : -1;
+        this.zoom = this.zoomList[this.zoomIndex];
+        if (this.zoom === undefined) {
+            cancel = true;
+        }
+        // 检查缩放后的图片的尺寸是否超出了限制
+        const testWidth = this.style.imgW * this.zoom;
+        const testHeight = this.style.imgH * this.zoom;
+        if (Math.max(testWidth, testHeight) > 30000) {
+            cancel = true;
+        }
+        if (cancel) {
+            this.zoom = oldZoom;
+            this.zoomIndex = oldZoomIndex;
+            return;
+        }
+        // 启动缩放
+        this.style.width = this.style.imgW * this.zoom;
+        this.style.height = this.style.imgH * this.zoom;
+        // 计算这次缩放相对于上次缩放增加的倍率（容器的尺寸会增加多少倍）
+        const zoom = (this.zoom - oldZoom) / oldZoom;
+        // 缩放之前，鼠标与容器顶点形成了一个矩形（0, 0, offsetX, offsetY）
+        // 计算这个矩形在缩放之后，相比于缩放之前增加了多少像素
+        const offsetXAdd = ev.offsetX * zoom;
+        const offsetYAdd = ev.offsetY * zoom;
+        // 对缩放之前的 margin 值加以修改，使缩放之前的鼠标位置的图像现在仍然位于鼠标位置
+        this.style.ml = this.style.ml - offsetXAdd;
+        this.style.mt = this.style.mt - offsetYAdd;
+        this.setWrapStyle();
+    }
+    moveWrap(ev) {
+        // 计算鼠标距离上次执行时，移动的距离
+        const mouseMoveX = ev.clientX - this.moveX;
+        const mouseMoveY = ev.clientY - this.moveY;
+        // 在水平方向上应该移动多少像素
+        let moveX = mouseMoveX * this.onePxMove * this.zoom;
+        // 在垂直方向上应该移动多少像素
+        let moveY = mouseMoveY * this.onePxMove * this.zoom;
+        // 设置容差值，允许图像的边界与可视区域之间存在空隙
+        // 例如，本来图片的左侧与可视区域的左侧重合时，就不应该允许图片继续向右移动了。
+        // 现在设置了容差值，使图片可以继续向右移动 tolerance 像素。
+        // 这样可以让用户知道已经移动到了图片的边缘，避免用户产生疑惑。
+        const tolerance = 10;
+        let ml;
+        let mt;
+        // 鼠标向左移动，wrap 向右移动，ml 增加
+        if (mouseMoveX < 0) {
+            // 如果 wrap 左侧还有被隐藏的部分，才允许向右移动
+            if (this.style.ml < tolerance) {
+                ml = this.style.ml - moveX;
+            }
+        }
+        // 鼠标向右移动，wrap 向左移动，ml 减少
+        if (mouseMoveX > 0) {
+            // 如果 wrap 右侧还有被隐藏的部分，才允许向左移动
+            if (this.style.ml + this.style.width > window.innerWidth - tolerance) {
+                ml = this.style.ml - moveX;
+            }
+        }
+        // 鼠标向上移动，warp 向下移动，mt 增加
+        if (mouseMoveY < 0) {
+            // 如果 wrap 顶部还有被隐藏的部分，才允许向下移动
+            if (this.style.mt < tolerance) {
+                mt = this.style.mt - moveY;
+            }
+        }
+        // 鼠标向下移动，warp 向上移动，mt 减少
+        if (mouseMoveY > 0) {
+            // 如果 wrap 底部还有被隐藏的部分，才允许向上移动
+            if (this.style.mt + this.style.height > window.innerHeight - tolerance) {
+                mt = this.style.mt - moveY;
+            }
+        }
+        // 设置 margin 时，需要检查容器是否处于可视区域之外。如果超出了可视区域则不赋值
+        if (ml !== undefined) {
+            if ((ml > 0 && ml < window.innerWidth) ||
+                (ml < 0 && ml + this.style.width > tolerance)) {
+                // 如果 ml 小于 0，其右边的坐标不可以小于 0
+                this.style.ml = ml;
+            }
+        }
+        if (mt !== undefined) {
+            if ((mt > 0 && mt < window.innerHeight) ||
+                (mt < 0 && mt + this.style.height > tolerance)) {
+                // 如果 mt 小于 0，其底边的坐标不可以小于 0
+                this.style.mt = mt;
+            }
+        }
+        this.setWrapStyle();
+    }
+    setWrapStyle() {
+        this.wrap.style.width = this.style.width + 'px';
+        this.wrap.style.height = this.style.height + 'px';
+        this.wrap.style.marginTop = this.style.mt + 'px';
+        this.wrap.style.marginLeft = this.style.ml + 'px';
+    }
+    hidden() {
+        this.show = false;
+        this.img.src = '';
+        this.wrap.style.display = 'none';
+    }
+    setData(data) {
+        this.data = data;
+    }
+}
+const showOriginSizeImage = new ShowOriginSizeImage();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/ShowWhatIsNew.ts":
 /*!*********************************!*\
   !*** ./src/ts/ShowWhatIsNew.ts ***!
@@ -5924,6 +6340,129 @@ class ShowWhatIsNew {
     }
 }
 new ShowWhatIsNew();
+
+
+/***/ }),
+
+/***/ "./src/ts/ShowZoomBtnOnThumb.ts":
+/*!**************************************!*\
+  !*** ./src/ts/ShowZoomBtnOnThumb.ts ***!
+  \**************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ImageViewer */ "./src/ts/ImageViewer.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./MouseOverThumbnail */ "./src/ts/MouseOverThumbnail.ts");
+
+
+
+
+// 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器来查看大图
+class ShowZoomBtnOnThumb {
+    constructor() {
+        this.btnId = 'zoomBtnOnThumb';
+        this.btnSize = [32, 32];
+        this.hiddenBtnTimer = 0; // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
+        this.hiddenBtnDelay = 100;
+        this.currentWorkId = ''; // 显示放大按钮时，保存触发事件的作品 id
+        this.doNotShowBtn = false; // 当点击了放大按钮后，进入此状态，此状态中不会显示放大按钮
+        this.addBtn();
+        this.bindEvents();
+    }
+    // 此状态是为了解决这个问题：点击了放大按钮之后，按钮会被隐藏，隐藏之后，鼠标下方就是图片缩略图区域，这会触发缩略图的鼠标事件，导致放大按钮马上就又显示了出来。所以点击放大按钮之后设置这个状态，在其为 true 的期间不会显示放大按钮。过一段时间再把它复位。复位所需的时间很短，因为只要能覆盖这段时间就可以了：从隐藏放大按钮开始算起，到缩略图触发鼠标事件结束。
+    addBtn() {
+        const btn = document.createElement('button');
+        btn.id = this.btnId;
+        btn.innerHTML = `
+    <svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-fangda"></use>
+</svg>`;
+        this.btn = document.body.appendChild(btn);
+    }
+    bindEvents() {
+        // 页面切换时隐藏按钮
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
+            this.hiddenBtn();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clickBtnOnThumb, () => {
+            this.hiddenBtnNow();
+        });
+        // 页面切换时隐藏按钮
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlStart, () => {
+            this.hiddenBtn();
+        });
+        // 鼠标移入按钮时取消隐藏按钮
+        this.btn.addEventListener('mouseenter', (ev) => {
+            window.clearTimeout(this.hiddenBtnTimer);
+        });
+        // 鼠标移出按钮时隐藏按钮
+        this.btn.addEventListener('mouseleave', () => {
+            this.hiddenBtn();
+        });
+        // 点击按钮时初始化图片查看器
+        this.btn.addEventListener('click', (ev) => {
+            this.hiddenBtnNow();
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('clickBtnOnThumb');
+            if (this.currentWorkId) {
+                new _ImageViewer__WEBPACK_IMPORTED_MODULE_1__["ImageViewer"]({
+                    workId: this.currentWorkId,
+                    imageNumber: 1,
+                    imageSize: _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].magnifierSize,
+                    autoStart: true,
+                    showLoading: true,
+                });
+            }
+        });
+        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__["mouseOverThumbnail"].onEnter((el, id) => {
+            this.currentWorkId = id;
+            this.showBtn(el);
+        });
+        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__["mouseOverThumbnail"].onLeave(() => {
+            this.hiddenBtn();
+        });
+    }
+    // 显示放大按钮
+    showBtn(target) {
+        if (this.doNotShowBtn) {
+            return;
+        }
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].magnifier) {
+            return;
+        }
+        window.clearTimeout(this.hiddenBtnTimer);
+        const rect = target.getBoundingClientRect();
+        this.btn.style.left =
+            window.pageXOffset +
+                rect.left +
+                (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].magnifierPosition === 'left'
+                    ? 0
+                    : rect.width - this.btnSize[0]) +
+                'px';
+        this.btn.style.top = window.pageYOffset + rect.top + 'px';
+        this.btn.style.display = 'flex';
+    }
+    // 延迟隐藏放大按钮
+    hiddenBtn() {
+        window.clearTimeout(this.hiddenBtnTimer);
+        this.hiddenBtnTimer = window.setTimeout(() => {
+            this.btn.style.display = 'none';
+        }, this.hiddenBtnDelay);
+    }
+    // 立刻隐藏放大按钮
+    hiddenBtnNow() {
+        this.doNotShowBtn = true;
+        window.setTimeout(() => {
+            this.doNotShowBtn = false;
+        }, 100);
+        window.clearTimeout(this.hiddenBtnTimer);
+        this.btn.style.display = 'none';
+    }
+}
+new ShowZoomBtnOnThumb();
 
 
 /***/ }),
@@ -6717,129 +7256,6 @@ class Tools {
 
 /***/ }),
 
-/***/ "./src/ts/ViewBigImage.ts":
-/*!********************************!*\
-  !*** ./src/ts/ViewBigImage.ts ***!
-  \********************************/
-/*! no exports provided */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _ImageViewer__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ImageViewer */ "./src/ts/ImageViewer.ts");
-/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./MouseOverThumbnail */ "./src/ts/MouseOverThumbnail.ts");
-
-
-
-
-// 在作品缩略图上显示放大按钮，点击按钮会调用图片查看器来查看大图
-class ViewBigImage {
-    constructor() {
-        this.btnId = 'ViewBigImageBtn';
-        this.btnSize = [32, 32];
-        this.hiddenBtnTimer = 0; // 使用定时器让按钮延迟消失。这是为了解决一些情况下按钮闪烁的问题
-        this.hiddenBtnDelay = 100;
-        this.currentWorkId = ''; // 显示放大按钮时，保存触发事件的作品 id
-        this.doNotShowBtn = false; // 当点击了放大按钮后，进入此状态，此状态中不会显示放大按钮
-        this.addBtn();
-        this.bindEvents();
-    }
-    // 此状态是为了解决这个问题：点击了放大按钮之后，按钮会被隐藏，隐藏之后，鼠标下方就是图片缩略图区域，这会触发缩略图的鼠标事件，导致放大按钮马上就又显示了出来。所以点击放大按钮之后设置这个状态，在其为 true 的期间不会显示放大按钮。过一段时间再把它复位。复位所需的时间很短，因为只要能覆盖这段时间就可以了：从隐藏放大按钮开始算起，到缩略图触发鼠标事件结束。
-    addBtn() {
-        const btn = document.createElement('button');
-        btn.id = this.btnId;
-        btn.innerHTML = `
-    <svg class="icon" aria-hidden="true">
-  <use xlink:href="#icon-fangda"></use>
-</svg>`;
-        this.btn = document.body.appendChild(btn);
-    }
-    bindEvents() {
-        // 页面切换时隐藏按钮
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
-            this.hiddenBtn();
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clickBtnOnThumb, () => {
-            this.hiddenBtnNow();
-        });
-        // 页面切换时隐藏按钮
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.crawlStart, () => {
-            this.hiddenBtn();
-        });
-        // 鼠标移入按钮时取消隐藏按钮
-        this.btn.addEventListener('mouseenter', (ev) => {
-            window.clearTimeout(this.hiddenBtnTimer);
-        });
-        // 鼠标移出按钮时隐藏按钮
-        this.btn.addEventListener('mouseleave', () => {
-            this.hiddenBtn();
-        });
-        // 点击按钮时初始化图片查看器
-        this.btn.addEventListener('click', (ev) => {
-            this.hiddenBtnNow();
-            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('clickBtnOnThumb');
-            if (this.currentWorkId) {
-                new _ImageViewer__WEBPACK_IMPORTED_MODULE_1__["ImageViewer"]({
-                    workId: this.currentWorkId,
-                    imageNumber: 1,
-                    imageSize: _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].magnifierSize,
-                    autoStart: true,
-                    showLoading: true,
-                });
-            }
-        });
-        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__["mouseOverThumbnail"].onEnter((el, id) => {
-            this.currentWorkId = id;
-            this.showBtn(el);
-        });
-        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__["mouseOverThumbnail"].onLeave(() => {
-            this.hiddenBtn();
-        });
-    }
-    // 显示放大按钮
-    showBtn(target) {
-        if (this.doNotShowBtn) {
-            return;
-        }
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].magnifier) {
-            return;
-        }
-        window.clearTimeout(this.hiddenBtnTimer);
-        const rect = target.getBoundingClientRect();
-        this.btn.style.left =
-            window.pageXOffset +
-                rect.left +
-                (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].magnifierPosition === 'left'
-                    ? 0
-                    : rect.width - this.btnSize[0]) +
-                'px';
-        this.btn.style.top = window.pageYOffset + rect.top + 'px';
-        this.btn.style.display = 'flex';
-    }
-    // 延迟隐藏放大按钮
-    hiddenBtn() {
-        window.clearTimeout(this.hiddenBtnTimer);
-        this.hiddenBtnTimer = window.setTimeout(() => {
-            this.btn.style.display = 'none';
-        }, this.hiddenBtnDelay);
-    }
-    // 立刻隐藏放大按钮
-    hiddenBtnNow() {
-        this.doNotShowBtn = true;
-        window.setTimeout(() => {
-            this.doNotShowBtn = false;
-        }, 100);
-        window.clearTimeout(this.hiddenBtnTimer);
-        this.btn.style.display = 'none';
-    }
-}
-new ViewBigImage();
-
-
-/***/ }),
-
 /***/ "./src/ts/config/Colors.ts":
 /*!*********************************!*\
   !*** ./src/ts/config/Colors.ts ***!
@@ -6935,8 +7351,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
 /* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
 /* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_10__);
-/* harmony import */ var _ShowBigThumb__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./ShowBigThumb */ "./src/ts/ShowBigThumb.ts");
-/* harmony import */ var _ViewBigImage__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ViewBigImage */ "./src/ts/ViewBigImage.ts");
+/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
+/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
 /* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
 /* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
 /* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
@@ -7024,7 +7440,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 // 初始化所有页面抓取流程的基类
+
 
 
 
@@ -7247,7 +7665,13 @@ class InitPageBase {
                 this.afterGetWorksData(data);
             }
             else {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getArtworkData(id);
+                let data;
+                if (_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_20__["cacheWorkData"].has(id)) {
+                    data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_20__["cacheWorkData"].get(id);
+                }
+                else {
+                    data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getArtworkData(id);
+                }
                 await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__["saveArtworkData"].save(data);
                 this.afterGetWorksData(data);
             }
@@ -11828,33 +12252,31 @@ class Deduplication {
                 return resolve(false);
             }
             // 在数据库进行查找
-            const storeNmae = this.getStoreName(result.id);
-            const data = (await this.IDB.get(storeNmae, result.id));
+            const storeName = this.getStoreName(result.id);
+            const data = (await this.IDB.get(storeName, result.id));
             if (data === null) {
                 return resolve(false);
             }
+            // 有记录，说明这个文件下载过
+            this.existedIdList.push(data.id);
+            // 首先检查日期字符串是否发生了变化
+            let dateChange = false;
+            if (data.d) {
+                dateChange = data.d !== this.getDateString(result);
+                // 如果日期字符串变化了，则不视为重复文件
+                if (dateChange) {
+                    return resolve(false);
+                }
+            }
+            // 如果日期字符串没有变化，再根据策略进行判断
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].dupliStrategy === 'loose') {
+                // 如果是宽松策略（不比较文件名）
+                return resolve(true);
+            }
             else {
-                // 有记录，说明这个文件下载过
-                this.existedIdList.push(data.id);
-                // 首先检查日期字符串是否发生了变化
-                let dateChange = false;
-                if (data.d) {
-                    dateChange = data.d !== this.getDateString(result);
-                    // 如果日期字符串变化了，则不视为重复文件
-                    if (dateChange) {
-                        return false;
-                    }
-                }
-                // 如果日期字符串没有变化，再根据策略进行判断
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].dupliStrategy === 'loose') {
-                    // 如果是宽松策略（不比较文件名）
-                    return resolve(true);
-                }
-                else {
-                    // 如果是严格策略（考虑文件名）
-                    const name = _FileName__WEBPACK_IMPORTED_MODULE_6__["fileName"].getFileName(result);
-                    return resolve(name === data.n);
-                }
+                // 如果是严格策略（考虑文件名）
+                const name = _FileName__WEBPACK_IMPORTED_MODULE_6__["fileName"].getFileName(result);
+                return resolve(name === data.n);
             }
         });
     }
@@ -16434,7 +16856,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Token */ "./src/ts/Token.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 // 作品页面内的快速收藏功能
+
 
 
 
@@ -16541,10 +16965,14 @@ class QuickBookmark {
         return btn;
     }
     async getWorkData() {
-        const id = this.isNovel ? _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getNovelId() : _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getIllustId();
-        return this.isNovel
-            ? await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelData(id)
-            : await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id);
+        if (this.isNovel) {
+            return await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelData(_Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getNovelId());
+        }
+        else {
+            const id = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getIllustId();
+            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_6__["cacheWorkData"].get(id);
+            return data ? data : await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id);
+        }
     }
     async addBookmark() {
         const type = this.isNovel ? 'novels' : 'illusts';
@@ -17927,12 +18355,32 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="PreviewWork">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_尺寸')}</span>
-      <input type="text" name="PreviewWorkSize" class="setinput_style1 blue" value="600" style="width:50px;min-width: 50px;">&nbsp;px
+      
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸2')}</span>
+      <input type="radio" name="prevWorkSize" id="prevWorkSize1" class="need_beautify radio" value="original">
+      <span class="beautify_radio"></span>
+      <label for="prevWorkSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_原图')} </label>
       &nbsp;
-      <input type="checkbox" name="PreviewWorkMouseStay" id="PreviewWorkMouseStay" class="need_beautify checkbox_common">
-      <span class="beautify_checkbox"></span>
-      <label for="PreviewWorkMouseStay">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_允许鼠标停留在预览图上')}</label>
+      <input type="radio" name="prevWorkSize" id="prevWorkSize2" class="need_beautify radio" value="regular" checked>
+      <span class="beautify_radio"></span>
+      <label for="prevWorkSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_普通')} </label>
+      </p>
+
+      <p class="option" data-no="62">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_长按右键显示大图')} </span>
+      <input type="checkbox" name="showOriginImage" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+
+      <span class="subOptionWrap" data-show="showOriginImage">
+      
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸2')}</span>
+      <input type="radio" name="showOriginImageSize" id="showOriginImageSize1" class="need_beautify radio" value="original">
+      <span class="beautify_radio"></span>
+      <label for="showOriginImageSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_原图')} </label>
+      &nbsp;
+      <input type="radio" name="showOriginImageSize" id="showOriginImageSize2" class="need_beautify radio" value="regular" checked>
+      <span class="beautify_radio"></span>
+      <label for="showOriginImageSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_普通')} </label>
       </p>
 
       <p class="option" data-no="40">
@@ -17953,7 +18401,7 @@ const formHtml = `<form class="settingForm">
 
       <span class="verticalSplit"></span>
 
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸2')} </span>
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸2')}</span>
       <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
       <label for="magnifierSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_原图')} </label>
@@ -18212,8 +18660,9 @@ class FormSettings {
                 'autoExportResultCSV',
                 'autoExportResultJSON',
                 'PreviewWork',
-                'PreviewWorkMouseStay',
                 'showDownloadBtnOnThumb',
+                'prevWorkSize',
+                'showOriginImage',
             ],
             text: [
                 'setWantPage',
@@ -18241,7 +18690,6 @@ class FormSettings {
                 'zeroPaddingLength',
                 'workDirNameRule',
                 'autoExportResultNumber',
-                'PreviewWorkSize',
             ],
             radio: [
                 'ugoiraSaveAs',
@@ -18262,6 +18710,8 @@ class FormSettings {
                 'bgPositionY',
                 'switchTabBar',
                 'tagMatchMode',
+                'prevWorkSize',
+                'showOriginImageSize',
             ],
             textarea: ['createFolderTagList'],
             datetime: ['postDateStart', 'postDateEnd'],
@@ -19098,9 +19548,10 @@ class Settings {
             autoExportResultJSON: false,
             autoExportResultNumber: 1,
             PreviewWork: true,
-            PreviewWorkSize: 600,
-            PreviewWorkMouseStay: false,
             showDownloadBtnOnThumb: true,
+            prevWorkSize: 'regular',
+            showOriginImage: true,
+            showOriginImageSize: 'original',
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -19295,9 +19746,6 @@ class Settings {
         if (key === 'setWidthAndOr' && value === '') {
             value = this.defaultSettings[key];
         }
-        if (key === 'PreviewWorkSize' && value < 300) {
-            value = 300;
-        }
         // 更改设置
         ;
         this.settings[key] = value;
@@ -19315,6 +19763,47 @@ class Settings {
 const self = new Settings();
 const settings = self.settings;
 const setSetting = self.setSetting.bind(self);
+
+
+
+/***/ }),
+
+/***/ "./src/ts/store/CacheWorkData.ts":
+/*!***************************************!*\
+  !*** ./src/ts/store/CacheWorkData.ts ***!
+  \***************************************/
+/*! exports provided: cacheWorkData */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "cacheWorkData", function() { return cacheWorkData; });
+// 本程序有多个模块需要在抓取流程之外获取作品数据
+// 为了避免重复发起请求，以及解决浏览器有时候不读取缓存的问题，所以在这里缓存一些作品数据
+// 即使下载器获取过某个作品的数据，但是以后再次请求时，浏览器也有可能不会读取缓存，而是重新发起请求。
+class CacheWorkData {
+    constructor() {
+        this.cache = [];
+        // 一个图像作品的数据大约是 5 KB
+        this.max = 20;
+    }
+    set(data) {
+        if (this.has(data.body.id)) {
+            return;
+        }
+        if (this.cache.length >= this.max) {
+            this.cache.shift();
+        }
+        this.cache.push(data);
+    }
+    get(id) {
+        return this.cache.find((val) => val.body.id === id);
+    }
+    has(id) {
+        return this.cache.some((val) => val.body.id === id);
+    }
+}
+const cacheWorkData = new CacheWorkData();
 
 
 
