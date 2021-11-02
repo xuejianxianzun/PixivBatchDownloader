@@ -4969,7 +4969,7 @@ class PreviewWork {
         this.wrapId = 'previewWorkWrap';
         this.border = 8; // border 占据的空间
         this.tipId = 'previewWorkTip';
-        this.tipHeight = 26;
+        this.tipHeight = 22;
         // 保存当前鼠标经过的缩略图的数据
         this.workId = '';
         // 显示作品中的第几张图片
@@ -5204,7 +5204,7 @@ class PreviewWork {
             const text = [];
             const body = this.workData.body;
             text.push(`${this.index + 1}/${body.pageCount}`);
-            text.push(`${body.width}x${body.height}`);
+            text.push(`${w}x${h}`);
             text.push(body.title);
             text.push(body.description);
             this.tip.innerHTML = text
@@ -5220,6 +5220,7 @@ class PreviewWork {
         // 4. 替换 img 元素
         this.wrap.querySelector('img').remove();
         this.wrap.appendChild(this.img);
+        this.img.style.height = cfg.height - tipHeight + 'px';
         // 5. 显示 wrap
         const styleArray = [];
         for (const [key, value] of Object.entries(cfg)) {

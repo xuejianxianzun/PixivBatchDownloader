@@ -21,7 +21,7 @@ class PreviewWork {
 
   private tipId = 'previewWorkTip'
   private tip!: HTMLElement
-  private readonly tipHeight = 26
+  private readonly tipHeight = 22
 
   // 保存当前鼠标经过的缩略图的数据
   private workId = ''
@@ -288,7 +288,7 @@ class PreviewWork {
       const text = []
       const body = this.workData.body
       text.push(`${this.index + 1}/${body.pageCount}`)
-      text.push(`${body.width}x${body.height}`)
+      text.push(`${w}x${h}`)
       text.push(body.title)
       text.push(body.description)
 
@@ -305,6 +305,7 @@ class PreviewWork {
     // 4. 替换 img 元素
     this.wrap.querySelector('img')!.remove()
     this.wrap.appendChild(this.img)
+    this.img.style.height = cfg.height - tipHeight + 'px'
 
     // 5. 显示 wrap
     const styleArray: string[] = []
