@@ -4972,14 +4972,46 @@ class PreviewWork {
         this.tipHeight = 26;
         // 保存当前鼠标经过的缩略图的数据
         this.workId = '';
-        this.index = 1;
+        // 显示作品中的第几张图片
+        this.index = 0;
         // 显示预览区域的延迟时间
         // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
         // 如果鼠标在缩略图上停留达到 delay 的时间，才会加载 regular 尺寸的图片
         // 这是因为要加载的图片体积比较大，regular 规格的图片的体积可能达到 800KB，如果立即加载的话会浪费网络资源
         this.showDelay = 300;
         this.showTimer = 0;
+        this.testImg = document.createElement('img');
+        this.getImageSizeTimer = 0;
         this._show = false;
+        this.mouseScroll = (ev) => {
+            // 此事件没有必要使用节流
+            // 因为每次执行时，后续代码里都会重置定时器，停止图片加载，不会造成严重的性能问题
+            if (this.show) {
+                const count = this.workData.body.pageCount;
+                if (count === 1) {
+                    return;
+                }
+                ev.preventDefault();
+                const up = ev.deltaY < 0;
+                if (up) {
+                    if (this.index > 0) {
+                        this.index--;
+                    }
+                    else {
+                        this.index = count - 1;
+                    }
+                }
+                else {
+                    if (this.index < count - 1) {
+                        this.index++;
+                    }
+                    else {
+                        this.index = 0;
+                    }
+                }
+                this.showWrap();
+            }
+        };
         this.createElements();
         this.bindEvents();
     }
@@ -4994,19 +5026,22 @@ class PreviewWork {
                 this.readyShow();
             }
             else {
-                this.sendData(this.workData);
+                const w = this.workData.body.width;
+                const h = this.workData.body.height;
+                this.sendData(w, h);
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork) {
-                    this._show = val;
+                    this._show = true;
                     this.showWrap();
                 }
             }
         }
         else {
+            // 隐藏时重置一些变量
             window.clearTimeout(this.showTimer);
-            this._show = val;
+            this._show = false;
             this.wrap.style.display = 'none';
             // 隐藏 wrap 时，把 img 的 src 设置为空
-            // 这样如果图片没有加载完就会停止加载，避免浪费网络资源
+            // 这样图片会停止加载，避免浪费网络资源
             this.img.src = '';
         }
     }
@@ -5022,17 +5057,25 @@ class PreviewWork {
     }
     bindEvents() {
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onEnter((el, id) => {
-            // 如果重复进入同一个作品的缩略图，不会重复获取数据
+            if (this.workId !== id) {
+                // 切换到不同作品时，重置 index
+                this.index = 0;
+            }
             this.workId = id;
             this.workEL = el;
             if (!_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__["cacheWorkData"].has(id)) {
                 // 如果在缓存中没有找到这个作品的数据，则发起请求
                 this.fetchWorkData();
             }
+            else {
+                this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__["cacheWorkData"].get(id);
+            }
             this.readyShow();
+            el.addEventListener('mousewheel', this.mouseScroll);
         });
-        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave(() => {
+        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave((el) => {
             this.show = false;
+            el.removeEventListener('mousewheel', this.mouseScroll);
         });
         // 可以使用 Alt + P 快捷键来启用/禁用此功能
         window.addEventListener('keydown', (ev) => {
@@ -5060,20 +5103,38 @@ class PreviewWork {
             this.show = true;
         }, this.showDelay);
     }
+    // 通过 img 元素加载图片，等到可以获取到宽高信息时返回这个 img
+    async getImageSize(url) {
+        // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。所以每次执行前需要重置一些变量
+        window.clearInterval(this.getImageSizeTimer);
+        this.testImg.src = '';
+        return new Promise((resolve) => {
+            this.testImg = new Image();
+            this.testImg.src = url;
+            this.getImageSizeTimer = window.setInterval(() => {
+                if (this.testImg.naturalWidth > 0) {
+                    window.clearInterval(this.getImageSizeTimer);
+                    return resolve(this.testImg);
+                }
+            }, 100);
+        });
+    }
     // 显示预览 wrap
-    showWrap() {
+    async showWrap() {
         if (!this.workEL || !this.workData) {
             return;
         }
+        const url = this.replaceUrl(this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize]);
+        this.img = await this.getImageSize(url);
         const cfg = {
-            width: 1200,
-            height: 1200,
+            width: this.img.naturalWidth,
+            height: this.img.naturalHeight,
             left: 0,
             top: 0,
         };
+        const w = this.img.naturalWidth;
+        const h = this.img.naturalHeight;
         // 1. 计算图片显示的尺寸
-        const w = this.workData.body.width;
-        const h = this.workData.body.height;
         const rect = this.workEL.getBoundingClientRect();
         // 计算各个可用区域的尺寸，提前减去了 border、tip 等元素占据的空间
         const innerWidth = window.innerWidth - 17;
@@ -5144,7 +5205,7 @@ class PreviewWork {
         if (showPreviewWorkTip) {
             const text = [];
             const body = this.workData.body;
-            text.push(`${this.index}/${body.pageCount}`);
+            text.push(`${this.index + 1}/${body.pageCount}`);
             text.push(`${body.width}x${body.height}`);
             text.push(body.title);
             text.push(body.description);
@@ -5158,30 +5219,34 @@ class PreviewWork {
         else {
             this.tip.style.display = 'none';
         }
-        // 4. 显示 wrap
-        const url = this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize];
-        if (!url) {
-            return;
-        }
-        this.img.src = url;
-        // css 设置了 img{height:auto}，但是有时候下面会有一点缝隙，可能是浮点数导致的。手动设置高度使其没有缝隙
-        this.img.style.height = cfg.height - tipHeight + 'px';
+        // 4. 替换 img 元素
+        this.wrap.querySelector('img').remove();
+        this.wrap.appendChild(this.img);
+        // 5. 显示 wrap
         const styleArray = [];
         for (const [key, value] of Object.entries(cfg)) {
             styleArray.push(`${key}:${value}px;`);
         }
         styleArray.push('display:block;');
         this.wrap.setAttribute('style', styleArray.join(''));
+        this.sendData(w, h);
     }
-    sendData(data) {
+    replaceUrl(url) {
+        return url.replace('p0', `p${this.index}`);
+    }
+    sendData(w, h) {
+        const data = this.workData;
+        if (!data) {
+            return;
+        }
         _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__["showOriginSizeImage"].setData({
             urls: {
-                original: data.body.urls.original,
-                regular: data.body.urls.regular,
+                original: this.replaceUrl(data.body.urls.original),
+                regular: this.replaceUrl(data.body.urls.regular),
             },
             img: {
-                width: data.body.width,
-                height: data.body.height,
+                width: w,
+                height: h,
             },
         });
     }
