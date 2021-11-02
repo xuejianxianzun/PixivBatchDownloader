@@ -1,7 +1,7 @@
 import { EVT } from './EVT'
 import { settings } from './setting/Settings'
-import { ArtworkData } from './crawl/CrawlResult'
 import { Utils } from './utils/Utils'
+import { mouseOverThumbnail } from './MouseOverThumbnail'
 
 interface Style {
   imgW: number
@@ -10,6 +10,17 @@ interface Style {
   height: number
   mt: number
   ml: number
+}
+
+interface Data {
+  urls: {
+    original: string
+    regular: string
+  },
+  img: {
+    width: number
+    height: number
+  }
 }
 
 class ShowOriginSizeImage {
@@ -76,7 +87,16 @@ class ShowOriginSizeImage {
   private showTimer = 0
   private rightClickBeforeShow = false
 
-  private workData?: ArtworkData
+  private data = {
+    urls: {
+      original: '',
+      regular: '',
+    },
+    img: {
+      width: 1200,
+      height: 1200,
+    }
+  }
 
   private createElements() {
     this.wrap = document.createElement('div')
@@ -87,6 +107,19 @@ class ShowOriginSizeImage {
   }
 
   private bindEvents() {
+    mouseOverThumbnail.onEnter((el: HTMLElement) => {
+      if (settings.showOriginImage) {
+        el.addEventListener('mousedown', this.readyShow)
+        el.addEventListener('mouseup', this.cancelShow)
+      }
+    })
+
+    mouseOverThumbnail.onLeave((el: HTMLElement) => {
+      el.removeEventListener('mousedown', this.readyShow)
+      el.removeEventListener('mouseup', this.cancelShow)
+      this.show = false
+    })
+
     this.wrap.addEventListener('click', () => {
       this.hidden()
     })
@@ -127,31 +160,13 @@ class ShowOriginSizeImage {
     })
   }
 
-  public enterEl(el: HTMLElement) {
-    if (!settings.showOriginImage) {
-      return
-    }
-    el.addEventListener('mousedown', this.readyShow)
-    el.addEventListener('mouseup', this.cancelShow)
-  }
-
-  public leaveEl(el: HTMLElement) {
-    if (!settings.showOriginImage) {
-      return
-    }
-    el.removeEventListener('mousedown', this.readyShow)
-    el.removeEventListener('mouseup', this.cancelShow)
-  }
-
   private readyShow = (ev: MouseEvent) => {
     // 当预览区域显示之后，在作品缩略图上长按鼠标右键，显示原尺寸图片
     // 0 左键 1 滚轮 2 右键
     if (ev.button === 2) {
       this.showTimer = window.setTimeout(() => {
         this.rightClickBeforeShow = true
-        if (this.workData) {
-          this.initWrap(ev)
-        }
+        this.initWrap(ev)
       }, 500)
     }
   }
@@ -162,7 +177,7 @@ class ShowOriginSizeImage {
 
   // 初次显示一个图片时，初始化 wrap 的样式
   private initWrap(ev: MouseEvent) {
-    const url = this.workData?.body.urls[settings.showOriginImageSize]
+    const url = this.data.urls[settings.showOriginImageSize]
     if (!url) {
       return
     }
@@ -175,8 +190,8 @@ class ShowOriginSizeImage {
     this.show = true
 
     // 计算图片的原始宽高
-    const originWidth = this.workData!.body.width
-    const originHeight = this.workData!.body.height
+    const originWidth = this.data.img.width
+    const originHeight = this.data.img.height
 
     // 如果加载的是“普通”尺寸，需要根据原图的比例计算宽高
     if (settings.showOriginImageSize === 'regular') {
@@ -364,8 +379,8 @@ class ShowOriginSizeImage {
     this.wrap.style.display = 'none'
   }
 
-  public setWorkData(data: ArtworkData) {
-    this.workData = data
+  public setData(data: Data) {
+    this.data = data
   }
 }
 

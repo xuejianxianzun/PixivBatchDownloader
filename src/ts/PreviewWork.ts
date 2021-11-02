@@ -21,8 +21,14 @@ class PreviewWork {
 
   // 保存当前鼠标经过的缩略图的数据
   private workId = ''
-  private workData?: ArtworkData
   private workEL?: HTMLElement
+  // 缓存最后获取的 10 个作品数据
+  // 当鼠标在几个作品之间来回切换时，即使之前它们都获取过一次数据，浏览器也不一定会读取缓存
+  // 有很多时候还是会重新发起请求的。在这里缓存数据以达到节约时间的目的
+  private cache: ArtworkData[] = []
+  private readonly maxCache = 10
+
+  private workData?: ArtworkData
 
   // 显示预览区域的延迟时间
   // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
@@ -31,13 +37,6 @@ class PreviewWork {
   private readonly showDelay = 300
   private showTimer = 0
 
-  // 鼠标离开缩略图之后，经过指定的时间才会隐藏 wrap
-  // 如果在这个时间内又进入缩略图，或者进入 wrap，则取消隐藏定时器，继续显示 wrap
-  // 如果不使用延迟隐藏，而是立即隐藏的话，用户就不能滚动页面来查看完整的 wrap
-  private readonly hiddenDelay = 50
-  private hiddenTimer = 0
-
-  // 预览 wrap 的状态
   private _show = false
 
   private get show() {
@@ -46,12 +45,16 @@ class PreviewWork {
 
   private set show(val: boolean) {
     if (val) {
+      this.workData = this.findWorkData()
       // 如果保存的作品数据不是最后一个鼠标经过的作品，可能是请求尚未完成，此时延长等待时间
       if (!this.workData || this.workData.body.id !== this.workId) {
         this.readyShow()
       } else {
-        this._show = val
-        this.showWrap()
+        this.sendData(this.workData)
+        if (settings.PreviewWork) {
+          this._show = val
+          this.showWrap()
+        }
       }
     } else {
       window.clearTimeout(this.showTimer)
@@ -71,29 +74,27 @@ class PreviewWork {
     document.body.appendChild(this.wrap)
   }
 
+  private findWorkData() {
+    return this.cache.find(val => val.body.id === this.workId)
+  }
+
   private bindEvents() {
     mouseOverThumbnail.onEnter((el: HTMLElement, id: string) => {
-      window.clearTimeout(this.hiddenTimer)
-
-      if (!settings.PreviewWork) {
-        return
-      }
-
       // 如果重复进入同一个作品的缩略图，不会重复获取数据
       if (id !== this.workId) {
         this.workId = id
-        this.getWorkData()
+        if (this.findWorkData() === undefined) {
+          // 如果在缓存中没有找到这个作品的数据，才会发起请求
+          this.fetchWorkData()
+        }
       }
 
       this.workEL = el
-      // 一定时间后，显示容器，加载大图
+      // 一定时间后显示容器，加载大图
       this.readyShow()
-
-      showOriginSizeImage.enterEl(el)
     })
 
-    mouseOverThumbnail.onLeave((el: HTMLElement) => {
-      showOriginSizeImage.leaveEl(el)
+    mouseOverThumbnail.onLeave(() => {
       this.show = false
     })
 
@@ -112,11 +113,15 @@ class PreviewWork {
     })
   }
 
-  private async getWorkData() {
+  private async fetchWorkData() {
     const data = await API.getArtworkData(this.workId)
+    if (this.cache.length >= this.maxCache) {
+      this.cache.shift()
+    }
+    this.cache.push(data)
+
     if (data.body.id === this.workId) {
-      this.workData = data
-      showOriginSizeImage.setWorkData(this.workData)
+
     }
   }
 
@@ -128,7 +133,7 @@ class PreviewWork {
 
   // 显示预览 wrap
   private showWrap() {
-    if (!settings.PreviewWork || !this.workEL || !this.workData) {
+    if (!this.workEL || !this.workData) {
       return
     }
 
@@ -218,7 +223,7 @@ class PreviewWork {
     }
 
     // 3. 显示 wrap
-    const url = this.workData?.body.urls[settings.prevWorkSize]
+    const url = this.workData.body.urls[settings.prevWorkSize]
     if (!url) {
       return
     }
@@ -229,6 +234,19 @@ class PreviewWork {
     }
     styleArray.push('display:block;')
     this.wrap.setAttribute('style', styleArray.join(''))
+  }
+
+  private sendData(data: ArtworkData) {
+    showOriginSizeImage.setData({
+      urls: {
+        original: data.body.urls.original,
+        regular: data.body.urls.regular,
+      },
+      img: {
+        width: data.body.width,
+        height: data.body.height,
+      }
+    })
   }
 }
 

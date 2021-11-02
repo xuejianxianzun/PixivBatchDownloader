@@ -4960,18 +4960,17 @@ class PreviewWork {
         this.border = 8; // wrap 的 border 占据的空间
         // 保存当前鼠标经过的缩略图的数据
         this.workId = '';
+        // 缓存最后获取的 10 个作品数据
+        // 当鼠标在几个作品之间来回切换时，即使之前它们都获取过一次数据，浏览器也不一定会读取缓存
+        // 有很多时候还是会重新发起请求的。在这里缓存数据以达到节约时间的目的
+        this.cache = [];
+        this.maxCache = 10;
         // 显示预览区域的延迟时间
         // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
         // 如果鼠标在缩略图上停留达到 delay 的时间，才会加载 regular 尺寸的图片
         // 这是因为要加载的图片体积比较大，regular 规格的图片的体积可能达到 800KB，如果立即加载的话会浪费网络资源
         this.showDelay = 300;
         this.showTimer = 0;
-        // 鼠标离开缩略图之后，经过指定的时间才会隐藏 wrap
-        // 如果在这个时间内又进入缩略图，或者进入 wrap，则取消隐藏定时器，继续显示 wrap
-        // 如果不使用延迟隐藏，而是立即隐藏的话，用户就不能滚动页面来查看完整的 wrap
-        this.hiddenDelay = 50;
-        this.hiddenTimer = 0;
-        // 预览 wrap 的状态
         this._show = false;
         this.createElements();
         this.bindEvents();
@@ -4981,13 +4980,17 @@ class PreviewWork {
     }
     set show(val) {
         if (val) {
+            this.workData = this.findWorkData();
             // 如果保存的作品数据不是最后一个鼠标经过的作品，可能是请求尚未完成，此时延长等待时间
             if (!this.workData || this.workData.body.id !== this.workId) {
                 this.readyShow();
             }
             else {
-                this._show = val;
-                this.showWrap();
+                this.sendData(this.workData);
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork) {
+                    this._show = val;
+                    this.showWrap();
+                }
             }
         }
         else {
@@ -5006,24 +5009,24 @@ class PreviewWork {
         this.wrap.appendChild(this.img);
         document.body.appendChild(this.wrap);
     }
+    findWorkData() {
+        return this.cache.find(val => val.body.id === this.workId);
+    }
     bindEvents() {
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onEnter((el, id) => {
-            window.clearTimeout(this.hiddenTimer);
-            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork) {
-                return;
-            }
             // 如果重复进入同一个作品的缩略图，不会重复获取数据
             if (id !== this.workId) {
                 this.workId = id;
-                this.getWorkData();
+                if (this.findWorkData() === undefined) {
+                    // 如果在缓存中没有找到这个作品的数据，才会发起请求
+                    this.fetchWorkData();
+                }
             }
             this.workEL = el;
-            // 一定时间后，显示容器，加载大图
+            // 一定时间后显示容器，加载大图
             this.readyShow();
-            _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__["showOriginSizeImage"].enterEl(el);
         });
-        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave((el) => {
-            _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__["showOriginSizeImage"].leaveEl(el);
+        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave(() => {
             this.show = false;
         });
         // 可以使用 Alt + P 快捷键来启用/禁用此功能
@@ -5039,11 +5042,13 @@ class PreviewWork {
             });
         });
     }
-    async getWorkData() {
+    async fetchWorkData() {
         const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(this.workId);
+        if (this.cache.length >= this.maxCache) {
+            this.cache.shift();
+        }
+        this.cache.push(data);
         if (data.body.id === this.workId) {
-            this.workData = data;
-            _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__["showOriginSizeImage"].setWorkData(this.workData);
         }
     }
     readyShow() {
@@ -5053,8 +5058,7 @@ class PreviewWork {
     }
     // 显示预览 wrap
     showWrap() {
-        var _a;
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork || !this.workEL || !this.workData) {
+        if (!this.workEL || !this.workData) {
             return;
         }
         const cfg = {
@@ -5131,7 +5135,7 @@ class PreviewWork {
             }
         }
         // 3. 显示 wrap
-        const url = (_a = this.workData) === null || _a === void 0 ? void 0 : _a.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize];
+        const url = this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize];
         if (!url) {
             return;
         }
@@ -5142,6 +5146,18 @@ class PreviewWork {
         }
         styleArray.push('display:block;');
         this.wrap.setAttribute('style', styleArray.join(''));
+    }
+    sendData(data) {
+        _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__["showOriginSizeImage"].setData({
+            urls: {
+                original: data.body.urls.original,
+                regular: data.body.urls.regular,
+            },
+            img: {
+                width: data.body.width,
+                height: data.body.height,
+            }
+        });
     }
 }
 new PreviewWork();
@@ -5795,6 +5811,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./MouseOverThumbnail */ "./src/ts/MouseOverThumbnail.ts");
+
 
 
 
@@ -5841,15 +5859,23 @@ class ShowOriginSizeImage {
         this._show = false;
         this.showTimer = 0;
         this.rightClickBeforeShow = false;
+        this.data = {
+            urls: {
+                original: '',
+                regular: '',
+            },
+            img: {
+                width: 1200,
+                height: 1200,
+            }
+        };
         this.readyShow = (ev) => {
             // 当预览区域显示之后，在作品缩略图上长按鼠标右键，显示原尺寸图片
             // 0 左键 1 滚轮 2 右键
             if (ev.button === 2) {
                 this.showTimer = window.setTimeout(() => {
                     this.rightClickBeforeShow = true;
-                    if (this.workData) {
-                        this.initWrap(ev);
-                    }
+                    this.initWrap(ev);
                 }, 500);
             }
         };
@@ -5876,6 +5902,17 @@ class ShowOriginSizeImage {
         document.documentElement.appendChild(this.wrap);
     }
     bindEvents() {
+        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__["mouseOverThumbnail"].onEnter((el) => {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImage) {
+                el.addEventListener('mousedown', this.readyShow);
+                el.addEventListener('mouseup', this.cancelShow);
+            }
+        });
+        _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__["mouseOverThumbnail"].onLeave((el) => {
+            el.removeEventListener('mousedown', this.readyShow);
+            el.removeEventListener('mouseup', this.cancelShow);
+            this.show = false;
+        });
         this.wrap.addEventListener('click', () => {
             this.hidden();
         });
@@ -5910,24 +5947,9 @@ class ShowOriginSizeImage {
             }
         });
     }
-    enterEl(el) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImage) {
-            return;
-        }
-        el.addEventListener('mousedown', this.readyShow);
-        el.addEventListener('mouseup', this.cancelShow);
-    }
-    leaveEl(el) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImage) {
-            return;
-        }
-        el.removeEventListener('mousedown', this.readyShow);
-        el.removeEventListener('mouseup', this.cancelShow);
-    }
     // 初次显示一个图片时，初始化 wrap 的样式
     initWrap(ev) {
-        var _a;
-        const url = (_a = this.workData) === null || _a === void 0 ? void 0 : _a.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImageSize];
+        const url = this.data.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImageSize];
         if (!url) {
             return;
         }
@@ -5938,8 +5960,8 @@ class ShowOriginSizeImage {
         this.style = this.defaultStyle;
         this.show = true;
         // 计算图片的原始宽高
-        const originWidth = this.workData.body.width;
-        const originHeight = this.workData.body.height;
+        const originWidth = this.data.img.width;
+        const originHeight = this.data.img.height;
         // 如果加载的是“普通”尺寸，需要根据原图的比例计算宽高
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImageSize === 'regular') {
             if (originWidth >= originHeight) {
@@ -6104,8 +6126,8 @@ class ShowOriginSizeImage {
         this.img.src = '';
         this.wrap.style.display = 'none';
     }
-    setWorkData(data) {
-        this.workData = data;
+    setData(data) {
+        this.data = data;
     }
 }
 const showOriginSizeImage = new ShowOriginSizeImage();
