@@ -4,6 +4,7 @@ import { EVT } from './EVT'
 import { mouseOverThumbnail } from './MouseOverThumbnail'
 import { settings, setSetting } from './setting/Settings'
 import { showOriginSizeImage } from './ShowOriginSizeImage'
+import { cacheWorkData } from './store/CacheWorkData'
 
 // 鼠标经过作品的缩略图时，显示更大尺寸的缩略图
 class PreviewWork {
@@ -22,12 +23,6 @@ class PreviewWork {
   // 保存当前鼠标经过的缩略图的数据
   private workId = ''
   private workEL?: HTMLElement
-  // 缓存最后获取的 10 个作品数据
-  // 当鼠标在几个作品之间来回切换时，即使之前它们都获取过一次数据，浏览器也不一定会读取缓存
-  // 有很多时候还是会重新发起请求的。在这里缓存数据以达到节约时间的目的
-  private cache: ArtworkData[] = []
-  private readonly maxCache = 10
-
   private workData?: ArtworkData
 
   // 显示预览区域的延迟时间
@@ -45,7 +40,7 @@ class PreviewWork {
 
   private set show(val: boolean) {
     if (val) {
-      this.workData = this.findWorkData()
+      this.workData = cacheWorkData.get(this.workId)
       // 如果保存的作品数据不是最后一个鼠标经过的作品，可能是请求尚未完成，此时延长等待时间
       if (!this.workData || this.workData.body.id !== this.workId) {
         this.readyShow()
@@ -74,23 +69,16 @@ class PreviewWork {
     document.body.appendChild(this.wrap)
   }
 
-  private findWorkData() {
-    return this.cache.find(val => val.body.id === this.workId)
-  }
-
   private bindEvents() {
     mouseOverThumbnail.onEnter((el: HTMLElement, id: string) => {
       // 如果重复进入同一个作品的缩略图，不会重复获取数据
-      if (id !== this.workId) {
-        this.workId = id
-        if (this.findWorkData() === undefined) {
-          // 如果在缓存中没有找到这个作品的数据，才会发起请求
-          this.fetchWorkData()
-        }
+      this.workId = id
+      this.workEL = el
+      if (!cacheWorkData.has(id)) {
+        // 如果在缓存中没有找到这个作品的数据，则发起请求
+        this.fetchWorkData()
       }
 
-      this.workEL = el
-      // 一定时间后显示容器，加载大图
       this.readyShow()
     })
 
@@ -105,8 +93,12 @@ class PreviewWork {
       }
     })
 
-    const hiddenEvtList = [EVT.list.pageSwitch, EVT.list.pageSwitch, EVT.list.showOriginSizeImage]
-    hiddenEvtList.forEach(evt => {
+    const hiddenEvtList = [
+      EVT.list.pageSwitch,
+      EVT.list.pageSwitch,
+      EVT.list.showOriginSizeImage,
+    ]
+    hiddenEvtList.forEach((evt) => {
       window.addEventListener(evt, () => {
         this.show = false
       })
@@ -115,14 +107,7 @@ class PreviewWork {
 
   private async fetchWorkData() {
     const data = await API.getArtworkData(this.workId)
-    if (this.cache.length >= this.maxCache) {
-      this.cache.shift()
-    }
-    this.cache.push(data)
-
-    if (data.body.id === this.workId) {
-
-    }
+    cacheWorkData.set(data)
   }
 
   private readyShow() {
@@ -245,7 +230,7 @@ class PreviewWork {
       img: {
         width: data.body.width,
         height: data.body.height,
-      }
+      },
     })
   }
 }

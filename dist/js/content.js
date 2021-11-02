@@ -1857,8 +1857,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./Bookmark */ "./src/ts/Bookmark.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 // 图片查看器
 /// <reference path = "./ImageViewer.d.ts" />
+
 
 
 
@@ -1975,7 +1977,14 @@ class ImageViewer {
             _Loading__WEBPACK_IMPORTED_MODULE_4__["loading"].show = true;
         }
         // 获取作品数据，生成缩略图列表
-        this.workData = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(this.cfg.workId);
+        if (_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__["cacheWorkData"].has(this.cfg.workId)) {
+            this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__["cacheWorkData"].get(this.cfg.workId);
+        }
+        else {
+            const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(this.cfg.workId);
+            this.workData = data;
+            _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_9__["cacheWorkData"].set(data);
+        }
         const body = this.workData.body;
         // 处理插画、漫画、动图作品，不处理其他类型的作品
         if (body.illustType === 0 ||
@@ -4946,6 +4955,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MouseOverThumbnail */ "./src/ts/MouseOverThumbnail.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ShowOriginSizeImage */ "./src/ts/ShowOriginSizeImage.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+
 
 
 
@@ -4960,11 +4971,6 @@ class PreviewWork {
         this.border = 8; // wrap 的 border 占据的空间
         // 保存当前鼠标经过的缩略图的数据
         this.workId = '';
-        // 缓存最后获取的 10 个作品数据
-        // 当鼠标在几个作品之间来回切换时，即使之前它们都获取过一次数据，浏览器也不一定会读取缓存
-        // 有很多时候还是会重新发起请求的。在这里缓存数据以达到节约时间的目的
-        this.cache = [];
-        this.maxCache = 10;
         // 显示预览区域的延迟时间
         // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
         // 如果鼠标在缩略图上停留达到 delay 的时间，才会加载 regular 尺寸的图片
@@ -4980,7 +4986,7 @@ class PreviewWork {
     }
     set show(val) {
         if (val) {
-            this.workData = this.findWorkData();
+            this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__["cacheWorkData"].get(this.workId);
             // 如果保存的作品数据不是最后一个鼠标经过的作品，可能是请求尚未完成，此时延长等待时间
             if (!this.workData || this.workData.body.id !== this.workId) {
                 this.readyShow();
@@ -5009,21 +5015,15 @@ class PreviewWork {
         this.wrap.appendChild(this.img);
         document.body.appendChild(this.wrap);
     }
-    findWorkData() {
-        return this.cache.find(val => val.body.id === this.workId);
-    }
     bindEvents() {
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onEnter((el, id) => {
             // 如果重复进入同一个作品的缩略图，不会重复获取数据
-            if (id !== this.workId) {
-                this.workId = id;
-                if (this.findWorkData() === undefined) {
-                    // 如果在缓存中没有找到这个作品的数据，才会发起请求
-                    this.fetchWorkData();
-                }
-            }
+            this.workId = id;
             this.workEL = el;
-            // 一定时间后显示容器，加载大图
+            if (!_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__["cacheWorkData"].has(id)) {
+                // 如果在缓存中没有找到这个作品的数据，则发起请求
+                this.fetchWorkData();
+            }
             this.readyShow();
         });
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave(() => {
@@ -5035,8 +5035,12 @@ class PreviewWork {
                 Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('PreviewWork', !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork);
             }
         });
-        const hiddenEvtList = [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.showOriginSizeImage];
-        hiddenEvtList.forEach(evt => {
+        const hiddenEvtList = [
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.showOriginSizeImage,
+        ];
+        hiddenEvtList.forEach((evt) => {
             window.addEventListener(evt, () => {
                 this.show = false;
             });
@@ -5044,12 +5048,7 @@ class PreviewWork {
     }
     async fetchWorkData() {
         const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(this.workId);
-        if (this.cache.length >= this.maxCache) {
-            this.cache.shift();
-        }
-        this.cache.push(data);
-        if (data.body.id === this.workId) {
-        }
+        _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__["cacheWorkData"].set(data);
     }
     readyShow() {
         this.showTimer = window.setTimeout(() => {
@@ -5156,7 +5155,7 @@ class PreviewWork {
             img: {
                 width: data.body.width,
                 height: data.body.height,
-            }
+            },
         });
     }
 }
@@ -5867,7 +5866,7 @@ class ShowOriginSizeImage {
             img: {
                 width: 1200,
                 height: 1200,
-            }
+            },
         };
         this.readyShow = (ev) => {
             // 当预览区域显示之后，在作品缩略图上长按鼠标右键，显示原尺寸图片
@@ -7272,7 +7271,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 // 初始化所有页面抓取流程的基类
+
 
 
 
@@ -7495,7 +7496,13 @@ class InitPageBase {
                 this.afterGetWorksData(data);
             }
             else {
-                const data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getArtworkData(id);
+                let data;
+                if (_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_20__["cacheWorkData"].has(id)) {
+                    data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_20__["cacheWorkData"].get(id);
+                }
+                else {
+                    data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getArtworkData(id);
+                }
                 await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__["saveArtworkData"].save(data);
                 this.afterGetWorksData(data);
             }
@@ -16680,7 +16687,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Token__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Token */ "./src/ts/Token.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
+/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 // 作品页面内的快速收藏功能
+
 
 
 
@@ -16787,10 +16796,14 @@ class QuickBookmark {
         return btn;
     }
     async getWorkData() {
-        const id = this.isNovel ? _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getNovelId() : _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getIllustId();
-        return this.isNovel
-            ? await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelData(id)
-            : await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id);
+        if (this.isNovel) {
+            return await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getNovelData(_Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getNovelId());
+        }
+        else {
+            const id = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getIllustId();
+            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_6__["cacheWorkData"].get(id);
+            return data ? data : await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id);
+        }
     }
     async addBookmark() {
         const type = this.isNovel ? 'novels' : 'illusts';
@@ -19581,6 +19594,47 @@ class Settings {
 const self = new Settings();
 const settings = self.settings;
 const setSetting = self.setSetting.bind(self);
+
+
+
+/***/ }),
+
+/***/ "./src/ts/store/CacheWorkData.ts":
+/*!***************************************!*\
+  !*** ./src/ts/store/CacheWorkData.ts ***!
+  \***************************************/
+/*! exports provided: cacheWorkData */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "cacheWorkData", function() { return cacheWorkData; });
+// 本程序有多个模块需要在抓取流程之外获取作品数据
+// 为了避免重复发起请求，以及解决浏览器有时候不读取缓存的问题，所以在这里缓存一些作品数据
+// 即使下载器获取过某个作品的数据，但是以后再次请求时，浏览器也有可能不会读取缓存，而是重新发起请求。
+class CacheWorkData {
+    constructor() {
+        this.cache = [];
+        // 一个图像作品的数据大约是 5 KB
+        this.max = 20;
+    }
+    set(data) {
+        if (this.has(data.body.id)) {
+            return;
+        }
+        if (this.cache.length >= this.max) {
+            this.cache.shift();
+        }
+        this.cache.push(data);
+    }
+    get(id) {
+        return this.cache.find((val) => val.body.id === id);
+    }
+    has(id) {
+        return this.cache.some((val) => val.body.id === id);
+    }
+}
+const cacheWorkData = new CacheWorkData();
 
 
 

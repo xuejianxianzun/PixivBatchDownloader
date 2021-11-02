@@ -16,7 +16,7 @@ interface Data {
   urls: {
     original: string
     regular: string
-  },
+  }
   img: {
     width: number
     height: number
@@ -95,7 +95,7 @@ class ShowOriginSizeImage {
     img: {
       width: 1200,
       height: 1200,
-    }
+    },
   }
 
   private createElements() {
