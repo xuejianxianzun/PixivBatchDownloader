@@ -13,7 +13,6 @@ class PreviewWork {
     this.bindEvents()
   }
 
-  private readonly defaultSize = 1200
   // 预览作品的容器的元素
   private wrapId = 'previewWorkWrap'
   private wrap!: HTMLElement
@@ -134,42 +133,44 @@ class PreviewWork {
     }
 
     const cfg = {
-      width: this.defaultSize,
-      height: this.defaultSize,
+      width: 1200,
+      height: 1200,
       left: 0,
       top: 0,
     }
 
-    // 1. 计算图片显示的宽高
+    // 1. 计算图片显示的尺寸
     const w = this.workData.body.width
     const h = this.workData.body.height
 
     const rect = this.workEL.getBoundingClientRect()
 
+    // 计算各个可用区域的尺寸，提前减去了 border、tip 等元素占据的空间
     const innerWidth = window.innerWidth - 17
-    const leftSpace = rect.left
-    const rightSpace = innerWidth - rect.right
+    const leftSpace = rect.left - this.border
+    const rightSpace = innerWidth - rect.right - this.border
     const xSpace = Math.max(leftSpace, rightSpace)
 
     const showPreviewWorkTip = true
     const tipHeight = showPreviewWorkTip ? this.tipHeight : 0
     const scrollBarHeight =
       window.innerHeight - document.documentElement.clientHeight
-    const innerHeight = window.innerHeight - scrollBarHeight - tipHeight
+    const ySpace =
+      window.innerHeight - scrollBarHeight - this.border - tipHeight
 
-    // 宽高从图片宽高、wrap 宽高、可视区域的宽高中，取最小值，使图片不会超出可视区域外
+    // 宽高从图片宽高、可视区域的宽高中，取最小值，使图片不会超出可视区域外
     // 竖图
     if (w < h) {
-      cfg.height = Math.min(this.defaultSize, innerHeight, h)
+      cfg.height = Math.min(ySpace, h)
       cfg.width = (cfg.height / h) * w
     } else if (w > h) {
       // 横图
-      cfg.width = Math.min(this.defaultSize, xSpace, w)
+      cfg.width = Math.min(xSpace, w)
       cfg.height = (cfg.width / w) * h
     } else {
       // 正方形图片
-      cfg.height = Math.min(this.defaultSize, innerHeight, xSpace, h)
-      cfg.width = Math.min(this.defaultSize, w, innerHeight)
+      cfg.height = Math.min(ySpace, xSpace, h)
+      cfg.width = Math.min(w, ySpace)
     }
 
     // 如果 wrap 宽度超过了可视窗口宽度，则需要再次调整宽高
@@ -179,14 +180,13 @@ class PreviewWork {
     }
 
     // 如果 wrap 高度超过了可视窗口高度，则需要再次调整宽高
-    if (cfg.height > innerHeight) {
-      cfg.width = (innerHeight / cfg.height) * cfg.width
-      cfg.height = innerHeight
+    if (cfg.height > ySpace) {
+      cfg.width = (ySpace / cfg.height) * cfg.width
+      cfg.height = ySpace
     }
 
-    // 减去 border 的空间
-    cfg.height = cfg.height - this.border
-    cfg.width = cfg.width - this.border
+    // 上面计算的高度是图片的高度，现在设置 wrap 的宽高，需要加上内部其他元素的高度
+    cfg.height = cfg.height + tipHeight
 
     // 2. 计算位置
     // 在页面可视区域内，比较缩略图左侧和右侧空间，把 wrap 显示在空间比较大的那一侧
@@ -220,7 +220,7 @@ class PreviewWork {
       }
     }
 
-    // 3. 设置提示
+    // 3. 设置顶部提示区域的内容
     if (showPreviewWorkTip) {
       const text = []
       const body = this.workData.body
@@ -229,9 +229,11 @@ class PreviewWork {
       text.push(body.title)
       text.push(body.description)
 
-      this.tip.innerHTML = text.map(str => {
-        return `<span>${str}</span>`
-      }).join('')
+      this.tip.innerHTML = text
+        .map((str) => {
+          return `<span>${str}</span>`
+        })
+        .join('')
       this.tip.style.display = 'block'
     } else {
       this.tip.style.display = 'none'
@@ -243,6 +245,8 @@ class PreviewWork {
       return
     }
     this.img.src = url
+    // css 设置了 img{height:auto}，但是有时候下面会有一点缝隙，可能是浮点数导致的。手动设置高度使其没有缝隙
+    this.img.style.height = cfg.height - tipHeight + 'px'
     const styleArray: string[] = []
     for (const [key, value] of Object.entries(cfg)) {
       styleArray.push(`${key}:${value}px;`)

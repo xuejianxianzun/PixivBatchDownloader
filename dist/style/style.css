@@ -1739,18 +1739,20 @@ iframe[name='expandedFooter'] {
 }
 #previewWorkWrap img {
   width: 100%;
-  height: 100%;
+  height: auto;
 }
 #previewWorkTip {
   background-color: #29b3f3;
   color: #fff;
   height: 26px;
   line-height: 24px;
-  overflow: hidden;
   display: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 #previewWorkTip span {
-  padding: 0 4px;
+  padding: 0 5px;
 }
 #originSizeWrap {
   display: none;
@@ -1768,7 +1770,7 @@ iframe[name='expandedFooter'] {
 }
 #originSizeWrap img {
   width: 100%;
-  height: 100%;
+  height: auto;
 }
 #zoomBtnOnThumb {
   position: absolute;

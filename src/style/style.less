@@ -156,20 +156,23 @@
   box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
   img {
     width: 100%;
-    height: 100%;
+    height: auto;
   }
 }
 
-#previewWorkTip{
+#previewWorkTip {
   background-color: @beautifyBlue;
-  color:#fff;
+  color: #fff;
   height: 26px;
-  // 因为上面有 border，所以 line-height 并不等于 height
+  // 因为摘要信息上面有 border，两者在视觉上是连在一起的，所以 line-height 要小一些，使文字向上提一些
   line-height: 24px;
-  overflow:hidden;
+  overflow: hidden;
   display: none;
-  span{
-    padding: 0 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  span {
+    padding: 0 5px;
   }
 }
 
@@ -188,7 +191,7 @@
   box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
   img {
     width: 100%;
-    height: 100%;
+    height: auto;
   }
 }
 
