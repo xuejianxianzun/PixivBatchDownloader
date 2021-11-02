@@ -5109,9 +5109,7 @@ class PreviewWork {
                 this.readyShow();
             }
             else {
-                const w = this.workData.body.width;
-                const h = this.workData.body.height;
-                this.sendData(w, h);
+                this.sendData();
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork) {
                     this._show = true;
                     this.showWrap();
@@ -5312,26 +5310,23 @@ class PreviewWork {
         }
         styleArray.push('display:block;');
         this.wrap.setAttribute('style', styleArray.join(''));
-        // 每次显示图片后，传递图片的一些数据
-        this.sendData(w, h);
+        // 每次显示图片后，传递图片的 url
+        this.sendData();
     }
     replaceUrl(url) {
         return url.replace('p0', `p${this.index}`);
     }
-    sendData(w, h) {
+    sendData() {
         const data = this.workData;
         if (!data) {
             return;
         }
+        // 传递图片的 url，但是不传递尺寸。
+        // 因为预览图片默认加载“普通”尺寸的图片，但是 showOriginSizeImage 默认显示“原图”尺寸。
+        // 而且对于第一张之后的图片，加载“普通”尺寸的图片时，无法获取“原图”的尺寸。
         _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__["showOriginSizeImage"].setData({
-            urls: {
-                original: this.replaceUrl(data.body.urls.original),
-                regular: this.replaceUrl(data.body.urls.regular),
-            },
-            img: {
-                width: w,
-                height: h,
-            },
+            original: this.replaceUrl(data.body.urls.original),
+            regular: this.replaceUrl(data.body.urls.regular),
         });
     }
 }
@@ -6027,6 +6022,8 @@ class ShowOriginSizeImage {
         this.zoomIndex = 6;
         // 默认的缩放比例为 1
         this.zoom = this.zoomList[this.zoomIndex];
+        this.testImg = new Image();
+        this.getImageSizeTimer = 0;
         // 定义当鼠标移动 1 像素时，wrap 移动多少像素
         this.onePxMove = 10;
         this.moveX = 0;
@@ -6034,15 +6031,9 @@ class ShowOriginSizeImage {
         this._show = false;
         this.showTimer = 0;
         this.rightClickBeforeShow = false;
-        this.data = {
-            urls: {
-                original: '',
-                regular: '',
-            },
-            img: {
-                width: 1200,
-                height: 1200,
-            },
+        this.urls = {
+            original: '',
+            regular: '',
         };
         this.readyShow = (ev) => {
             // 当预览区域显示之后，在作品缩略图上长按鼠标右键，显示原尺寸图片
@@ -6054,7 +6045,7 @@ class ShowOriginSizeImage {
                 }, 500);
             }
         };
-        this.cancelShow = (ev) => {
+        this.cancelReadyShow = (ev) => {
             window.clearTimeout(this.showTimer);
         };
         this.createElements();
@@ -6067,6 +6058,11 @@ class ShowOriginSizeImage {
         this._show = val;
         if (val) {
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('showOriginSizeImage');
+            this.wrap.style.display = 'block';
+        }
+        else {
+            this.img.src = '';
+            this.wrap.style.display = 'none';
         }
     }
     createElements() {
@@ -6080,19 +6076,18 @@ class ShowOriginSizeImage {
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__["mouseOverThumbnail"].onEnter((el) => {
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImage) {
                 el.addEventListener('mousedown', this.readyShow);
-                el.addEventListener('mouseup', this.cancelShow);
+                el.addEventListener('mouseup', this.cancelReadyShow);
             }
         });
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__["mouseOverThumbnail"].onLeave((el) => {
             el.removeEventListener('mousedown', this.readyShow);
-            el.removeEventListener('mouseup', this.cancelShow);
-            this.show = false;
+            el.removeEventListener('mouseup', this.cancelReadyShow);
         });
         this.wrap.addEventListener('click', () => {
-            this.hidden();
+            this.show = false;
         });
         document.body.addEventListener('click', () => {
-            this.hidden();
+            this.show = false;
         });
         this.wrap.addEventListener('mousewheel', (ev) => {
             ev.preventDefault();
@@ -6122,41 +6117,44 @@ class ShowOriginSizeImage {
             }
         });
     }
+    async getImageSize(url) {
+        // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。所以每次执行前需要重置一些变量
+        window.clearInterval(this.getImageSizeTimer);
+        this.testImg.src = '';
+        return new Promise((resolve) => {
+            this.testImg = new Image();
+            this.testImg.src = url;
+            this.getImageSizeTimer = window.setInterval(() => {
+                if (this.testImg.naturalWidth > 0) {
+                    window.clearInterval(this.getImageSizeTimer);
+                    return resolve(this.testImg);
+                }
+            }, 100);
+        });
+    }
     // 初次显示一个图片时，初始化 wrap 的样式
-    initWrap(ev) {
-        const url = this.data.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImageSize];
+    async initWrap(ev) {
+        const url = this.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImageSize];
         if (!url) {
             return;
         }
-        this.img.src = '';
-        this.img.src = url;
         this.zoomIndex = 6;
         this.zoom = this.zoomList[this.zoomIndex];
         this.style = this.defaultStyle;
-        this.show = true;
-        // 计算图片的原始宽高
-        const originWidth = this.data.img.width;
-        const originHeight = this.data.img.height;
-        // 如果加载的是“普通”尺寸，需要根据原图的比例计算宽高
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImageSize === 'regular') {
-            if (originWidth >= originHeight) {
-                // 横图或者正方形
-                this.style.imgW = Math.min(originWidth, this.defaultSize);
-                this.style.imgH = (this.style.imgW / originWidth) * originHeight;
-            }
-            else {
-                this.style.imgH = Math.min(originHeight, this.defaultSize);
-                this.style.imgW = (this.style.imgH / originHeight) * originWidth;
-            }
-        }
-        else {
-            this.style.imgW = originWidth;
-            this.style.imgH = originHeight;
-        }
-        // 可视区域的 1 像素等于图片尺寸的多少像素
+        // 获取图片的原始宽高
+        this.img = await this.getImageSize(url);
+        this.style.imgW = this.img.naturalWidth;
+        this.style.imgH = this.img.naturalHeight;
+        this.style.width = this.style.imgW;
+        this.style.height = this.style.imgH;
+        // 替换 img 元素
+        this.wrap.querySelector('img').remove();
+        this.wrap.appendChild(this.img);
+        // 计算可视区域的 1 像素等于图片的多少像素
         let onePxMove = 1;
-        if (originWidth >= originHeight) {
-            onePxMove = this.style.imgW / (window.innerWidth - 17);
+        const innerWidth = window.innerWidth - 17;
+        if (this.style.imgW >= this.img.naturalHeight) {
+            onePxMove = this.style.imgW / innerWidth;
         }
         else {
             onePxMove = this.style.imgH / window.innerHeight;
@@ -6164,9 +6162,6 @@ class ShowOriginSizeImage {
         // 乘以修正系数，加大 onePxMove
         // 这样可以让用户在移动鼠标时，不需要移动到边界上就可以查看到图片的边界
         this.onePxMove = onePxMove * 1.1;
-        this.style.width = this.style.imgW;
-        this.style.height = this.style.imgH;
-        const innerWidth = window.innerWidth - 17;
         if (this.style.width > innerWidth) {
             // 如果图片宽度超过了可视区域，则根据鼠标在可视宽度中的点击位置，将图片等比例移动到这里
             // 这样用户向左移动鼠标时，可以看到图片的左边界
@@ -6178,7 +6173,7 @@ class ShowOriginSizeImage {
         else {
             // 否则水平居中显示
             this.style.ml =
-                (window.innerWidth - 17 - this.style.width - this.border) / 2;
+                (innerWidth - this.style.width - this.border) / 2;
         }
         if (this.style.height > window.innerHeight) {
             // 如果图片高度超过了可视区域，则根据鼠标点击位置在可视宽度中的比例，将 top 设置为同样的比例
@@ -6190,7 +6185,7 @@ class ShowOriginSizeImage {
             this.style.mt = (window.innerHeight - this.style.height - this.border) / 2;
         }
         this.setWrapStyle();
-        this.wrap.style.display = 'block';
+        this.show = true;
     }
     // 以鼠标所在位置为中心点缩放
     // 例如，鼠标放在角色的眼睛上面进行缩放，在缩放之后，依然把眼睛定位到鼠标所在位置
@@ -6296,13 +6291,8 @@ class ShowOriginSizeImage {
         this.wrap.style.marginTop = this.style.mt + 'px';
         this.wrap.style.marginLeft = this.style.ml + 'px';
     }
-    hidden() {
-        this.show = false;
-        this.img.src = '';
-        this.wrap.style.display = 'none';
-    }
     setData(data) {
-        this.data = data;
+        this.urls = data;
     }
 }
 const showOriginSizeImage = new ShowOriginSizeImage();
@@ -18661,7 +18651,6 @@ class FormSettings {
                 'autoExportResultJSON',
                 'PreviewWork',
                 'showDownloadBtnOnThumb',
-                'prevWorkSize',
                 'showOriginImage',
             ],
             text: [

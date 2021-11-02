@@ -54,9 +54,7 @@ class PreviewWork {
       if (!this.workData || this.workData.body.id !== this.workId) {
         this.readyShow()
       } else {
-        const w = this.workData.body.width
-        const h = this.workData.body.height
-        this.sendData(w, h)
+        this.sendData()
         if (settings.PreviewWork) {
           this._show = true
           this.showWrap()
@@ -316,28 +314,25 @@ class PreviewWork {
     styleArray.push('display:block;')
     this.wrap.setAttribute('style', styleArray.join(''))
 
-    // 每次显示图片后，传递图片的一些数据
-    this.sendData(w, h)
+    // 每次显示图片后，传递图片的 url
+    this.sendData()
   }
 
   private replaceUrl(url: string) {
     return url.replace('p0', `p${this.index}`)
   }
 
-  private sendData(w: number, h: number) {
+  private sendData() {
     const data = this.workData
     if (!data) {
       return
     }
+    // 传递图片的 url，但是不传递尺寸。
+    // 因为预览图片默认加载“普通”尺寸的图片，但是 showOriginSizeImage 默认显示“原图”尺寸。
+    // 而且对于第一张之后的图片，加载“普通”尺寸的图片时，无法获取“原图”的尺寸。
     showOriginSizeImage.setData({
-      urls: {
-        original: this.replaceUrl(data.body.urls.original),
-        regular: this.replaceUrl(data.body.urls.regular),
-      },
-      img: {
-        width: w,
-        height: h,
-      },
+      original: this.replaceUrl(data.body.urls.original),
+      regular: this.replaceUrl(data.body.urls.regular),
     })
   }
 }
