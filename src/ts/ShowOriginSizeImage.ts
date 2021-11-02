@@ -181,7 +181,7 @@ class ShowOriginSizeImage {
           window.clearInterval(this.getImageSizeTimer)
           return resolve(this.testImg)
         }
-      }, 100)
+      }, 50)
     })
   }
 

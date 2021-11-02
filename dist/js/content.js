@@ -4980,8 +4980,6 @@ class PreviewWork {
         // 这是因为要加载的图片体积比较大，regular 规格的图片的体积可能达到 800KB，如果立即加载的话会浪费网络资源
         this.showDelay = 300;
         this.showTimer = 0;
-        this.testImg = document.createElement('img');
-        this.getImageSizeTimer = 0;
         this._show = false;
         this.mouseScroll = (ev) => {
             // 此事件没有必要使用节流
@@ -5101,20 +5099,43 @@ class PreviewWork {
             this.show = true;
         }, this.showDelay);
     }
-    // 通过 img 元素加载图片，等到可以获取到宽高信息时返回这个 img
+    // 通过 img 元素加载图片，获取图片的原始尺寸
     async getImageSize(url) {
-        // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。所以每次执行前需要重置一些变量
-        window.clearInterval(this.getImageSizeTimer);
-        this.testImg.src = '';
         return new Promise((resolve) => {
-            this.testImg = new Image();
-            this.testImg.src = url;
-            this.getImageSizeTimer = window.setInterval(() => {
-                if (this.testImg.naturalWidth > 0) {
-                    window.clearInterval(this.getImageSizeTimer);
-                    return resolve(this.testImg);
+            // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。通过 index 判断当前请求是否应该继续
+            let testImg = new Image();
+            testImg.src = url;
+            const bindIndex = this.index;
+            const timer = window.setInterval(() => {
+                if (this.index !== bindIndex) {
+                    // 如果要显示的图片发生了变化，则立即停止加载当前图片，避免浪费网络流量
+                    window.clearInterval(timer);
+                    testImg.src = '';
+                    testImg = null;
+                    // 本来这里应该 reject 的，但是那样就需要在 await 的地方处理这个错误
+                    // 我不想处理错误，所以用 available 标记来偷懒
+                    return resolve({
+                        width: 0,
+                        height: 0,
+                        available: false,
+                    });
                 }
-            }, 100);
+                else {
+                    // 如果获取到了图片的宽高，也立即停止加载当前图片，并返回结果
+                    if (testImg.naturalWidth > 0) {
+                        const width = testImg.naturalWidth;
+                        const height = testImg.naturalHeight;
+                        window.clearInterval(timer);
+                        testImg.src = '';
+                        testImg = null;
+                        return resolve({
+                            width,
+                            height,
+                            available: true,
+                        });
+                    }
+                }
+            }, 50);
         });
     }
     // 显示预览 wrap
@@ -5123,9 +5144,13 @@ class PreviewWork {
             return;
         }
         const url = this.replaceUrl(this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize]);
-        this.img = await this.getImageSize(url);
-        const w = this.img.naturalWidth;
-        const h = this.img.naturalHeight;
+        const size = await this.getImageSize(url);
+        if (!size.available) {
+            return;
+        }
+        this.img.src = url;
+        const w = size.width;
+        const h = size.height;
         const cfg = {
             width: w,
             height: h,
@@ -5217,11 +5242,8 @@ class PreviewWork {
         else {
             this.tip.style.display = 'none';
         }
-        // 4. 替换 img 元素
-        this.wrap.querySelector('img').remove();
-        this.wrap.appendChild(this.img);
+        // 4. 显示 wrap
         this.img.style.height = cfg.height - tipHeight + 'px';
-        // 5. 显示 wrap
         const styleArray = [];
         for (const [key, value] of Object.entries(cfg)) {
             styleArray.push(`${key}:${value}px;`);
@@ -6047,7 +6069,7 @@ class ShowOriginSizeImage {
                     window.clearInterval(this.getImageSizeTimer);
                     return resolve(this.testImg);
                 }
-            }, 100);
+            }, 50);
         });
     }
     // 初次显示一个图片时，初始化 wrap 的样式
