@@ -6,6 +6,7 @@ import { token } from '../Token'
 import { Utils } from '../utils/Utils'
 import { Bookmark } from '../Bookmark'
 import { ArtworkData, NovelData } from '../crawl/CrawlResult'
+import { cacheWorkData } from '../store/CacheWorkData'
 
 type WorkType = 'illusts' | 'novels'
 
@@ -132,10 +133,13 @@ class QuickBookmark {
   }
 
   private async getWorkData() {
-    const id = this.isNovel ? Tools.getNovelId() : Tools.getIllustId()
-    return this.isNovel
-      ? await API.getNovelData(id)
-      : await API.getArtworkData(id)
+    if (this.isNovel) {
+      return await API.getNovelData(Tools.getNovelId())
+    } else {
+      const id = Tools.getIllustId()
+      const data = cacheWorkData.get(id)
+      return data ? data : await API.getArtworkData(id)
+    }
   }
 
   private async addBookmark() {

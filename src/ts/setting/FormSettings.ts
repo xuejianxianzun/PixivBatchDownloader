@@ -93,8 +93,9 @@ class FormSettings {
       'autoExportResultCSV',
       'autoExportResultJSON',
       'PreviewWork',
-      'PreviewWorkMouseStay',
       'showDownloadBtnOnThumb',
+      'prevWorkSize',
+      'showOriginImage',
     ],
     text: [
       'setWantPage',
@@ -122,7 +123,6 @@ class FormSettings {
       'zeroPaddingLength',
       'workDirNameRule',
       'autoExportResultNumber',
-      'PreviewWorkSize',
     ],
     radio: [
       'ugoiraSaveAs',
@@ -143,6 +143,8 @@ class FormSettings {
       'bgPositionY',
       'switchTabBar',
       'tagMatchMode',
+      'prevWorkSize',
+      'showOriginImageSize',
     ],
     textarea: ['createFolderTagList'],
     datetime: ['postDateStart', 'postDateEnd'],

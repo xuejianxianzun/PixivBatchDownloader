@@ -10,6 +10,7 @@ import { toast } from './Toast'
 import { Tools } from './Tools'
 import { ArtworkData } from './crawl/CrawlResult'
 import { Bookmark } from './Bookmark'
+import { cacheWorkData } from './store/CacheWorkData'
 
 // 所有参数
 interface Config {
@@ -204,8 +205,14 @@ class ImageViewer {
     }
 
     // 获取作品数据，生成缩略图列表
-    this.workData = await API.getArtworkData(this.cfg.workId)
-    const body = this.workData.body
+    if (cacheWorkData.has(this.cfg.workId)) {
+      this.workData = cacheWorkData.get(this.cfg.workId)
+    } else {
+      const data = await API.getArtworkData(this.cfg.workId)
+      this.workData = data
+      cacheWorkData.set(data)
+    }
+    const body = this.workData!.body
     // 处理插画、漫画、动图作品，不处理其他类型的作品
     if (
       body.illustType === 0 ||
