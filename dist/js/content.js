@@ -4962,15 +4962,18 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 鼠标经过作品的缩略图时，显示更大尺寸的缩略图
+// 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
     constructor() {
         this.defaultSize = 1200;
         // 预览作品的容器的元素
         this.wrapId = 'previewWorkWrap';
-        this.border = 8; // wrap 的 border 占据的空间
+        this.border = 8; // border 占据的空间
+        this.tipId = 'previewWorkTip';
+        this.tipHeight = 26;
         // 保存当前鼠标经过的缩略图的数据
         this.workId = '';
+        this.index = 0;
         // 显示预览区域的延迟时间
         // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
         // 如果鼠标在缩略图上停留达到 delay 的时间，才会加载 regular 尺寸的图片
@@ -5011,6 +5014,9 @@ class PreviewWork {
     createElements() {
         this.wrap = document.createElement('div');
         this.wrap.id = this.wrapId;
+        this.tip = document.createElement('div');
+        this.tip.id = this.tipId;
+        this.wrap.appendChild(this.tip);
         this.img = document.createElement('img');
         this.wrap.appendChild(this.img);
         document.body.appendChild(this.wrap);
@@ -5074,8 +5080,10 @@ class PreviewWork {
         const leftSpace = rect.left;
         const rightSpace = innerWidth - rect.right;
         const xSpace = Math.max(leftSpace, rightSpace);
+        const showPreviewWorkTip = true;
+        const tipHeight = showPreviewWorkTip ? this.tipHeight : 0;
         const scrollBarHeight = window.innerHeight - document.documentElement.clientHeight;
-        const innerHeight = window.innerHeight - scrollBarHeight;
+        const innerHeight = window.innerHeight - scrollBarHeight - tipHeight;
         // 宽高从图片宽高、wrap 宽高、可视区域的宽高中，取最小值，使图片不会超出可视区域外
         // 竖图
         if (w < h) {
@@ -5133,7 +5141,23 @@ class PreviewWork {
                 cfg.top = cfg.top - Math.min(bottomOver, topFreeSpace) - scrollBarHeight;
             }
         }
-        // 3. 显示 wrap
+        // 3. 设置提示
+        if (showPreviewWorkTip) {
+            const text = [];
+            const body = this.workData.body;
+            text.push(`${this.index}/${body.pageCount}`);
+            text.push(`${body.width}x${body.height}`);
+            text.push(body.title);
+            text.push(body.description);
+            this.tip.innerHTML = text.map(str => {
+                return `<span>${str}</span>`;
+            }).join('');
+            this.tip.style.display = 'block';
+        }
+        else {
+            this.tip.style.display = 'none';
+        }
+        // 4. 显示 wrap
         const url = this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize];
         if (!url) {
             return;

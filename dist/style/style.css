@@ -1741,6 +1741,17 @@ iframe[name='expandedFooter'] {
   width: 100%;
   height: 100%;
 }
+#previewWorkTip {
+  background-color: #29b3f3;
+  color: #fff;
+  height: 26px;
+  line-height: 24px;
+  overflow: hidden;
+  display: none;
+}
+#previewWorkTip span {
+  padding: 0 4px;
+}
 #originSizeWrap {
   display: none;
   position: fixed;
