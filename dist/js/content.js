@@ -5126,14 +5126,14 @@ class PreviewWork {
         }
         const url = this.replaceUrl(this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize]);
         this.img = await this.getImageSize(url);
+        const w = this.img.naturalWidth;
+        const h = this.img.naturalHeight;
         const cfg = {
-            width: this.img.naturalWidth,
-            height: this.img.naturalHeight,
+            width: w,
+            height: h,
             left: 0,
             top: 0,
         };
-        const w = this.img.naturalWidth;
-        const h = this.img.naturalHeight;
         // 1. 计算图片显示的尺寸
         const rect = this.workEL.getBoundingClientRect();
         // 计算各个可用区域的尺寸，提前减去了 border、tip 等元素占据的空间
@@ -5229,6 +5229,7 @@ class PreviewWork {
         }
         styleArray.push('display:block;');
         this.wrap.setAttribute('style', styleArray.join(''));
+        // 每次显示图片后，传递图片的一些数据
         this.sendData(w, h);
     }
     replaceUrl(url) {
@@ -18584,7 +18585,6 @@ class FormSettings {
                 'autoExportResultJSON',
                 'PreviewWork',
                 'showDownloadBtnOnThumb',
-                'prevWorkSize',
                 'showOriginImage',
             ],
             text: [

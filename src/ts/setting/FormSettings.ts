@@ -94,7 +94,6 @@ class FormSettings {
       'autoExportResultJSON',
       'PreviewWork',
       'showDownloadBtnOnThumb',
-      'prevWorkSize',
       'showOriginImage',
     ],
     text: [
