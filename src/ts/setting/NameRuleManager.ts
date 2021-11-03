@@ -19,6 +19,10 @@ class NameRuleManager {
       this.setInputValue()
     })
 
+    window.addEventListener(EVT.list.resetSettingsEnd, () => {
+      this.setInputValue()
+    })
+
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data as any
       // 当用户开启这个开关时，设置当前页面类型的命名规则

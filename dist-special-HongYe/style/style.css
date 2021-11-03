@@ -1756,15 +1756,19 @@ iframe[name='expandedFooter'] {
 #previewWorkTip {
   background-color: #29b3f3;
   color: #fff;
-  height: 26px;
-  line-height: 24px;
+  height: 22px;
+  line-height: 20px;
   display: none;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 #previewWorkTip span {
+  font-size: 14px;
   padding: 0 5px;
+}
+#previewWorkTip span a {
+  color: #fff;
 }
 #originSizeWrap {
   display: none;

@@ -12,15 +12,9 @@ interface Style {
   ml: number
 }
 
-interface Data {
-  urls: {
-    original: string
-    regular: string
-  }
-  img: {
-    width: number
-    height: number
-  }
+interface Urls {
+  original: string
+  regular: string
 }
 
 class ShowOriginSizeImage {
@@ -65,6 +59,8 @@ class ShowOriginSizeImage {
   private zoomIndex = 6
   // 默认的缩放比例为 1
   private zoom = this.zoomList[this.zoomIndex]
+  private testImg = new Image()
+  private getImageSizeTimer = 0
 
   // 定义当鼠标移动 1 像素时，wrap 移动多少像素
   private onePxMove = 10
@@ -81,21 +77,19 @@ class ShowOriginSizeImage {
     this._show = val
     if (val) {
       EVT.fire('showOriginSizeImage')
+      this.wrap.style.display = 'block'
+    } else {
+      this.img.src = ''
+      this.wrap.style.display = 'none'
     }
   }
 
   private showTimer = 0
   private rightClickBeforeShow = false
 
-  private data = {
-    urls: {
-      original: '',
-      regular: '',
-    },
-    img: {
-      width: 1200,
-      height: 1200,
-    },
+  private urls = {
+    original: '',
+    regular: '',
   }
 
   private createElements() {
@@ -110,22 +104,21 @@ class ShowOriginSizeImage {
     mouseOverThumbnail.onEnter((el: HTMLElement) => {
       if (settings.showOriginImage) {
         el.addEventListener('mousedown', this.readyShow)
-        el.addEventListener('mouseup', this.cancelShow)
+        el.addEventListener('mouseup', this.cancelReadyShow)
       }
     })
 
     mouseOverThumbnail.onLeave((el: HTMLElement) => {
       el.removeEventListener('mousedown', this.readyShow)
-      el.removeEventListener('mouseup', this.cancelShow)
-      this.show = false
+      el.removeEventListener('mouseup', this.cancelReadyShow)
     })
 
     this.wrap.addEventListener('click', () => {
-      this.hidden()
+      this.show = false
     })
 
     document.body.addEventListener('click', () => {
-      this.hidden()
+      this.show = false
     })
 
     this.wrap.addEventListener('mousewheel', (ev) => {
@@ -171,47 +164,54 @@ class ShowOriginSizeImage {
     }
   }
 
-  private cancelShow = (ev: MouseEvent) => {
+  private cancelReadyShow = (ev: MouseEvent) => {
     window.clearTimeout(this.showTimer)
   }
 
+  private async getImageSize(url: string): Promise<HTMLImageElement> {
+    // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。所以每次执行前需要重置一些变量
+    window.clearInterval(this.getImageSizeTimer)
+    this.testImg.src = ''
+
+    return new Promise((resolve) => {
+      this.testImg = new Image()
+      this.testImg.src = url
+      this.getImageSizeTimer = window.setInterval(() => {
+        if (this.testImg.naturalWidth > 0) {
+          window.clearInterval(this.getImageSizeTimer)
+          return resolve(this.testImg)
+        }
+      }, 50)
+    })
+  }
+
   // 初次显示一个图片时，初始化 wrap 的样式
-  private initWrap(ev: MouseEvent) {
-    const url = this.data.urls[settings.showOriginImageSize]
+  private async initWrap(ev: MouseEvent) {
+    const url = this.urls[settings.showOriginImageSize]
     if (!url) {
       return
     }
-    this.img.src = ''
-    this.img.src = url
 
     this.zoomIndex = 6
     this.zoom = this.zoomList[this.zoomIndex]
     this.style = this.defaultStyle
-    this.show = true
 
-    // 计算图片的原始宽高
-    const originWidth = this.data.img.width
-    const originHeight = this.data.img.height
+    // 获取图片的原始宽高
+    this.img = await this.getImageSize(url)
+    this.style.imgW = this.img.naturalWidth
+    this.style.imgH = this.img.naturalHeight
+    this.style.width = this.style.imgW
+    this.style.height = this.style.imgH
 
-    // 如果加载的是“普通”尺寸，需要根据原图的比例计算宽高
-    if (settings.showOriginImageSize === 'regular') {
-      if (originWidth >= originHeight) {
-        // 横图或者正方形
-        this.style.imgW = Math.min(originWidth, this.defaultSize)
-        this.style.imgH = (this.style.imgW / originWidth) * originHeight
-      } else {
-        this.style.imgH = Math.min(originHeight, this.defaultSize)
-        this.style.imgW = (this.style.imgH / originHeight) * originWidth
-      }
-    } else {
-      this.style.imgW = originWidth
-      this.style.imgH = originHeight
-    }
+    // 替换 img 元素
+    this.wrap.querySelector('img')!.remove()
+    this.wrap.appendChild(this.img)
 
-    // 可视区域的 1 像素等于图片尺寸的多少像素
+    // 计算可视区域的 1 像素等于图片的多少像素
     let onePxMove = 1
-    if (originWidth >= originHeight) {
-      onePxMove = this.style.imgW / (window.innerWidth - 17)
+    const innerWidth = window.innerWidth - 17
+    if (this.style.imgW >= this.img.naturalHeight) {
+      onePxMove = this.style.imgW / innerWidth
     } else {
       onePxMove = this.style.imgH / window.innerHeight
     }
@@ -219,10 +219,6 @@ class ShowOriginSizeImage {
     // 这样可以让用户在移动鼠标时，不需要移动到边界上就可以查看到图片的边界
     this.onePxMove = onePxMove * 1.1
 
-    this.style.width = this.style.imgW
-    this.style.height = this.style.imgH
-
-    const innerWidth = window.innerWidth - 17
     if (this.style.width > innerWidth) {
       // 如果图片宽度超过了可视区域，则根据鼠标在可视宽度中的点击位置，将图片等比例移动到这里
       // 这样用户向左移动鼠标时，可以看到图片的左边界
@@ -232,8 +228,7 @@ class ShowOriginSizeImage {
       this.style.ml = 0 - (leftSpace - ev.clientX)
     } else {
       // 否则水平居中显示
-      this.style.ml =
-        (window.innerWidth - 17 - this.style.width - this.border) / 2
+      this.style.ml = (innerWidth - this.style.width - this.border) / 2
     }
 
     if (this.style.height > window.innerHeight) {
@@ -246,8 +241,7 @@ class ShowOriginSizeImage {
     }
 
     this.setWrapStyle()
-
-    this.wrap.style.display = 'block'
+    this.show = true
   }
 
   // 以鼠标所在位置为中心点缩放
@@ -373,14 +367,8 @@ class ShowOriginSizeImage {
     this.wrap.style.marginLeft = this.style.ml + 'px'
   }
 
-  private hidden() {
-    this.show = false
-    this.img.src = ''
-    this.wrap.style.display = 'none'
-  }
-
-  public setData(data: Data) {
-    this.data = data
+  public setUrls(data: Urls) {
+    this.urls = data
   }
 }
 

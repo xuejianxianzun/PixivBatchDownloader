@@ -94,7 +94,6 @@ class FormSettings {
       'autoExportResultJSON',
       'PreviewWork',
       'showDownloadBtnOnThumb',
-      'prevWorkSize',
       'showOriginImage',
     ],
     text: [
@@ -155,6 +154,13 @@ class FormSettings {
     window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
       this.restoreWantPage()
     })
+
+    const change = [EVT.list.settingChange, EVT.list.resetSettingsEnd]
+    change.forEach((evt) => {
+      window.addEventListener(evt, () => {
+        this.restoreFormSettings()
+      })
+    })
   }
 
   // 监听所有输入选项的变化
@@ -194,7 +200,7 @@ class FormSettings {
   }
 
   // 读取设置，恢复表单里的设置项
-  public restoreFormSettings() {
+  private restoreFormSettings() {
     for (const name of this.inputFileds.text) {
       // setWantPage 需要从 wantPageArr 恢复
       if (name === 'setWantPage') {
