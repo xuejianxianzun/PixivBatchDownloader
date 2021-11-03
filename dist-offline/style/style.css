@@ -1752,7 +1752,11 @@ iframe[name='expandedFooter'] {
   text-overflow: ellipsis;
 }
 #previewWorkTip span {
+  font-size: 14px;
   padding: 0 5px;
+}
+#previewWorkTip span a {
+  color: #fff;
 }
 #originSizeWrap {
   display: none;

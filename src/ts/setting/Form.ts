@@ -29,7 +29,7 @@ class Form {
 
     new SaveNamingRule(this.form.userSetName)
 
-    this.formSettings = new FormSettings(this.form)
+    new FormSettings(this.form)
 
     this.bindEvents()
 
@@ -40,7 +40,7 @@ class Form {
 
   // 设置表单上美化元素的状态
   private initFormBueatiful() {
-    // 设置改变时，重设 label 激活状态
+    // 重设 label 激活状态
     this.resetLabelActive()
 
     // 重设该选项的子选项的显示/隐藏
@@ -55,8 +55,6 @@ class Form {
   private allLabel: NodeListOf<HTMLLabelElement> // 所有 label 标签
 
   private readonly chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
-
-  private formSettings: FormSettings
 
   private readonly tipCreateFolderFlag = 'tipCreateFolder' // 控制“创建文件夹的提示”是否显示
   private readonly tipCreateFolderId = 'tipCreateFolder' // “创建文件夹的提示”的容器 id
@@ -79,21 +77,15 @@ class Form {
       this.bindBeautifyEvent(radio)
     }
 
-    // 当某个设置发生改变时，重新设置美化状态
-    window.addEventListener(EVT.list.settingChange, (ev) => {
-      this.formSettings.restoreFormSettings()
-
-      this.initFormBueatiful()
-    })
-
-    // 当设置重置时，重新设置美化状态
-    window.addEventListener(EVT.list.resetSettingsEnd, () => {
-      this.form.reset()
-
-      this.formSettings.restoreFormSettings()
-
-      // 美化表单，包括设置子选项区域的显示隐藏。所以这需要在恢复设置之后执行
-      this.initFormBueatiful()
+    // 设置变化或者重置时，重新设置美化状态
+    const change = [EVT.list.settingChange, EVT.list.resetSettingsEnd]
+    change.forEach((evt) => {
+      window.addEventListener(evt, () => {
+        // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
+        window.setTimeout(() => {
+          this.initFormBueatiful()
+        }, 50)
+      })
     })
 
     // 预览文件名

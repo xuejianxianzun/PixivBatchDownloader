@@ -181,7 +181,7 @@ class ShowOriginSizeImage {
           window.clearInterval(this.getImageSizeTimer)
           return resolve(this.testImg)
         }
-      }, 100)
+      }, 50)
     })
   }
 
@@ -228,8 +228,7 @@ class ShowOriginSizeImage {
       this.style.ml = 0 - (leftSpace - ev.clientX)
     } else {
       // 否则水平居中显示
-      this.style.ml =
-        (innerWidth - this.style.width - this.border) / 2
+      this.style.ml = (innerWidth - this.style.width - this.border) / 2
     }
 
     if (this.style.height > window.innerHeight) {
@@ -368,7 +367,7 @@ class ShowOriginSizeImage {
     this.wrap.style.marginLeft = this.style.ml + 'px'
   }
 
-  public setData(data: Urls) {
+  public setUrls(data: Urls) {
     this.urls = data
   }
 }
