@@ -9,15 +9,21 @@ class ShowWhatIsNew {
     this.show()
   }
 
-  private flag = 'xzNew1130'
+  private flag = '11.4.0'
 
-  private msg = `${lang.transl('_新增设置项')}<br>${lang.transl('_预览作品')}`
+  private msg = `${lang.transl('_新增设置项')}
+  <br>
+  ${lang.transl('_长按右键显示大图')}
+  <br>
+  <br>
+  ${lang.transl('_new1140')}
+  `
 
   private readonly storeName = 'xzNewVerTag'
 
   private show() {
     const value = localStorage.getItem(this.storeName)
-    if (Utils.isPixiv() && value !== this.flag) {
+    if (value !== this.flag && Utils.isPixiv()) {
       msgBox.show(this.msg, {
         title: Config.appName + ` ${lang.transl('_最近更新')}`,
         btn: lang.transl('_我知道了'),

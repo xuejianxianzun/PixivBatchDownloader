@@ -2718,17 +2718,12 @@ const langText = {
         'Excludes these types of works: ',
         'これらのタイプの作品を除外：',
     ],
-    _多图作品: [
-        '多图作品',
-        '多圖作品',
-        'Multi-image works',
-        'マルチイメージ作品',
-    ],
+    _多图作品: ['多图作品', '多圖作品', 'Multi-image works', '複数画像作品'],
     _多图下载设置: [
         '多图下载设置',
         '多圖下載設定',
         'Download multi-image works',
-        'マルチイメージ設定',
+        '複数画像設定',
     ],
     _不下载: ['不下载', '不下載', 'No', '必要なし'],
     _全部下载: ['全部下载', '全部下載', 'Yes', '全部ダウンロード'],
@@ -3225,7 +3220,7 @@ const langText = {
         '清除多图作品',
         '清除多圖作品',
         'Remove multi-drawing works',
-        '複数の作品を削除する',
+        '複数画像をクリア',
     ],
     _清除多图作品Title: [
         '如果不需要可以清除多图作品',
@@ -4299,10 +4294,22 @@ const langText = {
     _原始尺寸: ['原始尺寸', '原始尺寸', 'Original size', 'オリジナルサイズ'],
     _增强: ['增强', '增強', 'Enhance', '強化機能'],
     _长按右键显示大图: [
-        '在缩略图上长按鼠标右键时显示大图',
-        '在缩略图上长按鼠标右键时显示大图',
-        '在缩略图上长按鼠标右键时显示大图',
-        '在缩略图上长按鼠标右键时显示大图',
+        '在缩略图上长按鼠标右键时显示<span class="key">大图</span>',
+        '在縮圖上長按滑鼠右鍵時顯示<span class="key">大圖</span>',
+        'Long press the right mouse button on the thumbnail to display the <span class="key">large image</span>',
+        'サムネイルでマウスの右ボタンを長押しすると、大きな画像が表示されます。',
+    ],
+    _鼠标滚轮切换图片: [
+        '预览多图作品时，可以使用鼠标滚轮切换图片。',
+        '預覽多圖作品時，可以使用滑鼠滾輪切換圖片。',
+        'When previewing multi-picture works, you can use the mouse wheel to switch images.',
+        '複数画像をプレビューする際に、マウスホイールを使って画像を切り替えることができます。',
+    ],
+    _new1140: [
+        '优化“预览作品”功能：<br>预览多图作品时，可以使用鼠标滚轮切换图片。<br>图片尺寸会自适应可用区域。',
+        '最佳化“預覽作品”功能：<br>預覽多圖作品時，可以使用滑鼠滾輪切換圖片。<br>圖片尺寸會自適應可用區域。',
+        'Optimize the "Preview works" function: <br>When previewing multi-picture works, you can use the mouse wheel to switch images. <br>The image size will adapt to the available area.',
+        '「作品のプレビュー」機能の最適化：<br>複数画像をプレビューする際に、マウスホイールを使って画像を切り替えることができます。<br>画像サイズは使用可能な領域に合わせて調整されます。',
     ],
     _whatisnew: [
         '新增设置项：<br>预览作品',
@@ -4983,15 +4990,21 @@ class PreviewWork {
         this.showDelay = 300;
         this.showTimer = 0;
         this._show = false;
-        this.mouseScroll = (ev) => {
-            // 此事件没有必要使用节流
-            // 因为每次执行时，后续代码里都会重置定时器，停止图片加载，不会造成严重的性能问题
+        this.wheelScrollTime = 0;
+        this.wheelScrollInterval = 100;
+        this.wheelScroll = (ev) => {
+            // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
             if (this.show) {
                 const count = this.workData.body.pageCount;
                 if (count === 1) {
                     return;
                 }
                 ev.preventDefault();
+                const time = new Date().getTime();
+                if (time - this.wheelScrollTime < this.wheelScrollInterval) {
+                    return;
+                }
+                this.wheelScrollTime = time;
                 const up = ev.deltaY < 0;
                 if (up) {
                     if (this.index > 0) {
@@ -5055,6 +5068,7 @@ class PreviewWork {
     }
     bindEvents() {
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onEnter((el, id) => {
+            this.show = false;
             if (this.workId !== id) {
                 // 切换到不同作品时，重置 index
                 this.index = 0;
@@ -5069,11 +5083,11 @@ class PreviewWork {
                 this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__["cacheWorkData"].get(id);
             }
             this.readyShow();
-            el.addEventListener('mousewheel', this.mouseScroll);
+            el.addEventListener('mousewheel', this.wheelScroll);
         });
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave((el) => {
             this.show = false;
-            el.removeEventListener('mousewheel', this.mouseScroll);
+            el.removeEventListener('mousewheel', this.wheelScroll);
         });
         // 可以使用 Alt + P 快捷键来启用/禁用此功能
         window.addEventListener('keydown', (ev) => {
@@ -5081,15 +5095,14 @@ class PreviewWork {
                 Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('PreviewWork', !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork);
             }
         });
-        const hiddenEvtList = [
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch,
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch,
-            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.showOriginSizeImage,
-        ];
+        const hiddenEvtList = [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.showOriginSizeImage];
         hiddenEvtList.forEach((evt) => {
             window.addEventListener(evt, () => {
                 this.show = false;
             });
+        });
+        this.wrap.addEventListener('click', () => {
+            this.show = false;
         });
         this.img.addEventListener('load', () => {
             // 当图片加载完成时，预加载下一张图片
@@ -5105,7 +5118,7 @@ class PreviewWork {
                 url = url.replace('p0', `p${this.index + 1}`);
                 let img = new Image();
                 img.src = url;
-                img.onload = () => img = null;
+                img.onload = () => (img = null);
             }
         }
     }
@@ -6289,14 +6302,20 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = 'xzNew1130';
-        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}<br>${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_预览作品')}`;
+        this.flag = '11.4.0';
+        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}
+  <br>
+  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_长按右键显示大图')}
+  <br>
+  <br>
+  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_new1140')}
+  `;
         this.storeName = 'xzNewVerTag';
         this.show();
     }
     show() {
         const value = localStorage.getItem(this.storeName);
-        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].isPixiv() && value !== this.flag) {
+        if (value !== this.flag && _utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].isPixiv()) {
             _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].show(this.msg, {
                 title: _config_Config__WEBPACK_IMPORTED_MODULE_1__["Config"].appName + ` ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_最近更新')}`,
                 btn: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_我知道了'),
@@ -17441,14 +17460,14 @@ class Form {
         this.allSwitch = this.form.querySelectorAll('.checkbox_switch');
         this.allLabel = this.form.querySelectorAll('label');
         new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_5__["SaveNamingRule"](this.form.userSetName);
-        this.formSettings = new _FormSettings__WEBPACK_IMPORTED_MODULE_7__["FormSettings"](this.form);
+        new _FormSettings__WEBPACK_IMPORTED_MODULE_7__["FormSettings"](this.form);
         this.bindEvents();
         this.initFormBueatiful();
         this.checkTipCreateFolder();
     }
     // 设置表单上美化元素的状态
     initFormBueatiful() {
-        // 设置改变时，重设 label 激活状态
+        // 重设 label 激活状态
         this.resetLabelActive();
         // 重设该选项的子选项的显示/隐藏
         this.resetSubOptionDisplay();
@@ -17468,17 +17487,15 @@ class Form {
         for (const radio of this.allRadio) {
             this.bindBeautifyEvent(radio);
         }
-        // 当某个设置发生改变时，重新设置美化状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
-            this.formSettings.restoreFormSettings();
-            this.initFormBueatiful();
-        });
-        // 当设置重置时，重新设置美化状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd, () => {
-            this.form.reset();
-            this.formSettings.restoreFormSettings();
-            // 美化表单，包括设置子选项区域的显示隐藏。所以这需要在恢复设置之后执行
-            this.initFormBueatiful();
+        // 设置变化或者重置时，重新设置美化状态
+        const change = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd];
+        change.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
+                window.setTimeout(() => {
+                    this.initFormBueatiful();
+                }, 50);
+            });
         });
         // 预览文件名
         _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('namingBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_预览文件名')).addEventListener('click', () => {
@@ -18315,7 +18332,9 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="55">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_预览作品')} </span>
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_鼠标滚轮切换图片')}">
+        ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_预览作品')} <span class="gray1"> ? </span>
+      </span>
       <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
 
@@ -18691,6 +18710,12 @@ class FormSettings {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, () => {
             this.restoreWantPage();
         });
+        const change = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd];
+        change.forEach((evt) => {
+            window.addEventListener(evt, () => {
+                this.restoreFormSettings();
+            });
+        });
     }
     // 监听所有输入选项的变化
     // 该函数可执行一次，否则事件会重复绑定
@@ -18933,6 +18958,9 @@ class NameRuleManager {
     bindEvents() {
         // 页面类型变化时，设置命名规则
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, () => {
+            this.setInputValue();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd, () => {
             this.setInputValue();
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
@@ -19616,7 +19644,7 @@ class Settings {
         // 开始恢复导入的设置
         this.reset(loadedJSON);
     }
-    // 重置设置
+    // 重置设置 或者 导入设置
     // 可选参数：传递一份设置数据，用于从配置文件导入，恢复设置
     reset(data) {
         this.assignSettings(data ? data : this.defaultSettings);
@@ -19629,7 +19657,7 @@ class Settings {
     // 其他模块应该通过这个方法更改设置
     // 这里面有一些类型转换的代码，主要目的：
     // 1. 兼容旧版本的设置。读取旧版本的设置时，将其转换成新版本的设置。例如某个设置在旧版本里是 string 类型，值为 'a,b,c'。新版本里是 string[] 类型，这里会自动将其转换成 ['a','b','c']
-    // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传递 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
+    // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传入 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
     setSetting(key, value) {
         if (!this.allSettingKeys.includes(key)) {
             return;
@@ -20183,13 +20211,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 
 // 储存需要跨模块使用的、会变化的状态
-// 这里的状态不需要持久化保存。
-// 状态的值通常只由单一的模块修改，其他模块只读取不修改
+// 这里的状态不需要持久化保存
+// 状态的值通常只由单一的模块修改
 class States {
     constructor() {
         // 表示下载器是否处于繁忙状态
-        // 如果下载器正在抓取中，或者正在下载中，则为 true；如果下载器处于空闲状态，则为 false
-        // 修改者：本模块根据下载器的事件来修改这个状态
+        // 繁忙：下载器正在抓取作品，或者正在下载文件，或者正在批量添加收藏
         this.busy = false;
         // 快速下载标记
         // 快速下载模式中不会显示下载面板，并且会自动开始下载
@@ -20203,7 +20230,6 @@ class States {
         // 修改者：InitRankingArtworkPage 模块修改这个状态
         this.debut = false;
         // 收藏模式的标记
-        // 修改者：本模块监听批量收藏作品的事件来修改这个标记
         // 开始批量收藏时设为 true，收藏完成之后复位到 false
         this.bookmarkMode = false;
         // 合并系列小说时使用的标记

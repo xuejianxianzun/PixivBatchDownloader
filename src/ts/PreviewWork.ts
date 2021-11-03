@@ -85,6 +85,7 @@ class PreviewWork {
 
   private bindEvents() {
     mouseOverThumbnail.onEnter((el: HTMLElement, id: string) => {
+      this.show = false
       if (this.workId !== id) {
         // 切换到不同作品时，重置 index
         this.index = 0
@@ -100,12 +101,12 @@ class PreviewWork {
 
       this.readyShow()
 
-      el.addEventListener('mousewheel', this.mouseScroll)
+      el.addEventListener('mousewheel', this.wheelScroll)
     })
 
     mouseOverThumbnail.onLeave((el: HTMLElement) => {
       this.show = false
-      el.removeEventListener('mousewheel', this.mouseScroll)
+      el.removeEventListener('mousewheel', this.wheelScroll)
     })
 
     // 可以使用 Alt + P 快捷键来启用/禁用此功能
@@ -115,15 +116,15 @@ class PreviewWork {
       }
     })
 
-    const hiddenEvtList = [
-      EVT.list.pageSwitch,
-      EVT.list.pageSwitch,
-      EVT.list.showOriginSizeImage,
-    ]
+    const hiddenEvtList = [EVT.list.pageSwitch, EVT.list.showOriginSizeImage]
     hiddenEvtList.forEach((evt) => {
       window.addEventListener(evt, () => {
         this.show = false
       })
+    })
+
+    this.wrap.addEventListener('click', () => {
+      this.show = false
     })
 
     this.img.addEventListener('load', () => {
@@ -141,20 +142,28 @@ class PreviewWork {
         url = url.replace('p0', `p${this.index + 1}`)
         let img = new Image()
         img.src = url
-        img.onload = () => img = null as any
+        img.onload = () => (img = null as any)
       }
     }
   }
 
-  private mouseScroll = (ev: Event) => {
-    // 此事件没有必要使用节流
-    // 因为每次执行时，后续代码里都会重置定时器，停止图片加载，不会造成严重的性能问题
+  private wheelScrollTime = 0
+  private readonly wheelScrollInterval = 100
+
+  private wheelScroll = (ev: Event) => {
+    // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
     if (this.show) {
       const count = this.workData!.body.pageCount
       if (count === 1) {
         return
       }
       ev.preventDefault()
+
+      const time = new Date().getTime()
+      if (time - this.wheelScrollTime < this.wheelScrollInterval) {
+        return
+      }
+      this.wheelScrollTime = time
 
       const up = (ev as WheelEvent).deltaY < 0
       if (up) {
@@ -170,6 +179,7 @@ class PreviewWork {
           this.index = 0
         }
       }
+
       this.showWrap()
     }
   }

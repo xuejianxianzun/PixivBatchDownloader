@@ -780,7 +780,11 @@ export const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="55">
-      <span class="settingNameStyle1">${lang.transl('_预览作品')} </span>
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_鼠标滚轮切换图片'
+      )}">
+        ${lang.transl('_预览作品')} <span class="gray1"> ? </span>
+      </span>
       <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
 

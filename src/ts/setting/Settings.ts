@@ -176,7 +176,7 @@ class Settings {
   }
 
   // 默认设置
-  public readonly defaultSettings: XzSetting = {
+  private readonly defaultSettings: XzSetting = {
     setWantPage: -1,
     wantPageArr: [
       -1,
@@ -459,7 +459,7 @@ class Settings {
     this.reset(loadedJSON)
   }
 
-  // 重置设置
+  // 重置设置 或者 导入设置
   // 可选参数：传递一份设置数据，用于从配置文件导入，恢复设置
   private reset(data?: XzSetting) {
     this.assignSettings(data ? data : this.defaultSettings)
@@ -474,7 +474,7 @@ class Settings {
   // 其他模块应该通过这个方法更改设置
   // 这里面有一些类型转换的代码，主要目的：
   // 1. 兼容旧版本的设置。读取旧版本的设置时，将其转换成新版本的设置。例如某个设置在旧版本里是 string 类型，值为 'a,b,c'。新版本里是 string[] 类型，这里会自动将其转换成 ['a','b','c']
-  // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传递 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
+  // 2. 减少额外操作。例如某个设置的类型为 string[]，其他模块可以传入 string 类型的值如 'a,b,c'，而不必先把它转换成 string[]
   public setSetting(key: SettingsKeys, value: SettingValue) {
     if (!this.allSettingKeys.includes(key)) {
       return
