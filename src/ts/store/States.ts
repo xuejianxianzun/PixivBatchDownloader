@@ -1,16 +1,15 @@
 import { EVT } from '../EVT'
 
 // 储存需要跨模块使用的、会变化的状态
-// 这里的状态不需要持久化保存。
-// 状态的值通常只由单一的模块修改，其他模块只读取不修改
+// 这里的状态不需要持久化保存
+// 状态的值通常只由单一的模块修改
 class States {
   constructor() {
     this.bindEvents()
   }
 
   // 表示下载器是否处于繁忙状态
-  // 如果下载器正在抓取中，或者正在下载中，则为 true；如果下载器处于空闲状态，则为 false
-  // 修改者：本模块根据下载器的事件来修改这个状态
+  // 繁忙：下载器正在抓取作品，或者正在下载文件，或者正在批量添加收藏
   public busy = false
 
   // 快速下载标记
@@ -28,7 +27,6 @@ class States {
   public debut = false
 
   // 收藏模式的标记
-  // 修改者：本模块监听批量收藏作品的事件来修改这个标记
   // 开始批量收藏时设为 true，收藏完成之后复位到 false
   public bookmarkMode = false
 
@@ -40,6 +38,9 @@ class States {
 
   // 是否处于手动选择作品状态
   public selectWork = false
+
+  // 是否处于下载中
+  public downloading = false
 
   private bindEvents() {
     const idle = [
@@ -89,6 +90,21 @@ class States {
       window.addEventListener(ev, () => {
         this.quickCrawl = false
         this.downloadFromViewer = false
+      })
+    }
+
+    window.addEventListener(EVT.list.downloadStart, () => {
+      this.downloading = true
+    })
+
+    const downloadIdle = [
+      EVT.list.downloadPause,
+      EVT.list.downloadStop,
+      EVT.list.downloadComplete,
+    ]
+    for (const ev of downloadIdle) {
+      window.addEventListener(ev, () => {
+        this.downloading = false
       })
     }
   }

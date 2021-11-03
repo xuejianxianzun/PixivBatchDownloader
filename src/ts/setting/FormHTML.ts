@@ -646,15 +646,6 @@ export const formHtml = `<form class="settingForm">
       <label for="setSaveMetaType3"> ${lang.transl('_小说')}&nbsp;</label>
       </p>
 
-      <p class="option" data-no="29">
-      <span class="settingNameStyle1">${lang.transl('_文件名长度限制')}</span>
-      <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
-      <span class="beautify_switch"></span>
-      <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
-      <input type="text" name="fileNameLengthLimit" class="setinput_style1 blue" value="200">
-      </span>
-      </p>
-
       <p class="option" data-no="30">
       <span class="settingNameStyle1">${lang.transl('_图片尺寸')} </span>
       <input type="radio" name="imageSize" id="imageSize1" class="need_beautify radio" value="original" checked>
@@ -688,6 +679,15 @@ export const formHtml = `<form class="settingForm">
       <input type="text" name="sizeMin" class="setinput_style1 blue" value="0">MiB
       &nbsp;-&nbsp;
       <input type="text" name="sizeMax" class="setinput_style1 blue" value="100">MiB
+      </span>
+      </p>
+
+      <p class="option" data-no="29">
+      <span class="settingNameStyle1">${lang.transl('_文件名长度限制')}</span>
+      <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
+      <input type="text" name="fileNameLengthLimit" class="setinput_style1 blue" value="200">
       </span>
       </p>
 
@@ -780,7 +780,11 @@ export const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="55">
-      <span class="settingNameStyle1">${lang.transl('_预览作品')} </span>
+      <span class="has_tip settingNameStyle1" data-tip="${lang.transl(
+        '_鼠标滚轮切换图片'
+      )}">
+        ${lang.transl('_预览作品')} <span class="gray1"> ? </span>
+      </span>
       <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
 

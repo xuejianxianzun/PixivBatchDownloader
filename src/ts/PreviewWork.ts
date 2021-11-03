@@ -5,6 +5,7 @@ import { mouseOverThumbnail } from './MouseOverThumbnail'
 import { settings, setSetting } from './setting/Settings'
 import { showOriginSizeImage } from './ShowOriginSizeImage'
 import { cacheWorkData } from './store/CacheWorkData'
+import { states } from './store/States'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -21,7 +22,7 @@ class PreviewWork {
 
   private tipId = 'previewWorkTip'
   private tip!: HTMLElement
-  private readonly tipHeight = 26
+  private readonly tipHeight = 22
 
   // 保存当前鼠标经过的缩略图的数据
   private workId = ''
@@ -38,9 +39,6 @@ class PreviewWork {
   private readonly showDelay = 300
   private showTimer = 0
 
-  private testImg = document.createElement('img')
-  private getImageSizeTimer = 0
-
   private _show = false
 
   private get show() {
@@ -54,7 +52,7 @@ class PreviewWork {
       if (!this.workData || this.workData.body.id !== this.workId) {
         this.readyShow()
       } else {
-        this.sendData()
+        this.sendUrls()
         if (settings.PreviewWork) {
           this._show = true
           this.showWrap()
@@ -87,6 +85,7 @@ class PreviewWork {
 
   private bindEvents() {
     mouseOverThumbnail.onEnter((el: HTMLElement, id: string) => {
+      this.show = false
       if (this.workId !== id) {
         // 切换到不同作品时，重置 index
         this.index = 0
@@ -102,12 +101,12 @@ class PreviewWork {
 
       this.readyShow()
 
-      el.addEventListener('mousewheel', this.mouseScroll)
+      el.addEventListener('mousewheel', this.wheelScroll)
     })
 
     mouseOverThumbnail.onLeave((el: HTMLElement) => {
       this.show = false
-      el.removeEventListener('mousewheel', this.mouseScroll)
+      el.removeEventListener('mousewheel', this.wheelScroll)
     })
 
     // 可以使用 Alt + P 快捷键来启用/禁用此功能
@@ -117,27 +116,54 @@ class PreviewWork {
       }
     })
 
-    const hiddenEvtList = [
-      EVT.list.pageSwitch,
-      EVT.list.pageSwitch,
-      EVT.list.showOriginSizeImage,
-    ]
+    const hiddenEvtList = [EVT.list.pageSwitch, EVT.list.showOriginSizeImage]
     hiddenEvtList.forEach((evt) => {
       window.addEventListener(evt, () => {
         this.show = false
       })
     })
+
+    this.wrap.addEventListener('click', () => {
+      this.show = false
+    })
+
+    this.img.addEventListener('load', () => {
+      // 当图片加载完成时，预加载下一张图片
+      this.preload()
+    })
   }
 
-  private mouseScroll = (ev: Event) => {
-    // 此事件没有必要使用节流
-    // 因为每次执行时，后续代码里都会重置定时器，停止图片加载，不会造成严重的性能问题
+  private preload() {
+    // 如果下载器正在下载文件，则不预加载
+    if (this.show && !states.downloading) {
+      const count = this.workData!.body.pageCount
+      if (count > this.index + 1) {
+        let url = this.workData!.body.urls[settings.prevWorkSize]
+        url = url.replace('p0', `p${this.index + 1}`)
+        let img = new Image()
+        img.src = url
+        img.onload = () => (img = null as any)
+      }
+    }
+  }
+
+  private wheelScrollTime = 0
+  private readonly wheelScrollInterval = 100
+
+  private wheelScroll = (ev: Event) => {
+    // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
     if (this.show) {
       const count = this.workData!.body.pageCount
       if (count === 1) {
         return
       }
       ev.preventDefault()
+
+      const time = new Date().getTime()
+      if (time - this.wheelScrollTime < this.wheelScrollInterval) {
+        return
+      }
+      this.wheelScrollTime = time
 
       const up = (ev as WheelEvent).deltaY < 0
       if (up) {
@@ -153,6 +179,7 @@ class PreviewWork {
           this.index = 0
         }
       }
+
       this.showWrap()
     }
   }
@@ -168,21 +195,48 @@ class PreviewWork {
     }, this.showDelay)
   }
 
-  // 通过 img 元素加载图片，等到可以获取到宽高信息时返回这个 img
-  private async getImageSize(url: string): Promise<HTMLImageElement> {
-    // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。所以每次执行前需要重置一些变量
-    window.clearInterval(this.getImageSizeTimer)
-    this.testImg.src = ''
-
+  // 通过 img 元素加载图片，获取图片的原始尺寸
+  private async getImageSize(
+    url: string
+  ): Promise<{
+    width: number
+    height: number
+    available: boolean
+  }> {
     return new Promise((resolve) => {
-      this.testImg = new Image()
-      this.testImg.src = url
-      this.getImageSizeTimer = window.setInterval(() => {
-        if (this.testImg.naturalWidth > 0) {
-          window.clearInterval(this.getImageSizeTimer)
-          return resolve(this.testImg)
+      // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。通过 index 判断当前请求是否应该继续
+      let testImg = new Image()
+      testImg.src = url
+      const bindIndex = this.index
+      const timer = window.setInterval(() => {
+        if (this.index !== bindIndex) {
+          // 如果要显示的图片发生了变化，则立即停止加载当前图片，避免浪费网络流量
+          window.clearInterval(timer)
+          testImg.src = ''
+          testImg = null as any
+          // 本来这里应该 reject 的，但是那样就需要在 await 的地方处理这个错误
+          // 我不想处理错误，所以用 available 标记来偷懒
+          return resolve({
+            width: 0,
+            height: 0,
+            available: false,
+          })
+        } else {
+          // 如果获取到了图片的宽高，也立即停止加载当前图片，并返回结果
+          if (testImg.naturalWidth > 0) {
+            const width = testImg.naturalWidth
+            const height = testImg.naturalHeight
+            window.clearInterval(timer)
+            testImg.src = ''
+            testImg = null as any
+            return resolve({
+              width,
+              height,
+              available: true,
+            })
+          }
         }
-      }, 100)
+      }, 50)
     })
   }
 
@@ -193,10 +247,15 @@ class PreviewWork {
     }
 
     const url = this.replaceUrl(this.workData!.body.urls[settings.prevWorkSize])
-    this.img = await this.getImageSize(url)
+    const size = await this.getImageSize(url)
 
-    const w = this.img.naturalWidth
-    const h = this.img.naturalHeight
+    if (!size.available) {
+      return
+    }
+
+    this.img.src = url
+    const w = size.width
+    const h = size.height
 
     const cfg = {
       width: w,
@@ -221,34 +280,32 @@ class PreviewWork {
     const ySpace =
       window.innerHeight - scrollBarHeight - this.border - tipHeight
 
-    // 宽高从图片宽高、可视区域的宽高中，取最小值，使图片不会超出可视区域外
+    // 宽高从图片宽高、可用区域的宽高中取最小值，使图片不会超出可视区域外
     // 竖图
     if (w < h) {
       cfg.height = Math.min(ySpace, h)
       cfg.width = (cfg.height / h) * w
+      // 此时宽度可能会超过水平方向上的可用区域，则需要再次调整宽高
+      if (cfg.width > xSpace) {
+        cfg.height = (xSpace / cfg.width) * cfg.height
+        cfg.width = xSpace
+      }
     } else if (w > h) {
       // 横图
       cfg.width = Math.min(xSpace, w)
       cfg.height = (cfg.width / w) * h
+      // 此时高度可能会超过垂直方向上的可用区域，则需要再次调整宽高
+      if (cfg.height > ySpace) {
+        cfg.width = (ySpace / cfg.height) * cfg.width
+        cfg.height = ySpace
+      }
     } else {
       // 正方形图片
       cfg.height = Math.min(ySpace, xSpace, h)
-      cfg.width = Math.min(w, ySpace)
+      cfg.width = cfg.height
     }
 
-    // 如果 wrap 宽度超过了可视窗口宽度，则需要再次调整宽高
-    if (cfg.width > xSpace) {
-      cfg.height = (xSpace / cfg.width) * cfg.height
-      cfg.width = xSpace
-    }
-
-    // 如果 wrap 高度超过了可视窗口高度，则需要再次调整宽高
-    if (cfg.height > ySpace) {
-      cfg.width = (ySpace / cfg.height) * cfg.width
-      cfg.height = ySpace
-    }
-
-    // 上面计算的高度是图片的高度，现在设置 wrap 的宽高，需要加上内部其他元素的高度
+    // 上面计算的高度是图片的高度，现在计算 wrap 的宽高，需要加上内部其他元素的高度
     cfg.height = cfg.height + tipHeight
 
     // 2. 计算位置
@@ -287,8 +344,17 @@ class PreviewWork {
     if (showPreviewWorkTip) {
       const text = []
       const body = this.workData.body
-      text.push(`${this.index + 1}/${body.pageCount}`)
-      text.push(`${body.width}x${body.height}`)
+      if (body.pageCount > 1) {
+        text.push(`${this.index + 1}/${body.pageCount}`)
+      }
+      // 加载原图时，可以获取到每张图片的真实尺寸
+      if (settings.prevWorkSize === 'original') {
+        text.push(`${w}x${h}`)
+      } else {
+        // 如果加载的是普通尺寸，则永远显示第一张图的原始尺寸
+        // 因为此时获取不到后续图片的原始尺寸
+        text.push(`${this.workData.body.width}x${this.workData.body.height}`)
+      }
       text.push(body.title)
       text.push(body.description)
 
@@ -302,11 +368,8 @@ class PreviewWork {
       this.tip.style.display = 'none'
     }
 
-    // 4. 替换 img 元素
-    this.wrap.querySelector('img')!.remove()
-    this.wrap.appendChild(this.img)
-
-    // 5. 显示 wrap
+    // 4. 显示 wrap
+    this.img.style.height = cfg.height - tipHeight + 'px'
     const styleArray: string[] = []
     for (const [key, value] of Object.entries(cfg)) {
       styleArray.push(`${key}:${value}px;`)
@@ -315,14 +378,14 @@ class PreviewWork {
     this.wrap.setAttribute('style', styleArray.join(''))
 
     // 每次显示图片后，传递图片的 url
-    this.sendData()
+    this.sendUrls()
   }
 
   private replaceUrl(url: string) {
     return url.replace('p0', `p${this.index}`)
   }
 
-  private sendData() {
+  private sendUrls() {
     const data = this.workData
     if (!data) {
       return
@@ -330,7 +393,7 @@ class PreviewWork {
     // 传递图片的 url，但是不传递尺寸。
     // 因为预览图片默认加载“普通”尺寸的图片，但是 showOriginSizeImage 默认显示“原图”尺寸。
     // 而且对于第一张之后的图片，加载“普通”尺寸的图片时，无法获取“原图”的尺寸。
-    showOriginSizeImage.setData({
+    showOriginSizeImage.setUrls({
       original: this.replaceUrl(data.body.urls.original),
       regular: this.replaceUrl(data.body.urls.regular),
     })

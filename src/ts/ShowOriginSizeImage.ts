@@ -181,7 +181,7 @@ class ShowOriginSizeImage {
           window.clearInterval(this.getImageSizeTimer)
           return resolve(this.testImg)
         }
-      }, 100)
+      }, 50)
     })
   }
 
@@ -367,7 +367,7 @@ class ShowOriginSizeImage {
     this.wrap.style.marginLeft = this.style.ml + 'px'
   }
 
-  public setData(data: Urls) {
+  public setUrls(data: Urls) {
     this.urls = data
   }
 }
