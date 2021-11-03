@@ -41,6 +41,9 @@ class States {
   // 是否处于手动选择作品状态
   public selectWork = false
 
+  // 是否处于下载中
+  public downloading = false
+
   private bindEvents() {
     const idle = [
       EVT.list.crawlFinish,
@@ -89,6 +92,21 @@ class States {
       window.addEventListener(ev, () => {
         this.quickCrawl = false
         this.downloadFromViewer = false
+      })
+    }
+
+    window.addEventListener(EVT.list.downloadStart, () => {
+      this.downloading = true
+    })
+
+    const downloadIdle = [
+      EVT.list.downloadPause,
+      EVT.list.downloadStop,
+      EVT.list.downloadComplete,
+    ]
+    for (const ev of downloadIdle) {
+      window.addEventListener(ev, () => {
+        this.downloading = false
       })
     }
   }

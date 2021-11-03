@@ -5,6 +5,7 @@ import { mouseOverThumbnail } from './MouseOverThumbnail'
 import { settings, setSetting } from './setting/Settings'
 import { showOriginSizeImage } from './ShowOriginSizeImage'
 import { cacheWorkData } from './store/CacheWorkData'
+import { states } from './store/States'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -124,6 +125,25 @@ class PreviewWork {
         this.show = false
       })
     })
+
+    this.img.addEventListener('load', () => {
+      // 当图片加载完成时，预加载下一张图片
+      this.preload()
+    })
+  }
+
+  private preload() {
+    // 如果下载器正在下载文件，则不预加载
+    if (this.show && !states.downloading) {
+      const count = this.workData!.body.pageCount
+      if (count > this.index + 1) {
+        let url = this.workData!.body.urls[settings.prevWorkSize]
+        url = url.replace('p0', `p${this.index + 1}`)
+        let img = new Image()
+        img.src = url
+        img.onload = () => img = null as any
+      }
+    }
   }
 
   private mouseScroll = (ev: Event) => {

@@ -4956,6 +4956,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ShowOriginSizeImage */ "./src/ts/ShowOriginSizeImage.ts");
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+
 
 
 
@@ -5089,6 +5091,23 @@ class PreviewWork {
                 this.show = false;
             });
         });
+        this.img.addEventListener('load', () => {
+            // 当图片加载完成时，预加载下一张图片
+            this.preload();
+        });
+    }
+    preload() {
+        // 如果下载器正在下载文件，则不预加载
+        if (this.show && !_store_States__WEBPACK_IMPORTED_MODULE_6__["states"].downloading) {
+            const count = this.workData.body.pageCount;
+            if (count > this.index + 1) {
+                let url = this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize];
+                url = url.replace('p0', `p${this.index + 1}`);
+                let img = new Image();
+                img.src = url;
+                img.onload = () => img = null;
+            }
+        }
     }
     async fetchWorkData() {
         const data = await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(this.workId);
@@ -20193,6 +20212,8 @@ class States {
         this.crawlTagList = false;
         // 是否处于手动选择作品状态
         this.selectWork = false;
+        // 是否处于下载中
+        this.downloading = false;
         this.bindEvents();
     }
     bindEvents() {
@@ -20236,6 +20257,19 @@ class States {
             window.addEventListener(ev, () => {
                 this.quickCrawl = false;
                 this.downloadFromViewer = false;
+            });
+        }
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStart, () => {
+            this.downloading = true;
+        });
+        const downloadIdle = [
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadPause,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop,
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadComplete,
+        ];
+        for (const ev of downloadIdle) {
+            window.addEventListener(ev, () => {
+                this.downloading = false;
             });
         }
     }
