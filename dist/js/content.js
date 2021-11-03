@@ -5168,33 +5168,33 @@ class PreviewWork {
         const tipHeight = showPreviewWorkTip ? this.tipHeight : 0;
         const scrollBarHeight = window.innerHeight - document.documentElement.clientHeight;
         const ySpace = window.innerHeight - scrollBarHeight - this.border - tipHeight;
-        // 宽高从图片宽高、可视区域的宽高中，取最小值，使图片不会超出可视区域外
+        // 宽高从图片宽高、可用区域的宽高中取最小值，使图片不会超出可视区域外
         // 竖图
         if (w < h) {
             cfg.height = Math.min(ySpace, h);
             cfg.width = (cfg.height / h) * w;
+            // 此时宽度可能会超过水平方向上的可用区域，则需要再次调整宽高
+            if (cfg.width > xSpace) {
+                cfg.height = (xSpace / cfg.width) * cfg.height;
+                cfg.width = xSpace;
+            }
         }
         else if (w > h) {
             // 横图
             cfg.width = Math.min(xSpace, w);
             cfg.height = (cfg.width / w) * h;
+            // 此时高度可能会超过垂直方向上的可用区域，则需要再次调整宽高
+            if (cfg.height > ySpace) {
+                cfg.width = (ySpace / cfg.height) * cfg.width;
+                cfg.height = ySpace;
+            }
         }
         else {
             // 正方形图片
             cfg.height = Math.min(ySpace, xSpace, h);
             cfg.width = cfg.height;
         }
-        // 如果 wrap 宽度超过了可视窗口宽度，则需要再次调整宽高
-        if (cfg.width > xSpace) {
-            cfg.height = (xSpace / cfg.width) * cfg.height;
-            cfg.width = xSpace;
-        }
-        // 如果 wrap 高度超过了可视窗口高度，则需要再次调整宽高
-        if (cfg.height > ySpace) {
-            cfg.width = (ySpace / cfg.height) * cfg.width;
-            cfg.height = ySpace;
-        }
-        // 上面计算的高度是图片的高度，现在设置 wrap 的宽高，需要加上内部其他元素的高度
+        // 上面计算的高度是图片的高度，现在计算 wrap 的宽高，需要加上内部其他元素的高度
         cfg.height = cfg.height + tipHeight;
         // 2. 计算位置
         // 在页面可视区域内，比较缩略图左侧和右侧空间，把 wrap 显示在空间比较大的那一侧
@@ -5228,7 +5228,9 @@ class PreviewWork {
         if (showPreviewWorkTip) {
             const text = [];
             const body = this.workData.body;
-            text.push(`${this.index + 1}/${body.pageCount}`);
+            if (body.pageCount > 1) {
+                text.push(`${this.index + 1}/${body.pageCount}`);
+            }
             // 加载原图时，可以获取到每张图片的真实尺寸
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize === 'original') {
                 text.push(`${w}x${h}`);
@@ -6120,8 +6122,7 @@ class ShowOriginSizeImage {
         }
         else {
             // 否则水平居中显示
-            this.style.ml =
-                (innerWidth - this.style.width - this.border) / 2;
+            this.style.ml = (innerWidth - this.style.width - this.border) / 2;
         }
         if (this.style.height > window.innerHeight) {
             // 如果图片高度超过了可视区域，则根据鼠标点击位置在可视宽度中的比例，将 top 设置为同样的比例
@@ -18183,15 +18184,6 @@ const formHtml = `<form class="settingForm">
       <label for="setSaveMetaType3"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_小说')}&nbsp;</label>
       </p>
 
-      <p class="option" data-no="29">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_文件名长度限制')}</span>
-      <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
-      <span class="beautify_switch"></span>
-      <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
-      <input type="text" name="fileNameLengthLimit" class="setinput_style1 blue" value="200">
-      </span>
-      </p>
-
       <p class="option" data-no="30">
       <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸')} </span>
       <input type="radio" name="imageSize" id="imageSize1" class="need_beautify radio" value="original" checked>
@@ -18223,6 +18215,15 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="sizeMin" class="setinput_style1 blue" value="0">MiB
       &nbsp;-&nbsp;
       <input type="text" name="sizeMax" class="setinput_style1 blue" value="100">MiB
+      </span>
+      </p>
+
+      <p class="option" data-no="29">
+      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_文件名长度限制')}</span>
+      <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
+      <span class="beautify_switch"></span>
+      <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
+      <input type="text" name="fileNameLengthLimit" class="setinput_style1 blue" value="200">
       </span>
       </p>
 

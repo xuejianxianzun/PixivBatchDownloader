@@ -228,8 +228,7 @@ class ShowOriginSizeImage {
       this.style.ml = 0 - (leftSpace - ev.clientX)
     } else {
       // 否则水平居中显示
-      this.style.ml =
-        (innerWidth - this.style.width - this.border) / 2
+      this.style.ml = (innerWidth - this.style.width - this.border) / 2
     }
 
     if (this.style.height > window.innerHeight) {
