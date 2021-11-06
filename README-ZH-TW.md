@@ -25,11 +25,30 @@
 
 # 簡介
 
-這是一個 Chrome 瀏覽器擴充功能，用於批次下載 Pixiv 上的圖片和小說。功能強大，支援多種頁面類型。
+這是一個 Chrome 瀏覽器擴充功能，用於批次下載 Pixiv 上的圖片和小說。
 
-現在也增加了一些輔助功能，如去除廣告、快速收藏、看圖模式、替未分類作品加入 tag 等。
+主要功能：
 
-![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/ui4.png)
+- 批次下載畫師的所有作品、你的收藏、你的關注、排行榜、搜尋結果等；
+- 一鍵下載你看到的任何作品；
+- 手動選擇（多選）要下載的作品；
+- 設定過濾條件，篩選你要下載的作品；
+- 儲存畫師的頭像、封面圖；
+- 建立資料夾儲存檔案；
+- 設定檔案的命名規則；
+- 轉換動圖為 GIF、WebM、APNG 格式；
+- 儲存小說為 TXT、EPUB 格式；
+- 儲存下載進度，恢復未完成的下載；
+- 匯出作品資料；
+- 批次收藏作品；
+- 為你收藏的未分類作品新增 tag；
+- 內建圖片檢視器，檢視多圖作品；
+- 無需進入作品頁面即可預覽作品，檢視作品原圖；
+- 可選擇介面語言：简体中文、繁體中文、日本語、English；
+
+![PixivBatchDownloader screenshot](./notes/ui-tw-0.png)
+
+![PixivBatchDownloader screenshot](./notes/ui-tw-1.png)
 
 [瀏覽官網](https://pixiv.download/)
 
@@ -39,9 +58,9 @@
 
 1. **Chromium 核心**的瀏覽器可以從 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**  安裝本擴充功能。
 
-2. **Microsoft Edge** 瀏覽器也可以從 **[Microsoft Edge 外掛程式](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)** 安裝本擴充功能。
+2. **Microsoft Edge** 瀏覽器可以從 **[Microsoft Edge 外掛程式](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)** 安裝本擴充功能。
 
-**注意：** 有時 Chrome Web Store 上的擴充功能可能不是最新版本。如果有需要，你可以進行離線安裝，或者使用 Edge 瀏覽器從 Edge 商店安裝。
+**注意：** 有時 Chrome Web Store 上的擴充功能可能不是最新版本。如果有需要，你可以離線安裝。
 
 ## 離線安裝
 
