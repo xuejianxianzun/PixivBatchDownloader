@@ -5,7 +5,6 @@ import { lang } from '../Lang'
 import { Tools } from '../Tools'
 import { options } from '../setting/Options'
 import { store } from '../store/Store'
-import { EVT } from '../EVT'
 
 class InitDiscoverPage extends InitPageBase {
   constructor() {
@@ -18,12 +17,6 @@ class InitDiscoverPage extends InitPageBase {
       ['title', lang.transl('_抓取当前作品Title')],
     ]).addEventListener('click', () => {
       this.readyCrawl()
-    })
-  }
-
-  protected initAny() {
-    window.addEventListener(EVT.list.pageSwitchedTypeNotChange, () => {
-      options.hideOption([1])
     })
   }
 
