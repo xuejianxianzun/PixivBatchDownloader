@@ -116,7 +116,11 @@ class PreviewWork {
       }
     })
 
-    const hiddenEvtList = [EVT.list.pageSwitch, EVT.list.showOriginSizeImage]
+    const hiddenEvtList = [
+      EVT.list.pageSwitch,
+      EVT.list.centerPanelOpened,
+      EVT.list.showOriginSizeImage,
+    ]
     hiddenEvtList.forEach((evt) => {
       window.addEventListener(evt, () => {
         this.show = false

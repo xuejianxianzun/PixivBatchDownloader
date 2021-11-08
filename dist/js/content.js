@@ -4900,7 +4900,8 @@ class PageType {
             url.includes('/bookmark_new_illust_r18.php')) {
             return PageName.NewArtworkBookmark;
         }
-        else if (pathname === '/discovery') {
+        else if (pathname === '/discovery' ||
+            pathname.startsWith('/novel/discovery')) {
             return PageName.Discover;
         }
         else if (url.includes('/new_illust.php') ||
@@ -5095,7 +5096,11 @@ class PreviewWork {
                 Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('PreviewWork', !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork);
             }
         });
-        const hiddenEvtList = [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.showOriginSizeImage];
+        const hiddenEvtList = [
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.centerPanelOpened,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.showOriginSizeImage,
+        ];
         hiddenEvtList.forEach((evt) => {
             window.addEventListener(evt, () => {
                 this.show = false;
@@ -8356,8 +8361,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _pageFunciton_DeleteWorks__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../pageFunciton/DeleteWorks */ "./src/ts/pageFunciton/DeleteWorks.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
 // 初始化发现页面
 
 
@@ -8378,29 +8383,43 @@ class InitDiscoverPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
             this.readyCrawl();
         });
     }
-    initAny() { }
+    initAny() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].list.pageSwitchedTypeNotChange, () => {
+            _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].hideOption([1]);
+        });
+    }
     setFormOption() {
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].hideOption([1]);
     }
-    addAnyElement() {
-        const deleteWorks = new _pageFunciton_DeleteWorks__WEBPACK_IMPORTED_MODULE_5__["DeleteWorks"]('._2RNjBox');
-        deleteWorks.addClearMultipleBtn('._3b8AXEx');
-        deleteWorks.addClearUgoiraBtn('.AGgsUWZ');
-        deleteWorks.addManuallyDeleteBtn();
-    }
     getWantPage() { }
     getIdList() {
-        // 在发现页面，仅下载已有部分，所以不需要去获取列表页
-        const nowIllust = document.querySelectorAll('figure>div>a');
-        // 获取已有作品的 id
-        Array.from(nowIllust).forEach((el) => {
-            // discovery 列表的 url 是有额外后缀的，需要去掉
-            const id = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getIllustId(el.href.split('&uarea')[0]);
-            _store_Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.push({
-                type: 'unknown',
-                id,
+        // 在发现页面，直接获取页面上显示的作品，不需要获取列表页
+        if (location.pathname.includes('/novel')) {
+            // 小说页面
+            const allWork = document.querySelectorAll('.gtm-novel-work-recommend-link');
+            allWork.forEach((div) => {
+                const a = div.querySelector('a');
+                if (a) {
+                    const id = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getNovelId(a.href);
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
+                        type: 'novels',
+                        id,
+                    });
+                }
             });
-        });
+        }
+        else {
+            // 插画漫画页面
+            const allLink = document.querySelectorAll('div[width="184"]>a');
+            // 获取已有作品的 id
+            allLink.forEach((a) => {
+                const id = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getIllustId(a.href);
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
+                    type: 'unknown',
+                    id,
+                });
+            });
+        }
         this.getIdListFinished();
     }
 }
@@ -19484,7 +19503,7 @@ class Settings {
             blockTagsForSpecificUserShowList: true,
             blockTagsForSpecificUserList: [],
             magnifier: true,
-            magnifierSize: 'regular',
+            magnifierSize: 'original',
             magnifierPosition: 'right',
             bgDisplay: false,
             bgOpacity: 50,

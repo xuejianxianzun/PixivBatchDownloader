@@ -4,8 +4,8 @@ import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
 import { Tools } from '../Tools'
 import { options } from '../setting/Options'
-import { DeleteWorks } from '../pageFunciton/DeleteWorks'
 import { store } from '../store/Store'
+import { EVT } from '../EVT'
 
 class InitDiscoverPage extends InitPageBase {
   constructor() {
@@ -21,39 +21,49 @@ class InitDiscoverPage extends InitPageBase {
     })
   }
 
-  protected initAny() {}
+  protected initAny() {
+    window.addEventListener(EVT.list.pageSwitchedTypeNotChange, () => {
+      options.hideOption([1])
+    })
+  }
 
   protected setFormOption() {
     options.hideOption([1])
   }
 
-  protected addAnyElement() {
-    const deleteWorks = new DeleteWorks('._2RNjBox')
-
-    deleteWorks.addClearMultipleBtn('._3b8AXEx')
-
-    deleteWorks.addClearUgoiraBtn('.AGgsUWZ')
-
-    deleteWorks.addManuallyDeleteBtn()
-  }
-
   protected getWantPage() {}
 
   protected getIdList() {
-    // 在发现页面，仅下载已有部分，所以不需要去获取列表页
-    const nowIllust = document.querySelectorAll(
-      'figure>div>a'
-    ) as NodeListOf<HTMLAnchorElement>
-    // 获取已有作品的 id
-    Array.from(nowIllust).forEach((el) => {
-      // discovery 列表的 url 是有额外后缀的，需要去掉
-      const id = Tools.getIllustId(el.href.split('&uarea')[0])
-      store.idList.push({
-        type: 'unknown',
-        id,
+    // 在发现页面，直接获取页面上显示的作品，不需要获取列表页
+    if (location.pathname.includes('/novel')) {
+      // 小说页面
+      const allWork = document.querySelectorAll(
+        '.gtm-novel-work-recommend-link'
+      )
+      allWork.forEach((div) => {
+        const a = div.querySelector('a')
+        if (a) {
+          const id = Tools.getNovelId(a.href)
+          store.idList.push({
+            type: 'novels',
+            id,
+          })
+        }
       })
-    })
-
+    } else {
+      // 插画漫画页面
+      const allLink = document.querySelectorAll(
+        'div[width="184"]>a'
+      ) as NodeListOf<HTMLAnchorElement>
+      // 获取已有作品的 id
+      allLink.forEach((a) => {
+        const id = Tools.getIllustId(a.href)
+        store.idList.push({
+          type: 'unknown',
+          id,
+        })
+      })
+    }
     this.getIdListFinished()
   }
 }

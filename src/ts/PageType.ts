@@ -91,7 +91,10 @@ class PageType {
       url.includes('/bookmark_new_illust_r18.php')
     ) {
       return PageName.NewArtworkBookmark
-    } else if (pathname === '/discovery') {
+    } else if (
+      pathname === '/discovery' ||
+      pathname.startsWith('/novel/discovery')
+    ) {
       return PageName.Discover
     } else if (
       url.includes('/new_illust.php') ||
