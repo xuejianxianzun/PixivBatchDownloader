@@ -2355,7 +2355,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _crawlNovelPage_InitNewNovelPage__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./crawlNovelPage/InitNewNovelPage */ "./src/ts/crawlNovelPage/InitNewNovelPage.ts");
 /* harmony import */ var _crawlArtworkPage_InitArtworkSeriesPage__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./crawlArtworkPage/InitArtworkSeriesPage */ "./src/ts/crawlArtworkPage/InitArtworkSeriesPage.ts");
 /* harmony import */ var _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./crawlMixedPage/InitFollowingPage */ "./src/ts/crawlMixedPage/InitFollowingPage.ts");
+/* harmony import */ var _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./crawl/InitUnsupportedPage */ "./src/ts/crawl/InitUnsupportedPage.ts");
 // 根据不同的页面，初始化下载器的功能
+
 
 
 
@@ -2433,7 +2435,7 @@ class InitPage {
             case _PageType__WEBPACK_IMPORTED_MODULE_1__["pageType"].list.Following:
                 return new _crawlMixedPage_InitFollowingPage__WEBPACK_IMPORTED_MODULE_21__["InitFollowingPage"]();
             default:
-                return;
+                return new _crawl_InitUnsupportedPage__WEBPACK_IMPORTED_MODULE_22__["InitUnsupportedPage"]();
         }
     }
 }
@@ -4654,6 +4656,7 @@ class MouseOverThumbnail {
             '._work',
             'figure > div',
             '._work.item',
+            'li>div>div:first-child',
         ];
         this.enterCallback = [];
         this.leaveCallback = [];
@@ -4827,8 +4830,6 @@ const msgBox = new MsgBox();
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./PageType */ "./src/ts/PageType.ts");
-
 
 
 // 页面右侧的按钮，点击可以打开中间面板
@@ -4836,7 +4837,7 @@ class OpenCenterPanel {
     constructor() {
         this.btn = document.createElement('button');
         this.addBtn();
-        this.setVisible();
+        this.show();
         this.bindEvents();
     }
     addBtn() {
@@ -4862,19 +4863,12 @@ class OpenCenterPanel {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.centerPanelOpened, () => {
             this.hide();
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, () => {
-            this.setVisible();
-        });
     }
     show() {
         this.btn.style.display = 'flex';
     }
     hide() {
         this.btn.style.display = 'none';
-    }
-    // 如果当前页面不支持下载，就隐藏按钮。这只是一个障眼法。
-    setVisible() {
-        _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].type === _PageType__WEBPACK_IMPORTED_MODULE_2__["pageType"].list.Unsupported ? this.hide() : this.show();
     }
 }
 new OpenCenterPanel();
@@ -4983,7 +4977,8 @@ class PageType {
             url.includes('/bookmark_new_illust_r18.php')) {
             return PageName.NewArtworkBookmark;
         }
-        else if (pathname === '/discovery') {
+        else if (pathname === '/discovery' ||
+            pathname.startsWith('/novel/discovery')) {
             return PageName.Discover;
         }
         else if (url.includes('/new_illust.php') ||
@@ -5178,7 +5173,11 @@ class PreviewWork {
                 Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('PreviewWork', !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].PreviewWork);
             }
         });
-        const hiddenEvtList = [_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch, _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.showOriginSizeImage];
+        const hiddenEvtList = [
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.pageSwitch,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.centerPanelOpened,
+            _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.showOriginSizeImage,
+        ];
         hiddenEvtList.forEach((evt) => {
             window.addEventListener(evt, () => {
                 this.show = false;
@@ -5439,6 +5438,7 @@ class SelectWork {
         this.clearBtn = document.createElement('button'); // 清空选择的作品的按钮
         this.selectedWorkFlagClass = 'selectedWorkFlag'; // 给已选择的作品添加标记时使用的 class
         this.positionValue = ['relative', 'absolute', 'fixed']; // 标记元素需要父元素拥有这些定位属性
+        this.needSetPosition = true; // 是否需要给父元素设置定位属性
         this.artworkReg = /artworks\/(\d{2,15})/;
         this.novelReg = /novel\/show\.php\?id=(\d{2,15})/;
         // 不同页面里的作品列表容器的选择器可能不同，这里储存所有页面里会使用到的的选择器
@@ -5453,11 +5453,15 @@ class SelectWork {
         this.observeTimer = 0;
         this.sendCrawl = false; // 它用来判断抓取的是不是选择的作品。抓取选择的作品时激活此标记；当触发下一次的抓取完成事件时，表示已经抓取了选择的作品。
         this.crawled = false; // 是否已经抓取了选择的作品
+        this.svg = `<svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-select"></use>
+</svg>`;
         if (!this.created && location.hostname.endsWith('.pixiv.net')) {
             this.created = true;
             this.selector = this.createSelectorEl();
             this.addBtn();
             this.bindEvents();
+            this.checkNeedSetPosition();
         }
     }
     get start() {
@@ -5499,6 +5503,9 @@ class SelectWork {
                 this.sendCrawl = false;
                 this.crawled = true;
             }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.pageSwitch, () => {
+            this.checkNeedSetPosition();
         });
         // 可以使用 Alt + S 快捷键来模拟点击控制按钮
         window.addEventListener('keydown', (ev) => {
@@ -5550,6 +5557,12 @@ class SelectWork {
                 subtree: true,
             });
         });
+    }
+    checkNeedSetPosition() {
+        // 进入某些特定页面时，不需要给父元素添加定位属性
+        // 在投稿页面内不能添加定位，否则作品的缩略图会不显示
+        const requestPage = window.location.pathname.startsWith('/request');
+        this.needSetPosition = !requestPage;
     }
     clearIdList() {
         // 清空标记需要使用 id 数据，所以需要执行之后才能清空 id
@@ -5734,9 +5747,7 @@ class SelectWork {
         const i = document.createElement('i');
         i.classList.add(this.selectedWorkFlagClass);
         i.dataset.id = id;
-        i.innerHTML = `<svg class="icon" aria-hidden="true">
-      <use xlink:href="#icon-select"></use>
-    </svg>`;
+        i.innerHTML = this.svg;
         let target = el;
         // 如果点击的元素处于 svg 里，则添加到 svg 外面。因为 svg 里面不会显示添加的标记
         // 这里的代码只能应对 svg 内只有一层子元素的情况。目前 pixiv 的作品列表都是这样
@@ -5744,8 +5755,8 @@ class SelectWork {
             target = el.parentElement;
         }
         target.insertAdjacentElement('beforebegin', i);
-        // 如果父元素没有某些定位，就会导致标记定位异常。修复此问题
-        if (target.parentElement) {
+        // 如果父元素没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
+        if (this.needSetPosition && target.parentElement) {
             const position = window.getComputedStyle(target.parentElement)['position'];
             if (!this.positionValue.includes(position)) {
                 target.parentElement.style.position = 'relative';
@@ -7549,6 +7560,7 @@ class InitPageBase {
         this.addCrawlBtns();
         this.addAnyElement();
         this.initAny();
+        // 如果在 init 方法中绑定了全局事件，并且该事件只适用于当前页面类型，那么应该在 destroy 中解绑事件。
         // 注册当前页面的 destroy 函数
         _pageFunciton_DestroyManager__WEBPACK_IMPORTED_MODULE_14__["destroyManager"].register(this.destroy.bind(this));
         // 切换页面时，如果任务已经完成，则清空输出区域，避免日志一直堆积。
@@ -7852,6 +7864,38 @@ class InitPageBase {
     }
     // 抓取完成后，对结果进行排序
     sortResult() { }
+}
+
+
+
+/***/ }),
+
+/***/ "./src/ts/crawl/InitUnsupportedPage.ts":
+/*!*********************************************!*\
+  !*** ./src/ts/crawl/InitUnsupportedPage.ts ***!
+  \*********************************************/
+/*! exports provided: InitUnsupportedPage */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InitUnsupportedPage", function() { return InitUnsupportedPage; });
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _InitPageBase__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
+
+
+// 初始化不支持的页面类型
+class InitUnsupportedPage extends _InitPageBase__WEBPACK_IMPORTED_MODULE_1__["InitPageBase"] {
+    constructor() {
+        super();
+        this.init();
+    }
+    // 在不支持的页面类型里，不会添加专门用于当前页面的抓取按钮
+    // 只会由 SelectWork 模块添加通用的“手动抓取”功能
+    addCrawlBtns() { }
+    setFormOption() {
+        _setting_Options__WEBPACK_IMPORTED_MODULE_0__["options"].hideOption([1]);
+    }
 }
 
 
@@ -8441,10 +8485,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _pageFunciton_DeleteWorks__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../pageFunciton/DeleteWorks */ "./src/ts/pageFunciton/DeleteWorks.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 // 初始化发现页面
-
 
 
 
@@ -8463,29 +8505,38 @@ class InitDiscoverPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
             this.readyCrawl();
         });
     }
-    initAny() { }
     setFormOption() {
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].hideOption([1]);
     }
-    addAnyElement() {
-        const deleteWorks = new _pageFunciton_DeleteWorks__WEBPACK_IMPORTED_MODULE_5__["DeleteWorks"]('._2RNjBox');
-        deleteWorks.addClearMultipleBtn('._3b8AXEx');
-        deleteWorks.addClearUgoiraBtn('.AGgsUWZ');
-        deleteWorks.addManuallyDeleteBtn();
-    }
     getWantPage() { }
     getIdList() {
-        // 在发现页面，仅下载已有部分，所以不需要去获取列表页
-        const nowIllust = document.querySelectorAll('figure>div>a');
-        // 获取已有作品的 id
-        Array.from(nowIllust).forEach((el) => {
-            // discovery 列表的 url 是有额外后缀的，需要去掉
-            const id = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getIllustId(el.href.split('&uarea')[0]);
-            _store_Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.push({
-                type: 'unknown',
-                id,
+        // 在发现页面，直接获取页面上显示的作品，不需要获取列表页
+        if (location.pathname.includes('/novel')) {
+            // 小说页面
+            const allWork = document.querySelectorAll('.gtm-novel-work-recommend-link');
+            allWork.forEach((div) => {
+                const a = div.querySelector('a');
+                if (a) {
+                    const id = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getNovelId(a.href);
+                    _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
+                        type: 'novels',
+                        id,
+                    });
+                }
             });
-        });
+        }
+        else {
+            // 插画漫画页面
+            const allLink = document.querySelectorAll('div[width="184"]>a');
+            // 获取已有作品的 id
+            allLink.forEach((a) => {
+                const id = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getIllustId(a.href);
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
+                    type: 'unknown',
+                    id,
+                });
+            });
+        }
         this.getIdListFinished();
     }
 }
@@ -19560,7 +19611,7 @@ class Settings {
             blockTagsForSpecificUserShowList: true,
             blockTagsForSpecificUserList: [],
             magnifier: true,
-            magnifierSize: 'regular',
+            magnifierSize: 'original',
             magnifierPosition: 'right',
             bgDisplay: false,
             bgOpacity: 50,

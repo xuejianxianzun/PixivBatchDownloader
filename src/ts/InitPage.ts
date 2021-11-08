@@ -22,6 +22,7 @@ import { InitRankingNovelPage } from './crawlNovelPage/InitRankingNovelPage'
 import { InitNewNovelPage } from './crawlNovelPage/InitNewNovelPage'
 import { InitArtworkSeriesPage } from './crawlArtworkPage/InitArtworkSeriesPage'
 import { InitFollowingPage } from './crawlMixedPage/InitFollowingPage'
+import { InitUnsupportedPage } from './crawl/InitUnsupportedPage'
 
 class InitPage {
   constructor() {
@@ -80,7 +81,7 @@ class InitPage {
       case pageType.list.Following:
         return new InitFollowingPage()
       default:
-        return
+        return new InitUnsupportedPage()
     }
   }
 }

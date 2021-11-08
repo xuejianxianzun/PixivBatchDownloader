@@ -1,12 +1,11 @@
 import { EVT } from './EVT'
 import { lang } from './Lang'
-import { pageType } from './PageType'
 
 // 页面右侧的按钮，点击可以打开中间面板
 class OpenCenterPanel {
   constructor() {
     this.addBtn()
-    this.setVisible()
+    this.show()
     this.bindEvents()
   }
 
@@ -38,10 +37,6 @@ class OpenCenterPanel {
     window.addEventListener(EVT.list.centerPanelOpened, () => {
       this.hide()
     })
-
-    window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
-      this.setVisible()
-    })
   }
 
   private show() {
@@ -50,11 +45,6 @@ class OpenCenterPanel {
 
   private hide() {
     this.btn.style.display = 'none'
-  }
-
-  // 如果当前页面不支持下载，就隐藏按钮。这只是一个障眼法。
-  private setVisible() {
-    pageType.type === pageType.list.Unsupported ? this.hide() : this.show()
   }
 }
 
