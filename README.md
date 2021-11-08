@@ -156,7 +156,7 @@ npm run build
 
 繁體中文
 
-English （机翻，韩语设置下也使用英语文本）
+English（韩语设置下也使用英语文本）
 
 日本語
 

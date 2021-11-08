@@ -98,12 +98,11 @@ Simplified Chinese
 
 Traditional Chinese
 
-English (machine translation, also used under Korean settings)
+English(also used in Korean settings)
 
 Japanese
 
 You can also optimize the translation, thank you very much :)
-
 
 ## Tips
 
