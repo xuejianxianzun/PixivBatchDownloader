@@ -18,6 +18,7 @@ class SelectWork {
       this.addRightBtn()
       this.bindEvents()
       this.toggleRightBtn()
+      this.checkNeedSetPosition()
     }
   }
 
@@ -72,6 +73,7 @@ class SelectWork {
 
   private selectedWorkFlagClass = 'selectedWorkFlag' // 给已选择的作品添加标记时使用的 class
   private positionValue = ['relative', 'absolute', 'fixed'] // 标记元素需要父元素拥有这些定位属性
+  private needSetPosition = true // 是否需要给父元素设置定位属性
 
   private artworkReg = /artworks\/(\d{2,15})/
   private novelReg = /novel\/show\.php\?id=(\d{2,15})/
@@ -122,6 +124,9 @@ class SelectWork {
 </svg>`
     document.body.insertAdjacentElement('afterbegin', this.exitSelectBtn)
   }
+  private readonly svg = `<svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-select"></use>
+</svg>`
 
   private bindClickEvent!: (ev: MouseEvent) => void | undefined
   private bindEscEvent!: (ev: KeyboardEvent) => void | undefined
@@ -140,6 +145,10 @@ class SelectWork {
         this.sendCrawl = false
         this.crawled = true
       }
+    })
+
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      this.checkNeedSetPosition()
     })
 
     // 可以使用 Alt + S 快捷键来模拟点击控制按钮
@@ -292,6 +301,13 @@ class SelectWork {
         }
       }
     }
+  }
+
+  private checkNeedSetPosition() {
+    // 进入某些特定页面时，不需要给父元素添加定位属性
+    // 在投稿页面内不能添加定位，否则作品的缩略图会不显示
+    const requestPage = window.location.pathname.startsWith('/request')
+    this.needSetPosition = !requestPage
   }
 
   private clearIdList() {
@@ -519,10 +535,7 @@ class SelectWork {
     const i = document.createElement('i')
     i.classList.add(this.selectedWorkFlagClass)
     i.dataset.id = id
-
-    i.innerHTML = `<svg class="icon" aria-hidden="true">
-      <use xlink:href="#icon-select"></use>
-    </svg>`
+    i.innerHTML = this.svg
 
     let target = el
 
@@ -533,8 +546,8 @@ class SelectWork {
     }
     target.insertAdjacentElement('beforebegin', i)
 
-    // 如果父元素没有某些定位，就会导致标记定位异常。修复此问题
-    if (target.parentElement) {
+    // 如果父元素没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
+    if (this.needSetPosition && target.parentElement) {
       const position = window.getComputedStyle(target.parentElement)['position']
       if (!this.positionValue.includes(position)) {
         target.parentElement.style.position = 'relative'

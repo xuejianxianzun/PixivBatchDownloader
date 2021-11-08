@@ -282,7 +282,7 @@ class Settings {
     blockTagsForSpecificUserShowList: true,
     blockTagsForSpecificUserList: [],
     magnifier: true,
-    magnifierSize: 'regular',
+    magnifierSize: 'original',
     magnifierPosition: 'right',
     bgDisplay: false,
     bgOpacity: 50,
