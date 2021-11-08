@@ -47,6 +47,8 @@ abstract class InitPageBase {
     this.addAnyElement()
     this.initAny()
 
+    // 如果在 init 方法中绑定了全局事件，并且该事件只适用于当前页面类型，那么应该在 destroy 中解绑事件。
+
     // 注册当前页面的 destroy 函数
     destroyManager.register(this.destroy.bind(this))
 

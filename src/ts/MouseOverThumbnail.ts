@@ -22,6 +22,7 @@ class MouseOverThumbnail {
     '._work',
     'figure > div',
     '._work.item',
+    'li>div>div:first-child',
   ]
 
   private enterCallback: Function[] = []

@@ -26,13 +26,30 @@
 
 # 简介
 
-这是一个 Chrome 浏览器扩展程序，用于批量下载 Pixiv 上的图片和小说。功能强大，支持多种页面类型。
+这是一个 Chrome 浏览器扩展程序，用于批量下载 Pixiv 上的图片和小说。
 
-现在也增加了一些辅助功能，如去除广告、快速收藏、看图模式、给未分类作品添加 tag 等。
+主要功能：
 
-![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/ui1.png)
+- 批量下载画师的所有作品、你的收藏、你的关注、排行榜、搜索结果等；
+- 一键下载你看到的任何作品；
+- 手动选择（多选）要下载的作品；
+- 设置过滤条件，筛选你要下载的作品；
+- 保存画师的头像、封面图；
+- 创建文件夹保存文件；
+- 设置文件的命名规则；
+- 转换动图为 GIF、WebM、APNG 格式；
+- 保存小说为 TXT、EPUB 格式；
+- 保存下载进度，恢复未完成的下载；
+- 导出作品数据；
+- 批量收藏作品；
+- 为你收藏的未分类作品添加 tag；
+- 内置图片查看器，查看多图作品；
+- 无需进入作品页面即可预览图像，查看图像原图；
+- 可选择界面语言：简体中文、繁體中文、日本語、English；
 
-[动态截图](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/20200724174827.gif)
+![PixivBatchDownloader screenshot](./notes/ui-zh-0.png)
+
+![PixivBatchDownloader screenshot](./notes/ui-zh-1.png)
 
 [访问官网](https://pixiv.download/)
 
@@ -44,9 +61,9 @@
 
 1. **Chromium 内核**的浏览器可以从 **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)** 安装本扩展。
 
-2. **Microsoft Edge** 浏览器也可以从 **[Microsoft Edge 外接程序](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)** 安装本扩展。
+2. **Microsoft Edge** 浏览器可以从 **[Microsoft Edge 外接程序](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)** 安装本扩展。
 
-**注意：** 有时候 Chrome Web Store 上的扩展可能不是最新版本。如果有需要，你可以进行离线安装，或者使用 Edge 浏览器从 Edge 商店安装。
+**注意：** 有时候 Chrome Web Store 上的扩展可能不是最新版本。如果有需要，你可以离线安装。
 
 ## 离线安装
 
@@ -139,7 +156,7 @@ npm run build
 
 繁體中文
 
-English （机翻，韩语设置下也使用英语文本）
+English（韩语设置下也使用英语文本）
 
 日本語
 

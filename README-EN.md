@@ -24,11 +24,30 @@
 
 # Introduction
 
-This is a browser extension for **Chrome** that lets you download images and novels from Pixiv in bulk. Powerful and supports many page types.
+This is a browser extension for **Chrome** that lets you download images and novels from Pixiv in batch. 
 
-![PixivBatchDownloader](https://raw.githubusercontent.com/wiki/xuejianxianzun/PixivBatchDownloader/images/ui2.png)
+The main function:
 
-Some auxiliary functions have also been added, such as removing ads, quick collections, add tag to unclassified work, and viewing pictures.
+- Batch download all the works of the artist, your bookmark, your following, rankings, search results, etc.;
+- One-click download of any work you see;
+- Manually select (multiple choice) the works to be downloaded;
+- Set filter conditions to filter the works you want to download;
+- Save the avatar and cover image of the artist;
+- Create a folder to save files;
+- Set file naming rules;
+- Convert animated images to GIF, WebM, APNG formats;
+- Save the novel in TXT, EPUB format;
+- Save download progress and resume unfinished downloads;
+- Export work data;
+- Bookmark works in batch;
+- Add tags to uncategorized works in your bookmark;
+- Built-in image viewer to view multi-image works;
+- You can preview the image and view the original image without entering the work page;
+- Available languages: Simplified Chinese, Traditional Chinese, Japanese, English;
+
+![PixivBatchDownloader screenshot](./notes/ui-en-0.png)
+
+![PixivBatchDownloader screenshot](./notes/ui-en-1.png)
 
 # Install
 
@@ -36,9 +55,9 @@ Some auxiliary functions have also been added, such as removing ads, quick colle
 
 1. **Chromium kernel** browser can install this extension from the **[Chrome Web Store](https://chrome.google.com/webstore/detail/powerful-pixiv-downloader/dkndmhgdcmjdmkdonmbgjpijejdcilfh)**.
 
-2. **Microsoft Edge** browser can also install this extension from the **[Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)**.
+2. **Microsoft Edge** browser can install this extension from the **[Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/hpcoocgpiepjcngmhhknkflhpkoklphp)**.
 
-**Note:** Sometimes the extension on the Chrome Web Store may not be the latest version. If necessary, you can install it offline or use the Edge browser to install from the Edge store.
+**Note:** Sometimes the extension on the Chrome Web Store may not be the latest version. If necessary, you can install it offline.
 
 ## Offline installation
 
@@ -79,12 +98,11 @@ Simplified Chinese
 
 Traditional Chinese
 
-English (machine translation, also used under Korean settings)
+English(also used in Korean settings)
 
 Japanese
 
 You can also optimize the translation, thank you very much :)
-
 
 ## Tips
 
