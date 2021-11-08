@@ -5355,6 +5355,7 @@ class SelectWork {
         this.clearBtn = document.createElement('button'); // 清空选择的作品的按钮
         this.selectedWorkFlagClass = 'selectedWorkFlag'; // 给已选择的作品添加标记时使用的 class
         this.positionValue = ['relative', 'absolute', 'fixed']; // 标记元素需要父元素拥有这些定位属性
+        this.needSetPosition = true; // 是否需要给父元素设置定位属性
         this.artworkReg = /artworks\/(\d{2,15})/;
         this.novelReg = /novel\/show\.php\?id=(\d{2,15})/;
         // 不同页面里的作品列表容器的选择器可能不同，这里储存所有页面里会使用到的的选择器
@@ -5369,11 +5370,15 @@ class SelectWork {
         this.observeTimer = 0;
         this.sendCrawl = false; // 它用来判断抓取的是不是选择的作品。抓取选择的作品时激活此标记；当触发下一次的抓取完成事件时，表示已经抓取了选择的作品。
         this.crawled = false; // 是否已经抓取了选择的作品
+        this.svg = `<svg class="icon" aria-hidden="true">
+  <use xlink:href="#icon-select"></use>
+</svg>`;
         if (!this.created && location.hostname.endsWith('.pixiv.net')) {
             this.created = true;
             this.selector = this.createSelectorEl();
             this.addBtn();
             this.bindEvents();
+            this.checkNeedSetPosition();
         }
     }
     get start() {
@@ -5415,6 +5420,9 @@ class SelectWork {
                 this.sendCrawl = false;
                 this.crawled = true;
             }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.pageSwitch, () => {
+            this.checkNeedSetPosition();
         });
         // 可以使用 Alt + S 快捷键来模拟点击控制按钮
         window.addEventListener('keydown', (ev) => {
@@ -5466,6 +5474,12 @@ class SelectWork {
                 subtree: true,
             });
         });
+    }
+    checkNeedSetPosition() {
+        // 进入某些特定页面时，不需要给父元素添加定位属性
+        // 在投稿页面内不能添加定位，否则作品的缩略图会不显示
+        const requestPage = window.location.pathname.startsWith('/request');
+        this.needSetPosition = !requestPage;
     }
     clearIdList() {
         // 清空标记需要使用 id 数据，所以需要执行之后才能清空 id
@@ -5650,9 +5664,7 @@ class SelectWork {
         const i = document.createElement('i');
         i.classList.add(this.selectedWorkFlagClass);
         i.dataset.id = id;
-        i.innerHTML = `<svg class="icon" aria-hidden="true">
-      <use xlink:href="#icon-select"></use>
-    </svg>`;
+        i.innerHTML = this.svg;
         let target = el;
         // 如果点击的元素处于 svg 里，则添加到 svg 外面。因为 svg 里面不会显示添加的标记
         // 这里的代码只能应对 svg 内只有一层子元素的情况。目前 pixiv 的作品列表都是这样
@@ -5660,8 +5672,8 @@ class SelectWork {
             target = el.parentElement;
         }
         target.insertAdjacentElement('beforebegin', i);
-        // 如果父元素没有某些定位，就会导致标记定位异常。修复此问题
-        if (target.parentElement) {
+        // 如果父元素没有某些定位，可能会导致下载器添加的标记的位置异常。修复此问题
+        if (this.needSetPosition && target.parentElement) {
             const position = window.getComputedStyle(target.parentElement)['position'];
             if (!this.positionValue.includes(position)) {
                 target.parentElement.style.position = 'relative';
