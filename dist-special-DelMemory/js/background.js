@@ -122,12 +122,29 @@ chrome.browserAction.onClicked.addListener(function (tab) {
         msg: 'click_icon',
     });
 });
+chrome.downloads.onDeterminingFilename.addListener(function (downloadItem, suggest) {
+    var _a;
+    if ((_a = downloadItem === null || downloadItem === void 0 ? void 0 : downloadItem.byExtensionName) === null || _a === void 0 ? void 0 : _a.startsWith('Powerful Pixiv Downloader')) {
+        // 不让其他扩展程序修改本扩展程序的文件名
+        // Do not allow other extensions to modify the file name of this extension
+        const fileName = fileNameRecords.get(downloadItem.finalUrl);
+        if (fileName) {
+            suggest({
+                filename: fileName,
+                conflictAction: 'overwrite',
+            });
+            fileNameRecords.delete(downloadItem.finalUrl);
+        }
+    }
+});
 // 因为下载完成的顺序和发送顺序可能不一致，所以需要存储任务的数据
 let dlData = {};
 // 储存下载任务的索引，用来判断重复的任务
 let dlIndex = [];
 // 储存下载任务的批次编号，用来判断不同批次的下载
 let dlBatch = [];
+// 保存 url 与 文件名 的对应关系
+let fileNameRecords = new Map();
 // 接收下载请求
 chrome.runtime.onMessage.addListener(function (msg, sender) {
     // save_work_file 下载作品的文件
@@ -142,6 +159,8 @@ chrome.runtime.onMessage.addListener(function (msg, sender) {
         if (!dlIndex[tabId].includes(msg.id)) {
             // 储存该任务的索引
             dlIndex[tabId].push(msg.id);
+            // 保存文件名
+            fileNameRecords.set(msg.fileUrl, msg.fileName);
             // 开始下载
             chrome.downloads.download({
                 url: msg.fileUrl,

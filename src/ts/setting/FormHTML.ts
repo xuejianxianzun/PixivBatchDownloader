@@ -789,7 +789,12 @@ export const formHtml = `<form class="settingForm">
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="PreviewWork">
-      
+      <span>${lang.transl('_等待时间')}&nbsp;</span>
+      <input type="text" name="previewWorkWait" class="setinput_style1 blue" value="400" style="width:40px;min-width: 40px;">
+      <span>&nbsp;ms</span>
+
+      <span class="verticalSplit"></span>
+
       <span class="settingNameStyle1">${lang.transl('_图片尺寸2')}</span>
       <input type="radio" name="prevWorkSize" id="prevWorkSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
