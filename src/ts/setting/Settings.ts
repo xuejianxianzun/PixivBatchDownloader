@@ -162,6 +162,7 @@ interface XzSetting {
   PreviewWork: boolean
   showDownloadBtnOnThumb: boolean
   prevWorkSize: 'original' | 'regular'
+  previewWorkWait: number
   showOriginImage: boolean
   showOriginImageSize: 'original' | 'regular'
 }
@@ -340,6 +341,7 @@ class Settings {
     PreviewWork: true,
     showDownloadBtnOnThumb: true,
     prevWorkSize: 'regular',
+    previewWorkWait: 400,
     showOriginImage: true,
     showOriginImageSize: 'original',
   }

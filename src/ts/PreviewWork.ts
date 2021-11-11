@@ -32,11 +32,8 @@ class PreviewWork {
   // 显示作品中的第几张图片
   private index = 0
 
-  // 显示预览区域的延迟时间
-  // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片
-  // 如果鼠标在缩略图上停留达到 delay 的时间，才会加载 regular 尺寸的图片
-  // 这是因为要加载的图片体积比较大，regular 规格的图片的体积可能达到 800KB，如果立即加载的话会浪费网络资源
-  private readonly showDelay = 300
+  // 使用定时器延迟显示预览区域
+  // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片，这是为了避免浪费网络资源
   private showTimer = 0
 
   private _show = false
@@ -196,7 +193,7 @@ class PreviewWork {
   private readyShow() {
     this.showTimer = window.setTimeout(() => {
       this.show = true
-    }, this.showDelay)
+    }, settings.previewWorkWait)
   }
 
   // 通过 img 元素加载图片，获取图片的原始尺寸
