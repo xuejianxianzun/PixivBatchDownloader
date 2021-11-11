@@ -640,7 +640,7 @@ const langText = {
     'ダウンロードしたファイル名が異常な場合は、この拡張子を削除して再インストールしてから、ブラウザを再起動してください。',
   ],
   _下载说明: [
-    '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请尝试移除本扩展程序并重新安装，然后重启浏览器。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br><br>QQ群：675174717',
+    '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请尝试移除本扩展程序并重新安装，然后重启浏览器。<br><br>如果你使用 ssr、v2ray、clash 等代理软件，开启全局代理有助于提高下载速度。<br><br>QQ群：675174717',
     '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請嘗試移除本擴充套件程式並重新安裝，然後重啟瀏覽器。',
     'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the downloaded file name is abnormal, please try to remove this extension and reinstall it, and then restart the browser.',
     'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロードしたファイル名が異常な場合は、この拡張子を削除して再インストールしてから、ブラウザを再起動してください。',
@@ -1720,11 +1720,11 @@ const langText = {
     'Hidden settings will still work',
     '隠していた設定がそのまま機能する',
   ],
-  _系统磁盘空间不足提醒: [
-    '下载时发生错误，可能的原因：<br>系统磁盘的剩余空间可能不足。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。',
-    '下載時發生錯誤，可能的原因：<br>系統磁碟的剩餘空間可能不足。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。',
-    'An error occurred while downloading, possible causes：<br>The remaining space of the system disk may be too low. Please try to clear the system disk space, and then restart the browser to continue the unfinished download.',
-    'ダウンロード中にエラーが発生しました、考えられる原因<br>「システムディスクに領域不足の可能性があります。システムディスクの領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。」',
+  状态码为0的错误提示: [
+    '下载时发生错误，可能的原因：<br><br>系统磁盘的剩余空间可能不足。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>网络错误。',
+    '下載時發生錯誤，可能的原因：<br><br>系統磁碟的剩餘空間可能不足。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>網路錯誤。',
+    'An error occurred while downloading, possible causes：<br><br>The remaining space of the system disk may be too low. Please try to clear the system disk space, and then restart the browser to continue the unfinished download.<br><br>Network Error.',
+    'ダウンロード中にエラーが発生しました、考えられる原因<br><br>システムディスクに領域不足の可能性があります。システムディスクの領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。<br><br>ネットワークエラー。',
   ],
   _提示登录pixiv账号: [
     '请您登录 Pixiv 账号然后重试。',
@@ -1838,18 +1838,13 @@ const langText = {
     'When previewing multi-picture works, you can use the mouse wheel to switch images.',
     '複数画像をプレビューする際に、マウスホイールを使って画像を切り替えることができます。',
   ],
-  _new1140: [
-    '优化“预览作品”功能：<br>预览多图作品时，可以使用鼠标滚轮切换图片。<br>图片尺寸会自适应可用区域。',
-    '最佳化“預覽作品”功能：<br>預覽多圖作品時，可以使用滑鼠滾輪切換圖片。<br>圖片尺寸會自適應可用區域。',
-    'Optimize the "Preview works" function: <br>When previewing multi-picture works, you can use the mouse wheel to switch images. <br>The image size will adapt to the available area.',
-    '「作品のプレビュー」機能の最適化：<br>複数画像をプレビューする際に、マウスホイールを使って画像を切り替えることができます。<br>画像サイズは使用可能な領域に合わせて調整されます。',
-  ],
   _whatisnew: [
-    '新增设置项：<br>预览作品',
-    '新增設定項目：<br>預覽作品',
-    'Added setting items:<br>Preview works',
-    '新たな機能を追加されました：<br>プレビューは機能します',
+    '优化“预览作品”功能：<br>用户可以设置鼠标悬停时间。',
+    '最佳化“預覽作品”功能：<br>使用者可以設定滑鼠懸停時間。',
+    'Optimize the "Preview works" function: <br>The user can set the mouse hover time.',
+    '「作品のプレビュー」機能の最適化：<br>ユーザーはマウスのホバー時間を設定できます。',
   ],
+  _等待时间: ['等待时间', '等待時間', 'Waiting time', '待ち時間'],
 }
 
 export { langText }
