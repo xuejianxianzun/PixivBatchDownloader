@@ -50,6 +50,7 @@
   },
   "permissions": [
     "downloads",
+    "storage",
     "*://www.pixiv.net/*",
     "*://www.pixivision.net/*",
     "*://*.techorus-cdn.com/*",

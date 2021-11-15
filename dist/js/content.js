@@ -19605,13 +19605,15 @@ class Settings {
         ];
         // 以默认设置作为初始设置
         this.settings = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].deepCopy(this.defaultSettings);
+        this.storageInterval = 500;
+        this.storeTimer = 0;
         this.restore();
         this.bindEvents();
     }
     bindEvents() {
         // 当设置发生变化时进行本地存储
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
-            localStorage.setItem(_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName, JSON.stringify(this.settings));
+            this.store();
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettings, () => {
             this.reset();
@@ -19650,14 +19652,34 @@ class Settings {
             });
         }
     }
-    // 初始化时，恢复设置
+    // 读取恢复设置
     restore() {
         let restoreData = this.defaultSettings;
-        const savedSettings = localStorage.getItem(_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName);
-        if (savedSettings) {
-            restoreData = JSON.parse(savedSettings);
-        }
-        this.assignSettings(restoreData);
+        // 首先从 chrome.storage 获取配置（从 11.5.0 版本开始）
+        chrome.storage.sync.get(_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName, (result) => {
+            if (result[_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName]) {
+                restoreData = result[_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName];
+                console.log(restoreData.downType0);
+            }
+            else {
+                // 如无数据则从 localStorage 获取配置。这是为了兼容旧版本。
+                const savedSettings = localStorage.getItem(_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName);
+                if (savedSettings) {
+                    restoreData = JSON.parse(savedSettings);
+                }
+            }
+            this.assignSettings(restoreData);
+        });
+    }
+    // 
+    store() {
+        window.clearTimeout(this.storeTimer);
+        this.storeTimer = window.setTimeout(() => {
+            console.log('store');
+            chrome.storage.sync.set({
+                [_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName]: this.settings
+            });
+        }, this.storageInterval);
     }
     // 接收整个设置项，通过循环将其更新到 settings 上
     // 循环设置而不是整个替换的原因：

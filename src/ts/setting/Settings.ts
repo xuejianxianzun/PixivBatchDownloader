@@ -368,13 +368,13 @@ class Settings {
   // 以默认设置作为初始设置
   public settings: XzSetting = Utils.deepCopy(this.defaultSettings)
 
+  private readonly storageInterval = 500
+  private storeTimer = 0
+
   private bindEvents() {
     // 当设置发生变化时进行本地存储
     window.addEventListener(EVT.list.settingChange, () => {
-      localStorage.setItem(
-        Config.settingStoreName,
-        JSON.stringify(this.settings)
-      )
+      this.store()
     })
 
     window.addEventListener(EVT.list.resetSettings, () => {
@@ -419,14 +419,33 @@ class Settings {
     }
   }
 
-  // 初始化时，恢复设置
+  // 读取恢复设置
   private restore() {
     let restoreData = this.defaultSettings
-    const savedSettings = localStorage.getItem(Config.settingStoreName)
-    if (savedSettings) {
-      restoreData = JSON.parse(savedSettings)
-    }
-    this.assignSettings(restoreData)
+    // 首先从 chrome.storage 获取配置（从 11.5.0 版本开始）
+    chrome.storage.sync.get(Config.settingStoreName, (result) => {
+      if (result[Config.settingStoreName]) {
+        restoreData = result[Config.settingStoreName]
+      } else {
+        // 如无数据则尝试从 localStorage 获取配置，因为旧版本的配置储存在 localStorage 中
+        const savedSettings = localStorage.getItem(Config.settingStoreName)
+        if (savedSettings) {
+          restoreData = JSON.parse(savedSettings)
+        }
+      }
+      this.assignSettings(restoreData)
+    })
+  }
+
+  private store() {
+    // 由于 chrome.storage.sync 每分钟最多只能执行 120 次写入操作，所以必须节流
+    window.clearTimeout(this.storeTimer)
+    this.storeTimer = window.setTimeout(() => {
+      console.log('store')
+      chrome.storage.sync.set({
+        [Config.settingStoreName]: this.settings
+      })
+    }, this.storageInterval)
   }
 
   // 接收整个设置项，通过循环将其更新到 settings 上
@@ -565,7 +584,7 @@ class Settings {
     }
 
     // 更改设置
-    ;(this.settings[key] as any) = value
+    ; (this.settings[key] as any) = value
 
     // 当修改某些设置时，顺便修改和它有对应关系的设置
     if (key === 'widthTag') {

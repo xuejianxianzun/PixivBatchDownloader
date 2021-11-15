@@ -3,6 +3,18 @@
 日语文本需要优化的地方：
 - 加粗显示关键字
 
+需要对 chrome.storage.sync 的报错进行处理。
+
+## 11.5.0 2021/11/16
+
+### 持久化保存配置
+
+https://github.com/xuejianxianzun/PixivBatchDownloader/issues/180
+
+由于清除浏览器缓存会导致浏览器的配置丢失，所以我打算使用 `chrome.storage.sync` 储存配置。
+
+我搜索了代码中使用 `localStorage.getItem` 的地方，逐步替换成使用 `chrome.storage.sync`。
+
 ## 11.4.3 2021/11/12
 
 ### 取消上个版本中“优化文件名异常”的修改
