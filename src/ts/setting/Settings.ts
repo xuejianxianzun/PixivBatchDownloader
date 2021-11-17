@@ -10,6 +10,7 @@ import { msgBox } from '../MsgBox'
 import { Config } from '../config/Config'
 import { secretSignal } from '../utils/SecretSignal'
 import { toast } from '../Toast'
+import { lang } from '../Lang'
 
 export interface BlockTagsForSpecificUserItem {
   uid: number
@@ -441,7 +442,6 @@ class Settings {
     // 由于 chrome.storage.sync 每分钟最多只能执行 120 次写入操作，所以必须节流
     window.clearTimeout(this.storeTimer)
     this.storeTimer = window.setTimeout(() => {
-      console.log('store')
       chrome.storage.sync.set({
         [Config.settingStoreName]: this.settings
       })
@@ -474,10 +474,11 @@ class Settings {
     }
     // 检查是否存在设置里的属性
     if (loadedJSON.downloadThread === undefined) {
-      return msgBox.error('Format error!')
+      return msgBox.error(lang.transl('_格式错误'))
     }
     // 开始恢复导入的设置
     this.reset(loadedJSON)
+    msgBox.success(lang.transl('_导入成功'))
   }
 
   // 重置设置 或者 导入设置

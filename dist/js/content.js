@@ -1821,15 +1821,15 @@ __webpack_require__.r(__webpack_exports__);
 // 在第一次使用某些功能的时候显示一次性的帮助信息
 class Help {
     showDownloadTip() {
-        const flag = {
-            name: 'PBDDownloadTip',
-            value: '1',
-        };
-        const getValue = localStorage.getItem(flag.name);
-        if (getValue === null) {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_0__["msgBox"].show(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载说明提示2'));
-            localStorage.setItem(flag.name, flag.value);
-        }
+        const name = 'PBDDownloadTip';
+        chrome.storage.sync.get(name, function (result) {
+            if (!result[name]) {
+                _MsgBox__WEBPACK_IMPORTED_MODULE_0__["msgBox"].show(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载说明提示2'));
+                chrome.storage.sync.set({
+                    [name]: true
+                });
+            }
+        });
     }
 }
 const help = new Help();
@@ -4314,6 +4314,12 @@ const langText = {
         '「作品のプレビュー」機能の最適化：<br>ユーザーはマウスのホバー時間を設定できます。',
     ],
     _等待时间: ['等待时间', '等待時間', 'Waiting time', '待ち時間'],
+    _格式错误: [
+        '格式错误',
+        '格式錯誤',
+        'Format error',
+        'フォーマットエラー',
+    ]
 };
 
 
@@ -12361,8 +12367,7 @@ class Deduplication {
         if (Array.isArray(record) === false ||
             record[0].id === undefined ||
             record[0].n === undefined) {
-            const msg = 'Format error!';
-            return _MsgBox__WEBPACK_IMPORTED_MODULE_9__["msgBox"].error(msg);
+            return _MsgBox__WEBPACK_IMPORTED_MODULE_9__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_格式错误'));
         }
         this.importRecord(record);
     }
@@ -13552,14 +13557,14 @@ class ImportResult {
         }
         // 要求是数组并且要有内容
         if (!Array.isArray(loadedJSON) || !loadedJSON.length || !loadedJSON[0]) {
-            return _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error('Format error!');
+            return _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_格式错误'));
         }
         // 检查是否含有必须的字段（只检查了一部分）
         const keys = Object.keys(loadedJSON[0]);
         const need = ['idNum', 'id', 'original', 'type', 'ext'];
         for (const field of need) {
             if (!keys.includes(field)) {
-                return _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error('Format error!');
+                return _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_格式错误'));
             }
         }
         // 根据过滤选项，过滤导入的结果
@@ -19408,9 +19413,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
 /* harmony import */ var _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/SecretSignal */ "./src/ts/utils/SecretSignal.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 // settings 保存了下载器的所有设置项
 // 每当修改了 settings 的任何一个值，都会触发 EVT.list.settingChange 事件，传递这个选项的名称和值 {name:string, value:any}
 // 如果打开了多个标签页，每个页面的 settings 数据是互相独立的。但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
+
 
 
 
@@ -19659,10 +19666,9 @@ class Settings {
         chrome.storage.sync.get(_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName, (result) => {
             if (result[_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName]) {
                 restoreData = result[_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName];
-                console.log(restoreData.downType0);
             }
             else {
-                // 如无数据则从 localStorage 获取配置。这是为了兼容旧版本。
+                // 如无数据则尝试从 localStorage 获取配置，因为旧版本的配置储存在 localStorage 中
                 const savedSettings = localStorage.getItem(_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName);
                 if (savedSettings) {
                     restoreData = JSON.parse(savedSettings);
@@ -19671,11 +19677,10 @@ class Settings {
             this.assignSettings(restoreData);
         });
     }
-    // 
     store() {
+        // 由于 chrome.storage.sync 每分钟最多只能执行 120 次写入操作，所以必须节流
         window.clearTimeout(this.storeTimer);
         this.storeTimer = window.setTimeout(() => {
-            console.log('store');
             chrome.storage.sync.set({
                 [_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName]: this.settings
             });
@@ -19705,10 +19710,11 @@ class Settings {
         }
         // 检查是否存在设置里的属性
         if (loadedJSON.downloadThread === undefined) {
-            return _MsgBox__WEBPACK_IMPORTED_MODULE_3__["msgBox"].error('Format error!');
+            return _MsgBox__WEBPACK_IMPORTED_MODULE_3__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_7__["lang"].transl('_格式错误'));
         }
         // 开始恢复导入的设置
         this.reset(loadedJSON);
+        _MsgBox__WEBPACK_IMPORTED_MODULE_3__["msgBox"].success(_Lang__WEBPACK_IMPORTED_MODULE_7__["lang"].transl('_导入成功'));
     }
     // 重置设置 或者 导入设置
     // 可选参数：传递一份设置数据，用于从配置文件导入，恢复设置

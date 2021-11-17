@@ -5,15 +5,24 @@
 
 需要对 chrome.storage.sync 的报错进行处理。
 
+初始化时，settingChange 触发次数过多，需要优化
+
+需要解决 lang 设置的异步获取问题
+
 ## 11.5.0 2021/11/16
 
 ### 持久化保存配置
 
 https://github.com/xuejianxianzun/PixivBatchDownloader/issues/180
 
-由于清除浏览器缓存会导致浏览器的配置丢失，所以我打算使用 `chrome.storage.sync` 储存配置。
+由于清除浏览器缓存会导致浏览器的配置丢失，所以我打算使用 `chrome.storage.sync` 储存下载器的配置和一些标记。
 
-我搜索了代码中使用 `localStorage.getItem` 的地方，逐步替换成使用 `chrome.storage.sync`。
+我搜索了代码中使用 `localStorage.getItem` 的地方，把一些需要修改的地方替换成了 `chrome.storage.sync`。
+
+不过，并非所有使用 `localStorage` 的地方都需要改为持久化保存。例如检查更新的模块使用了两个标记，以达到 30 分钟检查一次更新的目的。即使这两个标记被清除了，无非就是多获取一次更新，没有实际影响，所以依然使用 `localStorage` 即可。
+
+### 代码优化
+
 
 ## 11.4.3 2021/11/12
 
