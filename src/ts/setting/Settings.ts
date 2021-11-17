@@ -443,7 +443,7 @@ class Settings {
     window.clearTimeout(this.storeTimer)
     this.storeTimer = window.setTimeout(() => {
       chrome.storage.sync.set({
-        [Config.settingStoreName]: this.settings
+        [Config.settingStoreName]: this.settings,
       })
     }, this.storageInterval)
   }
@@ -585,7 +585,7 @@ class Settings {
     }
 
     // 更改设置
-    ; (this.settings[key] as any) = value
+    ;(this.settings[key] as any) = value
 
     // 当修改某些设置时，顺便修改和它有对应关系的设置
     if (key === 'widthTag') {

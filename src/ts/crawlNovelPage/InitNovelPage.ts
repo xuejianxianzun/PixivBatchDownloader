@@ -61,10 +61,7 @@ class InitNovelPage extends InitPageBase {
     // 个数/页数选项的提示
     options.setWantPageTip({
       text: lang.transl('_个数'),
-      tip:
-        lang.transl('_从本页开始下载提示') +
-        '<br>' +
-        lang.transl('_相关作品大于0'),
+      tip: lang.transl('_从本页开始下载提示'),
       rangTip: lang.transl('_数字提示1'),
     })
   }

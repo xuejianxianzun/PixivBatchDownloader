@@ -1826,7 +1826,7 @@ class Help {
             if (!result[name]) {
                 _MsgBox__WEBPACK_IMPORTED_MODULE_0__["msgBox"].show(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载说明提示2'));
                 chrome.storage.sync.set({
-                    [name]: true
+                    [name]: true,
                 });
             }
         });
@@ -3188,12 +3188,6 @@ const langText = {
         'Crawl the related works',
         '関連作品をダウンロードする',
     ],
-    _相关作品大于0: [
-        ' （下载相关作品必须大于 0）',
-        ' （下載相關作品必須大於 0）',
-        '  (Download related works must be greater than 0)',
-        ' 「ダウンロードする関連作品の数は0より大きくなければならない」',
-    ],
     _默认下载多页: [
         ', 如有多页，默认会下载全部。',
         '，如有多頁，預設會下載全部。',
@@ -3316,7 +3310,7 @@ const langText = {
     ],
     _数字提示1: [
         '-1, 或者大于 0',
-        '-1 或是大於 0',
+        '-1，或是大於 0',
         '-1, or greater than 0',
         '-1、または 0 より大きい',
     ],
@@ -4314,12 +4308,7 @@ const langText = {
         '「作品のプレビュー」機能の最適化：<br>ユーザーはマウスのホバー時間を設定できます。',
     ],
     _等待时间: ['等待时间', '等待時間', 'Waiting time', '待ち時間'],
-    _格式错误: [
-        '格式错误',
-        '格式錯誤',
-        'Format error',
-        'フォーマットエラー',
-    ]
+    _格式错误: ['格式错误', '格式錯誤', 'Format error', 'フォーマットエラー'],
 };
 
 
@@ -8083,9 +8072,7 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_个数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载提示') +
-                '<br>' +
-                _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_相关作品大于0'),
+            tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载提示'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_数字提示1'),
         });
     }
@@ -11425,9 +11412,7 @@ class InitNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
             text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_个数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示') +
-                '<br>' +
-                _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_相关作品大于0'),
+            tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数字提示1'),
         });
     }
@@ -19682,7 +19667,7 @@ class Settings {
         window.clearTimeout(this.storeTimer);
         this.storeTimer = window.setTimeout(() => {
             chrome.storage.sync.set({
-                [_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName]: this.settings
+                [_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName]: this.settings,
             });
         }, this.storageInterval);
     }

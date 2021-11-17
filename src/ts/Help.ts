@@ -11,7 +11,7 @@ class Help {
       if (!result[name]) {
         msgBox.show(lang.transl('_下载说明提示2'))
         chrome.storage.sync.set({
-          [name]: true
+          [name]: true,
         })
       }
     })
