@@ -61,7 +61,7 @@ class InitRankingArtworkPage extends InitPageBase {
     this.maxCount = 500
 
     options.setWantPageTip({
-      text: lang.transl('_个数'),
+      text: lang.transl('_下载多少作品'),
       tip: lang.transl('_想要获取多少个作品'),
       rangTip: `1 - ${this.maxCount}`,
     })

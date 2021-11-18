@@ -74,7 +74,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
   protected setFormOption() {
     // 个数/页数选项的提示
     options.setWantPageTip({
-      text: lang.transl('_页数'),
+      text: lang.transl('_下载多少页面'),
       tip: lang.transl('_从本页开始下载提示'),
       rangTip: lang.transl('_数字提示1'),
     })

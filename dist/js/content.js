@@ -2587,17 +2587,17 @@ const langText = {
     _或者: [' 或者 ', ' 或是 ', ' or ', ' または '],
     _并且: [' 并且 ', ' 並且 ', ' and ', ' そして '],
     _高度: ['高度', '高度', 'height', '高さ'],
-    _个数: [
-        '设置作品数量',
-        '設定作品數量',
-        'Set the number of works',
-        '作品数を設定する',
+    _下载多少作品: [
+        '下载多少作品',
+        '下載多少作品',
+        'How many works to download',
+        'ダウンロードする作品の数',
     ],
-    _页数: [
-        '设置页面数量',
-        '設定頁面數量',
-        'Set the number of pages',
-        'ページ数を設定する',
+    _下载多少页面: [
+        '下载多少页面',
+        '下載多少頁面',
+        'How many pages to download',
+        'ダウンロードするページ数',
     ],
     _筛选收藏数的按钮Title: [
         '在下载前，您可以设置对收藏数量的要求。',
@@ -4309,6 +4309,12 @@ const langText = {
     ],
     _等待时间: ['等待时间', '等待時間', 'Waiting time', '待ち時間'],
     _格式错误: ['格式错误', '格式錯誤', 'Format error', 'フォーマットエラー'],
+    _下载数量错误: [
+        '下载的页数（作品）数量设置错误',
+        '下載的頁數（作品）數量設定錯誤',
+        'The number of downloaded pages (works) is set incorrectly',
+        '下载页数（作品）设置不正确',
+    ],
 };
 
 
@@ -7477,7 +7483,7 @@ class InitPageBase {
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_7__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_页数'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载多少页面'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_从本页开始下载提示'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_数字提示1'),
         });
@@ -7504,7 +7510,7 @@ class InitPageBase {
     // 作品个数/页数的输入不合法
     getWantPageError() {
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('wrongSetting');
-        const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_参数不合法');
+        const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载数量错误');
         _MsgBox__WEBPACK_IMPORTED_MODULE_17__["msgBox"].error(msg);
         throw new Error(msg);
     }
@@ -8071,7 +8077,7 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_个数'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_下载多少作品'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载提示'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_数字提示1'),
         });
@@ -8220,7 +8226,7 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         // 个数/页数选项的提示
         this.maxCount = 100;
         _setting_Options__WEBPACK_IMPORTED_MODULE_5__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_页数'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_下载多少页面'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载提示'),
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -8339,7 +8345,7 @@ class InitBookmarkDetailPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_个数'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载多少作品'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_想要获取多少个作品'),
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -8489,7 +8495,7 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_个数'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载多少作品'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_想要获取多少个作品'),
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -8827,7 +8833,7 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         // 个数/页数选项的提示
         this.maxCount = 500;
         _setting_Options__WEBPACK_IMPORTED_MODULE_6__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_个数'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_下载多少作品'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_想要获取多少个作品'),
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -9241,7 +9247,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_页数'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载多少页面'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数字提示1'),
         });
@@ -9901,7 +9907,7 @@ class InitBookmarkLegacyPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_5__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_页数'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_下载多少页面'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_从本页开始下载提示'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_数字提示1'),
         });
@@ -10114,7 +10120,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         // 个数/页数选项的提示
         this.maxCount = 100;
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_页数'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载多少页面'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -10312,7 +10318,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_页数'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_下载多少页面'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载提示'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_数字提示1'),
         });
@@ -10508,7 +10514,7 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_页数'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载多少页面'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数字提示1'),
         });
@@ -10947,7 +10953,7 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_页数'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载多少页面'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数字提示1'),
         });
@@ -11261,7 +11267,7 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_个数'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载多少作品'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_想要获取多少个作品'),
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -11411,7 +11417,7 @@ class InitNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_个数'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载多少作品'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数字提示1'),
         });
@@ -11596,7 +11602,7 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
         // 个数/页数选项的提示
         this.maxCount = 100;
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_个数'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载多少作品'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_想要获取多少个作品'),
             rangTip: `1 - ${this.maxCount}`,
         });
@@ -11817,7 +11823,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_页数'),
+            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载多少页面'),
             tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
             rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数字提示1'),
         });
@@ -17708,7 +17714,7 @@ const formHtml = `<form class="settingForm">
     <div class="tabsContnet">
       <p class="option" data-no="1">
       <span class="setWantPageWrap">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_页数')}"><span class="setWantPageTip1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_页数')}</span><span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载多少页面')}"><span class="setWantPageTip1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载多少页面')}</span><span class="gray1"> ? </span></span>
       <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
       value = '-1'>&nbsp;
       <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
