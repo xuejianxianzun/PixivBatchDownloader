@@ -46,10 +46,11 @@ class InitHomePage extends InitPageBase {
     this.downIdInput.id = 'down_id_input'
     this.downIdInput.style.display = 'none'
     this.downIdInput.setAttribute(
-      'placeholder',
-      lang.transl('_输入id进行抓取的提示文字')
+      'data-xzplaceholder',
+      '_输入id进行抓取的提示文字'
     )
     Tools.insertToHead<HTMLTextAreaElement>(this.downIdInput)
+    lang.register(this.downIdInput)
 
     Tools.addBtn(
       'otherBtns',

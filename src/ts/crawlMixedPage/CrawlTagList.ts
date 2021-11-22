@@ -60,15 +60,15 @@ class CrawlTagList {
   private addElement() {
     const htmlText = `<textarea
       id="crawlTagListTextArea"
-      placeholder="${lang.transl('_抓取标签列表的输入框提示')}"
+      data-xzplaceholder="_抓取标签列表的输入框提示"
     ></textarea>
-    <p id="crawlTagListTip">${lang.transl('_抓取标签列表的文件夹提示')}</p>
+    <p id="crawlTagListTip" data-xztext="_抓取标签列表的文件夹提示"></p>
     <div id="crawlTagListBtnsWrap">
-      <button id="crawlTagListBtn">${lang.transl('_抓取标签列表')}</button>
-      <button id="clearTagListBtn">${lang.transl('_停止抓取标签列表')}</button>
+      <button id="crawlTagListBtn" data-xztext="_抓取标签列表"></button>
+      <button id="clearTagListBtn" data-xztext="_停止抓取标签列表"></button>
     </div>
     <div id="tagListWrap">
-      <p>${lang.transl('_等待下载的标签')}</p>
+      <p data-xztext="_等待下载的标签"></p>
       <ul id="showTagList">
       <ul>
     </div>
@@ -84,6 +84,7 @@ class CrawlTagList {
     wrap.id = this.wrapId
     wrap.innerHTML = htmlText
     this.wrap = Tools.insertToHead(wrap)
+    lang.register(this.wrap)
 
     this.input = this.wrap.querySelector(
       '#crawlTagListTextArea'

@@ -14,6 +14,7 @@ class Form {
   constructor() {
     this.form = Tools.useSlot('form', formHtml) as SettingsForm
     theme.register(this.form)
+    lang.register(this.form)
 
     this.allCheckBox = this.form.querySelectorAll(
       'input[type="checkbox"]'

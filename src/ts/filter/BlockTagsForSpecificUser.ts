@@ -79,44 +79,32 @@ class BlockTagsForSpecificUser {
   <div class="blockTagsForSpecificUserWrap">
 
     <div class="controlBar">
-      <button type="button" class="textButton expand">${lang.transl(
-        '_收起'
-      )}</button>
+      <button type="button" class="textButton expand" data-xztext="_收起"></button>
       <span class="total">0</span>
-      <button type="button" class="textButton showAdd">${lang.transl(
-        '_添加'
-      )}</button>
+      <button type="button" class="textButton showAdd" data-xztext="_添加"></button>
     </div>
 
     <div class="addWrap">
       <div class="settingItem addInputWrap" >
         <div class="inputItem uid">
-          <span class="label uidLabel">${lang.transl('_用户id')}</span>
-          <input type="text" class="setinput_style1 blue addUidInput" placeholder="${lang.transl(
-            '_必须是数字'
-          )}" />
+          <span class="label uidLabel" data-xztext="_用户id"></span>
+          <input type="text" class="setinput_style1 blue addUidInput" data-xzplaceholder="_必须是数字" />
         </div>
 
         <div class="inputItem tags">
           <span class="label tagsLabel">Tags</span>
-          <input type="text" class="setinput_style1 blue addTagsInput" placeholder="${lang.transl(
-            '_tag用逗号分割'
-          )}" />
+          <input type="text" class="setinput_style1 blue addTagsInput" data-xzplaceholder="_tag用逗号分割" />
         </div>
 
         <div class="btns">
-          <button type="button" class="textButton add" title="${lang.transl(
-            '_添加'
-          )}">
+          <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-wanchengqueding"></use>
             </svg>
           </button>
 
           
-          <button type="button" class="textButton cancel" title="${lang.transl(
-            '_取消'
-          )}">
+          <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-guanbiquxiao"></use>
             </svg>
@@ -136,6 +124,7 @@ class BlockTagsForSpecificUser {
       'blockTagsForSpecificUser',
       this.wrapHTML
     )! as HTMLDivElement
+    lang.register(this.wrap)
     this.expandBtn = this.wrap.querySelector('.expand')! as HTMLButtonElement
     this.showAddBtn = this.wrap.querySelector('.showAdd')! as HTMLButtonElement
     this.totalSpan = this.wrap.querySelector('.total')! as HTMLSpanElement

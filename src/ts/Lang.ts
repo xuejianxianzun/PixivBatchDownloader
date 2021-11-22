@@ -1,36 +1,18 @@
 import { langText } from './LangText'
 import { EVT } from './EVT'
-import { msgBox } from './MsgBox'
-import { Config } from './config/Config'
 
 type LangTypes = 'zh-cn' | 'zh-tw' | 'en' | 'ja'
 
 // 语言类
 class Lang {
   constructor() {
-    // 读取本地存储的设置
-    const savedSettings = localStorage.getItem(Config.settingStoreName)
-    if (savedSettings) {
-      // 有储存的设置
-      const restoreData = JSON.parse(savedSettings)
-      if (this.langTypes.includes(restoreData.userSetLang)) {
-        // 恢复设置里的语言类型
-        this.type = restoreData.userSetLang
-      } else {
-        // 自动获取语言类型
-        this.type = this.getLangType()
-      }
-    } else {
-      // 如果没有储存的设置，则自动获取语言类型
-      this.type = this.getLangType()
-    }
-
+    this.type = this.getHtmlLangType()
     this.bindEvents()
   }
 
   public type!: LangTypes
 
-  private readonly langTypes = ['zh-cn', 'zh-tw', 'en', 'ja']
+  public readonly langTypes = ['zh-cn', 'zh-tw', 'en', 'ja']
 
   private readonly flagIndex: Map<LangTypes, number> = new Map([
     ['zh-cn', 0],
@@ -50,19 +32,19 @@ class Lang {
       const old = this.type
       this.type = this.getType(data.value)
       if (this.type !== old) {
-        msgBox.show(this.transl('_变更语言后刷新页面的提示'))
+        this.change()
       }
     })
   }
 
   private getType(flag: string) {
-    return flag === 'auto' ? this.getLangType() : (flag as LangTypes)
+    return flag === 'auto' ? this.getHtmlLangType() : (flag as LangTypes)
   }
 
-  // 获取页面使用的语言，返回对应的 flag
-  private getLangType(): LangTypes {
-    const userLang = document.documentElement.lang
-    switch (userLang) {
+  // 获取页面使用的语言，返回对应的结果
+  private getHtmlLangType(): LangTypes {
+    const flag = document.documentElement.lang
+    switch (flag) {
       case 'zh':
       case 'zh-CN':
       case 'zh-Hans':
@@ -87,7 +69,58 @@ class Lang {
     arg.forEach((val) => (content = content.replace('{}', val)))
     return content
   }
+
+  // 保存注册的元素
+  // 在注册的元素里设置特殊的标记，让本模块可以动态更新其文本
+  private elList: HTMLElement[] = []
+
+  public register(el: HTMLElement) {
+    this.elList.push(el)
+    this.updateText(el)
+
+    // const observer = new MutationObserver((records) => {
+    //   // type MutationRecordType = "attributes" | "characterData" | "childList";
+    //   for (const record of records) {
+    //     console.log(record.type)
+    //   }
+    // })
+    // observer.observe(el, {
+    //   childList: true,
+    //   subtree: true,
+    // })
+  }
+
+  private updateText(wrap: HTMLElement) {
+    const textEl = wrap.querySelectorAll('*[data-xztext]') as NodeListOf<HTMLElement>
+    for (const el of textEl) {
+      // 因为有些文本中含有 html 标签，所以这里需要使用 innerHTML 而不是 textContent
+      el.innerHTML = this.transl(el.dataset.xztext! as keyof typeof langText)
+    }
+
+    const tipEl = wrap.querySelectorAll('*[data-xztip]') as NodeListOf<HTMLElement>
+    for (const el of tipEl) {
+      el.dataset.tip = this.transl(el.dataset.xztip! as keyof typeof langText)
+    }
+
+    const placeholderEl = wrap.querySelectorAll('*[data-xzplaceholder]') as NodeListOf<HTMLElement>
+    for (const el of placeholderEl) {
+      el.setAttribute('placeholder', this.transl(el.dataset.xzplaceholder! as keyof typeof langText))
+    }
+
+    const titleEl = wrap.querySelectorAll('*[data-xztitle]') as NodeListOf<HTMLElement>
+    for (const el of titleEl) {
+      el.setAttribute('title', this.transl(el.dataset.xztitle! as keyof typeof langText))
+    }
+  }
+
+  private change() {
+    EVT.fire('langChange')
+    this.elList.forEach(el => {
+      this.updateText(el)
+    })
+  }
 }
+
 
 const lang = new Lang()
 

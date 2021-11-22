@@ -153,6 +153,8 @@ class EVENT {
     clickBtnOnThumb: 'clickBtnOnThumb',
     // 显示原比例图片时触发
     showOriginSizeImage: 'showOriginSizeImage',
+    // 语言类型改变时触发
+    langChange:'langChange',
   }
 
   // 触发自定义事件，大部分事件都不需要携带数据
@@ -208,6 +210,7 @@ class EVENT {
       | 'clearBG'
       | 'clickBtnOnThumb'
       | 'showOriginSizeImage'
+      | 'langChange'
   ): void
 
   // 对于需要携带数据的事件进行重载

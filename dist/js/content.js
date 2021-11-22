@@ -524,11 +524,15 @@ class CenterPanel {
     constructor() {
         this.updateActiveClass = 'updateActiveClass';
         this.activeClass = 'active';
+        this.allLangFlag = [];
         this.addCenterPanel();
-        this.activeTab(Tabbar.Crawl);
         _Theme__WEBPACK_IMPORTED_MODULE_3__["theme"].register(this.centerPanel);
+        _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].register(this.centerPanel);
+        this.activeTab(Tabbar.Crawl);
         new _setting_BG__WEBPACK_IMPORTED_MODULE_6__["BG"](this.centerPanel);
         new _BoldKeywords__WEBPACK_IMPORTED_MODULE_9__["BoldKeywords"](this.centerPanel);
+        this.allLangFlag = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].langTypes.map(type => 'lang_' + type);
+        this.setLangFlag();
         this.bindEvents();
     }
     // 添加中间面板
@@ -540,22 +544,22 @@ class CenterPanel {
       <div class="centerWrap_title blue">
       ${_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].appName}
       <div class="btns">
-      <a class="has_tip centerWrap_top_btn update" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_newver')}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
+      <a class="has_tip centerWrap_top_btn update" data-xztip="_newver" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-gengxin"></use>
         </svg>
       </a>
-      <a class="has_tip centerWrap_top_btn github_icon" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_github')}" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
+      <a class="has_tip centerWrap_top_btn github_icon" data-xztip="_github" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-github"></use>
       </svg>
       </a>
-      <a class="has_tip centerWrap_top_btn wiki_url" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_wiki')}" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
+      <a class="has_tip centerWrap_top_btn wiki_url" data-xztip="_wiki" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
-        <div class="has_tip centerWrap_top_btn centerWrap_close" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_隐藏下载面板')}">
+        <div class="has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏下载面板">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>
@@ -565,9 +569,9 @@ class CenterPanel {
       </div>
 
       <div class="centerWrap_tabs tabsTitle">
-        <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取')}</div>
-        <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载')}</div>
-        <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_其他')}</div>
+        <div class="title" data-xztext="_抓取"></div>
+        <div class="title" data-xztext="_下载"></div>
+        <div class="title" data-xztext="_其他"></div>
       </div>
 
       <div class="centerWrap_con beautify_scrollbar">
@@ -575,9 +579,9 @@ class CenterPanel {
       <slot data-name="form"></slot>
 
       <div class="help_bar gray1"> 
-      <button class="textButton gray1 showDownTip" type="button">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_常见问题')}</button>
-      <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_wiki')}</a>
-      <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_fanboxDownloader')}</a>
+      <button class="textButton gray1 showDownTip" type="button" data-xztext="_常见问题"></button>
+      <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
+      <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank" data-xztext="_fanboxDownloader"></a>
       <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">在“爱发电”支持我</a>
       <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
@@ -594,6 +598,12 @@ class CenterPanel {
         const donateId = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].type === 'zh-cn' ? 'zanzhu' : 'patreon';
         document.getElementById(donateId).style.display = 'inline-block';
         this.allTabTitle = this.centerPanel.querySelectorAll('.tabsTitle .title');
+    }
+    setLangFlag() {
+        this.allLangFlag.forEach(flag => {
+            this.centerPanel.classList.remove(flag);
+        });
+        this.centerPanel.classList.add('lang_' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].type);
     }
     bindEvents() {
         // 监听点击扩展图标的消息，开关中间面板
@@ -681,6 +691,9 @@ class CenterPanel {
         }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlEmpty, () => {
             this.activeTab(Tabbar.Crawl);
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.langChange, () => {
+            this.setLangFlag();
         });
     }
     // 设置激活的选项卡
@@ -1350,6 +1363,8 @@ class EVENT {
             clickBtnOnThumb: 'clickBtnOnThumb',
             // 显示原比例图片时触发
             showOriginSizeImage: 'showOriginSizeImage',
+            // 语言类型改变时触发
+            langChange: 'langChange',
         };
     }
     // 只绑定某个事件一次，用于防止事件重复绑定
@@ -2373,10 +2388,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "lang", function() { return lang; });
 /* harmony import */ var _LangText__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./LangText */ "./src/ts/LangText.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./config/Config */ "./src/ts/config/Config.ts");
-
-
 
 
 // 语言类
@@ -2389,24 +2400,10 @@ class Lang {
             ['en', 2],
             ['ja', 3],
         ]);
-        // 读取本地存储的设置
-        const savedSettings = localStorage.getItem(_config_Config__WEBPACK_IMPORTED_MODULE_3__["Config"].settingStoreName);
-        if (savedSettings) {
-            // 有储存的设置
-            const restoreData = JSON.parse(savedSettings);
-            if (this.langTypes.includes(restoreData.userSetLang)) {
-                // 恢复设置里的语言类型
-                this.type = restoreData.userSetLang;
-            }
-            else {
-                // 自动获取语言类型
-                this.type = this.getLangType();
-            }
-        }
-        else {
-            // 如果没有储存的设置，则自动获取语言类型
-            this.type = this.getLangType();
-        }
+        // 保存注册的元素
+        // 在注册的元素里设置特殊的标记，让本模块可以动态更新其文本
+        this.elList = [];
+        this.type = this.getHtmlLangType();
         this.bindEvents();
     }
     bindEvents() {
@@ -2420,17 +2417,17 @@ class Lang {
             const old = this.type;
             this.type = this.getType(data.value);
             if (this.type !== old) {
-                _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].show(this.transl('_变更语言后刷新页面的提示'));
+                this.change();
             }
         });
     }
     getType(flag) {
-        return flag === 'auto' ? this.getLangType() : flag;
+        return flag === 'auto' ? this.getHtmlLangType() : flag;
     }
-    // 获取页面使用的语言，返回对应的 flag
-    getLangType() {
-        const userLang = document.documentElement.lang;
-        switch (userLang) {
+    // 获取页面使用的语言，返回对应的结果
+    getHtmlLangType() {
+        const flag = document.documentElement.lang;
+        switch (flag) {
             case 'zh':
             case 'zh-CN':
             case 'zh-Hans':
@@ -2450,6 +2447,45 @@ class Lang {
         let content = _LangText__WEBPACK_IMPORTED_MODULE_0__["langText"][name][this.flagIndex.get(this.type)];
         arg.forEach((val) => (content = content.replace('{}', val)));
         return content;
+    }
+    register(el) {
+        this.elList.push(el);
+        this.setText(el);
+        // const observer = new MutationObserver((records) => {
+        //   // type MutationRecordType = "attributes" | "characterData" | "childList";
+        //   for (const record of records) {
+        //     console.log(record.type)
+        //   }
+        // })
+        // observer.observe(el, {
+        //   childList: true,
+        //   subtree: true,
+        // })
+    }
+    setText(wrap) {
+        const textEl = wrap.querySelectorAll('*[data-xztext]');
+        for (const el of textEl) {
+            // 因为有些文本中含有 html 标签，所以这里需要使用 innerHTML 而不是 textContent
+            el.innerHTML = this.transl(el.dataset.xztext);
+        }
+        const tipEl = wrap.querySelectorAll('*[data-xztip]');
+        for (const el of tipEl) {
+            el.dataset.tip = this.transl(el.dataset.xztip);
+        }
+        const placeholderEl = wrap.querySelectorAll('*[data-xzplaceholder]');
+        for (const el of placeholderEl) {
+            el.setAttribute('placeholder', this.transl(el.dataset.xzplaceholder));
+        }
+        const titleEl = wrap.querySelectorAll('*[data-xztitle]');
+        for (const el of titleEl) {
+            el.setAttribute('title', this.transl(el.dataset.xztitle));
+        }
+    }
+    change() {
+        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('langChange');
+        this.elList.forEach(el => {
+            this.setText(el);
+        });
     }
 }
 const lang = new Lang();
@@ -2535,12 +2571,6 @@ const langText = {
         '設定<span class="key">寬高</span>條件',
         'Set the <span class="key">width and height</span>',
         '幅と高さの条件を設定する',
-    ],
-    _筛选宽高的按钮Title: [
-        '在下载前，您可以设置要下载的图片的宽高条件。',
-        '在下載前可以設定要下載的圖片的寬高條件。',
-        'Before downloading, you can set the width and height conditions of the images you want to download.',
-        'ダウンロードする前に、画像の幅と高さの条件を設定できます。',
     ],
     _设置宽高比例: [
         '设置宽高<span class="key">比例</span>',
@@ -3153,10 +3183,10 @@ const langText = {
         'クロールが終了しました！',
     ],
     _快速下载本页: [
-        '快速下载本页作品',
-        '快速下載本頁作品',
-        'Download this work quickly',
-        'この作品をすばやくダウンロードする',
+        '快速下载本页作品 (Alt + Q)',
+        '快速下載本頁作品 (Alt + Q)',
+        'Download this work quickly (Alt + Q)',
+        'この作品をすばやくダウンロードする (Alt + Q)',
     ],
     _从本页开始抓取new: [
         '从本页开始抓取新作品',
@@ -3735,18 +3765,18 @@ const langText = {
         '{} は幅と高さが設定に合わないため、保存されていません。',
     ],
     _显示下载面板: [
-        '显示下载面板',
-        '顯示下載面板',
-        'Show download panel',
-        'ダウンロードパネルを表示',
+        '显示下载面板 (Alt + X)',
+        '顯示下載面板 (Alt + X)',
+        'Show download panel (Alt + X)',
+        'ダウンロードパネルを表示 (Alt + X)',
     ],
     _保存: ['保存', '儲存', 'Save', '保存'],
     _加载: ['加载', '載入', 'Load', 'ロード'],
     _保存命名规则提示: [
-        '保存命名规则，最多 {} 个',
-        '儲存命名規則，最多 {} 個',
-        'Save naming rule, up to {}',
-        'ネームルールを保存します。最大 {} 個まで',
+        '保存命名规则，最多 20 个',
+        '儲存命名規則，最多 20 個',
+        'Save naming rule, up to 20',
+        'ネームルールを保存します。最大 20 個まで',
     ],
     _已保存命名规则: [
         '已保存命名规则',
@@ -4707,6 +4737,7 @@ class MsgBox {
         <button class="btn" type="button">${data.btn || _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_确定')}</button>
       `;
         _Theme__WEBPACK_IMPORTED_MODULE_2__["theme"].register(wrap);
+        _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].register(wrap);
         const btn = wrap.querySelector('.btn');
         if (btn) {
             wrap.addEventListener('click', (ev) => {
@@ -4757,11 +4788,12 @@ class OpenCenterPanel {
         this.btn = document.createElement('button');
         this.btn.classList.add('rightButton');
         this.btn.id = 'openCenterPanelBtn';
-        this.btn.setAttribute('title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_显示下载面板') + ' (Alt + X)');
+        this.btn.setAttribute('data-xztitle', '_显示下载面板');
         this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-dakai"></use>
 </svg>`;
         document.body.insertAdjacentElement('afterbegin', this.btn);
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(this.btn);
     }
     bindEvents() {
         // 这里阻止事件冒泡是为了配合 CenterPanel 的“点击页面其他部分隐藏 CenterPanel”的效果
@@ -9691,15 +9723,15 @@ class CrawlTagList {
     addElement() {
         const htmlText = `<textarea
       id="crawlTagListTextArea"
-      placeholder="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取标签列表的输入框提示')}"
+      data-xzplaceholder="_抓取标签列表的输入框提示"
     ></textarea>
-    <p id="crawlTagListTip">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取标签列表的文件夹提示')}</p>
+    <p id="crawlTagListTip" data-xztext="_抓取标签列表的文件夹提示"></p>
     <div id="crawlTagListBtnsWrap">
-      <button id="crawlTagListBtn">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取标签列表')}</button>
-      <button id="clearTagListBtn">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_停止抓取标签列表')}</button>
+      <button id="crawlTagListBtn" data-xztext="_抓取标签列表"></button>
+      <button id="clearTagListBtn" data-xztext="_停止抓取标签列表"></button>
     </div>
     <div id="tagListWrap">
-      <p>${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_等待下载的标签')}</p>
+      <p data-xztext="_等待下载的标签"></p>
       <ul id="showTagList">
       <ul>
     </div>
@@ -9713,6 +9745,7 @@ class CrawlTagList {
         wrap.id = this.wrapId;
         wrap.innerHTML = htmlText;
         this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].insertToHead(wrap);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.wrap);
         this.input = this.wrap.querySelector('#crawlTagListTextArea');
         this.startCrawlBtn = this.wrap.querySelector('#crawlTagListBtn');
         this.clearCrawlBtn = this.wrap.querySelector('#clearTagListBtn');
@@ -10711,8 +10744,9 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
         // 用于输入id的输入框
         this.downIdInput.id = 'down_id_input';
         this.downIdInput.style.display = 'none';
-        this.downIdInput.setAttribute('placeholder', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_输入id进行抓取的提示文字'));
+        this.downIdInput.setAttribute('data-xzplaceholder', '_输入id进行抓取的提示文字');
         _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].insertToHead(this.downIdInput);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.downIdInput);
         _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_清空已保存的抓取结果')).addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('clearSavedCrawl');
         });
@@ -11163,11 +11197,12 @@ class QuickCrawl {
         this.btn = document.createElement('button');
         this.btn.classList.add('rightButton');
         this.btn.id = 'quickCrawlBtn';
-        this.btn.setAttribute('title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_快速下载本页') + ' (Alt + Q)');
+        this.btn.setAttribute('data-xztitle', '_快速下载本页');
         this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-download"></use>
 </svg>`;
         document.body.insertAdjacentElement('afterbegin', this.btn);
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(this.btn);
     }
     bindEvents() {
         // 点击按钮启动快速抓取
@@ -14914,32 +14949,32 @@ class BlockTagsForSpecificUser {
   <div class="blockTagsForSpecificUserWrap">
 
     <div class="controlBar">
-      <button type="button" class="textButton expand">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收起')}</button>
+      <button type="button" class="textButton expand" data-xztext="_收起"></button>
       <span class="total">0</span>
-      <button type="button" class="textButton showAdd">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加')}</button>
+      <button type="button" class="textButton showAdd" data-xztext="_添加"></button>
     </div>
 
     <div class="addWrap">
       <div class="settingItem addInputWrap" >
         <div class="inputItem uid">
-          <span class="label uidLabel">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_用户id')}</span>
-          <input type="text" class="setinput_style1 blue addUidInput" placeholder="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_必须是数字')}" />
+          <span class="label uidLabel" data-xztext="_用户id"></span>
+          <input type="text" class="setinput_style1 blue addUidInput" data-xzplaceholder="_必须是数字" />
         </div>
 
         <div class="inputItem tags">
           <span class="label tagsLabel">Tags</span>
-          <input type="text" class="setinput_style1 blue addTagsInput" placeholder="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_tag用逗号分割')}" />
+          <input type="text" class="setinput_style1 blue addTagsInput" data-xzplaceholder="_tag用逗号分割" />
         </div>
 
         <div class="btns">
-          <button type="button" class="textButton add" title="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加')}">
+          <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-wanchengqueding"></use>
             </svg>
           </button>
 
           
-          <button type="button" class="textButton cancel" title="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_取消')}">
+          <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-guanbiquxiao"></use>
             </svg>
@@ -14985,6 +15020,7 @@ class BlockTagsForSpecificUser {
     // 创建列表外部的容器，静态html
     createWrap() {
         this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].useSlot('blockTagsForSpecificUser', this.wrapHTML);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.wrap);
         this.expandBtn = this.wrap.querySelector('.expand');
         this.showAddBtn = this.wrap.querySelector('.showAdd');
         this.totalSpan = this.wrap.querySelector('.total');
@@ -17488,6 +17524,7 @@ class Form {
         this.tipCreateFolderId = 'tipCreateFolder'; // “创建文件夹的提示”的容器 id
         this.form = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_4__["formHtml"]);
         _Theme__WEBPACK_IMPORTED_MODULE_6__["theme"].register(this.form);
+        _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].register(this.form);
         this.allCheckBox = this.form.querySelectorAll('input[type="checkbox"]');
         this.allRadio = this.form.querySelectorAll('input[type="radio"]');
         this.allSwitch = this.form.querySelectorAll('.checkbox_switch');
@@ -17707,14 +17744,12 @@ const form = new Form().form;
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formHtml", function() { return formHtml; });
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-
 
 const formHtml = `<form class="settingForm">
     <div class="tabsContnet">
       <p class="option" data-no="1">
       <span class="setWantPageWrap">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载多少页面')}"><span class="setWantPageTip1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载多少页面')}</span><span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_下载多少页面"><span class="setWantPageTip1" data-xztext="_下载多少页面"></span><span class="gray1"> ? </span></span>
       <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
       value = '-1'>&nbsp;
       <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
@@ -17722,72 +17757,86 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="2">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
+      <span data-xztext="_下载作品类型"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setWorkType0"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_插画')}&nbsp;</label>
+      <label for="setWorkType0" data-xztext="_插画"></label>&nbsp;
       <input type="checkbox" name="downType1" id="setWorkType1" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setWorkType1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_漫画')}&nbsp;</label>
+      <label for="setWorkType1" data-xztext="_漫画"></label>&nbsp;
       <input type="checkbox" name="downType2" id="setWorkType2" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setWorkType2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_动图')}&nbsp;</label>
+      <label for="setWorkType2" data-xztext="_动图"></label>&nbsp;
       <input type="checkbox" name="downType3" id="setWorkType3" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setWorkType3"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_小说')}&nbsp;</label>
+      <label for="setWorkType3" data-xztext="_小说"></label>&nbsp;
       </p>
 
       <p class="option" data-no="44">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
+      <span data-xztext="_下载作品类型"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="downAllAges" id="downAllAges" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="downAllAges"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_全年龄')}&nbsp;</label>
+      <label for="downAllAges" data-xztext="_全年龄"></label>&nbsp;
       <input type="checkbox" name="downR18" id="downR18" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="downR18"> R-18&nbsp;</label>
+      <label for="downR18"> R-18</label>&nbsp;
       <input type="checkbox" name="downR18G" id="downR18G" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="downR18G"> R-18G&nbsp;</label>
+      <label for="downR18G"> R-18G</label>&nbsp;
       </p>
 
       <p class="option" data-no="6">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
+      <span data-xztext="_下载作品类型"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="downNotBookmarked" id="setDownNotBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownNotBookmarked"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_未收藏')}&nbsp;</label>
+      <label for="setDownNotBookmarked" data-xztext="_未收藏"></label>&nbsp;
       <input type="checkbox" name="downBookmarked" id="setDownBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownBookmarked"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_已收藏')}&nbsp;</label>
+      <label for="setDownBookmarked" data-xztext="_已收藏"></label>&nbsp;
       </p>
       
       <p class="option" data-no="23">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
+      <span data-xztext="_下载作品类型"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="downColorImg" id="setDownColorImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownColorImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_彩色图片')}&nbsp;</label>
+      <label for="setDownColorImg" data-xztext="_彩色图片"></label>&nbsp;
       <input type="checkbox" name="downBlackWhiteImg" id="setDownBlackWhiteImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownBlackWhiteImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_黑白图片')}&nbsp;</label>
+      <label for="setDownBlackWhiteImg" data-xztext="_黑白图片"></label>&nbsp;
       </p>
 
       <p class="option" data-no="21">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
+      <span data-xztext="_下载作品类型"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownSingleImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_单图作品')}&nbsp;</label>
+      <label for="setDownSingleImg" data-xztext="_单图作品"></label>&nbsp;
       <input type="checkbox" name="downMultiImg" id="setDownMultiImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownMultiImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_多图作品')}&nbsp;</label>
+      <label for="setDownMultiImg" data-xztext="_多图作品"></label>&nbsp;
       </p>
 
       <p class="option" data-no="51">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_显示高级设置说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_显示高级设置')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_显示高级设置说明">
+      <span data-xztext="_显示高级设置"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="showAdvancedSettings" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="3">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_必须大于0')}" >${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_多图作品只下载前几张图片')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_必须大于0">
+      <span data-xztext="_多图作品只下载前几张图片"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="firstFewImagesSwitch">
@@ -17796,9 +17845,9 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="47">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_超出此限制的多图作品不会被下载') +
-    '. ' +
-    _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_必须大于0')}" >${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_多图作品的图片数量限制')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_超出此限制的多图作品不会被下载">
+      <span data-xztext="_多图作品的图片数量限制"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="multiImageWorkImageLimitSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="multiImageWorkImageLimitSwitch">
@@ -17808,7 +17857,9 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="5">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置收藏数量的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置收藏数量')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_设置收藏数量的提示">
+      <span data-xztext="_设置收藏数量"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="BMKNumSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="BMKNumSwitch">
@@ -17816,9 +17867,9 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="BMKNumMin" class="setinput_style1 blue bmkNum" value="0">
       &lt;=&nbsp;
       <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].BookmarkCountLimit}">
-      <span>&nbsp;${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_或者')}</span>
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_日均收藏数量的提示')}">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_日均收藏数量')}
+  &nbsp;<span data-xztext="_或者"></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_日均收藏数量的提示">
+      <span data-xztext="_日均收藏数量"></span>
       <span class="gray1"> ? </span></span>
       <input type="checkbox" name="BMKNumAverageSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
@@ -17829,62 +17880,68 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="8">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置宽高比例Title')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_设置宽高比例Title">
+      <span data-xztext="_设置宽高比例"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="ratioSwitch">
       <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="horizontal">
       <span class="beautify_radio"></span>
-      <label for="ratio1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_横图')}&nbsp; </label>
+      <label for="ratio1" data-xztext="_横图"></label>&nbsp; 
 
       <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="vertical">
       <span class="beautify_radio"></span>
-      <label for="ratio2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_竖图')}&nbsp; </label>
+      <label for="ratio2" data-xztext="_竖图"></label>&nbsp; 
       
       <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="square">
       <span class="beautify_radio"></span>
-      <label for="ratio0"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_正方形')}&nbsp; </label>
+      <label for="ratio0" data-xztext="_正方形"></label>&nbsp; 
 
       <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
       <span class="beautify_radio"></span>
-      <label for="ratio3"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_输入宽高比')}</label>
+      <label for="ratio3" data-xztext="_输入宽高比"></label>
       <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
       </span>
       </p>
 
       <p class="option" data-no="7">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_筛选宽高的按钮Title')} ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_筛选宽高的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_筛选宽高的按钮文字')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_筛选宽高的提示文字">
+      <span data-xztext="_筛选宽高的按钮文字"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="setWHSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="setWHSwitch">
 
       <input type="radio" name="widthHeightLimit" id="widthHeightLimit1" class="need_beautify radio" value=">=" checked>
       <span class="beautify_radio"></span>
-      <label for="widthHeightLimit1">&gt;=&nbsp;</label>
+      <label for="widthHeightLimit1">&gt;=</label>&nbsp;
 
       <input type="radio" name="widthHeightLimit" id="widthHeightLimit2" class="need_beautify radio" value="=">
       <span class="beautify_radio"></span>
-      <label for="widthHeightLimit2">=&nbsp;</label>
+      <label for="widthHeightLimit2">=</label>&nbsp;
       
       <input type="radio" name="widthHeightLimit" id="widthHeightLimit3" class="need_beautify radio" value="<=">
       <span class="beautify_radio"></span>
-      <label for="widthHeightLimit3">&lt;=&nbsp;</label>
+      <label for="widthHeightLimit3">&lt;=</label>&nbsp;
 
-      <span class="">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_宽度')}</span>
+      <span data-xztext="_宽度"></span>
       <input type="text" name="setWidth" class="setinput_style1 blue" value="0">
       <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" class="need_beautify radio" value="&" checked>
       <span class="beautify_radio"></span>
-      <label for="setWidth_AndOr1">and&nbsp;</label>
+      <label for="setWidth_AndOr1">and</label>&nbsp;
       <input type="radio" name="setWidthAndOr" id="setWidth_AndOr2" class="need_beautify radio" value="|">
       <span class="beautify_radio"></span>
-      <label for="setWidth_AndOr2">or&nbsp;</label>
-      <span class="">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_高度')}</span>
+      <label for="setWidth_AndOr2">or</label>&nbsp;
+      <span data-xztext="_高度"></span>
       <input type="text" name="setHeight" class="setinput_style1 blue" value="0">
       </span>
       </p>
 
       <p class="option" data-no="9">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置id范围提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置id范围')}&nbsp; <span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_设置id范围提示">
+      <span data-xztext="_设置id范围"></span>
+      &nbsp; <span class="gray1"> ? </span></span>
       <input type="checkbox" name="idRangeSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="idRangeSwitch">
@@ -17899,7 +17956,9 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="10">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置投稿时间提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置投稿时间')} <span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_设置投稿时间提示">
+      <span data-xztext="_设置投稿时间"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="postDate" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="postDate">
@@ -17910,32 +17969,36 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="11">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_必须tag的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_必须含有tag')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_必须tag的提示文字">
+      <span data-xztext="_必须含有tag"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="needTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="needTagSwitch">
       <input type="radio" name="needTagMode" id="needTagMode1" class="need_beautify radio" value="all" checked>
       <span class="beautify_radio"></span>
-      <label for="needTagMode1">  ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_全部')}&nbsp; </label>
+      <label for="needTagMode1" data-xztext="_全部"></label>&nbsp; 
       <input type="radio" name="needTagMode" id="needTagMode2" class="need_beautify radio" value="one">
       <span class="beautify_radio"></span>
-      <label for="needTagMode2">  ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_任一')}&nbsp; </label>
+      <label for="needTagMode2" data-xztext="_任一"></label>&nbsp; 
       <input type="text" name="needTag" class="setinput_style1 blue setinput_tag">
       </span>
       </p>
 
       <p class="option" data-no="12">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_排除tag的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_不能含有tag')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_排除tag的提示文字">
+      <span data-xztext="_不能含有tag"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="notNeedTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="notNeedTagSwitch">
-      <span class="gray1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_任一')}&nbsp;</span>
+      <span class="gray1" data-xztext="_任一"></span>&nbsp;
       <input type="radio" id="tagMatchMode1" class="need_beautify radio" name="tagMatchMode" value="partial" checked>
       <span class="beautify_radio"></span>
-      <label for="tagMatchMode1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_部分一致')}&nbsp; </label>
-      <input type="radio" id="tagMatchMode2" class="need_beautify radio" name="tagMatchMode" value="whole" checked>
+      <label for="tagMatchMode1" data-xztext="_部分一致"></label>&nbsp;
+     <input type="radio" id="tagMatchMode2" class="need_beautify radio" name="tagMatchMode" value="whole" checked>
       <span class="beautify_radio"></span>
-      <label for="tagMatchMode2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_完全一致')}&nbsp; </label>
+      <label for="tagMatchMode2" data-xztext="_完全一致"></label>&nbsp;
       <br>
       <textarea class="centerPanelTextArea beautify_scrollbar" name="notNeedTag" rows="1"></textarea>
       </span>
@@ -17948,7 +18011,7 @@ const formHtml = `<form class="settingForm">
     </div>
     <div class="tabsContnet">
     <p class="option" data-no="13">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名规则')}</span>
+      <span class="settingNameStyle1" data-xztext="_命名规则"></span>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{p_title}/{id}">
       &nbsp;
       <select name="fileNameSelect" class="beautify_scrollbar">
@@ -17978,173 +18041,179 @@ const formHtml = `<form class="settingForm">
         </select>
       &nbsp;
       <slot data-name="saveNamingRule"></slot>
-      <button class="showFileNameTip textButton" type="button">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_提示2')}</button>
+      <button class="showFileNameTip textButton" type="button" data-xztext="_提示2"></button>
       </p>
       <p class="tip tipWithBtn" id="tipCreateFolder">
         <span class="left">
-        ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置文件夹名的提示')}<strong>{user}/{id}</strong>
+        <span data-xztext="_设置文件夹名的提示"></span>
+        <strong>{user}/{id}</strong>
         </span>
         <span class="right">
-         <button type="button" class="textButton gray1" id="tipCreateFolderBtn">
-         ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_我知道了')}
-         </button>
+          <button type="button" class="textButton gray1" id="tipCreateFolderBtn" data-xztext="_我知道了">
+          </button>
         </span>
       </p>
       <p class="fileNameTip tip">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置文件夹名的提示')}<strong>{user}/{id}</strong>
+      <span data-xztext="_设置文件夹名的提示"></span>
+      <strong>{user}/{id}</strong>
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记提醒')}
+      <span data-xztext="_命名标记提醒"></span>
       <br>
       <span class="blue">{id}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记id')}
+      <span data-xztext="_命名标记id"></span>
       <br>
       <span class="blue">{user}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记user')}
+      <span data-xztext="_命名标记user"></span>
       <br>
       <span class="blue">{user_id}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_用户id')}
+      <span data-xztext="_用户id"></span>
       <br>
       <span class="blue">{title}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记title')}
+      <span data-xztext="_命名标记title"></span>
       <br>
       <span class="blue">{p_title}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_文件夹标记PTitle')}
+      <span data-xztext="_文件夹标记PTitle"></span>
       <br>
       <span class="blue">{tags}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记tags')}
+      <span data-xztext="_命名标记tags"></span>
       <br>
       <span class="blue">{tags_translate}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记tags_trans')}
+      <span data-xztext="_命名标记tags_trans"></span>
       <br>
       <span class="blue">{tags_transl_only}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记tags_transl_only')}
+      <span data-xztext="_命名标记tags_transl_only"></span>
       <br>
       <span class="blue">{p_tag}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_文件夹标记PTag')}
+      <span data-xztext="_文件夹标记PTag"></span>
       <br>
       <span class="blue">{type}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记type')} ${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName.join(', ')}
+      <span data-xztext="_命名标记type"></span>
       <br>
       <span class="blue">{like}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记like')}
+      <span data-xztext="_命名标记like"></span>
       <br>
       <span class="blue">{bmk}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记bmk')}
+      <span data-xztext="_命名标记bmk"></span>
       <br>
       <span class="blue">{bmk_1000}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记bmk_1000')}
+      <span data-xztext="_命名标记bmk_1000"></span>
       <br>
       <span class="blue">{view}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记view')}
+      <span data-xztext="_命名标记view"></span>
       <br>
       <span class="blue">{rank}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记rank')}
+      <span data-xztext="_命名标记rank"></span>
       <br>
       <span class="blue">{date}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记date')}
+      <span data-xztext="_命名标记date"></span>
       <br>
       <span class="blue">{task_date}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记taskDate')}
+      <span data-xztext="_命名标记taskDate"></span>
       <br>
       <span class="blue">{px}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记px')}
+      <span data-xztext="_命名标记px"></span>
       <br>
       <span class="blue">{series_title}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记seriesTitle')}
+      <span data-xztext="_命名标记seriesTitle"></span>
       <br>
       <span class="blue">{series_order}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记seriesOrder')}
+      <span data-xztext="_命名标记seriesOrder"></span>
       <br>
       <span class="blue">{id_num}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记id_num')}
+      <span data-xztext="_命名标记id_num"></span>
       <br>
       <span class="blue">{p_num}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记p_num')}
+      <span data-xztext="_命名标记p_num"></span>
       </p>
 
       <p class="option" data-no="50">
-      <span class="settingNameStyle1"">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在不同的页面类型中使用不同的命名规则')}</span>
+      <span class="settingNameStyle1" data-xztext="_在不同的页面类型中使用不同的命名规则"></span>
       <input type="checkbox" name="setNameRuleForEachPageType" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="14">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_添加字段名称提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_添加命名标记前缀')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_添加字段名称提示">
+      <span data-xztext="_添加命名标记前缀"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="22">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_第一张图不带序号说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_第一张图不带序号')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_第一张图不带序号说明">
+      <span data-xztext="_第一张图不带序号"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="noSerialNo" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
       
       <p class="option" data-no="46">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在序号前面填充0')}</span>
+      <span class="settingNameStyle1" data-xztext="_在序号前面填充0"></span>
       <input type="checkbox" name="zeroPadding" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="zeroPadding">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_序号总长度')}</span>
+      <span data-xztext="_序号总长度"></span>
       <input type="text" name="zeroPaddingLength" class="setinput_style1 blue" value="3" style="width:30px;min-width: 30px;">
       </span>
       </p>
       
       <p class="option" data-no="42">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_根据作品类型自动创建文件夹')}</span>
+      <span class="settingNameStyle1" data-xztext="_根据作品类型自动创建文件夹"></span>
       <input type="checkbox" name="createFolderByType" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="createFolderByType">
       <input type="checkbox" name="createFolderByTypeIllust" id="createFolderByTypeIllust" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="createFolderByTypeIllust" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[0]}"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_插画')}&nbsp;</label>
-
+      <label for="createFolderByTypeIllust" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[0]}">
+      <span data-xztext="_插画"></span></label>&nbsp;
       <input type="checkbox" name="createFolderByTypeManga" id="createFolderByTypeManga" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="createFolderByTypeManga" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[1]}"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_漫画')}&nbsp;</label>
-
+      <label for="createFolderByTypeManga" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[1]}">
+      <span data-xztext="_漫画"></span></label>&nbsp;
       <input type="checkbox" name="createFolderByTypeUgoira" id="createFolderByTypeUgoira" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="createFolderByTypeUgoira" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[2]}"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_动图')}&nbsp;</label>
-
+      <label for="createFolderByTypeUgoira" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[2]}">
+      <span data-xztext="_动图"></span></label>&nbsp;
       <input type="checkbox" name="createFolderByTypeNovel" id="createFolderByTypeNovel" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="createFolderByTypeNovel" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[3]}"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_小说')}&nbsp;</label>
-      </span>
+      <label for="createFolderByTypeNovel" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[3]}">
+      <span data-xztext="_小说"></span></label>&nbsp;
       </p>
 
       <p class="option" data-no="43">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_使用匹配的tag建立文件夹的说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_使用第一个匹配的tag建立文件夹')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_使用匹配的tag建立文件夹的说明">
+      <span data-xztext="_使用第一个匹配的tag建立文件夹"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="createFolderByTag" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="createFolderByTag">
-      <span class="gray1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_tag用逗号分割')}</span>
+      <span class="gray1" data-xztext="_tag用逗号分割"></span>
       <br>
       <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1"></textarea>
       </span>
       </p>
 
       <p class="option" data-no="38">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_把r18作品存入指定的文件夹里')}</span>
+      <span class="settingNameStyle1" data-xztext="_把r18作品存入指定的文件夹里"></span>
       <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="r18Folder">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_目录名')}</span>
+      <span data-xztext="_目录名"></span>
       <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
       </span>
       </p>
 
       <p class="option" data-no="19">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_为作品创建单独的文件夹')}</span>
+      <span class="settingNameStyle1" data-xztext="_为作品创建单独的文件夹"></span>
       <input type="checkbox" name="workDir" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="workDir">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_文件数量大于')}</span>
+      <span data-xztext="_文件数量大于"></span>
       <input type="text" name="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
       <span>&nbsp;</span>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_目录名')}</span>
+      <span data-xztext="_目录名"></span>
       <input type="text" name="workDirNameRule" class="setinput_style1 blue" value="{id_num}">
       </span>
       </p>
@@ -18155,26 +18224,30 @@ const formHtml = `<form class="settingForm">
       </div>
 
       <p class="option" data-no="16">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_线程数字')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置下载线程')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_线程数字">
+      <span data-xztext="_设置下载线程"></span>
+      <span class="gray1"> ? </span></span>
       <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
       </p>
 
       <p class="option" data-no="17">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_快速下载的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_自动开始下载')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_快速下载的提示">
+      <span data-xztext="_自动开始下载"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="quietDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="33">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载之后收藏作品的提示')}">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载之后收藏作品')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_下载之后收藏作品的提示">
+      <span data-xztext="_下载之后收藏作品"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="52">
-      <span class="settingNameStyle1">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载完成后显示通知')}</span>
+      <span class="settingNameStyle1" data-xztext="_下载完成后显示通知"></span>
       <input type="checkbox" name="showNotificationAfterDownloadComplete" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
@@ -18190,94 +18263,103 @@ const formHtml = `<form class="settingForm">
     </div>
 
     <p class="option" data-no="57">
-    <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_显示高级设置说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_显示高级设置')}<span class="gray1"> ? </span></span>
+    <span class="has_tip settingNameStyle1" data-xztip="_显示高级设置说明">
+    <span data-xztext="_显示高级设置"></span>
+    <span class="gray1"> ? </span></span>
     <input type="checkbox" name="showAdvancedSettings" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
     </p>
 
     <p class="option settingCategoryName" data-no="58">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载')}</span>
+      <span data-xztext="_下载"></span>
     </p>
 
       <p class="option" data-no="4">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_动图保存格式title')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_动图保存格式')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_动图保存格式title">
+      <span data-xztext="_动图保存格式"></span>
+      <span class="gray1"> ? </span></span>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" class="need_beautify radio" value="webm" checked>
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_webmVideo')} &nbsp;</label>
+      <label for="ugoiraSaveAs1" data-xztext="_webmVideo"></label>&nbsp;
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" class="need_beautify radio" value="gif"> 
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs3">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_gif')} &nbsp;</label>
+      <label for="ugoiraSaveAs3" data-xztext="_gif"></label>&nbsp;
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs4" class="need_beautify radio" value="png"> 
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs4" class="has_tip" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_无损')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_apng')} &nbsp;</label>
+      <label for="ugoiraSaveAs4" class="has_tip" data-xztip="_无损" data-xztext="_apng"></label>&nbsp;
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip"> 
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs2">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_zipFile')} &nbsp;</label>
+      <label for="ugoiraSaveAs2" data-xztext="_zipFile"></label>&nbsp;
       </p>
 
       <p class="option" data-no="24">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_同时转换多少个动图警告')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_同时转换多少个动图')}</span>
+      <span class="has_tip settingNameStyle1" data-xztip="_同时转换多少个动图警告" data-xztext="_同时转换多少个动图"></span>
       <input type="text" name="convertUgoiraThread" class="setinput_style1 blue" value="1">
-      <span class="has_tip gray1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_同时转换多少个动图警告')}"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_提示')} </span>
+      <span class="has_tip gray1" data-xztip="_同时转换多少个动图警告" data-xztext="_提示"></span>
       </p>
 
       <p class="option" data-no="26">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_小说保存格式')}<span class="gray1"> &nbsp; </span></span>
+      <span class="settingNameStyle1" data-xztext="_小说保存格式"></span>
       <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt" checked>
       <span class="beautify_radio"></span>
-      <label for="novelSaveAs1"> TXT &nbsp;</label>
+      <label for="novelSaveAs1"> TXT </label>&nbsp;
       <input type="radio" name="novelSaveAs" id="novelSaveAs2" class="need_beautify radio" value="epub"> 
       <span class="beautify_radio"></span>
-      <label for="novelSaveAs2"> EPUB &nbsp;</label>
+      <label for="novelSaveAs2"> EPUB </label>&nbsp;
       </p>
       
       <p class="option" data-no="27">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在小说里保存元数据提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在小说里保存元数据')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_在小说里保存元数据提示">
+      <span data-xztext="_在小说里保存元数据"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="49">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_保存作品的元数据说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_保存作品的元数据')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_保存作品的元数据说明">
+      <span data-xztext="_保存作品的元数据"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="saveMetaType0" id="setSaveMetaType0" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="setSaveMetaType0"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_插画')}&nbsp;</label>
+      <label for="setSaveMetaType0" data-xztext="_插画"></label>&nbsp;
       <input type="checkbox" name="saveMetaType1" id="setSaveMetaType1" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="setSaveMetaType1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_漫画')}&nbsp;</label>
+      <label for="setSaveMetaType1" data-xztext="_漫画"></label>&nbsp;
       <input type="checkbox" name="saveMetaType2" id="setSaveMetaType2" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="setSaveMetaType2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_动图')}&nbsp;</label>
+      <label for="setSaveMetaType2" data-xztext="_动图"></label>&nbsp;
       <input type="checkbox" name="saveMetaType3" id="setSaveMetaType3" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="setSaveMetaType3"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_小说')}&nbsp;</label>
+      <label for="setSaveMetaType3" data-xztext="_小说"></label>&nbsp;
       </p>
 
       <p class="option" data-no="30">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸')} </span>
+      <span class="settingNameStyle1" data-xztext="_图片尺寸"></span>
       <input type="radio" name="imageSize" id="imageSize1" class="need_beautify radio" value="original" checked>
       <span class="beautify_radio"></span>
-      <label for="imageSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_原图')} </label>
+      <label for="imageSize1" data-xztext="_原图"></label>
       &nbsp;
       <input type="radio" name="imageSize" id="imageSize2" class="need_beautify radio" value="regular">
       <span class="beautify_radio"></span>
-      <label for="imageSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_普通')} </label>
+      <label for="imageSize2" data-xztext="_普通"></label>
       <span class="gray1">(1200px)</span>
       &nbsp;
       <input type="radio" name="imageSize" id="imageSize3" class="need_beautify radio" value="small">
       <span class="beautify_radio"></span>
-      <label for="imageSize3"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_小图')} </label>
+      <label for="imageSize3" data-xztext="_小图"></label>
       <span class="gray1">(540px)</span>
       &nbsp;
       <input type="radio" name="imageSize" id="imageSize4" class="need_beautify radio" value="thumb">
       <span class="beautify_radio"></span>
-      <label for="imageSize4"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_方形缩略图')} </label>
+      <label for="imageSize4" data-xztext="_方形缩略图"></label>
       <span class="gray1">(250px)</span>
       </p>
   
       <p class="option" data-no="25">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_不符合要求的文件不会被保存')}">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_文件体积限制')} <span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_不符合要求的文件不会被保存">
+      <span data-xztext="_文件体积限制"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="sizeSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="sizeSwitch">
@@ -18288,7 +18370,7 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="29">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_文件名长度限制')}</span>
+      <span class="settingNameStyle1" data-xztext="_文件名长度限制"></span>
       <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
@@ -18297,36 +18379,37 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="28">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_不下载重复文件的提示')}">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_不下载重复文件')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_不下载重复文件的提示">
+      <span data-xztext="_不下载重复文件"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="deduplication">
-      <span>&nbsp; ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_策略')}</span>
+      &nbsp; <span data-xztext="_策略"></span>
       <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
       <span class="beautify_radio"></span>
-      <label class="has_tip" for="dupliStrategy1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_严格模式说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_严格')}</label>
+      <label class="has_tip" for="dupliStrategy1" data-xztip="_严格模式说明" data-xztext="_严格"></label>
       &nbsp;
       <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
       <span class="beautify_radio"></span>
-      <label class="has_tip" for="dupliStrategy2" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_宽松模式说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_宽松')}</label>
+      <label class="has_tip" for="dupliStrategy2" data-xztip="_宽松模式说明" data-xztext="_宽松"></label>
       &nbsp;
-      <button class="textButton gray1" type="button" id="exportDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导出')}</button>
-      <button class="textButton gray1" type="button" id="importDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入')}</button>
-      <button class="textButton gray1" type="button" id="clearDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除')}</button>
+      <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
+      <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
+      <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
       </span>
       </p>
 
       <p class="option" data-no="54">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_自动导出抓取结果')} </span>
+      <span class="settingNameStyle1" data-xztext="_自动导出抓取结果"></span>
       <input type="checkbox" name="autoExportResult" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="autoExportResult">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_文件数量大于')}</span>
+      <span data-xztext="_文件数量大于"></span>
       <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
       <span>&nbsp;</span>
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_文件格式')} </span>
+      <span class="settingNameStyle1" data-xztext="_文件格式"> </span>
       <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
       <label for="autoExportResultCSV"> CSV </label>
@@ -18339,20 +18422,22 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option settingCategoryName" data-no="59">
-        <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_抓取')}</span>
+        <span data-xztext="_抓取"></span>
       </p>
 
       <p class="option" data-no="35">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_用户阻止名单的说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_用户阻止名单')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_用户阻止名单的说明">
+      <span data-xztext="_用户阻止名单"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="userBlockList">
-      <input type="text" name="blockList" class="setinput_style1 blue setinput_tag" placeholder="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_用户ID必须是数字')}">
+      <input type="text" name="blockList" class="setinput_style1 blue setinput_tag" data-xzplaceholder="_用户ID必须是数字">
       </span>
       </p>
 
       <p class="option" data-no="39">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_针对特定用户屏蔽tag')}</span>
+      <span class="settingNameStyle1" data-xztext="_针对特定用户屏蔽tag"></span>
       <input type="checkbox" name="blockTagsForSpecificUser" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="blockTagsForSpecificUser">
@@ -18361,129 +18446,132 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option settingCategoryName" data-no="60">
-        <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_增强')}</span>
+        <span data-xztext="_增强"></span>
       </p>
 
       <p class="option" data-no="55">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_鼠标滚轮切换图片')}">
-        ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_预览作品')} <span class="gray1"> ? </span>
+      <span class="has_tip settingNameStyle1" data-xztip="_鼠标滚轮切换图片">
+      <span data-xztext="_预览作品"></span>
+      <span class="gray1"> ? </span>
       </span>
       <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="PreviewWork">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_等待时间')}&nbsp;</span>
+      <span data-xztext="_等待时间"></span>&nbsp;
       <input type="text" name="previewWorkWait" class="setinput_style1 blue" value="400" style="width:40px;min-width: 40px;">
       <span>&nbsp;ms</span>
 
       <span class="verticalSplit"></span>
 
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸2')}</span>
+      <span class="settingNameStyle1" data-xztext="_图片尺寸2"></span>
       <input type="radio" name="prevWorkSize" id="prevWorkSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
-      <label for="prevWorkSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_原图')} </label>
+      <label for="prevWorkSize1" data-xztext="_原图"></label>
       &nbsp;
       <input type="radio" name="prevWorkSize" id="prevWorkSize2" class="need_beautify radio" value="regular" checked>
       <span class="beautify_radio"></span>
-      <label for="prevWorkSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_普通')} </label>
+      <label for="prevWorkSize2" data-xztext="_普通"></label>
       </p>
 
       <p class="option" data-no="62">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_长按右键显示大图')} </span>
+      <span class="settingNameStyle1" data-xztext="_长按右键显示大图"></span>
       <input type="checkbox" name="showOriginImage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="showOriginImage">
       
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸2')}</span>
+      <span class="settingNameStyle1" data-xztext="_图片尺寸2"></span>
       <input type="radio" name="showOriginImageSize" id="showOriginImageSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
-      <label for="showOriginImageSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_原图')} </label>
+      <label for="showOriginImageSize1" data-xztext="_原图"></label>
       &nbsp;
       <input type="radio" name="showOriginImageSize" id="showOriginImageSize2" class="need_beautify radio" value="regular" checked>
       <span class="beautify_radio"></span>
-      <label for="showOriginImageSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_普通')} </label>
+      <label for="showOriginImageSize2" data-xztext="_普通"></label>
       </p>
 
       <p class="option" data-no="40">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在作品缩略图上显示放大图标')} </span>
+      <span class="settingNameStyle1" data-xztext="_在作品缩略图上显示放大图标"></span>
       <input type="checkbox" name="magnifier" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="magnifier">
 
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_位置')} </span>
+      <span class="settingNameStyle1" data-xztext="_位置"> </span>
       <input type="radio" name="magnifierPosition" id="magnifierPosition1" class="need_beautify radio" value="left">
       <span class="beautify_radio"></span>
-      <label for="magnifierPosition1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_左')} </label>
+      <label for="magnifierPosition1" data-xztext="_左"></label>
       &nbsp;
       <input type="radio" name="magnifierPosition" id="magnifierPosition2" class="need_beautify radio" value="right" checked>
       <span class="beautify_radio"></span>
-      <label for="magnifierPosition2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_右')} </label>
+      <label for="magnifierPosition2" data-xztext="_右"></label>
 
       <span class="verticalSplit"></span>
 
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸2')}</span>
+      <span class="settingNameStyle1" data-xztext="_图片尺寸2"></span>
       <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
-      <label for="magnifierSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_原图')} </label>
+      <label for="magnifierSize1" data-xztext="_原图"></label>
       &nbsp;
       <input type="radio" name="magnifierSize" id="magnifierSize2" class="need_beautify radio" value="regular" checked>
       <span class="beautify_radio"></span>
-      <label for="magnifierSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_普通')} </label>
+      <label for="magnifierSize2" data-xztext="_普通"></label>
 
       </span>
       </p>
 
       <p class="option" data-no="56">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在作品缩略图上显示下载按钮')}</span>
+      <span class="settingNameStyle1" data-xztext="_在作品缩略图上显示下载按钮"></span>
       <input type="checkbox" name="showDownloadBtnOnThumb" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="48">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在搜索页面添加快捷搜索区域')} </span>
+      <span class="settingNameStyle1" data-xztext="_在搜索页面添加快捷搜索区域"></span>
       <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="18">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_预览搜索结果说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_预览搜索结果说明">
+      <span data-xztext="_预览搜索结果"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="previewResult" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="34">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_收藏设置')}</span>
+      <span class="settingNameStyle1" data-xztext="_收藏设置"></span>
       
       <input type="radio" name="widthTag" id="widthTag1" class="need_beautify radio" value="yes" checked>
       <span class="beautify_radio"></span>
-      <label for="widthTag1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_添加tag')}&nbsp;</label>
+      <label for="widthTag1" data-xztext="_添加tag"></label>&nbsp;
       <input type="radio" name="widthTag" id="widthTag2" class="need_beautify radio" value="no">
       <span class="beautify_radio"></span>
-      <label for="widthTag2">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_不添加tag')}</label>
+      <label for="widthTag2" data-xztext="_不添加tag"></label>
 
       <span class="verticalSplit"></span>
       
       <input type="radio" name="restrict" id="restrict1" class="need_beautify radio" value="no" checked>
       <span class="beautify_radio"></span>
-      <label for="restrict1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_公开')}&nbsp;</label>
+      <label for="restrict1" data-xztext="_公开"></label>&nbsp;
       <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="yes">
       <span class="beautify_radio"></span>
-      <label for="restrict2">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_不公开')}</label>
+      <label for="restrict2" data-xztext="_不公开"></label>
       </p>
 
       <p class="option settingCategoryName" data-no="61">
-        <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_其他')}</span>
+        <span data-xztext="_其他"></span>
       </p>
 
       <p class="option" data-no="31">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_日期格式')}</span>
+      <span class="settingNameStyle1" data-xztext="_日期格式"></span>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
-      <button type="button" class="gray1 textButton showDateTip">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_提示')}</button>
+      <button type="button" class="gray1 textButton showDateTip data-xztext="_提示"></button>
       </p>
       <p class="dateFormatTip tip" style="display:none">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_日期格式提示')}</span>
+      <span data-xztext="_日期格式提示"></span>
       <br>
       <span class="blue">YYYY</span> <span>2021</span>
       <br>
@@ -18506,10 +18594,10 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="36">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_颜色主题')}</span>
+      <span class="settingNameStyle1" data-xztext="_颜色主题"></span>
       <input type="radio" name="theme" id="theme1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio"></span>
-      <label for="theme1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_自动检测')}</label>
+      <label for="theme1" data-xztext="_自动检测"></label>
       &nbsp;
       <input type="radio" name="theme" id="theme2" class="need_beautify radio" value="white">
       <span class="beautify_radio"></span>
@@ -18521,46 +18609,44 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="41">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_背景图片')} </span>
+      <span class="settingNameStyle1" data-xztext="_背景图片"> </span>
       <input type="checkbox" name="bgDisplay" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="bgDisplay">
 
-      <button class="textButton gray1" type="button" id="selectBG">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_选择文件')}</button>
-      <button class="textButton gray1" type="button" id="clearBG">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除')}</button>
+      <button class="textButton gray1" type="button" id="selectBG" data-xztext="_选择文件"></button>
+      <button class="textButton gray1" type="button" id="clearBG" data-xztext="_清除"></button>
       
       &nbsp;
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_对齐方式')}&nbsp;</span>
+      <span data-xztext="_对齐方式"></span>&nbsp;
       <input type="radio" name="bgPositionY" id="bgPosition1" class="need_beautify radio" value="center" checked>
       <span class="beautify_radio"></span>
-      <label for="bgPosition1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_居中')}</label>
+      <label for="bgPosition1" data-xztext="_居中"></label>
       <input type="radio" name="bgPositionY" id="bgPosition2" class="need_beautify radio" value="top">
       <span class="beautify_radio"></span>
-      <label for="bgPosition2">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_顶部')}</label>
-
-      &nbsp;
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_不透明度')}&nbsp;</span>
+      <label for="bgPosition2" data-xztext="_顶部"></label>&nbsp;
+      <span data-xztext="_不透明度"></span>&nbsp;
       <input name="bgOpacity" type="range" />
       </span>
       </p>
       
       <p class="option" data-no="45">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_选项卡切换方式')}</span>
+      <span class="settingNameStyle1" data-xztext="_选项卡切换方式"></span>
       <input type="radio" name="switchTabBar" id="switchTabBar1" class="need_beautify radio" value="over" checked>
       <span class="beautify_radio"></span>
-      <label for="switchTabBar1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_鼠标经过')}</label>
+      <label for="switchTabBar1" data-xztext="_鼠标经过"></label>
       &nbsp;
       <input type="radio" name="switchTabBar" id="switchTabBar2" class="need_beautify radio" value="click">
       <span class="beautify_radio"></span>
-      <label for="switchTabBar2">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_鼠标点击')}</label>
+      <label for="switchTabBar2" data-xztext="_鼠标点击"></label>
       </p>
 
       <p class="option" data-no="32">
       <span class="settingNameStyle1"><span class="key">Language</span></span>
       <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio"></span>
-      <label for="userSetLang1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_自动检测')}</label>
+      <label for="userSetLang1" data-xztext="_自动检测"></label>
       &nbsp;
       <input type="radio" name="userSetLang" id="userSetLang2" class="need_beautify radio" value="zh-cn">
       <span class="beautify_radio"></span>
@@ -18581,17 +18667,16 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="53">
-      <span class="settingNameStyle1">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_以粗体显示关键字')}</span>
+      <span class="settingNameStyle1" data-xztext="_以粗体显示关键字"></span>
       <input type="checkbox" name="boldKeywords" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="37">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_管理设置')}</span>
-      <button class="textButton gray1" type="button" id="exportSettings">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导出设置')}</button>
-      <button class="textButton gray1" type="button" id="importSettings">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入设置')}</button>
-      <button class="textButton gray1" type="button" id="resetSettings">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_重置设置')}</button>
+      <span class="settingNameStyle1" data-xztext="_管理设置">$</span>
+      <button class="textButton gray1" type="button" id="exportSettings" data-xztext="_导出设置"></button>
+      <button class="textButton gray1" type="button" id="importSettings" data-xztext="_导入设置"></button>
+      <button class="textButton gray1" type="button" id="resetSettings" data-xztext="_重置设置"></button>
       </p>
     </div>
 </form>`;
@@ -19286,14 +19371,15 @@ class SaveNamingRule {
         this._show = false; // 是否显示列表
         this.html = `
   <div class="saveNamingRuleWrap">
-  <button class="nameSave textButton has_tip" type="button" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存命名规则提示', this.limit.toString())}">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存')}</button>
-  <button class="nameLoad textButton" type="button">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_加载')}</button>
+  <button class="nameSave textButton has_tip" type="button" data-xztip="_保存命名规则提示" data-xztext="_保存"></button>
+  <button class="nameLoad textButton" type="button" data-xztext="_加载"></button>
   <ul class="namingRuleList"></ul>
   </div>`;
         this.ruleInput = ruleInput;
         _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].clearSlot('saveNamingRule');
         const wrap = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].useSlot('saveNamingRule', this.html);
         _Theme__WEBPACK_IMPORTED_MODULE_3__["theme"].register(wrap);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(wrap);
         this.saveBtn = wrap.querySelector('button.nameSave');
         this.loadBtn = wrap.querySelector('button.nameLoad');
         this.listWrap = wrap.querySelector('ul.namingRuleList');

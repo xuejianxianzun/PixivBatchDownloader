@@ -12,8 +12,9 @@ class SaveNamingRule {
     this.ruleInput = ruleInput
 
     Tools.clearSlot('saveNamingRule')
-    const wrap = Tools.useSlot('saveNamingRule', this.html)
+    const wrap = Tools.useSlot('saveNamingRule', this.html) as HTMLElement
     theme.register(wrap)
+    lang.register(wrap)
 
     this.saveBtn = wrap.querySelector('button.nameSave')! as HTMLButtonElement
     this.loadBtn = wrap.querySelector('button.nameLoad')! as HTMLButtonElement
@@ -130,13 +131,8 @@ class SaveNamingRule {
 
   private readonly html = `
   <div class="saveNamingRuleWrap">
-  <button class="nameSave textButton has_tip" type="button" data-tip="${lang.transl(
-    '_保存命名规则提示',
-    this.limit.toString()
-  )}">${lang.transl('_保存')}</button>
-  <button class="nameLoad textButton" type="button">${lang.transl(
-    '_加载'
-  )}</button>
+  <button class="nameSave textButton has_tip" type="button" data-xztip="_保存命名规则提示" data-xztext="_保存"></button>
+  <button class="nameLoad textButton" type="button" data-xztext="_加载"></button>
   <ul class="namingRuleList"></ul>
   </div>`
 }
