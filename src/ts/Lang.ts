@@ -32,7 +32,10 @@ class Lang {
       const old = this.type
       this.type = this.getType(data.value)
       if (this.type !== old) {
-        this.change()
+        EVT.fire('langChange')
+        this.elList.forEach((el) => {
+          this.handleMark(el)
+        })
       }
     })
   }
@@ -76,57 +79,102 @@ class Lang {
 
   public register(el: HTMLElement) {
     this.elList.push(el)
-    this.updateText(el)
-
-    // const observer = new MutationObserver((records) => {
-    //   // type MutationRecordType = "attributes" | "characterData" | "childList";
-    //   for (const record of records) {
-    //     console.log(record.type)
-    //   }
-    // })
-    // observer.observe(el, {
-    //   childList: true,
-    //   subtree: true,
-    // })
+    this.handleMark(el)
   }
 
-  private updateText(wrap: HTMLElement) {
-    const textEl = wrap.querySelectorAll('*[data-xztext]') as NodeListOf<HTMLElement>
+  // 查找元素上的标记，设置其文本和属性
+  private handleMark(wrap: HTMLElement) {
+    // 设置 innerHTML
+    const textEl = wrap.querySelectorAll(
+      '*[data-xztext]'
+    ) as NodeListOf<HTMLElement>
     for (const el of textEl) {
       // 因为有些文本中含有 html 标签，所以这里需要使用 innerHTML 而不是 textContent
-      el.innerHTML = this.transl(el.dataset.xztext! as keyof typeof langText)
+      el.innerHTML = this.transl(el.dataset.xztext! as any)
+    }
+    // 元素自身存在 xztext 标记的情况
+    const text = wrap.dataset.xztext
+    if (text) {
+      wrap.innerHTML = this.transl(text as any)
     }
 
-    const tipEl = wrap.querySelectorAll('*[data-xztip]') as NodeListOf<HTMLElement>
+    // 设置带参数的 innerHTML
+    const textArgsEl = wrap.querySelectorAll(
+      '*[data-xztextargs]'
+    ) as NodeListOf<HTMLElement>
+    textArgsEl.forEach(el => this.handleTextArgs(el))
+    // 元素自身存在 xztextargs 标记的情况
+    const textargs = wrap.dataset.xztextargs
+    if (textargs) {
+      this.handleTextArgs(wrap)
+    }
+
+    // 设置 tip
+    const tipEl = wrap.querySelectorAll(
+      '*[data-xztip]'
+    ) as NodeListOf<HTMLElement>
     for (const el of tipEl) {
-      el.dataset.tip = this.transl(el.dataset.xztip! as keyof typeof langText)
+      el.dataset.tip = this.transl(el.dataset.xztip! as any)
     }
 
-    const placeholderEl = wrap.querySelectorAll('*[data-xzplaceholder]') as NodeListOf<HTMLElement>
+    // 设置 placeholder
+    const placeholderEl = wrap.querySelectorAll(
+      '*[data-xzplaceholder]'
+    ) as NodeListOf<HTMLElement>
     for (const el of placeholderEl) {
-      el.setAttribute('placeholder', this.transl(el.dataset.xzplaceholder! as keyof typeof langText))
+      el.setAttribute(
+        'placeholder',
+        this.transl(el.dataset.xzplaceholder! as any)
+      )
     }
 
-    const titleEl = wrap.querySelectorAll('*[data-xztitle]') as NodeListOf<HTMLElement>
+    // 设置 title
+    const titleEl = wrap.querySelectorAll(
+      '*[data-xztitle]'
+    ) as NodeListOf<HTMLElement>
     for (const el of titleEl) {
-      el.setAttribute('title', this.transl(el.dataset.xztitle! as keyof typeof langText))
+      el.setAttribute(
+        'title',
+        this.transl(el.dataset.xztitle! as any)
+      )
     }
-
-    // 有一些设置 title 标记的元素需要设置到自己身上，而不是子元素上
+    // 元素自身存在 title 标记的情况
     const title = wrap.dataset.xztitle
-    if(title){
-      wrap.setAttribute('title', this.transl(title as keyof typeof langText))
+    if (title) {
+      wrap.setAttribute('title', this.transl(title as any))
     }
   }
 
-  private change() {
-    EVT.fire('langChange')
-    this.elList.forEach(el => {
-      this.updateText(el)
-    })
+  private handleTextArgs(el: HTMLElement) {
+    let args = el.dataset.xztextargs!.split(',')
+    const first = args.shift()
+    el.innerHTML = this.transl(first as any, ...args)
+  }
+
+  // 需要更新已注册元素的文本时调用此方法
+  public updateText(el: HTMLElement, ...args: string[]) {
+    // 清空文本
+    if (args === undefined || args[0] === '') {
+      delete el.dataset.xztext
+      delete el.dataset.xztextargs
+      el.innerHTML = ''
+      return
+    }
+    // 设置文本
+    if (args.length === 1) {
+      // 无参数文本
+      el.dataset.xztext = args[0]
+      el.innerHTML = this.transl(args[0] as any)
+      delete el.dataset.xztextargs
+    } else {
+      // 有参数文本
+      el.dataset.xztextargs = args.join(',')
+      const first = args.shift()
+      el.innerHTML = this.transl(first as any, ...args)
+      delete el.dataset.xztext
+    }
   }
 }
-
 
 const lang = new Lang()
 

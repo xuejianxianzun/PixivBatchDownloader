@@ -154,7 +154,7 @@ class EVENT {
     // 显示原比例图片时触发
     showOriginSizeImage: 'showOriginSizeImage',
     // 语言类型改变时触发
-    langChange:'langChange',
+    langChange: 'langChange',
   }
 
   // 触发自定义事件，大部分事件都不需要携带数据

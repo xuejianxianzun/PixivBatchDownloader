@@ -17,14 +17,17 @@ class InitRankingNovelPage extends InitPageBase {
   private pageUrlList: string[] = []
 
   protected addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取本排行榜作品'), [
-      ['title', lang.transl('_抓取本排行榜作品Title')],
-    ]).addEventListener('click', () => {
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_抓取本排行榜作品',
+      '_抓取本排行榜作品Title'
+    ).addEventListener('click', () => {
       this.readyCrawl()
     })
   }
 
-  protected initAny() { }
+  protected initAny() {}
 
   protected setFormOption() {
     // 个数/页数选项的提示

@@ -222,15 +222,15 @@ class SelectWork {
     this.controlBtn = Tools.addBtn(
       'selectWorkBtns',
       Colors.bgGreen,
-      lang.transl('_手动选择作品'),
-      [['title', 'Alt + S']]
+      '_手动选择作品'
     )
+    this.controlBtn.setAttribute('title', 'Alt + S')
     this.updateControlBtn()
 
     this.clearBtn = Tools.addBtn(
       'selectWorkBtns',
       Colors.bgRed,
-      lang.transl('_清空选择的作品')
+      '_清空选择的作品'
     )
     this.clearBtn.style.display = 'none'
     this.clearBtn.addEventListener('click', () => {
@@ -240,7 +240,7 @@ class SelectWork {
     this.crawlBtn = Tools.addBtn(
       'selectWorkBtns',
       Colors.bgBlue,
-      lang.transl('_抓取选择的作品')
+      '_抓取选择的作品'
     )
     this.crawlBtn.style.display = 'none'
     this.crawlBtn.addEventListener('click', (ev) => {
@@ -251,19 +251,19 @@ class SelectWork {
   // 切换控制按钮的文字和点击事件
   private updateControlBtn() {
     if (!this.start) {
-      this.controlBtn.textContent = lang.transl('_手动选择作品')
+      lang.updateText(this.controlBtn, '_手动选择作品')
       this.controlBtn.onclick = (ev) => {
         this.startSelect(ev)
         this.clearBtn.style.display = 'block'
       }
     } else {
       if (!this.pause) {
-        this.controlBtn.textContent = lang.transl('_暂停选择')
+        lang.updateText(this.controlBtn, '_暂停选择')
         this.controlBtn.onclick = (ev) => {
           this.pauseSelect()
         }
       } else {
-        this.controlBtn.textContent = lang.transl('_继续选择')
+        lang.updateText(this.controlBtn, '_继续选择')
         this.controlBtn.onclick = (ev) => {
           this.startSelect(ev)
         }
@@ -275,10 +275,9 @@ class SelectWork {
   private updateCrawlBtn() {
     this.crawlBtn.style.display = this.start ? 'block' : 'none'
     if (this.idList.length > 0) {
-      this.crawlBtn.textContent =
-        lang.transl('_抓取选择的作品') + ` ${this.idList.length}`
+      lang.updateText(this.crawlBtn, '_抓取选择的作品2', this.idList.length.toString())
     } else {
-      this.crawlBtn.textContent = lang.transl('_抓取选择的作品')
+      lang.updateText(this.crawlBtn, '_抓取选择的作品')
     }
   }
 

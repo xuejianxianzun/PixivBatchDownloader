@@ -90,11 +90,7 @@ class Form {
     })
 
     // 预览文件名
-    Tools.addBtn(
-      'namingBtns',
-      Colors.bgGreen,
-      lang.transl('_预览文件名')
-    ).addEventListener(
+    Tools.addBtn('namingBtns', Colors.bgGreen, '_预览文件名').addEventListener(
       'click',
       () => {
         EVT.fire('previewFileName')
@@ -105,11 +101,7 @@ class Form {
     // 添加只在 pixiv 上使用的按钮
     if (Utils.isPixiv()) {
       // 导出 csv
-      Tools.addBtn(
-        'exportResult',
-        Colors.bgGreen,
-        lang.transl('_导出csv')
-      ).addEventListener(
+      Tools.addBtn('exportResult', Colors.bgGreen, '_导出csv').addEventListener(
         'click',
         () => {
           EVT.fire('exportCSV')
@@ -121,7 +113,7 @@ class Form {
       Tools.addBtn(
         'exportResult',
         Colors.bgGreen,
-        lang.transl('_导出抓取结果')
+        '_导出抓取结果'
       ).addEventListener(
         'click',
         () => {
@@ -134,7 +126,7 @@ class Form {
       Tools.addBtn(
         'exportResult',
         Colors.bgGreen,
-        lang.transl('_导入抓取结果')
+        '_导入抓取结果'
       ).addEventListener(
         'click',
         () => {

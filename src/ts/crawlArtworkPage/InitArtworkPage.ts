@@ -61,7 +61,7 @@ class InitArtworkPage extends InitPageBase {
     Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
-      lang.transl('_从本页开始抓取new')
+      '_从本页开始抓取new'
     ).addEventListener('click', () => {
       this.crawlDirection = -1
       this.readyCrawl()
@@ -70,7 +70,7 @@ class InitArtworkPage extends InitPageBase {
     Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
-      lang.transl('_从本页开始抓取old')
+      '_从本页开始抓取old'
     ).addEventListener('click', () => {
       this.crawlDirection = 1
       this.readyCrawl()
@@ -79,7 +79,7 @@ class InitArtworkPage extends InitPageBase {
     const downRelatedBtn = Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
-      lang.transl('_抓取相关作品')
+      '_抓取相关作品'
     )
     downRelatedBtn.addEventListener(
       'click',

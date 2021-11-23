@@ -92,9 +92,12 @@ class DeleteWorks {
   public addClearMultipleBtn(selector: string, callback: Function = () => {}) {
     this.multipleSelector = selector
 
-    Tools.addBtn('crawlBtns', Colors.bgRed, lang.transl('_清除多图作品'), [
-      ['title', lang.transl('_清除多图作品Title')],
-    ]).addEventListener(
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgRed,
+      '_清除多图作品',
+      '_清除多图作品Title'
+    ).addEventListener(
       'click',
       () => {
         if (states.busy) {
@@ -113,9 +116,12 @@ class DeleteWorks {
   public addClearUgoiraBtn(selector: string, callback: Function = () => {}) {
     this.ugoiraSelector = selector
 
-    Tools.addBtn('crawlBtns', Colors.bgRed, lang.transl('_清除动图作品'), [
-      ['title', lang.transl('_清除动图作品Title')],
-    ]).addEventListener(
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgRed,
+      '_清除动图作品',
+      '_清除动图作品Title'
+    ).addEventListener(
       'click',
       () => {
         if (states.busy) {
@@ -136,8 +142,8 @@ class DeleteWorks {
     this.delBtn = Tools.addBtn(
       'crawlBtns',
       Colors.bgRed,
-      lang.transl('_手动删除作品'),
-      [['title', lang.transl('_手动删除作品Title')]]
+      '_手动删除作品',
+      '_手动删除作品Title'
     )
 
     this.delBtn.addEventListener('click', () => {
@@ -154,12 +160,12 @@ class DeleteWorks {
     this.updateDeleteIcon()
 
     if (this.delMode) {
-      this.delBtn.textContent = lang.transl('_退出手动删除')
+      lang.updateText(this.delBtn, '_退出手动删除')
       setTimeout(() => {
         EVT.fire('closeCenterPanel')
       }, 100)
     } else {
-      this.delBtn.textContent = lang.transl('_手动删除作品')
+      lang.updateText(this.delBtn, '_手动删除作品')
     }
   }
 

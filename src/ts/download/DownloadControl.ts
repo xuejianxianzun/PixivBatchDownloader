@@ -72,8 +72,6 @@ class DownloadControl {
 
   private wrapper: HTMLDivElement = document.createElement('div')
 
-  private totalNumberEl: HTMLSpanElement = document.createElement('span')
-
   private stop = false // 是否停止下载
 
   private pause = false // 是否暂停下载
@@ -152,28 +150,23 @@ class DownloadControl {
 
   private createDownloadArea() {
     const html = `<div class="download_area">
-    <p> ${lang.transl(
-      '_共抓取到n个文件',
-      '<span class="fwb blue imgNum">0</span>'
-    )}</p>
-    
     <div class="centerWrap_btns">
     <button class="startDownload" type="button" style="background:${
       Colors.bgBlue
-    };"> ${lang.transl('_开始下载')}</button>
+    };" data-xztext="_开始下载"></button>
     <button class="pauseDownload" type="button" style="background:${
       Colors.bgYellow
-    };"> ${lang.transl('_暂停下载')}</button>
+    };" data-xztext="_暂停下载"></button>
     <button class="stopDownload" type="button" style="background:${
       Colors.bgRed
-    };"> ${lang.transl('_停止下载')}</button>
+    };" data-xztext="_停止下载"></button>
     <button class="copyUrl" type="button" style="background:${
       Colors.bgGreen
-    };"> ${lang.transl('_复制url')}</button>
+    };" data-xztext="_复制url"></button>
     </div>
     <div class="download_status_text_wrap">
-    <span>${lang.transl('_当前状态')}</span>
-    <span class="down_status">${lang.transl('_未开始下载')}</span>
+    <span data-xztext="_当前状态"></span>
+    <span class="down_status" data-xztext="_未开始下载"></span>
     <span class="skip_tip warn"></span>
     <span class="convert_tip warn"></span>
     <span class="bmkAfterDL_tip green"></span>
@@ -181,10 +174,7 @@ class DownloadControl {
     </div>`
 
     this.wrapper = Tools.useSlot('downloadArea', html) as HTMLDivElement
-
-    this.totalNumberEl = this.wrapper.querySelector(
-      '.imgNum'
-    ) as HTMLSpanElement
+    lang.register(this.wrapper)
 
     this.wrapper
       .querySelector('.startDownload')!
@@ -220,8 +210,6 @@ class DownloadControl {
     }
 
     this.showDownloadArea()
-
-    this.totalNumberEl.textContent = store.result.length.toString()
 
     this.setDownloaded()
 

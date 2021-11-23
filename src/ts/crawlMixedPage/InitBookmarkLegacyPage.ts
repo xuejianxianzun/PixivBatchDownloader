@@ -38,16 +38,22 @@ class InitBookmarkLegacyPage extends InitPageBase {
   private crawlRecommended: boolean = false // 是否抓取推荐作品（收藏页面下方）
 
   protected addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
-      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
-    ]).addEventListener('click', () => {
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_开始抓取',
+      '_默认下载多页'
+    ).addEventListener('click', () => {
       this.readyCrawl()
     })
 
     // 添加下载推荐作品的按钮
-    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取推荐作品'), [
-      ['title', lang.transl('_抓取推荐作品Title')],
-    ]).addEventListener(
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_抓取推荐作品',
+      '_抓取推荐作品Title'
+    ).addEventListener(
       'click',
       () => {
         this.crawlRecommended = true
@@ -63,8 +69,7 @@ class InitBookmarkLegacyPage extends InitPageBase {
       const btn = Tools.addBtn(
         'otherBtns',
         Colors.bgGreen,
-        lang.transl('_给未分类作品添加添加tag'),
-        [['title', lang.transl('_给未分类作品添加添加tag')]]
+        '_给未分类作品添加添加tag'
       )
 
       new BookmarksAddTag(btn)

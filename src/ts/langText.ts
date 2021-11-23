@@ -713,12 +713,6 @@ const langText = {
     'Crawl the related works',
     '関連作品をダウンロードする',
   ],
-  _默认下载多页: [
-    ', 如有多页，默认会下载全部。',
-    '，如有多頁，預設會下載全部。',
-    ', If there are multiple pages, the default will be downloaded.',
-    '、複数のページがある場合、デフォルトですべてをダウンロードされます。',
-  ],
   _调整完毕: [
     '调整完毕，当前有{}个作品。',
     '調整完畢，目前有 {} 個作品。',
@@ -976,7 +970,7 @@ const langText = {
     'Screen in results',
     '結果の中からスクリーニング',
   ],
-  _在结果中筛选Title: [
+  _在结果中筛选说明: [
     '您可以改变设置，并在结果中再次筛选。',
     '可以變更設定，並在結果中再次篩選。',
     'You can change the settings and screen again in the results.',
@@ -1445,6 +1439,12 @@ const langText = {
     'Crawl selected works',
     '選ばれた作品をクロール',
   ],
+  _抓取选择的作品2: [
+    '抓取选择的作品 {}',
+    '擷取選擇的作品 {}',
+    'Crawl selected works {}',
+    '選ばれた作品をクロール {}',
+  ],
   _清空选择的作品: [
     '清空选择的作品',
     '清空選擇的作品',
@@ -1834,11 +1834,17 @@ const langText = {
   ],
   _等待时间: ['等待时间', '等待時間', 'Waiting time', '待ち時間'],
   _格式错误: ['格式错误', '格式錯誤', 'Format error', 'フォーマットエラー'],
-  _下载数量错误:[
+  _下载数量错误: [
     '下载的页数（作品）数量设置错误',
     '下載的頁數（作品）數量設定錯誤',
     'The number of downloaded pages (works) is set incorrectly',
     '下载页数（作品）设置不正确',
+  ],
+  _默认下载多页: [
+    '开始抓取, 如有多页，默认会下载全部。',
+    '開始擷取，如有多頁，預設會下載全部。',
+    'Start crawl, if there are multiple pages, the default will be downloaded.',
+    'クロールを開始する、複数のページがある場合、デフォルトですべてをダウンロードされます。',
   ],
 }
 

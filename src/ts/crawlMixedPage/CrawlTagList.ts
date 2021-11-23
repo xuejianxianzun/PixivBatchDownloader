@@ -45,16 +45,15 @@ class CrawlTagList {
   private showTagListWrap!: HTMLUListElement
 
   private addCrawlBtns() {
-    Tools.addBtn(
-      'crawlBtns',
-      Colors.bgBlue,
-      lang.transl('_抓取标签列表')
-    ).addEventListener('click', () => {
-      EVT.fire('closeCenterPanel')
-      this.toggleWrap(true)
-      // 跳转到页面顶部，否则用户可能看不到输入区域
-      window.scrollTo(0, 0)
-    })
+    Tools.addBtn('crawlBtns', Colors.bgBlue, '_抓取标签列表').addEventListener(
+      'click',
+      () => {
+        EVT.fire('closeCenterPanel')
+        this.toggleWrap(true)
+        // 跳转到页面顶部，否则用户可能看不到输入区域
+        window.scrollTo(0, 0)
+      }
+    )
   }
 
   private addElement() {

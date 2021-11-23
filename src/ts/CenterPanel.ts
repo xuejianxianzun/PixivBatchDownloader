@@ -29,7 +29,7 @@ class CenterPanel {
 
     new BoldKeywords(this.centerPanel)
 
-    this.allLangFlag = lang.langTypes.map(type => 'lang_' + type)
+    this.allLangFlag = lang.langTypes.map((type) => 'lang_' + type)
     this.setLangFlag()
 
     this.bindEvents()
@@ -115,7 +115,7 @@ class CenterPanel {
 
   private allLangFlag: string[] = []
   private setLangFlag() {
-    this.allLangFlag.forEach(flag => {
+    this.allLangFlag.forEach((flag) => {
       this.centerPanel.classList.remove(flag)
     })
     this.centerPanel.classList.add('lang_' + lang.type)

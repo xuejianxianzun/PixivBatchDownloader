@@ -27,15 +27,11 @@ class InitHomePage extends InitPageBase {
     this.downIdButton = Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
-      lang.transl('_输入id进行抓取'),
-      [['id', 'down_id_button']]
+      '_输入id进行抓取'
     )
+    this.downIdButton.id = 'down_id_button'
 
-    const crawlIdRange = Tools.addBtn(
-      'crawlBtns',
-      Colors.bgBlue,
-      lang.transl('_抓取id区间')
-    )
+    const crawlIdRange = Tools.addBtn('crawlBtns', Colors.bgBlue, '_抓取id区间')
     crawlIdRange.addEventListener('click', () => {
       this.crawlIdRange()
     })
@@ -55,7 +51,7 @@ class InitHomePage extends InitPageBase {
     Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
-      lang.transl('_清空已保存的抓取结果')
+      '_清空已保存的抓取结果'
     ).addEventListener('click', () => {
       EVT.fire('clearSavedCrawl')
     })
@@ -89,11 +85,11 @@ class InitHomePage extends InitPageBase {
         window.setTimeout(() => {
           EVT.fire('openCenterPanel')
         }, 300)
-        this.downIdButton.textContent = lang.transl('_开始抓取')
+        lang.updateText(this.downIdButton, '_开始抓取')
       } else {
         this.ready = false
         EVT.fire('closeCenterPanel')
-        this.downIdButton.textContent = lang.transl('_输入id进行抓取')
+        lang.updateText(this.downIdButton, '_输入id进行抓取')
       }
     })
   }

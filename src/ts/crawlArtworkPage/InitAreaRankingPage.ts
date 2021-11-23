@@ -16,9 +16,12 @@ class InitAreaRankingPage extends InitPageBase {
   protected initAny() {}
 
   protected addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取本页作品'), [
-      ['title', lang.transl('_抓取本页作品Title')],
-    ]).addEventListener('click', () => {
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_抓取本页作品',
+      '_抓取本页作品Title'
+    ).addEventListener('click', () => {
       this.readyCrawl()
     })
   }

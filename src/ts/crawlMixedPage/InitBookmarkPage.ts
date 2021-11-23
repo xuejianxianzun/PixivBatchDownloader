@@ -36,9 +36,12 @@ class InitBookmarkPage extends InitPageBase {
   private offset: number = 0 // 要去掉的作品数量
 
   protected addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
-      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
-    ]).addEventListener('click', () => {
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_开始抓取',
+      '_默认下载多页'
+    ).addEventListener('click', () => {
       this.readyCrawl()
     })
   }
@@ -65,8 +68,7 @@ class InitBookmarkPage extends InitPageBase {
       const btn = Tools.addBtn(
         'otherBtns',
         Colors.bgGreen,
-        lang.transl('_给未分类作品添加添加tag'),
-        [['title', lang.transl('_给未分类作品添加添加tag')]]
+        '_给未分类作品添加添加tag'
       )
 
       new BookmarksAddTag(btn)

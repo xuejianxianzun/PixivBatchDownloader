@@ -14,9 +14,12 @@ class InitBookmarkDetailPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取相似图片'), [
-      ['title', lang.transl('_抓取相似图片')],
-    ]).addEventListener(
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_抓取相似图片',
+      '_抓取相似图片'
+    ).addEventListener(
       'click',
       () => {
         this.readyCrawl()
@@ -25,7 +28,7 @@ class InitBookmarkDetailPage extends InitPageBase {
     )
   }
 
-  protected initAny() { }
+  protected initAny() {}
 
   protected setFormOption() {
     // 个数/页数选项的提示

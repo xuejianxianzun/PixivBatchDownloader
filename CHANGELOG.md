@@ -13,9 +13,13 @@
 
 label标签加 padding-right？去掉 nbsp
 
-Tools.addBtn  内部注册lang
+setWantPageTip
 
-下载模块区域文本的动态切换
+复制按钮点击后显示轻提示
+
+重置设置无效
+
+lang.transl 259 个结果
 
 ## 11.5.0 2021/11/16
 

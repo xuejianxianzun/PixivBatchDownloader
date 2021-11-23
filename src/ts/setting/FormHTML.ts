@@ -122,8 +122,7 @@ export const formHtml = `<form class="settingForm">
       &gt;=&nbsp;
       <input type="text" name="BMKNumMin" class="setinput_style1 blue bmkNum" value="0">
       &lt;=&nbsp;
-      <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="${Config.BookmarkCountLimit
-  }">
+      <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="${Config.BookmarkCountLimit}">
   &nbsp;<span data-xztext="_或者"></span>
       <span class="has_tip settingNameStyle1" data-xztip="_日均收藏数量的提示">
       <span data-xztext="_日均收藏数量"></span>
@@ -423,23 +422,19 @@ export const formHtml = `<form class="settingForm">
       <span class="subOptionWrap" data-show="createFolderByType">
       <input type="checkbox" name="createFolderByTypeIllust" id="createFolderByTypeIllust" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="createFolderByTypeIllust" class="has_tip" data-tip="${Config.worksTypeName[0]
-  }">
+      <label for="createFolderByTypeIllust" class="has_tip" data-tip="${Config.worksTypeName[0]}">
       <span data-xztext="_插画"></span></label>&nbsp;
       <input type="checkbox" name="createFolderByTypeManga" id="createFolderByTypeManga" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="createFolderByTypeManga" class="has_tip" data-tip="${Config.worksTypeName[1]
-  }">
+      <label for="createFolderByTypeManga" class="has_tip" data-tip="${Config.worksTypeName[1]}">
       <span data-xztext="_漫画"></span></label>&nbsp;
       <input type="checkbox" name="createFolderByTypeUgoira" id="createFolderByTypeUgoira" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="createFolderByTypeUgoira" class="has_tip" data-tip="${Config.worksTypeName[2]
-  }">
+      <label for="createFolderByTypeUgoira" class="has_tip" data-tip="${Config.worksTypeName[2]}">
       <span data-xztext="_动图"></span></label>&nbsp;
       <input type="checkbox" name="createFolderByTypeNovel" id="createFolderByTypeNovel" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="createFolderByTypeNovel" class="has_tip" data-tip="${Config.worksTypeName[3]
-  }">
+      <label for="createFolderByTypeNovel" class="has_tip" data-tip="${Config.worksTypeName[3]}">
       <span data-xztext="_小说"></span></label>&nbsp;
       </p>
 

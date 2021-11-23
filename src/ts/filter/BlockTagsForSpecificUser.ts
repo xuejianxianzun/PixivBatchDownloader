@@ -21,6 +21,7 @@ class BlockTagsForSpecificUser {
     this.createAllList()
 
     theme.register(this.wrap)
+    lang.register(this.wrap)
 
     this.listWrapShow = this.listWrapShow
     this.updateWrapDisplay()
@@ -63,12 +64,8 @@ class BlockTagsForSpecificUser {
 
   set listWrapShow(val: boolean) {
     setSetting('blockTagsForSpecificUserShowList', val)
-
     this.listWrap.style.display = val ? 'block' : 'none'
-
-    this.expandBtn.textContent = val
-      ? lang.transl('_收起')
-      : lang.transl('_展开')
+    lang.updateText(this.expandBtn, val ? '_收起' : '_展开')
   }
 
   get listWrapShow() {
@@ -124,7 +121,6 @@ class BlockTagsForSpecificUser {
       'blockTagsForSpecificUser',
       this.wrapHTML
     )! as HTMLDivElement
-    lang.register(this.wrap)
     this.expandBtn = this.wrap.querySelector('.expand')! as HTMLButtonElement
     this.showAddBtn = this.wrap.querySelector('.showAdd')! as HTMLButtonElement
     this.totalSpan = this.wrap.querySelector('.total')! as HTMLSpanElement
@@ -180,7 +176,7 @@ class BlockTagsForSpecificUser {
     const html = `
     <div class="settingItem" data-key="${uid}">
       <div class="inputItem uid">
-        <span class="label uidLabel">${lang.transl('_用户id')}</span>
+        <span class="label uidLabel" data-xztext="_用户id"></span>
         <input type="text" class="setinput_style1 blue" data-uidInput="${uid}" value="${uid}" />
       </div>
 
@@ -191,17 +187,13 @@ class BlockTagsForSpecificUser {
 
       <div class="btns">
 
-        <button type="button" class="textButton" data-updateRule="${uid}" title="${lang.transl(
-      '_更新'
-    )}">
+        <button type="button" class="textButton" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-gengxin"></use>
           </svg>
         </button>
 
-        <button type="button" class="textButton" data-deleteRule="${uid}" title="${lang.transl(
-      '_删除'
-    )}">
+        <button type="button" class="textButton" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-shanchu1"></use>
           </svg>
@@ -232,14 +224,14 @@ class BlockTagsForSpecificUser {
       `input[data-tagsInput='${uid}']`
     )! as HTMLInputElement
 
-    // 当输入框发生变化时，进行更新
-    ;[uidInput, tagsInput].forEach((el) => {
-      el?.addEventListener('change', () => {
-        if (el.value) {
-          this.updateRule(uid, uidInput.value, tagsInput.value, false)
-        }
+      // 当输入框发生变化时，进行更新
+      ;[uidInput, tagsInput].forEach((el) => {
+        el?.addEventListener('change', () => {
+          if (el.value) {
+            this.updateRule(uid, uidInput.value, tagsInput.value, false)
+          }
+        })
       })
-    })
 
     // 更新按钮
     updateRule?.addEventListener('click', () => {

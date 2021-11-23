@@ -531,7 +531,7 @@ class CenterPanel {
         this.activeTab(Tabbar.Crawl);
         new _setting_BG__WEBPACK_IMPORTED_MODULE_6__["BG"](this.centerPanel);
         new _BoldKeywords__WEBPACK_IMPORTED_MODULE_9__["BoldKeywords"](this.centerPanel);
-        this.allLangFlag = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].langTypes.map(type => 'lang_' + type);
+        this.allLangFlag = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].langTypes.map((type) => 'lang_' + type);
         this.setLangFlag();
         this.bindEvents();
     }
@@ -600,7 +600,7 @@ class CenterPanel {
         this.allTabTitle = this.centerPanel.querySelectorAll('.tabsTitle .title');
     }
     setLangFlag() {
-        this.allLangFlag.forEach(flag => {
+        this.allLangFlag.forEach((flag) => {
             this.centerPanel.classList.remove(flag);
         });
         this.centerPanel.classList.add('lang_' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].type);
@@ -2417,7 +2417,10 @@ class Lang {
             const old = this.type;
             this.type = this.getType(data.value);
             if (this.type !== old) {
-                this.change();
+                _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('langChange');
+                this.elList.forEach((el) => {
+                    this.handleMark(el);
+                });
             }
         });
     }
@@ -2450,47 +2453,78 @@ class Lang {
     }
     register(el) {
         this.elList.push(el);
-        this.updateText(el);
-        // const observer = new MutationObserver((records) => {
-        //   // type MutationRecordType = "attributes" | "characterData" | "childList";
-        //   for (const record of records) {
-        //     console.log(record.type)
-        //   }
-        // })
-        // observer.observe(el, {
-        //   childList: true,
-        //   subtree: true,
-        // })
+        this.handleMark(el);
     }
-    updateText(wrap) {
+    // 查找元素上的标记，设置其文本和属性
+    handleMark(wrap) {
+        // 设置 innerHTML
         const textEl = wrap.querySelectorAll('*[data-xztext]');
         for (const el of textEl) {
             // 因为有些文本中含有 html 标签，所以这里需要使用 innerHTML 而不是 textContent
             el.innerHTML = this.transl(el.dataset.xztext);
         }
+        // 元素自身存在 xztext 标记的情况
+        const text = wrap.dataset.xztext;
+        if (text) {
+            wrap.innerHTML = this.transl(text);
+        }
+        // 设置带参数的 innerHTML
+        const textArgsEl = wrap.querySelectorAll('*[data-xztextargs]');
+        textArgsEl.forEach(el => this.handleTextArgs(el));
+        // 元素自身存在 xztextargs 标记的情况
+        const textargs = wrap.dataset.xztextargs;
+        if (textargs) {
+            this.handleTextArgs(wrap);
+        }
+        // 设置 tip
         const tipEl = wrap.querySelectorAll('*[data-xztip]');
         for (const el of tipEl) {
             el.dataset.tip = this.transl(el.dataset.xztip);
         }
+        // 设置 placeholder
         const placeholderEl = wrap.querySelectorAll('*[data-xzplaceholder]');
         for (const el of placeholderEl) {
             el.setAttribute('placeholder', this.transl(el.dataset.xzplaceholder));
         }
+        // 设置 title
         const titleEl = wrap.querySelectorAll('*[data-xztitle]');
         for (const el of titleEl) {
             el.setAttribute('title', this.transl(el.dataset.xztitle));
         }
-        // 有一些设置 title 标记的元素需要设置到自己身上，而不是子元素上
+        // 元素自身存在 title 标记的情况
         const title = wrap.dataset.xztitle;
         if (title) {
             wrap.setAttribute('title', this.transl(title));
         }
     }
-    change() {
-        _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('langChange');
-        this.elList.forEach(el => {
-            this.updateText(el);
-        });
+    handleTextArgs(el) {
+        let args = el.dataset.xztextargs.split(',');
+        const first = args.shift();
+        el.innerHTML = this.transl(first, ...args);
+    }
+    // 需要更新已注册元素的文本时调用此方法
+    updateText(el, ...args) {
+        // 清空文本
+        if (args === undefined || args[0] === '') {
+            delete el.dataset.xztext;
+            delete el.dataset.xztextargs;
+            el.innerHTML = '';
+            return;
+        }
+        // 设置文本
+        if (args.length === 1) {
+            // 无参数文本
+            el.dataset.xztext = args[0];
+            el.innerHTML = this.transl(args[0]);
+            delete el.dataset.xztextargs;
+        }
+        else {
+            // 有参数文本
+            el.dataset.xztextargs = args.join(',');
+            const first = args.shift();
+            el.innerHTML = this.transl(first, ...args);
+            delete el.dataset.xztext;
+        }
     }
 }
 const lang = new Lang();
@@ -3223,12 +3257,6 @@ const langText = {
         'Crawl the related works',
         '関連作品をダウンロードする',
     ],
-    _默认下载多页: [
-        ', 如有多页，默认会下载全部。',
-        '，如有多頁，預設會下載全部。',
-        ', If there are multiple pages, the default will be downloaded.',
-        '、複数のページがある場合、デフォルトですべてをダウンロードされます。',
-    ],
     _调整完毕: [
         '调整完毕，当前有{}个作品。',
         '調整完畢，目前有 {} 個作品。',
@@ -3486,7 +3514,7 @@ const langText = {
         'Screen in results',
         '結果の中からスクリーニング',
     ],
-    _在结果中筛选Title: [
+    _在结果中筛选说明: [
         '您可以改变设置，并在结果中再次筛选。',
         '可以變更設定，並在結果中再次篩選。',
         'You can change the settings and screen again in the results.',
@@ -3955,6 +3983,12 @@ const langText = {
         'Crawl selected works',
         '選ばれた作品をクロール',
     ],
+    _抓取选择的作品2: [
+        '抓取选择的作品 {}',
+        '擷取選擇的作品 {}',
+        'Crawl selected works {}',
+        '選ばれた作品をクロール {}',
+    ],
     _清空选择的作品: [
         '清空选择的作品',
         '清空選擇的作品',
@@ -4349,6 +4383,12 @@ const langText = {
         '下載的頁數（作品）數量設定錯誤',
         'The number of downloaded pages (works) is set incorrectly',
         '下载页数（作品）设置不正确',
+    ],
+    _默认下载多页: [
+        '开始抓取, 如有多页，默认会下载全部。',
+        '開始擷取，如有多頁，預設會下載全部。',
+        'Start crawl, if there are multiple pages, the default will be downloaded.',
+        'クロールを開始する、複数のページがある場合、デフォルトですべてをダウンロードされます。',
     ],
 };
 
@@ -5537,14 +5577,15 @@ class SelectWork {
         }
     }
     addBtn() {
-        this.controlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_手动选择作品'), [['title', 'Alt + S']]);
+        this.controlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_手动选择作品');
+        this.controlBtn.setAttribute('title', 'Alt + S');
         this.updateControlBtn();
-        this.clearBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgRed, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_清空选择的作品'));
+        this.clearBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgRed, '_清空选择的作品');
         this.clearBtn.style.display = 'none';
         this.clearBtn.addEventListener('click', () => {
             this.clearIdList();
         });
-        this.crawlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取选择的作品'));
+        this.crawlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取选择的作品');
         this.crawlBtn.style.display = 'none';
         this.crawlBtn.addEventListener('click', (ev) => {
             this.downloadSelect();
@@ -5553,7 +5594,7 @@ class SelectWork {
     // 切换控制按钮的文字和点击事件
     updateControlBtn() {
         if (!this.start) {
-            this.controlBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_手动选择作品');
+            _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.controlBtn, '_手动选择作品');
             this.controlBtn.onclick = (ev) => {
                 this.startSelect(ev);
                 this.clearBtn.style.display = 'block';
@@ -5561,13 +5602,13 @@ class SelectWork {
         }
         else {
             if (!this.pause) {
-                this.controlBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_暂停选择');
+                _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.controlBtn, '_暂停选择');
                 this.controlBtn.onclick = (ev) => {
                     this.pauseSelect();
                 };
             }
             else {
-                this.controlBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_继续选择');
+                _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.controlBtn, '_继续选择');
                 this.controlBtn.onclick = (ev) => {
                     this.startSelect(ev);
                 };
@@ -5578,11 +5619,10 @@ class SelectWork {
     updateCrawlBtn() {
         this.crawlBtn.style.display = this.start ? 'block' : 'none';
         if (this.idList.length > 0) {
-            this.crawlBtn.textContent =
-                _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取选择的作品') + ` ${this.idList.length}`;
+            _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.crawlBtn, '_抓取选择的作品2', this.idList.length.toString());
         }
         else {
-            this.crawlBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取选择的作品');
+            _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.crawlBtn, '_抓取选择的作品');
         }
     }
     // 监听点击事件
@@ -6978,7 +7018,9 @@ const token = new Token();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tools", function() { return Tools; });
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 class Tools {
     // 把结果中的动图排列到最前面
@@ -7021,7 +7063,7 @@ class Tools {
         }
         // 4 旧版收藏页面
         if (nowURL.pathname === '/bookmark.php') {
-            if (parseInt(_utils_Utils__WEBPACK_IMPORTED_MODULE_0__["Utils"].getURLSearchField(nowURL.href, 'untagged')) === 1) {
+            if (parseInt(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].getURLSearchField(nowURL.href, 'untagged')) === 1) {
                 // 旧版 “未分类” tag 是个特殊标记
                 // https://www.pixiv.net/bookmark.php?untagged=1
                 return '未分類';
@@ -7043,7 +7085,7 @@ class Tools {
         }
         // 默认情况，从查询字符串里获取，如下网址
         // https://www.pixiv.net/bookmark.php?tag=R-18
-        return decodeURIComponent(_utils_Utils__WEBPACK_IMPORTED_MODULE_0__["Utils"].getURLSearchField(nowURL.href, 'tag'));
+        return decodeURIComponent(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].getURLSearchField(nowURL.href, 'tag'));
     }
     // 从 url 里获取 artworks id
     // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
@@ -7170,15 +7212,16 @@ class Tools {
         this.findSlot(name).innerHTML = '';
     }
     // 创建下载面板上的通用按钮
-    static addBtn(slot, bg = '', text = '', attr = []) {
+    // 注意 textFlag 和 titleFlag 必须是 LangText 里存在的属性，这是为了能根据语言设置动态切换文本
+    // 如果 text 和 title 是直接设置的字符串，那么不应该使用这个方法设置，而是由调用者自行设置
+    static addBtn(slot, bg = '', textFlag = '', titleFlag = '') {
         const e = document.createElement('button');
         e.type = 'button';
         e.style.backgroundColor = bg;
-        e.textContent = text;
-        for (const [key, value] of attr) {
-            e.setAttribute(key, value);
-        }
+        textFlag && e.setAttribute('data-xztext', textFlag);
+        titleFlag && e.setAttribute('data-xztitle', titleFlag);
         this.useSlot(slot, e);
+        _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].register(e);
         return e;
     }
     /**获取页面标题，并且删除 TitleBar 的标记和未读消息的计数（现在 p 站似乎没有消息计数了） */
@@ -7527,9 +7570,7 @@ class InitPageBase {
     }
     // 添加抓取区域的按钮
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
@@ -7967,13 +8008,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InitAreaRankingPage", function() { return InitAreaRankingPage; });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 // 初始化地区排行榜页面
-
 
 
 
@@ -7987,14 +8026,12 @@ class InitAreaRankingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     }
     initAny() { }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取本页作品'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取本页作品Title')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取本页作品', '_抓取本页作品Title').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
     setFormOption() {
-        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].hideOption([1]);
+        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([1]);
     }
     async getIdList() {
         const allPicArea = document.querySelectorAll('.ranking-item>.work_wrapper');
@@ -8014,9 +8051,9 @@ class InitAreaRankingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                 tags: tags,
                 bookmarkData: bookmarked,
             };
-            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_5__["filter"].check(filterOpt)) {
-                const id = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getIllustId(el.querySelector('a').href);
-                _store_Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.push({
+            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__["filter"].check(filterOpt)) {
+                const id = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getIllustId(el.querySelector('a').href);
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
                     type: 'unknown',
                     id,
                 });
@@ -8097,15 +8134,15 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         new _pageFunciton_QuickBookmark__WEBPACK_IMPORTED_MODULE_6__["QuickBookmark"]();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始抓取new')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_从本页开始抓取new').addEventListener('click', () => {
             this.crawlDirection = -1;
             this.readyCrawl();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始抓取old')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_从本页开始抓取old').addEventListener('click', () => {
             this.crawlDirection = 1;
             this.readyCrawl();
         });
-        const downRelatedBtn = _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取相关作品'));
+        const downRelatedBtn = _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取相关作品');
         downRelatedBtn.addEventListener('click', () => {
             this.crawlRelated = true;
             this.readyCrawl();
@@ -8252,9 +8289,7 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
@@ -8372,9 +8407,7 @@ class InitBookmarkDetailPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取相似图片'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取相似图片')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取相似图片', '_抓取相似图片').addEventListener('click', () => {
             this.readyCrawl();
         }, false);
     }
@@ -8419,12 +8452,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InitDiscoverPage", function() { return InitDiscoverPage; });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 // 初始化发现页面
-
 
 
 
@@ -8436,14 +8467,12 @@ class InitDiscoverPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取当前作品'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取当前作品Title')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取当前作品', '_抓取当前作品Title').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
     setFormOption() {
-        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].hideOption([1]);
+        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([1]);
     }
     getWantPage() { }
     getIdList() {
@@ -8454,8 +8483,8 @@ class InitDiscoverPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
             allWork.forEach((div) => {
                 const a = div.querySelector('a');
                 if (a) {
-                    const id = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getNovelId(a.href);
-                    _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
+                    const id = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getNovelId(a.href);
+                    _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.push({
                         type: 'novels',
                         id,
                     });
@@ -8467,8 +8496,8 @@ class InitDiscoverPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
             const allLink = document.querySelectorAll('div[width="184"]>a');
             // 获取已有作品的 id
             allLink.forEach((a) => {
-                const id = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getIllustId(a.href);
-                _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
+                const id = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getIllustId(a.href);
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.push({
                     type: 'unknown',
                     id,
                 });
@@ -8522,9 +8551,7 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载大家的新作品')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_下载大家的新作品').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
@@ -8641,13 +8668,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InitPixivisionPage", function() { return InitPixivisionPage; });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 // 初始化 pixivision 页面
-
 
 
 
@@ -8664,13 +8689,13 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
         const type = typeA.dataset.gtmLabel;
         if (type === 'illustration' || type === 'manga' || type === 'cosplay') {
             // 在插画、漫画、cosplay类型的页面上创建下载功能
-            _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取该页面的图片')).addEventListener('click', () => {
+            _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取该页面的图片').addEventListener('click', () => {
                 this.readyCrawl();
             }, false);
         }
     }
     setFormOption() {
-        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].hideOption([
+        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([
             1,
             2,
             3,
@@ -8727,7 +8752,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
     }
     // 保存要下载的图片的信息
     addResult(id, url, ext) {
-        _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].addResult({
+        _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].addResult({
             id: id,
             idNum: Number.parseInt(id),
             original: url,
@@ -8787,7 +8812,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
     // 通过加载图片来判断图片的后缀名。pixivision 页面直接获取的图片后缀都是 jpg 的
     async testExtName(url, id) {
         let ext = 'jpg'; // 默认为 jpg
-        await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__["Utils"].loadImg(url).catch(() => {
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__["Utils"].loadImg(url).catch(() => {
             // 如果图片加载失败则把后缀改为 png
             url = url.replace('.jpg', '.png');
             ext = 'png';
@@ -8844,16 +8869,14 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取本排行榜作品'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取本排行榜作品Title')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取本排行榜作品', '_抓取本排行榜作品Title').addEventListener('click', () => {
             this.readyCrawl();
         });
         // 判断当前页面是否有“首次登场”标记
         const debutModes = ['daily', 'daily_r18', 'rookie', ''];
         const mode = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__["Utils"].getURLSearchField(location.href, 'mode');
         if (debutModes.includes(mode)) {
-            _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取首次登场的作品'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取首次登场的作品Title')]]).addEventListener('click', () => {
+            _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取首次登场的作品', '_抓取首次登场的作品Title').addEventListener('click', () => {
                 _store_States__WEBPACK_IMPORTED_MODULE_10__["states"].debut = true;
                 this.readyCrawl();
             });
@@ -9290,17 +9313,13 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         });
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.resultMeta = [];
             this.crawlStartBySelf = true;
             window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.createWork);
             this.readyCrawl();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_在结果中筛选'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_在结果中筛选Title')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_在结果中筛选', '_在结果中筛选说明').addEventListener('click', () => {
             this.screenInResult();
         });
     }
@@ -9316,7 +9335,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('deleteWork', el);
         });
         // 添加收藏本页所有作品的功能
-        const bookmarkAllBtn = _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏本页面的所有作品'));
+        const bookmarkAllBtn = _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_收藏本页面的所有作品');
         const bookmarkAll = new _pageFunciton_BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__["BookmarkAllWorks"](bookmarkAllBtn);
         bookmarkAllBtn.addEventListener('click', () => {
             const listWrap = this.getWorksWrap();
@@ -9718,7 +9737,7 @@ class CrawlTagList {
         this.toggleWrap(true);
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取标签列表')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取标签列表').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('closeCenterPanel');
             this.toggleWrap(true);
             // 跳转到页面顶部，否则用户可能看不到输入区域
@@ -9922,15 +9941,11 @@ class InitBookmarkLegacyPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
         // 添加下载推荐作品的按钮
-        _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_抓取推荐作品'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_抓取推荐作品Title')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgBlue, '_抓取推荐作品', '_抓取推荐作品Title').addEventListener('click', () => {
             this.crawlRecommended = true;
             this.readyCrawl();
         }, false);
@@ -9938,7 +9953,7 @@ class InitBookmarkLegacyPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
     addAnyElement() {
         // 如果存在 token，则添加“添加 tag”按钮
         if (_Token__WEBPACK_IMPORTED_MODULE_3__["token"].token) {
-            const btn = _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_给未分类作品添加添加tag'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_给未分类作品添加添加tag')]]);
+            const btn = _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_给未分类作品添加添加tag');
             new _pageFunciton_BookmarksAddTag__WEBPACK_IMPORTED_MODULE_6__["BookmarksAddTag"](btn);
         }
     }
@@ -10147,9 +10162,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
@@ -10347,9 +10360,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
@@ -10367,7 +10378,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
     addAnyElement() {
         // 如果存在 token，则添加“添加 tag”按钮
         if (_Token__WEBPACK_IMPORTED_MODULE_8__["token"].token) {
-            const btn = _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_给未分类作品添加添加tag'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_给未分类作品添加添加tag')]]);
+            const btn = _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_给未分类作品添加添加tag');
             new _pageFunciton_BookmarksAddTag__WEBPACK_IMPORTED_MODULE_9__["BookmarksAddTag"](btn);
         }
     }
@@ -10539,12 +10550,10 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         }
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载用户列表')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_下载用户列表').addEventListener('click', () => {
             this.downUserList = true;
             this.readyCrawl();
         });
@@ -10739,8 +10748,9 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
         this.idRangeTip = this.createidRangeTip();
     }
     addCrawlBtns() {
-        this.downIdButton = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_输入id进行抓取'), [['id', 'down_id_button']]);
-        const crawlIdRange = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取id区间'));
+        this.downIdButton = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_输入id进行抓取');
+        this.downIdButton.id = 'down_id_button';
+        const crawlIdRange = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取id区间');
         crawlIdRange.addEventListener('click', () => {
             this.crawlIdRange();
         });
@@ -10752,7 +10762,7 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
         this.downIdInput.setAttribute('data-xzplaceholder', '_输入id进行抓取的提示文字');
         _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].insertToHead(this.downIdInput);
         _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.downIdInput);
-        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_清空已保存的抓取结果')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_清空已保存的抓取结果').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('clearSavedCrawl');
         });
     }
@@ -10779,12 +10789,12 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
                 window.setTimeout(() => {
                     _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('openCenterPanel');
                 }, 300);
-                this.downIdButton.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取');
+                _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.downIdButton, '_开始抓取');
             }
             else {
                 this.ready = false;
                 _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('closeCenterPanel');
-                this.downIdButton.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_输入id进行抓取');
+                _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.downIdButton, '_输入id进行抓取');
             }
         });
     }
@@ -10960,24 +10970,22 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
     }
     // 添加中间按钮
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
     addAnyElement() {
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_保存用户头像').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('saveAvatarImage');
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户封面')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_保存用户封面').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('saveUserCover');
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标说明')]]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_保存用户头像为图标', '_保存用户头像为图标说明').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('saveAvatarIcon');
         });
         // 添加收藏本页所有作品的功能
-        const bookmarkAllBtn = _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏本页面的所有作品'));
+        const bookmarkAllBtn = _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_收藏本页面的所有作品');
         this.bookmarkAll = new _pageFunciton_BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__["BookmarkAllWorks"](bookmarkAllBtn);
         bookmarkAllBtn.addEventListener('click', async () => {
             // 获取该用户的所有作品的 id 列表
@@ -11297,9 +11305,7 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载大家的新作品')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_下载大家的新作品').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
@@ -11445,11 +11451,11 @@ class InitNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
         new _pageFunciton_QuickBookmark__WEBPACK_IMPORTED_MODULE_5__["QuickBookmark"]();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始抓取new')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_从本页开始抓取new').addEventListener('click', () => {
             this.crawlDirection = -1;
             this.readyCrawl();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始抓取old')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_从本页开始抓取old').addEventListener('click', () => {
             this.crawlDirection = 1;
             this.readyCrawl();
         });
@@ -11525,14 +11531,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InitNovelSeriesPage", function() { return InitNovelSeriesPage; });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 //初始化小说系列作品页面
-
 
 
 
@@ -11549,31 +11553,31 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_5__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取系列小说')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取系列小说').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
     addAnyElement() {
-        _Tools__WEBPACK_IMPORTED_MODULE_5__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_合并系列小说')).addEventListener('click', () => {
-            _store_States__WEBPACK_IMPORTED_MODULE_7__["states"].mergeNovel = true;
+        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_合并系列小说').addEventListener('click', () => {
+            _store_States__WEBPACK_IMPORTED_MODULE_6__["states"].mergeNovel = true;
             this.readyCrawl();
         });
     }
     initAny() { }
     setFormOption() {
         // 隐藏“个数/页数”选项
-        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([1]);
+        _setting_Options__WEBPACK_IMPORTED_MODULE_2__["options"].hideOption([1]);
     }
     getWantPage() { }
     nextStep() {
-        this.seriesId = _API__WEBPACK_IMPORTED_MODULE_6__["API"].getURLPathField('series');
+        this.seriesId = _API__WEBPACK_IMPORTED_MODULE_5__["API"].getURLPathField('series');
         this.getIdList();
     }
     async getIdList() {
-        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_6__["API"].getNovelSeriesData(this.seriesId, this.limit, this.last, 'asc');
+        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_5__["API"].getNovelSeriesData(this.seriesId, this.limit, this.last, 'asc');
         const list = seriesData.body.seriesContents;
         for (const item of list) {
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.push({
+            _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].idList.push({
                 type: 'novels',
                 id: item.id,
             });
@@ -11631,9 +11635,7 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取本排行榜作品'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取本排行榜作品Title')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取本排行榜作品', '_抓取本排行榜作品Title').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
@@ -11831,9 +11833,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_15__["crawlTagList"].init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
@@ -11847,7 +11847,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     }
     addAnyElement() {
         // 添加收藏本页所有作品的功能
-        const bookmarkAllBtn = _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏本页面的所有作品'));
+        const bookmarkAllBtn = _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_收藏本页面的所有作品');
         const bookmarkAll = new _pageFunciton_BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_10__["BookmarkAllWorks"](bookmarkAllBtn);
         bookmarkAllBtn.addEventListener('click', () => {
             const listWrap = this.getWorksWrap();
@@ -12793,7 +12793,6 @@ class DownloadControl {
         this.errorIdList = []; // 有任务下载失败时，保存 id
         this.downloaded = 0; // 已下载的任务数量
         this.wrapper = document.createElement('div');
-        this.totalNumberEl = document.createElement('span');
         this.stop = false; // 是否停止下载
         this.pause = false; // 是否暂停下载
         this.createDownloadArea();
@@ -12873,24 +12872,22 @@ class DownloadControl {
     }
     createDownloadArea() {
         const html = `<div class="download_area">
-    <p> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_共抓取到n个文件', '<span class="fwb blue imgNum">0</span>')}</p>
-    
     <div class="centerWrap_btns">
-    <button class="startDownload" type="button" style="background:${_config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgBlue};"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_开始下载')}</button>
-    <button class="pauseDownload" type="button" style="background:${_config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgYellow};"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_暂停下载')}</button>
-    <button class="stopDownload" type="button" style="background:${_config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgRed};"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_停止下载')}</button>
-    <button class="copyUrl" type="button" style="background:${_config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgGreen};"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_复制url')}</button>
+    <button class="startDownload" type="button" style="background:${_config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgBlue};" data-xztext="_开始下载"></button>
+    <button class="pauseDownload" type="button" style="background:${_config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgYellow};" data-xztext="_暂停下载"></button>
+    <button class="stopDownload" type="button" style="background:${_config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgRed};" data-xztext="_停止下载"></button>
+    <button class="copyUrl" type="button" style="background:${_config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgGreen};" data-xztext="_复制url"></button>
     </div>
     <div class="download_status_text_wrap">
-    <span>${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_当前状态')}</span>
-    <span class="down_status">${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_未开始下载')}</span>
+    <span data-xztext="_当前状态"></span>
+    <span class="down_status" data-xztext="_未开始下载"></span>
     <span class="skip_tip warn"></span>
     <span class="convert_tip warn"></span>
     <span class="bmkAfterDL_tip green"></span>
     </div>
     </div>`;
         this.wrapper = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].useSlot('downloadArea', html);
-        this.totalNumberEl = this.wrapper.querySelector('.imgNum');
+        _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].register(this.wrapper);
         this.wrapper
             .querySelector('.startDownload')
             .addEventListener('click', () => {
@@ -12919,7 +12916,6 @@ class DownloadControl {
             return _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].reset(0);
         }
         this.showDownloadArea();
-        this.totalNumberEl.textContent = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length.toString();
         this.setDownloaded();
         this.setDownloadThread();
         _Help__WEBPACK_IMPORTED_MODULE_19__["help"].showDownloadTip();
@@ -13902,7 +13898,7 @@ class ProgressBar {
         this.wrapHTML = `
   <div class="progressBarWrap">
   <div class="total">
-  <span class="text">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载进度')}</span>
+  <span class="text" data-xztext="_下载进度"></span>
   <div class="right1">
   <div class="progressBar progressBar1">
   <div class="progress progress1"></div>
@@ -13933,6 +13929,7 @@ class ProgressBar {
         this.KB = 1024;
         this.MB = 1024 * 1024;
         this.createElements();
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.wrap);
         this.bindEvents();
     }
     createElements() {
@@ -14518,16 +14515,19 @@ __webpack_require__.r(__webpack_exports__);
 class ShowConvertCount {
     constructor(el) {
         this.el = el;
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(this.el);
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.convertChange, (ev) => {
             const count = ev.detail.data;
-            let convertText = '';
             if (count > 0) {
-                convertText = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_转换任务提示', count.toString());
+                _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.el, '_转换任务提示', count.toString());
             }
-            this.el.textContent = convertText;
+            else {
+                this.el.textContent = '';
+                _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.el, '');
+            }
         });
     }
 }
@@ -14565,24 +14565,24 @@ class ShowDownloadStates {
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume,
         ]) {
             window.addEventListener(ev, () => {
-                this.setText(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_未开始下载'));
+                this.setText('_未开始下载');
             });
         }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadStart, () => {
-            this.setText(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_正在下载中'));
+            this.setText('_正在下载中');
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadPause, () => {
-            this.setText(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已暂停'), '#f00');
+            this.setText('_已暂停', '#f00');
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadStop, () => {
-            this.setText(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已停止'), '#f00');
+            this.setText('_已停止', '#f00');
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadComplete, () => {
-            this.setText(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载完毕'), _config_Colors__WEBPACK_IMPORTED_MODULE_0__["Colors"].textSuccess);
+            this.setText('_下载完毕', _config_Colors__WEBPACK_IMPORTED_MODULE_0__["Colors"].textSuccess);
         });
     }
-    setText(text, color = _config_Colors__WEBPACK_IMPORTED_MODULE_0__["Colors"].bgBlue) {
-        this.el.textContent = text;
+    setText(textFlag, color = _config_Colors__WEBPACK_IMPORTED_MODULE_0__["Colors"].bgBlue) {
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.el, textFlag);
         this.el.style.color = color;
     }
 }
@@ -14610,6 +14610,7 @@ class ShowSkipCount {
     constructor(el) {
         this.count = 0; // 跳过下载的数量
         this.el = el;
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(this.el);
         this.bindEvents();
     }
     bindEvents() {
@@ -14638,11 +14639,11 @@ class ShowSkipCount {
     }
     addCount() {
         this.count++;
-        this.el.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_已跳过n个文件', this.count.toString());
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.el, '_已跳过n个文件', this.count.toString());
     }
     reset() {
         this.count = 0;
-        this.el.textContent = '';
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.el, '');
     }
 }
 
@@ -14996,6 +14997,7 @@ class BlockTagsForSpecificUser {
         this.createWrap();
         this.createAllList();
         _Theme__WEBPACK_IMPORTED_MODULE_6__["theme"].register(this.wrap);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.wrap);
         this.listWrapShow = this.listWrapShow;
         this.updateWrapDisplay();
         this.showTotal();
@@ -15015,9 +15017,7 @@ class BlockTagsForSpecificUser {
     set listWrapShow(val) {
         Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserShowList', val);
         this.listWrap.style.display = val ? 'block' : 'none';
-        this.expandBtn.textContent = val
-            ? _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收起')
-            : _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_展开');
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.expandBtn, val ? '_收起' : '_展开');
     }
     get listWrapShow() {
         return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList;
@@ -15025,7 +15025,6 @@ class BlockTagsForSpecificUser {
     // 创建列表外部的容器，静态html
     createWrap() {
         this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].useSlot('blockTagsForSpecificUser', this.wrapHTML);
-        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.wrap);
         this.expandBtn = this.wrap.querySelector('.expand');
         this.showAddBtn = this.wrap.querySelector('.showAdd');
         this.totalSpan = this.wrap.querySelector('.total');
@@ -15070,7 +15069,7 @@ class BlockTagsForSpecificUser {
         const html = `
     <div class="settingItem" data-key="${uid}">
       <div class="inputItem uid">
-        <span class="label uidLabel">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_用户id')}</span>
+        <span class="label uidLabel" data-xztext="_用户id"></span>
         <input type="text" class="setinput_style1 blue" data-uidInput="${uid}" value="${uid}" />
       </div>
 
@@ -15081,13 +15080,13 @@ class BlockTagsForSpecificUser {
 
       <div class="btns">
 
-        <button type="button" class="textButton" data-updateRule="${uid}" title="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_更新')}">
+        <button type="button" class="textButton" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-gengxin"></use>
           </svg>
         </button>
 
-        <button type="button" class="textButton" data-deleteRule="${uid}" title="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_删除')}">
+        <button type="button" class="textButton" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-shanchu1"></use>
           </svg>
@@ -16075,6 +16074,7 @@ class OutputPanel {
     constructor() {
         this.addOutPutPanel();
         _Theme__WEBPACK_IMPORTED_MODULE_5__["theme"].register(this.outputPanel);
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(this.outputPanel);
         this.bindEvents();
     }
     bindEvents() {
@@ -16101,10 +16101,10 @@ class OutputPanel {
             window.getSelection().addRange(range);
             document.execCommand('copy');
             // 改变提示文字
-            this.copyBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_已复制到剪贴板');
+            _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.copyBtn, '_已复制到剪贴板');
             setTimeout(() => {
                 window.getSelection().removeAllRanges();
-                this.copyBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_复制');
+                _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.copyBtn, '_已复制到剪贴板');
             }, 1000);
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.output, (ev) => {
@@ -16114,11 +16114,11 @@ class OutputPanel {
     addOutPutPanel() {
         const html = `
     <div class="outputWrap">
-    <div class="outputClose" title="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_关闭')}">×</div>
-    <div class="outputTitle">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_输出信息')}</div>
+    <div class="outputClose" data-xztitle="_关闭">×</div>
+    <div class="outputTitle" data-xztext="_输出信息"></div>
     <div class="outputContent beautify_scrollbar"></div>
     <div class="outputFooter">
-    <button class="outputCopy" title="">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_复制')}</button>
+    <button class="outputCopy" data-xztext="_复制"></button>
     </div>
     </div>
     `;
@@ -16136,7 +16136,7 @@ class OutputPanel {
         }
         if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length < _config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].outputMax) {
             this.copyBtn.disabled = false;
-            this.outputTitle.textContent = data.title;
+            _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.outputTitle, data.title);
             this.outputContent.innerHTML = data.content;
             this.outputPanel.style.display = 'block';
         }
@@ -16156,7 +16156,7 @@ class OutputPanel {
     close() {
         this.outputPanel.style.display = 'none';
         this.outputContent.innerHTML = '';
-        this.outputTitle.innerText = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_输出信息');
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.outputTitle, '_输出信息');
     }
 }
 new OutputPanel();
@@ -16257,7 +16257,7 @@ class PreviewFileName {
         }
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('output', {
             content: result,
-            title: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_预览文件名'),
+            title: '_预览文件名',
         });
     }
 }
@@ -16319,7 +16319,7 @@ class ShowURLs {
         }
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('output', {
             content: result,
-            title: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_复制url'),
+            title: '_复制url',
         });
     }
 }
@@ -16653,9 +16653,7 @@ class DeleteWorks {
     // 清除多图作品的按钮
     addClearMultipleBtn(selector, callback = () => { }) {
         this.multipleSelector = selector;
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgRed, _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除多图作品'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除多图作品Title')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgRed, '_清除多图作品', '_清除多图作品Title').addEventListener('click', () => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
                 _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
                 return;
@@ -16668,9 +16666,7 @@ class DeleteWorks {
     // 清除动图作品的按钮
     addClearUgoiraBtn(selector, callback = () => { }) {
         this.ugoiraSelector = selector;
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgRed, _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除动图作品'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除动图作品Title')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgRed, '_清除动图作品', '_清除动图作品Title').addEventListener('click', () => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
                 _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
                 return;
@@ -16683,7 +16679,7 @@ class DeleteWorks {
     // 手动删除作品的按钮
     addManuallyDeleteBtn(callback = () => { }) {
         this.deleteWorkCallback = callback;
-        this.delBtn = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgRed, _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_手动删除作品'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_手动删除作品Title')]]);
+        this.delBtn = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgRed, '_手动删除作品', '_手动删除作品Title');
         this.delBtn.addEventListener('click', () => {
             this.toggleDeleteMode();
         });
@@ -16694,13 +16690,13 @@ class DeleteWorks {
         this.bindDeleteEvent();
         this.updateDeleteIcon();
         if (this.delMode) {
-            this.delBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_退出手动删除');
+            _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.delBtn, '_退出手动删除');
             setTimeout(() => {
                 _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('closeCenterPanel');
             }, 100);
         }
         else {
-            this.delBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_手动删除作品');
+            _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.delBtn, '_手动删除作品');
         }
     }
     // 清除多图作品
@@ -17002,6 +16998,7 @@ class QuickBookmark {
             }
             // 添加快速收藏按钮
             this.btn = this.createBtn();
+            _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.btn);
             this.toolbar.insertBefore(this.btn, this.toolbar.childNodes[3]);
             if (this.isBookmarked) {
                 this.bookmarked();
@@ -17019,7 +17016,7 @@ class QuickBookmark {
         btn.id = this.btnId;
         btn.textContent = '✩';
         btn.href = 'javascript:void(0)';
-        btn.title = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_快速收藏');
+        btn.dataset.xztitle = '_快速收藏';
         return btn;
     }
     async getWorkData() {
@@ -17573,21 +17570,21 @@ class Form {
             });
         });
         // 预览文件名
-        _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('namingBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_预览文件名')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('namingBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_预览文件名').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('previewFileName');
         }, false);
         // 添加只在 pixiv 上使用的按钮
         if (_utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].isPixiv()) {
             // 导出 csv
-            _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出csv')).addEventListener('click', () => {
+            _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_导出csv').addEventListener('click', () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('exportCSV');
             }, false);
             // 导出抓取结果
-            _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出抓取结果')).addEventListener('click', () => {
+            _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_导出抓取结果').addEventListener('click', () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('exportResult');
             }, false);
             // 导入抓取结果
-            _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导入抓取结果')).addEventListener('click', () => {
+            _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_导入抓取结果').addEventListener('click', () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('importResult');
             }, false);
         }

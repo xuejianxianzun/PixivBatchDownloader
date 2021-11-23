@@ -1,4 +1,5 @@
 import { ArtworkData, NovelData } from './crawl/CrawlResult'
+import { lang } from './Lang'
 import { Result } from './store/StoreType'
 import { Utils } from './utils/Utils'
 
@@ -239,22 +240,22 @@ class Tools {
   }
 
   // 创建下载面板上的通用按钮
+  // 注意 textFlag 和 titleFlag 必须是 LangText 里存在的属性，这是为了能根据语言设置动态切换文本
+  // 如果 text 和 title 是直接设置的字符串，那么不应该使用这个方法设置，而是由调用者自行设置
   static addBtn(
     slot: string,
     bg: string = '',
-    text: string = '',
-    attr: string[][] = []
+    textFlag: string = '',
+    titleFlag: string = ''
   ) {
     const e = document.createElement('button')
     e.type = 'button'
     e.style.backgroundColor = bg
-    e.textContent = text
-
-    for (const [key, value] of attr) {
-      e.setAttribute(key, value)
-    }
+    textFlag && e.setAttribute('data-xztext', textFlag)
+    titleFlag && e.setAttribute('data-xztitle', titleFlag)
 
     this.useSlot(slot, e)
+    lang.register(e)
     return e
   }
 

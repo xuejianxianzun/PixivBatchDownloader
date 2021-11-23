@@ -41,7 +41,7 @@ class InitNovelPage extends InitPageBase {
     Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
-      lang.transl('_从本页开始抓取new')
+      '_从本页开始抓取new'
     ).addEventListener('click', () => {
       this.crawlDirection = -1
       this.readyCrawl()
@@ -50,7 +50,7 @@ class InitNovelPage extends InitPageBase {
     Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
-      lang.transl('_从本页开始抓取old')
+      '_从本页开始抓取old'
     ).addEventListener('click', () => {
       this.crawlDirection = 1
       this.readyCrawl()
