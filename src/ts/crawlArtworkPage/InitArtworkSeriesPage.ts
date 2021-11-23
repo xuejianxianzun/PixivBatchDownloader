@@ -36,8 +36,8 @@ class InitArtworkSeriesPage extends InitPageBase {
     this.maxCount = 100
 
     options.setWantPageTip({
-      text: lang.transl('_下载多少页面'),
-      tip: lang.transl('_从本页开始下载提示'),
+      text: '_下载多少页面',
+      tip: '_从本页开始下载提示',
       rangTip: `1 - ${this.maxCount}`,
     })
   }

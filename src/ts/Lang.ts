@@ -102,7 +102,7 @@ class Lang {
     const textArgsEl = wrap.querySelectorAll(
       '*[data-xztextargs]'
     ) as NodeListOf<HTMLElement>
-    textArgsEl.forEach(el => this.handleTextArgs(el))
+    textArgsEl.forEach((el) => this.handleTextArgs(el))
     // 元素自身存在 xztextargs 标记的情况
     const textargs = wrap.dataset.xztextargs
     if (textargs) {
@@ -133,10 +133,7 @@ class Lang {
       '*[data-xztitle]'
     ) as NodeListOf<HTMLElement>
     for (const el of titleEl) {
-      el.setAttribute(
-        'title',
-        this.transl(el.dataset.xztitle! as any)
-      )
+      el.setAttribute('title', this.transl(el.dataset.xztitle! as any))
     }
     // 元素自身存在 title 标记的情况
     const title = wrap.dataset.xztitle

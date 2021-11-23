@@ -275,7 +275,11 @@ class SelectWork {
   private updateCrawlBtn() {
     this.crawlBtn.style.display = this.start ? 'block' : 'none'
     if (this.idList.length > 0) {
-      lang.updateText(this.crawlBtn, '_抓取选择的作品2', this.idList.length.toString())
+      lang.updateText(
+        this.crawlBtn,
+        '_抓取选择的作品2',
+        this.idList.length.toString()
+      )
     } else {
       lang.updateText(this.crawlBtn, '_抓取选择的作品')
     }
