@@ -528,6 +528,7 @@ class CenterPanel {
         this.addCenterPanel();
         _Theme__WEBPACK_IMPORTED_MODULE_3__["theme"].register(this.centerPanel);
         _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].register(this.centerPanel);
+        this.showDonationLink();
         this.activeTab(Tabbar.Crawl);
         new _setting_BG__WEBPACK_IMPORTED_MODULE_6__["BG"](this.centerPanel);
         new _BoldKeywords__WEBPACK_IMPORTED_MODULE_9__["BoldKeywords"](this.centerPanel);
@@ -582,8 +583,8 @@ class CenterPanel {
       <button class="textButton gray1 showDownTip" type="button" data-xztext="_常见问题"></button>
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank" data-xztext="_fanboxDownloader"></a>
-      <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">在“爱发电”支持我</a>
-      <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
+      <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">在“爱发电”赞助我</a>
+      <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank" data-xztext="_在Patreon赞助我"></a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
       <br>
       </div>
@@ -595,8 +596,6 @@ class CenterPanel {
         document.body.insertAdjacentHTML('beforeend', centerPanelHTML);
         this.centerPanel = document.querySelector('.centerWrap');
         this.updateLink = this.centerPanel.querySelector('.update');
-        const donateId = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].type === 'zh-cn' ? 'zanzhu' : 'patreon';
-        document.getElementById(donateId).style.display = 'inline-block';
         this.allTabTitle = this.centerPanel.querySelectorAll('.tabsTitle .title');
     }
     setLangFlag() {
@@ -695,6 +694,19 @@ class CenterPanel {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.langChange, () => {
             this.setLangFlag();
         });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.langChange, () => {
+            this.showDonationLink();
+        });
+    }
+    showDonationLink() {
+        if (_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].type === 'zh-cn') {
+            document.getElementById('zanzhu').style.display = 'inline-block';
+            document.getElementById('patreon').style.display = 'none';
+        }
+        else {
+            document.getElementById('zanzhu').style.display = 'none';
+            document.getElementById('patreon').style.display = 'inline-block';
+        }
     }
     // 设置激活的选项卡
     activeTab(no = 0) {
@@ -4386,6 +4398,12 @@ const langText = {
         '開始擷取，如有多頁，預設會下載全部。',
         'Start crawl, if there are multiple pages, the default will be downloaded.',
         'クロールを開始する、複数のページがある場合、デフォルトですべてをダウンロードされます。',
+    ],
+    _在Patreon赞助我: [
+        '在 Patreon 赞助我',
+        '在 Patreon 贊助我',
+        'Become a patron',
+        'Become a patron',
     ],
 };
 

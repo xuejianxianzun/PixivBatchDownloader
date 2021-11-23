@@ -22,7 +22,7 @@ class CenterPanel {
     this.addCenterPanel()
     theme.register(this.centerPanel)
     lang.register(this.centerPanel)
-
+    this.showDonationLink()
     this.activeTab(Tabbar.Crawl)
 
     new BG(this.centerPanel)
@@ -89,8 +89,8 @@ class CenterPanel {
       <button class="textButton gray1 showDownTip" type="button" data-xztext="_常见问题"></button>
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
       <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank" data-xztext="_fanboxDownloader"></a>
-      <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">在“爱发电”支持我</a>
-      <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
+      <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">在“爱发电”赞助我</a>
+      <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank" data-xztext="_在Patreon赞助我"></a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
       <br>
       </div>
@@ -106,9 +106,6 @@ class CenterPanel {
     this.updateLink = this.centerPanel.querySelector(
       '.update'
     )! as HTMLAnchorElement
-
-    const donateId = lang.type === 'zh-cn' ? 'zanzhu' : 'patreon'
-    document.getElementById(donateId)!.style.display = 'inline-block'
 
     this.allTabTitle = this.centerPanel.querySelectorAll('.tabsTitle .title')
   }
@@ -231,6 +228,20 @@ class CenterPanel {
     window.addEventListener(EVT.list.langChange, () => {
       this.setLangFlag()
     })
+
+    window.addEventListener(EVT.list.langChange, () => {
+      this.showDonationLink()
+    })
+  }
+
+  private showDonationLink() {
+    if (lang.type === 'zh-cn') {
+      document.getElementById('zanzhu')!.style.display = 'inline-block'
+      document.getElementById('patreon')!.style.display = 'none'
+    } else {
+      document.getElementById('zanzhu')!.style.display = 'none'
+      document.getElementById('patreon')!.style.display = 'inline-block'
+    }
   }
 
   // 设置激活的选项卡
