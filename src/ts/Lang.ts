@@ -30,7 +30,7 @@ class Lang {
         return
       }
       const old = this.type
-      this.type = this.getType(data.value)
+      this.type = data.value === 'auto' ? this.getHtmlLangType() : data.value
       if (this.type !== old) {
         EVT.fire('langChange')
         this.elList.forEach((el) => {
@@ -40,11 +40,7 @@ class Lang {
     })
   }
 
-  private getType(flag: string) {
-    return flag === 'auto' ? this.getHtmlLangType() : (flag as LangTypes)
-  }
-
-  // 获取页面使用的语言，返回对应的结果
+  // 获取页面使用的语言，返回语言标记
   private getHtmlLangType(): LangTypes {
     const flag = document.documentElement.lang
     switch (flag) {
@@ -66,7 +62,7 @@ class Lang {
     }
   }
 
-  // translate 翻译
+  // translate
   public transl(name: keyof typeof langText, ...arg: string[]) {
     let content = langText[name][this.flagIndex.get(this.type)!]
     arg.forEach((val) => (content = content.replace('{}', val)))
@@ -150,7 +146,7 @@ class Lang {
 
   // 需要更新已注册元素的文本时调用此方法
   public updateText(el: HTMLElement, ...args: string[]) {
-    // 清空文本
+    // 清空文本的情况
     if (args === undefined || args[0] === '') {
       delete el.dataset.xztext
       delete el.dataset.xztextargs

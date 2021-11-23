@@ -662,6 +662,7 @@
 }
 .centerWrap .centerWrap_con .settingForm label {
   cursor: pointer;
+  padding-right: 5px;
 }
 .centerWrap .centerWrap_con .settingForm .tabsContnet {
   display: none;

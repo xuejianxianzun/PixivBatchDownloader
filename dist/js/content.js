@@ -2415,7 +2415,7 @@ class Lang {
                 return;
             }
             const old = this.type;
-            this.type = this.getType(data.value);
+            this.type = data.value === 'auto' ? this.getHtmlLangType() : data.value;
             if (this.type !== old) {
                 _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('langChange');
                 this.elList.forEach((el) => {
@@ -2424,10 +2424,7 @@ class Lang {
             }
         });
     }
-    getType(flag) {
-        return flag === 'auto' ? this.getHtmlLangType() : flag;
-    }
-    // 获取页面使用的语言，返回对应的结果
+    // 获取页面使用的语言，返回语言标记
     getHtmlLangType() {
         const flag = document.documentElement.lang;
         switch (flag) {
@@ -2445,7 +2442,7 @@ class Lang {
                 return 'en'; // English
         }
     }
-    // translate 翻译
+    // translate
     transl(name, ...arg) {
         let content = _LangText__WEBPACK_IMPORTED_MODULE_0__["langText"][name][this.flagIndex.get(this.type)];
         arg.forEach((val) => (content = content.replace('{}', val)));
@@ -2470,7 +2467,7 @@ class Lang {
         }
         // 设置带参数的 innerHTML
         const textArgsEl = wrap.querySelectorAll('*[data-xztextargs]');
-        textArgsEl.forEach(el => this.handleTextArgs(el));
+        textArgsEl.forEach((el) => this.handleTextArgs(el));
         // 元素自身存在 xztextargs 标记的情况
         const textargs = wrap.dataset.xztextargs;
         if (textargs) {
@@ -2504,7 +2501,7 @@ class Lang {
     }
     // 需要更新已注册元素的文本时调用此方法
     updateText(el, ...args) {
-        // 清空文本
+        // 清空文本的情况
         if (args === undefined || args[0] === '') {
             delete el.dataset.xztext;
             delete el.dataset.xztextargs;
@@ -17762,16 +17759,16 @@ const formHtml = `<form class="settingForm">
       <span class="gray1"> ? </span></span>
       <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setWorkType0" data-xztext="_插画"></label>&nbsp;
+      <label for="setWorkType0" data-xztext="_插画"></label>
       <input type="checkbox" name="downType1" id="setWorkType1" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setWorkType1" data-xztext="_漫画"></label>&nbsp;
+      <label for="setWorkType1" data-xztext="_漫画"></label>
       <input type="checkbox" name="downType2" id="setWorkType2" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setWorkType2" data-xztext="_动图"></label>&nbsp;
+      <label for="setWorkType2" data-xztext="_动图"></label>
       <input type="checkbox" name="downType3" id="setWorkType3" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setWorkType3" data-xztext="_小说"></label>&nbsp;
+      <label for="setWorkType3" data-xztext="_小说"></label>
       </p>
 
       <p class="option" data-no="44">
@@ -17780,13 +17777,13 @@ const formHtml = `<form class="settingForm">
       <span class="gray1"> ? </span></span>
       <input type="checkbox" name="downAllAges" id="downAllAges" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="downAllAges" data-xztext="_全年龄"></label>&nbsp;
+      <label for="downAllAges" data-xztext="_全年龄"></label>
       <input type="checkbox" name="downR18" id="downR18" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="downR18"> R-18</label>&nbsp;
+      <label for="downR18"> R-18</label>
       <input type="checkbox" name="downR18G" id="downR18G" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="downR18G"> R-18G</label>&nbsp;
+      <label for="downR18G"> R-18G</label>
       </p>
 
       <p class="option" data-no="6">
@@ -17795,10 +17792,10 @@ const formHtml = `<form class="settingForm">
       <span class="gray1"> ? </span></span>
       <input type="checkbox" name="downNotBookmarked" id="setDownNotBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownNotBookmarked" data-xztext="_未收藏"></label>&nbsp;
+      <label for="setDownNotBookmarked" data-xztext="_未收藏"></label>
       <input type="checkbox" name="downBookmarked" id="setDownBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownBookmarked" data-xztext="_已收藏"></label>&nbsp;
+      <label for="setDownBookmarked" data-xztext="_已收藏"></label>
       </p>
       
       <p class="option" data-no="23">
@@ -17807,10 +17804,10 @@ const formHtml = `<form class="settingForm">
       <span class="gray1"> ? </span></span>
       <input type="checkbox" name="downColorImg" id="setDownColorImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownColorImg" data-xztext="_彩色图片"></label>&nbsp;
+      <label for="setDownColorImg" data-xztext="_彩色图片"></label>
       <input type="checkbox" name="downBlackWhiteImg" id="setDownBlackWhiteImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownBlackWhiteImg" data-xztext="_黑白图片"></label>&nbsp;
+      <label for="setDownBlackWhiteImg" data-xztext="_黑白图片"></label>
       </p>
 
       <p class="option" data-no="21">
@@ -17819,10 +17816,10 @@ const formHtml = `<form class="settingForm">
       <span class="gray1"> ? </span></span>
       <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownSingleImg" data-xztext="_单图作品"></label>&nbsp;
+      <label for="setDownSingleImg" data-xztext="_单图作品"></label>
       <input type="checkbox" name="downMultiImg" id="setDownMultiImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownMultiImg" data-xztext="_多图作品"></label>&nbsp;
+      <label for="setDownMultiImg" data-xztext="_多图作品"></label>
       </p>
 
       <p class="option" data-no="51">
@@ -17888,15 +17885,15 @@ const formHtml = `<form class="settingForm">
       <span class="subOptionWrap" data-show="ratioSwitch">
       <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="horizontal">
       <span class="beautify_radio"></span>
-      <label for="ratio1" data-xztext="_横图"></label>&nbsp; 
+      <label for="ratio1" data-xztext="_横图"></label>
 
       <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="vertical">
       <span class="beautify_radio"></span>
-      <label for="ratio2" data-xztext="_竖图"></label>&nbsp; 
+      <label for="ratio2" data-xztext="_竖图"></label>
       
       <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="square">
       <span class="beautify_radio"></span>
-      <label for="ratio0" data-xztext="_正方形"></label>&nbsp; 
+      <label for="ratio0" data-xztext="_正方形"></label>
 
       <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
       <span class="beautify_radio"></span>
@@ -17915,24 +17912,24 @@ const formHtml = `<form class="settingForm">
 
       <input type="radio" name="widthHeightLimit" id="widthHeightLimit1" class="need_beautify radio" value=">=" checked>
       <span class="beautify_radio"></span>
-      <label for="widthHeightLimit1">&gt;=</label>&nbsp;
+      <label for="widthHeightLimit1">&gt;=</label>
 
       <input type="radio" name="widthHeightLimit" id="widthHeightLimit2" class="need_beautify radio" value="=">
       <span class="beautify_radio"></span>
-      <label for="widthHeightLimit2">=</label>&nbsp;
+      <label for="widthHeightLimit2">=</label>
       
       <input type="radio" name="widthHeightLimit" id="widthHeightLimit3" class="need_beautify radio" value="<=">
       <span class="beautify_radio"></span>
-      <label for="widthHeightLimit3">&lt;=</label>&nbsp;
+      <label for="widthHeightLimit3">&lt;=</label>
 
       <span data-xztext="_宽度"></span>
       <input type="text" name="setWidth" class="setinput_style1 blue" value="0">
       <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" class="need_beautify radio" value="&" checked>
       <span class="beautify_radio"></span>
-      <label for="setWidth_AndOr1">and</label>&nbsp;
+      <label for="setWidth_AndOr1">and</label>
       <input type="radio" name="setWidthAndOr" id="setWidth_AndOr2" class="need_beautify radio" value="|">
       <span class="beautify_radio"></span>
-      <label for="setWidth_AndOr2">or</label>&nbsp;
+      <label for="setWidth_AndOr2">or</label>
       <span data-xztext="_高度"></span>
       <input type="text" name="setHeight" class="setinput_style1 blue" value="0">
       </span>
@@ -17947,10 +17944,10 @@ const formHtml = `<form class="settingForm">
       <span class="subOptionWrap" data-show="idRangeSwitch">
       <input type="radio" name="idRange" id="idRange1" class="need_beautify radio" value=">" checked>
       <span class="beautify_radio"></span>
-      <label for="idRange1">  &gt;&nbsp; </label>
+      <label for="idRange1">&gt;</label>
       <input type="radio" name="idRange" id="idRange2" class="need_beautify radio" value="<">
       <span class="beautify_radio"></span>
-      <label for="idRange2">  &lt;&nbsp; </label>
+      <label for="idRange2">&lt;</label>
       <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
       </span>
       </p>
@@ -17977,10 +17974,10 @@ const formHtml = `<form class="settingForm">
       <span class="subOptionWrap" data-show="needTagSwitch">
       <input type="radio" name="needTagMode" id="needTagMode1" class="need_beautify radio" value="all" checked>
       <span class="beautify_radio"></span>
-      <label for="needTagMode1" data-xztext="_全部"></label>&nbsp; 
+      <label for="needTagMode1" data-xztext="_全部"></label>
       <input type="radio" name="needTagMode" id="needTagMode2" class="need_beautify radio" value="one">
       <span class="beautify_radio"></span>
-      <label for="needTagMode2" data-xztext="_任一"></label>&nbsp; 
+      <label for="needTagMode2" data-xztext="_任一"></label>
       <input type="text" name="needTag" class="setinput_style1 blue setinput_tag">
       </span>
       </p>
@@ -17995,10 +17992,10 @@ const formHtml = `<form class="settingForm">
       <span class="gray1" data-xztext="_任一"></span>&nbsp;
       <input type="radio" id="tagMatchMode1" class="need_beautify radio" name="tagMatchMode" value="partial" checked>
       <span class="beautify_radio"></span>
-      <label for="tagMatchMode1" data-xztext="_部分一致"></label>&nbsp;
+      <label for="tagMatchMode1" data-xztext="_部分一致"></label>
      <input type="radio" id="tagMatchMode2" class="need_beautify radio" name="tagMatchMode" value="whole" checked>
       <span class="beautify_radio"></span>
-      <label for="tagMatchMode2" data-xztext="_完全一致"></label>&nbsp;
+      <label for="tagMatchMode2" data-xztext="_完全一致"></label>
       <br>
       <textarea class="centerPanelTextArea beautify_scrollbar" name="notNeedTag" rows="1"></textarea>
       </span>
@@ -18167,19 +18164,19 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="createFolderByTypeIllust" id="createFolderByTypeIllust" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
       <label for="createFolderByTypeIllust" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[0]}">
-      <span data-xztext="_插画"></span></label>&nbsp;
+      <span data-xztext="_插画"></span></label>
       <input type="checkbox" name="createFolderByTypeManga" id="createFolderByTypeManga" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
       <label for="createFolderByTypeManga" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[1]}">
-      <span data-xztext="_漫画"></span></label>&nbsp;
+      <span data-xztext="_漫画"></span></label>
       <input type="checkbox" name="createFolderByTypeUgoira" id="createFolderByTypeUgoira" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
       <label for="createFolderByTypeUgoira" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[2]}">
-      <span data-xztext="_动图"></span></label>&nbsp;
+      <span data-xztext="_动图"></span></label>
       <input type="checkbox" name="createFolderByTypeNovel" id="createFolderByTypeNovel" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
       <label for="createFolderByTypeNovel" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[3]}">
-      <span data-xztext="_小说"></span></label>&nbsp;
+      <span data-xztext="_小说"></span></label>
       </p>
 
       <p class="option" data-no="43">
@@ -18280,16 +18277,16 @@ const formHtml = `<form class="settingForm">
       <span class="gray1"> ? </span></span>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" class="need_beautify radio" value="webm" checked>
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs1" data-xztext="_webmVideo"></label>&nbsp;
+      <label for="ugoiraSaveAs1" data-xztext="_webmVideo"></label>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" class="need_beautify radio" value="gif"> 
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs3" data-xztext="_gif"></label>&nbsp;
+      <label for="ugoiraSaveAs3" data-xztext="_gif"></label>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs4" class="need_beautify radio" value="png"> 
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs4" class="has_tip" data-xztip="_无损" data-xztext="_apng"></label>&nbsp;
+      <label for="ugoiraSaveAs4" class="has_tip" data-xztip="_无损" data-xztext="_apng"></label>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip"> 
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs2" data-xztext="_zipFile"></label>&nbsp;
+      <label for="ugoiraSaveAs2" data-xztext="_zipFile"></label>
       </p>
 
       <p class="option" data-no="24">
@@ -18302,10 +18299,10 @@ const formHtml = `<form class="settingForm">
       <span class="settingNameStyle1" data-xztext="_小说保存格式"></span>
       <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt" checked>
       <span class="beautify_radio"></span>
-      <label for="novelSaveAs1"> TXT </label>&nbsp;
+      <label for="novelSaveAs1"> TXT </label>
       <input type="radio" name="novelSaveAs" id="novelSaveAs2" class="need_beautify radio" value="epub"> 
       <span class="beautify_radio"></span>
-      <label for="novelSaveAs2"> EPUB </label>&nbsp;
+      <label for="novelSaveAs2"> EPUB </label>
       </p>
       
       <p class="option" data-no="27">
@@ -18322,16 +18319,16 @@ const formHtml = `<form class="settingForm">
       <span class="gray1"> ? </span></span>
       <input type="checkbox" name="saveMetaType0" id="setSaveMetaType0" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="setSaveMetaType0" data-xztext="_插画"></label>&nbsp;
+      <label for="setSaveMetaType0" data-xztext="_插画"></label>
       <input type="checkbox" name="saveMetaType1" id="setSaveMetaType1" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="setSaveMetaType1" data-xztext="_漫画"></label>&nbsp;
+      <label for="setSaveMetaType1" data-xztext="_漫画"></label>
       <input type="checkbox" name="saveMetaType2" id="setSaveMetaType2" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="setSaveMetaType2" data-xztext="_动图"></label>&nbsp;
+      <label for="setSaveMetaType2" data-xztext="_动图"></label>
       <input type="checkbox" name="saveMetaType3" id="setSaveMetaType3" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="setSaveMetaType3" data-xztext="_小说"></label>&nbsp;
+      <label for="setSaveMetaType3" data-xztext="_小说"></label>
       </p>
 
       <p class="option" data-no="30">
@@ -18339,17 +18336,14 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="imageSize" id="imageSize1" class="need_beautify radio" value="original" checked>
       <span class="beautify_radio"></span>
       <label for="imageSize1" data-xztext="_原图"></label>
-      &nbsp;
       <input type="radio" name="imageSize" id="imageSize2" class="need_beautify radio" value="regular">
       <span class="beautify_radio"></span>
       <label for="imageSize2" data-xztext="_普通"></label>
       <span class="gray1">(1200px)</span>
-      &nbsp;
       <input type="radio" name="imageSize" id="imageSize3" class="need_beautify radio" value="small">
       <span class="beautify_radio"></span>
       <label for="imageSize3" data-xztext="_小图"></label>
       <span class="gray1">(540px)</span>
-      &nbsp;
       <input type="radio" name="imageSize" id="imageSize4" class="need_beautify radio" value="thumb">
       <span class="beautify_radio"></span>
       <label for="imageSize4" data-xztext="_方形缩略图"></label>
@@ -18389,11 +18383,9 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
       <span class="beautify_radio"></span>
       <label class="has_tip" for="dupliStrategy1" data-xztip="_严格模式说明" data-xztext="_严格"></label>
-      &nbsp;
       <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
       <span class="beautify_radio"></span>
       <label class="has_tip" for="dupliStrategy2" data-xztip="_宽松模式说明" data-xztext="_宽松"></label>
-      &nbsp;
       <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
       <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
       <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
@@ -18413,11 +18405,9 @@ const formHtml = `<form class="settingForm">
       <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
       <label for="autoExportResultCSV"> CSV </label>
-      &nbsp;
       <input type="checkbox" name="autoExportResultJSON" id="autoExportResultJSON" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
       <label for="autoExportResultJSON"> JSON </label>
-
       </span>
       </p>
 
@@ -18468,7 +18458,6 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="prevWorkSize" id="prevWorkSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
       <label for="prevWorkSize1" data-xztext="_原图"></label>
-      &nbsp;
       <input type="radio" name="prevWorkSize" id="prevWorkSize2" class="need_beautify radio" value="regular" checked>
       <span class="beautify_radio"></span>
       <label for="prevWorkSize2" data-xztext="_普通"></label>
@@ -18485,7 +18474,6 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="showOriginImageSize" id="showOriginImageSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
       <label for="showOriginImageSize1" data-xztext="_原图"></label>
-      &nbsp;
       <input type="radio" name="showOriginImageSize" id="showOriginImageSize2" class="need_beautify radio" value="regular" checked>
       <span class="beautify_radio"></span>
       <label for="showOriginImageSize2" data-xztext="_普通"></label>
@@ -18502,7 +18490,6 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="magnifierPosition" id="magnifierPosition1" class="need_beautify radio" value="left">
       <span class="beautify_radio"></span>
       <label for="magnifierPosition1" data-xztext="_左"></label>
-      &nbsp;
       <input type="radio" name="magnifierPosition" id="magnifierPosition2" class="need_beautify radio" value="right" checked>
       <span class="beautify_radio"></span>
       <label for="magnifierPosition2" data-xztext="_右"></label>
@@ -18513,7 +18500,6 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
       <label for="magnifierSize1" data-xztext="_原图"></label>
-      &nbsp;
       <input type="radio" name="magnifierSize" id="magnifierSize2" class="need_beautify radio" value="regular" checked>
       <span class="beautify_radio"></span>
       <label for="magnifierSize2" data-xztext="_普通"></label>
@@ -18546,7 +18532,7 @@ const formHtml = `<form class="settingForm">
       
       <input type="radio" name="widthTag" id="widthTag1" class="need_beautify radio" value="yes" checked>
       <span class="beautify_radio"></span>
-      <label for="widthTag1" data-xztext="_添加tag"></label>&nbsp;
+      <label for="widthTag1" data-xztext="_添加tag"></label>
       <input type="radio" name="widthTag" id="widthTag2" class="need_beautify radio" value="no">
       <span class="beautify_radio"></span>
       <label for="widthTag2" data-xztext="_不添加tag"></label>
@@ -18555,7 +18541,7 @@ const formHtml = `<form class="settingForm">
       
       <input type="radio" name="restrict" id="restrict1" class="need_beautify radio" value="no" checked>
       <span class="beautify_radio"></span>
-      <label for="restrict1" data-xztext="_公开"></label>&nbsp;
+      <label for="restrict1" data-xztext="_公开"></label>
       <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="yes">
       <span class="beautify_radio"></span>
       <label for="restrict2" data-xztext="_不公开"></label>
@@ -18598,11 +18584,9 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="theme" id="theme1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio"></span>
       <label for="theme1" data-xztext="_自动检测"></label>
-      &nbsp;
       <input type="radio" name="theme" id="theme2" class="need_beautify radio" value="white">
       <span class="beautify_radio"></span>
       <label for="theme2">White</label>
-      &nbsp;
       <input type="radio" name="theme" id="theme3" class="need_beautify radio" value="dark">
       <span class="beautify_radio"></span>
       <label for="theme3">Dark</label>
@@ -18625,7 +18609,7 @@ const formHtml = `<form class="settingForm">
       <label for="bgPosition1" data-xztext="_居中"></label>
       <input type="radio" name="bgPositionY" id="bgPosition2" class="need_beautify radio" value="top">
       <span class="beautify_radio"></span>
-      <label for="bgPosition2" data-xztext="_顶部"></label>&nbsp;
+      <label for="bgPosition2" data-xztext="_顶部"></label>
       <span data-xztext="_不透明度"></span>&nbsp;
       <input name="bgOpacity" type="range" />
       </span>
@@ -18636,7 +18620,6 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="switchTabBar" id="switchTabBar1" class="need_beautify radio" value="over" checked>
       <span class="beautify_radio"></span>
       <label for="switchTabBar1" data-xztext="_鼠标经过"></label>
-      &nbsp;
       <input type="radio" name="switchTabBar" id="switchTabBar2" class="need_beautify radio" value="click">
       <span class="beautify_radio"></span>
       <label for="switchTabBar2" data-xztext="_鼠标点击"></label>
@@ -18647,23 +18630,18 @@ const formHtml = `<form class="settingForm">
       <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio"></span>
       <label for="userSetLang1" data-xztext="_自动检测"></label>
-      &nbsp;
       <input type="radio" name="userSetLang" id="userSetLang2" class="need_beautify radio" value="zh-cn">
       <span class="beautify_radio"></span>
       <label for="userSetLang2">简体中文</label>
-      &nbsp;
       <input type="radio" name="userSetLang" id="userSetLang3" class="need_beautify radio" value="zh-tw">
       <span class="beautify_radio"></span>
       <label for="userSetLang3">繁體中文</label>
-      &nbsp;
       <input type="radio" name="userSetLang" id="userSetLang4" class="need_beautify radio" value="ja">
       <span class="beautify_radio"></span>
       <label for="userSetLang4">日本語</label>
-      &nbsp;
       <input type="radio" name="userSetLang" id="userSetLang5" class="need_beautify radio" value="en">
       <span class="beautify_radio"></span>
       <label for="userSetLang5">English</label>
-      &nbsp;
       </p>
 
       <p class="option" data-no="53">
@@ -19334,7 +19312,7 @@ class Options {
         _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.wantPageEls.text, arg.text);
         this.wantPageEls.text.parentElement.dataset.xztip = arg.tip;
         this.wantPageEls.text.parentElement.dataset.tip = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl(arg.tip);
-        // rangTip 可能是需要翻译
+        // rangTip 可能需要翻译
         if (arg.rangTip.startsWith('_')) {
             _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.wantPageEls.rangTip, arg.rangTip);
         }
@@ -21125,7 +21103,7 @@ class SecretSignal {
                 if (ev.code.startsWith(prefix) &&
                     ev.code.length === prefix.length + 1) {
                     // 如果字符串长度超过限制，则移除前面的一部分字符
-                    if (this.input.length > 100) {
+                    if (this.input.length > 99) {
                         this.input = this.input.slice(80);
                     }
                     const key = ev.code[ev.code.length - 1].toLowerCase();
@@ -21136,7 +21114,6 @@ class SecretSignal {
         });
     }
     check() {
-        console.log(this.input.length);
         for (const item of this.list) {
             if (this.input.endsWith(item.code)) {
                 item.cb();
