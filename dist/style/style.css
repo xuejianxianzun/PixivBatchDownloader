@@ -612,14 +612,19 @@
   line-height: 24px;
 }
 .centerWrap .centerWrap_con .settingForm p * {
-  vertical-align: middle;
   line-height: 1;
 }
+.centerWrap .centerWrap_con .settingForm p > *,
+.centerWrap .centerWrap_con .settingForm p .subOptionWrap > * {
+  vertical-align: middle;
+}
+.centerWrap .centerWrap_con .settingForm p strong,
 .centerWrap .centerWrap_con .settingForm p .key {
   vertical-align: baseline !important;
 }
-.centerWrap .centerWrap_con .settingForm p strong {
-  vertical-align: baseline;
+.centerWrap .centerWrap_con .settingForm p button,
+.centerWrap .centerWrap_con .settingForm .controlBar span {
+  vertical-align: middle;
 }
 .centerWrap .centerWrap_con .settingForm .centerPanelTextArea {
   font-family: 'aria';

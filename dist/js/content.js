@@ -6973,7 +6973,7 @@ class Token {
     }
     bindEvents() {
         // 重置设置时清除保存的 token，因为用户切换账号时，登录上新账号后可能 token 还是之前账号的，就会出错。清除设置时清除 token，就可以解决这个问题。
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettings, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd, () => {
             this.reset();
         });
     }
@@ -17530,6 +17530,7 @@ __webpack_require__.r(__webpack_exports__);
 class Form {
     constructor() {
         this.chooseKeys = ['Enter', 'NumpadEnter']; // 让回车键可以控制复选框（浏览器默认只支持空格键）
+        this.bueatifulTimer = 0;
         this.tipCreateFolderFlag = 'tipCreateFolder'; // 控制“创建文件夹的提示”是否显示
         this.tipCreateFolderId = 'tipCreateFolder'; // “创建文件夹的提示”的容器 id
         this.form = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_4__["formHtml"]);
@@ -17572,7 +17573,8 @@ class Form {
         change.forEach((evt) => {
             window.addEventListener(evt, () => {
                 // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
-                window.setTimeout(() => {
+                window.clearTimeout(this.bueatifulTimer);
+                this.bueatifulTimer = window.setTimeout(() => {
                     this.initFormBueatiful();
                 }, 50);
             });
@@ -18814,6 +18816,7 @@ class FormSettings {
             textarea: ['createFolderTagList'],
             datetime: ['postDateStart', 'postDateEnd'],
         };
+        this.restoreTimer = 0;
         this.form = form;
         _NameRuleManager__WEBPACK_IMPORTED_MODULE_4__["nameRuleManager"].registerInput(this.form.userSetName);
         this.bindEvents();
@@ -18825,10 +18828,14 @@ class FormSettings {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, () => {
             this.restoreWantPage();
         });
+        // 设置变化或者重置时，把设置恢复到表单上
         const change = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd];
         change.forEach((evt) => {
             window.addEventListener(evt, () => {
-                this.restoreFormSettings();
+                window.clearTimeout(this.restoreTimer);
+                this.restoreTimer = window.setTimeout(() => {
+                    this.restoreFormSettings();
+                }, 0);
             });
         });
     }
@@ -18861,7 +18868,7 @@ class FormSettings {
             this.saveCheckBox(name);
         }
     }
-    // 读取设置，恢复表单里的设置项
+    // 读取设置，恢复到表单里
     restoreFormSettings() {
         for (const name of this.inputFileds.text) {
             // setWantPage 需要从 wantPageArr 恢复
@@ -19495,6 +19502,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 // settings 保存了下载器的所有设置项
 // 每当修改了 settings 的任何一个值，都会触发 EVT.list.settingChange 事件，传递这个选项的名称和值 {name:string, value:any}
+// 在初始化时，每当恢复一个设置就会触发一次 settingChange 事件，所以会在短时间内触发很多次。监听 settingChange 事件的模块需要注意性能问题。可以通过判断设置的 name，或者使用节流来降低性能影响。
 // 如果打开了多个标签页，每个页面的 settings 数据是互相独立的。但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
 
 

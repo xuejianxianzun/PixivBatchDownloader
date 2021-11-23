@@ -183,17 +183,23 @@
         line-height: 24px;
       }
 
-      p * {
-        vertical-align: middle;
+      p *{
         line-height: 1;
       }
 
+      p>*,
+      p .subOptionWrap>* {
+        vertical-align: middle;
+      }
+
+      p strong,
       p .key {
         vertical-align: baseline !important;
       }
 
-      p strong {
-        vertical-align: baseline;
+      p button,
+      .controlBar span{
+        vertical-align: middle;
       }
 
       .centerPanelTextArea {

@@ -150,16 +150,22 @@ class FormSettings {
     datetime: ['postDateStart', 'postDateEnd'],
   }
 
+  private restoreTimer = 0
+
   private bindEvents() {
     // 页面切换时，从设置里恢复当前页面的页数/个数
     window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
       this.restoreWantPage()
     })
 
+    // 设置变化或者重置时，把设置恢复到表单上
     const change = [EVT.list.settingChange, EVT.list.resetSettingsEnd]
     change.forEach((evt) => {
       window.addEventListener(evt, () => {
-        this.restoreFormSettings()
+        window.clearTimeout(this.restoreTimer)
+        this.restoreTimer = window.setTimeout(() => {
+          this.restoreFormSettings()
+        }, 0)
       })
     })
   }
@@ -200,7 +206,7 @@ class FormSettings {
     }
   }
 
-  // 读取设置，恢复表单里的设置项
+  // 读取设置，恢复到表单里
   private restoreFormSettings() {
     for (const name of this.inputFileds.text) {
       // setWantPage 需要从 wantPageArr 恢复

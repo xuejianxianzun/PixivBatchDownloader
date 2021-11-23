@@ -56,6 +56,7 @@ class Form {
   private allLabel: NodeListOf<HTMLLabelElement> // 所有 label 标签
 
   private readonly chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
+  private bueatifulTimer = 0
 
   private readonly tipCreateFolderFlag = 'tipCreateFolder' // 控制“创建文件夹的提示”是否显示
   private readonly tipCreateFolderId = 'tipCreateFolder' // “创建文件夹的提示”的容器 id
@@ -83,7 +84,8 @@ class Form {
     change.forEach((evt) => {
       window.addEventListener(evt, () => {
         // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
-        window.setTimeout(() => {
+        window.clearTimeout(this.bueatifulTimer)
+        this.bueatifulTimer = window.setTimeout(() => {
           this.initFormBueatiful()
         }, 50)
       })

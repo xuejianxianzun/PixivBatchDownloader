@@ -1,5 +1,6 @@
 // settings 保存了下载器的所有设置项
 // 每当修改了 settings 的任何一个值，都会触发 EVT.list.settingChange 事件，传递这个选项的名称和值 {name:string, value:any}
+// 在初始化时，每当恢复一个设置就会触发一次 settingChange 事件，所以会在短时间内触发很多次。监听 settingChange 事件的模块需要注意性能问题。可以通过判断设置的 name，或者使用节流来降低性能影响。
 
 // 如果打开了多个标签页，每个页面的 settings 数据是互相独立的。但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
 
