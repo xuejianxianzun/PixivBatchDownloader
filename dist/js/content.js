@@ -2450,7 +2450,7 @@ class Lang {
     }
     register(el) {
         this.elList.push(el);
-        this.setText(el);
+        this.updateText(el);
         // const observer = new MutationObserver((records) => {
         //   // type MutationRecordType = "attributes" | "characterData" | "childList";
         //   for (const record of records) {
@@ -2462,7 +2462,7 @@ class Lang {
         //   subtree: true,
         // })
     }
-    setText(wrap) {
+    updateText(wrap) {
         const textEl = wrap.querySelectorAll('*[data-xztext]');
         for (const el of textEl) {
             // 因为有些文本中含有 html 标签，所以这里需要使用 innerHTML 而不是 textContent
@@ -2480,11 +2480,16 @@ class Lang {
         for (const el of titleEl) {
             el.setAttribute('title', this.transl(el.dataset.xztitle));
         }
+        // 有一些设置 title 标记的元素需要设置到自己身上，而不是子元素上
+        const title = wrap.dataset.xztitle;
+        if (title) {
+            wrap.setAttribute('title', this.transl(title));
+        }
     }
     change() {
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('langChange');
         this.elList.forEach(el => {
-            this.setText(el);
+            this.updateText(el);
         });
     }
 }

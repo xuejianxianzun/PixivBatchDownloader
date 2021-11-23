@@ -15,6 +15,8 @@ label标签加 padding-right？去掉 nbsp
 
 Tools.addBtn  内部注册lang
 
+下载模块区域文本的动态切换
+
 ## 11.5.0 2021/11/16
 
 ### 持久化保存配置

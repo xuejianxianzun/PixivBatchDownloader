@@ -111,6 +111,12 @@ class Lang {
     for (const el of titleEl) {
       el.setAttribute('title', this.transl(el.dataset.xztitle! as keyof typeof langText))
     }
+
+    // 有一些设置 title 标记的元素需要设置到自己身上，而不是子元素上
+    const title = wrap.dataset.xztitle
+    if(title){
+      wrap.setAttribute('title', this.transl(title as keyof typeof langText))
+    }
   }
 
   private change() {
