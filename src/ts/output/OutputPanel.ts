@@ -60,13 +60,7 @@ class OutputPanel {
       window.getSelection()!.removeAllRanges()
       window.getSelection()!.addRange(range)
       document.execCommand('copy')
-
-      // 改变提示文字
-      lang.updateText(this.copyBtn, '_已复制到剪贴板')
-      setTimeout(() => {
-        window.getSelection()!.removeAllRanges()
-        lang.updateText(this.copyBtn, '_已复制到剪贴板')
-      }, 1000)
+      toast.success(lang.transl('_已复制到剪贴板'))
     })
 
     window.addEventListener(EVT.list.output, (ev: CustomEventInit) => {

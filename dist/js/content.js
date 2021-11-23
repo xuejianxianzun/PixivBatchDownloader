@@ -3166,10 +3166,10 @@ const langText = {
         `You can type a number between 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} to set the number of concurrent downloads`,
         `同時ダウンロード数を設定、1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} の数値を入力してください`,
     ],
-    _开始下载: ['开始下载', '開始下載', 'start download', '開始'],
-    _暂停下载: ['暂停下载', '暫停下載', 'pause download', '一時停止'],
-    _停止下载: ['停止下载', '停止下載', 'stop download', '停止'],
-    _复制url: ['复制 url', '複製下載網址', 'copy urls', 'URL をコピー'],
+    _开始下载: ['开始下载', '開始下載', 'Start download', '開始'],
+    _暂停下载: ['暂停下载', '暫停下載', 'Pause download', '一時停止'],
+    _停止下载: ['停止下载', '停止下載', 'Stop download', '停止'],
+    _复制url: ['复制 url', '複製下載網址', 'Copy urls', 'URL をコピー'],
     _当前状态: ['当前状态 ', '目前狀態：', 'State ', '現在の状態 '],
     _未开始下载: [
         '未开始下载',
@@ -16113,12 +16113,7 @@ class OutputPanel {
             window.getSelection().removeAllRanges();
             window.getSelection().addRange(range);
             document.execCommand('copy');
-            // 改变提示文字
-            _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.copyBtn, '_已复制到剪贴板');
-            setTimeout(() => {
-                window.getSelection().removeAllRanges();
-                _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.copyBtn, '_已复制到剪贴板');
-            }, 1000);
+            _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_已复制到剪贴板'));
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.output, (ev) => {
             this.output(ev.detail.data);
