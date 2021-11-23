@@ -6114,6 +6114,7 @@ class ShowOriginSizeImage {
             regular: '',
         };
         this.readyShow = (ev) => {
+            window.clearTimeout(this.showTimer);
             // 当预览区域显示之后，在作品缩略图上长按鼠标右键，显示原尺寸图片
             // 0 左键 1 滚轮 2 右键
             if (ev.button === 2) {
