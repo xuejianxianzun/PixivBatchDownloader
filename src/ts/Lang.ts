@@ -22,8 +22,6 @@ class Lang {
   ])
 
   private bindEvents() {
-    // 因为 Settings 初始化时会触发设置变化事件，所以监听事件即可获取语言设置
-    // 本模块必须在 Settings 之前加载，否则监听不到 Settings 初始化的事件
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data as any
       if (data.name !== 'userSetLang') {

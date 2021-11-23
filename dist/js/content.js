@@ -2419,8 +2419,6 @@ class Lang {
         this.bindEvents();
     }
     bindEvents() {
-        // 因为 Settings 初始化时会触发设置变化事件，所以监听事件即可获取语言设置
-        // 本模块必须在 Settings 之前加载，否则监听不到 Settings 初始化的事件
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name !== 'userSetLang') {
@@ -15007,15 +15005,11 @@ class BlockTagsForSpecificUser {
     </div>
   </div>
   `;
-        this.getRule();
         this.createWrap();
-        this.createAllList();
         _Theme__WEBPACK_IMPORTED_MODULE_6__["theme"].register(this.wrap);
         _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.wrap);
-        this.listWrapShow = this.listWrapShow;
-        this.updateWrapDisplay();
-        this.showTotal();
         this.bindEvents();
+        this.createAllList();
     }
     set addWrapShow(val) {
         this._addWrapShow = val;
@@ -15027,14 +15021,6 @@ class BlockTagsForSpecificUser {
     }
     get addWrapShow() {
         return this._addWrapShow;
-    }
-    set listWrapShow(val) {
-        Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserShowList', val);
-        this.listWrap.style.display = val ? 'block' : 'none';
-        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.expandBtn, val ? '_收起' : '_展开');
-    }
-    get listWrapShow() {
-        return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList;
     }
     // 创建列表外部的容器，静态html
     createWrap() {
@@ -15050,8 +15036,9 @@ class BlockTagsForSpecificUser {
         this.listWrap = this.wrap.querySelector('.listWrap');
         // 展开/折叠
         this.expandBtn.addEventListener('click', () => {
-            this.listWrapShow = !this.listWrapShow;
-            if (this.listWrapShow && this.rules.length === 0) {
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserShowList', !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList);
+            this.showListWrap();
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList && this.rules.length === 0) {
                 _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'));
             }
         });
@@ -15071,11 +15058,23 @@ class BlockTagsForSpecificUser {
             this.addWrapShow = false;
         });
     }
+    showListWrap() {
+        const show = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList;
+        this.listWrap.style.display = show ? 'block' : 'none';
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.expandBtn, show ? '_收起' : '_展开');
+    }
     // 根据规则动态创建 html
     createAllList() {
+        this.rules = [..._setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserList];
+        this.wrap.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUser
+            ? 'block'
+            : 'none';
+        this.totalSpan.textContent = this.rules.length.toString();
+        this.listWrap.innerHTML = '';
         for (const data of this.rules) {
             this.createList(data);
         }
+        this.showListWrap();
     }
     // 创建规则对应的元素，并绑定事件
     createList(data) {
@@ -15111,6 +15110,7 @@ class BlockTagsForSpecificUser {
         this.listWrap.insertAdjacentHTML('afterbegin', html);
         const uidLabel = this.listWrap.querySelector('.uidLabel');
         if (user) {
+            _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(uidLabel, '');
             uidLabel.textContent = user;
         }
         else {
@@ -15198,7 +15198,8 @@ class BlockTagsForSpecificUser {
             user: '',
         });
         this.addWrapShow = false;
-        this.listWrapShow = true;
+        Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserShowList', true);
+        this.showListWrap();
         _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加成功'));
     }
     // 更新规则
@@ -15228,32 +15229,15 @@ class BlockTagsForSpecificUser {
         const listElement = this.listWrap.querySelector(`.settingItem[data-key='${uid}']`);
         listElement === null || listElement === void 0 ? void 0 : listElement.remove();
     }
-    getRule() {
-        this.rules = [..._setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserList];
-    }
-    updateWrapDisplay() {
-        this.wrap.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUser
-            ? 'block'
-            : 'none';
-    }
-    showTotal() {
-        this.totalSpan.textContent = this.rules.length.toString();
-    }
     bindEvents() {
-        // 选项变化
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name.includes('blockTagsForSpecificUser')) {
-                this.showTotal();
-                this.updateWrapDisplay();
+                this.createAllList();
             }
         });
-        // 选项重置
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resetSettingsEnd, () => {
-            this.getRule();
-            this.listWrap.innerHTML = '';
             this.createAllList();
-            this.listWrapShow = this.listWrapShow;
         });
     }
     // 如果找到了符合的记录，则返回 true

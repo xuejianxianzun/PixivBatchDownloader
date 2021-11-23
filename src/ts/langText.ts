@@ -1846,7 +1846,7 @@ const langText = {
     'Start crawl, if there are multiple pages, the default will be downloaded.',
     'クロールを開始する、複数のページがある場合、デフォルトですべてをダウンロードされます。',
   ],
-  _在Patreon赞助我:[
+  _在Patreon赞助我: [
     '在 Patreon 赞助我',
     '在 Patreon 贊助我',
     'Become a patron',

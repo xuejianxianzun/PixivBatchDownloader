@@ -15,19 +15,13 @@ import { msgBox } from '../MsgBox'
 // 针对特定用户屏蔽 tag
 class BlockTagsForSpecificUser {
   constructor() {
-    this.getRule()
-
     this.createWrap()
-    this.createAllList()
-
     theme.register(this.wrap)
     lang.register(this.wrap)
 
-    this.listWrapShow = this.listWrapShow
-    this.updateWrapDisplay()
-    this.showTotal()
-
     this.bindEvents()
+
+    this.createAllList()
   }
 
   private rules: typeof settings.blockTagsForSpecificUserList = []
@@ -60,16 +54,6 @@ class BlockTagsForSpecificUser {
 
   get addWrapShow() {
     return this._addWrapShow
-  }
-
-  set listWrapShow(val: boolean) {
-    setSetting('blockTagsForSpecificUserShowList', val)
-    this.listWrap.style.display = val ? 'block' : 'none'
-    lang.updateText(this.expandBtn, val ? '_收起' : '_展开')
-  }
-
-  get listWrapShow() {
-    return settings.blockTagsForSpecificUserShowList
   }
 
   private wrapHTML = `
@@ -137,9 +121,16 @@ class BlockTagsForSpecificUser {
 
     // 展开/折叠
     this.expandBtn.addEventListener('click', () => {
-      this.listWrapShow = !this.listWrapShow
+      setSetting(
+        'blockTagsForSpecificUserShowList',
+        !settings.blockTagsForSpecificUserShowList
+      )
+      this.showListWrap()
 
-      if (this.listWrapShow && this.rules.length === 0) {
+      if (
+        settings.blockTagsForSpecificUserShowList &&
+        this.rules.length === 0
+      ) {
         toast.error(lang.transl('_没有数据可供使用'))
       }
     })
@@ -163,11 +154,37 @@ class BlockTagsForSpecificUser {
     })
   }
 
+  private bindEvents() {
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      const data = ev.detail.data as any
+      if (data.name.includes('blockTagsForSpecificUser')) {
+        this.createAllList()
+      }
+    })
+
+    window.addEventListener(EVT.list.resetSettingsEnd, () => {
+      this.createAllList()
+    })
+  }
+
+  private showListWrap() {
+    const show = settings.blockTagsForSpecificUserShowList
+    this.listWrap.style.display = show ? 'block' : 'none'
+    lang.updateText(this.expandBtn, show ? '_收起' : '_展开')
+  }
+
   // 根据规则动态创建 html
   private createAllList() {
+    this.rules = [...settings.blockTagsForSpecificUserList]
+    this.wrap.style.display = settings.blockTagsForSpecificUser
+      ? 'block'
+      : 'none'
+    this.totalSpan.textContent = this.rules.length.toString()
+    this.listWrap.innerHTML = ''
     for (const data of this.rules) {
       this.createList(data)
     }
+    this.showListWrap()
   }
 
   // 创建规则对应的元素，并绑定事件
@@ -204,8 +221,9 @@ class BlockTagsForSpecificUser {
     // 倒序显示，早添加的处于底部，晚添加的处于顶部
     this.listWrap.insertAdjacentHTML('afterbegin', html)
 
-    const uidLabel = this.listWrap.querySelector('.uidLabel')!
+    const uidLabel = this.listWrap.querySelector('.uidLabel')! as HTMLElement
     if (user) {
+      lang.updateText(uidLabel, '')
       uidLabel.textContent = user
     } else {
       this.updateUserName(data)
@@ -322,7 +340,8 @@ class BlockTagsForSpecificUser {
 
     this.addWrapShow = false
 
-    this.listWrapShow = true
+    setSetting('blockTagsForSpecificUserShowList', true)
+    this.showListWrap()
 
     toast.success(lang.transl('_添加成功'))
   }
@@ -369,40 +388,6 @@ class BlockTagsForSpecificUser {
       `.settingItem[data-key='${uid}']`
     )
     listElement?.remove()
-  }
-
-  private getRule() {
-    this.rules = [...settings.blockTagsForSpecificUserList]
-  }
-
-  private updateWrapDisplay() {
-    this.wrap.style.display = settings.blockTagsForSpecificUser
-      ? 'block'
-      : 'none'
-  }
-
-  private showTotal() {
-    this.totalSpan.textContent = this.rules.length.toString()
-  }
-
-  private bindEvents() {
-    // 选项变化
-    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
-      const data = ev.detail.data as any
-      if (data.name.includes('blockTagsForSpecificUser')) {
-        this.showTotal()
-        this.updateWrapDisplay()
-      }
-    })
-
-    // 选项重置
-    window.addEventListener(EVT.list.resetSettingsEnd, () => {
-      this.getRule()
-
-      this.listWrap.innerHTML = ''
-      this.createAllList()
-      this.listWrapShow = this.listWrapShow
-    })
   }
 
   // 如果找到了符合的记录，则返回 true
