@@ -161,10 +161,6 @@ class BlockTagsForSpecificUser {
         this.createAllList()
       }
     })
-
-    window.addEventListener(EVT.list.resetSettingsEnd, () => {
-      this.createAllList()
-    })
   }
 
   private showListWrap() {

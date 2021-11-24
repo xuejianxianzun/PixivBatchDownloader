@@ -15077,9 +15077,6 @@ class BlockTagsForSpecificUser {
                 this.createAllList();
             }
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resetSettingsEnd, () => {
-            this.createAllList();
-        });
     }
     showListWrap() {
         const show = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList;
@@ -17536,6 +17533,7 @@ class Form {
         this.allCheckBox = this.form.querySelectorAll('input[type="checkbox"]');
         this.allRadio = this.form.querySelectorAll('input[type="radio"]');
         this.allSwitch = this.form.querySelectorAll('.checkbox_switch');
+        this.createFolderTipEl = this.form.querySelector('#tipCreateFolder');
         new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_5__["SaveNamingRule"](this.form.userSetName);
         new _FormSettings__WEBPACK_IMPORTED_MODULE_7__["FormSettings"](this.form);
         this.bindEvents();
@@ -17563,18 +17561,18 @@ class Form {
             this.bindBeautifyEvent(radio);
         }
         // 设置变化或者重置时，重新设置美化状态
-        const change = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingInitialized, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd];
-        change.forEach((evt) => {
-            window.addEventListener(evt, () => {
-                // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
-                window.clearTimeout(this.bueatifulTimer);
-                this.bueatifulTimer = window.setTimeout(() => {
-                    this.initFormBueatiful();
-                }, 50);
-            });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
+            // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
+            window.clearTimeout(this.bueatifulTimer);
+            this.bueatifulTimer = window.setTimeout(() => {
+                this.initFormBueatiful();
+                this.showCreateFolderTip();
+            }, 50);
         });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingInitialized, () => {
-            this.checkTipCreateFolder();
+        // 用户点击“我知道了”按钮之后不再显示提示
+        const btn = this.createFolderTipEl.querySelector('button');
+        btn.addEventListener('click', () => {
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_9__["setSetting"])('tipCreateFolder', false);
         });
         // 预览文件名
         _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('namingBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_预览文件名').addEventListener('click', () => {
@@ -17714,23 +17712,11 @@ class Form {
         }
     }
     // 是否显示创建文件夹的提示
-    checkTipCreateFolder() {
+    showCreateFolderTip() {
         if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].isPixiv()) {
-            return;
+            return this.createFolderTipEl.style.display = 'none';
         }
-        const tip = this.form.querySelector('#tipCreateFolder');
-        // 默认显示提示
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__["settings"].tipCreateFolder) {
-            const btn = tip.querySelector('button');
-            // 用户点击“我知道了”按钮之后不再显示提示
-            btn.addEventListener('click', () => {
-                tip.style.display = 'none';
-                Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_9__["setSetting"])('tipCreateFolder', false);
-            });
-        }
-        else {
-            tip.style.display = 'none';
-        }
+        this.createFolderTipEl.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__["settings"].tipCreateFolder ? 'block' : 'none';
     }
 }
 const form = new Form().form;
@@ -18822,15 +18808,11 @@ class FormSettings {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, () => {
             this.restoreWantPage();
         });
-        // 设置变化或者重置时，把设置恢复到表单上
-        const change = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd];
-        change.forEach((evt) => {
-            window.addEventListener(evt, () => {
-                window.clearTimeout(this.restoreTimer);
-                this.restoreTimer = window.setTimeout(() => {
-                    this.restoreFormSettings();
-                }, 0);
-            });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
+            window.clearTimeout(this.restoreTimer);
+            this.restoreTimer = window.setTimeout(() => {
+                this.restoreFormSettings();
+            }, 0);
         });
     }
     // 监听所有输入选项的变化
@@ -19495,15 +19477,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 // settings 保存了下载器的所有设置项
-// 现在有 3 个事件钩子：
-// EVT.list.settingInitialized
-// 当设置初始化完毕后（恢复保存的设置之后）触发。这个事件在生命周期里只会触发一次
+// 获取设置项的值：
+// settings[name]
+// 修改设置项的值：
+// setSetting(name, value)
+// 本模块会触发 3 个事件：
 // EVT.list.settingChange
-// 当任何一个设置项的值发生变化时触发。事件的参数里会传递这个设置项的名称和值，格式如：
+// 当任何一个设置项被赋值时触发（本模块不会区分值是否发生了变化）。这是最常用的事件。
+// 事件的参数里会传递这个设置项的名称和值，格式如：
 // {name: string, value: any}
-// 在初始化过程中也会触发，并且每当恢复一个设置项就会触发一次
+// 如果某个模块要监听特定的设置项，应该使用参数的 name 来判断触发事件的设置项是否是自己需要的设置项
+// 如果不依赖于特定设置项，则应该考虑使用节流（throttle）来限制事件监听器的执行频率，防止造成严重的性能问题
+// EVT.list.settingInitialized
+// 当设置初始化完毕后（恢复保存的设置之后）触发。这个事件在生命周期里只会触发一次。
+// 会同时触发多次 settingChange 事件
 // EVT.list.resetSettingsEnd
-// 当设置被重置之后触发
+// 重置设置之后触发
+// 导入设置之后触发
+// 会同时触发多次 settingChange 事件
 // 如果打开了多个标签页，每个页面的 settings 数据是互相独立的，在一个页面里修改设置不会影响另一个页面里的设置。
 // 但是持久化保存的数据只有一份：最后一次设置变更是在哪个页面发生的，就保存哪个页面的 settings 数据。
 

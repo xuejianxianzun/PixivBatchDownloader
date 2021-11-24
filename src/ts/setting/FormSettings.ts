@@ -158,15 +158,11 @@ class FormSettings {
       this.restoreWantPage()
     })
 
-    // 设置变化或者重置时，把设置恢复到表单上
-    const change = [EVT.list.settingChange, EVT.list.resetSettingsEnd]
-    change.forEach((evt) => {
-      window.addEventListener(evt, () => {
-        window.clearTimeout(this.restoreTimer)
-        this.restoreTimer = window.setTimeout(() => {
-          this.restoreFormSettings()
-        }, 0)
-      })
+    window.addEventListener(EVT.list.settingChange, () => {
+      window.clearTimeout(this.restoreTimer)
+      this.restoreTimer = window.setTimeout(() => {
+        this.restoreFormSettings()
+      }, 0)
     })
   }
 

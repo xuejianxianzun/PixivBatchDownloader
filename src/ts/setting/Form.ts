@@ -27,6 +27,8 @@ class Form {
 
     this.allSwitch = this.form.querySelectorAll('.checkbox_switch')
 
+    this.createFolderTipEl = this.form.querySelector('#tipCreateFolder')! as HTMLElement
+
     new SaveNamingRule(this.form.userSetName)
 
     new FormSettings(this.form)
@@ -44,6 +46,7 @@ class Form {
   }
 
   public form: SettingsForm
+  private createFolderTipEl!: HTMLElement
 
   private allSwitch: NodeListOf<HTMLInputElement> // 所有开关（同时也是复选框）
   private allCheckBox: NodeListOf<HTMLInputElement> // 所有复选框
@@ -71,19 +74,19 @@ class Form {
     }
 
     // 设置变化或者重置时，重新设置美化状态
-    const change = [EVT.list.settingInitialized, EVT.list.settingChange, EVT.list.resetSettingsEnd]
-    change.forEach((evt) => {
-      window.addEventListener(evt, () => {
-        // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
-        window.clearTimeout(this.bueatifulTimer)
-        this.bueatifulTimer = window.setTimeout(() => {
-          this.initFormBueatiful()
-        }, 50)
-      })
+    window.addEventListener(EVT.list.settingChange, () => {
+      // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
+      window.clearTimeout(this.bueatifulTimer)
+      this.bueatifulTimer = window.setTimeout(() => {
+        this.initFormBueatiful()
+        this.showCreateFolderTip()
+      }, 50)
     })
 
-    window.addEventListener(EVT.list.settingInitialized, () => {
-      this.checkTipCreateFolder()
+    // 用户点击“我知道了”按钮之后不再显示提示
+    const btn = this.createFolderTipEl.querySelector('button')!
+    btn.addEventListener('click', () => {
+      setSetting('tipCreateFolder', false)
     })
 
     // 预览文件名
@@ -275,24 +278,11 @@ class Form {
   }
 
   // 是否显示创建文件夹的提示
-  private checkTipCreateFolder() {
+  private showCreateFolderTip() {
     if (!Utils.isPixiv()) {
-      return
+      return this.createFolderTipEl.style.display = 'none'
     }
-
-    const tip = this.form.querySelector('#tipCreateFolder')! as HTMLElement
-
-    // 默认显示提示
-    if (settings.tipCreateFolder) {
-      const btn = tip.querySelector('button')!
-      // 用户点击“我知道了”按钮之后不再显示提示
-      btn.addEventListener('click', () => {
-        tip.style.display = 'none'
-        setSetting('tipCreateFolder', false)
-      })
-    } else {
-      tip.style.display = 'none'
-    }
+    this.createFolderTipEl.style.display = settings.tipCreateFolder ? 'block' : 'none'
   }
 }
 
