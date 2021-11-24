@@ -693,8 +693,6 @@ class CenterPanel {
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.langChange, () => {
             this.setLangFlag();
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.langChange, () => {
             this.showDonationLink();
         });
     }
@@ -1294,6 +1292,8 @@ class EVENT {
             pageSwitchedTypeChange: 'pageSwitchedTypeChange',
             // 页面切换，并且页面类型不变
             pageSwitchedTypeNotChange: 'pageSwitchedTypeNotChange',
+            // 程序启动时，设置初始化完毕后触发
+            settingInitialized: 'settingInitialized',
             // 请求重置所有设置
             resetSettings: 'resetSettings',
             // 重置所有设置执行完毕
@@ -5952,18 +5952,30 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./config/Config */ "./src/ts/config/Config.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
 
 
 
 class ShowHowToUse {
     constructor() {
-        this.flag = 'xzHowToUse';
-        this.check();
+        this.checked = false;
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.settingInitialized, () => {
+            if (!this.checked) {
+                this.checked = true;
+                this.check();
+            }
+        });
     }
     check() {
-        const query = window.localStorage.getItem(this.flag);
-        if (!query) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].showHowToUse) {
             this.show();
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('showHowToUse', false);
         }
     }
     show() {
@@ -5971,7 +5983,6 @@ class ShowHowToUse {
             title: _config_Config__WEBPACK_IMPORTED_MODULE_1__["Config"].appName,
             btn: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_我知道了'),
         });
-        window.localStorage.setItem(this.flag, '1');
     }
 }
 new ShowHowToUse();
@@ -15038,7 +15049,8 @@ class BlockTagsForSpecificUser {
         this.expandBtn.addEventListener('click', () => {
             Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserShowList', !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList);
             this.showListWrap();
-            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList && this.rules.length === 0) {
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList &&
+                this.rules.length === 0) {
                 _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'));
             }
         });
@@ -15056,6 +15068,17 @@ class BlockTagsForSpecificUser {
         // 取消添加的按钮
         this.cancelBtn.addEventListener('click', () => {
             this.addWrapShow = false;
+        });
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name.includes('blockTagsForSpecificUser')) {
+                this.createAllList();
+            }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resetSettingsEnd, () => {
+            this.createAllList();
         });
     }
     showListWrap() {
@@ -15228,17 +15251,6 @@ class BlockTagsForSpecificUser {
         Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserList', [...this.rules]);
         const listElement = this.listWrap.querySelector(`.settingItem[data-key='${uid}']`);
         listElement === null || listElement === void 0 ? void 0 : listElement.remove();
-    }
-    bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
-            const data = ev.detail.data;
-            if (data.name.includes('blockTagsForSpecificUser')) {
-                this.createAllList();
-            }
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resetSettingsEnd, () => {
-            this.createAllList();
-        });
     }
     // 如果找到了符合的记录，则返回 true
     check(uid, tags) {
@@ -19486,9 +19498,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 // settings 保存了下载器的所有设置项
-// 每当修改了 settings 的任何一个值，都会触发 EVT.list.settingChange 事件，传递这个选项的名称和值 {name:string, value:any}
-// 在初始化时，每当恢复一个设置就会触发一次 settingChange 事件，所以会在短时间内触发很多次。监听 settingChange 事件的模块需要注意性能问题。可以通过判断设置的 name，或者使用节流来降低性能影响。
-// 如果打开了多个标签页，每个页面的 settings 数据是互相独立的。但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
+// 现在有 3 个事件钩子：
+// EVT.list.settingInitialized
+// 当设置初始化完毕后（恢复保存的设置之后）触发。这个事件在生命周期里只会触发一次
+// EVT.list.settingChange
+// 当任何一个设置项的值发生变化时触发。事件的参数里会传递这个设置项的名称和值，格式如：
+// {name: string, value: any}
+// 在初始化过程中也会触发，并且每当恢复一个设置项就会触发一次
+// EVT.list.resetSettingsEnd
+// 当设置被重置之后触发
+// 如果打开了多个标签页，每个页面的 settings 数据是互相独立的，在一个页面里修改设置不会影响另一个页面里的设置。
+// 但是持久化保存的数据只有一份：最后一次设置变更是在哪个页面发生的，就保存哪个页面的 settings 数据。
 
 
 
@@ -19667,6 +19687,7 @@ class Settings {
             previewWorkWait: 400,
             showOriginImage: true,
             showOriginImageSize: 'original',
+            showHowToUse: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -19747,6 +19768,7 @@ class Settings {
                 }
             }
             this.assignSettings(restoreData);
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('settingInitialized');
         });
     }
     store() {
@@ -19786,7 +19808,7 @@ class Settings {
         }
         // 开始恢复导入的设置
         this.reset(loadedJSON);
-        _MsgBox__WEBPACK_IMPORTED_MODULE_3__["msgBox"].success(_Lang__WEBPACK_IMPORTED_MODULE_7__["lang"].transl('_导入成功'));
+        _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_7__["lang"].transl('_导入成功'));
     }
     // 重置设置 或者 导入设置
     // 可选参数：传递一份设置数据，用于从配置文件导入，恢复设置

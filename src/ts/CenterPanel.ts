@@ -227,9 +227,6 @@ class CenterPanel {
 
     window.addEventListener(EVT.list.langChange, () => {
       this.setLangFlag()
-    })
-
-    window.addEventListener(EVT.list.langChange, () => {
       this.showDonationLink()
     })
   }

@@ -1,8 +1,20 @@
 // settings 保存了下载器的所有设置项
-// 每当修改了 settings 的任何一个值，都会触发 EVT.list.settingChange 事件，传递这个选项的名称和值 {name:string, value:any}
-// 在初始化时，每当恢复一个设置就会触发一次 settingChange 事件，所以会在短时间内触发很多次。监听 settingChange 事件的模块需要注意性能问题。可以通过判断设置的 name，或者使用节流来降低性能影响。
 
-// 如果打开了多个标签页，每个页面的 settings 数据是互相独立的。但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
+// 现在有 3 个事件钩子：
+
+// EVT.list.settingInitialized
+// 当设置初始化完毕后（恢复保存的设置之后）触发。这个事件在生命周期里只会触发一次
+
+// EVT.list.settingChange
+// 当任何一个设置项的值发生变化时触发。事件的参数里会传递这个设置项的名称和值，格式如：
+// {name: string, value: any}
+// 在初始化过程中也会触发，并且每当恢复一个设置项就会触发一次
+
+// EVT.list.resetSettingsEnd
+// 当设置被重置之后触发
+
+// 如果打开了多个标签页，每个页面的 settings 数据是互相独立的，在一个页面里修改设置不会影响另一个页面里的设置。
+// 但是持久化保存的数据只有一份：最后一次设置变更是在哪个页面发生的，就保存哪个页面的 settings 数据。
 
 import { EVT } from '../EVT'
 import { Utils } from '../utils/Utils'
@@ -167,6 +179,7 @@ interface XzSetting {
   previewWorkWait: number
   showOriginImage: boolean
   showOriginImageSize: 'original' | 'regular'
+  showHowToUse: boolean
 }
 
 type SettingsKeys = keyof XzSetting
@@ -174,7 +187,6 @@ type SettingsKeys = keyof XzSetting
 class Settings {
   constructor() {
     this.restore()
-
     this.bindEvents()
   }
 
@@ -346,6 +358,7 @@ class Settings {
     previewWorkWait: 400,
     showOriginImage: true,
     showOriginImageSize: 'original',
+    showHowToUse: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -436,6 +449,7 @@ class Settings {
         }
       }
       this.assignSettings(restoreData)
+      EVT.fire('settingInitialized')
     })
   }
 
@@ -479,7 +493,7 @@ class Settings {
     }
     // 开始恢复导入的设置
     this.reset(loadedJSON)
-    msgBox.success(lang.transl('_导入成功'))
+    toast.success(lang.transl('_导入成功'))
   }
 
   // 重置设置 或者 导入设置
