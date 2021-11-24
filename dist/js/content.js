@@ -1842,21 +1842,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "help", function() { return help; });
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
 
 
 // 显示帮助信息
 // 在第一次使用某些功能的时候显示一次性的帮助信息
 class Help {
     showDownloadTip() {
-        const name = 'PBDDownloadTip';
-        chrome.storage.sync.get(name, function (result) {
-            if (!result[name]) {
-                _MsgBox__WEBPACK_IMPORTED_MODULE_0__["msgBox"].show(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载说明提示2'));
-                chrome.storage.sync.set({
-                    [name]: true,
-                });
-            }
-        });
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].showDownloadTip) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_0__["msgBox"].show(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载说明提示2'));
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])('showDownloadTip', false);
+        }
     }
 }
 const help = new Help();
@@ -17716,7 +17713,7 @@ class Form {
             }
         }
     }
-    // 是否显示“创建文件夹的提示”
+    // 是否显示创建文件夹的提示
     checkTipCreateFolder() {
         if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].isPixiv()) {
             return;
@@ -19690,6 +19687,7 @@ class Settings {
             showHowToUse: true,
             whatIsNewFlag: 'xuejian&saber',
             tipCreateFolder: true,
+            showDownloadTip: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项

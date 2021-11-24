@@ -182,6 +182,7 @@ interface XzSetting {
   showHowToUse: boolean
   whatIsNewFlag: string
   tipCreateFolder: boolean
+  showDownloadTip: boolean
 }
 
 type SettingsKeys = keyof XzSetting
@@ -363,6 +364,7 @@ class Settings {
     showHowToUse: true,
     whatIsNewFlag: 'xuejian&saber',
     tipCreateFolder: true,
+    showDownloadTip: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
