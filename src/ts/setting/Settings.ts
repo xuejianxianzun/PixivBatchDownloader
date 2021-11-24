@@ -180,6 +180,8 @@ interface XzSetting {
   showOriginImage: boolean
   showOriginImageSize: 'original' | 'regular'
   showHowToUse: boolean
+  whatIsNewFlag: string
+  tipCreateFolder: boolean
 }
 
 type SettingsKeys = keyof XzSetting
@@ -359,6 +361,8 @@ class Settings {
     showOriginImage: true,
     showOriginImageSize: 'original',
     showHowToUse: true,
+    whatIsNewFlag: 'xuejian&saber',
+    tipCreateFolder: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

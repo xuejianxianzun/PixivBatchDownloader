@@ -639,9 +639,6 @@
   border: none;
   border-bottom: 1px solid #ccc;
 }
-.centerWrap .centerWrap_con .settingForm #tipCreateFolder {
-  display: none;
-}
 .centerWrap .centerWrap_con .settingForm .flexTip {
   display: flex;
   justify-content: space-between;

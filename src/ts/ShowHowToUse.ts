@@ -9,14 +9,9 @@ class ShowHowToUse {
     this.bindEvents()
   }
 
-  private checked = false
-
   private bindEvents() {
     window.addEventListener(EVT.list.settingInitialized, () => {
-      if (!this.checked) {
-        this.checked = true
-        this.check()
-      }
+      this.check()
     })
   }
 

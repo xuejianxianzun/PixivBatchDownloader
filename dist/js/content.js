@@ -5961,15 +5961,11 @@ __webpack_require__.r(__webpack_exports__);
 
 class ShowHowToUse {
     constructor() {
-        this.checked = false;
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.settingInitialized, () => {
-            if (!this.checked) {
-                this.checked = true;
-                this.check();
-            }
+            this.check();
         });
     }
     check() {
@@ -6401,6 +6397,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./config/Config */ "./src/ts/config/Config.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
 
 
 
@@ -6410,17 +6410,20 @@ class ShowWhatIsNew {
     constructor() {
         this.flag = '11.4.2';
         this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_whatisnew')}`;
-        this.storeName = 'xzNewVerTag';
-        this.show();
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
+            this.show();
+        });
     }
     show() {
-        const value = localStorage.getItem(this.storeName);
-        if (value !== this.flag && _utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].isPixiv()) {
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].isPixiv() && _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].whatIsNewFlag !== this.flag) {
             _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].show(this.msg, {
                 title: _config_Config__WEBPACK_IMPORTED_MODULE_1__["Config"].appName + ` ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_最近更新')}`,
                 btn: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_我知道了'),
             });
-            localStorage.setItem(this.storeName, this.flag);
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["setSetting"])('whatIsNewFlag', this.flag);
         }
     }
 }
@@ -17514,6 +17517,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _FormSettings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./FormSettings */ "./src/ts/setting/FormSettings.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+
 
 
 
@@ -17528,20 +17533,15 @@ class Form {
     constructor() {
         this.chooseKeys = ['Enter', 'NumpadEnter']; // 让回车键可以控制复选框（浏览器默认只支持空格键）
         this.bueatifulTimer = 0;
-        this.tipCreateFolderFlag = 'tipCreateFolder'; // 控制“创建文件夹的提示”是否显示
-        this.tipCreateFolderId = 'tipCreateFolder'; // “创建文件夹的提示”的容器 id
         this.form = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_4__["formHtml"]);
         _Theme__WEBPACK_IMPORTED_MODULE_6__["theme"].register(this.form);
         _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].register(this.form);
         this.allCheckBox = this.form.querySelectorAll('input[type="checkbox"]');
         this.allRadio = this.form.querySelectorAll('input[type="radio"]');
         this.allSwitch = this.form.querySelectorAll('.checkbox_switch');
-        this.allLabel = this.form.querySelectorAll('label');
         new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_5__["SaveNamingRule"](this.form.userSetName);
         new _FormSettings__WEBPACK_IMPORTED_MODULE_7__["FormSettings"](this.form);
         this.bindEvents();
-        this.initFormBueatiful();
-        this.checkTipCreateFolder();
     }
     // 设置表单上美化元素的状态
     initFormBueatiful() {
@@ -17566,7 +17566,7 @@ class Form {
             this.bindBeautifyEvent(radio);
         }
         // 设置变化或者重置时，重新设置美化状态
-        const change = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd];
+        const change = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingInitialized, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd];
         change.forEach((evt) => {
             window.addEventListener(evt, () => {
                 // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
@@ -17575,6 +17575,9 @@ class Form {
                     this.initFormBueatiful();
                 }, 50);
             });
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingInitialized, () => {
+            this.checkTipCreateFolder();
         });
         // 预览文件名
         _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('namingBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_预览文件名').addEventListener('click', () => {
@@ -17718,21 +17721,18 @@ class Form {
         if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].isPixiv()) {
             return;
         }
-        const tip = this.form.querySelector('#' + this.tipCreateFolderId);
-        if (!tip) {
-            return;
-        }
-        // 如果用户没有点击“我知道了”按钮，则显示这个提示
-        if (!window.localStorage.getItem(this.tipCreateFolderFlag)) {
-            tip.style.display = 'block';
-            // 用户点击“我知道了”按钮之后，隐藏这个提示并设置标记
+        const tip = this.form.querySelector('#tipCreateFolder');
+        // 默认显示提示
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_9__["settings"].tipCreateFolder) {
             const btn = tip.querySelector('button');
-            if (btn) {
-                btn.addEventListener('click', () => {
-                    tip.style.display = 'none';
-                    window.localStorage.setItem(this.tipCreateFolderFlag, '1');
-                });
-            }
+            // 用户点击“我知道了”按钮之后不再显示提示
+            btn.addEventListener('click', () => {
+                tip.style.display = 'none';
+                Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_9__["setSetting"])('tipCreateFolder', false);
+            });
+        }
+        else {
+            tip.style.display = 'none';
         }
     }
 }
@@ -19688,6 +19688,8 @@ class Settings {
             showOriginImage: true,
             showOriginImageSize: 'original',
             showHowToUse: true,
+            whatIsNewFlag: 'xuejian&saber',
+            tipCreateFolder: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
