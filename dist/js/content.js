@@ -19483,18 +19483,18 @@ __webpack_require__.r(__webpack_exports__);
 // setSetting(name, value)
 // 本模块会触发 3 个事件：
 // EVT.list.settingChange
-// 当任何一个设置项被赋值时触发（本模块不会区分值是否发生了变化）。这是最常用的事件。
+// 当任意一个设置项被赋值时触发（本模块不会区分值是否发生了变化）。这是最常用的事件。
 // 事件的参数里会传递这个设置项的名称和值，格式如：
 // {name: string, value: any}
 // 如果某个模块要监听特定的设置项，应该使用参数的 name 来判断触发事件的设置项是否是自己需要的设置项
 // 如果不依赖于特定设置项，则应该考虑使用节流（throttle）来限制事件监听器的执行频率，防止造成严重的性能问题
 // EVT.list.settingInitialized
 // 当设置初始化完毕后（恢复保存的设置之后）触发。这个事件在生命周期里只会触发一次。
-// 会同时触发多次 settingChange 事件
+// 过程中，每个设置项都会触发一次 settingChange 事件
 // EVT.list.resetSettingsEnd
 // 重置设置之后触发
 // 导入设置之后触发
-// 会同时触发多次 settingChange 事件
+// 过程中，每个设置项都会触发一次 settingChange 事件
 // 如果打开了多个标签页，每个页面的 settings 数据是互相独立的，在一个页面里修改设置不会影响另一个页面里的设置。
 // 但是持久化保存的数据只有一份：最后一次设置变更是在哪个页面发生的，就保存哪个页面的 settings 数据。
 
@@ -19696,8 +19696,8 @@ class Settings {
         ];
         // 以默认设置作为初始设置
         this.settings = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].deepCopy(this.defaultSettings);
-        this.storageInterval = 500;
         this.storeTimer = 0;
+        this.storageInterval = 50;
         this.restore();
         this.bindEvents();
     }
@@ -19747,7 +19747,7 @@ class Settings {
     restore() {
         let restoreData = this.defaultSettings;
         // 首先从 chrome.storage 获取配置（从 11.5.0 版本开始）
-        chrome.storage.sync.get(_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName, (result) => {
+        chrome.storage.local.get(_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName, (result) => {
             if (result[_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName]) {
                 restoreData = result[_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName];
             }
@@ -19763,10 +19763,10 @@ class Settings {
         });
     }
     store() {
-        // 由于 chrome.storage.sync 每分钟最多只能执行 120 次写入操作，所以必须节流
         window.clearTimeout(this.storeTimer);
         this.storeTimer = window.setTimeout(() => {
-            chrome.storage.sync.set({
+            // chrome.storage.local 的储存上限是 5 MiB（5242880 Byte）
+            chrome.storage.local.set({
                 [_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName]: this.settings,
             });
         }, this.storageInterval);

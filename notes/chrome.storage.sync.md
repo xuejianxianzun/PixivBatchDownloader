@@ -1,6 +1,4 @@
-# 使用 chrome.storage.sync
-
-为了持久化保存配置，本扩展程序使用 `chrome.storage.sync` 储存配置数据，以及一些标记。
+# chrome.storage.sync
 
 文档： https://developer.chrome.com/docs/extensions/reference/storage/#property-sync
 

@@ -3,20 +3,23 @@
 日语文本需要优化的地方：
 - 加粗显示关键字
 
-需要对 chrome.storage.sync 的报错进行处理。
-
-
 ## 11.5.0 2021/11/24
 
 ### 持久化保存配置
 
 相关 issues：https://github.com/xuejianxianzun/PixivBatchDownloader/issues/180
 
-由于清除浏览器缓存会导致浏览器的配置丢失，这对一些用户造成了困扰。所以从这个版本中我开始使用 `chrome.storage.sync` 储存下载器的配置。
+由于清除浏览器缓存会导致浏览器的配置丢失，这对一些用户造成了困扰。所以从这个版本中我开始使用 `chrome.storage.local` 储存下载器的配置。
 
-我搜索了代码中使用 `localStorage.getItem` 的地方，把一些需要修改的地方替换成了 `chrome.storage.sync`。
+我搜索了代码中使用 `localStorage.getItem` 的地方，把一些需要修改的地方替换成了 `chrome.storage.local`。
 
 不过，并非所有使用 `localStorage` 的地方都需要改为持久化保存。因为有些地方储存的是临时数据，不属于应该持久保存的配置，所以没有修改。
+
+---------
+
+一开始我是使用 `chrome.storage.sync` 的，但是 `chrome.storage.sync` 的存储容量限制太小了，每个项目的体积限制为 8 KiB。我自己的配置的体积已经超过了 5 KiB，有些用户的甚至达到了 16 KiB，这超过了限制。
+
+所以后来改成使用 `chrome.storage.local` 储存配置了。`chrome.storage.local` 有个缺点就是不能被浏览器自动同步。不过这个缺点问题不大。
 
 ### 支持动态切换界面语言
 
@@ -26,7 +29,9 @@
 
 代码上的细节可以参考 `notes\动态切换界面语言.md`。
 
-ps：这个优化其实是因为“持久化保存配置”的修改而导致的。
+---------
+
+这个优化其实是因为“持久化保存配置”的修改而导致的。
 
 在之前的代码里，下载器在启动时，`Lang` 模块需要最先执行，它会读取语言设置，然后再执行其他模块。
 

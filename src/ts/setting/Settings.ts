@@ -400,8 +400,8 @@ class Settings {
   // 以默认设置作为初始设置
   public settings: XzSetting = Utils.deepCopy(this.defaultSettings)
 
-  private readonly storageInterval = 500
   private storeTimer = 0
+  private readonly storageInterval = 50
 
   private bindEvents() {
     // 当设置发生变化时进行本地存储
@@ -455,7 +455,7 @@ class Settings {
   private restore() {
     let restoreData = this.defaultSettings
     // 首先从 chrome.storage 获取配置（从 11.5.0 版本开始）
-    chrome.storage.sync.get(Config.settingStoreName, (result) => {
+    chrome.storage.local.get(Config.settingStoreName, (result) => {
       if (result[Config.settingStoreName]) {
         restoreData = result[Config.settingStoreName]
       } else {
@@ -471,10 +471,10 @@ class Settings {
   }
 
   private store() {
-    // 由于 chrome.storage.sync 每分钟最多只能执行 120 次写入操作，所以必须节流
     window.clearTimeout(this.storeTimer)
     this.storeTimer = window.setTimeout(() => {
-      chrome.storage.sync.set({
+      // chrome.storage.local 的储存上限是 5 MiB（5242880 Byte）
+      chrome.storage.local.set({
         [Config.settingStoreName]: this.settings,
       })
     }, this.storageInterval)
