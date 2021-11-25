@@ -19,7 +19,7 @@ class Token {
 
   private bindEvents() {
     // 重置设置时清除保存的 token，因为用户切换账号时，登录上新账号后可能 token 还是之前账号的，就会出错。清除设置时清除 token，就可以解决这个问题。
-    window.addEventListener(EVT.list.resetSettings, () => {
+    window.addEventListener(EVT.list.resetSettingsEnd, () => {
       this.reset()
     })
   }

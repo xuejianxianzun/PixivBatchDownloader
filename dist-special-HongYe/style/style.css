@@ -624,14 +624,19 @@
   line-height: 24px;
 }
 .centerWrap .centerWrap_con .settingForm p * {
-  vertical-align: middle;
   line-height: 1;
 }
+.centerWrap .centerWrap_con .settingForm p > *,
+.centerWrap .centerWrap_con .settingForm p .subOptionWrap > * {
+  vertical-align: middle;
+}
+.centerWrap .centerWrap_con .settingForm p strong,
 .centerWrap .centerWrap_con .settingForm p .key {
   vertical-align: baseline !important;
 }
-.centerWrap .centerWrap_con .settingForm p strong {
-  vertical-align: baseline;
+.centerWrap .centerWrap_con .settingForm p button,
+.centerWrap .centerWrap_con .settingForm .controlBar span {
+  vertical-align: middle;
 }
 .centerWrap .centerWrap_con .settingForm .centerPanelTextArea {
   font-family: 'aria';
@@ -645,9 +650,6 @@
   resize: none;
   border: none;
   border-bottom: 1px solid #ccc;
-}
-.centerWrap .centerWrap_con .settingForm #tipCreateFolder {
-  display: none;
 }
 .centerWrap .centerWrap_con .settingForm .flexTip {
   display: flex;
@@ -674,6 +676,7 @@
 }
 .centerWrap .centerWrap_con .settingForm label {
   cursor: pointer;
+  padding-right: 5px;
 }
 .centerWrap .centerWrap_con .settingForm .tabsContnet {
   display: none;
@@ -1433,6 +1436,7 @@
 .ui-fixed-container aside,
 iframe[name='header'],
 iframe[name='footer'],
+iframe[name='rectangle'],
 ._2vGmESI,
 section.ad,
 aside .sc-LzLtN,

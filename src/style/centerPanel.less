@@ -184,16 +184,22 @@
       }
 
       p * {
-        vertical-align: middle;
         line-height: 1;
       }
 
+      p > *,
+      p .subOptionWrap > * {
+        vertical-align: middle;
+      }
+
+      p strong,
       p .key {
         vertical-align: baseline !important;
       }
 
-      p strong {
-        vertical-align: baseline;
+      p button,
+      .controlBar span {
+        vertical-align: middle;
       }
 
       .centerPanelTextArea {
@@ -208,10 +214,6 @@
         resize: none;
         border: none;
         border-bottom: 1px solid #ccc;
-      }
-
-      #tipCreateFolder {
-        display: none;
       }
 
       .flexTip {
@@ -244,6 +246,7 @@
 
       label {
         cursor: pointer;
+        padding-right: 5px;
       }
 
       .tabsContnet {

@@ -16,18 +16,13 @@ import { log } from '../Log'
 // 针对特定用户屏蔽 tag
 class BlockTagsForSpecificUser {
   constructor() {
-    this.getRule()
-
     this.createWrap()
-    this.createAllList()
-
     theme.register(this.wrap)
-
-    this.listWrapShow = this.listWrapShow
-    this.updateWrapDisplay()
-    this.showTotal()
+    lang.register(this.wrap)
 
     this.bindEvents()
+
+    this.createAllList()
   }
 
   private rules: typeof settings.blockTagsForSpecificUserList = []
@@ -62,62 +57,36 @@ class BlockTagsForSpecificUser {
     return this._addWrapShow
   }
 
-  set listWrapShow(val: boolean) {
-    setSetting('blockTagsForSpecificUserShowList', val)
-
-    this.listWrap.style.display = val ? 'block' : 'none'
-
-    this.expandBtn.textContent = val
-      ? lang.transl('_收起')
-      : lang.transl('_展开')
-  }
-
-  get listWrapShow() {
-    return settings.blockTagsForSpecificUserShowList
-  }
-
   private wrapHTML = `
   <div class="blockTagsForSpecificUserWrap">
 
     <div class="controlBar">
-      <button type="button" class="textButton expand">${lang.transl(
-        '_收起'
-      )}</button>
+      <button type="button" class="textButton expand" data-xztext="_收起"></button>
       <span class="total">0</span>
-      <button type="button" class="textButton showAdd">${lang.transl(
-        '_添加'
-      )}</button>
+      <button type="button" class="textButton showAdd" data-xztext="_添加"></button>
     </div>
 
     <div class="addWrap">
       <div class="settingItem addInputWrap" >
         <div class="inputItem uid">
-          <span class="label uidLabel">${lang.transl('_用户id')}</span>
-          <input type="text" class="setinput_style1 blue addUidInput" placeholder="${lang.transl(
-            '_必须是数字'
-          )}" />
+          <span class="label uidLabel" data-xztext="_用户id"></span>
+          <input type="text" class="setinput_style1 blue addUidInput" data-xzplaceholder="_必须是数字" />
         </div>
 
         <div class="inputItem tags">
           <span class="label tagsLabel">Tags</span>
-          <input type="text" class="setinput_style1 blue addTagsInput" placeholder="${lang.transl(
-            '_tag用逗号分割'
-          )}" />
+          <input type="text" class="setinput_style1 blue addTagsInput" data-xzplaceholder="_tag用逗号分割" />
         </div>
 
         <div class="btns">
-          <button type="button" class="textButton add" title="${lang.transl(
-            '_添加'
-          )}">
+          <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-wanchengqueding"></use>
             </svg>
           </button>
 
           
-          <button type="button" class="textButton cancel" title="${lang.transl(
-            '_取消'
-          )}">
+          <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-guanbiquxiao"></use>
             </svg>
@@ -153,9 +122,16 @@ class BlockTagsForSpecificUser {
 
     // 展开/折叠
     this.expandBtn.addEventListener('click', () => {
-      this.listWrapShow = !this.listWrapShow
+      setSetting(
+        'blockTagsForSpecificUserShowList',
+        !settings.blockTagsForSpecificUserShowList
+      )
+      this.showListWrap()
 
-      if (this.listWrapShow && this.rules.length === 0) {
+      if (
+        settings.blockTagsForSpecificUserShowList &&
+        this.rules.length === 0
+      ) {
         toast.error(lang.transl('_没有数据可供使用'))
       }
     })
@@ -179,11 +155,33 @@ class BlockTagsForSpecificUser {
     })
   }
 
+  private bindEvents() {
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      const data = ev.detail.data as any
+      if (data.name.includes('blockTagsForSpecificUser')) {
+        this.createAllList()
+      }
+    })
+  }
+
+  private showListWrap() {
+    const show = settings.blockTagsForSpecificUserShowList
+    this.listWrap.style.display = show ? 'block' : 'none'
+    lang.updateText(this.expandBtn, show ? '_收起' : '_展开')
+  }
+
   // 根据规则动态创建 html
   private createAllList() {
+    this.rules = [...settings.blockTagsForSpecificUserList]
+    this.wrap.style.display = settings.blockTagsForSpecificUser
+      ? 'block'
+      : 'none'
+    this.totalSpan.textContent = this.rules.length.toString()
+    this.listWrap.innerHTML = ''
     for (const data of this.rules) {
       this.createList(data)
     }
+    this.showListWrap()
   }
 
   // 创建规则对应的元素，并绑定事件
@@ -192,7 +190,7 @@ class BlockTagsForSpecificUser {
     const html = `
     <div class="settingItem" data-key="${uid}">
       <div class="inputItem uid">
-        <span class="label uidLabel">${lang.transl('_用户id')}</span>
+        <span class="label uidLabel" data-xztext="_用户id"></span>
         <input type="text" class="setinput_style1 blue" data-uidInput="${uid}" value="${uid}" />
       </div>
 
@@ -203,17 +201,13 @@ class BlockTagsForSpecificUser {
 
       <div class="btns">
 
-        <button type="button" class="textButton" data-updateRule="${uid}" title="${lang.transl(
-      '_更新'
-    )}">
+        <button type="button" class="textButton" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-gengxin"></use>
           </svg>
         </button>
 
-        <button type="button" class="textButton" data-deleteRule="${uid}" title="${lang.transl(
-      '_删除'
-    )}">
+        <button type="button" class="textButton" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-shanchu1"></use>
           </svg>
@@ -224,8 +218,9 @@ class BlockTagsForSpecificUser {
     // 倒序显示，早添加的处于底部，晚添加的处于顶部
     this.listWrap.insertAdjacentHTML('afterbegin', html)
 
-    const uidLabel = this.listWrap.querySelector('.uidLabel')!
+    const uidLabel = this.listWrap.querySelector('.uidLabel')! as HTMLElement
     if (user) {
+      lang.updateText(uidLabel, '')
       uidLabel.textContent = user
     } else {
       this.updateUserName(data)
@@ -342,7 +337,8 @@ class BlockTagsForSpecificUser {
 
     this.addWrapShow = false
 
-    this.listWrapShow = true
+    setSetting('blockTagsForSpecificUserShowList', true)
+    this.showListWrap()
 
     toast.success(lang.transl('_添加成功'))
   }
@@ -389,40 +385,6 @@ class BlockTagsForSpecificUser {
       `.settingItem[data-key='${uid}']`
     )
     listElement?.remove()
-  }
-
-  private getRule() {
-    this.rules = [...settings.blockTagsForSpecificUserList]
-  }
-
-  private updateWrapDisplay() {
-    this.wrap.style.display = settings.blockTagsForSpecificUser
-      ? 'block'
-      : 'none'
-  }
-
-  private showTotal() {
-    this.totalSpan.textContent = this.rules.length.toString()
-  }
-
-  private bindEvents() {
-    // 选项变化
-    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
-      const data = ev.detail.data as any
-      if (data.name.includes('blockTagsForSpecificUser')) {
-        this.showTotal()
-        this.updateWrapDisplay()
-      }
-    })
-
-    // 选项重置
-    window.addEventListener(EVT.list.resetSettingsEnd, () => {
-      this.getRule()
-
-      this.listWrap.innerHTML = ''
-      this.createAllList()
-      this.listWrapShow = this.listWrapShow
-    })
   }
 
   // 如果找到了符合的记录，则返回 true

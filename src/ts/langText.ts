@@ -67,12 +67,6 @@ const langText = {
     'Set the <span class="key">width and height</span>',
     '幅と高さの条件を設定する',
   ],
-  _筛选宽高的按钮Title: [
-    '在下载前，您可以设置要下载的图片的宽高条件。',
-    '在下載前可以設定要下載的圖片的寬高條件。',
-    'Before downloading, you can set the width and height conditions of the images you want to download.',
-    'ダウンロードする前に、画像の幅と高さの条件を設定できます。',
-  ],
   _设置宽高比例: [
     '设置宽高<span class="key">比例</span>',
     '設定寬高<span class="key">比例</span>',
@@ -118,17 +112,17 @@ const langText = {
   _或者: [' 或者 ', ' 或是 ', ' or ', ' または '],
   _并且: [' 并且 ', ' 並且 ', ' and ', ' そして '],
   _高度: ['高度', '高度', 'height', '高さ'],
-  _个数: [
-    '设置作品数量',
-    '設定作品數量',
-    'Set the number of works',
-    '作品数を設定する',
+  _下载多少作品: [
+    '下载多少作品',
+    '下載多少作品',
+    'How many works to download',
+    'ダウンロードする作品の数',
   ],
-  _页数: [
-    '设置页面数量',
-    '設定頁面數量',
-    'Set the number of pages',
-    'ページ数を設定する',
+  _下载多少页面: [
+    '下载多少页面',
+    '下載多少頁面',
+    'How many pages to download',
+    'ダウンロードするページ数',
   ],
   _筛选收藏数的按钮Title: [
     '在下载前，您可以设置对收藏数量的要求。',
@@ -619,10 +613,10 @@ const langText = {
     `You can type a number between 1-${Config.downloadThreadMax} to set the number of concurrent downloads`,
     `同時ダウンロード数を設定、1-${Config.downloadThreadMax} の数値を入力してください`,
   ],
-  _开始下载: ['开始下载', '開始下載', 'start download', '開始'],
-  _暂停下载: ['暂停下载', '暫停下載', 'pause download', '一時停止'],
-  _停止下载: ['停止下载', '停止下載', 'stop download', '停止'],
-  _复制url: ['复制 url', '複製下載網址', 'copy urls', 'URL をコピー'],
+  _开始下载: ['开始下载', '開始下載', 'Start download', '開始'],
+  _暂停下载: ['暂停下载', '暫停下載', 'Pause download', '一時停止'],
+  _停止下载: ['停止下载', '停止下載', 'Stop download', '停止'],
+  _复制url: ['复制 url', '複製下載網址', 'Copy urls', 'URL をコピー'],
   _当前状态: ['当前状态 ', '目前狀態：', 'State ', '現在の状態 '],
   _未开始下载: [
     '未开始下载',
@@ -684,10 +678,10 @@ const langText = {
     'クロールが終了しました！',
   ],
   _快速下载本页: [
-    '快速下载本页作品',
-    '快速下載本頁作品',
-    'Download this work quickly',
-    'この作品をすばやくダウンロードする',
+    '快速下载本页作品 (Alt + Q)',
+    '快速下載本頁作品 (Alt + Q)',
+    'Download this work quickly (Alt + Q)',
+    'この作品をすばやくダウンロードする (Alt + Q)',
   ],
   _从本页开始抓取new: [
     '从本页开始抓取新作品',
@@ -718,18 +712,6 @@ const langText = {
     '擷取相關作品',
     'Crawl the related works',
     '関連作品をダウンロードする',
-  ],
-  _相关作品大于0: [
-    ' （下载相关作品必须大于 0）',
-    ' （下載相關作品必須大於 0）',
-    '  (Download related works must be greater than 0)',
-    ' 「ダウンロードする関連作品の数は0より大きくなければならない」',
-  ],
-  _默认下载多页: [
-    ', 如有多页，默认会下载全部。',
-    '，如有多頁，預設會下載全部。',
-    ', If there are multiple pages, the default will be downloaded.',
-    '、複数のページがある場合、デフォルトですべてをダウンロードされます。',
   ],
   _调整完毕: [
     '调整完毕，当前有{}个作品。',
@@ -847,7 +829,7 @@ const langText = {
   ],
   _数字提示1: [
     '-1, 或者大于 0',
-    '-1 或是大於 0',
+    '-1，或是大於 0',
     '-1, or greater than 0',
     '-1、または 0 より大きい',
   ],
@@ -988,7 +970,7 @@ const langText = {
     'Screen in results',
     '結果の中からスクリーニング',
   ],
-  _在结果中筛选Title: [
+  _在结果中筛选说明: [
     '您可以改变设置，并在结果中再次筛选。',
     '可以變更設定，並在結果中再次篩選。',
     'You can change the settings and screen again in the results.',
@@ -1272,18 +1254,18 @@ const langText = {
     '{} は幅と高さが設定に合わないため、保存されていません。',
   ],
   _显示下载面板: [
-    '显示下载面板',
-    '顯示下載面板',
-    'Show download panel',
-    'ダウンロードパネルを表示',
+    '显示下载面板 (Alt + X)',
+    '顯示下載面板 (Alt + X)',
+    'Show download panel (Alt + X)',
+    'ダウンロードパネルを表示 (Alt + X)',
   ],
   _保存: ['保存', '儲存', 'Save', '保存'],
   _加载: ['加载', '載入', 'Load', 'ロード'],
   _保存命名规则提示: [
-    '保存命名规则，最多 {} 个',
-    '儲存命名規則，最多 {} 個',
-    'Save naming rule, up to {}',
-    'ネームルールを保存します。最大 {} 個まで',
+    '保存命名规则，最多 20 个',
+    '儲存命名規則，最多 20 個',
+    'Save naming rule, up to 20',
+    'ネームルールを保存します。最大 20 個まで',
   ],
   _已保存命名规则: [
     '已保存命名规则',
@@ -1456,6 +1438,12 @@ const langText = {
     '擷取選擇的作品',
     'Crawl selected works',
     '選ばれた作品をクロール',
+  ],
+  _抓取选择的作品2: [
+    '抓取选择的作品 {}',
+    '擷取選擇的作品 {}',
+    'Crawl selected works {}',
+    '選ばれた作品をクロール {}',
   ],
   _清空选择的作品: [
     '清空选择的作品',
@@ -1845,6 +1833,25 @@ const langText = {
     '「作品のプレビュー」機能の最適化：<br>ユーザーはマウスのホバー時間を設定できます。',
   ],
   _等待时间: ['等待时间', '等待時間', 'Waiting time', '待ち時間'],
+  _格式错误: ['格式错误', '格式錯誤', 'Format error', 'フォーマットエラー'],
+  _下载数量错误: [
+    '下载的页数（作品）数量设置错误',
+    '下載的頁數（作品）數量設定錯誤',
+    'The number of downloaded pages (works) is set incorrectly',
+    '下载页数（作品）设置不正确',
+  ],
+  _默认下载多页: [
+    '开始抓取, 如有多页，默认会下载全部。',
+    '開始擷取，如有多頁，預設會下載全部。',
+    'Start crawl, if there are multiple pages, the default will be downloaded.',
+    'クロールを開始する、複数のページがある場合、デフォルトですべてをダウンロードされます。',
+  ],
+  _在Patreon赞助我: [
+    '在 Patreon 赞助我',
+    '在 Patreon 贊助我',
+    'Become a patron',
+    'Become a patron',
+  ],
 }
 
 export { langText }

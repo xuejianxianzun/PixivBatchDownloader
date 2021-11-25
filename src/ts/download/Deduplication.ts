@@ -298,8 +298,7 @@ class Deduplication {
       record[0].id === undefined ||
       record[0].n === undefined
     ) {
-      const msg = 'Format error!'
-      return msgBox.error(msg)
+      return msgBox.error(lang.transl('_格式错误'))
     }
 
     this.importRecord(record)

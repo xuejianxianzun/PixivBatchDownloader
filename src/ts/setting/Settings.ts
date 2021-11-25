@@ -1,7 +1,31 @@
 // settings 保存了下载器的所有设置项
-// 每当修改了 settings 的任何一个值，都会触发 EVT.list.settingChange 事件，传递这个选项的名称和值 {name:string, value:any}
 
-// 如果打开了多个标签页，每个页面的 settings 数据是互相独立的。但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
+// 获取设置项的值：
+// settings[name]
+
+// 修改设置项的值：
+// setSetting(name, value)
+
+// 本模块会触发 3 个事件：
+
+// EVT.list.settingChange
+// 当任意一个设置项被赋值时触发（本模块不会区分值是否发生了变化）。这是最常用的事件。
+// 事件的参数里会传递这个设置项的名称和值，格式如：
+// {name: string, value: any}
+// 如果某个模块要监听特定的设置项，应该使用参数的 name 来判断触发事件的设置项是否是自己需要的设置项
+// 如果不依赖于特定设置项，则应该考虑使用节流（throttle）来限制事件监听器的执行频率，防止造成严重的性能问题
+
+// EVT.list.settingInitialized
+// 当设置初始化完毕后（恢复保存的设置之后）触发。这个事件在生命周期里只会触发一次。
+// 过程中，每个设置项都会触发一次 settingChange 事件
+
+// EVT.list.resetSettingsEnd
+// 重置设置之后触发
+// 导入设置之后触发
+// 过程中，每个设置项都会触发一次 settingChange 事件
+
+// 如果打开了多个标签页，每个页面的 settings 数据是互相独立的，在一个页面里修改设置不会影响另一个页面里的设置。
+// 但是持久化保存的数据只有一份：最后一次设置变更是在哪个页面发生的，就保存哪个页面的 settings 数据。
 
 import { EVT } from '../EVT'
 import { Utils } from '../utils/Utils'
@@ -10,6 +34,7 @@ import { msgBox } from '../MsgBox'
 import { Config } from '../config/Config'
 import { secretSignal } from '../utils/SecretSignal'
 import { toast } from '../Toast'
+import { lang } from '../Lang'
 
 export interface BlockTagsForSpecificUserItem {
   uid: number
@@ -165,6 +190,10 @@ interface XzSetting {
   previewWorkWait: number
   showOriginImage: boolean
   showOriginImageSize: 'original' | 'regular'
+  showHowToUse: boolean
+  whatIsNewFlag: string
+  tipCreateFolder: boolean
+  showDownloadTip: boolean
 }
 
 type SettingsKeys = keyof XzSetting
@@ -172,7 +201,6 @@ type SettingsKeys = keyof XzSetting
 class Settings {
   constructor() {
     this.restore()
-
     this.bindEvents()
   }
 
@@ -344,6 +372,10 @@ class Settings {
     previewWorkWait: 400,
     showOriginImage: true,
     showOriginImageSize: 'original',
+    showHowToUse: true,
+    whatIsNewFlag: 'xuejian&saber',
+    tipCreateFolder: true,
+    showDownloadTip: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -368,13 +400,13 @@ class Settings {
   // 以默认设置作为初始设置
   public settings: XzSetting = Utils.deepCopy(this.defaultSettings)
 
+  private storeTimer = 0
+  private readonly storageInterval = 50
+
   private bindEvents() {
     // 当设置发生变化时进行本地存储
     window.addEventListener(EVT.list.settingChange, () => {
-      localStorage.setItem(
-        Config.settingStoreName,
-        JSON.stringify(this.settings)
-      )
+      this.store()
     })
 
     window.addEventListener(EVT.list.resetSettings, () => {
@@ -419,14 +451,33 @@ class Settings {
     }
   }
 
-  // 初始化时，恢复设置
+  // 读取恢复设置
   private restore() {
     let restoreData = this.defaultSettings
-    const savedSettings = localStorage.getItem(Config.settingStoreName)
-    if (savedSettings) {
-      restoreData = JSON.parse(savedSettings)
-    }
-    this.assignSettings(restoreData)
+    // 首先从 chrome.storage 获取配置（从 11.5.0 版本开始）
+    chrome.storage.local.get(Config.settingStoreName, (result) => {
+      if (result[Config.settingStoreName]) {
+        restoreData = result[Config.settingStoreName]
+      } else {
+        // 如无数据则尝试从 localStorage 获取配置，因为旧版本的配置储存在 localStorage 中
+        const savedSettings = localStorage.getItem(Config.settingStoreName)
+        if (savedSettings) {
+          restoreData = JSON.parse(savedSettings)
+        }
+      }
+      this.assignSettings(restoreData)
+      EVT.fire('settingInitialized')
+    })
+  }
+
+  private store() {
+    window.clearTimeout(this.storeTimer)
+    this.storeTimer = window.setTimeout(() => {
+      // chrome.storage.local 的储存上限是 5 MiB（5242880 Byte）
+      chrome.storage.local.set({
+        [Config.settingStoreName]: this.settings,
+      })
+    }, this.storageInterval)
   }
 
   // 接收整个设置项，通过循环将其更新到 settings 上
@@ -455,10 +506,11 @@ class Settings {
     }
     // 检查是否存在设置里的属性
     if (loadedJSON.downloadThread === undefined) {
-      return msgBox.error('Format error!')
+      return msgBox.error(lang.transl('_格式错误'))
     }
     // 开始恢复导入的设置
     this.reset(loadedJSON)
+    toast.success(lang.transl('_导入成功'))
   }
 
   // 重置设置 或者 导入设置

@@ -26,11 +26,12 @@ class QuickCrawl {
     this.btn = document.createElement('button')
     this.btn.classList.add('rightButton')
     this.btn.id = 'quickCrawlBtn'
-    this.btn.setAttribute('title', lang.transl('_快速下载本页') + ' (Alt + Q)')
+    this.btn.setAttribute('data-xztitle', '_快速下载本页')
     this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-download"></use>
 </svg>`
     document.body.insertAdjacentElement('afterbegin', this.btn)
+    lang.register(this.btn)
   }
 
   private bindEvents() {

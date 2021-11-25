@@ -110,6 +110,7 @@ class QuickBookmark {
 
       // 添加快速收藏按钮
       this.btn = this.createBtn()
+      lang.register(this.btn)
       this.toolbar.insertBefore(this.btn, this.toolbar.childNodes[3])
 
       if (this.isBookmarked) {
@@ -128,7 +129,7 @@ class QuickBookmark {
     btn.id = this.btnId
     btn.textContent = '✩'
     btn.href = 'javascript:void(0)'
-    btn.title = lang.transl('_快速收藏')
+    btn.dataset.xztitle = '_快速收藏'
     return btn
   }
 

@@ -34,7 +34,7 @@ class ImportResult {
 
     // 要求是数组并且要有内容
     if (!Array.isArray(loadedJSON) || !loadedJSON.length || !loadedJSON[0]) {
-      return toast.error('Format error!')
+      return toast.error(lang.transl('_格式错误'))
     }
 
     // 检查是否含有必须的字段（只检查了一部分）
@@ -42,7 +42,7 @@ class ImportResult {
     const need = ['idNum', 'id', 'original', 'type', 'ext']
     for (const field of need) {
       if (!keys.includes(field)) {
-        return toast.error('Format error!')
+        return toast.error(lang.transl('_格式错误'))
       }
     }
 

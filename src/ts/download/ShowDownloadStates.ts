@@ -18,29 +18,29 @@ class ShowDownloadStates {
       EVT.list.resume,
     ]) {
       window.addEventListener(ev, () => {
-        this.setText(lang.transl('_未开始下载'))
+        this.setText('_未开始下载')
       })
     }
 
     window.addEventListener(EVT.list.downloadStart, () => {
-      this.setText(lang.transl('_正在下载中'))
+      this.setText('_正在下载中')
     })
 
     window.addEventListener(EVT.list.downloadPause, () => {
-      this.setText(lang.transl('_已暂停'), '#f00')
+      this.setText('_已暂停', '#f00')
     })
 
     window.addEventListener(EVT.list.downloadStop, () => {
-      this.setText(lang.transl('_已停止'), '#f00')
+      this.setText('_已停止', '#f00')
     })
 
     window.addEventListener(EVT.list.downloadComplete, () => {
-      this.setText(lang.transl('_下载完毕'), Colors.textSuccess)
+      this.setText('_下载完毕', Colors.textSuccess)
     })
   }
 
-  private setText(text: string, color: string = Colors.bgBlue) {
-    this.el.textContent = text
+  private setText(textFlag: string, color: string = Colors.bgBlue) {
+    lang.updateText(this.el, textFlag)
     this.el.style.color = color
   }
 }

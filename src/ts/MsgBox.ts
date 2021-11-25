@@ -77,6 +77,7 @@ class MsgBox {
       `
 
     theme.register(wrap)
+    lang.register(wrap)
 
     const btn = wrap.querySelector('.btn') as HTMLButtonElement
 

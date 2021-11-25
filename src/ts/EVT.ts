@@ -72,6 +72,8 @@ class EVENT {
     pageSwitchedTypeChange: 'pageSwitchedTypeChange',
     // 页面切换，并且页面类型不变
     pageSwitchedTypeNotChange: 'pageSwitchedTypeNotChange',
+    // 程序启动时，设置初始化完毕后触发
+    settingInitialized: 'settingInitialized',
     // 请求重置所有设置
     resetSettings: 'resetSettings',
     // 重置所有设置执行完毕
@@ -153,6 +155,8 @@ class EVENT {
     clickBtnOnThumb: 'clickBtnOnThumb',
     // 显示原比例图片时触发
     showOriginSizeImage: 'showOriginSizeImage',
+    // 语言类型改变时触发
+    langChange: 'langChange',
   }
 
   // 触发自定义事件，大部分事件都不需要携带数据
@@ -208,6 +212,8 @@ class EVENT {
       | 'clearBG'
       | 'clickBtnOnThumb'
       | 'showOriginSizeImage'
+      | 'langChange'
+      | 'settingInitialized'
   ): void
 
   // 对于需要携带数据的事件进行重载
