@@ -20,14 +20,17 @@ enum Tabbar {
 class CenterPanel {
   constructor() {
     this.addCenterPanel()
-
-    this.activeTab(Tabbar.Crawl)
-
     theme.register(this.centerPanel)
+    lang.register(this.centerPanel)
+    this.showDonationLink()
+    this.activeTab(Tabbar.Crawl)
 
     new BG(this.centerPanel)
 
     new BoldKeywords(this.centerPanel)
+
+    this.allLangFlag = lang.langTypes.map((type) => 'lang_' + type)
+    this.setLangFlag()
 
     this.bindEvents()
   }
@@ -48,30 +51,22 @@ class CenterPanel {
       <div class="centerWrap_title blue">
       ${Config.appName}
       <div class="btns">
-      <a class="has_tip centerWrap_top_btn update" data-tip="${lang.transl(
-        '_newver'
-      )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
+      <a class="has_tip centerWrap_top_btn update" data-xztip="_newver" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-gengxin"></use>
         </svg>
       </a>
-      <a class="has_tip centerWrap_top_btn github_icon" data-tip="${lang.transl(
-        '_github'
-      )}" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
+      <a class="has_tip centerWrap_top_btn github_icon" data-xztip="_github" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-github"></use>
       </svg>
       </a>
-      <a class="has_tip centerWrap_top_btn wiki_url" data-tip="${lang.transl(
-        '_wiki'
-      )}" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
+      <a class="has_tip centerWrap_top_btn wiki_url" data-xztip="_wiki" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
-        <div class="has_tip centerWrap_top_btn centerWrap_close" data-tip="${lang.transl(
-          '_隐藏下载面板'
-        )}">
+        <div class="has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏下载面板">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>
@@ -81,9 +76,9 @@ class CenterPanel {
       </div>
 
       <div class="centerWrap_tabs tabsTitle">
-        <div class="title">${lang.transl('_抓取')}</div>
-        <div class="title">${lang.transl('_下载')}</div>
-        <div class="title">${lang.transl('_其他')}</div>
+        <div class="title" data-xztext="_抓取"></div>
+        <div class="title" data-xztext="_下载"></div>
+        <div class="title" data-xztext="_其他"></div>
       </div>
 
       <div class="centerWrap_con beautify_scrollbar">
@@ -91,17 +86,11 @@ class CenterPanel {
       <slot data-name="form"></slot>
 
       <div class="help_bar gray1"> 
-      <button class="textButton gray1 showDownTip" type="button">${lang.transl(
-        '_常见问题'
-      )}</button>
-      <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank"> ${lang.transl(
-        '_wiki'
-      )}</a>
-      <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${lang.transl(
-        '_fanboxDownloader'
-      )}</a>
-      <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">在“爱发电”支持我</a>
-      <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
+      <button class="textButton gray1 showDownTip" type="button" data-xztext="_常见问题"></button>
+      <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
+      <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank" data-xztext="_fanboxDownloader"></a>
+      <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">在“爱发电”赞助我</a>
+      <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank" data-xztext="_在Patreon赞助我"></a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
       <br>
       </div>
@@ -118,10 +107,15 @@ class CenterPanel {
       '.update'
     )! as HTMLAnchorElement
 
-    const donateId = lang.type === 'zh-cn' ? 'zanzhu' : 'patreon'
-    document.getElementById(donateId)!.style.display = 'inline-block'
-
     this.allTabTitle = this.centerPanel.querySelectorAll('.tabsTitle .title')
+  }
+
+  private allLangFlag: string[] = []
+  private setLangFlag() {
+    this.allLangFlag.forEach((flag) => {
+      this.centerPanel.classList.remove(flag)
+    })
+    this.centerPanel.classList.add('lang_' + lang.type)
   }
 
   private bindEvents() {
@@ -230,6 +224,21 @@ class CenterPanel {
     window.addEventListener(EVT.list.crawlEmpty, () => {
       this.activeTab(Tabbar.Crawl)
     })
+
+    window.addEventListener(EVT.list.langChange, () => {
+      this.setLangFlag()
+      this.showDonationLink()
+    })
+  }
+
+  private showDonationLink() {
+    if (lang.type === 'zh-cn') {
+      document.getElementById('zanzhu')!.style.display = 'inline-block'
+      document.getElementById('patreon')!.style.display = 'none'
+    } else {
+      document.getElementById('zanzhu')!.style.display = 'none'
+      document.getElementById('patreon')!.style.display = 'inline-block'
+    }
   }
 
   // 设置激活的选项卡

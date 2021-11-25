@@ -1,4 +1,5 @@
 import { EVT } from '../EVT'
+import { lang } from '../Lang'
 import { form } from './Form'
 import { settings } from './Settings'
 
@@ -151,9 +152,21 @@ class Options {
 
   // 设置 “设置页面/作品数量” 选项的提示和预设值
   public setWantPageTip(arg: WantPageArg) {
-    this.wantPageEls.text.textContent = arg.text
-    this.wantPageEls.text.parentElement!.dataset.tip = arg.tip
-    this.wantPageEls.rangTip.textContent = arg.rangTip
+    lang.updateText(this.wantPageEls.text, arg.text)
+
+    this.wantPageEls.text.parentElement!.dataset.xztip = arg.tip
+    this.wantPageEls.text.parentElement!.dataset.tip = lang.transl(
+      arg.tip as any
+    )
+
+    // rangTip 可能需要翻译
+    if (arg.rangTip.startsWith('_')) {
+      lang.updateText(this.wantPageEls.rangTip, arg.rangTip)
+    } else {
+      // 也可能直接传递了字符串，不需要翻译
+      lang.updateText(this.wantPageEls.rangTip, '')
+      this.wantPageEls.rangTip.textContent = arg.rangTip
+    }
   }
 }
 

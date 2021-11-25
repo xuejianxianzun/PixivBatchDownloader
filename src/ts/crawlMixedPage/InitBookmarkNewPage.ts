@@ -34,9 +34,12 @@ class InitBookmarkNewPage extends InitPageBase {
   protected firstWorkId = ''
 
   protected addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
-      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
-    ]).addEventListener('click', () => {
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_开始抓取',
+      '_默认下载多页'
+    ).addEventListener('click', () => {
       this.readyCrawl()
     })
   }
@@ -48,8 +51,8 @@ class InitBookmarkNewPage extends InitPageBase {
     this.maxCount = 100
 
     options.setWantPageTip({
-      text: lang.transl('_页数'),
-      tip: lang.transl('_从本页开始下载提示'),
+      text: '_下载多少页面',
+      tip: '_从本页开始下载提示',
       rangTip: `1 - ${this.maxCount}`,
     })
   }

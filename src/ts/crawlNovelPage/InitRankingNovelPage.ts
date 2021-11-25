@@ -17,9 +17,12 @@ class InitRankingNovelPage extends InitPageBase {
   private pageUrlList: string[] = []
 
   protected addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取本排行榜作品'), [
-      ['title', lang.transl('_抓取本排行榜作品Title')],
-    ]).addEventListener('click', () => {
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_抓取本排行榜作品',
+      '_抓取本排行榜作品Title'
+    ).addEventListener('click', () => {
       this.readyCrawl()
     })
   }
@@ -31,8 +34,8 @@ class InitRankingNovelPage extends InitPageBase {
     this.maxCount = 100
 
     options.setWantPageTip({
-      text: lang.transl('_个数'),
-      tip: lang.transl('_想要获取多少个作品'),
+      text: '_下载多少作品',
+      tip: '_想要获取多少个作品',
       rangTip: `1 - ${this.maxCount}`,
     })
   }

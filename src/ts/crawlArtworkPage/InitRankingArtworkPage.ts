@@ -25,9 +25,12 @@ class InitRankingArtworkPage extends InitPageBase {
   private option: RankingOption = this.resetOption()
 
   protected addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取本排行榜作品'), [
-      ['title', lang.transl('_抓取本排行榜作品Title')],
-    ]).addEventListener('click', () => {
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_抓取本排行榜作品',
+      '_抓取本排行榜作品Title'
+    ).addEventListener('click', () => {
       this.readyCrawl()
     })
 
@@ -39,8 +42,8 @@ class InitRankingArtworkPage extends InitPageBase {
       Tools.addBtn(
         'crawlBtns',
         Colors.bgBlue,
-        lang.transl('_抓取首次登场的作品'),
-        [['title', lang.transl('_抓取首次登场的作品Title')]]
+        '_抓取首次登场的作品',
+        '_抓取首次登场的作品Title'
       ).addEventListener('click', () => {
         states.debut = true
         this.readyCrawl()
@@ -61,8 +64,8 @@ class InitRankingArtworkPage extends InitPageBase {
     this.maxCount = 500
 
     options.setWantPageTip({
-      text: lang.transl('_个数'),
-      tip: lang.transl('_想要获取多少个作品'),
+      text: '_下载多少作品',
+      tip: '_想要获取多少个作品',
       rangTip: `1 - ${this.maxCount}`,
     })
   }

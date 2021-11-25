@@ -18,6 +18,7 @@ class OutputPanel {
     this.addOutPutPanel()
 
     theme.register(this.outputPanel)
+    lang.register(this.outputPanel)
 
     this.bindEvents()
   }
@@ -59,13 +60,7 @@ class OutputPanel {
       window.getSelection()!.removeAllRanges()
       window.getSelection()!.addRange(range)
       document.execCommand('copy')
-
-      // 改变提示文字
-      this.copyBtn.textContent = lang.transl('_已复制到剪贴板')
-      setTimeout(() => {
-        window.getSelection()!.removeAllRanges()
-        this.copyBtn.textContent = lang.transl('_复制')
-      }, 1000)
+      toast.success(lang.transl('_已复制到剪贴板'))
     })
 
     window.addEventListener(EVT.list.output, (ev: CustomEventInit) => {
@@ -76,11 +71,11 @@ class OutputPanel {
   private addOutPutPanel() {
     const html = `
     <div class="outputWrap">
-    <div class="outputClose" title="${lang.transl('_关闭')}">×</div>
-    <div class="outputTitle">${lang.transl('_输出信息')}</div>
+    <div class="outputClose" data-xztitle="_关闭">×</div>
+    <div class="outputTitle" data-xztext="_输出信息"></div>
     <div class="outputContent beautify_scrollbar"></div>
     <div class="outputFooter">
-    <button class="outputCopy" title="">${lang.transl('_复制')}</button>
+    <button class="outputCopy" data-xztext="_复制"></button>
     </div>
     </div>
     `
@@ -113,7 +108,7 @@ class OutputPanel {
 
     if (store.result.length < Config.outputMax) {
       this.copyBtn.disabled = false
-      this.outputTitle.textContent = data.title
+      lang.updateText(this.outputTitle, data.title)
       this.outputContent.innerHTML = data.content
       this.outputPanel.style.display = 'block'
     } else {
@@ -134,7 +129,7 @@ class OutputPanel {
   private close() {
     this.outputPanel.style.display = 'none'
     this.outputContent.innerHTML = ''
-    this.outputTitle.innerText = lang.transl('_输出信息')
+    lang.updateText(this.outputTitle, '_输出信息')
   }
 }
 

@@ -1,18 +1,24 @@
 import { lang } from './Lang'
 import { Config } from './config/Config'
 import { msgBox } from './MsgBox'
+import { EVT } from './EVT'
+import { settings, setSetting } from './setting/Settings'
 
 class ShowHowToUse {
   constructor() {
-    this.check()
+    this.bindEvents()
   }
 
-  private readonly flag = 'xzHowToUse'
+  private bindEvents() {
+    window.addEventListener(EVT.list.settingInitialized, () => {
+      this.check()
+    })
+  }
 
   private check() {
-    const query = window.localStorage.getItem(this.flag)
-    if (!query) {
+    if (settings.showHowToUse) {
       this.show()
+      setSetting('showHowToUse', false)
     }
   }
 
@@ -21,8 +27,6 @@ class ShowHowToUse {
       title: Config.appName,
       btn: lang.transl('_我知道了'),
     })
-
-    window.localStorage.setItem(this.flag, '1')
   }
 }
 

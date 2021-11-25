@@ -83,7 +83,7 @@ class PreviewFileName {
 
     EVT.fire('output', {
       content: result,
-      title: lang.transl('_预览文件名'),
+      title: '_预览文件名',
     })
   }
 }

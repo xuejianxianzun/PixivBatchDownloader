@@ -5,6 +5,7 @@ import { lang } from '../Lang'
 class ShowConvertCount {
   constructor(el: HTMLElement) {
     this.el = el
+    lang.register(this.el)
     this.bindEvents()
   }
 
@@ -13,11 +14,12 @@ class ShowConvertCount {
   private bindEvents() {
     window.addEventListener(EVT.list.convertChange, (ev: CustomEventInit) => {
       const count = ev.detail.data
-      let convertText = ''
       if (count > 0) {
-        convertText = lang.transl('_转换任务提示', count.toString())
+        lang.updateText(this.el, '_转换任务提示', count.toString())
+      } else {
+        this.el.textContent = ''
+        lang.updateText(this.el, '')
       }
-      this.el.textContent = convertText
     })
   }
 }
