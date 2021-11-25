@@ -209,39 +209,42 @@ class ShowOriginSizeImage {
     this.wrap.querySelector('img')!.remove()
     this.wrap.appendChild(this.img)
 
-    // 计算可视区域的 1 像素等于图片的多少像素
-    let onePxMove = 1
+    // 设置定位
     const innerWidth = window.innerWidth - 17
-    if (this.style.imgW >= this.img.naturalHeight) {
-      onePxMove = this.style.imgW / innerWidth
-    } else {
-      onePxMove = this.style.imgH / window.innerHeight
-    }
-    // 乘以修正系数，加大 onePxMove
-    // 这样可以让用户在移动鼠标时，不需要移动到边界上就可以查看到图片的边界
-    this.onePxMove = onePxMove * 1.1
-
-    if (this.style.width > innerWidth) {
-      // 如果图片宽度超过了可视区域，则根据鼠标在可视宽度中的点击位置，将图片等比例移动到这里
-      // 这样用户向左移动鼠标时，可以看到图片的左边界
-      // 设想把图片居中显示，但是鼠标位置在左侧，那么用户向左移动鼠标，是看不到图片的左边界的。所以此时不能居中显示
-      const leftSpace = this.style.width * (ev.clientX / innerWidth)
-      // 计算需要向左移动的距离
-      this.style.ml = 0 - (leftSpace - ev.clientX)
-    } else {
-      // 否则水平居中显示
-      this.style.ml = (innerWidth - this.style.width - this.border) / 2
-    }
-
+    // 在水平方向上，总是居中显示
+    this.style.ml = (innerWidth - this.style.width - this.border) / 2
+    // 在垂直方向上
     if (this.style.height > window.innerHeight) {
-      // 如果图片高度超过了可视区域，则根据鼠标点击位置在可视宽度中的比例，将 top 设置为同样的比例
-      const topSpace = this.style.height * (ev.clientY / window.innerHeight)
-      this.style.mt = 0 - (topSpace - ev.clientY)
+      // 如果图片高度超过了可视区域，则从顶部显示
+      this.style.mt = 0
     } else {
       // 否则垂直居中显示
       this.style.mt = (window.innerHeight - this.style.height - this.border) / 2
     }
 
+    // 计算鼠标移动 1 像素时，图片应该移动多少像素
+    // 计算横向的 onePxMove
+    let onePxMoveX = this.style.imgW / innerWidth
+    if (this.style.imgW > innerWidth) {
+      // 如果图片宽度超出窗口可视宽度
+      const leftWidth = ev.clientX * onePxMoveX
+      const rightWidth = this.style.imgW - leftWidth
+      // 计算鼠标左侧和右侧各移动 1 像素时，图片应该移动多少像素。取比较大的一个值
+      onePxMoveX = Math.max(leftWidth / ev.clientX, rightWidth / (innerWidth - ev.clientX))
+    }
+    // 计算纵向的 onePxMove
+    let onePxMoveY = this.style.imgH / window.innerHeight
+    if (this.style.imgH > window.innerHeight) {
+      // 如果图片高度超出窗口可视高度，下载器会把图片从顶部显示。此时需要特殊处理 onePxMove
+      // 让鼠标从当前位置向下到窗口底部时，可以完整查看整个图片
+      onePxMoveY = (this.style.imgH - ev.clientY) / (window.innerHeight - ev.clientY)
+    }
+    // 比较水平方向和垂直方向的计算结果，取比较大的一个值
+    // onePxMove 乘以修正系数，进行放大
+    // 这样可以让用户在移动鼠标时，不需要移动到边界上就可以查看到图片的边界
+    this.onePxMove = Math.max(onePxMoveX, onePxMoveY) * 1.1
+
+    // 设置样式，显示图片
     this.setWrapStyle()
     this.show = true
   }
@@ -358,7 +361,7 @@ class ShowOriginSizeImage {
         this.style.mt = mt
       }
     }
-
+    
     this.setWrapStyle()
   }
 
