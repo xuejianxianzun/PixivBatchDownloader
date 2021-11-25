@@ -27,7 +27,9 @@ class Form {
 
     this.allSwitch = this.form.querySelectorAll('.checkbox_switch')
 
-    this.createFolderTipEl = this.form.querySelector('#tipCreateFolder')! as HTMLElement
+    this.createFolderTipEl = this.form.querySelector(
+      '#tipCreateFolder'
+    )! as HTMLElement
 
     new SaveNamingRule(this.form.userSetName)
 
@@ -280,9 +282,11 @@ class Form {
   // 是否显示创建文件夹的提示
   private showCreateFolderTip() {
     if (!Utils.isPixiv()) {
-      return this.createFolderTipEl.style.display = 'none'
+      return (this.createFolderTipEl.style.display = 'none')
     }
-    this.createFolderTipEl.style.display = settings.tipCreateFolder ? 'block' : 'none'
+    this.createFolderTipEl.style.display = settings.tipCreateFolder
+      ? 'block'
+      : 'none'
   }
 }
 

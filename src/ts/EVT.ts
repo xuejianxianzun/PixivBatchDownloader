@@ -73,7 +73,7 @@ class EVENT {
     // 页面切换，并且页面类型不变
     pageSwitchedTypeNotChange: 'pageSwitchedTypeNotChange',
     // 程序启动时，设置初始化完毕后触发
-    settingInitialized:'settingInitialized',
+    settingInitialized: 'settingInitialized',
     // 请求重置所有设置
     resetSettings: 'resetSettings',
     // 重置所有设置执行完毕

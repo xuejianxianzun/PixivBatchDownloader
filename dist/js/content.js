@@ -6156,6 +6156,7 @@ class ShowOriginSizeImage {
     bindEvents() {
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__["mouseOverThumbnail"].onEnter((el) => {
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImage) {
+                // 这里测试在 CentBrowser（内核版本 86）中存在问题，因为 CentBrowser 里鼠标右键松开时才会触发 mousedown 事件，导致根本没法做鼠标长按的效果
                 el.addEventListener('mousedown', this.readyShow);
                 el.addEventListener('mouseup', this.cancelReadyShow);
             }
@@ -17714,9 +17715,11 @@ class Form {
     // 是否显示创建文件夹的提示
     showCreateFolderTip() {
         if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].isPixiv()) {
-            return this.createFolderTipEl.style.display = 'none';
+            return (this.createFolderTipEl.style.display = 'none');
         }
-        this.createFolderTipEl.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__["settings"].tipCreateFolder ? 'block' : 'none';
+        this.createFolderTipEl.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__["settings"].tipCreateFolder
+            ? 'block'
+            : 'none';
     }
 }
 const form = new Form().form;
