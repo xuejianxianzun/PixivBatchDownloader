@@ -524,11 +524,16 @@ class CenterPanel {
     constructor() {
         this.updateActiveClass = 'updateActiveClass';
         this.activeClass = 'active';
+        this.allLangFlag = [];
         this.addCenterPanel();
-        this.activeTab(Tabbar.Crawl);
         _Theme__WEBPACK_IMPORTED_MODULE_3__["theme"].register(this.centerPanel);
+        _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].register(this.centerPanel);
+        this.showDonationLink();
+        this.activeTab(Tabbar.Crawl);
         new _setting_BG__WEBPACK_IMPORTED_MODULE_6__["BG"](this.centerPanel);
         new _BoldKeywords__WEBPACK_IMPORTED_MODULE_9__["BoldKeywords"](this.centerPanel);
+        this.allLangFlag = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].langTypes.map((type) => 'lang_' + type);
+        this.setLangFlag();
         this.bindEvents();
     }
     // 添加中间面板
@@ -540,22 +545,22 @@ class CenterPanel {
       <div class="centerWrap_title blue">
       ${_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].appName}
       <div class="btns">
-      <a class="has_tip centerWrap_top_btn update" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_newver')}" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
+      <a class="has_tip centerWrap_top_btn update" data-xztip="_newver" href="https://github.com/xuejianxianzun/PixivBatchDownloader/releases/latest" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-gengxin"></use>
         </svg>
       </a>
-      <a class="has_tip centerWrap_top_btn github_icon" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_github')}" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
+      <a class="has_tip centerWrap_top_btn github_icon" data-xztip="_github" href="https://github.com/xuejianxianzun/PixivBatchDownloader" target="_blank">
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#icon-github"></use>
       </svg>
       </a>
-      <a class="has_tip centerWrap_top_btn wiki_url" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_wiki')}" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
+      <a class="has_tip centerWrap_top_btn wiki_url" data-xztip="_wiki" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-help"></use>
         </svg>
       </a>
-        <div class="has_tip centerWrap_top_btn centerWrap_close" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_隐藏下载面板')}">
+        <div class="has_tip centerWrap_top_btn centerWrap_close" data-xztip="_隐藏下载面板">
         <svg class="icon" aria-hidden="true">
           <use xlink:href="#icon-guanbi"></use>
         </svg>
@@ -565,9 +570,9 @@ class CenterPanel {
       </div>
 
       <div class="centerWrap_tabs tabsTitle">
-        <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_抓取')}</div>
-        <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载')}</div>
-        <div class="title">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_其他')}</div>
+        <div class="title" data-xztext="_抓取"></div>
+        <div class="title" data-xztext="_下载"></div>
+        <div class="title" data-xztext="_其他"></div>
       </div>
 
       <div class="centerWrap_con beautify_scrollbar">
@@ -575,11 +580,11 @@ class CenterPanel {
       <slot data-name="form"></slot>
 
       <div class="help_bar gray1"> 
-      <button class="textButton gray1 showDownTip" type="button">${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_常见问题')}</button>
-      <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_wiki')}</a>
-      <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank"> ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_fanboxDownloader')}</a>
-      <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">在“爱发电”支持我</a>
-      <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank">Become a patron</a>
+      <button class="textButton gray1 showDownTip" type="button" data-xztext="_常见问题"></button>
+      <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
+      <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank" data-xztext="_fanboxDownloader"></a>
+      <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">在“爱发电”赞助我</a>
+      <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank" data-xztext="_在Patreon赞助我"></a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
       <br>
       </div>
@@ -591,9 +596,13 @@ class CenterPanel {
         document.body.insertAdjacentHTML('beforeend', centerPanelHTML);
         this.centerPanel = document.querySelector('.centerWrap');
         this.updateLink = this.centerPanel.querySelector('.update');
-        const donateId = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].type === 'zh-cn' ? 'zanzhu' : 'patreon';
-        document.getElementById(donateId).style.display = 'inline-block';
         this.allTabTitle = this.centerPanel.querySelectorAll('.tabsTitle .title');
+    }
+    setLangFlag() {
+        this.allLangFlag.forEach((flag) => {
+            this.centerPanel.classList.remove(flag);
+        });
+        this.centerPanel.classList.add('lang_' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].type);
     }
     bindEvents() {
         // 监听点击扩展图标的消息，开关中间面板
@@ -682,6 +691,20 @@ class CenterPanel {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.crawlEmpty, () => {
             this.activeTab(Tabbar.Crawl);
         });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.langChange, () => {
+            this.setLangFlag();
+            this.showDonationLink();
+        });
+    }
+    showDonationLink() {
+        if (_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].type === 'zh-cn') {
+            document.getElementById('zanzhu').style.display = 'inline-block';
+            document.getElementById('patreon').style.display = 'none';
+        }
+        else {
+            document.getElementById('zanzhu').style.display = 'none';
+            document.getElementById('patreon').style.display = 'inline-block';
+        }
     }
     // 设置激活的选项卡
     activeTab(no = 0) {
@@ -1344,6 +1367,8 @@ class EVENT {
             pageSwitchedTypeChange: 'pageSwitchedTypeChange',
             // 页面切换，并且页面类型不变
             pageSwitchedTypeNotChange: 'pageSwitchedTypeNotChange',
+            // 程序启动时，设置初始化完毕后触发
+            settingInitialized: 'settingInitialized',
             // 请求重置所有设置
             resetSettings: 'resetSettings',
             // 重置所有设置执行完毕
@@ -1425,6 +1450,8 @@ class EVENT {
             clickBtnOnThumb: 'clickBtnOnThumb',
             // 显示原比例图片时触发
             showOriginSizeImage: 'showOriginSizeImage',
+            // 语言类型改变时触发
+            langChange: 'langChange',
         };
     }
     // 只绑定某个事件一次，用于防止事件重复绑定
@@ -1898,20 +1925,17 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "help", function() { return help; });
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
 
 
 // 显示帮助信息
 // 在第一次使用某些功能的时候显示一次性的帮助信息
 class Help {
     showDownloadTip() {
-        const flag = {
-            name: 'PBDDownloadTip',
-            value: '1',
-        };
-        const getValue = localStorage.getItem(flag.name);
-        if (getValue === null) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].showDownloadTip) {
             _MsgBox__WEBPACK_IMPORTED_MODULE_0__["msgBox"].show(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载说明提示2'));
-            localStorage.setItem(flag.name, flag.value);
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])('showDownloadTip', false);
         }
     }
 }
@@ -2456,10 +2480,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "lang", function() { return lang; });
 /* harmony import */ var _LangText__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./LangText */ "./src/ts/LangText.ts");
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./config/Config */ "./src/ts/config/Config.ts");
-
-
 
 
 // 语言类
@@ -2472,48 +2492,32 @@ class Lang {
             ['en', 2],
             ['ja', 3],
         ]);
-        // 读取本地存储的设置
-        const savedSettings = localStorage.getItem(_config_Config__WEBPACK_IMPORTED_MODULE_3__["Config"].settingStoreName);
-        if (savedSettings) {
-            // 有储存的设置
-            const restoreData = JSON.parse(savedSettings);
-            if (this.langTypes.includes(restoreData.userSetLang)) {
-                // 恢复设置里的语言类型
-                this.type = restoreData.userSetLang;
-            }
-            else {
-                // 自动获取语言类型
-                this.type = this.getLangType();
-            }
-        }
-        else {
-            // 如果没有储存的设置，则自动获取语言类型
-            this.type = this.getLangType();
-        }
+        // 保存注册的元素
+        // 在注册的元素里设置特殊的标记，让本模块可以动态更新其文本
+        this.elList = [];
+        this.type = this.getHtmlLangType();
         this.bindEvents();
     }
     bindEvents() {
-        // 因为 Settings 初始化时会触发设置变化事件，所以监听事件即可获取语言设置
-        // 本模块必须在 Settings 之前加载，否则监听不到 Settings 初始化的事件
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name !== 'userSetLang') {
                 return;
             }
             const old = this.type;
-            this.type = this.getType(data.value);
+            this.type = data.value === 'auto' ? this.getHtmlLangType() : data.value;
             if (this.type !== old) {
-                _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].show(this.transl('_变更语言后刷新页面的提示'));
+                _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('langChange');
+                this.elList.forEach((el) => {
+                    this.handleMark(el);
+                });
             }
         });
     }
-    getType(flag) {
-        return flag === 'auto' ? this.getLangType() : flag;
-    }
-    // 获取页面使用的语言，返回对应的 flag
-    getLangType() {
-        const userLang = document.documentElement.lang;
-        switch (userLang) {
+    // 获取页面使用的语言，返回语言标记
+    getHtmlLangType() {
+        const flag = document.documentElement.lang;
+        switch (flag) {
             case 'zh':
             case 'zh-CN':
             case 'zh-Hans':
@@ -2528,11 +2532,86 @@ class Lang {
                 return 'en'; // English
         }
     }
-    // translate 翻译
+    // translate
     transl(name, ...arg) {
         let content = _LangText__WEBPACK_IMPORTED_MODULE_0__["langText"][name][this.flagIndex.get(this.type)];
         arg.forEach((val) => (content = content.replace('{}', val)));
         return content;
+    }
+    register(el) {
+        this.elList.push(el);
+        this.handleMark(el);
+    }
+    // 查找元素上的标记，设置其文本和属性
+    handleMark(wrap) {
+        // 设置 innerHTML
+        const textEl = wrap.querySelectorAll('*[data-xztext]');
+        for (const el of textEl) {
+            // 因为有些文本中含有 html 标签，所以这里需要使用 innerHTML 而不是 textContent
+            el.innerHTML = this.transl(el.dataset.xztext);
+        }
+        // 元素自身存在 xztext 标记的情况
+        const text = wrap.dataset.xztext;
+        if (text) {
+            wrap.innerHTML = this.transl(text);
+        }
+        // 设置带参数的 innerHTML
+        const textArgsEl = wrap.querySelectorAll('*[data-xztextargs]');
+        textArgsEl.forEach((el) => this.handleTextArgs(el));
+        // 元素自身存在 xztextargs 标记的情况
+        const textargs = wrap.dataset.xztextargs;
+        if (textargs) {
+            this.handleTextArgs(wrap);
+        }
+        // 设置 tip
+        const tipEl = wrap.querySelectorAll('*[data-xztip]');
+        for (const el of tipEl) {
+            el.dataset.tip = this.transl(el.dataset.xztip);
+        }
+        // 设置 placeholder
+        const placeholderEl = wrap.querySelectorAll('*[data-xzplaceholder]');
+        for (const el of placeholderEl) {
+            el.setAttribute('placeholder', this.transl(el.dataset.xzplaceholder));
+        }
+        // 设置 title
+        const titleEl = wrap.querySelectorAll('*[data-xztitle]');
+        for (const el of titleEl) {
+            el.setAttribute('title', this.transl(el.dataset.xztitle));
+        }
+        // 元素自身存在 title 标记的情况
+        const title = wrap.dataset.xztitle;
+        if (title) {
+            wrap.setAttribute('title', this.transl(title));
+        }
+    }
+    handleTextArgs(el) {
+        let args = el.dataset.xztextargs.split(',');
+        const first = args.shift();
+        el.innerHTML = this.transl(first, ...args);
+    }
+    // 需要更新已注册元素的文本时调用此方法
+    updateText(el, ...args) {
+        // 清空文本的情况
+        if (args === undefined || args[0] === '') {
+            delete el.dataset.xztext;
+            delete el.dataset.xztextargs;
+            el.innerHTML = '';
+            return;
+        }
+        // 设置文本
+        if (args.length === 1) {
+            // 无参数文本
+            el.dataset.xztext = args[0];
+            el.innerHTML = this.transl(args[0]);
+            delete el.dataset.xztextargs;
+        }
+        else {
+            // 有参数文本
+            el.dataset.xztextargs = args.join(',');
+            const first = args.shift();
+            el.innerHTML = this.transl(first, ...args);
+            delete el.dataset.xztext;
+        }
     }
 }
 const lang = new Lang();
@@ -2619,12 +2698,6 @@ const langText = {
         'Set the <span class="key">width and height</span>',
         '幅と高さの条件を設定する',
     ],
-    _筛选宽高的按钮Title: [
-        '在下载前，您可以设置要下载的图片的宽高条件。',
-        '在下載前可以設定要下載的圖片的寬高條件。',
-        'Before downloading, you can set the width and height conditions of the images you want to download.',
-        'ダウンロードする前に、画像の幅と高さの条件を設定できます。',
-    ],
     _设置宽高比例: [
         '设置宽高<span class="key">比例</span>',
         '設定寬高<span class="key">比例</span>',
@@ -2670,17 +2743,17 @@ const langText = {
     _或者: [' 或者 ', ' 或是 ', ' or ', ' または '],
     _并且: [' 并且 ', ' 並且 ', ' and ', ' そして '],
     _高度: ['高度', '高度', 'height', '高さ'],
-    _个数: [
-        '设置作品数量',
-        '設定作品數量',
-        'Set the number of works',
-        '作品数を設定する',
+    _下载多少作品: [
+        '下载多少作品',
+        '下載多少作品',
+        'How many works to download',
+        'ダウンロードする作品の数',
     ],
-    _页数: [
-        '设置页面数量',
-        '設定頁面數量',
-        'Set the number of pages',
-        'ページ数を設定する',
+    _下载多少页面: [
+        '下载多少页面',
+        '下載多少頁面',
+        'How many pages to download',
+        'ダウンロードするページ数',
     ],
     _筛选收藏数的按钮Title: [
         '在下载前，您可以设置对收藏数量的要求。',
@@ -3171,10 +3244,10 @@ const langText = {
         `You can type a number between 1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} to set the number of concurrent downloads`,
         `同時ダウンロード数を設定、1-${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].downloadThreadMax} の数値を入力してください`,
     ],
-    _开始下载: ['开始下载', '開始下載', 'start download', '開始'],
-    _暂停下载: ['暂停下载', '暫停下載', 'pause download', '一時停止'],
-    _停止下载: ['停止下载', '停止下載', 'stop download', '停止'],
-    _复制url: ['复制 url', '複製下載網址', 'copy urls', 'URL をコピー'],
+    _开始下载: ['开始下载', '開始下載', 'Start download', '開始'],
+    _暂停下载: ['暂停下载', '暫停下載', 'Pause download', '一時停止'],
+    _停止下载: ['停止下载', '停止下載', 'Stop download', '停止'],
+    _复制url: ['复制 url', '複製下載網址', 'Copy urls', 'URL をコピー'],
     _当前状态: ['当前状态 ', '目前狀態：', 'State ', '現在の状態 '],
     _未开始下载: [
         '未开始下载',
@@ -3236,10 +3309,10 @@ const langText = {
         'クロールが終了しました！',
     ],
     _快速下载本页: [
-        '快速下载本页作品',
-        '快速下載本頁作品',
-        'Download this work quickly',
-        'この作品をすばやくダウンロードする',
+        '快速下载本页作品 (Alt + Q)',
+        '快速下載本頁作品 (Alt + Q)',
+        'Download this work quickly (Alt + Q)',
+        'この作品をすばやくダウンロードする (Alt + Q)',
     ],
     _从本页开始抓取new: [
         '从本页开始抓取新作品',
@@ -3270,18 +3343,6 @@ const langText = {
         '擷取相關作品',
         'Crawl the related works',
         '関連作品をダウンロードする',
-    ],
-    _相关作品大于0: [
-        ' （下载相关作品必须大于 0）',
-        ' （下載相關作品必須大於 0）',
-        '  (Download related works must be greater than 0)',
-        ' 「ダウンロードする関連作品の数は0より大きくなければならない」',
-    ],
-    _默认下载多页: [
-        ', 如有多页，默认会下载全部。',
-        '，如有多頁，預設會下載全部。',
-        ', If there are multiple pages, the default will be downloaded.',
-        '、複数のページがある場合、デフォルトですべてをダウンロードされます。',
     ],
     _调整完毕: [
         '调整完毕，当前有{}个作品。',
@@ -3399,7 +3460,7 @@ const langText = {
     ],
     _数字提示1: [
         '-1, 或者大于 0',
-        '-1 或是大於 0',
+        '-1，或是大於 0',
         '-1, or greater than 0',
         '-1、または 0 より大きい',
     ],
@@ -3540,7 +3601,7 @@ const langText = {
         'Screen in results',
         '結果の中からスクリーニング',
     ],
-    _在结果中筛选Title: [
+    _在结果中筛选说明: [
         '您可以改变设置，并在结果中再次筛选。',
         '可以變更設定，並在結果中再次篩選。',
         'You can change the settings and screen again in the results.',
@@ -3824,18 +3885,18 @@ const langText = {
         '{} は幅と高さが設定に合わないため、保存されていません。',
     ],
     _显示下载面板: [
-        '显示下载面板',
-        '顯示下載面板',
-        'Show download panel',
-        'ダウンロードパネルを表示',
+        '显示下载面板 (Alt + X)',
+        '顯示下載面板 (Alt + X)',
+        'Show download panel (Alt + X)',
+        'ダウンロードパネルを表示 (Alt + X)',
     ],
     _保存: ['保存', '儲存', 'Save', '保存'],
     _加载: ['加载', '載入', 'Load', 'ロード'],
     _保存命名规则提示: [
-        '保存命名规则，最多 {} 个',
-        '儲存命名規則，最多 {} 個',
-        'Save naming rule, up to {}',
-        'ネームルールを保存します。最大 {} 個まで',
+        '保存命名规则，最多 20 个',
+        '儲存命名規則，最多 20 個',
+        'Save naming rule, up to 20',
+        'ネームルールを保存します。最大 20 個まで',
     ],
     _已保存命名规则: [
         '已保存命名规则',
@@ -4008,6 +4069,12 @@ const langText = {
         '擷取選擇的作品',
         'Crawl selected works',
         '選ばれた作品をクロール',
+    ],
+    _抓取选择的作品2: [
+        '抓取选择的作品 {}',
+        '擷取選擇的作品 {}',
+        'Crawl selected works {}',
+        '選ばれた作品をクロール {}',
     ],
     _清空选择的作品: [
         '清空选择的作品',
@@ -4397,6 +4464,25 @@ const langText = {
         '「作品のプレビュー」機能の最適化：<br>ユーザーはマウスのホバー時間を設定できます。',
     ],
     _等待时间: ['等待时间', '等待時間', 'Waiting time', '待ち時間'],
+    _格式错误: ['格式错误', '格式錯誤', 'Format error', 'フォーマットエラー'],
+    _下载数量错误: [
+        '下载的页数（作品）数量设置错误',
+        '下載的頁數（作品）數量設定錯誤',
+        'The number of downloaded pages (works) is set incorrectly',
+        '下载页数（作品）设置不正确',
+    ],
+    _默认下载多页: [
+        '开始抓取, 如有多页，默认会下载全部。',
+        '開始擷取，如有多頁，預設會下載全部。',
+        'Start crawl, if there are multiple pages, the default will be downloaded.',
+        'クロールを開始する、複数のページがある場合、デフォルトですべてをダウンロードされます。',
+    ],
+    _在Patreon赞助我: [
+        '在 Patreon 赞助我',
+        '在 Patreon 贊助我',
+        'Become a patron',
+        'Become a patron',
+    ],
 };
 
 
@@ -4789,6 +4875,7 @@ class MsgBox {
         <button class="btn" type="button">${data.btn || _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_确定')}</button>
       `;
         _Theme__WEBPACK_IMPORTED_MODULE_2__["theme"].register(wrap);
+        _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].register(wrap);
         const btn = wrap.querySelector('.btn');
         if (btn) {
             wrap.addEventListener('click', (ev) => {
@@ -4839,11 +4926,12 @@ class OpenCenterPanel {
         this.btn = document.createElement('button');
         this.btn.classList.add('rightButton');
         this.btn.id = 'openCenterPanelBtn';
-        this.btn.setAttribute('title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_显示下载面板') + ' (Alt + X)');
+        this.btn.setAttribute('data-xztitle', '_显示下载面板');
         this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-dakai"></use>
 </svg>`;
         document.body.insertAdjacentElement('afterbegin', this.btn);
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(this.btn);
     }
     bindEvents() {
         // 这里阻止事件冒泡是为了配合 CenterPanel 的“点击页面其他部分隐藏 CenterPanel”的效果
@@ -5582,14 +5670,15 @@ class SelectWork {
         }
     }
     addBtn() {
-        this.controlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_手动选择作品'), [['title', 'Alt + S']]);
+        this.controlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_手动选择作品');
+        this.controlBtn.setAttribute('title', 'Alt + S');
         this.updateControlBtn();
-        this.clearBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgRed, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_清空选择的作品'));
+        this.clearBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgRed, '_清空选择的作品');
         this.clearBtn.style.display = 'none';
         this.clearBtn.addEventListener('click', () => {
             this.clearIdList();
         });
-        this.crawlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取选择的作品'));
+        this.crawlBtn = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('selectWorkBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取选择的作品');
         this.crawlBtn.style.display = 'none';
         this.crawlBtn.addEventListener('click', (ev) => {
             this.downloadSelect();
@@ -5598,7 +5687,7 @@ class SelectWork {
     // 切换控制按钮的文字和点击事件
     updateControlBtn() {
         if (!this.start) {
-            this.controlBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_手动选择作品');
+            _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.controlBtn, '_手动选择作品');
             this.controlBtn.onclick = (ev) => {
                 this.startSelect(ev);
                 this.clearBtn.style.display = 'block';
@@ -5606,13 +5695,13 @@ class SelectWork {
         }
         else {
             if (!this.pause) {
-                this.controlBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_暂停选择');
+                _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.controlBtn, '_暂停选择');
                 this.controlBtn.onclick = (ev) => {
                     this.pauseSelect();
                 };
             }
             else {
-                this.controlBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_继续选择');
+                _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.controlBtn, '_继续选择');
                 this.controlBtn.onclick = (ev) => {
                     this.startSelect(ev);
                 };
@@ -5623,11 +5712,10 @@ class SelectWork {
     updateCrawlBtn() {
         this.crawlBtn.style.display = this.start ? 'block' : 'none';
         if (this.idList.length > 0) {
-            this.crawlBtn.textContent =
-                _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取选择的作品') + ` ${this.idList.length}`;
+            _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.crawlBtn, '_抓取选择的作品2', this.idList.length.toString());
         }
         else {
-            this.crawlBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取选择的作品');
+            _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.crawlBtn, '_抓取选择的作品');
         }
     }
     // 监听点击事件
@@ -5944,18 +6032,26 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./config/Config */ "./src/ts/config/Config.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
 
 
 
 class ShowHowToUse {
     constructor() {
-        this.flag = 'xzHowToUse';
-        this.check();
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.settingInitialized, () => {
+            this.check();
+        });
     }
     check() {
-        const query = window.localStorage.getItem(this.flag);
-        if (!query) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].showHowToUse) {
             this.show();
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('showHowToUse', false);
         }
     }
     show() {
@@ -5963,7 +6059,6 @@ class ShowHowToUse {
             title: _config_Config__WEBPACK_IMPORTED_MODULE_1__["Config"].appName,
             btn: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_我知道了'),
         });
-        window.localStorage.setItem(this.flag, '1');
     }
 }
 new ShowHowToUse();
@@ -6104,6 +6199,7 @@ class ShowOriginSizeImage {
             regular: '',
         };
         this.readyShow = (ev) => {
+            window.clearTimeout(this.showTimer);
             // 当预览区域显示之后，在作品缩略图上长按鼠标右键，显示原尺寸图片
             // 0 左键 1 滚轮 2 右键
             if (ev.button === 2) {
@@ -6143,6 +6239,7 @@ class ShowOriginSizeImage {
     bindEvents() {
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_3__["mouseOverThumbnail"].onEnter((el) => {
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showOriginImage) {
+                // 这里测试在 CentBrowser（内核版本 86）中存在问题，因为 CentBrowser 里鼠标右键松开时才会触发 mousedown 事件，导致根本没法做鼠标长按的效果
                 el.addEventListener('mousedown', this.readyShow);
                 el.addEventListener('mouseup', this.cancelReadyShow);
             }
@@ -6218,39 +6315,42 @@ class ShowOriginSizeImage {
         // 替换 img 元素
         this.wrap.querySelector('img').remove();
         this.wrap.appendChild(this.img);
-        // 计算可视区域的 1 像素等于图片的多少像素
-        let onePxMove = 1;
+        // 设置定位
         const innerWidth = window.innerWidth - 17;
-        if (this.style.imgW >= this.img.naturalHeight) {
-            onePxMove = this.style.imgW / innerWidth;
-        }
-        else {
-            onePxMove = this.style.imgH / window.innerHeight;
-        }
-        // 乘以修正系数，加大 onePxMove
-        // 这样可以让用户在移动鼠标时，不需要移动到边界上就可以查看到图片的边界
-        this.onePxMove = onePxMove * 1.1;
-        if (this.style.width > innerWidth) {
-            // 如果图片宽度超过了可视区域，则根据鼠标在可视宽度中的点击位置，将图片等比例移动到这里
-            // 这样用户向左移动鼠标时，可以看到图片的左边界
-            // 设想把图片居中显示，但是鼠标位置在左侧，那么用户向左移动鼠标，是看不到图片的左边界的。所以此时不能居中显示
-            const leftSpace = this.style.width * (ev.clientX / innerWidth);
-            // 计算需要向左移动的距离
-            this.style.ml = 0 - (leftSpace - ev.clientX);
-        }
-        else {
-            // 否则水平居中显示
-            this.style.ml = (innerWidth - this.style.width - this.border) / 2;
-        }
+        // 在水平方向上，总是居中显示
+        this.style.ml = (innerWidth - this.style.width - this.border) / 2;
+        // 在垂直方向上
         if (this.style.height > window.innerHeight) {
-            // 如果图片高度超过了可视区域，则根据鼠标点击位置在可视宽度中的比例，将 top 设置为同样的比例
-            const topSpace = this.style.height * (ev.clientY / window.innerHeight);
-            this.style.mt = 0 - (topSpace - ev.clientY);
+            // 如果图片高度超过了可视区域，则从顶部显示
+            this.style.mt = 0;
         }
         else {
             // 否则垂直居中显示
             this.style.mt = (window.innerHeight - this.style.height - this.border) / 2;
         }
+        // 计算鼠标移动 1 像素时，图片应该移动多少像素
+        // 计算横向的 onePxMove
+        let onePxMoveX = this.style.imgW / innerWidth;
+        if (this.style.imgW > innerWidth) {
+            // 如果图片宽度超出窗口可视宽度
+            const leftWidth = ev.clientX * onePxMoveX;
+            const rightWidth = this.style.imgW - leftWidth;
+            // 计算鼠标左侧和右侧各移动 1 像素时，图片应该移动多少像素。取比较大的一个值
+            onePxMoveX = Math.max(leftWidth / ev.clientX, rightWidth / (innerWidth - ev.clientX));
+        }
+        // 计算纵向的 onePxMove
+        let onePxMoveY = this.style.imgH / window.innerHeight;
+        if (this.style.imgH > window.innerHeight) {
+            // 如果图片高度超出窗口可视高度，下载器会把图片从顶部显示。此时需要特殊处理 onePxMove
+            // 让鼠标从当前位置向下到窗口底部时，可以完整查看整个图片
+            onePxMoveY =
+                (this.style.imgH - ev.clientY) / (window.innerHeight - ev.clientY);
+        }
+        // 比较水平方向和垂直方向的计算结果，取比较大的一个值
+        // onePxMove 乘以修正系数，进行放大
+        // 这样可以让用户在移动鼠标时，不需要移动到边界上就可以查看到图片的边界
+        this.onePxMove = Math.max(onePxMoveX, onePxMoveY) * 1.1;
+        // 设置样式，显示图片
         this.setWrapStyle();
         this.show = true;
     }
@@ -6381,6 +6481,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./config/Config */ "./src/ts/config/Config.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
 
 
 
@@ -6390,17 +6494,20 @@ class ShowWhatIsNew {
     constructor() {
         this.flag = '11.4.2';
         this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_whatisnew')}`;
-        this.storeName = 'xzNewVerTag';
-        this.show();
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_4__["EVT"].list.settingInitialized, () => {
+            this.show();
+        });
     }
     show() {
-        const value = localStorage.getItem(this.storeName);
-        if (value !== this.flag && _utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].isPixiv()) {
+        if (_utils_Utils__WEBPACK_IMPORTED_MODULE_3__["Utils"].isPixiv() && _setting_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].whatIsNewFlag !== this.flag) {
             _MsgBox__WEBPACK_IMPORTED_MODULE_2__["msgBox"].show(this.msg, {
                 title: _config_Config__WEBPACK_IMPORTED_MODULE_1__["Config"].appName + ` ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_最近更新')}`,
                 btn: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_我知道了'),
             });
-            localStorage.setItem(this.storeName, this.flag);
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_5__["setSetting"])('whatIsNewFlag', this.flag);
         }
     }
 }
@@ -6963,7 +7070,7 @@ class Token {
     }
     bindEvents() {
         // 重置设置时清除保存的 token，因为用户切换账号时，登录上新账号后可能 token 还是之前账号的，就会出错。清除设置时清除 token，就可以解决这个问题。
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettings, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd, () => {
             this.reset();
         });
     }
@@ -7023,7 +7130,9 @@ const token = new Token();
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Tools", function() { return Tools; });
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 class Tools {
     // 把结果中的动图排列到最前面
@@ -7066,7 +7175,7 @@ class Tools {
         }
         // 4 旧版收藏页面
         if (nowURL.pathname === '/bookmark.php') {
-            if (parseInt(_utils_Utils__WEBPACK_IMPORTED_MODULE_0__["Utils"].getURLSearchField(nowURL.href, 'untagged')) === 1) {
+            if (parseInt(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].getURLSearchField(nowURL.href, 'untagged')) === 1) {
                 // 旧版 “未分类” tag 是个特殊标记
                 // https://www.pixiv.net/bookmark.php?untagged=1
                 return '未分類';
@@ -7088,7 +7197,7 @@ class Tools {
         }
         // 默认情况，从查询字符串里获取，如下网址
         // https://www.pixiv.net/bookmark.php?tag=R-18
-        return decodeURIComponent(_utils_Utils__WEBPACK_IMPORTED_MODULE_0__["Utils"].getURLSearchField(nowURL.href, 'tag'));
+        return decodeURIComponent(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].getURLSearchField(nowURL.href, 'tag'));
     }
     // 从 url 里获取 artworks id
     // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
@@ -7215,15 +7324,16 @@ class Tools {
         this.findSlot(name).innerHTML = '';
     }
     // 创建下载面板上的通用按钮
-    static addBtn(slot, bg = '', text = '', attr = []) {
+    // 注意 textFlag 和 titleFlag 必须是 LangText 里存在的属性，这是为了能根据语言设置动态切换文本
+    // 如果 text 和 title 是直接设置的字符串，那么不应该使用这个方法设置，而是由调用者自行设置
+    static addBtn(slot, bg = '', textFlag = '', titleFlag = '') {
         const e = document.createElement('button');
         e.type = 'button';
         e.style.backgroundColor = bg;
-        e.textContent = text;
-        for (const [key, value] of attr) {
-            e.setAttribute(key, value);
-        }
+        textFlag && e.setAttribute('data-xztext', textFlag);
+        titleFlag && e.setAttribute('data-xztitle', titleFlag);
         this.useSlot(slot, e);
+        _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].register(e);
         return e;
     }
     /**获取页面标题，并且删除 TitleBar 的标记和未读消息的计数（现在 p 站似乎没有消息计数了） */
@@ -7567,16 +7677,14 @@ class InitPageBase {
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_7__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_页数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_从本页开始下载提示'),
-            rangTip: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_数字提示1'),
+            text: '_下载多少页面',
+            tip: '_从本页开始下载提示',
+            rangTip: '_数字提示1',
         });
     }
     // 添加抓取区域的按钮
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
@@ -7594,7 +7702,7 @@ class InitPageBase {
     // 作品个数/页数的输入不合法
     getWantPageError() {
         _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('wrongSetting');
-        const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_参数不合法');
+        const msg = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载数量错误');
         _MsgBox__WEBPACK_IMPORTED_MODULE_17__["msgBox"].error(msg);
         throw new Error(msg);
     }
@@ -8014,13 +8122,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InitAreaRankingPage", function() { return InitAreaRankingPage; });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 // 初始化地区排行榜页面
-
 
 
 
@@ -8034,14 +8140,12 @@ class InitAreaRankingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     }
     initAny() { }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取本页作品'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取本页作品Title')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取本页作品', '_抓取本页作品Title').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
     setFormOption() {
-        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].hideOption([1]);
+        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([1]);
     }
     async getIdList() {
         const allPicArea = document.querySelectorAll('.ranking-item>.work_wrapper');
@@ -8061,9 +8165,9 @@ class InitAreaRankingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                 tags: tags,
                 bookmarkData: bookmarked,
             };
-            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_5__["filter"].check(filterOpt)) {
-                const id = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getIllustId(el.querySelector('a').href);
-                _store_Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.push({
+            if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__["filter"].check(filterOpt)) {
+                const id = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getIllustId(el.querySelector('a').href);
+                _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
                     type: 'unknown',
                     id,
                 });
@@ -8144,15 +8248,15 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
         new _pageFunciton_QuickBookmark__WEBPACK_IMPORTED_MODULE_6__["QuickBookmark"]();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始抓取new')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_从本页开始抓取new').addEventListener('click', () => {
             this.crawlDirection = -1;
             this.readyCrawl();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始抓取old')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_从本页开始抓取old').addEventListener('click', () => {
             this.crawlDirection = 1;
             this.readyCrawl();
         });
-        const downRelatedBtn = _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取相关作品'));
+        const downRelatedBtn = _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取相关作品');
         downRelatedBtn.addEventListener('click', () => {
             this.crawlRelated = true;
             this.readyCrawl();
@@ -8161,11 +8265,9 @@ class InitArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_个数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载提示') +
-                '<br>' +
-                _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_相关作品大于0'),
-            rangTip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_数字提示1'),
+            text: '_下载多少作品',
+            tip: '_从本页开始下载提示',
+            rangTip: '_数字提示1',
         });
     }
     destroy() {
@@ -8301,9 +8403,7 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
@@ -8312,8 +8412,8 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         // 个数/页数选项的提示
         this.maxCount = 100;
         _setting_Options__WEBPACK_IMPORTED_MODULE_5__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_页数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载提示'),
+            text: '_下载多少页面',
+            tip: '_从本页开始下载提示',
             rangTip: `1 - ${this.maxCount}`,
         });
     }
@@ -8402,13 +8502,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InitBookmarkDetailPage", function() { return InitBookmarkDetailPage; });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 // 初始化 bookmark_detail 页面
-
 
 
 
@@ -8421,18 +8519,16 @@ class InitBookmarkDetailPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取相似图片'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取相似图片')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取相似图片', '_抓取相似图片').addEventListener('click', () => {
             this.readyCrawl();
         }, false);
     }
     initAny() { }
     setFormOption() {
         // 个数/页数选项的提示
-        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_个数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_想要获取多少个作品'),
+        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
+            text: '_下载多少作品',
+            tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
         });
     }
@@ -8441,9 +8537,9 @@ class InitBookmarkDetailPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
     }
     // 获取相似的作品列表
     async getIdList() {
-        let data = await _API__WEBPACK_IMPORTED_MODULE_5__["API"].getRecommenderData(_Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getIllustId(), this.crawlNumber);
+        let data = await _API__WEBPACK_IMPORTED_MODULE_4__["API"].getRecommenderData(_Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getIllustId(), this.crawlNumber);
         for (const id of data.recommendations) {
-            _store_Store__WEBPACK_IMPORTED_MODULE_6__["store"].idList.push({
+            _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
                 type: 'unknown',
                 id: id.toString(),
             });
@@ -8468,12 +8564,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InitDiscoverPage", function() { return InitDiscoverPage; });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 // 初始化发现页面
-
 
 
 
@@ -8485,14 +8579,12 @@ class InitDiscoverPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取当前作品'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取当前作品Title')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取当前作品', '_抓取当前作品Title').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
     setFormOption() {
-        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].hideOption([1]);
+        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([1]);
     }
     getWantPage() { }
     getIdList() {
@@ -8503,8 +8595,8 @@ class InitDiscoverPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
             allWork.forEach((div) => {
                 const a = div.querySelector('a');
                 if (a) {
-                    const id = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getNovelId(a.href);
-                    _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
+                    const id = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getNovelId(a.href);
+                    _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.push({
                         type: 'novels',
                         id,
                     });
@@ -8516,8 +8608,8 @@ class InitDiscoverPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
             const allLink = document.querySelectorAll('div[width="184"]>a');
             // 获取已有作品的 id
             allLink.forEach((a) => {
-                const id = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].getIllustId(a.href);
-                _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.push({
+                const id = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].getIllustId(a.href);
+                _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.push({
                     type: 'unknown',
                     id,
                 });
@@ -8571,9 +8663,7 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载大家的新作品')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_下载大家的新作品').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
@@ -8581,8 +8671,8 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_个数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_想要获取多少个作品'),
+            text: '_下载多少作品',
+            tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
         });
     }
@@ -8690,13 +8780,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InitPixivisionPage", function() { return InitPixivisionPage; });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 // 初始化 pixivision 页面
-
 
 
 
@@ -8713,13 +8801,13 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
         const type = typeA.dataset.gtmLabel;
         if (type === 'illustration' || type === 'manga' || type === 'cosplay') {
             // 在插画、漫画、cosplay类型的页面上创建下载功能
-            _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取该页面的图片')).addEventListener('click', () => {
+            _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取该页面的图片').addEventListener('click', () => {
                 this.readyCrawl();
             }, false);
         }
     }
     setFormOption() {
-        _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].hideOption([
+        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([
             1,
             2,
             3,
@@ -8776,7 +8864,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
     }
     // 保存要下载的图片的信息
     addResult(id, url, ext) {
-        _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].addResult({
+        _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].addResult({
             id: id,
             idNum: Number.parseInt(id),
             original: url,
@@ -8836,7 +8924,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
     // 通过加载图片来判断图片的后缀名。pixivision 页面直接获取的图片后缀都是 jpg 的
     async testExtName(url, id) {
         let ext = 'jpg'; // 默认为 jpg
-        await _utils_Utils__WEBPACK_IMPORTED_MODULE_6__["Utils"].loadImg(url).catch(() => {
+        await _utils_Utils__WEBPACK_IMPORTED_MODULE_5__["Utils"].loadImg(url).catch(() => {
             // 如果图片加载失败则把后缀改为 png
             url = url.replace('.jpg', '.png');
             ext = 'png';
@@ -8893,16 +8981,14 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取本排行榜作品'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取本排行榜作品Title')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取本排行榜作品', '_抓取本排行榜作品Title').addEventListener('click', () => {
             this.readyCrawl();
         });
         // 判断当前页面是否有“首次登场”标记
         const debutModes = ['daily', 'daily_r18', 'rookie', ''];
         const mode = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__["Utils"].getURLSearchField(location.href, 'mode');
         if (debutModes.includes(mode)) {
-            _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取首次登场的作品'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_抓取首次登场的作品Title')]]).addEventListener('click', () => {
+            _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取首次登场的作品', '_抓取首次登场的作品Title').addEventListener('click', () => {
                 _store_States__WEBPACK_IMPORTED_MODULE_10__["states"].debut = true;
                 this.readyCrawl();
             });
@@ -8919,8 +9005,8 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         // 个数/页数选项的提示
         this.maxCount = 500;
         _setting_Options__WEBPACK_IMPORTED_MODULE_6__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_个数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_想要获取多少个作品'),
+            text: '_下载多少作品',
+            tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
         });
     }
@@ -9333,23 +9419,19 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_页数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
-            rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数字提示1'),
+            text: '_下载多少页面',
+            tip: '_从本页开始下载提示',
+            rangTip: '_数字提示1',
         });
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.resultMeta = [];
             this.crawlStartBySelf = true;
             window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.createWork);
             this.readyCrawl();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_在结果中筛选'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_在结果中筛选Title')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_在结果中筛选', '_在结果中筛选说明').addEventListener('click', () => {
             this.screenInResult();
         });
     }
@@ -9365,7 +9447,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('deleteWork', el);
         });
         // 添加收藏本页所有作品的功能
-        const bookmarkAllBtn = _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏本页面的所有作品'));
+        const bookmarkAllBtn = _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_收藏本页面的所有作品');
         const bookmarkAll = new _pageFunciton_BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__["BookmarkAllWorks"](bookmarkAllBtn);
         bookmarkAllBtn.addEventListener('click', () => {
             const listWrap = this.getWorksWrap();
@@ -9767,7 +9849,7 @@ class CrawlTagList {
         this.toggleWrap(true);
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取标签列表')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取标签列表').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('closeCenterPanel');
             this.toggleWrap(true);
             // 跳转到页面顶部，否则用户可能看不到输入区域
@@ -9777,15 +9859,15 @@ class CrawlTagList {
     addElement() {
         const htmlText = `<textarea
       id="crawlTagListTextArea"
-      placeholder="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取标签列表的输入框提示')}"
+      data-xzplaceholder="_抓取标签列表的输入框提示"
     ></textarea>
-    <p id="crawlTagListTip">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取标签列表的文件夹提示')}</p>
+    <p id="crawlTagListTip" data-xztext="_抓取标签列表的文件夹提示"></p>
     <div id="crawlTagListBtnsWrap">
-      <button id="crawlTagListBtn">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取标签列表')}</button>
-      <button id="clearTagListBtn">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_停止抓取标签列表')}</button>
+      <button id="crawlTagListBtn" data-xztext="_抓取标签列表"></button>
+      <button id="clearTagListBtn" data-xztext="_停止抓取标签列表"></button>
     </div>
     <div id="tagListWrap">
-      <p>${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_等待下载的标签')}</p>
+      <p data-xztext="_等待下载的标签"></p>
       <ul id="showTagList">
       <ul>
     </div>
@@ -9799,6 +9881,7 @@ class CrawlTagList {
         wrap.id = this.wrapId;
         wrap.innerHTML = htmlText;
         this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].insertToHead(wrap);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.wrap);
         this.input = this.wrap.querySelector('#crawlTagListTextArea');
         this.startCrawlBtn = this.wrap.querySelector('#crawlTagListBtn');
         this.clearCrawlBtn = this.wrap.querySelector('#clearTagListBtn');
@@ -9970,15 +10053,11 @@ class InitBookmarkLegacyPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
         // 添加下载推荐作品的按钮
-        _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_抓取推荐作品'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_抓取推荐作品Title')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgBlue, '_抓取推荐作品', '_抓取推荐作品Title').addEventListener('click', () => {
             this.crawlRecommended = true;
             this.readyCrawl();
         }, false);
@@ -9986,16 +10065,16 @@ class InitBookmarkLegacyPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
     addAnyElement() {
         // 如果存在 token，则添加“添加 tag”按钮
         if (_Token__WEBPACK_IMPORTED_MODULE_3__["token"].token) {
-            const btn = _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_给未分类作品添加添加tag'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_给未分类作品添加添加tag')]]);
+            const btn = _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_给未分类作品添加添加tag');
             new _pageFunciton_BookmarksAddTag__WEBPACK_IMPORTED_MODULE_6__["BookmarksAddTag"](btn);
         }
     }
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_5__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_页数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_从本页开始下载提示'),
-            rangTip: _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_数字提示1'),
+            text: '_下载多少页面',
+            tip: '_从本页开始下载提示',
+            rangTip: '_数字提示1',
         });
     }
     getWantPage() {
@@ -10195,9 +10274,7 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
@@ -10206,8 +10283,8 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         // 个数/页数选项的提示
         this.maxCount = 100;
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_页数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
+            text: '_下载多少页面',
+            tip: '_从本页开始下载提示',
             rangTip: `1 - ${this.maxCount}`,
         });
     }
@@ -10395,18 +10472,16 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_页数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_从本页开始下载提示'),
-            rangTip: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_数字提示1'),
+            text: '_下载多少页面',
+            tip: '_从本页开始下载提示',
+            rangTip: '_数字提示1',
         });
     }
     getWantPage() {
@@ -10415,7 +10490,7 @@ class InitBookmarkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
     addAnyElement() {
         // 如果存在 token，则添加“添加 tag”按钮
         if (_Token__WEBPACK_IMPORTED_MODULE_8__["token"].token) {
-            const btn = _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_给未分类作品添加添加tag'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_给未分类作品添加添加tag')]]);
+            const btn = _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_给未分类作品添加添加tag');
             new _pageFunciton_BookmarksAddTag__WEBPACK_IMPORTED_MODULE_9__["BookmarksAddTag"](btn);
         }
     }
@@ -10587,12 +10662,10 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         }
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载用户列表')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_下载用户列表').addEventListener('click', () => {
             this.downUserList = true;
             this.readyCrawl();
         });
@@ -10600,9 +10673,9 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_页数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
-            rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数字提示1'),
+            text: '_下载多少页面',
+            tip: '_从本页开始下载提示',
+            rangTip: '_数字提示1',
         });
     }
     getWantPage() {
@@ -10787,8 +10860,9 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
         this.idRangeTip = this.createidRangeTip();
     }
     addCrawlBtns() {
-        this.downIdButton = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_输入id进行抓取'), [['id', 'down_id_button']]);
-        const crawlIdRange = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取id区间'));
+        this.downIdButton = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_输入id进行抓取');
+        this.downIdButton.id = 'down_id_button';
+        const crawlIdRange = _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取id区间');
         crawlIdRange.addEventListener('click', () => {
             this.crawlIdRange();
         });
@@ -10797,9 +10871,10 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
         // 用于输入id的输入框
         this.downIdInput.id = 'down_id_input';
         this.downIdInput.style.display = 'none';
-        this.downIdInput.setAttribute('placeholder', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_输入id进行抓取的提示文字'));
+        this.downIdInput.setAttribute('data-xzplaceholder', '_输入id进行抓取的提示文字');
         _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].insertToHead(this.downIdInput);
-        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_清空已保存的抓取结果')).addEventListener('click', () => {
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.downIdInput);
+        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_清空已保存的抓取结果').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('clearSavedCrawl');
         });
     }
@@ -10826,12 +10901,12 @@ class InitHomePage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
                 window.setTimeout(() => {
                     _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('openCenterPanel');
                 }, 300);
-                this.downIdButton.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取');
+                _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.downIdButton, '_开始抓取');
             }
             else {
                 this.ready = false;
                 _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('closeCenterPanel');
-                this.downIdButton.textContent = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_输入id进行抓取');
+                _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.downIdButton, '_输入id进行抓取');
             }
         });
     }
@@ -11007,24 +11082,22 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
     }
     // 添加中间按钮
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
     addAnyElement() {
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_保存用户头像').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('saveAvatarImage');
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户封面')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_保存用户封面').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('saveUserCover');
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存用户头像为图标说明')]]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_保存用户头像为图标', '_保存用户头像为图标说明').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_6__["EVT"].fire('saveAvatarIcon');
         });
         // 添加收藏本页所有作品的功能
-        const bookmarkAllBtn = _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏本页面的所有作品'));
+        const bookmarkAllBtn = _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_收藏本页面的所有作品');
         this.bookmarkAll = new _pageFunciton_BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_13__["BookmarkAllWorks"](bookmarkAllBtn);
         bookmarkAllBtn.addEventListener('click', async () => {
             // 获取该用户的所有作品的 id 列表
@@ -11039,9 +11112,9 @@ class InitUserPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["Ini
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_页数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
-            rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数字提示1'),
+            text: '_下载多少页面',
+            tip: '_从本页开始下载提示',
+            rangTip: '_数字提示1',
         });
     }
     getWantPage() {
@@ -11249,11 +11322,12 @@ class QuickCrawl {
         this.btn = document.createElement('button');
         this.btn.classList.add('rightButton');
         this.btn.id = 'quickCrawlBtn';
-        this.btn.setAttribute('title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_快速下载本页') + ' (Alt + Q)');
+        this.btn.setAttribute('data-xztitle', '_快速下载本页');
         this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-download"></use>
 </svg>`;
         document.body.insertAdjacentElement('afterbegin', this.btn);
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(this.btn);
     }
     bindEvents() {
         // 点击按钮启动快速抓取
@@ -11343,9 +11417,7 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载大家的新作品')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_8__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_下载大家的新作品').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
@@ -11353,8 +11425,8 @@ class InitNewNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__[
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_个数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_想要获取多少个作品'),
+            text: '_下载多少作品',
+            tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
         });
     }
@@ -11491,11 +11563,11 @@ class InitNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
         new _pageFunciton_QuickBookmark__WEBPACK_IMPORTED_MODULE_5__["QuickBookmark"]();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始抓取new')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_从本页开始抓取new').addEventListener('click', () => {
             this.crawlDirection = -1;
             this.readyCrawl();
         });
-        _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始抓取old')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_从本页开始抓取old').addEventListener('click', () => {
             this.crawlDirection = 1;
             this.readyCrawl();
         });
@@ -11503,11 +11575,9 @@ class InitNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__["In
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_个数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示') +
-                '<br>' +
-                _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_相关作品大于0'),
-            rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数字提示1'),
+            text: '_下载多少作品',
+            tip: '_从本页开始下载提示',
+            rangTip: '_数字提示1',
         });
     }
     destroy() {
@@ -11573,14 +11643,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "InitNovelSeriesPage", function() { return InitNovelSeriesPage; });
 /* harmony import */ var _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../crawl/InitPageBase */ "./src/ts/crawl/InitPageBase.ts");
 /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../config/Colors */ "./src/ts/config/Colors.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
-/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _setting_Options__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../setting/Options */ "./src/ts/setting/Options.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _API__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../API */ "./src/ts/API.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 //初始化小说系列作品页面
-
 
 
 
@@ -11597,31 +11665,31 @@ class InitNovelSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_5__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取系列小说')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取系列小说').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
     addAnyElement() {
-        _Tools__WEBPACK_IMPORTED_MODULE_5__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_合并系列小说')).addEventListener('click', () => {
-            _store_States__WEBPACK_IMPORTED_MODULE_7__["states"].mergeNovel = true;
+        _Tools__WEBPACK_IMPORTED_MODULE_4__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_合并系列小说').addEventListener('click', () => {
+            _store_States__WEBPACK_IMPORTED_MODULE_6__["states"].mergeNovel = true;
             this.readyCrawl();
         });
     }
     initAny() { }
     setFormOption() {
         // 隐藏“个数/页数”选项
-        _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([1]);
+        _setting_Options__WEBPACK_IMPORTED_MODULE_2__["options"].hideOption([1]);
     }
     getWantPage() { }
     nextStep() {
-        this.seriesId = _API__WEBPACK_IMPORTED_MODULE_6__["API"].getURLPathField('series');
+        this.seriesId = _API__WEBPACK_IMPORTED_MODULE_5__["API"].getURLPathField('series');
         this.getIdList();
     }
     async getIdList() {
-        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_6__["API"].getNovelSeriesData(this.seriesId, this.limit, this.last, 'asc');
+        const seriesData = await _API__WEBPACK_IMPORTED_MODULE_5__["API"].getNovelSeriesData(this.seriesId, this.limit, this.last, 'asc');
         const list = seriesData.body.seriesContents;
         for (const item of list) {
-            _store_Store__WEBPACK_IMPORTED_MODULE_4__["store"].idList.push({
+            _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].idList.push({
                 type: 'novels',
                 id: item.id,
             });
@@ -11679,9 +11747,7 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
         this.init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取本排行榜作品'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_抓取本排行榜作品Title')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_抓取本排行榜作品', '_抓取本排行榜作品Title').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
@@ -11690,8 +11756,8 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
         // 个数/页数选项的提示
         this.maxCount = 100;
         _setting_Options__WEBPACK_IMPORTED_MODULE_4__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_个数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_想要获取多少个作品'),
+            text: '_下载多少作品',
+            tip: '_想要获取多少个作品',
             rangTip: `1 - ${this.maxCount}`,
         });
     }
@@ -11879,9 +11945,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_15__["crawlTagList"].init();
     }
     addCrawlBtns() {
-        _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_开始抓取') + _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_默认下载多页')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.readyCrawl();
         });
     }
@@ -11895,7 +11959,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     }
     addAnyElement() {
         // 添加收藏本页所有作品的功能
-        const bookmarkAllBtn = _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏本页面的所有作品'));
+        const bookmarkAllBtn = _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].addBtn('otherBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_收藏本页面的所有作品');
         const bookmarkAll = new _pageFunciton_BookmarkAllWorks__WEBPACK_IMPORTED_MODULE_10__["BookmarkAllWorks"](bookmarkAllBtn);
         bookmarkAllBtn.addEventListener('click', () => {
             const listWrap = this.getWorksWrap();
@@ -11911,9 +11975,9 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     setFormOption() {
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
-            text: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_页数'),
-            tip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_从本页开始下载提示'),
-            rangTip: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数字提示1'),
+            text: '_下载多少页面',
+            tip: '_从本页开始下载提示',
+            rangTip: '_数字提示1',
         });
     }
     initAny() {
@@ -12446,8 +12510,7 @@ class Deduplication {
         if (Array.isArray(record) === false ||
             record[0].id === undefined ||
             record[0].n === undefined) {
-            const msg = 'Format error!';
-            return _MsgBox__WEBPACK_IMPORTED_MODULE_9__["msgBox"].error(msg);
+            return _MsgBox__WEBPACK_IMPORTED_MODULE_9__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_格式错误'));
         }
         this.importRecord(record);
     }
@@ -12842,7 +12905,6 @@ class DownloadControl {
         this.errorIdList = []; // 有任务下载失败时，保存 id
         this.downloaded = 0; // 已下载的任务数量
         this.wrapper = document.createElement('div');
-        this.totalNumberEl = document.createElement('span');
         this.stop = false; // 是否停止下载
         this.pause = false; // 是否暂停下载
         this.createDownloadArea();
@@ -12922,24 +12984,22 @@ class DownloadControl {
     }
     createDownloadArea() {
         const html = `<div class="download_area">
-    <p> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_共抓取到n个文件', '<span class="fwb blue imgNum">0</span>')}</p>
-    
     <div class="centerWrap_btns">
-    <button class="startDownload" type="button" style="background:${_config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgBlue};"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_开始下载')}</button>
-    <button class="pauseDownload" type="button" style="background:${_config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgYellow};"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_暂停下载')}</button>
-    <button class="stopDownload" type="button" style="background:${_config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgRed};"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_停止下载')}</button>
-    <button class="copyUrl" type="button" style="background:${_config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgGreen};"> ${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_复制url')}</button>
+    <button class="startDownload" type="button" style="background:${_config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgBlue};" data-xztext="_开始下载"></button>
+    <button class="pauseDownload" type="button" style="background:${_config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgYellow};" data-xztext="_暂停下载"></button>
+    <button class="stopDownload" type="button" style="background:${_config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgRed};" data-xztext="_停止下载"></button>
+    <button class="copyUrl" type="button" style="background:${_config_Colors__WEBPACK_IMPORTED_MODULE_5__["Colors"].bgGreen};" data-xztext="_复制url"></button>
     </div>
     <div class="download_status_text_wrap">
-    <span>${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_当前状态')}</span>
-    <span class="down_status">${_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_未开始下载')}</span>
+    <span data-xztext="_当前状态"></span>
+    <span class="down_status" data-xztext="_未开始下载"></span>
     <span class="skip_tip warn"></span>
     <span class="convert_tip warn"></span>
     <span class="bmkAfterDL_tip green"></span>
     </div>
     </div>`;
         this.wrapper = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].useSlot('downloadArea', html);
-        this.totalNumberEl = this.wrapper.querySelector('.imgNum');
+        _Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].register(this.wrapper);
         this.wrapper
             .querySelector('.startDownload')
             .addEventListener('click', () => {
@@ -12968,7 +13028,6 @@ class DownloadControl {
             return _ProgressBar__WEBPACK_IMPORTED_MODULE_8__["progressBar"].reset(0);
         }
         this.showDownloadArea();
-        this.totalNumberEl.textContent = _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length.toString();
         this.setDownloaded();
         this.setDownloadThread();
         _Help__WEBPACK_IMPORTED_MODULE_19__["help"].showDownloadTip();
@@ -13637,14 +13696,14 @@ class ImportResult {
         }
         // 要求是数组并且要有内容
         if (!Array.isArray(loadedJSON) || !loadedJSON.length || !loadedJSON[0]) {
-            return _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error('Format error!');
+            return _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_格式错误'));
         }
         // 检查是否含有必须的字段（只检查了一部分）
         const keys = Object.keys(loadedJSON[0]);
         const need = ['idNum', 'id', 'original', 'type', 'ext'];
         for (const field of need) {
             if (!keys.includes(field)) {
-                return _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error('Format error!');
+                return _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_格式错误'));
             }
         }
         // 根据过滤选项，过滤导入的结果
@@ -13952,7 +14011,7 @@ class ProgressBar {
         this.wrapHTML = `
   <div class="progressBarWrap">
   <div class="total">
-  <span class="text">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载进度')}</span>
+  <span class="text" data-xztext="_下载进度"></span>
   <div class="right1">
   <div class="progressBar progressBar1">
   <div class="progress progress1"></div>
@@ -13983,6 +14042,7 @@ class ProgressBar {
         this.KB = 1024;
         this.MB = 1024 * 1024;
         this.createElements();
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.wrap);
         this.bindEvents();
     }
     createElements() {
@@ -14558,16 +14618,19 @@ __webpack_require__.r(__webpack_exports__);
 class ShowConvertCount {
     constructor(el) {
         this.el = el;
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(this.el);
         this.bindEvents();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.convertChange, (ev) => {
             const count = ev.detail.data;
-            let convertText = '';
             if (count > 0) {
-                convertText = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_转换任务提示', count.toString());
+                _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.el, '_转换任务提示', count.toString());
             }
-            this.el.textContent = convertText;
+            else {
+                this.el.textContent = '';
+                _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.el, '');
+            }
         });
     }
 }
@@ -14605,24 +14668,24 @@ class ShowDownloadStates {
             _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resume,
         ]) {
             window.addEventListener(ev, () => {
-                this.setText(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_未开始下载'));
+                this.setText('_未开始下载');
             });
         }
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadStart, () => {
-            this.setText(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_正在下载中'));
+            this.setText('_正在下载中');
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadPause, () => {
-            this.setText(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已暂停'), '#f00');
+            this.setText('_已暂停', '#f00');
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadStop, () => {
-            this.setText(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已停止'), '#f00');
+            this.setText('_已停止', '#f00');
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.downloadComplete, () => {
-            this.setText(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_下载完毕'), _config_Colors__WEBPACK_IMPORTED_MODULE_0__["Colors"].textSuccess);
+            this.setText('_下载完毕', _config_Colors__WEBPACK_IMPORTED_MODULE_0__["Colors"].textSuccess);
         });
     }
-    setText(text, color = _config_Colors__WEBPACK_IMPORTED_MODULE_0__["Colors"].bgBlue) {
-        this.el.textContent = text;
+    setText(textFlag, color = _config_Colors__WEBPACK_IMPORTED_MODULE_0__["Colors"].bgBlue) {
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.el, textFlag);
         this.el.style.color = color;
     }
 }
@@ -14650,6 +14713,7 @@ class ShowSkipCount {
     constructor(el) {
         this.count = 0; // 跳过下载的数量
         this.el = el;
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(this.el);
         this.bindEvents();
     }
     bindEvents() {
@@ -14678,11 +14742,11 @@ class ShowSkipCount {
     }
     addCount() {
         this.count++;
-        this.el.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_已跳过n个文件', this.count.toString());
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.el, '_已跳过n个文件', this.count.toString());
     }
     reset() {
         this.count = 0;
-        this.el.textContent = '';
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.el, '');
     }
 }
 
@@ -14994,32 +15058,32 @@ class BlockTagsForSpecificUser {
   <div class="blockTagsForSpecificUserWrap">
 
     <div class="controlBar">
-      <button type="button" class="textButton expand">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收起')}</button>
+      <button type="button" class="textButton expand" data-xztext="_收起"></button>
       <span class="total">0</span>
-      <button type="button" class="textButton showAdd">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加')}</button>
+      <button type="button" class="textButton showAdd" data-xztext="_添加"></button>
     </div>
 
     <div class="addWrap">
       <div class="settingItem addInputWrap" >
         <div class="inputItem uid">
-          <span class="label uidLabel">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_用户id')}</span>
-          <input type="text" class="setinput_style1 blue addUidInput" placeholder="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_必须是数字')}" />
+          <span class="label uidLabel" data-xztext="_用户id"></span>
+          <input type="text" class="setinput_style1 blue addUidInput" data-xzplaceholder="_必须是数字" />
         </div>
 
         <div class="inputItem tags">
           <span class="label tagsLabel">Tags</span>
-          <input type="text" class="setinput_style1 blue addTagsInput" placeholder="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_tag用逗号分割')}" />
+          <input type="text" class="setinput_style1 blue addTagsInput" data-xzplaceholder="_tag用逗号分割" />
         </div>
 
         <div class="btns">
-          <button type="button" class="textButton add" title="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加')}">
+          <button type="button" class="textButton add" data-xztitle="_添加">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-wanchengqueding"></use>
             </svg>
           </button>
 
           
-          <button type="button" class="textButton cancel" title="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_取消')}">
+          <button type="button" class="textButton cancel" data-xztitle="_取消">
             <svg class="icon" aria-hidden="true">
               <use xlink:href="#icon-guanbiquxiao"></use>
             </svg>
@@ -15032,14 +15096,11 @@ class BlockTagsForSpecificUser {
     </div>
   </div>
   `;
-        this.getRule();
         this.createWrap();
-        this.createAllList();
         _Theme__WEBPACK_IMPORTED_MODULE_6__["theme"].register(this.wrap);
-        this.listWrapShow = this.listWrapShow;
-        this.updateWrapDisplay();
-        this.showTotal();
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.wrap);
         this.bindEvents();
+        this.createAllList();
     }
     set addWrapShow(val) {
         this._addWrapShow = val;
@@ -15051,16 +15112,6 @@ class BlockTagsForSpecificUser {
     }
     get addWrapShow() {
         return this._addWrapShow;
-    }
-    set listWrapShow(val) {
-        Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserShowList', val);
-        this.listWrap.style.display = val ? 'block' : 'none';
-        this.expandBtn.textContent = val
-            ? _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收起')
-            : _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_展开');
-    }
-    get listWrapShow() {
-        return _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList;
     }
     // 创建列表外部的容器，静态html
     createWrap() {
@@ -15076,8 +15127,10 @@ class BlockTagsForSpecificUser {
         this.listWrap = this.wrap.querySelector('.listWrap');
         // 展开/折叠
         this.expandBtn.addEventListener('click', () => {
-            this.listWrapShow = !this.listWrapShow;
-            if (this.listWrapShow && this.rules.length === 0) {
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserShowList', !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList);
+            this.showListWrap();
+            if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList &&
+                this.rules.length === 0) {
                 _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'));
             }
         });
@@ -15097,11 +15150,31 @@ class BlockTagsForSpecificUser {
             this.addWrapShow = false;
         });
     }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name.includes('blockTagsForSpecificUser')) {
+                this.createAllList();
+            }
+        });
+    }
+    showListWrap() {
+        const show = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList;
+        this.listWrap.style.display = show ? 'block' : 'none';
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.expandBtn, show ? '_收起' : '_展开');
+    }
     // 根据规则动态创建 html
     createAllList() {
+        this.rules = [..._setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserList];
+        this.wrap.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUser
+            ? 'block'
+            : 'none';
+        this.totalSpan.textContent = this.rules.length.toString();
+        this.listWrap.innerHTML = '';
         for (const data of this.rules) {
             this.createList(data);
         }
+        this.showListWrap();
     }
     // 创建规则对应的元素，并绑定事件
     createList(data) {
@@ -15109,7 +15182,7 @@ class BlockTagsForSpecificUser {
         const html = `
     <div class="settingItem" data-key="${uid}">
       <div class="inputItem uid">
-        <span class="label uidLabel">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_用户id')}</span>
+        <span class="label uidLabel" data-xztext="_用户id"></span>
         <input type="text" class="setinput_style1 blue" data-uidInput="${uid}" value="${uid}" />
       </div>
 
@@ -15120,13 +15193,13 @@ class BlockTagsForSpecificUser {
 
       <div class="btns">
 
-        <button type="button" class="textButton" data-updateRule="${uid}" title="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_更新')}">
+        <button type="button" class="textButton" data-updateRule="${uid}" data-xztitle="_更新">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-gengxin"></use>
           </svg>
         </button>
 
-        <button type="button" class="textButton" data-deleteRule="${uid}" title="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_删除')}">
+        <button type="button" class="textButton" data-deleteRule="${uid}" data-xztitle="_删除">
           <svg class="icon" aria-hidden="true">
             <use xlink:href="#icon-shanchu1"></use>
           </svg>
@@ -15137,6 +15210,7 @@ class BlockTagsForSpecificUser {
         this.listWrap.insertAdjacentHTML('afterbegin', html);
         const uidLabel = this.listWrap.querySelector('.uidLabel');
         if (user) {
+            _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(uidLabel, '');
             uidLabel.textContent = user;
         }
         else {
@@ -15224,7 +15298,8 @@ class BlockTagsForSpecificUser {
             user: '',
         });
         this.addWrapShow = false;
-        this.listWrapShow = true;
+        Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserShowList', true);
+        this.showListWrap();
         _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加成功'));
     }
     // 更新规则
@@ -15253,34 +15328,6 @@ class BlockTagsForSpecificUser {
         Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserList', [...this.rules]);
         const listElement = this.listWrap.querySelector(`.settingItem[data-key='${uid}']`);
         listElement === null || listElement === void 0 ? void 0 : listElement.remove();
-    }
-    getRule() {
-        this.rules = [..._setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserList];
-    }
-    updateWrapDisplay() {
-        this.wrap.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUser
-            ? 'block'
-            : 'none';
-    }
-    showTotal() {
-        this.totalSpan.textContent = this.rules.length.toString();
-    }
-    bindEvents() {
-        // 选项变化
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
-            const data = ev.detail.data;
-            if (data.name.includes('blockTagsForSpecificUser')) {
-                this.showTotal();
-                this.updateWrapDisplay();
-            }
-        });
-        // 选项重置
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.resetSettingsEnd, () => {
-            this.getRule();
-            this.listWrap.innerHTML = '';
-            this.createAllList();
-            this.listWrapShow = this.listWrapShow;
-        });
     }
     // 如果找到了符合的记录，则返回 true
     check(uid, tags) {
@@ -16114,6 +16161,7 @@ class OutputPanel {
     constructor() {
         this.addOutPutPanel();
         _Theme__WEBPACK_IMPORTED_MODULE_5__["theme"].register(this.outputPanel);
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(this.outputPanel);
         this.bindEvents();
     }
     bindEvents() {
@@ -16139,12 +16187,7 @@ class OutputPanel {
             window.getSelection().removeAllRanges();
             window.getSelection().addRange(range);
             document.execCommand('copy');
-            // 改变提示文字
-            this.copyBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_已复制到剪贴板');
-            setTimeout(() => {
-                window.getSelection().removeAllRanges();
-                this.copyBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_复制');
-            }, 1000);
+            _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_已复制到剪贴板'));
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.output, (ev) => {
             this.output(ev.detail.data);
@@ -16153,11 +16196,11 @@ class OutputPanel {
     addOutPutPanel() {
         const html = `
     <div class="outputWrap">
-    <div class="outputClose" title="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_关闭')}">×</div>
-    <div class="outputTitle">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_输出信息')}</div>
+    <div class="outputClose" data-xztitle="_关闭">×</div>
+    <div class="outputTitle" data-xztext="_输出信息"></div>
     <div class="outputContent beautify_scrollbar"></div>
     <div class="outputFooter">
-    <button class="outputCopy" title="">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_复制')}</button>
+    <button class="outputCopy" data-xztext="_复制"></button>
     </div>
     </div>
     `;
@@ -16175,7 +16218,7 @@ class OutputPanel {
         }
         if (_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length < _config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].outputMax) {
             this.copyBtn.disabled = false;
-            this.outputTitle.textContent = data.title;
+            _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.outputTitle, data.title);
             this.outputContent.innerHTML = data.content;
             this.outputPanel.style.display = 'block';
         }
@@ -16195,7 +16238,7 @@ class OutputPanel {
     close() {
         this.outputPanel.style.display = 'none';
         this.outputContent.innerHTML = '';
-        this.outputTitle.innerText = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_输出信息');
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.outputTitle, '_输出信息');
     }
 }
 new OutputPanel();
@@ -16296,7 +16339,7 @@ class PreviewFileName {
         }
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('output', {
             content: result,
-            title: _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_预览文件名'),
+            title: '_预览文件名',
         });
     }
 }
@@ -16358,7 +16401,7 @@ class ShowURLs {
         }
         _EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].fire('output', {
             content: result,
-            title: _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_复制url'),
+            title: '_复制url',
         });
     }
 }
@@ -16692,9 +16735,7 @@ class DeleteWorks {
     // 清除多图作品的按钮
     addClearMultipleBtn(selector, callback = () => { }) {
         this.multipleSelector = selector;
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgRed, _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除多图作品'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除多图作品Title')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgRed, '_清除多图作品', '_清除多图作品Title').addEventListener('click', () => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
                 _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
                 return;
@@ -16707,9 +16748,7 @@ class DeleteWorks {
     // 清除动图作品的按钮
     addClearUgoiraBtn(selector, callback = () => { }) {
         this.ugoiraSelector = selector;
-        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgRed, _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除动图作品'), [
-            ['title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除动图作品Title')],
-        ]).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgRed, '_清除动图作品', '_清除动图作品Title').addEventListener('click', () => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_4__["states"].busy) {
                 _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_当前任务尚未完成'));
                 return;
@@ -16722,7 +16761,7 @@ class DeleteWorks {
     // 手动删除作品的按钮
     addManuallyDeleteBtn(callback = () => { }) {
         this.deleteWorkCallback = callback;
-        this.delBtn = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgRed, _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_手动删除作品'), [['title', _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_手动删除作品Title')]]);
+        this.delBtn = _Tools__WEBPACK_IMPORTED_MODULE_3__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgRed, '_手动删除作品', '_手动删除作品Title');
         this.delBtn.addEventListener('click', () => {
             this.toggleDeleteMode();
         });
@@ -16733,13 +16772,13 @@ class DeleteWorks {
         this.bindDeleteEvent();
         this.updateDeleteIcon();
         if (this.delMode) {
-            this.delBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_退出手动删除');
+            _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.delBtn, '_退出手动删除');
             setTimeout(() => {
                 _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('closeCenterPanel');
             }, 100);
         }
         else {
-            this.delBtn.textContent = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_手动删除作品');
+            _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.delBtn, '_手动删除作品');
         }
     }
     // 清除多图作品
@@ -17041,6 +17080,7 @@ class QuickBookmark {
             }
             // 添加快速收藏按钮
             this.btn = this.createBtn();
+            _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.btn);
             this.toolbar.insertBefore(this.btn, this.toolbar.childNodes[3]);
             if (this.isBookmarked) {
                 this.bookmarked();
@@ -17058,7 +17098,7 @@ class QuickBookmark {
         btn.id = this.btnId;
         btn.textContent = '✩';
         btn.href = 'javascript:void(0)';
-        btn.title = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_快速收藏');
+        btn.dataset.xztitle = '_快速收藏';
         return btn;
     }
     async getWorkData() {
@@ -17551,6 +17591,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _FormSettings__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./FormSettings */ "./src/ts/setting/FormSettings.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../setting/Settings */ "./src/ts/setting/Settings.ts");
+
 
 
 
@@ -17564,19 +17606,17 @@ __webpack_require__.r(__webpack_exports__);
 class Form {
     constructor() {
         this.chooseKeys = ['Enter', 'NumpadEnter']; // 让回车键可以控制复选框（浏览器默认只支持空格键）
-        this.tipCreateFolderFlag = 'tipCreateFolder'; // 控制“创建文件夹的提示”是否显示
-        this.tipCreateFolderId = 'tipCreateFolder'; // “创建文件夹的提示”的容器 id
+        this.bueatifulTimer = 0;
         this.form = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].useSlot('form', _FormHTML__WEBPACK_IMPORTED_MODULE_4__["formHtml"]);
         _Theme__WEBPACK_IMPORTED_MODULE_6__["theme"].register(this.form);
+        _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].register(this.form);
         this.allCheckBox = this.form.querySelectorAll('input[type="checkbox"]');
         this.allRadio = this.form.querySelectorAll('input[type="radio"]');
         this.allSwitch = this.form.querySelectorAll('.checkbox_switch');
-        this.allLabel = this.form.querySelectorAll('label');
+        this.createFolderTipEl = this.form.querySelector('#tipCreateFolder');
         new _SaveNamingRule__WEBPACK_IMPORTED_MODULE_5__["SaveNamingRule"](this.form.userSetName);
         new _FormSettings__WEBPACK_IMPORTED_MODULE_7__["FormSettings"](this.form);
         this.bindEvents();
-        this.initFormBueatiful();
-        this.checkTipCreateFolder();
     }
     // 设置表单上美化元素的状态
     initFormBueatiful() {
@@ -17601,31 +17641,35 @@ class Form {
             this.bindBeautifyEvent(radio);
         }
         // 设置变化或者重置时，重新设置美化状态
-        const change = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd];
-        change.forEach((evt) => {
-            window.addEventListener(evt, () => {
-                // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
-                window.setTimeout(() => {
-                    this.initFormBueatiful();
-                }, 50);
-            });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
+            // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
+            window.clearTimeout(this.bueatifulTimer);
+            this.bueatifulTimer = window.setTimeout(() => {
+                this.initFormBueatiful();
+                this.showCreateFolderTip();
+            }, 50);
+        });
+        // 用户点击“我知道了”按钮之后不再显示提示
+        const btn = this.createFolderTipEl.querySelector('button');
+        btn.addEventListener('click', () => {
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_9__["setSetting"])('tipCreateFolder', false);
         });
         // 预览文件名
-        _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('namingBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_预览文件名')).addEventListener('click', () => {
+        _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('namingBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_预览文件名').addEventListener('click', () => {
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('previewFileName');
         }, false);
         // 添加只在 pixiv 上使用的按钮
         if (_utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].isPixiv()) {
             // 导出 csv
-            _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出csv')).addEventListener('click', () => {
+            _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_导出csv').addEventListener('click', () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('exportCSV');
             }, false);
             // 导出抓取结果
-            _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导出抓取结果')).addEventListener('click', () => {
+            _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_导出抓取结果').addEventListener('click', () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('exportResult');
             }, false);
             // 导入抓取结果
-            _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, _Lang__WEBPACK_IMPORTED_MODULE_3__["lang"].transl('_导入抓取结果')).addEventListener('click', () => {
+            _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].addBtn('exportResult', _config_Colors__WEBPACK_IMPORTED_MODULE_2__["Colors"].bgGreen, '_导入抓取结果').addEventListener('click', () => {
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('importResult');
             }, false);
         }
@@ -17747,27 +17791,14 @@ class Form {
             }
         }
     }
-    // 是否显示“创建文件夹的提示”
-    checkTipCreateFolder() {
+    // 是否显示创建文件夹的提示
+    showCreateFolderTip() {
         if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].isPixiv()) {
-            return;
+            return (this.createFolderTipEl.style.display = 'none');
         }
-        const tip = this.form.querySelector('#' + this.tipCreateFolderId);
-        if (!tip) {
-            return;
-        }
-        // 如果用户没有点击“我知道了”按钮，则显示这个提示
-        if (!window.localStorage.getItem(this.tipCreateFolderFlag)) {
-            tip.style.display = 'block';
-            // 用户点击“我知道了”按钮之后，隐藏这个提示并设置标记
-            const btn = tip.querySelector('button');
-            if (btn) {
-                btn.addEventListener('click', () => {
-                    tip.style.display = 'none';
-                    window.localStorage.setItem(this.tipCreateFolderFlag, '1');
-                });
-            }
-        }
+        this.createFolderTipEl.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_9__["settings"].tipCreateFolder
+            ? 'block'
+            : 'none';
     }
 }
 const form = new Form().form;
@@ -17787,14 +17818,12 @@ const form = new Form().form;
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "formHtml", function() { return formHtml; });
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
-/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
-
 
 const formHtml = `<form class="settingForm">
     <div class="tabsContnet">
       <p class="option" data-no="1">
       <span class="setWantPageWrap">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_页数')}"><span class="setWantPageTip1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_页数')}</span><span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_下载多少页面"><span class="setWantPageTip1" data-xztext="_下载多少页面"></span><span class="gray1"> ? </span></span>
       <input type="text" name="setWantPage" class="setinput_style1 blue setWantPage"
       value = '-1'>&nbsp;
       <span class="setWantPageTip2 gray1">-1 或者大于 0 的数字</span>
@@ -17802,72 +17831,86 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="2">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
+      <span data-xztext="_下载作品类型"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="downType0" id="setWorkType0" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setWorkType0"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_插画')}&nbsp;</label>
+      <label for="setWorkType0" data-xztext="_插画"></label>
       <input type="checkbox" name="downType1" id="setWorkType1" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setWorkType1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_漫画')}&nbsp;</label>
+      <label for="setWorkType1" data-xztext="_漫画"></label>
       <input type="checkbox" name="downType2" id="setWorkType2" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setWorkType2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_动图')}&nbsp;</label>
+      <label for="setWorkType2" data-xztext="_动图"></label>
       <input type="checkbox" name="downType3" id="setWorkType3" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setWorkType3"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_小说')}&nbsp;</label>
+      <label for="setWorkType3" data-xztext="_小说"></label>
       </p>
 
       <p class="option" data-no="44">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
+      <span data-xztext="_下载作品类型"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="downAllAges" id="downAllAges" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="downAllAges"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_全年龄')}&nbsp;</label>
+      <label for="downAllAges" data-xztext="_全年龄"></label>
       <input type="checkbox" name="downR18" id="downR18" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="downR18"> R-18&nbsp;</label>
+      <label for="downR18"> R-18</label>
       <input type="checkbox" name="downR18G" id="downR18G" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="downR18G"> R-18G&nbsp;</label>
+      <label for="downR18G"> R-18G</label>
       </p>
 
       <p class="option" data-no="6">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
+      <span data-xztext="_下载作品类型"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="downNotBookmarked" id="setDownNotBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownNotBookmarked"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_未收藏')}&nbsp;</label>
+      <label for="setDownNotBookmarked" data-xztext="_未收藏"></label>
       <input type="checkbox" name="downBookmarked" id="setDownBookmarked" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownBookmarked"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_已收藏')}&nbsp;</label>
+      <label for="setDownBookmarked" data-xztext="_已收藏"></label>
       </p>
       
       <p class="option" data-no="23">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
+      <span data-xztext="_下载作品类型"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="downColorImg" id="setDownColorImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownColorImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_彩色图片')}&nbsp;</label>
+      <label for="setDownColorImg" data-xztext="_彩色图片"></label>
       <input type="checkbox" name="downBlackWhiteImg" id="setDownBlackWhiteImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownBlackWhiteImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_黑白图片')}&nbsp;</label>
+      <label for="setDownBlackWhiteImg" data-xztext="_黑白图片"></label>
       </p>
 
       <p class="option" data-no="21">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载作品类型')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_下载作品类型的提示">
+      <span data-xztext="_下载作品类型"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="downSingleImg" id="setDownSingleImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownSingleImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_单图作品')}&nbsp;</label>
+      <label for="setDownSingleImg" data-xztext="_单图作品"></label>
       <input type="checkbox" name="downMultiImg" id="setDownMultiImg" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
-      <label for="setDownMultiImg"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_多图作品')}&nbsp;</label>
+      <label for="setDownMultiImg" data-xztext="_多图作品"></label>
       </p>
 
       <p class="option" data-no="51">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_显示高级设置说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_显示高级设置')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_显示高级设置说明">
+      <span data-xztext="_显示高级设置"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="showAdvancedSettings" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="3">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_必须大于0')}" >${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_多图作品只下载前几张图片')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_必须大于0">
+      <span data-xztext="_多图作品只下载前几张图片"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="firstFewImagesSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="firstFewImagesSwitch">
@@ -17876,9 +17919,9 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="47">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_超出此限制的多图作品不会被下载') +
-    '. ' +
-    _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_必须大于0')}" >${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_多图作品的图片数量限制')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_超出此限制的多图作品不会被下载">
+      <span data-xztext="_多图作品的图片数量限制"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="multiImageWorkImageLimitSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="multiImageWorkImageLimitSwitch">
@@ -17888,7 +17931,9 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="5">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置收藏数量的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置收藏数量')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_设置收藏数量的提示">
+      <span data-xztext="_设置收藏数量"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="BMKNumSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="BMKNumSwitch">
@@ -17896,9 +17941,9 @@ const formHtml = `<form class="settingForm">
       <input type="text" name="BMKNumMin" class="setinput_style1 blue bmkNum" value="0">
       &lt;=&nbsp;
       <input type="text" name="BMKNumMax" class="setinput_style1 blue bmkNum" value="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].BookmarkCountLimit}">
-      <span>&nbsp;${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_或者')}</span>
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_日均收藏数量的提示')}">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_日均收藏数量')}
+  &nbsp;<span data-xztext="_或者"></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_日均收藏数量的提示">
+      <span data-xztext="_日均收藏数量"></span>
       <span class="gray1"> ? </span></span>
       <input type="checkbox" name="BMKNumAverageSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
@@ -17909,77 +17954,85 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="8">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置宽高比例Title')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置宽高比例')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_设置宽高比例Title">
+      <span data-xztext="_设置宽高比例"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="ratioSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="ratioSwitch">
       <input type="radio" name="ratio" id="ratio1" class="need_beautify radio" value="horizontal">
       <span class="beautify_radio"></span>
-      <label for="ratio1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_横图')}&nbsp; </label>
+      <label for="ratio1" data-xztext="_横图"></label>
 
       <input type="radio" name="ratio" id="ratio2" class="need_beautify radio" value="vertical">
       <span class="beautify_radio"></span>
-      <label for="ratio2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_竖图')}&nbsp; </label>
+      <label for="ratio2" data-xztext="_竖图"></label>
       
       <input type="radio" name="ratio" id="ratio0" class="need_beautify radio" value="square">
       <span class="beautify_radio"></span>
-      <label for="ratio0"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_正方形')}&nbsp; </label>
+      <label for="ratio0" data-xztext="_正方形"></label>
 
       <input type="radio" name="ratio" id="ratio3" class="need_beautify radio" value="userSet">
       <span class="beautify_radio"></span>
-      <label for="ratio3"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_输入宽高比')}</label>
+      <label for="ratio3" data-xztext="_输入宽高比"></label>
       <input type="text" name="userRatio" class="setinput_style1 blue" value="1.4">
       </span>
       </p>
 
       <p class="option" data-no="7">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_筛选宽高的按钮Title')} ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_筛选宽高的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_筛选宽高的按钮文字')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_筛选宽高的提示文字">
+      <span data-xztext="_筛选宽高的按钮文字"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="setWHSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="setWHSwitch">
 
       <input type="radio" name="widthHeightLimit" id="widthHeightLimit1" class="need_beautify radio" value=">=" checked>
       <span class="beautify_radio"></span>
-      <label for="widthHeightLimit1">&gt;=&nbsp;</label>
+      <label for="widthHeightLimit1">&gt;=</label>
 
       <input type="radio" name="widthHeightLimit" id="widthHeightLimit2" class="need_beautify radio" value="=">
       <span class="beautify_radio"></span>
-      <label for="widthHeightLimit2">=&nbsp;</label>
+      <label for="widthHeightLimit2">=</label>
       
       <input type="radio" name="widthHeightLimit" id="widthHeightLimit3" class="need_beautify radio" value="<=">
       <span class="beautify_radio"></span>
-      <label for="widthHeightLimit3">&lt;=&nbsp;</label>
+      <label for="widthHeightLimit3">&lt;=</label>
 
-      <span class="">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_宽度')}</span>
+      <span data-xztext="_宽度"></span>
       <input type="text" name="setWidth" class="setinput_style1 blue" value="0">
       <input type="radio" name="setWidthAndOr" id="setWidth_AndOr1" class="need_beautify radio" value="&" checked>
       <span class="beautify_radio"></span>
-      <label for="setWidth_AndOr1">and&nbsp;</label>
+      <label for="setWidth_AndOr1">and</label>
       <input type="radio" name="setWidthAndOr" id="setWidth_AndOr2" class="need_beautify radio" value="|">
       <span class="beautify_radio"></span>
-      <label for="setWidth_AndOr2">or&nbsp;</label>
-      <span class="">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_高度')}</span>
+      <label for="setWidth_AndOr2">or</label>
+      <span data-xztext="_高度"></span>
       <input type="text" name="setHeight" class="setinput_style1 blue" value="0">
       </span>
       </p>
 
       <p class="option" data-no="9">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置id范围提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置id范围')}&nbsp; <span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_设置id范围提示">
+      <span data-xztext="_设置id范围"></span>
+      &nbsp; <span class="gray1"> ? </span></span>
       <input type="checkbox" name="idRangeSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="idRangeSwitch">
       <input type="radio" name="idRange" id="idRange1" class="need_beautify radio" value=">" checked>
       <span class="beautify_radio"></span>
-      <label for="idRange1">  &gt;&nbsp; </label>
+      <label for="idRange1">&gt;</label>
       <input type="radio" name="idRange" id="idRange2" class="need_beautify radio" value="<">
       <span class="beautify_radio"></span>
-      <label for="idRange2">  &lt;&nbsp; </label>
+      <label for="idRange2">&lt;</label>
       <input type="text" name="idRangeInput" class="setinput_style1 w100 blue" value="">
       </span>
       </p>
 
       <p class="option" data-no="10">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置投稿时间提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置投稿时间')} <span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_设置投稿时间提示">
+      <span data-xztext="_设置投稿时间"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="postDate" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="postDate">
@@ -17990,32 +18043,36 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="11">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_必须tag的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_必须含有tag')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_必须tag的提示文字">
+      <span data-xztext="_必须含有tag"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="needTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="needTagSwitch">
       <input type="radio" name="needTagMode" id="needTagMode1" class="need_beautify radio" value="all" checked>
       <span class="beautify_radio"></span>
-      <label for="needTagMode1">  ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_全部')}&nbsp; </label>
+      <label for="needTagMode1" data-xztext="_全部"></label>
       <input type="radio" name="needTagMode" id="needTagMode2" class="need_beautify radio" value="one">
       <span class="beautify_radio"></span>
-      <label for="needTagMode2">  ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_任一')}&nbsp; </label>
+      <label for="needTagMode2" data-xztext="_任一"></label>
       <input type="text" name="needTag" class="setinput_style1 blue setinput_tag">
       </span>
       </p>
 
       <p class="option" data-no="12">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_排除tag的提示文字')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_不能含有tag')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_排除tag的提示文字">
+      <span data-xztext="_不能含有tag"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="notNeedTagSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="notNeedTagSwitch">
-      <span class="gray1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_任一')}&nbsp;</span>
+      <span class="gray1" data-xztext="_任一"></span>&nbsp;
       <input type="radio" id="tagMatchMode1" class="need_beautify radio" name="tagMatchMode" value="partial" checked>
       <span class="beautify_radio"></span>
-      <label for="tagMatchMode1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_部分一致')}&nbsp; </label>
-      <input type="radio" id="tagMatchMode2" class="need_beautify radio" name="tagMatchMode" value="whole" checked>
+      <label for="tagMatchMode1" data-xztext="_部分一致"></label>
+     <input type="radio" id="tagMatchMode2" class="need_beautify radio" name="tagMatchMode" value="whole" checked>
       <span class="beautify_radio"></span>
-      <label for="tagMatchMode2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_完全一致')}&nbsp; </label>
+      <label for="tagMatchMode2" data-xztext="_完全一致"></label>
       <br>
       <textarea class="centerPanelTextArea beautify_scrollbar" name="notNeedTag" rows="1"></textarea>
       </span>
@@ -18028,7 +18085,7 @@ const formHtml = `<form class="settingForm">
     </div>
     <div class="tabsContnet">
     <p class="option" data-no="13">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名规则')}</span>
+      <span class="settingNameStyle1" data-xztext="_命名规则"></span>
       <input type="text" name="userSetName" class="setinput_style1 blue fileNameRule" value="{p_title}/{id}">
       &nbsp;
       <select name="fileNameSelect" class="beautify_scrollbar">
@@ -18058,173 +18115,179 @@ const formHtml = `<form class="settingForm">
         </select>
       &nbsp;
       <slot data-name="saveNamingRule"></slot>
-      <button class="showFileNameTip textButton" type="button">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_提示2')}</button>
+      <button class="showFileNameTip textButton" type="button" data-xztext="_提示2"></button>
       </p>
       <p class="tip tipWithBtn" id="tipCreateFolder">
         <span class="left">
-        ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置文件夹名的提示')}<strong>{user}/{id}</strong>
+        <span data-xztext="_设置文件夹名的提示"></span>
+        <strong>{user}/{id}</strong>
         </span>
         <span class="right">
-         <button type="button" class="textButton gray1" id="tipCreateFolderBtn">
-         ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_我知道了')}
-         </button>
+          <button type="button" class="textButton gray1" id="tipCreateFolderBtn" data-xztext="_我知道了">
+          </button>
         </span>
       </p>
       <p class="fileNameTip tip">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置文件夹名的提示')}<strong>{user}/{id}</strong>
+      <span data-xztext="_设置文件夹名的提示"></span>
+      <strong>{user}/{id}</strong>
       <br>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记提醒')}
+      <span data-xztext="_命名标记提醒"></span>
       <br>
       <span class="blue">{id}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记id')}
+      <span data-xztext="_命名标记id"></span>
       <br>
       <span class="blue">{user}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记user')}
+      <span data-xztext="_命名标记user"></span>
       <br>
       <span class="blue">{user_id}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_用户id')}
+      <span data-xztext="_用户id"></span>
       <br>
       <span class="blue">{title}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记title')}
+      <span data-xztext="_命名标记title"></span>
       <br>
       <span class="blue">{p_title}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_文件夹标记PTitle')}
+      <span data-xztext="_文件夹标记PTitle"></span>
       <br>
       <span class="blue">{tags}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记tags')}
+      <span data-xztext="_命名标记tags"></span>
       <br>
       <span class="blue">{tags_translate}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记tags_trans')}
+      <span data-xztext="_命名标记tags_trans"></span>
       <br>
       <span class="blue">{tags_transl_only}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记tags_transl_only')}
+      <span data-xztext="_命名标记tags_transl_only"></span>
       <br>
       <span class="blue">{p_tag}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_文件夹标记PTag')}
+      <span data-xztext="_文件夹标记PTag"></span>
       <br>
       <span class="blue">{type}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记type')} ${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName.join(', ')}
+      <span data-xztext="_命名标记type"></span>
       <br>
       <span class="blue">{like}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记like')}
+      <span data-xztext="_命名标记like"></span>
       <br>
       <span class="blue">{bmk}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记bmk')}
+      <span data-xztext="_命名标记bmk"></span>
       <br>
       <span class="blue">{bmk_1000}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记bmk_1000')}
+      <span data-xztext="_命名标记bmk_1000"></span>
       <br>
       <span class="blue">{view}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记view')}
+      <span data-xztext="_命名标记view"></span>
       <br>
       <span class="blue">{rank}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记rank')}
+      <span data-xztext="_命名标记rank"></span>
       <br>
       <span class="blue">{date}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记date')}
+      <span data-xztext="_命名标记date"></span>
       <br>
       <span class="blue">{task_date}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记taskDate')}
+      <span data-xztext="_命名标记taskDate"></span>
       <br>
       <span class="blue">{px}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记px')}
+      <span data-xztext="_命名标记px"></span>
       <br>
       <span class="blue">{series_title}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记seriesTitle')}
+      <span data-xztext="_命名标记seriesTitle"></span>
       <br>
       <span class="blue">{series_order}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记seriesOrder')}
+      <span data-xztext="_命名标记seriesOrder"></span>
       <br>
       <span class="blue">{id_num}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记id_num')}
+      <span data-xztext="_命名标记id_num"></span>
       <br>
       <span class="blue">{p_num}</span>
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_命名标记p_num')}
+      <span data-xztext="_命名标记p_num"></span>
       </p>
 
       <p class="option" data-no="50">
-      <span class="settingNameStyle1"">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在不同的页面类型中使用不同的命名规则')}</span>
+      <span class="settingNameStyle1" data-xztext="_在不同的页面类型中使用不同的命名规则"></span>
       <input type="checkbox" name="setNameRuleForEachPageType" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="14">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_添加字段名称提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_添加命名标记前缀')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_添加字段名称提示">
+      <span data-xztext="_添加命名标记前缀"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="22">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_第一张图不带序号说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_第一张图不带序号')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_第一张图不带序号说明">
+      <span data-xztext="_第一张图不带序号"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="noSerialNo" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
       
       <p class="option" data-no="46">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在序号前面填充0')}</span>
+      <span class="settingNameStyle1" data-xztext="_在序号前面填充0"></span>
       <input type="checkbox" name="zeroPadding" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="zeroPadding">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_序号总长度')}</span>
+      <span data-xztext="_序号总长度"></span>
       <input type="text" name="zeroPaddingLength" class="setinput_style1 blue" value="3" style="width:30px;min-width: 30px;">
       </span>
       </p>
       
       <p class="option" data-no="42">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_根据作品类型自动创建文件夹')}</span>
+      <span class="settingNameStyle1" data-xztext="_根据作品类型自动创建文件夹"></span>
       <input type="checkbox" name="createFolderByType" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="createFolderByType">
       <input type="checkbox" name="createFolderByTypeIllust" id="createFolderByTypeIllust" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="createFolderByTypeIllust" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[0]}"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_插画')}&nbsp;</label>
-
+      <label for="createFolderByTypeIllust" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[0]}">
+      <span data-xztext="_插画"></span></label>
       <input type="checkbox" name="createFolderByTypeManga" id="createFolderByTypeManga" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="createFolderByTypeManga" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[1]}"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_漫画')}&nbsp;</label>
-
+      <label for="createFolderByTypeManga" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[1]}">
+      <span data-xztext="_漫画"></span></label>
       <input type="checkbox" name="createFolderByTypeUgoira" id="createFolderByTypeUgoira" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="createFolderByTypeUgoira" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[2]}"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_动图')}&nbsp;</label>
-
+      <label for="createFolderByTypeUgoira" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[2]}">
+      <span data-xztext="_动图"></span></label>
       <input type="checkbox" name="createFolderByTypeNovel" id="createFolderByTypeNovel" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="createFolderByTypeNovel" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[3]}"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_小说')}&nbsp;</label>
-      </span>
+      <label for="createFolderByTypeNovel" class="has_tip" data-tip="${_config_Config__WEBPACK_IMPORTED_MODULE_0__["Config"].worksTypeName[3]}">
+      <span data-xztext="_小说"></span></label>
       </p>
 
       <p class="option" data-no="43">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_使用匹配的tag建立文件夹的说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_使用第一个匹配的tag建立文件夹')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_使用匹配的tag建立文件夹的说明">
+      <span data-xztext="_使用第一个匹配的tag建立文件夹"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="createFolderByTag" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="createFolderByTag">
-      <span class="gray1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_tag用逗号分割')}</span>
+      <span class="gray1" data-xztext="_tag用逗号分割"></span>
       <br>
       <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1"></textarea>
       </span>
       </p>
 
       <p class="option" data-no="38">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_把r18作品存入指定的文件夹里')}</span>
+      <span class="settingNameStyle1" data-xztext="_把r18作品存入指定的文件夹里"></span>
       <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="r18Folder">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_目录名')}</span>
+      <span data-xztext="_目录名"></span>
       <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
       </span>
       </p>
 
       <p class="option" data-no="19">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_为作品创建单独的文件夹')}</span>
+      <span class="settingNameStyle1" data-xztext="_为作品创建单独的文件夹"></span>
       <input type="checkbox" name="workDir" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="workDir">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_文件数量大于')}</span>
+      <span data-xztext="_文件数量大于"></span>
       <input type="text" name="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
       <span>&nbsp;</span>
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_目录名')}</span>
+      <span data-xztext="_目录名"></span>
       <input type="text" name="workDirNameRule" class="setinput_style1 blue" value="{id_num}">
       </span>
       </p>
@@ -18235,26 +18298,30 @@ const formHtml = `<form class="settingForm">
       </div>
 
       <p class="option" data-no="16">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_线程数字')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_设置下载线程')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_线程数字">
+      <span data-xztext="_设置下载线程"></span>
+      <span class="gray1"> ? </span></span>
       <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
       </p>
 
       <p class="option" data-no="17">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_快速下载的提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_自动开始下载')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_快速下载的提示">
+      <span data-xztext="_自动开始下载"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="quietDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="33">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载之后收藏作品的提示')}">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载之后收藏作品')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_下载之后收藏作品的提示">
+      <span data-xztext="_下载之后收藏作品"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="52">
-      <span class="settingNameStyle1">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载完成后显示通知')}</span>
+      <span class="settingNameStyle1" data-xztext="_下载完成后显示通知"></span>
       <input type="checkbox" name="showNotificationAfterDownloadComplete" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
@@ -18270,94 +18337,100 @@ const formHtml = `<form class="settingForm">
     </div>
 
     <p class="option" data-no="57">
-    <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_显示高级设置说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_显示高级设置')}<span class="gray1"> ? </span></span>
+    <span class="has_tip settingNameStyle1" data-xztip="_显示高级设置说明">
+    <span data-xztext="_显示高级设置"></span>
+    <span class="gray1"> ? </span></span>
     <input type="checkbox" name="showAdvancedSettings" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
     </p>
 
     <p class="option settingCategoryName" data-no="58">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载')}</span>
+      <span data-xztext="_下载"></span>
     </p>
 
       <p class="option" data-no="4">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_动图保存格式title')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_动图保存格式')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_动图保存格式title">
+      <span data-xztext="_动图保存格式"></span>
+      <span class="gray1"> ? </span></span>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs1" class="need_beautify radio" value="webm" checked>
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_webmVideo')} &nbsp;</label>
+      <label for="ugoiraSaveAs1" data-xztext="_webmVideo"></label>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs3" class="need_beautify radio" value="gif"> 
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs3">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_gif')} &nbsp;</label>
+      <label for="ugoiraSaveAs3" data-xztext="_gif"></label>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs4" class="need_beautify radio" value="png"> 
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs4" class="has_tip" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_无损')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_apng')} &nbsp;</label>
+      <label for="ugoiraSaveAs4" class="has_tip" data-xztip="_无损" data-xztext="_apng"></label>
       <input type="radio" name="ugoiraSaveAs" id="ugoiraSaveAs2" class="need_beautify radio" value="zip"> 
       <span class="beautify_radio"></span>
-      <label for="ugoiraSaveAs2">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_zipFile')} &nbsp;</label>
+      <label for="ugoiraSaveAs2" data-xztext="_zipFile"></label>
       </p>
 
       <p class="option" data-no="24">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_同时转换多少个动图警告')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_同时转换多少个动图')}</span>
+      <span class="has_tip settingNameStyle1" data-xztip="_同时转换多少个动图警告" data-xztext="_同时转换多少个动图"></span>
       <input type="text" name="convertUgoiraThread" class="setinput_style1 blue" value="1">
-      <span class="has_tip gray1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_同时转换多少个动图警告')}"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_提示')} </span>
+      <span class="has_tip gray1" data-xztip="_同时转换多少个动图警告" data-xztext="_提示"></span>
       </p>
 
       <p class="option" data-no="26">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_小说保存格式')}<span class="gray1"> &nbsp; </span></span>
+      <span class="settingNameStyle1" data-xztext="_小说保存格式"></span>
       <input type="radio" name="novelSaveAs" id="novelSaveAs1" class="need_beautify radio" value="txt" checked>
       <span class="beautify_radio"></span>
-      <label for="novelSaveAs1"> TXT &nbsp;</label>
+      <label for="novelSaveAs1"> TXT </label>
       <input type="radio" name="novelSaveAs" id="novelSaveAs2" class="need_beautify radio" value="epub"> 
       <span class="beautify_radio"></span>
-      <label for="novelSaveAs2"> EPUB &nbsp;</label>
+      <label for="novelSaveAs2"> EPUB </label>
       </p>
       
       <p class="option" data-no="27">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在小说里保存元数据提示')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在小说里保存元数据')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_在小说里保存元数据提示">
+      <span data-xztext="_在小说里保存元数据"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="saveNovelMeta" class="need_beautify checkbox_switch" >
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="49">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_保存作品的元数据说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_保存作品的元数据')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_保存作品的元数据说明">
+      <span data-xztext="_保存作品的元数据"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="saveMetaType0" id="setSaveMetaType0" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="setSaveMetaType0"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_插画')}&nbsp;</label>
+      <label for="setSaveMetaType0" data-xztext="_插画"></label>
       <input type="checkbox" name="saveMetaType1" id="setSaveMetaType1" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="setSaveMetaType1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_漫画')}&nbsp;</label>
+      <label for="setSaveMetaType1" data-xztext="_漫画"></label>
       <input type="checkbox" name="saveMetaType2" id="setSaveMetaType2" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="setSaveMetaType2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_动图')}&nbsp;</label>
+      <label for="setSaveMetaType2" data-xztext="_动图"></label>
       <input type="checkbox" name="saveMetaType3" id="setSaveMetaType3" class="need_beautify checkbox_common">
       <span class="beautify_checkbox"></span>
-      <label for="setSaveMetaType3"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_小说')}&nbsp;</label>
+      <label for="setSaveMetaType3" data-xztext="_小说"></label>
       </p>
 
       <p class="option" data-no="30">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸')} </span>
+      <span class="settingNameStyle1" data-xztext="_图片尺寸"></span>
       <input type="radio" name="imageSize" id="imageSize1" class="need_beautify radio" value="original" checked>
       <span class="beautify_radio"></span>
-      <label for="imageSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_原图')} </label>
-      &nbsp;
+      <label for="imageSize1" data-xztext="_原图"></label>
       <input type="radio" name="imageSize" id="imageSize2" class="need_beautify radio" value="regular">
       <span class="beautify_radio"></span>
-      <label for="imageSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_普通')} </label>
+      <label for="imageSize2" data-xztext="_普通"></label>
       <span class="gray1">(1200px)</span>
-      &nbsp;
       <input type="radio" name="imageSize" id="imageSize3" class="need_beautify radio" value="small">
       <span class="beautify_radio"></span>
-      <label for="imageSize3"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_小图')} </label>
+      <label for="imageSize3" data-xztext="_小图"></label>
       <span class="gray1">(540px)</span>
-      &nbsp;
       <input type="radio" name="imageSize" id="imageSize4" class="need_beautify radio" value="thumb">
       <span class="beautify_radio"></span>
-      <label for="imageSize4"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_方形缩略图')} </label>
+      <label for="imageSize4" data-xztext="_方形缩略图"></label>
       <span class="gray1">(250px)</span>
       </p>
   
       <p class="option" data-no="25">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_不符合要求的文件不会被保存')}">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_文件体积限制')} <span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_不符合要求的文件不会被保存">
+      <span data-xztext="_文件体积限制"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="sizeSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="sizeSwitch">
@@ -18368,7 +18441,7 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="29">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_文件名长度限制')}</span>
+      <span class="settingNameStyle1" data-xztext="_文件名长度限制"></span>
       <input type="checkbox" name="fileNameLengthLimitSwitch" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
@@ -18377,62 +18450,61 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="28">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_不下载重复文件的提示')}">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_不下载重复文件')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_不下载重复文件的提示">
+      <span data-xztext="_不下载重复文件"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="deduplication" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="deduplication">
-      <span>&nbsp; ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_策略')}</span>
+      &nbsp; <span data-xztext="_策略"></span>
       <input type="radio" name="dupliStrategy" id="dupliStrategy1" class="need_beautify radio" value="strict" checked>
       <span class="beautify_radio"></span>
-      <label class="has_tip" for="dupliStrategy1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_严格模式说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_严格')}</label>
-      &nbsp;
+      <label class="has_tip" for="dupliStrategy1" data-xztip="_严格模式说明" data-xztext="_严格"></label>
       <input type="radio" name="dupliStrategy" id="dupliStrategy2" class="need_beautify radio" value="loose">
       <span class="beautify_radio"></span>
-      <label class="has_tip" for="dupliStrategy2" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_宽松模式说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_宽松')}</label>
-      &nbsp;
-      <button class="textButton gray1" type="button" id="exportDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导出')}</button>
-      <button class="textButton gray1" type="button" id="importDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入')}</button>
-      <button class="textButton gray1" type="button" id="clearDownloadRecord">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除')}</button>
+      <label class="has_tip" for="dupliStrategy2" data-xztip="_宽松模式说明" data-xztext="_宽松"></label>
+      <button class="textButton gray1" type="button" id="exportDownloadRecord" data-xztext="_导出"></button>
+      <button class="textButton gray1" type="button" id="importDownloadRecord" data-xztext="_导入"></button>
+      <button class="textButton gray1" type="button" id="clearDownloadRecord" data-xztext="_清除"></button>
       </span>
       </p>
 
       <p class="option" data-no="54">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_自动导出抓取结果')} </span>
+      <span class="settingNameStyle1" data-xztext="_自动导出抓取结果"></span>
       <input type="checkbox" name="autoExportResult" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="autoExportResult">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_文件数量大于')}</span>
+      <span data-xztext="_文件数量大于"></span>
       <input type="text" name="autoExportResultNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
       <span>&nbsp;</span>
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_文件格式')} </span>
+      <span class="settingNameStyle1" data-xztext="_文件格式"> </span>
       <input type="checkbox" name="autoExportResultCSV" id="autoExportResultCSV" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
       <label for="autoExportResultCSV"> CSV </label>
-      &nbsp;
       <input type="checkbox" name="autoExportResultJSON" id="autoExportResultJSON" class="need_beautify checkbox_common" checked>
       <span class="beautify_checkbox"></span>
       <label for="autoExportResultJSON"> JSON </label>
-
       </span>
       </p>
 
       <p class="option settingCategoryName" data-no="59">
-        <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_抓取')}</span>
+        <span data-xztext="_抓取"></span>
       </p>
 
       <p class="option" data-no="35">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_用户阻止名单的说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_用户阻止名单')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_用户阻止名单的说明">
+      <span data-xztext="_用户阻止名单"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="userBlockList">
-      <input type="text" name="blockList" class="setinput_style1 blue setinput_tag" placeholder="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_用户ID必须是数字')}">
+      <input type="text" name="blockList" class="setinput_style1 blue setinput_tag" data-xzplaceholder="_用户ID必须是数字">
       </span>
       </p>
 
       <p class="option" data-no="39">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_针对特定用户屏蔽tag')}</span>
+      <span class="settingNameStyle1" data-xztext="_针对特定用户屏蔽tag"></span>
       <input type="checkbox" name="blockTagsForSpecificUser" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       <span class="subOptionWrap" data-show="blockTagsForSpecificUser">
@@ -18441,129 +18513,128 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option settingCategoryName" data-no="60">
-        <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_增强')}</span>
+        <span data-xztext="_增强"></span>
       </p>
 
       <p class="option" data-no="55">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_鼠标滚轮切换图片')}">
-        ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_预览作品')} <span class="gray1"> ? </span>
+      <span class="has_tip settingNameStyle1" data-xztip="_鼠标滚轮切换图片">
+      <span data-xztext="_预览作品"></span>
+      <span class="gray1"> ? </span>
       </span>
       <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="PreviewWork">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_等待时间')}&nbsp;</span>
+      <span data-xztext="_等待时间"></span>&nbsp;
       <input type="text" name="previewWorkWait" class="setinput_style1 blue" value="400" style="width:40px;min-width: 40px;">
       <span>&nbsp;ms</span>
 
       <span class="verticalSplit"></span>
 
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸2')}</span>
+      <span class="settingNameStyle1" data-xztext="_图片尺寸2"></span>
       <input type="radio" name="prevWorkSize" id="prevWorkSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
-      <label for="prevWorkSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_原图')} </label>
-      &nbsp;
+      <label for="prevWorkSize1" data-xztext="_原图"></label>
       <input type="radio" name="prevWorkSize" id="prevWorkSize2" class="need_beautify radio" value="regular" checked>
       <span class="beautify_radio"></span>
-      <label for="prevWorkSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_普通')} </label>
+      <label for="prevWorkSize2" data-xztext="_普通"></label>
       </p>
 
       <p class="option" data-no="62">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_长按右键显示大图')} </span>
+      <span class="settingNameStyle1" data-xztext="_长按右键显示大图"></span>
       <input type="checkbox" name="showOriginImage" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="showOriginImage">
       
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸2')}</span>
+      <span class="settingNameStyle1" data-xztext="_图片尺寸2"></span>
       <input type="radio" name="showOriginImageSize" id="showOriginImageSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
-      <label for="showOriginImageSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_原图')} </label>
-      &nbsp;
+      <label for="showOriginImageSize1" data-xztext="_原图"></label>
       <input type="radio" name="showOriginImageSize" id="showOriginImageSize2" class="need_beautify radio" value="regular" checked>
       <span class="beautify_radio"></span>
-      <label for="showOriginImageSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_普通')} </label>
+      <label for="showOriginImageSize2" data-xztext="_普通"></label>
       </p>
 
       <p class="option" data-no="40">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在作品缩略图上显示放大图标')} </span>
+      <span class="settingNameStyle1" data-xztext="_在作品缩略图上显示放大图标"></span>
       <input type="checkbox" name="magnifier" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="magnifier">
 
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_位置')} </span>
+      <span class="settingNameStyle1" data-xztext="_位置"> </span>
       <input type="radio" name="magnifierPosition" id="magnifierPosition1" class="need_beautify radio" value="left">
       <span class="beautify_radio"></span>
-      <label for="magnifierPosition1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_左')} </label>
-      &nbsp;
+      <label for="magnifierPosition1" data-xztext="_左"></label>
       <input type="radio" name="magnifierPosition" id="magnifierPosition2" class="need_beautify radio" value="right" checked>
       <span class="beautify_radio"></span>
-      <label for="magnifierPosition2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_右')} </label>
+      <label for="magnifierPosition2" data-xztext="_右"></label>
 
       <span class="verticalSplit"></span>
 
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_图片尺寸2')}</span>
+      <span class="settingNameStyle1" data-xztext="_图片尺寸2"></span>
       <input type="radio" name="magnifierSize" id="magnifierSize1" class="need_beautify radio" value="original">
       <span class="beautify_radio"></span>
-      <label for="magnifierSize1"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_原图')} </label>
-      &nbsp;
+      <label for="magnifierSize1" data-xztext="_原图"></label>
       <input type="radio" name="magnifierSize" id="magnifierSize2" class="need_beautify radio" value="regular" checked>
       <span class="beautify_radio"></span>
-      <label for="magnifierSize2"> ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_普通')} </label>
+      <label for="magnifierSize2" data-xztext="_普通"></label>
 
       </span>
       </p>
 
       <p class="option" data-no="56">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在作品缩略图上显示下载按钮')}</span>
+      <span class="settingNameStyle1" data-xztext="_在作品缩略图上显示下载按钮"></span>
       <input type="checkbox" name="showDownloadBtnOnThumb" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="48">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_在搜索页面添加快捷搜索区域')} </span>
+      <span class="settingNameStyle1" data-xztext="_在搜索页面添加快捷搜索区域"></span>
       <input type="checkbox" name="showFastSearchArea" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="18">
-      <span class="has_tip settingNameStyle1" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_预览搜索结果说明')}">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_预览搜索结果')}<span class="gray1"> ? </span></span>
+      <span class="has_tip settingNameStyle1" data-xztip="_预览搜索结果说明">
+      <span data-xztext="_预览搜索结果"></span>
+      <span class="gray1"> ? </span></span>
       <input type="checkbox" name="previewResult" class="need_beautify checkbox_switch" checked>
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="34">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_收藏设置')}</span>
+      <span class="settingNameStyle1" data-xztext="_收藏设置"></span>
       
       <input type="radio" name="widthTag" id="widthTag1" class="need_beautify radio" value="yes" checked>
       <span class="beautify_radio"></span>
-      <label for="widthTag1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_添加tag')}&nbsp;</label>
+      <label for="widthTag1" data-xztext="_添加tag"></label>
       <input type="radio" name="widthTag" id="widthTag2" class="need_beautify radio" value="no">
       <span class="beautify_radio"></span>
-      <label for="widthTag2">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_不添加tag')}</label>
+      <label for="widthTag2" data-xztext="_不添加tag"></label>
 
       <span class="verticalSplit"></span>
       
       <input type="radio" name="restrict" id="restrict1" class="need_beautify radio" value="no" checked>
       <span class="beautify_radio"></span>
-      <label for="restrict1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_公开')}&nbsp;</label>
+      <label for="restrict1" data-xztext="_公开"></label>
       <input type="radio" name="restrict" id="restrict2" class="need_beautify radio" value="yes">
       <span class="beautify_radio"></span>
-      <label for="restrict2">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_不公开')}</label>
+      <label for="restrict2" data-xztext="_不公开"></label>
       </p>
 
       <p class="option settingCategoryName" data-no="61">
-        <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_其他')}</span>
+        <span data-xztext="_其他"></span>
       </p>
 
       <p class="option" data-no="31">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_日期格式')}</span>
+      <span class="settingNameStyle1" data-xztext="_日期格式"></span>
       <input type="text" name="dateFormat" class="setinput_style1 blue" style="width:250px;" value="YYYY-MM-DD">
-      <button type="button" class="gray1 textButton showDateTip">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_提示')}</button>
+      <button type="button" class="gray1 textButton showDateTip data-xztext="_提示"></button>
       </p>
       <p class="dateFormatTip tip" style="display:none">
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_日期格式提示')}</span>
+      <span data-xztext="_日期格式提示"></span>
       <br>
       <span class="blue">YYYY</span> <span>2021</span>
       <br>
@@ -18586,92 +18657,81 @@ const formHtml = `<form class="settingForm">
       </p>
 
       <p class="option" data-no="36">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_颜色主题')}</span>
+      <span class="settingNameStyle1" data-xztext="_颜色主题"></span>
       <input type="radio" name="theme" id="theme1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio"></span>
-      <label for="theme1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_自动检测')}</label>
-      &nbsp;
+      <label for="theme1" data-xztext="_自动检测"></label>
       <input type="radio" name="theme" id="theme2" class="need_beautify radio" value="white">
       <span class="beautify_radio"></span>
       <label for="theme2">White</label>
-      &nbsp;
       <input type="radio" name="theme" id="theme3" class="need_beautify radio" value="dark">
       <span class="beautify_radio"></span>
       <label for="theme3">Dark</label>
       </p>
 
       <p class="option" data-no="41">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_背景图片')} </span>
+      <span class="settingNameStyle1" data-xztext="_背景图片"> </span>
       <input type="checkbox" name="bgDisplay" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
 
       <span class="subOptionWrap" data-show="bgDisplay">
 
-      <button class="textButton gray1" type="button" id="selectBG">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_选择文件')}</button>
-      <button class="textButton gray1" type="button" id="clearBG">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_清除')}</button>
+      <button class="textButton gray1" type="button" id="selectBG" data-xztext="_选择文件"></button>
+      <button class="textButton gray1" type="button" id="clearBG" data-xztext="_清除"></button>
       
       &nbsp;
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_对齐方式')}&nbsp;</span>
+      <span data-xztext="_对齐方式"></span>&nbsp;
       <input type="radio" name="bgPositionY" id="bgPosition1" class="need_beautify radio" value="center" checked>
       <span class="beautify_radio"></span>
-      <label for="bgPosition1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_居中')}</label>
+      <label for="bgPosition1" data-xztext="_居中"></label>
       <input type="radio" name="bgPositionY" id="bgPosition2" class="need_beautify radio" value="top">
       <span class="beautify_radio"></span>
-      <label for="bgPosition2">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_顶部')}</label>
-
-      &nbsp;
-      <span>${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_不透明度')}&nbsp;</span>
+      <label for="bgPosition2" data-xztext="_顶部"></label>
+      <span data-xztext="_不透明度"></span>&nbsp;
       <input name="bgOpacity" type="range" />
       </span>
       </p>
       
       <p class="option" data-no="45">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_选项卡切换方式')}</span>
+      <span class="settingNameStyle1" data-xztext="_选项卡切换方式"></span>
       <input type="radio" name="switchTabBar" id="switchTabBar1" class="need_beautify radio" value="over" checked>
       <span class="beautify_radio"></span>
-      <label for="switchTabBar1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_鼠标经过')}</label>
-      &nbsp;
+      <label for="switchTabBar1" data-xztext="_鼠标经过"></label>
       <input type="radio" name="switchTabBar" id="switchTabBar2" class="need_beautify radio" value="click">
       <span class="beautify_radio"></span>
-      <label for="switchTabBar2">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_鼠标点击')}</label>
+      <label for="switchTabBar2" data-xztext="_鼠标点击"></label>
       </p>
 
       <p class="option" data-no="32">
       <span class="settingNameStyle1"><span class="key">Language</span></span>
       <input type="radio" name="userSetLang" id="userSetLang1" class="need_beautify radio" value="auto" checked>
       <span class="beautify_radio"></span>
-      <label for="userSetLang1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_自动检测')}</label>
-      &nbsp;
+      <label for="userSetLang1" data-xztext="_自动检测"></label>
       <input type="radio" name="userSetLang" id="userSetLang2" class="need_beautify radio" value="zh-cn">
       <span class="beautify_radio"></span>
       <label for="userSetLang2">简体中文</label>
-      &nbsp;
       <input type="radio" name="userSetLang" id="userSetLang3" class="need_beautify radio" value="zh-tw">
       <span class="beautify_radio"></span>
       <label for="userSetLang3">繁體中文</label>
-      &nbsp;
       <input type="radio" name="userSetLang" id="userSetLang4" class="need_beautify radio" value="ja">
       <span class="beautify_radio"></span>
       <label for="userSetLang4">日本語</label>
-      &nbsp;
       <input type="radio" name="userSetLang" id="userSetLang5" class="need_beautify radio" value="en">
       <span class="beautify_radio"></span>
       <label for="userSetLang5">English</label>
-      &nbsp;
       </p>
 
       <p class="option" data-no="53">
-      <span class="settingNameStyle1">
-      ${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_以粗体显示关键字')}</span>
+      <span class="settingNameStyle1" data-xztext="_以粗体显示关键字"></span>
       <input type="checkbox" name="boldKeywords" class="need_beautify checkbox_switch">
       <span class="beautify_switch"></span>
       </p>
 
       <p class="option" data-no="37">
-      <span class="settingNameStyle1">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_管理设置')}</span>
-      <button class="textButton gray1" type="button" id="exportSettings">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导出设置')}</button>
-      <button class="textButton gray1" type="button" id="importSettings">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_导入设置')}</button>
-      <button class="textButton gray1" type="button" id="resetSettings">${_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_重置设置')}</button>
+      <span class="settingNameStyle1" data-xztext="_管理设置">$</span>
+      <button class="textButton gray1" type="button" id="exportSettings" data-xztext="_导出设置"></button>
+      <button class="textButton gray1" type="button" id="importSettings" data-xztext="_导入设置"></button>
+      <button class="textButton gray1" type="button" id="resetSettings" data-xztext="_重置设置"></button>
       </p>
     </div>
 </form>`;
@@ -18818,6 +18878,7 @@ class FormSettings {
             textarea: ['createFolderTagList'],
             datetime: ['postDateStart', 'postDateEnd'],
         };
+        this.restoreTimer = 0;
         this.form = form;
         _NameRuleManager__WEBPACK_IMPORTED_MODULE_4__["nameRuleManager"].registerInput(this.form.userSetName);
         this.bindEvents();
@@ -18829,11 +18890,11 @@ class FormSettings {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, () => {
             this.restoreWantPage();
         });
-        const change = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd];
-        change.forEach((evt) => {
-            window.addEventListener(evt, () => {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
+            window.clearTimeout(this.restoreTimer);
+            this.restoreTimer = window.setTimeout(() => {
                 this.restoreFormSettings();
-            });
+            }, 0);
         });
     }
     // 监听所有输入选项的变化
@@ -18865,7 +18926,7 @@ class FormSettings {
             this.saveCheckBox(name);
         }
     }
-    // 读取设置，恢复表单里的设置项
+    // 读取设置，恢复到表单里
     restoreFormSettings() {
         for (const name of this.inputFileds.text) {
             // setWantPage 需要从 wantPageArr 恢复
@@ -19204,8 +19265,10 @@ const nameRuleManager = new NameRuleManager();
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "options", function() { return options; });
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _Form__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Form */ "./src/ts/setting/Form.ts");
-/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _Form__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Form */ "./src/ts/setting/Form.ts");
+/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
+
 
 
 
@@ -19230,7 +19293,7 @@ class Options {
         // 某些页面类型需要隐藏某些选项。当调用 hideOption 方法时，把选项 id 保存起来
         // 优先级高于 whiteList
         this.hiddenList = [];
-        this.allOption = _Form__WEBPACK_IMPORTED_MODULE_1__["form"].querySelectorAll('.option');
+        this.allOption = _Form__WEBPACK_IMPORTED_MODULE_2__["form"].querySelectorAll('.option');
         // 获取“页数/个数”设置的元素
         const wantPageOption = this.getOption(1);
         this.wantPageEls = {
@@ -19268,7 +19331,7 @@ class Options {
             }
             const no = Number.parseInt(option.dataset.no);
             // 如果需要隐藏高级设置
-            if (!_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].showAdvancedSettings) {
+            if (!_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].showAdvancedSettings) {
                 // 如果在白名单中，并且当前页面不需要隐藏它，那么它就是显示的
                 if (this.whiteList.includes(no) && !this.hiddenList.includes(no)) {
                     this.showOption([no]);
@@ -19324,9 +19387,18 @@ class Options {
     }
     // 设置 “设置页面/作品数量” 选项的提示和预设值
     setWantPageTip(arg) {
-        this.wantPageEls.text.textContent = arg.text;
-        this.wantPageEls.text.parentElement.dataset.tip = arg.tip;
-        this.wantPageEls.rangTip.textContent = arg.rangTip;
+        _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.wantPageEls.text, arg.text);
+        this.wantPageEls.text.parentElement.dataset.xztip = arg.tip;
+        this.wantPageEls.text.parentElement.dataset.tip = _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl(arg.tip);
+        // rangTip 可能需要翻译
+        if (arg.rangTip.startsWith('_')) {
+            _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.wantPageEls.rangTip, arg.rangTip);
+        }
+        else {
+            // 也可能直接传递了字符串，不需要翻译
+            _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].updateText(this.wantPageEls.rangTip, '');
+            this.wantPageEls.rangTip.textContent = arg.rangTip;
+        }
     }
 }
 const options = new Options();
@@ -19366,14 +19438,15 @@ class SaveNamingRule {
         this._show = false; // 是否显示列表
         this.html = `
   <div class="saveNamingRuleWrap">
-  <button class="nameSave textButton has_tip" type="button" data-tip="${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存命名规则提示', this.limit.toString())}">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_保存')}</button>
-  <button class="nameLoad textButton" type="button">${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_加载')}</button>
+  <button class="nameSave textButton has_tip" type="button" data-xztip="_保存命名规则提示" data-xztext="_保存"></button>
+  <button class="nameLoad textButton" type="button" data-xztext="_加载"></button>
   <ul class="namingRuleList"></ul>
   </div>`;
         this.ruleInput = ruleInput;
         _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].clearSlot('saveNamingRule');
         const wrap = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].useSlot('saveNamingRule', this.html);
         _Theme__WEBPACK_IMPORTED_MODULE_3__["theme"].register(wrap);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(wrap);
         this.saveBtn = wrap.querySelector('button.nameSave');
         this.loadBtn = wrap.querySelector('button.nameLoad');
         this.listWrap = wrap.querySelector('ul.namingRuleList');
@@ -19484,9 +19557,29 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
 /* harmony import */ var _utils_SecretSignal__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../utils/SecretSignal */ "./src/ts/utils/SecretSignal.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Lang */ "./src/ts/Lang.ts");
 // settings 保存了下载器的所有设置项
-// 每当修改了 settings 的任何一个值，都会触发 EVT.list.settingChange 事件，传递这个选项的名称和值 {name:string, value:any}
-// 如果打开了多个标签页，每个页面的 settings 数据是互相独立的。但是 localStorage 里的数据只有一份：最后一个设置变更是在哪个页面发生的，就把哪个页面的 settings 保存到 localStorage 里。所以恢复设置时，恢复的也是这个页面的设置。
+// 获取设置项的值：
+// settings[name]
+// 修改设置项的值：
+// setSetting(name, value)
+// 本模块会触发 3 个事件：
+// EVT.list.settingChange
+// 当任意一个设置项被赋值时触发（本模块不会区分值是否发生了变化）。这是最常用的事件。
+// 事件的参数里会传递这个设置项的名称和值，格式如：
+// {name: string, value: any}
+// 如果某个模块要监听特定的设置项，应该使用参数的 name 来判断触发事件的设置项是否是自己需要的设置项
+// 如果不依赖于特定设置项，则应该考虑使用节流（throttle）来限制事件监听器的执行频率，防止造成严重的性能问题
+// EVT.list.settingInitialized
+// 当设置初始化完毕后（恢复保存的设置之后）触发。这个事件在生命周期里只会触发一次。
+// 过程中，每个设置项都会触发一次 settingChange 事件
+// EVT.list.resetSettingsEnd
+// 重置设置之后触发
+// 导入设置之后触发
+// 过程中，每个设置项都会触发一次 settingChange 事件
+// 如果打开了多个标签页，每个页面的 settings 数据是互相独立的，在一个页面里修改设置不会影响另一个页面里的设置。
+// 但是持久化保存的数据只有一份：最后一次设置变更是在哪个页面发生的，就保存哪个页面的 settings 数据。
+
 
 
 
@@ -19664,6 +19757,10 @@ class Settings {
             previewWorkWait: 400,
             showOriginImage: true,
             showOriginImageSize: 'original',
+            showHowToUse: true,
+            whatIsNewFlag: 'xuejian&saber',
+            tipCreateFolder: true,
+            showDownloadTip: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -19681,13 +19778,15 @@ class Settings {
         ];
         // 以默认设置作为初始设置
         this.settings = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].deepCopy(this.defaultSettings);
+        this.storeTimer = 0;
+        this.storageInterval = 50;
         this.restore();
         this.bindEvents();
     }
     bindEvents() {
         // 当设置发生变化时进行本地存储
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
-            localStorage.setItem(_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName, JSON.stringify(this.settings));
+            this.store();
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettings, () => {
             this.reset();
@@ -19726,14 +19825,33 @@ class Settings {
             });
         }
     }
-    // 初始化时，恢复设置
+    // 读取恢复设置
     restore() {
         let restoreData = this.defaultSettings;
-        const savedSettings = localStorage.getItem(_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName);
-        if (savedSettings) {
-            restoreData = JSON.parse(savedSettings);
-        }
-        this.assignSettings(restoreData);
+        // 首先从 chrome.storage 获取配置（从 11.5.0 版本开始）
+        chrome.storage.local.get(_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName, (result) => {
+            if (result[_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName]) {
+                restoreData = result[_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName];
+            }
+            else {
+                // 如无数据则尝试从 localStorage 获取配置，因为旧版本的配置储存在 localStorage 中
+                const savedSettings = localStorage.getItem(_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName);
+                if (savedSettings) {
+                    restoreData = JSON.parse(savedSettings);
+                }
+            }
+            this.assignSettings(restoreData);
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('settingInitialized');
+        });
+    }
+    store() {
+        window.clearTimeout(this.storeTimer);
+        this.storeTimer = window.setTimeout(() => {
+            // chrome.storage.local 的储存上限是 5 MiB（5242880 Byte）
+            chrome.storage.local.set({
+                [_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName]: this.settings,
+            });
+        }, this.storageInterval);
     }
     // 接收整个设置项，通过循环将其更新到 settings 上
     // 循环设置而不是整个替换的原因：
@@ -19759,10 +19877,11 @@ class Settings {
         }
         // 检查是否存在设置里的属性
         if (loadedJSON.downloadThread === undefined) {
-            return _MsgBox__WEBPACK_IMPORTED_MODULE_3__["msgBox"].error('Format error!');
+            return _MsgBox__WEBPACK_IMPORTED_MODULE_3__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_7__["lang"].transl('_格式错误'));
         }
         // 开始恢复导入的设置
         this.reset(loadedJSON);
+        _Toast__WEBPACK_IMPORTED_MODULE_6__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_7__["lang"].transl('_导入成功'));
     }
     // 重置设置 或者 导入设置
     // 可选参数：传递一份设置数据，用于从配置文件导入，恢复设置
@@ -21084,6 +21203,10 @@ class SecretSignal {
             for (const prefix of this.codePrefix) {
                 if (ev.code.startsWith(prefix) &&
                     ev.code.length === prefix.length + 1) {
+                    // 如果字符串长度超过限制，则移除前面的一部分字符
+                    if (this.input.length > 99) {
+                        this.input = this.input.slice(80);
+                    }
                     const key = ev.code[ev.code.length - 1].toLowerCase();
                     this.input += key;
                     this.check();

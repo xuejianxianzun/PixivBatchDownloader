@@ -72,17 +72,20 @@ abstract class InitPageBase {
   protected setFormOption(): void {
     // 个数/页数选项的提示
     options.setWantPageTip({
-      text: lang.transl('_页数'),
-      tip: lang.transl('_从本页开始下载提示'),
-      rangTip: lang.transl('_数字提示1'),
+      text: '_下载多少页面',
+      tip: '_从本页开始下载提示',
+      rangTip: '_数字提示1',
     })
   }
 
   // 添加抓取区域的按钮
   protected addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
-      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
-    ]).addEventListener('click', () => {
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_开始抓取',
+      '_默认下载多页'
+    ).addEventListener('click', () => {
       this.readyCrawl()
     })
   }
@@ -104,7 +107,7 @@ abstract class InitPageBase {
   // 作品个数/页数的输入不合法
   private getWantPageError() {
     EVT.fire('wrongSetting')
-    const msg = lang.transl('_参数不合法')
+    const msg = lang.transl('_下载数量错误')
     msgBox.error(msg)
     throw new Error(msg)
   }

@@ -86,16 +86,19 @@ class InitSearchArtworkPage extends InitPageBase {
   protected setFormOption() {
     // 个数/页数选项的提示
     options.setWantPageTip({
-      text: lang.transl('_页数'),
-      tip: lang.transl('_从本页开始下载提示'),
-      rangTip: lang.transl('_数字提示1'),
+      text: '_下载多少页面',
+      tip: '_从本页开始下载提示',
+      rangTip: '_数字提示1',
     })
   }
 
   protected addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
-      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
-    ]).addEventListener('click', () => {
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_开始抓取',
+      '_默认下载多页'
+    ).addEventListener('click', () => {
       this.resultMeta = []
       this.crawlStartBySelf = true
 
@@ -103,9 +106,12 @@ class InitSearchArtworkPage extends InitPageBase {
       this.readyCrawl()
     })
 
-    Tools.addBtn('crawlBtns', Colors.bgGreen, lang.transl('_在结果中筛选'), [
-      ['title', lang.transl('_在结果中筛选Title')],
-    ]).addEventListener('click', () => {
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgGreen,
+      '_在结果中筛选',
+      '_在结果中筛选说明'
+    ).addEventListener('click', () => {
       this.screenInResult()
     })
   }
@@ -129,7 +135,7 @@ class InitSearchArtworkPage extends InitPageBase {
     const bookmarkAllBtn = Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
-      lang.transl('_收藏本页面的所有作品')
+      '_收藏本页面的所有作品'
     )
     const bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
 

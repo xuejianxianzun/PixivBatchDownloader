@@ -41,7 +41,7 @@ class InitNovelPage extends InitPageBase {
     Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
-      lang.transl('_从本页开始抓取new')
+      '_从本页开始抓取new'
     ).addEventListener('click', () => {
       this.crawlDirection = -1
       this.readyCrawl()
@@ -50,7 +50,7 @@ class InitNovelPage extends InitPageBase {
     Tools.addBtn(
       'crawlBtns',
       Colors.bgBlue,
-      lang.transl('_从本页开始抓取old')
+      '_从本页开始抓取old'
     ).addEventListener('click', () => {
       this.crawlDirection = 1
       this.readyCrawl()
@@ -60,12 +60,9 @@ class InitNovelPage extends InitPageBase {
   protected setFormOption() {
     // 个数/页数选项的提示
     options.setWantPageTip({
-      text: lang.transl('_个数'),
-      tip:
-        lang.transl('_从本页开始下载提示') +
-        '<br>' +
-        lang.transl('_相关作品大于0'),
-      rangTip: lang.transl('_数字提示1'),
+      text: '_下载多少作品',
+      tip: '_从本页开始下载提示',
+      rangTip: '_数字提示1',
     })
   }
 

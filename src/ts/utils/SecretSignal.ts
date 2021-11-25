@@ -44,6 +44,10 @@ class SecretSignal {
           ev.code.startsWith(prefix) &&
           ev.code.length === prefix.length + 1
         ) {
+          // 如果字符串长度超过限制，则移除前面的一部分字符
+          if (this.input.length > 99) {
+            this.input = this.input.slice(80)
+          }
           const key = ev.code[ev.code.length - 1].toLowerCase()
           this.input += key
           this.check()

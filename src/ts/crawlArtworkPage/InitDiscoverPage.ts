@@ -13,9 +13,12 @@ class InitDiscoverPage extends InitPageBase {
   }
 
   protected addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_抓取当前作品'), [
-      ['title', lang.transl('_抓取当前作品Title')],
-    ]).addEventListener('click', () => {
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_抓取当前作品',
+      '_抓取当前作品Title'
+    ).addEventListener('click', () => {
       this.readyCrawl()
     })
   }

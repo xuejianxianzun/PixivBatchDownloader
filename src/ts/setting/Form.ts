@@ -8,12 +8,14 @@ import { SaveNamingRule } from './SaveNamingRule'
 import { theme } from '../Theme'
 import { FormSettings } from './FormSettings'
 import { Utils } from '../utils/Utils'
+import { settings, setSetting } from '../setting/Settings'
 
 // 设置表单
 class Form {
   constructor() {
     this.form = Tools.useSlot('form', formHtml) as SettingsForm
     theme.register(this.form)
+    lang.register(this.form)
 
     this.allCheckBox = this.form.querySelectorAll(
       'input[type="checkbox"]'
@@ -25,17 +27,15 @@ class Form {
 
     this.allSwitch = this.form.querySelectorAll('.checkbox_switch')
 
-    this.allLabel = this.form.querySelectorAll('label')
+    this.createFolderTipEl = this.form.querySelector(
+      '#tipCreateFolder'
+    )! as HTMLElement
 
     new SaveNamingRule(this.form.userSetName)
 
     new FormSettings(this.form)
 
     this.bindEvents()
-
-    this.initFormBueatiful()
-
-    this.checkTipCreateFolder()
   }
 
   // 设置表单上美化元素的状态
@@ -48,16 +48,14 @@ class Form {
   }
 
   public form: SettingsForm
+  private createFolderTipEl!: HTMLElement
 
   private allSwitch: NodeListOf<HTMLInputElement> // 所有开关（同时也是复选框）
   private allCheckBox: NodeListOf<HTMLInputElement> // 所有复选框
   private allRadio: NodeListOf<HTMLInputElement> // 单选按钮
-  private allLabel: NodeListOf<HTMLLabelElement> // 所有 label 标签
 
   private readonly chooseKeys = ['Enter', 'NumpadEnter'] // 让回车键可以控制复选框（浏览器默认只支持空格键）
-
-  private readonly tipCreateFolderFlag = 'tipCreateFolder' // 控制“创建文件夹的提示”是否显示
-  private readonly tipCreateFolderId = 'tipCreateFolder' // “创建文件夹的提示”的容器 id
+  private bueatifulTimer = 0
 
   private bindEvents() {
     // 给美化的复选框绑定功能
@@ -78,22 +76,23 @@ class Form {
     }
 
     // 设置变化或者重置时，重新设置美化状态
-    const change = [EVT.list.settingChange, EVT.list.resetSettingsEnd]
-    change.forEach((evt) => {
-      window.addEventListener(evt, () => {
-        // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
-        window.setTimeout(() => {
-          this.initFormBueatiful()
-        }, 50)
-      })
+    window.addEventListener(EVT.list.settingChange, () => {
+      // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
+      window.clearTimeout(this.bueatifulTimer)
+      this.bueatifulTimer = window.setTimeout(() => {
+        this.initFormBueatiful()
+        this.showCreateFolderTip()
+      }, 50)
+    })
+
+    // 用户点击“我知道了”按钮之后不再显示提示
+    const btn = this.createFolderTipEl.querySelector('button')!
+    btn.addEventListener('click', () => {
+      setSetting('tipCreateFolder', false)
     })
 
     // 预览文件名
-    Tools.addBtn(
-      'namingBtns',
-      Colors.bgGreen,
-      lang.transl('_预览文件名')
-    ).addEventListener(
+    Tools.addBtn('namingBtns', Colors.bgGreen, '_预览文件名').addEventListener(
       'click',
       () => {
         EVT.fire('previewFileName')
@@ -104,11 +103,7 @@ class Form {
     // 添加只在 pixiv 上使用的按钮
     if (Utils.isPixiv()) {
       // 导出 csv
-      Tools.addBtn(
-        'exportResult',
-        Colors.bgGreen,
-        lang.transl('_导出csv')
-      ).addEventListener(
+      Tools.addBtn('exportResult', Colors.bgGreen, '_导出csv').addEventListener(
         'click',
         () => {
           EVT.fire('exportCSV')
@@ -120,7 +115,7 @@ class Form {
       Tools.addBtn(
         'exportResult',
         Colors.bgGreen,
-        lang.transl('_导出抓取结果')
+        '_导出抓取结果'
       ).addEventListener(
         'click',
         () => {
@@ -133,7 +128,7 @@ class Form {
       Tools.addBtn(
         'exportResult',
         Colors.bgGreen,
-        lang.transl('_导入抓取结果')
+        '_导入抓取结果'
       ).addEventListener(
         'click',
         () => {
@@ -284,31 +279,14 @@ class Form {
     }
   }
 
-  // 是否显示“创建文件夹的提示”
-  private checkTipCreateFolder() {
+  // 是否显示创建文件夹的提示
+  private showCreateFolderTip() {
     if (!Utils.isPixiv()) {
-      return
+      return (this.createFolderTipEl.style.display = 'none')
     }
-
-    const tip = this.form.querySelector(
-      '#' + this.tipCreateFolderId
-    ) as HTMLElement
-    if (!tip) {
-      return
-    }
-
-    // 如果用户没有点击“我知道了”按钮，则显示这个提示
-    if (!window.localStorage.getItem(this.tipCreateFolderFlag)) {
-      tip.style.display = 'block'
-      // 用户点击“我知道了”按钮之后，隐藏这个提示并设置标记
-      const btn = tip.querySelector('button')
-      if (btn) {
-        btn.addEventListener('click', () => {
-          tip.style.display = 'none'
-          window.localStorage.setItem(this.tipCreateFolderFlag, '1')
-        })
-      }
-    }
+    this.createFolderTipEl.style.display = settings.tipCreateFolder
+      ? 'block'
+      : 'none'
   }
 }
 

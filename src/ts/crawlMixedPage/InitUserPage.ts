@@ -41,35 +41,36 @@ class InitUserPage extends InitPageBase {
 
   // 添加中间按钮
   protected addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
-      ['title', lang.transl('_开始抓取') + lang.transl('_默认下载多页')],
-    ]).addEventListener('click', () => {
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_开始抓取',
+      '_默认下载多页'
+    ).addEventListener('click', () => {
       this.readyCrawl()
     })
   }
 
   protected addAnyElement() {
-    Tools.addBtn(
-      'otherBtns',
-      Colors.bgGreen,
-      lang.transl('_保存用户头像')
-    ).addEventListener('click', () => {
-      EVT.fire('saveAvatarImage')
-    })
+    Tools.addBtn('otherBtns', Colors.bgGreen, '_保存用户头像').addEventListener(
+      'click',
+      () => {
+        EVT.fire('saveAvatarImage')
+      }
+    )
+
+    Tools.addBtn('otherBtns', Colors.bgGreen, '_保存用户封面').addEventListener(
+      'click',
+      () => {
+        EVT.fire('saveUserCover')
+      }
+    )
 
     Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
-      lang.transl('_保存用户封面')
-    ).addEventListener('click', () => {
-      EVT.fire('saveUserCover')
-    })
-
-    Tools.addBtn(
-      'otherBtns',
-      Colors.bgGreen,
-      lang.transl('_保存用户头像为图标'),
-      [['title', lang.transl('_保存用户头像为图标说明')]]
+      '_保存用户头像为图标',
+      '_保存用户头像为图标说明'
     ).addEventListener('click', () => {
       EVT.fire('saveAvatarIcon')
     })
@@ -78,7 +79,7 @@ class InitUserPage extends InitPageBase {
     const bookmarkAllBtn = Tools.addBtn(
       'otherBtns',
       Colors.bgGreen,
-      lang.transl('_收藏本页面的所有作品')
+      '_收藏本页面的所有作品'
     )
     this.bookmarkAll = new BookmarkAllWorks(bookmarkAllBtn)
 
@@ -117,9 +118,9 @@ class InitUserPage extends InitPageBase {
   protected setFormOption() {
     // 个数/页数选项的提示
     options.setWantPageTip({
-      text: lang.transl('_页数'),
-      tip: lang.transl('_从本页开始下载提示'),
-      rangTip: lang.transl('_数字提示1'),
+      text: '_下载多少页面',
+      tip: '_从本页开始下载提示',
+      rangTip: '_数字提示1',
     })
   }
 

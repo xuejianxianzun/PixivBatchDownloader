@@ -5,6 +5,7 @@ import { lang } from '../Lang'
 class ShowSkipCount {
   constructor(el: HTMLElement) {
     this.el = el
+    lang.register(this.el)
     this.bindEvents()
   }
 
@@ -43,12 +44,12 @@ class ShowSkipCount {
 
   private addCount() {
     this.count++
-    this.el.textContent = lang.transl('_已跳过n个文件', this.count.toString())
+    lang.updateText(this.el, '_已跳过n个文件', this.count.toString())
   }
 
   private reset() {
     this.count = 0
-    this.el.textContent = ''
+    lang.updateText(this.el, '')
   }
 }
 

@@ -66,6 +66,8 @@ The main function:
 3. On the extension management page, enable "Developer Mode".
 4. Click the button "Load unpacked" and select the folder where the installation package is unzipped.
 
+**Note:** After offline installation, please refresh the pixiv page or restart the browser for normal use.
+
 ----------
 
 - The downloaded file will be saved in your browser's download directory.

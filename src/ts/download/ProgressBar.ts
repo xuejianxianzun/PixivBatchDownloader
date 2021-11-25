@@ -20,13 +20,14 @@ interface ProgressData {
 class ProgressBar {
   constructor() {
     this.createElements()
+    lang.register(this.wrap)
     this.bindEvents()
   }
 
   private readonly wrapHTML = `
   <div class="progressBarWrap">
   <div class="total">
-  <span class="text">${lang.transl('_下载进度')}</span>
+  <span class="text" data-xztext="_下载进度"></span>
   <div class="right1">
   <div class="progressBar progressBar1">
   <div class="progress progress1"></div>

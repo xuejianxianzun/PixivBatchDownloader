@@ -24,9 +24,12 @@ class InitNewNovelPage extends InitPageBase {
   private fetchCount = 0 // 已请求的作品数量
 
   protected addCrawlBtns() {
-    Tools.addBtn('crawlBtns', Colors.bgBlue, lang.transl('_开始抓取'), [
-      ['title', lang.transl('_下载大家的新作品')],
-    ]).addEventListener('click', () => {
+    Tools.addBtn(
+      'crawlBtns',
+      Colors.bgBlue,
+      '_开始抓取',
+      '_下载大家的新作品'
+    ).addEventListener('click', () => {
       this.readyCrawl()
     })
   }
@@ -36,8 +39,8 @@ class InitNewNovelPage extends InitPageBase {
   protected setFormOption() {
     // 个数/页数选项的提示
     options.setWantPageTip({
-      text: lang.transl('_个数'),
-      tip: lang.transl('_想要获取多少个作品'),
+      text: '_下载多少作品',
+      tip: '_想要获取多少个作品',
       rangTip: `1 - ${this.maxCount}`,
     })
   }

@@ -41,7 +41,7 @@ class ShowURLs {
 
     EVT.fire('output', {
       content: result,
-      title: lang.transl('_复制url'),
+      title: '_复制url',
     })
   }
 }
