@@ -6,7 +6,6 @@ import { Config } from './config/Config'
 // <br> 是换行
 
 const langText = {
-  _type: ['cn', 'tw', 'en', 'ja'],
   _只下载已收藏: [
     '只下载已收藏',
     '只下載已收藏',
@@ -1708,11 +1707,11 @@ const langText = {
     'Hidden settings will still work',
     '隠していた設定がそのまま機能する',
   ],
-  状态码为0的错误提示: [
-    '下载时发生错误，可能的原因：<br><br>系统磁盘的剩余空间可能不足。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>网络错误。',
-    '下載時發生錯誤，可能的原因：<br><br>系統磁碟的剩餘空間可能不足。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>網路錯誤。',
-    'An error occurred while downloading, possible causes：<br><br>The remaining space of the system disk may be too low. Please try to clear the system disk space, and then restart the browser to continue the unfinished download.<br><br>Network Error.',
-    'ダウンロード中にエラーが発生しました、考えられる原因<br><br>システムディスクに領域不足の可能性があります。システムディスクの領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。<br><br>ネットワークエラー。',
+  _状态码为0的错误提示: [
+    '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。',
+    '下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。',
+    'An error occurred while downloading, the status code is 0, and the request was unsuccessful. Possible reasons: <br><br>1. The remaining space of the system disk may be insufficient (it is recommended that the remaining space be greater than 4GB). Please try to clear the system disk space, and then restart the browser to continue the unfinished download. <br><br>2. Network error. It may be a problem caused by a network proxy.',
+    'ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。',
   ],
   _提示登录pixiv账号: [
     '请您登录 Pixiv 账号然后重试。',
@@ -1851,6 +1850,12 @@ const langText = {
     '在 Patreon 贊助我',
     'Become a patron',
     'Become a patron',
+  ],
+  _替换方形缩略图以显示图片比例: [
+    '替换方形缩略图以显示图片比例',
+    '替換方形縮圖以顯示圖片比例',
+    'Replace square thumbnails to show image ratio',
+    '正方形のサムネイルを置き換えて、画像の比率を表示します',
   ],
 }
 

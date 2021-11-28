@@ -17,9 +17,12 @@ class ShowWhatIsNew {
     })
   }
 
-  private flag = '11.4.2'
+  private flag = '11.6.0'
 
-  private msg = `${lang.transl('_whatisnew')}`
+  private msg = `${lang.transl('_新增设置项')}:
+  <br>
+  ${lang.transl('_替换方形缩略图以显示图片比例')}
+  `
 
   private show() {
     if (Utils.isPixiv() && settings.whatIsNewFlag !== this.flag) {

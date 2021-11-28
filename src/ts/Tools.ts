@@ -327,14 +327,33 @@ class Tools {
    *
    * 此方法使用另一套缩略图 url，这样所有的图片都能够获得可用的缩略图 url
    */
-  // 根据 issues/140 进行此优化。前后对比示例：
-  // https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2021/03/03/06/29/53/88179809_p1_custom1200.jpg
-  // https://i.pximg.net/c/128x128/img-master/img/2021/03/03/06/29/53/88179809_p1_square1200.jpg
+  // 现在的多图作品，有些是所有图片都有 250px 的缩略图，此时作品数据里的 thubm url 含有 img-master，例如：
+  // https://i.pximg.net/c/250x250_80_a2/img-master/img/2021/11/28/18/30/25/94433369_p0_square1200.jpg
+  // 有些作品的 thumb url 里是 custom-thumb，例如：
+  // https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2021/03/03/06/29/53/88179809_p0_custom1200.jpg
+  // 这种只有第一张图有缩略图，后面的图片没有缩略图。对于这种情况，将其替换成所有图片都有缩略图的 url。（即第一种 url）
   static convertArtworkThumbURL(thumbURL: string, no: number | string) {
     return thumbURL
-      .replace('250x250_80_a2/custom-thumb', '128x128/img-master')
+      .replace('250x250_80_a2/custom-thumb', '250x250_80_a2/img-master')
       .replace('custom1200', 'square1200')
       .replace('p0', 'p' + no)
+  }
+
+  static readonly convertThumbURLReg = /img\/(.*)_.*1200/
+
+  static convertThumbURLTo540px(url: string) {
+    // 'https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2021/10/26/00/00/08/93686259_p0_custom1200.jpg'
+    // 'https://i.pximg.net/c/250x250_80_a2/img-master/img/2019/06/23/17/29/27/75369283_square1200.jpg'
+    const test = url.match(this.convertThumbURLReg)
+    if (!test || !test[1]) {
+      return url
+    }
+    // '2021/10/26/00/00/08/93686259_p0'
+    // '2019/06/23/17/29/27/75369283'
+    const array = test[1].split('/')
+    const id_index = array.pop()
+    const datetime = array.join('/')
+    return `https://i.pximg.net/c/540x540_70/img-master/img/${datetime}/${id_index}_master1200.jpg`
   }
 
   // 旧版本的 Result 数据中没有 index 属性，使用此方法进行兼容性处理

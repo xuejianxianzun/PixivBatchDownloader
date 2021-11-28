@@ -13,7 +13,7 @@
 // 事件的参数里会传递这个设置项的名称和值，格式如：
 // {name: string, value: any}
 // 如果某个模块要监听特定的设置项，应该使用参数的 name 来判断触发事件的设置项是否是自己需要的设置项
-// 如果不依赖于特定设置项，则应该考虑使用节流（throttle）来限制事件监听器的执行频率，防止造成严重的性能问题
+// 如果不依赖于特定设置项，则应该考虑使用节流或者防抖来限制事件监听器的执行频率，防止造成严重的性能问题
 
 // EVT.list.settingInitialized
 // 当设置初始化完毕后（恢复保存的设置之后）触发。这个事件在生命周期里只会触发一次。
@@ -194,6 +194,7 @@ interface XzSetting {
   whatIsNewFlag: string
   tipCreateFolder: boolean
   showDownloadTip: boolean
+  replaceSquareThumb: boolean
 }
 
 type SettingsKeys = keyof XzSetting
@@ -376,6 +377,7 @@ class Settings {
     whatIsNewFlag: 'xuejian&saber',
     tipCreateFolder: true,
     showDownloadTip: true,
+    replaceSquareThumb: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
