@@ -227,9 +227,8 @@ class ImageViewer {
         // 生成缩略图列表
         let html = []
         for (let index = 0; index < body.pageCount; index++) {
-          const str = `<li><img src="${Tools.convertArtworkThumbURL(
-            body.urls.thumb,
-            index
+          const str = `<li><img src="${Tools.convertThumbURLTo540px(
+            body.urls.thumb.replace('p0', 'p' + index)
           )}" data-src="${useBigURL.replace('p0', 'p' + index)}"></li>`
           html.push(str)
         }

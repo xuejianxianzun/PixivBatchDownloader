@@ -339,6 +339,23 @@ class Tools {
       .replace('p0', 'p' + no)
   }
 
+  static readonly convertThumbURLReg = /img\/(.*)_.*1200/
+
+  static convertThumbURLTo540px(url: string) {
+    // 'https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2021/10/26/00/00/08/93686259_p0_custom1200.jpg'
+    // 'https://i.pximg.net/c/250x250_80_a2/img-master/img/2019/06/23/17/29/27/75369283_square1200.jpg'
+    const test = url.match(this.convertThumbURLReg)
+    if (!test || !test[1]) {
+      return url
+    }
+    // '2021/10/26/00/00/08/93686259_p0'
+    // '2019/06/23/17/29/27/75369283'
+    const array = test[1].split('/')
+    const id_index = array.pop()
+    const datetime = array.join('/')
+    return `https://i.pximg.net/c/540x540_70/img-master/img/${datetime}/${id_index}_master1200.jpg`
+  }
+
   // 旧版本的 Result 数据中没有 index 属性，使用此方法进行兼容性处理
   static getResultIndex(data: Result) {
     if (data.type === 0 || data.type === 1) {

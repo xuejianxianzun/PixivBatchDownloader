@@ -544,7 +544,9 @@ class InitSearchArtworkPage extends InitPageBase {
             </div>
             <!--图片部分-->
             <div class="imgWrap">
-            <img src="${data.thumb}" alt="${data.title}" style="object-fit: cover; object-position: center center;">
+            <img src="${Tools.convertThumbURLTo540px(data.thumb)}" alt="${
+      data.title
+    }" style="object-fit: contain; object-position: center center;">
               <!-- 动图 svg -->
               ${ugoiraHTML}
               </div>
@@ -566,7 +568,9 @@ class InitSearchArtworkPage extends InitPageBase {
         </div>
       </div>
       <!--标题名-->
-      <a target="_blank" class="titleLink" href="/artworks/${data.idNum}">${data.title}</a>
+      <a target="_blank" class="titleLink" href="/artworks/${data.idNum}">${
+      data.title
+    }</a>
       <!--底部-->
       <div class="bottomBar">
       <!--作者信息-->
