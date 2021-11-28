@@ -226,10 +226,11 @@ class ShowOriginSizeImage {
     // 计算横向的 onePxMove
     let onePxMoveX = this.style.imgW / innerWidth
     if (this.style.imgW > innerWidth) {
-      // 如果图片宽度超出窗口可视宽度
-      const leftWidth = ev.clientX * onePxMoveX
+      // 如果图片宽度超出窗口可视宽度，计算鼠标左侧和右侧的图像宽度分别是多少
+      const hiddenHalf = (this.style.imgW - innerWidth) / 2
+      const leftWidth = ev.clientX + hiddenHalf
       const rightWidth = this.style.imgW - leftWidth
-      // 计算鼠标左侧和右侧各移动 1 像素时，图片应该移动多少像素。取比较大的一个值
+      // 计算鼠标向左或向右移动 1 像素时，图片应该移动多少像素。取比较大的一个值
       onePxMoveX = Math.max(
         leftWidth / ev.clientX,
         rightWidth / (innerWidth - ev.clientX)

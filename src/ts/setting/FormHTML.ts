@@ -720,6 +720,12 @@ export const formHtml = `<form class="settingForm">
       <span class="beautify_radio"></span>
       <label for="prevWorkSize2" data-xztext="_普通"></label>
       </p>
+      
+      <p class="option" data-no="63">
+      <span class="settingNameStyle1" data-xztext="_替换方形缩略图以显示图片比例"></span>
+      <input type="checkbox" name="replaceSquareThumb" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
 
       <p class="option" data-no="62">
       <span class="settingNameStyle1" data-xztext="_长按右键显示大图"></span>

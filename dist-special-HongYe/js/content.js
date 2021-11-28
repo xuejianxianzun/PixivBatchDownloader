@@ -2096,10 +2096,7 @@ class ImageViewer {
                 // 生成缩略图列表
                 let html = [];
                 for (let index = 0; index < body.pageCount; index++) {
-                    // 使用 thumb url 的话，p0 之后的图片经常没有对应的文件，导致缩略图因为 404 无法显示。根据 issues/140 使用另一套 url 作为缩略图 url，不会产生 404。前后对比示例：
-                    // https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2021/03/03/06/29/53/88179809_p1_custom1200.jpg
-                    // https://i.pximg.net/c/128x128/img-master/img/2021/03/03/06/29/53/88179809_p1_square1200.jpg
-                    const str = `<li><img src="${_Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].convertArtworkThumbURL(body.urls.thumb, index)}" data-src="${useBigURL.replace('p0', 'p' + index)}"></li>`;
+                    const str = `<li><img src="${_Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].convertThumbURLTo540px(body.urls.thumb.replace('p0', 'p' + index))}" data-src="${useBigURL.replace('p0', 'p' + index)}"></li>`;
                     html.push(str);
                 }
                 this.viewerUl.innerHTML = html.join('');
@@ -2629,7 +2626,6 @@ __webpack_require__.r(__webpack_exports__);
 // {} 是占位符
 // <br> 是换行
 const langText = {
-    _type: ['cn', 'tw', 'en', 'ja'],
     _只下载已收藏: [
         '只下载已收藏',
         '只下載已收藏',
@@ -4331,11 +4327,11 @@ const langText = {
         'Hidden settings will still work',
         '隠していた設定がそのまま機能する',
     ],
-    状态码为0的错误提示: [
-        '下载时发生错误，可能的原因：<br><br>系统磁盘的剩余空间可能不足。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>网络错误。',
-        '下載時發生錯誤，可能的原因：<br><br>系統磁碟的剩餘空間可能不足。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>網路錯誤。',
-        'An error occurred while downloading, possible causes：<br><br>The remaining space of the system disk may be too low. Please try to clear the system disk space, and then restart the browser to continue the unfinished download.<br><br>Network Error.',
-        'ダウンロード中にエラーが発生しました、考えられる原因<br><br>システムディスクに領域不足の可能性があります。システムディスクの領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。<br><br>ネットワークエラー。',
+    _状态码为0的错误提示: [
+        '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。',
+        '下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。',
+        'An error occurred while downloading, the status code is 0, and the request was unsuccessful. Possible reasons: <br><br>1. The remaining space of the system disk may be insufficient (it is recommended that the remaining space be greater than 4GB). Please try to clear the system disk space, and then restart the browser to continue the unfinished download. <br><br>2. Network error. It may be a problem caused by a network proxy.',
+        'ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。',
     ],
     _提示登录pixiv账号: [
         '请您登录 Pixiv 账号然后重试。',
@@ -4474,6 +4470,12 @@ const langText = {
         '在 Patreon 贊助我',
         'Become a patron',
         'Become a patron',
+    ],
+    _替换方形缩略图以显示图片比例: [
+        '替换方形缩略图以显示图片比例',
+        '替換方形縮圖以顯示圖片比例',
+        'Replace square thumbnails to show image ratio',
+        '正方形のサムネイルを置き換えて、画像の比率を表示します',
     ],
 };
 
@@ -5472,6 +5474,86 @@ new PreviewWork();
 
 /***/ }),
 
+/***/ "./src/ts/ReplaceSquareThumb.ts":
+/*!**************************************!*\
+  !*** ./src/ts/ReplaceSquareThumb.ts ***!
+  \**************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+
+
+
+class ReplaceSquareThumb {
+    constructor() {
+        this.bindEvents();
+        this.observer();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'replaceSquareThumb') {
+                if (data.value) {
+                    this.replaceAllImage();
+                }
+            }
+        });
+    }
+    replaceAllImage() {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].replaceSquareThumb) {
+            const allImage = document.querySelectorAll('img');
+            allImage.forEach((img) => this.replace(img));
+        }
+    }
+    replace(img) {
+        if (!img.src || img.dataset.index) {
+            return;
+        }
+        const src = img.src;
+        if (!src.endsWith('square1200.jpg') && !src.endsWith('custom1200.jpg')) {
+            return;
+        }
+        img.src = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].convertThumbURLTo540px(src);
+        img.style.objectFit = 'contain';
+    }
+    observer() {
+        const observer = new MutationObserver((records) => {
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].replaceSquareThumb) {
+                return;
+            }
+            records.forEach((record) => {
+                if (record.type === 'childList') {
+                    record.addedNodes.forEach((node) => {
+                        if (node.nodeName === 'IMG') {
+                            this.replace(node);
+                        }
+                    });
+                }
+                if (record.type === 'attributes') {
+                    if (record.attributeName === 'src' &&
+                        record.target.nodeName === 'IMG') {
+                        this.replace(record.target);
+                    }
+                }
+            });
+        });
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributeFilter: ['src'],
+        });
+    }
+}
+new ReplaceSquareThumb();
+
+
+/***/ }),
+
 /***/ "./src/ts/SelectWork.ts":
 /*!******************************!*\
   !*** ./src/ts/SelectWork.ts ***!
@@ -6436,10 +6518,11 @@ class ShowOriginSizeImage {
         // 计算横向的 onePxMove
         let onePxMoveX = this.style.imgW / innerWidth;
         if (this.style.imgW > innerWidth) {
-            // 如果图片宽度超出窗口可视宽度
-            const leftWidth = ev.clientX * onePxMoveX;
+            // 如果图片宽度超出窗口可视宽度，计算鼠标左侧和右侧的图像宽度分别是多少
+            const hiddenHalf = (this.style.imgW - innerWidth) / 2;
+            const leftWidth = ev.clientX + hiddenHalf;
             const rightWidth = this.style.imgW - leftWidth;
-            // 计算鼠标左侧和右侧各移动 1 像素时，图片应该移动多少像素。取比较大的一个值
+            // 计算鼠标向左或向右移动 1 像素时，图片应该移动多少像素。取比较大的一个值
             onePxMoveX = Math.max(leftWidth / ev.clientX, rightWidth / (innerWidth - ev.clientX));
         }
         // 计算纵向的 onePxMove
@@ -6596,8 +6679,11 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '11.4.2';
-        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_whatisnew')}`;
+        this.flag = '11.6.0';
+        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}:
+  <br>
+  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_替换方形缩略图以显示图片比例')}
+  `;
         this.bindEvents();
     }
     bindEvents() {
@@ -7499,14 +7585,30 @@ class Tools {
      *
      * 此方法使用另一套缩略图 url，这样所有的图片都能够获得可用的缩略图 url
      */
-    // 根据 issues/140 进行此优化。前后对比示例：
-    // https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2021/03/03/06/29/53/88179809_p1_custom1200.jpg
-    // https://i.pximg.net/c/128x128/img-master/img/2021/03/03/06/29/53/88179809_p1_square1200.jpg
+    // 现在的多图作品，有些是所有图片都有 250px 的缩略图，此时作品数据里的 thubm url 含有 img-master，例如：
+    // https://i.pximg.net/c/250x250_80_a2/img-master/img/2021/11/28/18/30/25/94433369_p0_square1200.jpg
+    // 有些作品的 thumb url 里是 custom-thumb，例如：
+    // https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2021/03/03/06/29/53/88179809_p0_custom1200.jpg
+    // 这种只有第一张图有缩略图，后面的图片没有缩略图。对于这种情况，将其替换成所有图片都有缩略图的 url。（即第一种 url）
     static convertArtworkThumbURL(thumbURL, no) {
         return thumbURL
-            .replace('250x250_80_a2/custom-thumb', '128x128/img-master')
+            .replace('250x250_80_a2/custom-thumb', '250x250_80_a2/img-master')
             .replace('custom1200', 'square1200')
             .replace('p0', 'p' + no);
+    }
+    static convertThumbURLTo540px(url) {
+        // 'https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2021/10/26/00/00/08/93686259_p0_custom1200.jpg'
+        // 'https://i.pximg.net/c/250x250_80_a2/img-master/img/2019/06/23/17/29/27/75369283_square1200.jpg'
+        const test = url.match(this.convertThumbURLReg);
+        if (!test || !test[1]) {
+            return url;
+        }
+        // '2021/10/26/00/00/08/93686259_p0'
+        // '2019/06/23/17/29/27/75369283'
+        const array = test[1].split('/');
+        const id_index = array.pop();
+        const datetime = array.join('/');
+        return `https://i.pximg.net/c/540x540_70/img-master/img/${datetime}/${id_index}_master1200.jpg`;
     }
     // 旧版本的 Result 数据中没有 index 属性，使用此方法进行兼容性处理
     static getResultIndex(data) {
@@ -7530,6 +7632,7 @@ class Tools {
         return false;
     }
 }
+Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
 
 
 
@@ -7625,29 +7728,30 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_InvisibleSettings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/InvisibleSettings */ "./src/ts/setting/InvisibleSettings.ts");
 /* harmony import */ var _ListenPageSwitch__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ListenPageSwitch */ "./src/ts/ListenPageSwitch.ts");
 /* harmony import */ var _CenterPanel__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./CenterPanel */ "./src/ts/CenterPanel.ts");
-/* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./InitPage */ "./src/ts/InitPage.ts");
-/* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
-/* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
-/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
-/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_10__);
-/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
-/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
-/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
-/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
-/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
-/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
-/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
-/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
-/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
-/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _ReplaceSquareThumb__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ReplaceSquareThumb */ "./src/ts/ReplaceSquareThumb.ts");
+/* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./InitPage */ "./src/ts/InitPage.ts");
+/* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
+/* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
+/* harmony import */ var _download_showStatusOnTitle__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./download/showStatusOnTitle */ "./src/ts/download/showStatusOnTitle.ts");
+/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
+/* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_11__);
+/* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
+/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
+/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
+/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
+/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
+/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
+/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
+/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
+/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
+/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
+/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -7658,6 +7762,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 
@@ -8961,6 +9066,8 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             59,
             60,
             61,
+            62,
+            63,
         ]);
     }
     nextStep() {
@@ -9423,7 +9530,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             </div>
             <!--图片部分-->
             <div class="imgWrap">
-            <img src="${data.thumb}" alt="${data.title}" style="object-fit: cover; object-position: center center;">
+            <img src="${_setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].replaceSquareThumb
+                ? _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].convertThumbURLTo540px(data.thumb)
+                : data.thumb}" alt="${data.title}" style="object-fit: contain; object-position: center center;">
               <!-- 动图 svg -->
               ${ugoiraHTML}
               </div>
@@ -12753,7 +12862,7 @@ class Download {
             // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就认为是磁盘空间不足。
             if (result.length > 9) {
                 _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(`Error: ${fileId} Code: ${status}`);
-                const tip = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('状态码为0的错误提示');
+                const tip = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_状态码为0的错误提示');
                 _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(tip);
                 _MsgBox__WEBPACK_IMPORTED_MODULE_12__["msgBox"].error(tip);
                 return _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('requestPauseDownload');
@@ -18673,6 +18782,12 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_radio"></span>
       <label for="prevWorkSize2" data-xztext="_普通"></label>
       </p>
+      
+      <p class="option" data-no="63">
+      <span class="settingNameStyle1" data-xztext="_替换方形缩略图以显示图片比例"></span>
+      <input type="checkbox" name="replaceSquareThumb" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
 
       <p class="option" data-no="62">
       <span class="settingNameStyle1" data-xztext="_长按右键显示大图"></span>
@@ -18958,6 +19073,7 @@ class FormSettings {
                 'PreviewWork',
                 'showDownloadBtnOnThumb',
                 'showOriginImage',
+                'replaceSquareThumb',
             ],
             text: [
                 'setWantPage',
@@ -19703,7 +19819,7 @@ __webpack_require__.r(__webpack_exports__);
 // 事件的参数里会传递这个设置项的名称和值，格式如：
 // {name: string, value: any}
 // 如果某个模块要监听特定的设置项，应该使用参数的 name 来判断触发事件的设置项是否是自己需要的设置项
-// 如果不依赖于特定设置项，则应该考虑使用节流（throttle）来限制事件监听器的执行频率，防止造成严重的性能问题
+// 如果不依赖于特定设置项，则应该考虑使用节流或者防抖来限制事件监听器的执行频率，防止造成严重的性能问题
 // EVT.list.settingInitialized
 // 当设置初始化完毕后（恢复保存的设置之后）触发。这个事件在生命周期里只会触发一次。
 // 过程中，每个设置项都会触发一次 settingChange 事件
@@ -19895,6 +20011,7 @@ class Settings {
             whatIsNewFlag: 'xuejian&saber',
             tipCreateFolder: true,
             showDownloadTip: true,
+            replaceSquareThumb: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项

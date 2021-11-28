@@ -83,7 +83,7 @@ class Download {
       // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就认为是磁盘空间不足。
       if (result.length > 9) {
         log.error(`Error: ${fileId} Code: ${status}`)
-        const tip = lang.transl('状态码为0的错误提示')
+        const tip = lang.transl('_状态码为0的错误提示')
         log.error(tip)
         msgBox.error(tip)
         return EVT.fire('requestPauseDownload')

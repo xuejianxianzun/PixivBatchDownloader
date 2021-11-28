@@ -1525,6 +1525,12 @@ iframe[name='expandedFooter'] {
 .viewer-backdrop .viewer-navbar {
   background: rgba(0, 0, 0, 0.3);
 }
+.viewer-backdrop .viewer-navbar .viewer-list li {
+  width: 50px !important;
+}
+.viewer-backdrop .viewer-navbar .viewer-list li img {
+  transform: unset !important;
+}
 .rotate360 {
   transform: rotate(360deg);
 }
