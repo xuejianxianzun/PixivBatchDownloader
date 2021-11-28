@@ -2629,7 +2629,6 @@ __webpack_require__.r(__webpack_exports__);
 // {} 是占位符
 // <br> 是换行
 const langText = {
-    _type: ['cn', 'tw', 'en', 'ja'],
     _只下载已收藏: [
         '只下载已收藏',
         '只下載已收藏',
@@ -4331,11 +4330,11 @@ const langText = {
         'Hidden settings will still work',
         '隠していた設定がそのまま機能する',
     ],
-    状态码为0的错误提示: [
-        '下载时发生错误，可能的原因：<br><br>系统磁盘的剩余空间可能不足。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>网络错误。',
-        '下載時發生錯誤，可能的原因：<br><br>系統磁碟的剩餘空間可能不足。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>網路錯誤。',
-        'An error occurred while downloading, possible causes：<br><br>The remaining space of the system disk may be too low. Please try to clear the system disk space, and then restart the browser to continue the unfinished download.<br><br>Network Error.',
-        'ダウンロード中にエラーが発生しました、考えられる原因<br><br>システムディスクに領域不足の可能性があります。システムディスクの領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。<br><br>ネットワークエラー。',
+    _状态码为0的错误提示: [
+        '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。',
+        '下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。',
+        'An error occurred while downloading, the status code is 0, and the request was unsuccessful. Possible reasons: <br><br>1. The remaining space of the system disk may be insufficient (it is recommended that the remaining space be greater than 4GB). Please try to clear the system disk space, and then restart the browser to continue the unfinished download. <br><br>2. Network error. It may be a problem caused by a network proxy.',
+        'ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。',
     ],
     _提示登录pixiv账号: [
         '请您登录 Pixiv 账号然后重试。',
@@ -6324,10 +6323,11 @@ class ShowOriginSizeImage {
         // 计算横向的 onePxMove
         let onePxMoveX = this.style.imgW / innerWidth;
         if (this.style.imgW > innerWidth) {
-            // 如果图片宽度超出窗口可视宽度
-            const leftWidth = ev.clientX * onePxMoveX;
+            // 如果图片宽度超出窗口可视宽度，计算鼠标左侧和右侧的图像宽度分别是多少
+            const hiddenHalf = (this.style.imgW - innerWidth) / 2;
+            const leftWidth = ev.clientX + hiddenHalf;
             const rightWidth = this.style.imgW - leftWidth;
-            // 计算鼠标左侧和右侧各移动 1 像素时，图片应该移动多少像素。取比较大的一个值
+            // 计算鼠标向左或向右移动 1 像素时，图片应该移动多少像素。取比较大的一个值
             onePxMoveX = Math.max(leftWidth / ev.clientX, rightWidth / (innerWidth - ev.clientX));
         }
         // 计算纵向的 onePxMove
@@ -12640,7 +12640,7 @@ class Download {
             // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就认为是磁盘空间不足。
             if (result.length > 9) {
                 _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(`Error: ${fileId} Code: ${status}`);
-                const tip = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('状态码为0的错误提示');
+                const tip = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_状态码为0的错误提示');
                 _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(tip);
                 _MsgBox__WEBPACK_IMPORTED_MODULE_12__["msgBox"].error(tip);
                 return _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('requestPauseDownload');
@@ -19569,7 +19569,7 @@ __webpack_require__.r(__webpack_exports__);
 // 事件的参数里会传递这个设置项的名称和值，格式如：
 // {name: string, value: any}
 // 如果某个模块要监听特定的设置项，应该使用参数的 name 来判断触发事件的设置项是否是自己需要的设置项
-// 如果不依赖于特定设置项，则应该考虑使用节流（throttle）来限制事件监听器的执行频率，防止造成严重的性能问题
+// 如果不依赖于特定设置项，则应该考虑使用节流或者防抖来限制事件监听器的执行频率，防止造成严重的性能问题
 // EVT.list.settingInitialized
 // 当设置初始化完毕后（恢复保存的设置之后）触发。这个事件在生命周期里只会触发一次。
 // 过程中，每个设置项都会触发一次 settingChange 事件
