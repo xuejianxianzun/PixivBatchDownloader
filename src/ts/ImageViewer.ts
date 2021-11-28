@@ -227,12 +227,8 @@ class ImageViewer {
         // 生成缩略图列表
         let html = []
         for (let index = 0; index < body.pageCount; index++) {
-          // 使用 thumb url 的话，p0 之后的图片经常没有对应的文件，导致缩略图因为 404 无法显示。根据 issues/140 使用另一套 url 作为缩略图 url，不会产生 404。前后对比示例：
-          // https://i.pximg.net/c/250x250_80_a2/custom-thumb/img/2021/03/03/06/29/53/88179809_p1_custom1200.jpg
-          // https://i.pximg.net/c/128x128/img-master/img/2021/03/03/06/29/53/88179809_p1_square1200.jpg
-          const str = `<li><img src="${Tools.convertArtworkThumbURL(
-            body.urls.thumb,
-            index
+          const str = `<li><img src="${Tools.convertThumbURLTo540px(
+            body.urls.thumb.replace('p0', 'p' + index)
           )}" data-src="${useBigURL.replace('p0', 'p' + index)}"></li>`
           html.push(str)
         }

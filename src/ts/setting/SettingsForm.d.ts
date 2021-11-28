@@ -109,4 +109,5 @@ export interface SettingsForm extends HTMLFormElement {
   previewWorkWait: HTMLInputElement
   showOriginImage: HTMLInputElement
   showOriginImageSize: HTMLInputElement
+  replaceSquareThumb: HTMLInputElement
 }
