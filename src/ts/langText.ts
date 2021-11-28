@@ -6,7 +6,6 @@ import { Config } from './config/Config'
 // <br> 是换行
 
 const langText = {
-  _type: ['cn', 'tw', 'en', 'ja'],
   _只下载已收藏: [
     '只下载已收藏',
     '只下載已收藏',

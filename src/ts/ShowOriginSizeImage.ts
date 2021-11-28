@@ -226,18 +226,23 @@ class ShowOriginSizeImage {
     // 计算横向的 onePxMove
     let onePxMoveX = this.style.imgW / innerWidth
     if (this.style.imgW > innerWidth) {
-      // 如果图片宽度超出窗口可视宽度
-      const leftWidth = ev.clientX * onePxMoveX
+      // 如果图片宽度超出窗口可视宽度，计算鼠标左侧和右侧的图像宽度分别是多少
+      const hiddenHalf = (this.style.imgW - innerWidth) / 2
+      const leftWidth = ev.clientX + hiddenHalf
       const rightWidth = this.style.imgW - leftWidth
-      // 计算鼠标左侧和右侧各移动 1 像素时，图片应该移动多少像素。取比较大的一个值
-      onePxMoveX = Math.max(leftWidth / ev.clientX, rightWidth / (innerWidth - ev.clientX))
+      // 计算鼠标向左或向右移动 1 像素时，图片应该移动多少像素。取比较大的一个值
+      onePxMoveX = Math.max(
+        leftWidth / ev.clientX,
+        rightWidth / (innerWidth - ev.clientX)
+      )
     }
     // 计算纵向的 onePxMove
     let onePxMoveY = this.style.imgH / window.innerHeight
     if (this.style.imgH > window.innerHeight) {
       // 如果图片高度超出窗口可视高度，下载器会把图片从顶部显示。此时需要特殊处理 onePxMove
       // 让鼠标从当前位置向下到窗口底部时，可以完整查看整个图片
-      onePxMoveY = (this.style.imgH - ev.clientY) / (window.innerHeight - ev.clientY)
+      onePxMoveY =
+        (this.style.imgH - ev.clientY) / (window.innerHeight - ev.clientY)
     }
     // 比较水平方向和垂直方向的计算结果，取比较大的一个值
     // onePxMove 乘以修正系数，进行放大
@@ -361,7 +366,7 @@ class ShowOriginSizeImage {
         this.style.mt = mt
       }
     }
-    
+
     this.setWrapStyle()
   }
 

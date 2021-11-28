@@ -2554,7 +2554,6 @@ __webpack_require__.r(__webpack_exports__);
 // {} 是占位符
 // <br> 是换行
 const langText = {
-    _type: ['cn', 'tw', 'en', 'ja'],
     _只下载已收藏: [
         '只下载已收藏',
         '只下載已收藏',
@@ -6249,10 +6248,11 @@ class ShowOriginSizeImage {
         // 计算横向的 onePxMove
         let onePxMoveX = this.style.imgW / innerWidth;
         if (this.style.imgW > innerWidth) {
-            // 如果图片宽度超出窗口可视宽度
-            const leftWidth = ev.clientX * onePxMoveX;
+            // 如果图片宽度超出窗口可视宽度，计算鼠标左侧和右侧的图像宽度分别是多少
+            const hiddenHalf = (this.style.imgW - innerWidth) / 2;
+            const leftWidth = ev.clientX + hiddenHalf;
             const rightWidth = this.style.imgW - leftWidth;
-            // 计算鼠标左侧和右侧各移动 1 像素时，图片应该移动多少像素。取比较大的一个值
+            // 计算鼠标向左或向右移动 1 像素时，图片应该移动多少像素。取比较大的一个值
             onePxMoveX = Math.max(leftWidth / ev.clientX, rightWidth / (innerWidth - ev.clientX));
         }
         // 计算纵向的 onePxMove
@@ -6260,7 +6260,8 @@ class ShowOriginSizeImage {
         if (this.style.imgH > window.innerHeight) {
             // 如果图片高度超出窗口可视高度，下载器会把图片从顶部显示。此时需要特殊处理 onePxMove
             // 让鼠标从当前位置向下到窗口底部时，可以完整查看整个图片
-            onePxMoveY = (this.style.imgH - ev.clientY) / (window.innerHeight - ev.clientY);
+            onePxMoveY =
+                (this.style.imgH - ev.clientY) / (window.innerHeight - ev.clientY);
         }
         // 比较水平方向和垂直方向的计算结果，取比较大的一个值
         // onePxMove 乘以修正系数，进行放大
@@ -19492,7 +19493,7 @@ __webpack_require__.r(__webpack_exports__);
 // 事件的参数里会传递这个设置项的名称和值，格式如：
 // {name: string, value: any}
 // 如果某个模块要监听特定的设置项，应该使用参数的 name 来判断触发事件的设置项是否是自己需要的设置项
-// 如果不依赖于特定设置项，则应该考虑使用节流（throttle）来限制事件监听器的执行频率，防止造成严重的性能问题
+// 如果不依赖于特定设置项，则应该考虑使用节流或者防抖来限制事件监听器的执行频率，防止造成严重的性能问题
 // EVT.list.settingInitialized
 // 当设置初始化完毕后（恢复保存的设置之后）触发。这个事件在生命周期里只会触发一次。
 // 过程中，每个设置项都会触发一次 settingChange 事件
