@@ -1851,6 +1851,12 @@ const langText = {
     'Become a patron',
     'Become a patron',
   ],
+  _替换方形缩略图以显示图片比例: [
+    '替换方形缩略图以显示图片比例',
+    '替換方形縮圖以顯示圖片比例',
+    'Replace square thumbnails to show image ratio',
+    '正方形のサムネイルを置き換えて、画像の比率を表示します',
+  ],
 }
 
 export { langText }

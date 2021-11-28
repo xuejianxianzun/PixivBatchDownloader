@@ -544,7 +544,11 @@ class InitSearchArtworkPage extends InitPageBase {
             </div>
             <!--图片部分-->
             <div class="imgWrap">
-            <img src="${Tools.convertThumbURLTo540px(data.thumb)}" alt="${
+            <img src="${
+              settings.replaceSquareThumb
+                ? Tools.convertThumbURLTo540px(data.thumb)
+                : data.thumb
+            }" alt="${
       data.title
     }" style="object-fit: contain; object-position: center center;">
               <!-- 动图 svg -->

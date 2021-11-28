@@ -1,11 +1,30 @@
+import { EVT } from './EVT'
+import { settings } from './setting/Settings'
 import { Tools } from './Tools'
 
-class ReplaceThumb {
+class ReplaceSquareThumb {
   constructor() {
-    const allImage = document.querySelectorAll('img')
-    allImage.forEach((img) => this.replace(img))
+    this.bindEvents()
 
     this.observer()
+  }
+
+  private bindEvents() {
+    window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
+      const data = ev.detail.data as any
+      if (data.name === 'replaceSquareThumb') {
+        if (data.value) {
+          this.replaceAllImage()
+        }
+      }
+    })
+  }
+
+  private replaceAllImage() {
+    if (settings.replaceSquareThumb) {
+      const allImage = document.querySelectorAll('img')
+      allImage.forEach((img) => this.replace(img))
+    }
   }
 
   private replace(img: HTMLImageElement) {
@@ -22,6 +41,9 @@ class ReplaceThumb {
 
   private observer() {
     const observer = new MutationObserver((records) => {
+      if (!settings.replaceSquareThumb) {
+        return
+      }
       records.forEach((record) => {
         if (record.type === 'childList') {
           record.addedNodes.forEach((node) => {
@@ -48,4 +70,5 @@ class ReplaceThumb {
     })
   }
 }
-new ReplaceThumb()
+
+new ReplaceSquareThumb()

@@ -4396,6 +4396,12 @@ const langText = {
         'Become a patron',
         'Become a patron',
     ],
+    _替换方形缩略图以显示图片比例: [
+        '替换方形缩略图以显示图片比例',
+        '替換方形縮圖以顯示圖片比例',
+        'Replace square thumbnails to show image ratio',
+        '正方形のサムネイルを置き換えて、画像の比率を表示します',
+    ],
 };
 
 
@@ -5392,22 +5398,41 @@ new PreviewWork();
 
 /***/ }),
 
-/***/ "./src/ts/ReplaceThumb.ts":
-/*!********************************!*\
-  !*** ./src/ts/ReplaceThumb.ts ***!
-  \********************************/
+/***/ "./src/ts/ReplaceSquareThumb.ts":
+/*!**************************************!*\
+  !*** ./src/ts/ReplaceSquareThumb.ts ***!
+  \**************************************/
 /*! no exports provided */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
 
-class ReplaceThumb {
+
+
+class ReplaceSquareThumb {
     constructor() {
-        const allImage = document.querySelectorAll('img');
-        allImage.forEach(img => this.replace(img));
+        this.bindEvents();
         this.observer();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'replaceSquareThumb') {
+                if (data.value) {
+                    this.replaceAllImage();
+                }
+            }
+        });
+    }
+    replaceAllImage() {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].replaceSquareThumb) {
+            const allImage = document.querySelectorAll('img');
+            allImage.forEach((img) => this.replace(img));
+        }
     }
     replace(img) {
         if (!img.src || img.dataset.index) {
@@ -5417,21 +5442,25 @@ class ReplaceThumb {
         if (!src.endsWith('square1200.jpg') && !src.endsWith('custom1200.jpg')) {
             return;
         }
-        img.src = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].convertThumbURLTo540px(src);
+        img.src = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].convertThumbURLTo540px(src);
         img.style.objectFit = 'contain';
     }
     observer() {
         const observer = new MutationObserver((records) => {
-            records.forEach(record => {
+            if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].replaceSquareThumb) {
+                return;
+            }
+            records.forEach((record) => {
                 if (record.type === 'childList') {
-                    record.addedNodes.forEach(node => {
+                    record.addedNodes.forEach((node) => {
                         if (node.nodeName === 'IMG') {
                             this.replace(node);
                         }
                     });
                 }
                 if (record.type === 'attributes') {
-                    if (record.attributeName === 'src' && record.target.nodeName === 'IMG') {
+                    if (record.attributeName === 'src' &&
+                        record.target.nodeName === 'IMG') {
                         this.replace(record.target);
                     }
                 }
@@ -5444,7 +5473,7 @@ class ReplaceThumb {
         });
     }
 }
-new ReplaceThumb();
+new ReplaceSquareThumb();
 
 
 /***/ }),
@@ -6463,8 +6492,11 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '11.4.2';
-        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_whatisnew')}`;
+        this.flag = '11.6.0';
+        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}:
+  <br>
+  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_替换方形缩略图以显示图片比例')}
+  `;
         this.bindEvents();
     }
     bindEvents() {
@@ -7508,7 +7540,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _setting_InvisibleSettings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/InvisibleSettings */ "./src/ts/setting/InvisibleSettings.ts");
 /* harmony import */ var _ListenPageSwitch__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ListenPageSwitch */ "./src/ts/ListenPageSwitch.ts");
 /* harmony import */ var _CenterPanel__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./CenterPanel */ "./src/ts/CenterPanel.ts");
-/* harmony import */ var _ReplaceThumb__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ReplaceThumb */ "./src/ts/ReplaceThumb.ts");
+/* harmony import */ var _ReplaceSquareThumb__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ReplaceSquareThumb */ "./src/ts/ReplaceSquareThumb.ts");
 /* harmony import */ var _InitPage__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./InitPage */ "./src/ts/InitPage.ts");
 /* harmony import */ var _crawlMixedPage_QuickCrawl__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./crawlMixedPage/QuickCrawl */ "./src/ts/crawlMixedPage/QuickCrawl.ts");
 /* harmony import */ var _download_DownloadControl__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./download/DownloadControl */ "./src/ts/download/DownloadControl.ts");
@@ -8845,6 +8877,8 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             59,
             60,
             61,
+            62,
+            63,
         ]);
     }
     nextStep() {
@@ -9307,7 +9341,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             </div>
             <!--图片部分-->
             <div class="imgWrap">
-            <img src="${_Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].convertThumbURLTo540px(data.thumb)}" alt="${data.title}" style="object-fit: contain; object-position: center center;">
+            <img src="${_setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].replaceSquareThumb
+                ? _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].convertThumbURLTo540px(data.thumb)
+                : data.thumb}" alt="${data.title}" style="object-fit: contain; object-position: center center;">
               <!-- 动图 svg -->
               ${ugoiraHTML}
               </div>
@@ -18536,6 +18572,12 @@ const formHtml = `<form class="settingForm">
       <span class="beautify_radio"></span>
       <label for="prevWorkSize2" data-xztext="_普通"></label>
       </p>
+      
+      <p class="option" data-no="63">
+      <span class="settingNameStyle1" data-xztext="_替换方形缩略图以显示图片比例"></span>
+      <input type="checkbox" name="replaceSquareThumb" class="need_beautify checkbox_switch" checked>
+      <span class="beautify_switch"></span>
+      </p>
 
       <p class="option" data-no="62">
       <span class="settingNameStyle1" data-xztext="_长按右键显示大图"></span>
@@ -18821,6 +18863,7 @@ class FormSettings {
                 'PreviewWork',
                 'showDownloadBtnOnThumb',
                 'showOriginImage',
+                'replaceSquareThumb',
             ],
             text: [
                 'setWantPage',
@@ -19758,6 +19801,7 @@ class Settings {
             whatIsNewFlag: 'xuejian&saber',
             tipCreateFolder: true,
             showDownloadTip: true,
+            replaceSquareThumb: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项

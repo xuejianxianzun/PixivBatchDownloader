@@ -95,6 +95,7 @@ class FormSettings {
       'PreviewWork',
       'showDownloadBtnOnThumb',
       'showOriginImage',
+      'replaceSquareThumb',
     ],
     text: [
       'setWantPage',
