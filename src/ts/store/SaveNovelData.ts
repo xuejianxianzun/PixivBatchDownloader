@@ -137,11 +137,11 @@ class SaveNovelData {
     return str
   }
 
-  // > [pixivimage:70551567]
+  // [pixivimage:70551567]
   // 替换成
   // [pixiv image link: <a href="http://pixiv.net/i/70551567" target="_blank">http://pixiv.net/i/70551567</a>]
   private replacePixivImage(str: string) {
-    let reg = /\[pixivimage:(.*?)\]/g
+    let reg = /\[pixivimage:(\d*?)\]/g
     let temp
     while ((temp = reg.exec(str))) {
       const url = `http://pixiv.net/i/${temp[1].trim()}`

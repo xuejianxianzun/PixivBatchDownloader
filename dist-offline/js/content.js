@@ -4475,7 +4475,7 @@ const langText = {
         '替换方形缩略图以显示图片比例',
         '替換方形縮圖以顯示圖片比例',
         'Replace square thumbnails to show image ratio',
-        '正方形のサムネイルを置き換えて、画像の比率を表示します',
+        '正方形のサムネイルを置き換えて、画像のスケールを表示。',
     ],
 };
 
@@ -20524,11 +20524,11 @@ class SaveNovelData {
         }
         return str;
     }
-    // > [pixivimage:70551567]
+    // [pixivimage:70551567]
     // 替换成
     // [pixiv image link: <a href="http://pixiv.net/i/70551567" target="_blank">http://pixiv.net/i/70551567</a>]
     replacePixivImage(str) {
-        let reg = /\[pixivimage:(.*?)\]/g;
+        let reg = /\[pixivimage:(\d*?)\]/g;
         let temp;
         while ((temp = reg.exec(str))) {
             const url = `http://pixiv.net/i/${temp[1].trim()}`;
