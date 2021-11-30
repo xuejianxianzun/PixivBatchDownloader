@@ -22,6 +22,6 @@ package-lock.json
 
 # build file
 *.zip
-/dist
-/dist-offline
-/dist-special-HongYe
+/dist/**
+/dist-offline/**
+/dist-special-HongYe/**
