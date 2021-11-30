@@ -1455,15 +1455,20 @@ class FileName {
     // 生成 {p_num} 标记的值
     createPNum(data) {
         var _a;
-        const index = (_a = data.index) !== null && _a !== void 0 ? _a : _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].getResultIndex(data);
-        // 处理第一张图不带序号的情况
-        if (index === 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].noSerialNo) {
-            return '';
-        }
         // 只有插画和漫画有编号
         if (data.type === 0 || data.type === 1) {
+            const index = (_a = data.index) !== null && _a !== void 0 ? _a : _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].getResultIndex(data);
+            // 处理第一张图不带序号的情况
+            if (index === 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].noSerialNo) {
+                if (data.pageCount === 1 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].noSerialNoForSingleImg) {
+                    return '';
+                }
+                else if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].noSerialNoForMultiImg) {
+                    return '';
+                }
+            }
             const p = index.toString();
-            // 根据需要在前面填充 0
+            // 处理在前面填充 0 的情况
             return _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].zeroPadding
                 ? p.padStart(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].zeroPaddingLength, '0')
                 : p;
@@ -1474,29 +1479,13 @@ class FileName {
         }
     }
     // 生成 {id} 标记的值
-    createId(data) {
-        var _a;
-        const index = (_a = data.index) !== null && _a !== void 0 ? _a : _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].getResultIndex(data);
-        // 处理第一张图不带序号的情况
-        if (index === 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].noSerialNo) {
+    createId(data, p_num) {
+        // 如果不需要添加序号，或者没有序号，则只返回数字 id
+        if (p_num === '') {
             return data.idNum.toString();
         }
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].zeroPadding) {
-            return data.id;
-        }
-        else {
-            // 需要填充 0 的情况
-            // 只有插画和漫画有编号
-            if (data.type === 0 || data.type === 1) {
-                return (data.idNum +
-                    '_p' +
-                    index.toString().padStart(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].zeroPaddingLength, '0'));
-            }
-            else {
-                // 其他类型没有编号，所以不会进行填充，直接返回 id
-                return data.id;
-            }
-        }
+        // 添加序号
+        return `${data.idNum}_p${p_num}`;
     }
     // 返回收藏数的简化显示
     getBKM1000(bmk) {
@@ -1586,6 +1575,7 @@ class FileName {
             r18FolderName;
         // 1 生成所有命名标记的值
         // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
+        const p_num = this.createPNum(data);
         const cfg = {
             '{p_title}': {
                 value: _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].title,
@@ -1598,7 +1588,7 @@ class FileName {
                 safe: false,
             },
             '{id}': {
-                value: this.createId(data),
+                value: this.createId(data, p_num),
                 prefix: '',
                 safe: true,
             },
@@ -1608,7 +1598,7 @@ class FileName {
                 safe: true,
             },
             '{p_num}': {
-                value: !allNameRule.includes('{p_num}') ? null : this.createPNum(data),
+                value: !allNameRule.includes('{p_num}') ? null : p_num,
                 prefix: '',
                 safe: true,
             },
@@ -14186,8 +14176,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _DownloadStates__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./DownloadStates */ "./src/ts/download/DownloadStates.ts");
 /* harmony import */ var _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../utils/IndexedDB */ "./src/ts/utils/IndexedDB.ts");
-/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Toast */ "./src/ts/Toast.ts");
 
 
 
@@ -14219,7 +14209,7 @@ class Resume {
         this.init();
     }
     async init() {
-        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].isPixiv()) {
+        if (!_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].isPixiv()) {
             return;
         }
         await this.initDB();
@@ -14508,7 +14498,7 @@ class Resume {
             this.IDB.clear(this.dataName),
             this.IDB.clear(this.statesName),
         ]);
-        _MsgBox__WEBPACK_IMPORTED_MODULE_7__["msgBox"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数据清除完毕'));
+        _Toast__WEBPACK_IMPORTED_MODULE_8__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_数据清除完毕'));
     }
 }
 const resume = new Resume();
@@ -18389,6 +18379,15 @@ const formHtml = `<form class="settingForm">
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="noSerialNo" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
+
+    <span class="subOptionWrap" data-show="noSerialNo">
+      <input type="checkbox" name="noSerialNoForSingleImg" id="setNoSerialNoForSingleImg" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="setNoSerialNoForSingleImg" data-xztext="_单图作品"></label>
+      <input type="checkbox" name="noSerialNoForMultiImg" id="setNoSerialNoForMultiImg" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="setNoSerialNoForMultiImg" data-xztext="_多图作品"></label>
+    </span>
     </p>
     
     <p class="option" data-no="46">
@@ -18885,6 +18884,8 @@ class FormSettings {
                 'showOriginImage',
                 'replaceSquareThumb',
                 'notFolderWhenOneFile',
+                'noSerialNoForSingleImg',
+                'noSerialNoForMultiImg',
             ],
             text: [
                 'setWantPage',
@@ -19827,6 +19828,8 @@ class Settings {
             showDownloadTip: true,
             replaceSquareThumb: true,
             notFolderWhenOneFile: false,
+            noSerialNoForSingleImg: true,
+            noSerialNoForMultiImg: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
