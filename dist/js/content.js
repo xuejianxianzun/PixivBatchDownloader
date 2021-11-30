@@ -19176,18 +19176,17 @@ class NameRuleManager {
         this.bindEvents();
     }
     bindEvents() {
-        // 页面类型变化时，设置命名规则
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange, () => {
-            this.setInputValue();
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd, () => {
-            this.setInputValue();
+        const evts = [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingInitialized, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.resetSettingsEnd, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitchedTypeChange,];
+        evts.forEach(evt => {
+            window.addEventListener(evt, () => {
+                this.setInputValue();
+            });
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
             const data = ev.detail.data;
             // 当用户开启这个开关时，设置当前页面类型的命名规则
             if (data.name === 'setNameRuleForEachPageType' &&
-                _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].setNameRuleForEachPageType) {
+                data.value) {
                 if (_Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].nameRuleForEachPageType[_PageType__WEBPACK_IMPORTED_MODULE_3__["pageType"].type] !==
                     _Settings__WEBPACK_IMPORTED_MODULE_5__["settings"].userSetName) {
                     this.setInputValue();
