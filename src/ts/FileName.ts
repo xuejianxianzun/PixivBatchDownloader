@@ -428,8 +428,14 @@ class FileName {
     }
     const extResult = '.' + data.ext
 
-    // 6 文件名长度限制
-    // 去掉文件夹部分，只处理 文件名+后缀名 部分
+    // 6 处理不创建文件夹的情况
+    if (settings.notFolderWhenOneFile && store.result.length === 1) {
+      // 舍弃文件夹部分，只保留文件名
+      result = result.split('/').pop()!
+    }
+
+    // 7 文件名长度限制
+    // 不计算文件夹的长度，只计算 文件名+后缀名 部分
     // 理论上文件夹部分也可能会超长，但是实际使用中几乎不会有人这么设置，所以不处理
     if (settings.fileNameLengthLimitSwitch) {
       let limit = settings.fileNameLengthLimit
@@ -446,10 +452,10 @@ class FileName {
       result = allPart.join('/')
     }
 
-    // 7 添加后缀名
+    // 8 添加后缀名
     result += extResult
 
-    // 8 返回结果
+    // 9 返回结果
     return result
   }
 }

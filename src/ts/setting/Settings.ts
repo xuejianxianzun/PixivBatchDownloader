@@ -195,6 +195,7 @@ interface XzSetting {
   tipCreateFolder: boolean
   showDownloadTip: boolean
   replaceSquareThumb: boolean
+  notFolderWhenOneFile: boolean
 }
 
 type SettingsKeys = keyof XzSetting
@@ -378,6 +379,7 @@ class Settings {
     tipCreateFolder: true,
     showDownloadTip: true,
     replaceSquareThumb: true,
+    notFolderWhenOneFile: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

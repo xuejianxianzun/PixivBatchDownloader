@@ -110,4 +110,5 @@ export interface SettingsForm extends HTMLFormElement {
   showOriginImage: HTMLInputElement
   showOriginImageSize: HTMLInputElement
   replaceSquareThumb: HTMLInputElement
+  notFolderWhenOneFile: HTMLInputElement
 }

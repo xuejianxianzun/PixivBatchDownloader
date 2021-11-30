@@ -1,6 +1,5 @@
 import { store } from '../store/Store'
 import { settings } from '../setting/Settings'
-import { Result } from '../store/StoreType'
 import { lang } from '../Lang'
 import { EVT } from '../EVT'
 import { DonwloadSuccessData, DonwloadSkipData } from './DownloadType'
@@ -11,6 +10,7 @@ class BookmarkAfterDL {
   constructor(tipEl?: HTMLElement) {
     if (tipEl) {
       this.tipEl = tipEl
+      lang.register(this.tipEl)
     }
 
     this.bindEvents()
@@ -51,11 +51,14 @@ class BookmarkAfterDL {
 
   private showProgress() {
     if (this.savedIds.length === 0) {
-      return (this.tipEl.textContent = '')
+      lang.updateText(this.tipEl, '')
+      return
     }
-    this.tipEl.textContent = `${lang.transl('_已收藏')} ${this.successCount}/${
-      this.savedIds.length
-    }`
+    lang.updateText(
+      this.tipEl,
+      '_已收藏带参数',
+      `${this.successCount}/${this.savedIds.length}`
+    )
   }
 
   private reset() {
