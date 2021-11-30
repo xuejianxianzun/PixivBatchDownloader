@@ -18506,44 +18506,39 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
-      <p class="option" data-no="16">
-      <span class="has_tip settingNameStyle1" data-xztip="_线程数字">
-      <span data-xztext="_设置下载线程"></span>
-      <span class="gray1"> ? </span></span>
-      <input type="text" name="downloadThread" class="setinput_style1 blue" value="24">
-      </p>
+    <p class="option" data-no="38">
+    <span class="settingNameStyle1" data-xztext="_把r18作品存入指定的文件夹里"></span>
+    <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch"></span>
+    <span class="subOptionWrap" data-show="r18Folder">
+    <span data-xztext="_目录名"></span>
+    <input type="text" name="r18FolderName" class="setinput_style1 blue" style="width:150px;min-width: 150px;" value="[R-18&R-18G]">
+    </span>
+    </p>
 
-      <p class="option" data-no="17">
-      <span class="has_tip settingNameStyle1" data-xztip="_快速下载的提示">
-      <span data-xztext="_自动开始下载"></span>
-      <span class="gray1"> ? </span></span>
-      <input type="checkbox" name="quietDownload" id="setQuietDownload" class="need_beautify checkbox_switch" checked>
-      <span class="beautify_switch"></span>
-      </p>
+    <p class="option" data-no="19">
+    <span class="settingNameStyle1" data-xztext="_为作品建立单独的文件夹"></span>
+    <input type="checkbox" name="workDir" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch"></span>
+    <span class="subOptionWrap" data-show="workDir">
+    <span data-xztext="_文件数量大于"></span>
+    <input type="text" name="workDirFileNumber" class="setinput_style1 blue" value="1" style="width:30px;min-width: 30px;">
+    <span>&nbsp;</span>
+    <span data-xztext="_目录名"></span>
+    <input type="text" name="workDirNameRule" class="setinput_style1 blue" value="{id_num}">
+    </span>
+    </p>
 
-      <p class="option" data-no="33">
-      <span class="has_tip settingNameStyle1" data-xztip="_下载之后收藏作品的提示">
-      <span data-xztext="_下载之后收藏作品"></span>
-      <span class="gray1"> ? </span></span>
-      <input type="checkbox" name="bmkAfterDL" class="need_beautify checkbox_switch">
-      <span class="beautify_switch"></span>
-      </p>
-
-      <p class="option" data-no="52">
-      <span class="settingNameStyle1" data-xztext="_下载完成后显示通知"></span>
-      <input type="checkbox" name="showNotificationAfterDownloadComplete" class="need_beautify checkbox_switch">
-      <span class="beautify_switch"></span>
-      </p>
-
-      <slot data-name="downloadArea"></slot>
-      <slot data-name="progressBar"></slot>
+    <div class="centerWrap_btns">
+      <slot data-name="namingBtns"></slot>
+      <slot data-name="exportResult"></slot>
     </div>
 
     <p class="option" data-no="16">
     <span class="has_tip settingNameStyle1" data-xztip="_线程数字">
     <span data-xztext="_设置下载线程"></span>
     <span class="gray1"> ? </span></span>
-    <input type="text" name="downloadThread" class="setinput_style1 blue" value="5">
+    <input type="text" name="downloadThread" class="setinput_style1 blue" value="24">
     </p>
 
     <p class="option" data-no="17">
