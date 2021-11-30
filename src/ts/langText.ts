@@ -912,16 +912,10 @@ const langText = {
     '新しいバージョンがあります',
   ],
   _快速下载建立文件夹: [
-    '快速下载时，始终创建文件夹',
+    '快速下载时，始终建立文件夹',
     '快速下載時，始終建立資料夾',
     'Always create folder when downloading quickly',
     'クイックダウンロード時、常にフォルダを作成します',
-  ],
-  _快速下载建立文件夹提示: [
-    '快速下载时，如果只有一张图片，也会建立文件夹',
-    '快速下載時，若只有一張圖片，也會建立資料夾',
-    'When downloading quickly, if there is only one picture, a folder is also created',
-    'すばやくダウンロードとき、イラストが一枚だけでも、フォルダも作成されます',
   ],
   _设置id范围: [
     '设置 <span class="key">ID</span> 范围',
@@ -1358,6 +1352,12 @@ const langText = {
   _公开: ['公开', '公開', 'Public', '公開'],
   _不公开: ['不公开', '非公開', 'Private', '非公開'],
   _已收藏: ['已收藏', '已收藏', 'Bookmarked', 'ブックマークした'],
+  _已收藏带参数: [
+    '已收藏 {}',
+    '已收藏 {}',
+    'Bookmarked {}',
+    'ブックマークした {}',
+  ],
   _未收藏: ['未收藏', '未收藏', 'Not bookmarked', 'ブックマークされていない'],
   _下载之后收藏作品: [
     '下载之后<span class="key">收藏</span>作品',
@@ -1464,8 +1464,8 @@ const langText = {
     'Excluded all work types',
     'すべての作品種類を除外しました',
   ],
-  _为作品创建单独的文件夹: [
-    '为<span class="key">每个</span>作品创建单独的文件夹',
+  _为作品建立单独的文件夹: [
+    '为<span class="key">每个</span>作品建立单独的文件夹',
     '為<span class="key">每個</span>作品建立單獨的資料夾',
     'Create a separate folder for <span class="key">each</span> work',
     '作品ごとに別フォルダを作成',
@@ -1576,8 +1576,8 @@ const langText = {
   _对齐方式: ['对齐方式', '對齊方式', 'Alignment', '揃え方式'],
   _顶部: ['顶部', '頂部', 'top', '上揃え'],
   _居中: ['居中', '居中', 'center', '中央揃え'],
-  _根据作品类型自动创建文件夹: [
-    '根据作品<span class="key">类型</span>自动创建文件夹',
+  _根据作品类型自动建立文件夹: [
+    '根据作品<span class="key">类型</span>自动建立文件夹',
     '根據作品<span class="key">類型</span>自動建立資料夾',
     'Create folders based on the <span class="key">type</span> of work',
     '作品種類に応じてフォルダを自動作成',
@@ -1852,10 +1852,16 @@ const langText = {
     'Become a patron',
   ],
   _替换方形缩略图以显示图片比例: [
-    '替换方形缩略图以显示图片比例',
-    '替換方形縮圖以顯示圖片比例',
-    'Replace square thumbnails to show image ratio',
-    '正方形のサムネイルを置き換えて、画像の比率を表示します',
+    '替换方形<span class="key">缩略图</span>以显示图片比例',
+    '替換方形<span class="key">縮圖</span>以顯示圖片比例',
+    'Replace square <span class="key">thumbnails</span> to show image ratio',
+    '正方形のサムネイルを置き換えて、画像のスケールを表示。',
+  ],
+  _只有一个文件时不建立文件夹: [
+    '只有一个文件时<span class="key">不建立</span>文件夹',
+    '只有一個檔案時<span class="key">不建立</span>資料夾',
+    '<span class="key">Do not create</span> a folder when there is only one file',
+    'ファイルが１つのみの場合、フォルダを作成しない',
   ],
 }
 
