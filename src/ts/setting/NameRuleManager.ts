@@ -14,22 +14,21 @@ class NameRuleManager {
   }
 
   private bindEvents() {
-    // 页面类型变化时，设置命名规则
-    window.addEventListener(EVT.list.pageSwitchedTypeChange, () => {
-      this.setInputValue()
-    })
-
-    window.addEventListener(EVT.list.resetSettingsEnd, () => {
-      this.setInputValue()
+    const evts = [
+      EVT.list.settingInitialized,
+      EVT.list.resetSettingsEnd,
+      EVT.list.pageSwitchedTypeChange,
+    ]
+    evts.forEach((evt) => {
+      window.addEventListener(evt, () => {
+        this.setInputValue()
+      })
     })
 
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data as any
       // 当用户开启这个开关时，设置当前页面类型的命名规则
-      if (
-        data.name === 'setNameRuleForEachPageType' &&
-        settings.setNameRuleForEachPageType
-      ) {
+      if (data.name === 'setNameRuleForEachPageType' && data.value) {
         if (
           settings.nameRuleForEachPageType[pageType.type] !==
           settings.userSetName

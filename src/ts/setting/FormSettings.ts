@@ -96,6 +96,7 @@ class FormSettings {
       'showDownloadBtnOnThumb',
       'showOriginImage',
       'replaceSquareThumb',
+      'notFolderWhenOneFile',
     ],
     text: [
       'setWantPage',
