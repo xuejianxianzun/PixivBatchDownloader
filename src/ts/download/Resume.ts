@@ -6,8 +6,8 @@ import { states } from '../store/States'
 import { downloadStates, DLStatesI } from './DownloadStates'
 import { Result } from '../store/StoreType'
 import { IndexedDB } from '../utils/IndexedDB'
-import { msgBox } from '../MsgBox'
 import { Utils } from '../utils/Utils'
+import { toast } from '../Toast'
 
 interface TaskMeta {
   id: number
@@ -411,7 +411,7 @@ class Resume {
       this.IDB.clear(this.dataName),
       this.IDB.clear(this.statesName),
     ])
-    msgBox.success(lang.transl('_数据清除完毕'))
+    toast.success(lang.transl('_数据清除完毕'))
   }
 }
 

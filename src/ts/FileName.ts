@@ -30,17 +30,20 @@ class FileName {
 
   // 生成 {p_num} 标记的值
   private createPNum(data: Result) {
-    const index = data.index ?? Tools.getResultIndex(data)
-
-    // 处理第一张图不带序号的情况
-    if (index === 0 && settings.noSerialNo) {
-      return ''
-    }
-
     // 只有插画和漫画有编号
     if (data.type === 0 || data.type === 1) {
+      const index = data.index ?? Tools.getResultIndex(data)
+      // 处理第一张图不带序号的情况
+      if (index === 0 && settings.noSerialNo) {
+        if (data.pageCount === 1 && settings.noSerialNoForSingleImg) {
+          return ''
+        } else if (settings.noSerialNoForMultiImg) {
+          return ''
+        }
+      }
+
       const p = index.toString()
-      // 根据需要在前面填充 0
+      // 处理在前面填充 0 的情况
       return settings.zeroPadding
         ? p.padStart(settings.zeroPaddingLength, '0')
         : p
@@ -51,30 +54,13 @@ class FileName {
   }
 
   // 生成 {id} 标记的值
-  private createId(data: Result) {
-    const index = data.index ?? Tools.getResultIndex(data)
-
-    // 处理第一张图不带序号的情况
-    if (index === 0 && settings.noSerialNo) {
+  private createId(data: Result, p_num: string) {
+    // 如果不需要添加序号，或者没有序号，则只返回数字 id
+    if (p_num === '') {
       return data.idNum.toString()
     }
-
-    if (!settings.zeroPadding) {
-      return data.id
-    } else {
-      // 需要填充 0 的情况
-      // 只有插画和漫画有编号
-      if (data.type === 0 || data.type === 1) {
-        return (
-          data.idNum +
-          '_p' +
-          index.toString().padStart(settings.zeroPaddingLength, '0')
-        )
-      } else {
-        // 其他类型没有编号，所以不会进行填充，直接返回 id
-        return data.id
-      }
-    }
+    // 添加序号
+    return `${data.idNum}_p${p_num}`
   }
 
   // 返回收藏数的简化显示
@@ -190,6 +176,7 @@ class FileName {
 
     // 1 生成所有命名标记的值
     // 对于一些较为耗时的计算，先判断用户设置的命名规则里是否使用了这个标记，如果未使用则不计算
+    const p_num = this.createPNum(data)
     const cfg = {
       '{p_title}': {
         value: store.title,
@@ -202,7 +189,7 @@ class FileName {
         safe: false,
       },
       '{id}': {
-        value: this.createId(data),
+        value: this.createId(data, p_num),
         prefix: '',
         safe: true,
       },
@@ -212,7 +199,7 @@ class FileName {
         safe: true,
       },
       '{p_num}': {
-        value: !allNameRule.includes('{p_num}') ? null : this.createPNum(data),
+        value: !allNameRule.includes('{p_num}') ? null : p_num,
         prefix: '',
         safe: true,
       },
