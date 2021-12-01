@@ -523,6 +523,15 @@ export const formHtml = `<form class="settingForm">
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="noSerialNo" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
+
+    <span class="subOptionWrap" data-show="noSerialNo">
+      <input type="checkbox" name="noSerialNoForSingleImg" id="setNoSerialNoForSingleImg" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="setNoSerialNoForSingleImg" data-xztext="_单图作品"></label>
+      <input type="checkbox" name="noSerialNoForMultiImg" id="setNoSerialNoForMultiImg" class="need_beautify checkbox_common" checked>
+      <span class="beautify_checkbox"></span>
+      <label for="setNoSerialNoForMultiImg" data-xztext="_多图作品"></label>
+    </span>
     </p>
     
     <p class="option" data-no="46">

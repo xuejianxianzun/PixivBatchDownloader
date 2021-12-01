@@ -97,6 +97,8 @@ class FormSettings {
       'showOriginImage',
       'replaceSquareThumb',
       'notFolderWhenOneFile',
+      'noSerialNoForSingleImg',
+      'noSerialNoForMultiImg',
     ],
     text: [
       'setWantPage',

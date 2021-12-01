@@ -196,6 +196,8 @@ interface XzSetting {
   showDownloadTip: boolean
   replaceSquareThumb: boolean
   notFolderWhenOneFile: boolean
+  noSerialNoForSingleImg: boolean
+  noSerialNoForMultiImg: boolean
 }
 
 type SettingsKeys = keyof XzSetting
@@ -380,6 +382,8 @@ class Settings {
     showDownloadTip: true,
     replaceSquareThumb: true,
     notFolderWhenOneFile: false,
+    noSerialNoForSingleImg: true,
+    noSerialNoForMultiImg: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
