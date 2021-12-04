@@ -4403,6 +4403,12 @@ const langText = {
         '<span class="key">Do not create</span> a folder when there is only one file',
         'ファイルが１つのみの場合、フォルダを作成しない',
     ],
+    _搜索页面页数限制: [
+        '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',
+        '由於 pixiv 的限制，下載器最多隻能抓取到第 {} 頁。',
+        'Due to the limitation of pixiv, the downloader can only crawl up to the {}th page.',
+        'pixiv の制限により、ダウンローダーは {} ページ目までしかクロールできません。',
+    ],
 };
 
 
@@ -9443,11 +9449,12 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_20__["crawlTagList"].init();
     }
     setFormOption() {
+        const isPremium = _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].isPremium();
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
             text: '_下载多少页面',
             tip: '_从本页开始下载提示',
-            rangTip: '_数字提示1',
+            rangTip: `1 - ${isPremium ? 5000 : 1000}`,
         });
     }
     addCrawlBtns() {
@@ -9540,6 +9547,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }
         if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
             this.crawlNumber = pageCount;
+            _Log__WEBPACK_IMPORTED_MODULE_9__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索页面页数限制', pageCount.toString()));
         }
         // 计算从当前页面开始抓取的话，有多少页
         let needFetchPage = pageCount - this.startpageNo + 1;
@@ -11826,7 +11834,7 @@ class InitRankingNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_
             return;
         }
         this.listPageFinished++;
-        const rankingItem = dom.querySelectorAll('._ranking-items>div');
+        const rankingItem = dom.querySelectorAll('._ranking-items>div[id]');
         // 检查每个作品的信息
         for (const item of rankingItem) {
             const rank = parseInt(item.querySelector('h1').innerText);
@@ -11999,11 +12007,12 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         });
     }
     setFormOption() {
+        const isPremium = _Tools__WEBPACK_IMPORTED_MODULE_9__["Tools"].isPremium();
         // 个数/页数选项的提示
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].setWantPageTip({
             text: '_下载多少页面',
             tip: '_从本页开始下载提示',
-            rangTip: '_数字提示1',
+            rangTip: `1 - ${isPremium ? 5000 : 1000}`,
         });
     }
     initAny() {
@@ -12042,6 +12051,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         }
         if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
             this.crawlNumber = pageCount;
+            _Log__WEBPACK_IMPORTED_MODULE_7__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索页面页数限制', pageCount.toString()));
         }
         // 计算从当前页面开始抓取的话，有多少页
         let needFetchPage = pageCount - this.startpageNo + 1;

@@ -84,11 +84,12 @@ class InitSearchArtworkPage extends InitPageBase {
   private crawlStartBySelf = false
 
   protected setFormOption() {
+    const isPremium = Tools.isPremium()
     // 个数/页数选项的提示
     options.setWantPageTip({
       text: '_下载多少页面',
       tip: '_从本页开始下载提示',
-      rangTip: '_数字提示1',
+      rangTip: `1 - ${isPremium ? 5000 : 1000}`,
     })
   }
 
@@ -223,6 +224,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
       this.crawlNumber = pageCount
+      log.warning(lang.transl('_搜索页面页数限制', pageCount.toString()))
     }
 
     // 计算从当前页面开始抓取的话，有多少页

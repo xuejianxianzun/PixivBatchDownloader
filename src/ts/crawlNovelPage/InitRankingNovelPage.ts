@@ -87,7 +87,7 @@ class InitRankingNovelPage extends InitPageBase {
     this.listPageFinished++
 
     const rankingItem = dom.querySelectorAll(
-      '._ranking-items>div'
+      '._ranking-items>div[id]'
     ) as NodeListOf<HTMLDivElement>
 
     // 检查每个作品的信息
