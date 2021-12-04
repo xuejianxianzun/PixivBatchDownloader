@@ -1863,6 +1863,12 @@ const langText = {
     '<span class="key">Do not create</span> a folder when there is only one file',
     'ファイルが１つのみの場合、フォルダを作成しない',
   ],
+  _搜索页面页数限制: [
+    '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',
+    '由於 pixiv 的限制，下載器最多隻能抓取到第 {} 頁。',
+    'Due to the limitation of pixiv, the downloader can only crawl up to the {}th page.',
+    'pixiv の制限により、ダウンローダーは {} ページ目までしかクロールできません。',
+  ],
 }
 
 export { langText }
