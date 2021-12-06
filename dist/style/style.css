@@ -1517,7 +1517,11 @@ iframe[name='expandedFooter'] {
   width: 50px !important;
 }
 .viewer-backdrop .viewer-navbar .viewer-list li img {
+  width: 50px !important;
+  height: 50px !important;
   transform: unset !important;
+  object-fit: contain;
+  object-position: center center;
 }
 .rotate360 {
   transform: rotate(360deg);

@@ -53,7 +53,7 @@
 
 [访问官网](https://pixiv.download/)
 
-[在 Bilibili 查看视频教程](https://www.bilibili.com/video/BV1g54y1v7nV)
+[在 YouTube 查看视频教程](https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d)
 
 # 安装
 
