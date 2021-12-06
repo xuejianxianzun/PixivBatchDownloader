@@ -33,8 +33,6 @@ class Resume {
     this.init()
   }
 
-  public flag = false // 指示是否处于恢复模式
-
   private IDB: IndexedDB
   private readonly DBName = 'PBD'
   private readonly DBVer = 3
@@ -63,8 +61,12 @@ class Resume {
     }
 
     await this.initDB()
-    this.restoreData()
     this.bindEvents()
+
+    if (states.settingInitialized) {
+      this.restoreData()
+    }
+
     this.regularPutStates()
     this.clearExired()
   }
@@ -116,7 +118,6 @@ class Resume {
       'url'
     )) as TaskMeta | null
     if (!meta) {
-      this.flag = false
       return
     }
 
@@ -159,11 +160,7 @@ class Resume {
     store.crawlCompleteTime = meta.date
 
     // 恢复模式就绪
-    this.flag = true
-
     log.success(lang.transl('_已恢复抓取结果'), 2)
-
-    // 发出恢复下载的信号
     EVT.fire('resume')
   }
 
@@ -252,24 +249,19 @@ class Resume {
         for (const id of dataIdList) {
           this.IDB.delete(this.dataName, id)
         }
-        this.flag = false
       })
     }
 
-    // 开始新的抓取时，取消恢复模式
-    window.addEventListener(EVT.list.crawlStart, () => {
-      this.flag = false
-    })
-
     // 切换页面时，重新检查恢复数据
-    window.addEventListener(EVT.list.pageSwitch, () => {
-      this.flag = false
-      this.restoreData()
+    const restoreEvt = [EVT.list.pageSwitch, EVT.list.settingInitialized]
+    restoreEvt.forEach((evt) => {
+      window.addEventListener(evt, () => {
+        this.restoreData()
+      })
     })
 
     // 清空已保存的抓取结果
     window.addEventListener(EVT.list.clearSavedCrawl, () => {
-      this.flag = false
       this.clearSavedCrawl()
     })
   }
@@ -415,5 +407,4 @@ class Resume {
   }
 }
 
-const resume = new Resume()
-export { resume }
+new Resume()
