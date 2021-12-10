@@ -7779,7 +7779,7 @@ class InitPageBase {
     getMultipleSetting() {
         // 获取作品张数设置
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].firstFewImagesSwitch) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品只下载前几张图片') + _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].firstFewImages);
+            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品只下载前几张图片')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].firstFewImages}`);
         }
     }
     // 准备正常进行抓取，执行一些检查
@@ -9247,7 +9247,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 }
             }
         };
-        // 抓取完成后，保存结果的元数据，并重排结果
+        // 抓取完成后，保存结果的元数据，并重新添加抓取结果
         this.onCrawlFinish = () => {
             // 当从图片查看器发起下载时，也会触发抓取完毕的事件，但此时不应该调整搜索页面的结果。
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].downloadFromViewer || _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList || _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].quickCrawl) {

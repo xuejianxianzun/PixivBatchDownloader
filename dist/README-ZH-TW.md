@@ -96,22 +96,25 @@
 
 [https://afdian.net/@xuejianxianzun](https://afdian.net/@xuejianxianzun)
 
-2. 可透過微信和支付寶掃碼轉帳
+2. 國外的贊助網站 Patreon
+ 
+[https://www.patreon.com/xuejianxianzun](https://www.patreon.com/xuejianxianzun)
+
+3. 可透過微信和支付寶掃碼轉帳
 
 ![支付寶](https://i.loli.net/2019/04/04/5ca5627614396.png) ![微信](https://i.loli.net/2019/04/04/5ca5627630bb4.png)
 
-
 # 開發
 
-本工具的開發環境為 Node.JS。
+1. 本工具在開發時需要先安裝 Node.JS。
 
-- 全域安裝以下依賴：
+2. 全域安裝以下依賴：
 
 ```
 npm i -g less prettier typescript webpack webpack-cli
 ```
 
-- Clone 本項目（或者先 Fork），並安裝依賴：
+3. Clone 本項目（或者先 Fork），並安裝依賴：
 
 ```
 git clone https://github.com/xuejianxianzun/PixivBatchDownloader.git
@@ -121,21 +124,25 @@ cd ./PixivBatchDownloader
 npm i
 ```
 
-- 部分構建流程的指令：
+至此初始化完成。
+
+你可以在瀏覽器的擴充管理中，載入 `dist` 資料夾作為擴充功能，以進行本地除錯。
+
+-----------
+
+本項目的 npm 命令：
 
 ```
 npm run ts  // 編譯 ts 檔案到 dist 資料夾
 npm run less // 編譯 less 檔案到 dist 資料夾
 npm run fmt // 格式化所有檔案
+
+npm run pre-build // 執行 fmt、ts、less 命令（即編譯所有程式碼，但是不打包）
+
+npm run build // 執行 fmt、ts、less 命令，並把打包所需的其他檔案也複製到 dist 資料夾，最後把 dist 資料夾打包成 zip 檔案
 ```
 
-- 一次執行所有構建流程並打包：
-
-```
-npm run build
-```
-
-- 在瀏覽器的擴充管理中，載入 dist 資料夾作為擴充。
+當你修改了程式碼並且編譯之後，程式碼會被編譯到 `dist` 資料夾。你需要在瀏覽器的擴充管理裡重新整理離線載入的這個擴充功能，然後重新整理 pixiv 頁面，以應用新的程式碼。
 
 # 幫助
 

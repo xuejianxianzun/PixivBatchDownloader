@@ -409,7 +409,7 @@ class InitSearchArtworkPage extends InitPageBase {
     }
   }
 
-  // 抓取完成后，保存结果的元数据，并重排结果
+  // 抓取完成后，保存结果的元数据，并重新添加抓取结果
   private onCrawlFinish = () => {
     // 当从图片查看器发起下载时，也会触发抓取完毕的事件，但此时不应该调整搜索页面的结果。
     if (states.downloadFromViewer || states.crawlTagList || states.quickCrawl) {
