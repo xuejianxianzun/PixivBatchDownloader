@@ -176,7 +176,7 @@ class CenterPanel {
     this.centerPanel
       .querySelector('.showDownTip')!
       .addEventListener('click', () =>
-        msgBox.show(lang.transl('_下载说明'), {
+        msgBox.show(lang.transl('_常见问题说明'), {
           title: lang.transl('_常见问题'),
         })
       )

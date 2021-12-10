@@ -1396,6 +1396,9 @@
   padding: 7px 20px;
   border-radius: 6px;
 }
+.xz_msg_box a {
+  color: #0ea8ef;
+}
 .theme-dark.xz_msg_box {
   background: #222;
   box-shadow: #10506e 0px 0px 15px;

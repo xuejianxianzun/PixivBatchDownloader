@@ -7,7 +7,7 @@ import { settings, setSetting } from './setting/Settings'
 class Help {
   public showDownloadTip() {
     if (settings.showDownloadTip) {
-      msgBox.show(lang.transl('_下载说明提示2'))
+      msgBox.show(lang.transl('_首次下载显示的提示'))
       setSetting('showDownloadTip', false)
     }
   }
