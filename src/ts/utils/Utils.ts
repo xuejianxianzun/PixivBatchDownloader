@@ -18,8 +18,10 @@ class Utils {
     ['~', '～'],
   ]
 
+  // reg 预先创建，而不是运行时创建，因为运行时重复创建太多次了
+
+  // 用正则去掉不安全的字符
   static replaceUnsafeStr(str: string) {
-    // 用正则去掉不安全的字符
     str = str.replace(this.unsafeStr, '')
     // 把一些特殊字符替换成全角字符
     for (let index = 0; index < this.fullWidthDict.length; index++) {

@@ -53,7 +53,7 @@
 
 [访问官网](https://pixiv.download/)
 
-[在 Bilibili 查看视频教程](https://www.bilibili.com/video/BV1g54y1v7nV)
+[在 YouTube 查看视频教程](https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d)
 
 # 安装
 
@@ -95,26 +95,29 @@
 
 如果您感觉本脚本帮到了您，您可以对我进行支持和捐助，不胜感激 (*╹▽╹*)
 
-1. 国内的众筹赞助平台“爱发电”（类似于 patreon）。
+1. 国内的众筹赞助平台“爱发电”（类似于 patreon）：
 
 [https://afdian.net/@xuejianxianzun](https://afdian.net/@xuejianxianzun)
 
-2. 可通过微信和支付宝扫码转账
+2. 可通过微信和支付宝扫码转账：
 
 ![支付宝](https://i.loli.net/2019/04/04/5ca5627614396.png) ![微信](https://i.loli.net/2019/04/04/5ca5627630bb4.png)
 
+3. 国外的赞助网站 Patreon：
+ 
+[https://www.patreon.com/xuejianxianzun](https://www.patreon.com/xuejianxianzun)
 
 # 开发
 
-本工具的开发环境为 Node.JS。
+1. 本工具在开发时需要先安装 Node.JS。
 
-- 全局安装以下依赖：
+2. 全局安装以下依赖：
 
 ```
 npm i -g less prettier typescript webpack webpack-cli
 ```
 
-- Clone 本项目（或者先 Fork），并安装依赖：
+3. Clone 本项目（或者先 Fork），并安装依赖：
 
 ```
 git clone https://github.com/xuejianxianzun/PixivBatchDownloader.git
@@ -124,21 +127,25 @@ cd ./PixivBatchDownloader
 npm i
 ```
 
-- 部分构建流程的命令：
+至此初始化完成。
+
+你可以在浏览器的扩展管理里，加载 `dist` 文件夹作为扩展程序，以进行本地调试。
+
+-----------
+
+本项目的 npm 命令：
 
 ```
 npm run ts  // 编译 ts 文件到 dist 文件夹
 npm run less // 编译 less 文件到 dist 文件夹
 npm run fmt // 格式化所有文件
+
+npm run pre-build // 执行 fmt、ts、less 命令（即编译所有代码，但是不打包）
+
+npm run build // 执行 fmt、ts、less 命令，并把打包所需的其他文件也复制到 dist 文件夹，最后把 dist 文件夹打包成 zip 文件
 ```
 
-- 一键执行所有构建流程并打包：
-
-```
-npm run build
-```
-
-- 在浏览器的扩展管理里，加载 dist 文件夹作为扩展。
+当你修改了代码并且编译之后，代码会被编译到 `dist` 文件夹。你需要在浏览器的扩展管理里刷新离线加载的这个扩展，然后刷新 pixiv 页面，以应用新的代码。
 
 # 帮助
 

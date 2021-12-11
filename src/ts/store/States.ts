@@ -8,6 +8,9 @@ class States {
     this.bindEvents()
   }
 
+  // 指示 settings 是否初始化完毕
+  public settingInitialized = false
+
   // 表示下载器是否处于繁忙状态
   // 繁忙：下载器正在抓取作品，或者正在下载文件，或者正在批量添加收藏
   public busy = false
@@ -43,6 +46,10 @@ class States {
   public downloading = false
 
   private bindEvents() {
+    window.addEventListener(EVT.list.settingInitialized, () => {
+      this.settingInitialized = true
+    })
+
     const idle = [
       EVT.list.crawlFinish,
       EVT.list.downloadPause,

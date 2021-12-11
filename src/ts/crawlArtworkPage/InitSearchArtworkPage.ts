@@ -84,11 +84,12 @@ class InitSearchArtworkPage extends InitPageBase {
   private crawlStartBySelf = false
 
   protected setFormOption() {
+    const isPremium = Tools.isPremium()
     // 个数/页数选项的提示
     options.setWantPageTip({
       text: '_下载多少页面',
       tip: '_从本页开始下载提示',
-      rangTip: '_数字提示1',
+      rangTip: `1 - ${isPremium ? 5000 : 1000}`,
     })
   }
 
@@ -223,6 +224,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
       this.crawlNumber = pageCount
+      log.warning(lang.transl('_搜索页面页数限制', pageCount.toString()))
     }
 
     // 计算从当前页面开始抓取的话，有多少页
@@ -282,9 +284,15 @@ class InitSearchArtworkPage extends InitPageBase {
       }
     })
 
-    // 如果没有指定标签匹配模式，则使用 s_tag 标签（部分一致）
-    // s_tag_full 是标签（完全一致）
-    this.option.s_mode = this.option.s_mode ?? 's_tag'
+    // 如果 url 里没有显式指定标签匹配模式，则使用 完全一致 模式
+    // 因为在这种情况下，pixiv 默认使用的就是 完全一致
+    // 之前默认使用 部分一致 来获取更多搜索结果，但是因为抓取的作品与用户看到的作品不完全一致，造成了困扰
+    // 所以现在改为和 pixiv 显示的内容保持一致
+    if (!this.option.s_mode) {
+      // s_tag 标签（部分一致）
+      // s_tag_full 标签（完全一致）
+      this.option.s_mode = 's_tag_full'
+    }
   }
 
   // 获取搜索页的数据。因为有多处使用，所以进行了封装
@@ -407,7 +415,7 @@ class InitSearchArtworkPage extends InitPageBase {
     }
   }
 
-  // 抓取完成后，保存结果的元数据，并重排结果
+  // 抓取完成后，保存结果的元数据，并重新添加抓取结果
   private onCrawlFinish = () => {
     // 当从图片查看器发起下载时，也会触发抓取完毕的事件，但此时不应该调整搜索页面的结果。
     if (states.downloadFromViewer || states.crawlTagList || states.quickCrawl) {

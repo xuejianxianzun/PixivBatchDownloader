@@ -20,7 +20,6 @@ import { ShowDownloadStates } from './ShowDownloadStates'
 import { ShowSkipCount } from './ShowSkipCount'
 import { ShowConvertCount } from './ShowConvertCount'
 import { BookmarkAfterDL } from './BookmarkAfterDL'
-import { resume } from './Resume'
 import { states } from '../store/States'
 import { Config } from '../config/Config'
 import { toast } from '../Toast'
@@ -72,9 +71,9 @@ class DownloadControl {
 
   private wrapper: HTMLDivElement = document.createElement('div')
 
-  private stop = false // 是否停止下载
+  private stop = false // 是否已经停止下载
 
-  private pause = false // 是否暂停下载
+  private pause = false // 是否已经暂停下载
 
   private bindEvents() {
     window.addEventListener(EVT.list.crawlStart, () => {
@@ -87,7 +86,9 @@ class DownloadControl {
       EVT.list.resultChange,
       EVT.list.resume,
     ]) {
-      window.addEventListener(ev, () => {
+      window.addEventListener(ev, (ev) => {
+        // 当恢复了未完成的抓取数据时，将下载状态设置为暂停
+        this.pause = ev.type === 'resume'
         // 让开始下载的方法进入任务队列，以便让监听上述事件的其他部分的代码先执行完毕
         window.setTimeout(() => {
           this.readyDownload()
@@ -239,14 +240,18 @@ class DownloadControl {
 
   // 开始下载
   private startDownload() {
-    if (!this.pause && !resume.flag) {
-      // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
-      // 初始化下载状态列表
-      downloadStates.init()
-    } else {
+    if (states.busy) {
+      return
+    }
+
+    if (this.pause) {
       // 从上次中断的位置继续下载
       // 把“使用中”的下载状态重置为“未使用”
       downloadStates.resume()
+    } else {
+      // 如果之前没有暂停任务，也没有进入恢复模式，则重新下载
+      // 初始化下载状态列表
+      downloadStates.init()
     }
 
     this.reset()
