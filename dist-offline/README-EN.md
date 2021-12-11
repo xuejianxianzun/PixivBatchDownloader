@@ -15,6 +15,7 @@
 - [Wiki](#wiki)
 - [Patreon](#patreon)
 - [Thanks](#thanks)
+- [Development](#development)
 - [Help](#help)
   - [Supported languages](#supported-languages)
   - [Tips](#tips)
@@ -91,6 +92,46 @@ Note: Currently only available in Chinese. Welcome to translate!
 - Thanks [光の軌跡](https://github.com/jiaer24) for translating traditional Japanese.
 
 - Thanks [z2n](https://github.com/z2n) for improvements to the program.
+
+# Development
+
+1. This tool needs to be installed Node.JS first during development.
+
+2. Install the following dependencies globally:
+
+```
+npm i -g less prettier typescript webpack webpack-cli
+```
+
+3. Clone this project (or fork first) and install dependencies:
+
+```
+git clone https://github.com/xuejianxianzun/PixivBatchDownloader.git
+
+cd ./PixivBatchDownloader
+
+npm i
+```
+
+So far, the initialization is complete.
+
+You can load the `dist` folder as an extension in the extension management of your browser for local debugging.
+
+-----------
+
+The npm command of this project:
+
+```
+npm run ts // compile ts file to dist folder
+npm run less // compile less files to the dist folder
+npm run fmt // format all files
+
+npm run pre-build // execute fmt, ts, less commands (compile all code, but do not package)
+
+npm run build // execute fmt, ts, less commands, and copy other files needed for packaging to the dist folder, and finally pack the dist folder into a zip file
+```
+
+When you modify the code and compile it, the code will be compiled to the `dist` folder. You need to refresh the offline loaded extension in the browser's extension management, and then refresh the pixiv page to apply the new code.
 
 # Help
 

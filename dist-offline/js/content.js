@@ -528,7 +528,6 @@ class CenterPanel {
         this.addCenterPanel();
         _Theme__WEBPACK_IMPORTED_MODULE_3__["theme"].register(this.centerPanel);
         _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].register(this.centerPanel);
-        this.showDonationLink();
         this.activeTab(Tabbar.Crawl);
         new _setting_BG__WEBPACK_IMPORTED_MODULE_6__["BG"](this.centerPanel);
         new _BoldKeywords__WEBPACK_IMPORTED_MODULE_9__["BoldKeywords"](this.centerPanel);
@@ -580,12 +579,11 @@ class CenterPanel {
       <slot data-name="form"></slot>
 
       <div class="help_bar gray1"> 
-      <button class="textButton gray1 showDownTip" type="button" data-xztext="_常见问题"></button>
+      <button class="textButton gray1" id="showDownTip" type="button" data-xztext="_常见问题"></button>
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
-      <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank" data-xztext="_fanboxDownloader"></a>
-      <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">在“爱发电”赞助我</a>
-      <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank" data-xztext="_在Patreon赞助我"></a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
+      <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank" data-xztext="_fanboxDownloader"></a>
+      <button class="textButton gray1" id="showPatronTip" type="button" data-xztext="_赞助我"></button>
       <br>
       </div>
 
@@ -648,9 +646,14 @@ class CenterPanel {
         });
         // 显示常见问题
         this.centerPanel
-            .querySelector('.showDownTip')
-            .addEventListener('click', () => _MsgBox__WEBPACK_IMPORTED_MODULE_5__["msgBox"].show(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_下载说明'), {
+            .querySelector('#showDownTip')
+            .addEventListener('click', () => _MsgBox__WEBPACK_IMPORTED_MODULE_5__["msgBox"].show(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_常见问题说明'), {
             title: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_常见问题'),
+        }));
+        this.centerPanel
+            .querySelector('#showPatronTip')
+            .addEventListener('click', () => _MsgBox__WEBPACK_IMPORTED_MODULE_5__["msgBox"].show(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_赞助方式提示'), {
+            title: _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_赞助我'),
         }));
         this.centerPanel.addEventListener('click', (e) => {
             const ev = e || window.event;
@@ -693,18 +696,7 @@ class CenterPanel {
         });
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.langChange, () => {
             this.setLangFlag();
-            this.showDonationLink();
         });
-    }
-    showDonationLink() {
-        if (_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].type === 'zh-cn') {
-            document.getElementById('zanzhu').style.display = 'inline-block';
-            document.getElementById('patreon').style.display = 'none';
-        }
-        else {
-            document.getElementById('zanzhu').style.display = 'none';
-            document.getElementById('patreon').style.display = 'inline-block';
-        }
     }
     // 设置激活的选项卡
     activeTab(no = 0) {
@@ -1921,7 +1913,7 @@ __webpack_require__.r(__webpack_exports__);
 class Help {
     showDownloadTip() {
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].showDownloadTip) {
-            _MsgBox__WEBPACK_IMPORTED_MODULE_0__["msgBox"].show(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_下载说明提示2'));
+            _MsgBox__WEBPACK_IMPORTED_MODULE_0__["msgBox"].show(_Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].transl('_首次下载显示的提示'));
             Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_2__["setSetting"])('showDownloadTip', false);
         }
     }
@@ -2289,7 +2281,7 @@ class ImageViewer {
         li.setAttribute('title', _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_收藏') + ' (Alt + B)');
         li.classList.add(this.addBtnClass);
         li.style.fontSize = '14px';
-        li.textContent = '❤';
+        li.textContent = '✩';
         li.id = 'imageViewerBookmarkBtn';
         this.addBtn(li);
         li.addEventListener('click', async () => {
@@ -3247,13 +3239,13 @@ const langText = {
         'If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.',
         'ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
     ],
-    _下载说明: [
-        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br><br>QQ群：675174717',
+    _常见问题说明: [
+        '下载的文件保存在浏览器的下载目录里。<br><br>建议在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果下载后的文件名异常，请禁用其他有下载功能的浏览器扩展。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。<br><br>QQ群：675174717<br><br>中文教程视频：<br><a href="https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d" target="_blank">https://www.youtube.com/playlist?list=PLO2Mj4AiZzWEpN6x_lAG8mzeNyJzd478d</a>',
         '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。<br><br>如果下載後的檔名異常，請停用其他有下載功能的瀏覽器擴充功能。',
         'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.<br><br>If the file name after downloading is abnormal, disable other browser extensions that have download capabilities.',
         'ダウンロードしたファイルは、ブラウザのダウンロードディレクトリに保存されます。<br><br>ブラウザのダウンロード設定で 「 ダウンロード前に各ファイルの保存場所を確認する 」 をオフにすることをお勧めします。<br><br>ダウンロード後のファイル名が異常な場合は、ダウンロード機能を持つ他のブラウザ拡張機能を無効にしてください。',
     ],
-    _下载说明提示2: [
+    _首次下载显示的提示: [
         '下载的文件保存在浏览器的下载目录里。<br><br>建议您在浏览器的下载设置中关闭“下载前询问每个文件的保存位置”。<br><br>如果你使用 ssr、v2ray 等代理软件，开启全局代理有助于提高下载速度。',
         '下載的檔案儲存在瀏覽器的下載目錄裡。<br><br>請不要在瀏覽器的下載選項裡選取「下載每個檔案前先詢問儲存位置」。',
         'The downloaded file is saved in the browser`s download directory. <br><br>It is recommended to turn off "Ask where to save each file before downloading" in the browser`s download settings.',
@@ -4465,6 +4457,33 @@ const langText = {
         '在 Patreon 贊助我',
         'Become a patron',
         'Become a patron',
+    ],
+    _赞助我: ['赞助我', '贊助我', 'Sponsor me', '支援する'],
+    _赞助方式提示: [
+        `非常感谢您的支持！<br>
+    您可以在 Patreon 上赞助我：<br>
+    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
+    中国大陆用户可以在“爱发电”上赞助我：<br>
+    <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
+    也可以扫描二维码：<br>
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 675174717 查看二维码。
+    `,
+        `非常感謝您的支援！<br>
+    您可以在 Patreon 上贊助我：<br>
+    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
+    中國大陸使用者可以在“愛發電”上贊助我：<br>
+    <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
+    也可以掃描二維碼：<br>
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上檢視二維碼</a> 或者加入 QQ 群 675174717 檢視二維碼。
+    `,
+        `Thank you very much for your support!<br>
+    You can sponsor me on Patreon: <br>
+    <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a>
+    `,
+        `ご支援してくださった皆様、本当にありがとうございました。<br>
+    ご支援してくださった方は、以下の Patreon で：<br>
+    <a href="https://www.patreon.com/xuejianxianzun" target="_blank"> https://www.patreon.com/xuejianxianzun </a>
+    `,
     ],
     _替换方形缩略图以显示图片比例: [
         '替换方形<span class="key">缩略图</span>以显示图片比例',
@@ -7855,7 +7874,7 @@ class InitPageBase {
     getMultipleSetting() {
         // 获取作品张数设置
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].firstFewImagesSwitch) {
-            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品只下载前几张图片') + _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].firstFewImages);
+            _Log__WEBPACK_IMPORTED_MODULE_5__["log"].warning(`${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_多图作品只下载前几张图片')} ${_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].firstFewImages}`);
         }
     }
     // 准备正常进行抓取，执行一些检查
@@ -9323,7 +9342,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 }
             }
         };
-        // 抓取完成后，保存结果的元数据，并重排结果
+        // 抓取完成后，保存结果的元数据，并重新添加抓取结果
         this.onCrawlFinish = () => {
             // 当从图片查看器发起下载时，也会触发抓取完毕的事件，但此时不应该调整搜索页面的结果。
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].downloadFromViewer || _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList || _store_States__WEBPACK_IMPORTED_MODULE_14__["states"].quickCrawl) {
@@ -9642,7 +9661,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     }
     // 组织要请求的 url 中的参数
     initFetchURL() {
-        var _a, _b;
+        var _a;
         // 从 URL 中获取分类。可能有语言标识。
         /*
         https://www.pixiv.net/tags/Fate%2FGrandOrder/illustrations
@@ -9677,9 +9696,15 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 this.option[param] = value;
             }
         });
-        // 如果没有指定标签匹配模式，则使用 s_tag 标签（部分一致）
-        // s_tag_full 是标签（完全一致）
-        this.option.s_mode = (_b = this.option.s_mode) !== null && _b !== void 0 ? _b : 's_tag';
+        // 如果 url 里没有显式指定标签匹配模式，则使用 完全一致 模式
+        // 因为在这种情况下，pixiv 默认使用的就是 完全一致
+        // 之前默认使用 部分一致 来获取更多搜索结果，但是因为抓取的作品与用户看到的作品不完全一致，造成了困扰
+        // 所以现在改为和 pixiv 显示的内容保持一致
+        if (!this.option.s_mode) {
+            // s_tag 标签（部分一致）
+            // s_tag_full 标签（完全一致）
+            this.option.s_mode = 's_tag_full';
+        }
     }
     // 获取搜索页的数据。因为有多处使用，所以进行了封装
     async getSearchData(p) {
@@ -21398,8 +21423,9 @@ const secretSignal = new SecretSignal();
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Utils", function() { return Utils; });
 class Utils {
+    // reg 预先创建，而不是运行时创建，因为运行时重复创建太多次了
+    // 用正则去掉不安全的字符
     static replaceUnsafeStr(str) {
-        // 用正则去掉不安全的字符
         str = str.replace(this.unsafeStr, '');
         // 把一些特殊字符替换成全角字符
         for (let index = 0; index < this.fullWidthDict.length; index++) {
