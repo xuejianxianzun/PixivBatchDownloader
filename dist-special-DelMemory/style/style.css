@@ -777,9 +777,6 @@
 .centerWrap .centerWrap_con .settingForm .radio:checked + .beautify_radio::after {
   transform: translate(-50%, -50%) scale(1);
 }
-.centerWrap .centerWrap_con .settingForm .showDownTip {
-  cursor: pointer;
-}
 .centerWrap .centerWrap_con .settingForm .centerWrap_top_btn:hover,
 .centerWrap .centerWrap_con .settingForm .showFileNameTip:hover,
 .centerWrap .centerWrap_con .settingForm .textButton:hover,
@@ -1396,6 +1393,9 @@
   padding: 7px 20px;
   border-radius: 6px;
 }
+.xz_msg_box a {
+  color: #0ea8ef;
+}
 .theme-dark.xz_msg_box {
   background: #222;
   box-shadow: #10506e 0px 0px 15px;
@@ -1517,7 +1517,11 @@ iframe[name='expandedFooter'] {
   width: 50px !important;
 }
 .viewer-backdrop .viewer-navbar .viewer-list li img {
+  width: 50px !important;
+  height: 50px !important;
   transform: unset !important;
+  object-fit: contain;
+  object-position: center center;
 }
 .rotate360 {
   transform: rotate(360deg);
