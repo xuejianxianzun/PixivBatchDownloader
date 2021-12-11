@@ -22,7 +22,6 @@ class CenterPanel {
     this.addCenterPanel()
     theme.register(this.centerPanel)
     lang.register(this.centerPanel)
-    this.showDonationLink()
     this.activeTab(Tabbar.Crawl)
 
     new BG(this.centerPanel)
@@ -86,12 +85,11 @@ class CenterPanel {
       <slot data-name="form"></slot>
 
       <div class="help_bar gray1"> 
-      <button class="textButton gray1 showDownTip" type="button" data-xztext="_常见问题"></button>
+      <button class="textButton gray1" id="showDownTip" type="button" data-xztext="_常见问题"></button>
       <a class="gray1" href="https://xuejianxianzun.github.io/PBDWiki" target="_blank" data-xztext="_wiki"></a>
-      <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank" data-xztext="_fanboxDownloader"></a>
-      <a id="zanzhu" class="gray1 patronText" href="https://afdian.net/@xuejianxianzun" target="_blank">在“爱发电”赞助我</a>
-      <a id="patreon" class="gray1 patronText" href="https://www.patreon.com/xuejianxianzun" target="_blank" data-xztext="_在Patreon赞助我"></a>
       <a class="gray1" href="https://discord.gg/eW9JtTK" target="_blank">Discord</a>
+      <a class="gray1" href="https://github.com/xuejianxianzun/PixivFanboxDownloader" target="_blank" data-xztext="_fanboxDownloader"></a>
+      <button class="textButton gray1" id="showPatronTip" type="button" data-xztext="_赞助我"></button>
       <br>
       </div>
 
@@ -174,10 +172,18 @@ class CenterPanel {
 
     // 显示常见问题
     this.centerPanel
-      .querySelector('.showDownTip')!
+      .querySelector('#showDownTip')!
       .addEventListener('click', () =>
         msgBox.show(lang.transl('_常见问题说明'), {
           title: lang.transl('_常见问题'),
+        })
+      )
+
+    this.centerPanel
+      .querySelector('#showPatronTip')!
+      .addEventListener('click', () =>
+        msgBox.show(lang.transl('_赞助方式提示'), {
+          title: lang.transl('_赞助我'),
         })
       )
 
@@ -227,18 +233,7 @@ class CenterPanel {
 
     window.addEventListener(EVT.list.langChange, () => {
       this.setLangFlag()
-      this.showDonationLink()
     })
-  }
-
-  private showDonationLink() {
-    if (lang.type === 'zh-cn') {
-      document.getElementById('zanzhu')!.style.display = 'inline-block'
-      document.getElementById('patreon')!.style.display = 'none'
-    } else {
-      document.getElementById('zanzhu')!.style.display = 'none'
-      document.getElementById('patreon')!.style.display = 'inline-block'
-    }
   }
 
   // 设置激活的选项卡

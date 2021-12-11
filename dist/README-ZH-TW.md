@@ -92,15 +92,15 @@
 
 如果您感覺本腳本幫到了您，您可以對我進行支持和捐助，不勝感激 (*╹▽╹*)
 
-1. 中國的眾籌贊助平台「愛發電」（類似於 patreon）。
+1. 中國的眾籌贊助平台「愛發電」（類似於 patreon）：
 
 [https://afdian.net/@xuejianxianzun](https://afdian.net/@xuejianxianzun)
 
-2. 國外的贊助網站 Patreon
+2. 國外的贊助網站 Patreon：
  
 [https://www.patreon.com/xuejianxianzun](https://www.patreon.com/xuejianxianzun)
 
-3. 可透過微信和支付寶掃碼轉帳
+3. 可透過微信和支付寶掃碼轉帳：
 
 ![支付寶](https://i.loli.net/2019/04/04/5ca5627614396.png) ![微信](https://i.loli.net/2019/04/04/5ca5627630bb4.png)
 

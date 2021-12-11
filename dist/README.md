@@ -95,14 +95,17 @@
 
 如果您感觉本脚本帮到了您，您可以对我进行支持和捐助，不胜感激 (*╹▽╹*)
 
-1. 国内的众筹赞助平台“爱发电”（类似于 patreon）。
+1. 国内的众筹赞助平台“爱发电”（类似于 patreon）：
 
 [https://afdian.net/@xuejianxianzun](https://afdian.net/@xuejianxianzun)
 
-2. 可通过微信和支付宝扫码转账
+2. 可通过微信和支付宝扫码转账：
 
 ![支付宝](https://i.loli.net/2019/04/04/5ca5627614396.png) ![微信](https://i.loli.net/2019/04/04/5ca5627630bb4.png)
 
+3. 国外的赞助网站 Patreon：
+ 
+[https://www.patreon.com/xuejianxianzun](https://www.patreon.com/xuejianxianzun)
 
 # 开发
 

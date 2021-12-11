@@ -458,7 +458,7 @@ class ImageViewer {
     li.setAttribute('title', lang.transl('_收藏') + ' (Alt + B)')
     li.classList.add(this.addBtnClass)
     li.style.fontSize = '14px'
-    li.textContent = '❤'
+    li.textContent = '✩'
     li.id = 'imageViewerBookmarkBtn'
     this.addBtn(li)
 
