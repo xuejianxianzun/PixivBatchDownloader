@@ -113,7 +113,7 @@ class Filter {
     }
 
     // 检查宽高设置
-    if (!this.checkSetWh(option.width, option.height)) {
+    if (!this.checkWidthHeight(option.width, option.height)) {
       return false
     }
 
@@ -261,8 +261,8 @@ class Filter {
     if (settings.multiImageWorkImageLimit > 0) {
       log.warning(
         lang.transl('_多图作品的图片数量限制') +
-          '：' +
-          settings.multiImageWorkImageLimit
+        '：' +
+        settings.multiImageWorkImageLimit
       )
     }
   }
@@ -303,11 +303,9 @@ class Filter {
       const andOr = settings.setWidthAndOr
         .replace('|', lang.transl('_或者'))
         .replace('&', lang.transl('_并且'))
-      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${
-        settings.setWidth
-      } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${
-        settings.setHeight
-      }`
+      const text = `${lang.transl('_宽度')} ${settings.widthHeightLimit} ${settings.setWidth
+        } ${andOr} ${lang.transl('_高度')} ${settings.widthHeightLimit} ${settings.setHeight
+        }`
       log.warning(text)
     }
   }
@@ -665,16 +663,17 @@ class Filter {
   }
 
   // 检查作品是否符合过滤宽高的条件
-  private checkSetWh(
+  private checkWidthHeight(
     width: FilterOption['width'],
     height: FilterOption['height']
   ) {
-    if (!settings.setWHSwitch) {
-      return true
-    }
-
-    // 缺少必要的参数
-    if (width === undefined || height === undefined) {
+    if (
+      !settings.setWHSwitch ||
+      width === undefined ||
+      height === undefined ||
+      width === 0 ||
+      height === 0
+    ) {
       return true
     }
 
@@ -715,11 +714,9 @@ class Filter {
     width: FilterOption['width'],
     height: FilterOption['height']
   ) {
-    if (!settings.ratioSwitch) {
-      return true
-    }
-
-    if (width === undefined || height === undefined) {
+    if (!settings.ratioSwitch ||width === undefined || height === undefined ||
+      width === 0 ||
+      height === 0) {
       return true
     }
 

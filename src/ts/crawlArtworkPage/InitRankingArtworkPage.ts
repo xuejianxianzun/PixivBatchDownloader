@@ -141,15 +141,16 @@ class InitRankingArtworkPage extends InitPageBase {
         return this.getIdListFinished()
       }
 
-      // 目前，数据里并没有包含收藏数量，所以在这里没办法检查收藏数量要求
+      const pageCount = parseInt(data.illust_page_count)
+      // 目前这个数据里并没有包含收藏数量，所以在这里没办法检查收藏数量要求
       const filterOpt: FilterOption = {
         id: data.illust_id,
         workType: parseInt(data.illust_type) as any,
         tags: data.tags,
-        pageCount: parseInt(data.illust_page_count),
+        pageCount: pageCount,
         bookmarkData: data.is_bookmarked,
-        width: data.width,
-        height: data.height,
+        width: pageCount === 1 ? data.width : 0,
+        height: pageCount === 1 ? data.height : 0,
         yes_rank: data.yes_rank,
         userId: data.user_id.toString(),
       }

@@ -241,6 +241,7 @@ class Utils {
     document.body.append(e)
   }
 
+  // 加载一个图片，当 onload 事件发生之后返回 img 元素
   static async loadImg(url: string) {
     return new Promise<HTMLImageElement>((resolve, reject) => {
       const img = new Image()
@@ -251,6 +252,30 @@ class Utils {
       img.onerror = () => {
         reject(new Error(`Load image error! url: ${url}`))
       }
+    })
+  }
+
+  // 加载图片并在获取到其宽高之后立即返回宽高数值。不需要等待图片加载完毕
+  static async getImageSize(
+    url: string
+  ): Promise<{
+    width: number
+    height: number
+  }> {
+    return new Promise((resolve) => {
+      const img = new Image()
+      img.src = url
+      const getImageSizeTimer = window.setInterval(() => {
+        if (img.naturalWidth > 0) {
+          window.clearInterval(getImageSizeTimer)
+          const wh = {
+            width: img.naturalWidth,
+            height: img.naturalHeight,
+          }
+          img.src = ''
+          return resolve(wh)
+        }
+      }, 30)
     })
   }
 
