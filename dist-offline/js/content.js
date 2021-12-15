@@ -4433,10 +4433,14 @@ const langText = {
         '複数画像をプレビューする際に、マウスホイールを使って画像を切り替えることができます。',
     ],
     _whatisnew: [
-        '优化“预览作品”功能：<br>用户可以设置鼠标悬停时间。',
-        '最佳化“預覽作品”功能：<br>使用者可以設定滑鼠懸停時間。',
-        'Optimize the "Preview works" function: <br>The user can set the mouse hover time.',
-        '「作品のプレビュー」機能の最適化：<br>ユーザーはマウスのホバー時間を設定できます。',
+        `提高对多图作品进行宽高检查时的准确性。<br>
+    如果你设置了宽高条件，下载时可能会花费更多的时间用于进行宽高检查。`,
+        `提高對多圖作品進行寬高檢查時的準確性。<br>
+    如果你設定了寬高條件，下載時可能會花費更多的時間用於進行寬高檢查。`,
+        `Improve the accuracy when checking the width and height of multi-image works. <br>
+    If you set the width and height conditions, it may take more time to check the width and height when downloading.`,
+        `マルチイメージ作品の幅と高さをチェックする際の精度を向上させます。 <br>
+    幅と高さの条件を設定すると、ダウンロード時に幅と高さの確認に時間がかかる場合があります。`,
     ],
     _等待时间: ['等待时间', '等待時間', 'Waiting time', '待ち時間'],
     _格式错误: ['格式错误', '格式錯誤', 'Format error', 'フォーマットエラー'],
@@ -4642,7 +4646,7 @@ class Log {
             _config_Colors__WEBPACK_IMPORTED_MODULE_3__["Colors"].textWarning,
             _config_Colors__WEBPACK_IMPORTED_MODULE_3__["Colors"].textError,
         ];
-        this.max = 200;
+        this.max = 100;
         this.count = 0;
         this.toBottom = false; // 指示是否需要把日志滚动到底部。当有日志被添加或刷新，则为 true。滚动到底部之后复位到 false，避免一直滚动到底部。
         this.scrollToBottom();
@@ -5157,6 +5161,7 @@ class PreviewWork {
     constructor() {
         // 预览作品的容器的元素
         this.wrapId = 'previewWorkWrap';
+        this.img = document.createElement('img');
         this.border = 8; // border 占据的空间
         this.tipId = 'previewWorkTip';
         this.tipHeight = 22;
@@ -5240,8 +5245,6 @@ class PreviewWork {
         this.tip = document.createElement('div');
         this.tip.id = this.tipId;
         this.wrap.appendChild(this.tip);
-        this.img = document.createElement('img');
-        this.wrap.appendChild(this.img);
         document.body.appendChild(this.wrap);
     }
     bindEvents() {
@@ -5286,10 +5289,6 @@ class PreviewWork {
         this.wrap.addEventListener('click', () => {
             this.show = false;
         });
-        this.img.addEventListener('load', () => {
-            // 当图片加载完成时，预加载下一张图片
-            this.preload();
-        });
     }
     preload() {
         // 如果下载器正在下载文件，则不预加载
@@ -5299,8 +5298,20 @@ class PreviewWork {
                 let url = this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize];
                 url = url.replace('p0', `p${this.index + 1}`);
                 let img = new Image();
+                // 在预加载过程中，如果查看的图片变化了，或者不显示预览区域了，则立即中断预加载
+                const nowIndex = this.index;
+                const timer = window.setInterval(() => {
+                    if (this.index !== nowIndex || !this.show) {
+                        window.clearInterval(timer);
+                        img && (img.src = '');
+                        img = null;
+                    }
+                }, 50);
+                img.onload = () => {
+                    window.clearInterval(timer);
+                    img && (img = null);
+                };
                 img.src = url;
-                img.onload = () => (img = null);
             }
         }
     }
@@ -5359,10 +5370,11 @@ class PreviewWork {
         }
         const url = this.replaceUrl(this.workData.body.urls[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].prevWorkSize]);
         const size = await this.getImageSize(url);
-        if (!size.available) {
+        // getImageSize 可能需要花费比较长的时间。有时候在 getImageSize 之前是要显示 wrap 的，但是之后鼠标移出，需要隐藏 wrap，再之后 getImageSize 才执行完毕。
+        // 所以此时需要再次判断是否要显示 wrap。如果不再次判断的话，可能有时候需要隐藏预览图，但是预览图却显示出来了
+        if (!size.available || !this.show) {
             return;
         }
-        this.img.src = url;
         const w = size.width;
         const h = size.height;
         const cfg = {
@@ -5371,6 +5383,19 @@ class PreviewWork {
             left: 0,
             top: 0,
         };
+        // 每次显示图片时，都销毁旧的 img 元素，然后重新生成一个 img 元素，而不是修改之前的 img 元素的 src
+        // 因为修改 src 的方式存在严重的问题：虽然 src 已经变化了，但是 img 元素显示的还是上一张图片（不管上一张图片是否加载完成）。等到新的图片完全加载完成后，img 才会变化。
+        // 这会导致一些问题：
+        // 1. 在新图片的加载过程中，用户无法看到加载进度。只能等到图片加载完成后瞬间完全显示出来。
+        // 2. 在新图片的加载过程中，图片的宽高是新图片的宽高，但是显示的内容还是旧的图片。如果这两张图片的尺寸不一致，此时显示的（旧）图片看上去是变形的
+        // 只有生成新的 img 元素，才能解决上面的问题
+        this.img.src = '';
+        this.img.remove();
+        this.img = document.createElement('img');
+        // 当图片加载完成时，预加载下一张图片
+        this.img.onload = () => this.preload();
+        this.img.src = url;
+        this.wrap.appendChild(this.img);
         // 1. 计算图片显示的尺寸
         const rect = this.workEL.getBoundingClientRect();
         // 计算各个可用区域的尺寸，提前减去了 border、tip 等元素占据的空间
@@ -6382,8 +6407,7 @@ class ShowOriginSizeImage {
             }
         });
     }
-    async getImageSize(url) {
-        // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。所以每次执行前需要重置一些变量
+    async getImage(url) {
         window.clearInterval(this.getImageSizeTimer);
         this.testImg.src = '';
         return new Promise((resolve) => {
@@ -6407,7 +6431,7 @@ class ShowOriginSizeImage {
         this.zoom = this.zoomList[this.zoomIndex];
         this.style = this.defaultStyle;
         // 获取图片的原始宽高
-        this.img = await this.getImageSize(url);
+        this.img = await this.getImage(url);
         this.style.imgW = this.img.naturalWidth;
         this.style.imgH = this.img.naturalHeight;
         this.style.width = this.style.imgW;
@@ -6593,11 +6617,8 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '11.6.0';
-        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}:
-  <br>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_替换方形缩略图以显示图片比例')}
-  `;
+        this.flag = '11.6.5';
+        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_whatisnew')}`;
         this.bindEvents();
     }
     bindEvents() {
@@ -8577,8 +8598,8 @@ class InitArtworkSeriesPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 id: work.id,
                 tags: work.tags,
                 bookmarkData: !!work.bookmarkData,
-                width: work.width,
-                height: work.height,
+                width: work.pageCount === 1 ? work.width : 0,
+                height: work.pageCount === 1 ? work.height : 0,
                 workType: work.illustType,
                 userId: work.userId,
                 createDate: work.createDate,
@@ -8769,7 +8790,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-// 初始化 大家的新作品 artwork 页面
+// 初始化 本站的最新作品 artwork 页面
 
 
 
@@ -8856,8 +8877,8 @@ class InitNewArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             }
             const filterOpt = {
                 id: nowData.id,
-                width: nowData.width,
-                height: nowData.height,
+                width: nowData.pageCount === 1 ? nowData.width : 0,
+                height: nowData.pageCount === 1 ? nowData.height : 0,
                 pageCount: nowData.pageCount,
                 bookmarkData: nowData.bookmarkData,
                 workType: nowData.illustType,
@@ -9199,15 +9220,16 @@ class InitRankingArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODUL
             if (data.rank > this.crawlNumber) {
                 return this.getIdListFinished();
             }
-            // 目前，数据里并没有包含收藏数量，所以在这里没办法检查收藏数量要求
+            const pageCount = parseInt(data.illust_page_count);
+            // 目前这个数据里并没有包含收藏数量，所以在这里没办法检查收藏数量要求
             const filterOpt = {
                 id: data.illust_id,
                 workType: parseInt(data.illust_type),
                 tags: data.tags,
-                pageCount: parseInt(data.illust_page_count),
+                pageCount: pageCount,
                 bookmarkData: data.is_bookmarked,
-                width: data.width,
-                height: data.height,
+                width: pageCount === 1 ? data.width : 0,
+                height: pageCount === 1 ? data.height : 0,
                 yes_rank: data.yes_rank,
                 userId: data.user_id.toString(),
             };
@@ -9746,8 +9768,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             const filterOpt = {
                 createDate: nowData.createDate,
                 id: nowData.id,
-                width: nowData.width,
-                height: nowData.height,
+                width: nowData.pageCount === 1 ? nowData.width : 0,
+                height: nowData.pageCount === 1 ? nowData.height : 0,
                 pageCount: nowData.pageCount,
                 bookmarkData: nowData.bookmarkData,
                 workType: nowData.illustType,
@@ -9885,8 +9907,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 tags: data.tags,
                 bookmarkCount: data.bmk,
                 bookmarkData: data.bookmarked,
-                width: data.fullWidth,
-                height: data.fullHeight,
+                width: data.pageCount === 1 ? data.fullWidth : 0,
+                height: data.pageCount === 1 ? data.fullHeight : 0,
                 createDate: data.date,
                 userId: data.userId,
                 xRestrict: data.xRestrict,
@@ -10498,8 +10520,8 @@ class InitBookmarkNewPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                 }
                 const filterOpt = {
                     id: data.id,
-                    width: data.width,
-                    height: data.height,
+                    width: data.pageCount === 1 ? data.width : 0,
+                    height: data.pageCount === 1 ? data.height : 0,
                     pageCount: data.pageCount,
                     bookmarkData: data.bookmarkData,
                     workType: data.illustType,
@@ -11537,7 +11559,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../store/Store */ "./src/ts/store/Store.ts");
 /* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../Log */ "./src/ts/Log.ts");
 /* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
-// 初始化 大家的新作小说页面
+// 初始化 本站的最新作品 小说页面
 
 
 
@@ -12723,7 +12745,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
 // 下载文件，然后发送给浏览器进行保存
+
 
 
 
@@ -12739,46 +12763,82 @@ __webpack_require__.r(__webpack_exports__);
 
 class Download {
     constructor(progressBarIndex, data) {
-        this.fileName = '';
         this.retry = 0; // 重试次数
         this.lastRequestTime = 0; // 最后一次发起请求的时间戳
         this.retryInterval = []; // 保存每次到达重试环节时，距离上一次请求的时间差
-        this.cancel = false; // 这个下载是否被取消（下载被停止，或者这个文件没有通过某个检查）
         this.sizeChecked = false; // 是否对文件体积进行了检查
+        this.skip = false; // 这个下载是否应该被跳过。如果这个文件不符合某些过滤条件就应该跳过它
+        this.error = false; // 在下载过程中是否出现了无法解决的错误
         this.progressBarIndex = progressBarIndex;
-        this.download(data);
-        this.bindEvents();
+        this.beforeDownload(data);
     }
-    bindEvents() {
-        ;
-        [_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadStop, _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.downloadPause].forEach((event) => {
-            window.addEventListener(event, () => {
-                this.cancel = true;
-            });
-        });
+    get cancel() {
+        return this.skip || this.error || !_store_States__WEBPACK_IMPORTED_MODULE_13__["states"].downloading;
     }
-    // 设置进度条信息
-    setProgressBar(loaded, total) {
-        _ProgressBar__WEBPACK_IMPORTED_MODULE_5__["progressBar"].setProgress(this.progressBarIndex, {
-            name: this.fileName,
-            loaded: loaded,
-            total: total,
-        });
-    }
-    // 跳过某个文件的下载，可以传入警告消息
-    skip(data, msg) {
-        this.cancel = true;
+    // 跳过下载这个文件。可以传入用于提示的文本
+    skipDownload(data, msg) {
+        this.skip = true;
         if (msg) {
             _Log__WEBPACK_IMPORTED_MODULE_1__["log"].warning(msg);
         }
-        _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('skipDownload', data);
+        if (_store_States__WEBPACK_IMPORTED_MODULE_13__["states"].downloading) {
+            _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('skipDownload', data);
+        }
+    }
+    // 在开始下载前进行检查
+    async beforeDownload(arg) {
+        // 检查是否是重复文件
+        const duplicate = await _Deduplication__WEBPACK_IMPORTED_MODULE_7__["deduplication"].check(arg.data);
+        if (duplicate) {
+            return this.skipDownload({
+                id: arg.id,
+                reason: 'duplicate',
+            }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_跳过下载因为重复文件', arg.id));
+        }
+        // 如果是动图，再次检查是否排除了动图
+        // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
+        if (arg.data.type === 2 && !_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downType2) {
+            return this.skipDownload({
+                id: arg.id,
+                reason: 'excludedType',
+            });
+        }
+        // 检查宽高条件和宽高比
+        if ((_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].setWHSwitch || _setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].ratioSwitch) && arg.data.type !== 3) {
+            // 默认使用当前作品中第一张图片的宽高
+            let wh = {
+                width: arg.data.fullWidth,
+                height: arg.data.fullHeight,
+            };
+            // 如果不是第一张图片，则加载图片以获取宽高
+            if (arg.data.index > 0) {
+                // 始终获取原图的尺寸
+                wh = await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__["Utils"].getImageSize(arg.data.original);
+            }
+            const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check(wh);
+            if (!result) {
+                return this.skipDownload({
+                    id: arg.id,
+                    reason: 'widthHeight',
+                }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为宽高', arg.id));
+            }
+        }
+        this.download(arg);
+    }
+    // 设置进度条信息
+    setProgressBar(name, loaded, total) {
+        _ProgressBar__WEBPACK_IMPORTED_MODULE_5__["progressBar"].setProgress(this.progressBarIndex, {
+            name,
+            loaded,
+            total,
+        });
     }
     // 当重试达到最大次数时
     afterReTryMax(status, fileId) {
         // 404, 500 错误，跳过，不会再尝试下载这个文件（因为没有触发 downloadError 事件，所以不会重试下载）
         if (status === 404 || status === 500) {
             _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(`Error: ${fileId} Code: ${status}`);
-            return this.skip({
+            return this.skipDownload({
                 id: fileId,
                 reason: status.toString(),
             });
@@ -12799,31 +12859,15 @@ class Download {
             }
         }
         // 其他状态码，暂时跳过这个任务，但最后还是会尝试重新下载它
-        this.cancel = true;
+        this.error = true;
         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('downloadError', fileId);
     }
     // 下载文件
     async download(arg) {
-        // 检查是否是重复文件
-        const duplicate = await _Deduplication__WEBPACK_IMPORTED_MODULE_7__["deduplication"].check(arg.data);
-        if (duplicate) {
-            return this.skip({
-                id: arg.id,
-                reason: 'duplicate',
-            }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_跳过下载因为重复文件', arg.id));
-        }
-        // 如果是动图，再次检查是否排除了动图
-        // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
-        if (arg.data.type === 2 && !_setting_Settings__WEBPACK_IMPORTED_MODULE_8__["settings"].downType2) {
-            return this.skip({
-                id: arg.id,
-                reason: 'excludedType',
-            });
-        }
         // 获取文件名
-        this.fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__["fileName"].getFileName(arg.data);
+        const _fileName = _FileName__WEBPACK_IMPORTED_MODULE_3__["fileName"].getFileName(arg.data);
         // 重设当前下载栏的信息
-        this.setProgressBar(0, 0);
+        this.setProgressBar(_fileName, 0, 0);
         // 下载文件
         let url;
         if (arg.data.type === 3) {
@@ -12851,8 +12895,8 @@ class Download {
                 const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check({ size: event.total });
                 if (!result) {
                     // 当因为体积问题跳过下载时，可能这个下载进度还是 0 或者很少，所以这里直接把进度条拉满
-                    this.setProgressBar(1, 1);
-                    this.skip({
+                    this.setProgressBar(_fileName, 1, 1);
+                    this.skipDownload({
                         id: arg.id,
                         reason: 'size',
                     }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为体积', arg.id));
@@ -12863,9 +12907,9 @@ class Download {
                 xhr = null;
                 return;
             }
-            this.setProgressBar(event.loaded, event.total);
+            this.setProgressBar(_fileName, event.loaded, event.total);
         });
-        // 图片获取完毕（出错时也会进入 loadend）
+        // 文件记载完毕，或者加载出错
         xhr.addEventListener('loadend', async () => {
             if (this.cancel) {
                 xhr = null;
@@ -12914,7 +12958,7 @@ class Download {
                         // 因为会重试所以不再日志上显示
                         // log.error(msg, 1)
                         console.error(msg);
-                        this.cancel = true;
+                        this.error = true;
                         _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('downloadError', arg.id);
                     }
                 }
@@ -12932,30 +12976,14 @@ class Download {
                     mini: blobUrl,
                 });
                 if (!result) {
-                    return this.skip({
+                    return this.skipDownload({
                         id: arg.id,
                         reason: 'color',
                     }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为颜色', arg.id));
                 }
             }
-            // 检查图片的宽高设置
-            // 因为抓取时只能检查每个作品第一张图片的宽高，所以可能会出现作品的第一张图片符合要求，但后面的图片不符合要求的情况。这里针对第一张之后的其他图片也进行检查，提高准确率。
-            if ((arg.data.type === 0 || arg.data.type === 1) &&
-                !arg.data.id.includes('p0')) {
-                const img = await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__["Utils"].loadImg(blobUrl);
-                const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check({
-                    width: img.naturalWidth,
-                    height: img.naturalHeight,
-                });
-                if (!result) {
-                    return this.skip({
-                        id: arg.id,
-                        reason: 'widthHeight',
-                    }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为宽高', arg.id));
-                }
-            }
             // 向浏览器发送下载任务
-            this.browserDownload(blobUrl, this.fileName, arg.id, arg.taskBatch);
+            this.browserDownload(blobUrl, _fileName, arg.id, arg.taskBatch);
             xhr = null;
             file = null;
         });
@@ -13862,8 +13890,8 @@ class ImportResult {
                 tags: result.tagsWithTransl,
                 bookmarkCount: result.bmk,
                 bookmarkData: result.bookmarked,
-                width: result.fullWidth,
-                height: result.fullHeight,
+                width: result.pageCount === 1 ? result.fullWidth : 0,
+                height: result.pageCount === 1 ? result.fullHeight : 0,
                 createDate: result.date,
                 userId: result.userId,
                 xRestrict: result.xRestrict,
@@ -14554,11 +14582,25 @@ class Resume {
     async clearExired() {
         // 数据的过期时间，设置为 30 天。30*24*60*60*1000
         const expiryTime = 2592000000;
+        // 每隔一天检查一次数据是否过期
         const nowTime = new Date().getTime();
+        let lastCheckTime = 0;
+        const storeName = 'lastCheckExired';
+        const data = localStorage.getItem(storeName);
+        if (data === null) {
+            localStorage.setItem(storeName, lastCheckTime.toString());
+        }
+        else {
+            lastCheckTime = Number.parseInt(data);
+        }
+        if (nowTime - lastCheckTime < 86400000) {
+            return;
+        }
+        localStorage.setItem(storeName, nowTime.toString());
+        // 检查数据是否过期
         const callback = (item) => {
             if (item) {
                 const data = item.value;
-                // 检查数据是否过期
                 if (nowTime - data.id > expiryTime) {
                     this.IDB.delete(this.metaName, data.id);
                     this.IDB.delete(this.statesName, data.id);
@@ -15601,7 +15643,7 @@ class Filter {
             return false;
         }
         // 检查宽高设置
-        if (!this.checkSetWh(option.width, option.height)) {
+        if (!this.checkWidthHeight(option.width, option.height)) {
             return false;
         }
         // 检查宽高比设置
@@ -16039,12 +16081,12 @@ class Filter {
         return true;
     }
     // 检查作品是否符合过滤宽高的条件
-    checkSetWh(width, height) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWHSwitch) {
-            return true;
-        }
-        // 缺少必要的参数
-        if (width === undefined || height === undefined) {
+    checkWidthHeight(width, height) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWHSwitch ||
+            width === undefined ||
+            height === undefined ||
+            width === 0 ||
+            height === 0) {
             return true;
         }
         const setWidth = _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].setWidth;
@@ -16083,10 +16125,11 @@ class Filter {
     }
     // 检查作品是否符合宽高比条件
     checkRatio(width, height) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratioSwitch) {
-            return true;
-        }
-        if (width === undefined || height === undefined) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratioSwitch ||
+            width === undefined ||
+            height === undefined ||
+            width === 0 ||
+            height === 0) {
             return true;
         }
         if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratio === 'square') {
@@ -20309,7 +20352,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 保存单个图片作品的数据
+// 保存图片作品的数据
 class SaveArtworkData {
     async save(data) {
         // 获取需要检查的信息
@@ -20328,8 +20371,8 @@ class SaveArtworkData {
             pageCount: body.pageCount,
             bookmarkCount: bmk,
             bookmarkData: body.bookmarkData,
-            width: fullWidth,
-            height: fullHeight,
+            width: body.pageCount === 1 ? fullWidth : 0,
+            height: body.pageCount === 1 ? fullHeight : 0,
             mini: body.urls.mini,
             userId: body.userId,
             xRestrict: body.xRestrict,
@@ -21607,6 +21650,7 @@ class Utils {
         e.innerHTML = css;
         document.body.append(e);
     }
+    // 加载一个图片，当 onload 事件发生之后返回 img 元素
     static async loadImg(url) {
         return new Promise((resolve, reject) => {
             const img = new Image();
@@ -21617,6 +21661,24 @@ class Utils {
             img.onerror = () => {
                 reject(new Error(`Load image error! url: ${url}`));
             };
+        });
+    }
+    // 加载图片并在获取到其宽高之后立即返回宽高数值。不需要等待图片加载完毕
+    static async getImageSize(url) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.src = url;
+            const getImageSizeTimer = window.setInterval(() => {
+                if (img.naturalWidth > 0) {
+                    window.clearInterval(getImageSizeTimer);
+                    const wh = {
+                        width: img.naturalWidth,
+                        height: img.naturalHeight,
+                    };
+                    img.src = '';
+                    return resolve(wh);
+                }
+            }, 30);
         });
     }
     /**如果数据量多大，不应该使用这个方法 */

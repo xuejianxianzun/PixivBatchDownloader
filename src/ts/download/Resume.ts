@@ -339,12 +339,26 @@ class Resume {
   private async clearExired() {
     // 数据的过期时间，设置为 30 天。30*24*60*60*1000
     const expiryTime = 2592000000
-    const nowTime = new Date().getTime()
 
+    // 每隔一天检查一次数据是否过期
+    const nowTime = new Date().getTime()
+    let lastCheckTime = 0
+    const storeName = 'lastCheckExired'
+    const data = localStorage.getItem(storeName)
+    if (data === null) {
+      localStorage.setItem(storeName, lastCheckTime.toString())
+    } else {
+      lastCheckTime = Number.parseInt(data)
+    }
+    if (nowTime - lastCheckTime < 86400000) {
+      return
+    }
+    localStorage.setItem(storeName, nowTime.toString())
+
+    // 检查数据是否过期
     const callback = (item: IDBCursorWithValue | null) => {
       if (item) {
         const data = item.value as TaskMeta
-        // 检查数据是否过期
         if (nowTime - data.id > expiryTime) {
           this.IDB.delete(this.metaName, data.id)
           this.IDB.delete(this.statesName, data.id)

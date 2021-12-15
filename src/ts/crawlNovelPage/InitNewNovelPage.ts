@@ -1,4 +1,4 @@
-// 初始化 大家的新作小说页面
+// 初始化 本站的最新作品 小说页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../config/Colors'
 import { lang } from '../Lang'

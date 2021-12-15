@@ -17,50 +17,97 @@ import { MakeNovelFile } from './MakeNovelFile'
 import { Utils } from '../utils/Utils'
 import { Config } from '../config/Config'
 import { msgBox } from '../MsgBox'
+import { states } from '../store/States'
 
 class Download {
   constructor(progressBarIndex: number, data: downloadArgument) {
     this.progressBarIndex = progressBarIndex
-
-    this.download(data)
-    this.bindEvents()
+    this.beforeDownload(data)
   }
 
   private progressBarIndex: number
-  private fileName = ''
 
   private retry = 0 // 重试次数
   private lastRequestTime = 0 // 最后一次发起请求的时间戳
   private retryInterval: number[] = [] // 保存每次到达重试环节时，距离上一次请求的时间差
 
-  private cancel = false // 这个下载是否被取消（下载被停止，或者这个文件没有通过某个检查）
-
   private sizeChecked = false // 是否对文件体积进行了检查
+  private skip = false // 这个下载是否应该被跳过。如果这个文件不符合某些过滤条件就应该跳过它
+  private error = false // 在下载过程中是否出现了无法解决的错误
 
-  private bindEvents() {
-    ;[EVT.list.downloadStop, EVT.list.downloadPause].forEach((event) => {
-      window.addEventListener(event, () => {
-        this.cancel = true
-      })
-    })
+  private get cancel() {
+    return this.skip || this.error || !states.downloading
   }
 
-  // 设置进度条信息
-  private setProgressBar(loaded: number, total: number) {
-    progressBar.setProgress(this.progressBarIndex, {
-      name: this.fileName,
-      loaded: loaded,
-      total: total,
-    })
-  }
-
-  // 跳过某个文件的下载，可以传入警告消息
-  private skip(data: DonwloadSkipData, msg?: string) {
-    this.cancel = true
+  // 跳过下载这个文件。可以传入用于提示的文本
+  private skipDownload(data: DonwloadSkipData, msg?: string) {
+    this.skip = true
     if (msg) {
       log.warning(msg)
     }
-    EVT.fire('skipDownload', data)
+    if (states.downloading) {
+      EVT.fire('skipDownload', data)
+    }
+  }
+
+  // 在开始下载前进行检查
+  private async beforeDownload(arg: downloadArgument) {
+    // 检查是否是重复文件
+    const duplicate = await deduplication.check(arg.data)
+    if (duplicate) {
+      return this.skipDownload(
+        {
+          id: arg.id,
+          reason: 'duplicate',
+        },
+        lang.transl('_跳过下载因为重复文件', arg.id)
+      )
+    }
+
+    // 如果是动图，再次检查是否排除了动图
+    // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
+    if (arg.data.type === 2 && !settings.downType2) {
+      return this.skipDownload({
+        id: arg.id,
+        reason: 'excludedType',
+      })
+    }
+
+    // 检查宽高条件和宽高比
+    if ((settings.setWHSwitch || settings.ratioSwitch) && arg.data.type !== 3) {
+      // 默认使用当前作品中第一张图片的宽高
+      let wh = {
+        width: arg.data.fullWidth,
+        height: arg.data.fullHeight,
+      }
+      // 如果不是第一张图片，则加载图片以获取宽高
+      if (arg.data.index > 0) {
+        // 始终获取原图的尺寸
+        wh = await Utils.getImageSize(arg.data.original)
+      }
+
+      const result = await filter.check(wh)
+      if (!result) {
+        return this.skipDownload(
+          {
+            id: arg.id,
+            reason: 'widthHeight',
+          },
+          lang.transl('_不保存图片因为宽高', arg.id)
+        )
+      }
+    }
+
+    this.download(arg)
+  }
+
+  // 设置进度条信息
+  private setProgressBar(name: string, loaded: number, total: number) {
+    progressBar.setProgress(this.progressBarIndex, {
+      name,
+      loaded,
+      total,
+    })
   }
 
   // 当重试达到最大次数时
@@ -68,7 +115,7 @@ class Download {
     // 404, 500 错误，跳过，不会再尝试下载这个文件（因为没有触发 downloadError 事件，所以不会重试下载）
     if (status === 404 || status === 500) {
       log.error(`Error: ${fileId} Code: ${status}`)
-      return this.skip({
+      return this.skipDownload({
         id: fileId,
         reason: status.toString() as '404' | '500',
       })
@@ -91,38 +138,17 @@ class Download {
     }
 
     // 其他状态码，暂时跳过这个任务，但最后还是会尝试重新下载它
-    this.cancel = true
+    this.error = true
     EVT.fire('downloadError', fileId)
   }
 
   // 下载文件
   private async download(arg: downloadArgument) {
-    // 检查是否是重复文件
-    const duplicate = await deduplication.check(arg.data)
-    if (duplicate) {
-      return this.skip(
-        {
-          id: arg.id,
-          reason: 'duplicate',
-        },
-        lang.transl('_跳过下载因为重复文件', arg.id)
-      )
-    }
-
-    // 如果是动图，再次检查是否排除了动图
-    // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
-    if (arg.data.type === 2 && !settings.downType2) {
-      return this.skip({
-        id: arg.id,
-        reason: 'excludedType',
-      })
-    }
-
     // 获取文件名
-    this.fileName = fileName.getFileName(arg.data)
+    const _fileName = fileName.getFileName(arg.data)
 
     // 重设当前下载栏的信息
-    this.setProgressBar(0, 0)
+    this.setProgressBar(_fileName, 0, 0)
 
     // 下载文件
     let url: string
@@ -151,8 +177,8 @@ class Download {
         const result = await filter.check({ size: event.total })
         if (!result) {
           // 当因为体积问题跳过下载时，可能这个下载进度还是 0 或者很少，所以这里直接把进度条拉满
-          this.setProgressBar(1, 1)
-          this.skip(
+          this.setProgressBar(_fileName, 1, 1)
+          this.skipDownload(
             {
               id: arg.id,
               reason: 'size',
@@ -168,10 +194,10 @@ class Download {
         return
       }
 
-      this.setProgressBar(event.loaded, event.total)
+      this.setProgressBar(_fileName, event.loaded, event.total)
     })
 
-    // 图片获取完毕（出错时也会进入 loadend）
+    // 文件记载完毕，或者加载出错
     xhr.addEventListener('loadend', async () => {
       if (this.cancel) {
         xhr = null as any
@@ -226,7 +252,7 @@ class Download {
             // log.error(msg, 1)
             console.error(msg)
 
-            this.cancel = true
+            this.error = true
             EVT.fire('downloadError', arg.id)
           }
         }
@@ -247,7 +273,7 @@ class Download {
           mini: blobUrl,
         })
         if (!result) {
-          return this.skip(
+          return this.skipDownload(
             {
               id: arg.id,
               reason: 'color',
@@ -257,30 +283,8 @@ class Download {
         }
       }
 
-      // 检查图片的宽高设置
-      // 因为抓取时只能检查每个作品第一张图片的宽高，所以可能会出现作品的第一张图片符合要求，但后面的图片不符合要求的情况。这里针对第一张之后的其他图片也进行检查，提高准确率。
-      if (
-        (arg.data.type === 0 || arg.data.type === 1) &&
-        !arg.data.id.includes('p0')
-      ) {
-        const img = await Utils.loadImg(blobUrl)
-        const result = await filter.check({
-          width: img.naturalWidth,
-          height: img.naturalHeight,
-        })
-        if (!result) {
-          return this.skip(
-            {
-              id: arg.id,
-              reason: 'widthHeight',
-            },
-            lang.transl('_不保存图片因为宽高', arg.id)
-          )
-        }
-      }
-
       // 向浏览器发送下载任务
-      this.browserDownload(blobUrl, this.fileName, arg.id, arg.taskBatch)
+      this.browserDownload(blobUrl, _fileName, arg.id, arg.taskBatch)
       xhr = null as any
       file = null as any
     })

@@ -1,4 +1,4 @@
-// 初始化 大家的新作品 artwork 页面
+// 初始化 本站的最新作品 artwork 页面
 import { InitPageBase } from '../crawl/InitPageBase'
 import { Colors } from '../config/Colors'
 import { lang } from '../Lang'
@@ -107,8 +107,8 @@ class InitNewArtworkPage extends InitPageBase {
 
       const filterOpt: FilterOption = {
         id: nowData.id,
-        width: nowData.width,
-        height: nowData.height,
+        width: nowData.pageCount === 1 ? nowData.width : 0,
+        height: nowData.pageCount === 1 ? nowData.height : 0,
         pageCount: nowData.pageCount,
         bookmarkData: nowData.bookmarkData,
         workType: nowData.illustType,
