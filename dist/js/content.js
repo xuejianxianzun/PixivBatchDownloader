@@ -4358,10 +4358,14 @@ const langText = {
         '複数画像をプレビューする際に、マウスホイールを使って画像を切り替えることができます。',
     ],
     _whatisnew: [
-        '优化“预览作品”功能：<br>用户可以设置鼠标悬停时间。',
-        '最佳化“預覽作品”功能：<br>使用者可以設定滑鼠懸停時間。',
-        'Optimize the "Preview works" function: <br>The user can set the mouse hover time.',
-        '「作品のプレビュー」機能の最適化：<br>ユーザーはマウスのホバー時間を設定できます。',
+        `提高对多图作品进行宽高检查时的准确性。<br>
+    如果你设置了宽高条件，下载时可能会花费更多的时间用于进行宽高检查。`,
+        `提高對多圖作品進行寬高檢查時的準確性。<br>
+    如果你設定了寬高條件，下載時可能會花費更多的時間用於進行寬高檢查。`,
+        `Improve the accuracy when checking the width and height of multi-image works. <br>
+    If you set the width and height conditions, it may take more time to check the width and height when downloading.`,
+        `マルチイメージ作品の幅と高さをチェックする際の精度を向上させます。 <br>
+    幅と高さの条件を設定すると、ダウンロード時に幅と高さの確認に時間がかかる場合があります。`,
     ],
     _等待时间: ['等待时间', '等待時間', 'Waiting time', '待ち時間'],
     _格式错误: ['格式错误', '格式錯誤', 'Format error', 'フォーマットエラー'],
@@ -6538,11 +6542,8 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '11.6.0';
-        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}:
-  <br>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_替换方形缩略图以显示图片比例')}
-  `;
+        this.flag = '11.6.5';
+        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_whatisnew')}`;
         this.bindEvents();
     }
     bindEvents() {
@@ -14520,7 +14521,6 @@ class Resume {
             return;
         }
         localStorage.setItem(storeName, nowTime.toString());
-        console.log('检查数据是否过期');
         // 检查数据是否过期
         const callback = (item) => {
             if (item) {
@@ -16049,7 +16049,9 @@ class Filter {
     }
     // 检查作品是否符合宽高比条件
     checkRatio(width, height) {
-        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratioSwitch || width === undefined || height === undefined ||
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].ratioSwitch ||
+            width === undefined ||
+            height === undefined ||
             width === 0 ||
             height === 0) {
             return true;
