@@ -4432,6 +4432,12 @@ const langText = {
         'Due to the limitation of pixiv, the downloader can only crawl up to the {}th page.',
         'pixiv の制限により、ダウンローダーは {} ページ目までしかクロールできません。',
     ],
+    _获取图片的宽高时出现错误: [
+        '获取图片的宽高时出现错误：',
+        '獲取圖片的寬高時出現錯誤：',
+        'An error occurred while getting the width and height of the image:',
+        '画像の幅と高さの取得中にエラーが発生しました：',
+    ]
 };
 
 
@@ -12738,6 +12744,14 @@ class Download {
             if (arg.data.index > 0) {
                 // 始终获取原图的尺寸
                 wh = await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__["Utils"].getImageSize(arg.data.original);
+            }
+            // 如果获取宽高失败，图片会被视为通过宽高检查
+            if (wh.width === 0 || wh.height === 0) {
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_获取图片的宽高时出现错误') + arg.id);
+                console.error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_获取图片的宽高时出现错误') + arg.id);
+                // 图片加载失败可能是请求超时，或者图片不存在。这里无法获取到具体原因，所以不直接返回。
+                // 如果是 404 错误，在 download 方法中可以处理这个问题
+                // 如果是请求超时，则有可能错误的通过了这个图片
             }
             const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check(wh);
             if (!result) {
@@ -21588,13 +21602,24 @@ class Utils {
         });
     }
     // 加载图片并在获取到其宽高之后立即返回宽高数值。不需要等待图片加载完毕
+    // 请求出错时，返回值的宽高都是 0
     static async getImageSize(url) {
         return new Promise((resolve) => {
+            let timer = 0;
             const img = new Image();
+            // 在 Chrome 中图片请求的超时时间是 30 秒
+            // 如果请求超时，则直接返回
+            img.onerror = () => {
+                window.clearInterval(timer);
+                return resolve({
+                    width: 0,
+                    height: 0,
+                });
+            };
             img.src = url;
-            const getImageSizeTimer = window.setInterval(() => {
+            timer = window.setInterval(() => {
                 if (img.naturalWidth > 0) {
-                    window.clearInterval(getImageSizeTimer);
+                    window.clearInterval(timer);
                     const wh = {
                         width: img.naturalWidth,
                         height: img.naturalHeight,
@@ -21602,7 +21627,7 @@ class Utils {
                     img.src = '';
                     return resolve(wh);
                 }
-            }, 30);
+            }, 50);
         });
     }
     /**如果数据量多大，不应该使用这个方法 */

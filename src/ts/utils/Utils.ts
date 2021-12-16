@@ -256,6 +256,7 @@ class Utils {
   }
 
   // 加载图片并在获取到其宽高之后立即返回宽高数值。不需要等待图片加载完毕
+  // 请求出错时，返回值的宽高都是 0
   static async getImageSize(
     url: string
   ): Promise<{
@@ -263,11 +264,23 @@ class Utils {
     height: number
   }> {
     return new Promise((resolve) => {
+      let timer = 0
       const img = new Image()
+
+      // 在 Chrome 中图片请求的超时时间是 30 秒
+      // 如果请求超时，则直接返回
+      img.onerror = () => {
+        window.clearInterval(timer)
+        return resolve({
+          width: 0,
+          height: 0,
+        })
+      }
+
       img.src = url
-      const getImageSizeTimer = window.setInterval(() => {
+      timer = window.setInterval(() => {
         if (img.naturalWidth > 0) {
-          window.clearInterval(getImageSizeTimer)
+          window.clearInterval(timer)
           const wh = {
             width: img.naturalWidth,
             height: img.naturalHeight,
@@ -275,7 +288,7 @@ class Utils {
           img.src = ''
           return resolve(wh)
         }
-      }, 30)
+      }, 50)
     })
   }
 

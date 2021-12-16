@@ -1900,6 +1900,12 @@ const langText = {
     'Due to the limitation of pixiv, the downloader can only crawl up to the {}th page.',
     'pixiv の制限により、ダウンローダーは {} ページ目までしかクロールできません。',
   ],
+  _获取图片的宽高时出现错误: [
+    '获取图片的宽高时出现错误：',
+    '獲取圖片的寬高時出現錯誤：',
+    'An error occurred while getting the width and height of the image:',
+    '画像の幅と高さの取得中にエラーが発生しました：',
+  ],
 }
 
 export { langText }
