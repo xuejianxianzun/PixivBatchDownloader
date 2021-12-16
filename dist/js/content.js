@@ -4444,7 +4444,7 @@ const langText = {
         '預覽搜尋結果的數量已經達到上限，剩餘的結果不會顯示。',
         'The number of preview search results has reached the upper limit, and the remaining results will not be displayed.',
         'プレビュー検索結果の数が上限に達し、残りの結果は表示されません。',
-    ]
+    ],
 };
 
 
@@ -9228,7 +9228,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../crawlMixedPage/CrawlTagList */ "./src/ts/crawlMixedPage/CrawlTagList.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 // 初始化 artwork 搜索页
+
 
 
 
@@ -9287,10 +9289,11 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.worksWrap = null;
         this.deleteId = 0; // 手动删除时，要删除的作品的 id
         this.causeResultChange = ['firstFewImagesSwitch', 'firstFewImages']; // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
-        this.flag = 'searchArtwork';
-        this.crawlStartBySelf = false;
+        this.crawlStartBySelf = false; // 这次抓取是否是由当前页面的“开始抓取”按钮发起的
         this.previewCount = 0; // 共显示了多少个作品的预览图
         this.showPreviewLimitTip = false; // 当预览数量达到上限时显示一次提示
+        // 储存预览搜索结果的元素
+        this.workPreviewBuffer = document.createDocumentFragment();
         this.onSettingChange = (event) => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
                 return;
@@ -9313,16 +9316,16 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 return;
             }
             this.resultMeta = [..._store_Store__WEBPACK_IMPORTED_MODULE_8__["store"].resultMeta];
-            this.clearWorks();
-            this.previewCount = 0;
-            this.showPreviewLimitTip = false;
+            // 在搜索页面抓取完毕之后，作品数据会按照收藏数量排序。所以这里需要清空之前的预览，重新生成预览
+            this.clearPreview();
             this.reAddResult();
+            this.showPreview();
             // 解绑创建作品元素的事件
-            window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.createWork);
+            window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.createPreview);
+            this.crawlStartBySelf = false;
             setTimeout(() => {
                 _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('worksUpdate');
             }, 0);
-            this.crawlStartBySelf = false;
         };
         // 显示抓取到的作品数量
         this.showCount = () => {
@@ -9334,14 +9337,15 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 this.countEl.textContent = count.toString();
             }
         };
-        // 在页面上生成抓取结果对应的作品元素
-        this.createWork = (event) => {
+        // 生成抓取结果对应的作品元素
+        this.createPreview = (event) => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
                 return;
             }
             if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResult || !this.worksWrap) {
                 return;
             }
+            // 检查显示的预览数量是否达到上限
             if (this.previewCount >= _setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResultLimit) {
                 if (!this.showPreviewLimitTip) {
                     _Log__WEBPACK_IMPORTED_MODULE_9__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_预览搜索结果的数量达到上限的提示'));
@@ -9383,8 +9387,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             </span>
             <span>${data.pageCount}</span>
           </div>  
-        </div>
-                    `;
+        </div>`;
             }
             let ugoiraHTML = '';
             if (data.ugoiraInfo) {
@@ -9402,7 +9405,6 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             // 添加收藏的作品，让收藏图标变红
             const bookmarkedFlag = data.bookmarked ? this.bookmarkedClass : '';
             const html = `
-    <li class="${this.listClass}" data-id="${data.idNum}">
     <div class="searchContent">
       <div class="searchImgArea">
         <div width="184" height="184" class="searchImgAreaContent">
@@ -9448,20 +9450,19 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
       <div class="bottomBar">
       <!--作者信息-->
       <div class="userInfo">
-      <!--相比原代码，这里去掉了作者头像的 html 代码。因为抓取到的数据里没有作者头像。-->
           <a target="_blank" href="/users/${data.userId}">
             <div class="userName">${data.user}</div>
           </a>
         </div>
       </div>
     </div>
-  </li>
     `;
-            // 添加作品
-            const li2 = document.createElement('li');
-            li2.innerHTML = html;
-            const li = li2.children[0];
-            this.worksWrap.appendChild(li);
+            // 相比 pixiv 原本的作品预览区域，这里去掉了作者头像的部分，因为抓取到的数据里没有作者头像。
+            // 生成预览元素
+            const li = document.createElement('li');
+            li.classList.add(this.listClass);
+            li.dataset.id = data.idNum.toString();
+            li.innerHTML = html;
             // 绑定收藏按钮的事件
             const addBMKBtn = li.querySelector(`.${this.addBMKBtnClass}`);
             const bookmarkedClass = this.bookmarkedClass;
@@ -9472,6 +9473,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 window.dispatchEvent(e);
                 this.classList.add(bookmarkedClass);
             });
+            // 添加到缓冲中
+            this.workPreviewBuffer.append(li);
         };
         // 清除多图作品
         this.clearMultiple = () => {
@@ -9531,7 +9534,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.resultMeta = [];
             this.crawlStartBySelf = true;
-            window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.createWork);
+            window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.createPreview);
             this.readyCrawl();
         });
         _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_在结果中筛选', '_在结果中筛选说明').addEventListener('click', () => {
@@ -9577,6 +9580,15 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.deleteWork, this.deleteWork);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.settingChange, this.onSettingChange);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlTag, this.crawlTag);
+        // 定期将缓冲中的预览作品元素添加到页面上
+        window.setInterval(() => {
+            this.showPreview();
+        }, 1000);
+    }
+    showPreview() {
+        if (this.workPreviewBuffer.firstChild && this.worksWrap) {
+            this.worksWrap.appendChild(this.workPreviewBuffer);
+        }
     }
     destroy() {
         _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].clearSlot('crawlBtns');
@@ -9627,7 +9639,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             return this.noResult();
         }
         this.startGetIdList();
-        this.clearWorks();
+        this.clearPreview();
         this.countEl = document.querySelector(this.countSelector);
     }
     // 组织要请求的 url 中的参数
@@ -9727,7 +9739,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 xRestrict: nowData.xRestrict,
             };
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check(filterOpt)) {
-                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_16__["idListWithPageNo"].add(this.flag, {
+                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_16__["idListWithPageNo"].add(_PageType__WEBPACK_IMPORTED_MODULE_21__["pageType"].type, {
                     type: _API__WEBPACK_IMPORTED_MODULE_7__["API"].getWorkType(nowData.illustType),
                     id: nowData.id,
                 }, p);
@@ -9744,7 +9756,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             if (this.listPageFinished === this.needCrawlPageCount) {
                 // 抓取任务全部完成
                 _Log__WEBPACK_IMPORTED_MODULE_9__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页抓取完成'));
-                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_16__["idListWithPageNo"].store(this.flag);
+                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_16__["idListWithPageNo"].store(_PageType__WEBPACK_IMPORTED_MODULE_21__["pageType"].type);
                 this.getIdListFinished();
             }
         }
@@ -9771,8 +9783,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }
         return null;
     }
-    // 清空作品列表，只在作品抓取完毕时使用。之后会生成根据收藏数排列的作品列表。
-    clearWorks() {
+    // 清空预览作品的列表，在开始抓取时和作品抓取完毕时使用
+    clearPreview() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResult || !this.crawlStartBySelf) {
             return;
         }
@@ -9780,6 +9792,10 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         if (this.worksWrap) {
             this.worksWrap.innerHTML = '';
         }
+        // 同时重置一些变量
+        this.previewCount = 0;
+        this.showPreviewLimitTip = false;
+        this.workPreviewBuffer = document.createDocumentFragment();
     }
     // 传递作品 id 列表，从页面上的作品列表里移除这些作品
     removeWorks(idList) {
@@ -11998,7 +12014,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../crawlMixedPage/CrawlTagList */ "./src/ts/crawlMixedPage/CrawlTagList.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 // 初始化小说搜索页
+
 
 
 
@@ -12044,7 +12062,6 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             'original_only',
             'work_lang',
         ];
-        this.flag = 'searchNovel';
         this.crawlTag = () => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_16__["states"].crawlTagList) {
                 this.readyCrawl();
@@ -12202,7 +12219,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                 xRestrict: nowData.xRestrict,
             };
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__["filter"].check(filterOpt)) {
-                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_12__["idListWithPageNo"].add(this.flag, {
+                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_12__["idListWithPageNo"].add(_PageType__WEBPACK_IMPORTED_MODULE_17__["pageType"].type, {
                     type: 'novels',
                     id: nowData.id,
                 }, p);
@@ -12219,7 +12236,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             if (this.listPageFinished === this.needCrawlPageCount) {
                 // 抓取任务全部完成
                 _Log__WEBPACK_IMPORTED_MODULE_7__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页抓取完成'));
-                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_12__["idListWithPageNo"].store(this.flag);
+                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_12__["idListWithPageNo"].store(_PageType__WEBPACK_IMPORTED_MODULE_17__["pageType"].type);
                 this.getIdListFinished();
             }
         }
@@ -20246,50 +20263,50 @@ __webpack_require__.r(__webpack_exports__);
 // 这个类会保留每个 id 所处的页码。抓取完成后可以把这些 id 按页码顺序排列，保证 id 的顺序和在页码里的顺序一致
 class IdListWithPageNo {
     constructor() {
-        // 存储 id 列表，按 flag 不同分别存储
+        // 存储 id 列表，按 pageId 不同分别存储
         this.allList = {};
     }
     // 添加一条记录
-    add(flag, idData, page) {
-        if (this.allList[flag] === undefined) {
-            this.allList[flag] = [];
+    add(pageId, idData, page) {
+        if (this.allList[pageId] === undefined) {
+            this.allList[pageId] = [];
         }
-        this.allList[flag].push({
+        this.allList[pageId].push({
             id: idData.id,
             type: idData.type,
             page: page,
         });
     }
     // 清空记录
-    clear(flag) {
-        if (this.allList[flag]) {
-            delete this.allList[flag];
+    clear(pageId) {
+        if (this.allList[pageId]) {
+            delete this.allList[pageId];
         }
     }
     // 排序
-    sort(flag) {
-        if (this.allList[flag]) {
-            this.allList[flag].sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].sortByProperty('page', 'asc'));
+    sort(pageId) {
+        if (this.allList[pageId]) {
+            this.allList[pageId].sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].sortByProperty('page', 'asc'));
         }
     }
     // 转储到 store.idList 里
     // 自动排序
     // 转储之后自动清空
-    store(flag) {
-        if (this.allList[flag]) {
-            this.sort(flag);
-            for (const data of this.allList[flag]) {
+    store(pageId) {
+        if (this.allList[pageId]) {
+            this.sort(pageId);
+            for (const data of this.allList[pageId]) {
                 _Store__WEBPACK_IMPORTED_MODULE_0__["store"].idList.push({
                     id: data.id,
                     type: data.type,
                 });
             }
-            this.clear(flag);
+            this.clear(pageId);
         }
     }
     // 如果没有值，返回的就是 undefined
-    get(flag) {
-        return this.allList[flag];
+    get(pageId) {
+        return this.allList[pageId];
     }
 }
 const idListWithPageNo = new IdListWithPageNo();

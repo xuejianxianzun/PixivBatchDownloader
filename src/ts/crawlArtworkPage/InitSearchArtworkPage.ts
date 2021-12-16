@@ -22,6 +22,7 @@ import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
 import { Bookmark } from '../Bookmark'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
+import { pageType } from '../PageType'
 
 type AddBMKData = {
   id: number
@@ -79,12 +80,13 @@ class InitSearchArtworkPage extends InitPageBase {
 
   private causeResultChange = ['firstFewImagesSwitch', 'firstFewImages'] // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
 
-  private readonly flag = 'searchArtwork'
-
-  private crawlStartBySelf = false
+  private crawlStartBySelf = false // 这次抓取是否是由当前页面的“开始抓取”按钮发起的
 
   private previewCount = 0 // 共显示了多少个作品的预览图
   private showPreviewLimitTip = false // 当预览数量达到上限时显示一次提示
+
+  // 储存预览搜索结果的元素
+  private workPreviewBuffer = document.createDocumentFragment()
 
   protected setFormOption() {
     const isPremium = Tools.isPremium()
@@ -106,7 +108,7 @@ class InitSearchArtworkPage extends InitPageBase {
       this.resultMeta = []
       this.crawlStartBySelf = true
 
-      window.addEventListener(EVT.list.addResult, this.createWork)
+      window.addEventListener(EVT.list.addResult, this.createPreview)
       this.readyCrawl()
     })
 
@@ -178,6 +180,17 @@ class InitSearchArtworkPage extends InitPageBase {
     window.addEventListener(EVT.list.settingChange, this.onSettingChange)
 
     window.addEventListener(EVT.list.crawlTag, this.crawlTag)
+
+    // 定期将缓冲中的预览作品元素添加到页面上
+    window.setInterval(() => {
+      this.showPreview()
+    }, 1000)
+  }
+
+  private showPreview() {
+    if (this.workPreviewBuffer.firstChild && this.worksWrap) {
+      this.worksWrap.appendChild(this.workPreviewBuffer)
+    }
   }
 
   protected destroy() {
@@ -241,7 +254,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
     this.startGetIdList()
 
-    this.clearWorks()
+    this.clearPreview()
 
     this.countEl = document.querySelector(this.countSelector) as HTMLElement
   }
@@ -360,7 +373,7 @@ class InitSearchArtworkPage extends InitPageBase {
 
       if (await filter.check(filterOpt)) {
         idListWithPageNo.add(
-          this.flag,
+          pageType.type,
           {
             type: API.getWorkType(nowData.illustType),
             id: nowData.id,
@@ -387,7 +400,7 @@ class InitSearchArtworkPage extends InitPageBase {
         // 抓取任务全部完成
         log.log(lang.transl('_列表页抓取完成'))
 
-        idListWithPageNo.store(this.flag)
+        idListWithPageNo.store(pageType.type)
 
         this.getIdListFinished()
       }
@@ -430,20 +443,19 @@ class InitSearchArtworkPage extends InitPageBase {
 
     this.resultMeta = [...store.resultMeta]
 
-    this.clearWorks()
-    this.previewCount = 0
-    this.showPreviewLimitTip = false
-
+    // 在搜索页面抓取完毕之后，作品数据会按照收藏数量排序。所以这里需要清空之前的预览，重新生成预览
+    this.clearPreview()
     this.reAddResult()
+    this.showPreview()
 
     // 解绑创建作品元素的事件
-    window.removeEventListener(EVT.list.addResult, this.createWork)
+    window.removeEventListener(EVT.list.addResult, this.createPreview)
+
+    this.crawlStartBySelf = false
 
     setTimeout(() => {
       EVT.fire('worksUpdate')
     }, 0)
-
-    this.crawlStartBySelf = false
   }
 
   // 返回包含作品列表的 ul 元素
@@ -473,8 +485,8 @@ class InitSearchArtworkPage extends InitPageBase {
     }
   }
 
-  // 在页面上生成抓取结果对应的作品元素
-  private createWork = (event: CustomEventInit) => {
+  // 生成抓取结果对应的作品元素
+  private createPreview = (event: CustomEventInit) => {
     if (states.crawlTagList) {
       return
     }
@@ -482,6 +494,7 @@ class InitSearchArtworkPage extends InitPageBase {
       return
     }
 
+    // 检查显示的预览数量是否达到上限
     if (this.previewCount >= settings.previewResultLimit) {
       if (!this.showPreviewLimitTip) {
         log.warning(lang.transl('_预览搜索结果的数量达到上限的提示'))
@@ -527,8 +540,7 @@ class InitSearchArtworkPage extends InitPageBase {
             </span>
             <span>${data.pageCount}</span>
           </div>  
-        </div>
-                    `
+        </div>`
     }
 
     let ugoiraHTML = ''
@@ -549,7 +561,6 @@ class InitSearchArtworkPage extends InitPageBase {
     const bookmarkedFlag = data.bookmarked ? this.bookmarkedClass : ''
 
     const html = `
-    <li class="${this.listClass}" data-id="${data.idNum}">
     <div class="searchContent">
       <div class="searchImgArea">
         <div width="184" height="184" class="searchImgAreaContent">
@@ -601,20 +612,20 @@ class InitSearchArtworkPage extends InitPageBase {
       <div class="bottomBar">
       <!--作者信息-->
       <div class="userInfo">
-      <!--相比原代码，这里去掉了作者头像的 html 代码。因为抓取到的数据里没有作者头像。-->
           <a target="_blank" href="/users/${data.userId}">
             <div class="userName">${data.user}</div>
           </a>
         </div>
       </div>
     </div>
-  </li>
     `
-    // 添加作品
-    const li2 = document.createElement('li')
-    li2.innerHTML = html
-    const li = li2.children[0]
-    this.worksWrap.appendChild(li)
+    // 相比 pixiv 原本的作品预览区域，这里去掉了作者头像的部分，因为抓取到的数据里没有作者头像。
+
+    // 生成预览元素
+    const li = document.createElement('li')
+    li.classList.add(this.listClass)
+    li.dataset.id = data.idNum.toString()
+    li.innerHTML = html
 
     // 绑定收藏按钮的事件
     const addBMKBtn = li!.querySelector(
@@ -628,10 +639,13 @@ class InitSearchArtworkPage extends InitPageBase {
       window.dispatchEvent(e)
       this.classList.add(bookmarkedClass)
     })
+
+    // 添加到缓冲中
+    this.workPreviewBuffer.append(li)
   }
 
-  // 清空作品列表，只在作品抓取完毕时使用。之后会生成根据收藏数排列的作品列表。
-  private clearWorks() {
+  // 清空预览作品的列表，在开始抓取时和作品抓取完毕时使用
+  private clearPreview() {
     if (!settings.previewResult || !this.crawlStartBySelf) {
       return
     }
@@ -639,6 +653,10 @@ class InitSearchArtworkPage extends InitPageBase {
     if (this.worksWrap) {
       this.worksWrap.innerHTML = ''
     }
+    // 同时重置一些变量
+    this.previewCount = 0
+    this.showPreviewLimitTip = false
+    this.workPreviewBuffer = document.createDocumentFragment()
   }
 
   // 传递作品 id 列表，从页面上的作品列表里移除这些作品
