@@ -4437,6 +4437,13 @@ const langText = {
         '獲取圖片的寬高時出現錯誤：',
         'An error occurred while getting the width and height of the image:',
         '画像の幅と高さの取得中にエラーが発生しました：',
+    ],
+    _上限: ['上限', '上限', 'Upper limit', '上限'],
+    _预览搜索结果的数量达到上限的提示: [
+        '预览搜索结果的数量已经达到上限，剩余的结果不会显示。',
+        '預覽搜尋結果的數量已經達到上限，剩餘的結果不會顯示。',
+        'The number of preview search results has reached the upper limit, and the remaining results will not be displayed.',
+        'プレビュー検索結果の数が上限に達し、残りの結果は表示されません。',
     ]
 };
 
@@ -9282,6 +9289,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.causeResultChange = ['firstFewImagesSwitch', 'firstFewImages']; // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
         this.flag = 'searchArtwork';
         this.crawlStartBySelf = false;
+        this.previewCount = 0; // 共显示了多少个作品的预览图
+        this.showPreviewLimitTip = false; // 当预览数量达到上限时显示一次提示
         this.onSettingChange = (event) => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
                 return;
@@ -9305,6 +9314,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             }
             this.resultMeta = [..._store_Store__WEBPACK_IMPORTED_MODULE_8__["store"].resultMeta];
             this.clearWorks();
+            this.previewCount = 0;
+            this.showPreviewLimitTip = false;
             this.reAddResult();
             // 解绑创建作品元素的事件
             window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.createWork);
@@ -9331,6 +9342,14 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResult || !this.worksWrap) {
                 return;
             }
+            if (this.previewCount >= _setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResultLimit) {
+                if (!this.showPreviewLimitTip) {
+                    _Log__WEBPACK_IMPORTED_MODULE_9__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_预览搜索结果的数量达到上限的提示'));
+                    this.showPreviewLimitTip = true;
+                }
+                return;
+            }
+            this.previewCount++;
             const data = event.detail.data;
             let r18Text = '';
             if (data.xRestrict === 1) {
@@ -12748,7 +12767,6 @@ class Download {
             // 如果获取宽高失败，图片会被视为通过宽高检查
             if (wh.width === 0 || wh.height === 0) {
                 _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_获取图片的宽高时出现错误') + arg.id);
-                console.error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_获取图片的宽高时出现错误') + arg.id);
                 // 图片加载失败可能是请求超时，或者图片不存在。这里无法获取到具体原因，所以不直接返回。
                 // 如果是 404 错误，在 download 方法中可以处理这个问题
                 // 如果是请求超时，则有可能错误的通过了这个图片
@@ -18751,6 +18769,11 @@ const formHtml = `<form class="settingForm">
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="previewResult" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
+
+    <span class="subOptionWrap" data-show="previewResult">
+    <span class="settingNameStyle1" data-xztext="_上限"> </span>
+    <input type="text" name="previewResultLimit" class="setinput_style1 blue" value="1000" style="width:80px;min-width: 80px;">
+    </span>
     </p>
 
     <p class="option" data-no="34">
@@ -19005,6 +19028,7 @@ class FormSettings {
                 'workDirNameRule',
                 'autoExportResultNumber',
                 'previewWorkWait',
+                'previewResultLimit',
             ],
             radio: [
                 'ugoiraSaveAs',
@@ -19805,6 +19829,7 @@ class Settings {
             postDateStart: 946684800000,
             postDateEnd: 4102444800000,
             previewResult: true,
+            previewResultLimit: 3000,
             BMKNumSwitch: false,
             BMKNumMin: 0,
             BMKNumMax: _config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].BookmarkCountLimit,
@@ -20136,6 +20161,9 @@ class Settings {
         }
         if (key === 'setWidthAndOr' && value === '') {
             value = this.defaultSettings[key];
+        }
+        if (key === 'previewResultLimit' && value < 0) {
+            value = 999999;
         }
         // 更改设置
         ;

@@ -83,6 +83,9 @@ class InitSearchArtworkPage extends InitPageBase {
 
   private crawlStartBySelf = false
 
+  private previewCount = 0 // 共显示了多少个作品的预览图
+  private showPreviewLimitTip = false // 当预览数量达到上限时显示一次提示
+
   protected setFormOption() {
     const isPremium = Tools.isPremium()
     // 个数/页数选项的提示
@@ -428,6 +431,8 @@ class InitSearchArtworkPage extends InitPageBase {
     this.resultMeta = [...store.resultMeta]
 
     this.clearWorks()
+    this.previewCount = 0
+    this.showPreviewLimitTip = false
 
     this.reAddResult()
 
@@ -476,6 +481,15 @@ class InitSearchArtworkPage extends InitPageBase {
     if (!settings.previewResult || !this.worksWrap) {
       return
     }
+
+    if (this.previewCount >= settings.previewResultLimit) {
+      if (!this.showPreviewLimitTip) {
+        log.warning(lang.transl('_预览搜索结果的数量达到上限的提示'))
+        this.showPreviewLimitTip = true
+      }
+      return
+    }
+    this.previewCount++
 
     const data = event.detail.data as Result
 

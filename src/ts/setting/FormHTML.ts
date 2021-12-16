@@ -804,6 +804,11 @@ export const formHtml = `<form class="settingForm">
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="previewResult" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
+
+    <span class="subOptionWrap" data-show="previewResult">
+    <span class="settingNameStyle1" data-xztext="_上限"> </span>
+    <input type="text" name="previewResultLimit" class="setinput_style1 blue" value="1000" style="width:80px;min-width: 80px;">
+    </span>
     </p>
 
     <p class="option" data-no="34">
