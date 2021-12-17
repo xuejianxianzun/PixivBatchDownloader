@@ -92,6 +92,7 @@ interface XzSetting {
   postDateStart: number
   postDateEnd: number
   previewResult: boolean
+  previewResultLimit: number
   BMKNumSwitch: boolean
   BMKNumMin: number
   BMKNumMax: number
@@ -268,6 +269,7 @@ class Settings {
     postDateStart: 946684800000,
     postDateEnd: 4102444800000,
     previewResult: true,
+    previewResultLimit: 3000,
     BMKNumSwitch: false,
     BMKNumMin: 0,
     BMKNumMax: Config.BookmarkCountLimit,
@@ -622,6 +624,10 @@ class Settings {
 
     if (key === 'setWidthAndOr' && value === '') {
       value = this.defaultSettings[key]
+    }
+
+    if (key === 'previewResultLimit' && value < 0) {
+      value = 999999
     }
 
     // 更改设置

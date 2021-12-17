@@ -170,8 +170,7 @@ class ShowOriginSizeImage {
     window.clearTimeout(this.showTimer)
   }
 
-  private async getImageSize(url: string): Promise<HTMLImageElement> {
-    // 鼠标滚轮滚动时，此方法可能会在短时间内触发多次。所以每次执行前需要重置一些变量
+  private async getImage(url: string): Promise<HTMLImageElement> {
     window.clearInterval(this.getImageSizeTimer)
     this.testImg.src = ''
 
@@ -199,7 +198,7 @@ class ShowOriginSizeImage {
     this.style = this.defaultStyle
 
     // 获取图片的原始宽高
-    this.img = await this.getImageSize(url)
+    this.img = await this.getImage(url)
     this.style.imgW = this.img.naturalWidth
     this.style.imgH = this.img.naturalHeight
     this.style.width = this.style.imgW

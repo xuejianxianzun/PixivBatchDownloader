@@ -5,7 +5,7 @@ import { ArtworkData } from '../crawl/CrawlResult'
 import { store } from './Store'
 import { Tools } from '../Tools'
 
-// 保存单个图片作品的数据
+// 保存图片作品的数据
 class SaveArtworkData {
   public async save(data: ArtworkData) {
     // 获取需要检查的信息
@@ -26,8 +26,8 @@ class SaveArtworkData {
       pageCount: body.pageCount,
       bookmarkCount: bmk,
       bookmarkData: body.bookmarkData,
-      width: fullWidth,
-      height: fullHeight,
+      width: body.pageCount === 1 ? fullWidth : 0,
+      height: body.pageCount === 1 ? fullHeight : 0,
       mini: body.urls.mini,
       userId: body.userId,
       xRestrict: body.xRestrict,

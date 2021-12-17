@@ -6,9 +6,9 @@ import { filter } from '../filter/Filter'
 import { Utils } from '../utils/Utils'
 import { Tools } from '../Tools'
 
-// 当 Pixiv 会员使用按热门度排序搜索时，进行优化
-// 优化的原理：当会员使用热门度排序时，Pixiv 返回的数据是按收藏数量从高到低排序的。（但不是严格一致，经常有少量作品顺序不对）
-// 假如会员用户在下载器里设置了收藏数量大于 10000，那么当查找到小于 10000 收藏的作品时，就可以考虑停止搜索，因为后面的作品都是收藏数量低于 10000 的了
+// 当 Pixiv 会员使用按热门度排序搜索时，通过检查收藏数量是否符合要求来进行优化
+// 原理：当会员使用热门度排序时，Pixiv 返回的数据是按收藏数量从高到低排序的。（但不是严格一致，经常有少量作品顺序不对）
+// 假如会员用户在下载器里设置了收藏数量大于 10000，那么当查找到小于 10000 收藏的作品时，就可以考虑停止抓取作品了，因为后面的作品都是收藏数量低于 10000 的了
 class VipSearchOptimize {
   constructor() {
     this.bindEvents()
@@ -65,8 +65,10 @@ class VipSearchOptimize {
     }
 
     // 判断收藏数量是否不符合要求
+    // createDate 用于计算日均收藏数量，必须传递
     const check = await filter.check({
       bookmarkCount: data.body.bookmarkCount,
+      createDate: data.body.createDate,
     })
 
     if (!check) {

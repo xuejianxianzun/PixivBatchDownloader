@@ -113,7 +113,7 @@ class Filter {
     }
 
     // 检查宽高设置
-    if (!this.checkSetWh(option.width, option.height)) {
+    if (!this.checkWidthHeight(option.width, option.height)) {
       return false
     }
 
@@ -556,6 +556,7 @@ class Filter {
 
     const day = (nowTime - createTime) / this.oneDayTime // 计算作品发表以来的天数
     const average = bmk / day
+    // const average = bmk / Math.log(1+ day)  // 草 使用的计算日均收藏数量的方式
     const checkAverage = average >= settings.BMKNumAverage
 
     // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会保留这个作品
@@ -665,16 +666,17 @@ class Filter {
   }
 
   // 检查作品是否符合过滤宽高的条件
-  private checkSetWh(
+  private checkWidthHeight(
     width: FilterOption['width'],
     height: FilterOption['height']
   ) {
-    if (!settings.setWHSwitch) {
-      return true
-    }
-
-    // 缺少必要的参数
-    if (width === undefined || height === undefined) {
+    if (
+      !settings.setWHSwitch ||
+      width === undefined ||
+      height === undefined ||
+      width === 0 ||
+      height === 0
+    ) {
       return true
     }
 
@@ -715,11 +717,13 @@ class Filter {
     width: FilterOption['width'],
     height: FilterOption['height']
   ) {
-    if (!settings.ratioSwitch) {
-      return true
-    }
-
-    if (width === undefined || height === undefined) {
+    if (
+      !settings.ratioSwitch ||
+      width === undefined ||
+      height === undefined ||
+      width === 0 ||
+      height === 0
+    ) {
       return true
     }
 
