@@ -4507,6 +4507,19 @@ const langText = {
         'Due to the limitation of pixiv, the downloader can only crawl up to the {}th page.',
         'pixiv の制限により、ダウンローダーは {} ページ目までしかクロールできません。',
     ],
+    _获取图片的宽高时出现错误: [
+        '获取图片的宽高时出现错误：',
+        '獲取圖片的寬高時出現錯誤：',
+        'An error occurred while getting the width and height of the image:',
+        '画像の幅と高さの取得中にエラーが発生しました：',
+    ],
+    _上限: ['上限', '上限', 'Upper limit', '上限'],
+    _预览搜索结果的数量达到上限的提示: [
+        '预览搜索结果的数量已经达到上限，剩余的结果不会显示。',
+        '預覽搜尋結果的數量已經達到上限，剩餘的結果不會顯示。',
+        'The number of preview search results has reached the upper limit, and the remaining results will not be displayed.',
+        'プレビュー検索結果の数が上限に達し、残りの結果は表示されません。',
+    ],
 };
 
 
@@ -8165,9 +8178,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-// 当 Pixiv 会员使用按热门度排序搜索时，进行优化
-// 优化的原理：当会员使用热门度排序时，Pixiv 返回的数据是按收藏数量从高到低排序的。（但不是严格一致，经常有少量作品顺序不对）
-// 假如会员用户在下载器里设置了收藏数量大于 10000，那么当查找到小于 10000 收藏的作品时，就可以考虑停止搜索，因为后面的作品都是收藏数量低于 10000 的了
+// 当 Pixiv 会员使用按热门度排序搜索时，通过检查收藏数量是否符合要求来进行优化
+// 原理：当会员使用热门度排序时，Pixiv 返回的数据是按收藏数量从高到低排序的。（但不是严格一致，经常有少量作品顺序不对）
+// 假如会员用户在下载器里设置了收藏数量大于 10000，那么当查找到小于 10000 收藏的作品时，就可以考虑停止抓取作品了，因为后面的作品都是收藏数量低于 10000 的了
 class VipSearchOptimize {
     constructor() {
         // 在哪些页面上启用
@@ -8214,8 +8227,10 @@ class VipSearchOptimize {
             return true;
         }
         // 判断收藏数量是否不符合要求
+        // createDate 用于计算日均收藏数量，必须传递
         const check = await _filter_Filter__WEBPACK_IMPORTED_MODULE_3__["filter"].check({
             bookmarkCount: data.body.bookmarkCount,
+            createDate: data.body.createDate,
         });
         if (!check) {
             this.filterFailed++;
@@ -9291,7 +9306,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _Bookmark__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../Bookmark */ "./src/ts/Bookmark.ts");
 /* harmony import */ var _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../crawlMixedPage/CrawlTagList */ "./src/ts/crawlMixedPage/CrawlTagList.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 // 初始化 artwork 搜索页
+
 
 
 
@@ -9350,8 +9367,11 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.worksWrap = null;
         this.deleteId = 0; // 手动删除时，要删除的作品的 id
         this.causeResultChange = ['firstFewImagesSwitch', 'firstFewImages']; // 这些选项变更时，可能会导致结果改变。但是过滤器 filter 不会检查，所以需要单独检测它的变更，手动处理
-        this.flag = 'searchArtwork';
-        this.crawlStartBySelf = false;
+        this.crawlStartBySelf = false; // 这次抓取是否是由当前页面的“开始抓取”按钮发起的
+        this.previewCount = 0; // 共显示了多少个作品的预览图
+        this.showPreviewLimitTip = false; // 当预览数量达到上限时显示一次提示
+        // 储存预览搜索结果的元素
+        this.workPreviewBuffer = document.createDocumentFragment();
         this.onSettingChange = (event) => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
                 return;
@@ -9374,14 +9394,16 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 return;
             }
             this.resultMeta = [..._store_Store__WEBPACK_IMPORTED_MODULE_8__["store"].resultMeta];
-            this.clearWorks();
+            // 在搜索页面抓取完毕之后，作品数据会按照收藏数量排序。所以这里需要清空之前的预览，重新生成预览
+            this.clearPreview();
             this.reAddResult();
+            this.showPreview();
             // 解绑创建作品元素的事件
-            window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.createWork);
+            window.removeEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.createPreview);
+            this.crawlStartBySelf = false;
             setTimeout(() => {
                 _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('worksUpdate');
             }, 0);
-            this.crawlStartBySelf = false;
         };
         // 显示抓取到的作品数量
         this.showCount = () => {
@@ -9393,14 +9415,23 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 this.countEl.textContent = count.toString();
             }
         };
-        // 在页面上生成抓取结果对应的作品元素
-        this.createWork = (event) => {
+        // 生成抓取结果对应的作品元素
+        this.createPreview = (event) => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
                 return;
             }
             if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResult || !this.worksWrap) {
                 return;
             }
+            // 检查显示的预览数量是否达到上限
+            if (this.previewCount >= _setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResultLimit) {
+                if (!this.showPreviewLimitTip) {
+                    _Log__WEBPACK_IMPORTED_MODULE_9__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_预览搜索结果的数量达到上限的提示'));
+                    this.showPreviewLimitTip = true;
+                }
+                return;
+            }
+            this.previewCount++;
             const data = event.detail.data;
             let r18Text = '';
             if (data.xRestrict === 1) {
@@ -9434,8 +9465,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             </span>
             <span>${data.pageCount}</span>
           </div>  
-        </div>
-                    `;
+        </div>`;
             }
             let ugoiraHTML = '';
             if (data.ugoiraInfo) {
@@ -9453,7 +9483,6 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             // 添加收藏的作品，让收藏图标变红
             const bookmarkedFlag = data.bookmarked ? this.bookmarkedClass : '';
             const html = `
-    <li class="${this.listClass}" data-id="${data.idNum}">
     <div class="searchContent">
       <div class="searchImgArea">
         <div width="184" height="184" class="searchImgAreaContent">
@@ -9499,20 +9528,19 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
       <div class="bottomBar">
       <!--作者信息-->
       <div class="userInfo">
-      <!--相比原代码，这里去掉了作者头像的 html 代码。因为抓取到的数据里没有作者头像。-->
           <a target="_blank" href="/users/${data.userId}">
             <div class="userName">${data.user}</div>
           </a>
         </div>
       </div>
     </div>
-  </li>
     `;
-            // 添加作品
-            const li2 = document.createElement('li');
-            li2.innerHTML = html;
-            const li = li2.children[0];
-            this.worksWrap.appendChild(li);
+            // 相比 pixiv 原本的作品预览区域，这里去掉了作者头像的部分，因为抓取到的数据里没有作者头像。
+            // 生成预览元素
+            const li = document.createElement('li');
+            li.classList.add(this.listClass);
+            li.dataset.id = data.idNum.toString();
+            li.innerHTML = html;
             // 绑定收藏按钮的事件
             const addBMKBtn = li.querySelector(`.${this.addBMKBtnClass}`);
             const bookmarkedClass = this.bookmarkedClass;
@@ -9523,6 +9551,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 window.dispatchEvent(e);
                 this.classList.add(bookmarkedClass);
             });
+            // 添加到缓冲中
+            this.workPreviewBuffer.append(li);
         };
         // 清除多图作品
         this.clearMultiple = () => {
@@ -9582,7 +9612,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgBlue, '_开始抓取', '_默认下载多页').addEventListener('click', () => {
             this.resultMeta = [];
             this.crawlStartBySelf = true;
-            window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.createWork);
+            window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.createPreview);
             this.readyCrawl();
         });
         _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].addBtn('crawlBtns', _config_Colors__WEBPACK_IMPORTED_MODULE_1__["Colors"].bgGreen, '_在结果中筛选', '_在结果中筛选说明').addEventListener('click', () => {
@@ -9628,6 +9658,15 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.deleteWork, this.deleteWork);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.settingChange, this.onSettingChange);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlTag, this.crawlTag);
+        // 定期将缓冲中的预览作品元素添加到页面上
+        window.setInterval(() => {
+            this.showPreview();
+        }, 1000);
+    }
+    showPreview() {
+        if (this.workPreviewBuffer.firstChild && this.worksWrap) {
+            this.worksWrap.appendChild(this.workPreviewBuffer);
+        }
     }
     destroy() {
         _Tools__WEBPACK_IMPORTED_MODULE_12__["Tools"].clearSlot('crawlBtns');
@@ -9678,7 +9717,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             return this.noResult();
         }
         this.startGetIdList();
-        this.clearWorks();
+        this.clearPreview();
         this.countEl = document.querySelector(this.countSelector);
     }
     // 组织要请求的 url 中的参数
@@ -9778,7 +9817,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
                 xRestrict: nowData.xRestrict,
             };
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check(filterOpt)) {
-                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_16__["idListWithPageNo"].add(this.flag, {
+                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_16__["idListWithPageNo"].add(_PageType__WEBPACK_IMPORTED_MODULE_21__["pageType"].type, {
                     type: _API__WEBPACK_IMPORTED_MODULE_7__["API"].getWorkType(nowData.illustType),
                     id: nowData.id,
                 }, p);
@@ -9795,7 +9834,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             if (this.listPageFinished === this.needCrawlPageCount) {
                 // 抓取任务全部完成
                 _Log__WEBPACK_IMPORTED_MODULE_9__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页抓取完成'));
-                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_16__["idListWithPageNo"].store(this.flag);
+                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_16__["idListWithPageNo"].store(_PageType__WEBPACK_IMPORTED_MODULE_21__["pageType"].type);
                 this.getIdListFinished();
             }
         }
@@ -9822,8 +9861,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }
         return null;
     }
-    // 清空作品列表，只在作品抓取完毕时使用。之后会生成根据收藏数排列的作品列表。
-    clearWorks() {
+    // 清空预览作品的列表，在开始抓取时和作品抓取完毕时使用
+    clearPreview() {
         if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_10__["settings"].previewResult || !this.crawlStartBySelf) {
             return;
         }
@@ -9831,6 +9870,10 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         if (this.worksWrap) {
             this.worksWrap.innerHTML = '';
         }
+        // 同时重置一些变量
+        this.previewCount = 0;
+        this.showPreviewLimitTip = false;
+        this.workPreviewBuffer = document.createDocumentFragment();
     }
     // 传递作品 id 列表，从页面上的作品列表里移除这些作品
     removeWorks(idList) {
@@ -12049,7 +12092,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _crawlMixedPage_CrawlTagList__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../crawlMixedPage/CrawlTagList */ "./src/ts/crawlMixedPage/CrawlTagList.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
 // 初始化小说搜索页
+
 
 
 
@@ -12095,7 +12140,6 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             'original_only',
             'work_lang',
         ];
-        this.flag = 'searchNovel';
         this.crawlTag = () => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_16__["states"].crawlTagList) {
                 this.readyCrawl();
@@ -12253,7 +12297,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                 xRestrict: nowData.xRestrict,
             };
             if (await _filter_Filter__WEBPACK_IMPORTED_MODULE_4__["filter"].check(filterOpt)) {
-                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_12__["idListWithPageNo"].add(this.flag, {
+                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_12__["idListWithPageNo"].add(_PageType__WEBPACK_IMPORTED_MODULE_17__["pageType"].type, {
                     type: 'novels',
                     id: nowData.id,
                 }, p);
@@ -12270,7 +12314,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             if (this.listPageFinished === this.needCrawlPageCount) {
                 // 抓取任务全部完成
                 _Log__WEBPACK_IMPORTED_MODULE_7__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页抓取完成'));
-                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_12__["idListWithPageNo"].store(this.flag);
+                _store_IdListWithPageNo__WEBPACK_IMPORTED_MODULE_12__["idListWithPageNo"].store(_PageType__WEBPACK_IMPORTED_MODULE_17__["pageType"].type);
                 this.getIdListFinished();
             }
         }
@@ -12814,6 +12858,13 @@ class Download {
             if (arg.data.index > 0) {
                 // 始终获取原图的尺寸
                 wh = await _utils_Utils__WEBPACK_IMPORTED_MODULE_10__["Utils"].getImageSize(arg.data.original);
+            }
+            // 如果获取宽高失败，图片会被视为通过宽高检查
+            if (wh.width === 0 || wh.height === 0) {
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_获取图片的宽高时出现错误') + arg.id);
+                // 图片加载失败可能是请求超时，或者图片不存在。这里无法获取到具体原因，所以不直接返回。
+                // 如果是 404 错误，在 download 方法中可以处理这个问题
+                // 如果是请求超时，则有可能错误的通过了这个图片
             }
             const result = await _filter_Filter__WEBPACK_IMPORTED_MODULE_6__["filter"].check(wh);
             if (!result) {
@@ -15985,6 +16036,7 @@ class Filter {
         }
         const day = (nowTime - createTime) / this.oneDayTime; // 计算作品发表以来的天数
         const average = bmk / day;
+        // const average = bmk / Math.log(1+ day)  // 草 使用的计算日均收藏数量的方式
         const checkAverage = average >= _setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].BMKNumAverage;
         // 返回结果。收藏数量和日均收藏并不互斥，两者只要有一个满足条件就会保留这个作品
         return checkNumber || checkAverage;
@@ -18813,6 +18865,11 @@ const formHtml = `<form class="settingForm">
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="previewResult" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
+
+    <span class="subOptionWrap" data-show="previewResult">
+    <span class="settingNameStyle1" data-xztext="_上限"> </span>
+    <input type="text" name="previewResultLimit" class="setinput_style1 blue" value="1000" style="width:80px;min-width: 80px;">
+    </span>
     </p>
 
     <p class="option" data-no="34">
@@ -19067,6 +19124,7 @@ class FormSettings {
                 'workDirNameRule',
                 'autoExportResultNumber',
                 'previewWorkWait',
+                'previewResultLimit',
             ],
             radio: [
                 'ugoiraSaveAs',
@@ -19867,6 +19925,7 @@ class Settings {
             postDateStart: 946684800000,
             postDateEnd: 4102444800000,
             previewResult: true,
+            previewResultLimit: 3000,
             BMKNumSwitch: false,
             BMKNumMin: 0,
             BMKNumMax: _config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].BookmarkCountLimit,
@@ -20199,6 +20258,9 @@ class Settings {
         if (key === 'setWidthAndOr' && value === '') {
             value = this.defaultSettings[key];
         }
+        if (key === 'previewResultLimit' && value < 0) {
+            value = 999999;
+        }
         // 更改设置
         ;
         this.settings[key] = value;
@@ -20280,50 +20342,50 @@ __webpack_require__.r(__webpack_exports__);
 // 这个类会保留每个 id 所处的页码。抓取完成后可以把这些 id 按页码顺序排列，保证 id 的顺序和在页码里的顺序一致
 class IdListWithPageNo {
     constructor() {
-        // 存储 id 列表，按 flag 不同分别存储
+        // 存储 id 列表，按 pageId 不同分别存储
         this.allList = {};
     }
     // 添加一条记录
-    add(flag, idData, page) {
-        if (this.allList[flag] === undefined) {
-            this.allList[flag] = [];
+    add(pageId, idData, page) {
+        if (this.allList[pageId] === undefined) {
+            this.allList[pageId] = [];
         }
-        this.allList[flag].push({
+        this.allList[pageId].push({
             id: idData.id,
             type: idData.type,
             page: page,
         });
     }
     // 清空记录
-    clear(flag) {
-        if (this.allList[flag]) {
-            delete this.allList[flag];
+    clear(pageId) {
+        if (this.allList[pageId]) {
+            delete this.allList[pageId];
         }
     }
     // 排序
-    sort(flag) {
-        if (this.allList[flag]) {
-            this.allList[flag].sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].sortByProperty('page', 'asc'));
+    sort(pageId) {
+        if (this.allList[pageId]) {
+            this.allList[pageId].sort(_utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].sortByProperty('page', 'asc'));
         }
     }
     // 转储到 store.idList 里
     // 自动排序
     // 转储之后自动清空
-    store(flag) {
-        if (this.allList[flag]) {
-            this.sort(flag);
-            for (const data of this.allList[flag]) {
+    store(pageId) {
+        if (this.allList[pageId]) {
+            this.sort(pageId);
+            for (const data of this.allList[pageId]) {
                 _Store__WEBPACK_IMPORTED_MODULE_0__["store"].idList.push({
                     id: data.id,
                     type: data.type,
                 });
             }
-            this.clear(flag);
+            this.clear(pageId);
         }
     }
     // 如果没有值，返回的就是 undefined
-    get(flag) {
-        return this.allList[flag];
+    get(pageId) {
+        return this.allList[pageId];
     }
 }
 const idListWithPageNo = new IdListWithPageNo();
@@ -21664,13 +21726,24 @@ class Utils {
         });
     }
     // 加载图片并在获取到其宽高之后立即返回宽高数值。不需要等待图片加载完毕
+    // 请求出错时，返回值的宽高都是 0
     static async getImageSize(url) {
         return new Promise((resolve) => {
+            let timer = 0;
             const img = new Image();
+            // 在 Chrome 中图片请求的超时时间是 30 秒
+            // 如果请求超时，则直接返回
+            img.onerror = () => {
+                window.clearInterval(timer);
+                return resolve({
+                    width: 0,
+                    height: 0,
+                });
+            };
             img.src = url;
-            const getImageSizeTimer = window.setInterval(() => {
+            timer = window.setInterval(() => {
                 if (img.naturalWidth > 0) {
-                    window.clearInterval(getImageSizeTimer);
+                    window.clearInterval(timer);
                     const wh = {
                         width: img.naturalWidth,
                         height: img.naturalHeight,
@@ -21678,7 +21751,7 @@ class Utils {
                     img.src = '';
                     return resolve(wh);
                 }
-            }, 30);
+            }, 50);
         });
     }
     /**如果数据量多大，不应该使用这个方法 */

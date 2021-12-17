@@ -86,6 +86,14 @@ class Download {
         wh = await Utils.getImageSize(arg.data.original)
       }
 
+      // 如果获取宽高失败，图片会被视为通过宽高检查
+      if (wh.width === 0 || wh.height === 0) {
+        log.error(lang.transl('_获取图片的宽高时出现错误') + arg.id)
+        // 图片加载失败可能是请求超时，或者图片不存在。这里无法获取到具体原因，所以不直接返回。
+        // 如果是 404 错误，在 download 方法中可以处理这个问题
+        // 如果是请求超时，则有可能错误的通过了这个图片
+      }
+
       const result = await filter.check(wh)
       if (!result) {
         return this.skipDownload(

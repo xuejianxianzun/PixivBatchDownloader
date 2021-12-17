@@ -42,6 +42,7 @@ export interface SettingsForm extends HTMLFormElement {
   workDirFileNumber: HTMLInputElement
   workDirNameRule: HTMLInputElement
   previewResult: HTMLInputElement
+  previewResultLimit: HTMLInputElement
   BMKNumSwitch: HTMLInputElement
   ratioSwitch: HTMLInputElement
   idRangeSwitch: HTMLInputElement

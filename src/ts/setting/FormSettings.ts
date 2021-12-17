@@ -127,6 +127,7 @@ class FormSettings {
       'workDirNameRule',
       'autoExportResultNumber',
       'previewWorkWait',
+      'previewResultLimit',
     ],
     radio: [
       'ugoiraSaveAs',

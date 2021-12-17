@@ -1900,6 +1900,19 @@ const langText = {
     'Due to the limitation of pixiv, the downloader can only crawl up to the {}th page.',
     'pixiv の制限により、ダウンローダーは {} ページ目までしかクロールできません。',
   ],
+  _获取图片的宽高时出现错误: [
+    '获取图片的宽高时出现错误：',
+    '獲取圖片的寬高時出現錯誤：',
+    'An error occurred while getting the width and height of the image:',
+    '画像の幅と高さの取得中にエラーが発生しました：',
+  ],
+  _上限: ['上限', '上限', 'Upper limit', '上限'],
+  _预览搜索结果的数量达到上限的提示: [
+    '预览搜索结果的数量已经达到上限，剩余的结果不会显示。',
+    '預覽搜尋結果的數量已經達到上限，剩餘的結果不會顯示。',
+    'The number of preview search results has reached the upper limit, and the remaining results will not be displayed.',
+    'プレビュー検索結果の数が上限に達し、残りの結果は表示されません。',
+  ],
 }
 
 export { langText }

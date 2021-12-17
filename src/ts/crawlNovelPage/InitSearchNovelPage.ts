@@ -17,6 +17,7 @@ import { EVT } from '../EVT'
 import { msgBox } from '../MsgBox'
 import { crawlTagList } from '../crawlMixedPage/CrawlTagList'
 import { states } from '../store/States'
+import { pageType } from '../PageType'
 
 class InitSearchNovelPage extends InitPageBase {
   constructor() {
@@ -52,8 +53,6 @@ class InitSearchNovelPage extends InitPageBase {
     'original_only',
     'work_lang',
   ]
-
-  private readonly flag = 'searchNovel'
 
   protected addCrawlBtns() {
     Tools.addBtn(
@@ -239,7 +238,7 @@ class InitSearchNovelPage extends InitPageBase {
 
       if (await filter.check(filterOpt)) {
         idListWithPageNo.add(
-          this.flag,
+          pageType.type,
           {
             type: 'novels',
             id: nowData.id,
@@ -266,7 +265,7 @@ class InitSearchNovelPage extends InitPageBase {
         // 抓取任务全部完成
         log.log(lang.transl('_列表页抓取完成'))
 
-        idListWithPageNo.store(this.flag)
+        idListWithPageNo.store(pageType.type)
 
         this.getIdListFinished()
       }
