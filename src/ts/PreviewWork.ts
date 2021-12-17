@@ -17,7 +17,7 @@ class PreviewWork {
   // 预览作品的容器的元素
   private wrapId = 'previewWorkWrap'
   private wrap!: HTMLElement
-  private img!: HTMLImageElement
+  private img = document.createElement('img')
   private readonly border = 8 // border 占据的空间
 
   private tipId = 'previewWorkTip'
@@ -74,9 +74,6 @@ class PreviewWork {
     this.tip.id = this.tipId
     this.wrap.appendChild(this.tip)
 
-    this.img = document.createElement('img')
-    this.wrap.appendChild(this.img)
-
     document.body.appendChild(this.wrap)
   }
 
@@ -127,11 +124,6 @@ class PreviewWork {
     this.wrap.addEventListener('click', () => {
       this.show = false
     })
-
-    this.img.addEventListener('load', () => {
-      // 当图片加载完成时，预加载下一张图片
-      this.preload()
-    })
   }
 
   private preload() {
@@ -142,8 +134,20 @@ class PreviewWork {
         let url = this.workData!.body.urls[settings.prevWorkSize]
         url = url.replace('p0', `p${this.index + 1}`)
         let img = new Image()
+        // 在预加载过程中，如果查看的图片变化了，或者不显示预览区域了，则立即中断预加载
+        const nowIndex = this.index
+        const timer = window.setInterval(() => {
+          if (this.index !== nowIndex || !this.show) {
+            window.clearInterval(timer)
+            img && (img.src = '')
+            img = null as any
+          }
+        }, 50)
+        img.onload = () => {
+          window.clearInterval(timer)
+          img && (img = null as any)
+        }
         img.src = url
-        img.onload = () => (img = null as any)
       }
     }
   }
@@ -250,20 +254,34 @@ class PreviewWork {
     const url = this.replaceUrl(this.workData!.body.urls[settings.prevWorkSize])
     const size = await this.getImageSize(url)
 
-    if (!size.available) {
+    // getImageSize 可能需要花费比较长的时间。有时候在 getImageSize 之前是要显示 wrap 的，但是之后鼠标移出，需要隐藏 wrap，再之后 getImageSize 才执行完毕。
+    // 所以此时需要再次判断是否要显示 wrap。如果不再次判断的话，可能有时候需要隐藏预览图，但是预览图却显示出来了
+    if (!size.available || !this.show) {
       return
     }
 
-    this.img.src = url
     const w = size.width
     const h = size.height
-
     const cfg = {
       width: w,
       height: h,
       left: 0,
       top: 0,
     }
+
+    // 每次显示图片时，都销毁旧的 img 元素，然后重新生成一个 img 元素，而不是修改之前的 img 元素的 src
+    // 因为修改 src 的方式存在严重的问题：虽然 src 已经变化了，但是 img 元素显示的还是上一张图片（不管上一张图片是否加载完成）。等到新的图片完全加载完成后，img 才会变化。
+    // 这会导致一些问题：
+    // 1. 在新图片的加载过程中，用户无法看到加载进度。只能等到图片加载完成后瞬间完全显示出来。
+    // 2. 在新图片的加载过程中，图片的宽高是新图片的宽高，但是显示的内容还是旧的图片。如果这两张图片的尺寸不一致，此时显示的（旧）图片看上去是变形的
+    // 只有生成新的 img 元素，才能解决上面的问题
+    this.img.src = ''
+    this.img.remove()
+    this.img = document.createElement('img')
+    // 当图片加载完成时，预加载下一张图片
+    this.img.onload = () => this.preload()
+    this.img.src = url
+    this.wrap.appendChild(this.img)
 
     // 1. 计算图片显示的尺寸
     const rect = this.workEL.getBoundingClientRect()
