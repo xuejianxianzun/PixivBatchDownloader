@@ -228,9 +228,9 @@ class Form {
         // 把选择项插入到光标位置,并设置新的光标位置
         const position = to.selectionStart!
         to.value =
-          to.value.substr(0, position) +
+          to.value.substring(0, position) +
           from.value +
-          to.value.substr(position, to.value.length)
+          to.value.substring(position, to.value.length)
         to.selectionStart = position + from.value.length
         to.selectionEnd = position + from.value.length
         to.focus()

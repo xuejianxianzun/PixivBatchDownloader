@@ -1548,7 +1548,7 @@ class FileName {
         // console.log(this.removeStartChar(testStr))
         // 如果文件名的尾部是 / 则去掉
         if (result.endsWith('/')) {
-            result = result.substr(0, result.length - 1);
+            result = result.substring(0, result.length - 1);
         }
         // 处理连续的 /
         result = result.replace(/\/{2,100}/g, '/');
@@ -1801,7 +1801,7 @@ class FileName {
             const allPart = result.split('/');
             const lastIndex = allPart.length - 1;
             if (allPart[lastIndex].length + extResult.length > limit) {
-                allPart[lastIndex] = allPart[lastIndex].substr(0, limit - extResult.length);
+                allPart[lastIndex] = allPart[lastIndex].substring(0, limit - extResult.length);
             }
             result = allPart.join('/');
         }
@@ -15025,7 +15025,7 @@ class showStatusOnTitle {
         }
         // 去掉 title 里的标记
         const index = document.title.indexOf(']');
-        document.title = document.title.substr(index + 1, document.title.length);
+        document.title = document.title.substring(index + 1);
     }
     // 在标题上显示指定标记
     set(flag) {
@@ -17914,9 +17914,9 @@ class Form {
                 // 把选择项插入到光标位置,并设置新的光标位置
                 const position = to.selectionStart;
                 to.value =
-                    to.value.substr(0, position) +
+                    to.value.substring(0, position) +
                         from.value +
-                        to.value.substr(position, to.value.length);
+                        to.value.substring(position, to.value.length);
                 to.selectionStart = position + from.value.length;
                 to.selectionEnd = position + from.value.length;
                 to.focus();
@@ -19442,7 +19442,7 @@ class NameRuleManager {
             str = str.replace('/', '');
         }
         if (str.endsWith('/')) {
-            str = str.substr(0, str.length - 1);
+            str = str.substring(0, str.length - 1);
         }
         return str;
     }
