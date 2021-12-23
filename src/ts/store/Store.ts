@@ -49,6 +49,7 @@ class Store {
     ext: '',
     bmk: 0,
     bookmarked: false,
+    bmkId: '',
     date: '',
     type: 0,
     rank: null,
