@@ -258,6 +258,11 @@ class FileName {
         prefix: 'bmk_',
         safe: true,
       },
+      '{bmk_id}': {
+        value: data.bmkId || '',
+        prefix: 'bmk-id_',
+        safe: true,
+      },
       '{bmk_1000}': {
         value: this.getBKM1000(data.bmk),
         prefix: 'bmk_',

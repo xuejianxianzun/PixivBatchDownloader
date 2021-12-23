@@ -41,6 +41,7 @@ export interface Result {
   fullHeight: number
   ext: string
   bmk: number
+  bmkId: string
   bookmarked: boolean
   date: string
   /** 0 插画
@@ -82,6 +83,7 @@ export interface ResultOptional {
   fullHeight?: number
   ext?: string
   bmk?: number
+  bmkId?: string
   bookmarked?: boolean
   date?: string
   type?: 0 | 1 | 2 | 3

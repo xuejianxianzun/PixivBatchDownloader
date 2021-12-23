@@ -230,7 +230,7 @@ class Form {
         to.value =
           to.value.substring(0, position) +
           from.value +
-          to.value.substring(position, to.value.length)
+          to.value.substring(position)
         to.selectionStart = position + from.value.length
         to.selectionEnd = position + from.value.length
         to.focus()

@@ -1654,6 +1654,11 @@ class FileName {
                 prefix: 'bmk_',
                 safe: true,
             },
+            '{bmk_id}': {
+                value: data.bmkId || '',
+                prefix: 'bmk-id_',
+                safe: true,
+            },
             '{bmk_1000}': {
                 value: this.getBKM1000(data.bmk),
                 prefix: 'bmk_',
@@ -3030,11 +3035,17 @@ const langText = {
         'Bookmark count, bookmarks number of works.',
         'Bookmark count，作品のボックマークの数、前に追加することでボックマーク数で并べることができます。',
     ],
+    _命名标记bmk_id: [
+        'Bookmark Id。你收藏的每一个作品都会有一个 Bookmark Id。收藏的时间越晚，Bookmark Id 就越大。当你下载你的收藏时，可以使用 {bmk_id} 作为排序依据。',
+        'Bookmark Id。你收藏的每一個作品都會有一個 Bookmark Id。收藏的時間越晚，Bookmark Id 就越大。當你下載你的收藏時，可以使用 {bmk_id} 作為排序依據。',
+        'Bookmark Id. Every work in your bookmarks will have a Bookmark Id. The later the bookmark is added, the larger the Bookmark Id. When you download your bookmarks, you can use {bmk_id} as a sorting basis.',
+        'ブックマークID。 ブックマーク内のすべての作品にはブックマークIDがあります。 ブックマークを後で追加すると、ブックマークIDが大きくなります。 ブックマークをダウンロードするときは、{bmk_id}を並べ替えの基準として使用できます。',
+    ],
     _命名标记bmk_1000: [
-        '作品收藏数的简化显示。例如：0+、1000+、2000+、15000+',
-        '作品收藏數的簡化顯示。例如：0+、1000+、2000+、15000+',
-        'Simplified number of bookmark, e.g. 0+、1000+、2000+、15000+',
-        '作品のボックマークの数の簡略表示。 例：0+、1000+、2000+、15000+',
+        '作品收藏数的简化显示。例如：0+、1000+、2000+、3000+ ……',
+        '作品收藏數的簡化顯示。例如：0+、1000+、2000+、3000+ ……',
+        'Simplified number of bookmark, e.g. 0+、1000+、2000+、3000+ ……',
+        '作品のボックマークの数の簡略表示。 例：0+、1000+、2000+、3000+ ……',
     ],
     _命名标记like: [
         'Like count，作品的点赞数。',
@@ -3085,10 +3096,10 @@ const langText = {
         '作品のランキング。例え　#1、#2 …… ランキングページのみで使用できます。',
     ],
     _命名标记type: [
-        '作品类型，分为',
-        '作品類型，分為',
-        'The type of work, divided into',
-        '作品分類は',
+        '作品类型，分为：Illustration, Manga, Ugoira, Novel',
+        '作品類型，分為：Illustration, Manga, Ugoira, Novel',
+        'The type of work, divided into：Illustration, Manga, Ugoira, Novel',
+        '作品分類は：Illustration, Manga, Ugoira, Novel',
     ],
     _命名标记提醒: [
         '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}<br>* 在某些情况下，会有一些标记不可用。',
@@ -4444,6 +4455,12 @@ const langText = {
         '預覽搜尋結果的數量已經達到上限，剩餘的結果不會顯示。',
         'The number of preview search results has reached the upper limit, and the remaining results will not be displayed.',
         'プレビュー検索結果の数が上限に達し、残りの結果は表示されません。',
+    ],
+    _新增命名标记: [
+        '新增命名标记',
+        '新增命名標記',
+        'Add named tag',
+        '名前付きタグを追加',
     ],
 };
 
@@ -6555,8 +6572,11 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '11.6.5';
-        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_whatisnew')}`;
+        this.flag = '11.7.0';
+        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增命名标记')}: {bmk_id}
+  <br>
+  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记bmk_id')}
+  `;
         this.bindEvents();
     }
     bindEvents() {
@@ -17916,7 +17936,7 @@ class Form {
                 to.value =
                     to.value.substring(0, position) +
                         from.value +
-                        to.value.substring(position, to.value.length);
+                        to.value.substring(position);
                 to.selectionStart = position + from.value.length;
                 to.selectionEnd = position + from.value.length;
                 to.focus();
@@ -18268,6 +18288,7 @@ const formHtml = `<form class="settingForm">
       <option value="{type}">{type}</option>
       <option value="{like}">{like}</option>
       <option value="{bmk}">{bmk}</option>
+      <option value="{bmk_id}">{bmk_id}</option>
       <option value="{bmk_1000}">{bmk_1000}</option>
       <option value="{view}">{view}</option>
       <option value="{rank}">{rank}</option>
@@ -18334,6 +18355,9 @@ const formHtml = `<form class="settingForm">
     <br>
     <span class="blue">{bmk}</span>
     <span data-xztext="_命名标记bmk"></span>
+    <br>
+    <span class="blue">{bmk_id}</span>
+    <span data-xztext="_命名标记bmk_id"></span>
     <br>
     <span class="blue">{bmk_1000}</span>
     <span data-xztext="_命名标记bmk_1000"></span>
@@ -20406,6 +20430,7 @@ class SaveArtworkData {
                     fullHeight: fullHeight,
                     ext: ext,
                     bmk: bmk,
+                    bmkId: body.bookmarkData ? body.bookmarkData.id : '',
                     bookmarked: bookmarked,
                     date: body.createDate,
                     type: body.illustType,
@@ -20455,6 +20480,7 @@ class SaveArtworkData {
                     fullHeight: fullHeight,
                     ext: ext,
                     bmk: bmk,
+                    bmkId: body.bookmarkData ? body.bookmarkData.id : '',
                     bookmarked: bookmarked,
                     date: body.createDate,
                     type: body.illustType,
@@ -20555,6 +20581,7 @@ class SaveNovelData {
                 // 这里的 ext 并不重要，下载时会根据 novelSaveAs 设置自动生成对应的数据
                 ext: _setting_Settings__WEBPACK_IMPORTED_MODULE_2__["settings"].novelSaveAs,
                 bmk: bmk,
+                bmkId: body.bookmarkData ? body.bookmarkData.id : '',
                 bookmarked: bookmarked,
                 date: body.createDate,
                 type: illustType,
@@ -20809,6 +20836,7 @@ class Store {
             ext: '',
             bmk: 0,
             bookmarked: false,
+            bmkId: '',
             date: '',
             type: 0,
             rank: null,

@@ -17,9 +17,12 @@ class ShowWhatIsNew {
     })
   }
 
-  private flag = '11.6.5'
+  private flag = '11.7.0'
 
-  private msg = `${lang.transl('_whatisnew')}`
+  private msg = `${lang.transl('_新增命名标记')}: {bmk_id}
+  <br>
+  ${lang.transl('_命名标记bmk_id')}
+  `
 
   private show() {
     if (Utils.isPixiv() && settings.whatIsNewFlag !== this.flag) {

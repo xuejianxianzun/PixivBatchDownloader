@@ -72,6 +72,7 @@ class SaveNovelData {
         // 这里的 ext 并不重要，下载时会根据 novelSaveAs 设置自动生成对应的数据
         ext: settings.novelSaveAs,
         bmk: bmk,
+        bmkId: body.bookmarkData ? body.bookmarkData.id : '',
         bookmarked: bookmarked,
         date: body.createDate,
         type: illustType,

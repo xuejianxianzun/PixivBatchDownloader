@@ -283,6 +283,7 @@ export const formHtml = `<form class="settingForm">
       <option value="{type}">{type}</option>
       <option value="{like}">{like}</option>
       <option value="{bmk}">{bmk}</option>
+      <option value="{bmk_id}">{bmk_id}</option>
       <option value="{bmk_1000}">{bmk_1000}</option>
       <option value="{view}">{view}</option>
       <option value="{rank}">{rank}</option>
@@ -349,6 +350,9 @@ export const formHtml = `<form class="settingForm">
     <br>
     <span class="blue">{bmk}</span>
     <span data-xztext="_命名标记bmk"></span>
+    <br>
+    <span class="blue">{bmk_id}</span>
+    <span data-xztext="_命名标记bmk_id"></span>
     <br>
     <span class="blue">{bmk_1000}</span>
     <span data-xztext="_命名标记bmk_1000"></span>
