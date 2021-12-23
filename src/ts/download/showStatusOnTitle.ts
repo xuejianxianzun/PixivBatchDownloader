@@ -108,7 +108,7 @@ class showStatusOnTitle {
 
     // 去掉 title 里的标记
     const index = document.title.indexOf(']')
-    document.title = document.title.substr(index + 1, document.title.length)
+    document.title = document.title.substring(index + 1)
   }
 
   // 在标题上显示指定标记

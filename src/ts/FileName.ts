@@ -149,7 +149,7 @@ class FileName {
 
     // 如果文件名的尾部是 / 则去掉
     if (result.endsWith('/')) {
-      result = result.substr(0, result.length - 1)
+      result = result.substring(0, result.length - 1)
     }
 
     // 处理连续的 /
@@ -261,6 +261,11 @@ class FileName {
       '{bmk}': {
         value: data.bmk,
         prefix: 'bmk_',
+        safe: true,
+      },
+      '{bmk_id}': {
+        value: data.bmkId || '',
+        prefix: 'bmk-id_',
         safe: true,
       },
       '{bmk_1000}': {
@@ -436,7 +441,7 @@ class FileName {
       const lastIndex = allPart.length - 1
 
       if (allPart[lastIndex].length + extResult.length > limit) {
-        allPart[lastIndex] = allPart[lastIndex].substr(
+        allPart[lastIndex] = allPart[lastIndex].substring(
           0,
           limit - extResult.length
         )
