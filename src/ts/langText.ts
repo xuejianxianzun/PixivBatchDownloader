@@ -1272,6 +1272,12 @@ const langText = {
     'Naming rule saved',
     'ネームルールを保存しました',
   ],
+  _命名: [
+    '命名',
+    '命名',
+    'Name',
+    '命名',
+  ],
   _无损: ['无损', '無損', 'Lossless', 'ロスレス'],
   _文件名长度限制: [
     '文件名<span class="key">长度</span>限制',

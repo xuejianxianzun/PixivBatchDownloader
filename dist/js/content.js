@@ -3809,6 +3809,12 @@ const langText = {
         'Naming rule saved',
         'ネームルールを保存しました',
     ],
+    _命名: [
+        '命名',
+        '命名',
+        'Name',
+        '命名',
+    ],
     _无损: ['无损', '無損', 'Lossless', 'ロスレス'],
     _文件名长度限制: [
         '文件名<span class="key">长度</span>限制',
@@ -8966,6 +8972,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             62,
             63,
             64,
+            65,
         ]);
     }
     nextStep() {
@@ -18426,19 +18433,6 @@ const formHtml = `<form class="settingForm">
     <span data-xztext="_小说"></span></label>
     </p>
 
-    <p class="option" data-no="43">
-    <span class="has_tip settingNameStyle1" data-xztip="_使用匹配的tag建立文件夹的说明">
-    <span data-xztext="_使用第一个匹配的tag建立文件夹"></span>
-    <span class="gray1"> ? </span></span>
-    <input type="checkbox" name="createFolderByTag" class="need_beautify checkbox_switch" >
-    <span class="beautify_switch"></span>
-    <span class="subOptionWrap" data-show="createFolderByTag">
-    <span class="gray1" data-xztext="_tag用逗号分割"></span>
-    <br>
-    <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1"></textarea>
-    </span>
-    </p>
-
     <p class="option" data-no="38">
     <span class="settingNameStyle1" data-xztext="_把r18作品存入指定的文件夹里"></span>
     <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch" >
@@ -18514,8 +18508,32 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_switch"></span>
     </p>
 
-    <p class="option settingCategoryName" data-no="58">
-      <span data-xztext="_下载"></span>
+    <p class="option settingCategoryName" data-no="59">
+      <span data-xztext="_抓取"></span>
+    </p>
+
+    <p class="option" data-no="35">
+    <span class="has_tip settingNameStyle1" data-xztip="_用户阻止名单的说明">
+    <span data-xztext="_用户阻止名单"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    <span class="subOptionWrap" data-show="userBlockList">
+    <input type="text" name="blockList" class="setinput_style1 blue setinput_tag" data-xzplaceholder="_用户ID必须是数字">
+    </span>
+    </p>
+
+    <p class="option" data-no="39">
+    <span class="settingNameStyle1" data-xztext="_针对特定用户屏蔽tag"></span>
+    <input type="checkbox" name="blockTagsForSpecificUser" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    <span class="subOptionWrap" data-show="blockTagsForSpecificUser">
+    <slot data-name="blockTagsForSpecificUser"></slot>
+    </span>
+    </p>
+
+    <p class="option settingCategoryName" data-no="65">
+      <span data-xztext="_命名"></span>
     </p>
 
     <p class="option" data-no="14">
@@ -18524,6 +18542,19 @@ const formHtml = `<form class="settingForm">
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
+    </p>
+
+    <p class="option" data-no="43">
+    <span class="has_tip settingNameStyle1" data-xztip="_使用匹配的tag建立文件夹的说明">
+    <span data-xztext="_使用第一个匹配的tag建立文件夹"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="createFolderByTag" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch"></span>
+    <span class="subOptionWrap" data-show="createFolderByTag">
+    <span class="gray1" data-xztext="_tag用逗号分割"></span>
+    <br>
+    <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1"></textarea>
+    </span>
     </p>
 
     <p class="option" data-no="22">
@@ -18560,6 +18591,10 @@ const formHtml = `<form class="settingForm">
     <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
     <input type="text" name="fileNameLengthLimit" class="setinput_style1 blue" value="200">
     </span>
+    </p>
+
+    <p class="option settingCategoryName" data-no="58">
+      <span data-xztext="_下载"></span>
     </p>
 
     <p class="option" data-no="4">
@@ -18690,30 +18725,6 @@ const formHtml = `<form class="settingForm">
     <input type="checkbox" name="autoExportResultJSON" id="autoExportResultJSON" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="autoExportResultJSON"> JSON </label>
-    </span>
-    </p>
-
-    <p class="option settingCategoryName" data-no="59">
-      <span data-xztext="_抓取"></span>
-    </p>
-
-    <p class="option" data-no="35">
-    <span class="has_tip settingNameStyle1" data-xztip="_用户阻止名单的说明">
-    <span data-xztext="_用户阻止名单"></span>
-    <span class="gray1"> ? </span></span>
-    <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
-    <span class="beautify_switch"></span>
-    <span class="subOptionWrap" data-show="userBlockList">
-    <input type="text" name="blockList" class="setinput_style1 blue setinput_tag" data-xzplaceholder="_用户ID必须是数字">
-    </span>
-    </p>
-
-    <p class="option" data-no="39">
-    <span class="settingNameStyle1" data-xztext="_针对特定用户屏蔽tag"></span>
-    <input type="checkbox" name="blockTagsForSpecificUser" class="need_beautify checkbox_switch">
-    <span class="beautify_switch"></span>
-    <span class="subOptionWrap" data-show="blockTagsForSpecificUser">
-    <slot data-name="blockTagsForSpecificUser"></slot>
     </span>
     </p>
 
