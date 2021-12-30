@@ -19,10 +19,7 @@ class BlockTagsForSpecificUser {
     this.createWrap()
     theme.register(this.wrap)
     lang.register(this.wrap)
-
     this.bindEvents()
-
-    this.createAllList()
   }
 
   private rules: typeof settings.blockTagsForSpecificUserList = []
@@ -61,8 +58,8 @@ class BlockTagsForSpecificUser {
   <div class="blockTagsForSpecificUserWrap">
 
     <div class="controlBar">
-      <button type="button" class="textButton expand" data-xztext="_收起"></button>
       <span class="total">0</span>
+      <button type="button" class="textButton expand" data-xztext="_收起"></button>
       <button type="button" class="textButton showAdd" data-xztext="_添加"></button>
     </div>
 
@@ -126,7 +123,6 @@ class BlockTagsForSpecificUser {
         'blockTagsForSpecificUserShowList',
         !settings.blockTagsForSpecificUserShowList
       )
-      this.showListWrap()
 
       if (
         settings.blockTagsForSpecificUserShowList &&
@@ -158,7 +154,11 @@ class BlockTagsForSpecificUser {
   private bindEvents() {
     window.addEventListener(EVT.list.settingChange, (ev: CustomEventInit) => {
       const data = ev.detail.data as any
-      if (data.name.includes('blockTagsForSpecificUser')) {
+      if (data.name === 'blockTagsForSpecificUserShowList') {
+        this.showListWrap()
+      }
+
+      if (data.name === 'blockTagsForSpecificUserList') {
         this.createAllList()
       }
     })
@@ -181,7 +181,6 @@ class BlockTagsForSpecificUser {
     for (const data of this.rules) {
       this.createList(data)
     }
-    this.showListWrap()
   }
 
   // 创建规则对应的元素，并绑定事件
@@ -326,19 +325,10 @@ class BlockTagsForSpecificUser {
       return this.updateRule(uid, uid.toString(), joinTags.toString())
     }
 
+    this.addWrapShow = false
     this.rules.push(check)
     setSetting('blockTagsForSpecificUserList', [...this.rules])
-
-    this.createList({
-      uid,
-      tags,
-      user: '',
-    })
-
-    this.addWrapShow = false
-
     setSetting('blockTagsForSpecificUserShowList', true)
-    this.showListWrap()
 
     toast.success(lang.transl('_添加成功'))
   }
@@ -355,18 +345,15 @@ class BlockTagsForSpecificUser {
     if (!check) {
       return
     }
-    const { uid, tags } = check
-
-    const index = this.findIndex(oldUid)
-    this.rules[index] = check
-    setSetting('blockTagsForSpecificUserList', [...this.rules])
 
     const listElement = this.listWrap.querySelector(
       `.settingItem[data-key='${oldUid}']`
     )
     listElement?.remove()
 
-    this.createList({ uid, tags, user: '' })
+    const index = this.findIndex(oldUid)
+    this.rules[index] = check
+    setSetting('blockTagsForSpecificUserList', [...this.rules])
 
     if (tip) {
       toast.success(lang.transl('_更新成功'))
