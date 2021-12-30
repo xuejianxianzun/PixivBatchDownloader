@@ -50,6 +50,7 @@ type SettingValue =
   | number[]
   | object[]
   | { [key: number]: string }
+  | Map<string, string>
 
 export interface SettingChangeData {
   name: SettingsKeys
@@ -199,7 +200,12 @@ interface XzSetting {
   notFolderWhenOneFile: boolean
   noSerialNoForSingleImg: boolean
   noSerialNoForMultiImg: boolean
+  setUserNameShow: boolean
+  setUserNameList: {
+    [uid: string]: string
+  }
 }
+// chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
 type SettingsKeys = keyof XzSetting
 
@@ -386,6 +392,8 @@ class Settings {
     notFolderWhenOneFile: false,
     noSerialNoForSingleImg: true,
     noSerialNoForMultiImg: true,
+    setUserNameShow: true,
+    setUserNameList: {},
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

@@ -184,10 +184,10 @@ const langText = {
     'このページからすべての作品をダウンロードする。',
   ],
   _从本页开始下载提示: [
-    '从本页开始下载<br>如果要限制下载的页数，请输入从1开始的数字，1为仅下载本页。',
-    '從本頁開始下載。<br>如果要限制下載的頁數，請輸入從 1 開始的數字，1 為僅下載本頁。',
-    'Download from this page<br>If you want to set the number of pages to download, type a number starting at 1. This page is 1.',
-    'このページからダウンロードする<br>ダウンロードするページを設定する場合は、1から始まる数字を入力してください。 1は現在のページのみをダウンロードする。',
+    '从本页开始下载<br>如果要限制下载的页数，请输入从1开始的数字。<br>1为仅下载本页。',
+    '從本頁開始下載。<br>如果要限制下載的頁數，請輸入從 1 開始的數字。<br>1 為僅下載本頁。',
+    'Download from this page<br>If you want to set the number of pages to download, type a number starting at 1. <br>1 is to download only this page.',
+    'このページからダウンロードする<br>ダウンロードするページを設定する場合は、1から始まる数字を入力してください。<br>1 は現在のページのみをダウンロードする。',
   ],
   _下载所有页面: [
     '下载所有页面',
@@ -1272,12 +1272,7 @@ const langText = {
     'Naming rule saved',
     'ネームルールを保存しました',
   ],
-  _命名: [
-    '命名',
-    '命名',
-    'Name',
-    '命名',
-  ],
+  _命名: ['命名', '命名', 'Name', '命名'],
   _无损: ['无损', '無損', 'Lossless', 'ロスレス'],
   _文件名长度限制: [
     '文件名<span class="key">长度</span>限制',
@@ -1930,6 +1925,26 @@ const langText = {
     '新增命名標記',
     'Add named tag',
     '名前付きタグを追加',
+  ],
+  _自定义用户名: [
+    '自定义<span class="key">用户名</span>',
+    '自定義<span class="key">使用者名稱</span>',
+    'Customize <span class="key">username</span>',
+    'カスタムユーザー名',
+  ],
+  _设置用户名的说明: [
+    `有些用户可能会改名，如果你想使用他原来的名字，你可以在这里手动设置他的名字。<br>
+    你也可以为用户设置别名。<br>
+    当你在命名规则中使用 {user} 标记时，下载器会优先使用你设置的名字。`,
+    `有些使用者可能會改名，如果你想使用他原來的名字，你可以在這裡手動設定他的名字。<br>
+    你也可以為使用者設定別名。<br>
+    當你在命名規則中使用 {user} 標記時，下載器會優先使用你設定的名字。`,
+    `Some users may change their name. If you want to use his original name, you can manually set his name here. <br>
+    You can also set aliases for users. <br>
+    When you use the {user} tag in the naming rule, the downloader will give priority to the name you set.`,
+    `ユーザーによっては名前を変更する場合があります。元の名前を使いたい場合は、ここで名前を手動で設定することができます。<br>
+    また、ユーザーの別名を設定することも可能です。<br>
+    命名規則で {user} タグを使用すると、ダウンローダーは設定された名前を優先的に使用します。`,
   ],
 }
 
