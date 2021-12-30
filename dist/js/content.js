@@ -3803,20 +3803,15 @@ const langText = {
         '保存命名规则，最多 20 个',
         '儲存命名規則，最多 20 個',
         'Save naming rule, up to 20',
-        'ネームルールを保存します。最大 20 個まで',
+        '命名規則を保存します。最大 20 個まで',
     ],
     _已保存命名规则: [
         '已保存命名规则',
         '已儲存命名規則',
         'Naming rule saved',
-        'ネームルールを保存しました',
+        '命名規則を保存しました',
     ],
-    _命名: [
-        '命名',
-        '命名',
-        'Name',
-        '命名',
-    ],
+    _命名: ['命名', '命名', 'Name', '命名'],
     _无损: ['无损', '無損', 'Lossless', 'ロスレス'],
     _文件名长度限制: [
         '文件名<span class="key">长度</span>限制',
@@ -4076,7 +4071,7 @@ const langText = {
     _必须是数字: [
         '必须是数字',
         '必須是數字',
-        'Must be a number',
+        'Number',
         '数字でなければなりません',
     ],
     _tag用逗号分割: [
@@ -15523,8 +15518,8 @@ class BlockTagsForSpecificUser {
   <div class="blockTagsForSpecificUserWrap">
 
     <div class="controlBar">
-      <button type="button" class="textButton expand" data-xztext="_收起"></button>
       <span class="total">0</span>
+      <button type="button" class="textButton expand" data-xztext="_收起"></button>
       <button type="button" class="textButton showAdd" data-xztext="_添加"></button>
     </div>
 
@@ -15565,7 +15560,6 @@ class BlockTagsForSpecificUser {
         _Theme__WEBPACK_IMPORTED_MODULE_6__["theme"].register(this.wrap);
         _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.wrap);
         this.bindEvents();
-        this.createAllList();
     }
     set addWrapShow(val) {
         this._addWrapShow = val;
@@ -15593,7 +15587,6 @@ class BlockTagsForSpecificUser {
         // 展开/折叠
         this.expandBtn.addEventListener('click', () => {
             Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserShowList', !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList);
-            this.showListWrap();
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList &&
                 this.rules.length === 0) {
                 _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'));
@@ -15618,7 +15611,10 @@ class BlockTagsForSpecificUser {
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
             const data = ev.detail.data;
-            if (data.name.includes('blockTagsForSpecificUser')) {
+            if (data.name === 'blockTagsForSpecificUserShowList') {
+                this.showListWrap();
+            }
+            if (data.name === 'blockTagsForSpecificUserList') {
                 this.createAllList();
             }
         });
@@ -15639,7 +15635,6 @@ class BlockTagsForSpecificUser {
         for (const data of this.rules) {
             this.createList(data);
         }
-        this.showListWrap();
     }
     // 创建规则对应的元素，并绑定事件
     createList(data) {
@@ -15755,16 +15750,10 @@ class BlockTagsForSpecificUser {
             const joinTags = this.rules[index].tags.concat(tags);
             return this.updateRule(uid, uid.toString(), joinTags.toString());
         }
+        this.addWrapShow = false;
         this.rules.push(check);
         Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserList', [...this.rules]);
-        this.createList({
-            uid,
-            tags,
-            user: '',
-        });
-        this.addWrapShow = false;
         Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserShowList', true);
-        this.showListWrap();
         _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加成功'));
     }
     // 更新规则
@@ -15774,13 +15763,11 @@ class BlockTagsForSpecificUser {
         if (!check) {
             return;
         }
-        const { uid, tags } = check;
+        const listElement = this.listWrap.querySelector(`.settingItem[data-key='${oldUid}']`);
+        listElement === null || listElement === void 0 ? void 0 : listElement.remove();
         const index = this.findIndex(oldUid);
         this.rules[index] = check;
         Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserList', [...this.rules]);
-        const listElement = this.listWrap.querySelector(`.settingItem[data-key='${oldUid}']`);
-        listElement === null || listElement === void 0 ? void 0 : listElement.remove();
-        this.createList({ uid, tags, user: '' });
         if (tip) {
             _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_更新成功'));
         }
@@ -20284,7 +20271,7 @@ class Settings {
             noSerialNoForSingleImg: true,
             noSerialNoForMultiImg: true,
             setUserNameShow: true,
-            setUserNameList: {}
+            setUserNameList: {},
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
