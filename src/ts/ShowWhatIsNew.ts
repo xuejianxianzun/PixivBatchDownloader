@@ -17,11 +17,11 @@ class ShowWhatIsNew {
     })
   }
 
-  private flag = '11.7.0'
+  private flag = '11.8.0'
 
-  private msg = `${lang.transl('_新增命名标记')}: {bmk_id}
+  private msg = `${lang.transl('_新增设置项')}: ${lang.transl('_自定义用户名')}
   <br>
-  ${lang.transl('_命名标记bmk_id')}
+  ${lang.transl('_自定义用户名的说明')}
   `
 
   private show() {
