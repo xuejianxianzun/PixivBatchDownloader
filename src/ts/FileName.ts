@@ -1,5 +1,6 @@
 import { settings } from './setting/Settings'
 import { nameRuleManager } from './setting/NameRuleManager'
+import './SetUserName'
 import { store } from './store/Store'
 import { Result } from './store/StoreType'
 import { Config } from './config/Config'
@@ -216,7 +217,7 @@ class FileName {
         safe: false,
       },
       '{user}': {
-        value: data.user,
+        value: settings.setUserNameList[data.userId] || data.user,
         prefix: 'user_',
         safe: false,
       },

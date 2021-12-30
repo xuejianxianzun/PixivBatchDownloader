@@ -251,7 +251,11 @@ class InitSearchNovelPage extends InitPageBase {
     this.listPageFinished++
 
     log.log(
-      lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
+      lang.transl(
+        '_列表页抓取进度2',
+        this.listPageFinished.toString(),
+        this.needCrawlPageCount.toString()
+      ),
       1,
       false
     )

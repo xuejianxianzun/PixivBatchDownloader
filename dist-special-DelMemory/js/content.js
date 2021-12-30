@@ -1485,11 +1485,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "fileName", function() { return fileName; });
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _setting_NameRuleManager__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/NameRuleManager */ "./src/ts/setting/NameRuleManager.ts");
-/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
-/* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./config/Config */ "./src/ts/config/Config.ts");
-/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _SetUserName__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./SetUserName */ "./src/ts/SetUserName.ts");
+/* harmony import */ var _store_Store__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./store/Store */ "./src/ts/store/Store.ts");
+/* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./config/Config */ "./src/ts/config/Config.ts");
+/* harmony import */ var _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/DateFormat */ "./src/ts/utils/DateFormat.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+
 
 
 
@@ -1524,7 +1526,7 @@ class FileName {
         var _a;
         // 只有插画和漫画有编号
         if (data.type === 0 || data.type === 1) {
-            const index = (_a = data.index) !== null && _a !== void 0 ? _a : _Tools__WEBPACK_IMPORTED_MODULE_6__["Tools"].getResultIndex(data);
+            const index = (_a = data.index) !== null && _a !== void 0 ? _a : _Tools__WEBPACK_IMPORTED_MODULE_7__["Tools"].getResultIndex(data);
             // 处理第一张图不带序号的情况
             if (index === 0 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].noSerialNo) {
                 if (data.pageCount === 1 && _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].noSerialNoForSingleImg) {
@@ -1576,7 +1578,7 @@ class FileName {
     // appendFolder 方法会对非法字符进行处理（包括处理路径分隔符 / 这主要是因为 tags 可能含有斜线 /，需要替换）
     appendFolder(fullPath, folderName) {
         const allPart = fullPath.split('/');
-        allPart.splice(allPart.length - 1, 0, _utils_Utils__WEBPACK_IMPORTED_MODULE_5__["Utils"].replaceUnsafeStr(folderName));
+        allPart.splice(allPart.length - 1, 0, _utils_Utils__WEBPACK_IMPORTED_MODULE_6__["Utils"].replaceUnsafeStr(folderName));
         return allPart.join('/');
     }
     // 检查文件名开头是否含有特定字符
@@ -1612,7 +1614,7 @@ class FileName {
                 temp = typeof temp !== 'string' ? temp.toString() : temp;
                 // 替换不可以作为文件名的特殊字符
                 if (!val.safe) {
-                    temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__["Utils"].replaceUnsafeStr(temp);
+                    temp = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__["Utils"].replaceUnsafeStr(temp);
                 }
                 // 添加标记前缀
                 if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].tagNameToFileName) {
@@ -1652,12 +1654,12 @@ class FileName {
         const p_num = this.createPNum(data);
         const cfg = {
             '{p_title}': {
-                value: _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].title,
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].title,
                 prefix: '',
                 safe: false,
             },
             '{p_tag}': {
-                value: _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].tag,
+                value: _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].tag,
                 prefix: '',
                 safe: false,
             },
@@ -1689,7 +1691,7 @@ class FileName {
                 safe: false,
             },
             '{user}': {
-                value: data.user,
+                value: _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].setUserNameList[data.userId] || data.user,
                 prefix: 'user_',
                 safe: false,
             },
@@ -1759,19 +1761,19 @@ class FileName {
             '{date}': {
                 value: !allNameRule.includes('{date}')
                     ? null
-                    : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_4__["DateFormat"].format(data.date, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].dateFormat),
+                    : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__["DateFormat"].format(data.date, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].dateFormat),
                 prefix: '',
                 safe: false,
             },
             '{task_date}': {
                 value: !allNameRule.includes('{task_date}')
                     ? null
-                    : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_4__["DateFormat"].format(_store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].crawlCompleteTime, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].dateFormat),
+                    : _utils_DateFormat__WEBPACK_IMPORTED_MODULE_5__["DateFormat"].format(_store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].crawlCompleteTime, _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].dateFormat),
                 prefix: '',
                 safe: false,
             },
             '{type}': {
-                value: _config_Config__WEBPACK_IMPORTED_MODULE_3__["Config"].worksTypeName[data.type],
+                value: _config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].worksTypeName[data.type],
                 prefix: '',
                 safe: true,
             },
@@ -1805,7 +1807,7 @@ class FileName {
                 _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].createFolderByTypeNovel,
             ];
             if (allSwitch[data.type]) {
-                const folder = _config_Config__WEBPACK_IMPORTED_MODULE_3__["Config"].worksTypeName[data.type];
+                const folder = _config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].worksTypeName[data.type];
                 result = this.appendFolder(result, folder);
             }
         }
@@ -1859,7 +1861,7 @@ class FileName {
             // 把每层路径头尾的 . 替换成全角的．因为 Chrome 不允许头尾使用 .
             str = str.trim().replace(/^\./g, '．').replace(/\.$/g, '．');
             // 处理路径是 Windows 保留文件名的情况（不需要处理后缀名）
-            str = _utils_Utils__WEBPACK_IMPORTED_MODULE_5__["Utils"].handleWindowsReservedName(str, this.addStr);
+            str = _utils_Utils__WEBPACK_IMPORTED_MODULE_6__["Utils"].handleWindowsReservedName(str, this.addStr);
             pathArray[i] = str;
         }
         result = pathArray.join('/');
@@ -1877,7 +1879,7 @@ class FileName {
         }
         const extResult = '.' + data.ext;
         // 6 处理不创建文件夹的情况
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].notFolderWhenOneFile && _store_Store__WEBPACK_IMPORTED_MODULE_2__["store"].result.length === 1) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].notFolderWhenOneFile && _store_Store__WEBPACK_IMPORTED_MODULE_3__["store"].result.length === 1) {
             // 舍弃文件夹部分，只保留文件名
             result = result.split('/').pop();
         }
@@ -2804,10 +2806,10 @@ const langText = {
         'このページからすべての作品をダウンロードする。',
     ],
     _从本页开始下载提示: [
-        '从本页开始下载<br>如果要限制下载的页数，请输入从1开始的数字，1为仅下载本页。',
-        '從本頁開始下載。<br>如果要限制下載的頁數，請輸入從 1 開始的數字，1 為僅下載本頁。',
-        'Download from this page<br>If you want to set the number of pages to download, type a number starting at 1. This page is 1.',
-        'このページからダウンロードする<br>ダウンロードするページを設定する場合は、1から始まる数字を入力してください。 1は現在のページのみをダウンロードする。',
+        '从本页开始下载<br>如果要限制下载的页数，请输入从1开始的数字。<br>1为仅下载本页。',
+        '從本頁開始下載。<br>如果要限制下載的頁數，請輸入從 1 開始的數字。<br>1 為僅下載本頁。',
+        'Download from this page<br>If you want to set the number of pages to download, type a number starting at 1. <br>1 is to download only this page.',
+        'このページからダウンロードする<br>ダウンロードするページを設定する場合は、1から始まる数字を入力してください。<br>1 は現在のページのみをダウンロードする。',
     ],
     _下载所有页面: [
         '下载所有页面',
@@ -2941,10 +2943,16 @@ const langText = {
         '作品情報の取得を開始します',
     ],
     _列表页抓取进度: [
-        '已抓取列表页{}个页面',
+        '已抓取列表页 {} 个页面',
         '已擷取清單頁 {} 個頁面',
         'Has acquired {} list pages',
         '{} のリストページを取得しました',
+    ],
+    _列表页抓取进度2: [
+        '正在抓取列表页 {}/{}',
+        '正在抓取列表頁 {}/{}',
+        'crawling list page {}/{}',
+        'リストページの取得 {}/{}',
     ],
     _列表页抓取完成: [
         '列表页面抓取完成',
@@ -3884,14 +3892,15 @@ const langText = {
         '保存命名规则，最多 20 个',
         '儲存命名規則，最多 20 個',
         'Save naming rule, up to 20',
-        'ネームルールを保存します。最大 20 個まで',
+        '命名規則を保存します。最大 20 個まで',
     ],
     _已保存命名规则: [
         '已保存命名规则',
         '已儲存命名規則',
         'Naming rule saved',
-        'ネームルールを保存しました',
+        '命名規則を保存しました',
     ],
+    _命名: ['命名', '命名', 'Name', '命名'],
     _无损: ['无损', '無損', 'Lossless', 'ロスレス'],
     _文件名长度限制: [
         '文件名<span class="key">长度</span>限制',
@@ -4151,7 +4160,7 @@ const langText = {
     _必须是数字: [
         '必须是数字',
         '必須是數字',
-        'Must be a number',
+        'Number',
         '数字でなければなりません',
     ],
     _tag用逗号分割: [
@@ -4544,6 +4553,26 @@ const langText = {
         '新增命名標記',
         'Add named tag',
         '名前付きタグを追加',
+    ],
+    _自定义用户名: [
+        '自定义<span class="key">用户名</span>',
+        '自定義<span class="key">使用者名稱</span>',
+        'Customize <span class="key">username</span>',
+        'カスタムユーザー名',
+    ],
+    _自定义用户名的说明: [
+        `有些用户可能会改名，如果你想使用他原来的名字，你可以在这里手动设置他的名字。<br>
+    你也可以为用户设置别名。<br>
+    当你在命名规则中使用 {user} 标记时，下载器会优先使用你设置的名字。`,
+        `有些使用者可能會改名，如果你想使用他原來的名字，你可以在這裡手動設定他的名字。<br>
+    你也可以為使用者設定別名。<br>
+    當你在命名規則中使用 {user} 標記時，下載器會優先使用你設定的名字。`,
+        `Some users may change their name. If you want to use his original name, you can manually set his name here. <br>
+    You can also set aliases for users. <br>
+    When you use the {user} tag in the naming rule, the downloader will give priority to the name you set.`,
+        `ユーザーによっては名前を変更する場合があります。元の名前を使いたい場合は、ここで名前を手動で設定することができます。<br>
+    また、ユーザーの別名を設定することも可能です。<br>
+    命名規則で {user} タグを使用すると、ダウンローダーは設定された名前を優先的に使用します。`,
     ],
 };
 
@@ -6054,6 +6083,257 @@ new SelectWork();
 
 /***/ }),
 
+/***/ "./src/ts/SetUserName.ts":
+/*!*******************************!*\
+  !*** ./src/ts/SetUserName.ts ***!
+  \*******************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
+/* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
+/* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+
+
+
+
+
+
+
+// 为某些用户设置固定的用户名，或者别名
+class SetUserName {
+    constructor() {
+        this._addWrapShow = false;
+        this.wrapHTML = `
+  <span class="setUserNameWrap">
+
+    <span class="controlBar">
+    <span class="total">0</span>
+      <button type="button" class="textButton expand" data-xztext="_收起"></button>
+      <button type="button" class="textButton showAdd" data-xztext="_添加"></button>
+    </span>
+
+    <div class="addWrap">
+      <div class="settingItem addInputWrap" >
+        <div class="inputItem uid">
+          <span class="label uidLabel" data-xztext="_用户id"></span>
+          <input type="text" class="setinput_style1 blue addUidInput" data-xzplaceholder="_必须是数字" />
+        </div>
+
+        <div class="inputItem name">
+          <span class="label nameLabel" data-xztext="_命名标记user"></span>
+          <input type="text" class="setinput_style1 blue addNameInput" />
+        </div>
+
+        <div class="btns">
+          <button type="button" class="textButton add" data-xztitle="_添加">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-wanchengqueding"></use>
+            </svg>
+          </button>
+
+          
+          <button type="button" class="textButton cancel" data-xztitle="_取消">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-guanbiquxiao"></use>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="listWrap">
+    </div>
+  </span>
+  `;
+        this.createWrap();
+        _Theme__WEBPACK_IMPORTED_MODULE_4__["theme"].register(this.wrap);
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.wrap);
+        this.bindEvents();
+    }
+    set addWrapShow(val) {
+        this._addWrapShow = val;
+        if (val) {
+            this.addWrap.style.display = 'block';
+            this.addInputUid.focus();
+        }
+        else {
+            this.addWrap.style.display = 'none';
+            this.addInputUid.value = '';
+            this.addInputName.value = '';
+        }
+    }
+    get addWrapShow() {
+        return this._addWrapShow;
+    }
+    // 创建列表外部的容器，静态 html
+    createWrap() {
+        this.wrap = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].useSlot('setUserNameSlot', this.wrapHTML);
+        this.expandBtn = this.wrap.querySelector('.expand');
+        this.showAddBtn = this.wrap.querySelector('.showAdd');
+        this.totalSpan = this.wrap.querySelector('.total');
+        this.addWrap = this.wrap.querySelector('.addWrap');
+        this.addInputUid = this.wrap.querySelector('.addUidInput');
+        this.addInputName = this.wrap.querySelector('.addNameInput');
+        this.addBtn = this.wrap.querySelector('.add');
+        this.cancelBtn = this.wrap.querySelector('.cancel');
+        this.listWrap = this.wrap.querySelector('.listWrap');
+        // 展开/折叠按钮
+        this.expandBtn.addEventListener('click', () => {
+            Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('setUserNameShow', !_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].setUserNameShow);
+        });
+        // 切换显示添加规则的区域
+        this.showAddBtn.addEventListener('click', () => {
+            this.addWrapShow = !this.addWrapShow;
+        });
+        // 添加规则的按钮
+        this.addBtn.addEventListener('click', () => {
+            this.addRule(this.addInputUid.value, this.addInputName.value);
+        });
+        // 取消添加的按钮
+        this.cancelBtn.addEventListener('click', () => {
+            this.addWrapShow = false;
+        });
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'setUserNameShow') {
+                this.showListWrap();
+            }
+            if (data.name === 'setUserNameList') {
+                this.createAllList();
+            }
+        });
+    }
+    showListWrap() {
+        const show = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].setUserNameShow;
+        this.listWrap.style.display = show ? 'flex' : 'none';
+        _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].updateText(this.expandBtn, show ? '_收起' : '_展开');
+    }
+    // 根据规则动态创建 html
+    createAllList() {
+        this.totalSpan.textContent = Object.keys(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].setUserNameList).length.toString();
+        this.listWrap.innerHTML = '';
+        const df = document.createDocumentFragment();
+        for (const [uid, name] of Object.entries(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].setUserNameList)) {
+            df.append(this.createOneList(uid, name));
+        }
+        this.listWrap.append(df);
+    }
+    // 创建规则对应的元素，并绑定事件
+    createOneList(uid, name) {
+        const html = `
+      <div class="inputItem uid">
+        <input type="text" class="setinput_style1 blue" data-uidInput="${uid}" value="${uid}" />
+      </div>
+
+      <div class="inputItem name">
+        <input type="text" class="setinput_style1 blue" data-nameInput="${uid}" value="${name}" />
+      </div>
+
+      <div class="btns">
+        <button type="button" class="textButton" data-updateRule="${uid}" data-xztitle="_更新">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-gengxin"></use>
+          </svg>
+        </button>
+
+        <button type="button" class="textButton" data-deleteRule="${uid}" data-xztitle="_删除">
+          <svg class="icon" aria-hidden="true">
+            <use xlink:href="#icon-shanchu1"></use>
+          </svg>
+        </button>
+    </div>`;
+        const element = document.createElement('div');
+        element.classList.add('settingItem');
+        element.dataset.key = uid;
+        element.innerHTML = html;
+        const updateRule = element.querySelector(`button[data-updateRule='${uid}']`);
+        const deleteRule = element.querySelector(`button[data-deleteRule='${uid}']`);
+        const uidInput = element.querySelector(`input[data-uidInput='${uid}']`);
+        const nameInput = element.querySelector(`input[data-nameInput='${uid}']`);
+        [uidInput, nameInput].forEach((el) => {
+            el === null || el === void 0 ? void 0 : el.addEventListener('change', () => {
+                if (el.value) {
+                    this.updateRule(uid, uidInput.value, nameInput.value, false);
+                }
+            });
+        });
+        // 更新规则
+        updateRule === null || updateRule === void 0 ? void 0 : updateRule.addEventListener('click', () => {
+            this.updateRule(uid, uidInput.value, nameInput.value);
+        });
+        // 删除规则
+        deleteRule === null || deleteRule === void 0 ? void 0 : deleteRule.addEventListener('click', () => {
+            this.deleteRule(uid);
+        });
+        return element;
+    }
+    // 检查用户输入的值
+    checkValue(uidInput, nameInput) {
+        if (!uidInput || !nameInput) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_必填项不能为空'));
+            return false;
+        }
+        const uid = Number.parseInt(uidInput);
+        if (!uid || isNaN(uid)) {
+            _MsgBox__WEBPACK_IMPORTED_MODULE_6__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_用户ID必须是数字'));
+            return false;
+        }
+        return {
+            uidInput,
+            nameInput,
+        };
+    }
+    // 添加规则
+    addRule(uid, name) {
+        const check = this.checkValue(uid, name);
+        if (!check) {
+            return;
+        }
+        _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].setUserNameList[uid] = name;
+        Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('setUserNameList', _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].setUserNameList);
+        this.addWrapShow = false;
+        _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加成功'));
+    }
+    // 更新规则
+    // tip 表示是否用显示操作成功的提示。当用户点击了更新按钮时应该显示提示；输入内容变化导致的自动更新可以不显示提示
+    updateRule(oldUid, uid, name, tip = true) {
+        const check = this.checkValue(uid, name);
+        if (!check) {
+            return;
+        }
+        delete _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].setUserNameList[oldUid];
+        _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].setUserNameList[uid] = name;
+        Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('setUserNameList', _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].setUserNameList);
+        this.addWrapShow = false;
+        if (tip) {
+            _Toast__WEBPACK_IMPORTED_MODULE_5__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_更新成功'));
+        }
+    }
+    // 删除规则
+    deleteRule(uid) {
+        delete _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].setUserNameList[uid];
+        Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["setSetting"])('setUserNameList', _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].setUserNameList);
+        this.removeListElement(uid);
+    }
+    removeListElement(uid) {
+        const listElement = this.listWrap.querySelector(`.settingItem[data-key='${uid}']`);
+        listElement === null || listElement === void 0 ? void 0 : listElement.remove();
+    }
+}
+new SetUserName();
+
+
+/***/ }),
+
 /***/ "./src/ts/ShowDownloadBtnOnThumb.ts":
 /*!******************************************!*\
   !*** ./src/ts/ShowDownloadBtnOnThumb.ts ***!
@@ -6655,10 +6935,10 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '11.7.0';
-        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增命名标记')}: {bmk_id}
+        this.flag = '11.8.0';
+        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_自定义用户名')}
   <br>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记bmk_id')}
+  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_自定义用户名的说明')}
   `;
         this.bindEvents();
     }
@@ -9051,6 +9331,8 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
             62,
             63,
             64,
+            65,
+            66,
         ]);
     }
     nextStep() {
@@ -9720,11 +10002,13 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             if (!isPremium) {
                 // 如果用户不是会员，则最多只能抓取到 1000 页
                 pageCount = 1000;
+                _Log__WEBPACK_IMPORTED_MODULE_9__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索页面页数限制', pageCount.toString()));
             }
             else {
                 // 如果用户是会员，最多可以抓取到 5000 页
                 if (pageCount > 5000) {
                     pageCount = 5000;
+                    _Log__WEBPACK_IMPORTED_MODULE_9__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索页面页数限制', pageCount.toString()));
                 }
             }
         }
@@ -9736,7 +10020,6 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }
         if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
             this.crawlNumber = pageCount;
-            _Log__WEBPACK_IMPORTED_MODULE_9__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索页面页数限制', pageCount.toString()));
         }
         // 计算从当前页面开始抓取的话，有多少页
         let needFetchPage = pageCount - this.startpageNo + 1;
@@ -9853,7 +10136,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             }
         }
         this.listPageFinished++;
-        _Log__WEBPACK_IMPORTED_MODULE_9__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页抓取进度', this.listPageFinished.toString()), 1, false);
+        _Log__WEBPACK_IMPORTED_MODULE_9__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页抓取进度2', this.listPageFinished.toString(), this.needCrawlPageCount.toString()), 1, false);
         if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
             // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
             this.getIdList();
@@ -12333,7 +12616,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             }
         }
         this.listPageFinished++;
-        _Log__WEBPACK_IMPORTED_MODULE_7__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页抓取进度', this.listPageFinished.toString()), 1, false);
+        _Log__WEBPACK_IMPORTED_MODULE_7__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页抓取进度2', this.listPageFinished.toString(), this.needCrawlPageCount.toString()), 1, false);
         if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
             // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
             this.getIdList();
@@ -15318,8 +15601,8 @@ class BlockTagsForSpecificUser {
   <div class="blockTagsForSpecificUserWrap">
 
     <div class="controlBar">
-      <button type="button" class="textButton expand" data-xztext="_收起"></button>
       <span class="total">0</span>
+      <button type="button" class="textButton expand" data-xztext="_收起"></button>
       <button type="button" class="textButton showAdd" data-xztext="_添加"></button>
     </div>
 
@@ -15360,7 +15643,6 @@ class BlockTagsForSpecificUser {
         _Theme__WEBPACK_IMPORTED_MODULE_6__["theme"].register(this.wrap);
         _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].register(this.wrap);
         this.bindEvents();
-        this.createAllList();
     }
     set addWrapShow(val) {
         this._addWrapShow = val;
@@ -15388,7 +15670,6 @@ class BlockTagsForSpecificUser {
         // 展开/折叠
         this.expandBtn.addEventListener('click', () => {
             Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserShowList', !_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList);
-            this.showListWrap();
             if (_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["settings"].blockTagsForSpecificUserShowList &&
                 this.rules.length === 0) {
                 _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_没有数据可供使用'));
@@ -15413,7 +15694,10 @@ class BlockTagsForSpecificUser {
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_1__["EVT"].list.settingChange, (ev) => {
             const data = ev.detail.data;
-            if (data.name.includes('blockTagsForSpecificUser')) {
+            if (data.name === 'blockTagsForSpecificUserShowList') {
+                this.showListWrap();
+            }
+            if (data.name === 'blockTagsForSpecificUserList') {
                 this.createAllList();
             }
         });
@@ -15434,7 +15718,6 @@ class BlockTagsForSpecificUser {
         for (const data of this.rules) {
             this.createList(data);
         }
-        this.showListWrap();
     }
     // 创建规则对应的元素，并绑定事件
     createList(data) {
@@ -15550,16 +15833,10 @@ class BlockTagsForSpecificUser {
             const joinTags = this.rules[index].tags.concat(tags);
             return this.updateRule(uid, uid.toString(), joinTags.toString());
         }
+        this.addWrapShow = false;
         this.rules.push(check);
         Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserList', [...this.rules]);
-        this.createList({
-            uid,
-            tags,
-            user: '',
-        });
-        this.addWrapShow = false;
         Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserShowList', true);
-        this.showListWrap();
         _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_添加成功'));
     }
     // 更新规则
@@ -15569,13 +15846,11 @@ class BlockTagsForSpecificUser {
         if (!check) {
             return;
         }
-        const { uid, tags } = check;
+        const listElement = this.listWrap.querySelector(`.settingItem[data-key='${oldUid}']`);
+        listElement === null || listElement === void 0 ? void 0 : listElement.remove();
         const index = this.findIndex(oldUid);
         this.rules[index] = check;
         Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_4__["setSetting"])('blockTagsForSpecificUserList', [...this.rules]);
-        const listElement = this.listWrap.querySelector(`.settingItem[data-key='${oldUid}']`);
-        listElement === null || listElement === void 0 ? void 0 : listElement.remove();
-        this.createList({ uid, tags, user: '' });
         if (tip) {
             _Toast__WEBPACK_IMPORTED_MODULE_7__["toast"].success(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_更新成功'));
         }
@@ -18502,19 +18777,6 @@ const formHtml = `<form class="settingForm">
     <span data-xztext="_小说"></span></label>
     </p>
 
-    <p class="option" data-no="43">
-    <span class="has_tip settingNameStyle1" data-xztip="_使用匹配的tag建立文件夹的说明">
-    <span data-xztext="_使用第一个匹配的tag建立文件夹"></span>
-    <span class="gray1"> ? </span></span>
-    <input type="checkbox" name="createFolderByTag" class="need_beautify checkbox_switch" >
-    <span class="beautify_switch"></span>
-    <span class="subOptionWrap" data-show="createFolderByTag">
-    <span class="gray1" data-xztext="_tag用逗号分割"></span>
-    <br>
-    <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1"></textarea>
-    </span>
-    </p>
-
     <p class="option" data-no="38">
     <span class="settingNameStyle1" data-xztext="_把r18作品存入指定的文件夹里"></span>
     <input type="checkbox" name="r18Folder" class="need_beautify checkbox_switch" >
@@ -18590,8 +18852,32 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_switch"></span>
     </p>
 
-    <p class="option settingCategoryName" data-no="58">
-      <span data-xztext="_下载"></span>
+    <p class="option settingCategoryName" data-no="59">
+      <span data-xztext="_抓取"></span>
+    </p>
+
+    <p class="option" data-no="35">
+    <span class="has_tip settingNameStyle1" data-xztip="_用户阻止名单的说明">
+    <span data-xztext="_用户阻止名单"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    <span class="subOptionWrap" data-show="userBlockList">
+    <input type="text" name="blockList" class="setinput_style1 blue setinput_tag" data-xzplaceholder="_用户ID必须是数字">
+    </span>
+    </p>
+
+    <p class="option" data-no="39">
+    <span class="settingNameStyle1" data-xztext="_针对特定用户屏蔽tag"></span>
+    <input type="checkbox" name="blockTagsForSpecificUser" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    <span class="subOptionWrap" data-show="blockTagsForSpecificUser">
+    <slot data-name="blockTagsForSpecificUser"></slot>
+    </span>
+    </p>
+
+    <p class="option settingCategoryName" data-no="65">
+      <span data-xztext="_命名"></span>
     </p>
 
     <p class="option" data-no="14">
@@ -18600,6 +18886,19 @@ const formHtml = `<form class="settingForm">
     <span class="gray1"> ? </span></span>
     <input type="checkbox" name="tagNameToFileName" id="setTagNameToFileName" class="need_beautify checkbox_switch">
     <span class="beautify_switch"></span>
+    </p>
+
+    <p class="option" data-no="43">
+    <span class="has_tip settingNameStyle1" data-xztip="_使用匹配的tag建立文件夹的说明">
+    <span data-xztext="_使用第一个匹配的tag建立文件夹"></span>
+    <span class="gray1"> ? </span></span>
+    <input type="checkbox" name="createFolderByTag" class="need_beautify checkbox_switch" >
+    <span class="beautify_switch"></span>
+    <span class="subOptionWrap" data-show="createFolderByTag">
+    <span class="gray1" data-xztext="_tag用逗号分割"></span>
+    <br>
+    <textarea class="centerPanelTextArea beautify_scrollbar" name="createFolderTagList" rows="1"></textarea>
+    </span>
     </p>
 
     <p class="option" data-no="22">
@@ -18636,6 +18935,18 @@ const formHtml = `<form class="settingForm">
     <span class="subOptionWrap" data-show="fileNameLengthLimitSwitch">
     <input type="text" name="fileNameLengthLimit" class="setinput_style1 blue" value="200">
     </span>
+    </p>
+
+    <p class="option" data-no="66">
+    <span class="has_tip settingNameStyle1" data-xztip="_自定义用户名的说明">
+    <span data-xztext="_自定义用户名"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    <slot data-name="setUserNameSlot"></slot>
+    </p>
+
+    <p class="option settingCategoryName" data-no="58">
+      <span data-xztext="_下载"></span>
     </p>
 
     <p class="option" data-no="4">
@@ -18766,30 +19077,6 @@ const formHtml = `<form class="settingForm">
     <input type="checkbox" name="autoExportResultJSON" id="autoExportResultJSON" class="need_beautify checkbox_common" checked>
     <span class="beautify_checkbox"></span>
     <label for="autoExportResultJSON"> JSON </label>
-    </span>
-    </p>
-
-    <p class="option settingCategoryName" data-no="59">
-      <span data-xztext="_抓取"></span>
-    </p>
-
-    <p class="option" data-no="35">
-    <span class="has_tip settingNameStyle1" data-xztip="_用户阻止名单的说明">
-    <span data-xztext="_用户阻止名单"></span>
-    <span class="gray1"> ? </span></span>
-    <input type="checkbox" name="userBlockList" class="need_beautify checkbox_switch">
-    <span class="beautify_switch"></span>
-    <span class="subOptionWrap" data-show="userBlockList">
-    <input type="text" name="blockList" class="setinput_style1 blue setinput_tag" data-xzplaceholder="_用户ID必须是数字">
-    </span>
-    </p>
-
-    <p class="option" data-no="39">
-    <span class="settingNameStyle1" data-xztext="_针对特定用户屏蔽tag"></span>
-    <input type="checkbox" name="blockTagsForSpecificUser" class="need_beautify checkbox_switch">
-    <span class="beautify_switch"></span>
-    <span class="subOptionWrap" data-show="blockTagsForSpecificUser">
-    <slot data-name="blockTagsForSpecificUser"></slot>
     </span>
     </p>
 
@@ -20066,6 +20353,8 @@ class Settings {
             notFolderWhenOneFile: false,
             noSerialNoForSingleImg: true,
             noSerialNoForMultiImg: true,
+            setUserNameShow: true,
+            setUserNameList: {},
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项

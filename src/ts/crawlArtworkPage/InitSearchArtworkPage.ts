@@ -223,10 +223,12 @@ class InitSearchArtworkPage extends InitPageBase {
       if (!isPremium) {
         // 如果用户不是会员，则最多只能抓取到 1000 页
         pageCount = 1000
+        log.warning(lang.transl('_搜索页面页数限制', pageCount.toString()))
       } else {
         // 如果用户是会员，最多可以抓取到 5000 页
         if (pageCount > 5000) {
           pageCount = 5000
+          log.warning(lang.transl('_搜索页面页数限制', pageCount.toString()))
         }
       }
     }
@@ -240,7 +242,6 @@ class InitSearchArtworkPage extends InitPageBase {
 
     if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
       this.crawlNumber = pageCount
-      log.warning(lang.transl('_搜索页面页数限制', pageCount.toString()))
     }
 
     // 计算从当前页面开始抓取的话，有多少页
@@ -386,7 +387,11 @@ class InitSearchArtworkPage extends InitPageBase {
     this.listPageFinished++
 
     log.log(
-      lang.transl('_列表页抓取进度', this.listPageFinished.toString()),
+      lang.transl(
+        '_列表页抓取进度2',
+        this.listPageFinished.toString(),
+        this.needCrawlPageCount.toString()
+      ),
       1,
       false
     )
