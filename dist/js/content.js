@@ -2860,10 +2860,16 @@ const langText = {
         '作品情報の取得を開始します',
     ],
     _列表页抓取进度: [
-        '已抓取列表页{}个页面',
+        '已抓取列表页 {} 个页面',
         '已擷取清單頁 {} 個頁面',
         'Has acquired {} list pages',
         '{} のリストページを取得しました',
+    ],
+    _列表页抓取进度2: [
+        '正在抓取列表页 {}/{}',
+        '正在抓取列表頁 {}/{}',
+        'crawling list page {}/{}',
+        'リストページの取得 {}/{}',
     ],
     _列表页抓取完成: [
         '列表页面抓取完成',
@@ -4471,7 +4477,7 @@ const langText = {
         'Customize <span class="key">username</span>',
         'カスタムユーザー名',
     ],
-    _设置用户名的说明: [
+    _自定义用户名的说明: [
         `有些用户可能会改名，如果你想使用他原来的名字，你可以在这里手动设置他的名字。<br>
     你也可以为用户设置别名。<br>
     当你在命名规则中使用 {user} 标记时，下载器会优先使用你设置的名字。`,
@@ -6846,10 +6852,10 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '11.7.0';
-        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增命名标记')}: {bmk_id}
+        this.flag = '11.8.0';
+        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_自定义用户名')}
   <br>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名标记bmk_id')}
+  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_自定义用户名的说明')}
   `;
         this.bindEvents();
     }
@@ -9911,11 +9917,13 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             if (!isPremium) {
                 // 如果用户不是会员，则最多只能抓取到 1000 页
                 pageCount = 1000;
+                _Log__WEBPACK_IMPORTED_MODULE_9__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索页面页数限制', pageCount.toString()));
             }
             else {
                 // 如果用户是会员，最多可以抓取到 5000 页
                 if (pageCount > 5000) {
                     pageCount = 5000;
+                    _Log__WEBPACK_IMPORTED_MODULE_9__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索页面页数限制', pageCount.toString()));
                 }
             }
         }
@@ -9927,7 +9935,6 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }
         if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
             this.crawlNumber = pageCount;
-            _Log__WEBPACK_IMPORTED_MODULE_9__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索页面页数限制', pageCount.toString()));
         }
         // 计算从当前页面开始抓取的话，有多少页
         let needFetchPage = pageCount - this.startpageNo + 1;
@@ -10044,7 +10051,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             }
         }
         this.listPageFinished++;
-        _Log__WEBPACK_IMPORTED_MODULE_9__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页抓取进度', this.listPageFinished.toString()), 1, false);
+        _Log__WEBPACK_IMPORTED_MODULE_9__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页抓取进度2', this.listPageFinished.toString(), this.needCrawlPageCount.toString()), 1, false);
         if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
             // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
             this.getIdList();
@@ -12524,7 +12531,7 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             }
         }
         this.listPageFinished++;
-        _Log__WEBPACK_IMPORTED_MODULE_7__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页抓取进度', this.listPageFinished.toString()), 1, false);
+        _Log__WEBPACK_IMPORTED_MODULE_7__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页抓取进度2', this.listPageFinished.toString(), this.needCrawlPageCount.toString()), 1, false);
         if (this.sendCrawlTaskCount + 1 <= this.needCrawlPageCount) {
             // 继续发送抓取任务（+1 是因为 sendCrawlTaskCount 从 0 开始）
             this.getIdList();
@@ -18855,7 +18862,7 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="66">
-    <span class="has_tip settingNameStyle1" data-xztip="_设置用户名的说明">
+    <span class="has_tip settingNameStyle1" data-xztip="_自定义用户名的说明">
     <span data-xztext="_自定义用户名"></span>
     <span class="gray1"> ? </span>
     </span>

@@ -582,7 +582,7 @@ export const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="66">
-    <span class="has_tip settingNameStyle1" data-xztip="_设置用户名的说明">
+    <span class="has_tip settingNameStyle1" data-xztip="_自定义用户名的说明">
     <span data-xztext="_自定义用户名"></span>
     <span class="gray1"> ? </span>
     </span>
