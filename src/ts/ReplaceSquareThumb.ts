@@ -1,4 +1,5 @@
 import { EVT } from './EVT'
+import { pageType } from './PageType'
 import { settings } from './setting/Settings'
 import { Tools } from './Tools'
 
@@ -7,6 +8,10 @@ class ReplaceSquareThumb {
     this.bindEvents()
 
     this.observer()
+  }
+
+  private isDisable() {
+    return window.location.pathname.startsWith('/group')
   }
 
   private bindEvents() {
@@ -28,7 +33,7 @@ class ReplaceSquareThumb {
   }
 
   private replace(img: HTMLImageElement) {
-    if (!img.src || img.dataset.index) {
+    if (!img.src || img.dataset.index || this.isDisable()) {
       return
     }
     const src = img.src

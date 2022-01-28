@@ -201,9 +201,7 @@ class PreviewWork {
   }
 
   // 通过 img 元素加载图片，获取图片的原始尺寸
-  private async getImageSize(
-    url: string
-  ): Promise<{
+  private async getImageSize(url: string): Promise<{
     width: number
     height: number
     available: boolean

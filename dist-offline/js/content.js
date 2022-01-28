@@ -2646,7 +2646,7 @@ const langText = {
     ],
     _排除tag的提示文字: [
         '您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。不区分大小写；如需排除多个标签，请使用英文逗号分隔。请注意要排除的标签的优先级大于要包含的tag的优先级。',
-        '可在下載前設定要排除的標籤，下載時將排除含有這些標籤 的作品，不區分大小寫；如需排除多個標籤，請使用半形逗號（,）分隔。請注意，要排除的標籤 優先於要包含的標籤。',
+        '可在下載前設定要排除的標籤，下載時將排除含有這些標籤的作品，不區分大小寫；如需排除多個標籤，請使用半形逗號（,）分隔。請注意，要排除的標籤優先於要包含的標籤。',
         'Before downloading, you can set the tag you want to exclude. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated. The excluded tag takes precedence over the included tag',
         'ダウンロード前に、除外するタグを設定できます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。除外されたタグは、必要なタグよりも優先されます',
     ],
@@ -3814,13 +3814,13 @@ const langText = {
     ],
     _保存用户头像为图标: [
         '保存用户头像为图标',
-        '將使用者頭像另存為圖示檔案',
+        '將使用者頭貼另存為圖示檔案',
         'Save user avatar as icon',
         'プロフィール画像をアイコンとして保存',
     ],
     _保存用户头像为图标说明: [
         '把用户头像保存为 ico 文件，可以手动设置成文件夹的图标。',
-        '將使用者頭像儲存為 ico 檔案，可以手動設定成資料夾圖示。',
+        '將使用者頭貼儲存為 ico 檔案，可以手動設定成資料夾圖示。',
         'Save user avatar as icon',
         'ユーザーのプロフィール画像を ico ファイルとして保存して、フォルダーアイコンとして設定できます。',
     ],
@@ -4105,7 +4105,7 @@ const langText = {
     ],
     _保存用户头像: [
         '保存用户头像',
-        '儲存使用者頭像',
+        '儲存使用者頭貼',
         'Save user avatar',
         'ユーザーアイコンの保存',
     ],
@@ -4157,7 +4157,7 @@ const langText = {
     ],
     _tag用逗号分割: [
         '多个标签使用英文逗号,分割',
-        '多個標籤使用半形逗號（,）分割',
+        '多個標籤使用半形逗號（,）分隔',
         'Multiple tags use comma (,) split',
         '複数のタグはカンマ「,」で区切ってください',
     ],
@@ -4294,13 +4294,13 @@ const langText = {
     ],
     _超出此限制的多图作品不会被下载: [
         '超出此限制的多图作品不会被下载',
-        '超出此限制的多圖作品不會被下載',
+        '不會下載超出此限制的多圖作品',
         'Multi-image works exceeding this limit will not be downloaded',
         'この制限を超えたマルチ作品はダウンロードされません',
     ],
     _在搜索页面添加快捷搜索区域: [
         '在搜索页面添加快捷<span class="key">搜索</span>区域',
-        '在搜尋頁面新增快捷<span class="key">搜尋</span>區域',
+        '在搜尋頁面新增快速<span class="key">搜尋</span>區域',
         'Add a quick <span class="key">search</span> area on the search page',
         '検索ページにクイック検索領域を追加します',
     ],
@@ -4318,7 +4318,7 @@ const langText = {
     ],
     _在不同的页面类型中使用不同的命名规则: [
         '在不同的页面类型中使用<span class="key">不同</span>的命名规则',
-        '在不同的頁面型別中使用<span class="key">不同</span>的命名規則',
+        '在不同的頁面類型中使用<span class="key">不同</span>的命名規則',
         'Use <span class="key">different</span> naming rules in different page types',
         'ページの種類によって異なる命名規則を使用',
     ],
@@ -4342,7 +4342,7 @@ const langText = {
     ],
     _提示登录pixiv账号: [
         '请您登录 Pixiv 账号然后重试。',
-        '請您登入 Pixiv 賬號然後重試。',
+        '請您登入 Pixiv 帳號後重試。',
         'Please log in to your Pixiv account and try again.',
         'Pixiv アカウントにログインして、もう一度お試しください。',
     ],
@@ -4354,31 +4354,31 @@ const langText = {
     ],
     _以粗体显示关键字: [
         '用<span class="key">粗体</span>显示关键字',
-        '用<span class="key">粗體</span>顯示關鍵字粗体',
+        '用<span class="key">粗體</span>顯示關鍵字',
         'Show keywords in <span class="key">bold</span>',
         'キーワードを太字で表示',
     ],
     _抓取标签列表: [
         '抓取标签列表',
-        '抓取標籤列表',
+        '擷取標籤列表',
         'Crawl a list of tags',
         'タグのリストをクロール',
     ],
     _抓取标签列表的输入框提示: [
         '请输入你要抓取的标签列表。多个标签之间使用换行分割',
-        '請輸入你要抓取的標籤列表。多個標籤之間使用換行分割',
+        '請輸入你要擷取的標籤列表。多個標籤之間使用換行分隔',
         'Please type the list of tags you want to crawl. Use line breaks between multiple tags',
         'クロールしたいタグのリストを入力してください。 複数のタグを改行で分割',
     ],
     _抓取标签列表的文件夹提示: [
         '在抓取标签列表时，你可以使用 {p_tag} 或者 {p_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{p_tag}/{id}',
-        '在抓取標籤列表時，你可以使用 {p_tag} 或者 {p_title} 標記獲取當前抓取的標籤，並用來建立資料夾。例如：{p_tag}/{id}',
+        '在擷取標籤列表時，你可以使用 {p_tag} 或者 {p_title} 標記獲取目前擷取的標籤，並用來建立資料夾。例如：{p_tag}/{id}',
         'When crawling the tag list, you can use {p_tag} or {p_title} tags to get the tags currently crawled and use them to create folders. For example: {p_tag}/{id}',
         'タグリストをクロールする時に、 {p_tag} や {p_title}を使用すると、現在クロールされているタグを取得し、それらを使ってフォルダを作成することができます。例：{p_tag}/{id}',
     ],
     _停止抓取标签列表: [
         '停止抓取标签列表',
-        '停止抓取標籤列表',
+        '停止擷取標籤列表',
         'Stop crawling the list of tags',
         'タグリストのクロールを停止',
     ],
@@ -4390,7 +4390,7 @@ const langText = {
     ],
     _你确定要停止抓取吗: [
         '你确定要停止抓取吗？',
-        '你確定要停止抓取嗎？',
+        '確定要停止擷取嗎？',
         'Are you sure you want to stop crawling?',
         '本当にクロールをやめたいのか',
     ],
@@ -4402,7 +4402,7 @@ const langText = {
     ],
     _自动导出抓取结果: [
         '自动<span class="key">导出</span>抓取结果',
-        '自動<span class="key">匯出</span>抓取結果',
+        '自動<span class="key">匯出</span>擷取結果',
         'Automatically <span class="key">export</span> crawl results',
         'クロール結果の自動エクスポート',
     ],
@@ -4456,7 +4456,7 @@ const langText = {
         `提高对多图作品进行宽高检查时的准确性。<br>
     如果你设置了宽高条件，下载时可能会花费更多的时间用于进行宽高检查。`,
         `提高對多圖作品進行寬高檢查時的準確性。<br>
-    如果你設定了寬高條件，下載時可能會花費更多的時間用於進行寬高檢查。`,
+    如果你設定了寬高條件，下載時可能會花費更多的時間用於寬高檢查。`,
         `Improve the accuracy when checking the width and height of multi-image works. <br>
     If you set the width and height conditions, it may take more time to check the width and height when downloading.`,
         `マルチイメージ作品の幅と高さをチェックする際の精度を向上させます。 <br>
@@ -4492,13 +4492,13 @@ const langText = {
     也可以扫描二维码：<br>
     <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 675174717 查看二维码。
     `,
-        `非常感謝您的支援！<br>
+        `非常感謝您的支持！<br>
     您可以在 Patreon 上贊助我：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
     中國大陸使用者可以在“愛發電”上贊助我：<br>
     <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
-    也可以掃描二維碼：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上檢視二維碼</a> 或者加入 QQ 群 675174717 檢視二維碼。
+    也可以掃描行動條碼（QR Code）：<br>
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上檢視行動條碼</a> 或者加入 QQ 群 675174717 檢視行動條碼。
     `,
         `Thank you very much for your support!<br>
     You can sponsor me on Patreon: <br>
@@ -4523,7 +4523,7 @@ const langText = {
     ],
     _搜索页面页数限制: [
         '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',
-        '由於 pixiv 的限制，下載器最多隻能抓取到第 {} 頁。',
+        '由於 pixiv 的限制，下載器最多只能擷取到第 {} 頁。',
         'Due to the limitation of pixiv, the downloader can only crawl up to the {}th page.',
         'pixiv の制限により、ダウンローダーは {} ページ目までしかクロールできません。',
     ],
@@ -4548,7 +4548,7 @@ const langText = {
     ],
     _自定义用户名: [
         '自定义<span class="key">用户名</span>',
-        '自定義<span class="key">使用者名稱</span>',
+        '自訂<span class="key">使用者名稱</span>',
         'Customize <span class="key">username</span>',
         'カスタムユーザー名',
     ],
@@ -5603,6 +5603,9 @@ class ReplaceSquareThumb {
         this.bindEvents();
         this.observer();
     }
+    isDisable() {
+        return window.location.pathname.startsWith('/group');
+    }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
             const data = ev.detail.data;
@@ -5620,7 +5623,7 @@ class ReplaceSquareThumb {
         }
     }
     replace(img) {
-        if (!img.src || img.dataset.index) {
+        if (!img.src || img.dataset.index || this.isDisable()) {
             return;
         }
         const src = img.src;
@@ -6602,20 +6605,7 @@ class ShowOriginSizeImage {
         };
         this.defaultStyle = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].deepCopy(this.style);
         this.zoomList = [
-            0.1,
-            0.2,
-            0.3,
-            0.4,
-            0.5,
-            0.75,
-            1,
-            1.5,
-            2,
-            2.5,
-            3,
-            3.5,
-            4,
-            5,
+            0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5,
         ];
         this.zoomIndex = 6;
         // 默认的缩放比例为 1
@@ -9270,60 +9260,9 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
     }
     setFormOption() {
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            14,
-            16,
-            18,
-            19,
-            21,
-            22,
-            23,
-            24,
-            26,
-            27,
-            28,
-            30,
-            31,
-            33,
-            34,
-            35,
-            36,
-            37,
-            38,
-            39,
-            40,
-            42,
-            43,
-            44,
-            46,
-            47,
-            48,
-            49,
-            50,
-            51,
-            54,
-            55,
-            56,
-            58,
-            59,
-            60,
-            61,
-            62,
-            63,
-            64,
-            65,
-            66,
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
+            27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
+            49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66,
         ]);
     }
     nextStep() {
@@ -19864,18 +19803,7 @@ class Options {
     constructor() {
         // 保持显示的选项的 id
         this.whiteList = [
-            1,
-            2,
-            4,
-            13,
-            17,
-            32,
-            44,
-            23,
-            50,
-            51,
-            57,
-            64,
+            1, 2, 4, 13, 17, 32, 44, 23, 50, 51, 57, 64,
         ];
         // 某些页面类型需要隐藏某些选项。当调用 hideOption 方法时，把选项 id 保存起来
         // 优先级高于 whiteList
@@ -20180,27 +20108,8 @@ class Settings {
         this.defaultSettings = {
             setWantPage: -1,
             wantPageArr: [
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                1000,
-                -1,
-                500,
-                -1,
-                1000,
-                100,
-                -1,
-                100,
-                -1,
-                -1,
-                1000,
-                100,
-                100,
-                100,
-                100,
-                -1,
+                -1, -1, -1, -1, -1, 1000, -1, 500, -1, 1000, 100, -1, 100, -1, -1, 1000,
+                100, 100, 100, 100, -1,
             ],
             firstFewImagesSwitch: false,
             firstFewImages: 1,

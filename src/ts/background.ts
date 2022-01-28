@@ -100,7 +100,8 @@ chrome.runtime.onMessage.addListener(function (msg: SendToBackEndData, sender) {
 })
 
 // 判断文件名是否变成了 UUID 格式。因为文件名处于整个绝对路径的中间，所以没加首尾标记 ^ $
-const UUIDRegexp = /[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}/
+const UUIDRegexp =
+  /[0-9a-z]{8}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{4}-[0-9a-z]{12}/
 
 // 监听下载事件
 chrome.downloads.onChanged.addListener(function (detail) {
