@@ -1,12 +1,12 @@
 {
   "name": "powerful-pixiv-downloader",
-  "version": "11.8.0",
+  "version": "11.8.1",
   "description": "强大的 Pixiv 下载器，支持批量下载。一括ダウンロードをサポートする強力な Pixiv ダウンローダー。The powerful Pixiv downloader supports batch downloading.",
   "repository": "https://github.com/xuejianxianzun/PixivBatchDownloader",
   "author": "xuejianxianzun",
   "license": "GPL-3.0-or-later",
   "scripts": {
-    "fmt": "prettier -c --write \"src\\**\"",
+    "fmt": "prettier -c --write \"src\\ts\\**\" && prettier -c --write \"src\\style\\**\"",
     "ts": "webpack --config ./webpack.conf.js",
     "less": "lessc ./src/style/style.less ./dist/style/style.css",
     "pre-build": "npm run fmt && npm run ts && npm run less",
