@@ -1432,6 +1432,7 @@ class FileName {
         this.addStr = '[downloader_add]';
         // 不能出现在文件名开头的一些特定字符
         this.checkStartCharList = ['/', ' '];
+        this.atList = ['@', '＠'];
     }
     // 生成 {rank} 标记的值
     createRank(rank) {
@@ -1518,6 +1519,18 @@ class FileName {
             }
         }
         return str;
+    }
+    RemoveAtFromUsername(name) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].removeAtFromUsername) {
+            return name;
+        }
+        for (const at of this.atList) {
+            let index = name.indexOf(at);
+            if (index > 0) {
+                name = name.substring(0, index);
+            }
+        }
+        return name;
     }
     // 传入命名规则和所有标记，生成文件名
     generateFileName(rule, cfg) {
@@ -1609,7 +1622,7 @@ class FileName {
                 safe: false,
             },
             '{user}': {
-                value: _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].setUserNameList[data.userId] || data.user,
+                value: this.RemoveAtFromUsername(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].setUserNameList[data.userId] || data.user),
                 prefix: 'user_',
                 safe: false,
             },
@@ -4491,6 +4504,18 @@ const langText = {
     また、ユーザーの別名を設定することも可能です。<br>
     命名規則で {user} タグを使用すると、ダウンローダーは設定された名前を優先的に使用します。`,
     ],
+    _移除用户名中的at和后续字符: [
+        '移除用户名中的 @ 和后续字符',
+        '移除使用者名稱中的 @ 和後續字元',
+        'Remove @ and subsequent characters in username',
+        'ユーザー名から @ 以降の文字を削除する',
+    ],
+    _移除用户名中的at和后续字符的说明: [
+        '例如：Anmi@画集発売中 → Anmi',
+        '例如：Anmi@画集発売中 → Anmi',
+        'For example：Anmi@画集発売中 → Anmi',
+        '例：Anmi@画集発売中 → Anmi',
+    ],
 };
 
 
@@ -6842,10 +6867,12 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '11.8.0';
-        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_自定义用户名')}
+        this.flag = '11.9.0';
+        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_移除用户名中的at和后续字符')}
   <br>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_自定义用户名的说明')}
+  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_移除用户名中的at和后续字符的说明')}
+  <br>
+  (${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_位置')}：${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_其他')} → ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名')})
   `;
         this.bindEvents();
     }
@@ -9186,7 +9213,7 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([
             1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
             27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
-            49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66,
+            49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67,
         ]);
     }
     nextStep() {
@@ -18803,6 +18830,15 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="67">
+    <span class="has_tip settingNameStyle1" data-xztip="_移除用户名中的at和后续字符的说明">
+    <span data-xztext="_移除用户名中的at和后续字符"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    <input type="checkbox" name="removeAtFromUsername" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    </p>
+
     <p class="option" data-no="66">
     <span class="has_tip settingNameStyle1" data-xztip="_自定义用户名的说明">
     <span data-xztext="_自定义用户名"></span>
@@ -19273,6 +19309,7 @@ class FormSettings {
                 'notFolderWhenOneFile',
                 'noSerialNoForSingleImg',
                 'noSerialNoForMultiImg',
+                'removeAtFromUsername',
             ],
             text: [
                 'setWantPage',
@@ -20191,6 +20228,7 @@ class Settings {
             noSerialNoForMultiImg: true,
             setUserNameShow: true,
             setUserNameList: {},
+            removeAtFromUsername: false,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项

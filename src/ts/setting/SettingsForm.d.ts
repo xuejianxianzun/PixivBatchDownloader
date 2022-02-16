@@ -114,4 +114,5 @@ export interface SettingsForm extends HTMLFormElement {
   notFolderWhenOneFile: HTMLInputElement
   noSerialNoForSingleImg: HTMLInputElement
   noSerialNoForMultiImg: HTMLInputElement
+  removeAtFromUsername: HTMLInputElement
 }

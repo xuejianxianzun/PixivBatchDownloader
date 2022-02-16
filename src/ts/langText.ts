@@ -1952,6 +1952,18 @@ const langText = {
     また、ユーザーの別名を設定することも可能です。<br>
     命名規則で {user} タグを使用すると、ダウンローダーは設定された名前を優先的に使用します。`,
   ],
+  _移除用户名中的at和后续字符: [
+    '移除用户名中的 @ 和后续字符',
+    '移除使用者名稱中的 @ 和後續字元',
+    'Remove @ and subsequent characters in username',
+    'ユーザー名から @ 以降の文字を削除する',
+  ],
+  _移除用户名中的at和后续字符的说明: [
+    '例如：Anmi@画集発売中 → Anmi',
+    '例如：Anmi@画集発売中 → Anmi',
+    'For example：Anmi@画集発売中 → Anmi',
+    '例：Anmi@画集発売中 → Anmi',
+  ],
 }
 
 export { langText }
