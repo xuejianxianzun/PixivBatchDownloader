@@ -108,6 +108,21 @@ class FileName {
     return str
   }
 
+  private readonly atList = ['@', '＠']
+  private RemoveAtFromUsername(name: string) {
+    if (!settings.removeAtFromUsername) {
+      return name
+    }
+
+    for (const at of this.atList) {
+      let index = name.indexOf(at)
+      if (index > 0) {
+        name = name.substring(0, index)
+      }
+    }
+    return name
+  }
+
   // 传入命名规则和所有标记，生成文件名
   private generateFileName(rule: string, cfg: Object) {
     let result = rule
@@ -212,7 +227,9 @@ class FileName {
         safe: false,
       },
       '{user}': {
-        value: settings.setUserNameList[data.userId] || data.user,
+        value: this.RemoveAtFromUsername(
+          settings.setUserNameList[data.userId] || data.user
+        ),
         prefix: 'user_',
         safe: false,
       },

@@ -581,6 +581,15 @@ export const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="67">
+    <span class="has_tip settingNameStyle1" data-xztip="_移除用户名中的at和后续字符的说明">
+    <span data-xztext="_移除用户名中的at和后续字符"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    <input type="checkbox" name="removeAtFromUsername" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    </p>
+
     <p class="option" data-no="66">
     <span class="has_tip settingNameStyle1" data-xztip="_自定义用户名的说明">
     <span data-xztext="_自定义用户名"></span>

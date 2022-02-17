@@ -17,11 +17,15 @@ class ShowWhatIsNew {
     })
   }
 
-  private flag = '11.8.0'
+  private flag = '11.9.0'
 
-  private msg = `${lang.transl('_新增设置项')}: ${lang.transl('_自定义用户名')}
+  private msg = `${lang.transl('_新增设置项')}: ${lang.transl(
+    '_移除用户名中的at和后续字符'
+  )}
   <br>
-  ${lang.transl('_自定义用户名的说明')}
+  ${lang.transl('_移除用户名中的at和后续字符的说明')}
+  <br>
+  (${lang.transl('_位置')}：${lang.transl('_其他')} → ${lang.transl('_命名')})
   `
 
   private show() {
