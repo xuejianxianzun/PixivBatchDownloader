@@ -284,6 +284,12 @@ const langText = {
     'There are currently {} users ',
     '現在 {} 人のユーザーがいます ',
   ],
+  _已抓取x个用户: [
+    '已抓取 {} 个用户 ',
+    '已擷取 {} 個使用者 ',
+    'crawled {} users',
+    'クロールされた {} ユーザー',
+  ],
   _排行榜进度: [
     '已抓取本页面第{}部分',
     '已擷取本頁面第 {} 部分',
@@ -1964,6 +1970,19 @@ const langText = {
     'For example：Anmi@画集発売中 → Anmi',
     '例：Anmi@画集発売中 → Anmi',
   ],
+  _列表页被限制时返回空结果的提示: [
+    'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。',
+    'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。',
+    'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes.',
+    'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。',
+  ],
+  _解决了抓取搜索页面时被限制的问题的说明: [
+    '解决了抓取搜索页面时可能会被 Pixiv 限制的问题。',
+    '解決了抓取搜尋頁面時可能會被 Pixiv 限制的問題。',
+    'Fixed an issue where crawling search pages could be restricted by Pixiv.',
+    'Pixivで検索ページのクロールが制限される問題を修正しました。',
+  ],
+  _搜索模式: ['搜索模式', '搜尋模式', 'Search mode', '検索モード'],
 }
 
 export { langText }

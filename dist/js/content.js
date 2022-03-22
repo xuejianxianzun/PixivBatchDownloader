@@ -2836,6 +2836,12 @@ const langText = {
         'There are currently {} users ',
         '現在 {} 人のユーザーがいます ',
     ],
+    _已抓取x个用户: [
+        '已抓取 {} 个用户 ',
+        '已擷取 {} 個使用者 ',
+        'crawled {} users',
+        'クロールされた {} ユーザー',
+    ],
     _排行榜进度: [
         '已抓取本页面第{}部分',
         '已擷取本頁面第 {} 部分',
@@ -4516,6 +4522,19 @@ const langText = {
         'For example：Anmi@画集発売中 → Anmi',
         '例：Anmi@画集発売中 → Anmi',
     ],
+    _列表页被限制时返回空结果的提示: [
+        'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。',
+        'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。',
+        'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes.',
+        'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。',
+    ],
+    _解决了抓取搜索页面时被限制的问题的说明: [
+        '解决了抓取搜索页面时可能会被 Pixiv 限制的问题。',
+        '解決了抓取搜尋頁面時可能會被 Pixiv 限制的問題。',
+        'Fixed an issue where crawling search pages could be restricted by Pixiv.',
+        'Pixivで検索ページのクロールが制限される問題を修正しました。',
+    ],
+    _搜索模式: ['搜索模式', '搜尋模式', 'Search mode', '検索モード'],
 };
 
 
@@ -6867,13 +6886,8 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '11.9.0';
-        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_移除用户名中的at和后续字符')}
-  <br>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_移除用户名中的at和后续字符的说明')}
-  <br>
-  (${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_位置')}：${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_其他')} → ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_命名')})
-  `;
+        this.flag = '11.9.1';
+        this.msg = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_解决了抓取搜索页面时被限制的问题的说明');
         this.bindEvents();
     }
     bindEvents() {
@@ -9564,6 +9578,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.showPreviewLimitTip = false; // 当预览数量达到上限时显示一次提示
         // 储存预览搜索结果的元素
         this.workPreviewBuffer = document.createDocumentFragment();
+        this.tipEmptyResultTimer = 0;
+        this.tipEmptyResultInterval = 1000;
         this.onSettingChange = (event) => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
                 return;
@@ -9952,12 +9968,23 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         });
         // 如果 url 里没有显式指定标签匹配模式，则使用 完全一致 模式
         // 因为在这种情况下，pixiv 默认使用的就是 完全一致
-        // 之前默认使用 部分一致 来获取更多搜索结果，但是因为抓取的作品与用户看到的作品不完全一致，造成了困扰
-        // 所以现在改为和 pixiv 显示的内容保持一致
         if (!this.option.s_mode) {
-            // s_tag 标签（部分一致）
-            // s_tag_full 标签（完全一致）
             this.option.s_mode = 's_tag_full';
+        }
+        // 在日志里显示标签匹配模式
+        _Log__WEBPACK_IMPORTED_MODULE_9__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索模式')}: ${this.tipSearchMode(this.option.s_mode)}`);
+    }
+    // 注意：同样的 mode，在搜索图片时和搜索小说时可能有不同的含义。所以这个方法不是通用的。
+    tipSearchMode(mode) {
+        switch (mode) {
+            case 's_tag':
+                return '标签（部分一致）';
+            case 's_tag_full':
+                return '标签（完全一致）';
+            case 's_tc':
+                return '标题、说明文字';
+            default:
+                return mode;
         }
     }
     // 获取搜索页的数据。因为有多处使用，所以进行了封装
@@ -9977,6 +10004,18 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             this.getIdList();
         }
     }
+    delayReTry(p) {
+        window.setTimeout(() => {
+            this.getIdList(p);
+        }, 200000);
+        // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
+    }
+    tipEmptyResult() {
+        window.clearTimeout(this.tipEmptyResultTimer);
+        this.tipEmptyResultTimer = window.setTimeout(() => {
+            _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页被限制时返回空结果的提示'));
+        }, this.tipEmptyResultInterval);
+    }
     // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
     async getIdList(p) {
         if (p === undefined) {
@@ -9987,6 +10026,11 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         let data;
         try {
             data = await this.getSearchData(p);
+            if (data.total === 0) {
+                console.log(`${p} total 0`);
+                this.tipEmptyResult();
+                return this.delayReTry(p);
+            }
         }
         catch (_a) {
             return this.getIdList(p);
@@ -11195,10 +11239,10 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList = _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.concat(idList);
         this.index++;
+        _Log__WEBPACK_IMPORTED_MODULE_6__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已抓取x个用户', this.index.toString())}, ${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.length.toString())}`, 1, false);
         if (this.index >= this.userList.length) {
             return this.getIdListFinished();
         }
-        _Log__WEBPACK_IMPORTED_MODULE_6__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.length.toString()), 1, false);
         this.getIdList();
     }
     resetGetIdListStatus() {
@@ -12399,11 +12443,13 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             if (!isPremium) {
                 // 如果用户不是会员，则最多只能抓取到 1000 页
                 pageCount = 1000;
+                _Log__WEBPACK_IMPORTED_MODULE_7__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索页面页数限制', pageCount.toString()));
             }
             else {
                 // 如果用户是会员，最多可以抓取到 5000 页
                 if (pageCount > 5000) {
                     pageCount = 5000;
+                    _Log__WEBPACK_IMPORTED_MODULE_7__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索页面页数限制', pageCount.toString()));
                 }
             }
         }
@@ -12415,7 +12461,6 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         }
         if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
             this.crawlNumber = pageCount;
-            _Log__WEBPACK_IMPORTED_MODULE_7__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索页面页数限制', pageCount.toString()));
         }
         // 计算从当前页面开始抓取的话，有多少页
         let needFetchPage = pageCount - this.startpageNo + 1;
@@ -12436,7 +12481,6 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     }
     // 组织要请求的 url 中的参数
     initFetchURL() {
-        var _a;
         let p = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__["Utils"].getURLSearchField(location.href, 'p');
         this.startpageNo = parseInt(p) || 1;
         // 从页面 url 中获取可以使用的选项
@@ -12447,9 +12491,28 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                 this.option[param] = value;
             }
         });
-        // 如果没有指定标签匹配模式，则使用 s_tag 标签（部分一致）
-        // s_tag_full 是标签（完全一致）
-        this.option.s_mode = (_a = this.option.s_mode) !== null && _a !== void 0 ? _a : 's_tag';
+        // 如果 url 里没有显式指定标签匹配模式，则使用 完全一致 模式
+        // 因为在这种情况下，pixiv 默认使用的就是 完全一致
+        if (!this.option.s_mode) {
+            this.option.s_mode = 's_tag_full';
+        }
+        // 在日志里显示标签匹配模式
+        _Log__WEBPACK_IMPORTED_MODULE_7__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索模式')}: ${this.tipSearchMode(this.option.s_mode)}`);
+    }
+    // 注意：同样的 mode，在搜索图片时和搜索小说时可能有不同的含义。所以这个方法不是通用的。
+    tipSearchMode(mode) {
+        switch (mode) {
+            case 's_tag_only':
+                return '标签（部分一致）';
+            case 's_tag_full':
+                return '标签（完全一致）';
+            case 's_tc':
+                return '正文';
+            case 's_tag':
+                return '标签、标题、说明文字';
+            default:
+                return mode;
+        }
     }
     // 计算页数之后，准备建立并发抓取线程
     startGetIdList() {
