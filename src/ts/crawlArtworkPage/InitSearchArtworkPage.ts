@@ -303,12 +303,27 @@ class InitSearchArtworkPage extends InitPageBase {
 
     // 如果 url 里没有显式指定标签匹配模式，则使用 完全一致 模式
     // 因为在这种情况下，pixiv 默认使用的就是 完全一致
-    // 之前默认使用 部分一致 来获取更多搜索结果，但是因为抓取的作品与用户看到的作品不完全一致，造成了困扰
-    // 所以现在改为和 pixiv 显示的内容保持一致
     if (!this.option.s_mode) {
-      // s_tag 标签（部分一致）
-      // s_tag_full 标签（完全一致）
       this.option.s_mode = 's_tag_full'
+    }
+
+    // 在日志里显示标签匹配模式
+    log.log(
+      `${lang.transl('_搜索模式')}: ${this.tipSearchMode(this.option.s_mode)}`
+    )
+  }
+
+  // 注意：同样的 mode，在搜索图片时和搜索小说时可能有不同的含义。所以这个方法不是通用的。
+  private tipSearchMode(mode: string) {
+    switch (mode) {
+      case 's_tag':
+        return '标签（部分一致）'
+      case 's_tag_full':
+        return '标签（完全一致）'
+      case 's_tc':
+        return '标题、说明文字'
+      default:
+        return mode
     }
   }
 
@@ -336,6 +351,22 @@ class InitSearchArtworkPage extends InitPageBase {
     }
   }
 
+  private delayReTry(p: number) {
+    window.setTimeout(() => {
+      this.getIdList(p)
+    }, 200000)
+    // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
+  }
+
+  private tipEmptyResultTimer = 0
+  private readonly tipEmptyResultInterval = 1000
+  private tipEmptyResult() {
+    window.clearTimeout(this.tipEmptyResultTimer)
+    this.tipEmptyResultTimer = window.setTimeout(() => {
+      log.error(lang.transl('_列表页被限制时返回空结果的提示'))
+    }, this.tipEmptyResultInterval)
+  }
+
   // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
   protected async getIdList(p?: number): Promise<void> {
     if (p === undefined) {
@@ -347,6 +378,12 @@ class InitSearchArtworkPage extends InitPageBase {
     let data
     try {
       data = await this.getSearchData(p)
+
+      if (data.total === 0) {
+        console.log(`${p} total 0`)
+        this.tipEmptyResult()
+        return this.delayReTry(p)
+      }
     } catch {
       return this.getIdList(p)
     }

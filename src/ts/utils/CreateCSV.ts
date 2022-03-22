@@ -82,7 +82,7 @@ class CreateCSV {
     const result: string[] = []
 
     // 在顶部添加 utf8BOM
-    result.push((this.utf8BOM as unknown) as string)
+    result.push(this.utf8BOM as unknown as string)
 
     // 添加每一行的数据和换行符
     for (const row of data) {

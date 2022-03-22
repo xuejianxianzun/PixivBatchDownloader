@@ -41,20 +41,7 @@ class ShowOriginSizeImage {
   }
   private readonly defaultStyle = Utils.deepCopy(this.style)
   private readonly zoomList = [
-    0.1,
-    0.2,
-    0.3,
-    0.4,
-    0.5,
-    0.75,
-    1,
-    1.5,
-    2,
-    2.5,
-    3,
-    3.5,
-    4,
-    5,
+    0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5,
   ]
   private zoomIndex = 6
   // 默认的缩放比例为 1

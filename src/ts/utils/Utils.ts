@@ -257,9 +257,7 @@ class Utils {
 
   // 加载图片并在获取到其宽高之后立即返回宽高数值。不需要等待图片加载完毕
   // 请求出错时，返回值的宽高都是 0
-  static async getImageSize(
-    url: string
-  ): Promise<{
+  static async getImageSize(url: string): Promise<{
     width: number
     height: number
   }> {

@@ -17,12 +17,9 @@ class ShowWhatIsNew {
     })
   }
 
-  private flag = '11.8.0'
+  private flag = '11.9.1'
 
-  private msg = `${lang.transl('_新增设置项')}: ${lang.transl('_自定义用户名')}
-  <br>
-  ${lang.transl('_自定义用户名的说明')}
-  `
+  private msg = lang.transl('_解决了抓取搜索页面时被限制的问题的说明')
 
   private show() {
     if (Utils.isPixiv() && settings.whatIsNewFlag !== this.flag) {

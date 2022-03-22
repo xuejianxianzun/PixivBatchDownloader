@@ -204,6 +204,7 @@ interface XzSetting {
   setUserNameList: {
     [uid: string]: string
   }
+  removeAtFromUsername: boolean
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -219,27 +220,8 @@ class Settings {
   private readonly defaultSettings: XzSetting = {
     setWantPage: -1,
     wantPageArr: [
-      -1,
-      -1,
-      -1,
-      -1,
-      -1,
-      1000,
-      -1,
-      500,
-      -1,
-      1000,
-      100,
-      -1,
-      100,
-      -1,
-      -1,
-      1000,
-      100,
-      100,
-      100,
-      100,
-      -1,
+      -1, -1, -1, -1, -1, 1000, -1, 500, -1, 1000, 100, -1, 100, -1, -1, 1000,
+      100, 100, 100, 100, -1,
     ],
     firstFewImagesSwitch: false,
     firstFewImages: 1,
@@ -394,6 +376,7 @@ class Settings {
     noSerialNoForMultiImg: true,
     setUserNameShow: true,
     setUserNameList: {},
+    removeAtFromUsername: false,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)

@@ -99,6 +99,7 @@ class FormSettings {
       'notFolderWhenOneFile',
       'noSerialNoForSingleImg',
       'noSerialNoForMultiImg',
+      'removeAtFromUsername',
     ],
     text: [
       'setWantPage',
