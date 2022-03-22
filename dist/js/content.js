@@ -4535,6 +4535,31 @@ const langText = {
         'Pixivで検索ページのクロールが制限される問題を修正しました。',
     ],
     _搜索模式: ['搜索模式', '搜尋模式', 'Search mode', '検索モード'],
+    _标签部分一致: [
+        '标签（部分一致）',
+        '標籤（部分一致）',
+        'Tags (partial match)',
+        'タグ（部分一致）',
+    ],
+    _标签完全一致: [
+        '标签（完全一致）',
+        '標籤（完全一致）',
+        'Tags (perfect match)',
+        'タグ（完全一致）',
+    ],
+    _标题说明文字: [
+        '标题、说明文字',
+        '標題、說明文字',
+        'Title, Caption',
+        'タイトル・キャプション',
+    ],
+    _正文: ['正文', '本文', 'Text', '本文'],
+    _标签标题说明文字: [
+        '标签、标题、说明文字',
+        '標籤、標題、說明文字',
+        'Tags, Titles, Captions',
+        'タグ・タイトル・キャプション',
+    ],
 };
 
 
@@ -9978,11 +10003,11 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     tipSearchMode(mode) {
         switch (mode) {
             case 's_tag':
-                return '标签（部分一致）';
+                return _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_标签部分一致');
             case 's_tag_full':
-                return '标签（完全一致）';
+                return _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_标签完全一致');
             case 's_tc':
-                return '标题、说明文字';
+                return _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_标题说明文字');
             default:
                 return mode;
         }
@@ -12503,13 +12528,13 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     tipSearchMode(mode) {
         switch (mode) {
             case 's_tag_only':
-                return '标签（部分一致）';
+                return _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_标签部分一致');
             case 's_tag_full':
-                return '标签（完全一致）';
+                return _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_标签完全一致');
             case 's_tc':
-                return '正文';
+                return _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_正文');
             case 's_tag':
-                return '标签、标题、说明文字';
+                return _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_标签标题说明文字');
             default:
                 return mode;
         }
