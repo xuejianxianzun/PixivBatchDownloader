@@ -241,15 +241,19 @@ class InitFollowingPage extends InitPageBase {
 
     this.index++
 
+    log.log(
+      `${lang.transl('_已抓取x个用户', this.index.toString())}, ${lang.transl(
+        '_当前作品个数',
+        store.idList.length.toString()
+      )}`,
+      1,
+      false
+    )
+
     if (this.index >= this.userList.length) {
       return this.getIdListFinished()
     }
 
-    log.log(
-      lang.transl('_当前作品个数', store.idList.length.toString()),
-      1,
-      false
-    )
     this.getIdList()
   }
 

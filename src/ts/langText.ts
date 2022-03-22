@@ -32,7 +32,7 @@ const langText = {
   ],
   _排除tag的提示文字: [
     '您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。不区分大小写；如需排除多个标签，请使用英文逗号分隔。请注意要排除的标签的优先级大于要包含的tag的优先级。',
-    '可在下載前設定要排除的標籤，下載時將排除含有這些標籤 的作品，不區分大小寫；如需排除多個標籤，請使用半形逗號（,）分隔。請注意，要排除的標籤 優先於要包含的標籤。',
+    '可在下載前設定要排除的標籤，下載時將排除含有這些標籤的作品，不區分大小寫；如需排除多個標籤，請使用半形逗號（,）分隔。請注意，要排除的標籤優先於要包含的標籤。',
     'Before downloading, you can set the tag you want to exclude. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated. The excluded tag takes precedence over the included tag',
     'ダウンロード前に、除外するタグを設定できます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。除外されたタグは、必要なタグよりも優先されます',
   ],
@@ -283,6 +283,12 @@ const langText = {
     '目前有 {} 個使用者 ',
     'There are currently {} users ',
     '現在 {} 人のユーザーがいます ',
+  ],
+  _已抓取x个用户: [
+    '已抓取 {} 个用户 ',
+    '已擷取 {} 個使用者 ',
+    'crawled {} users',
+    'クロールされた {} ユーザー',
   ],
   _排行榜进度: [
     '已抓取本页面第{}部分',
@@ -1200,13 +1206,13 @@ const langText = {
   ],
   _保存用户头像为图标: [
     '保存用户头像为图标',
-    '將使用者頭像另存為圖示檔案',
+    '將使用者頭貼另存為圖示檔案',
     'Save user avatar as icon',
     'プロフィール画像をアイコンとして保存',
   ],
   _保存用户头像为图标说明: [
     '把用户头像保存为 ico 文件，可以手动设置成文件夹的图标。',
-    '將使用者頭像儲存為 ico 檔案，可以手動設定成資料夾圖示。',
+    '將使用者頭貼儲存為 ico 檔案，可以手動設定成資料夾圖示。',
     'Save user avatar as icon',
     'ユーザーのプロフィール画像を ico ファイルとして保存して、フォルダーアイコンとして設定できます。',
   ],
@@ -1491,7 +1497,7 @@ const langText = {
   ],
   _保存用户头像: [
     '保存用户头像',
-    '儲存使用者頭像',
+    '儲存使用者頭貼',
     'Save user avatar',
     'ユーザーアイコンの保存',
   ],
@@ -1543,7 +1549,7 @@ const langText = {
   ],
   _tag用逗号分割: [
     '多个标签使用英文逗号,分割',
-    '多個標籤使用半形逗號（,）分割',
+    '多個標籤使用半形逗號（,）分隔',
     'Multiple tags use comma (,) split',
     '複数のタグはカンマ「,」で区切ってください',
   ],
@@ -1680,13 +1686,13 @@ const langText = {
   ],
   _超出此限制的多图作品不会被下载: [
     '超出此限制的多图作品不会被下载',
-    '超出此限制的多圖作品不會被下載',
+    '不會下載超出此限制的多圖作品',
     'Multi-image works exceeding this limit will not be downloaded',
     'この制限を超えたマルチ作品はダウンロードされません',
   ],
   _在搜索页面添加快捷搜索区域: [
     '在搜索页面添加快捷<span class="key">搜索</span>区域',
-    '在搜尋頁面新增快捷<span class="key">搜尋</span>區域',
+    '在搜尋頁面新增快速<span class="key">搜尋</span>區域',
     'Add a quick <span class="key">search</span> area on the search page',
     '検索ページにクイック検索領域を追加します',
   ],
@@ -1704,7 +1710,7 @@ const langText = {
   ],
   _在不同的页面类型中使用不同的命名规则: [
     '在不同的页面类型中使用<span class="key">不同</span>的命名规则',
-    '在不同的頁面型別中使用<span class="key">不同</span>的命名規則',
+    '在不同的頁面類型中使用<span class="key">不同</span>的命名規則',
     'Use <span class="key">different</span> naming rules in different page types',
     'ページの種類によって異なる命名規則を使用',
   ],
@@ -1728,7 +1734,7 @@ const langText = {
   ],
   _提示登录pixiv账号: [
     '请您登录 Pixiv 账号然后重试。',
-    '請您登入 Pixiv 賬號然後重試。',
+    '請您登入 Pixiv 帳號後重試。',
     'Please log in to your Pixiv account and try again.',
     'Pixiv アカウントにログインして、もう一度お試しください。',
   ],
@@ -1740,31 +1746,31 @@ const langText = {
   ],
   _以粗体显示关键字: [
     '用<span class="key">粗体</span>显示关键字',
-    '用<span class="key">粗體</span>顯示關鍵字粗体',
+    '用<span class="key">粗體</span>顯示關鍵字',
     'Show keywords in <span class="key">bold</span>',
     'キーワードを太字で表示',
   ],
   _抓取标签列表: [
     '抓取标签列表',
-    '抓取標籤列表',
+    '擷取標籤列表',
     'Crawl a list of tags',
     'タグのリストをクロール',
   ],
   _抓取标签列表的输入框提示: [
     '请输入你要抓取的标签列表。多个标签之间使用换行分割',
-    '請輸入你要抓取的標籤列表。多個標籤之間使用換行分割',
+    '請輸入你要擷取的標籤列表。多個標籤之間使用換行分隔',
     'Please type the list of tags you want to crawl. Use line breaks between multiple tags',
     'クロールしたいタグのリストを入力してください。 複数のタグを改行で分割',
   ],
   _抓取标签列表的文件夹提示: [
     '在抓取标签列表时，你可以使用 {p_tag} 或者 {p_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{p_tag}/{id}',
-    '在抓取標籤列表時，你可以使用 {p_tag} 或者 {p_title} 標記獲取當前抓取的標籤，並用來建立資料夾。例如：{p_tag}/{id}',
+    '在擷取標籤列表時，你可以使用 {p_tag} 或者 {p_title} 標記獲取目前擷取的標籤，並用來建立資料夾。例如：{p_tag}/{id}',
     'When crawling the tag list, you can use {p_tag} or {p_title} tags to get the tags currently crawled and use them to create folders. For example: {p_tag}/{id}',
     'タグリストをクロールする時に、 {p_tag} や {p_title}を使用すると、現在クロールされているタグを取得し、それらを使ってフォルダを作成することができます。例：{p_tag}/{id}',
   ],
   _停止抓取标签列表: [
     '停止抓取标签列表',
-    '停止抓取標籤列表',
+    '停止擷取標籤列表',
     'Stop crawling the list of tags',
     'タグリストのクロールを停止',
   ],
@@ -1776,7 +1782,7 @@ const langText = {
   ],
   _你确定要停止抓取吗: [
     '你确定要停止抓取吗？',
-    '你確定要停止抓取嗎？',
+    '確定要停止擷取嗎？',
     'Are you sure you want to stop crawling?',
     '本当にクロールをやめたいのか',
   ],
@@ -1788,7 +1794,7 @@ const langText = {
   ],
   _自动导出抓取结果: [
     '自动<span class="key">导出</span>抓取结果',
-    '自動<span class="key">匯出</span>抓取結果',
+    '自動<span class="key">匯出</span>擷取結果',
     'Automatically <span class="key">export</span> crawl results',
     'クロール結果の自動エクスポート',
   ],
@@ -1842,7 +1848,7 @@ const langText = {
     `提高对多图作品进行宽高检查时的准确性。<br>
     如果你设置了宽高条件，下载时可能会花费更多的时间用于进行宽高检查。`,
     `提高對多圖作品進行寬高檢查時的準確性。<br>
-    如果你設定了寬高條件，下載時可能會花費更多的時間用於進行寬高檢查。`,
+    如果你設定了寬高條件，下載時可能會花費更多的時間用於寬高檢查。`,
     `Improve the accuracy when checking the width and height of multi-image works. <br>
     If you set the width and height conditions, it may take more time to check the width and height when downloading.`,
     `マルチイメージ作品の幅と高さをチェックする際の精度を向上させます。 <br>
@@ -1878,13 +1884,13 @@ const langText = {
     也可以扫描二维码：<br>
     <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 675174717 查看二维码。
     `,
-    `非常感謝您的支援！<br>
+    `非常感謝您的支持！<br>
     您可以在 Patreon 上贊助我：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
     中國大陸使用者可以在“愛發電”上贊助我：<br>
     <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
-    也可以掃描二維碼：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上檢視二維碼</a> 或者加入 QQ 群 675174717 檢視二維碼。
+    也可以掃描行動條碼（QR Code）：<br>
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上檢視行動條碼</a> 或者加入 QQ 群 675174717 檢視行動條碼。
     `,
     `Thank you very much for your support!<br>
     You can sponsor me on Patreon: <br>
@@ -1909,7 +1915,7 @@ const langText = {
   ],
   _搜索页面页数限制: [
     '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',
-    '由於 pixiv 的限制，下載器最多隻能抓取到第 {} 頁。',
+    '由於 pixiv 的限制，下載器最多只能擷取到第 {} 頁。',
     'Due to the limitation of pixiv, the downloader can only crawl up to the {}th page.',
     'pixiv の制限により、ダウンローダーは {} ページ目までしかクロールできません。',
   ],
@@ -1934,7 +1940,7 @@ const langText = {
   ],
   _自定义用户名: [
     '自定义<span class="key">用户名</span>',
-    '自定義<span class="key">使用者名稱</span>',
+    '自訂<span class="key">使用者名稱</span>',
     'Customize <span class="key">username</span>',
     'カスタムユーザー名',
   ],
@@ -1952,6 +1958,31 @@ const langText = {
     また、ユーザーの別名を設定することも可能です。<br>
     命名規則で {user} タグを使用すると、ダウンローダーは設定された名前を優先的に使用します。`,
   ],
+  _移除用户名中的at和后续字符: [
+    '移除用户名中的 @ 和后续字符',
+    '移除使用者名稱中的 @ 和後續字元',
+    'Remove @ and subsequent characters in username',
+    'ユーザー名から @ 以降の文字を削除する',
+  ],
+  _移除用户名中的at和后续字符的说明: [
+    '例如：Anmi@画集発売中 → Anmi',
+    '例如：Anmi@画集発売中 → Anmi',
+    'For example：Anmi@画集発売中 → Anmi',
+    '例：Anmi@画集発売中 → Anmi',
+  ],
+  _列表页被限制时返回空结果的提示: [
+    'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。',
+    'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。',
+    'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes.',
+    'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。',
+  ],
+  _解决了抓取搜索页面时被限制的问题的说明: [
+    '解决了抓取搜索页面时可能会被 Pixiv 限制的问题。',
+    '解決了抓取搜尋頁面時可能會被 Pixiv 限制的問題。',
+    'Fixed an issue where crawling search pages could be restricted by Pixiv.',
+    'Pixivで検索ページのクロールが制限される問題を修正しました。',
+  ],
+  _搜索模式: ['搜索模式', '搜尋模式', 'Search mode', '検索モード'],
 }
 
 export { langText }

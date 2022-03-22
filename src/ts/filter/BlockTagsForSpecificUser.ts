@@ -158,6 +158,10 @@ class BlockTagsForSpecificUser {
         this.showListWrap()
       }
 
+      if (data.name === 'blockTagsForSpecificUser') {
+        this.createAllList()
+      }
+
       if (data.name === 'blockTagsForSpecificUserList') {
         this.createAllList()
       }

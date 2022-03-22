@@ -206,9 +206,8 @@ class Form {
       )
 
     // 输入框获得焦点时自动选择文本（文件名输入框例外）
-    const centerInputs: NodeListOf<HTMLInputElement> = this.form.querySelectorAll(
-      'input[type=text]'
-    )
+    const centerInputs: NodeListOf<HTMLInputElement> =
+      this.form.querySelectorAll('input[type=text]')
     for (const el of centerInputs) {
       if (el.name !== 'userSetName') {
         el.addEventListener('focus', function () {

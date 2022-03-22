@@ -1507,6 +1507,7 @@ class FileName {
         this.addStr = '[downloader_add]';
         // 不能出现在文件名开头的一些特定字符
         this.checkStartCharList = ['/', ' '];
+        this.atList = ['@', '＠'];
     }
     // 生成 {rank} 标记的值
     createRank(rank) {
@@ -1593,6 +1594,18 @@ class FileName {
             }
         }
         return str;
+    }
+    RemoveAtFromUsername(name) {
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].removeAtFromUsername) {
+            return name;
+        }
+        for (const at of this.atList) {
+            let index = name.indexOf(at);
+            if (index > 0) {
+                name = name.substring(0, index);
+            }
+        }
+        return name;
     }
     // 传入命名规则和所有标记，生成文件名
     generateFileName(rule, cfg) {
@@ -1684,7 +1697,7 @@ class FileName {
                 safe: false,
             },
             '{user}': {
-                value: _setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].setUserNameList[data.userId] || data.user,
+                value: this.RemoveAtFromUsername(_setting_Settings__WEBPACK_IMPORTED_MODULE_0__["settings"].setUserNameList[data.userId] || data.user),
                 prefix: 'user_',
                 safe: false,
             },
@@ -2646,7 +2659,7 @@ const langText = {
     ],
     _排除tag的提示文字: [
         '您可在下载前设置要排除的标签，这样在下载时将不会下载含有这些标签的作品。不区分大小写；如需排除多个标签，请使用英文逗号分隔。请注意要排除的标签的优先级大于要包含的tag的优先级。',
-        '可在下載前設定要排除的標籤，下載時將排除含有這些標籤 的作品，不區分大小寫；如需排除多個標籤，請使用半形逗號（,）分隔。請注意，要排除的標籤 優先於要包含的標籤。',
+        '可在下載前設定要排除的標籤，下載時將排除含有這些標籤的作品，不區分大小寫；如需排除多個標籤，請使用半形逗號（,）分隔。請注意，要排除的標籤優先於要包含的標籤。',
         'Before downloading, you can set the tag you want to exclude. Not case sensitive; If you need to set multiple tags, you can use comma (,) separated. The excluded tag takes precedence over the included tag',
         'ダウンロード前に、除外するタグを設定できます。大文字と小文字を区別しない；複数のタグを設定する必要がある場合は、「,」で区切ってください。除外されたタグは、必要なタグよりも優先されます',
     ],
@@ -2897,6 +2910,12 @@ const langText = {
         '目前有 {} 個使用者 ',
         'There are currently {} users ',
         '現在 {} 人のユーザーがいます ',
+    ],
+    _已抓取x个用户: [
+        '已抓取 {} 个用户 ',
+        '已擷取 {} 個使用者 ',
+        'crawled {} users',
+        'クロールされた {} ユーザー',
     ],
     _排行榜进度: [
         '已抓取本页面第{}部分',
@@ -3814,13 +3833,13 @@ const langText = {
     ],
     _保存用户头像为图标: [
         '保存用户头像为图标',
-        '將使用者頭像另存為圖示檔案',
+        '將使用者頭貼另存為圖示檔案',
         'Save user avatar as icon',
         'プロフィール画像をアイコンとして保存',
     ],
     _保存用户头像为图标说明: [
         '把用户头像保存为 ico 文件，可以手动设置成文件夹的图标。',
-        '將使用者頭像儲存為 ico 檔案，可以手動設定成資料夾圖示。',
+        '將使用者頭貼儲存為 ico 檔案，可以手動設定成資料夾圖示。',
         'Save user avatar as icon',
         'ユーザーのプロフィール画像を ico ファイルとして保存して、フォルダーアイコンとして設定できます。',
     ],
@@ -4105,7 +4124,7 @@ const langText = {
     ],
     _保存用户头像: [
         '保存用户头像',
-        '儲存使用者頭像',
+        '儲存使用者頭貼',
         'Save user avatar',
         'ユーザーアイコンの保存',
     ],
@@ -4157,7 +4176,7 @@ const langText = {
     ],
     _tag用逗号分割: [
         '多个标签使用英文逗号,分割',
-        '多個標籤使用半形逗號（,）分割',
+        '多個標籤使用半形逗號（,）分隔',
         'Multiple tags use comma (,) split',
         '複数のタグはカンマ「,」で区切ってください',
     ],
@@ -4294,13 +4313,13 @@ const langText = {
     ],
     _超出此限制的多图作品不会被下载: [
         '超出此限制的多图作品不会被下载',
-        '超出此限制的多圖作品不會被下載',
+        '不會下載超出此限制的多圖作品',
         'Multi-image works exceeding this limit will not be downloaded',
         'この制限を超えたマルチ作品はダウンロードされません',
     ],
     _在搜索页面添加快捷搜索区域: [
         '在搜索页面添加快捷<span class="key">搜索</span>区域',
-        '在搜尋頁面新增快捷<span class="key">搜尋</span>區域',
+        '在搜尋頁面新增快速<span class="key">搜尋</span>區域',
         'Add a quick <span class="key">search</span> area on the search page',
         '検索ページにクイック検索領域を追加します',
     ],
@@ -4318,7 +4337,7 @@ const langText = {
     ],
     _在不同的页面类型中使用不同的命名规则: [
         '在不同的页面类型中使用<span class="key">不同</span>的命名规则',
-        '在不同的頁面型別中使用<span class="key">不同</span>的命名規則',
+        '在不同的頁面類型中使用<span class="key">不同</span>的命名規則',
         'Use <span class="key">different</span> naming rules in different page types',
         'ページの種類によって異なる命名規則を使用',
     ],
@@ -4342,7 +4361,7 @@ const langText = {
     ],
     _提示登录pixiv账号: [
         '请您登录 Pixiv 账号然后重试。',
-        '請您登入 Pixiv 賬號然後重試。',
+        '請您登入 Pixiv 帳號後重試。',
         'Please log in to your Pixiv account and try again.',
         'Pixiv アカウントにログインして、もう一度お試しください。',
     ],
@@ -4354,31 +4373,31 @@ const langText = {
     ],
     _以粗体显示关键字: [
         '用<span class="key">粗体</span>显示关键字',
-        '用<span class="key">粗體</span>顯示關鍵字粗体',
+        '用<span class="key">粗體</span>顯示關鍵字',
         'Show keywords in <span class="key">bold</span>',
         'キーワードを太字で表示',
     ],
     _抓取标签列表: [
         '抓取标签列表',
-        '抓取標籤列表',
+        '擷取標籤列表',
         'Crawl a list of tags',
         'タグのリストをクロール',
     ],
     _抓取标签列表的输入框提示: [
         '请输入你要抓取的标签列表。多个标签之间使用换行分割',
-        '請輸入你要抓取的標籤列表。多個標籤之間使用換行分割',
+        '請輸入你要擷取的標籤列表。多個標籤之間使用換行分隔',
         'Please type the list of tags you want to crawl. Use line breaks between multiple tags',
         'クロールしたいタグのリストを入力してください。 複数のタグを改行で分割',
     ],
     _抓取标签列表的文件夹提示: [
         '在抓取标签列表时，你可以使用 {p_tag} 或者 {p_title} 标记获取当前抓取的标签，并用来建立文件夹。例如：{p_tag}/{id}',
-        '在抓取標籤列表時，你可以使用 {p_tag} 或者 {p_title} 標記獲取當前抓取的標籤，並用來建立資料夾。例如：{p_tag}/{id}',
+        '在擷取標籤列表時，你可以使用 {p_tag} 或者 {p_title} 標記獲取目前擷取的標籤，並用來建立資料夾。例如：{p_tag}/{id}',
         'When crawling the tag list, you can use {p_tag} or {p_title} tags to get the tags currently crawled and use them to create folders. For example: {p_tag}/{id}',
         'タグリストをクロールする時に、 {p_tag} や {p_title}を使用すると、現在クロールされているタグを取得し、それらを使ってフォルダを作成することができます。例：{p_tag}/{id}',
     ],
     _停止抓取标签列表: [
         '停止抓取标签列表',
-        '停止抓取標籤列表',
+        '停止擷取標籤列表',
         'Stop crawling the list of tags',
         'タグリストのクロールを停止',
     ],
@@ -4390,7 +4409,7 @@ const langText = {
     ],
     _你确定要停止抓取吗: [
         '你确定要停止抓取吗？',
-        '你確定要停止抓取嗎？',
+        '確定要停止擷取嗎？',
         'Are you sure you want to stop crawling?',
         '本当にクロールをやめたいのか',
     ],
@@ -4402,7 +4421,7 @@ const langText = {
     ],
     _自动导出抓取结果: [
         '自动<span class="key">导出</span>抓取结果',
-        '自動<span class="key">匯出</span>抓取結果',
+        '自動<span class="key">匯出</span>擷取結果',
         'Automatically <span class="key">export</span> crawl results',
         'クロール結果の自動エクスポート',
     ],
@@ -4456,7 +4475,7 @@ const langText = {
         `提高对多图作品进行宽高检查时的准确性。<br>
     如果你设置了宽高条件，下载时可能会花费更多的时间用于进行宽高检查。`,
         `提高對多圖作品進行寬高檢查時的準確性。<br>
-    如果你設定了寬高條件，下載時可能會花費更多的時間用於進行寬高檢查。`,
+    如果你設定了寬高條件，下載時可能會花費更多的時間用於寬高檢查。`,
         `Improve the accuracy when checking the width and height of multi-image works. <br>
     If you set the width and height conditions, it may take more time to check the width and height when downloading.`,
         `マルチイメージ作品の幅と高さをチェックする際の精度を向上させます。 <br>
@@ -4492,13 +4511,13 @@ const langText = {
     也可以扫描二维码：<br>
     <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上查看二维码</a> 或者加入 QQ 群 675174717 查看二维码。
     `,
-        `非常感謝您的支援！<br>
+        `非常感謝您的支持！<br>
     您可以在 Patreon 上贊助我：<br>
     <a href="https://www.patreon.com/xuejianxianzun" target="_blank">https://www.patreon.com/xuejianxianzun</a><br>
     中國大陸使用者可以在“愛發電”上贊助我：<br>
     <a href="https://afdian.net/@xuejianxianzun" target="_blank">https://afdian.net/@xuejianxianzun</a><br>
-    也可以掃描二維碼：<br>
-    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上檢視二維碼</a> 或者加入 QQ 群 675174717 檢視二維碼。
+    也可以掃描行動條碼（QR Code）：<br>
+    <a href="https://github.com/xuejianxianzun/PixivBatchDownloader#%E6%94%AF%E6%8C%81%E5%92%8C%E6%8D%90%E5%8A%A9" target="_blank">在 Github 上檢視行動條碼</a> 或者加入 QQ 群 675174717 檢視行動條碼。
     `,
         `Thank you very much for your support!<br>
     You can sponsor me on Patreon: <br>
@@ -4523,7 +4542,7 @@ const langText = {
     ],
     _搜索页面页数限制: [
         '由于 pixiv 的限制，下载器最多只能抓取到第 {} 页。',
-        '由於 pixiv 的限制，下載器最多隻能抓取到第 {} 頁。',
+        '由於 pixiv 的限制，下載器最多只能擷取到第 {} 頁。',
         'Due to the limitation of pixiv, the downloader can only crawl up to the {}th page.',
         'pixiv の制限により、ダウンローダーは {} ページ目までしかクロールできません。',
     ],
@@ -4548,7 +4567,7 @@ const langText = {
     ],
     _自定义用户名: [
         '自定义<span class="key">用户名</span>',
-        '自定義<span class="key">使用者名稱</span>',
+        '自訂<span class="key">使用者名稱</span>',
         'Customize <span class="key">username</span>',
         'カスタムユーザー名',
     ],
@@ -4566,6 +4585,31 @@ const langText = {
     また、ユーザーの別名を設定することも可能です。<br>
     命名規則で {user} タグを使用すると、ダウンローダーは設定された名前を優先的に使用します。`,
     ],
+    _移除用户名中的at和后续字符: [
+        '移除用户名中的 @ 和后续字符',
+        '移除使用者名稱中的 @ 和後續字元',
+        'Remove @ and subsequent characters in username',
+        'ユーザー名から @ 以降の文字を削除する',
+    ],
+    _移除用户名中的at和后续字符的说明: [
+        '例如：Anmi@画集発売中 → Anmi',
+        '例如：Anmi@画集発売中 → Anmi',
+        'For example：Anmi@画集発売中 → Anmi',
+        '例：Anmi@画集発売中 → Anmi',
+    ],
+    _列表页被限制时返回空结果的提示: [
+        'Pixiv 返回了空数据。下载器已暂停抓取，并且会在等待几分钟后继续抓取。',
+        'Pixiv 返回了空資料。下載器已暫停抓取，並且會在等待幾分鐘後繼續抓取。',
+        'Pixiv returned empty data. The downloader has paused crawling and will resume crawling after a few minutes.',
+        'Pixivが空のデータを返しました。 ダウンローダーはクロールを一時停止し、数分後にクロールを再開します。',
+    ],
+    _解决了抓取搜索页面时被限制的问题的说明: [
+        '解决了抓取搜索页面时可能会被 Pixiv 限制的问题。',
+        '解決了抓取搜尋頁面時可能會被 Pixiv 限制的問題。',
+        'Fixed an issue where crawling search pages could be restricted by Pixiv.',
+        'Pixivで検索ページのクロールが制限される問題を修正しました。',
+    ],
+    _搜索模式: ['搜索模式', '搜尋模式', 'Search mode', '検索モード'],
 };
 
 
@@ -5604,6 +5648,9 @@ class ReplaceSquareThumb {
         this.bindEvents();
         this.observer();
     }
+    isDisable() {
+        return window.location.pathname.startsWith('/group');
+    }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
             const data = ev.detail.data;
@@ -5621,7 +5668,7 @@ class ReplaceSquareThumb {
         }
     }
     replace(img) {
-        if (!img.src || img.dataset.index) {
+        if (!img.src || img.dataset.index || this.isDisable()) {
             return;
         }
         const src = img.src;
@@ -6714,20 +6761,7 @@ class ShowOriginSizeImage {
         };
         this.defaultStyle = _utils_Utils__WEBPACK_IMPORTED_MODULE_2__["Utils"].deepCopy(this.style);
         this.zoomList = [
-            0.1,
-            0.2,
-            0.3,
-            0.4,
-            0.5,
-            0.75,
-            1,
-            1.5,
-            2,
-            2.5,
-            3,
-            3.5,
-            4,
-            5,
+            0.1, 0.2, 0.3, 0.4, 0.5, 0.75, 1, 1.5, 2, 2.5, 3, 3.5, 4, 5,
         ];
         this.zoomIndex = 6;
         // 默认的缩放比例为 1
@@ -7039,11 +7073,8 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '11.8.0';
-        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}: ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_自定义用户名')}
-  <br>
-  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_自定义用户名的说明')}
-  `;
+        this.flag = '11.9.1';
+        this.msg = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_解决了抓取搜索页面时被限制的问题的说明');
         this.bindEvents();
     }
     bindEvents() {
@@ -9383,60 +9414,9 @@ class InitPixivisionPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0_
     }
     setFormOption() {
         _setting_Options__WEBPACK_IMPORTED_MODULE_3__["options"].hideOption([
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            10,
-            11,
-            12,
-            14,
-            16,
-            18,
-            19,
-            21,
-            22,
-            23,
-            24,
-            26,
-            27,
-            28,
-            30,
-            31,
-            33,
-            34,
-            35,
-            36,
-            37,
-            38,
-            39,
-            40,
-            42,
-            43,
-            44,
-            46,
-            47,
-            48,
-            49,
-            50,
-            51,
-            54,
-            55,
-            56,
-            58,
-            59,
-            60,
-            61,
-            62,
-            63,
-            64,
-            65,
-            66,
+            1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 19, 21, 22, 23, 24, 26,
+            27, 28, 30, 31, 33, 34, 35, 36, 37, 38, 39, 40, 42, 43, 44, 46, 47, 48,
+            49, 50, 51, 54, 55, 56, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67,
         ]);
     }
     nextStep() {
@@ -9787,6 +9767,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.showPreviewLimitTip = false; // 当预览数量达到上限时显示一次提示
         // 储存预览搜索结果的元素
         this.workPreviewBuffer = document.createDocumentFragment();
+        this.tipEmptyResultTimer = 0;
+        this.tipEmptyResultInterval = 1000;
         this.onSettingChange = (event) => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
                 return;
@@ -10175,12 +10157,23 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         });
         // 如果 url 里没有显式指定标签匹配模式，则使用 完全一致 模式
         // 因为在这种情况下，pixiv 默认使用的就是 完全一致
-        // 之前默认使用 部分一致 来获取更多搜索结果，但是因为抓取的作品与用户看到的作品不完全一致，造成了困扰
-        // 所以现在改为和 pixiv 显示的内容保持一致
         if (!this.option.s_mode) {
-            // s_tag 标签（部分一致）
-            // s_tag_full 标签（完全一致）
             this.option.s_mode = 's_tag_full';
+        }
+        // 在日志里显示标签匹配模式
+        _Log__WEBPACK_IMPORTED_MODULE_9__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索模式')}: ${this.tipSearchMode(this.option.s_mode)}`);
+    }
+    // 注意：同样的 mode，在搜索图片时和搜索小说时可能有不同的含义。所以这个方法不是通用的。
+    tipSearchMode(mode) {
+        switch (mode) {
+            case 's_tag':
+                return '标签（部分一致）';
+            case 's_tag_full':
+                return '标签（完全一致）';
+            case 's_tc':
+                return '标题、说明文字';
+            default:
+                return mode;
         }
     }
     // 获取搜索页的数据。因为有多处使用，所以进行了封装
@@ -10200,6 +10193,18 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
             this.getIdList();
         }
     }
+    delayReTry(p) {
+        window.setTimeout(() => {
+            this.getIdList(p);
+        }, 200000);
+        // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
+    }
+    tipEmptyResult() {
+        window.clearTimeout(this.tipEmptyResultTimer);
+        this.tipEmptyResultTimer = window.setTimeout(() => {
+            _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页被限制时返回空结果的提示'));
+        }, this.tipEmptyResultInterval);
+    }
     // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
     async getIdList(p) {
         if (p === undefined) {
@@ -10210,6 +10215,11 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         let data;
         try {
             data = await this.getSearchData(p);
+            if (data.total === 0) {
+                console.log(`${p} total 0`);
+                this.tipEmptyResult();
+                return this.delayReTry(p);
+            }
         }
         catch (_a) {
             return this.getIdList(p);
@@ -11418,10 +11428,10 @@ class InitFollowingPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0__
         }
         _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList = _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.concat(idList);
         this.index++;
+        _Log__WEBPACK_IMPORTED_MODULE_6__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_已抓取x个用户', this.index.toString())}, ${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.length.toString())}`, 1, false);
         if (this.index >= this.userList.length) {
             return this.getIdListFinished();
         }
-        _Log__WEBPACK_IMPORTED_MODULE_6__["log"].log(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_当前作品个数', _store_Store__WEBPACK_IMPORTED_MODULE_5__["store"].idList.length.toString()), 1, false);
         this.getIdList();
     }
     resetGetIdListStatus() {
@@ -12622,11 +12632,13 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
             if (!isPremium) {
                 // 如果用户不是会员，则最多只能抓取到 1000 页
                 pageCount = 1000;
+                _Log__WEBPACK_IMPORTED_MODULE_7__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索页面页数限制', pageCount.toString()));
             }
             else {
                 // 如果用户是会员，最多可以抓取到 5000 页
                 if (pageCount > 5000) {
                     pageCount = 5000;
+                    _Log__WEBPACK_IMPORTED_MODULE_7__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索页面页数限制', pageCount.toString()));
                 }
             }
         }
@@ -12638,7 +12650,6 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         }
         if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
             this.crawlNumber = pageCount;
-            _Log__WEBPACK_IMPORTED_MODULE_7__["log"].warning(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索页面页数限制', pageCount.toString()));
         }
         // 计算从当前页面开始抓取的话，有多少页
         let needFetchPage = pageCount - this.startpageNo + 1;
@@ -12659,7 +12670,6 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     }
     // 组织要请求的 url 中的参数
     initFetchURL() {
-        var _a;
         let p = _utils_Utils__WEBPACK_IMPORTED_MODULE_11__["Utils"].getURLSearchField(location.href, 'p');
         this.startpageNo = parseInt(p) || 1;
         // 从页面 url 中获取可以使用的选项
@@ -12670,9 +12680,28 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
                 this.option[param] = value;
             }
         });
-        // 如果没有指定标签匹配模式，则使用 s_tag 标签（部分一致）
-        // s_tag_full 是标签（完全一致）
-        this.option.s_mode = (_a = this.option.s_mode) !== null && _a !== void 0 ? _a : 's_tag';
+        // 如果 url 里没有显式指定标签匹配模式，则使用 完全一致 模式
+        // 因为在这种情况下，pixiv 默认使用的就是 完全一致
+        if (!this.option.s_mode) {
+            this.option.s_mode = 's_tag_full';
+        }
+        // 在日志里显示标签匹配模式
+        _Log__WEBPACK_IMPORTED_MODULE_7__["log"].log(`${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_搜索模式')}: ${this.tipSearchMode(this.option.s_mode)}`);
+    }
+    // 注意：同样的 mode，在搜索图片时和搜索小说时可能有不同的含义。所以这个方法不是通用的。
+    tipSearchMode(mode) {
+        switch (mode) {
+            case 's_tag_only':
+                return '标签（部分一致）';
+            case 's_tag_full':
+                return '标签（完全一致）';
+            case 's_tc':
+                return '正文';
+            case 's_tag':
+                return '标签、标题、说明文字';
+            default:
+                return mode;
+        }
     }
     // 计算页数之后，准备建立并发抓取线程
     startGetIdList() {
@@ -15809,6 +15838,9 @@ class BlockTagsForSpecificUser {
             const data = ev.detail.data;
             if (data.name === 'blockTagsForSpecificUserShowList') {
                 this.showListWrap();
+            }
+            if (data.name === 'blockTagsForSpecificUser') {
+                this.createAllList();
             }
             if (data.name === 'blockTagsForSpecificUserList') {
                 this.createAllList();
@@ -19071,6 +19103,15 @@ const formHtml = `<form class="settingForm">
     </span>
     </p>
 
+    <p class="option" data-no="67">
+    <span class="has_tip settingNameStyle1" data-xztip="_移除用户名中的at和后续字符的说明">
+    <span data-xztext="_移除用户名中的at和后续字符"></span>
+    <span class="gray1"> ? </span>
+    </span>
+    <input type="checkbox" name="removeAtFromUsername" class="need_beautify checkbox_switch">
+    <span class="beautify_switch"></span>
+    </p>
+
     <p class="option" data-no="66">
     <span class="has_tip settingNameStyle1" data-xztip="_自定义用户名的说明">
     <span data-xztext="_自定义用户名"></span>
@@ -19541,6 +19582,7 @@ class FormSettings {
                 'notFolderWhenOneFile',
                 'noSerialNoForSingleImg',
                 'noSerialNoForMultiImg',
+                'removeAtFromUsername',
             ],
             text: [
                 'setWantPage',
@@ -19998,18 +20040,7 @@ class Options {
     constructor() {
         // 保持显示的选项的 id
         this.whiteList = [
-            1,
-            2,
-            4,
-            13,
-            17,
-            32,
-            44,
-            23,
-            50,
-            51,
-            57,
-            64,
+            1, 2, 4, 13, 17, 32, 44, 23, 50, 51, 57, 64,
         ];
         // 某些页面类型需要隐藏某些选项。当调用 hideOption 方法时，把选项 id 保存起来
         // 优先级高于 whiteList
@@ -20314,27 +20345,8 @@ class Settings {
         this.defaultSettings = {
             setWantPage: -1,
             wantPageArr: [
-                -1,
-                -1,
-                -1,
-                -1,
-                -1,
-                1000,
-                -1,
-                500,
-                -1,
-                1000,
-                100,
-                -1,
-                100,
-                -1,
-                -1,
-                1000,
-                100,
-                100,
-                100,
-                100,
-                -1,
+                -1, -1, -1, -1, -1, 1000, -1, 500, -1, 1000, 100, -1, 100, -1, -1, 1000,
+                100, 100, 100, 100, -1,
             ],
             firstFewImagesSwitch: false,
             firstFewImages: 1,
@@ -20489,6 +20501,7 @@ class Settings {
             noSerialNoForMultiImg: true,
             setUserNameShow: true,
             setUserNameList: {},
+            removeAtFromUsername: false,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项

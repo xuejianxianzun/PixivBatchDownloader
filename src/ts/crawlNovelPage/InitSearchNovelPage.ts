@@ -131,10 +131,12 @@ class InitSearchNovelPage extends InitPageBase {
       if (!isPremium) {
         // 如果用户不是会员，则最多只能抓取到 1000 页
         pageCount = 1000
+        log.warning(lang.transl('_搜索页面页数限制', pageCount.toString()))
       } else {
         // 如果用户是会员，最多可以抓取到 5000 页
         if (pageCount > 5000) {
           pageCount = 5000
+          log.warning(lang.transl('_搜索页面页数限制', pageCount.toString()))
         }
       }
     }
@@ -148,7 +150,6 @@ class InitSearchNovelPage extends InitPageBase {
 
     if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
       this.crawlNumber = pageCount
-      log.warning(lang.transl('_搜索页面页数限制', pageCount.toString()))
     }
 
     // 计算从当前页面开始抓取的话，有多少页
@@ -190,9 +191,32 @@ class InitSearchNovelPage extends InitPageBase {
       }
     })
 
-    // 如果没有指定标签匹配模式，则使用 s_tag 标签（部分一致）
-    // s_tag_full 是标签（完全一致）
-    this.option.s_mode = this.option.s_mode ?? 's_tag'
+    // 如果 url 里没有显式指定标签匹配模式，则使用 完全一致 模式
+    // 因为在这种情况下，pixiv 默认使用的就是 完全一致
+    if (!this.option.s_mode) {
+      this.option.s_mode = 's_tag_full'
+    }
+
+    // 在日志里显示标签匹配模式
+    log.log(
+      `${lang.transl('_搜索模式')}: ${this.tipSearchMode(this.option.s_mode)}`
+    )
+  }
+
+  // 注意：同样的 mode，在搜索图片时和搜索小说时可能有不同的含义。所以这个方法不是通用的。
+  private tipSearchMode(mode: string) {
+    switch (mode) {
+      case 's_tag_only':
+        return '标签（部分一致）'
+      case 's_tag_full':
+        return '标签（完全一致）'
+      case 's_tc':
+        return '正文'
+      case 's_tag':
+        return '标签、标题、说明文字'
+      default:
+        return mode
+    }
   }
 
   // 计算页数之后，准备建立并发抓取线程

@@ -249,7 +249,8 @@ class SelectWork {
       return msgBox.error('全选功能不支持当前页面类型')
     }
     // 根据页面类型，获取页面上所有作品的缩略图元素
-    let works: NodeListOf<HTMLElement> = ([] as unknown) as NodeListOf<HTMLElement>
+    let works: NodeListOf<HTMLElement> =
+      [] as unknown as NodeListOf<HTMLElement>
     // 在画师主页里
     if (pageType.type === pageType.list.UserHome) {
       works = document.querySelectorAll('li[size="1"]')
