@@ -317,11 +317,11 @@ class InitSearchArtworkPage extends InitPageBase {
   private tipSearchMode(mode: string) {
     switch (mode) {
       case 's_tag':
-        return '标签（部分一致）'
+        return lang.transl('_标签部分一致')
       case 's_tag_full':
-        return '标签（完全一致）'
+        return lang.transl('_标签完全一致')
       case 's_tc':
-        return '标题、说明文字'
+        return lang.transl('_标题说明文字')
       default:
         return mode
     }
