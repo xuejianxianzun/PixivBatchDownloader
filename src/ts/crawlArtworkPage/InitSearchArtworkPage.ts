@@ -159,11 +159,12 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   protected initAny() {
-    this.hotBar()
+    this.removeBlockOnHotBar()
 
-    window.addEventListener(EVT.list.pageSwitchedTypeNotChange, () => {
-      this.hotBar()
-    })
+    window.addEventListener(
+      EVT.list.pageSwitchedTypeNotChange,
+      this.removeBlockOnHotBar
+    )
 
     window.addEventListener(EVT.list.addResult, this.showCount)
 
@@ -850,14 +851,15 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   // 去除热门作品上面的遮挡
-  private hotBar() {
+  private removeBlockOnHotBar() {
     // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
+    const hotWorkAsideSelector = 'section aside'
     const timer = window.setInterval(() => {
-      const hotWorkAside = document.querySelector(this.hotWorkAsideSelector)
+      const hotWorkAside = document.querySelector(hotWorkAsideSelector)
       if (hotWorkAside) {
         window.clearInterval(timer)
 
-        // 去掉遮挡作品的购买链接
+        // 去掉遮挡作品的元素
         const premiumLink = hotWorkAside.nextSibling
         premiumLink && premiumLink.remove()
 

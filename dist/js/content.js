@@ -4560,6 +4560,18 @@ const langText = {
         'Tags, Titles, Captions',
         'タグ・タイトル・キャプション',
     ],
+    _save_file_failed_tip: [
+        `{} 保存失败，code：{}。下载器将会重试下载这个文件。`,
+        `{} 儲存失敗，code：{}。下載器將會重試下載這個檔案。`,
+        `{} save failed, code: {}. The downloader will retry to download the file.`,
+        `{} 保存に失敗しました。code：{}。ダウンローダーはファイルのダウンロードを再試行します。`,
+    ],
+    _FILE_FAILED_tip: [
+        '可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用高级设置里的“文件名长度限制”。',
+        '可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用高階設定裡的“檔案名稱長度限制”。',
+        'Maybe the file name is too long, or other reasons cause the file to fail to save. You can try enabling "File name length limit" in advanced settings.',
+        'ファイル名が長すぎるか、他の理由でファイルの保存に失敗した可能性があります。 詳細設定で「ファイル名の長さ制限」を有効にしてみてください。',
+    ],
 };
 
 
@@ -9879,10 +9891,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         });
     }
     initAny() {
-        this.hotBar();
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.pageSwitchedTypeNotChange, () => {
-            this.hotBar();
-        });
+        this.removeBlockOnHotBar();
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.pageSwitchedTypeNotChange, this.removeBlockOnHotBar);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.showCount);
         window.addEventListener('addBMK', this.addBookmark);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlFinish, this.onCrawlFinish);
@@ -10222,13 +10232,14 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         });
     }
     // 去除热门作品上面的遮挡
-    hotBar() {
+    removeBlockOnHotBar() {
         // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
+        const hotWorkAsideSelector = 'section aside';
         const timer = window.setInterval(() => {
-            const hotWorkAside = document.querySelector(this.hotWorkAsideSelector);
+            const hotWorkAside = document.querySelector(hotWorkAsideSelector);
             if (hotWorkAside) {
                 window.clearInterval(timer);
-                // 去掉遮挡作品的购买链接
+                // 去掉遮挡作品的元素
                 const premiumLink = hotWorkAside.nextSibling;
                 premiumLink && premiumLink.remove();
                 // 去掉遮挡后两个作品的 after。因为是伪元素，所以要通过 css 控制
@@ -13456,6 +13467,7 @@ class DownloadControl {
         });
         // 监听浏览器返回的消息
         chrome.runtime.onMessage.addListener((msg) => {
+            var _a;
             if (!this.taskBatch) {
                 return;
             }
@@ -13469,14 +13481,17 @@ class DownloadControl {
             }
             else if (msg.msg === 'download_err') {
                 // 浏览器把文件保存到本地时出错
-                _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(`${msg.data.id} download error! code: ${msg.err}. The downloader will try to download the file again `);
+                _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_save_file_failed_tip', msg.data.id, msg.err || 'unknown'));
+                if (msg.err === 'FILE_FAILED') {
+                    _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_FILE_FAILED_tip'));
+                }
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('saveFileError');
                 // 重新下载这个文件
                 // 但并不确定能否如预期一样重新下载这个文件
                 this.saveFileError(msg.data);
             }
             // UUID 的情况
-            if (msg.data && msg.data.uuid) {
+            if ((_a = msg.data) === null || _a === void 0 ? void 0 : _a.uuid) {
                 _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_uuid'));
             }
         });

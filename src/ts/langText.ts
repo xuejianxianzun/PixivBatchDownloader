@@ -2008,6 +2008,18 @@ const langText = {
     'Tags, Titles, Captions',
     'タグ・タイトル・キャプション',
   ],
+  _save_file_failed_tip: [
+    `{} 保存失败，code：{}。下载器将会重试下载这个文件。`,
+    `{} 儲存失敗，code：{}。下載器將會重試下載這個檔案。`,
+    `{} save failed, code: {}. The downloader will retry to download the file.`,
+    `{} 保存に失敗しました。code：{}。ダウンローダーはファイルのダウンロードを再試行します。`,
+  ],
+  _FILE_FAILED_tip: [
+    '可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用高级设置里的“文件名长度限制”。',
+    '可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用高階設定裡的“檔案名稱長度限制”。',
+    'Maybe the file name is too long, or other reasons cause the file to fail to save. You can try enabling "File name length limit" in advanced settings.',
+    'ファイル名が長すぎるか、他の理由でファイルの保存に失敗した可能性があります。 詳細設定で「ファイル名の長さ制限」を有効にしてみてください。',
+  ],
 }
 
 export { langText }
