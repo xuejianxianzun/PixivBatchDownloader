@@ -401,9 +401,6 @@ class Settings {
   // 以默认设置作为初始设置
   public settings: XzSetting = Utils.deepCopy(this.defaultSettings)
 
-  private storeTimer = 0
-  private readonly storageInterval = 50
-
   private bindEvents() {
     // 当设置发生变化时进行本地存储
     window.addEventListener(EVT.list.settingChange, () => {
@@ -471,15 +468,12 @@ class Settings {
     })
   }
 
-  private store() {
-    window.clearTimeout(this.storeTimer)
-    this.storeTimer = window.setTimeout(() => {
-      // chrome.storage.local 的储存上限是 5 MiB（5242880 Byte）
-      chrome.storage.local.set({
-        [Config.settingStoreName]: this.settings,
-      })
-    }, this.storageInterval)
-  }
+  private store = Utils.debounce(() => {
+    // chrome.storage.local 的储存上限是 5 MiB（5242880 Byte）
+    chrome.storage.local.set({
+      [Config.settingStoreName]: this.settings,
+    })
+  }, 50)
 
   // 接收整个设置项，通过循环将其更新到 settings 上
   // 循环设置而不是整个替换的原因：

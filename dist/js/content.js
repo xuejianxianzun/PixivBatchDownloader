@@ -5688,6 +5688,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -5722,8 +5724,10 @@ class SelectWork {
         ];
         // 储存当前页面使用的选择器
         this.usedWorksWrapperSelector = this.worksWrapperSelectorList[0];
+        // 储存当前页面的作品列表容器
+        this.worksWrapper = document.body;
+        this.ob = undefined;
         this.idList = [];
-        this.observeTimer = 0;
         this.sendCrawl = false; // 它用来判断抓取的是不是选择的作品。抓取选择的作品时激活此标记；当触发下一次的抓取完成事件时，表示已经抓取了选择的作品。
         this.crawled = false; // 是否已经抓取了选择的作品
         this.svg = `<svg class="icon" aria-hidden="true">
@@ -5800,12 +5804,8 @@ class SelectWork {
                 return false;
             }
         };
-        // 每次页面切换之后，重新添加被选择的作品上的标记。
-        // 因为 pixiv 的页面切换一般会导致作品列表变化，所以之前添加的标记也没有了。
-        // 监听 dom 变化，当 dom 变化停止一段时间之后，一般作品列表就加载出来了，此时重新添加标记（防抖）
-        // 一个页面里可能产生多轮 dom 变化，所以可能会多次触发 reAddAllFlag 方法。这是必要的。
+        // 每次页面切换之后，查找新的作品列表容器并保存
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.pageSwitch, () => {
-            // 查找作品列表容器，并保存使用的选择器
             let worksWrapper = null;
             for (const selector of this.worksWrapperSelectorList) {
                 worksWrapper = document.querySelector(selector);
@@ -5814,18 +5814,18 @@ class SelectWork {
                     break;
                 }
             }
-            if (worksWrapper === null) {
-                return;
-            }
-            // 监听作品列表容器的变化
-            const ob = new MutationObserver((records) => {
-                window.clearTimeout(this.observeTimer);
-                this.observeTimer = window.setTimeout(() => {
-                    this.reAddAllFlag();
-                }, 300);
-                // 延迟时间不宜太小，否则代码执行时可能页面上还没有对应的元素，而且更耗费性能
-            });
-            ob.observe(worksWrapper, {
+            this.worksWrapper = worksWrapper || document.body;
+        });
+        // 每次页面切换之后，查找新显示的作品里是否有之前被选择的作品，如果有则为其添加标记
+        // 因为 pixiv 的页面切换会导致作品列表变化，之前添加的标记也就没有了，需要重新添加
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.pageSwitch, () => {
+            // 每次触发时都要断开之前绑定的观察器，否则会导致事件重复绑定
+            // 因为 pageSwitch 事件可能会触发多次，如果不断开之前的观察器，那么每切换一次页面就会多绑定和执行一个回调
+            this.ob && this.ob.disconnect();
+            this.ob = new MutationObserver(_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].debounce(() => {
+                this.reAddAllFlag();
+            }, 300));
+            this.ob.observe(this.worksWrapper, {
                 childList: true,
                 subtree: true,
             });
@@ -9583,7 +9583,6 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.addBMKBtnClass = 'bmkBtn';
         this.bookmarkedClass = 'bookmarked';
         this.countSelector = 'section h3+div span';
-        this.hotWorkAsideSelector = 'section aside';
         this.worksType = '';
         this.option = {};
         this.worksNoPerPage = 60; // 每个页面有多少个作品
@@ -9615,8 +9614,10 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.showPreviewLimitTip = false; // 当预览数量达到上限时显示一次提示
         // 储存预览搜索结果的元素
         this.workPreviewBuffer = document.createDocumentFragment();
-        this.tipEmptyResultTimer = 0;
-        this.tipEmptyResultInterval = 1000;
+        this.tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_15__["Utils"].debounce(() => {
+            console.log(this);
+            _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页被限制时返回空结果的提示'));
+        }, 1000);
         this.onSettingChange = (event) => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
                 return;
@@ -10045,12 +10046,6 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }, 200000);
         // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
     }
-    tipEmptyResult() {
-        window.clearTimeout(this.tipEmptyResultTimer);
-        this.tipEmptyResultTimer = window.setTimeout(() => {
-            _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页被限制时返回空结果的提示'));
-        }, this.tipEmptyResultInterval);
-    }
     // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
     async getIdList(p) {
         if (p === undefined) {
@@ -10062,7 +10057,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         try {
             data = await this.getSearchData(p);
             if (data.total === 0) {
-                console.log(`${p} total 0`);
+                console.log(`page ${p}: total 0`);
                 this.tipEmptyResult();
                 return this.delayReTry(p);
             }
@@ -18174,14 +18169,10 @@ class Form {
             this.bindBeautifyEvent(radio);
         }
         // 设置变化或者重置时，重新设置美化状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
-            // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
-            window.clearTimeout(this.bueatifulTimer);
-            this.bueatifulTimer = window.setTimeout(() => {
-                this.initFormBueatiful();
-                this.showCreateFolderTip();
-            }, 50);
-        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, _utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].debounce(() => {
+            this.initFormBueatiful();
+            this.showCreateFolderTip();
+        }, 50));
         // 用户点击“我知道了”按钮之后不再显示提示
         const btn = this.createFolderTipEl.querySelector('button');
         btn.addEventListener('click', () => {
@@ -20349,8 +20340,12 @@ class Settings {
         ];
         // 以默认设置作为初始设置
         this.settings = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].deepCopy(this.defaultSettings);
-        this.storeTimer = 0;
-        this.storageInterval = 50;
+        this.store = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].debounce(() => {
+            // chrome.storage.local 的储存上限是 5 MiB（5242880 Byte）
+            chrome.storage.local.set({
+                [_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName]: this.settings,
+            });
+        }, 50);
         this.restore();
         this.bindEvents();
     }
@@ -20414,15 +20409,6 @@ class Settings {
             this.assignSettings(restoreData);
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('settingInitialized');
         });
-    }
-    store() {
-        window.clearTimeout(this.storeTimer);
-        this.storeTimer = window.setTimeout(() => {
-            // chrome.storage.local 的储存上限是 5 MiB（5242880 Byte）
-            chrome.storage.local.set({
-                [_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName]: this.settings,
-            });
-        }, this.storageInterval);
     }
     // 接收整个设置项，通过循环将其更新到 settings 上
     // 循环设置而不是整个替换的原因：
@@ -22053,6 +22039,16 @@ class Utils {
         const str = JSON.stringify(data, null, 2);
         const blob = new Blob([str], { type: 'application/json' });
         return blob;
+    }
+    /**防抖 */
+    static debounce(func, wait) {
+        let timer = undefined;
+        const context = this;
+        return function () {
+            const args = arguments;
+            window.clearTimeout(timer);
+            timer = window.setTimeout(func.bind(context, ...args), wait);
+        };
     }
 }
 // 不安全的字符，这里多数是控制字符，需要替换掉

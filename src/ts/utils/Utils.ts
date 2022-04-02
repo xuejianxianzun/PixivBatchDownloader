@@ -296,6 +296,18 @@ class Utils {
     const blob = new Blob([str], { type: 'application/json' })
     return blob
   }
+
+  /**防抖 */
+  static debounce(func: Function, wait: number) {
+    // 默认的定时器 id 不能使用有意义的数字，否则 clearTimeout 可能会错误的清除其他定时器
+    let timer: number | undefined = undefined
+    const context = this as any
+    return function () {
+      const args = arguments
+      window.clearTimeout(timer)
+      timer = window.setTimeout(func.bind(context, ...args), wait)
+    }
+  }
 }
 
 export { Utils }
