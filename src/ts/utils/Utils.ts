@@ -301,11 +301,25 @@ class Utils {
   static debounce(func: Function, wait: number) {
     // 默认的定时器 id 不能使用有意义的数字，否则 clearTimeout 可能会错误的清除其他定时器
     let timer: number | undefined = undefined
-    const context = this as any
+    const context = this
     return function () {
       const args = arguments
       window.clearTimeout(timer)
       timer = window.setTimeout(func.bind(context, ...args), wait)
+    }
+  }
+
+  /**节流 */
+  static throttle(func:Function, delay:number){
+    let time = 0
+    const context = this
+    return function(){
+      const args = arguments
+      const now = new Date().getTime()
+      if(now - time >= delay){
+        time = now
+        return func.apply(context, args)
+      }
     }
   }
 }

@@ -5214,6 +5214,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ShowOriginSizeImage */ "./src/ts/ShowOriginSizeImage.ts");
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -5238,39 +5240,34 @@ class PreviewWork {
         // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片，这是为了避免浪费网络资源
         this.showTimer = 0;
         this._show = false;
-        this.wheelScrollTime = 0;
-        this.wheelScrollInterval = 100;
-        this.wheelScroll = (ev) => {
-            // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
-            if (this.show) {
-                const count = this.workData.body.pageCount;
-                if (count === 1) {
-                    return;
-                }
-                ev.preventDefault();
-                const time = new Date().getTime();
-                if (time - this.wheelScrollTime < this.wheelScrollInterval) {
-                    return;
-                }
-                this.wheelScrollTime = time;
-                const up = ev.deltaY < 0;
-                if (up) {
-                    if (this.index > 0) {
-                        this.index--;
-                    }
-                    else {
-                        this.index = count - 1;
-                    }
+        // 当鼠标滚轮滚动时，切换显示的图片
+        // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
+        this.swicthImage = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].throttle(() => {
+            const count = this.workData.body.pageCount;
+            const up = this.wheelEvent.deltaY < 0;
+            if (up) {
+                if (this.index > 0) {
+                    this.index--;
                 }
                 else {
-                    if (this.index < count - 1) {
-                        this.index++;
-                    }
-                    else {
-                        this.index = 0;
-                    }
+                    this.index = count - 1;
                 }
-                this.showWrap();
+            }
+            else {
+                if (this.index < count - 1) {
+                    this.index++;
+                }
+                else {
+                    this.index = 0;
+                }
+            }
+            this.showWrap();
+        }, 100);
+        this.onWheelScroll = (ev) => {
+            if (this.show && this.workData.body.pageCount > 1) {
+                ev.preventDefault();
+                this.wheelEvent = ev;
+                this.swicthImage();
             }
         };
         this.createElements();
@@ -5329,11 +5326,11 @@ class PreviewWork {
                 this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__["cacheWorkData"].get(id);
             }
             this.readyShow();
-            el.addEventListener('mousewheel', this.wheelScroll);
+            el.addEventListener('mousewheel', this.onWheelScroll);
         });
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave((el) => {
             this.show = false;
-            el.removeEventListener('mousewheel', this.wheelScroll);
+            el.removeEventListener('mousewheel', this.onWheelScroll);
         });
         // 可以使用 Alt + P 快捷键来启用/禁用此功能
         window.addEventListener('keydown', (ev) => {
@@ -22042,12 +22039,26 @@ class Utils {
     }
     /**防抖 */
     static debounce(func, wait) {
+        // 默认的定时器 id 不能使用有意义的数字，否则 clearTimeout 可能会错误的清除其他定时器
         let timer = undefined;
         const context = this;
         return function () {
             const args = arguments;
             window.clearTimeout(timer);
             timer = window.setTimeout(func.bind(context, ...args), wait);
+        };
+    }
+    /**节流 */
+    static throttle(func, delay) {
+        let time = 0;
+        const context = this;
+        return function () {
+            const args = arguments;
+            const now = new Date().getTime();
+            if (now - time >= delay) {
+                time = now;
+                return func.apply(context, args);
+            }
         };
     }
 }

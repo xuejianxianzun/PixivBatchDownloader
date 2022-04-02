@@ -6,6 +6,7 @@ import { settings, setSetting } from './setting/Settings'
 import { showOriginSizeImage } from './ShowOriginSizeImage'
 import { cacheWorkData } from './store/CacheWorkData'
 import { states } from './store/States'
+import { Utils } from './utils/Utils'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -95,12 +96,12 @@ class PreviewWork {
 
       this.readyShow()
 
-      el.addEventListener('mousewheel', this.wheelScroll)
+      el.addEventListener('mousewheel', this.onWheelScroll)
     })
 
     mouseOverThumbnail.onLeave((el: HTMLElement) => {
       this.show = false
-      el.removeEventListener('mousewheel', this.wheelScroll)
+      el.removeEventListener('mousewheel', this.onWheelScroll)
     })
 
     // 可以使用 Alt + P 快捷键来启用/禁用此功能
@@ -152,40 +153,34 @@ class PreviewWork {
     }
   }
 
-  private wheelScrollTime = 0
-  private readonly wheelScrollInterval = 100
+  private wheelEvent?: WheelEvent
 
-  private wheelScroll = (ev: Event) => {
-    // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
-    if (this.show) {
-      const count = this.workData!.body.pageCount
-      if (count === 1) {
-        return
-      }
-      ev.preventDefault()
-
-      const time = new Date().getTime()
-      if (time - this.wheelScrollTime < this.wheelScrollInterval) {
-        return
-      }
-      this.wheelScrollTime = time
-
-      const up = (ev as WheelEvent).deltaY < 0
-      if (up) {
-        if (this.index > 0) {
-          this.index--
-        } else {
-          this.index = count - 1
-        }
+  // 当鼠标滚轮滚动时，切换显示的图片
+  // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
+  private swicthImage = Utils.throttle(() => {
+    const count = this.workData!.body.pageCount
+    const up = this.wheelEvent!.deltaY < 0
+    if (up) {
+      if (this.index > 0) {
+        this.index--
       } else {
-        if (this.index < count - 1) {
-          this.index++
-        } else {
-          this.index = 0
-        }
+        this.index = count - 1
       }
+    } else {
+      if (this.index < count - 1) {
+        this.index++
+      } else {
+        this.index = 0
+      }
+    }
+    this.showWrap()
+  }, 100)
 
-      this.showWrap()
+  private onWheelScroll = (ev: Event) => {
+    if (this.show && this.workData!.body.pageCount > 1) {
+      ev.preventDefault()
+      this.wheelEvent = ev as WheelEvent
+      this.swicthImage()
     }
   }
 
