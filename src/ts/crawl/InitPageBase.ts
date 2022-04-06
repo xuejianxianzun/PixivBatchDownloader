@@ -21,7 +21,6 @@ import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
 import { Utils } from '../utils/Utils'
 import { pageType } from '../PageType'
-import { cacheWorkData } from '../store/CacheWorkData'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数
@@ -284,12 +283,9 @@ abstract class InitPageBase {
         await saveNovelData.save(data)
         this.afterGetWorksData(data)
       } else {
+        // 这里不能使用 cacheWorkData中的缓存数据，因为某些数据可能已经发生变化
         let data: ArtworkData
-        if (cacheWorkData.has(id)) {
-          data = cacheWorkData.get(id)!
-        } else {
-          data = await API.getArtworkData(id)
-        }
+        data = await API.getArtworkData(id)
         await saveArtworkData.save(data)
         this.afterGetWorksData(data)
       }

@@ -359,7 +359,6 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   private tipEmptyResult = Utils.debounce(() => {
-    console.log(this)
     log.error(lang.transl('_列表页被限制时返回空结果的提示'))
   }, 1000)
 

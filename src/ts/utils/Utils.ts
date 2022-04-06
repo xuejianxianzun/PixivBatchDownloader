@@ -310,13 +310,13 @@ class Utils {
   }
 
   /**节流 */
-  static throttle(func:Function, delay:number){
+  static throttle(func: Function, delay: number) {
     let time = 0
     const context = this
-    return function(){
+    return function () {
       const args = arguments
       const now = new Date().getTime()
-      if(now - time >= delay){
+      if (now - time >= delay) {
         time = now
         return func.apply(context, args)
       }

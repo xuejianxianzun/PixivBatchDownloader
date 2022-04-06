@@ -8065,9 +8065,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 // 初始化所有页面抓取流程的基类
-
 
 
 
@@ -8289,13 +8287,9 @@ class InitPageBase {
                 this.afterGetWorksData(data);
             }
             else {
+                // 这里不能使用 cacheWorkData中的缓存数据，因为某些数据可能已经发生变化
                 let data;
-                if (_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_20__["cacheWorkData"].has(id)) {
-                    data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_20__["cacheWorkData"].get(id);
-                }
-                else {
-                    data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getArtworkData(id);
-                }
+                data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getArtworkData(id);
                 await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__["saveArtworkData"].save(data);
                 this.afterGetWorksData(data);
             }
@@ -9612,7 +9606,6 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         // 储存预览搜索结果的元素
         this.workPreviewBuffer = document.createDocumentFragment();
         this.tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_15__["Utils"].debounce(() => {
-            console.log(this);
             _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页被限制时返回空结果的提示'));
         }, 1000);
         this.onSettingChange = (event) => {
@@ -17632,8 +17625,7 @@ class QuickBookmark {
         }
         else {
             const id = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getIllustId();
-            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_6__["cacheWorkData"].get(id);
-            return data ? data : await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id);
+            return _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_6__["cacheWorkData"].get(id) || (await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id));
         }
     }
     async addBookmark() {
