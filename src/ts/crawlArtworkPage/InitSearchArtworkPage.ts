@@ -46,7 +46,6 @@ class InitSearchArtworkPage extends InitPageBase {
   private readonly addBMKBtnClass = 'bmkBtn'
   private readonly bookmarkedClass = 'bookmarked'
   private readonly countSelector = 'section h3+div span'
-  private readonly hotWorkAsideSelector = 'section aside'
   private countEl?: HTMLElement
 
   private worksType = ''
@@ -159,11 +158,12 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   protected initAny() {
-    this.hotBar()
+    this.removeBlockOnHotBar()
 
-    window.addEventListener(EVT.list.pageSwitchedTypeNotChange, () => {
-      this.hotBar()
-    })
+    window.addEventListener(
+      EVT.list.pageSwitchedTypeNotChange,
+      this.removeBlockOnHotBar
+    )
 
     window.addEventListener(EVT.list.addResult, this.showCount)
 
@@ -358,14 +358,9 @@ class InitSearchArtworkPage extends InitPageBase {
     // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
   }
 
-  private tipEmptyResultTimer = 0
-  private readonly tipEmptyResultInterval = 1000
-  private tipEmptyResult() {
-    window.clearTimeout(this.tipEmptyResultTimer)
-    this.tipEmptyResultTimer = window.setTimeout(() => {
-      log.error(lang.transl('_列表页被限制时返回空结果的提示'))
-    }, this.tipEmptyResultInterval)
-  }
+  private tipEmptyResult = Utils.debounce(() => {
+    log.error(lang.transl('_列表页被限制时返回空结果的提示'))
+  }, 1000)
 
   // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
   protected async getIdList(p?: number): Promise<void> {
@@ -380,7 +375,7 @@ class InitSearchArtworkPage extends InitPageBase {
       data = await this.getSearchData(p)
 
       if (data.total === 0) {
-        console.log(`${p} total 0`)
+        console.log(`page ${p}: total 0`)
         this.tipEmptyResult()
         return this.delayReTry(p)
       }
@@ -850,14 +845,15 @@ class InitSearchArtworkPage extends InitPageBase {
   }
 
   // 去除热门作品上面的遮挡
-  private hotBar() {
+  private removeBlockOnHotBar() {
     // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
+    const hotWorkAsideSelector = 'section aside'
     const timer = window.setInterval(() => {
-      const hotWorkAside = document.querySelector(this.hotWorkAsideSelector)
+      const hotWorkAside = document.querySelector(hotWorkAsideSelector)
       if (hotWorkAside) {
         window.clearInterval(timer)
 
-        // 去掉遮挡作品的购买链接
+        // 去掉遮挡作品的元素
         const premiumLink = hotWorkAside.nextSibling
         premiumLink && premiumLink.remove()
 

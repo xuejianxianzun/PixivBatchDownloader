@@ -3204,10 +3204,10 @@ const langText = {
         '作品分類は：Illustration, Manga, Ugoira, Novel',
     ],
     _命名标记提醒: [
-        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}<br>* 在某些情况下，会有一些标记不可用。',
-        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{userid}<br>＊某些情況下有些標記無法使用。',
-        'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}<br>* In some cases, some tags will not be available.',
-        'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{userid}<br>* 場合によっては、一部のタグが利用できず。',
+        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{user_id}<br>* 在某些情况下，会有一些标记不可用。',
+        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{user_id}<br>＊某些情況下有些標記無法使用。',
+        'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{user_id}<br>* In some cases, some tags will not be available.',
+        'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{user_id}<br>* 場合によっては、一部のタグが利用できず。',
     ],
     _命名规则一定要包含id: [
         '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
@@ -4635,6 +4635,18 @@ const langText = {
         'Tags, Titles, Captions',
         'タグ・タイトル・キャプション',
     ],
+    _save_file_failed_tip: [
+        `{} 保存失败，code：{}。下载器将会重试下载这个文件。`,
+        `{} 儲存失敗，code：{}。下載器將會重試下載這個檔案。`,
+        `{} save failed, code: {}. The downloader will retry to download the file.`,
+        `{} 保存に失敗しました。code：{}。ダウンローダーはファイルのダウンロードを再試行します。`,
+    ],
+    _FILE_FAILED_tip: [
+        '可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用高级设置里的“文件名长度限制”。',
+        '可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用高階設定裡的“檔案名稱長度限制”。',
+        'Maybe the file name is too long, or other reasons cause the file to fail to save. You can try enabling "File name length limit" in advanced settings.',
+        'ファイル名が長すぎるか、他の理由でファイルの保存に失敗した可能性があります。 詳細設定で「ファイル名の長さ制限」を有効にしてみてください。',
+    ],
 };
 
 
@@ -5277,6 +5289,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ShowOriginSizeImage */ "./src/ts/ShowOriginSizeImage.ts");
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -5301,39 +5315,34 @@ class PreviewWork {
         // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片，这是为了避免浪费网络资源
         this.showTimer = 0;
         this._show = false;
-        this.wheelScrollTime = 0;
-        this.wheelScrollInterval = 100;
-        this.wheelScroll = (ev) => {
-            // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
-            if (this.show) {
-                const count = this.workData.body.pageCount;
-                if (count === 1) {
-                    return;
-                }
-                ev.preventDefault();
-                const time = new Date().getTime();
-                if (time - this.wheelScrollTime < this.wheelScrollInterval) {
-                    return;
-                }
-                this.wheelScrollTime = time;
-                const up = ev.deltaY < 0;
-                if (up) {
-                    if (this.index > 0) {
-                        this.index--;
-                    }
-                    else {
-                        this.index = count - 1;
-                    }
+        // 当鼠标滚轮滚动时，切换显示的图片
+        // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
+        this.swicthImage = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].throttle(() => {
+            const count = this.workData.body.pageCount;
+            const up = this.wheelEvent.deltaY < 0;
+            if (up) {
+                if (this.index > 0) {
+                    this.index--;
                 }
                 else {
-                    if (this.index < count - 1) {
-                        this.index++;
-                    }
-                    else {
-                        this.index = 0;
-                    }
+                    this.index = count - 1;
                 }
-                this.showWrap();
+            }
+            else {
+                if (this.index < count - 1) {
+                    this.index++;
+                }
+                else {
+                    this.index = 0;
+                }
+            }
+            this.showWrap();
+        }, 100);
+        this.onWheelScroll = (ev) => {
+            if (this.show && this.workData.body.pageCount > 1) {
+                ev.preventDefault();
+                this.wheelEvent = ev;
+                this.swicthImage();
             }
         };
         this.createElements();
@@ -5392,11 +5401,11 @@ class PreviewWork {
                 this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__["cacheWorkData"].get(id);
             }
             this.readyShow();
-            el.addEventListener('mousewheel', this.wheelScroll);
+            el.addEventListener('mousewheel', this.onWheelScroll);
         });
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave((el) => {
             this.show = false;
-            el.removeEventListener('mousewheel', this.wheelScroll);
+            el.removeEventListener('mousewheel', this.onWheelScroll);
         });
         // 可以使用 Alt + P 快捷键来启用/禁用此功能
         window.addEventListener('keydown', (ev) => {
@@ -5751,6 +5760,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -5785,8 +5796,10 @@ class SelectWork {
         ];
         // 储存当前页面使用的选择器
         this.usedWorksWrapperSelector = this.worksWrapperSelectorList[0];
+        // 储存当前页面的作品列表容器
+        this.worksWrapper = document.body;
+        this.ob = undefined;
         this.idList = [];
-        this.observeTimer = 0;
         this.sendCrawl = false; // 它用来判断抓取的是不是选择的作品。抓取选择的作品时激活此标记；当触发下一次的抓取完成事件时，表示已经抓取了选择的作品。
         this.crawled = false; // 是否已经抓取了选择的作品
         this.svg = `<svg class="icon" aria-hidden="true">
@@ -5863,12 +5876,8 @@ class SelectWork {
                 return false;
             }
         };
-        // 每次页面切换之后，重新添加被选择的作品上的标记。
-        // 因为 pixiv 的页面切换一般会导致作品列表变化，所以之前添加的标记也没有了。
-        // 监听 dom 变化，当 dom 变化停止一段时间之后，一般作品列表就加载出来了，此时重新添加标记（防抖）
-        // 一个页面里可能产生多轮 dom 变化，所以可能会多次触发 reAddAllFlag 方法。这是必要的。
+        // 每次页面切换之后，查找新的作品列表容器并保存
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.pageSwitch, () => {
-            // 查找作品列表容器，并保存使用的选择器
             let worksWrapper = null;
             for (const selector of this.worksWrapperSelectorList) {
                 worksWrapper = document.querySelector(selector);
@@ -5877,18 +5886,18 @@ class SelectWork {
                     break;
                 }
             }
-            if (worksWrapper === null) {
-                return;
-            }
-            // 监听作品列表容器的变化
-            const ob = new MutationObserver((records) => {
-                window.clearTimeout(this.observeTimer);
-                this.observeTimer = window.setTimeout(() => {
-                    this.reAddAllFlag();
-                }, 300);
-                // 延迟时间不宜太小，否则代码执行时可能页面上还没有对应的元素，而且更耗费性能
-            });
-            ob.observe(worksWrapper, {
+            this.worksWrapper = worksWrapper || document.body;
+        });
+        // 每次页面切换之后，查找新显示的作品里是否有之前被选择的作品，如果有则为其添加标记
+        // 因为 pixiv 的页面切换会导致作品列表变化，之前添加的标记也就没有了，需要重新添加
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.pageSwitch, () => {
+            // 每次触发时都要断开之前绑定的观察器，否则会导致事件重复绑定
+            // 因为 pageSwitch 事件可能会触发多次，如果不断开之前的观察器，那么每切换一次页面就会多绑定和执行一个回调
+            this.ob && this.ob.disconnect();
+            this.ob = new MutationObserver(_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].debounce(() => {
+                this.reAddAllFlag();
+            }, 300));
+            this.ob.observe(this.worksWrapper, {
                 childList: true,
                 subtree: true,
             });
@@ -8132,9 +8141,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 // 初始化所有页面抓取流程的基类
-
 
 
 
@@ -8356,13 +8363,9 @@ class InitPageBase {
                 this.afterGetWorksData(data);
             }
             else {
+                // 这里不能使用 cacheWorkData中的缓存数据，因为某些数据可能已经发生变化
                 let data;
-                if (_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_20__["cacheWorkData"].has(id)) {
-                    data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_20__["cacheWorkData"].get(id);
-                }
-                else {
-                    data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getArtworkData(id);
-                }
+                data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getArtworkData(id);
                 await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__["saveArtworkData"].save(data);
                 this.afterGetWorksData(data);
             }
@@ -9647,7 +9650,6 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.addBMKBtnClass = 'bmkBtn';
         this.bookmarkedClass = 'bookmarked';
         this.countSelector = 'section h3+div span';
-        this.hotWorkAsideSelector = 'section aside';
         this.worksType = '';
         this.option = {};
         this.worksNoPerPage = 60; // 每个页面有多少个作品
@@ -9679,8 +9681,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.showPreviewLimitTip = false; // 当预览数量达到上限时显示一次提示
         // 储存预览搜索结果的元素
         this.workPreviewBuffer = document.createDocumentFragment();
-        this.tipEmptyResultTimer = 0;
-        this.tipEmptyResultInterval = 1000;
+        this.tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_15__["Utils"].debounce(() => {
+            _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页被限制时返回空结果的提示'));
+        }, 1000);
         this.onSettingChange = (event) => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
                 return;
@@ -9955,10 +9958,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         });
     }
     initAny() {
-        this.hotBar();
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.pageSwitchedTypeNotChange, () => {
-            this.hotBar();
-        });
+        this.removeBlockOnHotBar();
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.pageSwitchedTypeNotChange, this.removeBlockOnHotBar);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.showCount);
         window.addEventListener('addBMK', this.addBookmark);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlFinish, this.onCrawlFinish);
@@ -10111,12 +10112,6 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }, 200000);
         // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
     }
-    tipEmptyResult() {
-        window.clearTimeout(this.tipEmptyResultTimer);
-        this.tipEmptyResultTimer = window.setTimeout(() => {
-            _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页被限制时返回空结果的提示'));
-        }, this.tipEmptyResultInterval);
-    }
     // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
     async getIdList(p) {
         if (p === undefined) {
@@ -10128,7 +10123,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         try {
             data = await this.getSearchData(p);
             if (data.total === 0) {
-                console.log(`${p} total 0`);
+                console.log(`page ${p}: total 0`);
                 this.tipEmptyResult();
                 return this.delayReTry(p);
             }
@@ -10298,13 +10293,14 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         });
     }
     // 去除热门作品上面的遮挡
-    hotBar() {
+    removeBlockOnHotBar() {
         // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
+        const hotWorkAsideSelector = 'section aside';
         const timer = window.setInterval(() => {
-            const hotWorkAside = document.querySelector(this.hotWorkAsideSelector);
+            const hotWorkAside = document.querySelector(hotWorkAsideSelector);
             if (hotWorkAside) {
                 window.clearInterval(timer);
-                // 去掉遮挡作品的购买链接
+                // 去掉遮挡作品的元素
                 const premiumLink = hotWorkAside.nextSibling;
                 premiumLink && premiumLink.remove();
                 // 去掉遮挡后两个作品的 after。因为是伪元素，所以要通过 css 控制
@@ -13532,6 +13528,7 @@ class DownloadControl {
         });
         // 监听浏览器返回的消息
         chrome.runtime.onMessage.addListener((msg) => {
+            var _a;
             if (!this.taskBatch) {
                 return;
             }
@@ -13545,14 +13542,17 @@ class DownloadControl {
             }
             else if (msg.msg === 'download_err') {
                 // 浏览器把文件保存到本地时出错
-                _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(`${msg.data.id} download error! code: ${msg.err}. The downloader will try to download the file again `);
+                _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_save_file_failed_tip', msg.data.id, msg.err || 'unknown'));
+                if (msg.err === 'FILE_FAILED') {
+                    _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_FILE_FAILED_tip'));
+                }
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('saveFileError');
                 // 重新下载这个文件
                 // 但并不确定能否如预期一样重新下载这个文件
                 this.saveFileError(msg.data);
             }
             // UUID 的情况
-            if (msg.data && msg.data.uuid) {
+            if ((_a = msg.data) === null || _a === void 0 ? void 0 : _a.uuid) {
                 _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_uuid'));
             }
         });
@@ -17701,8 +17701,7 @@ class QuickBookmark {
         }
         else {
             const id = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getIllustId();
-            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_6__["cacheWorkData"].get(id);
-            return data ? data : await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id);
+            return _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_6__["cacheWorkData"].get(id) || (await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id));
         }
     }
     async addBookmark() {
@@ -18235,14 +18234,10 @@ class Form {
             this.bindBeautifyEvent(radio);
         }
         // 设置变化或者重置时，重新设置美化状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
-            // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
-            window.clearTimeout(this.bueatifulTimer);
-            this.bueatifulTimer = window.setTimeout(() => {
-                this.initFormBueatiful();
-                this.showCreateFolderTip();
-            }, 50);
-        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, _utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].debounce(() => {
+            this.initFormBueatiful();
+            this.showCreateFolderTip();
+        }, 50));
         // 用户点击“我知道了”按钮之后不再显示提示
         const btn = this.createFolderTipEl.querySelector('button');
         btn.addEventListener('click', () => {
@@ -20410,8 +20405,12 @@ class Settings {
         ];
         // 以默认设置作为初始设置
         this.settings = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].deepCopy(this.defaultSettings);
-        this.storeTimer = 0;
-        this.storageInterval = 50;
+        this.store = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].debounce(() => {
+            // chrome.storage.local 的储存上限是 5 MiB（5242880 Byte）
+            chrome.storage.local.set({
+                [_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName]: this.settings,
+            });
+        }, 50);
         this.restore();
         this.bindEvents();
     }
@@ -20475,15 +20474,6 @@ class Settings {
             this.assignSettings(restoreData);
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('settingInitialized');
         });
-    }
-    store() {
-        window.clearTimeout(this.storeTimer);
-        this.storeTimer = window.setTimeout(() => {
-            // chrome.storage.local 的储存上限是 5 MiB（5242880 Byte）
-            chrome.storage.local.set({
-                [_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName]: this.settings,
-            });
-        }, this.storageInterval);
     }
     // 接收整个设置项，通过循环将其更新到 settings 上
     // 循环设置而不是整个替换的原因：
@@ -22114,6 +22104,30 @@ class Utils {
         const str = JSON.stringify(data, null, 2);
         const blob = new Blob([str], { type: 'application/json' });
         return blob;
+    }
+    /**防抖 */
+    static debounce(func, wait) {
+        // 默认的定时器 id 不能使用有意义的数字，否则 clearTimeout 可能会错误的清除其他定时器
+        let timer = undefined;
+        const context = this;
+        return function () {
+            const args = arguments;
+            window.clearTimeout(timer);
+            timer = window.setTimeout(func.bind(context, ...args), wait);
+        };
+    }
+    /**节流 */
+    static throttle(func, delay) {
+        let time = 0;
+        const context = this;
+        return function () {
+            const args = arguments;
+            const now = new Date().getTime();
+            if (now - time >= delay) {
+                time = now;
+                return func.apply(context, args);
+            }
+        };
     }
 }
 // 不安全的字符，这里多数是控制字符，需要替换掉

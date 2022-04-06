@@ -577,10 +577,10 @@ const langText = {
     '作品分類は：Illustration, Manga, Ugoira, Novel',
   ],
   _命名标记提醒: [
-    '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}<br>* 在某些情况下，会有一些标记不可用。',
-    '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{userid}<br>＊某些情況下有些標記無法使用。',
-    'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}<br>* In some cases, some tags will not be available.',
-    'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{userid}<br>* 場合によっては、一部のタグが利用できず。',
+    '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{user_id}<br>* 在某些情况下，会有一些标记不可用。',
+    '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{user_id}<br>＊某些情況下有些標記無法使用。',
+    'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{user_id}<br>* In some cases, some tags will not be available.',
+    'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{user_id}<br>* 場合によっては、一部のタグが利用できず。',
   ],
   _命名规则一定要包含id: [
     '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
@@ -2007,6 +2007,18 @@ const langText = {
     '標籤、標題、說明文字',
     'Tags, Titles, Captions',
     'タグ・タイトル・キャプション',
+  ],
+  _save_file_failed_tip: [
+    `{} 保存失败，code：{}。下载器将会重试下载这个文件。`,
+    `{} 儲存失敗，code：{}。下載器將會重試下載這個檔案。`,
+    `{} save failed, code: {}. The downloader will retry to download the file.`,
+    `{} 保存に失敗しました。code：{}。ダウンローダーはファイルのダウンロードを再試行します。`,
+  ],
+  _FILE_FAILED_tip: [
+    '可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用高级设置里的“文件名长度限制”。',
+    '可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用高階設定裡的“檔案名稱長度限制”。',
+    'Maybe the file name is too long, or other reasons cause the file to fail to save. You can try enabling "File name length limit" in advanced settings.',
+    'ファイル名が長すぎるか、他の理由でファイルの保存に失敗した可能性があります。 詳細設定で「ファイル名の長さ制限」を有効にしてみてください。',
   ],
 }
 
