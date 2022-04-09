@@ -4983,7 +4983,7 @@ class MsgBox {
                 this.remove(wrap);
             });
         }
-        document.body.insertAdjacentElement('afterbegin', wrap);
+        document.body.append(wrap);
         btn.focus();
     }
     remove(el) {
@@ -5025,7 +5025,7 @@ class OpenCenterPanel {
         this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-dakai"></use>
 </svg>`;
-        document.body.insertAdjacentElement('afterbegin', this.btn);
+        document.body.append(this.btn);
         _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(this.btn);
     }
     bindEvents() {
@@ -7233,20 +7233,21 @@ const theme = new Theme();
   !*** ./src/ts/Tip.ts ***!
   \***********************/
 /*! no static exports found */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 
 // 给下载器的界面元素添加提示文本，当鼠标移动到元素上时会显示提示
 // 如果要给某个元素添加提示，先给它添加 has_tip 的 className，然后用 data-tip 设置提示内容
 class Tip {
     constructor() {
-        this.tipEl = document.createElement('div'); // tip 元素
         this.addTipEl();
         this.bindEvents();
     }
     addTipEl() {
         this.tipEl = document.createElement('div');
         this.tipEl.id = 'tip';
-        document.body.insertAdjacentElement('afterbegin', this.tipEl);
+        document.body.append(this.tipEl);
     }
     bindEvents() {
         const tips = document.querySelectorAll('.has_tip');
@@ -11799,7 +11800,7 @@ class QuickCrawl {
         this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-download"></use>
 </svg>`;
-        document.body.insertAdjacentElement('afterbegin', this.btn);
+        document.body.append(this.btn);
         _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(this.btn);
     }
     bindEvents() {

@@ -95,7 +95,7 @@ class MsgBox {
       })
     }
 
-    document.body.insertAdjacentElement('afterbegin', wrap)
+    document.body.append(wrap)
     btn.focus()
   }
 
