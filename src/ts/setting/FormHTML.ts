@@ -752,6 +752,12 @@ export const formHtml = `<form class="settingForm">
 
     <span class="verticalSplit"></span>
 
+    <input type="checkbox" name="showPreviewWorkTip" id="showPreviewWorkTip" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    <label for="showPreviewWorkTip" data-xztext="_显示摘要信息"></label>
+
+    <span class="verticalSplit"></span>
+
     <span class="settingNameStyle1" data-xztext="_图片尺寸2"></span>
     <input type="radio" name="prevWorkSize" id="prevWorkSize1" class="need_beautify radio" value="original">
     <span class="beautify_radio"></span>

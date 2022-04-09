@@ -2020,6 +2020,12 @@ const langText = {
     'Maybe the file name is too long, or other reasons cause the file to fail to save. You can try enabling "File name length limit" in advanced settings.',
     'ファイル名が長すぎるか、他の理由でファイルの保存に失敗した可能性があります。 詳細設定で「ファイル名の長さ制限」を有効にしてみてください。',
   ],
+  _显示摘要信息: [
+    '显示摘要信息',
+    '顯示摘要資訊',
+    'Show summary',
+    '要約情報を表示する',
+  ],
 }
 
 export { langText }

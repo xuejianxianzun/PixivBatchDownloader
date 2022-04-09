@@ -285,8 +285,7 @@ class PreviewWork {
     const rightSpace = innerWidth - rect.right - this.border
     const xSpace = Math.max(leftSpace, rightSpace)
 
-    const showPreviewWorkTip = true
-    const tipHeight = showPreviewWorkTip ? this.tipHeight : 0
+    const tipHeight = settings.showPreviewWorkTip ? this.tipHeight : 0
     const scrollBarHeight =
       window.innerHeight - document.documentElement.clientHeight
     const ySpace =
@@ -341,8 +340,7 @@ class PreviewWork {
     }
 
     // 检查 wrap 底部是否超出了窗口可视区域
-    const bottomOver =
-      cfg.top + cfg.height + this.border - window.innerHeight
+    const bottomOver = cfg.top + cfg.height + this.border - window.innerHeight
     if (bottomOver > 0) {
       // 如果底部超出了窗口可视区域，则计算顶部是否还有可用空间
       if (cfg.top > 0) {
@@ -352,7 +350,7 @@ class PreviewWork {
     }
 
     // 3. 设置顶部提示区域的内容
-    if (showPreviewWorkTip) {
+    if (settings.showPreviewWorkTip) {
       const text = []
       const body = this.workData.body
       if (body.pageCount > 1) {

@@ -4572,6 +4572,12 @@ const langText = {
         'Maybe the file name is too long, or other reasons cause the file to fail to save. You can try enabling "File name length limit" in advanced settings.',
         'ファイル名が長すぎるか、他の理由でファイルの保存に失敗した可能性があります。 詳細設定で「ファイル名の長さ制限」を有効にしてみてください。',
     ],
+    _显示摘要信息: [
+        '显示摘要信息',
+        '顯示摘要資訊',
+        'Show summary',
+        '要約情報を表示する',
+    ],
 };
 
 
@@ -5465,8 +5471,7 @@ class PreviewWork {
         const leftSpace = rect.left - this.border;
         const rightSpace = innerWidth - rect.right - this.border;
         const xSpace = Math.max(leftSpace, rightSpace);
-        const showPreviewWorkTip = true;
-        const tipHeight = showPreviewWorkTip ? this.tipHeight : 0;
+        const tipHeight = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].showPreviewWorkTip ? this.tipHeight : 0;
         const scrollBarHeight = window.innerHeight - document.documentElement.clientHeight;
         const ySpace = window.innerHeight - scrollBarHeight - this.border - tipHeight;
         // 宽高从图片宽高、可用区域的宽高中取最小值，使图片不会超出可视区域外
@@ -5525,7 +5530,7 @@ class PreviewWork {
             }
         }
         // 3. 设置顶部提示区域的内容
-        if (showPreviewWorkTip) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].showPreviewWorkTip) {
             const text = [];
             const body = this.workData.body;
             if (body.pageCount > 1) {
@@ -19083,6 +19088,12 @@ const formHtml = `<form class="settingForm">
 
     <span class="verticalSplit"></span>
 
+    <input type="checkbox" name="showPreviewWorkTip" id="showPreviewWorkTip" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    <label for="showPreviewWorkTip" data-xztext="_显示摘要信息"></label>
+
+    <span class="verticalSplit"></span>
+
     <span class="settingNameStyle1" data-xztext="_图片尺寸2"></span>
     <input type="radio" name="prevWorkSize" id="prevWorkSize1" class="need_beautify radio" value="original">
     <span class="beautify_radio"></span>
@@ -19392,6 +19403,7 @@ class FormSettings {
                 'noSerialNoForSingleImg',
                 'noSerialNoForMultiImg',
                 'removeAtFromUsername',
+                'showPreviewWorkTip',
             ],
             text: [
                 'setWantPage',
@@ -20298,6 +20310,7 @@ class Settings {
             showDownloadBtnOnThumb: true,
             prevWorkSize: 'regular',
             previewWorkWait: 400,
+            showPreviewWorkTip: true,
             showOriginImage: true,
             showOriginImageSize: 'original',
             showHowToUse: true,
