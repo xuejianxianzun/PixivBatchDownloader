@@ -6,6 +6,12 @@ TODO:新增设置：保存小说的封面图
 
 ## 12.0.0 2022/04/09
 
+### 显示更大的缩略图
+
+pixiv 页面的宽度是固定的，即使屏幕宽度更大，它也不会在一排显示更多缩略图，或者加大缩略图的尺寸。
+
+现在我用 css 显示更大的缩略图，并且解除了一些地方的宽度限制。
+
 ### 优化预览作品功能
 
 [issues 198](https://github.com/xuejianxianzun/PixivBatchDownloader/issues/198)

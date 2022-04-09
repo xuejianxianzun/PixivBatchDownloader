@@ -1733,6 +1733,200 @@ iframe[name='expandedFooter'] {
 .xzBG .setUserNameWrap textarea::-webkit-input-placeholder {
   color: #ddd;
 }
+/* 放大缩略图 */
+/* 图片宽高最大是 540px */
+/* 这两个是通用的作品列表外部容器，在许多页面都有 */
+.iClkCH,
+.gTaKEp {
+  width: auto !important;
+  min-width: 1224px;
+}
+/* li 内部的元素，这几个元素比较通用*/
+.jDiQFZ {
+  width: 100% !important;
+}
+.erYaF,
+.cYUezH {
+  height: auto !important;
+}
+.fxGVAF {
+  width: auto !important;
+  height: auto !important;
+}
+/* 这是 img 外部的 a 标签，让它继承父元素的高度。否则有时 img 始终是最大高度 540px，导致图片高度自动居中失效 */
+.fGjAxR {
+  display: inline-flex;
+  height: 100%;
+}
+.doubleWidth {
+  width: 30% !important;
+}
+/* 顶部 tag 列表部分，减少左侧 padding */
+.eYOHvS {
+  padding-left: 70px !important;
+}
+/* 通用部分结束 */
+/* 首页 */
+/* 让顶部一栏最新作品居中 */
+.sc-1kr69jw-0 {
+  align-items: center;
+}
+/* 最顶部 关注用户・好P友的作品 列表 */
+/* 最底部 本站的最新作品 列表 */
+/* 首页还有不少地方的列表也都是这个 class */
+/* 因为这个列表的宽度很大，所以百分比也应该小一些 */
+.bgeGyS {
+  display: flex !important;
+  width: auto;
+  max-width: 540px;
+  max-height: 540px;
+  flex-shrink: 0;
+}
+.bgeGyS .jDiQFZ {
+  display: flex !important;
+  flex-direction: column !important;
+}
+.bgeGyS .jDiQFZ .hYfnPb {
+  display: flex !important;
+}
+/* 推荐作品 li */
+.kxmdLh {
+  width: 15% !important;
+  max-width: 540px;
+  max-height: 540px;
+}
+/* 排行榜一栏，取消固定高度，否则无法水平居中 */
+.kJiNJl {
+  width: auto !important;
+  height: auto !important;
+}
+/* 底部 xxx 的推荐插画作品的 li */
+.jexggF {
+  width: 15% !important;
+  max-width: 540px;
+  max-height: 540px;
+}
+/* 瞩目的企划目录、已关注用户的最新商品 li */
+.flkRKs {
+  width: 15% !important;
+  max-width: 540px;
+  max-height: 540px;
+}
+/* 画师主页 */
+/* 主页、插画、收藏 一栏取消宽度限制 */
+/* 作品列表顶部的 tag 列表取消宽度限制 */
+.hbpcMJ,
+.jRsJMY {
+  max-width: unset !important;
+}
+/* 画师顶部三个精选作品 */
+.jRyeAs {
+  align-items: flex-start !important;
+  flex-direction: column;
+  height: auto !important;
+}
+.bXiBTe {
+  align-items: center !important;
+  justify-content: center !important;
+}
+/* ul */
+/* 前面的是画师主页的，后面的是详细分类里的，收藏页面里也是后面的 */
+.jtUPOE,
+.jtUPOE {
+  /* 使里面的 li 水平居中 */
+  align-items: center;
+}
+/* li */
+.jtUPOE li,
+.jtUPOE li {
+  width: 15% !important;
+  max-width: 540px;
+  max-height: 540px;
+}
+/* 搜索页 */
+/* ul */
+.krFoBL {
+  gap: 0 !important;
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+}
+/* li */
+.krFoBL li {
+  margin: 12px !important;
+  flex-grow: 0;
+  flex-shrink: 1;
+  width: 15% !important;
+  max-width: 540px;
+  max-height: 540px;
+}
+/* 作品页面 */
+/* 作品详情部分和相关作品的共同父元素，取消它的宽度限制 */
+.bIxTnE {
+  max-width: unset !important;
+}
+/* 对作品详情部分应用宽度限制 */
+.dkdRNk {
+  max-width: 1224px;
+  margin-left: auto;
+  margin-right: auto;
+}
+/* 这样相关作品部分就没有宽度限制了，缩略图可以放大 */
+/* 相关作品的 li */
+.bvpQYM {
+  width: 15% !important;
+  max-width: 540px;
+  max-height: 540px;
+}
+/* 已关注用户的新作品 li */
+.KwpMC {
+  width: 15% !important;
+  max-width: 540px;
+  max-height: 540px;
+}
+/* 大家的新作 */
+/* ul */
+.bQBCgz {
+  gap: 0 !important;
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+}
+/* li */
+.bQBCgz li {
+  margin: 12px !important;
+  flex-grow: 0;
+  flex-shrink: 1;
+  width: 15% !important;
+  max-width: 540px;
+  max-height: 540px;
+}
+/* 关注页面里，解除每个用户右侧的作品列表显示宽度限制 */
+.eCoDTv {
+  width: auto !important;
+}
+/* 排行榜页面，解除宽度限制 */
+#wrapper,
+.layout-body {
+  width: auto !important;
+}
+.ranking-items.adjust {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center;
+}
+/* 排行榜页面的缩略图尺寸最大是 400px */
+.ranking-item {
+  display: inline-flex !important;
+  flex-direction: column !important;
+  width: 20% !important;
+  min-width: 300px;
+  max-width: 400px;
+  max-height: 450px;
+}
+.ranking-items.adjust .work img {
+  max-height: unset !important;
+}
 .warn {
   color: #d27e00;
 }
@@ -1755,6 +1949,14 @@ iframe[name='expandedFooter'] {
 }
 .beautify_scrollbar::-webkit-scrollbar-thumb {
   background-color: #3ab8f2;
+  border-radius: 10px;
+}
+.cAicGw::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.cAicGw::-webkit-scrollbar-thumb {
+  background-color: #0096fa;
   border-radius: 10px;
 }
 #quickBookmarkEl {

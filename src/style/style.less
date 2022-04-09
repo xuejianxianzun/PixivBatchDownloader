@@ -12,6 +12,7 @@
 @import './blockTagsForSpecificUser.less';
 @import './Loading.less';
 @import './setUserName.less';
+@import './EnlargeThumb.less';
 
 // 储存通用规则和一些零散的元素的规则
 .warn {
@@ -62,6 +63,22 @@
   //   background-color: @beautifyBlue;
   //   border-radius: 10px;
   // }
+}
+
+// 作品页面里，作品大图下方的作品列表导航区域
+.cAicGw {
+  // 滚动条整体
+  // width 是垂直滚动条的宽度，height 是水平滚动条的高度
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  // 滚动条的滑块部分
+  &::-webkit-scrollbar-thumb {
+    background-color: #0096fa;
+    border-radius: 10px;
+  }
 }
 
 #quickBookmarkEl {
