@@ -4578,6 +4578,12 @@ const langText = {
         'Show summary',
         '要約情報を表示する',
     ],
+    _显示更大的缩略图: [
+        '显示更大的缩略图',
+        '顯示更大的縮圖',
+        'show larger thumbnails',
+        '大きなサムネイルを表示する',
+    ]
 };
 
 
@@ -6518,6 +6524,64 @@ new ShowHowToUse();
 
 /***/ }),
 
+/***/ "./src/ts/ShowLargerThumbnails.ts":
+/*!****************************************!*\
+  !*** ./src/ts/ShowLargerThumbnails.ts ***!
+  \****************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+class ShowLargerThumbnails {
+    constructor() {
+        // css 来自 style 目录里的 showLargerThumbnails.less
+        this.css = ``;
+        this.styleId = 'ShowLargerThumbnails';
+        this.loadCssText();
+        this.bindEvents();
+    }
+    async loadCssText() {
+        const css = await fetch(chrome.runtime.getURL('style/showLargerThumbnails.css'));
+        this.css = await css.text();
+        this.exec();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'showLargerThumbnails') {
+                this.exec();
+            }
+        });
+    }
+    exec() {
+        if (this.css) {
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showLargerThumbnails ? this.addStyle() : this.removeStyle();
+        }
+    }
+    addStyle() {
+        if (document.querySelector('#' + this.styleId)) {
+            return;
+        }
+        const el = document.createElement('style');
+        el.id = this.styleId;
+        el.innerHTML = this.css;
+        document.body.append(el);
+    }
+    removeStyle() {
+        const el = document.querySelector('#' + this.styleId);
+        el && el.remove();
+    }
+}
+new ShowLargerThumbnails();
+
+
+/***/ }),
+
 /***/ "./src/ts/ShowNotification.ts":
 /*!************************************!*\
   !*** ./src/ts/ShowNotification.ts ***!
@@ -7987,21 +8051,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
 /* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_13__);
 /* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
-/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
-/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
-/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
-/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
-/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
-/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
-/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
-/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
-/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
+/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
+/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
+/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
+/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
+/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
+/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
+/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
+/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
+/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -8012,6 +8077,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 
@@ -19080,6 +19146,18 @@ const formHtml = `<form class="settingForm">
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>
+    
+    <p class="option" data-no="68">
+    <span class="settingNameStyle1" data-xztext="_显示更大的缩略图"></span>
+    <input type="checkbox" name="showLargerThumbnails" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    </p>
+    
+    <p class="option" data-no="63">
+    <span class="settingNameStyle1" data-xztext="_替换方形缩略图以显示图片比例"></span>
+    <input type="checkbox" name="replaceSquareThumb" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    </p>
 
     <p class="option" data-no="55">
     <span class="has_tip settingNameStyle1" data-xztip="_鼠标滚轮切换图片">
@@ -19109,12 +19187,6 @@ const formHtml = `<form class="settingForm">
     <input type="radio" name="prevWorkSize" id="prevWorkSize2" class="need_beautify radio" value="regular" checked>
     <span class="beautify_radio"></span>
     <label for="prevWorkSize2" data-xztext="_普通"></label>
-    </p>
-    
-    <p class="option" data-no="63">
-    <span class="settingNameStyle1" data-xztext="_替换方形缩略图以显示图片比例"></span>
-    <input type="checkbox" name="replaceSquareThumb" class="need_beautify checkbox_switch" checked>
-    <span class="beautify_switch"></span>
     </p>
 
     <p class="option" data-no="62">
@@ -19412,6 +19484,7 @@ class FormSettings {
                 'noSerialNoForMultiImg',
                 'removeAtFromUsername',
                 'showPreviewWorkTip',
+                'showLargerThumbnails',
             ],
             text: [
                 'setWantPage',
@@ -20332,6 +20405,7 @@ class Settings {
             setUserNameShow: true,
             setUserNameList: {},
             removeAtFromUsername: false,
+            showLargerThumbnails: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项

@@ -1,5 +1,4 @@
 import { EVT } from './EVT'
-import { pageType } from './PageType'
 import { settings } from './setting/Settings'
 import { Tools } from './Tools'
 

@@ -64,7 +64,8 @@
     "lib/gif.worker.js",
     "lib/listen_history_change.js",
     "manifest.json",
-    "icon/logo128.png"
+    "icon/logo128.png",
+    "style/showLargerThumbnails.css"
   ],
   "incognito": "split",
   "homepage_url": "https://github.com/xuejianxianzun/PixivBatchDownloader"

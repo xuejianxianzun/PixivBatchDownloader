@@ -8,7 +8,7 @@
   "scripts": {
     "fmt": "prettier -c --write \"src\\ts\\**\" && prettier -c --write \"src\\style\\**\"",
     "ts": "webpack --config ./webpack.conf.js",
-    "less": "lessc ./src/style/style.less ./dist/style/style.css",
+    "less": "lessc ./src/style/style.less ./dist/style/style.css && lessc ./src/style/showLargerThumbnails.less ./dist/style/showLargerThumbnails.css",
     "pre-build": "npm run fmt && npm run ts && npm run less",
     "build": "npm run pre-build && node ./pack.js"
   },

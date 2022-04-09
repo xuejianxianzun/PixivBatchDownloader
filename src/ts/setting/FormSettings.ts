@@ -101,6 +101,7 @@ class FormSettings {
       'noSerialNoForMultiImg',
       'removeAtFromUsername',
       'showPreviewWorkTip',
+      'showLargerThumbnails',
     ],
     text: [
       'setWantPage',

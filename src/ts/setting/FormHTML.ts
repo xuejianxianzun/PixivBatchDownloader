@@ -736,6 +736,18 @@ export const formHtml = `<form class="settingForm">
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>
+    
+    <p class="option" data-no="68">
+    <span class="settingNameStyle1" data-xztext="_显示更大的缩略图"></span>
+    <input type="checkbox" name="showLargerThumbnails" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    </p>
+    
+    <p class="option" data-no="63">
+    <span class="settingNameStyle1" data-xztext="_替换方形缩略图以显示图片比例"></span>
+    <input type="checkbox" name="replaceSquareThumb" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    </p>
 
     <p class="option" data-no="55">
     <span class="has_tip settingNameStyle1" data-xztip="_鼠标滚轮切换图片">
@@ -765,12 +777,6 @@ export const formHtml = `<form class="settingForm">
     <input type="radio" name="prevWorkSize" id="prevWorkSize2" class="need_beautify radio" value="regular" checked>
     <span class="beautify_radio"></span>
     <label for="prevWorkSize2" data-xztext="_普通"></label>
-    </p>
-    
-    <p class="option" data-no="63">
-    <span class="settingNameStyle1" data-xztext="_替换方形缩略图以显示图片比例"></span>
-    <input type="checkbox" name="replaceSquareThumb" class="need_beautify checkbox_switch" checked>
-    <span class="beautify_switch"></span>
     </p>
 
     <p class="option" data-no="62">

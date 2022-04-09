@@ -2026,6 +2026,12 @@ const langText = {
     'Show summary',
     '要約情報を表示する',
   ],
+  _显示更大的缩略图:[
+    '显示更大的缩略图',
+    '顯示更大的縮圖',
+    'show larger thumbnails',
+    '大きなサムネイルを表示する',
+  ]
 }
 
 export { langText }
