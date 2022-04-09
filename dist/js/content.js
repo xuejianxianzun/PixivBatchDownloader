@@ -5235,7 +5235,7 @@ class PreviewWork {
         // 预览作品的容器的元素
         this.wrapId = 'previewWorkWrap';
         this.img = document.createElement('img');
-        this.border = 8; // border 占据的空间
+        this.border = 4; // border 占据的空间
         this.tipId = 'previewWorkTip';
         this.tipHeight = 22;
         // 保存当前鼠标经过的缩略图的数据
@@ -5466,6 +5466,8 @@ class PreviewWork {
         this.wrap.appendChild(this.img);
         // 1. 计算图片显示的尺寸
         const rect = this.workEL.getBoundingClientRect();
+        // 不显示摘要信息时，也不显示边框，所以此时把 border 设置为 0
+        this.border = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].showPreviewWorkTip ? 4 : 0;
         // 计算各个可用区域的尺寸，提前减去了 border、tip 等元素占据的空间
         const innerWidth = window.innerWidth - 17;
         const leftSpace = rect.left - this.border;
@@ -5564,6 +5566,11 @@ class PreviewWork {
             styleArray.push(`${key}:${value}px;`);
         }
         styleArray.push('display:block;');
+        // 如果不显示摘要信息，覆写一些样式
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].showPreviewWorkTip) {
+            styleArray.push('border:none;');
+            styleArray.push('box-shadow:none;');
+        }
         this.wrap.setAttribute('style', styleArray.join(''));
         // 每次显示图片后，传递图片的 url
         this.sendUrls();

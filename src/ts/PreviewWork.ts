@@ -19,7 +19,7 @@ class PreviewWork {
   private wrapId = 'previewWorkWrap'
   private wrap!: HTMLElement
   private img = document.createElement('img')
-  private readonly border = 8 // border 占据的空间
+  private border = 4 // border 占据的空间
 
   private tipId = 'previewWorkTip'
   private tip!: HTMLElement
@@ -279,6 +279,9 @@ class PreviewWork {
     // 1. 计算图片显示的尺寸
     const rect = this.workEL.getBoundingClientRect()
 
+    // 不显示摘要信息时，也不显示边框，所以此时把 border 设置为 0
+    this.border = settings.showPreviewWorkTip ? 4 : 0
+
     // 计算各个可用区域的尺寸，提前减去了 border、tip 等元素占据的空间
     const innerWidth = window.innerWidth - 17
     const leftSpace = rect.left - this.border
@@ -384,6 +387,13 @@ class PreviewWork {
       styleArray.push(`${key}:${value}px;`)
     }
     styleArray.push('display:block;')
+
+    // 如果不显示摘要信息，覆写一些样式
+    if (!settings.showPreviewWorkTip) {
+      styleArray.push('border:none;')
+      styleArray.push('box-shadow:none;')
+    }
+
     this.wrap.setAttribute('style', styleArray.join(''))
 
     // 每次显示图片后，传递图片的 url
