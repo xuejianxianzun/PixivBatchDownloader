@@ -4583,7 +4583,7 @@ const langText = {
         '顯示更大的縮圖',
         'show larger thumbnails',
         '大きなサムネイルを表示する',
-    ]
+    ],
 };
 
 
@@ -6539,7 +6539,7 @@ __webpack_require__.r(__webpack_exports__);
 
 class ShowLargerThumbnails {
     constructor() {
-        // css 来自 style 目录里的 showLargerThumbnails.less
+        // css 内容来自 style/showLargerThumbnails.css
         this.css = ``;
         this.styleId = 'ShowLargerThumbnails';
         this.loadCssText();
@@ -8143,7 +8143,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
 // 初始化所有页面抓取流程的基类
+
 
 
 
@@ -8357,6 +8359,15 @@ class InitPageBase {
             const msg = 'Error: work id is invalid!';
             _MsgBox__WEBPACK_IMPORTED_MODULE_17__["msgBox"].error(msg);
             throw new Error(msg);
+        }
+        // 检查 id 是否在 id 范围之内
+        if (id) {
+            const checkId = await _filter_Filter__WEBPACK_IMPORTED_MODULE_20__["filter"].check({
+                id,
+            });
+            if (!checkId) {
+                return this.afterGetWorksData();
+            }
         }
         try {
             if (idData.type === 'novels') {

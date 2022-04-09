@@ -21,6 +21,7 @@ import { toast } from '../Toast'
 import { msgBox } from '../MsgBox'
 import { Utils } from '../utils/Utils'
 import { pageType } from '../PageType'
+import { filter } from '../filter/Filter'
 
 abstract class InitPageBase {
   protected crawlNumber = 0 // 要抓取的个数/页数
@@ -275,6 +276,16 @@ abstract class InitPageBase {
       const msg = 'Error: work id is invalid!'
       msgBox.error(msg)
       throw new Error(msg)
+    }
+
+    // 检查 id 是否符合 id 范围条件，如果不符合则不发送这个请求，直接跳过它
+    if (id) {
+      const checkId = await filter.check({
+        id,
+      })
+      if (!checkId) {
+        return this.afterGetWorksData()
+      }
     }
 
     try {

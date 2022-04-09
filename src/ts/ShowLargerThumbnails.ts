@@ -12,7 +12,9 @@ class ShowLargerThumbnails {
   private readonly styleId = 'ShowLargerThumbnails'
 
   private async loadCssText() {
-    const css = await fetch(chrome.runtime.getURL('style/showLargerThumbnails.css'))
+    const css = await fetch(
+      chrome.runtime.getURL('style/showLargerThumbnails.css')
+    )
     this.css = await css.text()
     this.exec()
   }
