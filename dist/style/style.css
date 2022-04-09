@@ -1829,7 +1829,7 @@ iframe[name='expandedFooter'] {
   border-radius: 4px;
 }
 #previewWorkWrap {
-  position: absolute;
+  position: fixed;
   z-index: 100000;
   display: none;
   width: 600px;

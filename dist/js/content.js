@@ -5507,22 +5507,21 @@ class PreviewWork {
         }
         // 然后设置 top
         // 让 wrap 和缩略图在垂直方向上居中对齐
-        cfg.top = window.scrollY + rect.top;
+        cfg.top = rect.top;
         const wrapHalfHeight = (cfg.height + this.border) / 2;
         const workHalfHeight = rect.height / 2;
         cfg.top = cfg.top - wrapHalfHeight + workHalfHeight;
         // 检查 wrap 顶端是否超出了窗口可视区域
-        if (cfg.top < window.scrollY) {
-            cfg.top = window.scrollY;
+        if (cfg.top < 0) {
+            cfg.top = 0;
         }
         // 检查 wrap 底部是否超出了窗口可视区域
-        const bottomOver = cfg.top + cfg.height + this.border - window.scrollY - window.innerHeight;
+        const bottomOver = cfg.top + cfg.height + this.border - window.innerHeight;
         if (bottomOver > 0) {
             // 如果底部超出了窗口可视区域，则计算顶部是否还有可用空间
-            const topFreeSpace = cfg.top - window.scrollY;
-            if (topFreeSpace > 0) {
+            if (cfg.top > 0) {
                 // 如果顶部还有空间可用，就尽量向上移动，但不会导致顶端超出可视区域
-                cfg.top = cfg.top - Math.min(bottomOver, topFreeSpace) - scrollBarHeight;
+                cfg.top = cfg.top - Math.min(bottomOver, cfg.top) - scrollBarHeight;
             }
         }
         // 3. 设置顶部提示区域的内容
