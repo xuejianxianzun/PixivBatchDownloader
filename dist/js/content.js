@@ -14701,6 +14701,7 @@ class ProgressBar {
             return;
         }
         bar.name.textContent = data.name;
+        bar.name.setAttribute('title', data.name);
         let text = '';
         if (data.total >= this.MB) {
             // 如果判断条件加上： || data.total === 0
