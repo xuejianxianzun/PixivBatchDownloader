@@ -6540,28 +6540,42 @@ __webpack_require__.r(__webpack_exports__);
 class ShowLargerThumbnails {
     constructor() {
         // css 内容来自 style/showLargerThumbnails.css
-        this.css = ``;
+        this.css = '';
         this.styleId = 'ShowLargerThumbnails';
+        this.isNovelPage = false;
+        this.checkIsNovelPage();
         this.loadCssText();
         this.bindEvents();
     }
     async loadCssText() {
         const css = await fetch(chrome.runtime.getURL('style/showLargerThumbnails.css'));
         this.css = await css.text();
-        this.exec();
+        this.setCss();
     }
     bindEvents() {
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
             const data = ev.detail.data;
             if (data.name === 'showLargerThumbnails') {
-                this.exec();
+                this.setCss();
             }
         });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
+            this.checkIsNovelPage();
+        });
     }
-    exec() {
-        if (this.css) {
-            _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showLargerThumbnails ? this.addStyle() : this.removeStyle();
+    // 在小说页面里，不放大缩略图，所以需要移除 css
+    checkIsNovelPage() {
+        this.isNovelPage = window.location.pathname.includes('/novel');
+        this.setCss();
+    }
+    setCss() {
+        if (!this.css) {
+            return;
         }
+        if (this.isNovelPage) {
+            return this.removeStyle();
+        }
+        _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showLargerThumbnails ? this.addStyle() : this.removeStyle();
     }
     addStyle() {
         if (document.querySelector('#' + this.styleId)) {
