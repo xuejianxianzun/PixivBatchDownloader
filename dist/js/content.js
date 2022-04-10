@@ -6670,7 +6670,7 @@ class ShowOriginSizeImage {
         // 原比例查看图片的容器的元素
         this.wrapId = 'originSizeWrap';
         this.defaultSize = 1200;
-        this.border = 8; // wrap 的 border 占据的空间
+        this.border = 4; // wrap 的 border 占据的空间
         // 不可以把 left、top 设置为负值，否则超出屏幕的区域无法查看
         // 所以通过修改 margin 来达到定位的效果
         this.style = {
@@ -8360,7 +8360,7 @@ class InitPageBase {
             _MsgBox__WEBPACK_IMPORTED_MODULE_17__["msgBox"].error(msg);
             throw new Error(msg);
         }
-        // 检查 id 是否在 id 范围之内
+        // 检查 id 是否符合 id 范围条件，如果不符合则不发送这个请求，直接跳过它
         if (id) {
             const checkId = await _filter_Filter__WEBPACK_IMPORTED_MODULE_20__["filter"].check({
                 id,
