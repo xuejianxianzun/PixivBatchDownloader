@@ -279,13 +279,11 @@ abstract class InitPageBase {
     }
 
     // 检查 id 是否符合 id 范围条件，如果不符合则不发送这个请求，直接跳过它
-    if (id) {
-      const checkId = await filter.check({
-        id,
-      })
-      if (!checkId) {
-        return this.afterGetWorksData()
-      }
+    const checkId = await filter.check({
+      id,
+    })
+    if (!checkId) {
+      return this.afterGetWorksData()
     }
 
     try {

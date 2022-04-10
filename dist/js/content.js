@@ -8361,13 +8361,11 @@ class InitPageBase {
             throw new Error(msg);
         }
         // 检查 id 是否符合 id 范围条件，如果不符合则不发送这个请求，直接跳过它
-        if (id) {
-            const checkId = await _filter_Filter__WEBPACK_IMPORTED_MODULE_20__["filter"].check({
-                id,
-            });
-            if (!checkId) {
-                return this.afterGetWorksData();
-            }
+        const checkId = await _filter_Filter__WEBPACK_IMPORTED_MODULE_20__["filter"].check({
+            id,
+        });
+        if (!checkId) {
+            return this.afterGetWorksData();
         }
         try {
             if (idData.type === 'novels') {
