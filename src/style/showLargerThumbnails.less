@@ -19,7 +19,9 @@
   height: auto !important;
 }
 
+/* 给图片外面的容器设置最小高度，否则图片没加载出来时高度太小了，收藏按钮都只显示一半*/
 .fxGVAF {
+  min-height: 100px;
   width: auto !important;
   height: auto !important;
 }
@@ -246,16 +248,30 @@
 }
 
 /* 排行榜页面的缩略图尺寸最大是 400px */
+/* 现在设置一排 5 个缩略图 */
 .ranking-item {
   display: inline-flex !important;
   flex-direction: column !important;
-  width: 20% !important;
-  max-width: 400px;
-  max-height: 450px;
+  width: 18% !important;
+  max-width: 540px;
+  margin: 10px 1%;
+  max-height: 500px;
 }
 
+.ranking-items.adjust .ranking-item .ranking-image-item,
+.ranking-items.adjust .work,
+.ranking-items.adjust ._layout-thumbnail {
+  width: 100% !important;
+}
+
+/*把缩略图放大一些，并且始终完整显示 */
 .ranking-items.adjust .work img {
-  max-height: unset !important;
+  width: 100%;
+  display: block;
+  max-height: 400px !important;
+  max-width: 400px !important;
+  object-fit: contain;
+  object-position: center;
 }
 
 /* 约稿页面 */

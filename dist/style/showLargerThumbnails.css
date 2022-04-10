@@ -16,6 +16,7 @@
   height: auto !important;
 }
 .fxGVAF {
+  min-height: 100px;
   width: auto !important;
   height: auto !important;
 }
@@ -58,6 +59,7 @@
   display: flex !important;
 }
 /* 推荐作品 li */
+/* 很多新版页面的作品列表都要把 margin 改小一些，从 12 改为 10，否则在 125% 缩放时，因为宽度不够，一排原本能显示 6 个的，变得只能显示 5 个*/
 .kxmdLh {
   margin: 10px !important;
   width: 15% !important;
@@ -206,15 +208,28 @@
   align-items: center;
 }
 /* 排行榜页面的缩略图尺寸最大是 400px */
+/* 现在设置一排 5 个缩略图 */
 .ranking-item {
   display: inline-flex !important;
   flex-direction: column !important;
-  width: 20% !important;
-  max-width: 400px;
-  max-height: 450px;
+  width: 18% !important;
+  max-width: 540px;
+  margin: 10px 1%;
+  max-height: 500px;
 }
+.ranking-items.adjust .ranking-item .ranking-image-item,
+.ranking-items.adjust .work,
+.ranking-items.adjust ._layout-thumbnail {
+  width: 100% !important;
+}
+/*把缩略图放大一些，并且始终完整显示 */
 .ranking-items.adjust .work img {
-  max-height: unset !important;
+  width: 100%;
+  display: block;
+  max-height: 400px !important;
+  max-width: 400px !important;
+  object-fit: contain;
+  object-position: center;
 }
 /* 约稿页面 */
 /* 取消容器的宽度限制 */
