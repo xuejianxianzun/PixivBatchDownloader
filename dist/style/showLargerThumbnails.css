@@ -15,6 +15,10 @@
 .cYUezH {
   height: auto !important;
 }
+nav .cYUezH {
+  height: 100% !important;
+}
+/* 给图片外面的容器设置最小高度，否则图片没加载出来时高度太小了，收藏按钮都只显示一半*/
 .fxGVAF {
   min-height: 100px;
   width: auto !important;
