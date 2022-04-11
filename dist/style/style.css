@@ -1185,6 +1185,9 @@
   color: #fff !important;
   fill: #fff !important;
 }
+.xzBG.centerWrap .centerWrap_con .settingForm select {
+  background: transparent;
+}
 .xzBG.centerWrap .progressBar {
   background-color: #6e9dad !important;
 }
