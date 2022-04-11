@@ -4858,7 +4858,7 @@ class MouseOverThumbnail {
         for (const selector of this.selectors) {
             const elements = parent.querySelectorAll(selector);
             for (const el of elements) {
-                const id = this.findWorkId(el);
+                const id = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].findIllustIdFromElement(el);
                 // 只有查找到作品 id 时才会执行回调函数
                 if (id) {
                     el.addEventListener('mouseenter', (ev) => {
@@ -4897,18 +4897,6 @@ class MouseOverThumbnail {
     // onLeave 的回调函数没有 id 参数，因为鼠标离开时的 id 就是鼠标进入时的 id
     onLeave(fn) {
         this.leaveCallback.push(fn);
-    }
-    // 从元素中查找图片作品的 id
-    // 如果查找不到 id，返回空字符串 ''
-    findWorkId(el) {
-        let a;
-        if (el.nodeName === 'A') {
-            a = el;
-        }
-        else {
-            a = el.querySelector('a');
-        }
-        return a === null ? '' : _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].getIllustId(a.href);
     }
 }
 const mouseOverThumbnail = new MouseOverThumbnail();
@@ -7737,6 +7725,18 @@ class Tools {
         else {
             return '';
         }
+    }
+    // 从 DOM 元素中获取 artworks id
+    // 如果查找不到 id 会返回空字符串
+    static findIllustIdFromElement(el) {
+        let a;
+        if (el.nodeName === 'A') {
+            a = el;
+        }
+        else {
+            a = el.querySelector('a');
+        }
+        return a === null ? '' : this.getIllustId(a.href);
     }
     // 从 url 里获取 novel id
     // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
