@@ -1412,6 +1412,7 @@
   background: #222;
   box-shadow: #10506e 0px 0px 15px;
   color: #fff;
+  transition: none;
 }
 .xzBG.xz_msg_box * {
   color: #fff !important;
@@ -1420,7 +1421,7 @@
   text-shadow: #003247 0px 0px 2px;
 }
 .xzBG.xz_msg_box .xzBGLayer {
-  filter: blur(2px);
+  filter: blur(1px);
 }
 #header-banner.ad,
 ._2vNejsc,
