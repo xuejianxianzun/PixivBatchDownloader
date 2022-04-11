@@ -1255,12 +1255,13 @@ class DoubleWidthThumb {
             const data = ev.detail.data;
             if (data.name === 'doubleWidthThumb') {
                 // 如果开启了父级设置“显示更大的缩略图”，以及这个设置，则必须开启“替换方形缩略图以显示图片比例”
-                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showLargerThumbnails && _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doubleWidthThumb && !_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].replaceSquareThumb) {
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showLargerThumbnails &&
+                    _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doubleWidthThumb &&
+                    !_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].replaceSquareThumb) {
                     Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["setSetting"])('replaceSquareThumb', true);
                 }
                 this.setCss();
             }
-            // 如果关闭了父级设置“显示更大的缩略图”，则移除 css，但是不关闭这个设置
             if (data.name === 'showLargerThumbnails') {
                 this.setCss();
             }
@@ -1285,7 +1286,9 @@ class DoubleWidthThumb {
         if (_Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].notEnabledShowLargerThumb()) {
             return this.removeStyle();
         }
-        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].replaceSquareThumb && _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showLargerThumbnails && _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doubleWidthThumb) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].replaceSquareThumb &&
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showLargerThumbnails &&
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doubleWidthThumb) {
             this.addStyle();
         }
         else {
@@ -4821,7 +4824,7 @@ const langText = {
         '橫圖佔用二倍寬度',
         'Horizontal image takes up double the width',
         '水平方向の画像は幅の2倍を占めます',
-    ]
+    ],
 };
 
 
@@ -18339,7 +18342,10 @@ class BG {
         this.setOpacity();
         // 预加载背景图片
         // 由于浏览器的工作原理，背景图片在未被显示之前是不会加载的，在显示时才会进行加载。这会导致背景层显示之后出现短暂的空白（因为在加载图片）。为了避免空白，需要预加载图片
-        await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].loadImg(url);
+        const img = new Image();
+        img.src = url;
+        img.style.display = 'none';
+        document.body.append(img);
         this.el.style.backgroundImage = `url(${url})`;
         this.haveImage = true;
         this.setDisplay();

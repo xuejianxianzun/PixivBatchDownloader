@@ -111,7 +111,10 @@ class BG {
 
     // 预加载背景图片
     // 由于浏览器的工作原理，背景图片在未被显示之前是不会加载的，在显示时才会进行加载。这会导致背景层显示之后出现短暂的空白（因为在加载图片）。为了避免空白，需要预加载图片
-    await Utils.loadImg(url)
+    const img = new Image()
+    img.src = url
+    img.style.display = 'none'
+    document.body.append(img)
 
     this.el.style.backgroundImage = `url(${url})`
     this.haveImage = true
