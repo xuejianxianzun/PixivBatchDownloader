@@ -741,6 +741,12 @@ export const formHtml = `<form class="settingForm">
     <span class="settingNameStyle1" data-xztext="_显示更大的缩略图"></span>
     <input type="checkbox" name="showLargerThumbnails" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
+
+    <span class="subOptionWrap" data-show="showLargerThumbnails">
+    <input type="checkbox" name="doubleWidthThumb" id="doubleWidthThumb" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    <label for="doubleWidthThumb" data-xztext="_横图占用二倍宽度"></label>
+    </span>
     </p>
     
     <p class="option" data-no="63">
@@ -777,6 +783,7 @@ export const formHtml = `<form class="settingForm">
     <input type="radio" name="prevWorkSize" id="prevWorkSize2" class="need_beautify radio" value="regular" checked>
     <span class="beautify_radio"></span>
     <label for="prevWorkSize2" data-xztext="_普通"></label>
+    </span>
     </p>
 
     <p class="option" data-no="62">

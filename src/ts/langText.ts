@@ -2032,6 +2032,12 @@ const langText = {
     'show larger thumbnails',
     '大きなサムネイルを表示する',
   ],
+  _横图占用二倍宽度: [
+    '横图占用二倍宽度',
+    '橫圖佔用二倍寬度',
+    'Horizontal image takes up double the width',
+    '水平方向の画像は幅の2倍を占めます',
+  ],
 }
 
 export { langText }

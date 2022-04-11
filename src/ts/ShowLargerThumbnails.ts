@@ -1,6 +1,6 @@
 import { EVT } from './EVT'
 import { settings } from './setting/Settings'
-import './FindHorizontalImageWrap'
+import { Tools } from './Tools'
 
 class ShowLargerThumbnails {
   constructor() {
@@ -38,17 +38,7 @@ class ShowLargerThumbnails {
       return
     }
 
-    // 在小说页面里，以及某些特定页面里，不启用放大缩略图的功能
-    let notEnabledPage = false
-    if (
-      window.location.pathname.includes('/novel') ||
-      window.location.pathname.includes('/ranking_area') ||
-      window.location.hostname.includes('pixivision.net')
-    ) {
-      notEnabledPage = true
-    }
-
-    if (notEnabledPage) {
+    if (Tools.notEnabledShowLargerThumb()) {
       return this.removeStyle()
     }
     settings.showLargerThumbnails ? this.addStyle() : this.removeStyle()

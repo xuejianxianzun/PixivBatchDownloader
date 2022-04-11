@@ -118,17 +118,28 @@ class FindHorizontalImageWrap {
   }
 
   // 当 img 加载完成后，计算 img 是横图还是竖图
-  // 如果是横图，则在容器上添加特殊的 id
   private checkImage(img: HTMLImageElement, wrap: HTMLElement) {
     if (!img.src.includes('1200.jpg')) {
       return
     }
     if (img.naturalWidth / img.naturalHeight > 1) {
-      if (!wrap.id) {
-        wrap.id = 'doubleWidth'
-      }
+      this.find(wrap)
+    }
+  }
+
+  private onFindCB: Function[] = []
+  // 注册回调函数
+  public onFind(cb: Function) {
+    this.onFindCB.push(cb)
+  }
+
+  // 当找到横图的容器时会执行回调函数
+  private find(wrap: HTMLElement) {
+    for (const cb of this.onFindCB) {
+      cb(wrap)
     }
   }
 }
 
-new FindHorizontalImageWrap()
+const findHorizontalImageWrap = new FindHorizontalImageWrap()
+export { findHorizontalImageWrap }

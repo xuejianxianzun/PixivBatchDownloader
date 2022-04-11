@@ -102,6 +102,7 @@ class FormSettings {
       'removeAtFromUsername',
       'showPreviewWorkTip',
       'showLargerThumbnails',
+      'doubleWidthThumb',
     ],
     text: [
       'setWantPage',

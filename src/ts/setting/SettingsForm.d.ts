@@ -117,4 +117,5 @@ export interface SettingsForm extends HTMLFormElement {
   noSerialNoForMultiImg: HTMLInputElement
   removeAtFromUsername: HTMLInputElement
   showLargerThumbnails: HTMLInputElement
+  doubleWidthThumb: HTMLInputElement
 }

@@ -1221,6 +1221,96 @@ const toWebM = new ToWebM();
 
 /***/ }),
 
+/***/ "./src/ts/DoubleWidthThumb.ts":
+/*!************************************!*\
+  !*** ./src/ts/DoubleWidthThumb.ts ***!
+  \************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _FindHorizontalImageWrap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./FindHorizontalImageWrap */ "./src/ts/FindHorizontalImageWrap.ts");
+
+
+
+
+// 如果一个作品的缩略图是横图，则把这个缩略图的容器的宽度设置为默认宽度的 2 倍
+// 注意：必须开启“替换方形缩略图以显示图片比例”，“横图占用二倍宽度”的功能才能生效
+class DoubleWidthThumb {
+    constructor() {
+        this.addId = 'doubleWidth';
+        /* 双倍宽度的图片的 id（由下载器添加这个 id） */
+        this.styleId = 'doubleWidthStyle';
+        this.css = `#doubleWidth {
+    width: 30% !important;
+  }`;
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'doubleWidthThumb') {
+                // 如果开启了父级设置“显示更大的缩略图”，以及这个设置，则必须开启“替换方形缩略图以显示图片比例”
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showLargerThumbnails && _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doubleWidthThumb && !_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].replaceSquareThumb) {
+                    Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["setSetting"])('replaceSquareThumb', true);
+                }
+                this.setCss();
+            }
+            // 如果关闭了父级设置“显示更大的缩略图”，则移除 css，但是不关闭这个设置
+            if (data.name === 'showLargerThumbnails') {
+                this.setCss();
+            }
+            // 如果关闭了“替换方形缩略图以显示图片比例”，则需要关闭这个设置，因为这个设置无法生效
+            if (data.name === 'replaceSquareThumb') {
+                if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].replaceSquareThumb && _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doubleWidthThumb) {
+                    Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["setSetting"])('doubleWidthThumb', false);
+                }
+            }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
+            this.setCss();
+        });
+        // 如果一个缩略图是横图，则在它的容器上添加特定 id
+        _FindHorizontalImageWrap__WEBPACK_IMPORTED_MODULE_3__["findHorizontalImageWrap"].onFind((wrap) => {
+            if (!wrap.id) {
+                wrap.id = this.addId;
+            }
+        });
+    }
+    setCss() {
+        if (_Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].notEnabledShowLargerThumb()) {
+            return this.removeStyle();
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].replaceSquareThumb && _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showLargerThumbnails && _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doubleWidthThumb) {
+            this.addStyle();
+        }
+        else {
+            this.removeStyle();
+        }
+    }
+    addStyle() {
+        if (document.querySelector('#' + this.styleId)) {
+            return;
+        }
+        const el = document.createElement('style');
+        el.id = this.styleId;
+        el.innerHTML = this.css;
+        document.body.append(el);
+    }
+    removeStyle() {
+        const el = document.querySelector('#' + this.styleId);
+        el && el.remove();
+    }
+}
+new DoubleWidthThumb();
+
+
+/***/ }),
+
 /***/ "./src/ts/EVT.ts":
 /*!***********************!*\
   !*** ./src/ts/EVT.ts ***!
@@ -1841,11 +1931,12 @@ const fileName = new FileName();
 /*!*******************************************!*\
   !*** ./src/ts/FindHorizontalImageWrap.ts ***!
   \*******************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/*! exports provided: findHorizontalImageWrap */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "findHorizontalImageWrap", function() { return findHorizontalImageWrap; });
 // 查找横图作品的缩略图和容器
 class FindHorizontalImageWrap {
     constructor() {
@@ -1853,6 +1944,7 @@ class FindHorizontalImageWrap {
         // 并不是所有容器都需要处理，只需要处理应用了“显示更大的缩略图”的容器
         // 有些缩略图并不会被放大，也就不用处理它们的容器
         this.wrapSelectors = ['.searchList', 'li[size="1"]'];
+        this.onFindCB = [];
         this.obBody();
     }
     // 首先会动态生成 li（或者是包含很多 li 的容器元素）
@@ -1952,19 +2044,27 @@ class FindHorizontalImageWrap {
         }
     }
     // 当 img 加载完成后，计算 img 是横图还是竖图
-    // 如果是横图，则在容器上添加特殊的 id
     checkImage(img, wrap) {
         if (!img.src.includes('1200.jpg')) {
             return;
         }
         if (img.naturalWidth / img.naturalHeight > 1) {
-            if (!wrap.id) {
-                wrap.id = 'doubleWidth';
-            }
+            this.find(wrap);
+        }
+    }
+    // 注册回调函数
+    onFind(cb) {
+        this.onFindCB.push(cb);
+    }
+    // 当找到横图的容器时会执行回调函数
+    find(wrap) {
+        for (const cb of this.onFindCB) {
+            cb(wrap);
         }
     }
 }
-new FindHorizontalImageWrap();
+const findHorizontalImageWrap = new FindHorizontalImageWrap();
+
 
 
 /***/ }),
@@ -4716,6 +4816,12 @@ const langText = {
         'show larger thumbnails',
         '大きなサムネイルを表示する',
     ],
+    _横图占用二倍宽度: [
+        '横图占用二倍宽度',
+        '橫圖佔用二倍寬度',
+        'Horizontal image takes up double the width',
+        '水平方向の画像は幅の2倍を占めます',
+    ]
 };
 
 
@@ -6655,8 +6761,7 @@ new ShowHowToUse();
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
-/* harmony import */ var _FindHorizontalImageWrap__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./FindHorizontalImageWrap */ "./src/ts/FindHorizontalImageWrap.ts");
-/* harmony import */ var _FindHorizontalImageWrap__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_FindHorizontalImageWrap__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
 
 
 
@@ -6688,14 +6793,7 @@ class ShowLargerThumbnails {
         if (!this.css) {
             return;
         }
-        // 在小说页面里，以及某些特定页面里，不启用放大缩略图的功能
-        let notEnabledPage = false;
-        if (window.location.pathname.includes('/novel')
-            || window.location.pathname.includes('/ranking_area')
-            || window.location.hostname.includes('pixivision.net')) {
-            notEnabledPage = true;
-        }
-        if (notEnabledPage) {
+        if (_Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].notEnabledShowLargerThumb()) {
             return this.removeStyle();
         }
         _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showLargerThumbnails ? this.addStyle() : this.removeStyle();
@@ -8094,6 +8192,15 @@ class Tools {
         }
         return false;
     }
+    // 在小说页面，以及某些特定页面里，不启用"显示更大的缩略图"和“横图占用二倍宽度”功能
+    static notEnabledShowLargerThumb() {
+        if (window.location.pathname.includes('/novel') ||
+            window.location.pathname.includes('/ranking_area') ||
+            window.location.hostname.includes('pixivision.net')) {
+            return true;
+        }
+        return false;
+    }
 }
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
 
@@ -8201,21 +8308,22 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_13__);
 /* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
 /* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
-/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
-/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
-/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
-/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
-/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
-/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
-/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
-/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
-/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _DoubleWidthThumb__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./DoubleWidthThumb */ "./src/ts/DoubleWidthThumb.ts");
+/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
+/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
+/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
+/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
+/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
+/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
+/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
+/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
+/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -8226,6 +8334,7 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
 
 
 
@@ -19310,6 +19419,12 @@ const formHtml = `<form class="settingForm">
     <span class="settingNameStyle1" data-xztext="_显示更大的缩略图"></span>
     <input type="checkbox" name="showLargerThumbnails" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
+
+    <span class="subOptionWrap" data-show="showLargerThumbnails">
+    <input type="checkbox" name="doubleWidthThumb" id="doubleWidthThumb" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    <label for="doubleWidthThumb" data-xztext="_横图占用二倍宽度"></label>
+    </span>
     </p>
     
     <p class="option" data-no="63">
@@ -19346,6 +19461,7 @@ const formHtml = `<form class="settingForm">
     <input type="radio" name="prevWorkSize" id="prevWorkSize2" class="need_beautify radio" value="regular" checked>
     <span class="beautify_radio"></span>
     <label for="prevWorkSize2" data-xztext="_普通"></label>
+    </span>
     </p>
 
     <p class="option" data-no="62">
@@ -19644,6 +19760,7 @@ class FormSettings {
                 'removeAtFromUsername',
                 'showPreviewWorkTip',
                 'showLargerThumbnails',
+                'doubleWidthThumb',
             ],
             text: [
                 'setWantPage',
@@ -20565,6 +20682,7 @@ class Settings {
             setUserNameList: {},
             removeAtFromUsername: false,
             showLargerThumbnails: true,
+            doubleWidthThumb: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项

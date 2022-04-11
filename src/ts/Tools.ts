@@ -390,6 +390,18 @@ class Tools {
 
     return false
   }
+
+  // 在小说页面，以及某些特定页面里，不启用"显示更大的缩略图"和“横图占用二倍宽度”功能
+  static notEnabledShowLargerThumb() {
+    if (
+      window.location.pathname.includes('/novel') ||
+      window.location.pathname.includes('/ranking_area') ||
+      window.location.hostname.includes('pixivision.net')
+    ) {
+      return true
+    }
+    return false
+  }
 }
 
 export { Tools }
