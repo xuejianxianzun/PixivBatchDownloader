@@ -46,8 +46,9 @@ nav .cYUezH {
   height: auto !important;
 }
 
-/* 双倍宽度的图片（由下载器添加这个 className） */
-.doubleWidth {
+/* 双倍宽度的图片（由下载器添加这个 id） */
+/* 为了优先级所以使用了 id，而不是 className */
+#doubleWidth {
   width: 30% !important;
 }
 
@@ -69,11 +70,12 @@ nav .cYUezH {
 /* 最底部 本站的最新作品 列表 */
 /* 首页还有不少地方的列表也都是这个 class */
 /* 因为这个列表的宽度很大，所以百分比也应该小一些 */
+/* max-height 需要比 max-width 更大一些，因为图片的下方还要显示标题等信息，也要占据空间 */
 .bgeGyS {
   display: flex !important;
   width: auto;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
   flex-shrink: 0;
 }
 
@@ -92,7 +94,7 @@ nav .cYUezH {
   margin: 10px !important;
   width: 15% !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 
 /* 排行榜一栏，取消固定高度，否则无法水平居中 */
@@ -106,7 +108,7 @@ nav .cYUezH {
   margin: 10px !important;
   width: 15% !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 
 /* 瞩目的企划目录、已关注用户的最新商品 li */
@@ -114,7 +116,7 @@ nav .cYUezH {
   margin: 10px !important;
   width: 15% !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 
 /* 画师主页 */
@@ -149,9 +151,9 @@ nav .cYUezH {
 /* li */
 .jtUPOE li {
   margin: 10px !important;
-  width: 15% !important;
+  width: 15%;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 
 /* 搜索页面 */
@@ -171,14 +173,14 @@ nav .cYUezH {
   flex-shrink: 1;
   width: 15% !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 
 /* 下载器预览搜索结果时添加的列表元素 */
 .searchList {
-  width: 16% !important;
+  width: 15% !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 
 .searchList .searchContent {
@@ -208,7 +210,7 @@ nav .cYUezH {
 .bvpQYM {
   width: 15% !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
   margin: 10px !important;
 }
 
@@ -217,7 +219,7 @@ nav .cYUezH {
   width: 15% !important;
   margin: 10px !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 
 /* 大家的新作 */
@@ -238,7 +240,7 @@ nav .cYUezH {
   width: 15% !important;
   margin: 10px !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 
 /* 关注页面里，解除每个用户右侧的作品列表显示宽度限制 */
@@ -304,7 +306,7 @@ nav .cYUezH {
   width: 15% !important;
   margin: 10px !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 
 /* 取消 img 的绝对定位 */
@@ -328,7 +330,7 @@ nav .cYUezH {
   width: 15%;
   flex-shrink: 0;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 
 /* 使比赛页面的主体部分居中 */

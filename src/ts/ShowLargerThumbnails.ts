@@ -1,9 +1,9 @@
 import { EVT } from './EVT'
 import { settings } from './setting/Settings'
+import './FindHorizontalImageWrap'
 
 class ShowLargerThumbnails {
   constructor() {
-    this.checkIsNovelPage()
     this.loadCssText()
     this.bindEvents()
   }
@@ -11,7 +11,6 @@ class ShowLargerThumbnails {
   // css 内容来自 style/showLargerThumbnails.css
   private css = ''
   private readonly styleId = 'ShowLargerThumbnails'
-  private isNovelPage = false
 
   private async loadCssText() {
     const css = await fetch(
@@ -30,21 +29,26 @@ class ShowLargerThumbnails {
     })
 
     window.addEventListener(EVT.list.pageSwitch, () => {
-      this.checkIsNovelPage()
+      this.setCss()
     })
-  }
-
-  // 在小说页面里，不放大缩略图，所以需要移除 css
-  private checkIsNovelPage() {
-    this.isNovelPage = window.location.pathname.includes('/novel')
-    this.setCss()
   }
 
   private setCss() {
     if (!this.css) {
       return
     }
-    if (this.isNovelPage) {
+
+    // 在小说页面里，以及某些特定页面里，不启用放大缩略图的功能
+    let notEnabledPage = false
+    if (
+      window.location.pathname.includes('/novel') ||
+      window.location.pathname.includes('/ranking_area') ||
+      window.location.hostname.includes('pixivision.net')
+    ) {
+      notEnabledPage = true
+    }
+
+    if (notEnabledPage) {
       return this.removeStyle()
     }
     settings.showLargerThumbnails ? this.addStyle() : this.removeStyle()

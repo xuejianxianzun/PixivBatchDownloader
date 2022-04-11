@@ -1,5 +1,5 @@
 /* 显示更大的缩略图 */
-/* 为了便于使用，这里面使用 CSS 的语法，而不是 Less */
+/* 为了便于使用，这里面使用 CSS 的语法，而不是 Less 的语法 */
 /* 下载器替换默认的缩略图时，使用的的图片宽高最大是 540px */
 /* 这两个是通用的作品列表外部容器，在大部分新版页面都有。取消它们的宽度限制 */
 .iClkCH,
@@ -7,35 +7,40 @@
   width: auto !important;
   min-width: 1224px;
 }
-/* li 内部的元素，这几个元素比较通用*/
+/* li 的直接子元素 */
 .jDiQFZ {
   width: 100% !important;
 }
-/* img 的直接父级元素 div */
-.cYUezH {
-  height: auto !important;
-}
-/* nav 里的这个元素是横向滚动区域里的，不能设置高度 auto，否则它的高度就是图片的高度，图片就无法垂直居中了 */
-nav .cYUezH {
-  height: 100% !important;
-}
-/* img */
-.erYaF {
-  height: auto !important;
-}
+/* div[width="184"] */
 /* 给图片外面的容器设置最小高度，否则图片没加载出来时高度太小了，收藏按钮都只显示一半*/
 .fxGVAF {
   min-height: 100px;
   width: auto !important;
   height: auto !important;
 }
+/* div[width="184"] a */
 /* 这是 img 外部的 a 标签，让它继承父元素的高度。否则有时 img 始终是最大高度 540px，导致图片高度自动居中失效 */
 .fGjAxR {
   display: inline-flex;
   height: 100%;
 }
-/* 双倍宽度的图片（由下载器添加这个 className） */
-.doubleWidth {
+/* div[width="184"] a div */
+/* img 的直接父级元素 div */
+.cYUezH {
+  height: auto !important;
+}
+/* nav 里的这个元素是横向滚动区域里的，不能设置它的高度为 auto，否则它的高度就是图片的高度，图片就无法垂直居中了 */
+nav .cYUezH {
+  height: 100% !important;
+}
+/* div[width="184"] a div img */
+/* img */
+.erYaF {
+  height: auto !important;
+}
+/* 双倍宽度的图片（由下载器添加这个 id） */
+/* 为了优先级所以使用了 id，而不是 className */
+#doubleWidth {
   width: 30% !important;
 }
 /* 顶部 tag 列表部分，减少左侧 padding */
@@ -53,11 +58,12 @@ nav .cYUezH {
 /* 最底部 本站的最新作品 列表 */
 /* 首页还有不少地方的列表也都是这个 class */
 /* 因为这个列表的宽度很大，所以百分比也应该小一些 */
+/* max-height 需要比 max-width 更大一些，因为图片的下方还要显示标题等信息，也要占据空间 */
 .bgeGyS {
   display: flex !important;
   width: auto;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
   flex-shrink: 0;
 }
 .bgeGyS .jDiQFZ {
@@ -73,7 +79,7 @@ nav .cYUezH {
   margin: 10px !important;
   width: 15% !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 /* 排行榜一栏，取消固定高度，否则无法水平居中 */
 .kJiNJl {
@@ -85,14 +91,14 @@ nav .cYUezH {
   margin: 10px !important;
   width: 15% !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 /* 瞩目的企划目录、已关注用户的最新商品 li */
 .flkRKs {
   margin: 10px !important;
   width: 15% !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 /* 画师主页 */
 /* 主页、插画、收藏 一栏取消宽度限制 */
@@ -121,9 +127,9 @@ nav .cYUezH {
 /* li */
 .jtUPOE li {
   margin: 10px !important;
-  width: 15% !important;
+  width: 15%;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 /* 搜索页面 */
 /* ul */
@@ -140,13 +146,13 @@ nav .cYUezH {
   flex-shrink: 1;
   width: 15% !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 /* 下载器预览搜索结果时添加的列表元素 */
 .searchList {
-  width: 16% !important;
+  width: 15% !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 .searchList .searchContent {
   width: auto !important;
@@ -171,7 +177,7 @@ nav .cYUezH {
 .bvpQYM {
   width: 15% !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
   margin: 10px !important;
 }
 /* 已关注用户的新作品 li */
@@ -179,7 +185,7 @@ nav .cYUezH {
   width: 15% !important;
   margin: 10px !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 /* 大家的新作 */
 /* ul */
@@ -197,7 +203,7 @@ nav .cYUezH {
   width: 15% !important;
   margin: 10px !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 /* 关注页面里，解除每个用户右侧的作品列表显示宽度限制 */
 .eCoDTv {
@@ -254,7 +260,7 @@ nav .cYUezH {
   width: 15% !important;
   margin: 10px !important;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 /* 取消 img 的绝对定位 */
 .bGXiIQ {
@@ -274,7 +280,7 @@ nav .cYUezH {
   width: 15%;
   flex-shrink: 0;
   max-width: 540px;
-  max-height: 540px;
+  max-height: 600px;
 }
 /* 使比赛页面的主体部分居中 */
 .one_column {
