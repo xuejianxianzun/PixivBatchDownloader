@@ -1,36 +1,43 @@
-.logWrap {
+#logWrap {
   position: relative;
-  margin: 6px auto;
+  z-index: 1;
+  width: 100%;
+  height: 200px;
+  padding: 10px 0;
   background: #fff;
-  padding: 10px;
+  color: #333;
+}
+
+.logContent {
+  height: 100%;
+  margin: 0 auto;
   font-size: 14px;
   width: 950px;
   overflow-y: auto;
-  color: #333;
 
   br {
     display: inline;
   }
 }
 
-#logWrap {
-  height: 200px;
-}
-
-.id_range_tip {
-  display: none;
-}
-
 .theme-dark {
-  &.logWrap {
+  &#logWrap {
     background: #222;
     color: #fff;
   }
 }
 
 .xzBG {
-  &.logWrap {
-    background: unset;
+  &#logWrap {
+    background: #222;
     color: #fff;
+    text-shadow: #003247 0px 0px 2px;
+    .logContent * {
+      color: #fff !important;
+    }
+
+    .xzBGLayer {
+      filter: blur(2px);
+    }
   }
 }
