@@ -1135,20 +1135,6 @@
 .patronText {
   display: none;
 }
-#xzBG {
-  position: absolute;
-  z-index: -1;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position-x: center;
-  background-position-y: center;
-  opacity: 0.4;
-}
 .xzBG.centerWrap {
   text-shadow: #003247 0px 0px 2px;
   box-shadow: #10506e 0px 0px 15px;
@@ -1338,6 +1324,7 @@
   color: #fff !important;
 }
 .logWrap {
+  position: relative;
   margin: 6px auto;
   background: #fff;
   padding: 10px;
@@ -1357,6 +1344,10 @@
 }
 .theme-dark.logWrap {
   background: #222;
+  color: #fff;
+}
+.xzBG.logWrap {
+  background: unset;
   color: #fff;
 }
 .xz_msg_box {
@@ -1409,6 +1400,17 @@
 .theme-dark.xz_msg_box .content {
   color: #eee;
   text-shadow: 1px 1px black;
+}
+.xzBG.xz_msg_box {
+  background: #222;
+  box-shadow: #10506e 0px 0px 15px;
+  color: #fff;
+}
+.xzBG.xz_msg_box * {
+  color: #fff !important;
+}
+.xzBG.xz_msg_box .content {
+  text-shadow: #003247 0px 0px 2px;
 }
 #header-banner.ad,
 ._2vNejsc,
@@ -1936,4 +1938,18 @@ iframe[name='expandedFooter'] {
 }
 #downloadBtnOnThumb:hover {
   opacity: 0.8;
+}
+.xzBGLayer {
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position-x: center;
+  background-position-y: center;
+  opacity: 0.4;
 }

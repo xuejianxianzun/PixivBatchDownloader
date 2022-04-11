@@ -2,6 +2,7 @@ import { EVT } from './EVT'
 import { Colors } from './config/Colors'
 import { theme } from './Theme'
 import { lang } from './Lang'
+import { bg } from './BG'
 
 interface MsgOptional {
   btn?: string
@@ -97,6 +98,8 @@ class MsgBox {
 
     document.body.append(wrap)
     btn.focus()
+
+    bg.useBG(wrap)
   }
 
   private remove(el: HTMLDivElement) {

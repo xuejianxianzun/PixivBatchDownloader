@@ -386,6 +386,180 @@ class API {
 
 /***/ }),
 
+/***/ "./src/ts/BG.ts":
+/*!**********************!*\
+  !*** ./src/ts/BG.ts ***!
+  \**********************/
+/*! exports provided: bg */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "bg", function() { return bg; });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/IndexedDB */ "./src/ts/utils/IndexedDB.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+
+
+class BG {
+    constructor() {
+        this.list = [];
+        this.bgModeflagClassName = 'xzBG';
+        this.bgLayerClassName = 'xzBGLayer';
+        this.bgUrl = '';
+        this.DBName = 'PBDBG';
+        this.DBVer = 1;
+        this.storeName = 'bg';
+        this.keyName = 'bg';
+        // 在数据库升级事件里创建表
+        this.onUpdate = (db) => {
+            if (!db.objectStoreNames.contains(this.storeName)) {
+                db.createObjectStore(this.storeName, {
+                    keyPath: 'key',
+                });
+            }
+        };
+        this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__["IndexedDB"]();
+        this.init();
+    }
+    async init() {
+        this.bindEvents();
+        await this.initDB();
+        this.restore();
+    }
+    async initDB() {
+        await this.IDB.open(this.DBName, this.DBVer, this.onUpdate);
+    }
+    createBGLayer(wrap) {
+        const div = document.createElement('div');
+        div.classList.add(this.bgLayerClassName);
+        const el = wrap.insertAdjacentElement('afterbegin', div);
+        return el;
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.selectBG, () => {
+            this.selectBG();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearBG, () => {
+            this.clearBG();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'bgDisplay') {
+                this.setBGAll();
+            }
+            if (data.name === 'bgOpacity') {
+                this.setBGAll();
+            }
+            if (data.name === 'bgPositionY') {
+                this.setBGAll();
+            }
+        });
+    }
+    async restore() {
+        const data = (await this.IDB.get(this.storeName, this.keyName));
+        if (!data || !data.file) {
+            return;
+        }
+        this.bgUrl = URL.createObjectURL(data.file);
+        this.preload();
+    }
+    async selectBG() {
+        const file = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].selectFile('.jpg,.jpeg,.png,.bmp'))[0];
+        this.bgUrl = URL.createObjectURL(file);
+        this.preload();
+        for (const o of this.list) {
+            this.setBG(o);
+        }
+        const data = {
+            key: this.keyName,
+            file: file,
+        };
+        const test = await this.IDB.get(this.storeName, this.keyName);
+        this.IDB[test ? 'put' : 'add'](this.storeName, data);
+    }
+    clearBG() {
+        this.IDB.clear(this.storeName);
+        this.bgUrl = '';
+        for (const o of this.list) {
+            o.bg.style.backgroundImage = 'none';
+            this.setDisplay(o);
+        }
+    }
+    // 预加载背景图片
+    preload() {
+        // 由于浏览器的工作原理，背景图片在未被显示之前是不会加载的，在显示时才会进行加载。这会导致背景层显示之后出现短暂的空白（因为在加载图片）。为了避免空白，需要预加载图片
+        const img = new Image();
+        img.src = this.bgUrl;
+        img.style.display = 'none';
+        document.body.append(img);
+    }
+    async setBG(o) {
+        this.setPositionY(o);
+        this.setOpacity(o);
+        this.setBGURL(o);
+        this.setDisplay(o);
+    }
+    async setBGAll() {
+        for (const o of this.list) {
+            this.setPositionY(o);
+            this.setOpacity(o);
+            this.setBGURL(o);
+            this.setDisplay(o);
+        }
+    }
+    setBGURL(o) {
+        o.bg.style.backgroundImage = `url(${this.bgUrl})`;
+    }
+    setDisplay(o) {
+        o.bg.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bgDisplay ? 'block' : 'none';
+        if (!this.bgUrl) {
+            o.wrap.classList.remove(this.bgModeflagClassName);
+        }
+        else {
+            o.wrap.classList[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bgDisplay ? 'add' : 'remove'](this.bgModeflagClassName);
+        }
+    }
+    setOpacity(o) {
+        o.bg.style.opacity = (o.opacity || _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bgOpacity / 100).toString();
+    }
+    setPositionY(o) {
+        o.bg.style.backgroundPositionY = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bgPositionY;
+    }
+    // 其他模块可以调用这个方法，为一个元素添加背景层
+    // 如果传入一个真值的不透明度，会始终使用传入的不透明度，忽略用户用户设置的不透明度
+    useBG(wrap, opacity) {
+        if (this.bgUrl) {
+            this.readySet(wrap, opacity);
+        }
+        else {
+            let timer = window.setInterval(() => {
+                if (this.bgUrl) {
+                    window.clearInterval(timer);
+                    this.readySet(wrap);
+                }
+            }, 300);
+        }
+    }
+    readySet(wrap, opacity) {
+        const o = {
+            wrap,
+            bg: this.createBGLayer(wrap),
+            opacity,
+        };
+        this.list.push(o);
+        this.setBG(o);
+    }
+}
+const bg = new BG();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/BoldKeywords.ts":
 /*!********************************!*\
   !*** ./src/ts/BoldKeywords.ts ***!
@@ -498,7 +672,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./config/Config */ "./src/ts/config/Config.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _setting_BG__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/BG */ "./src/ts/setting/BG.ts");
+/* harmony import */ var _BG__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./BG */ "./src/ts/BG.ts");
 /* harmony import */ var _OpenCenterPanel__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./OpenCenterPanel */ "./src/ts/OpenCenterPanel.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _BoldKeywords__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./BoldKeywords */ "./src/ts/BoldKeywords.ts");
@@ -529,7 +703,7 @@ class CenterPanel {
         _Theme__WEBPACK_IMPORTED_MODULE_3__["theme"].register(this.centerPanel);
         _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].register(this.centerPanel);
         this.activeTab(Tabbar.Crawl);
-        new _setting_BG__WEBPACK_IMPORTED_MODULE_6__["BG"](this.centerPanel);
+        _BG__WEBPACK_IMPORTED_MODULE_6__["bg"].useBG(this.centerPanel);
         new _BoldKeywords__WEBPACK_IMPORTED_MODULE_9__["BoldKeywords"](this.centerPanel);
         this.allLangFlag = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].langTypes.map((type) => 'lang_' + type);
         this.setLangFlag();
@@ -4948,6 +5122,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./config/Colors */ "./src/ts/config/Colors.ts");
+/* harmony import */ var _BG__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./BG */ "./src/ts/BG.ts");
+
 
 
 
@@ -5023,6 +5199,7 @@ class Log {
             this.logArea.classList.add('beautify_scrollbar', 'logWrap');
             _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].insertToHead(this.logArea);
             _Theme__WEBPACK_IMPORTED_MODULE_2__["theme"].register(this.logArea);
+            _BG__WEBPACK_IMPORTED_MODULE_4__["bg"].useBG(this.logArea, 0.8);
         }
         // 如果页面上的日志条数超过指定数量，则清空
         // 因为日志数量太多的话会占用很大的内存。同时显示 8000 条日志可能占用接近 1 GB 的内存
@@ -5160,6 +5337,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./config/Colors */ "./src/ts/config/Colors.ts");
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _BG__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./BG */ "./src/ts/BG.ts");
+
 
 
 
@@ -5220,6 +5399,7 @@ class MsgBox {
         }
         document.body.append(wrap);
         btn.focus();
+        _BG__WEBPACK_IMPORTED_MODULE_4__["bg"].useBG(wrap);
     }
     remove(el) {
         el && el.parentNode && el.parentNode.removeChild(el);
@@ -18240,139 +18420,6 @@ class SaveUserCover {
     }
 }
 new SaveUserCover();
-
-
-/***/ }),
-
-/***/ "./src/ts/setting/BG.ts":
-/*!******************************!*\
-  !*** ./src/ts/setting/BG.ts ***!
-  \******************************/
-/*! exports provided: BG */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BG", function() { return BG; });
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/IndexedDB */ "./src/ts/utils/IndexedDB.ts");
-/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
-
-
-
-
-class BG {
-    constructor(wrap) {
-        this.id = 'xzBG';
-        this.flagClassName = 'xzBG';
-        this.haveImage = false;
-        this.DBName = 'PBDBG';
-        this.DBVer = 1;
-        this.storeName = 'bg';
-        this.keyName = 'bg';
-        // 在数据库升级事件里创建表
-        this.onUpdate = (db) => {
-            if (!db.objectStoreNames.contains(this.storeName)) {
-                db.createObjectStore(this.storeName, {
-                    keyPath: 'key',
-                });
-            }
-        };
-        this.wrap = wrap;
-        this.el = this.createEl();
-        this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__["IndexedDB"]();
-        this.init();
-    }
-    async init() {
-        this.bindEvents();
-        await this.initDB();
-        this.restore();
-    }
-    async initDB() {
-        await this.IDB.open(this.DBName, this.DBVer, this.onUpdate);
-    }
-    createEl() {
-        const div = document.createElement('div');
-        div.id = this.id;
-        const el = this.wrap.insertAdjacentElement('afterbegin', div);
-        return el;
-    }
-    bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.selectBG, () => {
-            this.selectBG();
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearBG, () => {
-            this.clearBG();
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
-            const data = ev.detail.data;
-            if (data.name === 'bgDisplay') {
-                this.setDisplay();
-            }
-            if (data.name === 'bgOpacity') {
-                this.setOpacity();
-            }
-            if (data.name === 'bgPositionY') {
-                this.setPositionY();
-            }
-        });
-    }
-    async restore() {
-        const data = (await this.IDB.get(this.storeName, this.keyName));
-        if (!data || !data.file) {
-            return;
-        }
-        const url = URL.createObjectURL(data.file);
-        this.setBGImage(url);
-    }
-    async selectBG() {
-        const file = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].selectFile('.jpg,.jpeg,.png,.bmp'))[0];
-        const url = URL.createObjectURL(file);
-        this.setBGImage(url);
-        const data = {
-            key: this.keyName,
-            file: file,
-        };
-        const test = await this.IDB.get(this.storeName, this.keyName);
-        this.IDB[test ? 'put' : 'add'](this.storeName, data);
-    }
-    async setBGImage(url) {
-        this.setPositionY();
-        this.setOpacity();
-        // 预加载背景图片
-        // 由于浏览器的工作原理，背景图片在未被显示之前是不会加载的，在显示时才会进行加载。这会导致背景层显示之后出现短暂的空白（因为在加载图片）。为了避免空白，需要预加载图片
-        const img = new Image();
-        img.src = url;
-        img.style.display = 'none';
-        document.body.append(img);
-        this.el.style.backgroundImage = `url(${url})`;
-        this.haveImage = true;
-        this.setDisplay();
-    }
-    setDisplay() {
-        this.el.style.display = _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bgDisplay ? 'block' : 'none';
-        if (!this.haveImage) {
-            this.wrap.classList.remove(this.flagClassName);
-        }
-        else {
-            this.wrap.classList[_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bgDisplay ? 'add' : 'remove'](this.flagClassName);
-        }
-    }
-    setOpacity() {
-        this.el.style.opacity = (_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bgOpacity / 100).toString();
-    }
-    setPositionY() {
-        this.el.style.backgroundPositionY = _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bgPositionY;
-    }
-    clearBG() {
-        this.el.style.backgroundImage = 'none';
-        this.IDB.clear(this.storeName);
-        this.haveImage = false;
-        this.setDisplay();
-    }
-}
-
 
 
 /***/ }),

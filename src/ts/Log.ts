@@ -2,6 +2,7 @@ import { Tools } from './Tools'
 import { EVT } from './EVT'
 import { theme } from './Theme'
 import { Colors } from './config/Colors'
+import { bg } from './BG'
 
 // 日志
 class Log {
@@ -87,6 +88,7 @@ class Log {
       this.logArea.classList.add('beautify_scrollbar', 'logWrap')
       Tools.insertToHead(this.logArea)
       theme.register(this.logArea)
+      bg.useBG(this.logArea, 0.8)
     }
 
     // 如果页面上的日志条数超过指定数量，则清空
