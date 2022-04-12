@@ -6,6 +6,7 @@ import { settings, setSetting } from './setting/Settings'
 import { showOriginSizeImage } from './ShowOriginSizeImage'
 import { cacheWorkData } from './store/CacheWorkData'
 import { states } from './store/States'
+import { Utils } from './utils/Utils'
 
 // 鼠标停留在作品的缩略图上时，预览作品
 class PreviewWork {
@@ -18,7 +19,7 @@ class PreviewWork {
   private wrapId = 'previewWorkWrap'
   private wrap!: HTMLElement
   private img = document.createElement('img')
-  private readonly border = 8 // border 占据的空间
+  private border = 4 // border 占据的空间
 
   private tipId = 'previewWorkTip'
   private tip!: HTMLElement
@@ -95,12 +96,12 @@ class PreviewWork {
 
       this.readyShow()
 
-      el.addEventListener('mousewheel', this.wheelScroll)
+      el.addEventListener('mousewheel', this.onWheelScroll)
     })
 
     mouseOverThumbnail.onLeave((el: HTMLElement) => {
       this.show = false
-      el.removeEventListener('mousewheel', this.wheelScroll)
+      el.removeEventListener('mousewheel', this.onWheelScroll)
     })
 
     // 可以使用 Alt + P 快捷键来启用/禁用此功能
@@ -152,40 +153,34 @@ class PreviewWork {
     }
   }
 
-  private wheelScrollTime = 0
-  private readonly wheelScrollInterval = 100
+  private wheelEvent?: WheelEvent
 
-  private wheelScroll = (ev: Event) => {
-    // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
-    if (this.show) {
-      const count = this.workData!.body.pageCount
-      if (count === 1) {
-        return
-      }
-      ev.preventDefault()
-
-      const time = new Date().getTime()
-      if (time - this.wheelScrollTime < this.wheelScrollInterval) {
-        return
-      }
-      this.wheelScrollTime = time
-
-      const up = (ev as WheelEvent).deltaY < 0
-      if (up) {
-        if (this.index > 0) {
-          this.index--
-        } else {
-          this.index = count - 1
-        }
+  // 当鼠标滚轮滚动时，切换显示的图片
+  // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
+  private swicthImage = Utils.throttle(() => {
+    const count = this.workData!.body.pageCount
+    const up = this.wheelEvent!.deltaY < 0
+    if (up) {
+      if (this.index > 0) {
+        this.index--
       } else {
-        if (this.index < count - 1) {
-          this.index++
-        } else {
-          this.index = 0
-        }
+        this.index = count - 1
       }
+    } else {
+      if (this.index < count - 1) {
+        this.index++
+      } else {
+        this.index = 0
+      }
+    }
+    this.showWrap()
+  }, 100)
 
-      this.showWrap()
+  private onWheelScroll = (ev: Event) => {
+    if (this.show && this.workData!.body.pageCount > 1) {
+      ev.preventDefault()
+      this.wheelEvent = ev as WheelEvent
+      this.swicthImage()
     }
   }
 
@@ -284,14 +279,16 @@ class PreviewWork {
     // 1. 计算图片显示的尺寸
     const rect = this.workEL.getBoundingClientRect()
 
+    // 不显示摘要信息时，也不显示边框，所以此时把 border 设置为 0
+    this.border = settings.showPreviewWorkTip ? 4 : 0
+
     // 计算各个可用区域的尺寸，提前减去了 border、tip 等元素占据的空间
     const innerWidth = window.innerWidth - 17
     const leftSpace = rect.left - this.border
     const rightSpace = innerWidth - rect.right - this.border
     const xSpace = Math.max(leftSpace, rightSpace)
 
-    const showPreviewWorkTip = true
-    const tipHeight = showPreviewWorkTip ? this.tipHeight : 0
+    const tipHeight = settings.showPreviewWorkTip ? this.tipHeight : 0
     const scrollBarHeight =
       window.innerHeight - document.documentElement.clientHeight
     const ySpace =
@@ -335,30 +332,28 @@ class PreviewWork {
 
     // 然后设置 top
     // 让 wrap 和缩略图在垂直方向上居中对齐
-    cfg.top = window.scrollY + rect.top
+    cfg.top = rect.top
     const wrapHalfHeight = (cfg.height + this.border) / 2
     const workHalfHeight = rect.height / 2
     cfg.top = cfg.top - wrapHalfHeight + workHalfHeight
 
     // 检查 wrap 顶端是否超出了窗口可视区域
-    if (cfg.top < window.scrollY) {
-      cfg.top = window.scrollY
+    if (cfg.top < 0) {
+      cfg.top = 0
     }
 
     // 检查 wrap 底部是否超出了窗口可视区域
-    const bottomOver =
-      cfg.top + cfg.height + this.border - window.scrollY - window.innerHeight
+    const bottomOver = cfg.top + cfg.height + this.border - window.innerHeight
     if (bottomOver > 0) {
       // 如果底部超出了窗口可视区域，则计算顶部是否还有可用空间
-      const topFreeSpace = cfg.top - window.scrollY
-      if (topFreeSpace > 0) {
+      if (cfg.top > 0) {
         // 如果顶部还有空间可用，就尽量向上移动，但不会导致顶端超出可视区域
-        cfg.top = cfg.top - Math.min(bottomOver, topFreeSpace) - scrollBarHeight
+        cfg.top = cfg.top - Math.min(bottomOver, cfg.top) - scrollBarHeight
       }
     }
 
     // 3. 设置顶部提示区域的内容
-    if (showPreviewWorkTip) {
+    if (settings.showPreviewWorkTip) {
       const text = []
       const body = this.workData.body
       if (body.pageCount > 1) {
@@ -392,6 +387,13 @@ class PreviewWork {
       styleArray.push(`${key}:${value}px;`)
     }
     styleArray.push('display:block;')
+
+    // 如果不显示摘要信息，覆写一些样式
+    if (!settings.showPreviewWorkTip) {
+      styleArray.push('border:none;')
+      styleArray.push('box-shadow:none;')
+    }
+
     this.wrap.setAttribute('style', styleArray.join(''))
 
     // 每次显示图片后，传递图片的 url

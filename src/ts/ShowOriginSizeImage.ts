@@ -28,7 +28,7 @@ class ShowOriginSizeImage {
   private wrap!: HTMLElement
   private img!: HTMLImageElement
   private readonly defaultSize = 1200
-  private readonly border = 8 // wrap 的 border 占据的空间
+  private readonly border = 4 // wrap 的 border 占据的空间
   // 不可以把 left、top 设置为负值，否则超出屏幕的区域无法查看
   // 所以通过修改 margin 来达到定位的效果
   private style: Style = {

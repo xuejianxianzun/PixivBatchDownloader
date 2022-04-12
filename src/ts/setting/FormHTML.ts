@@ -736,6 +736,24 @@ export const formHtml = `<form class="settingForm">
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>
+    
+    <p class="option" data-no="68">
+    <span class="settingNameStyle1" data-xztext="_显示更大的缩略图"></span>
+    <input type="checkbox" name="showLargerThumbnails" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+
+    <span class="subOptionWrap" data-show="showLargerThumbnails">
+    <input type="checkbox" name="doubleWidthThumb" id="doubleWidthThumb" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    <label for="doubleWidthThumb" data-xztext="_横图占用二倍宽度"></label>
+    </span>
+    </p>
+    
+    <p class="option" data-no="63">
+    <span class="settingNameStyle1" data-xztext="_替换方形缩略图以显示图片比例"></span>
+    <input type="checkbox" name="replaceSquareThumb" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    </p>
 
     <p class="option" data-no="55">
     <span class="has_tip settingNameStyle1" data-xztip="_鼠标滚轮切换图片">
@@ -752,6 +770,12 @@ export const formHtml = `<form class="settingForm">
 
     <span class="verticalSplit"></span>
 
+    <input type="checkbox" name="showPreviewWorkTip" id="showPreviewWorkTip" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    <label for="showPreviewWorkTip" data-xztext="_显示摘要信息"></label>
+
+    <span class="verticalSplit"></span>
+
     <span class="settingNameStyle1" data-xztext="_图片尺寸2"></span>
     <input type="radio" name="prevWorkSize" id="prevWorkSize1" class="need_beautify radio" value="original">
     <span class="beautify_radio"></span>
@@ -759,12 +783,7 @@ export const formHtml = `<form class="settingForm">
     <input type="radio" name="prevWorkSize" id="prevWorkSize2" class="need_beautify radio" value="regular" checked>
     <span class="beautify_radio"></span>
     <label for="prevWorkSize2" data-xztext="_普通"></label>
-    </p>
-    
-    <p class="option" data-no="63">
-    <span class="settingNameStyle1" data-xztext="_替换方形缩略图以显示图片比例"></span>
-    <input type="checkbox" name="replaceSquareThumb" class="need_beautify checkbox_switch" checked>
-    <span class="beautify_switch"></span>
+    </span>
     </p>
 
     <p class="option" data-no="62">

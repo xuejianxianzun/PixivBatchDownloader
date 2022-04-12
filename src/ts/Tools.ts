@@ -121,6 +121,18 @@ class Tools {
     }
   }
 
+  // 从 DOM 元素中获取 artworks id
+  // 如果查找不到 id 会返回空字符串
+  static findIllustIdFromElement(el: HTMLElement): string | '' {
+    let a: HTMLAnchorElement
+    if (el.nodeName === 'A') {
+      a = el as HTMLAnchorElement
+    } else {
+      a = el.querySelector('a') as HTMLAnchorElement
+    }
+    return a === null ? '' : this.getIllustId(a.href)
+  }
+
   // 从 url 里获取 novel id
   // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
   // 如果查找不到 id 会返回空字符串
@@ -376,6 +388,18 @@ class Tools {
       return test[1] === 'yes'
     }
 
+    return false
+  }
+
+  // 在小说页面，以及某些特定页面里，不启用"显示更大的缩略图"和“横图占用二倍宽度”功能
+  static notEnabledShowLargerThumb() {
+    if (
+      window.location.pathname.includes('/novel') ||
+      window.location.pathname.includes('/ranking_area') ||
+      window.location.hostname.includes('pixivision.net')
+    ) {
+      return true
+    }
     return false
   }
 }

@@ -181,8 +181,7 @@ chrome.downloads.onChanged.addListener(function (detail) {
         // 判断当前文件名是否正常。下载时必定会有一次 detail.filename.current 有值
         if (detail.filename && detail.filename.current) {
             const changedName = detail.filename.current;
-            if (changedName.endsWith('jfif') ||
-                changedName.match(UUIDRegexp) !== null) {
+            if (changedName.match(UUIDRegexp) !== null) {
                 // 文件名是 UUID
                 data.uuid = true;
             }

@@ -7,6 +7,7 @@ import { IDData } from './store/StoreType'
 import { toast } from './Toast'
 import { msgBox } from './MsgBox'
 import { pageType } from './PageType'
+import { Utils } from './utils/Utils'
 
 // 手动选择作品，图片作品和小说都可以选择
 class SelectWork {
@@ -86,10 +87,11 @@ class SelectWork {
   ]
   // 储存当前页面使用的选择器
   private usedWorksWrapperSelector = this.worksWrapperSelectorList[0]
+  // 储存当前页面的作品列表容器
+  private worksWrapper: HTMLElement = document.body
+  private ob: MutationObserver | undefined = undefined
 
   private idList: IDData[] = []
-
-  private observeTimer = 0
 
   private sendCrawl = false // 它用来判断抓取的是不是选择的作品。抓取选择的作品时激活此标记；当触发下一次的抓取完成事件时，表示已经抓取了选择的作品。
   private crawled = false // 是否已经抓取了选择的作品
@@ -185,12 +187,8 @@ class SelectWork {
       }
     }
 
-    // 每次页面切换之后，重新添加被选择的作品上的标记。
-    // 因为 pixiv 的页面切换一般会导致作品列表变化，所以之前添加的标记也没有了。
-    // 监听 dom 变化，当 dom 变化停止一段时间之后，一般作品列表就加载出来了，此时重新添加标记（防抖）
-    // 一个页面里可能产生多轮 dom 变化，所以可能会多次触发 reAddAllFlag 方法。这是必要的。
+    // 每次页面切换之后，查找新的作品列表容器并保存
     window.addEventListener(EVT.list.pageSwitch, () => {
-      // 查找作品列表容器，并保存使用的选择器
       let worksWrapper: HTMLElement | null = null
       for (const selector of this.worksWrapperSelectorList) {
         worksWrapper = document.querySelector(selector)
@@ -199,21 +197,23 @@ class SelectWork {
           break
         }
       }
+      this.worksWrapper = worksWrapper || document.body
+    })
 
-      if (worksWrapper === null) {
-        return
-      }
+    // 每次页面切换之后，查找新显示的作品里是否有之前被选择的作品，如果有则为其添加标记
+    // 因为 pixiv 的页面切换会导致作品列表变化，之前添加的标记也就没有了，需要重新添加
+    window.addEventListener(EVT.list.pageSwitch, () => {
+      // 每次触发时都要断开之前绑定的观察器，否则会导致事件重复绑定
+      // 因为 pageSwitch 事件可能会触发多次，如果不断开之前的观察器，那么每切换一次页面就会多绑定和执行一个回调
+      this.ob && this.ob.disconnect()
 
-      // 监听作品列表容器的变化
-      const ob = new MutationObserver((records) => {
-        window.clearTimeout(this.observeTimer)
-        this.observeTimer = window.setTimeout(() => {
+      this.ob = new MutationObserver(
+        Utils.debounce(() => {
           this.reAddAllFlag()
         }, 300)
-        // 延迟时间不宜太小，否则代码执行时可能页面上还没有对应的元素，而且更耗费性能
-      })
+      )
 
-      ob.observe(worksWrapper, {
+      this.ob.observe(this.worksWrapper, {
         childList: true,
         subtree: true,
       })

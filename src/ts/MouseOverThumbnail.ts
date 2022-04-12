@@ -39,7 +39,7 @@ class MouseOverThumbnail {
     for (const selector of this.selectors) {
       const elements = parent.querySelectorAll(selector)
       for (const el of elements) {
-        const id = this.findWorkId(el as HTMLElement)
+        const id = Tools.findIllustIdFromElement(el as HTMLElement)
         // 只有查找到作品 id 时才会执行回调函数
         if (id) {
           el.addEventListener('mouseenter', (ev) => {
@@ -82,18 +82,6 @@ class MouseOverThumbnail {
   // onLeave 的回调函数没有 id 参数，因为鼠标离开时的 id 就是鼠标进入时的 id
   public onLeave(fn: Function) {
     this.leaveCallback.push(fn)
-  }
-
-  // 从元素中查找图片作品的 id
-  // 如果查找不到 id，返回空字符串 ''
-  private findWorkId(el: HTMLElement): string | '' {
-    let a: HTMLAnchorElement
-    if (el.nodeName === 'A') {
-      a = el as HTMLAnchorElement
-    } else {
-      a = el.querySelector('a') as HTMLAnchorElement
-    }
-    return a === null ? '' : Tools.getIllustId(a.href)
   }
 }
 

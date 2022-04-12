@@ -5,13 +5,14 @@
 @import './rightButtons.less';
 @import './centerPanel.less';
 @import './outputWrap.less';
-@import './logWrap.less';
+@import './log.less';
 @import './msgBox.less';
 @import './blockAds.less';
 @import './imageViewer.less';
 @import './blockTagsForSpecificUser.less';
 @import './Loading.less';
 @import './setUserName.less';
+// @import './showLargerThumbnails..less';
 
 // 储存通用规则和一些零散的元素的规则
 .warn {
@@ -62,6 +63,22 @@
   //   background-color: @beautifyBlue;
   //   border-radius: 10px;
   // }
+}
+
+// 作品页面里，作品大图下方的作品列表导航区域
+.cAicGw {
+  // 滚动条整体
+  // width 是垂直滚动条的宽度，height 是水平滚动条的高度
+  &::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  // 滚动条的滑块部分
+  &::-webkit-scrollbar-thumb {
+    background-color: #0096fa;
+    border-radius: 10px;
+  }
 }
 
 #quickBookmarkEl {
@@ -144,7 +161,7 @@
 }
 
 #previewWorkWrap {
-  position: absolute;
+  position: fixed;
   z-index: 100000;
   display: none;
   width: 600px;
@@ -152,7 +169,7 @@
   left: 200px;
   top: 500px;
   padding: 0;
-  border: 4px solid @beautifyBlue;
+  border: 2px solid @beautifyBlue;
   background-color: rgba(41, 179, 243, 0.1);
   box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
   img {
@@ -166,7 +183,7 @@
   color: #fff;
   height: 22px;
   // 因为摘要信息上面有 border，两者在视觉上是连在一起的，所以 line-height 要小一些，使文字向上提一些
-  line-height: 20px;
+  line-height: 21px;
   overflow: hidden;
   display: none;
   white-space: nowrap;
@@ -191,7 +208,7 @@
   overflow: hidden;
   width: 1200px;
   height: 1200px;
-  border: 4px solid @beautifyBlue;
+  border: 2px solid @beautifyBlue;
   background-color: rgba(41, 179, 243, 0.2);
   box-shadow: rgba(14, 168, 239, 0.4) 0px 2px 6px;
   img {
@@ -249,4 +266,26 @@
   &:hover {
     opacity: 0.8;
   }
+}
+
+.xzBGLayer {
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position-x: center;
+  background-position-y: center;
+  opacity: 0.4;
+  // filter: blur(1px);
+}
+
+.id_range_tip {
+  display: none;
+  text-align: center;
+  margin: 10px auto;
 }

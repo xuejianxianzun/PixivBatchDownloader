@@ -190,6 +190,7 @@ interface XzSetting {
   showDownloadBtnOnThumb: boolean
   prevWorkSize: 'original' | 'regular'
   previewWorkWait: number
+  showPreviewWorkTip: boolean
   showOriginImage: boolean
   showOriginImageSize: 'original' | 'regular'
   showHowToUse: boolean
@@ -205,6 +206,8 @@ interface XzSetting {
     [uid: string]: string
   }
   removeAtFromUsername: boolean
+  showLargerThumbnails: boolean
+  doubleWidthThumb: boolean
 }
 // chrome storage 里不能使用 Map，因为保存时，Map 会被转换为 Object {}
 
@@ -364,6 +367,7 @@ class Settings {
     showDownloadBtnOnThumb: true,
     prevWorkSize: 'regular',
     previewWorkWait: 400,
+    showPreviewWorkTip: true,
     showOriginImage: true,
     showOriginImageSize: 'original',
     showHowToUse: true,
@@ -377,6 +381,8 @@ class Settings {
     setUserNameShow: true,
     setUserNameList: {},
     removeAtFromUsername: false,
+    showLargerThumbnails: true,
+    doubleWidthThumb: true,
   }
 
   private allSettingKeys = Object.keys(this.defaultSettings)
@@ -400,9 +406,6 @@ class Settings {
 
   // 以默认设置作为初始设置
   public settings: XzSetting = Utils.deepCopy(this.defaultSettings)
-
-  private storeTimer = 0
-  private readonly storageInterval = 50
 
   private bindEvents() {
     // 当设置发生变化时进行本地存储
@@ -471,15 +474,12 @@ class Settings {
     })
   }
 
-  private store() {
-    window.clearTimeout(this.storeTimer)
-    this.storeTimer = window.setTimeout(() => {
-      // chrome.storage.local 的储存上限是 5 MiB（5242880 Byte）
-      chrome.storage.local.set({
-        [Config.settingStoreName]: this.settings,
-      })
-    }, this.storageInterval)
-  }
+  private store = Utils.debounce(() => {
+    // chrome.storage.local 的储存上限是 5 MiB（5242880 Byte）
+    chrome.storage.local.set({
+      [Config.settingStoreName]: this.settings,
+    })
+  }, 50)
 
   // 接收整个设置项，通过循环将其更新到 settings 上
   // 循环设置而不是整个替换的原因：

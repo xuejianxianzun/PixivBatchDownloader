@@ -195,7 +195,7 @@ English（韩语设置下也使用英语文本）
 
 8 [Pixivision](https://www.pixivision.net/zh/a/3190)
 
-9 [收藏作品的详情](https://www.pixiv.net/bookmark_detail.php?id=63148723)
+9 [收藏作品的详情](https://www.pixiv.net/bookmark_detail.php?id=63148723) （此类页面似乎已经被移除）
 
 10 [关注的新作品](https://www.pixiv.net/bookmark_new_illust.php)
 

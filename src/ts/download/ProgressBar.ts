@@ -133,6 +133,7 @@ class ProgressBar {
       return
     }
     bar.name.textContent = data.name
+    bar.name.setAttribute('title', data.name)
 
     let text = ''
     if (data.total >= this.MB) {
