@@ -129,8 +129,15 @@ class DownloadControl {
       } else if (msg.msg === 'download_err') {
         // 浏览器把文件保存到本地时出错
         log.error(
-          `${msg.data.id} download error! code: ${msg.err}. The downloader will try to download the file again `
+          lang.transl(
+            '_save_file_failed_tip',
+            msg.data.id,
+            msg.err || 'unknown'
+          )
         )
+        if (msg.err === 'FILE_FAILED') {
+          log.error(lang.transl('_FILE_FAILED_tip'))
+        }
         EVT.fire('saveFileError')
         // 重新下载这个文件
         // 但并不确定能否如预期一样重新下载这个文件
@@ -138,7 +145,7 @@ class DownloadControl {
       }
 
       // UUID 的情况
-      if (msg.data && msg.data.uuid) {
+      if (msg.data?.uuid) {
         log.error(lang.transl('_uuid'))
       }
     })

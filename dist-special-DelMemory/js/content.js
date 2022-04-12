@@ -386,6 +386,180 @@ class API {
 
 /***/ }),
 
+/***/ "./src/ts/BG.ts":
+/*!**********************!*\
+  !*** ./src/ts/BG.ts ***!
+  \**********************/
+/*! exports provided: bg */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "bg", function() { return bg; });
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+/* harmony import */ var _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./utils/IndexedDB */ "./src/ts/utils/IndexedDB.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+
+
+
+
+class BG {
+    constructor() {
+        this.list = [];
+        this.bgModeflagClassName = 'xzBG';
+        this.bgLayerClassName = 'xzBGLayer';
+        this.bgUrl = '';
+        this.DBName = 'PBDBG';
+        this.DBVer = 1;
+        this.storeName = 'bg';
+        this.keyName = 'bg';
+        // 在数据库升级事件里创建表
+        this.onUpdate = (db) => {
+            if (!db.objectStoreNames.contains(this.storeName)) {
+                db.createObjectStore(this.storeName, {
+                    keyPath: 'key',
+                });
+            }
+        };
+        this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__["IndexedDB"]();
+        this.init();
+    }
+    async init() {
+        this.bindEvents();
+        await this.initDB();
+        this.restore();
+    }
+    async initDB() {
+        await this.IDB.open(this.DBName, this.DBVer, this.onUpdate);
+    }
+    createBGLayer(wrap) {
+        const div = document.createElement('div');
+        div.classList.add(this.bgLayerClassName);
+        const el = wrap.insertAdjacentElement('afterbegin', div);
+        return el;
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.selectBG, () => {
+            this.selectBG();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearBG, () => {
+            this.clearBG();
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'bgDisplay') {
+                this.setBGAll();
+            }
+            if (data.name === 'bgOpacity') {
+                this.setBGAll();
+            }
+            if (data.name === 'bgPositionY') {
+                this.setBGAll();
+            }
+        });
+    }
+    async restore() {
+        const data = (await this.IDB.get(this.storeName, this.keyName));
+        if (!data || !data.file) {
+            return;
+        }
+        this.bgUrl = URL.createObjectURL(data.file);
+        this.preload();
+    }
+    async selectBG() {
+        const file = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].selectFile('.jpg,.jpeg,.png,.bmp'))[0];
+        this.bgUrl = URL.createObjectURL(file);
+        this.preload();
+        for (const o of this.list) {
+            this.setBG(o);
+        }
+        const data = {
+            key: this.keyName,
+            file: file,
+        };
+        const test = await this.IDB.get(this.storeName, this.keyName);
+        this.IDB[test ? 'put' : 'add'](this.storeName, data);
+    }
+    clearBG() {
+        this.IDB.clear(this.storeName);
+        this.bgUrl = '';
+        for (const o of this.list) {
+            o.bg.style.backgroundImage = 'none';
+            this.setDisplay(o);
+        }
+    }
+    // 预加载背景图片
+    preload() {
+        // 由于浏览器的工作原理，背景图片在未被显示之前是不会加载的，在显示时才会进行加载。这会导致背景层显示之后出现短暂的空白（因为在加载图片）。为了避免空白，需要预加载图片
+        const img = new Image();
+        img.src = this.bgUrl;
+        img.style.display = 'none';
+        document.body.append(img);
+    }
+    async setBG(o) {
+        this.setPositionY(o);
+        this.setOpacity(o);
+        this.setBGURL(o);
+        this.setDisplay(o);
+    }
+    async setBGAll() {
+        for (const o of this.list) {
+            this.setPositionY(o);
+            this.setOpacity(o);
+            this.setBGURL(o);
+            this.setDisplay(o);
+        }
+    }
+    setBGURL(o) {
+        o.bg.style.backgroundImage = `url(${this.bgUrl})`;
+    }
+    setDisplay(o) {
+        o.bg.style.display = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bgDisplay ? 'block' : 'none';
+        if (!this.bgUrl) {
+            o.wrap.classList.remove(this.bgModeflagClassName);
+        }
+        else {
+            o.wrap.classList[_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bgDisplay ? 'add' : 'remove'](this.bgModeflagClassName);
+        }
+    }
+    setOpacity(o) {
+        o.bg.style.opacity = (o.opacity || _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bgOpacity / 100).toString();
+    }
+    setPositionY(o) {
+        o.bg.style.backgroundPositionY = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bgPositionY;
+    }
+    // 其他模块可以调用这个方法，为一个元素添加背景层
+    // 如果传入一个真值的不透明度，会始终使用传入的不透明度，忽略用户用户设置的不透明度
+    useBG(wrap, opacity) {
+        if (this.bgUrl) {
+            this.readySet(wrap, opacity);
+        }
+        else {
+            let timer = window.setInterval(() => {
+                if (this.bgUrl) {
+                    window.clearInterval(timer);
+                    this.readySet(wrap);
+                }
+            }, 300);
+        }
+    }
+    readySet(wrap, opacity) {
+        const o = {
+            wrap,
+            bg: this.createBGLayer(wrap),
+            opacity,
+        };
+        this.list.push(o);
+        this.setBG(o);
+    }
+}
+const bg = new BG();
+
+
+
+/***/ }),
+
 /***/ "./src/ts/BoldKeywords.ts":
 /*!********************************!*\
   !*** ./src/ts/BoldKeywords.ts ***!
@@ -498,7 +672,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./config/Config */ "./src/ts/config/Config.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
-/* harmony import */ var _setting_BG__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./setting/BG */ "./src/ts/setting/BG.ts");
+/* harmony import */ var _BG__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./BG */ "./src/ts/BG.ts");
 /* harmony import */ var _OpenCenterPanel__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./OpenCenterPanel */ "./src/ts/OpenCenterPanel.ts");
 /* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
 /* harmony import */ var _BoldKeywords__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./BoldKeywords */ "./src/ts/BoldKeywords.ts");
@@ -529,7 +703,7 @@ class CenterPanel {
         _Theme__WEBPACK_IMPORTED_MODULE_3__["theme"].register(this.centerPanel);
         _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].register(this.centerPanel);
         this.activeTab(Tabbar.Crawl);
-        new _setting_BG__WEBPACK_IMPORTED_MODULE_6__["BG"](this.centerPanel);
+        _BG__WEBPACK_IMPORTED_MODULE_6__["bg"].useBG(this.centerPanel);
         new _BoldKeywords__WEBPACK_IMPORTED_MODULE_9__["BoldKeywords"](this.centerPanel);
         this.allLangFlag = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].langTypes.map((type) => 'lang_' + type);
         this.setLangFlag();
@@ -1296,6 +1470,99 @@ const toWebM = new ToWebM();
 
 /***/ }),
 
+/***/ "./src/ts/DoubleWidthThumb.ts":
+/*!************************************!*\
+  !*** ./src/ts/DoubleWidthThumb.ts ***!
+  \************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+/* harmony import */ var _FindHorizontalImageWrap__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./FindHorizontalImageWrap */ "./src/ts/FindHorizontalImageWrap.ts");
+
+
+
+
+// 如果一个作品的缩略图是横图，则把这个缩略图的容器的宽度设置为默认宽度的 2 倍
+// 注意：必须开启“替换方形缩略图以显示图片比例”，“横图占用二倍宽度”的功能才能生效
+class DoubleWidthThumb {
+    constructor() {
+        this.addId = 'doubleWidth';
+        /* 双倍宽度的图片的 id（由下载器添加这个 id） */
+        this.styleId = 'doubleWidthStyle';
+        this.css = `#doubleWidth {
+    width: 30% !important;
+  }`;
+        this.bindEvents();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'doubleWidthThumb') {
+                // 如果开启了父级设置“显示更大的缩略图”，以及这个设置，则必须开启“替换方形缩略图以显示图片比例”
+                if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showLargerThumbnails &&
+                    _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doubleWidthThumb &&
+                    !_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].replaceSquareThumb) {
+                    Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["setSetting"])('replaceSquareThumb', true);
+                }
+                this.setCss();
+            }
+            if (data.name === 'showLargerThumbnails') {
+                this.setCss();
+            }
+            // 如果关闭了“替换方形缩略图以显示图片比例”，则需要关闭这个设置，因为这个设置无法生效
+            if (data.name === 'replaceSquareThumb') {
+                if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].replaceSquareThumb && _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doubleWidthThumb) {
+                    Object(_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["setSetting"])('doubleWidthThumb', false);
+                }
+            }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
+            this.setCss();
+        });
+        // 如果一个缩略图是横图，则在它的容器上添加特定 id
+        _FindHorizontalImageWrap__WEBPACK_IMPORTED_MODULE_3__["findHorizontalImageWrap"].onFind((wrap) => {
+            if (!wrap.id) {
+                wrap.id = this.addId;
+            }
+        });
+    }
+    setCss() {
+        if (_Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].notEnabledShowLargerThumb()) {
+            return this.removeStyle();
+        }
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].replaceSquareThumb &&
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showLargerThumbnails &&
+            _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].doubleWidthThumb) {
+            this.addStyle();
+        }
+        else {
+            this.removeStyle();
+        }
+    }
+    addStyle() {
+        if (document.querySelector('#' + this.styleId)) {
+            return;
+        }
+        const el = document.createElement('style');
+        el.id = this.styleId;
+        el.innerHTML = this.css;
+        document.body.append(el);
+    }
+    removeStyle() {
+        const el = document.querySelector('#' + this.styleId);
+        el && el.remove();
+    }
+}
+new DoubleWidthThumb();
+
+
+/***/ }),
+
 /***/ "./src/ts/EVT.ts":
 /*!***********************!*\
   !*** ./src/ts/EVT.ts ***!
@@ -1915,6 +2182,148 @@ class FileName {
     }
 }
 const fileName = new FileName();
+
+
+
+/***/ }),
+
+/***/ "./src/ts/FindHorizontalImageWrap.ts":
+/*!*******************************************!*\
+  !*** ./src/ts/FindHorizontalImageWrap.ts ***!
+  \*******************************************/
+/*! exports provided: findHorizontalImageWrap */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "findHorizontalImageWrap", function() { return findHorizontalImageWrap; });
+// 查找横图作品的缩略图和容器
+class FindHorizontalImageWrap {
+    constructor() {
+        // 寻找作品缩略图的容器时使用的选择器
+        // 并不是所有容器都需要处理，只需要处理应用了“显示更大的缩略图”的容器
+        // 有些缩略图并不会被放大，也就不用处理它们的容器
+        this.wrapSelectors = ['.searchList', 'li[size="1"]'];
+        this.onFindCB = [];
+        this.obBody();
+    }
+    // 首先会动态生成 li（或者是包含很多 li 的容器元素）
+    // 但是此时 li 里面没有 img 标签，而是用一个 figure 标签占位
+    // 然后先为一些 li 生成里面的 img 标签（在用户主页会先给首屏显示的 li 生成 img 标签，但是在其他页面也有可能直接为所有 li 生成 img）
+    // 有时候当页面滚动到下面的 li 的时候，才会生成里面的 img 标签
+    // observer 可以捕获到添加的 img 标签，并且有 src 属性
+    // 如果开启了下载器的替换方形缩略图功能，则捕获到的 src 是替换后的
+    // 如果 img 的 src 是在缓存里的（并且没有禁用缓存），则捕获到它时就已经 complete 了
+    obBody() {
+        const ob = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.addedNodes.length > 0) {
+                    for (const el of mutation.addedNodes) {
+                        // 从添加的元素里寻找缩略图容器
+                        const e = el;
+                        const wrapList = [];
+                        // 如果添加的是单个的 li，，则判断它是不是缩略图容器
+                        if (e.nodeName === 'LI') {
+                            if (e.getAttribute('size') === '1' ||
+                                e.querySelector('div[width="184"]') ||
+                                e.classList.contains('searchList')) {
+                                wrapList.push(e);
+                            }
+                        }
+                        else if (e.nodeType === 1) {
+                            // 添加的不是 li，则试图从元素中寻找缩略图容器
+                            for (const selector of this.wrapSelectors) {
+                                const elList = e.querySelectorAll(selector);
+                                for (const el of elList) {
+                                    wrapList.push(el);
+                                }
+                                // 如果这个选择器查找到了元素，就不再查找下一个选择器，以免重复查找
+                                if (elList.length > 0) {
+                                    break;
+                                }
+                            }
+                            // 如果前面没有找到缩略图容器，则尝试其他办法
+                            // 注意，这里使用的选择器不是容器本身的选择器，而是容器的子元素，所以需要单独处理
+                            // if (wrapList.length === 0) {
+                            //   const elList = e.querySelectorAll('div[width="184"]')
+                            //   for (const el of elList) {
+                            //     if(el.parentNode?.nodeName === 'LI'){
+                            //       wrapList.push(el.parentNode as HTMLLIElement)
+                            //     }
+                            //   }
+                            // }
+                        }
+                        // 监视缩略图容器
+                        for (const wrap of wrapList) {
+                            this.obWorkWrap(wrap);
+                        }
+                    }
+                }
+            }
+        });
+        ob.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+    }
+    // 监视作品缩略图容器内部的 img 元素
+    obWorkWrap(wrap) {
+        // .searchList 是下载器在搜索页面生成的元素，里面一开始就有 img 元素，所以不需要监视
+        if (wrap.classList.contains('searchList')) {
+            const img = wrap.querySelector('img');
+            this.readyCheckImage(img, wrap);
+            return;
+        }
+        // 如果是动态生成 img 的情况，则需要对 wrap 使用监视器
+        const ob = new MutationObserver((records) => {
+            for (const record of records) {
+                // 生成作品缩略图内部的 img 时，addedNodes 数组里只有 img 标签这一个元素
+                if (record.addedNodes.length === 1 &&
+                    record.addedNodes[0].nodeName === 'IMG') {
+                    const img = record.addedNodes[0];
+                    this.readyCheckImage(img, wrap, ob);
+                }
+            }
+        });
+        ob.observe(wrap, {
+            childList: true,
+            subtree: true,
+        });
+    }
+    // 当图片加载完成时检查它的宽高，并取消监视
+    readyCheckImage(img, wrap, ob) {
+        if (img.complete) {
+            this.checkImage(img, wrap);
+            ob && ob.disconnect();
+        }
+        else {
+            img.onload = () => {
+                this.checkImage(img, wrap);
+                ob && ob.disconnect();
+            };
+        }
+    }
+    // 当 img 加载完成后，计算 img 是横图还是竖图
+    checkImage(img, wrap) {
+        if (!img.src.includes('1200.jpg')) {
+            return;
+        }
+        if (img.naturalWidth / img.naturalHeight > 1) {
+            this.find(wrap);
+        }
+    }
+    // 注册回调函数
+    onFind(cb) {
+        this.onFindCB.push(cb);
+    }
+    // 当找到横图的容器时会执行回调函数
+    find(wrap) {
+        for (const cb of this.onFindCB) {
+            cb(wrap);
+        }
+    }
+}
+const findHorizontalImageWrap = new FindHorizontalImageWrap();
 
 
 
@@ -3212,10 +3621,10 @@ const langText = {
         '作品分類は：Illustration, Manga, Ugoira, Novel',
     ],
     _命名标记提醒: [
-        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}<br>* 在某些情况下，会有一些标记不可用。',
-        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{userid}<br>＊某些情況下有些標記無法使用。',
-        'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}<br>* In some cases, some tags will not be available.',
-        'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{userid}<br>* 場合によっては、一部のタグが利用できず。',
+        '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{user_id}<br>* 在某些情况下，会有一些标记不可用。',
+        '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{user_id}<br>＊某些情況下有些標記無法使用。',
+        'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{user_id}<br>* In some cases, some tags will not be available.',
+        'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{user_id}<br>* 場合によっては、一部のタグが利用できず。',
     ],
     _命名规则一定要包含id: [
         '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
@@ -4594,10 +5003,10 @@ const langText = {
     命名規則で {user} タグを使用すると、ダウンローダーは設定された名前を優先的に使用します。`,
     ],
     _移除用户名中的at和后续字符: [
-        '移除用户名中的 @ 和后续字符',
-        '移除使用者名稱中的 @ 和後續字元',
-        'Remove @ and subsequent characters in username',
-        'ユーザー名から @ 以降の文字を削除する',
+        '移除用户名中的 <span class="key">@</span> 和后续字符',
+        '移除使用者名稱中的 <span class="key">@</span> 和後續字元',
+        'Remove <span class="key">@</span> and subsequent characters in username',
+        'ユーザー名から <span class="key">@</span> 以降の文字を削除する',
     ],
     _移除用户名中的at和后续字符的说明: [
         '例如：Anmi@画集発売中 → Anmi',
@@ -4618,6 +5027,67 @@ const langText = {
         'Pixivで検索ページのクロールが制限される問題を修正しました。',
     ],
     _搜索模式: ['搜索模式', '搜尋模式', 'Search mode', '検索モード'],
+    _标签部分一致: [
+        '标签（部分一致）',
+        '標籤（部分一致）',
+        'Tags (partial match)',
+        'タグ（部分一致）',
+    ],
+    _标签完全一致: [
+        '标签（完全一致）',
+        '標籤（完全一致）',
+        'Tags (perfect match)',
+        'タグ（完全一致）',
+    ],
+    _标题说明文字: [
+        '标题、说明文字',
+        '標題、說明文字',
+        'Title, Caption',
+        'タイトル・キャプション',
+    ],
+    _正文: ['正文', '本文', 'Text', '本文'],
+    _标签标题说明文字: [
+        '标签、标题、说明文字',
+        '標籤、標題、說明文字',
+        'Tags, Titles, Captions',
+        'タグ・タイトル・キャプション',
+    ],
+    _save_file_failed_tip: [
+        `{} 保存失败，code：{}。下载器将会重试下载这个文件。`,
+        `{} 儲存失敗，code：{}。下載器將會重試下載這個檔案。`,
+        `{} save failed, code: {}. The downloader will retry to download the file.`,
+        `{} 保存に失敗しました。code：{}。ダウンローダーはファイルのダウンロードを再試行します。`,
+    ],
+    _FILE_FAILED_tip: [
+        '可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用高级设置里的“文件名长度限制”。',
+        '可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用高階設定裡的“檔案名稱長度限制”。',
+        'Maybe the file name is too long, or other reasons cause the file to fail to save. You can try enabling "File name length limit" in advanced settings.',
+        'ファイル名が長すぎるか、他の理由でファイルの保存に失敗した可能性があります。 詳細設定で「ファイル名の長さ制限」を有効にしてみてください。',
+    ],
+    _显示摘要信息: [
+        '显示摘要信息',
+        '顯示摘要資訊',
+        'Show summary',
+        '要約情報を表示する',
+    ],
+    _显示更大的缩略图: [
+        '显示<span class="key">更大</span>的缩略图',
+        '顯示<span class="key">更大</span>的縮圖',
+        'show <span class="key">larger</span> thumbnails',
+        '大きなサムネイルを表示する',
+    ],
+    _横图占用二倍宽度: [
+        '横图占用二倍宽度',
+        '橫圖佔用二倍寬度',
+        'Horizontal image takes up double the width',
+        '水平方向の画像は幅の2倍を占めます',
+    ],
+    _该功能默认开启: [
+        '这个功能默认启用。你可以在“其他”选项卡 → “增强”分类里找到它。（可能需要先启用“显示高级设置”）',
+        '這個功能預設啟用。你可以在“其他”選項卡 → “增強”分類裡找到它。（可能需要先啟用“顯示進階設定”）',
+        'This feature is enabled by default. You can find it in the "Other" tab → "Enhancements" category. (May need to enable "Show advanced settings" first)',
+        'この機能はデフォルトで有効になっています。 [その他]タブ→[強化機能]カテゴリにあります。 （最初に[詳細設定を表示する]を有効にする必要がある場合があります）',
+    ],
 };
 
 
@@ -4748,8 +5218,9 @@ __webpack_require__.r(__webpack_exports__);
 // 日志
 class Log {
     constructor() {
-        this.logArea = document.createElement('div'); // 输出日志的区域
         this.id = 'logWrap'; // 日志区域元素的 id
+        this.wrap = document.createElement('div'); // 日志容器的区域
+        this.logArea = document.createElement('div'); // 日志主体区域
         this.refresh = document.createElement('span'); // 刷新时使用的元素
         this.levelColor = [
             'inherit',
@@ -4812,10 +5283,15 @@ class Log {
         // 如果日志区域没有被添加到页面上，则添加
         let test = document.getElementById(this.id);
         if (test === null) {
-            this.logArea.id = this.id;
-            this.logArea.classList.add('beautify_scrollbar', 'logWrap');
-            _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].insertToHead(this.logArea);
-            _Theme__WEBPACK_IMPORTED_MODULE_2__["theme"].register(this.logArea);
+            this.wrap = document.createElement('div');
+            this.wrap.id = this.id;
+            this.logArea = document.createElement('div');
+            this.logArea.classList.add('beautify_scrollbar', 'logContent');
+            this.wrap.append(this.logArea);
+            _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].insertToHead(this.wrap);
+            _Theme__WEBPACK_IMPORTED_MODULE_2__["theme"].register(this.wrap);
+            // 虽然可以应用背景图片，但是由于日志区域比较狭长，背景图片的视觉效果不佳，看起来比较粗糙，所以还是不应用背景图片了
+            // bg.useBG(this.wrap, 0.9)
         }
         // 如果页面上的日志条数超过指定数量，则清空
         // 因为日志数量太多的话会占用很大的内存。同时显示 8000 条日志可能占用接近 1 GB 的内存
@@ -4826,7 +5302,7 @@ class Log {
     }
     // 清空日志
     clear() {
-        this.logArea.remove();
+        this.wrap.remove();
     }
     // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部
     scrollToBottom() {
@@ -4892,7 +5368,7 @@ class MouseOverThumbnail {
         for (const selector of this.selectors) {
             const elements = parent.querySelectorAll(selector);
             for (const el of elements) {
-                const id = this.findWorkId(el);
+                const id = _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].findIllustIdFromElement(el);
                 // 只有查找到作品 id 时才会执行回调函数
                 if (id) {
                     el.addEventListener('mouseenter', (ev) => {
@@ -4932,18 +5408,6 @@ class MouseOverThumbnail {
     onLeave(fn) {
         this.leaveCallback.push(fn);
     }
-    // 从元素中查找图片作品的 id
-    // 如果查找不到 id，返回空字符串 ''
-    findWorkId(el) {
-        let a;
-        if (el.nodeName === 'A') {
-            a = el;
-        }
-        else {
-            a = el.querySelector('a');
-        }
-        return a === null ? '' : _Tools__WEBPACK_IMPORTED_MODULE_0__["Tools"].getIllustId(a.href);
-    }
 }
 const mouseOverThumbnail = new MouseOverThumbnail();
 
@@ -4965,6 +5429,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _config_Colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./config/Colors */ "./src/ts/config/Colors.ts");
 /* harmony import */ var _Theme__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Theme */ "./src/ts/Theme.ts");
 /* harmony import */ var _Lang__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Lang */ "./src/ts/Lang.ts");
+/* harmony import */ var _BG__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./BG */ "./src/ts/BG.ts");
+
 
 
 
@@ -5023,8 +5489,9 @@ class MsgBox {
                 this.remove(wrap);
             });
         }
-        document.body.insertAdjacentElement('afterbegin', wrap);
+        document.body.append(wrap);
         btn.focus();
+        _BG__WEBPACK_IMPORTED_MODULE_4__["bg"].useBG(wrap);
     }
     remove(el) {
         el && el.parentNode && el.parentNode.removeChild(el);
@@ -5065,7 +5532,7 @@ class OpenCenterPanel {
         this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-dakai"></use>
 </svg>`;
-        document.body.insertAdjacentElement('afterbegin', this.btn);
+        document.body.append(this.btn);
         _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(this.btn);
     }
     bindEvents() {
@@ -5260,6 +5727,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ShowOriginSizeImage__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./ShowOriginSizeImage */ "./src/ts/ShowOriginSizeImage.ts");
 /* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -5273,7 +5742,7 @@ class PreviewWork {
         // 预览作品的容器的元素
         this.wrapId = 'previewWorkWrap';
         this.img = document.createElement('img');
-        this.border = 8; // border 占据的空间
+        this.border = 4; // border 占据的空间
         this.tipId = 'previewWorkTip';
         this.tipHeight = 22;
         // 保存当前鼠标经过的缩略图的数据
@@ -5284,39 +5753,34 @@ class PreviewWork {
         // 鼠标进入缩略图时，本模块会立即请求作品数据，但在请求完成后不会立即加载图片，这是为了避免浪费网络资源
         this.showTimer = 0;
         this._show = false;
-        this.wheelScrollTime = 0;
-        this.wheelScrollInterval = 100;
-        this.wheelScroll = (ev) => {
-            // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
-            if (this.show) {
-                const count = this.workData.body.pageCount;
-                if (count === 1) {
-                    return;
-                }
-                ev.preventDefault();
-                const time = new Date().getTime();
-                if (time - this.wheelScrollTime < this.wheelScrollInterval) {
-                    return;
-                }
-                this.wheelScrollTime = time;
-                const up = ev.deltaY < 0;
-                if (up) {
-                    if (this.index > 0) {
-                        this.index--;
-                    }
-                    else {
-                        this.index = count - 1;
-                    }
+        // 当鼠标滚轮滚动时，切换显示的图片
+        // 此事件必须使用节流，因为有时候鼠标滚轮短暂的滚动一下就会触发 2 次 mousewheel 事件
+        this.swicthImage = _utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].throttle(() => {
+            const count = this.workData.body.pageCount;
+            const up = this.wheelEvent.deltaY < 0;
+            if (up) {
+                if (this.index > 0) {
+                    this.index--;
                 }
                 else {
-                    if (this.index < count - 1) {
-                        this.index++;
-                    }
-                    else {
-                        this.index = 0;
-                    }
+                    this.index = count - 1;
                 }
-                this.showWrap();
+            }
+            else {
+                if (this.index < count - 1) {
+                    this.index++;
+                }
+                else {
+                    this.index = 0;
+                }
+            }
+            this.showWrap();
+        }, 100);
+        this.onWheelScroll = (ev) => {
+            if (this.show && this.workData.body.pageCount > 1) {
+                ev.preventDefault();
+                this.wheelEvent = ev;
+                this.swicthImage();
             }
         };
         this.createElements();
@@ -5375,11 +5839,11 @@ class PreviewWork {
                 this.workData = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_5__["cacheWorkData"].get(id);
             }
             this.readyShow();
-            el.addEventListener('mousewheel', this.wheelScroll);
+            el.addEventListener('mousewheel', this.onWheelScroll);
         });
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onLeave((el) => {
             this.show = false;
-            el.removeEventListener('mousewheel', this.wheelScroll);
+            el.removeEventListener('mousewheel', this.onWheelScroll);
         });
         // 可以使用 Alt + P 快捷键来启用/禁用此功能
         window.addEventListener('keydown', (ev) => {
@@ -5509,13 +5973,14 @@ class PreviewWork {
         this.wrap.appendChild(this.img);
         // 1. 计算图片显示的尺寸
         const rect = this.workEL.getBoundingClientRect();
+        // 不显示摘要信息时，也不显示边框，所以此时把 border 设置为 0
+        this.border = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].showPreviewWorkTip ? 4 : 0;
         // 计算各个可用区域的尺寸，提前减去了 border、tip 等元素占据的空间
         const innerWidth = window.innerWidth - 17;
         const leftSpace = rect.left - this.border;
         const rightSpace = innerWidth - rect.right - this.border;
         const xSpace = Math.max(leftSpace, rightSpace);
-        const showPreviewWorkTip = true;
-        const tipHeight = showPreviewWorkTip ? this.tipHeight : 0;
+        const tipHeight = _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].showPreviewWorkTip ? this.tipHeight : 0;
         const scrollBarHeight = window.innerHeight - document.documentElement.clientHeight;
         const ySpace = window.innerHeight - scrollBarHeight - this.border - tipHeight;
         // 宽高从图片宽高、可用区域的宽高中取最小值，使图片不会超出可视区域外
@@ -5556,26 +6021,25 @@ class PreviewWork {
         }
         // 然后设置 top
         // 让 wrap 和缩略图在垂直方向上居中对齐
-        cfg.top = window.scrollY + rect.top;
+        cfg.top = rect.top;
         const wrapHalfHeight = (cfg.height + this.border) / 2;
         const workHalfHeight = rect.height / 2;
         cfg.top = cfg.top - wrapHalfHeight + workHalfHeight;
         // 检查 wrap 顶端是否超出了窗口可视区域
-        if (cfg.top < window.scrollY) {
-            cfg.top = window.scrollY;
+        if (cfg.top < 0) {
+            cfg.top = 0;
         }
         // 检查 wrap 底部是否超出了窗口可视区域
-        const bottomOver = cfg.top + cfg.height + this.border - window.scrollY - window.innerHeight;
+        const bottomOver = cfg.top + cfg.height + this.border - window.innerHeight;
         if (bottomOver > 0) {
             // 如果底部超出了窗口可视区域，则计算顶部是否还有可用空间
-            const topFreeSpace = cfg.top - window.scrollY;
-            if (topFreeSpace > 0) {
+            if (cfg.top > 0) {
                 // 如果顶部还有空间可用，就尽量向上移动，但不会导致顶端超出可视区域
-                cfg.top = cfg.top - Math.min(bottomOver, topFreeSpace) - scrollBarHeight;
+                cfg.top = cfg.top - Math.min(bottomOver, cfg.top) - scrollBarHeight;
             }
         }
         // 3. 设置顶部提示区域的内容
-        if (showPreviewWorkTip) {
+        if (_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].showPreviewWorkTip) {
             const text = [];
             const body = this.workData.body;
             if (body.pageCount > 1) {
@@ -5609,6 +6073,11 @@ class PreviewWork {
             styleArray.push(`${key}:${value}px;`);
         }
         styleArray.push('display:block;');
+        // 如果不显示摘要信息，覆写一些样式
+        if (!_setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].showPreviewWorkTip) {
+            styleArray.push('border:none;');
+            styleArray.push('box-shadow:none;');
+        }
         this.wrap.setAttribute('style', styleArray.join(''));
         // 每次显示图片后，传递图片的 url
         this.sendUrls();
@@ -5734,6 +6203,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./store/States */ "./src/ts/store/States.ts");
 /* harmony import */ var _Toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Toast */ "./src/ts/Toast.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./MsgBox */ "./src/ts/MsgBox.ts");
+/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./utils/Utils */ "./src/ts/utils/Utils.ts");
+
 
 
 
@@ -5768,8 +6239,10 @@ class SelectWork {
         ];
         // 储存当前页面使用的选择器
         this.usedWorksWrapperSelector = this.worksWrapperSelectorList[0];
+        // 储存当前页面的作品列表容器
+        this.worksWrapper = document.body;
+        this.ob = undefined;
         this.idList = [];
-        this.observeTimer = 0;
         this.sendCrawl = false; // 它用来判断抓取的是不是选择的作品。抓取选择的作品时激活此标记；当触发下一次的抓取完成事件时，表示已经抓取了选择的作品。
         this.crawled = false; // 是否已经抓取了选择的作品
         this.svg = `<svg class="icon" aria-hidden="true">
@@ -5846,12 +6319,8 @@ class SelectWork {
                 return false;
             }
         };
-        // 每次页面切换之后，重新添加被选择的作品上的标记。
-        // 因为 pixiv 的页面切换一般会导致作品列表变化，所以之前添加的标记也没有了。
-        // 监听 dom 变化，当 dom 变化停止一段时间之后，一般作品列表就加载出来了，此时重新添加标记（防抖）
-        // 一个页面里可能产生多轮 dom 变化，所以可能会多次触发 reAddAllFlag 方法。这是必要的。
+        // 每次页面切换之后，查找新的作品列表容器并保存
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.pageSwitch, () => {
-            // 查找作品列表容器，并保存使用的选择器
             let worksWrapper = null;
             for (const selector of this.worksWrapperSelectorList) {
                 worksWrapper = document.querySelector(selector);
@@ -5860,18 +6329,18 @@ class SelectWork {
                     break;
                 }
             }
-            if (worksWrapper === null) {
-                return;
-            }
-            // 监听作品列表容器的变化
-            const ob = new MutationObserver((records) => {
-                window.clearTimeout(this.observeTimer);
-                this.observeTimer = window.setTimeout(() => {
-                    this.reAddAllFlag();
-                }, 300);
-                // 延迟时间不宜太小，否则代码执行时可能页面上还没有对应的元素，而且更耗费性能
-            });
-            ob.observe(worksWrapper, {
+            this.worksWrapper = worksWrapper || document.body;
+        });
+        // 每次页面切换之后，查找新显示的作品里是否有之前被选择的作品，如果有则为其添加标记
+        // 因为 pixiv 的页面切换会导致作品列表变化，之前添加的标记也就没有了，需要重新添加
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_3__["EVT"].list.pageSwitch, () => {
+            // 每次触发时都要断开之前绑定的观察器，否则会导致事件重复绑定
+            // 因为 pageSwitch 事件可能会触发多次，如果不断开之前的观察器，那么每切换一次页面就会多绑定和执行一个回调
+            this.ob && this.ob.disconnect();
+            this.ob = new MutationObserver(_utils_Utils__WEBPACK_IMPORTED_MODULE_7__["Utils"].debounce(() => {
+                this.reAddAllFlag();
+            }, 300));
+            this.ob.observe(this.worksWrapper, {
                 childList: true,
                 subtree: true,
             });
@@ -6556,6 +7025,73 @@ new ShowHowToUse();
 
 /***/ }),
 
+/***/ "./src/ts/ShowLargerThumbnails.ts":
+/*!****************************************!*\
+  !*** ./src/ts/ShowLargerThumbnails.ts ***!
+  \****************************************/
+/*! no exports provided */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./EVT */ "./src/ts/EVT.ts");
+/* harmony import */ var _setting_Settings__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./setting/Settings */ "./src/ts/setting/Settings.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Tools */ "./src/ts/Tools.ts");
+
+
+
+class ShowLargerThumbnails {
+    constructor() {
+        // css 内容来自 style/showLargerThumbnails.css
+        this.css = '';
+        this.styleId = 'ShowLargerThumbnails';
+        this.loadCssText();
+        this.bindEvents();
+    }
+    async loadCssText() {
+        const css = await fetch(chrome.runtime.getURL('style/showLargerThumbnails.css'));
+        this.css = await css.text();
+        this.setCss();
+    }
+    bindEvents() {
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
+            const data = ev.detail.data;
+            if (data.name === 'showLargerThumbnails') {
+                this.setCss();
+            }
+        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.pageSwitch, () => {
+            this.setCss();
+        });
+    }
+    setCss() {
+        if (!this.css) {
+            return;
+        }
+        if (_Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].notEnabledShowLargerThumb()) {
+            return this.removeStyle();
+        }
+        _setting_Settings__WEBPACK_IMPORTED_MODULE_1__["settings"].showLargerThumbnails ? this.addStyle() : this.removeStyle();
+    }
+    addStyle() {
+        if (document.querySelector('#' + this.styleId)) {
+            return;
+        }
+        const el = document.createElement('style');
+        el.id = this.styleId;
+        el.innerHTML = this.css;
+        document.body.append(el);
+    }
+    removeStyle() {
+        const el = document.querySelector('#' + this.styleId);
+        el && el.remove();
+    }
+}
+new ShowLargerThumbnails();
+
+
+/***/ }),
+
 /***/ "./src/ts/ShowNotification.ts":
 /*!************************************!*\
   !*** ./src/ts/ShowNotification.ts ***!
@@ -6644,7 +7180,7 @@ class ShowOriginSizeImage {
         // 原比例查看图片的容器的元素
         this.wrapId = 'originSizeWrap';
         this.defaultSize = 1200;
-        this.border = 8; // wrap 的 border 占据的空间
+        this.border = 4; // wrap 的 border 占据的空间
         // 不可以把 left、top 设置为负值，否则超出屏幕的区域无法查看
         // 所以通过修改 margin 来达到定位的效果
         this.style = {
@@ -6969,8 +7505,14 @@ __webpack_require__.r(__webpack_exports__);
 // 显示最近更新内容
 class ShowWhatIsNew {
     constructor() {
-        this.flag = '11.9.1';
-        this.msg = _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_解决了抓取搜索页面时被限制的问题的说明');
+        this.flag = '12.0.0';
+        this.msg = `${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_新增设置项')}
+  <br>
+  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_显示更大的缩略图')}
+  <br>
+  <br>
+  ${_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_该功能默认开启')}
+  `;
         this.bindEvents();
     }
     bindEvents() {
@@ -7271,20 +7813,21 @@ const theme = new Theme();
   !*** ./src/ts/Tip.ts ***!
   \***********************/
 /*! no static exports found */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
 
 // 给下载器的界面元素添加提示文本，当鼠标移动到元素上时会显示提示
 // 如果要给某个元素添加提示，先给它添加 has_tip 的 className，然后用 data-tip 设置提示内容
 class Tip {
     constructor() {
-        this.tipEl = document.createElement('div'); // tip 元素
         this.addTipEl();
         this.bindEvents();
     }
     addTipEl() {
         this.tipEl = document.createElement('div');
         this.tipEl.id = 'tip';
-        document.body.insertAdjacentElement('afterbegin', this.tipEl);
+        document.body.append(this.tipEl);
     }
     bindEvents() {
         const tips = document.querySelectorAll('.has_tip');
@@ -7697,6 +8240,18 @@ class Tools {
             return '';
         }
     }
+    // 从 DOM 元素中获取 artworks id
+    // 如果查找不到 id 会返回空字符串
+    static findIllustIdFromElement(el) {
+        let a;
+        if (el.nodeName === 'A') {
+            a = el;
+        }
+        else {
+            a = el.querySelector('a');
+        }
+        return a === null ? '' : this.getIllustId(a.href);
+    }
     // 从 url 里获取 novel id
     // 可以传入作品页面的 url（推荐）。如果未传入 url 则使用当前页面的 url（此时可能获取不到 id）
     // 如果查找不到 id 会返回空字符串
@@ -7918,6 +8473,15 @@ class Tools {
         }
         return false;
     }
+    // 在小说页面，以及某些特定页面里，不启用"显示更大的缩略图"和“横图占用二倍宽度”功能
+    static notEnabledShowLargerThumb() {
+        if (window.location.pathname.includes('/novel') ||
+            window.location.pathname.includes('/ranking_area') ||
+            window.location.hostname.includes('pixivision.net')) {
+            return true;
+        }
+        return false;
+    }
 }
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
 
@@ -8025,22 +8589,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./Tip */ "./src/ts/Tip.ts");
 /* harmony import */ var _Tip__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_Tip__WEBPACK_IMPORTED_MODULE_13__);
 /* harmony import */ var _PreviewWork__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./PreviewWork */ "./src/ts/PreviewWork.ts");
-/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
-/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
-/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
-/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
-/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
-/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
-/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
-/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
-/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
-/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
-/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
-/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
-/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
-/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
-/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
-/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
+/* harmony import */ var _ShowLargerThumbnails__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./ShowLargerThumbnails */ "./src/ts/ShowLargerThumbnails.ts");
+/* harmony import */ var _DoubleWidthThumb__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./DoubleWidthThumb */ "./src/ts/DoubleWidthThumb.ts");
+/* harmony import */ var _ShowZoomBtnOnThumb__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./ShowZoomBtnOnThumb */ "./src/ts/ShowZoomBtnOnThumb.ts");
+/* harmony import */ var _ShowDownloadBtnOnThumb__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./ShowDownloadBtnOnThumb */ "./src/ts/ShowDownloadBtnOnThumb.ts");
+/* harmony import */ var _output_OutputPanel__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./output/OutputPanel */ "./src/ts/output/OutputPanel.ts");
+/* harmony import */ var _output_PreviewFileName__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./output/PreviewFileName */ "./src/ts/output/PreviewFileName.ts");
+/* harmony import */ var _output_ShowURLs__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./output/ShowURLs */ "./src/ts/output/ShowURLs.ts");
+/* harmony import */ var _download_ExportResult2CSV__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./download/ExportResult2CSV */ "./src/ts/download/ExportResult2CSV.ts");
+/* harmony import */ var _download_ExportResult__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./download/ExportResult */ "./src/ts/download/ExportResult.ts");
+/* harmony import */ var _download_ImportResult__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./download/ImportResult */ "./src/ts/download/ImportResult.ts");
+/* harmony import */ var _download_ExportLST__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./download/ExportLST */ "./src/ts/download/ExportLST.ts");
+/* harmony import */ var _download_MergeNovel__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./download/MergeNovel */ "./src/ts/download/MergeNovel.ts");
+/* harmony import */ var _download_SaveWorkMeta__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./download/SaveWorkMeta */ "./src/ts/download/SaveWorkMeta.ts");
+/* harmony import */ var _CheckNewVersion__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./CheckNewVersion */ "./src/ts/CheckNewVersion.ts");
+/* harmony import */ var _ShowWhatIsNew__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./ShowWhatIsNew */ "./src/ts/ShowWhatIsNew.ts");
+/* harmony import */ var _ShowHowToUse__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./ShowHowToUse */ "./src/ts/ShowHowToUse.ts");
+/* harmony import */ var _CheckUnsupportBrowser__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ./CheckUnsupportBrowser */ "./src/ts/CheckUnsupportBrowser.ts");
+/* harmony import */ var _ShowNotification__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ./ShowNotification */ "./src/ts/ShowNotification.ts");
 /*
  * project: Powerful Pixiv Downloader
  * author:  xuejianxianzun; 雪见仙尊
@@ -8051,6 +8617,8 @@ __webpack_require__.r(__webpack_exports__);
  * Website: https://pixiv.download/
  * E-mail:  xuejianxianzun@gmail.com
  */
+
+
 
 
 
@@ -8116,7 +8684,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
 /* harmony import */ var _PageType__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../PageType */ "./src/ts/PageType.ts");
-/* harmony import */ var _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../store/CacheWorkData */ "./src/ts/store/CacheWorkData.ts");
+/* harmony import */ var _filter_Filter__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../filter/Filter */ "./src/ts/filter/Filter.ts");
 // 初始化所有页面抓取流程的基类
 
 
@@ -8333,6 +8901,13 @@ class InitPageBase {
             _MsgBox__WEBPACK_IMPORTED_MODULE_17__["msgBox"].error(msg);
             throw new Error(msg);
         }
+        // 检查 id 是否符合 id 范围条件，如果不符合则不发送这个请求，直接跳过它
+        const checkId = await _filter_Filter__WEBPACK_IMPORTED_MODULE_20__["filter"].check({
+            id,
+        });
+        if (!checkId) {
+            return this.afterGetWorksData();
+        }
         try {
             if (idData.type === 'novels') {
                 const data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getNovelData(id);
@@ -8340,13 +8915,9 @@ class InitPageBase {
                 this.afterGetWorksData(data);
             }
             else {
+                // 这里不能使用 cacheWorkData中的缓存数据，因为某些数据可能已经发生变化
                 let data;
-                if (_store_CacheWorkData__WEBPACK_IMPORTED_MODULE_20__["cacheWorkData"].has(id)) {
-                    data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_20__["cacheWorkData"].get(id);
-                }
-                else {
-                    data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getArtworkData(id);
-                }
+                data = await _API__WEBPACK_IMPORTED_MODULE_3__["API"].getArtworkData(id);
                 await _store_SaveArtworkData__WEBPACK_IMPORTED_MODULE_10__["saveArtworkData"].save(data);
                 this.afterGetWorksData(data);
             }
@@ -9631,7 +10202,6 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.addBMKBtnClass = 'bmkBtn';
         this.bookmarkedClass = 'bookmarked';
         this.countSelector = 'section h3+div span';
-        this.hotWorkAsideSelector = 'section aside';
         this.worksType = '';
         this.option = {};
         this.worksNoPerPage = 60; // 每个页面有多少个作品
@@ -9663,8 +10233,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         this.showPreviewLimitTip = false; // 当预览数量达到上限时显示一次提示
         // 储存预览搜索结果的元素
         this.workPreviewBuffer = document.createDocumentFragment();
-        this.tipEmptyResultTimer = 0;
-        this.tipEmptyResultInterval = 1000;
+        this.tipEmptyResult = _utils_Utils__WEBPACK_IMPORTED_MODULE_15__["Utils"].debounce(() => {
+            _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页被限制时返回空结果的提示'));
+        }, 1000);
         this.onSettingChange = (event) => {
             if (_store_States__WEBPACK_IMPORTED_MODULE_14__["states"].crawlTagList) {
                 return;
@@ -9939,10 +10510,8 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         });
     }
     initAny() {
-        this.hotBar();
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.pageSwitchedTypeNotChange, () => {
-            this.hotBar();
-        });
+        this.removeBlockOnHotBar();
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.pageSwitchedTypeNotChange, this.removeBlockOnHotBar);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.addResult, this.showCount);
         window.addEventListener('addBMK', this.addBookmark);
         window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].list.crawlFinish, this.onCrawlFinish);
@@ -10063,11 +10632,11 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
     tipSearchMode(mode) {
         switch (mode) {
             case 's_tag':
-                return '标签（部分一致）';
+                return _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_标签部分一致');
             case 's_tag_full':
-                return '标签（完全一致）';
+                return _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_标签完全一致');
             case 's_tc':
-                return '标题、说明文字';
+                return _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_标题说明文字');
             default:
                 return mode;
         }
@@ -10095,12 +10664,6 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         }, 200000);
         // 限制时间大约是 3 分钟，这里为了保险起见，设置了更大的延迟时间。
     }
-    tipEmptyResult() {
-        window.clearTimeout(this.tipEmptyResultTimer);
-        this.tipEmptyResultTimer = window.setTimeout(() => {
-            _Log__WEBPACK_IMPORTED_MODULE_9__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_列表页被限制时返回空结果的提示'));
-        }, this.tipEmptyResultInterval);
-    }
     // 仅当出错重试时，才会传递参数 p。此时直接使用传入的 p，而不是继续让 p 增加
     async getIdList(p) {
         if (p === undefined) {
@@ -10112,7 +10675,7 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         try {
             data = await this.getSearchData(p);
             if (data.total === 0) {
-                console.log(`${p} total 0`);
+                console.log(`page ${p}: total 0`);
                 this.tipEmptyResult();
                 return this.delayReTry(p);
             }
@@ -10282,13 +10845,14 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         });
     }
     // 去除热门作品上面的遮挡
-    hotBar() {
+    removeBlockOnHotBar() {
         // 因为热门作品里的元素是延迟加载的，所以使用定时器检查
+        const hotWorkAsideSelector = 'section aside';
         const timer = window.setInterval(() => {
-            const hotWorkAside = document.querySelector(this.hotWorkAsideSelector);
+            const hotWorkAside = document.querySelector(hotWorkAsideSelector);
             if (hotWorkAside) {
                 window.clearInterval(timer);
-                // 去掉遮挡作品的购买链接
+                // 去掉遮挡作品的元素
                 const premiumLink = hotWorkAside.nextSibling;
                 premiumLink && premiumLink.remove();
                 // 去掉遮挡后两个作品的 after。因为是伪元素，所以要通过 css 控制
@@ -11852,7 +12416,7 @@ class QuickCrawl {
         this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-download"></use>
 </svg>`;
-        document.body.insertAdjacentElement('afterbegin', this.btn);
+        document.body.append(this.btn);
         _Lang__WEBPACK_IMPORTED_MODULE_1__["lang"].register(this.btn);
     }
     bindEvents() {
@@ -12588,13 +13152,13 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
     tipSearchMode(mode) {
         switch (mode) {
             case 's_tag_only':
-                return '标签（部分一致）';
+                return _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_标签部分一致');
             case 's_tag_full':
-                return '标签（完全一致）';
+                return _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_标签完全一致');
             case 's_tc':
-                return '正文';
+                return _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_正文');
             case 's_tag':
-                return '标签、标题、说明文字';
+                return _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_标签标题说明文字');
             default:
                 return mode;
         }
@@ -13516,6 +14080,7 @@ class DownloadControl {
         });
         // 监听浏览器返回的消息
         chrome.runtime.onMessage.addListener((msg) => {
+            var _a;
             if (!this.taskBatch) {
                 return;
             }
@@ -13529,14 +14094,17 @@ class DownloadControl {
             }
             else if (msg.msg === 'download_err') {
                 // 浏览器把文件保存到本地时出错
-                _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(`${msg.data.id} download error! code: ${msg.err}. The downloader will try to download the file again `);
+                _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_save_file_failed_tip', msg.data.id, msg.err || 'unknown'));
+                if (msg.err === 'FILE_FAILED') {
+                    _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_FILE_FAILED_tip'));
+                }
                 _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('saveFileError');
                 // 重新下载这个文件
                 // 但并不确定能否如预期一样重新下载这个文件
                 this.saveFileError(msg.data);
             }
             // UUID 的情况
-            if (msg.data && msg.data.uuid) {
+            if ((_a = msg.data) === null || _a === void 0 ? void 0 : _a.uuid) {
                 _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_uuid'));
             }
         });
@@ -14661,6 +15229,7 @@ class ProgressBar {
             return;
         }
         bar.name.textContent = data.name;
+        bar.name.setAttribute('title', data.name);
         let text = '';
         if (data.total >= this.MB) {
             // 如果判断条件加上： || data.total === 0
@@ -17676,8 +18245,7 @@ class QuickBookmark {
         }
         else {
             const id = _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].getIllustId();
-            const data = _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_6__["cacheWorkData"].get(id);
-            return data ? data : await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id);
+            return _store_CacheWorkData__WEBPACK_IMPORTED_MODULE_6__["cacheWorkData"].get(id) || (await _API__WEBPACK_IMPORTED_MODULE_0__["API"].getArtworkData(id));
         }
     }
     async addBookmark() {
@@ -17947,136 +18515,6 @@ new SaveUserCover();
 
 /***/ }),
 
-/***/ "./src/ts/setting/BG.ts":
-/*!******************************!*\
-  !*** ./src/ts/setting/BG.ts ***!
-  \******************************/
-/*! exports provided: BG */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "BG", function() { return BG; });
-/* harmony import */ var _EVT__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../EVT */ "./src/ts/EVT.ts");
-/* harmony import */ var _utils_Utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/Utils */ "./src/ts/utils/Utils.ts");
-/* harmony import */ var _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils/IndexedDB */ "./src/ts/utils/IndexedDB.ts");
-/* harmony import */ var _Settings__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Settings */ "./src/ts/setting/Settings.ts");
-
-
-
-
-class BG {
-    constructor(wrap) {
-        this.id = 'xzBG';
-        this.flagClassName = 'xzBG';
-        this.haveImage = false;
-        this.DBName = 'PBDBG';
-        this.DBVer = 1;
-        this.storeName = 'bg';
-        this.keyName = 'bg';
-        // 在数据库升级事件里创建表
-        this.onUpdate = (db) => {
-            if (!db.objectStoreNames.contains(this.storeName)) {
-                db.createObjectStore(this.storeName, {
-                    keyPath: 'key',
-                });
-            }
-        };
-        this.wrap = wrap;
-        this.el = this.createEl();
-        this.IDB = new _utils_IndexedDB__WEBPACK_IMPORTED_MODULE_2__["IndexedDB"]();
-        this.init();
-    }
-    async init() {
-        this.bindEvents();
-        await this.initDB();
-        this.restore();
-    }
-    async initDB() {
-        await this.IDB.open(this.DBName, this.DBVer, this.onUpdate);
-    }
-    createEl() {
-        const div = document.createElement('div');
-        div.id = this.id;
-        const el = this.wrap.insertAdjacentElement('afterbegin', div);
-        return el;
-    }
-    bindEvents() {
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.selectBG, () => {
-            this.selectBG();
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.clearBG, () => {
-            this.clearBG();
-        });
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, (ev) => {
-            const data = ev.detail.data;
-            if (data.name === 'bgDisplay') {
-                this.setDisplay();
-            }
-            if (data.name === 'bgOpacity') {
-                this.setOpacity();
-            }
-            if (data.name === 'bgPositionY') {
-                this.setPositionY();
-            }
-        });
-    }
-    async restore() {
-        const data = (await this.IDB.get(this.storeName, this.keyName));
-        if (!data || !data.file) {
-            return;
-        }
-        const url = URL.createObjectURL(data.file);
-        this.setBGImage(url);
-    }
-    async selectBG() {
-        const file = (await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].selectFile('.jpg,.jpeg,.png,.bmp'))[0];
-        const url = URL.createObjectURL(file);
-        this.setBGImage(url);
-        const data = {
-            key: this.keyName,
-            file: file,
-        };
-        const test = await this.IDB.get(this.storeName, this.keyName);
-        this.IDB[test ? 'put' : 'add'](this.storeName, data);
-    }
-    async setBGImage(url) {
-        this.setPositionY();
-        this.setOpacity();
-        // 预加载背景图片
-        // 由于浏览器的工作原理，背景图片在未被显示之前是不会加载的，在显示时才会进行加载。这会导致背景层显示之后出现短暂的空白（因为在加载图片）。为了避免空白，需要预加载图片
-        await _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].loadImg(url);
-        this.el.style.backgroundImage = `url(${url})`;
-        this.haveImage = true;
-        this.setDisplay();
-    }
-    setDisplay() {
-        this.el.style.display = _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bgDisplay ? 'block' : 'none';
-        if (!this.haveImage) {
-            this.wrap.classList.remove(this.flagClassName);
-        }
-        else {
-            this.wrap.classList[_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bgDisplay ? 'add' : 'remove'](this.flagClassName);
-        }
-    }
-    setOpacity() {
-        this.el.style.opacity = (_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bgOpacity / 100).toString();
-    }
-    setPositionY() {
-        this.el.style.backgroundPositionY = _Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].bgPositionY;
-    }
-    clearBG() {
-        this.el.style.backgroundImage = 'none';
-        this.IDB.clear(this.storeName);
-        this.haveImage = false;
-        this.setDisplay();
-    }
-}
-
-
-
-/***/ }),
-
 /***/ "./src/ts/setting/ConvertOldSettings.ts":
 /*!**********************************************!*\
   !*** ./src/ts/setting/ConvertOldSettings.ts ***!
@@ -18210,14 +18648,10 @@ class Form {
             this.bindBeautifyEvent(radio);
         }
         // 设置变化或者重置时，重新设置美化状态
-        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, () => {
-            // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
-            window.clearTimeout(this.bueatifulTimer);
-            this.bueatifulTimer = window.setTimeout(() => {
-                this.initFormBueatiful();
-                this.showCreateFolderTip();
-            }, 50);
-        });
+        window.addEventListener(_EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].list.settingChange, _utils_Utils__WEBPACK_IMPORTED_MODULE_8__["Utils"].debounce(() => {
+            this.initFormBueatiful();
+            this.showCreateFolderTip();
+        }, 50));
         // 用户点击“我知道了”按钮之后不再显示提示
         const btn = this.createFolderTipEl.querySelector('button');
         btn.addEventListener('click', () => {
@@ -19124,6 +19558,24 @@ const formHtml = `<form class="settingForm">
     <p class="option settingCategoryName" data-no="60">
       <span data-xztext="_增强"></span>
     </p>
+    
+    <p class="option" data-no="68">
+    <span class="settingNameStyle1" data-xztext="_显示更大的缩略图"></span>
+    <input type="checkbox" name="showLargerThumbnails" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+
+    <span class="subOptionWrap" data-show="showLargerThumbnails">
+    <input type="checkbox" name="doubleWidthThumb" id="doubleWidthThumb" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    <label for="doubleWidthThumb" data-xztext="_横图占用二倍宽度"></label>
+    </span>
+    </p>
+    
+    <p class="option" data-no="63">
+    <span class="settingNameStyle1" data-xztext="_替换方形缩略图以显示图片比例"></span>
+    <input type="checkbox" name="replaceSquareThumb" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    </p>
 
     <p class="option" data-no="55">
     <span class="has_tip settingNameStyle1" data-xztip="_鼠标滚轮切换图片">
@@ -19140,6 +19592,12 @@ const formHtml = `<form class="settingForm">
 
     <span class="verticalSplit"></span>
 
+    <input type="checkbox" name="showPreviewWorkTip" id="showPreviewWorkTip" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+    <label for="showPreviewWorkTip" data-xztext="_显示摘要信息"></label>
+
+    <span class="verticalSplit"></span>
+
     <span class="settingNameStyle1" data-xztext="_图片尺寸2"></span>
     <input type="radio" name="prevWorkSize" id="prevWorkSize1" class="need_beautify radio" value="original">
     <span class="beautify_radio"></span>
@@ -19147,12 +19605,7 @@ const formHtml = `<form class="settingForm">
     <input type="radio" name="prevWorkSize" id="prevWorkSize2" class="need_beautify radio" value="regular" checked>
     <span class="beautify_radio"></span>
     <label for="prevWorkSize2" data-xztext="_普通"></label>
-    </p>
-    
-    <p class="option" data-no="63">
-    <span class="settingNameStyle1" data-xztext="_替换方形缩略图以显示图片比例"></span>
-    <input type="checkbox" name="replaceSquareThumb" class="need_beautify checkbox_switch" checked>
-    <span class="beautify_switch"></span>
+    </span>
     </p>
 
     <p class="option" data-no="62">
@@ -19449,6 +19902,9 @@ class FormSettings {
                 'noSerialNoForSingleImg',
                 'noSerialNoForMultiImg',
                 'removeAtFromUsername',
+                'showPreviewWorkTip',
+                'showLargerThumbnails',
+                'doubleWidthThumb',
             ],
             text: [
                 'setWantPage',
@@ -20355,6 +20811,7 @@ class Settings {
             showDownloadBtnOnThumb: true,
             prevWorkSize: 'regular',
             previewWorkWait: 400,
+            showPreviewWorkTip: true,
             showOriginImage: true,
             showOriginImageSize: 'original',
             showHowToUse: true,
@@ -20368,6 +20825,8 @@ class Settings {
             setUserNameShow: true,
             setUserNameList: {},
             removeAtFromUsername: false,
+            showLargerThumbnails: true,
+            doubleWidthThumb: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
@@ -20385,8 +20844,12 @@ class Settings {
         ];
         // 以默认设置作为初始设置
         this.settings = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].deepCopy(this.defaultSettings);
-        this.storeTimer = 0;
-        this.storageInterval = 50;
+        this.store = _utils_Utils__WEBPACK_IMPORTED_MODULE_1__["Utils"].debounce(() => {
+            // chrome.storage.local 的储存上限是 5 MiB（5242880 Byte）
+            chrome.storage.local.set({
+                [_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName]: this.settings,
+            });
+        }, 50);
         this.restore();
         this.bindEvents();
     }
@@ -20450,15 +20913,6 @@ class Settings {
             this.assignSettings(restoreData);
             _EVT__WEBPACK_IMPORTED_MODULE_0__["EVT"].fire('settingInitialized');
         });
-    }
-    store() {
-        window.clearTimeout(this.storeTimer);
-        this.storeTimer = window.setTimeout(() => {
-            // chrome.storage.local 的储存上限是 5 MiB（5242880 Byte）
-            chrome.storage.local.set({
-                [_config_Config__WEBPACK_IMPORTED_MODULE_4__["Config"].settingStoreName]: this.settings,
-            });
-        }, this.storageInterval);
     }
     // 接收整个设置项，通过循环将其更新到 settings 上
     // 循环设置而不是整个替换的原因：
@@ -22089,6 +22543,30 @@ class Utils {
         const str = JSON.stringify(data, null, 2);
         const blob = new Blob([str], { type: 'application/json' });
         return blob;
+    }
+    /**防抖 */
+    static debounce(func, wait) {
+        // 默认的定时器 id 不能使用有意义的数字，否则 clearTimeout 可能会错误的清除其他定时器
+        let timer = undefined;
+        const context = this;
+        return function () {
+            const args = arguments;
+            window.clearTimeout(timer);
+            timer = window.setTimeout(func.bind(context, ...args), wait);
+        };
+    }
+    /**节流 */
+    static throttle(func, delay) {
+        let time = 0;
+        const context = this;
+        return function () {
+            const args = arguments;
+            const now = new Date().getTime();
+            if (now - time >= delay) {
+                time = now;
+                return func.apply(context, args);
+            }
+        };
     }
 }
 // 不安全的字符，这里多数是控制字符，需要替换掉

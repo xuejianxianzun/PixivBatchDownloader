@@ -577,10 +577,10 @@ const langText = {
     '作品分類は：Illustration, Manga, Ugoira, Novel',
   ],
   _命名标记提醒: [
-    '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{userid}<br>* 在某些情况下，会有一些标记不可用。',
-    '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{userid}<br>＊某些情況下有些標記無法使用。',
-    'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{userid}<br>* In some cases, some tags will not be available.',
-    'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{userid}<br>* 場合によっては、一部のタグが利用できず。',
+    '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}。<br>您可以使用多个标记；建议在不同标记之间添加分割用的字符。示例：{id}-{user_id}<br>* 在某些情况下，会有一些标记不可用。',
+    '為了防止檔名重複，命名規則裡一定要包含 {id} 或者 {id_num}{p_num}。可以使用多個標記；建議在不同標記之間加入分隔用的字元。範例：{id}-{user_id}<br>＊某些情況下有些標記無法使用。',
+    'To prevent duplicate file names, {id} or {id_num}{p_num} must be included in the naming rules.<br>You can use multiple tags, and you can add a separate character between different tags. Example: {id}-{user_id}<br>* In some cases, some tags will not be available.',
+    'ファイル名の重複を防ぐために、命名規則には {id} または {id_num}{p_num} を含める必要があります。<br>複数のタグを使用することができます；異なるタグ間の分割のために文字を追加することをお勧めします。例：{id}-{user_id}<br>* 場合によっては、一部のタグが利用できず。',
   ],
   _命名规则一定要包含id: [
     '为了防止文件名重复，命名规则里一定要包含 {id} 或者 {id_num}{p_num}',
@@ -1959,10 +1959,10 @@ const langText = {
     命名規則で {user} タグを使用すると、ダウンローダーは設定された名前を優先的に使用します。`,
   ],
   _移除用户名中的at和后续字符: [
-    '移除用户名中的 @ 和后续字符',
-    '移除使用者名稱中的 @ 和後續字元',
-    'Remove @ and subsequent characters in username',
-    'ユーザー名から @ 以降の文字を削除する',
+    '移除用户名中的 <span class="key">@</span> 和后续字符',
+    '移除使用者名稱中的 <span class="key">@</span> 和後續字元',
+    'Remove <span class="key">@</span> and subsequent characters in username',
+    'ユーザー名から <span class="key">@</span> 以降の文字を削除する',
   ],
   _移除用户名中的at和后续字符的说明: [
     '例如：Anmi@画集発売中 → Anmi',
@@ -1983,6 +1983,67 @@ const langText = {
     'Pixivで検索ページのクロールが制限される問題を修正しました。',
   ],
   _搜索模式: ['搜索模式', '搜尋模式', 'Search mode', '検索モード'],
+  _标签部分一致: [
+    '标签（部分一致）',
+    '標籤（部分一致）',
+    'Tags (partial match)',
+    'タグ（部分一致）',
+  ],
+  _标签完全一致: [
+    '标签（完全一致）',
+    '標籤（完全一致）',
+    'Tags (perfect match)',
+    'タグ（完全一致）',
+  ],
+  _标题说明文字: [
+    '标题、说明文字',
+    '標題、說明文字',
+    'Title, Caption',
+    'タイトル・キャプション',
+  ],
+  _正文: ['正文', '本文', 'Text', '本文'],
+  _标签标题说明文字: [
+    '标签、标题、说明文字',
+    '標籤、標題、說明文字',
+    'Tags, Titles, Captions',
+    'タグ・タイトル・キャプション',
+  ],
+  _save_file_failed_tip: [
+    `{} 保存失败，code：{}。下载器将会重试下载这个文件。`,
+    `{} 儲存失敗，code：{}。下載器將會重試下載這個檔案。`,
+    `{} save failed, code: {}. The downloader will retry to download the file.`,
+    `{} 保存に失敗しました。code：{}。ダウンローダーはファイルのダウンロードを再試行します。`,
+  ],
+  _FILE_FAILED_tip: [
+    '可能是文件名太长，或是其他原因导致文件保存失败。你可以尝试启用高级设置里的“文件名长度限制”。',
+    '可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用高階設定裡的“檔案名稱長度限制”。',
+    'Maybe the file name is too long, or other reasons cause the file to fail to save. You can try enabling "File name length limit" in advanced settings.',
+    'ファイル名が長すぎるか、他の理由でファイルの保存に失敗した可能性があります。 詳細設定で「ファイル名の長さ制限」を有効にしてみてください。',
+  ],
+  _显示摘要信息: [
+    '显示摘要信息',
+    '顯示摘要資訊',
+    'Show summary',
+    '要約情報を表示する',
+  ],
+  _显示更大的缩略图: [
+    '显示<span class="key">更大</span>的缩略图',
+    '顯示<span class="key">更大</span>的縮圖',
+    'show <span class="key">larger</span> thumbnails',
+    '大きなサムネイルを表示する',
+  ],
+  _横图占用二倍宽度: [
+    '横图占用二倍宽度',
+    '橫圖佔用二倍寬度',
+    'Horizontal image takes up double the width',
+    '水平方向の画像は幅の2倍を占めます',
+  ],
+  _该功能默认开启: [
+    '这个功能默认启用。你可以在“其他”选项卡 → “增强”分类里找到它。（可能需要先启用“显示高级设置”）',
+    '這個功能預設啟用。你可以在“其他”選項卡 → “增強”分類裡找到它。（可能需要先啟用“顯示進階設定”）',
+    'This feature is enabled by default. You can find it in the "Other" tab → "Enhancements" category. (May need to enable "Show advanced settings" first)',
+    'この機能はデフォルトで有効になっています。 [その他]タブ→[強化機能]カテゴリにあります。 （最初に[詳細設定を表示する]を有効にする必要がある場合があります）',
+  ],
 }
 
 export { langText }

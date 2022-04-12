@@ -138,8 +138,7 @@ class QuickBookmark {
       return await API.getNovelData(Tools.getNovelId())
     } else {
       const id = Tools.getIllustId()
-      const data = cacheWorkData.get(id)
-      return data ? data : await API.getArtworkData(id)
+      return cacheWorkData.get(id) || (await API.getArtworkData(id))
     }
   }
 

@@ -11,12 +11,12 @@ class Tip {
     this.addTipEl()
     this.bindEvents()
   }
-  private tipEl: HTMLDivElement = document.createElement('div') // tip 元素
+  private tipEl!: HTMLDivElement
 
   private addTipEl() {
     this.tipEl = document.createElement('div')
     this.tipEl.id = 'tip'
-    document.body.insertAdjacentElement('afterbegin', this.tipEl)
+    document.body.append(this.tipEl)
   }
 
   private bindEvents() {
@@ -56,4 +56,3 @@ class Tip {
 }
 
 new Tip()
-export {}

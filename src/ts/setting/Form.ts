@@ -76,14 +76,13 @@ class Form {
     }
 
     // 设置变化或者重置时，重新设置美化状态
-    window.addEventListener(EVT.list.settingChange, () => {
-      // 因为要先等待设置恢复到表单上，然后再设置美化状态，所以延迟执行时机
-      window.clearTimeout(this.bueatifulTimer)
-      this.bueatifulTimer = window.setTimeout(() => {
+    window.addEventListener(
+      EVT.list.settingChange,
+      Utils.debounce(() => {
         this.initFormBueatiful()
         this.showCreateFolderTip()
       }, 50)
-    })
+    )
 
     // 用户点击“我知道了”按钮之后不再显示提示
     const btn = this.createFolderTipEl.querySelector('button')!
