@@ -1,0 +1,43 @@
+#logWrap {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 200px;
+  padding: 10px 0;
+  background: #fff;
+  color: #333;
+}
+
+.logContent {
+  height: 100%;
+  margin: 0 auto;
+  font-size: 14px;
+  width: 950px;
+  overflow-y: auto;
+
+  br {
+    display: inline;
+  }
+}
+
+.theme-dark {
+  &#logWrap {
+    background: #222;
+    color: #fff;
+  }
+}
+
+.xzBG {
+  &#logWrap {
+    background: #222;
+    color: #fff;
+    text-shadow: #003247 0px 0px 2px;
+    .logContent * {
+      color: #fff !important;
+    }
+
+    .xzBGLayer {
+      filter: blur(2px);
+    }
+  }
+}

@@ -4,7 +4,7 @@ import { states } from './store/States'
 import { theme } from './Theme'
 import { Config } from './config/Config'
 import { msgBox } from './MsgBox'
-import { BG } from './setting/BG'
+import { bg } from './BG'
 import './OpenCenterPanel'
 import { settings } from './setting/Settings'
 import { BoldKeywords } from './BoldKeywords'
@@ -24,7 +24,7 @@ class CenterPanel {
     lang.register(this.centerPanel)
     this.activeTab(Tabbar.Crawl)
 
-    new BG(this.centerPanel)
+    bg.useBG(this.centerPanel)
 
     new BoldKeywords(this.centerPanel)
 

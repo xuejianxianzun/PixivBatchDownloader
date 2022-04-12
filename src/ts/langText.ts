@@ -1959,10 +1959,10 @@ const langText = {
     命名規則で {user} タグを使用すると、ダウンローダーは設定された名前を優先的に使用します。`,
   ],
   _移除用户名中的at和后续字符: [
-    '移除用户名中的 @ 和后续字符',
-    '移除使用者名稱中的 @ 和後續字元',
-    'Remove @ and subsequent characters in username',
-    'ユーザー名から @ 以降の文字を削除する',
+    '移除用户名中的 <span class="key">@</span> 和后续字符',
+    '移除使用者名稱中的 <span class="key">@</span> 和後續字元',
+    'Remove <span class="key">@</span> and subsequent characters in username',
+    'ユーザー名から <span class="key">@</span> 以降の文字を削除する',
   ],
   _移除用户名中的at和后续字符的说明: [
     '例如：Anmi@画集発売中 → Anmi',
@@ -2019,6 +2019,30 @@ const langText = {
     '可能是檔名太長，或是其他原因導致檔案儲存失敗。你可以嘗試啟用高階設定裡的“檔案名稱長度限制”。',
     'Maybe the file name is too long, or other reasons cause the file to fail to save. You can try enabling "File name length limit" in advanced settings.',
     'ファイル名が長すぎるか、他の理由でファイルの保存に失敗した可能性があります。 詳細設定で「ファイル名の長さ制限」を有効にしてみてください。',
+  ],
+  _显示摘要信息: [
+    '显示摘要信息',
+    '顯示摘要資訊',
+    'Show summary',
+    '要約情報を表示する',
+  ],
+  _显示更大的缩略图: [
+    '显示<span class="key">更大</span>的缩略图',
+    '顯示<span class="key">更大</span>的縮圖',
+    'show <span class="key">larger</span> thumbnails',
+    '大きなサムネイルを表示する',
+  ],
+  _横图占用二倍宽度: [
+    '横图占用二倍宽度',
+    '橫圖佔用二倍寬度',
+    'Horizontal image takes up double the width',
+    '水平方向の画像は幅の2倍を占めます',
+  ],
+  _该功能默认开启: [
+    '这个功能默认启用。你可以在“其他”选项卡 → “增强”分类里找到它。（可能需要先启用“显示高级设置”）',
+    '這個功能預設啟用。你可以在“其他”選項卡 → “增強”分類裡找到它。（可能需要先啟用“顯示進階設定”）',
+    'This feature is enabled by default. You can find it in the "Other" tab → "Enhancements" category. (May need to enable "Show advanced settings" first)',
+    'この機能はデフォルトで有効になっています。 [その他]タブ→[強化機能]カテゴリにあります。 （最初に[詳細設定を表示する]を有効にする必要がある場合があります）',
   ],
 }
 

@@ -30,7 +30,7 @@ class QuickCrawl {
     this.btn.innerHTML = `<svg class="icon" aria-hidden="true">
   <use xlink:href="#icon-download"></use>
 </svg>`
-    document.body.insertAdjacentElement('afterbegin', this.btn)
+    document.body.append(this.btn)
     lang.register(this.btn)
   }
 

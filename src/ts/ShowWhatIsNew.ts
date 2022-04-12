@@ -17,9 +17,15 @@ class ShowWhatIsNew {
     })
   }
 
-  private flag = '11.9.1'
+  private flag = '12.0.0'
 
-  private msg = lang.transl('_解决了抓取搜索页面时被限制的问题的说明')
+  private msg = `${lang.transl('_新增设置项')}
+  <br>
+  ${lang.transl('_显示更大的缩略图')}
+  <br>
+  <br>
+  ${lang.transl('_该功能默认开启')}
+  `
 
   private show() {
     if (Utils.isPixiv() && settings.whatIsNewFlag !== this.flag) {

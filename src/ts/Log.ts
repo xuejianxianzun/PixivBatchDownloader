@@ -2,6 +2,7 @@ import { Tools } from './Tools'
 import { EVT } from './EVT'
 import { theme } from './Theme'
 import { Colors } from './config/Colors'
+import { bg } from './BG'
 
 // 日志
 class Log {
@@ -13,8 +14,9 @@ class Log {
     })
   }
 
-  private logArea = document.createElement('div') // 输出日志的区域
   private id = 'logWrap' // 日志区域元素的 id
+  private wrap = document.createElement('div') // 日志容器的区域
+  private logArea = document.createElement('div') // 日志主体区域
   private refresh = document.createElement('span') // 刷新时使用的元素
   private readonly levelColor = [
     'inherit',
@@ -83,10 +85,15 @@ class Log {
     // 如果日志区域没有被添加到页面上，则添加
     let test = document.getElementById(this.id)
     if (test === null) {
-      this.logArea.id = this.id
-      this.logArea.classList.add('beautify_scrollbar', 'logWrap')
-      Tools.insertToHead(this.logArea)
-      theme.register(this.logArea)
+      this.wrap = document.createElement('div')
+      this.wrap.id = this.id
+      this.logArea = document.createElement('div')
+      this.logArea.classList.add('beautify_scrollbar', 'logContent')
+      this.wrap.append(this.logArea)
+      Tools.insertToHead(this.wrap)
+      theme.register(this.wrap)
+      // 虽然可以应用背景图片，但是由于日志区域比较狭长，背景图片的视觉效果不佳，看起来比较粗糙，所以还是不应用背景图片了
+      // bg.useBG(this.wrap, 0.9)
     }
 
     // 如果页面上的日志条数超过指定数量，则清空
@@ -99,7 +106,7 @@ class Log {
 
   // 清空日志
   public clear() {
-    this.logArea.remove()
+    this.wrap.remove()
   }
 
   // 因为日志区域限制了最大高度，可能会出现滚动条，这里使日志总是滚动到底部
