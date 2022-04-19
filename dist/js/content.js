@@ -5005,6 +5005,18 @@ const langText = {
         'This feature is enabled by default. You can find it in the "Other" tab → "Enhancements" category. (May need to enable "Show advanced settings" first)',
         'この機能はデフォルトで有効になっています。 [その他]タブ→[強化機能]カテゴリにあります。 （最初に[詳細設定を表示する]を有効にする必要がある場合があります）',
     ],
+    _使用鼠标滚轮切换作品里的图片: [
+        '使用鼠标滚轮切换多图作品里的图片',
+        '使用滑鼠滾輪切換多圖作品裡的圖片',
+        'Use the mouse wheel to switch images in multi-image works',
+        'マウスホイールを使用して、マルチイメージ作品のイメージを切り替えます',
+    ],
+    _这可能会阻止页面滚动: [
+        '这可能会阻止页面滚动',
+        '這可能會阻止頁面滾動',
+        '这可能会阻止页面滚动',
+        'ページのスクロールを妨げる可能性があります',
+    ],
 };
 
 
@@ -5694,7 +5706,9 @@ class PreviewWork {
             this.showWrap();
         }, 100);
         this.onWheelScroll = (ev) => {
-            if (this.show && this.workData.body.pageCount > 1) {
+            if (this.show &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].wheelScrollSwitchImageOnPreviewWork &&
+                this.workData.body.pageCount > 1) {
                 ev.preventDefault();
                 this.wheelEvent = ev;
                 this.swicthImage();
@@ -19489,9 +19503,9 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_switch"></span>
 
     <span class="subOptionWrap" data-show="showLargerThumbnails">
+    <label for="doubleWidthThumb" data-xztext="_横图占用二倍宽度"></label>
     <input type="checkbox" name="doubleWidthThumb" id="doubleWidthThumb" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
-    <label for="doubleWidthThumb" data-xztext="_横图占用二倍宽度"></label>
     </span>
     </p>
     
@@ -19502,23 +19516,29 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="55">
-    <span class="has_tip settingNameStyle1" data-xztip="_鼠标滚轮切换图片">
+    <span class="settingNameStyle1">
     <span data-xztext="_预览作品"></span>
-    <span class="gray1"> ? </span>
     </span>
     <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
 
     <span class="subOptionWrap" data-show="PreviewWork">
+
+    <label for="wheelScrollSwitchImageOnPreviewWork" class="has_tip" data-xztext="_使用鼠标滚轮切换作品里的图片" data-xztip="_这可能会阻止页面滚动"></label>
+    <input type="checkbox" name="wheelScrollSwitchImageOnPreviewWork" id="wheelScrollSwitchImageOnPreviewWork" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+
+    <span class="verticalSplit"></span>
+
     <span data-xztext="_等待时间"></span>&nbsp;
     <input type="text" name="previewWorkWait" class="setinput_style1 blue" value="400" style="width:40px;min-width: 40px;">
     <span>&nbsp;ms</span>
 
     <span class="verticalSplit"></span>
 
+    <label for="showPreviewWorkTip" data-xztext="_显示摘要信息"></label>
     <input type="checkbox" name="showPreviewWorkTip" id="showPreviewWorkTip" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
-    <label for="showPreviewWorkTip" data-xztext="_显示摘要信息"></label>
 
     <span class="verticalSplit"></span>
 
@@ -19829,6 +19849,7 @@ class FormSettings {
                 'showPreviewWorkTip',
                 'showLargerThumbnails',
                 'doubleWidthThumb',
+                'wheelScrollSwitchImageOnPreviewWork',
             ],
             text: [
                 'setWantPage',
@@ -20751,6 +20772,7 @@ class Settings {
             removeAtFromUsername: false,
             showLargerThumbnails: false,
             doubleWidthThumb: true,
+            wheelScrollSwitchImageOnPreviewWork: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
