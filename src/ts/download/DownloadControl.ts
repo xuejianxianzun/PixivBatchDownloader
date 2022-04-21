@@ -131,7 +131,7 @@ class DownloadControl {
         log.error(
           lang.transl(
             '_save_file_failed_tip',
-            msg.data.id,
+            Tools.createWorkLink(msg.data.id),
             msg.err || 'unknown'
           )
         )

@@ -402,6 +402,19 @@ class Tools {
     }
     return false
   }
+
+  // 传入作品 id，生成作品页面的超链接
+  /**
+   *
+   * @param id 作品 id
+   * @param artwork true 图像作品； false 小说作品。默认为图像作品
+   * @returns 超链接（A 标签）
+   */
+  static createWorkLink(id: number | string, artwork = true) {
+    const idNum = typeof id === 'number' ? id : Number.parseInt(id)
+    const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}`
+    return `<a href="${href}" target="_blank">${id}</a>`
+  }
 }
 
 export { Tools }

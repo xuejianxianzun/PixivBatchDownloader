@@ -43,16 +43,23 @@ nav .cYUezH {
 .beTVzC {
   padding-left: 70px !important;
 }
+/* 发现页面点击关注后出现的横向区域，需要减少右侧 padding */
+.hkzusx .eYOHvS {
+  padding-right: 70px !important;
+}
 /* 通用部分结束 */
 /* 首页 */
 /* 让顶部一栏最新作品居中 */
 .sc-1kr69jw-0 {
   align-items: center;
 }
-/* 最顶部 关注用户・好P友的作品 列表 */
+/* 关注用户・好P友的作品 左右两侧的占位符元素 */
+.hkzusx div[style] {
+  flex-shrink: 0;
+}
+/* 最顶部 关注用户・好P友的作品 列表 缩略图 li */
 /* 最底部 本站的最新作品 列表 */
 /* 首页还有不少地方的列表也都是这个 class */
-/* 因为这个列表的宽度很大，所以百分比也应该小一些 */
 /* max-height 需要比 max-width 更大一些，因为图片的下方还要显示标题等信息，也要占据空间 */
 .bgeGyS {
   display: flex !important;

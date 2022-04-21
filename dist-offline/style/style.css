@@ -1342,6 +1342,9 @@
 .logContent br {
   display: inline;
 }
+.logContent a {
+  color: #0ea8ef;
+}
 .theme-dark#logWrap {
   background: #222;
   color: #fff;

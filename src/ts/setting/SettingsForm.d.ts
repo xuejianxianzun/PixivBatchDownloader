@@ -118,4 +118,5 @@ export interface SettingsForm extends HTMLFormElement {
   removeAtFromUsername: HTMLInputElement
   showLargerThumbnails: HTMLInputElement
   doubleWidthThumb: HTMLInputElement
+  wheelScrollSwitchImageOnPreviewWork: HTMLInputElement
 }

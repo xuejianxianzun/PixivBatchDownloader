@@ -177,7 +177,11 @@ class PreviewWork {
   }, 100)
 
   private onWheelScroll = (ev: Event) => {
-    if (this.show && this.workData!.body.pageCount > 1) {
+    if (
+      this.show &&
+      settings.wheelScrollSwitchImageOnPreviewWork &&
+      this.workData!.body.pageCount > 1
+    ) {
       ev.preventDefault()
       this.wheelEvent = ev as WheelEvent
       this.swicthImage()

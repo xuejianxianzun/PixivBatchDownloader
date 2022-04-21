@@ -3417,22 +3417,22 @@ const langText = {
         '{} のアクセス権限がありません、作品を無視する。',
     ],
     _作品页状态码0: [
-        '请求的url不可访问',
-        '要求的 url 無法存取',
-        'The requested url is not accessible',
-        '要求された URL にアクセスできません',
+        '请求的url不可访问 (0)',
+        '要求的 url 無法存取 (0)',
+        'The requested url is not accessible (0)',
+        '要求された URL にアクセスできません (0)',
     ],
     _作品页状态码400: [
-        '该作品已被删除',
-        '該作品已被刪除',
-        'The work has been deleted',
-        '作品は削除されました',
+        '该作品已被删除 (400)',
+        '該作品已被刪除 (400)',
+        'The work has been deleted (400)',
+        '作品は削除されました (400)',
     ],
     _作品页状态码403: [
-        '无权访问请求的url 403',
-        '沒有權限存取要求的 url 403',
-        'Have no access to the requested url 403',
-        'リクエストされた url にアクセスできない 403',
+        '无权访问请求的url (403)',
+        '沒有權限存取要求的 url (403)',
+        'Have no access to the requested url (403',
+        'リクエストされた url にアクセスできない (403)',
     ],
     _作品页状态码404: [
         '404 not found',
@@ -4427,10 +4427,10 @@ const langText = {
         'ダウンロード後、作品は自動的にブックマークされます。',
     ],
     _收藏设置: [
-        '<span class="key">收藏</span>设置',
-        '<span class="key">收藏</span>設定',
-        '<span class="key">Bookmark</span> settings',
-        'ブックマーク設定 ',
+        '下载器的<span class="key">收藏</span>按钮 ✩',
+        '下載器的<span class="key">收藏</span>按鈕 ✩',
+        `Downloader's <span class="key">bookmark</span> button ✩`,
+        'ダウンローダーの<span class="key">ブックマーク</span>ボタン ✩',
     ],
     _添加tag: ['添加标签', '加入標籤', 'Add tag', 'タグを追加'],
     _不添加tag: ['不添加标签', '不加入標籤', "Don't add tag", 'タグなし'],
@@ -4763,7 +4763,7 @@ const langText = {
         '隠していた設定がそのまま機能する',
     ],
     _状态码为0的错误提示: [
-        '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。',
+        '下载时发生错误，状态码为 0，请求未成功。可能的原因：<br><br>1. 系统磁盘的剩余空间可能不足（建议剩余空间大于 4GB）。请尝试清理系统磁盘空间，然后重新启动浏览器，继续未完成的下载。<br><br>2. 网络错误。可能是网络代理导致的问题。如果你使用 Nginx 或者 Apache 反代理访问 pixiv，请换成梯子。',
         '下載時發生錯誤，狀態碼為 0，請求未成功。可能的原因：<br><br>1. 系統磁碟的剩餘空間可能不足（建議剩餘空間大於 4GB）。請嘗試清理系統磁碟空間，然後重新啟動瀏覽器，繼續未完成的下載。<br><br>2. 網路錯誤。可能是網路代理導致的問題。',
         'An error occurred while downloading, the status code is 0, and the request was unsuccessful. Possible reasons: <br><br>1. The remaining space of the system disk may be insufficient (it is recommended that the remaining space be greater than 4GB). Please try to clear the system disk space, and then restart the browser to continue the unfinished download. <br><br>2. Network error. It may be a problem caused by a network proxy.',
         'ダウンロード中にエラーが発生し、ステータスコードは0で、リクエストは失敗しました。 考えられる理由：<br> <br> 1。 システムディスクの残りのスペースが不足している可能性があります（残りのスペースは4GBを超えることをお勧めします）。 システムのディスク領域をクリアしてから、ブラウザを再起動して、未完了のダウンロードを続行してください。 <br> <br> 2。 ネットワークエラー。 ネットワークプロキシが原因の問題である可能性があります。',
@@ -5079,6 +5079,30 @@ const langText = {
         '這個功能預設啟用。你可以在“其他”選項卡 → “增強”分類裡找到它。（可能需要先啟用“顯示進階設定”）',
         'This feature is enabled by default. You can find it in the "Other" tab → "Enhancements" category. (May need to enable "Show advanced settings" first)',
         'この機能はデフォルトで有効になっています。 [その他]タブ→[強化機能]カテゴリにあります。 （最初に[詳細設定を表示する]を有効にする必要がある場合があります）',
+    ],
+    _使用鼠标滚轮切换作品里的图片: [
+        '使用鼠标滚轮切换多图作品里的图片',
+        '使用滑鼠滾輪切換多圖作品裡的圖片',
+        'Use the mouse wheel to switch images in multi-image works',
+        'マウスホイールを使用して、マルチイメージ作品のイメージを切り替えます',
+    ],
+    _这可能会阻止页面滚动: [
+        '这可能会阻止页面滚动',
+        '這可能會阻止頁面滾動',
+        '这可能会阻止页面滚动',
+        'ページのスクロールを妨げる可能性があります',
+    ],
+    _动图转换失败的提示: [
+        '动图转换失败，id：{}',
+        '動圖轉換失敗，id：{}',
+        'Ugoira(animation) conversion failed, id: {}',
+        'うごイラの変換に失敗しました、id：{}',
+    ],
+    _作品id无法下载带状态码: [
+        '{} 无法下载，状态码：{}',
+        '{} 無法下載，狀態碼：{}',
+        '{} failed to download, status code: {}',
+        '{} ダウンロードに失敗しました、ステータスコード：{}',
     ],
 };
 
@@ -5769,7 +5793,9 @@ class PreviewWork {
             this.showWrap();
         }, 100);
         this.onWheelScroll = (ev) => {
-            if (this.show && this.workData.body.pageCount > 1) {
+            if (this.show &&
+                _setting_Settings__WEBPACK_IMPORTED_MODULE_3__["settings"].wheelScrollSwitchImageOnPreviewWork &&
+                this.workData.body.pageCount > 1) {
                 ev.preventDefault();
                 this.wheelEvent = ev;
                 this.swicthImage();
@@ -8474,6 +8500,18 @@ class Tools {
         }
         return false;
     }
+    // 传入作品 id，生成作品页面的超链接
+    /**
+     *
+     * @param id 作品 id
+     * @param artwork true 图像作品； false 小说作品。默认为图像作品
+     * @returns 超链接（A 标签）
+     */
+    static createWorkLink(id, artwork = true) {
+        const idNum = typeof id === 'number' ? id : Number.parseInt(id);
+        const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}`;
+        return `<a href="${href}" target="_blank">${id}</a>`;
+    }
 }
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
 
@@ -8986,21 +9024,22 @@ class InitPageBase {
     }
     // 网络请求状态异常时输出提示
     logErrorStatus(status, id) {
+        const workLink = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].createWorkLink(id);
         switch (status) {
             case 0:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码0'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码0'));
                 break;
             case 400:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码400'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码400'));
                 break;
             case 403:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码403'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码403'));
                 break;
             case 404:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码404'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码404'));
                 break;
             default:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_无权访问', id));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_无权访问', workLink) + `status: ${status}`);
                 break;
         }
     }
@@ -13686,7 +13725,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 // 下载文件，然后发送给浏览器进行保存
+
 
 
 
@@ -13733,7 +13774,7 @@ class Download {
             return this.skipDownload({
                 id: arg.id,
                 reason: 'duplicate',
-            }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_跳过下载因为重复文件', arg.id));
+            }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_跳过下载因为重复文件', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id, arg.data.type !== 3)));
         }
         // 如果是动图，再次检查是否排除了动图
         // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
@@ -13757,7 +13798,8 @@ class Download {
             }
             // 如果获取宽高失败，图片会被视为通过宽高检查
             if (wh.width === 0 || wh.height === 0) {
-                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_获取图片的宽高时出现错误') + arg.id);
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_获取图片的宽高时出现错误') +
+                    _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id));
                 // 图片加载失败可能是请求超时，或者图片不存在。这里无法获取到具体原因，所以不直接返回。
                 // 如果是 404 错误，在 download 方法中可以处理这个问题
                 // 如果是请求超时，则有可能错误的通过了这个图片
@@ -13767,7 +13809,7 @@ class Download {
                 return this.skipDownload({
                     id: arg.id,
                     reason: 'widthHeight',
-                }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为宽高', arg.id));
+                }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为宽高', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id)));
             }
         }
         this.download(arg);
@@ -13782,23 +13824,25 @@ class Download {
     }
     // 当重试达到最大次数时
     afterReTryMax(status, fileId) {
+        const errorMsg = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_作品id无法下载带状态码', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(fileId), status.toString());
         // 404, 500 错误，跳过，不会再尝试下载这个文件（因为没有触发 downloadError 事件，所以不会重试下载）
         if (status === 404 || status === 500) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(`Error: ${fileId} Code: ${status}`);
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(errorMsg);
             return this.skipDownload({
                 id: fileId,
                 reason: status.toString(),
             });
         }
-        // 状态码为 0 ，可能是系统磁盘空间不足导致的错误，也可能是超时等错误
+        // 状态码为 0，可能是系统磁盘空间不足导致的错误，也可能是代理软件导致的网络错误
+        // 超时也会返回状态码 0
         if (status === 0) {
             // 判断是否是磁盘空间不足。特征是每次重试之间的间隔时间比较短。
-            // 超时的特征是等待时间比较长，可能超过 20 秒
+            // 如果是超时，那么等待时间会比较长，可能超过 20 秒
             const timeLimit = 10000; // 如果从发起请求到进入重试的时间间隔小于这个值，则视为磁盘空间不足的情况
             const result = this.retryInterval.filter((val) => val <= timeLimit);
             // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就认为是磁盘空间不足。
             if (result.length > 9) {
-                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(`Error: ${fileId} Code: ${status}`);
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(errorMsg);
                 const tip = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_状态码为0的错误提示');
                 _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(tip);
                 _MsgBox__WEBPACK_IMPORTED_MODULE_12__["msgBox"].error(tip);
@@ -13846,7 +13890,7 @@ class Download {
                     this.skipDownload({
                         id: arg.id,
                         reason: 'size',
-                    }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为体积', arg.id));
+                    }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为体积', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id)));
                 }
             }
             if (this.cancel) {
@@ -13856,7 +13900,7 @@ class Download {
             }
             this.setProgressBar(_fileName, event.loaded, event.total);
         });
-        // 文件记载完毕，或者加载出错
+        // 文件加载完毕，或者加载出错
         xhr.addEventListener('loadend', async () => {
             if (this.cancel) {
                 xhr = null;
@@ -13901,8 +13945,8 @@ class Download {
                         }
                     }
                     catch (error) {
-                        const msg = `Convert ugoira error, id ${arg.data.idNum}.`;
-                        // 因为会重试所以不再日志上显示
+                        const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_动图转换失败的提示', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.data.idNum));
+                        // 因为会重试所以不在日志上显示
                         // log.error(msg, 1)
                         console.error(msg);
                         this.error = true;
@@ -13926,7 +13970,7 @@ class Download {
                     return this.skipDownload({
                         id: arg.id,
                         reason: 'color',
-                    }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为颜色', arg.id));
+                    }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为颜色', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id)));
                 }
             }
             // 向浏览器发送下载任务
@@ -14085,7 +14129,7 @@ class DownloadControl {
             }
             else if (msg.msg === 'download_err') {
                 // 浏览器把文件保存到本地时出错
-                _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_save_file_failed_tip', msg.data.id, msg.err || 'unknown'));
+                _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_save_file_failed_tip', _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].createWorkLink(msg.data.id), msg.err || 'unknown'));
                 if (msg.err === 'FILE_FAILED') {
                     _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_FILE_FAILED_tip'));
                 }
@@ -19565,9 +19609,9 @@ const formHtml = `<form class="settingForm">
     <span class="beautify_switch"></span>
 
     <span class="subOptionWrap" data-show="showLargerThumbnails">
+    <label for="doubleWidthThumb" data-xztext="_横图占用二倍宽度"></label>
     <input type="checkbox" name="doubleWidthThumb" id="doubleWidthThumb" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
-    <label for="doubleWidthThumb" data-xztext="_横图占用二倍宽度"></label>
     </span>
     </p>
     
@@ -19578,23 +19622,29 @@ const formHtml = `<form class="settingForm">
     </p>
 
     <p class="option" data-no="55">
-    <span class="has_tip settingNameStyle1" data-xztip="_鼠标滚轮切换图片">
+    <span class="settingNameStyle1">
     <span data-xztext="_预览作品"></span>
-    <span class="gray1"> ? </span>
     </span>
     <input type="checkbox" name="PreviewWork" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
 
     <span class="subOptionWrap" data-show="PreviewWork">
+
+    <label for="wheelScrollSwitchImageOnPreviewWork" class="has_tip" data-xztext="_使用鼠标滚轮切换作品里的图片" data-xztip="_这可能会阻止页面滚动"></label>
+    <input type="checkbox" name="wheelScrollSwitchImageOnPreviewWork" id="wheelScrollSwitchImageOnPreviewWork" class="need_beautify checkbox_switch" checked>
+    <span class="beautify_switch"></span>
+
+    <span class="verticalSplit"></span>
+
     <span data-xztext="_等待时间"></span>&nbsp;
     <input type="text" name="previewWorkWait" class="setinput_style1 blue" value="400" style="width:40px;min-width: 40px;">
     <span>&nbsp;ms</span>
 
     <span class="verticalSplit"></span>
 
+    <label for="showPreviewWorkTip" data-xztext="_显示摘要信息"></label>
     <input type="checkbox" name="showPreviewWorkTip" id="showPreviewWorkTip" class="need_beautify checkbox_switch" checked>
     <span class="beautify_switch"></span>
-    <label for="showPreviewWorkTip" data-xztext="_显示摘要信息"></label>
 
     <span class="verticalSplit"></span>
 
@@ -19905,6 +19955,7 @@ class FormSettings {
                 'showPreviewWorkTip',
                 'showLargerThumbnails',
                 'doubleWidthThumb',
+                'wheelScrollSwitchImageOnPreviewWork',
             ],
             text: [
                 'setWantPage',
@@ -20825,8 +20876,9 @@ class Settings {
             setUserNameShow: true,
             setUserNameList: {},
             removeAtFromUsername: false,
-            showLargerThumbnails: true,
+            showLargerThumbnails: false,
             doubleWidthThumb: true,
+            wheelScrollSwitchImageOnPreviewWork: true,
         };
         this.allSettingKeys = Object.keys(this.defaultSettings);
         // 值为浮点数的选项
