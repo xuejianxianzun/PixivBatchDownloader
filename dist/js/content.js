@@ -3342,22 +3342,22 @@ const langText = {
         '{} のアクセス権限がありません、作品を無視する。',
     ],
     _作品页状态码0: [
-        '请求的url不可访问',
-        '要求的 url 無法存取',
-        'The requested url is not accessible',
-        '要求された URL にアクセスできません',
+        '请求的url不可访问 (0)',
+        '要求的 url 無法存取 (0)',
+        'The requested url is not accessible (0)',
+        '要求された URL にアクセスできません (0)',
     ],
     _作品页状态码400: [
-        '该作品已被删除',
-        '該作品已被刪除',
-        'The work has been deleted',
-        '作品は削除されました',
+        '该作品已被删除 (400)',
+        '該作品已被刪除 (400)',
+        'The work has been deleted (400)',
+        '作品は削除されました (400)',
     ],
     _作品页状态码403: [
-        '无权访问请求的url 403',
-        '沒有權限存取要求的 url 403',
-        'Have no access to the requested url 403',
-        'リクエストされた url にアクセスできない 403',
+        '无权访问请求的url (403)',
+        '沒有權限存取要求的 url (403)',
+        'Have no access to the requested url (403',
+        'リクエストされた url にアクセスできない (403)',
     ],
     _作品页状态码404: [
         '404 not found',
@@ -5016,6 +5016,18 @@ const langText = {
         '這可能會阻止頁面滾動',
         '这可能会阻止页面滚动',
         'ページのスクロールを妨げる可能性があります',
+    ],
+    _动图转换失败的提示: [
+        '动图转换失败，id：{}',
+        '動圖轉換失敗，id：{}',
+        'Ugoira(animation) conversion failed, id: {}',
+        'うごイラの変換に失敗しました、id：{}',
+    ],
+    _作品id无法下载带状态码: [
+        '{} 无法下载，状态码：{}',
+        '{} 無法下載，狀態碼：{}',
+        '{} failed to download, status code: {}',
+        '{} ダウンロードに失敗しました、ステータスコード：{}',
     ],
 };
 
@@ -8413,6 +8425,18 @@ class Tools {
         }
         return false;
     }
+    // 传入作品 id，生成作品页面的超链接
+    /**
+     *
+     * @param id 作品 id
+     * @param artwork true 图像作品； false 小说作品。默认为图像作品
+     * @returns 超链接（A 标签）
+     */
+    static createWorkLink(id, artwork = true) {
+        const idNum = typeof id === 'number' ? id : Number.parseInt(id);
+        const href = `https://www.pixiv.net/${artwork ? 'i' : 'n'}/${idNum}`;
+        return `<a href="${href}" target="_blank">${id}</a>`;
+    }
 }
 Tools.convertThumbURLReg = /img\/(.*)_.*1200/;
 
@@ -8924,21 +8948,22 @@ class InitPageBase {
     }
     // 网络请求状态异常时输出提示
     logErrorStatus(status, id) {
+        const workLink = _Tools__WEBPACK_IMPORTED_MODULE_2__["Tools"].createWorkLink(id);
         switch (status) {
             case 0:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码0'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码0'));
                 break;
             case 400:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码400'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码400'));
                 break;
             case 403:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码403'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码403'));
                 break;
             case 404:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(id + ': ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码404'));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(workLink + ' ' + _Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_作品页状态码404'));
                 break;
             default:
-                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_无权访问', id));
+                _Log__WEBPACK_IMPORTED_MODULE_5__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_0__["lang"].transl('_无权访问', workLink) + `status: ${status}`);
                 break;
         }
     }
@@ -13624,7 +13649,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _config_Config__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../config/Config */ "./src/ts/config/Config.ts");
 /* harmony import */ var _MsgBox__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../MsgBox */ "./src/ts/MsgBox.ts");
 /* harmony import */ var _store_States__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../store/States */ "./src/ts/store/States.ts");
+/* harmony import */ var _Tools__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../Tools */ "./src/ts/Tools.ts");
 // 下载文件，然后发送给浏览器进行保存
+
 
 
 
@@ -13671,7 +13698,7 @@ class Download {
             return this.skipDownload({
                 id: arg.id,
                 reason: 'duplicate',
-            }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_跳过下载因为重复文件', arg.id));
+            }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_跳过下载因为重复文件', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id, arg.data.type !== 3)));
         }
         // 如果是动图，再次检查是否排除了动图
         // 因为有时候用户在抓取时没有排除动图，但是在下载时排除了动图。所以下载时需要再次检查
@@ -13695,7 +13722,8 @@ class Download {
             }
             // 如果获取宽高失败，图片会被视为通过宽高检查
             if (wh.width === 0 || wh.height === 0) {
-                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_获取图片的宽高时出现错误') + arg.id);
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_获取图片的宽高时出现错误') +
+                    _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id));
                 // 图片加载失败可能是请求超时，或者图片不存在。这里无法获取到具体原因，所以不直接返回。
                 // 如果是 404 错误，在 download 方法中可以处理这个问题
                 // 如果是请求超时，则有可能错误的通过了这个图片
@@ -13705,7 +13733,7 @@ class Download {
                 return this.skipDownload({
                     id: arg.id,
                     reason: 'widthHeight',
-                }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为宽高', arg.id));
+                }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为宽高', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id)));
             }
         }
         this.download(arg);
@@ -13720,23 +13748,25 @@ class Download {
     }
     // 当重试达到最大次数时
     afterReTryMax(status, fileId) {
+        const errorMsg = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_作品id无法下载带状态码', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(fileId), status.toString());
         // 404, 500 错误，跳过，不会再尝试下载这个文件（因为没有触发 downloadError 事件，所以不会重试下载）
         if (status === 404 || status === 500) {
-            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(`Error: ${fileId} Code: ${status}`);
+            _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(errorMsg);
             return this.skipDownload({
                 id: fileId,
                 reason: status.toString(),
             });
         }
-        // 状态码为 0 ，可能是系统磁盘空间不足导致的错误，也可能是超时等错误
+        // 状态码为 0，可能是系统磁盘空间不足导致的错误，也可能是代理软件导致的网络错误
+        // 超时也会返回状态码 0
         if (status === 0) {
             // 判断是否是磁盘空间不足。特征是每次重试之间的间隔时间比较短。
-            // 超时的特征是等待时间比较长，可能超过 20 秒
+            // 如果是超时，那么等待时间会比较长，可能超过 20 秒
             const timeLimit = 10000; // 如果从发起请求到进入重试的时间间隔小于这个值，则视为磁盘空间不足的情况
             const result = this.retryInterval.filter((val) => val <= timeLimit);
             // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就认为是磁盘空间不足。
             if (result.length > 9) {
-                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(`Error: ${fileId} Code: ${status}`);
+                _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(errorMsg);
                 const tip = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_状态码为0的错误提示');
                 _Log__WEBPACK_IMPORTED_MODULE_1__["log"].error(tip);
                 _MsgBox__WEBPACK_IMPORTED_MODULE_12__["msgBox"].error(tip);
@@ -13784,7 +13814,7 @@ class Download {
                     this.skipDownload({
                         id: arg.id,
                         reason: 'size',
-                    }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为体积', arg.id));
+                    }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为体积', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id)));
                 }
             }
             if (this.cancel) {
@@ -13794,7 +13824,7 @@ class Download {
             }
             this.setProgressBar(_fileName, event.loaded, event.total);
         });
-        // 文件记载完毕，或者加载出错
+        // 文件加载完毕，或者加载出错
         xhr.addEventListener('loadend', async () => {
             if (this.cancel) {
                 xhr = null;
@@ -13839,8 +13869,8 @@ class Download {
                         }
                     }
                     catch (error) {
-                        const msg = `Convert ugoira error, id ${arg.data.idNum}.`;
-                        // 因为会重试所以不再日志上显示
+                        const msg = _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_动图转换失败的提示', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.data.idNum));
+                        // 因为会重试所以不在日志上显示
                         // log.error(msg, 1)
                         console.error(msg);
                         this.error = true;
@@ -13864,7 +13894,7 @@ class Download {
                     return this.skipDownload({
                         id: arg.id,
                         reason: 'color',
-                    }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为颜色', arg.id));
+                    }, _Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_不保存图片因为颜色', _Tools__WEBPACK_IMPORTED_MODULE_14__["Tools"].createWorkLink(arg.id)));
                 }
             }
             // 向浏览器发送下载任务
@@ -14023,7 +14053,7 @@ class DownloadControl {
             }
             else if (msg.msg === 'download_err') {
                 // 浏览器把文件保存到本地时出错
-                _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_save_file_failed_tip', msg.data.id, msg.err || 'unknown'));
+                _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_save_file_failed_tip', _Tools__WEBPACK_IMPORTED_MODULE_1__["Tools"].createWorkLink(msg.data.id), msg.err || 'unknown'));
                 if (msg.err === 'FILE_FAILED') {
                     _Log__WEBPACK_IMPORTED_MODULE_3__["log"].error(_Lang__WEBPACK_IMPORTED_MODULE_4__["lang"].transl('_FILE_FAILED_tip'));
                 }

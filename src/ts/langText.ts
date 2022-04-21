@@ -381,22 +381,22 @@ const langText = {
     '{} のアクセス権限がありません、作品を無視する。',
   ],
   _作品页状态码0: [
-    '请求的url不可访问',
-    '要求的 url 無法存取',
-    'The requested url is not accessible',
-    '要求された URL にアクセスできません',
+    '请求的url不可访问 (0)',
+    '要求的 url 無法存取 (0)',
+    'The requested url is not accessible (0)',
+    '要求された URL にアクセスできません (0)',
   ],
   _作品页状态码400: [
-    '该作品已被删除',
-    '該作品已被刪除',
-    'The work has been deleted',
-    '作品は削除されました',
+    '该作品已被删除 (400)',
+    '該作品已被刪除 (400)',
+    'The work has been deleted (400)',
+    '作品は削除されました (400)',
   ],
   _作品页状态码403: [
-    '无权访问请求的url 403',
-    '沒有權限存取要求的 url 403',
-    'Have no access to the requested url 403',
-    'リクエストされた url にアクセスできない 403',
+    '无权访问请求的url (403)',
+    '沒有權限存取要求的 url (403)',
+    'Have no access to the requested url (403',
+    'リクエストされた url にアクセスできない (403)',
   ],
   _作品页状态码404: [
     '404 not found',
@@ -2055,6 +2055,18 @@ const langText = {
     '這可能會阻止頁面滾動',
     '这可能会阻止页面滚动',
     'ページのスクロールを妨げる可能性があります',
+  ],
+  _动图转换失败的提示: [
+    '动图转换失败，id：{}',
+    '動圖轉換失敗，id：{}',
+    'Ugoira(animation) conversion failed, id: {}',
+    'うごイラの変換に失敗しました、id：{}',
+  ],
+  _作品id无法下载带状态码: [
+    '{} 无法下载，状态码：{}',
+    '{} 無法下載，狀態碼：{}',
+    '{} failed to download, status code: {}',
+    '{} ダウンロードに失敗しました、ステータスコード：{}',
   ],
 }
 

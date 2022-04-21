@@ -18,6 +18,7 @@ import { Utils } from '../utils/Utils'
 import { Config } from '../config/Config'
 import { msgBox } from '../MsgBox'
 import { states } from '../store/States'
+import { Tools } from '../Tools'
 
 class Download {
   constructor(progressBarIndex: number, data: downloadArgument) {
@@ -60,7 +61,10 @@ class Download {
           id: arg.id,
           reason: 'duplicate',
         },
-        lang.transl('_跳过下载因为重复文件', arg.id)
+        lang.transl(
+          '_跳过下载因为重复文件',
+          Tools.createWorkLink(arg.id, arg.data.type !== 3)
+        )
       )
     }
 
@@ -88,7 +92,10 @@ class Download {
 
       // 如果获取宽高失败，图片会被视为通过宽高检查
       if (wh.width === 0 || wh.height === 0) {
-        log.error(lang.transl('_获取图片的宽高时出现错误') + arg.id)
+        log.error(
+          lang.transl('_获取图片的宽高时出现错误') +
+            Tools.createWorkLink(arg.id)
+        )
         // 图片加载失败可能是请求超时，或者图片不存在。这里无法获取到具体原因，所以不直接返回。
         // 如果是 404 错误，在 download 方法中可以处理这个问题
         // 如果是请求超时，则有可能错误的通过了这个图片
@@ -101,7 +108,7 @@ class Download {
             id: arg.id,
             reason: 'widthHeight',
           },
-          lang.transl('_不保存图片因为宽高', arg.id)
+          lang.transl('_不保存图片因为宽高', Tools.createWorkLink(arg.id))
         )
       }
     }
@@ -120,24 +127,30 @@ class Download {
 
   // 当重试达到最大次数时
   private afterReTryMax(status: number, fileId: string) {
+    const errorMsg = lang.transl(
+      '_作品id无法下载带状态码',
+      Tools.createWorkLink(fileId),
+      status.toString()
+    )
     // 404, 500 错误，跳过，不会再尝试下载这个文件（因为没有触发 downloadError 事件，所以不会重试下载）
     if (status === 404 || status === 500) {
-      log.error(`Error: ${fileId} Code: ${status}`)
+      log.error(errorMsg)
       return this.skipDownload({
         id: fileId,
         reason: status.toString() as '404' | '500',
       })
     }
 
-    // 状态码为 0 ，可能是系统磁盘空间不足导致的错误，也可能是超时等错误
+    // 状态码为 0，可能是系统磁盘空间不足导致的错误，也可能是代理软件导致的网络错误
+    // 超时也会返回状态码 0
     if (status === 0) {
       // 判断是否是磁盘空间不足。特征是每次重试之间的间隔时间比较短。
-      // 超时的特征是等待时间比较长，可能超过 20 秒
+      // 如果是超时，那么等待时间会比较长，可能超过 20 秒
       const timeLimit = 10000 // 如果从发起请求到进入重试的时间间隔小于这个值，则视为磁盘空间不足的情况
       const result = this.retryInterval.filter((val) => val <= timeLimit)
       // 在全部的 10 次请求中，如果有 9 次小于 10 秒，就认为是磁盘空间不足。
       if (result.length > 9) {
-        log.error(`Error: ${fileId} Code: ${status}`)
+        log.error(errorMsg)
         const tip = lang.transl('_状态码为0的错误提示')
         log.error(tip)
         msgBox.error(tip)
@@ -191,7 +204,7 @@ class Download {
               id: arg.id,
               reason: 'size',
             },
-            lang.transl('_不保存图片因为体积', arg.id)
+            lang.transl('_不保存图片因为体积', Tools.createWorkLink(arg.id))
           )
         }
       }
@@ -205,7 +218,7 @@ class Download {
       this.setProgressBar(_fileName, event.loaded, event.total)
     })
 
-    // 文件记载完毕，或者加载出错
+    // 文件加载完毕，或者加载出错
     xhr.addEventListener('loadend', async () => {
       if (this.cancel) {
         xhr = null as any
@@ -232,7 +245,6 @@ class Download {
       } else {
         // 状态码正常
         progressBar.errorColor(this.progressBarIndex, false)
-
         // 需要转换动图的情况
         const convertExt = ['webm', 'gif', 'png']
         const ext = settings.ugoiraSaveAs
@@ -255,8 +267,11 @@ class Download {
               file = await convertUgoira.apng(file, arg.data.ugoiraInfo)
             }
           } catch (error) {
-            const msg = `Convert ugoira error, id ${arg.data.idNum}.`
-            // 因为会重试所以不再日志上显示
+            const msg = lang.transl(
+              '_动图转换失败的提示',
+              Tools.createWorkLink(arg.data.idNum)
+            )
+            // 因为会重试所以不在日志上显示
             // log.error(msg, 1)
             console.error(msg)
 
@@ -286,7 +301,7 @@ class Download {
               id: arg.id,
               reason: 'color',
             },
-            lang.transl('_不保存图片因为颜色', arg.id)
+            lang.transl('_不保存图片因为颜色', Tools.createWorkLink(arg.id))
           )
         }
       }
