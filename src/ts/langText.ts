@@ -2039,10 +2039,16 @@ const langText = {
     '水平方向の画像は幅の2倍を占めます',
   ],
   _该功能默认开启: [
-    '这个功能默认启用。你可以在“其他”选项卡 → “增强”分类里找到它。（可能需要先启用“显示高级设置”）',
-    '這個功能預設啟用。你可以在“其他”選項卡 → “增強”分類裡找到它。（可能需要先啟用“顯示進階設定”）',
-    'This feature is enabled by default. You can find it in the "Other" tab → "Enhancements" category. (May need to enable "Show advanced settings" first)',
-    'この機能はデフォルトで有効になっています。 [その他]タブ→[強化機能]カテゴリにあります。 （最初に[詳細設定を表示する]を有効にする必要がある場合があります）',
+    '这个功能默认启用。',
+    '這個功能預設啟用。',
+    'This feature is enabled by default.',
+    'この機能はデフォルトで有効になっています。',
+  ],
+  _你可以在其他选项卡的增强分类里找到它: [
+    '你可以在“其他”选项卡 → “增强”分类里找到它。（可能需要先启用“显示高级设置”）',
+    '你可以在“其他”選項卡 → “增強”分類裡找到它。（可能需要先啟用“顯示進階設定”）',
+    'You can find it in the "Other" tab → "Enhancements" category. (May need to enable "Show advanced settings" first)',
+    '[その他]タブ→[強化機能]カテゴリにあります。 （最初に[詳細設定を表示する]を有効にする必要がある場合があります）',
   ],
   _使用鼠标滚轮切换作品里的图片: [
     '使用鼠标滚轮切换多图作品里的图片',
