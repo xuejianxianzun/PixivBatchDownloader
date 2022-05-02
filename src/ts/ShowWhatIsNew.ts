@@ -24,7 +24,7 @@ class ShowWhatIsNew {
   ${lang.transl('_显示更大的缩略图')}
   <br>
   <br>
-  ${lang.transl('_该功能默认开启')}
+  ${lang.transl('_你可以在其他选项卡的增强分类里找到它')}
   `
 
   private show() {

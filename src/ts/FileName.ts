@@ -38,7 +38,8 @@ class FileName {
       if (index === 0 && settings.noSerialNo) {
         if (data.pageCount === 1 && settings.noSerialNoForSingleImg) {
           return ''
-        } else if (settings.noSerialNoForMultiImg) {
+        }
+        if (data.pageCount > 1 && settings.noSerialNoForMultiImg) {
           return ''
         }
       }
