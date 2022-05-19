@@ -145,6 +145,10 @@ class InitSearchNovelPage extends InitPageBase {
     if (this.startpageNo > pageCount) {
       EVT.fire('crawlFinish')
       EVT.fire('crawlEmpty')
+
+      if (data.total === 0) {
+        return msgBox.error(lang.transl('_作品总数为0'))
+      }
       return msgBox.error(`${lang.transl('_超出最大页码')} ${pageCount}`)
     }
 

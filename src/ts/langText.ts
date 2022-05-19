@@ -2074,6 +2074,12 @@ const langText = {
     '{} failed to download, status code: {}',
     '{} ダウンロードに失敗しました、ステータスコード：{}',
   ],
+  _作品总数为0: [
+    '作品总数为 0，Pixiv 可能拒绝了此次抓取。请稍后重试。',
+    '作品總數為 0，Pixiv 可能拒絕了此次抓取。請稍後重試。',
+    'The total number of works is 0, Pixiv may have refused this crawl. Please try again later.',
+    '作品の総数は 0 です。 Pixivがこのクロールを拒否した可能性があります。 後でもう一度やり直してください。',
+  ],
 }
 
 export { langText }

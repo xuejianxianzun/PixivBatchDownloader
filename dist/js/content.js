@@ -5035,6 +5035,12 @@ const langText = {
         '{} failed to download, status code: {}',
         '{} ダウンロードに失敗しました、ステータスコード：{}',
     ],
+    _作品总数为0: [
+        '作品总数为 0，Pixiv 可能拒绝了此次抓取。请稍后重试。',
+        '作品總數為 0，Pixiv 可能拒絕了此次抓取。請稍後重試。',
+        'The total number of works is 0, Pixiv may have refused this crawl. Please try again later.',
+        '作品の総数は 0 です。 Pixivがこのクロールを拒否した可能性があります。 後でもう一度やり直してください。',
+    ],
 };
 
 
@@ -10527,6 +10533,9 @@ class InitSearchArtworkPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE
         if (this.startpageNo > pageCount) {
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('crawlFinish');
             _EVT__WEBPACK_IMPORTED_MODULE_5__["EVT"].fire('crawlEmpty');
+            if (data.total === 0) {
+                return _MsgBox__WEBPACK_IMPORTED_MODULE_18__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_作品总数为0'));
+            }
             return _MsgBox__WEBPACK_IMPORTED_MODULE_18__["msgBox"].error(`${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_超出最大页码')} ${pageCount}`);
         }
         if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
@@ -13066,6 +13075,9 @@ class InitSearchNovelPage extends _crawl_InitPageBase__WEBPACK_IMPORTED_MODULE_0
         if (this.startpageNo > pageCount) {
             _EVT__WEBPACK_IMPORTED_MODULE_13__["EVT"].fire('crawlFinish');
             _EVT__WEBPACK_IMPORTED_MODULE_13__["EVT"].fire('crawlEmpty');
+            if (data.total === 0) {
+                return _MsgBox__WEBPACK_IMPORTED_MODULE_14__["msgBox"].error(_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_作品总数为0'));
+            }
             return _MsgBox__WEBPACK_IMPORTED_MODULE_14__["msgBox"].error(`${_Lang__WEBPACK_IMPORTED_MODULE_2__["lang"].transl('_超出最大页码')} ${pageCount}`);
         }
         if (this.crawlNumber === -1 || this.crawlNumber > pageCount) {
