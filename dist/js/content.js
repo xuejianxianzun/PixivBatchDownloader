@@ -5736,6 +5736,8 @@ class PreviewWork {
         this.delayShowTimer = undefined;
         // 延迟隐藏预览区域的定时器
         this.delayHiddenTimer = undefined;
+        // 当用户点击预览图使预览图隐藏时，不再显示这个作品的预览图（切换作品可以解除限制）
+        this.dontShowAgain = false;
         // 是否允许预览区域遮挡作品缩略图
         this.allowOverThumb = true;
         // 当前预览图是否遮挡了作品缩略图
@@ -5801,6 +5803,7 @@ class PreviewWork {
             window.clearTimeout(this.delayHiddenTimer);
             this.overThumb = false;
             this._show = false;
+            this.dontShowAgain = false;
             this.wrap.style.display = 'none';
             // 隐藏 wrap 时，把 img 的 src 设置为空
             // 这样图片会停止加载，避免浪费网络资源
@@ -5817,6 +5820,9 @@ class PreviewWork {
     }
     bindEvents() {
         _MouseOverThumbnail__WEBPACK_IMPORTED_MODULE_2__["mouseOverThumbnail"].onEnter((el, id) => {
+            if (this.dontShowAgain) {
+                return;
+            }
             // 当鼠标进入到不同作品时
             // 隐藏之前的预览图
             // 重置 index
@@ -5871,23 +5877,25 @@ class PreviewWork {
             window.clearTimeout(this.delayHiddenTimer);
         });
         this.wrap.addEventListener('mouseleave', (ev) => {
-            if (this.workEL) {
-                const rect = this.workEL.getBoundingClientRect();
-                console.log(ev.clientX);
-                console.log(ev.clientY);
-                // 鼠标移出预览图时，判断鼠标是否处于缩略图区域内
-                if (ev.clientX > rect.left && ev.clientX < rect.right && ev.clientY > rect.top && ev.clientY < rect.bottom) {
-                    // 如果鼠标没有移出缩略图，则继续显示预览图
-                }
-                else {
-                    // 如果鼠标移出了缩略图，则隐藏预览图
-                    this.show = false;
-                }
+            // 鼠标移出预览图时，判断鼠标是否处于缩略图区域内
+            // 如果鼠标移出了缩略图，则隐藏预览图
+            if (this.workEL && this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY) === false) {
+                this.show = false;
             }
         });
-        this.wrap.addEventListener('click', () => {
+        this.wrap.addEventListener('click', (ev) => {
             this.show = false;
+            // 点击预览图使预览图消失时，如果鼠标仍处于缩略图区域内，则不再显示这个作品的预览图
+            // 当鼠标移出这个作品的缩略图之后取消此限制
+            if (this.workEL && this.mouseInElementArea(this.workEL, ev.clientX, ev.clientY)) {
+                this.dontShowAgain = true;
+            }
         });
+    }
+    // 判断鼠标是否处于某个元素的范围内
+    mouseInElementArea(el, x, y) {
+        const rect = el.getBoundingClientRect();
+        return (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom);
     }
     preload() {
         // 如果下载器正在下载文件，则不预加载
