@@ -606,6 +606,12 @@ const langText = {
     'The number of the work in the series, such as #1 #2',
     'シリーズの中の作品の番号，例え #1 #2',
   ],
+  _命名标记seriesId:[
+    '系列 ID',
+    '系列 ID',
+    'Series ID',
+    'シリーズ ID',
+  ],
   _文件夹标记PTitle: [
     '当前页面的标题',
     '目前頁面的標題',

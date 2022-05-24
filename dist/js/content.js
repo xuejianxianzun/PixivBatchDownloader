@@ -1985,6 +1985,11 @@ class FileName {
                 prefix: '',
                 safe: true,
             },
+            '{series_id}': {
+                value: data.seriesId,
+                prefix: '',
+                safe: true,
+            },
             '{sl}': {
                 value: (_a = data.sl) !== null && _a !== void 0 ? _a : 0,
                 prefix: '',
@@ -3566,6 +3571,12 @@ const langText = {
         '作品在系列中的編號，如 #1 #2',
         'The number of the work in the series, such as #1 #2',
         'シリーズの中の作品の番号，例え #1 #2',
+    ],
+    _命名标记seriesId: [
+        '系列 ID',
+        '系列 ID',
+        'Series ID',
+        'シリーズ ID',
     ],
     _文件夹标记PTitle: [
         '当前页面的标题',
@@ -19100,6 +19111,7 @@ const formHtml = `<form class="settingForm">
       <option value="{px}">{px}</option>
       <option value="{series_title}">{series_title}</option>
       <option value="{series_order}">{series_order}</option>
+      <option value="{series_id}">{series_id}</option>
       <option value="{id_num}">{id_num}</option>
       <option value="{p_num}">{p_num}</option>
       </select>
@@ -19185,6 +19197,9 @@ const formHtml = `<form class="settingForm">
     <br>
     <span class="blue">{series_order}</span>
     <span data-xztext="_命名标记seriesOrder"></span>
+    <br>
+    <span class="blue">{series_id}</span>
+    <span data-xztext="_命名标记seriesId"></span>
     <br>
     <span class="blue">{id_num}</span>
     <span data-xztext="_命名标记id_num"></span>

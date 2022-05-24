@@ -326,6 +326,11 @@ class FileName {
         prefix: '',
         safe: true,
       },
+      '{series_id}': {
+        value: data.seriesId,
+        prefix: '',
+        safe: true,
+      },
       '{sl}': {
         value: data.sl ?? 0,
         prefix: '',
